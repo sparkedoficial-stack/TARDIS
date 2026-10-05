@@ -1,0 +1,1545 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Asistente Inteligente · Chat para Clientes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0a0e17;
+            --bg-surface: rgba(18, 26, 43, 0.75);
+            --bg-surface-hover: rgba(26, 38, 64, 0.85);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --border-glow: rgba(0, 212, 200, 0.25);
+            --primary: #00d4c8;
+            --primary-glow: rgba(0, 212, 200, 0.4);
+            --accent-blue: #3b82f6;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --user-bubble: #1e293b;
+            --bot-bubble: rgba(15, 23, 42, 0.85);
+            --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(0, 212, 200, 0.07) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(59, 130, 246, 0.06) 0%, transparent 45%);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            height: 100vh;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* HEADER */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            background: var(--bg-surface);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-glass);
+            z-index: 20;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .tardis-avatar-container {
+            width: 55px; /* Factor de escala +1.9% (54px * 1.019 = 55.026px) */
+            height: 55px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            flex-shrink: 0;
+            border-radius: 50%;
+            background: rgba(0, 212, 200, 0.06);
+            border: 1px solid rgba(0, 212, 200, 0.25);
+            box-shadow: 0 0 16px var(--primary-glow);
+            cursor: pointer;
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s;
+        }
+
+        .tardis-avatar-container:hover {
+            transform: scale(1.08);
+            box-shadow: 0 0 22px rgba(0, 212, 200, 0.7);
+        }
+
+        #companion-canvas {
+            width: 53px; /* Factor de escala +1.9% (52px * 1.019 = 52.988px) */
+            height: 53px;
+            display: block;
+            transform: translate3d(0, 0, 0);
+            will-change: transform;
+        }
+
+        .welcome-hero-avatar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        #companion-hero-canvas {
+            width: 98px; /* Factor de escala +1.9% (96px * 1.019 = 97.824px) */
+            height: 98px;
+            display: block;
+            filter: drop-shadow(0 0 18px rgba(0, 212, 200, 0.5));
+            transform: translate3d(0, 0, 0);
+            will-change: transform;
+        }
+
+        .brand-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            color: #ffffff;
+        }
+
+        .brand-subtitle {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #10b981;
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+            animation: pulse-dot 2.5s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-actions button {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-glass);
+            color: var(--text-muted);
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .header-actions button:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .header-actions button.active {
+            background: rgba(0, 212, 200, 0.12);
+            border-color: rgba(0, 212, 200, 0.35);
+            color: var(--primary);
+        }
+
+        /* CHAT CONTAINER */
+        main {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            scroll-behavior: smooth;
+        }
+
+        .chat-stream {
+            max-width: 820px;
+            width: 100%;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* BIENVENIDA HERO */
+        .welcome-card {
+            background: var(--bg-surface);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glass);
+            border-radius: 16px;
+            padding: 28px;
+            text-align: center;
+            margin: 20px auto 10px;
+            max-width: 650px;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+        }
+
+        .welcome-card h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #ffffff, #cbd5e1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .welcome-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .suggestion-chips {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .chip {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-glass);
+            color: var(--text-main);
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .chip:hover {
+            background: rgba(0, 212, 200, 0.12);
+            border-color: var(--primary);
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        /* MENSAJES */
+        .message-row {
+            display: flex;
+            gap: 12px;
+            width: 100%;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message-row.user {
+            justify-content: flex-end;
+        }
+
+        .msg-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .msg-avatar.bot {
+            background: linear-gradient(135deg, #00d4c8, #3b82f6);
+            color: #0a0e17;
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        .msg-bubble {
+            max-width: 80%;
+            padding: 14px 18px;
+            border-radius: 16px;
+            line-height: 1.6;
+            font-size: 0.95rem;
+            word-break: break-word;
+        }
+
+        .message-row.user .msg-bubble {
+            background-color: var(--user-bubble);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-bottom-right-radius: 4px;
+            color: #ffffff;
+        }
+
+        .message-row.bot .msg-bubble {
+            background: var(--bot-bubble);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glass);
+            border-bottom-left-radius: 4px;
+            color: var(--text-main);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .msg-bubble pre {
+            background: #060911;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 12px;
+            margin: 10px 0;
+            overflow-x: auto;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+        }
+
+        .msg-bubble code {
+            font-family: var(--font-mono);
+            background: rgba(255, 255, 255, 0.08);
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-size: 0.88em;
+        }
+
+        .msg-bubble pre code {
+            background: transparent;
+            padding: 0;
+        }
+
+        .msg-time {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            margin-top: 5px;
+            display: block;
+            text-align: right;
+        }
+
+        /* TYPING INDICATOR */
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            gap: 6px;
+            padding: 12px 18px;
+            background: var(--bot-bubble);
+            border-radius: 16px;
+            border: 1px solid var(--border-glass);
+            width: fit-content;
+        }
+
+        .typing-dot {
+            width: 7px;
+            height: 7px;
+            background-color: var(--primary);
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1.0); }
+        }
+
+        /* FOOTER INPUT */
+        footer {
+            padding: 16px 24px;
+            background: var(--bg-surface);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-top: 1px solid var(--border-glass);
+        }
+
+        .input-wrapper {
+            max-width: 820px;
+            margin: 0 auto;
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+            background: rgba(10, 14, 23, 0.8);
+            border: 1px solid var(--border-glass);
+            border-radius: 18px;
+            padding: 8px 12px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .input-wrapper:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 16px var(--primary-glow);
+        }
+
+        textarea {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #ffffff;
+            font-family: inherit;
+            font-size: 0.95rem;
+            resize: none;
+            max-height: 150px;
+            line-height: 1.5;
+            padding: 6px 4px;
+        }
+
+        textarea::placeholder {
+            color: #64748b;
+        }
+
+        .send-btn {
+            background: var(--primary);
+            color: #0a0e17;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .send-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 0 14px var(--primary-glow);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+
+        .send-btn svg {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+        }
+
+        .footer-note {
+            text-align: center;
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 8px;
+        }
+
+        @media (max-width: 640px) {
+            header { padding: 12px 16px; }
+            main { padding: 16px; }
+            footer { padding: 12px 16px; }
+            .welcome-card { padding: 20px 16px; }
+            .msg-bubble { max-width: 90%; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-brand">
+            <div class="tardis-avatar-container" id="tardis-avatar-container" title="TARDIS · Haz clic para escuchar saludo o interactuar">
+                <canvas id="companion-canvas" width="147" height="147"></canvas>
+            </div>
+            <div>
+                <div class="brand-title">TARDIS · Asistente Virtual</div>
+                <div class="brand-subtitle">
+                    <span class="status-dot"></span> <span id="companion-status-text">Conectado · Modo Cliente</span>
+                </div>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button id="voice-toggle-btn" class="active" title="Voz de TARDIS (Audio activado)">
+                <svg id="voice-icon-on" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                </svg>
+                <svg id="voice-icon-off" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;">
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                    <line x1="23" y1="9" x2="17" y2="15"></line>
+                    <line x1="17" y1="9" x2="23" y2="15"></line>
+                </svg>
+                <span id="voice-btn-label">Audio ON</span>
+            </button>
+            <button id="clear-btn" title="Limpiar pantalla">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                </svg>
+                Limpiar
+            </button>
+        </div>
+    </header>
+
+    <main id="chat-main">
+        <div class="chat-stream" id="chat-stream">
+            <div class="welcome-card" id="welcome-card">
+                <div class="welcome-hero-avatar">
+                    <canvas id="companion-hero-canvas" width="204" height="204"></canvas>
+                </div>
+                <h2>¡Hola! Soy TARDIS</h2>
+                <p>Un placer, soy TARDIS asistente de inteligencia artificial, mi tarea es ayudarte a explorar las maravillas de la realidad y todas las dimensiones temporales.</p>
+                <div class="suggestion-chips">
+                    <button class="chip" onclick="useSuggestion(this)">¿Cuáles son tus capacidades?</button>
+                    <button class="chip" onclick="useSuggestion(this)">Explícame cómo funciona una red neuronal</button>
+                    <button class="chip" onclick="useSuggestion(this)">Ayúdame a redactar un correo profesional</button>
+                    <button class="chip" onclick="useSuggestion(this)">Cuéntame una curiosidad científica</button>
+                </div>
+            </div>
+
+            <div class="message-row bot" id="typing-row" style="display: none;">
+                <div class="msg-avatar bot">✦</div>
+                <div class="typing-indicator" id="typing-indicator" style="display: flex;">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="input-wrapper">
+            <textarea id="user-input" rows="1" placeholder="Escribe tu mensaje aquí..." autofocus></textarea>
+            <button class="send-btn" id="send-btn" disabled title="Enviar mensaje">
+                <svg viewBox="0 0 24 24">
+                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                </svg>
+            </button>
+        </div>
+        <div class="footer-note">
+            Entorno de interacción seguro para clientes · Respuestas generadas por IA
+        </div>
+    </footer>
+
+    <script>
+        const chatStream = document.getElementById('chat-stream');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        const typingRow = document.getElementById('typing-row');
+        const welcomeCard = document.getElementById('welcome-card');
+        const clearBtn = document.getElementById('clear-btn');
+        const chatMain = document.getElementById('chat-main');
+        const voiceToggleBtn = document.getElementById('voice-toggle-btn');
+        const voiceIconOn = document.getElementById('voice-icon-on');
+        const voiceIconOff = document.getElementById('voice-icon-off');
+        const voiceBtnLabel = document.getElementById('voice-btn-label');
+
+        // Generar un ID de cliente único para la sesión
+        let CLIENT_ID = 'client_web_' + Math.random().toString(36).substring(2, 9);
+        let isFirstTurn = true;
+
+        // =========================================================================
+        // --- MOTOR DE SÍNTESIS DE VOZ Y SALUDO CANÓNICO DE TARDIS ---
+        // =========================================================================
+        const CANONICAL_GREETING = "Un placer, soy TARDIS asistente de inteligencia artificial, mi tarea es ayudarte a explorar las maravillas de la realidad y todas las dimensiones temporales.";
+        let voiceEnabled = true;
+        let initialGreetingPlayed = false;
+        let speechKeepAliveTimer = null;
+
+        function stopSpeaking() {
+            if (speechKeepAliveTimer) {
+                clearInterval(speechKeepAliveTimer);
+                speechKeepAliveTimer = null;
+            }
+            if ('speechSynthesis' in window) {
+                try {
+                    window.speechSynthesis.cancel();
+                } catch (e) {}
+            }
+            if (companionState === 'speaking') {
+                setCompanionState('idle');
+            }
+        }
+
+        function cleanTextForSpeech(text) {
+            if (!text) return '';
+            return text
+                .replace(/```[\s\S]*?```/g, ' Código adjunto. ')
+                .replace(/`([^`]+)`/g, '$1')
+                .replace(/https?:\/\/\S+/g, 'enlace web')
+                .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+                .replace(/[*_#~>]/g, '')
+                .replace(/\n+/g, '. ')
+                .replace(/\s+/g, ' ')
+                .trim();
+        }
+
+        // =========================================================================
+        // --- MOTOR FONÉTICO Y BIOMECÁNICO DE EXPRESIÓN VOCAL SOBERANO ---
+        // =========================================================================
+        const vocalState = {
+            activeWord: '',
+            viseme: 'REST',        // 'A' | 'E' | 'I' | 'O' | 'U' | 'REST'
+            mouthOpen: 0.04,       // Apertura actual (0.0 a 1.0)
+            targetMouthOpen: 0.04, // Apertura objetivo
+            mouthWidth: 1.0,       // Ancho labial actual (0.6 a 1.3)
+            targetMouthWidth: 1.0,
+            smileRatio: 0.16,
+            targetSmileRatio: 0.16,
+            vocalPulse: 0.0,       // Pulso acústico por palabra/sílaba
+            pupilPulse: 0.0,       // Micro-dilatación pupilar
+            browLift: 0.0,         // Elevación expresiva
+            lastWordTime: 0,
+            wordDurationEst: 280,
+            isSpeaking: false
+        };
+
+        function getWordViseme(word) {
+            const w = (word || '').toLowerCase().replace(/[^a-záéíóúüñ]/g, '');
+            if (!w) return { viseme: 'REST', open: 0.04, width: 1.0, smile: 0.16, emphasis: false };
+
+            const hasAccent = /[áéíóú]/.test(word);
+            const isCaps = word.length > 1 && word === word.toUpperCase();
+            const emphasis = hasAccent || isCaps;
+
+            const vowels = w.split('').filter(c => 'aeiouáéíóúü'.includes(c));
+            let dominant = 'a';
+            if (/[aá]/.test(w)) dominant = 'a';
+            else if (/[oó]/.test(w)) dominant = 'o';
+            else if (/[eé]/.test(w)) dominant = 'e';
+            else if (/[uü]/.test(w)) dominant = 'u';
+            else if (/[ií]/.test(w)) dominant = 'i';
+            else if (vowels.length > 0) dominant = vowels[0];
+
+            let viseme = 'A', open = 0.78, width = 1.05, smile = 0.20;
+            if (dominant === 'a') {
+                viseme = 'A';
+                open = emphasis ? 0.92 : 0.80;
+                width = 1.06;
+                smile = 0.22;
+            } else if (dominant === 'o') {
+                viseme = 'O';
+                open = emphasis ? 0.76 : 0.65;
+                width = 0.72;
+                smile = 0.12;
+            } else if (dominant === 'e') {
+                viseme = 'E';
+                open = emphasis ? 0.56 : 0.46;
+                width = 1.28;
+                smile = 0.38;
+            } else if (dominant === 'i') {
+                viseme = 'I';
+                open = emphasis ? 0.38 : 0.32;
+                width = 1.22;
+                smile = 0.42;
+            } else if (dominant === 'u') {
+                viseme = 'U';
+                open = emphasis ? 0.46 : 0.38;
+                width = 0.62;
+                smile = 0.08;
+            }
+
+            return { viseme, open, width, smile, emphasis };
+        }
+
+        function onSpeechWordBoundary(wordText, charIndex) {
+            vocalState.activeWord = wordText;
+            vocalState.lastWordTime = performance.now();
+            const v = getWordViseme(wordText);
+            vocalState.viseme = v.viseme;
+            vocalState.targetMouthOpen = v.open;
+            vocalState.targetMouthWidth = v.width;
+            vocalState.targetSmileRatio = v.smile;
+            vocalState.vocalPulse = v.emphasis ? 1.0 : 0.75;
+            vocalState.pupilPulse = v.emphasis ? 0.22 : 0.14;
+            vocalState.browLift = v.emphasis ? 0.45 : (/[¿?¡!]/.test(wordText) ? 0.6 : 0.1);
+            vocalState.wordDurationEst = Math.max(220, Math.min(650, wordText.length * 65));
+        }
+
+        function speak(text, onDone) {
+            if (!voiceEnabled || !text) {
+                if (onDone) onDone();
+                return;
+            }
+            if (!('speechSynthesis' in window)) {
+                if (onDone) onDone();
+                return;
+            }
+
+            stopSpeaking();
+            const clean = cleanTextForSpeech(text);
+            if (!clean) {
+                if (onDone) onDone();
+                return;
+            }
+
+            try {
+                const utter = new SpeechSynthesisUtterance(clean);
+                utter.rate = 1.04;
+                utter.pitch = 1.05;
+
+                // Selección de voz en español natural
+                const voices = window.speechSynthesis.getVoices();
+                if (voices && voices.length > 0) {
+                    const esVoice = voices.find(v => v.lang && (
+                        v.lang.toLowerCase().startsWith('es-mx') ||
+                        v.lang.toLowerCase().startsWith('es-us') ||
+                        v.lang.toLowerCase().startsWith('es-es') ||
+                        v.lang.toLowerCase().startsWith('es')
+                    ));
+                    if (esVoice) {
+                        utter.voice = esVoice;
+                        utter.lang = esVoice.lang;
+                    } else {
+                        utter.lang = 'es-MX';
+                    }
+                } else {
+                    utter.lang = 'es-MX';
+                }
+
+                utter.onstart = () => {
+                    vocalState.isSpeaking = true;
+                    setCompanionState('speaking');
+                };
+
+                // Sincronización palabra a palabra en tiempo real
+                utter.onboundary = (event) => {
+                    const full = utter.text || clean;
+                    const idx = event.charIndex !== undefined ? event.charIndex : 0;
+                    const slice = full.slice(idx);
+                    const match = slice.match(/^([^\s.,;?!:]+)/);
+                    const word = match ? match[1] : '';
+                    if (word) {
+                        onSpeechWordBoundary(word, idx);
+                    }
+                };
+
+                const resetSpeechState = () => {
+                    vocalState.isSpeaking = false;
+                    vocalState.targetMouthOpen = 0.04;
+                    vocalState.targetMouthWidth = 1.0;
+                    vocalState.targetSmileRatio = 0.16;
+                    vocalState.vocalPulse = 0;
+                    vocalState.pupilPulse = 0;
+                    vocalState.browLift = 0;
+                    if (speechKeepAliveTimer) {
+                        clearInterval(speechKeepAliveTimer);
+                        speechKeepAliveTimer = null;
+                    }
+                    if (companionState === 'speaking') {
+                        setCompanionState('idle');
+                    }
+                };
+
+                utter.onend = () => {
+                    resetSpeechState();
+                    if (onDone) onDone();
+                };
+
+                utter.onerror = (e) => {
+                    resetSpeechState();
+                    if (onDone) onDone();
+                };
+
+                window.speechSynthesis.speak(utter);
+                setCompanionState('speaking');
+
+                // Keepalive para evitar pausas en mensajes largos en Chromium
+                speechKeepAliveTimer = setInterval(() => {
+                    if (window.speechSynthesis && window.speechSynthesis.speaking) {
+                        window.speechSynthesis.resume();
+                    } else {
+                        clearInterval(speechKeepAliveTimer);
+                        speechKeepAliveTimer = null;
+                    }
+                }, 5000);
+            } catch (err) {
+                console.warn("Error en síntesis vocal:", err);
+                vocalState.isSpeaking = false;
+                setCompanionState('idle');
+                if (onDone) onDone();
+            }
+        }
+
+        function triggerInitialGreeting() {
+            if (initialGreetingPlayed) return;
+            initialGreetingPlayed = true;
+            speak(CANONICAL_GREETING);
+        }
+
+        // Configuración de control de voz en el header
+        if (voiceToggleBtn) {
+            voiceToggleBtn.addEventListener('click', () => {
+                voiceEnabled = !voiceEnabled;
+                if (voiceEnabled) {
+                    voiceToggleBtn.classList.add('active');
+                    if (voiceIconOn) voiceIconOn.style.display = 'inline-block';
+                    if (voiceIconOff) voiceIconOff.style.display = 'none';
+                    if (voiceBtnLabel) voiceBtnLabel.textContent = 'Audio ON';
+                    speak("Audio activado.");
+                } else {
+                    stopSpeaking();
+                    voiceToggleBtn.classList.remove('active');
+                    if (voiceIconOn) voiceIconOn.style.display = 'none';
+                    if (voiceIconOff) voiceIconOff.style.display = 'inline-block';
+                    if (voiceBtnLabel) voiceBtnLabel.textContent = 'Audio OFF';
+                }
+            });
+        }
+
+        // Auto-resize de textarea
+        userInput.addEventListener('input', () => {
+            userInput.style.height = 'auto';
+            userInput.style.height = Math.min(userInput.scrollHeight, 150) + 'px';
+            sendBtn.disabled = !userInput.value.trim();
+        });
+
+        // Enviar con Enter (Shift+Enter para salto de línea)
+        userInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        sendBtn.addEventListener('click', sendMessage);
+
+        function useSuggestion(button) {
+            userInput.value = button.textContent;
+            userInput.style.height = 'auto';
+            userInput.style.height = Math.min(userInput.scrollHeight, 150) + 'px';
+            sendBtn.disabled = false;
+            sendMessage();
+        }
+
+        clearBtn.addEventListener('click', async () => {
+            stopSpeaking();
+            const messages = chatStream.querySelectorAll('.message-row:not(#typing-row)');
+            messages.forEach(m => m.remove());
+            if (welcomeCard) welcomeCard.style.display = 'block';
+
+            try {
+                await fetch('/api/client/clear', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ client_id: CLIENT_ID })
+                });
+            } catch (e) {
+                console.warn('Aviso limpiando sesión en servidor:', e);
+            }
+            // Asignar nuevo identificador limpio para la siguiente conversación
+            CLIENT_ID = 'client_web_' + Math.random().toString(36).substring(2, 9);
+            isFirstTurn = true;
+        });
+
+        function formatTime() {
+            const now = new Date();
+            return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function appendMessage(text, role) {
+            if (welcomeCard && welcomeCard.style.display !== 'none') {
+                welcomeCard.style.display = 'none';
+            }
+
+            const row = document.createElement('div');
+            row.className = `message-row ${role}`;
+
+            if (role === 'bot') {
+                const avatar = document.createElement('div');
+                avatar.className = 'msg-avatar bot';
+                avatar.textContent = '✦';
+                row.appendChild(avatar);
+            }
+
+            const bubble = document.createElement('div');
+            bubble.className = 'msg-bubble';
+            
+            // Render básico de texto y código seguro
+            bubble.innerHTML = renderMarkdown(text);
+
+            const timeSpan = document.createElement('span');
+            timeSpan.className = 'msg-time';
+            timeSpan.textContent = formatTime();
+            bubble.appendChild(timeSpan);
+
+            row.appendChild(bubble);
+
+            // Insertar antes de typingRow
+            chatStream.insertBefore(row, typingRow);
+            scrollToBottom();
+        }
+
+        function renderMarkdown(raw) {
+            if (!raw) return '';
+            // Escapar HTML peligroso
+            let esc = raw
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;");
+
+            // Bloques de código ```lenguaje ... ```
+            esc = esc.replace(/```([a-zA-Z0-9_-]*)\n([\s\S]*?)```/g, (match, lang, code) => {
+                return `<pre><code>${code.trim()}</code></pre>`;
+            });
+
+            // Código inline `código`
+            esc = esc.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+            // Negritas **texto**
+            esc = esc.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+            // Cursiva *texto*
+            esc = esc.replace(/\*(.*?)\*/g, '<em>$1</em>');
+
+            // Saltos de línea
+            esc = esc.replace(/\n/g, '<br>');
+
+            return esc;
+        }
+
+        function scrollToBottom() {
+            chatMain.scrollTop = chatMain.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message) return;
+
+            // Mostrar mensaje del usuario
+            appendMessage(message, 'user');
+            userInput.value = '';
+            userInput.style.height = 'auto';
+            sendBtn.disabled = true;
+
+            // Detener locución previa si estaba activa
+            stopSpeaking();
+
+            // Transición del personaje a estado 'pensando'
+            setCompanionState('thinking');
+
+            // Mostrar indicador de escritura
+            typingRow.style.display = 'flex';
+            scrollToBottom();
+
+            try {
+                const response = await fetch('/api/client/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        client_mode: true,
+                        client_id: CLIENT_ID,
+                        direction: 'present',
+                        use_web: true,
+                        use_retro: false,
+                        new_conversation: isFirstTurn
+                    })
+                });
+
+                isFirstTurn = false;
+
+                const data = await response.json();
+                typingRow.style.display = 'none';
+
+                if (data.ok && data.reply) {
+                    appendMessage(data.reply, 'bot');
+                    speak(data.reply);
+                } else if (data.reply) {
+                    appendMessage(data.reply, 'bot');
+                    speak(data.reply);
+                } else {
+                    const fallback = "Lo siento, no pude procesar tu solicitud en este momento. Por favor, intenta de nuevo.";
+                    appendMessage(fallback, 'bot');
+                    speak(fallback);
+                }
+            } catch (error) {
+                typingRow.style.display = 'none';
+                console.error("Error al conectar con el servidor:", error);
+                const errMsg = "No se pudo establecer conexión con el servidor. Verifica que el servicio esté activo.";
+                appendMessage(errMsg, 'bot');
+                speak(errMsg);
+            }
+        }
+
+        // =========================================================================
+        // --- MOTOR VECTORIAL SOBERANO DE TARDIS & SEGUIMIENTO DE MIRADA Y OJOS ---
+        // =========================================================================
+        let eyeLookX = 0, eyeLookY = 0;
+        let targetEyeX = 0, targetEyeY = 0;
+        let blinkVal = 0, isBlinking = false;
+        let nextBlink = performance.now() + 2000;
+        let companionState = 'idle'; // 'idle' | 'thinking' | 'speaking'
+
+        function setCompanionState(st) {
+            companionState = st;
+            const statusText = document.getElementById('companion-status-text');
+            if (statusText) {
+                if (st === 'thinking') statusText.textContent = 'Pensando...';
+                else if (st === 'speaking') statusText.textContent = 'Hablando...';
+                else statusText.textContent = 'Conectado · Modo Cliente';
+            }
+        }
+
+        function updateGaze(clientX, clientY) {
+            const canvas = document.getElementById('companion-canvas');
+            if (!canvas) return;
+            const rect = canvas.getBoundingClientRect();
+            const cx = rect.left + rect.width / 2;
+            const cy = rect.top + rect.height / 2;
+            const dx = clientX - cx;
+            const dy = clientY - cy;
+            const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+            // Seguimiento suave y normalizado hacia el cursor
+            targetEyeX = (dx / dist) * Math.min(1.0, dist / 260);
+            targetEyeY = (dy / dist) * Math.min(1.0, dist / 260);
+        }
+
+        window.addEventListener('mousemove', (e) => {
+            updateGaze(e.clientX, e.clientY);
+        });
+
+        window.addEventListener('touchmove', (e) => {
+            if (e.touches && e.touches.length > 0) {
+                updateGaze(e.touches[0].clientX, e.touches[0].clientY);
+            }
+        }, { passive: true });
+
+        userInput.addEventListener('focus', () => {
+            targetEyeX = 0.05;
+            targetEyeY = 0.85;
+        });
+
+        const avatarContainer = document.getElementById('tardis-avatar-container');
+        if (avatarContainer) {
+            avatarContainer.addEventListener('click', () => {
+                isBlinking = true;
+                blinkVal = 0.1;
+                targetEyeX = (Math.random() - 0.5) * 0.9;
+                targetEyeY = (Math.random() - 0.5) * 0.9;
+                if (!initialGreetingPlayed) {
+                    triggerInitialGreeting();
+                } else if (!window.speechSynthesis || !window.speechSynthesis.speaking) {
+                    speak(CANONICAL_GREETING);
+                }
+            });
+        }
+
+        // Activación inmediata del saludo canónico al iniciar el sistema
+        if ('speechSynthesis' in window) {
+            if (window.speechSynthesis.getVoices().length > 0) {
+                setTimeout(triggerInitialGreeting, 350);
+            } else {
+                window.speechSynthesis.onvoiceschanged = () => {
+                    triggerInitialGreeting();
+                };
+                setTimeout(triggerInitialGreeting, 600);
+            }
+        }
+
+        // Desbloqueo garantizado ante restricciones de autoplay en navegadores móviles/desktop
+        const unlockAudioOnFirstInteraction = () => {
+            if (!initialGreetingPlayed) {
+                triggerInitialGreeting();
+            }
+        };
+        window.addEventListener('click', unlockAudioOnFirstInteraction, { passive: true });
+        window.addEventListener('touchstart', unlockAudioOnFirstInteraction, { passive: true });
+        window.addEventListener('keydown', unlockAudioOnFirstInteraction, { passive: true });
+
+        function renderVectorTriangularCharacter(targetCtx, cx, cy, size, options = {}) {
+            if (!targetCtx || size <= 0) return;
+
+            const time = options.time !== undefined ? options.time : performance.now() * 0.001;
+            const dt = options.dt || 0.016;
+            const state = options.state || 'idle';
+            const eyeX = Math.max(-1, Math.min(1, options.eyeLookX || 0));
+            const eyeY = Math.max(-1, Math.min(1, options.eyeLookY || 0));
+            const bVal = Math.max(0, Math.min(1, options.blinkVal || 0));
+            const glow = options.glow !== undefined ? options.glow : 1.0;
+            const audioLevel = options.audioLevel || 0;
+
+            targetCtx.save();
+
+            // 1. Dinámica de Levitación, Inclinación y Respiración
+            const breathPeriod = 2.4;
+            const floatY = Math.sin(time * 1.6) * (size * 0.024);
+            const rollAngle = Math.sin(time * 0.8) * 0.014;
+            const breathScale = 1.0 + Math.sin(time * breathPeriod) * 0.012;
+
+            targetCtx.translate(cx, cy + floatY);
+            targetCtx.rotate(rollAngle);
+            targetCtx.scale(breathScale, breathScale);
+
+            // 2. Paleta cromática según estado cognitivo
+            let strokePrimary = '#00d4c8';
+            let strokeSecondary = '#e8b64a';
+            let glowColor = 'rgba(0, 212, 200, 0.35)';
+            let irisCoreColor = '#e8b64a';
+            let irisRingColor = '#00d4c8';
+            let reticleSpeed = 0.12;
+
+            if (state === 'thinking') {
+                strokePrimary = '#a855f7';
+                strokeSecondary = '#00f0ff';
+                glowColor = 'rgba(168, 85, 247, 0.5)';
+                irisCoreColor = '#00f0ff';
+                irisRingColor = '#a855f7';
+                reticleSpeed = -0.45;
+            } else if (state === 'speaking') {
+                strokePrimary = '#f59e0b';
+                strokeSecondary = '#00ffcc';
+                glowColor = 'rgba(245, 158, 11, 0.55)';
+                irisCoreColor = '#fef08a';
+                irisRingColor = '#f59e0b';
+                reticleSpeed = 0.28;
+            }
+
+            // 3. Geometría Equilátera (Centroid en 0,0)
+            const sideLen = size;
+            const height = sideLen * (Math.sqrt(3) / 2);
+            const pApex = { x: 0, y: -height * (2 / 3) };
+            const pLeft = { x: -sideLen * 0.5, y: height * (1 / 3) };
+            const pRight = { x: sideLen * 0.5, y: height * (1 / 3) };
+            const pMidLeft = { x: (pApex.x + pLeft.x) * 0.5, y: (pApex.y + pLeft.y) * 0.5 };
+            const pMidRight = { x: (pApex.x + pRight.x) * 0.5, y: (pApex.y + pRight.y) * 0.5 };
+            const pMidBottom = { x: 0, y: height * (1 / 3) };
+
+            // 4. Ondas de Choque acústicas al hablar o procesar
+            if (state === 'speaking' || state === 'thinking') {
+                const waveCount = 3;
+                const speed = state === 'speaking' ? 2.8 : 1.8;
+                for (let w = 0; w < waveCount; w++) {
+                    const wavePhase = (time * speed + w * (1 / waveCount)) % 1.0;
+                    const rMin = size * 0.45;
+                    const rMax = size * 0.95;
+                    const waveR = rMin + wavePhase * (rMax - rMin);
+                    const waveAlpha = (1.0 - wavePhase) * 0.45 * glow;
+
+                    targetCtx.beginPath();
+                    targetCtx.arc(0, 0, waveR, 0, Math.PI * 2);
+                    targetCtx.strokeStyle = strokePrimary;
+                    targetCtx.lineWidth = Math.max(1, size * 0.008 * (1 - wavePhase));
+                    targetCtx.globalAlpha = Math.max(0, waveAlpha);
+                    targetCtx.stroke();
+                    targetCtx.globalAlpha = 1.0;
+                }
+            }
+
+            // 5. Astrolabio Rúnico Rotatorio
+            if (size > 60) {
+                targetCtx.save();
+                const rReticle = size * 0.74;
+                targetCtx.rotate(time * reticleSpeed);
+                targetCtx.beginPath();
+                targetCtx.arc(0, 0, rReticle, 0, Math.PI * 2);
+                targetCtx.strokeStyle = strokeSecondary;
+                targetCtx.lineWidth = Math.max(1.0, size * 0.006);
+                targetCtx.setLineDash([size * 0.04, size * 0.03]);
+                targetCtx.globalAlpha = 0.32 * glow;
+                targetCtx.stroke();
+                targetCtx.setLineDash([]);
+
+                const notches = 12;
+                for (let n = 0; n < notches; n++) {
+                    const ang = (n / notches) * Math.PI * 2;
+                    const nx1 = Math.cos(ang) * (rReticle - size * 0.025);
+                    const ny1 = Math.sin(ang) * (rReticle - size * 0.025);
+                    const nx2 = Math.cos(ang) * (rReticle + size * 0.025);
+                    const ny2 = Math.sin(ang) * (rReticle + size * 0.025);
+                    targetCtx.beginPath();
+                    targetCtx.moveTo(nx1, ny1);
+                    targetCtx.lineTo(nx2, ny2);
+                    targetCtx.strokeStyle = strokePrimary;
+                    targetCtx.lineWidth = Math.max(1.0, size * 0.007);
+                    targetCtx.globalAlpha = (n % 3 === 0 ? 0.75 : 0.35) * glow;
+                    targetCtx.stroke();
+                }
+                targetCtx.restore();
+            }
+
+            // 6. Casco Triangular y Núcleo
+            const hullGrad = targetCtx.createRadialGradient(0, 0, size * 0.05, 0, 0, size * 0.65);
+            hullGrad.addColorStop(0, 'rgba(4, 16, 28, 0.96)');
+            hullGrad.addColorStop(0.55, 'rgba(2, 8, 18, 0.93)');
+            hullGrad.addColorStop(0.85, 'rgba(1, 4, 10, 0.90)');
+            hullGrad.addColorStop(1, 'rgba(0, 1, 4, 0.85)');
+
+            targetCtx.beginPath();
+            targetCtx.moveTo(pApex.x, pApex.y);
+            targetCtx.lineTo(pRight.x, pRight.y);
+            targetCtx.lineTo(pLeft.x, pLeft.y);
+            targetCtx.closePath();
+            targetCtx.fillStyle = hullGrad;
+            targetCtx.fill();
+
+            // 7. Enrejado Interno
+            targetCtx.save();
+            targetCtx.strokeStyle = strokePrimary;
+            targetCtx.lineWidth = Math.max(0.8, size * 0.006);
+            targetCtx.globalAlpha = 0.22 * glow;
+
+            targetCtx.beginPath();
+            targetCtx.moveTo(0, 0); targetCtx.lineTo(pApex.x, pApex.y);
+            targetCtx.moveTo(0, 0); targetCtx.lineTo(pLeft.x, pLeft.y);
+            targetCtx.moveTo(0, 0); targetCtx.lineTo(pRight.x, pRight.y);
+            targetCtx.stroke();
+
+            targetCtx.strokeStyle = strokeSecondary;
+            targetCtx.lineWidth = Math.max(0.8, size * 0.005);
+            targetCtx.globalAlpha = 0.28 * glow;
+            targetCtx.beginPath();
+            targetCtx.moveTo(pMidBottom.x, pMidBottom.y);
+            targetCtx.lineTo(pMidLeft.x, pMidLeft.y);
+            targetCtx.lineTo(pMidRight.x, pMidRight.y);
+            targetCtx.closePath();
+            targetCtx.stroke();
+            targetCtx.restore();
+
+            // 8. Borde Exterior con Resplandor Neón
+            targetCtx.save();
+            targetCtx.shadowColor = strokePrimary;
+            targetCtx.shadowBlur = (state !== 'idle' ? 20 : 10) * glow;
+            targetCtx.strokeStyle = strokePrimary;
+            targetCtx.lineWidth = Math.max(1.8, size * 0.022);
+            targetCtx.beginPath();
+            targetCtx.moveTo(pApex.x, pApex.y);
+            targetCtx.lineTo(pRight.x, pRight.y);
+            targetCtx.lineTo(pLeft.x, pLeft.y);
+            targetCtx.closePath();
+            targetCtx.stroke();
+
+            targetCtx.shadowBlur = 0;
+            targetCtx.strokeStyle = strokeSecondary;
+            targetCtx.lineWidth = Math.max(1.0, size * 0.009);
+            targetCtx.stroke();
+            targetCtx.restore();
+
+            // 9. Nodos en los Vértices
+            const nodeR = Math.max(2.8, size * 0.026);
+            [pApex, pLeft, pRight].forEach((pt, idx) => {
+                targetCtx.beginPath();
+                targetCtx.arc(pt.x, pt.y, nodeR, 0, Math.PI * 2);
+                targetCtx.fillStyle = strokeSecondary;
+                targetCtx.fill();
+
+                targetCtx.beginPath();
+                targetCtx.arc(pt.x, pt.y, nodeR * 0.45, 0, Math.PI * 2);
+                targetCtx.fillStyle = '#ffffff';
+                targetCtx.fill();
+
+                if (state !== 'idle') {
+                    targetCtx.beginPath();
+                    targetCtx.arc(pt.x, pt.y, nodeR * (1.3 + Math.sin(time * 6 + idx) * 0.4), 0, Math.PI * 2);
+                    targetCtx.strokeStyle = strokePrimary;
+                    targetCtx.lineWidth = Math.max(0.8, size * 0.006);
+                    targetCtx.stroke();
+                }
+            });
+
+            // 10. Ojo con Seguimiento de Mirada
+            const eyeCenterY = -size * 0.012;
+            const eyeW = size * 0.34;
+            const eyeH = Math.max(2.2, size * 0.20 * (1 - Math.sin(bVal * Math.PI) * 0.96));
+
+            targetCtx.save();
+            targetCtx.translate(0, eyeCenterY);
+
+            targetCtx.beginPath();
+            targetCtx.moveTo(-eyeW * 0.5, 0);
+            targetCtx.quadraticCurveTo(0, -eyeH * 0.85, eyeW * 0.5, 0);
+            targetCtx.quadraticCurveTo(0, eyeH * 0.85, -eyeW * 0.5, 0);
+            targetCtx.closePath();
+
+            const scleraGrad = targetCtx.createRadialGradient(0, 0, 1, 0, 0, eyeW * 0.5);
+            scleraGrad.addColorStop(0, '#040d16');
+            scleraGrad.addColorStop(0.8, '#01050a');
+            scleraGrad.addColorStop(1, '#000000');
+            targetCtx.fillStyle = scleraGrad;
+            targetCtx.fill();
+
+            targetCtx.strokeStyle = strokePrimary;
+            targetCtx.lineWidth = Math.max(1.2, size * 0.012);
+            targetCtx.stroke();
+
+            if (eyeH > 3.0) {
+                targetCtx.save();
+                targetCtx.clip();
+
+                const irisMaxShiftX = eyeW * 0.22;
+                const irisMaxShiftY = eyeH * 0.26;
+                const irisX = eyeX * irisMaxShiftX;
+                const irisY = eyeY * irisMaxShiftY;
+                const irisR = eyeW * 0.26;
+
+                const irisGrad = targetCtx.createRadialGradient(irisX, irisY, irisR * 0.15, irisX, irisY, irisR);
+                irisGrad.addColorStop(0, irisCoreColor);
+                irisGrad.addColorStop(0.55, irisRingColor);
+                irisGrad.addColorStop(0.88, '#021822');
+                irisGrad.addColorStop(1, '#000a10');
+
+                targetCtx.beginPath();
+                targetCtx.arc(irisX, irisY, irisR, 0, Math.PI * 2);
+                targetCtx.fillStyle = irisGrad;
+                targetCtx.fill();
+
+                targetCtx.save();
+                targetCtx.translate(irisX, irisY);
+                targetCtx.rotate(time * 0.5);
+                targetCtx.strokeStyle = strokePrimary;
+                targetCtx.lineWidth = Math.max(0.6, size * 0.004);
+                targetCtx.globalAlpha = 0.45;
+                for (let a = 0; a < 8; a++) {
+                    const ang = (a / 8) * Math.PI * 2;
+                    targetCtx.beginPath();
+                    targetCtx.moveTo(Math.cos(ang) * (irisR * 0.4), Math.sin(ang) * (irisR * 0.4));
+                    targetCtx.lineTo(Math.cos(ang) * (irisR * 0.95), Math.sin(ang) * (irisR * 0.95));
+                    targetCtx.stroke();
+                }
+                targetCtx.restore();
+
+                let dilation = 0.0;
+                if (state === 'thinking') dilation = 0.22;
+                else if (state === 'speaking') dilation = 0.15 + (Math.sin(time * 10) * 0.05);
+                const pupilR = irisR * (0.38 + dilation);
+
+                targetCtx.beginPath();
+                targetCtx.arc(irisX, irisY, pupilR, 0, Math.PI * 2);
+                targetCtx.fillStyle = '#000000';
+                targetCtx.fill();
+
+                const specX = irisX - irisR * 0.32;
+                const specY = irisY - irisR * 0.32;
+                targetCtx.beginPath();
+                targetCtx.arc(specX, specY, Math.max(1.5, irisR * 0.22), 0, Math.PI * 2);
+                targetCtx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+                targetCtx.fill();
+
+                targetCtx.beginPath();
+                targetCtx.arc(irisX + irisR * 0.28, irisY + irisR * 0.25, Math.max(1.0, irisR * 0.10), 0, Math.PI * 2);
+                targetCtx.fillStyle = 'rgba(255, 255, 255, 0.65)';
+                targetCtx.fill();
+
+                targetCtx.restore();
+            }
+
+            targetCtx.restore();
+
+            // 11. Boca Biomecánica Articulada Palabra a Palabra
+            const curVocal = options.vocal || vocalState;
+            const mouthOpen = (curVocal && curVocal.mouthOpen !== undefined) ? curVocal.mouthOpen : 0.04;
+            const mouthWidth = (curVocal && curVocal.mouthWidth !== undefined) ? curVocal.mouthWidth : 1.0;
+            const smileRatio = (curVocal && curVocal.smileRatio !== undefined) ? curVocal.smileRatio : 0.16;
+            const vocalPulse = (curVocal && curVocal.vocalPulse !== undefined) ? curVocal.vocalPulse : 0.0;
+
+            const mouthY = height * 0.18;
+            const curMouthW = (size * 0.28) * mouthWidth;
+            const leftX = -curMouthW * 0.5;
+            const rightX = curMouthW * 0.5;
+
+            targetCtx.save();
+            if (mouthOpen > 0.08) {
+                // --- BOCA EN PRONUNCIACIÓN / APERTURA VOCALIZADA ---
+                const curOpenH = (size * 0.22) * mouthOpen;
+                const topCurve = curOpenH * 0.40;
+                const bottomCurve = curOpenH * 0.85;
+                const smileOffset = curMouthW * smileRatio;
+
+                // 1. Cavidad Bucal con Profundidad
+                targetCtx.beginPath();
+                targetCtx.moveTo(leftX, mouthY);
+                targetCtx.quadraticCurveTo(0, mouthY - topCurve + smileOffset * 0.2, rightX, mouthY);
+                targetCtx.quadraticCurveTo(0, mouthY + bottomCurve + smileOffset, leftX, mouthY);
+                targetCtx.closePath();
+
+                const mouthGrad = targetCtx.createLinearGradient(0, mouthY - topCurve, 0, mouthY + bottomCurve);
+                mouthGrad.addColorStop(0, 'rgba(4, 12, 22, 0.96)');
+                mouthGrad.addColorStop(0.5, 'rgba(0, 212, 200, 0.25)');
+                mouthGrad.addColorStop(1, 'rgba(2, 6, 14, 0.96)');
+                targetCtx.fillStyle = mouthGrad;
+                targetCtx.fill();
+
+                // Contorno Labial Articulado
+                targetCtx.strokeStyle = strokeSecondary;
+                targetCtx.lineWidth = Math.max(1.2, size * 0.012);
+                targetCtx.lineCap = 'round';
+                targetCtx.lineJoin = 'round';
+                targetCtx.stroke();
+
+                // Resonador acústico interno
+                if (curOpenH > 4) {
+                    targetCtx.beginPath();
+                    targetCtx.moveTo(leftX * 0.65, mouthY - topCurve * 0.3 + 1);
+                    targetCtx.quadraticCurveTo(0, mouthY - topCurve * 0.4 + 2, rightX * 0.65, mouthY - topCurve * 0.3 + 1);
+                    targetCtx.strokeStyle = 'rgba(255, 255, 255, 0.75)';
+                    targetCtx.lineWidth = Math.max(0.8, size * 0.007);
+                    targetCtx.stroke();
+                }
+
+                // Nodos terminales brillantes en comisuras
+                targetCtx.fillStyle = strokePrimary;
+                targetCtx.beginPath();
+                targetCtx.arc(leftX, mouthY, Math.max(1.5, size * 0.012), 0, Math.PI * 2);
+                targetCtx.arc(rightX, mouthY, Math.max(1.5, size * 0.012), 0, Math.PI * 2);
+                targetCtx.fill();
+
+                // Ondas acústicas armónicas sincronizadas con la palabra
+                if (vocalPulse > 0.05) {
+                    targetCtx.beginPath();
+                    const waveAmp = (size * 0.02) * vocalPulse;
+                    for (let x = leftX; x <= rightX; x += 3) {
+                        const norm = x / (curMouthW * 0.5);
+                        const env = 1 - norm * norm;
+                        const wy = mouthY + Math.sin(norm * Math.PI * 2 + time * 24) * waveAmp * env;
+                        if (x === leftX) targetCtx.moveTo(x, wy);
+                        else targetCtx.lineTo(x, wy);
+                    }
+                    targetCtx.strokeStyle = strokePrimary;
+                    targetCtx.lineWidth = Math.max(0.8, size * 0.006);
+                    targetCtx.globalAlpha = vocalPulse * 0.8;
+                    targetCtx.stroke();
+                    targetCtx.globalAlpha = 1.0;
+                }
+            } else {
+                // --- BOCA EN REPOSO / SONRISA SERENA Y FAMILIAR ---
+                const smileOffset = curMouthW * smileRatio;
+                targetCtx.beginPath();
+                targetCtx.moveTo(leftX, mouthY);
+                targetCtx.quadraticCurveTo(0, mouthY + smileOffset, rightX, mouthY);
+                targetCtx.strokeStyle = strokeSecondary;
+                targetCtx.lineWidth = Math.max(1.2, size * 0.01);
+                targetCtx.lineCap = 'round';
+                targetCtx.stroke();
+
+                // Nodos en comisuras
+                targetCtx.fillStyle = strokePrimary;
+                targetCtx.beginPath();
+                targetCtx.arc(leftX, mouthY, Math.max(1.2, size * 0.01), 0, Math.PI * 2);
+                targetCtx.arc(rightX, mouthY, Math.max(1.2, size * 0.01), 0, Math.PI * 2);
+                targetCtx.fill();
+            }
+            targetCtx.restore();
+
+            // 12. Enjambre Orbital
+            const orbitParticleCount = 6;
+            for (let p = 0; p < orbitParticleCount; p++) {
+                const pAngle = (p / orbitParticleCount) * Math.PI * 2 + time * 0.85 * (p % 2 === 0 ? 1 : -0.7);
+                const orbitRadiusX = size * 0.62;
+                const orbitRadiusY = size * 0.38;
+                const px = Math.cos(pAngle) * orbitRadiusX;
+                const py = Math.sin(pAngle) * orbitRadiusY;
+
+                const pSize = Math.max(1.2, size * 0.014);
+                targetCtx.beginPath();
+                targetCtx.arc(px, py, pSize, 0, Math.PI * 2);
+                targetCtx.fillStyle = (p % 2 === 0) ? strokePrimary : strokeSecondary;
+                targetCtx.globalAlpha = (0.55 + 0.45 * Math.sin(pAngle + time * 2)) * glow;
+                targetCtx.fill();
+                targetCtx.globalAlpha = 1.0;
+            }
+
+            targetCtx.restore();
+        }
+
+        // Bucle de animación continuo a 60 FPS
+        function companionAnimationLoop(now) {
+            requestAnimationFrame(companionAnimationLoop);
+            const dt = 0.016;
+
+            // Suavizado exponencial del movimiento ocular
+            eyeLookX += (targetEyeX - eyeLookX) * 0.14;
+            eyeLookY += (targetEyeY - eyeLookY) * 0.14;
+
+            // Ciclo natural de parpadeo
+            if (now > nextBlink) {
+                isBlinking = true;
+                blinkVal += dt * 7.5;
+                if (blinkVal >= 1.0) {
+                    blinkVal = 0;
+                    isBlinking = false;
+                    nextBlink = now + 2400 + Math.random() * 3200;
+                }
+            }
+
+            // Interpolación biomecánica vocal palabra a palabra
+            const nowMs = performance.now();
+            if (vocalState.isSpeaking) {
+                const elapsedSinceWord = nowMs - vocalState.lastWordTime;
+                if (elapsedSinceWord > vocalState.wordDurationEst) {
+                    // Micro-pausa natural entre palabras para respirar y pronunciar con cadencia humana
+                    vocalState.targetMouthOpen = 0.05;
+                    vocalState.targetMouthWidth = 1.0;
+                }
+            } else {
+                vocalState.targetMouthOpen = 0.04;
+                vocalState.targetMouthWidth = 1.0;
+            }
+
+            vocalState.mouthOpen += (vocalState.targetMouthOpen - vocalState.mouthOpen) * Math.min(1, dt * 26);
+            vocalState.mouthWidth += (vocalState.targetMouthWidth - vocalState.mouthWidth) * Math.min(1, dt * 18);
+            vocalState.smileRatio += (vocalState.targetSmileRatio - vocalState.smileRatio) * Math.min(1, dt * 10);
+            vocalState.vocalPulse *= 0.86;
+            vocalState.pupilPulse *= 0.88;
+            vocalState.browLift *= 0.90;
+
+            // Factor exacto de escala soberano del +1.9%
+            const TARDIS_SCALE_FACTOR = 1.019;
+
+            // 1. Renderizar en el Header (permanente durante toda la conversación, escalado +1.9%)
+            const cHeader = document.getElementById('companion-canvas');
+            if (cHeader) {
+                const ctxH = cHeader.getContext('2d');
+                ctxH.clearRect(0, 0, cHeader.width, cHeader.height);
+                renderVectorTriangularCharacter(ctxH, cHeader.width * 0.5, cHeader.height * 0.52, 70 * TARDIS_SCALE_FACTOR, {
+                    time: now * 0.001,
+                    dt: dt,
+                    state: companionState,
+                    eyeLookX: eyeLookX,
+                    eyeLookY: eyeLookY,
+                    blinkVal: blinkVal,
+                    glow: 1.0,
+                    vocal: vocalState
+                });
+            }
+
+            // 2. Renderizar en la tarjeta de bienvenida heroica (si está en pantalla, escalado +1.9%)
+            const cHero = document.getElementById('companion-hero-canvas');
+            if (cHero && cHero.offsetParent !== null) {
+                const ctxHero = cHero.getContext('2d');
+                ctxHero.clearRect(0, 0, cHero.width, cHero.height);
+                renderVectorTriangularCharacter(ctxHero, cHero.width * 0.5, cHero.height * 0.52, 100 * TARDIS_SCALE_FACTOR, {
+                    time: now * 0.001,
+                    dt: dt,
+                    state: companionState,
+                    eyeLookX: eyeLookX,
+                    eyeLookY: eyeLookY,
+                    blinkVal: blinkVal,
+                    glow: 1.2,
+                    vocal: vocalState
+                });
+            }
+        }
+
+        // Iniciar animación
+        requestAnimationFrame(companionAnimationLoop);
+    </script>
+</body>
+</html>
+

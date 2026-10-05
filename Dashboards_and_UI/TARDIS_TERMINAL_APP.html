@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>TARDIS · Terminal Soberana Móvil</title>
+  <meta name="theme-color" content="#030712">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="/manifest.json">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body, html { width: 100%; height: 100%; background: #030712; color: #e2e8f0; font-family: 'JetBrains Mono', monospace, -apple-system, sans-serif; overflow: hidden; }
+    #loader { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding: 20px; text-align: center; }
+    .spinner { width: 64px; height: 64px; border: 4px solid rgba(0, 212, 200, 0.2); border-top-color: #00d4c8; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 24px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    h1 { font-size: 20px; color: #00d4c8; letter-spacing: 2px; margin-bottom: 8px; text-transform: uppercase; }
+    p { font-size: 13px; color: #94a3b8; line-height: 1.5; margin-bottom: 20px; }
+    .status-badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(0, 212, 200, 0.3); border-radius: 20px; font-size: 12px; color: #00d4c8; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #eab308; animation: pulse 1.5s infinite; }
+    .dot.connected { background: #10b981; animation: none; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+    .btn { display: inline-block; padding: 12px 24px; background: #00d4c8; color: #030712; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 14px; border: none; cursor: pointer; transition: all 0.2s; margin-top: 15px; }
+    .btn:active { transform: scale(0.98); background: #0e7490; color: #fff; }
+  </style>
+</head>
+<body>
+  <div id="loader">
+    <div class="spinner"></div>
+    <h1>TARDIS POCKET SOBERANO</h1>
+    <p>Motorola Moto X Play · Nodo Autónomo Zero-URL<br>Sincronizando con el Demonio Nativo Embebido...</p>
+    <div class="status-badge">
+      <span class="dot" id="statusDot"></span>
+      <span id="statusText">Inicializando Cabina Soberana...</span>
+    </div>
+    <br>
+    <button class="btn" id="launchBtn" onclick="manualLaunch()" style="display:none;">Entrar a la Cabina</button>
+  </div>
+
+  <script>
+    let targetUrl = "tardis_pocket.html";
+
+    async function probeAndLaunch() {
+      // 1. Probar demonio local en REDACTED_IP:8080
+      try {
+        const resp = await fetch("http://REDACTED_IP:8080/api/local/status", { signal: AbortSignal.timeout(1200) });
+        if (resp.ok) {
+          targetUrl = "http://REDACTED_IP:8080/tardis_pocket.html";
+          onSuccess("Demonio Local Activo (REDACTED_IP:8080)");
+          return;
+        }
+      } catch (e) {}
+
+      // 2. Probar Hotspot directo TimeMachine (REDACTED_IP:8757)
+      try {
+        const resp = await fetch("http://REDACTED_IP:8757/health", { signal: AbortSignal.timeout(1200) });
+        if (resp.ok) {
+          targetUrl = "http://REDACTED_IP:8757/pocket";
+          onSuccess("Enlace Directo por Hotspot TimeMachine (REDACTED_IP)");
+          return;
+        }
+      } catch (e) {}
+
+      // 3. Fallback a archivo local offline
+      targetUrl = "tardis_pocket.html";
+      onSuccess("Modo Autónomo Local Offline");
+    }
+
+    function onSuccess(msg) {
+      document.getElementById("statusDot").classList.add("connected");
+      document.getElementById("statusText").innerText = msg + " · Cargando...";
+      document.getElementById("launchBtn").style.display = "inline-block";
+      setTimeout(manualLaunch, 400);
+    }
+
+    function manualLaunch() {
+      window.location.href = targetUrl;
+    }
+
+    probeAndLaunch();
+  </script>
+</body>
+</html>

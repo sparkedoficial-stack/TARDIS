@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TARDIS · Fusión Sensorial & Radar RF</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #04070d;
+            --bg-surface: rgba(11, 18, 30, 0.85);
+            --bg-card: rgba(16, 26, 44, 0.75);
+            --border-glass: rgba(0, 212, 200, 0.22);
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --primary: #00d4c8;
+            --primary-glow: rgba(0, 212, 200, 0.35);
+            --accent-blue: #3b82f6;
+            --accent-gold: #f59e0b;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-purple: #a855f7;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-dim: #64748b;
+            --font-sans: 'Outfit', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: var(--bg-base);
+            background-image: 
+                radial-gradient(circle at 10% 10%, rgba(0, 212, 200, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 90% 90%, rgba(59, 130, 246, 0.08) 0%, transparent 45%);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 16px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-glass);
+            flex-wrap: wrap;
+            gap: 14px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .icon-badge {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: rgba(0, 212, 200, 0.12);
+            border: 1px solid var(--primary);
+            box-shadow: 0 0 16px var(--primary-glow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+
+        .header-title h1 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 0.5px;
+        }
+
+        .header-title p {
+            font-size: 12px;
+            color: var(--primary);
+            font-family: var(--font-mono);
+        }
+
+        .header-chips {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .chip {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 11px;
+            font-family: var(--font-mono);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .chip b { color: var(--text-main); }
+        .chip.live { border-color: var(--accent-green); color: var(--accent-green); }
+
+        .btn-action {
+            background: linear-gradient(135deg, rgba(0, 212, 200, 0.2), rgba(59, 130, 246, 0.2));
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            font-family: var(--font-sans);
+            font-weight: 600;
+            font-size: 12px;
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-action:hover {
+            background: var(--primary);
+            color: #040810;
+            box-shadow: 0 0 18px var(--primary-glow);
+        }
+
+        /* GRID LAYOUT */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 980px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+        }
+
+        .panel-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: 14px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+            position: relative;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .panel-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .panel-title span.badge {
+            font-size: 10px;
+            font-family: var(--font-mono);
+            background: rgba(0, 212, 200, 0.15);
+            color: var(--primary);
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid rgba(0, 212, 200, 0.3);
+        }
+
+        /* RADAR CANVAS CONTAINER */
+        .radar-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 12px;
+            border: 1px solid var(--border-subtle);
+            padding: 14px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        canvas#radarCanvas {
+            max-width: 100%;
+            border-radius: 50%;
+            background: radial-gradient(circle, #021118 0%, #01060a 100%);
+            box-shadow: 0 0 24px rgba(0, 212, 200, 0.15);
+        }
+
+        /* METRIC CELLS */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 10px;
+        }
+
+        .metric-cell {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 10px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .metric-cell .lbl {
+            font-size: 10px;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            font-family: var(--font-mono);
+        }
+
+        .metric-cell .val {
+            font-size: 14px;
+            font-weight: 700;
+            font-family: var(--font-mono);
+            color: var(--text-main);
+        }
+
+        /* TOMOGRAPHY 3D ROOM VIEW */
+        .room-box {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .room-visual {
+            height: 120px;
+            border-radius: 8px;
+            border: 1px dashed rgba(0, 212, 200, 0.3);
+            position: relative;
+            background: rgba(0, 212, 200, 0.02);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .room-grid-line {
+            position: absolute;
+            width: 100%;
+            height: 1px;
+            background: rgba(0, 212, 200, 0.1);
+        }
+
+        .host-marker {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--primary);
+            box-shadow: 0 0 12px var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            font-weight: bold;
+            color: #040810;
+        }
+
+        .presence-blip {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--accent-gold);
+            box-shadow: 0 0 10px var(--accent-gold);
+            animation: pulse-blip 1.5s infinite;
+        }
+
+        @keyframes pulse-blip {
+            0% { transform: scale(0.9); opacity: 0.8; }
+            50% { transform: scale(1.3); opacity: 1; }
+            100% { transform: scale(0.9); opacity: 0.8; }
+        }
+
+        /* CAMERA FEED */
+        .camera-box {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .camera-viewport {
+            width: 100%;
+            height: 180px;
+            border-radius: 10px;
+            background: #000;
+            border: 1px solid var(--border-subtle);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .camera-viewport img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .camera-overlay {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid var(--primary);
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 10px;
+            font-family: var(--font-mono);
+            color: var(--primary);
+        }
+
+        /* OSCILLOSCOPE */
+        canvas#waveCanvas {
+            width: 100%;
+            height: 70px;
+            background: #02070e;
+            border-radius: 8px;
+            border: 1px solid var(--border-subtle);
+        }
+
+        /* TOAST */
+        #toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(11, 18, 30, 0.95);
+            border: 1px solid var(--primary);
+            color: #fff;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            display: none;
+            box-shadow: 0 4px 20px rgba(0, 212, 200, 0.3);
+            z-index: 999;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="header-left">
+            <div class="icon-badge">📡</div>
+            <div class="header-title">
+                <h1>Fusión Sensorial & Radar Micro-Doppler</h1>
+                <p>TARDIS · Vigilancia Espacio-Temporal & Presencia Físi-Ca</p>
+            </div>
+        </div>
+
+        <div class="header-chips">
+            <div class="chip live">
+                <span>Estado Radar:</span>
+                <b id="val-presence-state">QUIET</b>
+            </div>
+            <div class="chip">
+                <span>Zona:</span>
+                <b id="val-zone" style="color:var(--primary)">DESK_PROXIMITY</b>
+            </div>
+            <div class="chip">
+                <span>Confianza:</span>
+                <b id="val-confidence">95%</b>
+            </div>
+            <button class="btn-action" onclick="triggerScan()">↻ Escanear RF</button>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <!-- 1. RADAR MICRO-DOPPLER EN VIVO -->
+        <div class="panel-card">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <span>📡 Barrido Radar Micro-Doppler RF</span>
+                    <span class="badge">Wi-Fi 802.11 Pasivo</span>
+                </div>
+                <span style="font-size:11px; font-family:var(--font-mono); color:var(--text-dim);" id="val-bssid-count">1 Baliza</span>
+            </div>
+
+            <div class="radar-box">
+                <canvas id="radarCanvas" width="280" height="280"></canvas>
+            </div>
+
+            <div class="metrics-grid">
+                <div class="metric-cell">
+                    <span class="lbl">Varianza Media</span>
+                    <span class="val" id="val-variance" style="color:var(--accent-green)">0.00 dBm²</span>
+                </div>
+                <div class="metric-cell">
+                    <span class="lbl">Entropía Shannon</span>
+                    <span class="val" id="val-entropy">0.00 bits</span>
+                </div>
+                <div class="metric-cell">
+                    <span class="lbl">Potencia RF</span>
+                    <span class="val" id="val-energy">0.0 µW</span>
+                </div>
+                <div class="metric-cell">
+                    <span class="lbl">Tasa Muestreo</span>
+                    <span class="val" id="val-sample-rate">1.92 Hz</span>
+                </div>
+            </div>
+
+            <p style="font-size:11px; color:var(--text-dim); line-height:1.4;" id="val-summary">
+                Radar activo: monitoreando perturbaciones de señal y atenuación por multitrayectoria corporal.
+            </p>
+        </div>
+
+        <!-- 2. TOMOGRAFÍA RF 3D & PRESENCIA ESPACIAL -->
+        <div class="panel-card">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <span>📐 Tomografía Espacial 3D & Proximidad</span>
+                    <span class="badge">6.0 x 6.0 x 2.8 m</span>
+                </div>
+                <button class="btn-action" style="padding:4px 8px; font-size:11px;" onclick="triggerInquiry()">🗣️ Saludar / Indagar</button>
+            </div>
+
+            <div class="room-box">
+                <div class="room-visual" id="roomVisual">
+                    <div class="room-grid-line" style="top:25%;"></div>
+                    <div class="room-grid-line" style="top:50%;"></div>
+                    <div class="room-grid-line" style="top:75%;"></div>
+                    <div class="host-marker" title="Nodo ASUS TUF (TARDIS)">₪</div>
+                    <div class="presence-blip" style="left:48%; top:42%;" id="blip-user" title="Presencia Detectada"></div>
+                </div>
+
+                <div class="metrics-grid">
+                    <div class="metric-cell">
+                        <span class="lbl">Individuos en Sala</span>
+                        <span class="val" id="val-indiv-count">0</span>
+                    </div>
+                    <div class="metric-cell">
+                        <span class="lbl">Dinámica</span>
+                        <span class="val" id="val-motion-state">REPOSO</span>
+                    </div>
+                    <div class="metric-cell">
+                        <span class="lbl">Último Contacto</span>
+                        <span class="val" id="val-last-seen">&lt; 1 min</span>
+                    </div>
+                    <div class="metric-cell">
+                        <span class="lbl">Estado Afectivo</span>
+                        <span class="val" id="val-emotion" style="color:var(--primary)">Sereno</span>
+                    </div>
+                </div>
+            </div>
+
+            <p style="font-size:11px; color:var(--text-muted); line-height:1.4;">
+                Detección no invasiva por correlación de absorción electromagnética en banda 2.4/5 GHz. No requiere cámaras encendidas para saber si el Arquitecto está presente.
+            </p>
+        </div>
+
+        <!-- 3. VISIÓN ÓPTICA VLM & TERMINAL CAMERAS -->
+        <div class="panel-card">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <span>👁️ Visión VLM & Dispositivos Ópticos</span>
+                    <span class="badge">OpenCV / Ollama VLM</span>
+                </div>
+                <button class="btn-action" style="padding:4px 8px; font-size:11px;" onclick="captureSnapshot()">📸 Capturar Foto</button>
+            </div>
+
+            <div class="camera-box">
+                <div class="camera-viewport">
+                    <img id="camSnapshot" src="/api/terminal_cameras/snapshot/0" alt="Cámara de Terminal" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'100%25\' height=\'100%25\'><rect fill=\'%23050b14\' width=\'100%25\' height=\'100%25\'/><text fill=\'%2300d4c8\' x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' font-family=\'monospace\'>MODO GUARDIÁN ÓPTICO EN ESPERA</text></svg>';">
+                    <div class="camera-overlay">CAM 0 · ACTIVA</div>
+                </div>
+            </div>
+
+            <div class="metrics-grid">
+                <div class="metric-cell">
+                    <span class="lbl">Backend</span>
+                    <span class="val">V4L2 / OpenCV</span>
+                </div>
+                <div class="metric-cell">
+                    <span class="lbl">Motor VLM</span>
+                    <span class="val" style="color:var(--accent-purple)">Qwen2.5-VL</span>
+                </div>
+                <div class="metric-cell">
+                    <span class="lbl">Guardián Pantalla</span>
+                    <span class="val">VLM Guard</span>
+                </div>
+                <div class="metric-cell">
+                    <span class="lbl">Resolución</span>
+                    <span class="val">HD 1280x720</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. ESPECTRO EM, OSCILOSCOPIO & AMBIENTE -->
+        <div class="panel-card">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <span>🌊 Osciloscopio de Ruido & Flujo Causal</span>
+                    <span class="badge">FFT Espectral</span>
+                </div>
+                <span style="font-size:11px; font-family:var(--font-mono); color:var(--accent-gold);" id="val-sidereal">TSL: --:--:--</span>
+            </div>
+
+            <canvas id="waveCanvas" width="400" height="70"></canvas>
+
+            <div class="metrics-grid">
+                <div class="metric-cell">
+                    <span class="lbl">Reloj de Lamport</span>
+                    <span class="val" id="val-lamport">Tick #--</span>
+                </div>
+                <div class="metric-cell">
+                    <span class="lbl">Temp CPU / GPU</span>
+                    <span class="val" id="val-temp" style="color:var(--accent-green)">48°C / 44°C</span>
+                </div>
+                <div class="metric-cell">
+                    <span class="lbl">Bluetooth Nodos</span>
+                    <span class="val">Escaneando</span>
+                </div>
+                <div class="metric-cell">
+                    <span class="lbl">Sintropía Ψ</span>
+                    <span class="val" style="color:var(--primary)">0.9984</span>
+                </div>
+            </div>
+
+            <p style="font-size:11px; color:var(--text-dim); line-height:1.4;">
+                Monitoreo armónico continuo de radiación electromagnética ambiental, reloj sideral y balance térmico del silicio.
+            </p>
+        </div>
+    </div>
+
+    <div id="toast"></div>
+
+    <script>
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.style.display = 'block';
+            setTimeout(() => { t.style.display = 'none'; }, 3000);
+        }
+
+        // DIBUJO DEL RADAR POLAR
+        const rCanvas = document.getElementById('radarCanvas');
+        const rCtx = rCanvas.getContext('2d');
+        let radarAngle = 0;
+
+        function drawRadar() {
+            const w = rCanvas.width;
+            const h = rCanvas.height;
+            const cx = w / 2;
+            const cy = h / 2;
+            const r = w / 2 - 10;
+
+            rCtx.clearRect(0, 0, w, h);
+
+            // Anillos concéntricos
+            rCtx.strokeStyle = 'rgba(0, 212, 200, 0.2)';
+            rCtx.lineWidth = 1;
+            for (let i = 1; i <= 4; i++) {
+                rCtx.beginPath();
+                rCtx.arc(cx, cy, (r / 4) * i, 0, Math.PI * 2);
+                rCtx.stroke();
+            }
+
+            // Ejes de coordenadas
+            rCtx.beginPath();
+            rCtx.moveTo(cx, 10);
+            rCtx.lineTo(cx, h - 10);
+            rCtx.moveTo(10, cy);
+            rCtx.lineTo(w - 10, cy);
+            rCtx.stroke();
+
+            // Haz de barrido rotatorio
+            radarAngle += 0.04;
+            if (radarAngle >= Math.PI * 2) radarAngle = 0;
+
+            rCtx.save();
+            rCtx.translate(cx, cy);
+            rCtx.rotate(radarAngle);
+            const grad = rCtx.createLinearGradient(0, 0, r, 0);
+            grad.addColorStop(0, 'rgba(0, 212, 200, 0.6)');
+            grad.addColorStop(1, 'rgba(0, 212, 200, 0.0)');
+            rCtx.fillStyle = grad;
+            rCtx.beginPath();
+            rCtx.moveTo(0, 0);
+            rCtx.arc(0, 0, r, -0.4, 0);
+            rCtx.closePath();
+            rCtx.fill();
+            rCtx.restore();
+
+            // Blip estático de baliza primaria Wi-Fi
+            const bX = cx + Math.cos(1.2) * (r * 0.65);
+            const bY = cy + Math.sin(1.2) * (r * 0.65);
+            rCtx.fillStyle = '#10b981';
+            rCtx.beginPath();
+            rCtx.arc(bX, bY, 4, 0, Math.PI * 2);
+            rCtx.fill();
+
+            requestAnimationFrame(drawRadar);
+        }
+        drawRadar();
+
+        // OSCILOSCOPIO CANVAS
+        const wCanvas = document.getElementById('waveCanvas');
+        const wCtx = wCanvas.getContext('2d');
+        let wavePhase = 0;
+
+        function drawWave() {
+            const w = wCanvas.width;
+            const h = wCanvas.height;
+            wCtx.fillStyle = 'rgba(2, 7, 14, 0.3)';
+            wCtx.fillRect(0, 0, w, h);
+
+            wCtx.strokeStyle = '#00d4c8';
+            wCtx.lineWidth = 1.5;
+            wCtx.beginPath();
+            wavePhase += 0.05;
+
+            for (let x = 0; x < w; x++) {
+                const y = h / 2 + Math.sin(x * 0.05 + wavePhase) * 15 * Math.cos(x * 0.02) + (Math.random() - 0.5) * 4;
+                if (x === 0) wCtx.moveTo(x, y);
+                else wCtx.lineTo(x, y);
+            }
+            wCtx.stroke();
+            requestAnimationFrame(drawWave);
+        }
+        drawWave();
+
+        // POLLING Y CONSUMO DE APIS
+        async function fetchSensorData() {
+            try {
+                // 1. Radar RF
+                const rRes = await fetch('/api/rf_radar/status');
+                if (rRes.ok) {
+                    const d = await rRes.json();
+                    document.getElementById('val-presence-state').textContent = d.presence_state || 'QUIET';
+                    document.getElementById('val-variance').textContent = (d.mean_variance || 0).toFixed(2) + ' dBm²';
+                    document.getElementById('val-entropy').textContent = (d.shannon_entropy || 0).toFixed(2) + ' bits';
+                    document.getElementById('val-energy').textContent = (d.total_rf_energy_uw || 0).toFixed(1) + ' µW';
+                    document.getElementById('val-sample-rate').textContent = (d.sample_rate_hz || 1.92).toFixed(2) + ' Hz';
+                    document.getElementById('val-bssid-count').textContent = (d.active_bssid_count || 1) + ' Baliza(s)';
+                    if (d.human_readable_summary) {
+                        document.getElementById('val-summary').textContent = d.human_readable_summary;
+                    }
+                    if (d.confidence) {
+                        document.getElementById('val-confidence').textContent = Math.round(d.confidence * 100) + '%';
+                    }
+                }
+            } catch (e) {}
+
+            try {
+                // 2. Tomografía RF 3D
+                const tRes = await fetch('/api/rf_radar/3d');
+                if (tRes.ok) {
+                    const tData = await tRes.json();
+                    if (tData.environment) {
+                        const env = tData.environment;
+                        document.getElementById('val-indiv-count').textContent = env.individuals_count || 0;
+                        document.getElementById('val-motion-state').textContent = env.overall_motion_state || 'QUIET';
+                    }
+                }
+            } catch (e) {}
+
+            try {
+                // 3. Presencia & Proximidad
+                const pRes = await fetch('/api/sensors/presence_status');
+                if (pRes.ok) {
+                    const pData = await pRes.json();
+                    if (pData.presence) {
+                        const p = pData.presence;
+                        const zone = p.proximity_zone || 'IMMEDIATE_DESK';
+                        document.getElementById('val-zone').textContent = zone;
+                        if (p.seconds_since_last_seen < 120) {
+                            document.getElementById('val-last-seen').textContent = Math.round(p.seconds_since_last_seen) + ' seg';
+                        }
+                    }
+                }
+            } catch (e) {}
+
+            try {
+                // 4. Estado de Hardware & Temperatura
+                const hRes = await fetch('/api/hardware/status');
+                if (hRes.ok) {
+                    const hData = await hRes.json();
+                    if (hData.gpu && hData.cpu) {
+                        document.getElementById('val-temp').textContent = `${Math.round(hData.cpu.temp || 45)}°C / ${Math.round(hData.gpu.temp || 43)}°C`;
+                    }
+                }
+            } catch (e) {}
+
+            // Hora Sideral y Lamport
+            const now = new Date();
+            document.getElementById('val-sidereal').textContent = "TSL: " + now.toTimeString().split(' ')[0];
+        }
+
+        async function triggerScan() {
+            showToast("Disparando escaneo profundo del radar RF...");
+            try {
+                const res = await fetch('/api/rf_radar/scan', { method: 'POST' });
+                if (res.ok) {
+                    showToast("Escaneo RF completado con éxito");
+                    fetchSensorData();
+                }
+            } catch (e) {
+                showToast("Error disparando escaneo");
+            }
+        }
+
+        async function triggerInquiry() {
+            showToast("Enviando indagación de presencia a TARDIS...");
+            try {
+                const res = await fetch('/api/sensors/trigger_presence_inquiry', { method: 'POST' });
+                if (res.ok) {
+                    showToast("Indagación de presencia procesada");
+                }
+            } catch (e) {
+                showToast("Fallo al indagar presencia");
+            }
+        }
+
+        function captureSnapshot() {
+            const img = document.getElementById('camSnapshot');
+            img.src = '/api/terminal_cameras/snapshot/0?t=' + Date.now();
+            showToast("Capturando frame óptico...");
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            fetchSensorData();
+            setInterval(fetchSensorData, 5000);
+        });
+    </script>
+</body>
+</html>

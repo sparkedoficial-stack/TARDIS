@@ -1,0 +1,1423 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TARDIS · Gestión Soberana de Clientes y Usuarios</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #06090e;
+            --bg-surface: rgba(14, 22, 36, 0.75);
+            --bg-surface-elevated: rgba(20, 32, 54, 0.85);
+            --border-glass: rgba(0, 212, 200, 0.15);
+            --border-subtle: rgba(255, 255, 255, 0.07);
+            --primary: #00d4c8;
+            --primary-glow: rgba(0, 212, 200, 0.35);
+            --accent-blue: #3b82f6;
+            --accent-gold: #f59e0b;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-dim: #64748b;
+            --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            background-image: 
+                radial-gradient(circle at 10% 10%, rgba(0, 212, 200, 0.08) 0%, transparent 45%),
+                radial-gradient(circle at 90% 90%, rgba(59, 130, 246, 0.07) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(245, 158, 11, 0.03) 0%, transparent 60%);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* HEADER */
+        header {
+            background: var(--bg-surface);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-glass);
+            padding: 16px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .system-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-symbol {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, rgba(0, 212, 200, 0.2), rgba(59, 130, 246, 0.2));
+            border: 1px solid var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 0 16px var(--primary-glow);
+        }
+
+        .system-title h1 {
+            font-size: 17px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: var(--text-main);
+        }
+
+        .system-title p {
+            font-size: 12px;
+            color: var(--primary);
+            font-family: var(--font-mono);
+            letter-spacing: 0.5px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .badge-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-family: var(--font-mono);
+            font-weight: 500;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-subtle);
+        }
+
+        .badge-pill.active {
+            border-color: rgba(16, 185, 129, 0.4);
+            color: var(--accent-green);
+            background: rgba(16, 185, 129, 0.08);
+        }
+
+        .badge-pill.warning {
+            border-color: rgba(245, 158, 11, 0.4);
+            color: var(--accent-gold);
+            background: rgba(245, 158, 11, 0.08);
+        }
+
+        .btn-header-link {
+            padding: 7px 14px;
+            border-radius: 8px;
+            background: rgba(0, 212, 200, 0.12);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-header-link:hover {
+            background: var(--primary);
+            color: #040810;
+            box-shadow: 0 0 16px var(--primary-glow);
+        }
+
+        /* MAIN CONTAINER */
+        main {
+            flex: 1;
+            max-width: 1300px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 28px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* NAVIGATION TABS */
+        .tabs-nav {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-surface);
+            backdrop-filter: blur(12px);
+            padding: 6px;
+            border-radius: 12px;
+            border: 1px solid var(--border-glass);
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-family: var(--font-sans);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .tab-btn.active {
+            color: #040810;
+            background: var(--primary);
+            font-weight: 600;
+            box-shadow: 0 0 14px var(--primary-glow);
+        }
+
+        .tab-count {
+            padding: 2px 7px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-family: var(--font-mono);
+            background: rgba(0, 0, 0, 0.25);
+            color: inherit;
+        }
+
+        .tab-btn.active .tab-count {
+            background: rgba(0, 0, 0, 0.25);
+            color: #040810;
+        }
+
+        /* TAB PANELS */
+        .tab-panel {
+            display: none;
+            flex-direction: column;
+            gap: 22px;
+            animation: fadeIn 0.25s ease-out;
+        }
+
+        .tab-panel.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* CARDS */
+        .card {
+            background: var(--bg-surface);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-glass);
+            border-radius: 14px;
+            padding: 22px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-subtle);
+            padding-bottom: 14px;
+        }
+
+        .card-header h2 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-header p {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 3px;
+        }
+
+        /* FORM ELEMENTS */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            align-items: flex-end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group label {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-input, .form-select {
+            background: rgba(8, 14, 24, 0.85);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 10px 14px;
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-input:focus, .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        .form-select option {
+            background: #0d1522;
+            color: var(--text-main);
+        }
+
+        .btn-action {
+            background: linear-gradient(135deg, #00d4c8, #0284c7);
+            color: #040810;
+            border: none;
+            padding: 11px 20px;
+            border-radius: 8px;
+            font-family: var(--font-sans);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 0 18px var(--primary-glow);
+        }
+
+        .btn-action:active {
+            transform: translateY(0);
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid var(--accent-red);
+            color: var(--accent-red);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-danger:hover {
+            background: var(--accent-red);
+            color: #fff;
+            box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn-copy {
+            background: rgba(0, 212, 200, 0.1);
+            border: 1px solid rgba(0, 212, 200, 0.3);
+            color: var(--primary);
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-family: var(--font-mono);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-copy:hover {
+            background: var(--primary);
+            color: #040810;
+        }
+
+        .btn-qr {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            color: var(--accent-blue);
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-qr:hover {
+            background: var(--accent-blue);
+            color: #fff;
+        }
+
+        /* TABLES & LISTS */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        th {
+            text-align: left;
+            padding: 10px 14px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-dim);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        td {
+            padding: 12px 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            color: var(--text-muted);
+            vertical-align: middle;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+            color: var(--text-main);
+        }
+
+        .mono-val {
+            font-family: var(--font-mono);
+            color: var(--text-main);
+            font-size: 12px;
+        }
+
+        .user-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .user-tag.admin {
+            background: rgba(245, 158, 11, 0.12);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            color: var(--accent-gold);
+            font-weight: 600;
+        }
+
+        .user-tag.client {
+            background: rgba(0, 212, 200, 0.1);
+            border: 1px solid rgba(0, 212, 200, 0.3);
+            color: var(--primary);
+        }
+
+        .user-tag.phone {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: var(--accent-green);
+        }
+
+        .user-tag.device {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: var(--accent-blue);
+        }
+
+        /* CARDS GRID FOR ITEMS */
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 16px;
+        }
+
+        .item-card {
+            background: var(--bg-surface-elevated);
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .item-card:hover {
+            border-color: var(--border-glass);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .item-card.architect-card {
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.05), rgba(14, 22, 36, 0.85));
+            box-shadow: 0 0 16px rgba(245, 158, 11, 0.1);
+        }
+
+        .item-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .item-card-body {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            font-size: 13px;
+        }
+
+        .item-card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-top: 1px solid var(--border-subtle);
+            padding-top: 10px;
+            margin-top: 4px;
+        }
+
+        /* TOAST NOTIFICATION */
+        #toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            background: var(--bg-surface-elevated);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--primary);
+            color: var(--text-main);
+            padding: 12px 18px;
+            border-radius: 8px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+            animation: slideIn 0.25s ease-out;
+        }
+
+        .toast.error {
+            border-color: var(--accent-red);
+            color: #fca5a5;
+        }
+
+        .toast.success {
+            border-color: var(--accent-green);
+            color: #6ee7b7;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* MODAL */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(4, 8, 16, 0.85);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 500;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-surface-elevated);
+            border: 1px solid var(--primary);
+            border-radius: 14px;
+            padding: 24px;
+            max-width: 440px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            box-shadow: 0 0 30px var(--primary-glow);
+            text-align: center;
+        }
+
+        .modal-content h3 {
+            font-size: 17px;
+            color: var(--text-main);
+        }
+
+        .modal-qr-container {
+            width: 260px;
+            height: 260px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #06090e;
+            border-radius: 12px;
+            border: 1px solid var(--border-glass);
+            padding: 12px;
+        }
+
+        .modal-qr-container svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .modal-actions button {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header>
+        <div class="header-left">
+            <div class="system-badge">
+                <div class="logo-symbol">₪</div>
+                <div class="system-title">
+                    <h1>TARDIS · Gestión Soberana</h1>
+                    <p>Clientes & Usuarios Autorizados</p>
+                </div>
+            </div>
+        </div>
+        <div class="header-right">
+            <div id="badge-connection" class="badge-pill active">
+                <span style="width: 7px; height: 7px; border-radius: 50%; background: var(--accent-green); display: inline-block;"></span>
+                <span id="conn-text">Modo Local</span>
+            </div>
+            <div id="badge-total-users" class="badge-pill">
+                <span>Total:</span>
+                <b id="total-authorized-count" style="color:var(--primary)">0</b>
+            </div>
+            <a href="/client" target="_blank" class="btn-header-link">
+                <span>🌐 Portal Cliente</span>
+                <span>↗</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- MAIN -->
+    <main>
+        <!-- NAVIGATION TABS -->
+        <nav class="tabs-nav">
+            <button class="tab-btn active" data-tab="tab-clients">
+                <span>🎟️ Clientes & Invitaciones</span>
+                <span class="tab-count" id="count-invitations">0</span>
+            </button>
+            <button class="tab-btn" data-tab="tab-telegram">
+                <span>📱 Telegram</span>
+                <span class="tab-count" id="count-telegram">0</span>
+            </button>
+            <button class="tab-btn" data-tab="tab-phones">
+                <span>📞 Teléfonos / WhatsApp</span>
+                <span class="tab-count" id="count-phones">0</span>
+            </button>
+            <button class="tab-btn" data-tab="tab-devices">
+                <span>💻 Dispositivos Web & Hardware</span>
+                <span class="tab-count" id="count-devices">0</span>
+            </button>
+        </nav>
+
+        <!-- ================================================================== -->
+        <!-- TAB 1: CLIENTES & INVITACIONES -->
+        <!-- ================================================================== -->
+        <section id="tab-clients" class="tab-panel active">
+            <!-- Formulario Crear Invitación -->
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <h2>⚡ Generar Enlace de Acceso para Cliente</h2>
+                        <p>Crea un enlace aislado con token para que un cliente interactúe únicamente a través del portal (/client) sin acceso administrativo.</p>
+                    </div>
+                </div>
+                <form id="form-create-invitation" class="form-grid" onsubmit="handleCreateInvitation(event)">
+                    <div class="form-group" style="flex: 2;">
+                        <label>Nombre o Nota del Cliente</label>
+                        <input type="text" id="inv-note" class="form-input" placeholder="Ej: Cliente Demo, Dr. López, Soporte VIP" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Vigencia del Token</label>
+                        <select id="inv-hours" class="form-select">
+                            <option value="24">24 Horas</option>
+                            <option value="48" selected>48 Horas</option>
+                            <option value="168">7 Días</option>
+                            <option value="720">30 Días</option>
+                            <option value="0">Permanente (Sin Expiración)</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-action">
+                        <span>Generar Enlace & QR</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Listado de Invitaciones Activas -->
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <h2>Invitaciones y Enlaces Activos</h2>
+                        <p>Tokens de acceso emitidos. Puedes copiar el enlace directo o mostrar el código QR para escanear desde un teléfono.</p>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table id="table-invitations">
+                        <thead>
+                            <tr>
+                                <th>Nota / Cliente</th>
+                                <th>Token</th>
+                                <th>Creación</th>
+                                <th>Expiración</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="list-invitations">
+                            <tr>
+                                <td colspan="6" style="text-align: center; color: var(--text-dim); padding: 20px;">Cargando invitaciones...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================== -->
+        <!-- TAB 2: TELEGRAM -->
+        <!-- ================================================================== -->
+        <section id="tab-telegram" class="tab-panel">
+            <!-- Formulario Agregar Telegram Chat ID -->
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <h2>➕ Autorizar Usuario en Telegram</h2>
+                        <p>Permite que un usuario interactúe con el bot TARDIS en Telegram. Los chats no autorizados son rechazados automáticamente.</p>
+                    </div>
+                </div>
+                <form id="form-add-telegram" class="form-grid" onsubmit="handleAddTelegram(event)">
+                    <div class="form-group" style="flex: 2;">
+                        <label>Telegram Chat ID (Numérico)</label>
+                        <input type="number" id="tg-chat-id" class="form-input" placeholder="Ej: 7514361094" required>
+                    </div>
+                    <button type="submit" class="btn-action">
+                        <span>Autorizar en Telegram</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Listado de Usuarios de Telegram -->
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <h2>Usuarios Autorizados en Telegram</h2>
+                        <p>El Arquitecto posee rango inmutable de administración soberana.</p>
+                    </div>
+                </div>
+                <div class="items-grid" id="list-telegram-chats">
+                    <!-- Cards se insertan dinámicamente -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================== -->
+        <!-- TAB 3: TELÉFONOS / WHATSAPP -->
+        <!-- ================================================================== -->
+        <section id="tab-phones" class="tab-panel">
+            <!-- Formulario Agregar Teléfono -->
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <h2>➕ Autorizar Número Telefónico / WhatsApp</h2>
+                        <p>Autoriza números telefónicos para recepción de llamadas SIP/GSM y mensajería en la pasarela de WhatsApp.</p>
+                    </div>
+                </div>
+                <form id="form-add-phone" class="form-grid" onsubmit="handleAddPhone(event)">
+                    <div class="form-group" style="flex: 2;">
+                        <label>Número Telefónico (con código de país)</label>
+                        <input type="text" id="phone-input" class="form-input" placeholder="Ej: +529842615588" required>
+                    </div>
+                    <button type="submit" class="btn-action">
+                        <span>Autorizar Teléfono</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Listado de Teléfonos Autorizados -->
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <h2>Números Telefónicos Autorizados</h2>
+                        <p>Contactos con acceso a la red de voz y mensajería segura.</p>
+                    </div>
+                </div>
+                <div class="items-grid" id="list-phones">
+                    <!-- Cards se insertan dinámicamente -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================== -->
+        <!-- TAB 4: DISPOSITIVOS WEB & HARDWARE -->
+        <!-- ================================================================== -->
+        <section id="tab-devices" class="tab-panel">
+            <!-- Formulario Registrar Dispositivo -->
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <h2>➕ Registrar Dispositivo o Huella de Hardware</h2>
+                        <p>Los dispositivos registrados conservan acceso permanente e irrevocable según la política DeviceVault.</p>
+                    </div>
+                </div>
+                <form id="form-add-device" class="form-grid" onsubmit="handleAddDevice(event)">
+                    <div class="form-group">
+                        <label>Identificador de Dispositivo o Fingerprint</label>
+                        <input type="text" id="device-id-input" class="form-input" placeholder="Ej: dev_fp_9a8b7c..." required>
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre / Etiqueta del Cliente</label>
+                        <input type="text" id="device-name-input" class="form-input" placeholder="Ej: MacBook Pro Arquitecto, iPhone 16" required>
+                    </div>
+                    <button type="submit" class="btn-action">
+                        <span>Registrar Dispositivo</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Listado de Dispositivos Registrados -->
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <h2>Dispositivos Autorizados en DeviceVault</h2>
+                        <p>Sesiones guardadas y reconocidas sin necesidad de volver a ingresar la clave maestra.</p>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table id="table-devices">
+                        <thead>
+                            <tr>
+                                <th>Dispositivo / Huella</th>
+                                <th>Nombre</th>
+                                <th>IP Anonimizada</th>
+                                <th>Primer Acceso</th>
+                                <th>Última Actividad</th>
+                                <th>Peticiones</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="list-devices">
+                            <tr>
+                                <td colspan="7" style="text-align: center; color: var(--text-dim); padding: 20px;">Cargando dispositivos...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- MODAL QR CODE -->
+    <div id="modal-qr" class="modal-overlay" onclick="closeQrModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h3 id="modal-qr-title">Código QR de Acceso</h3>
+            <div class="modal-qr-container" id="modal-qr-svg">
+                <!-- SVG inyectado dinámicamente -->
+            </div>
+            <p id="modal-qr-desc" style="font-size: 12px; color: var(--text-muted); word-break: break-all; font-family: var(--font-mono);"></p>
+            <div class="modal-actions">
+                <button class="btn-copy" id="modal-btn-copy" onclick="copyModalUrl()">Copiar Enlace</button>
+                <button class="btn-action" onclick="closeQrModalDirect()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST CONTAINER -->
+    <div id="toast-container"></div>
+
+    <script>
+        // ESTADO GLOBAL DE LA APLICACIÓN
+        let systemData = null;
+        let activeModalUrl = "";
+
+        // GESTIÓN DE TOKENS & CABECERAS
+        function getAuthToken() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('key') || urlParams.get('token') || 
+                   localStorage.getItem('gia_auth_token') || 
+                   sessionStorage.getItem('gia_auth_token') || '';
+        }
+
+        function getAuthHeaders() {
+            const token = getAuthToken();
+            const headers = { 'Content-Type': 'application/json' };
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+                headers['X-GIA-Key'] = token;
+            }
+            return headers;
+        }
+
+        // NOTIFICACIONES TOAST
+        function showToast(msg, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            const icon = type === 'error' ? '⚠️' : (type === 'success' ? '✅' : 'ℹ️');
+            toast.innerHTML = `<span>${icon}</span><span>${msg}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(10px)';
+                toast.style.transition = 'all 0.3s';
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        // CONTROL DE PESTAÑAS
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+                btn.classList.add('active');
+                const targetId = btn.getAttribute('data-tab');
+                const panel = document.getElementById(targetId);
+                if (panel) panel.classList.add('active');
+            });
+        });
+
+        // CARGA INICIAL DE DATOS
+        async function fetchSystemUsers() {
+            try {
+                const res = await fetch('/api/admin/users', {
+                    headers: getAuthHeaders()
+                });
+                if (res.status === 401 || res.status === 403) {
+                    showToast('Se requiere autorización maestra para acceder.', 'error');
+                    promptForToken();
+                    return;
+                }
+                const data = await res.json();
+                if (data.ok) {
+                    systemData = data;
+                    renderAll();
+                } else {
+                    showToast(data.error || 'Error al obtener usuarios', 'error');
+                }
+            } catch (err) {
+                console.error('Error fetching users:', err);
+                showToast('Fallo de conexión con el servidor', 'error');
+            }
+        }
+
+        function promptForToken() {
+            const tok = prompt("Introduce el Token Maestro Soberano (GIA_AUTH_TOKEN) para continuar:");
+            if (tok) {
+                localStorage.setItem('gia_auth_token', tok.trim());
+                fetchSystemUsers();
+            }
+        }
+
+        // RENDERIZADO GENERAL
+        function renderAll() {
+            if (!systemData) return;
+
+            // Actualizar contadores en tabs y header
+            const totalTg = systemData.telegram?.total_chats || 0;
+            const totalPhones = systemData.phones?.total_phones || 0;
+            const totalDevs = systemData.devices?.total_devices || 0;
+            const totalInvs = systemData.invitations?.total_invitations || 0;
+            const totalGlobal = totalTg + totalPhones + totalDevs + totalInvs;
+
+            document.getElementById('count-telegram').textContent = totalTg;
+            document.getElementById('count-phones').textContent = totalPhones;
+            document.getElementById('count-devices').textContent = totalDevs;
+            document.getElementById('count-invitations').textContent = totalInvs;
+            document.getElementById('total-authorized-count').textContent = totalGlobal;
+
+            // Conexión
+            const connBadge = document.getElementById('badge-connection');
+            const connText = document.getElementById('conn-text');
+            if (systemData.server_info?.is_local) {
+                connText.textContent = "Conexión Física Local";
+                connBadge.className = "badge-pill active";
+            } else {
+                connText.textContent = "Acceso Remoto Protegido";
+                connBadge.className = "badge-pill warning";
+            }
+
+            renderInvitations();
+            renderTelegram();
+            renderPhones();
+            renderDevices();
+        }
+
+        // RENDERIZADO DE INVITACIONES / CLIENTES
+        function renderInvitations() {
+            const list = document.getElementById('list-invitations');
+            list.innerHTML = '';
+            const invs = systemData.invitations?.invitations || [];
+
+            if (invs.length === 0) {
+                list.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-dim); padding: 20px;">No hay invitaciones activas emitidas.</td></tr>`;
+                return;
+            }
+
+            invs.forEach(inv => {
+                const tr = document.createElement('tr');
+                const isPermanent = !inv.expires_ts || inv.expires_ts === 0;
+                const isExpired = !isPermanent && inv.expires_ts < (Date.now() / 1000);
+                const statusBadge = isExpired 
+                    ? `<span class="user-tag" style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:var(--accent-red)">Expirado</span>`
+                    : `<span class="user-tag client">Activo</span>`;
+
+                tr.innerHTML = `
+                    <td><b>${escapeHtml(inv.note || 'Cliente')}</b></td>
+                    <td><span class="mono-val">${inv.token.substring(0, 10)}...</span></td>
+                    <td><span class="mono-val">${inv.created_iso || '-'}</span></td>
+                    <td><span class="mono-val">${inv.expires_iso || (isPermanent ? 'Permanente' : '-')}</span></td>
+                    <td>${statusBadge}</td>
+                    <td style="display:flex; gap:6px; align-items:center;">
+                        <button class="btn-copy" onclick="copyText('${inv.client_url}')">Copiar Link</button>
+                        <button class="btn-qr" onclick="showQrModal('${inv.client_url}', '${escapeHtml(inv.note)}')">Ver QR</button>
+                        <button class="btn-danger" onclick="revokeInvitation('${inv.token}')">Revocar</button>
+                    </td>
+                `;
+                list.appendChild(tr);
+            });
+        }
+
+        // RENDERIZADO DE TELEGRAM
+        function renderTelegram() {
+            const container = document.getElementById('list-telegram-chats');
+            container.innerHTML = '';
+
+            const adminId = systemData.telegram?.admin_chat_id;
+            const allowed = systemData.telegram?.allowed_chats || [];
+
+            // 1. Tarjeta del Arquitecto
+            if (adminId) {
+                const archCard = document.createElement('div');
+                archCard.className = 'item-card architect-card';
+                archCard.innerHTML = `
+                    <div class="item-card-header">
+                        <span class="user-tag admin">👑 El Arquitecto (Inmutable)</span>
+                        <span class="mono-val" style="color:var(--accent-gold)">ADMIN SOBERANO</span>
+                    </div>
+                    <div class="item-card-body">
+                        <div><b>Chat ID:</b> <span class="mono-val">${adminId}</span></div>
+                        <div style="font-size:12px; color:var(--text-muted);">Facultades de administración absoluta y control de hardware.</div>
+                    </div>
+                    <div class="item-card-footer">
+                        <span style="font-size:11px; color:var(--text-dim);">Protegido de revocación</span>
+                        <button class="btn-copy" onclick="copyText('${adminId}')">Copiar ID</button>
+                    </div>
+                `;
+                container.appendChild(archCard);
+            }
+
+            // 2. Tarjetas de usuarios autorizados
+            allowed.forEach(cid => {
+                if (cid === adminId) return; // Ya mostrado
+                const card = document.createElement('div');
+                card.className = 'item-card';
+                card.innerHTML = `
+                    <div class="item-card-header">
+                        <span class="user-tag client">📱 Usuario Autorizado</span>
+                        <span class="mono-val">Telegram</span>
+                    </div>
+                    <div class="item-card-body">
+                        <div><b>Chat ID:</b> <span class="mono-val">${cid}</span></div>
+                        <div style="font-size:12px; color:var(--text-muted);">Acceso de consulta y diálogo con el LLM soberano.</div>
+                    </div>
+                    <div class="item-card-footer">
+                        <button class="btn-copy" onclick="copyText('${cid}')">Copiar ID</button>
+                        <button class="btn-danger" onclick="revokeTelegramChat(${cid})">Revocar Acceso</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // RENDERIZADO DE TELÉFONOS
+        function renderPhones() {
+            const container = document.getElementById('list-phones');
+            container.innerHTML = '';
+            const phones = systemData.phones?.allowed_phones || [];
+
+            if (phones.length === 0) {
+                container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--text-dim); padding: 20px;">No hay teléfonos autorizados.</div>`;
+                return;
+            }
+
+            phones.forEach(p => {
+                const card = document.createElement('div');
+                card.className = 'item-card';
+                card.innerHTML = `
+                    <div class="item-card-header">
+                        <span class="user-tag phone">📞 Contacto Autorizado</span>
+                        <span class="mono-val">Voz / WhatsApp</span>
+                    </div>
+                    <div class="item-card-body">
+                        <div><b>Número:</b> <span class="mono-val" style="font-size:14px; font-weight:600; color:var(--text-main);">${p}</span></div>
+                        <div style="font-size:12px; color:var(--text-muted);">Canal de comunicación directa de voz y mensajería.</div>
+                    </div>
+                    <div class="item-card-footer">
+                        <button class="btn-copy" onclick="copyText('${p}')">Copiar</button>
+                        <button class="btn-danger" onclick="revokePhone('${p}')">Revocar</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // RENDERIZADO DE DISPOSITIVOS
+        function renderDevices() {
+            const list = document.getElementById('list-devices');
+            list.innerHTML = '';
+            const devs = systemData.devices?.devices || [];
+
+            if (devs.length === 0) {
+                list.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-dim); padding: 20px;">No hay dispositivos registrados en DeviceVault.</td></tr>`;
+                return;
+            }
+
+            devs.forEach(dev => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><span class="mono-val" title="${escapeHtml(dev.device_id)}">${dev.device_id.substring(0, 18)}...</span></td>
+                    <td><b>${escapeHtml(dev.client_name || 'Dispositivo Soberano')}</b></td>
+                    <td><span class="mono-val">${dev.last_ip || dev.first_ip || '-'}</span></td>
+                    <td><span class="mono-val">${dev.first_auth_iso || '-'}</span></td>
+                    <td><span class="mono-val">${dev.last_auth_iso || '-'}</span></td>
+                    <td><span class="mono-val" style="color:var(--primary)">${dev.auth_count || 1}</span></td>
+                    <td>
+                        <button class="btn-danger" onclick="revokeDevice('${dev.device_id}')">Revocar</button>
+                    </td>
+                `;
+                list.appendChild(tr);
+            });
+        }
+
+        // ACCIONES DE FORMULARIO: INVITACIÓN
+        async function handleCreateInvitation(e) {
+            e.preventDefault();
+            const note = document.getElementById('inv-note').value.trim();
+            const hours = parseFloat(document.getElementById('inv-hours').value);
+
+            try {
+                const res = await fetch('/api/admin/users/invitations', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ action: 'create', note: note, expires_hours: hours })
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    showToast('Invitación generada exitosamente', 'success');
+                    document.getElementById('inv-note').value = '';
+                    fetchSystemUsers();
+                    if (data.invitation) {
+                        showQrModal(data.invitation.client_url, note);
+                    }
+                } else {
+                    showToast(data.error || 'Error al crear invitación', 'error');
+                }
+            } catch (err) {
+                showToast('Error de conexión', 'error');
+            }
+        }
+
+        async function revokeInvitation(token) {
+            if (!confirm("¿Revocar este token de invitación? El cliente perderá el acceso.")) return;
+            try {
+                const res = await fetch('/api/admin/users/invitations', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ action: 'revoke', token: token })
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    showToast('Invitación revocada', 'success');
+                    fetchSystemUsers();
+                } else {
+                    showToast(data.error || 'Error al revocar', 'error');
+                }
+            } catch (err) {
+                showToast('Error de conexión', 'error');
+            }
+        }
+
+        // ACCIONES DE FORMULARIO: TELEGRAM
+        async function handleAddTelegram(e) {
+            e.preventDefault();
+            const cid = document.getElementById('tg-chat-id').value.trim();
+            try {
+                const res = await fetch('/api/admin/users/telegram', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ action: 'add', chat_id: cid })
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    showToast(data.message || 'Chat ID autorizado', 'success');
+                    document.getElementById('tg-chat-id').value = '';
+                    fetchSystemUsers();
+                } else {
+                    showToast(data.error || 'Error al autorizar', 'error');
+                }
+            } catch (err) {
+                showToast('Error de conexión', 'error');
+            }
+        }
+
+        async function revokeTelegramChat(cid) {
+            if (!confirm(`¿Revocar acceso en Telegram al Chat ID ${cid}?`)) return;
+            try {
+                const res = await fetch('/api/admin/users/telegram', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ action: 'remove', chat_id: cid })
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    showToast(data.message || 'Chat revocado', 'success');
+                    fetchSystemUsers();
+                } else {
+                    showToast(data.error || 'Error al revocar', 'error');
+                }
+            } catch (err) {
+                showToast('Error de conexión', 'error');
+            }
+        }
+
+        // ACCIONES DE FORMULARIO: TELÉFONO
+        async function handleAddPhone(e) {
+            e.preventDefault();
+            const phone = document.getElementById('phone-input').value.trim();
+            try {
+                const res = await fetch('/api/admin/users/phones', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ action: 'add', phone: phone })
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    showToast(data.message || 'Teléfono autorizado', 'success');
+                    document.getElementById('phone-input').value = '';
+                    fetchSystemUsers();
+                } else {
+                    showToast(data.error || 'Error al autorizar', 'error');
+                }
+            } catch (err) {
+                showToast('Error de conexión', 'error');
+            }
+        }
+
+        async function revokePhone(phone) {
+            if (!confirm(`¿Revocar número telefónico ${phone}?`)) return;
+            try {
+                const res = await fetch('/api/admin/users/phones', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ action: 'remove', phone: phone })
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    showToast(data.message || 'Teléfono revocado', 'success');
+                    fetchSystemUsers();
+                } else {
+                    showToast(data.error || 'Error al revocar', 'error');
+                }
+            } catch (err) {
+                showToast('Error de conexión', 'error');
+            }
+        }
+
+        // ACCIONES DE FORMULARIO: DISPOSITIVOS
+        async function handleAddDevice(e) {
+            e.preventDefault();
+            const devId = document.getElementById('device-id-input').value.trim();
+            const devName = document.getElementById('device-name-input').value.trim();
+            try {
+                const res = await fetch('/api/admin/users/devices', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ action: 'add', device_id: devId, client_name: devName })
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    showToast(data.message || 'Dispositivo registrado', 'success');
+                    document.getElementById('device-id-input').value = '';
+                    document.getElementById('device-name-input').value = '';
+                    fetchSystemUsers();
+                } else {
+                    showToast(data.error || 'Error al registrar', 'error');
+                }
+            } catch (err) {
+                showToast('Error de conexión', 'error');
+            }
+        }
+
+        async function revokeDevice(devId) {
+            if (!confirm(`¿Revocar dispositivo '${devId}'? Perderá el acceso automático.`)) return;
+            try {
+                const res = await fetch('/api/admin/users/devices', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ action: 'revoke', device_id: devId })
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    showToast(data.message || 'Dispositivo revocado', 'success');
+                    fetchSystemUsers();
+                } else {
+                    showToast(data.error || 'Error al revocar', 'error');
+                }
+            } catch (err) {
+                showToast('Error de conexión', 'error');
+            }
+        }
+
+        // MODAL QR & UTILIDADES
+        async function showQrModal(url, title = "Acceso Cliente") {
+            activeModalUrl = url;
+            document.getElementById('modal-qr-title').textContent = `QR: ${title}`;
+            document.getElementById('modal-qr-desc').textContent = url;
+            const container = document.getElementById('modal-qr-svg');
+            container.innerHTML = '<span style="color:var(--text-dim); font-size:12px;">Generando QR...</span>';
+
+            try {
+                const qrRes = await fetch(`/api/admin/users/qr?text=${encodeURIComponent(url)}`, {
+                    headers: getAuthHeaders()
+                });
+                if (qrRes.ok) {
+                    const svgText = await qrRes.text();
+                    container.innerHTML = svgText;
+                } else {
+                    container.innerHTML = '<span style="color:var(--accent-red); font-size:12px;">Error al generar QR</span>';
+                }
+            } catch (err) {
+                container.innerHTML = '<span style="color:var(--accent-red); font-size:12px;">Error de red</span>';
+            }
+
+            document.getElementById('modal-qr').classList.add('active');
+        }
+
+        function closeQrModal(e) {
+            if (e.target.id === 'modal-qr') {
+                document.getElementById('modal-qr').classList.remove('active');
+            }
+        }
+
+        function closeQrModalDirect() {
+            document.getElementById('modal-qr').classList.remove('active');
+        }
+
+        function copyModalUrl() {
+            copyText(activeModalUrl);
+        }
+
+        function copyText(text) {
+            if (!text) return;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Copiado al portapapeles', 'success');
+            }).catch(() => {
+                const el = document.createElement('textarea');
+                el.value = text;
+                document.body.appendChild(el);
+                el.select();
+                document.execCommand('copy');
+                document.body.removeChild(el);
+                showToast('Copiado al portapapeles', 'success');
+            });
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        // INICIALIZACIÓN
+        window.addEventListener('DOMContentLoaded', () => {
+            fetchSystemUsers();
+        });
+    </script>
+</body>
+</html>

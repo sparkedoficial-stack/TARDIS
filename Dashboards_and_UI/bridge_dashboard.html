@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GIA · Puente de Enlace Cuántico &amp; Remoto</title>
+    <style>
+        :root {
+            --bg: #06090e;
+            --panel: #0b111a;
+            --panel-border: #1a2736;
+            --teal: #00d4c8;
+            --gold: #e8b64a;
+            --text: #e2e8f0;
+            --text-dim: #7e8c9f;
+            --purple: #b39ddb;
+            --glow: rgba(0, 212, 200, 0.25);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background-image: 
+                radial-gradient(ellipse at 50% 0%, rgba(0,212,200,0.12) 0%, transparent 60%),
+                radial-gradient(circle at 85% 80%, rgba(232,182,74,0.06) 0%, transparent 50%);
+        }
+        .container {
+            max-width: 780px;
+            width: 100%;
+            background: var(--panel);
+            border: 1px solid var(--panel-border);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px var(--glow);
+            position: relative;
+            overflow: hidden;
+        }
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, var(--teal), var(--gold), var(--purple));
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            border-bottom: 1px solid var(--panel-border);
+            padding-bottom: 16px;
+        }
+        .title {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .title span {
+            color: var(--teal);
+            font-family: monospace;
+            font-size: 14px;
+            padding: 2px 8px;
+            background: rgba(0,212,200,0.12);
+            border: 1px solid var(--teal);
+            border-radius: 4px;
+        }
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            background: rgba(0, 212, 200, 0.15);
+            border: 1px solid var(--teal);
+            color: var(--teal);
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--teal);
+            box-shadow: 0 0 8px var(--teal);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 240px;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+        @media (max-width: 650px) {
+            .grid { grid-template-columns: 1fr; }
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--panel-border);
+            border-radius: 12px;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .field-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-dim);
+            font-weight: 600;
+        }
+        .field-value {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid #1e2c3d;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-family: monospace;
+            font-size: 13px;
+            word-break: break-all;
+        }
+        .field-value a {
+            color: var(--teal);
+            text-decoration: none;
+            flex: 1;
+        }
+        .field-value a:hover { text-decoration: underline; }
+        .btn-copy {
+            background: rgba(0, 212, 200, 0.12);
+            border: 1px solid var(--teal);
+            color: var(--teal);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .btn-copy:hover {
+            background: var(--teal);
+            color: #000;
+        }
+        .qr-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+        }
+        .qr-box img {
+            width: 100%;
+            height: auto;
+            border-radius: 6px;
+        }
+        .qr-caption {
+            color: #111;
+            font-size: 11px;
+            font-weight: 700;
+            margin-top: 8px;
+            text-align: center;
+            letter-spacing: 0.5px;
+        }
+        .instructions {
+            background: rgba(232, 182, 74, 0.04);
+            border: 1px solid rgba(232, 182, 74, 0.2);
+            border-radius: 12px;
+            padding: 18px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .instructions h4 {
+            color: var(--gold);
+            margin-bottom: 8px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .instructions ol {
+            padding-left: 20px;
+            color: var(--text);
+        }
+        .instructions li { margin-bottom: 6px; }
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 11px;
+            color: var(--text-dim);
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="title">
+                🌐 GIA PUENTE DE INTERNET <span>ACTIVO</span>
+            </div>
+            <div class="status-badge">
+                <div class="status-dot"></div>
+                ENLACE SEGURO GLOBAL
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <div>
+                    <div class="field-label">Enlace Remoto Mundial (Con Token de Seguridad):</div>
+                    <div class="field-value">
+                        <a href="https://housewives-lyric-festivals-grow.trycloudflare.com/?key=DiosDelTiempo01" target="_blank" id="authLink">https://housewives-lyric-festivals-grow.trycloudflare.com/?key=DiosDelTiempo01</a>
+                        <button class="btn-copy" onclick="navigator.clipboard.writeText('https://housewives-lyric-festivals-grow.trycloudflare.com/?key=DiosDelTiempo01'); this.innerText='¡Copiado!'; setTimeout(()=>this.innerText='Copiar', 2000)">Copiar</button>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="field-label">URL Base del Servidor (Para App iOS / API):</div>
+                    <div class="field-value">
+                        <span style="color:#fff; flex:1;">https://housewives-lyric-festivals-grow.trycloudflare.com</span>
+                        <button class="btn-copy" onclick="navigator.clipboard.writeText('https://housewives-lyric-festivals-grow.trycloudflare.com'); this.innerText='¡Copiado!'; setTimeout(()=>this.innerText='Copiar', 2000)">Copiar</button>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="field-label">Token Secreto de Acceso:</div>
+                    <div class="field-value">
+                        <span style="color:var(--gold); font-weight:700; flex:1;">DiosDelTiempo01</span>
+                        <button class="btn-copy" onclick="navigator.clipboard.writeText('DiosDelTiempo01'); this.innerText='¡Copiado!'; setTimeout(()=>this.innerText='Copiar', 2000)">Copiar</button>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="field-label">Enlace Local / Red Misma Wi-Fi:</div>
+                    <div class="field-value">
+                        <a href="http://REDACTED_IP:8757/?key=DiosDelTiempo01" target="_blank">http://REDACTED_IP:8757/?key=DiosDelTiempo01</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qr-box">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=260x260&amp;data=https://housewives-lyric-festivals-grow.trycloudflare.com/?key=DiosDelTiempo01" alt="Código QR de Acceso">
+                <div class="qr-caption">📱 ESCANEA CON TU CELULAR</div>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h4>📱 Cómo Conectar tu iPhone / iPad / Android desde Cualquier Lugar:</h4>
+            <ol>
+                <li><strong>Desde el Navegador (Safari / Chrome):</strong> Escanea el código QR de arriba o abre el <em>Enlace Remoto Mundial</em> en tu teléfono. Podrás chatear, ver sensores y usar la interfaz OMNI en cualquier red móvil.</li>
+                <li><strong>Desde la App Nativa iOS de GIA:</strong> En los Ajustes de la App, coloca en <em>URL del Servidor</em>: <code style="color:var(--teal)">https://housewives-lyric-festivals-grow.trycloudflare.com</code> y en <em>Token</em>: <code style="color:var(--gold)">DiosDelTiempo01</code>.</li>
+                <li><strong>Instalar como App (PWA):</strong> En Safari en tu iPhone, pulsa el botón Compartir (el ícono de flecha hacia arriba) y selecciona <em>"Agregar a pantalla de inicio"</em>.</li>
+            </ol>
+        </div>
+
+        <div class="footer">
+            SISTEMA GODWORKS · GIA V26 ARCHITECT · MODELO: dolphin3:latest · ACTUALIZADO: 2026-09-13 13:12:49
+        </div>
+    </div>
+</body>
+</html>

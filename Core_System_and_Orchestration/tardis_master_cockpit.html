@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TARDIS · Cabina de Mando Soberana</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #04070d;
+            --bg-surface: rgba(11, 18, 30, 0.85);
+            --bg-surface-card: rgba(16, 26, 44, 0.75);
+            --bg-surface-elevated: rgba(22, 36, 62, 0.85);
+            --border-glass: rgba(0, 212, 200, 0.2);
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --primary: #00d4c8;
+            --primary-glow: rgba(0, 212, 200, 0.4);
+            --accent-blue: #3b82f6;
+            --accent-gold: #f59e0b;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-purple: #a855f7;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-dim: #64748b;
+            --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            background-image: 
+                radial-gradient(circle at 10% 10%, rgba(0, 212, 200, 0.09) 0%, transparent 45%),
+                radial-gradient(circle at 90% 90%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(245, 158, 11, 0.04) 0%, transparent 60%);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* HEADER */
+        header {
+            background: var(--bg-surface);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-bottom: 1px solid var(--border-glass);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 100;
+            flex-shrink: 0;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .hub-logo {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, rgba(0, 212, 200, 0.25), rgba(59, 130, 246, 0.25));
+            border: 1px solid var(--primary);
+            box-shadow: 0 0 18px var(--primary-glow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .hub-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .hub-logo-fallback {
+            font-size: 22px;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .hub-title h1 {
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .hub-title p {
+            font-size: 11px;
+            color: var(--primary);
+            font-family: var(--font-mono);
+            letter-spacing: 0.5px;
+        }
+
+        /* TELEMETRY BAR IN HEADER */
+        .header-telemetry {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            overflow-x: auto;
+        }
+
+        .tele-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 10px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-subtle);
+            font-size: 11px;
+            font-family: var(--font-mono);
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        .tele-chip b {
+            color: var(--text-main);
+        }
+
+        .tele-chip.highlight {
+            border-color: rgba(0, 212, 200, 0.3);
+            color: var(--primary);
+        }
+
+        .tele-chip.active-green {
+            border-color: rgba(16, 185, 129, 0.4);
+            color: var(--accent-green);
+        }
+
+        /* MODE TOGGLES */
+        .view-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-view-toggle {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-muted);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-family: var(--font-sans);
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-view-toggle:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
+        }
+
+        .btn-view-toggle.active {
+            background: var(--primary);
+            color: #040810;
+            border-color: var(--primary);
+            box-shadow: 0 0 14px var(--primary-glow);
+        }
+
+        /* MAIN BODY LAYOUT */
+        .workspace {
+            flex: 1;
+            display: flex;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* SUBSYSTEM NAVIGATION SIDEBAR */
+        aside.subsystem-nav {
+            width: 280px;
+            background: var(--bg-surface);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--border-glass);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            overflow-y: auto;
+            transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .nav-section-title {
+            padding: 14px 18px 6px 18px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-dim);
+            font-family: var(--font-mono);
+        }
+
+        .subsystem-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding: 6px 12px;
+        }
+
+        .subsystem-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            border-radius: 10px;
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            text-align: left;
+            width: 100%;
+        }
+
+        .subsystem-item:hover {
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-main);
+        }
+
+        .subsystem-item.active {
+            background: rgba(0, 212, 200, 0.12);
+            border-color: var(--primary);
+            color: var(--primary);
+            box-shadow: 0 0 14px rgba(0, 212, 200, 0.15);
+        }
+
+        .item-icon-text {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .item-icon {
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+        }
+
+        .subsystem-badge {
+            font-size: 10px;
+            font-family: var(--font-mono);
+            padding: 2px 6px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-dim);
+        }
+
+        .subsystem-item.active .subsystem-badge {
+            background: rgba(0, 212, 200, 0.2);
+            color: var(--primary);
+        }
+
+        /* CONTENT VIEWPORT */
+        .content-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            background: #06090e;
+        }
+
+        /* 1. OVERVIEW MATRIX MODE */
+        .matrix-grid-view {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 20px;
+            align-content: start;
+        }
+
+        .matrix-card {
+            background: var(--bg-surface-card);
+            border: 1px solid var(--border-glass);
+            border-radius: 14px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            position: relative;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            backdrop-filter: blur(14px);
+        }
+
+        .matrix-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(0, 212, 200, 0.15);
+        }
+
+        .card-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-label-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: rgba(0, 212, 200, 0.1);
+            border: 1px solid rgba(0, 212, 200, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: var(--primary);
+        }
+
+        .card-title h3 {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .card-title span {
+            font-size: 11px;
+            color: var(--text-dim);
+            font-family: var(--font-mono);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-green);
+            box-shadow: 0 0 10px var(--accent-green);
+        }
+
+        .card-body-metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .metric-cell {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .metric-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            font-family: var(--font-mono);
+        }
+
+        .metric-value {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-main);
+            font-family: var(--font-mono);
+        }
+
+        .card-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .card-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: auto;
+            padding-top: 6px;
+        }
+
+        .btn-launch {
+            flex: 1;
+            background: linear-gradient(135deg, rgba(0, 212, 200, 0.15), rgba(59, 130, 246, 0.15));
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-launch:hover {
+            background: var(--primary);
+            color: #040810;
+            box-shadow: 0 0 16px var(--primary-glow);
+        }
+
+        .btn-external {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-muted);
+            padding: 8px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-external:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: var(--text-main);
+        }
+
+        /* 2. EMBEDDED VIEWPORT MODE */
+        .embedded-viewport-container {
+            flex: 1;
+            display: none;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .viewport-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 16px;
+            background: rgba(14, 22, 36, 0.9);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .viewport-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+        }
+
+        .viewport-info b {
+            color: var(--primary);
+        }
+
+        .viewport-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .viewport-iframe {
+            flex: 1;
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: #04070d;
+        }
+
+        /* TOAST NOTIFICATION */
+        #hub-toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .hub-toast {
+            background: var(--bg-surface-elevated);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--primary);
+            color: var(--text-main);
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+            animation: slideIn 0.25s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header>
+        <div class="header-brand">
+            <div class="hub-logo">
+                <img src="/tardis-master-hub-icon.png" alt="TARDIS Logo" onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='flex';">
+                <div id="logo-fallback" class="hub-logo-fallback" style="display:none;">₪</div>
+            </div>
+            <div class="hub-title">
+                <h1>TARDIS · Cabina de Mando Soberana</h1>
+                <p>Ecosistema Generalizado de Inferencia & Telemetría</p>
+            </div>
+        </div>
+
+        <div class="header-telemetry">
+            <div class="tele-chip highlight">
+                <span>RAM:</span>
+                <b>32 GB (28 GB mlock)</b>
+            </div>
+            <div class="tele-chip">
+                <span>Contexto:</span>
+                <b style="color:var(--primary)">32,768 (32K)</b>
+            </div>
+            <div class="tele-chip">
+                <span>CPU:</span>
+                <b>16 Hilos</b>
+            </div>
+            <div class="tele-chip">
+                <span>GPU:</span>
+                <b>RTX 3050 4GB</b>
+            </div>
+            <div class="tele-chip active-green" id="tele-presence">
+                <span>Presencia:</span>
+                <b id="val-presence">Detectando...</b>
+            </div>
+            <div class="tele-chip" id="tele-tunnel">
+                <span>Túnel:</span>
+                <b id="val-tunnel" style="color:var(--accent-green)">En Línea</b>
+            </div>
+        </div>
+
+        <div class="view-controls">
+            <button class="btn-view-toggle active" id="btn-mode-matrix" onclick="switchViewMode('matrix')">
+                <span>🎛️ Matriz General</span>
+            </button>
+            <button class="btn-view-toggle" id="btn-mode-viewport" onclick="switchViewMode('viewport')">
+                <span>🖥️ Vista Embebida</span>
+            </button>
+            <button class="btn-view-toggle" onclick="toggleFullscreen()" title="Pantalla Completa (F11)">
+                <span>⛶</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- WORKSPACE -->
+    <div class="workspace">
+        <!-- SIDEBAR NAVIGATION -->
+        <aside class="subsystem-nav">
+            <div class="nav-section-title">Subsistemas Principales</div>
+            <div class="subsystem-list">
+                <button class="subsystem-item active" onclick="selectSubsystem('chat', '/', '🌌 Cabina Central (Chat & Agente Autónomo)')">
+                    <div class="item-icon-text">
+                        <span class="item-icon">🌌</span>
+                        <span>Cabina Central (Chat)</span>
+                    </div>
+                    <span class="subsystem-badge">Principal</span>
+                </button>
+                <button class="subsystem-item" onclick="selectSubsystem('users', '/users', '👥 Gestión de Clientes & Usuarios')">
+                    <div class="item-icon-text">
+                        <span class="item-icon">👥</span>
+                        <span>Gestión Usuarios & Clientes</span>
+                    </div>
+                    <span class="subsystem-badge">Nuevo</span>
+                </button>
+                <button class="subsystem-item" onclick="selectSubsystem('client', '/client', '🎟️ Portal Aislado para Clientes')">
+                    <div class="item-icon-text">
+                        <span class="item-icon">🎟️</span>
+                        <span>Portal de Cliente</span>
+                    </div>
+                    <span class="subsystem-badge">Público</span>
+                </button>
+                <button class="subsystem-item" onclick="selectSubsystem('boveda', '/boveda', '📚 Bóveda Akáshica & Memoria Offline')">
+                    <div class="item-icon-text">
+                        <span class="item-icon">📚</span>
+                        <span>Bóveda Mnemónica</span>
+                    </div>
+                    <span class="subsystem-badge">FTS5</span>
+                </button>
+            </div>
+
+            <div class="nav-section-title">Sensores & Ciberdefensa</div>
+            <div class="subsystem-list">
+                <button class="subsystem-item" onclick="selectSubsystem('sensors', '/api/sensors/presence_status', '📡 Fusión Sensorial & Radar RF')">
+                    <div class="item-icon-text">
+                        <span class="item-icon">📡</span>
+                        <span>Sensores & Radar RF</span>
+                    </div>
+                    <span class="subsystem-badge">Radar</span>
+                </button>
+                <button class="subsystem-item" onclick="selectSubsystem('holodeck', '/api/render3d/preview?name=torus', '🧊 HoloDeck 3D Studio')">
+                    <div class="item-icon-text">
+                        <span class="item-icon">🧊</span>
+                        <span>HoloDeck 3D Studio</span>
+                    </div>
+                    <span class="subsystem-badge">3D</span>
+                </button>
+                <button class="subsystem-item" onclick="selectSubsystem('shield', '/api/shield/status', '🛡️ Escudo de Red & Hardware')">
+                    <div class="item-icon-text">
+                        <span class="item-icon">🛡️</span>
+                        <span>Escudo & Hardware</span>
+                    </div>
+                    <span class="subsystem-badge">Defensa</span>
+                </button>
+                <button class="subsystem-item" onclick="selectSubsystem('benchmark', '/api/status', '📊 Benchmark & Telemetría')">
+                    <div class="item-icon-text">
+                        <span class="item-icon">📊</span>
+                        <span>Benchmark & Salud</span>
+                    </div>
+                    <span class="subsystem-badge">100/100</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- CONTENT VIEWPORT CONTAINER -->
+        <main class="content-container">
+            <!-- 1. VISTA MATRIZ GENERAL (OVERVIEW) -->
+            <div class="matrix-grid-view" id="view-matrix">
+
+                <!-- 1. Cabina Central -->
+                <div class="matrix-card">
+                    <div class="card-top">
+                        <div class="card-label">
+                            <div class="card-label-icon">🌌</div>
+                            <div class="card-title">
+                                <h3>Cabina Central (Chat & Agente)</h3>
+                                <span>/ · Inferencia Directa</span>
+                            </div>
+                        </div>
+                        <div class="status-dot"></div>
+                    </div>
+                    <div class="card-body-metrics">
+                        <div class="metric-cell">
+                            <span class="metric-label">Modelo</span>
+                            <span class="metric-value">TARDIS-KAIJU</span>
+                        </div>
+                        <div class="metric-cell">
+                            <span class="metric-label">Contexto</span>
+                            <span class="metric-value">32,768 tok</span>
+                        </div>
+                        <div class="metric-cell">
+                            <span class="metric-label">Mlock RAM</span>
+                            <span class="metric-value">28.0 GB</span>
+                        </div>
+                        <div class="metric-cell">
+                            <span class="metric-label">Latencia</span>
+                            <span class="metric-value">&lt; 1.0s</span>
+                        </div>
+                    </div>
+                    <p class="card-desc">Motor central de inferencia continua MLA+SSM+MoE, diálogo omnimodal, síntesis de voz y auto-evolución.</p>
+                    <div class="card-actions">
+                        <button class="btn-launch" onclick="embedSubsystem('/', 'Cabina Central')">Abrir en Cabina</button>
+                        <button class="btn-external" onclick="window.open('/', '_blank')">↗</button>
+                    </div>
+                </div>
+
+                <!-- 2. Gestión de Usuarios & Clientes -->
+                <div class="matrix-card">
+                    <div class="card-top">
+                        <div class="card-label">
+                            <div class="card-label-icon">👥</div>
+                            <div class="card-title">
+                                <h3>Gestión de Usuarios & Clientes</h3>
+                                <span>/users · Gobierno Soberano</span>
+                            </div>
+                        </div>
+                        <div class="status-dot"></div>
+                    </div>
+                    <div class="card-body-metrics">
+                        <div class="metric-cell">
+                            <span class="metric-label">Admin Soberano</span>
+                            <span class="metric-value">Arquitecto</span>
+                        </div>
+                        <div class="metric-cell">
+                            <span class="metric-label">Telegram</span>
+                            <span class="metric-value" id="card-val-tg">Activo</span>
+                        </div>
+                        <div class="metric-cell">
+                            <span class="metric-label">Dispositivos</span>
+                            <span class="metric-value" id="card-val-devs">14 Registrados</span>
+                        </div>
+                        <div class="metric-cell">
+                            <span class="metric-label">Invitaciones</span>
+                            <span class="metric-value" id="card-val-invs">Activas</span>
+                        </div>
+                    </div>
+                    <p class="card-desc">Control integral de usuarios autorizados, Chat IDs de Telegram, teléfonos para WhatsApp y generación de accesos con QR.</p>
+                    <div class="card-actions">
+                        <button class="btn-launch" onclick="embedSubsystem('/users', 'Gestión de Usuarios')">Abrir en Cabina</button>
+                        <button class="btn-external" onclick="window.open('/users', '_blank')">↗</button>
+                    </div>
+                </div>
+
+                <!-- 3. Portal de Cliente -->
+                <div class="matrix-card">
+                    <div class="card-top">
+                        <div class="card-label">
+                            <div class="card-label-icon">🎟️</div>
+                            <div class="card-title">
+                                <h3>Portal Aislado para Clientes</h3>
+                                <span>/client · Modo Asistente</span>
+                            </div>
+                        </div>
+                        <div class="status-dot"></div>
+                    </div>
+                    <div class="card-body-metrics">
+                        <div class="metric-cell">
+                            <span class="metric-label">Aislamiento</span>
+                            <span class="metric-value">100% Blindado</span>
+                        </div>
+                        <div class="metric-cell">
+                            <span class="metric-label">Acceso Admin</span>
+                            <span class="metric-value">Deshabilitado</span>
+                        </div>
+                        <div class="metric-cell">
+                            <span class="metric-label">Voz Web</span>
+                            <span class="metric-value">Sintetizada</span>
+                        </div>
+                        <div class="metric-cell">
+                            <span class="metric-label">Tokens</span>
+                            <span class="metric-value">Por Invitación</span>
+                        </div>
+                    </div>
+                    <p class="card-desc">Interfaz aislada y minimalista para clientes externos sin acceso a las funciones ni telemetría interna del sistema.</p>
+                    <div class="card-actions">
+                        <button class="btn-launch" onclick="embedSubsystem('/client', 'Portal de Cliente')">Abrir en Cabina</button>
+                        <button class="btn-external" onclick="window.open('/client', '_blank')">↗</button>
+                    </div>
+                </div>
+
+                <!-- 4. Bóveda Mnemónica -->
+                <div class="matrix-card">
+                    <div class="card-top">
+                        <div class="card-label">
+                            <div class="card-label-icon">📚</div>
+                            <div class="card-title">
+                                <h3>Bóveda Akáshica & Memoria</h3>
+                                <span>/boveda · SQLite FTS5 BM25</span>
+                            </div>
+                        </div>
+                        <div class="status-dot"></div>
+                    </div>
+                    <div class="card-body-metrics">
+                        <div class="metric-cell">
+                            <span class="metric-label">Motor</span>
+                            <span class="metric-value">FTS5 BM25</span>
+                        </div>
+                        <div class="metric-cell">
+                            <span class="metric-label">MMAP</span>
+                            <span class="metric-value">4096 MB</span>
+                        </div>
+                        <div class="metric-cell">
+                            <span class="metric-label">Latencia</span>
+                            <span class="metric-value">&lt; 5 ms</span>
+                        </div>
+                        <div class="metric-cell">
+                            <span class="metric-label">Turnos</span>
+                            <span class="metric-value">1,300+</span>
+                        </div>
+                    </div>
+                    <p class="card-desc">Historial completo de conversaciones, eventos y grafo de conocimiento persistente accesible offline sin truncamiento.</p>
+                    <div class="card-actions">
+                        <button class="btn-launch" onclick="embedSubsystem('/boveda', 'Bóveda Mnemónica')">Abrir en Cabina</button>
+                        <button class="btn-external" onclick="window.open('/boveda', '_blank')">↗</button>
+                    </div>
+                </div>
+
+                <!-- 5. Sensores Físicos & Radar -->
+                <div class="matrix-card">
+                    <div class="card-top">
+                        <div class="card-label">
+                            <div class="card-label-icon">📡</div>
+                            <div class="card-title">
+                                <h3>Fusión Sensorial & Radar RF</h3>
+                                <span>Presencia & Biometría</span>
+                            </div>
+                        </div>
+                        <div class="status-dot"></div>
+                    </div>
+                    <div class="card-body-metrics">
+                        <div class="metric-cell">
+                            <span class="metric-label">Zona Actual</span>
+                            <span class="metric-value" id="card-val-zone">IMMEDIATE_DESK</span>
+                        </div>
+                        <div class="metric-cell">
+                            <span class="metric-label">Confianza</span>
+                            <span class="metric-value">98%</span>
+                        </div>
+                        <div class="metric-cell">
+                            <span class="metric-label">Radar Wi-Fi</span>
+                            <span class="metric-value">Micro-Doppler</span>
+                        </div>
+                        <div class="metric-cell">
+                            <span class="metric-label">Emoción</span>
+                            <span class="metric-value">Sereno</span>
+                        </div>
+                    </div>
+                    <p class="card-desc">Correlación física de 4 canales sensoriales: visión óptica, radar micro-Doppler RF, entrada de usuario y estado emocional.</p>
+                    <div class="card-actions">
+                        <button class="btn-launch" onclick="embedSubsystem('/api/sensors/presence_status', 'Telemetría Sensorial')">Ver Telemetría</button>
+                        <button class="btn-external" onclick="refreshSensors()">↻</button>
+                    </div>
+                </div>
+
+                <!-- 6. HoloDeck 3D Studio -->
+                <div class="matrix-card">
+                    <div class="card-top">
+                        <div class="card-label">
+                            <div class="card-label-icon">🧊</div>
+                            <div class="card-title">
+                                <h3>HoloDeck 3D Studio</h3>
+                                <span>Simulación & Geón Cuántico</span>
+                            </div>
+                        </div>
+                        <div class="status-dot"></div>
+                    </div>
+                    <div class="card-body-metrics">
+                        <div class="metric-cell">
+                            <span class="metric-label">Modelos</span>
+                            <span class="metric-value">Toroide, ADN, Átomo</span>
+                        </div>
+                        <div class="metric-cell">
+                            <span class="metric-label">Renderizado</span>
+                            <span class="metric-value">Cairo / Three.js</span>
+                        </div>
+                        <div class="metric-cell">
+                            <span class="metric-label">ECCA</span>
+                            <span class="metric-value">Geón Wheeler</span>
+                        </div>
+                        <div class="metric-cell">
+                            <span class="metric-label">Resolución</span>
+                            <span class="metric-value">1920x1440 HD</span>
+                        </div>
+                    </div>
+                    <p class="card-desc">Simulador holográfico tridimensional de geometrías espacio-temporales y colapso de historias paralelas de Feynman.</p>
+                    <div class="card-actions">
+                        <button class="btn-launch" onclick="embedSubsystem('/api/render3d/preview?name=torus', 'HoloDeck 3D')">Ver Simulación</button>
+                        <button class="btn-external" onclick="window.open('/api/render3d/preview?name=torus', '_blank')">↗</button>
+                    </div>
+                </div>
+
+                <!-- 7. Escudo de Red & Hardware -->
+                <div class="matrix-card">
+                    <div class="card-top">
+                        <div class="card-label">
+                            <div class="card-label-icon">🛡️</div>
+                            <div class="card-title">
+                                <h3>Escudo de Red & Hardware</h3>
+                                <span>Ciberdefensa & Silicio</span>
+                            </div>
+                        </div>
+                        <div class="status-dot"></div>
+                    </div>
+                    <div class="card-body-metrics">
+                        <div class="metric-cell">
+                            <span class="metric-label">AdBlock / DNS</span>
+                            <span class="metric-value" style="color:var(--accent-green)">Activo</span>
+                        </div>
+                        <div class="metric-cell">
+                            <span class="metric-label">Anti-Spy</span>
+                            <span class="metric-value" style="color:var(--accent-green)">Activo</span>
+                        </div>
+                        <div class="metric-cell">
+                            <span class="metric-label">Perfil Energía</span>
+                            <span class="metric-value">Rendimiento</span>
+                        </div>
+                        <div class="metric-cell">
+                            <span class="metric-label">Túnel Global</span>
+                            <span class="metric-value">Cloudflare 24/7</span>
+                        </div>
+                    </div>
+                    <p class="card-desc">Monitoreo de flujos entrantes, bloqueo de telemetría invasiva corporativa y optimización continua de potencia de silicio.</p>
+                    <div class="card-actions">
+                        <button class="btn-launch" onclick="embedSubsystem('/api/shield/status', 'Escudo de Red')">Ver Estado</button>
+                        <button class="btn-external" onclick="window.open('/api/shield/status', '_blank')">↗</button>
+                    </div>
+                </div>
+
+                <!-- 8. Benchmark & Telemetría Global -->
+                <div class="matrix-card">
+                    <div class="card-top">
+                        <div class="card-label">
+                            <div class="card-label-icon">📊</div>
+                            <div class="card-title">
+                                <h3>Benchmark & Eficiencia Global</h3>
+                                <span>100.0 / 100 · SOBERANO EXCELENTE</span>
+                            </div>
+                        </div>
+                        <div class="status-dot"></div>
+                    </div>
+                    <div class="card-body-metrics">
+                        <div class="metric-cell">
+                            <span class="metric-label">Puntuación</span>
+                            <span class="metric-value" style="color:var(--accent-gold)">100 / 100</span>
+                        </div>
+                        <div class="metric-cell">
+                            <span class="metric-label">Ancho Banda RAM</span>
+                            <span class="metric-value">1.45 GB/s seq</span>
+                        </div>
+                        <div class="metric-cell">
+                            <span class="metric-label">Prompt Eval</span>
+                            <span class="metric-value">6,618 tok/s</span>
+                        </div>
+                        <div class="metric-cell">
+                            <span class="metric-label">Salud de Nodos</span>
+                            <span class="metric-value" style="color:var(--accent-green)">8/8 Óptimos</span>
+                        </div>
+                    </div>
+                    <p class="card-desc">Diagnóstico de los 8 dominios fundamentales: silicio, inferencia LLM, orquestador cognitivo, memoria, radar, gateway y cloud.</p>
+                    <div class="card-actions">
+                        <button class="btn-launch" onclick="embedSubsystem('/api/status', 'Estado del Sistema')">Ver Diagnóstico</button>
+                        <button class="btn-external" onclick="window.open('/api/status', '_blank')">↗</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 2. VISTA EMBEBIDA (VIEWPORT) -->
+            <div class="embedded-viewport-container" id="view-viewport">
+                <div class="viewport-toolbar">
+                    <div class="viewport-info">
+                        <span>Subsistema Activo:</span>
+                        <b id="viewport-title">Cabina Central</b>
+                        <span id="viewport-url" style="color:var(--text-dim); font-family:var(--font-mono); font-size:11px;">/</span>
+                    </div>
+                    <div class="viewport-actions">
+                        <button class="btn-view-toggle" onclick="reloadViewport()" title="Recargar">↻ Recargar</button>
+                        <button class="btn-view-toggle" onclick="openViewportExternal()" title="Abrir en Nueva Ventana">↗ Nueva Ventana</button>
+                        <button class="btn-view-toggle" onclick="switchViewMode('matrix')" title="Volver a la Matriz">✕ Cerrar</button>
+                    </div>
+                </div>
+                <iframe id="main-viewport-frame" class="viewport-iframe" src="/" allow="camera; microphone; geolocation; autoplay"></iframe>
+            </div>
+        </main>
+    </div>
+
+    <!-- TOAST CONTAINER -->
+    <div id="hub-toast-container"></div>
+
+    <script>
+        let currentSubsystemUrl = "/";
+        let currentSubsystemTitle = "Cabina Central";
+
+        function showHubToast(msg) {
+            const container = document.getElementById('hub-toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'hub-toast';
+            toast.innerHTML = `<span>⚡</span><span>${msg}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(10px)';
+                toast.style.transition = 'all 0.3s';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function switchViewMode(mode) {
+            const matrixView = document.getElementById('view-matrix');
+            const viewportView = document.getElementById('view-viewport');
+            const btnMatrix = document.getElementById('btn-mode-matrix');
+            const btnViewport = document.getElementById('btn-mode-viewport');
+
+            if (mode === 'viewport') {
+                matrixView.style.display = 'none';
+                viewportView.style.display = 'flex';
+                btnMatrix.classList.remove('active');
+                btnViewport.classList.add('active');
+            } else {
+                matrixView.style.display = 'grid';
+                viewportView.style.display = 'none';
+                btnMatrix.classList.add('active');
+                btnViewport.classList.remove('active');
+            }
+        }
+
+        function selectSubsystem(key, url, title) {
+            document.querySelectorAll('.subsystem-item').forEach(el => el.classList.remove('active'));
+            if (event && event.currentTarget) {
+                event.currentTarget.classList.add('active');
+            }
+            embedSubsystem(url, title);
+        }
+
+        function embedSubsystem(url, title) {
+            currentSubsystemUrl = url;
+            currentSubsystemTitle = title;
+            document.getElementById('viewport-title').textContent = title;
+            document.getElementById('viewport-url').textContent = url;
+            const iframe = document.getElementById('main-viewport-frame');
+            if (iframe.src !== window.location.origin + url && iframe.getAttribute('src') !== url) {
+                iframe.src = url;
+            }
+            switchViewMode('viewport');
+            showHubToast(`Cargando ${title}...`);
+        }
+
+        function reloadViewport() {
+            const iframe = document.getElementById('main-viewport-frame');
+            iframe.src = currentSubsystemUrl;
+            showHubToast("Recargando subsistema...");
+        }
+
+        function openViewportExternal() {
+            window.open(currentSubsystemUrl, '_blank');
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            } else {
+                document.exitFullscreen().catch(() => {});
+            }
+        }
+
+        // POLLING EN SEGUNDO PLANO DE TELEMETRÍA
+        async function updateTelemetry() {
+            try {
+                const res = await fetch('/api/status');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.bridge && data.bridge.public_url) {
+                        document.getElementById('val-tunnel').textContent = "En Línea (Cloudflare)";
+                        document.getElementById('val-tunnel').style.color = "var(--accent-green)";
+                    }
+                }
+            } catch (e) {}
+
+            try {
+                const pRes = await fetch('/api/sensors/presence_status');
+                if (pRes.ok) {
+                    const pData = await pRes.json();
+                    if (pData.presence) {
+                        const zone = pData.presence.proximity_zone || 'IMMEDIATE_DESK';
+                        document.getElementById('val-presence').textContent = zone;
+                        document.getElementById('card-val-zone').textContent = zone;
+                    }
+                }
+            } catch (e) {}
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            updateTelemetry();
+            setInterval(updateTelemetry, 10000);
+        });
+    </script>
+</body>
+</html>

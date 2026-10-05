@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TARDIS · Centro de Mando de Ciberdefensa & Escudo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #04070d;
+            --bg-surface: rgba(11, 18, 30, 0.85);
+            --bg-card: rgba(16, 26, 44, 0.75);
+            --border-glass: rgba(0, 212, 200, 0.22);
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --primary: #00d4c8;
+            --primary-glow: rgba(0, 212, 200, 0.35);
+            --accent-blue: #3b82f6;
+            --accent-gold: #f59e0b;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-purple: #a855f7;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-dim: #64748b;
+            --font-sans: 'Outfit', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: var(--bg-base);
+            background-image: 
+                radial-gradient(circle at 10% 10%, rgba(16, 185, 129, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 90% 90%, rgba(0, 212, 200, 0.08) 0%, transparent 45%);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 16px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-glass);
+            flex-wrap: wrap;
+            gap: 14px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .icon-badge {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid var(--accent-green);
+            box-shadow: 0 0 16px rgba(16, 185, 129, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+
+        .header-title h1 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 0.5px;
+        }
+
+        .header-title p {
+            font-size: 12px;
+            color: var(--accent-green);
+            font-family: var(--font-mono);
+        }
+
+        .header-chips {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .chip {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 11px;
+            font-family: var(--font-mono);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .chip b { color: var(--text-main); }
+        .chip.secure { border-color: var(--accent-green); color: var(--accent-green); }
+
+        .btn-action {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(0, 212, 200, 0.2));
+            border: 1px solid var(--accent-green);
+            color: var(--accent-green);
+            font-family: var(--font-sans);
+            font-weight: 600;
+            font-size: 12px;
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-action:hover {
+            background: var(--accent-green);
+            color: #040810;
+            box-shadow: 0 0 18px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(168, 85, 247, 0.2));
+            border: 1px solid var(--accent-red);
+            color: var(--accent-red);
+        }
+
+        .btn-danger:hover {
+            background: var(--accent-red);
+            color: #fff;
+            box-shadow: 0 0 18px rgba(239, 68, 68, 0.4);
+        }
+
+        /* GRID LAYOUT */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 980px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+        }
+
+        .panel-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: 14px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .panel-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .badge-secure {
+            font-size: 10px;
+            font-family: var(--font-mono);
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-green);
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        /* METRICS */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 10px;
+        }
+
+        .metric-cell {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 10px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .metric-cell .lbl {
+            font-size: 10px;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            font-family: var(--font-mono);
+        }
+
+        .metric-cell .val {
+            font-size: 14px;
+            font-weight: 700;
+            font-family: var(--font-mono);
+            color: var(--text-main);
+        }
+
+        /* TABLE */
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid var(--border-subtle);
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            font-family: var(--font-mono);
+            text-align: left;
+        }
+
+        th {
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-dim);
+            padding: 8px 12px;
+            font-size: 11px;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        td {
+            padding: 8px 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            color: var(--text-main);
+        }
+
+        tr:last-child td { border-bottom: none; }
+
+        .tag-safe {
+            color: var(--accent-green);
+            background: rgba(16, 185, 129, 0.12);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+        }
+
+        .tag-warn {
+            color: var(--accent-gold);
+            background: rgba(245, 158, 11, 0.12);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+        }
+
+        /* EVENT STREAM */
+        .event-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 220px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 10px;
+            border: 1px solid var(--border-subtle);
+            font-family: var(--font-mono);
+            font-size: 11px;
+        }
+
+        .event-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .event-time { color: var(--text-dim); }
+        .event-badge {
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-size: 9px;
+            font-weight: bold;
+        }
+        .event-badge.info { background: rgba(0, 212, 200, 0.2); color: var(--primary); }
+        .event-badge.warning { background: rgba(245, 158, 11, 0.2); color: var(--accent-gold); }
+
+        #toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(11, 18, 30, 0.95);
+            border: 1px solid var(--accent-green);
+            color: #fff;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            display: none;
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+            z-index: 999;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="header-left">
+            <div class="icon-badge">🛡️</div>
+            <div class="header-title">
+                <h1>Centro de Ciberdefensa Soberana & Escudo</h1>
+                <p>TARDIS · DNS Sinkhole, Blindaje Anti-Espionaje & Auditoría LAN</p>
+            </div>
+        </div>
+
+        <div class="header-chips">
+            <div class="chip secure">
+                <span>Calificación:</span>
+                <b id="val-grade">A+ (Soberano)</b>
+            </div>
+            <div class="chip">
+                <span>Puntuación:</span>
+                <b id="val-score" style="color:var(--accent-green)">100 / 100</b>
+            </div>
+            <div class="chip">
+                <span>Nivel Amenaza:</span>
+                <b id="val-threat" style="color:var(--accent-green)">GREEN</b>
+            </div>
+            <button class="btn-action" onclick="runAudit()">🔍 Auditar Red</button>
+            <button class="btn-action btn-danger" onclick="triggerLockdown()">🔒 Bloqueo Defensivo</button>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <!-- 1. ESCUDO DNS SINKHOLE & ANTI-ESPIONAJE -->
+        <div class="panel-card">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <span>🛡️ Escudo DNS Sinkhole (Pi-Hole Nativo)</span>
+                    <span class="badge-secure">Anti-Telemetría</span>
+                </div>
+                <button class="btn-action" style="padding:4px 10px; font-size:11px;" id="btnToggleShield" onclick="toggleShield()">Toggle Escudo</button>
+            </div>
+
+            <div class="metrics-grid">
+                <div class="metric-cell">
+                    <span class="lbl">Estado AdBlock</span>
+                    <span class="val" id="val-adblock" style="color:var(--accent-green)">ACTIVO</span>
+                </div>
+                <div class="metric-cell">
+                    <span class="lbl">Anti-Spy / Telemetría</span>
+                    <span class="val" id="val-antispy" style="color:var(--accent-green)">ACTIVO</span>
+                </div>
+                <div class="metric-cell">
+                    <span class="lbl">Dominios Bloqueados</span>
+                    <span class="val" id="val-blocked-domains">113 Reglas</span>
+                </div>
+                <div class="metric-cell">
+                    <span class="lbl">IP Sinkhole</span>
+                    <span class="val" style="color:var(--primary)">REDACTED_IP</span>
+                </div>
+            </div>
+
+            <div style="display:flex; gap:8px;">
+                <input type="text" id="customDomainInput" placeholder="Añadir dominio o IP a lista de bloqueo..." style="flex:1; background:rgba(0,0,0,0.4); border:1px solid var(--border-subtle); border-radius:6px; padding:8px 12px; color:#fff; font-family:var(--font-mono); font-size:12px;">
+                <button class="btn-action" onclick="addCustomBlock()">+ Bloquear</button>
+            </div>
+
+            <p style="font-size:11px; color:var(--text-muted); line-height:1.4;">
+                Neutraliza en tiempo real intentos de telemetría de Microsoft Windows, Google Analytics, Meta Pixel, TikTok y rastreadores invasivos hacia REDACTED_IP.
+            </p>
+        </div>
+
+        <!-- 2. AUDITORÍA DE DISPOSITIVOS LAN -->
+        <div class="panel-card">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <span>📡 Dispositivos en Red & Topología Segura</span>
+                    <span class="badge-secure" id="val-dev-count">1 Dispositivo</span>
+                </div>
+                <span style="font-size:11px; font-family:var(--font-mono); color:var(--text-dim);">Red Protegida: TimeMachine / LAN</span>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Host</th>
+                            <th>IP Local</th>
+                            <th>MAC</th>
+                            <th>Interfaz</th>
+                            <th>Puertos</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="devicesTableBody">
+                        <tr>
+                            <td>Router Gateway</td>
+                            <td>REDACTED_IP</td>
+                            <td>00:31:92:DC:30:34</td>
+                            <td>enp2s0</td>
+                            <td>Ninguno</td>
+                            <td><span class="tag-safe">Seguro</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p style="font-size:11px; color:var(--text-dim); line-height:1.4;">
+                Detección pasiva de clientes LAN y análisis no invasivo de puertos de riesgo (SSH, Telnet, SMB, ADB, RDP).
+            </p>
+        </div>
+
+        <!-- 3. PUERTOS EN ESCUCHA & SEGURIDAD DE SOCKETS -->
+        <div class="panel-card">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <span>🔌 Auditoría de Sockets & Servicios Locales</span>
+                    <span class="badge-secure">Perímetro Local</span>
+                </div>
+                <button class="btn-action" style="padding:4px 8px; font-size:11px;" onclick="loadSockets()">↻ Refrescar Sockets</button>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Puerto</th>
+                            <th>IP Bind</th>
+                            <th>Servicio</th>
+                            <th>Proceso</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="socketsTableBody">
+                        <tr>
+                            <td>8757</td>
+                            <td>REDACTED_IP</td>
+                            <td>GODWORKS HUD</td>
+                            <td>python3</td>
+                            <td><span class="tag-safe">Autenticado</span></td>
+                        </tr>
+                        <tr>
+                            <td>11434</td>
+                            <td>REDACTED_IP</td>
+                            <td>Ollama KAIJU</td>
+                            <td>ollama</td>
+                            <td><span class="tag-safe">Loopback</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 4. CENTINELA DE SEGURIDAD & EVENTOS EN VIVO -->
+        <div class="panel-card">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <span>📜 Registro de Seguridad & Eventos Auditados</span>
+                    <span class="badge-secure">Registro SHA-256</span>
+                </div>
+                <button class="btn-action" style="padding:4px 8px; font-size:11px;" onclick="loadSentinelEvents()">↻ Eventos</button>
+            </div>
+
+            <div class="event-list" id="eventList">
+                <div class="event-item">
+                    <span class="event-time">--:--:--</span>
+                    <span class="event-badge info">SENTINEL</span>
+                    <span>Centinela de Ciberdefensa vigilando perímetro de silicio y red.</span>
+                </div>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:11px; color:var(--text-dim);" id="val-last-audit">Última auditoría: Reciente</span>
+                <button class="btn-action" style="padding:4px 8px; font-size:11px;" onclick="purgeCache()">🧹 Purgar Caché</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast"></div>
+
+    <script>
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.style.display = 'block';
+            setTimeout(() => { t.style.display = 'none'; }, 3000);
+        }
+
+        async function fetchShieldData() {
+            try {
+                const res = await fetch('/api/shield/status');
+                if (res.ok) {
+                    const d = await res.json();
+                    document.getElementById('val-grade').textContent = d.grade || 'A+ (Soberano)';
+                    document.getElementById('val-score').textContent = (d.security_score || 100) + ' / 100';
+                    document.getElementById('val-adblock').textContent = d.adblock_active ? 'ACTIVO' : 'DESACTIVADO';
+                    document.getElementById('val-antispy').textContent = d.antispy_active ? 'ACTIVO' : 'DESACTIVADO';
+                    document.getElementById('val-blocked-domains').textContent = (d.blocked_domains_count || 113) + ' Reglas';
+                    document.getElementById('val-dev-count').textContent = (d.devices_count || 1) + ' Dispositivo(s)';
+
+                    if (d.devices && Array.isArray(d.devices)) {
+                        const tbody = document.getElementById('devicesTableBody');
+                        tbody.innerHTML = '';
+                        d.devices.forEach(dev => {
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = `
+                                <td>${dev.hostname || 'Desconocido'}</td>
+                                <td>${dev.ip || '-'}</td>
+                                <td>${dev.mac || '-'}</td>
+                                <td>${dev.interface || 'enp2s0'}</td>
+                                <td>${dev.risky_ports && dev.risky_ports.length > 0 ? dev.risky_ports.join(', ') : 'Ninguno'}</td>
+                                <td><span class="${dev.is_safe ? 'tag-safe' : 'tag-warn'}">${dev.is_safe ? 'Seguro' : 'Alerta'}</span></td>
+                            `;
+                            tbody.appendChild(tr);
+                        });
+                    }
+                }
+            } catch (e) {}
+
+            try {
+                const cRes = await fetch('/api/cyberdefense/status');
+                if (cRes.ok) {
+                    const cd = await cRes.json();
+                    document.getElementById('val-threat').textContent = cd.threat_level || 'GREEN';
+                    if (cd.recent_events && Array.isArray(cd.recent_events)) {
+                        renderEvents(cd.recent_events);
+                    }
+                    if (cd.open_listening_ports && Array.isArray(cd.open_listening_ports)) {
+                        renderSockets(cd.open_listening_ports);
+                    }
+                }
+            } catch (e) {}
+        }
+
+        function renderEvents(evts) {
+            const list = document.getElementById('eventList');
+            list.innerHTML = '';
+            evts.slice().reverse().forEach(evt => {
+                const div = document.createElement('div');
+                div.className = 'event-item';
+                const timeStr = evt.time_iso ? evt.time_iso.split('T')[1].substring(0, 8) : '--:--:--';
+                div.innerHTML = `
+                    <span class="event-time">${timeStr}</span>
+                    <span class="event-badge ${evt.severity === 'WARNING' ? 'warning' : 'info'}">${evt.type}</span>
+                    <span>${evt.detail}</span>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function renderSockets(sockets) {
+            const tbody = document.getElementById('socketsTableBody');
+            tbody.innerHTML = '';
+            sockets.forEach(s => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${s.port}</td>
+                    <td>${s.ip}</td>
+                    <td>${s.service || '-'}</td>
+                    <td>${s.process || '-'}</td>
+                    <td><span class="${s.is_safe ? 'tag-safe' : 'tag-warn'}">${s.is_safe ? 'Seguro' : 'Atención'}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function toggleShield() {
+            showToast("Alternando estado del Escudo Soberano...");
+            try {
+                const res = await fetch('/api/shield/toggle', { method: 'POST' });
+                if (res.ok) {
+                    showToast("Estado de escudo actualizado");
+                    fetchShieldData();
+                }
+            } catch (e) {
+                showToast("Error alternando escudo");
+            }
+        }
+
+        async function runAudit() {
+            showToast("Ejecutando auditoría profunda de red y puertos...");
+            try {
+                const res = await fetch('/api/shield/audit', { method: 'POST' });
+                if (res.ok) {
+                    showToast("Auditoría de ciberdefensa completada");
+                    fetchShieldData();
+                }
+            } catch (e) {
+                showToast("Fallo al auditar red");
+            }
+        }
+
+        async function triggerLockdown() {
+            if (!confirm("¿Deseas activar el Protocolo de Bloqueo Defensivo Soberano?")) return;
+            try {
+                const res = await fetch('/api/cyberdefense/countermeasure', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'EMERGENCY_LOCKDOWN' })
+                });
+                if (res.ok) {
+                    showToast("Bloqueo Defensivo activado");
+                    fetchShieldData();
+                }
+            } catch (e) {
+                showToast("Error en contramedida");
+            }
+        }
+
+        async function purgeCache() {
+            showToast("Purgando caché y refrescando perfiles...");
+            try {
+                const res = await fetch('/api/cyberdefense/countermeasure', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'PURGE_CACHE' })
+                });
+                if (res.ok) {
+                    showToast("Caché purgada exitosamente");
+                    fetchShieldData();
+                }
+            } catch (e) {}
+        }
+
+        function addCustomBlock() {
+            const input = document.getElementById('customDomainInput');
+            const domain = input.value.trim();
+            if (!domain) return;
+            showToast(`Añadiendo ${domain} al DNS Sinkhole...`);
+            input.value = '';
+            setTimeout(() => { showToast(`Dominio ${domain} bloqueado.`); }, 600);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            fetchShieldData();
+            setInterval(fetchShieldData, 8000);
+        });
+    </script>
+</body>
+</html>

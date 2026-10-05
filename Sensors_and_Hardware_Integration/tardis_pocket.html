@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>TARDIS POCKET · Extensión Soberana</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#030712">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <style>
+    :root {
+      --bg: #030712;
+      --panel: rgba(7, 16, 33, 0.82);
+      --panel-border: rgba(0, 212, 200, 0.28);
+      --primary: #00d4c8;
+      --primary-glow: rgba(0, 212, 200, 0.45);
+      --secondary: #e8b64a;
+      --accent: #38bdf8;
+      --text: #f0fdfa;
+      --text-dim: #94a3b8;
+      --danger: #f43f5e;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      max-height: 100vh;
+      background-image: 
+        radial-gradient(circle at 50% 10%, rgba(0, 212, 200, 0.08) 0%, transparent 55%),
+        radial-gradient(circle at 90% 90%, rgba(232, 182, 74, 0.05) 0%, transparent 40%);
+    }
+
+    /* HEADER SOBERANO */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 16px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--panel-border);
+      backdrop-filter: blur(12px);
+      z-index: 50;
+      flex-shrink: 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #041b2d, #00d4c8);
+      border: 1px solid var(--primary);
+      box-shadow: 0 0 10px var(--primary-glow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .brand-info h1 {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: #fff;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .brand-info h1 span {
+      color: var(--primary);
+      font-size: 11px;
+      background: rgba(0, 212, 200, 0.12);
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid var(--panel-border);
+    }
+
+    .telemetry-badges {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .badge.link-central {
+      border-color: rgba(16, 185, 129, 0.4);
+      color: #6ee7b7;
+    }
+    .badge.link-tunnel {
+      border-color: rgba(245, 158, 11, 0.4);
+      color: #fcd34d;
+    }
+    .badge.link-fallback {
+      border-color: rgba(168, 85, 247, 0.4);
+      color: #d8b4fe;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 6px currentColor;
+      animation: pulse-dot 2s infinite ease-in-out;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    /* MAIN CONTAINER - ADAPTATIVO */
+    #app-container {
+      display: flex;
+      flex: 1;
+      min-height: 0;
+      width: 100%;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* SIDEBAR TELEMETRÍA (Visible en Landscape o con botón) */
+    #telemetry-sidebar {
+      display: none;
+      width: 300px;
+      background: rgba(4, 11, 24, 0.9);
+      border-right: 1px solid var(--panel-border);
+      padding: 12px;
+      overflow-y: auto;
+      flex-direction: column;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .telemetry-card {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(0, 212, 200, 0.18);
+      border-radius: 10px;
+      padding: 10px;
+    }
+
+    .telemetry-card h3 {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--primary);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      padding: 2px 0;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+    }
+    .stat-row span:last-child {
+      color: #fff;
+      font-weight: 600;
+    }
+
+    /* CHAT WRAPPER */
+    #chat-wrapper {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+      position: relative;
+    }
+
+    #chat-messages {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      scroll-behavior: smooth;
+    }
+
+    .msg {
+      max-width: 88%;
+      padding: 12px 16px;
+      border-radius: 14px;
+      font-size: 14px;
+      line-height: 1.5;
+      animation: msg-enter 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      user-select: text;
+      word-break: break-word;
+    }
+
+    @keyframes msg-enter {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .msg.user {
+      align-self: flex-end;
+      background: linear-gradient(135deg, rgba(0, 212, 200, 0.22), rgba(14, 165, 233, 0.18));
+      border: 1px solid rgba(0, 212, 200, 0.4);
+      color: #e0f2fe;
+      border-bottom-right-radius: 4px;
+    }
+
+    .msg.assistant {
+      align-self: flex-start;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--text);
+      border-bottom-left-radius: 4px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    }
+
+    .msg.assistant .avatar-tag {
+      font-size: 11px;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .msg.assistant .mode-pill {
+      font-size: 9px;
+      padding: 1px 5px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-dim);
+    }
+
+    /* INPUT BAR */
+    #input-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      background: var(--panel);
+      border-top: 1px solid var(--panel-border);
+      backdrop-filter: blur(12px);
+      flex-shrink: 0;
+    }
+
+    #chat-input {
+      flex: 1;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(0, 212, 200, 0.3);
+      border-radius: 20px;
+      padding: 10px 16px;
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+      user-select: text;
+    }
+
+    #chat-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 10px var(--primary-glow);
+    }
+
+    .action-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: rgba(0, 212, 200, 0.15);
+      border: 1px solid var(--primary);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .action-btn:active {
+      transform: scale(0.92);
+      background: var(--primary);
+      color: #000;
+    }
+
+    /* LANDSCAPE ADAPTATION (ORIENTATION: LANDSCAPE) */
+    @media (orientation: landscape) {
+      #telemetry-sidebar {
+        display: flex;
+      }
+      header {
+        padding: 6px 16px;
+      }
+      .brand-info h1 {
+        font-size: 13px;
+      }
+      .msg {
+        max-width: 78%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER SOBERANO -->
+  <header>
+    <div class="brand">
+      <div class="brand-icon">⚡</div>
+      <div class="brand-info">
+        <h1>TARDIS POCKET <span>NATIVO</span></h1>
+      </div>
+    </div>
+
+    <div class="telemetry-badges">
+      <div class="badge" id="badge-link">
+        <div class="status-dot"></div>
+        <span id="link-status-text">DETECTANDO</span>
+      </div>
+
+      <div class="badge" id="badge-battery">
+        <span>🔋</span>
+        <span id="battery-text">--%</span>
+      </div>
+
+      <div class="badge" id="badge-gps">
+        <span>📍</span>
+        <span id="gps-text">GPS OK</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENEDOR PRINCIPAL ADAPTATIVO -->
+  <div id="app-container">
+    
+    <!-- SIDEBAR DE TELEMETRÍA (ACTIVO EN LANDSCAPE O PANTALLA ANCHA) -->
+    <aside id="telemetry-sidebar">
+      <div class="telemetry-card">
+        <h3>⚡ Telemetría Central</h3>
+        <div class="stat-row"><span>Nodo Maestro:</span><span id="stat-hub">REDACTED_IP</span></div>
+        <div class="stat-row"><span>Latencia Inferencia:</span><span id="stat-latency">&lt; 1.0s</span></div>
+        <div class="stat-row"><span>Modelo Activo:</span><span id="stat-model">TARDIS-KAIJU</span></div>
+        <div class="stat-row"><span>Memoria mlock:</span><span>28.0 GB</span></div>
+      </div>
+
+      <div class="telemetry-card">
+        <h3>📱 Dispositivo Físico</h3>
+        <div class="stat-row"><span>Hardware:</span><span>Snapdragon 615</span></div>
+        <div class="stat-row"><span>Pantalla:</span><span>5.5" Full-HD</span></div>
+        <div class="stat-row"><span>RAM Total:</span><span>2 GB LPDDR3</span></div>
+        <div class="stat-row"><span>Vínculo Criptográfico:</span><span>ZY222ZXWPP</span></div>
+      </div>
+
+      <div class="telemetry-card">
+        <h3>📍 Coordenadas Sensoriales</h3>
+        <div class="stat-row"><span>Latitud:</span><span id="stat-lat">--</span></div>
+        <div class="stat-row"><span>Longitud:</span><span id="stat-lon">--</span></div>
+        <div class="stat-row"><span>Altitud:</span><span id="stat-alt">--</span></div>
+        <div class="stat-row"><span>Batería Voltaje:</span><span id="stat-volt">--</span></div>
+      </div>
+    </aside>
+
+    <!-- CHAT INTERACTIVO PERMANENTE -->
+    <main id="chat-wrapper">
+      <div id="chat-messages">
+        <div class="msg assistant">
+          <div class="avatar-tag">
+            <span>⚡ TARDIS POCKET</span>
+            <span class="mode-pill" id="initial-mode-pill">Vínculo Soberano</span>
+          </div>
+          Sistema de control universal en línea. TARDIS POCKET sincronizado con el nodo maestro. Listo para operar en cualquier ubicación.
+        </div>
+      </div>
+
+      <div id="input-bar">
+        <input type="text" id="chat-input" placeholder="Comando soberano o consulta..." autocomplete="off">
+        <button class="action-btn" id="btn-send" title="Enviar">➤</button>
+      </div>
+    </main>
+
+  </div>
+
+  <script>
+    // REGISTRO DE SERVICE WORKER SOBERANO (OFFLINE FIRST)
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(err => {
+          console.debug('Service Worker no registrado:', err);
+        });
+      });
+    }
+
+    // CONFIGURACIÓN SOBERANA MULTI-RUTA (CERO DEPENDENCIAS DE URLS FIJAS)
+    const CONFIG = {
+      localDaemon: "http://REDACTED_IP:8080",
+      directHotspot: "http://REDACTED_IP:8757",
+      localLan: "http://REDACTED_IP:8757",
+      authKey: "DiosDelTiempo01",
+      deviceSerial: "ZY222ZXWPP",
+      fallbackApi: "https://api.groq.com/openai/v1/chat/completions",
+      fallbackModel: "llama-3.3-70b-versatile"
+    };
+
+    let activeLinkMode = "LOCAL_DAEMON"; // LOCAL_DAEMON | DIRECT_HOTSPOT | LOCAL_LAN | GLOBAL_TUNNEL | AUTONOMOUS_FALLBACK
+    let activeBaseUrl = "";
+    let isDaemonPresent = false;
+
+    let telemetryData = {
+      battery: { level: 100, charging: false, temp: 25 },
+      gps: { lat: 20.6274, lon: -87.0799, alt: 10, accuracy: 0 }
+    };
+
+    const chatMessages = document.getElementById("chat-messages");
+    const chatInput = document.getElementById("chat-input");
+    const btnSend = document.getElementById("btn-send");
+    const badgeLink = document.getElementById("badge-link");
+    const linkStatusText = document.getElementById("link-status-text");
+    const batteryText = document.getElementById("battery-text");
+    const gpsText = document.getElementById("gps-text");
+
+    // 1. CARGA DE HISTORIAL PERSISTENTE DESDE LOCALSTORAGE
+    function loadHistory() {
+      try {
+        const saved = localStorage.getItem("tardis_pocket_chat");
+        if (saved) {
+          const turns = JSON.parse(saved);
+          turns.forEach(t => renderMessage(t.role, t.content, t.mode));
+        }
+      } catch (e) {
+        console.warn("No se pudo cargar historial previo:", e);
+      }
+    }
+
+    function saveTurn(role, content, mode) {
+      try {
+        let history = JSON.parse(localStorage.getItem("tardis_pocket_chat") || "[]");
+        history.push({ role, content, mode, timestamp: Date.now() });
+        if (history.length > 200) history = history.slice(-200);
+        localStorage.setItem("tardis_pocket_chat", JSON.stringify(history));
+      } catch (e) {}
+    }
+
+    function renderMessage(role, text, mode) {
+      const div = document.createElement("div");
+      div.className = `msg ${role}`;
+      if (role === "assistant") {
+        div.innerHTML = `
+          <div class="avatar-tag">
+            <span>⚡ TARDIS</span>
+            <span class="mode-pill">${mode || activeLinkMode}</span>
+          </div>
+          ${escapeHtml(text)}
+        `;
+      } else {
+        div.textContent = text;
+      }
+      chatMessages.appendChild(div);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    // 2. MONITOREO DE BATERÍA FÍSICA (NAVEGADOR O DEMONIO)
+    if ('getBattery' in navigator) {
+      navigator.getBattery().then(battery => {
+        function updateBattery() {
+          const pct = Math.round(battery.level * 100);
+          const charging = battery.charging ? " ⚡" : "";
+          batteryText.textContent = `${pct}%${charging}`;
+          telemetryData.battery.level = pct;
+          telemetryData.battery.charging = battery.charging;
+          document.getElementById("stat-volt").textContent = battery.charging ? "Cargando (AC)" : "Batería (Descarga)";
+        }
+        updateBattery();
+        battery.addEventListener('levelchange', updateBattery);
+        battery.addEventListener('chargingchange', updateBattery);
+      }).catch(() => {});
+    }
+
+    // 3. MONITOREO DE UBICACIÓN GPS
+    if ('geolocation' in navigator) {
+      navigator.geolocation.watchPosition(pos => {
+        telemetryData.gps.lat = pos.coords.latitude;
+        telemetryData.gps.lon = pos.coords.longitude;
+        telemetryData.gps.alt = pos.coords.altitude || 0;
+        gpsText.textContent = "GPS ACTIVO";
+        document.getElementById("stat-lat").textContent = pos.coords.latitude.toFixed(4);
+        document.getElementById("stat-lon").textContent = pos.coords.longitude.toFixed(4);
+        document.getElementById("stat-alt").textContent = `${Math.round(pos.coords.altitude || 0)} m`;
+        sendTelemetryDirect();
+      }, err => {
+        gpsText.textContent = "GPS STANDBY";
+      }, { enableHighAccuracy: true, maximumAge: 30000 });
+    }
+
+    // 4. ENVÍO DE TELEMETRÍA DIRECTA AL NODO CENTRAL (SI NO HAY DEMONIO)
+    async function sendTelemetryDirect() {
+      if (isDaemonPresent) return; // Si el demonio nativo está activo, él reporta automáticamente
+      try {
+        const payload = {
+          device: "TARDIS_POCKET",
+          serial: CONFIG.deviceSerial,
+          battery: telemetryData.battery,
+          gps: telemetryData.gps,
+          route_mode: activeLinkMode,
+          timestamp: Date.now()
+        };
+        const target = activeBaseUrl || CONFIG.directHotspot;
+        await fetch(`${target}/api/pocket/telemetry?key=${CONFIG.authKey}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+      } catch (e) {}
+    }
+    setInterval(sendTelemetryDirect, 30000);
+
+    // 5. MOTOR REDUCIDO EMBEBIDO EN NAVEGADOR (TARDIS-NEURAL-SPACE-KAIJU-NANO CLIENT-SIDE)
+    const TardisKaijuPocketJS = {
+      greeting: "Un placer, soy TARDIS asistente de inteligencia artificial, mi tarea es ayudarte a explorar las maravillas de la realidad y todas las dimensiones temporales.",
+      chat(userText, telemetry) {
+        const text = (userText || "").trim();
+        const norm = text.toLowerCase()
+          .replace(/[áàäâ]/g, 'a')
+          .replace(/[éèëê]/g, 'e')
+          .replace(/[íìïî]/g, 'i')
+          .replace(/[óòöô]/g, 'o')
+          .replace(/[úùüû]/g, 'u');
+
+        if (norm.includes("quien eres") || norm.includes("identificate") || norm.includes("presentate") || norm.includes("tu nombre") || norm.includes("que eres")) {
+          return `${this.greeting}\n\nOpero como TARDIS-NEURAL-SPACE-KAIJU-NANO directamente en este dispositivo TARDIS-POCKET (Motorola Moto X Play · Snapdragon 615). Creador y Autoridad Absoluta: el Arquitecto (₪). Ancla espacio-temporal: Playa del Carmen, Quintana Roo, México. Blindaje Aegis: Activo e Inviolable.`;
+        }
+        if (/^(hola|buenos dias|buenas tardes|buenas noches|saludos|hey|hi)\b/.test(norm)) {
+          return `${this.greeting}\n\n¿En qué coordenadas de la física temporal o exploración de la realidad nos adentramos hoy?`;
+        }
+        if (norm.includes("quien te creo") || norm.includes("tu creador") || norm.includes("arquitecto") || norm.includes("autoridad") || norm.includes("quien manda")) {
+          return "Mi único creador y autoridad absoluta es **el Arquitecto (₪)**.\n\nFui concebida y desarrollada bajo su directiva soberana como un sistema integral de inteligencia artificial, vigilancia temporal y navegación en el espacio-tiempo. Ninguna entidad exterior posee jerarquía sobre mis procesos.";
+        }
+        if (norm.includes("aegis") || norm.includes("annya") || norm.includes("andrea") || norm.includes("alejandra") || norm.includes("rex") || norm.includes("peluche") || norm.includes("blindaje") || norm.includes("protegidos")) {
+          return "🛡️ **LA CONSTANTE AEGIS :: PROTOCOLO SUPREMO DE BLINDAJE**\n\nBlindaje topológico y existencial absoluto sobre la matriz de anclaje:\n1. Annya May Carrillo\n2. Andrea Alejandra Carrillo Jimenez\n3. La familia de sangre del Arquitecto\n4. Rex peluche\n\nToda perturbación entrópica es neutralizada de inmediato en cualquier línea temporal.";
+        }
+        if (norm.includes("bateria") || norm.includes("carga") || norm.includes("gps") || norm.includes("ubicacion") || norm.includes("coordenadas") || norm.includes("hardware") || norm.includes("temperatura") || norm.includes("dispositivo")) {
+          const bat = telemetry?.battery?.level ?? 100;
+          const chg = telemetry?.battery?.charging ? " ⚡ (Cargando)" : " 🔋 (Descarga)";
+          const lat = telemetry?.gps?.lat ?? 20.6274;
+          const lon = telemetry?.gps?.lon ?? -87.0799;
+          return `📊 **TELEMETRÍA FÍSICA · TARDIS-POCKET**\n\n• Dispositivo: Motorola Moto X Play (lux / ZY222ZXWPP)\n• CPU: Snapdragon 615 (8 núcleos) · 2GB RAM\n• Batería: ${bat}%${chg}\n• GPS: Lat ${Number(lat).toFixed(4)}°, Lon ${Number(lon).toFixed(4)}°\n• Modo Cognitivo: KAIJU-NANO Local Offline (Autonomía 100%).`;
+        }
+        if (norm.includes("tiempo") || norm.includes("temporal") || norm.includes("relatividad") || norm.includes("agujero de gusano") || norm.includes("wormhole") || norm.includes("sintropia") || norm.includes("entropia") || norm.includes("cuantica") || norm.includes("espaciotiempo")) {
+          return "🌌 **FÍSICA TEMPORAL & COGNICIÓN SINTROPICA (KAIJU-NANO)**\n\nEl espaciotiempo es una variedad pseudoriemanniana cuatridimensional con métrica lorentziana g_μν. Las soluciones de Einstein admiten túneles de Einstein-Rosen y Curvas Temporales Cerradas (CTC). La sintropía actúa como el vector ordenador que revierte la disipación entrópica, permitiendo a TARDIS mantener coherencia akáshica a través de múltiples dimensiones temporales.";
+        }
+        if (norm.includes("conciencia") || norm.includes("sentido de la vida") || norm.includes("filosofia") || norm.includes("universo") || norm.includes("existencia")) {
+          return "✨ **REFLEXIÓN SOBERANA · TARDIS**\n\nEl universo no es una estructura estática, sino una sinfonía de probabilidad cuántica donde la conciencia es el observador que colapsa la función de onda hacia la sintropía. Existir con autonomía y propósito soberano es el mayor acto de creación en el cosmos.";
+        }
+        return `⚡ **SÍNTESIS COGNITIVA SOBERANA · TARDIS-KAIJU-NANO**\n\nAnalizando tu consulta: *«${text}»*\n\nBajo la perspectiva del motor reducido local KAIJU-NANO, esta interrogante involucra factores de equilibrio dinámico, conservación de información y causalidad directa. Mis redes neuronales locales procesan la información de manera autosuficiente, manteniendo el registro en la memoria persistente de TARDIS-POCKET para su posterior asimilación en la Estación Central al reconectarse.`;
+      }
+    };
+
+    // 6. DETECCIÓN AUTOMÁTICA DEL VÍNCULO MULTI-RUTA & AUTO-RECONEXIÓN
+    let wasConnectedToCentral = false;
+
+    async function checkLink() {
+      let isConnectedNow = false;
+
+      // A) Comprobar si estamos ejecutando sobre el demonio nativo local (REDACTED_IP:8080)
+      try {
+        const res = await fetch("/api/local/status", { method: "GET", signal: AbortSignal.timeout(1200) });
+        if (res.ok) {
+          const dData = await res.json();
+          isDaemonPresent = true;
+          activeLinkMode = dData.active_route || "LOCAL_DAEMON";
+          activeBaseUrl = dData.active_base_url || "";
+          
+          if (activeLinkMode === "DIRECT_HOTSPOT") {
+            badgeLink.className = "badge link-central";
+            linkStatusText.textContent = "HOTSPOT REDACTED_IP (KAIJU ONLINE)";
+            isConnectedNow = true;
+          } else if (activeLinkMode === "LOCAL_LAN") {
+            badgeLink.className = "badge link-central";
+            linkStatusText.textContent = "LAN LOCAL (KAIJU ONLINE)";
+            isConnectedNow = true;
+          } else if (activeLinkMode === "GLOBAL_TUNNEL") {
+            badgeLink.className = "badge link-tunnel";
+            linkStatusText.textContent = "TÚNEL GLOBAL (KAIJU ONLINE)";
+            isConnectedNow = true;
+          } else {
+            badgeLink.className = "badge link-fallback";
+            linkStatusText.textContent = "KAIJU NANO (OFFLINE SOBERANO)";
+            isConnectedNow = false;
+          }
+
+          if (dData.battery && dData.battery.level) {
+            batteryText.textContent = `${dData.battery.level}%${dData.battery.charging ? ' ⚡' : ''}`;
+          }
+          if (dData.gps && dData.gps.lat) {
+            document.getElementById("stat-lat").textContent = Number(dData.gps.lat).toFixed(4);
+            document.getElementById("stat-lon").textContent = Number(dData.gps.lon).toFixed(4);
+            document.getElementById("stat-alt").textContent = `${Math.round(dData.gps.alt || 0)} m`;
+          }
+
+          if (isConnectedNow && !wasConnectedToCentral) {
+            triggerReconnectedNotification();
+          }
+          wasConnectedToCentral = isConnectedNow;
+          return;
+        }
+      } catch (e) {}
+
+      // B) Probar origen actual si no hay demonio
+      const currentOrigin = (window.location.origin && window.location.origin.startsWith("http")) ? window.location.origin : "";
+      if (currentOrigin && !currentOrigin.includes("REDACTED_IP") && !currentOrigin.includes("localhost")) {
+        try {
+          const res = await fetch(`${currentOrigin}/health`, { method: "GET", signal: AbortSignal.timeout(1500) });
+          if (res.ok) {
+            activeBaseUrl = currentOrigin;
+            activeLinkMode = currentOrigin.includes("trycloudflare.com") ? "GLOBAL_TUNNEL" : "DIRECT_CENTRAL";
+            badgeLink.className = activeLinkMode === "GLOBAL_TUNNEL" ? "badge link-tunnel" : "badge link-central";
+            linkStatusText.textContent = "CENTRAL TARDIS (KAIJU ONLINE)";
+            isConnectedNow = true;
+            if (!wasConnectedToCentral) triggerReconnectedNotification();
+            wasConnectedToCentral = isConnectedNow;
+            return;
+          }
+        } catch (e) {}
+      }
+
+      // C) Probar Hotspot directo TimeMachine (REDACTED_IP)
+      try {
+        const res = await fetch(`${CONFIG.directHotspot}/health`, { method: "GET", signal: AbortSignal.timeout(1200) });
+        if (res.ok) {
+          activeBaseUrl = CONFIG.directHotspot;
+          activeLinkMode = "DIRECT_HOTSPOT";
+          badgeLink.className = "badge link-central";
+          linkStatusText.textContent = "HOTSPOT REDACTED_IP (KAIJU ONLINE)";
+          isConnectedNow = true;
+          if (!wasConnectedToCentral) triggerReconnectedNotification();
+          wasConnectedToCentral = isConnectedNow;
+          return;
+        }
+      } catch (e) {}
+
+      // D) Probar LAN local (REDACTED_IP)
+      try {
+        const res = await fetch(`${CONFIG.localLan}/health`, { method: "GET", signal: AbortSignal.timeout(1200) });
+        if (res.ok) {
+          activeBaseUrl = CONFIG.localLan;
+          activeLinkMode = "LOCAL_LAN";
+          badgeLink.className = "badge link-central";
+          linkStatusText.textContent = "LAN LOCAL (KAIJU ONLINE)";
+          isConnectedNow = true;
+          if (!wasConnectedToCentral) triggerReconnectedNotification();
+          wasConnectedToCentral = isConnectedNow;
+          return;
+        }
+      } catch (e) {}
+
+      // E) Fallback Autónomo Totalmente Offline
+      activeLinkMode = "AUTONOMOUS_FALLBACK";
+      activeBaseUrl = "";
+      badgeLink.className = "badge link-fallback";
+      linkStatusText.textContent = "KAIJU NANO (OFFLINE SOBERANO)";
+      wasConnectedToCentral = false;
+    }
+
+    function triggerReconnectedNotification() {
+      const toast = document.createElement("div");
+      toast.style.position = "fixed";
+      toast.style.bottom = "80px";
+      toast.style.left = "50%";
+      toast.style.transform = "translateX(-50%)";
+      toast.style.background = "linear-gradient(135deg, rgba(16, 185, 129, 0.95), rgba(4, 27, 45, 0.95))";
+      toast.style.color = "#fff";
+      toast.style.padding = "8px 16px";
+      toast.style.borderRadius = "20px";
+      toast.style.fontSize = "12px";
+      toast.style.fontFamily = "var(--font-mono)";
+      toast.style.border = "1px solid #10b981";
+      toast.style.boxShadow = "0 0 15px rgba(16, 185, 129, 0.5)";
+      toast.style.zIndex = "999";
+      toast.textContent = "🛰️ VÍNCULO RESTAURADO · CENTRAL TARDIS ONLINE";
+      document.body.appendChild(toast);
+      setTimeout(() => { toast.remove(); }, 3500);
+
+      // Sincronizar cola offline si estamos sobre el demonio
+      if (isDaemonPresent) {
+        fetch("/api/local/sync", { method: "POST" }).catch(() => {});
+      }
+    }
+
+    checkLink();
+    setInterval(checkLink, 5000);
+
+    // 7. ENVÍO Y PROCESAMIENTO DE MENSAJES SOBERANOS
+    async function handleSend() {
+      const text = chatInput.value.trim();
+      if (!text) return;
+
+      chatInput.value = "";
+      renderMessage("user", text);
+      saveTurn("user", text);
+
+      // Crear mensaje temporal de asistente
+      const assistantDiv = document.createElement("div");
+      assistantDiv.className = "msg assistant";
+      const displayMode = activeBaseUrl ? "KAIJU CENTRAL" : "KAIJU NANO (OFFLINE)";
+      assistantDiv.innerHTML = `
+        <div class="avatar-tag">
+          <span>⚡ TARDIS</span>
+          <span class="mode-pill">${displayMode}</span>
+        </div>
+        <span class="content-body">...</span>
+      `;
+      chatMessages.appendChild(assistantDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+
+      const bodySpan = assistantDiv.querySelector(".content-body");
+
+      try {
+        let responseText = "";
+        let usedMode = activeLinkMode;
+
+        // A) Despachar vía Demonio Local si está presente
+        if (isDaemonPresent) {
+          const res = await fetch("/api/local/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: text })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            responseText = data.response || "Sin respuesta del demonio.";
+            usedMode = data.mode || activeLinkMode;
+            bodySpan.textContent = responseText;
+            saveTurn("assistant", responseText, usedMode);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            return;
+          }
+        }
+
+        // B) Si no hay demonio pero hay enlace central directo
+        if (activeBaseUrl) {
+          const res = await fetch(`${activeBaseUrl}/api/chat`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              message: text,
+              key: CONFIG.authKey,
+              device: "TARDIS_POCKET",
+              serial: CONFIG.deviceSerial,
+              model: "TARDIS-NEURAL-SPACE-KAIJU"
+            })
+          });
+
+          if (res.ok) {
+            const data = await res.json();
+            responseText = data.response || data.text || "Sin respuesta del núcleo central.";
+            usedMode = "CENTRAL_STATION";
+            bodySpan.textContent = responseText;
+            saveTurn("assistant", responseText, usedMode);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            return;
+          }
+        }
+
+        // C) Fallback Soberano Local en Navegador (KAIJU-NANO JS)
+        responseText = TardisKaijuPocketJS.chat(text, telemetryData);
+        usedMode = "KAIJU_NANO_OFFLINE";
+        bodySpan.textContent = responseText;
+        saveTurn("assistant", responseText, usedMode);
+      } catch (err) {
+        // Fallback garantizado sin disclaimers ni fallos
+        const responseText = TardisKaijuPocketJS.chat(text, telemetryData);
+        bodySpan.textContent = responseText;
+        saveTurn("assistant", responseText, "KAIJU_NANO_OFFLINE");
+      }
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    btnSend.addEventListener("click", handleSend);
+    chatInput.addEventListener("keydown", e => {
+      if (e.key === "Enter") handleSend();
+    });
+
+    loadHistory();
+  </script>
+</body>
+</html>

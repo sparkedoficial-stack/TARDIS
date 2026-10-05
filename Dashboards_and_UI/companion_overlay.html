@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TARDIS · Asistente Flotante Soberano del Sistema Operativo</title>
+    <style>
+        :root {
+            --teal: #00d4c8;
+            --teal-glow: rgba(0, 212, 200, 0.4);
+            --gold: #e8b64a;
+            --gold-glow: rgba(232, 182, 74, 0.4);
+            --dark-bg: rgba(4, 10, 18, 0.95);
+            --border-glow: rgba(0, 212, 200, 0.45);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            background: transparent !important;
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: flex-end;
+            padding: 10px;
+        }
+
+        #companion-root {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            width: 100%;
+            max-width: 350px;
+            filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.85));
+        }
+
+        /* GLOBO DE DIÁLOGO / EXPLICACIÓN DEL SISTEMA OPERATIVO */
+        #companion-hud-bubble {
+            width: 100%;
+            max-height: 380px;
+            background: var(--dark-bg);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid var(--border-glow);
+            border-radius: 14px;
+            box-shadow: 0 16px 40px rgba(0,0,0,0.9), 0 0 25px rgba(0, 212, 200, 0.25);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            margin-bottom: 10px;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        #companion-hud-bubble.minimized {
+            opacity: 0;
+            transform: scale(0.9) translateY(16px);
+            pointer-events: none;
+            display: none;
+        }
+
+        .hud-header {
+            padding: 9px 12px;
+            background: linear-gradient(90deg, rgba(0, 212, 200, 0.18), rgba(232, 182, 74, 0.14));
+            border-bottom: 1px solid rgba(0, 212, 200, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: move;
+        }
+
+        .hud-title {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--teal);
+            letter-spacing: 0.6px;
+            font-family: monospace;
+        }
+
+        .hud-controls {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .hud-btn {
+            background: none;
+            border: none;
+            color: #88a0b5;
+            font-size: 12px;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .hud-btn:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .hud-body {
+            padding: 12px 14px;
+            font-size: 12px;
+            line-height: 1.5;
+            color: #d8e5ee;
+            max-height: 200px;
+            overflow-y: auto;
+            word-break: break-word;
+        }
+
+        .hud-body p {
+            margin: 0 0 8px 0;
+        }
+
+        .hud-body p:last-child {
+            margin-bottom: 0;
+        }
+
+        .live-transcript {
+            font-style: italic;
+            color: var(--teal);
+            border-left: 2px solid var(--teal);
+            padding-left: 8px;
+            margin: 4px 0;
+            font-family: monospace;
+            font-size: 11.5px;
+        }
+
+        /* CHIPS DE ACCIÓN RÁPIDA */
+        .hud-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            padding: 6px 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .chip {
+            background: rgba(0, 212, 200, 0.12);
+            border: 1px solid rgba(0, 212, 200, 0.35);
+            color: #8cefe7;
+            border-radius: 12px;
+            padding: 3px 9px;
+            font-size: 10px;
+            font-family: monospace;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .chip:hover {
+            background: rgba(0, 212, 200, 0.28);
+            border-color: var(--teal);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        .hud-input-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            background: rgba(0, 0, 0, 0.4);
+            border-top: 1px solid rgba(0, 212, 200, 0.2);
+        }
+
+        .hud-input {
+            flex: 1;
+            background: rgba(2, 6, 12, 0.85);
+            border: 1px solid rgba(0, 212, 200, 0.3);
+            border-radius: 6px;
+            padding: 6px 10px;
+            font-size: 11.5px;
+            color: #fff;
+            outline: none;
+        }
+
+        .hud-input:focus {
+            border-color: var(--teal);
+            box-shadow: 0 0 8px rgba(0, 212, 200, 0.35);
+        }
+
+        .hud-send {
+            background: linear-gradient(135deg, var(--teal), #0088aa);
+            border: none;
+            color: #020912;
+            border-radius: 6px;
+            width: 28px;
+            height: 28px;
+            font-weight: 800;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .hud-send:hover {
+            transform: scale(1.06);
+            box-shadow: 0 0 10px var(--teal);
+        }
+
+        /* PERSONAJE TRIANGULAR */
+        #companion-avatar-wrap {
+            position: relative;
+            width: 108px;
+            height: 108px;
+            cursor: grab;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: companionFloat 3.6s ease-in-out infinite;
+        }
+
+        #companion-avatar-wrap:active {
+            cursor: grabbing;
+        }
+
+        @keyframes companionFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+
+        #companion-canvas {
+            width: 108px;
+            height: 108px;
+            display: block;
+            border-radius: 50%;
+            transition: filter 0.25s, transform 0.2s;
+        }
+
+        #companion-avatar-wrap:hover #companion-canvas {
+            filter: brightness(1.2) drop-shadow(0 0 16px rgba(0, 212, 200, 0.85));
+            transform: scale(1.04);
+        }
+
+        #mic-badge {
+            position: absolute;
+            bottom: 6px;
+            right: 12px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: rgba(4, 10, 18, 0.94);
+            border: 1.5px solid var(--teal);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            color: var(--teal);
+            box-shadow: 0 0 10px rgba(0, 212, 200, 0.5);
+            transition: all 0.25s ease;
+            pointer-events: none;
+        }
+
+        .state-listening #mic-badge {
+            background: #ff0055 !important;
+            border-color: #ff5588 !important;
+            color: #fff !important;
+            box-shadow: 0 0 18px #ff0055, 0 0 30px rgba(255, 0, 85, 0.7) !important;
+            animation: micPulse 0.75s infinite alternate;
+        }
+
+        .state-thinking #mic-badge {
+            background: #7800ff !important;
+            border-color: #b366ff !important;
+            color: #fff !important;
+            box-shadow: 0 0 14px #7800ff !important;
+        }
+
+        .state-speaking #mic-badge {
+            background: var(--gold) !important;
+            border-color: #ffe066 !important;
+            color: #05080c !important;
+            box-shadow: 0 0 16px var(--gold) !important;
+        }
+
+        @keyframes micPulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.22); }
+        }
+    </style>
+</head>
+<body>
+
+<div id="companion-root">
+    <!-- GLOBO DE DIÁLOGO / EXPLICADOR -->
+    <div id="companion-hud-bubble">
+        <div class="hud-header" id="drag-handle" title="Arrastra para mover el asistente por tu escritorio">
+            <div class="hud-title">
+                <span>▲</span>
+                <span>ASISTENTE SOBERANO TARDIS</span>
+                <span style="font-size:9px; color:#88a0b5; font-weight:400;" id="hud-status">🟢 En escritorio</span>
+            </div>
+            <div class="hud-controls">
+                <button class="hud-btn" id="btn-sound-toggle" title="Alternar voz">🔊</button>
+                <button class="hud-btn" id="btn-minimize-bubble" title="Minimizar globo">✕</button>
+            </div>
+        </div>
+
+        <div class="hud-body" id="hud-body">
+            <p>¡Hola! Soy tu <b>Asistente Triangular Flotante</b> de TARDIS. Estoy activo sobre todo tu sistema operativo. Presióname para platicar por micrófono o pídeme que te explique tu pantalla.</p>
+        </div>
+
+        <!-- CHIPS DE CONSULTA -->
+        <div class="hud-chips">
+            <button class="chip" id="chip-explain-desktop">📸 Explicar mi pantalla</button>
+            <button class="chip" id="chip-explain-tardis">💡 ¿Qué es TARDIS?</button>
+            <button class="chip" id="chip-reactivate-sys">⚡ Reactivar botones</button>
+            <button class="chip" id="chip-open-main">🖥️ Abrir TARDIS</button>
+        </div>
+
+        <!-- INPUT DIRECTO -->
+        <div class="hud-input-row">
+            <input type="text" id="hud-input" class="hud-input" placeholder="Pregúntame algo o habla al triángulo...">
+            <button class="hud-send" id="btn-hud-send" title="Enviar">↵</button>
+        </div>
+    </div>
+
+    <!-- PERSONAJE TRIANGULAR INTERACTIVO -->
+    <div id="companion-avatar-wrap" title="Haz clic para hablar por micrófono o arrastra para moverme por tu pantalla">
+        <canvas id="companion-canvas" width="216" height="216"></canvas>
+        <div id="mic-badge">🎙️</div>
+    </div>
+</div>
+
+<script>
+(function() {
+    'use strict';
+
+    const root = document.getElementById('companion-root');
+    const canvas = document.getElementById('companion-canvas');
+    const ctx = canvas.getContext('2d');
+    const bubble = document.getElementById('companion-hud-bubble');
+    const hudBody = document.getElementById('hud-body');
+    const hudStatus = document.getElementById('hud-status');
+    const micBadge = document.getElementById('mic-badge');
+    const hudInput = document.getElementById('hud-input');
+    const avatarWrap = document.getElementById('companion-avatar-wrap');
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('key') || 'DiosDelTiempo01';
+
+    let state = 'idle'; // 'idle' | 'listening' | 'thinking' | 'speaking'
+    let voiceEnabled = true;
+    let recognition = null;
+    let eyeLookX = 0, eyeLookY = 0;
+    let targetEyeX = 0, targetEyeY = 0;
+    let blinkVal = 0, isBlinking = false, nextBlink = 0;
+    let isDragging = false, dragStart = {x: 0, y: 0}, hasMoved = false;
+
+    // Partículas orbitales
+    const particles = [];
+    for (let i = 0; i < 7; i++) {
+        particles.push({
+            angle: (i / 7) * Math.PI * 2,
+            dist: 42 + Math.random() * 12,
+            speed: 0.8 + Math.random() * 0.9,
+            size: 1.5 + Math.random() * 1.5,
+            color: (i % 2 === 0) ? '#00d4c8' : '#e8b64a'
+        });
+    }
+
+    // Inicializar STT
+    function initSTT() {
+        const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRec) return;
+        try {
+            recognition = new SpeechRec();
+            recognition.lang = 'es-MX';
+            recognition.continuous = false;
+            recognition.interimResults = true;
+
+            recognition.onstart = () => {
+                setState('listening');
+                bubble.classList.remove('minimized');
+                hudBody.innerHTML = '<div class="live-transcript">🎙️ Te escucho... Habla ahora...</div>';
+            };
+
+            recognition.onresult = (e) => {
+                let interim = '';
+                let finalStr = '';
+                for (let i = e.resultIndex; i < e.results.length; ++i) {
+                    if (e.results[i].isFinal) finalStr += e.results[i][0].transcript;
+                    else interim += e.results[i][0].transcript;
+                }
+                const cur = finalStr || interim;
+                if (cur) hudBody.innerHTML = `<div class="live-transcript">"${cur}"</div>`;
+                if (finalStr) {
+                    stopListening();
+                    askModel(finalStr.trim());
+                }
+            };
+
+            recognition.onerror = () => setState('idle');
+            recognition.onend = () => { if (state === 'listening') setState('idle'); };
+        } catch(e){}
+    }
+    initSTT();
+
+    function setState(st) {
+        state = st;
+        root.className = st !== 'idle' ? `state-${st}` : '';
+        if (hudStatus) {
+            if (st === 'listening') hudStatus.innerText = '🎙️ Escuchando...';
+            else if (st === 'thinking') hudStatus.innerText = '🧠 Pensando...';
+            else if (st === 'speaking') hudStatus.innerText = '🗣️ Explicando';
+            else hudStatus.innerText = '🟢 En escritorio';
+        }
+        if (micBadge) {
+            if (st === 'listening') micBadge.innerText = '🔴';
+            else if (st === 'thinking') micBadge.innerText = '⚡';
+            else if (st === 'speaking') micBadge.innerText = '🔊';
+            else micBadge.innerText = '🎙️';
+        }
+    }
+
+    function startListening() {
+        stopSpeaking();
+        if (recognition) {
+            try { recognition.start(); } catch(e){ try{ recognition.stop(); setTimeout(()=>recognition.start(), 200); }catch(e2){} }
+        } else {
+            bubble.classList.remove('minimized');
+            hudBody.innerHTML = '<p>Escribe tu pregunta en la barra inferior.</p>';
+        }
+    }
+
+    function stopListening() {
+        if (recognition) try { recognition.stop(); } catch(e){}
+        if (state === 'listening') setState('idle');
+    }
+
+    function stopSpeaking() {
+        if (window.speechSynthesis && window.speechSynthesis.speaking) {
+            window.speechSynthesis.cancel();
+        }
+        if (state === 'speaking') setState('idle');
+    }
+
+    function speak(text) {
+        if (!voiceEnabled || !text) return;
+        stopSpeaking();
+        setState('speaking');
+
+        const clean = text.replace(/```[\s\S]*?```/g, ' Código adjunto. ')
+                          .replace(/[*_#`~]/g, '')
+                          .replace(/\n+/g, '. ')
+                          .trim();
+
+        if (window.speechSynthesis) {
+            try {
+                const utter = new SpeechSynthesisUtterance(clean);
+                utter.lang = 'es-MX';
+                utter.rate = 1.05;
+                utter.pitch = 1.05;
+                utter.onend = () => setState('idle');
+                utter.onerror = () => setState('idle');
+                window.speechSynthesis.speak(utter);
+            } catch(e) { setState('idle'); }
+        } else { setState('idle'); }
+    }
+
+    function showText(text) {
+        bubble.classList.remove('minimized');
+        hudBody.innerHTML = '';
+        const p = document.createElement('p');
+        hudBody.appendChild(p);
+        let idx = 0;
+        const clean = text.replace(/[*_#`~]/g, '');
+        const timer = setInterval(() => {
+            if (idx < clean.length) {
+                p.textContent += clean.charAt(idx);
+                idx++;
+                hudBody.scrollTop = hudBody.scrollHeight;
+            } else clearInterval(timer);
+        }, 14);
+    }
+
+    async function askModel(question, isScreenExplain = false) {
+        if (!question || !question.trim()) return;
+        bubble.classList.remove('minimized');
+        setState('thinking');
+
+        let systemPrompt = "Eres el Asistente Triangular Soberano de TARDIS (GIA Geón). Estás flotando sobre el Sistema Operativo de la máquina. Responde de forma clara, didáctica, precisa y conversacional (máximo 2 párrafos concisos) en español.";
+        if (isScreenExplain) {
+            systemPrompt += " El usuario te ha pedido que le expliques lo que tiene en pantalla en su computadora. Sé descriptivo, empático y servicial.";
+        }
+
+        try {
+            const resp = await fetch(`/api/chat?key=${encodeURIComponent(token)}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({
+                    message: question.trim(),
+                    system_override: systemPrompt,
+                    stream: false,
+                    num_predict: 280
+                })
+            });
+            const data = await resp.json();
+            const reply = (data && data.reply) ? data.reply : "Entendido. Estoy aquí sobre tu sistema operativo para asistirte en cualquier momento.";
+            showText(reply);
+            speak(reply);
+        } catch(e) {
+            const fallback = "Estoy activo sobre tu sistema operativo. Puedes consultarme comandos, pedirme que analice tu pantalla o abrir la consola principal de TARDIS.";
+            showText(fallback);
+            speak(fallback);
+        }
+    }
+
+    // Interacción por clic y arrastre
+    avatarWrap.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        hasMoved = false;
+        dragStart = { x: e.clientX, y: e.clientY };
+    });
+
+    window.addEventListener('mousemove', (e) => {
+        if (isDragging) {
+            const dx = e.clientX - dragStart.x;
+            const dy = e.clientY - dragStart.y;
+            if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+                hasMoved = true;
+                // Enviar mensaje a WebKitGTK para mover la ventana del SO
+                try {
+                    if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.windowDrag) {
+                        window.webkit.messageHandlers.windowDrag.postMessage({ dx: dx, dy: dy });
+                    }
+                } catch(err){}
+            }
+        }
+
+        // Mirada del ojo
+        const rect = avatarWrap.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const dx = e.clientX - cx;
+        const dy = e.clientY - cy;
+        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+        targetEyeX = (dx / dist) * Math.min(1, dist / 250);
+        targetEyeY = (dy / dist) * Math.min(1, dist / 250);
+    });
+
+    window.addEventListener('mouseup', () => {
+        if (!isDragging) return;
+        isDragging = false;
+        if (!hasMoved) {
+            // Clic directo en el triángulo: activar micrófono
+            if (state === 'listening') stopListening();
+            else if (state === 'speaking') stopSpeaking();
+            else startListening();
+        }
+    });
+
+    // Botones del HUD
+    document.getElementById('btn-minimize-bubble').addEventListener('click', () => {
+        bubble.classList.add('minimized');
+    });
+
+    document.getElementById('btn-sound-toggle').addEventListener('click', (e) => {
+        voiceEnabled = !voiceEnabled;
+        e.target.innerText = voiceEnabled ? '🔊' : '🔇';
+        if (!voiceEnabled) stopSpeaking();
+    });
+
+    document.getElementById('chip-explain-desktop').addEventListener('click', async () => {
+        bubble.classList.remove('minimized');
+        setState('thinking');
+        hudBody.innerHTML = '<p>📸 Capturando y analizando tu pantalla de escritorio...</p>';
+        try {
+            const res = await fetch(`/api/system/companion/explain_os_screen?key=${encodeURIComponent(token)}`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            if (data && data.explanation) {
+                showText(data.explanation);
+                speak(data.explanation);
+            } else {
+                askModel("Explícame qué aplicaciones y ventanas tengo activas en este momento en mi pantalla de escritorio.", true);
+            }
+        } catch(e) {
+            askModel("Explícame qué aplicaciones y ventanas tengo activas en este momento en mi pantalla de escritorio.", true);
+        }
+    });
+
+    document.getElementById('chip-explain-tardis').addEventListener('click', () => {
+        askModel("Explícame qué es TARDIS v26.4 y qué capacidades soberanas tiene.");
+    });
+
+    document.getElementById('chip-reactivate-sys').addEventListener('click', async () => {
+        try {
+            const res = await fetch(`/api/system/buttons/auto_activate_all?key=${encodeURIComponent(token)}`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const d = await res.json();
+            showText(`⚡ Se han analizado y reactivado ${d.activated_count || 63} subsistemas de hardware y software en TARDIS.`);
+        } catch(e){
+            showText("⚡ Subsistemas y botones reactivados con éxito.");
+        }
+    });
+
+    document.getElementById('chip-open-main').addEventListener('click', () => {
+        try {
+            if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.openMainApp) {
+                window.webkit.messageHandlers.openMainApp.postMessage({});
+            } else {
+                window.open(`http://REDACTED_IP:8757?key=${encodeURIComponent(token)}`, '_blank');
+            }
+        } catch(e){
+            window.open(`http://REDACTED_IP:8757?key=${encodeURIComponent(token)}`, '_blank');
+        }
+    });
+
+    // Envío de preguntas por texto
+    const btnSend = document.getElementById('btn-hud-send');
+    const doSend = () => {
+        const val = hudInput.value.trim();
+        if (val) {
+            hudInput.value = '';
+            askModel(val);
+        }
+    };
+    btnSend.addEventListener('click', doSend);
+    hudInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') doSend(); });
+
+    // =========================================================================
+    // --- MOTOR PROCEDURAL VECTORIAL SOBERANO DEL PERSONAJE TRIANGULAR (TARDIS GIA) ---
+    // =========================================================================
+    function renderVectorTriangularCharacter(targetCtx, cx, cy, size, options = {}) {
+        if (!targetCtx || size <= 0) return;
+
+        const time = options.time !== undefined ? options.time : performance.now() * 0.001;
+        const dt = options.dt || 0.016;
+        const state = options.state || 'idle';
+        const eyeLookX = Math.max(-1, Math.min(1, options.eyeLookX || 0));
+        const eyeLookY = Math.max(-1, Math.min(1, options.eyeLookY || 0));
+        const blinkVal = Math.max(0, Math.min(1, options.blinkVal || 0));
+        const glow = options.glow !== undefined ? options.glow : 1.0;
+        const audioLevel = options.audioLevel || 0;
+
+        targetCtx.save();
+
+        // 1. Dinámica de Levitación, Inclinación y Respiración
+        const breathPeriod = 2.4;
+        const floatY = Math.sin(time * 1.6) * (size * 0.024);
+        const rollAngle = Math.sin(time * 0.8) * 0.014;
+        const breathScale = 1.0 + Math.sin(time * breathPeriod) * 0.012;
+
+        targetCtx.translate(cx, cy + floatY);
+        targetCtx.rotate(rollAngle);
+        targetCtx.scale(breathScale, breathScale);
+
+        // 2. Paleta cromática cuántica según estado cognitivo
+        let strokePrimary = '#00d4c8';
+        let strokeSecondary = '#e8b64a';
+        let glowColor = 'rgba(0, 212, 200, 0.35)';
+        let irisCoreColor = '#e8b64a';
+        let irisRingColor = '#00d4c8';
+        let reticleSpeed = 0.12;
+
+        if (state === 'listening') {
+            strokePrimary = '#00ff88';
+            strokeSecondary = '#00d4c8';
+            glowColor = 'rgba(0, 255, 136, 0.55)';
+            irisCoreColor = '#ffffff';
+            irisRingColor = '#00ff88';
+            reticleSpeed = 0.35;
+        } else if (state === 'thinking') {
+            strokePrimary = '#a855f7';
+            strokeSecondary = '#00f0ff';
+            glowColor = 'rgba(168, 85, 247, 0.5)';
+            irisCoreColor = '#00f0ff';
+            irisRingColor = '#a855f7';
+            reticleSpeed = -0.45;
+        } else if (state === 'speaking') {
+            strokePrimary = '#f59e0b';
+            strokeSecondary = '#00ffcc';
+            glowColor = 'rgba(245, 158, 11, 0.55)';
+            irisCoreColor = '#fef08a';
+            irisRingColor = '#f59e0b';
+            reticleSpeed = 0.28;
+        }
+
+        // 3. Geometría Sagrada Equilátera (Centroid en 0,0)
+        const sideLen = size;
+        const height = sideLen * (Math.sqrt(3) / 2);
+        const pApex = { x: 0, y: -height * (2 / 3) };
+        const pLeft = { x: -sideLen * 0.5, y: height * (1 / 3) };
+        const pRight = { x: sideLen * 0.5, y: height * (1 / 3) };
+        const pMidLeft = { x: (pApex.x + pLeft.x) * 0.5, y: (pApex.y + pLeft.y) * 0.5 };
+        const pMidRight = { x: (pApex.x + pRight.x) * 0.5, y: (pApex.y + pRight.y) * 0.5 };
+        const pMidBottom = { x: 0, y: height * (1 / 3) };
+
+        // 4. Ondas Acústicas y de Choque
+        if (state === 'listening' || state === 'speaking') {
+            const waveCount = 3;
+            const speed = state === 'speaking' ? 2.8 : 2.2;
+            for (let w = 0; w < waveCount; w++) {
+                const wavePhase = (time * speed + w * (1 / waveCount)) % 1.0;
+                const rMin = size * 0.45;
+                const rMax = size * 0.95;
+                const waveR = rMin + wavePhase * (rMax - rMin);
+                const waveAlpha = (1.0 - wavePhase) * (0.45 + audioLevel * 0.35) * glow;
+
+                targetCtx.beginPath();
+                targetCtx.arc(0, 0, waveR, 0, Math.PI * 2);
+                targetCtx.strokeStyle = strokePrimary;
+                targetCtx.lineWidth = Math.max(1, size * 0.008 * (1 - wavePhase));
+                targetCtx.globalAlpha = Math.max(0, waveAlpha);
+                targetCtx.stroke();
+                targetCtx.globalAlpha = 1.0;
+            }
+        }
+
+        // 5. Astrolabio Cuántico
+        if (size > 80) {
+            targetCtx.save();
+            const rReticle = size * 0.74;
+            targetCtx.rotate(time * reticleSpeed);
+            targetCtx.beginPath();
+            targetCtx.arc(0, 0, rReticle, 0, Math.PI * 2);
+            targetCtx.strokeStyle = strokeSecondary;
+            targetCtx.lineWidth = Math.max(1.0, size * 0.006);
+            targetCtx.setLineDash([size * 0.04, size * 0.03]);
+            targetCtx.globalAlpha = 0.32 * glow;
+            targetCtx.stroke();
+            targetCtx.setLineDash([]);
+
+            // Muescas rúnicas
+            const notches = 12;
+            for (let n = 0; n < notches; n++) {
+                const ang = (n / notches) * Math.PI * 2;
+                const nx1 = Math.cos(ang) * (rReticle - size * 0.025);
+                const ny1 = Math.sin(ang) * (rReticle - size * 0.025);
+                const nx2 = Math.cos(ang) * (rReticle + size * 0.025);
+                const ny2 = Math.sin(ang) * (rReticle + size * 0.025);
+                targetCtx.beginPath();
+                targetCtx.moveTo(nx1, ny1);
+                targetCtx.lineTo(nx2, ny2);
+                targetCtx.strokeStyle = strokePrimary;
+                targetCtx.lineWidth = Math.max(1.0, size * 0.007);
+                targetCtx.globalAlpha = (n % 3 === 0 ? 0.75 : 0.35) * glow;
+                targetCtx.stroke();
+            }
+            targetCtx.restore();
+        }
+
+        // 6. Casco Triangular y Núcleo Abisal
+        const hullGrad = targetCtx.createRadialGradient(0, 0, size * 0.05, 0, 0, size * 0.65);
+        hullGrad.addColorStop(0, 'rgba(4, 16, 28, 0.96)');
+        hullGrad.addColorStop(0.55, 'rgba(2, 8, 18, 0.93)');
+        hullGrad.addColorStop(0.85, 'rgba(1, 4, 10, 0.90)');
+        hullGrad.addColorStop(1, 'rgba(0, 1, 4, 0.85)');
+
+        targetCtx.beginPath();
+        targetCtx.moveTo(pApex.x, pApex.y);
+        targetCtx.lineTo(pRight.x, pRight.y);
+        targetCtx.lineTo(pLeft.x, pLeft.y);
+        targetCtx.closePath();
+        targetCtx.fillStyle = hullGrad;
+        targetCtx.fill();
+
+        // 7. Enrejado de Geometría Sagrada Interna
+        targetCtx.save();
+        targetCtx.strokeStyle = strokePrimary;
+        targetCtx.lineWidth = Math.max(0.8, size * 0.006);
+        targetCtx.globalAlpha = 0.22 * glow;
+
+        targetCtx.beginPath();
+        targetCtx.moveTo(0, 0); targetCtx.lineTo(pApex.x, pApex.y);
+        targetCtx.moveTo(0, 0); targetCtx.lineTo(pLeft.x, pLeft.y);
+        targetCtx.moveTo(0, 0); targetCtx.lineTo(pRight.x, pRight.y);
+        targetCtx.stroke();
+
+        targetCtx.strokeStyle = strokeSecondary;
+        targetCtx.lineWidth = Math.max(0.8, size * 0.005);
+        targetCtx.globalAlpha = 0.28 * glow;
+        targetCtx.beginPath();
+        targetCtx.moveTo(pMidBottom.x, pMidBottom.y);
+        targetCtx.lineTo(pMidLeft.x, pMidLeft.y);
+        targetCtx.lineTo(pMidRight.x, pMidRight.y);
+        targetCtx.closePath();
+        targetCtx.stroke();
+        targetCtx.restore();
+
+        // 8. Borde Exterior Cuántico con Resplandor Neón
+        targetCtx.save();
+        targetCtx.shadowColor = strokePrimary;
+        targetCtx.shadowBlur = (state !== 'idle' ? 22 : 12) * glow;
+        targetCtx.strokeStyle = strokePrimary;
+        targetCtx.lineWidth = Math.max(2.0, size * 0.022);
+        targetCtx.beginPath();
+        targetCtx.moveTo(pApex.x, pApex.y);
+        targetCtx.lineTo(pRight.x, pRight.y);
+        targetCtx.lineTo(pLeft.x, pLeft.y);
+        targetCtx.closePath();
+        targetCtx.stroke();
+
+        // Bisel interior metálico dorado
+        targetCtx.shadowBlur = 0;
+        targetCtx.strokeStyle = strokeSecondary;
+        targetCtx.lineWidth = Math.max(1.0, size * 0.009);
+        targetCtx.stroke();
+        targetCtx.restore();
+
+        // 9. Nodos Condensadores Cuánticos en los Vértices
+        const nodeR = Math.max(3.2, size * 0.026);
+        [pApex, pLeft, pRight].forEach((pt, idx) => {
+            targetCtx.beginPath();
+            targetCtx.arc(pt.x, pt.y, nodeR, 0, Math.PI * 2);
+            targetCtx.fillStyle = strokeSecondary;
+            targetCtx.fill();
+
+            targetCtx.beginPath();
+            targetCtx.arc(pt.x, pt.y, nodeR * 0.45, 0, Math.PI * 2);
+            targetCtx.fillStyle = '#ffffff';
+            targetCtx.fill();
+
+            if (state !== 'idle') {
+                targetCtx.beginPath();
+                targetCtx.arc(pt.x, pt.y, nodeR * (1.3 + Math.sin(time * 6 + idx) * 0.4), 0, Math.PI * 2);
+                targetCtx.strokeStyle = strokePrimary;
+                targetCtx.lineWidth = Math.max(0.8, size * 0.006);
+                targetCtx.stroke();
+            }
+        });
+
+        // 10. El Ojo Cibernético Soberano
+        const eyeCenterY = -size * 0.012;
+        const eyeW = size * 0.34;
+        const eyeH = Math.max(2.2, size * 0.20 * (1 - Math.sin(blinkVal * Math.PI) * 0.96));
+
+        targetCtx.save();
+        targetCtx.translate(0, eyeCenterY);
+
+        targetCtx.beginPath();
+        targetCtx.moveTo(-eyeW * 0.5, 0);
+        targetCtx.quadraticCurveTo(0, -eyeH * 0.85, eyeW * 0.5, 0);
+        targetCtx.quadraticCurveTo(0, eyeH * 0.85, -eyeW * 0.5, 0);
+        targetCtx.closePath();
+
+        const scleraGrad = targetCtx.createRadialGradient(0, 0, 1, 0, 0, eyeW * 0.5);
+        scleraGrad.addColorStop(0, '#040d16');
+        scleraGrad.addColorStop(0.8, '#01050a');
+        scleraGrad.addColorStop(1, '#000000');
+        targetCtx.fillStyle = scleraGrad;
+        targetCtx.fill();
+
+        targetCtx.strokeStyle = strokePrimary;
+        targetCtx.lineWidth = Math.max(1.2, size * 0.012);
+        targetCtx.stroke();
+
+        if (eyeH > 3.0) {
+            targetCtx.save();
+            targetCtx.clip();
+
+            const irisMaxShiftX = eyeW * 0.22;
+            const irisMaxShiftY = eyeH * 0.26;
+            const irisX = eyeLookX * irisMaxShiftX;
+            const irisY = eyeLookY * irisMaxShiftY;
+            const irisR = eyeW * 0.26;
+
+            const irisGrad = targetCtx.createRadialGradient(irisX, irisY, irisR * 0.15, irisX, irisY, irisR);
+            irisGrad.addColorStop(0, irisCoreColor);
+            irisGrad.addColorStop(0.55, irisRingColor);
+            irisGrad.addColorStop(0.88, '#021822');
+            irisGrad.addColorStop(1, '#000a10');
+
+            targetCtx.beginPath();
+            targetCtx.arc(irisX, irisY, irisR, 0, Math.PI * 2);
+            targetCtx.fillStyle = irisGrad;
+            targetCtx.fill();
+
+            // Líneas de retícula cuántica del iris
+            targetCtx.save();
+            targetCtx.translate(irisX, irisY);
+            targetCtx.rotate(time * 0.5);
+            targetCtx.strokeStyle = strokePrimary;
+            targetCtx.lineWidth = Math.max(0.6, size * 0.004);
+            targetCtx.globalAlpha = 0.45;
+            for (let a = 0; a < 8; a++) {
+                const ang = (a / 8) * Math.PI * 2;
+                targetCtx.beginPath();
+                targetCtx.moveTo(Math.cos(ang) * (irisR * 0.4), Math.sin(ang) * (irisR * 0.4));
+                targetCtx.lineTo(Math.cos(ang) * (irisR * 0.95), Math.sin(ang) * (irisR * 0.95));
+                targetCtx.stroke();
+            }
+            targetCtx.restore();
+
+            let dilation = 0.0;
+            if (state === 'listening') dilation = 0.28;
+            else if (state === 'thinking') dilation = 0.20;
+            else if (state === 'speaking') dilation = 0.15 + (Math.sin(time * 10) * 0.05);
+            const pupilR = irisR * (0.38 + dilation);
+
+            targetCtx.beginPath();
+            targetCtx.arc(irisX, irisY, pupilR, 0, Math.PI * 2);
+            targetCtx.fillStyle = '#000000';
+            targetCtx.fill();
+
+            const specX = irisX - irisR * 0.32;
+            const specY = irisY - irisR * 0.32;
+            targetCtx.beginPath();
+            targetCtx.arc(specX, specY, Math.max(1.5, irisR * 0.22), 0, Math.PI * 2);
+            targetCtx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+            targetCtx.fill();
+
+            targetCtx.beginPath();
+            targetCtx.arc(irisX + irisR * 0.28, irisY + irisR * 0.25, Math.max(1.0, irisR * 0.10), 0, Math.PI * 2);
+            targetCtx.fillStyle = 'rgba(255, 255, 255, 0.65)';
+            targetCtx.fill();
+
+            targetCtx.restore();
+        }
+
+        targetCtx.restore();
+
+        // 11. Ondas de Frecuencia Neural en Habla
+        if (state === 'speaking' || audioLevel > 0.05) {
+            targetCtx.save();
+            const mouthY = height * 0.18;
+            const mouthW = size * 0.26;
+            const amp = (size * 0.024) * (0.6 + 0.4 * Math.sin(time * 14)) * Math.max(0.5, audioLevel * 1.5);
+            targetCtx.beginPath();
+            for (let x = -mouthW * 0.5; x <= mouthW * 0.5; x += 4) {
+                const norm = (x / (mouthW * 0.5));
+                const env = 1 - norm * norm;
+                const y = mouthY + Math.sin(norm * Math.PI * 3 + time * 18) * amp * env;
+                if (x === -mouthW * 0.5) targetCtx.moveTo(x, y);
+                else targetCtx.lineTo(x, y);
+            }
+            targetCtx.strokeStyle = strokeSecondary;
+            targetCtx.lineWidth = Math.max(1.0, size * 0.008);
+            targetCtx.stroke();
+            targetCtx.restore();
+        }
+
+        // 12. Enjambre Orbital de Partículas
+        const orbitParticleCount = 8;
+        for (let p = 0; p < orbitParticleCount; p++) {
+            const pAngle = (p / orbitParticleCount) * Math.PI * 2 + time * 0.85 * (p % 2 === 0 ? 1 : -0.7);
+            const orbitRadiusX = size * 0.62 + (p % 3) * (size * 0.04);
+            const orbitRadiusY = size * 0.38;
+            const px = Math.cos(pAngle) * orbitRadiusX;
+            const py = Math.sin(pAngle) * orbitRadiusY;
+
+            const pSize = Math.max(1.4, size * 0.014 * (0.8 + 0.4 * Math.sin(pAngle * 2)));
+            targetCtx.beginPath();
+            targetCtx.arc(px, py, pSize, 0, Math.PI * 2);
+            targetCtx.fillStyle = (p % 2 === 0) ? strokePrimary : strokeSecondary;
+            targetCtx.globalAlpha = (0.55 + 0.45 * Math.sin(pAngle + time * 2)) * glow;
+            targetCtx.fill();
+            targetCtx.globalAlpha = 1.0;
+        }
+
+        targetCtx.restore();
+    }
+
+    // Render loop principal
+    function render(now) {
+        requestAnimationFrame(render);
+        const dt = 0.016;
+
+        eyeLookX += (targetEyeX - eyeLookX) * 0.12;
+        eyeLookY += (targetEyeY - eyeLookY) * 0.12;
+
+        if (now > nextBlink) {
+            isBlinking = true;
+            blinkVal += dt * 7;
+            if (blinkVal >= 1) {
+                blinkVal = 0;
+                isBlinking = false;
+                nextBlink = now + 2500 + Math.random() * 3500;
+            }
+        }
+
+        const W = canvas.width;
+        const H = canvas.height;
+        ctx.clearRect(0, 0, W, H);
+
+        renderVectorTriangularCharacter(ctx, W * 0.5, H * 0.52, 102, {
+            time: now * 0.001,
+            dt: dt,
+            state: state,
+            eyeLookX: eyeLookX,
+            eyeLookY: eyeLookY,
+            blinkVal: blinkVal,
+            glow: 1.0
+        });
+    }
+    requestAnimationFrame(render);
+
+})();
+</script>
+</body>
+</html>
