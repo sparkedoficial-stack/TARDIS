@@ -39,7 +39,7 @@ def _test_getattr(module_name, use_pytest=True):
             print(f'SKIP: Cannot import {module_name} due to {e}')
             return
 
-    key = 'THIS_SYMBOL_SHOULD_NOT_EXIST'
+    key = "REDACTED"
     if hasattr(module, key):
         delattr(module, key)
 

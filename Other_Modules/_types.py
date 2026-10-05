@@ -1,183 +1,274 @@
 """
-requests._types
-~~~~~~~~~~~~~~~
+Copyright (c) Django Software Foundation and individual contributors.
+All rights reserved.
 
-This module contains type aliases used internally by the Requests library.
-These types are not part of the public API and must not be relied upon
-by external code.
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+
+    1. Redistributions of source code must retain the above copyright notice,
+       this list of conditions and the following disclaimer.
+
+    2. Redistributions in binary form must reproduce the above copyright
+       notice, this list of conditions and the following disclaimer in the
+       documentation and/or other materials provided with the distribution.
+
+    3. Neither the name of Django nor the names of its contributors may be used
+       to endorse or promote products derived from this software without
+       specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
 from __future__ import annotations
 
-from collections.abc import Callable, Iterable, Mapping, MutableMapping, Sequence
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Protocol,
-    TypeAlias,
-    TypeVar,
-    runtime_checkable,
+import sys
+import types
+from collections.abc import Awaitable, Callable, Iterable, MutableMapping
+from typing import Any, Literal, Protocol, TypedDict
+
+if sys.version_info >= (3, 11):  # pragma: py-lt-311
+    from typing import NotRequired
+else:  # pragma: py-gte-311
+    from typing_extensions import NotRequired
+
+# WSGI
+Environ = MutableMapping[str, Any]
+ExcInfo = tuple[type[BaseException], BaseException, types.TracebackType | None]
+StartResponse = Callable[[str, Iterable[tuple[str, str]], ExcInfo | None], None]
+WSGIApp = Callable[[Environ, StartResponse], Iterable[bytes] | BaseException]
+
+
+# ASGI
+class ASGIVersions(TypedDict):
+    spec_version: str
+    version: Literal["2.0"] | Literal["3.0"]
+
+
+class HTTPScope(TypedDict):
+    type: Literal["http"]
+    asgi: ASGIVersions
+    http_version: str
+    method: str
+    scheme: str
+    path: str
+    raw_path: bytes
+    query_string: bytes
+    root_path: str
+    headers: Iterable[tuple[bytes, bytes]]
+    client: tuple[str, int] | None
+    server: tuple[str, int | None] | None
+    state: NotRequired[dict[str, Any]]
+    extensions: NotRequired[dict[str, dict[object, object]]]
+
+
+class WebSocketScope(TypedDict):
+    type: Literal["websocket"]
+    asgi: ASGIVersions
+    http_version: str
+    scheme: str
+    path: str
+    raw_path: bytes
+    query_string: bytes
+    root_path: str
+    headers: Iterable[tuple[bytes, bytes]]
+    client: tuple[str, int] | None
+    server: tuple[str, int | None] | None
+    subprotocols: Iterable[str]
+    state: NotRequired[dict[str, Any]]
+    extensions: NotRequired[dict[str, dict[object, object]]]
+
+
+class LifespanScope(TypedDict):
+    type: Literal["lifespan"]
+    asgi: ASGIVersions
+    state: NotRequired[dict[str, Any]]
+
+
+WWWScope = HTTPScope | WebSocketScope
+Scope = HTTPScope | WebSocketScope | LifespanScope
+
+
+class HTTPRequestEvent(TypedDict):
+    type: Literal["http.request"]
+    body: bytes
+    more_body: bool
+
+
+class HTTPResponseDebugEvent(TypedDict):
+    type: Literal["http.response.debug"]
+    info: dict[str, object]
+
+
+class HTTPResponseStartEvent(TypedDict):
+    type: Literal["http.response.start"]
+    status: int
+    headers: NotRequired[Iterable[tuple[bytes, bytes]]]
+    trailers: NotRequired[bool]
+
+
+class HTTPResponseBodyEvent(TypedDict):
+    type: Literal["http.response.body"]
+    body: bytes
+    more_body: NotRequired[bool]
+
+
+class HTTPResponseTrailersEvent(TypedDict):
+    type: Literal["http.response.trailers"]
+    headers: Iterable[tuple[bytes, bytes]]
+    more_trailers: bool
+
+
+class HTTPServerPushEvent(TypedDict):
+    type: Literal["http.response.push"]
+    path: str
+    headers: Iterable[tuple[bytes, bytes]]
+
+
+class HTTPDisconnectEvent(TypedDict):
+    type: Literal["http.disconnect"]
+
+
+class WebSocketConnectEvent(TypedDict):
+    type: Literal["websocket.connect"]
+
+
+class WebSocketAcceptEvent(TypedDict):
+    type: Literal["websocket.accept"]
+    subprotocol: NotRequired[str | None]
+    headers: NotRequired[Iterable[tuple[bytes, bytes]]]
+
+
+class _WebSocketReceiveEventBytes(TypedDict):
+    type: Literal["websocket.receive"]
+    bytes: bytes
+    text: NotRequired[None]
+
+
+class _WebSocketReceiveEventText(TypedDict):
+    type: Literal["websocket.receive"]
+    bytes: NotRequired[None]
+    text: str
+
+
+WebSocketReceiveEvent = _WebSocketReceiveEventBytes | _WebSocketReceiveEventText
+
+
+class _WebSocketSendEventBytes(TypedDict):
+    type: Literal["websocket.send"]
+    bytes: bytes
+    text: NotRequired[None]
+
+
+class _WebSocketSendEventText(TypedDict):
+    type: Literal["websocket.send"]
+    bytes: NotRequired[None]
+    text: str
+
+
+WebSocketSendEvent = _WebSocketSendEventBytes | _WebSocketSendEventText
+
+
+class WebSocketResponseStartEvent(TypedDict):
+    type: Literal["websocket.http.response.start"]
+    status: int
+    headers: Iterable[tuple[bytes, bytes]]
+
+
+class WebSocketResponseBodyEvent(TypedDict):
+    type: Literal["websocket.http.response.body"]
+    body: bytes
+    more_body: NotRequired[bool]
+
+
+class WebSocketDisconnectEvent(TypedDict):
+    type: Literal["websocket.disconnect"]
+    code: int
+    reason: NotRequired[str | None]
+
+
+class WebSocketCloseEvent(TypedDict):
+    type: Literal["websocket.close"]
+    code: NotRequired[int]
+    reason: NotRequired[str | None]
+
+
+class LifespanStartupEvent(TypedDict):
+    type: Literal["lifespan.startup"]
+
+
+class LifespanShutdownEvent(TypedDict):
+    type: Literal["lifespan.shutdown"]
+
+
+class LifespanStartupCompleteEvent(TypedDict):
+    type: Literal["lifespan.startup.complete"]
+
+
+class LifespanStartupFailedEvent(TypedDict):
+    type: Literal["lifespan.startup.failed"]
+    message: str
+
+
+class LifespanShutdownCompleteEvent(TypedDict):
+    type: Literal["lifespan.shutdown.complete"]
+
+
+class LifespanShutdownFailedEvent(TypedDict):
+    type: Literal["lifespan.shutdown.failed"]
+    message: str
+
+
+WebSocketEvent = WebSocketReceiveEvent | WebSocketDisconnectEvent | WebSocketConnectEvent
+
+
+ASGIReceiveEvent = (
+    HTTPRequestEvent
+    | HTTPDisconnectEvent
+    | WebSocketConnectEvent
+    | WebSocketReceiveEvent
+    | WebSocketDisconnectEvent
+    | LifespanStartupEvent
+    | LifespanShutdownEvent
 )
 
-_T_co = TypeVar("_T_co", covariant=True)
-_KT_co = TypeVar("_KT_co", covariant=True)
-_VT_co = TypeVar("_VT_co", covariant=True)
+
+ASGISendEvent = (
+    HTTPResponseStartEvent
+    | HTTPResponseBodyEvent
+    | HTTPResponseTrailersEvent
+    | HTTPServerPushEvent
+    | HTTPDisconnectEvent
+    | WebSocketAcceptEvent
+    | WebSocketSendEvent
+    | WebSocketResponseStartEvent
+    | WebSocketResponseBodyEvent
+    | WebSocketCloseEvent
+    | LifespanStartupCompleteEvent
+    | LifespanStartupFailedEvent
+    | LifespanShutdownCompleteEvent
+    | LifespanShutdownFailedEvent
+)
 
 
-@runtime_checkable
-class SupportsRead(Protocol[_T_co]):
-    def read(self, length: int = ..., /) -> _T_co: ...
+ASGIReceiveCallable = Callable[[], Awaitable[ASGIReceiveEvent]]
+ASGISendCallable = Callable[[ASGISendEvent], Awaitable[None]]
 
 
-@runtime_checkable
-class SupportsItems(Protocol[_KT_co, _VT_co]):
-    def items(self) -> Iterable[tuple[_KT_co, _VT_co]]: ...
+class ASGI2Protocol(Protocol):
+    def __init__(self, scope: Scope) -> None: ...  # pragma: no cover
+
+    async def __call__(self, receive: ASGIReceiveCallable, send: ASGISendCallable) -> None: ...  # pragma: no cover
 
 
-# These are needed at runtime for default_hooks() return type
-HookType: TypeAlias = Callable[["Response"], Any]
-HooksInputType: TypeAlias = Mapping[str, Iterable[HookType] | HookType]
-
-
-def is_prepared(request: PreparedRequest) -> TypeIs[_ValidatedRequest]:
-    """Verify a PreparedRequest has been fully prepared."""
-    if TYPE_CHECKING:
-        return request.url is not None and request.method is not None
-    # noop at runtime to avoid AssertionError
-    return True
-
-
-if TYPE_CHECKING:
-    from http.cookiejar import CookieJar
-    from typing import TypeAlias, TypedDict
-
-    from typing_extensions import (
-        Buffer,  # TODO: move to collections.abc when Python >= 3.12
-        TypeIs,  # TODO: move to typing when Python >= 3.13
-    )
-
-    from .auth import AuthBase
-    from .cookies import RequestsCookieJar
-    from .models import PreparedRequest, Response
-    from .structures import CaseInsensitiveDict
-
-    class _ValidatedRequest(PreparedRequest):
-        """Subtype asserting a PreparedRequest has been fully prepared before calling.
-
-        The override suppression is required because mutable attribute types are
-        invariant (Liskov), but we only narrow after preparation is complete. This
-        is the explicit contract for Requests but Python's typing doesn't have a
-        better way to represent the requirement.
-        """
-
-        url: str  # type: ignore[reportIncompatibleVariableOverride]
-        method: str  # type: ignore[reportIncompatibleVariableOverride]
-
-    # Type aliases for core API concepts (ordered by request() signature)
-    UriType: TypeAlias = str | bytes
-
-    _ParamsMappingKeyType: TypeAlias = str | bytes | int | float
-    _ParamsMappingValueType: TypeAlias = (
-        str | bytes | int | float | Iterable[str | bytes | int | float] | None
-    )
-    ParamsType: TypeAlias = (
-        SupportsItems[_ParamsMappingKeyType, _ParamsMappingValueType]
-        | tuple[tuple[_ParamsMappingKeyType, _ParamsMappingValueType], ...]
-        | Iterable[tuple[_ParamsMappingKeyType, _ParamsMappingValueType]]
-        | str
-        | bytes
-        | None
-    )
-
-    KVDataType: TypeAlias = Iterable[tuple[Any, Any]] | SupportsItems[Any, Any]
-
-    RawDataType: TypeAlias = KVDataType | str | bytes
-    StreamDataType: TypeAlias = SupportsRead[str | bytes]
-    EncodableDataType: TypeAlias = RawDataType | StreamDataType
-
-    DataType: TypeAlias = (
-        KVDataType
-        | Iterable[bytes | str]
-        | str
-        | bytes
-        | Buffer
-        | SupportsRead[str | bytes]
-        | None
-    )
-
-    BodyType: TypeAlias = (
-        bytes | str | Iterable[bytes | str] | SupportsRead[bytes | str] | None
-    )
-
-    HeadersType: TypeAlias = Mapping[str, str | bytes] | None
-
-    CookiesType: TypeAlias = RequestsCookieJar | Mapping[str, str]
-
-    # Building blocks for FilesType
-    _FileName: TypeAlias = str | None
-    _FileContent: TypeAlias = SupportsRead[str | bytes] | str | bytes
-    _FileSpecBasic: TypeAlias = tuple[_FileName, _FileContent]
-    _FileSpecWithContentType: TypeAlias = tuple[_FileName, _FileContent, str]
-    _FileSpecWithHeaders: TypeAlias = tuple[
-        _FileName, _FileContent, str, CaseInsensitiveDict[str] | Mapping[str, str]
-    ]
-    _FileSpec: TypeAlias = (
-        _FileContent | _FileSpecBasic | _FileSpecWithContentType | _FileSpecWithHeaders
-    )
-    FilesType: TypeAlias = (
-        Mapping[str, _FileSpec] | Iterable[tuple[str, _FileSpec]] | None
-    )
-
-    AuthType: TypeAlias = (
-        tuple[str, str] | AuthBase | Callable[[PreparedRequest], PreparedRequest] | None
-    )
-
-    TimeoutType: TypeAlias = float | tuple[float | None, float | None] | None
-    ProxiesType: TypeAlias = MutableMapping[str, str]
-    HooksType: TypeAlias = dict[str, list[HookType]] | None
-    VerifyType: TypeAlias = bool | str
-    CertType: TypeAlias = str | tuple[str, str] | None
-    JsonType: TypeAlias = (
-        None
-        | bool
-        | int
-        | float
-        | str
-        | Sequence["JsonType"]
-        | Mapping[str, "JsonType"]
-    )
-
-    # TypedDicts for Unpack kwargs (PEP 692)
-
-    class BaseRequestKwargs(TypedDict, total=False):
-        headers: HeadersType
-        cookies: RequestsCookieJar | CookieJar | dict[str, str] | None
-        files: FilesType
-        auth: AuthType
-        timeout: TimeoutType
-        allow_redirects: bool
-        proxies: dict[str, str] | None
-        hooks: HooksInputType | None
-        stream: bool | None
-        verify: VerifyType | None
-        cert: CertType
-
-    class RequestKwargs(BaseRequestKwargs, total=False):
-        """kwargs for request(), options(), head(), delete()."""
-
-        params: ParamsType
-        data: DataType
-        json: JsonType
-
-    class GetKwargs(BaseRequestKwargs, total=False):
-        data: DataType
-        json: JsonType
-
-    class PostKwargs(BaseRequestKwargs, total=False):
-        params: ParamsType
-
-    class DataKwargs(BaseRequestKwargs, total=False):
-        """kwargs for put(), patch()."""
-
-        params: ParamsType
-        json: JsonType
+ASGI2Application = type[ASGI2Protocol]
+ASGI3Application = Callable[[Scope, ASGIReceiveCallable, ASGISendCallable], Awaitable[None]]
+ASGIApplication = ASGI2Application | ASGI3Application

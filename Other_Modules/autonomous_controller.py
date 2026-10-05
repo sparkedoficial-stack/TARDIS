@@ -214,6 +214,13 @@ class AutonomousController:
         except Exception:
             pass
 
+        # 1.1 Punto de Control de Continuidad Temporal Soberano
+        try:
+            from core.tardis_continuity_engine import get_continuity_engine
+            get_continuity_engine().create_checkpoint(reason=f"Reinicio de Mejora: {reason}")
+        except Exception as e_cont:
+            logger.warning(f"[AUTONOMOUS.CONTINUITY] Checkpoint pre-reinicio advertencia: {e_cont}")
+
         # 2. Registrar en estado de evolución
         reboot_num = int(self._evolution_state.get("total_improvement_reboots", 0)) + 1
         self._evolution_state["total_improvement_reboots"] = reboot_num
@@ -287,6 +294,13 @@ class AutonomousController:
                     completed.append(task)
             except Exception as e:
                 logger.warning(f"[AUTONOMOUS.EVOLUTION] Tarea post-reinicio {task} advertencia: {e}")
+
+        # 1. Reanudación y verificación del Motor de Continuidad Temporal
+        try:
+            from core.tardis_continuity_engine import get_continuity_engine
+            get_continuity_engine().resume_after_reboot()
+        except Exception as e_cont:
+            logger.warning(f"[AUTONOMOUS.CONTINUITY] Reanudación post-reinicio advertencia: {e_cont}")
 
         self._evolution_state["pending_post_reboot_tasks"] = [t for t in tasks if t not in completed]
         if self._evolution_state.get("history"):
@@ -470,6 +484,10 @@ class AutonomousController:
 
     def _auto_manage_hardware(self) -> Optional[Dict[str, Any]]:
         """Supervisa temperaturas y ajusta el perfil energético dinámicamente."""
+        # El perfil energetico lo gobierna solo background_hardware_orchestrator, que lee
+        # el sensor real de la CPU (k10temp/Tctl). Este controlador leia otro sensor
+        # (~20 °C mas bajo) y ambos se pisaban cada minuto: performance <-> power-saver.
+        return None
         try:
             telemetry = self.hw_ctrl.get_thermals_and_battery()
             temps = telemetry.get("temperatures", {})
@@ -561,6 +579,8 @@ class AutonomousController:
 
     def _auto_manage_missions(self) -> Optional[Dict[str, Any]]:
         """Supervisa y ejecuta ciclos periódicos de prospección autónoma de colaboradores y misiones."""
+        # Desactivado: la prospeccion recolectaba datos de contacto de terceros desde la web.
+        return None
         try:
             from core.mission_scouting_engine import get_mission_scouting_engine
             engine = get_mission_scouting_engine()

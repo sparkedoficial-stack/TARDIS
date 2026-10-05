@@ -15,7 +15,7 @@ Capacidades:
   3. Detección de cambios visuales por diferencia de histogramas (diferenciación de frames).
   4. Integración completa con gia_agent, screen_reader y device_sensors.
 
-Arquitecto: Miguel Angel May Canche  ·  GIA-V26-VISION-CORE
+Arquitecto: El Arquitecto (₪)  ·  TARDIS Vision Core
 """
 from __future__ import annotations
 

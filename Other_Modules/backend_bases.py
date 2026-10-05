@@ -3299,9 +3299,9 @@ class NavigationToolbar2:
         key = event.key
         # Force the key on colorbars to extend the short-axis bbox
         if self._zoom_info.cbar == "horizontal":
-            key = "x"
+            key = "REDACTED"
         elif self._zoom_info.cbar == "vertical":
-            key = "y"
+            key = "REDACTED"
         if key == "x":
             y1, y2 = ax.bbox.intervaly
         elif key == "y":
@@ -3325,9 +3325,9 @@ class NavigationToolbar2:
         # Force the key on colorbars to ignore the zoom-cancel on the
         # short-axis side
         if self._zoom_info.cbar == "horizontal":
-            key = "x"
+            key = "REDACTED"
         elif self._zoom_info.cbar == "vertical":
-            key = "y"
+            key = "REDACTED"
         # Ignore single clicks: 5 pixels is a threshold that allows the user to
         # "cancel" a zoom action by zooming by less than 5 pixels.
         if ((abs(event.x - start_x) < 5 and key != "y") or

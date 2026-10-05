@@ -1,620 +1,332 @@
-import os
-import sys
-from os.path import join
-
+"""
+Unit test for DIRECT optimization algorithm.
+"""
+from numpy.testing import (assert_allclose,
+                           assert_array_less)
 import pytest
-
 import numpy as np
-from numpy.random import (
-    MT19937,
-    PCG64,
-    PCG64DXSM,
-    SFC64,
-    Generator,
-    Philox,
-    RandomState,
-    SeedSequence,
-    default_rng,
-)
-from numpy.random._common import interface
-from numpy.testing import (
-    assert_allclose,
-    assert_array_equal,
-    assert_equal,
-    assert_raises,
-)
-
-try:
-    import cffi  # noqa: F401
-
-    MISSING_CFFI = False
-except ImportError:
-    MISSING_CFFI = True
-
-try:
-    import ctypes  # noqa: F401
-
-    MISSING_CTYPES = False
-except ImportError:
-    MISSING_CTYPES = False
-
-if sys.flags.optimize > 1:
-    # no docstrings present to inspect when PYTHONOPTIMIZE/Py_OptimizeFlag > 1
-    # cffi cannot succeed
-    MISSING_CFFI = True
-
-
-pwd = os.path.dirname(os.path.abspath(__file__))
-
-
-def assert_state_equal(actual, target):
-    for key in actual:
-        if isinstance(actual[key], dict):
-            assert_state_equal(actual[key], target[key])
-        elif isinstance(actual[key], np.ndarray):
-            assert_array_equal(actual[key], target[key])
-        else:
-            assert actual[key] == target[key]
-
-
-def uint32_to_float32(u):
-    return ((u >> np.uint32(8)) * (1.0 / 2**24)).astype(np.float32)
-
-
-def uniform32_from_uint64(x):
-    x = np.uint64(x)
-    upper = np.array(x >> np.uint64(32), dtype=np.uint32)
-    lower = np.uint64(0xffffffff)
-    lower = np.array(x & lower, dtype=np.uint32)
-    joined = np.column_stack([lower, upper]).ravel()
-    return uint32_to_float32(joined)
-
-
-def uniform32_from_uint53(x):
-    x = np.uint64(x) >> np.uint64(16)
-    x = np.uint32(x & np.uint64(0xffffffff))
-    return uint32_to_float32(x)
-
-
-def uniform32_from_uint32(x):
-    return uint32_to_float32(x)
-
-
-def uniform32_from_uint(x, bits):
-    if bits == 64:
-        return uniform32_from_uint64(x)
-    elif bits == 53:
-        return uniform32_from_uint53(x)
-    elif bits == 32:
-        return uniform32_from_uint32(x)
-    else:
-        raise NotImplementedError
-
-
-def uniform_from_uint(x, bits):
-    if bits in (64, 63, 53):
-        return uniform_from_uint64(x)
-    elif bits == 32:
-        return uniform_from_uint32(x)
-
-
-def uniform_from_uint64(x):
-    return (x >> np.uint64(11)) * (1.0 / 9007199254740992.0)
-
-
-def uniform_from_uint32(x):
-    out = np.empty(len(x) // 2)
-    for i in range(0, len(x), 2):
-        a = x[i] >> 5
-        b = x[i + 1] >> 6
-        out[i // 2] = (a * 67108864.0 + b) / 9007199254740992.0
-    return out
-
-
-def uniform_from_dsfmt(x):
-    return x.view(np.double) - 1.0
-
-
-def gauss_from_uint(x, n, bits):
-    if bits in (64, 63):
-        doubles = uniform_from_uint64(x)
-    elif bits == 32:
-        doubles = uniform_from_uint32(x)
-    else:  # bits == 'dsfmt'
-        doubles = uniform_from_dsfmt(x)
-    gauss = []
-    loc = 0
-    x1 = x2 = 0.0
-    while len(gauss) < n:
-        r2 = 2
-        while r2 >= 1.0 or r2 == 0.0:
-            x1 = 2.0 * doubles[loc] - 1.0
-            x2 = 2.0 * doubles[loc + 1] - 1.0
-            r2 = x1 * x1 + x2 * x2
-            loc += 2
-
-        f = np.sqrt(-2.0 * np.log(r2) / r2)
-        gauss.append(f * x2)
-        gauss.append(f * x1)
-
-    return gauss[:n]
-
-
-def test_seedsequence():
-    from numpy.random.bit_generator import (
-        ISeedSequence,
-        ISpawnableSeedSequence,
-        SeedlessSeedSequence,
-    )
-
-    s1 = SeedSequence(range(10), spawn_key=(1, 2), pool_size=6)
-    s1.spawn(10)
-    s2 = SeedSequence(**s1.state)
-    assert_equal(s1.state, s2.state)
-    assert_equal(s1.n_children_spawned, s2.n_children_spawned)
-
-    # The interfaces cannot be instantiated themselves.
-    assert_raises(TypeError, ISeedSequence)
-    assert_raises(TypeError, ISpawnableSeedSequence)
-    dummy = SeedlessSeedSequence()
-    assert_raises(NotImplementedError, dummy.generate_state, 10)
-    assert len(dummy.spawn(10)) == 10
-
-
-def test_generator_spawning():
-    """ Test spawning new generators and bit_generators directly.
-    """
-    rng = np.random.default_rng()
-    seq = rng.bit_generator.seed_seq
-    new_ss = seq.spawn(5)
-    expected_keys = [seq.spawn_key + (i,) for i in range(5)]
-    assert [c.spawn_key for c in new_ss] == expected_keys
-
-    new_bgs = rng.bit_generator.spawn(5)
-    expected_keys = [seq.spawn_key + (i,) for i in range(5, 10)]
-    assert [bg.seed_seq.spawn_key for bg in new_bgs] == expected_keys
-
-    new_rngs = rng.spawn(5)
-    expected_keys = [seq.spawn_key + (i,) for i in range(10, 15)]
-    found_keys = [rng.bit_generator.seed_seq.spawn_key for rng in new_rngs]
-    assert found_keys == expected_keys
-
-    # Sanity check that streams are actually different:
-    assert new_rngs[0].uniform() != new_rngs[1].uniform()
-
-
-def test_spawn_negative_n_children():
-    """Test that spawn raises ValueError for negative n_children."""
-    from numpy.random.bit_generator import SeedlessSeedSequence
-
-    rng = np.random.default_rng(42)
-    seq = rng.bit_generator.seed_seq
-
-    # Test SeedSequence.spawn
-    with pytest.raises(ValueError, match="n_children must be non-negative"):
-        seq.spawn(-1)
-
-    # Test SeedlessSeedSequence.spawn
-    seedless = SeedlessSeedSequence()
-    with pytest.raises(ValueError, match="n_children must be non-negative"):
-        seedless.spawn(-1)
-
-    # Test BitGenerator.spawn
-    with pytest.raises(ValueError, match="n_children must be non-negative"):
-        rng.bit_generator.spawn(-1)
-
-    # Test Generator.spawn
-    with pytest.raises(ValueError, match="n_children must be non-negative"):
-        rng.spawn(-1)
-
-
-def test_non_spawnable():
-    from numpy.random.bit_generator import ISeedSequence
-
-    class FakeSeedSequence:
-        def generate_state(self, n_words, dtype=np.uint32):
-            return np.zeros(n_words, dtype=dtype)
-
-    ISeedSequence.register(FakeSeedSequence)
-
-    rng = np.random.default_rng(FakeSeedSequence())
-
-    with pytest.raises(TypeError, match="The underlying SeedSequence"):
-        rng.spawn(5)
-
-    with pytest.raises(TypeError, match="The underlying SeedSequence"):
-        rng.bit_generator.spawn(5)
-
-
-class Base:
-    dtype = np.uint64
-    data2 = data1 = {}
-
-    @classmethod
-    def setup_class(cls):
-        cls.bit_generator = PCG64
-        cls.bits = 64
-        cls.dtype = np.uint64
-        cls.seed_error_type = TypeError
-        cls.invalid_init_types = []
-        cls.invalid_init_values = []
-
-    @classmethod
-    def _read_csv(cls, filename):
-        with open(filename) as csv:
-            seed = csv.readline()
-            seed = seed.split(',')
-            seed = [int(s.strip(), 0) for s in seed[1:]]
-            data = []
-            for line in csv:
-                data.append(int(line.split(',')[-1].strip(), 0))
-            return {'seed': seed, 'data': np.array(data, dtype=cls.dtype)}
-
-    def test_raw(self):
-        bit_generator = self.bit_generator(*self.data1['seed'])
-        uints = bit_generator.random_raw(1000)
-        assert_equal(uints, self.data1['data'])
-
-        bit_generator = self.bit_generator(*self.data1['seed'])
-        uints = bit_generator.random_raw()
-        assert_equal(uints, self.data1['data'][0])
-
-        bit_generator = self.bit_generator(*self.data2['seed'])
-        uints = bit_generator.random_raw(1000)
-        assert_equal(uints, self.data2['data'])
-
-    def test_random_raw(self):
-        bit_generator = self.bit_generator(*self.data1['seed'])
-        uints = bit_generator.random_raw(output=False)
-        assert uints is None
-        uints = bit_generator.random_raw(1000, output=False)
-        assert uints is None
-
-    def test_gauss_inv(self):
-        n = 25
-        rs = RandomState(self.bit_generator(*self.data1['seed']))
-        gauss = rs.standard_normal(n)
-        assert_allclose(gauss,
-                        gauss_from_uint(self.data1['data'], n, self.bits))
-
-        rs = RandomState(self.bit_generator(*self.data2['seed']))
-        gauss = rs.standard_normal(25)
-        assert_allclose(gauss,
-                        gauss_from_uint(self.data2['data'], n, self.bits))
-
-    def test_uniform_double(self):
-        rs = Generator(self.bit_generator(*self.data1['seed']))
-        vals = uniform_from_uint(self.data1['data'], self.bits)
-        uniforms = rs.random(len(vals))
-        assert_allclose(uniforms, vals)
-        assert_equal(uniforms.dtype, np.float64)
-
-        rs = Generator(self.bit_generator(*self.data2['seed']))
-        vals = uniform_from_uint(self.data2['data'], self.bits)
-        uniforms = rs.random(len(vals))
-        assert_allclose(uniforms, vals)
-        assert_equal(uniforms.dtype, np.float64)
-
-    def test_uniform_float(self):
-        rs = Generator(self.bit_generator(*self.data1['seed']))
-        vals = uniform32_from_uint(self.data1['data'], self.bits)
-        uniforms = rs.random(len(vals), dtype=np.float32)
-        assert_allclose(uniforms, vals)
-        assert_equal(uniforms.dtype, np.float32)
-
-        rs = Generator(self.bit_generator(*self.data2['seed']))
-        vals = uniform32_from_uint(self.data2['data'], self.bits)
-        uniforms = rs.random(len(vals), dtype=np.float32)
-        assert_allclose(uniforms, vals)
-        assert_equal(uniforms.dtype, np.float32)
-
-    def test_repr(self):
-        rs = Generator(self.bit_generator(*self.data1['seed']))
-        assert 'Generator' in repr(rs)
-        assert f'{id(rs):#x}'.upper().replace('X', 'x') in repr(rs)
-
-    def test_str(self):
-        rs = Generator(self.bit_generator(*self.data1['seed']))
-        assert 'Generator' in str(rs)
-        assert str(self.bit_generator.__name__) in str(rs)
-        assert f'{id(rs):#x}'.upper().replace('X', 'x') not in str(rs)
-
-    def test_pickle(self):
-        import pickle
-
-        bit_generator = self.bit_generator(*self.data1['seed'])
-        state = bit_generator.state
-        bitgen_pkl = pickle.dumps(bit_generator)
-        reloaded = pickle.loads(bitgen_pkl)
-        reloaded_state = reloaded.state
-        assert_array_equal(Generator(bit_generator).standard_normal(1000),
-                           Generator(reloaded).standard_normal(1000))
-        assert bit_generator is not reloaded
-        assert_state_equal(reloaded_state, state)
-
-        ss = SeedSequence(100)
-        aa = pickle.loads(pickle.dumps(ss))
-        assert_equal(ss.state, aa.state)
-
-    def test_pickle_preserves_seed_sequence(self):
-        # GH 26234
-        # Add explicit test that bit generators preserve seed sequences
-        import pickle
-
-        bit_generator = self.bit_generator(*self.data1['seed'])
-        ss = bit_generator.seed_seq
-        bg_plk = pickle.loads(pickle.dumps(bit_generator))
-        ss_plk = bg_plk.seed_seq
-        assert_equal(ss.state, ss_plk.state)
-        assert_equal(ss.pool, ss_plk.pool)
-
-        bit_generator.seed_seq.spawn(10)
-        bg_plk = pickle.loads(pickle.dumps(bit_generator))
-        ss_plk = bg_plk.seed_seq
-        assert_equal(ss.state, ss_plk.state)
-        assert_equal(ss.n_children_spawned, ss_plk.n_children_spawned)
-
-    def test_invalid_state_type(self):
-        bit_generator = self.bit_generator(*self.data1['seed'])
-        with pytest.raises(TypeError):
-            bit_generator.state = {'1'}
-
-    def test_invalid_state_value(self):
-        bit_generator = self.bit_generator(*self.data1['seed'])
-        state = bit_generator.state
-        state['bit_generator'] = 'otherBitGenerator'
-        with pytest.raises(ValueError):
-            bit_generator.state = state
-
-    def test_invalid_init_type(self):
-        bit_generator = self.bit_generator
-        for st in self.invalid_init_types:
-            with pytest.raises(TypeError):
-                bit_generator(*st)
-
-    def test_invalid_init_values(self):
-        bit_generator = self.bit_generator
-        for st in self.invalid_init_values:
-            with pytest.raises((ValueError, OverflowError)):
-                bit_generator(*st)
-
-    def test_benchmark(self):
-        bit_generator = self.bit_generator(*self.data1['seed'])
-        bit_generator._benchmark(1)
-        bit_generator._benchmark(1, 'double')
-        with pytest.raises(ValueError):
-            bit_generator._benchmark(1, 'int32')
-
-    @pytest.mark.skipif(MISSING_CFFI, reason='cffi not available')
-    def test_cffi(self):
-        bit_generator = self.bit_generator(*self.data1['seed'])
-        cffi_interface = bit_generator.cffi
-        assert isinstance(cffi_interface, interface)
-        other_cffi_interface = bit_generator.cffi
-        assert other_cffi_interface is cffi_interface
-
-    @pytest.mark.skipif(MISSING_CTYPES, reason='ctypes not available')
-    def test_ctypes(self):
-        bit_generator = self.bit_generator(*self.data1['seed'])
-        ctypes_interface = bit_generator.ctypes
-        assert isinstance(ctypes_interface, interface)
-        other_ctypes_interface = bit_generator.ctypes
-        assert other_ctypes_interface is ctypes_interface
-
-    def test_getstate(self):
-        bit_generator = self.bit_generator(*self.data1['seed'])
-        state = bit_generator.state
-        alt_state = bit_generator.__getstate__()
-        assert isinstance(alt_state, tuple)
-        assert_state_equal(state, alt_state[0])
-        assert isinstance(alt_state[1], SeedSequence)
-
-class TestPhilox(Base):
-    @classmethod
-    def setup_class(cls):
-        cls.bit_generator = Philox
-        cls.bits = 64
-        cls.dtype = np.uint64
-        cls.data1 = cls._read_csv(
-            join(pwd, './data/philox-testset-1.csv'))
-        cls.data2 = cls._read_csv(
-            join(pwd, './data/philox-testset-2.csv'))
-        cls.seed_error_type = TypeError
-        cls.invalid_init_types = []
-        cls.invalid_init_values = [(1, None, 1), (-1,), (None, None, 2 ** 257 + 1)]
-
-    def test_set_key(self):
-        bit_generator = self.bit_generator(*self.data1['seed'])
-        state = bit_generator.state
-        keyed = self.bit_generator(counter=state['state']['counter'],
-                                   key=state['state']['key'])
-        assert_state_equal(bit_generator.state, keyed.state)
-
-
-class TestPCG64(Base):
-    @classmethod
-    def setup_class(cls):
-        cls.bit_generator = PCG64
-        cls.bits = 64
-        cls.dtype = np.uint64
-        cls.data1 = cls._read_csv(join(pwd, './data/pcg64-testset-1.csv'))
-        cls.data2 = cls._read_csv(join(pwd, './data/pcg64-testset-2.csv'))
-        cls.seed_error_type = (ValueError, TypeError)
-        cls.invalid_init_types = [(3.2,), ([None],), (1, None)]
-        cls.invalid_init_values = [(-1,)]
-
-    def test_advance_symmetry(self):
-        rs = Generator(self.bit_generator(*self.data1['seed']))
-        state = rs.bit_generator.state
-        step = -0x9e3779b97f4a7c150000000000000000
-        rs.bit_generator.advance(step)
-        val_neg = rs.integers(10)
-        rs.bit_generator.state = state
-        rs.bit_generator.advance(2**128 + step)
-        val_pos = rs.integers(10)
-        rs.bit_generator.state = state
-        rs.bit_generator.advance(10 * 2**128 + step)
-        val_big = rs.integers(10)
-        assert val_neg == val_pos
-        assert val_big == val_pos
-
-    def test_advance_large(self):
-        rs = Generator(self.bit_generator(38219308213743))
-        pcg = rs.bit_generator
-        state = pcg.state["state"]
-        initial_state = 287608843259529770491897792873167516365
-        assert state["state"] == initial_state
-        pcg.advance(sum(2**i for i in (96, 64, 32, 16, 8, 4, 2, 1)))
-        state = pcg.state["state"]
-        advanced_state = 135275564607035429730177404003164635391
-        assert state["state"] == advanced_state
-
-
-class TestPCG64DXSM(Base):
-    @classmethod
-    def setup_class(cls):
-        cls.bit_generator = PCG64DXSM
-        cls.bits = 64
-        cls.dtype = np.uint64
-        cls.data1 = cls._read_csv(join(pwd, './data/pcg64dxsm-testset-1.csv'))
-        cls.data2 = cls._read_csv(join(pwd, './data/pcg64dxsm-testset-2.csv'))
-        cls.seed_error_type = (ValueError, TypeError)
-        cls.invalid_init_types = [(3.2,), ([None],), (1, None)]
-        cls.invalid_init_values = [(-1,)]
-
-    def test_advance_symmetry(self):
-        rs = Generator(self.bit_generator(*self.data1['seed']))
-        state = rs.bit_generator.state
-        step = -0x9e3779b97f4a7c150000000000000000
-        rs.bit_generator.advance(step)
-        val_neg = rs.integers(10)
-        rs.bit_generator.state = state
-        rs.bit_generator.advance(2**128 + step)
-        val_pos = rs.integers(10)
-        rs.bit_generator.state = state
-        rs.bit_generator.advance(10 * 2**128 + step)
-        val_big = rs.integers(10)
-        assert val_neg == val_pos
-        assert val_big == val_pos
-
-    def test_advance_large(self):
-        rs = Generator(self.bit_generator(38219308213743))
-        pcg = rs.bit_generator
-        state = pcg.state
-        initial_state = 287608843259529770491897792873167516365
-        assert state["state"]["state"] == initial_state
-        pcg.advance(sum(2**i for i in (96, 64, 32, 16, 8, 4, 2, 1)))
-        state = pcg.state["state"]
-        advanced_state = 277778083536782149546677086420637664879
-        assert state["state"] == advanced_state
-
-
-class TestMT19937(Base):
-    @classmethod
-    def setup_class(cls):
-        cls.bit_generator = MT19937
-        cls.bits = 32
-        cls.dtype = np.uint32
-        cls.data1 = cls._read_csv(join(pwd, './data/mt19937-testset-1.csv'))
-        cls.data2 = cls._read_csv(join(pwd, './data/mt19937-testset-2.csv'))
-        cls.seed_error_type = ValueError
-        cls.invalid_init_types = []
-        cls.invalid_init_values = [(-1,)]
-
-    def test_seed_float_array(self):
-        assert_raises(TypeError, self.bit_generator, np.array([np.pi]))
-        assert_raises(TypeError, self.bit_generator, np.array([-np.pi]))
-        assert_raises(TypeError, self.bit_generator, np.array([np.pi, -np.pi]))
-        assert_raises(TypeError, self.bit_generator, np.array([0, np.pi]))
-        assert_raises(TypeError, self.bit_generator, [np.pi])
-        assert_raises(TypeError, self.bit_generator, [0, np.pi])
-
-    def test_state_tuple(self):
-        rs = Generator(self.bit_generator(*self.data1['seed']))
-        bit_generator = rs.bit_generator
-        state = bit_generator.state
-        desired = rs.integers(2 ** 16)
-        tup = (state['bit_generator'], state['state']['key'],
-               state['state']['pos'])
-        bit_generator.state = tup
-        actual = rs.integers(2 ** 16)
-        assert_equal(actual, desired)
-        tup = tup + (0, 0.0)
-        bit_generator.state = tup
-        actual = rs.integers(2 ** 16)
-        assert_equal(actual, desired)
-
-
-class TestSFC64(Base):
-    @classmethod
-    def setup_class(cls):
-        cls.bit_generator = SFC64
-        cls.bits = 64
-        cls.dtype = np.uint64
-        cls.data1 = cls._read_csv(
-            join(pwd, './data/sfc64-testset-1.csv'))
-        cls.data2 = cls._read_csv(
-            join(pwd, './data/sfc64-testset-2.csv'))
-        cls.seed_error_type = (ValueError, TypeError)
-        cls.invalid_init_types = [(3.2,), ([None],), (1, None)]
-        cls.invalid_init_values = [(-1,)]
-
-    def test_legacy_pickle(self):
-        # Pickling format was changed in 2.0.x
-        import gzip
-        import pickle
-
-        expected_state = np.array(
-            [
-                9957867060933711493,
-                532597980065565856,
-                14769588338631205282,
-                13
-            ],
-            dtype=np.uint64
-        )
-
-        base_path = os.path.split(os.path.abspath(__file__))[0]
-        pkl_file = os.path.join(base_path, "data", "sfc64_np126.pkl.gz")
-        with gzip.open(pkl_file) as gz:
-            sfc = pickle.load(gz)
-
-        assert isinstance(sfc, SFC64)
-        assert_equal(sfc.state["state"]["state"], expected_state)
-
-
-class TestDefaultRNG:
-    def test_seed(self):
-        for args in [(), (None,), (1234,), ([1234, 5678],)]:
-            rg = default_rng(*args)
-            assert isinstance(rg.bit_generator, PCG64)
-
-    def test_passthrough(self):
-        bg = Philox()
-        rg = default_rng(bg)
-        assert rg.bit_generator is bg
-        rg2 = default_rng(rg)
-        assert rg2 is rg
-        assert rg2.bit_generator is bg
-
-    @pytest.mark.thread_unsafe(
-        reason="np.random.set_bit_generator affects global state"
-    )
-    def test_coercion_RandomState_Generator(self):
-        # use default_rng to coerce RandomState to Generator
-        rs = RandomState(1234)
-        rg = default_rng(rs)
-        assert isinstance(rg.bit_generator, MT19937)
-        assert rg.bit_generator is rs._bit_generator
-
-        # RandomState with a non MT19937 bit generator
-        _original = np.random.get_bit_generator()
-        bg = PCG64(12342298)
-        np.random.set_bit_generator(bg)
-        rs = np.random.mtrand._rand
-        rg = default_rng(rs)
-        assert rg.bit_generator is bg
-
-        # vital to get global state back to original, otherwise
-        # other tests start to fail.
-        np.random.set_bit_generator(_original)
+from scipy.optimize import direct, Bounds
+import threading
+
+
+class TestDIRECT:
+
+    def setup_method(self):
+        self.fun_calls = threading.local()
+        self.bounds_sphere = 4*[(-2, 3)]
+        self.optimum_sphere_pos = np.zeros((4, ))
+        self.optimum_sphere = 0.0
+        self.bounds_stylinski_tang = Bounds([-4., -4.], [4., 4.])
+        self.maxiter = 1000
+
+    # test functions
+    def sphere(self, x):
+        if not hasattr(self.fun_calls, 'c'):
+            self.fun_calls.c = 0
+        self.fun_calls.c += 1
+        return np.square(x).sum()
+
+    def inv(self, x):
+        if np.sum(x) == 0:
+            raise ZeroDivisionError()
+        return 1/np.sum(x)
+
+    def nan_fun(self, x):
+        return np.nan
+
+    def inf_fun(self, x):
+        return np.inf
+
+    def styblinski_tang(self, pos):
+        x, y = pos
+        return 0.5 * (x**4 - 16 * x**2 + 5 * x + y**4 - 16 * y**2 + 5 * y)
+
+    @pytest.mark.parametrize("locally_biased", [True, False])
+    def test_direct(self, locally_biased):
+        res = direct(self.sphere, self.bounds_sphere,
+                     locally_biased=locally_biased)
+
+        # test accuracy
+        assert_allclose(res.x, self.optimum_sphere_pos,
+                        rtol=1e-3, atol=1e-3)
+        assert_allclose(res.fun, self.optimum_sphere, atol=1e-5, rtol=1e-5)
+
+        # test that result lies within bounds
+        _bounds = np.asarray(self.bounds_sphere)
+        assert_array_less(_bounds[:, 0], res.x)
+        assert_array_less(res.x, _bounds[:, 1])
+
+        # test number of function evaluations. Original DIRECT overshoots by
+        # up to 500 evaluations in last iteration
+        assert res.nfev <= 1000 * (len(self.bounds_sphere) + 1)
+        # test that number of function evaluations is correct
+        assert res.nfev == self.fun_calls.c
+
+        # test that number of iterations is below supplied maximum
+        assert res.nit <= self.maxiter
+
+    @pytest.mark.parametrize("locally_biased", [True, False])
+    def test_direct_callback(self, locally_biased):
+        # test that callback does not change the result
+        res = direct(self.sphere, self.bounds_sphere,
+                     locally_biased=locally_biased)
+
+        def callback(x):
+            x = 2*x
+            dummy = np.square(x)
+            print("DIRECT minimization algorithm callback test")
+            return dummy
+
+        res_callback = direct(self.sphere, self.bounds_sphere,
+                              locally_biased=locally_biased,
+                              callback=callback)
+
+        assert_allclose(res.x, res_callback.x)
+
+        assert res.nit == res_callback.nit
+        assert res.nfev == res_callback.nfev
+        assert res.status == res_callback.status
+        assert res.success == res_callback.success
+        assert res.fun == res_callback.fun
+        assert_allclose(res.x, res_callback.x)
+        assert res.message == res_callback.message
+
+        # test accuracy
+        assert_allclose(res_callback.x, self.optimum_sphere_pos,
+                        rtol=1e-3, atol=1e-3)
+        assert_allclose(res_callback.fun, self.optimum_sphere,
+                        atol=1e-5, rtol=1e-5)
+
+    @pytest.mark.parametrize("locally_biased", [True, False])
+    def test_exception(self, locally_biased):
+        bounds = 4*[(-10, 10)]
+        with pytest.raises(ZeroDivisionError):
+            direct(self.inv, bounds=bounds,
+                   locally_biased=locally_biased)
+
+    @pytest.mark.parametrize("locally_biased", [True, False])
+    def test_nan(self, locally_biased):
+        bounds = 4*[(-10, 10)]
+        direct(self.nan_fun, bounds=bounds,
+               locally_biased=locally_biased)
+
+    @pytest.mark.parametrize("len_tol", [1e-3, 1e-4])
+    @pytest.mark.parametrize("locally_biased", [True, False])
+    def test_len_tol(self, len_tol, locally_biased):
+        bounds = 4*[(-10., 10.)]
+        res = direct(self.sphere, bounds=bounds, len_tol=len_tol,
+                     vol_tol=1e-30, locally_biased=locally_biased)
+        assert res.status == 5
+        assert res.success
+        assert_allclose(res.x, np.zeros((4, )))
+        message = ("The side length measure of the hyperrectangle containing "
+                   "the lowest function value found is below "
+                   f"len_tol={len_tol}")
+        assert res.message == message
+
+    @pytest.mark.parametrize("vol_tol", [1e-6, 1e-8])
+    @pytest.mark.parametrize("locally_biased", [True, False])
+    def test_vol_tol(self, vol_tol, locally_biased):
+        bounds = 4*[(-10., 10.)]
+        res = direct(self.sphere, bounds=bounds, vol_tol=vol_tol,
+                     len_tol=0., locally_biased=locally_biased)
+        assert res.status == 4
+        assert res.success
+        assert_allclose(res.x, np.zeros((4, )))
+        message = ("The volume of the hyperrectangle containing the lowest "
+                   f"function value found is below vol_tol={vol_tol}")
+        assert res.message == message
+
+    @pytest.mark.parametrize("f_min_rtol", [1e-3, 1e-5, 1e-7])
+    @pytest.mark.parametrize("locally_biased", [True, False])
+    def test_f_min(self, f_min_rtol, locally_biased):
+        # test that desired function value is reached within
+        # relative tolerance of f_min_rtol
+        f_min = 1.
+        bounds = 4*[(-2., 10.)]
+        res = direct(self.sphere, bounds=bounds, f_min=f_min,
+                     f_min_rtol=f_min_rtol,
+                     locally_biased=locally_biased)
+        assert res.status == 3
+        assert res.success
+        assert res.fun < f_min * (1. + f_min_rtol)
+        message = ("The best function value found is within a relative "
+                   f"error={f_min_rtol} of the (known) global optimum f_min")
+        assert res.message == message
+
+    def circle_with_args(self, x, a, b):
+        return np.square(x[0] - a) + np.square(x[1] - b).sum()
+
+    @pytest.mark.parametrize("locally_biased", [True, False])
+    def test_f_circle_with_args(self, locally_biased):
+        bounds = 2*[(-2.0, 2.0)]
+
+        res = direct(self.circle_with_args, bounds, args=(1, 1), maxfun=1250,
+                     locally_biased=locally_biased)
+        assert_allclose(res.x, np.array([1., 1.]), rtol=1e-5)
+
+    @pytest.mark.parametrize("locally_biased", [True, False])
+    def test_failure_maxfun(self, locally_biased):
+        # test that if optimization runs for the maximal number of
+        # evaluations, success = False is returned
+
+        maxfun = 100
+        result = direct(self.styblinski_tang, self.bounds_stylinski_tang,
+                        maxfun=maxfun, locally_biased=locally_biased)
+        assert result.success is False
+        assert result.status == 1
+        assert result.nfev >= maxfun
+        message = ("Number of function evaluations done is "
+                   f"larger than maxfun={maxfun}")
+        assert result.message == message
+
+    @pytest.mark.parametrize("locally_biased", [True, False])
+    def test_failure_maxiter(self, locally_biased):
+        # test that if optimization runs for the maximal number of
+        # iterations, success = False is returned
+
+        maxiter = 10
+        result = direct(self.styblinski_tang, self.bounds_stylinski_tang,
+                        maxiter=maxiter, locally_biased=locally_biased)
+        assert result.success is False
+        assert result.status == 2
+        assert result.nit >= maxiter
+        message = f"Number of iterations is larger than maxiter={maxiter}"
+        assert result.message == message
+
+    @pytest.mark.parametrize("locally_biased", [True, False])
+    def test_bounds_variants(self, locally_biased):
+        # test that new and old bounds yield same result
+
+        lb = [-6., 1., -5.]
+        ub = [-1., 3., 5.]
+        x_opt = np.array([-1., 1., 0.])
+        bounds_old = list(zip(lb, ub))
+        bounds_new = Bounds(lb, ub)
+
+        res_old_bounds = direct(self.sphere, bounds_old,
+                                locally_biased=locally_biased)
+        res_new_bounds = direct(self.sphere, bounds_new,
+                                locally_biased=locally_biased)
+
+        assert res_new_bounds.nfev == res_old_bounds.nfev
+        assert res_new_bounds.message == res_old_bounds.message
+        assert res_new_bounds.success == res_old_bounds.success
+        assert res_new_bounds.nit == res_old_bounds.nit
+        assert_allclose(res_new_bounds.x, res_old_bounds.x)
+        assert_allclose(res_new_bounds.x, x_opt, rtol=1e-2)
+
+    @pytest.mark.parametrize("locally_biased", [True, False])
+    @pytest.mark.parametrize("eps", [1e-5, 1e-4, 1e-3])
+    def test_epsilon(self, eps, locally_biased):
+        result = direct(self.styblinski_tang, self.bounds_stylinski_tang,
+                        eps=eps, vol_tol=1e-6,
+                        locally_biased=locally_biased)
+        assert result.status == 4
+        assert result.success
+
+    @pytest.mark.xslow
+    @pytest.mark.parametrize("locally_biased", [True, False])
+    def test_no_segmentation_fault(self, locally_biased):
+        # test that an excessive number of function evaluations
+        # does not result in segmentation fault
+        bounds = [(-5., 20.)] * 100
+        result = direct(self.sphere, bounds, maxfun=10000000,
+                        maxiter=1000000, locally_biased=locally_biased)
+        assert result is not None
+
+    @pytest.mark.parametrize("locally_biased", [True, False])
+    def test_inf_fun(self, locally_biased):
+        # test that an objective value of infinity does not crash DIRECT
+        bounds = [(-5., 5.)] * 2
+        result = direct(self.inf_fun, bounds,
+                        locally_biased=locally_biased)
+        assert result is not None
+
+    @pytest.mark.parametrize("len_tol", [-1, 2])
+    def test_len_tol_validation(self, len_tol):
+        error_msg = "len_tol must be between 0 and 1."
+        with pytest.raises(ValueError, match=error_msg):
+            direct(self.styblinski_tang, self.bounds_stylinski_tang,
+                   len_tol=len_tol)
+
+    @pytest.mark.parametrize("vol_tol", [-1, 2])
+    def test_vol_tol_validation(self, vol_tol):
+        error_msg = "vol_tol must be between 0 and 1."
+        with pytest.raises(ValueError, match=error_msg):
+            direct(self.styblinski_tang, self.bounds_stylinski_tang,
+                   vol_tol=vol_tol)
+
+    @pytest.mark.parametrize("f_min_rtol", [-1, 2])
+    def test_fmin_rtol_validation(self, f_min_rtol):
+        error_msg = "f_min_rtol must be between 0 and 1."
+        with pytest.raises(ValueError, match=error_msg):
+            direct(self.styblinski_tang, self.bounds_stylinski_tang,
+                   f_min_rtol=f_min_rtol, f_min=0.)
+
+    @pytest.mark.parametrize("maxfun", [1.5, "string", (1, 2)])
+    def test_maxfun_wrong_type(self, maxfun):
+        error_msg = "maxfun must be of type int."
+        with pytest.raises(ValueError, match=error_msg):
+            direct(self.styblinski_tang, self.bounds_stylinski_tang,
+                   maxfun=maxfun)
+
+    @pytest.mark.parametrize("maxiter", [1.5, "string", (1, 2)])
+    def test_maxiter_wrong_type(self, maxiter):
+        error_msg = "maxiter must be of type int."
+        with pytest.raises(ValueError, match=error_msg):
+            direct(self.styblinski_tang, self.bounds_stylinski_tang,
+                   maxiter=maxiter)
+
+    def test_negative_maxiter(self):
+        error_msg = "maxiter must be > 0."
+        with pytest.raises(ValueError, match=error_msg):
+            direct(self.styblinski_tang, self.bounds_stylinski_tang,
+                   maxiter=-1)
+
+    def test_negative_maxfun(self):
+        error_msg = "maxfun must be > 0."
+        with pytest.raises(ValueError, match=error_msg):
+            direct(self.styblinski_tang, self.bounds_stylinski_tang,
+                   maxfun=-1)
+
+    @pytest.mark.parametrize("bounds", ["bounds", 2., 0])
+    def test_invalid_bounds_type(self, bounds):
+        error_msg = ("bounds must be a sequence or "
+                     "instance of Bounds class")
+        with pytest.raises(ValueError, match=error_msg):
+            direct(self.styblinski_tang, bounds)
+
+    @pytest.mark.parametrize("bounds",
+                             [Bounds([-1., -1], [-2, 1]),
+                              Bounds([-np.nan, -1], [-2, np.nan]),
+                              ]
+                             )
+    def test_incorrect_bounds(self, bounds):
+        error_msg = 'Bounds are not consistent min < max'
+        with pytest.raises(ValueError, match=error_msg):
+            direct(self.styblinski_tang, bounds)
+
+    def test_inf_bounds(self):
+        error_msg = 'Bounds must not be inf.'
+        bounds = Bounds([-np.inf, -1], [-2, np.inf])
+        with pytest.raises(ValueError, match=error_msg):
+            direct(self.styblinski_tang, bounds)
+
+    def test_empty_bounds(self):
+        # gh-25086: empty Bounds() is invalid. This is checked at
+        # Bounds() init time, but the C kernel has an additional
+        # defense-in-depth check, which we exercise here.
+        bounds = Bounds([-1.0], [1.0])
+        bounds.lb = []
+        bounds.ub = []
+        error_msg = "DIRECT requires at least one dimension, got 0"
+        with pytest.raises(ValueError, match=error_msg):
+            direct(self.styblinski_tang, bounds)
+
+    @pytest.mark.parametrize("locally_biased", ["bias", [0, 0], 2.])
+    def test_locally_biased_validation(self, locally_biased):
+        error_msg = 'locally_biased must be True or False.'
+        with pytest.raises(ValueError, match=error_msg):
+            direct(self.styblinski_tang, self.bounds_stylinski_tang,
+                   locally_biased=locally_biased)

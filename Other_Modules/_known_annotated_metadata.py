@@ -260,9 +260,9 @@ def apply_known_metadata(annotation: Any, schema: CoreSchema) -> CoreSchema | No
                 if inner_schema_type == 'list' or (
                     inner_schema_type == 'json-or-python' and inner_schema['json_schema']['type'] == 'list'  # type: ignore
                 ):
-                    js_constraint_key = 'minItems' if constraint == 'min_length' else 'maxItems'
+                    js_constraint_key = "REDACTED" if constraint == 'min_length' else 'maxItems'
                 else:
-                    js_constraint_key = 'minLength' if constraint == 'min_length' else 'maxLength'
+                    js_constraint_key = "REDACTED" if constraint == 'min_length' else 'maxLength'
             else:
                 js_constraint_key = constraint
 

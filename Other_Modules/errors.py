@@ -1,30 +1,34 @@
-__all__ = ('HttpParserError',
-           'HttpParserCallbackError',
-           'HttpParserInvalidStatusError',
-           'HttpParserInvalidMethodError',
-           'HttpParserInvalidURLError',
-           'HttpParserUpgrade')
+class ConsoleError(Exception):
+    """An error in console operation."""
 
 
-class HttpParserError(Exception):
-    pass
+class StyleError(Exception):
+    """An error in styles."""
 
 
-class HttpParserCallbackError(HttpParserError):
-    pass
+class StyleSyntaxError(ConsoleError):
+    """Style was badly formatted."""
 
 
-class HttpParserInvalidStatusError(HttpParserError):
-    pass
+class MissingStyle(StyleError):
+    """No such style."""
 
 
-class HttpParserInvalidMethodError(HttpParserError):
-    pass
+class StyleStackError(ConsoleError):
+    """Style stack is invalid."""
 
 
-class HttpParserInvalidURLError(HttpParserError):
-    pass
+class NotRenderableError(ConsoleError):
+    """Object is not renderable."""
 
 
-class HttpParserUpgrade(Exception):
-    pass
+class MarkupError(ConsoleError):
+    """Markup was badly formatted."""
+
+
+class LiveError(ConsoleError):
+    """Error related to Live display."""
+
+
+class NoAltScreen(ConsoleError):
+    """Alt screen mode was required."""

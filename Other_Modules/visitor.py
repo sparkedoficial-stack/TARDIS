@@ -1,158 +1,288 @@
-"""Generic visitor pattern implementation for Python objects."""
+# -*- coding: utf-8 -*-
+# Copyright JS Foundation and other contributors, https://js.foundation/
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+#   * Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#   * Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import enum
-import weakref
+from __future__ import unicode_literals
+
+import json
+import types
+from collections import deque
+
+from .objects import Object
+from .compat import PY3, unicode
+
+
+class VisitRecursionError(Exception):
+    pass
+
+
+class Visited(object):
+    def __init__(self, result):
+        if isinstance(result, Visited):
+            result = result.result
+        self.result = result
 
 
 class Visitor(object):
-    defaultStop = False
+    """
+    An Object visitor base class that walks the abstract syntax tree and calls a
+    visitor function for every Object found.  This function may return a value
+    which is forwarded by the `visit` method.
 
-    _visitors = {
-        # By default we skip visiting weak references to avoid recursion
-        # issues. Users can override this by registering a visit
-        # function for weakref.ProxyType.
-        weakref.ProxyType: {None: lambda self, obj, *args, **kwargs: False}
+    This class is meant to be subclassed, with the subclass adding visitor
+    methods.
+
+    Per default the visitor functions for the nodes are ``'visit_'`` +
+    class name of the Object.  So a `Module` Object visit function would
+    be `visit_Module`.  This behavior can be changed by overriding
+    the `visit` method.  If no visitor function exists for a Object
+    (return value `None`) the `generic_visit` visitor is used instead.
+    """
+
+    def __call__(self, obj, metadata):
+        return self.transform(obj, metadata)
+
+    def transform(self, obj, metadata):
+        """Transform an Object."""
+        if isinstance(obj, Object):
+            method = 'transform_' + obj.__class__.__name__
+            transformer = getattr(self, method, self.transform_Object)
+            new_obj = transformer(obj, metadata)
+            if new_obj is not None and obj is not new_obj:
+                obj = new_obj
+        return obj
+
+    def transform_Object(self, obj, metadata):
+        """Called if no explicit transform function exists for an Object."""
+        return obj
+
+    def generic_visit(self, obj):
+        return self.visit(self.visit_Object(obj))
+
+    def visit(self, obj):
+        """Visit a Object."""
+        if not hasattr(self, 'visitors'):
+            self._visit_context = {}
+            self._visit_count = 0
+        try:
+            self._visit_count += 1
+            stack = deque()
+            stack.append((obj, None))
+            last_result = None
+            while stack:
+                try:
+                    last, visited = stack[-1]
+                    if isinstance(last, types.GeneratorType):
+                        stack.append((last.send(last_result), None))
+                        last_result = None
+                    elif isinstance(last, Visited):
+                        stack.pop()
+                        last_result = last.result
+                    elif isinstance(last, Object):
+                        if last in self._visit_context:
+                            if self._visit_context[last] == self.visit_Object:
+                                visitor = self.visit_RecursionError
+                            else:
+                                visitor = self.visit_Object
+                        else:
+                            method = 'visit_' + last.__class__.__name__
+                            visitor = getattr(self, method, self.visit_Object)
+                        self._visit_context[last] = visitor
+                        stack.pop()
+                        stack.append((visitor(last), last))
+                    else:
+                        method = 'visit_' + last.__class__.__name__
+                        visitor = getattr(self, method, self.visit_Generic)
+                        stack.pop()
+                        stack.append((visitor(last), None))
+                except StopIteration:
+                    stack.pop()
+                    if visited and visited in self._visit_context:
+                        del self._visit_context[visited]
+            return last_result
+        finally:
+            self._visit_count -= 1
+            if self._visit_count <= 0:
+                self._visit_context = {}
+
+    def visit_RecursionError(self, obj):
+        raise VisitRecursionError
+
+    def visit_Object(self, obj):
+        """Called if no explicit visitor function exists for an Object."""
+        yield obj.__dict__
+        yield Visited(obj)
+
+    def visit_Generic(self, obj):
+        """Called if no explicit visitor function exists for an object."""
+        yield Visited(obj)
+
+    def visit_list(self, obj):
+        for item in obj:
+            yield item
+        yield Visited(obj)
+
+    visit_Array = visit_list
+
+    def visit_dict(self, obj):
+        for field, value in list(obj.items()):
+            if not field.startswith('_'):
+                yield value
+        yield Visited(obj)
+
+
+class NodeVisitor(Visitor):
+    pass
+
+
+class ReprVisitor(Visitor):
+    def visit(self, obj, indent=4, nl="\n", sp="", skip=()):
+        self.level = 0
+        if isinstance(indent, int):
+            indent = " " * indent
+        self.indent = indent
+        self.nl = nl
+        self.sp = sp
+        self.skip = skip
+        return super(ReprVisitor, self).visit(obj)
+
+    def visit_RecursionError(self, obj):
+        yield Visited("...")
+
+    def visit_Object(self, obj):
+        value_repr = yield obj.__dict__
+        yield Visited(value_repr)
+
+    def visit_Generic(self, obj):
+        yield Visited(repr(obj))
+
+    def visit_list(self, obj):
+        indent1 = self.indent * self.level
+        indent2 = indent1 + self.indent
+        self.level += 1
+        try:
+            items = []
+            for item in obj:
+                v = yield item
+                items.append(v)
+            if items:
+                value_repr = "[%s%s%s%s%s%s%s]" % (
+                    self.sp,
+                    self.nl,
+                    indent2,
+                    (",%s%s%s" % (self.nl, self.sp, indent2)).join(items),
+                    self.nl,
+                    indent1,
+                    self.sp,
+                )
+            else:
+                value_repr = "[]"
+        finally:
+            self.level -= 1
+
+        yield Visited(value_repr)
+
+    visit_Array = visit_list
+
+    def visit_dict(self, obj):
+        indent1 = self.indent * self.level
+        indent2 = indent1 + self.indent
+        self.level += 1
+        try:
+            items = []
+            for k, item in obj.items():
+                if item is not None and not k.startswith('_') and k not in self.skip:
+                    v = yield item
+                    items.append("%s: %s" % (k, v))
+            if items:
+                value_repr = "{%s%s%s%s%s%s%s}" % (
+                    self.sp,
+                    self.nl,
+                    indent2,
+                    (",%s%s%s" % (self.nl, self.sp, indent2)).join(items),
+                    self.nl,
+                    indent1,
+                    self.sp,
+                )
+            else:
+                value_repr = "{}"
+        finally:
+            self.level -= 1
+
+        yield Visited(value_repr)
+
+    if PY3:
+        def visit_str(self, obj):
+            value_repr = json.dumps(obj)
+            yield Visited(value_repr)
+    else:
+        def visit_unicode(self, obj):
+            value_repr = json.dumps(obj)
+            yield Visited(value_repr)
+
+    def visit_SourceLocation(self, obj):
+        old_indent, self.indent = self.indent, ""
+        old_nl, self.nl = self.nl, ""
+        old_sp, self.sp = self.sp, ""
+        try:
+            yield obj
+        finally:
+            self.indent = old_indent
+            self.nl = old_nl
+            self.sp = old_sp
+
+
+class ToDictVisitor(Visitor):
+    map = {
+        'isAsync': 'async',
+        'allowAwait': 'await',
     }
 
-    @classmethod
-    def _register(celf, clazzes_attrs):
-        assert celf != Visitor, "Subclass Visitor instead."
-        if "_visitors" not in celf.__dict__:
-            celf._visitors = {}
+    def visit_RecursionError(self, obj):
+        yield Visited({
+            'error': "Infinite recursion detected...",
+        })
 
-        def wrapper(method):
-            assert method.__name__ == "visit"
-            for clazzes, attrs in clazzes_attrs:
-                if type(clazzes) != tuple:
-                    clazzes = (clazzes,)
-                if type(attrs) == str:
-                    attrs = (attrs,)
-                for clazz in clazzes:
-                    _visitors = celf._visitors.setdefault(clazz, {})
-                    for attr in attrs:
-                        assert attr not in _visitors, (
-                            "Oops, class '%s' has visitor function for '%s' defined already."
-                            % (clazz.__name__, attr)
-                        )
-                        _visitors[attr] = method
-            return None
+    def visit_Object(self, obj):
+        obj = yield obj.__dict__
+        yield Visited(obj)
 
-        return wrapper
+    def visit_list(self, obj):
+        items = []
+        for item in obj:
+            v = yield item
+            items.append(v)
+        yield Visited(items)
 
-    @classmethod
-    def register(celf, clazzes):
-        if type(clazzes) != tuple:
-            clazzes = (clazzes,)
-        return celf._register([(clazzes, (None,))])
+    visit_Array = visit_list
 
-    @classmethod
-    def register_attr(celf, clazzes, attrs):
-        clazzes_attrs = []
-        if type(clazzes) != tuple:
-            clazzes = (clazzes,)
-        if type(attrs) == str:
-            attrs = (attrs,)
-        for clazz in clazzes:
-            clazzes_attrs.append((clazz, attrs))
-        return celf._register(clazzes_attrs)
+    def visit_dict(self, obj):
+        items = []
+        for k, item in obj.items():
+            if item is not None and not k.startswith('_'):
+                v = yield item
+                k = unicode(k)
+                items.append((self.map.get(k, k), v))
+        yield Visited(dict(items))
 
-    @classmethod
-    def register_attrs(celf, clazzes_attrs):
-        return celf._register(clazzes_attrs)
-
-    @classmethod
-    def _visitorsFor(celf, thing, _default={}):
-        typ = type(thing)
-
-        for celf in celf.mro():
-            _visitors = getattr(celf, "_visitors", None)
-            if _visitors is None:
-                break
-
-            for base in typ.mro():
-                m = celf._visitors.get(base, None)
-                if m is not None:
-                    return m
-
-        return _default
-
-    def visitObject(self, obj, *args, **kwargs):
-        """Called to visit an object. This function loops over all non-private
-        attributes of the objects and calls any user-registered (via
-        ``@register_attr()`` or ``@register_attrs()``) ``visit()`` functions.
-
-        The visitor will proceed to call ``self.visitAttr()``, unless there is a
-        user-registered visit function and:
-
-        * It returns ``False``; or
-        * It returns ``None`` (or doesn't return anything) and
-          ``visitor.defaultStop`` is ``True`` (non-default).
-        """
-
-        keys = sorted(vars(obj).keys())
-        _visitors = self._visitorsFor(obj)
-        defaultVisitor = _visitors.get("*", None)
-        for key in keys:
-            if key[0] == "_":
-                continue
-            value = getattr(obj, key)
-            visitorFunc = _visitors.get(key, defaultVisitor)
-            if visitorFunc is not None:
-                ret = visitorFunc(self, obj, key, value, *args, **kwargs)
-                if ret == False or (ret is None and self.defaultStop):
-                    continue
-            self.visitAttr(obj, key, value, *args, **kwargs)
-
-    def visitAttr(self, obj, attr, value, *args, **kwargs):
-        """Called to visit an attribute of an object."""
-        self.visit(value, *args, **kwargs)
-
-    def visitList(self, obj, *args, **kwargs):
-        """Called to visit any value that is a list."""
-        for value in obj:
-            self.visit(value, *args, **kwargs)
-
-    def visitDict(self, obj, *args, **kwargs):
-        """Called to visit any value that is a dictionary."""
-        for value in obj.values():
-            self.visit(value, *args, **kwargs)
-
-    def visitLeaf(self, obj, *args, **kwargs):
-        """Called to visit any value that is not an object, list,
-        or dictionary."""
-        pass
-
-    def visit(self, obj, *args, **kwargs):
-        """This is the main entry to the visitor. The visitor will visit object
-        ``obj``.
-
-        The visitor will first determine if there is a registered (via
-        ``@register()``) visit function for the type of object. If there is, it
-        will be called, and ``(visitor, obj, *args, **kwargs)`` will be passed
-        to the user visit function.
-
-        The visitor will not recurse if there is a user-registered visit
-        function and:
-
-        * It returns ``False``; or
-        * It returns ``None`` (or doesn't return anything) and
-          ``visitor.defaultStop`` is ``True`` (non-default)
-
-        Otherwise,  the visitor will proceed to dispatch to one of
-        ``self.visitObject()``, ``self.visitList()``, ``self.visitDict()``, or
-        ``self.visitLeaf()`` (any of which can be overriden in a subclass).
-        """
-
-        visitorFunc = self._visitorsFor(obj).get(None, None)
-        if visitorFunc is not None:
-            ret = visitorFunc(self, obj, *args, **kwargs)
-            if ret == False or (ret is None and self.defaultStop):
-                return
-        if hasattr(obj, "__dict__") and not isinstance(obj, enum.Enum):
-            self.visitObject(obj, *args, **kwargs)
-        elif isinstance(obj, list):
-            self.visitList(obj, *args, **kwargs)
-        elif isinstance(obj, dict):
-            self.visitDict(obj, *args, **kwargs)
-        else:
-            self.visitLeaf(obj, *args, **kwargs)
+    def visit_SRE_Pattern(self, obj):
+        yield Visited({})

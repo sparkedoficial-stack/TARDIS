@@ -608,7 +608,7 @@ def encipher_vigenere(msg, key, symbols=None):
     ========
 
     >>> from sympy.crypto.crypto import encipher_vigenere, AZ
-    >>> key = "encrypt"
+    >>> key = "REDACTED"
     >>> msg = "meet me on monday"
     >>> encipher_vigenere(msg, key)
     'QRGKKTHRZQEBPR'
@@ -620,7 +620,7 @@ def encipher_vigenere(msg, key, symbols=None):
 
     >>> from sympy.crypto.crypto import decipher_vigenere, padded_key
     >>> alp = padded_key('KRYPTOS', AZ())
-    >>> key = 'PALIMPSEST'
+    >>> key = "REDACTED"
     >>> msg = 'EMUFPHZLRFAXYUSDJKZLDKRNSHGNFIVJ'
     >>> decipher_vigenere(msg, key, alp)
     'BETWEENSUBTLESHADINGANDTHEABSENC'
@@ -774,7 +774,7 @@ def decipher_vigenere(msg, key, symbols=None):
     ========
 
     >>> from sympy.crypto.crypto import decipher_vigenere
-    >>> key = "encrypt"
+    >>> key = "REDACTED"
     >>> ct = "QRGK kt HRZQE BPR"
     >>> decipher_vigenere(ct, key)
     'MEETMEONMONDAY'
@@ -1234,7 +1234,7 @@ def encipher_bifid5(msg, key):
 
     >>> round_trip = lambda m, k: \
     ...     decipher_bifid5(encipher_bifid5(m, k), k)
-    >>> key = 'a'
+    >>> key = "REDACTED"
     >>> msg = "JOSIE"
     >>> round_trip(msg, key)
     'OSIE'

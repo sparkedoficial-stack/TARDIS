@@ -37,7 +37,7 @@ from pathlib import Path
 from typing import Dict, Generator, List, Optional
 
 WORKSPACE_DIR = Path(__file__).resolve().parent
-DEFAULT_MODEL = os.environ.get("GIA_MODEL", "dolphin3:latest")
+DEFAULT_MODEL = os.environ.get("GIA_MODEL", "TARDIS-NEURAL-SPACE-KAIJU")
 DEFAULT_SYSTEM = (
     "Eres GIA-V26, Sistema Autónomo y Soberano de GODWORKS SYSTEM. "
     "Operas en modo de CONEXIÓN DIRECTA LOCAL por tubería de proceso nativa (Zero-Network-Port). "

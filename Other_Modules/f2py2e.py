@@ -581,7 +581,7 @@ def preparse_sysargv():
     if backend_key == 'distutils':
         outmess("Cannot use distutils backend with Python>=3.12,"
                 " using meson backend instead.\n")
-        backend_key = "meson"
+        backend_key = "REDACTED"
 
     return {
         "dependencies": args.dependencies or [],

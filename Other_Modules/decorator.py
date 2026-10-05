@@ -1,339 +1,284 @@
-"""Useful utility decorators. """
+import warnings
+from collections.abc import Mapping
+from functools import wraps
+from typing import TYPE_CHECKING, Any, Callable, Optional, TypeVar, Union, overload
 
-from typing import TypeVar
-import sys
-import types
-import inspect
-from functools import wraps, update_wrapper
+from typing_extensions import deprecated
 
-from sympy.utilities.exceptions import sympy_deprecation_warning
+from .._internal import _config, _typing_extra
+from ..alias_generators import to_pascal
+from ..errors import PydanticUserError
+from ..functional_validators import field_validator
+from ..main import BaseModel, create_model
+from ..warnings import PydanticDeprecatedSince20
+
+if not TYPE_CHECKING:
+    # See PyCharm issues https://youtrack.jetbrains.com/issue/PY-21915
+    # and https://youtrack.jetbrains.com/issue/PY-51428
+    DeprecationWarning = PydanticDeprecatedSince20
+
+__all__ = ('validate_arguments',)
+
+if TYPE_CHECKING:
+    AnyCallable = Callable[..., Any]
+
+    AnyCallableT = TypeVar('AnyCallableT', bound=AnyCallable)
+    ConfigType = Union[None, type[Any], dict[str, Any]]
 
 
-T = TypeVar('T')
-"""A generic type"""
+@overload
+def validate_arguments(
+    func: None = None, *, config: 'ConfigType' = None
+) -> Callable[['AnyCallableT'], 'AnyCallableT']: ...
 
 
-def threaded_factory(func, use_add):
-    """A factory for ``threaded`` decorators. """
-    from sympy.core import sympify
-    from sympy.matrices import MatrixBase
-    from sympy.utilities.iterables import iterable
+@overload
+def validate_arguments(func: 'AnyCallableT') -> 'AnyCallableT': ...
 
-    @wraps(func)
-    def threaded_func(expr, *args, **kwargs):
-        if isinstance(expr, MatrixBase):
-            return expr.applyfunc(lambda f: func(f, *args, **kwargs))
-        elif iterable(expr):
-            try:
-                return expr.__class__([func(f, *args, **kwargs) for f in expr])
-            except TypeError:
-                return expr
-        else:
-            expr = sympify(expr)
 
-            if use_add and expr.is_Add:
-                return expr.__class__(*[ func(f, *args, **kwargs) for f in expr.args ])
-            elif expr.is_Relational:
-                return expr.__class__(func(expr.lhs, *args, **kwargs),
-                                      func(expr.rhs, *args, **kwargs))
+@deprecated(
+    'The `validate_arguments` method is deprecated; use `validate_call` instead.',
+    category=None,
+)
+def validate_arguments(func: Optional['AnyCallableT'] = None, *, config: 'ConfigType' = None) -> Any:
+    """Decorator to validate the arguments passed to a function."""
+    warnings.warn(
+        'The `validate_arguments` method is deprecated; use `validate_call` instead.',
+        PydanticDeprecatedSince20,
+        stacklevel=2,
+    )
+
+    def validate(_func: 'AnyCallable') -> 'AnyCallable':
+        vd = ValidatedFunction(_func, config)
+
+        @wraps(_func)
+        def wrapper_function(*args: Any, **kwargs: Any) -> Any:
+            return vd.call(*args, **kwargs)
+
+        wrapper_function.vd = vd  # type: ignore
+        wrapper_function.validate = vd.init_model_instance  # type: ignore
+        wrapper_function.raw_function = vd.raw_function  # type: ignore
+        wrapper_function.model = vd.model  # type: ignore
+        return wrapper_function
+
+    if func:
+        return validate(func)
+    else:
+        return validate
+
+
+ALT_V_ARGS = 'v__args'
+ALT_V_KWARGS = 'v__kwargs'
+V_POSITIONAL_ONLY_NAME = 'v__positional_only'
+V_DUPLICATE_KWARGS = 'v__duplicate_kwargs'
+
+
+class ValidatedFunction:
+    def __init__(self, function: 'AnyCallable', config: 'ConfigType'):
+        from inspect import Parameter, signature
+
+        parameters: Mapping[str, Parameter] = signature(function).parameters
+
+        if parameters.keys() & {ALT_V_ARGS, ALT_V_KWARGS, V_POSITIONAL_ONLY_NAME, V_DUPLICATE_KWARGS}:
+            raise PydanticUserError(
+                f'"{ALT_V_ARGS}", "{ALT_V_KWARGS}", "{V_POSITIONAL_ONLY_NAME}" and "{V_DUPLICATE_KWARGS}" '
+                f'are not permitted as argument names when using the "{validate_arguments.__name__}" decorator',
+                code=None,
+            )
+
+        self.raw_function = function
+        self.arg_mapping: dict[int, str] = {}
+        self.positional_only_args: set[str] = set()
+        self.v_args_name = 'args'
+        self.v_kwargs_name = 'kwargs'
+
+        type_hints = _typing_extra.get_type_hints(function, include_extras=True)
+        takes_args = False
+        takes_kwargs = False
+        fields: dict[str, tuple[Any, Any]] = {}
+        for i, (name, p) in enumerate(parameters.items()):
+            if p.annotation is p.empty:
+                annotation = Any
             else:
-                return func(expr, *args, **kwargs)
+                annotation = type_hints[name]
 
-    return threaded_func
+            default = ... if p.default is p.empty else p.default
+            if p.kind == Parameter.POSITIONAL_ONLY:
+                self.arg_mapping[i] = name
+                fields[name] = annotation, default
+                fields[V_POSITIONAL_ONLY_NAME] = list[str], None
+                self.positional_only_args.add(name)
+            elif p.kind == Parameter.POSITIONAL_OR_KEYWORD:
+                self.arg_mapping[i] = name
+                fields[name] = annotation, default
+                fields[V_DUPLICATE_KWARGS] = list[str], None
+            elif p.kind == Parameter.KEYWORD_ONLY:
+                fields[name] = annotation, default
+            elif p.kind == Parameter.VAR_POSITIONAL:
+                self.v_args_name = name
+                fields[name] = tuple[annotation, ...], None
+                takes_args = True
+            else:
+                assert p.kind == Parameter.VAR_KEYWORD, p.kind
+                self.v_kwargs_name = name
+                fields[name] = dict[str, annotation], None
+                takes_kwargs = True
 
+        # these checks avoid a clash between "args" and a field with that name
+        if not takes_args and self.v_args_name in fields:
+            self.v_args_name = ALT_V_ARGS
 
-def threaded(func):
-    """Apply ``func`` to sub--elements of an object, including :class:`~.Add`.
+        # same with "kwargs"
+        if not takes_kwargs and self.v_kwargs_name in fields:
+            self.v_kwargs_name = ALT_V_KWARGS
 
-    This decorator is intended to make it uniformly possible to apply a
-    function to all elements of composite objects, e.g. matrices, lists, tuples
-    and other iterable containers, or just expressions.
+        if not takes_args:
+            # we add the field so validation below can raise the correct exception
+            fields[self.v_args_name] = list[Any], None
 
-    This version of :func:`threaded` decorator allows threading over
-    elements of :class:`~.Add` class. If this behavior is not desirable
-    use :func:`xthreaded` decorator.
+        if not takes_kwargs:
+            # same with kwargs
+            fields[self.v_kwargs_name] = dict[Any, Any], None
 
-    Functions using this decorator must have the following signature::
+        self.create_model(fields, takes_args, takes_kwargs, config)
 
-      @threaded
-      def function(expr, *args, **kwargs):
+    def init_model_instance(self, *args: Any, **kwargs: Any) -> BaseModel:
+        values = self.build_values(args, kwargs)
+        return self.model(**values)
 
-    """
-    return threaded_factory(func, True)
+    def call(self, *args: Any, **kwargs: Any) -> Any:
+        m = self.init_model_instance(*args, **kwargs)
+        return self.execute(m)
 
-
-def xthreaded(func):
-    """Apply ``func`` to sub--elements of an object, excluding :class:`~.Add`.
-
-    This decorator is intended to make it uniformly possible to apply a
-    function to all elements of composite objects, e.g. matrices, lists, tuples
-    and other iterable containers, or just expressions.
-
-    This version of :func:`threaded` decorator disallows threading over
-    elements of :class:`~.Add` class. If this behavior is not desirable
-    use :func:`threaded` decorator.
-
-    Functions using this decorator must have the following signature::
-
-      @xthreaded
-      def function(expr, *args, **kwargs):
-
-    """
-    return threaded_factory(func, False)
-
-
-def conserve_mpmath_dps(func):
-    """After the function finishes, resets the value of ``mpmath.mp.dps`` to
-    the value it had before the function was run."""
-    import mpmath
-
-    def func_wrapper(*args, **kwargs):
-        dps = mpmath.mp.dps
-        try:
-            return func(*args, **kwargs)
-        finally:
-            mpmath.mp.dps = dps
-
-    func_wrapper = update_wrapper(func_wrapper, func)
-    return func_wrapper
-
-
-class no_attrs_in_subclass:
-    """Don't 'inherit' certain attributes from a base class
-
-    >>> from sympy.utilities.decorator import no_attrs_in_subclass
-
-    >>> class A(object):
-    ...     x = 'test'
-
-    >>> A.x = no_attrs_in_subclass(A, A.x)
-
-    >>> class B(A):
-    ...     pass
-
-    >>> hasattr(A, 'x')
-    True
-    >>> hasattr(B, 'x')
-    False
-
-    """
-    def __init__(self, cls, f):
-        self.cls = cls
-        self.f = f
-
-    def __get__(self, instance, owner=None):
-        if owner == self.cls:
-            if hasattr(self.f, '__get__'):
-                return self.f.__get__(instance, owner)
-            return self.f
-        raise AttributeError
-
-
-def doctest_depends_on(exe=None, modules=None, disable_viewers=None,
-                       python_version=None, ground_types=None):
-    """
-    Adds metadata about the dependencies which need to be met for doctesting
-    the docstrings of the decorated objects.
-
-    ``exe`` should be a list of executables
-
-    ``modules`` should be a list of modules
-
-    ``disable_viewers`` should be a list of viewers for :func:`~sympy.printing.preview.preview` to disable
-
-    ``python_version`` should be the minimum Python version required, as a tuple
-    (like ``(3, 0)``)
-    """
-    dependencies = {}
-    if exe is not None:
-        dependencies['executables'] = exe
-    if modules is not None:
-        dependencies['modules'] = modules
-    if disable_viewers is not None:
-        dependencies['disable_viewers'] = disable_viewers
-    if python_version is not None:
-        dependencies['python_version'] = python_version
-    if ground_types is not None:
-        dependencies['ground_types'] = ground_types
-
-    def skiptests():
-        from sympy.testing.runtests import DependencyError, SymPyDocTests, PyTestReporter # lazy import
-        r = PyTestReporter()
-        t = SymPyDocTests(r, None)
-        try:
-            t._check_dependencies(**dependencies)
-        except DependencyError:
-            return True  # Skip doctests
-        else:
-            return False # Run doctests
-
-    def depends_on_deco(fn):
-        fn._doctest_depends_on = dependencies
-        fn.__doctest_skip__ = skiptests
-
-        if inspect.isclass(fn):
-            fn._doctest_depdends_on = no_attrs_in_subclass(
-                fn, fn._doctest_depends_on)
-            fn.__doctest_skip__ = no_attrs_in_subclass(
-                fn, fn.__doctest_skip__)
-        return fn
-
-    return depends_on_deco
-
-
-def public(obj: T) -> T:
-    """
-    Append ``obj``'s name to global ``__all__`` variable (call site).
-
-    By using this decorator on functions or classes you achieve the same goal
-    as by filling ``__all__`` variables manually, you just do not have to repeat
-    yourself (object's name). You also know if object is public at definition
-    site, not at some random location (where ``__all__`` was set).
-
-    Note that in multiple decorator setup (in almost all cases) ``@public``
-    decorator must be applied before any other decorators, because it relies
-    on the pointer to object's global namespace. If you apply other decorators
-    first, ``@public`` may end up modifying the wrong namespace.
-
-    Examples
-    ========
-
-    >>> from sympy.utilities.decorator import public
-
-    >>> __all__ # noqa: F821
-    Traceback (most recent call last):
-    ...
-    NameError: name '__all__' is not defined
-
-    >>> @public
-    ... def some_function():
-    ...     pass
-
-    >>> __all__ # noqa: F821
-    ['some_function']
-
-    """
-    if isinstance(obj, types.FunctionType):
-        ns = obj.__globals__
-        name = obj.__name__
-    elif isinstance(obj, (type(type), type)):
-        ns = sys.modules[obj.__module__].__dict__
-        name = obj.__name__
-    else:
-        raise TypeError("expected a function or a class, got %s" % obj)
-
-    if "__all__" not in ns:
-        ns["__all__"] = [name]
-    else:
-        ns["__all__"].append(name)
-
-    return obj
-
-
-def memoize_property(propfunc):
-    """Property decorator that caches the value of potentially expensive
-    ``propfunc`` after the first evaluation. The cached value is stored in
-    the corresponding property name with an attached underscore."""
-    attrname = '_' + propfunc.__name__
-    sentinel = object()
-
-    @wraps(propfunc)
-    def accessor(self):
-        val = getattr(self, attrname, sentinel)
-        if val is sentinel:
-            val = propfunc(self)
-            setattr(self, attrname, val)
-        return val
-
-    return property(accessor)
-
-
-def deprecated(message, *, deprecated_since_version,
-               active_deprecations_target, stacklevel=3):
-    '''
-    Mark a function as deprecated.
-
-    This decorator should be used if an entire function or class is
-    deprecated. If only a certain functionality is deprecated, you should use
-    :func:`~.warns_deprecated_sympy` directly. This decorator is just a
-    convenience. There is no functional difference between using this
-    decorator and calling ``warns_deprecated_sympy()`` at the top of the
-    function.
-
-    The decorator takes the same arguments as
-    :func:`~.warns_deprecated_sympy`. See its
-    documentation for details on what the keywords to this decorator do.
-
-    See the :ref:`deprecation-policy` document for details on when and how
-    things should be deprecated in SymPy.
-
-    Examples
-    ========
-
-    >>> from sympy.utilities.decorator import deprecated
-    >>> from sympy import simplify
-    >>> @deprecated("""\
-    ... The simplify_this(expr) function is deprecated. Use simplify(expr)
-    ... instead.""", deprecated_since_version="1.1",
-    ... active_deprecations_target='simplify-this-deprecation')
-    ... def simplify_this(expr):
-    ...     """
-    ...     Simplify ``expr``.
-    ...
-    ...     .. deprecated:: 1.1
-    ...
-    ...        The ``simplify_this`` function is deprecated. Use :func:`simplify`
-    ...        instead. See its documentation for more information. See
-    ...        :ref:`simplify-this-deprecation` for details.
-    ...
-    ...     """
-    ...     return simplify(expr)
-    >>> from sympy.abc import x
-    >>> simplify_this(x*(x + 1) - x**2) # doctest: +SKIP
-    <stdin>:1: SymPyDeprecationWarning:
-    <BLANKLINE>
-    The simplify_this(expr) function is deprecated. Use simplify(expr)
-    instead.
-    <BLANKLINE>
-    See https://docs.sympy.org/latest/explanation/active-deprecations.html#simplify-this-deprecation
-    for details.
-    <BLANKLINE>
-    This has been deprecated since SymPy version 1.1. It
-    will be removed in a future version of SymPy.
-    <BLANKLINE>
-      simplify_this(x)
-    x
-
-    See Also
-    ========
-    sympy.utilities.exceptions.SymPyDeprecationWarning
-    sympy.utilities.exceptions.sympy_deprecation_warning
-    sympy.utilities.exceptions.ignore_warnings
-    sympy.testing.pytest.warns_deprecated_sympy
-
-    '''
-    decorator_kwargs = {"deprecated_since_version": deprecated_since_version,
-               "active_deprecations_target": active_deprecations_target}
-    def deprecated_decorator(wrapped):
-        if hasattr(wrapped, '__mro__'):  # wrapped is actually a class
-            class wrapper(wrapped):
-                __doc__ = wrapped.__doc__
-                __module__ = wrapped.__module__
-                _sympy_deprecated_func = wrapped
-                if '__new__' in wrapped.__dict__:
-                    def __new__(cls, *args, **kwargs):
-                        sympy_deprecation_warning(message, **decorator_kwargs, stacklevel=stacklevel)
-                        return super().__new__(cls, *args, **kwargs)
+    def build_values(self, args: tuple[Any, ...], kwargs: dict[str, Any]) -> dict[str, Any]:
+        values: dict[str, Any] = {}
+        if args:
+            arg_iter = enumerate(args)
+            while True:
+                try:
+                    i, a = next(arg_iter)
+                except StopIteration:
+                    break
+                arg_name = self.arg_mapping.get(i)
+                if arg_name is not None:
+                    values[arg_name] = a
                 else:
-                    def __init__(self, *args, **kwargs):
-                        sympy_deprecation_warning(message, **decorator_kwargs, stacklevel=stacklevel)
-                        super().__init__(*args, **kwargs)
-            wrapper.__name__ = wrapped.__name__
+                    values[self.v_args_name] = [a] + [a for _, a in arg_iter]
+                    break
+
+        var_kwargs: dict[str, Any] = {}
+        wrong_positional_args = []
+        duplicate_kwargs = []
+        fields_alias = [
+            field.alias
+            for name, field in self.model.__pydantic_fields__.items()
+            if name not in (self.v_args_name, self.v_kwargs_name)
+        ]
+        non_var_fields = set(self.model.__pydantic_fields__) - {self.v_args_name, self.v_kwargs_name}
+        for k, v in kwargs.items():
+            if k in non_var_fields or k in fields_alias:
+                if k in self.positional_only_args:
+                    wrong_positional_args.append(k)
+                if k in values:
+                    duplicate_kwargs.append(k)
+                values[k] = v
+            else:
+                var_kwargs[k] = v
+
+        if var_kwargs:
+            values[self.v_kwargs_name] = var_kwargs
+        if wrong_positional_args:
+            values[V_POSITIONAL_ONLY_NAME] = wrong_positional_args
+        if duplicate_kwargs:
+            values[V_DUPLICATE_KWARGS] = duplicate_kwargs
+        return values
+
+    def execute(self, m: BaseModel) -> Any:
+        d = {
+            k: v
+            for k, v in m.__dict__.items()
+            if k in m.__pydantic_fields_set__ or m.__pydantic_fields__[k].default_factory
+        }
+        var_kwargs = d.pop(self.v_kwargs_name, {})
+
+        if self.v_args_name in d:
+            args_: list[Any] = []
+            in_kwargs = False
+            kwargs = {}
+            for name, value in d.items():
+                if in_kwargs:
+                    kwargs[name] = value
+                elif name == self.v_args_name:
+                    args_ += value
+                    in_kwargs = True
+                else:
+                    args_.append(value)
+            return self.raw_function(*args_, **kwargs, **var_kwargs)
+        elif self.positional_only_args:
+            args_ = []
+            kwargs = {}
+            for name, value in d.items():
+                if name in self.positional_only_args:
+                    args_.append(value)
+                else:
+                    kwargs[name] = value
+            return self.raw_function(*args_, **kwargs, **var_kwargs)
         else:
-            @wraps(wrapped)
-            def wrapper(*args, **kwargs):
-                sympy_deprecation_warning(message, **decorator_kwargs, stacklevel=stacklevel)
-                return wrapped(*args, **kwargs)
-            wrapper._sympy_deprecated_func = wrapped
-        return wrapper
-    return deprecated_decorator
+            return self.raw_function(**d, **var_kwargs)
+
+    def create_model(self, fields: dict[str, Any], takes_args: bool, takes_kwargs: bool, config: 'ConfigType') -> None:
+        pos_args = len(self.arg_mapping)
+
+        config_wrapper = _config.ConfigWrapper(config)
+
+        if config_wrapper.alias_generator:
+            raise PydanticUserError(
+                'Setting the "alias_generator" property on custom Config for '
+                '@validate_arguments is not yet supported, please remove.',
+                code=None,
+            )
+        if config_wrapper.extra is None:
+            config_wrapper.config_dict['extra'] = 'forbid'
+
+        class DecoratorBaseModel(BaseModel):
+            @field_validator(self.v_args_name, check_fields=False)
+            @classmethod
+            def check_args(cls, v: Optional[list[Any]]) -> Optional[list[Any]]:
+                if takes_args or v is None:
+                    return v
+
+                raise TypeError(f'{pos_args} positional arguments expected but {pos_args + len(v)} given')
+
+            @field_validator(self.v_kwargs_name, check_fields=False)
+            @classmethod
+            def check_kwargs(cls, v: Optional[dict[str, Any]]) -> Optional[dict[str, Any]]:
+                if takes_kwargs or v is None:
+                    return v
+
+                plural = '' if len(v) == 1 else 's'
+                keys = ', '.join(map(repr, v.keys()))
+                raise TypeError(f'unexpected keyword argument{plural}: {keys}')
+
+            @field_validator(V_POSITIONAL_ONLY_NAME, check_fields=False)
+            @classmethod
+            def check_positional_only(cls, v: Optional[list[str]]) -> None:
+                if v is None:
+                    return
+
+                plural = '' if len(v) == 1 else 's'
+                keys = ', '.join(map(repr, v))
+                raise TypeError(f'positional-only argument{plural} passed as keyword argument{plural}: {keys}')
+
+            @field_validator(V_DUPLICATE_KWARGS, check_fields=False)
+            @classmethod
+            def check_duplicate_kwargs(cls, v: Optional[list[str]]) -> None:
+                if v is None:
+                    return
+
+                plural = '' if len(v) == 1 else 's'
+                keys = ', '.join(map(repr, v))
+                raise TypeError(f'multiple values for argument{plural}: {keys}')
+
+            model_config = config_wrapper.config_dict
+
+        self.model = create_model(to_pascal(self.raw_function.__name__), __base__=DecoratorBaseModel, **fields)

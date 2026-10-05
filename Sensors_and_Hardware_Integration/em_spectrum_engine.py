@@ -18,7 +18,6 @@ Arquitecto: Miguel Angel May Canche  ·  Ancla: Playa del Carmen, MX
 from __future__ import annotations
 
 import os
-import sys
 import re
 import math
 import time

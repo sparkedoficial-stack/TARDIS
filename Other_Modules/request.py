@@ -1,254 +1,536 @@
 from __future__ import annotations
 
-import io
-import sys
-import typing
-from base64 import b64encode
-from enum import Enum
+import typing as t
+from datetime import datetime
+from urllib.parse import parse_qsl
 
-from ..exceptions import UnrewindableBodyError
-from .util import to_bytes
-
-if typing.TYPE_CHECKING:
-    from typing import Final
-
-# Pass as a value within ``headers`` to skip
-# emitting some HTTP headers that are added automatically.
-# The only headers that are supported are ``Accept-Encoding``,
-# ``Host``, and ``User-Agent``.
-SKIP_HEADER = "@@@SKIP_HEADER@@@"
-SKIPPABLE_HEADERS = frozenset(["accept-encoding", "host", "user-agent"])
-
-ACCEPT_ENCODING = "gzip,deflate"
-
-try:
-    if sys.version_info >= (3, 14):
-        from compression import zstd as _unused_module_zstd  # noqa: F401
-    else:
-        from backports import zstd as _unused_module_zstd  # noqa: F401
-except ImportError:
-    pass
-else:
-    ACCEPT_ENCODING += ",zstd"
-
-
-class _TYPE_FAILEDTELL(Enum):
-    token = 0
-
-
-_FAILEDTELL: Final[_TYPE_FAILEDTELL] = _TYPE_FAILEDTELL.token
-
-_TYPE_BODY_POSITION = typing.Union[int, _TYPE_FAILEDTELL]
-
-# When sending a request with these methods we aren't expecting
-# a body so don't need to set an explicit 'Content-Length: 0'
-# The reason we do this in the negative instead of tracking methods
-# which 'should' have a body is because unknown methods should be
-# treated as if they were 'POST' which *does* expect a body.
-_METHODS_NOT_EXPECTING_BODY = {"GET", "HEAD", "DELETE", "TRACE", "OPTIONS", "CONNECT"}
+from ..datastructures import Accept
+from ..datastructures import Authorization
+from ..datastructures import CharsetAccept
+from ..datastructures import ETags
+from ..datastructures import Headers
+from ..datastructures import HeaderSet
+from ..datastructures import IfRange
+from ..datastructures import ImmutableList
+from ..datastructures import ImmutableMultiDict
+from ..datastructures import LanguageAccept
+from ..datastructures import MIMEAccept
+from ..datastructures import MultiDict
+from ..datastructures import Range
+from ..datastructures import RequestCacheControl
+from ..http import parse_accept_header
+from ..http import parse_cache_control_header
+from ..http import parse_date
+from ..http import parse_etags
+from ..http import parse_if_range_header
+from ..http import parse_list_header
+from ..http import parse_options_header
+from ..http import parse_range_header
+from ..http import parse_set_header
+from ..user_agent import UserAgent
+from ..utils import cached_property
+from ..utils import header_property
+from .http import parse_cookie
+from .utils import get_content_length
+from .utils import get_current_url
+from .utils import get_host
 
 
-def make_headers(
-    keep_alive: bool | None = None,
-    accept_encoding: bool | list[str] | str | None = None,
-    user_agent: str | None = None,
-    basic_auth: str | None = None,
-    proxy_basic_auth: str | None = None,
-    disable_cache: bool | None = None,
-) -> dict[str, str]:
+class Request:
+    """Represents the non-IO parts of a HTTP request, including the
+    method, URL info, and headers.
+
+    This class is not meant for general use. It should only be used when
+    implementing WSGI, ASGI, or another HTTP application spec. Werkzeug
+    provides a WSGI implementation at :cls:`werkzeug.wrappers.Request`.
+
+    :param method: The method the request was made with, such as
+        ``GET``.
+    :param scheme: The URL scheme of the protocol the request used, such
+        as ``https`` or ``wss``.
+    :param server: The address of the server. ``(host, port)``,
+        ``(path, None)`` for unix sockets, or ``None`` if not known.
+    :param root_path: The prefix that the application is mounted under.
+        This is prepended to generated URLs, but is not part of route
+        matching.
+    :param path: The path part of the URL after ``root_path``.
+    :param query_string: The part of the URL after the "?".
+    :param headers: The headers received with the request.
+    :param remote_addr: The address of the client sending the request.
+
+    .. versionchanged:: 3.0
+        The ``charset``, ``url_charset``, and ``encoding_errors`` attributes
+        were removed.
+
+    .. versionadded:: 2.0
     """
-    Shortcuts for generating request headers.
 
-    :param keep_alive:
-        If ``True``, adds 'connection: keep-alive' header.
+    #: the class to use for `args` and `form`.  The default is an
+    #: :class:`~werkzeug.datastructures.ImmutableMultiDict` which supports
+    #: multiple values per key. A :class:`~werkzeug.datastructures.ImmutableDict`
+    #: is faster but only remembers the last key. It is also
+    #: possible to use mutable structures, but this is not recommended.
+    #:
+    #: .. versionadded:: 0.6
+    parameter_storage_class: type[MultiDict[str, t.Any]] = ImmutableMultiDict
 
-    :param accept_encoding:
-        Can be a boolean, list, or string.
-        ``True`` translates to 'gzip,deflate'.  If the dependencies for
-        Brotli (either the ``brotli`` or ``brotlicffi`` package) and/or
-        Zstandard (the ``backports.zstd`` package for Python before 3.14)
-        algorithms are installed, then their encodings are
-        included in the string ('br' and 'zstd', respectively).
-        List will get joined by comma.
-        String will be used as provided.
+    #: The type to be used for dict values from the incoming WSGI
+    #: environment. (For example for :attr:`cookies`.) By default an
+    #: :class:`~werkzeug.datastructures.ImmutableMultiDict` is used.
+    #:
+    #: .. versionchanged:: 1.0.0
+    #:     Changed to ``ImmutableMultiDict`` to support multiple values.
+    #:
+    #: .. versionadded:: 0.6
+    dict_storage_class: type[MultiDict[str, t.Any]] = ImmutableMultiDict
 
-    :param user_agent:
-        String representing the user-agent you want, such as
-        "python-urllib3/0.6"
+    #: the type to be used for list values from the incoming WSGI environment.
+    #: By default an :class:`~werkzeug.datastructures.ImmutableList` is used
+    #: (for example for :attr:`access_list`).
+    #:
+    #: .. versionadded:: 0.6
+    list_storage_class: type[list[t.Any]] = ImmutableList
 
-    :param basic_auth:
-        Colon-separated username:password string for 'authorization: basic ...'
-        auth header.
+    user_agent_class: type[UserAgent] = UserAgent
+    """The class used and returned by the :attr:`user_agent` property to
+    parse the header. Defaults to
+    :class:`~werkzeug.user_agent.UserAgent`, which does no parsing. An
+    extension can provide a subclass that uses a parser to provide other
+    data.
 
-    :param proxy_basic_auth:
-        Colon-separated username:password string for 'proxy-authorization: basic ...'
-        auth header.
-
-    :param disable_cache:
-        If ``True``, adds 'cache-control: no-cache' header.
-
-    Example:
-
-    .. code-block:: python
-
-        from pip._vendor import urllib3
-
-        print(urllib3.util.make_headers(keep_alive=True, user_agent="Batman/1.0"))
-        # {'connection': 'keep-alive', 'user-agent': 'Batman/1.0'}
-        print(urllib3.util.make_headers(accept_encoding=True))
-        # {'accept-encoding': 'gzip,deflate'}
+    .. versionadded:: 2.0
     """
-    headers: dict[str, str] = {}
-    if accept_encoding:
-        if isinstance(accept_encoding, str):
-            pass
-        elif isinstance(accept_encoding, list):
-            accept_encoding = ",".join(accept_encoding)
-        else:
-            accept_encoding = ACCEPT_ENCODING
-        headers["accept-encoding"] = accept_encoding
 
-    if user_agent:
-        headers["user-agent"] = user_agent
+    #: Valid host names when handling requests. By default all hosts are
+    #: trusted, which means that whatever the client says the host is
+    #: will be accepted.
+    #:
+    #: Because ``Host`` and ``X-Forwarded-Host`` headers can be set to
+    #: any value by a malicious client, it is recommended to either set
+    #: this property or implement similar validation in the proxy (if
+    #: the application is being run behind one).
+    #:
+    #: .. versionadded:: 0.9
+    trusted_hosts: list[str] | None = None
 
-    if keep_alive:
-        headers["connection"] = "keep-alive"
+    def __init__(
+        self,
+        method: str,
+        scheme: str,
+        server: tuple[str, int | None] | None,
+        root_path: str,
+        path: str,
+        query_string: bytes,
+        headers: Headers,
+        remote_addr: str | None,
+    ) -> None:
+        #: The method the request was made with, such as ``GET``.
+        self.method = method.upper()
+        #: The URL scheme of the protocol the request used, such as
+        #: ``https`` or ``wss``.
+        self.scheme = scheme
+        #: The address of the server. ``(host, port)``, ``(path, None)``
+        #: for unix sockets, or ``None`` if not known.
+        self.server = server
+        #: The prefix that the application is mounted under, without a
+        #: trailing slash. :attr:`path` comes after this.
+        self.root_path = root_path.rstrip("/")
+        #: The path part of the URL after :attr:`root_path`. This is the
+        #: path used for routing within the application.
+        self.path = "/" + path.lstrip("/")
+        #: The part of the URL after the "?". This is the raw value, use
+        #: :attr:`args` for the parsed values.
+        self.query_string = query_string
+        #: The headers received with the request.
+        self.headers = headers
+        #: The address of the client sending the request.
+        self.remote_addr = remote_addr
 
-    if basic_auth:
-        headers["authorization"] = (
-            f"Basic {b64encode(basic_auth.encode('latin-1')).decode()}"
-        )
-
-    if proxy_basic_auth:
-        headers["proxy-authorization"] = (
-            f"Basic {b64encode(proxy_basic_auth.encode('latin-1')).decode()}"
-        )
-
-    if disable_cache:
-        headers["cache-control"] = "no-cache"
-
-    return headers
-
-
-def set_file_position(
-    body: typing.Any, pos: _TYPE_BODY_POSITION | None
-) -> _TYPE_BODY_POSITION | None:
-    """
-    If a position is provided, move file to that point.
-    Otherwise, we'll attempt to record a position for future use.
-    """
-    if pos is not None:
-        rewind_body(body, pos)
-    elif getattr(body, "tell", None) is not None:
+    def __repr__(self) -> str:
         try:
-            pos = body.tell()
-        except OSError:
-            # This differentiates from None, allowing us to catch
-            # a failed `tell()` later when trying to rewind the body.
-            pos = _FAILEDTELL
+            url = self.url
+        except Exception as e:
+            url = f"(invalid URL: {e})"
 
-    return pos
+        return f"<{type(self).__name__} {url!r} [{self.method}]>"
 
+    @cached_property
+    def args(self) -> MultiDict[str, str]:
+        """The parsed URL parameters (the part in the URL after the question
+        mark).
 
-def rewind_body(body: typing.IO[typing.AnyStr], body_pos: _TYPE_BODY_POSITION) -> None:
-    """
-    Attempt to rewind body to a certain position.
-    Primarily used for request redirects and retries.
+        By default an
+        :class:`~werkzeug.datastructures.ImmutableMultiDict`
+        is returned from this function.  This can be changed by setting
+        :attr:`parameter_storage_class` to a different type.  This might
+        be necessary if the order of the form data is important.
 
-    :param body:
-        File-like object that supports seek.
-
-    :param int pos:
-        Position to seek to in file.
-    """
-    body_seek = getattr(body, "seek", None)
-    if body_seek is not None and isinstance(body_pos, int):
-        try:
-            body_seek(body_pos)
-        except OSError as e:
-            raise UnrewindableBodyError(
-                "An error occurred when rewinding request body for redirect/retry."
-            ) from e
-    elif body_pos is _FAILEDTELL:
-        raise UnrewindableBodyError(
-            "Unable to record file position for rewinding "
-            "request body during a redirect/retry."
-        )
-    else:
-        raise ValueError(
-            f"body_pos must be of type integer, instead it was {type(body_pos)}."
+        .. versionchanged:: 2.3
+            Invalid bytes remain percent encoded.
+        """
+        return self.parameter_storage_class(
+            parse_qsl(
+                self.query_string.decode(),
+                keep_blank_values=True,
+                errors="werkzeug.url_quote",
+            )
         )
 
+    @cached_property
+    def access_route(self) -> list[str]:
+        """If a forwarded header exists this is a list of all ip addresses
+        from the client ip to the last proxy server.
+        """
+        if "X-Forwarded-For" in self.headers:
+            return self.list_storage_class(
+                parse_list_header(self.headers["X-Forwarded-For"])
+            )
+        elif self.remote_addr is not None:
+            return self.list_storage_class([self.remote_addr])
+        return self.list_storage_class()
 
-class ChunksAndContentLength(typing.NamedTuple):
-    chunks: typing.Iterable[bytes] | None
-    content_length: int | None
+    @cached_property
+    def full_path(self) -> str:
+        """Requested path, including the query string."""
+        return f"{self.path}?{self.query_string.decode()}"
 
+    @property
+    def is_secure(self) -> bool:
+        """``True`` if the request was made with a secure protocol
+        (HTTPS or WSS).
+        """
+        return self.scheme in {"https", "wss"}
 
-def body_to_chunks(
-    body: typing.Any | None, method: str, blocksize: int
-) -> ChunksAndContentLength:
-    """Takes the HTTP request method, body, and blocksize and
-    transforms them into an iterable of chunks to pass to
-    socket.sendall() and an optional 'Content-Length' header.
+    @cached_property
+    def url(self) -> str:
+        """The full request URL with the scheme, host, root path, path,
+        and query string."""
+        return get_current_url(
+            self.scheme, self.host, self.root_path, self.path, self.query_string
+        )
 
-    A 'Content-Length' of 'None' indicates the length of the body
-    can't be determined so should use 'Transfer-Encoding: chunked'
-    for framing instead.
-    """
+    @cached_property
+    def base_url(self) -> str:
+        """Like :attr:`url` but without the query string."""
+        return get_current_url(self.scheme, self.host, self.root_path, self.path)
 
-    chunks: typing.Iterable[bytes] | None
-    content_length: int | None
+    @cached_property
+    def root_url(self) -> str:
+        """The request URL scheme, host, and root path. This is the root
+        that the application is accessed from.
+        """
+        return get_current_url(self.scheme, self.host, self.root_path)
 
-    # No body, we need to make a recommendation on 'Content-Length'
-    # based on whether that request method is expected to have
-    # a body or not.
-    if body is None:
-        chunks = None
-        if method.upper() not in _METHODS_NOT_EXPECTING_BODY:
-            content_length = 0
-        else:
-            content_length = None
+    @cached_property
+    def host_url(self) -> str:
+        """The request URL scheme and host only."""
+        return get_current_url(self.scheme, self.host)
 
-    # Bytes or strings become bytes
-    elif isinstance(body, (str, bytes)):
-        chunks = (to_bytes(body),)
-        content_length = len(chunks[0])
+    @cached_property
+    def host(self) -> str:
+        """The host name the request was made to, including the port if
+        it's non-standard. Validated with :attr:`trusted_hosts`.
 
-    # File-like object, TODO: use seek() and tell() for length?
-    elif hasattr(body, "read"):
+        See :func:`.get_host` for a detailed explanation.
+        """
+        return get_host(
+            self.scheme, self.headers.get("host"), self.server, self.trusted_hosts
+        )
 
-        def chunk_readable() -> typing.Iterable[bytes]:
-            encode = isinstance(body, io.TextIOBase)
-            while True:
-                datablock = body.read(blocksize)
-                if not datablock:
-                    break
-                if encode:
-                    datablock = datablock.encode("utf-8")
-                yield datablock
+    @cached_property
+    def cookies(self) -> ImmutableMultiDict[str, str]:
+        """A :class:`dict` with the contents of all cookies transmitted with
+        the request."""
+        wsgi_combined_cookie = ";".join(self.headers.getlist("Cookie"))
+        return parse_cookie(  # type: ignore
+            wsgi_combined_cookie, cls=self.dict_storage_class
+        )
 
-        chunks = chunk_readable()
-        content_length = None
+    # Common Descriptors
 
-    # Otherwise we need to start checking via duck-typing.
-    else:
-        try:
-            # Check if the body implements the buffer API.
-            mv = memoryview(body)
-        except TypeError:
-            try:
-                # Check if the body is an iterable
-                chunks = iter(body)
-                content_length = None
-            except TypeError:
-                raise TypeError(
-                    f"'body' must be a bytes-like object, file-like "
-                    f"object, or iterable. Instead was {body!r}"
-                ) from None
-        else:
-            # Since it implements the buffer API can be passed directly to socket.sendall()
-            chunks = (body,)
-            content_length = mv.nbytes
+    content_type = header_property[str](
+        "Content-Type",
+        doc="""The Content-Type entity-header field indicates the media
+        type of the entity-body sent to the recipient or, in the case of
+        the HEAD method, the media type that would have been sent had
+        the request been a GET.""",
+        read_only=True,
+    )
 
-    return ChunksAndContentLength(chunks=chunks, content_length=content_length)
+    @cached_property
+    def content_length(self) -> int | None:
+        """The Content-Length entity-header field indicates the size of the
+        entity-body in bytes or, in the case of the HEAD method, the size of
+        the entity-body that would have been sent had the request been a
+        GET.
+        """
+        return get_content_length(
+            http_content_length=self.headers.get("Content-Length"),
+            http_transfer_encoding=self.headers.get("Transfer-Encoding"),
+        )
+
+    content_encoding = header_property[str](
+        "Content-Encoding",
+        doc="""The Content-Encoding entity-header field is used as a
+        modifier to the media-type. When present, its value indicates
+        what additional content codings have been applied to the
+        entity-body, and thus what decoding mechanisms must be applied
+        in order to obtain the media-type referenced by the Content-Type
+        header field.
+
+        .. versionadded:: 0.9""",
+        read_only=True,
+    )
+    content_md5 = header_property[str](
+        "Content-MD5",
+        doc="""The Content-MD5 entity-header field, as defined in
+        RFC 1864, is an MD5 digest of the entity-body for the purpose of
+        providing an end-to-end message integrity check (MIC) of the
+        entity-body. (Note: a MIC is good for detecting accidental
+        modification of the entity-body in transit, but is not proof
+        against malicious attacks.)
+
+        .. versionadded:: 0.9""",
+        read_only=True,
+    )
+    referrer = header_property[str](
+        "Referer",
+        doc="""The Referer[sic] request-header field allows the client
+        to specify, for the server's benefit, the address (URI) of the
+        resource from which the Request-URI was obtained (the
+        "referrer", although the header field is misspelled).""",
+        read_only=True,
+    )
+    date = header_property(
+        "Date",
+        None,
+        parse_date,
+        doc="""The Date general-header field represents the date and
+        time at which the message was originated, having the same
+        semantics as orig-date in RFC 822.
+
+        .. versionchanged:: 2.0
+            The datetime object is timezone-aware.
+        """,
+        read_only=True,
+    )
+    max_forwards = header_property(
+        "Max-Forwards",
+        None,
+        int,
+        doc="""The Max-Forwards request-header field provides a
+        mechanism with the TRACE and OPTIONS methods to limit the number
+        of proxies or gateways that can forward the request to the next
+        inbound server.""",
+        read_only=True,
+    )
+
+    def _parse_content_type(self) -> None:
+        if not hasattr(self, "_parsed_content_type"):
+            self._parsed_content_type = parse_options_header(
+                self.headers.get("Content-Type", "")
+            )
+
+    @property
+    def mimetype(self) -> str:
+        """Like :attr:`content_type`, but without parameters (eg, without
+        charset, type etc.) and always lowercase.  For example if the content
+        type is ``text/HTML; charset=utf-8`` the mimetype would be
+        ``'text/html'``.
+        """
+        self._parse_content_type()
+        return self._parsed_content_type[0].lower()
+
+    @property
+    def mimetype_params(self) -> dict[str, str]:
+        """The mimetype parameters as dict.  For example if the content
+        type is ``text/html; charset=utf-8`` the params would be
+        ``{'charset': 'utf-8'}``.
+        """
+        self._parse_content_type()
+        return self._parsed_content_type[1]
+
+    @cached_property
+    def pragma(self) -> HeaderSet:
+        """The Pragma general-header field is used to include
+        implementation-specific directives that might apply to any recipient
+        along the request/response chain.  All pragma directives specify
+        optional behavior from the viewpoint of the protocol; however, some
+        systems MAY require that behavior be consistent with the directives.
+        """
+        return parse_set_header(self.headers.get("Pragma", ""))
+
+    # Accept
+
+    @cached_property
+    def accept_mimetypes(self) -> MIMEAccept:
+        """List of mimetypes this client supports as
+        :class:`~werkzeug.datastructures.MIMEAccept` object.
+        """
+        return parse_accept_header(self.headers.get("Accept"), MIMEAccept)
+
+    @cached_property
+    def accept_charsets(self) -> CharsetAccept:
+        """List of charsets this client supports as
+        :class:`~werkzeug.datastructures.CharsetAccept` object.
+        """
+        return parse_accept_header(self.headers.get("Accept-Charset"), CharsetAccept)
+
+    @cached_property
+    def accept_encodings(self) -> Accept:
+        """List of encodings this client accepts.  Encodings in a HTTP term
+        are compression encodings such as gzip.  For charsets have a look at
+        :attr:`accept_charset`.
+        """
+        return parse_accept_header(self.headers.get("Accept-Encoding"))
+
+    @cached_property
+    def accept_languages(self) -> LanguageAccept:
+        """List of languages this client accepts as
+        :class:`~werkzeug.datastructures.LanguageAccept` object.
+
+        .. versionchanged 0.5
+           In previous versions this was a regular
+           :class:`~werkzeug.datastructures.Accept` object.
+        """
+        return parse_accept_header(self.headers.get("Accept-Language"), LanguageAccept)
+
+    # ETag
+
+    @cached_property
+    def cache_control(self) -> RequestCacheControl:
+        """A :class:`~werkzeug.datastructures.RequestCacheControl` object
+        for the incoming cache control headers.
+        """
+        cache_control = self.headers.get("Cache-Control")
+        return parse_cache_control_header(cache_control, None, RequestCacheControl)
+
+    @cached_property
+    def if_match(self) -> ETags:
+        """An object containing all the etags in the `If-Match` header.
+
+        :rtype: :class:`~werkzeug.datastructures.ETags`
+        """
+        return parse_etags(self.headers.get("If-Match"))
+
+    @cached_property
+    def if_none_match(self) -> ETags:
+        """An object containing all the etags in the `If-None-Match` header.
+
+        :rtype: :class:`~werkzeug.datastructures.ETags`
+        """
+        return parse_etags(self.headers.get("If-None-Match"))
+
+    @cached_property
+    def if_modified_since(self) -> datetime | None:
+        """The parsed `If-Modified-Since` header as a datetime object.
+
+        .. versionchanged:: 2.0
+            The datetime object is timezone-aware.
+        """
+        return parse_date(self.headers.get("If-Modified-Since"))
+
+    @cached_property
+    def if_unmodified_since(self) -> datetime | None:
+        """The parsed `If-Unmodified-Since` header as a datetime object.
+
+        .. versionchanged:: 2.0
+            The datetime object is timezone-aware.
+        """
+        return parse_date(self.headers.get("If-Unmodified-Since"))
+
+    @cached_property
+    def if_range(self) -> IfRange:
+        """The parsed ``If-Range`` header.
+
+        .. versionchanged:: 2.0
+            ``IfRange.date`` is timezone-aware.
+
+        .. versionadded:: 0.7
+        """
+        return parse_if_range_header(self.headers.get("If-Range"))
+
+    @cached_property
+    def range(self) -> Range | None:
+        """The parsed `Range` header.
+
+        .. versionadded:: 0.7
+
+        :rtype: :class:`~werkzeug.datastructures.Range`
+        """
+        return parse_range_header(self.headers.get("Range"))
+
+    # User Agent
+
+    @cached_property
+    def user_agent(self) -> UserAgent:
+        """The user agent. Use ``user_agent.string`` to get the header
+        value. Set :attr:`user_agent_class` to a subclass of
+        :class:`~werkzeug.user_agent.UserAgent` to provide parsing for
+        the other properties or other extended data.
+
+        .. versionchanged:: 2.1
+            The built-in parser was removed. Set ``user_agent_class`` to a ``UserAgent``
+            subclass to parse data from the string.
+        """
+        return self.user_agent_class(self.headers.get("User-Agent", ""))
+
+    # Authorization
+
+    @cached_property
+    def authorization(self) -> Authorization | None:
+        """The ``Authorization`` header parsed into an :class:`.Authorization` object.
+        ``None`` if the header is not present.
+
+        .. versionchanged:: 2.3
+            :class:`Authorization` is no longer a ``dict``. The ``token`` attribute
+            was added for auth schemes that use a token instead of parameters.
+        """
+        return Authorization.from_header(self.headers.get("Authorization"))
+
+    # CORS
+
+    origin = header_property[str](
+        "Origin",
+        doc=(
+            "The host that the request originated from. Set"
+            " :attr:`~CORSResponseMixin.access_control_allow_origin` on"
+            " the response to indicate which origins are allowed."
+        ),
+        read_only=True,
+    )
+
+    access_control_request_headers = header_property(
+        "Access-Control-Request-Headers",
+        load_func=parse_set_header,
+        doc=(
+            "Sent with a preflight request to indicate which headers"
+            " will be sent with the cross origin request. Set"
+            " :attr:`~CORSResponseMixin.access_control_allow_headers`"
+            " on the response to indicate which headers are allowed."
+        ),
+        read_only=True,
+    )
+
+    access_control_request_method = header_property[str](
+        "Access-Control-Request-Method",
+        doc=(
+            "Sent with a preflight request to indicate which method"
+            " will be used for the cross origin request. Set"
+            " :attr:`~CORSResponseMixin.access_control_allow_methods`"
+            " on the response to indicate which methods are allowed."
+        ),
+        read_only=True,
+    )
+
+    @property
+    def is_json(self) -> bool:
+        """Check if the mimetype indicates JSON data, either
+        :mimetype:`application/json` or :mimetype:`application/*+json`.
+        """
+        mt = self.mimetype
+        return (
+            mt == "application/json"
+            or mt.startswith("application/")
+            and mt.endswith("+json")
+        )

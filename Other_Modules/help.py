@@ -1,131 +1,63 @@
-"""Module containing bug report helper(s)."""
-
-# pyright: reportUnknownMemberType=false
-
 import json
 import platform
-import ssl
 import sys
-from typing import Any
 
-import idna
-import urllib3
-
-from . import __version__ as requests_version
+from . import __version__ as pyjwt_version
 
 try:
-    import charset_normalizer
-except ImportError:
-    charset_normalizer = None
+    import cryptography
 
-try:
-    import chardet  # type: ignore[import-not-found]
-except ImportError:
-    chardet = None
-
-try:
-    from urllib3.contrib import pyopenssl
-except ImportError:
-    pyopenssl = None
-    OpenSSL = None
-    cryptography = None
-else:
-    import cryptography  # type: ignore[import-not-found]
-    import OpenSSL  # type: ignore[import-not-found]
+    cryptography_version = cryptography.__version__
+except ModuleNotFoundError:
+    cryptography_version = ""
 
 
-def _implementation():
-    """Return a dict with the Python implementation and version.
-
-    Provide both the name and the version of the Python implementation
-    currently running. For example, on CPython 3.10.3 it will return
-    {'name': 'CPython', 'version': '3.10.3'}.
-
-    This function works best on CPython and PyPy: in particular, it probably
-    doesn't work for Jython or IronPython. Future investigation should be done
-    to work out the correct shape of the code for those platforms.
+def info() -> dict[str, dict[str, str]]:
     """
-    implementation = platform.python_implementation()
-
-    if implementation == "CPython":
-        implementation_version = platform.python_version()
-    elif implementation == "PyPy":
-        pypy = sys.pypy_version_info  # type: ignore[attr-defined]
-        implementation_version = f"{pypy.major}.{pypy.minor}.{pypy.micro}"
-        if sys.pypy_version_info.releaselevel != "final":  # type: ignore[attr-defined]
-            implementation_version = "".join(
-                [implementation_version, sys.pypy_version_info.releaselevel]  # type: ignore[attr-defined]
-            )
-    elif implementation == "Jython":
-        implementation_version = platform.python_version()  # Complete Guess
-    elif implementation == "IronPython":
-        implementation_version = platform.python_version()  # Complete Guess
-    else:
-        implementation_version = "Unknown"
-
-    return {"name": implementation, "version": implementation_version}
-
-
-def info() -> dict[str, Any]:
-    """Generate information for a bug report."""
+    Generate information for a bug report.
+    Based on the requests package help utility module.
+    """
     try:
         platform_info = {
             "system": platform.system(),
             "release": platform.release(),
         }
     except OSError:
-        platform_info = {
-            "system": "Unknown",
-            "release": "Unknown",
-        }
+        platform_info = {"system": "Unknown", "release": "Unknown"}
 
-    implementation_info = _implementation()
-    urllib3_info = {"version": urllib3.__version__}  # type: ignore[reportPrivateImportUsage]
-    charset_normalizer_info = {"version": None}
-    chardet_info: dict[str, str | None] = {"version": None}
-    if charset_normalizer:
-        charset_normalizer_info = {"version": charset_normalizer.__version__}
-    if chardet:
-        chardet_info = {"version": chardet.__version__}
+    implementation = platform.python_implementation()
 
-    pyopenssl_info: dict[str, str | None] = {
-        "version": None,
-        "openssl_version": "",
-    }
-    if OpenSSL:
-        pyopenssl_info = {
-            "version": OpenSSL.__version__,
-            "openssl_version": f"{OpenSSL.SSL.OPENSSL_VERSION_NUMBER:x}",
-        }
-    cryptography_info = {
-        "version": getattr(cryptography, "__version__", ""),
-    }
-    idna_info = {
-        "version": getattr(idna, "__version__", ""),
-    }
-
-    system_ssl = ssl.OPENSSL_VERSION_NUMBER
-    system_ssl_info = {"version": f"{system_ssl:x}" if system_ssl is not None else ""}  # type: ignore[reportUnnecessaryComparison]
+    if implementation == "CPython":
+        implementation_version = platform.python_version()
+    elif implementation == "PyPy":
+        pypy_version_info = sys.pypy_version_info  # type: ignore[attr-defined]
+        implementation_version = (
+            f"{pypy_version_info.major}."
+            f"{pypy_version_info.minor}."
+            f"{pypy_version_info.micro}"
+        )
+        if pypy_version_info.releaselevel != "final":
+            implementation_version = "".join(
+                [
+                    implementation_version,
+                    pypy_version_info.releaselevel,
+                ]
+            )
+    else:
+        implementation_version = "Unknown"
 
     return {
         "platform": platform_info,
-        "implementation": implementation_info,
-        "system_ssl": system_ssl_info,
-        "using_pyopenssl": pyopenssl is not None,
-        "using_charset_normalizer": chardet is None,
-        "pyOpenSSL": pyopenssl_info,
-        "urllib3": urllib3_info,
-        "chardet": chardet_info,
-        "charset_normalizer": charset_normalizer_info,
-        "cryptography": cryptography_info,
-        "idna": idna_info,
-        "requests": {
-            "version": requests_version,
+        "implementation": {
+            "name": implementation,
+            "version": implementation_version,
         },
+        "cryptography": {"version": cryptography_version},
+        "pyjwt": {"version": pyjwt_version},
     }
 
 
-def main():
+def main() -> None:
     """Pretty-print the bug information as JSON."""
     print(json.dumps(info(), sort_keys=True, indent=2))
 

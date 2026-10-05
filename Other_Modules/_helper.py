@@ -1,235 +1,115 @@
-"""
-Discrete Fourier Transforms - _helper.py
+import operator
 
-"""
-from numpy._core import arange, asarray, empty, integer, roll
-from numpy._core.overrides import array_function_dispatch, set_module
+import numpy as np
+from numpy.fft import fftshift, ifftshift, fftfreq
 
-# Created by Pearu Peterson, September 2002
+import scipy.fft._duccfft.helper as _helper
 
-__all__ = ['fftshift', 'ifftshift', 'fftfreq', 'rfftfreq']
-
-integer_types = (int, integer)
+__all__ = ['fftshift', 'ifftshift', 'fftfreq', 'rfftfreq', 'next_fast_len']
 
 
-def _fftshift_dispatcher(x, axes=None):
-    return (x,)
+def rfftfreq(n, d=1.0):
+    """DFT sample frequencies (for usage with rfft, irfft).
 
+    The returned float array contains the frequency bins in
+    cycles/unit (with zero at the start) given a window length `n` and a
+    sample spacing `d`::
 
-@array_function_dispatch(_fftshift_dispatcher, module='numpy.fft')
-def fftshift(x, axes=None):
-    """
-    Shift the zero-frequency component to the center of the spectrum.
-
-    This function swaps half-spaces for all axes listed (defaults to all).
-    Note that ``y[0]`` is the Nyquist component only if ``len(x)`` is even.
-
-    Parameters
-    ----------
-    x : array_like
-        Input array.
-    axes : int or shape tuple, optional
-        Axes over which to shift.  Default is None, which shifts all axes.
-
-    Returns
-    -------
-    y : ndarray
-        The shifted array.
-
-    See Also
-    --------
-    ifftshift : The inverse of `fftshift`.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> freqs = np.fft.fftfreq(10, 0.1)
-    >>> freqs
-    array([ 0.,  1.,  2., ..., -3., -2., -1.])
-    >>> np.fft.fftshift(freqs)
-    array([-5., -4., -3., -2., -1.,  0.,  1.,  2.,  3.,  4.])
-
-    Shift the zero-frequency component only along the second axis:
-
-    >>> freqs = np.fft.fftfreq(9, d=1./9).reshape(3, 3)
-    >>> freqs
-    array([[ 0.,  1.,  2.],
-           [ 3.,  4., -4.],
-           [-3., -2., -1.]])
-    >>> np.fft.fftshift(freqs, axes=(1,))
-    array([[ 2.,  0.,  1.],
-           [-4.,  3.,  4.],
-           [-1., -3., -2.]])
-
-    """
-    x = asarray(x)
-    if axes is None:
-        axes = tuple(range(x.ndim))
-        shift = [dim // 2 for dim in x.shape]
-    elif isinstance(axes, integer_types):
-        shift = x.shape[axes] // 2
-    else:
-        shift = [x.shape[ax] // 2 for ax in axes]
-
-    return roll(x, shift, axes)
-
-
-@array_function_dispatch(_fftshift_dispatcher, module='numpy.fft')
-def ifftshift(x, axes=None):
-    """
-    The inverse of `fftshift`. Although identical for even-length `x`, the
-    functions differ by one sample for odd-length `x`.
-
-    Parameters
-    ----------
-    x : array_like
-        Input array.
-    axes : int or shape tuple, optional
-        Axes over which to calculate.  Defaults to None, which shifts all axes.
-
-    Returns
-    -------
-    y : ndarray
-        The shifted array.
-
-    See Also
-    --------
-    fftshift : Shift zero-frequency component to the center of the spectrum.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> freqs = np.fft.fftfreq(9, d=1./9).reshape(3, 3)
-    >>> freqs
-    array([[ 0.,  1.,  2.],
-           [ 3.,  4., -4.],
-           [-3., -2., -1.]])
-    >>> np.fft.ifftshift(np.fft.fftshift(freqs))
-    array([[ 0.,  1.,  2.],
-           [ 3.,  4., -4.],
-           [-3., -2., -1.]])
-
-    """
-    x = asarray(x)
-    if axes is None:
-        axes = tuple(range(x.ndim))
-        shift = [-(dim // 2) for dim in x.shape]
-    elif isinstance(axes, integer_types):
-        shift = -(x.shape[axes] // 2)
-    else:
-        shift = [-(x.shape[ax] // 2) for ax in axes]
-
-    return roll(x, shift, axes)
-
-
-@set_module('numpy.fft')
-def fftfreq(n, d=1.0, device=None):
-    """
-    Return the Discrete Fourier Transform sample frequencies.
-
-    The returned float array `f` contains the frequency bin centers in cycles
-    per unit of the sample spacing (with zero at the start).  For instance, if
-    the sample spacing is in seconds, then the frequency unit is cycles/second.
-
-    Given a window length `n` and a sample spacing `d`::
-
-      f = [0, 1, ...,   n/2-1,     -n/2, ..., -1] / (d*n)   if n is even
-      f = [0, 1, ..., (n-1)/2, -(n-1)/2, ..., -1] / (d*n)   if n is odd
+      f = [0,1,1,2,2,...,n/2-1,n/2-1,n/2]/(d*n)   if n is even
+      f = [0,1,1,2,2,...,n/2-1,n/2-1,n/2,n/2]/(d*n)   if n is odd
 
     Parameters
     ----------
     n : int
         Window length.
     d : scalar, optional
-        Sample spacing (inverse of the sampling rate). Defaults to 1.
-    device : str, optional
-        The device on which to place the created array. Default: ``None``.
-        For Array-API interoperability only, so must be ``"cpu"`` if passed.
-
-        .. versionadded:: 2.0.0
+        Sample spacing. Default is 1.
 
     Returns
     -------
-    f : ndarray
-        Array of length `n` containing the sample frequencies.
+    out : ndarray
+        The array of length `n`, containing the sample frequencies.
 
     Examples
     --------
     >>> import numpy as np
-    >>> signal = np.array([-2, 8, 6, 4, 1, 0, 3, 5], dtype=np.float64)
-    >>> fourier = np.fft.fft(signal)
-    >>> n = signal.size
+    >>> from scipy import fftpack
+    >>> sig = np.array([-2, 8, 6, 4, 1, 0, 3, 5], dtype=float)
+    >>> sig_fft = fftpack.rfft(sig)
+    >>> n = sig_fft.size
     >>> timestep = 0.1
-    >>> freq = np.fft.fftfreq(n, d=timestep)
+    >>> freq = fftpack.rfftfreq(n, d=timestep)
     >>> freq
-    array([ 0.  ,  1.25,  2.5 , ..., -3.75, -2.5 , -1.25])
+    array([ 0.  ,  1.25,  1.25,  2.5 ,  2.5 ,  3.75,  3.75,  5.  ])
 
     """
-    if not isinstance(n, integer_types):
-        raise ValueError("n should be an integer")
-    val = 1.0 / (n * d)
-    results = empty(n, int, device=device)
-    N = (n - 1) // 2 + 1
-    p1 = arange(0, N, dtype=int, device=device)
-    results[:N] = p1
-    p2 = arange(-(n // 2), 0, dtype=int, device=device)
-    results[N:] = p2
-    return results * val
+    n = operator.index(n)
+    if n < 0:
+        raise ValueError(f"n = {n} is not valid. "
+                         "n must be a nonnegative integer.")
+
+    return (np.arange(1, n + 1, dtype=int) // 2) / float(n * d)
 
 
-@set_module('numpy.fft')
-def rfftfreq(n, d=1.0, device=None):
+def next_fast_len(target):
     """
-    Return the Discrete Fourier Transform sample frequencies
-    (for usage with rfft, irfft).
+    Find the next fast size of input data to `fft`, for zero-padding, etc.
 
-    The returned float array `f` contains the frequency bin centers in cycles
-    per unit of the sample spacing (with zero at the start).  For instance, if
-    the sample spacing is in seconds, then the frequency unit is cycles/second.
-
-    Given a window length `n` and a sample spacing `d`::
-
-      f = [0, 1, ...,     n/2-1,     n/2] / (d*n)   if n is even
-      f = [0, 1, ..., (n-1)/2-1, (n-1)/2] / (d*n)   if n is odd
-
-    Unlike `fftfreq` (but like `scipy.fftpack.rfftfreq`)
-    the Nyquist frequency component is considered to be positive.
+    SciPy's FFTPACK has efficient functions for radix {2, 3, 4, 5}, so this
+    returns the next composite of the prime factors 2, 3, and 5 which is
+    greater than or equal to `target`. (These are also known as 5-smooth
+    numbers, regular numbers, or Hamming numbers.)
 
     Parameters
     ----------
-    n : int
-        Window length.
-    d : scalar, optional
-        Sample spacing (inverse of the sampling rate). Defaults to 1.
-    device : str, optional
-        The device on which to place the created array. Default: ``None``.
-        For Array-API interoperability only, so must be ``"cpu"`` if passed.
-
-        .. versionadded:: 2.0.0
+    target : int
+        Length to start searching from. Must be a positive integer.
 
     Returns
     -------
-    f : ndarray
-        Array of length ``n//2 + 1`` containing the sample frequencies.
+    out : int
+        The first 5-smooth number greater than or equal to `target`.
+
+    Notes
+    -----
+    .. versionadded:: 0.18.0
 
     Examples
     --------
+    On a particular machine, an FFT of prime length takes 133 ms:
+
+    >>> from scipy import fftpack
     >>> import numpy as np
-    >>> signal = np.array([-2, 8, 6, 4, 1, 0, 3, 5, -3, 4], dtype=np.float64)
-    >>> fourier = np.fft.rfft(signal)
-    >>> n = signal.size
-    >>> sample_rate = 100
-    >>> freq = np.fft.fftfreq(n, d=1./sample_rate)
-    >>> freq
-    array([  0.,  10.,  20., ..., -30., -20., -10.])
-    >>> freq = np.fft.rfftfreq(n, d=1./sample_rate)
-    >>> freq
-    array([  0.,  10.,  20.,  30.,  40.,  50.])
+    >>> rng = np.random.default_rng()
+    >>> min_len = 10007  # prime length is worst case for speed
+    >>> a = rng.standard_normal(min_len)
+    >>> b = fftpack.fft(a)
+
+    Zero-padding to the next 5-smooth length reduces computation time to
+    211 us, a speedup of 630 times:
+
+    >>> fftpack.next_fast_len(min_len)
+    10125
+    >>> b = fftpack.fft(a, 10125)
+
+    Rounding up to the next power of 2 is not optimal, taking 367 us to
+    compute, 1.7 times as long as the 5-smooth size:
+
+    >>> b = fftpack.fft(a, 16384)
 
     """
-    if not isinstance(n, integer_types):
-        raise ValueError("n should be an integer")
-    val = 1.0 / (n * d)
-    N = n // 2 + 1
-    results = arange(0, N, dtype=int, device=device)
-    return results * val
+    # Real transforms use regular sizes so this is backwards compatible
+    return _helper.good_size(target, True)
+
+
+def _good_shape(x, shape, axes):
+    """Ensure that shape argument is valid for scipy.fftpack
+
+    scipy.fftpack does not support len(shape) < x.ndim when axes is not given.
+    """
+    if shape is not None and axes is None:
+        shape = _helper._iterable_of_int(shape, 'shape')
+        if len(shape) != np.ndim(x):
+            raise ValueError("when given, axes and shape arguments"
+                             " have to be of the same length")
+    return shape

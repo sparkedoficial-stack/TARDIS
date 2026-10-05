@@ -1,128 +1,247 @@
+import json
 import os
-import argparse
-import logging
-from fontTools.misc.cliTools import makeOutputFileName
-from fontTools.ttLib import TTFont
-from fontTools.pens.qu2cuPen import Qu2CuPen
-from fontTools.pens.ttGlyphPen import TTGlyphPen
-import fontTools
+import shlex
+import sys
+from contextlib import contextmanager
+from typing import IO, Any, Dict, Iterator, List, Optional
 
-logger = logging.getLogger("fontTools.qu2cu")
+if sys.platform == "win32":
+    from subprocess import Popen
+
+try:
+    import click
+except ImportError:
+    sys.stderr.write(
+        "It seems python-dotenv is not installed with cli option. \n"
+        'Run pip install "python-dotenv[cli]" to fix this.'
+    )
+    sys.exit(1)
+
+from .main import dotenv_values, set_key, unset_key
+from .version import __version__
 
 
-def _font_to_cubic(input_path, output_path=None, **kwargs):
-    font = TTFont(input_path)
-    logger.info("Converting curves for %s", input_path)
+def enumerate_env() -> Optional[str]:
+    """
+    Return a path for the ${pwd}/.env file.
 
-    stats = {} if kwargs["dump_stats"] else None
-    qu2cu_kwargs = {
-        "stats": stats,
-        "max_err": kwargs["max_err_em"] * font["head"].unitsPerEm,
-        "all_cubic": kwargs["all_cubic"],
+    If pwd does not exist, return None.
+    """
+    try:
+        cwd = os.getcwd()
+    except FileNotFoundError:
+        return None
+    path = os.path.join(cwd, ".env")
+    return path
+
+
+@click.group()
+@click.option(
+    "-f",
+    "--file",
+    default=enumerate_env(),
+    type=click.Path(file_okay=True),
+    help="Location of the .env file, defaults to .env file in current working directory.",
+)
+@click.option(
+    "-q",
+    "--quote",
+    default="always",
+    type=click.Choice(["always", "never", "auto"]),
+    help="Whether to quote or not the variable values. Default mode is always. This does not affect parsing.",
+)
+@click.option(
+    "-e",
+    "--export",
+    default=False,
+    type=click.BOOL,
+    help="Whether to write the dot file as an executable bash script.",
+)
+@click.version_option(version=__version__)
+@click.pass_context
+def cli(ctx: click.Context, file: Any, quote: Any, export: Any) -> None:
+    """This script is used to set, get or unset values from a .env file."""
+    ctx.obj = {"QUOTE": quote, "EXPORT": export, "FILE": file}
+
+
+@contextmanager
+def stream_file(path: os.PathLike) -> Iterator[IO[str]]:
+    """
+    Open a file and yield the corresponding (decoded) stream.
+
+    Exits with error code 2 if the file cannot be opened.
+    """
+
+    try:
+        with open(path) as stream:
+            yield stream
+    except OSError as exc:
+        print(f"Error opening env file: {exc}", file=sys.stderr)
+        sys.exit(2)
+
+
+@cli.command(name="list")
+@click.pass_context
+@click.option(
+    "--format",
+    "output_format",
+    default="simple",
+    type=click.Choice(["simple", "json", "shell", "export"]),
+    help="The format in which to display the list. Default format is simple, "
+    "which displays name=value without quotes.",
+)
+def list_values(ctx: click.Context, output_format: str) -> None:
+    """Display all the stored key/value."""
+    file = ctx.obj["FILE"]
+
+    with stream_file(file) as stream:
+        values = dotenv_values(stream=stream)
+
+    if output_format == "json":
+        click.echo(json.dumps(values, indent=2, sort_keys=True))
+    else:
+        prefix = "export " if output_format == "export" else ""
+        for k in sorted(values):
+            v = values[k]
+            if v is not None:
+                if output_format in ("export", "shell"):
+                    v = shlex.quote(v)
+                click.echo(f"{prefix}{k}={v}")
+
+
+@cli.command(name="set")
+@click.pass_context
+@click.argument("key", required=True)
+@click.argument("value", required=True)
+def set_value(ctx: click.Context, key: Any, value: Any) -> None:
+    """
+    Store the given key/value.
+
+    This doesn't follow symlinks, to avoid accidentally modifying a file at a
+    potentially untrusted path.
+    """
+
+    file = ctx.obj["FILE"]
+    quote = ctx.obj["QUOTE"]
+    export = ctx.obj["EXPORT"]
+    success, key, value = set_key(file, key, value, quote, export)
+    if success:
+        click.echo(f"{key}={value}")
+    else:
+        sys.exit(1)
+
+
+@cli.command()
+@click.pass_context
+@click.argument("key", required=True)
+def get(ctx: click.Context, key: Any) -> None:
+    """Retrieve the value for the given key."""
+    file = ctx.obj["FILE"]
+
+    with stream_file(file) as stream:
+        values = dotenv_values(stream=stream)
+
+    stored_value = values.get(key)
+    if stored_value:
+        click.echo(stored_value)
+    else:
+        sys.exit(1)
+
+
+@cli.command()
+@click.pass_context
+@click.argument("key", required=True)
+def unset(ctx: click.Context, key: Any) -> None:
+    """
+    Removes the given key.
+
+    This doesn't follow symlinks, to avoid accidentally modifying a file at a
+    potentially untrusted path.
+    """
+    file = ctx.obj["FILE"]
+    quote = ctx.obj["QUOTE"]
+    success, key = unset_key(file, key, quote)
+    if success:
+        click.echo(f"Successfully removed {key}")
+    else:
+        sys.exit(1)
+
+
+@cli.command(
+    context_settings={
+        "allow_extra_args": True,
+        "allow_interspersed_args": False,
+        "ignore_unknown_options": True,
+    }
+)
+@click.pass_context
+@click.option(
+    "--override/--no-override",
+    default=True,
+    help="Override variables from the environment file with those from the .env file.",
+)
+@click.argument("commandline", nargs=-1, type=click.UNPROCESSED)
+def run(ctx: click.Context, override: bool, commandline: tuple[str, ...]) -> None:
+    """Run command with environment variables present."""
+    file = ctx.obj["FILE"]
+    if not os.path.isfile(file):
+        raise click.BadParameter(
+            f"Invalid value for '-f' \"{file}\" does not exist.", ctx=ctx
+        )
+    dotenv_as_dict = {
+        k: v
+        for (k, v) in dotenv_values(file).items()
+        if v is not None and (override or k not in os.environ)
     }
 
-    if "gvar" in font:
-        raise ValueError("Cannot convert variable font")
-    glyphSet = font.getGlyphSet()
-    glyphOrder = font.getGlyphOrder()
-    glyf = font["glyf"]
-    for glyphName in glyphOrder:
-        glyph = glyphSet[glyphName]
-        ttpen = TTGlyphPen(glyphSet)
-        pen = Qu2CuPen(ttpen, **qu2cu_kwargs)
-        glyph.draw(pen)
-        glyf[glyphName] = ttpen.glyph(dropImpliedOnCurves=True)
+    if not commandline:
+        click.echo("No command given.")
+        sys.exit(1)
 
-    font["head"].glyphDataFormat = 1
-
-    if kwargs["dump_stats"]:
-        logger.info("Stats: %s", stats)
-
-    logger.info("Saving %s", output_path)
-    font.save(output_path)
+    run_command([*commandline, *ctx.args], dotenv_as_dict)
 
 
-def _main(args=None):
-    """Convert an OpenType font from quadratic to cubic curves"""
-    parser = argparse.ArgumentParser(prog="qu2cu")
-    parser.add_argument("--version", action="version", version=fontTools.__version__)
-    parser.add_argument(
-        "infiles",
-        nargs="+",
-        metavar="INPUT",
-        help="one or more input TTF source file(s).",
-    )
-    parser.add_argument("-v", "--verbose", action="count", default=0)
-    parser.add_argument(
-        "-e",
-        "--conversion-error",
-        type=float,
-        metavar="ERROR",
-        default=0.001,
-        help="maxiumum approximation error measured in EM (default: 0.001)",
-    )
-    parser.add_argument(
-        "-c",
-        "--all-cubic",
-        default=False,
-        action="store_true",
-        help="whether to only use cubic curves",
-    )
+def run_command(command: List[str], env: Dict[str, str]) -> None:
+    """Replace the current process with the specified command.
 
-    output_parser = parser.add_mutually_exclusive_group()
-    output_parser.add_argument(
-        "-o",
-        "--output-file",
-        default=None,
-        metavar="OUTPUT",
-        help=("output filename for the converted TTF."),
-    )
-    output_parser.add_argument(
-        "-d",
-        "--output-dir",
-        default=None,
-        metavar="DIRECTORY",
-        help="output directory where to save converted TTFs",
-    )
+    Replaces the current process with the specified command and the variables from `env`
+    added in the current environment variables.
 
-    options = parser.parse_args(args)
+    Parameters
+    ----------
+    command: List[str]
+        The command and it's parameters
+    env: Dict
+        The additional environment variables
 
-    if options.conversion_error <= 0:
-        parser.error("--conversion-error must be greater than zero")
+    Returns
+    -------
+    None
+        This function does not return any value. It replaces the current process with the new one.
 
-    if not options.verbose:
-        level = "WARNING"
-    elif options.verbose == 1:
-        level = "INFO"
+    """
+    # copy the current environment variables and add the vales from
+    # `env`
+    cmd_env = os.environ.copy()
+    cmd_env.update(env)
+
+    if sys.platform == "win32":
+        # execvpe on Windows returns control immediately
+        # rather than once the command has finished.
+        try:
+            p = Popen(
+                command, universal_newlines=True, bufsize=0, shell=False, env=cmd_env
+            )
+        except FileNotFoundError:
+            print(f"Command not found: {command[0]}", file=sys.stderr)
+            sys.exit(1)
+
+        _, _ = p.communicate()
+
+        sys.exit(p.returncode)
     else:
-        level = "DEBUG"
-    logging.basicConfig(level=level)
-
-    if len(options.infiles) > 1 and options.output_file:
-        parser.error("-o/--output-file can't be used with multile inputs")
-
-    if options.output_dir:
-        output_dir = options.output_dir
-        if not os.path.exists(output_dir):
-            os.mkdir(output_dir)
-        elif not os.path.isdir(output_dir):
-            parser.error("'%s' is not a directory" % output_dir)
-        output_paths = [
-            os.path.join(output_dir, os.path.basename(p)) for p in options.infiles
-        ]
-    elif options.output_file:
-        output_paths = [options.output_file]
-    else:
-        output_paths = [
-            makeOutputFileName(p, overWrite=True, suffix=".cubic")
-            for p in options.infiles
-        ]
-
-    kwargs = dict(
-        dump_stats=options.verbose > 0,
-        max_err_em=options.conversion_error,
-        all_cubic=options.all_cubic,
-    )
-
-    for input_path, output_path in zip(options.infiles, output_paths):
-        _font_to_cubic(input_path, output_path, **kwargs)
+        try:
+            os.execvpe(command[0], args=command, env=cmd_env)
+        except FileNotFoundError:
+            print(f"Command not found: {command[0]}", file=sys.stderr)
+            sys.exit(1)

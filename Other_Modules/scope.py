@@ -1,91 +1,92 @@
-"""
-Scope definition and related utilities.
+from collections.abc import Mapping
+from typing import TYPE_CHECKING, Any, Optional, Tuple
 
-Those are defined here, instead of in the 'fixtures' module because
-their use is spread across many other pytest modules, and centralizing it in 'fixtures'
-would cause circular references.
+from .highlighter import ReprHighlighter
+from .panel import Panel
+from .pretty import Pretty
+from .table import Table
+from .text import Text, TextType
 
-Also this makes the module light to import, as it should.
-"""
-
-from __future__ import annotations
-
-from enum import Enum
-from functools import total_ordering
-from typing import Literal
+if TYPE_CHECKING:
+    from .console import ConsoleRenderable, OverflowMethod
 
 
-ScopeName = Literal["session", "package", "module", "class", "function"]
+def render_scope(
+    scope: "Mapping[str, Any]",
+    *,
+    title: Optional[TextType] = None,
+    sort_keys: bool = True,
+    indent_guides: bool = False,
+    max_length: Optional[int] = None,
+    max_string: Optional[int] = None,
+    max_depth: Optional[int] = None,
+    overflow: Optional["OverflowMethod"] = None,
+) -> "ConsoleRenderable":
+    """Render python variables in a given scope.
 
+    Args:
+        scope (Mapping): A mapping containing variable names and values.
+        title (str, optional): Optional title. Defaults to None.
+        sort_keys (bool, optional): Enable sorting of items. Defaults to True.
+        indent_guides (bool, optional): Enable indentation guides. Defaults to False.
+        max_length (int, optional): Maximum length of containers before abbreviating, or None for no abbreviation.
+            Defaults to None.
+        max_string (int, optional): Maximum length of string before truncating, or None to disable. Defaults to None.
+        max_depth (int, optional): Maximum depths of locals before truncating, or None to disable. Defaults to None.
+        overflow (OverflowMethod, optional): How to handle overflowing locals, or None to disable. Defaults to None.
 
-@total_ordering
-class Scope(Enum):
+    Returns:
+        ConsoleRenderable: A renderable object.
     """
-    Represents one of the possible fixture scopes in pytest.
+    highlighter = ReprHighlighter()
+    items_table = Table.grid(padding=(0, 1), expand=False)
+    items_table.add_column(justify="right")
 
-    Scopes are ordered from lower to higher, that is:
+    def sort_items(item: Tuple[str, Any]) -> Tuple[bool, str]:
+        """Sort special variables first, then alphabetically."""
+        key, _ = item
+        return (not key.startswith("__"), key.lower())
 
-              ->>> higher ->>>
-
-    Function < Class < Module < Package < Session
-
-              <<<- lower  <<<-
-    """
-
-    # Scopes need to be listed from lower to higher.
-    Function = "function"
-    Class = "class"
-    Module = "module"
-    Package = "package"
-    Session = "session"
-
-    def next_lower(self) -> Scope:
-        """Return the next lower scope."""
-        index = _SCOPE_INDICES[self]
-        if index == 0:
-            raise ValueError(f"{self} is the lower-most scope")
-        return _ALL_SCOPES[index - 1]
-
-    def next_higher(self) -> Scope:
-        """Return the next higher scope."""
-        index = _SCOPE_INDICES[self]
-        if index == len(_SCOPE_INDICES) - 1:
-            raise ValueError(f"{self} is the upper-most scope")
-        return _ALL_SCOPES[index + 1]
-
-    def __lt__(self, other: Scope) -> bool:
-        self_index = _SCOPE_INDICES[self]
-        other_index = _SCOPE_INDICES[other]
-        return self_index < other_index
-
-    @classmethod
-    def from_user(
-        cls, scope_name: ScopeName, descr: str, where: str | None = None
-    ) -> Scope:
-        """
-        Given a scope name from the user, return the equivalent Scope enum. Should be used
-        whenever we want to convert a user provided scope name to its enum object.
-
-        If the scope name is invalid, construct a user friendly message and call pytest.fail.
-        """
-        from _pytest.outcomes import fail
-
-        try:
-            # Holding this reference is necessary for mypy at the moment.
-            scope = Scope(scope_name)
-        except ValueError:
-            fail(
-                "{} {}got an unexpected scope value '{}'".format(
-                    descr, f"from {where} " if where else "", scope_name
-                ),
-                pytrace=False,
-            )
-        return scope
+    items = sorted(scope.items(), key=sort_items) if sort_keys else scope.items()
+    for key, value in items:
+        key_text = Text.assemble(
+            (key, "scope.key.special" if key.startswith("__") else "scope.key"),
+            (" =", "scope.equals"),
+        )
+        items_table.add_row(
+            key_text,
+            Pretty(
+                value,
+                highlighter=highlighter,
+                indent_guides=indent_guides,
+                max_length=max_length,
+                max_string=max_string,
+                max_depth=max_depth,
+                overflow=overflow,
+            ),
+        )
+    return Panel.fit(
+        items_table,
+        title=title,
+        border_style="scope.border",
+        padding=(0, 1),
+    )
 
 
-_ALL_SCOPES = list(Scope)
-_SCOPE_INDICES = {scope: index for index, scope in enumerate(_ALL_SCOPES)}
+if __name__ == "__main__":  # pragma: no cover
+    from rich import print
 
+    print()
 
-# Ordered list of scopes which can contain many tests (in practice all except Function).
-HIGH_SCOPES = [x for x in Scope if x is not Scope.Function]
+    def test(foo: float, bar: float) -> None:
+        list_of_things = [1, 2, 3, None, 4, True, False, "Hello World"]
+        dict_of_things = {
+            "version": "1.1",
+            "method": "confirmFruitPurchase",
+            "params": [["apple", "orange", "mangoes", "pomelo"], 1.123],
+            "id": "194521489",
+        }
+        print(render_scope(locals(), title="[i]locals", sort_keys=False))
+
+    test(20.3423, 3.1427)
+    print()

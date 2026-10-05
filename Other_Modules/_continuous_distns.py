@@ -6271,7 +6271,7 @@ def _check_fit_input_parameters(dist, data, args, kwds):
     if dist.shapes:
         shapes = dist.shapes.replace(',', ' ').split()
         for j, s in enumerate(shapes):
-            key = 'f' + str(j)
+            key = "REDACTED" + str(j)
             names = [key, 'f' + s, 'fix_' + s]
             val = _get_fixed_fit_value(kwds, names)
             fshape_keys.append(key)

@@ -82,7 +82,7 @@ class GeneratedProtocolMessageType(type):
 
   # Must be consistent with the protocol-compiler code in
   # proto2/compiler/internal/generator.*.
-  _DESCRIPTOR_KEY = 'DESCRIPTOR'
+  _DESCRIPTOR_KEY = "REDACTED"
 
   def __new__(cls, name, bases, dictionary):
     """Custom allocation for runtime-generated class types.

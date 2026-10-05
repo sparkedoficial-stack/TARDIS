@@ -235,7 +235,7 @@ def test_rectangle_resize_center(ax, add_state):
         tool.add_state('center')
         use_key = None
     else:
-        use_key = 'control'
+        use_key = "REDACTED"
 
     # resize NE handle
     extents = tool.extents
@@ -309,7 +309,7 @@ def test_rectangle_resize_square(ax, add_state):
         tool.add_state('square')
         use_key = None
     else:
-        use_key = 'shift'
+        use_key = "REDACTED"
 
     # resize NE handle
     extents = tool.extents
@@ -538,11 +538,11 @@ def test_ellipse(ax):
     assert tool.extents == (120, 170, 120, 170)
 
     # create from center
-    click_and_drag(tool, start=(100, 100), end=(125, 125), key='control')
+    click_and_drag(tool, start=(100, 100), end=(125, 125), key = "REDACTED")
     assert tool.extents == (75, 125, 75, 125)
 
     # create a square
-    click_and_drag(tool, start=(10, 10), end=(35, 30), key='shift')
+    click_and_drag(tool, start=(10, 10), end=(35, 30), key = "REDACTED")
     extents = [int(e) for e in tool.extents]
     assert extents == [10, 35, 10, 35]
 

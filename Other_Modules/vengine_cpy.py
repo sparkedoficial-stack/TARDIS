@@ -8,7 +8,7 @@ from . import _imp_emulation as imp
 
 
 class VCPythonEngine:
-    _class_key = 'x'
+    _class_key = "REDACTED"
     _gen_python_module = True
 
     def __init__(self, verifier):

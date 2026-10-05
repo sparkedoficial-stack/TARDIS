@@ -189,22 +189,22 @@ class TestRecFunctions:
         assert_equal(sorted(test[-1]), control)
         assert_equal(test[0], a[test[-1]])
 
-        test = find_duplicates(a, key='A', return_index=True)
+        test = find_duplicates(a, key = "REDACTED", return_index=True)
         control = [0, 1, 2, 3, 5]
         assert_equal(sorted(test[-1]), control)
         assert_equal(test[0], a[test[-1]])
 
-        test = find_duplicates(a, key='B', return_index=True)
+        test = find_duplicates(a, key = "REDACTED", return_index=True)
         control = [0, 1, 2, 4]
         assert_equal(sorted(test[-1]), control)
         assert_equal(test[0], a[test[-1]])
 
-        test = find_duplicates(a, key='BA', return_index=True)
+        test = find_duplicates(a, key = "REDACTED", return_index=True)
         control = [0, 1, 2, 4]
         assert_equal(sorted(test[-1]), control)
         assert_equal(test[0], a[test[-1]])
 
-        test = find_duplicates(a, key='BB', return_index=True)
+        test = find_duplicates(a, key = "REDACTED", return_index=True)
         control = [0, 1, 2, 3, 4]
         assert_equal(sorted(test[-1]), control)
         assert_equal(test[0], a[test[-1]])

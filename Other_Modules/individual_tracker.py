@@ -171,7 +171,7 @@ class IndividualTracker:
                 self._known_individuals = {
                     "indiv_creator": {
                         "id": "indiv_creator",
-                        "name": "Miguel Angel May Canche",
+                        "name": "El Arquitecto",
                         "role": "Arquitecto / Creador Soberano",
                         "signatures": [],
                         "first_seen_ts": now,
@@ -446,7 +446,7 @@ class IndividualTracker:
                             creator["last_seen_ts"] = now
                             self._save_db_unlocked()
                             indiv_id = "indiv_creator"
-                            name = creator.get("name", "Miguel Angel May Canche")
+                            name = creator.get("name", "El Arquitecto")
                             role = creator.get("role", "Arquitecto / Creador")
                             recognized = True
                             conf = 0.95
@@ -570,7 +570,7 @@ class IndividualTracker:
             # Entrada de rostro individual del detector del navegador
             with self._db_lock:
                 creator = self._known_individuals.get("indiv_creator", {})
-                name = creator.get("name", "Miguel Angel May Canche")
+                name = creator.get("name", "El Arquitecto")
                 role = creator.get("role", "Arquitecto / Creador")
 
             processed_list.append({

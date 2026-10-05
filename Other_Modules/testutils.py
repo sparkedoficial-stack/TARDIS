@@ -1,294 +1,406 @@
-"""Miscellaneous functions for testing masked arrays and subclasses
+#Copyright ReportLab Europe Ltd. 2000-2017
+#see license.txt for license details
+import reportlab
+reportlab._rl_testing=True
+del reportlab
+__version__='4.0.1'
+__doc__="""Provides support for the test suite.
 
-:author: Pierre Gerard-Marchant
-:contact: pierregm_at_uga_dot_edu
-
+The test suite as a whole, and individual tests, need to share
+certain support functions.  We have to put these in here so they
+can always be imported, and so that individual tests need to import
+nothing more than "reportlab.whatever..."
 """
-import operator
 
-import numpy as np
-import numpy._core.umath as umath
-import numpy.testing
-from numpy import ndarray
-from numpy.testing import (  # noqa: F401
-    assert_,
-    assert_allclose,
-    assert_array_almost_equal_nulp,
-    assert_raises,
-    build_err_msg,
-)
+import sys, os, fnmatch, re, functools
+from configparser import ConfigParser
+import unittest, random
+from reportlab.lib.utils import isCompactDistro, __rl_loader__, rl_isdir, asUnicode
+from reportlab.rl_config import invariant as rl_invariant
 
-from .core import filled, getmask, mask_or, masked, masked_array, nomask
+def invariantSeed(n):
+    if rl_invariant: random.seed(n)
 
-__all__masked = [
-    'almost', 'approx', 'assert_almost_equal', 'assert_array_almost_equal',
-    'assert_array_approx_equal', 'assert_array_compare',
-    'assert_array_equal', 'assert_array_less', 'assert_close',
-    'assert_equal', 'assert_equal_records', 'assert_mask_equal',
-    'assert_not_equal', 'fail_if_array_equal',
-    ]
+def haveRenderPM():
+    from reportlab.graphics.renderPM import _getPMBackend, RenderPMError
+    try:
+        return _getPMBackend()
+    except RenderPMError:
+        return False
 
-# Include some normal test functions to avoid breaking other projects who
-# have mistakenly included them from this file. SciPy is one. That is
-# unfortunate, as some of these functions are not intended to work with
-# masked arrays. But there was no way to tell before.
-from unittest import TestCase  # noqa: F401
+DEJAVUSANS = ('DejaVuSans','DejaVuSans-Bold','DejaVuSans-Oblique','DejaVuSans-BoldOblique')
+def haveDejaVu():
+    from reportlab.pdfbase.ttfonts import TTFont
+    for x in DEJAVUSANS:
+        try:
+            TTFont(x,x+'.ttf')
+        except:
+            return False
+    return True
 
-__some__from_testing = [
-    'TestCase', 'assert_', 'assert_allclose', 'assert_array_almost_equal_nulp',
-    'assert_raises'
-    ]
+# Helper functions.
+def isWritable(D):
+    try:
+        fn = '00DELETE.ME'
+        f = open(fn, 'w')
+        f.write('test of writability - can be deleted')
+        f.close()
+        if os.path.isfile(fn):
+            os.remove(fn)
+            return 1
+    except:
+        return 0
 
-__all__ = __all__masked + __some__from_testing  # noqa: PLE0605
+_OUTDIR = None
+RL_HOME = None
+testsFolder = None
+def setOutDir(name):
+    """Is it a writable file system distro being invoked within
+    test directory?  If so, can write test output here.  If not,
+    it had better go in a temp directory.  Only do this once per
+    process"""
+    global _OUTDIR, RL_HOME, testsFolder
+    if _OUTDIR: return _OUTDIR
+    D = [d[9:] for d in sys.argv if d.startswith('--outdir=')]
+    if not D:
+        D = os.environ.get('RL_TEST_OUTDIR','')
+        if D: D=[D]
+    if D:
+        _OUTDIR = D[-1]
+        try:
+            os.makedirs(_OUTDIR)
+        except:
+            pass
+        for d in D:
+            if d in sys.argv:
+                sys.argv.remove(d)
+    else:
+        assert name=='__main__',"setOutDir should only be called in the main script"
+        scriptDir=os.path.dirname(sys.argv[0])
+        if not scriptDir: scriptDir=os.getcwd()
+        _OUTDIR = scriptDir
 
+    if not isWritable(_OUTDIR):
+        _OUTDIR = get_rl_tempdir('reportlab_test')
 
-def approx(a, b, fill_value=True, rtol=1e-5, atol=1e-8):
+    import reportlab
+    RL_HOME=reportlab.__path__[0]
+    if not os.path.isabs(RL_HOME): RL_HOME=os.path.normpath(os.path.abspath(RL_HOME))
+    topDir = os.path.dirname(RL_HOME)
+    testsFolder = os.path.join(topDir,'tests')
+    if not os.path.isdir(testsFolder):
+        testsFolder = os.path.join(os.path.dirname(topDir),'tests')
+    if not os.path.isdir(testsFolder):
+        if name=='__main__':
+            scriptDir=os.path.dirname(sys.argv[0])
+            if not scriptDir: scriptDir=os.getcwd()
+            testsFolder = os.path.abspath(scriptDir)
+        else:
+            testsFolder = None
+    if testsFolder:
+        sys.path.insert(0,os.path.dirname(testsFolder))
+    return _OUTDIR
+
+_mockumap = (
+        None if os.environ.get('OFFLINE_MOCK','1')!='1' 
+            else'http://www.reportlab.com/rsrc/encryption.gif',
+        )
+def mockUrlRead(name):
+    if name in _mockumap:
+        with open(os.path.join(testsFolder,os.path.basename(name)),'rb') as f:
+            return f.read()
+    else:
+        from urllib.request import urlopen
+        return urlopen(name).read()
+
+def outputfile(fn):
+    """This works out where to write test output.  If running
+    code in a locked down file system, this will be a
+    temp directory; otherwise, the output of 'test_foo.py' will
+    normally be a file called 'test_foo.pdf', next door.
     """
-    Returns true if all components of a and b are equal to given tolerances.
+    D = setOutDir(__name__)
+    if fn: D = os.path.join(D,fn)
+    return D
 
-    If fill_value is True, masked values considered equal. Otherwise,
-    masked values are considered unequal.  The relative error rtol should
-    be positive and << 1.0 The absolute error atol comes into play for
-    those elements of b that are very small or zero; it says how small a
-    must be also.
+def printLocation(depth=1):
+    if sys._getframe(depth).f_locals.get('__name__')=='__main__':
+        outDir = outputfile('')
+        if outDir!=_OUTDIR:
+            print('Logs and output files written to folder "%s"' % outDir)
 
+def makeSuiteForClasses(*classes,testMethodPrefix=None):
+    "Return a test suite with tests loaded from provided classes."
+
+    suite = unittest.TestSuite()
+    loader = unittest.TestLoader()
+    if testMethodPrefix:
+        loader.testMethodPrefix = testMethodPrefix
+    for C in classes:
+        suite.addTest(loader.loadTestsFromTestCase(C))
+    return suite
+
+def getCVSEntries(folder, files=1, folders=0):
+    """Returns a list of filenames as listed in the CVS/Entries file.
+
+    'folder' is the folder that should contain the CVS subfolder.
+    If there is no such subfolder an empty list is returned.
+    'files' is a boolean; 1 and 0 means to return files or not.
+    'folders' is a boolean; 1 and 0 means to return folders or not.
     """
-    m = mask_or(getmask(a), getmask(b))
-    d1 = filled(a)
-    d2 = filled(b)
-    if d1.dtype.char == "O" or d2.dtype.char == "O":
-        return np.equal(d1, d2).ravel()
-    x = filled(
-        masked_array(d1, copy=False, mask=m), fill_value
-    ).astype(np.float64)
-    y = filled(masked_array(d2, copy=False, mask=m), 1).astype(np.float64)
-    d = np.less_equal(umath.absolute(x - y), atol + rtol * umath.absolute(y))
-    return d.ravel()
+
+    join = os.path.join
+
+    # If CVS subfolder doesn't exist return empty list.
+    try:
+        f = open(join(folder, 'CVS', 'Entries'))
+    except IOError:
+        return []
+
+    # Return names of files and/or folders in CVS/Entries files.
+    allEntries = []
+    for line in f.readlines():
+        if folders and line[0] == 'D' \
+           or files and line[0] != 'D':
+            entry = line.split('/')[1]
+            if entry:
+                allEntries.append(join(folder, entry))
+
+    return allEntries
 
 
-def almost(a, b, decimal=6, fill_value=True):
+# Still experimental class extending ConfigParser's behaviour.
+class ExtConfigParser(ConfigParser):
+    "A slightly extended version to return lists of strings."
+
+    pat = re.compile(r'\s*\[.*\]\s*')
+
+    def getstringlist(self, section, option):
+        "Coerce option to a list of strings or return unchanged if that fails."
+
+        value = ConfigParser.get(self, section, option)
+
+        # This seems to allow for newlines inside values
+        # of the config file, but be careful!!
+        val = value.replace('\n', '')
+
+        if self.pat.match(val):
+            return eval(val,{__builtins__:None})
+        else:
+            return value
+
+
+# This class as suggested by /F with an additional hook
+# to be able to filter filenames.
+
+class GlobDirectoryWalker:
+    "A forward iterator that traverses files in a directory tree."
+
+    def __init__(self, directory, pattern='*'):
+        self.index = 0
+        self.pattern = pattern
+        directory.replace('/',os.sep)
+        if os.path.isdir(directory):
+            self.stack = [directory]
+            self.files = []
+        else:
+            if not isCompactDistro() or not __rl_loader__ or not rl_isdir(directory):
+                raise ValueError('"%s" is not a directory' % directory)
+            self.directory = directory[len(__rl_loader__.archive)+len(os.sep):]
+            pfx = self.directory+os.sep
+            n = len(pfx)
+            self.files = list(map(lambda x, n=n: x[n:],list(filter(lambda x,pfx=pfx: x.startswith(pfx),list(__rl_loader__._files.keys())))))
+            self.files.sort()
+            self.stack = []
+
+    def __getitem__(self, index):
+        while 1:
+            try:
+                file = self.files[self.index]
+                self.index = self.index + 1
+            except IndexError:
+                # pop next directory from stack
+                self.directory = self.stack.pop()
+                self.files = os.listdir(self.directory)
+                # now call the hook
+                self.files = self.filterFiles(self.directory, self.files)
+                self.index = 0
+            else:
+                # got a filename
+                fullname = os.path.join(self.directory, file)
+                if os.path.isdir(fullname) and not os.path.islink(fullname):
+                    self.stack.append(fullname)
+                if fnmatch.fnmatch(file, self.pattern):
+                    return fullname
+
+    def filterFiles(self, folder, files):
+        "Filter hook, overwrite in subclasses as needed."
+
+        return files
+
+
+class RestrictedGlobDirectoryWalker(GlobDirectoryWalker):
+    "An restricted directory tree iterator."
+
+    def __init__(self, directory, pattern='*', ignore=None):
+        GlobDirectoryWalker.__init__(self, directory, pattern)
+
+        if ignore == None:
+            ignore = []
+        ip = [].append
+        if isinstance(ignore,(tuple,list)):
+            for p in ignore:
+                ip(p)
+        elif isinstance(ignore,str):
+            ip(ignore)
+        self.ignorePatterns = ([_.replace('/',os.sep) for _ in ip.__self__] if os.sep != '/'
+                                else ip.__self__)
+
+    def filterFiles(self, folder, files):
+        "Filters all items from files matching patterns to ignore."
+
+        fnm = fnmatch.fnmatch
+        indicesToDelete = []
+        for i,f in enumerate(files):
+            for p in self.ignorePatterns:
+                if fnm(f, p) or fnm(os.path.join(folder,f),p):
+                    indicesToDelete.append(i)
+        indicesToDelete.reverse()
+        for i in indicesToDelete:
+            del files[i]
+
+        return files
+
+
+class CVSGlobDirectoryWalker(GlobDirectoryWalker):
+    "An directory tree iterator that checks for CVS data."
+
+    def filterFiles(self, folder, files):
+        """Filters files not listed in CVS subfolder.
+
+        This will look in the CVS subfolder of 'folder' for
+        a file named 'Entries' and filter all elements from
+        the 'files' list that are not listed in 'Entries'.
+        """
+
+        join = os.path.join
+        cvsFiles = getCVSEntries(folder)
+        if cvsFiles:
+            indicesToDelete = []
+            for i in range(len(files)):
+                f = files[i]
+                if join(folder, f) not in cvsFiles:
+                    indicesToDelete.append(i)
+            indicesToDelete.reverse()
+            for i in indicesToDelete:
+                del files[i]
+
+        return files
+
+
+# An experimental untested base class with additional 'security'.
+
+class SecureTestCase(unittest.TestCase):
+    """Secure testing base class with additional pre- and postconditions.
+
+    We try to ensure that each test leaves the environment it has
+    found unchanged after the test is performed, successful or not.
+
+    Currently we restore sys.path and the working directory, but more
+    of this could be added easily, like removing temporary files or
+    similar things.
+
+    Use this as a base class replacing unittest.TestCase and call
+    these methods in subclassed versions before doing your own
+    business!
     """
-    Returns True if a and b are equal up to decimal places.
 
-    If fill_value is True, masked values considered equal. Otherwise,
-    masked values are considered unequal.
+    def setUp(self):
+        "Remember sys.path and current working directory."
+        self._initialPath = sys.path[:]
+        self._initialWorkDir = os.getcwd()
 
-    """
-    m = mask_or(getmask(a), getmask(b))
-    d1 = filled(a)
-    d2 = filled(b)
-    if d1.dtype.char == "O" or d2.dtype.char == "O":
-        return np.equal(d1, d2).ravel()
-    x = filled(
-        masked_array(d1, copy=False, mask=m), fill_value
-    ).astype(np.float64)
-    y = filled(masked_array(d2, copy=False, mask=m), 1).astype(np.float64)
-    d = np.around(np.abs(x - y), decimal) <= 10.0 ** (-decimal)
-    return d.ravel()
+    def tearDown(self):
+        "Restore previous sys.path and working directory."
+        sys.path = self._initialPath
+        os.chdir(self._initialWorkDir)
 
+class NearTestCase(unittest.TestCase):
+    def assertNear(a,b,accuracy=1e-5):
+        if isinstance(a,(float,int)):
+            if abs(a-b)>accuracy:
+                raise AssertionError("%s not near %s" % (a, b))
+        else:
+            for ae,be in zip(a,b):
+                if abs(ae-be)>accuracy:
+                    raise AssertionError("%s not near %s" % (a, b))
+    assertNear = staticmethod(assertNear)
 
-def _assert_equal_on_sequences(actual, desired, err_msg=''):
-    """
-    Asserts the equality of two non-array sequences.
+class ScriptThatMakesFileTest(unittest.TestCase):
+    """Runs a Python script at OS level, expecting it to produce a file.
 
-    """
-    assert_equal(len(actual), len(desired), err_msg)
-    for k in range(len(desired)):
-        assert_equal(actual[k], desired[k], f'item={k!r}\n{err_msg}')
+    It CDs to the working directory to run the script."""
+    def __init__(self, scriptDir, scriptName, outFileName, verbose=0):
+        self.scriptDir = scriptDir
+        self.scriptName = scriptName
+        self.outFileName = outFileName
+        self.verbose = verbose
+        # normally, each instance is told which method to run)
+        unittest.TestCase.__init__(self)
 
+    def setUp(self):
+        self.cwd = os.getcwd()
+        global testsFolder
+        scriptDir=self.scriptDir
+        if not os.path.isabs(scriptDir):
+            scriptDir=os.path.join(testsFolder,scriptDir)
 
-def assert_equal_records(a, b):
-    """
-    Asserts that two records are equal.
+        os.chdir(scriptDir)
+        assert os.path.isfile(self.scriptName), "Script %s not found!" % self.scriptName
+        if os.path.isfile(self.outFileName):
+            os.remove(self.outFileName)
 
-    Pretty crude for now.
+    def tearDown(self):
+        os.chdir(self.cwd)
 
-    """
-    assert_equal(a.dtype, b.dtype)
-    for f in a.dtype.names:
-        (af, bf) = (operator.getitem(a, f), operator.getitem(b, f))
-        if not (af is masked) and not (bf is masked):
-            assert_equal(operator.getitem(a, f), operator.getitem(b, f))
+    def runTest(self):
+        fmt = sys.platform=='win32' and '"%s" %s' or '%s %s'
+        import subprocess
+        out = subprocess.check_output((sys.executable,self.scriptName))
+        #p = os.popen(fmt % (sys.executable,self.scriptName),'r')
+        #out = p.read()
+        if self.verbose:
+            print(out)
+        #status = p.close()
+        assert os.path.isfile(self.outFileName), "File %s not created!" % self.outFileName
 
+def equalStrings(a,b,enc='utf8'):
+    return a==b if type(a)==type(b) else asUnicode(a,enc)==asUnicode(b,enc)
 
-def assert_equal(actual, desired, err_msg=''):
-    """
-    Asserts that two items are equal.
+def eqCheck(r,x):
+    if r!=x:
+        print('Strings unequal\nexp: %s\ngot: %s' % (ascii(x),ascii(r)))
 
-    """
-    # Case #1: dictionary .....
-    if isinstance(desired, dict):
-        if not isinstance(actual, dict):
-            raise AssertionError(repr(type(actual)))
-        assert_equal(len(actual), len(desired), err_msg)
-        for k in desired:
-            if k not in actual:
-                raise AssertionError(f"{k} not in {actual}")
-            assert_equal(actual[k], desired[k], f'key={k!r}\n{err_msg}')
-        return
-    # Case #2: lists .....
-    if isinstance(desired, (list, tuple)) and isinstance(actual, (list, tuple)):
-        return _assert_equal_on_sequences(actual, desired, err_msg='')
-    if not (isinstance(actual, ndarray) or isinstance(desired, ndarray)):
-        msg = build_err_msg([actual, desired], err_msg,)
-        if not desired == actual:
-            raise AssertionError(msg)
-        return
-    # Case #4. arrays or equivalent
-    if ((actual is masked) and not (desired is masked)) or \
-            ((desired is masked) and not (actual is masked)):
-        msg = build_err_msg([actual, desired],
-                            err_msg, header='', names=('x', 'y'))
-        raise ValueError(msg)
-    actual = np.asanyarray(actual)
-    desired = np.asanyarray(desired)
-    (actual_dtype, desired_dtype) = (actual.dtype, desired.dtype)
-    if actual_dtype.char == "S" and desired_dtype.char == "S":
-        return _assert_equal_on_sequences(actual.tolist(),
-                                          desired.tolist(),
-                                          err_msg='')
-    return assert_array_equal(actual, desired, err_msg)
+def rlextraNeeded():
+    try:
+        import rlextra
+        return False
+    except:
+        return True
 
+def rlSkipIf(cond,reason,__module__=None):
+    def inner(func):
+        @functools.wraps(func)
+        def wrapper(*args,**kwds):
+            if cond and os.environ.get('RL_indicateSkips','0')=='1':
+                print(f'''
+skipping {func.__module__ or __module__}.{func.__name__} {reason}''')
+            return unittest.skipIf(cond,reason)(func)(*args,**kwds)
+        return wrapper
+    return inner
 
-def fail_if_equal(actual, desired, err_msg='',):
-    """
-    Raises an assertion error if two items are equal.
+def rlSkipUnless(cond,reason,__module__=None):
+    return rlSkipIf(not cond,reason,__module__=__module__)
 
-    """
-    if isinstance(desired, dict):
-        if not isinstance(actual, dict):
-            raise AssertionError(repr(type(actual)))
-        fail_if_equal(len(actual), len(desired), err_msg)
-        for k in desired:
-            if k not in actual:
-                raise AssertionError(repr(k))
-            fail_if_equal(actual[k], desired[k], f'key={k!r}\n{err_msg}')
-        return
-    if isinstance(desired, (list, tuple)) and isinstance(actual, (list, tuple)):
-        fail_if_equal(len(actual), len(desired), err_msg)
-        for k in range(len(desired)):
-            fail_if_equal(actual[k], desired[k], f'item={k!r}\n{err_msg}')
-        return
-    if isinstance(actual, np.ndarray) or isinstance(desired, np.ndarray):
-        return fail_if_array_equal(actual, desired, err_msg)
-    msg = build_err_msg([actual, desired], err_msg)
-    if not desired != actual:
-        raise AssertionError(msg)
-
-
-assert_not_equal = fail_if_equal
-
-
-def assert_almost_equal(actual, desired, decimal=7, err_msg='', verbose=True):
-    """
-    Asserts that two items are almost equal.
-
-    The test is equivalent to abs(desired-actual) < 0.5 * 10**(-decimal).
-
-    """
-    if isinstance(actual, np.ndarray) or isinstance(desired, np.ndarray):
-        return assert_array_almost_equal(actual, desired, decimal=decimal,
-                                         err_msg=err_msg, verbose=verbose)
-    msg = build_err_msg([actual, desired],
-                        err_msg=err_msg, verbose=verbose)
-    if not round(abs(desired - actual), decimal) == 0:
-        raise AssertionError(msg)
-
-
-assert_close = assert_almost_equal
-
-
-def assert_array_compare(comparison, x, y, err_msg='', verbose=True, header='',
-                         fill_value=True):
-    """
-    Asserts that comparison between two masked arrays is satisfied.
-
-    The comparison is elementwise.
-
-    """
-    # Allocate a common mask and refill
-    m = mask_or(getmask(x), getmask(y))
-    x = masked_array(x, copy=False, mask=m, keep_mask=False, subok=False)
-    y = masked_array(y, copy=False, mask=m, keep_mask=False, subok=False)
-    if ((x is masked) and not (y is masked)) or \
-            ((y is masked) and not (x is masked)):
-        msg = build_err_msg([x, y], err_msg=err_msg, verbose=verbose,
-                            header=header, names=('x', 'y'))
-        raise ValueError(msg)
-    # OK, now run the basic tests on filled versions
-    return np.testing.assert_array_compare(comparison,
-                                           x.filled(fill_value),
-                                           y.filled(fill_value),
-                                           err_msg=err_msg,
-                                           verbose=verbose, header=header)
-
-
-def assert_array_equal(x, y, err_msg='', verbose=True):
-    """
-    Checks the elementwise equality of two masked arrays.
-
-    """
-    assert_array_compare(operator.__eq__, x, y,
-                         err_msg=err_msg, verbose=verbose,
-                         header='Arrays are not equal')
-
-
-def fail_if_array_equal(x, y, err_msg='', verbose=True):
-    """
-    Raises an assertion error if two masked arrays are not equal elementwise.
-
-    """
-    def compare(x, y):
-        return (not np.all(approx(x, y)))
-    assert_array_compare(compare, x, y, err_msg=err_msg, verbose=verbose,
-                         header='Arrays are not equal')
-
-
-def assert_array_approx_equal(x, y, decimal=6, err_msg='', verbose=True):
-    """
-    Checks the equality of two masked arrays, up to given number odecimals.
-
-    The equality is checked elementwise.
-
-    """
-    def compare(x, y):
-        "Returns the result of the loose comparison between x and y)."
-        return approx(x, y, rtol=10. ** -decimal)
-    assert_array_compare(compare, x, y, err_msg=err_msg, verbose=verbose,
-                         header='Arrays are not almost equal')
-
-
-def assert_array_almost_equal(x, y, decimal=6, err_msg='', verbose=True):
-    """
-    Checks the equality of two masked arrays, up to given number odecimals.
-
-    The equality is checked elementwise.
-
-    """
-    def compare(x, y):
-        "Returns the result of the loose comparison between x and y)."
-        return almost(x, y, decimal)
-    assert_array_compare(compare, x, y, err_msg=err_msg, verbose=verbose,
-                         header='Arrays are not almost equal')
-
-
-def assert_array_less(x, y, err_msg='', verbose=True):
-    """
-    Checks that x is smaller than y elementwise.
-
-    """
-    assert_array_compare(operator.__lt__, x, y,
-                         err_msg=err_msg, verbose=verbose,
-                         header='Arrays are not less-ordered')
-
-
-def assert_mask_equal(m1, m2, err_msg=''):
-    """
-    Asserts the equality of two masks.
-
-    """
-    if m1 is nomask:
-        assert_(m2 is nomask)
-    if m2 is nomask:
-        assert_(m1 is nomask)
-    assert_array_equal(m1, m2, err_msg=err_msg)
+def rlSkip(reason,__module__=None):
+    return rlSkipIf(True,reason,__module__=__module__)

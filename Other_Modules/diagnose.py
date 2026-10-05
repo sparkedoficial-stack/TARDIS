@@ -1,57 +1,39 @@
-#!/usr/bin/env python3
 import os
-import sys
-import tempfile
+import platform
+
+from rich import inspect
+from rich.console import Console, get_windows_console_features
+from rich.panel import Panel
+from rich.pretty import Pretty
 
 
-def run():
-    _path = os.getcwd()
-    os.chdir(tempfile.gettempdir())
-    print('------')
-    print(f'os.name={os.name!r}')
-    print('------')
-    print(f'sys.platform={sys.platform!r}')
-    print('------')
-    print('sys.version:')
-    print(sys.version)
-    print('------')
-    print('sys.prefix:')
-    print(sys.prefix)
-    print('------')
-    print(f"sys.path={':'.join(sys.path)!r}")
-    print('------')
+def report() -> None:  # pragma: no cover
+    """Print a report to the terminal with debugging information"""
+    console = Console()
+    inspect(console)
+    features = get_windows_console_features()
+    inspect(features)
 
-    try:
-        import numpy
-        has_numpy = 1
-    except ImportError as e:
-        print('Failed to import numpy:', e)
-        has_numpy = 0
+    env_names = (
+        "CLICOLOR",
+        "COLORTERM",
+        "COLUMNS",
+        "JPY_PARENT_PID",
+        "JUPYTER_COLUMNS",
+        "JUPYTER_LINES",
+        "LINES",
+        "NO_COLOR",
+        "TERM_PROGRAM",
+        "TERM",
+        "TTY_COMPATIBLE",
+        "TTY_INTERACTIVE",
+        "VSCODE_VERBOSE_LOGGING",
+    )
+    env = {name: os.getenv(name) for name in env_names}
+    console.print(Panel.fit((Pretty(env)), title="[b]Environment Variables"))
 
-    try:
-        from numpy.f2py import f2py2e
-        has_f2py2e = 1
-    except ImportError as e:
-        print('Failed to import f2py2e:', e)
-        has_f2py2e = 0
-
-    if has_numpy:
-        try:
-            print(f'Found numpy version {numpy.__version__!r} in {numpy.__file__}')
-        except Exception as msg:
-            print('error:', msg)
-            print('------')
-
-    if has_f2py2e:
-        try:
-            print(f'Found f2py2e version {f2py2e.__version__.version!r} in '
-                  f'{f2py2e.__file__}')
-        except Exception as msg:
-            print('error:', msg)
-            print('------')
-
-    os.chdir(_path)
+    console.print(f'platform="{platform.system()}"')
 
 
-if __name__ == "__main__":
-    run()
+if __name__ == "__main__":  # pragma: no cover
+    report()

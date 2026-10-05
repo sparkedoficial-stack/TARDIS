@@ -56,8 +56,36 @@ except Exception:
 
 # Modelos soportados (ordenados por peso / capacidad de razonamiento)
 GEMINI_MODELS = {
+    "gemini-4-pro": {
+        "name": "Gemini 4 Pro (Apex Frontier / Ultra Deep Reasoning)",
+        "context_window": 2000000,
+        "is_heavy": True,
+        "supports_thinking": True,
+        "supports_grounding": True
+    },
+    "gemini-3.1-pro-preview": {
+        "name": "Gemini 3.1 Pro Preview (Frontier Heavy / Coding & Agentic)",
+        "context_window": 1048576,
+        "is_heavy": True,
+        "supports_thinking": True,
+        "supports_grounding": True
+    },
+    "gemini-3.1-pro-high": {
+        "name": "Gemini 3.1 Pro High (Frontier High Reasoning)",
+        "context_window": 1000000,
+        "is_heavy": True,
+        "supports_thinking": True,
+        "supports_grounding": True
+    },
+    "gemini-3.8-flash-high": {
+        "name": "Gemini 3.8 Flash High (Frontier Ultra Fast / Max Reasoning)",
+        "context_window": 1000000,
+        "is_heavy": False,
+        "supports_thinking": True,
+        "supports_grounding": True
+    },
     "gemini-2.5-pro": {
-        "name": "Gemini 2.5 Pro (Flagship Heavy / Deep Reasoning)",
+        "name": "Gemini 2.5 Pro (Deep Reasoning)",
         "context_window": 2000000,
         "is_heavy": True,
         "supports_thinking": True,
@@ -93,7 +121,7 @@ GEMINI_MODELS = {
     }
 }
 
-DEFAULT_HEAVY_MODEL = "gemini-2.5-pro"
+DEFAULT_HEAVY_MODEL = "gemini-4-pro"
 TIMEOUT_HEAVY_SECONDS = 120.0  # Umbral de escalado a 2 minutos
 
 
@@ -340,20 +368,32 @@ def ask_gemini_heavy(
         err_msg = str(e)
         print(f"[gemini_bridge] Error en llamada a Gemini ({model}): {err_msg}", file=sys.stderr)
 
-        # Si el modelo pesado falla por disponibilidad o cuota, intentar fallback suave
-        if model != "gemini-2.5-flash" and ("404" in err_msg or "not found" in err_msg.lower() or "quota" in err_msg.lower()):
-            print("[gemini_bridge] Reintentando con fallback gemini-2.5-flash...", file=sys.stderr)
-            try:
-                return ask_gemini_heavy(
-                    prompt=prompt,
-                    history=history,
-                    model="gemini-2.5-flash",
-                    system_instruction=system_instruction,
-                    use_grounding=False,
-                    sanitize=sanitize
-                )
-            except Exception as fb_err:
-                err_msg = f"{err_msg} | Fallback error: {fb_err}"
+        # Si el modelo pesado falla por disponibilidad o cuota, intentar fallback suave en cascada
+        if "404" in err_msg or "not found" in err_msg.lower() or "quota" in err_msg.lower():
+            fallback_target = None
+            if "4" in model:
+                fallback_target = "gemini-3.1-pro-preview"
+            elif "3.1" in model:
+                fallback_target = "gemini-3.8-flash-high"
+            elif model != "gemini-2.5-flash":
+                fallback_target = "gemini-2.5-flash"
+
+            if fallback_target:
+                print(f"[gemini_bridge] Reintentando con fallback {fallback_target}...", file=sys.stderr)
+                try:
+                    return ask_gemini_heavy(
+                        prompt=prompt,
+                        history=history,
+                        model=fallback_target,
+                        system_instruction=system_instruction,
+                        use_grounding=use_grounding,
+                        thinking_budget=thinking_budget,
+                        temperature=temperature,
+                        sanitize=sanitize,
+                        privacy_strict=privacy_strict
+                    )
+                except Exception as fb_err:
+                    err_msg = f"{err_msg} | Fallback error: {fb_err}"
 
         return {
             "ok": False,

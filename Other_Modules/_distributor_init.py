@@ -1,12 +1,15 @@
 """ Distributor init file
 
-Distributors: you can add custom code here to support particular distributions
-of numpy.
+Distributors: you can replace the contents of this file with your own custom
+code to support particular distributions of SciPy.
 
-For example, this is a good place to put any BLAS/LAPACK initialization code.
+For example, this is a good place to put any checks for hardware requirements
+or BLAS/LAPACK library initialization.
 
-The numpy standard source distribution will not put code in this file, so you
-can safely replace this file with your own version.
+The SciPy standard source distribution will not put code in this file beyond
+the try-except import of `_distributor_init_local` (which is not part of a
+standard source distribution), so you can safely replace this file with your
+own version.
 """
 
 try:

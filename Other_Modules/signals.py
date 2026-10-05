@@ -1,32 +1,17 @@
-from .functions import defun_wrapped
+from __future__ import annotations
 
-@defun_wrapped
-def squarew(ctx, t, amplitude=1, period=1):
-    P = period
-    A = amplitude
-    return A*((-1)**ctx.floor(2*t/P))
+from blinker import Namespace
 
-@defun_wrapped
-def trianglew(ctx, t, amplitude=1, period=1):
-    A = amplitude
-    P = period
+# This namespace is only for signals provided by Flask itself.
+_signals = Namespace()
 
-    return 2*A*(0.5 - ctx.fabs(1 - 2*ctx.frac(t/P + 0.25)))
-
-@defun_wrapped
-def sawtoothw(ctx, t, amplitude=1, period=1):
-    A = amplitude
-    P = period
-    return A*ctx.frac(t/P)
-
-@defun_wrapped
-def unit_triangle(ctx, t, amplitude=1):
-    A = amplitude
-    if t <= -1 or t >= 1:
-        return ctx.zero
-    return A*(-ctx.fabs(t) + 1)
-
-@defun_wrapped
-def sigmoid(ctx, t, amplitude=1):
-    A = amplitude
-    return A / (1 + ctx.exp(-t))
+template_rendered = _signals.signal("template-rendered")
+before_render_template = _signals.signal("before-render-template")
+request_started = _signals.signal("request-started")
+request_finished = _signals.signal("request-finished")
+request_tearing_down = _signals.signal("request-tearing-down")
+got_request_exception = _signals.signal("got-request-exception")
+appcontext_tearing_down = _signals.signal("appcontext-tearing-down")
+appcontext_pushed = _signals.signal("appcontext-pushed")
+appcontext_popped = _signals.signal("appcontext-popped")
+message_flashed = _signals.signal("message-flashed")

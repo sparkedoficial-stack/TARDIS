@@ -1147,7 +1147,7 @@ def environment_for_plan(plan, env=None, cuda_enabled=True):
 
     result.setdefault("COLI_CUDA", "1")
     if "COLI_GPU" not in result and "COLI_GPUS" not in result:
-        key = "COLI_GPU" if len(devices) == 1 else "COLI_GPUS"
+        key = "REDACTED" if len(devices) == 1 else "COLI_GPUS"
         result[key] = ",".join(map(str, devices))
     result.setdefault("CUDA_EXPERT_GB", f"{vram['budget_bytes'] / GB:.3f}")
     if result.get("PIN"):

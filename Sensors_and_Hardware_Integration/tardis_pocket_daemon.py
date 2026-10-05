@@ -45,7 +45,7 @@ ROUTES_CACHE = CACHE_DIR / "active_routes.json"
 
 LOCAL_PORT = 8080
 AUTHORIZED_SERIAL = "ZY222ZXWPP"
-SOVEREIGN_KEY = "DiosDelTiempo01"
+SOVEREIGN_KEY = "REDACTED"
 
 logging.basicConfig(
     level=logging.INFO,

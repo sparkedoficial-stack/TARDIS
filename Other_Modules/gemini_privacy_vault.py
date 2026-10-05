@@ -124,7 +124,7 @@ def sanitize_for_cloud(text: str, strict: bool = False) -> tuple[str, list[str]]
     """
     Sanitiza y anonimiza el texto antes de ser transmitido a la API de Google Gemini.
     Detecta y reemplaza:
-      - Nombres de usuario y rutas del sistema local (ej. C:\\Users\\miguel -> [USER_HOME])
+      - Nombres de usuario y rutas del sistema local (ej. C:\\Users\\user -> [USER_HOME])
       - Tokens de acceso (Bearer, JWT, AWS, OpenAI, Anthropic, Google keys)
       - Contraseñas o credenciales en formato clave=valor o JSON
       - Direcciones IP locales o puertos sensibles

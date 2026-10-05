@@ -199,14 +199,14 @@ class ColibriParameterOptimizer:
         elif total_ram >= 32.0:
             ram_budget_gb = 26.0
         elif total_ram >= 22.0:
-            ram_budget_gb = 18.0  # 18.0 GB dedicados exactamente de los 22+ GB totales para inferencia de ultra-alta velocidad
+            ram_budget_gb = 20.0  # 20 GB dedicados de los 24 GB totales para Colibri
         elif total_ram >= 16.0:
             ram_budget_gb = 14.0
         else:
             ram_budget_gb = max(4.0, total_ram - 3.0)
 
         physical_cores = max(2, self.cpu.get("physical_cores", 8))
-        pipe_workers = 12  # 12 workers paralelos para máximo ancho de banda de memoria
+        pipe_workers = min(16, max(4, physical_cores))
 
         # Variables de entorno clave leídas por colibri.exe, qwen38.exe, deepseek_v4.exe
         env_vars = {

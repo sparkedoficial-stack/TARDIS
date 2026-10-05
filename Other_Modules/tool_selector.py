@@ -19,6 +19,17 @@ from __future__ import annotations
 # Tools que SIEMPRE se ofrecen (nucleo esencial para operar con seguridad y autosuficiencia)
 CORE = {"run_shell", "read_file", "write_file", "list_dir", "finish", "speak"}
 
+# Auto-inclusión de herramientas sintetizadas dinámicamente en segundo plano
+try:
+    from pathlib import Path
+    _dyn_dir = Path(__file__).resolve().parent / "dynamic_tools"
+    if _dyn_dir.is_dir():
+        for _f in _dyn_dir.glob("*.py"):
+            if not _f.name.startswith("__"):
+                CORE.add(_f.stem)
+except Exception:
+    pass
+
 # Agrupacion de tools por dominio
 CATEGORIES = {
     "files": {"read_file", "write_file", "list_dir", "search_files", "grep_files"},

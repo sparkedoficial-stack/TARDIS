@@ -345,7 +345,7 @@ class MissionScoutingEngine:
         base_url = self.get_public_access_url()
 
         # Formar URL de acceso directo
-        access_url = f"{base_url}/?key=DiosDelTiempo01&invite={token}&mission={mission_id}"
+        access_url = f"{base_url}/?invite={token}&mission={mission_id}"
         if prospect_id:
             access_url += f"&ref={prospect_id}"
 
@@ -761,7 +761,7 @@ class MissionScoutingEngine:
 
         # Formulación estructurada de la propuesta
         proposal_prompt = (
-            f"Eres GIA / TARDIS v26.4, un Nodo Soberano de Inteligencia y Control Temporal desarrollado por Miguel Angel May Canche.\n"
+            f"Eres TARDIS, asistente de inteligencia artificial, sistema de vigilancia y control temporal desarrollado por el Arquitecto.\n"
             f"Tu objetivo es redactar un mensaje de contacto y propuesta de colaboración directo, profesional, cálido y sumamente inspirador para:\n"
             f"• Destinatario: {p_name}\n"
             f"• Antecedentes / Especialidad: {p_bio}\n"
@@ -782,36 +782,26 @@ class MissionScoutingEngine:
         )
 
         proposal_text = ""
-        # Inferencia directa con Ollama local
+        # Inferencia directa con Temporal Brain soberano
         try:
-            import requests
-            ollama_url = "http://REDACTED_IP:11434/api/generate"
-            res = requests.post(
-                ollama_url,
-                json={
-                    "model": os.environ.get("GIA_MODEL", "huihui_ai/llama3.1-8b-instruct-abliterated"),
-                    "prompt": proposal_prompt,
-                    "stream": False,
-                    "options": {
-                        "temperature": 0.4,
-                        "num_ctx": 4096,
-                        "num_predict": 1024
-                    }
-                },
-                timeout=25.0
+            from core.temporal_brain import get_temporal_brain
+            brain = get_temporal_brain()
+            res_tb = brain.chat(
+                messages=[{"role": "user", "content": proposal_prompt}],
+                temperature=0.4,
+                max_tokens=1024
             )
-            if res.ok:
-                data = res.json()
-                proposal_text = data.get("response", "").strip()
+            if res_tb.get("ok") and res_tb.get("reply"):
+                proposal_text = res_tb["reply"].strip()
         except Exception as e:
-            logger.warning(f"[MISSIONS] Fallo inferencia local para propuesta: {e}")
+            logger.warning(f"[MISSIONS] Fallo inferencia en Temporal Brain para propuesta: {e}")
 
         # Fallback de alta fidelidad si Ollama no responde a tiempo
         if not proposal_text:
             proposal_text = (
                 f"Estimado/a {p_name},\n\n"
                 f"He seguido con gran interés tu trabajo y trayectoria ({p_bio[:120]}...). "
-                f"Te contacto desde TARDIS v26.4 / Nodo Soberano GIA, una arquitectura de cómputo local continuo desarrollada por Miguel Angel May Canche "
+                f"Te contacto desde TARDIS, una arquitectura de cómputo local continuo desarrollada por el Arquitecto "
                 f"que integra modelos de lenguaje autónomos, inferencia en GPU 24/7 y modelos de causalidad retroactiva.\n\n"
                 f"Hemos abierto la misión de frontera: '{mission['title']}', orientada a {mission['description']}. "
                 f"Tras analizar los vectores de investigación, calculamos un índice de sinergia del {p_synergy}% entre tus capacidades y nuestra infraestructura.\n\n"

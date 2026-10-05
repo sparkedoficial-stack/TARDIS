@@ -60,7 +60,7 @@ def cmd_status():
     res = api_request("/api/health")
     if res.get("status") == "ok" or res.get("ok"):
         print(f"  {C_GREEN}● Servidor Central:{C_RESET} ACTIVO ({API_BASE})")
-        print(f"  {C_CYAN}  Modelo Activo:{C_RESET}    {res.get('active_model', res.get('model', 'huihui_ai/llama3.1-8b-instruct-abliterated'))}")
+        print(f"  {C_CYAN}  Modelo Activo:{C_RESET}    {res.get('active_model', res.get('model', 'TARDIS-NEURAL-SPACE-KAIJU'))}")
         print(f"  {C_CYAN}  Versión API:{C_RESET}      {res.get('version', '26.4')}")
         print(f"  {C_CYAN}  Nodos Activos:{C_RESET}    {res.get('nodes_online', 1)}")
     else:
@@ -83,8 +83,8 @@ def cmd_status():
         print(f"  {C_DIM}○ Asistente Flotante: Inactivo (ejecuta 'tardis companion'){C_RESET}")
 
 def cmd_chat(message: str):
-    active_m = os.environ.get("GIA_MODEL", "huihui_ai/llama3.1-8b-instruct-abliterated")
-    m_label = "Dolphin 3.0 (8B)" if "dolphin" in active_m.lower() else active_m
+    active_m = os.environ.get("GIA_MODEL", "TARDIS-NEURAL-SPACE-KAIJU")
+    m_label = active_m
     print(f"{C_DIM}Consultando a {m_label} en TARDIS...{C_RESET}")
     res = api_request("/api/chat", method="POST", payload={
         "message": message,

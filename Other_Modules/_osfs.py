@@ -110,7 +110,7 @@ class OSFS(FS):
                 "type": stat.S_IFMT(stat_result.st_mode),
                 "created": getattr(stat_result, "st_birthtime", None),
             }
-            ctime_key = "created" if _WINDOWS_PLATFORM else "metadata_changed"
+            ctime_key = "REDACTED" if _WINDOWS_PLATFORM else "metadata_changed"
             details[ctime_key] = stat_result.st_ctime
         return Info(info)
 

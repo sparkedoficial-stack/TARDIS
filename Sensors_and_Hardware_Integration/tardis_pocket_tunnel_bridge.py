@@ -34,7 +34,7 @@ DATA_DIR.mkdir(parents=True, exist_ok=True)
 TELEMETRY_LOG = DATA_DIR / "pocket_telemetry.json"
 COMMAND_QUEUE_FILE = DATA_DIR / "command_queue.json"
 AUTHORIZED_SERIAL = "ZY222ZXWPP"
-SOVEREIGN_KEY = "DiosDelTiempo01"
+SOVEREIGN_KEY = "REDACTED"
 
 
 def get_local_lan_ip() -> str:

@@ -1,119 +1,150 @@
-from sympy.core.basic import Basic
-from sympy.core.containers import Tuple
-from sympy.core.sorting import default_sort_key
-from sympy.core.symbol import symbols
-from sympy.core.singleton import S
-from sympy.core.function import expand, Function
-from sympy.core.numbers import I
-from sympy.integrals.integrals import Integral
-from sympy.polys.polytools import factor
-from sympy.core.traversal import preorder_traversal, use, postorder_traversal, iterargs, iterfreeargs
-from sympy.functions.elementary.piecewise import ExprCondPair, Piecewise
-from sympy.testing.pytest import warns_deprecated_sympy
-from sympy.utilities.iterables import capture
-
-b1 = Basic()
-b2 = Basic(b1)
-b3 = Basic(b2)
-b21 = Basic(b2, b1)
+import warnings
+import numpy as np
+import pytest
+from numpy.testing import assert_array_almost_equal
+from scipy.sparse import csr_array, csr_matrix, coo_array, coo_matrix
+from scipy.sparse.csgraph import (breadth_first_tree, depth_first_tree,
+    csgraph_to_dense, csgraph_from_dense, csgraph_masked_from_dense)
 
 
-def test_preorder_traversal():
-    expr = Basic(b21, b3)
-    assert list(
-        preorder_traversal(expr)) == [expr, b21, b2, b1, b1, b3, b2, b1]
-    assert list(preorder_traversal(('abc', ('d', 'ef')))) == [
-        ('abc', ('d', 'ef')), 'abc', ('d', 'ef'), 'd', 'ef']
+def test_graph_breadth_first():
+    csgraph = np.array([[0, 1, 2, 0, 0],
+                        [1, 0, 0, 0, 3],
+                        [2, 0, 0, 7, 0],
+                        [0, 0, 7, 0, 1],
+                        [0, 3, 0, 1, 0]])
+    csgraph = csgraph_from_dense(csgraph, null_value=0)
 
-    result = []
-    pt = preorder_traversal(expr)
-    for i in pt:
-        result.append(i)
-        if i == b2:
-            pt.skip()
-    assert result == [expr, b21, b2, b1, b3, b2]
+    bfirst = np.array([[0, 1, 2, 0, 0],
+                       [0, 0, 0, 0, 3],
+                       [0, 0, 0, 7, 0],
+                       [0, 0, 0, 0, 0],
+                       [0, 0, 0, 0, 0]])
 
-    w, x, y, z = symbols('w:z')
-    expr = z + w*(x + y)
-    assert list(preorder_traversal([expr], keys=default_sort_key)) == \
-        [[w*(x + y) + z], w*(x + y) + z, z, w*(x + y), w, x + y, x, y]
-    assert list(preorder_traversal((x + y)*z, keys=True)) == \
-        [z*(x + y), z, x + y, x, y]
+    for directed in [True, False]:
+        bfirst_test = breadth_first_tree(csgraph, 0, directed)
+        assert_array_almost_equal(csgraph_to_dense(bfirst_test),
+                                  bfirst)
 
 
-def test_use():
-    x, y = symbols('x y')
+def test_graph_depth_first():
+    csgraph = np.array([[0, 1, 2, 0, 0],
+                        [1, 0, 0, 0, 3],
+                        [2, 0, 0, 7, 0],
+                        [0, 0, 7, 0, 1],
+                        [0, 3, 0, 1, 0]])
+    csgraph = csgraph_from_dense(csgraph, null_value=0)
 
-    assert use(0, expand) == 0
+    dfirst = np.array([[0, 1, 0, 0, 0],
+                       [0, 0, 0, 0, 3],
+                       [0, 0, 0, 0, 0],
+                       [0, 0, 7, 0, 0],
+                       [0, 0, 0, 1, 0]])
 
-    f = (x + y)**2*x + 1
-
-    assert use(f, expand, level=0) == x**3 + 2*x**2*y + x*y**2 + + 1
-    assert use(f, expand, level=1) == x**3 + 2*x**2*y + x*y**2 + + 1
-    assert use(f, expand, level=2) == 1 + x*(2*x*y + x**2 + y**2)
-    assert use(f, expand, level=3) == (x + y)**2*x + 1
-
-    f = (x**2 + 1)**2 - 1
-    kwargs = {'gaussian': True}
-
-    assert use(f, factor, level=0, kwargs=kwargs) == x**2*(x**2 + 2)
-    assert use(f, factor, level=1, kwargs=kwargs) == (x + I)**2*(x - I)**2 - 1
-    assert use(f, factor, level=2, kwargs=kwargs) == (x + I)**2*(x - I)**2 - 1
-    assert use(f, factor, level=3, kwargs=kwargs) == (x**2 + 1)**2 - 1
+    for directed in [True, False]:
+        dfirst_test = depth_first_tree(csgraph, 0, directed)
+        assert_array_almost_equal(csgraph_to_dense(dfirst_test), dfirst)
 
 
-def test_postorder_traversal():
-    x, y, z, w = symbols('x y z w')
-    expr = z + w*(x + y)
-    expected = [z, w, x, y, x + y, w*(x + y), w*(x + y) + z]
-    assert list(postorder_traversal(expr, keys=default_sort_key)) == expected
-    assert list(postorder_traversal(expr, keys=True)) == expected
+def test_return_type():
+    from .._laplacian import laplacian
+    from .._min_spanning_tree import minimum_spanning_tree
 
-    expr = Piecewise((x, x < 1), (x**2, True))
-    expected = [
-        x, 1, x, x < 1, ExprCondPair(x, x < 1),
-        2, x, x**2, S.true,
-        ExprCondPair(x**2, True), Piecewise((x, x < 1), (x**2, True))
-    ]
-    assert list(postorder_traversal(expr, keys=default_sort_key)) == expected
-    assert list(postorder_traversal(
-        [expr], keys=default_sort_key)) == expected + [[expr]]
+    np_csgraph = np.array([[0, 1, 2, 0, 0],
+                           [1, 0, 0, 0, 3],
+                           [2, 0, 0, 7, 0],
+                           [0, 0, 7, 0, 1],
+                           [0, 3, 0, 1, 0]])
+    csgraph = csr_array(np_csgraph)
+    assert isinstance(laplacian(csgraph), coo_array)
+    assert isinstance(minimum_spanning_tree(csgraph), csr_array)
+    for directed in [True, False]:
+        assert isinstance(depth_first_tree(csgraph, 0, directed), csr_array)
+        assert isinstance(breadth_first_tree(csgraph, 0, directed), csr_array)
 
-    assert list(postorder_traversal(Integral(x**2, (x, 0, 1)),
-        keys=default_sort_key)) == [
-            2, x, x**2, 0, 1, x, Tuple(x, 0, 1),
-            Integral(x**2, Tuple(x, 0, 1))
-        ]
-    assert list(postorder_traversal(('abc', ('d', 'ef')))) == [
-        'abc', 'd', 'ef', ('d', 'ef'), ('abc', ('d', 'ef'))]
+    csgraph = csgraph_from_dense(np_csgraph, null_value=0)
+    assert isinstance(csgraph, csr_array)
+    assert isinstance(laplacian(csgraph), coo_array)
+    assert isinstance(minimum_spanning_tree(csgraph), csr_array)
+    for directed in [True, False]:
+        assert isinstance(depth_first_tree(csgraph, 0, directed), csr_array)
+        assert isinstance(breadth_first_tree(csgraph, 0, directed), csr_array)
+
+    csgraph = csgraph_masked_from_dense(np_csgraph, null_value=0)
+    assert isinstance(csgraph, np.ma.MaskedArray)
+    assert csgraph._baseclass is np.ndarray
+    # laplacian doesnt work with masked arrays so not here
+    assert isinstance(minimum_spanning_tree(csgraph), csr_array)
+    for directed in [True, False]:
+        assert isinstance(depth_first_tree(csgraph, 0, directed), csr_array)
+        assert isinstance(breadth_first_tree(csgraph, 0, directed), csr_array)
+
+    # start of testing with matrix/spmatrix types
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", "the matrix subclass.*", DeprecationWarning)
+        warnings.filterwarnings(
+            "ignore", "the matrix subclass.*", PendingDeprecationWarning)
+
+        nm_csgraph = np.matrix([[0, 1, 2, 0, 0],
+                                [1, 0, 0, 0, 3],
+                                [2, 0, 0, 7, 0],
+                                [0, 0, 7, 0, 1],
+                                [0, 3, 0, 1, 0]])
+
+    csgraph = csr_matrix(nm_csgraph)
+    assert isinstance(laplacian(csgraph), coo_matrix)
+    assert isinstance(minimum_spanning_tree(csgraph), csr_matrix)
+    for directed in [True, False]:
+        assert isinstance(depth_first_tree(csgraph, 0, directed), csr_matrix)
+        assert isinstance(breadth_first_tree(csgraph, 0, directed), csr_matrix)
+
+    csgraph = csgraph_from_dense(nm_csgraph, null_value=0)
+    assert isinstance(csgraph, csr_matrix)
+    assert isinstance(laplacian(csgraph), coo_matrix)
+    assert isinstance(minimum_spanning_tree(csgraph), csr_matrix)
+    for directed in [True, False]:
+        assert isinstance(depth_first_tree(csgraph, 0, directed), csr_matrix)
+        assert isinstance(breadth_first_tree(csgraph, 0, directed), csr_matrix)
+
+    mm_csgraph = csgraph_masked_from_dense(nm_csgraph, null_value=0)
+    assert isinstance(mm_csgraph, np.ma.MaskedArray)
+    # laplacian doesnt work with masked arrays so not here
+    assert isinstance(minimum_spanning_tree(csgraph), csr_matrix)
+    for directed in [True, False]:
+        assert isinstance(depth_first_tree(csgraph, 0, directed), csr_matrix)
+        assert isinstance(breadth_first_tree(csgraph, 0, directed), csr_matrix)
+    # end of testing with matrix/spmatrix types
 
 
-def test_iterargs():
-    f = Function('f')
-    x = symbols('x')
-    assert list(iterfreeargs(Integral(f(x), (f(x), 1)))) == [
-        Integral(f(x), (f(x), 1)), 1]
-    assert list(iterargs(Integral(f(x), (f(x), 1)))) == [
-        Integral(f(x), (f(x), 1)), f(x), (f(x), 1), x, f(x), 1, x]
+def test_graph_breadth_first_trivial_graph():
+    csgraph = np.array([[0]])
+    csgraph = csgraph_from_dense(csgraph, null_value=0)
 
-def test_deprecated_imports():
-    x = symbols('x')
+    bfirst = np.array([[0]])
 
-    with warns_deprecated_sympy():
-        from sympy.core.basic import preorder_traversal
-        preorder_traversal(x)
-    with warns_deprecated_sympy():
-        from sympy.simplify.simplify import bottom_up
-        bottom_up(x, lambda x: x)
-    with warns_deprecated_sympy():
-        from sympy.simplify.simplify import walk
-        walk(x, lambda x: x)
-    with warns_deprecated_sympy():
-        from sympy.simplify.traversaltools import use
-        use(x, lambda x: x)
-    with warns_deprecated_sympy():
-        from sympy.utilities.iterables import postorder_traversal
-        postorder_traversal(x)
-    with warns_deprecated_sympy():
-        from sympy.utilities.iterables import interactive_traversal
-        capture(lambda: interactive_traversal(x))
+    for directed in [True, False]:
+        bfirst_test = breadth_first_tree(csgraph, 0, directed)
+        assert_array_almost_equal(csgraph_to_dense(bfirst_test), bfirst)
+
+
+def test_graph_depth_first_trivial_graph():
+    csgraph = np.array([[0]])
+    csgraph = csgraph_from_dense(csgraph, null_value=0)
+
+    bfirst = np.array([[0]])
+
+    for directed in [True, False]:
+        bfirst_test = depth_first_tree(csgraph, 0, directed)
+        assert_array_almost_equal(csgraph_to_dense(bfirst_test),
+                                  bfirst)
+
+
+@pytest.mark.parametrize('directed', [True, False])
+@pytest.mark.parametrize('tree_func', [breadth_first_tree, depth_first_tree])
+def test_int64_indices(tree_func, directed):
+    # See https://github.com/scipy/scipy/issues/18716
+    g = csr_array(([1], np.array([[0], [1]], dtype=np.int64)), shape=(2, 2))
+    assert g.indices.dtype == np.int64
+    tree = tree_func(g, 0, directed=directed)
+    assert_array_almost_equal(csgraph_to_dense(tree), [[0, 1], [0, 0]])
+

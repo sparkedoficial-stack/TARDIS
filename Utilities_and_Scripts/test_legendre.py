@@ -1,587 +1,1421 @@
-"""Tests for legendre module.
-
-"""
-from functools import reduce
+import math
+import warnings
 
 import numpy as np
-import numpy.polynomial.legendre as leg
-from numpy.polynomial.polynomial import polyval
-from numpy.testing import assert_, assert_almost_equal, assert_equal, assert_raises
-
-L0 = np.array([1])
-L1 = np.array([0, 1])
-L2 = np.array([-1, 0, 3]) / 2
-L3 = np.array([0, -3, 0, 5]) / 2
-L4 = np.array([3, 0, -30, 0, 35]) / 8
-L5 = np.array([0, 15, 0, -70, 0, 63]) / 8
-L6 = np.array([-5, 0, 105, 0, -315, 0, 231]) / 16
-L7 = np.array([0, -35, 0, 315, 0, -693, 0, 429]) / 16
-L8 = np.array([35, 0, -1260, 0, 6930, 0, -12012, 0, 6435]) / 128
-L9 = np.array([0, 315, 0, -4620, 0, 18018, 0, -25740, 0, 12155]) / 128
-
-Llist = [L0, L1, L2, L3, L4, L5, L6, L7, L8, L9]
-
-
-def trim(x):
-    return leg.legtrim(x, tol=1e-6)
-
-
-class TestConstants:
-
-    def test_legdomain(self):
-        assert_equal(leg.legdomain, [-1, 1])
-
-    def test_legzero(self):
-        assert_equal(leg.legzero, [0])
-
-    def test_legone(self):
-        assert_equal(leg.legone, [1])
-
-    def test_legx(self):
-        assert_equal(leg.legx, [0, 1])
-
-
-class TestArithmetic:
-    x = np.linspace(-1, 1, 100)
-
-    def test_legadd(self):
-        for i in range(5):
-            for j in range(5):
-                msg = f"At i={i}, j={j}"
-                tgt = np.zeros(max(i, j) + 1)
-                tgt[i] += 1
-                tgt[j] += 1
-                res = leg.legadd([0] * i + [1], [0] * j + [1])
-                assert_equal(trim(res), trim(tgt), err_msg=msg)
-
-    def test_legsub(self):
-        for i in range(5):
-            for j in range(5):
-                msg = f"At i={i}, j={j}"
-                tgt = np.zeros(max(i, j) + 1)
-                tgt[i] += 1
-                tgt[j] -= 1
-                res = leg.legsub([0] * i + [1], [0] * j + [1])
-                assert_equal(trim(res), trim(tgt), err_msg=msg)
-
-    def test_legmulx(self):
-        assert_equal(leg.legmulx([0]), [0])
-        assert_equal(leg.legmulx([1]), [0, 1])
-        for i in range(1, 5):
-            tmp = 2 * i + 1
-            ser = [0] * i + [1]
-            tgt = [0] * (i - 1) + [i / tmp, 0, (i + 1) / tmp]
-            assert_equal(leg.legmulx(ser), tgt)
-
-    def test_legmul(self):
-        # check values of result
-        for i in range(5):
-            pol1 = [0] * i + [1]
-            val1 = leg.legval(self.x, pol1)
-            for j in range(5):
-                msg = f"At i={i}, j={j}"
-                pol2 = [0] * j + [1]
-                val2 = leg.legval(self.x, pol2)
-                pol3 = leg.legmul(pol1, pol2)
-                val3 = leg.legval(self.x, pol3)
-                assert_(len(pol3) == i + j + 1, msg)
-                assert_almost_equal(val3, val1 * val2, err_msg=msg)
-
-    def test_legdiv(self):
-        for i in range(5):
-            for j in range(5):
-                msg = f"At i={i}, j={j}"
-                ci = [0] * i + [1]
-                cj = [0] * j + [1]
-                tgt = leg.legadd(ci, cj)
-                quo, rem = leg.legdiv(tgt, ci)
-                res = leg.legadd(leg.legmul(quo, ci), rem)
-                assert_equal(trim(res), trim(tgt), err_msg=msg)
-
-    def test_legpow(self):
-        for i in range(5):
-            for j in range(5):
-                msg = f"At i={i}, j={j}"
-                c = np.arange(i + 1)
-                tgt = reduce(leg.legmul, [c] * j, np.array([1]))
-                res = leg.legpow(c, j)
-                assert_equal(trim(res), trim(tgt), err_msg=msg)
-
-
-class TestEvaluation:
-    # coefficients of 1 + 2*x + 3*x**2
-    c1d = np.array([2., 2., 2.])
-    c2d = np.einsum('i,j->ij', c1d, c1d)
-    c3d = np.einsum('i,j,k->ijk', c1d, c1d, c1d)
-
-    # some random values in [-1, 1)
-    x = np.random.random((3, 5)) * 2 - 1
-    y = polyval(x, [1., 2., 3.])
-
-    def test_legval(self):
-        # check empty input
-        assert_equal(leg.legval([], [1]).size, 0)
-
-        # check normal input)
-        x = np.linspace(-1, 1)
-        y = [polyval(x, c) for c in Llist]
-        for i in range(10):
-            msg = f"At i={i}"
-            tgt = y[i]
-            res = leg.legval(x, [0] * i + [1])
-            assert_almost_equal(res, tgt, err_msg=msg)
-
-        # check that shape is preserved
-        for i in range(3):
-            dims = [2] * i
-            x = np.zeros(dims)
-            assert_equal(leg.legval(x, [1]).shape, dims)
-            assert_equal(leg.legval(x, [1, 0]).shape, dims)
-            assert_equal(leg.legval(x, [1, 0, 0]).shape, dims)
-
-    def test_legval2d(self):
-        x1, x2, x3 = self.x
-        y1, y2, y3 = self.y
-
-        # test exceptions
-        assert_raises(ValueError, leg.legval2d, x1, x2[:2], self.c2d)
-
-        # test values
-        tgt = y1 * y2
-        res = leg.legval2d(x1, x2, self.c2d)
-        assert_almost_equal(res, tgt)
-
-        # test shape
-        z = np.ones((2, 3))
-        res = leg.legval2d(z, z, self.c2d)
-        assert_(res.shape == (2, 3))
-
-    def test_legval3d(self):
-        x1, x2, x3 = self.x
-        y1, y2, y3 = self.y
-
-        # test exceptions
-        assert_raises(ValueError, leg.legval3d, x1, x2, x3[:2], self.c3d)
-
-        # test values
-        tgt = y1 * y2 * y3
-        res = leg.legval3d(x1, x2, x3, self.c3d)
-        assert_almost_equal(res, tgt)
-
-        # test shape
-        z = np.ones((2, 3))
-        res = leg.legval3d(z, z, z, self.c3d)
-        assert_(res.shape == (2, 3))
-
-    def test_legvalnd(self):
-        x1, x2, x3 = self.x
-        y1, y2, y3 = self.y
-        pts = (x1, x2, x3)
-
-        # test exceptions
-        assert_raises(ValueError, leg.legvalnd, (x1, x2, x3[:2]), self.c3d)
-
-        # test values
-        tgt = y1 * y2 * y3
-        res = leg.legvalnd(pts, self.c3d)
-        assert_almost_equal(res, tgt)
-
-        # test shape
-        z = np.ones((2, 3))
-        res = leg.legvalnd((z, z, z), self.c3d)
-        assert_(res.shape == (2, 3))
-
-        # test 1D fallback
-        assert_almost_equal(leg.legvalnd((x1,), self.c1d), y1)
-
-    def test_leggrid2d(self):
-        x1, x2, x3 = self.x
-        y1, y2, y3 = self.y
-
-        # test values
-        tgt = np.einsum('i,j->ij', y1, y2)
-        res = leg.leggrid2d(x1, x2, self.c2d)
-        assert_almost_equal(res, tgt)
-
-        # test shape
-        z = np.ones((2, 3))
-        res = leg.leggrid2d(z, z, self.c2d)
-        assert_(res.shape == (2, 3) * 2)
-
-    def test_leggrid3d(self):
-        x1, x2, x3 = self.x
-        y1, y2, y3 = self.y
-
-        # test values
-        tgt = np.einsum('i,j,k->ijk', y1, y2, y3)
-        res = leg.leggrid3d(x1, x2, x3, self.c3d)
-        assert_almost_equal(res, tgt)
-
-        # test shape
-        z = np.ones((2, 3))
-        res = leg.leggrid3d(z, z, z, self.c3d)
-        assert_(res.shape == (2, 3) * 3)
-
-
-class TestIntegral:
-
-    def test_legint(self):
-        # check exceptions
-        assert_raises(TypeError, leg.legint, [0], .5)
-        assert_raises(ValueError, leg.legint, [0], -1)
-        assert_raises(ValueError, leg.legint, [0], 1, [0, 0])
-        assert_raises(ValueError, leg.legint, [0], lbnd=[0])
-        assert_raises(ValueError, leg.legint, [0], scl=[0])
-        assert_raises(TypeError, leg.legint, [0], axis=.5)
-
-        # test integration of zero polynomial
-        for i in range(2, 5):
-            k = [0] * (i - 2) + [1]
-            res = leg.legint([0], m=i, k=k)
-            assert_almost_equal(res, [0, 1])
-
-        # check single integration with integration constant
-        for i in range(5):
-            scl = i + 1
-            pol = [0] * i + [1]
-            tgt = [i] + [0] * i + [1 / scl]
-            legpol = leg.poly2leg(pol)
-            legint = leg.legint(legpol, m=1, k=[i])
-            res = leg.leg2poly(legint)
-            assert_almost_equal(trim(res), trim(tgt))
-
-        # check single integration with integration constant and lbnd
-        for i in range(5):
-            scl = i + 1
-            pol = [0] * i + [1]
-            legpol = leg.poly2leg(pol)
-            legint = leg.legint(legpol, m=1, k=[i], lbnd=-1)
-            assert_almost_equal(leg.legval(-1, legint), i)
-
-        # check single integration with integration constant and scaling
-        for i in range(5):
-            scl = i + 1
-            pol = [0] * i + [1]
-            tgt = [i] + [0] * i + [2 / scl]
-            legpol = leg.poly2leg(pol)
-            legint = leg.legint(legpol, m=1, k=[i], scl=2)
-            res = leg.leg2poly(legint)
-            assert_almost_equal(trim(res), trim(tgt))
-
-        # check multiple integrations with default k
-        for i in range(5):
-            for j in range(2, 5):
-                pol = [0] * i + [1]
-                tgt = pol[:]
-                for k in range(j):
-                    tgt = leg.legint(tgt, m=1)
-                res = leg.legint(pol, m=j)
-                assert_almost_equal(trim(res), trim(tgt))
-
-        # check multiple integrations with defined k
-        for i in range(5):
-            for j in range(2, 5):
-                pol = [0] * i + [1]
-                tgt = pol[:]
-                for k in range(j):
-                    tgt = leg.legint(tgt, m=1, k=[k])
-                res = leg.legint(pol, m=j, k=list(range(j)))
-                assert_almost_equal(trim(res), trim(tgt))
-
-        # check multiple integrations with lbnd
-        for i in range(5):
-            for j in range(2, 5):
-                pol = [0] * i + [1]
-                tgt = pol[:]
-                for k in range(j):
-                    tgt = leg.legint(tgt, m=1, k=[k], lbnd=-1)
-                res = leg.legint(pol, m=j, k=list(range(j)), lbnd=-1)
-                assert_almost_equal(trim(res), trim(tgt))
-
-        # check multiple integrations with scaling
-        for i in range(5):
-            for j in range(2, 5):
-                pol = [0] * i + [1]
-                tgt = pol[:]
-                for k in range(j):
-                    tgt = leg.legint(tgt, m=1, k=[k], scl=2)
-                res = leg.legint(pol, m=j, k=list(range(j)), scl=2)
-                assert_almost_equal(trim(res), trim(tgt))
-
-    def test_legint_axis(self):
-        # check that axis keyword works
-        c2d = np.random.random((3, 4))
-
-        tgt = np.vstack([leg.legint(c) for c in c2d.T]).T
-        res = leg.legint(c2d, axis=0)
-        assert_almost_equal(res, tgt)
-
-        tgt = np.vstack([leg.legint(c) for c in c2d])
-        res = leg.legint(c2d, axis=1)
-        assert_almost_equal(res, tgt)
-
-        tgt = np.vstack([leg.legint(c, k=3) for c in c2d])
-        res = leg.legint(c2d, k=3, axis=1)
-        assert_almost_equal(res, tgt)
-
-    def test_legint_zerointord(self):
-        assert_equal(leg.legint((1, 2, 3), 0), (1, 2, 3))
-
-
-class TestDerivative:
-
-    def test_legder(self):
-        # check exceptions
-        assert_raises(TypeError, leg.legder, [0], .5)
-        assert_raises(ValueError, leg.legder, [0], -1)
-
-        # check that zeroth derivative does nothing
-        for i in range(5):
-            tgt = [0] * i + [1]
-            res = leg.legder(tgt, m=0)
-            assert_equal(trim(res), trim(tgt))
-
-        # check that derivation is the inverse of integration
-        for i in range(5):
-            for j in range(2, 5):
-                tgt = [0] * i + [1]
-                res = leg.legder(leg.legint(tgt, m=j), m=j)
-                assert_almost_equal(trim(res), trim(tgt))
-
-        # check derivation with scaling
-        for i in range(5):
-            for j in range(2, 5):
-                tgt = [0] * i + [1]
-                res = leg.legder(leg.legint(tgt, m=j, scl=2), m=j, scl=.5)
-                assert_almost_equal(trim(res), trim(tgt))
-
-    def test_legder_axis(self):
-        # check that axis keyword works
-        c2d = np.random.random((3, 4))
-
-        tgt = np.vstack([leg.legder(c) for c in c2d.T]).T
-        res = leg.legder(c2d, axis=0)
-        assert_almost_equal(res, tgt)
-
-        tgt = np.vstack([leg.legder(c) for c in c2d])
-        res = leg.legder(c2d, axis=1)
-        assert_almost_equal(res, tgt)
-
-    def test_legder_orderhigherthancoeff(self):
-        c = (1, 2, 3, 4)
-        assert_equal(leg.legder(c, 4), [0])
-
-class TestVander:
-    # some random values in [-1, 1)
-    x = np.random.random((3, 5)) * 2 - 1
-
-    def test_legvander(self):
-        # check for 1d x
-        x = np.arange(3)
-        v = leg.legvander(x, 3)
-        assert_(v.shape == (3, 4))
-        for i in range(4):
-            coef = [0] * i + [1]
-            assert_almost_equal(v[..., i], leg.legval(x, coef))
-
-        # check for 2d x
-        x = np.array([[1, 2], [3, 4], [5, 6]])
-        v = leg.legvander(x, 3)
-        assert_(v.shape == (3, 2, 4))
-        for i in range(4):
-            coef = [0] * i + [1]
-            assert_almost_equal(v[..., i], leg.legval(x, coef))
-
-    def test_legvander2d(self):
-        # also tests polyval2d for non-square coefficient array
-        x1, x2, x3 = self.x
-        c = np.random.random((2, 3))
-        van = leg.legvander2d(x1, x2, [1, 2])
-        tgt = leg.legval2d(x1, x2, c)
-        res = np.dot(van, c.flat)
-        assert_almost_equal(res, tgt)
-
-        # check shape
-        van = leg.legvander2d([x1], [x2], [1, 2])
-        assert_(van.shape == (1, 5, 6))
-
-    def test_legvander3d(self):
-        # also tests polyval3d for non-square coefficient array
-        x1, x2, x3 = self.x
-        c = np.random.random((2, 3, 4))
-        van = leg.legvander3d(x1, x2, x3, [1, 2, 3])
-        tgt = leg.legval3d(x1, x2, x3, c)
-        res = np.dot(van, c.flat)
-        assert_almost_equal(res, tgt)
-
-        # check shape
-        van = leg.legvander3d([x1], [x2], [x3], [1, 2, 3])
-        assert_(van.shape == (1, 5, 24))
-
-    def test_legvander_negdeg(self):
-        assert_raises(ValueError, leg.legvander, (1, 2, 3), -1)
-
-
-class TestFitting:
-
-    def test_legfit(self):
-        def f(x):
-            return x * (x - 1) * (x - 2)
-
-        def f2(x):
-            return x**4 + x**2 + 1
-
-        # Test exceptions
-        assert_raises(ValueError, leg.legfit, [1], [1], -1)
-        assert_raises(TypeError, leg.legfit, [[1]], [1], 0)
-        assert_raises(TypeError, leg.legfit, [], [1], 0)
-        assert_raises(TypeError, leg.legfit, [1], [[[1]]], 0)
-        assert_raises(TypeError, leg.legfit, [1, 2], [1], 0)
-        assert_raises(TypeError, leg.legfit, [1], [1, 2], 0)
-        assert_raises(TypeError, leg.legfit, [1], [1], 0, w=[[1]])
-        assert_raises(TypeError, leg.legfit, [1], [1], 0, w=[1, 1])
-        assert_raises(ValueError, leg.legfit, [1], [1], [-1,])
-        assert_raises(ValueError, leg.legfit, [1], [1], [2, -1, 6])
-        assert_raises(TypeError, leg.legfit, [1], [1], [])
-
-        # Test fit
-        x = np.linspace(0, 2)
-        y = f(x)
-        #
-        coef3 = leg.legfit(x, y, 3)
-        assert_equal(len(coef3), 4)
-        assert_almost_equal(leg.legval(x, coef3), y)
-        coef3 = leg.legfit(x, y, [0, 1, 2, 3])
-        assert_equal(len(coef3), 4)
-        assert_almost_equal(leg.legval(x, coef3), y)
-        #
-        coef4 = leg.legfit(x, y, 4)
-        assert_equal(len(coef4), 5)
-        assert_almost_equal(leg.legval(x, coef4), y)
-        coef4 = leg.legfit(x, y, [0, 1, 2, 3, 4])
-        assert_equal(len(coef4), 5)
-        assert_almost_equal(leg.legval(x, coef4), y)
-        # check things still work if deg is not in strict increasing
-        coef4 = leg.legfit(x, y, [2, 3, 4, 1, 0])
-        assert_equal(len(coef4), 5)
-        assert_almost_equal(leg.legval(x, coef4), y)
-        #
-        coef2d = leg.legfit(x, np.array([y, y]).T, 3)
-        assert_almost_equal(coef2d, np.array([coef3, coef3]).T)
-        coef2d = leg.legfit(x, np.array([y, y]).T, [0, 1, 2, 3])
-        assert_almost_equal(coef2d, np.array([coef3, coef3]).T)
-        # test weighting
-        w = np.zeros_like(x)
-        yw = y.copy()
-        w[1::2] = 1
-        y[0::2] = 0
-        wcoef3 = leg.legfit(x, yw, 3, w=w)
-        assert_almost_equal(wcoef3, coef3)
-        wcoef3 = leg.legfit(x, yw, [0, 1, 2, 3], w=w)
-        assert_almost_equal(wcoef3, coef3)
-        #
-        wcoef2d = leg.legfit(x, np.array([yw, yw]).T, 3, w=w)
-        assert_almost_equal(wcoef2d, np.array([coef3, coef3]).T)
-        wcoef2d = leg.legfit(x, np.array([yw, yw]).T, [0, 1, 2, 3], w=w)
-        assert_almost_equal(wcoef2d, np.array([coef3, coef3]).T)
-        # test scaling with complex values x points whose square
-        # is zero when summed.
-        x = [1, 1j, -1, -1j]
-        assert_almost_equal(leg.legfit(x, x, 1), [0, 1])
-        assert_almost_equal(leg.legfit(x, x, [0, 1]), [0, 1])
-        # test fitting only even Legendre polynomials
-        x = np.linspace(-1, 1)
-        y = f2(x)
-        coef1 = leg.legfit(x, y, 4)
-        assert_almost_equal(leg.legval(x, coef1), y)
-        coef2 = leg.legfit(x, y, [0, 2, 4])
-        assert_almost_equal(leg.legval(x, coef2), y)
-        assert_almost_equal(coef1, coef2)
-
-
-class TestCompanion:
-
-    def test_raises(self):
-        assert_raises(ValueError, leg.legcompanion, [])
-        assert_raises(ValueError, leg.legcompanion, [1])
-
-    def test_dimensions(self):
-        for i in range(1, 5):
-            coef = [0] * i + [1]
-            assert_(leg.legcompanion(coef).shape == (i, i))
-
-    def test_linear_root(self):
-        assert_(leg.legcompanion([1, 2])[0, 0] == -.5)
-
-
-class TestGauss:
-
-    def test_100(self):
-        x, w = leg.leggauss(100)
-
-        # test orthogonality. Note that the results need to be normalized,
-        # otherwise the huge values that can arise from fast growing
-        # functions like Laguerre can be very confusing.
-        v = leg.legvander(x, 99)
-        vv = np.dot(v.T * w, v)
-        vd = 1 / np.sqrt(vv.diagonal())
-        vv = vd[:, None] * vv * vd
-        assert_almost_equal(vv, np.eye(100))
-
-        # check that the integral of 1 is correct
-        tgt = 2.0
-        assert_almost_equal(w.sum(), tgt)
-
-
-class TestMisc:
-
-    def test_legfromroots(self):
-        res = leg.legfromroots([])
-        assert_almost_equal(trim(res), [1])
-        for i in range(1, 5):
-            roots = np.cos(np.linspace(-np.pi, 0, 2 * i + 1)[1::2])
-            pol = leg.legfromroots(roots)
-            res = leg.legval(roots, pol)
-            tgt = 0
-            assert_(len(pol) == i + 1)
-            assert_almost_equal(leg.leg2poly(pol)[-1], 1)
-            assert_almost_equal(res, tgt)
-
-    def test_legroots(self):
-        assert_almost_equal(leg.legroots([1]), [])
-        assert_almost_equal(leg.legroots([1, 2]), [-.5])
-        for i in range(2, 5):
-            tgt = np.linspace(-1, 1, i)
-            res = leg.legroots(leg.legfromroots(tgt))
-            assert_almost_equal(trim(res), trim(tgt))
-
-    def test_legtrim(self):
-        coef = [2, -1, 1, 0]
-
-        # Test exceptions
-        assert_raises(ValueError, leg.legtrim, coef, -1)
-
-        # Test results
-        assert_equal(leg.legtrim(coef), coef[:-1])
-        assert_equal(leg.legtrim(coef, 1), coef[:-3])
-        assert_equal(leg.legtrim(coef, 2), [0])
-
-    def test_legline(self):
-        assert_equal(leg.legline(3, 4), [3, 4])
-
-    def test_legline_zeroscl(self):
-        assert_equal(leg.legline(3, 0), [3])
-
-    def test_leg2poly(self):
-        for i in range(10):
-            assert_almost_equal(leg.leg2poly([0] * i + [1]), Llist[i])
-
-    def test_poly2leg(self):
-        for i in range(10):
-            assert_almost_equal(leg.poly2leg(Llist[i]), [0] * i + [1])
-
-    def test_weight(self):
-        x = np.linspace(-1, 1, 11)
-        tgt = 1.
-        res = leg.legweight(x)
-        assert_almost_equal(res, tgt)
+
+import pytest
+from numpy.testing import assert_equal, assert_allclose
+
+from scipy import special
+from scipy.special import (legendre_p, legendre_p_all, assoc_legendre_p,
+    assoc_legendre_p_all, sph_legendre_p, sph_legendre_p_all)
+
+
+# Base polynomials come from Abrahmowitz and Stegan
+class TestLegendre:
+    def test_legendre(self):
+        leg0 = special.legendre(0)
+        leg1 = special.legendre(1)
+        leg2 = special.legendre(2)
+        leg3 = special.legendre(3)
+        leg4 = special.legendre(4)
+        leg5 = special.legendre(5)
+        assert_equal(leg0.c, [1])
+        assert_equal(leg1.c, [1,0])
+        assert_allclose(leg2.c, np.array([3, 0, -1])/2.0,
+                        atol=1.5e-13, rtol=0)
+        assert_allclose(leg3.c, np.array([5, 0, -3, 0])/2.0,
+                        atol=1.5e-7, rtol=0)
+        assert_allclose(leg4.c, np.array([35, 0, -30, 0, 3])/8.0,
+                        atol=1.5e-7, rtol=0)
+        assert_allclose(leg5.c, np.array([63, 0, -70, 0, 15, 0])/8.0,
+                        atol=1.5e-7, rtol=0)
+
+class TestLegendreP:
+    @pytest.mark.parametrize("shape", [(10,), (4, 9), (3, 5, 7)])
+    def test_ode(self, shape):
+        rng = np.random.default_rng(1234)
+
+        n = rng.integers(0, 100, shape)
+        x = rng.uniform(-1, 1, shape)
+
+        p, p_jac, p_hess = legendre_p(n, x, diff_n=2)
+
+        assert p.shape == shape
+        assert p_jac.shape == p.shape
+        assert p_hess.shape == p_jac.shape
+
+        err = (1 - x * x) * p_hess - 2 * x * p_jac + n * (n + 1) * p
+        np.testing.assert_allclose(err, 0, atol=1e-10)
+
+    @pytest.mark.parametrize("n_max", [1, 2, 4, 8, 16, 32])
+    @pytest.mark.parametrize("x_shape", [(10,), (4, 9), (3, 5, 7)])
+    def test_all_ode(self, n_max, x_shape):
+        rng = np.random.default_rng(1234)
+
+        x = rng.uniform(-1, 1, x_shape)
+        p, p_jac, p_hess = legendre_p_all(n_max, x, diff_n=2)
+
+        n = np.arange(n_max + 1)
+        n = np.expand_dims(n, axis = tuple(range(1, x.ndim + 1)))
+
+        assert p.shape == (len(n),) + x.shape
+        assert p_jac.shape == p.shape
+        assert p_hess.shape == p_jac.shape
+
+        err = (1 - x * x) * p_hess - 2 * x * p_jac + n * (n + 1) * p
+        np.testing.assert_allclose(err, 0, atol=1e-10)
+
+
+class TestAssocLegendreP:
+    def test_assoc_legendre_gh23101(self):
+        z = np.array([-1, -.5, 0, .5, 1])
+        expected = assoc_legendre_p_1_0(z)
+        result = assoc_legendre_p(1, 0, z)
+        assert_allclose(np.squeeze(result), expected)
+
+        expected = assoc_legendre_p_3_0(z)
+        result = assoc_legendre_p(3, 0, z)
+        assert_allclose(np.squeeze(result), expected)
+
+    @pytest.mark.parametrize("shape", [(10,), (4, 9), (3, 5, 7, 10)])
+    @pytest.mark.parametrize("m_max", [5, 4])
+    @pytest.mark.parametrize("n_max", [7, 10])
+    def test_lpmn(self, shape, n_max, m_max):
+        rng = np.random.default_rng(1234)
+
+        x = rng.uniform(-0.99, 0.99, shape)
+        p_all, p_all_jac, p_all_hess = \
+            assoc_legendre_p_all(n_max, m_max, x, diff_n=2)
+
+        n = np.arange(n_max + 1)
+        n = np.expand_dims(n, axis = tuple(range(1, x.ndim + 2)))
+
+        m = np.concatenate([np.arange(m_max + 1), np.arange(-m_max, 0)])
+        m = np.expand_dims(m, axis = (0,) + tuple(range(2, x.ndim + 2)))
+
+        x = np.expand_dims(x, axis = (0, 1))
+        p, p_jac, p_hess = assoc_legendre_p(n, m, x, diff_n=2)
+
+        np.testing.assert_allclose(p, p_all)
+        np.testing.assert_allclose(p_jac, p_all_jac)
+        np.testing.assert_allclose(p_hess, p_all_hess)
+
+    @pytest.mark.parametrize("shape", [(10,), (4, 9), (3, 5, 7, 10)])
+    @pytest.mark.parametrize("norm", [True, False])
+    def test_ode(self, shape, norm):
+        rng = np.random.default_rng(1234)
+
+        n = rng.integers(0, 10, shape)
+        m = rng.integers(-10, 10, shape)
+        x = rng.uniform(-1, 1, shape)
+
+        p, p_jac, p_hess = assoc_legendre_p(n, m, x, norm=norm, diff_n=2)
+
+        assert p.shape == shape
+        assert p_jac.shape == p.shape
+        assert p_hess.shape == p_jac.shape
+
+        np.testing.assert_allclose((1 - x * x) * p_hess,
+            2 * x * p_jac - (n * (n + 1) - m * m / (1 - x * x)) * p,
+            rtol=1e-05, atol=1e-08)
+
+    @pytest.mark.parametrize("shape", [(10,), (4, 9), (3, 5, 7)])
+    def test_all(self, shape):
+        rng = np.random.default_rng(1234)
+
+        n_max = 20
+        m_max = 20
+
+        x = rng.uniform(-0.99, 0.99, shape)
+
+        p, p_jac, p_hess = assoc_legendre_p_all(n_max, m_max, x, diff_n=2)
+
+        m = np.concatenate([np.arange(m_max + 1), np.arange(-m_max, 0)])
+        n = np.arange(n_max + 1)
+
+        n = np.expand_dims(n, axis = tuple(range(1, x.ndim + 2)))
+        m = np.expand_dims(m, axis = (0,) + tuple(range(2, x.ndim + 2)))
+        np.testing.assert_allclose((1 - x * x) * p_hess,
+            2 * x * p_jac - (n * (n + 1) - m * m / (1 - x * x)) * p,
+            rtol=1e-05, atol=1e-08)
+
+    @pytest.mark.parametrize("shape", [(10,), (4, 9), (3, 5, 7)])
+    @pytest.mark.parametrize("norm", [True, False])
+    def test_specific(self, shape, norm):
+        rng = np.random.default_rng(1234)
+
+        x = rng.uniform(-0.99, 0.99, shape)
+
+        p, p_jac = assoc_legendre_p_all(4, 4, x, norm=norm, diff_n=1)
+
+        np.testing.assert_allclose(p[0, 0],
+            assoc_legendre_p_0_0(x, norm=norm))
+        np.testing.assert_allclose(p[0, 1], 0)
+        np.testing.assert_allclose(p[0, 2], 0)
+        np.testing.assert_allclose(p[0, 3], 0)
+        np.testing.assert_allclose(p[0, 4], 0)
+        np.testing.assert_allclose(p[0, -3], 0)
+        np.testing.assert_allclose(p[0, -2], 0)
+        np.testing.assert_allclose(p[0, -1], 0)
+
+        np.testing.assert_allclose(p[1, 0],
+            assoc_legendre_p_1_0(x, norm=norm))
+        np.testing.assert_allclose(p[1, 1],
+            assoc_legendre_p_1_1(x, norm=norm))
+        np.testing.assert_allclose(p[1, 2], 0)
+        np.testing.assert_allclose(p[1, 3], 0)
+        np.testing.assert_allclose(p[1, 4], 0)
+        np.testing.assert_allclose(p[1, -4], 0)
+        np.testing.assert_allclose(p[1, -3], 0)
+        np.testing.assert_allclose(p[1, -2], 0)
+        np.testing.assert_allclose(p[1, -1],
+            assoc_legendre_p_1_m1(x, norm=norm))
+
+        np.testing.assert_allclose(p[2, 0],
+            assoc_legendre_p_2_0(x, norm=norm))
+        np.testing.assert_allclose(p[2, 1],
+            assoc_legendre_p_2_1(x, norm=norm))
+        np.testing.assert_allclose(p[2, 2],
+            assoc_legendre_p_2_2(x, norm=norm))
+        np.testing.assert_allclose(p[2, 3], 0)
+        np.testing.assert_allclose(p[2, 4], 0)
+        np.testing.assert_allclose(p[2, -4], 0)
+        np.testing.assert_allclose(p[2, -3], 0)
+        np.testing.assert_allclose(p[2, -2],
+            assoc_legendre_p_2_m2(x, norm=norm))
+        np.testing.assert_allclose(p[2, -1],
+            assoc_legendre_p_2_m1(x, norm=norm))
+
+        np.testing.assert_allclose(p[3, 0],
+            assoc_legendre_p_3_0(x, norm=norm))
+        np.testing.assert_allclose(p[3, 1],
+            assoc_legendre_p_3_1(x, norm=norm))
+        np.testing.assert_allclose(p[3, 2],
+            assoc_legendre_p_3_2(x, norm=norm))
+        np.testing.assert_allclose(p[3, 3],
+            assoc_legendre_p_3_3(x, norm=norm))
+        np.testing.assert_allclose(p[3, 4], 0)
+        np.testing.assert_allclose(p[3, -4], 0)
+        np.testing.assert_allclose(p[3, -3],
+            assoc_legendre_p_3_m3(x, norm=norm))
+        np.testing.assert_allclose(p[3, -2],
+            assoc_legendre_p_3_m2(x, norm=norm))
+        np.testing.assert_allclose(p[3, -1],
+            assoc_legendre_p_3_m1(x, norm=norm))
+
+        np.testing.assert_allclose(p[4, 0],
+            assoc_legendre_p_4_0(x, norm=norm))
+        np.testing.assert_allclose(p[4, 1],
+            assoc_legendre_p_4_1(x, norm=norm))
+        np.testing.assert_allclose(p[4, 2],
+            assoc_legendre_p_4_2(x, norm=norm))
+        np.testing.assert_allclose(p[4, 3],
+            assoc_legendre_p_4_3(x, norm=norm))
+        np.testing.assert_allclose(p[4, 4],
+            assoc_legendre_p_4_4(x, norm=norm))
+        np.testing.assert_allclose(p[4, -4],
+            assoc_legendre_p_4_m4(x, norm=norm))
+        np.testing.assert_allclose(p[4, -3],
+            assoc_legendre_p_4_m3(x, norm=norm))
+        np.testing.assert_allclose(p[4, -2],
+            assoc_legendre_p_4_m2(x, norm=norm))
+        np.testing.assert_allclose(p[4, -1],
+            assoc_legendre_p_4_m1(x, norm=norm))
+
+        np.testing.assert_allclose(p_jac[0, 0],
+            assoc_legendre_p_0_0_jac(x, norm=norm))
+        np.testing.assert_allclose(p_jac[0, 1], 0)
+        np.testing.assert_allclose(p_jac[0, 2], 0)
+        np.testing.assert_allclose(p_jac[0, 3], 0)
+        np.testing.assert_allclose(p_jac[0, 4], 0)
+        np.testing.assert_allclose(p_jac[0, -4], 0)
+        np.testing.assert_allclose(p_jac[0, -3], 0)
+        np.testing.assert_allclose(p_jac[0, -2], 0)
+        np.testing.assert_allclose(p_jac[0, -1], 0)
+
+        np.testing.assert_allclose(p_jac[1, 0],
+            assoc_legendre_p_1_0_jac(x, norm=norm))
+        np.testing.assert_allclose(p_jac[1, 1],
+            assoc_legendre_p_1_1_jac(x, norm=norm))
+        np.testing.assert_allclose(p_jac[1, 2], 0)
+        np.testing.assert_allclose(p_jac[1, 3], 0)
+        np.testing.assert_allclose(p_jac[1, 4], 0)
+        np.testing.assert_allclose(p_jac[1, -4], 0)
+        np.testing.assert_allclose(p_jac[1, -3], 0)
+        np.testing.assert_allclose(p_jac[1, -2], 0)
+        np.testing.assert_allclose(p_jac[1, -1],
+            assoc_legendre_p_1_m1_jac(x, norm=norm))
+
+        np.testing.assert_allclose(p_jac[2, 0],
+            assoc_legendre_p_2_0_jac(x, norm=norm))
+        np.testing.assert_allclose(p_jac[2, 1],
+            assoc_legendre_p_2_1_jac(x, norm=norm))
+        np.testing.assert_allclose(p_jac[2, 2],
+            assoc_legendre_p_2_2_jac(x, norm=norm))
+        np.testing.assert_allclose(p_jac[2, 3], 0)
+        np.testing.assert_allclose(p_jac[2, 4], 0)
+        np.testing.assert_allclose(p_jac[2, -4], 0)
+        np.testing.assert_allclose(p_jac[2, -3], 0)
+        np.testing.assert_allclose(p_jac[2, -2],
+            assoc_legendre_p_2_m2_jac(x, norm=norm))
+        np.testing.assert_allclose(p_jac[2, -1],
+            assoc_legendre_p_2_m1_jac(x, norm=norm))
+
+        np.testing.assert_allclose(p_jac[3, 0],
+            assoc_legendre_p_3_0_jac(x, norm=norm))
+        np.testing.assert_allclose(p_jac[3, 1],
+            assoc_legendre_p_3_1_jac(x, norm=norm))
+        np.testing.assert_allclose(p_jac[3, 2],
+            assoc_legendre_p_3_2_jac(x, norm=norm))
+        np.testing.assert_allclose(p_jac[3, 3],
+            assoc_legendre_p_3_3_jac(x, norm=norm))
+        np.testing.assert_allclose(p_jac[3, 4], 0)
+        np.testing.assert_allclose(p_jac[3, -4], 0)
+        np.testing.assert_allclose(p_jac[3, -3],
+            assoc_legendre_p_3_m3_jac(x, norm=norm))
+        np.testing.assert_allclose(p_jac[3, -2],
+            assoc_legendre_p_3_m2_jac(x, norm=norm))
+        np.testing.assert_allclose(p_jac[3, -1],
+            assoc_legendre_p_3_m1_jac(x, norm=norm))
+
+        np.testing.assert_allclose(p_jac[4, 0],
+            assoc_legendre_p_4_0_jac(x, norm=norm))
+        np.testing.assert_allclose(p_jac[4, 1],
+            assoc_legendre_p_4_1_jac(x, norm=norm))
+        np.testing.assert_allclose(p_jac[4, 2],
+            assoc_legendre_p_4_2_jac(x, norm=norm))
+        np.testing.assert_allclose(p_jac[4, 3],
+            assoc_legendre_p_4_3_jac(x, norm=norm))
+        np.testing.assert_allclose(p_jac[4, 4],
+            assoc_legendre_p_4_4_jac(x, norm=norm))
+        np.testing.assert_allclose(p_jac[4, -4],
+            assoc_legendre_p_4_m4_jac(x, norm=norm))
+        np.testing.assert_allclose(p_jac[4, -3],
+            assoc_legendre_p_4_m3_jac(x, norm=norm))
+        np.testing.assert_allclose(p_jac[4, -2],
+            assoc_legendre_p_4_m2_jac(x, norm=norm))
+        np.testing.assert_allclose(p_jac[4, -1],
+            assoc_legendre_p_4_m1_jac(x, norm=norm))
+
+    @pytest.mark.parametrize("m_max", [7])
+    @pytest.mark.parametrize("n_max", [10])
+    @pytest.mark.parametrize("x", [1, -1])
+    def test_all_limits(self, m_max, n_max, x):
+        p, p_jac = assoc_legendre_p_all(n_max, m_max, x, diff_n=1)
+
+        n = np.arange(n_max + 1)
+
+        np.testing.assert_allclose(p_jac[:, 0],
+            pow(x, n + 1) * n * (n + 1) / 2)
+        np.testing.assert_allclose(p_jac[:, 1],
+            np.where(n >= 1, pow(x, n) * np.inf, 0))
+        np.testing.assert_allclose(p_jac[:, 2],
+            np.where(n >= 2, -pow(x, n + 1) * (n + 2) * (n + 1) * n * (n - 1) / 4, 0))
+        np.testing.assert_allclose(p_jac[:, -2],
+            np.where(n >= 2, -pow(x, n + 1) / 4, 0))
+        np.testing.assert_allclose(p_jac[:, -1],
+            np.where(n >= 1, -pow(x, n) * np.inf, 0))
+
+        for m in range(3, m_max + 1):
+            np.testing.assert_allclose(p_jac[:, m], 0)
+            np.testing.assert_allclose(p_jac[:, -m], 0)
+
+    @pytest.mark.parametrize("n", np.arange(0, 20))
+    def test_assoc_legendre_p_norm_m0(self, n):
+        # gh 24099
+        m = 0
+        z = np.linspace(-1, 1, 101)
+        p = assoc_legendre_p(n, m, z, norm=False)
+        p_norm = assoc_legendre_p(n, m, z, norm=True)
+        factor = np.sqrt((2 * n + 1) / 2)
+        np.testing.assert_allclose(p_norm, factor * p)
+
+    @pytest.mark.parametrize("n", np.arange(0, 20))
+    def test_assoc_legendre_p_all_norm_m0(self, n):
+        # gh 24099
+        m = 0
+        z = np.linspace(-1, 1, 101)
+        p_all = assoc_legendre_p_all(n, m, z, norm=False)[0, : n + 1, 0, :]
+        p_norm_all = assoc_legendre_p_all(n, m, z, norm=True)[0, : n + 1, 0, :]
+        factor = np.sqrt((2 * np.arange(n + 1) + 1) / 2)
+        factor = factor[:, np.newaxis]
+        np.testing.assert_allclose(p_norm_all, factor * p_all)
+
+
+class TestMultiAssocLegendreP:
+    @pytest.mark.parametrize("shape", [(1000,), (4, 9), (3, 5, 7)])
+    @pytest.mark.parametrize("branch_cut", [2, 3])
+    @pytest.mark.parametrize("z_min, z_max", [(-10 - 10j, 10 + 10j),
+        (-1, 1), (-10j, 10j)])
+    @pytest.mark.parametrize("norm", [True, False])
+    def test_specific(self, shape, branch_cut, z_min, z_max, norm):
+        rng = np.random.default_rng(1234)
+
+        z = rng.uniform(z_min.real, z_max.real, shape) + \
+            1j * rng.uniform(z_min.imag, z_max.imag, shape)
+
+        p, p_jac = assoc_legendre_p_all(4, 4,
+            z, branch_cut=branch_cut, norm=norm, diff_n=1)
+
+        np.testing.assert_allclose(p[0, 0],
+            assoc_legendre_p_0_0(z, branch_cut=branch_cut, norm=norm))
+        np.testing.assert_allclose(p[0, 1], 0)
+        np.testing.assert_allclose(p[0, 2], 0)
+        np.testing.assert_allclose(p[0, 3], 0)
+        np.testing.assert_allclose(p[0, 4], 0)
+        np.testing.assert_allclose(p[0, -4], 0)
+        np.testing.assert_allclose(p[0, -3], 0)
+        np.testing.assert_allclose(p[0, -2], 0)
+        np.testing.assert_allclose(p[0, -1], 0)
+
+        np.testing.assert_allclose(p[1, 0],
+            assoc_legendre_p_1_0(z, branch_cut=branch_cut, norm=norm))
+        np.testing.assert_allclose(p[1, 1],
+            assoc_legendre_p_1_1(z, branch_cut=branch_cut, norm=norm))
+        np.testing.assert_allclose(p[1, 2], 0)
+        np.testing.assert_allclose(p[1, 3], 0)
+        np.testing.assert_allclose(p[1, 4], 0)
+        np.testing.assert_allclose(p[1, -4], 0)
+        np.testing.assert_allclose(p[1, -3], 0)
+        np.testing.assert_allclose(p[1, -2], 0)
+        np.testing.assert_allclose(p[1, -1],
+            assoc_legendre_p_1_m1(z, branch_cut=branch_cut, norm=norm))
+
+        np.testing.assert_allclose(p[2, 0],
+            assoc_legendre_p_2_0(z, branch_cut=branch_cut, norm=norm))
+        np.testing.assert_allclose(p[2, 1],
+            assoc_legendre_p_2_1(z, branch_cut=branch_cut, norm=norm))
+        np.testing.assert_allclose(p[2, 2],
+            assoc_legendre_p_2_2(z, branch_cut=branch_cut, norm=norm))
+        np.testing.assert_allclose(p[2, 3], 0)
+        np.testing.assert_allclose(p[2, 4], 0)
+        np.testing.assert_allclose(p[2, -4], 0)
+        np.testing.assert_allclose(p[2, -3], 0)
+        np.testing.assert_allclose(p[2, -2],
+            assoc_legendre_p_2_m2(z, branch_cut=branch_cut, norm=norm))
+        np.testing.assert_allclose(p[2, -1],
+            assoc_legendre_p_2_m1(z, branch_cut=branch_cut, norm=norm))
+
+        np.testing.assert_allclose(p[3, 0],
+            assoc_legendre_p_3_0(z, branch_cut=branch_cut, norm=norm))
+        np.testing.assert_allclose(p[3, 1],
+            assoc_legendre_p_3_1(z, branch_cut=branch_cut, norm=norm))
+        np.testing.assert_allclose(p[3, 2],
+            assoc_legendre_p_3_2(z, branch_cut=branch_cut, norm=norm))
+        np.testing.assert_allclose(p[3, 3],
+            assoc_legendre_p_3_3(z, branch_cut=branch_cut, norm=norm))
+        np.testing.assert_allclose(p[3, 4], 0)
+        np.testing.assert_allclose(p[3, -4], 0)
+        np.testing.assert_allclose(p[3, -3],
+            assoc_legendre_p_3_m3(z, branch_cut=branch_cut, norm=norm))
+        np.testing.assert_allclose(p[3, -2],
+            assoc_legendre_p_3_m2(z, branch_cut=branch_cut, norm=norm))
+        np.testing.assert_allclose(p[3, -1],
+            assoc_legendre_p_3_m1(z, branch_cut=branch_cut, norm=norm))
+
+        np.testing.assert_allclose(p[4, 0],
+            assoc_legendre_p_4_0(z, branch_cut=branch_cut, norm=norm))
+        np.testing.assert_allclose(p[4, 1],
+            assoc_legendre_p_4_1(z, branch_cut=branch_cut, norm=norm))
+        np.testing.assert_allclose(p[4, 2],
+            assoc_legendre_p_4_2(z, branch_cut=branch_cut, norm=norm))
+        np.testing.assert_allclose(p[4, 3],
+            assoc_legendre_p_4_3(z, branch_cut=branch_cut, norm=norm))
+        np.testing.assert_allclose(p[4, 4],
+            assoc_legendre_p_4_4(z, branch_cut=branch_cut, norm=norm))
+        np.testing.assert_allclose(p[4, -4],
+            assoc_legendre_p_4_m4(z, branch_cut=branch_cut, norm=norm))
+        np.testing.assert_allclose(p[4, -3],
+            assoc_legendre_p_4_m3(z, branch_cut=branch_cut, norm=norm))
+        np.testing.assert_allclose(p[4, -2],
+            assoc_legendre_p_4_m2(z, branch_cut=branch_cut, norm=norm))
+        np.testing.assert_allclose(p[4, -1],
+            assoc_legendre_p_4_m1(z, branch_cut=branch_cut, norm=norm))
+
+        np.testing.assert_allclose(p_jac[0, 0],
+            assoc_legendre_p_0_0_jac(z, branch_cut=branch_cut, norm=norm))
+        np.testing.assert_allclose(p_jac[0, 1], 0)
+        np.testing.assert_allclose(p_jac[0, 2], 0)
+        np.testing.assert_allclose(p_jac[0, 3], 0)
+        np.testing.assert_allclose(p_jac[0, 4], 0)
+        np.testing.assert_allclose(p_jac[0, -4], 0)
+        np.testing.assert_allclose(p_jac[0, -3], 0)
+        np.testing.assert_allclose(p_jac[0, -2], 0)
+        np.testing.assert_allclose(p_jac[0, -1], 0)
+
+        np.testing.assert_allclose(p_jac[1, 0],
+            assoc_legendre_p_1_0_jac(z, branch_cut=branch_cut, norm=norm))
+        np.testing.assert_allclose(p_jac[1, 1],
+            assoc_legendre_p_1_1_jac(z, branch_cut=branch_cut, norm=norm))
+        np.testing.assert_allclose(p_jac[1, 2], 0)
+        np.testing.assert_allclose(p_jac[1, 3], 0)
+        np.testing.assert_allclose(p_jac[1, 4], 0)
+        np.testing.assert_allclose(p_jac[1, -4], 0)
+        np.testing.assert_allclose(p_jac[1, -3], 0)
+        np.testing.assert_allclose(p_jac[1, -2], 0)
+        np.testing.assert_allclose(p_jac[1, -1],
+            assoc_legendre_p_1_m1_jac(z, branch_cut=branch_cut, norm=norm))
+
+        np.testing.assert_allclose(p_jac[2, 0],
+            assoc_legendre_p_2_0_jac(z, branch_cut=branch_cut, norm=norm))
+        np.testing.assert_allclose(p_jac[2, 1],
+            assoc_legendre_p_2_1_jac(z, branch_cut=branch_cut, norm=norm))
+        np.testing.assert_allclose(p_jac[2, 2],
+            assoc_legendre_p_2_2_jac(z, branch_cut=branch_cut, norm=norm))
+        np.testing.assert_allclose(p_jac[2, 3], 0)
+        np.testing.assert_allclose(p_jac[2, 4], 0)
+        np.testing.assert_allclose(p_jac[2, -4], 0)
+        np.testing.assert_allclose(p_jac[2, -3], 0)
+        np.testing.assert_allclose(p_jac[2, -2],
+            assoc_legendre_p_2_m2_jac(z, branch_cut=branch_cut, norm=norm))
+        np.testing.assert_allclose(p_jac[2, -1],
+            assoc_legendre_p_2_m1_jac(z, branch_cut=branch_cut, norm=norm))
+
+        np.testing.assert_allclose(p_jac[3, 0],
+            assoc_legendre_p_3_0_jac(z, branch_cut=branch_cut, norm=norm))
+        np.testing.assert_allclose(p_jac[3, 1],
+            assoc_legendre_p_3_1_jac(z, branch_cut=branch_cut, norm=norm))
+        np.testing.assert_allclose(p_jac[3, 2],
+            assoc_legendre_p_3_2_jac(z, branch_cut=branch_cut, norm=norm))
+        np.testing.assert_allclose(p_jac[3, 3],
+            assoc_legendre_p_3_3_jac(z, branch_cut=branch_cut, norm=norm))
+        np.testing.assert_allclose(p_jac[3, 4], 0)
+        np.testing.assert_allclose(p_jac[3, -4], 0)
+        np.testing.assert_allclose(p_jac[3, -3],
+            assoc_legendre_p_3_m3_jac(z, branch_cut=branch_cut, norm=norm))
+        np.testing.assert_allclose(p_jac[3, -2],
+            assoc_legendre_p_3_m2_jac(z, branch_cut=branch_cut, norm=norm))
+        np.testing.assert_allclose(p_jac[3, -1],
+            assoc_legendre_p_3_m1_jac(z, branch_cut=branch_cut, norm=norm))
+
+        np.testing.assert_allclose(p_jac[4, 0],
+            assoc_legendre_p_4_0_jac(z, branch_cut=branch_cut, norm=norm))
+        np.testing.assert_allclose(p_jac[4, 1],
+            assoc_legendre_p_4_1_jac(z, branch_cut=branch_cut, norm=norm))
+        np.testing.assert_allclose(p_jac[4, 2],
+            assoc_legendre_p_4_2_jac(z, branch_cut=branch_cut, norm=norm))
+        np.testing.assert_allclose(p_jac[4, 3],
+            assoc_legendre_p_4_3_jac(z, branch_cut=branch_cut, norm=norm))
+        np.testing.assert_allclose(p_jac[4, 4],
+            assoc_legendre_p_4_4_jac(z, branch_cut=branch_cut, norm=norm))
+        np.testing.assert_allclose(p_jac[4, -4],
+            assoc_legendre_p_4_m4_jac(z, branch_cut=branch_cut, norm=norm))
+        np.testing.assert_allclose(p_jac[4, -3],
+            assoc_legendre_p_4_m3_jac(z, branch_cut=branch_cut, norm=norm))
+        np.testing.assert_allclose(p_jac[4, -2],
+            assoc_legendre_p_4_m2_jac(z, branch_cut=branch_cut, norm=norm))
+        np.testing.assert_allclose(p_jac[4, -1],
+            assoc_legendre_p_4_m1_jac(z, branch_cut=branch_cut, norm=norm))
+
+class TestSphLegendreP:
+    @pytest.mark.parametrize("shape", [(10,), (4, 9), (3, 5, 7)])
+    def test_specific(self, shape):
+        rng = np.random.default_rng(1234)
+
+        theta = rng.uniform(-np.pi, np.pi, shape)
+
+        p, p_jac = sph_legendre_p_all(4, 4, theta, diff_n=1)
+
+        np.testing.assert_allclose(p[0, 0],
+            sph_legendre_p_0_0(theta))
+        np.testing.assert_allclose(p[0, 1], 0)
+        np.testing.assert_allclose(p[0, 2], 0)
+        np.testing.assert_allclose(p[0, 3], 0)
+        np.testing.assert_allclose(p[0, 4], 0)
+        np.testing.assert_allclose(p[0, -3], 0)
+        np.testing.assert_allclose(p[0, -2], 0)
+        np.testing.assert_allclose(p[0, -1], 0)
+
+        np.testing.assert_allclose(p[1, 0],
+            sph_legendre_p_1_0(theta))
+        np.testing.assert_allclose(p[1, 1],
+            sph_legendre_p_1_1(theta))
+        np.testing.assert_allclose(p[1, 2], 0)
+        np.testing.assert_allclose(p[1, 3], 0)
+        np.testing.assert_allclose(p[1, 4], 0)
+        np.testing.assert_allclose(p[1, -4], 0)
+        np.testing.assert_allclose(p[1, -3], 0)
+        np.testing.assert_allclose(p[1, -2], 0)
+        np.testing.assert_allclose(p[1, -1],
+            sph_legendre_p_1_m1(theta))
+
+        np.testing.assert_allclose(p[2, 0],
+            sph_legendre_p_2_0(theta))
+        np.testing.assert_allclose(p[2, 1],
+            sph_legendre_p_2_1(theta))
+        np.testing.assert_allclose(p[2, 2],
+            sph_legendre_p_2_2(theta))
+        np.testing.assert_allclose(p[2, 3], 0)
+        np.testing.assert_allclose(p[2, 4], 0)
+        np.testing.assert_allclose(p[2, -4], 0)
+        np.testing.assert_allclose(p[2, -3], 0)
+        np.testing.assert_allclose(p[2, -2],
+            sph_legendre_p_2_m2(theta))
+        np.testing.assert_allclose(p[2, -1],
+            sph_legendre_p_2_m1(theta))
+
+        np.testing.assert_allclose(p[3, 0],
+            sph_legendre_p_3_0(theta))
+        np.testing.assert_allclose(p[3, 1],
+            sph_legendre_p_3_1(theta))
+        np.testing.assert_allclose(p[3, 2],
+            sph_legendre_p_3_2(theta))
+        np.testing.assert_allclose(p[3, 3],
+            sph_legendre_p_3_3(theta))
+        np.testing.assert_allclose(p[3, 4], 0)
+        np.testing.assert_allclose(p[3, -4], 0)
+        np.testing.assert_allclose(p[3, -3],
+            sph_legendre_p_3_m3(theta))
+        np.testing.assert_allclose(p[3, -2],
+            sph_legendre_p_3_m2(theta))
+        np.testing.assert_allclose(p[3, -1],
+            sph_legendre_p_3_m1(theta))
+
+        np.testing.assert_allclose(p[4, 0],
+            sph_legendre_p_4_0(theta))
+        np.testing.assert_allclose(p[4, 1],
+            sph_legendre_p_4_1(theta))
+        np.testing.assert_allclose(p[4, 2],
+            sph_legendre_p_4_2(theta))
+        np.testing.assert_allclose(p[4, 3],
+            sph_legendre_p_4_3(theta))
+        np.testing.assert_allclose(p[4, 4],
+            sph_legendre_p_4_4(theta))
+        np.testing.assert_allclose(p[4, -4],
+            sph_legendre_p_4_m4(theta))
+        np.testing.assert_allclose(p[4, -3],
+            sph_legendre_p_4_m3(theta))
+        np.testing.assert_allclose(p[4, -2],
+            sph_legendre_p_4_m2(theta))
+        np.testing.assert_allclose(p[4, -1],
+            sph_legendre_p_4_m1(theta))
+
+        np.testing.assert_allclose(p_jac[0, 0],
+            sph_legendre_p_0_0_jac(theta))
+        np.testing.assert_allclose(p_jac[0, 1], 0)
+        np.testing.assert_allclose(p_jac[0, 2], 0)
+        np.testing.assert_allclose(p_jac[0, 3], 0)
+        np.testing.assert_allclose(p_jac[0, 4], 0)
+        np.testing.assert_allclose(p_jac[0, -3], 0)
+        np.testing.assert_allclose(p_jac[0, -2], 0)
+        np.testing.assert_allclose(p_jac[0, -1], 0)
+
+        np.testing.assert_allclose(p_jac[1, 0],
+            sph_legendre_p_1_0_jac(theta))
+        np.testing.assert_allclose(p_jac[1, 1],
+            sph_legendre_p_1_1_jac(theta))
+        np.testing.assert_allclose(p_jac[1, 2], 0)
+        np.testing.assert_allclose(p_jac[1, 3], 0)
+        np.testing.assert_allclose(p_jac[1, 4], 0)
+        np.testing.assert_allclose(p_jac[1, -4], 0)
+        np.testing.assert_allclose(p_jac[1, -3], 0)
+        np.testing.assert_allclose(p_jac[1, -2], 0)
+        np.testing.assert_allclose(p_jac[1, -1],
+            sph_legendre_p_1_m1_jac(theta))
+
+        np.testing.assert_allclose(p_jac[2, 0],
+            sph_legendre_p_2_0_jac(theta))
+        np.testing.assert_allclose(p_jac[2, 1],
+            sph_legendre_p_2_1_jac(theta))
+        np.testing.assert_allclose(p_jac[2, 2],
+            sph_legendre_p_2_2_jac(theta))
+        np.testing.assert_allclose(p_jac[2, 3], 0)
+        np.testing.assert_allclose(p_jac[2, 4], 0)
+        np.testing.assert_allclose(p_jac[2, -4], 0)
+        np.testing.assert_allclose(p_jac[2, -3], 0)
+        np.testing.assert_allclose(p_jac[2, -2],
+            sph_legendre_p_2_m2_jac(theta))
+        np.testing.assert_allclose(p_jac[2, -1],
+            sph_legendre_p_2_m1_jac(theta))
+
+        np.testing.assert_allclose(p_jac[3, 0],
+            sph_legendre_p_3_0_jac(theta))
+        np.testing.assert_allclose(p_jac[3, 1],
+            sph_legendre_p_3_1_jac(theta))
+        np.testing.assert_allclose(p_jac[3, 2],
+            sph_legendre_p_3_2_jac(theta))
+        np.testing.assert_allclose(p_jac[3, 3],
+            sph_legendre_p_3_3_jac(theta))
+        np.testing.assert_allclose(p_jac[3, 4], 0)
+        np.testing.assert_allclose(p_jac[3, -4], 0)
+        np.testing.assert_allclose(p_jac[3, -3],
+            sph_legendre_p_3_m3_jac(theta))
+        np.testing.assert_allclose(p_jac[3, -2],
+            sph_legendre_p_3_m2_jac(theta))
+        np.testing.assert_allclose(p_jac[3, -1],
+            sph_legendre_p_3_m1_jac(theta))
+
+        np.testing.assert_allclose(p_jac[4, 0],
+            sph_legendre_p_4_0_jac(theta))
+        np.testing.assert_allclose(p_jac[4, 1],
+            sph_legendre_p_4_1_jac(theta))
+        np.testing.assert_allclose(p_jac[4, 2],
+            sph_legendre_p_4_2_jac(theta))
+        np.testing.assert_allclose(p_jac[4, 3],
+            sph_legendre_p_4_3_jac(theta))
+        np.testing.assert_allclose(p_jac[4, 4],
+            sph_legendre_p_4_4_jac(theta))
+        np.testing.assert_allclose(p_jac[4, -4],
+            sph_legendre_p_4_m4_jac(theta))
+        np.testing.assert_allclose(p_jac[4, -3],
+            sph_legendre_p_4_m3_jac(theta))
+        np.testing.assert_allclose(p_jac[4, -2],
+            sph_legendre_p_4_m2_jac(theta))
+        np.testing.assert_allclose(p_jac[4, -1],
+            sph_legendre_p_4_m1_jac(theta))
+
+    @pytest.mark.parametrize("shape", [(10,), (4, 9), (3, 5, 7, 10)])
+    def test_ode(self, shape):
+        rng = np.random.default_rng(1234)
+
+        n = rng.integers(0, 10, shape)
+        m = rng.integers(-10, 10, shape)
+        theta = rng.uniform(-np.pi, np.pi, shape)
+
+        p, p_jac, p_hess = sph_legendre_p(n, m, theta, diff_n=2)
+
+        assert p.shape == shape
+        assert p_jac.shape == p.shape
+        assert p_hess.shape == p_jac.shape
+
+        np.testing.assert_allclose(np.sin(theta) * p_hess, -np.cos(theta) * p_jac
+            - (n * (n + 1) * np.sin(theta) - m * m / np.sin(theta)) * p,
+            rtol=1e-05, atol=1e-08)
+
+class TestLegendreFunctions:
+    """
+    @pytest.mark.parametrize("m_max", [3])
+    @pytest.mark.parametrize("n_max", [5])
+    @pytest.mark.parametrize("z", [-1])
+    def test_clpmn_all_limits(self, m_max, n_max, z):
+        rng = np.random.default_rng(1234)
+
+        type = 2
+
+        p, p_jac = special.clpmn_all(m_max, n_max, type, z, diff_n=1)
+
+        n = np.arange(n_max + 1)
+
+        np.testing.assert_allclose(p_jac[0], pow(z, n + 1) * n * (n + 1) / 2)
+        np.testing.assert_allclose(p_jac[1], np.where(n >= 1, pow(z, n) * np.inf, 0))
+        np.testing.assert_allclose(p_jac[2], np.where(n >= 2,
+            -pow(z, n + 1) * (n + 2) * (n + 1) * n * (n - 1) / 4, 0))
+        np.testing.assert_allclose(p_jac[-2], np.where(n >= 2, -pow(z, n + 1) / 4, 0))
+        np.testing.assert_allclose(p_jac[-1], np.where(n >= 1, -pow(z, n) * np.inf, 0))
+
+        for m in range(3, m_max + 1):
+            np.testing.assert_allclose(p_jac[m], 0)
+            np.testing.assert_allclose(p_jac[-m], 0)
+    """
+
+    def test_lpmv(self):
+        lp = special.lpmv(0, 2, .5)
+        assert_allclose(lp, -0.125, atol=1.5e-7, rtol=0)
+        lp = special.lpmv(0, 40, .001)
+        assert_allclose(lp, 0.1252678976534484, atol=1.5e-7, rtol=0)
+
+        # XXX: this is outside the domain of the current implementation,
+        #      so ensure it returns a NaN rather than a wrong answer.
+        with np.errstate(all='ignore'):
+            lp = special.lpmv(-1,-1,.001)
+        assert lp != 0 or np.isnan(lp)
+
+    def test_lqmn(self):
+        lqmnf = special.lqmn(0, 2, .5)
+        lqf = special.lqn(2, .5)
+        assert_allclose(lqmnf[0][0], lqf[0], atol=1.5e-4, rtol=0)
+        assert_allclose(lqmnf[1][0], lqf[1], atol=1.5e-4, rtol=0)
+
+    def test_lqmn_gt1(self):
+        """algorithm for real arguments changes at 1.0001
+           test against analytical result for m=2, n=1
+        """
+        x0 = 1.0001
+        delta = 0.00002
+        for x in (x0-delta, x0+delta):
+            lq = special.lqmn(2, 1, x)[0][-1, -1]
+            expected = 2/(x*x-1)
+            assert_allclose(lq, expected, atol=1.5e-7, rtol=0)
+
+    def test_lqmn_shape(self):
+        a, b = special.lqmn(4, 4, 1.1)
+        assert_equal(a.shape, (5, 5))
+        assert_equal(b.shape, (5, 5))
+
+        a, b = special.lqmn(4, 0, 1.1)
+        assert_equal(a.shape, (5, 1))
+        assert_equal(b.shape, (5, 1))
+
+    def test_lqn(self):
+        lqf = special.lqn(2, .5)
+        assert_allclose(lqf, (np.array([0.5493, -0.7253, -0.8187]),
+                              np.array([1.3333, 1.216, -0.8427])),
+                        atol=1.5e-4, rtol=0)
+
+    @pytest.mark.parametrize("function", [special.lqn])
+    @pytest.mark.parametrize("n", [1, 2, 4, 8, 16, 32])
+    @pytest.mark.parametrize("z_complex", [False, True])
+    @pytest.mark.parametrize("z_inexact", [False, True])
+    @pytest.mark.parametrize(
+        "input_shape",
+        [
+            (), (1, ), (2, ), (2, 1), (1, 2), (2, 2), (2, 2, 1), (2, 2, 2)
+        ]
+    )
+    def test_array_inputs_lxn(self, function, n, z_complex, z_inexact, input_shape):
+        """Tests for correct output shapes."""
+        rng = np.random.default_rng(1234)
+        if z_inexact:
+            z = rng.integers(-3, 3, size=input_shape)
+        else:
+            z = rng.uniform(-1, 1, size=input_shape)
+
+        if z_complex:
+            z = 1j * z + 0.5j * z
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            P_z, P_d_z = function(n, z)
+        assert P_z.shape == (n + 1, ) + input_shape
+        assert P_d_z.shape == (n + 1, ) + input_shape
+
+    @pytest.mark.parametrize("function", [special.lqmn])
+    @pytest.mark.parametrize(
+        "m,n",
+        [(0, 1), (1, 2), (1, 4), (3, 8), (11, 16), (19, 32)]
+    )
+    @pytest.mark.parametrize("z_inexact", [False, True])
+    @pytest.mark.parametrize(
+        "input_shape", [
+            (), (1, ), (2, ), (2, 1), (1, 2), (2, 2), (2, 2, 1)
+        ]
+    )
+    def test_array_inputs_lxmn(self, function, m, n, z_inexact, input_shape):
+        """Tests for correct output shapes and dtypes."""
+        rng = np.random.default_rng(1234)
+        if z_inexact:
+            z = rng.integers(-3, 3, size=input_shape)
+        else:
+            z = rng.uniform(-1, 1, size=input_shape)
+
+        P_z, P_d_z = function(m, n, z)
+        assert P_z.shape == (m + 1, n + 1) + input_shape
+        assert P_d_z.shape == (m + 1, n + 1) + input_shape
+
+    @pytest.mark.parametrize("function", [special.lqmn])
+    @pytest.mark.parametrize(
+        "m,n",
+        [(0, 1), (1, 2), (1, 4), (3, 8), (11, 16), (19, 32)]
+    )
+    @pytest.mark.parametrize(
+        "input_shape", [
+            (), (1, ), (2, ), (2, 1), (1, 2), (2, 2), (2, 2, 1)
+        ]
+    )
+    def test_array_inputs_clxmn(self, function, m, n, input_shape):
+        """Tests for correct output shapes and dtypes."""
+        rng = np.random.default_rng(1234)
+        z = rng.uniform(-1, 1, size=input_shape)
+        z = 1j * z + 0.5j * z
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            P_z, P_d_z = function(m, n, z)
+
+        assert P_z.shape == (m + 1, n + 1) + input_shape
+        assert P_d_z.shape == (m + 1, n + 1) + input_shape
+
+def assoc_legendre_factor(n, m, norm):
+    if norm:
+        return (math.sqrt((2 * n + 1) *
+            math.factorial(n - m) / (2 * math.factorial(n + m))))
+
+    return 1
+
+def assoc_legendre_p_0_0(z, *, branch_cut=2, norm=False):
+    fac = assoc_legendre_factor(0, 0, norm)
+
+    return np.full_like(z, fac)
+
+def assoc_legendre_p_1_0(z, *, branch_cut=2, norm=False):
+    fac = assoc_legendre_factor(1, 0, norm)
+
+    return fac * z
+
+def assoc_legendre_p_1_1(z, *, branch_cut=2, norm=False):
+    branch_sign = np.where(branch_cut == 3, np.where(np.signbit(np.real(z)), 1, -1), -1)
+    branch_cut_sign = np.where(branch_cut == 3, -1, 1)
+    fac = assoc_legendre_factor(1, 1, norm)
+
+    w = np.sqrt(np.where(branch_cut == 3, z * z - 1, 1 - z * z))
+
+    return branch_cut_sign * branch_sign * fac * w
+
+def assoc_legendre_p_1_m1(z, *, branch_cut=2, norm=False):
+    branch_cut_sign = np.where(branch_cut == 3, -1, 1)
+    fac = assoc_legendre_factor(1, -1, norm)
+
+    return (-branch_cut_sign * fac *
+        assoc_legendre_p_1_1(z, branch_cut=branch_cut) / 2)
+
+def assoc_legendre_p_2_0(z, *, branch_cut=2, norm=False):
+    fac = assoc_legendre_factor(2, 0, norm)
+
+    return fac * (3 * z * z - 1) / 2
+
+def assoc_legendre_p_2_1(z, *, branch_cut=2, norm=False):
+    fac = assoc_legendre_factor(2, 1, norm)
+
+    return (3 * fac * z *
+        assoc_legendre_p_1_1(z, branch_cut=branch_cut))
+
+def assoc_legendre_p_2_2(z, *, branch_cut=2, norm=False):
+    branch_cut_sign = np.where(branch_cut == 3, -1, 1)
+    fac = assoc_legendre_factor(2, 2, norm)
+
+    return 3 * branch_cut_sign * fac * (1 - z * z)
+
+def assoc_legendre_p_2_m2(z, *, branch_cut=2, norm=False):
+    branch_cut_sign = np.where(branch_cut == 3, -1, 1)
+    fac = assoc_legendre_factor(2, -2, norm)
+
+    return branch_cut_sign * fac * (1 - z * z) / 8
+
+def assoc_legendre_p_2_m1(z, *, branch_cut=2, norm=False):
+    branch_cut_sign = np.where(branch_cut == 3, -1, 1)
+    fac = assoc_legendre_factor(2, -1, norm)
+
+    return (-branch_cut_sign * fac * z *
+        assoc_legendre_p_1_1(z, branch_cut=branch_cut) / 2)
+
+def assoc_legendre_p_3_0(z, *, branch_cut=2, norm=False):
+    fac = assoc_legendre_factor(3, 0, norm)
+
+    return fac * (5 * z * z - 3) * z / 2
+
+def assoc_legendre_p_3_1(z, *, branch_cut=2, norm=False):
+    fac = assoc_legendre_factor(3, 1, norm)
+
+    return (3 * fac * (5 * z * z - 1) *
+        assoc_legendre_p_1_1(z, branch_cut=branch_cut) / 2)
+
+def assoc_legendre_p_3_2(z, *, branch_cut=2, norm=False):
+    branch_cut_sign = np.where(branch_cut == 3, -1, 1)
+    fac = assoc_legendre_factor(3, 2, norm)
+
+    return 15 * branch_cut_sign * fac * (1 - z * z) * z
+
+def assoc_legendre_p_3_3(z, *, branch_cut=2, norm=False):
+    branch_cut_sign = np.where(branch_cut == 3, -1, 1)
+    fac = assoc_legendre_factor(3, 3, norm)
+
+    return (15 * branch_cut_sign * fac * (1 - z * z) *
+        assoc_legendre_p_1_1(z, branch_cut=branch_cut))
+
+def assoc_legendre_p_3_m3(z, *, branch_cut=2, norm=False):
+    fac = assoc_legendre_factor(3, -3, norm)
+
+    return (fac * (z * z - 1) *
+        assoc_legendre_p_1_1(z, branch_cut=branch_cut) / 48)
+
+def assoc_legendre_p_3_m2(z, *, branch_cut=2, norm=False):
+    branch_cut_sign = np.where(branch_cut == 3, -1, 1)
+    fac = assoc_legendre_factor(3, -2, norm)
+
+    return branch_cut_sign * fac * (1 - z * z) * z / 8
+
+def assoc_legendre_p_3_m1(z, *, branch_cut=2, norm=False):
+    branch_cut_sign = np.where(branch_cut == 3, -1, 1)
+    fac = assoc_legendre_factor(3, -1, norm)
+
+    return (branch_cut_sign * fac * (1 - 5 * z * z) *
+        assoc_legendre_p_1_1(z, branch_cut=branch_cut) / 8)
+
+def assoc_legendre_p_4_0(z, *, branch_cut=2, norm=False):
+    fac = assoc_legendre_factor(4, 0, norm)
+
+    return fac * ((35 * z * z - 30) * z * z + 3) / 8
+
+def assoc_legendre_p_4_1(z, *, branch_cut=2, norm=False):
+    fac = assoc_legendre_factor(4, 1, norm)
+
+    return (5 * fac * (7 * z * z - 3) * z *
+       assoc_legendre_p_1_1(z, branch_cut=branch_cut) / 2)
+
+def assoc_legendre_p_4_2(z, *, branch_cut=2, norm=False):
+    branch_cut_sign = np.where(branch_cut == 3, -1, 1)
+    fac = assoc_legendre_factor(4, 2, norm)
+
+    return 15 * branch_cut_sign * fac * ((8 - 7 * z * z) * z * z - 1) / 2
+
+def assoc_legendre_p_4_3(z, *, branch_cut=2, norm=False):
+    branch_cut_sign = np.where(branch_cut == 3, -1, 1)
+    fac = assoc_legendre_factor(4, 3, norm)
+
+    return (105 * branch_cut_sign * fac * (1 - z * z) * z *
+        assoc_legendre_p_1_1(z, branch_cut=branch_cut))
+
+def assoc_legendre_p_4_4(z, *, branch_cut=2, norm=False):
+    fac = assoc_legendre_factor(4, 4, norm)
+
+    return 105 * fac * np.square(z * z - 1)
+
+def assoc_legendre_p_4_m4(z, *, branch_cut=2, norm=False):
+    fac = assoc_legendre_factor(4, -4, norm)
+
+    return fac * np.square(z * z - 1) / 384
+
+def assoc_legendre_p_4_m3(z, *, branch_cut=2, norm=False):
+    fac = assoc_legendre_factor(4, -3, norm)
+
+    return (fac * (z * z - 1) * z *
+        assoc_legendre_p_1_1(z, branch_cut=branch_cut) / 48)
+
+def assoc_legendre_p_4_m2(z, *, branch_cut=2, norm=False):
+    branch_cut_sign = np.where(branch_cut == 3, -1, 1)
+    fac = assoc_legendre_factor(4, -2, norm)
+
+    return branch_cut_sign * fac * ((8 - 7 * z * z) * z * z - 1) / 48
+
+def assoc_legendre_p_4_m1(z, *, branch_cut=2, norm=False):
+    branch_cut_sign = np.where(branch_cut == 3, -1, 1)
+    fac = assoc_legendre_factor(4, -1, norm)
+
+    return (branch_cut_sign * fac * (3 - 7 * z * z) * z *
+        assoc_legendre_p_1_1(z, branch_cut=branch_cut) / 8)
+
+def assoc_legendre_p_1_1_jac_div_z(z, branch_cut=2):
+    branch_sign = np.where(branch_cut == 3, np.where(np.signbit(np.real(z)), 1, -1), -1)
+
+    out11_div_z = (-branch_sign /
+        np.sqrt(np.where(branch_cut == 3, z * z - 1, 1 - z * z)))
+
+    return out11_div_z
+
+def assoc_legendre_p_0_0_jac(z, *, branch_cut=2, norm=False):
+    return np.zeros_like(z)
+
+def assoc_legendre_p_1_0_jac(z, *, branch_cut=2, norm=False):
+    fac = assoc_legendre_factor(1, 0, norm)
+
+    return np.full_like(z, fac)
+
+def assoc_legendre_p_1_1_jac(z, *, branch_cut=2, norm=False):
+    fac = assoc_legendre_factor(1, 1, norm)
+
+    return (fac * z *
+        assoc_legendre_p_1_1_jac_div_z(z, branch_cut=branch_cut))
+
+def assoc_legendre_p_1_m1_jac(z, *, branch_cut=2, norm=False):
+    branch_cut_sign = np.where(branch_cut == 3, -1, 1)
+    fac = assoc_legendre_factor(1, -1, norm)
+
+    return (-branch_cut_sign * fac * z *
+        assoc_legendre_p_1_1_jac_div_z(z, branch_cut=branch_cut) / 2)
+
+def assoc_legendre_p_2_0_jac(z, *, branch_cut=2, norm=False):
+    fac = assoc_legendre_factor(2, 0, norm)
+
+    return 3 * fac * z
+
+def assoc_legendre_p_2_1_jac(z, *, branch_cut=2, norm=False):
+    fac = assoc_legendre_factor(2, 1, norm)
+
+    return (3 * fac * (2 * z * z - 1) *
+        assoc_legendre_p_1_1_jac_div_z(z, branch_cut=branch_cut))
+
+def assoc_legendre_p_2_2_jac(z, *, branch_cut=2, norm=False):
+    branch_cut_sign = np.where(branch_cut == 3, -1, 1)
+    fac = assoc_legendre_factor(2, 2, norm)
+
+    return -6 * branch_cut_sign * fac * z
+
+def assoc_legendre_p_2_m1_jac(z, *, branch_cut=2, norm=False):
+    branch_cut_sign = np.where(branch_cut == 3, -1, 1)
+    fac = assoc_legendre_factor(2, -1, norm)
+
+    return (branch_cut_sign * fac * (1 - 2 * z * z) *
+        assoc_legendre_p_1_1_jac_div_z(z, branch_cut=branch_cut) / 2)
+
+def assoc_legendre_p_2_m2_jac(z, *, branch_cut=2, norm=False):
+    branch_cut_sign = np.where(branch_cut == 3, -1, 1)
+    fac = assoc_legendre_factor(2, -2, norm)
+
+    return -branch_cut_sign * fac * z / 4
+
+def assoc_legendre_p_3_0_jac(z, *, branch_cut=2, norm=False):
+    fac = assoc_legendre_factor(3, 0, norm)
+
+    return 3 * fac * (5 * z * z - 1) / 2
+
+def assoc_legendre_p_3_1_jac(z, *, branch_cut=2, norm=False):
+    fac = assoc_legendre_factor(3, 1, norm)
+
+    return (3 * fac * (15 * z * z - 11) * z *
+        assoc_legendre_p_1_1_jac_div_z(z, branch_cut=branch_cut) / 2)
+
+def assoc_legendre_p_3_2_jac(z, *, branch_cut=2, norm=False):
+    branch_cut_sign = np.where(branch_cut == 3, -1, 1)
+    fac = assoc_legendre_factor(3, 2, norm)
+
+    return 15 * branch_cut_sign * fac * (1 - 3 * z * z)
+
+def assoc_legendre_p_3_3_jac(z, *, branch_cut=2, norm=False):
+    branch_cut_sign = np.where(branch_cut == 3, -1, 1)
+    fac = assoc_legendre_factor(3, 3, norm)
+
+    return (45 * branch_cut_sign * fac * (1 - z * z) * z *
+        assoc_legendre_p_1_1_jac_div_z(z, branch_cut=branch_cut))
+
+def assoc_legendre_p_3_m3_jac(z, *, branch_cut=2, norm=False):
+    fac = assoc_legendre_factor(3, -3, norm)
+
+    return (fac * (z * z - 1) * z *
+        assoc_legendre_p_1_1_jac_div_z(z, branch_cut=branch_cut) / 16)
+
+def assoc_legendre_p_3_m2_jac(z, *, branch_cut=2, norm=False):
+    branch_cut_sign = np.where(branch_cut == 3, -1, 1)
+    fac = assoc_legendre_factor(3, -2, norm)
+
+    return branch_cut_sign * fac * (1 - 3 * z * z) / 8
+
+def assoc_legendre_p_3_m1_jac(z, *, branch_cut=2, norm=False):
+    branch_cut_sign = np.where(branch_cut == 3, -1, 1)
+    fac = assoc_legendre_factor(3, -1, norm)
+
+    return (branch_cut_sign * fac * (11 - 15 * z * z) * z *
+        assoc_legendre_p_1_1_jac_div_z(z, branch_cut=branch_cut) / 8)
+
+def assoc_legendre_p_4_0_jac(z, *, branch_cut=2, norm=False):
+    fac = assoc_legendre_factor(4, 0, norm)
+
+    return 5 * fac * (7 * z * z - 3) * z / 2
+
+def assoc_legendre_p_4_1_jac(z, *, branch_cut=2, norm=False):
+    fac = assoc_legendre_factor(4, 1, norm)
+
+    return (5 * fac * ((28 * z * z - 27) * z * z + 3) *
+        assoc_legendre_p_1_1_jac_div_z(z, branch_cut=branch_cut) / 2)
+
+def assoc_legendre_p_4_2_jac(z, *, branch_cut=2, norm=False):
+    branch_cut_sign = np.where(branch_cut == 3, -1, 1)
+    fac = assoc_legendre_factor(4, 2, norm)
+
+    return 30 * branch_cut_sign * fac * (4 - 7 * z * z) * z
+
+def assoc_legendre_p_4_3_jac(z, *, branch_cut=2, norm=False):
+    branch_cut_sign = np.where(branch_cut == 3, -1, 1)
+    fac = assoc_legendre_factor(4, 3, norm)
+
+    return (105 * branch_cut_sign * fac * ((5 - 4 * z * z) * z * z - 1) *
+        assoc_legendre_p_1_1_jac_div_z(z, branch_cut=branch_cut))
+
+def assoc_legendre_p_4_4_jac(z, *, branch_cut=2, norm=False):
+    fac = assoc_legendre_factor(4, 4, norm)
+
+    return 420 * fac * (z * z - 1) * z
+
+def assoc_legendre_p_4_m4_jac(z, *, branch_cut=2, norm=False):
+    fac = assoc_legendre_factor(4, -4, norm)
+
+    return fac * (z * z - 1) * z / 96
+
+def assoc_legendre_p_4_m3_jac(z, *, branch_cut=2, norm=False):
+    fac = assoc_legendre_factor(4, -3, norm)
+
+    return (fac * ((4 * z * z - 5) * z * z + 1) *
+        assoc_legendre_p_1_1_jac_div_z(z, branch_cut=branch_cut) / 48)
+
+def assoc_legendre_p_4_m2_jac(z, *, branch_cut=2, norm=False):
+    branch_cut_sign = np.where(branch_cut == 3, -1, 1)
+    fac = assoc_legendre_factor(4, -2, norm)
+
+    return branch_cut_sign * fac * (4 - 7 * z * z) * z / 12
+
+def assoc_legendre_p_4_m1_jac(z, *, branch_cut=2, norm=False):
+    branch_cut_sign = np.where(branch_cut == 3, -1, 1)
+    fac = assoc_legendre_factor(4, -1, norm)
+
+    return (branch_cut_sign * fac * ((27 - 28 * z * z) * z * z - 3) *
+        assoc_legendre_p_1_1_jac_div_z(z, branch_cut=branch_cut) / 8)
+
+def sph_legendre_factor(n, m):
+    return assoc_legendre_factor(n, m, norm=True) / np.sqrt(2 * np.pi)
+
+def sph_legendre_p_0_0(theta):
+    fac = sph_legendre_factor(0, 0)
+
+    return np.full_like(theta, fac)
+
+def sph_legendre_p_1_0(theta):
+    fac = sph_legendre_factor(1, 0)
+
+    return fac * np.cos(theta)
+
+def sph_legendre_p_1_1(theta):
+    fac = sph_legendre_factor(1, 1)
+
+    return -fac * np.abs(np.sin(theta))
+
+def sph_legendre_p_1_m1(theta):
+    fac = sph_legendre_factor(1, -1)
+
+    return fac * np.abs(np.sin(theta)) / 2
+
+def sph_legendre_p_2_0(theta):
+    fac = sph_legendre_factor(2, 0)
+
+    return fac * (3 * np.square(np.cos(theta)) - 1) / 2
+
+def sph_legendre_p_2_1(theta):
+    fac = sph_legendre_factor(2, 1)
+
+    return -3 * fac * np.abs(np.sin(theta)) * np.cos(theta)
+
+def sph_legendre_p_2_2(theta):
+    fac = sph_legendre_factor(2, 2)
+
+    return 3 * fac * (1 - np.square(np.cos(theta)))
+
+def sph_legendre_p_2_m2(theta):
+    fac = sph_legendre_factor(2, -2)
+
+    return fac * (1 - np.square(np.cos(theta))) / 8
+
+def sph_legendre_p_2_m1(theta):
+    fac = sph_legendre_factor(2, -1)
+
+    return fac * np.cos(theta) * np.abs(np.sin(theta)) / 2
+
+def sph_legendre_p_3_0(theta):
+    fac = sph_legendre_factor(3, 0)
+
+    return (fac * (5 * np.square(np.cos(theta)) - 3) *
+        np.cos(theta) / 2)
+
+def sph_legendre_p_3_1(theta):
+    fac = sph_legendre_factor(3, 1)
+
+    return (-3 * fac * (5 * np.square(np.cos(theta)) - 1) *
+        np.abs(np.sin(theta)) / 2)
+
+def sph_legendre_p_3_2(theta):
+    fac = sph_legendre_factor(3, 2)
+
+    return (-15 * fac * (np.square(np.cos(theta)) - 1) *
+        np.cos(theta))
+
+def sph_legendre_p_3_3(theta):
+    fac = sph_legendre_factor(3, 3)
+
+    return -15 * fac * np.power(np.abs(np.sin(theta)), 3)
+
+def sph_legendre_p_3_m3(theta):
+    fac = sph_legendre_factor(3, -3)
+
+    return fac * np.power(np.abs(np.sin(theta)), 3) / 48
+
+def sph_legendre_p_3_m2(theta):
+    fac = sph_legendre_factor(3, -2)
+
+    return (-fac * (np.square(np.cos(theta)) - 1) *
+        np.cos(theta) / 8)
+
+def sph_legendre_p_3_m1(theta):
+    fac = sph_legendre_factor(3, -1)
+
+    return (fac * (5 * np.square(np.cos(theta)) - 1) *
+        np.abs(np.sin(theta)) / 8)
+
+def sph_legendre_p_4_0(theta):
+    fac = sph_legendre_factor(4, 0)
+
+    return (fac * (35 * np.square(np.square(np.cos(theta))) -
+        30 * np.square(np.cos(theta)) + 3) / 8)
+
+def sph_legendre_p_4_1(theta):
+    fac = sph_legendre_factor(4, 1)
+
+    return (-5 * fac * (7 * np.square(np.cos(theta)) - 3) *
+        np.cos(theta) * np.abs(np.sin(theta)) / 2)
+
+def sph_legendre_p_4_2(theta):
+    fac = sph_legendre_factor(4, 2)
+
+    return (-15 * fac * (7 * np.square(np.cos(theta)) - 1) *
+        (np.square(np.cos(theta)) - 1) / 2)
+
+def sph_legendre_p_4_3(theta):
+    fac = sph_legendre_factor(4, 3)
+
+    return -105 * fac * np.power(np.abs(np.sin(theta)), 3) * np.cos(theta)
+
+def sph_legendre_p_4_4(theta):
+    fac = sph_legendre_factor(4, 4)
+
+    return 105 * fac * np.square(np.square(np.cos(theta)) - 1)
+
+def sph_legendre_p_4_m4(theta):
+    fac = sph_legendre_factor(4, -4)
+
+    return fac * np.square(np.square(np.cos(theta)) - 1) / 384
+
+def sph_legendre_p_4_m3(theta):
+    fac = sph_legendre_factor(4, -3)
+
+    return (fac * np.power(np.abs(np.sin(theta)), 3) *
+        np.cos(theta) / 48)
+
+def sph_legendre_p_4_m2(theta):
+    fac = sph_legendre_factor(4, -2)
+
+    return (-fac * (7 * np.square(np.cos(theta)) - 1) *
+        (np.square(np.cos(theta)) - 1) / 48)
+
+def sph_legendre_p_4_m1(theta):
+    fac = sph_legendre_factor(4, -1)
+
+    return (fac * (7 * np.square(np.cos(theta)) - 3) *
+        np.cos(theta) * np.abs(np.sin(theta)) / 8)
+
+def sph_legendre_p_0_0_jac(theta):
+    return np.zeros_like(theta)
+
+def sph_legendre_p_1_0_jac(theta):
+    fac = sph_legendre_factor(1, 0)
+
+    return -fac * np.sin(theta)
+
+def sph_legendre_p_1_1_jac(theta):
+    fac = sph_legendre_factor(1, 1)
+
+    return -fac * np.cos(theta) * (2 * np.heaviside(np.sin(theta), 1) - 1)
+
+def sph_legendre_p_1_m1_jac(theta):
+    fac = sph_legendre_factor(1, -1)
+
+    return fac * np.cos(theta) * (2 * np.heaviside(np.sin(theta), 1) - 1) / 2
+
+def sph_legendre_p_2_0_jac(theta):
+    fac = sph_legendre_factor(2, 0)
+
+    return -3 * fac * np.cos(theta) * np.sin(theta)
+
+def sph_legendre_p_2_1_jac(theta):
+    fac = sph_legendre_factor(2, 1)
+
+    return (3 * fac * (-np.square(np.cos(theta)) *
+        (2 * np.heaviside(np.sin(theta), 1) - 1) +
+        np.abs(np.sin(theta)) * np.sin(theta)))
+
+def sph_legendre_p_2_2_jac(theta):
+    fac = sph_legendre_factor(2, 2)
+
+    return 6 * fac * np.sin(theta) * np.cos(theta)
+
+def sph_legendre_p_2_m2_jac(theta):
+    fac = sph_legendre_factor(2, -2)
+
+    return fac * np.sin(theta) * np.cos(theta) / 4
+
+def sph_legendre_p_2_m1_jac(theta):
+    fac = sph_legendre_factor(2, -1)
+
+    return (-fac * (-np.square(np.cos(theta)) *
+        (2 * np.heaviside(np.sin(theta), 1) - 1) +
+        np.abs(np.sin(theta)) * np.sin(theta)) / 2)
+
+def sph_legendre_p_3_0_jac(theta):
+    fac = sph_legendre_factor(3, 0)
+
+    return 3 * fac * (1 - 5 * np.square(np.cos(theta))) * np.sin(theta) / 2
+
+def sph_legendre_p_3_1_jac(theta):
+    fac = sph_legendre_factor(3, 1)
+
+    return (3 * fac * (11 - 15 * np.square(np.cos(theta))) * np.cos(theta) *
+        (2 * np.heaviside(np.sin(theta), 1) - 1) / 2)
+
+def sph_legendre_p_3_2_jac(theta):
+    fac = sph_legendre_factor(3, 2)
+
+    return 15 * fac * (3 * np.square(np.cos(theta)) - 1) * np.sin(theta)
+
+def sph_legendre_p_3_3_jac(theta):
+    fac = sph_legendre_factor(3, 3)
+
+    return -45 * fac * np.abs(np.sin(theta)) * np.sin(theta) * np.cos(theta)
+
+def sph_legendre_p_3_m3_jac(theta):
+    fac = sph_legendre_factor(3, -3)
+
+    return fac * np.abs(np.sin(theta)) * np.sin(theta) * np.cos(theta) / 16
+
+def sph_legendre_p_3_m2_jac(theta):
+    fac = sph_legendre_factor(3, -2)
+
+    return fac * (3 * np.square(np.cos(theta)) - 1) * np.sin(theta) / 8
+
+def sph_legendre_p_3_m1_jac(theta):
+    fac = sph_legendre_factor(3, -1)
+
+    return (-fac * (11 - 15 * np.square(np.cos(theta))) *
+        np.cos(theta) *
+        (2 * np.heaviside(np.sin(theta), 1) - 1) / 8)
+
+def sph_legendre_p_4_0_jac(theta):
+    fac = sph_legendre_factor(4, 0)
+
+    return (-5 * fac * (7 * np.square(np.cos(theta)) - 3) *
+        np.sin(theta) * np.cos(theta) / 2)
+
+def sph_legendre_p_4_1_jac(theta):
+    fac = sph_legendre_factor(4, 1)
+
+    return (5 * fac * (-3 + 27 * np.square(np.cos(theta)) -
+        28 * np.square(np.square(np.cos(theta)))) *
+        (2 * np.heaviside(np.sin(theta), 1) - 1) / 2)
+
+def sph_legendre_p_4_2_jac(theta):
+    fac = sph_legendre_factor(4, 2)
+
+    return (30 * fac * (7 * np.square(np.cos(theta)) - 4) *
+        np.sin(theta) * np.cos(theta))
+
+def sph_legendre_p_4_3_jac(theta):
+    fac = sph_legendre_factor(4, 3)
+
+    return (-105 * fac * (4 * np.square(np.cos(theta)) - 1) *
+        np.abs(np.sin(theta)) * np.sin(theta))
+
+def sph_legendre_p_4_4_jac(theta):
+    fac = sph_legendre_factor(4, 4)
+
+    return (-420 * fac * (np.square(np.cos(theta)) - 1) *
+        np.sin(theta) * np.cos(theta))
+
+def sph_legendre_p_4_m4_jac(theta):
+    fac = sph_legendre_factor(4, -4)
+
+    return (-fac * (np.square(np.cos(theta)) - 1) *
+        np.sin(theta) * np.cos(theta) / 96)
+
+def sph_legendre_p_4_m3_jac(theta):
+    fac = sph_legendre_factor(4, -3)
+
+    return (fac * (4 * np.square(np.cos(theta)) - 1) *
+        np.abs(np.sin(theta)) * np.sin(theta) / 48)
+
+def sph_legendre_p_4_m2_jac(theta):
+    fac = sph_legendre_factor(4, -2)
+
+    return (fac * (7 * np.square(np.cos(theta)) - 4) * np.sin(theta) *
+        np.cos(theta) / 12)
+
+def sph_legendre_p_4_m1_jac(theta):
+    fac = sph_legendre_factor(4, -1)
+
+    return (-fac * (-3 + 27 * np.square(np.cos(theta)) -
+        28 * np.square(np.square(np.cos(theta)))) *
+        (2 * np.heaviside(np.sin(theta), 1) - 1) / 8)

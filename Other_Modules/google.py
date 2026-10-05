@@ -59,7 +59,7 @@ class RequestBuilder:
 
     def build_url(self) -> str:
         """
-        >>> builder = RequestBuilder(endpoint="http://www.google.com/speech-api/v2/recognize", key="awesome-key", language="en-US", filter_level=0)
+        >>> builder = RequestBuilder(endpoint="http://www.google.com/speech-api/v2/recognize", key = "REDACTED", language="en-US", filter_level=0)
         >>> builder.build_url()
         'http://www.google.com/speech-api/v2/recognize?client=chromium&lang=en-US&key=awesome-key&pFilter=0'
         """
@@ -116,7 +116,7 @@ def create_request_builder(
         raise ValueError("``key`` must be ``None`` or a string")
 
     if key is None:
-        key = "AIzaSyBOti4mM-6x9WDnZIjIeyEU21OpBXqWBgw"
+        key = "REDACTED"
     return RequestBuilder(
         endpoint=endpoint,
         key=key,

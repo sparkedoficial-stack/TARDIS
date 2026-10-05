@@ -1,7131 +1,8913 @@
-"""
-This is only meant to add docs to objects defined in C-extension modules.
-The purpose is to allow easier editing of the docstrings without
-requiring a re-compile.
-
-NOTE: Many of the methods of ndarray have corresponding functions.
-      If you update these docstrings, please keep also the ones in
-      _core/fromnumeric.py, matrixlib/defmatrix.py up-to-date.
-
-"""
-
-import textwrap
-
-from numpy._core.function_base import add_newdoc
-from numpy._core.overrides import get_array_function_like_doc  # noqa: F401
-
-###############################################################################
+# Docstrings for generated ufuncs
 #
-# flatiter
-#
-# flatiter needs a toplevel description
-#
-###############################################################################
+# The syntax is designed to look like the function add_newdoc is being
+# called from numpy.lib, but in this file add_newdoc puts the
+# docstrings in a dictionary. This dictionary is used in
+# _generate_pyx.py to generate the docstrings for the ufuncs in
+# scipy.special at the C level when the ufuncs are created at compile
+# time.
 
-add_newdoc('numpy._core', 'flatiter',
+docdict: dict[str, str] = {}
+
+
+def get(name):
+    return docdict.get(name)
+
+
+def add_newdoc(name, doc):
+    docdict[name] = doc
+
+
+add_newdoc("_sf_error_test_function",
     """
-    Flat iterator object to iterate over arrays.
-
-    A `flatiter` iterator is returned by ``x.flat`` for any array `x`.
-    It allows iterating over the array as if it were a 1-D array,
-    either in a for-loop or by calling its `next` method.
-
-    Iteration is done in row-major, C-style order (the last
-    index varying the fastest). The iterator can also be indexed using
-    basic slicing or advanced indexing.
-
-    See Also
-    --------
-    ndarray.flat : Return a flat iterator over an array.
-    ndarray.flatten : Returns a flattened copy of an array.
-
-    Notes
-    -----
-    A `flatiter` iterator can not be constructed directly from Python code
-    by calling the `flatiter` constructor.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> x = np.arange(6).reshape(2, 3)
-    >>> fl = x.flat
-    >>> type(fl)
-    <class 'numpy.flatiter'>
-    >>> for item in fl:
-    ...     print(item)
-    ...
-    0
-    1
-    2
-    3
-    4
-    5
-
-    >>> fl[2:4]
-    array([2, 3])
-
+    Private function; do not use.
     """)
 
-# flatiter attributes
 
-add_newdoc('numpy._core', 'flatiter', ('base',
+add_newdoc("_cosine_cdf",
     """
-    A reference to the array that is iterated over.
+    _cosine_cdf(x)
 
-    Examples
-    --------
-    >>> import numpy as np
-    >>> x = np.arange(5)
-    >>> fl = x.flat
-    >>> fl.base is x
-    True
+    Cumulative distribution function (CDF) of the cosine distribution::
 
-    """))
-
-add_newdoc('numpy._core', 'flatiter', ('coords',
-    """
-    An N-dimensional tuple of current coordinates.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> x = np.arange(6).reshape(2, 3)
-    >>> fl = x.flat
-    >>> fl.coords
-    (0, 0)
-    >>> next(fl)
-    0
-    >>> fl.coords
-    (0, 1)
-
-    """))
-
-add_newdoc('numpy._core', 'flatiter', ('index',
-    """
-    Current flat index into the array.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> x = np.arange(6).reshape(2, 3)
-    >>> fl = x.flat
-    >>> fl.index
-    0
-    >>> next(fl)
-    0
-    >>> fl.index
-    1
-
-    """))
-
-# flatiter methods
-
-add_newdoc('numpy._core', 'flatiter', ('__array__',
-    """
-    __array__($self, dtype=None, /, *, copy=None)
-    --
-
-    flat.__array__([dtype], *, copy=None)
-
-    Get array from iterator
-
-    """))
-
-add_newdoc('numpy._core', 'flatiter', ('copy',
-    """
-    copy($self, /)
-    --
-
-    flat.copy()
-
-    Get a copy of the iterator as a 1-D array.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> x = np.arange(6).reshape(2, 3)
-    >>> x
-    array([[0, 1, 2],
-           [3, 4, 5]])
-    >>> fl = x.flat
-    >>> fl.copy()
-    array([0, 1, 2, 3, 4, 5])
-
-    """))
-
-
-###############################################################################
-#
-# nditer
-#
-###############################################################################
-
-add_newdoc('numpy._core', 'nditer',
-    """
-    nditer(
-        op,
-        flags=None,
-        op_flags=None,
-        op_dtypes=None,
-        order='K',
-        casting='safe',
-        op_axes=None,
-        itershape=None,
-        buffersize=0,
-    )
-    --
-
-    nditer(op, flags=None, op_flags=None, op_dtypes=None, order='K',
-        casting='safe', op_axes=None, itershape=None, buffersize=0)
-
-    Efficient multi-dimensional iterator object to iterate over arrays.
-    To get started using this object, see the
-    :ref:`introductory guide to array iteration <arrays.nditer>`.
+                 {             0,              x < -pi
+        cdf(x) = { (pi + x + sin(x))/(2*pi),   -pi <= x <= pi
+                 {             1,              x > pi
 
     Parameters
     ----------
-    op : ndarray or sequence of array_like
-        The array(s) to iterate over.
-    flags : sequence of str, optional
-        Flags to control the behavior of the iterator.
-
-        * ``buffered`` enables buffering when required.
-        * ``c_index`` causes a C-order index to be tracked.
-        * ``f_index`` causes a Fortran-order index to be tracked.
-        * ``multi_index`` causes a multi-index, or a tuple of indices
-          with one per iteration dimension, to be tracked.
-        * ``common_dtype`` causes all the operands to be converted to
-          a common data type, with copying or buffering as necessary.
-        * ``copy_if_overlap`` causes the iterator to determine if read
-          operands have overlap with write operands, and make temporary
-          copies as necessary to avoid overlap. False positives (needless
-          copying) are possible in some cases.
-        * ``delay_bufalloc`` delays allocation of the buffers until
-          a reset() call is made. Allows ``allocate`` operands to
-          be initialized before their values are copied into the buffers.
-        * ``external_loop`` causes the ``values`` given to be
-          one-dimensional arrays with multiple values instead of
-          zero-dimensional arrays.
-        * ``grow_inner`` allows the ``value`` array sizes to be made
-          larger than the buffer size when both ``buffered`` and
-          ``external_loop`` is used.
-        * ``ranged`` allows the iterator to be restricted to a sub-range
-          of the iterindex values.
-        * ``refs_ok`` enables iteration of reference types, such as
-          object arrays.
-        * ``reduce_ok`` enables iteration of ``readwrite`` operands
-          which are broadcasted, also known as reduction operands.
-        * ``zerosize_ok`` allows `itersize` to be zero.
-    op_flags : list of list of str, optional
-        This is a list of flags for each operand. At minimum, one of
-        ``readonly``, ``readwrite``, or ``writeonly`` must be specified.
-
-        * ``readonly`` indicates the operand will only be read from.
-        * ``readwrite`` indicates the operand will be read from and written to.
-        * ``writeonly`` indicates the operand will only be written to.
-        * ``no_broadcast`` prevents the operand from being broadcasted.
-        * ``contig`` forces the operand data to be contiguous.
-        * ``aligned`` forces the operand data to be aligned.
-        * ``nbo`` forces the operand data to be in native byte order.
-        * ``copy`` allows a temporary read-only copy if required.
-        * ``updateifcopy`` allows a temporary read-write copy if required.
-        * ``allocate`` causes the array to be allocated if it is None
-          in the ``op`` parameter.
-        * ``no_subtype`` prevents an ``allocate`` operand from using a subtype.
-        * ``arraymask`` indicates that this operand is the mask to use
-          for selecting elements when writing to operands with the
-          'writemasked' flag set. The iterator does not enforce this,
-          but when writing from a buffer back to the array, it only
-          copies those elements indicated by this mask.
-        * ``writemasked`` indicates that only elements where the chosen
-          ``arraymask`` operand is True will be written to.
-        * ``overlap_assume_elementwise`` can be used to mark operands that are
-          accessed only in the iterator order, to allow less conservative
-          copying when ``copy_if_overlap`` is present.
-    op_dtypes : dtype or tuple of dtype(s), optional
-        The required data type(s) of the operands. If copying or buffering
-        is enabled, the data will be converted to/from their original types.
-    order : {'C', 'F', 'A', 'K'}, optional
-        Controls the iteration order. 'C' means C order, 'F' means
-        Fortran order, 'A' means 'F' order if all the arrays are Fortran
-        contiguous, 'C' order otherwise, and 'K' means as close to the
-        order the array elements appear in memory as possible. This also
-        affects the element memory order of ``allocate`` operands, as they
-        are allocated to be compatible with iteration order.
-        Default is 'K'.
-    casting : {'no', 'equiv', 'safe', 'same_kind', 'unsafe'}, optional
-        Controls what kind of data casting may occur when making a copy
-        or buffering.  Setting this to 'unsafe' is not recommended,
-        as it can adversely affect accumulations.
-
-        * 'no' means the data types should not be cast at all.
-        * 'equiv' means only byte-order changes are allowed.
-        * 'safe' means only casts which can preserve values are allowed.
-        * 'same_kind' means only safe casts or casts within a kind,
-          like float64 to float32, are allowed.
-        * 'unsafe' means any data conversions may be done.
-    op_axes : list of list of ints, optional
-        If provided, is a list of ints or None for each operands.
-        The list of axes for an operand is a mapping from the dimensions
-        of the iterator to the dimensions of the operand. A value of
-        -1 can be placed for entries, causing that dimension to be
-        treated as `newaxis`.
-    itershape : tuple of ints, optional
-        The desired shape of the iterator. This allows ``allocate`` operands
-        with a dimension mapped by op_axes not corresponding to a dimension
-        of a different operand to get a value not equal to 1 for that
-        dimension.
-    buffersize : int, optional
-        When buffering is enabled, controls the size of the temporary
-        buffers. Set to 0 for the default value.
-
-    Attributes
-    ----------
-    dtypes : tuple of dtype(s)
-        The data types of the values provided in `value`. This may be
-        different from the operand data types if buffering is enabled.
-        Valid only before the iterator is closed.
-    finished : bool
-        Whether the iteration over the operands is finished or not.
-    has_delayed_bufalloc : bool
-        If True, the iterator was created with the ``delay_bufalloc`` flag,
-        and no reset() function was called on it yet.
-    has_index : bool
-        If True, the iterator was created with either the ``c_index`` or
-        the ``f_index`` flag, and the property `index` can be used to
-        retrieve it.
-    has_multi_index : bool
-        If True, the iterator was created with the ``multi_index`` flag,
-        and the property `multi_index` can be used to retrieve it.
-    index
-        When the ``c_index`` or ``f_index`` flag was used, this property
-        provides access to the index. Raises a ValueError if accessed
-        and ``has_index`` is False.
-    iterationneedsapi : bool
-        Whether iteration requires access to the Python API, for example
-        if one of the operands is an object array.
-    iterindex : int
-        An index which matches the order of iteration.
-    itersize : int
-        Size of the iterator.
-    itviews
-        Structured view(s) of `operands` in memory, matching the reordered
-        and optimized iterator access pattern. Valid only before the iterator
-        is closed.
-    multi_index
-        When the ``multi_index`` flag was used, this property
-        provides access to the index. Raises a ValueError if accessed
-        accessed and ``has_multi_index`` is False.
-    ndim : int
-        The dimensions of the iterator.
-    nop : int
-        The number of iterator operands.
-    operands : tuple of operand(s)
-        The array(s) to be iterated over. Valid only before the iterator is
-        closed.
-    shape : tuple of ints
-        Shape tuple, the shape of the iterator.
-    value
-        Value of ``operands`` at current iteration. Normally, this is a
-        tuple of array scalars, but if the flag ``external_loop`` is used,
-        it is a tuple of one dimensional arrays.
-
-    Notes
-    -----
-    `nditer` supersedes `flatiter`.  The iterator implementation behind
-    `nditer` is also exposed by the NumPy C API.
-
-    The Python exposure supplies two iteration interfaces, one which follows
-    the Python iterator protocol, and another which mirrors the C-style
-    do-while pattern.  The native Python approach is better in most cases, but
-    if you need the coordinates or index of an iterator, use the C-style pattern.
-
-    Examples
-    --------
-    Here is how we might write an ``iter_add`` function, using the
-    Python iterator protocol:
-
-    >>> import numpy as np
-
-    >>> def iter_add_py(x, y, out=None):
-    ...     addop = np.add
-    ...     it = np.nditer([x, y, out], [],
-    ...                 [['readonly'], ['readonly'], ['writeonly','allocate']])
-    ...     with it:
-    ...         for (a, b, c) in it:
-    ...             addop(a, b, out=c)
-    ...         return it.operands[2]
-
-    Here is the same function, but following the C-style pattern:
-
-    >>> def iter_add(x, y, out=None):
-    ...    addop = np.add
-    ...    it = np.nditer([x, y, out], [],
-    ...                [['readonly'], ['readonly'], ['writeonly','allocate']])
-    ...    with it:
-    ...        while not it.finished:
-    ...            addop(it[0], it[1], out=it[2])
-    ...            it.iternext()
-    ...        return it.operands[2]
-
-    Here is an example outer product function:
-
-    >>> def outer_it(x, y, out=None):
-    ...     mulop = np.multiply
-    ...     it = np.nditer([x, y, out], ['external_loop'],
-    ...             [['readonly'], ['readonly'], ['writeonly', 'allocate']],
-    ...             op_axes=[list(range(x.ndim)) + [-1] * y.ndim,
-    ...                      [-1] * x.ndim + list(range(y.ndim)),
-    ...                      None])
-    ...     with it:
-    ...         for (a, b, c) in it:
-    ...             mulop(a, b, out=c)
-    ...         return it.operands[2]
-
-    >>> a = np.arange(2)+1
-    >>> b = np.arange(3)+1
-    >>> outer_it(a,b)
-    array([[1, 2, 3],
-           [2, 4, 6]])
-
-    Here is an example function which operates like a "lambda" ufunc:
-
-    >>> def luf(lamdaexpr, *args, **kwargs):
-    ...    '''luf(lambdaexpr, op1, ..., opn, out=None, order='K', casting='safe', buffersize=0)'''
-    ...    nargs = len(args)
-    ...    op = (kwargs.get('out',None),) + args
-    ...    it = np.nditer(op, ['buffered','external_loop'],
-    ...            [['writeonly','allocate','no_broadcast']] +
-    ...                            [['readonly','nbo','aligned']]*nargs,
-    ...            order=kwargs.get('order','K'),
-    ...            casting=kwargs.get('casting','safe'),
-    ...            buffersize=kwargs.get('buffersize',0))
-    ...    while not it.finished:
-    ...        it[0] = lamdaexpr(*it[1:])
-    ...        it.iternext()
-    ...    return it.operands[0]
-
-    >>> a = np.arange(5)
-    >>> b = np.ones(5)
-    >>> luf(lambda i,j:i*i + j/2, a, b)
-    array([  0.5,   1.5,   4.5,   9.5,  16.5])
-
-    If operand flags ``"writeonly"`` or ``"readwrite"`` are used the
-    operands may be views into the original data with the
-    `WRITEBACKIFCOPY` flag. In this case `nditer` must be used as a
-    context manager or the `nditer.close` method must be called before
-    using the result. The temporary data will be written back to the
-    original data when the :meth:`~object.__exit__` function is called
-    but not before:
-
-    >>> a = np.arange(6, dtype=np.int32)[::-2]
-    >>> with np.nditer(a, [],
-    ...        [['writeonly', 'updateifcopy']],
-    ...        casting='unsafe',
-    ...        op_dtypes=[np.dtype(np.float32)]) as i:
-    ...    x = i.operands[0]
-    ...    x[:] = [-1, -2, -3]
-    ...    # a still unchanged here
-    >>> a, x
-    (array([-1, -2, -3], dtype=int32), array([-1., -2., -3.], dtype=float32))
-
-    It is important to note that once the iterator is exited, dangling
-    references (like `x` in the example) may or may not share data with
-    the original data `a`. If writeback semantics were active, i.e. if
-    `x.base.flags.writebackifcopy` is `True`, then exiting the iterator
-    will sever the connection between `x` and `a`, writing to `x` will
-    no longer write to `a`. If writeback semantics are not active, then
-    `x.data` will still point at some part of `a.data`, and writing to
-    one will affect the other.
-
-    Context management and the `close` method appeared in version 1.15.0.
-
-    """)
-
-# nditer attributes
-
-add_newdoc('numpy._core', 'nditer', ('operands',
-    """
-    operands[`Slice`]
-
-    The array(s) to be iterated over. Valid only before the iterator is closed.
-    """))
-
-# nditer methods
-
-add_newdoc('numpy._core', 'nditer', ('copy',
-    """
-    copy($self, /)
-    --
-
-    copy()
-
-    Get a copy of the iterator in its current state.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> x = np.arange(10)
-    >>> y = x + 1
-    >>> it = np.nditer([x, y])
-    >>> next(it)
-    (array(0), array(1))
-    >>> it2 = it.copy()
-    >>> next(it2)
-    (array(1), array(2))
-
-    """))
-
-add_newdoc('numpy._core', 'nditer', ('debug_print',
-    """
-    debug_print($self, /)
-    --
-
-    debug_print()
-
-    Print the current state of the `nditer` instance and debug info to stdout.
-
-    """))
-
-add_newdoc('numpy._core', 'nditer', ('enable_external_loop',
-    """
-    enable_external_loop($self, /)
-    --
-
-    enable_external_loop()
-
-    When the "external_loop" was not used during construction, but
-    is desired, this modifies the iterator to behave as if the flag
-    was specified.
-
-    """))
-
-add_newdoc('numpy._core', 'nditer', ('iternext',
-    """
-    iternext($self, /)
-    --
-
-    iternext()
-
-    Check whether iterations are left, and perform a single internal iteration
-    without returning the result.  Used in the C-style pattern do-while
-    pattern.  For an example, see `nditer`.
+    x : array_like
+        `x` must contain real numbers.
 
     Returns
     -------
-    iternext : bool
-        Whether or not there are iterations left.
+    scalar or ndarray
+        The cosine distribution CDF evaluated at `x`.
 
-    """))
+    """)
 
-add_newdoc('numpy._core', 'nditer', ('remove_axis',
+add_newdoc("_cosine_invcdf",
     """
-    remove_axis($self, i, /)
-    --
+    _cosine_invcdf(p)
 
-    remove_axis(i, /)
+    Inverse of the cumulative distribution function (CDF) of the cosine
+    distribution.
 
-    Removes axis `i` from the iterator. Requires that the flag "multi_index"
-    be enabled.
+    The CDF of the cosine distribution is::
 
-    """))
+        cdf(x) = (pi + x + sin(x))/(2*pi)
 
-add_newdoc('numpy._core', 'nditer', ('remove_multi_index',
-    """
-    remove_multi_index($self, /)
-    --
-
-    remove_multi_index()
-
-    When the "multi_index" flag was specified, this removes it, allowing
-    the internal iteration structure to be optimized further.
-
-    """))
-
-add_newdoc('numpy._core', 'nditer', ('reset',
-    """
-    reset($self, /)
-    --
-
-    reset()
-
-    Reset the iterator to its initial state.
-
-    """))
-
-add_newdoc('numpy._core', 'nditer', ('close',
-    """
-    close($self, /)
-    --
-
-    close()
-
-    Resolve all writeback semantics in writeable operands.
-
-    See Also
-    --------
-    :ref:`nditer-context-manager`
-
-    """))
-
-# nested_iters
-
-add_newdoc('numpy._core', 'nested_iters',
-    """
-    nested_iters(
-        op,
-        axes,
-        flags=None,
-        op_flags=None,
-        op_dtypes=None,
-        order='K',
-        casting='safe',
-        buffersize=0,
-    )
-    --
-
-    nested_iters(op, axes, flags=None, op_flags=None, op_dtypes=None,
-    order='K', casting='safe', buffersize=0)
-
-    Create nditers for use in nested loops
-
-    Create a tuple of `nditer` objects which iterate in nested loops over
-    different axes of the op argument. The first iterator is used in the
-    outermost loop, the last in the innermost loop. Advancing one will
-    change the subsequent iterators to point at its new element.
+    This function computes the inverse of cdf(x).
 
     Parameters
     ----------
-    op : ndarray or sequence of array_like
-        The array(s) to iterate over.
-    axes : list of list of int
-        Each item is used as an "op_axes" argument to an nditer
-    flags, op_flags, op_dtypes, order, casting, buffersize (optional)
-        See `nditer` parameters of the same name
+    p : array_like
+        `p` must contain real numbers in the interval ``0 <= p <= 1``.
+        `nan` is returned for values of `p` outside the interval [0, 1].
 
     Returns
     -------
-    iters : tuple of nditer
-        An nditer for each item in `axes`, outermost first
-
-    See Also
-    --------
-    nditer
-
-    Examples
-    --------
-
-    Basic usage. Note how y is the "flattened" version of
-    [a[:, 0, :], a[:, 1, 0], a[:, 2, :]] since we specified
-    the first iter's axes as [1]
-
-    >>> import numpy as np
-    >>> a = np.arange(12).reshape(2, 3, 2)
-    >>> i, j = np.nested_iters(a, [[1], [0, 2]], flags=["multi_index"])
-    >>> for x in i:
-    ...      print(i.multi_index)
-    ...      for y in j:
-    ...          print('', j.multi_index, y)
-    (0,)
-     (0, 0) 0
-     (0, 1) 1
-     (1, 0) 6
-     (1, 1) 7
-    (1,)
-     (0, 0) 2
-     (0, 1) 3
-     (1, 0) 8
-     (1, 1) 9
-    (2,)
-     (0, 0) 4
-     (0, 1) 5
-     (1, 0) 10
-     (1, 1) 11
+    scalar or ndarray
+        The inverse of the cosine distribution CDF evaluated at `p`.
 
     """)
 
-###############################################################################
-#
-# broadcast
-#
-###############################################################################
-
-add_newdoc('numpy._core', 'broadcast',
+add_newdoc("_ellip_harm",
     """
-    broadcast(*arrays)
-    --
+    Internal function, use `ellip_harm` instead.
+    """)
 
-    Produce an object that mimics broadcasting.
+add_newdoc("_ellip_norm",
+    """
+    Internal function, use `ellip_norm` instead.
+    """)
+
+add_newdoc("wrightomega",
+    r"""
+    wrightomega(z, out=None)
+
+    Wright Omega function.
+
+    Defined as the solution to
+
+    .. math::
+
+        \omega + \log(\omega) = z
+
+    where :math:`\log` is the principal branch of the complex logarithm.
 
     Parameters
     ----------
-    in1, in2, ... : array_like
-        Input parameters.
-
-    Returns
-    -------
-    b : broadcast object
-        Broadcast the input parameters against one another, and
-        return an object that encapsulates the result.
-        Amongst others, it has ``shape`` and ``nd`` properties, and
-        may be used as an iterator.
-
-    See Also
-    --------
-    broadcast_arrays
-    broadcast_to
-    broadcast_shapes
-
-    Examples
-    --------
-
-    Manually adding two vectors, using broadcasting:
-
-    >>> import numpy as np
-    >>> x = np.array([[1], [2], [3]])
-    >>> y = np.array([4, 5, 6])
-    >>> b = np.broadcast(x, y)
-
-    >>> out = np.empty(b.shape)
-    >>> out.flat = [u+v for (u,v) in b]
-    >>> out
-    array([[5.,  6.,  7.],
-           [6.,  7.,  8.],
-           [7.,  8.,  9.]])
-
-    Compare against built-in broadcasting:
-
-    >>> x + y
-    array([[5, 6, 7],
-           [6, 7, 8],
-           [7, 8, 9]])
-
-    """)
-
-# attributes
-
-add_newdoc('numpy._core', 'broadcast', ('index',
-    """
-    current index in broadcasted result
-
-    Examples
-    --------
-
-    >>> import numpy as np
-    >>> x = np.array([[1], [2], [3]])
-    >>> y = np.array([4, 5, 6])
-    >>> b = np.broadcast(x, y)
-    >>> b.index
-    0
-    >>> next(b), next(b), next(b)
-    ((1, 4), (1, 5), (1, 6))
-    >>> b.index
-    3
-
-    """))
-
-add_newdoc('numpy._core', 'broadcast', ('iters',
-    """
-    tuple of iterators along ``self``'s "components."
-
-    Returns a tuple of `numpy.flatiter` objects, one for each "component"
-    of ``self``.
-
-    See Also
-    --------
-    numpy.flatiter
-
-    Examples
-    --------
-
-    >>> import numpy as np
-    >>> x = np.array([1, 2, 3])
-    >>> y = np.array([[4], [5], [6]])
-    >>> b = np.broadcast(x, y)
-    >>> row, col = b.iters
-    >>> next(row), next(col)
-    (1, 4)
-
-    """))
-
-add_newdoc('numpy._core', 'broadcast', ('ndim',
-    """
-    Number of dimensions of broadcasted result. Alias for `nd`.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> x = np.array([1, 2, 3])
-    >>> y = np.array([[4], [5], [6]])
-    >>> b = np.broadcast(x, y)
-    >>> b.ndim
-    2
-
-    """))
-
-add_newdoc('numpy._core', 'broadcast', ('nd',
-    """
-    Number of dimensions of broadcasted result. For code intended for NumPy
-    1.12.0 and later the more consistent `ndim` is preferred.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> x = np.array([1, 2, 3])
-    >>> y = np.array([[4], [5], [6]])
-    >>> b = np.broadcast(x, y)
-    >>> b.nd
-    2
-
-    """))
-
-add_newdoc('numpy._core', 'broadcast', ('numiter',
-    """
-    Number of iterators possessed by the broadcasted result.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> x = np.array([1, 2, 3])
-    >>> y = np.array([[4], [5], [6]])
-    >>> b = np.broadcast(x, y)
-    >>> b.numiter
-    2
-
-    """))
-
-add_newdoc('numpy._core', 'broadcast', ('shape',
-    """
-    Shape of broadcasted result.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> x = np.array([1, 2, 3])
-    >>> y = np.array([[4], [5], [6]])
-    >>> b = np.broadcast(x, y)
-    >>> b.shape
-    (3, 3)
-
-    """))
-
-add_newdoc('numpy._core', 'broadcast', ('size',
-    """
-    Total size of broadcasted result.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> x = np.array([1, 2, 3])
-    >>> y = np.array([[4], [5], [6]])
-    >>> b = np.broadcast(x, y)
-    >>> b.size
-    9
-
-    """))
-
-# methods
-
-add_newdoc('numpy._core', 'broadcast', ('reset',
-    """
-    reset($self, /)
-    --
-
-    reset()
-
-    Reset the broadcasted result's iterator(s).
-
-    Parameters
-    ----------
-    None
-
-    Returns
-    -------
-    None
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> x = np.array([1, 2, 3])
-    >>> y = np.array([[4], [5], [6]])
-    >>> b = np.broadcast(x, y)
-    >>> b.index
-    0
-    >>> next(b), next(b), next(b)
-    ((1, 4), (2, 4), (3, 4))
-    >>> b.index
-    3
-    >>> b.reset()
-    >>> b.index
-    0
-
-    """))
-
-###############################################################################
-#
-# numpy functions
-#
-###############################################################################
-
-add_newdoc('numpy._core.multiarray', 'array',
-    """
-    array(
-        object,
-        dtype=None,
-        *,
-        copy=True,
-        order='K',
-        subok=False,
-        ndmin=0,
-        ndmax=0,
-        like=None,
-    )
-    --
-
-    array(object, dtype=None, *, copy=True, order='K', subok=False, ndmin=0,
-          ndmax=0, like=None)
-
-    Create an array.
-
-    Parameters
-    ----------
-    object : array_like
-        An array, any object exposing the array interface, an object whose
-        ``__array__`` method returns an array, or any (nested) sequence.
-        If object is a scalar, a 0-dimensional array containing object is
-        returned.
-    dtype : data-type, optional
-        The desired data-type for the array. If not given, NumPy will try to use
-        a default ``dtype`` that can represent the values (by applying promotion
-        rules when necessary.)
-    copy : bool, optional
-        If ``True`` (default), then the array data is copied. If ``None``,
-        a copy will only be made if ``__array__`` returns a copy, if obj is
-        a nested sequence, or if a copy is needed to satisfy any of the other
-        requirements (``dtype``, ``order``, etc.). Note that any copy of
-        the data is shallow, i.e., for arrays with object dtype, the new
-        array will point to the same objects. See Examples for `ndarray.copy`.
-        For ``False`` it raises a ``ValueError`` if a copy cannot be avoided.
-        Default: ``True``.
-    order : {'K', 'A', 'C', 'F'}, optional
-        Specify the memory layout of the array. If object is not an array, the
-        newly created array will be in C order (row major) unless 'F' is
-        specified, in which case it will be in Fortran order (column major).
-        If object is an array the following holds.
-
-        ===== ========= ===================================================
-        order  no copy                     copy=True
-        ===== ========= ===================================================
-        'K'   unchanged F & C order preserved, otherwise most similar order
-        'A'   unchanged F order if input is F and not C, otherwise C order
-        'C'   C order   C order
-        'F'   F order   F order
-        ===== ========= ===================================================
-
-        When ``copy=None`` and a copy is made for other reasons, the result is
-        the same as if ``copy=True``, with some exceptions for 'A', see the
-        Notes section. The default order is 'K'.
-    subok : bool, optional
-        If True, then sub-classes will be passed-through, otherwise
-        the returned array will be forced to be a base-class array (default).
-    ndmin : int, optional
-        Specifies the minimum number of dimensions that the resulting
-        array should have.  Ones will be prepended to the shape as
-        needed to meet this requirement.
-    ndmax : int, optional
-        Specifies the maximum number of dimensions to create when inferring
-        shape from nested sequences. By default (ndmax=0), NumPy recurses
-        through all nesting levels (up to the compile-time constant
-        ``NPY_MAXDIMS``).
-        Setting ``ndmax`` stops recursion at the specified depth, preserving
-        deeper nested structures as objects instead of promoting them to
-        higher-dimensional arrays. In this case, ``dtype=np.object_`` is required.
-
-        .. versionadded:: 2.4.0
-    ${ARRAY_FUNCTION_LIKE}
-
-        .. versionadded:: 1.20.0
-
-    Returns
-    -------
-    out : ndarray
-        An array object satisfying the specified requirements.
-
-    See Also
-    --------
-    empty_like : Return an empty array with shape and type of input.
-    ones_like : Return an array of ones with shape and type of input.
-    zeros_like : Return an array of zeros with shape and type of input.
-    full_like : Return a new array with shape of input filled with value.
-    empty : Return a new uninitialized array.
-    ones : Return a new array setting values to one.
-    zeros : Return a new array setting values to zero.
-    full : Return a new array of given shape filled with value.
-    copy : Return an array copy of the given object.
-
-
-    Notes
-    -----
-    When order is 'A' and ``object`` is an array in neither 'C' nor 'F' order,
-    and a copy is forced by a change in dtype, then the order of the result is
-    not necessarily 'C' as expected. This is likely a bug.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> np.array([1, 2, 3])
-    array([1, 2, 3])
-
-    Upcasting:
-
-    >>> np.array([1, 2, 3.0])
-    array([ 1.,  2.,  3.])
-
-    More than one dimension:
-
-    >>> np.array([[1, 2], [3, 4]])
-    array([[1, 2],
-           [3, 4]])
-
-    Minimum dimensions 2:
-
-    >>> np.array([1, 2, 3], ndmin=2)
-    array([[1, 2, 3]])
-
-    Type provided:
-
-    >>> np.array([1, 2, 3], dtype=np.complex128)
-    array([ 1.+0.j,  2.+0.j,  3.+0.j])
-
-    Data-type consisting of more than one element:
-
-    >>> x = np.array([(1,2),(3,4)],dtype=[('a','<i4'),('b','<i4')])
-    >>> x['a']
-    array([1, 3], dtype=int32)
-
-    Creating an array from sub-classes:
-
-    >>> np.array(np.asmatrix('1 2; 3 4'))
-    array([[1, 2],
-           [3, 4]])
-
-    >>> np.array(np.asmatrix('1 2; 3 4'), subok=True)
-    matrix([[1, 2],
-            [3, 4]])
-
-    Limiting the maximum dimensions with ``ndmax``:
-
-    >>> a = np.array([[1, 2], [3, 4]], dtype=np.object_, ndmax=2)
-    >>> a
-    array([[1, 2],
-           [3, 4]], dtype=object)
-    >>> a.shape
-    (2, 2)
-
-    >>> b = np.array([[1, 2], [3, 4]], dtype=np.object_, ndmax=1)
-    >>> b
-    array([list([1, 2]), list([3, 4])], dtype=object)
-    >>> b.shape
-    (2,)
-
-    """)
-
-add_newdoc('numpy._core.multiarray', 'asarray',
-    """
-    asarray(a, dtype=None, order=None, *, device=None, copy=None, like=None)
-    --
-
-    asarray(a, dtype=None, order=None, *, device=None, copy=None, like=None)
-
-    Convert the input to an array.
-
-    Parameters
-    ----------
-    a : array_like
-        Input data, in any form that can be converted to an array.  This
-        includes lists, lists of tuples, tuples, tuples of tuples, tuples
-        of lists and ndarrays.
-    dtype : data-type, optional
-        By default, the data-type is inferred from the input data.
-    order : {'C', 'F', 'A', 'K'}, optional
-        The memory layout of the output.
-        'C' gives a row-major layout (C-style),
-        'F' gives a column-major layout (Fortran-style).
-        'C' and 'F' will copy if needed to ensure the output format.
-        'A' (any) is equivalent to 'F' if input a is non-contiguous or Fortran-contiguous, otherwise, it is equivalent to 'C'.
-        Unlike 'C' or 'F', 'A' does not ensure that the result is contiguous.
-        'K' (keep) is the default and preserves the input order for the output.
-    device : str, optional
-        The device on which to place the created array. Default: ``None``.
-        For Array-API interoperability only, so must be ``"cpu"`` if passed.
-
-        .. versionadded:: 2.0.0
-    copy : bool, optional
-        If ``True``, then the object is copied. If ``None`` then the object is
-        copied only if needed, i.e. if ``__array__`` returns a copy, if obj
-        is a nested sequence, or if a copy is needed to satisfy any of
-        the other requirements (``dtype``, ``order``, etc.).
-        For ``False`` it raises a ``ValueError`` if a copy cannot be avoided.
-        Default: ``None``.
-
-        .. versionadded:: 2.0.0
-    ${ARRAY_FUNCTION_LIKE}
-
-        .. versionadded:: 1.20.0
-
-    Returns
-    -------
-    out : ndarray
-        Array interpretation of ``a``.  No copy is performed if the input
-        is already an ndarray with matching dtype and order.  If ``a`` is a
-        subclass of ndarray, a base class ndarray is returned.
-
-    See Also
-    --------
-    asanyarray : Similar function which passes through subclasses.
-    ascontiguousarray : Convert input to a contiguous array.
-    asfortranarray : Convert input to an ndarray with column-major memory order.
-    asarray_chkfinite : Similar function which checks input for NaNs and Infs.
-    fromiter : Create an array from an iterator.
-    fromfunction : Construct an array by executing a function on grid positions.
-
-    Examples
-    --------
-    Convert a list into an array:
-
-    >>> a = [1, 2]
-    >>> import numpy as np
-    >>> np.asarray(a)
-    array([1, 2])
-
-    Existing arrays are not copied:
-
-    >>> a = np.array([1, 2])
-    >>> np.asarray(a) is a
-    True
-
-    If `dtype` is set, array is copied only if dtype does not match:
-
-    >>> a = np.array([1, 2], dtype=np.float32)
-    >>> np.shares_memory(np.asarray(a, dtype=np.float32), a)
-    True
-    >>> np.shares_memory(np.asarray(a, dtype=np.float64), a)
-    False
-
-    Contrary to `asanyarray`, ndarray subclasses are not passed through:
-
-    >>> issubclass(np.recarray, np.ndarray)
-    True
-    >>> a = np.array([(1., 2), (3., 4)], dtype='f4,i4').view(np.recarray)
-    >>> np.asarray(a) is a
-    False
-    >>> np.asanyarray(a) is a
-    True
-
-    """)
-
-add_newdoc('numpy._core.multiarray', 'asanyarray',
-    """
-    asanyarray(a, dtype=None, order=None, *, device=None, copy=None, like=None)
-    --
-
-    asanyarray(a, dtype=None, order=None, *, device=None, copy=None, like=None)
-
-    Convert the input to an ndarray, but pass ndarray subclasses through.
-
-    Parameters
-    ----------
-    a : array_like
-        Input data, in any form that can be converted to an array.  This
-        includes scalars, lists, lists of tuples, tuples, tuples of tuples,
-        tuples of lists, and ndarrays.
-    dtype : data-type, optional
-        By default, the data-type is inferred from the input data.
-    order : {'C', 'F', 'A', 'K'}, optional
-        The memory layout of the output.
-        'C' gives a row-major layout (C-style),
-        'F' gives a column-major layout (Fortran-style).
-        'C' and 'F' will copy if needed to ensure the output format.
-        'A' (any) is equivalent to 'F' if input a is non-contiguous or Fortran-contiguous, otherwise, it is equivalent to 'C'.
-        Unlike 'C' or 'F', 'A' does not ensure that the result is contiguous.
-        'K' (keep) preserves the input order for the output.
-        'C' is the default.
-    device : str, optional
-        The device on which to place the created array. Default: ``None``.
-        For Array-API interoperability only, so must be ``"cpu"`` if passed.
-
-        .. versionadded:: 2.1.0
-
-    copy : bool, optional
-        If ``True``, then the object is copied. If ``None`` then the object is
-        copied only if needed, i.e. if ``__array__`` returns a copy, if obj
-        is a nested sequence, or if a copy is needed to satisfy any of
-        the other requirements (``dtype``, ``order``, etc.).
-        For ``False`` it raises a ``ValueError`` if a copy cannot be avoided.
-        Default: ``None``.
-
-        .. versionadded:: 2.1.0
-
-    ${ARRAY_FUNCTION_LIKE}
-
-        .. versionadded:: 1.20.0
-
-    Returns
-    -------
-    out : ndarray or an ndarray subclass
-        Array interpretation of `a`.  If `a` is an ndarray or a subclass
-        of ndarray, it is returned as-is and no copy is performed.
-
-    See Also
-    --------
-    asarray : Similar function which always returns ndarrays.
-    ascontiguousarray : Convert input to a contiguous array.
-    asfortranarray : Convert input to an ndarray with column-major memory order.
-    asarray_chkfinite : Similar function which checks input for NaNs and Infs.
-    fromiter : Create an array from an iterator.
-    fromfunction : Construct an array by executing a function on grid positions.
-
-    Examples
-    --------
-    Convert a list into an array:
-
-    >>> a = [1, 2]
-    >>> import numpy as np
-    >>> np.asanyarray(a)
-    array([1, 2])
-
-    Instances of `ndarray` subclasses are passed through as-is:
-
-    >>> a = np.array([(1., 2), (3., 4)], dtype='f4,i4').view(np.recarray)
-    >>> np.asanyarray(a) is a
-    True
-
-    """)
-
-add_newdoc('numpy._core.multiarray', 'ascontiguousarray',
-    """
-    ascontiguousarray(a, dtype=None, *, like=None)
-    --
-
-    ascontiguousarray(a, dtype=None, *, like=None)
-
-    Return a contiguous array (ndim >= 1) in memory (C order).
-
-    Parameters
-    ----------
-    a : array_like
-        Input array.
-    dtype : str or dtype object, optional
-        Data-type of returned array.
-    ${ARRAY_FUNCTION_LIKE}
-
-        .. versionadded:: 1.20.0
-
-    Returns
-    -------
-    out : ndarray
-        Contiguous array of same shape and content as `a`, with type `dtype`
-        if specified.
-
-    See Also
-    --------
-    asfortranarray : Convert input to an ndarray with column-major memory order.
-    require : Return an ndarray that satisfies requirements.
-    ndarray.flags : Information about the memory layout of the array.
-
-    Examples
-    --------
-    Starting with a Fortran-contiguous array:
-
-    >>> import numpy as np
-    >>> x = np.ones((2, 3), order='F')
-    >>> x.flags['F_CONTIGUOUS']
-    True
-
-    Calling ``ascontiguousarray`` makes a C-contiguous copy:
-
-    >>> y = np.ascontiguousarray(x)
-    >>> y.flags['C_CONTIGUOUS']
-    True
-    >>> np.may_share_memory(x, y)
-    False
-
-    Now, starting with a C-contiguous array:
-
-    >>> x = np.ones((2, 3), order='C')
-    >>> x.flags['C_CONTIGUOUS']
-    True
-
-    Then, calling ``ascontiguousarray`` returns the same object:
-
-    >>> y = np.ascontiguousarray(x)
-    >>> x is y
-    True
-
-    Note: This function returns an array with at least one-dimension (1-d)
-    so it will not preserve 0-d arrays.
-
-    """)
-
-add_newdoc('numpy._core.multiarray', 'asfortranarray',
-    """
-    asfortranarray(a, dtype=None, *, like=None)
-    --
-
-    asfortranarray(a, dtype=None, *, like=None)
-
-    Return an array (ndim >= 1) laid out in Fortran order in memory.
-
-    Parameters
-    ----------
-    a : array_like
-        Input array.
-    dtype : str or dtype object, optional
-        By default, the data-type is inferred from the input data.
-    ${ARRAY_FUNCTION_LIKE}
-
-        .. versionadded:: 1.20.0
-
-    Returns
-    -------
-    out : ndarray
-        The input `a` in Fortran, or column-major, order.
-
-    See Also
-    --------
-    ascontiguousarray : Convert input to a contiguous (C order) array.
-    asanyarray : Convert input to an ndarray with either row or
-        column-major memory order.
-    require : Return an ndarray that satisfies requirements.
-    ndarray.flags : Information about the memory layout of the array.
-
-    Examples
-    --------
-    Starting with a C-contiguous array:
-
-    >>> import numpy as np
-    >>> x = np.ones((2, 3), order='C')
-    >>> x.flags['C_CONTIGUOUS']
-    True
-
-    Calling ``asfortranarray`` makes a Fortran-contiguous copy:
-
-    >>> y = np.asfortranarray(x)
-    >>> y.flags['F_CONTIGUOUS']
-    True
-    >>> np.may_share_memory(x, y)
-    False
-
-    Now, starting with a Fortran-contiguous array:
-
-    >>> x = np.ones((2, 3), order='F')
-    >>> x.flags['F_CONTIGUOUS']
-    True
-
-    Then, calling ``asfortranarray`` returns the same object:
-
-    >>> y = np.asfortranarray(x)
-    >>> x is y
-    True
-
-    Note: This function returns an array with at least one-dimension (1-d)
-    so it will not preserve 0-d arrays.
-
-    """)
-
-add_newdoc('numpy._core.multiarray', 'empty',
-    """
-    empty(shape, dtype=None, order='C', *, device=None, like=None)
-    --
-
-    empty(shape, dtype=None, order='C', *, device=None, like=None)
-
-    Return a new array of given shape and type, without initializing entries.
-
-    Parameters
-    ----------
-    shape : int or tuple of int
-        Shape of the empty array, e.g., ``(2, 3)`` or ``2``.
-    dtype : data-type, optional
-        Desired output data-type for the array, e.g, `numpy.int8`. Default is
-        `numpy.float64`.
-    order : {'C', 'F'}, optional, default: 'C'
-        Whether to store multi-dimensional data in row-major
-        (C-style) or column-major (Fortran-style) order in memory.
-    device : str, optional
-        The device on which to place the created array. Default: ``None``.
-        For Array-API interoperability only, so must be ``"cpu"`` if passed.
-
-        .. versionadded:: 2.0.0
-    ${ARRAY_FUNCTION_LIKE}
-
-        .. versionadded:: 1.20.0
-
-    Returns
-    -------
-    out : ndarray
-        Array of uninitialized (arbitrary) data of the given shape, dtype, and
-        order.  Object arrays will be initialized to None.
-
-    See Also
-    --------
-    empty_like : Return an empty array with shape and type of input.
-    ones : Return a new array setting values to one.
-    zeros : Return a new array setting values to zero.
-    full : Return a new array of given shape filled with value.
-
-    Notes
-    -----
-    Unlike other array creation functions (e.g. `zeros`, `ones`, `full`),
-    `empty` does not initialize the values of the array, and may therefore be
-    marginally faster. However, the values stored in the newly allocated array
-    are arbitrary. For reproducible behavior, be sure to set each element of
-    the array before reading.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> np.empty([2, 2])
-    array([[ -9.74499359e+001,   6.69583040e-309],
-           [  2.13182611e-314,   3.06959433e-309]])         #uninitialized
-
-    >>> np.empty([2, 2], dtype=np.int_)
-    array([[-1073741821, -1067949133],
-           [  496041986,    19249760]])                     #uninitialized
-
-    """)
-
-add_newdoc('numpy._core.multiarray', 'scalar',
-    """
-    scalar(dtype, obj)
-
-    Return a new scalar array of the given type initialized with obj.
-
-    This function is meant mainly for pickle support. `dtype` must be a
-    valid data-type descriptor. If `dtype` corresponds to an object
-    descriptor, then `obj` can be any object, otherwise `obj` must be a
-    string. If `obj` is not given, it will be interpreted as None for object
-    type and as zeros for all other types.
-
-    """)  # sufficient null bytes for all number dtypes
-
-add_newdoc('numpy._core.multiarray', 'zeros',
-    """
-    zeros(shape, dtype=None, order='C', *, device=None, like=None)
-    --
-
-    zeros(shape, dtype=None, order='C', *, device=None, like=None)
-
-    Return a new array of given shape and type, filled with zeros.
-
-    Parameters
-    ----------
-    shape : int or tuple of ints
-        Shape of the new array, e.g., ``(2, 3)`` or ``2``.
-    dtype : data-type, optional
-        The desired data-type for the array, e.g., `numpy.int8`.  Default is
-        `numpy.float64`.
-    order : {'C', 'F'}, optional, default: 'C'
-        Whether to store multi-dimensional data in row-major
-        (C-style) or column-major (Fortran-style) order in memory.
-    device : str, optional
-        The device on which to place the created array. Default: ``None``.
-        For Array-API interoperability only, so must be ``"cpu"`` if passed.
-
-        .. versionadded:: 2.0.0
-    ${ARRAY_FUNCTION_LIKE}
-
-        .. versionadded:: 1.20.0
-
-    Returns
-    -------
-    out : ndarray
-        Array of zeros with the given shape, dtype, and order.
-
-    See Also
-    --------
-    zeros_like : Return an array of zeros with shape and type of input.
-    empty : Return a new uninitialized array.
-    ones : Return a new array setting values to one.
-    full : Return a new array of given shape filled with value.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> np.zeros(5)
-    array([ 0.,  0.,  0.,  0.,  0.])
-
-    >>> np.zeros((5,), dtype=np.int_)
-    array([0, 0, 0, 0, 0])
-
-    >>> np.zeros((2, 1))
-    array([[ 0.],
-           [ 0.]])
-
-    >>> s = (2,2)
-    >>> np.zeros(s)
-    array([[ 0.,  0.],
-           [ 0.,  0.]])
-
-    >>> np.zeros((2,), dtype=[('x', 'i4'), ('y', 'i4')]) # custom dtype
-    array([(0, 0), (0, 0)],
-          dtype=[('x', '<i4'), ('y', '<i4')])
-
-    """)
-
-add_newdoc('numpy._core.multiarray', 'set_typeDict',
-    """
-    set_typeDict(dict)
-
-    Set the internal dictionary that can look up an array type using a
-    registered code.
-
-    """)
-
-add_newdoc('numpy._core.multiarray', 'fromstring',
-    """
-    fromstring(string, dtype=None, count=-1, *, sep, like=None)
-    --
-
-    fromstring(string, dtype=np.float64, count=-1, *, sep, like=None)
-
-    A new 1-D array initialized from text data in a string.
-
-    Parameters
-    ----------
-    string : str
-        A string containing the data.
-    dtype : data-type, optional
-        The data type of the array; default: `numpy.float64`.  For binary input data,
-        the data must be in exactly this format. Most builtin numeric types are
-        supported and extension types may be supported.
-    count : int, optional
-        Read this number of `dtype` elements from the data.  If this is
-        negative (the default), the count will be determined from the
-        length of the data.
-    sep : str, optional
-        The string separating numbers in the data; extra whitespace between
-        elements is also ignored.
-
-        .. deprecated:: 1.14
-            Passing ``sep=''``, the default, is deprecated since it will
-            trigger the deprecated binary mode of this function. This mode
-            interprets `string` as binary bytes, rather than ASCII text with
-            decimal numbers, an operation which is better spelt
-            ``frombuffer(string, dtype, count)``. If `string` contains unicode
-            text, the binary mode of `fromstring` will first encode it into
-            bytes using utf-8, which will not produce sane results.
-
-    ${ARRAY_FUNCTION_LIKE}
-
-        .. versionadded:: 1.20.0
-
-    Returns
-    -------
-    arr : ndarray
-        The constructed array.
-
-    Raises
-    ------
-    ValueError
-        If the string is not the correct size to satisfy the requested
-        `dtype` and `count`.
-
-    See Also
-    --------
-    frombuffer, fromfile, fromiter
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> np.fromstring('1 2', dtype=np.int_, sep=' ')
-    array([1, 2])
-    >>> np.fromstring('1, 2', dtype=np.int_, sep=',')
-    array([1, 2])
-
-    """)
-
-add_newdoc('numpy._core.multiarray', 'compare_chararrays',
-    """
-    compare_chararrays(a1, a2, cmp, rstrip)
-    --
-
-    compare_chararrays(a1, a2, cmp, rstrip)
-
-    Performs element-wise comparison of two string arrays using the
-    comparison operator specified by `cmp`.
-
-    Parameters
-    ----------
-    a1, a2 : array_like
-        Arrays to be compared.
-    cmp : {"<", "<=", "==", ">=", ">", "!="}
-        Type of comparison.
-    rstrip : bool
-        If True, the spaces at the end of strings are removed before the comparison.
-
-    Returns
-    -------
-    out : ndarray
-        The output array of type `numpy.bool` with the same shape as `a1` and `a2`.
-
-    Raises
-    ------
-    ValueError
-        If `cmp` is not valid.
-    TypeError
-        If at least one of `a1` or `a2` is a non-string array
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> a = np.array(["a", "b", "cde"])
-    >>> b = np.array(["a", "a", "dec"])
-    >>> np.char.compare_chararrays(a, b, ">", True)
-    array([False,  True, False])
-
-    """)
-
-add_newdoc('numpy._core.multiarray', 'fromiter',
-    """
-    fromiter(iter, dtype, count=-1, *, like=None)
-    --
-
-    fromiter(iter, dtype, count=-1, *, like=None)
-
-    Create a new 1-dimensional array from an iterable object.
-
-    Parameters
-    ----------
-    iter : iterable object
-        An iterable object providing data for the array.
-    dtype : data-type
-        The data-type of the returned array.
-
-        .. versionchanged:: 1.23
-            Object and subarray dtypes are now supported (note that the final
-            result is not 1-D for a subarray dtype).
-
-    count : int, optional
-        The number of items to read from *iterable*.  The default is -1,
-        which means all data is read.
-    ${ARRAY_FUNCTION_LIKE}
-
-        .. versionadded:: 1.20.0
-
-    Returns
-    -------
-    out : ndarray
-        The output array.
-
-    Notes
-    -----
-    Specify `count` to improve performance.  It allows ``fromiter`` to
-    pre-allocate the output array, instead of resizing it on demand.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> iterable = (x*x for x in range(5))
-    >>> np.fromiter(iterable, float)
-    array([  0.,   1.,   4.,   9.,  16.])
-
-    A carefully constructed subarray dtype will lead to higher dimensional
-    results:
-
-    >>> iterable = ((x+1, x+2) for x in range(5))
-    >>> np.fromiter(iterable, dtype=np.dtype((int, 2)))
-    array([[1, 2],
-           [2, 3],
-           [3, 4],
-           [4, 5],
-           [5, 6]])
-
-
-    """)
-
-add_newdoc('numpy._core.multiarray', 'fromfile',
-    """
-    fromfile(file, dtype=None, count=-1, sep='', offset=0, *, like=None)
-    --
-
-    fromfile(file, dtype=np.float64, count=-1, sep='', offset=0, *, like=None)
-
-    Construct an array from data in a text or binary file.
-
-    A highly efficient way of reading binary data with a known data-type,
-    as well as parsing simply formatted text files.  Data written using the
-    `tofile` method can be read using this function.
-
-    Parameters
-    ----------
-    file : file or str or Path
-        An open file object, a string containing the filename, or a Path object.
-        When reading from a file object it must support random access
-        (i.e. it must have tell and seek methods).
-    dtype : data-type
-        Data type of the returned array.
-        For binary files, it is used to determine the size and byte-order
-        of the items in the file.
-        Most builtin numeric types are supported and extension types may be supported.
-    count : int
-        Number of items to read. ``-1`` means all items (i.e., the complete
-        file).
-    sep : str
-        Separator between items if file is a text file.
-        Empty ("") separator means the file should be treated as binary.
-        Spaces (" ") in the separator match zero or more whitespace characters.
-        A separator consisting only of spaces must match at least one
-        whitespace.
-    offset : int
-        The offset (in bytes) from the file's current position. Defaults to 0.
-        Only permitted for binary files.
-    ${ARRAY_FUNCTION_LIKE}
-
-        .. versionadded:: 1.20.0
-
-    See also
-    --------
-    load, save
-    ndarray.tofile
-    loadtxt : More flexible way of loading data from a text file.
-
-    Notes
-    -----
-    Do not rely on the combination of `tofile` and `fromfile` for
-    data storage, as the binary files generated are not platform
-    independent.  In particular, no byte-order or data-type information is
-    saved.  Data can be stored in the platform independent ``.npy`` format
-    using `save` and `load` instead.
-
-    Examples
-    --------
-    Construct an ndarray:
-
-    >>> import numpy as np
-    >>> dt = np.dtype([('time', [('min', np.int64), ('sec', np.int64)]),
-    ...                ('temp', float)])
-    >>> x = np.zeros((1,), dtype=dt)
-    >>> x['time']['min'] = 10; x['temp'] = 98.25
-    >>> x
-    array([((10, 0), 98.25)],
-          dtype=[('time', [('min', '<i8'), ('sec', '<i8')]), ('temp', '<f8')])
-
-    Save the raw data to disk:
-
-    >>> import tempfile
-    >>> fname = tempfile.mkstemp()[1]
-    >>> x.tofile(fname)
-
-    Read the raw data from disk:
-
-    >>> np.fromfile(fname, dtype=dt)
-    array([((10, 0), 98.25)],
-          dtype=[('time', [('min', '<i8'), ('sec', '<i8')]), ('temp', '<f8')])
-
-    The recommended way to store and load data:
-
-    >>> np.save(fname, x)
-    >>> np.load(fname + '.npy')
-    array([((10, 0), 98.25)],
-          dtype=[('time', [('min', '<i8'), ('sec', '<i8')]), ('temp', '<f8')])
-
-    """)
-
-add_newdoc('numpy._core.multiarray', 'frombuffer',
-    """
-    frombuffer(buffer, dtype=None, count=-1, offset=0, *, like=None)
-    --
-
-    frombuffer(buffer, dtype=np.float64, count=-1, offset=0, *, like=None)
-
-    Interpret a buffer as a 1-dimensional array.
-
-    Parameters
-    ----------
-    buffer : buffer_like
-        An object that exposes the buffer interface.
-    dtype : data-type, optional
-        Data-type of the returned array.  Default is `numpy.float64`.
-    count : int, optional
-        Number of items to read. ``-1`` means all data in the buffer.
-    offset : int, optional
-        Start reading the buffer from this offset (in bytes); default: 0.
-    ${ARRAY_FUNCTION_LIKE}
-
-        .. versionadded:: 1.20.0
-
-    Returns
-    -------
-    out : ndarray
-
-    See also
-    --------
-    ndarray.tobytes
-        Inverse of this operation, construct Python bytes from the raw data
-        bytes in the array.
-
-    Notes
-    -----
-    If the buffer has data that is not in machine byte-order, this should
-    be specified as part of the data-type, e.g.::
-
-      >>> dt = np.dtype(np.int_)
-      >>> dt = dt.newbyteorder('>')
-      >>> np.frombuffer(buf, dtype=dt) # doctest: +SKIP
-
-    The data of the resulting array will not be byteswapped, but will be
-    interpreted correctly.
-
-    This function creates a view into the original object.  This should be safe
-    in general, but it may make sense to copy the result when the original
-    object is mutable or untrusted.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> s = b'hello world'
-    >>> np.frombuffer(s, dtype='S1', count=5, offset=6)
-    array([b'w', b'o', b'r', b'l', b'd'], dtype='|S1')
-
-    >>> np.frombuffer(b'\\x01\\x02', dtype=np.uint8)
-    array([1, 2], dtype=uint8)
-    >>> np.frombuffer(b'\\x01\\x02\\x03\\x04\\x05', dtype=np.uint8, count=3)
-    array([1, 2, 3], dtype=uint8)
-
-    """)
-
-add_newdoc('numpy._core.multiarray', 'from_dlpack',
-    """
-    from_dlpack(x, /, *, device=None, copy=None)
-    --
-
-    from_dlpack(x, /, *, device=None, copy=None)
-
-    Create a NumPy array from an object implementing the ``__dlpack__``
-    protocol. Generally, the returned NumPy array is a view of the input
-    object. See [1]_ and [2]_ for more details.
-
-    Parameters
-    ----------
-    x : object
-        A Python object that implements the ``__dlpack__`` and
-        ``__dlpack_device__`` methods.
-    device : device, optional
-        Device on which to place the created array. Default: ``None``.
-        Must be ``"cpu"`` if passed which may allow importing an array
-        that is not already CPU available.
-    copy : bool, optional
-        Boolean indicating whether or not to copy the input. If ``True``,
-        the copy will be made. If ``False``, the function will never copy,
-        and will raise ``BufferError`` in case a copy is deemed necessary.
-        Passing it requests a copy from the exporter who may or may not
-        implement the capability.
-        If ``None``, the function will reuse the existing memory buffer if
-        possible and copy otherwise. Default: ``None``.
-
-
-    Returns
-    -------
-    out : ndarray
-
-    References
-    ----------
-    .. [1] Array API documentation,
-       https://data-apis.org/array-api/latest/design_topics/data_interchange.html#syntax-for-data-interchange-with-dlpack
-
-    .. [2] Python specification for DLPack,
-       https://dmlc.github.io/dlpack/latest/python_spec.html
-
-    Examples
-    --------
-    >>> import torch  # doctest: +SKIP
-    >>> x = torch.arange(10)  # doctest: +SKIP
-    >>> # create a view of the torch tensor "x" in NumPy
-    >>> y = np.from_dlpack(x)  # doctest: +SKIP
-    """)
-
-add_newdoc('numpy._core.multiarray', 'correlate',
-    """cross_correlate(a,v, mode=0)""")
-
-add_newdoc('numpy._core.multiarray', 'arange',
-    """
-    arange(start_or_stop, /, stop=None, step=1, *, dtype=None, device=None, like=None)
-    --
-
-    arange([start,] stop[, step,], dtype=None, *, device=None, like=None)
-
-    Return evenly spaced values within a given interval.
-
-    ``arange`` can be called with a varying number of positional arguments:
-
-    * ``arange(stop)``: Values are generated within the half-open interval
-      ``[0, stop)`` (in other words, the interval including `start` but
-      excluding `stop`).
-    * ``arange(start, stop)``: Values are generated within the half-open
-      interval ``[start, stop)``.
-    * ``arange(start, stop, step)`` Values are generated within the half-open
-      interval ``[start, stop)``, with spacing between values given by
-      ``step``.
-
-    For integer arguments the function is roughly equivalent to the Python
-    built-in :py:class:`range`, but returns an ndarray rather than a ``range``
-    instance.
-
-    When using a non-integer step, such as 0.1, it is often better to use
-    `numpy.linspace`.
-
-    See the Warning sections below for more information.
-
-    Parameters
-    ----------
-    start : integer or real, optional
-        Start of interval.  The interval includes this value.  The default
-        start value is 0.
-    stop : integer or real
-        End of interval.  The interval does not include this value, except
-        in some cases where `step` is not an integer and floating point
-        round-off affects the length of `out`.
-    step : integer or real, optional
-        Spacing between values.  For any output `out`, this is the distance
-        between two adjacent values, ``out[i+1] - out[i]``.  The default
-        step size is 1.  If `step` is specified as a position argument,
-        `start` must also be given.
-    dtype : dtype, optional
-        The type of the output array.  If `dtype` is not given, infer the data
-        type from the other input arguments.
-    device : str, optional
-        The device on which to place the created array. Default: ``None``.
-        For Array-API interoperability only, so must be ``"cpu"`` if passed.
-
-        .. versionadded:: 2.0.0
-    ${ARRAY_FUNCTION_LIKE}
-
-        .. versionadded:: 1.20.0
-
-    Returns
-    -------
-    arange : ndarray
-        Array of evenly spaced values.
-
-        For floating point arguments, the length of the result is
-        ``ceil((stop - start)/step)``.  Because of floating point overflow,
-        this rule may result in the last element of `out` being greater
-        than `stop`.
-
-    Warnings
-    --------
-    The length of the output might not be numerically stable.
-
-    Another stability issue is due to the internal implementation of
-    `numpy.arange`.
-    The actual step value used to populate the array is
-    ``dtype(start + step) - dtype(start)`` and not `step`. Precision loss
-    can occur here, due to casting or due to using floating points when
-    `start` is much larger than `step`. This can lead to unexpected
-    behaviour. For example::
-
-      >>> np.arange(0, 5, 0.5, dtype=np.int_)
-      array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-      >>> np.arange(-3, 3, 0.5, dtype=np.int_)
-      array([-3, -2, -1,  0,  1,  2,  3,  4,  5,  6,  7,  8])
-
-    In such cases, the use of `numpy.linspace` should be preferred.
-
-    The built-in :py:class:`range` generates :std:doc:`Python built-in integers
-    that have arbitrary size <python:c-api/long>`, while `numpy.arange`
-    produces `numpy.int32` or `numpy.int64` numbers. This may result in
-    incorrect results for large integer values::
-
-      >>> power = 40
-      >>> modulo = 10000
-      >>> x1 = [(n ** power) % modulo for n in range(8)]
-      >>> x2 = [(n ** power) % modulo for n in np.arange(8)]
-      >>> print(x1)
-      [0, 1, 7776, 8801, 6176, 625, 6576, 4001]  # correct
-      >>> print(x2)
-      [0, 1, 7776, 7185, 0, 5969, 4816, 3361]  # incorrect
-
-    See Also
-    --------
-    numpy.linspace : Evenly spaced numbers with careful handling of endpoints.
-    numpy.ogrid: Arrays of evenly spaced numbers in N-dimensions.
-    numpy.mgrid: Grid-shaped arrays of evenly spaced numbers in N-dimensions.
-    :ref:`how-to-partition`
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> np.arange(3)
-    array([0, 1, 2])
-    >>> np.arange(3.0)
-    array([ 0.,  1.,  2.])
-    >>> np.arange(3,7)
-    array([3, 4, 5, 6])
-    >>> np.arange(3,7,2)
-    array([3, 5])
-
-    """)
-
-add_newdoc('numpy._core.multiarray', '_get_ndarray_c_version',
-    """_get_ndarray_c_version()
-
-    Return the compile time NPY_VERSION (formerly called NDARRAY_VERSION) number.
-
-    """)
-
-add_newdoc('numpy._core.multiarray', '_reconstruct',
-    """_reconstruct(subtype, shape, dtype)
-
-    Construct an empty array. Used by Pickle.
-
-    """)
-
-add_newdoc('numpy._core.multiarray', 'promote_types',
-    """
-    promote_types(type1, type2, /)
-    --
-
-    promote_types(type1, type2, /)
-
-    Returns the data type with the smallest size and smallest scalar
-    kind to which both ``type1`` and ``type2`` may be safely cast.
-    The returned data type is always considered "canonical", this mainly
-    means that the promoted dtype will always be in native byte order.
-
-    This function is symmetric, but rarely associative.
-
-    Parameters
-    ----------
-    type1 : dtype or dtype specifier
-        First data type.
-    type2 : dtype or dtype specifier
-        Second data type.
-
-    Returns
-    -------
-    out : dtype
-        The promoted data type.
-
-    Notes
-    -----
-    Please see `numpy.result_type` for additional information about promotion.
-
-    Starting in NumPy 1.9, promote_types function now returns a valid string
-    length when given an integer or float dtype as one argument and a string
-    dtype as another argument. Previously it always returned the input string
-    dtype, even if it wasn't long enough to store the max integer/float value
-    converted to a string.
-
-    .. versionchanged:: 1.23.0
-
-    NumPy now supports promotion for more structured dtypes.  It will now
-    remove unnecessary padding from a structure dtype and promote included
-    fields individually.
-
-    See Also
-    --------
-    result_type, dtype, can_cast
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> np.promote_types(np.float32, np.float64)
-    dtype('float64')
-
-    >>> np.promote_types(np.int64, np.float32)
-    dtype('float64')
-
-    >>> np.promote_types('>i8', '<c8')
-    dtype('complex128')
-
-    >>> np.promote_types(np.int32, 'S8')
-    dtype('S11')
-
-    An example of a non-associative case:
-
-    >>> p = np.promote_types
-    >>> p('S', p('i1', 'u1'))
-    dtype('S6')
-    >>> p(p('S', 'i1'), 'u1')
-    dtype('S4')
-
-    """)
-
-add_newdoc('numpy._core.multiarray', 'c_einsum',
-    """
-    c_einsum(subscripts, *operands, out=None, dtype=None, order='K',
-           casting='safe')
-
-    *This documentation shadows that of the native python implementation of the `einsum` function,
-    except all references and examples related to the `optimize` argument (v 0.12.0) have been removed.*
-
-    Evaluates the Einstein summation convention on the operands.
-
-    Using the Einstein summation convention, many common multi-dimensional,
-    linear algebraic array operations can be represented in a simple fashion.
-    In *implicit* mode `einsum` computes these values.
-
-    In *explicit* mode, `einsum` provides further flexibility to compute
-    other array operations that might not be considered classical Einstein
-    summation operations, by disabling, or forcing summation over specified
-    subscript labels.
-
-    See the notes and examples for clarification.
-
-    Parameters
-    ----------
-    subscripts : str
-        Specifies the subscripts for summation as comma separated list of
-        subscript labels. An implicit (classical Einstein summation)
-        calculation is performed unless the explicit indicator '->' is
-        included as well as subscript labels of the precise output form.
-    operands : list of array_like
-        These are the arrays for the operation.
+    z : array_like
+        Points at which to evaluate the Wright Omega function
     out : ndarray, optional
-        If provided, the calculation is done into this array.
-    dtype : {data-type, None}, optional
-        If provided, forces the calculation to use the data type specified.
-        Note that you may have to also give a more liberal `casting`
-        parameter to allow the conversions. Default is None.
-    order : {'C', 'F', 'A', 'K'}, optional
-        Controls the memory layout of the output. 'C' means it should
-        be C contiguous. 'F' means it should be Fortran contiguous,
-        'A' means it should be 'F' if the inputs are all 'F', 'C' otherwise.
-        'K' means it should be as close to the layout of the inputs as
-        is possible, including arbitrarily permuted axes.
-        Default is 'K'.
-    casting : {'no', 'equiv', 'safe', 'same_kind', 'unsafe'}, optional
-        Controls what kind of data casting may occur.  Setting this to
-        'unsafe' is not recommended, as it can adversely affect accumulations.
-
-          * 'no' means the data types should not be cast at all.
-          * 'equiv' means only byte-order changes are allowed.
-          * 'safe' means only casts which can preserve values are allowed.
-          * 'same_kind' means only safe casts or casts within a kind,
-            like float64 to float32, are allowed.
-          * 'unsafe' means any data conversions may be done.
-
-        Default is 'safe'.
-    optimize : {False, True, 'greedy', 'optimal'}, optional
-        Controls if intermediate optimization should occur. No optimization
-        will occur if False and True will default to the 'greedy' algorithm.
-        Also accepts an explicit contraction list from the ``np.einsum_path``
-        function. See ``np.einsum_path`` for more details. Defaults to False.
+        Optional output array for the function values
 
     Returns
     -------
-    output : ndarray
-        The calculation based on the Einstein summation convention.
+    omega : scalar or ndarray
+        Values of the Wright Omega function
 
     See Also
     --------
-    einsum_path, dot, inner, outer, tensordot, linalg.multi_dot
+    lambertw : The Lambert W function
 
     Notes
     -----
-    The Einstein summation convention can be used to compute
-    many multi-dimensional, linear algebraic array operations. `einsum`
-    provides a succinct way of representing these.
+    .. versionadded:: 0.19.0
 
-    A non-exhaustive list of these operations,
-    which can be computed by `einsum`, is shown below along with examples:
+    The function can also be defined as
 
-    * Trace of an array, :py:func:`numpy.trace`.
-    * Return a diagonal, :py:func:`numpy.diag`.
-    * Array axis summations, :py:func:`numpy.sum`.
-    * Transpositions and permutations, :py:func:`numpy.transpose`.
-    * Matrix multiplication and dot product, :py:func:`numpy.matmul` :py:func:`numpy.dot`.
-    * Vector inner and outer products, :py:func:`numpy.inner` :py:func:`numpy.outer`.
-    * Broadcasting, element-wise and scalar multiplication, :py:func:`numpy.multiply`.
-    * Tensor contractions, :py:func:`numpy.tensordot`.
-    * Chained array operations, in efficient calculation order, :py:func:`numpy.einsum_path`.
+    .. math::
 
-    The subscripts string is a comma-separated list of subscript labels,
-    where each label refers to a dimension of the corresponding operand.
-    Whenever a label is repeated it is summed, so ``np.einsum('i,i', a, b)``
-    is equivalent to :py:func:`np.inner(a,b) <numpy.inner>`. If a label
-    appears only once, it is not summed, so ``np.einsum('i', a)`` produces a
-    view of ``a`` with no changes. A further example ``np.einsum('ij,jk', a, b)``
-    describes traditional matrix multiplication and is equivalent to
-    :py:func:`np.matmul(a,b) <numpy.matmul>`. Repeated subscript labels in one
-    operand take the diagonal. For example, ``np.einsum('ii', a)`` is equivalent
-    to :py:func:`np.trace(a) <numpy.trace>`.
+        \omega(z) = W_{K(z)}(e^z)
 
-    In *implicit mode*, the chosen subscripts are important
-    since the axes of the output are reordered alphabetically.  This
-    means that ``np.einsum('ij', a)`` doesn't affect a 2D array, while
-    ``np.einsum('ji', a)`` takes its transpose. Additionally,
-    ``np.einsum('ij,jk', a, b)`` returns a matrix multiplication, while,
-    ``np.einsum('ij,jh', a, b)`` returns the transpose of the
-    multiplication since subscript 'h' precedes subscript 'i'.
+    where :math:`K(z) = \lceil (\Im(z) - \pi)/(2\pi) \rceil` is the
+    unwinding number and :math:`W` is the Lambert W function.
 
-    In *explicit mode* the output can be directly controlled by
-    specifying output subscript labels.  This requires the
-    identifier '->' as well as the list of output subscript labels.
-    This feature increases the flexibility of the function since
-    summing can be disabled or forced when required. The call
-    ``np.einsum('i->', a)`` is like :py:func:`np.sum(a) <numpy.sum>`
-    if ``a`` is a 1-D array, and ``np.einsum('ii->i', a)``
-    is like :py:func:`np.diag(a) <numpy.diag>` if ``a`` is a square 2-D array.
-    The difference is that `einsum` does not allow broadcasting by default.
-    Additionally ``np.einsum('ij,jh->ih', a, b)`` directly specifies the
-    order of the output subscript labels and therefore returns matrix
-    multiplication, unlike the example above in implicit mode.
-
-    To enable and control broadcasting, use an ellipsis.  Default
-    NumPy-style broadcasting is done by adding an ellipsis
-    to the left of each term, like ``np.einsum('...ii->...i', a)``.
-    ``np.einsum('...i->...', a)`` is like
-    :py:func:`np.sum(a, axis=-1) <numpy.sum>` for array ``a`` of any shape.
-    To take the trace along the first and last axes,
-    you can do ``np.einsum('i...i', a)``, or to do a matrix-matrix
-    product with the left-most indices instead of rightmost, one can do
-    ``np.einsum('ij...,jk...->ik...', a, b)``.
-
-    When there is only one operand, no axes are summed, and no output
-    parameter is provided, a view into the operand is returned instead
-    of a new array.  Thus, taking the diagonal as ``np.einsum('ii->i', a)``
-    produces a view (changed in version 1.10.0).
-
-    `einsum` also provides an alternative way to provide the subscripts
-    and operands as ``einsum(op0, sublist0, op1, sublist1, ..., [sublistout])``.
-    If the output shape is not provided in this format `einsum` will be
-    calculated in implicit mode, otherwise it will be performed explicitly.
-    The examples below have corresponding `einsum` calls with the two
-    parameter methods.
-
-    Views returned from einsum are now writeable whenever the input array
-    is writeable. For example, ``np.einsum('ijk...->kji...', a)`` will now
-    have the same effect as :py:func:`np.swapaxes(a, 0, 2) <numpy.swapaxes>`
-    and ``np.einsum('ii->i', a)`` will return a writeable view of the diagonal
-    of a 2D array.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> a = np.arange(25).reshape(5,5)
-    >>> b = np.arange(5)
-    >>> c = np.arange(6).reshape(2,3)
-
-    Trace of a matrix:
-
-    >>> np.einsum('ii', a)
-    60
-    >>> np.einsum(a, [0,0])
-    60
-    >>> np.trace(a)
-    60
-
-    Extract the diagonal (requires explicit form):
-
-    >>> np.einsum('ii->i', a)
-    array([ 0,  6, 12, 18, 24])
-    >>> np.einsum(a, [0,0], [0])
-    array([ 0,  6, 12, 18, 24])
-    >>> np.diag(a)
-    array([ 0,  6, 12, 18, 24])
-
-    Sum over an axis (requires explicit form):
-
-    >>> np.einsum('ij->i', a)
-    array([ 10,  35,  60,  85, 110])
-    >>> np.einsum(a, [0,1], [0])
-    array([ 10,  35,  60,  85, 110])
-    >>> np.sum(a, axis=1)
-    array([ 10,  35,  60,  85, 110])
-
-    For higher dimensional arrays summing a single axis can be done with ellipsis:
-
-    >>> np.einsum('...j->...', a)
-    array([ 10,  35,  60,  85, 110])
-    >>> np.einsum(a, [Ellipsis,1], [Ellipsis])
-    array([ 10,  35,  60,  85, 110])
-
-    Compute a matrix transpose, or reorder any number of axes:
-
-    >>> np.einsum('ji', c)
-    array([[0, 3],
-           [1, 4],
-           [2, 5]])
-    >>> np.einsum('ij->ji', c)
-    array([[0, 3],
-           [1, 4],
-           [2, 5]])
-    >>> np.einsum(c, [1,0])
-    array([[0, 3],
-           [1, 4],
-           [2, 5]])
-    >>> np.transpose(c)
-    array([[0, 3],
-           [1, 4],
-           [2, 5]])
-
-    Vector inner products:
-
-    >>> np.einsum('i,i', b, b)
-    30
-    >>> np.einsum(b, [0], b, [0])
-    30
-    >>> np.inner(b,b)
-    30
-
-    Matrix vector multiplication:
-
-    >>> np.einsum('ij,j', a, b)
-    array([ 30,  80, 130, 180, 230])
-    >>> np.einsum(a, [0,1], b, [1])
-    array([ 30,  80, 130, 180, 230])
-    >>> np.dot(a, b)
-    array([ 30,  80, 130, 180, 230])
-    >>> np.einsum('...j,j', a, b)
-    array([ 30,  80, 130, 180, 230])
-
-    Broadcasting and scalar multiplication:
-
-    >>> np.einsum('..., ...', 3, c)
-    array([[ 0,  3,  6],
-           [ 9, 12, 15]])
-    >>> np.einsum(',ij', 3, c)
-    array([[ 0,  3,  6],
-           [ 9, 12, 15]])
-    >>> np.einsum(3, [Ellipsis], c, [Ellipsis])
-    array([[ 0,  3,  6],
-           [ 9, 12, 15]])
-    >>> np.multiply(3, c)
-    array([[ 0,  3,  6],
-           [ 9, 12, 15]])
-
-    Vector outer product:
-
-    >>> np.einsum('i,j', np.arange(2)+1, b)
-    array([[0, 1, 2, 3, 4],
-           [0, 2, 4, 6, 8]])
-    >>> np.einsum(np.arange(2)+1, [0], b, [1])
-    array([[0, 1, 2, 3, 4],
-           [0, 2, 4, 6, 8]])
-    >>> np.outer(np.arange(2)+1, b)
-    array([[0, 1, 2, 3, 4],
-           [0, 2, 4, 6, 8]])
-
-    Tensor contraction:
-
-    >>> a = np.arange(60.).reshape(3,4,5)
-    >>> b = np.arange(24.).reshape(4,3,2)
-    >>> np.einsum('ijk,jil->kl', a, b)
-    array([[ 4400.,  4730.],
-           [ 4532.,  4874.],
-           [ 4664.,  5018.],
-           [ 4796.,  5162.],
-           [ 4928.,  5306.]])
-    >>> np.einsum(a, [0,1,2], b, [1,0,3], [2,3])
-    array([[ 4400.,  4730.],
-           [ 4532.,  4874.],
-           [ 4664.,  5018.],
-           [ 4796.,  5162.],
-           [ 4928.,  5306.]])
-    >>> np.tensordot(a,b, axes=([1,0],[0,1]))
-    array([[ 4400.,  4730.],
-           [ 4532.,  4874.],
-           [ 4664.,  5018.],
-           [ 4796.,  5162.],
-           [ 4928.,  5306.]])
-
-    Writeable returned arrays (since version 1.10.0):
-
-    >>> a = np.zeros((3, 3))
-    >>> np.einsum('ii->i', a)[:] = 1
-    >>> a
-    array([[ 1.,  0.,  0.],
-           [ 0.,  1.,  0.],
-           [ 0.,  0.,  1.]])
-
-    Example of ellipsis use:
-
-    >>> a = np.arange(6).reshape((3,2))
-    >>> b = np.arange(12).reshape((4,3))
-    >>> np.einsum('ki,jk->ij', a, b)
-    array([[10, 28, 46, 64],
-           [13, 40, 67, 94]])
-    >>> np.einsum('ki,...k->i...', a, b)
-    array([[10, 28, 46, 64],
-           [13, 40, 67, 94]])
-    >>> np.einsum('k...,jk', a, b)
-    array([[10, 28, 46, 64],
-           [13, 40, 67, 94]])
-
-    """)
-
-
-##############################################################################
-#
-# Documentation for ndarray attributes and methods
-#
-##############################################################################
-
-
-##############################################################################
-#
-# ndarray object
-#
-##############################################################################
-
-
-add_newdoc('numpy._core.multiarray', 'ndarray',
-    """
-    ndarray(shape, dtype=None, buffer=None, offset=0, strides=None, order=None)
-    --
-
-    ndarray(shape, dtype=np.float64, buffer=None, offset=0, strides=None, order=None)
-
-    An array object represents a multidimensional, homogeneous array
-    of fixed-size items.  An associated data-type object describes the
-    format of each element in the array (its byte-order, how many bytes it
-    occupies in memory, whether it is an integer, a floating point number,
-    or something else, etc.)
-
-    Arrays should be constructed using `array`, `zeros` or `empty` (refer
-    to the See Also section below).  The parameters given here refer to
-    a low-level method (`ndarray(...)`) for instantiating an array.
-
-    For more information, refer to the `numpy` module and examine the
-    methods and attributes of an array.
-
-    Parameters
-    ----------
-    (for the __new__ method; see Notes below)
-
-    shape : tuple of ints
-        Shape of created array.
-    dtype : data-type, optional
-        Any object that can be interpreted as a numpy data type.
-        Default is `numpy.float64`.
-    buffer : object exposing buffer interface, optional
-        Used to fill the array with data.
-    offset : int, optional
-        Offset of array data in buffer.
-    strides : tuple of ints, optional
-        Strides of data in memory.
-    order : {'C', 'F'}, optional
-        Row-major (C-style) or column-major (Fortran-style) order.
-
-    Attributes
-    ----------
-    T : ndarray
-        Transpose of the array.
-    data : buffer
-        The array's elements, in memory.
-    dtype : dtype object
-        Describes the format of the elements in the array.
-    flags : dict
-        Dictionary containing information related to memory use, e.g.,
-        'C_CONTIGUOUS', 'OWNDATA', 'WRITEABLE', etc.
-    flat : numpy.flatiter object
-        Flattened version of the array as an iterator.  The iterator
-        allows assignments, e.g., ``x.flat = 3`` (See `ndarray.flat` for
-        assignment examples; TODO).
-    imag : ndarray
-        Imaginary part of the array.
-    real : ndarray
-        Real part of the array.
-    size : int
-        Number of elements in the array.
-    itemsize : int
-        The memory use of each array element in bytes.
-    nbytes : int
-        The total number of bytes required to store the array data,
-        i.e., ``itemsize * size``.
-    ndim : int
-        The array's number of dimensions.
-    shape : tuple of ints
-        Shape of the array.
-    strides : tuple of ints
-        The step-size required to move from one element to the next in
-        memory. For example, a contiguous ``(3, 4)`` array of type
-        ``int16`` in C-order has strides ``(8, 2)``.  This implies that
-        to move from element to element in memory requires jumps of 2 bytes.
-        To move from row-to-row, one needs to jump 8 bytes at a time
-        (``2 * 4``).
-    ctypes : ctypes object
-        Class containing properties of the array needed for interaction
-        with ctypes.
-    base : ndarray
-        If the array is a view into another array, that array is its `base`
-        (unless that array is also a view).  The `base` array is where the
-        array data is actually stored.
-
-    See Also
-    --------
-    array : Construct an array.
-    zeros : Create an array, each element of which is zero.
-    empty : Create an array, but leave its allocated memory unchanged (i.e.,
-            it contains "garbage").
-    dtype : Create a data-type.
-    numpy.typing.NDArray : An ndarray alias :term:`generic <generic type>`
-                           w.r.t. its `dtype.type <numpy.dtype.type>`.
-
-    Notes
-    -----
-    There are two modes of creating an array using ``__new__``:
-
-    1. If `buffer` is None, then only `shape`, `dtype`, and `order`
-       are used.
-    2. If `buffer` is an object exposing the buffer interface, then
-       all keywords are interpreted.
-
-    No ``__init__`` method is needed because the array is fully initialized
-    after the ``__new__`` method.
-
-    Examples
-    --------
-    These examples illustrate the low-level `ndarray` constructor.  Refer
-    to the `See Also` section above for easier ways of constructing an
-    ndarray.
-
-    First mode, `buffer` is None:
-
-    >>> import numpy as np
-    >>> np.ndarray(shape=(2,2), dtype=np.float64, order='F')
-    array([[0.0e+000, 0.0e+000], # random
-           [     nan, 2.5e-323]])
-
-    Second mode:
-
-    >>> np.ndarray((2,), buffer=np.array([1,2,3]),
-    ...            offset=np.int_().itemsize,
-    ...            dtype=np.int_) # offset = 1*itemsize, i.e. skip first element
-    array([2, 3])
-
-    """)
-
-
-##############################################################################
-#
-# ndarray attributes
-#
-##############################################################################
-
-
-add_newdoc('numpy._core.multiarray', 'ndarray', ('__array_interface__',
-    """Array protocol: Python side."""))
-
-
-add_newdoc('numpy._core.multiarray', 'ndarray', ('__array_priority__',
-    """Array priority."""))
-
-
-add_newdoc('numpy._core.multiarray', 'ndarray', ('__array_struct__',
-    """Array protocol: C-struct side."""))
-
-
-add_newdoc('numpy._core.multiarray', 'ndarray', ('base',
-    """
-    Base object if memory is from some other object.
-
-    Examples
-    --------
-    The base of an array that owns its memory is None:
-
-    >>> import numpy as np
-    >>> x = np.array([1,2,3,4])
-    >>> x.base is None
-    True
-
-    Slicing creates a view, whose memory is shared with x:
-
-    >>> y = x[2:]
-    >>> y.base is x
-    True
-
-    """))
-
-
-add_newdoc('numpy._core.multiarray', 'ndarray', ('ctypes',
-    """
-    An object to simplify the interaction of the array with the ctypes
-    module.
-
-    This attribute creates an object that makes it easier to use arrays
-    when calling shared libraries with the ctypes module. The returned
-    object has, among others, data, shape, and strides attributes (see
-    Notes below) which themselves return ctypes objects that can be used
-    as arguments to a shared library.
-
-    Parameters
-    ----------
-    None
-
-    Returns
-    -------
-    c : Python object
-        Possessing attributes data, shape, strides, etc.
-
-    See Also
-    --------
-    numpy.ctypeslib
-
-    Notes
-    -----
-    Below are the public attributes of this object which were documented
-    in "Guide to NumPy" (we have omitted undocumented public attributes,
-    as well as documented private attributes):
-
-    .. autoattribute:: numpy._core._internal._ctypes.data
-        :noindex:
-
-    .. autoattribute:: numpy._core._internal._ctypes.shape
-        :noindex:
-
-    .. autoattribute:: numpy._core._internal._ctypes.strides
-        :noindex:
-
-    .. automethod:: numpy._core._internal._ctypes.data_as
-        :noindex:
-
-    .. automethod:: numpy._core._internal._ctypes.shape_as
-        :noindex:
-
-    .. automethod:: numpy._core._internal._ctypes.strides_as
-        :noindex:
-
-    If the ctypes module is not available, then the ctypes attribute
-    of array objects still returns something useful, but ctypes objects
-    are not returned and errors may be raised instead. In particular,
-    the object will still have the ``as_parameter`` attribute which will
-    return an integer equal to the data attribute.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> import ctypes
-    >>> x = np.array([[0, 1], [2, 3]], dtype=np.int32)
-    >>> x
-    array([[0, 1],
-           [2, 3]], dtype=int32)
-    >>> x.ctypes.data
-    31962608 # may vary
-    >>> x.ctypes.data_as(ctypes.POINTER(ctypes.c_uint32))
-    <__main__.LP_c_uint object at 0x7ff2fc1fc200> # may vary
-    >>> x.ctypes.data_as(ctypes.POINTER(ctypes.c_uint32)).contents
-    c_uint(0)
-    >>> x.ctypes.data_as(ctypes.POINTER(ctypes.c_uint64)).contents
-    c_ulong(4294967296)
-    >>> x.ctypes.shape
-    <numpy._core._internal.c_long_Array_2 object at 0x7ff2fc1fce60> # may vary
-    >>> x.ctypes.strides
-    <numpy._core._internal.c_long_Array_2 object at 0x7ff2fc1ff320> # may vary
-
-    """))
-
-
-add_newdoc('numpy._core.multiarray', 'ndarray', ('data',
-    """Python buffer object pointing to the start of the array's data."""))
-
-
-add_newdoc('numpy._core.multiarray', 'ndarray', ('dtype',
-    """
-    Data-type of the array's elements.
-
-    .. warning::
-
-        Setting ``arr.dtype`` is discouraged and may be deprecated in the
-        future.  Setting will replace the ``dtype`` without modifying the
-        memory (see also `ndarray.view` and `ndarray.astype`).
-
-    Parameters
-    ----------
-    None
-
-    Returns
-    -------
-    d : numpy dtype object
-
-    See Also
-    --------
-    ndarray.astype : Cast the values contained in the array to a new data-type.
-    ndarray.view : Create a view of the same data but a different data-type.
-    numpy.dtype
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> x = np.arange(4).reshape((2, 2))
-    >>> x
-    array([[0, 1],
-           [2, 3]])
-    >>> x.dtype
-    dtype('int64')   # may vary (OS, bitness)
-    >>> isinstance(x.dtype, np.dtype)
-    True
-
-    """))
-
-
-add_newdoc('numpy._core.multiarray', 'ndarray', ('imag',
-    """
-    The imaginary part of the array.
-
-    Returns a view into the original array for complex arrays.
-    For non-complex arrays, returns a zero array of the same dtype.
-    For ``object`` arrays returns elementwise ``.imag`` or ``0``
-    if ``.imag`` is undefined.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> x = np.sqrt([1+0j, 0+1j])
-    >>> x.imag
-    array([ 0.        ,  0.70710678])
-    >>> x.imag.dtype
-    dtype('float64')
-
-    """))
-
-
-add_newdoc('numpy._core.multiarray', 'ndarray', ('itemsize',
-    """
-    Length of one array element in bytes.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> x = np.array([1,2,3], dtype=np.float64)
-    >>> x.itemsize
-    8
-    >>> x = np.array([1,2,3], dtype=np.complex128)
-    >>> x.itemsize
-    16
-
-    """))
-
-
-add_newdoc('numpy._core.multiarray', 'ndarray', ('flags',
-    """
-    Information about the memory layout of the array.
-
-    Attributes
-    ----------
-    C_CONTIGUOUS (C)
-        The data is in a single, C-style contiguous segment.
-    F_CONTIGUOUS (F)
-        The data is in a single, Fortran-style contiguous segment.
-    OWNDATA (O)
-        The array owns the memory it uses or borrows it from another object.
-    WRITEABLE (W)
-        The data area can be written to.  Setting this to False locks
-        the data, making it read-only.  A view (slice, etc.) inherits WRITEABLE
-        from its base array at creation time, but a view of a writeable
-        array may be subsequently locked while the base array remains writeable.
-        (The opposite is not true, in that a view of a locked array may not
-        be made writeable.  However, currently, locking a base object does not
-        lock any views that already reference it, so under that circumstance it
-        is possible to alter the contents of a locked array via a previously
-        created writeable view onto it.)  Attempting to change a non-writeable
-        array raises a RuntimeError exception.
-    ALIGNED (A)
-        The data and all elements are aligned appropriately for the hardware.
-    WRITEBACKIFCOPY (X)
-        This array is a copy of some other array. The C-API function
-        PyArray_ResolveWritebackIfCopy must be called before deallocating
-        to the base array will be updated with the contents of this array.
-    FNC
-        F_CONTIGUOUS and not C_CONTIGUOUS.
-    FORC
-        F_CONTIGUOUS or C_CONTIGUOUS (one-segment test).
-    BEHAVED (B)
-        ALIGNED and WRITEABLE.
-    CARRAY (CA)
-        BEHAVED and C_CONTIGUOUS.
-    FARRAY (FA)
-        BEHAVED and F_CONTIGUOUS and not C_CONTIGUOUS.
-
-    Notes
-    -----
-    The `flags` object can be accessed dictionary-like (as in ``a.flags['WRITEABLE']``),
-    or by using lowercased attribute names (as in ``a.flags.writeable``). Short flag
-    names are only supported in dictionary access.
-
-    Only the WRITEBACKIFCOPY, WRITEABLE, and ALIGNED flags can be
-    changed by the user, via direct assignment to the attribute or dictionary
-    entry, or by calling `ndarray.setflags`.
-
-    The array flags cannot be set arbitrarily:
-
-    - WRITEBACKIFCOPY can only be set ``False``.
-    - ALIGNED can only be set ``True`` if the data is truly aligned.
-    - WRITEABLE can only be set ``True`` if the array owns its own memory
-      or the ultimate owner of the memory exposes a writeable buffer
-      interface or is a string.
-
-    Arrays can be both C-style and Fortran-style contiguous simultaneously.
-    This is clear for 1-dimensional arrays, but can also be true for higher
-    dimensional arrays.
-
-    Even for contiguous arrays a stride for a given dimension
-    ``arr.strides[dim]`` may be *arbitrary* if ``arr.shape[dim] == 1``
-    or the array has no elements.
-    It does *not* generally hold that ``self.strides[-1] == self.itemsize``
-    for C-style contiguous arrays or ``self.strides[0] == self.itemsize`` for
-    Fortran-style contiguous arrays is true.
-    """))
-
-
-add_newdoc('numpy._core.multiarray', 'ndarray', ('flat',
-    """
-    A 1-D iterator over the array.
-
-    This is a `numpy.flatiter` instance, which acts similarly to, but is not
-    a subclass of, Python's built-in iterator object.
-
-    See Also
-    --------
-    flatten : Return a copy of the array collapsed into one dimension.
-
-    flatiter
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> x = np.arange(1, 7).reshape(2, 3)
-    >>> x
-    array([[1, 2, 3],
-           [4, 5, 6]])
-    >>> x.flat[3]
-    4
-    >>> x.T
-    array([[1, 4],
-           [2, 5],
-           [3, 6]])
-    >>> x.T.flat[3]
-    5
-    >>> type(x.flat)
-    <class 'numpy.flatiter'>
-
-    An assignment example:
-
-    >>> x.flat = 3; x
-    array([[3, 3, 3],
-           [3, 3, 3]])
-    >>> x.flat[[1,4]] = 1; x
-    array([[3, 1, 3],
-           [3, 1, 3]])
-
-    """))
-
-
-add_newdoc('numpy._core.multiarray', 'ndarray', ('nbytes',
-    """
-    Total bytes consumed by the elements of the array.
-
-    Notes
-    -----
-    Does not include memory consumed by non-element attributes of the
-    array object.
-
-    See Also
-    --------
-    sys.getsizeof
-        Memory consumed by the object itself without parents in case view.
-        This does include memory consumed by non-element attributes.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> x = np.zeros((3,5,2), dtype=np.complex128)
-    >>> x.nbytes
-    480
-    >>> np.prod(x.shape) * x.itemsize
-    480
-
-    """))
-
-
-add_newdoc('numpy._core.multiarray', 'ndarray', ('ndim',
-    """
-    Number of array dimensions.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> x = np.array([1, 2, 3])
-    >>> x.ndim
-    1
-    >>> y = np.zeros((2, 3, 4))
-    >>> y.ndim
-    3
-
-    """))
-
-
-add_newdoc('numpy._core.multiarray', 'ndarray', ('real',
-    """
-    The real part of the array.
-
-    Usually returns a view into the original array, but returns
-    elementwise ``.real`` for arrays of objects.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> x = np.sqrt([1+0j, 0+1j])
-    >>> x.real
-    array([ 1.        ,  0.70710678])
-    >>> x.real.dtype
-    dtype('float64')
-
-    See Also
-    --------
-    numpy.real : equivalent function
-
-    """))
-
-
-add_newdoc('numpy._core.multiarray', 'ndarray', ('shape',
-    """
-    Tuple of array dimensions.
-
-    The shape property is usually used to get the current shape of an array,
-    but may also be used to reshape the array in-place by assigning a tuple of
-    array dimensions to it.  As with `numpy.reshape`, one of the new shape
-    dimensions can be -1, in which case its value is inferred from the size of
-    the array and the remaining dimensions. Reshaping an array in-place will
-    fail if a copy is required.
-
-    .. warning::
-
-        Setting ``arr.shape`` is deprecated and may be removed in the
-        future.  Using `ndarray.reshape` is the preferred approach.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> x = np.array([1, 2, 3, 4])
-    >>> x.shape
-    (4,)
-    >>> y = np.zeros((2, 3, 4))
-    >>> y.shape
-    (2, 3, 4)
-
-    See Also
-    --------
-    numpy.shape : Equivalent getter function.
-    numpy.reshape : Function similar to setting ``shape``.
-    ndarray.reshape : Method similar to setting ``shape``.
-
-    """))
-
-
-add_newdoc('numpy._core.multiarray', 'ndarray', ('size',
-    """
-    Number of elements in the array.
-
-    Equal to ``np.prod(a.shape)``, i.e., the product of the array's
-    dimensions.
-
-    Notes
-    -----
-    `a.size` returns a standard arbitrary precision Python integer. This
-    may not be the case with other methods of obtaining the same value
-    (like the suggested ``np.prod(a.shape)``, which returns an instance
-    of ``np.int_``), and may be relevant if the value is used further in
-    calculations that may overflow a fixed size integer type.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> x = np.zeros((3, 5, 2), dtype=np.complex128)
-    >>> x.size
-    30
-    >>> np.prod(x.shape)
-    30
-
-    """))
-
-
-add_newdoc('numpy._core.multiarray', 'ndarray', ('strides',
-    """
-    Tuple of bytes to step in each dimension when traversing an array.
-
-    The byte offset of element ``(i[0], i[1], ..., i[n])`` in an array `a`
-    is::
-
-        offset = sum(np.array(i) * a.strides)
-
-    A more detailed explanation of strides can be found in
-    :ref:`arrays.ndarray`.
-
-    .. warning::
-
-        Setting ``arr.strides`` is discouraged and may be deprecated in the
-        future.  `numpy.lib.stride_tricks.as_strided` should be preferred
-        to create a new view of the same data in a safer way.
-
-    Notes
-    -----
-    Imagine an array of 32-bit integers (each 4 bytes)::
-
-      x = np.array([[0, 1, 2, 3, 4],
-                    [5, 6, 7, 8, 9]], dtype=np.int32)
-
-    This array is stored in memory as 40 bytes, one after the other
-    (known as a contiguous block of memory).  The strides of an array tell
-    us how many bytes we have to skip in memory to move to the next position
-    along a certain axis.  For example, we have to skip 4 bytes (1 value) to
-    move to the next column, but 20 bytes (5 values) to get to the same
-    position in the next row.  As such, the strides for the array `x` will be
-    ``(20, 4)``.
-
-    See Also
-    --------
-    numpy.lib.stride_tricks.as_strided
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> y = np.reshape(np.arange(2 * 3 * 4, dtype=np.int32), (2, 3, 4))
-    >>> y
-    array([[[ 0,  1,  2,  3],
-            [ 4,  5,  6,  7],
-            [ 8,  9, 10, 11]],
-           [[12, 13, 14, 15],
-            [16, 17, 18, 19],
-            [20, 21, 22, 23]]], dtype=np.int32)
-    >>> y.strides
-    (48, 16, 4)
-    >>> y[1, 1, 1]
-    np.int32(17)
-    >>> offset = sum(y.strides * np.array((1, 1, 1)))
-    >>> offset // y.itemsize
-    np.int64(17)
-
-    >>> x = np.reshape(np.arange(5*6*7*8, dtype=np.int32), (5, 6, 7, 8))
-    >>> x = x.transpose(2, 3, 1, 0)
-    >>> x.strides
-    (32, 4, 224, 1344)
-    >>> i = np.array([3, 5, 2, 2], dtype=np.int32)
-    >>> offset = sum(i * x.strides)
-    >>> x[3, 5, 2, 2]
-    np.int32(813)
-    >>> offset // x.itemsize
-    np.int64(813)
-
-    """))
-
-
-add_newdoc('numpy._core.multiarray', 'ndarray', ('T',
-    """
-    View of the transposed array.
-
-    Same as ``self.transpose()``.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> a = np.array([[1, 2], [3, 4]])
-    >>> a
-    array([[1, 2],
-           [3, 4]])
-    >>> a.T
-    array([[1, 3],
-           [2, 4]])
-
-    >>> a = np.array([1, 2, 3, 4])
-    >>> a
-    array([1, 2, 3, 4])
-    >>> a.T
-    array([1, 2, 3, 4])
-
-    See Also
-    --------
-    transpose
-
-    """))
-
-
-add_newdoc('numpy._core.multiarray', 'ndarray', ('mT',
-    """
-    View of the matrix transposed array.
-
-    The matrix transpose is the transpose of the last two dimensions, even
-    if the array is of higher dimension.
-
-    .. versionadded:: 2.0
-
-    Raises
-    ------
-    ValueError
-        If the array is of dimension less than 2.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> a = np.array([[1, 2], [3, 4]])
-    >>> a
-    array([[1, 2],
-           [3, 4]])
-    >>> a.mT
-    array([[1, 3],
-           [2, 4]])
-
-    >>> a = np.arange(8).reshape((2, 2, 2))
-    >>> a
-    array([[[0, 1],
-            [2, 3]],
-    <BLANKLINE>
-           [[4, 5],
-            [6, 7]]])
-    >>> a.mT
-    array([[[0, 2],
-            [1, 3]],
-    <BLANKLINE>
-           [[4, 6],
-            [5, 7]]])
-
-    """))
-
-##############################################################################
-#
-# ndarray methods
-#
-##############################################################################
-
-
-add_newdoc('numpy._core.multiarray', 'ndarray', ('__array__',
-    """
-    __array__($self, dtype=None, /, *, copy=None)
-    --
-
-    a.__array__([dtype], *, copy=None)
-
-    For ``dtype`` parameter it returns a new reference to self if
-    ``dtype`` is not given or it matches array's data type.
-    A new array of provided data type is returned if ``dtype``
-    is different from the current data type of the array.
-    For ``copy`` parameter it returns a new reference to self if
-    ``copy=False`` or ``copy=None`` and copying isn't enforced by ``dtype``
-    parameter. The method returns a new array for ``copy=True``, regardless of
-    ``dtype`` parameter.
-
-    A more detailed explanation of the ``__array__`` interface
-    can be found in :ref:`dunder_array.interface`.
-
-    """))
-
-
-add_newdoc('numpy._core.multiarray', 'ndarray', ('__array_finalize__',
-    """
-    __array_finalize__($self, obj, /)
-    --
-
-    a.__array_finalize__(obj, /)
-
-    Present so subclasses can call super. Does nothing.
-
-    """))
-
-
-add_newdoc('numpy._core.multiarray', 'ndarray', ('__array_function__',
-    """
-    __array_function__($self, /, func, types, args, kwargs)
-    --
-
-    a.__array_function__(func, types, args, kwargs)
-
-    See :ref:`NEP 18 <NEP18>` and :ref:`NEP 35 <NEP35>` for details.
-
-    """))
-
-
-add_newdoc('numpy._core.multiarray', 'ndarray', ('__array_ufunc__',
-    """
-    __array_ufunc__($self, ufunc, method, /, *inputs, **kwargs)
-    --
-
-    a.__array_ufunc__(ufunc, method, /, *inputs, **kwargs)
-
-    See :ref:`NEP 13 <NEP13>` for details.
-
-    """))
-
-
-add_newdoc('numpy._core.multiarray', 'ndarray', ('__array_wrap__',
-    """
-    __array_wrap__($self, array, context=None, return_scalar=True, /)
-    --
-
-    a.__array_wrap__(array[, context[, return_scalar]], /)
-
-    Returns a view of `array` with the same type as self.
-
-    """))
-
-
-add_newdoc('numpy._core.multiarray', 'ndarray', ('__class_getitem__',
-    """
-    __class_getitem__($cls, item, /)
-    --
-
-    ndarray[shape, dtype]
-
-    Return a parametrized wrapper around the `~numpy.ndarray` type.
-
-    .. versionadded:: 1.22
-
-    Returns
-    -------
-    alias : types.GenericAlias
-        A parametrized `~numpy.ndarray` type.
-
-    Examples
-    --------
-    >>> import numpy as np
-
-    >>> np.ndarray[tuple[int], np.dtype[np.uint8]]
-    numpy.ndarray[tuple[int], numpy.dtype[numpy.uint8]]
-
-    See Also
-    --------
-    :pep:`585` : Type hinting generics in standard collections.
-    numpy.typing.NDArray : An ndarray alias :term:`generic <generic type>`
-                        w.r.t. its `dtype.type <numpy.dtype.type>`.
-
-    """))
-
-
-add_newdoc('numpy._core.multiarray', 'ndarray', ('__dlpack__',
-    """
-    __dlpack__($self, /, *, stream=None, max_version=None, dl_device=None, copy=None)
-    --
-
-    a.__dlpack__(*, stream=None, max_version=None, dl_device=None, copy=None)
-
-    Exports the array for consumption by ``from_dlpack()`` as a DLPack capsule.
-
-    """))
-
-
-add_newdoc('numpy._core.multiarray', 'ndarray', ('__dlpack_device__',
-    """
-    __dlpack_device__($self, /)
-    --
-
-    a.__dlpack_device__()
-
-    Returns device type (``1``) and device ID (``0``) in DLPack format.
-    Meant for use within ``from_dlpack()``.
-
-    """))
-
-
-add_newdoc('numpy._core.multiarray', 'ndarray', ('__reduce__',
-    """
-    __reduce__($self, /)
-    --
-
-    a.__reduce__()
-
-    For pickling.
-
-    """))
-
-
-add_newdoc('numpy._core.multiarray', 'ndarray', ('__reduce_ex__',
-    """
-    __reduce_ex__($self, protocol, /)
-    --
-
-    a.__reduce_ex__(protocol, /)
-
-    For pickling.
-
-    """))
-
-
-add_newdoc('numpy._core.multiarray', 'ndarray', ('__setstate__',
-    """
-    __setstate__($self, state, /)
-    --
-
-    a.__setstate__(state, /)
-
-    For unpickling.
-
-    The `state` argument must be a sequence that contains the following
-    elements:
-
-    Parameters
-    ----------
-    version : int
-        optional pickle version. If omitted defaults to 0.
-    shape : tuple
-    dtype : data-type
-    isFortran : bool
-    rawdata : string or list
-        a binary string with the data (or a list if 'a' is an object array)
-
-    """))
-
-
-add_newdoc('numpy._core.multiarray', 'ndarray', ('dot',
-    """
-    dot($self, other, /, out=None)
-    --
-
-    a.dot(other, /, out=None)
-
-    Refer to :func:`numpy.dot` for full documentation.
-
-    See Also
-    --------
-    numpy.dot : equivalent function
-
-    """))
-
-
-add_newdoc('numpy._core.multiarray', 'ndarray', ('argpartition',
-    """
-    argpartition($self, kth, /, axis=-1, kind='introselect', order=None)
-    --
-
-    a.argpartition(kth, axis=-1, kind='introselect', order=None)
-
-    Returns the indices that would partition this array.
-
-    Refer to `numpy.argpartition` for full documentation.
-
-    See Also
-    --------
-    numpy.argpartition : equivalent function
-
-    """))
-
-
-add_newdoc('numpy._core.multiarray', 'ndarray', ('partition',
-    """
-    partition($self, kth, /, axis=-1, kind='introselect', order=None)
-    --
-
-    a.partition(kth, axis=-1, kind='introselect', order=None)
-
-    Partially sorts the elements in the array in such a way that the value of
-    the element in k-th position is in the position it would be in a sorted
-    array. In the output array, all elements smaller than the k-th element
-    are located to the left of this element and all equal or greater are
-    located to its right. The ordering of the elements in the two partitions
-    on the either side of the k-th element in the output array is undefined.
-
-    Parameters
-    ----------
-    kth : int or sequence of ints
-        Element index to partition by. The kth element value will be in its
-        final sorted position and all smaller elements will be moved before it
-        and all equal or greater elements behind it.
-        The order of all elements in the partitions is undefined.
-        If provided with a sequence of kth it will partition all elements
-        indexed by kth of them into their sorted position at once.
-
-        .. deprecated:: 1.22.0
-            Passing booleans as index is deprecated.
-    axis : int, optional
-        Axis along which to sort. Default is -1, which means sort along the
-        last axis.
-    kind : {'introselect'}, optional
-        Selection algorithm. Default is 'introselect'.
-    order : str or list of str, optional
-        When `a` is an array with fields defined, this argument specifies
-        which fields to compare first, second, etc. A single field can
-        be specified as a string, and not all fields need to be specified,
-        but unspecified fields will still be used, in the order in which
-        they come up in the dtype, to break ties.
-
-    See Also
-    --------
-    numpy.partition : Return a partitioned copy of an array.
-    argpartition : Indirect partition.
-    sort : Full sort.
-
-    Notes
-    -----
-    See ``np.partition`` for notes on the different algorithms.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> a = np.array([3, 4, 2, 1])
-    >>> a.partition(3)
-    >>> a
-    array([2, 1, 3, 4]) # may vary
-
-    >>> a.partition((1, 3))
-    >>> a
-    array([1, 2, 3, 4])
-
-    """))
-
-
-##############################################################################
-#
-# methods from both `ndarray` and `generic`
-#
-##############################################################################
-
-_METHOD_DOC_TEMPLATE = """{name}({params})
---
-
-{doc}"""
-
-def _array_method_doc(name: str, params: str, doc: str) -> None:
-    """
-    Interenal helper function for adding docstrings to a common method of
-    `numpy.ndarray` and `numpy.generic`.
-
-    The provided docstring will be added to the given `numpy.ndarray` method.
-    For the  `numpy.generic` method, a shorter docstring indicating that it is
-    identical to the `ndarray` method will be created.
-    Both methods will have a proper and identical `__text_signature__`.
-
-    Parameters
-    ----------
-    name : str
-        Name of the method.
-    params : str
-        Parameter signature for the method without parentheses, for example,
-        ``"a, /, dtype=None, *, copy=False"``.
-        Parameter defaults must be understood by `ast.literal_eval`, i.e. strings,
-        bytes, numbers, tuples, lists, dicts, sets, booleans, or None.
-    doc : str
-        The full docstring for the `ndarray` method.
-    """
-
-    # prepend the pos-only `$self` parameter to the method signature
-    if "/" not in params:
-        params = f"/, {params}" if params else "/"
-    params = f"$self, {params}"
-
-    # add docstring to `np.ndarray.{name}`
-    doc = textwrap.dedent(doc).strip()
-    doc_array = _METHOD_DOC_TEMPLATE.format(name=name, params=params, doc=doc)
-    add_newdoc("numpy._core.multiarray", "ndarray", (name, doc_array))
-
-    # add docstring to `np.generic.{name}`
-    doc_scalar = f"Scalar method identical to `ndarray.{name}`."
-    doc_scalar = _METHOD_DOC_TEMPLATE.format(name=name, params=params, doc=doc_scalar)
-    add_newdoc("numpy._core.numerictypes", "generic", (name, doc_scalar))
-
-
-_array_method_doc('__array_namespace__', "*, api_version=None",
-    """
-    a.__array_namespace__(*, api_version=None)
-
-    For Array API compatibility.
-    """)
-
-_array_method_doc('__copy__', "",
-    """
-    a.__copy__()
-
-    Used if :func:`copy.copy` is called on an array. Returns a copy of the array.
-
-    Equivalent to ``a.copy(order='K')``.
-    """)
-
-_array_method_doc('__deepcopy__', "memo, /",
-    """
-    a.__deepcopy__(memo, /)
-
-    Used if :func:`copy.deepcopy` is called on an array.
-    """)
-
-_array_method_doc('all', "axis=None, out=None, keepdims=False, *, where=True",
-    """
-    a.all(axis=None, out=None, *, keepdims=<no value>, where=<no value>)
-
-    Returns True if all elements evaluate to True.
-
-    Refer to `numpy.all` for full documentation.
-
-    See Also
-    --------
-    numpy.all : equivalent function
-    """)
-
-_array_method_doc('any', "axis=None, out=None, keepdims=False, *, where=True",
-    """
-    a.any(axis=None, out=None, *, keepdims=<no value>, where=<no value>)
-
-    Returns True if any of the elements of `a` evaluate to True.
-
-    Refer to `numpy.any` for full documentation.
-
-    See Also
-    --------
-    numpy.any : equivalent function
-    """)
-
-_array_method_doc('argmax', "axis=None, out=None, *, keepdims=False",
-    """
-    a.argmax(axis=None, out=None, *, keepdims=False)
-
-    Return indices of the maximum values along the given axis.
-
-    Refer to `numpy.argmax` for full documentation.
-
-    See Also
-    --------
-    numpy.argmax : equivalent function
-    """)
-
-_array_method_doc('argmin', "axis=None, out=None, *, keepdims=False",
-    """
-    a.argmin(axis=None, out=None, *, keepdims=False)
-
-    Return indices of the minimum values along the given axis.
-
-    Refer to `numpy.argmin` for detailed documentation.
-
-    See Also
-    --------
-    numpy.argmin : equivalent function
-    """)
-
-_array_method_doc('argsort', "axis=-1, kind=None, order=None, *, stable=None, descending=None",
-    """
-    a.argsort(axis=-1, kind=None, order=None, *, stable=None, descending=None)
-
-    Returns the indices that would sort this array.
-
-    Refer to `numpy.argsort` for full documentation.
-
-    See Also
-    --------
-    numpy.argsort : equivalent function
-    """)
-
-_array_method_doc('astype', "dtype, order='K', casting='unsafe', subok=True, copy=True",
-    """
-    a.astype(dtype, order='K', casting='unsafe', subok=True, copy=True)
-
-    Copy of the array, cast to a specified type.
-
-    Parameters
-    ----------
-    dtype : str or dtype
-        Typecode or data-type to which the array is cast.
-    order : {'C', 'F', 'A', 'K'}, optional
-        Controls the memory layout order of the result.
-        'C' means C order, 'F' means Fortran order, 'A'
-        means 'F' order if all the arrays are Fortran contiguous,
-        'C' order otherwise, and 'K' means as close to the
-        order the array elements appear in memory as possible.
-        Default is 'K'.
-    casting : {'no', 'equiv', 'safe', 'same_kind', 'same_value', 'unsafe'}, optional
-        Controls what kind of data casting may occur. Defaults to 'unsafe'
-        for backwards compatibility.
-
-        * 'no' means the data types should not be cast at all.
-        * 'equiv' means only byte-order changes are allowed.
-        * 'safe' means only casts which can preserve values are allowed.
-        * 'same_kind' means only safe casts or casts within a kind,
-          like float64 to float32, are allowed.
-        * 'unsafe' means any data conversions may be done.
-        * 'same_value' means any data conversions may be done, but the values
-          must not change, including rounding of floats or overflow of ints
-
-        .. versionadded:: 2.4
-            Support for ``'same_value'`` was added.
-
-    subok : bool, optional
-        If True, then sub-classes will be passed-through (default), otherwise
-        the returned array will be forced to be a base-class array.
-    copy : bool, optional
-        By default, astype always returns a newly allocated array. If this
-        is set to false, and the `dtype`, `order`, and `subok`
-        requirements are satisfied, the input array is returned instead
-        of a copy.
-
-    Returns
-    -------
-    arr_t : ndarray
-        Unless `copy` is False and the other conditions for returning the input
-        array are satisfied (see description for `copy` input parameter), `arr_t`
-        is a new array of the same shape as the input array, with dtype, order
-        given by `dtype`, `order`.
-
-    Raises
-    ------
-    ComplexWarning
-        When casting from complex to float or int. To avoid this,
-        one should use ``a.real.astype(t)``.
-    ValueError
-        When casting using ``'same_value'`` and the values change or would
-        overflow
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> x = np.array([1, 2, 2.5])
-    >>> x
-    array([1. ,  2. ,  2.5])
-
-    >>> x.astype(np.int_)
-    array([1, 2, 2])
-
-    >>> x.astype(np.int_, casting="same_value")
-    Traceback (most recent call last):
-    ...
-    ValueError: could not cast 'same_value' double to long
-
-    >>> x[:2].astype(np.int_, casting="same_value")
-    array([1, 2])
-    """)
-
-_array_method_doc('byteswap', "inplace=False",
-    """
-    a.byteswap(inplace=False)
-
-    Swap the bytes of the array elements
-
-    Toggle between low-endian and big-endian data representation by
-    returning a byteswapped array, optionally swapped in-place.
-    Arrays of byte-strings are not swapped. The real and imaginary
-    parts of a complex number are swapped individually.
-
-    Parameters
-    ----------
-    inplace : bool, optional
-        If ``True``, swap bytes in-place, default is ``False``.
-
-    Returns
-    -------
-    out : ndarray
-        The byteswapped array. If `inplace` is ``True``, this is
-        a view to self.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> A = np.array([1, 256, 8755], dtype=np.int16)
-    >>> list(map(hex, A))
-    ['0x1', '0x100', '0x2233']
-    >>> A.byteswap(inplace=True)
-    array([  256,     1, 13090], dtype=int16)
-    >>> list(map(hex, A))
-    ['0x100', '0x1', '0x3322']
-
-    Arrays of byte-strings are not swapped
-
-    >>> A = np.array([b'ceg', b'fac'])
-    >>> A.byteswap()
-    array([b'ceg', b'fac'], dtype='|S3')
-
-    ``A.view(A.dtype.newbyteorder()).byteswap()`` produces an array with
-    the same values but different representation in memory
-
-    >>> A = np.array([1, 2, 3],dtype=np.int64)
-    >>> A.view(np.uint8)
-    array([1, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0,
-           0, 0], dtype=uint8)
-    >>> A.view(A.dtype.newbyteorder()).byteswap(inplace=True)
-    array([1, 2, 3], dtype='>i8')
-    >>> A.view(np.uint8)
-    array([0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0,
-           0, 3], dtype=uint8)
-    """)
-
-_array_method_doc('choose', "choices, out=None, mode='raise'",
-    """
-    a.choose(choices, out=None, mode='raise')
-
-    Use an index array to construct a new array from a set of choices.
-
-    Refer to `numpy.choose` for full documentation.
-
-    See Also
-    --------
-    numpy.choose : equivalent function
-    """)
-
-_array_method_doc('clip', "min=None, max=None, out=None, **kwargs",
-    """
-    a.clip(min=<no value>, max=<no value>, out=None, **kwargs)
-
-    Return an array whose values are limited to ``[min, max]``.
-    One of max or min must be given.
-
-    Refer to `numpy.clip` for full documentation.
-
-    See Also
-    --------
-    numpy.clip : equivalent function
-    """)
-
-_array_method_doc('compress', "condition, axis=None, out=None",
-    """
-    a.compress(condition, axis=None, out=None)
-
-    Return selected slices of this array along given axis.
-
-    Refer to `numpy.compress` for full documentation.
-
-    See Also
-    --------
-    numpy.compress : equivalent function
-    """)
-
-_array_method_doc('conj', "",
-    """
-    a.conj()
-
-    Complex-conjugate all elements.
-
-    Refer to `numpy.conjugate` for full documentation.
-
-    See Also
-    --------
-    numpy.conjugate : equivalent function
-    """)
-
-_array_method_doc('conjugate', "",
-    """
-    a.conjugate()
-
-    Return the complex conjugate, element-wise.
-
-    Refer to `numpy.conjugate` for full documentation.
-
-    See Also
-    --------
-    numpy.conjugate : equivalent function
-    """)
-
-_array_method_doc('copy', "order='C'",
-    """
-    a.copy(order='C')
-
-    Return a copy of the array.
-
-    Parameters
-    ----------
-    order : {'C', 'F', 'A', 'K'}, optional
-        Controls the memory layout of the copy. 'C' means C-order,
-        'F' means F-order, 'A' means 'F' if `a` is Fortran contiguous,
-        'C' otherwise. 'K' means match the layout of `a` as closely
-        as possible. (Note that this function and :func:`numpy.copy` are very
-        similar but have different default values for their order=
-        arguments, and this function always passes sub-classes through.)
-
-    See also
-    --------
-    numpy.copy : Similar function with different default behavior
-    numpy.copyto
-
-    Notes
-    -----
-    This function is the preferred method for creating an array copy.  The
-    function :func:`numpy.copy` is similar, but it defaults to using order 'K',
-    and will not pass sub-classes through by default.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> x = np.array([[1,2,3],[4,5,6]], order='F')
-
-    >>> y = x.copy()
-
-    >>> x.fill(0)
-
-    >>> x
-    array([[0, 0, 0],
-           [0, 0, 0]])
-
-    >>> y
-    array([[1, 2, 3],
-           [4, 5, 6]])
-
-    >>> y.flags['C_CONTIGUOUS']
-    True
-
-    For arrays containing Python objects (e.g. dtype=np.object_),
-    the copy is a shallow one. The new array will contain the
-    same object which may lead to surprises if that object can
-    be modified (is mutable):
-
-    >>> a = np.array([1, 'm', [2, 3, 4]], dtype=np.object_)
-    >>> b = a.copy()
-    >>> b[2][0] = 10
-    >>> a
-    array([1, 'm', list([10, 3, 4])], dtype=object)
-
-    To ensure all elements within an ``object`` array are copied,
-    use `copy.deepcopy`:
-
-    >>> import copy
-    >>> a = np.array([1, 'm', [2, 3, 4]], dtype=np.object_)
-    >>> c = copy.deepcopy(a)
-    >>> c[2][0] = 10
-    >>> c
-    array([1, 'm', list([10, 3, 4])], dtype=object)
-    >>> a
-    array([1, 'm', list([2, 3, 4])], dtype=object)
-    """)
-
-_array_method_doc('cumprod', "axis=None, dtype=None, out=None",
-    """
-    a.cumprod(axis=None, dtype=None, out=None)
-
-    Return the cumulative product of the elements along the given axis.
-
-    Refer to `numpy.cumprod` for full documentation.
-
-    See Also
-    --------
-    numpy.cumprod : equivalent function
-    """)
-
-_array_method_doc('cumsum', "axis=None, dtype=None, out=None",
-    """
-    a.cumsum(axis=None, dtype=None, out=None)
-
-    Return the cumulative sum of the elements along the given axis.
-
-    Refer to `numpy.cumsum` for full documentation.
-
-    See Also
-    --------
-    numpy.cumsum : equivalent function
-    """)
-
-_array_method_doc('diagonal', "offset=0, axis1=0, axis2=1",
-    """
-    a.diagonal(offset=0, axis1=0, axis2=1)
-
-    Return specified diagonals. In NumPy 1.9 the returned array is a
-    read-only view instead of a copy as in previous NumPy versions.  In
-    a future version the read-only restriction will be removed.
-
-    Refer to :func:`numpy.diagonal` for full documentation.
-
-    See Also
-    --------
-    numpy.diagonal : equivalent function
-    """)
-
-_array_method_doc('dump', "file",
-    """
-    a.dump(file)
-
-    Dump a pickle of the array to the specified file.
-    The array can be read back with pickle.load or numpy.load.
-
-    Parameters
-    ----------
-    file : str or Path
-        A string naming the dump file.
-    """)
-
-_array_method_doc('dumps', "",
-    """
-    a.dumps()
-
-    Returns the pickle of the array as a string.
-    ``pickle.loads`` will convert the string back to an array.
-
-    Parameters
-    ----------
-    None
-    """)
-
-_array_method_doc('fill', "value",
-    """
-    a.fill(value)
-
-    Fill the array with a scalar value.
-
-    Parameters
-    ----------
-    value : scalar
-        All elements of `a` will be assigned this value.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> a = np.array([1, 2])
-    >>> a.fill(0)
-    >>> a
-    array([0, 0])
-    >>> a = np.empty(2)
-    >>> a.fill(1)
-    >>> a
-    array([1.,  1.])
-
-    Fill expects a scalar value and always behaves the same as assigning
-    to a single array element.  The following is a rare example where this
-    distinction is important:
-
-    >>> a = np.array([None, None], dtype=np.object_)
-    >>> a[0] = np.array(3)
-    >>> a
-    array([array(3), None], dtype=object)
-    >>> a.fill(np.array(3))
-    >>> a
-    array([array(3), array(3)], dtype=object)
-
-    Where other forms of assignments will unpack the array being assigned:
-
-    >>> a[...] = np.array(3)
-    >>> a
-    array([3, 3], dtype=object)
-    """)
-
-_array_method_doc('flatten', "order='C'",
-    """
-    a.flatten(order='C')
-
-    Return a copy of the array collapsed into one dimension.
-
-    Parameters
-    ----------
-    order : {'C', 'F', 'A', 'K'}, optional
-        'C' means to flatten in row-major (C-style) order.
-        'F' means to flatten in column-major (Fortran-
-        style) order. 'A' means to flatten in column-major
-        order if `a` is Fortran *contiguous* in memory,
-        row-major order otherwise. 'K' means to flatten
-        `a` in the order the elements occur in memory.
-        The default is 'C'.
-
-    Returns
-    -------
-    y : ndarray
-        A copy of the input array, flattened to one dimension.
-
-    See Also
-    --------
-    ravel : Return a flattened array.
-    flat : A 1-D flat iterator over the array.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> a = np.array([[1,2], [3,4]])
-    >>> a.flatten()
-    array([1, 2, 3, 4])
-    >>> a.flatten('F')
-    array([1, 3, 2, 4])
-    """)
-
-_array_method_doc('getfield', "dtype, offset=0",
-    """
-    a.getfield(dtype, offset=0)
-
-    Returns a field of the given array as a certain type.
-
-    A field is a view of the array data with a given data-type. The values in
-    the view are determined by the given type and the offset into the current
-    array in bytes. The offset needs to be such that the view dtype fits in the
-    array dtype; for example an array of dtype complex128 has 16-byte elements.
-    If taking a view with a 32-bit integer (4 bytes), the offset needs to be
-    between 0 and 12 bytes.
-
-    Parameters
-    ----------
-    dtype : str or dtype
-        The data type of the view. The dtype size of the view can not be larger
-        than that of the array itself.
-    offset : int
-        Number of bytes to skip before beginning the element view.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> x = np.diag([1.+1.j]*2)
-    >>> x[1, 1] = 2 + 4.j
-    >>> x
-    array([[1.+1.j,  0.+0.j],
-           [0.+0.j,  2.+4.j]])
-    >>> x.getfield(np.float64)
-    array([[1.,  0.],
-           [0.,  2.]])
-
-    By choosing an offset of 8 bytes we can select the complex part of the
-    array for our view:
-
-    >>> x.getfield(np.float64, offset=8)
-    array([[1.,  0.],
-           [0.,  4.]])
-    """)
-
-_array_method_doc('item', "*args",
-    """
-    a.item(*args)
-
-    Copy an element of an array to a standard Python scalar and return it.
-
-    Parameters
-    ----------
-    \\*args : Arguments (variable number and type)
-
-        * none: in this case, the method only works for arrays
-          with one element (`a.size == 1`), which element is
-          copied into a standard Python scalar object and returned.
-
-        * int_type: this argument is interpreted as a flat index into
-          the array, specifying which element to copy and return.
-
-        * tuple of int_types: functions as does a single int_type argument,
-          except that the argument is interpreted as an nd-index into the
-          array.
-
-    Returns
-    -------
-    z : Standard Python scalar object
-        A copy of the specified element of the array as a suitable
-        Python scalar
-
-    Notes
-    -----
-    When the data type of `a` is longdouble or clongdouble, item() returns
-    a scalar array object because there is no available Python scalar that
-    would not lose information. Void arrays return a buffer object for item(),
-    unless fields are defined, in which case a tuple is returned.
-
-    `item` is very similar to a[args], except, instead of an array scalar,
-    a standard Python scalar is returned. This can be useful for speeding up
-    access to elements of the array and doing arithmetic on elements of the
-    array using Python's optimized math.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> np.random.seed(123)
-    >>> x = np.random.randint(9, size=(3, 3))
-    >>> x
-    array([[2, 2, 6],
-           [1, 3, 6],
-           [1, 0, 1]])
-    >>> x.item(3)
-    1
-    >>> x.item(7)
-    0
-    >>> x.item((0, 1))
-    2
-    >>> x.item((2, 2))
-    1
-
-    For an array with object dtype, elements are returned as-is.
-
-    >>> a = np.array([np.int64(1)], dtype=np.object_)
-    >>> a.item() #return np.int64
-    np.int64(1)
-    """)
-
-_KWARGS_REDUCE = "keepdims=<no value>, initial=<no value>, where=<no value>"
-
-_array_method_doc('max', "axis=None, out=None, **kwargs",
-    f"""
-    a.max(axis=None, out=None, *, {_KWARGS_REDUCE})
-
-    Return the maximum along a given axis.
-
-    Refer to `numpy.amax` for full documentation.
-
-    See Also
-    --------
-    numpy.amax : equivalent function
-    """)
-
-_array_method_doc('min', "axis=None, out=None, **kwargs",
-    f"""
-    a.min(axis=None, out=None, *, {_KWARGS_REDUCE})
-
-    Return the minimum along a given axis.
-
-    Refer to `numpy.amin` for full documentation.
-
-    See Also
-    --------
-    numpy.amin : equivalent function
-    """)
-
-_array_method_doc('prod', "axis=None, dtype=None, out=None, **kwargs",
-    f"""
-    a.prod(axis=None, dtype=None, out=None, *, {_KWARGS_REDUCE})
-
-    Return the product of the array elements over the given axis
-
-    Refer to `numpy.prod` for full documentation.
-
-    See Also
-    --------
-    numpy.prod : equivalent function
-    """)
-
-_array_method_doc('sum', "axis=None, dtype=None, out=None, **kwargs",
-    f"""
-    a.sum(axis=None, dtype=None, out=None, *, {_KWARGS_REDUCE})
-
-    Return the sum of the array elements over the given axis.
-
-    Refer to `numpy.sum` for full documentation.
-
-    See Also
-    --------
-    numpy.sum : equivalent function
-    """)
-
-_array_method_doc('mean', "axis=None, dtype=None, out=None, **kwargs",
-    """
-    a.mean(axis=None, dtype=None, out=None, *, keepdims=<no value>, where=<no value>)
-
-    Returns the average of the array elements along given axis.
-
-    Refer to `numpy.mean` for full documentation.
-
-    See Also
-    --------
-    numpy.mean : equivalent function
-    """)
-
-_array_method_doc('nonzero', "",
-    """
-    a.nonzero()
-
-    Return the indices of the elements that are non-zero.
-
-    Refer to `numpy.nonzero` for full documentation.
-
-    See Also
-    --------
-    numpy.nonzero : equivalent function
-    """)
-
-_array_method_doc('put', "indices, values, /, mode='raise'",
-    """
-    a.put(indices, values, mode='raise')
-
-    Set ``a.flat[n] = values[n]`` for all ``n`` in indices.
-
-    Refer to `numpy.put` for full documentation.
-
-    See Also
-    --------
-    numpy.put : equivalent function
-    """)
-
-_array_method_doc('ravel', "order='C'",
-    """
-    a.ravel(order='C')
-
-    Return a flattened array.
-
-    Refer to `numpy.ravel` for full documentation.
-
-    See Also
-    --------
-    numpy.ravel : equivalent function
-    ndarray.flat : a flat iterator on the array.
-    """)
-
-_array_method_doc('repeat', "repeats, /, axis=None",
-    """
-    a.repeat(repeats, axis=None)
-
-    Repeat elements of an array.
-
-    Refer to `numpy.repeat` for full documentation.
-
-    See Also
-    --------
-    numpy.repeat : equivalent function
-    """)
-
-_array_method_doc('reshape', "*shape, order='C', copy=None",
-    """
-    a.reshape(shape, /, *, order='C', copy=None)
-    a.reshape(*shape, order='C', copy=None)
-
-    Returns an array containing the same data with a new shape.
-
-    Refer to `numpy.reshape` for full documentation.
-
-    See Also
-    --------
-    numpy.reshape : equivalent function
-
-    Notes
-    -----
-    Unlike the free function `numpy.reshape`, this method on `ndarray` allows
-    the elements of the shape parameter to be passed in as separate arguments.
-    For example, ``a.reshape(4, 2)`` is equivalent to ``a.reshape((4, 2))``.
-    """)
-
-_array_method_doc('resize', "*new_shape, refcheck=True",
-    """
-    a.resize(new_shape, /, *, refcheck=True)
-    a.resize(*new_shape, refcheck=True)
-
-    Change shape and size of array in-place.
-
-    Parameters
-    ----------
-    new_shape : tuple of ints, or `n` ints
-        Shape of resized array.
-    refcheck : bool, optional
-        If False, reference count will not be checked. Default is True.
-        See Notes below for more explanation.
-
-    Returns
-    -------
-    None
-
-    Raises
-    ------
-    ValueError
-        If `a` does not own its own data or references or views to may exist.
-
-    See Also
-    --------
-    resize : Return a new array with the specified shape.
-
-    Notes
-    -----
-    This reallocates space for the data area if necessary.
-
-    Only contiguous arrays (data elements consecutive in memory) can be
-    resized.
-
-    Reallocating arrays in-place can often lead to memory fragmentation and
-    should be avoided. If the goal is to reclaim over-allocated memory,
-    alternatives are to create a view or a copy of just the desired data, or
-    using two passes to build the array: one to cheaply determine the shape and
-    another to allocate and fill. Benchmark your use case to determine what is
-    optimum. You may be surprised to find ``resize`` actually slows down or
-    bloats your application.
-
-    The purpose of the reference count check is to make sure you
-    do not use this array as a buffer for another Python object and then
-    reallocate the memory.
-
-    On Python 3.13 and older, the check allows objects with exactly one
-    reference to be reallocated in-place. On Python 3.14 and newer, the array
-    must be uniquely referenced. See [1]_ for more details.
-
-    If you are sure that you have not shared the memory for this array with
-    another Python object, then you may safely set `refcheck` to False.
-
+    The implementation here is taken from [1]_.
 
     References
     ----------
-    .. [1] Python 3.14 What's New, https://docs.python.org/3/whatsnew/3.14.html#whatsnew314-refcount
+    .. [1] Lawrence, Corless, and Jeffrey, "Algorithm 917: Complex
+           Double-Precision Evaluation of the Wright :math:`\omega`
+           Function." ACM Transactions on Mathematical Software,
+           2012. :doi:`10.1145/2168773.2168779`.
 
     Examples
     --------
-    Shrinking an array: array is flattened (in the order that the data are
-    stored in memory), resized, and reshaped:
-
     >>> import numpy as np
+    >>> from scipy.special import wrightomega, lambertw
 
-    >>> a = np.array([[0, 1], [2, 3]], order='C')
-    >>> a.resize((2, 1))
-    >>> a
-    array([[0],
-           [1]])
+    >>> wrightomega([-2, -1, 0, 1, 2])
+    array([0.12002824, 0.27846454, 0.56714329, 1.        , 1.5571456 ])
 
-    >>> a = np.array([[0, 1], [2, 3]], order='F')
-    >>> a.resize((2, 1))
-    >>> a
-    array([[0],
-           [2]])
+    Complex input:
 
-    Enlarging an array: as above, but missing entries are filled with zeros:
+    >>> wrightomega(3 + 5j)
+    (1.5804428632097158+3.8213626783287937j)
 
-    >>> b = np.array([[0, 1], [2, 3]])
-    >>> b.resize(2, 3) # new_shape parameter doesn't have to be a tuple
-    >>> b
-    array([[0, 1, 2],
-           [3, 0, 0]])
+    Verify that ``wrightomega(z)`` satisfies ``w + log(w) = z``:
 
-    Referencing an array prevents resizing...
+    >>> w = -5 + 4j
+    >>> wrightomega(w + np.log(w))
+    (-5+4j)
 
-    >>> c = a
-    >>> a.resize((1, 1))
-    Traceback (most recent call last):
+    Verify the connection to ``lambertw``:
+
+    >>> z = 0.5 + 3j
+    >>> wrightomega(z)
+    (0.0966015889280649+1.4937828458191993j)
+    >>> lambertw(np.exp(z))
+    (0.09660158892806493+1.4937828458191993j)
+
+    >>> z = 0.5 + 4j
+    >>> wrightomega(z)
+    (-0.3362123489037213+2.282986001579032j)
+    >>> lambertw(np.exp(z), k=1)
+    (-0.33621234890372115+2.282986001579032j)
+    """)
+
+
+add_newdoc("agm",
+    """
+    agm(a, b, out=None)
+
+    Compute the arithmetic-geometric mean of `a` and `b`.
+
+    Start with a_0 = a and b_0 = b and iteratively compute::
+
+        a_{n+1} = (a_n + b_n)/2
+        b_{n+1} = sqrt(a_n*b_n)
+
+    a_n and b_n converge to the same limit as n increases; their common
+    limit is agm(a, b).
+
+    Parameters
+    ----------
+    a, b : array_like
+        Real values only. If the values are both negative, the result
+        is negative. If one value is negative and the other is positive,
+        `nan` is returned.
+    out : ndarray, optional
+        Optional output array for the function values
+
+    Returns
+    -------
+    scalar or ndarray
+        The arithmetic-geometric mean of `a` and `b`.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from scipy.special import agm
+    >>> a, b = 24.0, 6.0
+    >>> agm(a, b)
+    13.458171481725614
+
+    Compare that result to the iteration:
+
+    >>> while a != b:
+    ...     a, b = (a + b)/2, np.sqrt(a*b)
+    ...     print("a = %19.16f  b=%19.16f" % (a, b))
     ...
-    ValueError: cannot resize an array that references or is referenced ...
+    a = 15.0000000000000000  b=12.0000000000000000
+    a = 13.5000000000000000  b=13.4164078649987388
+    a = 13.4582039324993694  b=13.4581390309909850
+    a = 13.4581714817451772  b=13.4581714817060547
+    a = 13.4581714817256159  b=13.4581714817256159
 
-    Unless `refcheck` is False:
+    When array-like arguments are given, broadcasting applies:
 
-    >>> a.resize((1, 1), refcheck=False)
-    >>> a
-    array([[0]])
-    >>> c
-    array([[0]])
+    >>> a = np.array([[1.5], [3], [6]])  # a has shape (3, 1).
+    >>> b = np.array([6, 12, 24, 48])    # b has shape (4,).
+    >>> agm(a, b)
+    array([[  3.36454287,   5.42363427,   9.05798751,  15.53650756],
+           [  4.37037309,   6.72908574,  10.84726853,  18.11597502],
+           [  6.        ,   8.74074619,  13.45817148,  21.69453707]])
     """)
 
-_array_method_doc('round', "decimals=0, out=None",
-    """
-    a.round(decimals=0, out=None)
+add_newdoc("bdtr",
+    r"""
+    bdtr(k, n, p, out=None)
 
-    Return `a` with each element rounded to the given number of decimals.
+    Binomial distribution cumulative distribution function.
 
-    Refer to `numpy.around` for full documentation.
+    Sum of the terms 0 through `floor(k)` of the Binomial probability density.
 
-    See Also
-    --------
-    numpy.around : equivalent function
-    """)
-
-_array_method_doc('searchsorted', "v, /, side='left', sorter=None",
-    """
-    a.searchsorted(v, side='left', sorter=None)
-
-    Find indices where elements of `v` should be inserted in `a` to maintain order.
-
-    For full documentation, see `numpy.searchsorted`.
-
-    See Also
-    --------
-    numpy.searchsorted : equivalent function
-    """)
-
-_array_method_doc('setfield', "val, /, dtype, offset=0",
-    """
-    a.setfield(val, dtype, offset=0)
-
-    Put a value into a specified place in a field defined by a data-type.
-
-    Place `val` into `a`'s field defined by `dtype` and beginning `offset`
-    bytes into the field.
+    .. math::
+        \mathrm{bdtr}(k, n, p) =
+        \sum_{j=0}^{\lfloor k \rfloor} {{n}\choose{j}} p^j (1-p)^{n-j}
 
     Parameters
     ----------
-    val : object
-        Value to be placed in field.
-    dtype : dtype object
-        Data-type of the field in which to place `val`.
-    offset : int, optional
-        The number of bytes into the field at which to place `val`.
+    k : array_like
+        Number of successes (double), rounded down to the nearest integer.
+    n : array_like
+        Number of events (int).
+    p : array_like
+        Probability of success in a single event (float).
+    out : ndarray, optional
+        Optional output array for the function values
 
     Returns
     -------
-    None
-
-    See Also
-    --------
-    getfield
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> x = np.eye(3)
-    >>> x.getfield(np.float64)
-    array([[1.,  0.,  0.],
-           [0.,  1.,  0.],
-           [0.,  0.,  1.]])
-    >>> x.setfield(3, np.int32)
-    >>> x.getfield(np.int32)
-    array([[3, 3, 3],
-           [3, 3, 3],
-           [3, 3, 3]], dtype=int32)
-    >>> x
-    array([[1.0e+000, 1.5e-323, 1.5e-323],
-           [1.5e-323, 1.0e+000, 1.5e-323],
-           [1.5e-323, 1.5e-323, 1.0e+000]])
-    >>> x.setfield(np.eye(3), np.int32)
-    >>> x
-    array([[1.,  0.,  0.],
-           [0.,  1.,  0.],
-           [0.,  0.,  1.]])
-    """)
-
-_array_method_doc('setflags', "*, write=None, align=None, uic=None",
-    """
-    a.setflags(write=None, align=None, uic=None)
-
-    Set array flags WRITEABLE, ALIGNED, WRITEBACKIFCOPY,
-    respectively.
-
-    These Boolean-valued flags affect how numpy interprets the memory
-    area used by `a` (see Notes below). The ALIGNED flag can only
-    be set to True if the data is actually aligned according to the type.
-    The WRITEBACKIFCOPY flag can never be set
-    to True. The flag WRITEABLE can only be set to True if the array owns its
-    own memory, or the ultimate owner of the memory exposes a writeable buffer
-    interface, or is a string. (The exception for string is made so that
-    unpickling can be done without copying memory.)
-
-    Parameters
-    ----------
-    write : bool, optional
-        Describes whether or not `a` can be written to.
-    align : bool, optional
-        Describes whether or not `a` is aligned properly for its type.
-    uic : bool, optional
-        Describes whether or not `a` is a copy of another "base" array.
+    y : scalar or ndarray
+        Probability of `floor(k)` or fewer successes in `n` independent events with
+        success probabilities of `p`.
 
     Notes
     -----
-    Array flags provide information about how the memory area used
-    for the array is to be interpreted. There are 7 Boolean flags
-    in use, only three of which can be changed by the user:
-    WRITEBACKIFCOPY, WRITEABLE, and ALIGNED.
+    The terms are not summed directly; instead the regularized incomplete beta
+    function is employed, according to the formula,
 
-    WRITEABLE (W) the data area can be written to;
+    .. math::
+        \mathrm{bdtr}(k, n, p) =
+        I_{1 - p}(n - \lfloor k \rfloor, \lfloor k \rfloor + 1).
 
-    ALIGNED (A) the data and strides are aligned appropriately for the hardware
-    (as determined by the compiler);
+    Wrapper for the Cephes [1]_ routine `bdtr`.
 
-    WRITEBACKIFCOPY (X) this array is a copy of some other array (referenced
-    by .base). When the C-API function PyArray_ResolveWritebackIfCopy is
-    called, the base array will be updated with the contents of this array.
+    References
+    ----------
+    .. [1] Cephes Mathematical Functions Library,
+           https://netlib.org/cephes/
 
-    All flags can be accessed using the single (upper case) letter as well
-    as the full name.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> y = np.array([[3, 1, 7],
-    ...               [2, 0, 0],
-    ...               [8, 5, 9]])
-    >>> y
-    array([[3, 1, 7],
-           [2, 0, 0],
-           [8, 5, 9]])
-    >>> y.flags
-      C_CONTIGUOUS : True
-      F_CONTIGUOUS : False
-      OWNDATA : True
-      WRITEABLE : True
-      ALIGNED : True
-      WRITEBACKIFCOPY : False
-    >>> y.setflags(write=0, align=0)
-    >>> y.flags
-      C_CONTIGUOUS : True
-      F_CONTIGUOUS : False
-      OWNDATA : True
-      WRITEABLE : False
-      ALIGNED : False
-      WRITEBACKIFCOPY : False
-    >>> y.setflags(uic=1)
-    Traceback (most recent call last):
-      File "<stdin>", line 1, in <module>
-    ValueError: cannot set WRITEBACKIFCOPY flag to True
     """)
 
-_array_method_doc('sort', "axis=-1, kind=None, order=None, *, stable=None, descending=None",
-    """
-    a.sort(axis=-1, kind=None, order=None, *, stable=None, descending=None)
+add_newdoc("bdtrc",
+    r"""
+    bdtrc(k, n, p, out=None)
 
-    Sort an array in-place. Refer to `numpy.sort` for full documentation.
+    Binomial distribution survival function.
+
+    Sum of the terms `floor(k) + 1` through `n` of the binomial probability
+    density,
+
+    .. math::
+        \mathrm{bdtrc}(k, n, p) =
+        \sum_{j=\lfloor k \rfloor +1}^n {{n}\choose{j}} p^j (1-p)^{n-j}
 
     Parameters
     ----------
-    axis : int, optional
-        Axis along which to sort. Default is -1, which means sort along the
-        last axis.
-    kind : {'quicksort', 'mergesort', 'heapsort', 'stable'}, optional
-        Sorting algorithm. The default is 'quicksort'. Note that both 'stable'
-        and 'mergesort' use timsort under the covers and, in general, the
-        actual implementation will vary with datatype. The 'mergesort' option
-        is retained for backwards compatibility.
-    order : str or list of str, optional
-        When `a` is an array with fields defined, this argument specifies
-        which fields to compare first, second, etc.  A single field can
-        be specified as a string, and not all fields need be specified,
-        but unspecified fields will still be used, in the order in which
-        they come up in the dtype, to break ties.
-    stable : bool, optional
-        Sort stability. If ``True``, the returned array will maintain
-        the relative order of ``a`` values which compare as equal.
-        If ``False`` or ``None``, this is not guaranteed. Internally,
-        this option selects ``kind='stable'``. Default: ``None``.
-
-        .. versionadded:: 2.0.0
-
-    See Also
-    --------
-    numpy.sort : Return a sorted copy of an array.
-    numpy.argsort : Indirect sort.
-    numpy.lexsort : Indirect stable sort on multiple keys.
-    numpy.searchsorted : Find elements in sorted array.
-    numpy.partition: Partial sort.
-
-    Notes
-    -----
-    See `numpy.sort` for notes on the different sorting algorithms.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> a = np.array([[1,4], [3,1]])
-    >>> a.sort(axis=1)
-    >>> a
-    array([[1, 4],
-           [1, 3]])
-    >>> a.sort(axis=0)
-    >>> a
-    array([[1, 3],
-           [1, 4]])
-
-    Use the `order` keyword to specify a field to use when sorting a
-    structured array:
-
-    >>> a = np.array([('a', 2), ('c', 1)], dtype=[('x', 'S1'), ('y', int)])
-    >>> a.sort(order='y')
-    >>> a
-    array([(b'c', 1), (b'a', 2)],
-          dtype=[('x', 'S1'), ('y', '<i8')])
-    """)
-
-_array_method_doc('squeeze', "axis=None",
-    """
-    a.squeeze(axis=None)
-
-    Remove axes of length one from `a`.
-
-    Refer to `numpy.squeeze` for full documentation.
-
-    See Also
-    --------
-    numpy.squeeze : equivalent function
-    """)
-
-_KWARGS_STD = "*, keepdims=<no value>, where=<no value>, mean=<no value>"
-
-_array_method_doc('std', "axis=None, dtype=None, out=None, ddof=0, **kwargs",
-    f"""
-    a.std(axis=None, dtype=None, out=None, ddof=0, {_KWARGS_STD})
-
-    Returns the standard deviation of the array elements along given axis.
-
-    Refer to `numpy.std` for full documentation.
-
-    See Also
-    --------
-    numpy.std : equivalent function
-    """)
-
-_array_method_doc('var', "axis=None, dtype=None, out=None, ddof=0, **kwargs",
-    f"""
-    a.var(axis=None, dtype=None, out=None, ddof=0, {_KWARGS_STD})
-
-    Returns the variance of the array elements, along given axis.
-
-    Refer to `numpy.var` for full documentation.
-
-    See Also
-    --------
-    numpy.var : equivalent function
-    """)
-
-_array_method_doc('swapaxes', "axis1, axis2, /",
-    """
-    a.swapaxes(axis1, axis2, /)
-
-    Return a view of the array with `axis1` and `axis2` interchanged.
-
-    Refer to `numpy.swapaxes` for full documentation.
-
-    See Also
-    --------
-    numpy.swapaxes : equivalent function
-    """)
-
-_array_method_doc('take', "indices, /, axis=None, out=None, mode='raise'",
-    """
-    a.take(indices, axis=None, out=None, mode='raise')
-
-    Return an array formed from the elements of `a` at the given indices.
-
-    Refer to `numpy.take` for full documentation.
-
-    See Also
-    --------
-    numpy.take : equivalent function
-    """)
-
-_array_method_doc('to_device', "device, /, *, stream=None",
-    """
-    a.to_device(device, /, *, stream=None)
-
-    For Array API compatibility.  Since NumPy only supports CPU arrays, this
-    method is a no-op that returns the same array.
-
-    Parameters
-    ----------
-    device : "cpu"
-        Must be ``"cpu"``.
-    stream : None, optional
-        Currently unsupported.
+    k : array_like
+        Number of successes (double), rounded down to nearest integer.
+    n : array_like
+        Number of events (int)
+    p : array_like
+        Probability of success in a single event.
+    out : ndarray, optional
+        Optional output array for the function values
 
     Returns
     -------
-    out : Self
-        Returns the same array.
-    """)
-
-_array_method_doc('tofile', "fid, /, sep='', format='%s'",
-    """
-    a.tofile(fid, /, sep='', format='%s')
-
-    Write array to a file as text or binary (default).
-
-    Data is always written in 'C' order, independent of the order of `a`.
-    The data produced by this method can be recovered using the function
-    fromfile().
-
-    Parameters
-    ----------
-    fid : file or str or Path
-        An open file object, or a string containing a filename.
-    sep : str
-        Separator between array items for text output.
-        If "" (empty), a binary file is written, equivalent to
-        ``file.write(a.tobytes())``.
-    format : str
-        Format string for text file output.
-        Each entry in the array is formatted to text by first converting
-        it to the closest Python type, and then using "format" % item.
-
-    Notes
-    -----
-    This is a convenience function for quick storage of array data.
-    Information on endianness and precision is lost, so this method is not a
-    good choice for files intended to archive data or transport data between
-    machines with different endianness. Some of these problems can be overcome
-    by outputting the data as text files, at the expense of speed and file
-    size.
-
-    When fid is a file object, array contents are directly written to the
-    file, bypassing the file object's ``write`` method. As a result, tofile
-    cannot be used with files objects supporting compression (e.g., GzipFile)
-    or file-like objects that do not support ``fileno()`` (e.g., BytesIO).
-    """)
-
-_array_method_doc('tolist', "",
-    """
-    a.tolist()
-
-    Return the array as an ``a.ndim``-levels deep nested list of Python scalars.
-
-    Return a copy of the array data as a (nested) Python list.
-    Data items are converted to the nearest compatible builtin Python type, via
-    the `~numpy.ndarray.item` method.
-
-    If ``a.ndim`` is 0, then since the depth of the nested list is 0, it will
-    not be a list at all, but a simple Python scalar.
-
-    Parameters
-    ----------
-    none
-
-    Returns
-    -------
-    y : object, or list of object, or list of list of object, or ...
-        The possibly nested list of array elements.
-
-    Notes
-    -----
-    The array may be recreated via ``a = np.array(a.tolist())``, although this
-    may sometimes lose precision.
-
-    Examples
-    --------
-    For a 1D array, ``a.tolist()`` is almost the same as ``list(a)``,
-    except that ``tolist`` changes numpy scalars to Python scalars:
-
-    >>> import numpy as np
-    >>> a = np.uint32([1, 2])
-    >>> a_list = list(a)
-    >>> a_list
-    [np.uint32(1), np.uint32(2)]
-    >>> type(a_list[0])
-    <class 'numpy.uint32'>
-    >>> a_tolist = a.tolist()
-    >>> a_tolist
-    [1, 2]
-    >>> type(a_tolist[0])
-    <class 'int'>
-
-    Additionally, for a 2D array, ``tolist`` applies recursively:
-
-    >>> a = np.array([[1, 2], [3, 4]])
-    >>> list(a)
-    [array([1, 2]), array([3, 4])]
-    >>> a.tolist()
-    [[1, 2], [3, 4]]
-
-    The base case for this recursion is a 0D array:
-
-    >>> a = np.array(1)
-    >>> list(a)
-    Traceback (most recent call last):
-      ...
-    TypeError: iteration over a 0-d array
-    >>> a.tolist()
-    1
-    """)
-
-_array_method_doc('tobytes', "order='C'",
-    """
-    a.tobytes(order='C')
-
-    Construct Python bytes containing the raw data bytes in the array.
-
-    Constructs Python bytes showing a copy of the raw contents of
-    data memory. The bytes object is produced in C-order by default.
-    This behavior is controlled by the ``order`` parameter.
-
-    Parameters
-    ----------
-    order : {'C', 'F', 'A'}, optional
-        Controls the memory layout of the bytes object. 'C' means C-order,
-        'F' means F-order, 'A' (short for *Any*) means 'F' if `a` is
-        Fortran contiguous, 'C' otherwise. Default is 'C'.
-
-    Returns
-    -------
-    s : bytes
-        Python bytes exhibiting a copy of `a`'s raw data.
-
-    See also
-    --------
-    frombuffer
-        Inverse of this operation, construct a 1-dimensional array from Python
-        bytes.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> x = np.array([[0, 1], [2, 3]], dtype='<u2')
-    >>> x.tobytes()
-    b'\\x00\\x00\\x01\\x00\\x02\\x00\\x03\\x00'
-    >>> x.tobytes('C') == x.tobytes()
-    True
-    >>> x.tobytes('F')
-    b'\\x00\\x00\\x02\\x00\\x01\\x00\\x03\\x00'
-    """)
-
-_array_method_doc('trace', "offset=0, axis1=0, axis2=1, dtype=None, out=None",
-    """
-    a.trace(offset=0, axis1=0, axis2=1, dtype=None, out=None)
-
-    Return the sum along diagonals of the array.
-
-    Refer to `numpy.trace` for full documentation.
+    y : scalar or ndarray
+        Probability of `floor(k) + 1` or more successes in `n` independent
+        events with success probabilities of `p`.
 
     See Also
     --------
-    numpy.trace : equivalent function
-    """)
-
-_array_method_doc('transpose', "*axes",
-    """
-    a.transpose(*axes)
-
-    Returns a view of the array with axes transposed.
-
-    Refer to `numpy.transpose` for full documentation.
-
-    Parameters
-    ----------
-    axes : None, tuple of ints, or `n` ints
-
-     * None or no argument: reverses the order of the axes.
-
-     * tuple of ints: `i` in the `j`-th place in the tuple means that the
-       array's `i`-th axis becomes the transposed array's `j`-th axis.
-
-     * `n` ints: same as an n-tuple of the same ints (this form is
-       intended simply as a "convenience" alternative to the tuple form).
-
-    Returns
-    -------
-    p : ndarray
-        View of the array with its axes suitably permuted.
-
-    See Also
-    --------
-    transpose : Equivalent function.
-    ndarray.T : Array property returning the array transposed.
-    ndarray.reshape : Return a reshaped ndarray without changing data.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> a = np.array([[1, 2], [3, 4]])
-    >>> a
-    array([[1, 2],
-           [3, 4]])
-    >>> a.transpose()
-    array([[1, 3],
-           [2, 4]])
-    >>> a.transpose((1, 0))
-    array([[1, 3],
-           [2, 4]])
-    >>> a.transpose(1, 0)
-    array([[1, 3],
-           [2, 4]])
-
-    >>> a = np.array([1, 2, 3, 4])
-    >>> a
-    array([1, 2, 3, 4])
-    >>> a.transpose()
-    array([1, 2, 3, 4])
-    """)
-
-_array_method_doc('view', "*args, **kwargs",
-    """
-    a.view([dtype][, type])
-
-    New view of array with the same data.
-
-    .. note::
-        Passing None for ``dtype`` is different from omitting the parameter,
-        since the former invokes ``dtype(None)`` which is an alias for
-        ``dtype(np.float64)``.
-
-    Parameters
-    ----------
-    dtype : data-type or ndarray sub-class, optional
-        Data-type descriptor of the returned view, e.g., float32 or int16.
-        Omitting it results in the view having the same data-type as `a`.
-        This argument can also be specified as an ndarray sub-class, which
-        then specifies the type of the returned object (this is equivalent to
-        setting the ``type`` parameter).
-    type : Python type, optional
-        Type of the returned view, e.g., ndarray or matrix.  Again, omission
-        of the parameter results in type preservation.
+    bdtr
+    betainc
 
     Notes
     -----
-    ``a.view()`` is used two different ways:
+    The terms are not summed directly; instead the regularized incomplete beta
+    function is employed, according to the formula,
 
-    ``a.view(some_dtype)`` or ``a.view(dtype=some_dtype)`` constructs a view
-    of the array's memory with a different data-type.  This can cause a
-    reinterpretation of the bytes of memory.
+    .. math::
+        \mathrm{bdtrc}(k, n, p) = I_{p}(\lfloor k \rfloor + 1, n - \lfloor k \rfloor).
 
-    ``a.view(ndarray_subclass)`` or ``a.view(type=ndarray_subclass)`` just
-    returns an instance of `ndarray_subclass` that looks at the same array
-    (same shape, dtype, etc.)  This does not cause a reinterpretation of the
-    memory.
+    Wrapper for the Cephes [1]_ routine `bdtrc`.
 
-    For ``a.view(some_dtype)``, if ``some_dtype`` has a different number of
-    bytes per entry than the previous dtype (for example, converting a regular
-    array to a structured array), then the last axis of ``a`` must be
-    contiguous. This axis will be resized in the result.
+    References
+    ----------
+    .. [1] Cephes Mathematical Functions Library,
+           https://netlib.org/cephes/
 
-    .. versionchanged:: 1.23.0
-       Only the last axis needs to be contiguous. Previously, the entire array
-       had to be C-contiguous.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> x = np.array([(-1, 2)], dtype=[('a', np.int8), ('b', np.int8)])
-
-    Viewing array data using a different type and dtype:
-
-    >>> nonneg = np.dtype([("a", np.uint8), ("b", np.uint8)])
-    >>> y = x.view(dtype=nonneg, type=np.recarray)
-    >>> x["a"]
-    array([-1], dtype=int8)
-    >>> y.a
-    array([255], dtype=uint8)
-
-    Creating a view on a structured array so it can be used in calculations
-
-    >>> x = np.array([(1, 2),(3,4)], dtype=[('a', np.int8), ('b', np.int8)])
-    >>> xv = x.view(dtype=np.int8).reshape(-1,2)
-    >>> xv
-    array([[1, 2],
-           [3, 4]], dtype=int8)
-    >>> xv.mean(0)
-    array([2.,  3.])
-
-    Making changes to the view changes the underlying array
-
-    >>> xv[0,1] = 20
-    >>> x
-    array([(1, 20), (3,  4)], dtype=[('a', 'i1'), ('b', 'i1')])
-
-    Using a view to convert an array to a recarray:
-
-    >>> z = x.view(np.recarray)
-    >>> z.a
-    array([1, 3], dtype=int8)
-
-    Views share data:
-
-    >>> x[0] = (9, 10)
-    >>> z[0]
-    np.record((9, 10), dtype=[('a', 'i1'), ('b', 'i1')])
-
-    Views that change the dtype size (bytes per entry) should normally be
-    avoided on arrays defined by slices, transposes, fortran-ordering, etc.:
-
-    >>> x = np.array([[1, 2, 3], [4, 5, 6]], dtype=np.int16)
-    >>> y = x[:, ::2]
-    >>> y
-    array([[1, 3],
-           [4, 6]], dtype=int16)
-    >>> y.view(dtype=[('width', np.int16), ('length', np.int16)])
-    Traceback (most recent call last):
-        ...
-    ValueError: To change to a dtype of a different size, the last axis must be contiguous
-    >>> z = y.copy()
-    >>> z.view(dtype=[('width', np.int16), ('length', np.int16)])
-    array([[(1, 3)],
-           [(4, 6)]], dtype=[('width', '<i2'), ('length', '<i2')])
-
-    However, views that change dtype are totally fine for arrays with a
-    contiguous last axis, even if the rest of the axes are not C-contiguous:
-
-    >>> x = np.arange(2 * 3 * 4, dtype=np.int8).reshape(2, 3, 4)
-    >>> x.transpose(1, 0, 2).view(np.int16)
-    array([[[ 256,  770],
-            [3340, 3854]],
-    <BLANKLINE>
-           [[1284, 1798],
-            [4368, 4882]],
-    <BLANKLINE>
-           [[2312, 2826],
-            [5396, 5910]]], dtype=int16)
     """)
 
+add_newdoc("bdtri",
+    r"""
+    bdtri(k, n, y, out=None)
 
-##############################################################################
-#
-# umath functions
-#
-##############################################################################
+    Inverse function to `bdtr` with respect to `p`.
 
-add_newdoc('numpy._core.umath', 'frompyfunc',
-    """
-    frompyfunc(func, /, nin, nout, **kwargs)
-    --
-
-    frompyfunc(func, /, nin, nout, *[, identity])
-
-    Takes an arbitrary Python function and returns a NumPy ufunc.
-
-    Can be used, for example, to add broadcasting to a built-in Python
-    function (see Examples section).
+    Finds the event probability `p` such that the sum of the terms 0 through
+    `k` of the binomial probability density is equal to the given cumulative
+    probability `y`.
 
     Parameters
     ----------
-    func : Python function object
-        An arbitrary Python function.
-    nin : int
-        The number of input arguments.
-    nout : int
-        The number of objects returned by `func`.
-    identity : object, optional
-        The value to use for the `~numpy.ufunc.identity` attribute of the resulting
-        object. If specified, this is equivalent to setting the underlying
-        C ``identity`` field to ``PyUFunc_IdentityValue``.
-        If omitted, the identity is set to ``PyUFunc_None``. Note that this is
-        _not_ equivalent to setting the identity to ``None``, which implies the
-        operation is reorderable.
+    k : array_like
+        Number of successes (float), rounded down to the nearest integer.
+    n : array_like
+        Number of events (float)
+    y : array_like
+        Cumulative probability (probability of `k` or fewer successes in `n`
+        events).
+    out : ndarray, optional
+        Optional output array for the function values
 
     Returns
     -------
-    out : ufunc
-        Returns a NumPy universal function (``ufunc``) object.
+    p : scalar or ndarray
+        The event probability such that `bdtr(\lfloor k \rfloor, n, p) = y`.
 
     See Also
     --------
-    vectorize : Evaluates pyfunc over input arrays using broadcasting rules of numpy.
+    bdtr
+    betaincinv
 
     Notes
     -----
-    The returned ufunc always returns PyObject arrays.
+    The computation is carried out using the inverse beta integral function
+    and the relation,::
+
+        1 - p = betaincinv(n - k, k + 1, y).
+
+    Wrapper for the Cephes [1]_ routine `bdtri`.
+
+    References
+    ----------
+    .. [1] Cephes Mathematical Functions Library,
+           https://netlib.org/cephes/
+    """)
+
+add_newdoc("bdtrik",
+    """
+    bdtrik(y, n, p, out=None)
+
+    Inverse function to `bdtr` with respect to `k`.
+
+    Finds the number of successes `k` such that the sum of the terms 0 through
+    `k` of the Binomial probability density for `n` events with probability
+    `p` is equal to the given cumulative probability `y`.
+
+    Parameters
+    ----------
+    y : array_like
+        Cumulative probability (probability of `k` or fewer successes in `n`
+        events).
+    n : array_like
+        Number of events (float).
+    p : array_like
+        Success probability (float).
+    out : ndarray, optional
+        Optional output array for the function values
+
+    Returns
+    -------
+    k : scalar or ndarray
+        The number of successes `k` such that `bdtr(k, n, p) = y`.
+
+    See Also
+    --------
+    bdtr
+
+    Notes
+    -----
+    Formula 26.5.24 of [1]_ (or equivalently [2]_) is used to reduce the binomial
+    distribution to the cumulative incomplete beta distribution.
+
+    Computation of `k` involves a search for a value that produces the desired
+    value of `y`. The search relies on the monotonicity of `y` with `k`.
+
+    Wrapper for the CDFLIB [3]_ Fortran routine `cdfbin`.
+
+    References
+    ----------
+    .. [1] Milton Abramowitz and Irene A. Stegun, eds.
+           Handbook of Mathematical Functions with Formulas,
+           Graphs, and Mathematical Tables. New York: Dover, 1972.
+    .. [2] NIST Digital Library of Mathematical Functions
+           https://dlmf.nist.gov/8.17.5#E5
+    .. [3] Barry Brown, James Lovato, and Kathy Russell,
+           CDFLIB: Library of Fortran Routines for Cumulative Distribution
+           Functions, Inverses, and Other Parameters.
+
+    """)
+
+add_newdoc("bdtrin",
+    r"""
+    bdtrin(k, y, p, out=None)
+
+    Inverse function to `bdtr` with respect to `n`.
+
+    Finds the number of events `n` such that the sum of the terms 0 through
+    `k` of the Binomial probability density for events with probability `p` is
+    equal to the given cumulative probability `y`.
+
+    Parameters
+    ----------
+    k : array_like
+        Number of successes (float).
+    y : array_like
+        Cumulative probability (probability of `k` or fewer successes in `n`
+        events).
+    p : array_like
+        Success probability (float).
+    out : ndarray, optional
+        Optional output array for the function values
+
+    Returns
+    -------
+    n : scalar or ndarray
+        The number of events `n` such that `bdtr(k, n, p) = y`.
+
+    See Also
+    --------
+    bdtr
+
+    Notes
+    -----
+    This function uses the `find_minimum_number_of_trials` method of the
+    `binomial_distribution` class of the Boost.Math C++ library [1]_.
+
+    References
+    ----------
+    .. [1] The Boost Developers. "Boost C++ Libraries". https://www.boost.org/.
 
     Examples
     --------
-    Use frompyfunc to add broadcasting to the Python function ``oct``:
+    How often do we have to flip a fair coin to have at least a 90% chance
+    of getting 10 heads? `bdtrin` answers this question:
 
-    >>> import numpy as np
-    >>> oct_array = np.frompyfunc(oct, 1, 1)
-    >>> oct_array(np.array((10, 30, 100)))
-    array(['0o12', '0o36', '0o144'], dtype=object)
-    >>> np.array((oct(10), oct(30), oct(100))) # for comparison
-    array(['0o12', '0o36', '0o144'], dtype='<U5')
+    >>> import scipy.special as sc
+    >>> k = 10  # number of times we want heads
+    >>> p = 0.5  # probability of flipping heads
+    >>> y = 0.9  # cumulative probability
+    >>> result = sc.bdtrin(k, y, p)
+    >>> result
+    15.90442928275109
+
+    To verify, compute the cumulative probability of getting 10 or fewer
+    successes in 16 trials with probability 0.5 using the binomial
+    distribution from `scipy.stats`. Since `bdtrin` returns a non-integer
+    number of trials, we round up to the next integer:
+
+    >>> from scipy.stats import Binomial
+    >>> Binomial(n=16, p=p).cdf(k)
+    0.8949432373046875
 
     """)
 
+add_newdoc("btdtria",
+    r"""
+    btdtria(p, b, x, out=None)
 
-##############################################################################
-#
-# compiled_base functions
-#
-##############################################################################
+    Inverse of `betainc` with respect to `a`.
 
-add_newdoc('numpy._core.multiarray', 'add_docstring',
-    """
-    add_docstring(obj, docstring)
+    This is the inverse of the beta cumulative distribution function, `betainc`,
+    considered as a function of `a`, returning the value of `a` for which
+    `betainc(a, b, x) = p`, or
 
-    Add a docstring to a built-in obj if possible.
-    If the obj already has a docstring raise a RuntimeError
-    If this routine does not know how to add a docstring to the object
-    raise a TypeError
+    .. math::
+        p = \int_0^x \frac{\Gamma(a + b)}{\Gamma(a)\Gamma(b)} t^{a-1} (1-t)^{b-1}\,dt
+
+    Parameters
+    ----------
+    p : array_like
+        Cumulative probability, in [0, 1].
+    b : array_like
+        Shape parameter (`b` > 0).
+    x : array_like
+        The quantile, in [0, 1].
+    out : ndarray, optional
+        Optional output array for the function values
+
+    Returns
+    -------
+    a : scalar or ndarray
+        The value of the shape parameter `a` such that `betainc(a, b, x) = p`.
+
+    See Also
+    --------
+    betainc : Regularized incomplete beta function
+    betaincinv : Inverse of the regularized incomplete beta function
+    btdtrib : Inverse of the beta cumulative distribution function, with respect to `b`.
+
+    Notes
+    -----
+    This function wraps the ``ibeta_inva`` routine from the
+    Boost Math C++ library [1]_.
+
+    References
+    ----------
+    .. [1] The Boost Developers. "Boost C++ Libraries". https://www.boost.org/.
+
+    Examples
+    --------
+    >>> import scipy.special as sc
+
+    This function is the inverse of `betainc` for fixed
+    values of :math:`b` and :math:`x`.
+
+    >>> a, b, x = 1.2, 3.1, 0.2
+    >>> y = sc.betainc(a, b, x)
+    >>> sc.btdtria(y, b, x)
+    1.2
+
     """)
 
-add_newdoc('numpy._core.multiarray', 'get_handler_name',
-    """
-    get_handler_name(a: ndarray) -> str | None
+add_newdoc("btdtrib",
+    r"""
+    btdtria(a, p, x, out=None)
 
-    Return the name of the memory handler used by `a`. If not provided, return
-    the name of the memory handler that will be used to allocate data for the
-    next `ndarray` in this context. May return None if `a` does not own its
-    memory, in which case you can traverse ``a.base`` for a memory handler.
-    """)
+    Inverse of `betainc` with respect to `b`.
 
-add_newdoc('numpy._core.multiarray', 'get_handler_version',
-    """
-    get_handler_version(a: ndarray) -> int,None
+    This is the inverse of the beta cumulative distribution function, `betainc`,
+    considered as a function of `b`, returning the value of `b` for which
+    `betainc(a, b, x) = p`, or
 
-    Return the version of the memory handler used by `a`. If not provided,
-    return the version of the memory handler that will be used to allocate data
-    for the next `ndarray` in this context. May return None if `a` does not own
-    its memory, in which case you can traverse ``a.base`` for a memory handler.
-    """)
+    .. math::
+        p = \int_0^x \frac{\Gamma(a + b)}{\Gamma(a)\Gamma(b)} t^{a-1} (1-t)^{b-1}\,dt
 
-add_newdoc('numpy._core._multiarray_umath', '_array_converter',
-    """
-    _array_converter(*array_likes)
+    Parameters
+    ----------
+    a : array_like
+        Shape parameter (`a` > 0).
+    p : array_like
+        Cumulative probability, in [0, 1].
+    x : array_like
+        The quantile, in [0, 1].
+    out : ndarray, optional
+        Optional output array for the function values
 
-    Helper to convert one or more objects to arrays.  Integrates machinery
-    to deal with the ``result_type`` and ``__array_wrap__``.
+    Returns
+    -------
+    b : scalar or ndarray
+        The value of the shape parameter `b` such that `betainc(a, b, x) = p`.
 
-    The reason for this is that e.g. ``result_type`` needs to convert to arrays
-    to find the ``dtype``.  But converting to an array before calling
-    ``result_type`` would incorrectly "forget" whether it was a Python int,
-    float, or complex.
+    See Also
+    --------
+    betainc : Regularized incomplete beta function
+    betaincinv : Inverse of the regularized incomplete beta function with
+                 respect to `x`.
+    btdtria : Inverse of the beta cumulative distribution function, with respect to `a`.
+
+    Notes
+    -----
+    Wrapper for the `ibeta_invb` routine from the Boost Math C++ library [1]_.
+
+    References
+    ----------
+    .. [1] The Boost Developers. "Boost C++ Libraries". https://www.boost.org/.
+
+    Examples
+    --------
+    >>> import scipy.special as sc
+    >>> a, b, x = 1.2, 3.1, 0.2
+    >>> y = sc.betainc(a, b, x)
+
+    `btdtrib` is the inverse of `betainc` for fixed values of :math:`a` and
+    :math:`x`:
+
+    >>> sc.btdtrib(a, y, x)
+    3.1
+
     """)
 
 add_newdoc(
-    'numpy._core._multiarray_umath', '_array_converter', ('scalar_input',
-    """
-    A tuple which indicates for each input whether it was a scalar that
-    was coerced to a 0-D array (and was not already an array or something
-    converted via a protocol like ``__array__()``).
-    """))
-
-add_newdoc('numpy._core._multiarray_umath', '_array_converter', ('as_arrays',
-    """
-    as_arrays(/, subok=True, pyscalars="convert_if_no_array")
-
-    Return the inputs as arrays or scalars.
-
-    Parameters
-    ----------
-    subok : True or False, optional
-        Whether array subclasses are preserved.
-    pyscalars : {"convert", "preserve", "convert_if_no_array"}, optional
-        To allow NEP 50 weak promotion later, it may be desirable to preserve
-        Python scalars.  As default, these are preserved unless all inputs
-        are Python scalars.  "convert" enforces an array return.
-    """))
-
-add_newdoc('numpy._core._multiarray_umath', '_array_converter', ('result_type',
-    """result_type(/, extra_dtype=None, ensure_inexact=False)
-
-    Find the ``result_type`` just as ``np.result_type`` would, but taking
-    into account that the original inputs (before converting to an array) may
-    have been Python scalars with weak promotion.
-
-    Parameters
-    ----------
-    extra_dtype : dtype instance or class
-        An additional DType or dtype instance to promote (e.g. could be used
-        to ensure the result precision is at least float32).
-    ensure_inexact : True or False
-        When ``True``, ensures a floating point (or complex) result replacing
-        the ``arr * 1.`` or ``result_type(..., 0.0)`` pattern.
-    """))
-
-add_newdoc('numpy._core._multiarray_umath', '_array_converter', ('wrap',
-    """
-    wrap(arr, /, to_scalar=None)
-
-    Call ``__array_wrap__`` on ``arr`` if ``arr`` is not the same subclass
-    as the input the ``__array_wrap__`` method was retrieved from.
-
-    Parameters
-    ----------
-    arr : ndarray
-        The object to be wrapped. Normally an ndarray or subclass,
-        although for backward compatibility NumPy scalars are also accepted
-        (these will be converted to a NumPy array before being passed on to
-        the ``__array_wrap__`` method).
-    to_scalar : {True, False, None}, optional
-        When ``True`` will convert a 0-d array to a scalar via ``result[()]``
-        (with a fast-path for non-subclasses).  If ``False`` the result should
-        be an array-like (as ``__array_wrap__`` is free to return a non-array).
-        By default (``None``), a scalar is returned if all inputs were scalar.
-    """))
-
-
-add_newdoc('numpy._core.multiarray', '_get_madvise_hugepage',
-    """
-    _get_madvise_hugepage() -> bool
-
-    Get use of ``madvise (2)`` MADV_HUGEPAGE support when
-    allocating the array data. Returns the currently set value.
-    See `global_state` for more information.
-    """)
-
-add_newdoc('numpy._core.multiarray', '_set_madvise_hugepage',
-    """
-    _set_madvise_hugepage(enabled: bool) -> bool
-
-    Set  or unset use of ``madvise (2)`` MADV_HUGEPAGE support when
-    allocating the array data. Returns the previously set value.
-    See `global_state` for more information.
-    """)
-
-
-##############################################################################
-#
-# Documentation for ufunc attributes and methods
-#
-##############################################################################
-
-
-##############################################################################
-#
-# ufunc object
-#
-##############################################################################
-
-add_newdoc('numpy._core', 'ufunc',
-    """
-    Functions that operate element by element on whole arrays.
-
-    To see the documentation for a specific ufunc, use `info`.  For
-    example, ``np.info(np.sin)``.  Because ufuncs are written in C
-    (for speed) and linked into Python with NumPy's ufunc facility,
-    Python's help() function finds this page whenever help() is called
-    on a ufunc.
-
-    A detailed explanation of ufuncs can be found in the docs for :ref:`ufuncs`.
-
-    **Calling ufuncs:** ``op(*x[, out], where=True, **kwargs)``
-
-    Apply `op` to the arguments `*x` elementwise, broadcasting the arguments.
-
-    The broadcasting rules are:
-
-    * Dimensions of length 1 may be prepended to either array.
-    * Arrays may be repeated along dimensions of length 1.
-
-    Parameters
-    ----------
-    *x : array_like
-        Input arrays.
-    out : ndarray, None, ..., or tuple of ndarray and None, optional
-        Location(s) into which the result(s) are stored.
-        If not provided or None, new array(s) are created by the ufunc.
-        If passed as a keyword argument, can be Ellipses (``out=...``) to
-        ensure an array is returned even if the result is 0-dimensional,
-        or a tuple with length equal to the number of outputs (where None
-        can be used for allocation by the ufunc).
-
-        .. versionadded:: 2.3
-            Support for ``out=...`` was added.
-
-    where : array_like, optional
-        This condition is broadcast over the input. At locations where the
-        condition is True, the `out` array will be set to the ufunc result.
-        Elsewhere, the `out` array will retain its original value.
-        Note that if an uninitialized `out` array is created via the default
-        ``out=None``, locations within it where the condition is False will
-        remain uninitialized.
-    **kwargs
-        For other keyword-only arguments, see the :ref:`ufunc docs <ufuncs.kwargs>`.
-
-    Returns
-    -------
-    r : ndarray or tuple of ndarray
-        `r` will have the shape that the arrays in `x` broadcast to; if `out` is
-        provided, it will be returned. If not, `r` will be allocated and
-        may contain uninitialized values. If the function has more than one
-        output, then the result will be a tuple of arrays.
-
-    """)
-
-
-##############################################################################
-#
-# ufunc attributes
-#
-##############################################################################
-
-add_newdoc('numpy._core', 'ufunc', ('identity',
-    """
-    The identity value.
-
-    Data attribute containing the identity element for the ufunc,
-    if it has one. If it does not, the attribute value is None.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> np.add.identity
-    0
-    >>> np.multiply.identity
-    1
-    >>> print(np.power.identity)
-    None
-    >>> print(np.exp.identity)
-    None
-    """))
-
-add_newdoc('numpy._core', 'ufunc', ('nargs',
-    """
-    The number of arguments.
-
-    Data attribute containing the number of arguments the ufunc takes, including
-    optional ones.
-
-    Notes
-    -----
-    Typically this value will be one more than what you might expect
-    because all ufuncs take  the optional "out" argument.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> np.add.nargs
-    3
-    >>> np.multiply.nargs
-    3
-    >>> np.power.nargs
-    3
-    >>> np.exp.nargs
-    2
-    """))
-
-add_newdoc('numpy._core', 'ufunc', ('nin',
-    """
-    The number of inputs.
-
-    Data attribute containing the number of arguments the ufunc treats as input.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> np.add.nin
-    2
-    >>> np.multiply.nin
-    2
-    >>> np.power.nin
-    2
-    >>> np.exp.nin
-    1
-    """))
-
-add_newdoc('numpy._core', 'ufunc', ('nout',
-    """
-    The number of outputs.
-
-    Data attribute containing the number of arguments the ufunc treats as output.
-
-    Notes
-    -----
-    Since all ufuncs can take output arguments, this will always be at least 1.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> np.add.nout
-    1
-    >>> np.multiply.nout
-    1
-    >>> np.power.nout
-    1
-    >>> np.exp.nout
-    1
-
-    """))
-
-add_newdoc('numpy._core', 'ufunc', ('ntypes',
-    """
-    The number of types.
-
-    The number of numerical NumPy types - of which there are 18 total - on which
-    the ufunc can operate.
-
-    See Also
-    --------
-    numpy.ufunc.types
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> np.add.ntypes
-    22
-    >>> np.multiply.ntypes
-    23
-    >>> np.power.ntypes
-    21
-    >>> np.exp.ntypes
-    10
-    >>> np.remainder.ntypes
-    16
-
-    """))
-
-add_newdoc('numpy._core', 'ufunc', ('types',
-    """
-    Returns a list with types grouped input->output.
-
-    Data attribute listing the data-type "Domain-Range" groupings the ufunc can
-    deliver. The data-types are given using the character codes.
-
-    See Also
-    --------
-    numpy.ufunc.ntypes
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> np.add.types
-    ['??->?', 'bb->b', 'BB->B', 'hh->h', 'HH->H', 'ii->i', 'II->I', ...
-
-    >>> np.power.types
-    ['bb->b', 'BB->B', 'hh->h', 'HH->H', 'ii->i', 'II->I', 'll->l', ...
-
-    >>> np.exp.types
-    ['e->e', 'f->f', 'd->d', 'f->f', 'd->d', 'g->g', 'F->F', 'D->D', 'G->G', 'O->O']
-
-    >>> np.remainder.types
-    ['bb->b', 'BB->B', 'hh->h', 'HH->H', 'ii->i', 'II->I', 'll->l', ...
-
-    """))
-
-add_newdoc('numpy._core', 'ufunc', ('signature',
-    """
-    Definition of the core elements a generalized ufunc operates on.
-
-    The signature determines how the dimensions of each input/output array
-    are split into core and loop dimensions:
-
-    1. Each dimension in the signature is matched to a dimension of the
-       corresponding passed-in array, starting from the end of the shape tuple.
-    2. Core dimensions assigned to the same label in the signature must have
-       exactly matching sizes, no broadcasting is performed.
-    3. The core dimensions are removed from all inputs and the remaining
-       dimensions are broadcast together, defining the loop dimensions.
-
-    Notes
-    -----
-    Generalized ufuncs are used internally in many linalg functions, and in
-    the testing suite; the examples below are taken from these.
-    For ufuncs that operate on scalars, the signature is None, which is
-    equivalent to '()' for every argument.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> np.linalg._umath_linalg.det.signature
-    '(m,m)->()'
-    >>> np.matmul.signature
-    '(n?,k),(k,m?)->(n?,m?)'
-    >>> np.add.signature is None
-    True  # equivalent to '(),()->()'
-    """))
-
-##############################################################################
-#
-# ufunc methods
-#
-##############################################################################
-
-add_newdoc('numpy._core', 'ufunc', ('reduce',
-    """
-    reduce($self, array, /, axis=0, dtype=None, out=None, **kwargs)
-    --
-
-    reduce(array, axis=0, dtype=None, out=None, keepdims=False, initial=<no value>, where=True)
-
-    Reduces `array`'s dimension by one, by applying ufunc along one axis.
-
-    Let :math:`array.shape = (N_0, ..., N_i, ..., N_{M-1})`.  Then
-    :math:`ufunc.reduce(array, axis=i)[k_0, ..,k_{i-1}, k_{i+1}, .., k_{M-1}]` =
-    the result of iterating `j` over :math:`range(N_i)`, cumulatively applying
-    ufunc to each :math:`array[k_0, ..,k_{i-1}, j, k_{i+1}, .., k_{M-1}]`.
-    For a one-dimensional array, reduce produces results equivalent to:
-    ::
-
-     r = op.identity # op = ufunc
-     for i in range(len(A)):
-       r = op(r, A[i])
-     return r
-
-    For example, add.reduce() is equivalent to sum().
-
-    Parameters
-    ----------
-    array : array_like
-        The array to act on.
-    axis : None or int or tuple of ints, optional
-        Axis or axes along which a reduction is performed.
-        The default (`axis` = 0) is perform a reduction over the first
-        dimension of the input array. `axis` may be negative, in
-        which case it counts from the last to the first axis.
-
-        If this is None, a reduction is performed over all the axes.
-        If this is a tuple of ints, a reduction is performed on multiple
-        axes, instead of a single axis or all the axes as before.
-
-        For operations which are either not commutative or not associative,
-        doing a reduction over multiple axes is not well-defined. The
-        ufuncs do not currently raise an exception in this case, but will
-        likely do so in the future.
-    dtype : data-type code, optional
-        The data type used to perform the operation. Defaults to that of
-        ``out`` if given, and the data type of ``array`` otherwise (though
-        upcast to conserve precision for some cases, such as
-        ``numpy.add.reduce`` for integer or boolean input).
-    out : ndarray, None, ..., or tuple of ndarray and None, optional
-        Location into which the result is stored.
-        If not provided or None, a freshly-allocated array is returned.
-        If passed as a keyword argument, can be Ellipses (``out=...``) to
-        ensure an array is returned even if the result is 0-dimensional
-        (which is useful especially for object dtype), or a 1-element tuple
-        (latter for consistency with ``ufunc.__call__``).
-
-        .. versionadded:: 2.3
-            Support for ``out=...`` was added.
-
-    keepdims : bool, optional
-        If this is set to True, the axes which are reduced are left
-        in the result as dimensions with size one. With this option,
-        the result will broadcast correctly against the original `array`.
-    initial : scalar, optional
-        The value with which to start the reduction.
-        If the ufunc has no identity or the dtype is object, this defaults
-        to None - otherwise it defaults to ufunc.identity.
-        If ``None`` is given, the first element of the reduction is used,
-        and an error is thrown if the reduction is empty.
-    where : array_like of bool, optional
-        A boolean array which is broadcasted to match the dimensions
-        of `array`, and selects elements to include in the reduction. Note
-        that for ufuncs like ``minimum`` that do not have an identity
-        defined, one has to pass in also ``initial``.
-
-    Returns
-    -------
-    r : ndarray
-        The reduced array. If `out` was supplied, `r` is a reference to it.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> np.multiply.reduce([2,3,5])
-    30
-
-    A multi-dimensional array example:
-
-    >>> X = np.arange(8).reshape((2,2,2))
-    >>> X
-    array([[[0, 1],
-            [2, 3]],
-           [[4, 5],
-            [6, 7]]])
-    >>> np.add.reduce(X, 0)
-    array([[ 4,  6],
-           [ 8, 10]])
-    >>> np.add.reduce(X) # confirm: default axis value is 0
-    array([[ 4,  6],
-           [ 8, 10]])
-    >>> np.add.reduce(X, 1)
-    array([[ 2,  4],
-           [10, 12]])
-    >>> np.add.reduce(X, 2)
-    array([[ 1,  5],
-           [ 9, 13]])
-
-    You can use the ``initial`` keyword argument to initialize the reduction
-    with a different value, and ``where`` to select specific elements to include:
-
-    >>> np.add.reduce([10], initial=5)
-    15
-    >>> np.add.reduce(np.ones((2, 2, 2)), axis=(0, 2), initial=10)
-    array([14., 14.])
-    >>> a = np.array([10., np.nan, 10])
-    >>> np.add.reduce(a, where=~np.isnan(a))
-    20.0
-
-    Allows reductions of empty arrays where they would normally fail, i.e.
-    for ufuncs without an identity.
-
-    >>> np.minimum.reduce([], initial=np.inf)
-    inf
-    >>> np.minimum.reduce([[1., 2.], [3., 4.]], initial=10., where=[True, False])
-    array([ 1., 10.])
-    >>> np.minimum.reduce([])
-    Traceback (most recent call last):
-        ...
-    ValueError: zero-size array to reduction operation minimum which has no identity
-    """))
-
-add_newdoc('numpy._core', 'ufunc', ('accumulate',
-    """
-    accumulate($self, array, /, axis=0, dtype=None, out=None)
-    --
-
-    accumulate(array, axis=0, dtype=None, out=None)
-
-    Accumulate the result of applying the operator to all elements.
-
-    For a one-dimensional array, accumulate produces results equivalent to::
-
-      r = np.empty(len(A))
-      t = op.identity        # op = the ufunc being applied to A's  elements
-      for i in range(len(A)):
-          t = op(t, A[i])
-          r[i] = t
-      return r
-
-    For example, add.accumulate() is equivalent to np.cumsum().
-
-    For a multi-dimensional array, accumulate is applied along only one
-    axis (axis zero by default; see Examples below) so repeated use is
-    necessary if one wants to accumulate over multiple axes.
-
-    Parameters
-    ----------
-    array : array_like
-        The array to act on.
-    axis : int, optional
-        The axis along which to apply the accumulation; default is zero.
-    dtype : data-type code, optional
-        The data-type used to represent the intermediate results. Defaults
-        to the data-type of the output array if such is provided, or the
-        data-type of the input array if no output array is provided.
-    out : ndarray, None, or tuple of ndarray and None, optional
-        Location into which the result is stored.
-        If not provided or None, a freshly-allocated array is returned.
-        For consistency with ``ufunc.__call__``, if passed as a keyword
-        argument, can be Ellipses (``out=...``, which has the same effect
-        as None as an array is always returned), or a 1-element tuple.
-
-    Returns
-    -------
-    r : ndarray
-        The accumulated values. If `out` was supplied, `r` is a reference to
-        `out`.
-
-    Examples
-    --------
-    1-D array examples:
-
-    >>> import numpy as np
-    >>> np.add.accumulate([2, 3, 5])
-    array([ 2,  5, 10])
-    >>> np.multiply.accumulate([2, 3, 5])
-    array([ 2,  6, 30])
-
-    2-D array examples:
-
-    >>> I = np.eye(2)
-    >>> I
-    array([[1.,  0.],
-           [0.,  1.]])
-
-    Accumulate along axis 0 (rows), down columns:
-
-    >>> np.add.accumulate(I, 0)
-    array([[1.,  0.],
-           [1.,  1.]])
-    >>> np.add.accumulate(I) # no axis specified = axis zero
-    array([[1.,  0.],
-           [1.,  1.]])
-
-    Accumulate along axis 1 (columns), through rows:
-
-    >>> np.add.accumulate(I, 1)
-    array([[1.,  1.],
-           [0.,  1.]])
-
-    """))
-
-add_newdoc('numpy._core', 'ufunc', ('reduceat',
-    """
-    reduceat($self, array, /, indices, axis=0, dtype=None, out=None)
-    --
-
-    reduceat(array, indices, axis=0, dtype=None, out=None)
-
-    Performs a (local) reduce with specified slices over a single axis.
-
-    For i in ``range(len(indices))``, `reduceat` computes
-    ``ufunc.reduce(array[indices[i]:indices[i+1]])``, which becomes the i-th
-    generalized "row" parallel to `axis` in the final result (i.e., in a
-    2-D array, for example, if `axis = 0`, it becomes the i-th row, but if
-    `axis = 1`, it becomes the i-th column).  There are three exceptions to this:
-
-    * when ``i = len(indices) - 1`` (so for the last index),
-      ``indices[i+1] = array.shape[axis]``.
-    * if ``indices[i] >= indices[i + 1]``, the i-th generalized "row" is
-      simply ``array[indices[i]]``.
-    * if ``indices[i] >= len(array)`` or ``indices[i] < 0``, an error is raised.
-
-    The shape of the output depends on the size of `indices`, and may be
-    larger than `array` (this happens if ``len(indices) > array.shape[axis]``).
-
-    Parameters
-    ----------
-    array : array_like
-        The array to act on.
-    indices : array_like
-        Paired indices, comma separated (not colon), specifying slices to
-        reduce.
-    axis : int, optional
-        The axis along which to apply the reduceat.
-    dtype : data-type code, optional
-        The data type used to perform the operation. Defaults to that of
-        ``out`` if given, and the data type of ``array`` otherwise (though
-        upcast to conserve precision for some cases, such as
-        ``numpy.add.reduce`` for integer or boolean input).
-    out : ndarray, None, or tuple of ndarray and None, optional
-        Location into which the result is stored.
-        If not provided or None, a freshly-allocated array is returned.
-        For consistency with ``ufunc.__call__``, if passed as a keyword
-        argument, can be Ellipses (``out=...``, which has the same effect
-        as None as an array is always returned), or a 1-element tuple.
-
-    Returns
-    -------
-    r : ndarray
-        The reduced values. If `out` was supplied, `r` is a reference to
-        `out`.
-
-    Notes
-    -----
-    A descriptive example:
-
-    If `array` is 1-D, the function `ufunc.accumulate(array)` is the same as
-    ``ufunc.reduceat(array, indices)[::2]`` where `indices` is
-    ``range(len(array) - 1)`` with a zero placed
-    in every other element:
-    ``indices = zeros(2 * len(array) - 1)``,
-    ``indices[1::2] = range(1, len(array))``.
-
-    Don't be fooled by this attribute's name: `reduceat(array)` is not
-    necessarily smaller than `array`.
-
-    Examples
-    --------
-    To take the running sum of four successive values:
-
-    >>> import numpy as np
-    >>> np.add.reduceat(np.arange(8),[0,4, 1,5, 2,6, 3,7])[::2]
-    array([ 6, 10, 14, 18])
-
-    A 2-D example:
-
-    >>> x = np.linspace(0, 15, 16).reshape(4,4)
-    >>> x
-    array([[ 0.,   1.,   2.,   3.],
-           [ 4.,   5.,   6.,   7.],
-           [ 8.,   9.,  10.,  11.],
-           [12.,  13.,  14.,  15.]])
-
-    ::
-
-     # reduce such that the result has the following five rows:
-     # [row1 + row2 + row3]
-     # [row4]
-     # [row2]
-     # [row3]
-     # [row1 + row2 + row3 + row4]
-
-    >>> np.add.reduceat(x, [0, 3, 1, 2, 0])
-    array([[12.,  15.,  18.,  21.],
-           [12.,  13.,  14.,  15.],
-           [ 4.,   5.,   6.,   7.],
-           [ 8.,   9.,  10.,  11.],
-           [24.,  28.,  32.,  36.]])
-
-    ::
-
-     # reduce such that result has the following two columns:
-     # [col1 * col2 * col3, col4]
-
-    >>> np.multiply.reduceat(x, [0, 3], 1)
-    array([[   0.,     3.],
-           [ 120.,     7.],
-           [ 720.,    11.],
-           [2184.,    15.]])
-
-    """))
-
-add_newdoc('numpy._core', 'ufunc', ('outer',
+    "betainc",
     r"""
-    outer($self, A, B, /, **kwargs)
-    --
+    betainc(a, b, x, out=None)
 
-    outer(A, B, /, **kwargs)
+    Regularized incomplete beta function.
 
-    Apply the ufunc `op` to all pairs (a, b) with a in `A` and b in `B`.
+    Computes the regularized incomplete beta function, defined as [1]_:
 
-    Let ``M = A.ndim``, ``N = B.ndim``. Then the result, `C`, of
-    ``op.outer(A, B)`` is an array of dimension M + N such that:
+    .. math::
 
-    .. math:: C[i_0, ..., i_{M-1}, j_0, ..., j_{N-1}] =
-       op(A[i_0, ..., i_{M-1}], B[j_0, ..., j_{N-1}])
+        I_x(a, b) = \frac{\Gamma(a+b)}{\Gamma(a)\Gamma(b)} \int_0^x
+        t^{a-1}(1-t)^{b-1}dt,
 
-    For `A` and `B` one-dimensional, this is equivalent to::
+    for :math:`0 \leq x \leq 1`.
 
-      r = empty(len(A),len(B))
-      for i in range(len(A)):
-          for j in range(len(B)):
-              r[i,j] = op(A[i], B[j])  # op = ufunc in question
+    This function is the cumulative distribution function for the beta
+    distribution; its range is [0, 1].
 
     Parameters
     ----------
-    A : array_like
-        First array
-    B : array_like
-        Second array
-    kwargs : any
-        Arguments to pass on to the ufunc. Typically `dtype` or `out`.
-        See `ufunc` for a comprehensive overview of all available arguments.
+    a, b : array_like
+           Positive, real-valued parameters.
+    x : array_like
+        Real-valued such that :math:`0 \leq x \leq 1`,
+        the upper limit of integration.
+    out : ndarray, optional
+        Optional output array for the function values.
 
     Returns
     -------
-    r : ndarray
-        Output array
+    scalar or ndarray
+        Value of the regularized incomplete beta function.
 
     See Also
     --------
-    numpy.outer : A less powerful version of ``np.multiply.outer``
-                  that `ravel`\ s all inputs to 1D. This exists
-                  primarily for compatibility with old code.
+    beta : beta function
+    betaincinv : inverse of the regularized incomplete beta function
+    betaincc : complement of the regularized incomplete beta function
+    scipy.stats.beta : beta distribution
 
-    tensordot : ``np.tensordot(a, b, axes=((), ()))`` and
-                ``np.multiply.outer(a, b)`` behave same for all
-                dimensions of a and b.
+    Notes
+    -----
+    The term *regularized* in the name of this function refers to the
+    scaling of the function by the gamma function terms shown in the
+    formula.  When not qualified as *regularized*, the name *incomplete
+    beta function* often refers to just the integral expression,
+    without the gamma terms.  One can use the function `beta` from
+    `scipy.special` to get this "nonregularized" incomplete beta
+    function by multiplying the result of ``betainc(a, b, x)`` by
+    ``beta(a, b)``.
+
+    ``betainc(a, b, x)`` is treated as a two parameter family of functions
+    of a single variable `x`, rather than as a function of three variables.
+    This impacts only the limiting cases ``a = 0``, ``b = 0``, ``a = inf``,
+    ``b = inf``.
+
+    In general
+
+    .. math::
+
+        \lim_{(a, b) \rightarrow (a_0, b_0)} \mathrm{betainc}(a, b, x)
+
+    is treated as a pointwise limit in ``x``. Thus for example,
+    ``betainc(0, b, 0)`` equals ``0`` for ``b > 0``, although it would be
+    indeterminate when considering the simultaneous limit ``(a, x) -> (0+, 0+)``.
+
+    This function wraps the ``ibeta`` routine from the
+    Boost Math C++ library [2]_.
+
+    References
+    ----------
+    .. [1] NIST Digital Library of Mathematical Functions
+           https://dlmf.nist.gov/8.17
+    .. [2] The Boost Developers. "Boost C++ Libraries". https://www.boost.org/.
 
     Examples
     --------
-    >>> np.multiply.outer([1, 2, 3], [4, 5, 6])
-    array([[ 4,  5,  6],
-           [ 8, 10, 12],
-           [12, 15, 18]])
 
-    A multi-dimensional example:
+    Let :math:`B(a, b)` be the `beta` function.
 
-    >>> A = np.array([[1, 2, 3], [4, 5, 6]])
-    >>> A.shape
-    (2, 3)
-    >>> B = np.array([[1, 2, 3, 4]])
-    >>> B.shape
-    (1, 4)
-    >>> C = np.multiply.outer(A, B)
-    >>> C.shape; C
-    (2, 3, 1, 4)
-    array([[[[ 1,  2,  3,  4]],
-            [[ 2,  4,  6,  8]],
-            [[ 3,  6,  9, 12]]],
-           [[[ 4,  8, 12, 16]],
-            [[ 5, 10, 15, 20]],
-            [[ 6, 12, 18, 24]]]])
+    >>> import scipy.special as sc
 
-    """))
+    The coefficient in terms of `gamma` is equal to
+    :math:`1/B(a, b)`. Also, when :math:`x=1`
+    the integral is equal to :math:`B(a, b)`.
+    Therefore, :math:`I_{x=1}(a, b) = 1` for any :math:`a, b`.
 
-add_newdoc('numpy._core', 'ufunc', ('at',
+    >>> sc.betainc(0.2, 3.5, 1.0)
+    1.0
+
+    It satisfies
+    :math:`I_x(a, b) = x^a F(a, 1-b, a+1, x)/ (aB(a, b))`,
+    where :math:`F` is the hypergeometric function `hyp2f1`:
+
+    >>> a, b, x = 1.4, 3.1, 0.5
+    >>> x**a * sc.hyp2f1(a, 1 - b, a + 1, x)/(a * sc.beta(a, b))
+    0.8148904036225295
+    >>> sc.betainc(a, b, x)
+    0.8148904036225296
+
+    This functions satisfies the relationship
+    :math:`I_x(a, b) = 1 - I_{1-x}(b, a)`:
+
+    >>> sc.betainc(2.2, 3.1, 0.4)
+    0.49339638807619446
+    >>> 1 - sc.betainc(3.1, 2.2, 1 - 0.4)
+    0.49339638807619446
+
+    """)
+
+
+add_newdoc(
+    "betaincc",
+    r"""
+    betaincc(a, b, x, out=None)
+
+    Complement of the regularized incomplete beta function.
+
+    Computes the complement of the regularized incomplete beta function,
+    defined as [1]_:
+
+    .. math::
+
+        \bar{I}_x(a, b) = 1 - I_x(a, b)
+                        = 1 - \frac{\Gamma(a+b)}{\Gamma(a)\Gamma(b)} \int_0^x
+                                  t^{a-1}(1-t)^{b-1}dt,
+
+    for :math:`0 \leq x \leq 1`.
+
+    Parameters
+    ----------
+    a, b : array_like
+           Positive, real-valued parameters.
+    x : array_like
+        Real-valued such that :math:`0 \leq x \leq 1`,
+        the upper limit of integration.
+    out : ndarray, optional
+        Optional output array for the function values.
+
+    Returns
+    -------
+    scalar or ndarray
+        Value of the complement of the regularized incomplete beta function.
+
+    See Also
+    --------
+    betainc : regularized incomplete beta function
+    betaincinv : inverse of the regularized incomplete beta function
+    betainccinv :
+        inverse of the complement of the regularized incomplete beta function
+    beta : beta function
+    scipy.stats.beta : beta distribution
+
+    Notes
+    -----
+    .. versionadded:: 1.11.0
+
+    Like `betainc`, ``betaincc(a, b, x)`` is treated as a two parameter
+    family of functions of a single variable `x`, rather than as a function of
+    three variables. See the `betainc` docstring for more info on how this
+    impacts limiting cases.
+
+    This function wraps the ``ibetac`` routine from the
+    Boost Math C++ library [2]_.
+
+    References
+    ----------
+    .. [1] NIST Digital Library of Mathematical Functions
+           https://dlmf.nist.gov/8.17
+    .. [2] The Boost Developers. "Boost C++ Libraries". https://www.boost.org/.
+
+    Examples
+    --------
+    >>> from scipy.special import betaincc, betainc
+
+    The naive calculation ``1 - betainc(a, b, x)`` loses precision when
+    the values of ``betainc(a, b, x)`` are close to 1:
+
+    >>> 1 - betainc(0.5, 8, [0.9, 0.99, 0.999])
+    array([2.0574632e-09, 0.0000000e+00, 0.0000000e+00])
+
+    By using ``betaincc``, we get the correct values:
+
+    >>> betaincc(0.5, 8, [0.9, 0.99, 0.999])
+    array([2.05746321e-09, 1.97259354e-17, 1.96467954e-25])
+
+    """)
+
+add_newdoc(
+    "betaincinv",
+    r"""
+    betaincinv(a, b, y, out=None)
+
+    Inverse of the regularized incomplete beta function.
+
+    Computes :math:`x` such that:
+
+    .. math::
+
+        y = I_x(a, b) = \frac{\Gamma(a+b)}{\Gamma(a)\Gamma(b)}
+        \int_0^x t^{a-1}(1-t)^{b-1}dt,
+
+    where :math:`I_x` is the normalized incomplete beta function `betainc`
+    and :math:`\Gamma` is the `gamma` function [1]_.
+
+    Parameters
+    ----------
+    a, b : array_like
+        Positive, real-valued parameters
+    y : array_like
+        Real-valued input
+    out : ndarray, optional
+        Optional output array for function values
+
+    Returns
+    -------
+    scalar or ndarray
+        Value of the inverse of the regularized incomplete beta function
+
+    See Also
+    --------
+    betainc : regularized incomplete beta function
+    gamma : gamma function
+
+    Notes
+    -----
+    This function wraps the ``ibeta_inv`` routine from the
+    Boost Math C++ library [2]_.
+
+    References
+    ----------
+    .. [1] NIST Digital Library of Mathematical Functions
+           https://dlmf.nist.gov/8.17
+    .. [2] The Boost Developers. "Boost C++ Libraries". https://www.boost.org/.
+
+    Examples
+    --------
+    >>> import scipy.special as sc
+
+    This function is the inverse of `betainc` for fixed
+    values of :math:`a` and :math:`b`.
+
+    >>> a, b = 1.2, 3.1
+    >>> y = sc.betainc(a, b, 0.2)
+    >>> sc.betaincinv(a, b, y)
+    0.2
+    >>>
+    >>> a, b = 7.5, 0.4
+    >>> x = sc.betaincinv(a, b, 0.5)
+    >>> sc.betainc(a, b, x)
+    0.5
+
+    """)
+
+
+add_newdoc(
+    "betainccinv",
+    r"""
+    betainccinv(a, b, y, out=None)
+
+    Inverse of the complemented regularized incomplete beta function.
+
+    Computes :math:`x` such that:
+
+    .. math::
+
+        y = 1 - I_x(a, b) = 1 - \frac{\Gamma(a+b)}{\Gamma(a)\Gamma(b)}
+        \int_0^x t^{a-1}(1-t)^{b-1}dt,
+
+    where :math:`I_x` is the normalized incomplete beta function `betainc`
+    and :math:`\Gamma` is the `gamma` function [1]_.
+
+    Parameters
+    ----------
+    a, b : array_like
+        Positive, real-valued parameters
+    y : array_like
+        Real-valued input
+    out : ndarray, optional
+        Optional output array for function values
+
+    Returns
+    -------
+    scalar or ndarray
+        Value of the inverse of the regularized incomplete beta function
+
+    See Also
+    --------
+    betainc : regularized incomplete beta function
+    betaincc : complement of the regularized incomplete beta function
+
+    Notes
+    -----
+    .. versionadded:: 1.11.0
+
+    This function wraps the ``ibetac_inv`` routine from the
+    Boost Math C++ library [2]_.
+
+    References
+    ----------
+    .. [1] NIST Digital Library of Mathematical Functions
+           https://dlmf.nist.gov/8.17
+    .. [2] The Boost Developers. "Boost C++ Libraries". https://www.boost.org/.
+
+    Examples
+    --------
+    >>> from scipy.special import betainccinv, betaincc
+
+    This function is the inverse of `betaincc` for fixed
+    values of :math:`a` and :math:`b`.
+
+    >>> a, b = 1.2, 3.1
+    >>> y = betaincc(a, b, 0.2)
+    >>> betainccinv(a, b, y)
+    0.2
+
+    >>> a, b = 7, 2.5
+    >>> x = betainccinv(a, b, 0.875)
+    >>> betaincc(a, b, x)
+    0.875
+
+    """)
+
+add_newdoc("boxcox",
+    r"""
+    boxcox(x, lmbda, out=None)
+
+    Compute the Box-Cox transformation.
+
+    The Box-Cox transformation is
+
+    .. math::
+
+        y = \begin{cases}
+            (x^\lambda - 1) / \lambda & \text{if } \lambda \neq 0 \\
+            \log(x) & \text{if } \lambda = 0
+        \end{cases}
+
+    Returns ``nan`` if :math:`x < 0`.
+    Returns ``-inf`` if :math:`x = 0` and :math:`\lambda \leq 0`.
+
+    Parameters
+    ----------
+    x : array_like
+        Data to be transformed.
+    lmbda : array_like
+        Power parameter :math:`\lambda` of the Box-Cox transform.
+    out : ndarray, optional
+        Optional output array for the function values.
+
+    Returns
+    -------
+    y : scalar or ndarray
+        Transformed data.
+
+    See Also
+    --------
+    boxcox1p : Box-Cox transformation of ``1 + x``.
+    inv_boxcox : Inverse of the Box-Cox transformation.
+
+    Notes
+    -----
+
+    .. versionadded:: 0.14.0
+
+    Examples
+    --------
+    >>> from scipy.special import boxcox
+    >>> boxcox([1, 4, 10], 2.5)
+    array([   0.        ,   12.4       ,  126.09110641])
+    >>> boxcox(2, [0, 1, 2])
+    array([ 0.69314718,  1.        ,  1.5       ])
+    """)
+
+add_newdoc("boxcox1p",
+    r"""
+    boxcox1p(x, lmbda, out=None)
+
+    Compute the Box-Cox transformation of :math:`1 + x`.
+
+    The Box-Cox transformation computed by `boxcox1p` is
+
+    .. math::
+
+        y = \begin{cases}
+            ((1+x)^\lambda - 1) / \lambda & \text{if } \lambda \neq 0 \\
+            \log(1+x) & \text{if } \lambda = 0
+        \end{cases}
+
+    Returns ``nan`` if :math:`x < -1`.
+    Returns ``-inf`` if :math:`x = -1` and :math:`\lambda \leq 0`.
+
+    Parameters
+    ----------
+    x : array_like
+        Data to be transformed.
+    lmbda : array_like
+        Power parameter :math:`\lambda` of the Box-Cox transform.
+    out : ndarray, optional
+        Optional output array for the function values.
+
+    Returns
+    -------
+    y : scalar or ndarray
+        Transformed data.
+
+    See Also
+    --------
+    boxcox : Box-Cox transformation.
+    inv_boxcox1p : Inverse of the Box-Cox transformation of ``1 + x``.
+
+    Notes
+    -----
+
+    .. versionadded:: 0.14.0
+
+    Examples
+    --------
+    >>> from scipy.special import boxcox1p
+    >>> boxcox1p(1e-4, [0, 0.5, 1])
+    array([  9.99950003e-05,   9.99975001e-05,   1.00000000e-04])
+    >>> boxcox1p([0.01, 0.1], 0.25)
+    array([ 0.00996272,  0.09645476])
+    """)
+
+add_newdoc("inv_boxcox",
+    r"""
+    inv_boxcox(y, lmbda, out=None)
+
+    Compute the inverse of the Box-Cox transformation.
+
+    Find :math:`x` such that
+
+    .. math::
+
+        y = \begin{cases}
+            (x^\lambda - 1) / \lambda & \text{if } \lambda \neq 0 \\
+            \log(x) & \text{if } \lambda = 0
+        \end{cases}
+
+    Parameters
+    ----------
+    y : array_like
+        Transformed data (input to the inverse transform).
+    lmbda : array_like
+        Power parameter :math:`\lambda` of the Box-Cox transform.
+    out : ndarray, optional
+        Optional output array for the function values.
+
+    Returns
+    -------
+    x : scalar or ndarray
+        Original data (inverse Box-Cox transform of `y`).
+
+    See Also
+    --------
+    boxcox : Box-Cox transformation.
+    inv_boxcox1p : Inverse of the Box-Cox transformation of ``1 + x``.
+
+    Notes
+    -----
+
+    .. versionadded:: 0.16.0
+
+    Examples
+    --------
+    >>> from scipy.special import boxcox, inv_boxcox
+    >>> y = boxcox([1, 4, 10], 2.5)
+    >>> inv_boxcox(y, 2.5)
+    array([1., 4., 10.])
+    """)
+
+add_newdoc("inv_boxcox1p",
+    r"""
+    inv_boxcox1p(y, lmbda, out=None)
+
+    Compute the inverse of the Box-Cox transformation of :math:`1 + x`.
+
+    Find :math:`x` such that
+
+    .. math::
+
+        y = \begin{cases}
+            ((1+x)^\lambda - 1) / \lambda & \text{if } \lambda \neq 0 \\
+            \log(1+x) & \text{if } \lambda = 0
+        \end{cases}
+
+    Parameters
+    ----------
+    y : array_like
+        Transformed data (input to the inverse transform).
+    lmbda : array_like
+        Power parameter :math:`\lambda` of the Box-Cox transform.
+    out : ndarray, optional
+        Optional output array for the function values.
+
+    Returns
+    -------
+    x : scalar or ndarray
+        Original data (inverse Box-Cox transform of `y`).
+
+    See Also
+    --------
+    boxcox1p : Box-Cox transformation of ``1 + x``.
+    inv_boxcox : Inverse of the Box-Cox transformation.
+
+    Notes
+    -----
+
+    .. versionadded:: 0.16.0
+
+    Examples
+    --------
+    >>> from scipy.special import boxcox1p, inv_boxcox1p
+    >>> y = boxcox1p([1, 4, 10], 2.5)
+    >>> inv_boxcox1p(y, 2.5)
+    array([1., 4., 10.])
+    """)
+
+add_newdoc("chdtr",
+    r"""
+    chdtr(v, x, out=None)
+
+    Chi square cumulative distribution function.
+
+    Returns the area under the left tail (from 0 to `x`) of the Chi
+    square probability density function with `v` degrees of freedom:
+
+    .. math::
+
+        \frac{1}{2^{v/2} \Gamma(v/2)} \int_0^x t^{v/2 - 1} e^{-t/2} dt
+
+    Here :math:`\Gamma` is the Gamma function; see `gamma`. This
+    integral can be expressed in terms of the regularized lower
+    incomplete gamma function `gammainc` as
+    ``gammainc(v / 2, x / 2)``. [1]_
+
+    Parameters
+    ----------
+    v : array_like
+        Degrees of freedom.
+    x : array_like
+        Upper bound of the integral.
+    out : ndarray, optional
+        Optional output array for the function results.
+
+    Returns
+    -------
+    scalar or ndarray
+        Values of the cumulative distribution function.
+
+    See Also
+    --------
+    chdtrc, chdtri, chdtriv, gammainc
+
+    References
+    ----------
+    .. [1] Chi-Square distribution,
+        https://www.itl.nist.gov/div898/handbook/eda/section3/eda3666.htm
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> import scipy.special as sc
+
+    It can be expressed in terms of the regularized lower incomplete
+    gamma function.
+
+    >>> v = 1
+    >>> x = np.arange(4)
+    >>> sc.chdtr(v, x)
+    array([0.        , 0.68268949, 0.84270079, 0.91673548])
+    >>> sc.gammainc(v / 2, x / 2)
+    array([0.        , 0.68268949, 0.84270079, 0.91673548])
+
+    """)
+
+add_newdoc("chdtrc",
+    r"""
+    chdtrc(v, x, out=None)
+
+    Chi square survival function.
+
+    Returns the area under the right hand tail (from `x` to infinity)
+    of the Chi square probability density function with `v` degrees of
+    freedom:
+
+    .. math::
+
+        \frac{1}{2^{v/2} \Gamma(v/2)} \int_x^\infty t^{v/2 - 1} e^{-t/2} dt
+
+    Here :math:`\Gamma` is the Gamma function; see `gamma`. This
+    integral can be expressed in terms of the regularized upper
+    incomplete gamma function `gammaincc` as
+    ``gammaincc(v / 2, x / 2)``. [1]_
+
+    Parameters
+    ----------
+    v : array_like
+        Degrees of freedom.
+    x : array_like
+        Lower bound of the integral.
+    out : ndarray, optional
+        Optional output array for the function results.
+
+    Returns
+    -------
+    scalar or ndarray
+        Values of the survival function.
+
+    See Also
+    --------
+    chdtr, chdtri, chdtriv, gammaincc
+
+    References
+    ----------
+    .. [1] Chi-Square distribution,
+        https://www.itl.nist.gov/div898/handbook/eda/section3/eda3666.htm
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> import scipy.special as sc
+
+    It can be expressed in terms of the regularized upper incomplete
+    gamma function.
+
+    >>> v = 1
+    >>> x = np.arange(4)
+    >>> sc.chdtrc(v, x)
+    array([1.        , 0.31731051, 0.15729921, 0.08326452])
+    >>> sc.gammaincc(v / 2, x / 2)
+    array([1.        , 0.31731051, 0.15729921, 0.08326452])
+
+    """)
+
+add_newdoc("chdtri",
     """
-    at($self, a, indices, b=None, /)
-    --
+    chdtri(v, p, out=None)
 
-    at(a, indices, b=None, /)
+    Inverse to `chdtrc` with respect to `x`.
 
-    Performs unbuffered in place operation on operand 'a' for elements
-    specified by 'indices'. For addition ufunc, this method is equivalent to
-    ``a[indices] += b``, except that results are accumulated for elements that
-    are indexed more than once. For example, ``a[[0,0]] += 1`` will only
-    increment the first element once because of buffering, whereas
-    ``add.at(a, [0,0], 1)`` will increment the first element twice.
+    Returns `x` such that ``chdtrc(v, x) == p``.
+
+    Parameters
+    ----------
+    v : array_like
+        Degrees of freedom.
+    p : array_like
+        Probability.
+    out : ndarray, optional
+        Optional output array for the function results.
+
+    Returns
+    -------
+    x : scalar or ndarray
+        Value so that the probability a Chi square random variable
+        with `v` degrees of freedom is greater than `x` equals `p`.
+
+    See Also
+    --------
+    chdtrc, chdtr, chdtriv
+
+    References
+    ----------
+    .. [1] Chi-Square distribution,
+        https://www.itl.nist.gov/div898/handbook/eda/section3/eda3666.htm
+
+    Examples
+    --------
+    >>> import scipy.special as sc
+
+    It inverts `chdtrc`.
+
+    >>> v, p = 1, 0.3
+    >>> sc.chdtrc(v, sc.chdtri(v, p))
+    0.3
+    >>> x = 1
+    >>> sc.chdtri(v, sc.chdtrc(v, x))
+    1.0
+
+    """)
+
+add_newdoc("chdtriv",
+    """
+    chdtriv(p, x, out=None)
+
+    Inverse to `chdtr` with respect to `v`.
+
+    Returns `v` such that ``chdtr(v, x) == p``.
+
+    Parameters
+    ----------
+    p : array_like
+        Probability that the Chi square random variable is less than
+        or equal to `x`.
+    x : array_like
+        Nonnegative input.
+    out : ndarray, optional
+        Optional output array for the function results.
+
+    Returns
+    -------
+    scalar or ndarray
+        Degrees of freedom.
+
+    See Also
+    --------
+    chdtr, chdtrc, chdtri
+
+    Notes
+    -----
+    This function wraps routines from the Boost Math C++ library [1]_.
+
+    References
+    ----------
+    .. [1] The Boost Developers. "Boost C++ Libraries". https://www.boost.org/.
+    .. [2] Chi-Square distribution,
+        https://www.itl.nist.gov/div898/handbook/eda/section3/eda3666.htm
+
+    Examples
+    --------
+    >>> import scipy.special as sc
+
+    It inverts `chdtr`.
+
+    >>> p, x = 0.5, 1
+    >>> sc.chdtr(sc.chdtriv(p, x), x)
+    0.5000000000000003
+    >>> v = 1
+    >>> sc.chdtriv(sc.chdtr(v, x), x)
+    1.0
+
+    """)
+
+add_newdoc("chndtr",
+    r"""
+    chndtr(x, df, nc, out=None)
+
+    Non-central chi-squared cumulative distribution function.
+
+    The cumulative distribution function is given by
+
+    .. math::
+
+        F_{\nu,\lambda}(x)
+        = \sum_{j=0}^{\infty}
+          e^{-\lambda / 2}
+          \frac{(\lambda / 2)^j}{j!}
+          F_{\chi^2_{\nu + 2j}}(x),
+
+    where :math:`\nu > 0` is the degrees of freedom (``df``), :math:`\lambda \geq 0`
+    is the non-centrality parameter (``nc``), and :math:`F_{\chi^2_{\nu + 2j}}` is the
+    CDF of the central chi-squared distribution with :math:`\nu + 2j` degrees of
+    freedom.
+
+    Parameters
+    ----------
+    x : array_like
+        Upper bound of the integral; must satisfy ``x >= 0``.
+    df : array_like
+        Degrees of freedom; must satisfy ``df > 0``.
+    nc : array_like
+        Non-centrality parameter; must satisfy ``nc >= 0``.
+    out : ndarray, optional
+        Optional output array for the function results.
+
+    Returns
+    -------
+    cdf : scalar or ndarray
+        Value of the non-central chi-squared cumulative distribution function.
+
+    See Also
+    --------
+    chndtrix: Noncentral Chi Squared distribution quantile
+    chndtridf: Inverse of `chndtr` with respect to `df`
+    chndtrinc: Inverse of `chndtr` with respect to `nc`
+    scipy.stats.ncx2: Non-central chi-squared distribution
+
+    Notes
+    -----
+    The noncentral chi squared distribution is also available in
+    `scipy.stats.ncx2`. ``scipy.stats.ncx2.cdf`` is equivalent to `chndtr`.
+
+    This function wraps routines from the Boost Math C++ library [1]_.
+
+    References
+    ----------
+    .. [1] The Boost Developers. "Boost C++ Libraries". https://www.boost.org/.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> import scipy.special as sc
+
+    Compute the noncentral chi squared distribution CDF at one point.
+
+    >>> x = 4.0
+    >>> df = 1.0
+    >>> nc = 5.0
+    >>> sc.chndtr(x, df, nc)
+    0.40667858759710945
+
+    Plot the noncentral chi squared distribution CDF for different parameters.
+
+    >>> import matplotlib.pyplot as plt
+    >>> x = np.linspace(0, 40, 1000)
+    >>> plt.plot(x, sc.chndtr(x, 1, 5), label=r"$df=1,\ nc=5$")
+    >>> plt.plot(x, sc.chndtr(x, 5, 10), label=r"$df=5,\ nc=10$")
+    >>> plt.legend()
+    >>> plt.show()
+
+    """)
+
+add_newdoc("chndtrix",
+    """
+    chndtrix(p, df, nc, out=None)
+
+    Inverse to `chndtr` vs `x`.
+
+    Calculated using a search to find a value for `x` that produces the
+    desired value of `p`.
+
+    Parameters
+    ----------
+    p : array_like
+        Probability; must satisfy ``0 <= p < 1``
+    df : array_like
+        Degrees of freedom; must satisfy ``df > 0``
+    nc : array_like
+        Non-centrality parameter; must satisfy ``nc >= 0``
+    out : ndarray, optional
+        Optional output array for the function results
+
+    Returns
+    -------
+    x : scalar or ndarray
+        Value so that the probability a non-central Chi square random variable
+        with `df` degrees of freedom and non-centrality, `nc`, is greater than
+        `x` equals `p`.
+
+    See Also
+    --------
+    chndtr : Noncentral chi-squared distribution CDF
+    chndtridf : inverse of `chndtr` with respect to `cdf`
+    chndtrinc : inverse of `chndtr` with respect to `nc`
+    scipy.stats.ncx2 : Non-central chi-squared distribution
+
+    Notes
+    -----
+    The noncentral chi squared distribution is also available in
+    `scipy.stats.ncx2`. ``scipy.stats.ncx2.ppf`` is equivalent to `chndtrix`.
+
+    This function wraps routines from the Boost Math C++ library [1]_.
+
+    References
+    ----------
+    .. [1] The Boost Developers. "Boost C++ Libraries". https://www.boost.org/.
+
+    Examples
+    --------
+    >>> from scipy.special import chndtrix, chndtr
+
+    Compute the noncentral chi squared distribution CDF at one point.
+    >>> x, df, nc = 3, 5, 10
+    >>> p = chndtr(x, df, nc)
+
+    `chndtrix` is the inverse of `chndtr` with respect to `x`:
+
+    >>> chndtrix(p, df, nc)
+    3.0
+
+    """)
+
+add_newdoc("chndtridf",
+    """
+    chndtridf(x, p, nc, out=None)
+
+    Inverse to `chndtr` vs `df`.
+
+    Calculated using a search to find a value for `df` that produces the
+    desired value of `p`.
+
+    Parameters
+    ----------
+    x : array_like
+        Upper bound of the integral; must satisfy ``x >= 0``
+    p : array_like
+        Probability; must satisfy ``0 <= p < 1``
+    nc : array_like
+        Non-centrality parameter; must satisfy ``nc >= 0``
+    out : ndarray, optional
+        Optional output array for the function results
+
+    Returns
+    -------
+    df : scalar or ndarray
+        Degrees of freedom
+
+    See Also
+    --------
+    chndtr : Noncentral chi-squared distribution CDF
+    chndtrix : inverse of `chndtr` with respect to `x`
+    chndtrinc : inverse of `chndtr` with respect to `nc`
+    scipy.stats.ncx2 : Non-central chi-squared distribution
+
+    Notes
+    -----
+    The noncentral chi squared distribution is also available in
+    `scipy.stats.ncx2`.
+
+    This function wraps routines from the Boost Math C++ library [1]_.
+
+    References
+    ----------
+    .. [1] The Boost Developers. "Boost C++ Libraries". https://www.boost.org/.
+
+    Examples
+    --------
+    >>> from scipy.special import chndtridf, chndtr
+
+    Compute the noncentral chi squared distribution CDF at one point.
+
+    >>> x, df, nc = 3, 5, 10
+    >>> p = chndtr(x, df, nc)
+
+    `chndtridf` is the inverse of `chndtr` with respect to `df`:
+
+    >>> chndtridf(x, p, nc)
+    5.0
+
+    """)
+
+add_newdoc("chndtrinc",
+    """
+    chndtrinc(x, df, p, out=None)
+
+    Inverse of `chndtr` with respect to `nc`.
+
+    Finds the non-centrality parameter `nc` such that
+
+    .. math::
+
+        \\operatorname{chndtr}(x, df, nc) = p.
+
+    Parameters
+    ----------
+    x : array_like
+        Upper bound of the integral; must satisfy ``x >= 0``.
+    df : array_like
+        Degrees of freedom; must satisfy ``df > 0``.
+    p : array_like
+        Probability; must satisfy ``0 <= p < 1``.
+    out : ndarray, optional
+        Optional output array for the function results.
+
+    Returns
+    -------
+    nc : scalar or ndarray
+        Non-centrality parameter.
+
+    See Also
+    --------
+    chndtr : Noncentral chi-squared distribution CDF
+    chndtridf : Inverse of `chndtr` with respect to `df`
+    chndtrinc : Inverse of `chndtr` with respect to `nc`
+    scipy.stats.ncx2 : Non-central chi-squared distribution
+
+    Notes
+    -----
+    The noncentral chi squared distribution is also available in
+    `scipy.stats.ncx2`.
+
+    This function wraps routines from the Boost Math C++ library [1]_.
+
+    References
+    ----------
+    .. [1] The Boost Developers. "Boost C++ Libraries". https://www.boost.org/.
+
+    Examples
+    --------
+    >>> from scipy.special import chndtrinc, chndtr
+
+    Compute the noncentral chi squared distribution CDF at one point.
+
+    >>> x, df, nc = 3, 5, 10
+    >>> p = chndtr(x, df, nc)
+
+    `chndtrinc` is the inverse of `chndtr` with respect to `nc`:
+
+    >>> chndtrinc(x, df, p)
+    10.0
+
+    """)
+
+add_newdoc(
+    "elliprc",
+    r"""
+    elliprc(x, y, out=None)
+
+    Degenerate symmetric elliptic integral.
+
+    The function RC is defined as [1]_
+
+    .. math::
+
+        R_{\mathrm{C}}(x, y) =
+           \frac{1}{2} \int_0^{+\infty} (t + x)^{-1/2} (t + y)^{-1} dt
+           = R_{\mathrm{F}}(x, y, y)
+
+    Parameters
+    ----------
+    x, y : array_like
+        Real or complex input parameters. `x` can be any number in the
+        complex plane cut along the negative real axis. `y` must be non-zero.
+    out : ndarray, optional
+        Optional output array for the function values
+
+    Returns
+    -------
+    R : scalar or ndarray
+        Value of the integral. If `y` is real and negative, the Cauchy
+        principal value is returned. If both of `x` and `y` are real, the
+        return value is real. Otherwise, the return value is complex.
+
+    See Also
+    --------
+    elliprf : Completely-symmetric elliptic integral of the first kind.
+    elliprd : Symmetric elliptic integral of the second kind.
+    elliprg : Completely-symmetric elliptic integral of the second kind.
+    elliprj : Symmetric elliptic integral of the third kind.
+
+    Notes
+    -----
+    RC is a degenerate case of the symmetric integral RF: ``elliprc(x, y) ==
+    elliprf(x, y, y)``. It is an elementary function rather than an elliptic
+    integral.
+
+    The code implements Carlson's algorithm based on the duplication theorems
+    and series expansion up to the 7th order. [2]_
+
+    .. versionadded:: 1.8.0
+
+    References
+    ----------
+    .. [1] B. C. Carlson, ed., Chapter 19 in "Digital Library of Mathematical
+           Functions," NIST, US Dept. of Commerce.
+           https://dlmf.nist.gov/19.16.E6
+    .. [2] B. C. Carlson, "Numerical computation of real or complex elliptic
+           integrals," Numer. Algorithm, vol. 10, no. 1, pp. 13-26, 1995.
+           :doi:`10.1007/BF02198293`. https://arxiv.org/abs/math/9409227
+
+    Examples
+    --------
+    Basic homogeneity property:
+
+    >>> import numpy as np
+    >>> from scipy.special import elliprc
+
+    >>> x = 1.2 + 3.4j
+    >>> y = 5.
+    >>> scale = 0.3 + 0.4j
+    >>> elliprc(scale*x, scale*y)
+    (0.5484493976710874-0.4169557678995833j)
+
+    >>> elliprc(x, y)/np.sqrt(scale)
+    (0.5484493976710874-0.41695576789958333j)
+
+    When the two arguments coincide, the integral is particularly
+    simple:
+
+    >>> x = 1.2 + 3.4j
+    >>> elliprc(x, x)
+    (0.4299173120614631-0.3041729818745595j)
+
+    >>> 1/np.sqrt(x)
+    (0.4299173120614631-0.30417298187455954j)
+
+    Another simple case: the first argument vanishes:
+
+    >>> y = 1.2 + 3.4j
+    >>> elliprc(0, y)
+    (0.6753125346116815-0.47779380263880866j)
+
+    >>> np.pi/2/np.sqrt(y)
+    (0.6753125346116815-0.4777938026388088j)
+
+    When `x` and `y` are both positive, we can express
+    :math:`R_C(x,y)` in terms of more elementary functions.  For the
+    case :math:`0 \le x < y`,
+
+    >>> x = 3.2
+    >>> y = 6.
+    >>> elliprc(x, y)
+    0.44942991498453444
+
+    >>> np.arctan(np.sqrt((y-x)/x))/np.sqrt(y-x)
+    0.44942991498453433
+
+    And for the case :math:`0 \le y < x`,
+
+    >>> x = 6.
+    >>> y = 3.2
+    >>> elliprc(x,y)
+    0.4989837501576147
+
+    >>> np.log((np.sqrt(x)+np.sqrt(x-y))/np.sqrt(y))/np.sqrt(x-y)
+    0.49898375015761476
+
+    """)
+
+add_newdoc(
+    "elliprd",
+    r"""
+    elliprd(x, y, z, out=None)
+
+    Symmetric elliptic integral of the second kind.
+
+    The function RD is defined as [1]_
+
+    .. math::
+
+        R_{\mathrm{D}}(x, y, z) =
+           \frac{3}{2} \int_0^{+\infty} [(t + x) (t + y)]^{-1/2} (t + z)^{-3/2}
+           dt
+
+    Parameters
+    ----------
+    x, y, z : array_like
+        Real or complex input parameters. `x` or `y` can be any number in the
+        complex plane cut along the negative real axis, but at most one of them
+        can be zero, while `z` must be non-zero.
+    out : ndarray, optional
+        Optional output array for the function values
+
+    Returns
+    -------
+    R : scalar or ndarray
+        Value of the integral. If all of `x`, `y`, and `z` are real, the
+        return value is real. Otherwise, the return value is complex.
+
+    See Also
+    --------
+    elliprc : Degenerate symmetric elliptic integral.
+    elliprf : Completely-symmetric elliptic integral of the first kind.
+    elliprg : Completely-symmetric elliptic integral of the second kind.
+    elliprj : Symmetric elliptic integral of the third kind.
+
+    Notes
+    -----
+    RD is a degenerate case of the elliptic integral RJ: ``elliprd(x, y, z) ==
+    elliprj(x, y, z, z)``.
+
+    The code implements Carlson's algorithm based on the duplication theorems
+    and series expansion up to the 7th order. [2]_
+
+    .. versionadded:: 1.8.0
+
+    References
+    ----------
+    .. [1] B. C. Carlson, ed., Chapter 19 in "Digital Library of Mathematical
+           Functions," NIST, US Dept. of Commerce.
+           https://dlmf.nist.gov/19.16.E5
+    .. [2] B. C. Carlson, "Numerical computation of real or complex elliptic
+           integrals," Numer. Algorithm, vol. 10, no. 1, pp. 13-26, 1995.
+           :doi:`10.1007/BF02198293`. https://arxiv.org/abs/math/9409227
+
+    Examples
+    --------
+    Basic homogeneity property:
+
+    >>> import numpy as np
+    >>> from scipy.special import elliprd
+
+    >>> x = 1.2 + 3.4j
+    >>> y = 5.
+    >>> z = 6.
+    >>> scale = 0.3 + 0.4j
+    >>> elliprd(scale*x, scale*y, scale*z)
+    (-0.03703043835680379-0.24500934665683802j)
+
+    >>> elliprd(x, y, z)*np.power(scale, -1.5)
+    (-0.0370304383568038-0.24500934665683805j)
+
+    All three arguments coincide:
+
+    >>> x = 1.2 + 3.4j
+    >>> elliprd(x, x, x)
+    (-0.03986825876151896-0.14051741840449586j)
+
+    >>> np.power(x, -1.5)
+    (-0.03986825876151894-0.14051741840449583j)
+
+    The so-called "second lemniscate constant":
+
+    >>> elliprd(0, 2, 1)/3
+    0.5990701173677961
+
+    >>> from scipy.special import gamma
+    >>> gamma(0.75)**2/np.sqrt(2*np.pi)
+    0.5990701173677959
+
+    """)
+
+add_newdoc(
+    "elliprf",
+    r"""
+    elliprf(x, y, z, out=None)
+
+    Completely-symmetric elliptic integral of the first kind.
+
+    The function RF is defined as [1]_
+
+    .. math::
+
+        R_{\mathrm{F}}(x, y, z) =
+           \frac{1}{2} \int_0^{+\infty} [(t + x) (t + y) (t + z)]^{-1/2} dt
+
+    Parameters
+    ----------
+    x, y, z : array_like
+        Real or complex input parameters. `x`, `y`, or `z` can be any number in
+        the complex plane cut along the negative real axis, but at most one of
+        them can be zero.
+    out : ndarray, optional
+        Optional output array for the function values
+
+    Returns
+    -------
+    R : scalar or ndarray
+        Value of the integral. If all of `x`, `y`, and `z` are real, the return
+        value is real. Otherwise, the return value is complex.
+
+    See Also
+    --------
+    elliprc : Degenerate symmetric integral.
+    elliprd : Symmetric elliptic integral of the second kind.
+    elliprg : Completely-symmetric elliptic integral of the second kind.
+    elliprj : Symmetric elliptic integral of the third kind.
+
+    Notes
+    -----
+    The code implements Carlson's algorithm based on the duplication theorems
+    and series expansion up to the 7th order (cf.:
+    https://dlmf.nist.gov/19.36.i) and the AGM algorithm for the complete
+    integral. [2]_
+
+    .. versionadded:: 1.8.0
+
+    References
+    ----------
+    .. [1] B. C. Carlson, ed., Chapter 19 in "Digital Library of Mathematical
+           Functions," NIST, US Dept. of Commerce.
+           https://dlmf.nist.gov/19.16.E1
+    .. [2] B. C. Carlson, "Numerical computation of real or complex elliptic
+           integrals," Numer. Algorithm, vol. 10, no. 1, pp. 13-26, 1995.
+           :doi:`10.1007/BF02198293`. https://arxiv.org/abs/math/9409227
+
+    Examples
+    --------
+    Basic homogeneity property:
+
+    >>> import numpy as np
+    >>> from scipy.special import elliprf
+
+    >>> x = 1.2 + 3.4j
+    >>> y = 5.
+    >>> z = 6.
+    >>> scale = 0.3 + 0.4j
+    >>> elliprf(scale*x, scale*y, scale*z)
+    (0.5328051227278146-0.4008623567957094j)
+
+    >>> elliprf(x, y, z)/np.sqrt(scale)
+    (0.5328051227278147-0.4008623567957095j)
+
+    All three arguments coincide:
+
+    >>> x = 1.2 + 3.4j
+    >>> elliprf(x, x, x)
+    (0.42991731206146316-0.30417298187455954j)
+
+    >>> 1/np.sqrt(x)
+    (0.4299173120614631-0.30417298187455954j)
+
+    The so-called "first lemniscate constant":
+
+    >>> elliprf(0, 1, 2)
+    1.3110287771460598
+
+    >>> from scipy.special import gamma
+    >>> gamma(0.25)**2/(4*np.sqrt(2*np.pi))
+    1.3110287771460598
+
+    """)
+
+add_newdoc(
+    "elliprg",
+    r"""
+    elliprg(x, y, z, out=None)
+
+    Completely-symmetric elliptic integral of the second kind.
+
+    The function RG is defined as [1]_
+
+    .. math::
+
+        R_{\mathrm{G}}(x, y, z) =
+           \frac{1}{4} \int_0^{+\infty} [(t + x) (t + y) (t + z)]^{-1/2}
+           \left(\frac{x}{t + x} + \frac{y}{t + y} + \frac{z}{t + z}\right) t
+           dt
+
+    Parameters
+    ----------
+    x, y, z : array_like
+        Real or complex input parameters. `x`, `y`, or `z` can be any number in
+        the complex plane cut along the negative real axis.
+    out : ndarray, optional
+        Optional output array for the function values
+
+    Returns
+    -------
+    R : scalar or ndarray
+        Value of the integral. If all of `x`, `y`, and `z` are real, the return
+        value is real. Otherwise, the return value is complex.
+
+    See Also
+    --------
+    elliprc : Degenerate symmetric integral.
+    elliprd : Symmetric elliptic integral of the second kind.
+    elliprf : Completely-symmetric elliptic integral of the first kind.
+    elliprj : Symmetric elliptic integral of the third kind.
+
+    Notes
+    -----
+    The implementation uses the relation [1]_
+
+    .. math::
+
+        2 R_{\mathrm{G}}(x, y, z) =
+           z R_{\mathrm{F}}(x, y, z) -
+           \frac{1}{3} (x - z) (y - z) R_{\mathrm{D}}(x, y, z) +
+           \sqrt{\frac{x y}{z}}
+
+    and the symmetry of `x`, `y`, `z` when at least one non-zero parameter can
+    be chosen as the pivot. When one of the arguments is close to zero, the AGM
+    method is applied instead. Other special cases are computed following Ref.
+    [2]_
+
+    .. versionadded:: 1.8.0
+
+    References
+    ----------
+    .. [1] B. C. Carlson, "Numerical computation of real or complex elliptic
+           integrals," Numer. Algorithm, vol. 10, no. 1, pp. 13-26, 1995.
+           :doi:`10.1007/BF02198293`. https://arxiv.org/abs/math/9409227
+    .. [2] B. C. Carlson, ed., Chapter 19 in "Digital Library of Mathematical
+           Functions," NIST, US Dept. of Commerce.
+           https://dlmf.nist.gov/19.16.E1
+           https://dlmf.nist.gov/19.20.ii
+
+    Examples
+    --------
+    Basic homogeneity property:
+
+    >>> import numpy as np
+    >>> from scipy.special import elliprg
+
+    >>> x = 1.2 + 3.4j
+    >>> y = 5.
+    >>> z = 6.
+    >>> scale = 0.3 + 0.4j
+    >>> elliprg(scale*x, scale*y, scale*z)
+    (1.195936862005246+0.8470988320464167j)
+
+    >>> elliprg(x, y, z)*np.sqrt(scale)
+    (1.195936862005246+0.8470988320464165j)
+
+    Simplifications:
+
+    >>> elliprg(0, y, y)
+    1.756203682760182
+
+    >>> 0.25*np.pi*np.sqrt(y)
+    1.7562036827601817
+
+    >>> elliprg(0, 0, z)
+    1.224744871391589
+
+    >>> 0.5*np.sqrt(z)
+    1.224744871391589
+
+    The surface area of a triaxial ellipsoid with semiaxes ``a``, ``b``, and
+    ``c`` is given by
+
+    .. math::
+
+        S = 4 \pi a b c R_{\mathrm{G}}(1 / a^2, 1 / b^2, 1 / c^2).
+
+    >>> def ellipsoid_area(a, b, c):
+    ...     r = 4.0 * np.pi * a * b * c
+    ...     return r * elliprg(1.0 / (a * a), 1.0 / (b * b), 1.0 / (c * c))
+    >>> print(ellipsoid_area(1, 3, 5))
+    108.62688289491807
+    """)
+
+add_newdoc(
+    "elliprj",
+    r"""
+    elliprj(x, y, z, p, out=None)
+
+    Symmetric elliptic integral of the third kind.
+
+    The function RJ is defined as [1]_
+
+    .. math::
+
+        R_{\mathrm{J}}(x, y, z, p) =
+           \frac{3}{2} \int_0^{+\infty} [(t + x) (t + y) (t + z)]^{-1/2}
+           (t + p)^{-1} dt
+
+    .. warning::
+        This function should be considered experimental when the inputs are
+        unbalanced.  Check correctness with another independent implementation.
+
+    Parameters
+    ----------
+    x, y, z, p : array_like
+        Real or complex input parameters. `x`, `y`, or `z` are numbers in
+        the complex plane cut along the negative real axis (subject to further
+        constraints, see Notes), and at most one of them can be zero. `p` must
+        be non-zero.
+    out : ndarray, optional
+        Optional output array for the function values
+
+    Returns
+    -------
+    R : scalar or ndarray
+        Value of the integral. If all of `x`, `y`, `z`, and `p` are real, the
+        return value is real. Otherwise, the return value is complex.
+
+        If `p` is real and negative, while `x`, `y`, and `z` are real,
+        non-negative, and at most one of them is zero, the Cauchy principal
+        value is returned. [1]_ [2]_
+
+    See Also
+    --------
+    elliprc : Degenerate symmetric integral.
+    elliprd : Symmetric elliptic integral of the second kind.
+    elliprf : Completely-symmetric elliptic integral of the first kind.
+    elliprg : Completely-symmetric elliptic integral of the second kind.
+
+    Notes
+    -----
+    The code implements Carlson's algorithm based on the duplication theorems
+    and series expansion up to the 7th order. [3]_ The algorithm is slightly
+    different from its earlier incarnation as it appears in [1]_, in that the
+    call to `elliprc` (or ``atan``/``atanh``, see [4]_) is no longer needed in
+    the inner loop. Asymptotic approximations are used where arguments differ
+    widely in the order of magnitude. [5]_
+
+    The input values are subject to certain sufficient but not necessary
+    constraints when input arguments are complex. Notably, ``x``, ``y``, and
+    ``z`` must have non-negative real parts, unless two of them are
+    non-negative and complex-conjugates to each other while the other is a real
+    non-negative number. [1]_ If the inputs do not satisfy the sufficient
+    condition described in Ref. [1]_ they are rejected outright with the output
+    set to NaN.
+
+    In the case where one of ``x``, ``y``, and ``z`` is equal to ``p``, the
+    function ``elliprd`` should be preferred because of its less restrictive
+    domain.
+
+    .. versionadded:: 1.8.0
+
+    References
+    ----------
+    .. [1] B. C. Carlson, "Numerical computation of real or complex elliptic
+           integrals," Numer. Algorithm, vol. 10, no. 1, pp. 13-26, 1995.
+           :doi:`10.1007/BF02198293`. https://arxiv.org/abs/math/9409227
+    .. [2] B. C. Carlson, ed., Chapter 19 in "Digital Library of Mathematical
+           Functions," NIST, US Dept. of Commerce.
+           https://dlmf.nist.gov/19.20.iii
+    .. [3] B. C. Carlson, J. FitzSimmons, "Reduction Theorems for Elliptic
+           Integrands with the Square Root of Two Quadratic Factors," J.
+           Comput. Appl. Math., vol. 118, nos. 1-2, pp. 71-85, 2000.
+           :doi:`10.1016/S0377-0427(00)00282-X`.
+    .. [4] F. Johansson, "Numerical Evaluation of Elliptic Functions, Elliptic
+           Integrals and Modular Forms," in J. Blumlein, C. Schneider, P.
+           Paule, eds., "Elliptic Integrals, Elliptic Functions and Modular
+           Forms in Quantum Field Theory," pp. 269-293, 2019 (Cham,
+           Switzerland: Springer Nature Switzerland).
+           :doi:`10.1007/978-3-030-04480-0`. https://arxiv.org/abs/1806.06725
+    .. [5] B. C. Carlson, J. L. Gustafson, "Asymptotic Approximations for
+           Symmetric Elliptic Integrals," SIAM J. Math. Anls., vol. 25, no. 2,
+           pp. 288-303, 1994. :doi:`10.1137/S0036141092228477`.
+           https://arxiv.org/abs/math/9310223
+
+    Examples
+    --------
+    Basic homogeneity property:
+
+    >>> import numpy as np
+    >>> from scipy.special import elliprj
+
+    >>> x = 1.2 + 3.4j
+    >>> y = 5.
+    >>> z = 6.
+    >>> p = 7.
+    >>> scale = 0.3 - 0.4j
+    >>> elliprj(scale*x, scale*y, scale*z, scale*p)
+    (0.10834905565679157+0.19694950747103812j)
+
+    >>> elliprj(x, y, z, p)*np.power(scale, -1.5)
+    (0.10834905565679556+0.19694950747103854j)
+
+    Reduction to simpler elliptic integral:
+
+    >>> elliprj(x, y, z, z)
+    (0.08288462362195129-0.028376809745123258j)
+
+    >>> from scipy.special import elliprd
+    >>> elliprd(x, y, z)
+    (0.08288462362195136-0.028376809745123296j)
+
+    All arguments coincide:
+
+    >>> elliprj(x, x, x, x)
+    (-0.03986825876151896-0.14051741840449586j)
+
+    >>> np.power(x, -1.5)
+    (-0.03986825876151894-0.14051741840449583j)
+
+    """)
+
+add_newdoc("entr",
+    r"""
+    entr(x, out=None)
+
+    Elementwise function for computing entropy.
+
+    .. math:: \text{entr}(x) = \begin{cases} - x \log(x) & x > 0  \\ 0 & x = 0
+              \\ -\infty & \text{otherwise} \end{cases}
+
+    Parameters
+    ----------
+    x : ndarray
+        Input array.
+    out : ndarray, optional
+        Optional output array for the function values
+
+    Returns
+    -------
+    res : scalar or ndarray
+        The value of the elementwise entropy function at the given points `x`.
+
+    See Also
+    --------
+    kl_div, rel_entr, scipy.stats.entropy
+
+    Notes
+    -----
+    .. versionadded:: 0.15.0
+
+    This function is concave.
+
+    The origin of this function is in convex programming; see [1]_.
+    Given a probability distribution :math:`p_1, \ldots, p_n`,
+    the definition of entropy in the context of *information theory* is
+
+    .. math::
+
+        \sum_{i = 1}^n \mathrm{entr}(p_i).
+
+    To compute the latter quantity, use `scipy.stats.entropy`.
+
+    References
+    ----------
+    .. [1] Boyd, Stephen and Lieven Vandenberghe. *Convex optimization*.
+           Cambridge University Press, 2004.
+           :doi:`10.1017/CBO9780511804441`.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from scipy.special import entr
+
+    Calculate the entropy (in nats) of a 3-outcome probability distribution
+
+    >>> p = np.array([0.2, 0.5, 0.3])
+    >>> entr(p)
+    array([0.32188758, 0.34657359, 0.36119184])
+    >>> entr(p).sum()
+    1.0296530140645737
+
+    """)
+
+add_newdoc(
+    "erfinv",
+    """
+    erfinv(y, out=None)
+
+    Inverse of the error function.
+
+    Computes the inverse of the error function.
+
+    In the complex domain, there is no unique complex number w satisfying
+    erf(w)=z. This indicates a true inverse function would be multivalued.
+    When the domain restricts to the real, -1 < x < 1, there is a unique real
+    number satisfying erf(erfinv(x)) = x.
+
+    Parameters
+    ----------
+    y : ndarray
+        Argument at which to evaluate. Domain: [-1, 1]
+    out : ndarray, optional
+        Optional output array for the function values
+
+    Returns
+    -------
+    erfinv : scalar or ndarray
+        The inverse of erf of y, element-wise
+
+    See Also
+    --------
+    erf : Error function of a complex argument
+    erfc : Complementary error function, ``1 - erf(x)``
+    erfcinv : Inverse of the complementary error function
+
+    Notes
+    -----
+    This function wraps the ``erf_inv`` routine from the
+    Boost Math C++ library [1]_.
+
+    References
+    ----------
+    .. [1] The Boost Developers. "Boost C++ Libraries". https://www.boost.org/.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> import matplotlib.pyplot as plt
+    >>> from scipy.special import erfinv, erf
+
+    >>> erfinv(0.5)
+    0.4769362762044699
+
+    >>> y = np.linspace(-1.0, 1.0, num=9)
+    >>> x = erfinv(y)
+    >>> x
+    array([       -inf, -0.81341985, -0.47693628, -0.22531206,  0.        ,
+            0.22531206,  0.47693628,  0.81341985,         inf])
+
+    Verify that ``erf(erfinv(y))`` is ``y``.
+
+    >>> erf(x)
+    array([-1.  , -0.75, -0.5 , -0.25,  0.  ,  0.25,  0.5 ,  0.75,  1.  ])
+
+    Plot the function:
+
+    >>> y = np.linspace(-1, 1, 200)
+    >>> fig, ax = plt.subplots()
+    >>> ax.plot(y, erfinv(y))
+    >>> ax.grid(True)
+    >>> ax.set_xlabel('y')
+    >>> ax.set_title('erfinv(y)')
+    >>> plt.show()
+
+    """)
+
+add_newdoc(
+    "erfcinv",
+    """
+    erfcinv(y, out=None)
+
+    Inverse of the complementary error function.
+
+    Computes the inverse of the complementary error function.
+
+    In the complex domain, there is no unique complex number :math:`w` satisfying
+    :math:`\\operatorname{erfc}(w) = z`. This indicates a true inverse function
+    would be multivalued.
+    When the domain restricts to the real interval :math:`0 < x < 2`, there is
+    a unique real number satisfying
+
+    .. math::
+
+        \\operatorname{erfc}(\\operatorname{erfcinv}(x)) = x
+
+    It is related to the inverse of the error function by
+
+    .. math::
+
+        \\operatorname{erfcinv}(1 - x) = \\operatorname{erfinv}(x)
+
+    Parameters
+    ----------
+    y : ndarray
+        Argument at which to evaluate. Domain: :math:`[0, 2]`
+    out : ndarray, optional
+        Optional output array for the function values
+
+    Returns
+    -------
+    erfcinv : scalar or ndarray
+        The inverse of :math:`\\operatorname{erfc}` of :math:`y`, element-wise
+
+    See Also
+    --------
+    erf : Error function
+    erfc : Complementary error function
+    erfinv : Inverse of the error function
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> import matplotlib.pyplot as plt
+    >>> from scipy.special import erfcinv
+
+    >>> erfcinv(0.5)
+    0.4769362762044699
+
+    >>> y = np.linspace(0.0, 2.0, num=11)
+    >>> erfcinv(y)
+    array([        inf,  0.9061938 ,  0.59511608,  0.37080716,  0.17914345,
+           -0.        , -0.17914345, -0.37080716, -0.59511608, -0.9061938 ,
+                  -inf])
+
+    Plot the function:
+
+    >>> y = np.linspace(0, 2, 200)
+    >>> fig, ax = plt.subplots()
+    >>> ax.plot(y, erfcinv(y))
+    >>> ax.grid(True)
+    >>> ax.set_xlabel('y')
+    >>> ax.set_title('erfcinv(y)')
+    >>> plt.show()
+
+    """)
+
+add_newdoc("eval_jacobi",
+    r"""
+    eval_jacobi(n, alpha, beta, x, out=None)
+
+    Evaluate Jacobi polynomial at a point.
+
+    The Jacobi polynomials can be defined via the Gauss hypergeometric
+    function :math:`{}_2F_1` as
+
+    .. math::
+
+        P_n^{(\alpha, \beta)}(x) = \frac{(\alpha + 1)_n}{\Gamma(n + 1)}
+          {}_2F_1(-n, 1 + \alpha + \beta + n; \alpha + 1; (1 - x)/2)
+
+    where :math:`(\cdot)_n` is the Pochhammer symbol; see `poch`. When
+    :math:`n` is an integer the result is a polynomial of degree
+    :math:`n`. See 22.5.42 in [AS]_ or [DLMF]_ for details.
+
+    Parameters
+    ----------
+    n : array_like
+        Degree of the polynomial. If not an integer the result is
+        determined via the relation to the Gauss hypergeometric
+        function.
+    alpha : array_like
+        Parameter.
+    beta : array_like
+        Parameter.
+    x : array_like
+        Points at which to evaluate the polynomial.
+    out : ndarray, optional
+        Optional output array for the function values.
+
+    Returns
+    -------
+    P : scalar or ndarray
+        Values of the Jacobi polynomial.
+
+    See Also
+    --------
+    roots_jacobi : roots and quadrature weights of Jacobi polynomials
+    jacobi : Jacobi polynomial object
+    hyp2f1 : Gauss hypergeometric function
+
+    References
+    ----------
+    .. [AS] Milton Abramowitz and Irene A. Stegun, eds.
+        Handbook of Mathematical Functions with Formulas,
+        Graphs, and Mathematical Tables. New York: Dover, 1972.
+    .. [DLMF] NIST Digital Library of Mathematical Functions,
+        https://dlmf.nist.gov/18.5.E7
+
+    """)
+
+add_newdoc("eval_sh_jacobi",
+    r"""
+    eval_sh_jacobi(n, p, q, x, out=None)
+
+    Evaluate shifted Jacobi polynomial at a point.
+
+    Defined by
+
+    .. math::
+
+        G_n^{(p, q)}(x)
+          = \binom{2n + p - 1}{n}^{-1} P_n^{(p - q, q - 1)}(2x - 1),
+
+    where :math:`P_n^{(\cdot, \cdot)}` is the n-th Jacobi polynomial.
+    See 22.5.2 in [AS]_ (or equivalently [DLMF]_)  for details.
+
+    Parameters
+    ----------
+    n : int
+        Degree of the polynomial. If not an integer, the result is
+        determined via the relation to `binom` and `eval_jacobi`.
+    p : float
+        Parameter
+    q : float
+        Parameter
+    out : ndarray, optional
+        Optional output array for the function values
+
+    Returns
+    -------
+    G : scalar or ndarray
+        Values of the shifted Jacobi polynomial.
+
+    See Also
+    --------
+    roots_sh_jacobi : roots and quadrature weights of shifted Jacobi
+                      polynomials
+    sh_jacobi : shifted Jacobi polynomial object
+    eval_jacobi : evaluate Jacobi polynomials
+
+    References
+    ----------
+    .. [AS] Milton Abramowitz and Irene A. Stegun, eds.
+        Handbook of Mathematical Functions with Formulas,
+        Graphs, and Mathematical Tables. New York: Dover, 1972.
+    .. [DLMF] NIST Digital Library of Mathematical Functions,
+        https://dlmf.nist.gov/18.1.E2
+
+    """)
+
+add_newdoc("eval_gegenbauer",
+    r"""
+    eval_gegenbauer(n, alpha, x, out=None)
+
+    Evaluate Gegenbauer (ultraspherical) polynomial at a point.
+
+    The Gegenbauer polynomials can be defined via the Gauss
+    hypergeometric function :math:`{}_2F_1` as
+
+    .. math::
+
+        C_n^{(\alpha)}(x) = \frac{(2\alpha)_n}{\Gamma(n + 1)}
+          {}_2F_1(-n, 2\alpha + n; \alpha + 1/2; (1 - x)/2).
+
+    where :math:`(\cdot)_n` is the Pochhammer symbol; see `poch`. When
+    :math:`n` is an integer the result is a polynomial of degree
+    :math:`n`. See 22.5.46 in [AS]_ (or equivalently [DLMF]_) for details.
+
+    Parameters
+    ----------
+    n : array_like
+        Degree of the polynomial. If not an integer, the result is
+        determined via the relation to the Gauss hypergeometric
+        function.
+    alpha : array_like
+        Parameter.
+    x : array_like
+        Points at which to evaluate the Gegenbauer polynomial.
+    out : ndarray, optional
+        Optional output array for the function values.
+
+    Returns
+    -------
+    C : scalar or ndarray
+        Values of the Gegenbauer polynomial.
+
+    See Also
+    --------
+    roots_gegenbauer : roots and quadrature weights of Gegenbauer
+                       polynomials
+    gegenbauer : Gegenbauer polynomial object
+    hyp2f1 : Gauss hypergeometric function
+
+    References
+    ----------
+    .. [AS] Milton Abramowitz and Irene A. Stegun, eds.
+        Handbook of Mathematical Functions with Formulas,
+        Graphs, and Mathematical Tables. New York: Dover, 1972.
+    .. [DLMF] NIST Digital Library of Mathematical Functions,
+        https://dlmf.nist.gov/18.5.E9
+
+    """)
+
+add_newdoc("eval_chebyt",
+    r"""
+    eval_chebyt(n, x, out=None)
+
+    Evaluate Chebyshev polynomial of the first kind at a point.
+
+    The Chebyshev polynomials of the first kind can be defined via the
+    Gauss hypergeometric function :math:`{}_2F_1` as
+
+    .. math::
+
+        T_n(x) = {}_2F_1(n, -n; 1/2; (1 - x)/2).
+
+    When :math:`n` is an integer the result is a polynomial of degree
+    :math:`n`. See 22.5.47 in [AS]_ (or equivalently [DLMF]_) for details.
+
+    Parameters
+    ----------
+    n : array_like
+        Degree of the polynomial. If not an integer, the result is
+        determined via the relation to the Gauss hypergeometric
+        function.
+    x : array_like
+        Points at which to evaluate the Chebyshev polynomial
+    out : ndarray, optional
+        Optional output array for the function values
+
+    Returns
+    -------
+    T : scalar or ndarray
+        Values of the Chebyshev polynomial
+
+    See Also
+    --------
+    roots_chebyt : roots and quadrature weights of Chebyshev
+                   polynomials of the first kind
+    chebyu : Chebychev polynomial object
+    eval_chebyu : evaluate Chebyshev polynomials of the second kind
+    hyp2f1 : Gauss hypergeometric function
+    numpy.polynomial.chebyshev.Chebyshev : Chebyshev series
+
+    Notes
+    -----
+    This routine is numerically stable for `x` in ``[-1, 1]`` at least
+    up to order ``10000``.
+
+    References
+    ----------
+    .. [AS] Milton Abramowitz and Irene A. Stegun, eds.
+        Handbook of Mathematical Functions with Formulas,
+        Graphs, and Mathematical Tables. New York: Dover, 1972.
+    .. [DLMF] NIST Digital Library of Mathematical Functions,
+        https://dlmf.nist.gov/18.5.E11_2
+
+    """)
+
+add_newdoc("eval_chebyu",
+    r"""
+    eval_chebyu(n, x, out=None)
+
+    Evaluate Chebyshev polynomial of the second kind at a point.
+
+    The Chebyshev polynomials of the second kind can be defined via
+    the Gauss hypergeometric function :math:`{}_2F_1` as
+
+    .. math::
+
+        U_n(x) = (n + 1) {}_2F_1(-n, n + 2; 3/2; (1 - x)/2).
+
+    When :math:`n` is an integer the result is a polynomial of degree
+    :math:`n`. See 22.5.48 in [AS]_ (or equivalently [DLMF]_) for details.
+
+    Parameters
+    ----------
+    n : array_like
+        Degree of the polynomial. If not an integer, the result is
+        determined via the relation to the Gauss hypergeometric
+        function.
+    x : array_like
+        Points at which to evaluate the Chebyshev polynomial
+    out : ndarray, optional
+        Optional output array for the function values
+
+    Returns
+    -------
+    U : scalar or ndarray
+        Values of the Chebyshev polynomial
+
+    See Also
+    --------
+    roots_chebyu : roots and quadrature weights of Chebyshev
+                   polynomials of the second kind
+    chebyu : Chebyshev polynomial object
+    eval_chebyt : evaluate Chebyshev polynomials of the first kind
+    hyp2f1 : Gauss hypergeometric function
+
+    References
+    ----------
+    .. [AS] Milton Abramowitz and Irene A. Stegun, eds.
+        Handbook of Mathematical Functions with Formulas,
+        Graphs, and Mathematical Tables. New York: Dover, 1972.
+    .. [DLMF] NIST Digital Library of Mathematical Functions,
+        https://dlmf.nist.gov/18.5.E11_4
+
+    """)
+
+add_newdoc("eval_chebys",
+    r"""
+    eval_chebys(n, x, out=None)
+
+    Evaluate Chebyshev polynomial of the second kind on [-2, 2] at a
+    point.
+
+    These polynomials are defined as
+
+    .. math::
+
+        S_n(x) = U_n(x/2)
+
+    where :math:`U_n` is a Chebyshev polynomial of the second kind.
+    See 22.5.13 in [AS]_ (or equivalently [DLMF]_) for details.
+
+    Parameters
+    ----------
+    n : array_like
+        Degree of the polynomial. If not an integer, the result is
+        determined via the relation to `eval_chebyu`.
+    x : array_like
+        Points at which to evaluate the Chebyshev polynomial
+    out : ndarray, optional
+        Optional output array for the function values
+
+    Returns
+    -------
+    S : scalar or ndarray
+        Values of the Chebyshev polynomial
+
+    See Also
+    --------
+    roots_chebys : roots and quadrature weights of Chebyshev
+                   polynomials of the second kind on [-2, 2]
+    chebys : Chebyshev polynomial object
+    eval_chebyu : evaluate Chebyshev polynomials of the second kind
+
+    References
+    ----------
+    .. [AS] Milton Abramowitz and Irene A. Stegun, eds.
+        Handbook of Mathematical Functions with Formulas,
+        Graphs, and Mathematical Tables. New York: Dover, 1972.
+    .. [DLMF] NIST Digital Library of Mathematical Functions,
+        https://dlmf.nist.gov/18.1.E3
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> import scipy.special as sc
+
+    They are a scaled version of the Chebyshev polynomials of the
+    second kind.
+
+    >>> x = np.linspace(-2, 2, 6)
+    >>> sc.eval_chebys(3, x)
+    array([-4.   ,  0.672,  0.736, -0.736, -0.672,  4.   ])
+    >>> sc.eval_chebyu(3, x / 2)
+    array([-4.   ,  0.672,  0.736, -0.736, -0.672,  4.   ])
+
+    """)
+
+add_newdoc("eval_chebyc",
+    r"""
+    eval_chebyc(n, x, out=None)
+
+    Evaluate Chebyshev polynomial of the first kind on [-2, 2] at a
+    point.
+
+    These polynomials are defined as
+
+    .. math::
+
+        C_n(x) = 2 T_n(x/2)
+
+    where :math:`T_n` is a Chebyshev polynomial of the first kind. See
+    22.5.11 in [AS]_ (or equivalently [DLMF]_) for details.
+
+    Parameters
+    ----------
+    n : array_like
+        Degree of the polynomial. If not an integer, the result is
+        determined via the relation to `eval_chebyt`.
+    x : array_like
+        Points at which to evaluate the Chebyshev polynomial
+    out : ndarray, optional
+        Optional output array for the function values
+
+    Returns
+    -------
+    C : scalar or ndarray
+        Values of the Chebyshev polynomial
+
+    See Also
+    --------
+    roots_chebyc : roots and quadrature weights of Chebyshev
+                   polynomials of the first kind on [-2, 2]
+    chebyc : Chebyshev polynomial object
+    numpy.polynomial.chebyshev.Chebyshev : Chebyshev series
+    eval_chebyt : evaluate Chebycshev polynomials of the first kind
+
+    References
+    ----------
+    .. [AS] Milton Abramowitz and Irene A. Stegun, eds.
+        Handbook of Mathematical Functions with Formulas,
+        Graphs, and Mathematical Tables. New York: Dover, 1972.
+    .. [DLMF] NIST Digital Library of Mathematical Functions,
+        https://dlmf.nist.gov/18.1.E3
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> import scipy.special as sc
+
+    They are a scaled version of the Chebyshev polynomials of the
+    first kind.
+
+    >>> x = np.linspace(-2, 2, 6)
+    >>> sc.eval_chebyc(3, x)
+    array([-2.   ,  1.872,  1.136, -1.136, -1.872,  2.   ])
+    >>> 2 * sc.eval_chebyt(3, x / 2)
+    array([-2.   ,  1.872,  1.136, -1.136, -1.872,  2.   ])
+
+    """)
+
+add_newdoc("eval_sh_chebyt",
+    r"""
+    eval_sh_chebyt(n, x, out=None)
+
+    Evaluate shifted Chebyshev polynomial of the first kind at a
+    point.
+
+    These polynomials are defined as
+
+    .. math::
+
+        T_n^*(x) = T_n(2x - 1)
+
+    where :math:`T_n` is a Chebyshev polynomial of the first kind. See
+    22.5.14 in [AS]_ (or equivalently [DLMF]_) for details.
+
+    Parameters
+    ----------
+    n : array_like
+        Degree of the polynomial. If not an integer, the result is
+        determined via the relation to `eval_chebyt`.
+    x : array_like
+        Points at which to evaluate the shifted Chebyshev polynomial
+    out : ndarray, optional
+        Optional output array for the function values
+
+    Returns
+    -------
+    T : scalar or ndarray
+        Values of the shifted Chebyshev polynomial
+
+    See Also
+    --------
+    roots_sh_chebyt : roots and quadrature weights of shifted
+                      Chebyshev polynomials of the first kind
+    sh_chebyt : shifted Chebyshev polynomial object
+    eval_chebyt : evaluate Chebyshev polynomials of the first kind
+    numpy.polynomial.chebyshev.Chebyshev : Chebyshev series
+
+    References
+    ----------
+    .. [AS] Milton Abramowitz and Irene A. Stegun, eds.
+        Handbook of Mathematical Functions with Formulas,
+        Graphs, and Mathematical Tables. New York: Dover, 1972.
+    .. [DLMF] NIST Digital Library of Mathematical Functions,
+        https://dlmf.nist.gov/18.7.E7
+
+    """)
+
+add_newdoc("eval_sh_chebyu",
+    r"""
+    eval_sh_chebyu(n, x, out=None)
+
+    Evaluate shifted Chebyshev polynomial of the second kind at a
+    point.
+
+    These polynomials are defined as
+
+    .. math::
+
+        U_n^*(x) = U_n(2x - 1)
+
+    where :math:`U_n` is a Chebyshev polynomial of the first kind. See
+    22.5.15 in [AS]_ (or equivalently [DLMF]_) for details.
+
+    Parameters
+    ----------
+    n : array_like
+        Degree of the polynomial. If not an integer, the result is
+        determined via the relation to `eval_chebyu`.
+    x : array_like
+        Points at which to evaluate the shifted Chebyshev polynomial
+    out : ndarray, optional
+        Optional output array for the function values
+
+    Returns
+    -------
+    U : scalar or ndarray
+        Values of the shifted Chebyshev polynomial
+
+    See Also
+    --------
+    roots_sh_chebyu : roots and quadrature weights of shifted
+                      Chebychev polynomials of the second kind
+    sh_chebyu : shifted Chebyshev polynomial object
+    eval_chebyu : evaluate Chebyshev polynomials of the second kind
+
+    References
+    ----------
+    .. [AS] Milton Abramowitz and Irene A. Stegun, eds.
+        Handbook of Mathematical Functions with Formulas,
+        Graphs, and Mathematical Tables. New York: Dover, 1972.
+    .. [DLMF] NIST Digital Library of Mathematical Functions,
+        https://dlmf.nist.gov/18.7.E8
+
+    """)
+
+add_newdoc("eval_legendre",
+    r"""
+    eval_legendre(n, x, out=None)
+
+    Evaluate Legendre polynomial at a point.
+
+    The Legendre polynomials can be defined via the Gauss
+    hypergeometric function :math:`{}_2F_1` as
+
+    .. math::
+
+        P_n(x) = {}_2F_1(-n, n + 1; 1; (1 - x)/2).
+
+    When :math:`n` is an integer the result is a polynomial of degree
+    :math:`n`. See 22.5.49 in [AS]_ (or equivalently [DLMF]_) for details.
+
+    Parameters
+    ----------
+    n : array_like
+        Degree of the polynomial. If not an integer, the result is
+        determined via the relation to the Gauss hypergeometric
+        function.
+    x : array_like
+        Points at which to evaluate the Legendre polynomial
+    out : ndarray, optional
+        Optional output array for the function values
+
+    Returns
+    -------
+    P : scalar or ndarray
+        Values of the Legendre polynomial
+
+    See Also
+    --------
+    roots_legendre : roots and quadrature weights of Legendre
+                     polynomials
+    legendre : Legendre polynomial object
+    hyp2f1 : Gauss hypergeometric function
+    numpy.polynomial.legendre.Legendre : Legendre series
+
+    References
+    ----------
+    .. [AS] Milton Abramowitz and Irene A. Stegun, eds.
+        Handbook of Mathematical Functions with Formulas,
+        Graphs, and Mathematical Tables. New York: Dover, 1972.
+    .. [DLMF] NIST Digital Library of Mathematical Functions,
+        https://dlmf.nist.gov/15.9.E7
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from scipy.special import eval_legendre
+
+    Evaluate the zero-order Legendre polynomial at x = 0
+
+    >>> eval_legendre(0, 0)
+    1.0
+
+    Evaluate the first-order Legendre polynomial between -1 and 1
+
+    >>> X = np.linspace(-1, 1, 5)  # Domain of Legendre polynomials
+    >>> eval_legendre(1, X)
+    array([-1. , -0.5,  0. ,  0.5,  1. ])
+
+    Evaluate Legendre polynomials of order 0 through 4 at x = 0
+
+    >>> N = range(0, 5)
+    >>> eval_legendre(N, 0)
+    array([ 1.   ,  0.   , -0.5  ,  0.   ,  0.375])
+
+    Plot Legendre polynomials of order 0 through 4
+
+    >>> X = np.linspace(-1, 1)
+
+    >>> import matplotlib.pyplot as plt
+    >>> for n in range(0, 5):
+    ...     y = eval_legendre(n, X)
+    ...     plt.plot(X, y, label=r'$P_{}(x)$'.format(n))
+
+    >>> plt.title("Legendre Polynomials")
+    >>> plt.xlabel("x")
+    >>> plt.ylabel(r'$P_n(x)$')
+    >>> plt.legend(loc='lower right')
+    >>> plt.show()
+
+    """)
+
+add_newdoc("eval_sh_legendre",
+    r"""
+    eval_sh_legendre(n, x, out=None)
+
+    Evaluate shifted Legendre polynomial at a point.
+
+    These polynomials are defined as
+
+    .. math::
+
+        P_n^*(x) = P_n(2x - 1)
+
+    where :math:`P_n` is a Legendre polynomial. See 2.2.11 in [AS]_
+    or [DLMF]_ for details.
+
+    Parameters
+    ----------
+    n : array_like
+        Degree of the polynomial. If not an integer, the value is
+        determined via the relation to `eval_legendre`.
+    x : array_like
+        Points at which to evaluate the shifted Legendre polynomial
+    out : ndarray, optional
+        Optional output array for the function values
+
+    Returns
+    -------
+    P : scalar or ndarray
+        Values of the shifted Legendre polynomial
+
+    See Also
+    --------
+    roots_sh_legendre : roots and quadrature weights of shifted
+                        Legendre polynomials
+    sh_legendre : shifted Legendre polynomial object
+    eval_legendre : evaluate Legendre polynomials
+    numpy.polynomial.legendre.Legendre : Legendre series
+
+    References
+    ----------
+    .. [AS] Milton Abramowitz and Irene A. Stegun, eds.
+        Handbook of Mathematical Functions with Formulas,
+        Graphs, and Mathematical Tables. New York: Dover, 1972.
+    .. [DLMF] NIST Digital Library of Mathematical Functions,
+        https://dlmf.nist.gov/18.7.E10
+
+    """)
+
+add_newdoc("eval_genlaguerre",
+    r"""
+    eval_genlaguerre(n, alpha, x, out=None)
+
+    Evaluate generalized Laguerre polynomial at a point.
+
+    The generalized Laguerre polynomials can be defined via the
+    confluent hypergeometric function :math:`{}_1F_1` as
+
+    .. math::
+
+        L_n^{(\alpha)}(x) = \binom{n + \alpha}{n}
+          {}_1F_1(-n, \alpha + 1, x).
+
+    When :math:`n` is an integer the result is a polynomial of degree
+    :math:`n`. See 22.5.54 in [AS]_ or [DLMF]_ for details. The Laguerre
+    polynomials are the special case where :math:`\alpha = 0`.
+
+    Parameters
+    ----------
+    n : array_like
+        Degree of the polynomial. If not an integer, the result is
+        determined via the relation to the confluent hypergeometric
+        function.
+    alpha : array_like
+        Parameter; must have ``alpha > -1``
+    x : array_like
+        Points at which to evaluate the generalized Laguerre
+        polynomial
+    out : ndarray, optional
+        Optional output array for the function values
+
+    Returns
+    -------
+    L : scalar or ndarray
+        Values of the generalized Laguerre polynomial
+
+    See Also
+    --------
+    roots_genlaguerre : roots and quadrature weights of generalized
+                        Laguerre polynomials
+    genlaguerre : generalized Laguerre polynomial object
+    hyp1f1 : confluent hypergeometric function
+    eval_laguerre : evaluate Laguerre polynomials
+
+    References
+    ----------
+    .. [AS] Milton Abramowitz and Irene A. Stegun, eds.
+        Handbook of Mathematical Functions with Formulas,
+        Graphs, and Mathematical Tables. New York: Dover, 1972.
+    .. [DLMF] NIST Digital Library of Mathematical Functions,
+        https://dlmf.nist.gov/18.5.E12
+
+    """)
+
+add_newdoc("eval_laguerre",
+    r"""
+    eval_laguerre(n, x, out=None)
+
+    Evaluate Laguerre polynomial at a point.
+
+    The Laguerre polynomials can be defined via the confluent
+    hypergeometric function :math:`{}_1F_1` as
+
+    .. math::
+
+        L_n(x) = {}_1F_1(-n, 1, x).
+
+    See 22.5.16 and 22.5.54 in [AS]_ (or equivalently [DLMF1]_ and [DLMF2]_)
+    for details. When :math:`n` is an integer the result is a polynomial
+    of degree :math:`n`.
+
+    Parameters
+    ----------
+    n : array_like
+        Degree of the polynomial. If not an integer the result is
+        determined via the relation to the confluent hypergeometric
+        function.
+    x : array_like
+        Points at which to evaluate the Laguerre polynomial
+    out : ndarray, optional
+        Optional output array for the function values
+
+    Returns
+    -------
+    L : scalar or ndarray
+        Values of the Laguerre polynomial
+
+    See Also
+    --------
+    roots_laguerre : roots and quadrature weights of Laguerre
+                     polynomials
+    laguerre : Laguerre polynomial object
+    numpy.polynomial.laguerre.Laguerre : Laguerre series
+    eval_genlaguerre : evaluate generalized Laguerre polynomials
+
+    References
+    ----------
+    .. [AS] Milton Abramowitz and Irene A. Stegun, eds.
+        Handbook of Mathematical Functions with Formulas,
+        Graphs, and Mathematical Tables. New York: Dover, 1972.
+    .. [DLMF1] NIST Digital Library of Mathematical Functions,
+        https://dlmf.nist.gov/18.1#I1.ix7.p1
+    .. [DLMF2] NIST Digital Library of Mathematical Functions,
+        https://dlmf.nist.gov/18.5.E12
+
+     """)
+
+add_newdoc("eval_hermite",
+    r"""
+    eval_hermite(n, x, out=None)
+
+    Evaluate physicist's Hermite polynomial at a point.
+
+    Defined by
+
+    .. math::
+
+        H_n(x) = (-1)^n e^{x^2} \frac{d^n}{dx^n} e^{-x^2};
+
+    :math:`H_n` is a polynomial of degree :math:`n`. See 22.11.7 in
+    [AS]_ or [DLMF]_ for details.
+
+    Parameters
+    ----------
+    n : array_like
+        Degree of the polynomial
+    x : array_like
+        Points at which to evaluate the Hermite polynomial
+    out : ndarray, optional
+        Optional output array for the function values
+
+    Returns
+    -------
+    H : scalar or ndarray
+        Values of the Hermite polynomial
+
+    See Also
+    --------
+    roots_hermite : roots and quadrature weights of physicist's
+                    Hermite polynomials
+    hermite : physicist's Hermite polynomial object
+    numpy.polynomial.hermite.Hermite : Physicist's Hermite series
+    eval_hermitenorm : evaluate Probabilist's Hermite polynomials
+
+    References
+    ----------
+    .. [AS] Milton Abramowitz and Irene A. Stegun, eds.
+        Handbook of Mathematical Functions with Formulas,
+        Graphs, and Mathematical Tables. New York: Dover, 1972.
+    .. [DLMF] NIST Digital Library of Mathematical Functions,
+        https://dlmf.nist.gov/18.5.T1
+
+    """)
+
+add_newdoc("eval_hermitenorm",
+    r"""
+    eval_hermitenorm(n, x, out=None)
+
+    Evaluate probabilist's (normalized) Hermite polynomial at a
+    point.
+
+    Defined by
+
+    .. math::
+
+        He_n(x) = (-1)^n e^{x^2/2} \frac{d^n}{dx^n} e^{-x^2/2};
+
+    :math:`He_n` is a polynomial of degree :math:`n`. See 22.11.8 in
+    [AS]_ or [DLMF]_ for details.
+
+    Parameters
+    ----------
+    n : array_like
+        Degree of the polynomial
+    x : array_like
+        Points at which to evaluate the Hermite polynomial
+    out : ndarray, optional
+        Optional output array for the function values
+
+    Returns
+    -------
+    He : scalar or ndarray
+        Values of the Hermite polynomial
+
+    See Also
+    --------
+    roots_hermitenorm : roots and quadrature weights of probabilist's
+                        Hermite polynomials
+    hermitenorm : probabilist's Hermite polynomial object
+    numpy.polynomial.hermite_e.HermiteE : Probabilist's Hermite series
+    eval_hermite : evaluate physicist's Hermite polynomials
+
+    References
+    ----------
+    .. [AS] Milton Abramowitz and Irene A. Stegun, eds.
+        Handbook of Mathematical Functions with Formulas,
+        Graphs, and Mathematical Tables. New York: Dover, 1972.
+    .. [DLMF] NIST Digital Library of Mathematical Functions,
+        https://dlmf.nist.gov/18.5.T1
+
+    """)
+
+add_newdoc("expn",
+    r"""
+    expn(n, x, out=None)
+
+    Generalized exponential integral En.
+
+    For integer :math:`n \geq 0` and real :math:`x \geq 0` the
+    generalized exponential integral is defined as [DLMF]_
+
+    .. math::
+
+        E_n(x) = x^{n - 1} \int_x^\infty \frac{e^{-t}}{t^n} dt.
+
+    Parameters
+    ----------
+    n : array_like
+        Non-negative integers
+    x : array_like
+        Real argument
+    out : ndarray, optional
+        Optional output array for the function results
+
+    Returns
+    -------
+    scalar or ndarray
+        Values of the generalized exponential integral
+
+    See Also
+    --------
+    exp1 : special case of :math:`E_n` for :math:`n = 1`
+    expi : related to :math:`E_n` when :math:`n = 1`
+
+    References
+    ----------
+    .. [DLMF] Digital Library of Mathematical Functions, 8.19.2
+              https://dlmf.nist.gov/8.19#E2
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> import scipy.special as sc
+
+    Its domain is nonnegative n and x.
+
+    >>> sc.expn(-1, 1.0), sc.expn(1, -1.0)
+    (nan, nan)
+
+    It has a pole at ``x = 0`` for ``n = 1, 2``; for larger ``n`` it
+    is equal to ``1 / (n - 1)``.
+
+    >>> sc.expn([0, 1, 2, 3, 4], 0)
+    array([       inf,        inf, 1.        , 0.5       , 0.33333333])
+
+    For n equal to 0 it reduces to ``exp(-x) / x``.
+
+    >>> x = np.array([1, 2, 3, 4])
+    >>> sc.expn(0, x)
+    array([0.36787944, 0.06766764, 0.01659569, 0.00457891])
+    >>> np.exp(-x) / x
+    array([0.36787944, 0.06766764, 0.01659569, 0.00457891])
+
+    For n equal to 1 it reduces to `exp1`.
+
+    >>> sc.expn(1, x)
+    array([0.21938393, 0.04890051, 0.01304838, 0.00377935])
+    >>> sc.exp1(x)
+    array([0.21938393, 0.04890051, 0.01304838, 0.00377935])
+
+    """)
+
+add_newdoc("fdtr",
+    r"""
+    fdtr(dfn, dfd, x, out=None)
+
+    F cumulative distribution function.
+
+    Returns the value of the cumulative distribution function of the
+    F-distribution, also known as Snedecor's F-distribution or the
+    Fisher-Snedecor distribution.
+
+    The F-distribution with parameters :math:`d_n` and :math:`d_d` is the
+    distribution of the random variable,
+
+    .. math::
+        X = \frac{U_n/d_n}{U_d/d_d},
+
+    where :math:`U_n` and :math:`U_d` are random variables distributed
+    :math:`\chi^2`, with :math:`d_n` and :math:`d_d` degrees of freedom,
+    respectively.
+
+    Parameters
+    ----------
+    dfn : array_like
+        First parameter (positive float).
+    dfd : array_like
+        Second parameter (positive float).
+    x : array_like
+        Argument (nonnegative float).
+    out : ndarray, optional
+        Optional output array for the function values
+
+    Returns
+    -------
+    y : scalar or ndarray
+        The CDF of the F-distribution with parameters `dfn` and `dfd` at `x`.
+
+    See Also
+    --------
+    fdtrc : F distribution survival function
+    fdtri : F distribution inverse cumulative distribution
+    scipy.stats.f : F distribution
+
+    Notes
+    -----
+    The regularized incomplete beta function is used, according to the
+    formula,
+
+    .. math::
+        F(d_n, d_d; x) = I_{xd_n/(d_d + xd_n)}(d_n/2, d_d/2).
+
+    Wrapper for a routine from the Boost Math C++ library [1]_. The
+    F distribution is also available as `scipy.stats.f`. Calling
+    `fdtr` directly can improve performance compared to the ``cdf``
+    method of `scipy.stats.f` (see last example below).
+
+    References
+    ----------
+    .. [1] The Boost Developers. "Boost C++ Libraries". https://www.boost.org/.
+
+
+    Examples
+    --------
+    Calculate the function for ``dfn=1`` and ``dfd=2`` at ``x=1``.
+
+    >>> import numpy as np
+    >>> from scipy.special import fdtr
+    >>> fdtr(1, 2, 1)
+    0.5773502691896258
+
+    Calculate the function at several points by providing a NumPy array for
+    `x`.
+
+    >>> x = np.array([0.5, 2., 3.])
+    >>> fdtr(1, 2, x)
+    array([0.4472136 , 0.70710678, 0.77459667])
+
+    Plot the function for several parameter sets.
+
+    >>> import matplotlib.pyplot as plt
+    >>> dfn_parameters = [1, 5, 10, 50]
+    >>> dfd_parameters = [1, 1, 2, 3]
+    >>> linestyles = ['solid', 'dashed', 'dotted', 'dashdot']
+    >>> parameters_list = list(zip(dfn_parameters, dfd_parameters,
+    ...                            linestyles))
+    >>> x = np.linspace(0, 30, 1000)
+    >>> fig, ax = plt.subplots()
+    >>> for parameter_set in parameters_list:
+    ...     dfn, dfd, style = parameter_set
+    ...     fdtr_vals = fdtr(dfn, dfd, x)
+    ...     ax.plot(x, fdtr_vals, label=rf"$d_n={dfn},\, d_d={dfd}$",
+    ...             ls=style)
+    >>> ax.legend()
+    >>> ax.set_xlabel("$x$")
+    >>> ax.set_title("F distribution cumulative distribution function")
+    >>> plt.show()
+
+    The F distribution is also available as `scipy.stats.f`. Using `fdtr`
+    directly can be much faster than calling the ``cdf`` method of
+    `scipy.stats.f`, especially for small arrays or individual values.
+    To get the same results one must use the following parametrization:
+    ``stats.f(dfn, dfd).cdf(x)=fdtr(dfn, dfd, x)``.
+
+    >>> from scipy.stats import f
+    >>> dfn, dfd = 1, 2
+    >>> x = 1
+    >>> fdtr_res = fdtr(dfn, dfd, x)  # this will often be faster than below
+    >>> f_dist_res = f(dfn, dfd).cdf(x)
+    >>> fdtr_res == f_dist_res  # test that results are equal
+    True
+    """)
+
+add_newdoc("fdtrc",
+    r"""
+    fdtrc(dfn, dfd, x, out=None)
+
+    F survival function.
+
+    Returns the complemented F-distribution function (the integral of the
+    density from `x` to infinity).
+
+    Parameters
+    ----------
+    dfn : array_like
+        First parameter (positive float).
+    dfd : array_like
+        Second parameter (positive float).
+    x : array_like
+        Argument (nonnegative float).
+    out : ndarray, optional
+        Optional output array for the function values
+
+    Returns
+    -------
+    y : scalar or ndarray
+        The complemented F-distribution function with parameters `dfn` and
+        `dfd` at `x`.
+
+    See Also
+    --------
+    fdtr : F distribution cumulative distribution function
+    fdtri : F distribution inverse cumulative distribution function
+    scipy.stats.f : F distribution
+
+    Notes
+    -----
+    The regularized incomplete beta function is used, according to the
+    formula,
+
+    .. math::
+        F(d_n, d_d; x) = I_{d_d/(d_d + xd_n)}(d_d/2, d_n/2).
+
+    Wrapper for a routine from the Boost Math C++ library [1]_. The
+    F distribution is also available as `scipy.stats.f`. Calling
+    `fdtrc` directly can improve performance compared to the ``sf``
+    method of `scipy.stats.f` (see last example below).
+
+    References
+    ----------
+    .. [1] The Boost Developers. "Boost C++ Libraries". https://www.boost.org/.
+
+    Examples
+    --------
+    Calculate the function for ``dfn=1`` and ``dfd=2`` at ``x=1``.
+
+    >>> import numpy as np
+    >>> from scipy.special import fdtrc
+    >>> fdtrc(1, 2, 1)
+    0.42264973081037427
+
+    Calculate the function at several points by providing a NumPy array for
+    `x`.
+
+    >>> x = np.array([0.5, 2., 3.])
+    >>> fdtrc(1, 2, x)
+    array([0.5527864 , 0.29289322, 0.22540333])
+
+    Plot the function for several parameter sets.
+
+    >>> import matplotlib.pyplot as plt
+    >>> dfn_parameters = [1, 5, 10, 50]
+    >>> dfd_parameters = [1, 1, 2, 3]
+    >>> linestyles = ['solid', 'dashed', 'dotted', 'dashdot']
+    >>> parameters_list = list(zip(dfn_parameters, dfd_parameters,
+    ...                            linestyles))
+    >>> x = np.linspace(0, 30, 1000)
+    >>> fig, ax = plt.subplots()
+    >>> for parameter_set in parameters_list:
+    ...     dfn, dfd, style = parameter_set
+    ...     fdtrc_vals = fdtrc(dfn, dfd, x)
+    ...     ax.plot(x, fdtrc_vals, label=rf"$d_n={dfn},\, d_d={dfd}$",
+    ...             ls=style)
+    >>> ax.legend()
+    >>> ax.set_xlabel("$x$")
+    >>> ax.set_title("F distribution survival function")
+    >>> plt.show()
+
+    The F distribution is also available as `scipy.stats.f`. Using `fdtrc`
+    directly can be much faster than calling the ``sf`` method of
+    `scipy.stats.f`, especially for small arrays or individual values.
+    To get the same results one must use the following parametrization:
+    ``stats.f(dfn, dfd).sf(x)=fdtrc(dfn, dfd, x)``.
+
+    >>> from scipy.stats import f
+    >>> dfn, dfd = 1, 2
+    >>> x = 1
+    >>> fdtrc_res = fdtrc(dfn, dfd, x)  # this will often be faster than below
+    >>> f_dist_res = f(dfn, dfd).sf(x)
+    >>> f_dist_res == fdtrc_res  # test that results are equal
+    True
+    """)
+
+add_newdoc("fdtri",
+    r"""
+    fdtri(dfn, dfd, p, out=None)
+
+    The `p`-th quantile of the F-distribution.
+
+    This function is the inverse of the F-distribution CDF, `fdtr`, returning
+    the `x` such that `fdtr(dfn, dfd, x) = p`.
+
+    Parameters
+    ----------
+    dfn : array_like
+        First parameter (positive float).
+    dfd : array_like
+        Second parameter (positive float).
+    p : array_like
+        Cumulative probability, in [0, 1].
+    out : ndarray, optional
+        Optional output array for the function values
+
+    Returns
+    -------
+    x : scalar or ndarray
+        The quantile corresponding to `p`.
+
+    See Also
+    --------
+    fdtr : F distribution cumulative distribution function
+    fdtrc : F distribution survival function
+    scipy.stats.f : F distribution
+
+    Notes
+    -----
+    Wrapper for a routine from the Boost Math C++ library [1]_. The
+    F distribution is also available as `scipy.stats.f`. Calling
+    `fdtri` directly can improve performance compared to the ``ppf``
+    method of `scipy.stats.f` (see last example below).
+
+    References
+    ----------
+    .. [1] The Boost Developers. "Boost C++ Libraries". https://www.boost.org/.
+
+    Examples
+    --------
+    `fdtri` represents the inverse of the F distribution CDF which is
+    available as `fdtr`. Here, we calculate the CDF for ``df1=1``, ``df2=2``
+    at ``x=3``. `fdtri` then returns ``3`` given the same values for `df1`,
+    `df2` and the computed CDF value.
+
+    >>> import numpy as np
+    >>> from scipy.special import fdtri, fdtr
+    >>> df1, df2 = 1, 2
+    >>> x = 3
+    >>> cdf_value =  fdtr(df1, df2, x)
+    >>> fdtri(df1, df2, cdf_value)
+    3.000000000000006
+
+    Calculate the function at several points by providing a NumPy array for
+    `x`.
+
+    >>> x = np.array([0.1, 0.4, 0.7])
+    >>> fdtri(1, 2, x)
+    array([0.02020202, 0.38095238, 1.92156863])
+
+    Plot the function for several parameter sets.
+
+    >>> import matplotlib.pyplot as plt
+    >>> dfn_parameters = [50, 10, 1, 50]
+    >>> dfd_parameters = [0.5, 1, 1, 5]
+    >>> linestyles = ['solid', 'dashed', 'dotted', 'dashdot']
+    >>> parameters_list = list(zip(dfn_parameters, dfd_parameters,
+    ...                            linestyles))
+    >>> x = np.linspace(0, 1, 1000)
+    >>> fig, ax = plt.subplots()
+    >>> for parameter_set in parameters_list:
+    ...     dfn, dfd, style = parameter_set
+    ...     fdtri_vals = fdtri(dfn, dfd, x)
+    ...     ax.plot(x, fdtri_vals, label=rf"$d_n={dfn},\, d_d={dfd}$",
+    ...             ls=style)
+    >>> ax.legend()
+    >>> ax.set_xlabel("$x$")
+    >>> title = "F distribution inverse cumulative distribution function"
+    >>> ax.set_title(title)
+    >>> ax.set_ylim(0, 30)
+    >>> plt.show()
+
+    The F distribution is also available as `scipy.stats.f`. Using `fdtri`
+    directly can be much faster than calling the ``ppf`` method of
+    `scipy.stats.f`, especially for small arrays or individual values.
+    To get the same results one must use the following parametrization:
+    ``stats.f(dfn, dfd).ppf(x)=fdtri(dfn, dfd, x)``.
+
+    >>> from scipy.stats import f
+    >>> dfn, dfd = 1, 2
+    >>> x = 0.7
+    >>> fdtri_res = fdtri(dfn, dfd, x)  # this will often be faster than below
+    >>> f_dist_res = f(dfn, dfd).ppf(x)
+    >>> f_dist_res == fdtri_res  # test that results are equal
+    True
+    """)
+
+add_newdoc("fdtridfd",
+    """
+    fdtridfd(dfn, p, x, out=None)
+
+    Inverse to `fdtr` vs dfd.
+
+    Finds the F density argument dfd such that ``fdtr(dfn, dfd, x) == p``.
+
+    Parameters
+    ----------
+    dfn : array_like
+        First parameter (positive float).
+    p : array_like
+        Cumulative probability, in [0, 1].
+    x : array_like
+        Argument (nonnegative float).
+    out : ndarray, optional
+        Optional output array for the function values
+
+    Returns
+    -------
+    dfd : scalar or ndarray
+        `dfd` such that ``fdtr(dfn, dfd, x) == p``.
+
+    See Also
+    --------
+    fdtr : F distribution cumulative distribution function
+    fdtrc : F distribution survival function
+    fdtri : F distribution quantile function
+    scipy.stats.f : F distribution
+
+    Examples
+    --------
+    Compute the F distribution cumulative distribution function for one
+    parameter set.
+
+    >>> from scipy.special import fdtridfd, fdtr
+    >>> dfn, dfd, x = 10, 5, 2
+    >>> cdf_value = fdtr(dfn, dfd, x)
+    >>> cdf_value
+    0.7700248806501017
+
+    Verify that `fdtridfd` recovers the original value for `dfd`:
+
+    >>> fdtridfd(dfn, cdf_value, x)
+    5.0
+    """)
+
+'''
+commented out as fdtridfn seems to have bugs and is not in functions.json
+see: https://github.com/scipy/scipy/pull/15622#discussion_r811440983
+
+add_newdoc(
+    "fdtridfn",
+    """
+    fdtridfn(p, dfd, x, out=None)
+
+    Inverse to `fdtr` vs dfn
+
+    finds the F density argument dfn such that ``fdtr(dfn, dfd, x) == p``.
+
+
+    Parameters
+    ----------
+    p : array_like
+        Cumulative probability, in [0, 1].
+    dfd : array_like
+        Second parameter (positive float).
+    x : array_like
+        Argument (nonnegative float).
+    out : ndarray, optional
+        Optional output array for the function values
+
+    Returns
+    -------
+    dfn : scalar or ndarray
+        `dfn` such that ``fdtr(dfn, dfd, x) == p``.
+
+    See Also
+    --------
+    fdtr, fdtrc, fdtri, fdtridfd
+
+
+    """)
+'''
+
+add_newdoc("gdtr",
+    r"""
+    gdtr(a, b, x, out=None)
+
+    Gamma distribution cumulative distribution function.
+
+    Returns the integral from zero to `x` of the gamma probability density
+    function,
+
+    .. math::
+
+        F(x) = \int_0^x \frac{a^b}{\Gamma(b)} t^{b-1} e^{-at}\,dt,
+
+    where :math:`\Gamma` is the gamma function.
 
     Parameters
     ----------
     a : array_like
-        The array to perform in place operation on.
-    indices : array_like or tuple
-        Array like index object or slice object for indexing into first
-        operand. If first operand has multiple dimensions, indices can be a
-        tuple of array like index objects or slice objects.
+        The rate parameter of the gamma distribution, sometimes denoted
+        :math:`\beta` (float).  It is also the reciprocal of the scale
+        parameter :math:`\theta`.
     b : array_like
-        Second operand for ufuncs requiring two operands. Operand must be
-        broadcastable over first operand after indexing or slicing.
-
-    Examples
-    --------
-    Set items 0 and 1 to their negative values:
-
-    >>> import numpy as np
-    >>> a = np.array([1, 2, 3, 4])
-    >>> np.negative.at(a, [0, 1])
-    >>> a
-    array([-1, -2,  3,  4])
-
-    Increment items 0 and 1, and increment item 2 twice:
-
-    >>> a = np.array([1, 2, 3, 4])
-    >>> np.add.at(a, [0, 1, 2, 2], 1)
-    >>> a
-    array([2, 3, 5, 4])
-
-    Add items 0 and 1 in first array to second array,
-    and store results in first array:
-
-    >>> a = np.array([1, 2, 3, 4])
-    >>> b = np.array([1, 2])
-    >>> np.add.at(a, [0, 1], b)
-    >>> a
-    array([2, 4, 3, 4])
-
-    """))
-
-add_newdoc('numpy._core', 'ufunc', ('resolve_dtypes',
-    """
-    resolve_dtypes($self, dtypes, *, signature=None, casting=None, reduction=False)
-    --
-
-    resolve_dtypes(dtypes, *, signature=None, casting=None, reduction=False)
-
-    Find the dtypes NumPy will use for the operation.  Both input and
-    output dtypes are returned and may differ from those provided.
-
-    .. note::
-
-        This function always applies NEP 50 rules since it is not provided
-        any actual values.  The Python types ``int``, ``float``, and
-        ``complex`` thus behave weak and should be passed for "untyped"
-        Python input.
-
-    Parameters
-    ----------
-    dtypes : tuple of dtypes, None, or literal int, float, complex
-        The input dtypes for each operand.  Output operands can be
-        None, indicating that the dtype must be found.
-    signature : tuple of DTypes or None, optional
-        If given, enforces exact DType (classes) of the specific operand.
-        The ufunc ``dtype`` argument is equivalent to passing a tuple with
-        only output dtypes set.
-    casting : {'no', 'equiv', 'safe', 'same_kind', 'unsafe'}, optional
-        The casting mode when casting is necessary.  This is identical to
-        the ufunc call casting modes.
-    reduction : boolean
-        If given, the resolution assumes a reduce operation is happening
-        which slightly changes the promotion and type resolution rules.
-        `dtypes` is usually something like ``(None, np.dtype("i2"), None)``
-        for reductions (first input is also the output).
-
-        .. note::
-
-            The default casting mode is "same_kind", however, as of
-            NumPy 1.24, NumPy uses "unsafe" for reductions.
+        The shape parameter of the gamma distribution, sometimes denoted
+        :math:`\alpha` (float).
+    x : array_like
+        The quantile (upper limit of integration; float).
+    out : ndarray, optional
+        Optional output array for the function values
 
     Returns
     -------
-    dtypes : tuple of dtypes
-        The dtypes which NumPy would use for the calculation.  Note that
-        dtypes may not match the passed in ones (casting is necessary).
+    scalar or ndarray
+        The CDF of the gamma distribution with parameters `a` and `b`
+        evaluated at `x`.
 
-
-    Examples
+    See Also
     --------
-    This API requires passing dtypes, define them for convenience:
-
-    >>> import numpy as np
-    >>> int32 = np.dtype(np.int32)
-    >>> float32 = np.dtype(np.float32)
-
-    The typical ufunc call does not pass an output dtype.  `numpy.add` has two
-    inputs and one output, so leave the output as ``None`` (not provided):
-
-    >>> np.add.resolve_dtypes((int32, float32, None))
-    (dtype('float64'), dtype('float64'), dtype('float64'))
-
-    The loop found uses "float64" for all operands (including the output), the
-    first input would be cast.
-
-    ``resolve_dtypes`` supports "weak" handling for Python scalars by passing
-    ``int``, ``float``, or ``complex``:
-
-    >>> np.add.resolve_dtypes((float32, float, None))
-    (dtype('float32'), dtype('float32'), dtype('float32'))
-
-    Where the Python ``float`` behaves similar to a Python value ``0.0``
-    in a ufunc call.  (See :ref:`NEP 50 <NEP50>` for details.)
-
-    """))
-
-add_newdoc('numpy._core', 'ufunc', ('_resolve_dtypes_and_context',
-    """
-    _resolve_dtypes_and_context($self, dtypes, *, signature=None, casting=None, reduction=False)
-    --
-
-    _resolve_dtypes_and_context(dtypes, *, signature=None, casting=None, reduction=False)
-
-    See `numpy.ufunc.resolve_dtypes` for parameter information.  This
-    function is considered *unstable*.  You may use it, but the returned
-    information is NumPy version specific and expected to change.
-    Large API/ABI changes are not expected, but a new NumPy version is
-    expected to require updating code using this functionality.
-
-    This function is designed to be used in conjunction with
-    `numpy.ufunc._get_strided_loop`.  The calls are split to mirror the C API
-    and allow future improvements.
-
-    Returns
-    -------
-    dtypes : tuple of dtypes
-    call_info :
-        PyCapsule with all necessary information to get access to low level
-        C calls.  See `numpy.ufunc._get_strided_loop` for more information.
-
-    """))
-
-add_newdoc('numpy._core', 'ufunc', ('_get_strided_loop',
-    """
-    _get_strided_loop($self, call_info, /, *, fixed_strides=None)
-    --
-
-    _get_strided_loop(call_info, /, *, fixed_strides=None)
-
-    This function fills in the ``call_info`` capsule to include all
-    information necessary to call the low-level strided loop from NumPy.
-
-    See notes for more information.
-
-    Parameters
-    ----------
-    call_info : PyCapsule
-        The PyCapsule returned by `numpy.ufunc._resolve_dtypes_and_context`.
-    fixed_strides : tuple of int or None, optional
-        A tuple with fixed byte strides of all input arrays.  NumPy may use
-        this information to find specialized loops, so any call must follow
-        the given stride.  Use ``None`` to indicate that the stride is not
-        known (or not fixed) for all calls.
+    gdtrc : 1 - CDF of the gamma distribution.
+    scipy.stats.gamma: Gamma distribution
 
     Notes
     -----
-    Together with `numpy.ufunc._resolve_dtypes_and_context` this function
-    gives low-level access to the NumPy ufunc loops.
-    The first function does general preparation and returns the required
-    information. It returns this as a C capsule with the version specific
-    name ``numpy_1.24_ufunc_call_info``.
-    The NumPy 1.24 ufunc call info capsule has the following layout::
+    The evaluation is carried out using the relation to the incomplete gamma
+    integral (regularized gamma function).
 
-        typedef struct {
-            PyArrayMethod_StridedLoop *strided_loop;
-            PyArrayMethod_Context *context;
-            NpyAuxData *auxdata;
+    Wrapper for the Cephes [1]_ routine `gdtr`. Calling `gdtr` directly can
+    improve performance compared to the ``cdf`` method of `scipy.stats.gamma`
+    (see last example below).
 
-            /* Flag information (expected to change) */
-            npy_bool requires_pyapi;  /* GIL is required by loop */
-
-            /* Loop doesn't set FPE flags; if not set check FPE flags */
-            npy_bool no_floatingpoint_errors;
-        } ufunc_call_info;
-
-    Note that the first call only fills in the ``context``.  The call to
-    ``_get_strided_loop`` fills in all other data.  The main thing to note is
-    that the new-style loops return 0 on success, -1 on failure.  They are
-    passed context as new first input and ``auxdata`` as (replaced) last.
-
-    Only the ``strided_loop``signature is considered guaranteed stable
-    for NumPy bug-fix releases.  All other API is tied to the experimental
-    API versioning.
-
-    The reason for the split call is that cast information is required to
-    decide what the fixed-strides will be.
-
-    NumPy ties the lifetime of the ``auxdata`` information to the capsule.
-
-    """))
-
-
-##############################################################################
-#
-# Documentation for dtype attributes and methods
-#
-##############################################################################
-
-##############################################################################
-#
-# dtype object
-#
-##############################################################################
-
-add_newdoc('numpy._core.multiarray', 'dtype',
-    """
-    dtype(dtype, align=False, copy=False, **kwargs)
-    --
-
-    dtype(dtype, align=False, copy=False, [metadata])
-
-    Create a data type object.
-
-    A numpy array is homogeneous, and contains elements described by a
-    dtype object. A dtype object can be constructed from different
-    combinations of fundamental numeric types.
-
-    Parameters
+    References
     ----------
-    dtype
-        Object to be converted to a data type object.
-    align : bool, optional
-        Add padding to the fields to match what a C compiler would output
-        for a similar C-struct. Can be ``True`` only if `obj` is a dictionary
-        or a comma-separated string. If a struct dtype is being created,
-        this also sets a sticky alignment flag ``isalignedstruct``.
-    copy : bool, optional
-        Make a new copy of the data-type object. If ``False``, the result
-        may just be a reference to a built-in data-type object.
-    metadata : dict, optional
-        An optional dictionary with dtype metadata.
-
-    See also
-    --------
-    result_type
+    .. [1] Cephes Mathematical Functions Library,
+           https://netlib.org/cephes/
 
     Examples
     --------
-    Using array-scalar type:
+    Compute the function for ``a=1``, ``b=2`` at ``x=5``.
 
     >>> import numpy as np
-    >>> np.dtype(np.int16)
-    dtype('int16')
+    >>> from scipy.special import gdtr
+    >>> import matplotlib.pyplot as plt
+    >>> gdtr(1., 2., 5.)
+    0.9595723180054873
 
-    Structured type, one field name 'f1', containing int16:
+    Compute the function for ``a=1`` and ``b=2`` at several points by
+    providing a NumPy array for `x`.
 
-    >>> np.dtype([('f1', np.int16)])
-    dtype([('f1', '<i2')])
+    >>> xvalues = np.array([1., 2., 3., 4])
+    >>> gdtr(1., 1., xvalues)
+    array([0.63212056, 0.86466472, 0.95021293, 0.98168436])
 
-    Structured type, one field named 'f1', in itself containing a structured
-    type with one field:
+    `gdtr` can evaluate different parameter sets by providing arrays with
+    broadcasting compatible shapes for `a`, `b` and `x`. Here we compute the
+    function for three different `a` at four positions `x` and ``b=3``,
+    resulting in a 3x4 array.
 
-    >>> np.dtype([('f1', [('f1', np.int16)])])
-    dtype([('f1', [('f1', '<i2')])])
+    >>> a = np.array([[0.5], [1.5], [2.5]])
+    >>> x = np.array([1., 2., 3., 4])
+    >>> a.shape, x.shape
+    ((3, 1), (4,))
 
-    Structured type, two fields: the first field contains an unsigned int, the
-    second an int32:
+    >>> gdtr(a, 3., x)
+    array([[0.01438768, 0.0803014 , 0.19115317, 0.32332358],
+           [0.19115317, 0.57680992, 0.82642193, 0.9380312 ],
+           [0.45618688, 0.87534798, 0.97974328, 0.9972306 ]])
 
-    >>> np.dtype([('f1', np.uint64), ('f2', np.int32)])
-    dtype([('f1', '<u8'), ('f2', '<i4')])
+    Plot the function for four different parameter sets.
 
-    Using array-protocol type strings:
+    >>> a_parameters = [0.3, 1, 2, 6]
+    >>> b_parameters = [2, 10, 15, 20]
+    >>> linestyles = ['solid', 'dashed', 'dotted', 'dashdot']
+    >>> parameters_list = list(zip(a_parameters, b_parameters, linestyles))
+    >>> x = np.linspace(0, 30, 1000)
+    >>> fig, ax = plt.subplots()
+    >>> for parameter_set in parameters_list:
+    ...     a, b, style = parameter_set
+    ...     gdtr_vals = gdtr(a, b, x)
+    ...     ax.plot(x, gdtr_vals, label=fr"$a= {a},\, b={b}$", ls=style)
+    >>> ax.legend()
+    >>> ax.set_xlabel("$x$")
+    >>> ax.set_title("Gamma distribution cumulative distribution function")
+    >>> plt.show()
 
-    >>> np.dtype([('a','f8'),('b','S10')])
-    dtype([('a', '<f8'), ('b', 'S10')])
+    The gamma distribution is also available as `scipy.stats.gamma`. Using
+    `gdtr` directly can be much faster than calling the ``cdf`` method of
+    `scipy.stats.gamma`, especially for small arrays or individual values.
+    To get the same results one must use the following parametrization:
+    ``stats.gamma(b, scale=1/a).cdf(x)=gdtr(a, b, x)``.
 
-    Using comma-separated field formats.  The shape is (2,3):
-
-    >>> np.dtype("i4, (2,3)f8")
-    dtype([('f0', '<i4'), ('f1', '<f8', (2, 3))])
-
-    Using tuples.  ``int`` is a fixed type, 3 the field's shape.  ``void``
-    is a flexible type, here of size 10:
-
-    >>> np.dtype([('hello',(np.int64,3)),('world',np.void,10)])
-    dtype([('hello', '<i8', (3,)), ('world', 'V10')])
-
-    Subdivide ``int16`` into 2 ``int8``'s, called x and y.  0 and 1 are
-    the offsets in bytes:
-
-    >>> np.dtype((np.int16, {'x':(np.int8,0), 'y':(np.int8,1)}))
-    dtype((numpy.int16, [('x', 'i1'), ('y', 'i1')]))
-
-    Using dictionaries.  Two fields named 'gender' and 'age':
-
-    >>> np.dtype({'names':['gender','age'], 'formats':['S1',np.uint8]})
-    dtype([('gender', 'S1'), ('age', 'u1')])
-
-    Offsets in bytes, here 0 and 25:
-
-    >>> np.dtype({'surname':('S25',0),'age':(np.uint8,25)})
-    dtype([('surname', 'S25'), ('age', 'u1')])
-
+    >>> from scipy.stats import gamma
+    >>> a = 2.
+    >>> b = 3
+    >>> x = 1.
+    >>> gdtr_result = gdtr(a, b, x)  # this will often be faster than below
+    >>> gamma_dist_result = gamma(b, scale=1/a).cdf(x)
+    >>> gdtr_result == gamma_dist_result  # test that results are equal
+    True
     """)
 
-##############################################################################
-#
-# dtype attributes
-#
-##############################################################################
+add_newdoc("gdtrc",
+    r"""
+    gdtrc(a, b, x, out=None)
 
-add_newdoc('numpy._core.multiarray', 'dtype', ('alignment',
-    """
-    The required alignment (bytes) of this data-type according to the compiler.
+    Gamma distribution survival function.
 
-    More information is available in the C-API section of the manual.
+    Integral from `x` to infinity of the gamma probability density function,
 
-    Examples
-    --------
+    .. math::
 
-    >>> import numpy as np
-    >>> x = np.dtype(np.int32)
-    >>> x.alignment
-    4
+        S(x) = \int_x^\infty \frac{a^b}{\Gamma(b)} t^{b-1} e^{-at}\,dt,
 
-    >>> x = np.dtype(np.float64)
-    >>> x.alignment
-    8
-
-    """))
-
-add_newdoc('numpy._core.multiarray', 'dtype', ('byteorder',
-    """
-    A character indicating the byte-order of this data-type object.
-
-    One of:
-
-    ===  ==============
-    '='  native
-    '<'  little-endian
-    '>'  big-endian
-    '|'  not applicable
-    ===  ==============
-
-    All built-in data-type objects have byteorder either '=' or '|'.
-
-    Examples
-    --------
-
-    >>> import numpy as np
-    >>> dt = np.dtype(np.int16)
-    >>> dt.byteorder
-    '='
-    >>> # endian is not relevant for 8 bit numbers
-    >>> np.dtype(np.int8).byteorder
-    '|'
-    >>> # or ASCII strings
-    >>> np.dtype('S2').byteorder
-    '|'
-    >>> # Even if specific code is given, and it is native
-    >>> # '=' is the byteorder
-    >>> import sys
-    >>> sys_is_le = sys.byteorder == 'little'
-    >>> native_code = '<' if sys_is_le else '>'
-    >>> swapped_code = '>' if sys_is_le else '<'
-    >>> dt = np.dtype(native_code + 'i2')
-    >>> dt.byteorder
-    '='
-    >>> # Swapped code shows up as itself
-    >>> dt = np.dtype(swapped_code + 'i2')
-    >>> dt.byteorder == swapped_code
-    True
-
-    """))
-
-add_newdoc('numpy._core.multiarray', 'dtype', ('char',
-    """A unique character code for each of the 21 different built-in types.
-
-    Examples
-    --------
-
-    >>> import numpy as np
-    >>> x = np.dtype(float)
-    >>> x.char
-    'd'
-
-    """))
-
-add_newdoc('numpy._core.multiarray', 'dtype', ('descr',
-    """
-    `__array_interface__` description of the data-type.
-
-    The format is that required by the 'descr' key in the
-    `__array_interface__` attribute.
-
-    Warning: This attribute exists specifically for `__array_interface__`,
-    and passing it directly to `numpy.dtype` will not accurately reconstruct
-    some dtypes (e.g., scalar and subarray dtypes).
-
-    Examples
-    --------
-
-    >>> import numpy as np
-    >>> x = np.dtype(float)
-    >>> x.descr
-    [('', '<f8')]
-
-    >>> dt = np.dtype([('name', np.str_, 16), ('grades', np.float64, (2,))])
-    >>> dt.descr
-    [('name', '<U16'), ('grades', '<f8', (2,))]
-
-    """))
-
-add_newdoc('numpy._core.multiarray', 'dtype', ('fields',
-    """
-    Dictionary of named fields defined for this data type, or ``None``.
-
-    The dictionary is indexed by keys that are the names of the fields.
-    Each entry in the dictionary is a tuple fully describing the field::
-
-      (dtype, offset[, title])
-
-    Offset is limited to C int, which is signed and usually 32 bits.
-    If present, the optional title can be any object (if it is a string
-    or unicode then it will also be a key in the fields dictionary,
-    otherwise it's meta-data). Notice also that the first two elements
-    of the tuple can be passed directly as arguments to the
-    ``ndarray.getfield`` and ``ndarray.setfield`` methods.
-
-    See Also
-    --------
-    ndarray.getfield, ndarray.setfield
-
-    Examples
-    --------
-
-    >>> import numpy as np
-    >>> dt = np.dtype([('name', np.str_, 16), ('grades', np.float64, (2,))])
-    >>> print(dt.fields)
-    {'name': (dtype('<U16'), 0), 'grades': (dtype(('<f8', (2,))), 64)}
-
-    """))
-
-add_newdoc('numpy._core.multiarray', 'dtype', ('flags',
-    """
-    Bit-flags describing how this data type is to be interpreted.
-
-    Bit-masks are in ``numpy._core.multiarray`` as the constants
-    `ITEM_HASOBJECT`, `LIST_PICKLE`, `ITEM_IS_POINTER`, `NEEDS_INIT`,
-    `NEEDS_PYAPI`, `USE_GETITEM`, `USE_SETITEM`. A full explanation
-    of these flags is in C-API documentation; they are largely useful
-    for user-defined data-types.
-
-    The following example demonstrates that operations on this particular
-    dtype requires Python C-API.
-
-    Examples
-    --------
-
-    >>> import numpy as np
-    >>> x = np.dtype([('a', np.int32, 8), ('b', np.float64, 6)])
-    >>> x.flags
-    16
-    >>> np._core.multiarray.NEEDS_PYAPI
-    16
-
-    """))
-
-add_newdoc('numpy._core.multiarray', 'dtype', ('hasobject',
-    """
-    Boolean indicating whether this dtype contains any reference-counted
-    objects in any fields or sub-dtypes.
-
-    Recall that what is actually in the ndarray memory representing
-    the Python object is the memory address of that object (a pointer).
-    Special handling may be required, and this attribute is useful for
-    distinguishing data types that may contain arbitrary Python objects
-    and data-types that won't.
-
-    """))
-
-add_newdoc('numpy._core.multiarray', 'dtype', ('isbuiltin',
-    """
-    Integer indicating how this dtype relates to the built-in dtypes.
-
-    Read-only.
-
-    =  ========================================================================
-    0  if this is a structured array type, with fields
-    1  if this is a dtype compiled into numpy (such as ints, floats etc)
-    2  if the dtype is for a user-defined numpy type
-       A user-defined type uses the numpy C-API machinery to extend
-       numpy to handle a new array type. See
-       :ref:`user.user-defined-data-types` in the NumPy manual.
-    =  ========================================================================
-
-    Examples
-    --------
-
-    >>> import numpy as np
-    >>> dt = np.dtype(np.int16)
-    >>> dt.isbuiltin
-    1
-    >>> dt = np.dtype(np.float64)
-    >>> dt.isbuiltin
-    1
-    >>> dt = np.dtype([('field1', np.float64)])
-    >>> dt.isbuiltin
-    0
-
-    """))
-
-add_newdoc('numpy._core.multiarray', 'dtype', ('isnative',
-    """
-    Boolean indicating whether the byte order of this dtype is native
-    to the platform.
-
-    """))
-
-add_newdoc('numpy._core.multiarray', 'dtype', ('isalignedstruct',
-    """
-    Boolean indicating whether the dtype is a struct which maintains
-    field alignment. This flag is sticky, so when combining multiple
-    structs together, it is preserved and produces new dtypes which
-    are also aligned.
-
-    """))
-
-add_newdoc('numpy._core.multiarray', 'dtype', ('itemsize',
-    """
-    The element size of this data-type object.
-
-    For 18 of the 21 types this number is fixed by the data-type.
-    For the flexible data-types, this number can be anything.
-
-    Examples
-    --------
-
-    >>> import numpy as np
-    >>> arr = np.array([[1, 2], [3, 4]])
-    >>> arr.dtype
-    dtype('int64')
-    >>> arr.itemsize
-    8
-
-    >>> dt = np.dtype([('name', np.str_, 16), ('grades', np.float64, (2,))])
-    >>> dt.itemsize
-    80
-
-    """))
-
-add_newdoc('numpy._core.multiarray', 'dtype', ('kind',
-    """
-    A character code (one of 'biufcmMOSTUV') identifying the general kind of data.
-
-    =  ======================
-    b  boolean
-    i  signed integer
-    u  unsigned integer
-    f  floating-point
-    c  complex floating-point
-    m  timedelta
-    M  datetime
-    O  object
-    S  (byte-)string
-    T  string (StringDType)
-    U  Unicode
-    V  void
-    =  ======================
-
-    Examples
-    --------
-
-    >>> import numpy as np
-    >>> dt = np.dtype(np.int32)
-    >>> dt.kind
-    'i'
-    >>> dt = np.dtype(np.float64)
-    >>> dt.kind
-    'f'
-    >>> dt = np.dtype([('field1', np.float64)])
-    >>> dt.kind
-    'V'
-
-    """))
-
-add_newdoc('numpy._core.multiarray', 'dtype', ('metadata',
-    """
-    Either ``None`` or a readonly dictionary of metadata (mappingproxy).
-
-    The metadata field can be set using any dictionary at data-type
-    creation. NumPy currently has no uniform approach to propagating
-    metadata; although some array operations preserve it, there is no
-    guarantee that others will.
-
-    .. warning::
-
-        Although used in certain projects, this feature was long undocumented
-        and is not well supported. Some aspects of metadata propagation
-        are expected to change in the future.
-
-    Examples
-    --------
-
-    >>> import numpy as np
-    >>> dt = np.dtype(float, metadata={"key": "value"})
-    >>> dt.metadata["key"]
-    'value'
-    >>> arr = np.array([1, 2, 3], dtype=dt)
-    >>> arr.dtype.metadata
-    mappingproxy({'key': 'value'})
-
-    Adding arrays with identical datatypes currently preserves the metadata:
-
-    >>> (arr + arr).dtype.metadata
-    mappingproxy({'key': 'value'})
-
-    If the arrays have different dtype metadata, the first one wins:
-
-    >>> dt2 = np.dtype(float, metadata={"key2": "value2"})
-    >>> arr2 = np.array([3, 2, 1], dtype=dt2)
-    >>> print((arr + arr2).dtype.metadata)
-    {'key': 'value'}
-    """))
-
-add_newdoc('numpy._core.multiarray', 'dtype', ('name',
-    """
-    A bit-width name for this data-type.
-
-    Un-sized flexible data-type objects do not have this attribute.
-
-    Examples
-    --------
-
-    >>> import numpy as np
-    >>> x = np.dtype(float)
-    >>> x.name
-    'float64'
-    >>> x = np.dtype([('a', np.int32, 8), ('b', np.float64, 6)])
-    >>> x.name
-    'void640'
-
-    """))
-
-add_newdoc('numpy._core.multiarray', 'dtype', ('names',
-    """
-    Ordered list of field names, or ``None`` if there are no fields.
-
-    The names are ordered according to increasing byte offset. This can be
-    used, for example, to walk through all of the named fields in offset order.
-
-    Examples
-    --------
-    >>> dt = np.dtype([('name', np.str_, 16), ('grades', np.float64, (2,))])
-    >>> dt.names
-    ('name', 'grades')
-
-    """))
-
-add_newdoc('numpy._core.multiarray', 'dtype', ('num',
-    """
-    A unique number for each of the 21 different built-in types.
-
-    These are roughly ordered from least-to-most precision.
-
-    Examples
-    --------
-
-    >>> import numpy as np
-    >>> dt = np.dtype(str)
-    >>> dt.num
-    19
-
-    >>> dt = np.dtype(float)
-    >>> dt.num
-    12
-
-    """))
-
-add_newdoc('numpy._core.multiarray', 'dtype', ('shape',
-    """
-    Shape tuple of the sub-array if this data type describes a sub-array,
-    and ``()`` otherwise.
-
-    Examples
-    --------
-
-    >>> import numpy as np
-    >>> dt = np.dtype(('i4', 4))
-    >>> dt.shape
-    (4,)
-
-    >>> dt = np.dtype(('i4', (2, 3)))
-    >>> dt.shape
-    (2, 3)
-
-    """))
-
-add_newdoc('numpy._core.multiarray', 'dtype', ('ndim',
-    """
-    Number of dimensions of the sub-array if this data type describes a
-    sub-array, and ``0`` otherwise.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> x = np.dtype(float)
-    >>> x.ndim
-    0
-
-    >>> x = np.dtype((float, 8))
-    >>> x.ndim
-    1
-
-    >>> x = np.dtype(('i4', (3, 4)))
-    >>> x.ndim
-    2
-
-    """))
-
-add_newdoc('numpy._core.multiarray', 'dtype', ('str',
-    """The array-protocol typestring of this data-type object."""))
-
-add_newdoc('numpy._core.multiarray', 'dtype', ('subdtype',
-    """
-    Tuple ``(item_dtype, shape)`` if this `dtype` describes a sub-array, and
-    None otherwise.
-
-    The *shape* is the fixed shape of the sub-array described by this
-    data type, and *item_dtype* the data type of the array.
-
-    If a field whose dtype object has this attribute is retrieved,
-    then the extra dimensions implied by *shape* are tacked on to
-    the end of the retrieved array.
-
-    See Also
-    --------
-    dtype.base
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> x = np.dtype('8f')
-    >>> x.subdtype
-    (dtype('float32'), (8,))
-
-    >>> x =  np.dtype(np.int16)
-    >>> x.subdtype
-    >>>
-
-    """))
-
-add_newdoc('numpy._core.multiarray', 'dtype', ('base',
-    """
-    Returns dtype for the base element of the subarrays,
-    regardless of their dimension or shape.
-
-    See Also
-    --------
-    dtype.subdtype
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> x = np.dtype('8f')
-    >>> x.base
-    dtype('float32')
-
-    >>> x = np.dtype(np.int16)
-    >>> x.base
-    dtype('int16')
-
-    """))
-
-add_newdoc('numpy._core.multiarray', 'dtype', ('type',
-    """The type object used to instantiate a scalar of this data-type."""))
-
-##############################################################################
-#
-# dtype methods
-#
-##############################################################################
-
-add_newdoc('numpy._core.multiarray', 'dtype', ('newbyteorder',
-    """
-    newbyteorder($self, new_order='S', /)
-    --
-
-    newbyteorder(new_order='S', /)
-
-    Return a new dtype with a different byte order.
-
-    Changes are also made in all fields and sub-arrays of the data type.
+    where :math:`\Gamma` is the gamma function.
 
     Parameters
     ----------
-    new_order : string, optional
-        Byte order to force; a value from the byte order specifications
-        below.  The default value ('S') results in swapping the current
-        byte order.  `new_order` codes can be any of:
-
-        * 'S' - swap dtype from current to opposite endian
-        * {'<', 'little'} - little endian
-        * {'>', 'big'} - big endian
-        * {'=', 'native'} - native order
-        * {'|', 'I'} - ignore (no change to byte order)
+    a : array_like
+        The rate parameter of the gamma distribution, sometimes denoted
+        :math:`\beta` (float). It is also the reciprocal of the scale
+        parameter :math:`\theta`.
+    b : array_like
+        The shape parameter of the gamma distribution, sometimes denoted
+        :math:`\alpha` (float).
+    x : array_like
+        The quantile (lower limit of integration; float).
+    out : ndarray, optional
+        Optional output array for the function values
 
     Returns
     -------
-    new_dtype : dtype
-        New dtype object with the given change to the byte order.
+    scalar or ndarray
+        The survival function of the gamma distribution with parameters `a`
+        and `b` evaluated at `x`.
+
+    See Also
+    --------
+    gdtr: Gamma distribution cumulative distribution function
+    scipy.stats.gamma: Gamma distribution
+    gdtrix
 
     Notes
     -----
-    Changes are also made in all fields and sub-arrays of the data type.
+    The evaluation is carried out using the relation to the incomplete gamma
+    integral (regularized gamma function).
+
+    Wrapper for the Cephes [1]_ routine `gdtrc`. Calling `gdtrc` directly can
+    improve performance compared to the ``sf`` method of `scipy.stats.gamma`
+    (see last example below).
+
+    References
+    ----------
+    .. [1] Cephes Mathematical Functions Library,
+           https://netlib.org/cephes/
 
     Examples
     --------
-    >>> import sys
-    >>> sys_is_le = sys.byteorder == 'little'
-    >>> native_code = '<' if sys_is_le else '>'
-    >>> swapped_code = '>' if sys_is_le else '<'
+    Compute the function for ``a=1`` and ``b=2`` at ``x=5``.
+
     >>> import numpy as np
-    >>> native_dt = np.dtype(native_code+'i2')
-    >>> swapped_dt = np.dtype(swapped_code+'i2')
-    >>> native_dt.newbyteorder('S') == swapped_dt
-    True
-    >>> native_dt.newbyteorder() == swapped_dt
-    True
-    >>> native_dt == swapped_dt.newbyteorder('S')
-    True
-    >>> native_dt == swapped_dt.newbyteorder('=')
-    True
-    >>> native_dt == swapped_dt.newbyteorder('N')
-    True
-    >>> native_dt == native_dt.newbyteorder('|')
-    True
-    >>> np.dtype('<i2') == native_dt.newbyteorder('<')
-    True
-    >>> np.dtype('<i2') == native_dt.newbyteorder('L')
-    True
-    >>> np.dtype('>i2') == native_dt.newbyteorder('>')
-    True
-    >>> np.dtype('>i2') == native_dt.newbyteorder('B')
-    True
+    >>> from scipy.special import gdtrc
+    >>> import matplotlib.pyplot as plt
+    >>> gdtrc(1., 2., 5.)
+    0.04042768199451279
 
-    """))
+    Compute the function for ``a=1``, ``b=2`` at several points by providing
+    a NumPy array for `x`.
 
-add_newdoc('numpy._core.multiarray', 'dtype', ('__class_getitem__',
+    >>> xvalues = np.array([1., 2., 3., 4])
+    >>> gdtrc(1., 1., xvalues)
+    array([0.36787944, 0.13533528, 0.04978707, 0.01831564])
+
+    `gdtrc` can evaluate different parameter sets by providing arrays with
+    broadcasting compatible shapes for `a`, `b` and `x`. Here we compute the
+    function for three different `a` at four positions `x` and ``b=3``,
+    resulting in a 3x4 array.
+
+    >>> a = np.array([[0.5], [1.5], [2.5]])
+    >>> x = np.array([1., 2., 3., 4])
+    >>> a.shape, x.shape
+    ((3, 1), (4,))
+
+    >>> gdtrc(a, 3., x)
+    array([[0.98561232, 0.9196986 , 0.80884683, 0.67667642],
+           [0.80884683, 0.42319008, 0.17357807, 0.0619688 ],
+           [0.54381312, 0.12465202, 0.02025672, 0.0027694 ]])
+
+    Plot the function for four different parameter sets.
+
+    >>> a_parameters = [0.3, 1, 2, 6]
+    >>> b_parameters = [2, 10, 15, 20]
+    >>> linestyles = ['solid', 'dashed', 'dotted', 'dashdot']
+    >>> parameters_list = list(zip(a_parameters, b_parameters, linestyles))
+    >>> x = np.linspace(0, 30, 1000)
+    >>> fig, ax = plt.subplots()
+    >>> for parameter_set in parameters_list:
+    ...     a, b, style = parameter_set
+    ...     gdtrc_vals = gdtrc(a, b, x)
+    ...     ax.plot(x, gdtrc_vals, label=fr"$a= {a},\, b={b}$", ls=style)
+    >>> ax.legend()
+    >>> ax.set_xlabel("$x$")
+    >>> ax.set_title("Gamma distribution survival function")
+    >>> plt.show()
+
+    The gamma distribution is also available as `scipy.stats.gamma`.
+    Using `gdtrc` directly can be much faster than calling the ``sf`` method
+    of `scipy.stats.gamma`, especially for small arrays or individual
+    values. To get the same results one must use the following parametrization:
+    ``stats.gamma(b, scale=1/a).sf(x)=gdtrc(a, b, x)``.
+
+    >>> from scipy.stats import gamma
+    >>> a = 2
+    >>> b = 3
+    >>> x = 1.
+    >>> gdtrc_result = gdtrc(a, b, x)  # this will often be faster than below
+    >>> gamma_dist_result = gamma(b, scale=1/a).sf(x)
+    >>> gdtrc_result == gamma_dist_result  # test that results are equal
+    True
+    """)
+
+add_newdoc("gdtria",
     """
-    __class_getitem__(item, /)
+    gdtria(p, b, x, out=None)
 
-    Return a parametrized wrapper around the `~numpy.dtype` type.
+    Inverse of `gdtr` vs a.
 
-    .. versionadded:: 1.22
-
-    Returns
-    -------
-    alias : types.GenericAlias
-        A parametrized `~numpy.dtype` type.
-
-    Examples
-    --------
-    >>> import numpy as np
-
-    >>> np.dtype[np.int64]
-    numpy.dtype[numpy.int64]
-
-    See Also
-    --------
-    :pep:`585` : Type hinting generics in standard collections.
-
-    """))
-
-add_newdoc('numpy._core.multiarray', 'dtype', ('__ge__',
-    """
-    __ge__(value, /)
-
-    Return ``self >= value``.
-
-    Equivalent to ``np.can_cast(value, self, casting="safe")``.
-
-    See Also
-    --------
-    can_cast : Returns True if cast between data types can occur according to
-               the casting rule.
-
-    """))
-
-add_newdoc('numpy._core.multiarray', 'dtype', ('__le__',
-    """
-    __le__(value, /)
-
-    Return ``self <= value``.
-
-    Equivalent to ``np.can_cast(self, value, casting="safe")``.
-
-    See Also
-    --------
-    can_cast : Returns True if cast between data types can occur according to
-               the casting rule.
-
-    """))
-
-add_newdoc('numpy._core.multiarray', 'dtype', ('__gt__',
-    """
-    __gt__(value, /)
-
-    Return ``self > value``.
-
-    Equivalent to
-    ``self != value and np.can_cast(value, self, casting="safe")``.
-
-    See Also
-    --------
-    can_cast : Returns True if cast between data types can occur according to
-               the casting rule.
-
-    """))
-
-add_newdoc('numpy._core.multiarray', 'dtype', ('__lt__',
-    """
-    __lt__(value, /)
-
-    Return ``self < value``.
-
-    Equivalent to
-    ``self != value and np.can_cast(self, value, casting="safe")``.
-
-    See Also
-    --------
-    can_cast : Returns True if cast between data types can occur according to
-               the casting rule.
-
-    """))
-
-##############################################################################
-#
-# Datetime-related Methods
-#
-##############################################################################
-
-add_newdoc('numpy._core.multiarray', 'busdaycalendar',
-    """
-    busdaycalendar(weekmask='1111100', holidays=None)
-    --
-
-    busdaycalendar(weekmask='1111100', holidays=None)
-
-    A business day calendar object that efficiently stores information
-    defining valid days for the busday family of functions.
-
-    The default valid days are Monday through Friday ("business days").
-    A busdaycalendar object can be specified with any set of weekly
-    valid days, plus an optional "holiday" dates that always will be invalid.
-
-    Once a busdaycalendar object is created, the weekmask and holidays
-    cannot be modified.
+    Returns the inverse with respect to the parameter `a` of ``p =
+    gdtr(a, b, x)``, the cumulative distribution function of the gamma
+    distribution.
 
     Parameters
     ----------
-    weekmask : str or array_like of bool, optional
-        A seven-element array indicating which of Monday through Sunday are
-        valid days. May be specified as a length-seven list or array, like
-        [1,1,1,1,1,0,0]; a length-seven string, like '1111100'; or a string
-        like "Mon Tue Wed Thu Fri", made up of 3-character abbreviations for
-        weekdays, optionally separated by white space. Valid abbreviations
-        are: Mon Tue Wed Thu Fri Sat Sun
-    holidays : array_like of datetime64[D], optional
-        An array of dates to consider as invalid dates, no matter which
-        weekday they fall upon.  Holiday dates may be specified in any
-        order, and NaT (not-a-time) dates are ignored.  This list is
-        saved in a normalized form that is suited for fast calculations
-        of valid days.
+    p : array_like
+        Probability values.
+    b : array_like
+        `b` parameter values of `gdtr(a, b, x)`. `b` is the "shape" parameter
+        of the gamma distribution.
+    x : array_like
+        Nonnegative real values, from the domain of the gamma distribution.
+    out : ndarray, optional
+        If a fourth argument is given, it must be a numpy.ndarray whose size
+        matches the broadcast result of `a`, `b` and `x`.  `out` is then the
+        array returned by the function.
 
     Returns
     -------
-    out : busdaycalendar
-        A business day calendar object containing the specified
-        weekmask and holidays values.
+    a : scalar or ndarray
+        Values of the `a` parameter such that ``p = gdtr(a, b, x)`.  ``1/a``
+        is the "scale" parameter of the gamma distribution.
 
     See Also
     --------
-    is_busday : Returns a boolean array indicating valid days.
-    busday_offset : Applies an offset counted in valid days.
-    busday_count : Counts how many valid days are in a half-open date range.
-
-    Attributes
-    ----------
-    weekmask : (copy) seven-element array of bool
-    holidays : (copy) sorted array of datetime64[D]
+    gdtr : CDF of the gamma distribution.
+    gdtrib : Inverse with respect to `b` of `gdtr(a, b, x)`.
+    gdtrix : Inverse with respect to `x` of `gdtr(a, b, x)`.
+    gammaincinv : Inverse of the incomplete regularized gamma function.
 
     Notes
     -----
-    Once a busdaycalendar object is created, you cannot modify the
-    weekmask or holidays.  The attributes return copies of internal data.
+    `gdtria` is implemented in terms of the incomplete gamma inverse as
+    ``gdtria(p, b, x) = gammaincinv(b, p)/x``.
 
     Examples
     --------
-    >>> import numpy as np
-    >>> # Some important days in July
-    ... bdd = np.busdaycalendar(
-    ...             holidays=['2011-07-01', '2011-07-04', '2011-07-17'])
-    >>> # Default is Monday to Friday weekdays
-    ... bdd.weekmask
-    array([ True,  True,  True,  True,  True, False, False])
-    >>> # Any holidays already on the weekend are removed
-    ... bdd.holidays
-    array(['2011-07-01', '2011-07-04'], dtype='datetime64[D]')
+    First evaluate `gdtr`.
+
+    >>> from scipy.special import gdtr, gdtria
+    >>> p = gdtr(1.2, 3.4, 5.6)
+    >>> print(p)
+    0.94378087442
+
+    Verify the inverse.
+
+    >>> gdtria(p, 3.4, 5.6)
+    1.2
     """)
 
-add_newdoc('numpy._core.multiarray', 'busdaycalendar', ('weekmask',
-    """A copy of the seven-element boolean mask indicating valid days."""))
-
-add_newdoc('numpy._core.multiarray', 'busdaycalendar', ('holidays',
-    """A copy of the holiday array indicating additional invalid days."""))
-
-add_newdoc('numpy._core.multiarray', 'normalize_axis_index',
+add_newdoc("gdtrib",
     """
-    normalize_axis_index(axis, ndim, msg_prefix=None)
+    gdtrib(a, p, x, out=None)
 
-    Normalizes an axis index, `axis`, such that is a valid positive index into
-    the shape of array with `ndim` dimensions. Raises an AxisError with an
-    appropriate message if this is not possible.
+    Inverse of `gdtr` vs b.
 
-    Used internally by all axis-checking logic.
+    Returns the inverse with respect to the parameter `b` of ``p =
+    gdtr(a, b, x)``, the cumulative distribution function of the gamma
+    distribution.
 
     Parameters
     ----------
-    axis : int
-        The un-normalized index of the axis. Can be negative
-    ndim : int
-        The number of dimensions of the array that `axis` should be normalized
-        against
-    msg_prefix : str
-        A prefix to put before the message, typically the name of the argument
+    a : array_like
+        `a` parameter values of ``gdtr(a, b, x)`. ``1/a`` is the "scale"
+        parameter of the gamma distribution.
+    p : array_like
+        Probability values.
+    x : array_like
+        Nonnegative real values, from the domain of the gamma distribution.
+    out : ndarray, optional
+        If a fourth argument is given, it must be a numpy.ndarray whose size
+        matches the broadcast result of `a`, `b` and `x`.  `out` is then the
+        array returned by the function.
 
     Returns
     -------
-    normalized_axis : int
-        The normalized axis index, such that `0 <= normalized_axis < ndim`
-
-    Raises
-    ------
-    AxisError
-        If the axis index is invalid, when `-ndim <= axis < ndim` is false.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> from numpy.lib.array_utils import normalize_axis_index
-    >>> normalize_axis_index(0, ndim=3)
-    0
-    >>> normalize_axis_index(1, ndim=3)
-    1
-    >>> normalize_axis_index(-1, ndim=3)
-    2
-
-    >>> normalize_axis_index(3, ndim=3)
-    Traceback (most recent call last):
-    ...
-    numpy.exceptions.AxisError: axis 3 is out of bounds for array ...
-    >>> normalize_axis_index(-4, ndim=3, msg_prefix='axes_arg')
-    Traceback (most recent call last):
-    ...
-    numpy.exceptions.AxisError: axes_arg: axis -4 is out of bounds ...
-    """)
-
-add_newdoc('numpy._core.multiarray', 'datetime_data',
-    """
-    datetime_data(dtype, /)
-    --
-
-    datetime_data(dtype, /)
-
-    Get information about the step size of a date or time type.
-
-    The returned tuple can be passed as the second argument of `numpy.datetime64` and
-    `numpy.timedelta64`.
-
-    Parameters
-    ----------
-    dtype : dtype
-        The dtype object, which must be a `datetime64` or `timedelta64` type.
-
-    Returns
-    -------
-    unit : str
-        The :ref:`datetime unit <arrays.dtypes.dateunits>` on which this dtype
-        is based.
-    count : int
-        The number of base units in a step.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> dt_25s = np.dtype('timedelta64[25s]')
-    >>> np.datetime_data(dt_25s)
-    ('s', 25)
-    >>> np.array(10, dt_25s).astype('timedelta64[s]')
-    array(250, dtype='timedelta64[s]')
-
-    The result can be used to construct a datetime that uses the same units
-    as a timedelta
-
-    >>> np.datetime64('2010', np.datetime_data(dt_25s))
-    np.datetime64('2010-01-01T00:00:00','25s')
-    """)
-
-
-##############################################################################
-#
-# Documentation for `generic` attributes and methods
-#
-##############################################################################
-
-add_newdoc('numpy._core.numerictypes', 'generic',
-    """
-    Base class for numpy scalar types.
-
-    Class from which most (all?) numpy scalar types are derived.  For
-    consistency, exposes the same API as `ndarray`, despite many
-    consequent attributes being either "get-only," or completely irrelevant.
-    This is the class from which it is strongly suggested users should derive
-    custom scalar types.
-
-    """)
-
-# Attributes
-
-add_newdoc('numpy._core.numerictypes', 'generic', ('T',
-    """Scalar attribute identical to `ndarray.T`."""))
-
-add_newdoc('numpy._core.numerictypes', 'generic', ('base',
-    """Scalar attribute identical to `ndarray.base`."""))
-
-add_newdoc('numpy._core.numerictypes', 'generic', ('data',
-    """Pointer to start of data."""))
-
-add_newdoc('numpy._core.numerictypes', 'generic', ('dtype',
-    """Get array data-descriptor."""))
-
-add_newdoc('numpy._core.numerictypes', 'generic', ('flags',
-    """The integer value of flags."""))
-
-add_newdoc('numpy._core.numerictypes', 'generic', ('flat',
-    """A 1-D view of the scalar."""))
-
-add_newdoc('numpy._core.numerictypes', 'generic', ('imag',
-    """The imaginary part of the scalar."""))
-
-add_newdoc('numpy._core.numerictypes', 'generic', ('itemsize',
-    """The length of one element in bytes."""))
-
-add_newdoc('numpy._core.numerictypes', 'generic', ('ndim',
-    """The number of array dimensions."""))
-
-add_newdoc('numpy._core.numerictypes', 'generic', ('real',
-    """The real part of the scalar."""))
-
-add_newdoc('numpy._core.numerictypes', 'generic', ('shape',
-    """Tuple of array dimensions."""))
-
-add_newdoc('numpy._core.numerictypes', 'generic', ('size',
-    """The number of elements in the gentype."""))
-
-add_newdoc('numpy._core.numerictypes', 'generic', ('strides',
-    """Tuple of bytes steps in each dimension."""))
-
-# Methods
-
-add_newdoc('numpy._core.numerictypes', 'number', ('__class_getitem__',
-    """
-    __class_getitem__($cls, item, /)
-    --
-
-    number.__class_getitem__(item, /)
-
-    Return a parametrized wrapper around the `~numpy.number` type.
-
-    .. versionadded:: 1.22
-
-    Returns
-    -------
-    alias : types.GenericAlias
-        A parametrized `~numpy.number` type.
-
-    Examples
-    --------
-    >>> from typing import Any
-    >>> import numpy as np
-
-    >>> np.signedinteger[Any]
-    numpy.signedinteger[typing.Any]
+    b : scalar or ndarray
+        Values of the `b` parameter such that `p = gdtr(a, b, x)`.  `b` is
+        the "shape" parameter of the gamma distribution.
 
     See Also
     --------
-    :pep:`585` : Type hinting generics in standard collections.
+    gdtr : CDF of the gamma distribution.
+    gdtria : Inverse with respect to `a` of `gdtr(a, b, x)`.
+    gdtrix : Inverse with respect to `x` of `gdtr(a, b, x)`.
 
-    """))
+    Notes
+    -----
 
-##############################################################################
-#
-# Documentation for scalar type abstract base classes in type hierarchy
-#
-##############################################################################
+    The cumulative distribution function `p` is computed using the Cephes [1]_
+    routines `igam` and `igamc`. Computation of `b` involves a search for a value
+    that produces the desired value of `p` using Chandrupatla's bracketing
+    root finding algorithm [2]_.
 
+    Note that there are some edge cases where `gdtrib` is extended by taking
+    limits where they are uniquely defined. In particular
+    ``x == 0`` with ``p > 0`` and ``p == 0`` with ``x > 0``.
+    For these edge cases, a numerical result will be returned for
+    ``gdtrib(a, p, x)`` even though ``gdtr(a, gdtrib(a, p, x), x)`` is
+    undefined.
 
-add_newdoc('numpy._core.numerictypes', 'number',
-    """
-    Abstract base class of all numeric scalar types.
-
-    """)
-
-add_newdoc('numpy._core.numerictypes', 'integer',
-    """
-    Abstract base class of all integer scalar types.
-
-    """)
-
-add_newdoc('numpy._core.numerictypes', 'signedinteger',
-    """
-    Abstract base class of all signed integer scalar types.
-
-    """)
-
-add_newdoc('numpy._core.numerictypes', 'unsignedinteger',
-    """
-    Abstract base class of all unsigned integer scalar types.
-
-    """)
-
-add_newdoc('numpy._core.numerictypes', 'inexact',
-    """
-    Abstract base class of all numeric scalar types with a (potentially)
-    inexact representation of the values in its range, such as
-    floating-point numbers.
-
-    """)
-
-add_newdoc('numpy._core.numerictypes', 'floating',
-    """
-    Abstract base class of all floating-point scalar types.
-
-    """)
-
-add_newdoc('numpy._core.numerictypes', 'complexfloating',
-    """
-    Abstract base class of all complex number scalar types that are made up of
-    floating-point numbers.
-
-    """)
-
-add_newdoc('numpy._core.numerictypes', 'flexible',
-    """
-    Abstract base class of all scalar types without predefined length.
-    The actual size of these types depends on the specific `numpy.dtype`
-    instantiation.
-
-    """)
-
-add_newdoc('numpy._core.numerictypes', 'character',
-    """
-    Abstract base class of all character string scalar types.
-
-    """)
-
-##############################################################################
-#
-# Documentation for `dtypes.*` classes
-#
-##############################################################################
-
-for _dtype_name, _signature, _sctype_name in (
-    ("BoolDType", "()", "bool"),
-    ("Int8DType", "()", "int8"),
-    ("UInt8DType", "()", "uint8"),
-    ("Int16DType", "()", "int16"),
-    ("UInt16DType", "()", "uint16"),
-    ("Int32DType", "()", "int32"),
-    ("IntDType", "()", "intc"),
-    ("UInt32DType", "()", "uint32"),
-    ("UIntDType", "()", "uintc"),
-    ("Int64DType", "()", "int64"),
-    ("UInt64DType", "()", "uint64"),
-    ("LongLongDType", "()", "longlong"),
-    ("ULongLongDType", "()", "ulonglong"),
-    ("Float16DType", "()", "float16"),
-    ("Float32DType", "()", "float32"),
-    ("Float64DType", "()", "float64"),
-    ("LongDoubleDType", "()", "longdouble"),
-    ("Complex64DType", "()", "complex64"),
-    ("Complex128DType", "()", "complex128"),
-    ("CLongDoubleDType", "()", "clongdouble"),
-    ("ObjectDType", "()", "object"),
-    ("BytesDType", "(size, /)", "bytes_"),
-    ("StrDType", "(size, /)", "str_"),
-    ("VoidDType", "(length, /)", "void"),
-    ("DateTime64DType", "(unit, /)", "datetime64"),
-    ("TimeDelta64DType", "(unit, /)", "timedelta64"),
-):
-    _extra_docs = ""
-    if _dtype_name in {"VoidDType", "DateTime64DType", "TimeDelta64DType"}:
-        _extra_docs = f"""
-        .. warning::
-            ``np.dtypes.{_dtype_name}`` cannot be instantiated directly.
-            Use ``np.dtype("{_sctype_name}[{{unit}}]")`` instead.
-        """
-
-    add_newdoc('numpy.dtypes', _dtype_name,
-        f"""
-        {_dtype_name}{_signature}
-        --
-
-        DType class corresponding to the `numpy.{_sctype_name}` scalar type.
-        {_extra_docs}
-        See `numpy.dtype` for the typical way to create dtype instances
-        and :ref:`arrays.dtypes` for additional information.
-        """)
-
-    del _dtype_name, _signature, _sctype_name, _extra_docs  # avoid namespace pollution
-
-
-add_newdoc('numpy._core.multiarray', 'StringDType',
-    """
-    StringDType(*, coerce=True, **kwargs)
-    --
-
-    StringDType(*, na_object=np._NoValue, coerce=True)
-
-    Create a StringDType instance.
-
-    StringDType can be used to store UTF-8 encoded variable-width strings in
-    a NumPy array.
-
-    Parameters
+    References
     ----------
-    na_object : object, optional
-        Object used to represent missing data. If unset, the array will not
-        use a missing data sentinel.
-    coerce : bool, optional
-        Whether or not items in an array-like passed to an array creation
-        function that are neither a str or str subtype should be coerced to
-        str. Defaults to True. If set to False, creating a StringDType
-        array from an array-like containing entries that are not already
-        strings will raise an error.
+    .. [1] Cephes Mathematical Functions Library,
+           https://netlib.org/cephes/
+    .. [2] Chandrupatla, Tirupathi R.
+           "A new hybrid quadratic/bisection algorithm for finding the zero of a
+           nonlinear function without using derivatives".
+           Advances in Engineering Software, 28(3), 145-149.
+           :doi:`10.1016/s0965-9978(96)00051-8`.
 
     Examples
     --------
+    First evaluate `gdtr`.
+
+    >>> from scipy.special import gdtr, gdtrib
+    >>> p = gdtr(1.2, 3.4, 5.6)
+    >>> print(p)
+    0.94378087442
+
+    Verify the inverse.
+
+    >>> gdtrib(1.2, p, 5.6)
+    3.3999999999999995
+    """)
+
+add_newdoc("gdtrix",
+    """
+    gdtrix(a, b, p, out=None)
+
+    Inverse of `gdtr` vs x.
+
+    Returns the inverse with respect to the parameter `x` of ``p =
+    gdtr(a, b, x)``, the cumulative distribution function of the gamma
+    distribution. This is also known as the pth quantile of the
+    distribution.
+
+    Parameters
+    ----------
+    a : array_like
+        `a` parameter values of ``gdtr(a, b, x)``. ``1/a`` is the "scale"
+        parameter of the gamma distribution.
+    b : array_like
+        `b` parameter values of ``gdtr(a, b, x)``. `b` is the "shape" parameter
+        of the gamma distribution.
+    p : array_like
+        Probability values.
+    out : ndarray, optional
+        If a fourth argument is given, it must be a numpy.ndarray whose size
+        matches the broadcast result of `a`, `b` and `x`. `out` is then the
+        array returned by the function.
+
+    Returns
+    -------
+    x : scalar or ndarray
+        Values of the `x` parameter such that `p = gdtr(a, b, x)`.
+
+    See Also
+    --------
+    gdtr : CDF of the gamma distribution.
+    gdtria : Inverse with respect to `a` of ``gdtr(a, b, x)``.
+    gdtrib : Inverse with respect to `b` of ``gdtr(a, b, x)``.
+    gammaincinv : Inverse of the incomplete regularized gamma function.
+
+    Notes
+    -----
+    `gdtrix` is implemented in terms of the incomplete gamma inverse as
+    ``gdtrix(a, b, p) = gammaincinv(b, p)/a``.
+
+    Examples
+    --------
+    First evaluate `gdtr`.
+
+    >>> from scipy.special import gdtr, gdtrix
+    >>> p = gdtr(1.2, 3.4, 5.6)
+    >>> print(p)
+    0.94378087442
+
+    Verify the inverse.
+
+    >>> gdtrix(1.2, 3.4, p)
+    5.6
+    """)
+
+
+
+add_newdoc("huber",
+    r"""
+    huber(delta, r, out=None)
+
+    Huber loss function.
+
+    .. math:: \text{huber}(\delta, r) = \begin{cases} \infty & \delta < 0  \\
+              \frac{1}{2}r^2 & 0 \le \delta, | r | \le \delta \\
+              \delta ( |r| - \frac{1}{2}\delta ) & \text{otherwise} \end{cases}
+
+    Parameters
+    ----------
+    delta : ndarray
+        Input array, indicating the quadratic vs. linear loss changepoint.
+    r : ndarray
+        Input array, possibly representing residuals.
+    out : ndarray, optional
+        Optional output array for the function values
+
+    Returns
+    -------
+    scalar or ndarray
+        The computed Huber loss function values.
+
+    See Also
+    --------
+    pseudo_huber : smooth approximation of this function
+
+    Notes
+    -----
+    `huber` is useful as a loss function in robust statistics or machine
+    learning to reduce the influence of outliers as compared to the common
+    squared error loss, residuals with a magnitude higher than `delta` are
+    not squared [1]_.
+
+    Typically, `r` represents residuals, the difference
+    between a model prediction and data. Then, for :math:`|r|\leq\delta`,
+    `huber` resembles the squared error and for :math:`|r|>\delta` the
+    absolute error. This way, the Huber loss often achieves
+    a fast convergence in model fitting for small residuals like the squared
+    error loss function and still reduces the influence of outliers
+    (:math:`|r|>\delta`) like the absolute error loss. As :math:`\delta` is
+    the cutoff between squared and absolute error regimes, it has
+    to be tuned carefully for each problem. `huber` is also
+    convex, making it suitable for gradient based optimization.
+
+    .. versionadded:: 0.15.0
+
+    References
+    ----------
+    .. [1] Peter Huber. "Robust Estimation of a Location Parameter",
+           1964. Annals of Statistics. 53 (1): 73 - 101.
+
+    Examples
+    --------
+    Import all necessary modules.
 
     >>> import numpy as np
+    >>> from scipy.special import huber
+    >>> import matplotlib.pyplot as plt
 
-    >>> from numpy.dtypes import StringDType
-    >>> np.array(["hello", "world"], dtype=StringDType())
-    array(["hello", "world"], dtype=StringDType())
+    Compute the function for ``delta=1`` at ``r=2``
 
-    >>> arr = np.array(["hello", None, "world"],
-    ...                dtype=StringDType(na_object=None))
-    >>> arr
-    array(["hello", None, "world"], dtype=StringDType(na_object=None))
-    >>> arr[1] is None
+    >>> huber(1., 2.)
+    1.5
+
+    Compute the function for different `delta` by providing a NumPy array or
+    list for `delta`.
+
+    >>> huber([1., 3., 5.], 4.)
+    array([3.5, 7.5, 8. ])
+
+    Compute the function at different points by providing a NumPy array or
+    list for `r`.
+
+    >>> huber(2., np.array([1., 1.5, 3.]))
+    array([0.5  , 1.125, 4.   ])
+
+    The function can be calculated for different `delta` and `r` by
+    providing arrays for both with compatible shapes for broadcasting.
+
+    >>> r = np.array([1., 2.5, 8., 10.])
+    >>> deltas = np.array([[1.], [5.], [9.]])
+    >>> print(r.shape, deltas.shape)
+    (4,) (3, 1)
+
+    >>> huber(deltas, r)
+    array([[ 0.5  ,  2.   ,  7.5  ,  9.5  ],
+           [ 0.5  ,  3.125, 27.5  , 37.5  ],
+           [ 0.5  ,  3.125, 32.   , 49.5  ]])
+
+    Plot the function for different `delta`.
+
+    >>> x = np.linspace(-4, 4, 500)
+    >>> deltas = [1, 2, 3]
+    >>> linestyles = ["dashed", "dotted", "dashdot"]
+    >>> fig, ax = plt.subplots()
+    >>> combined_plot_parameters = list(zip(deltas, linestyles))
+    >>> for delta, style in combined_plot_parameters:
+    ...     ax.plot(x, huber(delta, x), label=fr"$\delta={delta}$", ls=style)
+    >>> ax.legend(loc="upper center")
+    >>> ax.set_xlabel("$x$")
+    >>> ax.set_title(r"Huber loss function $h_{\delta}(x)$")
+    >>> ax.set_xlim(-4, 4)
+    >>> ax.set_ylim(0, 8)
+    >>> plt.show()
+    """)
+
+add_newdoc("hyp0f1",
+    r"""
+    hyp0f1(v, z, out=None)
+
+    Confluent hypergeometric limit function 0F1.
+
+    Parameters
+    ----------
+    v : array_like
+        Real-valued parameter
+    z : array_like
+        Real- or complex-valued argument
+    out : ndarray, optional
+        Optional output array for the function results
+
+    Returns
+    -------
+    scalar or ndarray
+        The confluent hypergeometric limit function
+
+    Notes
+    -----
+    This function is defined as:
+
+    .. math:: _0F_1(v, z) = \sum_{k=0}^{\infty}\frac{z^k}{(v)_k k!}.
+
+    It's also the limit as :math:`q \to \infty` of :math:`_1F_1(q; v; z/q)`,
+    and satisfies the differential equation :math:`f''(z) + vf'(z) =
+    f(z)`. See [1]_ for more information.
+
+    References
+    ----------
+    .. [1] Wolfram MathWorld, "Confluent Hypergeometric Limit Function",
+           https://mathworld.wolfram.com/ConfluentHypergeometricLimitFunction.html
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> import scipy.special as sc
+
+    It is one when `z` is zero.
+
+    >>> sc.hyp0f1(1, 0)
+    1.0
+
+    It is the limit of the confluent hypergeometric function as `q`
+    goes to infinity.
+
+    >>> q = np.array([1, 10, 100, 1000])
+    >>> v = 1
+    >>> z = 1
+    >>> sc.hyp1f1(q, v, z / q)
+    array([2.71828183, 2.31481985, 2.28303778, 2.27992985])
+    >>> sc.hyp0f1(v, z)
+    2.2795853023360673
+
+    It is related to Bessel functions.
+
+    >>> n = 1
+    >>> x = np.linspace(0, 1, 5)
+    >>> sc.jv(n, x)
+    array([0.        , 0.12402598, 0.24226846, 0.3492436 , 0.44005059])
+    >>> (0.5 * x)**n / sc.factorial(n) * sc.hyp0f1(n + 1, -0.25 * x**2)
+    array([0.        , 0.12402598, 0.24226846, 0.3492436 , 0.44005059])
+
+    """)
+
+add_newdoc("hyp1f1",
+    r"""
+    hyp1f1(a, b, x, out=None)
+
+    Confluent hypergeometric function 1F1.
+
+    The confluent hypergeometric function is defined by the series
+
+    .. math::
+
+       {}_1F_1(a; b; x) = \sum_{k = 0}^\infty \frac{(a)_k}{(b)_k k!} x^k.
+
+    See [DLMF]_ for more details. Here :math:`(\cdot)_k` is the
+    Pochhammer symbol; see `poch`.
+
+    Parameters
+    ----------
+    a, b : array_like
+        Real parameters
+    x : array_like
+        Real or complex argument
+    out : ndarray, optional
+        Optional output array for the function results
+
+    Returns
+    -------
+    scalar or ndarray
+        Values of the confluent hypergeometric function
+
+    See Also
+    --------
+    hyperu : another confluent hypergeometric function
+    hyp0f1 : confluent hypergeometric limit function
+    hyp2f1 : Gaussian hypergeometric function
+
+    Notes
+    -----
+    For real values, this function uses the ``hyp1f1`` routine from the C++ Boost
+    library [2]_, for complex values a C translation of the specfun
+    Fortran library [3]_.
+
+    References
+    ----------
+    .. [DLMF] NIST Digital Library of Mathematical Functions
+              https://dlmf.nist.gov/13.2#E2
+    .. [2] The Boost Developers. "Boost C++ Libraries". https://www.boost.org/.
+    .. [3] S. Zhang and J.M. Jin, "Computation of Special Functions", Wiley 1996.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> import scipy.special as sc
+
+    It is one when `x` is zero:
+
+    >>> sc.hyp1f1(0.5, 0.5, 0)
+    1.0
+
+    It is singular when `b` is a nonpositive integer.
+
+    >>> sc.hyp1f1(0.5, -1, 0)
+    inf
+
+    It is a polynomial when `a` is a nonpositive integer.
+
+    >>> a, b, x = -1, 0.5, np.array([1.0, 2.0, 3.0, 4.0])
+    >>> sc.hyp1f1(a, b, x)
+    array([-1., -3., -5., -7.])
+    >>> 1 + (a / b) * x
+    array([-1., -3., -5., -7.])
+
+    It reduces to the exponential function when ``a = b``.
+
+    >>> sc.hyp1f1(2, 2, [1, 2, 3, 4])
+    array([ 2.71828183,  7.3890561 , 20.08553692, 54.59815003])
+    >>> np.exp([1, 2, 3, 4])
+    array([ 2.71828183,  7.3890561 , 20.08553692, 54.59815003])
+
+    """)
+
+add_newdoc("hyperu",
+    r"""
+    hyperu(a, b, x, out=None)
+
+    Confluent hypergeometric function U.
+
+    It is defined as the solution to the equation
+
+    .. math::
+
+       x \frac{d^2w}{dx^2} + (b - x) \frac{dw}{dx} - aw = 0
+
+    which satisfies the property
+
+    .. math::
+
+       U(a, b, x) \sim x^{-a}
+
+    as :math:`x \to \infty`. See [DLMF]_ for more details.
+
+    Parameters
+    ----------
+    a, b : array_like
+        Real-valued parameters
+    x : array_like
+        Real-valued argument
+    out : ndarray, optional
+        Optional output array for the function values
+
+    Returns
+    -------
+    scalar or ndarray
+        Values of `U`
+
+    References
+    ----------
+    .. [DLMF] NIST Digital Library of Mathematics Functions
+              https://dlmf.nist.gov/13.2#E6
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> import scipy.special as sc
+
+    It has a branch cut along the negative `x` axis.
+
+    >>> x = np.linspace(-0.1, -10, 5)
+    >>> sc.hyperu(1, 1, x)
+    array([nan, nan, nan, nan, nan])
+
+    It approaches zero as `x` goes to infinity.
+
+    >>> x = np.array([1, 10, 100])
+    >>> sc.hyperu(1, 1, x)
+    array([0.59634736, 0.09156333, 0.00990194])
+
+    It satisfies Kummer's transformation.
+
+    >>> a, b, x = 2, 1, 1
+    >>> sc.hyperu(a, b, x)
+    0.1926947246463881
+    >>> x**(1 - b) * sc.hyperu(a - b + 1, 2 - b, x)
+    0.1926947246463881
+
+    """)
+
+add_newdoc("_igam_fac",
+    """
+    Internal function, do not use.
+    """)
+
+add_newdoc("kl_div",
+    r"""
+    kl_div(x, y, out=None)
+
+    Elementwise function for computing Kullback-Leibler divergence.
+
+    .. math::
+
+        \mathrm{kl\_div}(x, y) =
+          \begin{cases}
+            x \log(x / y) - x + y & x > 0, y > 0 \\
+            y & x = 0, y \ge 0 \\
+            \infty & \text{otherwise}
+          \end{cases}
+
+    Parameters
+    ----------
+    x, y : array_like
+        Real arguments
+    out : ndarray, optional
+        Optional output array for the function results
+
+    Returns
+    -------
+    scalar or ndarray
+        Values of the Kullback-Liebler divergence.
+
+    See Also
+    --------
+    entr, rel_entr, scipy.stats.entropy
+
+    Notes
+    -----
+    .. versionadded:: 0.15.0
+
+    This function is non-negative and is jointly convex in `x` and `y`.
+
+    The origin of this function is in convex programming; see [1]_ for
+    details. This is why the function contains the extra :math:`-x
+    + y` terms over what might be expected from the Kullback-Leibler
+    divergence. For a version of the function without the extra terms,
+    see `rel_entr`.
+
+    References
+    ----------
+    .. [1] Boyd, Stephen and Lieven Vandenberghe. *Convex optimization*.
+           Cambridge University Press, 2004.
+           :doi:`10.1017/CBO9780511804441`.
+
+    """)
+
+add_newdoc("kn",
+    r"""
+    kn(n, x, out=None)
+
+    Modified Bessel function of the second kind of integer order `n`.
+
+    Returns the modified Bessel function of the second kind for integer order
+    `n` at real `z`.
+
+    These are also sometimes called functions of the third kind, Basset
+    functions, or Macdonald functions.
+
+    Parameters
+    ----------
+    n : array_like of int
+        Order of Bessel functions (floats will truncate with a warning)
+    x : array_like of float
+        Argument at which to evaluate the Bessel functions
+    out : ndarray, optional
+        Optional output array for the function results.
+
+    Returns
+    -------
+    scalar or ndarray
+        Value of the Modified Bessel function of the second kind,
+        :math:`K_n(x)`.
+
+    See Also
+    --------
+    kv : Same function, but accepts real order and complex argument
+    kvp : Derivative of this function
+
+    Notes
+    -----
+    Wrapper for AMOS [1]_ routine `zbesk`.  For a discussion of the
+    algorithm used, see [2]_ and the references therein.
+
+    References
+    ----------
+    .. [1] Donald E. Amos, "AMOS, A Portable Package for Bessel Functions
+           of a Complex Argument and Nonnegative Order",
+           https://netlib.org/amos/
+    .. [2] Donald E. Amos, "Algorithm 644: A portable package for Bessel
+           functions of a complex argument and nonnegative order", ACM
+           TOMS Vol. 12 Issue 3, Sept. 1986, p. 265.
+
+    Examples
+    --------
+    Plot the function of several orders for real input:
+
+    >>> import numpy as np
+    >>> from scipy.special import kn
+    >>> import matplotlib.pyplot as plt
+    >>> x = np.linspace(0, 5, 1000)
+    >>> for N in range(6):
+    ...     plt.plot(x, kn(N, x), label='$K_{}(x)$'.format(N))
+    >>> plt.ylim(0, 10)
+    >>> plt.legend()
+    >>> plt.title(r'Modified Bessel function of the second kind $K_n(x)$')
+    >>> plt.show()
+
+    Calculate for a single value at multiple orders:
+
+    >>> kn([4, 5, 6], 1)
+    array([   44.23241585,   360.9605896 ,  3653.83831186])
+    """)
+
+add_newdoc("kolmogi",
+    """
+    kolmogi(p, out=None)
+
+    Inverse Survival Function of Kolmogorov distribution.
+
+    It is the inverse function to `kolmogorov`.
+    Returns y such that ``kolmogorov(y) == p``.
+
+    Parameters
+    ----------
+    p : float array_like
+        Probability
+    out : ndarray, optional
+        Optional output array for the function results
+
+    Returns
+    -------
+    scalar or ndarray
+        The value(s) of kolmogi(p)
+
+    See Also
+    --------
+    kolmogorov : The Survival Function for the distribution
+    scipy.stats.kstwobign : Provides the functionality as a continuous distribution
+    smirnov, smirnovi : Functions for the one-sided distribution
+
+    Notes
+    -----
+    `kolmogorov` is used by `stats.kstest` in the application of the
+    Kolmogorov-Smirnov Goodness of Fit test. For historical reasons this
+    function is exposed in `scpy.special`, but the recommended way to achieve
+    the most accurate CDF/SF/PDF/PPF/ISF computations is to use the
+    `stats.kstwobign` distribution.
+
+    Examples
+    --------
+    >>> from scipy.special import kolmogi
+    >>> kolmogi([0, 0.1, 0.25, 0.5, 0.75, 0.9, 1.0])
+    array([        inf,  1.22384787,  1.01918472,  0.82757356,  0.67644769,
+            0.57117327,  0.        ])
+
+    """)
+
+add_newdoc("kolmogorov",
+    r"""
+    kolmogorov(y, out=None)
+
+    Complementary cumulative distribution (Survival Function) function of
+    Kolmogorov distribution.
+
+    Returns the complementary cumulative distribution function of
+    Kolmogorov's limiting distribution (``D_n*\sqrt(n)`` as n goes to infinity)
+    of a two-sided test for equality between an empirical and a theoretical
+    distribution. It is equal to the (limit as n->infinity of the)
+    probability that ``sqrt(n) * max absolute deviation > y``.
+
+    Parameters
+    ----------
+    y : float array_like
+      Absolute deviation between the Empirical CDF (ECDF) and the target CDF,
+      multiplied by sqrt(n).
+    out : ndarray, optional
+        Optional output array for the function results
+
+    Returns
+    -------
+    scalar or ndarray
+        The value(s) of kolmogorov(y)
+
+    See Also
+    --------
+    kolmogi : The Inverse Survival Function for the distribution
+    scipy.stats.kstwobign : Provides the functionality as a continuous distribution
+    smirnov, smirnovi : Functions for the one-sided distribution
+
+    Notes
+    -----
+    `kolmogorov` is used by `stats.kstest` in the application of the
+    Kolmogorov-Smirnov Goodness of Fit test. For historical reasons this
+    function is exposed in `scpy.special`, but the recommended way to achieve
+    the most accurate CDF/SF/PDF/PPF/ISF computations is to use the
+    `stats.kstwobign` distribution.
+
+    Examples
+    --------
+    Show the probability of a gap at least as big as 0, 0.5 and 1.0.
+
+    >>> import numpy as np
+    >>> from scipy.special import kolmogorov
+    >>> from scipy.stats import kstwobign
+    >>> kolmogorov([0, 0.5, 1.0])
+    array([ 1.        ,  0.96394524,  0.26999967])
+
+    Compare a sample of size 1000 drawn from a Laplace(0, 1) distribution against
+    the target distribution, a Normal(0, 1) distribution.
+
+    >>> from scipy.stats import norm, laplace
+    >>> rng = np.random.default_rng()
+    >>> n = 1000
+    >>> lap01 = laplace(0, 1)
+    >>> x = np.sort(lap01.rvs(n, random_state=rng))
+    >>> np.mean(x), np.std(x)
+    (-0.05841730131499543, 1.3968109101997568)
+
+    Construct the Empirical CDF and the K-S statistic Dn.
+
+    >>> target = norm(0,1)  # Normal mean 0, stddev 1
+    >>> cdfs = target.cdf(x)
+    >>> ecdfs = np.arange(n+1, dtype=float)/n
+    >>> gaps = np.column_stack([cdfs - ecdfs[:n], ecdfs[1:] - cdfs])
+    >>> Dn = np.max(gaps)
+    >>> Kn = np.sqrt(n) * Dn
+    >>> print('Dn=%f, sqrt(n)*Dn=%f' % (Dn, Kn))
+    Dn=0.043363, sqrt(n)*Dn=1.371265
+    >>> print(chr(10).join(['For a sample of size n drawn from a N(0, 1) distribution:',
+    ...   ' the approximate Kolmogorov probability that sqrt(n)*Dn>=%f is %f' %
+    ...    (Kn, kolmogorov(Kn)),
+    ...   ' the approximate Kolmogorov probability that sqrt(n)*Dn<=%f is %f' %
+    ...    (Kn, kstwobign.cdf(Kn))]))
+    For a sample of size n drawn from a N(0, 1) distribution:
+     the approximate Kolmogorov probability that sqrt(n)*Dn>=1.371265 is 0.046533
+     the approximate Kolmogorov probability that sqrt(n)*Dn<=1.371265 is 0.953467
+
+    Plot the Empirical CDF against the target N(0, 1) CDF.
+
+    >>> import matplotlib.pyplot as plt
+    >>> plt.step(np.concatenate([[-3], x]), ecdfs, where='post', label='Empirical CDF')
+    >>> x3 = np.linspace(-3, 3, 100)
+    >>> plt.plot(x3, target.cdf(x3), label='CDF for N(0, 1)')
+    >>> plt.ylim([0, 1]); plt.grid(True); plt.legend();
+    >>> # Add vertical lines marking Dn+ and Dn-
+    >>> iminus, iplus = np.argmax(gaps, axis=0)
+    >>> plt.vlines([x[iminus]], ecdfs[iminus], cdfs[iminus],
+    ...            color='r', linestyle='dashed', lw=4)
+    >>> plt.vlines([x[iplus]], cdfs[iplus], ecdfs[iplus+1],
+    ...            color='r', linestyle='dashed', lw=4)
+    >>> plt.show()
+    """)
+
+add_newdoc("_kolmogc",
+    r"""
+    Internal function, do not use.
+    """)
+
+add_newdoc("_kolmogci",
+    r"""
+    Internal function, do not use.
+    """)
+
+add_newdoc("_kolmogp",
+    r"""
+    Internal function, do not use.
+    """)
+
+add_newdoc("_lanczos_sum_expg_scaled",
+    """
+    Internal function, do not use.
+    """)
+
+add_newdoc(
+    "_landau_pdf",
+    """
+    _landau_pdf(x, loc, scale)
+
+    Probability density function of the Landau distribution.
+
+    Parameters
+    ----------
+    x : array_like
+        Real-valued argument
+    loc : array_like
+        Real-valued distribution location
+    scale : array_like
+        Positive, real-valued distribution scale
+
+    Returns
+    -------
+    scalar or ndarray
+    """)
+
+add_newdoc(
+    "_landau_cdf",
+    """
+    _landau_cdf(x, loc, scale)
+
+    Cumulative distribution function of the Landau distribution.
+
+    Parameters
+    ----------
+    x : array_like
+        Real-valued argument
+    loc : array_like
+        Real-valued distribution location
+    scale : array_like
+        Positive, real-valued distribution scale
+
+    Returns
+    -------
+    scalar or ndarray
+    """)
+
+add_newdoc(
+    "_landau_sf",
+    """
+    _landau_sf(x, loc, scale)
+
+    Survival function of the Landau distribution.
+
+    Parameters
+    ----------
+    x : array_like
+        Real-valued argument
+    loc : array_like
+        Real-valued distribution location
+    scale : array_like
+        Positive, real-valued distribution scale
+
+    Returns
+    -------
+    scalar or ndarray
+    """)
+
+add_newdoc(
+    "_landau_ppf",
+    """
+    _landau_ppf(p, loc, scale)
+
+    Percent point function of the Landau distribution.
+
+    Parameters
+    ----------
+    p : array_like
+        Real-valued argument between 0 and 1
+    loc : array_like
+        Real-valued distribution location
+    scale : array_like
+        Positive, real-valued distribution scale
+
+    Returns
+    -------
+    scalar or ndarray
+    """)
+
+add_newdoc(
+    "_landau_isf",
+    """
+    _landau_isf(p, loc, scale)
+
+    Inverse survival function of the Landau distribution.
+
+    Parameters
+    ----------
+    p : array_like
+        Real-valued argument between 0 and 1
+    loc : array_like
+        Real-valued distribution location
+    scale : array_like
+        Positive, real-valued distribution scale
+
+    Returns
+    -------
+    scalar or ndarray
+    """)
+
+add_newdoc("_lgam1p",
+    """
+    Internal function, do not use.
+    """)
+
+add_newdoc("lpmv",
+    r"""
+    lpmv(m, v, x, out=None)
+
+    Associated Legendre function of integer order and real degree.
+
+    Defined as
+
+    .. math::
+
+        P_v^m(x) = (-1)^m (1 - x^2)^{m/2} \frac{d^m}{dx^m} (P_v(x))
+
+    where
+
+    .. math::
+
+        P_v(x) = \sum_{k = 0}^\infty \frac{(-v)_k (v + 1)_k}{(k!)^2}
+                \left(\frac{1 - x}{2}\right)^k
+
+    is the Legendre function of the first kind. Here :math:`(\cdot)_k`
+    is the Pochhammer symbol; see `poch`.
+
+    Parameters
+    ----------
+    m : array_like
+        Order (int or float). If passed a float not equal to an
+        integer the function returns NaN.
+    v : array_like
+        Degree (float).
+    x : array_like
+        Argument (float). Must have ``|x| <= 1``.
+    out : ndarray, optional
+        Optional output array for the function results.
+
+    Returns
+    -------
+    pmv : scalar or ndarray
+        Value of the associated Legendre function.
+
+    Notes
+    -----
+    Note that this implementation includes the Condon-Shortley phase.
+
+    References
+    ----------
+    .. [1] S. Zhang and J.M. Jin, "Computation of Special Functions", Wiley 1996.
+
+    Examples
+    --------
+    Compute a single associated Legendre function value:
+
+    >>> from scipy.special import lpmv
+    >>> lpmv(1, 2.5, 0.3)
+    -0.1292299
+
+    Plot the associated Legendre functions for orders ``m = 1`` and
+    ``m = 2`` and degrees ``v = 0, ..., 5``:
+
+    >>> import numpy as np
+    >>> import matplotlib.pyplot as plt
+    >>> nus = np.arange(0, 6)
+    >>> xs = np.linspace(-1+1e-5, 1-1e-5, 101)
+
+    Order 1.
+
+    >>> fig, ax = plt.subplots()
+    >>> ax.plot(xs, lpmv(1, nus, xs[:, np.newaxis]), "-")
+    >>> ax.legend([rf"$\nu={nu}$" for nu in nus])
+    >>> ax.set_xlabel(r"$x$")
+    >>> ax.set_ylabel(r"$P_\nu^1(x)$")
+    >>> plt.show()
+
+    Order 2.
+
+    >>> fig, ax = plt.subplots()
+    >>> ax.plot(xs, lpmv(2, nus, xs[:, np.newaxis]), "-")
+    >>> ax.legend([rf"$\nu={nu}$" for nu in nus])
+    >>> ax.set_xlabel(r"$x$")
+    >>> ax.set_ylabel(r"$P_\nu^2(x)$")
+    >>> plt.show()
+    """)
+
+add_newdoc("nbdtr",
+    r"""
+    nbdtr(k, n, p, out=None)
+
+    Negative binomial cumulative distribution function.
+
+    Returns the sum of the terms 0 through `k` of the negative binomial
+    distribution probability mass function,
+
+    .. math::
+
+        F(k) = \sum_{j=0}^k {{n + j - 1}\choose{j}} p^n (1 - p)^j.
+
+    In a sequence of Bernoulli trials with individual success probabilities
+    `p`, this is the probability that `k` or fewer failures precede the nth
+    success.
+
+    Parameters
+    ----------
+    k : array_like
+        The maximum number of allowed failures (nonnegative int).
+    n : array_like
+        The target number of successes (positive int).
+    p : array_like
+        Probability of success in a single event (float).
+    out : ndarray, optional
+        Optional output array for the function results
+
+    Returns
+    -------
+    scalar or ndarray
+        The probability of `k` or fewer failures before `n` successes in a
+        sequence of events with individual success probability `p`.
+
+    See Also
+    --------
+    nbdtrc : Negative binomial survival function
+    nbdtrik : Negative binomial quantile function
+    scipy.stats.nbinom : Negative binomial distribution
+
+    Notes
+    -----
+    If floating point values are passed for `k` or `n`, they will be truncated
+    to integers.
+
+    The terms are not summed directly; instead the regularized incomplete beta
+    function is employed, according to the formula,
+
+    .. math::
+        \mathrm{nbdtr}(k, n, p) = I_{p}(n, k + 1).
+
+    Wrapper for the Cephes [1]_ routine `nbdtr`.
+
+    The negative binomial distribution is also available as
+    `scipy.stats.nbinom`. Using `nbdtr` directly can improve performance
+    compared to the ``cdf`` method of `scipy.stats.nbinom` (see last example).
+
+    References
+    ----------
+    .. [1] Cephes Mathematical Functions Library,
+           https://netlib.org/cephes/
+
+    Examples
+    --------
+    Compute the function for ``k=10`` and ``n=5`` at ``p=0.5``.
+
+    >>> import numpy as np
+    >>> from scipy.special import nbdtr
+    >>> nbdtr(10, 5, 0.5)
+    0.940765380859375
+
+    Compute the function for ``n=10`` and ``p=0.5`` at several points by
+    providing a NumPy array or list for `k`.
+
+    >>> nbdtr([5, 10, 15], 10, 0.5)
+    array([0.15087891, 0.58809853, 0.88523853])
+
+    Plot the function for four different parameter sets.
+
+    >>> import matplotlib.pyplot as plt
+    >>> k = np.arange(130)
+    >>> n_parameters = [20, 20, 20, 80]
+    >>> p_parameters = [0.2, 0.5, 0.8, 0.5]
+    >>> linestyles = ['solid', 'dashed', 'dotted', 'dashdot']
+    >>> parameters_list = list(zip(p_parameters, n_parameters,
+    ...                            linestyles))
+    >>> fig, ax = plt.subplots(figsize=(8, 8))
+    >>> for parameter_set in parameters_list:
+    ...     p, n, style = parameter_set
+    ...     nbdtr_vals = nbdtr(k, n, p)
+    ...     ax.plot(k, nbdtr_vals, label=rf"$n={n},\, p={p}$",
+    ...             ls=style)
+    >>> ax.legend()
+    >>> ax.set_xlabel("$k$")
+    >>> ax.set_title("Negative binomial cumulative distribution function")
+    >>> plt.show()
+
+    The negative binomial distribution is also available as
+    `scipy.stats.nbinom`. Using `nbdtr` directly can be much faster than
+    calling the ``cdf`` method of `scipy.stats.nbinom`, especially for small
+    arrays or individual values. To get the same results one must use the
+    following parametrization: ``nbinom(n, p).cdf(k)=nbdtr(k, n, p)``.
+
+    >>> from scipy.stats import nbinom
+    >>> k, n, p = 5, 3, 0.5
+    >>> nbdtr_res = nbdtr(k, n, p)  # this will often be faster than below
+    >>> stats_res = nbinom(n, p).cdf(k)
+    >>> stats_res, nbdtr_res  # test that results are equal
+    (0.85546875, 0.85546875)
+
+    `nbdtr` can evaluate different parameter sets by providing arrays with
+    shapes compatible for broadcasting for `k`, `n` and `p`. Here we compute
+    the function for three different `k` at four locations `p`, resulting in
+    a 3x4 array.
+
+    >>> k = np.array([[5], [10], [15]])
+    >>> p = np.array([0.3, 0.5, 0.7, 0.9])
+    >>> k.shape, p.shape
+    ((3, 1), (4,))
+
+    >>> nbdtr(k, 5, p)
+    array([[0.15026833, 0.62304687, 0.95265101, 0.9998531 ],
+           [0.48450894, 0.94076538, 0.99932777, 0.99999999],
+           [0.76249222, 0.99409103, 0.99999445, 1.        ]])
+    """)
+
+add_newdoc("nbdtrc",
+    r"""
+    nbdtrc(k, n, p, out=None)
+
+    Negative binomial survival function.
+
+    Returns the sum of the terms `k + 1` to infinity of the negative binomial
+    distribution probability mass function,
+
+    .. math::
+
+        S(k) = \sum_{j=k + 1}^\infty {{n + j - 1}\choose{j}} p^n (1 - p)^j.
+
+    In a sequence of Bernoulli trials with individual success probabilities
+    `p`, this is the probability that more than `k` failures precede the nth
+    success.
+
+    Parameters
+    ----------
+    k : array_like
+        The maximum number of allowed failures (nonnegative int).
+    n : array_like
+        The target number of successes (positive int).
+    p : array_like
+        Probability of success in a single event (float).
+    out : ndarray, optional
+        Optional output array for the function results
+
+    Returns
+    -------
+    scalar or ndarray
+        The probability of `k + 1` or more failures before `n` successes in a
+        sequence of events with individual success probability `p`.
+
+    See Also
+    --------
+    nbdtr : Negative binomial cumulative distribution function
+    nbdtrik : Negative binomial percentile function
+    scipy.stats.nbinom : Negative binomial distribution
+
+    Notes
+    -----
+    If floating point values are passed for `k` or `n`, they will be truncated
+    to integers.
+
+    The terms are not summed directly; instead the regularized incomplete beta
+    function is employed, according to the formula,
+
+    .. math::
+        \mathrm{nbdtrc}(k, n, p) = I_{1 - p}(k + 1, n).
+
+    Wrapper for the Cephes [1]_ routine `nbdtrc`.
+
+    The negative binomial distribution is also available as
+    `scipy.stats.nbinom`. Using `nbdtrc` directly can improve performance
+    compared to the ``sf`` method of `scipy.stats.nbinom` (see last example).
+
+    References
+    ----------
+    .. [1] Cephes Mathematical Functions Library,
+           https://netlib.org/cephes/
+
+    Examples
+    --------
+    Compute the function for ``k=10`` and ``n=5`` at ``p=0.5``.
+
+    >>> import numpy as np
+    >>> from scipy.special import nbdtrc
+    >>> nbdtrc(10, 5, 0.5)
+    0.059234619140624986
+
+    Compute the function for ``n=10`` and ``p=0.5`` at several points by
+    providing a NumPy array or list for `k`.
+
+    >>> nbdtrc([5, 10, 15], 10, 0.5)
+    array([0.84912109, 0.41190147, 0.11476147])
+
+    Plot the function for four different parameter sets.
+
+    >>> import matplotlib.pyplot as plt
+    >>> k = np.arange(130)
+    >>> n_parameters = [20, 20, 20, 80]
+    >>> p_parameters = [0.2, 0.5, 0.8, 0.5]
+    >>> linestyles = ['solid', 'dashed', 'dotted', 'dashdot']
+    >>> parameters_list = list(zip(p_parameters, n_parameters,
+    ...                            linestyles))
+    >>> fig, ax = plt.subplots(figsize=(8, 8))
+    >>> for parameter_set in parameters_list:
+    ...     p, n, style = parameter_set
+    ...     nbdtrc_vals = nbdtrc(k, n, p)
+    ...     ax.plot(k, nbdtrc_vals, label=rf"$n={n},\, p={p}$",
+    ...             ls=style)
+    >>> ax.legend()
+    >>> ax.set_xlabel("$k$")
+    >>> ax.set_title("Negative binomial distribution survival function")
+    >>> plt.show()
+
+    The negative binomial distribution is also available as
+    `scipy.stats.nbinom`. Using `nbdtrc` directly can be much faster than
+    calling the ``sf`` method of `scipy.stats.nbinom`, especially for small
+    arrays or individual values. To get the same results one must use the
+    following parametrization: ``nbinom(n, p).sf(k)=nbdtrc(k, n, p)``.
+
+    >>> from scipy.stats import nbinom
+    >>> k, n, p = 3, 5, 0.5
+    >>> nbdtr_res = nbdtrc(k, n, p)  # this will often be faster than below
+    >>> stats_res = nbinom(n, p).sf(k)
+    >>> stats_res, nbdtr_res  # test that results are equal
+    (0.6367187499999999, 0.6367187499999999)
+
+    `nbdtrc` can evaluate different parameter sets by providing arrays with
+    shapes compatible for broadcasting for `k`, `n` and `p`. Here we compute
+    the function for three different `k` at four locations `p`, resulting in
+    a 3x4 array.
+
+    >>> k = np.array([[5], [10], [15]])
+    >>> p = np.array([0.3, 0.5, 0.7, 0.9])
+    >>> k.shape, p.shape
+    ((3, 1), (4,))
+
+    >>> nbdtrc(k, 5, p)
+    array([[8.49731667e-01, 3.76953125e-01, 4.73489874e-02, 1.46902600e-04],
+           [5.15491059e-01, 5.92346191e-02, 6.72234070e-04, 9.29610100e-09],
+           [2.37507779e-01, 5.90896606e-03, 5.55025308e-06, 3.26346760e-13]])
+    """)
+
+add_newdoc(
+    "nbdtri",
+    r"""
+    nbdtri(k, n, y, out=None)
+
+    Returns the inverse with respect to the parameter `p` of
+    ``y = nbdtr(k, n, p)``, the negative binomial cumulative distribution
+    function.
+
+    Parameters
+    ----------
+    k : array_like
+        The maximum number of allowed failures (nonnegative int).
+    n : array_like
+        The target number of successes (positive int).
+    y : array_like
+        The probability of `k` or fewer failures before `n` successes (float).
+    out : ndarray, optional
+        Optional output array for the function results
+
+    Returns
+    -------
+    p : scalar or ndarray
+        Probability of success in a single event (float) such that
+        `nbdtr(k, n, p) = y`.
+
+    See Also
+    --------
+    nbdtr : Cumulative distribution function of the negative binomial.
+    nbdtrc : Negative binomial survival function.
+    scipy.stats.nbinom : negative binomial distribution.
+    nbdtrik : Inverse with respect to `k` of `nbdtr(k, n, p)`.
+    nbdtrin : Inverse with respect to `n` of `nbdtr(k, n, p)`.
+    scipy.stats.nbinom : Negative binomial distribution
+
+    Notes
+    -----
+    Wrapper for the Cephes [1]_ routine `nbdtri`.
+
+    The negative binomial distribution is also available as
+    `scipy.stats.nbinom`. Using `nbdtri` directly can improve performance
+    compared to the ``ppf`` method of `scipy.stats.nbinom`.
+
+    References
+    ----------
+    .. [1] Cephes Mathematical Functions Library,
+           https://netlib.org/cephes/
+
+    Examples
+    --------
+    `nbdtri` is the inverse of `nbdtr` with respect to `p`.
+    Up to floating point errors the following holds:
+    ``nbdtri(k, n, nbdtr(k, n, p))=p``.
+
+    >>> import numpy as np
+    >>> from scipy.special import nbdtri, nbdtr
+    >>> k, n, p = 5, 10, 0.2
+    >>> cdf_val = nbdtr(k, n, p)
+    >>> nbdtri(k, n, cdf_val)
+    0.20000000000000004
+
+    Compute the function for ``k=10`` and ``n=5`` at several points by
+    providing a NumPy array or list for `y`.
+
+    >>> y = np.array([0.1, 0.4, 0.8])
+    >>> nbdtri(3, 5, y)
+    array([0.34462319, 0.51653095, 0.69677416])
+
+    Plot the function for three different parameter sets.
+
+    >>> import matplotlib.pyplot as plt
+    >>> n_parameters = [5, 20, 30, 30]
+    >>> k_parameters = [20, 20, 60, 80]
+    >>> linestyles = ['solid', 'dashed', 'dotted', 'dashdot']
+    >>> parameters_list = list(zip(n_parameters, k_parameters, linestyles))
+    >>> cdf_vals = np.linspace(0, 1, 1000)
+    >>> fig, ax = plt.subplots(figsize=(8, 8))
+    >>> for parameter_set in parameters_list:
+    ...     n, k, style = parameter_set
+    ...     nbdtri_vals = nbdtri(k, n, cdf_vals)
+    ...     ax.plot(cdf_vals, nbdtri_vals, label=rf"$k={k},\ n={n}$",
+    ...             ls=style)
+    >>> ax.legend()
+    >>> ax.set_ylabel("$p$")
+    >>> ax.set_xlabel("$CDF$")
+    >>> title = "nbdtri: inverse of negative binomial CDF with respect to $p$"
+    >>> ax.set_title(title)
+    >>> plt.show()
+
+    `nbdtri` can evaluate different parameter sets by providing arrays with
+    shapes compatible for broadcasting for `k`, `n` and `p`. Here we compute
+    the function for three different `k` at four locations `p`, resulting in
+    a 3x4 array.
+
+    >>> k = np.array([[5], [10], [15]])
+    >>> y = np.array([0.3, 0.5, 0.7, 0.9])
+    >>> k.shape, y.shape
+    ((3, 1), (4,))
+
+    >>> nbdtri(k, 5, y)
+    array([[0.37258157, 0.45169416, 0.53249956, 0.64578407],
+           [0.24588501, 0.30451981, 0.36778453, 0.46397088],
+           [0.18362101, 0.22966758, 0.28054743, 0.36066188]])
+    """)
+
+add_newdoc("nbdtrik",
+    r"""
+    nbdtrik(y, n, p, out=None)
+
+    Negative binomial percentile function.
+
+    Returns the inverse with respect to the parameter `k` of
+    ``y = nbdtr(k, n, p)``, the negative binomial cumulative distribution
+    function.
+
+    Parameters
+    ----------
+    y : array_like
+        The probability of `k` or fewer failures before `n` successes (float).
+    n : array_like
+        The target number of successes (positive int).
+    p : array_like
+        Probability of success in a single event (float).
+    out : ndarray, optional
+        Optional output array for the function results
+
+    Returns
+    -------
+    k : scalar or ndarray
+        The maximum number of allowed failures such that `nbdtr(k, n, p) = y`.
+
+    See Also
+    --------
+    nbdtr : Cumulative distribution function of the negative binomial.
+    nbdtrc : Survival function of the negative binomial.
+    nbdtri : Inverse with respect to `p` of `nbdtr(k, n, p)`.
+    nbdtrin : Inverse with respect to `n` of `nbdtr(k, n, p)`.
+    scipy.stats.nbinom : Negative binomial distribution
+
+    Notes
+    -----
+    This function wraps routines from the Boost Math C++ library [1]_.
+
+    References
+    ----------
+    .. [1] The Boost Developers. "Boost C++ Libraries". https://www.boost.org/.
+
+    Examples
+    --------
+    Compute the negative binomial cumulative distribution function for an
+    exemplary parameter set.
+
+    >>> import numpy as np
+    >>> from scipy.special import nbdtr, nbdtrik
+    >>> k, n, p = 5, 2, 0.5
+    >>> cdf_value = nbdtr(k, n, p)
+    >>> cdf_value
+    0.9375
+
+    Verify that `nbdtrik` recovers the original value for `k`.
+
+    >>> nbdtrik(cdf_value, n, p)
+    5.0
+
+    Plot the function for different parameter sets.
+
+    >>> import matplotlib.pyplot as plt
+    >>> p_parameters = [0.2, 0.5, 0.7, 0.5]
+    >>> n_parameters = [30, 30, 30, 80]
+    >>> linestyles = ['solid', 'dashed', 'dotted', 'dashdot']
+    >>> parameters_list = list(zip(p_parameters, n_parameters, linestyles))
+    >>> cdf_vals = np.linspace(0, 1, 1000)
+    >>> fig, ax = plt.subplots(figsize=(8, 8))
+    >>> for parameter_set in parameters_list:
+    ...     p, n, style = parameter_set
+    ...     nbdtrik_vals = nbdtrik(cdf_vals, n, p)
+    ...     ax.plot(cdf_vals, nbdtrik_vals, label=rf"$n={n},\ p={p}$",
+    ...             ls=style)
+    >>> ax.legend()
+    >>> ax.set_ylabel("$k$")
+    >>> ax.set_xlabel("$CDF$")
+    >>> ax.set_title("Negative binomial percentile function")
+    >>> plt.show()
+
+    The negative binomial distribution is also available as
+    `scipy.stats.nbinom`. The percentile function  method ``ppf``
+    returns the result of `nbdtrik` rounded up to integers:
+
+    >>> from scipy.stats import nbinom
+    >>> q, n, p = 0.6, 5, 0.5
+    >>> nbinom.ppf(q, n, p), nbdtrik(q, n, p)
+    (5.0, 4.800428460273882)
+
+    """)
+
+add_newdoc("nbdtrin",
+    r"""
+    nbdtrin(k, y, p, out=None)
+
+    Inverse of `nbdtr` vs `n`.
+
+    Returns the inverse with respect to the parameter `n` of
+    ``y = nbdtr(k, n, p)``, the negative binomial cumulative distribution
+    function.
+
+    Parameters
+    ----------
+    k : array_like
+        The maximum number of allowed failures (nonnegative int).
+    y : array_like
+        The probability of `k` or fewer failures before `n` successes (float).
+    p : array_like
+        Probability of success in a single event (float).
+    out : ndarray, optional
+        Optional output array for the function results
+
+    Returns
+    -------
+    n : scalar or ndarray
+        The number of successes `n` such that `nbdtr(k, n, p) = y`.
+
+    See Also
+    --------
+    nbdtr : Cumulative distribution function of the negative binomial.
+    nbdtri : Inverse with respect to `p` of `nbdtr(k, n, p)`.
+    nbdtrik : Inverse with respect to `k` of `nbdtr(k, n, p)`.
+
+    Notes
+    -----
+    This function wraps routines from the Boost Math C++ library [1]_.
+
+    Formula 26.5.26 of [2]_ or [3]_,
+
+    .. math::
+        \sum_{j=k + 1}^\infty {{n + j - 1}
+        \choose{j}} p^n (1 - p)^j = I_{1 - p}(k + 1, n),
+
+    is used to reduce calculation of the cumulative distribution function to
+    that of a regularized incomplete beta :math:`I`.
+
+    Computation of `n` involves a search for a value that produces the desired
+    value of `y`.  The search relies on the monotonicity of `y` with `n`.
+
+    References
+    ----------
+    .. [1] The Boost Developers. "Boost C++ Libraries". https://www.boost.org/.
+    .. [2] Milton Abramowitz and Irene A. Stegun, eds.
+           Handbook of Mathematical Functions with Formulas,
+           Graphs, and Mathematical Tables. New York: Dover, 1972.
+    .. [3] NIST Digital Library of Mathematical Functions
+           https://dlmf.nist.gov/8.17.E24
+
+    Examples
+    --------
+    Compute the negative binomial cumulative distribution function for an
+    exemplary parameter set.
+
+    >>> from scipy.special import nbdtr, nbdtrin
+    >>> k, n, p = 5, 2, 0.5
+    >>> cdf_value = nbdtr(k, n, p)
+    >>> cdf_value
+    0.9375
+
+    Verify that `nbdtrin` recovers the original value for `n` up to floating
+    point accuracy.
+
+    >>> nbdtrin(k, cdf_value, p)
+    2.0
+    """)
+
+add_newdoc("ncfdtr",
+    r"""
+    ncfdtr(dfn, dfd, nc, f, out=None)
+
+    Cumulative distribution function of the non-central F distribution.
+
+    The non-central F describes the distribution of,
+
+    .. math::
+        Z = \frac{X/d_n}{Y/d_d}
+
+    where :math:`X` and :math:`Y` are independently distributed, with
+    :math:`X` distributed non-central :math:`\chi^2` with noncentrality
+    parameter `nc` and :math:`d_n` degrees of freedom, and :math:`Y`
+    distributed :math:`\chi^2` with :math:`d_d` degrees of freedom.
+
+    Parameters
+    ----------
+    dfn : array_like
+        Degrees of freedom of the numerator sum of squares.  Range (0, inf).
+    dfd : array_like
+        Degrees of freedom of the denominator sum of squares.  Range (0, inf).
+    nc : array_like
+        Noncentrality parameter.  Range [0, inf).
+    f : array_like
+        Quantiles, i.e. the upper limit of integration.
+    out : ndarray, optional
+        Optional output array for the function results
+
+    Returns
+    -------
+    cdf : scalar or ndarray
+        The calculated CDF.  If all inputs are scalar, the return will be a
+        float.  Otherwise it will be an array.
+
+    See Also
+    --------
+    ncfdtri : Quantile function; inverse of `ncfdtr` with respect to `f`.
+    ncfdtridfd : Inverse of `ncfdtr` with respect to `dfd`.
+    ncfdtridfn : Inverse of `ncfdtr` with respect to `dfn`.
+    ncfdtrinc : Inverse of `ncfdtr` with respect to `nc`.
+    scipy.stats.ncf : Non-central F distribution.
+
+    Notes
+    -----
+    This function calculates the CDF of the non-central f distribution using
+    the Boost Math C++ library [1]_.
+
+    The cumulative distribution function is computed using Formula 26.6.20 of
+    [2]_:
+
+    .. math::
+        F(d_n, d_d, n_c, f) = \sum_{j=0}^\infty e^{-n_c/2}
+        \frac{(n_c/2)^j}{j!} I_{x}(\frac{d_n}{2} + j, \frac{d_d}{2}),
+
+    where :math:`I` is the regularized incomplete beta function, and
+    :math:`x = f d_n/(f d_n + d_d)`.
+
+    Note that argument order of `ncfdtr` is different from that of the
+    similar ``cdf`` method of `scipy.stats.ncf`: `f` is the last
+    parameter of `ncfdtr` but the first parameter of ``scipy.stats.ncf.cdf``.
+
+    References
+    ----------
+    .. [1] The Boost Developers. "Boost C++ Libraries". https://www.boost.org/.
+    .. [2] Milton Abramowitz and Irene A. Stegun, eds.
+           Handbook of Mathematical Functions with Formulas,
+           Graphs, and Mathematical Tables. New York: Dover, 1972.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from scipy import special
+    >>> from scipy import stats
+    >>> import matplotlib.pyplot as plt
+
+    Plot the CDF of the non-central F distribution, for nc=0.  Compare with the
+    F-distribution from scipy.stats:
+
+    >>> x = np.linspace(-1, 8, num=500)
+    >>> dfn = 3
+    >>> dfd = 2
+    >>> ncf_stats = stats.f.cdf(x, dfn, dfd)
+    >>> ncf_special = special.ncfdtr(dfn, dfd, 0, x)
+
+    >>> fig = plt.figure()
+    >>> ax = fig.add_subplot(111)
+    >>> ax.plot(x, ncf_stats, 'b-', lw=3)
+    >>> ax.plot(x, ncf_special, 'r-')
+    >>> plt.show()
+
+    """)
+
+add_newdoc("ncfdtri",
+    """
+    ncfdtri(dfn, dfd, nc, p, out=None)
+
+    Inverse with respect to `f` of the CDF of the non-central F distribution.
+
+    See `ncfdtr` for more details.
+
+    Parameters
+    ----------
+    dfn : array_like
+        Degrees of freedom of the numerator sum of squares.  Range (0, inf).
+    dfd : array_like
+        Degrees of freedom of the denominator sum of squares.  Range (0, inf).
+    nc : array_like
+        Noncentrality parameter.  Range [0, inf).
+    p : array_like
+        Value of the cumulative distribution function.  Must be in the
+        range [0, 1].
+    out : ndarray, optional
+        Optional output array for the function results
+
+    Returns
+    -------
+    f : scalar or ndarray
+        Quantiles, i.e., the upper limit of integration.
+
+    See Also
+    --------
+    ncfdtr : CDF of the non-central F distribution.
+    ncfdtridfd : Inverse of `ncfdtr` with respect to `dfd`.
+    ncfdtridfn : Inverse of `ncfdtr` with respect to `dfn`.
+    ncfdtrinc : Inverse of `ncfdtr` with respect to `nc`.
+    scipy.stats.ncf : Non-central F distribution.
+
+    Notes
+    -----
+    This function calculates the Quantile of the non-central f distribution
+    using the Boost Math C++ library [1]_.
+
+    Note that argument order of `ncfdtri` is different from that of the
+    similar ``ppf`` method of `scipy.stats.ncf`. `p` is the last parameter
+    of `ncfdtri` but the first parameter of ``scipy.stats.ncf.ppf``.
+
+    References
+    ----------
+    .. [1] The Boost Developers. "Boost C++ Libraries". https://www.boost.org/.
+
+    Examples
+    --------
+    >>> from scipy.special import ncfdtr, ncfdtri
+
+    Compute the CDF for several values of `f`:
+
+    >>> f = [0.5, 1, 1.5]
+    >>> p = ncfdtr(2, 3, 1.5, f)
+    >>> p
+    array([ 0.20782291,  0.36107392,  0.47345752])
+
+    Compute the inverse.  We recover the values of `f`, as expected:
+
+    >>> ncfdtri(2, 3, 1.5, p)
+    array([ 0.5,  1. ,  1.5])
+
+    """)
+
+add_newdoc("ncfdtridfd",
+    """
+    ncfdtridfd(dfn, p, nc, f, out=None)
+
+    Calculate degrees of freedom (denominator) for the noncentral F-distribution.
+
+    This is the inverse with respect to `dfd` of `ncfdtr`.
+    See `ncfdtr` for more details.
+
+    Parameters
+    ----------
+    dfn : array_like
+        Degrees of freedom of the numerator sum of squares.  Range (0, inf).
+    p : array_like
+        Value of the cumulative distribution function.  Must be in the
+        range [0, 1].
+    nc : array_like
+        Noncentrality parameter.  Should be in range (0, 1e4).
+    f : array_like
+        Quantiles, i.e., the upper limit of integration.
+    out : ndarray, optional
+        Optional output array for the function results
+
+    Returns
+    -------
+    dfd : scalar or ndarray
+        Degrees of freedom of the denominator sum of squares.
+
+    See Also
+    --------
+    ncfdtr : CDF of the non-central F distribution.
+    ncfdtri : Quantile function; inverse of `ncfdtr` with respect to `f`.
+    ncfdtridfn : Inverse of `ncfdtr` with respect to `dfn`.
+    ncfdtrinc : Inverse of `ncfdtr` with respect to `nc`.
+
+    Notes
+    -----
+    The value of the cumulative noncentral F distribution is not necessarily
+    monotone in either degrees of freedom. There thus may be two values that
+    provide a given CDF value. This routine assumes monotonicity and will
+    find an arbitrary one of the two values.
+
+    Examples
+    --------
+    >>> from scipy.special import ncfdtr, ncfdtridfd
+
+    Compute the CDF for several values of `dfd`:
+
+    >>> dfd = [1, 2, 3]
+    >>> p = ncfdtr(2, dfd, 0.25, 15)
+    >>> p
+    array([ 0.8097138 ,  0.93020416,  0.96787852])
+
+    Compute the inverse.  We recover the values of `dfd`, as expected:
+
+    >>> ncfdtridfd(2, p, 0.25, 15)
+    array([ 1.,  2.,  3.])
+
+    """)
+
+add_newdoc("ncfdtridfn",
+    """
+    ncfdtridfn(p, dfd, nc, f, out=None)
+
+    Calculate degrees of freedom (numerator) for the noncentral F-distribution.
+
+    This is the inverse with respect to `dfn` of `ncfdtr`.
+    See `ncfdtr` for more details.
+
+    Parameters
+    ----------
+    p : array_like
+        Value of the cumulative distribution function. Must be in the
+        range [0, 1].
+    dfd : array_like
+        Degrees of freedom of the denominator sum of squares. Range (0, inf).
+    nc : array_like
+        Noncentrality parameter.  Should be in range (0, 1e4).
+    f : float
+        Quantiles, i.e., the upper limit of integration.
+    out : ndarray, optional
+        Optional output array for the function results
+
+    Returns
+    -------
+    dfn : scalar or ndarray
+        Degrees of freedom of the numerator sum of squares.
+
+    See Also
+    --------
+    ncfdtr : CDF of the non-central F distribution.
+    ncfdtri : Quantile function; inverse of `ncfdtr` with respect to `f`.
+    ncfdtridfd : Inverse of `ncfdtr` with respect to `dfd`.
+    ncfdtrinc : Inverse of `ncfdtr` with respect to `nc`.
+
+    Notes
+    -----
+    The value of the cumulative noncentral F distribution is not necessarily
+    monotone in either degrees of freedom. There thus may be two values that
+    provide a given CDF value. This routine assumes monotonicity and will
+    find an arbitrary one of the two values.
+
+    Examples
+    --------
+    >>> from scipy.special import ncfdtr, ncfdtridfn
+
+    Compute the CDF for several values of `dfn`:
+
+    >>> dfn = [1, 2, 3]
+    >>> p = ncfdtr(dfn, 2, 0.25, 15)
+    >>> p
+    array([ 0.92562363,  0.93020416,  0.93188394])
+
+    Compute the inverse. We recover the values of `dfn`, as expected:
+
+    >>> ncfdtridfn(p, 2, 0.25, 15)
+    array([ 1.,  2.,  3.])
+
+    """)
+
+add_newdoc("ncfdtrinc",
+    """
+    ncfdtrinc(dfn, dfd, p, f, out=None)
+
+    Calculate non-centrality parameter for non-central F distribution.
+
+    This is the inverse with respect to `nc` of `ncfdtr`.
+    See `ncfdtr` for more details.
+
+    Parameters
+    ----------
+    dfn : array_like
+        Degrees of freedom of the numerator sum of squares. Range (0, inf).
+    dfd : array_like
+        Degrees of freedom of the denominator sum of squares. Range (0, inf).
+    p : array_like
+        Value of the cumulative distribution function. Must be in the
+        range [0, 1].
+    f : array_like
+        Quantiles, i.e., the upper limit of integration.
+    out : ndarray, optional
+        Optional output array for the function results
+
+    Returns
+    -------
+    nc : scalar or ndarray
+        Noncentrality parameter.
+
+    See Also
+    --------
+    ncfdtr : CDF of the non-central F distribution.
+    ncfdtri : Quantile function; inverse of `ncfdtr` with respect to `f`.
+    ncfdtridfd : Inverse of `ncfdtr` with respect to `dfd`.
+    ncfdtridfn : Inverse of `ncfdtr` with respect to `dfn`.
+
+    Examples
+    --------
+    >>> from scipy.special import ncfdtr, ncfdtrinc
+
+    Compute the CDF for several values of `nc`:
+
+    >>> nc = [0.5, 1.5, 2.0]
+    >>> p = ncfdtr(2, 3, nc, 15)
+    >>> p
+    array([ 0.96309246,  0.94327955,  0.93304098])
+
+    Compute the inverse. We recover the values of `nc`, as expected:
+
+    >>> ncfdtrinc(2, 3, p, 15)
+    array([ 0.5,  1.5,  2. ])
+
+    """)
+
+add_newdoc("nctdtr",
+    """
+    nctdtr(df, nc, t, out=None)
+
+    Cumulative distribution function of the non-central `t` distribution.
+
+    Parameters
+    ----------
+    df : array_like
+        Degrees of freedom of the distribution. Should be in range (0, inf).
+    nc : array_like
+        Noncentrality parameter.
+    t : array_like
+        Quantiles, i.e., the upper limit of integration.
+    out : ndarray, optional
+        Optional output array for the function results
+
+    Returns
+    -------
+    cdf : scalar or ndarray
+        The calculated CDF. If all inputs are scalar, the return will be a
+        float. Otherwise, it will be an array.
+
+    See Also
+    --------
+    nctdtrit : Inverse CDF (iCDF) of the non-central t distribution.
+    nctdtridf : Calculate degrees of freedom, given CDF and iCDF values.
+    nctdtrinc : Calculate non-centrality parameter, given CDF iCDF values.
+
+    Notes
+    -----
+    This function calculates the CDF of the non-central t distribution using
+    the Boost Math C++ library [1]_.
+
+    Note that the argument order of `nctdtr` is different from that of the
+    similar ``cdf`` method of `scipy.stats.nct`: `t` is the last
+    parameter of `nctdtr` but the first parameter of ``scipy.stats.nct.cdf``.
+
+    References
+    ----------
+    .. [1] The Boost Developers. "Boost C++ Libraries". https://www.boost.org/.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from scipy import special
+    >>> from scipy import stats
+    >>> import matplotlib.pyplot as plt
+
+    Plot the CDF of the non-central t distribution, for nc=0. Compare with the
+    t-distribution from scipy.stats:
+
+    >>> x = np.linspace(-5, 5, num=500)
+    >>> df = 3
+    >>> nct_stats = stats.t.cdf(x, df)
+    >>> nct_special = special.nctdtr(df, 0, x)
+
+    >>> fig = plt.figure()
+    >>> ax = fig.add_subplot(111)
+    >>> ax.plot(x, nct_stats, 'b-', lw=3)
+    >>> ax.plot(x, nct_special, 'r-')
+    >>> plt.show()
+
+    """)
+
+add_newdoc("nctdtridf",
+    """
+    nctdtridf(p, nc, t, out=None)
+
+    Calculate degrees of freedom for non-central t distribution.
+
+    See `nctdtr` for more details.
+
+    Parameters
+    ----------
+    p : array_like
+        CDF values, in range (0, 1].
+    nc : array_like
+        Noncentrality parameter. Should be in range (-1e6, 1e6).
+    t : array_like
+        Quantiles, i.e., the upper limit of integration.
+    out : ndarray, optional
+        Optional output array for the function results
+
+    Returns
+    -------
+    df : scalar or ndarray
+        The degrees of freedom. If all inputs are scalar, the return will be a
+        float. Otherwise, it will be an array.
+
+    See Also
+    --------
+    nctdtr :  CDF of the non-central `t` distribution.
+    nctdtrit : Inverse CDF (iCDF) of the non-central t distribution.
+    nctdtrinc : Calculate non-centrality parameter, given CDF iCDF values.
+
+    Examples
+    --------
+    >>> from scipy.special import nctdtr, nctdtridf
+
+    Compute the CDF for several values of `df`:
+
+    >>> df = [1, 2, 3]
+    >>> p = nctdtr(df, 0.25, 1)
+    >>> p
+    array([0.67491974, 0.716464  , 0.73349456])
+
+    Compute the inverse. We recover the values of `df`, as expected:
+
+    >>> nctdtridf(p, 0.25, 1)
+    array([1., 2., 3.])
+
+    """)
+
+add_newdoc("nctdtrinc",
+    """
+    nctdtrinc(df, p, t, out=None)
+
+    Calculate non-centrality parameter for non-central t distribution.
+
+    See `nctdtr` for more details.
+
+    Parameters
+    ----------
+    df : array_like
+        Degrees of freedom of the distribution. Should be in range (0, inf).
+    p : array_like
+        CDF values, in range (0, 1].
+    t : array_like
+        Quantiles, i.e., the upper limit of integration.
+    out : ndarray, optional
+        Optional output array for the function results
+
+    Returns
+    -------
+    nc : scalar or ndarray
+        Noncentrality parameter
+
+    See Also
+    --------
+    nctdtr :  CDF of the non-central `t` distribution.
+    nctdtrit : Inverse CDF (iCDF) of the non-central t distribution.
+    nctdtridf : Calculate degrees of freedom, given CDF and iCDF values.
+
+    Examples
+    --------
+    >>> from scipy.special import nctdtr, nctdtrinc
+
+    Compute the CDF for several values of `nc`:
+
+    >>> nc = [0.5, 1.5, 2.5]
+    >>> p = nctdtr(3, nc, 1.5)
+    >>> p
+    array([0.77569497, 0.45524533, 0.1668691 ])
+
+    Compute the inverse. We recover the values of `nc`, as expected:
+
+    >>> nctdtrinc(3, p, 1.5)
+    array([0.5, 1.5, 2.5])
+
+    """)
+
+add_newdoc("nctdtrit",
+    """
+    nctdtrit(df, nc, p, out=None)
+
+    Inverse cumulative distribution function of the non-central t distribution.
+
+    See `nctdtr` for more details.
+
+    Parameters
+    ----------
+    df : array_like
+        Degrees of freedom of the distribution. Should be in range (0, inf).
+    nc : array_like
+        Noncentrality parameter.
+    p : array_like
+        CDF values, in range (0, 1].
+    out : ndarray, optional
+        Optional output array for the function results
+
+    Returns
+    -------
+    t : scalar or ndarray
+        Quantiles
+
+    See Also
+    --------
+    nctdtr :  CDF of the non-central `t` distribution.
+    nctdtridf : Calculate degrees of freedom, given CDF and iCDF values.
+    nctdtrinc : Calculate non-centrality parameter, given CDF iCDF values.
+
+    Notes
+    -----
+    This function calculates the quantile of the non-central t distribution using
+    the Boost Math C++ library [1]_.
+
+    Note that the argument order of `nctdtrit` is different from that of the
+    similar ``ppf`` method of `scipy.stats.nct`: `t` is the last
+    parameter of `nctdtrit` but the first parameter of ``scipy.stats.nct.ppf``.
+
+    References
+    ----------
+    .. [1] The Boost Developers. "Boost C++ Libraries". https://www.boost.org/.
+
+    Examples
+    --------
+    >>> from scipy.special import nctdtr, nctdtrit
+
+    Compute the CDF for several values of `t`:
+
+    >>> t = [0.5, 1, 1.5]
+    >>> p = nctdtr(3, 1, t)
+    >>> p
+    array([0.29811049, 0.46922687, 0.6257559 ])
+
+    Compute the inverse. We recover the values of `t`, as expected:
+
+    >>> nctdtrit(3, 1, p)
+    array([0.5, 1. , 1.5])
+
+    """)
+
+add_newdoc("nrdtrimn",
+    """
+    nrdtrimn(p, std, x, out=None)
+
+    Calculate mean of normal distribution given other params.
+
+    Parameters
+    ----------
+    p : array_like
+        CDF values, in range (0, 1].
+    std : array_like
+        Standard deviation.
+    x : array_like
+        Quantiles, i.e. the upper limit of integration.
+    out : ndarray, optional
+        Optional output array for the function results
+
+    Returns
+    -------
+    mn : scalar or ndarray
+        The mean of the normal distribution.
+
+    See Also
+    --------
+    scipy.stats.norm : Normal distribution
+    ndtr : Standard normal cumulative probability distribution
+    ndtri : Inverse of standard normal CDF with respect to quantile
+    nrdtrisd : Inverse of normal distribution CDF with respect to
+               standard deviation
+
+    Examples
+    --------
+    `nrdtrimn` can be used to recover the mean of a normal distribution
+    if we know the CDF value `p` for a given quantile `x` and the
+    standard deviation `std`. First, we calculate
+    the normal distribution CDF for an exemplary parameter set.
+
+    >>> from scipy.stats import norm
+    >>> mean = 3.
+    >>> std = 2.
+    >>> x = 6.
+    >>> p = norm.cdf(x, loc=mean, scale=std)
+    >>> p
+    0.9331927987311419
+
+    Verify that `nrdtrimn` returns the original value for `mean`.
+
+    >>> from scipy.special import nrdtrimn
+    >>> nrdtrimn(p, std, x)
+    3.0000000000000004
+
+    """)
+
+add_newdoc("nrdtrisd",
+    """
+    nrdtrisd(mn, p, x, out=None)
+
+    Calculate standard deviation of normal distribution given other params.
+
+    Parameters
+    ----------
+    mn : scalar or ndarray
+        The mean of the normal distribution.
+    p : array_like
+        CDF values, in range (0, 1].
+    x : array_like
+        Quantiles, i.e. the upper limit of integration.
+
+    out : ndarray, optional
+        Optional output array for the function results
+
+    Returns
+    -------
+    std : scalar or ndarray
+        Standard deviation.
+
+    See Also
+    --------
+    scipy.stats.norm : Normal distribution
+    ndtr : Standard normal cumulative probability distribution
+    ndtri : Inverse of standard normal CDF with respect to quantile
+    nrdtrimn : Inverse of normal distribution CDF with respect to
+               mean
+
+    Examples
+    --------
+    `nrdtrisd` can be used to recover the standard deviation of a normal
+    distribution if we know the CDF value `p` for a given quantile `x` and
+    the mean `mn`. First, we calculate the normal distribution CDF for an
+    exemplary parameter set.
+
+    >>> from scipy.stats import norm
+    >>> mean = 3.
+    >>> std = 2.
+    >>> x = 6.
+    >>> p = norm.cdf(x, loc=mean, scale=std)
+    >>> p
+    0.9331927987311419
+
+    Verify that `nrdtrisd` returns the original value for `std`.
+
+    >>> from scipy.special import nrdtrisd
+    >>> nrdtrisd(mean, p, x)
+    2.0000000000000004
+
+    """)
+
+add_newdoc("ndtri",
+    """
+    ndtri(p, out=None)
+
+    Inverse of `ndtr`.
+
+    Returns the quantile `x` such that the cumulative distribution function of the
+    standard normal distribution evaluated at `x` equals `p`, that is, ``ndtr(x) == p``.
+
+    Parameters
+    ----------
+    p : array_like
+        Probability values.
+    out : ndarray, optional
+        Optional output array for the function results.
+
+    Returns
+    -------
+    x : scalar or ndarray
+        Quantile(s) corresponding to the probabilitie(s) in `p`.
+
+    See Also
+    --------
+    ndtr : Standard normal cumulative distribution function
+    ndtri_exp : Inverse of log_ndtr
+
+    Examples
+    --------
+    `ndtri` is the percentile (quantile) function of the standard normal distribution,
+    i.e., the inverse of the cumulative distribution function `ndtr`.
+
+    First, compute a cumulative distribution value:
+
+    >>> import numpy as np
+    >>> from scipy.special import ndtri, ndtr
+    >>> cdf_val = ndtr(2)
+    >>> cdf_val
+    0.9772498680518208
+
+    Verify that `ndtri` yields the original value for `x` up to floating point errors.
+
+    >>> ndtri(cdf_val)
+    2.0000000000000004
+
+    Plot the percentile function over a range of probabilities.
+
+    >>> import matplotlib.pyplot as plt
+    >>> p = np.linspace(1e-3, 1 - 1e-3, 201)
+    >>> fig, ax = plt.subplots()
+    >>> ax.plot(p, ndtri(p))
+    >>> ax.set_title("Standard normal percentile function")
+    >>> plt.show()
+    """)
+
+add_newdoc("pdtr",
+    r"""
+    pdtr(k, m, out=None)
+
+    Poisson cumulative distribution function.
+
+    Defined as the probability that a Poisson-distributed random
+    variable with event rate :math:`m` is less than or equal to
+    :math:`k`. More concretely, this works out to be [1]_
+
+    .. math::
+
+       \exp(-m) \sum_{j = 0}^{\lfloor{k}\rfloor} \frac{m^j}{j!}.
+
+    Parameters
+    ----------
+    k : array_like
+        Number of occurrences (nonnegative, real)
+    m : array_like
+        Shape parameter (nonnegative, real)
+    out : ndarray, optional
+        Optional output array for the function results
+
+    Returns
+    -------
+    scalar or ndarray
+        Values of the Poisson cumulative distribution function
+
+    See Also
+    --------
+    pdtrc : Poisson survival function
+    pdtrik : inverse of `pdtr` with respect to `k`
+    pdtri : inverse of `pdtr` with respect to `m`
+
+    References
+    ----------
+    .. [1] https://en.wikipedia.org/wiki/Poisson_distribution
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> import scipy.special as sc
+
+    It is a cumulative distribution function, so it converges to 1
+    monotonically as `k` goes to infinity.
+
+    >>> sc.pdtr([1, 10, 100, np.inf], 1)
+    array([0.73575888, 0.99999999, 1.        , 1.        ])
+
+    It is discontinuous at integers and constant between integers.
+
+    >>> sc.pdtr([1, 1.5, 1.9, 2], 1)
+    array([0.73575888, 0.73575888, 0.73575888, 0.9196986 ])
+
+    """)
+
+add_newdoc("pdtrc",
+    """
+    pdtrc(k, m, out=None)
+
+    Poisson survival function.
+
+    Returns the sum of the terms from k+1 to infinity of the Poisson
+    distribution: sum(exp(-m) * m**j / j!, j=k+1..inf) = gammainc(
+    k+1, m). Arguments must both be non-negative doubles.
+
+    Parameters
+    ----------
+    k : array_like
+        Number of occurrences (nonnegative, real)
+    m : array_like
+        Shape parameter (nonnegative, real)
+    out : ndarray, optional
+        Optional output array for the function results
+
+    Returns
+    -------
+    scalar or ndarray
+        Values of the Poisson survival function
+
+    See Also
+    --------
+    pdtr : Poisson cumulative distribution function
+    pdtrik : inverse of `pdtr` with respect to `k`
+    pdtri : inverse of `pdtr` with respect to `m`
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> import scipy.special as sc
+
+    It is a survival function, so it decreases to 0
+    monotonically as `k` goes to infinity.
+
+    >>> k = np.array([1, 10, 100, np.inf])
+    >>> sc.pdtrc(k, 1)
+    array([2.64241118e-001, 1.00477664e-008, 3.94147589e-161, 0.00000000e+000])
+
+    It can be expressed in terms of the lower incomplete gamma
+    function `gammainc`.
+
+    >>> sc.gammainc(k + 1, 1)
+    array([2.64241118e-001, 1.00477664e-008, 3.94147589e-161, 0.00000000e+000])
+
+    """)
+
+add_newdoc("pdtri",
+    """
+    pdtri(k, y, out=None)
+
+    Inverse of `pdtr` with respect to `m`.
+
+    Returns the Poisson variable `m` such that the sum from 0 to `k` of
+    the Poisson density is equal to the given probability `y`:
+    calculated by ``gammainccinv(k + 1, y)``. `k` must be a nonnegative
+    integer and `y` between 0 and 1.
+
+    Parameters
+    ----------
+    k : array_like
+        Number of occurrences (nonnegative, real).
+    y : array_like
+        Probability.
+    out : ndarray, optional
+        Optional output array for the function results.
+
+    Returns
+    -------
+    scalar or ndarray
+        Values of the shape parameter `m` such that ``pdtr(k, m) = y``.
+
+    See Also
+    --------
+    pdtr : Poisson cumulative distribution function
+    pdtrc : Poisson survival function
+    pdtrik : Inverse of `pdtr` with respect to `k`
+
+    Examples
+    --------
+    >>> import scipy.special as sc
+
+    Compute the CDF for several values of `m`:
+
+    >>> k = 1
+    >>> m = [0.5, 1, 1.5]
+    >>> p = sc.pdtr(k, m)
+    >>> p
+    array([0.90979599, 0.73575888, 0.5578254 ])
+
+    Invert the CDF with respect to the Poisson mean. We recover the values
+    of `m`, as expected:
+
+    >>> sc.pdtri(k, p)
+    array([0.5, 1. , 1.5])
+
+    Verify the relation with `gammainccinv`:
+
+    >>> sc.gammainccinv(k + 1, p)
+    array([0.5, 1. , 1.5])
+
+
+    """)
+
+add_newdoc("pdtrik",
+    """
+    pdtrik(p, m, out=None)
+
+    Inverse of `pdtr` with respect to `k`.
+
+    Parameters
+    ----------
+    p : array_like
+        Probability
+    m : array_like
+        Shape parameter (nonnegative, real)
+    out : ndarray, optional
+        Optional output array for the function results
+
+    Returns
+    -------
+    scalar or ndarray
+        The number of occurrences `k` such that ``pdtr(k, m) = p``
+
+    See Also
+    --------
+    pdtr : Poisson cumulative distribution function
+    pdtrc : Poisson survival function
+    pdtri : inverse of `pdtr` with respect to `m`
+
+    Notes
+    -----
+    This function relies on the ``gamma_q_inva`` function from the Boost
+    Math C++ library [1]_.
+
+    References
+    ----------
+    .. [1] The Boost Developers. "Boost C++ Libraries". https://www.boost.org/.
+
+    Examples
+    --------
+    >>> import scipy.special as sc
+
+    Compute the CDF for several values of `k`:
+
+    >>> k = [1, 2, 3]
+    >>> p = sc.pdtr(k, 2)
+    >>> p
+    array([0.40600585, 0.67667642, 0.85712346])
+
+    Compute the inverse. We recover the values of `k`, as expected:
+
+    >>> sc.pdtrik(p, 2)
+    array([1., 2., 3.])
+
+    """)
+
+add_newdoc("poch",
+    r"""
+    poch(z, m, out=None)
+
+    Pochhammer symbol.
+
+    The Pochhammer symbol (rising factorial) is defined as
+
+    .. math::
+
+        (z)_m = \frac{\Gamma(z + m)}{\Gamma(z)}
+
+    For positive integer `m` it reads
+
+    .. math::
+
+        (z)_m = z (z + 1) ... (z + m - 1)
+
+    See [DLMF]_ for more details.
+
+    Parameters
+    ----------
+    z, m : array_like
+        Real-valued arguments.
+    out : ndarray, optional
+        Optional output array for the function results
+
+    Returns
+    -------
+    scalar or ndarray
+        The value of the function.
+
+    References
+    ----------
+    .. [DLMF] Nist, Digital Library of Mathematical Functions
+        https://dlmf.nist.gov/5.2#iii
+
+    Examples
+    --------
+    >>> import scipy.special as sc
+
+    It is 1 when m is 0.
+
+    >>> sc.poch([1, 2, 3, 4], 0)
+    array([1., 1., 1., 1.])
+
+    For z equal to 1 it reduces to the factorial function.
+
+    >>> sc.poch(1, 5)
+    120.0
+    >>> 1 * 2 * 3 * 4 * 5
+    120
+
+    It can be expressed in terms of the gamma function.
+
+    >>> z, m = 3.7, 2.1
+    >>> sc.poch(z, m)
+    20.529581933776953
+    >>> sc.gamma(z + m) / sc.gamma(z)
+    20.52958193377696
+
+    """)
+
+add_newdoc("powm1", """
+    powm1(x, y, out=None)
+
+    Computes ``x**y - 1``.
+
+    This function is useful when `y` is near 0, or when `x` is near 1.
+
+    The function is implemented for real types only (unlike ``numpy.power``,
+    which accepts complex inputs).
+
+    Parameters
+    ----------
+    x : array_like
+        The base. Must be a real type (i.e. integer or float, not complex).
+    y : array_like
+        The exponent. Must be a real type (i.e. integer or float, not complex).
+
+    Returns
+    -------
+    array_like
+        Result of the calculation
+
+    Notes
+    -----
+    .. versionadded:: 1.10.0
+
+    The underlying code is implemented for single precision and double
+    precision floats only.  Unlike `numpy.power`, integer inputs to
+    `powm1` are converted to floating point, and complex inputs are
+    not accepted.
+
+    Note the following edge cases:
+
+    * ``powm1(x, 0)`` returns 0 for any ``x``, including 0, ``inf``
+      and ``nan``.
+    * ``powm1(1, y)`` returns 0 for any ``y``, including ``nan``
+      and ``inf``.
+
+    This function wraps the ``powm1`` routine from the
+    Boost Math C++ library [1]_.
+
+    References
+    ----------
+    .. [1] The Boost Developers. "Boost C++ Libraries". https://www.boost.org/.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from scipy.special import powm1
+
+    >>> x = np.array([1.2, 10.0, 0.9999999975])
+    >>> y = np.array([1e-9, 1e-11, 0.1875])
+    >>> powm1(x, y)
+    array([ 1.82321557e-10,  2.30258509e-11, -4.68749998e-10])
+
+    It can be verified that the relative errors in those results
+    are less than 2.5e-16.
+
+    Compare that to the result of ``x**y - 1``, where the
+    relative errors are all larger than 8e-8:
+
+    >>> x**y - 1
+    array([ 1.82321491e-10,  2.30258035e-11, -4.68750039e-10])
+
+    """)
+
+
+add_newdoc("pseudo_huber",
+    r"""
+    pseudo_huber(delta, r, out=None)
+
+    Pseudo-Huber loss function.
+
+    .. math:: \mathrm{pseudo\_huber}(\delta, r) =
+              \delta^2 \left( \sqrt{ 1 + \left( \frac{r}{\delta} \right)^2 } - 1 \right)
+
+    Parameters
+    ----------
+    delta : array_like
+        Input array, indicating the soft quadratic vs. linear loss changepoint.
+    r : array_like
+        Input array, possibly representing residuals.
+    out : ndarray, optional
+        Optional output array for the function results
+
+    Returns
+    -------
+    res : scalar or ndarray
+        The computed Pseudo-Huber loss function values.
+
+    See Also
+    --------
+    huber: Similar function which this function approximates
+
+    Notes
+    -----
+    Like `huber`, `pseudo_huber` often serves as a robust loss function
+    in statistics or machine learning to reduce the influence of outliers.
+    Unlike `huber`, `pseudo_huber` is smooth.
+
+    Typically, `r` represents residuals, the difference
+    between a model prediction and data. Then, for :math:`|r|\leq\delta`,
+    `pseudo_huber` resembles the squared error and for :math:`|r|>\delta` the
+    absolute error. This way, the Pseudo-Huber loss often achieves
+    a fast convergence in model fitting for small residuals like the squared
+    error loss function and still reduces the influence of outliers
+    (:math:`|r|>\delta`) like the absolute error loss. As :math:`\delta` is
+    the cutoff between squared and absolute error regimes, it has
+    to be tuned carefully for each problem. `pseudo_huber` is also
+    convex, making it suitable for gradient based optimization. [1]_ [2]_
+
+    .. versionadded:: 0.15.0
+
+    References
+    ----------
+    .. [1] Hartley, Zisserman, "Multiple View Geometry in Computer Vision".
+           2003. Cambridge University Press. p. 619
+    .. [2] Charbonnier et al. "Deterministic edge-preserving regularization
+           in computed imaging". 1997. IEEE Trans. Image Processing.
+           6 (2): 298 - 311.
+
+    Examples
+    --------
+    Import all necessary modules.
+
+    >>> import numpy as np
+    >>> from scipy.special import pseudo_huber, huber
+    >>> import matplotlib.pyplot as plt
+
+    Calculate the function for ``delta=1`` at ``r=2``.
+
+    >>> pseudo_huber(1., 2.)
+    1.2360679774997898
+
+    Calculate the function at ``r=2`` for different `delta` by providing
+    a list or NumPy array for `delta`.
+
+    >>> pseudo_huber([1., 2., 4.], 3.)
+    array([2.16227766, 3.21110255, 4.        ])
+
+    Calculate the function for ``delta=1`` at several points by providing
+    a list or NumPy array for `r`.
+
+    >>> pseudo_huber(2., np.array([1., 1.5, 3., 4.]))
+    array([0.47213595, 1.        , 3.21110255, 4.94427191])
+
+    The function can be calculated for different `delta` and `r` by
+    providing arrays for both with compatible shapes for broadcasting.
+
+    >>> r = np.array([1., 2.5, 8., 10.])
+    >>> deltas = np.array([[1.], [5.], [9.]])
+    >>> print(r.shape, deltas.shape)
+    (4,) (3, 1)
+
+    >>> pseudo_huber(deltas, r)
+    array([[ 0.41421356,  1.6925824 ,  7.06225775,  9.04987562],
+           [ 0.49509757,  2.95084972, 22.16990566, 30.90169944],
+           [ 0.49846624,  3.06693762, 27.37435121, 40.08261642]])
+
+    Plot the function for different `delta`.
+
+    >>> x = np.linspace(-4, 4, 500)
+    >>> deltas = [1, 2, 3]
+    >>> linestyles = ["dashed", "dotted", "dashdot"]
+    >>> fig, ax = plt.subplots()
+    >>> combined_plot_parameters = list(zip(deltas, linestyles))
+    >>> for delta, style in combined_plot_parameters:
+    ...     ax.plot(x, pseudo_huber(delta, x), label=rf"$\delta={delta}$",
+    ...             ls=style)
+    >>> ax.legend(loc="upper center")
+    >>> ax.set_xlabel("$x$")
+    >>> ax.set_title(r"Pseudo-Huber loss function $h_{\delta}(x)$")
+    >>> ax.set_xlim(-4, 4)
+    >>> ax.set_ylim(0, 8)
+    >>> plt.show()
+
+    Finally, illustrate the difference between `huber` and `pseudo_huber` by
+    plotting them and their gradients with respect to `r`. The plot shows
+    that `pseudo_huber` is continuously differentiable while `huber` is not
+    at the points :math:`\pm\delta`.
+
+    >>> def huber_grad(delta, x):
+    ...     grad = np.copy(x)
+    ...     linear_area = np.argwhere(np.abs(x) > delta)
+    ...     grad[linear_area]=delta*np.sign(x[linear_area])
+    ...     return grad
+    >>> def pseudo_huber_grad(delta, x):
+    ...     return x* (1+(x/delta)**2)**(-0.5)
+    >>> x=np.linspace(-3, 3, 500)
+    >>> delta = 1.
+    >>> fig, ax = plt.subplots(figsize=(7, 7))
+    >>> ax.plot(x, huber(delta, x), label="Huber", ls="dashed")
+    >>> ax.plot(x, huber_grad(delta, x), label="Huber Gradient", ls="dashdot")
+    >>> ax.plot(x, pseudo_huber(delta, x), label="Pseudo-Huber", ls="dotted")
+    >>> ax.plot(x, pseudo_huber_grad(delta, x), label="Pseudo-Huber Gradient",
+    ...         ls="solid")
+    >>> ax.legend(loc="upper center")
+    >>> plt.show()
+    """)
+
+add_newdoc("rel_entr",
+    r"""
+    rel_entr(x, y, out=None)
+
+    Elementwise function for computing relative entropy.
+
+    .. math::
+
+        \mathrm{rel\_entr}(x, y) =
+            \begin{cases}
+                x \log(x / y) & x > 0, y > 0 \\
+                0 & x = 0, y \ge 0 \\
+                \infty & \text{otherwise}
+            \end{cases}
+
+    Parameters
+    ----------
+    x, y : array_like
+        Input arrays
+    out : ndarray, optional
+        Optional output array for the function results
+
+    Returns
+    -------
+    scalar or ndarray
+        Relative entropy of the inputs
+
+    See Also
+    --------
+    entr, kl_div, scipy.stats.entropy
+
+    Notes
+    -----
+    .. versionadded:: 0.15.0
+
+    This function is jointly convex in x and y.
+
+    The origin of this function is in convex programming; see
+    [1]_. Given two discrete probability distributions :math:`p_1,
+    \ldots, p_n` and :math:`q_1, \ldots, q_n`, the definition of relative
+    entropy in the context of *information theory* is
+
+    .. math::
+
+        \sum_{i = 1}^n \mathrm{rel\_entr}(p_i, q_i).
+
+    To compute the latter quantity, use `scipy.stats.entropy`.
+
+    See [2]_ for details.
+
+    References
+    ----------
+    .. [1] Boyd, Stephen and Lieven Vandenberghe. *Convex optimization*.
+           Cambridge University Press, 2004.
+           :doi:`10.1017/CBO9780511804441`.
+    .. [2] Kullback-Leibler divergence,
+           https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence
+
+    """)
+
+add_newdoc("round",
+    """
+    round(x, out=None)
+
+    Round to the nearest integer.
+
+    Returns the nearest integer to `x`.  If `x` ends in 0.5 exactly,
+    the nearest even integer is chosen.
+
+    Parameters
+    ----------
+    x : array_like
+        Real valued input.
+    out : ndarray, optional
+        Optional output array for the function results.
+
+    Returns
+    -------
+    scalar or ndarray
+        The nearest integers to the elements of `x`. The result is of
+        floating type, not integer type.
+
+    Examples
+    --------
+    >>> import scipy.special as sc
+
+    It rounds to even.
+
+    >>> sc.round([0.5, 1.5])
+    array([0., 2.])
+
+    """)
+
+add_newdoc("shichi",
+    r"""
+    shichi(x, out=None)
+
+    Hyperbolic sine and cosine integrals.
+
+    The hyperbolic sine integral is
+
+    .. math::
+
+      \int_0^x \frac{\sinh{t}}{t}dt
+
+    and the hyperbolic cosine integral is
+
+    .. math::
+
+      \gamma + \log(x) + \int_0^x \frac{\cosh{t} - 1}{t} dt
+
+    where :math:`\gamma` is Euler's constant and :math:`\log` is the
+    principal branch of the logarithm [1]_ (see also [2]_).
+
+    Parameters
+    ----------
+    x : array_like
+        Real or complex points at which to compute the hyperbolic sine
+        and cosine integrals.
+    out : tuple of ndarray, optional
+        Optional output arrays for the function results
+
+    Returns
+    -------
+    si : scalar or ndarray
+        Hyperbolic sine integral at ``x``
+    ci : scalar or ndarray
+        Hyperbolic cosine integral at ``x``
+
+    See Also
+    --------
+    sici : Sine and cosine integrals.
+    exp1 : Exponential integral E1.
+    expi : Exponential integral Ei.
+
+    Notes
+    -----
+    For real arguments with ``x < 0``, ``chi`` is the real part of the
+    hyperbolic cosine integral. For such points ``chi(x)`` and ``chi(x
+    + 0j)`` differ by a factor of ``1j*pi``.
+
+    For real arguments the function is computed by calling Cephes'
+    [3]_ *shichi* routine. For complex arguments the algorithm is based
+    on Mpmath's [4]_ *shi* and *chi* routines.
+
+    References
+    ----------
+    .. [1] Milton Abramowitz and Irene A. Stegun, eds.
+           Handbook of Mathematical Functions with Formulas,
+           Graphs, and Mathematical Tables. New York: Dover, 1972.
+           (See Section 5.2.)
+    .. [2] NIST Digital Library of Mathematical Functions
+           https://dlmf.nist.gov/6.2.E15 and https://dlmf.nist.gov/6.2.E16
+    .. [3] Cephes Mathematical Functions Library,
+           https://netlib.org/cephes/
+    .. [4] Fredrik Johansson and others.
+           "mpmath: a Python library for arbitrary-precision floating-point
+           arithmetic" (Version 0.19) https://mpmath.org/
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> import matplotlib.pyplot as plt
+    >>> from scipy.special import shichi, sici
+
+    `shichi` accepts real or complex input:
+
+    >>> shichi(0.5)
+    (0.5069967498196671, -0.05277684495649357)
+    >>> shichi(0.5 + 2.5j)
+    ((0.11772029666668238+1.831091777729851j),
+     (0.29912435887648825+1.7395351121166562j))
+
+    The hyperbolic sine and cosine integrals Shi(z) and Chi(z) are
+    related to the sine and cosine integrals Si(z) and Ci(z) by
+
+    * Shi(z) = -i*Si(i*z)
+    * Chi(z) = Ci(-i*z) + i*pi/2
+
+    >>> z = 0.25 + 5j
+    >>> shi, chi = shichi(z)
+    >>> shi, -1j*sici(1j*z)[0]            # Should be the same.
+    ((-0.04834719325101729+1.5469354086921228j),
+     (-0.04834719325101729+1.5469354086921228j))
+    >>> chi, sici(-1j*z)[1] + 1j*np.pi/2  # Should be the same.
+    ((-0.19568708973868087+1.556276312103824j),
+     (-0.19568708973868087+1.556276312103824j))
+
+    Plot the functions evaluated on the real axis:
+
+    >>> xp = np.geomspace(1e-8, 4.0, 250)
+    >>> x = np.concatenate((-xp[::-1], xp))
+    >>> shi, chi = shichi(x)
+
+    >>> fig, ax = plt.subplots()
+    >>> ax.plot(x, shi, label='Shi(x)')
+    >>> ax.plot(x, chi, '--', label='Chi(x)')
+    >>> ax.set_xlabel('x')
+    >>> ax.set_title('Hyperbolic Sine and Cosine Integrals')
+    >>> ax.legend(shadow=True, framealpha=1, loc='lower right')
+    >>> ax.grid(True)
+    >>> plt.show()
+
+    """)
+
+add_newdoc("sici",
+    r"""
+    sici(x, out=None)
+
+    Sine and cosine integrals.
+
+    The sine integral is
+
+    .. math::
+
+      \int_0^x \frac{\sin{t}}{t}dt
+
+    and the cosine integral is
+
+    .. math::
+
+      \gamma + \log(x) + \int_0^x \frac{\cos{t} - 1}{t}dt
+
+    where :math:`\gamma` is Euler's constant and :math:`\log` is the
+    principal branch of the logarithm [1]_ (see also [2]_).
+
+    Parameters
+    ----------
+    x : array_like
+        Real or complex points at which to compute the sine and cosine
+        integrals.
+    out : tuple of ndarray, optional
+        Optional output arrays for the function results
+
+    Returns
+    -------
+    si : scalar or ndarray
+        Sine integral at ``x``
+    ci : scalar or ndarray
+        Cosine integral at ``x``
+
+    See Also
+    --------
+    shichi : Hyperbolic sine and cosine integrals.
+    exp1 : Exponential integral E1.
+    expi : Exponential integral Ei.
+
+    Notes
+    -----
+    For real arguments with ``x < 0``, ``ci`` is the real part of the
+    cosine integral. For such points ``ci(x)`` and ``ci(x + 0j)``
+    differ by a factor of ``1j*pi``.
+
+    For real arguments the function is computed by calling Cephes'
+    [3]_ *sici* routine. For complex arguments the algorithm is based
+    on Mpmath's [4]_ *si* and *ci* routines.
+
+    References
+    ----------
+    .. [1] Milton Abramowitz and Irene A. Stegun, eds.
+           Handbook of Mathematical Functions with Formulas,
+           Graphs, and Mathematical Tables. New York: Dover, 1972.
+           (See Section 5.2.)
+    .. [2] NIST Digital Library of Mathematical Functions
+           https://dlmf.nist.gov/6.2.E9, https://dlmf.nist.gov/6.2.E12,
+           and https://dlmf.nist.gov/6.2.E13
+    .. [3] Cephes Mathematical Functions Library,
+           https://netlib.org/cephes/
+    .. [4] Fredrik Johansson and others.
+           "mpmath: a Python library for arbitrary-precision floating-point
+           arithmetic" (Version 0.19) https://mpmath.org/
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> import matplotlib.pyplot as plt
+    >>> from scipy.special import sici, exp1
+
+    `sici` accepts real or complex input:
+
+    >>> sici(2.5)
+    (1.7785201734438267, 0.2858711963653835)
+    >>> sici(2.5 + 3j)
+    ((4.505735874563953+0.06863305018999577j),
+    (0.0793644206906966-2.935510262937543j))
+
+    For z in the right half plane, the sine and cosine integrals are
+    related to the exponential integral E1 (implemented in SciPy as
+    `scipy.special.exp1`) by
+
+    * Si(z) = (E1(i*z) - E1(-i*z))/2i + pi/2
+    * Ci(z) = -(E1(i*z) + E1(-i*z))/2
+
+    See [1]_ (equations 5.2.21 and 5.2.23).
+
+    We can verify these relations:
+
+    >>> z = 2 - 3j
+    >>> sici(z)
+    ((4.54751388956229-1.3991965806460565j),
+    (1.408292501520851+2.9836177420296055j))
+
+    >>> (exp1(1j*z) - exp1(-1j*z))/2j + np.pi/2  # Same as sine integral
+    (4.54751388956229-1.3991965806460565j)
+
+    >>> -(exp1(1j*z) + exp1(-1j*z))/2            # Same as cosine integral
+    (1.408292501520851+2.9836177420296055j)
+
+    Plot the functions evaluated on the real axis; the dotted horizontal
+    lines are at pi/2 and -pi/2:
+
+    >>> x = np.linspace(-16, 16, 150)
+    >>> si, ci = sici(x)
+
+    >>> fig, ax = plt.subplots()
+    >>> ax.plot(x, si, label='Si(x)')
+    >>> ax.plot(x, ci, '--', label='Ci(x)')
+    >>> ax.legend(shadow=True, framealpha=1, loc='upper left')
+    >>> ax.set_xlabel('x')
+    >>> ax.set_title('Sine and Cosine Integrals')
+    >>> ax.axhline(np.pi/2, linestyle=':', alpha=0.5, color='k')
+    >>> ax.axhline(-np.pi/2, linestyle=':', alpha=0.5, color='k')
+    >>> ax.grid(True)
+    >>> plt.show()
+
+    """)
+
+add_newdoc("smirnov",
+    r"""
+    smirnov(n, d, out=None)
+
+    Kolmogorov-Smirnov complementary cumulative distribution function.
+
+    Returns the exact Kolmogorov-Smirnov complementary cumulative
+    distribution function,(aka the Survival Function) of Dn+ (or Dn-)
+    for a one-sided test of equality between an empirical and a
+    theoretical distribution. It is equal to the probability that the
+    maximum difference between a theoretical distribution and an empirical
+    one based on `n` samples is greater than d.
+
+    Parameters
+    ----------
+    n : int
+      Number of samples
+    d : float array_like
+      Deviation between the Empirical CDF (ECDF) and the target CDF.
+    out : ndarray, optional
+        Optional output array for the function results
+
+    Returns
+    -------
+    scalar or ndarray
+        The value(s) of smirnov(n, d), Prob(Dn+ >= d) (Also Prob(Dn- >= d))
+
+    See Also
+    --------
+    smirnovi : The Inverse Survival Function for the distribution
+    scipy.stats.ksone : Provides the functionality as a continuous distribution
+    kolmogorov, kolmogi : Functions for the two-sided distribution
+
+    Notes
+    -----
+    `smirnov` is used by `stats.kstest` in the application of the
+    Kolmogorov-Smirnov Goodness of Fit test. For historical reasons this
+    function is exposed in `scpy.special`, but the recommended way to achieve
+    the most accurate CDF/SF/PDF/PPF/ISF computations is to use the
+    `stats.ksone` distribution.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from scipy.special import smirnov
+    >>> from scipy.stats import norm
+
+    Show the probability of a gap at least as big as 0, 0.5 and 1.0 for a
+    sample of size 5.
+
+    >>> smirnov(5, [0, 0.5, 1.0])
+    array([ 1.   ,  0.056,  0.   ])
+
+    Compare a sample of size 5 against N(0, 1), the standard normal
+    distribution with mean 0 and standard deviation 1.
+
+    `x` is the sample.
+
+    >>> x = np.array([-1.392, -0.135, 0.114, 0.190, 1.82])
+
+    >>> target = norm(0, 1)
+    >>> cdfs = target.cdf(x)
+    >>> cdfs
+    array([0.0819612 , 0.44630594, 0.5453811 , 0.57534543, 0.9656205 ])
+
+    Construct the empirical CDF and the K-S statistics (Dn+, Dn-, Dn).
+
+    >>> n = len(x)
+    >>> ecdfs = np.arange(n+1, dtype=float)/n
+    >>> cols = np.column_stack([x, ecdfs[1:], cdfs, cdfs - ecdfs[:n],
+    ...                        ecdfs[1:] - cdfs])
+    >>> with np.printoptions(precision=3):
+    ...    print(cols)
+    [[-1.392  0.2    0.082  0.082  0.118]
+     [-0.135  0.4    0.446  0.246 -0.046]
+     [ 0.114  0.6    0.545  0.145  0.055]
+     [ 0.19   0.8    0.575 -0.025  0.225]
+     [ 1.82   1.     0.966  0.166  0.034]]
+    >>> gaps = cols[:, -2:]
+    >>> Dnpm = np.max(gaps, axis=0)
+    >>> print(f'Dn-={Dnpm[0]:f}, Dn+={Dnpm[1]:f}')
+    Dn-=0.246306, Dn+=0.224655
+    >>> probs = smirnov(n, Dnpm)
+    >>> print(f'For a sample of size {n} drawn from N(0, 1):',
+    ...       f' Smirnov n={n}: Prob(Dn- >= {Dnpm[0]:f}) = {probs[0]:.4f}',
+    ...       f' Smirnov n={n}: Prob(Dn+ >= {Dnpm[1]:f}) = {probs[1]:.4f}',
+    ...       sep='\n')
+    For a sample of size 5 drawn from N(0, 1):
+     Smirnov n=5: Prob(Dn- >= 0.246306) = 0.4711
+     Smirnov n=5: Prob(Dn+ >= 0.224655) = 0.5245
+
+    Plot the empirical CDF and the standard normal CDF.
+
+    >>> import matplotlib.pyplot as plt
+    >>> plt.step(np.concatenate(([-2.5], x, [2.5])),
+    ...          np.concatenate((ecdfs, [1])),
+    ...          where='post', label='Empirical CDF')
+    >>> xx = np.linspace(-2.5, 2.5, 100)
+    >>> plt.plot(xx, target.cdf(xx), '--', label='CDF for N(0, 1)')
+
+    Add vertical lines marking Dn+ and Dn-.
+
+    >>> iminus, iplus = np.argmax(gaps, axis=0)
+    >>> plt.vlines([x[iminus]], ecdfs[iminus], cdfs[iminus], color='r',
+    ...            alpha=0.5, lw=4)
+    >>> plt.vlines([x[iplus]], cdfs[iplus], ecdfs[iplus+1], color='m',
+    ...            alpha=0.5, lw=4)
+
+    >>> plt.grid(True)
+    >>> plt.legend(framealpha=1, shadow=True)
+    >>> plt.show()
+    """)
+
+add_newdoc("smirnovi",
+    """
+    smirnovi(n, p, out=None)
+
+    Inverse to `smirnov`.
+
+    Returns `d` such that ``smirnov(n, d) == p``, the critical value
+    corresponding to `p`.
+
+    Parameters
+    ----------
+    n : int
+      Number of samples
+    p : float array_like
+        Probability
+    out : ndarray, optional
+        Optional output array for the function results
+
+    Returns
+    -------
+    scalar or ndarray
+        The value(s) of smirnovi(n, p), the critical values.
+
+    See Also
+    --------
+    smirnov : The Survival Function (SF) for the distribution
+    scipy.stats.ksone : Provides the functionality as a continuous distribution
+    kolmogorov, kolmogi : Functions for the two-sided distribution
+    scipy.stats.kstwobign : Two-sided Kolmogorov-Smirnov distribution, large n
+
+    Notes
+    -----
+    `smirnov` is used by `stats.kstest` in the application of the
+    Kolmogorov-Smirnov Goodness of Fit test. For historical reasons this
+    function is exposed in `scpy.special`, but the recommended way to achieve
+    the most accurate CDF/SF/PDF/PPF/ISF computations is to use the
+    `stats.ksone` distribution.
+
+    Examples
+    --------
+    >>> from scipy.special import smirnovi, smirnov
+
+    >>> n = 24
+    >>> deviations = [0.1, 0.2, 0.3]
+
+    Use `smirnov` to compute the complementary CDF of the Smirnov
+    distribution for the given number of samples and deviations.
+
+    >>> p = smirnov(n, deviations)
+    >>> p
+    array([0.58105083, 0.12826832, 0.01032231])
+
+    The inverse function ``smirnovi(n, p)`` returns ``deviations``.
+
+    >>> smirnovi(n, p)
+    array([0.1, 0.2, 0.3])
+
+    """)
+
+add_newdoc("_smirnovc",
+    """
+    _smirnovc(n, d)
+     Internal function, do not use.
+    """)
+
+add_newdoc("_smirnovci",
+    """
+     Internal function, do not use.
+    """)
+
+add_newdoc("_smirnovp",
+    """
+    _smirnovp(n, p)
+     Internal function, do not use.
+    """)
+
+add_newdoc("spence",
+    r"""
+    spence(z, out=None)
+
+    Spence's function, also known as the dilogarithm.
+
+    It is defined to be
+
+    .. math::
+      \int_1^z \frac{\log(t)}{1 - t}dt
+
+    for complex :math:`z`, where the contour of integration is taken
+    to avoid the branch cut of the logarithm. Spence's function is
+    analytic everywhere except the negative real axis where it has a
+    branch cut.
+
+    Parameters
+    ----------
+    z : array_like
+        Points at which to evaluate Spence's function
+    out : ndarray, optional
+        Optional output array for the function results
+
+    Returns
+    -------
+    s : scalar or ndarray
+        Computed values of Spence's function
+
+    Notes
+    -----
+    There is a different convention which defines Spence's function by
+    the integral
+
+    .. math::
+      -\int_0^z \frac{\log(1 - t)}{t}dt;
+
+    this is our ``spence(1 - z)``.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from scipy.special import spence
+    >>> import matplotlib.pyplot as plt
+
+    The function is defined for complex inputs:
+
+    >>> spence([1-1j, 1.5+2j, 3j, -10-5j])
+    array([-0.20561676+0.91596559j, -0.86766909-1.39560134j,
+           -0.59422064-2.49129918j, -1.14044398+6.80075924j])
+
+    For complex inputs on the branch cut, which is the negative real axis,
+    the function returns the limit for ``z`` with positive imaginary part.
+    For example, in the following, note the sign change of the imaginary
+    part of the output for ``z = -2`` and ``z = -2 - 1e-8j``:
+
+    >>> spence([-2 + 1e-8j, -2, -2 - 1e-8j])
+    array([2.32018041-3.45139229j, 2.32018042-3.4513923j ,
+           2.32018041+3.45139229j])
+
+    The function returns ``nan`` for real inputs on the branch cut:
+
+    >>> spence(-1.5)
+    nan
+
+    Verify some particular values: ``spence(0) = pi**2/6``,
+    ``spence(1) = 0`` and ``spence(2) = -pi**2/12``.
+
+    >>> spence([0, 1, 2])
+    array([ 1.64493407,  0.        , -0.82246703])
+    >>> np.pi**2/6, -np.pi**2/12
+    (1.6449340668482264, -0.8224670334241132)
+
+    Verify the identity::
+
+        spence(z) + spence(1 - z) = pi**2/6 - log(z)*log(1 - z)
+
+    >>> z = 3 + 4j
+    >>> spence(z) + spence(1 - z)
+    (-2.6523186143876067+1.8853470951513935j)
+    >>> np.pi**2/6 - np.log(z)*np.log(1 - z)
+    (-2.652318614387606+1.885347095151394j)
+
+    Plot the function for positive real input.
+
+    >>> fig, ax = plt.subplots()
+    >>> x = np.linspace(0, 6, 400)
+    >>> ax.plot(x, spence(x))
+    >>> ax.grid()
+    >>> ax.set_xlabel('x')
+    >>> ax.set_title('spence(x)')
+    >>> plt.show()
+    """)
+
+add_newdoc(
+    "stdtr",
+    r"""
+    stdtr(df, t, out=None)
+
+    Student t distribution cumulative distribution function.
+
+    Returns the integral:
+
+    .. math::
+        \frac{\Gamma((df+1)/2)}{\sqrt{\pi df} \Gamma(df/2)}
+        \int_{-\infty}^t (1+x^2/df)^{-(df+1)/2}\, dx
+
+    Parameters
+    ----------
+    df : array_like
+        Degrees of freedom
+    t : array_like
+        Upper bound of the integral
+    out : ndarray, optional
+        Optional output array for the function results
+
+    Returns
+    -------
+    scalar or ndarray
+        Value of the Student t CDF at t
+
+    See Also
+    --------
+    stdtridf : inverse of stdtr with respect to `df`
+    stdtrit : inverse of stdtr with respect to `t`
+    scipy.stats.t : student t distribution
+
+    Notes
+    -----
+    The student t distribution is also available as `scipy.stats.t`.
+    Calling `stdtr` directly can improve performance compared to the
+    ``cdf`` method of `scipy.stats.t` (see last example below).
+
+    The function is computed using the Boost Math library [1]_, which
+    relies on the incomplete beta function.
+
+    References
+    ----------
+    .. [1] Boost C++ Libraries, https://www.boost.org/
+
+    Examples
+    --------
+    Calculate the function for ``df=3`` at ``t=1``.
+
+    >>> import numpy as np
+    >>> from scipy.special import stdtr
+    >>> import matplotlib.pyplot as plt
+    >>> stdtr(3, 1)
+    0.8044988905221148
+
+    Plot the function for three different degrees of freedom.
+
+    >>> x = np.linspace(-10, 10, 1000)
+    >>> fig, ax = plt.subplots()
+    >>> parameters = [(1, "solid"), (3, "dashed"), (10, "dotted")]
+    >>> for (df, linestyle) in parameters:
+    ...     ax.plot(x, stdtr(df, x), ls=linestyle, label=f"$df={df}$")
+    >>> ax.legend()
+    >>> ax.set_title("Student t distribution cumulative distribution function")
+    >>> plt.show()
+
+    The function can be computed for several degrees of freedom at the same
+    time by providing a NumPy array or list for `df`:
+
+    >>> stdtr([1, 2, 3], 1)
+    array([0.75      , 0.78867513, 0.80449889])
+
+    It is possible to calculate the function at several points for several
+    different degrees of freedom simultaneously by providing arrays for `df`
+    and `t` with shapes compatible for broadcasting. Compute `stdtr` at
+    4 points for 3 degrees of freedom resulting in an array of shape 3x4.
+
+    >>> dfs = np.array([[1], [2], [3]])
+    >>> t = np.array([2, 4, 6, 8])
+    >>> dfs.shape, t.shape
+    ((3, 1), (4,))
+
+    >>> stdtr(dfs, t)
+    array([[0.85241638, 0.92202087, 0.94743154, 0.96041658],
+           [0.90824829, 0.97140452, 0.98666426, 0.99236596],
+           [0.93033702, 0.98599577, 0.99536364, 0.99796171]])
+
+    The t distribution is also available as `scipy.stats.t`. Calling `stdtr`
+    directly can be much faster than calling the ``cdf`` method of
+    `scipy.stats.t`. To get the same results, one must use the following
+    parametrization: ``scipy.stats.t(df).cdf(x) = stdtr(df, x)``.
+
+    >>> from scipy.stats import t
+    >>> df, x = 3, 1
+    >>> stdtr_result = stdtr(df, x)  # this can be faster than below
+    >>> stats_result = t(df).cdf(x)
+    >>> stats_result == stdtr_result  # test that results are equal
     True
+    """)
 
-    >>> arr = np.array(["hello", np.nan, "world"],
-    ...                dtype=StringDType(na_object=np.nan))
-    >>> np.isnan(arr)
-    array([False, True, False])
+add_newdoc("stdtridf",
+    """
+    stdtridf(p, t, out=None)
 
-    >>> np.array([1.2, object(), "hello world"],
-    ...          dtype=StringDType(coerce=False))
-    Traceback (most recent call last):
-        ...
-    ValueError: StringDType only allows string data when string coercion is disabled.
+    Inverse of `stdtr` vs df.
 
-    >>> np.array(["hello", "world"], dtype=StringDType(coerce=True))
-    array(["hello", "world"], dtype=StringDType(coerce=True))
+    Returns the argument df such that stdtr(df, t) is equal to `p`.
+
+    Parameters
+    ----------
+    p : array_like
+        Probability
+    t : array_like
+        Upper bound of the integral
+    out : ndarray, optional
+        Optional output array for the function results
+
+    Returns
+    -------
+    df : scalar or ndarray
+        Value of `df` such that ``stdtr(df, t) == p``
+
+    See Also
+    --------
+    stdtr : Student t CDF
+    stdtrit : inverse of stdtr with respect to `t`
+    scipy.stats.t : Student t distribution
+
+    Examples
+    --------
+    Compute the student t cumulative distribution function for one
+    parameter set.
+
+    >>> from scipy.special import stdtr, stdtridf
+    >>> df, x = 5, 2
+    >>> cdf_value = stdtr(df, x)
+    >>> cdf_value
+    0.9490302605850709
+
+    Verify that `stdtridf` recovers the original value for `df` given
+    the CDF value and `x`.
+
+    >>> stdtridf(cdf_value, x)
+    5.0
+    """)
+
+add_newdoc("stdtrit",
+    """
+    stdtrit(df, p, out=None)
+
+    The `p`-th quantile of the student t distribution.
+
+    This function is the inverse of the student t distribution cumulative
+    distribution function (CDF), returning `t` such that `stdtr(df, t) = p`.
+
+    Returns the argument `t` such that stdtr(df, t) is equal to `p`.
+
+    Parameters
+    ----------
+    df : array_like
+        Degrees of freedom
+    p : array_like
+        Probability
+    out : ndarray, optional
+        Optional output array for the function results
+
+    Returns
+    -------
+    t : scalar or ndarray
+        Value of `t` such that ``stdtr(df, t) == p``
+
+    See Also
+    --------
+    stdtr : Student t CDF
+    stdtridf : inverse of stdtr with respect to `df`
+    scipy.stats.t : Student t distribution
+
+    Notes
+    -----
+    The student t distribution is also available as `scipy.stats.t`. Calling
+    `stdtrit` directly can improve performance compared to the ``ppf``
+    method of `scipy.stats.t` (see last example below).
+
+    The function is computed using the Boost Math library [1]_, which
+    relies on the incomplete beta function.
+
+    References
+    ----------
+    .. [1] Boost C++ Libraries, https://www.boost.org/
+
+    Examples
+    --------
+    `stdtrit` represents the inverse of the student t distribution CDF which
+    is available as `stdtr`. Here, we calculate the CDF for ``df`` at
+    ``x=1``. `stdtrit` then returns ``1`` up to floating point errors
+    given the same value for `df` and the computed CDF value.
+
+    >>> import numpy as np
+    >>> from scipy.special import stdtr, stdtrit
+    >>> import matplotlib.pyplot as plt
+    >>> df = 3
+    >>> x = 1
+    >>> cdf_value = stdtr(df, x)
+    >>> stdtrit(df, cdf_value)
+    0.9999999994418539
+
+    Plot the function for three different degrees of freedom.
+
+    >>> x = np.linspace(0, 1, 1000)
+    >>> parameters = [(1, "solid"), (2, "dashed"), (5, "dotted")]
+    >>> fig, ax = plt.subplots()
+    >>> for (df, linestyle) in parameters:
+    ...     ax.plot(x, stdtrit(df, x), ls=linestyle, label=f"$df={df}$")
+    >>> ax.legend()
+    >>> ax.set_ylim(-10, 10)
+    >>> ax.set_title("Student t distribution quantile function")
+    >>> plt.show()
+
+    The function can be computed for several degrees of freedom at the same
+    time by providing a NumPy array or list for `df`:
+
+    >>> stdtrit([1, 2, 3], 0.7)
+    array([0.72654253, 0.6172134 , 0.58438973])
+
+    It is possible to calculate the function at several points for several
+    different degrees of freedom simultaneously by providing arrays for `df`
+    and `p` with shapes compatible for broadcasting. Compute `stdtrit` at
+    4 points for 3 degrees of freedom resulting in an array of shape 3x4.
+
+    >>> dfs = np.array([[1], [2], [3]])
+    >>> p = np.array([0.2, 0.4, 0.7, 0.8])
+    >>> dfs.shape, p.shape
+    ((3, 1), (4,))
+
+    >>> stdtrit(dfs, p)
+    array([[-1.37638192, -0.3249197 ,  0.72654253,  1.37638192],
+           [-1.06066017, -0.28867513,  0.6172134 ,  1.06066017],
+           [-0.97847231, -0.27667066,  0.58438973,  0.97847231]])
+
+    The t distribution is also available as `scipy.stats.t`. Calling `stdtrit`
+    directly can be much faster than calling the ``ppf`` method of
+    `scipy.stats.t`. To get the same results, one must use the following
+    parametrization: ``scipy.stats.t(df).ppf(x) = stdtrit(df, x)``.
+
+    >>> from scipy.stats import t
+    >>> df, x = 3, 0.5
+    >>> stdtrit_result = stdtrit(df, x)  # this can be faster than below
+    >>> stats_result = t(df).ppf(x)
+    >>> stats_result == stdtrit_result  # test that results are equal
+    True
+    """)
+
+add_newdoc(
+    "tklmbda",
+    r"""
+    tklmbda(x, lmbda, out=None)
+
+    Cumulative distribution function of the Tukey lambda distribution.
+
+    Parameters
+    ----------
+    x, lmbda : array_like
+        Parameters
+    out : ndarray, optional
+        Optional output array for the function results
+
+    Returns
+    -------
+    cdf : scalar or ndarray
+        Value of the Tukey lambda CDF
+
+    See Also
+    --------
+    scipy.stats.tukeylambda : Tukey lambda distribution
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> import matplotlib.pyplot as plt
+    >>> from scipy.special import tklmbda, expit
+
+    Compute the cumulative distribution function (CDF) of the Tukey lambda
+    distribution at several ``x`` values for `lmbda` = -1.5.
+
+    >>> x = np.linspace(-2, 2, 9)
+    >>> x
+    array([-2. , -1.5, -1. , -0.5,  0. ,  0.5,  1. ,  1.5,  2. ])
+    >>> tklmbda(x, -1.5)
+    array([0.34688734, 0.3786554 , 0.41528805, 0.45629737, 0.5       ,
+           0.54370263, 0.58471195, 0.6213446 , 0.65311266])
+
+    When `lmbda` is 0, the function is the logistic sigmoid function,
+    which is implemented in `scipy.special` as `expit`.
+
+    >>> tklmbda(x, 0)
+    array([0.11920292, 0.18242552, 0.26894142, 0.37754067, 0.5       ,
+           0.62245933, 0.73105858, 0.81757448, 0.88079708])
+    >>> expit(x)
+    array([0.11920292, 0.18242552, 0.26894142, 0.37754067, 0.5       ,
+           0.62245933, 0.73105858, 0.81757448, 0.88079708])
+
+    When `lmbda` is 1, the Tukey lambda distribution is uniform on the
+    interval [-1, 1], so the CDF increases linearly.
+
+    >>> t = np.linspace(-1, 1, 9)
+    >>> tklmbda(t, 1)
+    array([0.   , 0.125, 0.25 , 0.375, 0.5  , 0.625, 0.75 , 0.875, 1.   ])
+
+    In the following, we generate plots for several values of `lmbda`.
+
+    The first figure shows graphs for `lmbda` <= 0.
+
+    >>> styles = ['-', '-.', '--', ':']
+    >>> fig, ax = plt.subplots()
+    >>> x = np.linspace(-12, 12, 500)
+    >>> for k, lmbda in enumerate([-1.0, -0.5, 0.0]):
+    ...     y = tklmbda(x, lmbda)
+    ...     ax.plot(x, y, styles[k], label=rf'$\lambda$ = {lmbda:-4.1f}')
+
+    >>> ax.set_title(r'tklmbda(x, $\lambda$)')
+    >>> ax.set_label('x')
+    >>> ax.legend(framealpha=1, shadow=True)
+    >>> ax.grid(True)
+
+    The second figure shows graphs for `lmbda` > 0.  The dots in the
+    graphs show the bounds of the support of the distribution.
+
+    >>> fig, ax = plt.subplots()
+    >>> x = np.linspace(-4.2, 4.2, 500)
+    >>> lmbdas = [0.25, 0.5, 1.0, 1.5]
+    >>> for k, lmbda in enumerate(lmbdas):
+    ...     y = tklmbda(x, lmbda)
+    ...     ax.plot(x, y, styles[k], label=fr'$\lambda$ = {lmbda}')
+
+    >>> ax.set_prop_cycle(None)
+    >>> for lmbda in lmbdas:
+    ...     ax.plot([-1/lmbda, 1/lmbda], [0, 1], '.', ms=8)
+
+    >>> ax.set_title(r'tklmbda(x, $\lambda$)')
+    >>> ax.set_xlabel('x')
+    >>> ax.legend(framealpha=1, shadow=True)
+    >>> ax.grid(True)
+
+    >>> plt.tight_layout()
+    >>> plt.show()
+
+    The CDF of the Tukey lambda distribution is also implemented as the
+    ``cdf`` method of `scipy.stats.tukeylambda`.  In the following,
+    ``tukeylambda.cdf(x, -0.5)`` and ``tklmbda(x, -0.5)`` compute the
+    same values:
+
+    >>> from scipy.stats import tukeylambda
+    >>> x = np.linspace(-2, 2, 9)
+
+    >>> tukeylambda.cdf(x, -0.5)
+    array([0.21995157, 0.27093858, 0.33541677, 0.41328161, 0.5       ,
+           0.58671839, 0.66458323, 0.72906142, 0.78004843])
+
+    >>> tklmbda(x, -0.5)
+    array([0.21995157, 0.27093858, 0.33541677, 0.41328161, 0.5       ,
+           0.58671839, 0.66458323, 0.72906142, 0.78004843])
+
+    The implementation in ``tukeylambda`` also provides location and scale
+    parameters, and other methods such as ``pdf()`` (the probability
+    density function) and ``ppf()`` (the inverse of the CDF), so for
+    working with the Tukey lambda distribution, ``tukeylambda`` is more
+    generally useful.  The primary advantage of ``tklmbda`` is that it is
+    significantly faster than ``tukeylambda.cdf``.
+    """)
+
+add_newdoc("yn",
+    r"""
+    yn(n, x, out=None)
+
+    Bessel function of the second kind of integer order and real argument.
+
+    Parameters
+    ----------
+    n : array_like
+        Order (integer).
+    x : array_like
+        Argument (float).
+    out : ndarray, optional
+        Optional output array for the function results
+
+    Returns
+    -------
+    Y : scalar or ndarray
+        Value of the Bessel function, :math:`Y_n(x)`.
+
+    See Also
+    --------
+    yv : For real order and real or complex argument.
+    y0: faster implementation of this function for order 0
+    y1: faster implementation of this function for order 1
+
+    Notes
+    -----
+    Wrapper for the Cephes [1]_ routine `yn`.
+
+    The function is evaluated by forward recurrence on `n`, starting with
+    values computed by the Cephes routines `y0` and `y1`. If ``n = 0`` or 1,
+    the routine for `y0` or `y1` is called directly.
+
+    References
+    ----------
+    .. [1] Cephes Mathematical Functions Library,
+           https://netlib.org/cephes/
+
+    Examples
+    --------
+    Evaluate the function of order 0 at one point.
+
+    >>> from scipy.special import yn
+    >>> yn(0, 1.)
+    0.08825696421567697
+
+    Evaluate the function at one point for different orders.
+
+    >>> yn(0, 1.), yn(1, 1.), yn(2, 1.)
+    (0.08825696421567697, -0.7812128213002888, -1.6506826068162546)
+
+    The evaluation for different orders can be carried out in one call by
+    providing a list or NumPy array as argument for the `v` parameter:
+
+    >>> yn([0, 1, 2], 1.)
+    array([ 0.08825696, -0.78121282, -1.65068261])
+
+    Evaluate the function at several points for order 0 by providing an
+    array for `z`.
+
+    >>> import numpy as np
+    >>> points = np.array([0.5, 3., 8.])
+    >>> yn(0, points)
+    array([-0.44451873,  0.37685001,  0.22352149])
+
+    If `z` is an array, the order parameter `v` must be broadcastable to
+    the correct shape if different orders shall be computed in one call.
+    To calculate the orders 0 and 1 for a 1D array:
+
+    >>> orders = np.array([[0], [1]])
+    >>> orders.shape
+    (2, 1)
+
+    >>> yn(orders, points)
+    array([[-0.44451873,  0.37685001,  0.22352149],
+           [-1.47147239,  0.32467442, -0.15806046]])
+
+    Plot the functions of order 0 to 3 from 0 to 10.
+
+    >>> import matplotlib.pyplot as plt
+    >>> fig, ax = plt.subplots()
+    >>> x = np.linspace(0., 10., 1000)
+    >>> for i in range(4):
+    ...     ax.plot(x, yn(i, x), label=f'$Y_{i!r}$')
+    >>> ax.set_ylim(-3, 1)
+    >>> ax.legend()
+    >>> plt.show()
+    """)
+
+
+add_newdoc("_struve_asymp_large_z",
+    """
+    _struve_asymp_large_z(v, z, is_h)
+
+    Internal function for testing `struve` & `modstruve`
+
+    Evaluates using asymptotic expansion
+
+    Returns
+    -------
+    v, err
+    """)
+
+add_newdoc("_struve_power_series",
+    """
+    _struve_power_series(v, z, is_h)
+
+    Internal function for testing `struve` & `modstruve`
+
+    Evaluates using power series
+
+    Returns
+    -------
+    v, err
+    """)
+
+add_newdoc("_struve_bessel_series",
+    """
+    _struve_bessel_series(v, z, is_h)
+
+    Internal function for testing `struve` & `modstruve`
+
+    Evaluates using Bessel function series
+
+    Returns
+    -------
+    v, err
+    """)
+
+add_newdoc("_spherical_jn",
+    """
+    Internal function, use `spherical_jn` instead.
+    """)
+
+add_newdoc("_spherical_jn_d",
+    """
+    Internal function, use `spherical_jn` instead.
+    """)
+
+add_newdoc("_spherical_yn",
+    """
+    Internal function, use `spherical_yn` instead.
+    """)
+
+add_newdoc("_spherical_yn_d",
+    """
+    Internal function, use `spherical_yn` instead.
+    """)
+
+add_newdoc("_spherical_in",
+    """
+    Internal function, use `spherical_in` instead.
+    """)
+
+add_newdoc("_spherical_in_d",
+    """
+    Internal function, use `spherical_in` instead.
+    """)
+
+add_newdoc("_spherical_kn",
+    """
+    Internal function, use `spherical_kn` instead.
+    """)
+
+add_newdoc("_spherical_kn_d",
+    """
+    Internal function, use `spherical_kn` instead.
+    """)
+
+add_newdoc("owens_t",
+    """
+    owens_t(h, a, out=None)
+
+    Owen's T Function.
+
+    The function T(h, a) gives the probability of the event
+    (X > h and 0 < Y < a * X) where X and Y are independent
+    standard normal random variables.
+
+    Parameters
+    ----------
+    h : array_like
+        Input value.
+    a : array_like
+        Input value.
+    out : ndarray, optional
+        Optional output array for the function results
+
+    Returns
+    -------
+    t: scalar or ndarray
+        Probability of the event (X > h and 0 < Y < a * X),
+        where X and Y are independent standard normal random variables.
+
+    References
+    ----------
+    .. [1] M. Patefield and D. Tandy, "Fast and accurate calculation of
+           Owen's T Function", Statistical Software vol. 5, pp. 1-25, 2000.
+
+    Examples
+    --------
+    >>> from scipy import special
+    >>> a = 3.5
+    >>> h = 0.78
+    >>> special.owens_t(h, a)
+    0.10877216734852274
+    """)
+
+add_newdoc("_factorial",
+    """
+    Internal function, do not use.
+    """)
+
+add_newdoc("ndtri_exp",
+    r"""
+    ndtri_exp(y, out=None)
+
+    Inverse of `log_ndtr` vs x. Allows for greater precision than
+    `ndtri` composed with `numpy.exp` for very small values of y and for
+    y close to 0.
+
+    Parameters
+    ----------
+    y : array_like of float
+        Function argument
+    out : ndarray, optional
+        Optional output array for the function results
+
+    Returns
+    -------
+    scalar or ndarray
+        Inverse of the log CDF of the standard normal distribution, evaluated
+        at y.
+
+    See Also
+    --------
+    log_ndtr : log of the standard normal cumulative distribution function
+    ndtr : standard normal cumulative distribution function
+    ndtri : standard normal percentile function
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> import scipy.special as sc
+
+    `ndtri_exp` agrees with the naive implementation when the latter does
+    not suffer from underflow.
+
+    >>> sc.ndtri_exp(-1)
+    -0.33747496376420244
+    >>> sc.ndtri(np.exp(-1))
+    -0.33747496376420244
+
+    For extreme values of y, the naive approach fails
+
+    >>> sc.ndtri(np.exp(-800))
+    -inf
+    >>> sc.ndtri(np.exp(-1e-20))
+    inf
+
+    whereas `ndtri_exp` is still able to compute the result to high precision.
+
+    >>> sc.ndtri_exp(-800)
+    -39.88469483825668
+    >>> sc.ndtri_exp(-1e-20)
+    9.262340089798409
+    """)
+
+
+add_newdoc("_stirling2_inexact",
+    r"""
+    Internal function, do not use.
+    """)
+
+add_newdoc(
+    "_beta_pdf",
+    r"""
+    _beta_pdf(x, a, b)
+
+    Probability density function of beta distribution.
+
+    Parameters
+    ----------
+    x : array_like
+        Real-valued such that :math:`0 \leq x \leq 1`,
+        the upper limit of integration
+    a, b : array_like
+           Positive, real-valued parameters
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_beta_ppf",
+    r"""
+    _beta_ppf(x, a, b)
+
+    Percent point function of beta distribution.
+
+    Parameters
+    ----------
+    x : array_like
+        Real-valued such that :math:`0 \leq x \leq 1`,
+        the upper limit of integration
+    a, b : array_like
+           Positive, real-valued parameters
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_invgauss_ppf",
+    """
+    _invgauss_ppf(x, mu)
+
+    Percent point function of inverse gaussian distribution.
+
+    Parameters
+    ----------
+    x : array_like
+        Positive real-valued
+    mu : array_like
+        Positive, real-valued parameters
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_invgauss_isf",
+    """
+    _invgauss_isf(x, mu, s)
+
+    Inverse survival function of inverse gaussian distribution.
+
+    Parameters
+    ----------
+    x : array_like
+        Positive real-valued
+    mu : array_like
+        Positive, real-valued parameters
+    s : array_like
+        Positive, real-valued parameters
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_cauchy_ppf",
+    """
+    _cauchy_ppf(p, loc, scale)
+
+    Percent point function (i.e. quantile) of the Cauchy distribution.
+
+    Parameters
+    ----------
+    p : array_like
+        Probabilities
+    loc : array_like
+        Location parameter of the distribution.
+    scale : array_like
+        Scale parameter of the distribution.
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_cauchy_isf",
+    """
+    _cauchy_isf(p, loc, scale)
+
+    Inverse survival function of the Cauchy distribution.
+
+    Parameters
+    ----------
+    p : array_like
+        Probabilities
+    loc : array_like
+        Location parameter of the distribution.
+    scale : array_like
+        Scale parameter of the distribution.
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_ncx2_pdf",
+    """
+    _ncx2_pdf(x, k, l)
+
+    Probability density function of Non-central chi-squared distribution.
+
+    Parameters
+    ----------
+    x : array_like
+        Positive real-valued
+    k, l : array_like
+        Positive, real-valued parameters
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_ncx2_cdf",
+    """
+    _ncx2_cdf(x, k, l)
+
+    Cumulative density function of Non-central chi-squared distribution.
+
+    Parameters
+    ----------
+    x : array_like
+        Positive real-valued
+    k, l : array_like
+        Positive, real-valued parameters
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_ncx2_ppf",
+    """
+    _ncx2_ppf(x, k, l)
+
+    Percent point function of Non-central chi-squared distribution.
+
+    Parameters
+    ----------
+    x : array_like
+        Positive real-valued
+    k, l : array_like
+        Positive, real-valued parameters
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_ncx2_sf",
+    """
+    _ncx2_sf(x, k, l)
+
+    Survival function of Non-central chi-squared distribution.
+
+    Parameters
+    ----------
+    x : array_like
+        Positive real-valued
+    k, l : array_like
+        Positive, real-valued parameters
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_ncx2_isf",
+    """
+    _ncx2_isf(x, k, l)
+
+    Inverse survival function of Non-central chi-squared distribution.
+
+    Parameters
+    ----------
+    x : array_like
+        Positive real-valued
+    k, l : array_like
+        Positive, real-valued parameters
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_ncf_pdf",
+    """
+    _ncf_pdf(x, v1, v2, l)
+
+    Probability density function of noncentral F-distribution.
+
+    Parameters
+    ----------
+    x : array_like
+        Positive real-valued
+    v1, v2, l : array_like
+        Positive, real-valued parameters
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_ncf_cdf",
+    """
+    _ncf_cdf(x, v1, v2, l)
+
+    Cumulative density function of noncentral F-distribution.
+
+    Parameters
+    ----------
+    x : array_like
+        Positive real-valued
+    v1, v2, l : array_like
+        Positive, real-valued parameters
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_ncf_ppf",
+    """
+    _ncf_ppf(x, v1, v2, l)
+
+    Percent point function of noncentral F-distribution.
+
+    Parameters
+    ----------
+    x : array_like
+        Positive real-valued
+    v1, v2, l : array_like
+        Positive, real-valued parameters
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_ncf_sf",
+    """
+    _ncf_sf(x, v1, v2, l)
+
+    Survival function of noncentral F-distribution.
+
+    Parameters
+    ----------
+    x : array_like
+        Positive real-valued
+    v1, v2, l : array_like
+        Positive, real-valued parameters
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_ncf_isf",
+    """
+    _ncf_isf(x, v1, v2, l)
+
+    Inverse survival function of noncentral F-distribution.
+
+    Parameters
+    ----------
+    x : array_like
+        Positive real-valued
+    v1, v2, l : array_like
+        Positive, real-valued parameters
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_ncf_mean",
+    """
+    _ncf_mean(v1, v2, l)
+
+    Mean of noncentral F-distribution.
+
+    Parameters
+    ----------
+    v1, v2, l : array_like
+        Positive, real-valued parameters
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_ncf_variance",
+    """
+    _ncf_variance(v1, v2, l)
+
+    Variance of noncentral F-distribution.
+
+    Parameters
+    ----------
+    v1, v2, l : array_like
+        Positive, real-valued parameters
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_ncf_skewness",
+    """
+    _ncf_skewness(v1, v2, l)
+
+    Skewness of noncentral F-distribution.
+
+    Parameters
+    ----------
+    v1, v2, l : array_like
+        Positive, real-valued parameters
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_ncf_kurtosis_excess",
+    """
+    _ncf_kurtosis_excess(v1, v2, l)
+
+    Kurtosis excess of noncentral F-distribution.
+
+    Parameters
+    ----------
+    v1, v2, l : array_like
+        Positive, real-valued parameters
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_nct_cdf",
+    """
+    _nct_cdf(x, v, l)
+
+    Cumulative density function of noncentral t-distribution.
+
+    Parameters
+    ----------
+    x : array_like
+        Real-valued
+    v : array_like
+        Positive, real-valued parameters
+    l : array_like
+        Real-valued parameters
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_nct_pdf",
+    """
+    _nct_pdf(x, v, l)
+
+    Probability density function of noncentral t-distribution.
+
+    Parameters
+    ----------
+    x : array_like
+        Real-valued
+    v : array_like
+        Positive, real-valued parameters
+    l : array_like
+        Real-valued parameters
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+
+add_newdoc(
+    "_nct_ppf",
+    """
+    _nct_ppf(x, v, l)
+
+    Percent point function of noncentral t-distribution.
+
+    Parameters
+    ----------
+    x : array_like
+        Real-valued
+    v : array_like
+        Positive, real-valued parameters
+    l : array_like
+        Real-valued parameters
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_nct_sf",
+    """
+    _nct_sf(x, v, l)
+
+    Survival function of noncentral t-distribution.
+
+    Parameters
+    ----------
+    x : array_like
+        Real-valued
+    v : array_like
+        Positive, real-valued parameters
+    l : array_like
+        Real-valued parameters
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_nct_isf",
+    """
+    _nct_isf(x, v, l)
+
+    Inverse survival function of noncentral t-distribution.
+
+    Parameters
+    ----------
+    x : array_like
+        Real-valued
+    v : array_like
+        Positive, real-valued parameters
+    l : array_like
+        Real-valued parameters
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_nct_mean",
+    """
+    _nct_mean(v, l)
+
+    Mean of noncentral t-distribution.
+
+    Parameters
+    ----------
+    v : array_like
+        Positive, real-valued parameters
+    l : array_like
+        Real-valued parameters
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_nct_variance",
+    """
+    _nct_variance(v, l)
+
+    Variance of noncentral t-distribution.
+
+    Parameters
+    ----------
+    v : array_like
+        Positive, real-valued parameters
+    l : array_like
+        Real-valued parameters
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_nct_skewness",
+    """
+    _nct_skewness(v, l)
+
+    Skewness of noncentral t-distribution.
+
+    Parameters
+    ----------
+    v : array_like
+        Positive, real-valued parameters
+    l : array_like
+        Real-valued parameters
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_nct_kurtosis_excess",
+    """
+    _nct_kurtosis_excess(v, l)
+
+    Kurtosis excess of noncentral t-distribution.
+
+    Parameters
+    ----------
+    v : array_like
+        Positive, real-valued parameters
+    l : array_like
+        Real-valued parameters
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_skewnorm_cdf",
+    """
+    _skewnorm_cdf(x, l, sc, sh)
+
+    Cumulative density function of skewnorm distribution.
+
+    Parameters
+    ----------
+    x : array_like
+        Real-valued
+    l : array_like
+        Real-valued parameters
+    sc : array_like
+        Positive, Real-valued parameters
+    sh : array_like
+        Real-valued parameters
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_skewnorm_ppf",
+    """
+    _skewnorm_ppf(x, l, sc, sh)
+
+    Percent point function of skewnorm distribution.
+
+    Parameters
+    ----------
+    x : array_like
+        Real-valued
+    l : array_like
+        Real-valued parameters
+    sc : array_like
+        Positive, Real-valued parameters
+    sh : array_like
+        Real-valued parameters
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_skewnorm_isf",
+    """
+    _skewnorm_isf(x, l, sc, sh)
+
+    Inverse survival function of skewnorm distribution.
+
+    Parameters
+    ----------
+    x : array_like
+        Real-valued
+    l : array_like
+        Real-valued parameters
+    sc : array_like
+        Positive, Real-valued parameters
+    sh : array_like
+        Real-valued parameters
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_binom_pmf",
+    """
+    _binom_pmf(x, n, p)
+
+    Probability mass function of binomial distribution.
+
+    Parameters
+    ----------
+    x : array_like
+        Real-valued
+    n : array_like
+        Positive, integer-valued parameter
+    p : array_like
+        Positive, real-valued parameter
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_binom_cdf",
+    """
+    _binom_cdf(x, n, p)
+
+    Cumulative density function of binomial distribution.
+
+    Parameters
+    ----------
+    x : array_like
+        Real-valued
+    n : array_like
+        Positive, integer-valued parameter
+    p : array_like
+        Positive, real-valued parameter
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_binom_ppf",
+    """
+    _binom_ppf(x, n, p)
+
+    Percent point function of binomial distribution.
+
+    Parameters
+    ----------
+    x : array_like
+        Real-valued
+    n : array_like
+        Positive, integer-valued parameter
+    p : array_like
+        Positive, real-valued parameter
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_binom_sf",
+    """
+    _binom_sf(x, n, p)
+
+    Survival function of binomial distribution.
+
+    Parameters
+    ----------
+    x : array_like
+        Real-valued
+    n : array_like
+        Positive, integer-valued parameter
+    p : array_like
+        Positive, real-valued parameter
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_binom_isf",
+    """
+    _binom_isf(x, n, p)
+
+    Inverse survival function of binomial distribution.
+
+    Parameters
+    ----------
+    x : array_like
+        Real-valued
+    n : array_like
+        Positive, integer-valued parameter
+    p : array_like
+        Positive, real-valued parameter
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_nbinom_pmf",
+    """
+    _nbinom_pmf(x, r, p)
+
+    Probability mass function of negative binomial distribution.
+
+    Parameters
+    ----------
+    x : array_like
+        Real-valued
+    r : array_like
+        Positive, integer-valued parameter
+    p : array_like
+        Positive, real-valued parameter
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_nbinom_cdf",
+    """
+    _nbinom_cdf(x, r, p)
+
+    Cumulative density function of negative binomial distribution.
+
+    Parameters
+    ----------
+    x : array_like
+        Real-valued
+    r : array_like
+        Positive, integer-valued parameter
+    p : array_like
+        Positive, real-valued parameter
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_nbinom_ppf",
+    """
+    _nbinom_ppf(x, r, p)
+
+    Percent point function of negative binomial distribution.
+
+    Parameters
+    ----------
+    x : array_like
+        Real-valued
+    r : array_like
+        Positive, integer-valued parameter
+    p : array_like
+        Positive, real-valued parameter
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_nbinom_sf",
+    """
+    _nbinom_sf(x, r, p)
+
+    Survival function of negative binomial distribution.
+
+    Parameters
+    ----------
+    x : array_like
+        Real-valued
+    r : array_like
+        Positive, integer-valued parameter
+    p : array_like
+        Positive, real-valued parameter
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_nbinom_isf",
+    """
+    _nbinom_isf(x, r, p)
+
+    Inverse survival function of negative binomial distribution.
+
+    Parameters
+    ----------
+    x : array_like
+        Real-valued
+    r : array_like
+        Positive, integer-valued parameter
+    p : array_like
+        Positive, real-valued parameter
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_nbinom_mean",
+    """
+    _nbinom_mean(r, p)
+
+    Mean of negative binomial distribution.
+
+    Parameters
+    ----------
+    r : array_like
+        Positive, integer-valued parameter
+    p : array_like
+        Positive, real-valued parameter
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_nbinom_variance",
+    """
+    _nbinom_variance(r, p)
+
+    Variance of negative binomial distribution.
+
+    Parameters
+    ----------
+    r : array_like
+        Positive, integer-valued parameter
+    p : array_like
+        Positive, real-valued parameter
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_nbinom_skewness",
+    """
+    _nbinom_skewness(r, p)
+
+    Skewness of negative binomial distribution.
+
+    Parameters
+    ----------
+    r : array_like
+        Positive, integer-valued parameter
+    p : array_like
+        Positive, real-valued parameter
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_nbinom_kurtosis_excess",
+    """
+    _nbinom_kurtosis_excess(r, p)
+
+    Kurtosis excess of negative binomial distribution.
+
+    Parameters
+    ----------
+    r : array_like
+        Positive, integer-valued parameter
+    p : array_like
+        Positive, real-valued parameter
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_hypergeom_pmf",
+    """
+    _hypergeom_pmf(x, r, N, M)
+
+    Probability mass function of hypergeometric distribution.
+
+    Parameters
+    ----------
+    x : array_like
+        Real-valued
+    r, N, M : array_like
+        Positive, integer-valued parameter
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_hypergeom_cdf",
+    """
+    _hypergeom_cdf(x, r, N, M)
+
+    Cumulative density function of hypergeometric distribution.
+
+    Parameters
+    ----------
+    x : array_like
+        Real-valued
+    r, N, M : array_like
+        Positive, integer-valued parameter
+
+    Returns
+    -------
+    scalar or ndarray
+    """)
+
+add_newdoc(
+    "_hypergeom_sf",
+    """
+    _hypergeom_sf(x, r, N, M)
+
+    Survival function of hypergeometric distribution.
+
+    Parameters
+    ----------
+    x : array_like
+        Real-valued
+    r, N, M : array_like
+        Positive, integer-valued parameter
+
+    Returns
+    -------
+    scalar or ndarray
+    """)
+
+add_newdoc(
+    "_hypergeom_mean",
+    """
+    _hypergeom_mean(r, N, M)
+
+    Mean of hypergeometric distribution.
+
+    Parameters
+    ----------
+    r, N, M : array_like
+        Positive, integer-valued parameter
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_hypergeom_variance",
+    """
+    _hypergeom_variance(r, N, M)
+
+    Variance of hypergeometric distribution.
+
+    Parameters
+    ----------
+    r, N, M : array_like
+        Positive, integer-valued parameter
+
+    Returns
+    -------
+    scalar or ndarray
+
+    """)
+
+add_newdoc(
+    "_hypergeom_skewness",
+    """
+    _hypergeom_skewness(r, N, M)
+
+    Skewness of hypergeometric distribution.
+
+    Parameters
+    ----------
+    r, N, M : array_like
+        Positive, integer-valued parameter
+
+    Returns
+    -------
+    scalar or ndarray
+
     """)

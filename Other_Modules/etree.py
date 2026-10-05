@@ -1,6 +1,4 @@
-"""DEPRECATED - This module is kept here only as a backward compatibility shim
-for the old ufoLib.etree module, which was moved to :mod:`fontTools.misc.etree`.
-Please use the latter instead.
-"""
-
-from fontTools.misc.etree import *
+try:
+    import lxml.etree as ET  # type: ignore  # noqa: F401
+except ImportError:
+    import xml.etree.ElementTree as ET  # type: ignore  # noqa: F401

@@ -1,43 +1,143 @@
 from __future__ import annotations
 
+import ssl
 import typing
 
-from .._models import Request, Response
-from .base import AsyncBaseTransport, BaseTransport
+from .._exceptions import ReadError
+from .base import (
+    SOCKET_OPTION,
+    AsyncNetworkBackend,
+    AsyncNetworkStream,
+    NetworkBackend,
+    NetworkStream,
+)
 
-SyncHandler = typing.Callable[[Request], Response]
-AsyncHandler = typing.Callable[[Request], typing.Coroutine[None, None, Response]]
+
+class MockSSLObject:
+    def __init__(self, http2: bool):
+        self._http2 = http2
+
+    def selected_alpn_protocol(self) -> str:
+        return "h2" if self._http2 else "http/1.1"
 
 
-__all__ = ["MockTransport"]
+class MockStream(NetworkStream):
+    def __init__(self, buffer: list[bytes], http2: bool = False) -> None:
+        self._buffer = buffer
+        self._http2 = http2
+        self._closed = False
 
+    def read(self, max_bytes: int, timeout: float | None = None) -> bytes:
+        if self._closed:
+            raise ReadError("Connection closed")
+        if not self._buffer:
+            return b""
+        return self._buffer.pop(0)
 
-class MockTransport(AsyncBaseTransport, BaseTransport):
-    def __init__(self, handler: SyncHandler | AsyncHandler) -> None:
-        self.handler = handler
+    def write(self, buffer: bytes, timeout: float | None = None) -> None:
+        pass
 
-    def handle_request(
+    def close(self) -> None:
+        self._closed = True
+
+    def start_tls(
         self,
-        request: Request,
-    ) -> Response:
-        request.read()
-        response = self.handler(request)
-        if not isinstance(response, Response):  # pragma: no cover
-            raise TypeError("Cannot use an async handler in a sync Client")
-        return response
+        ssl_context: ssl.SSLContext,
+        server_hostname: str | None = None,
+        timeout: float | None = None,
+    ) -> NetworkStream:
+        return self
 
-    async def handle_async_request(
+    def get_extra_info(self, info: str) -> typing.Any:
+        return MockSSLObject(http2=self._http2) if info == "ssl_object" else None
+
+    def __repr__(self) -> str:
+        return "<httpcore.MockStream>"
+
+
+class MockBackend(NetworkBackend):
+    def __init__(self, buffer: list[bytes], http2: bool = False) -> None:
+        self._buffer = buffer
+        self._http2 = http2
+
+    def connect_tcp(
         self,
-        request: Request,
-    ) -> Response:
-        await request.aread()
-        response = self.handler(request)
+        host: str,
+        port: int,
+        timeout: float | None = None,
+        local_address: str | None = None,
+        socket_options: typing.Iterable[SOCKET_OPTION] | None = None,
+    ) -> NetworkStream:
+        return MockStream(list(self._buffer), http2=self._http2)
 
-        # Allow handler to *optionally* be an `async` function.
-        # If it is, then the `response` variable need to be awaited to actually
-        # return the result.
+    def connect_unix_socket(
+        self,
+        path: str,
+        timeout: float | None = None,
+        socket_options: typing.Iterable[SOCKET_OPTION] | None = None,
+    ) -> NetworkStream:
+        return MockStream(list(self._buffer), http2=self._http2)
 
-        if not isinstance(response, Response):
-            response = await response
+    def sleep(self, seconds: float) -> None:
+        pass
 
-        return response
+
+class AsyncMockStream(AsyncNetworkStream):
+    def __init__(self, buffer: list[bytes], http2: bool = False) -> None:
+        self._buffer = buffer
+        self._http2 = http2
+        self._closed = False
+
+    async def read(self, max_bytes: int, timeout: float | None = None) -> bytes:
+        if self._closed:
+            raise ReadError("Connection closed")
+        if not self._buffer:
+            return b""
+        return self._buffer.pop(0)
+
+    async def write(self, buffer: bytes, timeout: float | None = None) -> None:
+        pass
+
+    async def aclose(self) -> None:
+        self._closed = True
+
+    async def start_tls(
+        self,
+        ssl_context: ssl.SSLContext,
+        server_hostname: str | None = None,
+        timeout: float | None = None,
+    ) -> AsyncNetworkStream:
+        return self
+
+    def get_extra_info(self, info: str) -> typing.Any:
+        return MockSSLObject(http2=self._http2) if info == "ssl_object" else None
+
+    def __repr__(self) -> str:
+        return "<httpcore.AsyncMockStream>"
+
+
+class AsyncMockBackend(AsyncNetworkBackend):
+    def __init__(self, buffer: list[bytes], http2: bool = False) -> None:
+        self._buffer = buffer
+        self._http2 = http2
+
+    async def connect_tcp(
+        self,
+        host: str,
+        port: int,
+        timeout: float | None = None,
+        local_address: str | None = None,
+        socket_options: typing.Iterable[SOCKET_OPTION] | None = None,
+    ) -> AsyncNetworkStream:
+        return AsyncMockStream(list(self._buffer), http2=self._http2)
+
+    async def connect_unix_socket(
+        self,
+        path: str,
+        timeout: float | None = None,
+        socket_options: typing.Iterable[SOCKET_OPTION] | None = None,
+    ) -> AsyncNetworkStream:
+        return AsyncMockStream(list(self._buffer), http2=self._http2)
+
+    async def sleep(self, seconds: float) -> None:
+        pass

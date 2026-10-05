@@ -1,16 +1,45 @@
-from typing import TypeVar, Protocol
+from __future__ import annotations
+
+import os
+import sys
+from collections.abc import Sequence
+from typing import Any, Protocol, TypeVar
+
+TYPE_CHECKING = False
+if TYPE_CHECKING:
+    from numbers import _IntegralLike as IntegralLike
+
+    try:
+        import numpy.typing as npt
+
+        NumpyArray = npt.NDArray[Any]
+    except ImportError:
+        pass
+
+if sys.version_info >= (3, 13):
+    from types import CapsuleType
+else:
+    CapsuleType = object
+
+if sys.version_info >= (3, 12):
+    from collections.abc import Buffer
+else:
+    Buffer = Any
 
 
-T = TypeVar('T')
+_Ink = float | tuple[int, ...] | str
+
+Coords = Sequence[float] | Sequence[Sequence[float]]
 
 
-class RingElement(Protocol):
-    """A ring element.
+_T_co = TypeVar("_T_co", covariant=True)
 
-    Must support ``+``, ``-``, ``*``, ``**`` and ``-``.
-    """
-    def __add__(self: T, other: T, /) -> T: ...
-    def __sub__(self: T, other: T, /) -> T: ...
-    def __mul__(self: T, other: T, /) -> T: ...
-    def __pow__(self: T, other: int, /) -> T: ...
-    def __neg__(self: T, /) -> T: ...
+
+class SupportsRead(Protocol[_T_co]):
+    def read(self, length: int = ..., /) -> _T_co: ...
+
+
+StrOrBytesPath = str | bytes | os.PathLike[str] | os.PathLike[bytes]
+
+
+__all__ = ["Buffer", "IntegralLike", "StrOrBytesPath", "SupportsRead"]

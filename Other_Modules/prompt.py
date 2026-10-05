@@ -262,7 +262,7 @@ class PromptBase(Generic[PromptType]):
             value (str): String entered by user.
             error (InvalidResponse): Exception instance the initiated the error.
         """
-        self.console.print(error)
+        self.console.print(error, markup=True)
 
     def pre_prompt(self) -> None:
         """Hook to display something before the prompt."""
@@ -364,7 +364,7 @@ class Confirm(PromptBase[bool]):
 
 
 if __name__ == "__main__":  # pragma: no cover
-    from pip._vendor.rich import print
+    from rich import print
 
     if Confirm.ask("Run [i]prompt[/i] tests?", default=True):
         while True:

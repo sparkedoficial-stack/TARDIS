@@ -219,7 +219,7 @@ class VisualIntelligenceEngine:
                     return k
             except Exception:
                 pass
-        return ""
+        return "REDACTED_GROQ"
 
     # --------------------------------------------------------------------------
     # PROCESAMIENTO ACÚSTICO Y TRANSCRIPCIÓN DE AUDIO

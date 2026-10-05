@@ -80,7 +80,6 @@ def find_cloudflared() -> str | None:
         return exe
 
     candidates = [
-        Path(os.path.expanduser("~")) / ".local" / "bin" / "cloudflared",
         Path("/usr/local/bin/cloudflared"),
         Path("/usr/bin/cloudflared"),
         Path("/opt/cloudflared/cloudflared"),
@@ -495,16 +494,12 @@ def ensure_backend_running(python_bin: str, port: int, model: str, token: str, n
         print(f"{C_GREEN}[✓] Servidor local ya está respondiendo en http://REDACTED_IP:{port}{C_RESET}")
         return None
 
-    print(f"{C_YELLOW}[*] Levantando servidor maestro GIA en el puerto {port}...{C_RESET}")
-    target_server = BASE_DIR / "omni_temporal_control.py" if (BASE_DIR / "omni_temporal_control.py").exists() else BASE_DIR / "gia_web_server.py"
-    if target_server.name == "omni_temporal_control.py":
-        cmd = [python_bin, str(target_server), "--port", str(port), "--no-window"]
+    print(f"{C_YELLOW}[*] Levantando servidor web GIA en el puerto {port}...{C_RESET}")
+    cmd = [python_bin, str(BASE_DIR / "gia_web_server.py"), "--lan", "--port", str(port), "--model", model]
+    if no_auth:
+        cmd.append("--no-auth")
     else:
-        cmd = [python_bin, str(target_server), "--lan", "--port", str(port), "--model", model]
-        if no_auth:
-            cmd.append("--no-auth")
-        else:
-            cmd.extend(["--token", token])
+        cmd.extend(["--token", token])
 
     proc = subprocess.Popen(cmd, creationflags=subprocess.CREATE_NEW_CONSOLE if sys.platform == "win32" else 0)
 
@@ -625,7 +620,7 @@ def main() -> int:
         import gia_sovereign_engine as _gse
         _def_model = _gse.get_engine().resolve_model()
     except Exception:
-        _def_model = os.environ.get("GIA_MODEL", "dolphin3:latest")
+        _def_model = os.environ.get("GIA_MODEL", "Qwen3.8-27B-Uncensored-MLX:latest")
     ap = argparse.ArgumentParser(description="Supervisor de Puente de Internet para GIA / GODWORKS")
     ap.add_argument("--port", type=int, default=8757, help="Puerto local del servidor GIA (default: 8757)")
     ap.add_argument("--model", default=_def_model, help="Modelo de lenguaje a utilizar")

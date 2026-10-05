@@ -8,7 +8,7 @@ Permite la interacción total y bidireccional con el sistema a través de WhatsA
   4. Conversación autónoma con el modelo central Hermes 3 (8B) vía process_agentic_chat.
   5. Sincronización transversal de contexto en SYNC_HUB con la PC y terminales.
   6. Comandos de control de hardware y terminal Linux (/sh, /status, /shot, /lock, /link).
-  7. Auto-vinculación segura mediante clave maestra ("0" o "DiosDelTiempo01").
+  7. Vinculación restringida autorizada desde consola local.
 """
 
 from __future__ import annotations
@@ -40,18 +40,18 @@ GRAPH_BASE = "https://graph.facebook.com"
 DEFAULT_GRAPH_VERSION = "v21.0"
 
 DEFAULT_CONFIG: Dict[str, Any] = {
-    "enabled": True,
+    "enabled": False,
     "provider": "meta",
     "bot_name": "GIA",
     "phone_number_id": "",
     "access_token": "",
-    "verify_token": "DiosDelTiempo01",
+    "verify_token": "",
     "app_secret": "",
     "allowed_numbers": [],
     "admin_number": "",
-    "master_password": "0",
-    "master_key": "DiosDelTiempo01",
-    "notify_on_boot": True,
+    "master_password": "",
+    "master_key": "",
+    "notify_on_boot": False,
     "graph_version": DEFAULT_GRAPH_VERSION,
 }
 
@@ -77,16 +77,14 @@ class WhatsAppBridge:
     def __init__(self, config_path: Optional[Path | str] = None):
         self.config_path = Path(config_path) if config_path else CONFIG_FILE
         self.config = self._load_config()
-        self.pairing_passwords = ["0", "DiosDelTiempo01"]
+        self.pairing_passwords = []
         self.messages_processed = 0
         self.last_error: Optional[str] = None
         self._executor_lock = threading.Lock()
 
     @property
     def active_model_label(self) -> str:
-        act = os.environ.get("GIA_MODEL", "huihui_ai/llama3.1-8b-instruct-abliterated")
-        if "dolphin" in act.lower():
-            return "Dolphin 3.0 (8B)"
+        act = os.environ.get("GIA_MODEL", "TARDIS-NEURAL-SPACE-KAIJU")
         return act
 
     # --------------------------------------------------------------------------
@@ -199,15 +197,15 @@ class WhatsAppBridge:
 
     def verify_challenge(self, mode: str, token: str, challenge: str) -> Optional[str]:
         """Handshake de suscripción del webhook GET. Devuelve challenge si OK."""
-        expected_token = self.config.get("verify_token", "DiosDelTiempo01")
-        if mode == "subscribe" and token and token == expected_token:
+        expected_token = self.config.get("verify_token", "").strip()
+        if expected_token and mode == "subscribe" and token and hmac.compare_digest(token, expected_token):
             return challenge
         return None
 
     def verify_webhook_token(self, token: str) -> bool:
         """Helper compatible con comprobaciones booleanas simples."""
-        expected = self.config.get("verify_token", "DiosDelTiempo01")
-        return bool(token and token == expected)
+        expected = self.config.get("verify_token", "").strip()
+        return bool(expected and token and hmac.compare_digest(token, expected))
 
     def verify_signature(self, raw_body: bytes, header: Optional[str]) -> bool:
         """Verifica la cabecera X-Hub-Signature-256 (HMAC-SHA256 con app_secret)."""
@@ -315,32 +313,27 @@ class WhatsAppBridge:
 
         # Autenticación y vinculación por clave maestra
         if not self.is_number_authorized(sender):
-            if text in (self.config.get("master_password"), self.config.get("master_key"), "0", "DiosDelTiempo01"):
+            allowed_keys = {
+                str(k).strip() for k in (self.config.get("master_password"), self.config.get("master_key"))
+                if k and str(k).strip() and str(k).strip() not in ("0", "DiosDelTiempo01")
+            }
+            if allowed_keys and text.strip() in allowed_keys:
                 self.authorize_number(sender)
                 reply = (
-                    "👑 *¡ACCESO SOBERANO CONCEDIDO POR WHATSAPP!*\n\n"
-                    f"Bienvenido, {sender_name}. Tu número (+{sender}) ha sido vinculado como nodo soberano de *GODWORKS SYSTEM v26.4*.\n\n"
-                    "• Control de hardware y terminal habilitado.\n"
+                    "👑 *¡ACCESO CONCEDIDO POR WHATSAPP!*\n\n"
+                    f"Bienvenido, {sender_name}. Tu número (+{sender}) ha sido vinculado como nodo de *GODWORKS SYSTEM v26.4*.\n\n"
                     f"• Cerebro Central: *{self.active_model_label}*.\n"
                     "• Escribe `/start` para consultar los comandos o háblame directamente."
                 )
                 self.send_message(sender, reply)
                 return {"ok": True, "authorized": True, "sender": sender}
-            elif not allowed:
-                # Si no hay ningún número registrado aún en el sistema
-                reply = (
-                    "🔒 *AUTENTICACIÓN REQUERIDA · GODWORKS SYSTEM*\n\n"
-                    f"Hola {sender_name}. Para vincular tu número de WhatsApp con el nodo central, ingresa la clave maestra del sistema (clave: `0` o `DiosDelTiempo01`)."
-                )
-                self.send_message(sender, reply)
-                return {"ok": False, "authorized": False, "reason": "unauthenticated"}
             else:
-                reply = "🔒 *ACCESO NO AUTORIZADO*: Introduce la clave maestra del sistema (clave: `0`) para vincular este número."
+                reply = "🔒 *AUTENTICACIÓN REQUERIDA*: Acceso no autorizado. Se requiere autorización explícita desde la consola local del servidor."
                 self.send_message(sender, reply)
                 return {"ok": False, "authorized": False, "reason": "unauthorized"}
 
         # ----------------------------------------------------------------------
-        # COMANDOS SOBERANOS DE WHATSAPP (/start, /sh, /status, /shot, etc.)
+        # COMANDOS SOBERANOS DE WHATSAPP (/start, /status, etc.)
         # ----------------------------------------------------------------------
         parts = text.split()
         cmd = parts[0].lower()
@@ -353,17 +346,13 @@ class WhatsAppBridge:
                 f"━━━━━━━━━━━━━━━━━━━━━━\n"
                 f"🧠 *Cerebro Central:* {self.active_model_label} [Fijado Indefinido]\n"
                 f"📱 *Usuario:* {sender_name} (+{sender})\n\n"
-                f"*🎮 Comandos de Control Maestro:*\n"
-                f"• `/link` o `/qr` : Enlace web activo y portal permanente\n"
-                f"• `/sh <cmd>` : Ejecutar comando en terminal Linux\n"
-                f"• `/status` : Telemetría completa (CPU, 18GB RAM, batería, Wi-Fi)\n"
-                f"• `/shot` : Tomar captura de pantalla de la PC\n"
-                f"• `/lock` / `/unlock` : Bloquear / Desbloquear pantalla (clave 0)\n"
+                f"*🎮 Comandos de Control:*\n"
+                f"• `/status` : Telemetría completa (CPU, RAM, batería)\n"
                 f"• `/vol <0-100>` : Ajustar volumen de la laptop\n"
                 f"• `/mute` / `/unmute` : Silenciar o activar audio\n"
                 f"• `/say <texto>` : Síntesis de voz hablada en los altavoces\n"
-                f"• `/reboot` : Reiniciar el equipo para auto-mejora\n\n"
-                f"💬 *También puedes escribir cualquier directiva o pregunta libremente. {self.active_model_label} responderá con memoria compartida con tu PC.*"
+                f"• `/reboot` : Reiniciar el equipo\n\n"
+                f"💬 *Puedes escribir cualquier directiva o pregunta. {self.active_model_label} responderá directamente.*"
             )
             self.send_message(sender, help_msg)
             return {"ok": True, "command": cmd, "sender": sender}
@@ -375,54 +364,23 @@ class WhatsAppBridge:
                 auth_url = b_status.get("auth_url", "")
                 local_url = b_status.get("local_url", "")
             except Exception:
-                auth_url = "https://harper-skins-donation-frost.trycloudflare.com/?key=DiosDelTiempo01"
+                auth_url = ""
                 local_url = "http://REDACTED_IP:8757"
 
             perm_url = "https://ntfy.sh/godworks_sovereign_timemachine_portal"
             msg_link = (
-                f"🌐 *ENLACE Y ACCESO PERMANENTE A GODWORKS*\n"
+                f"🌐 *ESTADO DE CONEXIÓN A GODWORKS*\n"
                 f"━━━━━━━━━━━━━━━━━━━━━━\n"
-                f"🔗 *Enlace Remoto Mundial:*\n{auth_url}\n\n"
-                f"🏛️ *Portal Invariable Permanente:*\n{perm_url}\n\n"
-                f"📶 *Red Local Wi-Fi:*\n`{local_url}`\n\n"
-                f"🔑 *Clave Maestra:* `DiosDelTiempo01`"
+                f"📶 *Red Local Loopback:*\n`{local_url}`\n\n"
+                f"🔒 *Nota de Seguridad:* El acceso a terminal está restringido estrictamente a la máquina local."
             )
             self.send_message(sender, msg_link)
             return {"ok": True, "command": cmd, "sender": sender}
 
         if cmd in ("/sh", "/bash", "/cmd", "/terminal"):
-            if not arg_str:
-                self.send_message(sender, "💻 Especifica el comando a ejecutar. Ejemplo: `/sh uname -a` o `/sh free -h`")
-                return {"ok": False, "error": "missing_arg"}
-
-            try:
-                from core.os_controller import get_os_controller
-                os_c = get_os_controller()
-                res = os_c.execute_terminal_command(arg_str, timeout=35.0)
-                out = res.get("stdout", "").strip()
-                err = res.get("stderr", "").strip()
-                rc = res.get("returncode", 0)
-                elapsed = res.get("elapsed_s", 0.0)
-
-                body_out = []
-                if out:
-                    body_out.append(out)
-                if err:
-                    body_out.append(f"[stderr]\n{err}")
-                res_str = "\n".join(body_out) if body_out else "(Sin salida estándar)"
-                if len(res_str) > 3500:
-                    res_str = res_str[:3500] + "\n... [Salida truncada]"
-
-                reply = (
-                    f"💻 *Terminal Linux (`{arg_str}`)*\n"
-                    f"• Código: `{rc}` | Tiempo: `{elapsed}s`\n"
-                    f"```\n{res_str}\n```"
-                )
-            except Exception as e:
-                reply = f"⚠️ Error ejecutando comando en terminal: {e}"
-
+            reply = "🔒 *ACCESO DENEGADO*: La ejecución de comandos en la terminal del sistema operativo está estrictamente restringida a la sesión física local (REDACTED_IP)."
             self.send_message(sender, reply)
-            return {"ok": True, "command": cmd, "sender": sender}
+            return {"ok": False, "error": "remote_terminal_execution_blocked", "sender": sender}
 
         if cmd in ("/status", "/estado"):
             try:
@@ -501,8 +459,8 @@ class WhatsAppBridge:
             resp_chat = process_agentic_chat(
                 message=text,
                 history=chat_hist[-12:],
-                model=os.environ.get("GIA_MODEL", "huihui_ai/llama3.1-8b-instruct-abliterated"),
-                num_ctx=4096,
+                model=os.environ.get("GIA_MODEL", "TARDIS-NEURAL-SPACE-KAIJU"),
+                num_ctx=int(os.environ.get("GIA_NUM_CTX", "32768")),
                 use_web=True
             )
 
@@ -559,7 +517,7 @@ class WhatsAppBridge:
             "provider": self.config.get("provider", "meta"),
             "phone_number_id": self.config.get("phone_number_id", ""),
             "access_token": hint_token,
-            "verify_token": self.config.get("verify_token", "DiosDelTiempo01"),
+            "verify_token_set": bool(self.config.get("verify_token")),
             "app_secret_set": bool(self.config.get("app_secret")),
             "allowed_numbers": allowed,
             "authorized_numbers_count": len(allowed),

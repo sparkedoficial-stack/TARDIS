@@ -42,6 +42,16 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 CONJECTURES_FILE = PROJECT_ROOT / "data" / "autonomous_conjectures.json"
 CONJECTURES_FILE.parent.mkdir(parents=True, exist_ok=True)
 
+# Archivos que la auto-programacion no puede reescribir: el LLM elige el destino
+# libremente y estos sostienen autenticacion, el motor del modelo y la propia
+# validacion del auto-programador (que ya se habia reescrito a si mismo 305 veces).
+SELF_MODIFY_PROTECTED = {
+    "core/temporal_brain.py", "core/security.py", "core/device_vault.py",
+    "core/telegram_bridge.py", "core/whatsapp_bridge.py", "core/autonomous_coder.py",
+    "core/idle_evolution_daemon.py", "server/api.py", "omni_temporal_control.py",
+    "client_gateway.py", "supervisor.py",
+}
+
 IDLE_THRESHOLD_DEFAULT_SECONDS = 1800.0  # 30 minutos
 
 
@@ -79,6 +89,9 @@ class IdleEvolutionDaemon:
         self._cycle_lock = threading.Lock()
         self._is_busy = False
         self._conjectures: List[Dict[str, Any]] = self._load_conjectures()
+        self.infinite_evolution_mode = os.environ.get("GIA_INFINITE_EVOLUTION", "1").lower() in ("1", "true", "yes")
+        self.infinite_interval_seconds = float(os.environ.get("GIA_INFINITE_INTERVAL_SEC", "120.0"))
+        self._last_dep_check = 0.0
 
     @classmethod
     def get_instance(cls) -> "IdleEvolutionDaemon":
@@ -131,27 +144,53 @@ class IdleEvolutionDaemon:
                 daemon=True
             )
             self._thread.start()
-            logger.info(f"🌌 [IDLE_EVOLUTION] Centinela de Conjeturas y Auto-Mejora INICIADO (Umbral: {self.idle_threshold_seconds / 60:.0f}m).")
+            logger.info(f"🌌 [IDLE_EVOLUTION] Centinela de Conjeturas y Auto-Mejora INICIADO (Modo Infinito: {self.infinite_evolution_mode}, Umbral: {self.idle_threshold_seconds / 60:.0f}m).")
 
     def stop(self) -> None:
         with self._lock:
             self._running = False
 
     def _watchdog_loop(self) -> None:
-        """Bucle centinela que evalúa la inactividad periódicamente."""
+        """Bucle centinela infinito de auto-evolución continua y permanente 24/7."""
+        logger.info(f"🌌 [INFINITE_EVOLUTION] Demonio de auto-evolución infinita ACTIVO 24/7.")
         while self._running:
             try:
-                time.sleep(30.0)
+                poll_interval = 25.0 if self.infinite_evolution_mode else 30.0
+                time.sleep(poll_interval)
                 if not self._running:
                     break
 
-                # Si ha estado inactivo más de 30 minutos y no está ocupado
-                if self.is_idle() and not self._is_busy:
-                    logger.info(f"⏳ [IDLE_EVOLUTION] Sistema sin peticiones por {self.get_idle_seconds() / 60:.1f} minutos. Activando ciclo de auto-mejora y conjeturas...")
-                    self.execute_evolution_cycle(force=False)
+                # Condición 1: Modo Infinito (sin peticiones en los últimos 300s y no ocupado)
+                if self.infinite_evolution_mode:
+                    user_idle_s = self.get_idle_seconds()
+                    idle_target = float(os.environ.get("GIA_IDLE_MIN_SECONDS", "300.0"))
+                    if user_idle_s >= idle_target and not self._is_busy:
+                        logger.info(f"🌌 [INFINITE_EVOLUTION] Ejecutando ciclo autónomo infinito (inactividad: {user_idle_s:.1f}s)...")
+                        self.execute_evolution_cycle(force=True)
+                        self.check_and_update_system_dependencies()
+                else:
+                    # Condición 2: Modo clásico por umbral (>= 30 minutos)
+                    if self.is_idle() and not self._is_busy:
+                        logger.info(f"⏳ [IDLE_EVOLUTION] Sistema sin peticiones por {self.get_idle_seconds() / 60:.1f} minutos. Activando ciclo...")
+                        self.execute_evolution_cycle(force=False)
             except Exception as e:
                 logger.error(f"Error en bucle de IdleEvolutionDaemon: {e}")
                 time.sleep(10.0)
+
+    def check_and_update_system_dependencies(self) -> Dict[str, Any]:
+        """Comprueba y auto-actualiza dependencias y salud del repositorio de forma autónoma."""
+        now = time.time()
+        if (now - self._last_dep_check) < 600.0:  # Cada 10 minutos
+            return {"status": "SKIPPED_INTERVAL"}
+        self._last_dep_check = now
+        try:
+            from core.package_manager import get_package_manager
+            pm = get_package_manager()
+            env_info = pm.get_environment_info()
+            return {"status": "CHECKED", "env": env_info}
+        except Exception as e:
+            logger.warning(f"[AUTO_UPDATE] Aviso en verificación de dependencias: {e}")
+            return {"status": "ERROR", "error": str(e)}
 
     def trigger_immediate_conjecture(self) -> Dict[str, Any]:
         """Dispara de inmediato una conjetura y ciclo de mejora en un hilo de fondo sin esperar los 30 min."""
@@ -208,8 +247,12 @@ class IdleEvolutionDaemon:
             # 3. Auto-Mejora y Evolución de Código (si se identificó meta de código válida)
             evo_status = "NOT_APPLICABLE"
             if code_target and code_goal:
-                target_p = PROJECT_ROOT / code_target
-                if target_p.is_file():
+                target_p = (PROJECT_ROOT / code_target).resolve()
+                rel = target_p.relative_to(PROJECT_ROOT.resolve()).as_posix() if target_p.is_relative_to(PROJECT_ROOT.resolve()) else None
+                if rel is None or rel in SELF_MODIFY_PROTECTED:
+                    logger.warning(f"🛡️ [IDLE_EVOLUTION] Auto-programacion bloqueada sobre archivo protegido: {code_target}")
+                    evo_status = "BLOCKED_PROTECTED_FILE"
+                elif target_p.is_file():
                     logger.info(f"🧬 [IDLE_EVOLUTION] Ejecutando auto-programación en `{code_target}`: {code_goal}...")
                     try:
                         from core.autonomous_coder import get_autonomous_coder
@@ -295,7 +338,7 @@ class IdleEvolutionDaemon:
             user_prompt = (
                 f"Estado actual: Sistema operativo ASUS TUF Linux x86_64.\n"
                 f"Bóveda akáshica activa. Módulos clave: core/web_research_engine.py, "
-                f"core/autonomous_coder.py, core/deep_memory_vault.py, core/network_shield.py.\n"
+                f"core/deep_memory_vault.py, core/network_shield.py, core/web_research_engine.py.\n"
                 f"Formula tu conjetura original y propuesta de auto-mejora ahora:"
             )
 
@@ -309,17 +352,22 @@ class IdleEvolutionDaemon:
                     raw_reply = res["reply"].strip()
 
             if not raw_reply:
-                # Fallback a Ollama local
-                import httpx
-                model_local = os.environ.get("GIA_MODEL", "huihui_ai/llama3.1-8b-instruct-abliterated")
-                r = httpx.post("http://REDACTED_IP:11434/api/generate", json={
-                    "model": model_local,
-                    "prompt": f"{system_prompt}\n\n{user_prompt}",
-                    "stream": False,
-                    "options": {"temperature": 0.5, "num_ctx": 4096}
-                }, timeout=60.0)
-                if r.status_code == 200:
-                    raw_reply = r.json().get("response", "").strip()
+                # Inferencia soberana mediante Temporal Brain
+                try:
+                    from core.temporal_brain import get_temporal_brain
+                    brain = get_temporal_brain()
+                    res_tb = brain.chat(
+                        messages=[
+                            {"role": "system", "content": system_prompt},
+                            {"role": "user", "content": user_prompt}
+                        ],
+                        temperature=0.5,
+                        max_tokens=350
+                    )
+                    if res_tb.get("ok") and res_tb.get("reply"):
+                        raw_reply = res_tb["reply"].strip()
+                except Exception as e_tb:
+                    logger.warning(f"Inferencia en Temporal Brain falló: {e_tb}")
 
             if not raw_reply:
                 return None

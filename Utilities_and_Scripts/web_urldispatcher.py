@@ -527,7 +527,7 @@ class PrefixResource(AbstractResource):
 
 
 class StaticResource(PrefixResource):
-    VERSION_KEY = "v"
+    VERSION_KEY = "REDACTED"
 
     def __init__(
         self,

@@ -209,7 +209,7 @@ def escape_control_codes(
 
 
 if __name__ == "__main__":  # pragma: no cover
-    from pip._vendor.rich.console import Console
+    from rich.console import Console
 
     console = Console()
     console.print("Look at the title of your terminal window ^")

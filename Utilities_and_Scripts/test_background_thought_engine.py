@@ -96,7 +96,7 @@ def test_background_worker_queue(tmp_path):
 
 def test_api_endpoints_thoughts():
     client = TestClient(app)
-    master_key = "DiosDelTiempo01"
+    master_key = "REDACTED"
 
     # 1. GET /api/deep_memory/thoughts
     r1 = client.get("/api/deep_memory/thoughts", headers={"x-api-key": master_key})

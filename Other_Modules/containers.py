@@ -1,415 +1,167 @@
-"""Module for SymPy containers
+from itertools import zip_longest
+from typing import (
+    TYPE_CHECKING,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    TypeVar,
+    Union,
+    overload,
+)
 
-    (SymPy objects that store other SymPy objects)
+if TYPE_CHECKING:
+    from .console import (
+        Console,
+        ConsoleOptions,
+        JustifyMethod,
+        OverflowMethod,
+        RenderResult,
+        RenderableType,
+    )
+    from .text import Text
 
-    The containers implemented in this module are subclassed to Basic.
-    They are supposed to work seamlessly within the SymPy framework.
-"""
+from .cells import cell_len
+from .measure import Measurement
 
-from __future__ import annotations
-
-from collections import OrderedDict
-from collections.abc import MutableSet
-from typing import Any, Callable
-
-from .basic import Basic
-from .sorting import default_sort_key, ordered
-from .sympify import _sympify, sympify, _sympy_converter, SympifyError
-from sympy.core.kind import Kind
-from sympy.utilities.iterables import iterable
-from sympy.utilities.misc import as_int
+T = TypeVar("T")
 
 
-class Tuple(Basic):
-    """
-    Wrapper around the builtin tuple object.
+class Renderables:
+    """A list subclass which renders its contents to the console."""
 
-    Explanation
-    ===========
+    def __init__(
+        self, renderables: Optional[Iterable["RenderableType"]] = None
+    ) -> None:
+        self._renderables: List["RenderableType"] = (
+            list(renderables) if renderables is not None else []
+        )
 
-    The Tuple is a subclass of Basic, so that it works well in the
-    SymPy framework.  The wrapped tuple is available as self.args, but
-    you can also access elements or slices with [:] syntax.
+    def __rich_console__(
+        self, console: "Console", options: "ConsoleOptions"
+    ) -> "RenderResult":
+        """Console render method to insert line-breaks."""
+        yield from self._renderables
 
-    Parameters
-    ==========
+    def __rich_measure__(
+        self, console: "Console", options: "ConsoleOptions"
+    ) -> "Measurement":
+        dimensions = [
+            Measurement.get(console, options, renderable)
+            for renderable in self._renderables
+        ]
+        if not dimensions:
+            return Measurement(1, 1)
+        _min = max(dimension.minimum for dimension in dimensions)
+        _max = max(dimension.maximum for dimension in dimensions)
+        return Measurement(_min, _max)
 
-    sympify : bool
-        If ``False``, ``sympify`` is not called on ``args``. This
-        can be used for speedups for very large tuples where the
-        elements are known to already be SymPy objects.
+    def append(self, renderable: "RenderableType") -> None:
+        self._renderables.append(renderable)
 
-    Examples
-    ========
+    def __iter__(self) -> Iterable["RenderableType"]:
+        return iter(self._renderables)
 
-    >>> from sympy import Tuple, symbols
-    >>> a, b, c, d = symbols('a b c d')
-    >>> Tuple(a, b, c)[1:]
-    (b, c)
-    >>> Tuple(a, b, c).subs(a, d)
-    (d, b, c)
 
-    """
+class Lines:
+    """A list subclass which can render to the console."""
 
-    def __new__(cls, *args, **kwargs):
-        if kwargs.get('sympify', True):
-            args = (sympify(arg) for arg in args)
-        obj = Basic.__new__(cls, *args)
-        return obj
+    def __init__(self, lines: Iterable["Text"] = ()) -> None:
+        self._lines: List["Text"] = list(lines)
 
-    def __getitem__(self, i):
-        if isinstance(i, slice):
-            indices = i.indices(len(self))
-            return Tuple(*(self.args[j] for j in range(*indices)))
-        return self.args[i]
+    def __repr__(self) -> str:
+        return f"Lines({self._lines!r})"
 
-    def __len__(self):
-        return len(self.args)
+    def __iter__(self) -> Iterator["Text"]:
+        return iter(self._lines)
 
-    def __contains__(self, item):
-        return item in self.args
+    @overload
+    def __getitem__(self, index: int) -> "Text":
+        ...
 
-    def __iter__(self):
-        return iter(self.args)
+    @overload
+    def __getitem__(self, index: slice) -> List["Text"]:
+        ...
 
-    def __add__(self, other):
-        if isinstance(other, Tuple):
-            return Tuple(*(self.args + other.args))
-        elif isinstance(other, tuple):
-            return Tuple(*(self.args + other))
-        else:
-            return NotImplemented
+    def __getitem__(self, index: Union[slice, int]) -> Union["Text", List["Text"]]:
+        return self._lines[index]
 
-    def __radd__(self, other):
-        if isinstance(other, Tuple):
-            return Tuple(*(other.args + self.args))
-        elif isinstance(other, tuple):
-            return Tuple(*(other + self.args))
-        else:
-            return NotImplemented
+    def __setitem__(self, index: int, value: "Text") -> "Lines":
+        self._lines[index] = value
+        return self
 
-    def __mul__(self, other):
-        try:
-            n = as_int(other)
-        except ValueError:
-            raise TypeError("Can't multiply sequence by non-integer of type '%s'" % type(other))
-        return self.func(*(self.args*n))
+    def __len__(self) -> int:
+        return self._lines.__len__()
 
-    __rmul__ = __mul__
+    def __rich_console__(
+        self, console: "Console", options: "ConsoleOptions"
+    ) -> "RenderResult":
+        """Console render method to insert line-breaks."""
+        yield from self._lines
 
-    def __eq__(self, other):
-        if isinstance(other, Basic):
-            return super().__eq__(other)
-        return self.args == other
+    def append(self, line: "Text") -> None:
+        self._lines.append(line)
 
-    def __ne__(self, other):
-        if isinstance(other, Basic):
-            return super().__ne__(other)
-        return self.args != other
+    def extend(self, lines: Iterable["Text"]) -> None:
+        self._lines.extend(lines)
 
-    def __hash__(self):
-        return hash(self.args)
+    def pop(self, index: int = -1) -> "Text":
+        return self._lines.pop(index)
 
-    def _to_mpmath(self, prec):
-        return tuple(a._to_mpmath(prec) for a in self.args)
+    def justify(
+        self,
+        console: "Console",
+        width: int,
+        justify: "JustifyMethod" = "left",
+        overflow: "OverflowMethod" = "fold",
+    ) -> None:
+        """Justify and overflow text to a given width.
 
-    def __lt__(self, other):
-        return _sympify(self.args < other.args)
+        Args:
+            console (Console): Console instance.
+            width (int): Number of cells available per line.
+            justify (str, optional): Default justify method for text: "left", "center", "full" or "right". Defaults to "left".
+            overflow (str, optional): Default overflow for text: "crop", "fold", or "ellipsis". Defaults to "fold".
 
-    def __le__(self, other):
-        return _sympify(self.args <= other.args)
-
-    # XXX: Basic defines count() as something different, so we can't
-    # redefine it here. Originally this lead to cse() test failure.
-    def tuple_count(self, value) -> int:
-        """Return number of occurrences of value."""
-        return self.args.count(value)
-
-    def index(self, value, start=None, stop=None):
-        """Searches and returns the first index of the value."""
-        # XXX: One would expect:
-        #
-        # return self.args.index(value, start, stop)
-        #
-        # here. Any trouble with that? Yes:
-        #
-        # >>> (1,).index(1, None, None)
-        # Traceback (most recent call last):
-        #   File "<stdin>", line 1, in <module>
-        # TypeError: slice indices must be integers or None or have an __index__ method
-        #
-        # See: http://bugs.python.org/issue13340
-
-        if start is None and stop is None:
-            return self.args.index(value)
-        elif stop is None:
-            return self.args.index(value, start)
-        else:
-            return self.args.index(value, start, stop)
-
-    @property
-    def kind(self):
         """
-        The kind of a Tuple instance.
-
-        The kind of a Tuple is always of :class:`TupleKind` but
-        parametrised by the number of elements and the kind of each element.
-
-        Examples
-        ========
-
-        >>> from sympy import Tuple, Matrix
-        >>> Tuple(1, 2).kind
-        TupleKind(NumberKind, NumberKind)
-        >>> Tuple(Matrix([1, 2]), 1).kind
-        TupleKind(MatrixKind(NumberKind), NumberKind)
-        >>> Tuple(1, 2).kind.element_kind
-        (NumberKind, NumberKind)
-
-        See Also
-        ========
-
-        sympy.matrices.kind.MatrixKind
-        sympy.core.kind.NumberKind
-        """
-        return TupleKind(*(i.kind for i in self.args))
-
-_sympy_converter[tuple] = lambda tup: Tuple(*tup)
-
-
-
-
-
-def tuple_wrapper(method):
-    """
-    Decorator that converts any tuple in the function arguments into a Tuple.
-
-    Explanation
-    ===========
-
-    The motivation for this is to provide simple user interfaces.  The user can
-    call a function with regular tuples in the argument, and the wrapper will
-    convert them to Tuples before handing them to the function.
-
-    Explanation
-    ===========
-
-    >>> from sympy.core.containers import tuple_wrapper
-    >>> def f(*args):
-    ...    return args
-    >>> g = tuple_wrapper(f)
-
-    The decorated function g sees only the Tuple argument:
-
-    >>> g(0, (1, 2), 3)
-    (0, (1, 2), 3)
-
-    """
-    def wrap_tuples(*args, **kw_args):
-        newargs = []
-        for arg in args:
-            if isinstance(arg, tuple):
-                newargs.append(Tuple(*arg))
-            else:
-                newargs.append(arg)
-        return method(*newargs, **kw_args)
-    return wrap_tuples
-
-
-class Dict(Basic):
-    """
-    Wrapper around the builtin dict object.
-
-    Explanation
-    ===========
-
-    The Dict is a subclass of Basic, so that it works well in the
-    SymPy framework.  Because it is immutable, it may be included
-    in sets, but its values must all be given at instantiation and
-    cannot be changed afterwards.  Otherwise it behaves identically
-    to the Python dict.
-
-    Examples
-    ========
-
-    >>> from sympy import Dict, Symbol
-
-    >>> D = Dict({1: 'one', 2: 'two'})
-    >>> for key in D:
-    ...    if key == 1:
-    ...        print('%s %s' % (key, D[key]))
-    1 one
-
-    The args are sympified so the 1 and 2 are Integers and the values
-    are Symbols. Queries automatically sympify args so the following work:
-
-    >>> 1 in D
-    True
-    >>> D.has(Symbol('one')) # searches keys and values
-    True
-    >>> 'one' in D # not in the keys
-    False
-    >>> D[1]
-    one
-
-    """
-
-    elements: frozenset[Tuple]
-    _dict: dict[Basic, Basic]
-
-    def __new__(cls, *args):
-        if len(args) == 1 and isinstance(args[0], (dict, Dict)):
-            items = [Tuple(k, v) for k, v in args[0].items()]
-        elif iterable(args) and all(len(arg) == 2 for arg in args):
-            items = [Tuple(k, v) for k, v in args]
-        else:
-            raise TypeError('Pass Dict args as Dict((k1, v1), ...) or Dict({k1: v1, ...})')
-        elements = frozenset(items)
-        obj = Basic.__new__(cls, *ordered(items))
-        obj.elements = elements
-        obj._dict = dict(items)  # In case Tuple decides it wants to sympify
-        return obj
-
-    def __getitem__(self, key):
-        """x.__getitem__(y) <==> x[y]"""
-        try:
-            key = _sympify(key)
-        except SympifyError:
-            raise KeyError(key)
-
-        return self._dict[key]
-
-    def __setitem__(self, key, value):
-        raise NotImplementedError("SymPy Dicts are Immutable")
-
-    def items(self):
-        '''Returns a set-like object providing a view on dict's items.
-        '''
-        return self._dict.items()
-
-    def keys(self):
-        '''Returns the list of the dict's keys.'''
-        return self._dict.keys()
-
-    def values(self):
-        '''Returns the list of the dict's values.'''
-        return self._dict.values()
-
-    def __iter__(self):
-        '''x.__iter__() <==> iter(x)'''
-        return iter(self._dict)
-
-    def __len__(self):
-        '''x.__len__() <==> len(x)'''
-        return self._dict.__len__()
-
-    def get(self, key, default=None):
-        '''Returns the value for key if the key is in the dictionary.'''
-        try:
-            key = _sympify(key)
-        except SympifyError:
-            return default
-        return self._dict.get(key, default)
-
-    def __contains__(self, key):
-        '''D.__contains__(k) -> True if D has a key k, else False'''
-        try:
-            key = _sympify(key)
-        except SympifyError:
-            return False
-        return key in self._dict
-
-    def __lt__(self, other):
-        return _sympify(self.args < other.args)
-
-    @property
-    def _sorted_args(self):
-        return tuple(sorted(self.args, key=default_sort_key))
-
-    def __eq__(self, other):
-        if isinstance(other, dict):
-            return self == Dict(other)
-        return super().__eq__(other)
-
-    __hash__ : Callable[[Basic], Any] = Basic.__hash__
-
-# this handles dict, defaultdict, OrderedDict
-_sympy_converter[dict] = lambda d: Dict(*d.items())
-
-class OrderedSet(MutableSet):
-    def __init__(self, iterable=None):
-        if iterable:
-            self.map = OrderedDict((item, None) for item in iterable)
-        else:
-            self.map = OrderedDict()
-
-    def __len__(self):
-        return len(self.map)
-
-    def __contains__(self, key):
-        return key in self.map
-
-    def add(self, key):
-        self.map[key] = None
-
-    def discard(self, key):
-        self.map.pop(key)
-
-    def pop(self, last=True):
-        return self.map.popitem(last=last)[0]
-
-    def __iter__(self):
-        yield from self.map.keys()
-
-    def __repr__(self):
-        if not self.map:
-            return '%s()' % (self.__class__.__name__,)
-        return '%s(%r)' % (self.__class__.__name__, list(self.map.keys()))
-
-    def intersection(self, other):
-        return self.__class__([val for val in self if val in other])
-
-    def difference(self, other):
-        return self.__class__([val for val in self if val not in other])
-
-    def update(self, iterable):
-        for val in iterable:
-            self.add(val)
-
-class TupleKind(Kind):
-    """
-    TupleKind is a subclass of Kind, which is used to define Kind of ``Tuple``.
-
-    Parameters of TupleKind will be kinds of all the arguments in Tuples, for
-    example
-
-    Parameters
-    ==========
-
-    args : tuple(element_kind)
-       element_kind is kind of element.
-       args is tuple of kinds of element
-
-    Examples
-    ========
-
-    >>> from sympy import Tuple
-    >>> Tuple(1, 2).kind
-    TupleKind(NumberKind, NumberKind)
-    >>> Tuple(1, 2).kind.element_kind
-    (NumberKind, NumberKind)
-
-    See Also
-    ========
-
-    sympy.core.kind.NumberKind
-    MatrixKind
-    sympy.sets.sets.SetKind
-    """
-    def __new__(cls, *args):
-        obj = super().__new__(cls, *args)
-        obj.element_kind = args
-        return obj
-
-    def __repr__(self):
-        return "TupleKind{}".format(self.element_kind)
+        from .text import Text
+
+        if justify == "left":
+            for line in self._lines:
+                line.truncate(width, overflow=overflow, pad=True)
+        elif justify == "center":
+            for line in self._lines:
+                line.rstrip()
+                line.truncate(width, overflow=overflow)
+                line.pad_left((width - cell_len(line.plain)) // 2)
+                line.pad_right(width - cell_len(line.plain))
+        elif justify == "right":
+            for line in self._lines:
+                line.rstrip()
+                line.truncate(width, overflow=overflow)
+                line.pad_left(width - cell_len(line.plain))
+        elif justify == "full":
+            for line_index, line in enumerate(self._lines):
+                if line_index == len(self._lines) - 1:
+                    break
+                words = line.split(" ")
+                words_size = sum(cell_len(word.plain) for word in words)
+                num_spaces = len(words) - 1
+                spaces = [1 for _ in range(num_spaces)]
+                index = 0
+                if spaces:
+                    while words_size + num_spaces < width:
+                        spaces[len(spaces) - index - 1] += 1
+                        num_spaces += 1
+                        index = (index + 1) % len(spaces)
+                tokens: List[Text] = []
+                for index, (word, next_word) in enumerate(
+                    zip_longest(words, words[1:])
+                ):
+                    tokens.append(word)
+                    if index < len(spaces):
+                        style = word.get_style_at_offset(console, -1)
+                        next_style = next_word.get_style_at_offset(console, 0)
+                        space_style = style if style == next_style else line.style
+                        tokens.append(Text(" " * spaces[index], style=space_style))
+                self[line_index] = Text("").join(tokens)

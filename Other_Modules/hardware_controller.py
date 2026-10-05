@@ -156,6 +156,30 @@ class HardwareController:
             return self.set_keyboard_brightness(0)
 
     # -------------------------------------------------------------------------
+    # 2.1 BRILLO DE PANTALLA & CONTROL ÓPTICO
+    # -------------------------------------------------------------------------
+
+    def get_screen_brightness(self) -> Dict[str, Any]:
+        """Obtiene el brillo actual de la pantalla mediante el orquestador."""
+        from core.background_hardware_orchestrator import get_background_hardware_orchestrator
+        return get_background_hardware_orchestrator().get_screen_brightness()
+
+    def set_screen_brightness(self, percent: Union[int, float]) -> Dict[str, Any]:
+        """Ajusta el brillo de la pantalla (0 a 100%)."""
+        from core.background_hardware_orchestrator import get_background_hardware_orchestrator
+        return get_background_hardware_orchestrator().set_screen_brightness(percent)
+
+    def get_background_hardware_telemetry(self) -> Dict[str, Any]:
+        """Obtiene la telemetría en tiempo real de las 5 capas del orquestador en segundo plano."""
+        from core.background_hardware_orchestrator import get_background_hardware_orchestrator
+        return get_background_hardware_orchestrator().get_all_layers_telemetry()
+
+    def get_physical_presence(self) -> Dict[str, Any]:
+        """Obtiene la lectura sensorial en vivo de presencia física humana y movimiento."""
+        from core.physical_presence_sensor import get_physical_presence_sensor
+        return get_physical_presence_sensor().get_presence_reading().to_dict()
+
+    # -------------------------------------------------------------------------
     # 3. RADIO BLUETOOTH (bluetoothctl)
     # -------------------------------------------------------------------------
 
@@ -349,13 +373,30 @@ class HardwareController:
     # 6. DESPACHADOR UNIVERSAL DE ACCIONES DE HARDWARE (Chat / REST API)
     # -------------------------------------------------------------------------
 
-    def dispatch_action(self, action: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def dispatch_action(self, action: str, params: Optional[Dict[str, Any]] = None, is_local_request: bool = False) -> Dict[str, Any]:
         """
         Ejecuta cualquier acción de hardware por nombre clave.
         Diseñado para invocación directa desde el Chat Agéntico y la API HTTP.
+        Restringe acciones peligrosas (shell, terminal, teclado, ratón) exclusivamente a peticiones locales.
         """
         action = (action or "").lower().strip()
         params = params or {}
+
+        # Restringir acciones intrusivas exclusivamente al dispositivo físico local
+        local_only_actions = {
+            "run_shell", "shell", "command", "bash", "terminal_exec", "sh",
+            "mouse_click", "mouse_move", "mouse_action",
+            "press_keys", "hotkey", "keyboard_action",
+            "screenshot", "screen_capture",
+            "reboot", "system_reboot", "reboot_system",
+            "launch_app", "kill_app"
+        }
+        if action in local_only_actions and not is_local_request:
+            return {
+                "ok": False,
+                "error": f"Acceso denegado: La acción '{action}' y el control de terminal están restringidos exclusivamente al dispositivo físico local (Loopback).",
+                "security_alert": "REMOTE_ACTION_BLOCKED"
+            }
 
         # --- A. Redes y Wi-Fi ---
         if action in ("wifi_scan", "scan_wifi", "scan_networks"):
@@ -504,7 +545,8 @@ class HardwareController:
         elif action in ("run_shell", "shell", "command", "bash", "terminal_exec", "sh"):
             cmd = params.get("command", params.get("cmd", ""))
             timeout = float(params.get("timeout", 25.0))
-            return self.os_ctrl.execute_terminal_command(cmd, timeout=timeout)
+            is_sovereign = params.get("is_sovereign_terminal", False)
+            return self.os_ctrl.execute_terminal_command(cmd, timeout=timeout, is_local_request=is_local_request, is_sovereign_terminal=is_sovereign)
 
         # --- L. Google Antigravity IDE (Control Inalámbrico) ---
         elif action in ("antigravity_status", "get_antigravity", "agy_status"):
@@ -537,6 +579,51 @@ class HardwareController:
         elif action in ("recurring_traffic", "recurrentes", "top_trafico", "frecuentes", "traffic_destinations"):
             from core.traffic_monitor import get_traffic_monitor
             return get_traffic_monitor().get_recurring_traffic_report()
+
+        # --- O. Mensajería SMS Soberana ---
+        elif action in ("send_sms", "sms_send", "sms"):
+            to = params.get("to") or params.get("number") or params.get("phone") or params.get("destinatario", "")
+            msg = params.get("message") or params.get("msg") or params.get("texto") or params.get("body", "")
+            prov = params.get("provider", "auto")
+            from core.sms_bridge import get_sms_bridge
+            return get_sms_bridge().send_sms(to_number=to, message=msg, provider=prov)
+
+        elif action in ("sms_status", "get_sms_status"):
+            from core.sms_bridge import get_sms_bridge
+            return get_sms_bridge().get_status()
+
+        # --- P. Llamadas por Telegram Soberanas ---
+        elif action in ("telegram_call", "call_telegram", "make_call", "llamar_telegram", "llamar"):
+            target_chat = params.get("chat_id") or params.get("chat") or params.get("target")
+            speech = params.get("speech") or params.get("message") or params.get("text") or params.get("saludo")
+            from core.telegram_bridge import get_telegram_bridge
+            return get_telegram_bridge().make_call(chat_id=target_chat, initial_speech=speech)
+
+        elif action in ("telegram_end_call", "end_call", "colgar_telegram", "colgar"):
+            target_chat = params.get("chat_id") or params.get("chat")
+            from core.telegram_bridge import get_telegram_bridge
+            return get_telegram_bridge().end_call(target_chat or get_telegram_bridge().config.get("admin_chat_id"))
+
+        # --- Q. Brillo de Pantalla & Óptica ---
+        elif action in ("set_screen_brightness", "screen_brightness", "brillo_pantalla", "brillo"):
+            val = params.get("level", params.get("percent", params.get("value", 80)))
+            return self.set_screen_brightness(val)
+
+        elif action in ("get_screen_brightness", "screen_brightness_get"):
+            return self.get_screen_brightness()
+
+        # --- R. Orquestador de Hardware en Segundo Plano (5 Capas) ---
+        elif action in ("bg_hardware_telemetry", "hardware_telemetry", "capas_hardware", "hw_capas", "background_hardware"):
+            return self.get_background_hardware_telemetry()
+
+        # --- S. Aprendizaje Existencial & Reflexión Proactiva ---
+        elif action in ("trigger_existence_reflection", "send_existence_reflection", "reflexion_existencia"):
+            from core.autonomous_existence_learner import get_autonomous_existence_learner
+            return get_autonomous_existence_learner().trigger_reflection_now()
+
+        # --- T. Detección de Presencia Física Sensorial ---
+        elif action in ("get_presence", "detect_presence", "sensory_presence", "physical_presence", "presencia", "presencia_fisica"):
+            return self.get_physical_presence()
 
         else:
             return {"ok": False, "error": f"Acción de hardware desconocida: '{action}'"}

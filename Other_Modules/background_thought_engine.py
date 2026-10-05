@@ -301,7 +301,7 @@ class BackgroundThoughtEngine:
                             {"role": "user", "content": user_prompt}
                         ],
                         temperature=0.25,
-                        num_ctx=2048,
+                        num_ctx=int(os.environ.get("GIA_NUM_CTX", "4096")),
                         cancel_event=timeout_cancel
                     )
                     reply = (res.get("reply") or "").strip()
@@ -327,8 +327,8 @@ class BackgroundThoughtEngine:
 
             f"2. IMPLICACIONES ARQUITECTURALES Y DE HARDWARE:\n"
             f"   El tratamiento de este problema se vincula directamente con la persistencia en la Bóveda de 250 GB "
-            f"   y la ejecución con prioridad desacoplada en memoria RAM física, permitiendo una convergencia analítica sin interferir "
-            f"   en los ciclos de inferencia de baja latencia del chat inmediato.",
+            f"   y la ejecución con prioridad desacoplada en memoria RAM física (presupuesto de 26 GB de 32 GB totales, mlock), "
+            f"   permitiendo una convergencia analítica sin interferir en los ciclos de inferencia de baja latencia del chat inmediato.",
 
             f"3. SÍNTESIS ONTOLÓGICA Y ASIMILACIÓN PERMANENTE:\n"
             f"   Conclusión: Cada derivación de esta consulta refuerza el principio de orden sistémico (sintropía). "

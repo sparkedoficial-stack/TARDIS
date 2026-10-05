@@ -1,601 +1,790 @@
-from sympy.core import S, Rational
-from sympy.integrals.quadrature import (gauss_legendre, gauss_laguerre,
-                                        gauss_hermite, gauss_gen_laguerre,
-                                        gauss_chebyshev_t, gauss_chebyshev_u,
-                                        gauss_jacobi, gauss_lobatto)
-
-
-def test_legendre():
-    x, w = gauss_legendre(1, 17)
-    assert [str(r) for r in x] == ['0']
-    assert [str(r) for r in w] == ['2.0000000000000000']
-
-    x, w = gauss_legendre(2, 17)
-    assert [str(r) for r in x] == [
-            '-0.57735026918962576',
-            '0.57735026918962576']
-    assert [str(r) for r in w] == [
-            '1.0000000000000000',
-            '1.0000000000000000']
-
-    x, w = gauss_legendre(3, 17)
-    assert [str(r) for r in x] == [
-            '-0.77459666924148338',
-            '0',
-            '0.77459666924148338']
-    assert [str(r) for r in w] == [
-            '0.55555555555555556',
-            '0.88888888888888889',
-            '0.55555555555555556']
-
-    x, w = gauss_legendre(4, 17)
-    assert [str(r) for r in x] == [
-            '-0.86113631159405258',
-            '-0.33998104358485626',
-            '0.33998104358485626',
-            '0.86113631159405258']
-    assert [str(r) for r in w] == [
-            '0.34785484513745386',
-            '0.65214515486254614',
-            '0.65214515486254614',
-            '0.34785484513745386']
-
-
-def test_legendre_precise():
-    x, w = gauss_legendre(3, 40)
-    assert [str(r) for r in x] == [
-            '-0.7745966692414833770358530799564799221666',
-            '0',
-            '0.7745966692414833770358530799564799221666']
-    assert [str(r) for r in w] == [
-            '0.5555555555555555555555555555555555555556',
-            '0.8888888888888888888888888888888888888889',
-            '0.5555555555555555555555555555555555555556']
-
-
-def test_laguerre():
-    x, w = gauss_laguerre(1, 17)
-    assert [str(r) for r in x] == ['1.0000000000000000']
-    assert [str(r) for r in w] == ['1.0000000000000000']
-
-    x, w = gauss_laguerre(2, 17)
-    assert [str(r) for r in x] == [
-            '0.58578643762690495',
-            '3.4142135623730950']
-    assert [str(r) for r in w] == [
-            '0.85355339059327376',
-            '0.14644660940672624']
-
-    x, w = gauss_laguerre(3, 17)
-    assert [str(r) for r in x] == [
-            '0.41577455678347908',
-            '2.2942803602790417',
-            '6.2899450829374792',
-            ]
-    assert [str(r) for r in w] == [
-            '0.71109300992917302',
-            '0.27851773356924085',
-            '0.010389256501586136',
-            ]
-
-    x, w = gauss_laguerre(4, 17)
-    assert [str(r) for r in x] == [
-            '0.32254768961939231',
-            '1.7457611011583466',
-            '4.5366202969211280',
-            '9.3950709123011331']
-    assert [str(r) for r in w] == [
-            '0.60315410434163360',
-            '0.35741869243779969',
-            '0.038887908515005384',
-            '0.00053929470556132745']
-
-    x, w = gauss_laguerre(5, 17)
-    assert [str(r) for r in x] == [
-            '0.26356031971814091',
-            '1.4134030591065168',
-            '3.5964257710407221',
-            '7.0858100058588376',
-            '12.640800844275783']
-    assert [str(r) for r in w] == [
-            '0.52175561058280865',
-            '0.39866681108317593',
-            '0.075942449681707595',
-            '0.0036117586799220485',
-            '2.3369972385776228e-5']
-
-
-def test_laguerre_precise():
-    x, w = gauss_laguerre(3, 40)
-    assert [str(r) for r in x] == [
-            '0.4157745567834790833115338731282744735466',
-            '2.294280360279041719822050361359593868960',
-            '6.289945082937479196866415765512131657493']
-    assert [str(r) for r in w] == [
-            '0.7110930099291730154495901911425944313094',
-            '0.2785177335692408488014448884567264810349',
-            '0.01038925650158613574896492040067908765572']
-
-
-def test_hermite():
-    x, w = gauss_hermite(1, 17)
-    assert [str(r) for r in x] == ['0']
-    assert [str(r) for r in w] == ['1.7724538509055160']
-
-    x, w = gauss_hermite(2, 17)
-    assert [str(r) for r in x] == [
-            '-0.70710678118654752',
-            '0.70710678118654752']
-    assert [str(r) for r in w] == [
-            '0.88622692545275801',
-            '0.88622692545275801']
-
-    x, w = gauss_hermite(3, 17)
-    assert [str(r) for r in x] == [
-            '-1.2247448713915890',
-            '0',
-            '1.2247448713915890']
-    assert [str(r) for r in w] == [
-            '0.29540897515091934',
-            '1.1816359006036774',
-            '0.29540897515091934']
-
-    x, w = gauss_hermite(4, 17)
-    assert [str(r) for r in x] == [
-            '-1.6506801238857846',
-            '-0.52464762327529032',
-            '0.52464762327529032',
-            '1.6506801238857846']
-    assert [str(r) for r in w] == [
-            '0.081312835447245177',
-            '0.80491409000551284',
-            '0.80491409000551284',
-            '0.081312835447245177']
-
-    x, w = gauss_hermite(5, 17)
-    assert [str(r) for r in x] == [
-            '-2.0201828704560856',
-            '-0.95857246461381851',
-            '0',
-            '0.95857246461381851',
-            '2.0201828704560856']
-    assert [str(r) for r in w] == [
-            '0.019953242059045913',
-            '0.39361932315224116',
-            '0.94530872048294188',
-            '0.39361932315224116',
-            '0.019953242059045913']
-
-
-def test_hermite_precise():
-    x, w = gauss_hermite(3, 40)
-    assert [str(r) for r in x] == [
-        '-1.224744871391589049098642037352945695983',
-        '0',
-        '1.224744871391589049098642037352945695983']
-    assert [str(r) for r in w] == [
-        '0.2954089751509193378830279138901908637996',
-        '1.181635900603677351532111655560763455198',
-        '0.2954089751509193378830279138901908637996']
-
-
-def test_gen_laguerre():
-    x, w = gauss_gen_laguerre(1, Rational(-1, 2), 17)
-    assert [str(r) for r in x] == ['0.50000000000000000']
-    assert [str(r) for r in w] == ['1.7724538509055160']
-
-    x, w = gauss_gen_laguerre(2, Rational(-1, 2), 17)
-    assert [str(r) for r in x] == [
-            '0.27525512860841095',
-            '2.7247448713915890']
-    assert [str(r) for r in w] == [
-            '1.6098281800110257',
-            '0.16262567089449035']
-
-    x, w = gauss_gen_laguerre(3, Rational(-1, 2), 17)
-    assert [str(r) for r in x] == [
-            '0.19016350919348813',
-            '1.7844927485432516',
-            '5.5253437422632603']
-    assert [str(r) for r in w] == [
-            '1.4492591904487850',
-            '0.31413464064571329',
-            '0.0090600198110176913']
-
-    x, w = gauss_gen_laguerre(4, Rational(-1, 2), 17)
-    assert [str(r) for r in x] == [
-            '0.14530352150331709',
-            '1.3390972881263614',
-            '3.9269635013582872',
-            '8.5886356890120343']
-    assert [str(r) for r in w] == [
-            '1.3222940251164826',
-            '0.41560465162978376',
-            '0.034155966014826951',
-            '0.00039920814442273524']
-
-    x, w = gauss_gen_laguerre(5, Rational(-1, 2), 17)
-    assert [str(r) for r in x] == [
-            '0.11758132021177814',
-            '1.0745620124369040',
-            '3.0859374437175500',
-            '6.4147297336620305',
-            '11.807189489971737']
-    assert [str(r) for r in w] == [
-            '1.2217252674706516',
-            '0.48027722216462937',
-            '0.067748788910962126',
-            '0.0026872914935624654',
-            '1.5280865710465241e-5']
-
-    x, w = gauss_gen_laguerre(1, 2, 17)
-    assert [str(r) for r in x] == ['3.0000000000000000']
-    assert [str(r) for r in w] == ['2.0000000000000000']
-
-    x, w = gauss_gen_laguerre(2, 2, 17)
-    assert [str(r) for r in x] == [
-            '2.0000000000000000',
-            '6.0000000000000000']
-    assert [str(r) for r in w] == [
-            '1.5000000000000000',
-            '0.50000000000000000']
-
-    x, w = gauss_gen_laguerre(3, 2, 17)
-    assert [str(r) for r in x] == [
-            '1.5173870806774125',
-            '4.3115831337195203',
-            '9.1710297856030672']
-    assert [str(r) for r in w] == [
-            '1.0374949614904253',
-            '0.90575000470306537',
-            '0.056755033806509347']
-
-    x, w = gauss_gen_laguerre(4, 2, 17)
-    assert [str(r) for r in x] == [
-            '1.2267632635003021',
-            '3.4125073586969460',
-            '6.9026926058516134',
-            '12.458036771951139']
-    assert [str(r) for r in w] == [
-            '0.72552499769865438',
-            '1.0634242919791946',
-            '0.20669613102835355',
-            '0.0043545792937974889']
-
-    x, w = gauss_gen_laguerre(5, 2, 17)
-    assert [str(r) for r in x] == [
-            '1.0311091440933816',
-            '2.8372128239538217',
-            '5.6202942725987079',
-            '9.6829098376640271',
-            '15.828473921690062']
-    assert [str(r) for r in w] == [
-            '0.52091739683509184',
-            '1.0667059331592211',
-            '0.38354972366693113',
-            '0.028564233532974658',
-            '0.00026271280578124935']
-
-
-def test_gen_laguerre_precise():
-    x, w = gauss_gen_laguerre(3, Rational(-1, 2), 40)
-    assert [str(r) for r in x] == [
-            '0.1901635091934881328718554276203028970878',
-            '1.784492748543251591186722461957367638500',
-            '5.525343742263260275941422110422329464413']
-    assert [str(r) for r in w] == [
-            '1.449259190448785048183829411195134343108',
-            '0.3141346406457132878326231270167565378246',
-            '0.009060019811017691281714945129254301865020']
-
-    x, w = gauss_gen_laguerre(3, 2, 40)
-    assert [str(r) for r in x] == [
-            '1.517387080677412495020323111016672547482',
-            '4.311583133719520302881184669723530562299',
-            '9.171029785603067202098492219259796890218']
-    assert [str(r) for r in w] == [
-            '1.037494961490425285817554606541269153041',
-            '0.9057500047030653669269785048806009945254',
-            '0.05675503380650934725546688857812985243312']
-
-
-def test_chebyshev_t():
-    x, w = gauss_chebyshev_t(1, 17)
-    assert [str(r) for r in x] == ['0']
-    assert [str(r) for r in w] == ['3.1415926535897932']
-
-    x, w = gauss_chebyshev_t(2, 17)
-    assert [str(r) for r in x] == [
-            '0.70710678118654752',
-            '-0.70710678118654752']
-    assert [str(r) for r in w] == [
-            '1.5707963267948966',
-            '1.5707963267948966']
-
-    x, w = gauss_chebyshev_t(3, 17)
-    assert [str(r) for r in x] == [
-            '0.86602540378443865',
-            '0',
-            '-0.86602540378443865']
-    assert [str(r) for r in w] == [
-            '1.0471975511965977',
-            '1.0471975511965977',
-            '1.0471975511965977']
-
-    x, w = gauss_chebyshev_t(4, 17)
-    assert [str(r) for r in x] == [
-            '0.92387953251128676',
-            '0.38268343236508977',
-            '-0.38268343236508977',
-            '-0.92387953251128676']
-    assert [str(r) for r in w] == [
-            '0.78539816339744831',
-            '0.78539816339744831',
-            '0.78539816339744831',
-            '0.78539816339744831']
-
-    x, w = gauss_chebyshev_t(5, 17)
-    assert [str(r) for r in x] == [
-            '0.95105651629515357',
-            '0.58778525229247313',
-            '0',
-            '-0.58778525229247313',
-            '-0.95105651629515357']
-    assert [str(r) for r in w] == [
-            '0.62831853071795865',
-            '0.62831853071795865',
-            '0.62831853071795865',
-            '0.62831853071795865',
-            '0.62831853071795865']
-
-
-def test_chebyshev_t_precise():
-    x, w = gauss_chebyshev_t(3, 40)
-    assert [str(r) for r in x] == [
-            '0.8660254037844386467637231707529361834714',
-            '0',
-            '-0.8660254037844386467637231707529361834714']
-    assert [str(r) for r in w] == [
-            '1.047197551196597746154214461093167628066',
-            '1.047197551196597746154214461093167628066',
-            '1.047197551196597746154214461093167628066']
-
-
-def test_chebyshev_u():
-    x, w = gauss_chebyshev_u(1, 17)
-    assert [str(r) for r in x] == ['0']
-    assert [str(r) for r in w] == ['1.5707963267948966']
-
-    x, w = gauss_chebyshev_u(2, 17)
-    assert [str(r) for r in x] == [
-            '0.50000000000000000',
-            '-0.50000000000000000']
-    assert [str(r) for r in w] == [
-            '0.78539816339744831',
-            '0.78539816339744831']
-
-    x, w = gauss_chebyshev_u(3, 17)
-    assert [str(r) for r in x] == [
-            '0.70710678118654752',
-            '0',
-            '-0.70710678118654752']
-    assert [str(r) for r in w] == [
-            '0.39269908169872415',
-            '0.78539816339744831',
-            '0.39269908169872415']
-
-    x, w = gauss_chebyshev_u(4, 17)
-    assert [str(r) for r in x] == [
-            '0.80901699437494742',
-            '0.30901699437494742',
-            '-0.30901699437494742',
-            '-0.80901699437494742']
-    assert [str(r) for r in w] == [
-            '0.21707871342270599',
-            '0.56831944997474231',
-            '0.56831944997474231',
-            '0.21707871342270599']
-
-    x, w = gauss_chebyshev_u(5, 17)
-    assert [str(r) for r in x] == [
-            '0.86602540378443865',
-            '0.50000000000000000',
-            '0',
-            '-0.50000000000000000',
-            '-0.86602540378443865']
-    assert [str(r) for r in w] == [
-            '0.13089969389957472',
-            '0.39269908169872415',
-            '0.52359877559829887',
-            '0.39269908169872415',
-            '0.13089969389957472']
-
-
-def test_chebyshev_u_precise():
-    x, w = gauss_chebyshev_u(3, 40)
-    assert [str(r) for r in x] == [
-            '0.7071067811865475244008443621048490392848',
-            '0',
-            '-0.7071067811865475244008443621048490392848']
-    assert [str(r) for r in w] == [
-            '0.3926990816987241548078304229099378605246',
-            '0.7853981633974483096156608458198757210493',
-            '0.3926990816987241548078304229099378605246']
-
-
-def test_jacobi():
-    x, w = gauss_jacobi(1, Rational(-1, 2), S.Half, 17)
-    assert [str(r) for r in x] == ['0.50000000000000000']
-    assert [str(r) for r in w] == ['3.1415926535897932']
-
-    x, w = gauss_jacobi(2, Rational(-1, 2), S.Half, 17)
-    assert [str(r) for r in x] == [
-            '-0.30901699437494742',
-            '0.80901699437494742']
-    assert [str(r) for r in w] == [
-            '0.86831485369082398',
-            '2.2732777998989693']
-
-    x, w = gauss_jacobi(3, Rational(-1, 2), S.Half, 17)
-    assert [str(r) for r in x] == [
-            '-0.62348980185873353',
-            '0.22252093395631440',
-            '0.90096886790241913']
-    assert [str(r) for r in w] == [
-            '0.33795476356635433',
-            '1.0973322242791115',
-            '1.7063056657443274']
-
-    x, w = gauss_jacobi(4, Rational(-1, 2), S.Half, 17)
-    assert [str(r) for r in x] == [
-            '-0.76604444311897804',
-            '-0.17364817766693035',
-            '0.50000000000000000',
-            '0.93969262078590838']
-    assert [str(r) for r in w] == [
-            '0.16333179083642836',
-            '0.57690240318269103',
-            '1.0471975511965977',
-            '1.3541609083740761']
-
-    x, w = gauss_jacobi(5, Rational(-1, 2), S.Half, 17)
-    assert [str(r) for r in x] == [
-            '-0.84125353283118117',
-            '-0.41541501300188643',
-            '0.14231483827328514',
-            '0.65486073394528506',
-            '0.95949297361449739']
-    assert [str(r) for r in w] == [
-            '0.090675770007435372',
-            '0.33391416373675607',
-            '0.65248870981926643',
-            '0.94525424081394926',
-            '1.1192597692123861']
-
-    x, w = gauss_jacobi(1, 2, 3, 17)
-    assert [str(r) for r in x] == ['0.14285714285714286']
-    assert [str(r) for r in w] == ['1.0666666666666667']
-
-    x, w = gauss_jacobi(2, 2, 3, 17)
-    assert [str(r) for r in x] == [
-            '-0.24025307335204215',
-            '0.46247529557426437']
-    assert [str(r) for r in w] == [
-            '0.48514624517838660',
-            '0.58152042148828007']
-
-    x, w = gauss_jacobi(3, 2, 3, 17)
-    assert [str(r) for r in x] == [
-            '-0.46115870378089762',
-            '0.10438533038323902',
-            '0.62950064612493132']
-    assert [str(r) for r in w] == [
-            '0.17937613502213266',
-            '0.61595640991147154',
-            '0.27133412173306246']
-
-    x, w = gauss_jacobi(4, 2, 3, 17)
-    assert [str(r) for r in x] == [
-            '-0.59903470850824782',
-            '-0.14761105199952565',
-            '0.32554377081188859',
-            '0.72879429738819258']
-    assert [str(r) for r in w] == [
-            '0.067809641836772187',
-            '0.38956404952032481',
-            '0.47995970868024150',
-            '0.12933326662932816']
-
-    x, w = gauss_jacobi(5, 2, 3, 17)
-    assert [str(r) for r in x] == [
-            '-0.69045775012676106',
-            '-0.32651993134900065',
-            '0.082337849552034905',
-            '0.47517887061283164',
-            '0.79279429464422850']
-    assert [str(r) for r in w] == [
-            '0.027410178066337099',
-            '0.21291786060364828',
-            '0.43908437944395081',
-            '0.32220656547221822',
-            '0.065047683080512268']
-
-
-def test_jacobi_precise():
-    x, w = gauss_jacobi(3, Rational(-1, 2), S.Half, 40)
-    assert [str(r) for r in x] == [
-            '-0.6234898018587335305250048840042398106323',
-            '0.2225209339563144042889025644967947594664',
-            '0.9009688679024191262361023195074450511659']
-    assert [str(r) for r in w] == [
-            '0.3379547635663543330553835737094171534907',
-            '1.097332224279111467485302294320899710461',
-            '1.706305665744327437921957515249186020246']
-
-    x, w = gauss_jacobi(3, 2, 3, 40)
-    assert [str(r) for r in x] == [
-            '-0.4611587037808976179121958105554375981274',
-            '0.1043853303832390210914918407615869143233',
-            '0.6295006461249313240934312425211234110769']
-    assert [str(r) for r in w] == [
-            '0.1793761350221326596137764371503859752628',
-            '0.6159564099114715430909548532229749439714',
-            '0.2713341217330624639619353762933057474325']
-
-
-def test_lobatto():
-    x, w = gauss_lobatto(2, 17)
-    assert [str(r) for r in x] == [
-            '-1',
-            '1']
-    assert [str(r) for r in w] == [
-            '1.0000000000000000',
-            '1.0000000000000000']
-
-    x, w = gauss_lobatto(3, 17)
-    assert [str(r) for r in x] == [
-            '-1',
-            '0',
-            '1']
-    assert [str(r) for r in w] == [
-            '0.33333333333333333',
-            '1.3333333333333333',
-            '0.33333333333333333']
-
-    x, w = gauss_lobatto(4, 17)
-    assert [str(r) for r in x] == [
-            '-1',
-            '-0.44721359549995794',
-            '0.44721359549995794',
-            '1']
-    assert [str(r) for r in w] == [
-            '0.16666666666666667',
-            '0.83333333333333333',
-            '0.83333333333333333',
-            '0.16666666666666667']
-
-    x, w = gauss_lobatto(5, 17)
-    assert [str(r) for r in x] == [
-            '-1',
-            '-0.65465367070797714',
-            '0',
-            '0.65465367070797714',
-            '1']
-    assert [str(r) for r in w] == [
-            '0.10000000000000000',
-            '0.54444444444444444',
-            '0.71111111111111111',
-            '0.54444444444444444',
-            '0.10000000000000000']
-
-
-def test_lobatto_precise():
-    x, w = gauss_lobatto(3, 40)
-    assert [str(r) for r in x] == [
-            '-1',
-            '0',
-            '1']
-    assert [str(r) for r in w] == [
-            '0.3333333333333333333333333333333333333333',
-            '1.333333333333333333333333333333333333333',
-            '0.3333333333333333333333333333333333333333']
+# mypy: disable-error-code="attr-defined"
+import pytest
+import numpy as np
+from numpy.testing import assert_equal, assert_almost_equal, assert_allclose
+from hypothesis import given
+import hypothesis.strategies as st
+import hypothesis.extra.numpy as hyp_num
+
+from scipy.integrate import (romb, newton_cotes,
+                             cumulative_trapezoid, trapezoid,
+                             quad, simpson, fixed_quad,
+                             qmc_quad, cumulative_simpson)
+from scipy.integrate._quadrature import _cumulative_simpson_unequal_intervals
+
+from scipy import stats, special, integrate
+from scipy.conftest import skip_xp_invalid_arg
+from scipy._lib._array_api import make_xp_test_case, xp_default_dtype, is_numpy
+from scipy._lib._array_api_no_0d import xp_assert_close, xp_assert_equal
+from scipy._external import array_api_extra as xpx
+
+skip_xp_backends = pytest.mark.skip_xp_backends
+
+@make_xp_test_case(fixed_quad)
+class TestFixedQuad:
+    def test_scalar(self):
+        n = 4
+        expected = 1/(2*n)
+        got, _ = fixed_quad(lambda x: x**(2*n - 1), 0, 1, n=n)
+        # quadrature exact for this input
+        xp_assert_close(got, np.asarray(expected), rtol=1e-12)
+
+    def test_0d(self, xp):
+        n = 4
+        expected = 1/(2*n)
+        got, _ = fixed_quad(lambda x: x**(2*n - 1), xp.asarray(0.), xp.asarray(1.), n=n)
+        # quadrature exact for this input
+        xp_assert_close(got, xp.asarray(expected), rtol=1e-12)
+
+    @pytest.mark.parametrize('dtype', [None, 'float32', 'float64'])
+    def test_vector(self, dtype, xp):
+        dtype = dtype if dtype is None else getattr(xp, dtype)
+        n = 4
+        p = xp.arange(1., 2*n, dtype=dtype)
+        a, b = xp.asarray(0., dtype=dtype), xp.asarray(1., dtype=dtype)
+        expected = 1/(p + 1)
+        got, _ = fixed_quad(lambda x, p: x**p[:, xp.newaxis], a, b, args=(p,), n=n)
+        rtol = 1e-12 if dtype == xp.float64 else 2e-7
+        xp_assert_close(got, xp.asarray(expected), rtol=rtol)
+
+    @skip_xp_backends('jax.numpy', reason="lazy -> limited input validation")
+    @skip_xp_backends('dask.array', reason="lazy -> limited input validation")
+    def test_input_validation(self, xp):
+        n = 4
+        message = "Gaussian quadrature is only available for finite limits."
+        with pytest.raises(ValueError, match=message):
+            fixed_quad(lambda x: x**(2*n - 1), xp.asarray(-xp.inf), xp.asarray(1.), n=n)
+        with pytest.raises(ValueError, match=message):
+            fixed_quad(lambda x: x**(2*n - 1), xp.asarray(0.), xp.asarray(xp.inf), n=n)
+
+
+@make_xp_test_case(romb)
+class TestRomb:
+    def test_romb(self, xp):
+        xp_assert_equal(romb(xp.arange(17.0)), xp.asarray(128.0, dtype=xp.float64))
+
+    def test_romb_gh_3731(self, xp):
+        # Check that romb makes maximal use of data points
+        x = np.arange(2**4+1)
+        y = np.cos(0.2*x)
+        val = romb(xp.asarray(y))
+        expected, _ = quad(lambda x: np.cos(np.array(0.2*x)), np.min(x), np.max(x))
+        xp_assert_close(val, xp.asarray(expected, dtype=xp.float64), rtol=1e-8, atol=0)
+
+
+@make_xp_test_case(newton_cotes)
+class TestNewtonCotes:
+    def test_newton_cotes(self):
+        """Test the first few degrees, for evenly spaced points."""
+        n = 1
+        wts, errcoff = newton_cotes(n, 1)
+        assert_equal(wts, n*np.array([0.5, 0.5]))
+        assert_almost_equal(errcoff, -n**3/12.0)
+
+        n = 2
+        wts, errcoff = newton_cotes(n, 1)
+        assert_almost_equal(wts, n*np.array([1.0, 4.0, 1.0])/6.0)
+        assert_almost_equal(errcoff, -n**5/2880.0)
+
+        n = 3
+        wts, errcoff = newton_cotes(n, 1)
+        assert_almost_equal(wts, n*np.array([1.0, 3.0, 3.0, 1.0])/8.0)
+        assert_almost_equal(errcoff, -n**5/6480.0)
+
+        n = 4
+        wts, errcoff = newton_cotes(n, 1)
+        assert_almost_equal(wts, n*np.array([7.0, 32.0, 12.0, 32.0, 7.0])/90.0)
+        assert_almost_equal(errcoff, -n**7/1935360.0)
+
+    def test_newton_cotes2(self):
+        """Test newton_cotes with points that are not evenly spaced."""
+
+        x = np.array([0.0, 1.5, 2.0])
+        y = x**2
+        wts, errcoff = newton_cotes(x)
+        exact_integral = 8.0/3
+        numeric_integral = np.dot(wts, y)
+        assert_almost_equal(numeric_integral, exact_integral)
+
+        x = np.array([0.0, 1.4, 2.1, 3.0])
+        y = x**2
+        wts, errcoff = newton_cotes(x)
+        exact_integral = 9.0
+        numeric_integral = np.dot(wts, y)
+        assert_almost_equal(numeric_integral, exact_integral)
+
+
+@make_xp_test_case(simpson)
+class TestSimpson:
+
+    def test_simpson(self, xp):
+        y = xp.arange(17.)
+        xp_assert_equal(simpson(y), xp.asarray(128.))
+        xp_assert_equal(simpson(y, dx=0.5), xp.asarray(64.))
+        xp_assert_equal(simpson(y, x=xp.linspace(0., 4., 17)), xp.asarray(32.))
+
+        # integral should be exactly 21
+        x = xp.linspace(1., 4., 4)
+        def f(x):
+            return x**2
+
+        xp_assert_close(simpson(f(x), x=x), xp.asarray(21.0))
+
+        # integral should be exactly 114
+        x = xp.linspace(1., 7., 4)
+        xp_assert_close(simpson(f(x), dx=2.0), xp.asarray(114.))
+
+        # test multi-axis behaviour
+        a = np.arange(16.).reshape(4, 4)
+        x = xp.reshape(xp.arange(64.), (4, 4, 4))
+        y = f(x)
+        for i in range(3):
+            r = simpson(y, x=x, axis=i)
+            it = np.nditer(a, flags=['multi_index'])
+            for _ in it:
+                idx = list(it.multi_index)
+                idx.insert(i, slice(None))
+                integral = x[tuple(idx)][-1]**3 / 3 - x[tuple(idx)][0]**3 / 3
+                xp_assert_close(r[it.multi_index], xp.asarray(integral))
+
+        # test when integration axis only has two points
+        x = xp.reshape(xp.arange(16.), (8, 2))
+        y = f(x)
+        r = simpson(y, x=x, axis=-1)
+
+        integral = 0.5 * (y[:, 1] + y[:, 0]) * (x[:, 1] - x[:, 0])
+        xp_assert_close(r, xp.asarray(integral))
+
+        # odd points, test multi-axis behaviour
+        a = np.arange(25).reshape(5, 5)
+        x = xp.reshape(xp.arange(125.), (5, 5, 5))
+        y = f(x)
+        for i in range(3):
+            r = simpson(y, x=x, axis=i)
+            it = np.nditer(a, flags=['multi_index'])
+            for _ in it:
+                idx = list(it.multi_index)
+                idx.insert(i, slice(None))
+                integral = x[tuple(idx)][-1]**3 / 3 - x[tuple(idx)][0]**3 / 3
+                xp_assert_close(r[it.multi_index], xp.asarray(integral))
+
+        # Tests for checking base case
+        x = xp.asarray([3.])
+        y = x**2
+        xp_assert_close(simpson(y, x=x, axis=0), xp.asarray(0.0))
+        xp_assert_close(simpson(y, x=x, axis=-1), xp.asarray(0.0))
+
+        x = xp.asarray([3., 3., 3., 3.])
+        y = x**2
+        xp_assert_close(simpson(y, x=x, axis=0), xp.asarray(0.0))
+        xp_assert_close(simpson(y, x=x, axis=-1), xp.asarray(0.0))
+
+        x = xp.asarray([[1., 2., 4., 8.], [1., 2., 4., 8.], [1., 2., 4., 8.]])
+        y = x**2
+        zero_axis = xp.asarray([0.0, 0.0, 0.0, 0.0])
+        default_axis = xp.asarray([170 + 1/3] * 3)   # 8**3 / 3 - 1/3
+        xp_assert_close(simpson(y, x=x, axis=0), zero_axis)
+        # the following should be exact
+        xp_assert_close(simpson(y, x=x, axis=-1), default_axis)
+
+        x = xp.asarray([[1., 2., 4., 8.], [1., 2., 4., 8.], [1., 8., 16., 32.]])
+        y = x**2
+        zero_axis = xp.asarray([0.0, 136.0, 1088.0, 8704.0])
+        default_axis = xp.asarray([170 + 1/3, 170 + 1/3, 32**3 / 3 - 1/3])
+        xp_assert_close(simpson(y, x=x, axis=0), zero_axis)
+        xp_assert_close(simpson(y, x=x, axis=-1), default_axis)
+
+    @pytest.mark.skip_xp_backends('array_api_strict', reason="no int->float promotion")
+    @pytest.mark.parametrize('droplast', [False, True])
+    def test_simpson_2d_integer_no_x(self, droplast, xp):
+        # The inputs are 2d integer arrays.  The results should be
+        # identical to the results when the inputs are floating point.
+        y = xp.asarray([[2, 2, 4, 4, 8, 8, -4, 5],
+                        [4, 4, 2, -4, 10, 22, -2, 10]])
+        if droplast:
+            y = y[:, :-1]
+        result = simpson(y, axis=-1)
+        expected = simpson(xp.asarray(y, dtype=xp_default_dtype(xp)), axis=-1)
+        xp_assert_equal(result, expected)
+
+
+@make_xp_test_case(cumulative_trapezoid)
+class TestCumulative_trapezoid:
+    def test_1d(self, xp):
+        x = xp.linspace(-2, 2, num=5)
+        y = x
+        y_int = cumulative_trapezoid(y, x, initial=0)
+        y_expected = xp.asarray([0., -1.5, -2., -1.5, 0.])
+        xp_assert_close(y_int, y_expected)
+
+        y_int = cumulative_trapezoid(y, x, initial=None)
+        xp_assert_close(y_int, y_expected[1:])
+
+    def test_y_nd_x_nd(self, xp):
+        x = xp.reshape(xp.arange(3 * 2 * 4, dtype=xp_default_dtype(xp)), (3, 2, 4))
+        y = x
+        y_int = cumulative_trapezoid(y, x, initial=0)
+        y_expected = xp.asarray([[[0., 0.5, 2., 4.5],
+                                  [0., 4.5, 10., 16.5]],
+                                 [[0., 8.5, 18., 28.5],
+                                  [0., 12.5, 26., 40.5]],
+                                 [[0., 16.5, 34., 52.5],
+                                  [0., 20.5, 42., 64.5]]])
+
+        xp_assert_close(y_int, y_expected)
+
+        # Try with all axes
+        shapes = [(2, 2, 4), (3, 1, 4), (3, 2, 3)]
+        for axis, shape in zip([0, 1, 2], shapes):
+            y_int = cumulative_trapezoid(y, x, initial=0, axis=axis)
+            assert y_int.shape == (3, 2, 4)
+            y_int = cumulative_trapezoid(y, x, initial=None, axis=axis)
+            assert y_int.shape == shape
+
+    def test_y_nd_x_1d(self, xp):
+        y = xp.reshape(xp.arange(3 * 2 * 4, dtype=xp_default_dtype(xp)), (3, 2, 4))
+        x = xp.arange(4, dtype=xp_default_dtype(xp))**2
+        # Try with all axes
+        ys_expected = (
+            xp.asarray([[[4., 5., 6., 7.],
+                         [8., 9., 10., 11.]],
+                        [[40., 44., 48., 52.],
+                         [56., 60., 64., 68.]]]),
+            xp.asarray([[[2., 3., 4., 5.]],
+                        [[10., 11., 12., 13.]],
+                        [[18., 19., 20., 21.]]]),
+            xp.asarray([[[0.5, 5., 17.5],
+                         [4.5, 21., 53.5]],
+                        [[8.5, 37., 89.5],
+                         [12.5, 53., 125.5]],
+                        [[16.5, 69., 161.5],
+                         [20.5, 85., 197.5]]]))
+
+        for axis, y_expected in zip([0, 1, 2], ys_expected):
+            y_int = cumulative_trapezoid(y, x=x[:y.shape[axis]], axis=axis,
+                                         initial=None)
+            xp_assert_close(y_int, y_expected)
+
+    def test_x_none(self, xp):
+        y = xp.linspace(-2, 2, num=5)
+
+        y_int = cumulative_trapezoid(y)
+        y_expected = xp.asarray([-1.5, -2., -1.5, 0.])
+        xp_assert_close(y_int, y_expected)
+
+        y_int = cumulative_trapezoid(y, initial=0)
+        y_expected = xp.asarray([0, -1.5, -2., -1.5, 0.])
+        xp_assert_close(y_int, y_expected)
+
+        y_int = cumulative_trapezoid(y, dx=3)
+        y_expected = xp.asarray([-4.5, -6., -4.5, 0.])
+        xp_assert_close(y_int, y_expected)
+
+        y_int = cumulative_trapezoid(y, dx=3, initial=0)
+        y_expected = xp.asarray([0, -4.5, -6., -4.5, 0.])
+        xp_assert_close(y_int, y_expected)
+
+    @pytest.mark.parametrize(
+        "initial", [1, 0.5]
+    )
+    def test_initial_error(self, initial, xp):
+        """If initial is not None or 0, a ValueError is raised."""
+        y = xp.linspace(0, 10, num=10)
+        with pytest.raises(ValueError, match="`initial`"):
+            cumulative_trapezoid(y, initial=initial)
+
+    def test_zero_len_y(self, xp):
+        with pytest.raises(ValueError, match="At least one point is required"):
+            cumulative_trapezoid(y=xp.asarray([]))
+
+
+class CommonTrapezoidSimpsonTests:
+    def test_simple(self, xp):
+        x = xp.arange(-10, 10, .1)
+        r = self.quadrature_func(xp.exp(-.5 * x ** 2) / xp.sqrt(2 * xp.asarray(xp.pi)),
+                                 dx=0.1)
+        # check integral of normal equals 1
+        xp_assert_close(r, xp.asarray(1.0))
+
+    def test_ndim(self, xp):
+        x = xp.linspace(0, 1, 3)
+        y = xp.linspace(0, 2, 8)
+        z = xp.linspace(0, 3, 13)
+
+        wx = xp.ones_like(x) * (x[1] - x[0])
+        wx = xpx.at(wx)[0].divide(2)
+        wx = xpx.at(wx)[-1].divide(2)
+        wy = xp.ones_like(y) * (y[1] - y[0])
+        wy = xpx.at(wy)[0].divide(2)
+        wy = xpx.at(wy)[-1].divide(2)
+        wz = xp.ones_like(z) * (z[1] - z[0])
+        wz = xpx.at(wz)[0].divide(2)
+        wz = xpx.at(wz)[-1].divide(2)
+
+        q = x[:, None, None] + y[None,:, None] + z[None, None,:]
+
+        qx = xp.sum(q * wx[:, None, None], axis=0)
+        qy = xp.sum(q * wy[None, :, None], axis=1)
+        qz = xp.sum(q * wz[None, None, :], axis=2)
+
+        # n-d `x`
+        r = self.quadrature_func(q, x=x[:, None, None], axis=0)
+        xp_assert_close(r, qx)
+        r = self.quadrature_func(q, x=y[None,:, None], axis=1)
+        xp_assert_close(r, qy)
+        r = self.quadrature_func(q, x=z[None, None,:], axis=2)
+        xp_assert_close(r, qz)
+
+        # 1-d `x`
+        r = self.quadrature_func(q, x=x, axis=0)
+        xp_assert_close(r, qx)
+        r = self.quadrature_func(q, x=y, axis=1)
+        xp_assert_close(r, qy)
+        r = self.quadrature_func(q, x=z, axis=2)
+        xp_assert_close(r, qz)
+
+@make_xp_test_case(simpson)
+class TestSimpson2(CommonTrapezoidSimpsonTests):
+    # run additional tests without copying/moving classes around
+    def quadrature_func(self, *args, **kwargs):
+        return simpson(*args, **kwargs)
+
+@make_xp_test_case(trapezoid)
+class TestTrapezoid(CommonTrapezoidSimpsonTests):
+    def quadrature_func(self, *args, **kwargs):
+        return trapezoid(*args, **kwargs)
+
+    def test_gh21908(self, xp):
+        # extended testing for n-dim arrays
+        x = xp.reshape(xp.linspace(0, 29, 30), (3, 10))
+        y = xp.reshape(xp.linspace(0, 29, 30), (3, 10))
+
+        out0 = xp.linspace(200, 380, 10)
+        xp_assert_close(trapezoid(y, x=x, axis=0), out0)
+        xp_assert_close(trapezoid(y, x=xp.asarray([0, 10., 20.]), axis=0), out0)
+        # x needs to be broadcastable against y
+        xp_assert_close(
+            trapezoid(y, x=xp.asarray([0, 10., 20.])[:, None], axis=0),
+            out0
+        )
+        with pytest.raises(Exception):
+            # x is not broadcastable against y
+            trapezoid(y, x=xp.asarray([0, 10., 20.])[None, :], axis=0)
+
+        out1 = xp.asarray([ 40.5, 130.5, 220.5])
+        xp_assert_close(trapezoid(y, x=x, axis=1), out1)
+        xp_assert_close(
+            trapezoid(y, x=xp.linspace(0, 9, 10), axis=1),
+            out1
+        )
+
+    @skip_xp_invalid_arg
+    def test_masked(self, xp):
+        # Testing that masked arrays behave as if the function is 0 where
+        # masked
+        x = np.arange(5)
+        y = x * x
+        mask = x == 2
+        ym = np.ma.array(y, mask=mask)
+        r = 13.0  # sum(0.5 * (0 + 1) * 1.0 + 0.5 * (9 + 16))
+        assert_allclose(trapezoid(ym, x), r)
+
+        xm = np.ma.array(x, mask=mask)
+        assert_allclose(trapezoid(ym, xm), r)
+
+        xm = np.ma.array(x, mask=mask)
+        assert_allclose(trapezoid(y, xm), r)
+
+    def test_array_like(self):
+        x = list(range(5))
+        y = [t * t for t in x]
+        xarr = np.asarray(x, dtype=np.float64)
+        yarr = np.asarray(y, dtype=np.float64)
+        res = trapezoid(y, x)
+        resarr = trapezoid(yarr, xarr)
+        xp_assert_close(res, resarr)
+
+
+@make_xp_test_case(qmc_quad)
+class TestQMCQuad:
+    def test_input_validation(self, xp):
+        a = xp.asarray([0., 0.])
+        b = xp.asarray([1., 1.])
+
+        message = "`func` must be callable."
+        with pytest.raises(TypeError, match=message):
+            qmc_quad("a duck", a, b)
+
+        message = "`func` must evaluate the integrand at points..."
+        with pytest.raises(ValueError, match=message):
+            qmc_quad(lambda: 1, a, b)
+
+        def func(x):
+            assert x.ndim == 1
+            return xp.sum(x)
+        message = "Exception encountered when attempting vectorized call..."
+        if is_numpy(xp):
+            with pytest.warns(UserWarning, match=message):
+                qmc_quad(func, a, b)
+        else:
+            with pytest.raises(ValueError, match=message):
+                qmc_quad(func, a, b)
+
+        message = "`n_points` must be an integer."
+        with pytest.raises(TypeError, match=message):
+            qmc_quad(lambda x: 1, a, b, n_points=1024.5)
+
+        message = "`n_estimates` must be an integer."
+        with pytest.raises(TypeError, match=message):
+            qmc_quad(lambda x: 1, a, b, n_estimates=8.5)
+
+        message = "`qrng` must be an instance of scipy.stats.qmc.QMCEngine."
+        with pytest.raises(TypeError, match=message):
+            qmc_quad(lambda x: 1, a, b, qrng="a duck")
+
+        message = "`qrng` must be initialized with dimensionality equal to "
+        with pytest.raises(ValueError, match=message):
+            qmc_quad(lambda x: 1, a, b, qrng=stats.qmc.Sobol(1))
+
+        message = r"`log` must be boolean \(`True` or `False`\)."
+        with pytest.raises(TypeError, match=message):
+            qmc_quad(lambda x: 1, a, b, log=10)
+
+    def basic_test(self, n_points=2**8, n_estimates=8, signs=None, xp=None):
+        dtype = xp_default_dtype(xp)
+        if signs is None:
+            signs = np.ones(2)
+        ndim = 2
+        mean = np.zeros(ndim)
+        cov = np.eye(ndim)
+
+        def func(x):
+            # standard multivariate normal PDF in two dimensions
+            return xp.exp(-0.5 * xp.sum(x*x, axis=0)) / (2 * xp.pi)
+
+        rng = np.random.default_rng(2879434385674690281)
+        qrng = stats.qmc.Sobol(ndim, seed=rng)
+        a = np.zeros(ndim)
+        b = np.ones(ndim) * signs
+        res = qmc_quad(func, xp.asarray(a, dtype=dtype), xp.asarray(b, dtype=dtype),
+                       n_points=n_points, n_estimates=n_estimates, qrng=qrng)
+        ref = stats.multivariate_normal.cdf(b, mean, cov, lower_limit=a)
+        atol = special.stdtrit(n_estimates-1, 0.995) * res.standard_error  # 99% CI
+        xp_assert_close(res.integral, xp.asarray(ref, dtype=dtype), atol=atol)
+        assert np.prod(signs)*res.integral > 0
+
+        rng = np.random.default_rng(2879434385674690281)
+        qrng = stats.qmc.Sobol(ndim, seed=rng)
+        logres = qmc_quad(lambda *args: xp.log(func(*args)),
+                          xp.asarray(a, dtype=dtype), xp.asarray(b, dtype=dtype),
+                          n_points=n_points, n_estimates=n_estimates,
+                          log=True, qrng=qrng)
+        rtol = 1e-14 if res.integral.dtype == xp.float64 else 2e-6
+        xp_assert_close(xp.real(xp.exp(logres.integral)), res.integral, rtol=rtol)
+        assert xp.imag(logres.integral + 0j) == (xp.pi if np.prod(signs) < 0 else 0)
+        xp_assert_close(xp.exp(logres.standard_error),
+                        res.standard_error, rtol=rtol, atol=rtol/100)
+
+    @pytest.mark.parametrize("n_points", [2**8, 2**12])
+    @pytest.mark.parametrize("n_estimates", [8, 16])
+    def test_basic(self, n_points, n_estimates, xp):
+        self.basic_test(n_points, n_estimates, xp=xp)
+
+    @pytest.mark.parametrize("signs", [[1., 1.], [-1., -1.], [-1., 1.], [1., -1.]])
+    def test_sign(self, signs, xp):
+        self.basic_test(signs=signs, xp=xp)
+
+    @pytest.mark.parametrize("log", [False, True])
+    def test_zero(self, log, xp):
+        message = "A lower limit was equal to an upper limit, so"
+        with pytest.warns(UserWarning, match=message):
+            res = qmc_quad(lambda x: 1, xp.asarray([0, 0]), xp.asarray([0, 1]), log=log)
+        assert res.integral == (-xp.inf if log else 0)
+        assert res.standard_error == 0
+
+    def test_flexible_input(self):
+        # check that qrng is not required
+        # also checks that for 1d problems, a and b can be scalars
+        def func(x):
+            return stats.norm.pdf(x, scale=2)
+
+        res = qmc_quad(func, 0, 1)
+        ref = stats.norm.cdf(1, scale=2) - stats.norm.cdf(0, scale=2)
+        assert_allclose(res.integral, ref, 1e-2)
+
+
+def cumulative_simpson_nd_reference(y, *, x=None, dx=None, initial=None, axis=-1):
+    # Use cumulative_trapezoid if length of y < 3
+    if y.shape[axis] < 3:
+        if initial is None:
+            return cumulative_trapezoid(y, x=x, dx=dx, axis=axis, initial=None)
+        else:
+            return initial + cumulative_trapezoid(y, x=x, dx=dx, axis=axis, initial=0)
+
+    # Ensure that working axis is last axis
+    y = np.moveaxis(y, axis, -1)
+    x = np.moveaxis(x, axis, -1) if np.ndim(x) > 1 else x
+    dx = np.moveaxis(dx, axis, -1) if np.ndim(dx) > 1 else dx
+    initial = np.moveaxis(initial, axis, -1) if np.ndim(initial) > 1 else initial
+
+    # If `x` is not present, create it from `dx`
+    n = y.shape[-1]
+    x = dx * np.arange(n) if dx is not None else x
+    # Similarly, if `initial` is not present, set it to 0
+    initial_was_none = initial is None
+    initial = 0 if initial_was_none else initial
+
+    # `np.apply_along_axis` accepts only one array, so concatenate arguments
+    x = np.broadcast_to(x, y.shape)
+    initial = np.broadcast_to(initial, y.shape[:-1] + (1,))
+    z = np.concatenate((y, x, initial), axis=-1)
+
+    # Use `np.apply_along_axis` to compute result
+    def f(z):
+        return cumulative_simpson(z[:n], x=z[n:2*n], initial=z[2*n:])
+    res = np.apply_along_axis(f, -1, z)
+
+    # Remove `initial` and undo axis move as needed
+    res = res[..., 1:] if initial_was_none else res
+    res = np.moveaxis(res, -1, axis)
+    return res
+
+
+@make_xp_test_case(cumulative_simpson)
+class TestCumulativeSimpson:
+    x0 = np.arange(4)
+    y0 = x0**2
+
+    @pytest.mark.parametrize('use_dx', (False, True))
+    @pytest.mark.parametrize('use_initial', (False, True))
+    def test_1d(self, use_dx, use_initial, xp):
+        # Test for exact agreement with polynomial of highest
+        # possible order (3 if `dx` is constant, 2 otherwise).
+        rng = np.random.default_rng(82456839535679456794)
+        n = 10
+
+        # Generate random polynomials and ground truth
+        # integral of appropriate order
+        order = 3 if use_dx else 2
+        dx = xp.asarray(rng.random())
+        if order == 2:
+            x = xp.asarray(np.sort(rng.random(n)))
+        else:
+            x = xp.arange(n, dtype=xp.float64)*dx + xp.asarray(rng.random())
+        i = xp.arange(order + 1, dtype=xp.float64)[:, xp.newaxis]
+        c = xp.asarray(rng.random(order + 1))[:, xp.newaxis]
+        y = xp.sum(c*x**i, axis=0)
+        Y = xp.sum(c*x**(i + 1)/(i + 1), axis=0)
+        ref = Y if use_initial else (Y-Y[0])[1:]
+
+        # Integrate with `cumulative_simpson`
+        initial = Y[0] if use_initial else None
+        kwarg = {'dx': dx} if use_dx else {'x': x}
+        res = cumulative_simpson(y, **kwarg, initial=initial)
+
+        # Compare result against reference
+        if not use_dx:
+            xp_assert_close(res, ref, rtol=2e-15)
+        else:
+            i0 = 0 if use_initial else 1
+            # all terms are "close"
+            xp_assert_close(res, ref, rtol=0.0025)
+            # only even-interval terms are "exact"
+            xp_assert_close(res[i0::2], ref[i0::2], rtol=2e-15)
+
+    @skip_xp_backends(cpu_only=True)  # uses np.apply_along_axis
+    @pytest.mark.parametrize('axis', np.arange(-3, 3))
+    @pytest.mark.parametrize('x_ndim', (1, 3))
+    @pytest.mark.parametrize('x_len', (1, 2, 7))
+    @pytest.mark.parametrize('i_ndim', (None, 0, 3,))
+    @pytest.mark.parametrize('dx', (None, True))
+    def test_nd(self, axis, x_ndim, x_len, i_ndim, dx, xp):
+        # Test behavior of `cumulative_simpson` with N-D `y`
+        rng = np.random.default_rng(82456839535679456794)
+
+        # determine shapes
+        shape = [5, 6, x_len]
+        shape[axis], shape[-1] = shape[-1], shape[axis]
+        shape_len_1 = shape.copy()
+        shape_len_1[axis] = 1
+        i_shape = shape_len_1 if i_ndim == 3 else ()
+
+        # initialize arguments
+        y = xp.asarray(rng.random(size=shape))
+        x, dx = None, None
+        if dx:
+            dx = rng.random(size=shape_len_1) if x_ndim > 1 else rng.random()
+            dx = xp.asarray(dx)
+        else:
+            x = (np.sort(rng.random(size=shape), axis=axis) if x_ndim > 1
+                 else np.sort(rng.random(size=shape[axis])))
+            x = xp.asarray(x)
+        initial = None if i_ndim is None else xp.asarray(rng.random(size=i_shape))
+
+        # compare results
+        res = cumulative_simpson(y, x=x, dx=dx, initial=initial, axis=axis)
+        # use np to generate `ref` as `cumulative_simpson_nd_ref`
+        # uses `apply_along_axis`
+        ref = cumulative_simpson_nd_reference(
+            np.asarray(y), x=np.asarray(x), dx=None if dx is None else np.asarray(dx),
+            initial=None if initial is None else np.asarray(initial), axis=axis
+        )
+        xp_assert_close(res, xp.asarray(ref), rtol=1e-15)
+
+    @pytest.mark.parametrize(('message', 'kwarg_update'), [
+        ("x must be strictly increasing", dict(x=[2, 2, 3, 4])),
+        ("x must be strictly increasing", dict(x=[x0, [2, 2, 4, 8]], y=[y0, y0])),
+        ("x must be strictly increasing", dict(x=[x0, x0, x0], y=[y0, y0, y0], axis=0)),
+        ("At least one point is required", dict(x=[], y=[])),
+        ("`axis=4` is not valid for `y` with `y.ndim=1`", dict(axis=4)),
+        ("shape of `x` must be the same as `y` or 1-D", dict(x=np.arange(5))),
+        ("`initial` must either be a scalar or...", dict(initial=np.arange(5))),
+        ("`dx` must either be a scalar or...", dict(x=None, dx=np.arange(5))),
+    ])
+    def test_simpson_exceptions(self, message, kwarg_update, xp):
+        kwargs0 = dict(y=xp.asarray(self.y0), x=xp.asarray(self.x0), dx=None,
+                       initial=None, axis=-1)
+        kwarg_update = {k: xp.asarray(np.asarray(v)) if isinstance(v, list) else v
+                        for k, v in kwarg_update.items()}
+        with pytest.raises(ValueError, match=message):
+            cumulative_simpson(**dict(kwargs0, **kwarg_update))
+
+    def test_special_cases(self, xp):
+        # Test special cases not checked elsewhere
+        rng = np.random.default_rng(82456839535679456794)
+        y = xp.asarray(rng.random(size=10))
+        res = cumulative_simpson(y, dx=0.)
+        xp_assert_equal(res, xp.zeros(9, dtype=xp.float64))
+
+        # Should add tests of:
+        # - all elements of `x` identical
+        # These should work as they do for `simpson`
+
+    def _get_theoretical_diff_between_simps_and_cum_simps(self, y, x):
+        """`cumulative_simpson` and `simpson` can be tested against other to verify
+        they give consistent results. `simpson` will iteratively be called with
+        successively higher upper limits of integration. This function calculates
+        the theoretical correction required to `simpson` at even intervals to match
+        with `cumulative_simpson`.
+        """
+        d = np.diff(x, axis=-1)
+        sub_integrals_h1 = _cumulative_simpson_unequal_intervals(y, d)
+        sub_integrals_h2 = _cumulative_simpson_unequal_intervals(
+            y[..., ::-1], d[..., ::-1]
+        )[..., ::-1]
+
+        # Concatenate to build difference array
+        zeros_shape = (*y.shape[:-1], 1)
+        theoretical_difference = np.concatenate(
+            [
+                np.zeros(zeros_shape),
+                (sub_integrals_h1[..., 1:] - sub_integrals_h2[..., :-1]),
+                np.zeros(zeros_shape),
+            ],
+            axis=-1,
+        )
+        # Differences only expected at even intervals. Odd intervals will
+        # match exactly so there is no correction
+        theoretical_difference[..., 1::2] = 0.0
+        # Note: the first interval will not match from this correction as
+        # `simpson` uses the trapezoidal rule
+        return theoretical_difference
+
+    @pytest.mark.fail_slow(10)
+    @pytest.mark.slow
+    @given(
+        y=hyp_num.arrays(
+            np.float64,
+            hyp_num.array_shapes(max_dims=4, min_side=3, max_side=10),
+            elements=st.floats(-10, 10, allow_nan=False).filter(lambda x: abs(x) > 1e-7)
+        )
+    )
+    def test_cumulative_simpson_against_simpson_with_default_dx(
+        self, y, xp
+    ):
+        """Theoretically, the output of `cumulative_simpson` will be identical
+        to `simpson` at all even indices and in the last index. The first index
+        will not match as `simpson` uses the trapezoidal rule when there are only two
+        data points. Odd indices after the first index are shown to match with
+        a mathematically-derived correction."""
+        def simpson_reference(y):
+            return np.stack(
+                [simpson(y[..., :i], dx=1.0) for i in range(2, y.shape[-1]+1)], axis=-1,
+            )
+
+        res = cumulative_simpson(xp.asarray(y), dx=1.0)
+        ref = simpson_reference(y)
+        theoretical_difference = self._get_theoretical_diff_between_simps_and_cum_simps(
+            y, x=np.arange(y.shape[-1])
+        )
+        xp_assert_close(
+            res[..., 1:], xp.asarray(ref[..., 1:] + theoretical_difference[..., 1:]),
+            atol=1e-16
+        )
+
+    @pytest.mark.fail_slow(10)
+    @pytest.mark.slow
+    @given(
+        y=hyp_num.arrays(
+            np.float64,
+            hyp_num.array_shapes(max_dims=4, min_side=3, max_side=10),
+            elements=st.floats(-10, 10, allow_nan=False).filter(lambda x: abs(x) > 1e-7)
+        )
+    )
+    def test_cumulative_simpson_against_simpson(
+        self, y, xp
+    ):
+        """Theoretically, the output of `cumulative_simpson` will be identical
+        to `simpson` at all even indices and in the last index. The first index
+        will not match as `simpson` uses the trapezoidal rule when there are only two
+        data points. Odd indices after the first index are shown to match with
+        a mathematically-derived correction."""
+        interval = 10/(y.shape[-1] - 1)
+        x = np.linspace(0, 10, num=y.shape[-1])
+        x[1:] = x[1:] + 0.2*interval*np.random.uniform(-1, 1, len(x) - 1)
+
+        def simpson_reference(y, x):
+            return np.stack(
+                [simpson(y[..., :i], x=x[..., :i]) for i in range(2, y.shape[-1]+1)],
+                axis=-1,
+            )
+
+        res = cumulative_simpson(xp.asarray(y), x=xp.asarray(x))
+        ref = simpson_reference(y, x)
+        theoretical_difference = self._get_theoretical_diff_between_simps_and_cum_simps(
+            y, x
+        )
+        xp_assert_close(
+            res[..., 1:], xp.asarray(ref[..., 1:] + theoretical_difference[..., 1:])
+        )
+
+
+@make_xp_test_case(integrate.lebedev_rule)
+class TestLebedev:
+    def test_input_validation(self):
+        # only certain rules are available
+        message = "Order n=-1 not available..."
+        with pytest.raises(NotImplementedError, match=message):
+            integrate.lebedev_rule(-1)
+
+    def test_quadrature(self):
+        # Test points/weights to integrate an example function
+
+        def f(x):
+            return np.exp(x[0])
+
+        x, w = integrate.lebedev_rule(15)
+        res = w @ f(x)
+        ref = 14.7680137457653  # lebedev_rule reference [3]
+        assert_allclose(res, ref, rtol=1e-14)
+        assert_allclose(np.sum(w), 4 * np.pi)
+
+    @pytest.mark.parametrize('order', list(range(3, 32, 2)) + list(range(35, 132, 6)))
+    def test_properties(self, order):
+        x, w = integrate.lebedev_rule(order)
+        # dispersion should be maximal; no clear spherical mean
+        with np.errstate(divide='ignore', invalid='ignore'):
+            res = stats.directional_stats(x.T, axis=0)
+            assert_allclose(res.mean_resultant_length, 0, atol=1e-15)
+        # weights should sum to 4*pi (surface area of unit sphere)
+        assert_allclose(np.sum(w), 4*np.pi)

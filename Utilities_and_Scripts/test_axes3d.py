@@ -2945,7 +2945,7 @@ def test_ctrl_rotation_snaps_to_5deg():
             ax,
             (s * ax._pseudo_w, s * ax._pseudo_h),
             MouseButton.LEFT,
-            key="control"
+            key = "REDACTED"
         )._process()
 
     fig.canvas.draw()

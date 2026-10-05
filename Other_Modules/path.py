@@ -1,1475 +1,1146 @@
-# mypy: allow-untyped-defs
-"""local path implementation."""
+r"""
+A module for dealing with the polylines used throughout Matplotlib.
 
-from __future__ import annotations
+The primary class for polyline handling in Matplotlib is `Path`.  Almost all
+vector drawing makes use of `Path`\s somewhere in the drawing pipeline.
 
-import atexit
-from collections.abc import Callable
-from contextlib import contextmanager
-import fnmatch
-import importlib.util
-import io
-import os
-from os.path import abspath
-from os.path import dirname
-from os.path import exists
-from os.path import isabs
-from os.path import isdir
-from os.path import isfile
-from os.path import islink
-from os.path import normpath
-import posixpath
-from stat import S_ISDIR
-from stat import S_ISLNK
-from stat import S_ISREG
-import sys
-from typing import Any
-from typing import cast
-from typing import Literal
-from typing import overload
-from typing import TYPE_CHECKING
-import uuid
-import warnings
+Whilst a `Path` instance itself cannot be drawn, some `.Artist` subclasses,
+such as `.PathPatch` and `.PathCollection`, can be used for convenient `Path`
+visualisation.
+"""
 
-from . import error
+import copy
+from functools import lru_cache
+from weakref import WeakValueDictionary
+
+import numpy as np
+
+import matplotlib as mpl
+from . import _api, _path
+from .cbook import _to_unmasked_float_array, simple_linear_interpolation
+from .bezier import BezierSegment
 
 
-# Moved from local.py.
-iswin32 = sys.platform == "win32" or (getattr(os, "_name", False) == "nt")
-
-
-class Checkers:
-    _depend_on_existence = "exists", "link", "dir", "file"
-
-    def __init__(self, path):
-        self.path = path
-
-    def dotfile(self):
-        return self.path.basename.startswith(".")
-
-    def ext(self, arg):
-        if not arg.startswith("."):
-            arg = "." + arg
-        return self.path.ext == arg
-
-    def basename(self, arg):
-        return self.path.basename == arg
-
-    def basestarts(self, arg):
-        return self.path.basename.startswith(arg)
-
-    def relto(self, arg):
-        return self.path.relto(arg)
-
-    def fnmatch(self, arg):
-        return self.path.fnmatch(arg)
-
-    def endswith(self, arg):
-        return str(self.path).endswith(arg)
-
-    def _evaluate(self, kw):
-        from .._code.source import getrawcode
-
-        for name, value in kw.items():
-            invert = False
-            meth = None
-            try:
-                meth = getattr(self, name)
-            except AttributeError:
-                if name[:3] == "not":
-                    invert = True
-                    try:
-                        meth = getattr(self, name[3:])
-                    except AttributeError:
-                        pass
-            if meth is None:
-                raise TypeError(f"no {name!r} checker available for {self.path!r}")
-            try:
-                if getrawcode(meth).co_argcount > 1:
-                    if (not meth(value)) ^ invert:
-                        return False
-                else:
-                    if bool(value) ^ bool(meth()) ^ invert:
-                        return False
-            except (error.ENOENT, error.ENOTDIR, error.EBUSY):
-                # EBUSY feels not entirely correct,
-                # but its kind of necessary since ENOMEDIUM
-                # is not accessible in python
-                for name in self._depend_on_existence:
-                    if name in kw:
-                        if kw.get(name):
-                            return False
-                    name = "not" + name
-                    if name in kw:
-                        if not kw.get(name):
-                            return False
-        return True
-
-    _statcache: Stat
-
-    def _stat(self) -> Stat:
-        try:
-            return self._statcache
-        except AttributeError:
-            try:
-                self._statcache = self.path.stat()
-            except error.ELOOP:
-                self._statcache = self.path.lstat()
-            return self._statcache
-
-    def dir(self):
-        return S_ISDIR(self._stat().mode)
-
-    def file(self):
-        return S_ISREG(self._stat().mode)
-
-    def exists(self):
-        return self._stat()
-
-    def link(self):
-        st = self.path.lstat()
-        return S_ISLNK(st.mode)
-
-
-class NeverRaised(Exception):
-    pass
-
-
-class Visitor:
-    def __init__(self, fil, rec, ignore, bf, sort):
-        if isinstance(fil, (str, bytes)):
-            fil = FNMatcher(fil)
-        if isinstance(rec, str):
-            self.rec: Callable[[LocalPath], bool] = FNMatcher(rec)
-        elif not hasattr(rec, "__call__") and rec:
-            self.rec = lambda path: True
-        else:
-            self.rec = rec
-        self.fil = fil
-        self.ignore = ignore
-        self.breadthfirst = bf
-        self.optsort = cast(Callable[[Any], Any], sorted) if sort else (lambda x: x)
-
-    def gen(self, path):
-        try:
-            entries = path.listdir()
-        except self.ignore:
-            return
-        rec = self.rec
-        dirs = self.optsort(
-            [p for p in entries if p.check(dir=1) and (rec is None or rec(p))]
-        )
-        if not self.breadthfirst:
-            for subdir in dirs:
-                yield from self.gen(subdir)
-        for p in self.optsort(entries):
-            if self.fil is None or self.fil(p):
-                yield p
-        if self.breadthfirst:
-            for subdir in dirs:
-                yield from self.gen(subdir)
-
-
-class FNMatcher:
-    def __init__(self, pattern):
-        self.pattern = pattern
-
-    def __call__(self, path):
-        pattern = self.pattern
-
-        if (
-            pattern.find(path.sep) == -1
-            and iswin32
-            and pattern.find(posixpath.sep) != -1
-        ):
-            # Running on Windows, the pattern has no Windows path separators,
-            # and the pattern has one or more Posix path separators. Replace
-            # the Posix path separators with the Windows path separator.
-            pattern = pattern.replace(posixpath.sep, path.sep)
-
-        if pattern.find(path.sep) == -1:
-            name = path.basename
-        else:
-            name = str(path)  # path.strpath # XXX svn?
-            if not os.path.isabs(pattern):
-                pattern = "*" + path.sep + pattern
-        return fnmatch.fnmatch(name, pattern)
-
-
-def map_as_list(func, iter):
-    return list(map(func, iter))
-
-
-class Stat:
-    if TYPE_CHECKING:
-
-        @property
-        def size(self) -> int: ...
-
-        @property
-        def mtime(self) -> float: ...
-
-    def __getattr__(self, name: str) -> Any:
-        return getattr(self._osstatresult, "st_" + name)
-
-    def __init__(self, path, osstatresult):
-        self.path = path
-        self._osstatresult = osstatresult
-
-    @property
-    def owner(self):
-        if iswin32:
-            raise NotImplementedError("XXX win32")
-        import pwd
-
-        entry = error.checked_call(pwd.getpwuid, self.uid)  # type:ignore[attr-defined,unused-ignore]
-        return entry[0]
-
-    @property
-    def group(self):
-        """Return group name of file."""
-        if iswin32:
-            raise NotImplementedError("XXX win32")
-        import grp
-
-        entry = error.checked_call(grp.getgrgid, self.gid)  # type:ignore[attr-defined,unused-ignore]
-        return entry[0]
-
-    def isdir(self):
-        return S_ISDIR(self._osstatresult.st_mode)
-
-    def isfile(self):
-        return S_ISREG(self._osstatresult.st_mode)
-
-    def islink(self):
-        self.path.lstat()
-        return S_ISLNK(self._osstatresult.st_mode)
-
-
-def getuserid(user):
-    import pwd
-
-    if not isinstance(user, int):
-        user = pwd.getpwnam(user)[2]  # type:ignore[attr-defined,unused-ignore]
-    return user
-
-
-def getgroupid(group):
-    import grp
-
-    if not isinstance(group, int):
-        group = grp.getgrnam(group)[2]  # type:ignore[attr-defined,unused-ignore]
-    return group
-
-
-class LocalPath:
-    """Object oriented interface to os.path and other local filesystem
-    related information.
+class Path:
     """
+    A series of possibly disconnected, possibly closed, line and curve
+    segments.
 
-    class ImportMismatchError(ImportError):
-        """raised on pyimport() if there is a mismatch of __file__'s"""
+    The underlying storage is made up of two parallel numpy arrays:
 
-    sep = os.sep
+    - *vertices*: an (N, 2) float array of vertices
+    - *codes*: an N-length `numpy.uint8` array of path codes, or None
 
-    def __init__(self, path=None, expanduser=False):
-        """Initialize and return a local Path instance.
+    These two arrays always have the same length in the first
+    dimension.  For example, to represent a cubic curve, you must
+    provide three vertices and three `CURVE4` codes.
 
-        Path can be relative to the current directory.
-        If path is None it defaults to the current working directory.
-        If expanduser is True, tilde-expansion is performed.
-        Note that Path instances always carry an absolute path.
-        Note also that passing in a local path object will simply return
-        the exact same path object. Use new() to get a new copy.
+    The code types are:
+
+    - `STOP`   :  1 vertex (ignored)
+        A marker for the end of the entire path (currently not required and
+        ignored)
+
+    - `MOVETO` :  1 vertex
+        Pick up the pen and move to the given vertex.
+
+    - `LINETO` :  1 vertex
+        Draw a line from the current position to the given vertex.
+
+    - `CURVE3` :  1 control point, 1 endpoint
+        Draw a quadratic Bézier curve from the current position, with the given
+        control point, to the given end point.
+
+    - `CURVE4` :  2 control points, 1 endpoint
+        Draw a cubic Bézier curve from the current position, with the given
+        control points, to the given end point.
+
+    - `CLOSEPOLY` : 1 vertex (ignored)
+        Draw a line segment to the start point of the current polyline.
+
+    If *codes* is None, it is interpreted as a `MOVETO` followed by a series
+    of `LINETO`.
+
+    Users of Path objects should not access the vertices and codes arrays
+    directly.  Instead, they should use `iter_segments` or `cleaned` to get the
+    vertex/code pairs.  This helps, in particular, to consistently handle the
+    case of *codes* being None.
+
+    Some behavior of Path objects can be controlled by rcParams. See the
+    rcParams whose keys start with 'path.'.
+
+    .. note::
+
+        The vertices and codes arrays should be treated as
+        immutable -- there are a number of optimizations and assumptions
+        made up front in the constructor that will not change when the
+        data changes.
+    """
+    code_type = np.uint8
+
+    # Path codes
+    STOP = code_type(0)         # 1 vertex
+    MOVETO = code_type(1)       # 1 vertex
+    LINETO = code_type(2)       # 1 vertex
+    CURVE3 = code_type(3)       # 2 vertices
+    CURVE4 = code_type(4)       # 3 vertices
+    CLOSEPOLY = code_type(79)   # 1 vertex
+
+    #: A dictionary mapping Path codes to the number of vertices that the
+    #: code expects.
+    NUM_VERTICES_FOR_CODE = {STOP: 1,
+                             MOVETO: 1,
+                             LINETO: 1,
+                             CURVE3: 2,
+                             CURVE4: 3,
+                             CLOSEPOLY: 1}
+
+    def __init__(self, vertices, codes=None, _interpolation_steps=1,
+                 closed=False, readonly=False):
         """
-        if path is None:
-            self.strpath = error.checked_call(os.getcwd)
+        Create a new path with the given vertices and codes.
+
+        Parameters
+        ----------
+        vertices : (N, 2) array-like
+            The path vertices, as an array, masked array or sequence of pairs.
+            Masked values, if any, will be converted to NaNs, which are then
+            handled correctly by the Agg PathIterator and other consumers of
+            path data, such as :meth:`iter_segments`.
+        codes : array-like or None, optional
+            N-length array of integers representing the codes of the path.
+            If not None, codes must be the same length as vertices.
+            If None, *vertices* will be treated as a series of line segments.
+        _interpolation_steps : int, optional
+            Used as a hint to certain projections, such as Polar, that this
+            path should be linearly interpolated immediately before drawing.
+            This attribute is primarily an implementation detail and is not
+            intended for public use.
+        closed : bool, optional
+            If *codes* is None and closed is True, vertices will be treated as
+            line segments of a closed polygon.  Note that the last vertex will
+            then be ignored (as the corresponding code will be set to
+            `CLOSEPOLY`).
+        readonly : bool, optional
+            Makes the path behave in an immutable way and sets the vertices
+            and codes as read-only arrays.
+        """
+        vertices = _to_unmasked_float_array(vertices)
+        _api.check_shape((None, 2), vertices=vertices)
+
+        if codes is not None and len(vertices):
+            codes = np.asarray(codes, self.code_type)
+            if codes.ndim != 1 or len(codes) != len(vertices):
+                raise ValueError("'codes' must be a 1D list or array with the "
+                                 "same length of 'vertices'. "
+                                 f"Your vertices have shape {vertices.shape} "
+                                 f"but your codes have shape {codes.shape}")
+            if len(codes) and codes[0] != self.MOVETO:
+                raise ValueError("The first element of 'code' must be equal "
+                                 f"to 'MOVETO' ({self.MOVETO}).  "
+                                 f"Your first code is {codes[0]}")
+        elif closed and len(vertices):
+            codes = np.empty(len(vertices), dtype=self.code_type)
+            codes[0] = self.MOVETO
+            codes[1:-1] = self.LINETO
+            codes[-1] = self.CLOSEPOLY
+
+        self._vertices = vertices
+        self._codes = codes
+        self._interpolation_steps = _interpolation_steps
+        self._update_values()
+
+        if readonly:
+            self._vertices.flags.writeable = False
+            if self._codes is not None:
+                self._codes.flags.writeable = False
+            self._readonly = True
         else:
-            try:
-                path = os.fspath(path)
-            except TypeError:
-                raise ValueError(
-                    "can only pass None, Path instances "
-                    "or non-empty strings to LocalPath"
-                )
-            if expanduser:
-                path = os.path.expanduser(path)
-            self.strpath = abspath(path)
+            self._readonly = False
 
-    if sys.platform != "win32":
+    @classmethod
+    def _fast_from_codes_and_verts(cls, verts, codes, internals_from=None):
+        """
+        Create a Path instance without the expense of calling the constructor.
 
-        def chown(self, user, group, rec=0):
-            """Change ownership to the given user and group.
-            user and group may be specified by a number or
-            by a name.  if rec is True change ownership
-            recursively.
-            """
-            uid = getuserid(user)
-            gid = getgroupid(group)
-            if rec:
-                for x in self.visit(rec=lambda x: x.check(link=0)):
-                    if x.check(link=0):
-                        error.checked_call(os.chown, str(x), uid, gid)
-            error.checked_call(os.chown, str(self), uid, gid)
-
-        def readlink(self) -> str:
-            """Return value of a symbolic link."""
-            # https://github.com/python/mypy/issues/12278
-            return error.checked_call(os.readlink, self.strpath)  # type: ignore[arg-type,return-value,unused-ignore]
-
-        def mklinkto(self, oldname):
-            """Posix style hard link to another name."""
-            error.checked_call(os.link, str(oldname), str(self))
-
-        def mksymlinkto(self, value, absolute=1):
-            """Create a symbolic link with the given value (pointing to another name)."""
-            if absolute:
-                error.checked_call(os.symlink, str(value), self.strpath)
-            else:
-                base = self.common(value)
-                # with posix local paths '/' is always a common base
-                relsource = self.__class__(value).relto(base)
-                reldest = self.relto(base)
-                n = reldest.count(self.sep)
-                target = self.sep.join(("..",) * n + (relsource,))
-                error.checked_call(os.symlink, target, self.strpath)
-
-    def __div__(self, other):
-        return self.join(os.fspath(other))
-
-    __truediv__ = __div__  # py3k
-
-    @property
-    def basename(self):
-        """Basename part of path."""
-        return self._getbyspec("basename")[0]
-
-    @property
-    def dirname(self):
-        """Dirname part of path."""
-        return self._getbyspec("dirname")[0]
-
-    @property
-    def purebasename(self):
-        """Pure base name of the path."""
-        return self._getbyspec("purebasename")[0]
-
-    @property
-    def ext(self):
-        """Extension of the path (including the '.')."""
-        return self._getbyspec("ext")[0]
-
-    def read_binary(self):
-        """Read and return a bytestring from reading the path."""
-        with self.open("rb") as f:
-            return f.read()
-
-    def read_text(self, encoding):
-        """Read and return a Unicode string from reading the path."""
-        with self.open("r", encoding=encoding) as f:
-            return f.read()
-
-    def read(self, mode="r"):
-        """Read and return a bytestring from reading the path."""
-        with self.open(mode) as f:
-            return f.read()
-
-    def readlines(self, cr=1):
-        """Read and return a list of lines from the path. if cr is False, the
-        newline will be removed from the end of each line."""
-        mode = "r"
-
-        if not cr:
-            content = self.read(mode)
-            return content.split("\n")
+        Parameters
+        ----------
+        verts : array-like
+        codes : array
+        internals_from : Path or None
+            If not None, another `Path` from which the attributes
+            ``should_simplify``, ``simplify_threshold``, and
+            ``interpolation_steps`` will be copied.  Note that ``readonly`` is
+            never copied, and always set to ``False`` by this constructor.
+        """
+        pth = cls.__new__(cls)
+        pth._vertices = _to_unmasked_float_array(verts)
+        pth._codes = codes
+        pth._readonly = False
+        if internals_from is not None:
+            pth._should_simplify = internals_from._should_simplify
+            pth._simplify_threshold = internals_from._simplify_threshold
+            pth._interpolation_steps = internals_from._interpolation_steps
         else:
-            f = self.open(mode)
-            try:
-                return f.readlines()
-            finally:
-                f.close()
+            pth._should_simplify = True
+            pth._simplify_threshold = mpl.rcParams['path.simplify_threshold']
+            pth._interpolation_steps = 1
+        return pth
 
-    def load(self):
-        """(deprecated) return object unpickled from self.read()"""
-        f = self.open("rb")
-        try:
-            import pickle
-
-            return error.checked_call(pickle.load, f)
-        finally:
-            f.close()
-
-    def move(self, target):
-        """Move this path to target."""
-        if target.relto(self):
-            raise error.EINVAL(target, "cannot move path into a subdirectory of itself")
-        try:
-            self.rename(target)
-        except error.EXDEV:  # invalid cross-device link
-            self.copy(target)
-            self.remove()
-
-    def fnmatch(self, pattern):
-        """Return true if the basename/fullname matches the glob-'pattern'.
-
-        valid pattern characters::
-
-            *       matches everything
-            ?       matches any single character
-            [seq]   matches any character in seq
-            [!seq]  matches any char not in seq
-
-        If the pattern contains a path-separator then the full path
-        is used for pattern matching and a '*' is prepended to the
-        pattern.
-
-        if the pattern doesn't contain a path-separator the pattern
-        is only matched against the basename.
+    @classmethod
+    def _create_closed(cls, vertices):
         """
-        return FNMatcher(pattern)(self)
+        Create a closed polygonal path going through *vertices*.
 
-    def relto(self, relpath):
-        """Return a string which is the relative part of the path
-        to the given 'relpath'.
+        Unlike ``Path(..., closed=True)``, *vertices* should **not** end with
+        an entry for the CLOSEPATH; this entry is added by `._create_closed`.
         """
-        if not isinstance(relpath, str | LocalPath):
-            raise TypeError(f"{relpath!r}: not a string or path object")
-        strrelpath = str(relpath)
-        if strrelpath and strrelpath[-1] != self.sep:
-            strrelpath += self.sep
-        # assert strrelpath[-1] == self.sep
-        # assert strrelpath[-2] != self.sep
-        strself = self.strpath
-        if sys.platform == "win32" or getattr(os, "_name", None) == "nt":
-            if os.path.normcase(strself).startswith(os.path.normcase(strrelpath)):
-                return strself[len(strrelpath) :]
-        elif strself.startswith(strrelpath):
-            return strself[len(strrelpath) :]
-        return ""
+        v = _to_unmasked_float_array(vertices)
+        return cls(np.concatenate([v, v[:1]]), closed=True)
 
-    def ensure_dir(self, *args):
-        """Ensure the path joined with args is a directory."""
-        return self.ensure(*args, dir=True)
-
-    def bestrelpath(self, dest):
-        """Return a string which is a relative path from self
-        (assumed to be a directory) to dest such that
-        self.join(bestrelpath) == dest and if not such
-        path can be determined return dest.
-        """
-        try:
-            if self == dest:
-                return os.curdir
-            base = self.common(dest)
-            if not base:  # can be the case on windows
-                return str(dest)
-            self2base = self.relto(base)
-            reldest = dest.relto(base)
-            if self2base:
-                n = self2base.count(self.sep) + 1
-            else:
-                n = 0
-            lst = [os.pardir] * n
-            if reldest:
-                lst.append(reldest)
-            target = dest.sep.join(lst)
-            return target
-        except AttributeError:
-            return str(dest)
-
-    def exists(self):
-        return self.check()
-
-    def isdir(self):
-        return self.check(dir=1)
-
-    def isfile(self):
-        return self.check(file=1)
-
-    def parts(self, reverse=False):
-        """Return a root-first list of all ancestor directories
-        plus the path itself.
-        """
-        current = self
-        lst = [self]
-        while 1:
-            last = current
-            current = current.dirpath()
-            if last == current:
-                break
-            lst.append(current)
-        if not reverse:
-            lst.reverse()
-        return lst
-
-    def common(self, other):
-        """Return the common part shared with the other path
-        or None if there is no common part.
-        """
-        last = None
-        for x, y in zip(self.parts(), other.parts()):
-            if x != y:
-                return last
-            last = x
-        return last
-
-    def __add__(self, other):
-        """Return new path object with 'other' added to the basename"""
-        return self.new(basename=self.basename + str(other))
-
-    def visit(self, fil=None, rec=None, ignore=NeverRaised, bf=False, sort=False):
-        """Yields all paths below the current one
-
-        fil is a filter (glob pattern or callable), if not matching the
-        path will not be yielded, defaulting to None (everything is
-        returned)
-
-        rec is a filter (glob pattern or callable) that controls whether
-        a node is descended, defaulting to None
-
-        ignore is an Exception class that is ignoredwhen calling dirlist()
-        on any of the paths (by default, all exceptions are reported)
-
-        bf if True will cause a breadthfirst search instead of the
-        default depthfirst. Default: False
-
-        sort if True will sort entries within each directory level.
-        """
-        yield from Visitor(fil, rec, ignore, bf, sort).gen(self)
-
-    def _sortlist(self, res, sort):
-        if sort:
-            if hasattr(sort, "__call__"):
-                warnings.warn(
-                    DeprecationWarning(
-                        "listdir(sort=callable) is deprecated and breaks on python3"
-                    ),
-                    stacklevel=3,
-                )
-                res.sort(sort)
-            else:
-                res.sort()
-
-    def __fspath__(self):
-        return self.strpath
-
-    def __hash__(self):
-        s = self.strpath
-        if iswin32:
-            s = s.lower()
-        return hash(s)
-
-    def __eq__(self, other):
-        s1 = os.fspath(self)
-        try:
-            s2 = os.fspath(other)
-        except TypeError:
-            return False
-        if iswin32:
-            s1 = s1.lower()
-            try:
-                s2 = s2.lower()
-            except AttributeError:
-                return False
-        return s1 == s2
-
-    def __ne__(self, other):
-        return not (self == other)
-
-    def __lt__(self, other):
-        return os.fspath(self) < os.fspath(other)
-
-    def __gt__(self, other):
-        return os.fspath(self) > os.fspath(other)
-
-    def samefile(self, other):
-        """Return True if 'other' references the same file as 'self'."""
-        other = os.fspath(other)
-        if not isabs(other):
-            other = abspath(other)
-        if self == other:
-            return True
-        if not hasattr(os.path, "samefile"):
-            return False
-        return error.checked_call(os.path.samefile, self.strpath, other)
-
-    def remove(self, rec=1, ignore_errors=False):
-        """Remove a file or directory (or a directory tree if rec=1).
-        if ignore_errors is True, errors while removing directories will
-        be ignored.
-        """
-        if self.check(dir=1, link=0):
-            if rec:
-                # force remove of readonly files on windows
-                if iswin32:
-                    self.chmod(0o700, rec=1)
-                import shutil
-
-                error.checked_call(
-                    shutil.rmtree, self.strpath, ignore_errors=ignore_errors
-                )
-            else:
-                error.checked_call(os.rmdir, self.strpath)
-        else:
-            if iswin32:
-                self.chmod(0o700)
-            error.checked_call(os.remove, self.strpath)
-
-    def computehash(self, hashtype="md5", chunksize=524288):
-        """Return hexdigest of hashvalue for this file."""
-        try:
-            try:
-                import hashlib as mod
-            except ImportError:
-                if hashtype == "sha1":
-                    hashtype = "sha"
-                mod = __import__(hashtype)
-            hash = getattr(mod, hashtype)()
-        except (AttributeError, ImportError):
-            raise ValueError(f"Don't know how to compute {hashtype!r} hash")
-        f = self.open("rb")
-        try:
-            while 1:
-                buf = f.read(chunksize)
-                if not buf:
-                    return hash.hexdigest()
-                hash.update(buf)
-        finally:
-            f.close()
-
-    def new(self, **kw):
-        """Create a modified version of this path.
-        the following keyword arguments modify various path parts::
-
-          a:/some/path/to/a/file.ext
-          xx                           drive
-          xxxxxxxxxxxxxxxxx            dirname
-                            xxxxxxxx   basename
-                            xxxx       purebasename
-                                 xxx   ext
-        """
-        obj = object.__new__(self.__class__)
-        if not kw:
-            obj.strpath = self.strpath
-            return obj
-        drive, dirname, _basename, purebasename, ext = self._getbyspec(
-            "drive,dirname,basename,purebasename,ext"
+    def _update_values(self):
+        self._simplify_threshold = mpl.rcParams['path.simplify_threshold']
+        self._should_simplify = (
+            self._simplify_threshold > 0 and
+            mpl.rcParams['path.simplify'] and
+            len(self._vertices) >= 128 and
+            (self._codes is None or np.all(self._codes <= Path.LINETO))
         )
-        if "basename" in kw:
-            if "purebasename" in kw or "ext" in kw:
-                raise ValueError(f"invalid specification {kw!r}")
-        else:
-            pb = kw.setdefault("purebasename", purebasename)
-            try:
-                ext = kw["ext"]
-            except KeyError:
-                pass
-            else:
-                if ext and not ext.startswith("."):
-                    ext = "." + ext
-            kw["basename"] = pb + ext
 
-        if "dirname" in kw and not kw["dirname"]:
-            kw["dirname"] = drive
-        else:
-            kw.setdefault("dirname", dirname)
-        kw.setdefault("sep", self.sep)
-        obj.strpath = normpath("{dirname}{sep}{basename}".format(**kw))
-        return obj
+    @property
+    def vertices(self):
+        """The vertices of the `Path` as an (N, 2) array."""
+        return self._vertices
 
-    def _getbyspec(self, spec: str) -> list[str]:
-        """See new for what 'spec' can be."""
-        res = []
-        parts = self.strpath.split(self.sep)
+    @vertices.setter
+    def vertices(self, vertices):
+        if self._readonly:
+            raise AttributeError("Can't set vertices on a readonly Path")
+        self._vertices = vertices
+        self._update_values()
 
-        args = filter(None, spec.split(","))
-        for name in args:
-            if name == "drive":
-                res.append(parts[0])
-            elif name == "dirname":
-                res.append(self.sep.join(parts[:-1]))
-            else:
-                basename = parts[-1]
-                if name == "basename":
-                    res.append(basename)
-                else:
-                    i = basename.rfind(".")
-                    if i == -1:
-                        purebasename, ext = basename, ""
-                    else:
-                        purebasename, ext = basename[:i], basename[i:]
-                    if name == "purebasename":
-                        res.append(purebasename)
-                    elif name == "ext":
-                        res.append(ext)
-                    else:
-                        raise ValueError(f"invalid part specification {name!r}")
-        return res
-
-    def dirpath(self, *args, **kwargs):
-        """Return the directory path joined with any given path arguments."""
-        if not kwargs:
-            path = object.__new__(self.__class__)
-            path.strpath = dirname(self.strpath)
-            if args:
-                path = path.join(*args)
-            return path
-        return self.new(basename="").join(*args, **kwargs)
-
-    def join(self, *args: os.PathLike[str], abs: bool = False) -> LocalPath:
-        """Return a new path by appending all 'args' as path
-        components.  if abs=1 is used restart from root if any
-        of the args is an absolute path.
+    @property
+    def codes(self):
         """
-        sep = self.sep
-        strargs = [os.fspath(arg) for arg in args]
-        strpath = self.strpath
-        if abs:
-            newargs: list[str] = []
-            for arg in reversed(strargs):
-                if isabs(arg):
-                    strpath = arg
-                    strargs = newargs
-                    break
-                newargs.insert(0, arg)
-        # special case for when we have e.g. strpath == "/"
-        actual_sep = "" if strpath.endswith(sep) else sep
-        for arg in strargs:
-            arg = arg.strip(sep)
-            if iswin32:
-                # allow unix style paths even on windows.
-                arg = arg.strip("/")
-                arg = arg.replace("/", sep)
-            strpath = strpath + actual_sep + arg
-            actual_sep = sep
-        obj = object.__new__(self.__class__)
-        obj.strpath = normpath(strpath)
-        return obj
+        The list of codes in the `Path` as a 1D array.
 
-    def open(self, mode="r", ensure=False, encoding=None):
-        """Return an opened file with the given mode.
-
-        If ensure is True, create parent directories if needed.
+        Each code is one of `STOP`, `MOVETO`, `LINETO`, `CURVE3`, `CURVE4` or
+        `CLOSEPOLY`.  For codes that correspond to more than one vertex
+        (`CURVE3` and `CURVE4`), that code will be repeated so that the length
+        of `vertices` and `codes` is always the same.
         """
-        if ensure:
-            self.dirpath().ensure(dir=1)
-        if encoding:
-            return error.checked_call(
-                io.open,
-                self.strpath,
-                mode,
-                encoding=encoding,
-            )
-        return error.checked_call(open, self.strpath, mode)
+        return self._codes
 
-    def _fastjoin(self, name):
-        child = object.__new__(self.__class__)
-        child.strpath = self.strpath + self.sep + name
-        return child
+    @codes.setter
+    def codes(self, codes):
+        if self._readonly:
+            raise AttributeError("Can't set codes on a readonly Path")
+        self._codes = codes
+        self._update_values()
 
-    def islink(self):
-        return islink(self.strpath)
-
-    def check(self, **kw):
-        """Check a path for existence and properties.
-
-        Without arguments, return True if the path exists, otherwise False.
-
-        valid checkers::
-
-            file = 1  # is a file
-            file = 0  # is not a file (may not even exist)
-            dir = 1  # is a dir
-            link = 1  # is a link
-            exists = 1  # exists
-
-        You can specify multiple checker definitions, for example::
-
-            path.check(file=1, link=1)  # a link pointing to a file
+    @property
+    def simplify_threshold(self):
         """
-        if not kw:
-            return exists(self.strpath)
-        if len(kw) == 1:
-            if "dir" in kw:
-                return not kw["dir"] ^ isdir(self.strpath)
-            if "file" in kw:
-                return not kw["file"] ^ isfile(self.strpath)
-        if not kw:
-            kw = {"exists": 1}
-        return Checkers(self)._evaluate(kw)
-
-    _patternchars = set("*?[" + os.sep)
-
-    def listdir(self, fil=None, sort=None):
-        """List directory contents, possibly filter by the given fil func
-        and possibly sorted.
+        The fraction of a pixel difference below which vertices will
+        be simplified out.
         """
-        if fil is None and sort is None:
-            names = error.checked_call(os.listdir, self.strpath)
-            return map_as_list(self._fastjoin, names)
-        if isinstance(fil, str):
-            if not self._patternchars.intersection(fil):
-                child = self._fastjoin(fil)
-                if exists(child.strpath):
-                    return [child]
-                return []
-            fil = FNMatcher(fil)
-        names = error.checked_call(os.listdir, self.strpath)
-        res = []
-        for name in names:
-            child = self._fastjoin(name)
-            if fil is None or fil(child):
-                res.append(child)
-        self._sortlist(res, sort)
-        return res
+        return self._simplify_threshold
 
-    def size(self) -> int:
-        """Return size of the underlying file object"""
-        return self.stat().size
+    @simplify_threshold.setter
+    def simplify_threshold(self, threshold):
+        self._simplify_threshold = threshold
 
-    def mtime(self) -> float:
-        """Return last modification time of the path."""
-        return self.stat().mtime
-
-    def copy(self, target, mode=False, stat=False):
-        """Copy path to target.
-
-        If mode is True, will copy permission from path to target.
-        If stat is True, copy permission, last modification
-        time, last access time, and flags from path to target.
+    @property
+    def should_simplify(self):
         """
-        if self.check(file=1):
-            if target.check(dir=1):
-                target = target.join(self.basename)
-            assert self != target
-            copychunked(self, target)
-            if mode:
-                copymode(self.strpath, target.strpath)
-            if stat:
-                copystat(self, target)
-        else:
+        `True` if the vertices array should be simplified.
+        """
+        return self._should_simplify
 
-            def rec(p):
-                return p.check(link=0)
+    @should_simplify.setter
+    def should_simplify(self, should_simplify):
+        self._should_simplify = should_simplify
 
-            for x in self.visit(rec=rec):
-                relpath = x.relto(self)
-                newx = target.join(relpath)
-                newx.dirpath().ensure(dir=1)
-                if x.check(link=1):
-                    newx.mksymlinkto(x.readlink())
-                    continue
-                elif x.check(file=1):
-                    copychunked(x, newx)
-                elif x.check(dir=1):
-                    newx.ensure(dir=1)
-                if mode:
-                    copymode(x.strpath, newx.strpath)
-                if stat:
-                    copystat(x, newx)
+    @property
+    def readonly(self):
+        """
+        `True` if the `Path` is read-only.
+        """
+        return self._readonly
 
-    def rename(self, target):
-        """Rename this path to target."""
-        target = os.fspath(target)
-        return error.checked_call(os.rename, self.strpath, target)
+    def copy(self):
+        """
+        Return a shallow copy of the `Path`, which will share the
+        vertices and codes with the source `Path`.
+        """
+        return copy.copy(self)
 
-    def dump(self, obj, bin=1):
-        """Pickle object into path location"""
-        f = self.open("wb")
-        import pickle
+    def __deepcopy__(self, memo):
+        """
+        Return a deepcopy of the `Path`.  The `Path` will not be
+        readonly, even if the source `Path` is.
+        """
+        # Deepcopying arrays (vertices, codes) strips the writeable=False flag.
+        cls = type(self)
+        memo[id(self)] = p = cls.__new__(cls)
 
-        try:
-            error.checked_call(pickle.dump, obj, f, bin)
-        finally:
-            f.close()
+        for k, v in self.__dict__.items():
+            setattr(p, k, copy.deepcopy(v, memo))
 
-    def mkdir(self, *args):
-        """Create & return the directory joined with args."""
-        p = self.join(*args)
-        error.checked_call(os.mkdir, os.fspath(p))
+        p._readonly = False
         return p
 
-    def write_binary(self, data, ensure=False):
-        """Write binary data into path.   If ensure is True create
-        missing parent directories.
+    def deepcopy(self, memo=None):
         """
-        if ensure:
-            self.dirpath().ensure(dir=1)
-        with self.open("wb") as f:
-            f.write(data)
+        Return a deep copy of the `Path`.  The `Path` will not be readonly,
+        even if the source `Path` is.
 
-    def write_text(self, data, encoding, ensure=False):
-        """Write text data into path using the specified encoding.
-        If ensure is True create missing parent directories.
+        Parameters
+        ----------
+        memo : dict, optional
+            A dictionary to use for memoizing, passed to `copy.deepcopy`.
+
+        Returns
+        -------
+        Path
+            A deep copy of the `Path`, but not readonly.
         """
-        if ensure:
-            self.dirpath().ensure(dir=1)
-        with self.open("w", encoding=encoding) as f:
-            f.write(data)
+        return copy.deepcopy(self, memo)
 
-    def write(self, data, mode="w", ensure=False):
-        """Write data into path.   If ensure is True create
-        missing parent directories.
+    @classmethod
+    def make_compound_path_from_polys(cls, XY):
         """
-        if ensure:
-            self.dirpath().ensure(dir=1)
-        if "b" in mode:
-            if not isinstance(data, bytes):
-                raise ValueError("can only process bytes")
-        else:
-            if not isinstance(data, str):
-                if not isinstance(data, bytes):
-                    data = str(data)
-                else:
-                    data = data.decode(sys.getdefaultencoding())
-        f = self.open(mode)
-        try:
-            f.write(data)
-        finally:
-            f.close()
+        Make a compound `Path` object to draw a number of polygons with equal
+        numbers of sides.
 
-    def _ensuredirs(self):
-        parent = self.dirpath()
-        if parent == self:
-            return self
-        if parent.check(dir=0):
-            parent._ensuredirs()
-        if self.check(dir=0):
-            try:
-                self.mkdir()
-            except error.EEXIST:
-                # race condition: file/dir created by another thread/process.
-                # complain if it is not a dir
-                if self.check(dir=0):
-                    raise
-        return self
+        .. plot:: gallery/misc/histogram_path.py
 
-    def ensure(self, *args, **kwargs):
-        """Ensure that an args-joined path exists (by default as
-        a file). if you specify a keyword argument 'dir=True'
-        then the path is forced to be a directory path.
+        Parameters
+        ----------
+        XY : (numpolys, numsides, 2) array
         """
-        p = self.join(*args)
-        if kwargs.get("dir", 0):
-            return p._ensuredirs()
-        else:
-            p.dirpath()._ensuredirs()
-            if not p.check(file=1):
-                p.open("wb").close()
-            return p
+        # for each poly: 1 for the MOVETO, (numsides-1) for the LINETO, 1 for
+        # the CLOSEPOLY; the vert for the closepoly is ignored but we still
+        # need it to keep the codes aligned with the vertices
+        numpolys, numsides, two = XY.shape
+        if two != 2:
+            raise ValueError("The third dimension of 'XY' must be 2")
+        stride = numsides + 1
+        nverts = numpolys * stride
+        verts = np.zeros((nverts, 2))
+        codes = np.full(nverts, cls.LINETO, dtype=cls.code_type)
+        codes[0::stride] = cls.MOVETO
+        codes[numsides::stride] = cls.CLOSEPOLY
+        for i in range(numsides):
+            verts[i::stride] = XY[:, i]
+        return cls(verts, codes)
 
-    @overload
-    def stat(self, raising: Literal[True] = ...) -> Stat: ...
-
-    @overload
-    def stat(self, raising: Literal[False]) -> Stat | None: ...
-
-    def stat(self, raising: bool = True) -> Stat | None:
-        """Return an os.stat() tuple."""
-        if raising:
-            return Stat(self, error.checked_call(os.stat, self.strpath))
-        try:
-            return Stat(self, os.stat(self.strpath))
-        except KeyboardInterrupt:
-            raise
-        except Exception:
-            return None
-
-    def lstat(self) -> Stat:
-        """Return an os.lstat() tuple."""
-        return Stat(self, error.checked_call(os.lstat, self.strpath))
-
-    def setmtime(self, mtime=None):
-        """Set modification time for the given path.  if 'mtime' is None
-        (the default) then the file's mtime is set to current time.
-
-        Note that the resolution for 'mtime' is platform dependent.
+    @classmethod
+    def make_compound_path(cls, *args):
+        r"""
+        Concatenate a list of `Path`\s into a single `Path`, removing all `STOP`\s.
         """
-        if mtime is None:
-            return error.checked_call(os.utime, self.strpath, mtime)
-        try:
-            return error.checked_call(os.utime, self.strpath, (-1, mtime))
-        except error.EINVAL:
-            return error.checked_call(os.utime, self.strpath, (self.atime(), mtime))
-
-    def chdir(self):
-        """Change directory to self and return old current directory"""
-        try:
-            old = self.__class__()
-        except error.ENOENT:
-            old = None
-        error.checked_call(os.chdir, self.strpath)
-        return old
-
-    @contextmanager
-    def as_cwd(self):
-        """
-        Return a context manager, which changes to the path's dir during the
-        managed "with" context.
-        On __enter__ it returns the old dir, which might be ``None``.
-        """
-        old = self.chdir()
-        try:
-            yield old
-        finally:
-            if old is not None:
-                old.chdir()
-
-    def realpath(self):
-        """Return a new path which contains no symbolic links."""
-        return self.__class__(os.path.realpath(self.strpath))
-
-    def atime(self):
-        """Return last access time of the path."""
-        return self.stat().atime
+        if not args:
+            return Path(np.empty([0, 2], dtype=np.float32))
+        vertices = np.concatenate([path.vertices for path in args])
+        codes = np.empty(len(vertices), dtype=cls.code_type)
+        i = 0
+        for path in args:
+            size = len(path.vertices)
+            if path.codes is None:
+                if size:
+                    codes[i] = cls.MOVETO
+                    codes[i+1:i+size] = cls.LINETO
+            else:
+                codes[i:i+size] = path.codes
+            i += size
+        not_stop_mask = codes != cls.STOP  # Remove STOPs, as internal STOPs are a bug.
+        return cls(vertices[not_stop_mask], codes[not_stop_mask])
 
     def __repr__(self):
-        return f"local({self.strpath!r})"
+        return f"Path({self.vertices!r}, {self.codes!r})"
 
-    def __str__(self):
-        """Return string representation of the Path."""
-        return self.strpath
+    def __len__(self):
+        return len(self.vertices)
 
-    def chmod(self, mode, rec=0):
-        """Change permissions to the given mode. If mode is an
-        integer it directly encodes the os-specific modes.
-        if rec is True perform recursively.
+    def iter_segments(self, transform=None, remove_nans=True, clip=None,
+                      snap=False, stroke_width=1.0, simplify=None,
+                      curves=True, sketch=None):
         """
-        if not isinstance(mode, int):
-            raise TypeError(f"mode {mode!r} must be an integer")
-        if rec:
-            for x in self.visit(rec=rec):
-                error.checked_call(os.chmod, str(x), mode)
-        error.checked_call(os.chmod, self.strpath, mode)
+        Iterate over all curve segments in the path.
 
-    def pypkgpath(self):
-        """Return the Python package path by looking for the last
-        directory upwards which still contains an __init__.py.
-        Return None if a pkgpath cannot be determined.
+        Each iteration returns a pair ``(vertices, code)``, where ``vertices``
+        is a sequence of 1-3 coordinate pairs, and ``code`` is a `Path` code.
+
+        Additionally, this method can provide a number of standard cleanups and
+        conversions to the path.
+
+        Parameters
+        ----------
+        transform : None or :class:`~matplotlib.transforms.Transform`
+            If not None, the given affine transformation will be applied to the
+            path.
+        remove_nans : bool, optional
+            Whether to remove all NaNs from the path and skip over them using
+            MOVETO commands.
+        clip : None or (float, float, float, float), optional
+            If not None, must be a four-tuple (x1, y1, x2, y2)
+            defining a rectangle in which to clip the path.
+        snap : None or bool, optional
+            If True, snap all nodes to pixels; if False, don't snap them.
+            If None, snap if the path contains only segments
+            parallel to the x or y axes, and no more than 1024 of them.
+        stroke_width : float, optional
+            The width of the stroke being drawn (used for path snapping).
+        simplify : None or bool, optional
+            Whether to simplify the path by removing vertices
+            that do not affect its appearance.  If None, use the
+            :attr:`should_simplify` attribute.  See also :rc:`path.simplify`
+            and :rc:`path.simplify_threshold`.
+        curves : bool, optional
+            If True, curve segments will be returned as curve segments.
+            If False, all curves will be converted to line segments.
+        sketch : None or sequence, optional
+            If not None, must be a 3-tuple of the form
+            (scale, length, randomness), representing the sketch parameters.
         """
-        pkgpath = None
-        for parent in self.parts(reverse=True):
-            if parent.isdir():
-                if not parent.join("__init__.py").exists():
-                    break
-                if not isimportable(parent.basename):
-                    break
-                pkgpath = parent
-        return pkgpath
+        if not len(self):
+            return
 
-    def _ensuresyspath(self, ensuremode, path):
-        if ensuremode:
-            s = str(path)
-            if ensuremode == "append":
-                if s not in sys.path:
-                    sys.path.append(s)
+        cleaned = self.cleaned(transform=transform,
+                               remove_nans=remove_nans, clip=clip,
+                               snap=snap, stroke_width=stroke_width,
+                               simplify=simplify, curves=curves,
+                               sketch=sketch)
+
+        # Cache these object lookups for performance in the loop.
+        NUM_VERTICES_FOR_CODE = self.NUM_VERTICES_FOR_CODE
+        STOP = self.STOP
+
+        vertices = iter(cleaned.vertices)
+        codes = iter(cleaned.codes)
+        for curr_vertices, code in zip(vertices, codes):
+            if code == STOP:
+                break
+            extra_vertices = NUM_VERTICES_FOR_CODE[code] - 1
+            if extra_vertices:
+                for i in range(extra_vertices):
+                    next(codes)
+                    curr_vertices = np.append(curr_vertices, next(vertices))
+            yield curr_vertices, code
+
+    def iter_bezier(self, **kwargs):
+        """
+        Iterate over each Bézier curve (lines included) in a `Path`.
+
+        Parameters
+        ----------
+        **kwargs
+            Forwarded to `.iter_segments`.
+
+        Yields
+        ------
+        B : `~matplotlib.bezier.BezierSegment`
+            The Bézier curves that make up the current path. Note in particular
+            that freestanding points are Bézier curves of order 0, and lines
+            are Bézier curves of order 1 (with two control points).
+        code : `~matplotlib.path.Path.code_type`
+            The code describing what kind of curve is being returned.
+            `MOVETO`, `LINETO`, `CURVE3`, and `CURVE4` correspond to
+            Bézier curves with 1, 2, 3, and 4 control points (respectively).
+            `CLOSEPOLY` is a `LINETO` with the control points correctly
+            chosen based on the start/end points of the current stroke.
+        """
+        first_vert = None
+        prev_vert = None
+        for verts, code in self.iter_segments(**kwargs):
+            if first_vert is None:
+                if code != Path.MOVETO:
+                    raise ValueError("Malformed path, must start with MOVETO.")
+            if code == Path.MOVETO:  # a point is like "CURVE1"
+                first_vert = verts
+                yield BezierSegment(np.array([first_vert])), code
+            elif code == Path.LINETO:  # "CURVE2"
+                yield BezierSegment(np.array([prev_vert, verts])), code
+            elif code == Path.CURVE3:
+                yield BezierSegment(np.array([prev_vert, verts[:2],
+                                              verts[2:]])), code
+            elif code == Path.CURVE4:
+                yield BezierSegment(np.array([prev_vert, verts[:2],
+                                              verts[2:4], verts[4:]])), code
+            elif code == Path.CLOSEPOLY:
+                yield BezierSegment(np.array([prev_vert, first_vert])), code
+            elif code == Path.STOP:
+                return
             else:
-                if s != sys.path[0]:
-                    sys.path.insert(0, s)
+                raise ValueError(f"Invalid Path.code_type: {code}")
+            prev_vert = verts[-2:]
 
-    def pyimport(self, modname=None, ensuresyspath=True):
-        """Return path as an imported python module.
-
-        If modname is None, look for the containing package
-        and construct an according module name.
-        The module will be put/looked up in sys.modules.
-        if ensuresyspath is True then the root dir for importing
-        the file (taking __init__.py files into account) will
-        be prepended to sys.path if it isn't there already.
-        If ensuresyspath=="append" the root dir will be appended
-        if it isn't already contained in sys.path.
-        if ensuresyspath is False no modification of syspath happens.
-
-        Special value of ensuresyspath=="importlib" is intended
-        purely for using in pytest, it is capable only of importing
-        separate .py files outside packages, e.g. for test suite
-        without any __init__.py file. It effectively allows having
-        same-named test modules in different places and offers
-        mild opt-in via this option. Note that it works only in
-        recent versions of python.
-        """
-        if not self.check():
-            raise error.ENOENT(self)
-
-        if ensuresyspath == "importlib":
-            if modname is None:
-                modname = self.purebasename
-            spec = importlib.util.spec_from_file_location(modname, str(self))
-            if spec is None or spec.loader is None:
-                raise ImportError(f"Can't find module {modname} at location {self!s}")
-            mod = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(mod)
-            return mod
-
-        pkgpath = None
-        if modname is None:
-            pkgpath = self.pypkgpath()
-            if pkgpath is not None:
-                pkgroot = pkgpath.dirpath()
-                names = self.new(ext="").relto(pkgroot).split(self.sep)
-                if names[-1] == "__init__":
-                    names.pop()
-                modname = ".".join(names)
-            else:
-                pkgroot = self.dirpath()
-                modname = self.purebasename
-
-            self._ensuresyspath(ensuresyspath, pkgroot)
-            __import__(modname)
-            mod = sys.modules[modname]
-            if self.basename == "__init__.py":
-                return mod  # we don't check anything as we might
-                # be in a namespace package ... too icky to check
-            modfile = mod.__file__
-            assert modfile is not None
-            if modfile[-4:] in (".pyc", ".pyo"):
-                modfile = modfile[:-1]
-            elif modfile.endswith("$py.class"):
-                modfile = modfile[:-9] + ".py"
-            if modfile.endswith(os.sep + "__init__.py"):
-                if self.basename != "__init__.py":
-                    modfile = modfile[:-12]
-            try:
-                issame = self.samefile(modfile)
-            except error.ENOENT:
-                issame = False
-            if not issame:
-                ignore = os.getenv("PY_IGNORE_IMPORTMISMATCH")
-                if ignore != "1":
-                    raise self.ImportMismatchError(modname, modfile, self)
-            return mod
+    def _iter_connected_components(self):
+        """Return subpaths split at MOVETOs."""
+        if self.codes is None:
+            yield self
         else:
-            try:
-                return sys.modules[modname]
-            except KeyError:
-                # we have a custom modname, do a pseudo-import
-                import types
+            idxs = np.append((self.codes == Path.MOVETO).nonzero()[0], len(self.codes))
+            for sl in map(slice, idxs, idxs[1:]):
+                yield Path._fast_from_codes_and_verts(
+                    self.vertices[sl], self.codes[sl], self)
 
-                mod = types.ModuleType(modname)
-                mod.__file__ = str(self)
-                sys.modules[modname] = mod
-                try:
-                    with open(str(self), "rb") as f:
-                        exec(f.read(), mod.__dict__)
-                except BaseException:
-                    del sys.modules[modname]
-                    raise
-                return mod
-
-    def sysexec(self, *argv: os.PathLike[str], **popen_opts: Any) -> str:
-        """Return stdout text from executing a system child process,
-        where the 'self' path points to executable.
-        The process is directly invoked and not through a system shell.
+    def cleaned(self, transform=None, remove_nans=False, clip=None,
+                *, simplify=False, curves=False,
+                stroke_width=1.0, snap=False, sketch=None):
         """
-        from subprocess import PIPE
-        from subprocess import Popen
+        Return a new `Path` with vertices and codes cleaned according to the
+        parameters.
 
-        popen_opts.pop("stdout", None)
-        popen_opts.pop("stderr", None)
-        proc = Popen(
-            [str(self)] + [str(arg) for arg in argv],
-            **popen_opts,
-            stdout=PIPE,
-            stderr=PIPE,
-        )
-        stdout: str | bytes
-        stdout, stderr = proc.communicate()
-        ret = proc.wait()
-        if isinstance(stdout, bytes):
-            stdout = stdout.decode(sys.getdefaultencoding())
-        if ret != 0:
-            if isinstance(stderr, bytes):
-                stderr = stderr.decode(sys.getdefaultencoding())
-            raise RuntimeError(
-                ret,
-                ret,
-                str(self),
-                stdout,
-                stderr,
-            )
-        return stdout
-
-    @classmethod
-    def sysfind(cls, name, checker=None, paths=None):
-        """Return a path object found by looking at the systems
-        underlying PATH specification. If the checker is not None
-        it will be invoked to filter matching paths.  If a binary
-        cannot be found, None is returned
-        Note: This is probably not working on plain win32 systems
-        but may work on cygwin.
+        See Also
+        --------
+        Path.iter_segments : for details of the keyword arguments.
         """
-        if isabs(name):
-            p = local(name)
-            if p.check(file=1):
-                return p
+        vertices, codes = _path.cleanup_path(
+            self, transform, remove_nans, clip, snap, stroke_width, simplify,
+            curves, sketch)
+        pth = Path._fast_from_codes_and_verts(vertices, codes, self)
+        if not simplify:
+            pth._should_simplify = False
+        return pth
+
+    def transformed(self, transform):
+        """
+        Return a transformed copy of the path.
+
+        See Also
+        --------
+        matplotlib.transforms.TransformedPath
+            A specialized path class that will cache the transformed result and
+            automatically update when the transform changes.
+        """
+        return Path(transform.transform(self.vertices), self.codes,
+                    self._interpolation_steps)
+
+    def contains_point(self, point, transform=None, radius=0.0):
+        """
+        Return whether the area enclosed by the path contains the given point.
+
+        The path is always treated as closed; i.e. if the last code is not
+        `CLOSEPOLY` an implicit segment connecting the last vertex to the first
+        vertex is assumed.
+
+        Parameters
+        ----------
+        point : (float, float)
+            The point (x, y) to check.
+        transform : `~matplotlib.transforms.Transform`, optional
+            If not ``None``, *point* will be compared to ``self`` transformed
+            by *transform*; i.e. for a correct check, *transform* should
+            transform the path into the coordinate system of *point*.
+        radius : float, default: 0
+            Additional margin on the path in coordinates of *point*.
+            The path is extended tangentially by *radius/2*; i.e. if you would
+            draw the path with a linewidth of *radius*, all points on the line
+            would still be considered to be contained in the area. Conversely,
+            negative values shrink the area: Points on the imaginary line
+            will be considered outside the area.
+
+        Returns
+        -------
+        bool
+
+        Notes
+        -----
+        The current algorithm has some limitations:
+
+        - The result is undefined for points exactly at the boundary
+          (i.e. at the path shifted by *radius/2*).
+        - The result is undefined if there is no enclosed area, i.e. all
+          vertices are on a straight line.
+        - If bounding lines start to cross each other due to *radius* shift,
+          the result is not guaranteed to be correct.
+        """
+        if transform is not None:
+            transform = transform.frozen()
+        # `point_in_path` does not handle nonlinear transforms, so we
+        # transform the path ourselves.  If *transform* is affine, letting
+        # `point_in_path` handle the transform avoids allocating an extra
+        # buffer.
+        if transform and not transform.is_affine:
+            self = transform.transform_path(self)
+            transform = None
+        return _path.point_in_path(point[0], point[1], radius, self, transform)
+
+    def contains_points(self, points, transform=None, radius=0.0):
+        """
+        Return whether the area enclosed by the path contains the given points.
+
+        The path is always treated as closed; i.e. if the last code is not
+        `CLOSEPOLY` an implicit segment connecting the last vertex to the first
+        vertex is assumed.
+
+        Parameters
+        ----------
+        points : (N, 2) array
+            The points to check. Columns contain x and y values.
+        transform : `~matplotlib.transforms.Transform`, optional
+            If not ``None``, *points* will be compared to ``self`` transformed
+            by *transform*; i.e. for a correct check, *transform* should
+            transform the path into the coordinate system of *points*.
+        radius : float, default: 0
+            Additional margin on the path in coordinates of *points*.
+            The path is extended tangentially by *radius/2*; i.e. if you would
+            draw the path with a linewidth of *radius*, all points on the line
+            would still be considered to be contained in the area. Conversely,
+            negative values shrink the area: Points on the imaginary line
+            will be considered outside the area.
+
+        Returns
+        -------
+        length-N bool array
+
+        Notes
+        -----
+        The current algorithm has some limitations:
+
+        - The result is undefined for points exactly at the boundary
+          (i.e. at the path shifted by *radius/2*).
+        - The result is undefined if there is no enclosed area, i.e. all
+          vertices are on a straight line.
+        - If bounding lines start to cross each other due to *radius* shift,
+          the result is not guaranteed to be correct.
+        """
+        if transform is not None:
+            transform = transform.frozen()
+        result = _path.points_in_path(points, radius, self, transform)
+        return result.astype('bool')
+
+    def contains_path(self, path, transform=None):
+        """
+        Return whether this (closed) path completely contains the given path.
+
+        If *transform* is not ``None``, the path will be transformed before
+        checking for containment.
+        """
+        if transform is not None:
+            transform = transform.frozen()
+        return _path.path_in_path(self, None, path, transform)
+
+    def get_extents(self, transform=None, **kwargs):
+        """
+        Get Bbox of the path.
+
+        Parameters
+        ----------
+        transform : `~matplotlib.transforms.Transform`, optional
+            Transform to apply to path before computing extents, if any.
+        **kwargs
+            Forwarded to `.iter_bezier`.
+
+        Returns
+        -------
+        matplotlib.transforms.Bbox
+            The extents of the path Bbox([[xmin, ymin], [xmax, ymax]])
+        """
+        from .transforms import Bbox
+        if transform is not None:
+            self = transform.transform_path(self)
+        if self.codes is None:
+            xys = self.vertices
+        elif len(np.intersect1d(self.codes, [Path.CURVE3, Path.CURVE4])) == 0:
+            # Optimization for the straight line case.
+            # Instead of iterating through each curve, consider
+            # each line segment's end-points
+            # (recall that STOP and CLOSEPOLY vertices are ignored)
+            xys = self.vertices[np.isin(self.codes,
+                                        [Path.MOVETO, Path.LINETO])]
         else:
-            if paths is None:
-                if iswin32:
-                    paths = os.environ["Path"].split(";")
-                    if "" not in paths and "." not in paths:
-                        paths.append(".")
-                    try:
-                        systemroot = os.environ["SYSTEMROOT"]
-                    except KeyError:
-                        pass
-                    else:
-                        paths = [
-                            path.replace("%SystemRoot%", systemroot) for path in paths
-                        ]
-                else:
-                    paths = os.environ["PATH"].split(":")
-            tryadd = []
-            if iswin32:
-                tryadd += os.environ["PATHEXT"].split(os.pathsep)
-            tryadd.append("")
+            xys = []
+            for curve, code in self.iter_bezier(**kwargs):
+                # places where the derivative is zero can be extrema
+                _, dzeros = curve.axis_aligned_extrema()
+                # as can the ends of the curve
+                xys.append(curve([0, *dzeros, 1]))
+            xys = np.concatenate(xys)
+        if len(xys):
+            return Bbox([xys.min(axis=0), xys.max(axis=0)])
+        else:
+            return Bbox.null()
 
-            for x in paths:
-                for addext in tryadd:
-                    p = local(x).join(name, abs=True) + addext
-                    try:
-                        if p.check(file=1):
-                            if checker:
-                                if not checker(p):
-                                    continue
-                            return p
-                    except error.EACCES:
-                        pass
-        return None
-
-    @classmethod
-    def _gethomedir(cls):
-        try:
-            x = os.environ["HOME"]
-        except KeyError:
-            try:
-                x = os.environ["HOMEDRIVE"] + os.environ["HOMEPATH"]
-            except KeyError:
-                return None
-        return cls(x)
-
-    # """
-    # special class constructors for local filesystem paths
-    # """
-    @classmethod
-    def get_temproot(cls):
-        """Return the system's temporary directory
-        (where tempfiles are usually created in)
+    def intersects_path(self, other, filled=True):
         """
-        import tempfile
+        Return whether if this path intersects another given path.
 
-        return local(tempfile.gettempdir())
-
-    @classmethod
-    def mkdtemp(cls, rootdir=None):
-        """Return a Path object pointing to a fresh new temporary directory
-        (which we created ourselves).
+        If *filled* is True, then this also returns True if one path completely
+        encloses the other (i.e., the paths are treated as filled).
         """
-        import tempfile
+        return _path.path_intersects_path(self, other, filled)
 
-        if rootdir is None:
-            rootdir = cls.get_temproot()
-        path = error.checked_call(tempfile.mkdtemp, dir=str(rootdir))
-        return cls(path)
-
-    @classmethod
-    def make_numbered_dir(
-        cls, prefix="session-", rootdir=None, keep=3, lock_timeout=172800
-    ):  # two days
-        """Return unique directory with a number greater than the current
-        maximum one.  The number is assumed to start directly after prefix.
-        if keep is true directories with a number less than (maxnum-keep)
-        will be removed. If .lock files are used (lock_timeout non-zero),
-        algorithm is multi-process safe.
+    def intersects_bbox(self, bbox, filled=True):
         """
-        if rootdir is None:
-            rootdir = cls.get_temproot()
+        Return whether this path intersects a given `~.transforms.Bbox`.
 
-        nprefix = prefix.lower()
+        If *filled* is True, then this also returns True if the path completely
+        encloses the `.Bbox` (i.e., the path is treated as filled).
 
-        def parse_num(path):
-            """Parse the number out of a path (if it matches the prefix)"""
-            nbasename = path.basename.lower()
-            if nbasename.startswith(nprefix):
-                try:
-                    return int(nbasename[len(nprefix) :])
-                except ValueError:
-                    pass
+        The bounding box is always considered filled.
+        """
+        return _path.path_intersects_rectangle(
+            self, bbox.x0, bbox.y0, bbox.x1, bbox.y1, filled)
 
-        def create_lockfile(path):
-            """Exclusively create lockfile. Throws when failed"""
-            mypid = os.getpid()
-            lockfile = path.join(".lock")
-            if hasattr(lockfile, "mksymlinkto"):
-                lockfile.mksymlinkto(str(mypid))
+    def interpolated(self, steps):
+        """
+        Return a new path with each segment divided into *steps* parts.
+
+        Codes other than `LINETO`, `MOVETO`, and `CLOSEPOLY` are not handled correctly.
+
+        Parameters
+        ----------
+        steps : int
+            The number of segments in the new path for each in the original.
+
+        Returns
+        -------
+        Path
+            The interpolated path.
+        """
+        if steps == 1 or len(self) == 0:
+            return self
+
+        if self.codes is not None and self.MOVETO in self.codes[1:]:
+            return self.make_compound_path(
+                *(p.interpolated(steps) for p in self._iter_connected_components()))
+
+        if self.codes is not None and self.CLOSEPOLY in self.codes and not np.all(
+                self.vertices[self.codes == self.CLOSEPOLY] == self.vertices[0]):
+            vertices = self.vertices.copy()
+            vertices[self.codes == self.CLOSEPOLY] = vertices[0]
+        else:
+            vertices = self.vertices
+
+        vertices = simple_linear_interpolation(vertices, steps)
+        codes = self.codes
+        if codes is not None:
+            new_codes = np.full((len(codes) - 1) * steps + 1, Path.LINETO,
+                                dtype=self.code_type)
+            new_codes[0::steps] = codes
+        else:
+            new_codes = None
+        return Path(vertices, new_codes)
+
+    def to_polygons(self, transform=None, width=0, height=0, closed_only=True):
+        """
+        Convert this path to a list of polygons or polylines.  Each
+        polygon/polyline is an (N, 2) array of vertices.  In other words,
+        each polygon has no `MOVETO` instructions or curves.  This
+        is useful for displaying in backends that do not support
+        compound paths or Bézier curves.
+
+        If *width* and *height* are both non-zero then the lines will
+        be simplified so that vertices outside of (0, 0), (width,
+        height) will be clipped.
+
+        The resulting polygons will be simplified if the
+        :attr:`Path.should_simplify` attribute of the path is `True`.
+
+        If *closed_only* is `True` (default), only closed polygons,
+        with the last point being the same as the first point, will be
+        returned.  Any unclosed polylines in the path will be
+        explicitly closed.  If *closed_only* is `False`, any unclosed
+        polygons in the path will be returned as unclosed polygons,
+        and the closed polygons will be returned explicitly closed by
+        setting the last point to the same as the first point.
+        """
+        if len(self.vertices) == 0:
+            return []
+
+        if transform is not None:
+            transform = transform.frozen()
+
+        if self.codes is None and (width == 0 or height == 0):
+            vertices = self.vertices
+            if closed_only:
+                if len(vertices) < 3:
+                    return []
+                elif np.any(vertices[0] != vertices[-1]):
+                    vertices = [*vertices, vertices[0]]
+
+            if transform is None:
+                return [vertices]
             else:
-                fd = error.checked_call(
-                    os.open, str(lockfile), os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o644
-                )
-                with os.fdopen(fd, "w") as f:
-                    f.write(str(mypid))
-            return lockfile
+                return [transform.transform(vertices)]
 
-        def atexit_remove_lockfile(lockfile):
-            """Ensure lockfile is removed at process exit"""
-            mypid = os.getpid()
+        # Deal with the case where there are curves and/or multiple
+        # subpaths (using extension code)
+        return _path.convert_path_to_polygons(
+            self, transform, width, height, closed_only)
 
-            def try_remove_lockfile():
-                # in a fork() situation, only the last process should
-                # remove the .lock, otherwise the other processes run the
-                # risk of seeing their temporary dir disappear.  For now
-                # we remove the .lock in the parent only (i.e. we assume
-                # that the children finish before the parent).
-                if os.getpid() != mypid:
-                    return
-                try:
-                    lockfile.remove()
-                except error.Error:
-                    pass
+    _unit_rectangle = None
 
-            atexit.register(try_remove_lockfile)
+    @classmethod
+    def unit_rectangle(cls):
+        """
+        Return a `Path` instance of the unit rectangle from (0, 0) to (1, 1).
+        """
+        if cls._unit_rectangle is None:
+            cls._unit_rectangle = cls([[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]],
+                                      closed=True, readonly=True)
+        return cls._unit_rectangle
 
-        # compute the maximum number currently in use with the prefix
-        lastmax = None
-        while True:
-            maxnum = -1
-            for path in rootdir.listdir():
-                num = parse_num(path)
-                if num is not None:
-                    maxnum = max(maxnum, num)
+    _unit_regular_polygons = WeakValueDictionary()
 
-            # make the new directory
-            try:
-                udir = rootdir.mkdir(prefix + str(maxnum + 1))
-                if lock_timeout:
-                    lockfile = create_lockfile(udir)
-                    atexit_remove_lockfile(lockfile)
-            except (error.EEXIST, error.ENOENT, error.EBUSY):
-                # race condition (1): another thread/process created the dir
-                #                     in the meantime - try again
-                # race condition (2): another thread/process spuriously acquired
-                #                     lock treating empty directory as candidate
-                #                     for removal - try again
-                # race condition (3): another thread/process tried to create the lock at
-                #                     the same time (happened in Python 3.3 on Windows)
-                # https://ci.appveyor.com/project/pytestbot/py/build/1.0.21/job/ffi85j4c0lqwsfwa
-                if lastmax == maxnum:
-                    raise
-                lastmax = maxnum
-                continue
-            break
+    @classmethod
+    def unit_regular_polygon(cls, numVertices):
+        """
+        Return a :class:`Path` instance for a unit regular polygon with the
+        given *numVertices* such that the circumscribing circle has radius 1.0,
+        centered at (0, 0).
+        """
+        if numVertices <= 16:
+            path = cls._unit_regular_polygons.get(numVertices)
+        else:
+            path = None
+        if path is None:
+            theta = ((2 * np.pi / numVertices) * np.arange(numVertices + 1)
+                     # This initial rotation is to make sure the polygon always
+                     # "points-up".
+                     + np.pi / 2)
+            verts = np.column_stack((np.cos(theta), np.sin(theta)))
+            path = cls(verts, closed=True, readonly=True)
+            if numVertices <= 16:
+                cls._unit_regular_polygons[numVertices] = path
+        return path
 
-        def get_mtime(path):
-            """Read file modification time"""
-            try:
-                return path.lstat().mtime
-            except error.Error:
-                pass
+    _unit_regular_stars = WeakValueDictionary()
 
-        garbage_prefix = prefix + "garbage-"
+    @classmethod
+    def unit_regular_star(cls, numVertices, innerCircle=0.5):
+        """
+        Return a :class:`Path` for a unit regular star with the given
+        numVertices and radius of 1.0, centered at (0, 0).
+        """
+        if numVertices <= 16:
+            path = cls._unit_regular_stars.get((numVertices, innerCircle))
+        else:
+            path = None
+        if path is None:
+            ns2 = numVertices * 2
+            theta = (2*np.pi/ns2 * np.arange(ns2 + 1))
+            # This initial rotation is to make sure the polygon always
+            # "points-up"
+            theta += np.pi / 2.0
+            r = np.ones(ns2 + 1)
+            r[1::2] = innerCircle
+            verts = (r * np.vstack((np.cos(theta), np.sin(theta)))).T
+            path = cls(verts, closed=True, readonly=True)
+            if numVertices <= 16:
+                cls._unit_regular_stars[(numVertices, innerCircle)] = path
+        return path
 
-        def is_garbage(path):
-            """Check if path denotes directory scheduled for removal"""
-            bn = path.basename
-            return bn.startswith(garbage_prefix)
+    @classmethod
+    def unit_regular_asterisk(cls, numVertices):
+        """
+        Return a :class:`Path` for a unit regular asterisk with the given
+        numVertices and radius of 1.0, centered at (0, 0).
+        """
+        return cls.unit_regular_star(numVertices, 0.0)
 
-        # prune old directories
-        udir_time = get_mtime(udir)
-        if keep and udir_time:
-            for path in rootdir.listdir():
-                num = parse_num(path)
-                if num is not None and num <= (maxnum - keep):
-                    try:
-                        # try acquiring lock to remove directory as exclusive user
-                        if lock_timeout:
-                            create_lockfile(path)
-                    except (error.EEXIST, error.ENOENT, error.EBUSY):
-                        path_time = get_mtime(path)
-                        if not path_time:
-                            # assume directory doesn't exist now
-                            continue
-                        if abs(udir_time - path_time) < lock_timeout:
-                            # assume directory with lockfile exists
-                            # and lock timeout hasn't expired yet
-                            continue
+    _unit_circle = None
 
-                    # path dir locked for exclusive use
-                    # and scheduled for removal to avoid another thread/process
-                    # treating it as a new directory or removal candidate
-                    garbage_path = rootdir.join(garbage_prefix + str(uuid.uuid4()))
-                    try:
-                        path.rename(garbage_path)
-                        garbage_path.remove(rec=1)
-                    except KeyboardInterrupt:
-                        raise
-                    except Exception:  # this might be error.Error, WindowsError ...
-                        pass
-                if is_garbage(path):
-                    try:
-                        path.remove(rec=1)
-                    except KeyboardInterrupt:
-                        raise
-                    except Exception:  # this might be error.Error, WindowsError ...
-                        pass
+    @classmethod
+    def unit_circle(cls):
+        """
+        Return the readonly :class:`Path` of the unit circle.
 
-        # make link...
-        try:
-            username = os.environ["USER"]  # linux, et al
-        except KeyError:
-            try:
-                username = os.environ["USERNAME"]  # windows
-            except KeyError:
-                username = "current"
+        For most cases, :func:`Path.circle` will be what you want.
+        """
+        if cls._unit_circle is None:
+            cls._unit_circle = cls.circle(center=(0, 0), radius=1,
+                                          readonly=True)
+        return cls._unit_circle
 
-        src = str(udir)
-        dest = src[: src.rfind("-")] + "-" + username
-        try:
-            os.unlink(dest)
-        except OSError:
-            pass
-        try:
-            os.symlink(src, dest)
-        except (OSError, AttributeError, NotImplementedError):
-            pass
+    @classmethod
+    def circle(cls, center=(0., 0.), radius=1., readonly=False):
+        """
+        Return a `Path` representing a circle of a given radius and center.
 
-        return udir
+        Parameters
+        ----------
+        center : (float, float), default: (0, 0)
+            The center of the circle.
+        radius : float, default: 1
+            The radius of the circle.
+        readonly : bool
+            Whether the created path should have the "readonly" argument
+            set when creating the Path instance.
+
+        Notes
+        -----
+        The circle is approximated using 8 cubic Bézier curves, as described in
+
+          Lancaster, Don.  `Approximating a Circle or an Ellipse Using Four
+          Bezier Cubic Splines <https://www.tinaja.com/glib/ellipse4.pdf>`_.
+        """
+        MAGIC = 0.2652031
+        SQRTHALF = np.sqrt(0.5)
+        MAGIC45 = SQRTHALF * MAGIC
+
+        vertices = np.array([[0.0, -1.0],
+
+                             [MAGIC, -1.0],
+                             [SQRTHALF-MAGIC45, -SQRTHALF-MAGIC45],
+                             [SQRTHALF, -SQRTHALF],
+
+                             [SQRTHALF+MAGIC45, -SQRTHALF+MAGIC45],
+                             [1.0, -MAGIC],
+                             [1.0, 0.0],
+
+                             [1.0, MAGIC],
+                             [SQRTHALF+MAGIC45, SQRTHALF-MAGIC45],
+                             [SQRTHALF, SQRTHALF],
+
+                             [SQRTHALF-MAGIC45, SQRTHALF+MAGIC45],
+                             [MAGIC, 1.0],
+                             [0.0, 1.0],
+
+                             [-MAGIC, 1.0],
+                             [-SQRTHALF+MAGIC45, SQRTHALF+MAGIC45],
+                             [-SQRTHALF, SQRTHALF],
+
+                             [-SQRTHALF-MAGIC45, SQRTHALF-MAGIC45],
+                             [-1.0, MAGIC],
+                             [-1.0, 0.0],
+
+                             [-1.0, -MAGIC],
+                             [-SQRTHALF-MAGIC45, -SQRTHALF+MAGIC45],
+                             [-SQRTHALF, -SQRTHALF],
+
+                             [-SQRTHALF+MAGIC45, -SQRTHALF-MAGIC45],
+                             [-MAGIC, -1.0],
+                             [0.0, -1.0],
+
+                             [0.0, -1.0]],
+                            dtype=float)
+
+        codes = [cls.CURVE4] * 26
+        codes[0] = cls.MOVETO
+        codes[-1] = cls.CLOSEPOLY
+        return Path(vertices * radius + center, codes, readonly=readonly)
+
+    _unit_circle_righthalf = None
+
+    @classmethod
+    def unit_circle_righthalf(cls):
+        """
+        Return a `Path` of the right half of a unit circle.
+
+        See `Path.circle` for the reference on the approximation used.
+        """
+        if cls._unit_circle_righthalf is None:
+            MAGIC = 0.2652031
+            SQRTHALF = np.sqrt(0.5)
+            MAGIC45 = SQRTHALF * MAGIC
+
+            vertices = np.array(
+                [[0.0, -1.0],
+
+                 [MAGIC, -1.0],
+                 [SQRTHALF-MAGIC45, -SQRTHALF-MAGIC45],
+                 [SQRTHALF, -SQRTHALF],
+
+                 [SQRTHALF+MAGIC45, -SQRTHALF+MAGIC45],
+                 [1.0, -MAGIC],
+                 [1.0, 0.0],
+
+                 [1.0, MAGIC],
+                 [SQRTHALF+MAGIC45, SQRTHALF-MAGIC45],
+                 [SQRTHALF, SQRTHALF],
+
+                 [SQRTHALF-MAGIC45, SQRTHALF+MAGIC45],
+                 [MAGIC, 1.0],
+                 [0.0, 1.0],
+
+                 [0.0, -1.0]],
+
+                float)
+
+            codes = np.full(14, cls.CURVE4, dtype=cls.code_type)
+            codes[0] = cls.MOVETO
+            codes[-1] = cls.CLOSEPOLY
+
+            cls._unit_circle_righthalf = cls(vertices, codes, readonly=True)
+        return cls._unit_circle_righthalf
+
+    @classmethod
+    def arc(cls, theta1, theta2, n=None, is_wedge=False):
+        """
+        Return a `Path` for the unit circle arc from angles *theta1* to
+        *theta2* (in degrees).
+
+        *theta2* is unwrapped to produce the shortest arc within 360 degrees.
+        That is, if *theta2* > *theta1* + 360, the arc will be from *theta1* to
+        *theta2* - 360 and not a full circle plus some extra overlap.
+
+        As a special case, if the span *theta2* - *theta1* is within
+        floating-point tolerance of a whole number of turns, a complete circle
+        is drawn.
+
+        If *n* is provided, it is the number of spline segments to make.
+        If *n* is not provided, the number of spline segments is
+        determined based on the delta between *theta1* and *theta2*.
+
+           Masionobe, L.  2003.  `Drawing an elliptical arc using
+           polylines, quadratic or cubic Bezier curves
+           <https://web.archive.org/web/20190318044212/http://www.spaceroots.org/documents/ellipse/index.html>`_.
+        """
+        halfpi = np.pi * 0.5
+
+        eta1 = theta1
+        n_turns = (theta2 - theta1) / 360
+        nearest_turn = np.rint(n_turns)
+        is_full_circle = nearest_turn != 0 and abs(n_turns - nearest_turn) <= 1e-12
+        # We unwrap *theta2* to the shortest arc within 360 degrees.
+        # Full circles need special handling as floating point errors can
+        # make a full circle have 360° + eps, which would be unwrapped
+        # to eps only, i.e. collapsing the full circle to an infinitesimal arc.
+        # The threshold of 1e-12 is a defensive choice: Much larger than
+        # numeric precision errors (~1e-15) but still smaller than any
+        # expected real-world arcs.
+        if is_full_circle:
+            eta2 = theta1 + 360
+        else:
+            eta2 = theta2 - 360 * np.floor(n_turns)
+        eta1, eta2 = np.deg2rad([eta1, eta2])
+
+        # number of curve segments to make
+        if n is None:
+            n = int(2 ** np.ceil((eta2 - eta1) / halfpi))
+        if n < 1:
+            raise ValueError("n must be >= 1 or None")
+
+        deta = (eta2 - eta1) / n
+        t = np.tan(0.5 * deta)
+        alpha = np.sin(deta) * (np.sqrt(4.0 + 3.0 * t * t) - 1) / 3.0
+
+        steps = np.linspace(eta1, eta2, n + 1, True)
+        cos_eta = np.cos(steps)
+        sin_eta = np.sin(steps)
+
+        xA = cos_eta[:-1]
+        yA = sin_eta[:-1]
+        xA_dot = -yA
+        yA_dot = xA
+
+        xB = cos_eta[1:]
+        yB = sin_eta[1:]
+        xB_dot = -yB
+        yB_dot = xB
+
+        if is_wedge:
+            length = n * 3 + 4
+            vertices = np.zeros((length, 2), float)
+            codes = np.full(length, cls.CURVE4, dtype=cls.code_type)
+            vertices[1] = [xA[0], yA[0]]
+            codes[0:2] = [cls.MOVETO, cls.LINETO]
+            codes[-2:] = [cls.LINETO, cls.CLOSEPOLY]
+            vertex_offset = 2
+            end = length - 2
+        else:
+            length = n * 3 + 1
+            vertices = np.empty((length, 2), float)
+            codes = np.full(length, cls.CURVE4, dtype=cls.code_type)
+            vertices[0] = [xA[0], yA[0]]
+            codes[0] = cls.MOVETO
+            vertex_offset = 1
+            end = length
+
+        vertices[vertex_offset:end:3, 0] = xA + alpha * xA_dot
+        vertices[vertex_offset:end:3, 1] = yA + alpha * yA_dot
+        vertices[vertex_offset+1:end:3, 0] = xB - alpha * xB_dot
+        vertices[vertex_offset+1:end:3, 1] = yB - alpha * yB_dot
+        vertices[vertex_offset+2:end:3, 0] = xB
+        vertices[vertex_offset+2:end:3, 1] = yB
+
+        return cls(vertices, codes, readonly=True)
+
+    @classmethod
+    def wedge(cls, theta1, theta2, n=None):
+        """
+        Return a `Path` for the unit circle wedge from angles *theta1* to
+        *theta2* (in degrees).
+
+        *theta2* is unwrapped to produce the shortest wedge within 360 degrees.
+        That is, if *theta2* > *theta1* + 360, the wedge will be from *theta1*
+        to *theta2* - 360 and not a full circle plus some extra overlap.
+
+        If *n* is provided, it is the number of spline segments to make.
+        If *n* is not provided, the number of spline segments is
+        determined based on the delta between *theta1* and *theta2*.
+
+        See `Path.arc` for the reference on the approximation used.
+        """
+        return cls.arc(theta1, theta2, n, True)
+
+    @staticmethod
+    @lru_cache(8)
+    def hatch(hatchpattern, density=6):
+        """
+        Given a hatch specifier, *hatchpattern*, generates a `Path` that
+        can be used in a repeated hatching pattern.  *density* is the
+        number of lines per unit square.
+        """
+        from matplotlib.hatch import get_path
+        return (get_path(hatchpattern, density)
+                if hatchpattern is not None else None)
+
+    def clip_to_bbox(self, bbox, inside=True):
+        """
+        Clip the path to the given bounding box.
+
+        The path must be made up of one or more closed polygons.  This
+        algorithm will not behave correctly for unclosed paths.
+
+        If *inside* is `True`, clip to the inside of the box, otherwise
+        to the outside of the box.
+        """
+        verts = _path.clip_path_to_rect(self, bbox, inside)
+        paths = [Path(poly) for poly in verts]
+        return self.make_compound_path(*paths)
 
 
-def copymode(src, dest):
-    """Copy permission from src to dst."""
-    import shutil
+def get_path_collection_extents(
+        master_transform, paths, transforms, offsets, offset_transform):
+    r"""
+    Get bounding box of a `.PathCollection`\s internal objects.
 
-    shutil.copymode(src, dest)
+    That is, given a sequence of `Path`\s, `.Transform`\s objects, and offsets, as found
+    in a `.PathCollection`, return the bounding box that encapsulates all of them.
 
+    Parameters
+    ----------
+    master_transform : `~matplotlib.transforms.Transform`
+        Global transformation applied to all paths.
+    paths : list of `Path`
+    transforms : list of `~matplotlib.transforms.Affine2DBase`
+        If non-empty, this overrides *master_transform*.
+    offsets : (N, 2) array-like
+    offset_transform : `~matplotlib.transforms.Affine2DBase`
+        Transform applied to the offsets before offsetting the path.
 
-def copystat(src, dest):
-    """Copy permission,  last modification time,
-    last access time, and flags from src to dst."""
-    import shutil
+    Notes
+    -----
+    The way that *paths*, *transforms* and *offsets* are combined follows the same
+    method as for collections: each is iterated over independently, so if you have 3
+    paths (A, B, C), 2 transforms (α, β) and 1 offset (O), their combinations are as
+    follows:
 
-    shutil.copystat(str(src), str(dest))
-
-
-def copychunked(src, dest):
-    chunksize = 524288  # half a meg of bytes
-    fsrc = src.open("rb")
-    try:
-        fdest = dest.open("wb")
-        try:
-            while 1:
-                buf = fsrc.read(chunksize)
-                if not buf:
-                    break
-                fdest.write(buf)
-        finally:
-            fdest.close()
-    finally:
-        fsrc.close()
-
-
-def isimportable(name):
-    if name and (name[0].isalpha() or name[0] == "_"):
-        name = name.replace("_", "")
-        return not name or name.isalnum()
-
-
-local = LocalPath
+    - (A, α, O)
+    - (B, β, O)
+    - (C, α, O)
+    """
+    from .transforms import Bbox
+    if len(paths) == 0:
+        raise ValueError("No paths provided")
+    if len(offsets) == 0:
+        raise ValueError("No offsets provided")
+    extents, minpos = _path.get_path_collection_extents(
+        master_transform, paths, np.atleast_3d(transforms),
+        offsets, offset_transform)
+    return Bbox.from_extents(*extents, minpos=minpos)

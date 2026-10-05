@@ -249,7 +249,7 @@ def main() -> int:
         import gia_sovereign_engine as _gse
         _def_model = _gse.get_engine().resolve_model()
     except Exception:
-        _def_model = os.environ.get("GIA_MODEL", "huihui_ai/llama3.1-8b-instruct-abliterated")
+        _def_model = os.environ.get("GIA_MODEL", "Qwen3.8-27B-Uncensored-MLX:latest")
     ap = argparse.ArgumentParser(description="Supervisor GIA siempre-encendido")
     ap.add_argument("--model", default=_def_model)
     ap.add_argument("--once", action="store_true")
@@ -262,9 +262,9 @@ def main() -> int:
     args = ap.parse_args()
 
     print(f"\n{C_AI}================================================={C_END}")
-    print(f"{C_AI}  TARDIS - SUPERVISOR SIEMPRE-ENCENDIDO (v26.4){C_END}")
+    print(f"{C_AI}  GIA - SUPERVISOR SIEMPRE-ENCENDIDO{C_END}")
     print(f"{C_AI}  Watchdog: pausa GPU>={GPU_PAUSE_C:.0f}C, reanuda<={GPU_RESUME_C:.0f}C{C_END}")
-    print(f"{C_AI}  Centinela de Auto-Corrección y Auto-Notificación: ACTIVO{C_END}")
+    print(f"{C_AI}  Ciclo auto-mejora cada {IDLE_INTERVAL}s (mas lento en bateria){C_END}")
     print(f"{C_DIM}  Log: {SUP_LOG}   Ctrl+C para detener{C_END}")
     print(f"{C_AI}================================================={C_END}\n")
 
@@ -276,15 +276,7 @@ def main() -> int:
         log("ya hay un supervisor corriendo; esta instancia sale", "WARN")
         return 0
 
-    # Iniciar Centinela de Detección, Auto-Corrección y Notificación 24/7
-    try:
-        from core.tardis_error_sentinel import get_sentinel
-        get_sentinel().start()
-        log("centinela TARDIS auto-corrección y notificación activo", "OK")
-    except Exception as e:
-        log(f"no se pudo iniciar centinela TARDIS: {e}", "WARN")
-
-    log("supervisor TARDIS iniciado", "OK")
+    log("supervisor iniciado", "OK")
     paused = False
     try:
         while True:

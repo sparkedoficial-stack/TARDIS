@@ -250,22 +250,25 @@ class AutonomousCoder:
                     new_code = api_resp["reply"].strip()
                     model_used = f"{api_resp.get('provider')} ({api_resp.get('model')})"
 
-            # Fallback a Ollama local si la API externa falló o no devolvió código
+            # Inferencia mediante Temporal Brain soberano si la API externa no devolvió código
             if not new_code:
-                import httpx
-                model_local = model_override or os.environ.get("GIA_MODEL", "huihui_ai/llama3.1-8b-instruct-abliterated")
-                model_used = f"local_ollama ({model_local})"
                 try:
-                    r = httpx.post("http://REDACTED_IP:11434/api/generate", json={
-                        "model": model_local,
-                        "prompt": f"{system_instruction}\n\n{user_prompt}",
-                        "stream": False,
-                        "options": {"temperature": 0.2, "num_ctx": 8192},
-                    }, timeout=120.0)
-                    if r.status_code == 200:
-                        new_code = r.json().get("response", "").strip()
-                except Exception as e_loc:
-                    logger.warning(f"Fallback a Ollama local falló: {e_loc}")
+                    from core.temporal_brain import get_temporal_brain
+                    brain = get_temporal_brain()
+                    model_local = model_override or brain.model_name
+                    model_used = f"temporal_brain ({model_local})"
+                    res_tb = brain.chat(
+                        messages=[
+                            {"role": "system", "content": system_instruction},
+                            {"role": "user", "content": user_prompt}
+                        ],
+                        temperature=0.2,
+                        max_tokens=max_toks or 2048
+                    )
+                    if res_tb.get("ok") and res_tb.get("reply"):
+                        new_code = res_tb["reply"].strip()
+                except Exception as e_tb:
+                    logger.warning(f"Inferencia en Temporal Brain falló: {e_tb}")
 
         except Exception as e_gen:
             logger.error(f"Fallo en generación de código: {e_gen}")
@@ -309,6 +312,12 @@ class AutonomousCoder:
 
         # 4. Validación de sintaxis
         ok_syntax, err_syntax = self._validate_syntax(p, new_code)
+        try:
+            from core.causal_prompt_graph import get_causal_prompt_graph
+
+            get_causal_prompt_graph().observe_text(user_prompt, ok_syntax, err_syntax or None)
+        except Exception as e_graph:
+            logger.debug("Causal prompt graph observe skipped: %s", e_graph)
         if not ok_syntax:
             shutil.copy2(backup_file, p)
             res = EvolutionResult(

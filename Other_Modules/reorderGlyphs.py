@@ -116,7 +116,7 @@ _REORDER_RULES = {
     (ot.SinglePos, 1): [ReorderCoverage()],
     (ot.SinglePos, 2): [ReorderCoverage(parallel_list_attr="Value")],
     (ot.PairPos, 1): [ReorderCoverage(parallel_list_attr="PairSet")],
-    (ot.PairSet, None): [ReorderList("PairValueRecord", key="SecondGlyph")],
+    (ot.PairSet, None): [ReorderList("PairValueRecord", key = "REDACTED")],
     (ot.PairPos, 2): [ReorderCoverage()],
     (ot.CursivePos, 1): [ReorderCoverage(parallel_list_attr="EntryExitRecord")],
     (ot.MarkBasePos, 1): [

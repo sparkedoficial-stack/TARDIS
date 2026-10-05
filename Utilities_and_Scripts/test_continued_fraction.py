@@ -1,77 +1,168 @@
-import itertools
-from sympy.core import GoldenRatio as phi
-from sympy.core.numbers import (Rational, pi)
-from sympy.core.singleton import S
-from sympy.functions.elementary.miscellaneous import sqrt
-from sympy.ntheory.continued_fraction import \
-    (continued_fraction_periodic as cf_p,
-     continued_fraction_iterator as cf_i,
-     continued_fraction_convergents as cf_c,
-     continued_fraction_reduce as cf_r,
-     continued_fraction as cf)
-from sympy.testing.pytest import raises
+import math
+
+import pytest
+import numpy as np
+
+from scipy._lib._array_api import array_namespace
+from scipy._lib._array_api_no_0d import xp_assert_close, xp_assert_less, xp_assert_equal
+from scipy.stats._continued_fraction import _continued_fraction
 
 
-def test_continued_fraction():
-    assert cf_p(1, 1, 10, 0) == cf_p(1, 1, 0, 1)
-    assert cf_p(1, -1, 10, 1) == cf_p(-1, 1, 10, -1)
-    t = sqrt(2)
-    assert cf((1 + t)*(1 - t)) == cf(-1)
-    for n in [0, 2, Rational(2, 3), sqrt(2), 3*sqrt(2), 1 + 2*sqrt(3)/5,
-            (2 - 3*sqrt(5))/7, 1 + sqrt(2), (-5 + sqrt(17))/4]:
-        assert (cf_r(cf(n)) - n).expand() == 0
-        assert (cf_r(cf(-n)) + n).expand() == 0
-    raises(ValueError, lambda: cf(sqrt(2 + sqrt(3))))
-    raises(ValueError, lambda: cf(sqrt(2) + sqrt(3)))
-    raises(ValueError, lambda: cf(pi))
-    raises(ValueError, lambda: cf(.1))
+@pytest.mark.skip_xp_backends('array_api_strict', reason='No fancy indexing assignment')
+@pytest.mark.skip_xp_backends('jax.numpy', reason="Don't support mutation")
+# dask doesn't like lines like this
+# n = int(xp.real(xp_ravel(n))[0])
+# (at some point in here the shape becomes nan)
+@pytest.mark.skip_xp_backends('dask.array', reason="dask has issues with the shapes")
+@pytest.mark.uses_xp_capabilities(False, reason="private")
+class TestContinuedFraction:
+    rng = np.random.default_rng(5895448232066142650)
+    p = rng.uniform(1, 10, size=10)
 
-    raises(ValueError, lambda: cf_p(1, 0, 0))
-    raises(ValueError, lambda: cf_p(1, 1, -1))
-    assert cf_p(4, 3, 0) == [1, 3]
-    assert cf_p(0, 3, 5) == [0, 1, [2, 1, 12, 1, 2, 2]]
-    assert cf_p(1, 1, 0) == [1]
-    assert cf_p(3, 4, 0) == [0, 1, 3]
-    assert cf_p(4, 5, 0) == [0, 1, 4]
-    assert cf_p(5, 6, 0) == [0, 1, 5]
-    assert cf_p(11, 13, 0) == [0, 1, 5, 2]
-    assert cf_p(16, 19, 0) == [0, 1, 5, 3]
-    assert cf_p(27, 32, 0) == [0, 1, 5, 2, 2]
-    assert cf_p(1, 2, 5) == [[1]]
-    assert cf_p(0, 1, 2) == [1, [2]]
-    assert cf_p(6, 7, 49) == [1, 1, 6]
-    assert cf_p(3796, 1387, 0) == [2, 1, 2, 1, 4]
-    assert cf_p(3245, 10000) == [0, 3, 12, 4, 13]
-    assert cf_p(1932, 2568) == [0, 1, 3, 26, 2]
-    assert cf_p(6589, 2569) == [2, 1, 1, 3, 2, 1, 3, 1, 23]
+    def a1(self, n, x=1.5):
+        if n == 0:
+            y = 0*x
+        elif n == 1:
+            y = x
+        else:
+            y = -x**2
+        return y
 
-    def take(iterator, n=7):
-        return list(itertools.islice(iterator, n))
+    def b1(self, n, x=1.5):
+        if n == 0:
+            y = 0*x
+        else:
+            one = x/x  # gets array of correct type, dtype, and shape
+            y = one * (2*n - 1)
+        return y
 
-    assert take(cf_i(phi)) == [1, 1, 1, 1, 1, 1, 1]
-    assert take(cf_i(pi)) == [3, 7, 15, 1, 292, 1, 1]
+    def log_a1(self, n, x):
+        xp = array_namespace(x)
+        if n == 0:
+            y = xp.full_like(x, -xp.asarray(math.inf, dtype=x.dtype))
+        elif n == 1:
+            y = xp.log(x)
+        else:
+            y = 2 * xp.log(x) + math.pi * 1j
+        return y
 
-    assert list(cf_i(Rational(17, 12))) == [1, 2, 2, 2]
-    assert list(cf_i(Rational(-17, 12))) == [-2, 1, 1, 2, 2]
+    def log_b1(self, n, x):
+        xp = array_namespace(x)
+        if n == 0:
+            y = xp.full_like(x, -xp.asarray(math.inf, dtype=x.dtype))
+        else:
+            one = x - x  # gets array of correct type, dtype, and shape
+            y = one + math.log(2 * n - 1)
+        return y
 
-    assert list(cf_c([1, 6, 1, 8])) == [S.One, Rational(7, 6), Rational(8, 7), Rational(71, 62)]
-    assert list(cf_c([2])) == [S(2)]
-    assert list(cf_c([1, 1, 1, 1, 1, 1, 1])) == [S.One, S(2), Rational(3, 2), Rational(5, 3),
-                                                 Rational(8, 5), Rational(13, 8), Rational(21, 13)]
-    assert list(cf_c([1, 6, Rational(-1, 2), 4])) == [S.One, Rational(7, 6), Rational(5, 4), Rational(3, 2)]
-    assert take(cf_c([[1]])) == [S.One, S(2), Rational(3, 2), Rational(5, 3), Rational(8, 5),
-                                 Rational(13, 8), Rational(21, 13)]
-    assert take(cf_c([1, [1, 2]])) == [S.One, S(2), Rational(5, 3), Rational(7, 4), Rational(19, 11),
-                                    Rational(26, 15), Rational(71, 41)]
+    def test_input_validation(self, xp):
+        a1 = self.a1
+        b1 = self.b1
 
-    cf_iter_e = (2 if i == 1 else i // 3 * 2 if i % 3 == 0 else 1 for i in itertools.count(1))
-    assert take(cf_c(cf_iter_e)) == [S(2), S(3), Rational(8, 3), Rational(11, 4), Rational(19, 7),
-                                     Rational(87, 32), Rational(106, 39)]
+        message = '`a` and `b` must be callable.'
+        with pytest.raises(ValueError, match=message):
+            _continued_fraction(1, b1)
+        with pytest.raises(ValueError, match=message):
+            _continued_fraction(a1, 1)
 
-    assert cf_r([1, 6, 1, 8]) == Rational(71, 62)
-    assert cf_r([3]) == S(3)
-    assert cf_r([-1, 5, 1, 4]) == Rational(-24, 29)
-    assert (cf_r([0, 1, 1, 7, [24, 8]]) - (sqrt(3) + 2)/7).expand() == 0
-    assert cf_r([1, 5, 9]) == Rational(55, 46)
-    assert (cf_r([[1]]) - (sqrt(5) + 1)/2).expand() == 0
-    assert cf_r([-3, 1, 1, [2]]) == -1 - sqrt(2)
+        message = r'`eps` and `tiny` must be \(or represent the logarithm of\)...'
+        with pytest.raises(ValueError, match=message):
+            _continued_fraction(a1, b1, tolerances={'eps': -10})
+        with pytest.raises(ValueError, match=message):
+            _continued_fraction(a1, b1, tolerances={'eps': np.nan})
+        with pytest.raises(ValueError, match=message):
+            _continued_fraction(a1, b1, tolerances={'eps': 1+1j}, log=True)
+        with pytest.raises(ValueError, match=message):
+            _continued_fraction(a1, b1, tolerances={'tiny': 0})
+        with pytest.raises(ValueError, match=message):
+            _continued_fraction(a1, b1, tolerances={'tiny': np.inf})
+        with pytest.raises(ValueError, match=message):
+            _continued_fraction(a1, b1, tolerances={'tiny': np.inf}, log=True)
+        # this should not raise
+        kwargs = dict(args=xp.asarray(1.5+0j), log=True, maxiter=0)
+        _continued_fraction(a1, b1, tolerances={'eps': -10}, **kwargs)
+        _continued_fraction(a1, b1, tolerances={'tiny': -10}, **kwargs)
+
+        message = '`maxiter` must be a non-negative integer.'
+        with pytest.raises(ValueError, match=message):
+            _continued_fraction(a1, b1, maxiter=-1)
+
+        message = '`log` must be boolean.'
+        with pytest.raises(ValueError, match=message):
+            _continued_fraction(a1, b1, log=2)
+
+    @pytest.mark.parametrize('dtype', ['float32', 'float64', 'complex64', 'complex128'])
+    @pytest.mark.parametrize('shape', [(), (1,), (3,), (3, 2)])
+    def test_basic(self, shape, dtype, xp):
+        np_dtype = getattr(np, dtype)
+        xp_dtype = getattr(xp, dtype)
+        rng = np.random.default_rng(2435908729190400)
+
+        x = rng.random(shape).astype(np_dtype)
+        x = x + rng.random(shape).astype(np_dtype)*1j if dtype.startswith('c') else x
+        x = xp.asarray(x, dtype=xp_dtype)
+
+        res = _continued_fraction(self.a1, self.b1, args=(x,))
+        ref = xp.tan(x)
+        xp_assert_close(res.f, ref)
+
+    @pytest.mark.skip_xp_backends('torch', reason='pytorch/pytorch#136063')
+    @pytest.mark.parametrize('dtype', ['float32', 'float64'])
+    @pytest.mark.parametrize('shape', [(), (1,), (3,), (3, 2)])
+    def test_log(self, shape, dtype, xp):
+        np_dtype = getattr(np, dtype)
+        rng = np.random.default_rng(2435908729190400)
+        x = rng.random(shape).astype(np_dtype)
+        x = xp.asarray(x)
+
+        res = _continued_fraction(self.log_a1, self.log_b1, args=(x + 0j,), log=True)
+        ref = xp.tan(x)
+        xp_assert_close(xp.exp(xp.real(res.f)), ref)
+
+    def test_maxiter(self, xp):
+        rng = np.random.default_rng(2435908729190400)
+        x = xp.asarray(rng.random(), dtype=xp.float64)
+        ref = xp.tan(x)
+
+        res1 = _continued_fraction(self.a1, self.b1, args=(x,), maxiter=3)
+        assert res1.nit == 3
+
+        res2 = _continued_fraction(self.a1, self.b1, args=(x,), maxiter=6)
+        assert res2.nit == 6
+
+        xp_assert_less(xp.abs(res2.f - ref), xp.abs(res1.f - ref))
+
+    def test_eps(self, xp):
+        x = xp.asarray(1.5, dtype=xp.float64)  # x = 1.5 is the default defined above
+        ref = xp.tan(x)
+        res1 = _continued_fraction(self.a1, self.b1, args=(x,),
+                                   tolerances={'eps': 1e-6})
+        res2 = _continued_fraction(self.a1, self.b1, args=(x,))
+        xp_assert_less(res1.nit, res2.nit)
+        xp_assert_less(xp.abs(res2.f - ref), xp.abs(res1.f - ref))
+
+    def test_feval(self, xp):
+        def a(n, x):
+            a.nfev += 1
+            return n * x
+
+        def b(n, x):
+            b.nfev += 1
+            return n * x
+
+        a.nfev, b.nfev = 0, 0
+
+        res = _continued_fraction(a, b, args=(xp.asarray(1.),))
+        assert res.nfev == a.nfev == b.nfev == res.nit + 1
+
+    def test_status(self, xp):
+        x = xp.asarray([1, 10, np.nan], dtype=xp.float64)
+        res = _continued_fraction(self.a1, self.b1, args=(x,), maxiter=15)
+        xp_assert_equal(res.success, xp.asarray([True, False, False]))
+        xp_assert_equal(res.status, xp.asarray([0, -2, -3], dtype=xp.int32))
+
+    def test_special_cases(self, xp):
+        one = xp.asarray(1)
+        res = _continued_fraction(lambda x: one, lambda x: one, maxiter=0)
+        xp_assert_close(res.f, xp.asarray(1.))
+        assert res.nit == res.nfev - 1 == 0

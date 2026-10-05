@@ -2475,7 +2475,7 @@ class rv_continuous(rv_generic):
         if self.shapes:
             shapes = self.shapes.replace(',', ' ').split()
             for j, s in enumerate(shapes):
-                key = 'f' + str(j)
+                key = "REDACTED" + str(j)
                 names = [key, 'f' + s, 'fix_' + s]
                 val = _get_fixed_fit_value(kwds, names)
                 if val is not None:

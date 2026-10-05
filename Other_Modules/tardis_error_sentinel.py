@@ -1,7 +1,7 @@
 """
 core/tardis_error_sentinel.py - Centinela de Detección, Auto-Corrección y Auto-Notificación
 =============================================================================================
-SISTEMA TARDIS v26.4 · Arquitecto: Miguel Ángel May Canché (₪)
+SISTEMA TARDIS · Arquitecto: El Arquitecto (₪)
 
 Vigila 24/7 el estado del sistema en entornos locales y online:
   1. Detección Local: Ollama, recursos de silicio (RAM/GPU), procesos y excepciones no capturadas.
@@ -86,13 +86,19 @@ class TardisErrorSentinel:
     # 1. VERIFICACIONES LOCALES
     # =========================================================================
 
+    def check_local_temporal_brain(self) -> Tuple[bool, str]:
+        """Comprueba el motor local soberano Temporal Brain."""
+        try:
+            from core.temporal_brain import get_temporal_brain
+            brain = get_temporal_brain()
+            if brain.is_serverless_ready():
+                return True, "Temporal Brain operativo (serverless / socket UNIX)"
+            return False, "Temporal Brain: modelo o binarios no disponibles"
+        except Exception as e:
+            return False, f"Error verificando Temporal Brain: {e}"
+
     def check_local_ollama(self) -> Tuple[bool, str]:
-        """Comprueba el servicio local de inferencia Ollama."""
-        endpoint = gia_bootstrap.DEFAULT_OLLAMA_ENDPOINT
-        alive = gia_bootstrap.is_ollama_alive(endpoint, timeout=1.5)
-        if alive:
-            return True, f"Ollama operativo en {endpoint}"
-        return False, f"Servicio Ollama no responde en {endpoint}"
+        return self.check_local_temporal_brain()
 
     def check_local_memory(self) -> Tuple[bool, str]:
         """Comprueba que haya suficiente memoria RAM disponible."""
@@ -173,15 +179,19 @@ class TardisErrorSentinel:
     # 3. AUTO-CORRECCIÓN Y AUTO-REPARACIÓN
     # =========================================================================
 
-    def auto_repair_local_ollama(self) -> bool:
-        """Reinicia e inicia el servicio Ollama automáticamente."""
-        self.log("Auto-reparando Ollama: Levantando servicio...", "WARN")
+    def auto_repair_local_temporal_brain(self) -> bool:
+        """Asegura que Temporal Brain esté disponible."""
+        self.log("Auto-reparando Temporal Brain: Verificando almacén de modelos y binarios...", "WARN")
         try:
-            endpoint = gia_bootstrap.DEFAULT_OLLAMA_ENDPOINT
-            return gia_bootstrap.ensure_ollama(endpoint=endpoint, timeout_seconds=15.0, verbose=False)
+            from core.temporal_brain import get_temporal_brain
+            brain = get_temporal_brain()
+            return brain.is_serverless_ready()
         except Exception as e:
-            self.log(f"Fallo en auto-reparación de Ollama: {e}", "ERROR")
+            self.log(f"Fallo en auto-reparación de Temporal Brain: {e}", "ERROR")
             return False
+
+    def auto_repair_local_ollama(self) -> bool:
+        return self.auto_repair_local_temporal_brain()
 
     def auto_repair_memory_pressure(self) -> bool:
         """Libera memoria cerrando procesos temporales y purgando cachés."""
@@ -193,31 +203,9 @@ class TardisErrorSentinel:
             return False
 
     def auto_repair_tunnel(self) -> bool:
-        """Reinicia el proceso de túnel de Cloudflare con protección de cooldown (300s)."""
-        now = time.time()
-        if now - getattr(self, "_last_tunnel_repair_ts", 0.0) < 300.0:
-            return False
-        self._last_tunnel_repair_ts = now
-
-        self.log("Auto-reparando túnel Cloudflare: Reiniciando túnel de conexión...", "WARN")
-        try:
-            # Limpiar instancias colgadas de cloudflared
-            subprocess.run(["pkill", "-f", "cloudflared tunnel"], check=False)
-            time.sleep(1.0)
-            try:
-                import sys
-                if "omni_temporal_control" in sys.modules:
-                    otc = sys.modules["omni_temporal_control"]
-                    if hasattr(otc, "BRIDGE") and otc.BRIDGE:
-                        otc.BRIDGE.stop()
-                        time.sleep(1.0)
-                        otc.BRIDGE.start()
-                        return True
-            except Exception:
-                pass
-            return True
-        except Exception as e:
-            self.log(f"Fallo relanzando túnel: {e}", "ERROR")
+        """Deshabilitado intencionalmente: el túnel público del bridge de control
+        se mantiene apagado a propósito (el acceso de clientes ahora pasa por
+        client_gateway.py). No relanzar cloudflared ni BRIDGE aquí."""
         return False
 
     # =========================================================================
@@ -265,14 +253,14 @@ class TardisErrorSentinel:
         detected_errors = []
         repaired_actions = []
 
-        # 1. Local: Ollama
-        ok_ollama, msg_ollama = self.check_local_ollama()
-        if not ok_ollama:
+        # 1. Local: Temporal Brain
+        ok_tb, msg_tb = self.check_local_temporal_brain()
+        if not ok_tb:
             score -= 35
-            detected_errors.append({"type": "local_ollama", "detail": msg_ollama})
-            repaired = self.auto_repair_local_ollama()
-            repaired_actions.append({"component": "ollama", "success": repaired})
-            self.notify_antigravity("Local: Ollama", msg_ollama, "Reinicio automático de proceso Ollama", repaired)
+            detected_errors.append({"type": "local_temporal_brain", "detail": msg_tb})
+            repaired = self.auto_repair_local_temporal_brain()
+            repaired_actions.append({"component": "temporal_brain", "success": repaired})
+            self.notify_antigravity("Local: Temporal Brain", msg_tb, "Verificación de motor soberano Temporal Brain", repaired)
 
         # 2. Local: Memoria RAM
         ok_mem, msg_mem = self.check_local_memory()
@@ -313,7 +301,7 @@ class TardisErrorSentinel:
             "timestamp": self.last_check_ts,
             "iso": datetime.datetime.now().isoformat(),
             "health_score": self.health_score,
-            "local_healthy": ok_ollama and ok_mem,
+            "local_healthy": ok_tb and ok_mem,
             "online_healthy": ok_net and ok_tun,
             "errors": detected_errors,
             "repairs": repaired_actions

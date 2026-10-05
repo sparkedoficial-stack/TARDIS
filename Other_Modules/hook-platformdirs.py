@@ -1,27 +1,15 @@
-# ------------------------------------------------------------------
-# Copyright (c) 2021 PyInstaller Development Team.
+#-----------------------------------------------------------------------------
+# Copyright (c) 2024, PyInstaller Development Team.
 #
-# This file is distributed under the terms of the GNU General Public
-# License (version 2.0 or later).
+# Distributed under the terms of the GNU General Public License (version 2
+# or later) with exception for distributing the bootloader.
 #
-# The full license is available in LICENSE, distributed with
-# this software.
+# The full license is in the file COPYING.txt, distributed with this software.
 #
-# SPDX-License-Identifier: GPL-2.0-or-later
-# ------------------------------------------------------------------
+# SPDX-License-Identifier: (GPL-2.0-or-later WITH Bootloader-exception)
+#-----------------------------------------------------------------------------
 
-from PyInstaller.compat import is_darwin, is_win
-
-modules = ["platformdirs"]
-
-# platfromdirs contains dynamically loaded per-platform submodules.
-if is_darwin:
-    modules.append("platformdirs.macos")
-elif is_win:
-    modules.append("platformdirs.windows")
-else:
-    # default to unix for all other platforms
-    # this includes unix, cygwin, and msys2
-    modules.append("platformdirs.unix")
-
-hiddenimports = modules
+# This package/module might be provided by setuptools >= 71.0.0, which makes its vendored dependencies public by
+# appending path to its `setuptools._vendored` directory to `sys.path`. The following shared pre-safe-import-module
+# hook implementation checks whether this is the case, and sets up aliases to prevent duplicate collection.
+from PyInstaller.utils.hooks.setuptools import pre_safe_import_module  # noqa: F401

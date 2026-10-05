@@ -45,7 +45,7 @@ def _nbytes_full(fmt, nlines):
 
 class HBInfo:
     @classmethod
-    def from_data(cls, m, title="Default title", key="0", mxtype=None, fmt=None):
+    def from_data(cls, m, title="Default title", key = "REDACTED", mxtype=None, fmt=None):
         """Create a HBInfo instance from an existing sparse matrix.
 
         Parameters

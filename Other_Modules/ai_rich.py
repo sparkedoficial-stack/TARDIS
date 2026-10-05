@@ -395,7 +395,7 @@ def _build_table_metadata(table: list[list[str]]):
 
 
 def _new_layout(name: str, data: Any) -> dict:
-    key = "primitives" if isinstance(data, list) else "primitive"
+    key = "REDACTED" if isinstance(data, list) else "primitive"
     return {"view_model": {key: data, "__typename": f"GenAI{name}LayoutViewModel"}}
 
 

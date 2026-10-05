@@ -1,1197 +1,768 @@
-"""Various low level data validators."""
-
-from __future__ import annotations
-
-import calendar
-from collections.abc import Mapping, Sequence
-from io import open
-
-import fontTools.misc.filesystem as fs
-from typing import Any, Type, Optional, Union
-
-from fontTools.annotations import IntFloat
-from fontTools.ufoLib.utils import numberTypes
-
-GenericDict = dict[str, tuple[Union[type, tuple[Type[Any], ...]], bool]]
-
-# -------
-# Generic
-# -------
-
-
-def isDictEnough(value: Any) -> bool:
-    """
-    Some objects will likely come in that aren't
-    dicts but are dict-ish enough.
-    """
-    if isinstance(value, Mapping):
-        return True
-    for attr in ("keys", "values", "items"):
-        if not hasattr(value, attr):
-            return False
-    return True
-
-
-def genericTypeValidator(value: Any, typ: Type[Any]) -> bool:
-    """
-    Generic. (Added at version 2.)
-    """
-    return isinstance(value, typ)
-
-
-def genericIntListValidator(values: Any, validValues: Sequence[int]) -> bool:
-    """
-    Generic. (Added at version 2.)
-    """
-    if not isinstance(values, (list, tuple)):
-        return False
-    valuesSet = set(values)
-    validValuesSet = set(validValues)
-    if valuesSet - validValuesSet:
-        return False
-    for value in values:
-        if not isinstance(value, int):
-            return False
-    return True
-
-
-def genericNonNegativeIntValidator(value: Any) -> bool:
-    """
-    Generic. (Added at version 3.)
-    """
-    if not isinstance(value, int):
-        return False
-    if value < 0:
-        return False
-    return True
-
-
-def genericNonNegativeNumberValidator(value: Any) -> bool:
-    """
-    Generic. (Added at version 3.)
-    """
-    if not isinstance(value, numberTypes):
-        return False
-    if value < 0:
-        return False
-    return True
-
-
-def genericDictValidator(value: Any, prototype: GenericDict) -> bool:
-    """
-    Generic. (Added at version 3.)
-    """
-    # not a dict
-    if not isinstance(value, Mapping):
-        return False
-    # missing required keys
-    for key, (typ, required) in prototype.items():
-        if not required:
-            continue
-        if key not in value:
-            return False
-    # unknown keys
-    for key in value.keys():
-        if key not in prototype:
-            return False
-    # incorrect types
-    for key, v in value.items():
-        prototypeType, required = prototype[key]
-        if v is None and not required:
-            continue
-        if not isinstance(v, prototypeType):
-            return False
-    return True
-
-
-# --------------
-# fontinfo.plist
-# --------------
-
-# Data Validators
-
-
-def fontInfoStyleMapStyleNameValidator(value: Any) -> bool:
-    """
-    Version 2+.
-    """
-    options = ["regular", "italic", "bold", "bold italic"]
-    return value in options
-
-
-def fontInfoOpenTypeGaspRangeRecordsValidator(value: Any) -> bool:
-    """
-    Version 3+.
-    """
-    if not isinstance(value, list):
-        return False
-    if len(value) == 0:
-        return True
-    validBehaviors = [0, 1, 2, 3]
-    dictPrototype: GenericDict = dict(
-        rangeMaxPPEM=(int, True), rangeGaspBehavior=(list, True)
-    )
-    ppemOrder = []
-    for rangeRecord in value:
-        if not genericDictValidator(rangeRecord, dictPrototype):
-            return False
-        ppem = rangeRecord["rangeMaxPPEM"]
-        behavior = rangeRecord["rangeGaspBehavior"]
-        ppemValidity = genericNonNegativeIntValidator(ppem)
-        if not ppemValidity:
-            return False
-        behaviorValidity = genericIntListValidator(behavior, validBehaviors)
-        if not behaviorValidity:
-            return False
-        ppemOrder.append(ppem)
-    if ppemOrder != sorted(ppemOrder):
-        return False
-    return True
-
-
-def fontInfoOpenTypeHeadCreatedValidator(value: Any) -> bool:
-    """
-    Version 2+.
-    """
-    # format: 0000/00/00 00:00:00
-    if not isinstance(value, str):
-        return False
-    # basic formatting
-    if not len(value) == 19:
-        return False
-    if value.count(" ") != 1:
-        return False
-    strDate, strTime = value.split(" ")
-    if strDate.count("/") != 2:
-        return False
-    if strTime.count(":") != 2:
-        return False
-    # date
-    strYear, strMonth, strDay = strDate.split("/")
-    if len(strYear) != 4:
-        return False
-    if len(strMonth) != 2:
-        return False
-    if len(strDay) != 2:
-        return False
-    try:
-        intYear = int(strYear)
-        intMonth = int(strMonth)
-        intDay = int(strDay)
-    except ValueError:
-        return False
-    if intMonth < 1 or intMonth > 12:
-        return False
-    monthMaxDay = calendar.monthrange(intYear, intMonth)[1]
-    if intDay < 1 or intDay > monthMaxDay:
-        return False
-    # time
-    strHour, strMinute, strSecond = strTime.split(":")
-    if len(strHour) != 2:
-        return False
-    if len(strMinute) != 2:
-        return False
-    if len(strSecond) != 2:
-        return False
-    try:
-        intHour = int(strHour)
-        intMinute = int(strMinute)
-        intSecond = int(strSecond)
-    except ValueError:
-        return False
-    if intHour < 0 or intHour > 23:
-        return False
-    if intMinute < 0 or intMinute > 59:
-        return False
-    if intSecond < 0 or intSecond > 59:
-        return False
-    # fallback
-    return True
-
-
-def fontInfoOpenTypeNameRecordsValidator(value: Any) -> bool:
-    """
-    Version 3+.
-    """
-    if not isinstance(value, list):
-        return False
-    dictPrototype: GenericDict = dict(
-        nameID=(int, True),
-        platformID=(int, True),
-        encodingID=(int, True),
-        languageID=(int, True),
-        string=(str, True),
-    )
-    for nameRecord in value:
-        if not genericDictValidator(nameRecord, dictPrototype):
-            return False
-    return True
-
-
-def fontInfoOpenTypeOS2WeightClassValidator(value: Any) -> bool:
-    """
-    Version 2+.
-    """
-    if not isinstance(value, int):
-        return False
-    if value < 0:
-        return False
-    return True
-
-
-def fontInfoOpenTypeOS2WidthClassValidator(value: Any) -> bool:
-    """
-    Version 2+.
-    """
-    if not isinstance(value, int):
-        return False
-    if value < 1:
-        return False
-    if value > 9:
-        return False
-    return True
-
-
-def fontInfoVersion2OpenTypeOS2PanoseValidator(values: Any) -> bool:
-    """
-    Version 2.
-    """
-    if not isinstance(values, (list, tuple)):
-        return False
-    if len(values) != 10:
-        return False
-    for value in values:
-        if not isinstance(value, int):
-            return False
-    # XXX further validation?
-    return True
-
-
-def fontInfoVersion3OpenTypeOS2PanoseValidator(values: Any) -> bool:
-    """
-    Version 3+.
-    """
-    if not isinstance(values, (list, tuple)):
-        return False
-    if len(values) != 10:
-        return False
-    for value in values:
-        if not isinstance(value, int):
-            return False
-        if value < 0:
-            return False
-    # XXX further validation?
-    return True
-
-
-def fontInfoOpenTypeOS2FamilyClassValidator(values: Any) -> bool:
-    """
-    Version 2+.
-    """
-    if not isinstance(values, (list, tuple)):
-        return False
-    if len(values) != 2:
-        return False
-    for value in values:
-        if not isinstance(value, int):
-            return False
-    classID, subclassID = values
-    if classID < 0 or classID > 14:
-        return False
-    if subclassID < 0 or subclassID > 15:
-        return False
-    return True
-
-
-def fontInfoPostscriptBluesValidator(values: Any) -> bool:
-    """
-    Version 2+.
-    """
-    if not isinstance(values, (list, tuple)):
-        return False
-    if len(values) > 14:
-        return False
-    if len(values) % 2:
-        return False
-    for value in values:
-        if not isinstance(value, numberTypes):
-            return False
-    return True
-
-
-def fontInfoPostscriptOtherBluesValidator(values: Any) -> bool:
-    """
-    Version 2+.
-    """
-    if not isinstance(values, (list, tuple)):
-        return False
-    if len(values) > 10:
-        return False
-    if len(values) % 2:
-        return False
-    for value in values:
-        if not isinstance(value, numberTypes):
-            return False
-    return True
-
-
-def fontInfoPostscriptStemsValidator(values: Any) -> bool:
-    """
-    Version 2+.
-    """
-    if not isinstance(values, (list, tuple)):
-        return False
-    if len(values) > 12:
-        return False
-    for value in values:
-        if not isinstance(value, numberTypes):
-            return False
-    return True
-
-
-def fontInfoPostscriptWindowsCharacterSetValidator(value: Any) -> bool:
-    """
-    Version 2+.
-    """
-    validValues = list(range(1, 21))
-    if value not in validValues:
-        return False
-    return True
-
-
-def fontInfoWOFFMetadataUniqueIDValidator(value: Any) -> bool:
-    """
-    Version 3+.
-    """
-    dictPrototype: GenericDict = dict(id=(str, True))
-    if not genericDictValidator(value, dictPrototype):
-        return False
-    return True
-
-
-def fontInfoWOFFMetadataVendorValidator(value: Any) -> bool:
-    """
-    Version 3+.
-    """
-    dictPrototype: GenericDict = {
-        "name": (str, True),
-        "url": (str, False),
-        "dir": (str, False),
-        "class": (str, False),
-    }
-    if not genericDictValidator(value, dictPrototype):
-        return False
-    if "dir" in value and value.get("dir") not in ("ltr", "rtl"):
-        return False
-    return True
-
-
-def fontInfoWOFFMetadataCreditsValidator(value: Any) -> bool:
-    """
-    Version 3+.
-    """
-    dictPrototype: GenericDict = dict(credits=(list, True))
-    if not genericDictValidator(value, dictPrototype):
-        return False
-    if not len(value["credits"]):
-        return False
-    dictPrototype = {
-        "name": (str, True),
-        "url": (str, False),
-        "role": (str, False),
-        "dir": (str, False),
-        "class": (str, False),
-    }
-    for credit in value["credits"]:
-        if not genericDictValidator(credit, dictPrototype):
-            return False
-        if "dir" in credit and credit.get("dir") not in ("ltr", "rtl"):
-            return False
-    return True
-
-
-def fontInfoWOFFMetadataDescriptionValidator(value: Any) -> bool:
-    """
-    Version 3+.
-    """
-    dictPrototype: GenericDict = dict(url=(str, False), text=(list, True))
-    if not genericDictValidator(value, dictPrototype):
-        return False
-    for text in value["text"]:
-        if not fontInfoWOFFMetadataTextValue(text):
-            return False
-    return True
-
-
-def fontInfoWOFFMetadataLicenseValidator(value: Any) -> bool:
-    """
-    Version 3+.
-    """
-    dictPrototype: GenericDict = dict(
-        url=(str, False), text=(list, False), id=(str, False)
-    )
-    if not genericDictValidator(value, dictPrototype):
-        return False
-    if "text" in value:
-        for text in value["text"]:
-            if not fontInfoWOFFMetadataTextValue(text):
-                return False
-    return True
-
-
-def fontInfoWOFFMetadataTrademarkValidator(value: Any) -> bool:
-    """
-    Version 3+.
-    """
-    dictPrototype: GenericDict = dict(text=(list, True))
-    if not genericDictValidator(value, dictPrototype):
-        return False
-    for text in value["text"]:
-        if not fontInfoWOFFMetadataTextValue(text):
-            return False
-    return True
-
-
-def fontInfoWOFFMetadataCopyrightValidator(value: Any) -> bool:
-    """
-    Version 3+.
-    """
-    dictPrototype: GenericDict = dict(text=(list, True))
-    if not genericDictValidator(value, dictPrototype):
-        return False
-    for text in value["text"]:
-        if not fontInfoWOFFMetadataTextValue(text):
-            return False
-    return True
-
-
-def fontInfoWOFFMetadataLicenseeValidator(value: Any) -> bool:
-    """
-    Version 3+.
-    """
-    dictPrototype: GenericDict = {
-        "name": (str, True),
-        "dir": (str, False),
-        "class": (str, False),
-    }
-    if not genericDictValidator(value, dictPrototype):
-        return False
-    if "dir" in value and value.get("dir") not in ("ltr", "rtl"):
-        return False
-    return True
-
-
-def fontInfoWOFFMetadataTextValue(value: Any) -> bool:
-    """
-    Version 3+.
-    """
-    dictPrototype: GenericDict = {
-        "text": (str, True),
-        "language": (str, False),
-        "dir": (str, False),
-        "class": (str, False),
-    }
-    if not genericDictValidator(value, dictPrototype):
-        return False
-    if "dir" in value and value.get("dir") not in ("ltr", "rtl"):
-        return False
-    return True
-
-
-def fontInfoWOFFMetadataExtensionsValidator(value: Any) -> bool:
-    """
-    Version 3+.
-    """
-    if not isinstance(value, list):
-        return False
-    if not value:
-        return False
-    for extension in value:
-        if not fontInfoWOFFMetadataExtensionValidator(extension):
-            return False
-    return True
-
-
-def fontInfoWOFFMetadataExtensionValidator(value: Any) -> bool:
-    """
-    Version 3+.
-    """
-    dictPrototype: GenericDict = dict(
-        names=(list, False), items=(list, True), id=(str, False)
-    )
-    if not genericDictValidator(value, dictPrototype):
-        return False
-    if "names" in value:
-        for name in value["names"]:
-            if not fontInfoWOFFMetadataExtensionNameValidator(name):
-                return False
-    for item in value["items"]:
-        if not fontInfoWOFFMetadataExtensionItemValidator(item):
-            return False
-    return True
-
-
-def fontInfoWOFFMetadataExtensionItemValidator(value: Any) -> bool:
-    """
-    Version 3+.
-    """
-    dictPrototype: GenericDict = dict(
-        id=(str, False), names=(list, True), values=(list, True)
-    )
-    if not genericDictValidator(value, dictPrototype):
-        return False
-    for name in value["names"]:
-        if not fontInfoWOFFMetadataExtensionNameValidator(name):
-            return False
-    for val in value["values"]:
-        if not fontInfoWOFFMetadataExtensionValueValidator(val):
-            return False
-    return True
-
-
-def fontInfoWOFFMetadataExtensionNameValidator(value: Any) -> bool:
-    """
-    Version 3+.
-    """
-    dictPrototype: GenericDict = {
-        "text": (str, True),
-        "language": (str, False),
-        "dir": (str, False),
-        "class": (str, False),
-    }
-    if not genericDictValidator(value, dictPrototype):
-        return False
-    if "dir" in value and value.get("dir") not in ("ltr", "rtl"):
-        return False
-    return True
-
-
-def fontInfoWOFFMetadataExtensionValueValidator(value: Any) -> bool:
-    """
-    Version 3+.
-    """
-    dictPrototype: GenericDict = {
-        "text": (str, True),
-        "language": (str, False),
-        "dir": (str, False),
-        "class": (str, False),
-    }
-    if not genericDictValidator(value, dictPrototype):
-        return False
-    if "dir" in value and value.get("dir") not in ("ltr", "rtl"):
-        return False
-    return True
-
-
-# ----------
-# Guidelines
-# ----------
-
-
-def guidelinesValidator(value: Any, identifiers: Optional[set[str]] = None) -> bool:
-    """
-    Version 3+.
-    """
-    if not isinstance(value, list):
-        return False
-    if identifiers is None:
-        identifiers = set()
-    for guide in value:
-        if not guidelineValidator(guide):
-            return False
-        identifier = guide.get("identifier")
-        if identifier is not None:
-            if identifier in identifiers:
-                return False
-            identifiers.add(identifier)
-    return True
-
-
-_guidelineDictPrototype: GenericDict = dict(
-    x=((int, float), False),
-    y=((int, float), False),
-    angle=((int, float), False),
-    name=(str, False),
-    color=(str, False),
-    identifier=(str, False),
+import math
+import re
+from collections import OrderedDict, deque
+from collections.abc import Hashable as CollectionsHashable
+from datetime import date, datetime, time, timedelta
+from decimal import Decimal, DecimalException
+from enum import Enum, IntEnum
+from ipaddress import IPv4Address, IPv4Interface, IPv4Network, IPv6Address, IPv6Interface, IPv6Network
+from pathlib import Path
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Deque,
+    Dict,
+    ForwardRef,
+    FrozenSet,
+    Generator,
+    Hashable,
+    List,
+    NamedTuple,
+    Pattern,
+    Set,
+    Tuple,
+    Type,
+    TypeVar,
+    Union,
 )
+from uuid import UUID
+from warnings import warn
 
-
-def guidelineValidator(value: Any) -> bool:
-    """
-    Version 3+.
-    """
-    if not genericDictValidator(value, _guidelineDictPrototype):
-        return False
-
-    angle = value.get("angle")
-    # angle must be between 0 and 360
-    if angle is not None:
-        if angle < 0:
-            return False
-        if angle > 360:
-            return False
-    # identifier must be 1 or more characters
-    identifier = value.get("identifier")
-    if identifier is not None and not identifierValidator(identifier):
-        return False
-    # color must follow the proper format
-    color = value.get("color")
-    if color is not None and not colorValidator(color):
-        return False
-    return True
-
-
-# -------
-# Anchors
-# -------
-
-
-def anchorsValidator(value: Any, identifiers: Optional[set[str]] = None) -> bool:
-    """
-    Version 3+.
-    """
-    if not isinstance(value, list):
-        return False
-    if identifiers is None:
-        identifiers = set()
-    for anchor in value:
-        if not anchorValidator(anchor):
-            return False
-        identifier = anchor.get("identifier")
-        if identifier is not None:
-            if identifier in identifiers:
-                return False
-            identifiers.add(identifier)
-    return True
-
-
-_anchorDictPrototype: GenericDict = dict(
-    x=((int, float), False),
-    y=((int, float), False),
-    name=(str, False),
-    color=(str, False),
-    identifier=(str, False),
+from pydantic.v1 import errors
+from pydantic.v1.datetime_parse import parse_date, parse_datetime, parse_duration, parse_time
+from pydantic.v1.typing import (
+    AnyCallable,
+    all_literal_values,
+    display_as_type,
+    get_class,
+    is_callable_type,
+    is_literal_type,
+    is_namedtuple,
+    is_none_type,
+    is_typeddict,
 )
+from pydantic.v1.utils import almost_equal_floats, lenient_issubclass, sequence_like
+
+if TYPE_CHECKING:
+    from typing_extensions import Literal, TypedDict
+
+    from pydantic.v1.config import BaseConfig
+    from pydantic.v1.fields import ModelField
+    from pydantic.v1.types import ConstrainedDecimal, ConstrainedFloat, ConstrainedInt
+
+    ConstrainedNumber = Union[ConstrainedDecimal, ConstrainedFloat, ConstrainedInt]
+    AnyOrderedDict = OrderedDict[Any, Any]
+    Number = Union[int, float, Decimal]
+    StrBytes = Union[str, bytes]
 
 
-def anchorValidator(value: Any) -> bool:
-    """
-    Version 3+.
-    """
-    if not genericDictValidator(value, _anchorDictPrototype):
-        return False
-    x = value.get("x")
-    y = value.get("y")
-    # x and y must be present
-    if x is None or y is None:
-        return False
-    # identifier must be 1 or more characters
-    identifier = value.get("identifier")
-    if identifier is not None and not identifierValidator(identifier):
-        return False
-    # color must follow the proper format
-    color = value.get("color")
-    if color is not None and not colorValidator(color):
-        return False
-    return True
-
-
-# ----------
-# Identifier
-# ----------
-
-
-def identifierValidator(value: Any) -> bool:
-    """
-    Version 3+.
-
-    >>> identifierValidator("a")
-    True
-    >>> identifierValidator("")
-    False
-    >>> identifierValidator("a" * 101)
-    False
-    """
-    validCharactersMin = 0x20
-    validCharactersMax = 0x7E
-    if not isinstance(value, str):
-        return False
-    if not value:
-        return False
-    if len(value) > 100:
-        return False
-    for c in value:
-        i = ord(c)
-        if i < validCharactersMin or i > validCharactersMax:
-            return False
-    return True
-
-
-# -----
-# Color
-# -----
-
-
-def colorValidator(value: Any) -> bool:
-    """
-    Version 3+.
-
-    >>> colorValidator("0,0,0,0")
-    True
-    >>> colorValidator(".5,.5,.5,.5")
-    True
-    >>> colorValidator("0.5,0.5,0.5,0.5")
-    True
-    >>> colorValidator("1,1,1,1")
-    True
-
-    >>> colorValidator("2,0,0,0")
-    False
-    >>> colorValidator("0,2,0,0")
-    False
-    >>> colorValidator("0,0,2,0")
-    False
-    >>> colorValidator("0,0,0,2")
-    False
-
-    >>> colorValidator("1r,1,1,1")
-    False
-    >>> colorValidator("1,1g,1,1")
-    False
-    >>> colorValidator("1,1,1b,1")
-    False
-    >>> colorValidator("1,1,1,1a")
-    False
-
-    >>> colorValidator("1 1 1 1")
-    False
-    >>> colorValidator("1 1,1,1")
-    False
-    >>> colorValidator("1,1 1,1")
-    False
-    >>> colorValidator("1,1,1 1")
-    False
-
-    >>> colorValidator("1, 1, 1, 1")
-    True
-    """
-    if not isinstance(value, str):
-        return False
-    parts = value.split(",")
-    if len(parts) != 4:
-        return False
-    for part in parts:
-        part = part.strip()
-        converted = False
-        number: IntFloat
-        try:
-            number = int(part)
-            converted = True
-        except ValueError:
-            pass
-        if not converted:
-            try:
-                number = float(part)
-                converted = True
-            except ValueError:
-                pass
-        if not converted:
-            return False
-        if not 0 <= number <= 1:
-            return False
-    return True
-
-
-# -----
-# image
-# -----
-
-pngSignature: bytes = b"\x89PNG\r\n\x1a\n"
-
-_imageDictPrototype: GenericDict = dict(
-    fileName=(str, True),
-    xScale=((int, float), False),
-    xyScale=((int, float), False),
-    yxScale=((int, float), False),
-    yScale=((int, float), False),
-    xOffset=((int, float), False),
-    yOffset=((int, float), False),
-    color=(str, False),
-)
-
-
-def imageValidator(value):
-    """
-    Version 3+.
-    """
-    if not genericDictValidator(value, _imageDictPrototype):
-        return False
-    # fileName must be one or more characters
-    if not value["fileName"]:
-        return False
-    # color must follow the proper format
-    color = value.get("color")
-    if color is not None and not colorValidator(color):
-        return False
-    return True
-
-
-def pngValidator(
-    path: Optional[str] = None,
-    data: Optional[bytes] = None,
-    fileObj: Optional[Any] = None,
-) -> tuple[bool, Any]:
-    """
-    Version 3+.
-
-    This checks the signature of the image data.
-    """
-    assert path is not None or data is not None or fileObj is not None
-    if path is not None:
-        with open(path, "rb") as f:
-            signature = f.read(8)
-    elif data is not None:
-        signature = data[:8]
-    elif fileObj is not None:
-        pos = fileObj.tell()
-        signature = fileObj.read(8)
-        fileObj.seek(pos)
-    if signature != pngSignature:
-        return False, "Image does not begin with the PNG signature."
-    return True, None
-
-
-# -------------------
-# layercontents.plist
-# -------------------
-
-
-def layerContentsValidator(
-    value: Any, ufoPathOrFileSystem: Union[str, fs.base.FS]
-) -> tuple[bool, Optional[str]]:
-    """
-    Check the validity of layercontents.plist.
-    Version 3+.
-    """
-    if isinstance(ufoPathOrFileSystem, fs.base.FS):
-        fileSystem = ufoPathOrFileSystem
+def str_validator(v: Any) -> Union[str]:
+    if isinstance(v, str):
+        if isinstance(v, Enum):
+            return v.value
+        else:
+            return v
+    elif isinstance(v, (float, int, Decimal)):
+        # is there anything else we want to add here? If you think so, create an issue.
+        return str(v)
+    elif isinstance(v, (bytes, bytearray)):
+        return v.decode()
     else:
-        fileSystem = fs.osfs.OSFS(ufoPathOrFileSystem)
-
-    bogusFileMessage = "layercontents.plist in not in the correct format."
-    # file isn't in the right format
-    if not isinstance(value, list):
-        return False, bogusFileMessage
-    # work through each entry
-    usedLayerNames = set()
-    usedDirectories = set()
-    contents = {}
-    for entry in value:
-        # layer entry in the incorrect format
-        if not isinstance(entry, list):
-            return False, bogusFileMessage
-        if not len(entry) == 2:
-            return False, bogusFileMessage
-        for i in entry:
-            if not isinstance(i, str):
-                return False, bogusFileMessage
-        layerName, directoryName = entry
-        # check directory naming
-        if directoryName != "glyphs":
-            if not directoryName.startswith("glyphs."):
-                return (
-                    False,
-                    "Invalid directory name (%s) in layercontents.plist."
-                    % directoryName,
-                )
-        if len(layerName) == 0:
-            return False, "Empty layer name in layercontents.plist."
-        # directory doesn't exist
-        if not fileSystem.exists(directoryName):
-            return False, "A glyphset does not exist at %s." % directoryName
-        # default layer name
-        if layerName == "public.default" and directoryName != "glyphs":
-            return (
-                False,
-                "The name public.default is being used by a layer that is not the default.",
-            )
-        # check usage
-        if layerName in usedLayerNames:
-            return (
-                False,
-                "The layer name %s is used by more than one layer." % layerName,
-            )
-        usedLayerNames.add(layerName)
-        if directoryName in usedDirectories:
-            return (
-                False,
-                "The directory %s is used by more than one layer." % directoryName,
-            )
-        usedDirectories.add(directoryName)
-        # store
-        contents[layerName] = directoryName
-    # missing default layer
-    foundDefault = "glyphs" in contents.values()
-    if not foundDefault:
-        return False, "The required default glyph set is not in the UFO."
-    return True, None
+        raise errors.StrError()
 
 
-# ------------
-# groups.plist
-# ------------
+def strict_str_validator(v: Any) -> Union[str]:
+    if isinstance(v, str) and not isinstance(v, Enum):
+        return v
+    raise errors.StrError()
 
 
-def groupsValidator(value: Any) -> tuple[bool, Optional[str]]:
+def bytes_validator(v: Any) -> Union[bytes]:
+    if isinstance(v, bytes):
+        return v
+    elif isinstance(v, bytearray):
+        return bytes(v)
+    elif isinstance(v, str):
+        return v.encode()
+    elif isinstance(v, (float, int, Decimal)):
+        return str(v).encode()
+    else:
+        raise errors.BytesError()
+
+
+def strict_bytes_validator(v: Any) -> Union[bytes]:
+    if isinstance(v, bytes):
+        return v
+    elif isinstance(v, bytearray):
+        return bytes(v)
+    else:
+        raise errors.BytesError()
+
+
+BOOL_FALSE = {0, '0', 'off', 'f', 'false', 'n', 'no'}
+BOOL_TRUE = {1, '1', 'on', 't', 'true', 'y', 'yes'}
+
+
+def bool_validator(v: Any) -> bool:
+    if v is True or v is False:
+        return v
+    if isinstance(v, bytes):
+        v = v.decode()
+    if isinstance(v, str):
+        v = v.lower()
+    try:
+        if v in BOOL_TRUE:
+            return True
+        if v in BOOL_FALSE:
+            return False
+    except TypeError:
+        raise errors.BoolError()
+    raise errors.BoolError()
+
+
+# matches the default limit cpython, see https://github.com/python/cpython/pull/96500
+max_str_int = 4_300
+
+
+def int_validator(v: Any) -> int:
+    if isinstance(v, int) and not (v is True or v is False):
+        return v
+
+    # see https://github.com/pydantic/pydantic/issues/1477 and in turn, https://github.com/python/cpython/issues/95778
+    # this check should be unnecessary once patch releases are out for 3.7, 3.8, 3.9 and 3.10
+    # but better to check here until then.
+    # NOTICE: this does not fully protect user from the DOS risk since the standard library JSON implementation
+    # (and other std lib modules like xml) use `int()` and are likely called before this, the best workaround is to
+    # 1. update to the latest patch release of python once released, 2. use a different JSON library like ujson
+    if isinstance(v, (str, bytes, bytearray)) and len(v) > max_str_int:
+        raise errors.IntegerError()
+
+    try:
+        return int(v)
+    except (TypeError, ValueError, OverflowError):
+        raise errors.IntegerError()
+
+
+def strict_int_validator(v: Any) -> int:
+    if isinstance(v, int) and not (v is True or v is False):
+        return v
+    raise errors.IntegerError()
+
+
+def float_validator(v: Any) -> float:
+    if isinstance(v, float):
+        return v
+
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        raise errors.FloatError()
+
+
+def strict_float_validator(v: Any) -> float:
+    if isinstance(v, float):
+        return v
+    raise errors.FloatError()
+
+
+def float_finite_validator(v: 'Number', field: 'ModelField', config: 'BaseConfig') -> 'Number':
+    allow_inf_nan = getattr(field.type_, 'allow_inf_nan', None)
+    if allow_inf_nan is None:
+        allow_inf_nan = config.allow_inf_nan
+
+    if allow_inf_nan is False and (math.isnan(v) or math.isinf(v)):
+        raise errors.NumberNotFiniteError()
+    return v
+
+
+def number_multiple_validator(v: 'Number', field: 'ModelField') -> 'Number':
+    field_type: ConstrainedNumber = field.type_
+    if field_type.multiple_of is not None:
+        mod = float(v) / float(field_type.multiple_of) % 1
+        if not almost_equal_floats(mod, 0.0) and not almost_equal_floats(mod, 1.0):
+            raise errors.NumberNotMultipleError(multiple_of=field_type.multiple_of)
+    return v
+
+
+def number_size_validator(v: 'Number', field: 'ModelField') -> 'Number':
+    field_type: ConstrainedNumber = field.type_
+    if field_type.gt is not None and not v > field_type.gt:
+        raise errors.NumberNotGtError(limit_value=field_type.gt)
+    elif field_type.ge is not None and not v >= field_type.ge:
+        raise errors.NumberNotGeError(limit_value=field_type.ge)
+
+    if field_type.lt is not None and not v < field_type.lt:
+        raise errors.NumberNotLtError(limit_value=field_type.lt)
+    if field_type.le is not None and not v <= field_type.le:
+        raise errors.NumberNotLeError(limit_value=field_type.le)
+
+    return v
+
+
+def constant_validator(v: 'Any', field: 'ModelField') -> 'Any':
+    """Validate ``const`` fields.
+
+    The value provided for a ``const`` field must be equal to the default value
+    of the field. This is to support the keyword of the same name in JSON
+    Schema.
     """
-    Check the validity of the groups.
-    Version 3+ (though it's backwards compatible with UFO 1 and UFO 2).
+    if v != field.default:
+        raise errors.WrongConstantError(given=v, permitted=[field.default])
 
-    >>> groups = {"A" : ["A", "A"], "A2" : ["A"]}
-    >>> groupsValidator(groups)
-    (True, None)
+    return v
 
-    >>> groups = {"" : ["A"]}
-    >>> valid, msg = groupsValidator(groups)
-    >>> valid
-    False
-    >>> print(msg)
-    A group has an empty name.
 
-    >>> groups = {"public.awesome" : ["A"]}
-    >>> groupsValidator(groups)
-    (True, None)
+def anystr_length_validator(v: 'StrBytes', config: 'BaseConfig') -> 'StrBytes':
+    v_len = len(v)
 
-    >>> groups = {"public.kern1." : ["A"]}
-    >>> valid, msg = groupsValidator(groups)
-    >>> valid
-    False
-    >>> print(msg)
-    The group data contains a kerning group with an incomplete name.
-    >>> groups = {"public.kern2." : ["A"]}
-    >>> valid, msg = groupsValidator(groups)
-    >>> valid
-    False
-    >>> print(msg)
-    The group data contains a kerning group with an incomplete name.
+    min_length = config.min_anystr_length
+    if v_len < min_length:
+        raise errors.AnyStrMinLengthError(limit_value=min_length)
 
-    >>> groups = {"public.kern1.A" : ["A"], "public.kern2.A" : ["A"]}
-    >>> groupsValidator(groups)
-    (True, None)
+    max_length = config.max_anystr_length
+    if max_length is not None and v_len > max_length:
+        raise errors.AnyStrMaxLengthError(limit_value=max_length)
 
-    >>> groups = {"public.kern1.A1" : ["A"], "public.kern1.A2" : ["A"]}
-    >>> valid, msg = groupsValidator(groups)
-    >>> valid
-    False
-    >>> print(msg)
-    The glyph "A" occurs in too many kerning groups.
+    return v
+
+
+def anystr_strip_whitespace(v: 'StrBytes') -> 'StrBytes':
+    return v.strip()
+
+
+def anystr_upper(v: 'StrBytes') -> 'StrBytes':
+    return v.upper()
+
+
+def anystr_lower(v: 'StrBytes') -> 'StrBytes':
+    return v.lower()
+
+
+def ordered_dict_validator(v: Any) -> 'AnyOrderedDict':
+    if isinstance(v, OrderedDict):
+        return v
+
+    try:
+        return OrderedDict(v)
+    except (TypeError, ValueError):
+        raise errors.DictError()
+
+
+def dict_validator(v: Any) -> Dict[Any, Any]:
+    if isinstance(v, dict):
+        return v
+
+    try:
+        return dict(v)
+    except (TypeError, ValueError):
+        raise errors.DictError()
+
+
+def list_validator(v: Any) -> List[Any]:
+    if isinstance(v, list):
+        return v
+    elif sequence_like(v):
+        return list(v)
+    else:
+        raise errors.ListError()
+
+
+def tuple_validator(v: Any) -> Tuple[Any, ...]:
+    if isinstance(v, tuple):
+        return v
+    elif sequence_like(v):
+        return tuple(v)
+    else:
+        raise errors.TupleError()
+
+
+def set_validator(v: Any) -> Set[Any]:
+    if isinstance(v, set):
+        return v
+    elif sequence_like(v):
+        return set(v)
+    else:
+        raise errors.SetError()
+
+
+def frozenset_validator(v: Any) -> FrozenSet[Any]:
+    if isinstance(v, frozenset):
+        return v
+    elif sequence_like(v):
+        return frozenset(v)
+    else:
+        raise errors.FrozenSetError()
+
+
+def deque_validator(v: Any) -> Deque[Any]:
+    if isinstance(v, deque):
+        return v
+    elif sequence_like(v):
+        return deque(v)
+    else:
+        raise errors.DequeError()
+
+
+def enum_member_validator(v: Any, field: 'ModelField', config: 'BaseConfig') -> Enum:
+    try:
+        enum_v = field.type_(v)
+    except ValueError:
+        # field.type_ should be an enum, so will be iterable
+        raise errors.EnumMemberError(enum_values=list(field.type_))
+    return enum_v.value if config.use_enum_values else enum_v
+
+
+def uuid_validator(v: Any, field: 'ModelField') -> UUID:
+    try:
+        if isinstance(v, str):
+            v = UUID(v)
+        elif isinstance(v, (bytes, bytearray)):
+            try:
+                v = UUID(v.decode())
+            except ValueError:
+                # 16 bytes in big-endian order as the bytes argument fail
+                # the above check
+                v = UUID(bytes=v)
+    except ValueError:
+        raise errors.UUIDError()
+
+    if not isinstance(v, UUID):
+        raise errors.UUIDError()
+
+    required_version = getattr(field.type_, '_required_version', None)
+    if required_version and v.version != required_version:
+        raise errors.UUIDVersionError(required_version=required_version)
+
+    return v
+
+
+def decimal_validator(v: Any) -> Decimal:
+    if isinstance(v, Decimal):
+        return v
+    elif isinstance(v, (bytes, bytearray)):
+        v = v.decode()
+
+    v = str(v).strip()
+
+    try:
+        v = Decimal(v)
+    except DecimalException:
+        raise errors.DecimalError()
+
+    if not v.is_finite():
+        raise errors.DecimalIsNotFiniteError()
+
+    return v
+
+
+def hashable_validator(v: Any) -> Hashable:
+    if isinstance(v, Hashable):
+        return v
+
+    raise errors.HashableError()
+
+
+def ip_v4_address_validator(v: Any) -> IPv4Address:
+    if isinstance(v, IPv4Address):
+        return v
+
+    try:
+        return IPv4Address(v)
+    except ValueError:
+        raise errors.IPv4AddressError()
+
+
+def ip_v6_address_validator(v: Any) -> IPv6Address:
+    if isinstance(v, IPv6Address):
+        return v
+
+    try:
+        return IPv6Address(v)
+    except ValueError:
+        raise errors.IPv6AddressError()
+
+
+def ip_v4_network_validator(v: Any) -> IPv4Network:
     """
-    bogusFormatMessage = "The group data is not in the correct format."
-    if not isDictEnough(value):
-        return False, bogusFormatMessage
-    firstSideMapping: dict[str, str] = {}
-    secondSideMapping: dict[str, str] = {}
-    for groupName, glyphList in value.items():
-        if not isinstance(groupName, (str)):
-            return False, bogusFormatMessage
-        if not isinstance(glyphList, (list, tuple)):
-            return False, bogusFormatMessage
-        if not groupName:
-            return False, "A group has an empty name."
-        if groupName.startswith("public."):
-            if not groupName.startswith("public.kern1.") and not groupName.startswith(
-                "public.kern2."
-            ):
-                # unknown public.* name. silently skip.
-                continue
-            else:
-                if len("public.kernN.") == len(groupName):
-                    return (
-                        False,
-                        "The group data contains a kerning group with an incomplete name.",
-                    )
-            if groupName.startswith("public.kern1."):
-                d = firstSideMapping
-            else:
-                d = secondSideMapping
-            for glyphName in glyphList:
-                if not isinstance(glyphName, str):
-                    return (
-                        False,
-                        "The group data %s contains an invalid member." % groupName,
-                    )
-                if glyphName in d:
-                    return (
-                        False,
-                        'The glyph "%s" occurs in too many kerning groups.' % glyphName,
-                    )
-                d[glyphName] = groupName
-    return True, None
+    Assume IPv4Network initialised with a default ``strict`` argument
 
-
-# -------------
-# kerning.plist
-# -------------
-
-
-def kerningValidator(data: Any) -> tuple[bool, Optional[str]]:
+    See more:
+    https://docs.python.org/library/ipaddress.html#ipaddress.IPv4Network
     """
-    Check the validity of the kerning data structure.
-    Version 3+ (though it's backwards compatible with UFO 1 and UFO 2).
+    if isinstance(v, IPv4Network):
+        return v
 
-    >>> kerning = {"A" : {"B" : 100}}
-    >>> kerningValidator(kerning)
-    (True, None)
+    try:
+        return IPv4Network(v)
+    except ValueError:
+        raise errors.IPv4NetworkError()
 
-    >>> kerning = {"A" : ["B"]}
-    >>> valid, msg = kerningValidator(kerning)
-    >>> valid
-    False
-    >>> print(msg)
-    The kerning data is not in the correct format.
 
-    >>> kerning = {"A" : {"B" : "100"}}
-    >>> valid, msg = kerningValidator(kerning)
-    >>> valid
-    False
-    >>> print(msg)
-    The kerning data is not in the correct format.
+def ip_v6_network_validator(v: Any) -> IPv6Network:
     """
-    bogusFormatMessage = "The kerning data is not in the correct format."
-    if not isinstance(data, Mapping):
-        return False, bogusFormatMessage
-    for first, secondDict in data.items():
-        if not isinstance(first, str):
-            return False, bogusFormatMessage
-        elif not isinstance(secondDict, Mapping):
-            return False, bogusFormatMessage
-        for second, value in secondDict.items():
-            if not isinstance(second, str):
-                return False, bogusFormatMessage
-            elif not isinstance(value, numberTypes):
-                return False, bogusFormatMessage
-    return True, None
+    Assume IPv6Network initialised with a default ``strict`` argument
 
-
-# -------------
-# lib.plist/lib
-# -------------
-
-_bogusLibFormatMessage = "The lib data is not in the correct format: %s"
-
-
-def fontLibValidator(value: Any) -> tuple[bool, Optional[str]]:
+    See more:
+    https://docs.python.org/library/ipaddress.html#ipaddress.IPv6Network
     """
-    Check the validity of the lib.
-    Version 3+ (though it's backwards compatible with UFO 1 and UFO 2).
+    if isinstance(v, IPv6Network):
+        return v
 
-    >>> lib = {"foo" : "bar"}
-    >>> fontLibValidator(lib)
-    (True, None)
+    try:
+        return IPv6Network(v)
+    except ValueError:
+        raise errors.IPv6NetworkError()
 
-    >>> lib = {"public.awesome" : "hello"}
-    >>> fontLibValidator(lib)
-    (True, None)
 
-    >>> lib = {"public.glyphOrder" : ["A", "C", "B"]}
-    >>> fontLibValidator(lib)
-    (True, None)
+def ip_v4_interface_validator(v: Any) -> IPv4Interface:
+    if isinstance(v, IPv4Interface):
+        return v
 
-    >>> lib = "hello"
-    >>> valid, msg = fontLibValidator(lib)
-    >>> valid
-    False
-    >>> print(msg)  # doctest: +ELLIPSIS
-    The lib data is not in the correct format: expected a dictionary, ...
+    try:
+        return IPv4Interface(v)
+    except ValueError:
+        raise errors.IPv4InterfaceError()
 
-    >>> lib = {1: "hello"}
-    >>> valid, msg = fontLibValidator(lib)
-    >>> valid
-    False
-    >>> print(msg)
-    The lib key is not properly formatted: expected str, found int: 1
 
-    >>> lib = {"public.glyphOrder" : "hello"}
-    >>> valid, msg = fontLibValidator(lib)
-    >>> valid
-    False
-    >>> print(msg)  # doctest: +ELLIPSIS
-    public.glyphOrder is not properly formatted: expected list or tuple,...
+def ip_v6_interface_validator(v: Any) -> IPv6Interface:
+    if isinstance(v, IPv6Interface):
+        return v
 
-    >>> lib = {"public.glyphOrder" : ["A", 1, "B"]}
-    >>> valid, msg = fontLibValidator(lib)
-    >>> valid
-    False
-    >>> print(msg)  # doctest: +ELLIPSIS
-    public.glyphOrder is not properly formatted: expected str,...
+    try:
+        return IPv6Interface(v)
+    except ValueError:
+        raise errors.IPv6InterfaceError()
+
+
+def path_validator(v: Any) -> Path:
+    if isinstance(v, Path):
+        return v
+
+    try:
+        return Path(v)
+    except TypeError:
+        raise errors.PathError()
+
+
+def path_exists_validator(v: Any) -> Path:
+    if not v.exists():
+        raise errors.PathNotExistsError(path=v)
+
+    return v
+
+
+def callable_validator(v: Any) -> AnyCallable:
     """
-    if not isDictEnough(value):
-        reason = "expected a dictionary, found %s" % type(value).__name__
-        return False, _bogusLibFormatMessage % reason
-    for key, value in value.items():
-        if not isinstance(key, str):
-            return False, (
-                "The lib key is not properly formatted: expected str, found %s: %r"
-                % (type(key).__name__, key)
-            )
-        # public.glyphOrder
-        if key == "public.glyphOrder":
-            bogusGlyphOrderMessage = "public.glyphOrder is not properly formatted: %s"
-            if not isinstance(value, (list, tuple)):
-                reason = "expected list or tuple, found %s" % type(value).__name__
-                return False, bogusGlyphOrderMessage % reason
-            for glyphName in value:
-                if not isinstance(glyphName, str):
-                    reason = "expected str, found %s" % type(glyphName).__name__
-                    return False, bogusGlyphOrderMessage % reason
-    return True, None
+    Perform a simple check if the value is callable.
 
-
-# --------
-# GLIF lib
-# --------
-
-
-def glyphLibValidator(value: Any) -> tuple[bool, Optional[str]]:
+    Note: complete matching of argument type hints and return types is not performed
     """
-    Check the validity of the lib.
-    Version 3+ (though it's backwards compatible with UFO 1 and UFO 2).
+    if callable(v):
+        return v
 
-    >>> lib = {"foo" : "bar"}
-    >>> glyphLibValidator(lib)
-    (True, None)
-
-    >>> lib = {"public.awesome" : "hello"}
-    >>> glyphLibValidator(lib)
-    (True, None)
-
-    >>> lib = {"public.markColor" : "1,0,0,0.5"}
-    >>> glyphLibValidator(lib)
-    (True, None)
-
-    >>> lib = {"public.markColor" : 1}
-    >>> valid, msg = glyphLibValidator(lib)
-    >>> valid
-    False
-    >>> print(msg)
-    public.markColor is not properly formatted.
-    """
-    if not isDictEnough(value):
-        reason = "expected a dictionary, found %s" % type(value).__name__
-        return False, _bogusLibFormatMessage % reason
-    for key, value in value.items():
-        if not isinstance(key, str):
-            reason = "key (%s) should be a string" % key
-            return False, _bogusLibFormatMessage % reason
-        # public.markColor
-        if key == "public.markColor":
-            if not colorValidator(value):
-                return False, "public.markColor is not properly formatted."
-    return True, None
+    raise errors.CallableError(value=v)
 
 
-if __name__ == "__main__":
-    import doctest
+def enum_validator(v: Any) -> Enum:
+    if isinstance(v, Enum):
+        return v
 
-    doctest.testmod()
+    raise errors.EnumError(value=v)
+
+
+def int_enum_validator(v: Any) -> IntEnum:
+    if isinstance(v, IntEnum):
+        return v
+
+    raise errors.IntEnumError(value=v)
+
+
+def make_literal_validator(type_: Any) -> Callable[[Any], Any]:
+    permitted_choices = all_literal_values(type_)
+
+    # To have a O(1) complexity and still return one of the values set inside the `Literal`,
+    # we create a dict with the set values (a set causes some problems with the way intersection works).
+    # In some cases the set value and checked value can indeed be different (see `test_literal_validator_str_enum`)
+    allowed_choices = {v: v for v in permitted_choices}
+
+    def literal_validator(v: Any) -> Any:
+        try:
+            return allowed_choices[v]
+        except (KeyError, TypeError):
+            raise errors.WrongConstantError(given=v, permitted=permitted_choices)
+
+    return literal_validator
+
+
+def constr_length_validator(v: 'StrBytes', field: 'ModelField', config: 'BaseConfig') -> 'StrBytes':
+    v_len = len(v)
+
+    min_length = field.type_.min_length if field.type_.min_length is not None else config.min_anystr_length
+    if v_len < min_length:
+        raise errors.AnyStrMinLengthError(limit_value=min_length)
+
+    max_length = field.type_.max_length if field.type_.max_length is not None else config.max_anystr_length
+    if max_length is not None and v_len > max_length:
+        raise errors.AnyStrMaxLengthError(limit_value=max_length)
+
+    return v
+
+
+def constr_strip_whitespace(v: 'StrBytes', field: 'ModelField', config: 'BaseConfig') -> 'StrBytes':
+    strip_whitespace = field.type_.strip_whitespace or config.anystr_strip_whitespace
+    if strip_whitespace:
+        v = v.strip()
+
+    return v
+
+
+def constr_upper(v: 'StrBytes', field: 'ModelField', config: 'BaseConfig') -> 'StrBytes':
+    upper = field.type_.to_upper or config.anystr_upper
+    if upper:
+        v = v.upper()
+
+    return v
+
+
+def constr_lower(v: 'StrBytes', field: 'ModelField', config: 'BaseConfig') -> 'StrBytes':
+    lower = field.type_.to_lower or config.anystr_lower
+    if lower:
+        v = v.lower()
+    return v
+
+
+def validate_json(v: Any, config: 'BaseConfig') -> Any:
+    if v is None:
+        # pass None through to other validators
+        return v
+    try:
+        return config.json_loads(v)  # type: ignore
+    except ValueError:
+        raise errors.JsonError()
+    except TypeError:
+        raise errors.JsonTypeError()
+
+
+T = TypeVar('T')
+
+
+def make_arbitrary_type_validator(type_: Type[T]) -> Callable[[T], T]:
+    def arbitrary_type_validator(v: Any) -> T:
+        if isinstance(v, type_):
+            return v
+        raise errors.ArbitraryTypeError(expected_arbitrary_type=type_)
+
+    return arbitrary_type_validator
+
+
+def make_class_validator(type_: Type[T]) -> Callable[[Any], Type[T]]:
+    def class_validator(v: Any) -> Type[T]:
+        if lenient_issubclass(v, type_):
+            return v
+        raise errors.SubclassError(expected_class=type_)
+
+    return class_validator
+
+
+def any_class_validator(v: Any) -> Type[T]:
+    if isinstance(v, type):
+        return v
+    raise errors.ClassError()
+
+
+def none_validator(v: Any) -> 'Literal[None]':
+    if v is None:
+        return v
+    raise errors.NotNoneError()
+
+
+def pattern_validator(v: Any) -> Pattern[str]:
+    if isinstance(v, Pattern):
+        return v
+
+    str_value = str_validator(v)
+
+    try:
+        return re.compile(str_value)
+    except re.error:
+        raise errors.PatternError()
+
+
+NamedTupleT = TypeVar('NamedTupleT', bound=NamedTuple)
+
+
+def make_namedtuple_validator(
+    namedtuple_cls: Type[NamedTupleT], config: Type['BaseConfig']
+) -> Callable[[Tuple[Any, ...]], NamedTupleT]:
+    from pydantic.v1.annotated_types import create_model_from_namedtuple
+
+    NamedTupleModel = create_model_from_namedtuple(
+        namedtuple_cls,
+        __config__=config,
+        __module__=namedtuple_cls.__module__,
+    )
+    namedtuple_cls.__pydantic_model__ = NamedTupleModel  # type: ignore[attr-defined]
+
+    def namedtuple_validator(values: Tuple[Any, ...]) -> NamedTupleT:
+        annotations = NamedTupleModel.__annotations__
+
+        if len(values) > len(annotations):
+            raise errors.ListMaxLengthError(limit_value=len(annotations))
+
+        dict_values: Dict[str, Any] = dict(zip(annotations, values))
+        validated_dict_values: Dict[str, Any] = dict(NamedTupleModel(**dict_values))
+        return namedtuple_cls(**validated_dict_values)
+
+    return namedtuple_validator
+
+
+def make_typeddict_validator(
+    typeddict_cls: Type['TypedDict'], config: Type['BaseConfig']  # type: ignore[valid-type]
+) -> Callable[[Any], Dict[str, Any]]:
+    from pydantic.v1.annotated_types import create_model_from_typeddict
+
+    TypedDictModel = create_model_from_typeddict(
+        typeddict_cls,
+        __config__=config,
+        __module__=typeddict_cls.__module__,
+    )
+    typeddict_cls.__pydantic_model__ = TypedDictModel  # type: ignore[attr-defined]
+
+    def typeddict_validator(values: 'TypedDict') -> Dict[str, Any]:  # type: ignore[valid-type]
+        return TypedDictModel.parse_obj(values).dict(exclude_unset=True)
+
+    return typeddict_validator
+
+
+class IfConfig:
+    def __init__(self, validator: AnyCallable, *config_attr_names: str, ignored_value: Any = False) -> None:
+        self.validator = validator
+        self.config_attr_names = config_attr_names
+        self.ignored_value = ignored_value
+
+    def check(self, config: Type['BaseConfig']) -> bool:
+        return any(getattr(config, name) not in {None, self.ignored_value} for name in self.config_attr_names)
+
+
+# order is important here, for example: bool is a subclass of int so has to come first, datetime before date same,
+# IPv4Interface before IPv4Address, etc
+_VALIDATORS: List[Tuple[Type[Any], List[Any]]] = [
+    (IntEnum, [int_validator, enum_member_validator]),
+    (Enum, [enum_member_validator]),
+    (
+        str,
+        [
+            str_validator,
+            IfConfig(anystr_strip_whitespace, 'anystr_strip_whitespace'),
+            IfConfig(anystr_upper, 'anystr_upper'),
+            IfConfig(anystr_lower, 'anystr_lower'),
+            IfConfig(anystr_length_validator, 'min_anystr_length', 'max_anystr_length'),
+        ],
+    ),
+    (
+        bytes,
+        [
+            bytes_validator,
+            IfConfig(anystr_strip_whitespace, 'anystr_strip_whitespace'),
+            IfConfig(anystr_upper, 'anystr_upper'),
+            IfConfig(anystr_lower, 'anystr_lower'),
+            IfConfig(anystr_length_validator, 'min_anystr_length', 'max_anystr_length'),
+        ],
+    ),
+    (bool, [bool_validator]),
+    (int, [int_validator]),
+    (float, [float_validator, IfConfig(float_finite_validator, 'allow_inf_nan', ignored_value=True)]),
+    (Path, [path_validator]),
+    (datetime, [parse_datetime]),
+    (date, [parse_date]),
+    (time, [parse_time]),
+    (timedelta, [parse_duration]),
+    (OrderedDict, [ordered_dict_validator]),
+    (dict, [dict_validator]),
+    (list, [list_validator]),
+    (tuple, [tuple_validator]),
+    (set, [set_validator]),
+    (frozenset, [frozenset_validator]),
+    (deque, [deque_validator]),
+    (UUID, [uuid_validator]),
+    (Decimal, [decimal_validator]),
+    (IPv4Interface, [ip_v4_interface_validator]),
+    (IPv6Interface, [ip_v6_interface_validator]),
+    (IPv4Address, [ip_v4_address_validator]),
+    (IPv6Address, [ip_v6_address_validator]),
+    (IPv4Network, [ip_v4_network_validator]),
+    (IPv6Network, [ip_v6_network_validator]),
+]
+
+
+def find_validators(  # noqa: C901 (ignore complexity)
+    type_: Type[Any], config: Type['BaseConfig']
+) -> Generator[AnyCallable, None, None]:
+    from pydantic.v1.dataclasses import is_builtin_dataclass, make_dataclass_validator
+
+    if type_ is Any or type_ is object:
+        return
+    type_type = type_.__class__
+    if type_type == ForwardRef or type_type == TypeVar:
+        return
+
+    if is_none_type(type_):
+        yield none_validator
+        return
+    if type_ is Pattern or type_ is re.Pattern:
+        yield pattern_validator
+        return
+    if type_ is Hashable or type_ is CollectionsHashable:
+        yield hashable_validator
+        return
+    if is_callable_type(type_):
+        yield callable_validator
+        return
+    if is_literal_type(type_):
+        yield make_literal_validator(type_)
+        return
+    if is_builtin_dataclass(type_):
+        yield from make_dataclass_validator(type_, config)
+        return
+    if type_ is Enum:
+        yield enum_validator
+        return
+    if type_ is IntEnum:
+        yield int_enum_validator
+        return
+    if is_namedtuple(type_):
+        yield tuple_validator
+        yield make_namedtuple_validator(type_, config)
+        return
+    if is_typeddict(type_):
+        yield make_typeddict_validator(type_, config)
+        return
+
+    class_ = get_class(type_)
+    if class_ is not None:
+        if class_ is not Any and isinstance(class_, type):
+            yield make_class_validator(class_)
+        else:
+            yield any_class_validator
+        return
+
+    for val_type, validators in _VALIDATORS:
+        try:
+            if issubclass(type_, val_type):
+                for v in validators:
+                    if isinstance(v, IfConfig):
+                        if v.check(config):
+                            yield v.validator
+                    else:
+                        yield v
+                return
+        except TypeError:
+            raise RuntimeError(f'error checking inheritance of {type_!r} (type: {display_as_type(type_)})')
+
+    if config.arbitrary_types_allowed:
+        yield make_arbitrary_type_validator(type_)
+    else:
+        if hasattr(type_, '__pydantic_core_schema__'):
+            warn(f'Mixing V1 and V2 models is not supported. `{type_.__name__}` is a V2 model.', UserWarning)
+        raise RuntimeError(f'no validator found for {type_}, see `arbitrary_types_allowed` in Config')

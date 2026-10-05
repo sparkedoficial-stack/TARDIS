@@ -1,463 +1,532 @@
-"""Tools for setting up interactive sessions. """
-
-from sympy.external.gmpy import GROUND_TYPES
-from sympy.external.importtools import version_tuple
-
-from sympy.interactive.printing import init_printing
-
-from sympy.utilities.misc import ARCH
-
-preexec_source = """\
-from sympy import *
-x, y, z, t = symbols('x y z t')
-k, m, n = symbols('k m n', integer=True)
-f, g, h = symbols('f g h', cls=Function)
-init_printing()
+"""PipSession and supporting code, containing all pip-specific
+network request configuration and behavior.
 """
 
-verbose_message = """\
-These commands were executed:
-%(source)s
-Documentation can be found at https://docs.sympy.org/%(version)s
-"""
+from __future__ import annotations
 
-no_ipython = """\
-Could not locate IPython. Having IPython installed is greatly recommended.
-See http://ipython.scipy.org for more details. If you use Debian/Ubuntu,
-just install the 'ipython' package and start isympy again.
-"""
+import email.utils
+import functools
+import io
+import ipaddress
+import json
+import logging
+import mimetypes
+import os
+import platform
+import shutil
+import subprocess
+import sys
+import urllib.parse
+import warnings
+from collections.abc import Generator, Mapping, Sequence
+from typing import (
+    TYPE_CHECKING,
+    Any,
+)
 
+from pip._vendor import requests, urllib3
+from pip._vendor.cachecontrol import CacheControlAdapter as _BaseCacheControlAdapter
+from pip._vendor.requests.adapters import DEFAULT_POOLBLOCK, BaseAdapter
+from pip._vendor.requests.adapters import HTTPAdapter as _BaseHTTPAdapter
+from pip._vendor.requests.models import PreparedRequest, Response
+from pip._vendor.requests.structures import CaseInsensitiveDict
+from pip._vendor.urllib3.connectionpool import ConnectionPool
+from pip._vendor.urllib3.exceptions import InsecureRequestWarning
 
-def _make_message(ipython=True, quiet=False, source=None):
-    """Create a banner for an interactive session. """
-    from sympy import __version__ as sympy_version
-    from sympy import SYMPY_DEBUG
+from pip import __version__
+from pip._internal.exceptions import SSLMissingError
+from pip._internal.metadata import get_default_environment
+from pip._internal.models.link import Link
+from pip._internal.network.auth import MultiDomainBasicAuth
+from pip._internal.network.cache import SafeFileCache
+from pip._internal.network.utils import raise_connection_error
 
-    import sys
-    import os
+# Import ssl from compat so the initial import occurs in only one place.
+from pip._internal.utils.compat import has_tls
+from pip._internal.utils.glibc import libc_ver
+from pip._internal.utils.misc import (
+    build_url_from_netloc,
+    looks_like_ci,
+    parse_netloc,
+    redact_auth_from_url,
+)
+from pip._internal.utils.urls import url_to_path
 
-    if quiet:
-        return ""
+if TYPE_CHECKING:
+    from ssl import SSLContext
 
-    python_version = "%d.%d.%d" % sys.version_info[:3]
-
-    if ipython:
-        shell_name = "IPython"
-    else:
-        shell_name = "Python"
-
-    info = ['ground types: %s' % GROUND_TYPES]
-
-    cache = os.getenv('SYMPY_USE_CACHE')
-
-    if cache is not None and cache.lower() == 'no':
-        info.append('cache: off')
-
-    if SYMPY_DEBUG:
-        info.append('debugging: on')
-
-    args = shell_name, sympy_version, python_version, ARCH, ', '.join(info)
-    message = "%s console for SymPy %s (Python %s-%s) (%s)\n" % args
-
-    if source is None:
-        source = preexec_source
-
-    _source = ""
-
-    for line in source.split('\n')[:-1]:
-        if not line:
-            _source += '\n'
-        else:
-            _source += '>>> ' + line + '\n'
-
-    doc_version = sympy_version
-    if 'dev' in doc_version:
-        doc_version = "dev"
-    else:
-        doc_version = "%s/" % doc_version
-
-    message += '\n' + verbose_message % {'source': _source,
-                                         'version': doc_version}
-
-    return message
+    from pip._vendor.urllib3 import ProxyManager
 
 
-def int_to_Integer(s):
+logger = logging.getLogger(__name__)
+
+SecureOrigin = tuple[str, str, int | str | None]
+
+
+# Ignore warning raised when using --trusted-host.
+warnings.filterwarnings("ignore", category=InsecureRequestWarning)
+
+
+SECURE_ORIGINS: list[SecureOrigin] = [
+    # protocol, hostname, port
+    # Taken from Chrome's list of secure origins (See: http://bit.ly/1qrySKC)
+    ("https", "*", "*"),
+    ("*", "localhost", "*"),
+    ("*", "REDACTED_IP/8", "*"),
+    ("*", "::1/128", "*"),
+    ("file", "*", None),
+    # ssh is always secure.
+    ("ssh", "*", "*"),
+]
+
+
+@functools.lru_cache(maxsize=1)
+def user_agent() -> str:
     """
-    Wrap integer literals with Integer.
-
-    This is based on the decistmt example from
-    https://docs.python.org/3/library/tokenize.html.
-
-    Only integer literals are converted.  Float literals are left alone.
-
-    Examples
-    ========
-
-    >>> from sympy import Integer # noqa: F401
-    >>> from sympy.interactive.session import int_to_Integer
-    >>> s = '1.2 + 1/2 - 0x12 + a1'
-    >>> int_to_Integer(s)
-    '1.2 +Integer (1 )/Integer (2 )-Integer (0x12 )+a1 '
-    >>> s = 'print (1/2)'
-    >>> int_to_Integer(s)
-    'print (Integer (1 )/Integer (2 ))'
-    >>> exec(s)
-    0.5
-    >>> exec(int_to_Integer(s))
-    1/2
+    Return a string representing the user agent.
     """
-    from tokenize import generate_tokens, untokenize, NUMBER, NAME, OP
-    from io import StringIO
+    data: dict[str, Any] = {
+        "installer": {"name": "pip", "version": __version__},
+        "python": platform.python_version(),
+        "implementation": {
+            "name": platform.python_implementation(),
+        },
+    }
 
-    def _is_int(num):
-        """
-        Returns true if string value num (with token NUMBER) represents an integer.
-        """
-        # XXX: Is there something in the standard library that will do this?
-        if '.' in num or 'j' in num.lower() or 'e' in num.lower():
-            return False
-        return True
+    if data["implementation"]["name"] == "CPython":
+        data["implementation"]["version"] = platform.python_version()
+    elif data["implementation"]["name"] == "PyPy":
+        pypy_version_info = sys.pypy_version_info  # type: ignore
+        if pypy_version_info.releaselevel == "final":
+            pypy_version_info = pypy_version_info[:3]
+        data["implementation"]["version"] = ".".join(
+            [str(x) for x in pypy_version_info]
+        )
+    elif data["implementation"]["name"] == "Jython":
+        # Complete Guess
+        data["implementation"]["version"] = platform.python_version()
+    elif data["implementation"]["name"] == "IronPython":
+        # Complete Guess
+        data["implementation"]["version"] = platform.python_version()
 
-    result = []
-    g = generate_tokens(StringIO(s).readline)  # tokenize the string
-    for toknum, tokval, _, _, _ in g:
-        if toknum == NUMBER and _is_int(tokval):  # replace NUMBER tokens
-            result.extend([
-                (NAME, 'Integer'),
-                (OP, '('),
-                (NUMBER, tokval),
-                (OP, ')')
-            ])
-        else:
-            result.append((toknum, tokval))
-    return untokenize(result)
+    if sys.platform.startswith("linux"):
+        from pip._vendor import distro
 
+        linux_distribution = distro.name(), distro.version(), distro.codename()
+        distro_infos: dict[str, Any] = dict(
+            filter(
+                lambda x: x[1],
+                zip(["name", "version", "id"], linux_distribution),
+            )
+        )
+        libc = dict(
+            filter(
+                lambda x: x[1],
+                zip(["lib", "version"], libc_ver()),
+            )
+        )
+        if libc:
+            distro_infos["libc"] = libc
+        if distro_infos:
+            data["distro"] = distro_infos
 
-def enable_automatic_int_sympification(shell):
-    """
-    Allow IPython to automatically convert integer literals to Integer.
-    """
-    import ast
-    old_run_cell = shell.run_cell
+    if sys.platform.startswith("darwin") and platform.mac_ver()[0]:
+        data["distro"] = {"name": "macOS", "version": platform.mac_ver()[0]}
 
-    def my_run_cell(cell, *args, **kwargs):
+    if platform.system():
+        data.setdefault("system", {})["name"] = platform.system()
+
+    if platform.release():
+        data.setdefault("system", {})["release"] = platform.release()
+
+    if platform.machine():
+        data["cpu"] = platform.machine()
+
+    if has_tls():
+        import _ssl as ssl
+
+        data["openssl_version"] = ssl.OPENSSL_VERSION
+
+    setuptools_dist = get_default_environment().get_distribution("setuptools")
+    if setuptools_dist is not None:
+        data["setuptools_version"] = str(setuptools_dist.version)
+
+    if shutil.which("rustc") is not None:
+        # If for any reason `rustc --version` fails, silently ignore it
         try:
-            # Check the cell for syntax errors.  This way, the syntax error
-            # will show the original input, not the transformed input.  The
-            # downside here is that IPython magic like %timeit will not work
-            # with transformed input (but on the other hand, IPython magic
-            # that doesn't expect transformed input will continue to work).
-            ast.parse(cell)
-        except SyntaxError:
+            rustc_output = subprocess.check_output(
+                ["rustc", "--version"], stderr=subprocess.STDOUT, timeout=0.5
+            )
+        except Exception:
             pass
         else:
-            cell = int_to_Integer(cell)
-        return old_run_cell(cell, *args, **kwargs)
+            if rustc_output.startswith(b"rustc "):
+                # The format of `rustc --version` is:
+                # `b'rustc 1.52.1 (9bc8c42bb 2021-05-09)\n'`
+                # We extract just the middle (1.52.1) part
+                data["rustc_version"] = rustc_output.split(b" ")[1].decode()
 
-    shell.run_cell = my_run_cell
+    # Use None rather than False so as not to give the impression that
+    # pip knows it is not being run under CI.  Rather, it is a null or
+    # inconclusive result.  Also, we include some value rather than no
+    # value to make it easier to know that the check has been run.
+    data["ci"] = True if looks_like_ci() else None
 
+    user_data = os.environ.get("PIP_USER_AGENT_USER_DATA")
+    if user_data is not None:
+        data["user_data"] = user_data
 
-def enable_automatic_symbols(shell):
-    """Allow IPython to automatically create symbols (``isympy -a``). """
-    # XXX: This should perhaps use tokenize, like int_to_Integer() above.
-    # This would avoid re-executing the code, which can lead to subtle
-    # issues.  For example:
-    #
-    # In [1]: a = 1
-    #
-    # In [2]: for i in range(10):
-    #    ...:     a += 1
-    #    ...:
-    #
-    # In [3]: a
-    # Out[3]: 11
-    #
-    # In [4]: a = 1
-    #
-    # In [5]: for i in range(10):
-    #    ...:     a += 1
-    #    ...:     print b
-    #    ...:
-    # b
-    # b
-    # b
-    # b
-    # b
-    # b
-    # b
-    # b
-    # b
-    # b
-    #
-    # In [6]: a
-    # Out[6]: 12
-    #
-    # Note how the for loop is executed again because `b` was not defined, but `a`
-    # was already incremented once, so the result is that it is incremented
-    # multiple times.
-
-    import re
-    re_nameerror = re.compile(
-        "name '(?P<symbol>[A-Za-z_][A-Za-z0-9_]*)' is not defined")
-
-    def _handler(self, etype, value, tb, tb_offset=None):
-        """Handle :exc:`NameError` exception and allow injection of missing symbols. """
-        if etype is NameError and tb.tb_next and not tb.tb_next.tb_next:
-            match = re_nameerror.match(str(value))
-
-            if match is not None:
-                # XXX: Make sure Symbol is in scope. Otherwise you'll get infinite recursion.
-                self.run_cell("%(symbol)s = Symbol('%(symbol)s')" %
-                              {'symbol': match.group("symbol")}, store_history=False)
-
-                try:
-                    code = self.user_ns['In'][-1]
-                except (KeyError, IndexError):
-                    pass
-                else:
-                    self.run_cell(code, store_history=False)
-                    return None
-                finally:
-                    self.run_cell("del %s" % match.group("symbol"),
-                                  store_history=False)
-
-        stb = self.InteractiveTB.structured_traceback(
-            etype, value, tb, tb_offset=tb_offset)
-        self._showtraceback(etype, value, stb)
-
-    shell.set_custom_exc((NameError,), _handler)
+    return "{data[installer][name]}/{data[installer][version]} {json}".format(
+        data=data,
+        json=json.dumps(data, separators=(",", ":"), sort_keys=True),
+    )
 
 
-def init_ipython_session(shell=None, argv=[], auto_symbols=False, auto_int_to_Integer=False):
-    """Construct new IPython session. """
-    import IPython
+class LocalFSAdapter(BaseAdapter):
+    def send(
+        self,
+        request: PreparedRequest,
+        stream: bool = False,
+        timeout: float | tuple[float | None, float | None] | None = None,
+        verify: bool | str = True,
+        cert: bytes | str | tuple[bytes | str, bytes | str] | None = None,
+        proxies: Mapping[str, str] | None = None,
+    ) -> Response:
+        assert request.url is not None
+        pathname = url_to_path(request.url)
 
-    if version_tuple(IPython.__version__) >= version_tuple('0.11'):
-        if not shell:
-            # use an app to parse the command line, and init config
-            # IPython 1.0 deprecates the frontend module, so we import directly
-            # from the terminal module to prevent a deprecation message from being
-            # shown.
-            if version_tuple(IPython.__version__) >= version_tuple('1.0'):
-                from IPython.terminal import ipapp
-            else:
-                from IPython.frontend.terminal import ipapp
-            app = ipapp.TerminalIPythonApp()
+        resp = Response()
+        resp.status_code = 200
+        resp.url = request.url
 
-            # don't draw IPython banner during initialization:
-            app.display_banner = False
-            app.initialize(argv)
-
-            shell = app.shell
-
-        if auto_symbols:
-            enable_automatic_symbols(shell)
-        if auto_int_to_Integer:
-            enable_automatic_int_sympification(shell)
-
-        return shell
-    else:
-        from IPython.Shell import make_IPython
-        return make_IPython(argv)
-
-
-def init_python_session():
-    """Construct new Python session. """
-    from code import InteractiveConsole
-
-    class SymPyConsole(InteractiveConsole):
-        """An interactive console with readline support. """
-
-        def __init__(self):
-            ns_locals = {}
-            InteractiveConsole.__init__(self, locals=ns_locals)
-            try:
-                import rlcompleter
-                import readline
-            except ImportError:
-                pass
-            else:
-                import os
-                import atexit
-
-                readline.set_completer(rlcompleter.Completer(ns_locals).complete)
-                readline.parse_and_bind('tab: complete')
-
-                if hasattr(readline, 'read_history_file'):
-                    history = os.path.expanduser('~/.sympy-history')
-
-                    try:
-                        readline.read_history_file(history)
-                    except OSError:
-                        pass
-
-                    atexit.register(readline.write_history_file, history)
-
-    return SymPyConsole()
-
-
-def init_session(ipython=None, pretty_print=True, order=None,
-                 use_unicode=None, use_latex=None, quiet=False, auto_symbols=False,
-                 auto_int_to_Integer=False, str_printer=None, pretty_printer=None,
-                 latex_printer=None, argv=[]):
-    """
-    Initialize an embedded IPython or Python session. The IPython session is
-    initiated with the --pylab option, without the numpy imports, so that
-    matplotlib plotting can be interactive.
-
-    Parameters
-    ==========
-
-    pretty_print: boolean
-        If True, use pretty_print to stringify;
-        if False, use sstrrepr to stringify.
-    order: string or None
-        There are a few different settings for this parameter:
-        lex (default), which is lexographic order;
-        grlex, which is graded lexographic order;
-        grevlex, which is reversed graded lexographic order;
-        old, which is used for compatibility reasons and for long expressions;
-        None, which sets it to lex.
-    use_unicode: boolean or None
-        If True, use unicode characters;
-        if False, do not use unicode characters.
-    use_latex: boolean or None
-        If True, use latex rendering if IPython GUI's;
-        if False, do not use latex rendering.
-    quiet: boolean
-        If True, init_session will not print messages regarding its status;
-        if False, init_session will print messages regarding its status.
-    auto_symbols: boolean
-        If True, IPython will automatically create symbols for you.
-        If False, it will not.
-        The default is False.
-    auto_int_to_Integer: boolean
-        If True, IPython will automatically wrap int literals with Integer, so
-        that things like 1/2 give Rational(1, 2).
-        If False, it will not.
-        The default is False.
-    ipython: boolean or None
-        If True, printing will initialize for an IPython console;
-        if False, printing will initialize for a normal console;
-        The default is None, which automatically determines whether we are in
-        an ipython instance or not.
-    str_printer: function, optional, default=None
-        A custom string printer function. This should mimic
-        sympy.printing.sstrrepr().
-    pretty_printer: function, optional, default=None
-        A custom pretty printer. This should mimic sympy.printing.pretty().
-    latex_printer: function, optional, default=None
-        A custom LaTeX printer. This should mimic sympy.printing.latex()
-        This should mimic sympy.printing.latex().
-    argv: list of arguments for IPython
-        See sympy.bin.isympy for options that can be used to initialize IPython.
-
-    See Also
-    ========
-
-    sympy.interactive.printing.init_printing: for examples and the rest of the parameters.
-
-
-    Examples
-    ========
-
-    >>> from sympy import init_session, Symbol, sin, sqrt
-    >>> sin(x) #doctest: +SKIP
-    NameError: name 'x' is not defined
-    >>> init_session() #doctest: +SKIP
-    >>> sin(x) #doctest: +SKIP
-    sin(x)
-    >>> sqrt(5) #doctest: +SKIP
-      ___
-    \\/ 5
-    >>> init_session(pretty_print=False) #doctest: +SKIP
-    >>> sqrt(5) #doctest: +SKIP
-    sqrt(5)
-    >>> y + x + y**2 + x**2 #doctest: +SKIP
-    x**2 + x + y**2 + y
-    >>> init_session(order='grlex') #doctest: +SKIP
-    >>> y + x + y**2 + x**2 #doctest: +SKIP
-    x**2 + y**2 + x + y
-    >>> init_session(order='grevlex') #doctest: +SKIP
-    >>> y * x**2 + x * y**2 #doctest: +SKIP
-    x**2*y + x*y**2
-    >>> init_session(order='old') #doctest: +SKIP
-    >>> x**2 + y**2 + x + y #doctest: +SKIP
-    x + y + x**2 + y**2
-    >>> theta = Symbol('theta') #doctest: +SKIP
-    >>> theta #doctest: +SKIP
-    theta
-    >>> init_session(use_unicode=True) #doctest: +SKIP
-    >>> theta # doctest: +SKIP
-    \u03b8
-    """
-    import sys
-
-    in_ipython = False
-
-    if ipython is not False:
         try:
-            import IPython
-        except ImportError:
-            if ipython is True:
-                raise RuntimeError("IPython is not available on this system")
-            ip = None
+            stats = os.stat(pathname)
+        except OSError as exc:
+            # format the exception raised as a io.BytesIO object,
+            # to return a better error message:
+            resp.status_code = 404
+            resp.reason = type(exc).__name__
+            resp.raw = io.BytesIO(f"{resp.reason}: {exc}".encode())
         else:
+            modified = email.utils.formatdate(stats.st_mtime, usegmt=True)
+            content_type = mimetypes.guess_type(pathname)[0] or "text/plain"
+            resp.headers = CaseInsensitiveDict(
+                {
+                    "Content-Type": content_type,
+                    "Content-Length": str(stats.st_size),
+                    "Last-Modified": modified,
+                }
+            )
+
+            resp.raw = open(pathname, "rb")
+            resp.close = resp.raw.close  # type: ignore[method-assign]
+
+        return resp
+
+    def close(self) -> None:
+        pass
+
+
+class _SSLContextAdapterMixin:
+    """Mixin to add the ``ssl_context`` constructor argument to HTTP adapters.
+
+    The additional argument is forwarded directly to the pool manager. This allows us
+    to dynamically decide what SSL store to use at runtime, which is used to implement
+    the optional ``truststore`` backend.
+    """
+
+    def __init__(
+        self,
+        *,
+        ssl_context: SSLContext | None = None,
+        **kwargs: Any,
+    ) -> None:
+        self._ssl_context = ssl_context
+        super().__init__(**kwargs)
+
+    def init_poolmanager(
+        self,
+        connections: int,
+        maxsize: int,
+        block: bool = DEFAULT_POOLBLOCK,
+        **pool_kwargs: Any,
+    ) -> None:
+        if self._ssl_context is not None:
+            pool_kwargs.setdefault("ssl_context", self._ssl_context)
+        super().init_poolmanager(  # type: ignore[misc]
+            connections=connections,
+            maxsize=maxsize,
+            block=block,
+            **pool_kwargs,
+        )
+
+    def proxy_manager_for(self, proxy: str, **proxy_kwargs: Any) -> ProxyManager:
+        # Proxy manager replaces the pool manager, so inject our SSL
+        # context here too. https://github.com/pypa/pip/issues/13288
+        if self._ssl_context is not None:
+            proxy_kwargs.setdefault("ssl_context", self._ssl_context)
+            # For HTTPS proxies, urllib3 also opens a separate TLS connection
+            # to the proxy itself (before tunnelling to the destination) and
+            # uses "proxy_ssl_context" for that handshake.
+            # https://github.com/pypa/pip/issues/13465
+            proxy_kwargs.setdefault("proxy_ssl_context", self._ssl_context)
+        return super().proxy_manager_for(proxy, **proxy_kwargs)  # type: ignore[misc]
+
+
+class HTTPAdapter(_SSLContextAdapterMixin, _BaseHTTPAdapter):
+    pass
+
+
+class CacheControlAdapter(_SSLContextAdapterMixin, _BaseCacheControlAdapter):
+    pass
+
+
+class InsecureHTTPAdapter(HTTPAdapter):
+    def cert_verify(
+        self,
+        conn: ConnectionPool,
+        url: str,
+        verify: bool | str,
+        cert: str | tuple[str, str] | None,
+    ) -> None:
+        super().cert_verify(conn=conn, url=url, verify=False, cert=cert)
+
+
+class InsecureCacheControlAdapter(CacheControlAdapter):
+    def cert_verify(
+        self,
+        conn: ConnectionPool,
+        url: str,
+        verify: bool | str,
+        cert: str | tuple[str, str] | None,
+    ) -> None:
+        super().cert_verify(conn=conn, url=url, verify=False, cert=cert)
+
+
+class PipSession(requests.Session):
+    timeout: int | None = None
+
+    def __init__(
+        self,
+        *args: Any,
+        retries: int = 0,
+        resume_retries: int = 0,
+        cache: str | None = None,
+        trusted_hosts: Sequence[str] = (),
+        index_urls: list[str] | None = None,
+        ssl_context: SSLContext | None = None,
+        refresh_package: set[str] | None = None,
+        **kwargs: Any,
+    ) -> None:
+        """
+        :param trusted_hosts: Domains not to emit warnings for when not using
+            HTTPS.
+        """
+        super().__init__(*args, **kwargs)
+
+        # Namespace the attribute with "pip_" just in case to prevent
+        # possible conflicts with the base class.
+        self.pip_trusted_origins: list[tuple[str, int | None]] = []
+        # "" disables proxying; None means no --proxy was given.
+        self.pip_proxy: str | None = None
+        self.pip_no_proxy_env = False
+        self.refresh_package: set[str] = refresh_package or set()
+
+        # Attach our User Agent to the request
+        self.headers["User-Agent"] = user_agent()
+
+        # Pin Accept-Encoding so it doesn't vary with zstd availability (Python
+        # 3.14+ or backports.zstd); a varying value misses the cache for "Vary:
+        # Accept-Encoding" responses shared across interpreters (pypa/pip#13979).
+        self.headers["Accept-Encoding"] = "gzip, deflate"
+
+        # Attach our Authentication handler to the session
+        self.auth: MultiDomainBasicAuth = MultiDomainBasicAuth(index_urls=index_urls)
+
+        # Create our urllib3.Retry instance which will allow us to customize
+        # how we handle retries.
+        retries = urllib3.Retry(
+            # Set the total number of retries that a particular request can
+            # have.
+            total=retries,
+            # A 503 error from PyPI typically means that the Fastly -> Origin
+            # connection got interrupted in some way. A 503 error in general
+            # is typically considered a transient error so we'll go ahead and
+            # retry it.
+            # A 500 may indicate transient error in Amazon S3
+            # A 502 may be a transient error from a CDN like CloudFlare or CloudFront
+            # A 520 or 527 - may indicate transient error in CloudFlare
+            status_forcelist=[500, 502, 503, 520, 527],
+            # Add a small amount of back off between failed requests in
+            # order to prevent hammering the service.
+            backoff_factor=0.25,
+        )  # type: ignore
+        self.resume_retries = resume_retries
+
+        # Our Insecure HTTPAdapter disables HTTPS validation. It does not
+        # support caching so we'll use it for all http:// URLs.
+        # If caching is disabled, we will also use it for
+        # https:// hosts that we've marked as ignoring
+        # TLS errors for (trusted-hosts).
+        insecure_adapter = InsecureHTTPAdapter(max_retries=retries)
+
+        # We want to _only_ cache responses on securely fetched origins or when
+        # the host is specified as trusted. We do this because
+        # we can't validate the response of an insecurely/untrusted fetched
+        # origin, and we don't want someone to be able to poison the cache and
+        # require manual eviction from the cache to fix it.
+        self._trusted_host_adapter: InsecureCacheControlAdapter | InsecureHTTPAdapter
+        if cache:
+            secure_adapter: _BaseHTTPAdapter = CacheControlAdapter(
+                cache=SafeFileCache(cache),
+                max_retries=retries,
+                ssl_context=ssl_context,
+            )
+            self._trusted_host_adapter = InsecureCacheControlAdapter(
+                cache=SafeFileCache(cache),
+                max_retries=retries,
+            )
+        else:
+            secure_adapter = HTTPAdapter(max_retries=retries, ssl_context=ssl_context)
+            self._trusted_host_adapter = insecure_adapter
+
+        self.mount("https://", secure_adapter)
+        self.mount("http://", insecure_adapter)
+
+        # Enable file:// urls
+        self.mount("file://", LocalFSAdapter())
+
+        for host in trusted_hosts:
+            self.add_trusted_host(host, suppress_logging=True)
+
+    def update_index_urls(self, new_index_urls: list[str]) -> None:
+        """
+        :param new_index_urls: New index urls to update the authentication
+            handler with.
+        """
+        self.auth.index_urls = new_index_urls
+
+    def add_trusted_host(
+        self, host: str, source: str | None = None, suppress_logging: bool = False
+    ) -> None:
+        """
+        :param host: It is okay to provide a host that has previously been
+            added.
+        :param source: An optional source string, for logging where the host
+            string came from.
+        """
+        if not suppress_logging:
+            msg = f"adding trusted host: {host!r}"
+            if source is not None:
+                msg += f" (from {source})"
+            logger.info(msg)
+
+        parsed_host, parsed_port = parse_netloc(host)
+        if parsed_host is None:
+            raise ValueError(f"Trusted host URL must include a host part: {host!r}")
+        if (parsed_host, parsed_port) not in self.pip_trusted_origins:
+            self.pip_trusted_origins.append((parsed_host, parsed_port))
+
+        self.mount(
+            build_url_from_netloc(host, scheme="http") + "/", self._trusted_host_adapter
+        )
+        self.mount(build_url_from_netloc(host) + "/", self._trusted_host_adapter)
+        if not parsed_port:
+            self.mount(
+                build_url_from_netloc(host, scheme="http") + ":",
+                self._trusted_host_adapter,
+            )
+            # Mount wildcard ports for the same host.
+            self.mount(build_url_from_netloc(host) + ":", self._trusted_host_adapter)
+
+    def iter_secure_origins(self) -> Generator[SecureOrigin, None, None]:
+        yield from SECURE_ORIGINS
+        for host, port in self.pip_trusted_origins:
+            yield ("*", host, "*" if port is None else port)
+
+    def is_secure_origin(self, location: Link) -> bool:
+        # Determine if this url used a secure transport mechanism
+        parsed = urllib.parse.urlparse(str(location))
+        origin_protocol, origin_host, origin_port = (
+            parsed.scheme,
+            parsed.hostname,
+            parsed.port,
+        )
+
+        # The protocol to use to see if the protocol matches.
+        # Don't count the repository type as part of the protocol: in
+        # cases such as "git+ssh", only use "ssh". (I.e., Only verify against
+        # the last scheme.)
+        origin_protocol = origin_protocol.rsplit("+", 1)[-1]
+
+        # Determine if our origin is a secure origin by looking through our
+        # hardcoded list of secure origins, as well as any additional ones
+        # configured on this PackageFinder instance.
+        for secure_origin in self.iter_secure_origins():
+            secure_protocol, secure_host, secure_port = secure_origin
+            if origin_protocol != secure_protocol and secure_protocol != "*":
+                continue
+
             try:
-                from IPython import get_ipython
-                ip = get_ipython()
-            except ImportError:
-                ip = None
-        in_ipython = bool(ip)
-        if ipython is None:
-            ipython = in_ipython
+                addr = ipaddress.ip_address(origin_host or "")
+                network = ipaddress.ip_network(secure_host)
+            except ValueError:
+                # We don't have both a valid address or a valid network, so
+                # we'll check this origin against hostnames.
+                if (
+                    origin_host
+                    and origin_host.lower() != secure_host.lower()
+                    and secure_host != "*"
+                ):
+                    continue
+            else:
+                # We have a valid address and network, so see if the address
+                # is contained within the network.
+                if addr not in network:
+                    continue
 
-    if ipython is False:
-        ip = init_python_session()
-        mainloop = ip.interact
-    else:
-        ip = init_ipython_session(ip, argv=argv, auto_symbols=auto_symbols,
-                                  auto_int_to_Integer=auto_int_to_Integer)
+            # Check to see if the port matches.
+            if (
+                origin_port != secure_port
+                and secure_port != "*"
+                and secure_port is not None
+            ):
+                continue
 
-        if version_tuple(IPython.__version__) >= version_tuple('0.11'):
-            # runsource is gone, use run_cell instead, which doesn't
-            # take a symbol arg.  The second arg is `store_history`,
-            # and False means don't add the line to IPython's history.
-            ip.runsource = lambda src, symbol='exec': ip.run_cell(src, False)
+            # If we've gotten here, then this origin matches the current
+            # secure origin and we should return True
+            return True
 
-            # Enable interactive plotting using pylab.
-            try:
-                ip.enable_pylab(import_all=False)
-            except Exception:
-                # Causes an import error if matplotlib is not installed.
-                # Causes other errors (depending on the backend) if there
-                # is no display, or if there is some problem in the
-                # backend, so we have a bare "except Exception" here
-                pass
-        if not in_ipython:
-            mainloop = ip.mainloop
+        # If we've gotten to this point, then the origin isn't secure and we
+        # will not accept it as a valid location to search. We will however
+        # log a warning that we are ignoring it.
+        logger.warning(
+            "The repository located at %s is not a trusted or secure host and "
+            "is being ignored. If this repository is available via HTTPS we "
+            "recommend you use HTTPS instead, otherwise you may silence "
+            "this warning and allow it anyway with '--trusted-host %s'.",
+            origin_host,
+            origin_host,
+        )
 
-    if auto_symbols and (not ipython or version_tuple(IPython.__version__) < version_tuple('0.11')):
-        raise RuntimeError("automatic construction of symbols is possible only in IPython 0.11 or above")
-    if auto_int_to_Integer and (not ipython or version_tuple(IPython.__version__) < version_tuple('0.11')):
-        raise RuntimeError("automatic int to Integer transformation is possible only in IPython 0.11 or above")
+        return False
 
-    _preexec_source = preexec_source
+    def request(self, method: str, url: str, *args: Any, **kwargs: Any) -> Response:  # type: ignore[override]
+        # Allow setting a default timeout on a session
+        kwargs.setdefault("timeout", self.timeout)
+        # Allow setting a default proxies on a session
+        kwargs.setdefault("proxies", self.proxies)
 
-    ip.runsource(_preexec_source, symbol='exec')
-    init_printing(pretty_print=pretty_print, order=order,
-                  use_unicode=use_unicode, use_latex=use_latex, ip=ip,
-                  str_printer=str_printer, pretty_printer=pretty_printer,
-                  latex_printer=latex_printer)
-
-    message = _make_message(ipython, quiet, _preexec_source)
-
-    if not in_ipython:
-        print(message)
-        mainloop()
-        sys.exit('Exiting ...')
-    else:
-        print(message)
-        import atexit
-        atexit.register(lambda: print("Exiting ...\n"))
+        # Dispatch the actual request
+        try:
+            return super().request(method, url, *args, **kwargs)
+        except (requests.ConnectionError, requests.Timeout) as e:
+            request = getattr(e, "request", None)
+            failed_url = getattr(request, "url", None) or url
+            raise_connection_error(e, url=failed_url, timeout=kwargs["timeout"])
+        except ImportError as e:
+            if "ssl" in str(e).lower():
+                # Unfortunately, if this TLS error was the result of a redirect from
+                # a HTTP to a HTTPS url, we don't know what the final url was.
+                raise SSLMissingError(redact_auth_from_url(url))
+            raise

@@ -837,11 +837,11 @@ class APIWebSocketRoute(routing.WebSocketRoute):
         return match, child_scope
 
 
-_FASTAPI_SCOPE_KEY = "fastapi"
-_FASTAPI_EFFECTIVE_ROUTE_CONTEXT_KEY = "effective_route_context"
-_FASTAPI_FRONTEND_PATH_KEY = "frontend_path"
-_FASTAPI_FRONTEND_SPECIFICITY_KEY = "frontend_specificity"
-_FASTAPI_INCLUDED_ROUTER_KEY = "included_router"
+_FASTAPI_SCOPE_KEY = "REDACTED"
+_FASTAPI_EFFECTIVE_ROUTE_CONTEXT_KEY = "REDACTED"
+_FASTAPI_FRONTEND_PATH_KEY = "REDACTED"
+_FASTAPI_FRONTEND_SPECIFICITY_KEY = "REDACTED"
+_FASTAPI_INCLUDED_ROUTER_KEY = "REDACTED"
 _effective_route_context_var: ContextVar[Any | None] = ContextVar(
     "fastapi_effective_route_context", default=None
 )

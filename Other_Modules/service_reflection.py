@@ -36,7 +36,7 @@ class GeneratedServiceType(type):
     # ...
   """
 
-  _DESCRIPTOR_KEY = 'DESCRIPTOR'
+  _DESCRIPTOR_KEY = "REDACTED"
 
   def __init__(cls, name, bases, dictionary):
     """Creates a message service class.
@@ -66,7 +66,7 @@ class GeneratedServiceStubType(GeneratedServiceType):
   it creates the service stub classes.
   """
 
-  _DESCRIPTOR_KEY = 'DESCRIPTOR'
+  _DESCRIPTOR_KEY = "REDACTED"
 
   def __init__(cls, name, bases, dictionary):
     """Creates a message service stub class.

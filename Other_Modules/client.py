@@ -1,1818 +1,800 @@
-"""HTTP Client for asyncio."""
+from __future__ import annotations
 
-import asyncio
-import base64
-import hashlib
-import json
+import logging
 import os
-import sys
+import ssl as ssl_module
 import traceback
-import warnings
-from collections.abc import (
-    Awaitable,
-    Callable,
-    Coroutine,
-    Generator,
-    Iterable,
-    Sequence,
-)
-from contextlib import suppress
+import urllib.parse
+from collections.abc import AsyncIterator, Generator, Sequence
 from types import TracebackType
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Final,
-    Generic,
-    Literal,
-    TypedDict,
-    TypeVar,
-    overload,
+from typing import Any, Callable, Literal
+
+import trio
+
+from ..client import ClientProtocol, backoff, process_exception
+from ..datastructures import Headers, HeadersLike
+from ..exceptions import (
+    InvalidProxyMessage,
+    InvalidProxyStatus,
+    InvalidStatus,
+    ProxyError,
+    SecurityError,
 )
-
-import attr
-from multidict import CIMultiDict, MultiDict, MultiDictProxy, istr
-from yarl import URL
-
-from . import hdrs, http, payload
-from ._websocket.reader import WebSocketDataQueue
-from .abc import AbstractCookieJar
-from .client_exceptions import (
-    ClientConnectionError,
-    ClientConnectionResetError,
-    ClientConnectorCertificateError,
-    ClientConnectorDNSError,
-    ClientConnectorError,
-    ClientConnectorSSLError,
-    ClientError,
-    ClientHttpProxyError,
-    ClientOSError,
-    ClientPayloadError,
-    ClientProxyConnectionError,
-    ClientResponseError,
-    ClientSSLError,
-    ConnectionTimeoutError,
-    ContentTypeError,
-    InvalidURL,
-    InvalidUrlClientError,
-    InvalidUrlRedirectClientError,
-    NonHttpUrlClientError,
-    NonHttpUrlRedirectClientError,
-    RedirectClientError,
-    ServerConnectionError,
-    ServerDisconnectedError,
-    ServerFingerprintMismatch,
-    ServerTimeoutError,
-    SocketTimeoutError,
-    TooManyRedirects,
-    WSMessageTypeError,
-    WSServerHandshakeError,
-)
-from .client_middlewares import ClientMiddlewareType, build_client_middlewares
-from .client_reqrep import (
-    ClientRequest as ClientRequest,
-    ClientResponse as ClientResponse,
-    Fingerprint as Fingerprint,
-    RequestInfo as RequestInfo,
-    _merge_ssl_params,
-)
-from .client_ws import (
-    DEFAULT_WS_CLIENT_TIMEOUT,
-    ClientWebSocketResponse as ClientWebSocketResponse,
-    ClientWSTimeout as ClientWSTimeout,
-)
-from .connector import (
-    HTTP_AND_EMPTY_SCHEMA_SET,
-    BaseConnector as BaseConnector,
-    NamedPipeConnector as NamedPipeConnector,
-    TCPConnector as TCPConnector,
-    UnixConnector as UnixConnector,
-)
-from .cookiejar import CookieJar
-from .helpers import (
-    _SENTINEL,
-    DEBUG,
-    DEFAULT_CHUNK_SIZE,
-    EMPTY_BODY_METHODS,
-    BasicAuth,
-    TimeoutHandle,
-    basicauth_from_netrc,
-    get_env_proxy_for_url,
-    netrc_from_env,
-    sentinel,
-    strip_auth_from_url,
-)
-from .http import WS_KEY, HttpVersion, WebSocketReader, WebSocketWriter
-from .http_websocket import WSHandshakeError, ws_ext_gen, ws_ext_parse
-from .tracing import Trace, TraceConfig
-from .typedefs import (
-    JSONBytesEncoder,
-    JSONEncoder,
-    LooseCookies,
-    LooseHeaders,
-    Query,
-    StrOrURL,
-)
-
-__all__ = (
-    # client_exceptions
-    "ClientConnectionError",
-    "ClientConnectionResetError",
-    "ClientConnectorCertificateError",
-    "ClientConnectorDNSError",
-    "ClientConnectorError",
-    "ClientConnectorSSLError",
-    "ClientError",
-    "ClientHttpProxyError",
-    "ClientOSError",
-    "ClientPayloadError",
-    "ClientProxyConnectionError",
-    "ClientResponseError",
-    "ClientSSLError",
-    "ConnectionTimeoutError",
-    "ContentTypeError",
-    "InvalidURL",
-    "InvalidUrlClientError",
-    "RedirectClientError",
-    "NonHttpUrlClientError",
-    "InvalidUrlRedirectClientError",
-    "NonHttpUrlRedirectClientError",
-    "ServerConnectionError",
-    "ServerDisconnectedError",
-    "ServerFingerprintMismatch",
-    "ServerTimeoutError",
-    "SocketTimeoutError",
-    "TooManyRedirects",
-    "WSServerHandshakeError",
-    # client_reqrep
-    "ClientRequest",
-    "ClientResponse",
-    "Fingerprint",
-    "RequestInfo",
-    # connector
-    "BaseConnector",
-    "TCPConnector",
-    "UnixConnector",
-    "NamedPipeConnector",
-    # client_ws
-    "ClientWebSocketResponse",
-    # client
-    "ClientSession",
-    "ClientTimeout",
-    "ClientWSTimeout",
-    "request",
-    "WSMessageTypeError",
-)
+from ..extensions.base import ClientExtensionFactory
+from ..extensions.permessage_deflate import enable_client_permessage_deflate
+from ..headers import validate_subprotocols
+from ..http11 import USER_AGENT, Response
+from ..protocol import CONNECTING, Event
+from ..proxy import Proxy, get_proxy, parse_proxy, prepare_connect_request
+from ..streams import StreamReader
+from ..typing import LoggerLike, Origin, PathLike, Subprotocol
+from ..uri import WebSocketURI, parse_uri
+from .connection import Connection
+from .utils import race_events
 
 
-if TYPE_CHECKING:
-    from ssl import SSLContext
-else:
-    SSLContext = Any
+__all__ = ["connect", "unix_connect", "ClientConnection"]
 
-if sys.version_info >= (3, 11) and TYPE_CHECKING:
-    from typing import Unpack
+MAX_REDIRECTS = int(os.environ.get("WEBSOCKETS_MAX_REDIRECTS", "10"))
 
 
-class _RequestOptions(TypedDict, total=False):
-    params: Query
-    data: Any
-    json: Any
-    cookies: LooseCookies | None
-    headers: LooseHeaders | None
-    skip_auto_headers: Iterable[str] | None
-    auth: BasicAuth | None
-    allow_redirects: bool
-    max_redirects: int
-    compress: str | bool | None
-    chunked: bool | None
-    expect100: bool
-    raise_for_status: None | bool | Callable[[ClientResponse], Awaitable[None]]
-    read_until_eof: bool
-    proxy: StrOrURL | None
-    proxy_auth: BasicAuth | None
-    timeout: "ClientTimeout | _SENTINEL | None"
-    ssl: SSLContext | bool | Fingerprint
-    server_hostname: str | None
-    proxy_headers: LooseHeaders | None
-    trace_request_ctx: object
-    read_bufsize: int | None
-    auto_decompress: bool | None
-    max_line_size: int | None
-    max_field_size: int | None
-    max_headers: int | None
-    middlewares: Sequence[ClientMiddlewareType] | None
+class ClientConnection(Connection):
+    """
+    :mod:`trio` implementation of a WebSocket client connection.
 
+    :class:`ClientConnection` provides :meth:`recv` and :meth:`send` coroutines
+    for receiving and sending messages.
 
-class _WSConnectOptions(TypedDict, total=False):
-    method: str
-    protocols: Iterable[str]
-    timeout: "ClientWSTimeout | _SENTINEL"
-    receive_timeout: float | None
-    autoclose: bool
-    autoping: bool
-    heartbeat: float | None
-    auth: BasicAuth | None
-    origin: str | None
-    params: Query
-    headers: LooseHeaders | None
-    proxy: StrOrURL | None
-    proxy_auth: BasicAuth | None
-    ssl: SSLContext | bool | Fingerprint
-    verify_ssl: bool | None
-    fingerprint: bytes | None
-    ssl_context: SSLContext | None
-    server_hostname: str | None
-    proxy_headers: LooseHeaders | None
-    compress: int
-    max_msg_size: int
+    It supports asynchronous iteration to receive messages::
 
+        async for message in websocket:
+            await process(message)
 
-@attr.s(auto_attribs=True, frozen=True, slots=True)
-class ClientTimeout:
-    total: float | None = None
-    connect: float | None = None
-    sock_read: float | None = None
-    sock_connect: float | None = None
-    ceil_threshold: float = 5
+    The iterator exits normally when the connection is closed with close code
+    1000 (OK) or 1001 (going away) or without a close code. It raises a
+    :exc:`~websockets.exceptions.ConnectionClosedError` when the connection is
+    closed with any other code.
 
-    # pool_queue_timeout: Optional[float] = None
-    # dns_resolution_timeout: Optional[float] = None
-    # socket_connect_timeout: Optional[float] = None
-    # connection_acquiring_timeout: Optional[float] = None
-    # new_connection_timeout: Optional[float] = None
-    # http_header_timeout: Optional[float] = None
-    # response_body_timeout: Optional[float] = None
+    The ``ping_interval``, ``ping_timeout``, ``close_timeout``, and
+    ``max_queue`` arguments have the same meaning as in :func:`connect`.
 
-    # to create a timeout specific for a single request, either
-    # - create a completely new one to overwrite the default
-    # - or use http://www.attrs.org/en/stable/api.html#attr.evolve
-    # to overwrite the defaults
+    Args:
+        nursery: Trio nursery.
+        stream: Trio stream connected to a WebSocket server.
+        protocol: Sans-I/O connection.
 
-
-# 5 Minute default read timeout
-DEFAULT_TIMEOUT: Final[ClientTimeout] = ClientTimeout(total=5 * 60, sock_connect=30)
-
-# https://www.rfc-editor.org/rfc/rfc9110#section-9.2.2
-IDEMPOTENT_METHODS = frozenset({"GET", "HEAD", "OPTIONS", "TRACE", "PUT", "DELETE"})
-
-_RetType_co = TypeVar(
-    "_RetType_co",
-    bound="ClientResponse | ClientWebSocketResponse[bool]",
-    covariant=True,
-)
-_CharsetResolver = Callable[[ClientResponse, bytes], str]
-
-
-class ClientSession:
-    """First-class interface for making HTTP requests."""
-
-    ATTRS = frozenset(
-        [
-            "_base_url",
-            "_base_url_origin",
-            "_source_traceback",
-            "_connector",
-            "_loop",
-            "_cookie_jar",
-            "_connector_owner",
-            "_default_auth",
-            "_version",
-            "_json_serialize",
-            "_json_serialize_bytes",
-            "_requote_redirect_url",
-            "_timeout",
-            "_raise_for_status",
-            "_auto_decompress",
-            "_trust_env",
-            "_default_headers",
-            "_skip_auto_headers",
-            "_request_class",
-            "_response_class",
-            "_ws_response_class",
-            "_trace_configs",
-            "_read_bufsize",
-            "_max_line_size",
-            "_max_field_size",
-            "_max_headers",
-            "_resolve_charset",
-            "_default_proxy",
-            "_default_proxy_auth",
-            "_retry_connection",
-            "_middlewares",
-            "requote_redirect_url",
-        ]
-    )
-
-    _source_traceback: traceback.StackSummary | None = None
-    _connector: BaseConnector | None = None
+    """
 
     def __init__(
         self,
-        base_url: StrOrURL | None = None,
+        nursery: trio.Nursery,
+        stream: trio.abc.Stream,
+        protocol: ClientProtocol,
         *,
-        connector: BaseConnector | None = None,
-        loop: asyncio.AbstractEventLoop | None = None,
-        cookies: LooseCookies | None = None,
-        headers: LooseHeaders | None = None,
-        proxy: StrOrURL | None = None,
-        proxy_auth: BasicAuth | None = None,
-        skip_auto_headers: Iterable[str] | None = None,
-        auth: BasicAuth | None = None,
-        json_serialize: JSONEncoder = json.dumps,
-        json_serialize_bytes: JSONBytesEncoder | None = None,
-        request_class: type[ClientRequest] = ClientRequest,
-        response_class: type[ClientResponse] = ClientResponse,
-        ws_response_class: type[ClientWebSocketResponse] = ClientWebSocketResponse,
-        version: HttpVersion = http.HttpVersion11,
-        cookie_jar: AbstractCookieJar | None = None,
-        connector_owner: bool = True,
-        raise_for_status: bool | Callable[[ClientResponse], Awaitable[None]] = False,
-        read_timeout: float | _SENTINEL = sentinel,
-        conn_timeout: float | None = None,
-        timeout: object | ClientTimeout = sentinel,
-        auto_decompress: bool = True,
-        trust_env: bool = False,
-        requote_redirect_url: bool = True,
-        trace_configs: list[TraceConfig] | None = None,
-        read_bufsize: int = DEFAULT_CHUNK_SIZE,
-        max_line_size: int = 8190,
-        max_field_size: int = 8190,
-        max_headers: int = 128,
-        fallback_charset_resolver: _CharsetResolver = lambda r, b: "utf-8",
-        middlewares: Sequence[ClientMiddlewareType] = (),
-        ssl_shutdown_timeout: _SENTINEL | None | float = sentinel,
+        ping_interval: float | None = 20,
+        ping_timeout: float | None = 20,
+        close_timeout: float | None = 10,
+        max_queue: int | None | tuple[int | None, int | None] = 16,
     ) -> None:
-        # We initialise _connector to None immediately, as it's referenced in __del__()
-        # and could cause issues if an exception occurs during initialisation.
-        self._connector: BaseConnector | None = None
-
-        if loop is None:
-            if connector is not None:
-                loop = connector._loop
-
-        loop = loop or asyncio.get_running_loop()
-
-        if base_url is None or isinstance(base_url, URL):
-            self._base_url: URL | None = base_url
-            self._base_url_origin = None if base_url is None else base_url.origin()
-        else:
-            self._base_url = URL(base_url)
-            self._base_url_origin = self._base_url.origin()
-            assert self._base_url.absolute, "Only absolute URLs are supported"
-        if self._base_url is not None and not self._base_url.path.endswith("/"):
-            raise ValueError("base_url must have a trailing '/'")
-
-        if timeout is sentinel or timeout is None:
-            self._timeout = DEFAULT_TIMEOUT
-            if read_timeout is not sentinel:
-                warnings.warn(
-                    "read_timeout is deprecated, use timeout argument instead",
-                    DeprecationWarning,
-                    stacklevel=2,
-                )
-                self._timeout = attr.evolve(self._timeout, total=read_timeout)
-            if conn_timeout is not None:
-                self._timeout = attr.evolve(self._timeout, connect=conn_timeout)
-                warnings.warn(
-                    "conn_timeout is deprecated, use timeout argument instead",
-                    DeprecationWarning,
-                    stacklevel=2,
-                )
-        else:
-            if not isinstance(timeout, ClientTimeout):
-                raise ValueError(
-                    f"timeout parameter cannot be of {type(timeout)} type, "
-                    "please use 'timeout=ClientTimeout(...)'",
-                )
-            self._timeout = timeout
-            if read_timeout is not sentinel:
-                raise ValueError(
-                    "read_timeout and timeout parameters "
-                    "conflict, please setup "
-                    "timeout.read"
-                )
-            if conn_timeout is not None:
-                raise ValueError(
-                    "conn_timeout and timeout parameters "
-                    "conflict, please setup "
-                    "timeout.connect"
-                )
-
-        if ssl_shutdown_timeout is not sentinel:
-            warnings.warn(
-                "The ssl_shutdown_timeout parameter is deprecated and will be removed in aiohttp 4.0",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-
-        if connector is None:
-            connector = TCPConnector(
-                loop=loop, ssl_shutdown_timeout=ssl_shutdown_timeout
-            )
-
-        if connector._loop is not loop:
-            raise RuntimeError("Session and connector has to use same event loop")
-
-        self._loop = loop
-
-        if loop.get_debug():
-            self._source_traceback = traceback.extract_stack(sys._getframe(1))
-
-        if cookie_jar is None:
-            cookie_jar = CookieJar(loop=loop)
-        self._cookie_jar = cookie_jar
-
-        if cookies:
-            self._cookie_jar.update_cookies(cookies)
-
-        if auth is not None:
-            warnings.warn(
-                "The 'auth' parameter is deprecated and will be removed in v4;"
-                " pass headers={'Authorization': "
-                "aiohttp.encode_basic_auth(login, password)} instead",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-        if proxy_auth is not None:
-            warnings.warn(
-                "The 'proxy_auth' parameter is deprecated and will be removed in v4;"
-                " pass proxy_headers={'Proxy-Authorization': "
-                "aiohttp.encode_basic_auth(login, password)} instead",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-        self._connector = connector
-        self._connector_owner = connector_owner
-        self._default_auth = auth
-        self._version = version
-        self._json_serialize = json_serialize
-        self._json_serialize_bytes = json_serialize_bytes
-        self._raise_for_status = raise_for_status
-        self._auto_decompress = auto_decompress
-        self._trust_env = trust_env
-        self._requote_redirect_url = requote_redirect_url
-        self._read_bufsize = read_bufsize
-        self._max_line_size = max_line_size
-        self._max_field_size = max_field_size
-        self._max_headers = max_headers
-
-        # Convert to list of tuples
-        if headers:
-            real_headers: CIMultiDict[str] = CIMultiDict(headers)
-        else:
-            real_headers = CIMultiDict()
-        self._default_headers: CIMultiDict[str] = real_headers
-        if skip_auto_headers is not None:
-            self._skip_auto_headers = frozenset(istr(i) for i in skip_auto_headers)
-        else:
-            self._skip_auto_headers = frozenset()
-
-        self._request_class = request_class
-        self._response_class = response_class
-        self._ws_response_class = ws_response_class
-
-        self._trace_configs = trace_configs or []
-        for trace_config in self._trace_configs:
-            trace_config.freeze()
-
-        self._resolve_charset = fallback_charset_resolver
-
-        self._default_proxy = proxy
-        self._default_proxy_auth = proxy_auth
-        self._retry_connection: bool = True
-        self._middlewares = middlewares
-
-    def __init_subclass__(cls: type["ClientSession"]) -> None:
-        warnings.warn(
-            f"Inheritance class {cls.__name__} from ClientSession is discouraged",
-            DeprecationWarning,
-            stacklevel=2,
+        self.protocol: ClientProtocol
+        super().__init__(
+            nursery,
+            stream,
+            protocol,
+            ping_interval=ping_interval,
+            ping_timeout=ping_timeout,
+            close_timeout=close_timeout,
+            max_queue=max_queue,
         )
+        self.response_rcvd = trio.Event()
 
-    if DEBUG:
-
-        def __setattr__(self, name: str, val: Any) -> None:
-            if name not in self.ATTRS:
-                warnings.warn(
-                    f"Setting custom ClientSession.{name} attribute is discouraged",
-                    DeprecationWarning,
-                    stacklevel=2,
-                )
-            super().__setattr__(name, val)
-
-    def __del__(self, _warnings: Any = warnings) -> None:
-        if not self.closed:
-            kwargs = {"source": self}
-            _warnings.warn(
-                f"Unclosed client session {self!r}", ResourceWarning, **kwargs
-            )
-            context = {"client_session": self, "message": "Unclosed client session"}
-            if self._source_traceback is not None:
-                context["source_traceback"] = self._source_traceback
-            self._loop.call_exception_handler(context)
-
-    if sys.version_info >= (3, 11) and TYPE_CHECKING:
-
-        def request(
-            self,
-            method: str,
-            url: StrOrURL,
-            **kwargs: Unpack[_RequestOptions],
-        ) -> "_RequestContextManager": ...
-
-    else:
-
-        def request(
-            self, method: str, url: StrOrURL, **kwargs: Any
-        ) -> "_RequestContextManager":
-            """Perform HTTP request."""
-            return _RequestContextManager(self._request(method, url, **kwargs))
-
-    def _build_url(self, str_or_url: StrOrURL) -> URL:
-        url = URL(str_or_url)
-        if self._base_url and not url.absolute:
-            return self._base_url.join(url)
-        return url
-
-    async def _request(
+    async def handshake(
         self,
-        method: str,
-        str_or_url: StrOrURL,
-        *,
-        params: Query = None,
-        data: Any = None,
-        json: Any = None,
-        cookies: LooseCookies | None = None,
-        headers: LooseHeaders | None = None,
-        skip_auto_headers: Iterable[str] | None = None,
-        auth: BasicAuth | None = None,
-        allow_redirects: bool = True,
-        max_redirects: int = 10,
-        compress: str | bool | None = None,
-        chunked: bool | None = None,
-        expect100: bool = False,
-        raise_for_status: (
-            None | bool | Callable[[ClientResponse], Awaitable[None]]
-        ) = None,
-        read_until_eof: bool = True,
-        proxy: StrOrURL | None = None,
-        proxy_auth: BasicAuth | None = None,
-        timeout: ClientTimeout | _SENTINEL = sentinel,
-        verify_ssl: bool | None = None,
-        fingerprint: bytes | None = None,
-        ssl_context: SSLContext | None = None,
-        ssl: SSLContext | bool | Fingerprint = True,
-        server_hostname: str | None = None,
-        proxy_headers: LooseHeaders | None = None,
-        trace_request_ctx: object = None,
-        read_bufsize: int | None = None,
-        auto_decompress: bool | None = None,
-        max_line_size: int | None = None,
-        max_field_size: int | None = None,
-        max_headers: int | None = None,
-        middlewares: Sequence[ClientMiddlewareType] | None = None,
-    ) -> ClientResponse:
+        additional_headers: HeadersLike | None = None,
+        user_agent_header: str | None = USER_AGENT,
+    ) -> None:
+        """
+        Perform the opening handshake.
 
-        # NOTE: timeout clamps existing connect and read timeouts.  We cannot
-        # set the default to None because we need to detect if the user wants
-        # to use the existing timeouts by setting timeout to None.
+        """
+        self.request = self.protocol.connect()
+        if additional_headers is not None:
+            self.request.headers.update(additional_headers)
+        if user_agent_header is not None:
+            self.request.headers.setdefault("User-Agent", user_agent_header)
+        async with self.send_context(expected_state=CONNECTING):
+            self.protocol.send_request(self.request)
 
-        if self.closed:
-            raise RuntimeError("Session is closed")
+        await race_events(self.response_rcvd, self.stream_closed)
 
-        method = method.upper()
-        ssl = _merge_ssl_params(ssl, verify_ssl, ssl_context, fingerprint)
+        # self.protocol.handshake_exc is set when the connection is lost before
+        # receiving a response, when the response cannot be parsed, or when the
+        # response fails the handshake.
 
-        if auth is not None:
-            warnings.warn(
-                "The 'auth' parameter is deprecated and will be removed in v4;"
-                " pass headers={'Authorization': "
-                "aiohttp.encode_basic_auth(login, password)} instead",
-                DeprecationWarning,
-                stacklevel=3,
-            )
-        if proxy_auth is not None:
-            warnings.warn(
-                "The 'proxy_auth' parameter is deprecated and will be removed in v4;"
-                " pass proxy_headers={'Proxy-Authorization': "
-                "aiohttp.encode_basic_auth(login, password)} instead",
-                DeprecationWarning,
-                stacklevel=3,
-            )
+        if self.protocol.handshake_exc is not None:
+            raise self.protocol.handshake_exc
 
-        if data is not None and json is not None:
-            raise ValueError(
-                "data and json parameters can not be used at the same time"
-            )
-        elif json is not None:
-            if self._json_serialize_bytes is not None:
-                data = payload.JsonBytesPayload(json, dumps=self._json_serialize_bytes)
-            else:
-                data = payload.JsonPayload(json, dumps=self._json_serialize)
+    def process_event(self, event: Event) -> None:
+        """
+        Process one incoming event.
 
-        if not isinstance(chunked, bool) and chunked is not None:
-            warnings.warn("Chunk size is deprecated #1615", DeprecationWarning)
-
-        redirects = 0
-        history: list[ClientResponse] = []
-        version = self._version
-        params = params or {}
-
-        # Merge with default headers and transform to CIMultiDict
-        headers = self._prepare_headers(headers)
-
-        try:
-            url = self._build_url(str_or_url)
-        except ValueError as e:
-            raise InvalidUrlClientError(str_or_url) from e
-
-        assert self._connector is not None
-        if url.scheme not in self._connector.allowed_protocol_schema_set:
-            raise NonHttpUrlClientError(url)
-
-        skip_headers: Iterable[istr] | None
-        if skip_auto_headers is not None:
-            skip_headers = {
-                istr(i) for i in skip_auto_headers
-            } | self._skip_auto_headers
-        elif self._skip_auto_headers:
-            skip_headers = self._skip_auto_headers
+        """
+        # First event - handshake response.
+        if self.response is None:
+            assert isinstance(event, Response)
+            self.response = event
+            self.response_rcvd.set()
+        # Later events - frames.
         else:
-            skip_headers = None
+            super().process_event(event)
 
-        if proxy is None:
-            proxy = self._default_proxy
-        if proxy_auth is None:
-            proxy_auth = self._default_proxy_auth
 
-        if proxy is None:
-            proxy_headers = None
-        else:
-            proxy_headers = self._prepare_headers(proxy_headers)
+# This is spelled in lower case because it's exposed as a callable in the API.
+class connect:
+    """
+    Connect to the WebSocket server at ``uri``.
+
+    :func:`connect` should be treated as an asynchronous context manager
+    yielding a :class:`ClientConnection`, which can then receive and send
+    messages::
+
+        from websockets.trio.client import connect
+
+        async with connect(...) as websocket:
+            ...
+
+    The connection is closed automatically when exiting the context.
+
+    :func:`connect` can also be treated as an infinite asynchronous iterator
+    to reconnect automatically on errors::
+
+        async for websocket in connect(...):
             try:
-                proxy = URL(proxy)
-            except ValueError as e:
-                raise InvalidURL(proxy) from e
-
-        if timeout is sentinel:
-            real_timeout: ClientTimeout = self._timeout
-        else:
-            if not isinstance(timeout, ClientTimeout):
-                real_timeout = ClientTimeout(total=timeout)
-            else:
-                real_timeout = timeout
-        # timeout is cumulative for all request operations
-        # (request, redirects, responses, data consuming)
-        tm = TimeoutHandle(
-            self._loop, real_timeout.total, ceil_threshold=real_timeout.ceil_threshold
-        )
-        handle = tm.start()
-
-        if read_bufsize is None:
-            read_bufsize = self._read_bufsize
-
-        if auto_decompress is None:
-            auto_decompress = self._auto_decompress
-
-        if max_line_size is None:
-            max_line_size = self._max_line_size
-
-        if max_field_size is None:
-            max_field_size = self._max_field_size
-
-        if max_headers is None:
-            max_headers = self._max_headers
-
-        traces = [
-            Trace(
-                self,
-                trace_config,
-                trace_config.trace_config_ctx(trace_request_ctx=trace_request_ctx),
-            )
-            for trace_config in self._trace_configs
-        ]
-
-        for trace in traces:
-            await trace.send_request_start(method, url.update_query(params), headers)
-
-        timer = tm.timer()
-        req: ClientRequest | None = None
-        try:
-            with timer:
-                # https://www.rfc-editor.org/rfc/rfc9112.html#name-retrying-requests
-                retry_persistent_connection = (
-                    self._retry_connection and method in IDEMPOTENT_METHODS
-                )
-                while True:
-                    url, auth_from_url = strip_auth_from_url(url)
-                    if not url.raw_host:
-                        # NOTE: Bail early, otherwise, causes `InvalidURL` through
-                        # NOTE: `self._request_class()` below.
-                        err_exc_cls = (
-                            InvalidUrlRedirectClientError
-                            if redirects
-                            else InvalidUrlClientError
-                        )
-                        raise err_exc_cls(url)
-                    # If `auth` was passed for an already authenticated URL,
-                    # disallow only if this is the initial URL; this is to avoid issues
-                    # with sketchy redirects that are not the caller's responsibility
-                    if not history and (auth and auth_from_url):
-                        raise ValueError(
-                            "Cannot combine AUTH argument with "
-                            "credentials encoded in URL"
-                        )
-
-                    # Override the auth with the one from the URL only if we
-                    # have no auth, or if we got an auth from a redirect URL
-                    if auth is None or (history and auth_from_url is not None):
-                        auth = auth_from_url
-
-                    if (
-                        auth is None
-                        and self._default_auth
-                        and (
-                            not self._base_url or self._base_url_origin == url.origin()
-                        )
-                    ):
-                        auth = self._default_auth
-
-                    # Try netrc if auth is still None and trust_env is enabled.
-                    if auth is None and self._trust_env and url.host is not None:
-                        auth = await self._loop.run_in_executor(
-                            None, self._get_netrc_auth, url.host
-                        )
-
-                    # It would be confusing if we support explicit
-                    # Authorization header with auth argument
-                    if (
-                        headers is not None
-                        and auth is not None
-                        and hdrs.AUTHORIZATION in headers
-                    ):
-                        raise ValueError(
-                            "Cannot combine AUTHORIZATION header "
-                            "with AUTH argument or credentials "
-                            "encoded in URL"
-                        )
-
-                    all_cookies = self._cookie_jar.filter_cookies(url)
-
-                    if cookies is not None:
-                        tmp_cookie_jar = CookieJar(
-                            unsafe=self._cookie_jar.unsafe,
-                            quote_cookie=self._cookie_jar.quote_cookie,
-                        )
-                        tmp_cookie_jar.update_cookies(cookies)
-                        req_cookies = tmp_cookie_jar.filter_cookies(url)
-                        if req_cookies:
-                            all_cookies.load(req_cookies)
-
-                    proxy_: URL | None = None
-                    if proxy is not None:
-                        proxy_ = URL(proxy)
-                    elif self._trust_env:
-                        with suppress(LookupError):
-                            proxy_, proxy_auth = await asyncio.to_thread(
-                                get_env_proxy_for_url, url
-                            )
-
-                    req = self._request_class(
-                        method,
-                        url,
-                        params=params,
-                        headers=headers,
-                        skip_auto_headers=skip_headers,
-                        data=data,
-                        cookies=all_cookies,
-                        auth=auth,
-                        version=version,
-                        compress=compress,
-                        chunked=chunked,
-                        expect100=expect100,
-                        loop=self._loop,
-                        response_class=self._response_class,
-                        proxy=proxy_,
-                        proxy_auth=proxy_auth,
-                        timer=timer,
-                        session=self,
-                        ssl=ssl if ssl is not None else True,
-                        server_hostname=server_hostname,
-                        proxy_headers=proxy_headers,
-                        traces=traces,
-                        trust_env=self.trust_env,
-                    )
-
-                    async def _connect_and_send_request(
-                        req: ClientRequest,
-                    ) -> ClientResponse:
-                        # connection timeout
-                        assert self._connector is not None
-                        try:
-                            conn = await self._connector.connect(
-                                req, traces=traces, timeout=real_timeout
-                            )
-                        except asyncio.TimeoutError as exc:
-                            raise ConnectionTimeoutError(
-                                f"Connection timeout to host {req.url}"
-                            ) from exc
-
-                        assert conn.protocol is not None
-                        conn.protocol.set_response_params(
-                            timer=timer,
-                            skip_payload=req.method in EMPTY_BODY_METHODS,
-                            read_until_eof=read_until_eof,
-                            auto_decompress=auto_decompress,
-                            read_timeout=real_timeout.sock_read,
-                            read_bufsize=read_bufsize,
-                            timeout_ceil_threshold=self._connector._timeout_ceil_threshold,
-                            max_line_size=max_line_size,
-                            max_field_size=max_field_size,
-                            max_headers=max_headers,
-                        )
-                        try:
-                            resp = await req.send(conn)
-                            try:
-                                await resp.start(conn)
-                            except BaseException:
-                                resp.close()
-                                raise
-                        except BaseException:
-                            conn.close()
-                            raise
-                        return resp
-
-                    # Apply middleware (if any) - per-request middleware overrides session middleware
-                    effective_middlewares = (
-                        self._middlewares if middlewares is None else middlewares
-                    )
-
-                    if effective_middlewares:
-                        handler = build_client_middlewares(
-                            _connect_and_send_request, effective_middlewares
-                        )
-                    else:
-                        handler = _connect_and_send_request
-
-                    try:
-                        resp = await handler(req)
-                    # Client connector errors should not be retried
-                    except (
-                        ConnectionTimeoutError,
-                        ClientConnectorError,
-                        ClientConnectorCertificateError,
-                        ClientConnectorSSLError,
-                    ):
-                        raise
-                    except (ClientOSError, ServerDisconnectedError):
-                        if retry_persistent_connection:
-                            retry_persistent_connection = False
-                            continue
-                        raise
-                    except ClientError:
-                        raise
-                    except OSError as exc:
-                        if exc.errno is None and isinstance(exc, asyncio.TimeoutError):
-                            raise
-                        raise ClientOSError(*exc.args) from exc
-
-                    # Update cookies from raw headers to preserve duplicates
-                    if resp._raw_cookie_headers:
-                        self._cookie_jar.update_cookies_from_headers(
-                            resp._raw_cookie_headers, resp.url
-                        )
-
-                    # redirects
-                    if resp.status in (301, 302, 303, 307, 308) and allow_redirects:
-
-                        for trace in traces:
-                            await trace.send_request_redirect(
-                                method, url.update_query(params), headers, resp
-                            )
-
-                        redirects += 1
-                        history.append(resp)
-                        if max_redirects and redirects >= max_redirects:
-                            if req._body is not None:
-                                await req._body.close()
-                            resp.close()
-                            raise TooManyRedirects(
-                                history[0].request_info, tuple(history)
-                            )
-
-                        # For 301 and 302, mimic IE, now changed in RFC
-                        # https://github.com/kennethreitz/requests/pull/269
-                        if (resp.status == 303 and resp.method != hdrs.METH_HEAD) or (
-                            resp.status in (301, 302) and resp.method == hdrs.METH_POST
-                        ):
-                            method = hdrs.METH_GET
-                            data = None
-                            if headers.get(hdrs.CONTENT_LENGTH):
-                                headers.pop(hdrs.CONTENT_LENGTH)
-                        else:
-                            # For 307/308, always preserve the request body
-                            # For 301/302 with non-POST methods, preserve the request body
-                            # https://www.rfc-editor.org/rfc/rfc9110#section-15.4.3-3.1
-                            # Use the existing payload to avoid recreating it from
-                            # a potentially consumed file.
-                            #
-                            # If the payload is already consumed and cannot be replayed,
-                            # fail fast instead of silently sending an empty body.
-                            if req._body is not None and req._body.consumed:
-                                resp.close()
-                                raise ClientPayloadError(
-                                    "Cannot follow redirect with a consumed request "
-                                    "body. Use bytes, a seekable file-like object, "
-                                    "or set allow_redirects=False."
-                                )
-                            data = req._body
-
-                        r_url = resp.headers.get(hdrs.LOCATION) or resp.headers.get(
-                            hdrs.URI
-                        )
-                        if r_url is None:
-                            # see github.com/aio-libs/aiohttp/issues/2022
-                            break
-                        else:
-                            # reading from correct redirection
-                            # response is forbidden
-                            resp.release()
-
-                        try:
-                            parsed_redirect_url = URL(
-                                r_url, encoded=not self._requote_redirect_url
-                            )
-                        except ValueError as e:
-                            if req._body is not None:
-                                await req._body.close()
-                            resp.close()
-                            raise InvalidUrlRedirectClientError(
-                                r_url,
-                                "Server attempted redirecting to a location that does not look like a URL",
-                            ) from e
-
-                        scheme = parsed_redirect_url.scheme
-                        if scheme not in HTTP_AND_EMPTY_SCHEMA_SET:
-                            if req._body is not None:
-                                await req._body.close()
-                            resp.close()
-                            raise NonHttpUrlRedirectClientError(r_url)
-                        elif not scheme:
-                            parsed_redirect_url = url.join(parsed_redirect_url)
-
-                        try:
-                            redirect_origin = parsed_redirect_url.origin()
-                        except ValueError as origin_val_err:
-                            if req._body is not None:
-                                await req._body.close()
-                            resp.close()
-                            raise InvalidUrlRedirectClientError(
-                                parsed_redirect_url,
-                                "Invalid redirect URL origin",
-                            ) from origin_val_err
-
-                        if url.origin() != redirect_origin:
-                            auth = None
-                            cookies = None
-                            headers.popall(hdrs.AUTHORIZATION, None)
-                            headers.popall(hdrs.COOKIE, None)
-                            headers.popall(hdrs.PROXY_AUTHORIZATION, None)
-
-                        url = parsed_redirect_url
-                        params = {}
-                        resp.release()
-                        continue
-
-                    break
-
-            if req._body is not None:
-                await req._body.close()
-            # check response status
-            if raise_for_status is None:
-                raise_for_status = self._raise_for_status
-
-            if raise_for_status is None:
-                pass
-            elif callable(raise_for_status):
-                await raise_for_status(resp)
-            elif raise_for_status:
-                resp.raise_for_status()
-
-            # register connection
-            if handle is not None:
-                if resp.connection is not None:
-                    resp.connection.add_callback(handle.cancel)
-                else:
-                    handle.cancel()
-
-            resp._history = tuple(history)
-
-            for trace in traces:
-                await trace.send_request_end(
-                    method, url.update_query(params), headers, resp
-                )
-            return resp
-
-        except BaseException as e:
-            # cleanup timer
-            tm.close()
-            if handle:
-                handle.cancel()
-                handle = None
-
-            if req is not None and req._body is not None:
-                await req._body.close()
-
-            for trace in traces:
-                await trace.send_request_exception(
-                    method, url.update_query(params), headers, e
-                )
-            raise
-
-    if sys.version_info >= (3, 11) and TYPE_CHECKING:
-
-        @overload
-        def ws_connect(
-            self,
-            url: StrOrURL,
-            *,
-            decode_text: Literal[True] = ...,
-            **kwargs: Unpack[_WSConnectOptions],
-        ) -> "_BaseRequestContextManager[ClientWebSocketResponse[Literal[True]]]": ...
-
-        @overload
-        def ws_connect(
-            self,
-            url: StrOrURL,
-            *,
-            decode_text: Literal[False],
-            **kwargs: Unpack[_WSConnectOptions],
-        ) -> "_BaseRequestContextManager[ClientWebSocketResponse[Literal[False]]]": ...
-
-        @overload
-        def ws_connect(
-            self,
-            url: StrOrURL,
-            *,
-            decode_text: bool = ...,
-            **kwargs: Unpack[_WSConnectOptions],
-        ) -> "_BaseRequestContextManager[ClientWebSocketResponse[bool]]": ...
-
-    def ws_connect(
-        self,
-        url: StrOrURL,
-        *,
-        method: str = hdrs.METH_GET,
-        protocols: Iterable[str] = (),
-        timeout: ClientWSTimeout | _SENTINEL = sentinel,
-        receive_timeout: float | None = None,
-        autoclose: bool = True,
-        autoping: bool = True,
-        heartbeat: float | None = None,
-        auth: BasicAuth | None = None,
-        origin: str | None = None,
-        params: Query = None,
-        headers: LooseHeaders | None = None,
-        proxy: StrOrURL | None = None,
-        proxy_auth: BasicAuth | None = None,
-        ssl: SSLContext | bool | Fingerprint = True,
-        verify_ssl: bool | None = None,
-        fingerprint: bytes | None = None,
-        ssl_context: SSLContext | None = None,
-        server_hostname: str | None = None,
-        proxy_headers: LooseHeaders | None = None,
-        compress: int = 0,
-        max_msg_size: int = 4 * 1024 * 1024,
-        decode_text: bool = True,
-    ) -> "_BaseRequestContextManager[ClientWebSocketResponse[bool]]":
-        """Initiate websocket connection."""
-        return _WSRequestContextManager(
-            self._ws_connect(
-                url,
-                method=method,
-                protocols=protocols,
-                timeout=timeout,
-                receive_timeout=receive_timeout,
-                autoclose=autoclose,
-                autoping=autoping,
-                heartbeat=heartbeat,
-                auth=auth,
-                origin=origin,
-                params=params,
-                headers=headers,
-                proxy=proxy,
-                proxy_auth=proxy_auth,
-                ssl=ssl,
-                verify_ssl=verify_ssl,
-                fingerprint=fingerprint,
-                ssl_context=ssl_context,
-                server_hostname=server_hostname,
-                proxy_headers=proxy_headers,
-                compress=compress,
-                max_msg_size=max_msg_size,
-                decode_text=decode_text,
-            )
-        )
-
-    if sys.version_info >= (3, 11) and TYPE_CHECKING:
-
-        @overload
-        async def _ws_connect(
-            self,
-            url: StrOrURL,
-            *,
-            decode_text: Literal[True] = ...,
-            **kwargs: Unpack[_WSConnectOptions],
-        ) -> "ClientWebSocketResponse[Literal[True]]": ...
-
-        @overload
-        async def _ws_connect(
-            self,
-            url: StrOrURL,
-            *,
-            decode_text: Literal[False],
-            **kwargs: Unpack[_WSConnectOptions],
-        ) -> "ClientWebSocketResponse[Literal[False]]": ...
-
-        @overload
-        async def _ws_connect(
-            self,
-            url: StrOrURL,
-            *,
-            decode_text: bool = ...,
-            **kwargs: Unpack[_WSConnectOptions],
-        ) -> "ClientWebSocketResponse[bool]": ...
-
-    async def _ws_connect(
-        self,
-        url: StrOrURL,
-        *,
-        method: str = hdrs.METH_GET,
-        protocols: Iterable[str] = (),
-        timeout: ClientWSTimeout | _SENTINEL = sentinel,
-        receive_timeout: float | None = None,
-        autoclose: bool = True,
-        autoping: bool = True,
-        heartbeat: float | None = None,
-        auth: BasicAuth | None = None,
-        origin: str | None = None,
-        params: Query = None,
-        headers: LooseHeaders | None = None,
-        proxy: StrOrURL | None = None,
-        proxy_auth: BasicAuth | None = None,
-        ssl: SSLContext | bool | Fingerprint = True,
-        verify_ssl: bool | None = None,
-        fingerprint: bytes | None = None,
-        ssl_context: SSLContext | None = None,
-        server_hostname: str | None = None,
-        proxy_headers: LooseHeaders | None = None,
-        compress: int = 0,
-        max_msg_size: int = 4 * 1024 * 1024,
-        decode_text: bool = True,
-    ) -> "ClientWebSocketResponse[bool]":
-        if auth is not None:
-            warnings.warn(
-                "The 'auth' parameter is deprecated and will be removed in v4;"
-                " pass headers={'Authorization': "
-                "aiohttp.encode_basic_auth(login, password)} instead",
-                DeprecationWarning,
-                stacklevel=3,
-            )
-        if proxy_auth is not None:
-            warnings.warn(
-                "The 'proxy_auth' parameter is deprecated and will be removed in v4;"
-                " pass proxy_headers={'Proxy-Authorization': "
-                "aiohttp.encode_basic_auth(login, password)} instead",
-                DeprecationWarning,
-                stacklevel=3,
-            )
-        if timeout is not sentinel:
-            if isinstance(timeout, ClientWSTimeout):
-                ws_timeout = timeout
-            else:
-                warnings.warn(
-                    "parameter 'timeout' of type 'float' "
-                    "is deprecated, please use "
-                    "'timeout=ClientWSTimeout(ws_close=...)'",
-                    DeprecationWarning,
-                    stacklevel=2,
-                )
-                ws_timeout = ClientWSTimeout(ws_close=timeout)
-        else:
-            ws_timeout = DEFAULT_WS_CLIENT_TIMEOUT
-        if receive_timeout is not None:
-            warnings.warn(
-                "float parameter 'receive_timeout' "
-                "is deprecated, please use parameter "
-                "'timeout=ClientWSTimeout(ws_receive=...)'",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            ws_timeout = attr.evolve(ws_timeout, ws_receive=receive_timeout)
-
-        if headers is None:
-            real_headers: CIMultiDict[str] = CIMultiDict()
-        else:
-            real_headers = CIMultiDict(headers)
-
-        default_headers = {
-            hdrs.UPGRADE: "websocket",
-            hdrs.CONNECTION: "Upgrade",
-            hdrs.SEC_WEBSOCKET_VERSION: "13",
-        }
-
-        for key, value in default_headers.items():
-            real_headers.setdefault(key, value)
-
-        sec_key = base64.b64encode(os.urandom(16))
-        real_headers[hdrs.SEC_WEBSOCKET_KEY] = sec_key.decode()
-
-        if protocols:
-            real_headers[hdrs.SEC_WEBSOCKET_PROTOCOL] = ",".join(protocols)
-        if origin is not None:
-            real_headers[hdrs.ORIGIN] = origin
-        if compress:
-            extstr = ws_ext_gen(compress=compress)
-            real_headers[hdrs.SEC_WEBSOCKET_EXTENSIONS] = extstr
-
-        # For the sake of backward compatibility, if user passes in None, convert it to True
-        if ssl is None:
-            warnings.warn(
-                "ssl=None is deprecated, please use ssl=True",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            ssl = True
-        ssl = _merge_ssl_params(ssl, verify_ssl, ssl_context, fingerprint)
-
-        # send request
-        resp = await self.request(
-            method,
-            url,
-            params=params,
-            headers=real_headers,
-            read_until_eof=False,
-            auth=auth,
-            proxy=proxy,
-            proxy_auth=proxy_auth,
-            ssl=ssl,
-            server_hostname=server_hostname,
-            proxy_headers=proxy_headers,
-        )
-
-        try:
-            # check handshake
-            if resp.status != 101:
-                raise WSServerHandshakeError(
-                    resp.request_info,
-                    resp.history,
-                    message="Invalid response status",
-                    status=resp.status,
-                    headers=resp.headers,
-                )
-
-            if resp.headers.get(hdrs.UPGRADE, "").lower() != "websocket":
-                raise WSServerHandshakeError(
-                    resp.request_info,
-                    resp.history,
-                    message="Invalid upgrade header",
-                    status=resp.status,
-                    headers=resp.headers,
-                )
-
-            if resp.headers.get(hdrs.CONNECTION, "").lower() != "upgrade":
-                raise WSServerHandshakeError(
-                    resp.request_info,
-                    resp.history,
-                    message="Invalid connection header",
-                    status=resp.status,
-                    headers=resp.headers,
-                )
-
-            # key calculation
-            r_key = resp.headers.get(hdrs.SEC_WEBSOCKET_ACCEPT, "")
-            match = base64.b64encode(hashlib.sha1(sec_key + WS_KEY).digest()).decode()
-            if r_key != match:
-                raise WSServerHandshakeError(
-                    resp.request_info,
-                    resp.history,
-                    message="Invalid challenge response",
-                    status=resp.status,
-                    headers=resp.headers,
-                )
-
-            # websocket protocol
-            protocol = None
-            if protocols and hdrs.SEC_WEBSOCKET_PROTOCOL in resp.headers:
-                resp_protocols = [
-                    proto.strip()
-                    for proto in resp.headers[hdrs.SEC_WEBSOCKET_PROTOCOL].split(",")
-                ]
-
-                for proto in resp_protocols:
-                    if proto in protocols:
-                        protocol = proto
-                        break
-
-            # websocket compress
-            notakeover = False
-            if compress:
-                compress_hdrs = resp.headers.get(hdrs.SEC_WEBSOCKET_EXTENSIONS)
-                if compress_hdrs:
-                    try:
-                        compress, notakeover = ws_ext_parse(compress_hdrs)
-                    except WSHandshakeError as exc:
-                        raise WSServerHandshakeError(
-                            resp.request_info,
-                            resp.history,
-                            message=exc.args[0],
-                            status=resp.status,
-                            headers=resp.headers,
-                        ) from exc
-                else:
-                    compress = 0
-                    notakeover = False
-
-            conn = resp.connection
-            assert conn is not None
-            conn_proto = conn.protocol
-            assert conn_proto is not None
-
-            # For WS connection the read_timeout must be either receive_timeout or greater
-            # None == no timeout, i.e. infinite timeout, so None is the max timeout possible
-            if ws_timeout.ws_receive is None:
-                # Reset regardless
-                conn_proto.read_timeout = None
-            elif conn_proto.read_timeout is not None:
-                conn_proto.read_timeout = max(
-                    ws_timeout.ws_receive, conn_proto.read_timeout
-                )
-
-            transport = conn.transport
-            assert transport is not None
-            reader = WebSocketDataQueue(conn_proto, DEFAULT_CHUNK_SIZE, loop=self._loop)
-            writer = WebSocketWriter(
-                conn_proto,
-                transport,
-                use_mask=True,
-                compress=compress,
-                notakeover=notakeover,
-            )
-        except BaseException:
-            resp.close()
-            raise
-        else:
-            ws_resp = self._ws_response_class(
-                reader,
-                writer,
-                protocol,
-                resp,
-                ws_timeout,
-                autoclose,
-                autoping,
-                self._loop,
-                heartbeat=heartbeat,
-                compress=compress,
-                client_notakeover=notakeover,
-            )
-            parser = WebSocketReader(
-                reader,
-                max_msg_size,
-                compress=bool(compress),
-                decode_text=decode_text,
-            )
-            cb = None if heartbeat is None else ws_resp._on_data_received
-            conn_proto.set_parser(parser, reader, data_received_cb=cb)
-            return ws_resp
-
-    def _prepare_headers(self, headers: LooseHeaders | None) -> "CIMultiDict[str]":
-        """Add default headers and transform it to CIMultiDict"""
-        # Convert headers to MultiDict
-        result = CIMultiDict(self._default_headers)
-        if headers:
-            if not isinstance(headers, (MultiDictProxy, MultiDict)):
-                headers = CIMultiDict(headers)
-            added_names: set[str] = set()
-            for key, value in headers.items():
-                if key in added_names:
-                    result.add(key, value)
-                else:
-                    result[key] = value
-                    added_names.add(key)
-        return result
-
-    def _get_netrc_auth(self, host: str) -> BasicAuth | None:
-        """
-        Get auth from netrc for the given host.
-
-        This method is designed to be called in an executor to avoid
-        blocking I/O in the event loop.
-        """
-        netrc_obj = netrc_from_env()
-        try:
-            return basicauth_from_netrc(netrc_obj, host)
-        except LookupError:
-            return None
-
-    if sys.version_info >= (3, 11) and TYPE_CHECKING:
-
-        def get(
-            self,
-            url: StrOrURL,
-            **kwargs: Unpack[_RequestOptions],
-        ) -> "_RequestContextManager": ...
-
-        def options(
-            self,
-            url: StrOrURL,
-            **kwargs: Unpack[_RequestOptions],
-        ) -> "_RequestContextManager": ...
-
-        def head(
-            self,
-            url: StrOrURL,
-            **kwargs: Unpack[_RequestOptions],
-        ) -> "_RequestContextManager": ...
-
-        def post(
-            self,
-            url: StrOrURL,
-            **kwargs: Unpack[_RequestOptions],
-        ) -> "_RequestContextManager": ...
-
-        def put(
-            self,
-            url: StrOrURL,
-            **kwargs: Unpack[_RequestOptions],
-        ) -> "_RequestContextManager": ...
-
-        def patch(
-            self,
-            url: StrOrURL,
-            **kwargs: Unpack[_RequestOptions],
-        ) -> "_RequestContextManager": ...
-
-        def delete(
-            self,
-            url: StrOrURL,
-            **kwargs: Unpack[_RequestOptions],
-        ) -> "_RequestContextManager": ...
-
-    else:
-
-        def get(
-            self, url: StrOrURL, *, allow_redirects: bool = True, **kwargs: Any
-        ) -> "_RequestContextManager":
-            """Perform HTTP GET request."""
-            return _RequestContextManager(
-                self._request(
-                    hdrs.METH_GET, url, allow_redirects=allow_redirects, **kwargs
-                )
-            )
-
-        def options(
-            self, url: StrOrURL, *, allow_redirects: bool = True, **kwargs: Any
-        ) -> "_RequestContextManager":
-            """Perform HTTP OPTIONS request."""
-            return _RequestContextManager(
-                self._request(
-                    hdrs.METH_OPTIONS, url, allow_redirects=allow_redirects, **kwargs
-                )
-            )
-
-        def head(
-            self, url: StrOrURL, *, allow_redirects: bool = False, **kwargs: Any
-        ) -> "_RequestContextManager":
-            """Perform HTTP HEAD request."""
-            return _RequestContextManager(
-                self._request(
-                    hdrs.METH_HEAD, url, allow_redirects=allow_redirects, **kwargs
-                )
-            )
-
-        def post(
-            self, url: StrOrURL, *, data: Any = None, **kwargs: Any
-        ) -> "_RequestContextManager":
-            """Perform HTTP POST request."""
-            return _RequestContextManager(
-                self._request(hdrs.METH_POST, url, data=data, **kwargs)
-            )
-
-        def put(
-            self, url: StrOrURL, *, data: Any = None, **kwargs: Any
-        ) -> "_RequestContextManager":
-            """Perform HTTP PUT request."""
-            return _RequestContextManager(
-                self._request(hdrs.METH_PUT, url, data=data, **kwargs)
-            )
-
-        def patch(
-            self, url: StrOrURL, *, data: Any = None, **kwargs: Any
-        ) -> "_RequestContextManager":
-            """Perform HTTP PATCH request."""
-            return _RequestContextManager(
-                self._request(hdrs.METH_PATCH, url, data=data, **kwargs)
-            )
-
-        def delete(self, url: StrOrURL, **kwargs: Any) -> "_RequestContextManager":
-            """Perform HTTP DELETE request."""
-            return _RequestContextManager(
-                self._request(hdrs.METH_DELETE, url, **kwargs)
-            )
-
-    async def close(self) -> None:
-        """Close underlying connector.
-
-        Release all acquired resources.
-        """
-        if not self.closed:
-            if self._connector is not None and self._connector_owner:
-                await self._connector.close()
-            self._connector = None
-
-    @property
-    def closed(self) -> bool:
-        """Is client session closed.
-
-        A readonly property.
-        """
-        return self._connector is None or self._connector.closed
-
-    @property
-    def connector(self) -> BaseConnector | None:
-        """Connector instance used for the session."""
-        return self._connector
-
-    @property
-    def cookie_jar(self) -> AbstractCookieJar:
-        """The session cookies."""
-        return self._cookie_jar
-
-    @property
-    def version(self) -> tuple[int, int]:
-        """The session HTTP protocol version."""
-        return self._version
-
-    @property
-    def requote_redirect_url(self) -> bool:
-        """Do URL requoting on redirection handling."""
-        return self._requote_redirect_url
-
-    @requote_redirect_url.setter
-    def requote_redirect_url(self, val: bool) -> None:
-        """Do URL requoting on redirection handling."""
-        warnings.warn(
-            "session.requote_redirect_url modification is deprecated #2778",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        self._requote_redirect_url = val
-
-    @property
-    def loop(self) -> asyncio.AbstractEventLoop:
-        """Session's loop."""
-        warnings.warn(
-            "client.loop property is deprecated", DeprecationWarning, stacklevel=2
-        )
-        return self._loop
-
-    @property
-    def timeout(self) -> ClientTimeout:
-        """Timeout for the session."""
-        return self._timeout
-
-    @property
-    def headers(self) -> "CIMultiDict[str]":
-        """The default headers of the client session."""
-        return self._default_headers
-
-    @property
-    def skip_auto_headers(self) -> frozenset[istr]:
-        """Headers for which autogeneration should be skipped"""
-        return self._skip_auto_headers
-
-    @property
-    def auth(self) -> BasicAuth | None:
-        """An object that represents HTTP Basic Authorization"""
-        return self._default_auth
-
-    @property
-    def json_serialize(self) -> JSONEncoder:
-        """Json serializer callable"""
-        return self._json_serialize
-
-    @property
-    def connector_owner(self) -> bool:
-        """Should connector be closed on session closing"""
-        return self._connector_owner
-
-    @property
-    def raise_for_status(
-        self,
-    ) -> bool | Callable[[ClientResponse], Awaitable[None]]:
-        """Should `ClientResponse.raise_for_status()` be called for each response."""
-        return self._raise_for_status
-
-    @property
-    def auto_decompress(self) -> bool:
-        """Should the body response be automatically decompressed."""
-        return self._auto_decompress
-
-    @property
-    def trust_env(self) -> bool:
-        """
-        Should proxies information from environment or netrc be trusted.
-
-        Information is from HTTP_PROXY / HTTPS_PROXY environment variables
-        or ~/.netrc file if present.
-        """
-        return self._trust_env
-
-    @property
-    def trace_configs(self) -> list[TraceConfig]:
-        """A list of TraceConfig instances used for client tracing"""
-        return self._trace_configs
-
-    def detach(self) -> None:
-        """Detach connector from session without closing the former.
-
-        Session is switched to closed state anyway.
-        """
-        self._connector = None
-
-    def __enter__(self) -> None:
-        raise TypeError("Use async with instead")
-
-    def __exit__(
-        self,
-        exc_type: type[BaseException] | None,
-        exc_val: BaseException | None,
-        exc_tb: TracebackType | None,
-    ) -> None:
-        # __exit__ should exist in pair with __enter__ but never executed
-        pass  # pragma: no cover
-
-    async def __aenter__(self) -> "ClientSession":
-        return self
-
-    async def __aexit__(
-        self,
-        exc_type: type[BaseException] | None,
-        exc_val: BaseException | None,
-        exc_tb: TracebackType | None,
-    ) -> None:
-        await self.close()
-
-
-class _BaseRequestContextManager(
-    Coroutine[Any, Any, _RetType_co], Generic[_RetType_co]
-):
-
-    __slots__ = ("_coro", "_resp")
-
-    def __init__(self, coro: Coroutine[asyncio.Future[Any], None, _RetType_co]) -> None:
-        self._coro: Coroutine[asyncio.Future[Any], None, _RetType_co] = coro
-
-    def send(self, arg: None) -> asyncio.Future[Any]:
-        return self._coro.send(arg)
-
-    def throw(self, *args: Any, **kwargs: Any) -> asyncio.Future[Any]:
-        return self._coro.throw(*args, **kwargs)
-
-    def close(self) -> None:
-        return self._coro.close()
-
-    def __await__(self) -> Generator[Any, None, _RetType_co]:
-        ret = self._coro.__await__()
-        return ret
-
-    def __iter__(self) -> Generator[Any, None, _RetType_co]:
-        return self.__await__()
-
-    async def __aenter__(self) -> _RetType_co:
-        self._resp: _RetType_co = await self._coro
-        return await self._resp.__aenter__()  # type: ignore[return-value]
-
-    async def __aexit__(
-        self,
-        exc_type: type[BaseException] | None,
-        exc: BaseException | None,
-        tb: TracebackType | None,
-    ) -> None:
-        await self._resp.__aexit__(exc_type, exc, tb)
-
-
-_RequestContextManager = _BaseRequestContextManager[ClientResponse]
-_WSRequestContextManager = _BaseRequestContextManager[ClientWebSocketResponse[bool]]
-
-
-class _SessionRequestContextManager:
-
-    __slots__ = ("_coro", "_resp", "_session")
+                ...
+            except websockets.exceptions.ConnectionClosed:
+                continue
+
+    If the connection fails with a transient error, it is retried with
+    exponential backoff. If it fails with a fatal error, the exception is
+    raised, breaking out of the loop.
+
+    The connection is closed automatically after each iteration of the loop.
+
+    :func:`connect` cannot be awaited directly. This is because it runs a task
+    to manage the connection and Trio doesn't support spawning tasks without a
+    context that ensures completion.
+
+    Args:
+        uri: URI of the WebSocket server.
+        stream: Preexisting TCP stream. ``stream`` overrides the host and port
+            from ``uri``. You may call :func:`~trio.open_tcp_stream` to create a
+            suitable TCP stream.
+        ssl: Configuration for enabling TLS on the connection.
+        server_hostname: Host name for the TLS handshake. ``server_hostname``
+            overrides the host name from ``uri``.
+        origin: Value of the ``Origin`` header, for servers that require it.
+        extensions: List of supported extensions, in order in which they
+            should be negotiated and run.
+        subprotocols: List of supported subprotocols, in order of decreasing
+            preference.
+        compression: The "permessage-deflate" extension is enabled by default.
+            Set ``compression`` to :obj:`None` to disable it. See the
+            :doc:`compression guide <../../topics/compression>` for details.
+        additional_headers: Arbitrary HTTP headers to add to the handshake
+            request.
+        user_agent_header: Value of  the ``User-Agent`` request header.
+            It defaults to ``"Python/x.y.z websockets/X.Y"``.
+            Setting it to :obj:`None` removes the header.
+        proxy: If a proxy is configured, it is used by default. Set ``proxy``
+            to :obj:`None` to disable the proxy or to the address of a proxy
+            to override the system configuration. See the :doc:`proxy docs
+            <../../topics/proxies>` for details.
+        proxy_ssl: Configuration for enabling TLS on the proxy connection.
+        proxy_server_hostname: Host name for the TLS handshake with the proxy.
+            ``proxy_server_hostname`` overrides the host name from ``proxy``.
+        process_exception: When reconnecting automatically, tell whether an
+            error is transient or fatal. The default behavior is defined by
+            :func:`~websockets.client.process_exception`. Refer to its
+            documentation for details.
+        open_timeout: Timeout for opening the connection in seconds.
+            :obj:`None` disables the timeout.
+        ping_interval: Interval between keepalive pings in seconds.
+            :obj:`None` disables keepalive.
+        ping_timeout: Timeout for keepalive pings in seconds.
+            :obj:`None` disables timeouts.
+        close_timeout: Timeout for closing the connection in seconds.
+            :obj:`None` disables the timeout.
+        reconnect_delays: Delays in seconds between reconnection attempts.
+            Default is exponential backoff with 5s jitter, capped at 60s.
+        max_size: Maximum size of incoming messages in bytes.
+            :obj:`None` disables the limit. You may pass a ``(max_message_size,
+            max_fragment_size)`` tuple to set different limits for messages and
+            fragments when you expect long messages sent in short fragments.
+        max_queue: High-water mark of the buffer where frames are received.
+            It defaults to 16 frames. The low-water mark defaults to ``max_queue
+            // 4``. You may pass a ``(high, low)`` tuple to set the high-water
+            and low-water marks. If you want to disable flow control entirely,
+            you may set it to ``None``, although that's a bad idea.
+        logger: Logger for this client.
+            It defaults to ``logging.getLogger("websockets.client")``.
+            See the :doc:`logging guide <../../topics/logging>` for details.
+        create_connection: Factory for the :class:`ClientConnection` managing
+            the connection. Set it to a wrapper or a subclass to customize
+            connection handling.
+
+    Any other keyword arguments are passed to :func:`~trio.open_tcp_stream`.
+    For example, you can set ``host`` and ``port`` to connect to a different
+    host and port from those found in ``uri``. This only changes the destination
+    of the TCP connection. The host name from ``uri`` is still used in the TLS
+    handshake for secure connections and in the ``Host`` header.
+
+    Raises:
+        InvalidURI: If ``uri`` isn't a valid WebSocket URI.
+        InvalidProxy: If ``proxy`` isn't a valid proxy.
+        OSError: If the TCP connection fails.
+        InvalidHandshake: If the opening handshake fails.
+        TimeoutError: If the opening handshake times out.
+
+    """
+
+    # Arguments of type SSLContext don't render correctly in the documentation
+    # because of https://github.com/sphinx-doc/sphinx/issues/13838.
 
     def __init__(
         self,
-        coro: Coroutine[asyncio.Future[Any], None, ClientResponse],
-        session: ClientSession,
+        uri: str,
+        *,
+        # TCP/TLS
+        stream: trio.abc.Stream | None = None,
+        ssl: ssl_module.SSLContext | None = None,
+        server_hostname: str | None = None,
+        # WebSocket
+        origin: Origin | None = None,
+        extensions: Sequence[ClientExtensionFactory] | None = None,
+        subprotocols: Sequence[Subprotocol] | None = None,
+        compression: str | None = "deflate",
+        # HTTP
+        additional_headers: HeadersLike | None = None,
+        user_agent_header: str | None = USER_AGENT,
+        proxy: str | Literal[True] | None = True,
+        proxy_ssl: ssl_module.SSLContext | None = None,
+        proxy_server_hostname: str | None = None,
+        process_exception: Callable[[Exception], Exception | None] = process_exception,
+        # Timeouts
+        open_timeout: float | None = 10,
+        ping_interval: float | None = 20,
+        ping_timeout: float | None = 20,
+        close_timeout: float | None = 10,
+        reconnect_delays: Callable[[], Generator[float]] = backoff,
+        # Limits
+        max_size: int | None | tuple[int | None, int | None] = 2**20,
+        max_queue: int | None | tuple[int | None, int | None] = 16,
+        # Logging
+        logger: LoggerLike | None = None,
+        # Escape hatch for advanced customization
+        create_connection: type[ClientConnection] | None = None,
+        # Other keyword arguments are passed to trio.open_tcp_stream
+        **kwargs: Any,
     ) -> None:
-        self._coro = coro
-        self._resp: ClientResponse | None = None
-        self._session = session
+        self.uri = uri
+        self.ws_uri = parse_uri(uri)
+        if not self.ws_uri.secure and ssl is not None:
+            raise ValueError("ssl argument is incompatible with a ws:// URI")
 
-    async def __aenter__(self) -> ClientResponse:
-        try:
-            self._resp = await self._coro
-        except BaseException:
-            await self._session.close()
-            raise
+        if subprotocols is not None:
+            validate_subprotocols(subprotocols)
+
+        if compression == "deflate":
+            extensions = enable_client_permessage_deflate(extensions)
+        elif compression is not None:
+            raise ValueError(f"unsupported compression: {compression}")
+
+        if logger is None:
+            logger = logging.getLogger("websockets.client")
+
+        if create_connection is None:
+            create_connection = ClientConnection
+
+        self.stream = stream
+        self.ssl = ssl
+        self.server_hostname = server_hostname
+        self.additional_headers = additional_headers
+        self.user_agent_header = user_agent_header
+        self.proxy = proxy
+        self.proxy_ssl = proxy_ssl
+        self.proxy_server_hostname = proxy_server_hostname
+        self.process_exception = process_exception
+        self.open_timeout = open_timeout
+        self.reconnect_delays = reconnect_delays
+        self.logger = logger
+        self.create_connection = create_connection
+        self.open_tcp_stream_kwargs = kwargs
+        self.protocol_kwargs = dict(
+            origin=origin,
+            extensions=extensions,
+            subprotocols=subprotocols,
+            max_size=max_size,
+            logger=logger,
+        )
+        self.connection_kwargs = dict(
+            ping_interval=ping_interval,
+            ping_timeout=ping_timeout,
+            close_timeout=close_timeout,
+            max_queue=max_queue,
+        )
+
+    async def open_tcp_stream(self) -> trio.abc.Stream:
+        """Open a TCP or Unix connection to the server, possibly through a proxy."""
+        kwargs = self.open_tcp_stream_kwargs.copy()
+        unix = kwargs.pop("unix", False)
+
+        proxy = self.proxy
+        if unix:
+            proxy = None
+        if proxy is True:
+            proxy = get_proxy(self.ws_uri)
+
+        if unix:
+            return await trio.open_unix_socket(kwargs.pop("path"))
+
+        elif proxy is not None:
+            proxy_parsed = parse_proxy(proxy)
+
+            if proxy_parsed.scheme[:5] == "socks":
+                return await connect_socks_proxy(
+                    proxy_parsed,
+                    self.ws_uri,
+                    # websockets is consistent with trio while python_socks is
+                    # consistent across implementations.
+                    local_addr=kwargs.pop("local_address", None),
+                )
+
+            elif proxy_parsed.scheme[:4] == "http":
+                if proxy_parsed.scheme != "https" and self.proxy_ssl is not None:
+                    raise ValueError(
+                        "proxy_ssl argument is incompatible with an http:// proxy"
+                    )
+                return await connect_http_proxy(
+                    proxy_parsed,
+                    self.ws_uri,
+                    user_agent_header=self.user_agent_header,
+                    ssl=self.proxy_ssl,
+                    server_hostname=self.proxy_server_hostname,
+                    **kwargs,
+                )
+
+            else:
+                raise AssertionError("parse_proxy returned unsupported proxy")
+
+        else:  # proxy is None
+            kwargs.setdefault("host", self.ws_uri.host)
+            kwargs.setdefault("port", self.ws_uri.port)
+            return await trio.open_tcp_stream(**kwargs)
+
+    async def enable_tls(self, stream: trio.abc.Stream) -> trio.abc.Stream:
+        """Enable TLS on the connection."""
+        if self.ssl is None:
+            ssl = ssl_module.create_default_context()
         else:
-            return self._resp
+            ssl = self.ssl
+        if self.server_hostname is None:
+            server_hostname = self.ws_uri.host
+        else:
+            server_hostname = self.server_hostname
+        ssl_stream = trio.SSLStream(
+            stream,
+            ssl,
+            server_hostname=server_hostname,
+            https_compatible=True,
+        )
+        await ssl_stream.do_handshake()
+        return ssl_stream
+
+    async def open_connection(self, nursery: trio.Nursery) -> ClientConnection:
+        """Create a WebSocket connection."""
+        if self.stream is None:
+            stream = await self.open_tcp_stream()
+        else:
+            stream = self.stream
+
+        try:
+            if self.ws_uri.secure:
+                stream = await self.enable_tls(stream)
+
+            protocol = ClientProtocol(
+                self.ws_uri,
+                **self.protocol_kwargs,  # type: ignore
+            )
+
+            # self.create_connection defaults to ClientConnection.
+            connection = self.create_connection(
+                nursery,
+                stream,
+                protocol,
+                **self.connection_kwargs,  # type: ignore
+            )
+
+            await connection.handshake(
+                self.additional_headers,
+                self.user_agent_header,
+            )
+
+        except trio.Cancelled:
+            await trio.aclose_forcefully(stream)
+            # The nursery running this coroutine was canceled.
+            # The next checkpoint raises trio.Cancelled.
+            # aclose_forcefully() never returns.
+            raise AssertionError("nursery should be canceled")
+        except Exception:
+            # Always close the connection even though keep-alive is the default
+            # in HTTP/1.1 because the current implementation ties opening the
+            # TCP/TLS connection with initializing the WebSocket protocol.
+            await trio.aclose_forcefully(stream)
+            raise
+
+        return connection
+
+    def process_redirect(self, exc: Exception) -> Exception | str:
+        """
+        Determine whether a connection error is a redirect that can be followed.
+
+        Return the new URI if it's a valid redirect. Else, return an exception.
+
+        """
+        if not (
+            isinstance(exc, InvalidStatus)
+            and exc.response.status_code
+            in [
+                300,  # Multiple Choices
+                301,  # Moved Permanently
+                302,  # Found
+                303,  # See Other
+                307,  # Temporary Redirect
+                308,  # Permanent Redirect
+            ]
+            and "Location" in exc.response.headers
+        ):
+            return exc
+
+        old_ws_uri = self.ws_uri
+        new_uri = urllib.parse.urljoin(self.uri, exc.response.headers["Location"])
+        new_ws_uri = parse_uri(new_uri)
+
+        # If connect() received a stream, it is closed and cannot be reused.
+        if self.stream is not None:
+            return ValueError(
+                f"cannot follow redirect to {new_uri} with a preexisting stream"
+            )
+
+        # TLS downgrade is forbidden.
+        if old_ws_uri.secure and not new_ws_uri.secure:
+            return SecurityError(f"cannot follow redirect to non-secure URI {new_uri}")
+
+        # Apply restrictions to cross-origin redirects.
+        if (
+            old_ws_uri.secure != new_ws_uri.secure
+            or old_ws_uri.host != new_ws_uri.host
+            or old_ws_uri.port != new_ws_uri.port
+        ):
+            # Cross-origin redirects on Unix sockets don't quite make sense.
+            if self.open_tcp_stream_kwargs.get("unix", False):
+                return ValueError(
+                    f"cannot follow cross-origin redirect to {new_uri} "
+                    f"with a Unix socket"
+                )
+
+            # Cross-origin redirects when host and port are overridden are ill-defined.
+            if (
+                self.open_tcp_stream_kwargs.get("host") is not None
+                or self.open_tcp_stream_kwargs.get("port") is not None
+            ):
+                return ValueError(
+                    f"cannot follow cross-origin redirect to {new_uri} "
+                    f"with an explicit host or port"
+                )
+
+            # Strip credentials to avoid leaking them to a different origin.
+            if self.additional_headers is not None:
+                self.additional_headers = Headers(
+                    (
+                        (key, value)
+                        for key, value in Headers(self.additional_headers).raw_items()
+                        if key.lower()
+                        not in ["authorization", "cookie", "proxy-authorization"]
+                    )
+                )
+
+        return new_uri
+
+    async def connect(self, nursery: trio.Nursery) -> ClientConnection:
+        try:
+            with (
+                trio.CancelScope()
+                if self.open_timeout is None
+                else trio.fail_after(self.open_timeout)
+            ):
+                for _ in range(MAX_REDIRECTS):
+                    try:
+                        connection = await self.open_connection(nursery)
+                    except Exception as exc:
+                        exc_or_uri = self.process_redirect(exc)
+                        if isinstance(exc_or_uri, Exception):
+                            # Response isn't a valid redirect; raise the exception.
+                            if exc_or_uri is exc:
+                                raise
+                            else:
+                                raise exc_or_uri from exc
+                        else:
+                            # Response is a valid redirect; follow it.
+                            self.uri = exc_or_uri
+                            self.ws_uri = parse_uri(exc_or_uri)
+                            continue
+
+                    else:
+                        connection.start_keepalive()
+                        return connection
+                else:
+                    raise SecurityError(f"more than {MAX_REDIRECTS} redirects")
+
+        except trio.TooSlowError as exc:
+            # Re-raise exception with an informative error message.
+            raise TimeoutError("timed out during opening handshake") from exc
+
+    # Do not define __await__ for ... = await nursery.start(connect, ...)
+    # because it doesn't look idiomatic in Trio.
+
+    # async with connect(...) as ...: ...
+
+    async def __aenter__(self) -> ClientConnection:
+        await self.__aenter_nursery__()
+        try:
+            self.connection = await self.connect(self.nursery)
+            return self.connection
+        except BaseException as exc:
+            await self.__aexit_nursery__(type(exc), exc, exc.__traceback__)
+            raise AssertionError("expected __aexit_nursery__ to re-raise the exception")
 
     async def __aexit__(
         self,
         exc_type: type[BaseException] | None,
-        exc: BaseException | None,
-        tb: TracebackType | None,
+        exc_value: BaseException | None,
+        traceback: TracebackType | None,
     ) -> None:
-        assert self._resp is not None
-        self._resp.close()
-        await self._session.close()
+        try:
+            try:
+                await self.connection.aclose()
+            finally:
+                del self.connection
+        finally:
+            await self.__aexit_nursery__(exc_type, exc_value, traceback)
+
+    async def __aenter_nursery__(self) -> None:
+        if hasattr(self, "nursery_manager"):
+            raise RuntimeError("connect() isn't reentrant")
+        self.nursery_manager = trio.open_nursery()
+        self.nursery = await self.nursery_manager.__aenter__()
+
+    async def __aexit_nursery__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: TracebackType | None,
+    ) -> None:
+        # We need a nursery to start the recv_events and keepalive coroutines.
+        # They aren't expected to raise exceptions; instead they catch and log
+        # all unexpected errors. To keep the nursery an implementation detail,
+        # unwrap exceptions raised by user code — per the second option here:
+        # https://trio.readthedocs.io/en/stable/reference-core.html#designing-for-multiple-errors
+        try:
+            await self.nursery_manager.__aexit__(exc_type, exc_value, traceback)
+        except BaseException as exc:
+            assert isinstance(exc, BaseExceptionGroup)
+            try:
+                trio._util.raise_single_exception_from_group(exc)
+            except trio._util.MultipleExceptionError:
+                raise AssertionError(
+                    "unexpected multiple exceptions; please file a bug report"
+                ) from exc
+        finally:
+            del self.nursery_manager
+
+    # async for ... in connect(...):
+
+    async def __aiter__(self) -> AsyncIterator[ClientConnection]:
+        delays: Generator[float] | None = None
+        while True:
+            try:
+                async with self as connection:
+                    yield connection
+            except Exception as exc:
+                # Determine whether the exception is retryable or fatal.
+                # The API of process_exception is "return an exception or None";
+                # "raise an exception" is also supported because it's a frequent
+                # mistake. It isn't documented in order to keep the API simple.
+                try:
+                    new_exc = self.process_exception(exc)
+                except Exception as raised_exc:
+                    new_exc = raised_exc
+
+                # The connection failed with a fatal error.
+                # Raise the exception and exit the loop.
+                if new_exc is exc:
+                    raise
+                if new_exc is not None:
+                    raise new_exc from exc
+
+                # The connection failed with a retryable error.
+                # Start or continue backoff and reconnect.
+                if delays is None:
+                    delays = self.reconnect_delays()
+                delay = next(delays)
+                self.logger.info(
+                    "connect failed; reconnecting in %.1f seconds: %s",
+                    delay,
+                    traceback.format_exception_only(exc)[0].strip(),
+                )
+                await trio.sleep(delay)
+
+            else:
+                # The connection succeeded. Reset backoff.
+                delays = None
 
 
-if sys.version_info >= (3, 11) and TYPE_CHECKING:
+def unix_connect(
+    path: PathLike | None = None,
+    uri: str | None = None,
+    **kwargs: Any,
+) -> connect:
+    """
+    Connect to a WebSocket server listening on a Unix socket.
 
-    def request(
-        method: str,
-        url: StrOrURL,
-        *,
-        version: HttpVersion = http.HttpVersion11,
-        connector: BaseConnector | None = None,
-        loop: asyncio.AbstractEventLoop | None = None,
-        **kwargs: Unpack[_RequestOptions],
-    ) -> _SessionRequestContextManager: ...
+    This function accepts the same keyword arguments as :func:`connect`.
+
+    It's only available on Unix.
+
+    It's mainly useful for debugging servers listening on Unix sockets.
+
+    Args:
+        path: File system path to the Unix socket.
+        uri: URI of the WebSocket server. ``uri`` defaults to
+            ``ws://localhost/`` or, when a ``ssl`` argument is provided, to
+            ``wss://localhost/``.
+
+    """
+    stream = kwargs.get("stream")
+    if path is None and stream is None:
+        raise ValueError("missing path argument")
+    elif path is not None and stream is not None:
+        raise ValueError("path is incompatible with stream")
+
+    if uri is None:
+        if kwargs.get("ssl") is None:
+            uri = "ws://localhost/"
+        else:
+            uri = "wss://localhost/"
+
+    return connect(uri=uri, unix=True, path=path, **kwargs)
+
+
+try:
+    from python_socks import ProxyType
+    from python_socks.async_.trio import Proxy as SocksProxy
+
+except ImportError:
+
+    async def connect_socks_proxy(
+        proxy: Proxy,
+        ws_uri: WebSocketURI,
+        **kwargs: Any,
+    ) -> trio.abc.Stream:
+        raise ImportError("connecting through a SOCKS proxy requires python-socks")
 
 else:
+    SOCKS_PROXY_TYPES = {
+        "socks5h": ProxyType.SOCKS5,
+        "socks5": ProxyType.SOCKS5,
+        "socks4a": ProxyType.SOCKS4,
+        "socks4": ProxyType.SOCKS4,
+    }
 
-    def request(
-        method: str,
-        url: StrOrURL,
-        *,
-        version: HttpVersion = http.HttpVersion11,
-        connector: BaseConnector | None = None,
-        loop: asyncio.AbstractEventLoop | None = None,
+    SOCKS_PROXY_RDNS = {
+        "socks5h": True,
+        "socks5": False,
+        "socks4a": True,
+        "socks4": False,
+    }
+
+    async def connect_socks_proxy(
+        proxy: Proxy,
+        ws_uri: WebSocketURI,
         **kwargs: Any,
-    ) -> _SessionRequestContextManager:
-        """Constructs and sends a request.
-
-        Returns response object.
-        method - HTTP method
-        url - request url
-        params - (optional) Dictionary or bytes to be sent in the query
-        string of the new request
-        data - (optional) Dictionary, bytes, or file-like object to
-        send in the body of the request
-        json - (optional) Any json compatible python object
-        headers - (optional) Dictionary of HTTP Headers to send with
-        the request
-        cookies - (optional) Dict object to send with the request
-        auth - (optional) BasicAuth named tuple represent HTTP Basic Auth
-        auth - aiohttp.helpers.BasicAuth
-        allow_redirects - (optional) If set to False, do not follow
-        redirects
-        version - Request HTTP version.
-        compress - Set to True if request has to be compressed
-        with deflate encoding.
-        chunked - Set to chunk size for chunked transfer encoding.
-        expect100 - Expect 100-continue response from server.
-        connector - BaseConnector sub-class instance to support
-        connection pooling.
-        read_until_eof - Read response until eof if response
-        does not have Content-Length header.
-        loop - Optional event loop.
-        timeout - Optional ClientTimeout settings structure, 5min
-        total timeout by default.
-        Usage::
-        >>> import aiohttp
-        >>> async with aiohttp.request('GET', 'http://python.org/') as resp:
-        ...    print(resp)
-        ...    data = await resp.read()
-        <ClientResponse(https://www.python.org/) [200 OK]>
-        """
-        connector_owner = False
-        if connector is None:
-            connector_owner = True
-            connector = TCPConnector(loop=loop, force_close=True)
-
-        session = ClientSession(
-            loop=loop,
-            cookies=kwargs.pop("cookies", None),
-            version=version,
-            timeout=kwargs.pop("timeout", sentinel),
-            connector=connector,
-            connector_owner=connector_owner,
+    ) -> trio.abc.Stream:
+        """Connect via a SOCKS proxy and return the socket."""
+        socks_proxy = SocksProxy(
+            SOCKS_PROXY_TYPES[proxy.scheme],
+            proxy.host,
+            proxy.port,
+            proxy.username,
+            proxy.password,
+            SOCKS_PROXY_RDNS[proxy.scheme],
         )
+        # connect() is documented to raise OSError.
+        # socks_proxy.connect() re-raises trio.TooSlowError as ProxyTimeoutError.
+        # Wrap other exceptions in ProxyError, a subclass of InvalidHandshake.
+        try:
+            return trio.SocketStream(
+                await socks_proxy.connect(ws_uri.host, ws_uri.port, **kwargs)
+            )
+        except OSError:
+            raise
+        except Exception as exc:
+            raise ProxyError("failed to connect to SOCKS proxy") from exc
 
-        return _SessionRequestContextManager(
-            session._request(method, url, **kwargs),
-            session,
-        )
+
+async def read_connect_response(stream: trio.abc.Stream) -> Response:
+    reader = StreamReader()
+    parser = Response.parse(
+        reader.read_line,
+        reader.read_exact,
+        reader.read_to_eof,
+        proxy=True,
+    )
+    try:
+        while True:
+            data = await stream.receive_some(4096)
+            if data:
+                reader.feed_data(data)
+            else:
+                reader.feed_eof()
+            next(parser)
+    except StopIteration as exc:
+        assert isinstance(exc.value, Response)  # help mypy
+        response = exc.value
+        if 200 <= response.status_code < 300:
+            return response
+        else:
+            raise InvalidProxyStatus(response)
+    except Exception as exc:
+        raise InvalidProxyMessage(
+            "did not receive a valid HTTP response from proxy"
+        ) from exc
+
+
+async def connect_http_proxy(
+    proxy: Proxy,
+    ws_uri: WebSocketURI,
+    *,
+    user_agent_header: str | None = None,
+    ssl: ssl_module.SSLContext | None = None,
+    server_hostname: str | None = None,
+    **kwargs: Any,
+) -> trio.abc.Stream:
+    stream: trio.abc.Stream
+    stream = await trio.open_tcp_stream(proxy.host, proxy.port, **kwargs)
+
+    try:
+        # Initialize TLS wrapper and perform TLS handshake
+        if proxy.scheme == "https":
+            if ssl is None:
+                ssl = ssl_module.create_default_context()
+            if server_hostname is None:
+                server_hostname = proxy.host
+            ssl_stream = trio.SSLStream(
+                stream,
+                ssl,
+                server_hostname=server_hostname,
+                https_compatible=True,
+            )
+            await ssl_stream.do_handshake()
+            stream = ssl_stream
+
+        # Send CONNECT request to the proxy and read response.
+        request = prepare_connect_request(proxy, ws_uri, user_agent_header)
+        await stream.send_all(request)
+        await read_connect_response(stream)
+
+    except (trio.Cancelled, Exception):
+        await trio.aclose_forcefully(stream)
+        raise
+
+    return stream

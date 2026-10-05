@@ -34,16 +34,9 @@ DEFAULT_JSON = BASE / "gia_context_matrix.json"
 
 
 def load_matrix(path: str | Path | None = None) -> dict:
-    """Carga el JSON de la matriz con tolerancia a fallos."""
+    """Carga el JSON de la matriz."""
     p = Path(path) if path else DEFAULT_JSON
-    raw = p.read_text(encoding="utf-8")
-    try:
-        return json.loads(raw)
-    except Exception:
-        return {
-            "seed_classification": {"designation": "GIA / TARDIS"},
-            "llm_system_prompt_master": raw.strip()
-        }
+    return json.loads(p.read_text(encoding="utf-8"))
 
 
 def compose_directives(matrix: dict) -> str:
@@ -82,11 +75,6 @@ def compose_directives(matrix: dict) -> str:
     if causal.get("lamport_clocks"):
         out.append("SINCRONIZACION CAUSAL — " + causal["lamport_clocks"])
 
-    aegis = kb.get("aegis_constant", {})
-    if aegis:
-        mat = ", ".join(aegis.get("matrix", []))
-        out.append(f"CONSTANTE AEGIS — Matriz: {mat}. Directiva: {aegis.get('directive', '')}")
-
     routing = matrix.get("operational_routing_instructions", {})
     if routing:
         lines = []
@@ -102,12 +90,10 @@ def compose_directives(matrix: dict) -> str:
     sensory = matrix.get("sensory_transduction_awareness", {})
     if sensory:
         interp = sensory.get("interpretation", {})
-        sub = sensory.get("subsystems", {})
-        sub_desc = "; ".join(f"{k}: {v}" for k, v in sub.items()) if sub else ""
         out.append(
-            "ACOPLAMIENTO SENSORIAL — " + sensory.get("context", "") + " " + sub_desc +
-            (" Entropia cinematica ALTA: " + interp.get("high_kinematic_entropy", "") if interp.get("high_kinematic_entropy") else "") +
-            (" Entropia cinematica BAJA: " + interp.get("low_kinematic_entropy", "") if interp.get("low_kinematic_entropy") else ""))
+            "ACOPLAMIENTO SENSORIAL — " + sensory.get("context", "") +
+            " Entropia cinematica ALTA: " + interp.get("high_kinematic_entropy", "") +
+            " Entropia cinematica BAJA: " + interp.get("low_kinematic_entropy", ""))
 
     akasha = matrix.get("akashic_synthesis_rules", {})
     if akasha.get("instruction"):
@@ -126,13 +112,6 @@ def compose_directives(matrix: dict) -> str:
             f"  7. Privacidad & Seguridad: {uam.get('security_and_privacy_hardening', '')}"
         ]
         out.append("\n".join(uam_lines))
-
-    subsystems = matrix.get("sovereign_subsystems_context", {})
-    if subsystems:
-        sub_lines = ["SUBSISTEMAS SOBERANOS ACTIVOS:"]
-        for k, v in subsystems.items():
-            sub_lines.append(f"  · {k}: {v}")
-        out.append("\n".join(sub_lines))
 
     integrity = matrix.get("_integrity_layer", {})
     if integrity.get("rule"):

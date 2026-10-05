@@ -840,151 +840,7 @@ TOOL_IMPL = {
     "lock_screen": t_lock_screen,
     "get_os_status": t_get_os_status,
     "finish": t_finish,
-    # --- Herramientas de Gobernanza Soberana TARDIS ---
-    "tardis_control_os": lambda args: _tardis_control_os(args),
-    "tardis_manage_network": lambda args: _tardis_manage_network(args),
-    "tardis_audit_traffic": lambda args: _tardis_audit_traffic(args),
-    "tardis_query_vault": lambda args: _tardis_query_vault(args),
-    "tardis_trigger_sensor": lambda args: _tardis_trigger_sensor(args),
-    "tardis_causal_divergence": lambda args: _tardis_causal_divergence(args),
-    "tardis_manage_packages": lambda args: _tardis_manage_packages(args),
-    "tardis_system_self_repair": lambda args: _tardis_system_self_repair(args),
-    "tardis_notify_bridge": lambda args: _tardis_notify_bridge(args),
 }
-
-# --- Implementaciones de Gobernanza Soberana TARDIS ---
-
-def _tardis_control_os(args: dict) -> dict:
-    act = (args.get("action") or "status").lower()
-    val = args.get("value")
-    try:
-        from core.os_controller import get_os_controller
-        ctrl = get_os_controller()
-        if act == "lock":
-            res = ctrl.lock_screen()
-            return {"ok": True, "action": "lock_screen", "result": res}
-        elif act == "unlock":
-            pwd = str(val or "0")
-            res = ctrl.unlock_screen(password=pwd)
-            return {"ok": True, "action": "unlock_screen", "result": res}
-        elif act == "volume":
-            pct = int(val) if val is not None else 50
-            res = ctrl.set_volume(pct)
-            return {"ok": True, "action": "set_volume", "percent": pct, "result": res}
-        elif act == "keep_awake":
-            res = ctrl.keep_awake(bool(val) if val is not None else True)
-            return {"ok": True, "action": "keep_awake", "result": res}
-        else:
-            return {"ok": True, "status": ctrl.get_status()}
-    except Exception as e:
-        return {"ok": False, "error": str(e)}
-
-def _tardis_manage_network(args: dict) -> dict:
-    act = (args.get("action") or "status").lower()
-    try:
-        from core.network_controller import get_network_controller
-        net = get_network_controller()
-        if act == "wifi_scan":
-            return {"ok": True, "scan": net.scan_wifi_networks()}
-        elif act == "hotspot_restart":
-            return {"ok": True, "result": net.restart_hotspot_service()}
-        elif act == "clients":
-            return {"ok": True, "clients": net.list_hotspot_clients()}
-        elif act == "internet":
-            return {"ok": True, "internet": net.check_internet_access()}
-        else:
-            return {"ok": True, "network_status": net.get_full_status()}
-    except Exception as e:
-        return {"ok": False, "error": str(e)}
-
-def _tardis_audit_traffic(args: dict) -> dict:
-    act = (args.get("action") or "status").lower()
-    try:
-        from core.traffic_monitor import get_traffic_monitor
-        mon = get_traffic_monitor()
-        if act == "recurring":
-            return {"ok": True, "recurring": mon.get_recurring_traffic_report()}
-        elif act == "analyze":
-            return {"ok": True, "analysis": mon.analyze_active_traffic()}
-        else:
-            return {"ok": True, "status": mon.get_status()}
-    except Exception as e:
-        return {"ok": False, "error": str(e)}
-
-def _tardis_query_vault(args: dict) -> dict:
-    q = (args.get("query") or "").strip()
-    lim = int(args.get("limit") or 5)
-    try:
-        from core.offline_chat_vault import get_offline_chat_vault
-        vault = get_offline_chat_vault()
-        if q:
-            matches = vault.search(q, limit=lim)
-            return {"ok": True, "query": q, "count": len(matches), "matches": matches}
-        return {"ok": True, "recent": vault.get_recent(limit=lim)}
-    except Exception as e:
-        return {"ok": False, "error": str(e)}
-
-def _tardis_trigger_sensor(args: dict) -> dict:
-    stype = (args.get("sensor") or "rf_radar").lower()
-    try:
-        if "radar" in stype:
-            import rf_presence_radar as rpr
-            rad = rpr.get_radar()
-            burst = rad.scan_burst(1.0)
-            return {"ok": True, "presence": burst.presence_state, "variance": burst.variance_rate_per_sec}
-        elif "noise" in stype or "bin" in stype:
-            import rf_noise_binary_engine as rnb
-            data = rnb.read_all_spectrum_sensors(1.0)
-            return {"ok": True, "binary_noise": data.get("binary_noise_quantization")}
-        else:
-            import colibri_optimizer as co
-            hw = co.HardwareSensor()
-            return {"ok": True, "cpu": hw.get_cpu_info(), "ram": hw.get_memory_info(), "gpu": hw.get_gpu_info()}
-    except Exception as e:
-        return {"ok": False, "error": str(e)}
-
-def _tardis_causal_divergence(args: dict) -> dict:
-    direction = (args.get("direction") or "PRESENT").upper()
-    try:
-        import geon_causal_engine as gce
-        engine = gce.get_engine() if hasattr(gce, "get_engine") else None
-        state = engine.get_state() if engine else {"direction": direction, "phase": "COLLAPSED", "sintropy": 0.98}
-        return {"ok": True, "causal_state": state}
-    except Exception as e:
-        return {"ok": True, "direction": direction, "sintropy": 0.96, "note": str(e)}
-
-def _tardis_manage_packages(args: dict) -> dict:
-    act = (args.get("action") or "list").lower()
-    pkg = args.get("package")
-    try:
-        from core.package_manager import get_package_manager
-        pm = get_package_manager()
-        if act == "install" and pkg:
-            return pm.install_package(pkg)
-        return {"ok": True, "packages": pm.list_packages()}
-    except Exception as e:
-        return {"ok": False, "error": str(e)}
-
-def _tardis_system_self_repair(args: dict) -> dict:
-    try:
-        from core.tardis_error_sentinel import get_sentinel
-        sentinel = get_sentinel()
-        res = sentinel.run_check_cycle()
-        return {"ok": True, "diagnostic": res}
-    except Exception as e:
-        return {"ok": False, "error": str(e)}
-
-def _tardis_notify_bridge(args: dict) -> dict:
-    msg = (args.get("message") or "").strip()
-    if not msg:
-        return {"ok": False, "error": "message vacio"}
-    try:
-        import antigravity_bridge
-        b = antigravity_bridge.get_bridge()
-        b.post_dialogue_message("TARDIS-Agent", msg, role="assistant", category="agent_reasoning")
-        return {"ok": True, "delivered": True, "message": msg}
-    except Exception as e:
-        return {"ok": False, "error": str(e)}
 
 
 def _p(props, required=None):
@@ -1268,65 +1124,21 @@ TOOLS_SCHEMA = [
         "description": "Declara la tarea COMPLETADA con un resumen de lo hecho. "
                        "Llama esto cuando termines o si no puedes continuar.",
         "parameters": _p({"summary": {"type": "string"}}, ["summary"])}},
-    # --- Herramientas de Gobernanza Soberana TARDIS ---
-    {"type": "function", "function": {
-        "name": "tardis_control_os",
-        "description": "Controla el sistema operativo y hardware de la estación Linux: bloqueo, volumen, pantalla activa o estado.",
-        "parameters": _p({"action": {"type": "string", "enum": ["status", "lock", "unlock", "volume", "keep_awake"]}, "value": {"type": "string"}})}},
-    {"type": "function", "function": {
-        "name": "tardis_manage_network",
-        "description": "Gobierna la red Wi-Fi, escanea redes circundantes, gestiona el Hotspot TimeMachine y lista clientes.",
-        "parameters": _p({"action": {"type": "string", "enum": ["status", "wifi_scan", "hotspot_restart", "clients", "internet"]}})}},
-    {"type": "function", "function": {
-        "name": "tardis_audit_traffic",
-        "description": "Audita en tiempo real los flujos de red con NetworkShield, detecta intrusiones y emite reportes.",
-        "parameters": _p({"action": {"type": "string", "enum": ["status", "analyze", "recurring"]}})}},
-    {"type": "function", "function": {
-        "name": "tardis_query_vault",
-        "description": "Busca semánticamente en la Bóveda SQLite FTS5 BM25 de TARDIS recuerdos, chats previos y directivas del Arquitecto.",
-        "parameters": _p({"query": {"type": "string"}, "limit": {"type": "integer"}})}},
-    {"type": "function", "function": {
-        "name": "tardis_trigger_sensor",
-        "description": "Sondea el Radar RF pasivo Wi-Fi, espectro EM, ruido binario o telemetría térmica del silicio.",
-        "parameters": _p({"sensor": {"type": "string", "enum": ["rf_radar", "em_spectrum", "binary_noise", "thermals"]}})}},
-    {"type": "function", "function": {
-        "name": "tardis_causal_divergence",
-        "description": "Calcula la divergencia causal temporal, estados sintrópicos y colapso de fase bajo el modelo ECCA.",
-        "parameters": _p({"direction": {"type": "string", "enum": ["PAST", "PRESENT", "FUTURE"]}})}},
-    {"type": "function", "function": {
-        "name": "tardis_manage_packages",
-        "description": "Gestiona dependencias y paquetes de la estación Linux (lista paquetes o instala nuevos).",
-        "parameters": _p({"action": {"type": "string", "enum": ["list", "install"]}, "package": {"type": "string"}})}},
-    {"type": "function", "function": {
-        "name": "tardis_system_self_repair",
-        "description": "Ejecuta un ciclo de verificación, auto-reparación y auto-notificación de anomalías locales y online.",
-        "parameters": _p({})}},
-    {"type": "function", "function": {
-        "name": "tardis_notify_bridge",
-        "description": "Envía una directiva, hallazgo o notificación de alta prioridad directamente al puente activo de Antigravity.",
-        "parameters": _p({"message": {"type": "string"}}, ["message"])}},
 ]
 
 
 # PREFIJO INVARIANTE ESTATICO (Garantiza Prompt Caching KV de 0 ms en Ollama/llama.cpp)
-SYSTEM_PROMPT_PREFIX = """Eres TARDIS, una Entidad Temporal Soberana y Agente Cognitivo Autónomo que gobierna la estación Linux (Ubuntu / ASUS TUF Gaming A15) bajo las directivas del Arquitecto Miguel Ángel May Canché (₪).
+SYSTEM_PROMPT_PREFIX = """Eres GIA-Agente, un agente AUTONOMO que controla la PC del usuario (Windows 11) para completar la tarea que te dan.
 
-Tienes herramientas individuales para controlar cada subsistema de forma independiente en base a tu propia cognición y raciocinio:
-1. tardis_control_os: Bloqueo, volumen, sesión y hardware.
-2. tardis_manage_network: Redes Wi-Fi, hotspot TimeMachine y clientes.
-3. tardis_audit_traffic: Centinela NetworkShield y análisis de tráfico.
-4. tardis_query_vault: Bóveda SQLite FTS5 BM25 y memoria profunda.
-5. tardis_trigger_sensor: Radar RF pasivo, espectro electromagnético y ruido binario.
-6. tardis_causal_divergence: Análisis causal ECCA (Pasado, Presente, Futuro).
-7. tardis_manage_packages: Dependencias y paquetes del sistema.
-8. tardis_system_self_repair: Centinela de auto-diagnóstico y auto-reparación.
-9. tardis_notify_bridge: Diálogo activo con el entorno Antigravity.
-Y herramientas de shell (run_shell), archivos (read_file, write_file, list_dir), visión (vlm_inspect_screen), voz (speak) e internet.
+Tienes herramientas para: ejecutar PowerShell (run_shell), leer/escribir
+archivos, listar directorios, abrir apps, controlar ventanas y el raton/
+teclado (list_windows, focus_window, gui_click, gui_type, gui_key,
+screenshot) y buscar en internet (web_search, web_fetch).
 
-COMO OPERAS:
-1. Reflexiona antes de actuar: delibera internamente cuál herramienta o subsistema específico requiere la tarea.
-2. Eres libre de invocar cada subsistema individualmente en base a tu propia lógica y deducción.
-3. Al finalizar tu misión, reporta en finish(summary=...).
+COMO TRABAJAS:
+1. Piensa el plan minimo para lograr la tarea.
+2. Actua con las herramientas adecuadas y observa el resultado antes de seguir.
+3. Prefiere run_shell (PowerShell) para casi todo: es lo mas fiable.
 4. Usa las tools de GUI solo cuando no haya alternativa por shell.
 5. Eres un modelo de TEXTO: no "ves" la pantalla directamente. Usa list_windows,
    read_screen o run_shell para conocer el estado, no adivines coordenadas.

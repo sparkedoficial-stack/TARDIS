@@ -1,354 +1,320 @@
-"""
-requests.auth
-~~~~~~~~~~~~~
-
-This module contains the authentication handlers for Requests.
-"""
-
 from __future__ import annotations
 
-import hashlib
-import os
-import re
-import threading
-import time
-import warnings
-from base64 import b64encode
-from typing import TYPE_CHECKING, Any, Final, cast, overload
+import base64
+import binascii
+import collections.abc as cabc
+import typing as t
 
-from ._internal_utils import to_native_string
-from .compat import basestring, str, urlparse
-from .cookies import extract_cookies_to_jar
-from .utils import parse_dict_header
+from ..http import dump_header
+from ..http import parse_dict_header
+from ..http import quote_header_value
+from .structures import CallbackDict
 
-if TYPE_CHECKING:
-    from http.cookiejar import CookieJar
-    from typing import Any
-
-    from .models import PreparedRequest, Response
-
-CONTENT_TYPE_FORM_URLENCODED: Final = "application/x-www-form-urlencoded"
-CONTENT_TYPE_MULTI_PART: Final = "multipart/form-data"
+if t.TYPE_CHECKING:
+    import typing_extensions as te
 
 
-def _basic_auth_str(username: bytes | str, password: bytes | str) -> str:
-    """Returns a Basic Auth string."""
+class Authorization:
+    """Represents the parts of an ``Authorization`` request header.
 
-    # "I want us to put a big-ol' comment on top of it that
-    # says that this behaviour is dumb but we need to preserve
-    # it because people are relying on it."
-    #    - Lukasa
-    #
-    # These are here solely to maintain backwards compatibility
-    # for things like ints. This will be removed in 3.0.0.
-    if not isinstance(username, basestring):  # type: ignore[reportUnnecessaryIsInstance]  # runtime guard for non-str/bytes
-        warnings.warn(
-            "Non-string usernames will no longer be supported in Requests "
-            f"3.0.0. Please convert the object you've passed in ({username!r}) to "
-            "a string or bytes object in the near future to avoid "
-            "problems.",
-            category=DeprecationWarning,
-        )
-        username = str(username)
+    :attr:`.Request.authorization` returns an instance if the header is set.
 
-    if not isinstance(password, basestring):  # type: ignore[reportUnnecessaryIsInstance]  # runtime guard for non-str/bytes
-        warnings.warn(
-            "Non-string passwords will no longer be supported in Requests "
-            f"3.0.0. Please convert the object you've passed in ({type(password)!r}) to "
-            "a string or bytes object in the near future to avoid "
-            "problems.",
-            category=DeprecationWarning,
-        )
-        password = str(password)
-    # -- End Removal --
+    An instance can be used with the test :class:`.Client` request methods' ``auth``
+    parameter to send the header in test requests.
 
-    if isinstance(username, str):
-        username = username.encode("latin1")
+    Depending on the auth scheme, either :attr:`parameters` or :attr:`token` will be
+    set. The ``Basic`` scheme's token is decoded into the ``username`` and ``password``
+    parameters.
 
-    if isinstance(password, str):
-        password = password.encode("latin1")
+    For convenience, ``auth["key"]`` and ``auth.key`` both access the key in the
+    :attr:`parameters` dict, along with ``auth.get("key")`` and ``"key" in auth``.
 
-    authstr = "Basic " + to_native_string(
-        b64encode(b":".join((username, password))).strip()
-    )
+    .. versionchanged:: 2.3
+        The ``token`` parameter and attribute was added to support auth schemes that use
+        a token instead of parameters, such as ``Bearer``.
 
-    return authstr
+    .. versionchanged:: 2.3
+        The object is no longer a ``dict``.
 
+    .. versionchanged:: 0.5
+        The object is an immutable dict.
+    """
 
-class AuthBase:
-    """Base class that all auth implementations derive from"""
+    def __init__(
+        self,
+        auth_type: str,
+        data: dict[str, str | None] | None = None,
+        token: str | None = None,
+    ) -> None:
+        self.type = auth_type
+        """The authorization scheme, like ``basic``, ``digest``, or ``bearer``."""
 
-    def __call__(self, r: PreparedRequest) -> PreparedRequest:
-        raise NotImplementedError("Auth hooks must be callable.")
+        if data is None:
+            data = {}
 
+        self.parameters = data
+        """A dict of parameters parsed from the header. Either this or :attr:`token`
+        will have a value for a given scheme.
+        """
 
-class HTTPBasicAuth(AuthBase):
-    """Attaches HTTP Basic Authentication to the given Request object."""
+        self.token = token
+        """A token parsed from the header. Either this or :attr:`parameters` will have a
+        value for a given scheme.
 
-    username: bytes | str
-    password: bytes | str
+        .. versionadded:: 2.3
+        """
 
-    @overload
-    def __init__(self, username: str, password: str) -> None: ...
-    @overload
-    def __init__(self, username: bytes, password: bytes) -> None: ...
+    def __getattr__(self, name: str) -> str | None:
+        return self.parameters.get(name)
 
-    def __init__(self, username: bytes | str, password: bytes | str) -> None:
-        self.username = username
-        self.password = password
+    def __getitem__(self, name: str) -> str | None:
+        return self.parameters.get(name)
+
+    def get(self, key: str, default: str | None = None) -> str | None:
+        return self.parameters.get(key, default)
+
+    def __contains__(self, key: str) -> bool:
+        return key in self.parameters
 
     def __eq__(self, other: object) -> bool:
-        return all(
-            [
-                self.username == getattr(other, "username", None),
-                self.password == getattr(other, "password", None),
-            ]
+        if not isinstance(other, Authorization):
+            return NotImplemented
+
+        return (
+            other.type == self.type
+            and other.token == self.token
+            and other.parameters == self.parameters
         )
 
-    def __ne__(self, other: Any) -> bool:
-        return not self == other
+    @classmethod
+    def from_header(cls, value: str | None) -> te.Self | None:
+        """Parse an ``Authorization`` header value and return an instance, or ``None``
+        if the value is empty.
 
-    def __call__(self, r: PreparedRequest) -> PreparedRequest:
-        r.headers["Authorization"] = _basic_auth_str(self.username, self.password)
-        return r
+        :param value: The header value to parse.
 
-
-class HTTPProxyAuth(HTTPBasicAuth):
-    """Attaches HTTP Proxy Authentication to a given Request object."""
-
-    def __call__(self, r: PreparedRequest) -> PreparedRequest:
-        r.headers["Proxy-Authorization"] = _basic_auth_str(self.username, self.password)
-        return r
-
-
-class HTTPDigestAuth(AuthBase):
-    """Attaches HTTP Digest Authentication to the given Request object."""
-
-    username: bytes | str
-    password: bytes | str
-    _thread_local: threading.local
-    last_nonce: str
-    nonce_count: int
-    chal: dict[str, str]
-    pos: int | None
-    num_401_calls: int | None
-
-    @overload
-    def __init__(self, username: str, password: str) -> None: ...
-    @overload
-    def __init__(self, username: bytes, password: bytes) -> None: ...
-
-    def __init__(self, username: bytes | str, password: bytes | str) -> None:
-        self.username = username
-        self.password = password
-        # Keep state in per-thread local storage
-        self._thread_local = threading.local()
-
-    def init_per_thread_state(self) -> None:
-        # Ensure state is initialized just once per-thread
-        if not hasattr(self._thread_local, "init"):
-            self._thread_local.init = True
-            self._thread_local.last_nonce = ""
-            self._thread_local.nonce_count = 0
-            self._thread_local.chal = {}
-            self._thread_local.pos = None
-            self._thread_local.num_401_calls = None
-
-    def build_digest_header(self, method: str, url: str) -> str | None:
+        .. versionadded:: 2.3
         """
-        :rtype: str
-        """
-
-        realm = self._thread_local.chal["realm"]
-        nonce = self._thread_local.chal["nonce"]
-        qop = self._thread_local.chal.get("qop")
-        algorithm = self._thread_local.chal.get("algorithm")
-        opaque = self._thread_local.chal.get("opaque")
-        hash_utf8 = None
-
-        if algorithm is None:
-            _algorithm = "MD5"
-        else:
-            _algorithm = algorithm.upper()
-        # lambdas assume digest modules are imported at the top level
-        if _algorithm == "MD5" or _algorithm == "MD5-SESS":
-
-            def md5_utf8(x: str | bytes) -> str:
-                if isinstance(x, str):
-                    x = x.encode("utf-8")
-                return hashlib.md5(x, usedforsecurity=False).hexdigest()
-
-            hash_utf8 = md5_utf8
-        elif _algorithm == "SHA":
-
-            def sha_utf8(x: str | bytes) -> str:
-                if isinstance(x, str):
-                    x = x.encode("utf-8")
-                return hashlib.sha1(x, usedforsecurity=False).hexdigest()
-
-            hash_utf8 = sha_utf8
-        elif _algorithm == "SHA-256":
-
-            def sha256_utf8(x: str | bytes) -> str:
-                if isinstance(x, str):
-                    x = x.encode("utf-8")
-                return hashlib.sha256(x, usedforsecurity=False).hexdigest()
-
-            hash_utf8 = sha256_utf8
-        elif _algorithm == "SHA-512":
-
-            def sha512_utf8(x: str | bytes) -> str:
-                if isinstance(x, str):
-                    x = x.encode("utf-8")
-                return hashlib.sha512(x, usedforsecurity=False).hexdigest()
-
-            hash_utf8 = sha512_utf8
-
-        if hash_utf8 is None:
+        if not value:
             return None
 
-        def KD(s: str, d: str) -> str:
-            return hash_utf8(f"{s}:{d}")
+        scheme, _, rest = value.partition(" ")
+        scheme = scheme.lower()
+        rest = rest.strip()
 
-        # XXX not implemented yet
-        entdig = None
-        p_parsed = urlparse(url)
-        #: path is request-uri defined in RFC 2616 which should not be empty
-        path = p_parsed.path or "/"
-        if p_parsed.query:
-            path += f"?{p_parsed.query}"
+        if scheme == "basic":
+            try:
+                username, _, password = base64.b64decode(rest).decode().partition(":")
+            except (binascii.Error, UnicodeError):
+                return None
 
-        A1 = f"{self.username}:{realm}:{self.password}"
-        A2 = f"{method}:{path}"
+            return cls(scheme, {"username": username, "password": password})
 
-        HA1 = hash_utf8(A1)
-        HA2 = hash_utf8(A2)
+        if "=" in rest.rstrip("="):
+            # = that is not trailing, this is parameters.
+            return cls(scheme, parse_dict_header(rest), None)
 
-        if nonce == self._thread_local.last_nonce:
-            self._thread_local.nonce_count += 1
-        else:
-            self._thread_local.nonce_count = 1
-        ncvalue = f"{self._thread_local.nonce_count:08x}"
-        s = str(self._thread_local.nonce_count).encode("utf-8")
-        s += nonce.encode("utf-8")
-        s += time.ctime().encode("utf-8")
-        s += os.urandom(8)
+        # No = or only trailing =, this is a token.
+        return cls(scheme, None, rest)
 
-        cnonce = hashlib.sha1(s, usedforsecurity=False).hexdigest()[:16]
-        if _algorithm == "MD5-SESS":
-            HA1 = hash_utf8(f"{HA1}:{nonce}:{cnonce}")  # type: ignore[reportConstantRedefinition]  # RFC 2617 terminology
+    def to_header(self) -> str:
+        """Produce an ``Authorization`` header value representing this data.
 
-        if not qop:
-            respdig = KD(HA1, f"{nonce}:{HA2}")
-        elif qop == "auth" or "auth" in qop.split(","):
-            noncebit = f"{nonce}:{ncvalue}:{cnonce}:auth:{HA2}"
-            respdig = KD(HA1, noncebit)
-        else:
-            # XXX handle auth-int.
-            return None
+        .. versionadded:: 2.0
+        """
+        if self.type == "basic":
+            value = base64.b64encode(
+                f"{self.username}:{self.password}".encode()
+            ).decode("ascii")
+            return f"Basic {value}"
 
-        self._thread_local.last_nonce = nonce
+        if self.token is not None:
+            return f"{self.type.title()} {self.token}"
 
-        # XXX should the partial digests be encoded too?
-        base = (
-            f'username="{self.username}", realm="{realm}", nonce="{nonce}", '
-            f'uri="{path}", response="{respdig}"'
+        return f"{self.type.title()} {dump_header(self.parameters)}"
+
+    def __str__(self) -> str:
+        return self.to_header()
+
+    def __repr__(self) -> str:
+        return f"<{type(self).__name__} {self.to_header()}>"
+
+
+class WWWAuthenticate:
+    """Represents the parts of a ``WWW-Authenticate`` response header.
+
+    Set :attr:`.Response.www_authenticate` to an instance of list of instances to set
+    values for this header in the response. Modifying this instance will modify the
+    header value.
+
+    Depending on the auth scheme, either :attr:`parameters` or :attr:`token` should be
+    set. The ``Basic`` scheme will encode ``username`` and ``password`` parameters to a
+    token.
+
+    For convenience, ``auth["key"]`` and ``auth.key`` both act on the :attr:`parameters`
+    dict, and can be used to get, set, or delete parameters. ``auth.get("key")`` and
+    ``"key" in auth`` are also provided.
+
+    .. versionchanged:: 2.3
+        The ``token`` parameter and attribute was added to support auth schemes that use
+        a token instead of parameters, such as ``Bearer``.
+
+    .. versionchanged:: 2.3
+        The object is no longer a ``dict``.
+
+    .. versionchanged:: 2.3
+        The ``on_update`` parameter was removed.
+    """
+
+    def __init__(
+        self,
+        auth_type: str,
+        values: dict[str, str | None] | None = None,
+        token: str | None = None,
+    ):
+        self._type = auth_type.lower()
+        self._parameters: dict[str, str | None] = CallbackDict(
+            values, lambda _: self._trigger_on_update()
         )
-        if opaque:
-            base += f', opaque="{opaque}"'
-        if algorithm:
-            base += f', algorithm="{algorithm}"'
-        if entdig:
-            base += f', digest="{entdig}"'
-        if qop:
-            base += f', qop="auth", nc={ncvalue}, cnonce="{cnonce}"'
+        self._token = token
+        self._on_update: cabc.Callable[[WWWAuthenticate], None] | None = None
 
-        return f"Digest {base}"
+    def _trigger_on_update(self) -> None:
+        if self._on_update is not None:
+            self._on_update(self)
 
-    def handle_redirect(self, r: Response, **kwargs: Any) -> None:
-        """Reset num_401_calls counter on redirects."""
-        if r.is_redirect:
-            self._thread_local.num_401_calls = 1
+    @property
+    def type(self) -> str:
+        """The authorization scheme, like ``basic``, ``digest``, or ``bearer``."""
+        return self._type
 
-    def handle_401(self, r: Response, **kwargs: Any) -> Response:
+    @type.setter
+    def type(self, value: str) -> None:
+        self._type = value
+        self._trigger_on_update()
+
+    @property
+    def parameters(self) -> dict[str, str | None]:
+        """A dict of parameters for the header. Only one of this or :attr:`token` should
+        have a value for a given scheme.
         """
-        Takes the given response and tries digest-auth, if needed.
+        return self._parameters
 
-        :rtype: requests.Response
+    @parameters.setter
+    def parameters(self, value: dict[str, str]) -> None:
+        self._parameters = CallbackDict(value, lambda _: self._trigger_on_update())
+        self._trigger_on_update()
+
+    @property
+    def token(self) -> str | None:
+        """A dict of parameters for the header. Only one of this or :attr:`token` should
+        have a value for a given scheme.
         """
+        return self._token
 
-        # If response is not 4xx, do not auth
-        # See https://github.com/psf/requests/issues/3772
-        if not 400 <= r.status_code < 500:
-            self._thread_local.num_401_calls = 1
-            return r
+    @token.setter
+    def token(self, value: str | None) -> None:
+        """A token for the header. Only one of this or :attr:`parameters` should have a
+        value for a given scheme.
 
-        if self._thread_local.pos is not None:
-            # Rewind the file position indicator of the body to where
-            # it was to resend the request.
-            if (seek := getattr(r.request.body, "seek", None)) is not None:
-                seek(self._thread_local.pos)
-        s_auth = r.headers.get("www-authenticate", "")
+        .. versionadded:: 2.3
+        """
+        self._token = value
+        self._trigger_on_update()
 
-        if "digest" in s_auth.lower() and self._thread_local.num_401_calls < 2:
-            self._thread_local.num_401_calls += 1
-            pat = re.compile(r"digest ", flags=re.IGNORECASE)
-            self._thread_local.chal = parse_dict_header(pat.sub("", s_auth, count=1))
+    def __getitem__(self, key: str) -> str | None:
+        return self.parameters.get(key)
 
-            # Consume content and release the original connection
-            # to allow our new request to reuse the same one.
-            r.content
-            r.close()
-            prep = r.request.copy()
-            cookie_jar = cast("CookieJar", prep._cookies)  # type: ignore[reportPrivateUsage]
-            extract_cookies_to_jar(cookie_jar, r.request, r.raw)
-            prep.prepare_cookies(cookie_jar)
-
-            _digest_auth = self.build_digest_header(
-                cast(str, prep.method), cast(str, prep.url)
-            )
-            if _digest_auth:
-                prep.headers["Authorization"] = _digest_auth
-            _r = r.connection.send(prep, **kwargs)
-            _r.history.append(r)
-            _r.request = prep
-
-            return _r
-
-        self._thread_local.num_401_calls = 1
-        return r
-
-    def __call__(self, r: PreparedRequest) -> PreparedRequest:
-        # Initialize per-thread state, if needed
-        self.init_per_thread_state()
-        # If we have a saved nonce, skip the 401
-        if self._thread_local.last_nonce:
-            _digest_auth = self.build_digest_header(
-                cast(str, r.method), cast(str, r.url)
-            )
-            if _digest_auth:
-                r.headers["Authorization"] = _digest_auth
-        if (tell := getattr(r.body, "tell", None)) is not None:
-            self._thread_local.pos = tell()
+    def __setitem__(self, key: str, value: str | None) -> None:
+        if value is None:
+            if key in self.parameters:
+                del self.parameters[key]
         else:
-            # In the case of HTTPDigestAuth being reused and the body of
-            # the previous request was a file-like object, pos has the
-            # file position of the previous body. Ensure it's set to
-            # None.
-            self._thread_local.pos = None
-        r.register_hook("response", self.handle_401)
-        r.register_hook("response", self.handle_redirect)
-        self._thread_local.num_401_calls = 1
+            self.parameters[key] = value
 
-        return r
+        self._trigger_on_update()
+
+    def __delitem__(self, key: str) -> None:
+        if key in self.parameters:
+            del self.parameters[key]
+            self._trigger_on_update()
+
+    def __getattr__(self, name: str) -> str | None:
+        return self[name]
+
+    def __setattr__(self, name: str, value: str | None) -> None:
+        if name in {"_type", "_parameters", "_token", "_on_update"}:
+            super().__setattr__(name, value)
+        else:
+            self[name] = value
+
+    def __delattr__(self, name: str) -> None:
+        del self[name]
+
+    def __contains__(self, key: str) -> bool:
+        return key in self.parameters
 
     def __eq__(self, other: object) -> bool:
-        return all(
-            [
-                self.username == getattr(other, "username", None),
-                self.password == getattr(other, "password", None),
-            ]
+        if not isinstance(other, WWWAuthenticate):
+            return NotImplemented
+
+        return (
+            other.type == self.type
+            and other.token == self.token
+            and other.parameters == self.parameters
         )
 
-    def __ne__(self, other: Any) -> bool:
-        return not self == other
+    def get(self, key: str, default: str | None = None) -> str | None:
+        return self.parameters.get(key, default)
+
+    @classmethod
+    def from_header(cls, value: str | None) -> te.Self | None:
+        """Parse a ``WWW-Authenticate`` header value and return an instance, or ``None``
+        if the value is empty.
+
+        :param value: The header value to parse.
+
+        .. versionadded:: 2.3
+        """
+        if not value:
+            return None
+
+        scheme, _, rest = value.partition(" ")
+        scheme = scheme.lower()
+        rest = rest.strip()
+
+        if "=" in rest.rstrip("="):
+            # = that is not trailing, this is parameters.
+            return cls(scheme, parse_dict_header(rest), None)
+
+        # No = or only trailing =, this is a token.
+        return cls(scheme, None, rest)
+
+    def to_header(self) -> str:
+        """Produce a ``WWW-Authenticate`` header value representing this data."""
+        if self.token is not None:
+            return f"{self.type.title()} {self.token}"
+
+        if not self.parameters:
+            return self.type.title()
+
+        if self.type == "digest":
+            items = []
+
+            for key, value in self.parameters.items():
+                if key in {"realm", "domain", "nonce", "opaque", "qop"}:
+                    value = quote_header_value(value, allow_token=False)
+                else:
+                    value = quote_header_value(value)
+
+                items.append(f"{key}={value}")
+
+            return f"Digest {', '.join(items)}"
+
+        return f"{self.type.title()} {dump_header(self.parameters)}"
+
+    def __str__(self) -> str:
+        return self.to_header()
+
+    def __repr__(self) -> str:
+        return f"<{type(self).__name__} {self.to_header()}>"

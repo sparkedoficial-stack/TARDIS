@@ -313,10 +313,9 @@ class ColibriBridge:
         el motor local con cero caídas y streaming continuo.
         """
         m_tag = Path(model_name).name if ("/" in str(model_name) or "\\" in str(model_name)) else str(model_name)
-        if not m_tag or m_tag in ("Qwen3.8-27B-Uncensored", "Qwen3.8-27B-Uncensored-MLX:latest", "colibri-active", "auto"):
-            m_tag = os.environ.get("GIA_MODEL", "dolphin3:latest")
-        elif ":" not in m_tag and not m_tag.endswith(".exe"):
-            m_tag = f"{m_tag}:latest"
+        if ":" not in m_tag and not m_tag.endswith(".exe"):
+            # Dejar únicamente el modelo soberano local instalado (Qwen3.8-27B-Uncensored)
+            m_tag = "Qwen3.8-27B-Uncensored-MLX:latest"
 
         req_body = {
             "model": m_tag,

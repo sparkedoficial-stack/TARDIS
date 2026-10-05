@@ -91,24 +91,14 @@ def main() -> int:
         return 1
     print(f"{D}cloudflared: {cf}{E}")
 
-    # Auto-bootstrap autónomo de dependencias de IA y tokens
-    try:
-        import gia_bootstrap
-        boot = gia_bootstrap.ensure_all_dependencies(preferred_model=args.model, verbose=False)
-        if boot.get("active_model"):
-            args.model = boot["active_model"]
-    except Exception:
-        pass
-
     # 1. Arrancar el servidor web si no esta arriba
     if not port_open(args.port):
         print(f"{D}Arrancando interfaz web en :{args.port} ...{E}")
         py = str(VENV_PY) if VENV_PY.exists() else sys.executable
-        kw = {"creationflags": subprocess.CREATE_NEW_CONSOLE} if sys.platform == "win32" else {}
         subprocess.Popen(
             [py, str(BASE / "gia_web_server.py"), "--lan",
              "--port", str(args.port), "--model", args.model],
-            **kw)
+            creationflags=subprocess.CREATE_NEW_CONSOLE)
         for _ in range(15):
             time.sleep(1)
             if port_open(args.port):

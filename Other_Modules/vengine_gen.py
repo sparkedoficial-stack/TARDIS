@@ -9,7 +9,7 @@ from .error import VerificationError
 
 
 class VGenericEngine:
-    _class_key = 'g'
+    _class_key = "REDACTED"
     _gen_python_module = False
 
     def __init__(self, verifier):
