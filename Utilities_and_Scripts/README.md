@@ -1089,6 +1089,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_systems.py**: Componente del sistema.
 - **test_constructor.py**: Componente del sistema.
 - **test_numerictypes.py**: Componente del sistema.
+- **tardis_bliss_mac_auto.sh**: Componente del sistema.
 - **test_round.py**: Componente del sistema.
 - **test_edgebfs.py**: Componente del sistema.
 - **test_singularities.py**: Componente del sistema.
