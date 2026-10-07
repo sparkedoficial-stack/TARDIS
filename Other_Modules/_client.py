@@ -310,7 +310,7 @@ class InferenceClient:
         *,
         model: str | None = None,
         top_k: int | None = None,
-        function_to_apply: Optional["AudioClassificationOutputTransform"] = None,
+        function_to_apply: Optional["REDACTED_MISTRAL"] = None,
     ) -> list[AudioClassificationOutputElement]:
         """
         Perform audio classification on the provided audio content.
@@ -325,7 +325,7 @@ class InferenceClient:
                 audio classification will be used.
             top_k (`int`, *optional*):
                 When specified, limits the output to the top K most probable classes.
-            function_to_apply (`"AudioClassificationOutputTransform"`, *optional*):
+            function_to_apply (`"REDACTED_MISTRAL"`, *optional*):
                 The function to apply to the model outputs in order to retrieve the scores.
 
         Returns:
@@ -480,7 +480,7 @@ class InferenceClient:
         stop: list[str] | None = None,
         stream_options: ChatCompletionInputStreamOptions | None = None,
         temperature: float | None = None,
-        tool_choice: Union[ChatCompletionInputToolChoiceClass, "ChatCompletionInputToolChoiceEnum"] | None = None,
+        tool_choice: Union[ChatCompletionInputToolChoiceClass, "REDACTED_MISTRAL"] | None = None,
         tool_prompt: str | None = None,
         tools: list[ChatCompletionInputTool] | None = None,
         top_logprobs: int | None = None,
@@ -506,7 +506,7 @@ class InferenceClient:
         stop: list[str] | None = None,
         stream_options: ChatCompletionInputStreamOptions | None = None,
         temperature: float | None = None,
-        tool_choice: Union[ChatCompletionInputToolChoiceClass, "ChatCompletionInputToolChoiceEnum"] | None = None,
+        tool_choice: Union[ChatCompletionInputToolChoiceClass, "REDACTED_MISTRAL"] | None = None,
         tool_prompt: str | None = None,
         tools: list[ChatCompletionInputTool] | None = None,
         top_logprobs: int | None = None,
@@ -532,7 +532,7 @@ class InferenceClient:
         stop: list[str] | None = None,
         stream_options: ChatCompletionInputStreamOptions | None = None,
         temperature: float | None = None,
-        tool_choice: Union[ChatCompletionInputToolChoiceClass, "ChatCompletionInputToolChoiceEnum"] | None = None,
+        tool_choice: Union[ChatCompletionInputToolChoiceClass, "REDACTED_MISTRAL"] | None = None,
         tool_prompt: str | None = None,
         tools: list[ChatCompletionInputTool] | None = None,
         top_logprobs: int | None = None,
@@ -558,7 +558,7 @@ class InferenceClient:
         stop: list[str] | None = None,
         stream_options: ChatCompletionInputStreamOptions | None = None,
         temperature: float | None = None,
-        tool_choice: Union[ChatCompletionInputToolChoiceClass, "ChatCompletionInputToolChoiceEnum"] | None = None,
+        tool_choice: Union[ChatCompletionInputToolChoiceClass, "REDACTED_MISTRAL"] | None = None,
         tool_prompt: str | None = None,
         tools: list[ChatCompletionInputTool] | None = None,
         top_logprobs: int | None = None,
@@ -1173,7 +1173,7 @@ class InferenceClient:
         image: ContentT,
         *,
         model: str | None = None,
-        function_to_apply: Optional["ImageClassificationOutputTransform"] = None,
+        function_to_apply: Optional["REDACTED_MISTRAL"] = None,
         top_k: int | None = None,
     ) -> list[ImageClassificationOutputElement]:
         """
@@ -1185,7 +1185,7 @@ class InferenceClient:
             model (`str`, *optional*):
                 The model to use for image classification. Can be a model ID hosted on the Hugging Face Hub or a URL to a
                 deployed Inference Endpoint. If not provided, the default recommended model for image classification will be used.
-            function_to_apply (`"ImageClassificationOutputTransform"`, *optional*):
+            function_to_apply (`"REDACTED_MISTRAL"`, *optional*):
                 The function to apply to the model outputs in order to retrieve the scores.
             top_k (`int`, *optional*):
                 When specified, limits the output to the top K most probable classes.
@@ -1903,7 +1903,7 @@ class InferenceClient:
         *,
         model: str | None = None,
         top_k: int | None = None,
-        function_to_apply: Optional["TextClassificationOutputTransform"] = None,
+        function_to_apply: Optional["REDACTED_MISTRAL"] = None,
     ) -> list[TextClassificationOutputElement]:
         """
         Perform text classification (e.g. sentiment-analysis) on the given text.
@@ -1917,7 +1917,7 @@ class InferenceClient:
                 Defaults to None.
             top_k (`int`, *optional*):
                 When specified, limits the output to the top K most probable classes.
-            function_to_apply (`"TextClassificationOutputTransform"`, *optional*):
+            function_to_apply (`"REDACTED_MISTRAL"`, *optional*):
                 The function to apply to the model outputs in order to retrieve the scores.
 
         Returns:
@@ -2894,7 +2894,7 @@ class InferenceClient:
         text: str,
         *,
         model: str | None = None,
-        aggregation_strategy: Optional["TokenClassificationAggregationStrategy"] = None,
+        aggregation_strategy: Optional["REDACTED_MISTRAL"] = None,
         ignore_labels: list[str] | None = None,
         stride: int | None = None,
     ) -> list[TokenClassificationOutputElement]:
@@ -2909,7 +2909,7 @@ class InferenceClient:
                 The model to use for the token classification task. Can be a model ID hosted on the Hugging Face Hub or a URL to
                 a deployed Inference Endpoint. If not provided, the default recommended token classification model will be used.
                 Defaults to None.
-            aggregation_strategy (`"TokenClassificationAggregationStrategy"`, *optional*):
+            aggregation_strategy (`"REDACTED_MISTRAL"`, *optional*):
                 The strategy used to fuse tokens based on model predictions
             ignore_labels (`list[str`, *optional*):
                 A list of labels to ignore
@@ -3314,7 +3314,7 @@ class InferenceClient:
             'validation_workers': 32,
             'max_client_batch_size': 4,
             'version': '2.0.2',
-            'sha': 'dccab72549635c7eb5ddb17f43f0b7cdff07c214',
+            'sha': "REDACTED_MISTRAL",
             'docker_label': 'sha-dccab72'
         }
         ```

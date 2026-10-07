@@ -430,7 +430,7 @@ __all__ = [
     "Glm4vMoeConfig",
     "Glm4vMoeVisionConfig",  # noqa: F822
     "Glm4vMoeTextConfig",
-    "Glm4vMoeForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "Glm4vMoeModel",  # noqa: F822
     "Glm4vMoePreTrainedModel",
     "Glm4vMoeTextModel",

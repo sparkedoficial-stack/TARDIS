@@ -30,7 +30,7 @@ CAPTURES_DIR = PROJECT_ROOT / "data" / "terminal_captures"
 
 def classify_network_origin(ip: str) -> str:
     """Clasifica el origen de la conexión de red: HOST (local), LAN (red interna) o INTERNET (túnel público)."""
-    if not ip or ip in ("REDACTED_IP", "localhost", "::1", "testclient"):
+    if not ip or ip in ("REDACTED_IP", "localhost", "::1"):
         return "HOST"
     try:
         ip_obj = ipaddress.ip_address(ip)
@@ -53,40 +53,11 @@ def classify_network_origin(ip: str) -> str:
         return "INTERNET"
 
 
-def is_local_client(client_ip: str, headers: Optional[Dict[str, str]] = None) -> bool:
-    """
-    POLÍTICA SOBERANA AIR-GAPPED:
-    El sistema CCTV solo puede ser visualizado desde el nodo local físico (REDACTED_IP, ::1, localhost).
-    Cualquier usuario externo, túnel, proxy inverso o IP de red LAN queda ESTRICTAMENTE bloqueado.
-    """
-    if headers:
-        # Si la petición incluye encabezados de Cloudflare o Proxy reverso externo, no es física local
-        h_lower = {str(k).lower(): str(v) for k, v in headers.items()}
-        cf_ip = h_lower.get("cf-connecting-ip")
-        if cf_ip and cf_ip not in ("REDACTED_IP", "::1", "localhost", "testclient"):
-            return False
-        xfwd = h_lower.get("x-forwarded-for")
-        if xfwd:
-            first_ip = xfwd.split(",")[0].strip()
-            if first_ip and first_ip not in ("REDACTED_IP", "::1", "localhost", "testclient"):
-                return False
-        xreal = h_lower.get("x-real-ip")
-        if xreal and xreal not in ("REDACTED_IP", "::1", "localhost", "testclient"):
-            return False
-
-    return classify_network_origin(client_ip) == "HOST"
-
-
-
 class TerminalCameraHub:
     """Hub centralizado de recepción, multiplexación y análisis de cámaras multi-terminal."""
 
     _instance: Optional["TerminalCameraHub"] = None
     _lock = threading.Lock()
-
-    def is_cctv_viewing_allowed(self, client_ip: str, headers: Optional[Dict[str, str]] = None) -> bool:
-        """Verifica si el cliente tiene autorización soberana para visualizar flujos de CCTV."""
-        return is_local_client(client_ip, headers)
 
     @classmethod
     def get_instance(cls) -> "TerminalCameraHub":
@@ -146,7 +117,7 @@ class TerminalCameraHub:
         draw.rectangle([(24, 24), (1255, 695)], outline=(0, 70, 90), width=1)
 
         # Encabezado técnico
-        header = "TARDIS · SISTEMA DE VIGILANCIA Y CONTROL TEMPORAL · MATRIZ CCTV 720p @ 1000 KBPS"
+        header = "GODWORKS SYSTEM v26.4 · MATRIZ CCTV 720p @ 1000 KBPS"
         draw.text((40, 40), header, fill=(0, 240, 255))
         draw.text((40, 68), f"HORA: {time.strftime('%Y-%m-%d %H:%M:%S')} · PROTOCOLO: MJPEG MULTIPART SOBERANO", fill=(100, 180, 200))
         
@@ -187,19 +158,16 @@ class TerminalCameraHub:
             from core.telegram_bridge import TelegramBridge
             bridge = TelegramBridge.get_instance()
             if bridge and bridge.running:
-                if bridge.has_active_conversation():
-                    logger.debug("Omitiendo alerta CCTV a Telegram: conversación activa en curso.")
-                else:
-                    emoji_origin = "🌐 INTERNET" if origin == "INTERNET" else ("🏠 RED LOCAL" if origin == "LAN" else "🖥️ HOST CENTRAL")
-                    tg_text = (
-                        f"📹 *[ALERTA CCTV] NUEVA CÁMARA CONECTADA*\n\n"
-                        f"• *Terminal*: `{terminal_name}`\n"
-                        f"• *Origen*: `{emoji_origin}` ({country})\n"
-                        f"• *Dirección IP*: `{client_ip}`\n"
-                        f"• *Resolución*: `{resolution}` HD @ 1000 kbps\n"
-                        f"• *Supervisión*: Transmitiendo en tiempo real hacia la Matriz CCTV central"
-                    )
-                    bridge.send_message(tg_text)
+                emoji_origin = "🌐 INTERNET" if origin == "INTERNET" else ("🏠 RED LOCAL" if origin == "LAN" else "🖥️ HOST CENTRAL")
+                tg_text = (
+                    f"📹 *[ALERTA CCTV] NUEVA CÁMARA CONECTADA*\n\n"
+                    f"• *Terminal*: `{terminal_name}`\n"
+                    f"• *Origen*: `{emoji_origin}` ({country})\n"
+                    f"• *Dirección IP*: `{client_ip}`\n"
+                    f"• *Resolución*: `{resolution}` HD @ 1000 kbps\n"
+                    f"• *Supervisión*: Transmitiendo en tiempo real hacia la Matriz CCTV central"
+                )
+                bridge.send_message(tg_text)
         except Exception as e:
             logger.debug(f"Aviso Telegram omitido o no configurado: {e}")
 

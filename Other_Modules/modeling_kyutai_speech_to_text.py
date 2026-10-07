@@ -980,7 +980,7 @@ class KyutaiSpeechToTextForConditionalGeneration(KyutaiSpeechToTextPreTrainedMod
 
 
 __all__ = [
-    "KyutaiSpeechToTextPreTrainedModel",
+    "REDACTED_MISTRAL",
     "KyutaiSpeechToTextModel",
-    "KyutaiSpeechToTextForConditionalGeneration",
+    "REDACTED_MISTRAL",
 ]

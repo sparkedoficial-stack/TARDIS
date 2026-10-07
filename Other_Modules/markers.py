@@ -1,907 +1,492 @@
-r"""
-Functions to handle markers; used by the marker functionality of
-`~matplotlib.axes.Axes.plot`, `~matplotlib.axes.Axes.scatter`, and
-`~matplotlib.axes.Axes.errorbar`.
+# This file is dual licensed under the terms of the Apache License, Version
+# 2.0, and the BSD License. See the LICENSE file in the root of this repository
+# for complete details.
 
-All possible markers are defined here:
+from __future__ import annotations
 
-============================== ====== =========================================
-marker                         symbol description
-============================== ====== =========================================
-``"."``                        |m00|  point
-``","``                        |m01|  pixel
-``"o"``                        |m02|  circle
-``"v"``                        |m03|  triangle_down
-``"^"``                        |m04|  triangle_up
-``"<"``                        |m05|  triangle_left
-``">"``                        |m06|  triangle_right
-``"1"``                        |m07|  tri_down
-``"2"``                        |m08|  tri_up
-``"3"``                        |m09|  tri_left
-``"4"``                        |m10|  tri_right
-``"8"``                        |m11|  octagon
-``"s"``                        |m12|  square
-``"p"``                        |m13|  pentagon
-``"P"``                        |m23|  plus (filled)
-``"*"``                        |m14|  star
-``"h"``                        |m15|  hexagon1
-``"H"``                        |m16|  hexagon2
-``"+"``                        |m17|  plus
-``"x"``                        |m18|  x
-``"X"``                        |m24|  x (filled)
-``"D"``                        |m19|  diamond
-``"d"``                        |m20|  thin_diamond
-``"|"``                        |m21|  vline
-``"_"``                        |m22|  hline
-``0`` (``TICKLEFT``)           |m25|  tickleft
-``1`` (``TICKRIGHT``)          |m26|  tickright
-``2`` (``TICKUP``)             |m27|  tickup
-``3`` (``TICKDOWN``)           |m28|  tickdown
-``4`` (``CARETLEFT``)          |m29|  caretleft
-``5`` (``CARETRIGHT``)         |m30|  caretright
-``6`` (``CARETUP``)            |m31|  caretup
-``7`` (``CARETDOWN``)          |m32|  caretdown
-``8`` (``CARETLEFTBASE``)      |m33|  caretleft (centered at base)
-``9`` (``CARETRIGHTBASE``)     |m34|  caretright (centered at base)
-``10`` (``CARETUPBASE``)       |m35|  caretup (centered at base)
-``11`` (``CARETDOWNBASE``)     |m36|  caretdown (centered at base)
-``"none"`` or ``"None"``              nothing
-``" "`` or  ``""``                    nothing
-``"$...$"``                    |m37|  Render the string using mathtext.
-                                      E.g ``"$f$"`` for marker showing the
-                                      letter ``f``.
-``verts``                             A list of (x, y) pairs used for Path
-                                      vertices. The center of the marker is
-                                      located at (0, 0) and the size is
-                                      normalized, such that the created path
-                                      is encapsulated inside the unit cell.
-``path``                              A `~matplotlib.path.Path` instance.
-``(numsides, 0, angle)``              A regular polygon with ``numsides``
-                                      sides, rotated by ``angle``.
-``(numsides, 1, angle)``              A star-like symbol with ``numsides``
-                                      sides, rotated by ``angle``.
-``(numsides, 2, angle)``              An asterisk with ``numsides`` sides,
-                                      rotated by ``angle``.
-============================== ====== =========================================
+import operator
+import os
+import platform
+import sys
+from typing import AbstractSet, Callable, Literal, Mapping, TypedDict, Union, cast
 
-Note that special symbols can be defined via the
-:ref:`STIX math font <mathtext>`,
-e.g. ``"$\u266B$"``. For an overview over the STIX font symbols refer to the
-`STIX font table <http://www.stixfonts.org/allGlyphs.html>`_.
-Also see the :doc:`/gallery/text_labels_and_annotations/stix_fonts_demo`.
+from ._parser import MarkerAtom, MarkerList, Op, Value, Variable
+from ._parser import parse_marker as _parse_marker
+from ._tokenizer import ParserSyntaxError
+from .specifiers import InvalidSpecifier, Specifier
+from .utils import canonicalize_name
 
-Integer numbers from ``0`` to ``11`` create lines and triangles. Those are
-equally accessible via capitalized variables, like ``CARETDOWNBASE``.
-Hence the following are equivalent::
+__all__ = [
+    "Environment",
+    "EvaluateContext",
+    "InvalidMarker",
+    "Marker",
+    "UndefinedComparison",
+    "UndefinedEnvironmentName",
+    "default_environment",
+]
 
-    plt.plot([1, 2, 3], marker=11)
-    plt.plot([1, 2, 3], marker=matplotlib.markers.CARETDOWNBASE)
 
-Markers join and cap styles can be customized by creating a new instance of
-MarkerStyle.
-A MarkerStyle can also have a custom `~matplotlib.transforms.Transform`
-allowing it to be arbitrarily rotated or offset.
+def __dir__() -> list[str]:
+    return __all__
 
-Examples showing the use of markers:
 
-* :doc:`/gallery/lines_bars_and_markers/marker_reference`
-* :doc:`/gallery/lines_bars_and_markers/scatter_star_poly`
-* :doc:`/gallery/lines_bars_and_markers/multivariate_marker_plot`
+Operator = Callable[[str, Union[str, AbstractSet[str]]], bool]
+EvaluateContext = Literal["metadata", "lock_file", "requirement"]
+"""A ``typing.Literal`` enumerating valid marker evaluation contexts.
 
-.. |m00| image:: /_static/markers/m00.png
-.. |m01| image:: /_static/markers/m01.png
-.. |m02| image:: /_static/markers/m02.png
-.. |m03| image:: /_static/markers/m03.png
-.. |m04| image:: /_static/markers/m04.png
-.. |m05| image:: /_static/markers/m05.png
-.. |m06| image:: /_static/markers/m06.png
-.. |m07| image:: /_static/markers/m07.png
-.. |m08| image:: /_static/markers/m08.png
-.. |m09| image:: /_static/markers/m09.png
-.. |m10| image:: /_static/markers/m10.png
-.. |m11| image:: /_static/markers/m11.png
-.. |m12| image:: /_static/markers/m12.png
-.. |m13| image:: /_static/markers/m13.png
-.. |m14| image:: /_static/markers/m14.png
-.. |m15| image:: /_static/markers/m15.png
-.. |m16| image:: /_static/markers/m16.png
-.. |m17| image:: /_static/markers/m17.png
-.. |m18| image:: /_static/markers/m18.png
-.. |m19| image:: /_static/markers/m19.png
-.. |m20| image:: /_static/markers/m20.png
-.. |m21| image:: /_static/markers/m21.png
-.. |m22| image:: /_static/markers/m22.png
-.. |m23| image:: /_static/markers/m23.png
-.. |m24| image:: /_static/markers/m24.png
-.. |m25| image:: /_static/markers/m25.png
-.. |m26| image:: /_static/markers/m26.png
-.. |m27| image:: /_static/markers/m27.png
-.. |m28| image:: /_static/markers/m28.png
-.. |m29| image:: /_static/markers/m29.png
-.. |m30| image:: /_static/markers/m30.png
-.. |m31| image:: /_static/markers/m31.png
-.. |m32| image:: /_static/markers/m32.png
-.. |m33| image:: /_static/markers/m33.png
-.. |m34| image:: /_static/markers/m34.png
-.. |m35| image:: /_static/markers/m35.png
-.. |m36| image:: /_static/markers/m36.png
-.. |m37| image:: /_static/markers/m37.png
+Valid values for the ``context`` passed to :meth:`Marker.evaluate` are:
+
+* ``"metadata"`` (for core metadata; default)
+* ``"lock_file"`` (for lock files)
+* ``"requirement"`` (i.e. all other situations)
 """
-import copy
 
-from collections.abc import Hashable, Sized
-
-import numpy as np
-
-import matplotlib as mpl
-from . import _api, cbook
-from .path import Path
-from .transforms import IdentityTransform, Affine2D
-from ._enums import JoinStyle, CapStyle
-
-# special-purpose marker identifiers:
-(TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN,
- CARETLEFT, CARETRIGHT, CARETUP, CARETDOWN,
- CARETLEFTBASE, CARETRIGHTBASE, CARETUPBASE, CARETDOWNBASE) = range(12)
-
-_empty_path = Path(np.empty((0, 2)))
+MARKERS_ALLOWING_SET = {"extras", "dependency_groups"}
+MARKERS_REQUIRING_VERSION = {
+    "implementation_version",
+    "platform_release",
+    "python_full_version",
+    "python_version",
+}
 
 
-class MarkerStyle:
-    """
-    A class representing marker types.
+class InvalidMarker(ValueError):
+    """Raised when attempting to create a :class:`Marker` from invalid input.
 
-    Instances are immutable. If you need to change anything, create a new
-    instance.
-
-    Attributes
-    ----------
-    markers : dict
-        All known markers.
-    filled_markers : tuple
-        All known filled markers. This is a subset of *markers*.
-    fillstyles : tuple
-        The supported fillstyles.
+    This error indicates that the given marker string does not conform to the
+    :ref:`specification of dependency specifiers <pypug:dependency-specifiers>`.
     """
 
-    markers = {
-        '.': 'point',
-        ',': 'pixel',
-        'o': 'circle',
-        'v': 'triangle_down',
-        '^': 'triangle_up',
-        '<': 'triangle_left',
-        '>': 'triangle_right',
-        '1': 'tri_down',
-        '2': 'tri_up',
-        '3': 'tri_left',
-        '4': 'tri_right',
-        '8': 'octagon',
-        's': 'square',
-        'p': 'pentagon',
-        '*': 'star',
-        'h': 'hexagon1',
-        'H': 'hexagon2',
-        '+': 'plus',
-        'x': 'x',
-        'D': 'diamond',
-        'd': 'thin_diamond',
-        '|': 'vline',
-        '_': 'hline',
-        'P': 'plus_filled',
-        'X': 'x_filled',
-        TICKLEFT: 'tickleft',
-        TICKRIGHT: 'tickright',
-        TICKUP: 'tickup',
-        TICKDOWN: 'tickdown',
-        CARETLEFT: 'caretleft',
-        CARETRIGHT: 'caretright',
-        CARETUP: 'caretup',
-        CARETDOWN: 'caretdown',
-        CARETLEFTBASE: 'caretleftbase',
-        CARETRIGHTBASE: 'caretrightbase',
-        CARETUPBASE: 'caretupbase',
-        CARETDOWNBASE: 'caretdownbase',
-        "None": 'nothing',
-        "none": 'nothing',
-        ' ': 'nothing',
-        '': 'nothing'
+
+class UndefinedComparison(ValueError):
+    """Raised when evaluating an unsupported marker comparison.
+
+    This can happen when marker values are compared as versions but do not
+    conform to the :ref:`specification of version specifiers
+    <pypug:version-specifiers>`.
+    """
+
+
+class UndefinedEnvironmentName(ValueError):
+    """Raised when evaluating a marker that references a missing environment key."""
+
+
+class Environment(TypedDict):
+    """
+    A dictionary that represents a Python environment as captured by
+    :func:`default_environment`. All fields are required.
+    """
+
+    implementation_name: str
+    """The implementation's identifier, e.g. ``'cpython'``."""
+
+    implementation_version: str
+    """
+    The implementation's version, e.g. ``'3.13.0a2'`` for CPython 3.13.0a2, or
+    ``'7.3.13'`` for PyPy3.10 v7.3.13.
+    """
+
+    os_name: str
+    """
+    The value of :py:data:`os.name`. The name of the operating system dependent module
+    imported, e.g. ``'posix'``.
+    """
+
+    platform_machine: str
+    """
+    Returns the machine type, e.g. ``'i386'``.
+
+    An empty string if the value cannot be determined.
+    """
+
+    platform_release: str
+    """
+    The system's release, e.g. ``'2.2.0'`` or ``'NT'``.
+
+    An empty string if the value cannot be determined.
+    """
+
+    platform_system: str
+    """
+    The system/OS name, e.g. ``'Linux'``, ``'Windows'`` or ``'Java'``.
+
+    An empty string if the value cannot be determined.
+    """
+
+    platform_version: str
+    """
+    The system's release version, e.g. ``'#3 on degas'``.
+
+    An empty string if the value cannot be determined.
+    """
+
+    python_full_version: str
+    """
+    The Python version as string ``'major.minor.patchlevel'``.
+
+    Note that unlike the Python :py:data:`sys.version`, this value will always include
+    the patchlevel (it defaults to 0).
+    """
+
+    platform_python_implementation: str
+    """
+    A string identifying the Python implementation, e.g. ``'CPython'``.
+    """
+
+    python_version: str
+    """The Python version as string ``'major.minor'``."""
+
+    sys_platform: str
+    """
+    This string contains a platform identifier that can be used to append
+    platform-specific components to :py:data:`sys.path`, for instance.
+
+    For Unix systems, except on Linux and AIX, this is the lowercased OS name as
+    returned by ``uname -s`` with the first part of the version as returned by
+    ``uname -r`` appended, e.g. ``'sunos5'`` or ``'freebsd8'``, at the time when Python
+    was built.
+    """
+
+
+def _normalize_extras(
+    result: MarkerList | MarkerAtom | str,
+) -> MarkerList | MarkerAtom | str:
+    if not isinstance(result, tuple):
+        return result
+
+    lhs, op, rhs = result
+    if isinstance(lhs, Variable) and lhs.value == "extra":
+        normalized_extra = canonicalize_name(rhs.value)
+        rhs = Value(normalized_extra)
+    elif isinstance(rhs, Variable) and rhs.value == "extra":
+        normalized_extra = canonicalize_name(lhs.value)
+        lhs = Value(normalized_extra)
+    return lhs, op, rhs
+
+
+def _normalize_extra_values(results: MarkerList) -> MarkerList:
+    """
+    Normalize extra values.
+    """
+
+    return [_normalize_extras(r) for r in results]
+
+
+def _format_marker(
+    marker: list[str] | MarkerAtom | str, first: bool | None = True
+) -> str:
+    assert isinstance(marker, (list, tuple, str))
+
+    # Sometimes we have a structure like [[...]] which is a single item list
+    # where the single item is itself it's own list. In that case we want skip
+    # the rest of this function so that we don't get extraneous () on the
+    # outside.
+    if (
+        isinstance(marker, list)
+        and len(marker) == 1
+        and isinstance(marker[0], (list, tuple))
+    ):
+        return _format_marker(marker[0])
+
+    if isinstance(marker, list):
+        inner = (_format_marker(m, first=False) for m in marker)
+        if first:
+            return " ".join(inner)
+        else:
+            return "(" + " ".join(inner) + ")"
+    elif isinstance(marker, tuple):
+        return " ".join([m.serialize() for m in marker])
+    else:
+        return marker
+
+
+_operators: dict[str, Operator] = {
+    "in": lambda lhs, rhs: lhs in rhs,
+    "not in": lambda lhs, rhs: lhs not in rhs,
+    "<": lambda _lhs, _rhs: False,
+    "<=": operator.eq,
+    "==": operator.eq,
+    "!=": operator.ne,
+    ">=": operator.eq,
+    ">": lambda _lhs, _rhs: False,
+}
+
+
+def _eval_op(lhs: str, op: Op, rhs: str | AbstractSet[str], *, key: str) -> bool:
+    op_str = op.serialize()
+    if key in MARKERS_REQUIRING_VERSION:
+        try:
+            spec = Specifier(f"{op_str}{rhs}")
+        except InvalidSpecifier:
+            pass
+        else:
+            return spec.contains(lhs, prereleases=True)
+
+    oper: Operator | None = _operators.get(op_str)
+    if oper is None:
+        raise UndefinedComparison(f"Undefined {op!r} on {lhs!r} and {rhs!r}.")
+
+    return oper(lhs, rhs)
+
+
+def _normalize(
+    lhs: str, rhs: str | AbstractSet[str], key: str
+) -> tuple[str, str | AbstractSet[str]]:
+    # PEP 685 - Comparison of extra names for optional distribution dependencies
+    # https://peps.python.org/pep-0685/
+    # > When comparing extra names, tools MUST normalize the names being
+    # > compared using the semantics outlined in PEP 503 for names
+    if key == "extra":
+        assert isinstance(rhs, str), "extra value must be a string"
+        # Both sides are normalized at this point already
+        return (lhs, rhs)
+    if key in MARKERS_ALLOWING_SET:
+        if isinstance(rhs, str):  # pragma: no cover
+            return (canonicalize_name(lhs), canonicalize_name(rhs))
+        else:
+            return (canonicalize_name(lhs), {canonicalize_name(v) for v in rhs})
+
+    # other environment markers don't have such standards
+    return lhs, rhs
+
+
+def _evaluate_markers(
+    markers: MarkerList, environment: dict[str, str | AbstractSet[str]]
+) -> bool:
+    groups: list[list[bool]] = [[]]
+
+    for marker in markers:
+        if isinstance(marker, list):
+            groups[-1].append(_evaluate_markers(marker, environment))
+        elif isinstance(marker, tuple):
+            lhs, op, rhs = marker
+
+            if isinstance(lhs, Variable):
+                environment_key = lhs.value
+                lhs_value = environment[environment_key]
+                rhs_value = rhs.value
+            else:
+                lhs_value = lhs.value
+                environment_key = rhs.value
+                rhs_value = environment[environment_key]
+
+            assert isinstance(lhs_value, str), "lhs must be a string"
+            lhs_value, rhs_value = _normalize(lhs_value, rhs_value, key=environment_key)
+            groups[-1].append(_eval_op(lhs_value, op, rhs_value, key=environment_key))
+        elif marker == "or":
+            groups.append([])
+        elif marker == "and":
+            pass
+        else:  # pragma: nocover
+            raise TypeError(f"Unexpected marker {marker!r}")
+
+    return any(all(item) for item in groups)
+
+
+def _format_full_version(info: sys._version_info) -> str:
+    version = f"{info.major}.{info.minor}.{info.micro}"
+    kind = info.releaselevel
+    if kind != "final":
+        version += kind[0] + str(info.serial)
+    return version
+
+
+def default_environment() -> Environment:
+    """Return the default marker environment for the current Python process.
+
+    This is the base environment used by :meth:`Marker.evaluate`.
+    """
+    iver = _format_full_version(sys.implementation.version)
+    implementation_name = sys.implementation.name
+    return {
+        "implementation_name": implementation_name,
+        "implementation_version": iver,
+        "os_name": os.name,
+        "platform_machine": platform.machine(),
+        "platform_release": platform.release(),
+        "platform_system": platform.system(),
+        "platform_version": platform.version(),
+        "python_full_version": platform.python_version(),
+        "platform_python_implementation": platform.python_implementation(),
+        "python_version": ".".join(platform.python_version_tuple()[:2]),
+        "sys_platform": sys.platform,
     }
 
-    # Just used for informational purposes.  is_filled()
-    # is calculated in the _set_* functions.
-    filled_markers = (
-        '.', 'o', 'v', '^', '<', '>', '8', 's', 'p', '*', 'h', 'H', 'D', 'd',
-        'P', 'X')
 
-    fillstyles = ('full', 'left', 'right', 'bottom', 'top', 'none')
-    _half_fillstyles = ('left', 'right', 'bottom', 'top')
+class Marker:
+    """Represents a parsed dependency marker expression.
 
-    def __init__(self, marker,
-                 fillstyle=None, transform=None, capstyle=None, joinstyle=None):
+    Marker expressions are parsed according to the
+    :ref:`specification of dependency specifiers <pypug:dependency-specifiers>`.
+
+    :param marker: The string representation of a marker expression.
+    :raises InvalidMarker: If ``marker`` cannot be parsed.
+
+    Instances are safe to serialize with :mod:`pickle`. They use a stable
+    format so the same pickle can be loaded in future packaging releases.
+
+    .. versionchanged:: 26.2
+
+        Added a stable pickle format. Pickles created with packaging 26.2+ can
+        be unpickled with future releases.  Backward compatibility with pickles
+        from pip._vendor.packaging < 26.2 is supported but may be removed in a future
+        release.
+    """
+
+    __slots__ = ("_markers",)
+
+    def __init__(self, marker: str) -> None:
+        # Note: We create a Marker object without calling this constructor in
+        #       packaging.requirements.Requirement. If any additional logic is
+        #       added here, make sure to mirror/adapt Requirement.
+
+        # If this fails and throws an error, the repr still expects _markers to
+        # be defined.
+        self._markers: MarkerList = []
+
+        try:
+            self._markers = _normalize_extra_values(_parse_marker(marker))
+            # The attribute `_markers` can be described in terms of a recursive type:
+            # MarkerList = List[Union[Tuple[Node, ...], str, MarkerList]]
+            #
+            # For example, the following expression:
+            # python_version > "3.6" or (python_version == "3.6" and os_name == "unix")
+            #
+            # is parsed into:
+            # [
+            #     (<Variable('python_version')>, <Op('>')>, <Value('3.6')>),
+            #     'and',
+            #     [
+            #         (<Variable('python_version')>, <Op('==')>, <Value('3.6')>),
+            #         'or',
+            #         (<Variable('os_name')>, <Op('==')>, <Value('unix')>)
+            #     ]
+            # ]
+        except ParserSyntaxError as e:
+            raise InvalidMarker(str(e)) from e
+
+    @classmethod
+    def _from_markers(cls, markers: MarkerList) -> Marker:
+        """Create a Marker instance from a pre-parsed marker tree.
+
+        This avoids re-parsing serialised marker strings when combining markers.
         """
-        Parameters
-        ----------
-        marker : str, array-like, Path, MarkerStyle
-            - Another instance of `MarkerStyle` copies the details of that *marker*.
-            - For other possible marker values, see the module docstring
-              `matplotlib.markers`.
+        new = cls.__new__(cls)
+        new._markers = markers
+        return new
 
-        fillstyle : str, default: :rc:`markers.fillstyle`
-            One of 'full', 'left', 'right', 'bottom', 'top', 'none'.
+    def __str__(self) -> str:
+        return _format_marker(self._markers)
 
-        transform : `~matplotlib.transforms.Transform`, optional
-            Transform that will be combined with the native transform of the
-            marker.
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__}({str(self)!r})>"
 
-        capstyle : `.CapStyle` or %(CapStyle)s, optional
-            Cap style that will override the default cap style of the marker.
+    def __hash__(self) -> int:
+        return hash(str(self))
 
-        joinstyle : `.JoinStyle` or %(JoinStyle)s, optional
-            Join style that will override the default join style of the marker.
-        """
-        self._marker_function = None
-        self._user_transform = transform
-        self._user_capstyle = CapStyle(capstyle) if capstyle is not None else None
-        self._user_joinstyle = JoinStyle(joinstyle) if joinstyle is not None else None
-        self._set_fillstyle(fillstyle)
-        self._set_marker(marker)
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Marker):
+            return NotImplemented
 
-    def _recache(self):
-        if self._marker_function is None:
-            return
-        self._path = _empty_path
-        self._transform = IdentityTransform()
-        self._alt_path = None
-        self._alt_transform = None
-        self._snap_threshold = None
-        self._joinstyle = JoinStyle.round
-        self._capstyle = self._user_capstyle or CapStyle.butt
-        # Initial guess: Assume the marker is filled unless the fillstyle is
-        # set to 'none'. The marker function will override this for unfilled
-        # markers.
-        self._filled = self._fillstyle != 'none'
-        self._marker_function()
+        return str(self) == str(other)
 
-    def __bool__(self):
-        return bool(len(self._path.vertices))
+    def __getstate__(self) -> str:
+        # Return the marker expression string for compactness and stability.
+        # Internal Node objects are excluded; the string is re-parsed on load.
+        return str(self)
 
-    def is_filled(self):
-        return self._filled
-
-    def get_fillstyle(self):
-        return self._fillstyle
-
-    def _set_fillstyle(self, fillstyle):
-        """
-        Set the fillstyle.
-
-        Parameters
-        ----------
-        fillstyle : {'full', 'left', 'right', 'bottom', 'top', 'none'}
-            The part of the marker surface that is colored with
-            markerfacecolor.
-        """
-        fillstyle = mpl._val_or_rc(fillstyle, 'markers.fillstyle')
-        _api.check_in_list(self.fillstyles, fillstyle=fillstyle)
-        self._fillstyle = fillstyle
-
-    def get_joinstyle(self):
-        return self._joinstyle.name
-
-    def get_capstyle(self):
-        return self._capstyle.name
-
-    def get_marker(self):
-        return self._marker
-
-    def _set_marker(self, marker):
-        """
-        Set the marker.
-
-        Parameters
-        ----------
-        marker : str, array-like, Path, MarkerStyle
-            - Another instance of `MarkerStyle` copies the details of that *marker*.
-            - For other possible marker values see the module docstring
-              `matplotlib.markers`.
-        """
-        if isinstance(marker, str) and cbook.is_math_text(marker):
-            self._marker_function = self._set_mathtext_path
-        elif isinstance(marker, Hashable) and marker in self.markers:
-            self._marker_function = getattr(self, '_set_' + self.markers[marker])
-        elif (isinstance(marker, np.ndarray) and marker.ndim == 2 and
-                marker.shape[1] == 2):
-            self._marker_function = self._set_vertices
-        elif isinstance(marker, Path):
-            self._marker_function = self._set_path_marker
-        elif (isinstance(marker, Sized) and len(marker) in (2, 3) and
-                marker[1] in (0, 1, 2)):
-            self._marker_function = self._set_tuple_marker
-        elif isinstance(marker, MarkerStyle):
-            self.__dict__ = copy.deepcopy(marker.__dict__)
-        else:
+    def __setstate__(self, state: object) -> None:
+        if isinstance(state, str):
+            # New format (26.2+): just the marker expression string.
             try:
-                Path(marker)
-                self._marker_function = self._set_vertices
-            except ValueError as err:
-                raise ValueError(
-                    f'Unrecognized marker style {marker!r}') from err
-
-        if not isinstance(marker, MarkerStyle):
-            self._marker = marker
-            self._recache()
-
-    def get_path(self):
-        """
-        Return a `.Path` for the primary part of the marker.
-
-        For unfilled markers this is the whole marker, for filled markers,
-        this is the area to be drawn with *markerfacecolor*.
-        """
-        return self._path
-
-    def get_transform(self):
-        """
-        Return the transform to be applied to the `.Path` from
-        `MarkerStyle.get_path()`.
-        """
-        if self._user_transform is None:
-            return self._transform.frozen()
-        else:
-            return (self._transform + self._user_transform).frozen()
-
-    def get_alt_path(self):
-        """
-        Return a `.Path` for the alternate part of the marker.
-
-        For unfilled markers, this is *None*; for filled markers, this is the
-        area to be drawn with *markerfacecoloralt*.
-        """
-        return self._alt_path
-
-    def get_alt_transform(self):
-        """
-        Return the transform to be applied to the `.Path` from
-        `MarkerStyle.get_alt_path()`.
-        """
-        if self._user_transform is None:
-            return self._alt_transform.frozen()
-        else:
-            return (self._alt_transform + self._user_transform).frozen()
-
-    def get_snap_threshold(self):
-        return self._snap_threshold
-
-    def get_user_transform(self):
-        """Return user supplied part of marker transform."""
-        if self._user_transform is not None:
-            return self._user_transform.frozen()
-
-    def transformed(self, transform):
-        """
-        Return a new version of this marker with the transform applied.
-
-        Parameters
-        ----------
-        transform : `~matplotlib.transforms.Affine2D`
-            Transform will be combined with current user supplied transform.
-        """
-        new_marker = MarkerStyle(self)
-        if new_marker._user_transform is not None:
-            new_marker._user_transform += transform
-        else:
-            new_marker._user_transform = transform
-        return new_marker
-
-    def rotated(self, *, deg=None, rad=None):
-        """
-        Return a new version of this marker rotated by specified angle.
-
-        Parameters
-        ----------
-        deg : float, optional
-            Rotation angle in degrees.
-
-        rad : float, optional
-            Rotation angle in radians.
-
-        .. note:: You must specify exactly one of deg or rad.
-        """
-        if deg is None and rad is None:
-            raise ValueError('One of deg or rad is required')
-        if deg is not None and rad is not None:
-            raise ValueError('Only one of deg and rad can be supplied')
-        new_marker = MarkerStyle(self)
-        if new_marker._user_transform is None:
-            new_marker._user_transform = Affine2D()
-
-        if deg is not None:
-            new_marker._user_transform.rotate_deg(deg)
-        if rad is not None:
-            new_marker._user_transform.rotate(rad)
-
-        return new_marker
-
-    def scaled(self, sx, sy=None):
-        """
-        Return new marker scaled by specified scale factors.
-
-        If *sy* is not given, the same scale is applied in both the *x*- and
-        *y*-directions.
-
-        Parameters
-        ----------
-        sx : float
-            *X*-direction scaling factor.
-        sy : float, optional
-            *Y*-direction scaling factor.
-        """
-        if sy is None:
-            sy = sx
-
-        new_marker = MarkerStyle(self)
-        _transform = new_marker._user_transform or Affine2D()
-        new_marker._user_transform = _transform.scale(sx, sy)
-        return new_marker
-
-    def _set_nothing(self):
-        self._filled = False
-
-    def _set_custom_marker(self, path):
-        rescale = np.max(np.abs(path.vertices))  # max of x's and y's.
-        self._transform = Affine2D().scale(0.5 / rescale)
-        self._path = path
-
-    def _set_path_marker(self):
-        self._set_custom_marker(self._marker)
-
-    def _set_vertices(self):
-        self._set_custom_marker(Path(self._marker))
-
-    def _set_tuple_marker(self):
-        marker = self._marker
-        if len(marker) == 2:
-            numsides, rotation = marker[0], 0.0
-        elif len(marker) == 3:
-            numsides, rotation = marker[0], marker[2]
-        symstyle = marker[1]
-        if symstyle == 0:
-            self._path = Path.unit_regular_polygon(numsides)
-            self._joinstyle = self._user_joinstyle or JoinStyle.miter
-        elif symstyle == 1:
-            self._path = Path.unit_regular_star(numsides)
-            self._joinstyle = self._user_joinstyle or JoinStyle.bevel
-        elif symstyle == 2:
-            self._path = Path.unit_regular_asterisk(numsides)
-            self._filled = False
-            self._joinstyle = self._user_joinstyle or JoinStyle.bevel
-        else:
-            raise ValueError(f"Unexpected tuple marker: {marker}")
-        self._transform = Affine2D().scale(0.5).rotate_deg(rotation)
-
-    def _set_mathtext_path(self):
-        """
-        Draw mathtext markers '$...$' using `.TextPath` object.
-
-        Submitted by tcb
-        """
-        from matplotlib.text import TextPath
-
-        # again, the properties could be initialised just once outside
-        # this function
-        text = TextPath(xy=(0, 0), s=self.get_marker(),
-                        usetex=mpl.rcParams['text.usetex'])
-        if len(text.vertices) == 0:
+                self._markers = _normalize_extra_values(_parse_marker(state))
+            except ParserSyntaxError as exc:
+                raise TypeError(f"Cannot restore Marker from {state!r}") from exc
             return
-
-        bbox = text.get_extents()
-        max_dim = max(bbox.width, bbox.height)
-        self._transform = (
-            Affine2D()
-            .translate(-bbox.xmin + 0.5 * -bbox.width, -bbox.ymin + 0.5 * -bbox.height)
-            .scale(1.0 / max_dim))
-        self._path = text
-        self._snap = False
-
-    def _half_fill(self):
-        return self.get_fillstyle() in self._half_fillstyles
-
-    def _set_circle(self, size=1.0):
-        self._transform = Affine2D().scale(0.5 * size)
-        self._snap_threshold = np.inf
-        if not self._half_fill():
-            self._path = Path.unit_circle()
-        else:
-            self._path = self._alt_path = Path.unit_circle_righthalf()
-            fs = self.get_fillstyle()
-            self._transform.rotate_deg(
-                {'right': 0, 'top': 90, 'left': 180, 'bottom': 270}[fs])
-            self._alt_transform = self._transform.frozen().rotate_deg(180.)
-
-    def _set_point(self):
-        self._set_circle(size=0.5)
-
-    def _set_pixel(self):
-        self._path = Path.unit_rectangle()
-        # Ideally, you'd want -0.5, -0.5 here, but then the snapping
-        # algorithm in the Agg backend will round this to a 2x2
-        # rectangle from (-1, -1) to (1, 1).  By offsetting it
-        # slightly, we can force it to be (0, 0) to (1, 1), which both
-        # makes it only be a single pixel and places it correctly
-        # aligned to 1-width stroking (i.e. the ticks).  This hack is
-        # the best of a number of bad alternatives, mainly because the
-        # backends are not aware of what marker is actually being used
-        # beyond just its path data.
-        self._transform = Affine2D().translate(-0.49999, -0.49999)
-        self._snap_threshold = None
-
-    _triangle_path = Path._create_closed([[0, 1], [-1, -1], [1, -1]])
-    # Going down halfway looks to small.  Golden ratio is too far.
-    _triangle_path_u = Path._create_closed([[0, 1], [-3/5, -1/5], [3/5, -1/5]])
-    _triangle_path_d = Path._create_closed(
-        [[-3/5, -1/5], [3/5, -1/5], [1, -1], [-1, -1]])
-    _triangle_path_l = Path._create_closed([[0, 1], [0, -1], [-1, -1]])
-    _triangle_path_r = Path._create_closed([[0, 1], [0, -1], [1, -1]])
-
-    def _set_triangle(self, rot, skip):
-        self._transform = Affine2D().scale(0.5).rotate_deg(rot)
-        self._snap_threshold = 5.0
-
-        if not self._half_fill():
-            self._path = self._triangle_path
-        else:
-            mpaths = [self._triangle_path_u,
-                      self._triangle_path_l,
-                      self._triangle_path_d,
-                      self._triangle_path_r]
-
-            fs = self.get_fillstyle()
-            if fs == 'top':
-                self._path = mpaths[(0 + skip) % 4]
-                self._alt_path = mpaths[(2 + skip) % 4]
-            elif fs == 'bottom':
-                self._path = mpaths[(2 + skip) % 4]
-                self._alt_path = mpaths[(0 + skip) % 4]
-            elif fs == 'left':
-                self._path = mpaths[(1 + skip) % 4]
-                self._alt_path = mpaths[(3 + skip) % 4]
-            else:
-                self._path = mpaths[(3 + skip) % 4]
-                self._alt_path = mpaths[(1 + skip) % 4]
-
-            self._alt_transform = self._transform
-
-        self._joinstyle = self._user_joinstyle or JoinStyle.miter
-
-    def _set_triangle_up(self):
-        return self._set_triangle(0.0, 0)
-
-    def _set_triangle_down(self):
-        return self._set_triangle(180.0, 2)
-
-    def _set_triangle_left(self):
-        return self._set_triangle(90.0, 3)
-
-    def _set_triangle_right(self):
-        return self._set_triangle(270.0, 1)
-
-    def _set_square(self):
-        self._transform = Affine2D().translate(-0.5, -0.5)
-        self._snap_threshold = 2.0
-        if not self._half_fill():
-            self._path = Path.unit_rectangle()
-        else:
-            # Build a bottom filled square out of two rectangles, one filled.
-            self._path = Path([[0.0, 0.0], [1.0, 0.0], [1.0, 0.5],
-                               [0.0, 0.5], [0.0, 0.0]])
-            self._alt_path = Path([[0.0, 0.5], [1.0, 0.5], [1.0, 1.0],
-                                   [0.0, 1.0], [0.0, 0.5]])
-            fs = self.get_fillstyle()
-            rotate = {'bottom': 0, 'right': 90, 'top': 180, 'left': 270}[fs]
-            self._transform.rotate_deg(rotate)
-            self._alt_transform = self._transform
-
-        self._joinstyle = self._user_joinstyle or JoinStyle.miter
-
-    def _set_diamond(self):
-        self._transform = Affine2D().translate(-0.5, -0.5).rotate_deg(45)
-        self._snap_threshold = 5.0
-        if not self._half_fill():
-            self._path = Path.unit_rectangle()
-        else:
-            self._path = Path([[0, 0], [1, 0], [1, 1], [0, 0]])
-            self._alt_path = Path([[0, 0], [0, 1], [1, 1], [0, 0]])
-            fs = self.get_fillstyle()
-            rotate = {'right': 0, 'top': 90, 'left': 180, 'bottom': 270}[fs]
-            self._transform.rotate_deg(rotate)
-            self._alt_transform = self._transform
-        self._joinstyle = self._user_joinstyle or JoinStyle.miter
-
-    def _set_thin_diamond(self):
-        self._set_diamond()
-        self._transform.scale(0.6, 1.0)
-
-    def _set_pentagon(self):
-        self._transform = Affine2D().scale(0.5)
-        self._snap_threshold = 5.0
-
-        polypath = Path.unit_regular_polygon(5)
-
-        if not self._half_fill():
-            self._path = polypath
-        else:
-            verts = polypath.vertices
-            y = (1 + np.sqrt(5)) / 4.
-            top = Path(verts[[0, 1, 4, 0]])
-            bottom = Path(verts[[1, 2, 3, 4, 1]])
-            left = Path([verts[0], verts[1], verts[2], [0, -y], verts[0]])
-            right = Path([verts[0], verts[4], verts[3], [0, -y], verts[0]])
-            self._path, self._alt_path = {
-                'top': (top, bottom), 'bottom': (bottom, top),
-                'left': (left, right), 'right': (right, left),
-            }[self.get_fillstyle()]
-            self._alt_transform = self._transform
-
-        self._joinstyle = self._user_joinstyle or JoinStyle.miter
-
-    def _set_star(self):
-        self._transform = Affine2D().scale(0.5)
-        self._snap_threshold = 5.0
-
-        polypath = Path.unit_regular_star(5, innerCircle=0.381966)
-
-        if not self._half_fill():
-            self._path = polypath
-        else:
-            verts = polypath.vertices
-            top = Path(np.concatenate([verts[0:4], verts[7:10], verts[0:1]]))
-            bottom = Path(np.concatenate([verts[3:8], verts[3:4]]))
-            left = Path(np.concatenate([verts[0:6], verts[0:1]]))
-            right = Path(np.concatenate([verts[0:1], verts[5:10], verts[0:1]]))
-            self._path, self._alt_path = {
-                'top': (top, bottom), 'bottom': (bottom, top),
-                'left': (left, right), 'right': (right, left),
-            }[self.get_fillstyle()]
-            self._alt_transform = self._transform
-
-        self._joinstyle = self._user_joinstyle or JoinStyle.bevel
-
-    def _set_hexagon1(self):
-        self._transform = Affine2D().scale(0.5)
-        self._snap_threshold = None
-
-        polypath = Path.unit_regular_polygon(6)
-
-        if not self._half_fill():
-            self._path = polypath
-        else:
-            verts = polypath.vertices
-            # not drawing inside lines
-            x = np.abs(np.cos(5 * np.pi / 6.))
-            top = Path(np.concatenate([[(-x, 0)], verts[[1, 0, 5]], [(x, 0)]]))
-            bottom = Path(np.concatenate([[(-x, 0)], verts[2:5], [(x, 0)]]))
-            left = Path(verts[0:4])
-            right = Path(verts[[0, 5, 4, 3]])
-            self._path, self._alt_path = {
-                'top': (top, bottom), 'bottom': (bottom, top),
-                'left': (left, right), 'right': (right, left),
-            }[self.get_fillstyle()]
-            self._alt_transform = self._transform
-
-        self._joinstyle = self._user_joinstyle or JoinStyle.miter
-
-    def _set_hexagon2(self):
-        self._transform = Affine2D().scale(0.5).rotate_deg(30)
-        self._snap_threshold = None
-
-        polypath = Path.unit_regular_polygon(6)
-
-        if not self._half_fill():
-            self._path = polypath
-        else:
-            verts = polypath.vertices
-            # not drawing inside lines
-            x, y = np.sqrt(3) / 4, 3 / 4.
-            top = Path(verts[[1, 0, 5, 4, 1]])
-            bottom = Path(verts[1:5])
-            left = Path(np.concatenate([
-                [(x, y)], verts[:3], [(-x, -y), (x, y)]]))
-            right = Path(np.concatenate([
-                [(x, y)], verts[5:2:-1], [(-x, -y)]]))
-            self._path, self._alt_path = {
-                'top': (top, bottom), 'bottom': (bottom, top),
-                'left': (left, right), 'right': (right, left),
-            }[self.get_fillstyle()]
-            self._alt_transform = self._transform
-
-        self._joinstyle = self._user_joinstyle or JoinStyle.miter
-
-    def _set_octagon(self):
-        self._transform = Affine2D().scale(0.5)
-        self._snap_threshold = 5.0
-
-        polypath = Path.unit_regular_polygon(8)
-
-        if not self._half_fill():
-            self._transform.rotate_deg(22.5)
-            self._path = polypath
-        else:
-            x = np.sqrt(2.) / 4.
-            self._path = self._alt_path = Path(
-                [[0, -1], [0, 1], [-x, 1], [-1, x],
-                 [-1, -x], [-x, -1], [0, -1]])
-            fs = self.get_fillstyle()
-            self._transform.rotate_deg(
-                {'left': 0, 'bottom': 90, 'right': 180, 'top': 270}[fs])
-            self._alt_transform = self._transform.frozen().rotate_deg(180.0)
-
-        self._joinstyle = self._user_joinstyle or JoinStyle.miter
-
-    _line_marker_path = Path([[0.0, -1.0], [0.0, 1.0]])
-
-    def _set_vline(self):
-        self._transform = Affine2D().scale(0.5)
-        self._snap_threshold = 1.0
-        self._filled = False
-        self._path = self._line_marker_path
-
-    def _set_hline(self):
-        self._set_vline()
-        self._transform = self._transform.rotate_deg(90)
-
-    _tickhoriz_path = Path([[0.0, 0.0], [1.0, 0.0]])
-
-    def _set_tickleft(self):
-        self._transform = Affine2D().scale(-1.0, 1.0)
-        self._snap_threshold = 1.0
-        self._filled = False
-        self._path = self._tickhoriz_path
-
-    def _set_tickright(self):
-        self._transform = Affine2D().scale(1.0, 1.0)
-        self._snap_threshold = 1.0
-        self._filled = False
-        self._path = self._tickhoriz_path
-
-    _tickvert_path = Path([[-0.0, 0.0], [-0.0, 1.0]])
-
-    def _set_tickup(self):
-        self._transform = Affine2D().scale(1.0, 1.0)
-        self._snap_threshold = 1.0
-        self._filled = False
-        self._path = self._tickvert_path
-
-    def _set_tickdown(self):
-        self._transform = Affine2D().scale(1.0, -1.0)
-        self._snap_threshold = 1.0
-        self._filled = False
-        self._path = self._tickvert_path
-
-    _tri_path = Path([[0.0, 0.0], [0.0, -1.0],
-                      [0.0, 0.0], [0.8, 0.5],
-                      [0.0, 0.0], [-0.8, 0.5]],
-                     [Path.MOVETO, Path.LINETO,
-                      Path.MOVETO, Path.LINETO,
-                      Path.MOVETO, Path.LINETO])
-
-    def _set_tri_down(self):
-        self._transform = Affine2D().scale(0.5)
-        self._snap_threshold = 5.0
-        self._filled = False
-        self._path = self._tri_path
-
-    def _set_tri_up(self):
-        self._set_tri_down()
-        self._transform = self._transform.rotate_deg(180)
-
-    def _set_tri_left(self):
-        self._set_tri_down()
-        self._transform = self._transform.rotate_deg(270)
-
-    def _set_tri_right(self):
-        self._set_tri_down()
-        self._transform = self._transform.rotate_deg(90)
-
-    _caret_path = Path([[-1.0, 1.5], [0.0, 0.0], [1.0, 1.5]])
-
-    def _set_caretdown(self):
-        self._transform = Affine2D().scale(0.5)
-        self._snap_threshold = 3.0
-        self._filled = False
-        self._path = self._caret_path
-        self._joinstyle = self._user_joinstyle or JoinStyle.miter
-
-    def _set_caretup(self):
-        self._set_caretdown()
-        self._transform = self._transform.rotate_deg(180)
-
-    def _set_caretleft(self):
-        self._set_caretdown()
-        self._transform = self._transform.rotate_deg(270)
-
-    def _set_caretright(self):
-        self._set_caretdown()
-        self._transform = self._transform.rotate_deg(90)
-
-    _caret_path_base = Path([[-1.0, 0.0], [0.0, -1.5], [1.0, 0]])
-
-    def _set_caretdownbase(self):
-        self._set_caretdown()
-        self._path = self._caret_path_base
-
-    def _set_caretupbase(self):
-        self._set_caretdownbase()
-        self._transform = self._transform.rotate_deg(180)
-
-    def _set_caretleftbase(self):
-        self._set_caretdownbase()
-        self._transform = self._transform.rotate_deg(270)
-
-    def _set_caretrightbase(self):
-        self._set_caretdownbase()
-        self._transform = self._transform.rotate_deg(90)
-
-    _plus_path = Path([[-1.0, 0.0], [1.0, 0.0],
-                       [0.0, -1.0], [0.0, 1.0]],
-                      [Path.MOVETO, Path.LINETO,
-                       Path.MOVETO, Path.LINETO])
-
-    def _set_plus(self):
-        self._transform = Affine2D().scale(0.5)
-        self._snap_threshold = 1.0
-        self._filled = False
-        self._path = self._plus_path
-
-    _x_path = Path([[-1.0, -1.0], [1.0, 1.0],
-                    [-1.0, 1.0], [1.0, -1.0]],
-                   [Path.MOVETO, Path.LINETO,
-                    Path.MOVETO, Path.LINETO])
-
-    def _set_x(self):
-        self._transform = Affine2D().scale(0.5)
-        self._snap_threshold = 3.0
-        self._filled = False
-        self._path = self._x_path
-
-    _plus_filled_path = Path._create_closed(np.array([
-        (-1, -3), (+1, -3), (+1, -1), (+3, -1), (+3, +1), (+1, +1),
-        (+1, +3), (-1, +3), (-1, +1), (-3, +1), (-3, -1), (-1, -1)]) / 6)
-    _plus_filled_path_t = Path._create_closed(np.array([
-        (+3, 0), (+3, +1), (+1, +1), (+1, +3),
-        (-1, +3), (-1, +1), (-3, +1), (-3, 0)]) / 6)
-
-    def _set_plus_filled(self):
-        self._transform = Affine2D()
-        self._snap_threshold = 5.0
-        self._joinstyle = self._user_joinstyle or JoinStyle.miter
-        if not self._half_fill():
-            self._path = self._plus_filled_path
-        else:
-            # Rotate top half path to support all partitions
-            self._path = self._alt_path = self._plus_filled_path_t
-            fs = self.get_fillstyle()
-            self._transform.rotate_deg(
-                {'top': 0, 'left': 90, 'bottom': 180, 'right': 270}[fs])
-            self._alt_transform = self._transform.frozen().rotate_deg(180)
-
-    _x_filled_path = Path._create_closed(np.array([
-        (-1, -2), (0, -1), (+1, -2), (+2, -1), (+1, 0), (+2, +1),
-        (+1, +2), (0, +1), (-1, +2), (-2, +1), (-1, 0), (-2, -1)]) / 4)
-    _x_filled_path_t = Path._create_closed(np.array([
-        (+1, 0), (+2, +1), (+1, +2), (0, +1),
-        (-1, +2), (-2, +1), (-1, 0)]) / 4)
-
-    def _set_x_filled(self):
-        self._transform = Affine2D()
-        self._snap_threshold = 5.0
-        self._joinstyle = self._user_joinstyle or JoinStyle.miter
-        if not self._half_fill():
-            self._path = self._x_filled_path
-        else:
-            # Rotate top half path to support all partitions
-            self._path = self._alt_path = self._x_filled_path_t
-            fs = self.get_fillstyle()
-            self._transform.rotate_deg(
-                {'top': 0, 'left': 90, 'bottom': 180, 'right': 270}[fs])
-            self._alt_transform = self._transform.frozen().rotate_deg(180)
+        if isinstance(state, dict) and "_markers" in state:
+            # Old format (packaging <= 26.1, no __slots__): plain __dict__.
+            markers = state["_markers"]
+            if isinstance(markers, list):
+                self._markers = markers
+                return
+        if isinstance(state, tuple) and len(state) == 2:
+            # Old format (packaging <= 26.1, __slots__): (None, {slot: value}).
+            _, slot_dict = state
+            if isinstance(slot_dict, dict) and "_markers" in slot_dict:
+                markers = slot_dict["_markers"]
+                if isinstance(markers, list):
+                    self._markers = markers
+                    return
+        raise TypeError(f"Cannot restore Marker from {state!r}")
+
+    def __and__(self, other: Marker) -> Marker:
+        if not isinstance(other, Marker):
+            return NotImplemented
+        return self._from_markers([self._markers, "and", other._markers])
+
+    def __or__(self, other: Marker) -> Marker:
+        if not isinstance(other, Marker):
+            return NotImplemented
+        return self._from_markers([self._markers, "or", other._markers])
+
+    def evaluate(
+        self,
+        environment: Mapping[str, str | AbstractSet[str]] | None = None,
+        context: EvaluateContext = "metadata",
+    ) -> bool:
+        """Evaluate a marker.
+
+        Return the boolean from evaluating this marker against the environment.
+        The environment is determined from the current Python process unless
+        passed in explicitly.
+
+        :param environment: Mapping containing keys and values to override the
+           detected environment.
+        :param EvaluateContext context: The context in which the marker is
+            evaluated, which influences what marker names are considered valid.
+            Accepted values are ``"metadata"`` (for core metadata; default),
+            ``"lock_file"``, and ``"requirement"`` (i.e. all other situations).
+        :raises UndefinedComparison: If the marker uses a comparison on values
+            that are not valid versions per the :ref:`specification of version
+            specifiers <pypug:version-specifiers>`.
+        :raises UndefinedEnvironmentName: If the marker references a value that
+            is missing from the evaluation environment.
+        :returns: ``True`` if the marker matches, otherwise ``False``.
+
+        """
+        current_environment = cast(
+            "dict[str, str | AbstractSet[str]]", default_environment()
+        )
+        if context == "lock_file":
+            current_environment.update(
+                extras=frozenset(), dependency_groups=frozenset()
+            )
+        elif context == "metadata":
+            current_environment["extra"] = ""
+
+        if environment is not None:
+            current_environment.update(environment)
+            if "extra" in current_environment:
+                # The API used to allow setting extra to None. We need to handle
+                # this case for backwards compatibility. Also skip running
+                # normalize name if extra is empty.
+                extra = cast("str | None", current_environment["extra"])
+                current_environment["extra"] = canonicalize_name(extra) if extra else ""
+
+        return _evaluate_markers(
+            self._markers, _repair_python_full_version(current_environment)
+        )
+
+
+def _repair_python_full_version(
+    env: dict[str, str | AbstractSet[str]],
+) -> dict[str, str | AbstractSet[str]]:
+    """
+    Work around platform.python_version() returning something that is not PEP 440
+    compliant for non-tagged Python builds.
+    """
+    python_full_version = cast("str", env["python_full_version"])
+    if python_full_version.endswith("+"):
+        env["python_full_version"] = f"{python_full_version}local"
+    return env

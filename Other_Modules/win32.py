@@ -1,180 +1,140 @@
-# Copyright Jonathan Hartley 2013. BSD 3-Clause license, see LICENSE file.
-
-# from winbase.h
-STDOUT = -11
-STDERR = -12
-
-ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004
+import logging
+from datetime import datetime
 
 try:
-    import ctypes
-    from ctypes import LibraryLoader
-    windll = LibraryLoader(ctypes.WinDLL)
-    from ctypes import wintypes
-except (AttributeError, ImportError):
-    windll = None
-    SetConsoleTextAttribute = lambda *_: None
-    winapi_test = lambda *_: None
-else:
-    from ctypes import byref, Structure, c_char, POINTER
+    import _winreg as winreg
+except ImportError:
+    import winreg
 
-    COORD = wintypes._COORD
+import zoneinfo
 
-    class CONSOLE_SCREEN_BUFFER_INFO(Structure):
-        """struct in wincon.h."""
-        _fields_ = [
-            ("dwSize", COORD),
-            ("dwCursorPosition", COORD),
-            ("wAttributes", wintypes.WORD),
-            ("srWindow", wintypes.SMALL_RECT),
-            ("dwMaximumWindowSize", COORD),
-        ]
-        def __str__(self):
-            return '(%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d)' % (
-                self.dwSize.Y, self.dwSize.X
-                , self.dwCursorPosition.Y, self.dwCursorPosition.X
-                , self.wAttributes
-                , self.srWindow.Top, self.srWindow.Left, self.srWindow.Bottom, self.srWindow.Right
-                , self.dwMaximumWindowSize.Y, self.dwMaximumWindowSize.X
-            )
+from tzlocal import utils
+from tzlocal.windows_tz import win_tz
 
-    _GetStdHandle = windll.kernel32.GetStdHandle
-    _GetStdHandle.argtypes = [
-        wintypes.DWORD,
-    ]
-    _GetStdHandle.restype = wintypes.HANDLE
+_cache_tz = None
+_cache_tz_name = None
 
-    _GetConsoleScreenBufferInfo = windll.kernel32.GetConsoleScreenBufferInfo
-    _GetConsoleScreenBufferInfo.argtypes = [
-        wintypes.HANDLE,
-        POINTER(CONSOLE_SCREEN_BUFFER_INFO),
-    ]
-    _GetConsoleScreenBufferInfo.restype = wintypes.BOOL
+log = logging.getLogger("tzlocal")
 
-    _SetConsoleTextAttribute = windll.kernel32.SetConsoleTextAttribute
-    _SetConsoleTextAttribute.argtypes = [
-        wintypes.HANDLE,
-        wintypes.WORD,
-    ]
-    _SetConsoleTextAttribute.restype = wintypes.BOOL
 
-    _SetConsoleCursorPosition = windll.kernel32.SetConsoleCursorPosition
-    _SetConsoleCursorPosition.argtypes = [
-        wintypes.HANDLE,
-        COORD,
-    ]
-    _SetConsoleCursorPosition.restype = wintypes.BOOL
+def valuestodict(key):
+    """Convert a registry key's values to a dictionary."""
+    result = {}
+    size = winreg.QueryInfoKey(key)[1]
+    for i in range(size):
+        data = winreg.EnumValue(key, i)
+        result[data[0]] = data[1]
+    return result
 
-    _FillConsoleOutputCharacterA = windll.kernel32.FillConsoleOutputCharacterA
-    _FillConsoleOutputCharacterA.argtypes = [
-        wintypes.HANDLE,
-        c_char,
-        wintypes.DWORD,
-        COORD,
-        POINTER(wintypes.DWORD),
-    ]
-    _FillConsoleOutputCharacterA.restype = wintypes.BOOL
 
-    _FillConsoleOutputAttribute = windll.kernel32.FillConsoleOutputAttribute
-    _FillConsoleOutputAttribute.argtypes = [
-        wintypes.HANDLE,
-        wintypes.WORD,
-        wintypes.DWORD,
-        COORD,
-        POINTER(wintypes.DWORD),
-    ]
-    _FillConsoleOutputAttribute.restype = wintypes.BOOL
+def _get_dst_info(tz):
+    # Find the offset for when it doesn't have DST:
+    dst_offset = std_offset = None
+    has_dst = False
+    year = datetime.now().year
+    for dt in (datetime(year, 1, 1), datetime(year, 6, 1)):
+        if tz.dst(dt).total_seconds() == 0.0:
+            # OK, no DST during winter, get this offset
+            std_offset = tz.utcoffset(dt).total_seconds()
+        else:
+            has_dst = True
 
-    _SetConsoleTitleW = windll.kernel32.SetConsoleTitleW
-    _SetConsoleTitleW.argtypes = [
-        wintypes.LPCWSTR
-    ]
-    _SetConsoleTitleW.restype = wintypes.BOOL
+    return has_dst, std_offset, dst_offset
 
-    _GetConsoleMode = windll.kernel32.GetConsoleMode
-    _GetConsoleMode.argtypes = [
-        wintypes.HANDLE,
-        POINTER(wintypes.DWORD)
-    ]
-    _GetConsoleMode.restype = wintypes.BOOL
 
-    _SetConsoleMode = windll.kernel32.SetConsoleMode
-    _SetConsoleMode.argtypes = [
-        wintypes.HANDLE,
-        wintypes.DWORD
-    ]
-    _SetConsoleMode.restype = wintypes.BOOL
+def _get_localzone_name():
+    # Windows is special. It has unique time zone names (in several
+    # meanings of the word) available, but unfortunately, they can be
+    # translated to the language of the operating system, so we need to
+    # do a backwards lookup, by going through all time zones and see which
+    # one matches.
+    tzenv = utils._tz_name_from_env()
+    if tzenv:
+        return tzenv
 
-    def _winapi_test(handle):
-        csbi = CONSOLE_SCREEN_BUFFER_INFO()
-        success = _GetConsoleScreenBufferInfo(
-            handle, byref(csbi))
-        return bool(success)
+    log.debug("Looking up time zone info from registry")
+    handle = winreg.ConnectRegistry(None, winreg.HKEY_LOCAL_MACHINE)
 
-    def winapi_test():
-        return any(_winapi_test(h) for h in
-                   (_GetStdHandle(STDOUT), _GetStdHandle(STDERR)))
+    TZLOCALKEYNAME = r"SYSTEM\CurrentControlSet\Control\TimeZoneInformation"
+    localtz = winreg.OpenKey(handle, TZLOCALKEYNAME)
+    keyvalues = valuestodict(localtz)
+    localtz.Close()
 
-    def GetConsoleScreenBufferInfo(stream_id=STDOUT):
-        handle = _GetStdHandle(stream_id)
-        csbi = CONSOLE_SCREEN_BUFFER_INFO()
-        success = _GetConsoleScreenBufferInfo(
-            handle, byref(csbi))
-        return csbi
+    if "TimeZoneKeyName" in keyvalues:
+        # Windows 7 and later
 
-    def SetConsoleTextAttribute(stream_id, attrs):
-        handle = _GetStdHandle(stream_id)
-        return _SetConsoleTextAttribute(handle, attrs)
+        # For some reason this returns a string with loads of NUL bytes at
+        # least on some systems. I don't know if this is a bug somewhere, I
+        # just work around it.
+        tzkeyname = keyvalues["TimeZoneKeyName"].split("\x00", 1)[0]
+    else:
+        # Don't support XP any longer
+        raise LookupError("Can not find Windows timezone configuration")
 
-    def SetConsoleCursorPosition(stream_id, position, adjust=True):
-        position = COORD(*position)
-        # If the position is out of range, do nothing.
-        if position.Y <= 0 or position.X <= 0:
-            return
-        # Adjust for Windows' SetConsoleCursorPosition:
-        #    1. being 0-based, while ANSI is 1-based.
-        #    2. expecting (x,y), while ANSI uses (y,x).
-        adjusted_position = COORD(position.Y - 1, position.X - 1)
-        if adjust:
-            # Adjust for viewport's scroll position
-            sr = GetConsoleScreenBufferInfo(STDOUT).srWindow
-            adjusted_position.Y += sr.Top
-            adjusted_position.X += sr.Left
-        # Resume normal processing
-        handle = _GetStdHandle(stream_id)
-        return _SetConsoleCursorPosition(handle, adjusted_position)
+    timezone = win_tz.get(tzkeyname)
+    if timezone is None:
+        # Nope, that didn't work. Try adding "Standard Time",
+        # it seems to work a lot of times:
+        timezone = win_tz.get(tzkeyname + " Standard Time")
 
-    def FillConsoleOutputCharacter(stream_id, char, length, start):
-        handle = _GetStdHandle(stream_id)
-        char = c_char(char.encode())
-        length = wintypes.DWORD(length)
-        num_written = wintypes.DWORD(0)
-        # Note that this is hard-coded for ANSI (vs wide) bytes.
-        success = _FillConsoleOutputCharacterA(
-            handle, char, length, start, byref(num_written))
-        return num_written.value
+    # Return what we have.
+    if timezone is None:
+        raise zoneinfo.ZoneInfoNotFoundError(tzkeyname)
 
-    def FillConsoleOutputAttribute(stream_id, attr, length, start):
-        ''' FillConsoleOutputAttribute( hConsole, csbi.wAttributes, dwConSize, coordScreen, &cCharsWritten )'''
-        handle = _GetStdHandle(stream_id)
-        attribute = wintypes.WORD(attr)
-        length = wintypes.DWORD(length)
-        num_written = wintypes.DWORD(0)
-        # Note that this is hard-coded for ANSI (vs wide) bytes.
-        return _FillConsoleOutputAttribute(
-            handle, attribute, length, start, byref(num_written))
+    if keyvalues.get("DynamicDaylightTimeDisabled", 0) == 1:
+        # DST is disabled, so don't return the timezone name,
+        # instead return Etc/GMT+offset
 
-    def SetConsoleTitle(title):
-        return _SetConsoleTitleW(title)
+        tz = zoneinfo.ZoneInfo(timezone)
+        has_dst, std_offset, dst_offset = _get_dst_info(tz)
+        if not has_dst:
+            # The DST is turned off in the windows configuration,
+            # but this timezone doesn't have DST so it doesn't matter
+            return timezone
 
-    def GetConsoleMode(handle):
-        mode = wintypes.DWORD()
-        success = _GetConsoleMode(handle, byref(mode))
-        if not success:
-            raise ctypes.WinError()
-        return mode.value
+        if std_offset is None:
+            raise zoneinfo.ZoneInfoNotFoundError(f"{tzkeyname} claims to not have a non-DST time!?")
 
-    def SetConsoleMode(handle, mode):
-        success = _SetConsoleMode(handle, mode)
-        if not success:
-            raise ctypes.WinError()
+        if std_offset % 3600:
+            # I can't convert this to an hourly offset
+            raise zoneinfo.ZoneInfoNotFoundError(f"tzlocal can't support disabling DST in the {timezone} zone.")
+
+        # This has whole hours as offset, return it as Etc/GMT
+        return f"Etc/GMT{-std_offset // 3600:+.0f}"
+
+    return timezone
+
+
+def get_localzone_name() -> str:
+    """Get the zoneinfo timezone name that matches the Windows-configured timezone."""
+    global _cache_tz_name
+    if _cache_tz_name is None:
+        _cache_tz_name = _get_localzone_name()
+
+    return _cache_tz_name
+
+
+def get_localzone() -> zoneinfo.ZoneInfo:
+    """Returns the zoneinfo-based tzinfo object that matches the Windows-configured timezone."""
+
+    global _cache_tz
+    if _cache_tz is None:
+        _cache_tz = zoneinfo.ZoneInfo(get_localzone_name())
+
+    if not utils._tz_name_from_env():
+        # If the timezone does NOT come from a TZ environment variable,
+        # verify that it's correct. If it's from the environment,
+        # we accept it, this is so you can run tests with different timezones.
+        utils.assert_tz_offset(_cache_tz, error=False)
+
+    return _cache_tz
+
+
+def reload_localzone() -> zoneinfo.ZoneInfo:
+    """Reload the cached localzone. You need to call this if the timezone has changed."""
+    global _cache_tz
+    global _cache_tz_name
+    _cache_tz_name = _get_localzone_name()
+    _cache_tz = zoneinfo.ZoneInfo(_cache_tz_name)
+    utils.assert_tz_offset(_cache_tz, error=False)
+    return _cache_tz

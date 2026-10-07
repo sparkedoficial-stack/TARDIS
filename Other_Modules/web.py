@@ -175,7 +175,7 @@ __all__ = (
     "HTTPMove",
     "HTTPMovedPermanently",
     "HTTPMultipleChoices",
-    "HTTPNetworkAuthenticationRequired",
+    "REDACTED_MISTRAL",
     "HTTPNoContent",
     "HTTPNonAuthoritativeInformation",
     "HTTPNotAcceptable",

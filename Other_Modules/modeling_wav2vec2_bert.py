@@ -1482,9 +1482,9 @@ class Wav2Vec2BertForXVector(Wav2Vec2BertPreTrainedModel):
 
 
 __all__ = [
-    "Wav2Vec2BertForAudioFrameClassification",
+    "REDACTED_MISTRAL",
     "Wav2Vec2BertForCTC",
-    "Wav2Vec2BertForSequenceClassification",
+    "REDACTED_MISTRAL",
     "Wav2Vec2BertForXVector",
     "Wav2Vec2BertModel",
     "Wav2Vec2BertPreTrainedModel",

@@ -27,7 +27,7 @@ TESTS = [
     ("Toma una foto con la camara y guardala", {"capture_photo"}),
     ("Lee el texto que hay en la pantalla", {"read_screen", "read_window"}),
     ("Cierra los programas mas pesados para liberar RAM", {"free_compute"}),
-    ("Dime en voz alta: hola Arquitecto", {"speak"}),
+    ("Dime en voz alta: hola Miguel", {"speak"}),
     ("Que temperatura tienen mi CPU y GPU ahora", {"read_sensors"}),
     ("Ejecuta el comando dir con powershell", {"run_shell"}),
     ("Busca archivos con extension pdf en todo mi disco", {"search_files"}),
@@ -42,7 +42,7 @@ def ask(task, tools):
     t0 = time.time()
     r = httpx.post(f"{OLLAMA}/api/chat", json={
         "model": MODEL, "messages": messages, "tools": tools,
-        "stream": False, "options": {"num_ctx": int(os.environ.get("GIA_NUM_CTX", "32768")), "temperature": 0.0},
+        "stream": False, "options": {"num_ctx": 8192, "temperature": 0.0},
         "keep_alive": "30m",
     }, timeout=600.0)
     r.raise_for_status()

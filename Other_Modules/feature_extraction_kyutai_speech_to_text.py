@@ -231,4 +231,4 @@ class KyutaiSpeechToTextFeatureExtractor(SequenceFeatureExtractor):
         return padded_inputs
 
 
-__all__ = ["KyutaiSpeechToTextFeatureExtractor"]
+__all__ = ["REDACTED_MISTRAL"]

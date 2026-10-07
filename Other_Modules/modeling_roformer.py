@@ -1292,7 +1292,7 @@ __all__ = [
     "RoFormerForMaskedLM",
     "RoFormerForMultipleChoice",
     "RoFormerForQuestionAnswering",
-    "RoFormerForSequenceClassification",
+    "REDACTED_MISTRAL",
     "RoFormerForTokenClassification",
     "RoFormerLayer",
     "RoFormerModel",

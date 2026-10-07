@@ -84,7 +84,7 @@ _RUNTIME_BLOCKLIST = {
 _RUNTIME_FLOW_NAMES = {
     "cudaLaunchKernel",
     "cudaLaunchCooperativeKernel",
-    "cudaLaunchCooperativeKernelMultiDevice",
+    "REDACTED_MISTRAL",
     "cudaLaunchKernelExC",
     "cudaGraphLaunch",
     "cudaStreamSynchronize",
@@ -292,7 +292,7 @@ def _graph_dependency_flow_events(
 _RUNTIME_LAUNCH_NAMES = {
     "cudaLaunchKernel",
     "cudaLaunchCooperativeKernel",
-    "cudaLaunchCooperativeKernelMultiDevice",
+    "REDACTED_MISTRAL",
     "cudaLaunchKernelExC",
 }
 

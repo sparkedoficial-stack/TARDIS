@@ -477,7 +477,7 @@ class CheckInvariantStatus(Enum):
             return "cudagraph managed tensor data pointer changed"
         elif self.name == "StaticInputIdxMismatch":
             return "static input data pointer changed"
-        elif self.name == "ExpectedDeadIndicesBeforeGraphMismatch":
+        elif self.name == "REDACTED_MISTRAL":
             return "expected dead indices before graph are live"
         else:
             return f"{self.name}: {self.value}"

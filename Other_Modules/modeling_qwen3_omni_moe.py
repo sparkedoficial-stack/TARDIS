@@ -118,11 +118,11 @@ class Qwen3OmniMoePreTrainedModel(PreTrainedModel):
     input_modalities = ("image", "video", "audio", "text")
     supports_gradient_checkpointing = True
     _no_split_modules = [
-        "Qwen3OmniMoeThinkerTextDecoderLayer",
+        "REDACTED_MISTRAL",
         "Qwen3OmniMoeAudioEncoderLayer",
         "Qwen3OmniMoeVisionBlock",
         "Qwen3OmniMoeTalkerDecoderLayer",
-        "Qwen3OmniMoeTalkerCodePredictorModelForConditionalGeneration",
+        "REDACTED_MISTRAL",
     ]
     _skip_keys_device_placement = ["past_key_values"]
     _supports_flash_attn = True
@@ -1576,7 +1576,7 @@ class Qwen3OmniMoeThinkerTextPreTrainedModel(PreTrainedModel):
     config: Qwen3OmniMoeTextConfig
     base_model_prefix = "model"
     supports_gradient_checkpointing = True
-    _no_split_modules = ["Qwen3OmniMoeThinkerTextDecoderLayer"]
+    _no_split_modules = ["REDACTED_MISTRAL"]
     _skip_keys_device_placement = ["past_key_values"]
     _supports_flash_attn = True
     _supports_sdpa = True
@@ -1849,7 +1849,7 @@ class Qwen3OmniMoeThinkerForConditionalGeneration(
     _no_split_modules = [
         "Qwen3OmniMoeAudioEncoder",
         "Qwen3OmniMoeVisionEncoder",
-        "Qwen3OmniMoeThinkerTextDecoderLayer",
+        "REDACTED_MISTRAL",
     ]
     _can_compile_fullgraph = True
     _can_record_outputs = {
@@ -4226,17 +4226,17 @@ class Qwen3OmniMoeForConditionalGeneration(Qwen3OmniMoePreTrainedModel, Generati
 
 
 __all__ = [
-    "Qwen3OmniMoeForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "Qwen3OmniMoeThinkerTextModel",
-    "Qwen3OmniMoeThinkerForConditionalGeneration",
-    "Qwen3OmniMoeTalkerForConditionalGeneration",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
     "Qwen3OmniMoePreTrainedModel",
-    "Qwen3OmniMoePreTrainedModelForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "Qwen3OmniMoeTalkerModel",
-    "Qwen3OmniMoeThinkerTextPreTrainedModel",
+    "REDACTED_MISTRAL",
     "Qwen3OmniMoeCode2Wav",
-    "Qwen3OmniMoeCode2WavDecoderBlock",
-    "Qwen3OmniMoeCode2WavTransformerModel",
-    "Qwen3OmniMoeTalkerCodePredictorModel",
-    "Qwen3OmniMoeTalkerCodePredictorModelForConditionalGeneration",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
 ]

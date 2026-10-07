@@ -131,7 +131,7 @@ class PPOCRV6MediumDetForObjectDetection(PPOCRV5ServerDetForObjectDetection):
 
 
 __all__ = [
-    "PPOCRV6MediumDetForObjectDetection",
+    "REDACTED_MISTRAL",
     "PPOCRV6MediumDetConfig",
     "PPOCRV6MediumDetModel",  # noqa: F822
     "PPOCRV6MediumDetPreTrainedModel",  # noqa: F822

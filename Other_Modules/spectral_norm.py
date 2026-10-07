@@ -10,7 +10,7 @@ from torch.nn.modules import Module
 
 __all__ = [
     "SpectralNorm",
-    "SpectralNormLoadStateDictPreHook",
+    "REDACTED_MISTRAL",
     "SpectralNormStateDictHook",
     "spectral_norm",
     "remove_spectral_norm",

@@ -24,7 +24,7 @@ from .tools_common import (
 __all__ = [
     "FxNetMinimizerBadModuleError",
     "FxNetMinimizerRunFuncError",
-    "FxNetMinimizerResultMismatchError",
+    "REDACTED_MISTRAL",
 ]
 
 _LOGGER = logging.getLogger(__name__)

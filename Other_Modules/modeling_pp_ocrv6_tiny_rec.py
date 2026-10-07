@@ -141,4 +141,4 @@ class PPOCRV6TinyRecForTextRecognition(PPOCRV6TinyRecPreTrainedModel):
         )
 
 
-__all__ = ["PPOCRV6TinyRecForTextRecognition", "PPOCRV6TinyRecModel", "PPOCRV6TinyRecPreTrainedModel"]
+__all__ = ["REDACTED_MISTRAL", "PPOCRV6TinyRecModel", "PPOCRV6TinyRecPreTrainedModel"]

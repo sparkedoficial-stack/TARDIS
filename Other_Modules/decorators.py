@@ -1,476 +1,250 @@
-import contextlib
-import functools
-import inspect
-import os
-from platform import uname
-from pathlib import Path
-import shutil
-import string
-import sys
-import warnings
+"""
+SymPy core decorators.
 
-from packaging.version import parse as parse_version
+The purpose of this module is to expose decorators without any other
+dependencies, so that they can be easily imported anywhere in sympy/core.
+"""
 
-import matplotlib.style
-import matplotlib.units
-import matplotlib.testing
-from matplotlib import _api, _pylab_helpers, cbook, ft2font, pyplot as plt, ticker
-from matplotlib.figure import Figure
-from .compare import comparable_formats, compare_images, make_test_filename
-from .exceptions import ImageComparisonFailure
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+from functools import wraps
+from .sympify import SympifyError, sympify
 
 
-@contextlib.contextmanager
-def _cleanup_cm():
-    orig_units_registry = matplotlib.units.registry.copy()
-    try:
-        with warnings.catch_warnings(), matplotlib.rc_context():
-            yield
-    finally:
-        matplotlib.units.registry.clear()
-        matplotlib.units.registry.update(orig_units_registry)
-        plt.close("all")
+if TYPE_CHECKING:
+    from typing import Callable, TypeVar, Union
+    T1 = TypeVar('T1')
+    T2 = TypeVar('T2')
+    T3 = TypeVar('T3')
 
 
-def _check_freetype_version(ver):
-    if ver is None:
-        return True
-
-    if isinstance(ver, str):
-        ver = (ver, ver)
-    ver = [parse_version(x) for x in ver]
-    found = parse_version(ft2font.__freetype_version__)
-
-    return ver[0] <= found <= ver[1]
-
-
-def _checked_on_freetype_version(required_freetype_version):
-    import pytest
-    return pytest.mark.xfail(
-        not _check_freetype_version(required_freetype_version),
-        reason=f"Mismatched version of freetype. "
-               f"Test requires '{required_freetype_version}', "
-               f"you have '{ft2font.__freetype_version__}'",
-        raises=ImageComparisonFailure, strict=False)
-
-
-def remove_ticks_and_titles(figure):
-    figure.suptitle("")
-    null_formatter = ticker.NullFormatter()
-    def remove_ticks(ax):
-        """Remove ticks in *ax* and all its child Axes."""
-        ax.set_title("")
-        ax.xaxis.set_major_formatter(null_formatter)
-        ax.xaxis.set_minor_formatter(null_formatter)
-        ax.yaxis.set_major_formatter(null_formatter)
-        ax.yaxis.set_minor_formatter(null_formatter)
-        try:
-            ax.zaxis.set_major_formatter(null_formatter)
-            ax.zaxis.set_minor_formatter(null_formatter)
-        except AttributeError:
-            pass
-        for child in ax.child_axes:
-            remove_ticks(child)
-    for ax in figure.get_axes():
-        remove_ticks(ax)
-
-
-@contextlib.contextmanager
-def _collect_new_figures():
+def _sympifyit(arg, retval=None) -> Callable[[Callable[[T1, T2], T3]], Callable[[T1, T2], T3]]:
     """
-    After::
+    decorator to smartly _sympify function arguments
 
-        with _collect_new_figures() as figs:
-            some_code()
+    Explanation
+    ===========
 
-    the list *figs* contains the figures that have been created during the
-    execution of ``some_code``, sorted by figure number.
+    @_sympifyit('other', NotImplemented)
+    def add(self, other):
+        ...
+
+    In add, other can be thought of as already being a SymPy object.
+
+    If it is not, the code is likely to catch an exception, then other will
+    be explicitly _sympified, and the whole code restarted.
+
+    if _sympify(arg) fails, NotImplemented will be returned
+
+    See also
+    ========
+
+    __sympifyit
     """
-    managers = _pylab_helpers.Gcf.figs
-    preexisting = [manager for manager in managers.values()]
-    new_figs = []
-    try:
-        yield new_figs
-    finally:
-        new_managers = sorted([manager for manager in managers.values()
-                               if manager not in preexisting],
-                              key=lambda manager: manager.num)
-        new_figs[:] = [manager.canvas.figure for manager in new_managers]
+    def deco(func):
+        return __sympifyit(func, arg, retval)
+
+    return deco
 
 
-def _raise_on_image_difference(expected, actual, tol):
-    __tracebackhide__ = True
+def __sympifyit(func, arg, retval=None):
+    """Decorator to _sympify `arg` argument for function `func`.
 
-    err = compare_images(expected, actual, tol, in_decorator=True)
-    if err:
-        for key in ["actual", "expected", "diff"]:
-            err[key] = os.path.relpath(err[key])
-        raise ImageComparisonFailure(
-            ('images not close (RMS %(rms).3f):'
-                '\n\t%(actual)s\n\t%(expected)s\n\t%(diff)s') % err)
-
-
-class _ImageComparisonBase:
-    """
-    Image comparison base class
-
-    This class provides *just* the comparison-related functionality and avoids
-    any code that would be specific to any testing framework.
+       Do not use directly -- use _sympifyit instead.
     """
 
-    def __init__(self, func, tol, remove_text, savefig_kwargs):
-        self.func = func
-        self.baseline_dir, self.result_dir = _image_directories(func)
-        self.tol = tol
-        self.remove_text = remove_text
-        self.savefig_kwargs = savefig_kwargs
+    # we support f(a,b) only
+    if not func.__code__.co_argcount:
+        raise LookupError("func not found")
+    # only b is _sympified
+    assert func.__code__.co_varnames[1] == arg
+    if retval is None:
+        @wraps(func)
+        def __sympifyit_wrapper(a, b):
+            return func(a, sympify(b, strict=True))
 
-    def copy_baseline(self, baseline, extension):
-        baseline_path = self.baseline_dir / baseline
-        orig_expected_path = baseline_path.with_suffix(f'.{extension}')
-        if extension == 'eps' and not orig_expected_path.exists():
-            orig_expected_path = orig_expected_path.with_suffix('.pdf')
-        expected_fname = make_test_filename(
-            self.result_dir / orig_expected_path.name, 'expected')
-        try:
-            # os.symlink errors if the target already exists.
-            with contextlib.suppress(OSError):
-                os.remove(expected_fname)
+    else:
+        @wraps(func)
+        def __sympifyit_wrapper(a, b):
             try:
-                if 'microsoft' in uname().release.lower():
-                    raise OSError  # On WSL, symlink breaks silently
-                if sys.platform == 'emscripten':
-                    raise OSError
-                os.symlink(orig_expected_path, expected_fname)
-            except OSError:  # On Windows, symlink *may* be unavailable.
-                shutil.copyfile(orig_expected_path, expected_fname)
-        except OSError as err:
-            raise ImageComparisonFailure(
-                f"Missing baseline image {expected_fname} because the "
-                f"following file cannot be accessed: "
-                f"{orig_expected_path}") from err
-        return expected_fname
+                # If an external class has _op_priority, it knows how to deal
+                # with SymPy objects. Otherwise, it must be converted.
+                if not hasattr(b, '_op_priority'):
+                    b = sympify(b, strict=True)
+                return func(a, b)
+            except SympifyError:
+                return retval
 
-    def compare(self, fig, baseline, extension, *, _lock=False):
-        __tracebackhide__ = True
-
-        if self.remove_text:
-            remove_ticks_and_titles(fig)
-
-        actual_path = (self.result_dir / baseline).with_suffix(f'.{extension}')
-        kwargs = self.savefig_kwargs.copy()
-        if extension == 'pdf':
-            kwargs.setdefault('metadata',
-                              {'Creator': None, 'Producer': None,
-                               'CreationDate': None})
-
-        lock = (cbook._lock_path(actual_path)
-                if _lock else contextlib.nullcontext())
-        with lock:
-            try:
-                fig.savefig(actual_path, **kwargs)
-            finally:
-                # Matplotlib has an autouse fixture to close figures, but this
-                # makes things more convenient for third-party users.
-                plt.close(fig)
-            expected_path = self.copy_baseline(baseline, extension)
-            _raise_on_image_difference(expected_path, actual_path, self.tol)
+    return __sympifyit_wrapper
 
 
-def _pytest_image_comparison(baseline_images, extensions, tol,
-                             freetype_version, remove_text, savefig_kwargs,
-                             style):
+def call_highest_priority(method_name: str
+    ) -> Callable[[Callable[[T1, T2], T3]], Callable[[T1, T2], T3]]:
+    """A decorator for binary special methods to handle _op_priority.
+
+    Explanation
+    ===========
+
+    Binary special methods in Expr and its subclasses use a special attribute
+    '_op_priority' to determine whose special method will be called to
+    handle the operation. In general, the object having the highest value of
+    '_op_priority' will handle the operation. Expr and subclasses that define
+    custom binary special methods (__mul__, etc.) should decorate those
+    methods with this decorator to add the priority logic.
+
+    The ``method_name`` argument is the name of the method of the other class
+    that will be called.  Use this decorator in the following manner::
+
+        # Call other.__rmul__ if other._op_priority > self._op_priority
+        @call_highest_priority('__rmul__')
+        def __mul__(self, other):
+            ...
+
+        # Call other.__mul__ if other._op_priority > self._op_priority
+        @call_highest_priority('__mul__')
+        def __rmul__(self, other):
+        ...
     """
-    Decorate function with image comparison for pytest.
-
-    This function creates a decorator that wraps a figure-generating function
-    with image comparison code.
-    """
-    import pytest
-
-    KEYWORD_ONLY = inspect.Parameter.KEYWORD_ONLY
-
-    def decorator(func):
-        old_sig = inspect.signature(func)
-
-        @functools.wraps(func)
-        @pytest.mark.parametrize('extension', extensions)
-        @matplotlib.style.context(style)
-        @_checked_on_freetype_version(freetype_version)
-        @functools.wraps(func)
-        def wrapper(*args, extension, request, **kwargs):
-            __tracebackhide__ = True
-            if 'extension' in old_sig.parameters:
-                kwargs['extension'] = extension
-            if 'request' in old_sig.parameters:
-                kwargs['request'] = request
-
-            if extension not in comparable_formats():
-                reason = {
-                    'gif': 'because ImageMagick is not installed',
-                    'pdf': 'because Ghostscript is not installed',
-                    'eps': 'because Ghostscript is not installed',
-                    'svg': 'because Inkscape is not installed',
-                }.get(extension, 'on this system')
-                pytest.skip(f"Cannot compare {extension} files {reason}")
-
-            img = _ImageComparisonBase(func, tol=tol, remove_text=remove_text,
-                                       savefig_kwargs=savefig_kwargs)
-            matplotlib.testing.set_font_settings_for_testing()
-
-            with _collect_new_figures() as figs:
-                func(*args, **kwargs)
-
-            # If the test is parametrized in any way other than applied via
-            # this decorator, then we need to use a lock to prevent two
-            # processes from touching the same output file.
-            needs_lock = any(
-                marker.args[0] != 'extension'
-                for marker in request.node.iter_markers('parametrize'))
-
-            if baseline_images is not None:
-                our_baseline_images = baseline_images
-            else:
-                # Allow baseline image list to be produced on the fly based on
-                # current parametrization.
-                our_baseline_images = request.getfixturevalue(
-                    'baseline_images')
-
-            assert len(figs) == len(our_baseline_images), (
-                f"Test generated {len(figs)} images but there are "
-                f"{len(our_baseline_images)} baseline images")
-            for fig, baseline in zip(figs, our_baseline_images):
-                img.compare(fig, baseline, extension, _lock=needs_lock)
-
-        parameters = list(old_sig.parameters.values())
-        if 'extension' not in old_sig.parameters:
-            parameters += [inspect.Parameter('extension', KEYWORD_ONLY)]
-        if 'request' not in old_sig.parameters:
-            parameters += [inspect.Parameter("request", KEYWORD_ONLY)]
-        new_sig = old_sig.replace(parameters=parameters)
-        wrapper.__signature__ = new_sig
-
-        # Reach a bit into pytest internals to hoist the marks from our wrapped
-        # function.
-        new_marks = getattr(func, 'pytestmark', []) + wrapper.pytestmark
-        wrapper.pytestmark = new_marks
-
-        return wrapper
-
-    return decorator
+    def priority_decorator(func: Callable[[T1, T2], T3]) -> Callable[[T1, T2], T3]:
+        @wraps(func)
+        def binary_op_wrapper(self: T1, other: T2) -> T3:
+            if hasattr(other, '_op_priority'):
+                if other._op_priority > self._op_priority:  # type: ignore
+                    f: Union[Callable[[T1], T3], None] = getattr(other, method_name, None)
+                    if f is not None:
+                        return f(self)
+            return func(self, other)
+        return binary_op_wrapper
+    return priority_decorator
 
 
-def image_comparison(baseline_images, extensions=None, tol=0,
-                     freetype_version=None, remove_text=False,
-                     savefig_kwarg=None,
-                     style=None):
-    """
-    Compare images generated by the test with those specified in
-    *baseline_images*, which must correspond, else an `.ImageComparisonFailure`
-    exception will be raised.
+def sympify_method_args(cls: type[T1]) -> type[T1]:
+    '''Decorator for a class with methods that sympify arguments.
 
-    Parameters
-    ----------
-    baseline_images : list or None
-        A list of strings specifying the names of the images generated by
-        calls to `.Figure.savefig`.
+    Explanation
+    ===========
 
-        If *None*, the test function must use the ``baseline_images`` fixture,
-        either as a parameter or with `pytest.mark.usefixtures`. This value is
-        only allowed when using pytest.
-
-    extensions : None or list of str
-        The list of extensions to test, e.g. ``['png', 'pdf']``.
-
-        If *None*, defaults to: png, pdf, and svg.
-
-        When testing a single extension, it can be directly included in the
-        names passed to *baseline_images*.  In that case, *extensions* must not
-        be set.
-
-        In order to keep the size of the test suite from ballooning, we only
-        include the ``svg`` or ``pdf`` outputs if the test is explicitly
-        exercising a feature dependent on that backend (see also the
-        `check_figures_equal` decorator for that purpose).
-
-    tol : float, default: 0
-        The RMS threshold above which the test is considered failed.
-
-        Due to expected small differences in floating-point calculations, on
-        32-bit systems an additional 0.06 is added to this threshold.
-
-    freetype_version : str or tuple
-        The expected freetype version or range of versions for this test to
-        pass.
-
-    remove_text : bool
-        Remove the title and tick text from the figure before comparison.  This
-        is useful to make the baseline images independent of variations in text
-        rendering between different versions of FreeType.
-
-        This does not remove other, more deliberate, text, such as legends and
-        annotations.
-
-    savefig_kwarg : dict
-        Optional arguments that are passed to the savefig method.
-
-    style : str, dict, or list
-        The style(s) to apply to the image test. The test itself can also apply
-        additional styles if desired.
-
-        .. versionchanged:: 3.11
-            This defaults to ``['classic', '_classic_test_patch']``, but will be
-            changing to ``'mpl20'`` as of Matplotlib 3.13. A warning is raised if not
-            explicitly passed.
-    """
-
-    if baseline_images is not None:
-        # List of non-empty filename extensions.
-        baseline_exts = [*filter(None, {Path(baseline).suffix[1:]
-                                        for baseline in baseline_images})]
-        if baseline_exts:
-            if extensions is not None:
-                raise ValueError(
-                    "When including extensions directly in 'baseline_images', "
-                    "'extensions' cannot be set as well")
-            if len(baseline_exts) > 1:
-                raise ValueError(
-                    "When including extensions directly in 'baseline_images', "
-                    "all baselines must share the same suffix")
-            extensions = baseline_exts
-            baseline_images = [  # Chop suffix out from baseline_images.
-                Path(baseline).stem for baseline in baseline_images]
-    if extensions is None:
-        # Default extensions to test, if not set via baseline_images.
-        extensions = ['png', 'pdf', 'svg']
-    if savefig_kwarg is None:
-        savefig_kwarg = dict()  # default no kwargs to savefig
-    if style is None:
-        _api.warn_external(
-            'The default for the style parameter of image_comparsion() will be '
-            'changing to "mpl20" in Matplotlib 3.13; explicitly pass style to continue '
-            'working as before and suppress this warning.')
-        style = ('classic', '_classic_test_patch')
-    if sys.maxsize <= 2**32:
-        tol += 0.06
-    return _pytest_image_comparison(
-        baseline_images=baseline_images, extensions=extensions, tol=tol,
-        freetype_version=freetype_version, remove_text=remove_text,
-        savefig_kwargs=savefig_kwarg, style=style)
-
-
-def check_figures_equal(*, extensions=("png", ), tol=0):
-    """
-    Decorator for test cases that generate and compare two figures.
-
-    The decorated function must take two keyword arguments, *fig_test*
-    and *fig_ref*, and draw the test and reference images on them.
-    After the function returns, the figures are saved and compared.
-
-    This decorator should be preferred over `image_comparison` when possible in
-    order to keep the size of the test suite from ballooning.
-
-    Parameters
-    ----------
-    extensions : list, default: ["png"]
-        The extensions to test. Supported extensions are "png", "pdf", "svg".
-
-        Testing with the one default extension is sufficient if the output is not
-        format dependent, e.g. if you test that a ``bar()`` plot yields the same
-        result as some manually placed Rectangles. You should use all extensions
-        if a renderer property is involved, e.g. correct alpha blending.
-    tol : float
-        The RMS threshold above which the test is considered failed.
-
-    Raises
-    ------
-    RuntimeError
-        If any new figures are created (and not subsequently closed) inside
-        the test function.
+    The sympify_method_args decorator is to be used with the sympify_return
+    decorator for automatic sympification of method arguments. This is
+    intended for the common idiom of writing a class like :
 
     Examples
-    --------
-    Check that calling `.Axes.plot` with a single argument plots it against
-    ``[0, 1, 2, ...]``::
+    ========
 
-        @check_figures_equal()
-        def test_plot(fig_test, fig_ref):
-            fig_test.subplots().plot([1, 3, 5])
-            fig_ref.subplots().plot([0, 1, 2], [1, 3, 5])
+    >>> from sympy import Basic, SympifyError, S
+    >>> from sympy.core.sympify import _sympify
 
-    """
-    ALLOWED_CHARS = set(string.digits + string.ascii_letters + '_-[]()')
-    KEYWORD_ONLY = inspect.Parameter.KEYWORD_ONLY
+    >>> class MyTuple(Basic):
+    ...     def __add__(self, other):
+    ...         try:
+    ...             other = _sympify(other)
+    ...         except SympifyError:
+    ...             return NotImplemented
+    ...         if not isinstance(other, MyTuple):
+    ...             return NotImplemented
+    ...         return MyTuple(*(self.args + other.args))
 
-    def decorator(func):
-        import pytest
+    >>> MyTuple(S(1), S(2)) + MyTuple(S(3), S(4))
+    MyTuple(1, 2, 3, 4)
 
-        _, result_dir = _image_directories(func)
-        old_sig = inspect.signature(func)
+    In the above it is important that we return NotImplemented when other is
+    not sympifiable and also when the sympified result is not of the expected
+    type. This allows the MyTuple class to be used cooperatively with other
+    classes that overload __add__ and want to do something else in combination
+    with instance of Tuple.
 
-        if not {"fig_test", "fig_ref"}.issubset(old_sig.parameters):
-            raise ValueError("The decorated function must have at least the "
-                             "parameters 'fig_test' and 'fig_ref', but your "
-                             f"function has the signature {old_sig}")
+    Using this decorator the above can be written as
 
-        @pytest.mark.parametrize("ext", extensions)
-        def wrapper(*args, ext, request, **kwargs):
-            if 'ext' in old_sig.parameters:
-                kwargs['ext'] = ext
-            if 'request' in old_sig.parameters:
-                kwargs['request'] = request
+    >>> from sympy.core.decorators import sympify_method_args, sympify_return
 
-            file_name = "".join(c for c in request.node.name
-                                if c in ALLOWED_CHARS)
-            fig_test = Figure()
-            fig_ref = Figure()
-            func(*args, fig_test=fig_test, fig_ref=fig_ref, **kwargs)
-            if len(fig_test.get_children()) == 1 and len(fig_ref.get_children()) == 1:
-                # no artists have been added. The only child is fig.patch.
-                raise RuntimeError("Both figures are empty.  Make sure you are "
-                                   "plotting to fig_test or fig_ref.")
+    >>> @sympify_method_args
+    ... class MyTuple(Basic):
+    ...     @sympify_return([('other', 'MyTuple')], NotImplemented)
+    ...     def __add__(self, other):
+    ...          return MyTuple(*(self.args + other.args))
 
-            test_image_path = result_dir / (file_name + "." + ext)
-            ref_image_path = result_dir / (file_name + "-expected." + ext)
-            fig_test.savefig(test_image_path)
-            fig_ref.savefig(ref_image_path)
-            _raise_on_image_difference(
-                ref_image_path, test_image_path, tol=tol
-            )
+    >>> MyTuple(S(1), S(2)) + MyTuple(S(3), S(4))
+    MyTuple(1, 2, 3, 4)
 
-        parameters = [
-            param
-            for param in old_sig.parameters.values()
-            if param.name not in {"fig_test", "fig_ref"}
-        ]
-        if 'ext' not in old_sig.parameters:
-            parameters += [inspect.Parameter("ext", KEYWORD_ONLY)]
-        if 'request' not in old_sig.parameters:
-            parameters += [inspect.Parameter("request", KEYWORD_ONLY)]
-        new_sig = old_sig.replace(parameters=parameters)
-        wrapper.__signature__ = new_sig
+    The idea here is that the decorators take care of the boiler-plate code
+    for making this happen in each method that potentially needs to accept
+    unsympified arguments. Then the body of e.g. the __add__ method can be
+    written without needing to worry about calling _sympify or checking the
+    type of the resulting object.
 
-        # reach a bit into pytest internals to hoist the marks from
-        # our wrapped function
-        new_marks = getattr(func, "pytestmark", []) + wrapper.pytestmark
-        wrapper.pytestmark = new_marks
+    The parameters for sympify_return are a list of tuples of the form
+    (parameter_name, expected_type) and the value to return (e.g.
+    NotImplemented). The expected_type parameter can be a type e.g. Tuple or a
+    string 'Tuple'. Using a string is useful for specifying a Type within its
+    class body (as in the above example).
 
-        return wrapper
-
-    return decorator
+    Notes: Currently sympify_return only works for methods that take a single
+    argument (not including self). Specifying an expected_type as a string
+    only works for the class in which the method is defined.
+    '''
+    # Extract the wrapped methods from each of the wrapper objects created by
+    # the sympify_return decorator. Doing this here allows us to provide the
+    # cls argument which is used for forward string referencing.
+    for attrname, obj in cls.__dict__.items():
+        if isinstance(obj, _SympifyWrapper):
+            setattr(cls, attrname, obj.make_wrapped(cls))
+    return cls
 
 
-def _image_directories(func):
-    """
-    Compute the baseline and result image directories for testing *func*.
+def sympify_return(*args):
+    '''Function/method decorator to sympify arguments automatically
 
-    For test module ``foo.bar.test_baz``, the baseline directory is at
-    ``foo/bar/baseline_images/test_baz`` and the result directory at
-    ``$(pwd)/result_images/test_baz``.  The result directory is created if it
-    doesn't exist.
-    """
-    module_path = Path(inspect.getfile(func))
-    baseline_dir = module_path.parent / "baseline_images" / module_path.stem
-    result_dir = Path().resolve() / "result_images" / module_path.stem
-    result_dir.mkdir(parents=True, exist_ok=True)
-    return baseline_dir, result_dir
+    See the docstring of sympify_method_args for explanation.
+    '''
+    # Store a wrapper object for the decorated method
+    def wrapper(func: Callable[[T1, T2], T3]) -> Callable[[T1, T2], T3]:
+        return _SympifyWrapper(func, args)  # type: ignore
+    return wrapper
+
+
+class _SympifyWrapper:
+    '''Internal class used by sympify_return and sympify_method_args'''
+
+    def __init__(self, func, args):
+        self.func = func
+        self.args = args
+
+    def make_wrapped(self, cls):
+        func = self.func
+        parameters, retval = self.args
+
+        # XXX: Handle more than one parameter?
+        [(parameter, expectedcls)] = parameters
+
+        # Handle forward references to the current class using strings
+        if expectedcls == cls.__name__:
+            expectedcls = cls
+
+        # Raise RuntimeError since this is a failure at import time and should
+        # not be recoverable.
+        nargs = func.__code__.co_argcount
+        # we support f(a, b) only
+        if nargs != 2:
+            raise RuntimeError('sympify_return can only be used with 2 argument functions')
+        # only b is _sympified
+        if func.__code__.co_varnames[1] != parameter:
+            raise RuntimeError('parameter name mismatch "%s" in %s' %
+                    (parameter, func.__name__))
+
+        @wraps(func)
+        def _func(self, other):
+            # XXX: The check for _op_priority here should be removed. It is
+            # needed to stop mutable matrices from being sympified to
+            # immutable matrices which breaks things in quantum...
+            if not hasattr(other, '_op_priority'):
+                try:
+                    other = sympify(other, strict=True)
+                except SympifyError:
+                    return retval
+            if not isinstance(other, expectedcls):
+                return retval
+            return func(self, other)
+
+        return _func

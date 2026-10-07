@@ -917,9 +917,9 @@ class NystromformerForQuestionAnswering(NystromformerPreTrainedModel):
 __all__ = [
     "NystromformerForMaskedLM",
     "NystromformerForMultipleChoice",
-    "NystromformerForQuestionAnswering",
-    "NystromformerForSequenceClassification",
-    "NystromformerForTokenClassification",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
     "NystromformerLayer",
     "NystromformerModel",
     "NystromformerPreTrainedModel",

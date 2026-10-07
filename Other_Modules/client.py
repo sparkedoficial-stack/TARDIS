@@ -35,15 +35,11 @@ class MultiReplicaStreamWarning(TypedDict):
     kind: Literal["warning"]
     message: str
 
-    :class:`ClientConnection` provides :meth:`recv` and :meth:`send` coroutines
-    for receiving and sending messages.
 
 class MultiReplicaStreamEvent(TypedDict):
     kind: Literal["event"]
     event: ApiGetReloadEventSourceData
 
-        async for message in websocket:
-            await process(message)
 
 class MultiReplicaStreamReplicaHash(TypedDict):
     kind: Literal["replicaHash"]
@@ -70,7 +66,6 @@ class ReloadClient:
             headers=build_hf_headers(token=token),
             timeout=CLIENT_TIMEOUT,
         )
-        self.response_rcvd = trio.Event()
 
     def get_reload(self, reload_id: str) -> Iterator[ApiGetReloadEventSourceData] | int:
         req = ApiGetReloadRequest(reloadId=reload_id)

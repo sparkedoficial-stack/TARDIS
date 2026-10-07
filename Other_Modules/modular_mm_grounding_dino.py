@@ -294,7 +294,7 @@ class MMGroundingDinoForObjectDetection(GroundingDinoForObjectDetection, MMGroun
 
 __all__ = [
     "MMGroundingDinoConfig",
-    "MMGroundingDinoForObjectDetection",
+    "REDACTED_MISTRAL",
     "MMGroundingDinoModel",
     "MMGroundingDinoPreTrainedModel",
 ]

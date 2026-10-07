@@ -577,7 +577,7 @@ class EsmPreTrainedModel(PreTrainedModel):
     base_model_prefix = "esm"
     supports_gradient_checkpointing = True
     accepts_loss_kwargs = False
-    _no_split_modules = ["EsmLayer", "EsmFoldTriangularSelfAttentionBlock", "EsmEmbeddings"]
+    _no_split_modules = ["EsmLayer", "REDACTED_MISTRAL", "EsmEmbeddings"]
     _keys_to_ignore_on_load_unexpected = ["position_embeddings.weight"]
     _supports_flash_attn = True
     _supports_sdpa = True

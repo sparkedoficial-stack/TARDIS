@@ -1152,8 +1152,8 @@ class ConditionalDetrForSegmentation(DetrForSegmentation):
 
 __all__ = [
     "ConditionalDetrImageProcessor",
-    "ConditionalDetrImageProcessorPil",
-    "ConditionalDetrForObjectDetection",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
     "ConditionalDetrForSegmentation",
     "ConditionalDetrModel",
     "ConditionalDetrPreTrainedModel",

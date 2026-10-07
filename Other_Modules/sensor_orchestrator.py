@@ -194,17 +194,6 @@ class SensorOrchestrator:
         except Exception:
             pass
 
-        # 5. Sensores Atmosféricos y Situación Meteorológica Local Abierta
-        atmospheric_summary = "• Atmósfera Local: Información meteorológica en espera"
-        atmospheric_data = {}
-        try:
-            from core.atmospheric_sensor import get_atmospheric_sensor
-            atmos_reading = get_atmospheric_sensor().get_atmospheric_reading()
-            atmospheric_summary = atmos_reading.summary_for_llm
-            atmospheric_data = atmos_reading.to_dict()
-        except Exception as e_atmos:
-            logger.debug(f"Aviso al consultar sensor atmosférico: {e_atmos}")
-
         # ----------------------------------------------------------------------
         # SÍNTESIS ABSTRACTA COGNITIVA (SITUATIONAL SUMMARY)
         # ----------------------------------------------------------------------
@@ -230,8 +219,7 @@ class SensorOrchestrator:
             f"• Conciencia de Presencia: {people_summary} | {mood_summary}.\n"
             f"• Vitalidad de Hardware: {hardware_summary}.\n"
             f"• Entorno Electromagnético: {em_summary}.\n"
-            f"• Coherencia Sintrópica: {quantum_summary}.\n"
-            f"{atmospheric_summary}."
+            f"• Coherencia Sintrópica: {quantum_summary}."
         )
 
         abstraction = {
@@ -267,8 +255,7 @@ class SensorOrchestrator:
                 "syntropy_index": syntropy_index,
                 "shannon_entropy": shannon_entropy,
                 "lamport_clock": lamport_clk
-            },
-            "atmospheric": atmospheric_data
+            }
         }
 
         with self._db_lock:

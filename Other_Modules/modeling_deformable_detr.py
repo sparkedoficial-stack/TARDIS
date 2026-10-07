@@ -1708,4 +1708,4 @@ class DeformableDetrForObjectDetection(DeformableDetrPreTrainedModel):
         )
 
 
-__all__ = ["DeformableDetrForObjectDetection", "DeformableDetrModel", "DeformableDetrPreTrainedModel"]
+__all__ = ["REDACTED_MISTRAL", "DeformableDetrModel", "DeformableDetrPreTrainedModel"]

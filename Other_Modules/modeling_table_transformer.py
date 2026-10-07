@@ -1285,4 +1285,4 @@ class TableTransformerMLPPredictionHead(nn.Module):
         return x
 
 
-__all__ = ["TableTransformerForObjectDetection", "TableTransformerModel", "TableTransformerPreTrainedModel"]
+__all__ = ["REDACTED_MISTRAL", "TableTransformerModel", "TableTransformerPreTrainedModel"]

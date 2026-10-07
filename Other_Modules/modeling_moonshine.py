@@ -954,4 +954,4 @@ class MoonshineForConditionalGeneration(MoonshinePreTrainedModel, GenerationMixi
         )
 
 
-__all__ = ["MoonshineModel", "MoonshinePreTrainedModel", "MoonshineForConditionalGeneration"]
+__all__ = ["MoonshineModel", "MoonshinePreTrainedModel", "REDACTED_MISTRAL"]

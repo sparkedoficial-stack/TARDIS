@@ -913,8 +913,8 @@ __all__ = [
     "DistilBertForMaskedLM",
     "DistilBertForMultipleChoice",
     "DistilBertForQuestionAnswering",
-    "DistilBertForSequenceClassification",
-    "DistilBertForTokenClassification",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
     "DistilBertModel",
     "DistilBertPreTrainedModel",
 ]

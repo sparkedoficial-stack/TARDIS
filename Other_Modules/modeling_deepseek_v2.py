@@ -655,5 +655,5 @@ __all__ = [
     "DeepseekV2PreTrainedModel",
     "DeepseekV2Model",
     "DeepseekV2ForCausalLM",
-    "DeepseekV2ForSequenceClassification",
+    "REDACTED_MISTRAL",
 ]

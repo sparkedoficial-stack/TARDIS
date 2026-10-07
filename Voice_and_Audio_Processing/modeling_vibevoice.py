@@ -483,4 +483,4 @@ class VibeVoiceForConditionalGeneration(VibeVoicePreTrainedModel, VibeVoiceGener
         return VibeVoiceCausalLMOutputWithPast(loss=loss, logits=logits, **outputs)
 
 
-__all__ = ["VibeVoiceForConditionalGeneration", "VibeVoicePreTrainedModel", "VibeVoiceModel"]
+__all__ = ["REDACTED_MISTRAL", "VibeVoicePreTrainedModel", "VibeVoiceModel"]

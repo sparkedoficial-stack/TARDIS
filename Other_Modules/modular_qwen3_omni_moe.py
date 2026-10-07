@@ -686,11 +686,11 @@ class Qwen3OmniMoeConfig(PreTrainedConfig):
 
 class Qwen3OmniMoePreTrainedModel(Qwen2_5OmniPreTrainedModel, PreTrainedModel):
     _no_split_modules = [
-        "Qwen3OmniMoeThinkerTextDecoderLayer",
+        "REDACTED_MISTRAL",
         "Qwen3OmniMoeAudioEncoderLayer",
         "Qwen3OmniMoeVisionBlock",
         "Qwen3OmniMoeTalkerDecoderLayer",
-        "Qwen3OmniMoeTalkerCodePredictorModelForConditionalGeneration",
+        "REDACTED_MISTRAL",
     ]
 
     @torch.no_grad()
@@ -1197,7 +1197,7 @@ class Qwen3OmniMoeThinkerForConditionalGeneration(Qwen2_5OmniThinkerForCondition
     _no_split_modules = [
         "Qwen3OmniMoeAudioEncoder",
         "Qwen3OmniMoeVisionEncoder",
-        "Qwen3OmniMoeThinkerTextDecoderLayer",
+        "REDACTED_MISTRAL",
     ]
     _can_record_outputs = {
         "hidden_states": Qwen3OmniMoeThinkerTextDecoderLayer,
@@ -2903,22 +2903,22 @@ __all__ = [
     "Qwen3OmniMoeConfig",
     "Qwen3OmniMoeThinkerConfig",
     "Qwen3OmniMoeTalkerConfig",
-    "Qwen3OmniMoeTalkerCodePredictorConfig",
+    "REDACTED_MISTRAL",
     "Qwen3OmniMoeTalkerTextConfig",
     "Qwen3OmniMoeTextConfig",
     "Qwen3OmniMoeVisionEncoderConfig",
-    "Qwen3OmniMoeForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "Qwen3OmniMoeThinkerTextModel",
-    "Qwen3OmniMoeThinkerForConditionalGeneration",
-    "Qwen3OmniMoeTalkerForConditionalGeneration",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
     "Qwen3OmniMoePreTrainedModel",
-    "Qwen3OmniMoePreTrainedModelForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "Qwen3OmniMoeTalkerModel",
-    "Qwen3OmniMoeThinkerTextPreTrainedModel",
+    "REDACTED_MISTRAL",
     "Qwen3OmniMoeProcessor",
     "Qwen3OmniMoeCode2Wav",
-    "Qwen3OmniMoeCode2WavDecoderBlock",
-    "Qwen3OmniMoeCode2WavTransformerModel",
-    "Qwen3OmniMoeTalkerCodePredictorModel",
-    "Qwen3OmniMoeTalkerCodePredictorModelForConditionalGeneration",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
 ]

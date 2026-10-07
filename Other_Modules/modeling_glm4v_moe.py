@@ -1741,7 +1741,7 @@ class Glm4vMoeForConditionalGeneration(Glm4vMoePreTrainedModel, GenerationMixin)
 
 
 __all__ = [
-    "Glm4vMoeForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "Glm4vMoeModel",
     "Glm4vMoePreTrainedModel",
     "Glm4vMoeTextModel",

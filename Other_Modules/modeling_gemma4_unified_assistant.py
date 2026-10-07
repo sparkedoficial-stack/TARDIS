@@ -253,4 +253,4 @@ class Gemma4UnifiedAssistantForCausalLM(Gemma4UnifiedAssistantPreTrainedModel, G
         return {"full_attention": full_attention_mask, "sliding_attention": swa_mask}
 
 
-__all__ = ["Gemma4UnifiedAssistantPreTrainedModel", "Gemma4UnifiedAssistantForCausalLM"]
+__all__ = ["REDACTED_MISTRAL", "REDACTED_MISTRAL"]

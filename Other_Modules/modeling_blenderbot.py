@@ -1006,7 +1006,7 @@ class BlenderbotForCausalLM(BlenderbotPreTrainedModel, GenerationMixin):
 
 __all__ = [
     "BlenderbotForCausalLM",
-    "BlenderbotForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "BlenderbotModel",
     "BlenderbotPreTrainedModel",
 ]

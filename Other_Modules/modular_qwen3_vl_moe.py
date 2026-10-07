@@ -457,7 +457,7 @@ __all__ = [
     "Qwen3VLMoeTextConfig",
     "Qwen3VLMoeVisionConfig",
     "Qwen3VLMoeVisionModel",
-    "Qwen3VLMoeForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "Qwen3VLMoeModel",  # noqa
     "Qwen3VLMoePreTrainedModel",
     "Qwen3VLMoeTextModel",

@@ -384,8 +384,8 @@ class HyperCLOVAXVisionV2Processor(Exaone4_5_Processor):
 
 __all__ = [
     "HyperCLOVAXVisionV2Config",
-    "HyperCLOVAXVisionV2ForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "HyperCLOVAXVisionV2Model",
-    "HyperCLOVAXVisionV2PreTrainedModel",
+    "REDACTED_MISTRAL",
     "HyperCLOVAXVisionV2Processor",
 ]

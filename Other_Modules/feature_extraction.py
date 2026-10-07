@@ -33,4 +33,4 @@ class FeatureExtractionInput(BaseInferenceType):
     any text to encode.
     """
     truncate: bool | None = None
-    truncation_direction: Optional["FeatureExtractionInputTruncationDirection"] = None
+    truncation_direction: Optional["REDACTED_MISTRAL"] = None

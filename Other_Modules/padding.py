@@ -1,141 +1,141 @@
-from typing import TYPE_CHECKING, List, Optional, Tuple, Union
+# This file is dual licensed under the terms of the Apache License, Version
+# 2.0, and the BSD License. See the LICENSE file in the root of this repository
+# for complete details.
 
-if TYPE_CHECKING:
-    from .console import (
-        Console,
-        ConsoleOptions,
-        RenderableType,
-        RenderResult,
-    )
+from __future__ import annotations
 
-from .jupyter import JupyterMixin
-from .measure import Measurement
-from .segment import Segment
-from .style import Style
+import abc
 
-PaddingDimensions = Union[int, Tuple[int], Tuple[int, int], Tuple[int, int, int, int]]
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives._asymmetric import (
+    AsymmetricPadding as AsymmetricPadding,
+)
+from cryptography.hazmat.primitives.asymmetric import rsa
 
 
-class Padding(JupyterMixin):
-    """Draw space around content.
+class PKCS1v15(AsymmetricPadding):
+    name = "EMSA-PKCS1-v1_5"
 
-    Example:
-        >>> print(Padding("Hello", (2, 4), style="on blue"))
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, PKCS1v15):
+            return NotImplemented
 
-    Args:
-        renderable (RenderableType): String or other renderable.
-        pad (Union[int, Tuple[int]]): Padding for top, right, bottom, and left borders.
-            May be specified with 1, 2, or 4 integers (CSS style).
-        style (Union[str, Style], optional): Style for padding characters. Defaults to "none".
-        expand (bool, optional): Expand padding to fit available width. Defaults to True.
-    """
+        return True
+
+
+class _MaxLength:
+    "Sentinel value for `MAX_LENGTH`."
+
+
+class _Auto:
+    "Sentinel value for `AUTO`."
+
+
+class _DigestLength:
+    "Sentinel value for `DIGEST_LENGTH`."
+
+
+class PSS(AsymmetricPadding):
+    MAX_LENGTH = _MaxLength()
+    AUTO = _Auto()
+    DIGEST_LENGTH = _DigestLength()
+    name = "EMSA-PSS"
+    _salt_length: int | _MaxLength | _Auto | _DigestLength
 
     def __init__(
         self,
-        renderable: "RenderableType",
-        pad: "PaddingDimensions" = (0, 0, 0, 0),
-        *,
-        style: Union[str, Style] = "none",
-        expand: bool = True,
+        mgf: MGF,
+        salt_length: int | _MaxLength | _Auto | _DigestLength,
+    ) -> None:
+        self._mgf = mgf
+
+        if not isinstance(
+            salt_length, (int, _MaxLength, _Auto, _DigestLength)
+        ):
+            raise TypeError(
+                "salt_length must be an integer, MAX_LENGTH, "
+                "DIGEST_LENGTH, or AUTO"
+            )
+
+        if isinstance(salt_length, int) and salt_length < 0:
+            raise ValueError("salt_length must be zero or greater.")
+
+        self._salt_length = salt_length
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, PSS):
+            return NotImplemented
+
+        return (
+            self._mgf == other._mgf and self._salt_length == other._salt_length
+        )
+
+    @property
+    def mgf(self) -> MGF:
+        return self._mgf
+
+
+class OAEP(AsymmetricPadding):
+    name = "EME-OAEP"
+
+    def __init__(
+        self,
+        mgf: MGF,
+        algorithm: hashes.HashAlgorithm,
+        label: bytes | None,
     ):
-        self.renderable = renderable
-        self.top, self.right, self.bottom, self.left = self.unpack(pad)
-        self.style = style
-        self.expand = expand
+        if not isinstance(algorithm, hashes.HashAlgorithm):
+            raise TypeError("Expected instance of hashes.HashAlgorithm.")
 
-    @classmethod
-    def indent(cls, renderable: "RenderableType", level: int) -> "Padding":
-        """Make padding instance to render an indent.
+        self._mgf = mgf
+        self._algorithm = algorithm
+        self._label = label
 
-        Args:
-            renderable (RenderableType): String or other renderable.
-            level (int): Number of characters to indent.
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, OAEP):
+            return NotImplemented
 
-        Returns:
-            Padding: A Padding instance.
-        """
-
-        return Padding(renderable, pad=(0, 0, 0, level), expand=False)
-
-    @staticmethod
-    def unpack(pad: "PaddingDimensions") -> Tuple[int, int, int, int]:
-        """Unpack padding specified in CSS style."""
-        if isinstance(pad, int):
-            return (pad, pad, pad, pad)
-        if len(pad) == 1:
-            _pad = pad[0]
-            return (_pad, _pad, _pad, _pad)
-        if len(pad) == 2:
-            pad_top, pad_right = pad
-            return (pad_top, pad_right, pad_top, pad_right)
-        if len(pad) == 4:
-            top, right, bottom, left = pad
-            return (top, right, bottom, left)
-        raise ValueError(f"1, 2 or 4 integers required for padding; {len(pad)} given")
-
-    def __repr__(self) -> str:
-        return f"Padding({self.renderable!r}, ({self.top},{self.right},{self.bottom},{self.left}))"
-
-    def __rich_console__(
-        self, console: "Console", options: "ConsoleOptions"
-    ) -> "RenderResult":
-        style = console.get_style(self.style)
-        if self.expand:
-            width = options.max_width
-        else:
-            width = min(
-                Measurement.get(console, options, self.renderable).maximum
-                + self.left
-                + self.right,
-                options.max_width,
-            )
-        render_options = options.update_width(width - self.left - self.right)
-        if render_options.height is not None:
-            render_options = render_options.update_height(
-                height=render_options.height - self.top - self.bottom
-            )
-        lines = console.render_lines(
-            self.renderable, render_options, style=style, pad=True
+        return (
+            self._mgf == other._mgf
+            and self._algorithm == other._algorithm
+            and self._label == other._label
         )
-        _Segment = Segment
 
-        left = _Segment(" " * self.left, style) if self.left else None
-        right = (
-            [_Segment(f'{" " * self.right}', style), _Segment.line()]
-            if self.right
-            else [_Segment.line()]
-        )
-        blank_line: Optional[List[Segment]] = None
-        if self.top:
-            blank_line = [_Segment(f'{" " * width}\n', style)]
-            yield from blank_line * self.top
-        if left:
-            for line in lines:
-                yield left
-                yield from line
-                yield from right
-        else:
-            for line in lines:
-                yield from line
-                yield from right
-        if self.bottom:
-            blank_line = blank_line or [_Segment(f'{" " * width}\n', style)]
-            yield from blank_line * self.bottom
+    @property
+    def algorithm(self) -> hashes.HashAlgorithm:
+        return self._algorithm
 
-    def __rich_measure__(
-        self, console: "Console", options: "ConsoleOptions"
-    ) -> "Measurement":
-        max_width = options.max_width
-        extra_width = self.left + self.right
-        if max_width - extra_width < 1:
-            return Measurement(max_width, max_width)
-        measure_min, measure_max = Measurement.get(console, options, self.renderable)
-        measurement = Measurement(measure_min + extra_width, measure_max + extra_width)
-        measurement = measurement.with_maximum(max_width)
-        return measurement
+    @property
+    def mgf(self) -> MGF:
+        return self._mgf
 
 
-if __name__ == "__main__":  #  pragma: no cover
-    from rich import print
+class MGF(metaclass=abc.ABCMeta):
+    _algorithm: hashes.HashAlgorithm
 
-    print(Padding("Hello, World", (2, 4), style="on blue"))
+
+class MGF1(MGF):
+    def __init__(self, algorithm: hashes.HashAlgorithm):
+        if not isinstance(algorithm, hashes.HashAlgorithm):
+            raise TypeError("Expected instance of hashes.HashAlgorithm.")
+
+        self._algorithm = algorithm
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, MGF1):
+            return NotImplemented
+
+        return self._algorithm == other._algorithm
+
+
+def calculate_max_pss_salt_length(
+    key: rsa.RSAPrivateKey | rsa.RSAPublicKey,
+    hash_algorithm: hashes.HashAlgorithm,
+) -> int:
+    if not isinstance(key, (rsa.RSAPrivateKey, rsa.RSAPublicKey)):
+        raise TypeError("key must be an RSA public or private key")
+    # bit length - 1 per RFC 3447
+    emlen = (key.key_size + 6) // 8
+    salt_length = emlen - hash_algorithm.digest_size - 2
+    assert salt_length >= 0
+    return salt_length

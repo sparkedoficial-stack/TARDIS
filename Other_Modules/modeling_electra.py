@@ -1346,7 +1346,7 @@ __all__ = [
     "ElectraForMultipleChoice",
     "ElectraForPreTraining",
     "ElectraForQuestionAnswering",
-    "ElectraForSequenceClassification",
+    "REDACTED_MISTRAL",
     "ElectraForTokenClassification",
     "ElectraModel",
     "ElectraPreTrainedModel",

@@ -386,7 +386,7 @@ class PPOCRV6SmallRecForTextRecognition(PPOCRV6SmallRecPreTrainedModel):
 
 
 __all__ = [
-    "PPOCRV6SmallRecForTextRecognition",
+    "REDACTED_MISTRAL",
     "PPOCRV6SmallRecModel",
     "PPOCRV6SmallRecEncoderWithSVTR",
     "PPOCRV6SmallRecPreTrainedModel",

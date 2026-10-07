@@ -12,7 +12,7 @@ Capacidades:
   4. Diagnóstico de Metapensamiento: auto-análisis reflexivo de los propios sistemas de pensamiento.
   5. Despacho en vivo hacia el bot de Telegram y la interfaz HUD web durante la inferencia.
 
-Arquitecto: El Arquitecto (₪) · Sistema TARDIS
+Arquitecto: Miguel Angel May Canche · Sistema GIA
 """
 
 from __future__ import annotations
@@ -107,8 +107,8 @@ class ThoughtNoiseEngine:
         del sistema, superponiendo símbolos causales y métricas de metapensamiento.
         """
         if not model_name:
-            _act = os.environ.get("GIA_MODEL", "TARDIS-NEURAL-SPACE-KAIJU")
-            model_name = _act
+            _act = os.environ.get("GIA_MODEL", "huihui_ai/llama3.1-8b-instruct-abliterated")
+            model_name = "Dolphin 3.0 (8B)" if "dolphin" in _act.lower() else _act
         t_start = time.time()
         self.total_frames_generated += 1
         seed = int(time.time() * 1000) ^ hash(prompt[:64])

@@ -762,7 +762,7 @@ __all__ = [
     "SegformerImageProcessorPil",
     "SegformerDecodeHead",
     "SegformerForImageClassification",
-    "SegformerForSemanticSegmentation",
+    "REDACTED_MISTRAL",
     "SegformerLayer",
     "SegformerModel",
     "SegformerPreTrainedModel",

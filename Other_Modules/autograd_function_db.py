@@ -513,7 +513,7 @@ autograd_function_db = [
         supports_out=False,
     ),
     OpInfo(
-        'NumpyExpMarkDirtyAutogradFunction',
+        "REDACTED_MISTRAL",
         op=lambda x: NumpyExp_.apply(x.clone()),
         inplace_variant=NumpyExp_.apply,
         supports_forward_ad=True,
@@ -532,7 +532,7 @@ autograd_function_db = [
         supports_out=False,
     ),
     OpInfo(
-        'NumpyCubeNotComposableAutogradFunction',
+        "REDACTED_MISTRAL",
         op=lambda x: NumpyCubeNotComposable.apply(x)[0],
         supports_forward_ad=False,
         supports_fwgrad_bwgrad=False,
@@ -606,7 +606,7 @@ autograd_function_db = [
         supports_out=False,
     ),
     OpInfo(
-        'ScaleGradGenVmapAutogradFunction',
+        "REDACTED_MISTRAL",
         op=ScaleGradGenVmap.apply,
         supports_forward_ad=True,
         supports_fwgrad_bwgrad=True,
@@ -615,7 +615,7 @@ autograd_function_db = [
         supports_out=False,
     ),
     OpInfo(
-        'ZeroGradientsGenVmapAutogradFunction',
+        "REDACTED_MISTRAL",
         op=ZeroGradientsGenVmap.apply,
         supports_forward_ad=True,
         supports_fwgrad_bwgrad=True,
@@ -624,7 +624,7 @@ autograd_function_db = [
         supports_out=False,
     ),
     OpInfo(
-        'ForwardHasDefaultArgsAutogradFunction',
+        "REDACTED_MISTRAL",
         op=ForwardHasDefaultArgs.apply,
         supports_forward_ad=True,
         supports_fwgrad_bwgrad=True,

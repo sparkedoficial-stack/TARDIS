@@ -2372,9 +2372,9 @@ class BigBirdPegasusForCausalLM(BigBirdPegasusPreTrainedModel, GenerationMixin):
 
 __all__ = [
     "BigBirdPegasusForCausalLM",
-    "BigBirdPegasusForConditionalGeneration",
-    "BigBirdPegasusForQuestionAnswering",
-    "BigBirdPegasusForSequenceClassification",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
     "BigBirdPegasusModel",
     "BigBirdPegasusPreTrainedModel",
 ]

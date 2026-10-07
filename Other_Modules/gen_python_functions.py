@@ -990,10 +990,10 @@ if (has_torch_function(self_)) {{
             "torch": "THPVariableFunctionsModule",
             "torch.nn": "THPNNVariableFunctionsModule",
             "torch.fft": "THPFFTVariableFunctionsModule",
-            "torch.linalg": "THPLinalgVariableFunctionsModule",
-            "torch.nested": "THPNestedVariableFunctionsModule",
-            "torch.sparse": "THPSparseVariableFunctionsModule",
-            "torch.special": "THPSpecialVariableFunctionsModule",
+            "torch.linalg": "REDACTED_MISTRAL",
+            "torch.nested": "REDACTED_MISTRAL",
+            "torch.sparse": "REDACTED_MISTRAL",
+            "torch.special": "REDACTED_MISTRAL",
         }[module]
         if module
         else "THPVariableClass"

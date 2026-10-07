@@ -150,17 +150,17 @@ def weisfeiler_lehman_graph_hash(
     Omitting the `edge_attr` option, results in identical hashes.
 
     >>> nx.weisfeiler_lehman_graph_hash(G1)
-    'c045439172215f49e0bef8c3d26c6b61'
+    "REDACTED_MISTRAL"
     >>> nx.weisfeiler_lehman_graph_hash(G2)
-    'c045439172215f49e0bef8c3d26c6b61'
+    "REDACTED_MISTRAL"
 
     With edge labels, the graphs are no longer assigned
     the same hash digest.
 
     >>> nx.weisfeiler_lehman_graph_hash(G1, edge_attr="label")
-    'c653d85538bcf041d88c011f4f905f10'
+    "REDACTED_MISTRAL"
     >>> nx.weisfeiler_lehman_graph_hash(G2, edge_attr="label")
-    '3dcd84af1ca855d0eff3c978d88e7ec7'
+    "REDACTED_MISTRAL"
 
     Notes
     -----

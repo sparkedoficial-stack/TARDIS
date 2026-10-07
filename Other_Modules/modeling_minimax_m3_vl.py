@@ -1590,7 +1590,7 @@ class MiniMaxM3SparseForConditionalGeneration(MiniMaxM3VLPreTrainedModel, Genera
 
 __all__ = [
     "MiniMaxM3VLForCausalLM",
-    "MiniMaxM3SparseForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "MiniMaxM3VLModel",
     "MiniMaxM3VLPreTrainedModel",
     "MiniMaxM3VLTextModel",

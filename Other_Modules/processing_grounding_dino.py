@@ -142,7 +142,7 @@ class GroundingDinoProcessor(ProcessorMixin):
 
     def post_process_grounded_object_detection(
         self,
-        outputs: "GroundingDinoObjectDetectionOutput",
+        outputs: "REDACTED_MISTRAL",
         input_ids: TensorType | None = None,
         threshold: float = 0.25,
         text_threshold: float = 0.25,

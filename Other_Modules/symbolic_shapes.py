@@ -2731,7 +2731,7 @@ def _eval_is_non_overlapping_and_dense_flat(*args: int) -> int:
 
 
 SYMPY_INTERP = {
-    "IsNonOverlappingAndDenseIndicator": _eval_is_non_overlapping_and_dense_flat,
+    "REDACTED_MISTRAL": _eval_is_non_overlapping_and_dense_flat,
     "cast_symbool_to_symint_guardless": cast_symbool_to_symint_guardless,
     "math": math,
     "torch": torch,

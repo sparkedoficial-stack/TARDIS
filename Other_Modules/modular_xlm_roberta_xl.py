@@ -714,9 +714,9 @@ __all__ = [
     "XLMRobertaXLForCausalLM",
     "XLMRobertaXLForMaskedLM",
     "XLMRobertaXLForMultipleChoice",
-    "XLMRobertaXLForQuestionAnswering",
-    "XLMRobertaXLForSequenceClassification",
-    "XLMRobertaXLForTokenClassification",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
     "XLMRobertaXLModel",
     "XLMRobertaXLPreTrainedModel",
 ]

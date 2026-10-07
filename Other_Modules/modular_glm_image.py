@@ -1314,7 +1314,7 @@ __all__ = [
     "GlmImageVisionModel",
     "GlmImageTextModel",
     "GlmImageModel",
-    "GlmImageForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "GlmImageImageProcessor",
     "GlmImageImageProcessorPil",
     "GlmImageProcessor",

@@ -63,7 +63,7 @@ class EvalResultEntry:
         ...     dataset_id="cais/hle",
         ...     task_id="default",
         ...     value=20.90,
-        ...     dataset_revision="5503434ddd753f426f4b38109466949a1217c2bb",
+        ...     dataset_revision="REDACTED_MISTRAL",
         ...     verify_token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
         ...     date="2025-01-15T10:30:00Z",
         ...     source_url="https://huggingface.co/datasets/cais/hle",

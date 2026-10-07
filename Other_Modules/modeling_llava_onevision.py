@@ -813,4 +813,4 @@ class LlavaOnevisionForConditionalGeneration(LlavaOnevisionPreTrainedModel, Gene
         )
 
 
-__all__ = ["LlavaOnevisionModel", "LlavaOnevisionForConditionalGeneration", "LlavaOnevisionPreTrainedModel"]
+__all__ = ["LlavaOnevisionModel", "REDACTED_MISTRAL", "LlavaOnevisionPreTrainedModel"]

@@ -1,41 +1,75 @@
-"""Utilities for working with paths."""
+import os
+import platform
 
-from collections.abc import Sequence
-from contextlib import suppress
-
-
-def normalize_path_segments(segments: Sequence[str]) -> list[str]:
-    """Drop '.' and '..' from a sequence of str segments"""
-
-    resolved_path: list[str] = []
-
-    for seg in segments:
-        if seg == "..":
-            # ignore any .. segments that would otherwise cause an
-            # IndexError when popped from resolved_path if
-            # resolving for rfc3986
-            with suppress(IndexError):
-                resolved_path.pop()
-        elif seg != ".":
-            resolved_path.append(seg)
-
-    if segments and segments[-1] in (".", ".."):
-        # do some post-processing here.
-        # if the last segment was a relative dir,
-        # then we need to append the trailing '/'
-        resolved_path.append("")
-
-    return resolved_path
+_WINDOWS_PLATFORM = platform.system() == "Windows"
 
 
-def normalize_path(path: str) -> str:
-    # Drop '.' and '..' from str path
-    prefix = ""
-    if path and path[0] == "/":
-        # preserve the "/" root element of absolute paths, copying it to the
-        # normalised output as per sections 5.2.4 and REDACTED_IP of rfc3986.
-        prefix = "/"
-        path = path[1:]
+def combine(path1: str, path2) -> str:
+    if not path1:
+        return path2
+    return "{}/{}".format(path1.rstrip("/"), path2.lstrip("/"))
 
-    segments = path.split("/")
-    return prefix + "/".join(normalize_path_segments(segments))
+
+def split(path: str) -> tuple[str, str]:
+    if "/" not in path:
+        return ("", path)
+    split = path.rsplit("/", 1)
+    return (split[0] or "/", split[1])
+
+
+def dirname(path: str) -> str:
+    return split(path)[0]
+
+
+def basename(path: str) -> str:
+    return split(path)[1]
+
+
+def forcedir(path: str) -> str:
+    # Ensure the path ends with a trailing forward slash.
+    if not path.endswith("/"):
+        return path + "/"
+    return path
+
+
+def abspath(path: str) -> str:
+    # FS objects have no concept of a *current directory*. This simply
+    # ensures the path starts with a forward slash.
+    if not path.startswith("/"):
+        return "/" + path
+    return path
+
+
+def isbase(path1: str, path2: str) -> bool:
+    # Check if `path1` is a base or prefix of `path2`.
+    _path1 = forcedir(abspath(path1))
+    _path2 = forcedir(abspath(path2))
+    return _path2.startswith(_path1)
+
+
+def frombase(path1: str, path2: str) -> str:
+    # Get the final path of `path2` that isn't in `path1`.
+    if not isbase(path1, path2):
+        raise ValueError(f"path1 must be a prefix of path2: {path1!r} vs {path2!r}")
+    return path2[len(path1) :]
+
+
+def relpath(path: str) -> str:
+    return path.lstrip("/")
+
+
+def normpath(path: str) -> str:
+    normalized = os.path.normpath(path)
+    if _WINDOWS_PLATFORM:
+        # os.path.normpath converts backslashes to forward slashes on Windows
+        # but we want forward slashes, so we convert them back
+        normalized = normalized.replace("\\", "/")
+    return normalized
+
+
+def escapes_root(path: str) -> bool:
+    # Check whether `path` normalizes to a location outside the filesystem root.
+    # This is a purely textual test, for use where a path can be rejected before
+    # anything touches the disk; OSFS._abs does the authoritative check.
+    normalized = normpath(relpath(path))
+    return normalized == ".." or normalized.startswith("../")

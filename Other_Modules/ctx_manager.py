@@ -290,7 +290,7 @@ class GradInplaceRequiresGradCtxManagerVariable(ContextWrappingVariable):
     @staticmethod
     def create(
         tx: "InstructionTranslatorBase", target_values: Any, **kwargs: Any
-    ) -> "GradInplaceRequiresGradCtxManagerVariable":
+    ) -> "REDACTED_MISTRAL":
         return GradInplaceRequiresGradCtxManagerVariable(
             target_values=target_values,
             initial_values=None,
@@ -334,7 +334,7 @@ class TemporarilyPopInterpreterStackCtxManagerVariable(ContextWrappingVariable):
     @staticmethod
     def create(
         tx: "InstructionTranslatorBase", target_values: Any, **kwargs: Any
-    ) -> "TemporarilyPopInterpreterStackCtxManagerVariable":
+    ) -> "REDACTED_MISTRAL":
         return TemporarilyPopInterpreterStackCtxManagerVariable(
             target_values=target_values,
             initial_values=None,
@@ -381,7 +381,7 @@ class JvpIncrementNestingCtxManagerVariable(ContextWrappingVariable):
     @staticmethod
     def create(
         tx: "InstructionTranslatorBase", **kwargs: Any
-    ) -> "JvpIncrementNestingCtxManagerVariable":
+    ) -> "REDACTED_MISTRAL":
         var = JvpIncrementNestingCtxManagerVariable(
             target_values=None,
             initial_values=None,
@@ -516,7 +516,7 @@ class GradIncrementNestingCtxManagerVariable(ContextWrappingVariable):
     @staticmethod
     def create(
         tx: "InstructionTranslatorBase", **kwargs: Any
-    ) -> "GradIncrementNestingCtxManagerVariable":
+    ) -> "REDACTED_MISTRAL":
         var = GradIncrementNestingCtxManagerVariable(
             target_values=None,
             initial_values=None,
@@ -610,7 +610,7 @@ class VmapIncrementNestingCtxManagerVariable(ContextWrappingVariable):
         tx: "InstructionTranslatorBase",
         target_values: list[VariableTracker],
         **kwargs: Any,
-    ) -> "VmapIncrementNestingCtxManagerVariable":
+    ) -> "REDACTED_MISTRAL":
         var = VmapIncrementNestingCtxManagerVariable(
             target_values=target_values,
             initial_values=None,
@@ -1014,7 +1014,7 @@ class DisabledSavedTensorsHooksVariable(ContextWrappingVariable):
     @staticmethod
     def create(
         tx: "InstructionTranslatorBase", target_value: str | None, **kwargs: Any
-    ) -> "DisabledSavedTensorsHooksVariable":
+    ) -> "REDACTED_MISTRAL":
         var = DisabledSavedTensorsHooksVariable(
             target_values=[target_value],
             initial_values=[
@@ -1242,7 +1242,7 @@ class ProfilerRecordFunctionContextVariable(ContextWrappingVariable):
         record_args: list[VariableTracker],
         record_kwargs: "dict[str, VariableTracker]",
         **kwargs: Any,
-    ) -> "ProfilerRecordFunctionContextVariable":
+    ) -> "REDACTED_MISTRAL":
         target_values = None
         if config.capture_profiler_record_function:
             # Extract name and args for record_function
@@ -1426,7 +1426,7 @@ class FSDPParamGroupUseTrainingStateVariable(ContextWrappingVariable):
         param_group_var: Any,
         target_value: Any,
         **kwargs: Any,
-    ) -> "FSDPParamGroupUseTrainingStateVariable":
+    ) -> "REDACTED_MISTRAL":
         var = FSDPParamGroupUseTrainingStateVariable(
             param_group_var=param_group_var,
             target_values=[target_value],

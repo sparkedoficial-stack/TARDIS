@@ -1230,9 +1230,9 @@ class Data2VecAudioForXVector(Data2VecAudioPreTrainedModel):
 
 
 __all__ = [
-    "Data2VecAudioForAudioFrameClassification",
+    "REDACTED_MISTRAL",
     "Data2VecAudioForCTC",
-    "Data2VecAudioForSequenceClassification",
+    "REDACTED_MISTRAL",
     "Data2VecAudioForXVector",
     "Data2VecAudioModel",
     "Data2VecAudioPreTrainedModel",

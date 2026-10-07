@@ -305,7 +305,7 @@ class PPLCNetV3PreTrainedModel(PreTrainedModel):
     input_modalities = ("image",)
     _can_compile_fullgraph = True
     supports_gradient_checkpointing = True
-    _no_split_modules = ["PPLCNetV3DepthwiseSeparableConvLayer"]
+    _no_split_modules = ["REDACTED_MISTRAL"]
     _can_record_outputs = {
         "hidden_states": PPLCNetV3Block,
     }

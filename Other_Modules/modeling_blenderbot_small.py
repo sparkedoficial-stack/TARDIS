@@ -970,7 +970,7 @@ class BlenderbotSmallForCausalLM(BlenderbotSmallPreTrainedModel, GenerationMixin
 
 __all__ = [
     "BlenderbotSmallForCausalLM",
-    "BlenderbotSmallForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "BlenderbotSmallModel",
     "BlenderbotSmallPreTrainedModel",
 ]

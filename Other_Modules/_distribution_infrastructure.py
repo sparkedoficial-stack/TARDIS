@@ -3837,7 +3837,7 @@ _distribution_names = {
     'logser': 'LogarithmicSeries',
     'nbinom': 'NegativeBinomial',
     'nchypergeom_fisher': 'NoncentralHypergeometricFisher',
-    'nchypergeom_wallenius': 'NoncentralHypergeometricWallenius',
+    'nchypergeom_wallenius': "REDACTED_MISTRAL",
     'nhypergeom': 'NegativeHypergeometric',
     'poisson_binom': 'PoissonBinomial',
     'randint': 'UniformDiscrete',

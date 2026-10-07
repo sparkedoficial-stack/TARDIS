@@ -1646,7 +1646,7 @@ class Qwen3VLMoeForConditionalGeneration(Qwen3VLMoePreTrainedModel, GenerationMi
 
 __all__ = [
     "Qwen3VLMoeVisionModel",
-    "Qwen3VLMoeForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "Qwen3VLMoeModel",
     "Qwen3VLMoePreTrainedModel",
     "Qwen3VLMoeTextModel",

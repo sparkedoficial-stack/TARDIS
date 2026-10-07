@@ -3281,13 +3281,13 @@ class PerceiverMultimodalPreprocessor(AbstractPreprocessor):
 
 
 __all__ = [
-    "PerceiverForImageClassificationConvProcessing",
-    "PerceiverForImageClassificationFourier",
-    "PerceiverForImageClassificationLearned",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
     "PerceiverForMaskedLM",
-    "PerceiverForMultimodalAutoencoding",
+    "REDACTED_MISTRAL",
     "PerceiverForOpticalFlow",
-    "PerceiverForSequenceClassification",
+    "REDACTED_MISTRAL",
     "PerceiverLayer",
     "PerceiverModel",
     "PerceiverPreTrainedModel",

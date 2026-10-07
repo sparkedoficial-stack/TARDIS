@@ -1266,7 +1266,7 @@ __all__ = [
     "Gemma4UnifiedTextConfig",
     "Gemma4UnifiedVisionConfig",
     "Gemma4UnifiedForCausalLM",
-    "Gemma4UnifiedForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "Gemma4UnifiedModel",
     "Gemma4UnifiedPreTrainedModel",
     "Gemma4UnifiedTextModel",

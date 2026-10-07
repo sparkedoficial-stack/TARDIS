@@ -1151,8 +1151,8 @@ class LayoutLMv3ForSequenceClassification(LayoutLMv3PreTrainedModel):
 
 __all__ = [
     "LayoutLMv3ForQuestionAnswering",
-    "LayoutLMv3ForSequenceClassification",
-    "LayoutLMv3ForTokenClassification",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
     "LayoutLMv3Model",
     "LayoutLMv3PreTrainedModel",
 ]

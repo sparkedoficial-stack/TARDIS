@@ -266,7 +266,7 @@ class PPOCRV5MobileDetForObjectDetection(PPOCRV5ServerDetForObjectDetection):
 
 
 __all__ = [
-    "PPOCRV5MobileDetForObjectDetection",
+    "REDACTED_MISTRAL",
     "PPOCRV5MobileDetConfig",
     "PPOCRV5MobileDetModel",
     "PPOCRV5MobileDetPreTrainedModel",

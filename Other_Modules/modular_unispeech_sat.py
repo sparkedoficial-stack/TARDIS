@@ -409,10 +409,10 @@ class UniSpeechSatForXVector(Wav2Vec2ForXVector):
 
 
 __all__ = [
-    "UniSpeechSatForAudioFrameClassification",
+    "REDACTED_MISTRAL",
     "UniSpeechSatForCTC",
     "UniSpeechSatForPreTraining",
-    "UniSpeechSatForSequenceClassification",
+    "REDACTED_MISTRAL",
     "UniSpeechSatForXVector",
     "UniSpeechSatModel",
     "UniSpeechSatPreTrainedModel",

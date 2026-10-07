@@ -133,7 +133,7 @@ class TestFirstOrderActivationDeGroote2016:
     def test_class():
         assert issubclass(FirstOrderActivationDeGroote2016, ActivationBase)
         assert issubclass(FirstOrderActivationDeGroote2016, _NamedMixin)
-        assert FirstOrderActivationDeGroote2016.__name__ == 'FirstOrderActivationDeGroote2016'
+        assert FirstOrderActivationDeGroote2016.__name__ == "REDACTED_MISTRAL"
 
     @pytest.fixture(autouse=True)
     def _first_order_activation_de_groote_2016_fixture(self):

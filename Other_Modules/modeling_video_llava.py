@@ -550,4 +550,4 @@ class VideoLlavaForConditionalGeneration(VideoLlavaPreTrainedModel, GenerationMi
         )
 
 
-__all__ = ["VideoLlavaPreTrainedModel", "VideoLlavaModel", "VideoLlavaForConditionalGeneration"]
+__all__ = ["VideoLlavaPreTrainedModel", "VideoLlavaModel", "REDACTED_MISTRAL"]

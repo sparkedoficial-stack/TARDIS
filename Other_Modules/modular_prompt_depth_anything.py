@@ -323,6 +323,6 @@ class PromptDepthAnythingForDepthEstimation(DepthAnythingForDepthEstimation):
 
 __all__ = [
     "PromptDepthAnythingConfig",
-    "PromptDepthAnythingForDepthEstimation",
-    "PromptDepthAnythingPreTrainedModel",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
 ]

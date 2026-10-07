@@ -691,6 +691,6 @@ __all__ = [
     "ModernVBertPreTrainedModel",
     "ModernVBertModel",
     "ModernVBertForMaskedLM",
-    "ModernVBertForSequenceClassification",
-    "ModernVBertForTokenClassification",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
 ]

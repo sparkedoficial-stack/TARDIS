@@ -1170,7 +1170,7 @@ __all__ = [
     "DeepseekOcr2VisionConfig",
     "DeepseekOcr2VisionEncoderConfig",
     "DeepseekOcr2SamVisionConfig",
-    "DeepseekOcr2ForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "DeepseekOcr2ImageProcessor",
     "DeepseekOcr2ImageProcessorPil",
     "DeepseekOcr2Model",

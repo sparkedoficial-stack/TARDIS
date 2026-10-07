@@ -1,40 +1,31 @@
-"""Regression tests for optimize.
-
-"""
 import numpy as np
-from numpy.testing import assert_almost_equal
-from pytest import raises as assert_raises
-
-import scipy.optimize
+from numpy.testing import assert_, assert_equal, assert_raises
 
 
 class TestRegression:
+    def test_kron_matrix(self):
+        # Ticket #71
+        x = np.matrix('[1 0; 1 0]')
+        assert_equal(type(np.kron(x, x)), type(x))
 
-    def test_newton_x0_is_0(self):
-        # Regression test for gh-1601
-        tgt = 1
-        res = scipy.optimize.newton(lambda x: x - 1, 0)
-        assert_almost_equal(res, tgt)
+    def test_matrix_properties(self):
+        # Ticket #125
+        a = np.matrix([1.0], dtype=float)
+        assert_(type(a.real) is np.matrix)
+        assert_(type(a.imag) is np.matrix)
+        c, d = np.matrix([0.0]).nonzero()
+        assert_(type(c) is np.ndarray)
+        assert_(type(d) is np.ndarray)
 
-    def test_newton_integers(self):
-        # Regression test for gh-1741
-        root = scipy.optimize.newton(lambda x: x**2 - 1, x0=2,
-                                    fprime=lambda x: 2*x)
-        assert_almost_equal(root, 1.0)
+    def test_matrix_multiply_by_1d_vector(self):
+        # Ticket #473
+        def mul():
+            np.asmatrix(np.eye(2)) * np.ones(2)
 
-    def test_lmdif_errmsg(self):
-        # This shouldn't cause a crash on Python 3
-        class SomeError(Exception):
-            pass
-        counter = [0]
+        assert_raises(ValueError, mul)
 
-        def func(x):
-            counter[0] += 1
-            if counter[0] < 3:
-                return x**2 - np.array([9, 10, 11])
-            else:
-                raise SomeError()
-        assert_raises(SomeError,
-                      scipy.optimize.leastsq,
-                      func, [1, 2, 3])
-
+    def test_matrix_std_argmax(self):
+        # Ticket #83
+        x = np.asmatrix(np.random.uniform(0, 1, (3, 3)))
+        assert_equal(x.std().shape, ())
+        assert_equal(x.argmax().shape, ())

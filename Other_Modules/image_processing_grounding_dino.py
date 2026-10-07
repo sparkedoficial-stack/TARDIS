@@ -703,7 +703,7 @@ class GroundingDinoImageProcessor(TorchvisionBackend):
 
     def post_process_object_detection(
         self,
-        outputs: "GroundingDinoObjectDetectionOutput",
+        outputs: "REDACTED_MISTRAL",
         threshold: float = 0.1,
         target_sizes: TensorType | list[tuple] | None = None,
     ):

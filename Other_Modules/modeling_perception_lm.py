@@ -408,4 +408,4 @@ class PerceptionLMForConditionalGeneration(PerceptionLMPreTrainedModel, Generati
         )
 
 
-__all__ = ["PerceptionLMForConditionalGeneration", "PerceptionLMPreTrainedModel", "PerceptionLMModel"]
+__all__ = ["REDACTED_MISTRAL", "PerceptionLMPreTrainedModel", "PerceptionLMModel"]

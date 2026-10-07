@@ -335,4 +335,4 @@ class PPOCRV6SmallDetForObjectDetection(PPOCRV6SmallDetPreTrainedModel):
         )
 
 
-__all__ = ["PPOCRV6SmallDetForObjectDetection", "PPOCRV6SmallDetModel", "PPOCRV6SmallDetPreTrainedModel"]
+__all__ = ["REDACTED_MISTRAL", "PPOCRV6SmallDetModel", "PPOCRV6SmallDetPreTrainedModel"]

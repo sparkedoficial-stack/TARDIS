@@ -547,8 +547,8 @@ __all__ = [
     "InstructBlipVideoQFormerConfig",
     "InstructBlipVideoVisionConfig",
     "InstructBlipVideoVisionModel",
-    "InstructBlipVideoPreTrainedModel",
+    "REDACTED_MISTRAL",
     "InstructBlipVideoQFormerModel",
     "InstructBlipVideoModel",
-    "InstructBlipVideoForConditionalGeneration",
+    "REDACTED_MISTRAL",
 ]

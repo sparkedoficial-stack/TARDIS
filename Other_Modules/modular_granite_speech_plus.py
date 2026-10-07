@@ -172,6 +172,6 @@ __all__ = [
     "GraniteSpeechPlusEncoderConfig",
     "GraniteSpeechPlusModel",
     "GraniteSpeechPlusCTCEncoder",
-    "GraniteSpeechPlusForConditionalGeneration",
-    "GraniteSpeechPlusPreTrainedModel",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
 ]

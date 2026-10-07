@@ -1,215 +1,309 @@
 from __future__ import annotations
 
-import dataclasses
-import decimal
-import json
-import typing as t
-import uuid
-import weakref
-from datetime import date
+import math
+from collections import defaultdict
+from collections.abc import Iterable, Iterator, Mapping, Sequence
+from functools import cache
+from typing import (
+    TYPE_CHECKING,
+    TypeVar,
+)
 
-from werkzeug.http import http_date
+from pip._vendor.resolvelib.providers import AbstractProvider
 
-if t.TYPE_CHECKING:  # pragma: no cover
-    from werkzeug.sansio.response import Response
+from pip._internal.req.req_install import InstallRequirement
 
-    from ..sansio.app import App
+from .base import Candidate, Constraint, Requirement
+from .candidates import REQUIRES_PYTHON_IDENTIFIER
+from .factory import Factory
+from .requirements import ExplicitRequirement
+
+if TYPE_CHECKING:
+    from pip._vendor.resolvelib.providers import Preference
+    from pip._vendor.resolvelib.resolvers import RequirementInformation
+
+    PreferenceInformation = RequirementInformation[Requirement, Candidate]
+
+    _ProviderBase = AbstractProvider[Requirement, Candidate, str]
+else:
+    _ProviderBase = AbstractProvider
+
+_CONFLICT_PRIORITY_THRESHOLD = 5
+
+# Notes on the relationship between the provider, the factory, and the
+# candidate and requirement classes.
+#
+# The provider is a direct implementation of the resolvelib class. Its role
+# is to deliver the API that resolvelib expects.
+#
+# Rather than work with completely abstract "requirement" and "candidate"
+# concepts as resolvelib does, pip has concrete classes implementing these two
+# ideas. The API of Requirement and Candidate objects are defined in the base
+# classes, but essentially map fairly directly to the equivalent provider
+# methods. In particular, `find_matches` and `is_satisfied_by` are
+# requirement methods, and `get_dependencies` is a candidate method.
+#
+# The factory is the interface to pip's internal mechanisms. It is stateless,
+# and is created by the resolver and held as a property of the provider. It is
+# responsible for creating Requirement and Candidate objects, and provides
+# services to those objects (access to pip's finder and preparer).
 
 
-class JSONProvider:
-    """A standard set of JSON operations for an application. Subclasses
-    of this can be used to customize JSON behavior or use different
-    JSON libraries.
+D = TypeVar("D")
+V = TypeVar("V")
 
-    To implement a provider for a specific library, subclass this base
-    class and implement at least :meth:`dumps` and :meth:`loads`. All
-    other methods have default implementations.
 
-    To use a different provider, either subclass ``Flask`` and set
-    :attr:`~flask.Flask.json_provider_class` to a provider class, or set
-    :attr:`app.json <flask.Flask.json>` to an instance of the class.
+def _get_with_identifier(
+    mapping: Mapping[str, V],
+    identifier: str,
+    default: D,
+) -> D | V:
+    """Get item from a package name lookup mapping with a resolver identifier.
 
-    :param app: An application instance. This will be stored as a
-        :class:`weakref.proxy` on the :attr:`_app` attribute.
+    This extra logic is needed when the target mapping is keyed by package
+    name, which cannot be directly looked up with an identifier (which may
+    contain requested extras). Additional logic is added to also look up a value
+    by "cleaning up" the extras from the identifier.
+    """
+    if identifier in mapping:
+        return mapping[identifier]
+    # HACK: Theoretically we should check whether this identifier is a valid
+    # "NAME[EXTRAS]" format, and parse out the name part with packaging or
+    # some regular expression. But since pip's resolver only spits out three
+    # kinds of identifiers: normalized PEP 503 names, normalized names plus
+    # extras, and Requires-Python, we can cheat a bit here.
+    name, open_bracket, _ = identifier.partition("[")
+    if open_bracket and name in mapping:
+        return mapping[name]
+    return default
 
-    .. versionadded:: 2.2
+
+class PipProvider(_ProviderBase):
+    """Pip's provider implementation for resolvelib.
+
+    :params constraints: A mapping of constraints specified by the user. Keys
+        are canonicalized project names.
+    :params ignore_dependencies: Whether the user specified ``--no-deps``.
+    :params only_dependencies: Whether the user specified ``--only-deps``.
+    :params upgrade_strategy: The user-specified upgrade strategy.
+    :params user_requested: A set of canonicalized package names that the user
+        supplied for pip to install/upgrade.
     """
 
-    def __init__(self, app: App) -> None:
-        self._app: App = weakref.proxy(app)
+    def __init__(
+        self,
+        factory: Factory,
+        constraints: dict[str, Constraint],
+        ignore_dependencies: bool,
+        only_dependencies: bool,
+        upgrade_strategy: str,
+        user_requested: dict[str, int],
+    ) -> None:
+        self._factory = factory
+        self._constraints = constraints
+        self._ignore_dependencies = ignore_dependencies
+        self._only_dependencies = only_dependencies
+        self._upgrade_strategy = upgrade_strategy
+        self._user_requested = user_requested
+        self._conflict_counts: defaultdict[str, int] = defaultdict(int)
+        self._conflict_promoted: set[str] = set()
 
-    def dumps(self, obj: t.Any, **kwargs: t.Any) -> str:
-        """Serialize data as JSON.
+    @property
+    def constraints(self) -> dict[str, Constraint]:
+        """Public view of user-specified constraints.
 
-        :param obj: The data to serialize.
-        :param kwargs: May be passed to the underlying JSON library.
+        Exposes the provider's constraints mapping without encouraging
+        external callers to reach into private attributes.
         """
-        raise NotImplementedError
+        return self._constraints
 
-    def dump(self, obj: t.Any, fp: t.IO[str], **kwargs: t.Any) -> None:
-        """Serialize data as JSON and write to a file.
+    def identify(self, requirement_or_candidate: Requirement | Candidate) -> str:
+        return requirement_or_candidate.name
 
-        :param obj: The data to serialize.
-        :param fp: A file opened for writing text. Should use the UTF-8
-            encoding to be valid JSON.
-        :param kwargs: May be passed to the underlying JSON library.
+    def narrow_requirement_selection(
+        self,
+        identifiers: Iterable[str],
+        resolutions: Mapping[str, Candidate],
+        candidates: Mapping[str, Iterator[Candidate]],
+        information: Mapping[str, Iterator[PreferenceInformation]],
+        backtrack_causes: Sequence[PreferenceInformation],
+    ) -> Iterable[str]:
+        """Produce a subset of identifiers that should be considered before others.
+
+        Currently pip narrows the following selection:
+            * Requires-Python, if present is always returned by itself
+            * Backtrack causes are considered next because they can be identified
+              in linear time here, whereas because get_preference() is called
+              for each identifier, it would be quadratic to check for them there.
+              Further, the current backtrack causes likely need to be resolved
+              before other requirements as a resolution can't be found while
+              there is a conflict.
+            * Identifiers that repeatedly appear as not-yet-pinned in conflicts
+              get promoted so they are resolved earlier. This lets their
+              constraints take effect before other packages pick a version.
         """
-        fp.write(self.dumps(obj, **kwargs))
+        backtrack_identifiers = set()
+        for info in backtrack_causes:
+            names = [info.requirement.name]
+            if info.parent is not None:
+                names.append(info.parent.name)
+            for name in names:
+                backtrack_identifiers.add(name)
+                if name not in resolutions:
+                    self._conflict_counts[name] += 1
+                    if self._conflict_counts[name] >= _CONFLICT_PRIORITY_THRESHOLD:
+                        self._conflict_promoted.add(name)
 
-    def loads(self, s: str | bytes, **kwargs: t.Any) -> t.Any:
-        """Deserialize data as JSON.
+        current_backtrack_causes = []
+        promoted = []
+        for identifier in identifiers:
+            if identifier == REQUIRES_PYTHON_IDENTIFIER:
+                return [identifier]
 
-        :param s: Text or UTF-8 bytes.
-        :param kwargs: May be passed to the underlying JSON library.
+            if identifier in backtrack_identifiers:
+                current_backtrack_causes.append(identifier)
+                continue
+
+            if identifier in self._conflict_promoted:
+                promoted.append(identifier)
+                continue
+
+        if current_backtrack_causes:
+            return current_backtrack_causes
+
+        if promoted:
+            return promoted
+
+        return identifiers
+
+    def get_preference(
+        self,
+        identifier: str,
+        resolutions: Mapping[str, Candidate],
+        candidates: Mapping[str, Iterator[Candidate]],
+        information: Mapping[str, Iterable[PreferenceInformation]],
+        backtrack_causes: Sequence[PreferenceInformation],
+    ) -> Preference:
+        """Produce a sort key for given requirement based on preference.
+
+        The lower the return value is, the more preferred this group of
+        arguments is.
+
+        Currently pip considers the following in order:
+
+        * Any requirement that is "direct", e.g., points to an explicit URL.
+        * Any requirement that is "pinned", i.e., contains the operator ``===``
+          or ``==`` without a wildcard.
+        * Any requirement that imposes an upper version limit, i.e., contains the
+          operator ``<``, ``<=``, ``~=``, or ``==`` with a wildcard. Because
+          pip prioritizes the latest version, preferring explicit upper bounds
+          can rule out infeasible candidates sooner. This does not imply that
+          upper bounds are good practice; they can make dependency management
+          and resolution harder.
+        * Order user-specified requirements as they are specified, placing
+          other requirements afterward.
+        * Any "non-free" requirement, i.e., one that contains at least one
+          operator, such as ``>=`` or ``!=``.
+        * Alphabetical order for consistency (aids debuggability).
         """
-        raise NotImplementedError
-
-    def load(self, fp: t.IO[t.AnyStr], **kwargs: t.Any) -> t.Any:
-        """Deserialize data as JSON read from a file.
-
-        :param fp: A file opened for reading text or UTF-8 bytes.
-        :param kwargs: May be passed to the underlying JSON library.
-        """
-        return self.loads(fp.read(), **kwargs)
-
-    def _prepare_response_obj(
-        self, args: tuple[t.Any, ...], kwargs: dict[str, t.Any]
-    ) -> t.Any:
-        if args and kwargs:
-            raise TypeError("app.json.response() takes either args or kwargs, not both")
-
-        if not args and not kwargs:
-            return None
-
-        if len(args) == 1:
-            return args[0]
-
-        return args or kwargs
-
-    def response(self, *args: t.Any, **kwargs: t.Any) -> Response:
-        """Serialize the given arguments as JSON, and return a
-        :class:`~flask.Response` object with the ``application/json``
-        mimetype.
-
-        The :func:`~flask.json.jsonify` function calls this method for
-        the current application.
-
-        Either positional or keyword arguments can be given, not both.
-        If no arguments are given, ``None`` is serialized.
-
-        :param args: A single value to serialize, or multiple values to
-            treat as a list to serialize.
-        :param kwargs: Treat as a dict to serialize.
-        """
-        obj = self._prepare_response_obj(args, kwargs)
-        return self._app.response_class(self.dumps(obj), mimetype="application/json")
-
-
-def _default(o: t.Any) -> t.Any:
-    if isinstance(o, date):
-        return http_date(o)
-
-    if isinstance(o, (decimal.Decimal, uuid.UUID)):
-        return str(o)
-
-    if dataclasses and dataclasses.is_dataclass(o):
-        return dataclasses.asdict(o)  # type: ignore[arg-type]
-
-    if hasattr(o, "__html__"):
-        return str(o.__html__())
-
-    raise TypeError(f"Object of type {type(o).__name__} is not JSON serializable")
-
-
-class DefaultJSONProvider(JSONProvider):
-    """Provide JSON operations using Python's built-in :mod:`json`
-    library. Serializes the following additional data types:
-
-    -   :class:`datetime.datetime` and :class:`datetime.date` are
-        serialized to :rfc:`822` strings. This is the same as the HTTP
-        date format.
-    -   :class:`uuid.UUID` is serialized to a string.
-    -   :class:`dataclasses.dataclass` is passed to
-        :func:`dataclasses.asdict`.
-    -   :class:`~markupsafe.Markup` (or any object with a ``__html__``
-        method) will call the ``__html__`` method to get a string.
-    """
-
-    default: t.Callable[[t.Any], t.Any] = staticmethod(_default)  # type: ignore[assignment]
-    """Apply this function to any object that :meth:`json.dumps` does
-    not know how to serialize. It should return a valid JSON type or
-    raise a ``TypeError``.
-    """
-
-    ensure_ascii = True
-    """Replace non-ASCII characters with escape sequences. This may be
-    more compatible with some clients, but can be disabled for better
-    performance and size.
-    """
-
-    sort_keys = True
-    """Sort the keys in any serialized dicts. This may be useful for
-    some caching situations, but can be disabled for better performance.
-    When enabled, keys must all be strings, they are not converted
-    before sorting.
-    """
-
-    compact: bool | None = None
-    """If ``True``, or ``None`` out of debug mode, the :meth:`response`
-    output will not add indentation, newlines, or spaces. If ``False``,
-    or ``None`` in debug mode, it will use a non-compact representation.
-    """
-
-    mimetype = "application/json"
-    """The mimetype set in :meth:`response`."""
-
-    def dumps(self, obj: t.Any, **kwargs: t.Any) -> str:
-        """Serialize data as JSON to a string.
-
-        Keyword arguments are passed to :func:`json.dumps`. Sets some
-        parameter defaults from the :attr:`default`,
-        :attr:`ensure_ascii`, and :attr:`sort_keys` attributes.
-
-        :param obj: The data to serialize.
-        :param kwargs: Passed to :func:`json.dumps`.
-        """
-        kwargs.setdefault("default", self.default)
-        kwargs.setdefault("ensure_ascii", self.ensure_ascii)
-        kwargs.setdefault("sort_keys", self.sort_keys)
-        return json.dumps(obj, **kwargs)
-
-    def loads(self, s: str | bytes, **kwargs: t.Any) -> t.Any:
-        """Deserialize data as JSON from a string or bytes.
-
-        :param s: Text or UTF-8 bytes.
-        :param kwargs: Passed to :func:`json.loads`.
-        """
-        return json.loads(s, **kwargs)
-
-    def response(self, *args: t.Any, **kwargs: t.Any) -> Response:
-        """Serialize the given arguments as JSON, and return a
-        :class:`~flask.Response` object with it. The response mimetype
-        will be "application/json" and can be changed with
-        :attr:`mimetype`.
-
-        If :attr:`compact` is ``False`` or debug mode is enabled, the
-        output will be formatted to be easier to read.
-
-        Either positional or keyword arguments can be given, not both.
-        If no arguments are given, ``None`` is serialized.
-
-        :param args: A single value to serialize, or multiple values to
-            treat as a list to serialize.
-        :param kwargs: Treat as a dict to serialize.
-        """
-        obj = self._prepare_response_obj(args, kwargs)
-        dump_args: dict[str, t.Any] = {}
-
-        if (self.compact is None and self._app.debug) or self.compact is False:
-            dump_args.setdefault("indent", 2)
+        try:
+            next(iter(information[identifier]))
+        except StopIteration:
+            # There is no information for this identifier, so there's no known
+            # candidates.
+            has_information = False
         else:
-            dump_args.setdefault("separators", (",", ":"))
+            has_information = True
 
-        return self._app.response_class(
-            f"{self.dumps(obj, **dump_args)}\n", mimetype=self.mimetype
+        if not has_information:
+            direct = False
+            ireqs: tuple[InstallRequirement | None, ...] = ()
+        else:
+            # Go through the information and for each requirement,
+            # check if it's explicit (e.g., a direct link) and get the
+            # InstallRequirement (the second element) from get_candidate_lookup()
+            directs, ireqs = zip(
+                *(
+                    (isinstance(r, ExplicitRequirement), r.get_candidate_lookup()[1])
+                    for r, _ in information[identifier]
+                )
+            )
+            direct = any(directs)
+
+        operators: list[tuple[str, str]] = [
+            (specifier.operator, specifier.version)
+            for specifier_set in (ireq.specifier for ireq in ireqs if ireq)
+            for specifier in specifier_set
+        ]
+
+        pinned = any(((op[:2] == "==") and ("*" not in ver)) for op, ver in operators)
+        upper_bounded = any(
+            ((op in ("<", "<=", "~=")) or (op == "==" and "*" in ver))
+            for op, ver in operators
         )
+        unfree = bool(operators)
+        requested_order = self._user_requested.get(identifier, math.inf)
+
+        conflict_promoted = identifier in self._conflict_promoted
+
+        return (
+            not conflict_promoted,
+            not direct,
+            not pinned,
+            not upper_bounded,
+            requested_order,
+            not unfree,
+            identifier,
+        )
+
+    def find_matches(
+        self,
+        identifier: str,
+        requirements: Mapping[str, Iterator[Requirement]],
+        incompatibilities: Mapping[str, Iterator[Candidate]],
+    ) -> Iterable[Candidate]:
+        def _eligible_for_upgrade(identifier: str) -> bool:
+            """Are upgrades allowed for this project?
+
+            This checks the upgrade strategy, and whether the project was one
+            that the user specified in the command line, in order to decide
+            whether we should upgrade if there's a newer version available.
+
+            (Note that we don't need access to the `--upgrade` flag, because
+            an upgrade strategy of "to-satisfy-only" means that `--upgrade`
+            was not specified).
+            """
+            if self._upgrade_strategy == "eager":
+                return True
+            elif self._upgrade_strategy == "only-if-needed":
+                user_order = _get_with_identifier(
+                    self._user_requested,
+                    identifier,
+                    default=None,
+                )
+                return user_order is not None
+            return False
+
+        constraint = _get_with_identifier(
+            self._constraints,
+            identifier,
+            default=Constraint.empty(),
+        )
+        return self._factory.find_candidates(
+            identifier=identifier,
+            requirements=requirements,
+            constraint=constraint,
+            prefers_installed=(not _eligible_for_upgrade(identifier)),
+            incompatibilities=incompatibilities,
+            is_satisfied_by=self.is_satisfied_by,
+        )
+
+    @staticmethod
+    @cache
+    def is_satisfied_by(requirement: Requirement, candidate: Candidate) -> bool:
+        return requirement.is_satisfied_by(candidate)
+
+    def get_dependencies(self, candidate: Candidate) -> Iterable[Requirement]:
+        with_requires = not self._ignore_dependencies
+        # iter_dependencies() can perform nontrivial work so delay until needed.
+        return (r for r in candidate.iter_dependencies(with_requires) if r is not None)

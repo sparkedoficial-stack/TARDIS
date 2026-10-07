@@ -903,7 +903,7 @@ class MarkupLMForSequenceClassification(MarkupLMPreTrainedModel):
 
 __all__ = [
     "MarkupLMForQuestionAnswering",
-    "MarkupLMForSequenceClassification",
+    "REDACTED_MISTRAL",
     "MarkupLMForTokenClassification",
     "MarkupLMModel",
     "MarkupLMPreTrainedModel",

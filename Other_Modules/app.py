@@ -1,964 +1,1134 @@
+#!/usr/bin/env python3
+"""
+native_gui/app.py - Interfaz Nativa de Escritorio para GODWORKS SYSTEM v26.4
+=============================================================================
+Aplicación 100% nativa en Linux con GTK4 y Libadwaita.
+Opera directamente sin hacer uso de ningún navegador web.
+
+Módulos integrados:
+  1. Chat Soberano & Inferencia (Hermes 3 / Ollama, RAG offline, cancelación, voz)
+  2. Metapensamiento & Espectro Cognitivo (Espectro Cairo animado, thought stream)
+  3. Control Físico & Hardware (Bloqueo uinput, volumen PipeWire, captura de pantalla)
+  4. Seguridad & Auditoría de Red (Escáner Wi-Fi, monitor de tráfico, hotspot)
+  5. Bóveda de Chats Offline (Búsqueda SQLite FTS5 BM25, exportación)
+  6. Telemetría & Tareas (CPU, RAM, systemd, kill process)
+  7. Terminal Soberana (Comandos slash y shell interactivo)
+"""
+
 from __future__ import annotations
 
-import logging
+import datetime
+import json
+import math
 import os
+import random
+import re
+import shutil
+import subprocess
 import sys
-import typing as t
-from datetime import timedelta
-from itertools import chain
-
-from werkzeug.exceptions import Aborter
-from werkzeug.exceptions import BadRequest
-from werkzeug.exceptions import BadRequestKeyError
-from werkzeug.routing import BuildError
-from werkzeug.routing import Map
-from werkzeug.routing import Rule
-from werkzeug.sansio.response import Response
-from werkzeug.utils import cached_property
-from werkzeug.utils import redirect as _wz_redirect
-
-from .. import typing as ft
-from ..config import Config
-from ..config import ConfigAttribute
-from ..ctx import _AppCtxGlobals
-from ..helpers import _split_blueprint_path
-from ..helpers import get_debug_flag
-from ..json.provider import DefaultJSONProvider
-from ..json.provider import JSONProvider
-from ..logging import create_logger
-from ..templating import DispatchingJinjaLoader
-from ..templating import Environment
-from .scaffold import _endpoint_from_view_func
-from .scaffold import find_package
-from .scaffold import Scaffold
-from .scaffold import setupmethod
-
-if t.TYPE_CHECKING:  # pragma: no cover
-    from werkzeug.wrappers import Response as BaseResponse
-
-    from ..testing import FlaskClient
-    from ..testing import FlaskCliRunner
-    from .blueprints import Blueprint
-
-T_shell_context_processor = t.TypeVar(
-    "T_shell_context_processor", bound=ft.ShellContextProcessorCallable
-)
-T_teardown = t.TypeVar("T_teardown", bound=ft.TeardownCallable)
-T_template_filter = t.TypeVar("T_template_filter", bound=ft.TemplateFilterCallable)
-T_template_global = t.TypeVar("T_template_global", bound=ft.TemplateGlobalCallable)
-T_template_test = t.TypeVar("T_template_test", bound=ft.TemplateTestCallable)
-
-
-def _make_timedelta(value: timedelta | int | None) -> timedelta | None:
-    if value is None or isinstance(value, timedelta):
-        return value
-
-    return timedelta(seconds=value)
-
-
-class App(Scaffold):
-    """The flask object implements a WSGI application and acts as the central
-    object.  It is passed the name of the module or package of the
-    application.  Once it is created it will act as a central registry for
-    the view functions, the URL rules, template configuration and much more.
-
-    The name of the package is used to resolve resources from inside the
-    package or the folder the module is contained in depending on if the
-    package parameter resolves to an actual python package (a folder with
-    an :file:`__init__.py` file inside) or a standard module (just a ``.py`` file).
-
-    For more information about resource loading, see :func:`open_resource`.
-
-    Usually you create a :class:`Flask` instance in your main module or
-    in the :file:`__init__.py` file of your package like this::
-
-        from flask import Flask
-        app = Flask(__name__)
-
-    .. admonition:: About the First Parameter
-
-        The idea of the first parameter is to give Flask an idea of what
-        belongs to your application.  This name is used to find resources
-        on the filesystem, can be used by extensions to improve debugging
-        information and a lot more.
-
-        So it's important what you provide there.  If you are using a single
-        module, `__name__` is always the correct value.  If you however are
-        using a package, it's usually recommended to hardcode the name of
-        your package there.
-
-        For example if your application is defined in :file:`yourapplication/app.py`
-        you should create it with one of the two versions below::
-
-            app = Flask('yourapplication')
-            app = Flask(__name__.split('.')[0])
-
-        Why is that?  The application will work even with `__name__`, thanks
-        to how resources are looked up.  However it will make debugging more
-        painful.  Certain extensions can make assumptions based on the
-        import name of your application.  For example the Flask-SQLAlchemy
-        extension will look for the code in your application that triggered
-        an SQL query in debug mode.  If the import name is not properly set
-        up, that debugging information is lost.  (For example it would only
-        pick up SQL queries in `yourapplication.app` and not
-        `yourapplication.views.frontend`)
-
-    .. versionadded:: 0.7
-       The `static_url_path`, `static_folder`, and `template_folder`
-       parameters were added.
-
-    .. versionadded:: 0.8
-       The `instance_path` and `instance_relative_config` parameters were
-       added.
-
-    .. versionadded:: 0.11
-       The `root_path` parameter was added.
-
-    .. versionadded:: 1.0
-       The ``host_matching`` and ``static_host`` parameters were added.
-
-    .. versionadded:: 1.0
-       The ``subdomain_matching`` parameter was added. Subdomain
-       matching needs to be enabled manually now. Setting
-       :data:`SERVER_NAME` does not implicitly enable it.
-
-    :param import_name: the name of the application package
-    :param static_url_path: can be used to specify a different path for the
-                            static files on the web.  Defaults to the name
-                            of the `static_folder` folder.
-    :param static_folder: The folder with static files that is served at
-        ``static_url_path``. Relative to the application ``root_path``
-        or an absolute path. Defaults to ``'static'``.
-    :param static_host: the host to use when adding the static route.
-        Defaults to None. Required when using ``host_matching=True``
-        with a ``static_folder`` configured.
-    :param host_matching: set ``url_map.host_matching`` attribute.
-        Defaults to False.
-    :param subdomain_matching: consider the subdomain relative to
-        :data:`SERVER_NAME` when matching routes. Defaults to False.
-    :param template_folder: the folder that contains the templates that should
-                            be used by the application.  Defaults to
-                            ``'templates'`` folder in the root path of the
-                            application.
-    :param instance_path: An alternative instance path for the application.
-                          By default the folder ``'instance'`` next to the
-                          package or module is assumed to be the instance
-                          path.
-    :param instance_relative_config: if set to ``True`` relative filenames
-                                     for loading the config are assumed to
-                                     be relative to the instance path instead
-                                     of the application root.
-    :param root_path: The path to the root of the application files.
-        This should only be set manually when it can't be detected
-        automatically, such as for namespace packages.
-    """
-
-    #: The class of the object assigned to :attr:`aborter`, created by
-    #: :meth:`create_aborter`. That object is called by
-    #: :func:`flask.abort` to raise HTTP errors, and can be
-    #: called directly as well.
-    #:
-    #: Defaults to :class:`werkzeug.exceptions.Aborter`.
-    #:
-    #: .. versionadded:: 2.2
-    aborter_class = Aborter
-
-    #: The class that is used for the Jinja environment.
-    #:
-    #: .. versionadded:: 0.11
-    jinja_environment = Environment
-
-    #: The class that is used for the :data:`~flask.g` instance.
-    #:
-    #: Example use cases for a custom class:
-    #:
-    #: 1. Store arbitrary attributes on flask.g.
-    #: 2. Add a property for lazy per-request database connectors.
-    #: 3. Return None instead of AttributeError on unexpected attributes.
-    #: 4. Raise exception if an unexpected attr is set, a "controlled" flask.g.
-    #:
-    #: In Flask 0.9 this property was called `request_globals_class` but it
-    #: was changed in 0.10 to :attr:`app_ctx_globals_class` because the
-    #: flask.g object is now application context scoped.
-    #:
-    #: .. versionadded:: 0.10
-    app_ctx_globals_class = _AppCtxGlobals
-
-    #: The class that is used for the ``config`` attribute of this app.
-    #: Defaults to :class:`~flask.Config`.
-    #:
-    #: Example use cases for a custom class:
-    #:
-    #: 1. Default values for certain config options.
-    #: 2. Access to config values through attributes in addition to keys.
-    #:
-    #: .. versionadded:: 0.11
-    config_class = Config
-
-    #: The testing flag.  Set this to ``True`` to enable the test mode of
-    #: Flask extensions (and in the future probably also Flask itself).
-    #: For example this might activate test helpers that have an
-    #: additional runtime cost which should not be enabled by default.
-    #:
-    #: If this is enabled and PROPAGATE_EXCEPTIONS is not changed from the
-    #: default it's implicitly enabled.
-    #:
-    #: This attribute can also be configured from the config with the
-    #: ``TESTING`` configuration key.  Defaults to ``False``.
-    testing = ConfigAttribute[bool]("TESTING")
-
-    #: If a secret key is set, cryptographic components can use this to
-    #: sign cookies and other things. Set this to a complex random value
-    #: when you want to use the secure cookie for instance.
-    #:
-    #: This attribute can also be configured from the config with the
-    #: :data:`SECRET_KEY` configuration key. Defaults to ``None``.
-    secret_key = ConfigAttribute[t.Union[str, bytes, None]]("SECRET_KEY")
-
-    #: A :class:`~datetime.timedelta` which is used to set the expiration
-    #: date of a permanent session.  The default is 31 days which makes a
-    #: permanent session survive for roughly one month.
-    #:
-    #: This attribute can also be configured from the config with the
-    #: ``PERMANENT_SESSION_LIFETIME`` configuration key.  Defaults to
-    #: ``timedelta(days=31)``
-    permanent_session_lifetime = ConfigAttribute[timedelta](
-        "PERMANENT_SESSION_LIFETIME",
-        get_converter=_make_timedelta,  # type: ignore[arg-type]
-    )
-
-    json_provider_class: type[JSONProvider] = DefaultJSONProvider
-    """A subclass of :class:`~flask.json.provider.JSONProvider`. An
-    instance is created and assigned to :attr:`app.json` when creating
-    the app.
-
-    The default, :class:`~flask.json.provider.DefaultJSONProvider`, uses
-    Python's built-in :mod:`json` library. A different provider can use
-    a different JSON library.
-
-    .. versionadded:: 2.2
-    """
-
-    #: Options that are passed to the Jinja environment in
-    #: :meth:`create_jinja_environment`. Changing these options after
-    #: the environment is created (accessing :attr:`jinja_env`) will
-    #: have no effect.
-    #:
-    #: .. versionchanged:: 1.1.0
-    #:     This is a ``dict`` instead of an ``ImmutableDict`` to allow
-    #:     easier configuration.
-    #:
-    jinja_options: dict[str, t.Any] = {}
-
-    #: The rule object to use for URL rules created.  This is used by
-    #: :meth:`add_url_rule`.  Defaults to :class:`werkzeug.routing.Rule`.
-    #:
-    #: .. versionadded:: 0.7
-    url_rule_class = Rule
-
-    #: The map object to use for storing the URL rules and routing
-    #: configuration parameters. Defaults to :class:`werkzeug.routing.Map`.
-    #:
-    #: .. versionadded:: 1.1.0
-    url_map_class = Map
-
-    #: The :meth:`test_client` method creates an instance of this test
-    #: client class. Defaults to :class:`~flask.testing.FlaskClient`.
-    #:
-    #: .. versionadded:: 0.7
-    test_client_class: type[FlaskClient] | None = None
-
-    #: The :class:`~click.testing.CliRunner` subclass, by default
-    #: :class:`~flask.testing.FlaskCliRunner` that is used by
-    #: :meth:`test_cli_runner`. Its ``__init__`` method should take a
-    #: Flask app object as the first argument.
-    #:
-    #: .. versionadded:: 1.0
-    test_cli_runner_class: type[FlaskCliRunner] | None = None
-
-    default_config: dict[str, t.Any]
-    response_class: type[Response]
-
-    def __init__(
-        self,
-        import_name: str,
-        static_url_path: str | None = None,
-        static_folder: str | os.PathLike[str] | None = "static",
-        static_host: str | None = None,
-        host_matching: bool = False,
-        subdomain_matching: bool = False,
-        template_folder: str | os.PathLike[str] | None = "templates",
-        instance_path: str | None = None,
-        instance_relative_config: bool = False,
-        root_path: str | None = None,
-    ) -> None:
-        super().__init__(
-            import_name=import_name,
-            static_folder=static_folder,
-            static_url_path=static_url_path,
-            template_folder=template_folder,
-            root_path=root_path,
-        )
-
-        if instance_path is None:
-            instance_path = self.auto_find_instance_path()
-        elif not os.path.isabs(instance_path):
-            raise ValueError(
-                "If an instance path is provided it must be absolute."
-                " A relative path was given instead."
-            )
-
-        #: Holds the path to the instance folder.
-        #:
-        #: .. versionadded:: 0.8
-        self.instance_path = instance_path
-
-        #: The configuration dictionary as :class:`Config`.  This behaves
-        #: exactly like a regular dictionary but supports additional methods
-        #: to load a config from files.
-        self.config = self.make_config(instance_relative_config)
-
-        #: An instance of :attr:`aborter_class` created by
-        #: :meth:`make_aborter`. This is called by :func:`flask.abort`
-        #: to raise HTTP errors, and can be called directly as well.
-        #:
-        #: .. versionadded:: 2.2
-        #:     Moved from ``flask.abort``, which calls this object.
-        self.aborter = self.make_aborter()
-
-        self.json: JSONProvider = self.json_provider_class(self)
-        """Provides access to JSON methods. Functions in ``flask.json``
-        will call methods on this provider when the application context
-        is active. Used for handling JSON requests and responses.
-
-        An instance of :attr:`json_provider_class`. Can be customized by
-        changing that attribute on a subclass, or by assigning to this
-        attribute afterwards.
-
-        The default, :class:`~flask.json.provider.DefaultJSONProvider`,
-        uses Python's built-in :mod:`json` library. A different provider
-        can use a different JSON library.
-
-        .. versionadded:: 2.2
-        """
-
-        #: A list of functions that are called by
-        #: :meth:`handle_url_build_error` when :meth:`.url_for` raises a
-        #: :exc:`~werkzeug.routing.BuildError`. Each function is called
-        #: with ``error``, ``endpoint`` and ``values``. If a function
-        #: returns ``None`` or raises a ``BuildError``, it is skipped.
-        #: Otherwise, its return value is returned by ``url_for``.
-        #:
-        #: .. versionadded:: 0.9
-        self.url_build_error_handlers: list[
-            t.Callable[[Exception, str, dict[str, t.Any]], str]
-        ] = []
-
-        #: A list of functions that are called when the application context
-        #: is destroyed.  Since the application context is also torn down
-        #: if the request ends this is the place to store code that disconnects
-        #: from databases.
-        #:
-        #: .. versionadded:: 0.9
-        self.teardown_appcontext_funcs: list[ft.TeardownCallable] = []
-
-        #: A list of shell context processor functions that should be run
-        #: when a shell context is created.
-        #:
-        #: .. versionadded:: 0.11
-        self.shell_context_processors: list[ft.ShellContextProcessorCallable] = []
-
-        #: Maps registered blueprint names to blueprint objects. The
-        #: dict retains the order the blueprints were registered in.
-        #: Blueprints can be registered multiple times, this dict does
-        #: not track how often they were attached.
-        #:
-        #: .. versionadded:: 0.7
-        self.blueprints: dict[str, Blueprint] = {}
-
-        #: a place where extensions can store application specific state.  For
-        #: example this is where an extension could store database engines and
-        #: similar things.
-        #:
-        #: The key must match the name of the extension module. For example in
-        #: case of a "Flask-Foo" extension in `flask_foo`, the key would be
-        #: ``'foo'``.
-        #:
-        #: .. versionadded:: 0.7
-        self.extensions: dict[str, t.Any] = {}
-
-        #: The :class:`~werkzeug.routing.Map` for this instance.  You can use
-        #: this to change the routing converters after the class was created
-        #: but before any routes are connected.  Example::
-        #:
-        #:    from werkzeug.routing import BaseConverter
-        #:
-        #:    class ListConverter(BaseConverter):
-        #:        def to_python(self, value):
-        #:            return value.split(',')
-        #:        def to_url(self, values):
-        #:            return ','.join(super(ListConverter, self).to_url(value)
-        #:                            for value in values)
-        #:
-        #:    app = Flask(__name__)
-        #:    app.url_map.converters['list'] = ListConverter
-        self.url_map = self.url_map_class(host_matching=host_matching)
-
-        self.subdomain_matching = subdomain_matching
-
-        # tracks internally if the application already handled at least one
-        # request.
-        self._got_first_request = False
-
-    def _check_setup_finished(self, f_name: str) -> None:
-        if self._got_first_request:
-            raise AssertionError(
-                f"The setup method '{f_name}' can no longer be called"
-                " on the application. It has already handled its first"
-                " request, any changes will not be applied"
-                " consistently.\n"
-                "Make sure all imports, decorators, functions, etc."
-                " needed to set up the application are done before"
-                " running it."
-            )
-
-    @cached_property
-    def name(self) -> str:
-        """The name of the application.  This is usually the import name
-        with the difference that it's guessed from the run file if the
-        import name is main.  This name is used as a display name when
-        Flask needs the name of the application.  It can be set and overridden
-        to change the value.
-
-        .. versionadded:: 0.8
-        """
-        if self.import_name == "__main__":
-            fn: str | None = getattr(sys.modules["__main__"], "__file__", None)
-            if fn is None:
-                return "__main__"
-            return os.path.splitext(os.path.basename(fn))[0]
-        return self.import_name
-
-    @cached_property
-    def logger(self) -> logging.Logger:
-        """A standard Python :class:`~logging.Logger` for the app, with
-        the same name as :attr:`name`.
-
-        In debug mode, the logger's :attr:`~logging.Logger.level` will
-        be set to :data:`~logging.DEBUG`.
-
-        If there are no handlers configured, a default handler will be
-        added. See :doc:`/logging` for more information.
-
-        .. versionchanged:: 1.1.0
-            The logger takes the same name as :attr:`name` rather than
-            hard-coding ``"flask.app"``.
-
-        .. versionchanged:: 1.0.0
-            Behavior was simplified. The logger is always named
-            ``"flask.app"``. The level is only set during configuration,
-            it doesn't check ``app.debug`` each time. Only one format is
-            used, not different ones depending on ``app.debug``. No
-            handlers are removed, and a handler is only added if no
-            handlers are already configured.
-
-        .. versionadded:: 0.3
-        """
-        return create_logger(self)
-
-    @cached_property
-    def jinja_env(self) -> Environment:
-        """The Jinja environment used to load templates.
-
-        The environment is created the first time this property is
-        accessed. Changing :attr:`jinja_options` after that will have no
-        effect.
-        """
-        return self.create_jinja_environment()
-
-    def create_jinja_environment(self) -> Environment:
-        raise NotImplementedError()
-
-    def make_config(self, instance_relative: bool = False) -> Config:
-        """Used to create the config attribute by the Flask constructor.
-        The `instance_relative` parameter is passed in from the constructor
-        of Flask (there named `instance_relative_config`) and indicates if
-        the config should be relative to the instance path or the root path
-        of the application.
-
-        .. versionadded:: 0.8
-        """
-        root_path = self.root_path
-        if instance_relative:
-            root_path = self.instance_path
-        defaults = dict(self.default_config)
-        defaults["DEBUG"] = get_debug_flag()
-        return self.config_class(root_path, defaults)
-
-    def make_aborter(self) -> Aborter:
-        """Create the object to assign to :attr:`aborter`. That object
-        is called by :func:`flask.abort` to raise HTTP errors, and can
-        be called directly as well.
-
-        By default, this creates an instance of :attr:`aborter_class`,
-        which defaults to :class:`werkzeug.exceptions.Aborter`.
-
-        .. versionadded:: 2.2
-        """
-        return self.aborter_class()
-
-    def auto_find_instance_path(self) -> str:
-        """Tries to locate the instance path if it was not provided to the
-        constructor of the application class.  It will basically calculate
-        the path to a folder named ``instance`` next to your main file or
-        the package.
-
-        .. versionadded:: 0.8
-        """
-        prefix, package_path = find_package(self.import_name)
-        if prefix is None:
-            return os.path.join(package_path, "instance")
-        return os.path.join(prefix, "var", f"{self.name}-instance")
-
-    def create_global_jinja_loader(self) -> DispatchingJinjaLoader:
-        """Creates the loader for the Jinja environment.  Can be used to
-        override just the loader and keeping the rest unchanged.  It's
-        discouraged to override this function.  Instead one should override
-        the :meth:`jinja_loader` function instead.
-
-        The global loader dispatches between the loaders of the application
-        and the individual blueprints.
-
-        .. versionadded:: 0.7
-        """
-        return DispatchingJinjaLoader(self)
-
-    def select_jinja_autoescape(self, filename: str | None) -> bool:
-        """Returns ``True`` if autoescaping should be active for the given
-        template name. If no template name is given, returns `True`.
-
-        .. versionchanged:: 2.2
-            Autoescaping is now enabled by default for ``.svg`` files.
-
-        .. versionadded:: 0.5
-        """
-        if filename is None:
-            return True
-        return filename.endswith((".html", ".htm", ".xml", ".xhtml", ".svg"))
-
-    @property
-    def debug(self) -> bool:
-        """Whether debug mode is enabled. When using ``flask run`` to start the
-        development server, an interactive debugger will be shown for unhandled
-        exceptions, and the server will be reloaded when code changes. This maps to the
-        :data:`DEBUG` config key. It may not behave as expected if set late.
-
-        **Do not enable debug mode when deploying in production.**
-
-        Default: ``False``
-        """
-        return self.config["DEBUG"]  # type: ignore[no-any-return]
-
-    @debug.setter
-    def debug(self, value: bool) -> None:
-        self.config["DEBUG"] = value
-
-        if self.config["TEMPLATES_AUTO_RELOAD"] is None:
-            self.jinja_env.auto_reload = value
-
-    @setupmethod
-    def register_blueprint(self, blueprint: Blueprint, **options: t.Any) -> None:
-        """Register a :class:`~flask.Blueprint` on the application. Keyword
-        arguments passed to this method will override the defaults set on the
-        blueprint.
-
-        Calls the blueprint's :meth:`~flask.Blueprint.register` method after
-        recording the blueprint in the application's :attr:`blueprints`.
-
-        :param blueprint: The blueprint to register.
-        :param url_prefix: Blueprint routes will be prefixed with this.
-        :param subdomain: Blueprint routes will match on this subdomain.
-        :param url_defaults: Blueprint routes will use these default values for
-            view arguments.
-        :param options: Additional keyword arguments are passed to
-            :class:`~flask.blueprints.BlueprintSetupState`. They can be
-            accessed in :meth:`~flask.Blueprint.record` callbacks.
-
-        .. versionchanged:: 2.0.1
-            The ``name`` option can be used to change the (pre-dotted)
-            name the blueprint is registered with. This allows the same
-            blueprint to be registered multiple times with unique names
-            for ``url_for``.
-
-        .. versionadded:: 0.7
-        """
-        blueprint.register(self, options)
-
-    def iter_blueprints(self) -> t.ValuesView[Blueprint]:
-        """Iterates over all blueprints by the order they were registered.
-
-        .. versionadded:: 0.11
-        """
-        return self.blueprints.values()
-
-    @setupmethod
-    def add_url_rule(
-        self,
-        rule: str,
-        endpoint: str | None = None,
-        view_func: ft.RouteCallable | None = None,
-        provide_automatic_options: bool | None = None,
-        **options: t.Any,
-    ) -> None:
-        if endpoint is None:
-            endpoint = _endpoint_from_view_func(view_func)  # type: ignore
-        options["endpoint"] = endpoint
-        methods = options.pop("methods", None)
-
-        # if the methods are not given and the view_func object knows its
-        # methods we can use that instead.  If neither exists, we go with
-        # a tuple of only ``GET`` as default.
-        if methods is None:
-            methods = getattr(view_func, "methods", None) or ("GET",)
-        if isinstance(methods, str):
-            raise TypeError(
-                "Allowed methods must be a list of strings, for"
-                ' example: @app.route(..., methods=["POST"])'
-            )
-        methods = {item.upper() for item in methods}
-
-        # Methods that should always be added
-        required_methods: set[str] = set(getattr(view_func, "required_methods", ()))
-
-        # starting with Flask 0.8 the view_func object can disable and
-        # force-enable the automatic options handling.
-        if provide_automatic_options is None:
-            provide_automatic_options = getattr(
-                view_func, "provide_automatic_options", None
-            )
-
-        if provide_automatic_options is None:
-            if "OPTIONS" not in methods and self.config["PROVIDE_AUTOMATIC_OPTIONS"]:
-                provide_automatic_options = True
-                required_methods.add("OPTIONS")
-            else:
-                provide_automatic_options = False
-
-        # Add the required methods now.
-        methods |= required_methods
-
-        rule_obj = self.url_rule_class(rule, methods=methods, **options)
-        rule_obj.provide_automatic_options = provide_automatic_options  # type: ignore[attr-defined]
-
-        self.url_map.add(rule_obj)
-        if view_func is not None:
-            old_func = self.view_functions.get(endpoint)
-            if old_func is not None and old_func != view_func:
-                raise AssertionError(
-                    "View function mapping is overwriting an existing"
-                    f" endpoint function: {endpoint}"
+import threading
+import time
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
+# Asegurar que el directorio raíz del proyecto esté en sys.path
+PROJECT_DIR = Path(__file__).resolve().parent.parent
+if str(PROJECT_DIR) not in sys.path:
+    sys.path.insert(0, str(PROJECT_DIR))
+
+import gi
+gi.require_version('Gtk', '4.0')
+gi.require_version('Adw', '1')
+from gi.repository import Gtk, Adw, GLib, Gdk, Gio, Pango
+
+# Importación de subsistemas y controladores soberanos
+from core.os_controller import get_os_controller
+from core.hardware_controller import get_hardware_controller
+from core.network_controller import get_network_controller
+from core.traffic_monitor import get_traffic_monitor
+from core.offline_chat_vault import get_offline_chat_vault
+from core.thought_noise_engine import get_thought_noise_engine
+from core.background_thought_engine import get_background_thought_engine
+from engine.sovereign_client import get_sovereign_client
+from omni_temporal_control import process_hardware_chat_intent, CFG
+
+
+class NativeGiaWindow(Adw.ApplicationWindow):
+    """Ventana maestra nativa de GODWORKS SYSTEM."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.set_title("TARDIS · NEXO CRONO-NÁUTICO SOBERANO v26.4")
+        self.set_default_size(1280, 850)
+
+        # Cargar estilos cibernéticos personalizados
+        self._load_css()
+
+        # Controladores de estado
+        self.os_ctrl = get_os_controller()
+        self.hw_ctrl = get_hardware_controller()
+        self.net_ctrl = get_network_controller()
+        self.traffic_mon = get_traffic_monitor()
+        self.vault = get_offline_chat_vault()
+        self.thought_engine = get_thought_noise_engine()
+        self.bg_thought = get_background_thought_engine()
+        self.sovereign_client = get_sovereign_client()
+
+        self.current_cancel_event = threading.Event()
+        self.is_generating = False
+
+        # Construir estructura principal
+        self._build_ui()
+
+    def _load_css(self):
+        css_file = Path(__file__).parent / "cyber_theme.css"
+        if css_file.exists():
+            provider = Gtk.CssProvider()
+            provider.load_from_path(str(css_file))
+            display = Gdk.Display.get_default()
+            if display:
+                Gtk.StyleContext.add_provider_for_display(
+                    display, provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
                 )
-            self.view_functions[endpoint] = view_func
 
-    @setupmethod
-    def template_filter(
-        self, name: str | None = None
-    ) -> t.Callable[[T_template_filter], T_template_filter]:
-        """A decorator that is used to register custom template filter.
-        You can specify a name for the filter, otherwise the function
-        name will be used. Example::
+    def _build_ui(self):
+        # Contenedor raíz vertical
+        main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
+        self.set_content(main_box)
 
-          @app.template_filter()
-          def reverse(s):
-              return s[::-1]
+        # 1. Barra de Título / Encabezado
+        header = Adw.HeaderBar()
+        title_widget = Adw.WindowTitle(
+            title="TARDIS · NODO SOBERANO",
+            subtitle="SISTEMA TARDIS v26.4 · MODO NATIVO DESKTOP"
+        )
+        header.set_title_widget(title_widget)
 
-        :param name: the optional name of the filter, otherwise the
-                     function name will be used.
-        """
+        # Badges en HeaderBar
+        self.badge_status = Gtk.Label(label="⚡ SOBERANO LOCAL")
+        self.badge_status.add_css_class("badge-active")
+        header.pack_end(self.badge_status)
 
-        def decorator(f: T_template_filter) -> T_template_filter:
-            self.add_template_filter(f, name=name)
-            return f
+        btn_desktop_vault = Gtk.Button(label="💾 Bóveda Offline")
+        btn_desktop_vault.set_tooltip_text("Abre el archivo HTML autónomo del escritorio")
+        btn_desktop_vault.connect("clicked", lambda b: self._open_desktop_vault())
+        header.pack_end(btn_desktop_vault)
 
-        return decorator
+        main_box.append(header)
 
-    @setupmethod
-    def add_template_filter(
-        self, f: ft.TemplateFilterCallable, name: str | None = None
-    ) -> None:
-        """Register a custom template filter.  Works exactly like the
-        :meth:`template_filter` decorator.
+        # 2. Contenedor de Navegación (Sidebar + Stack)
+        split_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
+        split_box.set_vexpand(True)
+        split_box.set_hexpand(True)
+        main_box.append(split_box)
 
-        :param name: the optional name of the filter, otherwise the
-                     function name will be used.
-        """
-        self.jinja_env.filters[name or f.__name__] = f
+        self.stack = Gtk.Stack()
+        self.stack.set_transition_type(Gtk.StackTransitionType.CROSSFADE)
+        self.stack.set_transition_duration(200)
+        self.stack.set_vexpand(True)
+        self.stack.set_hexpand(True)
 
-    @setupmethod
-    def template_test(
-        self, name: str | None = None
-    ) -> t.Callable[[T_template_test], T_template_test]:
-        """A decorator that is used to register custom template test.
-        You can specify a name for the test, otherwise the function
-        name will be used. Example::
+        # Barra lateral nativa
+        sidebar = Gtk.StackSidebar()
+        sidebar.set_stack(self.stack)
+        sidebar.add_css_class("sidebar-view")
+        sidebar.set_size_request(240, -1)
+        split_box.append(sidebar)
+        split_box.append(self.stack)
 
-          @app.template_test()
-          def is_prime(n):
-              if n == 2:
-                  return True
-              for i in range(2, int(math.ceil(math.sqrt(n))) + 1):
-                  if n % i == 0:
-                      return False
-              return True
+        # 3. Construcción de Vistas
+        self._build_chat_view()
+        self._build_cognitive_view()
+        self._build_hardware_view()
+        self._build_security_view()
+        self._build_vault_view()
+        self._build_telemetry_view()
+        self._build_terminal_view()
 
-        .. versionadded:: 0.10
+    # =========================================================================
+    # 1. PESTAÑA: CHAT SOBERANO & INFERENCIA
+    # =========================================================================
+    def _build_chat_view(self):
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+        box.set_margin_top(12)
+        box.set_margin_bottom(12)
+        box.set_margin_start(16)
+        box.set_margin_end(16)
 
-        :param name: the optional name of the test, otherwise the
-                     function name will be used.
-        """
+        # Barra superior de configuración de inferencia
+        top_bar = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
+        top_bar.add_css_class("gia-card")
 
-        def decorator(f: T_template_test) -> T_template_test:
-            self.add_template_test(f, name=name)
-            return f
+        lbl_model = Gtk.Label(label="Modelo:")
+        lbl_model.add_css_class("chat-meta")
+        top_bar.append(lbl_model)
 
-        return decorator
+        self.model_combo = Gtk.DropDown.new_from_strings([
+            "dolphin3:latest", "hermes3:8b", "llama3.2:3b", "llama3:latest", "mistral:latest"
+        ])
+        top_bar.append(self.model_combo)
 
-    @setupmethod
-    def add_template_test(
-        self, f: ft.TemplateTestCallable, name: str | None = None
-    ) -> None:
-        """Register a custom template test.  Works exactly like the
-        :meth:`template_test` decorator.
+        lbl_temp = Gtk.Label(label="Temp:")
+        lbl_temp.add_css_class("chat-meta")
+        top_bar.append(lbl_temp)
 
-        .. versionadded:: 0.10
+        self.scale_temp = Gtk.Scale.new_with_range(Gtk.Orientation.HORIZONTAL, 0.0, 1.0, 0.05)
+        self.scale_temp.set_value(0.3)
+        self.scale_temp.set_size_request(120, -1)
+        top_bar.append(self.scale_temp)
 
-        :param name: the optional name of the test, otherwise the
-                     function name will be used.
-        """
-        self.jinja_env.tests[name or f.__name__] = f
+        self.chk_voice = Gtk.CheckButton(label="Sintetizar Voz (TTS)")
+        top_bar.append(self.chk_voice)
 
-    @setupmethod
-    def template_global(
-        self, name: str | None = None
-    ) -> t.Callable[[T_template_global], T_template_global]:
-        """A decorator that is used to register a custom template global function.
-        You can specify a name for the global function, otherwise the function
-        name will be used. Example::
+        self.lbl_rag_status = Gtk.Label(label="💾 RAG Offline: Activo")
+        self.lbl_rag_status.add_css_class("badge-active")
+        self.lbl_rag_status.set_hexpand(True)
+        self.lbl_rag_status.set_halign(Gtk.Align.END)
+        top_bar.append(self.lbl_rag_status)
 
-            @app.template_global()
-            def double(n):
-                return 2 * n
+        box.append(top_bar)
 
-        .. versionadded:: 0.10
+        # Transcripción de mensajes (ScrolledWindow)
+        self.chat_scroll = Gtk.ScrolledWindow()
+        self.chat_scroll.set_vexpand(True)
+        self.chat_scroll.set_hexpand(True)
+        self.chat_scroll.add_css_class("gia-card")
 
-        :param name: the optional name of the global function, otherwise the
-                     function name will be used.
-        """
+        self.chat_flow = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+        self.chat_flow.set_margin_top(12)
+        self.chat_flow.set_margin_bottom(12)
+        self.chat_flow.set_margin_start(12)
+        self.chat_flow.set_margin_end(12)
+        self.chat_scroll.set_child(self.chat_flow)
+        box.append(self.chat_scroll)
 
-        def decorator(f: T_template_global) -> T_template_global:
-            self.add_template_global(f, name=name)
-            return f
-
-        return decorator
-
-    @setupmethod
-    def add_template_global(
-        self, f: ft.TemplateGlobalCallable, name: str | None = None
-    ) -> None:
-        """Register a custom template global function. Works exactly like the
-        :meth:`template_global` decorator.
-
-        .. versionadded:: 0.10
-
-        :param name: the optional name of the global function, otherwise the
-                     function name will be used.
-        """
-        self.jinja_env.globals[name or f.__name__] = f
-
-    @setupmethod
-    def teardown_appcontext(self, f: T_teardown) -> T_teardown:
-        """Registers a function to be called when the application
-        context is popped. The application context is typically popped
-        after the request context for each request, at the end of CLI
-        commands, or after a manually pushed context ends.
-
-        .. code-block:: python
-
-            with app.app_context():
-                ...
-
-        When the ``with`` block exits (or ``ctx.pop()`` is called), the
-        teardown functions are called just before the app context is
-        made inactive. Since a request context typically also manages an
-        application context it would also be called when you pop a
-        request context.
-
-        When a teardown function was called because of an unhandled
-        exception it will be passed an error object. If an
-        :meth:`errorhandler` is registered, it will handle the exception
-        and the teardown will not receive it.
-
-        Teardown functions must avoid raising exceptions. If they
-        execute code that might fail they must surround that code with a
-        ``try``/``except`` block and log any errors.
-
-        The return values of teardown functions are ignored.
-
-        .. versionadded:: 0.9
-        """
-        self.teardown_appcontext_funcs.append(f)
-        return f
-
-    @setupmethod
-    def shell_context_processor(
-        self, f: T_shell_context_processor
-    ) -> T_shell_context_processor:
-        """Registers a shell context processor function.
-
-        .. versionadded:: 0.11
-        """
-        self.shell_context_processors.append(f)
-        return f
-
-    def _find_error_handler(
-        self, e: Exception, blueprints: list[str]
-    ) -> ft.ErrorHandlerCallable | None:
-        """Return a registered error handler for an exception in this order:
-        blueprint handler for a specific code, app handler for a specific code,
-        blueprint handler for an exception class, app handler for an exception
-        class, or ``None`` if a suitable handler is not found.
-        """
-        exc_class, code = self._get_exc_class_and_code(type(e))
-        names = (*blueprints, None)
-
-        for c in (code, None) if code is not None else (None,):
-            for name in names:
-                handler_map = self.error_handler_spec[name][c]
-
-                if not handler_map:
-                    continue
-
-                for cls in exc_class.__mro__:
-                    handler = handler_map.get(cls)
-
-                    if handler is not None:
-                        return handler
-        return None
-
-    def trap_http_exception(self, e: Exception) -> bool:
-        """Checks if an HTTP exception should be trapped or not.  By default
-        this will return ``False`` for all exceptions except for a bad request
-        key error if ``TRAP_BAD_REQUEST_ERRORS`` is set to ``True``.  It
-        also returns ``True`` if ``TRAP_HTTP_EXCEPTIONS`` is set to ``True``.
-
-        This is called for all HTTP exceptions raised by a view function.
-        If it returns ``True`` for any exception the error handler for this
-        exception is not called and it shows up as regular exception in the
-        traceback.  This is helpful for debugging implicitly raised HTTP
-        exceptions.
-
-        .. versionchanged:: 1.0
-            Bad request errors are not trapped by default in debug mode.
-
-        .. versionadded:: 0.8
-        """
-        if self.config["TRAP_HTTP_EXCEPTIONS"]:
-            return True
-
-        trap_bad_request = self.config["TRAP_BAD_REQUEST_ERRORS"]
-
-        # if unset, trap key errors in debug mode
-        if (
-            trap_bad_request is None
-            and self.debug
-            and isinstance(e, BadRequestKeyError)
-        ):
-            return True
-
-        if trap_bad_request:
-            return isinstance(e, BadRequest)
-
-        return False
-
-    def should_ignore_error(self, error: BaseException | None) -> bool:
-        """This is called to figure out if an error should be ignored
-        or not as far as the teardown system is concerned.  If this
-        function returns ``True`` then the teardown handlers will not be
-        passed the error.
-
-        .. versionadded:: 0.10
-        """
-        return False
-
-    def redirect(self, location: str, code: int = 302) -> BaseResponse:
-        """Create a redirect response object.
-
-        This is called by :func:`flask.redirect`, and can be called
-        directly as well.
-
-        :param location: The URL to redirect to.
-        :param code: The status code for the redirect.
-
-        .. versionadded:: 2.2
-            Moved from ``flask.redirect``, which calls this method.
-        """
-        return _wz_redirect(
-            location,
-            code=code,
-            Response=self.response_class,  # type: ignore[arg-type]
+        # Mensaje de bienvenida inicial
+        self._append_chat_bubble(
+            "system",
+            "🚀 **TARDIS Sistema Nativo Iniciado** · Conexión directa a Ollama y memoria SQLite FTS5 activa.\n"
+            "Escribe cualquier instrucción o comando soberano (`/status`, `/lock`, `/vol`, `/ayuda`, etc.)."
         )
 
-    def inject_url_defaults(self, endpoint: str, values: dict[str, t.Any]) -> None:
-        """Injects the URL defaults for the given endpoint directly into
-        the values dictionary passed.  This is used internally and
-        automatically called on URL building.
+        # Barra inferior de entrada
+        input_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
+        input_box.set_margin_top(4)
 
-        .. versionadded:: 0.7
-        """
-        names: t.Iterable[str | None] = (None,)
+        self.chat_input = Gtk.Entry()
+        self.chat_input.set_placeholder_text("Escribe una instrucción, consulta o comando soberano...")
+        self.chat_input.set_hexpand(True)
+        self.chat_input.connect("activate", lambda e: self._send_chat_message())
+        input_box.append(self.chat_input)
 
-        # url_for may be called outside a request context, parse the
-        # passed endpoint instead of using request.blueprints.
-        if "." in endpoint:
-            names = chain(
-                names, reversed(_split_blueprint_path(endpoint.rpartition(".")[0]))
+        self.btn_send = Gtk.Button(label="ENVIAR")
+        self.btn_send.add_css_class("btn-primary")
+        self.btn_send.connect("clicked", lambda b: self._send_chat_message())
+        input_box.append(self.btn_send)
+
+        self.btn_cancel = Gtk.Button(label="CANCELAR")
+        self.btn_cancel.add_css_class("btn-danger")
+        self.btn_cancel.set_sensitive(False)
+        self.btn_cancel.connect("clicked", lambda b: self._cancel_chat_inference())
+        input_box.append(self.btn_cancel)
+
+        box.append(input_box)
+        self.stack.add_titled(box, "chat", "💬 Chat Soberano")
+
+    def _append_chat_bubble(self, role: str, text: str, model_info: str = ""):
+        bubble = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
+        if role == "user":
+            bubble.add_css_class("chat-bubble-user")
+            header_text = f"👤 Usuario · {datetime.datetime.now().strftime('%H:%M:%S')}"
+        elif role == "assistant":
+            bubble.add_css_class("chat-bubble-assistant")
+            header_text = f"🤖 {model_info or 'Dolphin 3.0'} · {datetime.datetime.now().strftime('%H:%M:%S')}"
+        else:
+            bubble.add_css_class("chat-bubble-system")
+            header_text = "⚙️ Sistema Soberano"
+
+        lbl_hdr = Gtk.Label(label=header_text)
+        lbl_hdr.set_halign(Gtk.Align.START)
+        lbl_hdr.add_css_class("chat-meta")
+        bubble.append(lbl_hdr)
+
+        lbl_body = Gtk.Label()
+        lbl_body.set_wrap(True)
+        lbl_body.set_wrap_mode(Pango.WrapMode.WORD_CHAR)
+        lbl_body.set_selectable(True)
+        lbl_body.set_halign(Gtk.Align.START)
+
+        # Formatear markdown básico en Pango markup seguro
+        clean_text = text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+        formatted = re.sub(r"\*\*(.*?)\*\*", r"<b>\1</b>", clean_text)
+        formatted = re.sub(r"__(.*?)__", r"<i>\1</i>", formatted)
+        formatted = re.sub(r"`(.*?)`", r"<tt>\1</tt>", formatted)
+        try:
+            lbl_body.set_markup(formatted)
+        except Exception:
+            lbl_body.set_text(text)
+
+        bubble.append(lbl_body)
+        self.chat_flow.append(bubble)
+
+        # Scroll automático al final
+        GLib.idle_add(self._scroll_chat_to_bottom)
+        return lbl_body
+
+    def _scroll_chat_to_bottom(self):
+        adj = self.chat_scroll.get_vadjustment()
+        if adj:
+            adj.set_value(adj.get_upper() - adj.get_page_size())
+        return False
+
+    def _send_chat_message(self):
+        text = self.chat_input.get_text().strip()
+        if not text or self.is_generating:
+            return
+
+        self.chat_input.set_text("")
+        self._append_chat_bubble("user", text)
+
+        # Verificar si es comando de hardware / slash directo
+        hw_res = process_hardware_chat_intent(text)
+        if hw_res and hw_res.get("direct_return"):
+            feedback = hw_res.get("system_feedback", "Comando ejecutado.")
+            self._append_chat_bubble("system", feedback)
+            self.vault.record_turn(
+                user_message=text,
+                assistant_reply=feedback,
+                model="hardware_controller",
+                hardware_action=hw_res.get("action")
             )
+            return
 
-        for name in names:
-            if name in self.url_default_functions:
-                for func in self.url_default_functions[name]:
-                    func(endpoint, values)
+        # Preparar inferencia en hilo secundario
+        self.is_generating = True
+        self.btn_send.set_sensitive(False)
+        self.btn_cancel.set_sensitive(True)
+        self.current_cancel_event.clear()
 
-    def handle_url_build_error(
-        self, error: BuildError, endpoint: str, values: dict[str, t.Any]
-    ) -> str:
-        """Called by :meth:`.url_for` if a
-        :exc:`~werkzeug.routing.BuildError` was raised. If this returns
-        a value, it will be returned by ``url_for``, otherwise the error
-        will be re-raised.
+        model_name = self.model_combo.get_selected_item().get_string()
+        temp_val = float(self.scale_temp.get_value())
+        use_voice = self.chk_voice.get_active()
 
-        Each function in :attr:`url_build_error_handlers` is called with
-        ``error``, ``endpoint`` and ``values``. If a function returns
-        ``None`` or raises a ``BuildError``, it is skipped. Otherwise,
-        its return value is returned by ``url_for``.
+        # Inyectar memoria histórica offline (RAG)
+        rag_ctx = self.vault.get_context_for_prompt(text, k_relevant=3, n_recent=2)
 
-        :param error: The active ``BuildError`` being handled.
-        :param endpoint: The endpoint being built.
-        :param values: The keyword arguments passed to ``url_for``.
-        """
-        for handler in self.url_build_error_handlers:
+        thread = threading.Thread(
+            target=self._run_inference_worker,
+            args=(text, model_name, temp_val, rag_ctx, use_voice),
+            daemon=True
+        )
+        thread.start()
+
+    def _run_inference_worker(self, prompt: str, model: str, temp: float, rag_ctx: str, use_voice: bool):
+        sys_prompt = (
+            "Eres GIA (General Intelligence Autonomous), la entidad soberana de inferencia y control "
+            "de hardware de GODWORKS SYSTEM v26.4. Responde con concisión técnica, calidez y precisión impecable.\n\n"
+        )
+        if rag_ctx:
+            sys_prompt += rag_ctx + "\n\n"
+
+        messages = [
+            {"role": "system", "content": sys_prompt},
+            {"role": "user", "content": prompt}
+        ]
+
+        # Crear burbuja del asistente vacía para streaming
+        lbl_target = [None]
+        def create_target():
+            lbl_target[0] = self._append_chat_bubble("assistant", "...", model_info=model)
+            return False
+        GLib.idle_add(create_target)
+
+        while lbl_target[0] is None:
+            time.sleep(0.02)
+
+        accumulated = []
+        try:
+            for chunk in self.sovereign_client.chat_stream(
+                messages=messages,
+                model=model,
+                temperature=temp,
+                cancel_event=self.current_cancel_event
+            ):
+                if self.current_cancel_event.is_set():
+                    break
+                accumulated.append(chunk)
+                current_text = "".join(accumulated)
+                
+                # Actualizar etiqueta en UI
+                def update_label(txt=current_text):
+                    clean = txt.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+                    try:
+                        lbl_target[0].set_markup(clean)
+                    except Exception:
+                        lbl_target[0].set_text(txt)
+                    self._scroll_chat_to_bottom()
+                    return False
+                GLib.idle_add(update_label)
+
+        except Exception as e:
+            accumulated.append(f"\n[Error de inferencia: {e}]")
+            GLib.idle_add(lambda: lbl_target[0].set_text("".join(accumulated)))
+
+        final_reply = "".join(accumulated).strip() or "(Respuesta vacía o cancelada)"
+
+        # Registrar en la bóveda de chats offline permanentemente
+        self.vault.record_turn(
+            user_message=prompt,
+            assistant_reply=final_reply,
+            model=model,
+            provider="GIA Nativo Desktop",
+            direction="present"
+        )
+
+        # Síntesis de voz opcional
+        if use_voice and final_reply and not self.current_cancel_event.is_set():
+            clean_speech = final_reply.replace("*", "").replace("#", "").strip()[:400]
+            self.os_ctrl.speak(clean_speech)
+
+        # Restaurar estado de controles
+        def finish():
+            self.is_generating = False
+            self.btn_send.set_sensitive(True)
+            self.btn_cancel.set_sensitive(False)
+            return False
+        GLib.idle_add(finish)
+
+    def _cancel_chat_inference(self):
+        if self.is_generating:
+            self.current_cancel_event.set()
+            self._append_chat_bubble("system", "⛔ Inferencia cancelada por el usuario.")
+            self.is_generating = False
+            self.btn_send.set_sensitive(True)
+            self.btn_cancel.set_sensitive(False)
+
+    # =========================================================================
+    # 2. PESTAÑA: METAPENSAMIENTO & ESPECTRO COGNITIVO
+    # =========================================================================
+    def _build_cognitive_view(self):
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=14)
+        box.set_margin_top(16)
+        box.set_margin_bottom(16)
+        box.set_margin_start(16)
+        box.set_margin_end(16)
+
+        # Tarjeta del espectro gráfico
+        card_spectrum = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
+        card_spectrum.add_css_class("gia-card")
+
+        lbl_spec_title = Gtk.Label(label="⚡ ESPECTRO DE RUIDO Y FRECUENCIA COGNITIVA (TIEMPO REAL)")
+        lbl_spec_title.add_css_class("gia-card-header")
+        lbl_spec_title.set_halign(Gtk.Align.START)
+        card_spectrum.append(lbl_spec_title)
+
+        # Área de dibujo Cairo nativa
+        self.spectrum_area = Gtk.DrawingArea()
+        self.spectrum_area.set_size_request(-1, 180)
+        self.spectrum_area.set_draw_func(self._draw_spectrum)
+        card_spectrum.append(self.spectrum_area)
+
+        # Controles y estimulación
+        btn_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
+        btn_box.set_margin_top(8)
+
+        btn_stimulate = Gtk.Button(label="🧠 Estimular Metapensamiento")
+        btn_stimulate.add_css_class("btn-primary")
+        btn_stimulate.connect("clicked", lambda b: self._stimulate_metathought())
+        btn_box.append(btn_stimulate)
+
+        self.lbl_psi = Gtk.Label(label="Coherencia Ψ: 0.892 | Entropía: Mínima")
+        self.lbl_psi.add_css_class("badge-active")
+        btn_box.append(self.lbl_psi)
+
+        card_spectrum.append(btn_box)
+        box.append(card_spectrum)
+
+        # Flujo de preguntas en segundo plano
+        card_questions = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
+        card_questions.add_css_class("gia-card")
+        card_questions.set_vexpand(True)
+
+        lbl_q_title = Gtk.Label(label="🌊 FLUJO DE PREGUNTAS & SÍNTESIS COGNITIVA EN SEGUNDO PLANO")
+        lbl_q_title.add_css_class("gia-card-header")
+        lbl_q_title.set_halign(Gtk.Align.START)
+        card_questions.append(lbl_q_title)
+
+        self.thought_scrolled = Gtk.ScrolledWindow()
+        self.thought_scrolled.set_vexpand(True)
+
+        self.thought_list = Gtk.ListBox()
+        self.thought_list.set_selection_mode(Gtk.SelectionMode.NONE)
+        self.thought_scrolled.set_child(self.thought_list)
+        card_questions.append(self.thought_scrolled)
+
+        box.append(card_questions)
+        self.stack.add_titled(box, "cognitive", "🧠 Metapensamiento")
+
+        # Animación continua del espectro (30 FPS)
+        self.spectrum_phase = 0.0
+        GLib.timeout_add(50, self._tick_spectrum)
+        GLib.timeout_add(4000, self._refresh_thoughts)
+
+    def _tick_spectrum(self):
+        self.spectrum_phase += 0.12
+        self.spectrum_area.queue_draw()
+        return True
+
+    def _draw_spectrum(self, area, cr, width, height):
+        # Fondo oscuro del espectrograma
+        cr.set_source_rgb(0.02, 0.04, 0.07)
+        cr.rectangle(0, 0, width, height)
+        cr.fill()
+
+        # Cuadrícula
+        cr.set_source_rgba(0.12, 0.16, 0.24, 0.4)
+        cr.set_line_width(1.0)
+        for x in range(0, int(width), 40):
+            cr.move_to(x, 0)
+            cr.line_to(x, height)
+        for y in range(0, int(height), 30):
+            cr.move_to(0, y)
+            cr.line_to(width, y)
+        cr.stroke()
+
+        # Onda Sintrópica Principal (Cian / Esmeralda)
+        cr.set_source_rgba(0.0, 1.0, 0.66, 0.85)
+        cr.set_line_width(2.5)
+        mid_y = height / 2.0
+        cr.move_to(0, mid_y)
+        for x in range(0, int(width), 4):
+            val = (
+                math.sin((x * 0.03) + self.spectrum_phase) * 35.0 +
+                math.sin((x * 0.07) - self.spectrum_phase * 1.5) * 15.0 +
+                math.cos((x * 0.015) + self.spectrum_phase * 0.5) * 20.0
+            )
+            cr.line_to(x, mid_y + val)
+        cr.stroke()
+
+        # Onda Armónica Secundaria (Magenta / Neón)
+        cr.set_source_rgba(1.0, 0.0, 0.35, 0.5)
+        cr.set_line_width(1.5)
+        cr.move_to(0, mid_y)
+        for x in range(0, int(width), 6):
+            val = math.sin((x * 0.04) - self.spectrum_phase * 0.8) * 25.0
+            cr.line_to(x, mid_y + val)
+        cr.stroke()
+
+    def _stimulate_metathought(self):
+        def worker():
             try:
-                rv = handler(error, endpoint, values)
-            except BuildError as e:
-                # make error available outside except block
-                error = e
+                self.thought_engine.stimulate()
+                self._refresh_thoughts()
+            except Exception:
+                pass
+        threading.Thread(target=worker, daemon=True).start()
+
+    def _refresh_thoughts(self):
+        try:
+            questions = self.bg_thought.get_recent_questions(limit=8)
+            def update():
+                # Limpiar lista previa
+                while True:
+                    row = self.thought_list.get_row_at_index(0)
+                    if row is None:
+                        break
+                    self.thought_list.remove(row)
+
+                if not questions:
+                    row = Gtk.ListBoxRow()
+                    lbl = Gtk.Label(label="* Sin metapensamientos activos en cola. Pulsa 'Estimular'. *")
+                    lbl.add_css_class("chat-meta")
+                    row.set_child(lbl)
+                    self.thought_list.append(row)
+                else:
+                    for q in questions:
+                        row = Gtk.ListBoxRow()
+                        rbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
+                        rbox.set_margin_top(6)
+                        rbox.set_margin_bottom(6)
+                        rbox.set_margin_start(8)
+                        rbox.set_margin_end(8)
+
+                        badge = Gtk.Label(label="🧠 PREGUNTA")
+                        badge.add_css_class("badge-active")
+                        rbox.append(badge)
+
+                        lbl_text = Gtk.Label(label=q.get("question", ""))
+                        lbl_text.set_wrap(True)
+                        lbl_text.set_halign(Gtk.Align.START)
+                        rbox.append(lbl_text)
+
+                        row.set_child(rbox)
+                        self.thought_list.append(row)
+                return False
+            GLib.idle_add(update)
+        except Exception:
+            pass
+        return True
+
+    # =========================================================================
+    # 3. PESTAÑA: CONTROL FÍSICO & HARDWARE
+    # =========================================================================
+    def _build_hardware_view(self):
+        scrolled = Gtk.ScrolledWindow()
+        scrolled.set_vexpand(True)
+        scrolled.set_hexpand(True)
+
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=16)
+        box.set_margin_top(16)
+        box.set_margin_bottom(16)
+        box.set_margin_start(16)
+        box.set_margin_end(16)
+        scrolled.set_child(box)
+
+        # 1. Pantalla & Bloqueo
+        card_disp = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
+        card_disp.add_css_class("gia-card")
+        lbl_d = Gtk.Label(label="🖥️ PANTALLA & CONTROL DE ACCESO INMEDIATO")
+        lbl_d.add_css_class("gia-card-header")
+        lbl_d.set_halign(Gtk.Align.START)
+        card_disp.append(lbl_d)
+
+        btn_box_disp = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
+        btn_lock = Gtk.Button(label="🔒 Bloquear Pantalla (Uinput)")
+        btn_lock.add_css_class("btn-warning")
+        btn_lock.connect("clicked", lambda b: self._execute_hw_action("lock_screen"))
+        btn_box_disp.append(btn_lock)
+
+        btn_unlock = Gtk.Button(label="🔓 Desbloquear Pantalla")
+        btn_unlock.add_css_class("btn-primary")
+        btn_unlock.connect("clicked", lambda b: self._execute_hw_action("unlock_screen"))
+        btn_box_disp.append(btn_unlock)
+
+        card_disp.append(btn_box_disp)
+        box.append(card_disp)
+
+        # 2. Audio & Multimedia PipeWire
+        card_audio = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
+        card_audio.add_css_class("gia-card")
+        lbl_a = Gtk.Label(label="🔊 MULTIMEDIA & AUDIO (PIPEWIRE / ALSA)")
+        lbl_a.add_css_class("gia-card-header")
+        lbl_a.set_halign(Gtk.Align.START)
+        card_audio.append(lbl_a)
+
+        audio_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=16)
+        lbl_vol = Gtk.Label(label="Volumen:")
+        audio_row.append(lbl_vol)
+
+        self.scale_volume = Gtk.Scale.new_with_range(Gtk.Orientation.HORIZONTAL, 0, 100, 1)
+        self.scale_volume.set_value(75)
+        self.scale_volume.set_hexpand(True)
+        self.scale_volume.connect("value-changed", self._on_volume_changed)
+        audio_row.append(self.scale_volume)
+
+        btn_mute = Gtk.Button(label="🔇 Alternar Silencio")
+        btn_mute.connect("clicked", lambda b: self._execute_hw_action("toggle_mute"))
+        audio_row.append(btn_mute)
+
+        card_audio.append(audio_row)
+        box.append(card_audio)
+
+        # 3. Teclado & Retroiluminación
+        card_kbd = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
+        card_kbd.add_css_class("gia-card")
+        lbl_k = Gtk.Label(label="⌨️ RETROILUMINACIÓN DE TECLADO")
+        lbl_k.add_css_class("gia-card-header")
+        lbl_k.set_halign(Gtk.Align.START)
+        card_kbd.append(lbl_k)
+
+        kbd_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
+        for level in [0, 1, 2, 3]:
+            btn_lvl = Gtk.Button(label=f"Nivel {level}")
+            btn_lvl.connect("clicked", lambda b, lvl=level: self._set_keyboard_level(lvl))
+            kbd_row.append(btn_lvl)
+        card_kbd.append(kbd_row)
+        box.append(card_kbd)
+
+        # 4. Visor de Capturas & Visión
+        card_vision = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
+        card_vision.add_css_class("gia-card")
+        lbl_v = Gtk.Label(label="📷 VISIÓN EN VIVO & CAPTURA DE PANTALLA")
+        lbl_v.add_css_class("gia-card-header")
+        lbl_v.set_halign(Gtk.Align.START)
+        card_vision.append(lbl_v)
+
+        vis_btn_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
+        btn_shot = Gtk.Button(label="📸 Capturar Pantalla")
+        btn_shot.add_css_class("btn-primary")
+        btn_shot.connect("clicked", lambda b: self._take_screenshot())
+        vis_btn_box.append(btn_shot)
+
+        self.lbl_shot_status = Gtk.Label(label="Sin capturas recientes")
+        self.lbl_shot_status.add_css_class("chat-meta")
+        vis_btn_box.append(self.lbl_shot_status)
+        card_vision.append(vis_btn_box)
+
+        # Previsualizador nativo de imagen
+        self.pic_preview = Gtk.Picture()
+        self.pic_preview.set_size_request(-1, 220)
+        self.pic_preview.set_can_shrink(True)
+        card_vision.append(self.pic_preview)
+
+        box.append(card_vision)
+
+        # 5. Energía & Sistema
+        card_power = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
+        card_power.add_css_class("gia-card")
+        lbl_p = Gtk.Label(label="⚡ GESTIÓN DE ENERGÍA Y REINICIO")
+        lbl_p.add_css_class("gia-card-header")
+        lbl_p.set_halign(Gtk.Align.START)
+        card_power.append(lbl_p)
+
+        pwr_btn_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
+        btn_reboot = Gtk.Button(label="🔄 Reiniciar Sistema")
+        btn_reboot.add_css_class("btn-danger")
+        btn_reboot.connect("clicked", lambda b: self._execute_hw_action("reboot"))
+        pwr_btn_box.append(btn_reboot)
+
+        btn_poweroff = Gtk.Button(label="🛑 Apagar Sistema")
+        btn_poweroff.add_css_class("btn-danger")
+        btn_poweroff.connect("clicked", lambda b: self._execute_hw_action("poweroff"))
+        pwr_btn_box.append(btn_poweroff)
+
+        card_power.append(pwr_btn_box)
+        box.append(card_power)
+
+        self.stack.add_titled(scrolled, "hardware", "🎛️ Hardware & Sensores")
+
+    def _execute_hw_action(self, action: str):
+        def worker():
+            if action == "lock_screen":
+                self.os_ctrl.lock_screen()
+            elif action == "unlock_screen":
+                self.os_ctrl.unlock_screen()
+            elif action == "toggle_mute":
+                self.os_ctrl.toggle_mute()
+            elif action == "reboot":
+                self.os_ctrl.reboot()
+            elif action == "poweroff":
+                self.os_ctrl.poweroff()
+        threading.Thread(target=worker, daemon=True).start()
+
+    def _on_volume_changed(self, scale):
+        vol = int(scale.get_value())
+        def worker():
+            self.os_ctrl.set_volume(vol)
+        threading.Thread(target=worker, daemon=True).start()
+
+    def _set_keyboard_level(self, level: int):
+        def worker():
+            self.os_ctrl.set_keyboard_backlight(level)
+        threading.Thread(target=worker, daemon=True).start()
+
+    def _take_screenshot(self):
+        self.lbl_shot_status.set_text("Capturando pantalla...")
+        def worker():
+            shot_file = PROJECT_DIR / "data" / "screenshot_reciente.png"
+            shot_file.parent.mkdir(parents=True, exist_ok=True)
+            res = self.os_ctrl.take_screenshot(str(shot_file))
+            if shot_file.exists():
+                gfile = Gio.File.new_for_path(str(shot_file))
+                GLib.idle_add(lambda: self.pic_preview.set_file(gfile))
+                GLib.idle_add(lambda: self.lbl_shot_status.set_text(f"Captura guardada: {shot_file.name}"))
             else:
-                if rv is not None:
-                    return rv
+                GLib.idle_add(lambda: self.lbl_shot_status.set_text(f"Fallo en captura: {res.get('error', 'Desconocido')}"))
+        threading.Thread(target=worker, daemon=True).start()
 
-        # Re-raise if called with an active exception, otherwise raise
-        # the passed in exception.
-        if error is sys.exc_info()[1]:
-            raise
+    # =========================================================================
+    # 4. PESTAÑA: SEGURIDAD & AUDITORÍA DE RED
+    # =========================================================================
+    def _build_security_view(self):
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=14)
+        box.set_margin_top(16)
+        box.set_margin_bottom(16)
+        box.set_margin_start(16)
+        box.set_margin_end(16)
 
-        raise error
+        # Controles y Resumen
+        top_card = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
+        top_card.add_css_class("gia-card")
+
+        btn_scan = Gtk.Button(label="🔍 Escanear Red Wi-Fi")
+        btn_scan.add_css_class("btn-primary")
+        btn_scan.connect("clicked", lambda b: self._scan_wifi_network())
+        top_card.append(btn_scan)
+
+        self.lbl_net_stats = Gtk.Label(label="Clientes: Calculando... | Rogue Devices: 0")
+        self.lbl_net_stats.add_css_class("badge-active")
+        top_card.append(self.lbl_net_stats)
+
+        btn_hotspot = Gtk.Button(label="📡 Hotspot TimeMachine")
+        btn_hotspot.connect("clicked", lambda b: self._toggle_hotspot())
+        top_card.append(btn_hotspot)
+
+        box.append(top_card)
+
+        # Tabla de Dispositivos Conectados
+        card_table = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
+        card_table.add_css_class("gia-card")
+        card_table.set_vexpand(True)
+
+        lbl_t = Gtk.Label(label="🛡️ DISPOSITIVOS CONECTADOS & ANÁLISIS DE TRÁFICO")
+        lbl_t.add_css_class("gia-card-header")
+        lbl_t.set_halign(Gtk.Align.START)
+        card_table.append(lbl_t)
+
+        scrolled_table = Gtk.ScrolledWindow()
+        scrolled_table.set_vexpand(True)
+
+        self.net_list = Gtk.ListBox()
+        self.net_list.set_selection_mode(Gtk.SelectionMode.NONE)
+        scrolled_table.set_child(self.net_list)
+        card_table.append(scrolled_table)
+
+        box.append(card_table)
+        self.stack.add_titled(box, "security", "🛡️ Seguridad & Red")
+
+        # Escaneo inicial automático
+        GLib.timeout_add(1000, self._scan_wifi_network)
+
+    def _scan_wifi_network(self):
+        def worker():
+            try:
+                clients = self.net_ctrl.get_connected_clients()
+                def update():
+                    while True:
+                        row = self.net_list.get_row_at_index(0)
+                        if row is None:
+                            break
+                        self.net_list.remove(row)
+
+                    count = len(clients)
+                    self.lbl_net_stats.set_text(f"Dispositivos Conectados: {count} | Escaneo Activo")
+
+                    if not clients:
+                        row = Gtk.ListBoxRow()
+                        lbl = Gtk.Label(label="* No se detectaron dispositivos o escaneo en progreso *")
+                        lbl.add_css_class("chat-meta")
+                        row.set_child(lbl)
+                        self.net_list.append(row)
+                    else:
+                        for c in clients:
+                            row = Gtk.ListBoxRow()
+                            rbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=14)
+                            rbox.set_margin_top(8)
+                            rbox.set_margin_bottom(8)
+                            rbox.set_margin_start(10)
+                            rbox.set_margin_end(10)
+
+                            lbl_ip = Gtk.Label(label=f"IP: {c.get('ip', 'N/A')}")
+                            lbl_ip.add_css_class("badge-active")
+                            rbox.append(lbl_ip)
+
+                            lbl_mac = Gtk.Label(label=f"MAC: {c.get('mac', 'N/A')}")
+                            lbl_mac.add_css_class("chat-meta")
+                            rbox.append(lbl_mac)
+
+                            lbl_host = Gtk.Label(label=f"Host: {c.get('hostname', 'Desconocido')}")
+                            lbl_host.set_hexpand(True)
+                            lbl_host.set_halign(Gtk.Align.START)
+                            rbox.append(lbl_host)
+
+                            row.set_child(rbox)
+                            self.net_list.append(row)
+                    return False
+                GLib.idle_add(update)
+            except Exception:
+                pass
+        threading.Thread(target=worker, daemon=True).start()
+        return False
+
+    def _toggle_hotspot(self):
+        def worker():
+            try:
+                self.net_ctrl.start_hotspot()
+            except Exception:
+                pass
+        threading.Thread(target=worker, daemon=True).start()
+
+    # =========================================================================
+    # 5. PESTAÑA: BÓVEDA DE CHATS OFFLINE
+    # =========================================================================
+    def _build_vault_view(self):
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
+        box.set_margin_top(16)
+        box.set_margin_bottom(16)
+        box.set_margin_start(16)
+        box.set_margin_end(16)
+
+        # Barra de búsqueda FTS5 y herramientas de exportación
+        search_card = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
+        search_card.add_css_class("gia-card")
+
+        self.vault_search = Gtk.SearchEntry()
+        self.vault_search.set_placeholder_text("Buscar en toda la memoria offline (FTS5 BM25)...")
+        self.vault_search.set_hexpand(True)
+        self.vault_search.connect("search-changed", self._on_vault_search_changed)
+        search_card.append(self.vault_search)
+
+        btn_export_md = Gtk.Button(label="📄 Exportar Markdown")
+        btn_export_md.connect("clicked", lambda b: self._export_vault_markdown())
+        search_card.append(btn_export_md)
+
+        btn_export_json = Gtk.Button(label="💾 Exportar JSON")
+        btn_export_json.connect("clicked", lambda b: self._export_vault_json())
+        search_card.append(btn_export_json)
+
+        box.append(search_card)
+
+        # Lista de turnos recuperados
+        scrolled = Gtk.ScrolledWindow()
+        scrolled.set_vexpand(True)
+        scrolled.add_css_class("gia-card")
+
+        self.vault_list = Gtk.ListBox()
+        self.vault_list.set_selection_mode(Gtk.SelectionMode.SINGLE)
+        scrolled.set_child(self.vault_list)
+        box.append(scrolled)
+
+        self.stack.add_titled(box, "vault", "💾 Bóveda Offline")
+        self._load_vault_turns()
+
+    def _load_vault_turns(self, query: str = ""):
+        def worker():
+            if query:
+                turns = self.vault.search(query, limit=50)
+            else:
+                turns = self.vault.get_recent(limit=50)
+
+            def update():
+                while True:
+                    row = self.vault_list.get_row_at_index(0)
+                    if row is None:
+                        break
+                    self.vault_list.remove(row)
+
+                if not turns:
+                    row = Gtk.ListBoxRow()
+                    lbl = Gtk.Label(label="* No se encontraron turnos en la bóveda *")
+                    lbl.add_css_class("chat-meta")
+                    row.set_child(lbl)
+                    self.vault_list.append(row)
+                else:
+                    for t in turns:
+                        row = Gtk.ListBoxRow()
+                        card = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
+                        card.set_margin_top(8)
+                        card.set_margin_bottom(8)
+                        card.set_margin_start(10)
+                        card.set_margin_end(10)
+
+                        lbl_h = Gtk.Label(label=f"Turno #{t['id']} · {t['iso']} · Modelo: {t['model']}")
+                        lbl_h.add_css_class("chat-meta")
+                        lbl_h.set_halign(Gtk.Align.START)
+                        card.append(lbl_h)
+
+                        p_txt = t.get("user_message") or t.get("prompt") or ""
+                        lbl_u = Gtk.Label(label=f"👤 Usuario: {p_txt[:180]}")
+                        lbl_u.set_halign(Gtk.Align.START)
+                        lbl_u.set_wrap(True)
+                        card.append(lbl_u)
+
+                        r_txt = t.get("assistant_reply") or t.get("reply") or ""
+                        lbl_a = Gtk.Label(label=f"🤖 {t.get('model', 'Dolphin 3.0')}: {r_txt[:260]}")
+                        lbl_a.set_halign(Gtk.Align.START)
+                        lbl_a.set_wrap(True)
+                        card.append(lbl_a)
+
+                        row.set_child(card)
+                        self.vault_list.append(row)
+                return False
+            GLib.idle_add(update)
+        threading.Thread(target=worker, daemon=True).start()
+
+    def _on_vault_search_changed(self, entry):
+        q = entry.get_text().strip()
+        self._load_vault_turns(q)
+
+    def _open_desktop_vault(self):
+        desk_path = Path("/home/timemachine/Escritorio/HISTORIAL_CHATS_OFFLINE.html")
+        if desk_path.exists():
+            subprocess.Popen(["xdg-open", str(desk_path)])
+
+    def _export_vault_markdown(self):
+        out_path = Path("/home/timemachine/Escritorio") / f"godworks_chats_{int(time.time())}.md"
+        turns = self.vault.get_recent(limit=2000)
+        md = "# Historial Soberano de Chats - GODWORKS SYSTEM v26.4\n\n"
+        for t in turns:
+            md += f"### Turno #{t['id']} ({t['iso']}) | Modelo: {t['model']}\n"
+            md += f"> **Usuario:**\n{t.get('user_message', '')}\n\n"
+            md += f"**{t.get('model', 'Dolphin 3.0')}:**\n{t.get('assistant_reply', '')}\n\n---\n\n"
+        out_path.write_text(md, encoding="utf-8")
+        self.badge_status.set_text("✓ Markdown Exportado al Escritorio")
+
+    def _export_vault_json(self):
+        out_path = Path("/home/timemachine/Escritorio") / f"godworks_chats_backup_{int(time.time())}.json"
+        turns = self.vault.get_recent(limit=2000)
+        out_path.write_text(json.dumps(turns, ensure_ascii=False, indent=2), encoding="utf-8")
+        self.badge_status.set_text("✓ JSON Exportado al Escritorio")
+
+    # =========================================================================
+    # 6. PESTAÑA: TELEMETRÍA & TAREAS
+    # =========================================================================
+    def _build_telemetry_view(self):
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=14)
+        box.set_margin_top(16)
+        box.set_margin_bottom(16)
+        box.set_margin_start(16)
+        box.set_margin_end(16)
+
+        # Barras de carga de hardware
+        card_gauges = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+        card_gauges.add_css_class("gia-card")
+
+        lbl_g = Gtk.Label(label="📊 ESTADO DE RECURSOS DEL SISTEMA")
+        lbl_g.add_css_class("gia-card-header")
+        lbl_g.set_halign(Gtk.Align.START)
+        card_gauges.append(lbl_g)
+
+        # CPU
+        self.lbl_cpu = Gtk.Label(label="CPU: 0%")
+        self.lbl_cpu.set_halign(Gtk.Align.START)
+        card_gauges.append(self.lbl_cpu)
+        self.prog_cpu = Gtk.ProgressBar()
+        card_gauges.append(self.prog_cpu)
+
+        # RAM
+        self.lbl_ram = Gtk.Label(label="RAM: 0%")
+        self.lbl_ram.set_halign(Gtk.Align.START)
+        card_gauges.append(self.lbl_ram)
+        self.prog_ram = Gtk.ProgressBar()
+        card_gauges.append(self.prog_ram)
+
+        box.append(card_gauges)
+
+        # Servicio Systemd
+        card_srv = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=14)
+        card_srv.add_css_class("gia-card")
+
+        self.lbl_service = Gtk.Label(label="godworks.service: Activo")
+        self.lbl_service.add_css_class("badge-active")
+        card_srv.append(self.lbl_service)
+
+        btn_restart_srv = Gtk.Button(label="🔄 Reiniciar godworks.service")
+        btn_restart_srv.connect("clicked", lambda b: self._restart_godworks_service())
+        card_srv.append(btn_restart_srv)
+
+        box.append(card_srv)
+        self.stack.add_titled(box, "telemetry", "📊 Telemetría & Tareas")
+
+        GLib.timeout_add(2000, self._update_telemetry)
+
+    def _update_telemetry(self):
+        try:
+            import psutil
+            cpu = psutil.cpu_percent()
+            ram = psutil.virtual_memory().percent
+            self.lbl_cpu.set_text(f"Carga CPU: {cpu:.1f}%")
+            self.prog_cpu.set_fraction(cpu / 100.0)
+            self.lbl_ram.set_text(f"Memoria RAM: {ram:.1f}% ({psutil.virtual_memory().used // (1024*1024)} MB)")
+            self.prog_ram.set_fraction(ram / 100.0)
+        except Exception:
+            pass
+        return True
+
+    def _restart_godworks_service(self):
+        def worker():
+            subprocess.run(["systemctl", "--user", "restart", "godworks.service"], check=False)
+            GLib.idle_add(lambda: self.lbl_service.set_text("godworks.service: Reiniciado"))
+        threading.Thread(target=worker, daemon=True).start()
+
+    # =========================================================================
+    # 7. PESTAÑA: TERMINAL SOBERANA
+    # =========================================================================
+    def _build_terminal_view(self):
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+        box.set_margin_top(16)
+        box.set_margin_bottom(16)
+        box.set_margin_start(16)
+        box.set_margin_end(16)
+
+        scrolled = Gtk.ScrolledWindow()
+        scrolled.set_vexpand(True)
+        scrolled.add_css_class("terminal-box")
+
+        self.term_view = Gtk.TextView()
+        self.term_view.set_editable(False)
+        self.term_view.set_cursor_visible(False)
+        self.term_view.set_monospace(True)
+        self.term_buffer = self.term_view.get_buffer()
+        self.term_buffer.set_text(
+            "===============================================================\n"
+            "   GIA TERMINAL SOBERANA · MODO NATIVO DESKTOP v26.4          \n"
+            "===============================================================\n"
+            "Escribe comandos slash (/status, /lock, /vol, /shot) o bash...\n\n"
+        )
+        scrolled.set_child(self.term_view)
+        box.append(scrolled)
+
+        # Entrada de comando
+        input_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
+        self.term_entry = Gtk.Entry()
+        self.term_entry.set_placeholder_text("Ejemplo: /status o uname -a...")
+        self.term_entry.set_hexpand(True)
+        self.term_entry.connect("activate", lambda e: self._execute_terminal_command())
+        input_box.append(self.term_entry)
+
+        btn_run = Gtk.Button(label="EJECUTAR")
+        btn_run.add_css_class("btn-primary")
+        btn_run.connect("clicked", lambda b: self._execute_terminal_command())
+        input_box.append(btn_run)
+
+        box.append(input_box)
+        self.stack.add_titled(box, "terminal", "⚡ Terminal")
+
+    def _execute_terminal_command(self):
+        cmd = self.term_entry.get_text().strip()
+        if not cmd:
+            return
+        self.term_entry.set_text("")
+        self._append_term_text(f"\n$ {cmd}\n")
+
+        def worker():
+            if cmd.startswith("/"):
+                res = process_hardware_chat_intent(cmd)
+                out = res.get("system_feedback", str(res)) if res else "Comando no reconocido."
+            else:
+                try:
+                    p = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=10)
+                    out = p.stdout or p.stderr or "[Comando completado sin salida]"
+                except Exception as e:
+                    out = f"[Error: {e}]"
+            GLib.idle_add(lambda: self._append_term_text(out + "\n"))
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    def _append_term_text(self, text: str):
+        end_iter = self.term_buffer.get_end_iter()
+        self.term_buffer.insert(end_iter, text)
+
+
+class NativeGiaApplication(Adw.Application):
+    """Aplicación Libadwaita nativa de GODWORKS."""
+
+    def __init__(self):
+        super().__init__(
+            application_id="org.godworks.gia.native",
+            flags=Gio.ApplicationFlags.FLAGS_NONE
+        )
+
+    def do_activate(self):
+        win = self.props.active_window
+        if not win:
+            win = NativeGiaWindow(application=self)
+        win.present()
+
+
+def main():
+    app = NativeGiaApplication()
+    return app.run(sys.argv)
+
+
+if __name__ == "__main__":
+    sys.exit(main())

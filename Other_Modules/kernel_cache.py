@@ -361,7 +361,7 @@ def _scaled_candidates(args: Any, cc: int, efc_only: bool) -> list[Any]:
                 metadata = dataclasses.replace(
                     op.metadata,
                     operator_name=op.metadata.operator_name.replace(
-                        "VendoredDenseBlockScaledGemmKernel",
+                        "REDACTED_MISTRAL",
                         "VendoredDenseBlockScaledGemmEFC",
                         1,
                     ),

@@ -313,7 +313,7 @@ __all__ = [
     "Qwen3ASREncoderConfig",
     "Qwen3ASRConfig",
     "Qwen3ASREncoder",
-    "Qwen3ASRForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "Qwen3ASRModel",
     "Qwen3ASRPreTrainedModel",
     "Qwen3ASRForTokenClassification",

@@ -685,4 +685,4 @@ class Cosmos3OmniForConditionalGeneration(Cosmos3OmniPreTrainedModel, Generation
         return position_ids
 
 
-__all__ = ["Cosmos3OmniForConditionalGeneration", "Cosmos3OmniPreTrainedModel", "Cosmos3OmniModel"]
+__all__ = ["REDACTED_MISTRAL", "Cosmos3OmniPreTrainedModel", "Cosmos3OmniModel"]

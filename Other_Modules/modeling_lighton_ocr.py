@@ -389,4 +389,4 @@ class LightOnOcrForConditionalGeneration(LightOnOcrPreTrainedModel, GenerationMi
         )
 
 
-__all__ = ["LightOnOcrPreTrainedModel", "LightOnOcrForConditionalGeneration", "LightOnOcrModel"]
+__all__ = ["LightOnOcrPreTrainedModel", "REDACTED_MISTRAL", "LightOnOcrModel"]

@@ -507,7 +507,7 @@ class OlmoHybridLinearAttentionDecoderLayer(LlamaDecoderLayer):
 
 class OlmoHybridPreTrainedModel(Qwen3NextPreTrainedModel):
     _is_stateful = True
-    _no_split_modules = ["OlmoHybridAttentionDecoderLayer", "OlmoHybridLinearAttentionDecoderLayer"]
+    _no_split_modules = ["OlmoHybridAttentionDecoderLayer", "REDACTED_MISTRAL"]
     _can_record_outputs = {
         "hidden_states": [OlmoHybridAttentionDecoderLayer, OlmoHybridLinearAttentionDecoderLayer],
         "attentions": OlmoHybridAttention,

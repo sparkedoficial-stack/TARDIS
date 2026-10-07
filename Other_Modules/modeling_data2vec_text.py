@@ -1176,9 +1176,9 @@ __all__ = [
     "Data2VecTextForCausalLM",
     "Data2VecTextForMaskedLM",
     "Data2VecTextForMultipleChoice",
-    "Data2VecTextForQuestionAnswering",
-    "Data2VecTextForSequenceClassification",
-    "Data2VecTextForTokenClassification",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
     "Data2VecTextModel",
     "Data2VecTextPreTrainedModel",
 ]

@@ -8,7 +8,7 @@ from core.deep_memory_vault import DeepMemoryVault
 import gia_memory
 from server.api import app
 
-AUTH_HEADERS = {"X-API-Key": "Imznu9ZNtdbFl2ebIGSzpYqe7A3OS4Y5"}
+AUTH_HEADERS = {"X-API-Key": "REDACTED_MISTRAL"}
 
 
 @pytest.fixture

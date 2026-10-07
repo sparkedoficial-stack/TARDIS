@@ -799,7 +799,7 @@ class ChameleonVQVAE(ChameleonPreTrainedModel):
     _no_split_modules = [
         "ChameleonVQVAEVectorQuantizer",
         "ChameleonVQVAEEncoderAttnBlock",
-        "ChameleonVQVAEEncoderResnetBlock",
+        "REDACTED_MISTRAL",
     ]
     _can_record_outputs = {
         "hidden_states": ChameleonVQVAEEncoderResnetBlock,
@@ -1091,4 +1091,4 @@ class ChameleonForConditionalGeneration(ChameleonPreTrainedModel, GenerationMixi
         )
 
 
-__all__ = ["ChameleonForConditionalGeneration", "ChameleonModel", "ChameleonPreTrainedModel", "ChameleonVQVAE"]
+__all__ = ["REDACTED_MISTRAL", "ChameleonModel", "ChameleonPreTrainedModel", "ChameleonVQVAE"]

@@ -1,150 +1,357 @@
+# This file is dual licensed under the terms of the Apache License, Version
+# 2.0, and the BSD License. See the LICENSE file in the root of this repository
+# for complete details.
+
 from __future__ import annotations
 
-import hashlib
-from collections.abc import Iterable
-from typing import TYPE_CHECKING, BinaryIO, NoReturn
+import abc
+import sys
 
-from pip._internal.exceptions import HashMismatch, HashMissing, InstallationError
-from pip._internal.utils.misc import read_chunks
+from cryptography.hazmat.bindings._rust import openssl as rust_openssl
+from cryptography.utils import Buffer
 
-if TYPE_CHECKING:
-    from collections.abc import Mapping
-    from hashlib import _Hash
+__all__ = [
+    "MD5",
+    "SHA1",
+    "SHA3_224",
+    "SHA3_256",
+    "SHA3_384",
+    "SHA3_512",
+    "SHA224",
+    "SHA256",
+    "SHA384",
+    "SHA512",
+    "SHA512_224",
+    "SHA512_256",
+    "SHAKE128",
+    "SHAKE256",
+    "SM3",
+    "BLAKE2b",
+    "BLAKE2s",
+    "ExtendableOutputFunction",
+    "Hash",
+    "HashAlgorithm",
+    "HashContext",
+    "XOFHash",
+]
 
-# The recommended hash algo of the moment. Change this whenever the state of
-# the art changes; it won't hurt backward compatibility.
-FAVORITE_HASH = "sha256"
 
-
-# Names of hashlib algorithms allowed by the --hash option and ``pip hash``
-# Currently, those are the ones at least as collision-resistant as sha256.
-STRONG_HASHES = ["sha256", "sha384", "sha512"]
-
-
-class Hashes:
-    """A wrapper that builds multiple hashes at once and checks them against
-    known-good values
-
-    """
-
-    def __init__(self, hashes: dict[str, list[str]] | None = None) -> None:
+class HashAlgorithm(metaclass=abc.ABCMeta):
+    @property
+    @abc.abstractmethod
+    def name(self) -> str:
         """
-        :param hashes: A dict of algorithm names pointing to lists of allowed
-            hex digests
+        A string naming this algorithm (e.g. "sha256", "md5").
         """
-        allowed = {}
-        if hashes is not None:
-            for alg, keys in hashes.items():
-                # Make sure values are always sorted (to ease equality checks)
-                allowed[alg] = [k.lower() for k in sorted(keys)]
-        self._allowed = allowed
-
-    def __and__(self, other: Hashes) -> Hashes:
-        if not isinstance(other, Hashes):
-            return NotImplemented
-
-        # If either of the Hashes object is entirely empty (i.e. no hash
-        # specified at all), all hashes from the other object are allowed.
-        if not other:
-            return self
-        if not self:
-            return other
-
-        # Otherwise only hashes that present in both objects are allowed.
-        new = {}
-        for alg, values in other._allowed.items():
-            if alg not in self._allowed:
-                continue
-            new[alg] = [v for v in values if v in self._allowed[alg]]
-        return Hashes(new)
 
     @property
-    def digest_count(self) -> int:
-        return sum(len(digests) for digests in self._allowed.values())
-
-    def is_hash_allowed(self, hash_name: str, hex_digest: str) -> bool:
-        """Return whether the given hex digest is allowed."""
-        return hex_digest in self._allowed.get(hash_name, [])
-
-    def check_against_chunks(self, chunks: Iterable[bytes]) -> None:
-        """Check good hashes against ones built from iterable of chunks of
-        data.
-
-        Raise HashMismatch if none match.
-
+    @abc.abstractmethod
+    def digest_size(self) -> int:
         """
-        gots = {}
-        for hash_name in self._allowed.keys():
-            try:
-                gots[hash_name] = hashlib.new(hash_name)
-            except (ValueError, TypeError):
-                raise InstallationError(f"Unknown hash name: {hash_name}")
-
-        for chunk in chunks:
-            for hash in gots.values():
-                hash.update(chunk)
-
-        for hash_name, got in gots.items():
-            if got.hexdigest() in self._allowed[hash_name]:
-                return
-        self._raise(gots)
-
-    def _raise(self, gots: dict[str, _Hash]) -> NoReturn:
-        raise HashMismatch(self._allowed, gots)
-
-    def check_against_file(self, file: BinaryIO) -> None:
-        """Check good hashes against a file-like object
-
-        Raise HashMismatch if none match.
-
+        The size of the resulting digest in bytes.
         """
-        return self.check_against_chunks(read_chunks(file))
 
-    def check_against_path(self, path: str) -> None:
-        with open(path, "rb") as file:
-            return self.check_against_file(file)
-
-    def has_one_of(self, hashes: Mapping[str, str]) -> bool:
-        """Return whether any of the given hashes are allowed."""
-        for hash_name, hex_digest in hashes.items():
-            if self.is_hash_allowed(hash_name, hex_digest):
-                return True
-        return False
-
-    def __bool__(self) -> bool:
-        """Return whether I know any known-good hashes."""
-        return bool(self._allowed)
-
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Hashes):
-            return NotImplemented
-        return self._allowed == other._allowed
-
-    def __hash__(self) -> int:
-        return hash(
-            ",".join(
-                sorted(
-                    ":".join((alg, digest))
-                    for alg, digest_list in self._allowed.items()
-                    for digest in digest_list
-                )
-            )
-        )
+    @property
+    @abc.abstractmethod
+    def block_size(self) -> int | None:
+        """
+        The internal block size of the hash function, or None if the hash
+        function does not use blocks internally (e.g. SHA3).
+        """
 
 
-class MissingHashes(Hashes):
-    """A workalike for Hashes used when we're missing a hash for a requirement
+class HashContext(metaclass=abc.ABCMeta):
+    @property
+    @abc.abstractmethod
+    def algorithm(self) -> HashAlgorithm:
+        """
+        A HashAlgorithm that will be used by this context.
+        """
 
-    It computes the actual hash of the requirement and raises a HashMissing
-    exception showing it to the user.
+    @abc.abstractmethod
+    def update(self, data: Buffer) -> None:
+        """
+        Processes the provided bytes through the hash.
+        """
 
+    @abc.abstractmethod
+    def finalize(self) -> bytes:
+        """
+        Finalizes the hash context and returns the hash digest as bytes.
+        """
+
+    @abc.abstractmethod
+    def copy(self) -> HashContext:
+        """
+        Return a HashContext that is a copy of the current context.
+        """
+
+
+Hash = rust_openssl.hashes.Hash
+HashContext.register(Hash)
+
+XOFHash = rust_openssl.hashes.XOFHash
+
+
+class ExtendableOutputFunction(metaclass=abc.ABCMeta):
+    """
+    An interface for extendable output functions.
     """
 
-    def __init__(self) -> None:
-        """Don't offer the ``hashes`` kwarg."""
-        # Pass our favorite hash in to generate a "gotten hash". With the
-        # empty list, it will never match, so an error will always raise.
-        super().__init__(hashes={FAVORITE_HASH: []})
 
-    def _raise(self, gots: dict[str, _Hash]) -> NoReturn:
-        raise HashMissing(gots[FAVORITE_HASH].hexdigest())
+class SHA1(HashAlgorithm):
+    name = "sha1"
+    digest_size = 20
+    block_size = 64
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, SHA1):
+            return NotImplemented
+
+        return True
+
+
+class SHA512_224(HashAlgorithm):  # noqa: N801
+    name = "sha512-224"
+    digest_size = 28
+    block_size = 128
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, SHA512_224):
+            return NotImplemented
+
+        return True
+
+
+class SHA512_256(HashAlgorithm):  # noqa: N801
+    name = "sha512-256"
+    digest_size = 32
+    block_size = 128
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, SHA512_256):
+            return NotImplemented
+
+        return True
+
+
+class SHA224(HashAlgorithm):
+    name = "sha224"
+    digest_size = 28
+    block_size = 64
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, SHA224):
+            return NotImplemented
+
+        return True
+
+
+class SHA256(HashAlgorithm):
+    name = "sha256"
+    digest_size = 32
+    block_size = 64
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, SHA256):
+            return NotImplemented
+
+        return True
+
+
+class SHA384(HashAlgorithm):
+    name = "sha384"
+    digest_size = 48
+    block_size = 128
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, SHA384):
+            return NotImplemented
+
+        return True
+
+
+class SHA512(HashAlgorithm):
+    name = "sha512"
+    digest_size = 64
+    block_size = 128
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, SHA512):
+            return NotImplemented
+
+        return True
+
+
+class SHA3_224(HashAlgorithm):  # noqa: N801
+    name = "sha3-224"
+    digest_size = 28
+    block_size = None
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, SHA3_224):
+            return NotImplemented
+
+        return True
+
+
+class SHA3_256(HashAlgorithm):  # noqa: N801
+    name = "sha3-256"
+    digest_size = 32
+    block_size = None
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, SHA3_256):
+            return NotImplemented
+
+        return True
+
+
+class SHA3_384(HashAlgorithm):  # noqa: N801
+    name = "sha3-384"
+    digest_size = 48
+    block_size = None
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, SHA3_384):
+            return NotImplemented
+
+        return True
+
+
+class SHA3_512(HashAlgorithm):  # noqa: N801
+    name = "sha3-512"
+    digest_size = 64
+    block_size = None
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, SHA3_512):
+            return NotImplemented
+
+        return True
+
+
+class SHAKE128(HashAlgorithm, ExtendableOutputFunction):
+    name = "shake128"
+    block_size = None
+
+    def __init__(self, digest_size: int):
+        if not isinstance(digest_size, int):
+            raise TypeError("digest_size must be an integer")
+
+        if digest_size < 1:
+            raise ValueError("digest_size must be a positive integer")
+
+        self._digest_size = digest_size
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, SHAKE128):
+            return NotImplemented
+
+        return self._digest_size == other._digest_size
+
+    @property
+    def digest_size(self) -> int:
+        return self._digest_size
+
+    @classmethod
+    def xof(cls):
+        return cls(sys.maxsize)
+
+
+class SHAKE256(HashAlgorithm, ExtendableOutputFunction):
+    name = "shake256"
+    block_size = None
+
+    def __init__(self, digest_size: int):
+        if not isinstance(digest_size, int):
+            raise TypeError("digest_size must be an integer")
+
+        if digest_size < 1:
+            raise ValueError("digest_size must be a positive integer")
+
+        self._digest_size = digest_size
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, SHAKE256):
+            return NotImplemented
+
+        return self._digest_size == other._digest_size
+
+    @property
+    def digest_size(self) -> int:
+        return self._digest_size
+
+    @classmethod
+    def xof(cls):
+        return cls(sys.maxsize)
+
+
+class MD5(HashAlgorithm):
+    name = "md5"
+    digest_size = 16
+    block_size = 64
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, MD5):
+            return NotImplemented
+
+        return True
+
+
+class BLAKE2b(HashAlgorithm):
+    name = "blake2b"
+    _max_digest_size = 64
+    _min_digest_size = 1
+    block_size = 128
+
+    def __init__(self, digest_size: int):
+        if digest_size != 64:
+            raise ValueError("Digest size must be 64")
+
+        self._digest_size = digest_size
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, BLAKE2b):
+            return NotImplemented
+
+        return self._digest_size == other._digest_size
+
+    @property
+    def digest_size(self) -> int:
+        return self._digest_size
+
+
+class BLAKE2s(HashAlgorithm):
+    name = "blake2s"
+    block_size = 64
+    _max_digest_size = 32
+    _min_digest_size = 1
+
+    def __init__(self, digest_size: int):
+        if digest_size != 32:
+            raise ValueError("Digest size must be 32")
+
+        self._digest_size = digest_size
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, BLAKE2s):
+            return NotImplemented
+
+        return self._digest_size == other._digest_size
+
+    @property
+    def digest_size(self) -> int:
+        return self._digest_size
+
+
+class SM3(HashAlgorithm):
+    name = "sm3"
+    digest_size = 32
+    block_size = 64
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, SM3):
+            return NotImplemented
+
+        return True

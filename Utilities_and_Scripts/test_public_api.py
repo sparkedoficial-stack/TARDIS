@@ -1,216 +1,223 @@
-"""
-This test script is adopted from:
-    https://github.com/numpy/numpy/blob/main/numpy/tests/test_public_api.py
-"""
-
-import pkgutil
-import types
+import functools
 import importlib
+import inspect
+import pkgutil
+import sys
+import sysconfig
+import types
 import warnings
-from importlib import import_module
 
 import pytest
 
-import scipy
+import numpy
+import numpy as np
+from numpy.testing import IS_WASM
+from numpy.testing._private.utils import run_subprocess
 
-from scipy._lib._public_api import PUBLIC_MODULES, _without_fortran
-from scipy.conftest import xp_available_backends
+try:
+    import ctypes
+except ImportError:
+    ctypes = None
+
+
+def check_dir(module, module_name=None):
+    """Returns a mapping of all objects with the wrong __module__ attribute."""
+    if module_name is None:
+        module_name = module.__name__
+    results = {}
+    for name in dir(module):
+        if name == "core":
+            continue
+        item = getattr(module, name)
+        if (hasattr(item, '__module__') and hasattr(item, '__name__')
+                and item.__module__ != module_name):
+            results[name] = item.__module__ + '.' + item.__name__
+    return results
+
+
+def test_numpy_namespace():
+    # We override dir to not show these members
+    allowlist = {
+        'recarray': 'numpy.rec.recarray',
+    }
+    bad_results = check_dir(np)
+    # pytest gives better error messages with the builtin assert than with
+    # assert_equal
+    assert bad_results == allowlist
+
+
+@pytest.mark.skipif(IS_WASM, reason="can't start subprocess")
+@pytest.mark.parametrize('name', ['testing'])
+def test_import_lazy_import(name):
+    """Make sure we can actually use the modules we lazy load.
+
+    While not exported as part of the public API, it was accessible.  With the
+    use of __getattr__ and __dir__, this isn't always true It can happen that
+    an infinite recursion may happen.
+
+    This is the only way I found that would force the failure to appear on the
+    badly implemented code.
+
+    We also test for the presence of the lazily imported modules in dir
+
+    """
+    exe = (sys.executable, '-c', "import numpy; numpy." + name)
+    result = run_subprocess(exe)
+    assert not result.stdout
+
+    # Make sure they are still in the __dir__
+    assert name in dir(np)
 
 
 def test_dir_testing():
     """Assert that output of dir has only one "testing/tester"
     attribute without duplicate"""
-    assert len(dir(scipy)) == len(set(dir(scipy)))
+    assert len(dir(np)) == len(set(dir(np)))
 
 
-# The PRIVATE_BUT_PRESENT_MODULES list contains modules that lacked underscores
-# in their name and hence looked public, but weren't meant to be. All these
-# namespace were deprecated in the 1.8.0 release - see "clear split between
-# public and private API" in the 1.8.0 release notes.
-# These private modules support will be removed in SciPy v2.0.0, as the
-# deprecation messages emitted by each of these modules say.
-PRIVATE_BUT_PRESENT_MODULES = [
-    'scipy.constants.codata',
-    'scipy.constants.constants',
-    'scipy.fftpack.basic',
-    'scipy.fftpack.convolve',
-    'scipy.fftpack.helper',
-    'scipy.fftpack.pseudo_diffs',
-    'scipy.fftpack.realtransforms',
-    'scipy.integrate.dop',
-    'scipy.integrate.odepack',
-    'scipy.integrate.quadpack',
-    'scipy.integrate.vode',
-    'scipy.interpolate.dfitpack',
-    'scipy.interpolate.fitpack',
-    'scipy.interpolate.fitpack2',
-    'scipy.interpolate.interpnd',
-    'scipy.interpolate.interpolate',
-    'scipy.interpolate.ndgriddata',
-    'scipy.interpolate.polyint',
-    'scipy.interpolate.rbf',
-    'scipy.io.arff.arffread',
-    'scipy.io.harwell_boeing',
-    'scipy.io.idl',
-    'scipy.io.matlab.byteordercodes',
-    'scipy.io.matlab.mio',
-    'scipy.io.matlab.mio4',
-    'scipy.io.matlab.mio5',
-    'scipy.io.matlab.mio5_params',
-    'scipy.io.matlab.mio5_utils',
-    'scipy.io.matlab.mio_utils',
-    'scipy.io.matlab.miobase',
-    'scipy.io.matlab.streams',
-    'scipy.io.mmio',
-    'scipy.io.netcdf',
-    'scipy.linalg.basic',
-    'scipy.linalg.decomp',
-    'scipy.linalg.decomp_cholesky',
-    'scipy.linalg.decomp_lu',
-    'scipy.linalg.decomp_qr',
-    'scipy.linalg.decomp_schur',
-    'scipy.linalg.decomp_svd',
-    'scipy.linalg.matfuncs',
-    'scipy.linalg.misc',
-    'scipy.linalg.special_matrices',
-    'scipy.misc',
-    'scipy.misc.common',
-    'scipy.misc.doccer',
-    'scipy.ndimage.filters',
-    'scipy.ndimage.fourier',
-    'scipy.ndimage.interpolation',
-    'scipy.ndimage.measurements',
-    'scipy.ndimage.morphology',
-    'scipy.odr.models',
-    'scipy.odr.odrpack',
-    'scipy.optimize.cobyla',
-    'scipy.optimize.cython_optimize',
-    'scipy.optimize.lbfgsb',
-    'scipy.optimize.linesearch',
-    'scipy.optimize.minpack',
-    'scipy.optimize.minpack2',
-    'scipy.optimize.moduleTNC',
-    'scipy.optimize.nonlin',
-    'scipy.optimize.optimize',
-    'scipy.optimize.slsqp',
-    'scipy.optimize.tnc',
-    'scipy.optimize.zeros',
-    'scipy.signal.bsplines',
-    'scipy.signal.filter_design',
-    'scipy.signal.fir_filter_design',
-    'scipy.signal.lti_conversion',
-    'scipy.signal.ltisys',
-    'scipy.signal.signaltools',
-    'scipy.signal.spectral',
-    'scipy.signal.spline',
-    'scipy.signal.waveforms',
-    'scipy.signal.wavelets',
-    'scipy.signal.windows.windows',
-    'scipy.sparse.base',
-    'scipy.sparse.bsr',
-    'scipy.sparse.compressed',
-    'scipy.sparse.construct',
-    'scipy.sparse.coo',
-    'scipy.sparse.csc',
-    'scipy.sparse.csr',
-    'scipy.sparse.data',
-    'scipy.sparse.dia',
-    'scipy.sparse.dok',
-    'scipy.sparse.extract',
-    'scipy.sparse.lil',
-    'scipy.sparse.linalg.dsolve',
-    'scipy.sparse.linalg.eigen',
-    'scipy.sparse.linalg.interface',
-    'scipy.sparse.linalg.isolve',
-    'scipy.sparse.linalg.matfuncs',
-    'scipy.sparse.sparsetools',
-    'scipy.sparse.spfuncs',
-    'scipy.sparse.sputils',
-    'scipy.spatial.ckdtree',
-    'scipy.spatial.kdtree',
-    'scipy.spatial.qhull',
-    'scipy.spatial.transform.rotation',
-    'scipy.special.add_newdocs',
-    'scipy.special.basic',
-    'scipy.special.cython_special',
-    'scipy.special.orthogonal',
-    'scipy.special.sf_error',
-    'scipy.special.specfun',
-    'scipy.special.spfun_stats',
-    'scipy.stats.biasedurn',
-    'scipy.stats.kde',
-    'scipy.stats.morestats',
-    'scipy.stats.mstats_basic',
-    'scipy.stats.mstats_extras',
-    'scipy.stats.mvn',
-    'scipy.stats.stats',
+def test_numpy_linalg():
+    bad_results = check_dir(np.linalg)
+    assert bad_results == {}
+
+
+def test_numpy_fft():
+    bad_results = check_dir(np.fft)
+    assert bad_results == {}
+
+
+@pytest.mark.skipif(ctypes is None,
+                    reason="ctypes not available in this python")
+def test_NPY_NO_EXPORT():
+    cdll = ctypes.CDLL(np._core._multiarray_tests.__file__)
+    # Make sure an arbitrary NPY_NO_EXPORT function is actually hidden
+    f = getattr(cdll, 'test_not_exported', None)
+    assert f is None, ("'test_not_exported' is mistakenly exported, "
+                      "NPY_NO_EXPORT does not work")
+
+
+# Historically NumPy has not used leading underscores for private submodules
+# much.  This has resulted in lots of things that look like public modules
+# (i.e. things that can be imported as `import numpy.somesubmodule.somefile`),
+# but were never intended to be public.  The PUBLIC_MODULES list contains
+# modules that are either public because they were meant to be, or because they
+# contain public functions/objects that aren't present in any other namespace
+# for whatever reason and therefore should be treated as public.
+#
+# The PRIVATE_BUT_PRESENT_MODULES list contains modules that look public (lack
+# of underscores) but should not be used.  For many of those modules the
+# current status is fine.  For others it may make sense to work on making them
+# private, to clean up our public API and avoid confusion.
+PUBLIC_MODULES = ['numpy.' + s for s in [
+    "ctypeslib",
+    "dtypes",
+    "exceptions",
+    "f2py",
+    "fft",
+    "lib",
+    "lib.array_utils",
+    "lib.format",
+    "lib.introspect",
+    "lib.mixins",
+    "lib.npyio",
+    "lib.recfunctions",  # note: still needs cleaning, was forgotten for 2.0
+    "lib.scimath",
+    "lib.stride_tricks",
+    "linalg",
+    "ma",
+    "ma.extras",
+    "ma.mrecords",
+    "polynomial",
+    "polynomial.chebyshev",
+    "polynomial.hermite",
+    "polynomial.hermite_e",
+    "polynomial.laguerre",
+    "polynomial.legendre",
+    "polynomial.polynomial",
+    "random",
+    "strings",
+    "testing",
+    "testing.overrides",
+    "typing",
+    "typing.mypy_plugin",
+    "version",
+]]
+
+
+PUBLIC_ALIASED_MODULES = [
+    "numpy.char",
+    "numpy.emath",
+    "numpy.rec",
 ]
 
-if _without_fortran:
-    PRIVATE_BUT_PRESENT_MODULES.remove('scipy.odr.models')
-    PRIVATE_BUT_PRESENT_MODULES.remove('scipy.odr.odrpack')
+
+PRIVATE_BUT_PRESENT_MODULES = ['numpy.' + s for s in [
+    "conftest",
+    "core",
+    "core.multiarray",
+    "core.numeric",
+    "core.umath",
+    "core.arrayprint",
+    "core.defchararray",
+    "core.einsumfunc",
+    "core.fromnumeric",
+    "core.function_base",
+    "core.getlimits",
+    "core.numerictypes",
+    "core.overrides",
+    "core.records",
+    "core.shape_base",
+    "f2py.auxfuncs",
+    "f2py.capi_maps",
+    "f2py.cb_rules",
+    "f2py.cfuncs",
+    "f2py.common_rules",
+    "f2py.crackfortran",
+    "f2py.diagnose",
+    "f2py.f2py2e",
+    "f2py.f90mod_rules",
+    "f2py.func2subr",
+    "f2py.rules",
+    "f2py.symbolic",
+    "f2py.use_rules",
+    "lib.user_array",  # note: not in np.lib, but probably should just be deleted
+    "linalg.lapack_lite",
+    "ma.core",
+    "ma.testutils",
+    "matlib",
+    "matrixlib",
+    "matrixlib.defmatrix",
+    "polynomial.polyutils",
+    "random.mtrand",
+    "random.bit_generator",
+    "testing.print_coercion_tables",
+]]
 
 
 def is_unexpected(name):
     """Check if this needs to be considered."""
-    if '._' in name or '.tests' in name or '.setup' in name:
-        return False
-
-    if name in PUBLIC_MODULES:
-        return False
-
-    if name in PRIVATE_BUT_PRESENT_MODULES:
-        return False
-
-    return True
+    return (
+        '._' not in name and '.tests' not in name and '.setup' not in name
+        and name not in PUBLIC_MODULES
+        and name not in PUBLIC_ALIASED_MODULES
+        and name not in PRIVATE_BUT_PRESENT_MODULES
+    )
 
 
-SKIP_LIST = [
-    'scipy.conftest',
-    'scipy.version',
-    'scipy.special.libsf_error_state',
-    'scipy.integrate.lsoda'
-]
-
-
-# XXX: this test does more than it says on the tin - in using `pkgutil.walk_packages`,
-# it will raise if it encounters any exceptions which are not handled by `ignore_errors`
-# while attempting to import each discovered package.
-# For now, `ignore_errors` only ignores what is necessary, but this could be expanded -
-# for example, to all errors from private modules or git subpackages - if desired.
-@pytest.mark.thread_unsafe(
-    reason=("crashes in pkgutil.walk_packages, see "
-            "https://github.com/data-apis/array-api-compat/issues/343"))
 def test_all_modules_are_expected():
     """
     Test that we don't add anything that looks like a new public module by
     accident.  Check is based on filenames.
     """
 
-    def ignore_errors(name):
-        # if versions of other array libraries are installed which are incompatible
-        # with the installed NumPy version, there can be errors on importing
-        # `array_api_compat`. This should only raise if SciPy is configured with
-        # that library as an available backend.
-        backends = {'cupy', 'torch', 'dask.array'}
-        for backend in backends:
-            path = f'array_api_compat.{backend}'
-            if path in name and backend not in xp_available_backends:
-                return
-        raise
-
     modnames = []
-
-    with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", "scipy.misc", DeprecationWarning)
-        for _, modname, _ in pkgutil.walk_packages(path=scipy.__path__,
-                                                   prefix=scipy.__name__ + '.',
-                                                   onerror=ignore_errors):
-            if is_unexpected(modname) and modname not in SKIP_LIST:
-                # We have a name that is new.  If that's on purpose, add it to
-                # PUBLIC_MODULES.  We don't expect to have to add anything to
-                # PRIVATE_BUT_PRESENT_MODULES.  Use an underscore in the name!
-                modnames.append(modname)
+    for _, modname, ispkg in pkgutil.walk_packages(path=np.__path__,
+                                                   prefix=np.__name__ + '.',
+                                                   onerror=None):
+        if is_unexpected(modname):
+            # We have a name that is new.  If that's on purpose, add it to
+            # PUBLIC_MODULES.  We don't expect to have to add anything to
+            # PRIVATE_BUT_PRESENT_MODULES.  Use an underscore in the name!
+            modnames.append(modname)
 
     if modnames:
         raise AssertionError(f'Found unexpected modules: {modnames}')
@@ -219,22 +226,43 @@ def test_all_modules_are_expected():
 # Stuff that clearly shouldn't be in the API and is detected by the next test
 # below
 SKIP_LIST_2 = [
-    'scipy.char',
-    'scipy.rec',
-    'scipy.emath',
-    'scipy.math',
-    'scipy.random',
-    'scipy.ctypeslib',
-    'scipy.ma',
-    'scipy.integrate.lsoda'
+    'numpy.matlib.char',
+    'numpy.matlib.rec',
+    'numpy.matlib.emath',
+    'numpy.matlib.exceptions',
+    'numpy.matlib.math',
+    'numpy.matlib.linalg',
+    'numpy.matlib.fft',
+    'numpy.matlib.random',
+    'numpy.matlib.ctypeslib',
+    'numpy.matlib.ma',
 ]
 
 
+@pytest.mark.slow
 def test_all_modules_are_expected_2():
     """
     Method checking all objects. The pkgutil-based method in
     `test_all_modules_are_expected` does not catch imports into a namespace,
-    only filenames.
+    only filenames.  So this test is more thorough, and checks this like:
+
+        import .lib.scimath as emath
+
+    To check if something in a module is (effectively) public, one can check if
+    there's anything in that namespace that's a public function/object but is
+    not exposed in a higher-level namespace.  For example for a `numpy.lib`
+    submodule::
+
+        mod = np.lib.mixins
+        for obj in mod.__all__:
+            if obj in np.__all__:
+                continue
+            elif obj in np.lib.__all__:
+                continue
+
+            else:
+                print(obj)
+
     """
 
     def find_unexpected_members(mod_name):
@@ -249,14 +277,13 @@ def test_all_modules_are_expected_2():
             if not objname.startswith('_'):
                 fullobjname = mod_name + '.' + objname
                 if isinstance(getattr(module, objname), types.ModuleType):
-                    if is_unexpected(fullobjname) and fullobjname not in SKIP_LIST_2:
-                        members.append(fullobjname)
+                    if is_unexpected(fullobjname):
+                        if fullobjname not in SKIP_LIST_2:
+                            members.append(fullobjname)
 
         return members
-    with warnings.catch_warnings():
-        warnings.filterwarnings("ignore",  "scipy.misc", DeprecationWarning)
-        unexpected_members = find_unexpected_members("scipy")
 
+    unexpected_members = find_unexpected_members("numpy")
     for modname in PUBLIC_MODULES:
         unexpected_members.extend(find_unexpected_members(modname))
 
@@ -268,6 +295,7 @@ def test_all_modules_are_expected_2():
 def test_api_importable():
     """
     Check that all submodules listed higher up in this file can be imported
+
     Note that if a PRIVATE_BUT_PRESENT_MODULES entry goes missing, it may
     simply need to be removed from the list (deprecation may or may not be
     needed - apply common sense).
@@ -289,9 +317,19 @@ def test_api_importable():
         raise AssertionError("Modules in the public API that cannot be "
                              f"imported: {module_names}")
 
-    with warnings.catch_warnings(record=True):
-        warnings.simplefilter('always', category=DeprecationWarning)
-        warnings.simplefilter('always', category=ImportWarning)
+    for module_name in PUBLIC_ALIASED_MODULES:
+        try:
+            eval(module_name)
+        except AttributeError:
+            module_names.append(module_name)
+
+    if module_names:
+        raise AssertionError("Modules in the public API that were not "
+                             f"found: {module_names}")
+
+    with warnings.catch_warnings(record=True) as w:
+        warnings.filterwarnings('always', category=DeprecationWarning)
+        warnings.filterwarnings('always', category=ImportWarning)
         for module_name in PRIVATE_BUT_PRESENT_MODULES:
             if not check_importable(module_name):
                 module_names.append(module_name)
@@ -302,136 +340,384 @@ def test_api_importable():
                              f"{module_names}")
 
 
-@pytest.mark.parametrize(("module_name", "correct_module"),
-                         [('scipy.constants.codata', None),
-                          ('scipy.constants.constants', None),
-                          ('scipy.fftpack.basic', None),
-                          ('scipy.fftpack.helper', None),
-                          ('scipy.fftpack.pseudo_diffs', None),
-                          ('scipy.fftpack.realtransforms', None),
-                          ('scipy.integrate.dop', None),
-                          ('scipy.integrate.odepack', None),
-                          ('scipy.integrate.quadpack', None),
-                          ('scipy.integrate.vode', None),
-                          ('scipy.interpolate.dfitpack', None),
-                          ('scipy.interpolate.fitpack', None),
-                          ('scipy.interpolate.fitpack2', None),
-                          ('scipy.interpolate.interpnd', None),
-                          ('scipy.interpolate.interpolate', None),
-                          ('scipy.interpolate.ndgriddata', None),
-                          ('scipy.interpolate.polyint', None),
-                          ('scipy.interpolate.rbf', None),
-                          ('scipy.io.harwell_boeing', None),
-                          ('scipy.io.idl', None),
-                          ('scipy.io.mmio', None),
-                          ('scipy.io.netcdf', None),
-                          ('scipy.io.arff.arffread', 'arff'),
-                          ('scipy.io.matlab.byteordercodes', 'matlab'),
-                          ('scipy.io.matlab.mio_utils', 'matlab'),
-                          ('scipy.io.matlab.mio', 'matlab'),
-                          ('scipy.io.matlab.mio4', 'matlab'),
-                          ('scipy.io.matlab.mio5_params', 'matlab'),
-                          ('scipy.io.matlab.mio5_utils', 'matlab'),
-                          ('scipy.io.matlab.mio5', 'matlab'),
-                          ('scipy.io.matlab.miobase', 'matlab'),
-                          ('scipy.io.matlab.streams', 'matlab'),
-                          ('scipy.linalg.basic', None),
-                          ('scipy.linalg.decomp', None),
-                          ('scipy.linalg.decomp_cholesky', None),
-                          ('scipy.linalg.decomp_lu', None),
-                          ('scipy.linalg.decomp_qr', None),
-                          ('scipy.linalg.decomp_schur', None),
-                          ('scipy.linalg.decomp_svd', None),
-                          ('scipy.linalg.matfuncs', None),
-                          ('scipy.linalg.misc', None),
-                          ('scipy.linalg.special_matrices', None),
-                          ('scipy.ndimage.filters', None),
-                          ('scipy.ndimage.fourier', None),
-                          ('scipy.ndimage.interpolation', None),
-                          ('scipy.ndimage.measurements', None),
-                          ('scipy.ndimage.morphology', None),
-                          ('scipy.optimize.cobyla', None),
-                          ('scipy.optimize.lbfgsb', None),
-                          ('scipy.optimize.linesearch', None),
-                          ('scipy.optimize.minpack', None),
-                          ('scipy.optimize.minpack2', None),
-                          ('scipy.optimize.moduleTNC', None),
-                          ('scipy.optimize.nonlin', None),
-                          ('scipy.optimize.optimize', None),
-                          ('scipy.optimize.slsqp', None),
-                          ('scipy.optimize.tnc', None),
-                          ('scipy.optimize.zeros', None),
-                          ('scipy.signal.bsplines', None),
-                          ('scipy.signal.filter_design', None),
-                          ('scipy.signal.fir_filter_design', None),
-                          ('scipy.signal.lti_conversion', None),
-                          ('scipy.signal.ltisys', None),
-                          ('scipy.signal.signaltools', None),
-                          ('scipy.signal.spectral', None),
-                          ('scipy.signal.spline', None),
-                          ('scipy.signal.waveforms', None),
-                          ('scipy.signal.wavelets', None),
-                          ('scipy.signal.windows.windows', 'windows'),
-                          ('scipy.sparse.base', None),
-                          ('scipy.sparse.bsr', None),
-                          ('scipy.sparse.compressed', None),
-                          ('scipy.sparse.construct', None),
-                          ('scipy.sparse.coo', None),
-                          ('scipy.sparse.csc', None),
-                          ('scipy.sparse.csr', None),
-                          ('scipy.sparse.data', None),
-                          ('scipy.sparse.dia', None),
-                          ('scipy.sparse.dok', None),
-                          ('scipy.sparse.extract', None),
-                          ('scipy.sparse.lil', None),
-                          ('scipy.sparse.linalg.dsolve', 'linalg'),
-                          ('scipy.sparse.linalg.eigen', 'linalg'),
-                          ('scipy.sparse.linalg.interface', 'linalg'),
-                          ('scipy.sparse.linalg.isolve', 'linalg'),
-                          ('scipy.sparse.linalg.matfuncs', 'linalg'),
-                          ('scipy.sparse.sparsetools', None),
-                          ('scipy.sparse.spfuncs', None),
-                          ('scipy.sparse.sputils', None),
-                          ('scipy.spatial.ckdtree', None),
-                          ('scipy.spatial.kdtree', None),
-                          ('scipy.spatial.qhull', None),
-                          ('scipy.spatial.transform.rotation', 'transform'),
-                          ('scipy.special.add_newdocs', None),
-                          ('scipy.special.basic', None),
-                          ('scipy.special.orthogonal', None),
-                          ('scipy.special.sf_error', None),
-                          ('scipy.special.specfun', None),
-                          ('scipy.special.spfun_stats', None),
-                          ('scipy.stats.biasedurn', None),
-                          ('scipy.stats.kde', None),
-                          ('scipy.stats.morestats', None),
-                          ('scipy.stats.mstats_basic', 'mstats'),
-                          ('scipy.stats.mstats_extras', 'mstats'),
-                          ('scipy.stats.mvn', None),
-                          ('scipy.stats.stats', None)])
-def test_private_but_present_deprecation(module_name, correct_module):
-    # gh-18279, gh-17572, gh-17771 noted that deprecation warnings
-    # for imports from private modules
-    # were misleading. Check that this is resolved.
-    module = import_module(module_name)
-    if correct_module is None:
-        import_name = f'scipy.{module_name.split(".")[1]}'
-    else:
-        import_name = f'scipy.{module_name.split(".")[1]}.{correct_module}'
+@pytest.mark.xfail(
+    sysconfig.get_config_var("Py_DEBUG") not in (None, 0, "0"),
+    reason=(
+        "NumPy possibly built with `USE_DEBUG=True ./tools/travis-test.sh`, "
+        "which does not expose the `array_api` entry point. "
+        "See https://github.com/numpy/numpy/pull/19800"
+    ),
+)
+def test_array_api_entry_point():
+    """
+    Entry point for Array API implementation can be found with importlib and
+    returns the main numpy namespace.
+    """
+    # For a development install that did not go through meson-python,
+    # the entrypoint will not have been installed. So ensure this test fails
+    # only if numpy is inside site-packages.
+    numpy_in_sitepackages = sysconfig.get_path('platlib') in np.__file__
 
-    correct_import = import_module(import_name)
+    eps = importlib.metadata.entry_points()
+    xp_eps = eps.select(group="array_api")
+    if len(xp_eps) == 0:
+        if numpy_in_sitepackages:
+            msg = "No entry points for 'array_api' found"
+            raise AssertionError(msg) from None
+        return
 
-    # Attributes that were formerly in `module_name` can still be imported from
-    # `module_name`, albeit with a deprecation warning.
-    for attr_name in module.__all__:
-        # ensure attribute is present where the warning is pointing
-        assert getattr(correct_import, attr_name, None) is not None
-        message = f"Please import `{attr_name}` from the `{import_name}`..."
-        with pytest.deprecated_call(match=message):
-            getattr(module, attr_name)
+    try:
+        ep = next(ep for ep in xp_eps if ep.name == "numpy")
+    except StopIteration:
+        if numpy_in_sitepackages:
+            msg = "'numpy' not in array_api entry points"
+            raise AssertionError(msg) from None
+        return
 
-    # Attributes that were not in `module_name` get an error notifying the user
-    # that the attribute is not in `module_name` and that `module_name` is deprecated.
-    message = f"`{module_name}` is deprecated..."
-    with pytest.raises(AttributeError, match=message):
-        getattr(module, "ekki")
+    if ep.value == 'numpy.array_api':
+        # Looks like the entrypoint for the current numpy build isn't
+        # installed, but an older numpy is also installed and hence the
+        # entrypoint is pointing to the old (no longer existing) location.
+        # This isn't a problem except for when running tests with `spin` or an
+        # in-place build.
+        return
+
+    xp = ep.load()
+    msg = (
+        f"numpy entry point value '{ep.value}' "
+        "does not point to our Array API implementation"
+    )
+    assert xp is numpy, msg
+
+
+def test_main_namespace_all_dir_coherence():
+    """
+    Checks if `dir(np)` and `np.__all__` are consistent and return
+    the same content, excluding exceptions and private members.
+    """
+    def _remove_private_members(member_set):
+        return {m for m in member_set if not m.startswith('_')}
+
+    def _remove_exceptions(member_set):
+        return member_set.difference({
+            "bool"  # included only in __dir__
+        })
+
+    all_members = _remove_private_members(np.__all__)
+    all_members = _remove_exceptions(all_members)
+
+    dir_members = _remove_private_members(np.__dir__())
+    dir_members = _remove_exceptions(dir_members)
+
+    assert all_members == dir_members, (
+        "Members that break symmetry: "
+        f"{all_members.symmetric_difference(dir_members)}"
+    )
+
+
+@pytest.mark.filterwarnings(
+    r"ignore:numpy.core(\.\w+)? is deprecated:DeprecationWarning"
+)
+def test_core_shims_coherence():
+    """
+    Check that all "semi-public" members of `numpy._core` are also accessible
+    from `numpy.core` shims.
+    """
+    import numpy.core as core
+
+    for member_name in dir(np._core):
+        # Skip private and test members. Also if a module is aliased,
+        # no need to add it to np.core
+        if (
+            member_name.startswith("_")
+            or member_name in ["tests", "strings"]
+            or f"numpy.{member_name}" in PUBLIC_ALIASED_MODULES
+        ):
+            continue
+
+        member = getattr(np._core, member_name)
+
+        # np.core is a shim and all submodules of np.core are shims
+        # but we should be able to import everything in those shims
+        # that are available in the "real" modules in np._core, with
+        # the exception of the namespace packages (__spec__.origin is None),
+        # like numpy._core.include, or numpy._core.lib.pkgconfig.
+        if (
+            inspect.ismodule(member)
+            and member.__spec__ and member.__spec__.origin is not None
+        ):
+            submodule = member
+            submodule_name = member_name
+            for submodule_member_name in dir(submodule):
+                # ignore dunder names
+                if submodule_member_name.startswith("__"):
+                    continue
+                submodule_member = getattr(submodule, submodule_member_name)
+
+                core_submodule = __import__(
+                    f"numpy.core.{submodule_name}",
+                    fromlist=[submodule_member_name]
+                )
+
+                assert submodule_member is getattr(
+                    core_submodule, submodule_member_name
+                )
+
+        else:
+            assert member is getattr(core, member_name)
+
+
+@pytest.mark.filterwarnings(r"ignore:\w+ chararray \w+:DeprecationWarning")
+def test_functions_single_location():
+    """
+    Check that each public function is available from one location only.
+
+    Test performs BFS search traversing NumPy's public API. It flags
+    any function-like object that is accessible from more that one place.
+    """
+    from collections.abc import Callable
+    from typing import Any
+
+    from numpy._core._multiarray_umath import (
+        _ArrayFunctionDispatcher as dispatched_function,
+    )
+
+    visited_modules: set[types.ModuleType] = {np}
+    visited_functions: set[Callable[..., Any]] = set()
+    # Functions often have `__name__` overridden, therefore we need
+    # to keep track of locations where functions have been found.
+    functions_original_paths: dict[Callable[..., Any], str] = {}
+
+    # Here we aggregate functions with more than one location.
+    # It must be empty for the test to pass.
+    duplicated_functions: list[tuple] = []
+
+    modules_queue = [np]
+
+    while len(modules_queue) > 0:
+
+        module = modules_queue.pop()
+
+        for member_name in dir(module):
+            member = getattr(module, member_name)
+
+            # first check if we got a module
+            if (
+                inspect.ismodule(member) and  # it's a module
+                "numpy" in member.__name__ and  # inside NumPy
+                not member_name.startswith("_") and  # not private
+                "numpy._core" not in member.__name__ and  # outside _core
+                # not a legacy or testing module
+                member_name not in ["f2py", "ma", "testing", "tests"] and
+                member not in visited_modules  # not visited yet
+            ):
+                modules_queue.append(member)
+                visited_modules.add(member)
+
+            # else check if we got a function-like object
+            elif (
+                inspect.isfunction(member) or
+                isinstance(member, (dispatched_function, np.ufunc))
+            ):
+                if member in visited_functions:
+
+                    # skip main namespace functions with aliases
+                    if (
+                        member.__name__ in [
+                            "absolute",  # np.abs
+                            "arccos",  # np.acos
+                            "arccosh",  # np.acosh
+                            "arcsin",  # np.asin
+                            "arcsinh",  # np.asinh
+                            "arctan",  # np.atan
+                            "arctan2",  # np.atan2
+                            "arctanh",  # np.atanh
+                            "left_shift",  # np.bitwise_left_shift
+                            "right_shift",  # np.bitwise_right_shift
+                            "conjugate",  # np.conj
+                            "invert",  # np.bitwise_not & np.bitwise_invert
+                            "remainder",  # np.mod
+                            "divide",  # np.true_divide
+                            "concatenate",  # np.concat
+                            "power",  # np.pow
+                            "transpose",  # np.permute_dims
+                        ] and
+                        module.__name__ == "numpy"
+                    ):
+                        continue
+                    # skip trimcoef from numpy.polynomial as it is
+                    # duplicated by design.
+                    if (
+                        member.__name__ == "trimcoef" and
+                        module.__name__.startswith("numpy.polynomial")
+                    ):
+                        continue
+
+                    # skip ufuncs that are exported in np.strings as well
+                    if member.__name__ in (
+                        "add",
+                        "equal",
+                        "not_equal",
+                        "greater",
+                        "greater_equal",
+                        "less",
+                        "less_equal",
+                    ) and module.__name__ == "numpy.strings":
+                        continue
+
+                    # numpy.char reexports all numpy.strings functions for
+                    # backwards-compatibility
+                    if module.__name__ == "numpy.char":
+                        continue
+
+                    # function is present in more than one location!
+                    duplicated_functions.append(
+                        (member.__name__,
+                         module.__name__,
+                         functions_original_paths[member])
+                    )
+                else:
+                    visited_functions.add(member)
+                    functions_original_paths[member] = module.__name__
+
+    del visited_functions, visited_modules, functions_original_paths
+
+    assert len(duplicated_functions) == 0, duplicated_functions
+
+
+def test___module___attribute():
+    modules_queue = [np]
+    visited_modules = {np}
+    visited_functions = set()
+    incorrect_entries = []
+
+    while len(modules_queue) > 0:
+        module = modules_queue.pop()
+        for member_name in dir(module):
+            member = getattr(module, member_name)
+            # first check if we got a module
+            if (
+                inspect.ismodule(member) and  # it's a module
+                "numpy" in member.__name__ and  # inside NumPy
+                not member_name.startswith("_") and  # not private
+                "numpy._core" not in member.__name__ and  # outside _core
+                # not in a skip module list
+                member_name not in [
+                    "char", "core", "f2py", "ma", "lapack_lite", "mrecords",
+                    "testing", "tests", "polynomial", "typing", "mtrand",
+                    "bit_generator",
+                ] and
+                member not in visited_modules  # not visited yet
+            ):
+                modules_queue.append(member)
+                visited_modules.add(member)
+            elif (
+                not inspect.ismodule(member) and
+                hasattr(member, "__name__") and
+                not member.__name__.startswith("_") and
+                member.__module__ != module.__name__ and
+                member not in visited_functions
+            ):
+                # skip ufuncs that are exported in np.strings as well
+                if member.__name__ in (
+                    "add", "equal", "not_equal", "greater", "greater_equal",
+                    "less", "less_equal",
+                ) and module.__name__ == "numpy.strings":
+                    continue
+
+                # recarray and record are exported in np and np.rec
+                if (
+                    (member.__name__ == "recarray" and module.__name__ == "numpy") or
+                    (member.__name__ == "record" and module.__name__ == "numpy.rec")
+                ):
+                    continue
+
+                # ctypeslib exports ctypes c_long/c_longlong
+                if (
+                    member.__name__ in ("c_long", "c_longlong") and
+                    module.__name__ == "numpy.ctypeslib"
+                ):
+                    continue
+
+                # skip cdef classes
+                if member.__name__ in (
+                    "BitGenerator", "Generator", "MT19937", "PCG64", "PCG64DXSM",
+                    "Philox", "RandomState", "SFC64", "SeedSequence",
+                ):
+                    continue
+
+                incorrect_entries.append(
+                    {
+                        "Func": member.__name__,
+                        "actual": member.__module__,
+                        "expected": module.__name__,
+                    }
+                )
+                visited_functions.add(member)
+
+    if incorrect_entries:
+        assert len(incorrect_entries) == 0, incorrect_entries
+
+
+def _check_correct_qualname_and_module(obj) -> bool:
+    qualname = obj.__qualname__
+    name = obj.__name__
+    module_name = obj.__module__
+    assert name == qualname.split(".")[-1]
+
+    module = sys.modules[module_name]
+    actual_obj = functools.reduce(getattr, qualname.split("."), module)
+    return (
+        actual_obj is obj or
+        # `obj` may be a bound method/property of `actual_obj`:
+        (
+            hasattr(actual_obj, "__get__") and hasattr(obj, "__self__") and
+            actual_obj.__module__ == obj.__module__ and
+            actual_obj.__qualname__ == qualname
+        )
+    )
+
+
+@pytest.mark.filterwarnings(r"ignore:\w+ chararray \w+:DeprecationWarning")
+def test___qualname___and___module___attribute():
+    # NumPy messes with module and name/qualname attributes, but any object
+    # should be discoverable based on its module and qualname, so test that.
+    # We do this for anything with a name (ensuring qualname is also set).
+    modules_queue = [np]
+    visited_modules = {np}
+    visited_functions = set()
+    incorrect_entries = []
+
+    while len(modules_queue) > 0:
+        module = modules_queue.pop()
+        for member_name in dir(module):
+            member = getattr(module, member_name)
+            # first check if we got a module
+            if (
+                inspect.ismodule(member) and  # it's a module
+                "numpy" in member.__name__ and  # inside NumPy
+                not member_name.startswith("_") and  # not private
+                member_name not in {"tests", "typing"} and  # type names don't match
+                "numpy._core" not in member.__name__ and  # outside _core
+                member not in visited_modules  # not visited yet
+            ):
+                modules_queue.append(member)
+                visited_modules.add(member)
+            elif (
+                not inspect.ismodule(member) and
+                hasattr(member, "__name__") and
+                not member.__name__.startswith("_") and
+                not member_name.startswith("_") and
+                not _check_correct_qualname_and_module(member) and
+                member not in visited_functions
+            ):
+                incorrect_entries.append(
+                    {
+                        "found_at": f"{module.__name__}:{member_name}",
+                        "advertises": f"{member.__module__}:{member.__qualname__}",
+                    }
+                )
+                visited_functions.add(member)
+
+    if incorrect_entries:
+        assert len(incorrect_entries) == 0, incorrect_entries

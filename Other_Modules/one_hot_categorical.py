@@ -8,7 +8,7 @@ from torch.distributions.distribution import Distribution
 from torch.types import _size
 
 
-__all__ = ["OneHotCategorical", "OneHotCategoricalStraightThrough"]
+__all__ = ["OneHotCategorical", "REDACTED_MISTRAL"]
 
 
 class OneHotCategorical(Distribution):

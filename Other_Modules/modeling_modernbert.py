@@ -848,8 +848,8 @@ __all__ = [
     "ModernBertModel",
     "ModernBertPreTrainedModel",
     "ModernBertForMaskedLM",
-    "ModernBertForSequenceClassification",
-    "ModernBertForTokenClassification",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
     "ModernBertForQuestionAnswering",
     "ModernBertForMultipleChoice",
 ]

@@ -1348,4 +1348,4 @@ class PegasusXDecoderWrapper(PegasusXPreTrainedModel):
         return self.decoder(*args, **kwargs)
 
 
-__all__ = ["PegasusXForConditionalGeneration", "PegasusXModel", "PegasusXPreTrainedModel"]
+__all__ = ["REDACTED_MISTRAL", "PegasusXModel", "PegasusXPreTrainedModel"]

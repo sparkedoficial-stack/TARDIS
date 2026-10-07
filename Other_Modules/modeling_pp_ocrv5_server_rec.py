@@ -382,7 +382,7 @@ class PPOCRV5ServerRecForTextRecognition(PPOCRV5ServerRecPreTrainedModel):
 
 
 __all__ = [
-    "PPOCRV5ServerRecForTextRecognition",
+    "REDACTED_MISTRAL",
     "PPOCRV5ServerRecModel",
     "PPOCRV5ServerRecPreTrainedModel",
     "PPOCRV5ServerRecEncoderWithSVTR",

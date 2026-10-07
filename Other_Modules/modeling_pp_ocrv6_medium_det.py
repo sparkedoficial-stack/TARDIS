@@ -384,4 +384,4 @@ class PPOCRV6MediumDetForObjectDetection(PPOCRV6MediumDetPreTrainedModel):
         )
 
 
-__all__ = ["PPOCRV6MediumDetForObjectDetection", "PPOCRV6MediumDetModel", "PPOCRV6MediumDetPreTrainedModel"]
+__all__ = ["REDACTED_MISTRAL", "PPOCRV6MediumDetModel", "PPOCRV6MediumDetPreTrainedModel"]

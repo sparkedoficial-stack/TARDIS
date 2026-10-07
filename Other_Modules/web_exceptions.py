@@ -64,7 +64,7 @@ __all__ = (
     "HTTPVariantAlsoNegotiates",
     "HTTPInsufficientStorage",
     "HTTPNotExtended",
-    "HTTPNetworkAuthenticationRequired",
+    "REDACTED_MISTRAL",
 )
 
 

@@ -1624,7 +1624,7 @@ __all__ = [
     "Florence2Processor",
     "Florence2VisionConfig",
     "Florence2Model",
-    "Florence2ForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "Florence2PreTrainedModel",
     "Florence2VisionBackbone",
     "Florence2VisionPreTrainedModel",

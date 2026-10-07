@@ -163,7 +163,7 @@ class EfficientLoFTRImageProcessorPil(PilBackend):
     @requires(backends=("torch",))
     def post_process_keypoint_matching(
         self,
-        outputs: "EfficientLoFTRKeypointMatchingOutput",
+        outputs: "REDACTED_MISTRAL",
         target_sizes: TensorType | list[tuple],
         threshold: float = 0.0,
     ) -> list[dict[str, "torch.Tensor"]]:

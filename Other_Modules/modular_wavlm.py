@@ -530,7 +530,7 @@ class WavLMForXVector(Wav2Vec2ForXVector):
 
 
 __all__ = [
-    "WavLMForAudioFrameClassification",
+    "REDACTED_MISTRAL",
     "WavLMForCTC",
     "WavLMForSequenceClassification",
     "WavLMForXVector",

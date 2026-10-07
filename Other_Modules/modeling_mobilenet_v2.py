@@ -592,8 +592,8 @@ class MobileNetV2ForSemanticSegmentation(MobileNetV2PreTrainedModel):
 
 
 __all__ = [
-    "MobileNetV2ForImageClassification",
-    "MobileNetV2ForSemanticSegmentation",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
     "MobileNetV2Model",
     "MobileNetV2PreTrainedModel",
 ]

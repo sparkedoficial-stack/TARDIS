@@ -20,9 +20,9 @@ __all__ = (
     "TraceRequestStartParams",
     "TraceRequestEndParams",
     "TraceRequestExceptionParams",
-    "TraceConnectionQueuedStartParams",
+    "REDACTED_MISTRAL",
     "TraceConnectionQueuedEndParams",
-    "TraceConnectionCreateStartParams",
+    "REDACTED_MISTRAL",
     "TraceConnectionCreateEndParams",
     "TraceConnectionReuseconnParams",
     "TraceDnsResolveHostStartParams",
@@ -31,7 +31,7 @@ __all__ = (
     "TraceDnsCacheMissParams",
     "TraceRequestRedirectParams",
     "TraceRequestChunkSentParams",
-    "TraceResponseChunkReceivedParams",
+    "REDACTED_MISTRAL",
     "TraceRequestHeadersSentParams",
 )
 

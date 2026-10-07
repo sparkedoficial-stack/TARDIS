@@ -180,12 +180,12 @@ class OfflineChatVault:
 
         return turn_id
 
-    def search(self, query: str, limit: int = 10, client_id: Optional[str] = None, is_local: bool = False) -> List[Dict[str, Any]]:
-        """Búsqueda de alta velocidad por FTS5 BM25 sobre todo el historial con aislamiento de clientes."""
+    def search(self, query: str, limit: int = 10) -> List[Dict[str, Any]]:
+        """Búsqueda de alta velocidad por FTS5 BM25 sobre todo el historial."""
         raw_terms = re.findall(r"[\wáéíóúñü]+", (query or "").lower())
         terms = [t for t in raw_terms if len(t) >= 3][:12]
         if not terms:
-            return self.get_recent(limit=limit, client_id=client_id, is_local=is_local)
+            return self.get_recent(limit=limit)
 
         fts_query = " OR ".join(f'"{t}"' for t in terms)
         results = []
@@ -193,32 +193,18 @@ class OfflineChatVault:
         with self._db_lock:
             con = self._connect()
             try:
-                if not is_local and client_id:
-                    rows = con.execute(
-                        """SELECT t.id, t.ts, t.iso, t.session_id, t.client_id,
-                                  t.user_message, t.assistant_reply, t.model, t.tokens_est,
-                                  t.direction, t.meta, t.hardware_action,
-                                  bm25(offline_chat_fts) as rank
-                           FROM offline_chat_fts
-                           JOIN offline_chat_turns t ON t.id = offline_chat_fts.turn_id
-                           WHERE offline_chat_fts MATCH ? AND t.client_id = ?
-                           ORDER BY rank ASC
-                           LIMIT ?""",
-                        (fts_query, client_id, limit)
-                    ).fetchall()
-                else:
-                    rows = con.execute(
-                        """SELECT t.id, t.ts, t.iso, t.session_id, t.client_id,
-                                  t.user_message, t.assistant_reply, t.model, t.tokens_est,
-                                  t.direction, t.meta, t.hardware_action,
-                                  bm25(offline_chat_fts) as rank
-                           FROM offline_chat_fts
-                           JOIN offline_chat_turns t ON t.id = offline_chat_fts.turn_id
-                           WHERE offline_chat_fts MATCH ?
-                           ORDER BY rank ASC
-                           LIMIT ?""",
-                        (fts_query, limit)
-                    ).fetchall()
+                rows = con.execute(
+                    """SELECT t.id, t.ts, t.iso, t.session_id, t.client_id,
+                              t.user_message, t.assistant_reply, t.model, t.tokens_est,
+                              t.direction, t.meta, t.hardware_action,
+                              bm25(offline_chat_fts) as rank
+                       FROM offline_chat_fts
+                       JOIN offline_chat_turns t ON t.id = offline_chat_fts.turn_id
+                       WHERE offline_chat_fts MATCH ?
+                       ORDER BY rank ASC
+                       LIMIT ?""",
+                    (fts_query, limit)
+                ).fetchall()
 
                 for r in rows:
                     meta_obj = json.loads(r[10] or "{}")
@@ -245,24 +231,14 @@ class OfflineChatVault:
             except Exception as e:
                 logger.warning(f"[OfflineChatVault] FTS5 fallo, intentando LIKE: {e}")
                 like_term = f"%{terms[0]}%"
-                if not is_local and client_id:
-                    rows = con.execute(
-                        """SELECT id, ts, iso, session_id, client_id, user_message, assistant_reply,
-                                  model, tokens_est, direction, meta, hardware_action, 1.0 as rank
-                           FROM offline_chat_turns
-                           WHERE (user_message LIKE ? OR assistant_reply LIKE ?) AND client_id = ?
-                           ORDER BY id DESC LIMIT ?""",
-                        (like_term, like_term, client_id, limit)
-                    ).fetchall()
-                else:
-                    rows = con.execute(
-                        """SELECT id, ts, iso, session_id, client_id, user_message, assistant_reply,
-                                  model, tokens_est, direction, meta, hardware_action, 1.0 as rank
-                           FROM offline_chat_turns
-                           WHERE user_message LIKE ? OR assistant_reply LIKE ?
-                           ORDER BY id DESC LIMIT ?""",
-                        (like_term, like_term, limit)
-                    ).fetchall()
+                rows = con.execute(
+                    """SELECT id, ts, iso, session_id, client_id, user_message, assistant_reply,
+                              model, tokens_est, direction, meta, hardware_action, 1.0 as rank
+                       FROM offline_chat_turns
+                       WHERE user_message LIKE ? OR assistant_reply LIKE ?
+                       ORDER BY id DESC LIMIT ?""",
+                    (like_term, like_term, limit)
+                ).fetchall()
                 for r in rows:
                     meta_obj = json.loads(r[10] or "{}")
                     results.append({
@@ -290,29 +266,19 @@ class OfflineChatVault:
 
         return results
 
-    def get_recent(self, limit: int = 50, client_id: Optional[str] = None, is_local: bool = False) -> List[Dict[str, Any]]:
-        """Recupera los turnos más recientes ordenados cronológicamente con aislamiento de clientes."""
+    def get_recent(self, limit: int = 50) -> List[Dict[str, Any]]:
+        """Recupera los turnos más recientes ordenados cronológicamente."""
         results = []
         with self._db_lock:
             con = self._connect()
             try:
-                if not is_local and client_id:
-                    rows = con.execute(
-                        """SELECT id, ts, iso, session_id, client_id, user_message, assistant_reply,
-                                  model, tokens_est, direction, meta, hardware_action
-                           FROM offline_chat_turns
-                           WHERE client_id = ?
-                           ORDER BY id DESC LIMIT ?""",
-                        (client_id, limit)
-                    ).fetchall()
-                else:
-                    rows = con.execute(
-                        """SELECT id, ts, iso, session_id, client_id, user_message, assistant_reply,
-                                  model, tokens_est, direction, meta, hardware_action
-                           FROM offline_chat_turns
-                           ORDER BY id DESC LIMIT ?""",
-                        (limit,)
-                    ).fetchall()
+                rows = con.execute(
+                    """SELECT id, ts, iso, session_id, client_id, user_message, assistant_reply,
+                              model, tokens_est, direction, meta, hardware_action
+                       FROM offline_chat_turns
+                       ORDER BY id DESC LIMIT ?""",
+                    (limit,)
+                ).fetchall()
                 for r in reversed(rows):
                     meta_obj = json.loads(r[10] or "{}")
                     results.append({
@@ -348,32 +314,26 @@ class OfflineChatVault:
             finally:
                 con.close()
 
-    def get_context_for_prompt(self, query: str, k_relevant: int = 4, n_recent: int = 3, max_age_seconds: float = 86400.0, client_id: Optional[str] = None, is_local: bool = False) -> str:
+    def get_context_for_prompt(self, query: str, k_relevant: int = 4, n_recent: int = 3) -> str:
         """
         Construye el bloque de memoria histórica recuperada para ser inyectado
-        en el sistema cognitivo antes de formular la respuesta.
-        Aplica filtro de retención de 24 horas y aislamiento de cliente.
+        en el sistema cognitivo de Hermes antes de formular la respuesta.
         """
-        relevant_turns = self.search(query, limit=k_relevant, client_id=client_id, is_local=is_local)
-        recent_turns = self.get_recent(limit=n_recent, client_id=client_id, is_local=is_local)
+        relevant_turns = self.search(query, limit=k_relevant)
+        recent_turns = self.get_recent(limit=n_recent)
 
-        now = time.time()
         seen_ids = set()
         chosen_turns = []
 
         for t in relevant_turns:
             if t["id"] not in seen_ids:
                 seen_ids.add(t["id"])
-                # Excluir de la comprensión activa si tiene más de 24 horas
-                if (now - t.get("ts", now)) <= max_age_seconds:
-                    chosen_turns.append(t)
+                chosen_turns.append(t)
 
         for t in recent_turns:
             if t["id"] not in seen_ids:
                 seen_ids.add(t["id"])
-                # Excluir de la comprensión activa si tiene más de 24 horas
-                if (now - t.get("ts", now)) <= max_age_seconds:
-                    chosen_turns.append(t)
+                chosen_turns.append(t)
 
         if not chosen_turns:
             return ""

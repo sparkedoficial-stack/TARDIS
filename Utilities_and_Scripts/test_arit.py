@@ -2203,7 +2203,7 @@ def test_float_int_round():
     # decimal forces float so it's not an exact integer ending in 000000
     assert int(Float('1.123456789012345678901234567890e35', '')) == \
         112345678901234567890123456789000192
-    assert int(Float('123456789012345678901234567890e5', '')) == \
+    assert int(Float("REDACTED_MISTRAL", '')) == \
         12345678901234567890123456789000000
     assert Integer(Float('1.123456789012345678901234567890e20', '')) == \
         112345678901234567890
@@ -2212,7 +2212,7 @@ def test_float_int_round():
     # decimal forces float so it's not an exact integer ending in 000000
     assert Integer(Float('1.123456789012345678901234567890e35', '')) == \
         112345678901234567890123456789000192
-    assert Integer(Float('123456789012345678901234567890e5', '')) == \
+    assert Integer(Float("REDACTED_MISTRAL", '')) == \
         12345678901234567890123456789000000
     assert same_and_same_prec(Float('123000e-2',''), Float('1230.00', ''))
     assert same_and_same_prec(Float('123000e2',''), Float('12300000', ''))

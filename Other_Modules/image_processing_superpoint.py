@@ -112,7 +112,7 @@ class SuperPointImageProcessor(TorchvisionBackend):
         return BatchFeature(data={"pixel_values": processed_images}, tensor_type=return_tensors)
 
     def post_process_keypoint_detection(
-        self, outputs: "SuperPointKeypointDescriptionOutput", target_sizes: TensorType | list[tuple]
+        self, outputs: "REDACTED_MISTRAL", target_sizes: TensorType | list[tuple]
     ) -> list[dict[str, "torch.Tensor"]]:
         """
         Converts the raw output of [`SuperPointForKeypointDetection`] into lists of keypoints, scores and descriptors

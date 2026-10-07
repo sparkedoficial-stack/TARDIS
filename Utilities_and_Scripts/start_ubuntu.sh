@@ -17,6 +17,16 @@ C_DIM="\033[90m"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
+export PATH="$HOME/.local/bin:$SCRIPT_DIR/.venv-linux/bin:$PATH"
+export GIA_AUTH_TOKEN="${GIA_AUTH_TOKEN:-Imznu9ZNtdbFl2ebIGSzpYqe7A3OS4Y5}"
+export GIA_MODEL="${GIA_MODEL:-dolphin3:latest}"
+export GIA_NUM_CTX="${GIA_NUM_CTX:-16384}"
+export OLLAMA_KEEP_ALIVE="24h"
+export OLLAMA_NUM_PARALLEL="2"
+export OLLAMA_FLASH_ATTENTION="1"
+export GIA_FORCE_PIPE="1"
+export GIA_DIRECT="1"
+
 # Localizar intérprete de Python
 if [ -x "$SCRIPT_DIR/.venv-linux/bin/python3" ]; then
     PYTHON_EXE="$SCRIPT_DIR/.venv-linux/bin/python3"
@@ -28,7 +38,7 @@ fi
 
 echo -e "${C_CYAN}${C_BOLD}"
 echo "=============================================================================="
-echo "         GODWORKS SYSTEM v26.4 - LANZADOR NATIVO UBUNTU LINUX                "
+echo "         TARDIS v26.4 - LANZADOR NATIVO UBUNTU LINUX                         "
 echo "=============================================================================="
 echo -e "${C_RESET}"
 echo -e "Directorio base: ${C_DIM}$SCRIPT_DIR${C_RESET}"
@@ -39,10 +49,10 @@ echo ""
 show_menu() {
     echo -e "${C_BOLD}Selecciona el modo de arranque:${C_RESET}"
     echo -e "  ${C_GREEN}1)${C_RESET} Iniciar Suite Completa (Supervisor + Servidor Web + Control Temporal) ${C_DIM}[Recomendado]${C_RESET}"
-    echo -e "  ${C_CYAN}2)${C_RESET} Iniciar Servidor Web Dashboard (gia_web_server.py en :8757)"
+    echo -e "  ${C_CYAN}2)${C_RESET} Iniciar Aplicación Unificada de Escritorio Tardis (./launch_tardis.sh)"
     echo -e "  ${C_CYAN}3)${C_RESET} Iniciar Servidor Maestro Temporal (omni_temporal_control.py)"
     echo -e "  ${C_CYAN}4)${C_RESET} Iniciar Puente de Internet Resiliente (start_bridge.py)"
-    echo -e "  ${C_MAGENTA}5)${C_RESET} Iniciar Agente Autónomo GIA Interactivo (gia_agent.py)"
+    echo -e "  ${C_MAGENTA}5)${C_RESET} Iniciar Agente Autónomo TARDIS Interactivo (gia_agent.py)"
     echo -e "  ${C_YELLOW}6)${C_RESET} Diagnóstico de Sensores RF, Térmicos y Hardware"
     echo -e "  ${C_YELLOW}7)${C_RESET} Iniciar Motor Local Colibri (./colibri/coli chat)"
     echo -e "  ${C_RED}0)${C_RESET} Salir"
@@ -56,8 +66,8 @@ echo ""
 
 case "$OPTION" in
     2)
-        echo -e "${C_CYAN}Iniciando gia_web_server.py...${C_RESET}"
-        exec "$PYTHON_EXE" "$SCRIPT_DIR/gia_web_server.py" --port 8757
+        echo -e "${C_CYAN}Iniciando Aplicación Unificada Tardis...${C_RESET}"
+        exec "$SCRIPT_DIR/launch_tardis.sh"
         ;;
     3)
         echo -e "${C_CYAN}Iniciando omni_temporal_control.py...${C_RESET}"
@@ -110,7 +120,14 @@ print('Binario:', data.get('binary_noise_quantization', {}).get('bitrate_bps'), 
         exit 0
         ;;
     1|*)
-        echo -e "${C_GREEN}Iniciando Suite Completa bajo supervisión activa (supervisor.py)...${C_RESET}"
+        echo -e "${C_GREEN}Iniciando Suite Completa...${C_RESET}"
+        echo -e "${C_CYAN}Levantando Servidor Maestro Temporal en puerto 8757...${C_RESET}"
+        "$PYTHON_EXE" "$SCRIPT_DIR/omni_temporal_control.py" --port 8757 --no-window &
+        TEMPORAL_PID=$!
+        echo -e "${C_GREEN}Servidor Maestro Temporal activo (PID: $TEMPORAL_PID).${C_RESET}"
+        echo -e "${C_GREEN}Dashboard disponible en: http://localhost:8757 o http://$(hostname -I | awk '{print $1}'):8757${C_RESET}"
+        echo -e "${C_CYAN}Iniciando Supervisor con Watchdog Térmico...${C_RESET}"
+        trap "kill $TEMPORAL_PID 2>/dev/null || true; exit 0" SIGINT SIGTERM EXIT
         exec "$PYTHON_EXE" "$SCRIPT_DIR/supervisor.py"
         ;;
 esac

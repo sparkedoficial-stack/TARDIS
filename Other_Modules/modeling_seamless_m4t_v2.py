@@ -1261,8 +1261,8 @@ class SeamlessM4Tv2PreTrainedModel(PreTrainedModel):
     _no_split_modules = [
         "SeamlessM4Tv2EncoderLayer",
         "SeamlessM4Tv2DecoderLayer",
-        "SeamlessM4Tv2ConformerEncoderLayer",
-        "SeamlessM4Tv2TextToUnitDecoderLayer",
+        "REDACTED_MISTRAL",
+        "REDACTED_MISTRAL",
     ]
 
     @torch.no_grad()

@@ -108,7 +108,7 @@ class Cosmos3OmniForConditionalGeneration(Qwen3VLForConditionalGeneration):
 
 __all__ = [
     "Cosmos3OmniConfig",
-    "Cosmos3OmniForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "Cosmos3OmniPreTrainedModel",
     "Cosmos3OmniModel",  # noqa: F822
 ]

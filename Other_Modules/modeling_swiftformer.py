@@ -506,4 +506,4 @@ class SwiftFormerForImageClassification(SwiftFormerPreTrainedModel):
         )
 
 
-__all__ = ["SwiftFormerForImageClassification", "SwiftFormerModel", "SwiftFormerPreTrainedModel"]
+__all__ = ["REDACTED_MISTRAL", "SwiftFormerModel", "SwiftFormerPreTrainedModel"]

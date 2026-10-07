@@ -691,8 +691,8 @@ __all__ = [
     "DeepseekVLHybridConfig",
     "DeepseekVLHybridPreTrainedModel",
     "DeepseekVLHybridModel",
-    "DeepseekVLHybridForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "DeepseekVLHybridImageProcessor",
-    "DeepseekVLHybridImageProcessorPil",
+    "REDACTED_MISTRAL",
     "DeepseekVLHybridProcessor",
 ]

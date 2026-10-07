@@ -498,7 +498,7 @@ class CommitInfo(str):
             Description of the commit that has been created. Can be empty.
 
         oid (`str`):
-            Commit hash id. Example: `"91c54ad1727ee830252e457677f467be0bfd8a57"`.
+            Commit hash id. Example: `"REDACTED_MISTRAL"`.
 
         pr_url (`str`, *optional*):
             Url to the PR that has been created, if any. Populated when `create_pr=True`
@@ -1555,7 +1555,7 @@ class GitRefInfo:
         ref (`str`):
             Full git ref on the Hub (e.g. `"refs/heads/main"` or `"refs/tags/v1.0"`).
         target_commit (`str`):
-            OID of the target commit for the ref (e.g. `"e7da7f221d5bf496a48136c0cd264e630fe9fcc8"`)
+            OID of the target commit for the ref (e.g. `"REDACTED_MISTRAL"`)
     """
 
     name: str
@@ -1596,7 +1596,7 @@ class GitCommitInfo:
 
     Attributes:
         commit_id (`str`):
-            OID of the commit (e.g. `"e7da7f221d5bf496a48136c0cd264e630fe9fcc8"`)
+            OID of the commit (e.g. `"REDACTED_MISTRAL"`)
         authors (`list[str]`):
             List of authors of the commit.
         created_at (`datetime`):
@@ -3713,7 +3713,7 @@ class HfApi:
             >>> from huggingface_hub import hf_hub_download, resolve_revision
             >>> revision = resolve_revision("openai-community/gpt2")
             >>> revision
-            ResolvedRevision(initial=None, resolved='607a30d783dfa663caf39e06633721c8d4cfcd7e')
+            ResolvedRevision(initial=None, resolved="REDACTED_MISTRAL")
 
             # Pass it around: every download is pinned to the same commit
             >>> config = hf_hub_download("openai-community/gpt2", "config.json", revision=revision)
@@ -4034,19 +4034,19 @@ class HfApi:
             <generator object HfApi.list_repo_tree at 0x7fa4088e1ac0>
             >>> list(repo_tree)
             [
-                RepoFile(path='.gitattributes', size=391, blob_id='ae8c63daedbd4206d7d40126955d4e6ab1c80f8f', lfs=None, last_commit=None, security=None),
-                RepoFile(path='README.md', size=391, blob_id='43bd404b159de6fba7c2f4d3264347668d43af25', lfs=None, last_commit=None, security=None),
-                RepoFile(path='config.json', size=554, blob_id='2f9618c3a19b9a61add74f70bfb121335aeef666', lfs=None, last_commit=None, security=None),
+                RepoFile(path='.gitattributes', size=391, blob_id="REDACTED_MISTRAL", lfs=None, last_commit=None, security=None),
+                RepoFile(path='README.md', size=391, blob_id="REDACTED_MISTRAL", lfs=None, last_commit=None, security=None),
+                RepoFile(path='config.json', size=554, blob_id="REDACTED_MISTRAL", lfs=None, last_commit=None, security=None),
                 RepoFile(
-                    path='flax_model.msgpack', size=497764107, blob_id='8095a62ccb4d806da7666fcda07467e2d150218e',
-                    lfs={'size': 497764107, 'sha256': 'd88b0d6a6ff9c3f8151f9d3228f57092aaea997f09af009eefd7373a77b5abb9', 'pointer_size': 134}, last_commit=None, security=None
+                    path='flax_model.msgpack', size=497764107, blob_id="REDACTED_MISTRAL",
+                    lfs={'size': 497764107, 'sha256': "REDACTED_MISTRAL", 'pointer_size': 134}, last_commit=None, security=None
                 ),
-                RepoFile(path='merges.txt', size=456318, blob_id='226b0752cac7789c48f0cb3ec53eda48b7be36cc', lfs=None, last_commit=None, security=None),
+                RepoFile(path='merges.txt', size=456318, blob_id="REDACTED_MISTRAL", lfs=None, last_commit=None, security=None),
                 RepoFile(
-                    path='pytorch_model.bin', size=548123560, blob_id='64eaa9c526867e404b68f2c5d66fd78e27026523',
-                    lfs={'size': 548123560, 'sha256': '9be78edb5b928eba33aa88f431551348f7466ba9f5ef3daf1d552398722a5436', 'pointer_size': 134}, last_commit=None, security=None
+                    path='pytorch_model.bin', size=548123560, blob_id="REDACTED_MISTRAL",
+                    lfs={'size': 548123560, 'sha256': "REDACTED_MISTRAL", 'pointer_size': 134}, last_commit=None, security=None
                 ),
-                RepoFile(path='vocab.json', size=898669, blob_id='b00361fece0387ca34b4b8b8539ed830d644dbeb', lfs=None, last_commit=None, security=None)]
+                RepoFile(path='vocab.json', size=898669, blob_id="REDACTED_MISTRAL", lfs=None, last_commit=None, security=None)]
             ]
             ```
 
@@ -4058,18 +4058,18 @@ class HfApi:
             [
                 RepoFolder(
                     path='feature_extractor',
-                    tree_id='aa536c4ea18073388b5b0bc791057a7296a00398',
+                    tree_id="REDACTED_MISTRAL",
                     last_commit={
-                        'oid': '47b62b20b20e06b9de610e840282b7e6c3d51190',
+                        'oid': "REDACTED_MISTRAL",
                         'title': 'Upload diffusers weights (#48)',
                         'date': datetime.datetime(2023, 3, 21, 9, 5, 27, tzinfo=datetime.timezone.utc)
                     }
                 ),
                 RepoFolder(
                     path='safety_checker',
-                    tree_id='65aef9d787e5557373fdf714d6c34d4fcdd70440',
+                    tree_id="REDACTED_MISTRAL",
                     last_commit={
-                        'oid': '47b62b20b20e06b9de610e840282b7e6c3d51190',
+                        'oid': "REDACTED_MISTRAL",
                         'title': 'Upload diffusers weights (#48)',
                         'date': datetime.datetime(2023, 3, 21, 9, 5, 27, tzinfo=datetime.timezone.utc)
                     }
@@ -4077,10 +4077,10 @@ class HfApi:
                 RepoFile(
                     path='model_index.json',
                     size=582,
-                    blob_id='d3d7c1e8c3e78eeb1640b8e2041ee256e24c9ee1',
+                    blob_id="REDACTED_MISTRAL",
                     lfs=None,
                     last_commit={
-                        'oid': 'b195ed2d503f3eb29637050a886d77bd81d35f0e',
+                        'oid': "REDACTED_MISTRAL",
                         'title': 'Fix deprecation warning by changing `CLIPFeatureExtractor` to `CLIPImageProcessor`. (#54)',
                         'date': datetime.datetime(2023, 5, 15, 21, 41, 59, tzinfo=datetime.timezone.utc)
                     },
@@ -4211,17 +4211,17 @@ class HfApi:
         >>> from huggingface_hub import HfApi
         >>> api = HfApi()
         >>> api.list_repo_refs("gpt2")
-        GitRefs(branches=[GitRefInfo(name='main', ref='refs/heads/main', target_commit='e7da7f221d5bf496a48136c0cd264e630fe9fcc8')], converts=[], tags=[])
+        GitRefs(branches=[GitRefInfo(name='main', ref='refs/heads/main', target_commit="REDACTED_MISTRAL")], converts=[], tags=[])
 
         >>> api.list_repo_refs("bigcode/the-stack", repo_type='dataset')
         GitRefs(
             branches=[
-                GitRefInfo(name='main', ref='refs/heads/main', target_commit='18edc1591d9ce72aa82f56c4431b3c969b210ae3'),
-                GitRefInfo(name='v1.1.a1', ref='refs/heads/v1.1.a1', target_commit='f9826b862d1567f3822d3d25649b0d6d22ace714')
+                GitRefInfo(name='main', ref='refs/heads/main', target_commit="REDACTED_MISTRAL"),
+                GitRefInfo(name='v1.1.a1', ref='refs/heads/v1.1.a1', target_commit="REDACTED_MISTRAL")
             ],
             converts=[],
             tags=[
-                GitRefInfo(name='v1.0', ref='refs/tags/v1.0', target_commit='c37a8cd1e382064d8aced5e05543c5f7753834da')
+                GitRefInfo(name='v1.0', ref='refs/tags/v1.0', target_commit="REDACTED_MISTRAL")
             ]
         )
         ```
@@ -4293,7 +4293,7 @@ class HfApi:
         # Initial commit is always a system commit containing the `.gitattributes` file.
         >>> initial_commit
         GitCommitInfo(
-            commit_id='9b865efde13a30c13e0a33e536cf3e4a5a9d71d8',
+            commit_id="REDACTED_MISTRAL",
             authors=['system'],
             created_at=datetime.datetime(2019, 2, 18, 10, 36, 15, tzinfo=datetime.timezone.utc),
             title='initial commit',
@@ -4390,8 +4390,8 @@ class HfApi:
         >>> paths_info = get_paths_info("allenai/c4", ["README.md", "en"], repo_type="dataset")
         >>> paths_info
         [
-            RepoFile(path='README.md', size=2379, blob_id='f84cb4c97182890fc1dbdeaf1a6a468fd27b4fff', lfs=None, last_commit=None, security=None),
-            RepoFolder(path='en', tree_id='dc943c4c40f53d02b31ced1defa7e5f438d5862e', last_commit=None)
+            RepoFile(path='README.md', size=2379, blob_id="REDACTED_MISTRAL", lfs=None, last_commit=None, security=None),
+            RepoFolder(path='en', tree_id="REDACTED_MISTRAL", last_commit=None)
         ]
         ```
         """
@@ -9471,7 +9471,7 @@ class HfApi:
                 The duration in minutes before an inactive endpoint is scaled to zero, or no scaling to zero if
                 set to None and `min_replica` is not 0. Defaults to None.
             revision (`str`, *optional*):
-                The specific model revision to deploy on the Inference Endpoint (e.g. `"6c0e6080953db56375760c0471a8c5f2929baf11"`).
+                The specific model revision to deploy on the Inference Endpoint (e.g. `"REDACTED_MISTRAL"`).
             task (`str`, *optional*):
                 The task on which to deploy the model (e.g. `"text-classification"`).
             custom_image (`dict`, *optional*):
@@ -9899,7 +9899,7 @@ class HfApi:
             framework (`str`, *optional*):
                 The machine learning framework used for the model (e.g. `"custom"`).
             revision (`str`, *optional*):
-                The specific model revision to deploy on the Inference Endpoint (e.g. `"6c0e6080953db56375760c0471a8c5f2929baf11"`).
+                The specific model revision to deploy on the Inference Endpoint (e.g. `"REDACTED_MISTRAL"`).
             task (`str`, *optional*):
                 The task on which to deploy the model (e.g. `"text-classification"`).
             custom_image (`dict`, *optional*):
@@ -14265,8 +14265,8 @@ class HfApi:
         >>> paths_info = get_bucket_paths_info("username/my-bucket", ["file.txt", "checkpoints/model.safetensors"])
         >>> for info in paths_info:
         ...     print(info)
-        BucketFile(type='file', path='file.txt', size=2379, xet_hash='96e637d9665bd35477b1908a23f2e254edfba0618dbd2d62f90a6baee7d139cf', mtime=datetime.datetime(2024, 9, 25, 15, 31, 2, 346000, tzinfo=datetime.timezone.utc))
-        BucketFile(type='file', path='checkpoints/model.safetensors', size=2408828, xet_hash='3ed0e9fefe788ddd61d1e26eba67057e9740a064b009256fbafadf6bb95785ca', mtime=datetime.datetime(2024, 9, 25, 15, 31, 2, 346000, tzinfo=datetime.timezone.utc))
+        BucketFile(type='file', path='file.txt', size=2379, xet_hash="REDACTED_MISTRAL", mtime=datetime.datetime(2024, 9, 25, 15, 31, 2, 346000, tzinfo=datetime.timezone.utc))
+        BucketFile(type='file', path='checkpoints/model.safetensors', size=2408828, xet_hash="REDACTED_MISTRAL", mtime=datetime.datetime(2024, 9, 25, 15, 31, 2, 346000, tzinfo=datetime.timezone.utc))
         ```
         """
         from ._buckets import BucketFile

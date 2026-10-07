@@ -245,6 +245,6 @@ __all__ = [
     "DeepseekV3PreTrainedModel",
     "DeepseekV3Model",
     "DeepseekV3ForCausalLM",
-    "DeepseekV3ForSequenceClassification",
-    "DeepseekV3ForTokenClassification",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
 ]

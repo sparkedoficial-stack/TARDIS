@@ -657,7 +657,7 @@ class DeiTForImageClassificationWithTeacher(DeiTPreTrainedModel):
 
 __all__ = [
     "DeiTForImageClassification",
-    "DeiTForImageClassificationWithTeacher",
+    "REDACTED_MISTRAL",
     "DeiTForMaskedImageModeling",
     "DeiTModel",
     "DeiTPreTrainedModel",

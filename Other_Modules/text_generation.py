@@ -105,7 +105,7 @@ class TextGenerationOutputToken(BaseInferenceType):
 
 @dataclass_with_extra
 class TextGenerationOutputBestOfSequence(BaseInferenceType):
-    finish_reason: "TextGenerationOutputFinishReason"
+    finish_reason: "REDACTED_MISTRAL"
     generated_text: str
     generated_tokens: int
     prefill: list[TextGenerationOutputPrefillToken]
@@ -116,7 +116,7 @@ class TextGenerationOutputBestOfSequence(BaseInferenceType):
 
 @dataclass_with_extra
 class TextGenerationOutputDetails(BaseInferenceType):
-    finish_reason: "TextGenerationOutputFinishReason"
+    finish_reason: "REDACTED_MISTRAL"
     generated_tokens: int
     prefill: list[TextGenerationOutputPrefillToken]
     tokens: list[TextGenerationOutputToken]
@@ -139,7 +139,7 @@ class TextGenerationOutput(BaseInferenceType):
 
 @dataclass_with_extra
 class TextGenerationStreamOutputStreamDetails(BaseInferenceType):
-    finish_reason: "TextGenerationOutputFinishReason"
+    finish_reason: "REDACTED_MISTRAL"
     generated_tokens: int
     input_length: int
     seed: int | None = None

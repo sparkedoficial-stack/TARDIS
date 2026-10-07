@@ -333,7 +333,7 @@ class Mistral3Model(Mistral3PreTrainedModel):
     The MISTRAL3 model which consists of a vision backbone and a language model.
     """
 )
-class REDACTED(Mistral3PreTrainedModel, GenerationMixin):
+class Mistral3ForConditionalGeneration(Mistral3PreTrainedModel, GenerationMixin):
     _tied_weights_keys = {"lm_head.weight": "model.language_model.embed_tokens.weight"}
 
     def __init__(self, config: Mistral3Config):
@@ -387,9 +387,9 @@ class REDACTED(Mistral3PreTrainedModel, GenerationMixin):
         >>> from PIL import Image
         >>> from huggingface_hub.utils import httpx
         >>> from io import BytesIO
-        >>> from transformers import AutoProcessor, REDACTED
+        >>> from transformers import AutoProcessor, Mistral3ForConditionalGeneration
 
-        >>> model = REDACTED.from_pretrained("mistralai/Mistral-Small-3.1-24B-Instruct-2503")
+        >>> model = Mistral3ForConditionalGeneration.from_pretrained("mistralai/Mistral-Small-3.1-24B-Instruct-2503")
         >>> processor = AutoProcessor.from_pretrained("mistralai/Mistral-Small-3.1-24B-Instruct-2503")
 
         >>> prompt = "<s>[INST][IMG]What is the image?[/INST]"
@@ -437,4 +437,4 @@ class REDACTED(Mistral3PreTrainedModel, GenerationMixin):
         )
 
 
-__all__ = ["Mistral3Model", "Mistral3PreTrainedModel", "REDACTED"]
+__all__ = ["Mistral3Model", "Mistral3PreTrainedModel", "REDACTED_MISTRAL"]

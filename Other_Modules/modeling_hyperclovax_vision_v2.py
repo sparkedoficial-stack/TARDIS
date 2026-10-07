@@ -38,7 +38,7 @@ class HyperCLOVAXVisionV2PreTrainedModel(PreTrainedModel):
     base_model_prefix = "model"
     input_modalities = ("image", "video", "text")
     supports_gradient_checkpointing = True
-    _no_split_modules = ["HyperCLOVAXVisionV2VisionEncoderLayer"]
+    _no_split_modules = ["REDACTED_MISTRAL"]
     _skip_keys_device_placement = ["past_key_values"]
     _supports_flash_attn = True
     _supports_sdpa = True
@@ -371,7 +371,7 @@ class HyperCLOVAXVisionV2ForConditionalGeneration(HyperCLOVAXVisionV2PreTrainedM
 
 
 __all__ = [
-    "HyperCLOVAXVisionV2ForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "HyperCLOVAXVisionV2Model",
-    "HyperCLOVAXVisionV2PreTrainedModel",
+    "REDACTED_MISTRAL",
 ]

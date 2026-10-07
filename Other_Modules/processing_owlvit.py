@@ -196,7 +196,7 @@ class OwlViTProcessor(ProcessorMixin):
 
     def post_process_image_guided_detection(
         self,
-        outputs: "OwlViTImageGuidedObjectDetectionOutput",
+        outputs: "REDACTED_MISTRAL",
         threshold: float = 0.0,
         nms_threshold: float = 0.3,
         target_sizes: TensorType | list[tuple] | None = None,

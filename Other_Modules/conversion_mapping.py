@@ -466,7 +466,7 @@ def _build_checkpoint_conversion_mapping():
             WeightRenaming("layer_norm_1", "layernorm_before"),
             WeightRenaming("layer_norm_2", "layernorm_after"),
         ],
-        "SegformerForSemanticSegmentation": [WeightRenaming("decode_head.linear_c", "decode_head.linear_projections")],
+        "REDACTED_MISTRAL": [WeightRenaming("decode_head.linear_c", "decode_head.linear_projections")],
         "videomae": [
             WeightRenaming(r"attention\.attention\.q_bias$", "attention.attention.query.bias"),
             WeightRenaming(r"attention\.attention\.v_bias$", "attention.attention.value.bias"),
@@ -1821,7 +1821,7 @@ def _build_checkpoint_conversion_mapping():
         WeightRenaming(renaming.source_patterns[0].replace("depth", "normals"), renaming.target_patterns[0])
         for renaming in mapping["Tipsv2DptForDepthEstimation"]
     ]
-    mapping["Tipsv2DptForSemanticSegmentation"] = [
+    mapping["REDACTED_MISTRAL"] = [
         WeightRenaming(renaming.source_patterns[0].replace("depth", "segmentation"), renaming.target_patterns[0])
         for renaming in mapping["Tipsv2DptForDepthEstimation"]
     ]

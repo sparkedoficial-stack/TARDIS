@@ -684,7 +684,7 @@ class ModernBertDecoderForSequenceClassification(ModernBertDecoderPreTrainedMode
 __all__ = [
     "ModernBertDecoderConfig",
     "ModernBertDecoderModel",
-    "ModernBertDecoderPreTrainedModel",
+    "REDACTED_MISTRAL",
     "ModernBertDecoderForCausalLM",
-    "ModernBertDecoderForSequenceClassification",
+    "REDACTED_MISTRAL",
 ]

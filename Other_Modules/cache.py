@@ -1,128 +1,210 @@
-"""HTTP cache implementation."""
+""" Caching facility for SymPy """
+from importlib import import_module
+from typing import Callable
 
-from __future__ import annotations
+class _cache(list):
+    """ List of cached functions """
 
-import os
-import shutil
-from collections.abc import Callable, Generator
-from contextlib import contextmanager
-from datetime import datetime
-from typing import Any, BinaryIO
+    def print_cache(self):
+        """print cache info"""
 
-from pip._vendor.cachecontrol.cache import SeparateBodyBaseCache
-from pip._vendor.cachecontrol.caches import SeparateBodyFileCache
-from pip._vendor.requests.models import Response
+        for item in self:
+            name = item.__name__
+            myfunc = item
+            while hasattr(myfunc, '__wrapped__'):
+                if hasattr(myfunc, 'cache_info'):
+                    info = myfunc.cache_info()
+                    break
+                else:
+                    myfunc = myfunc.__wrapped__
+            else:
+                info = None
 
-from pip._internal.utils.filesystem import (
-    adjacent_tmp_file,
-    copy_directory_permissions,
-    replace,
-)
-from pip._internal.utils.misc import ensure_dir
+            print(name, info)
+
+    def clear_cache(self):
+        """clear cache content"""
+        for item in self:
+            myfunc = item
+            while hasattr(myfunc, '__wrapped__'):
+                if hasattr(myfunc, 'cache_clear'):
+                    myfunc.cache_clear()
+                    break
+                else:
+                    myfunc = myfunc.__wrapped__
 
 
-def is_from_cache(response: Response) -> bool:
-    return getattr(response, "from_cache", False)
+# global cache registry:
+CACHE = _cache()
+# make clear and print methods available
+print_cache = CACHE.print_cache
+clear_cache = CACHE.clear_cache
+
+from functools import lru_cache, wraps
+
+def __cacheit(maxsize):
+    """caching decorator.
+
+        important: the result of cached function must be *immutable*
 
 
-@contextmanager
-def suppressed_cache_errors() -> Generator[None, None, None]:
-    """If we can't access the cache then we can just skip caching and process
-    requests as if caching wasn't enabled.
+        Examples
+        ========
+
+        >>> from sympy import cacheit
+        >>> @cacheit
+        ... def f(a, b):
+        ...    return a+b
+
+        >>> @cacheit
+        ... def f(a, b): # noqa: F811
+        ...    return [a, b] # <-- WRONG, returns mutable object
+
+        to force cacheit to check returned results mutability and consistency,
+        set environment variable SYMPY_USE_CACHE to 'debug'
     """
+    def func_wrapper(func):
+        cfunc = lru_cache(maxsize, typed=True)(func)
+
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            try:
+                retval = cfunc(*args, **kwargs)
+            except TypeError as e:
+                if not e.args or not e.args[0].startswith('unhashable type:'):
+                    raise
+                retval = func(*args, **kwargs)
+            return retval
+
+        wrapper.cache_info = cfunc.cache_info
+        wrapper.cache_clear = cfunc.cache_clear
+
+        CACHE.append(wrapper)
+        return wrapper
+
+    return func_wrapper
+########################################
+
+
+def __cacheit_nocache(func):
+    return func
+
+
+def __cacheit_debug(maxsize):
+    """cacheit + code to check cache consistency"""
+    def func_wrapper(func):
+        cfunc = __cacheit(maxsize)(func)
+
+        @wraps(func)
+        def wrapper(*args, **kw_args):
+            # always call function itself and compare it with cached version
+            r1 = func(*args, **kw_args)
+            r2 = cfunc(*args, **kw_args)
+
+            # try to see if the result is immutable
+            #
+            # this works because:
+            #
+            # hash([1,2,3])         -> raise TypeError
+            # hash({'a':1, 'b':2})  -> raise TypeError
+            # hash((1,[2,3]))       -> raise TypeError
+            #
+            # hash((1,2,3))         -> just computes the hash
+            hash(r1), hash(r2)
+
+            # also see if returned values are the same
+            if r1 != r2:
+                raise RuntimeError("Returned values are not the same")
+            return r1
+        return wrapper
+    return func_wrapper
+
+
+def _getenv(key, default=None):
+    from os import getenv
+    return getenv(key, default)
+
+# SYMPY_USE_CACHE=yes/no/debug
+USE_CACHE = _getenv('SYMPY_USE_CACHE', 'yes').lower()
+# SYMPY_CACHE_SIZE=some_integer/None
+# special cases :
+#  SYMPY_CACHE_SIZE=0    -> No caching
+#  SYMPY_CACHE_SIZE=None -> Unbounded caching
+scs = _getenv('SYMPY_CACHE_SIZE', '1000')
+if scs.lower() == 'none':
+    SYMPY_CACHE_SIZE = None
+else:
     try:
-        yield
-    except OSError:
-        pass
+        SYMPY_CACHE_SIZE = int(scs)
+    except ValueError:
+        raise RuntimeError(
+            'SYMPY_CACHE_SIZE must be a valid integer or None. ' + \
+            'Got: %s' % SYMPY_CACHE_SIZE)
+
+if USE_CACHE == 'no':
+    cacheit = __cacheit_nocache
+elif USE_CACHE == 'yes':
+    cacheit = __cacheit(SYMPY_CACHE_SIZE)
+elif USE_CACHE == 'debug':
+    cacheit = __cacheit_debug(SYMPY_CACHE_SIZE)   # a lot slower
+else:
+    raise RuntimeError(
+        'unrecognized value for SYMPY_USE_CACHE: %s' % USE_CACHE)
 
 
-class SafeFileCache(SeparateBodyBaseCache):
+def cached_property(func):
+    '''Decorator to cache property method'''
+    attrname = '__' + func.__name__
+    _cached_property_sentinel = object()
+    def propfunc(self):
+        val = getattr(self, attrname, _cached_property_sentinel)
+        if val is _cached_property_sentinel:
+            val = func(self)
+            setattr(self, attrname, val)
+        return val
+    return property(propfunc)
+
+
+def lazy_function(module : str, name : str) -> Callable:
+    """Create a lazy proxy for a function in a module.
+
+    The module containing the function is not imported until the function is used.
+
     """
-    A file based cache which is safe to use even when the target directory may
-    not be accessible or writable.
+    func = None
 
-    There is a race condition when two processes try to write and/or read the
-    same entry at the same time, since each entry consists of two separate
-    files (https://github.com/psf/cachecontrol/issues/324).  We therefore have
-    additional logic that makes sure that both files to be present before
-    returning an entry; this fixes the read side of the race condition.
+    def _get_function():
+        nonlocal func
+        if func is None:
+            func = getattr(import_module(module), name)
+        return func
 
-    For the write side, we assume that the server will only ever return the
-    same data for the same URL, which ought to be the case for files pip is
-    downloading.  PyPI does not have a mechanism to swap out a wheel for
-    another wheel, for example.  If this assumption is not true, the
-    CacheControl issue will need to be fixed.
-    """
+    # The metaclass is needed so that help() shows the docstring
+    class LazyFunctionMeta(type):
+        @property
+        def __doc__(self):
+            docstring = _get_function().__doc__
+            docstring += f"\n\nNote: this is a {self.__class__.__name__} wrapper of '{module}.{name}'"
+            return docstring
 
-    def __init__(self, directory: str) -> None:
-        assert directory is not None, "Cache directory must not be None."
-        super().__init__()
-        self.directory = directory
+    class LazyFunction(metaclass=LazyFunctionMeta):
+        def __call__(self, *args, **kwargs):
+            # inline get of function for performance gh-23832
+            nonlocal func
+            if func is None:
+                func = getattr(import_module(module), name)
+            return func(*args, **kwargs)
 
-    def _get_cache_path(self, name: str) -> str:
-        # From cachecontrol.caches.file_cache.FileCache._fn, brought into our
-        # class for backwards-compatibility and to avoid using a non-public
-        # method.
-        hashed = SeparateBodyFileCache.encode(name)
-        parts = list(hashed[:5]) + [hashed]
-        return os.path.join(self.directory, *parts)
+        @property
+        def __doc__(self):
+            docstring = _get_function().__doc__
+            docstring += f"\n\nNote: this is a {self.__class__.__name__} wrapper of '{module}.{name}'"
+            return docstring
 
-    def get(self, key: str) -> bytes | None:
-        # The cache entry is only valid if both metadata and body exist.
-        metadata_path = self._get_cache_path(key)
-        body_path = metadata_path + ".body"
-        if not (os.path.exists(metadata_path) and os.path.exists(body_path)):
-            return None
-        with suppressed_cache_errors():
-            with open(metadata_path, "rb") as f:
-                return f.read()
+        def __str__(self):
+            return _get_function().__str__()
 
-    def _write_to_file(self, path: str, writer_func: Callable[[BinaryIO], Any]) -> None:
-        """Common file writing logic with proper permissions and atomic replacement."""
-        with suppressed_cache_errors():
-            ensure_dir(os.path.dirname(path))
+        def __repr__(self):
+            return f"<{__class__.__name__} object at 0x{id(self):x}>: wrapping '{module}.{name}'"
 
-            with adjacent_tmp_file(path) as f:
-                writer_func(f)
-                # Inherit the read/write permissions of the cache directory
-                # to enable multi-user cache use-cases.
-                copy_directory_permissions(self.directory, f)
-
-            replace(f.name, path)
-
-    def _write(self, path: str, data: bytes) -> None:
-        self._write_to_file(path, lambda f: f.write(data))
-
-    def _write_from_io(self, path: str, source_file: BinaryIO) -> None:
-        self._write_to_file(path, lambda f: shutil.copyfileobj(source_file, f))
-
-    def set(
-        self, key: str, value: bytes, expires: int | datetime | None = None
-    ) -> None:
-        path = self._get_cache_path(key)
-        self._write(path, value)
-
-    def delete(self, key: str) -> None:
-        path = self._get_cache_path(key)
-        with suppressed_cache_errors():
-            os.remove(path)
-        with suppressed_cache_errors():
-            os.remove(path + ".body")
-
-    def get_body(self, key: str) -> BinaryIO | None:
-        # The cache entry is only valid if both metadata and body exist.
-        metadata_path = self._get_cache_path(key)
-        body_path = metadata_path + ".body"
-        if not (os.path.exists(metadata_path) and os.path.exists(body_path)):
-            return None
-        with suppressed_cache_errors():
-            return open(body_path, "rb")
-
-    def set_body(self, key: str, body: bytes) -> None:
-        path = self._get_cache_path(key) + ".body"
-        self._write(path, body)
-
-    def set_body_from_io(self, key: str, body_file: BinaryIO) -> None:
-        """Set the body of the cache entry from a file object."""
-        path = self._get_cache_path(key) + ".body"
-        self._write_from_io(path, body_file)
+    return LazyFunction()

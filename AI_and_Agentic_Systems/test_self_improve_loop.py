@@ -14,7 +14,7 @@ import antigravity_bridge
 from server.api import app
 
 client = TestClient(app)
-AUTH_HEADERS = {"X-API-Key": "Imznu9ZNtdbFl2ebIGSzpYqe7A3OS4Y5"}
+AUTH_HEADERS = {"X-API-Key": "REDACTED_MISTRAL"}
 
 
 class TestSelfImproveLoopCore:

@@ -305,7 +305,7 @@ class GraniteSpeech5EncoderSubsamplingBlock(GraniteSpeech5EncoderBlock):
 @auto_docstring
 class GraniteSpeech5PreTrainedModel(ParakeetPreTrainedModel):
     config: GraniteSpeech5CTCConfig
-    _no_split_modules = ["GraniteSpeech5EncoderBlock", "GraniteSpeech5EncoderSubsamplingBlock"]
+    _no_split_modules = ["GraniteSpeech5EncoderBlock", "REDACTED_MISTRAL"]
 
     # float attention bias is not supported by flash attention
     _supports_flash_attn = False

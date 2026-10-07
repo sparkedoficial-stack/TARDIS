@@ -206,7 +206,7 @@ __all__ = [
     "DiffLlamaPreTrainedModel",
     "DiffLlamaModel",
     "DiffLlamaForCausalLM",
-    "DiffLlamaForSequenceClassification",
+    "REDACTED_MISTRAL",
     "DiffLlamaForQuestionAnswering",
     "DiffLlamaForTokenClassification",
 ]

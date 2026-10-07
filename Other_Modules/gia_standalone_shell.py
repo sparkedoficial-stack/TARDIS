@@ -22,21 +22,9 @@ gi.require_version('WebKit2', '4.1')
 from gi.repository import Gtk, WebKit2, GLib, GdkPixbuf
 
 
-def _get_default_target_url() -> str:
-    try:
-        from core.config import get_settings
-        st = get_settings()
-        tok = st.token
-        return f"http://REDACTED_IP:{st.port}?key={tok}" if tok else f"http://REDACTED_IP:{st.port}"
-    except Exception:
-        return "http://REDACTED_IP:8757"
-
-
 class GiaStandaloneWindow(Gtk.Window):
-    def __init__(self, target_url: Optional[str] = None):
+    def __init__(self, target_url: str = "http://REDACTED_IP:8757?key=DiosDelTiempo01"):
         super().__init__(title="GODWORKS · GIA NODO SOBERANO (VENTANA NATIVA)")
-        if not target_url:
-            target_url = _get_default_target_url()
         self.set_default_size(1366, 860)
         self.set_position(Gtk.WindowPosition.CENTER)
 
@@ -74,7 +62,7 @@ class GiaStandaloneWindow(Gtk.Window):
 
 
 def main():
-    target_url = sys.argv[1] if len(sys.argv) > 1 else None
+    target_url = sys.argv[1] if len(sys.argv) > 1 else "http://REDACTED_IP:8757?key=DiosDelTiempo01"
     win = GiaStandaloneWindow(target_url=target_url)
     win.show_all()
     signal.signal(signal.SIGINT, signal.SIG_DFL)

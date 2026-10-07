@@ -245,11 +245,21 @@ def main() -> int:
     print(f"{C_DIM}  Comandos: /mic [on|off]  /voz [on|off]  /web [on|off]  /clear  /salir{C_END}")
     print(f"{C_AI}================================================={C_END}\n")
 
+    # Auto-bootstrap autónomo del motor LLM y dependencias
+    try:
+        import gia_bootstrap
+        boot = gia_bootstrap.ensure_all_dependencies(preferred_model=args.model, verbose=False)
+        if boot.get("active_model"):
+            args.model = boot["active_model"]
+    except Exception as e_boot:
+        print(f"{C_WARN}Aviso en auto-bootstrap: {e_boot}{C_END}")
+
     client = httpx.Client()
     try:
         client.get(f"{OLLAMA}/api/tags", timeout=5.0)
     except Exception:
-        print(f"{C_ERR}Ollama no responde. Arranca el servicio: ollama serve{C_END}")
+        print(f"{C_WARN}Aviso: Ollama no parece estar corriendo en {OLLAMA}.{C_END}")
+        print(f"{C_DIM}Iniciando con: ollama serve{C_END}\n")
         return 1
 
     history: list = []

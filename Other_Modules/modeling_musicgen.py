@@ -2152,4 +2152,4 @@ class MusicgenForConditionalGeneration(MusicgenPreTrainedModel, GenerationMixin)
         )
 
 
-__all__ = ["MusicgenForConditionalGeneration", "MusicgenForCausalLM", "MusicgenModel", "MusicgenPreTrainedModel"]
+__all__ = ["REDACTED_MISTRAL", "MusicgenForCausalLM", "MusicgenModel", "MusicgenPreTrainedModel"]

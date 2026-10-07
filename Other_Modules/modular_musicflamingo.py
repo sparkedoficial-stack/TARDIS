@@ -412,7 +412,7 @@ class MusicFlamingoForConditionalGeneration(AudioFlamingo3ForConditionalGenerati
 __all__ = [
     "MusicFlamingoConfig",
     "MusicFlamingoProcessor",
-    "MusicFlamingoForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "MusicFlamingoModel",
     "MusicFlamingoPreTrainedModel",
 ]

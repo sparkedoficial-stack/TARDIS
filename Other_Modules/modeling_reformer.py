@@ -2668,7 +2668,7 @@ __all__ = [
     "ReformerAttention",
     "ReformerForMaskedLM",
     "ReformerForQuestionAnswering",
-    "ReformerForSequenceClassification",
+    "REDACTED_MISTRAL",
     "ReformerLayer",
     "ReformerModel",
     "ReformerModelWithLMHead",

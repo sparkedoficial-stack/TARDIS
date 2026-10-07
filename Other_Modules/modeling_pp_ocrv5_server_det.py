@@ -445,4 +445,4 @@ class PPOCRV5ServerDetForObjectDetection(PPOCRV5ServerDetPreTrainedModel):
         )
 
 
-__all__ = ["PPOCRV5ServerDetForObjectDetection", "PPOCRV5ServerDetModel", "PPOCRV5ServerDetPreTrainedModel"]
+__all__ = ["REDACTED_MISTRAL", "PPOCRV5ServerDetModel", "PPOCRV5ServerDetPreTrainedModel"]

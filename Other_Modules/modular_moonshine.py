@@ -805,5 +805,5 @@ __all__ = [
     "MoonshineConfig",
     "MoonshineModel",
     "MoonshinePreTrainedModel",
-    "MoonshineForConditionalGeneration",
+    "REDACTED_MISTRAL",
 ]

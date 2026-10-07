@@ -393,4 +393,4 @@ class TimmWrapperForImageClassification(TimmWrapperPreTrainedModel):
         )
 
 
-__all__ = ["TimmWrapperPreTrainedModel", "TimmWrapperModel", "TimmWrapperForImageClassification"]
+__all__ = ["TimmWrapperPreTrainedModel", "TimmWrapperModel", "REDACTED_MISTRAL"]

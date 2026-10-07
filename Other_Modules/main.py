@@ -1,487 +1,1215 @@
-import io
-import logging
+"""Core implementation of the testing process: init, session, runtest loop."""
+
+from __future__ import annotations
+
+import argparse
+from collections.abc import Callable
+from collections.abc import Iterable
+from collections.abc import Iterator
+from collections.abc import Sequence
+from collections.abc import Set as AbstractSet
+import dataclasses
+import fnmatch
+import functools
+import importlib
+import importlib.util
 import os
-import pathlib
-import stat
+from pathlib import Path
 import sys
-import tempfile
-from collections import OrderedDict
-from contextlib import contextmanager
-from typing import IO, Dict, Iterable, Iterator, Mapping, Optional, Tuple, Union
+from typing import final
+from typing import Literal
+from typing import overload
+from typing import TYPE_CHECKING
+import warnings
 
-from .parser import Binding, parse_stream
-from .variables import parse_variables
+import pluggy
 
-# A type alias for a string path to be used for the paths in this file.
-# These paths may flow to `open()` and `os.replace()`.
-StrPath = Union[str, "os.PathLike[str]"]
+from _pytest import nodes
+import _pytest._code
+from _pytest.config import Config
+from _pytest.config import directory_arg
+from _pytest.config import ExitCode
+from _pytest.config import hookimpl
+from _pytest.config import PytestPluginManager
+from _pytest.config import UsageError
+from _pytest.config.argparsing import OverrideIniAction
+from _pytest.config.argparsing import Parser
+from _pytest.outcomes import exit
+from _pytest.pathlib import absolutepath
+from _pytest.pathlib import bestrelpath
+from _pytest.pathlib import fnmatch_ex
+from _pytest.pathlib import safe_exists
+from _pytest.pathlib import samefile_nofollow
+from _pytest.pathlib import scandir
+from _pytest.reports import CollectReport
+from _pytest.reports import TestReport
+from _pytest.runner import collect_one_node
+from _pytest.runner import SetupState
+from _pytest.warning_types import PytestWarning
 
-logger = logging.getLogger(__name__)
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
+
+    from _pytest.fixtures import FixtureManager
 
 
-def _load_dotenv_disabled() -> bool:
+def pytest_addoption(parser: Parser) -> None:
+    group = parser.getgroup("general")
+    group._addoption(  # private to use reserved lower-case short option
+        "-x",
+        "--exitfirst",
+        action="store_const",
+        dest="maxfail",
+        const=1,
+        help="Exit instantly on first error or failed test",
+    )
+    group.addoption(
+        "--maxfail",
+        metavar="num",
+        action="store",
+        type=int,
+        dest="maxfail",
+        default=0,
+        help="Exit after first num failures or errors",
+    )
+    group.addoption(
+        "--strict-config",
+        action=OverrideIniAction,
+        ini_option="strict_config",
+        ini_value="true",
+        help="Enables the strict_config option",
+    )
+    group.addoption(
+        "--strict-markers",
+        action=OverrideIniAction,
+        ini_option="strict_markers",
+        ini_value="true",
+        help="Enables the strict_markers option",
+    )
+    group.addoption(
+        "--strict",
+        action=OverrideIniAction,
+        ini_option="strict",
+        ini_value="true",
+        help="Enables the strict option",
+    )
+    parser.addini(
+        "strict_config",
+        "Any warnings encountered while parsing the `pytest` section of the "
+        "configuration file raise errors",
+        type="bool",
+        # None => fallback to `strict`.
+        default=None,
+    )
+    parser.addini(
+        "strict_markers",
+        "Markers not registered in the `markers` section of the configuration "
+        "file raise errors",
+        type="bool",
+        # None => fallback to `strict`.
+        default=None,
+    )
+    parser.addini(
+        "strict",
+        "Enables all strictness options, currently: "
+        "strict_config, strict_markers, strict_xfail, strict_parametrization_ids",
+        type="bool",
+        default=False,
+    )
+
+    group = parser.getgroup("pytest-warnings")
+    group.addoption(
+        "-W",
+        "--pythonwarnings",
+        action="append",
+        help="Set which warnings to report, see -W option of Python itself",
+    )
+    group.addoption(
+        "--max-warnings",
+        action="store",
+        type=int,
+        default=None,
+        metavar="num",
+        dest="max_warnings",
+        help="Exit with error if all tests pass but the number of warnings exceeds this threshold",
+    )
+    parser.addini(
+        "filterwarnings",
+        type="linelist",
+        help="Each line specifies a pattern for "
+        "warnings.filterwarnings. "
+        "Processed after -W/--pythonwarnings.",
+    )
+    parser.addini(
+        "max_warnings",
+        help="Exit with error if all tests pass but the number of warnings exceeds this threshold",
+    )
+
+    group = parser.getgroup("collect", "collection")
+    group.addoption(
+        "--collectonly",
+        "--collect-only",
+        "--co",
+        action="store_true",
+        help="Only collect tests, don't execute them",
+    )
+    group.addoption(
+        "--pyargs",
+        action="store_true",
+        help="Try to interpret all arguments as Python packages",
+    )
+    group.addoption(
+        "--ignore",
+        action="append",
+        metavar="path",
+        help="Ignore path during collection (multi-allowed)",
+    )
+    group.addoption(
+        "--ignore-glob",
+        action="append",
+        metavar="path",
+        help="Ignore path pattern during collection (multi-allowed)",
+    )
+    group.addoption(
+        "--deselect",
+        action="append",
+        metavar="nodeid_prefix",
+        help="Deselect item (via node id prefix) during collection (multi-allowed)",
+    )
+    group.addoption(
+        "--confcutdir",
+        dest="confcutdir",
+        default=None,
+        metavar="dir",
+        type=functools.partial(directory_arg, optname="--confcutdir"),
+        help="Only load conftest.py's relative to specified dir",
+    )
+    group.addoption(
+        "--noconftest",
+        action="store_true",
+        dest="noconftest",
+        default=False,
+        help="Don't load any conftest.py files",
+    )
+    group.addoption(
+        "--keepduplicates",
+        "--keep-duplicates",
+        action="store_true",
+        dest="keepduplicates",
+        default=False,
+        help="Keep duplicate tests",
+    )
+    group.addoption(
+        "--collect-in-virtualenv",
+        action="store_true",
+        dest="collect_in_virtualenv",
+        default=False,
+        help="Don't ignore tests in a local virtualenv directory",
+    )
+    group.addoption(
+        "--continue-on-collection-errors",
+        action="store_true",
+        default=False,
+        dest="continue_on_collection_errors",
+        help="Force test execution even if collection errors occur",
+    )
+    group.addoption(
+        "--import-mode",
+        default="prepend",
+        choices=["prepend", "append", "importlib"],
+        dest="importmode",
+        help="Prepend/append to sys.path when importing test modules and conftest "
+        "files. Default: prepend.",
+    )
+    parser.addini(
+        "norecursedirs",
+        "Directory patterns to avoid for recursion",
+        type="args",
+        default=[
+            "*.egg",
+            ".*",
+            "_darcs",
+            "build",
+            "CVS",
+            "dist",
+            "node_modules",
+            "venv",
+            "{arch}",
+        ],
+    )
+    parser.addini(
+        "testpaths",
+        "Directories to search for tests when no files or directories are given on the "
+        "command line",
+        type="args",
+        default=[],
+    )
+    parser.addini(
+        "collect_imported_tests",
+        "Whether to collect tests in imported modules outside `testpaths`",
+        type="bool",
+        default=True,
+    )
+    parser.addini(
+        "consider_namespace_packages",
+        type="bool",
+        default=False,
+        help="Consider namespace packages when resolving module names during import",
+    )
+
+    group = parser.getgroup("debugconfig", "test session debugging and configuration")
+    group._addoption(  # private to use reserved lower-case short option
+        "-c",
+        "--config-file",
+        metavar="FILE",
+        type=str,
+        dest="inifilename",
+        help="Load configuration from `FILE` instead of trying to locate one of the "
+        "implicit configuration files.",
+    )
+    group.addoption(
+        "--rootdir",
+        action="store",
+        dest="rootdir",
+        help="Define root directory for tests. Can be relative path: 'root_dir', './root_dir', "
+        "'root_dir/another_dir/'; absolute path: '/home/user/root_dir'; path with variables: "
+        "'$HOME/root_dir'.",
+    )
+    group.addoption(
+        "--basetemp",
+        dest="basetemp",
+        default=None,
+        type=validate_basetemp,
+        metavar="dir",
+        help=(
+            "Base temporary directory for this test run. "
+            "(Warning: this directory is removed if it exists.)"
+        ),
+    )
+
+
+def validate_basetemp(path: str) -> str:
+    # GH 7119
+    msg = "basetemp must not be empty, the current working directory or any parent directory of it"
+
+    # empty path
+    if not path:
+        raise argparse.ArgumentTypeError(msg)
+
+    def is_ancestor(base: Path, query: Path) -> bool:
+        """Return whether query is an ancestor of base."""
+        if base == query:
+            return True
+        return query in base.parents
+
+    # check if path is an ancestor of cwd
+    if is_ancestor(Path.cwd(), Path(path).absolute()):
+        raise argparse.ArgumentTypeError(msg)
+
+    # check symlinks for ancestors
+    if is_ancestor(Path.cwd().resolve(), Path(path).resolve()):
+        raise argparse.ArgumentTypeError(msg)
+
+    return path
+
+
+def wrap_session(
+    config: Config, doit: Callable[[Config, Session], int | ExitCode | None]
+) -> int | ExitCode:
+    """Skeleton command line program."""
+    session = Session.from_config(config)
+    session.exitstatus = ExitCode.OK
+    initstate = 0
+    try:
+        try:
+            config._do_configure()
+            initstate = 1
+            config.hook.pytest_sessionstart(session=session)
+            initstate = 2
+            session.exitstatus = doit(config, session) or 0
+        except UsageError:
+            session.exitstatus = ExitCode.USAGE_ERROR
+            raise
+        except Failed:
+            session.exitstatus = ExitCode.TESTS_FAILED
+        except (KeyboardInterrupt, exit.Exception):
+            excinfo = _pytest._code.ExceptionInfo.from_current()
+            exitstatus: int | ExitCode = ExitCode.INTERRUPTED
+            if isinstance(excinfo.value, exit.Exception):
+                if excinfo.value.returncode is not None:
+                    exitstatus = excinfo.value.returncode
+                if initstate < 2:
+                    sys.stderr.write(f"{excinfo.typename}: {excinfo.value.msg}\n")
+            config.hook.pytest_keyboard_interrupt(excinfo=excinfo)
+            session.exitstatus = exitstatus
+        except BaseException:
+            session.exitstatus = ExitCode.INTERNAL_ERROR
+            excinfo = _pytest._code.ExceptionInfo.from_current()
+            try:
+                config.notify_exception(excinfo, config.option)
+            except exit.Exception as exc:
+                if exc.returncode is not None:
+                    session.exitstatus = exc.returncode
+                sys.stderr.write(f"{type(exc).__name__}: {exc}\n")
+            else:
+                if isinstance(excinfo.value, SystemExit):
+                    sys.stderr.write("mainloop: caught unexpected SystemExit!\n")
+
+    finally:
+        # Explicitly break reference cycle.
+        excinfo = None  # type: ignore
+        os.chdir(session.startpath)
+        if initstate >= 2:
+            try:
+                config.hook.pytest_sessionfinish(
+                    session=session, exitstatus=session.exitstatus
+                )
+            except exit.Exception as exc:
+                if exc.returncode is not None:
+                    session.exitstatus = exc.returncode
+                sys.stderr.write(f"{type(exc).__name__}: {exc}\n")
+        config._ensure_unconfigure()
+    return session.exitstatus
+
+
+def pytest_cmdline_main(config: Config) -> int | ExitCode:
+    return wrap_session(config, _main)
+
+
+def _main(config: Config, session: Session) -> int | ExitCode | None:
+    """Default command line protocol for initialization, session,
+    running tests and reporting."""
+    config.hook.pytest_collection(session=session)
+    config.hook.pytest_runtestloop(session=session)
+
+    if session.testsfailed:
+        return ExitCode.TESTS_FAILED
+    elif session.testscollected == 0:
+        return ExitCode.NO_TESTS_COLLECTED
+    return None
+
+
+def pytest_collection(session: Session) -> None:
+    session.perform_collect()
+
+
+def pytest_runtestloop(session: Session) -> bool:
+    if session.testsfailed and not session.config.option.continue_on_collection_errors:
+        raise session.Interrupted(
+            f"{session.testsfailed} error{'s' if session.testsfailed != 1 else ''} during collection"
+        )
+
+    if session.config.option.collectonly:
+        return True
+
+    for i, item in enumerate(session.items):
+        nextitem = session.items[i + 1] if i + 1 < len(session.items) else None
+        item.config.hook.pytest_runtest_protocol(item=item, nextitem=nextitem)
+        if session.shouldfail:
+            raise session.Failed(session.shouldfail)
+        if session.shouldstop:
+            raise session.Interrupted(session.shouldstop)
+    return True
+
+
+def _in_venv(path: Path) -> bool:
+    """Attempt to detect if ``path`` is the root of a Virtual Environment by
+    checking for the existence of the pyvenv.cfg file.
+
+    [https://peps.python.org/pep-0405/]
+
+    For regression protection we also check for conda environments that do not include pyenv.cfg yet --
+    https://github.com/conda/conda/issues/13337 is the conda issue tracking adding pyenv.cfg.
+
+    Checking for the `conda-meta/history` file per https://github.com/pytest-dev/pytest/issues/12652#issuecomment-2246336902.
+
     """
-    Determine if dotenv loading has been disabled.
-    """
-    if "PYTHON_DOTENV_DISABLED" not in os.environ:
+    try:
+        return (
+            path.joinpath("pyvenv.cfg").is_file()
+            or path.joinpath("conda-meta", "history").is_file()
+        )
+    except OSError:
         return False
-    value = os.environ["PYTHON_DOTENV_DISABLED"].casefold()
-    return value in {"1", "true", "t", "yes", "y"}
 
 
-def with_warn_for_invalid_lines(mappings: Iterator[Binding]) -> Iterator[Binding]:
-    for mapping in mappings:
-        if mapping.error:
-            logger.warning(
-                "python-dotenv could not parse statement starting at line %s",
-                mapping.original.line,
-            )
-        yield mapping
+def pytest_ignore_collect(collection_path: Path, config: Config) -> bool | None:
+    if collection_path.name == "__pycache__":
+        return True
+
+    ignore_paths = config._getconftest_pathlist(
+        "collect_ignore", path=collection_path.parent
+    )
+    ignore_paths = ignore_paths or []
+    excludeopt = config.getoption("ignore")
+    if excludeopt:
+        ignore_paths.extend(absolutepath(x) for x in excludeopt)
+
+    if collection_path in ignore_paths:
+        return True
+
+    ignore_globs = config._getconftest_pathlist(
+        "collect_ignore_glob", path=collection_path.parent
+    )
+    ignore_globs = ignore_globs or []
+    excludeglobopt = config.getoption("ignore_glob")
+    if excludeglobopt:
+        ignore_globs.extend(absolutepath(x) for x in excludeglobopt)
+
+    if any(fnmatch.fnmatch(str(collection_path), str(glob)) for glob in ignore_globs):
+        return True
+
+    allow_in_venv = config.getoption("collect_in_virtualenv")
+    if not allow_in_venv and _in_venv(collection_path):
+        return True
+
+    if collection_path.is_dir():
+        norecursepatterns = config.getini("norecursedirs")
+        if any(fnmatch_ex(pat, collection_path) for pat in norecursepatterns):
+            return True
+
+    return None
 
 
-class DotEnv:
+def pytest_collect_directory(
+    path: Path, parent: nodes.Collector
+) -> nodes.Collector | None:
+    return Dir.from_parent(parent, path=path)
+
+
+def pytest_collection_modifyitems(items: list[nodes.Item], config: Config) -> None:
+    deselect_prefixes = tuple(config.getoption("deselect") or [])
+    if not deselect_prefixes:
+        return
+
+    remaining = []
+    deselected = []
+    for colitem in items:
+        if colitem.nodeid.startswith(deselect_prefixes):
+            deselected.append(colitem)
+        else:
+            remaining.append(colitem)
+
+    if deselected:
+        config.hook.pytest_deselected(items=deselected)
+        items[:] = remaining
+
+
+class FSHookProxy:
     def __init__(
         self,
-        dotenv_path: Optional[StrPath],
-        stream: Optional[IO[str]] = None,
-        verbose: bool = False,
-        encoding: Optional[str] = None,
-        interpolate: bool = True,
-        override: bool = True,
+        pm: PytestPluginManager,
+        remove_mods: AbstractSet[object],
     ) -> None:
-        self.dotenv_path: Optional[StrPath] = dotenv_path
-        self.stream: Optional[IO[str]] = stream
-        self._dict: Optional[Dict[str, Optional[str]]] = None
-        self.verbose: bool = verbose
-        self.encoding: Optional[str] = encoding
-        self.interpolate: bool = interpolate
-        self.override: bool = override
+        self.pm = pm
+        self.remove_mods = remove_mods
 
-    @contextmanager
-    def _get_stream(self) -> Iterator[IO[str]]:
-        if self.dotenv_path and _is_file_or_fifo(self.dotenv_path):
-            with open(self.dotenv_path, encoding=self.encoding) as stream:
-                yield stream
-        elif self.stream is not None:
-            yield self.stream
-        else:
-            if self.verbose:
-                logger.info(
-                    "python-dotenv could not find configuration file %s.",
-                    self.dotenv_path or ".env",
-                )
-            yield io.StringIO("")
+    def __getattr__(self, name: str) -> pluggy.HookCaller:
+        x = self.pm.subset_hook_caller(name, remove_plugins=self.remove_mods)
+        self.__dict__[name] = x
+        return x
 
-    def dict(self) -> Dict[str, Optional[str]]:
-        """Return dotenv as dict"""
-        if self._dict is not None:
-            return self._dict
 
-        raw_values = self.parse()
+class Interrupted(KeyboardInterrupt):
+    """Signals that the test run was interrupted."""
 
-        if self.interpolate:
-            self._dict = OrderedDict(
-                resolve_variables(raw_values, override=self.override)
+    __module__ = "builtins"  # For py3.
+
+
+class Failed(Exception):
+    """Signals a stop as failed test run."""
+
+
+@dataclasses.dataclass
+class _bestrelpath_cache(dict[Path, str]):
+    __slots__ = ("path",)
+
+    path: Path
+
+    def __missing__(self, path: Path) -> str:
+        r = bestrelpath(self.path, path)
+        self[path] = r
+        return r
+
+
+@final
+class Dir(nodes.Directory):
+    """Collector of files in a file system directory.
+
+    .. versionadded:: 8.0
+
+    .. note::
+
+        Python directories with an `__init__.py` file are instead collected by
+        :class:`~pytest.Package` by default. Both are :class:`~pytest.Directory`
+        collectors.
+    """
+
+    @classmethod
+    def from_parent(  # type: ignore[override]
+        cls,
+        parent: nodes.Collector,
+        *,
+        path: Path,
+    ) -> Self:
+        """The public constructor.
+
+        :param parent: The parent collector of this Dir.
+        :param path: The directory's path.
+        :type path: pathlib.Path
+        """
+        return super().from_parent(parent=parent, path=path)
+
+    def collect(self) -> Iterable[nodes.Item | nodes.Collector]:
+        config = self.config
+        col: nodes.Collector | None
+        cols: Sequence[nodes.Collector]
+        ihook = self.ihook
+        for direntry in scandir(self.path):
+            if direntry.is_dir():
+                path = Path(direntry.path)
+                if not self.session.isinitpath(path, with_parents=True):
+                    if ihook.pytest_ignore_collect(collection_path=path, config=config):
+                        continue
+                col = ihook.pytest_collect_directory(path=path, parent=self)
+                if col is not None:
+                    yield col
+
+            elif direntry.is_file():
+                path = Path(direntry.path)
+                if not self.session.isinitpath(path):
+                    if ihook.pytest_ignore_collect(collection_path=path, config=config):
+                        continue
+                cols = ihook.pytest_collect_file(file_path=path, parent=self)
+                yield from cols
+
+
+@final
+class Session(nodes.Collector):
+    """The root of the collection tree.
+
+    ``Session`` collects the initial paths given as arguments to pytest.
+    """
+
+    Interrupted = Interrupted
+    Failed = Failed
+    # Set on the session by runner.pytest_sessionstart.
+    _setupstate: SetupState
+    # Set on the session by fixtures.pytest_sessionstart.
+    _fixturemanager: FixtureManager
+    exitstatus: int | ExitCode
+
+    def __init__(self, config: Config) -> None:
+        super().__init__(
+            name="",
+            path=config.rootpath,
+            fspath=None,
+            parent=None,
+            config=config,
+            session=self,
+            nodeid="",
+        )
+        self.testsfailed = 0
+        self.testscollected = 0
+        self._shouldstop: bool | str = False
+        self._shouldfail: bool | str = False
+        self.trace = config.trace.root.get("collection")
+        self._initialpaths: frozenset[Path] = frozenset()
+        self._initialpaths_with_parents: frozenset[Path] = frozenset()
+        self._notfound: list[tuple[str, Sequence[nodes.Collector]]] = []
+        self._initial_parts: list[CollectionArgument] = []
+        self._collection_cache: dict[nodes.Collector, CollectReport] = {}
+        self.items: list[nodes.Item] = []
+
+        self._bestrelpathcache: dict[Path, str] = _bestrelpath_cache(config.rootpath)
+
+        self.config.pluginmanager.register(self, name="session")
+
+    @classmethod
+    def from_config(cls, config: Config) -> Session:
+        session: Session = cls._create(config=config)
+        return session
+
+    def __repr__(self) -> str:
+        return (
+            f"<{self.__class__.__name__} {self.name} "
+            f"exitstatus=%r "
+            f"testsfailed={self.testsfailed} "
+            f"testscollected={self.testscollected}>"
+        ) % getattr(self, "exitstatus", "<UNSET>")
+
+    @property
+    def shouldstop(self) -> bool | str:
+        return self._shouldstop
+
+    @shouldstop.setter
+    def shouldstop(self, value: bool | str) -> None:
+        # The runner checks shouldfail and assumes that if it is set we are
+        # definitely stopping, so prevent unsetting it.
+        if value is False and self._shouldstop:
+            warnings.warn(
+                PytestWarning(
+                    "session.shouldstop cannot be unset after it has been set; ignoring."
+                ),
+                stacklevel=2,
             )
+            return
+        self._shouldstop = value
+
+    @property
+    def shouldfail(self) -> bool | str:
+        return self._shouldfail
+
+    @shouldfail.setter
+    def shouldfail(self, value: bool | str) -> None:
+        # The runner checks shouldfail and assumes that if it is set we are
+        # definitely stopping, so prevent unsetting it.
+        if value is False and self._shouldfail:
+            warnings.warn(
+                PytestWarning(
+                    "session.shouldfail cannot be unset after it has been set; ignoring."
+                ),
+                stacklevel=2,
+            )
+            return
+        self._shouldfail = value
+
+    @property
+    def startpath(self) -> Path:
+        """The path from which pytest was invoked.
+
+        .. versionadded:: 7.0.0
+        """
+        return self.config.invocation_params.dir
+
+    def _node_location_to_relpath(self, node_path: Path) -> str:
+        # bestrelpath is a quite slow function.
+        return self._bestrelpathcache[node_path]
+
+    @hookimpl(tryfirst=True)
+    def pytest_collectstart(self) -> None:
+        if self.shouldfail:
+            raise self.Failed(self.shouldfail)
+        if self.shouldstop:
+            raise self.Interrupted(self.shouldstop)
+
+    @hookimpl(tryfirst=True)
+    def pytest_runtest_logreport(self, report: TestReport | CollectReport) -> None:
+        if report.failed and not hasattr(report, "wasxfail"):
+            self.testsfailed += 1
+            maxfail = self.config.getvalue("maxfail")
+            if maxfail and self.testsfailed >= maxfail:
+                self.shouldfail = f"stopping after {self.testsfailed} failures"
+
+    pytest_collectreport = pytest_runtest_logreport
+
+    def isinitpath(
+        self,
+        path: str | os.PathLike[str],
+        *,
+        with_parents: bool = False,
+    ) -> bool:
+        """Is path an initial path?
+
+        An initial path is a path explicitly given to pytest on the command
+        line.
+
+        :param with_parents:
+            If set, also return True if the path is a parent of an initial path.
+
+        .. versionchanged:: 8.0
+            Added the ``with_parents`` parameter.
+        """
+        # Optimization: Path(Path(...)) is much slower than isinstance.
+        path_ = path if isinstance(path, Path) else Path(path)
+        if with_parents:
+            return path_ in self._initialpaths_with_parents
         else:
-            self._dict = OrderedDict(raw_values)
+            return path_ in self._initialpaths
 
-        return self._dict
+    def gethookproxy(self, fspath: os.PathLike[str]) -> pluggy.HookRelay:
+        # Optimization: Path(Path(...)) is much slower than isinstance.
+        path = fspath if isinstance(fspath, Path) else Path(fspath)
+        pm = self.config.pluginmanager
+        # Check if we have the common case of running
+        # hooks with all conftest.py files.
+        my_conftestmodules = pm._getconftestmodules(path)
+        remove_mods = pm._conftest_plugins.difference(my_conftestmodules)
+        proxy: pluggy.HookRelay
+        if remove_mods:
+            # One or more conftests are not in use at this path.
+            proxy = FSHookProxy(pm, remove_mods)  # type: ignore[assignment]
+        else:
+            # All plugins are active for this fspath.
+            proxy = self.config.hook
+        return proxy
 
-    def parse(self) -> Iterator[Tuple[str, Optional[str]]]:
-        with self._get_stream() as stream:
-            for mapping in with_warn_for_invalid_lines(parse_stream(stream)):
-                if mapping.key is not None:
-                    yield mapping.key, mapping.value
+    def _collect_path(
+        self,
+        path: Path,
+        path_cache: dict[Path, Sequence[nodes.Collector]],
+    ) -> Sequence[nodes.Collector]:
+        """Create a Collector for the given path.
 
-    def set_as_environment_variables(self) -> bool:
+        `path_cache` makes it so the same Collectors are returned for the same
+        path.
         """
-        Load the current dotenv as system environment variable.
+        if path in path_cache:
+            return path_cache[path]
+
+        if path.is_dir():
+            ihook = self.gethookproxy(path.parent)
+            col: nodes.Collector | None = ihook.pytest_collect_directory(
+                path=path, parent=self
+            )
+            cols: Sequence[nodes.Collector] = (col,) if col is not None else ()
+
+        elif path.is_file():
+            ihook = self.gethookproxy(path)
+            cols = ihook.pytest_collect_file(file_path=path, parent=self)
+
+        else:
+            # Broken symlink or invalid/missing file.
+            cols = ()
+
+        path_cache[path] = cols
+        return cols
+
+    @overload
+    def perform_collect(
+        self, args: Sequence[str] | None = ..., genitems: Literal[True] = ...
+    ) -> Sequence[nodes.Item]: ...
+
+    @overload
+    def perform_collect(
+        self, args: Sequence[str] | None = ..., genitems: bool = ...
+    ) -> Sequence[nodes.Item | nodes.Collector]: ...
+
+    def perform_collect(
+        self, args: Sequence[str] | None = None, genitems: bool = True
+    ) -> Sequence[nodes.Item | nodes.Collector]:
+        """Perform the collection phase for this session.
+
+        This is called by the default :hook:`pytest_collection` hook
+        implementation; see the documentation of this hook for more details.
+        For testing purposes, it may also be called directly on a fresh
+        ``Session``.
+
+        This function normally recursively expands any collectors collected
+        from the session to their items, and only items are returned. For
+        testing purposes, this may be suppressed by passing ``genitems=False``,
+        in which case the return value contains these collectors unexpanded,
+        and ``session.items`` is empty.
         """
-        if not self.dict():
-            return False
+        if args is None:
+            args = self.config.args
 
-        for k, v in self.dict().items():
-            if k in os.environ and not self.override:
-                continue
-            if v is not None:
-                os.environ[k] = v
+        self.trace("perform_collect", self, args)
+        self.trace.root.indent += 1
 
-        return True
+        hook = self.config.hook
 
-    def get(self, key: str) -> Optional[str]:
-        """ """
-        data = self.dict()
+        self._notfound = []
+        self._initial_parts = []
+        self._collection_cache = {}
+        self.items = []
+        items: Sequence[nodes.Item | nodes.Collector] = self.items
+        consider_namespace_packages: bool = self.config.getini(
+            "consider_namespace_packages"
+        )
+        try:
+            initialpaths: list[Path] = []
+            initialpaths_with_parents: list[Path] = []
 
-        if key in data:
-            return data[key]
+            collection_args = [
+                resolve_collection_argument(
+                    self.config.invocation_params.dir,
+                    arg,
+                    i,
+                    as_pypath=self.config.option.pyargs,
+                    consider_namespace_packages=consider_namespace_packages,
+                )
+                for i, arg in enumerate(args)
+            ]
 
-        if self.verbose:
-            logger.warning("Key %s not found in %s.", key, self.dotenv_path)
+            if not self.config.getoption("keepduplicates"):
+                # Normalize the collection arguments -- remove duplicates and overlaps.
+                self._initial_parts = normalize_collection_arguments(collection_args)
+            else:
+                self._initial_parts = collection_args
 
+            for collection_argument in self._initial_parts:
+                initialpaths.append(collection_argument.path)
+                initialpaths_with_parents.append(collection_argument.path)
+                initialpaths_with_parents.extend(collection_argument.path.parents)
+            self._initialpaths = frozenset(initialpaths)
+            self._initialpaths_with_parents = frozenset(initialpaths_with_parents)
+
+            rep = collect_one_node(self)
+            self.ihook.pytest_collectreport(report=rep)
+            self.trace.root.indent -= 1
+            if self._notfound:
+                errors = []
+                for arg, collectors in self._notfound:
+                    if collectors:
+                        errors.append(
+                            f"not found: {arg}\n(no match in any of {collectors!r})"
+                        )
+                    else:
+                        errors.append(f"found no collectors for {arg}")
+
+                raise UsageError(*errors)
+
+            if not genitems:
+                items = rep.result
+            else:
+                if rep.passed:
+                    for node in rep.result:
+                        self.items.extend(self.genitems(node))
+
+            self.config.pluginmanager.check_pending()
+            hook.pytest_collection_modifyitems(
+                session=self, config=self.config, items=items
+            )
+        finally:
+            self._notfound = []
+            self._initial_parts = []
+            self._collection_cache = {}
+            hook.pytest_collection_finish(session=self)
+
+        if genitems:
+            self.testscollected = len(items)
+
+        return items
+
+    def _collect_one_node(
+        self,
+        node: nodes.Collector,
+        handle_dupes: bool = True,
+    ) -> tuple[CollectReport, bool]:
+        if node in self._collection_cache and handle_dupes:
+            rep = self._collection_cache[node]
+            return rep, True
+        else:
+            rep = collect_one_node(node)
+            self._collection_cache[node] = rep
+            return rep, False
+
+    def collect(self) -> Iterator[nodes.Item | nodes.Collector]:
+        # This is a cache for the root directories of the initial paths.
+        # We can't use collection_cache for Session because of its special
+        # role as the bootstrapping collector.
+        path_cache: dict[Path, Sequence[nodes.Collector]] = {}
+
+        pm = self.config.pluginmanager
+
+        for collection_argument in self._initial_parts:
+            self.trace("processing argument", collection_argument)
+            self.trace.root.indent += 1
+
+            argpath = collection_argument.path
+            names = collection_argument.parts
+            parametrization = collection_argument.parametrization
+            module_name = collection_argument.module_name
+
+            # resolve_collection_argument() ensures this.
+            if argpath.is_dir():
+                assert not names, f"invalid arg {(argpath, names)!r}"
+
+            paths = [argpath]
+            # Add relevant parents of the path, from the root, e.g.
+            #   /a/b/c.py -> [/, /a, /a/b, /a/b/c.py]
+            if module_name is None:
+                # Paths outside of the confcutdir should not be considered.
+                for path in argpath.parents:
+                    if not pm._is_in_confcutdir(path):
+                        break
+                    paths.insert(0, path)
+            else:
+                # For --pyargs arguments, only consider paths matching the module
+                # name. Paths beyond the package hierarchy are not included.
+                module_name_parts = module_name.split(".")
+                for i, path in enumerate(argpath.parents, 2):
+                    if i > len(module_name_parts) or path.stem != module_name_parts[-i]:
+                        break
+                    paths.insert(0, path)
+
+            # Start going over the parts from the root, collecting each level
+            # and discarding all nodes which don't match the level's part.
+            any_matched_in_initial_part = False
+            notfound_collectors = []
+            work: list[tuple[nodes.Collector | nodes.Item, list[Path | str]]] = [
+                (self, [*paths, *names])
+            ]
+            while work:
+                matchnode, matchparts = work.pop()
+
+                # Pop'd all of the parts, this is a match.
+                if not matchparts:
+                    yield matchnode
+                    any_matched_in_initial_part = True
+                    continue
+
+                # Should have been matched by now, discard.
+                if not isinstance(matchnode, nodes.Collector):
+                    continue
+
+                # Collect this level of matching.
+                # Collecting Session (self) is done directly to avoid endless
+                # recursion to this function.
+                subnodes: Sequence[nodes.Collector | nodes.Item]
+                if isinstance(matchnode, Session):
+                    assert isinstance(matchparts[0], Path)
+                    subnodes = matchnode._collect_path(matchparts[0], path_cache)
+                else:
+                    # For backward compat, files given directly multiple
+                    # times on the command line should not be deduplicated.
+                    handle_dupes = not (
+                        len(matchparts) == 1
+                        and isinstance(matchparts[0], Path)
+                        and matchparts[0].is_file()
+                    )
+                    rep, duplicate = self._collect_one_node(matchnode, handle_dupes)
+                    if not duplicate and not rep.passed:
+                        # Report collection failures here to avoid failing to
+                        # run some test specified in the command line because
+                        # the module could not be imported (#134).
+                        matchnode.ihook.pytest_collectreport(report=rep)
+                    if not rep.passed:
+                        continue
+                    subnodes = rep.result
+
+                # Prune this level.
+                any_matched_in_collector = False
+                for node in reversed(subnodes):
+                    # Path part e.g. `/a/b/` in `/a/b/test_file.py::TestIt::test_it`.
+                    if isinstance(matchparts[0], Path):
+                        is_match = node.path == matchparts[0]
+                        if sys.platform == "win32" and not is_match:
+                            # In case the file paths do not match, fallback to samefile() to
+                            # account for short-paths on Windows (#11895). But use a version
+                            # which doesn't resolve symlinks, otherwise we might match the
+                            # same file more than once (#12039).
+                            is_match = samefile_nofollow(node.path, matchparts[0])
+
+                    # Name part e.g. `TestIt` in `/a/b/test_file.py::TestIt::test_it`.
+                    else:
+                        if len(matchparts) == 1:
+                            # This the last part, one parametrization goes.
+                            if parametrization is not None:
+                                # A parametrized arg must match exactly.
+                                is_match = node.name == matchparts[0] + parametrization
+                            else:
+                                # A non-parameterized arg matches all parametrizations (if any).
+                                # TODO: Remove the hacky split once the collection structure
+                                # contains parametrization.
+                                is_match = node.name.split("[")[0] == matchparts[0]
+                        else:
+                            is_match = node.name == matchparts[0]
+                    if is_match:
+                        work.append((node, matchparts[1:]))
+                        any_matched_in_collector = True
+
+                if not any_matched_in_collector:
+                    notfound_collectors.append(matchnode)
+
+            if not any_matched_in_initial_part:
+                report_arg = "::".join((str(argpath), *names))
+                self._notfound.append((report_arg, notfound_collectors))
+
+            self.trace.root.indent -= 1
+
+    def genitems(self, node: nodes.Item | nodes.Collector) -> Iterator[nodes.Item]:
+        self.trace("genitems", node)
+        if isinstance(node, nodes.Item):
+            node.ihook.pytest_itemcollected(item=node)
+            yield node
+        else:
+            assert isinstance(node, nodes.Collector)
+            # For backward compat, dedup only applies to files.
+            handle_dupes = not isinstance(node, nodes.File)
+            rep, duplicate = self._collect_one_node(node, handle_dupes)
+            if rep.passed:
+                for subnode in rep.result:
+                    yield from self.genitems(subnode)
+            if not duplicate:
+                node.ihook.pytest_collectreport(report=rep)
+
+
+def search_pypath(
+    module_name: str, *, consider_namespace_packages: bool = False
+) -> str | None:
+    """Search sys.path for the given a dotted module name, and return its file
+    system path if found."""
+    try:
+        spec = importlib.util.find_spec(module_name)
+    # AttributeError: looks like package module, but actually filename
+    # ImportError: module does not exist
+    # ValueError: not a module name
+    except (AttributeError, ImportError, ValueError):
         return None
 
+    if spec is None:
+        return None
 
-def get_key(
-    dotenv_path: StrPath,
-    key_to_get: str,
-    encoding: Optional[str] = "utf-8",
-) -> Optional[str]:
+    if (
+        spec.submodule_search_locations is None
+        or len(spec.submodule_search_locations) == 0
+    ):
+        # Must be a simple module.
+        return spec.origin
+
+    if consider_namespace_packages:
+        # If submodule_search_locations is set, it's a package (regular or namespace).
+        # Typically there is a single entry, but documentation claims it can be empty too
+        #  (e.g. if the package has no physical location).
+        return spec.submodule_search_locations[0]
+
+    if spec.origin is None:
+        # This is only the case for namespace packages
+        return None
+
+    return os.path.dirname(spec.origin)
+
+
+@dataclasses.dataclass(frozen=True)
+class CollectionArgument:
+    """A resolved collection argument."""
+
+    path: Path
+    parts: Sequence[str]
+    parametrization: str | None
+    module_name: str | None
+    original_index: int
+
+
+def resolve_collection_argument(
+    invocation_path: Path,
+    arg: str,
+    arg_index: int,
+    *,
+    as_pypath: bool = False,
+    consider_namespace_packages: bool = False,
+) -> CollectionArgument:
+    """Parse path arguments optionally containing selection parts and return (fspath, names).
+
+    Command-line arguments can point to files and/or directories, and optionally contain
+    parts for specific tests selection, for example:
+
+        "pkg/tests/test_foo.py::TestClass::test_foo"
+
+    This function ensures the path exists, and returns a resolved `CollectionArgument`:
+
+        CollectionArgument(
+            path=Path("/full/path/to/pkg/tests/test_foo.py"),
+            parts=["TestClass", "test_foo"],
+            module_name=None,
+        )
+
+    When as_pypath is True, expects that the command-line argument actually contains
+    module paths instead of file-system paths:
+
+        "pkg.tests.test_foo::TestClass::test_foo[a,b]"
+
+    In which case we search sys.path for a matching module, and then return the *path* to the
+    found module, which may look like this:
+
+        CollectionArgument(
+            path=Path("/home/u/myvenv/lib/site-packages/pkg/tests/test_foo.py"),
+            parts=["TestClass", "test_foo"],
+            parametrization="[a,b]",
+            module_name="pkg.tests.test_foo",
+        )
+
+    If the path doesn't exist, raise UsageError.
+    If the path is a directory and selection parts are present, raise UsageError.
     """
-    Get the value of a given key from the given .env.
-
-    Returns `None` if the key isn't found or doesn't have a value.
-    """
-    return DotEnv(dotenv_path, verbose=True, encoding=encoding).get(key_to_get)
-
-
-@contextmanager
-def rewrite(
-    path: StrPath,
-    encoding: Optional[str],
-    follow_symlinks: bool = False,
-) -> Iterator[Tuple[IO[str], IO[str]]]:
-    if follow_symlinks:
-        path = os.path.realpath(path)
-
-    try:
-        source: IO[str] = open(path, encoding=encoding)
-        try:
-            path_stat = os.lstat(path)
-            original_mode: Optional[int] = (
-                stat.S_IMODE(path_stat.st_mode)
-                if stat.S_ISREG(path_stat.st_mode)
-                else None
-            )
-        except BaseException:
-            source.close()
-            raise
-    except FileNotFoundError:
-        source = io.StringIO("")
-        original_mode = None
-
-    with tempfile.NamedTemporaryFile(
-        mode="w",
-        encoding=encoding,
-        delete=False,
-        prefix=".tmp_",
-        dir=os.path.dirname(os.path.abspath(path)),
-    ) as dest:
-        dest_path = pathlib.Path(dest.name)
-        error = None
-
-        try:
-            with source:
-                yield (source, dest)
-        except BaseException as err:
-            error = err
-
-    if error is None:
-        try:
-            if original_mode is not None:
-                os.chmod(dest_path, original_mode)
-
-            os.replace(dest_path, path)
-        except BaseException:
-            dest_path.unlink(missing_ok=True)
-            raise
-    else:
-        dest_path.unlink(missing_ok=True)
-        raise error from None
-
-
-def set_key(
-    dotenv_path: StrPath,
-    key_to_set: str,
-    value_to_set: str,
-    quote_mode: str = "always",
-    export: bool = False,
-    encoding: Optional[str] = "utf-8",
-    follow_symlinks: bool = False,
-) -> Tuple[Optional[bool], str, str]:
-    """
-    Adds or Updates a key/value to the given .env
-
-    The target .env file is created if it doesn't exist.
-
-    This function doesn't follow symlinks by default, to avoid accidentally
-    modifying a file at a potentially untrusted path. If you don't need this
-    protection and need symlinks to be followed, use `follow_symlinks`.
-    """
-    if quote_mode not in ("always", "auto", "never"):
-        raise ValueError(f"Unknown quote_mode: {quote_mode}")
-
-    quote = quote_mode == "always" or (
-        quote_mode == "auto" and not value_to_set.isalnum()
+    base, squacket, rest = arg.partition("[")
+    strpath, *parts = base.split("::")
+    if squacket and not parts:
+        raise UsageError(f"path cannot contain [] parametrization: {arg}")
+    parametrization = f"{squacket}{rest}" if squacket else None
+    module_name = None
+    if as_pypath:
+        pyarg_strpath = search_pypath(
+            strpath, consider_namespace_packages=consider_namespace_packages
+        )
+        if pyarg_strpath is not None:
+            module_name = strpath
+            strpath = pyarg_strpath
+    fspath = invocation_path / strpath
+    fspath = absolutepath(fspath)
+    if not safe_exists(fspath):
+        msg = (
+            "module or package not found: {arg} (missing __init__.py?)"
+            if as_pypath
+            else "file or directory not found: {arg}"
+        )
+        raise UsageError(msg.format(arg=arg))
+    if parts and fspath.is_dir():
+        msg = (
+            "package argument cannot contain :: selection parts: {arg}"
+            if as_pypath
+            else "directory argument cannot contain :: selection parts: {arg}"
+        )
+        raise UsageError(msg.format(arg=arg))
+    return CollectionArgument(
+        path=fspath,
+        parts=parts,
+        parametrization=parametrization,
+        module_name=module_name,
+        original_index=arg_index,
     )
 
-    if quote:
-        # The single-quoted-value parser decodes `\\` and `\'`, so both have to
-        # be escaped here for the value to survive a write/read round-trip.
-        # Backslashes first, otherwise the backslash added by the quote
-        # escaping would be escaped in turn.
-        escaped = value_to_set.replace("\\", "\\\\").replace("'", "\\'")
-        value_out = f"'{escaped}'"
-    else:
-        value_out = value_to_set
-    if export:
-        line_out = f"export {key_to_set}={value_out}\n"
-    else:
-        line_out = f"{key_to_set}={value_out}\n"
 
-    with rewrite(dotenv_path, encoding=encoding, follow_symlinks=follow_symlinks) as (
-        source,
-        dest,
-    ):
-        replaced = False
-        missing_newline = False
-        for mapping in with_warn_for_invalid_lines(parse_stream(source)):
-            if mapping.key == key_to_set:
-                dest.write(line_out)
-                replaced = True
-            else:
-                dest.write(mapping.original.string)
-                missing_newline = not mapping.original.string.endswith("\n")
-        if not replaced:
-            if missing_newline:
-                dest.write("\n")
-            dest.write(line_out)
-
-    return True, key_to_set, value_to_set
-
-
-def unset_key(
-    dotenv_path: StrPath,
-    key_to_unset: str,
-    quote_mode: str = "always",
-    encoding: Optional[str] = "utf-8",
-    follow_symlinks: bool = False,
-) -> Tuple[Optional[bool], str]:
-    """
-    Removes a given key from the given `.env` file.
-
-    If the .env path given doesn't exist, fails.
-    If the given key doesn't exist in the .env, fails.
-
-    This function doesn't follow symlinks by default, to avoid accidentally
-    modifying a file at a potentially untrusted path. If you don't need this
-    protection and need symlinks to be followed, use `follow_symlinks`.
-    """
-    if not os.path.exists(dotenv_path):
-        logger.warning("Can't delete from %s - it doesn't exist.", dotenv_path)
-        return None, key_to_unset
-
-    removed = False
-    with rewrite(dotenv_path, encoding=encoding, follow_symlinks=follow_symlinks) as (
-        source,
-        dest,
-    ):
-        for mapping in with_warn_for_invalid_lines(parse_stream(source)):
-            if mapping.key == key_to_unset:
-                removed = True
-            else:
-                dest.write(mapping.original.string)
-
-    if not removed:
-        logger.warning(
-            "Key %s not removed from %s - key doesn't exist.", key_to_unset, dotenv_path
-        )
-        return None, key_to_unset
-
-    return removed, key_to_unset
-
-
-def resolve_variables(
-    values: Iterable[Tuple[str, Optional[str]]],
-    override: bool,
-) -> Mapping[str, Optional[str]]:
-    new_values: Dict[str, Optional[str]] = {}
-
-    for name, value in values:
-        if value is None:
-            result = None
-        else:
-            atoms = parse_variables(value)
-            env: Dict[str, Optional[str]] = {}
-            if override:
-                env.update(os.environ)  # type: ignore
-                env.update(new_values)
-            else:
-                env.update(new_values)
-                env.update(os.environ)  # type: ignore
-            result = "".join(atom.resolve(env) for atom in atoms)
-
-        new_values[name] = result
-
-    return new_values
-
-
-def _walk_to_root(path: str) -> Iterator[str]:
-    """
-    Yield directories starting from the given directory up to the root
-    """
-    if not os.path.exists(path):
-        raise IOError("Starting path not found")
-
-    if os.path.isfile(path):
-        path = os.path.dirname(path)
-
-    last_dir = None
-    current_dir = os.path.abspath(path)
-    while last_dir != current_dir:
-        yield current_dir
-        parent_dir = os.path.abspath(os.path.join(current_dir, os.path.pardir))
-        last_dir, current_dir = current_dir, parent_dir
-
-
-def find_dotenv(
-    filename: str = ".env",
-    raise_error_if_not_found: bool = False,
-    usecwd: bool = False,
-) -> str:
-    """
-    Search in increasingly higher folders for the given file
-
-    Returns path to the file if found, or an empty string otherwise
-    """
-
-    def _is_interactive():
-        """Decide whether this is running in a REPL or IPython notebook"""
-        if hasattr(sys, "ps1") or hasattr(sys, "ps2"):
-            return True
-        try:
-            main = __import__("__main__", None, None, fromlist=["__file__"])
-        except ModuleNotFoundError:
-            return False
-        return not hasattr(main, "__file__")
-
-    def _is_debugger():
-        return sys.gettrace() is not None
-
-    if usecwd or _is_interactive() or _is_debugger() or getattr(sys, "frozen", False):
-        # Should work without __file__, e.g. in REPL or IPython notebook.
-        path = os.getcwd()
-    else:
-        # will work for .py files
-        frame = sys._getframe()
-        current_file = __file__
-
-        while frame.f_code.co_filename == current_file or not os.path.exists(
-            frame.f_code.co_filename
-        ):
-            assert frame.f_back is not None
-            frame = frame.f_back
-        frame_filename = frame.f_code.co_filename
-        path = os.path.dirname(os.path.abspath(frame_filename))
-
-    for dirname in _walk_to_root(path):
-        check_path = os.path.join(dirname, filename)
-        if _is_file_or_fifo(check_path):
-            return check_path
-
-    if raise_error_if_not_found:
-        raise IOError("File not found")
-
-    return ""
-
-
-def load_dotenv(
-    dotenv_path: Optional[StrPath] = None,
-    stream: Optional[IO[str]] = None,
-    verbose: bool = False,
-    override: bool = False,
-    interpolate: bool = True,
-    encoding: Optional[str] = "utf-8",
+def is_collection_argument_subsumed_by(
+    arg: CollectionArgument, by: CollectionArgument
 ) -> bool:
-    """Parse a .env file and then load all the variables found as environment variables.
-
-    Parameters:
-        dotenv_path: Absolute or relative path to .env file.
-        stream: Text stream (such as `io.StringIO`) with .env content, used if
-            `dotenv_path` is `None`.
-        verbose: Whether to output a warning the .env file is missing.
-        override: Whether to override the system environment variables with the variables
-            from the `.env` file.
-        interpolate: Whether to interpolate variables using POSIX variable expansion.
-        encoding: Encoding to be used to read the file.
-    Returns:
-        Bool: True if at least one environment variable is set else False
-
-    If both `dotenv_path` and `stream` are `None`, `find_dotenv()` is used to find the
-    .env file with its default parameters. If you need to change the default parameters
-    of `find_dotenv()`, you can explicitly call `find_dotenv()` and pass the result
-    to this function as `dotenv_path`.
-
-    If the environment variable `PYTHON_DOTENV_DISABLED` is set to a truthy value,
-    .env loading is disabled.
-    """
-    if _load_dotenv_disabled():
-        logger.debug(
-            "python-dotenv: .env loading disabled by PYTHON_DOTENV_DISABLED environment variable"
-        )
+    """Check if `arg` is subsumed (contained) by `by`."""
+    # First check path subsumption.
+    if by.path != arg.path:
+        # `by` subsumes `arg` if `by` is a parent directory of `arg` and has no
+        # parts (collects everything in that directory).
+        if not by.parts:
+            return arg.path.is_relative_to(by.path)
         return False
+    # Paths are equal, check parts.
+    # For example: ("TestClass",) is a prefix of ("TestClass", "test_method").
+    if len(by.parts) > len(arg.parts) or arg.parts[: len(by.parts)] != by.parts:
+        return False
+    # Paths and parts are equal, check parametrization.
+    # A `by` without parametrization (None) matches everything, e.g.
+    # `pytest x.py::test_it` matches `x.py::test_it[0]`. Otherwise must be
+    # exactly equal.
+    if by.parametrization is not None and by.parametrization != arg.parametrization:
+        return False
+    return True
 
-    if dotenv_path is None and stream is None:
-        dotenv_path = find_dotenv()
 
-    dotenv = DotEnv(
-        dotenv_path=dotenv_path,
-        stream=stream,
-        verbose=verbose,
-        interpolate=interpolate,
-        override=override,
-        encoding=encoding,
+def normalize_collection_arguments(
+    collection_args: Sequence[CollectionArgument],
+) -> list[CollectionArgument]:
+    """Normalize collection arguments to eliminate overlapping paths and parts.
+
+    Detects when collection arguments overlap in either paths or parts and only
+    keeps the shorter prefix, or the earliest argument if duplicate, preserving
+    order. The result is prefix-free.
+    """
+    # A quadratic algorithm is not acceptable since large inputs are possible.
+    # So this uses an O(n*log(n)) algorithm which takes advantage of the
+    # property that after sorting, a collection argument will immediately
+    # precede collection arguments it subsumes. An O(n) algorithm is not worth
+    # it.
+    collection_args_sorted = sorted(
+        collection_args,
+        key=lambda arg: (arg.path, arg.parts, arg.parametrization or ""),
     )
-    return dotenv.set_as_environment_variables()
-
-
-def dotenv_values(
-    dotenv_path: Optional[StrPath] = None,
-    stream: Optional[IO[str]] = None,
-    verbose: bool = False,
-    interpolate: bool = True,
-    encoding: Optional[str] = "utf-8",
-) -> Dict[str, Optional[str]]:
-    """
-    Parse a .env file and return its content as a dict.
-
-    The returned dict will have `None` values for keys without values in the .env file.
-    For example, `foo=bar` results in `{"foo": "bar"}` whereas `foo` alone results in
-    `{"foo": None}`
-
-    Parameters:
-        dotenv_path: Absolute or relative path to the .env file.
-        stream: `StringIO` object with .env content, used if `dotenv_path` is `None`.
-        verbose: Whether to output a warning if the .env file is missing.
-        interpolate: Whether to interpolate variables using POSIX variable expansion.
-        encoding: Encoding to be used to read the file.
-
-    If both `dotenv_path` and `stream` are `None`, `find_dotenv()` is used to find the
-    .env file.
-    """
-    if dotenv_path is None and stream is None:
-        dotenv_path = find_dotenv()
-
-    return DotEnv(
-        dotenv_path=dotenv_path,
-        stream=stream,
-        verbose=verbose,
-        interpolate=interpolate,
-        override=True,
-        encoding=encoding,
-    ).dict()
-
-
-def _is_file_or_fifo(path: StrPath) -> bool:
-    """
-    Return True if `path` exists and is either a regular file or a FIFO.
-    """
-    if os.path.isfile(path):
-        return True
-
-    try:
-        st = os.stat(path)
-    except (FileNotFoundError, OSError):
-        return False
-
-    return stat.S_ISFIFO(st.st_mode)
+    normalized: list[CollectionArgument] = []
+    last_kept = None
+    for arg in collection_args_sorted:
+        if last_kept is None or not is_collection_argument_subsumed_by(arg, last_kept):
+            normalized.append(arg)
+            last_kept = arg
+    normalized.sort(key=lambda arg: arg.original_index)
+    return normalized

@@ -473,7 +473,7 @@ class VideoPrismPreTrainedModel(PreTrainedModel):
         "VideoPrismTemporalEmbeddings",
         "VideoPrismLayer",
         "VideoPrismTextEmbeddings",
-        "VideoPrismMultiheadAttentionPoolingHead",
+        "REDACTED_MISTRAL",
     ]
     # sdpa is disabled because it does not support attention capping
     # used in eager and logits are too far off
@@ -947,5 +947,5 @@ __all__ = [
     "VideoPrismVideoModel",
     "VideoPrismTextModel",
     "VideoPrismClipModel",
-    "VideoPrismForVideoClassification",
+    "REDACTED_MISTRAL",
 ]

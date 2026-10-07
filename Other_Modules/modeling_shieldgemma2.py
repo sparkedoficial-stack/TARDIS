@@ -134,5 +134,5 @@ class ShieldGemma2ForImageClassification(PreTrainedModel):
 
 
 __all__ = [
-    "ShieldGemma2ForImageClassification",
+    "REDACTED_MISTRAL",
 ]

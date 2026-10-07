@@ -649,7 +649,7 @@ class LevitForImageClassificationWithTeacher(LevitPreTrainedModel):
 
 __all__ = [
     "LevitForImageClassification",
-    "LevitForImageClassificationWithTeacher",
+    "REDACTED_MISTRAL",
     "LevitModel",
     "LevitPreTrainedModel",
 ]

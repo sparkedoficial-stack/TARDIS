@@ -3443,7 +3443,7 @@ otData = [
             ),
             FieldSpec(
                 "MathValueRecord",
-                "SuperscriptBottomMaxWithSubscript",
+                "REDACTED_MISTRAL",
                 description="The maximum level to which the (ink) bottom of superscript can be pushed to increase the gap between superscript and subscript, before subscript starts being moved down. Suggested: 4/5 x-height.",
             ),
             FieldSpec(
@@ -3488,7 +3488,7 @@ otData = [
             ),
             FieldSpec(
                 "MathValueRecord",
-                "StackBottomDisplayStyleShiftDown",
+                "REDACTED_MISTRAL",
                 description="Standard shift down applied to the bottom element of a stack in display style. Positive for moving in the downward direction.",
             ),
             FieldSpec(
@@ -3528,7 +3528,7 @@ otData = [
             ),
             FieldSpec(
                 "MathValueRecord",
-                "FractionNumeratorDisplayStyleShiftUp",
+                "REDACTED_MISTRAL",
                 description="Standard shift up applied to the numerator in display style. Suggested: StackTopDisplayStyleShiftUp.",
             ),
             FieldSpec(
@@ -3538,7 +3538,7 @@ otData = [
             ),
             FieldSpec(
                 "MathValueRecord",
-                "FractionDenominatorDisplayStyleShiftDown",
+                "REDACTED_MISTRAL",
                 description="Standard shift down applied to the denominator in display style. Positive for moving in the downward direction. Suggested: StackBottomDisplayStyleShiftDown.",
             ),
             FieldSpec(

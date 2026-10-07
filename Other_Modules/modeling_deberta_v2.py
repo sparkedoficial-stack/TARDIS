@@ -1329,7 +1329,7 @@ __all__ = [
     "DebertaV2ForMaskedLM",
     "DebertaV2ForMultipleChoice",
     "DebertaV2ForQuestionAnswering",
-    "DebertaV2ForSequenceClassification",
+    "REDACTED_MISTRAL",
     "DebertaV2ForTokenClassification",
     "DebertaV2Model",
     "DebertaV2PreTrainedModel",

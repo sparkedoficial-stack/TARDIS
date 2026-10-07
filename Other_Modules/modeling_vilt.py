@@ -1271,7 +1271,7 @@ class ViltForTokenClassification(ViltPreTrainedModel):
 
 __all__ = [
     "ViltForImageAndTextRetrieval",
-    "ViltForImagesAndTextClassification",
+    "REDACTED_MISTRAL",
     "ViltForTokenClassification",
     "ViltForMaskedLM",
     "ViltForQuestionAnswering",

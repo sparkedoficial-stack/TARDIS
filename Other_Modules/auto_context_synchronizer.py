@@ -129,7 +129,7 @@ class AutoContextSynchronizer:
             net_ctrl = get_network_controller()
             clients = net_ctrl.get_connected_clients()
             traffic_mon = get_traffic_monitor()
-            traffic_stats = traffic_mon.get_quick_status() if hasattr(traffic_mon, "get_quick_status") else {}
+            traffic_stats = traffic_mon.get_traffic_summary()
 
             net_info = {
                 "hotspot_ssid": "TimeMachine",
@@ -137,8 +137,8 @@ class AutoContextSynchronizer:
                 "interface": "wlp3s0",
                 "connected_clients_count": len(clients),
                 "clients": clients,
-                "active_flows": traffic_stats.get("active_flows", traffic_stats.get("total_flows", 0)),
-                "recurring_orgs": traffic_stats.get("top_orgs", traffic_stats.get("top_organizations", []))
+                "active_flows": traffic_stats.get("total_flows", 0),
+                "recurring_orgs": traffic_stats.get("top_organizations", [])
             }
             updated_subsystems.append("sovereign_network")
         except Exception as e:
@@ -168,24 +168,21 @@ class AutoContextSynchronizer:
         try:
             from omni_temporal_control import SYNC_HUB
             with SYNC_HUB._lock:
-                if hasattr(SYNC_HUB, "lamport"):
-                    SYNC_HUB.lamport += 1
+                SYNC_HUB.lamport_clock += 1
                 # Inyectar telemetría fresca en causal state
-                causal = getattr(SYNC_HUB, "state", {}).get("causal", {}) if hasattr(SYNC_HUB, "state") else {}
+                causal = SYNC_HUB.state.get("causal", {})
                 if hw_telemetry:
                     causal["cpu"] = hw_telemetry.get("cpu_percent", 0.0)
                     causal["ram"] = hw_telemetry.get("ram_percent", 0.0)
                 if net_info:
                     causal["wifi_clients"] = net_info.get("connected_clients_count", 0)
-                if hasattr(SYNC_HUB, "state") and isinstance(SYNC_HUB.state, dict):
-                    SYNC_HUB.state["causal"] = causal
-                    SYNC_HUB.state["updated_at"] = iso
-                    if hasattr(SYNC_HUB, "_save_state_to_disk"):
-                        SYNC_HUB._save_state_to_disk()
+                SYNC_HUB.state["causal"] = causal
+                SYNC_HUB.state["updated_at"] = iso
+                SYNC_HUB._save_state_to_disk()
                 sync_hub_info = {
-                    "lamport": getattr(SYNC_HUB, "lamport", 1042),
-                    "revision": getattr(SYNC_HUB, "revision", 1),
-                    "active_clients": SYNC_HUB.get_active_client_count() if hasattr(SYNC_HUB, "get_active_client_count") else 1
+                    "lamport": SYNC_HUB.lamport_clock,
+                    "revision": SYNC_HUB.revision,
+                    "active_clients": SYNC_HUB.get_active_client_count()
                 }
             updated_subsystems.append("global_sync_hub")
         except Exception as e:
@@ -206,63 +203,6 @@ class AutoContextSynchronizer:
         except Exception as e:
             errors.append(f"Error actualizando motor cognitivo: {e}")
 
-        # ---------------------------------------------------------------------
-        # 7. Motor Neuronal Soberano (MLA + SSM + MoE)
-        # ---------------------------------------------------------------------
-        neural_info = {}
-        try:
-            from core.sovereign_neural_engine import get_sovereign_neural_engine
-            sne = get_sovereign_neural_engine()
-            neural_info = {
-                "active_latent_sessions": list(sne.active_latent_states.keys()),
-                "d_model": sne.cfg.d_model,
-                "n_heads": sne.cfg.n_heads,
-                "mla_compression_ratio": round((sne.cfg.n_heads * sne.cfg.d_head * 2) / (sne.cfg.d_latent_kv + sne.cfg.d_rope), 2),
-                "ssm_state_mb": round((sne.cfg.d_model * sne.cfg.d_state * 2) / (1024 * 1024), 4)
-            }
-            updated_subsystems.append("sovereign_neural_engine")
-        except Exception as e:
-            errors.append(f"Error sincronizando motor neuronal soberano: {e}")
-
-        # ---------------------------------------------------------------------
-        # 8. Sistema FTL :: Historial, Contexto y RAG Transversal
-        # ---------------------------------------------------------------------
-        ftl_info = {}
-        try:
-            from core.deep_memory_vault import get_deep_memory_vault
-            vault_inst = get_deep_memory_vault()
-            con = vault_inst._connect()
-            try:
-                ftl_count = con.execute("SELECT count(*) FROM vault_events WHERE source LIKE 'ftl%'").fetchone()[0]
-                last_ftl = con.execute("SELECT iso, content, meta FROM vault_events WHERE source LIKE 'ftl%' ORDER BY id DESC LIMIT 1").fetchone()
-                ftl_info = {
-                    "total_operations": ftl_count,
-                    "last_operation_iso": last_ftl[0] if last_ftl else None,
-                    "rag_indexed": True
-                }
-            finally:
-                con.close()
-            updated_subsystems.append("ftl_transversal_history")
-        except Exception as e:
-            errors.append(f"Error sincronizando historial FTL: {e}")
-
-        # ---------------------------------------------------------------------
-        # 9. Matriz de Continuidad Temporal Soberana (Post-Reboot Resilience)
-        # ---------------------------------------------------------------------
-        continuity_info = {}
-        try:
-            from core.tardis_continuity_engine import get_continuity_engine
-            c_eng = get_continuity_engine()
-            c_eng.render_desktop_dashboard()
-            continuity_info = {
-                "status": c_eng._active_session.get("status"),
-                "progress_percent": c_eng._active_session.get("progress_percent"),
-                "reboot_count": c_eng._active_session.get("reboot_count")
-            }
-            updated_subsystems.append("continuity_matrix")
-        except Exception as e:
-            errors.append(f"Error sincronizando matriz de continuidad: {e}")
-
         # Consolidar reporte final
         self.last_sync_ts = now
         self.last_sync_iso = iso
@@ -277,9 +217,6 @@ class AutoContextSynchronizer:
             "vault": vault_info,
             "sync_hub": sync_hub_info,
             "cognition": cognitive_info,
-            "neural_engine": neural_info,
-            "ftl": ftl_info,
-            "continuity": continuity_info,
             "errors": errors
         }
 

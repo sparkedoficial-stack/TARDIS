@@ -49,21 +49,7 @@ class DeepMemoryVault:
         con.execute("PRAGMA busy_timeout=12000")
         con.execute("PRAGMA synchronous=NORMAL")
         con.execute("PRAGMA auto_vacuum=INCREMENTAL")
-
-        # Sintonización adaptativa de alto rendimiento según memoria física (32 GB RAM)
-        total_ram_gb = 30.0
-        try:
-            import psutil
-            total_ram_gb = psutil.virtual_memory().total / (1024**3)
-        except Exception:
-            pass
-
-        cache_kb = -131072 if total_ram_gb >= 30.0 else -64000      # 128 MB caché en RAM para 32 GB
-        mmap_bytes = 4294967296 if total_ram_gb >= 30.0 else 2147483648  # 4 GB zero-copy MMAP para 32 GB
-
-        con.execute(f"PRAGMA cache_size={cache_kb}")
-        con.execute("PRAGMA temp_store=MEMORY")
-        con.execute(f"PRAGMA mmap_size={mmap_bytes}")
+        con.execute("PRAGMA cache_size=-64000")  # 64 MB de cache SQLite en RAM
         return con
 
     def _init_db(self) -> None:
@@ -312,12 +298,7 @@ class DeepMemoryVault:
             "Cortana": ("entity", "Voz neural soberana es-MX-DaliaNeural para síntesis física por altavoces."),
             "Cloudflare": ("architecture", "Túnel cifrado irrevocable para acceso remoto global 24/7."),
             "Presencia Emocional": ("concept", "Reconocimiento biométrico facial e indagación empática proactiva."),
-            "Memoria Profunda": ("concept", "Bóveda Akáshica de 250 GB con retención infinita de contexto."),
-            "Hardware 32GB RAM": ("architecture", "Estación física con 32 GB RAM (28 GB dedicados, mlock, contexto 32768 (32K), 4 GB MMAP)."),
-            "FTL": ("architecture", "Motor Apex Soberano Faster-Than-Light de Inferencia, Auto-Failover y Shell Directo."),
-            "TARDIS": ("architecture", "Sistema y Hub Soberano de Control Temporal, RAG Transversal y Memoria Akáshica."),
-            "Claude Code": ("engine", "Motor de frontera Anthropic Claude con bypassPermissions y Max Thinking."),
-            "Antigravity": ("engine", "Motor de frontera Google AGY / Gemini con bypass total y High Effort.")
+            "Memoria Profunda": ("concept", "Bóveda Akáshica de 250 GB con retención infinita de contexto.")
         }
 
         found = []
@@ -520,107 +501,6 @@ class DeepMemoryVault:
         if len(full_text) > max_chars:
             full_text = full_text[:max_chars] + "\n...[Contexto profundo sintetizado para el límite de atención]"
         return full_text
-
-    def get_ftl_history(self, limit: int = 20) -> List[Dict[str, Any]]:
-        """Recupera el historial de ejecuciones y cambios del sistema registrados por FTL."""
-        con = self._connect()
-        try:
-            rows = con.execute(
-                """SELECT id, ts, iso, source, role, content, content_compressed, is_compressed, meta
-                   FROM vault_events
-                   WHERE source LIKE 'ftl%'
-                   ORDER BY id DESC LIMIT ?""",
-                (limit,)
-            ).fetchall()
-            out = []
-            for r in rows:
-                txt = r[5]
-                if r[7] == 1 and r[6]:
-                    try:
-                        txt = zlib.decompress(r[6]).decode("utf-8")
-                    except Exception:
-                        pass
-                meta_data = json.loads(r[8] or "{}")
-                out.append({
-                    "id": r[0],
-                    "ts": r[1],
-                    "iso": r[2],
-                    "source": r[3],
-                    "role": r[4],
-                    "content": txt,
-                    "meta": meta_data
-                })
-            return out
-        finally:
-            con.close()
-
-    def query_transversal_ftl_context(self,
-                                      prompt: str = "",
-                                      max_chars: int = 4000,
-                                      n_recent_changes: int = 6,
-                                      n_rag_matches: int = 4) -> Dict[str, Any]:
-        """
-        Genera síntesis transversal de contexto para FTL:
-        Combina directivas de agent_context, modificaciones recientes en el sistema,
-        precedentes técnicos recuperados vía RAG FTS5 y nodos del grafo de conocimiento.
-        """
-        try:
-            import agent_context
-            directives = agent_context.get_directives()
-        except Exception:
-            directives = ""
-
-        recent_ftl = self.get_ftl_history(limit=n_recent_changes)
-
-        # Búsqueda semántica/léxica RAG sobre el prompt
-        rag_matches = []
-        if prompt:
-            rag_matches = self.search(prompt, k=n_rag_matches)
-
-        # Nodos de conocimiento relevantes
-        kn_nodes = self.get_relevant_knowledge_nodes(prompt, limit=3) if prompt else []
-
-        # Construir bloques estructurados para inyección
-        blocks = []
-        blocks.append("=== [TARDIS SOBERANO :: CONTEXTO HISTÓRICO & RAG TRANSVERSAL] ===")
-        if directives:
-            blocks.append(f"• Directivas Maestras Activas:\n{directives[:800]}")
-
-        if recent_ftl:
-            blocks.append("• Historial Reciente de Operaciones y Cambios en el Sistema (FTL):")
-            for item in recent_ftl[:n_recent_changes]:
-                m = item.get("meta", {})
-                mode_str = m.get("mode", "auto").upper()
-                cmd_str = m.get("command") or m.get("prompt", "")
-                files = m.get("files_changed", [])
-                files_str = f" | Archivos: {', '.join(files[:4])}" if files else ""
-                blocks.append(f"  [{item['iso']}] ({mode_str}) {cmd_str[:120]}{files_str}")
-
-        if kn_nodes:
-            blocks.append("• Nodos Activos de Conocimiento del Sistema:")
-            for node in kn_nodes:
-                blocks.append(f"  [{node['node_type'].upper()}] {node['name']}: {node['summary']}")
-
-        if rag_matches:
-            blocks.append("• Precedentes y Soluciones Técnicas Previas (RAG):")
-            for match in rag_matches:
-                snippet = match["content"].strip()
-                if len(snippet) > 400:
-                    snippet = snippet[:400] + "..."
-                blocks.append(f"  [{match['iso']} · {match['role']}]: {snippet}")
-
-        context_text = "\n".join(blocks)
-        if len(context_text) > max_chars:
-            context_text = context_text[:max_chars] + "\n...[Contexto transversal TARDIS sintetizado]"
-
-        return {
-            "ok": True,
-            "context_text": context_text,
-            "directives": directives,
-            "recent_ftl_count": len(recent_ftl),
-            "rag_matches_count": len(rag_matches),
-            "knowledge_nodes_count": len(kn_nodes)
-        }
 
     def get_recent_epochs(self, limit: int = 3) -> List[Dict[str, Any]]:
         """Recupera los resúmenes de épocas históricas más recientes."""

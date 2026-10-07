@@ -513,7 +513,7 @@ __all__ = [
     "CamembertForMaskedLM",
     "CamembertForMultipleChoice",
     "CamembertForQuestionAnswering",
-    "CamembertForSequenceClassification",
+    "REDACTED_MISTRAL",
     "CamembertForTokenClassification",
     "CamembertModel",
     "CamembertPreTrainedModel",

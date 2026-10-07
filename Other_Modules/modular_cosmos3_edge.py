@@ -1073,7 +1073,7 @@ __all__ = [
     "Cosmos3EdgeModel",
     "Cosmos3EdgeTextModel",
     "Cosmos3EdgeVisionModel",
-    "Cosmos3EdgeForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "Cosmos3EdgePreTrainedModel",
     "Cosmos3EdgeImageProcessor",
     "Cosmos3EdgeImageProcessorPil",

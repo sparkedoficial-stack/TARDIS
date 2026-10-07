@@ -692,6 +692,6 @@ __all__ = [
     "CohereCompassForCausalLM",
     "CohereCompassVisionModel",
     "CohereCompassModel",
-    "CohereCompassForConditionalGeneration",
-    "CohereCompassTextForSequenceClassification",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
 ]

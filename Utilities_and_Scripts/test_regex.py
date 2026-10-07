@@ -2708,10 +2708,10 @@ xyzabc
         # Additionally, deletes cost two and substitutes one, and total
         # cost must be less than 4.
         self.assertEqual(regex.search('(foobar){i<=1,d<=2,s<=3,2d+1s<4}',
-          '3oifaowefbaoraofuiebofasebfaobfaorfeoaro').span(0, 1), ((6, 13), (6,
+          "REDACTED_MISTRAL").span(0, 1), ((6, 13), (6,
           13)))
         self.assertEqual(regex.search('(?b)(foobar){i<=1,d<=2,s<=3,2d+1s<4}',
-          '3oifaowefbaoraofuiebofasebfaobfaorfeoaro').span(0, 1), ((34, 39),
+          "REDACTED_MISTRAL").span(0, 1), ((34, 39),
           (34, 39)))
 
         # Partially fuzzy matches.
@@ -3285,7 +3285,7 @@ xyzabc
 
         # Hg issue 82: error range does not work
         fz = "(CAGCCTCCCATTTCAGAATATACATCC){1<e<=2}"
-        seq = "tcagacgagtgcgttgtaaaacgacggccagtCAGCCTCCCATTCAGAATATACATCCcgacggccagttaaaaacaatgccaaggaggtcatagctgtttcctgccagttaaaaacaatgccaaggaggtcatagctgtttcctgacgcactcgtctgagcgggctggcaagg"
+        seq = "REDACTED_MISTRAL"
         self.assertEqual(regex.search(fz, seq, regex.BESTMATCH)[0],
           "tCAGCCTCCCATTCAGAATATACATCC")
 
@@ -4116,7 +4116,7 @@ thing
 
         # Hg issue 300: segmentation fault
         pattern = ('(?P<termini5>GGCGTCACACTTTGCTATGCCATAGCAT[AG]TTTATCCATAAGA'
-          'TTAGCGGATCCTACCTGACGCTTTTTATCGCAACTCTCTACTGTTTCTCCATAACAGAACATATTGA'
+          "REDACTED_MISTRAL"
           'CTATCCGGTATTACCCGGCATGACAGGAGTAAAA){e<=1}'
           '(?P<gene>[ACGT]{1059}){e<=2}'
           '(?P<spacer>TAATCGTCTTGTTTGATACACAAGGGTCGCATCTGCGGCCCTTTTGCTTTTTTAAG'
@@ -4124,26 +4124,26 @@ thing
           '(?P<barcode>[ACGT]{18}){e<=0}'
           '(?P<termini3>AGATCGG[CT]AGAGCGTCGTGTAGGGAAAGAGTGTGG){e<=1}')
 
-        text = ('GCACGGCGTCACACTTTGCTATGCCATAGCATATTTATCCATAAGATTAGCGGATCCTACC'
-          'TGACGCTTTTTATCGCAACTCTCTACTGTTTCTCCATAACAGAACATATTGACTATCCGGTATTACC'
-          'CGGCATGACAGGAGTAAAAATGGCTATCGACGAAAACAAACAGAAAGCGTTGGCGGCAGCACTGGGC'
-          'CAGATTGAGAAACAATTTGGTAAAGGCTCCATCATGCGCCTGGGTGAAGACCGTTCCATGGATGTGG'
-          'AAACCATCTCTACCGGTTCGCTTTCACTGGATATCGCGCTTGGGGCAGGTGGTCTGCCGATGGGCCG'
-          'TATCGTCGAAATCTACGGACCGGAATCTTCCGGTAAAACCACGCTGACGCTGCAGGTGATCGCCGCA'
-          'GCGCAGCGTGAAGGTAAAACCTGTGCGTTTATCGATGCTGAACACGCGCTGGACCCAATCTACGCAC'
-          'GTAAACTGGGCGTCGATATCGACAACCTGCTGTGCTCCCAGCCGGACACCGGCGAGCAGGCACTGGA'
-          'AATCTGTGACGCCCTGGCGCGTTCTGGCGCAGTAGACGTTATCGTCGTTGACTCCGTGGCGGCACTG'
-          'ACGCCGAAAGCGGAAATCGAAGGCGAAATCGGCGACTCTCATATGGGCCTTGCGGCACGTATGATGA'
-          'GCCAGGCGATGCGTAAGCTGGCGGGTAACCTGAAGCAGTCCAACACGCTGCTGATCTTCATCAACCC'
-          'CATCCGTATGAAAATTGGTGTGATGTTCGGCAACCCGGAAACCACTTACCGGTGGTAACGCGCTGAA'
-          'ATTCTACGCCTCTGTTCGTCTCGACATCCGTTAAATCGGCGCGGTGAAAGAGGGCGAAAACGTGGTG'
-          'GGTAGCGAAACCCGCGTGAAAGTGGTGAAGAACAAAATCGCTGCGCCGTTTAAACAGGCTGAATTCC'
-          'AGATCCTCTACGGCGAAGGTATCAACTTCTACCCCGAACTGGTTGACCTGGGCGTAAAAGAGAAGCT'
-          'GATCGAGAAAGCAGGCGCGTGGTACAGCTACAAAGGTGAGAAGATCGGTCAGGGTAAAGCGAATGCG'
-          'ACTGCCTGGCTGAAATTTAACCCGGAAACCGCGAAAGAGATCGAGTGAAAAGTACGTGAGTTGCTGC'
-          'TGAGCAACCCGAACTCAACGCCGGATTTCTCTGTAGATGATAGCGAAGGCGTAGCAGAAACTAACGA'
-          'AGATTTTTAATCGTCTTGTTTGATACACAAGGGTCGCATCTGCGGCCCTTTTGCTTTTTTAAGTTGT'
-          'AAGGATATGCCATTCTAGACAGTTAACACACCAACAAAGATCGGTAGAGCGTCGTGTAGGGAAAGAG'
+        text = ("REDACTED_MISTRAL"
+          "REDACTED_MISTRAL"
+          "REDACTED_MISTRAL"
+          "REDACTED_MISTRAL"
+          "REDACTED_MISTRAL"
+          "REDACTED_MISTRAL"
+          "REDACTED_MISTRAL"
+          "REDACTED_MISTRAL"
+          "REDACTED_MISTRAL"
+          "REDACTED_MISTRAL"
+          "REDACTED_MISTRAL"
+          "REDACTED_MISTRAL"
+          "REDACTED_MISTRAL"
+          "REDACTED_MISTRAL"
+          "REDACTED_MISTRAL"
+          "REDACTED_MISTRAL"
+          "REDACTED_MISTRAL"
+          "REDACTED_MISTRAL"
+          "REDACTED_MISTRAL"
+          "REDACTED_MISTRAL"
           'TGTGGTACC')
 
         m = regex.search(pattern, text, flags=regex.BESTMATCH)
@@ -4263,7 +4263,7 @@ thing
         self.assertEqual(p.search('1 month 10 hours ago').group(), '10 hours ago')
 
         # Git issue 427: Possible bug with BESTMATCH
-        sequence = 'TTCAGACGTGTGCTCTTCCGATCTCAATACCGACTCCTCACTGTGTGTCT'
+        sequence = "REDACTED_MISTRAL"
         pattern = r'(?P<insert>.*)(?P<anchor>CTTCC){e<=1}(?P<umi>([ACGT]){4,6})(?P<sid>CAATACCGACTCCTCACTGTGT){e<=2}(?P<end>([ACGT]){0,6}$)'
 
         m = regex.match(pattern, sequence, flags=regex.BESTMATCH)
@@ -4277,12 +4277,12 @@ thing
         # Git issue 433: Disagreement between fuzzy_counts and fuzzy_changes
         pattern = r'(?P<insert>.*)(?P<anchor>AACACTGG){e<=1}(?P<umi>([AT][CG]){5}){e<=2}(?P<sid>GTAACCGAAG){e<=2}(?P<end>([ACGT]){0,6}$)'
 
-        sequence = 'GGAAAACACTGGTCTCAGTCTCGTAACCGAAGTGGTCG'
+        sequence = "REDACTED_MISTRAL"
         m = regex.match(pattern, sequence, flags=regex.BESTMATCH)
         self.assertEqual(m.fuzzy_counts, (0, 0, 0))
         self.assertEqual(m.fuzzy_changes, ([], [], []))
 
-        sequence = 'GGAAAACACTGGTCTCAGTCTCGTCCCCGAAGTGGTCG'
+        sequence = "REDACTED_MISTRAL"
         m = regex.match(pattern, sequence, flags=regex.BESTMATCH)
         self.assertEqual(m.fuzzy_counts, (2, 0, 0))
         self.assertEqual(m.fuzzy_changes, ([24, 25], [], []))

@@ -276,7 +276,7 @@ class MuseGlimmerAssistantPreTrainedModel(PreTrainedModel):
     config: MuseGlimmerAssistantConfig
     base_model_prefix = "model"
     supports_gradient_checkpointing = True
-    _no_split_modules = ["MuseGlimmerAssistantDecoderLayer"]
+    _no_split_modules = ["REDACTED_MISTRAL"]
     _skip_keys_device_placement = ["past_key_values"]
     _supports_flash_attn = True
     _supports_sdpa = True
@@ -457,4 +457,4 @@ class MuseGlimmerAssistantModel(MuseGlimmerAssistantPreTrainedModel):
         return BaseModelOutputWithPast(last_hidden_state=hidden_states, past_key_values=past_key_values)
 
 
-__all__ = ["MuseGlimmerAssistantModel", "MuseGlimmerAssistantPreTrainedModel"]
+__all__ = ["MuseGlimmerAssistantModel", "REDACTED_MISTRAL"]

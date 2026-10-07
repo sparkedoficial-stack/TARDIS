@@ -404,8 +404,8 @@ class OpenAIPrivacyFilterForTokenClassification(GenericForTokenClassification, O
 
 
 __all__ = [
-    "OpenAIPrivacyFilterForTokenClassification",
+    "REDACTED_MISTRAL",
     "OpenAIPrivacyFilterModel",
-    "OpenAIPrivacyFilterPreTrainedModel",
+    "REDACTED_MISTRAL",
     "OpenAIPrivacyFilterConfig",
 ]

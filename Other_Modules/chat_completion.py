@@ -18,7 +18,7 @@ ChatCompletionInputMessageChunkType = Literal["text", "image_url"]
 
 @dataclass_with_extra
 class ChatCompletionInputMessageChunk(BaseInferenceType):
-    type: "ChatCompletionInputMessageChunkType"
+    type: "REDACTED_MISTRAL"
     image_url: ChatCompletionInputURL | None = None
     text: str | None = None
 
@@ -182,7 +182,7 @@ class ChatCompletionInput(BaseInferenceType):
     lower values like 0.2 will make it more focused and deterministic.
     We generally recommend altering this or `top_p` but not both.
     """
-    tool_choice: Union[ChatCompletionInputToolChoiceClass, "ChatCompletionInputToolChoiceEnum"] | None = None
+    tool_choice: Union[ChatCompletionInputToolChoiceClass, "REDACTED_MISTRAL"] | None = None
     tool_prompt: str | None = None
     """A prompt to be appended before the tools"""
     tools: list[ChatCompletionInputTool] | None = None

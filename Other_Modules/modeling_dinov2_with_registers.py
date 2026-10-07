@@ -563,8 +563,8 @@ class Dinov2WithRegistersBackbone(BackboneMixin, Dinov2WithRegistersPreTrainedMo
 
 
 __all__ = [
-    "Dinov2WithRegistersPreTrainedModel",
+    "REDACTED_MISTRAL",
     "Dinov2WithRegistersModel",
-    "Dinov2WithRegistersForImageClassification",
+    "REDACTED_MISTRAL",
     "Dinov2WithRegistersBackbone",
 ]

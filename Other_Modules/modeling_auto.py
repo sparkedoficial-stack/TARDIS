@@ -89,7 +89,7 @@ MODEL_MAPPING_NAMES = OrderedDict(
         ("clip_text_model", "CLIPTextModel"),
         ("clip_vision_model", "CLIPVisionModel"),
         ("clipseg", "CLIPSegModel"),
-        ("clvp", "REDACTED"),
+        ("clvp", "REDACTED_MISTRAL"),
         ("codegen", "CodeGenModel"),
         ("cohere", "CohereModel"),
         ("cohere2", "Cohere2Model"),
@@ -252,7 +252,7 @@ MODEL_MAPPING_NAMES = OrderedDict(
         ("helium", "HeliumModel"),
         ("hgnet_v2", "HGNetV2Backbone"),
         ("hiera", "HieraModel"),
-        ("higgs_audio_v2", "REDACTED"),
+        ("higgs_audio_v2", "REDACTED_MISTRAL"),
         ("higgs_audio_v2_tokenizer", "HiggsAudioV2TokenizerModel"),
         ("hrm_text", "HrmTextModel"),
         ("hubert", "HubertModel"),
@@ -442,7 +442,7 @@ MODEL_MAPPING_NAMES = OrderedDict(
         ("qwen2", "Qwen2Model"),
         ("qwen2_5_vl", "Qwen2_5_VLModel"),
         ("qwen2_5_vl_text", "Qwen2_5_VLTextModel"),
-        ("qwen2_5_vl_vision", "Qwen2_5_REDACTED"),
+        ("qwen2_5_vl_vision", "Qwen2_5_VisionTransformerPretrainedModel"),
         ("qwen2_audio", "Qwen2AudioModel"),
         ("qwen2_audio_encoder", "Qwen2AudioEncoder"),
         ("qwen2_moe", "Qwen2MoeModel"),
@@ -551,10 +551,10 @@ MODEL_MAPPING_NAMES = OrderedDict(
         ("univnet", "UnivNetModel"),
         ("uvdoc", "UVDocModel"),
         ("vaultgemma", "VaultGemmaModel"),
-        ("vibevoice", "REDACTED"),
+        ("vibevoice", "REDACTED_MISTRAL"),
         ("vibevoice_acoustic_tokenizer", "VibeVoiceAcousticTokenizerModel"),
-        ("vibevoice_acoustic_tokenizer_decoder", "REDACTED"),
-        ("vibevoice_acoustic_tokenizer_encoder", "REDACTED"),
+        ("vibevoice_acoustic_tokenizer_decoder", "REDACTED_MISTRAL"),
+        ("vibevoice_acoustic_tokenizer_encoder", "REDACTED_MISTRAL"),
         ("vibevoice_asr", "VibeVoiceAsrModel"),
         ("video_llama_3", "VideoLlama3Model"),
         ("video_llama_3_vision", "VideoLlama3VisionModel"),
@@ -606,7 +606,7 @@ MODEL_FOR_PRETRAINING_MAPPING_NAMES = OrderedDict(
     [
         # Model for pre-training mapping
         ("albert", "AlbertForPreTraining"),
-        ("audioflamingo3", "REDACTED"),
+        ("audioflamingo3", "REDACTED_MISTRAL"),
         ("bart", "BartForConditionalGeneration"),
         ("bert", "BertForPreTraining"),
         ("big_bird", "BigBirdForPreTraining"),
@@ -628,14 +628,14 @@ MODEL_FOR_PRETRAINING_MAPPING_NAMES = OrderedDict(
         ("falcon_mamba", "FalconMambaForCausalLM"),
         ("flaubert", "FlaubertWithLMHeadModel"),
         ("flava", "FlavaForPreTraining"),
-        ("florence2", "REDACTED"),
+        ("florence2", "REDACTED_MISTRAL"),
         ("fnet", "FNetForPreTraining"),
         ("fsmt", "FSMTForConditionalGeneration"),
-        ("fun_asr_nano", "REDACTED"),
+        ("fun_asr_nano", "REDACTED_MISTRAL"),
         ("funnel", "FunnelForPreTraining"),
         ("gemma3", "Gemma3ForConditionalGeneration"),
         ("gemma4", "Gemma4ForConditionalGeneration"),
-        ("gemma4_unified", "REDACTED"),
+        ("gemma4_unified", "REDACTED_MISTRAL"),
         ("glmasr", "GlmAsrForConditionalGeneration"),
         ("gpt-sw3", "GPT2LMHeadModel"),
         ("gpt2", "GPT2LMHeadModel"),
@@ -643,57 +643,57 @@ MODEL_FOR_PRETRAINING_MAPPING_NAMES = OrderedDict(
         ("hiera", "HieraForPreTraining"),
         ("ibert", "IBertForMaskedLM"),
         ("idefics", "IdeficsForVisionText2Text"),
-        ("idefics2", "REDACTED"),
-        ("idefics3", "REDACTED"),
+        ("idefics2", "REDACTED_MISTRAL"),
+        ("idefics3", "REDACTED_MISTRAL"),
         ("inkling_mm_model", "InklingForConditionalGeneration"),
         ("janus", "JanusForConditionalGeneration"),
         ("layoutlm", "LayoutLMForMaskedLM"),
         ("llava", "LlavaForConditionalGeneration"),
-        ("llava_next", "REDACTED"),
-        ("llava_next_video", "REDACTED"),
-        ("llava_onevision", "REDACTED"),
+        ("llava_next", "REDACTED_MISTRAL"),
+        ("llava_next_video", "REDACTED_MISTRAL"),
+        ("llava_onevision", "REDACTED_MISTRAL"),
         ("longformer", "LongformerForMaskedLM"),
         ("luke", "LukeForMaskedLM"),
         ("lxmert", "LxmertForPreTraining"),
         ("mamba", "MambaForCausalLM"),
         ("mamba2", "Mamba2ForCausalLM"),
         ("megatron-bert", "MegatronBertForPreTraining"),
-        ("mistral3", "REDACTED"),
+        ("mistral3", "REDACTED_MISTRAL"),
         ("mistral4", "Mistral4ForCausalLM"),
         ("mllama", "MllamaForConditionalGeneration"),
         ("mobilebert", "MobileBertForPreTraining"),
         ("mpnet", "MPNetForMaskedLM"),
         ("mpt", "MptForCausalLM"),
         ("mra", "MraForMaskedLM"),
-        ("musicflamingo", "REDACTED"),
+        ("musicflamingo", "REDACTED_MISTRAL"),
         ("mvp", "MvpForConditionalGeneration"),
         ("nanochat", "NanoChatForCausalLM"),
         ("nllb-moe", "NllbMoeForConditionalGeneration"),
         ("openai-gpt", "OpenAIGPTLMHeadModel"),
-        ("paligemma", "REDACTED"),
-        ("qwen2_audio", "REDACTED"),
-        ("qwen3_asr", "REDACTED"),
+        ("paligemma", "REDACTED_MISTRAL"),
+        ("qwen2_audio", "REDACTED_MISTRAL"),
+        ("qwen3_asr", "REDACTED_MISTRAL"),
         ("roberta", "RobertaForMaskedLM"),
         ("roberta-prelayernorm", "RobertaPreLayerNormForMaskedLM"),
         ("roc_bert", "RoCBertForPreTraining"),
         ("rwkv", "RwkvForCausalLM"),
         ("splinter", "SplinterForPreTraining"),
         ("squeezebert", "SqueezeBertForMaskedLM"),
-        ("switch_transformers", "REDACTED"),
+        ("switch_transformers", "REDACTED_MISTRAL"),
         ("t5", "T5ForConditionalGeneration"),
         ("t5gemma", "T5GemmaForConditionalGeneration"),
-        ("t5gemma2", "REDACTED"),
+        ("t5gemma2", "REDACTED_MISTRAL"),
         ("tapas", "TapasForMaskedLM"),
         ("unispeech", "UniSpeechForPreTraining"),
         ("unispeech-sat", "UniSpeechSatForPreTraining"),
-        ("vibevoice_asr", "REDACTED"),
-        ("video_llava", "REDACTED"),
+        ("vibevoice_asr", "REDACTED_MISTRAL"),
+        ("video_llava", "REDACTED_MISTRAL"),
         ("videomae", "VideoMAEForPreTraining"),
-        ("vipllava", "REDACTED"),
+        ("vipllava", "REDACTED_MISTRAL"),
         ("visual_bert", "VisualBertForPreTraining"),
         ("vit_mae", "ViTMAEForPreTraining"),
         ("voxtral", "VoxtralForConditionalGeneration"),
-        ("voxtral_realtime", "REDACTED"),
+        ("voxtral_realtime", "REDACTED_MISTRAL"),
         ("wav2vec2", "Wav2Vec2ForPreTraining"),
         ("wav2vec2-conformer", "Wav2Vec2ConformerForPreTraining"),
         ("xlm", "XLMWithLMHeadModel"),
@@ -765,8 +765,8 @@ MODEL_FOR_CAUSAL_LM_MAPPING_NAMES = OrderedDict(
         ("gemma4", "Gemma4ForConditionalGeneration"),
         ("gemma4_assistant", "Gemma4AssistantForCausalLM"),
         ("gemma4_text", "Gemma4ForCausalLM"),
-        ("gemma4_unified", "REDACTED"),
-        ("gemma4_unified_assistant", "REDACTED"),
+        ("gemma4_unified", "REDACTED_MISTRAL"),
+        ("gemma4_unified_assistant", "REDACTED_MISTRAL"),
         ("gemma4_unified_text", "Gemma4UnifiedForCausalLM"),
         ("git", "GitForCausalLM"),
         ("glm", "GlmForCausalLM"),
@@ -978,18 +978,18 @@ MODEL_FOR_IMAGE_CLASSIFICATION_MAPPING_NAMES = OrderedDict(
         ("bit", "BitForImageClassification"),
         ("clip", "CLIPForImageClassification"),
         ("convnext", "ConvNextForImageClassification"),
-        ("convnextv2", "REDACTED"),
+        ("convnextv2", "REDACTED_MISTRAL"),
         ("cvt", "CvtForImageClassification"),
-        ("data2vec-vision", "REDACTED"),
+        ("data2vec-vision", "REDACTED_MISTRAL"),
         (
             "deit",
-            ("DeiTForImageClassification", "REDACTED"),
+            ("DeiTForImageClassification", "REDACTED_MISTRAL"),
         ),
         ("dinat", "DinatForImageClassification"),
         ("dinov2", "Dinov2ForImageClassification"),
-        ("dinov2_with_registers", "REDACTED"),
+        ("dinov2_with_registers", "REDACTED_MISTRAL"),
         ("donut-swin", "DonutSwinForImageClassification"),
-        ("efficientnet", "REDACTED"),
+        ("efficientnet", "REDACTED_MISTRAL"),
         ("focalnet", "FocalNetForImageClassification"),
         ("hgnet_v2", "HGNetV2ForImageClassification"),
         ("hiera", "HieraForImageClassification"),
@@ -997,36 +997,36 @@ MODEL_FOR_IMAGE_CLASSIFICATION_MAPPING_NAMES = OrderedDict(
         ("imagegpt", "ImageGPTForImageClassification"),
         (
             "levit",
-            ("LevitForImageClassification", "REDACTED"),
+            ("LevitForImageClassification", "REDACTED_MISTRAL"),
         ),
         ("metaclip_2", "MetaClip2ForImageClassification"),
-        ("mobilenet_v1", "REDACTED"),
-        ("mobilenet_v2", "REDACTED"),
+        ("mobilenet_v1", "REDACTED_MISTRAL"),
+        ("mobilenet_v2", "REDACTED_MISTRAL"),
         ("mobilevit", "MobileViTForImageClassification"),
-        ("mobilevitv2", "REDACTED"),
+        ("mobilevitv2", "REDACTED_MISTRAL"),
         (
             "perceiver",
             (
-                "REDACTED",
-                "REDACTED",
-                "REDACTED",
+                "REDACTED_MISTRAL",
+                "REDACTED_MISTRAL",
+                "REDACTED_MISTRAL",
             ),
         ),
-        ("poolformer", "REDACTED"),
+        ("poolformer", "REDACTED_MISTRAL"),
         ("pp_lcnet", "PPLCNetForImageClassification"),
         ("pvt", "PvtForImageClassification"),
         ("pvt_v2", "PvtV2ForImageClassification"),
         ("regnet", "RegNetForImageClassification"),
         ("resnet", "ResNetForImageClassification"),
         ("segformer", "SegformerForImageClassification"),
-        ("shieldgemma2", "REDACTED"),
+        ("shieldgemma2", "REDACTED_MISTRAL"),
         ("siglip", "SiglipForImageClassification"),
         ("siglip2", "Siglip2ForImageClassification"),
-        ("swiftformer", "REDACTED"),
+        ("swiftformer", "REDACTED_MISTRAL"),
         ("swin", "SwinForImageClassification"),
         ("swinv2", "Swinv2ForImageClassification"),
         ("textnet", "TextNetForImageClassification"),
-        ("timm_wrapper", "REDACTED"),
+        ("timm_wrapper", "REDACTED_MISTRAL"),
         ("vit", "ViTForImageClassification"),
         ("vit_msn", "ViTMSNForImageClassification"),
     ]
@@ -1044,14 +1044,14 @@ MODEL_FOR_SEMANTIC_SEGMENTATION_MAPPING_NAMES = OrderedDict(
     [
         # Model for Semantic Segmentation mapping
         ("beit", "BeitForSemanticSegmentation"),
-        ("data2vec-vision", "REDACTED"),
+        ("data2vec-vision", "REDACTED_MISTRAL"),
         ("dpt", "DPTForSemanticSegmentation"),
-        ("mobilenet_v2", "REDACTED"),
-        ("mobilevit", "REDACTED"),
-        ("mobilevitv2", "REDACTED"),
+        ("mobilenet_v2", "REDACTED_MISTRAL"),
+        ("mobilevit", "REDACTED_MISTRAL"),
+        ("mobilevitv2", "REDACTED_MISTRAL"),
         ("sapiens2", "Sapiens2ForSemanticSegmentation"),
-        ("segformer", "REDACTED"),
-        ("tipsv2_dpt", "REDACTED"),
+        ("segformer", "REDACTED_MISTRAL"),
+        ("tipsv2_dpt", "REDACTED_MISTRAL"),
         ("upernet", "UperNetForSemanticSegmentation"),
     ]
 )
@@ -1059,8 +1059,8 @@ MODEL_FOR_SEMANTIC_SEGMENTATION_MAPPING_NAMES = OrderedDict(
 MODEL_FOR_INSTANCE_SEGMENTATION_MAPPING_NAMES = OrderedDict(
     [
         # Model for Instance Segmentation mapping
-        # REDACTED can be removed from this mapping in v5
-        ("maskformer", "REDACTED"),
+        # MaskFormerForInstanceSegmentation can be removed from this mapping in v5
+        ("maskformer", "REDACTED_MISTRAL"),
         ("rf_detr", "RfDetrForInstanceSegmentation"),
     ]
 )
@@ -1070,19 +1070,19 @@ MODEL_FOR_UNIVERSAL_SEGMENTATION_MAPPING_NAMES = OrderedDict(
         # Model for Universal Segmentation mapping
         ("detr", "DetrForSegmentation"),
         ("eomt", "EomtForUniversalSegmentation"),
-        ("eomt_dinov3", "REDACTED"),
-        ("mask2former", "REDACTED"),
-        ("maskformer", "REDACTED"),
-        ("oneformer", "REDACTED"),
+        ("eomt_dinov3", "REDACTED_MISTRAL"),
+        ("mask2former", "REDACTED_MISTRAL"),
+        ("maskformer", "REDACTED_MISTRAL"),
+        ("oneformer", "REDACTED_MISTRAL"),
         ("videomt", "VideomtForUniversalSegmentation"),
     ]
 )
 
 MODEL_FOR_VIDEO_CLASSIFICATION_MAPPING_NAMES = OrderedDict(
     [
-        ("timesformer", "REDACTED"),
+        ("timesformer", "REDACTED_MISTRAL"),
         ("videomae", "VideoMAEForVideoClassification"),
-        ("videoprism_vision_model", "REDACTED"),
+        ("videoprism_vision_model", "REDACTED_MISTRAL"),
         ("vivit", "VivitForVideoClassification"),
         ("vjepa2", "VJEPA2ForVideoClassification"),
     ]
@@ -1098,92 +1098,92 @@ MODEL_FOR_RETRIEVAL_MAPPING_NAMES = OrderedDict(
 MODEL_FOR_IMAGE_TEXT_TO_TEXT_MAPPING_NAMES = OrderedDict(
     [
         ("aria", "AriaForConditionalGeneration"),
-        ("aya_vision", "REDACTED"),
+        ("aya_vision", "REDACTED_MISTRAL"),
         ("blip", "BlipForConditionalGeneration"),
         ("blip-2", "Blip2ForConditionalGeneration"),
-        ("chameleon", "REDACTED"),
-        ("cohere2_vision", "REDACTED"),
-        ("cohere_compass", "REDACTED"),
-        ("cosmos3_edge", "REDACTED"),
-        ("cosmos3_omni", "REDACTED"),
-        ("deepseek_ocr2", "REDACTED"),
-        ("deepseek_vl", "REDACTED"),
-        ("deepseek_vl_hybrid", "REDACTED"),
+        ("chameleon", "REDACTED_MISTRAL"),
+        ("cohere2_vision", "REDACTED_MISTRAL"),
+        ("cohere_compass", "REDACTED_MISTRAL"),
+        ("cosmos3_edge", "REDACTED_MISTRAL"),
+        ("cosmos3_omni", "REDACTED_MISTRAL"),
+        ("deepseek_ocr2", "REDACTED_MISTRAL"),
+        ("deepseek_vl", "REDACTED_MISTRAL"),
+        ("deepseek_vl_hybrid", "REDACTED_MISTRAL"),
         ("diffusion_gemma", "DiffusionGemmaForBlockDiffusion"),
         ("emu3", "Emu3ForConditionalGeneration"),
         ("ernie4_5_vl_moe", "Ernie4_5_VLMoeForConditionalGeneration"),
         ("evolla", "EvollaForProteinText2Text"),
         ("exaone4_5", "Exaone4_5_ForConditionalGeneration"),
         ("fast_vlm", "FastVlmForConditionalGeneration"),
-        ("florence2", "REDACTED"),
+        ("florence2", "REDACTED_MISTRAL"),
         ("fuyu", "FuyuForCausalLM"),
         ("gemma3", "Gemma3ForConditionalGeneration"),
         ("gemma3n", "Gemma3nForConditionalGeneration"),
         ("gemma4", "Gemma4ForConditionalGeneration"),
-        ("gemma4_unified", "REDACTED"),
+        ("gemma4_unified", "REDACTED_MISTRAL"),
         ("git", "GitForCausalLM"),
         ("glm46v", "Glm46VForConditionalGeneration"),
         ("glm4v", "Glm4vForConditionalGeneration"),
-        ("glm4v_moe", "REDACTED"),
-        ("glm5_next", "REDACTED"),
+        ("glm4v_moe", "REDACTED_MISTRAL"),
+        ("glm5_next", "REDACTED_MISTRAL"),
         ("glm_ocr", "GlmOcrForConditionalGeneration"),
         ("glmga", "Glm46VForConditionalGeneration"),
         ("got_ocr2", "GotOcr2ForConditionalGeneration"),
-        ("granite4_vision", "REDACTED"),
-        ("hunyuan_vl", "REDACTED"),
-        ("hyperclovax_vision_v2", "REDACTED"),
+        ("granite4_vision", "REDACTED_MISTRAL"),
+        ("hunyuan_vl", "REDACTED_MISTRAL"),
+        ("hyperclovax_vision_v2", "REDACTED_MISTRAL"),
         ("idefics", "IdeficsForVisionText2Text"),
-        ("idefics2", "REDACTED"),
-        ("idefics3", "REDACTED"),
+        ("idefics2", "REDACTED_MISTRAL"),
+        ("idefics3", "REDACTED_MISTRAL"),
         ("inkling_mm_model", "InklingForConditionalGeneration"),
-        ("instructblip", "REDACTED"),
-        ("instructblipvideo", "REDACTED"),
-        ("internvl", "REDACTED"),
+        ("instructblip", "REDACTED_MISTRAL"),
+        ("instructblipvideo", "REDACTED_MISTRAL"),
+        ("internvl", "REDACTED_MISTRAL"),
         ("janus", "JanusForConditionalGeneration"),
         ("kimi_k25", "Kimi_K25ForConditionalGeneration"),
         ("kosmos-2", "Kosmos2ForConditionalGeneration"),
         ("kosmos-2.5", "Kosmos2_5ForConditionalGeneration"),
         ("lfm2_vl", "Lfm2VlForConditionalGeneration"),
-        ("lighton_ocr", "REDACTED"),
+        ("lighton_ocr", "REDACTED_MISTRAL"),
         ("llama4", "Llama4ForConditionalGeneration"),
         ("llava", "LlavaForConditionalGeneration"),
-        ("llava_next", "REDACTED"),
-        ("llava_next_video", "REDACTED"),
-        ("llava_onevision", "REDACTED"),
+        ("llava_next", "REDACTED_MISTRAL"),
+        ("llava_next_video", "REDACTED_MISTRAL"),
+        ("llava_onevision", "REDACTED_MISTRAL"),
         ("minicpmv4_6", "MiniCPMV4_6ForConditionalGeneration"),
         ("minicpmv4_7", "MiniCPMV4_7ForConditionalGeneration"),
-        ("minimax_m3_vl", "REDACTED"),
-        ("mistral3", "REDACTED"),
+        ("minimax_m3_vl", "REDACTED_MISTRAL"),
+        ("mistral3", "REDACTED_MISTRAL"),
         ("mistral4", "Mistral4ForCausalLM"),
         ("mllama", "MllamaForConditionalGeneration"),
-        ("muse_glimmer", "REDACTED"),
+        ("muse_glimmer", "REDACTED_MISTRAL"),
         ("nemotron_h_omni", "NemotronH_Omni_Reasoning_V3"),
         ("ovis2", "Ovis2ForConditionalGeneration"),
-        ("paddleocr_vl", "REDACTED"),
-        ("paligemma", "REDACTED"),
-        ("perception_lm", "REDACTED"),
+        ("paddleocr_vl", "REDACTED_MISTRAL"),
+        ("paligemma", "REDACTED_MISTRAL"),
+        ("perception_lm", "REDACTED_MISTRAL"),
         ("pi0", "PI0ForConditionalGeneration"),
-        ("pix2struct", "REDACTED"),
+        ("pix2struct", "REDACTED_MISTRAL"),
         ("pp_chart2table", "GotOcr2ForConditionalGeneration"),
-        ("pp_formulanet", "REDACTED"),
-        ("qianfan_ocr", "REDACTED"),
-        ("qwen2_5_omni_thinker", "Qwen2_REDACTED"),
+        ("pp_formulanet", "REDACTED_MISTRAL"),
+        ("qianfan_ocr", "REDACTED_MISTRAL"),
+        ("qwen2_5_omni_thinker", "Qwen2_5OmniThinkerForConditionalGeneration"),
         ("qwen2_5_vl", "Qwen2_5_VLForConditionalGeneration"),
         ("qwen2_vl", "Qwen2VLForConditionalGeneration"),
         ("qwen3_5", "Qwen3_5ForConditionalGeneration"),
         ("qwen3_5_moe", "Qwen3_5MoeForConditionalGeneration"),
-        ("qwen3_omni_moe_thinker", "REDACTED"),
+        ("qwen3_omni_moe_thinker", "REDACTED_MISTRAL"),
         ("qwen3_vl", "Qwen3VLForConditionalGeneration"),
-        ("qwen3_vl_moe", "REDACTED"),
-        ("qwen4_exp", "REDACTED"),
+        ("qwen3_vl_moe", "REDACTED_MISTRAL"),
+        ("qwen4_exp", "REDACTED_MISTRAL"),
         ("shieldgemma2", "Gemma3ForConditionalGeneration"),
         ("smolvlm", "SmolVLMForConditionalGeneration"),
         ("step3p7", "Step3p7ForConditionalGeneration"),
-        ("t5gemma2", "REDACTED"),
+        ("t5gemma2", "REDACTED_MISTRAL"),
         ("udop", "UdopForConditionalGeneration"),
-        ("video_llama_3", "REDACTED"),
-        ("video_llava", "REDACTED"),
-        ("vipllava", "REDACTED"),
+        ("video_llama_3", "REDACTED_MISTRAL"),
+        ("video_llava", "REDACTED_MISTRAL"),
+        ("vipllava", "REDACTED_MISTRAL"),
         ("vision-encoder-decoder", "VisionEncoderDecoderModel"),
     ]
 )
@@ -1193,19 +1193,19 @@ MODEL_FOR_IMAGE_TEXT_TO_TEXT_MAPPING_NAMES = OrderedDict(
 MODEL_FOR_MULTIMODAL_LM_MAPPING_NAMES = OrderedDict(
     [
         *list(MODEL_FOR_IMAGE_TEXT_TO_TEXT_MAPPING_NAMES.items()),
-        ("fun_asr_nano", "REDACTED"),
+        ("fun_asr_nano", "REDACTED_MISTRAL"),
         ("glmasr", "GlmAsrForConditionalGeneration"),
-        ("granite_speech", "REDACTED"),
-        ("granite_speech_plus", "REDACTED"),
-        ("kyutai_speech_to_text", "REDACTED"),
+        ("granite_speech", "REDACTED_MISTRAL"),
+        ("granite_speech_plus", "REDACTED_MISTRAL"),
+        ("kyutai_speech_to_text", "REDACTED_MISTRAL"),
         ("phi4_multimodal", "Phi4MultimodalForCausalLM"),
         ("qwen2_5_omni", "Qwen2_5OmniForConditionalGeneration"),
-        ("qwen2_audio", "REDACTED"),
-        ("qwen3_asr", "REDACTED"),
-        ("qwen3_omni_moe", "REDACTED"),
-        ("vibevoice_asr", "REDACTED"),
+        ("qwen2_audio", "REDACTED_MISTRAL"),
+        ("qwen3_asr", "REDACTED_MISTRAL"),
+        ("qwen3_omni_moe", "REDACTED_MISTRAL"),
+        ("vibevoice_asr", "REDACTED_MISTRAL"),
         ("voxtral", "VoxtralForConditionalGeneration"),
-        ("voxtral_realtime", "REDACTED"),
+        ("voxtral_realtime", "REDACTED_MISTRAL"),
     ]
 )
 
@@ -1268,23 +1268,23 @@ MODEL_FOR_MASKED_LM_MAPPING_NAMES = OrderedDict(
 MODEL_FOR_OBJECT_DETECTION_MAPPING_NAMES = OrderedDict(
     [
         # Model for Object Detection mapping
-        ("conditional_detr", "REDACTED"),
+        ("conditional_detr", "REDACTED_MISTRAL"),
         ("d_fine", "DFineForObjectDetection"),
         ("dab-detr", "DabDetrForObjectDetection"),
-        ("deformable_detr", "REDACTED"),
+        ("deformable_detr", "REDACTED_MISTRAL"),
         ("deimv2", "Deimv2ForObjectDetection"),
         ("detr", "DetrForObjectDetection"),
         ("lw_detr", "LwDetrForObjectDetection"),
         ("pp_doclayout_v2", "PPDocLayoutV2ForObjectDetection"),
         ("pp_doclayout_v3", "PPDocLayoutV3ForObjectDetection"),
-        ("pp_ocrv5_mobile_det", "REDACTED"),
-        ("pp_ocrv5_server_det", "REDACTED"),
-        ("pp_ocrv6_medium_det", "REDACTED"),
-        ("pp_ocrv6_small_det", "REDACTED"),
+        ("pp_ocrv5_mobile_det", "REDACTED_MISTRAL"),
+        ("pp_ocrv5_server_det", "REDACTED_MISTRAL"),
+        ("pp_ocrv6_medium_det", "REDACTED_MISTRAL"),
+        ("pp_ocrv6_small_det", "REDACTED_MISTRAL"),
         ("rf_detr", "RfDetrForObjectDetection"),
         ("rt_detr", "RTDetrForObjectDetection"),
         ("rt_detr_v2", "RTDetrV2ForObjectDetection"),
-        ("table-transformer", "REDACTED"),
+        ("table-transformer", "REDACTED_MISTRAL"),
         ("yolos", "YolosForObjectDetection"),
     ]
 )
@@ -1293,7 +1293,7 @@ MODEL_FOR_ZERO_SHOT_OBJECT_DETECTION_MAPPING_NAMES = OrderedDict(
     [
         # Model for Zero Shot Object Detection mapping
         ("grounding-dino", "GroundingDinoForObjectDetection"),
-        ("mm-grounding-dino", "REDACTED"),
+        ("mm-grounding-dino", "REDACTED_MISTRAL"),
         ("omdet-turbo", "OmDetTurboForObjectDetection"),
         ("owlv2", "Owlv2ForObjectDetection"),
         ("owlvit", "OwlViTForObjectDetection"),
@@ -1308,7 +1308,7 @@ MODEL_FOR_DEPTH_ESTIMATION_MAPPING_NAMES = OrderedDict(
         ("depth_pro", "DepthProForDepthEstimation"),
         ("dpt", "DPTForDepthEstimation"),
         ("glpn", "GLPNForDepthEstimation"),
-        ("prompt_depth_anything", "REDACTED"),
+        ("prompt_depth_anything", "REDACTED_MISTRAL"),
         ("tipsv2_dpt", "Tipsv2DptForDepthEstimation"),
         ("zoedepth", "ZoeDepthForDepthEstimation"),
     ]
@@ -1317,10 +1317,10 @@ MODEL_FOR_DEPTH_ESTIMATION_MAPPING_NAMES = OrderedDict(
 
 MODEL_FOR_TEXT_RECOGNITION_MAPPING_NAMES = OrderedDict(
     [
-        ("pp_ocrv5_mobile_rec", "REDACTED"),
-        ("pp_ocrv5_server_rec", "REDACTED"),
-        ("pp_ocrv6_small_rec", "REDACTED"),
-        ("pp_ocrv6_tiny_rec", "REDACTED"),
+        ("pp_ocrv5_mobile_rec", "REDACTED_MISTRAL"),
+        ("pp_ocrv5_server_rec", "REDACTED_MISTRAL"),
+        ("pp_ocrv6_small_rec", "REDACTED_MISTRAL"),
+        ("pp_ocrv6_tiny_rec", "REDACTED_MISTRAL"),
     ]
 )
 
@@ -1336,41 +1336,41 @@ MODEL_FOR_TABLE_RECOGNITION_MAPPING_NAMES = OrderedDict(
 MODEL_FOR_SEQ_TO_SEQ_CAUSAL_LM_MAPPING_NAMES = OrderedDict(
     [
         # Model for Seq2Seq Causal LM mapping
-        ("audioflamingo3", "REDACTED"),
+        ("audioflamingo3", "REDACTED_MISTRAL"),
         ("bart", "BartForConditionalGeneration"),
-        ("bigbird_pegasus", "REDACTED"),
-        ("blenderbot", "REDACTED"),
-        ("blenderbot-small", "REDACTED"),
+        ("bigbird_pegasus", "REDACTED_MISTRAL"),
+        ("blenderbot", "REDACTED_MISTRAL"),
+        ("blenderbot-small", "REDACTED_MISTRAL"),
         ("encoder-decoder", "EncoderDecoderModel"),
         ("fsmt", "FSMTForConditionalGeneration"),
         ("glmasr", "GlmAsrForConditionalGeneration"),
-        ("granite_speech", "REDACTED"),
-        ("granite_speech_plus", "REDACTED"),
+        ("granite_speech", "REDACTED_MISTRAL"),
+        ("granite_speech_plus", "REDACTED_MISTRAL"),
         ("led", "LEDForConditionalGeneration"),
         ("longt5", "LongT5ForConditionalGeneration"),
         ("m2m_100", "M2M100ForConditionalGeneration"),
         ("marian", "MarianMTModel"),
         ("mbart", "MBartForConditionalGeneration"),
         ("mt5", "MT5ForConditionalGeneration"),
-        ("musicflamingo", "REDACTED"),
+        ("musicflamingo", "REDACTED_MISTRAL"),
         ("mvp", "MvpForConditionalGeneration"),
         ("nllb-moe", "NllbMoeForConditionalGeneration"),
         ("pegasus", "PegasusForConditionalGeneration"),
-        ("pegasus_x", "REDACTED"),
+        ("pegasus_x", "REDACTED_MISTRAL"),
         ("plbart", "PLBartForConditionalGeneration"),
-        ("prophetnet", "REDACTED"),
-        ("qwen2_audio", "REDACTED"),
-        ("qwen3_asr", "REDACTED"),
+        ("prophetnet", "REDACTED_MISTRAL"),
+        ("qwen2_audio", "REDACTED_MISTRAL"),
+        ("qwen3_asr", "REDACTED_MISTRAL"),
         ("seamless_m4t", "SeamlessM4TForTextToText"),
         ("seamless_m4t_v2", "SeamlessM4Tv2ForTextToText"),
-        ("switch_transformers", "REDACTED"),
+        ("switch_transformers", "REDACTED_MISTRAL"),
         ("t5", "T5ForConditionalGeneration"),
         ("t5gemma", "T5GemmaForConditionalGeneration"),
-        ("t5gemma2", "REDACTED"),
+        ("t5gemma2", "REDACTED_MISTRAL"),
         ("umt5", "UMT5ForConditionalGeneration"),
-        ("vibevoice_asr", "REDACTED"),
+        ("vibevoice_asr", "REDACTED_MISTRAL"),
         ("voxtral", "VoxtralForConditionalGeneration"),
-        ("voxtral_realtime", "REDACTED"),
+        ("voxtral_realtime", "REDACTED_MISTRAL"),
     ]
 )
 
@@ -1378,25 +1378,25 @@ MODEL_FOR_SEQ_TO_SEQ_CAUSAL_LM_MAPPING_NAMES = OrderedDict(
 MODEL_FOR_SPEECH_SEQ_2_SEQ_MAPPING_NAMES = OrderedDict(
     [
         ("canary", "CanaryForConditionalGeneration"),
-        ("cohere_asr", "REDACTED"),
+        ("cohere_asr", "REDACTED_MISTRAL"),
         ("dia", "DiaForConditionalGeneration"),
-        ("fun_asr_nano", "REDACTED"),
-        ("granite_speech", "REDACTED"),
-        ("granite_speech_plus", "REDACTED"),
-        ("kyutai_speech_to_text", "REDACTED"),
-        ("moonshine", "REDACTED"),
-        ("moonshine_streaming", "REDACTED"),
-        ("pop2piano", "REDACTED"),
-        ("qwen3_asr", "REDACTED"),
+        ("fun_asr_nano", "REDACTED_MISTRAL"),
+        ("granite_speech", "REDACTED_MISTRAL"),
+        ("granite_speech_plus", "REDACTED_MISTRAL"),
+        ("kyutai_speech_to_text", "REDACTED_MISTRAL"),
+        ("moonshine", "REDACTED_MISTRAL"),
+        ("moonshine_streaming", "REDACTED_MISTRAL"),
+        ("pop2piano", "REDACTED_MISTRAL"),
+        ("qwen3_asr", "REDACTED_MISTRAL"),
         ("seamless_m4t", "SeamlessM4TForSpeechToText"),
         ("seamless_m4t_v2", "SeamlessM4Tv2ForSpeechToText"),
         ("speech-encoder-decoder", "SpeechEncoderDecoderModel"),
-        ("speech_to_text", "REDACTED"),
+        ("speech_to_text", "REDACTED_MISTRAL"),
         ("speecht5", "SpeechT5ForSpeechToText"),
-        ("vibevoice", "REDACTED"),
-        ("vibevoice_asr", "REDACTED"),
+        ("vibevoice", "REDACTED_MISTRAL"),
+        ("vibevoice_asr", "REDACTED_MISTRAL"),
         ("voxtral", "VoxtralForConditionalGeneration"),
-        ("voxtral_realtime", "REDACTED"),
+        ("voxtral_realtime", "REDACTED_MISTRAL"),
         ("whisper", "WhisperForConditionalGeneration"),
     ]
 )
@@ -1410,120 +1410,120 @@ MODEL_FOR_SEQUENCE_CLASSIFICATION_MAPPING_NAMES = OrderedDict(
         ("axk2", "AXK2ForSequenceClassification"),
         ("bart", "BartForSequenceClassification"),
         ("bert", "BertForSequenceClassification"),
-        ("big_bird", "REDACTED"),
-        ("bigbird_pegasus", "REDACTED"),
+        ("big_bird", "REDACTED_MISTRAL"),
+        ("bigbird_pegasus", "REDACTED_MISTRAL"),
         ("biogpt", "BioGptForSequenceClassification"),
         ("bloom", "BloomForSequenceClassification"),
-        ("camembert", "REDACTED"),
+        ("camembert", "REDACTED_MISTRAL"),
         ("canine", "CanineForSequenceClassification"),
-        ("cohere_compass_text", "REDACTED"),
-        ("convbert", "REDACTED"),
+        ("cohere_compass_text", "REDACTED_MISTRAL"),
+        ("convbert", "REDACTED_MISTRAL"),
         ("ctrl", "CTRLForSequenceClassification"),
-        ("data2vec-text", "REDACTED"),
-        ("deberta", "REDACTED"),
-        ("deberta-v2", "REDACTED"),
-        ("deepseek_v2", "REDACTED"),
-        ("deepseek_v3", "REDACTED"),
-        ("diffllama", "REDACTED"),
-        ("distilbert", "REDACTED"),
+        ("data2vec-text", "REDACTED_MISTRAL"),
+        ("deberta", "REDACTED_MISTRAL"),
+        ("deberta-v2", "REDACTED_MISTRAL"),
+        ("deepseek_v2", "REDACTED_MISTRAL"),
+        ("deepseek_v3", "REDACTED_MISTRAL"),
+        ("diffllama", "REDACTED_MISTRAL"),
+        ("distilbert", "REDACTED_MISTRAL"),
         ("doge", "DogeForSequenceClassification"),
-        ("electra", "REDACTED"),
+        ("electra", "REDACTED_MISTRAL"),
         ("ernie", "ErnieForSequenceClassification"),
         ("esm", "EsmForSequenceClassification"),
         ("esmc", "EsmcForSequenceClassification"),
-        ("eurobert", "REDACTED"),
-        ("exaone4", "REDACTED"),
+        ("eurobert", "REDACTED_MISTRAL"),
+        ("exaone4", "REDACTED_MISTRAL"),
         ("falcon", "FalconForSequenceClassification"),
-        ("flaubert", "REDACTED"),
+        ("flaubert", "REDACTED_MISTRAL"),
         ("fnet", "FNetForSequenceClassification"),
         ("funnel", "FunnelForSequenceClassification"),
         ("gemma", "GemmaForSequenceClassification"),
         ("gemma2", "Gemma2ForSequenceClassification"),
         ("gemma3", "Gemma3ForSequenceClassification"),
-        ("gemma3_text", "REDACTED"),
+        ("gemma3_text", "REDACTED_MISTRAL"),
         ("glm", "GlmForSequenceClassification"),
         ("glm4", "Glm4ForSequenceClassification"),
         ("gpt-sw3", "GPT2ForSequenceClassification"),
         ("gpt2", "GPT2ForSequenceClassification"),
-        ("gpt_bigcode", "REDACTED"),
+        ("gpt_bigcode", "REDACTED_MISTRAL"),
         ("gpt_neo", "GPTNeoForSequenceClassification"),
-        ("gpt_neox", "REDACTED"),
+        ("gpt_neox", "REDACTED_MISTRAL"),
         ("gpt_oss", "GptOssForSequenceClassification"),
         ("gptj", "GPTJForSequenceClassification"),
         ("gte", "GteForSequenceClassification"),
         ("helium", "HeliumForSequenceClassification"),
-        ("hunyuan_v1_dense", "REDACTED"),
-        ("hunyuan_v1_moe", "REDACTED"),
+        ("hunyuan_v1_dense", "REDACTED_MISTRAL"),
+        ("hunyuan_v1_moe", "REDACTED_MISTRAL"),
         ("ibert", "IBertForSequenceClassification"),
         ("jamba", "JambaForSequenceClassification"),
         ("jetmoe", "JetMoeForSequenceClassification"),
-        ("jina_embeddings_v3", "REDACTED"),
-        ("layoutlm", "REDACTED"),
-        ("layoutlmv2", "REDACTED"),
-        ("layoutlmv3", "REDACTED"),
+        ("jina_embeddings_v3", "REDACTED_MISTRAL"),
+        ("layoutlm", "REDACTED_MISTRAL"),
+        ("layoutlmv2", "REDACTED_MISTRAL"),
+        ("layoutlmv3", "REDACTED_MISTRAL"),
         ("lilt", "LiltForSequenceClassification"),
         ("llama", "LlamaForSequenceClassification"),
-        ("longformer", "REDACTED"),
+        ("longformer", "REDACTED_MISTRAL"),
         ("luke", "LukeForSequenceClassification"),
-        ("markuplm", "REDACTED"),
+        ("markuplm", "REDACTED_MISTRAL"),
         ("mbart", "MBartForSequenceClassification"),
-        ("megatron-bert", "REDACTED"),
-        ("minicpm3", "REDACTED"),
-        ("minimax", "REDACTED"),
-        ("ministral", "REDACTED"),
-        ("ministral3", "REDACTED"),
-        ("mistral", "REDACTED"),
-        ("mistral4", "REDACTED"),
-        ("mixtral", "REDACTED"),
-        ("mobilebert", "REDACTED"),
-        ("modernbert", "REDACTED"),
-        ("modernbert-decoder", "REDACTED"),
-        ("modernvbert", "REDACTED"),
+        ("megatron-bert", "REDACTED_MISTRAL"),
+        ("minicpm3", "REDACTED_MISTRAL"),
+        ("minimax", "REDACTED_MISTRAL"),
+        ("ministral", "REDACTED_MISTRAL"),
+        ("ministral3", "REDACTED_MISTRAL"),
+        ("mistral", "REDACTED_MISTRAL"),
+        ("mistral4", "REDACTED_MISTRAL"),
+        ("mixtral", "REDACTED_MISTRAL"),
+        ("mobilebert", "REDACTED_MISTRAL"),
+        ("modernbert", "REDACTED_MISTRAL"),
+        ("modernbert-decoder", "REDACTED_MISTRAL"),
+        ("modernvbert", "REDACTED_MISTRAL"),
         ("mpnet", "MPNetForSequenceClassification"),
         ("mpt", "MptForSequenceClassification"),
         ("mra", "MraForSequenceClassification"),
         ("mt5", "MT5ForSequenceClassification"),
         ("mvp", "MvpForSequenceClassification"),
-        ("nemotron", "REDACTED"),
-        ("nomic_bert", "REDACTED"),
-        ("nystromformer", "REDACTED"),
+        ("nemotron", "REDACTED_MISTRAL"),
+        ("nomic_bert", "REDACTED_MISTRAL"),
+        ("nystromformer", "REDACTED_MISTRAL"),
         ("olmo", "OlmoForSequenceClassification"),
         ("olmo2", "Olmo2ForSequenceClassification"),
         ("olmo3", "Olmo3ForSequenceClassification"),
-        ("openai-gpt", "REDACTED"),
+        ("openai-gpt", "REDACTED_MISTRAL"),
         ("opt", "OPTForSequenceClassification"),
-        ("perceiver", "REDACTED"),
-        ("persimmon", "REDACTED"),
+        ("perceiver", "REDACTED_MISTRAL"),
+        ("persimmon", "REDACTED_MISTRAL"),
         ("phi", "PhiForSequenceClassification"),
         ("phi3", "Phi3ForSequenceClassification"),
         ("phimoe", "PhimoeForSequenceClassification"),
         ("plbart", "PLBartForSequenceClassification"),
         ("qwen2", "Qwen2ForSequenceClassification"),
-        ("qwen2_moe", "REDACTED"),
+        ("qwen2_moe", "REDACTED_MISTRAL"),
         ("qwen3", "Qwen3ForSequenceClassification"),
         ("qwen3_5", "Qwen3_5ForSequenceClassification"),
         ("qwen3_5_text", "Qwen3_5TextForSequenceClassification"),
-        ("qwen3_moe", "REDACTED"),
-        ("qwen3_next", "REDACTED"),
-        ("reformer", "REDACTED"),
-        ("rembert", "REDACTED"),
-        ("roberta", "REDACTED"),
-        ("roberta-prelayernorm", "REDACTED"),
-        ("roc_bert", "REDACTED"),
-        ("roformer", "REDACTED"),
-        ("seed_oss", "REDACTED"),
-        ("smollm3", "REDACTED"),
-        ("squeezebert", "REDACTED"),
-        ("stablelm", "REDACTED"),
-        ("starcoder2", "REDACTED"),
+        ("qwen3_moe", "REDACTED_MISTRAL"),
+        ("qwen3_next", "REDACTED_MISTRAL"),
+        ("reformer", "REDACTED_MISTRAL"),
+        ("rembert", "REDACTED_MISTRAL"),
+        ("roberta", "REDACTED_MISTRAL"),
+        ("roberta-prelayernorm", "REDACTED_MISTRAL"),
+        ("roc_bert", "REDACTED_MISTRAL"),
+        ("roformer", "REDACTED_MISTRAL"),
+        ("seed_oss", "REDACTED_MISTRAL"),
+        ("smollm3", "REDACTED_MISTRAL"),
+        ("squeezebert", "REDACTED_MISTRAL"),
+        ("stablelm", "REDACTED_MISTRAL"),
+        ("starcoder2", "REDACTED_MISTRAL"),
         ("t5", "T5ForSequenceClassification"),
-        ("t5gemma", "REDACTED"),
-        ("t5gemma2", "REDACTED"),
+        ("t5gemma", "REDACTED_MISTRAL"),
+        ("t5gemma2", "REDACTED_MISTRAL"),
         ("tapas", "TapasForSequenceClassification"),
         ("umt5", "UMT5ForSequenceClassification"),
         ("xlm", "XLMForSequenceClassification"),
-        ("xlm-roberta", "REDACTED"),
-        ("xlm-roberta-xl", "REDACTED"),
+        ("xlm-roberta", "REDACTED_MISTRAL"),
+        ("xlm-roberta-xl", "REDACTED_MISTRAL"),
         ("xlnet", "XLNetForSequenceClassification"),
         ("xmod", "XmodForSequenceClassification"),
         ("yoso", "YosoForSequenceClassification"),
@@ -1540,12 +1540,12 @@ MODEL_FOR_QUESTION_ANSWERING_MAPPING_NAMES = OrderedDict(
         ("bart", "BartForQuestionAnswering"),
         ("bert", "BertForQuestionAnswering"),
         ("big_bird", "BigBirdForQuestionAnswering"),
-        ("bigbird_pegasus", "REDACTED"),
+        ("bigbird_pegasus", "REDACTED_MISTRAL"),
         ("bloom", "BloomForQuestionAnswering"),
         ("camembert", "CamembertForQuestionAnswering"),
         ("canine", "CanineForQuestionAnswering"),
         ("convbert", "ConvBertForQuestionAnswering"),
-        ("data2vec-text", "REDACTED"),
+        ("data2vec-text", "REDACTED_MISTRAL"),
         ("deberta", "DebertaForQuestionAnswering"),
         ("deberta-v2", "DebertaV2ForQuestionAnswering"),
         ("diffllama", "DiffLlamaForQuestionAnswering"),
@@ -1554,7 +1554,7 @@ MODEL_FOR_QUESTION_ANSWERING_MAPPING_NAMES = OrderedDict(
         ("ernie", "ErnieForQuestionAnswering"),
         ("exaone4", "Exaone4ForQuestionAnswering"),
         ("falcon", "FalconForQuestionAnswering"),
-        ("flaubert", "REDACTED"),
+        ("flaubert", "REDACTED_MISTRAL"),
         ("fnet", "FNetForQuestionAnswering"),
         ("funnel", "FunnelForQuestionAnswering"),
         ("gpt2", "GPT2ForQuestionAnswering"),
@@ -1562,7 +1562,7 @@ MODEL_FOR_QUESTION_ANSWERING_MAPPING_NAMES = OrderedDict(
         ("gpt_neox", "GPTNeoXForQuestionAnswering"),
         ("gptj", "GPTJForQuestionAnswering"),
         ("ibert", "IBertForQuestionAnswering"),
-        ("jina_embeddings_v3", "REDACTED"),
+        ("jina_embeddings_v3", "REDACTED_MISTRAL"),
         ("layoutlmv2", "LayoutLMv2ForQuestionAnswering"),
         ("layoutlmv3", "LayoutLMv3ForQuestionAnswering"),
         ("led", "LEDForQuestionAnswering"),
@@ -1573,7 +1573,7 @@ MODEL_FOR_QUESTION_ANSWERING_MAPPING_NAMES = OrderedDict(
         ("lxmert", "LxmertForQuestionAnswering"),
         ("markuplm", "MarkupLMForQuestionAnswering"),
         ("mbart", "MBartForQuestionAnswering"),
-        ("megatron-bert", "REDACTED"),
+        ("megatron-bert", "REDACTED_MISTRAL"),
         ("minimax", "MiniMaxForQuestionAnswering"),
         ("ministral", "MinistralForQuestionAnswering"),
         ("ministral3", "Ministral3ForQuestionAnswering"),
@@ -1587,7 +1587,7 @@ MODEL_FOR_QUESTION_ANSWERING_MAPPING_NAMES = OrderedDict(
         ("mt5", "MT5ForQuestionAnswering"),
         ("mvp", "MvpForQuestionAnswering"),
         ("nemotron", "NemotronForQuestionAnswering"),
-        ("nystromformer", "REDACTED"),
+        ("nystromformer", "REDACTED_MISTRAL"),
         ("opt", "OPTForQuestionAnswering"),
         ("qwen2", "Qwen2ForQuestionAnswering"),
         ("qwen2_moe", "Qwen2MoeForQuestionAnswering"),
@@ -1597,7 +1597,7 @@ MODEL_FOR_QUESTION_ANSWERING_MAPPING_NAMES = OrderedDict(
         ("reformer", "ReformerForQuestionAnswering"),
         ("rembert", "RemBertForQuestionAnswering"),
         ("roberta", "RobertaForQuestionAnswering"),
-        ("roberta-prelayernorm", "REDACTED"),
+        ("roberta-prelayernorm", "REDACTED_MISTRAL"),
         ("roc_bert", "RoCBertForQuestionAnswering"),
         ("roformer", "RoFormerForQuestionAnswering"),
         ("seed_oss", "SeedOssForQuestionAnswering"),
@@ -1608,7 +1608,7 @@ MODEL_FOR_QUESTION_ANSWERING_MAPPING_NAMES = OrderedDict(
         ("umt5", "UMT5ForQuestionAnswering"),
         ("xlm", "XLMForQuestionAnsweringSimple"),
         ("xlm-roberta", "XLMRobertaForQuestionAnswering"),
-        ("xlm-roberta-xl", "REDACTED"),
+        ("xlm-roberta-xl", "REDACTED_MISTRAL"),
         ("xlnet", "XLNetForQuestionAnsweringSimple"),
         ("xmod", "XmodForQuestionAnswering"),
         ("yoso", "YosoForQuestionAnswering"),
@@ -1654,12 +1654,12 @@ MODEL_FOR_TOKEN_CLASSIFICATION_MAPPING_NAMES = OrderedDict(
         ("camembert", "CamembertForTokenClassification"),
         ("canine", "CanineForTokenClassification"),
         ("convbert", "ConvBertForTokenClassification"),
-        ("data2vec-text", "REDACTED"),
+        ("data2vec-text", "REDACTED_MISTRAL"),
         ("deberta", "DebertaForTokenClassification"),
         ("deberta-v2", "DebertaV2ForTokenClassification"),
-        ("deepseek_v3", "REDACTED"),
+        ("deepseek_v3", "REDACTED_MISTRAL"),
         ("diffllama", "DiffLlamaForTokenClassification"),
-        ("distilbert", "REDACTED"),
+        ("distilbert", "REDACTED_MISTRAL"),
         ("electra", "ElectraForTokenClassification"),
         ("ernie", "ErnieForTokenClassification"),
         ("esm", "EsmForTokenClassification"),
@@ -1676,40 +1676,40 @@ MODEL_FOR_TOKEN_CLASSIFICATION_MAPPING_NAMES = OrderedDict(
         ("glm4", "Glm4ForTokenClassification"),
         ("gpt-sw3", "GPT2ForTokenClassification"),
         ("gpt2", "GPT2ForTokenClassification"),
-        ("gpt_bigcode", "REDACTED"),
+        ("gpt_bigcode", "REDACTED_MISTRAL"),
         ("gpt_neo", "GPTNeoForTokenClassification"),
         ("gpt_neox", "GPTNeoXForTokenClassification"),
         ("gpt_oss", "GptOssForTokenClassification"),
         ("gte", "GteForTokenClassification"),
         ("helium", "HeliumForTokenClassification"),
         ("ibert", "IBertForTokenClassification"),
-        ("jina_embeddings_v3", "REDACTED"),
+        ("jina_embeddings_v3", "REDACTED_MISTRAL"),
         ("layoutlm", "LayoutLMForTokenClassification"),
-        ("layoutlmv2", "REDACTED"),
-        ("layoutlmv3", "REDACTED"),
+        ("layoutlmv2", "REDACTED_MISTRAL"),
+        ("layoutlmv3", "REDACTED_MISTRAL"),
         ("lilt", "LiltForTokenClassification"),
         ("llama", "LlamaForTokenClassification"),
-        ("longformer", "REDACTED"),
+        ("longformer", "REDACTED_MISTRAL"),
         ("luke", "LukeForTokenClassification"),
         ("markuplm", "MarkupLMForTokenClassification"),
-        ("megatron-bert", "REDACTED"),
+        ("megatron-bert", "REDACTED_MISTRAL"),
         ("minimax", "MiniMaxForTokenClassification"),
         ("ministral", "MinistralForTokenClassification"),
-        ("ministral3", "REDACTED"),
+        ("ministral3", "REDACTED_MISTRAL"),
         ("mistral", "MistralForTokenClassification"),
         ("mistral4", "Mistral4ForTokenClassification"),
         ("mixtral", "MixtralForTokenClassification"),
-        ("mobilebert", "REDACTED"),
-        ("modernbert", "REDACTED"),
-        ("modernvbert", "REDACTED"),
+        ("mobilebert", "REDACTED_MISTRAL"),
+        ("modernbert", "REDACTED_MISTRAL"),
+        ("modernvbert", "REDACTED_MISTRAL"),
         ("mpnet", "MPNetForTokenClassification"),
         ("mpt", "MptForTokenClassification"),
         ("mra", "MraForTokenClassification"),
         ("mt5", "MT5ForTokenClassification"),
         ("nemotron", "NemotronForTokenClassification"),
         ("nomic_bert", "NomicBertForTokenClassification"),
-        ("nystromformer", "REDACTED"),
-        ("openai_privacy_filter", "REDACTED"),
+        ("nystromformer", "REDACTED_MISTRAL"),
+        ("openai_privacy_filter", "REDACTED_MISTRAL"),
         ("persimmon", "PersimmonForTokenClassification"),
         ("phi", "PhiForTokenClassification"),
         ("phi3", "Phi3ForTokenClassification"),
@@ -1722,21 +1722,21 @@ MODEL_FOR_TOKEN_CLASSIFICATION_MAPPING_NAMES = OrderedDict(
         ("qwen3_next", "Qwen3NextForTokenClassification"),
         ("rembert", "RemBertForTokenClassification"),
         ("roberta", "RobertaForTokenClassification"),
-        ("roberta-prelayernorm", "REDACTED"),
+        ("roberta-prelayernorm", "REDACTED_MISTRAL"),
         ("roc_bert", "RoCBertForTokenClassification"),
         ("roformer", "RoFormerForTokenClassification"),
         ("seed_oss", "SeedOssForTokenClassification"),
         ("smollm3", "SmolLM3ForTokenClassification"),
-        ("squeezebert", "REDACTED"),
+        ("squeezebert", "REDACTED_MISTRAL"),
         ("stablelm", "StableLmForTokenClassification"),
-        ("starcoder2", "REDACTED"),
+        ("starcoder2", "REDACTED_MISTRAL"),
         ("t5", "T5ForTokenClassification"),
         ("t5gemma", "T5GemmaForTokenClassification"),
         ("t5gemma2", "T5Gemma2ForTokenClassification"),
         ("umt5", "UMT5ForTokenClassification"),
         ("xlm", "XLMForTokenClassification"),
-        ("xlm-roberta", "REDACTED"),
-        ("xlm-roberta-xl", "REDACTED"),
+        ("xlm-roberta", "REDACTED_MISTRAL"),
+        ("xlm-roberta-xl", "REDACTED_MISTRAL"),
         ("xlnet", "XLNetForTokenClassification"),
         ("xmod", "XmodForTokenClassification"),
         ("yoso", "YosoForTokenClassification"),
@@ -1771,7 +1771,7 @@ MODEL_FOR_MULTIPLE_CHOICE_MAPPING_NAMES = OrderedDict(
         ("nystromformer", "NystromformerForMultipleChoice"),
         ("rembert", "RemBertForMultipleChoice"),
         ("roberta", "RobertaForMultipleChoice"),
-        ("roberta-prelayernorm", "REDACTED"),
+        ("roberta-prelayernorm", "REDACTED_MISTRAL"),
         ("roc_bert", "RoCBertForMultipleChoice"),
         ("roformer", "RoFormerForMultipleChoice"),
         ("squeezebert", "SqueezeBertForMultipleChoice"),
@@ -1789,8 +1789,8 @@ MODEL_FOR_NEXT_SENTENCE_PREDICTION_MAPPING_NAMES = OrderedDict(
         ("bert", "BertForNextSentencePrediction"),
         ("ernie", "ErnieForNextSentencePrediction"),
         ("fnet", "FNetForNextSentencePrediction"),
-        ("megatron-bert", "REDACTED"),
-        ("mobilebert", "REDACTED"),
+        ("megatron-bert", "REDACTED_MISTRAL"),
+        ("mobilebert", "REDACTED_MISTRAL"),
     ]
 )
 
@@ -1798,15 +1798,15 @@ MODEL_FOR_AUDIO_CLASSIFICATION_MAPPING_NAMES = OrderedDict(
     [
         # Model for Audio Classification mapping
         ("audio-spectrogram-transformer", "ASTForAudioClassification"),
-        ("data2vec-audio", "REDACTED"),
+        ("data2vec-audio", "REDACTED_MISTRAL"),
         ("hubert", "HubertForSequenceClassification"),
         ("sew", "SEWForSequenceClassification"),
         ("sew-d", "SEWDForSequenceClassification"),
-        ("unispeech", "REDACTED"),
-        ("unispeech-sat", "REDACTED"),
-        ("wav2vec2", "REDACTED"),
-        ("wav2vec2-bert", "REDACTED"),
-        ("wav2vec2-conformer", "REDACTED"),
+        ("unispeech", "REDACTED_MISTRAL"),
+        ("unispeech-sat", "REDACTED_MISTRAL"),
+        ("wav2vec2", "REDACTED_MISTRAL"),
+        ("wav2vec2-bert", "REDACTED_MISTRAL"),
+        ("wav2vec2-conformer", "REDACTED_MISTRAL"),
         ("wavlm", "WavLMForSequenceClassification"),
         ("whisper", "WhisperForAudioClassification"),
     ]
@@ -1851,13 +1851,13 @@ MODEL_FOR_TDT_MAPPING_NAMES = OrderedDict(
 MODEL_FOR_AUDIO_FRAME_CLASSIFICATION_MAPPING_NAMES = OrderedDict(
     [
         # Model for Audio Classification mapping
-        ("data2vec-audio", "REDACTED"),
-        ("nemotron3_diarization", "REDACTED"),
-        ("unispeech-sat", "REDACTED"),
-        ("wav2vec2", "REDACTED"),
-        ("wav2vec2-bert", "REDACTED"),
-        ("wav2vec2-conformer", "REDACTED"),
-        ("wavlm", "REDACTED"),
+        ("data2vec-audio", "REDACTED_MISTRAL"),
+        ("nemotron3_diarization", "REDACTED_MISTRAL"),
+        ("unispeech-sat", "REDACTED_MISTRAL"),
+        ("wav2vec2", "REDACTED_MISTRAL"),
+        ("wav2vec2-bert", "REDACTED_MISTRAL"),
+        ("wav2vec2-conformer", "REDACTED_MISTRAL"),
+        ("wavlm", "REDACTED_MISTRAL"),
     ]
 )
 
@@ -1887,14 +1887,14 @@ MODEL_FOR_TEXT_TO_WAVEFORM_MAPPING_NAMES = OrderedDict(
         ("bark", "BarkModel"),
         ("csm", "CsmForConditionalGeneration"),
         ("fastspeech2_conformer_with_hifigan", "FastSpeech2ConformerWithHifiGan"),
-        ("higgs_audio_v2", "REDACTED"),
-        ("musicgen", "REDACTED"),
-        ("musicgen_melody", "REDACTED"),
+        ("higgs_audio_v2", "REDACTED_MISTRAL"),
+        ("musicgen", "REDACTED_MISTRAL"),
+        ("musicgen_melody", "REDACTED_MISTRAL"),
         ("qwen2_5_omni", "Qwen2_5OmniForConditionalGeneration"),
-        ("qwen3_omni_moe", "REDACTED"),
+        ("qwen3_omni_moe", "REDACTED_MISTRAL"),
         ("seamless_m4t", "SeamlessM4TForTextToSpeech"),
         ("seamless_m4t_v2", "SeamlessM4Tv2ForTextToSpeech"),
-        ("vibevoice", "REDACTED"),
+        ("vibevoice", "REDACTED_MISTRAL"),
         ("vits", "VitsModel"),
     ]
 )
@@ -1977,7 +1977,7 @@ MODEL_FOR_KEYPOINT_DETECTION_MAPPING_NAMES = OrderedDict(
 
 MODEL_FOR_KEYPOINT_MATCHING_MAPPING_NAMES = OrderedDict(
     [
-        ("efficientloftr", "REDACTED"),
+        ("efficientloftr", "REDACTED_MISTRAL"),
         ("lightglue", "LightGlueForKeypointMatching"),
         ("superglue", "SuperGlueForKeypointMatching"),
     ]
@@ -2022,7 +2022,7 @@ MODEL_FOR_TEXT_ENCODING_MAPPING_NAMES = OrderedDict(
 
 MODEL_FOR_TIME_SERIES_CLASSIFICATION_MAPPING_NAMES = OrderedDict(
     [
-        ("patchtsmixer", "REDACTED"),
+        ("patchtsmixer", "REDACTED_MISTRAL"),
         ("patchtst", "PatchTSTForClassification"),
     ]
 )
@@ -2277,12 +2277,12 @@ AutoModelForSeq2SeqLM = auto_class_update(
 )
 
 
-class REDACTED(_BaseAutoModelClass):
+class AutoModelForSequenceClassification(_BaseAutoModelClass):
     _model_mapping = MODEL_FOR_SEQUENCE_CLASSIFICATION_MAPPING
 
 
-REDACTED = auto_class_update(
-    REDACTED, head_doc="sequence classification"
+AutoModelForSequenceClassification = auto_class_update(
+    AutoModelForSequenceClassification, head_doc="sequence classification"
 )
 
 
@@ -2293,34 +2293,34 @@ class AutoModelForQuestionAnswering(_BaseAutoModelClass):
 AutoModelForQuestionAnswering = auto_class_update(AutoModelForQuestionAnswering, head_doc="question answering")
 
 
-class REDACTED(_BaseAutoModelClass):
+class AutoModelForTableQuestionAnswering(_BaseAutoModelClass):
     _model_mapping = MODEL_FOR_TABLE_QUESTION_ANSWERING_MAPPING
 
 
-REDACTED = auto_class_update(
-    REDACTED,
+AutoModelForTableQuestionAnswering = auto_class_update(
+    AutoModelForTableQuestionAnswering,
     head_doc="table question answering",
     checkpoint_for_example="google/tapas-base-finetuned-wtq",
 )
 
 
-class REDACTED(_BaseAutoModelClass):
+class AutoModelForVisualQuestionAnswering(_BaseAutoModelClass):
     _model_mapping = MODEL_FOR_VISUAL_QUESTION_ANSWERING_MAPPING
 
 
-REDACTED = auto_class_update(
-    REDACTED,
+AutoModelForVisualQuestionAnswering = auto_class_update(
+    AutoModelForVisualQuestionAnswering,
     head_doc="visual question answering",
     checkpoint_for_example="dandelin/vilt-b32-finetuned-vqa",
 )
 
 
-class REDACTED(_BaseAutoModelClass):
+class AutoModelForDocumentQuestionAnswering(_BaseAutoModelClass):
     _model_mapping = MODEL_FOR_DOCUMENT_QUESTION_ANSWERING_MAPPING
 
 
-REDACTED = auto_class_update(
-    REDACTED,
+AutoModelForDocumentQuestionAnswering = auto_class_update(
+    AutoModelForDocumentQuestionAnswering,
     head_doc="document question answering",
     checkpoint_for_example='impira/layoutlm-document-qa", revision="52e01b3',
 )
@@ -2340,12 +2340,12 @@ class AutoModelForMultipleChoice(_BaseAutoModelClass):
 AutoModelForMultipleChoice = auto_class_update(AutoModelForMultipleChoice, head_doc="multiple choice")
 
 
-class REDACTED(_BaseAutoModelClass):
+class AutoModelForNextSentencePrediction(_BaseAutoModelClass):
     _model_mapping = MODEL_FOR_NEXT_SENTENCE_PREDICTION_MAPPING
 
 
-REDACTED = auto_class_update(
-    REDACTED, head_doc="next sentence prediction"
+AutoModelForNextSentencePrediction = auto_class_update(
+    AutoModelForNextSentencePrediction, head_doc="next sentence prediction"
 )
 
 
@@ -2356,12 +2356,12 @@ class AutoModelForImageClassification(_BaseAutoModelClass):
 AutoModelForImageClassification = auto_class_update(AutoModelForImageClassification, head_doc="image classification")
 
 
-class REDACTED(_BaseAutoModelClass):
+class AutoModelForZeroShotImageClassification(_BaseAutoModelClass):
     _model_mapping = MODEL_FOR_ZERO_SHOT_IMAGE_CLASSIFICATION_MAPPING
 
 
-REDACTED = auto_class_update(
-    REDACTED, head_doc="zero-shot image classification"
+AutoModelForZeroShotImageClassification = auto_class_update(
+    AutoModelForZeroShotImageClassification, head_doc="zero-shot image classification"
 )
 
 
@@ -2372,39 +2372,39 @@ class AutoModelForImageSegmentation(_BaseAutoModelClass):
 AutoModelForImageSegmentation = auto_class_update(AutoModelForImageSegmentation, head_doc="image segmentation")
 
 
-class REDACTED(_BaseAutoModelClass):
+class AutoModelForSemanticSegmentation(_BaseAutoModelClass):
     _model_mapping = MODEL_FOR_SEMANTIC_SEGMENTATION_MAPPING
 
 
-REDACTED = auto_class_update(
-    REDACTED, head_doc="semantic segmentation"
+AutoModelForSemanticSegmentation = auto_class_update(
+    AutoModelForSemanticSegmentation, head_doc="semantic segmentation"
 )
 
 
-class REDACTED(_BaseAutoModelClass):
+class AutoModelForTimeSeriesPrediction(_BaseAutoModelClass):
     _model_mapping = MODEL_FOR_TIME_SERIES_PREDICTION_MAPPING
 
 
-REDACTED = auto_class_update(
-    REDACTED, head_doc="time-series prediction"
+AutoModelForTimeSeriesPrediction = auto_class_update(
+    AutoModelForTimeSeriesPrediction, head_doc="time-series prediction"
 )
 
 
-class REDACTED(_BaseAutoModelClass):
+class AutoModelForUniversalSegmentation(_BaseAutoModelClass):
     _model_mapping = MODEL_FOR_UNIVERSAL_SEGMENTATION_MAPPING
 
 
-REDACTED = auto_class_update(
-    REDACTED, head_doc="universal image segmentation"
+AutoModelForUniversalSegmentation = auto_class_update(
+    AutoModelForUniversalSegmentation, head_doc="universal image segmentation"
 )
 
 
-class REDACTED(_BaseAutoModelClass):
+class AutoModelForInstanceSegmentation(_BaseAutoModelClass):
     _model_mapping = MODEL_FOR_INSTANCE_SEGMENTATION_MAPPING
 
 
-REDACTED = auto_class_update(
-    REDACTED, head_doc="instance segmentation"
+AutoModelForInstanceSegmentation = auto_class_update(
+    AutoModelForInstanceSegmentation, head_doc="instance segmentation"
 )
 
 
@@ -2415,12 +2415,12 @@ class AutoModelForObjectDetection(_BaseAutoModelClass):
 AutoModelForObjectDetection = auto_class_update(AutoModelForObjectDetection, head_doc="object detection")
 
 
-class REDACTED(_BaseAutoModelClass):
+class AutoModelForZeroShotObjectDetection(_BaseAutoModelClass):
     _model_mapping = MODEL_FOR_ZERO_SHOT_OBJECT_DETECTION_MAPPING
 
 
-REDACTED = auto_class_update(
-    REDACTED, head_doc="zero-shot object detection"
+AutoModelForZeroShotObjectDetection = auto_class_update(
+    AutoModelForZeroShotObjectDetection, head_doc="zero-shot object detection"
 )
 
 
@@ -2513,12 +2513,12 @@ AutoModelForSpeechSeq2Seq = auto_class_update(
 )
 
 
-class REDACTED(_BaseAutoModelClass):
+class AutoModelForAudioFrameClassification(_BaseAutoModelClass):
     _model_mapping = MODEL_FOR_AUDIO_FRAME_CLASSIFICATION_MAPPING
 
 
-REDACTED = auto_class_update(
-    REDACTED, head_doc="audio frame (token) classification"
+AutoModelForAudioFrameClassification = auto_class_update(
+    AutoModelForAudioFrameClassification, head_doc="audio frame (token) classification"
 )
 
 
@@ -2643,7 +2643,7 @@ __all__ = [
     "AutoModel",
     "AutoBackbone",
     "AutoModelForAudioClassification",
-    "REDACTED",
+    "REDACTED_MISTRAL",
     "AutoModelForAudioTokenization",
     "AutoModelForAudioXVector",
     "AutoModelForCausalLM",
@@ -2656,7 +2656,7 @@ __all__ = [
     "AutoModelForImageClassification",
     "AutoModelForImageSegmentation",
     "AutoModelForImageToImage",
-    "REDACTED",
+    "REDACTED_MISTRAL",
     "AutoModelForKeypointDetection",
     "AutoModelForKeypointMatching",
     "AutoModelForMaskGeneration",
@@ -2665,25 +2665,25 @@ __all__ = [
     "AutoModelForMaskedLM",
     "AutoModelForMultipleChoice",
     "AutoModelForMultimodalLM",
-    "REDACTED",
+    "REDACTED_MISTRAL",
     "AutoModelForObjectDetection",
     "AutoModelForPreTraining",
     "AutoModelForQuestionAnswering",
-    "REDACTED",
+    "REDACTED_MISTRAL",
     "AutoModelForSeq2SeqLM",
-    "REDACTED",
+    "REDACTED_MISTRAL",
     "AutoModelForSpeechSeq2Seq",
-    "REDACTED",
+    "REDACTED_MISTRAL",
     "AutoModelForTextToSpectrogram",
     "AutoModelForTextToWaveform",
-    "REDACTED",
+    "REDACTED_MISTRAL",
     "AutoModelForTokenClassification",
-    "REDACTED",
+    "REDACTED_MISTRAL",
     "AutoModelForVideoClassification",
-    "REDACTED",
-    "REDACTED",
-    "REDACTED",
-    "REDACTED",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
     "AutoModelForImageTextToText",
     "AutoModelForImageMatting",
     "AutoModelForNormalEstimation",

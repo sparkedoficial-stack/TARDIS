@@ -28,8 +28,8 @@ from torch.sparse._semi_structured_ops import (
 
 __all__ = [
     "SparseSemiStructuredTensor",
-    "SparseSemiStructuredTensorCUTLASS",
-    "SparseSemiStructuredTensorCUSPARSELT",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
     "to_sparse_semi_structured",
 ]
 
@@ -402,7 +402,7 @@ class SparseSemiStructuredTensorCUTLASS(SparseSemiStructuredTensor):
         cls,
         original_tensor: torch.Tensor,
         alg_id: int = SparseSemiStructuredTensor._DEFAULT_ALG_ID,
-    ) -> "SparseSemiStructuredTensorCUTLASS":
+    ) -> "REDACTED_MISTRAL":
         cls._validate_device_dim_dtype_shape(original_tensor)
         (
             sparse_tensor_cutlass,
@@ -570,7 +570,7 @@ class SparseSemiStructuredTensorCUSPARSELT(SparseSemiStructuredTensor):
         cls,
         original_tensor: torch.Tensor,
         alg_id: int = SparseSemiStructuredTensor._DEFAULT_ALG_ID,
-    ) -> "SparseSemiStructuredTensorCUSPARSELT":
+    ) -> "REDACTED_MISTRAL":
         cls._validate_device_dim_dtype_shape(original_tensor)
         # pyrefly: ignore [no-matching-overload]
         return cls(

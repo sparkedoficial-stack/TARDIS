@@ -1141,9 +1141,9 @@ class SwitchTransformersEncoderModel(SwitchTransformersPreTrainedModel):
 
 __all__ = [
     "SwitchTransformersEncoderModel",
-    "SwitchTransformersForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "SwitchTransformersModel",
-    "SwitchTransformersPreTrainedModel",
+    "REDACTED_MISTRAL",
     "SwitchTransformersTop1Router",
     "SwitchTransformersSparseMLP",
 ]

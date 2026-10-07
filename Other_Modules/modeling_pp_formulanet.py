@@ -1138,6 +1138,6 @@ __all__ = [
     "PPFormulaNetModel",
     "PPFormulaNetTextModel",
     "PPFormulaNetVisionModel",
-    "PPFormulaNetForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "PPFormulaNetPreTrainedModel",
 ]

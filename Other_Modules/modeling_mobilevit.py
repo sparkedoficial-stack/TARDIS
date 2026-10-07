@@ -945,7 +945,7 @@ class MobileViTForSemanticSegmentation(MobileViTPreTrainedModel):
 
 __all__ = [
     "MobileViTForImageClassification",
-    "MobileViTForSemanticSegmentation",
+    "REDACTED_MISTRAL",
     "MobileViTModel",
     "MobileViTPreTrainedModel",
 ]

@@ -750,7 +750,7 @@ __all__ = [
     "RobertaForMaskedLM",
     "RobertaForMultipleChoice",
     "RobertaForQuestionAnswering",
-    "RobertaForSequenceClassification",
+    "REDACTED_MISTRAL",
     "RobertaForTokenClassification",
     "RobertaModel",
     "RobertaPreTrainedModel",

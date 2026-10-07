@@ -1298,7 +1298,7 @@ class SeamlessM4TPreTrainedModel(PreTrainedModel):
     supports_gradient_checkpointing = True
     _supports_sdpa = True
     _supports_flex_attn = True
-    _no_split_modules = ["SeamlessM4TEncoderLayer", "SeamlessM4TDecoderLayer", "SeamlessM4TConformerEncoderLayer"]
+    _no_split_modules = ["SeamlessM4TEncoderLayer", "SeamlessM4TDecoderLayer", "REDACTED_MISTRAL"]
 
     @torch.no_grad()
     def _init_weights(self, module: nn.Module):
@@ -3771,6 +3771,6 @@ __all__ = [
     "SeamlessM4TPreTrainedModel",
     "SeamlessM4TCodeHifiGan",
     "SeamlessM4THifiGan",
-    "SeamlessM4TTextToUnitForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "SeamlessM4TTextToUnitModel",
 ]

@@ -534,6 +534,6 @@ __all__ = [
     "PersimmonForCausalLM",
     "PersimmonModel",
     "PersimmonPreTrainedModel",
-    "PersimmonForSequenceClassification",
+    "REDACTED_MISTRAL",
     "PersimmonForTokenClassification",
 ]

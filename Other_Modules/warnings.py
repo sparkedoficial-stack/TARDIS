@@ -1,122 +1,152 @@
-"""Pydantic-specific warnings."""
+# mypy: allow-untyped-defs
+from __future__ import annotations
 
-from __future__ import annotations as _annotations
+from collections.abc import Generator
+from contextlib import contextmanager
+from contextlib import ExitStack
+import sys
+from typing import Literal
+import warnings
 
-from .version import version_short
-
-__all__ = (
-    'PydanticDeprecatedSince20',
-    'PydanticDeprecatedSince26',
-    'PydanticDeprecatedSince29',
-    'PydanticDeprecatedSince210',
-    'PydanticDeprecatedSince211',
-    'PydanticDeprecatedSince212',
-    'PydanticDeprecationWarning',
-    'PydanticExperimentalWarning',
-    'ArbitraryTypeWarning',
-    'UnsupportedFieldAttributeWarning',
-    'TypedDictExtraConfigWarning',
-)
+from _pytest.config import apply_warning_filters
+from _pytest.config import Config
+from _pytest.config import parse_warning_filter
+from _pytest.main import Session
+from _pytest.nodes import Item
+from _pytest.terminal import TerminalReporter
+from _pytest.tracemalloc import tracemalloc_message
+import pytest
 
 
-class PydanticDeprecationWarning(DeprecationWarning):
-    """A Pydantic specific deprecation warning.
+@contextmanager
+def catch_warnings_for_item(
+    config: Config,
+    ihook,
+    when: Literal["config", "collect", "runtest"],
+    item: Item | None,
+    *,
+    record: bool = True,
+) -> Generator[None]:
+    """Context manager that catches warnings generated in the contained execution block.
 
-    This warning is raised when using deprecated functionality in Pydantic. It provides information on when the
-    deprecation was introduced and the expected version in which the corresponding functionality will be removed.
+    ``item`` can be None if we are not in the context of an item execution.
 
-    Attributes:
-        message: Description of the warning.
-        since: Pydantic version in what the deprecation was introduced.
-        expected_removal: Pydantic version in what the corresponding functionality expected to be removed.
+    Each warning captured triggers the ``pytest_warning_recorded`` hook.
     """
+    config_filters = config.getini("filterwarnings")
+    cmdline_filters = config.known_args_namespace.pythonwarnings or []
+    with warnings.catch_warnings(record=record) as log:
+        if not sys.warnoptions:
+            # If user is not explicitly configuring warning filters, show deprecation warnings by default (#2908).
+            warnings.filterwarnings("always", category=DeprecationWarning)
+            warnings.filterwarnings("always", category=PendingDeprecationWarning)
 
-    message: str
-    since: tuple[int, int]
-    expected_removal: tuple[int, int]
+        # To be enabled in pytest 10.0.0.
+        # warnings.filterwarnings("error", category=pytest.PytestRemovedIn10Warning)
 
-    def __init__(
-        self, message: str, *args: object, since: tuple[int, int], expected_removal: tuple[int, int] | None = None
-    ) -> None:
-        super().__init__(message, *args)
-        self.message = message.rstrip('.')
-        self.since = since
-        self.expected_removal = expected_removal if expected_removal is not None else (since[0] + 1, 0)
+        apply_warning_filters(config_filters, cmdline_filters)
 
-    def __str__(self) -> str:
-        message = (
-            f'{self.message}. Deprecated in Pydantic V{self.since[0]}.{self.since[1]}'
-            f' to be removed in V{self.expected_removal[0]}.{self.expected_removal[1]}.'
+        # apply filters from "filterwarnings" marks
+        nodeid = "" if item is None else item.nodeid
+        if item is not None:
+            for mark in item.iter_markers(name="filterwarnings"):
+                for arg in mark.args:
+                    warnings.filterwarnings(*parse_warning_filter(arg, escape=False))
+
+        try:
+            yield
+        finally:
+            if record:
+                # mypy can't infer that record=True means log is not None; help it.
+                assert log is not None
+
+                for warning_message in log:
+                    ihook.pytest_warning_recorded.call_historic(
+                        kwargs=dict(
+                            warning_message=warning_message,
+                            nodeid=nodeid,
+                            when=when,
+                            location=None,
+                        )
+                    )
+
+
+def warning_record_to_str(warning_message: warnings.WarningMessage) -> str:
+    """Convert a warnings.WarningMessage to a string."""
+    return warnings.formatwarning(
+        str(warning_message.message),
+        warning_message.category,
+        warning_message.filename,
+        warning_message.lineno,
+        warning_message.line,
+    ) + tracemalloc_message(warning_message.source)
+
+
+@pytest.hookimpl(wrapper=True, tryfirst=True)
+def pytest_runtest_protocol(item: Item) -> Generator[None, object, object]:
+    with catch_warnings_for_item(
+        config=item.config, ihook=item.ihook, when="runtest", item=item
+    ):
+        return (yield)
+
+
+@pytest.hookimpl(wrapper=True, tryfirst=True)
+def pytest_collection(session: Session) -> Generator[None, object, object]:
+    config = session.config
+    with catch_warnings_for_item(
+        config=config, ihook=config.hook, when="collect", item=None
+    ):
+        return (yield)
+
+
+@pytest.hookimpl(wrapper=True)
+def pytest_terminal_summary(
+    terminalreporter: TerminalReporter,
+) -> Generator[None]:
+    config = terminalreporter.config
+    with catch_warnings_for_item(
+        config=config, ihook=config.hook, when="config", item=None
+    ):
+        return (yield)
+
+
+@pytest.hookimpl(wrapper=True)
+def pytest_sessionfinish(session: Session) -> Generator[None]:
+    config = session.config
+    with catch_warnings_for_item(
+        config=config, ihook=config.hook, when="config", item=None
+    ):
+        return (yield)
+
+
+@pytest.hookimpl(wrapper=True)
+def pytest_load_initial_conftests(
+    early_config: Config,
+) -> Generator[None]:
+    with catch_warnings_for_item(
+        config=early_config, ihook=early_config.hook, when="config", item=None
+    ):
+        return (yield)
+
+
+def pytest_configure(config: Config) -> None:
+    with ExitStack() as stack:
+        stack.enter_context(
+            catch_warnings_for_item(
+                config=config,
+                ihook=config.hook,
+                when="config",
+                item=None,
+                # this disables recording because the terminalreporter has
+                # finished by the time it comes to reporting logged warnings
+                # from the end of config cleanup. So for now, this is only
+                # useful for setting a warning filter with an 'error' action.
+                record=False,
+            )
         )
-        if self.since == (2, 0):
-            message += f' See Pydantic V2 Migration Guide at https://errors.pydantic.dev/{version_short()}/migration/'
-        return message
-
-
-class PydanticDeprecatedSince20(PydanticDeprecationWarning):
-    """A specific `PydanticDeprecationWarning` subclass defining functionality deprecated since Pydantic 2.0."""
-
-    def __init__(self, message: str, *args: object) -> None:
-        super().__init__(message, *args, since=(2, 0), expected_removal=(3, 0))
-
-
-class PydanticDeprecatedSince26(PydanticDeprecationWarning):  # pragma: no cover
-    """A specific `PydanticDeprecationWarning` subclass defining functionality deprecated since Pydantic 2.6."""
-
-    def __init__(self, message: str, *args: object) -> None:
-        super().__init__(message, *args, since=(2, 6), expected_removal=(3, 0))
-
-
-class PydanticDeprecatedSince29(PydanticDeprecationWarning):
-    """A specific `PydanticDeprecationWarning` subclass defining functionality deprecated since Pydantic 2.9."""
-
-    def __init__(self, message: str, *args: object) -> None:
-        super().__init__(message, *args, since=(2, 9), expected_removal=(3, 0))
-
-
-class PydanticDeprecatedSince210(PydanticDeprecationWarning):
-    """A specific `PydanticDeprecationWarning` subclass defining functionality deprecated since Pydantic 2.10."""
-
-    def __init__(self, message: str, *args: object) -> None:
-        super().__init__(message, *args, since=(2, 10), expected_removal=(3, 0))
-
-
-class PydanticDeprecatedSince211(PydanticDeprecationWarning):
-    """A specific `PydanticDeprecationWarning` subclass defining functionality deprecated since Pydantic 2.11."""
-
-    def __init__(self, message: str, *args: object) -> None:
-        super().__init__(message, *args, since=(2, 11), expected_removal=(3, 0))
-
-
-class PydanticDeprecatedSince212(PydanticDeprecationWarning):
-    """A specific `PydanticDeprecationWarning` subclass defining functionality deprecated since Pydantic 2.12."""
-
-    def __init__(self, message: str, *args: object) -> None:
-        super().__init__(message, *args, since=(2, 12), expected_removal=(3, 0))
-
-
-class GenericBeforeBaseModelWarning(Warning):
-    pass
-
-
-class PydanticExperimentalWarning(Warning):
-    """A Pydantic specific experimental functionality warning.
-
-    It is raised to warn users that the functionality may change or be removed in future versions of Pydantic.
-    """
-
-
-class CoreSchemaGenerationWarning(UserWarning):
-    """A warning raised during core schema generation."""
-
-
-class ArbitraryTypeWarning(CoreSchemaGenerationWarning):
-    """A warning raised when Pydantic fails to generate a core schema for an arbitrary type."""
-
-
-class UnsupportedFieldAttributeWarning(CoreSchemaGenerationWarning):
-    """A warning raised when a `Field()` attribute isn't supported in the context it is used."""
-
-
-class TypedDictExtraConfigWarning(CoreSchemaGenerationWarning):
-    """A warning raised when the [`extra`][pydantic.ConfigDict.extra] configuration is incompatible with the `closed` or `extra_items` specification."""
+        config.addinivalue_line(
+            "markers",
+            "filterwarnings(warning): add a warning filter to the given test. "
+            "see https://docs.pytest.org/en/stable/how-to/capture-warnings.html#pytest-mark-filterwarnings ",
+        )
+        config.add_cleanup(stack.pop_all().close)

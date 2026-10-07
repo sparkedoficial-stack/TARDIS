@@ -6,7 +6,7 @@
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 export PATH="$HOME/.local/bin:$SCRIPT_DIR/.venv-linux/bin:$PATH"
-export GIA_MODEL="${GIA_MODEL:-TARDIS-NEURAL-SPACE-KAIJU}"
+export GIA_MODEL="${GIA_MODEL:-huihui_ai/llama3.1-8b-instruct-abliterated}"
 export GIA_FORCE_PIPE="1"
 export GIA_DIRECT="1"
 export CUDA_VISIBLE_DEVICES="0"

@@ -1,152 +1,162 @@
+"""
+requests.exceptions
+~~~~~~~~~~~~~~~~~~~
+
+This module contains the set of Requests' exceptions.
+"""
+
 from __future__ import annotations
 
-import difflib
-import typing as t
+from typing import TYPE_CHECKING, Any
 
-from ..exceptions import BadRequest
-from ..exceptions import HTTPException
-from ..utils import cached_property
-from ..utils import redirect
+from urllib3.exceptions import HTTPError as BaseHTTPError
 
-if t.TYPE_CHECKING:
-    from _typeshed.wsgi import WSGIEnvironment
+from .compat import JSONDecodeError as CompatJSONDecodeError
 
-    from ..wrappers.request import Request
-    from ..wrappers.response import Response
-    from .map import MapAdapter
-    from .rules import Rule
+if TYPE_CHECKING:
+    from .models import PreparedRequest, Request, Response
 
 
-class RoutingException(Exception):
-    """Special exceptions that require the application to redirect, notifying
-    about missing urls, etc.
+class RequestException(IOError):
+    """There was an ambiguous exception that occurred while handling your
+    request.
+    """
 
-    :internal:
+    response: Response | None
+    request: Request | PreparedRequest | None
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        """Initialize RequestException with `request` and `response` objects."""
+        response: Response | None = kwargs.pop("response", None)
+        self.response = response
+        self.request = kwargs.pop("request", None)
+        if response is not None and not self.request and hasattr(response, "request"):
+            self.request = response.request
+        super().__init__(*args, **kwargs)
+
+
+class InvalidJSONError(RequestException):
+    """A JSON error occurred."""
+
+
+class JSONDecodeError(InvalidJSONError, CompatJSONDecodeError):
+    """Couldn't decode the text into json"""
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        """
+        Construct the JSONDecodeError instance first with all
+        args. Then use it's args to construct the IOError so that
+        the json specific args aren't used as IOError specific args
+        and the error message from JSONDecodeError is preserved.
+        """
+        CompatJSONDecodeError.__init__(self, *args)
+        InvalidJSONError.__init__(self, *self.args, **kwargs)
+
+    def __reduce__(self) -> tuple[Any, ...] | str:
+        """
+        The __reduce__ method called when pickling the object must
+        be the one from the JSONDecodeError (be it json/simplejson)
+        as it expects all the arguments for instantiation, not just
+        one like the IOError, and the MRO would by default call the
+        __reduce__ method from the IOError due to the inheritance order.
+        """
+        return CompatJSONDecodeError.__reduce__(self)
+
+
+class HTTPError(RequestException):
+    """An HTTP error occurred."""
+
+
+class ConnectionError(RequestException):
+    """A Connection error occurred."""
+
+
+class ProxyError(ConnectionError):
+    """A proxy error occurred."""
+
+
+class SSLError(ConnectionError):
+    """An SSL error occurred."""
+
+
+class Timeout(RequestException):
+    """The request timed out.
+
+    Catching this error will catch both
+    :exc:`~requests.exceptions.ConnectTimeout` and
+    :exc:`~requests.exceptions.ReadTimeout` errors.
     """
 
 
-class RequestRedirect(HTTPException, RoutingException):
-    """Raise if the map requests a redirect. This is for example the case if
-    `strict_slashes` are activated and an url that requires a trailing slash.
+class ConnectTimeout(ConnectionError, Timeout):
+    """The request timed out while trying to connect to the remote server.
 
-    The attribute `new_url` contains the absolute destination url.
-    """
-
-    code = 308
-
-    def __init__(self, new_url: str) -> None:
-        super().__init__(new_url)
-        self.new_url = new_url
-
-    def get_response(
-        self,
-        environ: WSGIEnvironment | Request | None = None,
-        scope: dict[str, t.Any] | None = None,
-    ) -> Response:
-        return redirect(self.new_url, self.code)
-
-
-class RequestPath(RoutingException):
-    """Internal exception."""
-
-    __slots__ = ("path_info",)
-
-    def __init__(self, path_info: str) -> None:
-        super().__init__()
-        self.path_info = path_info
-
-
-class RequestAliasRedirect(RoutingException):  # noqa: B903
-    """This rule is an alias and wants to redirect to the canonical URL."""
-
-    def __init__(self, matched_values: t.Mapping[str, t.Any], endpoint: t.Any) -> None:
-        super().__init__()
-        self.matched_values = matched_values
-        self.endpoint = endpoint
-
-
-class BuildError(RoutingException, LookupError):
-    """Raised if the build system cannot find a URL for an endpoint with the
-    values provided.
-    """
-
-    def __init__(
-        self,
-        endpoint: t.Any,
-        values: t.Mapping[str, t.Any],
-        method: str | None,
-        adapter: MapAdapter | None = None,
-    ) -> None:
-        super().__init__(endpoint, values, method)
-        self.endpoint = endpoint
-        self.values = values
-        self.method = method
-        self.adapter = adapter
-
-    @cached_property
-    def suggested(self) -> Rule | None:
-        return self.closest_rule(self.adapter)
-
-    def closest_rule(self, adapter: MapAdapter | None) -> Rule | None:
-        def _score_rule(rule: Rule) -> float:
-            return sum(
-                [
-                    0.98
-                    * difflib.SequenceMatcher(
-                        # endpoints can be any type, compare as strings
-                        None,
-                        str(rule.endpoint),
-                        str(self.endpoint),
-                    ).ratio(),
-                    0.01 * bool(set(self.values or ()).issubset(rule.arguments)),
-                    0.01 * bool(rule.methods and self.method in rule.methods),
-                ]
-            )
-
-        if adapter and adapter.map._rules:
-            return max(adapter.map._rules, key=_score_rule)
-
-        return None
-
-    def __str__(self) -> str:
-        message = [f"Could not build url for endpoint {self.endpoint!r}"]
-        if self.method:
-            message.append(f" ({self.method!r})")
-        if self.values:
-            message.append(f" with values {sorted(self.values)!r}")
-        message.append(".")
-        if self.suggested:
-            if self.endpoint == self.suggested.endpoint:
-                if (
-                    self.method
-                    and self.suggested.methods is not None
-                    and self.method not in self.suggested.methods
-                ):
-                    message.append(
-                        " Did you mean to use methods"
-                        f" {sorted(self.suggested.methods)!r}?"
-                    )
-                missing_values = self.suggested.arguments.union(
-                    set(self.suggested.defaults or ())
-                ) - set(self.values.keys())
-                if missing_values:
-                    message.append(
-                        f" Did you forget to specify values {sorted(missing_values)!r}?"
-                    )
-            else:
-                message.append(f" Did you mean {self.suggested.endpoint!r} instead?")
-        return "".join(message)
-
-
-class WebsocketMismatch(BadRequest):
-    """The only matched rule is either a WebSocket and the request is
-    HTTP, or the rule is HTTP and the request is a WebSocket.
+    Requests that produced this error are safe to retry.
     """
 
 
-class NoMatch(Exception):
-    __slots__ = ("have_match_for", "websocket_mismatch")
+class ReadTimeout(Timeout):
+    """The server did not send any data in the allotted amount of time."""
 
-    def __init__(self, have_match_for: set[str], websocket_mismatch: bool) -> None:
-        self.have_match_for = have_match_for
-        self.websocket_mismatch = websocket_mismatch
+
+class URLRequired(RequestException):
+    """A valid URL is required to make a request."""
+
+
+class TooManyRedirects(RequestException):
+    """Too many redirects."""
+
+
+class MissingSchema(RequestException, ValueError):
+    """The URL scheme (e.g. http or https) is missing."""
+
+
+class InvalidSchema(RequestException, ValueError):
+    """The URL scheme provided is either invalid or unsupported."""
+
+
+class InvalidURL(RequestException, ValueError):
+    """The URL provided was somehow invalid."""
+
+
+class InvalidHeader(RequestException, ValueError):
+    """The header value provided was somehow invalid."""
+
+
+class InvalidProxyURL(InvalidURL):
+    """The proxy URL provided is invalid."""
+
+
+class ChunkedEncodingError(RequestException):
+    """The server declared chunked encoding but sent an invalid chunk."""
+
+
+class ContentDecodingError(RequestException, BaseHTTPError):
+    """Failed to decode response content."""
+
+
+class StreamConsumedError(RequestException, TypeError):
+    """The content for this response was already consumed."""
+
+
+class RetryError(RequestException):
+    """Custom retries logic failed"""
+
+
+class UnrewindableBodyError(RequestException):
+    """Requests encountered an error when trying to rewind a body."""
+
+
+# Warnings
+
+
+class RequestsWarning(Warning):
+    """Base warning for Requests."""
+
+
+class FileModeWarning(RequestsWarning, DeprecationWarning):
+    """A file was opened in text mode, but Requests determined its binary length."""
+
+
+class RequestsDependencyWarning(RequestsWarning):
+    """An imported dependency doesn't match the expected version range."""

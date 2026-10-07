@@ -333,7 +333,7 @@ class Phi4MultimodalVisionPreTrainedModel(SiglipPreTrainedModel):
     input_modalities = ("image",)
     supports_gradient_checkpointing = True
 
-    _no_split_modules = ["Phi4MultimodalVisionEncoderLayer"]
+    _no_split_modules = ["REDACTED_MISTRAL"]
     _supports_flash_attn = True
     _supports_sdpa = True
     _supports_flex_attn = True
@@ -921,7 +921,7 @@ class Phi4MultimodalAudioPreTrainedModel(PreTrainedModel):
     config: Phi4MultimodalAudioConfig
     input_modalities = "audio"
     supports_gradient_checkpointing = True
-    _no_split_modules = ["Phi4MultimodalAudioConformerEncoderLayer"]
+    _no_split_modules = ["REDACTED_MISTRAL"]
     _supports_flash_attn = True
     _supports_sdpa = True
     _supports_flex_attn = True
@@ -1513,9 +1513,9 @@ class Phi4MultimodalForCausalLM(Phi3ForCausalLM):
 
 
 __all__ = [
-    "Phi4MultimodalAudioPreTrainedModel",
+    "REDACTED_MISTRAL",
     "Phi4MultimodalAudioModel",
-    "Phi4MultimodalVisionPreTrainedModel",
+    "REDACTED_MISTRAL",
     "Phi4MultimodalVisionModel",
     "Phi4MultimodalPreTrainedModel",
     "Phi4MultimodalModel",

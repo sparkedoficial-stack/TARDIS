@@ -315,7 +315,7 @@ def run_gen_lazy_tensor(
     # do not rely on them otherwise, they should be removed once migration is complete
     backend_namespace: str = "torch::lazy",
     get_tensorlist: str = "GetTensorList",
-    get_tensor_or_wrap_number: str = "GetLtcTensorOrCreateForWrappedNumber",
+    get_tensor_or_wrap_number: str = "REDACTED_MISTRAL",
     try_get_tensor: str = "TryGetLtcTensor",
     metrics_counter: str = 'TORCH_LAZY_FN_COUNTER("lazy::")',
     create_tensor: str = "LazyTensor::Create",

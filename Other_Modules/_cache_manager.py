@@ -112,7 +112,7 @@ class CachedRevisionInfo:
     Args:
         commit_hash (`str`):
             Hash of the revision (unique).
-            Example: `"9338f7b671827df886678df2bdd7cc7b4f36dffd"`.
+            Example: `"REDACTED_MISTRAL"`.
         snapshot_path (`Path`):
             Path to the revision directory in the `snapshots` folder. It contains the
             exact tree structure as the repo on the Hub.
@@ -442,7 +442,7 @@ class HFCacheInfo:
         >>> from huggingface_hub import scan_cache_dir
         >>> cache_info = scan_cache_dir()
         >>> delete_strategy = cache_info.delete_revisions(
-        ...     "81fd1d6e7847c99f5862c9fb81387956d99ec7aa"
+        ...     "REDACTED_MISTRAL"
         ... )
         >>> print(f"Will free {delete_strategy.expected_freed_size_str}.")
         Will free 7.9K.
@@ -453,9 +453,9 @@ class HFCacheInfo:
         ```py
         >>> from huggingface_hub import scan_cache_dir
         >>> scan_cache_dir().delete_revisions(
-        ...     "81fd1d6e7847c99f5862c9fb81387956d99ec7aa",
-        ...     "e2983b237dccf3ab4937c97fa717319a9ca1a96d",
-        ...     "6c0e6080953db56375760c0471a8c5f2929baf11",
+        ...     "REDACTED_MISTRAL",
+        ...     "REDACTED_MISTRAL",
+        ...     "REDACTED_MISTRAL",
         ... ).execute()
         Cache deletion done. Saved 8.6G.
         ```
@@ -712,7 +712,7 @@ def scan_cache_dir(cache_dir: str | Path | None = None) -> HFCacheInfo:
                 nb_files=11,
                 revisions=frozenset({
                     CachedRevisionInfo(
-                        commit_hash='d78aea13fa7ecd06c29e3e46195d6341255065d5',
+                        commit_hash="REDACTED_MISTRAL",
                         size_on_disk=970726339,
                         snapshot_path=PosixPath(...),
                         files=frozenset({

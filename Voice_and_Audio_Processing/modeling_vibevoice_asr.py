@@ -534,4 +534,4 @@ class VibeVoiceAsrForConditionalGeneration(VibeVoiceAsrPreTrainedModel, Generati
         return model_inputs
 
 
-__all__ = ["VibeVoiceAsrForConditionalGeneration", "VibeVoiceAsrModel", "VibeVoiceAsrPreTrainedModel"]
+__all__ = ["REDACTED_MISTRAL", "VibeVoiceAsrModel", "VibeVoiceAsrPreTrainedModel"]

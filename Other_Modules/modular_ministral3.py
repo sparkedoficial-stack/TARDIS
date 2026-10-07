@@ -116,6 +116,6 @@ __all__ = [
     "Ministral3ForQuestionAnswering",
     "Ministral3Model",
     "Ministral3PreTrainedModel",
-    "Ministral3ForSequenceClassification",
-    "Ministral3ForTokenClassification",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
 ]

@@ -485,6 +485,6 @@ __all__ = [
     "Starcoder2ForCausalLM",
     "Starcoder2Model",
     "Starcoder2PreTrainedModel",
-    "Starcoder2ForSequenceClassification",
-    "Starcoder2ForTokenClassification",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
 ]

@@ -474,4 +474,4 @@ class DeepseekVLHybridForConditionalGeneration(DeepseekVLHybridPreTrainedModel, 
         )
 
 
-__all__ = ["DeepseekVLHybridPreTrainedModel", "DeepseekVLHybridModel", "DeepseekVLHybridForConditionalGeneration"]
+__all__ = ["DeepseekVLHybridPreTrainedModel", "DeepseekVLHybridModel", "REDACTED_MISTRAL"]

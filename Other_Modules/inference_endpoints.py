@@ -587,7 +587,7 @@ def update(
     revision: Annotated[
         str | None,
         Option(
-            help="The specific model revision to deploy on the Inference Endpoint (e.g. '6c0e6080953db56375760c0471a8c5f2929baf11').",
+            help="The specific model revision to deploy on the Inference Endpoint (e.g. "REDACTED_MISTRAL").",
         ),
     ] = None,
     task: Annotated[

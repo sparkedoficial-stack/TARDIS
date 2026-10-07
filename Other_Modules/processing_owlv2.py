@@ -194,7 +194,7 @@ class Owlv2Processor(ProcessorMixin):
     # Copied from transformers.models.owlvit.processing_owlvit.OwlViTProcessor.post_process_image_guided_detection with OwlViT->Owlv2
     def post_process_image_guided_detection(
         self,
-        outputs: "Owlv2ImageGuidedObjectDetectionOutput",
+        outputs: "REDACTED_MISTRAL",
         threshold: float = 0.0,
         nms_threshold: float = 0.3,
         target_sizes: TensorType | list[tuple] | None = None,

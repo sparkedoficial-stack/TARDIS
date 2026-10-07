@@ -1233,6 +1233,6 @@ __all__ = [
     "Qwen3NextForQuestionAnswering",
     "Qwen3NextModel",
     "Qwen3NextPreTrainedModel",
-    "Qwen3NextForSequenceClassification",
+    "REDACTED_MISTRAL",
     "Qwen3NextForTokenClassification",
 ]

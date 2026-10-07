@@ -864,7 +864,7 @@ class AIRichMessage(CustomInteractiveMessage, InteractiveMessageBuilder):
             {
                 "prompt_text": t,
                 "prompt_type": "SUGGESTED_PROMPT",
-                "__typename": "GenAIFollowUpSuggestionPillPrimitive",
+                "__typename": "REDACTED_MISTRAL",
             }
             for t in items
         ]

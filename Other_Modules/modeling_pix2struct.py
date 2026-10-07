@@ -1339,7 +1339,7 @@ class Pix2StructForConditionalGeneration(Pix2StructPreTrainedModel, GenerationMi
 
 __all__ = [
     "Pix2StructPreTrainedModel",
-    "Pix2StructForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "Pix2StructVisionModel",
     "Pix2StructTextModel",
 ]

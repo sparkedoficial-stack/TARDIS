@@ -934,7 +934,7 @@ class VoxtralRealtimeForConditionalGeneration(VoxtralRealtimePreTrainedModel, Ge
 
 
 __all__ = [
-    "VoxtralRealtimeForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "VoxtralRealtimeEncoder",
     "VoxtralRealtimePreTrainedModel",
     "VoxtralRealtimeModel",

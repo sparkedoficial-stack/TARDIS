@@ -359,6 +359,6 @@ __all__ = [
     "EuroBertPreTrainedModel",
     "EuroBertModel",
     "EuroBertForMaskedLM",
-    "EuroBertForSequenceClassification",
+    "REDACTED_MISTRAL",
     "EuroBertForTokenClassification",
 ]

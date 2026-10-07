@@ -613,5 +613,5 @@ __all__ = [
     "HunYuanMoEV1ForCausalLM",
     "HunYuanMoEV1Model",
     "HunYuanMoEV1PreTrainedModel",
-    "HunYuanMoEV1ForSequenceClassification",
+    "REDACTED_MISTRAL",
 ]

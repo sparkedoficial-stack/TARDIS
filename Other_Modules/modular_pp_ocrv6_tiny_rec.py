@@ -127,7 +127,7 @@ class PPOCRV6TinyRecForTextRecognition(PPOCRV6SmallRecForTextRecognition):
 
 
 __all__ = [
-    "PPOCRV6TinyRecForTextRecognition",
+    "REDACTED_MISTRAL",
     "PPOCRV6TinyRecConfig",
     "PPOCRV6TinyRecModel",  # noqa: F822
     "PPOCRV6TinyRecPreTrainedModel",

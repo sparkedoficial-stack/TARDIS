@@ -847,6 +847,6 @@ __all__ = [
     "LlavaOnevisionImageProcessor",
     "LlavaOnevisionImageProcessorPil",
     "LlavaOnevisionModel",
-    "LlavaOnevisionForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "LlavaOnevisionPreTrainedModel",
 ]

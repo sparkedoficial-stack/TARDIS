@@ -3218,4 +3218,4 @@ class OneFormerForUniversalSegmentation(OneFormerPreTrainedModel):
         return output
 
 
-__all__ = ["OneFormerForUniversalSegmentation", "OneFormerModel", "OneFormerPreTrainedModel"]
+__all__ = ["REDACTED_MISTRAL", "OneFormerModel", "OneFormerPreTrainedModel"]

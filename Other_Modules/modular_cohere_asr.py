@@ -529,5 +529,5 @@ class CohereAsrForConditionalGeneration(MoonshineForConditionalGeneration):
 __all__ = [
     "CohereAsrPreTrainedModel",
     "CohereAsrModel",
-    "CohereAsrForConditionalGeneration",
+    "REDACTED_MISTRAL",
 ]

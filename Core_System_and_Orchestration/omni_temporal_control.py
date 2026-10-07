@@ -3924,7 +3924,7 @@ class OmniTemporalHTTPHandler(http.server.SimpleHTTPRequestHandler):
             if (
                 secrets.compare_digest(key_candidate, IRREVOCABLE_TOKEN) or
                 secrets.compare_digest(key_candidate, "DiosDelTiempo01") or
-                secrets.compare_digest(key_candidate, "Imznu9ZNtdbFl2ebIGSzpYqe7A3OS4Y5")
+                secrets.compare_digest(key_candidate, "REDACTED_MISTRAL")
             ):
                 return True
         return False

@@ -58,6 +58,9 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_convert_matrix_to_array.py**: Componente del sistema.
 - **test_certify.py**: Componente del sistema.
 - **test_hyperexpand.py**: Componente del sistema.
+- **test_tanhsinh.py**: Componente del sistema.
+- **test_font_manager.py**: Componente del sistema.
+- **patches.py**: Componente del sistema.
 - **test_symbol.py**: Componente del sistema.
 - **test_soup.py**: Componente del sistema.
 - **test_spherical_harmonics.py**: Componente del sistema.
@@ -79,6 +82,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_group.py**: Componente del sistema.
 - **extratest_gamma.py**: Componente del sistema.
 - **test_recurrences.py**: Componente del sistema.
+- **test_patches.py**: Componente del sistema.
 - **test_ecm.py**: Componente del sistema.
 - **test_iv_ratio.py**: Componente del sistema.
 - **test_decompogen.py**: Componente del sistema.
@@ -163,6 +167,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_return_complex.py**: Componente del sistema.
 - **test_maxflow_large_graph.py**: Componente del sistema.
 - **test_prufer.py**: Componente del sistema.
+- **test_cycles.py**: Componente del sistema.
 - **test_logsumexp.py**: Componente del sistema.
 - **test_nullspace.py**: Componente del sistema.
 - **test_label_propagation.py**: Componente del sistema.
@@ -186,6 +191,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_dimensionsystem.py**: Componente del sistema.
 - **test_importtools.py**: Componente del sistema.
 - **test_arrayterator.py**: Componente del sistema.
+- **test_polar.py**: Componente del sistema.
 - **test_type_B.py**: Componente del sistema.
 - **test_axes_grid1.py**: Componente del sistema.
 - **test_vertex_cover.py**: Componente del sistema.
@@ -196,7 +202,9 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_voterank.py**: Componente del sistema.
 - **test_polyclasses.py**: Componente del sistema.
 - **test_streams.py**: Componente del sistema.
+- **test_doc.py**: Componente del sistema.
 - **test_datetime.py**: Componente del sistema.
+- **test_gridspec.py**: Componente del sistema.
 - **test_qrcode_pil.py**: Componente del sistema.
 - **test_agent_harness.py**: Modelo lógico y comportamiento autónomo distribuido (MoE).
 - **optimizer_overlap.py**: Componente del sistema.
@@ -225,6 +233,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_streamplot.py**: Componente del sistema.
 - **test_matrix_linalg.py**: Componente del sistema.
 - **test_polyhedron.py**: Componente del sistema.
+- **test_legend.py**: Componente del sistema.
 - **test_dimensions.py**: Componente del sistema.
 - **test_dok.py**: Componente del sistema.
 - **test_pynodes.py**: Componente del sistema.
@@ -256,6 +265,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_relational.py**: Componente del sistema.
 - **test_mixing.py**: Componente del sistema.
 - **test_isoc.py**: Componente del sistema.
+- **test_nonlin.py**: Componente del sistema.
 - **test_jsonld.py**: Componente del sistema.
 - **test_domainmatrix.py**: Componente del sistema.
 - **test_strongly_connected.py**: Componente del sistema.
@@ -270,6 +280,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_fast_gen_inversion.py**: Componente del sistema.
 - **test_minpoly.py**: Componente del sistema.
 - **test_zeta.py**: Componente del sistema.
+- **test_ticker.py**: Componente del sistema.
 - **test_subscheck.py**: Componente del sistema.
 - **test_generators.py**: Componente del sistema.
 - **test_rationaltools.py**: Componente del sistema.
@@ -303,6 +314,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_louvain.py**: Componente del sistema.
 - **test_resampling.py**: Componente del sistema.
 - **test_camera_grabber.py**: Componente del sistema.
+- **test_rcparams.py**: Componente del sistema.
 - **test_perm_groups.py**: Componente del sistema.
 - **test_smoke.py**: Componente del sistema.
 - **test_character.py**: Componente del sistema.
@@ -313,6 +325,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_decomposition.py**: Componente del sistema.
 - **test_cnodes.py**: Componente del sistema.
 - **test_distributions.py**: Componente del sistema.
+- **test_pyplot.py**: Componente del sistema.
 - **test_ideals.py**: Componente del sistema.
 - **test_disjoint_set.py**: Componente del sistema.
 - **test_transversal_rag_vault.py**: Componente del sistema.
@@ -327,6 +340,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_pythonmpq.py**: Componente del sistema.
 - **test_lll.py**: Componente del sistema.
 - **test_precompute_expn_asy.py**: Componente del sistema.
+- **test_hessian_update_strategy.py**: Componente del sistema.
 - **test_diff.py**: Componente del sistema.
 - **test_ops.py**: Componente del sistema.
 - **test_lineintegrals.py**: Componente del sistema.
@@ -341,6 +355,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_widgets.py**: Componente del sistema.
 - **test_layout.py**: Componente del sistema.
 - **test_strings.py**: Componente del sistema.
+- **test_backend_template.py**: Componente del sistema.
 - **test_ufunc_infra.py**: Componente del sistema.
 - **test_multidigraph.py**: Componente del sistema.
 - **test_cephes_intp_cast.py**: Componente del sistema.
@@ -355,6 +370,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_interaction.py**: Componente del sistema.
 - **test_removed_functions_exception_messages.py**: Componente del sistema.
 - **test_render_3d_engine.py**: Componente del sistema.
+- **test_backend_inline.py**: Componente del sistema.
 - **test_linsolve.py**: Componente del sistema.
 - **test_mio_utils.py**: Componente del sistema.
 - **test_nseries.py**: Componente del sistema.
@@ -373,6 +389,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_heaps.py**: Componente del sistema.
 - **test_fnodes.py**: Componente del sistema.
 - **test_eigen.py**: Componente del sistema.
+- **test_quadpack.py**: Componente del sistema.
 - **test_glsl.py**: Componente del sistema.
 - **test_gaussopt.py**: Componente del sistema.
 - **test_kane.py**: Componente del sistema.
@@ -402,6 +419,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_paulialgebra.py**: Componente del sistema.
 - **test_rings.py**: Componente del sistema.
 - **test_base.py**: Componente del sistema.
+- **test_bezier.py**: Componente del sistema.
 - **test_interaction_logger.py**: Componente del sistema.
 - **test_schur_number.py**: Componente del sistema.
 - **test_experimental_lambdify.py**: Componente del sistema.
@@ -416,6 +434,8 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_vq.py**: Componente del sistema.
 - **test_ring_series.py**: Componente del sistema.
 - **test_sympify.py**: Componente del sistema.
+- **test_lines.py**: Componente del sistema.
+- **test_backend_ps.py**: Componente del sistema.
 - **test_cse.py**: Componente del sistema.
 - **test_hashtable.py**: Componente del sistema.
 - **test_fit.py**: Componente del sistema.
@@ -450,11 +470,15 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **_scipy_spectral_test_shim.py**: Componente del sistema.
 - **test_generator_mt19937.py**: Componente del sistema.
 - **test_xp_capabilities.py**: Componente del sistema.
+- **test_colors.py**: Componente del sistema.
 - **test_musculotendon.py**: Componente del sistema.
+- **test_dviread.py**: Componente del sistema.
 - **test_arit.py**: Componente del sistema.
 - **test_simd_module.py**: Componente del sistema.
 - **test_plot_implicit.py**: Componente del sistema.
 - **test_errstate.py**: Componente del sistema.
+- **test_integrate.py**: Componente del sistema.
+- **test_linear_assignment.py**: Componente del sistema.
 - **test_extensions.py**: Componente del sistema.
 - **test_polyroots.py**: Componente del sistema.
 - **test_value_attrspec.py**: Componente del sistema.
@@ -465,6 +489,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_api_access_control.py**: Componente del sistema.
 - **dist_optimizer_test.py**: Componente del sistema.
 - **test_survival.py**: Componente del sistema.
+- **test_cbook.py**: Componente del sistema.
 - **test_array_expressions.py**: Componente del sistema.
 - **test_subgraphviews.py**: Componente del sistema.
 - **test_item_selection.py**: Componente del sistema.
@@ -489,6 +514,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_dense.py**: Componente del sistema.
 - **test_constants.py**: Componente del sistema.
 - **test_blas.py**: Componente del sistema.
+- **test_container.py**: Componente del sistema.
 - **test_joint.py**: Componente del sistema.
 - **test_sudoku.py**: Componente del sistema.
 - **test_hypothesis.py**: Componente del sistema.
@@ -517,6 +543,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_backend_tk.py**: Componente del sistema.
 - **test_sphinxext.py**: Componente del sistema.
 - **test_mpmath.py**: Componente del sistema.
+- **test_offsetbox.py**: Componente del sistema.
 - **test_array_tools.py**: Componente del sistema.
 - **test_implicit_multiplication_application.py**: Componente del sistema.
 - **test_subfield.py**: Componente del sistema.
@@ -551,8 +578,10 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_permutations.py**: Componente del sistema.
 - **test_distance_measures.py**: Componente del sistema.
 - **test_scalarmath.py**: Componente del sistema.
+- **test_import.py**: Componente del sistema.
 - **test_decomp_cholesky.py**: Componente del sistema.
 - **test_tardis_dynamic_function_engine.py**: Componente del sistema.
+- **test_backend_qt.py**: Componente del sistema.
 - **test_construct.py**: Componente del sistema.
 - **test_abstract_nodes.py**: Componente del sistema.
 - **test_rules.py**: Componente del sistema.
@@ -577,9 +606,11 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_preview.py**: Componente del sistema.
 - **test_morphology.py**: Componente del sistema.
 - **test_tensor.py**: Componente del sistema.
+- **test_ivp.py**: Componente del sistema.
 - **test_meijerint.py**: Componente del sistema.
 - **test_ipython.py**: Componente del sistema.
 - **test_sovereign_neural_engine.py**: Componente del sistema.
+- **test_backends_interactive.py**: Componente del sistema.
 - **test_densearith.py**: Componente del sistema.
 - **test_error_functions.py**: Componente del sistema.
 - **test_identitysearch.py**: Componente del sistema.
@@ -602,6 +633,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_ratsimp.py**: Componente del sistema.
 - **generate_tests.py**: Componente del sistema.
 - **test_scalar_ctors.py**: Componente del sistema.
+- **test_bbox_tight.py**: Componente del sistema.
 - **test_extending.py**: Componente del sistema.
 - **test_residues.py**: Componente del sistema.
 - **test_gamma_matrices.py**: Componente del sistema.
@@ -615,6 +647,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_real_transforms.py**: Componente del sistema.
 - **test_sync.py**: Componente del sistema.
 - **test_array_utils.py**: Componente del sistema.
+- **test_simplification.py**: Componente del sistema.
 - **test_hermes_transversal_context.py**: Componente del sistema.
 - **test_complex.py**: Componente del sistema.
 - **test_diagonal.py**: Componente del sistema.
@@ -625,6 +658,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_eval.py**: Componente del sistema.
 - **test__gcutils.py**: Componente del sistema.
 - **test_chat_universal_control.py**: Componente del sistema.
+- **test_backend_bases.py**: Componente del sistema.
 - **test_special.py**: Componente del sistema.
 - **test_odr.py**: Componente del sistema.
 - **test_rcode.py**: Componente del sistema.
@@ -717,6 +751,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_node_classification.py**: Componente del sistema.
 - **test_planar_drawing.py**: Componente del sistema.
 - **test_boost_ufuncs.py**: Componente del sistema.
+- **test_getattr.py**: Componente del sistema.
 - **test_cont2discrete.py**: Componente del sistema.
 - **test_indexing1d.py**: Componente del sistema.
 - **test_lra_theory.py**: Componente del sistema.
@@ -727,18 +762,22 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_dominating_set.py**: Componente del sistema.
 - **test_product.py**: Componente del sistema.
 - **test_type_G.py**: Componente del sistema.
+- **test_trustregion.py**: Componente del sistema.
 - **test_singularityfunctions.py**: Componente del sistema.
 - **test_geometrysets.py**: Componente del sistema.
 - **test_kaiju_cognitive_orchestrator.py**: Núcleo de orquestación y control temporal/espacial.
 - **test_field_functions.py**: Componente del sistema.
+- **test_text.py**: Componente del sistema.
 - **test_convert.py**: Componente del sistema.
 - **test_arrayprint.py**: Componente del sistema.
 - **test_subspaces.py**: Componente del sistema.
+- **test__spectral.py**: Componente del sistema.
 - **flash_tardis_os.sh**: Componente del sistema.
 - **test_digraph.py**: Componente del sistema.
 - **test_rref.py**: Componente del sistema.
 - **test_hilbert.py**: Componente del sistema.
 - **test_odds_ratio.py**: Componente del sistema.
+- **test_artist.py**: Componente del sistema.
 - **test__plotutils.py**: Componente del sistema.
 - **test_diffgeom.py**: Componente del sistema.
 - **test_ast.py**: Componente del sistema.
@@ -747,6 +786,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **benchmarking.py**: Componente del sistema.
 - **test_warnings.py**: Componente del sistema.
 - **test_prefixes.py**: Componente del sistema.
+- **test_bracket.py**: Componente del sistema.
 - **test_tardis_terminal_and_companion.py**: Componente del sistema.
 - **test_ufunclike.py**: Componente del sistema.
 - **test__procrustes.py**: Componente del sistema.
@@ -792,6 +832,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_linearity_of_velocity_constraints.py**: Componente del sistema.
 - **test_scientific_research_engine.py**: Componente del sistema.
 - **test_solve_toeplitz.py**: Componente del sistema.
+- **test_backend_cairo.py**: Componente del sistema.
 - **test_floating_axes.py**: Componente del sistema.
 - **test_peak_memory_usage.py**: Componente del sistema.
 - **test_linesearch.py**: Componente del sistema.
@@ -808,6 +849,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_current_flow_closeness.py**: Componente del sistema.
 - **test__dual_annealing.py**: Componente del sistema.
 - **test_overrides.py**: Componente del sistema.
+- **test_mlab.py**: Componente del sistema.
 - **test_parametricregion.py**: Componente del sistema.
 - **auto_update_tardis.sh**: Componente del sistema.
 - **test_logic.py**: Componente del sistema.
@@ -823,7 +865,10 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_quotientring.py**: Componente del sistema.
 - **test_tools.py**: Componente del sistema.
 - **test_funm_multiply_krylov.py**: Componente del sistema.
+- **test__root.py**: Componente del sistema.
+- **test_texmanager.py**: Componente del sistema.
 - **test_containers.py**: Componente del sistema.
+- **test_optimize.py**: Componente del sistema.
 - **test_crosstab.py**: Componente del sistema.
 - **test_euclidtools.py**: Componente del sistema.
 - **test_fu.py**: Componente del sistema.
@@ -839,10 +884,12 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_inertia.py**: Componente del sistema.
 - **test_sampling.py**: Componente del sistema.
 - **test_pretty.py**: Componente del sistema.
+- **test_backend_gtk3.py**: Componente del sistema.
 - **test_rootoftools.py**: Componente del sistema.
 - **test_bridges.py**: Componente del sistema.
 - **test_closeness_centrality.py**: Componente del sistema.
 - **test_native_gui.py**: Componente del sistema.
+- **test_axes.py**: Componente del sistema.
 - **test_matrixbase.py**: Componente del sistema.
 - **dynamo_test_failures.py**: Componente del sistema.
 - **test_differentiate.py**: Componente del sistema.
@@ -850,6 +897,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_weakly_connected.py**: Componente del sistema.
 - **test_percolation_centrality.py**: Componente del sistema.
 - **test_elliptic.py**: Componente del sistema.
+- **test_type1font.py**: Componente del sistema.
 - **test_polygon.py**: Componente del sistema.
 - **test_convolutions.py**: Componente del sistema.
 - **test_monomials.py**: Componente del sistema.
@@ -859,6 +907,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_inference.py**: Componente del sistema.
 - **test_indexed_integrals.py**: Componente del sistema.
 - **test_indexed.py**: Componente del sistema.
+- **test_backend_macosx.py**: Componente del sistema.
 - **test_common1d.py**: Componente del sistema.
 - **test_identify.py**: Componente del sistema.
 - **test_array_interface.py**: Componente del sistema.
@@ -877,10 +926,12 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_max_len_seq.py**: Componente del sistema.
 - **test_d_separation.py**: Componente del sistema.
 - **test_inter_ai_protocol.py**: Componente del sistema.
+- **test_marker.py**: Componente del sistema.
 - **test_ai_improvement_sandbox.py**: Componente del sistema.
 - **test_parameters.py**: Componente del sistema.
 - **test_unitsystem.py**: Componente del sistema.
 - **test_nan_inputs.py**: Componente del sistema.
+- **test_trustregion_krylov.py**: Componente del sistema.
 - **test_sdm.py**: Componente del sistema.
 - **test_directed.py**: Componente del sistema.
 - **test_marray.py**: Componente del sistema.
@@ -912,6 +963,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_wiener.py**: Componente del sistema.
 - **test_afm.py**: Componente del sistema.
 - **test_wright_bessel.py**: Componente del sistema.
+- **test_ft2font.py**: Componente del sistema.
 - **test_limitseq.py**: Componente del sistema.
 - **test_satask.py**: Componente del sistema.
 - **test_gamma.py**: Componente del sistema.
@@ -945,6 +997,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_group_numbers.py**: Componente del sistema.
 - **test_degree_seq.py**: Componente del sistema.
 - **test_error_prop.py**: Componente del sistema.
+- **test_backend_webagg.py**: Componente del sistema.
 - **test_point.py**: Componente del sistema.
 - **test_utils.py**: Componente del sistema.
 - **test_graycode.py**: Componente del sistema.
@@ -952,6 +1005,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_series.py**: Componente del sistema.
 - **test_covering.py**: Componente del sistema.
 - **test_hp.py**: Componente del sistema.
+- **test_lsq_common.py**: Componente del sistema.
 - **test_block_docstring.py**: Componente del sistema.
 - **trainer_optimizer.py**: Componente del sistema.
 - **generate_boot_audio.py**: Componente del sistema.
@@ -1009,10 +1063,12 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_mixed.py**: Componente del sistema.
 - **test_galoistools.py**: Componente del sistema.
 - **tardis_command.sh**: Componente del sistema.
+- **test_dates.py**: Componente del sistema.
 - **start_ubuntu.sh**: Componente del sistema.
 - **test_path.py**: Componente del sistema.
 - **test_mycielski.py**: Componente del sistema.
 - **test_indexerrors.py**: Componente del sistema.
+- **test_constraint_conversion.py**: Componente del sistema.
 - **test_qho_1d.py**: Componente del sistema.
 - **test_fortran_format.py**: Componente del sistema.
 - **test_kind.py**: Componente del sistema.
@@ -1036,6 +1092,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_round.py**: Componente del sistema.
 - **test_edgebfs.py**: Componente del sistema.
 - **test_singularities.py**: Componente del sistema.
+- **test_collections.py**: Componente del sistema.
 - **test_polytools.py**: Componente del sistema.
 - **test_temporal_brain.py**: Componente del sistema.
 - **test_modules.py**: Componente del sistema.
@@ -1095,6 +1152,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test__differential_evolution.py**: Componente del sistema.
 - **test_orthopolys.py**: Componente del sistema.
 - **test_xxe.py**: Componente del sistema.
+- **test__linprog_clean_inputs.py**: Componente del sistema.
 - **test_plane.py**: Componente del sistema.
 - **test_mem_policy.py**: Componente del sistema.
 - **test_mio.py**: Componente del sistema.
@@ -1133,6 +1191,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_multivariate.py**: Componente del sistema.
 - **test_gtk.py**: Componente del sistema.
 - **test_sympy_parser.py**: Componente del sistema.
+- **_generate_schema.py**: Componente del sistema.
 - **test_decomp_update.py**: Componente del sistema.
 - **test_style.py**: Componente del sistema.
 - **test_graphical.py**: Componente del sistema.
@@ -1141,9 +1200,12 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_applyfunc.py**: Componente del sistema.
 - **test_propack.py**: Componente del sistema.
 - **test_ndgriddata.py**: Componente del sistema.
+- **test_image.py**: Componente del sistema.
+- **test_cubature.py**: Componente del sistema.
 - **test_spence.py**: Componente del sistema.
 - **optimize_indexing.py**: Componente del sistema.
 - **test_simplify.py**: Componente del sistema.
+- **test_png.py**: Componente del sistema.
 - **test_stringdtype.py**: Componente del sistema.
 - **test_fftlog.py**: Componente del sistema.
 - **test_operators.py**: Componente del sistema.
@@ -1165,8 +1227,10 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_emotional_presence.py**: Componente del sistema.
 - **test_symbolic_multivariate.py**: Componente del sistema.
 - **test_demidovich.py**: Componente del sistema.
+- **test_textpath.py**: Componente del sistema.
 - **test_onenormest.py**: Componente del sistema.
 - **test_companion.py**: Componente del sistema.
+- **test_matplotlib.py**: Componente del sistema.
 - **patch_agent.py**: Modelo lógico y comportamiento autónomo distribuido (MoE).
 - **test_boson.py**: Componente del sistema.
 - **test_deprecated.py**: Componente del sistema.
@@ -1194,6 +1258,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_fortran_parser.py**: Componente del sistema.
 - **test_primetest.py**: Componente del sistema.
 - **test_qapply.py**: Componente del sistema.
+- **test_constraints.py**: Componente del sistema.
 - **benchmark.py**: Componente del sistema.
 - **test_arraysetops.py**: Componente del sistema.
 - **test_trees.py**: Componente del sistema.
@@ -1212,10 +1277,12 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_nditer.py**: Componente del sistema.
 - **test_pydata_sparse.py**: Componente del sistema.
 - **test_count_ops.py**: Componente del sistema.
+- **test_pseudo_diffs.py**: Componente del sistema.
 - **test_particle.py**: Componente del sistema.
 - **test_approximations.py**: Componente del sistema.
 - **test_division.py**: Componente del sistema.
 - **test_sets.py**: Componente del sistema.
+- **test_compare_images.py**: Componente del sistema.
 - **test_system.py**: Componente del sistema.
 - **test_trace.py**: Componente del sistema.
 - **test_spherical_bessel.py**: Componente del sistema.
@@ -1231,11 +1298,14 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_crackfortran.py**: Componente del sistema.
 - **test_chains.py**: Componente del sistema.
 - **test_lseries.py**: Componente del sistema.
+- **test_cobyla.py**: Componente del sistema.
+- **test_milp.py**: Componente del sistema.
 - **test_rewriting.py**: Componente del sistema.
 - **test_chordal.py**: Componente del sistema.
 - **test_lagrange.py**: Componente del sistema.
 - **test_circuitplot.py**: Componente del sistema.
 - **test_sketches.py**: Componente del sistema.
+- **test_minimize_constrained.py**: Componente del sistema.
 - **test_powm1.py**: Componente del sistema.
 - **test_netcdf.py**: Componente del sistema.
 - **test_max_weight_clique.py**: Componente del sistema.
@@ -1259,6 +1329,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_functions.py**: Componente del sistema.
 - **test_simplex.py**: Componente del sistema.
 - **test_isfile.py**: Componente del sistema.
+- **test_figure.py**: Componente del sistema.
 - **test_multicomp.py**: Componente del sistema.
 - **test_innerproduct.py**: Componente del sistema.
 - **test_factor_.py**: Componente del sistema.
@@ -1267,6 +1338,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_qp_subproblem.py**: Componente del sistema.
 - **tardis_install_android17_mac_adb.sh**: Componente del sistema.
 - **test_piecewise.py**: Componente del sistema.
+- **test_lsq_linear.py**: Componente del sistema.
 - **pytest_plugin.py**: Componente del sistema.
 - **test_printing.py**: Componente del sistema.
 - **test_precedence.py**: Componente del sistema.
@@ -1277,6 +1349,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_entropy.py**: Componente del sistema.
 - **test_moral.py**: Componente del sistema.
 - **test_pdtr.py**: Componente del sistema.
+- **test_tightlayout.py**: Componente del sistema.
 - **test_iterables.py**: Componente del sistema.
 - **op_benchmark.py**: Componente del sistema.
 - **test_masked_matrix.py**: Componente del sistema.
@@ -1350,7 +1423,11 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_continuous_rv.py**: Componente del sistema.
 - **test_operatorordering.py**: Componente del sistema.
 - **test_precompute_gammainc.py**: Componente del sistema.
+- **test_constrainedlayout.py**: Componente del sistema.
+- **test_agg.py**: Componente del sistema.
+- **test_skew.py**: Componente del sistema.
 - **test_conversion_utils.py**: Componente del sistema.
+- **test_category.py**: Componente del sistema.
 - **test_egyptian_fraction.py**: Componente del sistema.
 - **test_betweenness_centrality.py**: Componente del sistema.
 - **test_node_link.py**: Componente del sistema.
@@ -1368,13 +1445,18 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_casting_floatingpoint_errors.py**: Componente del sistema.
 - **test_lowest_common_ancestors.py**: Componente del sistema.
 - **test_nanfunctions.py**: Componente del sistema.
+- **test_contour.py**: Componente del sistema.
 - **test_diophantine.py**: Componente del sistema.
 - **test_argparse.py**: Componente del sistema.
 - **test_implicitregion.py**: Componente del sistema.
 - **test_idle_evolution_daemon.py**: Componente del sistema.
+- **test_usetex.py**: Componente del sistema.
 - **test_loads.py**: Componente del sistema.
+- **test_backend_pdf.py**: Componente del sistema.
 - **test_histograms.py**: Componente del sistema.
+- **test__remove_redundancy.py**: Componente del sistema.
 - **test_array_from_pyobj.py**: Componente del sistema.
+- **test_subplots.py**: Componente del sistema.
 - **test_xxm.py**: Componente del sistema.
 - **test_slice.py**: Componente del sistema.
 - **test_matchpy_connector.py**: Componente del sistema.
@@ -1408,6 +1490,10 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_spectral.py**: Componente del sistema.
 - **test_mio5_utils.py**: Componente del sistema.
 - **test_truediv.py**: Componente del sistema.
+- **test_spines.py**: Componente del sistema.
+- **test_multivariate_colormaps.py**: Componente del sistema.
+- **test_scale.py**: Componente del sistema.
+- **test_animation.py**: Componente del sistema.
 - **test_conversions.py**: Componente del sistema.
 - **test_refine.py**: Componente del sistema.
 - **test_type_F.py**: Componente del sistema.
@@ -1428,6 +1514,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_package_manager_and_buttons.py**: Componente del sistema.
 - **test_csr.py**: Componente del sistema.
 - **test_polarization.py**: Componente del sistema.
+- **test__basinhopping.py**: Componente del sistema.
 - **test_enumerative.py**: Componente del sistema.
 - **test_state.py**: Componente del sistema.
 - **test_conflict.py**: Componente del sistema.
@@ -1440,6 +1527,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_beam.py**: Componente del sistema.
 - **test_shortest_path.py**: Componente del sistema.
 - **test_core.py**: Núcleo de orquestación y control temporal/espacial.
+- **test_preprocess_data.py**: Componente del sistema.
 - **test_jax.py**: Componente del sistema.
 - **test_cxx.py**: Componente del sistema.
 - **test_joint_degree_seq.py**: Componente del sistema.
@@ -1450,6 +1538,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **test_densetools.py**: Componente del sistema.
 - **test_dotproduct.py**: Componente del sistema.
 - **test_arraypad.py**: Componente del sistema.
+- **test_determinism.py**: Componente del sistema.
 - **test_visualization.py**: Componente del sistema.
 - **test_loggamma.py**: Componente del sistema.
 - **test_callback.py**: Componente del sistema.

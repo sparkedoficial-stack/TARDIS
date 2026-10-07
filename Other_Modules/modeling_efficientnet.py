@@ -558,4 +558,4 @@ class EfficientNetForImageClassification(EfficientNetPreTrainedModel):
         )
 
 
-__all__ = ["EfficientNetForImageClassification", "EfficientNetModel", "EfficientNetPreTrainedModel"]
+__all__ = ["REDACTED_MISTRAL", "EfficientNetModel", "EfficientNetPreTrainedModel"]

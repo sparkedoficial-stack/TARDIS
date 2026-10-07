@@ -2,7 +2,7 @@ import pytest
 from core.security import verify_token, is_request_authorized
 
 def test_verify_token():
-    for valid in ("DiosDelTiempo01", "Imznu9ZNtdbFl2ebIGSzpYqe7A3OS4Y5"):
+    for valid in ("DiosDelTiempo01", "REDACTED_MISTRAL"):
         assert verify_token(valid) is True
         assert verify_token(f"  {valid}  ") is True
     assert verify_token("wrong_token_xyz") is False
@@ -10,7 +10,7 @@ def test_verify_token():
     assert verify_token("") is False
 
 def test_is_request_authorized():
-    for valid in ("DiosDelTiempo01", "Imznu9ZNtdbFl2ebIGSzpYqe7A3OS4Y5"):
+    for valid in ("DiosDelTiempo01", "REDACTED_MISTRAL"):
         assert is_request_authorized({"x-api-key": valid}) is True
         assert is_request_authorized({"authorization": f"Bearer {valid}"}) is True
         assert is_request_authorized({"cookie": f"gia_token={valid}"}) is True

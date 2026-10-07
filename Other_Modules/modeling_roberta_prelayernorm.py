@@ -523,8 +523,8 @@ class RobertaPreLayerNormPreTrainedModel(PreTrainedModel):
     supports_gradient_checkpointing = True
     _no_split_modules = [
         "RobertaPreLayerNormEmbeddings",
-        "RobertaPreLayerNormSelfAttention",
-        "RobertaPreLayerNormCrossAttention",
+        "REDACTED_MISTRAL",
+        "REDACTED_MISTRAL",
     ]
     _supports_flash_attn = True
     _supports_sdpa = True
@@ -1285,10 +1285,10 @@ class RobertaPreLayerNormForQuestionAnswering(RobertaPreLayerNormPreTrainedModel
 __all__ = [
     "RobertaPreLayerNormForCausalLM",
     "RobertaPreLayerNormForMaskedLM",
-    "RobertaPreLayerNormForMultipleChoice",
-    "RobertaPreLayerNormForQuestionAnswering",
-    "RobertaPreLayerNormForSequenceClassification",
-    "RobertaPreLayerNormForTokenClassification",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
     "RobertaPreLayerNormModel",
-    "RobertaPreLayerNormPreTrainedModel",
+    "REDACTED_MISTRAL",
 ]

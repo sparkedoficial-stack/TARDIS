@@ -16,7 +16,7 @@ from core.os_controller import get_os_controller
 from server.api import app
 
 client = TestClient(app)
-AUTH_HEADERS = {"X-API-Key": "Imznu9ZNtdbFl2ebIGSzpYqe7A3OS4Y5"}
+AUTH_HEADERS = {"X-API-Key": "REDACTED_MISTRAL"}
 
 
 class TestPIISanitization:
@@ -25,7 +25,7 @@ class TestPIISanitization:
     def test_sanitize_bearer_token(self):
         raw = "Authorization: Bearer Imznu9ZNtdbFl2ebIGSzpYqe7A3OS4Y5"
         clean = agent_safety.sanitize_pii(raw)
-        assert "Imznu9ZNtdbFl2ebIGSzpYqe7A3OS4Y5" not in clean
+        assert "REDACTED_MISTRAL" not in clean
         assert "Bearer [REDACTED_TOKEN]" in clean
 
     def test_sanitize_jwt(self):

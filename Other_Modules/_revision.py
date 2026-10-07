@@ -26,11 +26,11 @@ class ResolvedRevision(str):
     >>> from huggingface_hub import resolve_revision
     >>> revision = resolve_revision("openai-community/gpt2")
     >>> revision
-    ResolvedRevision(initial=None, resolved='607a30d783dfa663caf39e06633721c8d4cfcd7e')
+    ResolvedRevision(initial=None, resolved="REDACTED_MISTRAL")
     >>> revision == "main"  # it's a string
     True
     >>> revision.resolved
-    '607a30d783dfa663caf39e06633721c8d4cfcd7e'
+    "REDACTED_MISTRAL"
     ```
     """
 

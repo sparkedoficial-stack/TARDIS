@@ -566,6 +566,6 @@ __all__ = [
     "StableLmForCausalLM",
     "StableLmModel",
     "StableLmPreTrainedModel",
-    "StableLmForSequenceClassification",
+    "REDACTED_MISTRAL",
     "StableLmForTokenClassification",
 ]

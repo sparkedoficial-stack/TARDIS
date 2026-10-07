@@ -59,7 +59,7 @@ def test_fit():
 
 def test_mode_number():
     qr = qrcode.QRCode()
-    qr.add_data("1234567890123456789012345678901234", optimize=0)
+    qr.add_data("REDACTED_MISTRAL", optimize=0)
     qr.make()
     assert qr.version == 1
     assert qr.data_list[0].mode == MODE_NUMBER
@@ -177,7 +177,7 @@ def test_optimize_longer_than_data():
 
 
 def test_optimize_size():
-    text = "A1abc12345123451234512345def1HELLOHELLOHELLOHELLOa" * 5
+    text = "REDACTED_MISTRAL" * 5
 
     qr = qrcode.QRCode()
     qr.add_data(text)

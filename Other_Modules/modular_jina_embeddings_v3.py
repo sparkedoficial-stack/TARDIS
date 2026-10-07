@@ -389,8 +389,8 @@ __all__ = [
     "JinaEmbeddingsV3PreTrainedModel",
     "JinaEmbeddingsV3Model",
     "JinaEmbeddingsV3ForMaskedLM",
-    "JinaEmbeddingsV3ForSequenceClassification",
-    "JinaEmbeddingsV3ForTokenClassification",
-    "JinaEmbeddingsV3ForQuestionAnswering",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
     "JinaEmbeddingsV3Layer",
 ]

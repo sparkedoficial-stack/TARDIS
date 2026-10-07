@@ -901,7 +901,7 @@ class PPOCRV5ServerDetForObjectDetection(PPOCRV5ServerDetPreTrainedModel):
 
 
 __all__ = [
-    "PPOCRV5ServerDetForObjectDetection",
+    "REDACTED_MISTRAL",
     "PPOCRV5ServerDetImageProcessor",
     "PPOCRV5ServerDetConfig",
     "PPOCRV5ServerDetModel",

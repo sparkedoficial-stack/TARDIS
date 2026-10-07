@@ -892,7 +892,7 @@ __all__ = [
     "MiniMaxPreTrainedModel",
     "MiniMaxModel",
     "MiniMaxForCausalLM",
-    "MiniMaxForSequenceClassification",
+    "REDACTED_MISTRAL",
     "MiniMaxForTokenClassification",
     "MiniMaxForQuestionAnswering",
 ]

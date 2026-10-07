@@ -1276,8 +1276,8 @@ class LayoutLMv2ForQuestionAnswering(LayoutLMv2PreTrainedModel):
 
 __all__ = [
     "LayoutLMv2ForQuestionAnswering",
-    "LayoutLMv2ForSequenceClassification",
-    "LayoutLMv2ForTokenClassification",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
     "LayoutLMv2Layer",
     "LayoutLMv2Model",
     "LayoutLMv2PreTrainedModel",

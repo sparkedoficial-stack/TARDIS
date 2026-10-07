@@ -8356,7 +8356,7 @@ def test_tightbbox_includes_long_label():
     bbox_no_xlabel = ax.get_tightbbox(renderer, for_layout_only=False)
 
     ax.set_xlabel(
-        'loooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong')
+        "REDACTED_MISTRAL")
     bbox_long_xlabel = ax.get_tightbbox(renderer, for_layout_only=False)
 
     # When for_layout_only is False, the axes tightbbox should encompass its labels even

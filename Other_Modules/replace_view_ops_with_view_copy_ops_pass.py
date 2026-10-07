@@ -6,7 +6,7 @@ from torch._export.pass_base import _ExportPassBaseDeprecatedDoNotUse
 from torch._ops import HigherOrderOperator, OpOverload
 
 
-__all__ = ["ReplaceViewOpsWithViewCopyOpsPass"]
+__all__ = ["REDACTED_MISTRAL"]
 
 
 _NON_FUNCTIONAL_OPS_TO_FUNCTIONAL_OPS: dict[OpOverload, OpOverload] = {

@@ -351,5 +351,5 @@ class EomtDinov3ForUniversalSegmentation(EomtDinov3PreTrainedModel, EomtForUnive
 __all__ = [
     "EomtDinov3Config",
     "EomtDinov3PreTrainedModel",
-    "EomtDinov3ForUniversalSegmentation",
+    "REDACTED_MISTRAL",
 ]

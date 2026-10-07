@@ -2019,10 +2019,10 @@ class Wav2Vec2ForXVector(Wav2Vec2PreTrainedModel):
 
 
 __all__ = [
-    "Wav2Vec2ForAudioFrameClassification",
+    "REDACTED_MISTRAL",
     "Wav2Vec2ForCTC",
     "Wav2Vec2ForPreTraining",
-    "Wav2Vec2ForSequenceClassification",
+    "REDACTED_MISTRAL",
     "Wav2Vec2ForXVector",
     "Wav2Vec2Model",
     "Wav2Vec2PreTrainedModel",

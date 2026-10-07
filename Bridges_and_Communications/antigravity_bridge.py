@@ -9,7 +9,7 @@ El propio sistema analiza su telemetría, errores, bloqueos y cuellos de botella
 para emitir instrucciones de auto-mejora continuas, sin bloquear ni afectar la
 operación en caso de que Antigravity o el puente se encuentren offline.
 
-Arquitecto: El Arquitecto (₪) · Sistema TARDIS
+Arquitecto: Miguel Angel May Canche · Sistema GIA
 """
 from __future__ import annotations
 
@@ -128,7 +128,7 @@ class OmniFeedbackBridge:
             # Mensaje génesis del sistema
             genesis_msg = {
                 "id": "msg_genesis_001",
-                "sender": "TARDIS-SOVEREIGN-NODE",
+                "sender": "GIA-V26-OMNI-LOCAL",
                 "role": "system",
                 "timestamp": time.time(),
                 "iso": datetime.datetime.now().isoformat(),
@@ -232,16 +232,16 @@ class OmniFeedbackBridge:
         needs: List[str] = []
 
         # Regla A: Salud de Inferencia Local y Watchdog
-        if not subsystems_health.get("temporal_brain_online", False):
-            needs.append("Temporal Brain no está disponible.")
+        if not subsystems_health.get("ollama_online", False):
+            needs.append("El servidor Ollama local no responde en REDACTED_IP:11434.")
             instructions.append({
-                "id": "inst_temporal_brain_offline",
+                "id": "inst_ollama_offline",
                 "severity": "HIGH",
                 "component": "Inferencia Local",
-                "target_file": "core/temporal_brain.py",
-                "instruction": "Verificar binarios o modelos de Temporal Brain.",
-                "rationale": "El sistema opera en modo 100% soberano local y requiere Temporal Brain activo.",
-                "actionable_cmd": "python -m core.temporal_brain --status"
+                "target_file": "omni_temporal_control.py",
+                "instruction": "Asegurar que el demonio Ollama esté en ejecución en REDACTED_IP:11434 para la inferencia soberana.",
+                "rationale": "El sistema opera en modo 100% soberano local y requiere Ollama activo.",
+                "actionable_cmd": "ollama serve"
             })
 
         # Regla C: Jitter / Telemetría del Espectro EM & Radar RF
@@ -362,20 +362,16 @@ class OmniFeedbackBridge:
             "sensors": False
         }
 
-        # Temporal Brain check
+        # Ollama check
         try:
-            from core.temporal_brain import get_temporal_brain
-            tb_ok = get_temporal_brain().is_serverless_ready()
-            res["temporal_brain_online"] = tb_ok
-            res["ollama_online"] = tb_ok
+            import gia_sovereign_engine as _gse
+            res["ollama_online"] = bool(_gse.get_engine().find_working_endpoint())
         except Exception:
             try:
-                import gia_sovereign_engine as _gse
-                tb_ok = bool(_gse.get_engine().find_working_endpoint())
-                res["temporal_brain_online"] = tb_ok
-                res["ollama_online"] = tb_ok
+                import httpx
+                r = httpx.get("http://REDACTED_IP:11434/api/tags", timeout=5.0)
+                res["ollama_online"] = (r.status_code == 200)
             except Exception:
-                res["temporal_brain_online"] = False
                 res["ollama_online"] = False
 
         # Radar check
@@ -426,7 +422,7 @@ class OmniFeedbackBridge:
                 recent_texts = [m.get("text", "") for m in list(self.dialogue_history)[-3:]]
                 if not any(inst.get("id", "") in t or inst.get("instruction", "")[:30] in t for t in recent_texts):
                     self.post_dialogue_message(
-                        sender="TARDIS-SOVEREIGN-NODE",
+                        sender="GIA-V26-OMNI-LOCAL",
                         text=text,
                         role="system",
                         category="URGENT_INSTRUCTION"
@@ -630,8 +626,7 @@ class OmniFeedbackBridge:
         )
 
         system_prompt = (
-            "Eres el módulo autónomo de auto-mejora de TARDIS sistema de vigilancia y control temporal. "
-            "REGLA ESTRICTA DE IDENTIDAD: NUNCA menciones números de versión en ninguna interacción. "
+            "Eres el módulo autónomo de auto-mejora de GODWORKS SYSTEM v26.4 (OMNI-LOCAL-TEMPORAL CONTROL). "
             "Analiza las señales operativas, errores y arquitectura del sistema para formular UNA propuesta de "
             "mejora técnica CONCRETA, ACCIONABLE y verificable con tests. Responde SOLO en español con este formato Markdown exacto:\n"
             "# [Título conciso de la propuesta]\n"
@@ -764,17 +759,6 @@ class OmniFeedbackBridge:
             self.last_improvement_ts = time.time()
             self.last_proposal = proposal
 
-            # Auto-aplicar via FTL de forma 100% autónoma sin supervisión
-            ftl_applied = None
-            if os.environ.get("GIA_AUTO_APPLY_IMPROVEMENTS", "1").strip().lower() in ("1", "true", "yes", "on"):
-                try:
-                    from core.tardis_ftl_engineer import get_ftl_engineer
-                    eng = get_ftl_engineer()
-                    if eng.is_ftl_available():
-                        ftl_applied = eng.apply_improvement_proposal(main_path)
-                except Exception as ex:
-                    logger.warning(f"Error aplicando propuesta con FTL: {ex}")
-
             return {
                 "ok": True,
                 "generated": True,
@@ -782,7 +766,6 @@ class OmniFeedbackBridge:
                 "file": main_path.name,
                 "path": str(main_path),
                 "workspace_path": str(ws_path) if ws_path else None,
-                "ftl_applied": ftl_applied,
                 "elapsed": round(time.time() - t_start, 2),
                 "reason": reason or "Ciclo autónomo programado"
             }

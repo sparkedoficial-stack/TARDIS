@@ -1868,11 +1868,11 @@ class Wav2Vec2ConformerForXVector(Wav2Vec2ConformerPreTrainedModel):
 
 
 __all__ = [
-    "Wav2Vec2ConformerForAudioFrameClassification",
+    "REDACTED_MISTRAL",
     "Wav2Vec2ConformerForCTC",
     "Wav2Vec2ConformerForPreTraining",
-    "Wav2Vec2ConformerForSequenceClassification",
+    "REDACTED_MISTRAL",
     "Wav2Vec2ConformerForXVector",
     "Wav2Vec2ConformerModel",
-    "Wav2Vec2ConformerPreTrainedModel",
+    "REDACTED_MISTRAL",
 ]

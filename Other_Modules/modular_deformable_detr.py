@@ -1538,7 +1538,7 @@ class DeformableDetrForObjectDetection(DeformableDetrPreTrainedModel):
 __all__ = [
     "DeformableDetrImageProcessor",
     "DeformableDetrImageProcessorPil",
-    "DeformableDetrForObjectDetection",
+    "REDACTED_MISTRAL",
     "DeformableDetrModel",
     "DeformableDetrPreTrainedModel",
 ]

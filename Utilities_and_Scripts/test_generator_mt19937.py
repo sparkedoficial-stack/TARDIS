@@ -27,20 +27,20 @@ JUMP_TEST_DATA = [
     {
         "seed": 0,
         "steps": 10,
-        "initial": {"key_sha256": "bb1636883c2707b51c5b7fc26c6927af4430f2e0785a8c7bc886337f919f9edf", "pos": 9},    # noqa: E501
-        "jumped":  {"key_sha256": "ff682ac12bb140f2d72fba8d3506cf4e46817a0db27aae1683867629031d8d55", "pos": 598},  # noqa: E501
+        "initial": {"key_sha256": "REDACTED_MISTRAL", "pos": 9},    # noqa: E501
+        "jumped":  {"key_sha256": "REDACTED_MISTRAL", "pos": 598},  # noqa: E501
     },
     {
         "seed": 384908324,
         "steps": 312,
-        "initial": {"key_sha256": "16b791a1e04886ccbbb4d448d6ff791267dc458ae599475d08d5cced29d11614", "pos": 311},  # noqa: E501
-        "jumped":  {"key_sha256": "a0110a2cf23b56be0feaed8f787a7fc84bef0cb5623003d75b26bdfa1c18002c", "pos": 276},  # noqa: E501
+        "initial": {"key_sha256": "REDACTED_MISTRAL", "pos": 311},  # noqa: E501
+        "jumped":  {"key_sha256": "REDACTED_MISTRAL", "pos": 276},  # noqa: E501
     },
     {
         "seed": [839438204, 980239840, 859048019, 821],
         "steps": 511,
-        "initial": {"key_sha256": "d306cf01314d51bd37892d874308200951a35265ede54d200f1e065004c3e9ea", "pos": 510},  # noqa: E501
-        "jumped":  {"key_sha256": "0e00ab449f01a5195a83b4aee0dfbc2ce8d46466a640b92e33977d2e42f777f8", "pos": 475},  # noqa: E501
+        "initial": {"key_sha256": "REDACTED_MISTRAL", "pos": 510},  # noqa: E501
+        "jumped":  {"key_sha256": "REDACTED_MISTRAL", "pos": 475},  # noqa: E501
     },
 ]
 
@@ -521,15 +521,15 @@ class TestIntegers:
         # We use a sha256 hash of generated sequences of 1000 samples
         # in the range [0, 6) for all but bool, where the range
         # is [0, 2). Hashes are for little endian numbers.
-        tgt = {'bool':   '053594a9b82d656f967c54869bc6970aa0358cf94ad469c81478459c6a90eee3',  # noqa: E501
-               'int16':  '54de9072b6ee9ff7f20b58329556a46a447a8a29d67db51201bf88baa6e4e5d4',  # noqa: E501
-               'int32':  'd3a0d5efb04542b25ac712e50d21f39ac30f312a5052e9bbb1ad3baa791ac84b',  # noqa: E501
-               'int64':  '14e224389ac4580bfbdccb5697d6190b496f91227cf67df60989de3d546389b1',  # noqa: E501
-               'int8':   '0e203226ff3fbbd1580f15da4621e5f7164d0d8d6b51696dd42d004ece2cbec1',  # noqa: E501
-               'uint16': '54de9072b6ee9ff7f20b58329556a46a447a8a29d67db51201bf88baa6e4e5d4',  # noqa: E501
-               'uint32': 'd3a0d5efb04542b25ac712e50d21f39ac30f312a5052e9bbb1ad3baa791ac84b',  # noqa: E501
-               'uint64': '14e224389ac4580bfbdccb5697d6190b496f91227cf67df60989de3d546389b1',  # noqa: E501
-               'uint8':  '0e203226ff3fbbd1580f15da4621e5f7164d0d8d6b51696dd42d004ece2cbec1'}  # noqa: E501
+        tgt = {'bool':   "REDACTED_MISTRAL",  # noqa: E501
+               'int16':  "REDACTED_MISTRAL",  # noqa: E501
+               'int32':  "REDACTED_MISTRAL",  # noqa: E501
+               'int64':  "REDACTED_MISTRAL",  # noqa: E501
+               'int8':   "REDACTED_MISTRAL",  # noqa: E501
+               'uint16': "REDACTED_MISTRAL",  # noqa: E501
+               'uint32': "REDACTED_MISTRAL",  # noqa: E501
+               'uint64': "REDACTED_MISTRAL",  # noqa: E501
+               'uint8':  "REDACTED_MISTRAL"}  # noqa: E501
 
         for dt in self.itype[1:]:
             random = Generator(MT19937(1234))
@@ -950,7 +950,7 @@ class TestRandomDist:
         assert actual.dtype == np.int64
 
     def test_choice_large_sample(self):
-        choice_hash = '4266599d12bfcfb815213303432341c06b4349f5455890446578877bb322e222'
+        choice_hash = "REDACTED_MISTRAL"
         random = Generator(MT19937(self.seed))
         actual = random.choice(10000, 5000, replace=False)
         if sys.byteorder != 'little':

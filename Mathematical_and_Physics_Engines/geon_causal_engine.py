@@ -178,7 +178,6 @@ class SyntropyEntropyGradientEngine:
 
     def __init__(self, default_eta: float = 0.85):
         self.eta = default_eta      # Coeficiente de acoplamiento sintrópico
-        self._matrix_lock = threading.Lock()
 
     def calculate_gradient(self, entropy_series: List[float], dt: float = 1.0) -> float:
         """
@@ -228,22 +227,6 @@ class SyntropyEntropyGradientEngine:
             "bifurcation_point_index": int(points * 0.4),
             "final_syntropy_level": round(float(syntropy_curve[-1]), 4),
         }
-
-    def compute_syntropic_transition_matrix(self, dt: float = 1.0, states: int = 4) -> np.ndarray:
-        """
-        Genera y sincroniza la matriz de transición de estado sintrópica.
-        Rige la evolución temporal de estados caóticos a sintrópicos garantizando consistencia.
-        """
-        with self._matrix_lock:
-            mat = np.zeros((states, states), dtype=float)
-            for i in range(states):
-                for j in range(states):
-                    if j >= i:
-                        mat[i, j] = math.exp(-self.eta * (j - i) * dt * 0.5)
-                    else:
-                        mat[i, j] = math.exp(-self.eta * (i - j) * dt * 2.0)
-            row_sums = mat.sum(axis=1, keepdims=True)
-            return mat / row_sums
 
 
 class WheelerGeonTopologicalCore:
@@ -341,38 +324,6 @@ class CausalRetroIntegrator:
             self.controls.lamport_clock = max(self.controls.lamport_clock, inc) + 1
             self.save_state()
             return self.controls.lamport_clock
-
-    def validate_temporal_consistency(self) -> Dict[str, Any]:
-        """
-        Valida la consistencia temporal verificando invariantes de Lamport
-        y la sincronización estricta de las matrices causales sintrópicas.
-        """
-        with _lock:
-            mat = self.syntropy_engine.compute_syntropic_transition_matrix(dt=0.1)
-            row_sums = mat.sum(axis=1)
-            stochastic_valid = bool(np.allclose(row_sums, 1.0, rtol=1e-5))
-            
-            # Verificación del radio espectral (valores propios <= 1) para consistencia de Markov
-            eigenvalues = np.linalg.eigvals(mat)
-            spectral_radius_stable = bool(all(abs(e) <= 1.0 + 1e-5 for e in eigenvalues))
-            
-            # Verificación de invariante de reloj de Lamport
-            lamport_valid = self.controls.lamport_clock > 0
-            
-            # Invariante Fuerte de Traza Causal
-            causal_matrix_trace = float(np.trace(mat))
-            trace_valid = causal_matrix_trace > 0.0
-            
-            is_consistent = stochastic_valid and spectral_radius_stable and lamport_valid and trace_valid
-            
-        return {
-            "temporal_consistency": is_consistent,
-            "lamport_invariant": lamport_valid,
-            "causal_matrix_synced": stochastic_valid,
-            "spectral_radius_stable": spectral_radius_stable,
-            "matrix_trace": round(causal_matrix_trace, 4),
-            "trace_invariant_valid": trace_valid
-        }
 
     def compute_psi_retro(
         self,
@@ -513,7 +464,6 @@ class CausalRetroIntegrator:
             },
             "chaos_syntropy_trajectory": chaos_curve,
             "lamport_clock": self.controls.lamport_clock,
-            "temporal_validation": self.validate_temporal_consistency(),
             "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
@@ -729,7 +679,6 @@ class CausalRetroIntegrator:
             },
             "retrocausal_trace": trace_steps,
             "controls": asdict(self.controls),
-            "temporal_validation": self.validate_temporal_consistency(),
         }
 
 

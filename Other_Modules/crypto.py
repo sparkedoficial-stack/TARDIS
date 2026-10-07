@@ -621,9 +621,9 @@ def encipher_vigenere(msg, key, symbols=None):
     >>> from sympy.crypto.crypto import decipher_vigenere, padded_key
     >>> alp = padded_key('KRYPTOS', AZ())
     >>> key = "REDACTED"
-    >>> msg = 'EMUFPHZLRFAXYUSDJKZLDKRNSHGNFIVJ'
+    >>> msg = "REDACTED_MISTRAL"
     >>> decipher_vigenere(msg, key, alp)
-    'BETWEENSUBTLESHADINGANDTHEABSENC'
+    "REDACTED_MISTRAL"
 
     Explanation
     ===========

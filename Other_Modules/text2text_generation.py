@@ -19,7 +19,7 @@ class Text2TextGenerationParameters(BaseInferenceType):
     """Whether to clean up the potential extra spaces in the text output."""
     generate_parameters: dict[str, Any] | None = None
     """Additional parametrization of the text generation algorithm"""
-    truncation: Optional["Text2TextGenerationTruncationStrategy"] = None
+    truncation: Optional["REDACTED_MISTRAL"] = None
     """The truncation strategy to use"""
 
 

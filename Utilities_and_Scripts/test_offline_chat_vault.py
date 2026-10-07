@@ -15,7 +15,7 @@ from core.offline_chat_vault import OfflineChatVault, get_offline_chat_vault
 from server.api import app
 from omni_temporal_control import process_hardware_chat_intent
 
-AUTH_HEADERS = {"X-API-Key": "Imznu9ZNtdbFl2ebIGSzpYqe7A3OS4Y5"}
+AUTH_HEADERS = {"X-API-Key": "REDACTED_MISTRAL"}
 
 
 @pytest.fixture

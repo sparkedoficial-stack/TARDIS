@@ -164,7 +164,7 @@ class PPOCRV6SmallDetForObjectDetection(PPOCRV5ServerDetForObjectDetection):
 
 
 __all__ = [
-    "PPOCRV6SmallDetForObjectDetection",
+    "REDACTED_MISTRAL",
     "PPOCRV6SmallDetConfig",
     "PPOCRV6SmallDetModel",  # noqa: F822
     "PPOCRV6SmallDetPreTrainedModel",  # noqa: F822

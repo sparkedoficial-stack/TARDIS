@@ -1714,7 +1714,7 @@ class ClvpModelForConditionalGeneration(ClvpPreTrainedModel, GenerationMixin):
 
 
 __all__ = [
-    "ClvpModelForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "ClvpForCausalLM",
     "ClvpModel",
     "ClvpPreTrainedModel",

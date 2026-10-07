@@ -386,6 +386,15 @@ def main() -> int:
     if args.private:
         WEB_ENABLED = False
 
+    # Auto-bootstrap autónomo de dependencias de IA
+    try:
+        import gia_bootstrap
+        boot = gia_bootstrap.ensure_all_dependencies(preferred_model=model, verbose=False)
+        if boot.get("active_model"):
+            model = boot["active_model"]
+    except Exception:
+        pass
+
     web_status = (f"{C_TOOL}ON (queries salen a DuckDuckGo){C_END}"
                   if WEB_ENABLED else f"{C_AI}OFF - MODO PRIVADO{C_END}")
     print(f"\n{C_AI}================================================={C_END}")

@@ -406,4 +406,4 @@ class AyaVisionForConditionalGeneration(AyaVisionPreTrainedModel, GenerationMixi
         )
 
 
-__all__ = ["AyaVisionForConditionalGeneration", "AyaVisionPreTrainedModel", "AyaVisionModel"]
+__all__ = ["REDACTED_MISTRAL", "AyaVisionPreTrainedModel", "AyaVisionModel"]

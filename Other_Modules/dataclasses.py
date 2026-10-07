@@ -678,7 +678,7 @@ __all__ = [
     "validate_typed_dict",
     "validated_field",
     "Validator_T",
-    "StrictDataclassClassValidationError",
+    "REDACTED_MISTRAL",
     "StrictDataclassDefinitionError",
-    "StrictDataclassFieldValidationError",
+    "REDACTED_MISTRAL",
 ]

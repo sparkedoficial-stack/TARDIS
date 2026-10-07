@@ -399,7 +399,7 @@ class PPOCRV5MobileRecForTextRecognition(PPOCRV5MobileRecPreTrainedModel):
 
 
 __all__ = [
-    "PPOCRV5MobileRecForTextRecognition",
+    "REDACTED_MISTRAL",
     "PPOCRV5MobileRecModel",
     "PPOCRV5MobileRecPreTrainedModel",
     "PPOCRV5MobileRecEncoderWithSVTR",

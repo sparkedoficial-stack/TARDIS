@@ -923,8 +923,8 @@ class MobileViTV2ForSemanticSegmentation(MobileViTV2PreTrainedModel):
 
 
 __all__ = [
-    "MobileViTV2ForImageClassification",
-    "MobileViTV2ForSemanticSegmentation",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
     "MobileViTV2Model",
     "MobileViTV2PreTrainedModel",
 ]

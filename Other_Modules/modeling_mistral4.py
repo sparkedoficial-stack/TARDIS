@@ -751,6 +751,6 @@ __all__ = [
     "Mistral4PreTrainedModel",
     "Mistral4Model",
     "Mistral4ForCausalLM",
-    "Mistral4ForSequenceClassification",
+    "REDACTED_MISTRAL",
     "Mistral4ForTokenClassification",
 ]

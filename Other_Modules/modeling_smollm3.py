@@ -522,7 +522,7 @@ __all__ = [
     "SmolLM3PreTrainedModel",
     "SmolLM3Model",
     "SmolLM3ForCausalLM",
-    "SmolLM3ForSequenceClassification",
+    "REDACTED_MISTRAL",
     "SmolLM3ForTokenClassification",
     "SmolLM3ForQuestionAnswering",
 ]

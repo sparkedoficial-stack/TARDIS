@@ -195,6 +195,6 @@ __all__ = [
     "Qwen3MoeForQuestionAnswering",
     "Qwen3MoeModel",
     "Qwen3MoePreTrainedModel",  # noqa: F822
-    "Qwen3MoeForSequenceClassification",
+    "REDACTED_MISTRAL",
     "Qwen3MoeForTokenClassification",
 ]

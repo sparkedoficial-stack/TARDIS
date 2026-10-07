@@ -874,5 +874,5 @@ __all__ = [
     "VideoLlama3VisionModel",
     "VideoLlama3PreTrainedModel",
     "VideoLlama3Model",
-    "VideoLlama3ForConditionalGeneration",
+    "REDACTED_MISTRAL",
 ]

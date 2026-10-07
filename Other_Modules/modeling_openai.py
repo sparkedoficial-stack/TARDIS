@@ -713,7 +713,7 @@ class OpenAIGPTForSequenceClassification(OpenAIGPTPreTrainedModel):
 
 __all__ = [
     "OpenAIGPTDoubleHeadsModel",
-    "OpenAIGPTForSequenceClassification",
+    "REDACTED_MISTRAL",
     "OpenAIGPTLMHeadModel",
     "OpenAIGPTModel",
     "OpenAIGPTPreTrainedModel",

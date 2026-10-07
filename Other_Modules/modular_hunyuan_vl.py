@@ -1541,5 +1541,5 @@ __all__ = [
     "HunYuanVLModel",
     "HunYuanVLTextModel",
     "HunYuanVLVisionTransformer",
-    "HunYuanVLForConditionalGeneration",
+    "REDACTED_MISTRAL",
 ]

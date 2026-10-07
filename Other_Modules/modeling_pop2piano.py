@@ -1044,4 +1044,4 @@ class Pop2PianoForConditionalGeneration(Pop2PianoPreTrainedModel, GenerationMixi
         return self._shift_right(labels)
 
 
-__all__ = ["Pop2PianoForConditionalGeneration", "Pop2PianoPreTrainedModel"]
+__all__ = ["REDACTED_MISTRAL", "Pop2PianoPreTrainedModel"]

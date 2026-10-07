@@ -128,6 +128,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **hook-adbc_driver_manager.py**: Componente del sistema.
 - **hook-pyi_splash.py**: Componente del sistema.
 - **diff.py**: Componente del sistema.
+- **class_validators.py**: Componente del sistema.
 - **_filter_design.py**: Componente del sistema.
 - **web_research_engine.py**: Componente del sistema.
 - **fusion_regions.py**: Componente del sistema.
@@ -277,6 +278,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **hook-skimage.exposure.py**: Componente del sistema.
 - **minimize_trustregion_constr.py**: Componente del sistema.
 - **datastruct.py**: Componente del sistema.
+- **schemas.py**: Componente del sistema.
 - **region_MU.py**: Componente del sistema.
 - **parametrize.py**: Componente del sistema.
 - **slidebox.py**: Componente del sistema.
@@ -464,6 +466,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **hook-vtkmodules.vtkFiltersGeometryPreview.py**: Componente del sistema.
 - **_per_sample_grad.py**: Componente del sistema.
 - **asyncio.py**: Componente del sistema.
+- **backend_qtagg.py**: Componente del sistema.
 - **region_LB.py**: Componente del sistema.
 - **hook-psychopy.py**: Componente del sistema.
 - **groq.py**: Componente del sistema.
@@ -522,6 +525,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **WAWebProtobufsSyncdSnapshotRecovery_pb2.py**: Componente del sistema.
 - **hook-sklearn.metrics.pairwise.py**: Componente del sistema.
 - **hook-vtkmodules.vtkCommonColor.py**: Componente del sistema.
+- **_triangulation.py**: Componente del sistema.
 - **_basic_backend.py**: Componente del sistema.
 - **chinese_cloud_api.py**: Componente del sistema.
 - **web_log.py**: Componente del sistema.
@@ -575,6 +579,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **autotune.py**: Componente del sistema.
 - **hook-pylint.py**: Componente del sistema.
 - **region_MM.py**: Componente del sistema.
+- **_core_metadata.py**: Núcleo de orquestación y control temporal/espacial.
 - **hook-PyQt6.Qsci.py**: Componente del sistema.
 - **_traversal_utils.py**: Componente del sistema.
 - **planner.py**: Componente del sistema.
@@ -610,6 +615,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **redirects.py**: Componente del sistema.
 - **region_GD.py**: Componente del sistema.
 - **ContainerIO.py**: Componente del sistema.
+- **_parse.py**: Componente del sistema.
 - **hook-google.cloud.pubsub_v1.py**: Componente del sistema.
 - **singleton.py**: Componente del sistema.
 - **modular_granite_swa.py**: Componente del sistema.
@@ -704,6 +710,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **modeling_axk2.py**: Componente del sistema.
 - **image_processing_pil_pix2struct.py**: Componente del sistema.
 - **region_IR.py**: Componente del sistema.
+- **axis.py**: Componente del sistema.
 - **kde.py**: Componente del sistema.
 - **_func_map.py**: Componente del sistema.
 - **gen_autograd_functions.py**: Componente del sistema.
@@ -745,6 +752,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **autocast_mode.py**: Componente del sistema.
 - **image_processing_pil_oneformer.py**: Componente del sistema.
 - **GbrImagePlugin.py**: Componente del sistema.
+- **_ode.py**: Componente del sistema.
 - **user_array.py**: Componente del sistema.
 - **cudagraphs.py**: Componente del sistema.
 - **hyperparameter_search.py**: Componente del sistema.
@@ -764,6 +772,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **hook-skimage.future.py**: Componente del sistema.
 - **modular_edgetam.py**: Componente del sistema.
 - **hook-PyQt5.QtMacExtras.py**: Componente del sistema.
+- **initialise_test.py**: Componente del sistema.
 - **gia_self_test.py**: Componente del sistema.
 - **image_processing_deepseek_vl.py**: Componente del sistema.
 - **xpu_env.py**: Componente del sistema.
@@ -772,6 +781,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **hook-ultralytics.py**: Componente del sistema.
 - **collect_tracepoints_pass.py**: Componente del sistema.
 - **_a_n_k_r.py**: Componente del sistema.
+- **trans_utils.py**: Componente del sistema.
 - **hook-torchao.py**: Componente del sistema.
 - **modeling_minicpm3.py**: Componente del sistema.
 - **poly1305.py**: Componente del sistema.
@@ -798,10 +808,13 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **gds.py**: Componente del sistema.
 - **modeling_vaultgemma.py**: Componente del sistema.
 - **c_parser.py**: Componente del sistema.
+- **_schema_validator.py**: Componente del sistema.
 - **dispersion.py**: Componente del sistema.
 - **tardis_conversation_analyzer.py**: Componente del sistema.
 - **region_UA.py**: Componente del sistema.
 - **redis_cache.py**: Componente del sistema.
+- **winresource.py**: Componente del sistema.
+- **_tight_bbox.py**: Componente del sistema.
 - **md.py**: Componente del sistema.
 - **numpy.py**: Componente del sistema.
 - **wxPen.py**: Componente del sistema.
@@ -908,6 +921,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **ecc200datamatrix.py**: Componente del sistema.
 - **modular_deit.py**: Componente del sistema.
 - **gmpyfinitefield.py**: Componente del sistema.
+- **_mock_val_ser.py**: Componente del sistema.
 - **region_CD.py**: Componente del sistema.
 - **modular_granitemoehybrid.py**: Componente del sistema.
 - **pyi_rth_enchant.py**: Componente del sistema.
@@ -934,6 +948,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **fetch.py**: Componente del sistema.
 - **hook-pypsexec.py**: Componente del sistema.
 - **region_IT.py**: Componente del sistema.
+- **api_jws.py**: Componente del sistema.
 - **afmLib.py**: Componente del sistema.
 - **region_RO.py**: Componente del sistema.
 - **modeling_pp_doclayout_v2.py**: Componente del sistema.
@@ -1149,6 +1164,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **hook-usb.py**: Componente del sistema.
 - **hook-zope.interface.py**: Componente del sistema.
 - **list.py**: Componente del sistema.
+- **uri.py**: Componente del sistema.
 - **axis_artist.py**: Componente del sistema.
 - **_nbit.py**: Componente del sistema.
 - **homomorphisms.py**: Componente del sistema.
@@ -1296,6 +1312,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **binary_cmp.py**: Componente del sistema.
 - **guest_task_1790984823324.py**: Componente del sistema.
 - **hook-dynaconf.py**: Componente del sistema.
+- **_staggered.py**: Componente del sistema.
 - **_decomp_cholesky.py**: Componente del sistema.
 - **image_processing_pil_deit.py**: Componente del sistema.
 - **cluster.py**: Componente del sistema.
@@ -1321,6 +1338,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **ImagePalette.py**: Componente del sistema.
 - **hook-google.cloud.translate.py**: Componente del sistema.
 - **hook-sklearn.cluster.py**: Componente del sistema.
+- **backend_template.py**: Componente del sistema.
 - **S_T_A_T_.py**: Componente del sistema.
 - **hook-PyQt6.QtQuick3D.py**: Componente del sistema.
 - **backend.py**: Componente del sistema.
@@ -1415,6 +1433,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **grid_finder.py**: Componente del sistema.
 - **_locales.py**: Componente del sistema.
 - **mio5_utils.py**: Componente del sistema.
+- **backend_gtk4agg.py**: Componente del sistema.
 - **hook-uuid6.py**: Componente del sistema.
 - **build_tracker.py**: Componente del sistema.
 - **modular_wav2vec2_conformer.py**: Componente del sistema.
@@ -1431,6 +1450,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **spherical_harmonics.py**: Componente del sistema.
 - **_stack.py**: Componente del sistema.
 - **metadata_editable.py**: Componente del sistema.
+- **bokeh_renderer.py**: Componente del sistema.
 - **hook-vtkmodules.vtkFiltersFlowPaths.py**: Componente del sistema.
 - **eexec.py**: Componente del sistema.
 - **tardis_safety_app.py**: Componente del sistema.
@@ -1442,6 +1462,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **hook-ffpyplayer.py**: Componente del sistema.
 - **ImageText.py**: Componente del sistema.
 - **modulegraph.py**: Componente del sistema.
+- **_typing_extra.py**: Componente del sistema.
 - **hook-vtkmodules.vtkFiltersGeneric.py**: Componente del sistema.
 - **image_processing_pil_glm46v.py**: Componente del sistema.
 - **rmsnorm_impl.py**: Componente del sistema.
@@ -1514,6 +1535,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **hook-flask_restx.py**: Componente del sistema.
 - **hook-wx.xrc.py**: Componente del sistema.
 - **decompositions.py**: Componente del sistema.
+- **_animation_data.py**: Componente del sistema.
 - **pdf_processor.py**: Componente del sistema.
 - **modular_modernvbert.py**: Componente del sistema.
 - **autoheuristic_utils.py**: Componente del sistema.
@@ -1535,6 +1557,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **custom_op_db.py**: Componente del sistema.
 - **pyi_rth_pyqt5.py**: Componente del sistema.
 - **hook-PyQt6.QtWebSockets.py**: Componente del sistema.
+- **unicode17-0-0.py**: Componente del sistema.
 - **region_MY.py**: Componente del sistema.
 - **_fitpack_py.py**: Componente del sistema.
 - **modeling_switch_transformers.py**: Componente del sistema.
@@ -1605,6 +1628,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **ruletest5.py**: Componente del sistema.
 - **input.py**: Componente del sistema.
 - **recurrences.py**: Componente del sistema.
+- **backend_qt.py**: Componente del sistema.
 - **_main.py**: Componente del sistema.
 - **randr.py**: Componente del sistema.
 - **hook-langchain_classic.py**: Componente del sistema.
@@ -1632,6 +1656,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **networksimplex.py**: Componente del sistema.
 - **densearith.py**: Componente del sistema.
 - **rv_interface.py**: Componente del sistema.
+- **jsuint8array.py**: Componente del sistema.
 - **sources.py**: Componente del sistema.
 - **hook-pywintypes.py**: Componente del sistema.
 - **_pick.py**: Componente del sistema.
@@ -1692,6 +1717,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **hook-astor.py**: Componente del sistema.
 - **modular_sapiens2.py**: Componente del sistema.
 - **format_control.py**: Componente del sistema.
+- **ansi_test.py**: Componente del sistema.
 - **button_orchestrator.py**: Núcleo de orquestación y control temporal/espacial.
 - **hook-scrapy.py**: Componente del sistema.
 - **modeling_rwkv.py**: Componente del sistema.
@@ -1786,6 +1812,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **image_processing_owlvit.py**: Componente del sistema.
 - **_decomp_qr.py**: Componente del sistema.
 - **modules.py**: Componente del sistema.
+- **colorbar.py**: Componente del sistema.
 - **_l_o_c_a.py**: Componente del sistema.
 - **hook-fckitlib.py**: Componente del sistema.
 - **modeling_modernbert.py**: Componente del sistema.
@@ -1882,6 +1909,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **processing_gemma4.py**: Componente del sistema.
 - **cpp_wrapper_mps.py**: Componente del sistema.
 - **quantities.py**: Componente del sistema.
+- **jsstring.py**: Componente del sistema.
 - **polyclasses.py**: Componente del sistema.
 - **conflict.py**: Componente del sistema.
 - **code.py**: Componente del sistema.
@@ -2020,6 +2048,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **region_CU.py**: Componente del sistema.
 - **hook-vtkmodules.vtkInfovisCore.py**: Componente del sistema.
 - **atmospheric_sensor.py**: Sistema de telemetría y percepción del entorno físico/RF.
+- **gi.py**: Componente del sistema.
 - **ring.py**: Componente del sistema.
 - **_imp_emulation.py**: Componente del sistema.
 - **image_processing_pil_gemma4.py**: Componente del sistema.
@@ -2225,6 +2254,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **async_copy.py**: Componente del sistema.
 - **_remove_redundancy.py**: Componente del sistema.
 - **hook-fvcore.nn.py**: Núcleo de orquestación y control temporal/espacial.
+- **_triinterpolate.py**: Componente del sistema.
 - **hook-distorm3.py**: Componente del sistema.
 - **_milp.py**: Componente del sistema.
 - **hook-PyQt5.QtSerialPort.py**: Componente del sistema.
@@ -2333,6 +2363,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **quasirandom.py**: Componente del sistema.
 - **gia_web_server.py**: Componente del sistema.
 - **selectx.py**: Componente del sistema.
+- **_tracing.py**: Componente del sistema.
 - **mock_backend.py**: Componente del sistema.
 - **trace.py**: Componente del sistema.
 - **cxx.py**: Componente del sistema.
@@ -2643,12 +2674,14 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **modular_fun_asr_nano.py**: Componente del sistema.
 - **_op_schema.py**: Componente del sistema.
 - **wrapping_geometry.py**: Componente del sistema.
+- **vode.py**: Componente del sistema.
 - **hook-PySide2.QtWebEngine.py**: Componente del sistema.
 - **enum_type_wrapper.py**: Componente del sistema.
 - **_ordered_set.py**: Componente del sistema.
 - **percolation.py**: Componente del sistema.
 - **_writers.py**: Componente del sistema.
 - **_funm_multiply_krylov.py**: Componente del sistema.
+- **backend_gtk4cairo.py**: Componente del sistema.
 - **region_LS.py**: Componente del sistema.
 - **hook-xml.sax.saxexts.py**: Componente del sistema.
 - **modular_eurobert.py**: Componente del sistema.
@@ -2656,9 +2689,11 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **hook-z3c.rml.py**: Componente del sistema.
 - **tz.py**: Componente del sistema.
 - **hook-PySide2.QtNetwork.py**: Componente del sistema.
+- **_pssunos.py**: Componente del sistema.
 - **_twodim_base_impl.py**: Componente del sistema.
 - **hook-moviepy.video.fx.all.py**: Componente del sistema.
 - **hook-unidecode.py**: Componente del sistema.
+- **image.py**: Componente del sistema.
 - **conftest.py**: Componente del sistema.
 - **modeling_pix2struct.py**: Componente del sistema.
 - **hook-migrate.py**: Componente del sistema.
@@ -2767,6 +2802,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **abag.py**: Componente del sistema.
 - **alt_format_62.py**: Componente del sistema.
 - **hook-gtk.py**: Componente del sistema.
+- **archive_viewer.py**: Componente del sistema.
 - **hook-vtkmodules.vtkRenderingLOD.py**: Componente del sistema.
 - **data_parallel.py**: Componente del sistema.
 - **video_processing_video_llama_3.py**: Componente del sistema.
@@ -2800,6 +2836,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **internet_as_graphs.py**: Componente del sistema.
 - **modeling_oneformer.py**: Componente del sistema.
 - **hook-pyexcel-odsr.py**: Componente del sistema.
+- **win32_playback.py**: Componente del sistema.
 - **futils.py**: Componente del sistema.
 - **tensor_setattr.py**: Componente del sistema.
 - **_compile_worker.py**: Componente del sistema.
@@ -2858,7 +2895,9 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **_inference_endpoints.py**: Componente del sistema.
 - **conv_relu.py**: Componente del sistema.
 - **hook-PySide6.QtQuickWidgets.py**: Componente del sistema.
+- **signer.py**: Componente del sistema.
 - **inverse.py**: Componente del sistema.
+- **unicode5-2-0.py**: Componente del sistema.
 - **G__l_o_c.py**: Componente del sistema.
 - **lib_interval.py**: Componente del sistema.
 - **image_processing_utils.py**: Componente del sistema.
@@ -2866,6 +2905,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **modeling_voxtral.py**: Componente del sistema.
 - **libdevice.py**: Componente del sistema.
 - **hook-PyQt5.QtOpenGL.py**: Componente del sistema.
+- **xlib.py**: Componente del sistema.
 - **tracemalloc.py**: Componente del sistema.
 - **encoders.py**: Componente del sistema.
 - **serve.py**: Componente del sistema.
@@ -2906,6 +2946,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **image_processing_nemotron_h_omni.py**: Componente del sistema.
 - **find_file_dependencies.py**: Componente del sistema.
 - **filesize.py**: Componente del sistema.
+- **scale.py**: Componente del sistema.
 - **xf86.py**: Componente del sistema.
 - **hook-customtkinter.py**: Componente del sistema.
 - **deprecated_cli.py**: Componente del sistema.
@@ -2913,6 +2954,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **BufrStubImagePlugin.py**: Componente del sistema.
 - **ImageColor.py**: Componente del sistema.
 - **integrals.py**: Componente del sistema.
+- **_import_utils.py**: Componente del sistema.
 - **ImageTransform.py**: Componente del sistema.
 - **processing_speech_to_text.py**: Componente del sistema.
 - **typing_extensions.py**: Componente del sistema.
@@ -3040,6 +3082,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **bench_matrix.py**: Componente del sistema.
 - **data20.py**: Componente del sistema.
 - **SgiImagePlugin.py**: Componente del sistema.
+- **character.py**: Componente del sistema.
 - **hook-autocommand.py**: Componente del sistema.
 - **graphs.py**: Componente del sistema.
 - **region_NA.py**: Componente del sistema.
@@ -3138,6 +3181,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **optimization.py**: Componente del sistema.
 - **_fortran.py**: Componente del sistema.
 - **hook-trame_tweakpane.py**: Componente del sistema.
+- **_mathtext.py**: Componente del sistema.
 - **testTools.py**: Componente del sistema.
 - **variadic.py**: Componente del sistema.
 - **_util.py**: Componente del sistema.
@@ -3146,6 +3190,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **modeling_deimv2.py**: Componente del sistema.
 - **region_AC.py**: Componente del sistema.
 - **operatorordering.py**: Componente del sistema.
+- **pyjs.py**: Componente del sistema.
 - **ndarray_conversion.py**: Componente del sistema.
 - **alt_format_385.py**: Componente del sistema.
 - **xpreformatted.py**: Componente del sistema.
@@ -3177,6 +3222,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **kclique.py**: Componente del sistema.
 - **structuralholes.py**: Componente del sistema.
 - **orienters.py**: Componente del sistema.
+- **legend.py**: Componente del sistema.
 - **hook-gi.repository.GstNet.py**: Componente del sistema.
 - **modeling_led.py**: Componente del sistema.
 - **_openssl.py**: Componente del sistema.
@@ -3247,6 +3293,8 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **srt_composer.py**: Componente del sistema.
 - **image_processing_gemma4_unified.py**: Componente del sistema.
 - **sputils.py**: Componente del sistema.
+- **std_nodes.py**: Componente del sistema.
+- **_triplot.py**: Componente del sistema.
 - **stash.py**: Componente del sistema.
 - **modeling_layers.py**: Componente del sistema.
 - **X.py**: Componente del sistema.
@@ -3273,6 +3321,8 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **processing_musicgen.py**: Componente del sistema.
 - **modular_qwen3_asr.py**: Componente del sistema.
 - **use_rules.py**: Componente del sistema.
+- **annotated_types.py**: Componente del sistema.
+- **_forward_ref.py**: Componente del sistema.
 - **network_controller.py**: Componente del sistema.
 - **modeling_layoutlmv3.py**: Componente del sistema.
 - **gemm_sm100.py**: Componente del sistema.
@@ -3298,6 +3348,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **laplacian.py**: Componente del sistema.
 - **hb.py**: Componente del sistema.
 - **region_TA.py**: Componente del sistema.
+- **gen.py**: Componente del sistema.
 - **PdfImagePlugin.py**: Componente del sistema.
 - **_lazyimport.py**: Componente del sistema.
 - **run.py**: Componente del sistema.
@@ -3366,6 +3417,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **categorical.py**: Componente del sistema.
 - **modeling_qwen4_exp.py**: Componente del sistema.
 - **psOperators.py**: Componente del sistema.
+- **figureoptions.py**: Componente del sistema.
 - **expn_asy.py**: Componente del sistema.
 - **modeling_mm_grounding_dino.py**: Componente del sistema.
 - **hook-msoffcrypto.py**: Componente del sistema.
@@ -3443,6 +3495,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **interpolatable.py**: Componente del sistema.
 - **hook-Crypto.py**: Componente del sistema.
 - **hook-nbdime.py**: Componente del sistema.
+- **legend_handler.py**: Componente del sistema.
 - **exceptions.py**: Componente del sistema.
 - **generation_csm.py**: Componente del sistema.
 - **hook-trimesh.py**: Componente del sistema.
@@ -3468,7 +3521,9 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **wrappers_pb2.py**: Componente del sistema.
 - **rpc_utils.py**: Componente del sistema.
 - **refine.py**: Componente del sistema.
+- **polar.py**: Componente del sistema.
 - **abstract_nodes.py**: Componente del sistema.
+- **_hypothesis_plugin.py**: Componente del sistema.
 - **blockmatrix.py**: Componente del sistema.
 - **fr_trace.py**: Componente del sistema.
 - **old_polynomialring.py**: Componente del sistema.
@@ -3617,6 +3672,8 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **_exception_handler.py**: Componente del sistema.
 - **constructors.py**: Componente del sistema.
 - **_sockets.py**: Componente del sistema.
+- **_formlayout.py**: Componente del sistema.
+- **compare.py**: Componente del sistema.
 - **hook-radicale.py**: Componente del sistema.
 - **verification.py**: Componente del sistema.
 - **hook-anyio.py**: Componente del sistema.
@@ -3798,6 +3855,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **region_US.py**: Componente del sistema.
 - **puiseux.py**: Componente del sistema.
 - **hook-celpy.py**: Componente del sistema.
+- **figmpl_directive.py**: Componente del sistema.
 - **inverselaplace.py**: Componente del sistema.
 - **code39.py**: Componente del sistema.
 - **_tnc.py**: Componente del sistema.
@@ -3965,6 +4023,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **layout_utils.py**: Componente del sistema.
 - **show_pickle.py**: Componente del sistema.
 - **hook-boto3.py**: Componente del sistema.
+- **jsregexp.py**: Componente del sistema.
 - **variables.py**: Componente del sistema.
 - **faster_whisper.py**: Componente del sistema.
 - **hook-pynng.py**: Componente del sistema.
@@ -3990,6 +4049,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **_deprecation_warning.py**: Componente del sistema.
 - **terminal_camera_hub.py**: Componente del sistema.
 - **featureVars.py**: Componente del sistema.
+- **initialise.py**: Componente del sistema.
 - **WAMediaEntryData_pb2.py**: Componente del sistema.
 - **patheffects.py**: Componente del sistema.
 - **fuse_modules.py**: Componente del sistema.
@@ -4029,6 +4089,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **ansitowin32_test.py**: Componente del sistema.
 - **modeling_vitmatte.py**: Componente del sistema.
 - **check.py**: Componente del sistema.
+- **artist.py**: Componente del sistema.
 - **region_FM.py**: Componente del sistema.
 - **modular_deepseek_v32.py**: Componente del sistema.
 - **_noop.py**: Componente del sistema.
@@ -4170,6 +4231,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **ticker.py**: Componente del sistema.
 - **_interpolate.py**: Componente del sistema.
 - **sho.py**: Componente del sistema.
+- **pyplot.py**: Componente del sistema.
 - **permutations.py**: Componente del sistema.
 - **cpp_extension.py**: Componente del sistema.
 - **modeling_pixio.py**: Componente del sistema.
@@ -4187,6 +4249,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **generation_esmfold2.py**: Componente del sistema.
 - **audio.py**: Componente del sistema.
 - **_fontdata_enc_pdfdoc.py**: Componente del sistema.
+- **testclient.py**: Componente del sistema.
 - **hook-pydantic.py**: Componente del sistema.
 - **V_A_R_C_.py**: Componente del sistema.
 - **search.py**: Componente del sistema.
@@ -4286,6 +4349,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **winterm_test.py**: Componente del sistema.
 - **adadelta.py**: Componente del sistema.
 - **signsandsymbols.py**: Componente del sistema.
+- **jsjson.py**: Componente del sistema.
 - **_argcomplete.py**: Componente del sistema.
 - **statNames.py**: Componente del sistema.
 - **numerical.py**: Componente del sistema.
@@ -4359,6 +4423,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **any_pb2.py**: Componente del sistema.
 - **toperators.py**: Componente del sistema.
 - **simplex.py**: Componente del sistema.
+- **backend_cairo.py**: Componente del sistema.
 - **hook-zoneinfo.py**: Componente del sistema.
 - **modularity_max.py**: Componente del sistema.
 - **proxy.py**: Componente del sistema.
@@ -4411,6 +4476,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **modeling_perception_lm.py**: Componente del sistema.
 - **iterables.py**: Componente del sistema.
 - **hook-toga_winforms.py**: Componente del sistema.
+- **pyjsparserdata.py**: Componente del sistema.
 - **dmtx.py**: Componente del sistema.
 - **debugging_hooks.py**: Componente del sistema.
 - **modeling_maskformer_swin.py**: Componente del sistema.
@@ -4440,6 +4506,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **modeling_big_bird.py**: Componente del sistema.
 - **ufo.py**: Componente del sistema.
 - **hook-cf_units.py**: Componente del sistema.
+- **_repr.py**: Componente del sistema.
 - **hook-gi.repository.GstGLX11.py**: Componente del sistema.
 - **osx.py**: Componente del sistema.
 - **region_KP.py**: Componente del sistema.
@@ -4452,6 +4519,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **_spec_binding.py**: Componente del sistema.
 - **_oauth_device.py**: Componente del sistema.
 - **runtests.py**: Componente del sistema.
+- **backend_wxcairo.py**: Componente del sistema.
 - **_support_alternative_backends.py**: Componente del sistema.
 - **hook-chardet.py**: Componente del sistema.
 - **latex_parser.py**: Componente del sistema.
@@ -4465,6 +4533,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **deltafunctions.py**: Componente del sistema.
 - **modular_ovis2.py**: Componente del sistema.
 - **multicol.py**: Componente del sistema.
+- **mpl_renderer.py**: Componente del sistema.
 - **plot_implicit.py**: Componente del sistema.
 - **hook-gooey.py**: Componente del sistema.
 - **generic.py**: Componente del sistema.
@@ -4542,7 +4611,9 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **modular_qwen3_next.py**: Componente del sistema.
 - **_sfdp_pattern_4.py**: Componente del sistema.
 - **writers.py**: Componente del sistema.
+- **StrConverter.py**: Componente del sistema.
 - **ImageStat.py**: Componente del sistema.
+- **annotated_handlers.py**: Componente del sistema.
 - **singularity_functions.py**: Componente del sistema.
 - **jupyter.py**: Componente del sistema.
 - **hook-gi.repository.GtkChamplain.py**: Componente del sistema.
@@ -4577,6 +4648,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **cpp_bmm_template.py**: Componente del sistema.
 - **_markers.py**: Componente del sistema.
 - **ttfonts.py**: Componente del sistema.
+- **open_id_connect_url.py**: Componente del sistema.
 - **pyinstaller-smoke.py**: Componente del sistema.
 - **modeling_wav2vec2_bert.py**: Componente del sistema.
 - **hook-aliyunsdkcore.py**: Núcleo de orquestación y control temporal/espacial.
@@ -4594,6 +4666,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **_cidfontdata.py**: Componente del sistema.
 - **jointsmethod.py**: Componente del sistema.
 - **phonenumber.py**: Componente del sistema.
+- **jsarraybuffer.py**: Componente del sistema.
 - **elliptic.py**: Componente del sistema.
 - **processing_lasr.py**: Componente del sistema.
 - **_async_compile.py**: Componente del sistema.
@@ -4643,6 +4716,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **modeling_openai.py**: Componente del sistema.
 - **unittest.py**: Componente del sistema.
 - **equality.py**: Componente del sistema.
+- **_tanhsinh.py**: Componente del sistema.
 - **pythonrational.py**: Componente del sistema.
 - **compile_command.py**: Componente del sistema.
 - **await_utils.py**: Componente del sistema.
@@ -4668,6 +4742,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **cells.py**: Componente del sistema.
 - **modular_ijepa.py**: Componente del sistema.
 - **hook-gi.repository.Champlain.py**: Componente del sistema.
+- **jsuint16array.py**: Componente del sistema.
 - **kdtree.py**: Componente del sistema.
 - **terminalwriter.py**: Componente del sistema.
 - **alphabets.py**: Componente del sistema.
@@ -4780,6 +4855,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **region_ZA.py**: Componente del sistema.
 - **_pass.py**: Componente del sistema.
 - **data12.py**: Componente del sistema.
+- **objects.py**: Componente del sistema.
 - **hook-ttkthemes.py**: Componente del sistema.
 - **modular_voxtral.py**: Componente del sistema.
 - **_cli_hacks.py**: Componente del sistema.
@@ -4822,6 +4898,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **hook-PyQt6.QtBluetooth.py**: Componente del sistema.
 - **parametrizations.py**: Componente del sistema.
 - **dimensions.py**: Componente del sistema.
+- **trustedhost.py**: Componente del sistema.
 - **pager.py**: Componente del sistema.
 - **modeling_openai_privacy_filter.py**: Componente del sistema.
 - **flags.py**: Componente del sistema.
@@ -5018,6 +5095,8 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **hook-PySide6.QtRemoteObjects.py**: Componente del sistema.
 - **protein_utils.py**: Componente del sistema.
 - **hook-PySide2.QtDataVisualization.py**: Componente del sistema.
+- **root_model.py**: Componente del sistema.
+- **docs.py**: Componente del sistema.
 - **bench_solvers.py**: Componente del sistema.
 - **hook-av.py**: Componente del sistema.
 - **hook-pynput.py**: Componente del sistema.
@@ -5042,6 +5121,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **tableform.py**: Componente del sistema.
 - **_math.py**: Componente del sistema.
 - **hook-PyQt6.Qt3DInput.py**: Componente del sistema.
+- **_decorators_v1.py**: Componente del sistema.
 - **region_VA.py**: Componente del sistema.
 - **timestamp_pb2.py**: Componente del sistema.
 - **PcdImagePlugin.py**: Componente del sistema.
@@ -5055,6 +5135,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **gods_eye_engine.py**: Componente del sistema.
 - **_dtype_like.py**: Componente del sistema.
 - **http_writer.py**: Componente del sistema.
+- **responses.py**: Componente del sistema.
 - **_b_d_a_t.py**: Componente del sistema.
 - **modular_gemma3.py**: Componente del sistema.
 - **_fsdp_param_group.py**: Componente del sistema.
@@ -5121,6 +5202,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **object_detection.py**: Componente del sistema.
 - **compile_fx_async.py**: Componente del sistema.
 - **activate_this.py**: Componente del sistema.
+- **bezier.py**: Componente del sistema.
 - **linecharts.py**: Componente del sistema.
 - **image_processing_pil_layoutlmv2.py**: Componente del sistema.
 - **context.py**: Componente del sistema.
@@ -5160,6 +5242,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **dummy_mistral_common_objects.py**: Componente del sistema.
 - **edmondskarp.py**: Componente del sistema.
 - **normalforms.py**: Componente del sistema.
+- **jstypedarray.py**: Componente del sistema.
 - **hook-vtkmodules.vtkIOOggTheora.py**: Componente del sistema.
 - **modeling_bert.py**: Componente del sistema.
 - **hook-vtkmodules.vtkRenderingLabel.py**: Componente del sistema.
@@ -5174,6 +5257,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **hook-datasets.py**: Componente del sistema.
 - **novita.py**: Componente del sistema.
 - **polynomialring.py**: Componente del sistema.
+- **dviread.py**: Componente del sistema.
 - **pygments2xpre.py**: Componente del sistema.
 - **box.py**: Componente del sistema.
 - **bazaar.py**: Componente del sistema.
@@ -5347,6 +5431,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **_fontdata_widths_courier.py**: Componente del sistema.
 - **audio_utils.py**: Componente del sistema.
 - **hook-PyQt6.QtCharts.py**: Componente del sistema.
+- **_tricontour.py**: Componente del sistema.
 - **determinant.py**: Componente del sistema.
 - **testing_utils.py**: Componente del sistema.
 - **_g_c_i_d.py**: Componente del sistema.
@@ -5541,6 +5626,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **hook-vtkmodules.vtkIOMotionFX.py**: Componente del sistema.
 - **modeling_pp_lcnet_v4.py**: Componente del sistema.
 - **infos.py**: Componente del sistema.
+- **requests.py**: Componente del sistema.
 - **hook-vtkmodules.vtkIOVeraOut.py**: Componente del sistema.
 - **_validators.py**: Componente del sistema.
 - **image_processing_pvt.py**: Componente del sistema.
@@ -5565,6 +5651,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **_envvar.py**: Componente del sistema.
 - **_style_helpers.py**: Componente del sistema.
 - **traffic_monitor.py**: Componente del sistema.
+- **translator.py**: Componente del sistema.
 - **ImageDraw.py**: Componente del sistema.
 - **nonlin.py**: Componente del sistema.
 - **quantizer_finegrained_fp8.py**: Componente del sistema.
@@ -5612,6 +5699,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **modeling_imagegpt.py**: Componente del sistema.
 - **six.py**: Componente del sistema.
 - **screen.py**: Componente del sistema.
+- **_psposix.py**: Componente del sistema.
 - **sqrtdenest.py**: Componente del sistema.
 - **__init__.py**: Componente del sistema.
 - **linalg.py**: Componente del sistema.
@@ -5689,8 +5777,10 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **_sfdp_pattern_14.py**: Componente del sistema.
 - **hook-pyttsx3.py**: Componente del sistema.
 - **req_command.py**: Componente del sistema.
+- **jserror.py**: Componente del sistema.
 - **_discrete_distns.py**: Componente del sistema.
 - **alt_format_64.py**: Componente del sistema.
+- **cm.py**: Componente del sistema.
 - **structs.py**: Componente del sistema.
 - **unsupported_operator.py**: Componente del sistema.
 - **rendezvous.py**: Componente del sistema.
@@ -5704,9 +5794,11 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **TarIO.py**: Componente del sistema.
 - **event.py**: Componente del sistema.
 - **hook-vtkmodules.vtkDomainsChemistryOpenGL2.py**: Componente del sistema.
+- **_versions.py**: Componente del sistema.
 - **_info.py**: Componente del sistema.
 - **recurr.py**: Componente del sistema.
 - **region_CK.py**: Componente del sistema.
+- **backend_svg.py**: Componente del sistema.
 - **_ccallback.py**: Componente del sistema.
 - **modular_nemotron3_diarization.py**: Componente del sistema.
 - **authentication.py**: Componente del sistema.
@@ -5716,6 +5808,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **relaxed_categorical.py**: Componente del sistema.
 - **qnnpack.py**: Componente del sistema.
 - **hook-passlib.py**: Componente del sistema.
+- **dop853_coefficients.py**: Componente del sistema.
 - **_fftlog_backend.py**: Componente del sistema.
 - **hook-django.py**: Componente del sistema.
 - **processing_sam3_video.py**: Componente del sistema.
@@ -5769,6 +5862,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **hook-vtkmodules.vtkTestingRendering.py**: Componente del sistema.
 - **awq.py**: Componente del sistema.
 - **mock.py**: Componente del sistema.
+- **_git.py**: Componente del sistema.
 - **misc.py**: Componente del sistema.
 - **init.py**: Componente del sistema.
 - **unicode13-0-0.py**: Componente del sistema.
@@ -5811,6 +5905,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **hook-PySide6.QtAxContainer.py**: Componente del sistema.
 - **_orthogonal.py**: Componente del sistema.
 - **_array_like.py**: Componente del sistema.
+- **array.py**: Componente del sistema.
 - **hook-PyQt6.QtWebChannel.py**: Componente del sistema.
 - **pad_mm.py**: Componente del sistema.
 - **linear_relu.py**: Componente del sistema.
@@ -5868,6 +5963,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **direct_url_helpers.py**: Componente del sistema.
 - **hook-apscheduler.py**: Componente del sistema.
 - **activation.py**: Componente del sistema.
+- **_afm.py**: Componente del sistema.
 - **constructor.py**: Componente del sistema.
 - **tardis_kaiju_pocket_engine.py**: Componente del sistema.
 - **reference_distributions.py**: Componente del sistema.
@@ -5878,6 +5974,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **image_processing_pil_layoutlmv3.py**: Componente del sistema.
 - **modeling_glm4.py**: Componente del sistema.
 - **region_BR.py**: Componente del sistema.
+- **handshake.py**: Componente del sistema.
 - **region_MP.py**: Componente del sistema.
 - **api_pb2.py**: Componente del sistema.
 - **vengine_cpy.py**: Componente del sistema.
@@ -6000,6 +6097,8 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **gen_view_funcs.py**: Componente del sistema.
 - **modeling_fast_vlm.py**: Componente del sistema.
 - **hook-PySide2.QtOpenGL.py**: Componente del sistema.
+- **arguments_schema.py**: Componente del sistema.
+- **body_limit.py**: Componente del sistema.
 - **region_NG.py**: Componente del sistema.
 - **hook-PySide2.QtWebEngineCore.py**: Componente del sistema.
 - **embedding.py**: Componente del sistema.
@@ -6164,6 +6263,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **modeling_audioflamingo3.py**: Componente del sistema.
 - **region_VN.py**: Componente del sistema.
 - **plot_window.py**: Componente del sistema.
+- **dataclasses.py**: Componente del sistema.
 - **renderPS.py**: Componente del sistema.
 - **modeling_mistral.py**: Componente del sistema.
 - **hook-timm.py**: Componente del sistema.
@@ -6186,6 +6286,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **_ops.py**: Componente del sistema.
 - **hook-pypylon.py**: Componente del sistema.
 - **printer.py**: Componente del sistema.
+- **crypto_js.py**: Componente del sistema.
 - **special_matrices.py**: Componente del sistema.
 - **image_processing_rt_detr.py**: Componente del sistema.
 - **_crosstab.py**: Componente del sistema.
@@ -6219,6 +6320,8 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **actuator.py**: Componente del sistema.
 - **heurisch.py**: Componente del sistema.
 - **resolution.py**: Componente del sistema.
+- **backend_qt5.py**: Componente del sistema.
+- **xshmgetimage.py**: Componente del sistema.
 - **hook-notebook.py**: Componente del sistema.
 - **hook-scipy.linalg.py**: Componente del sistema.
 - **hook-PyQt5.QtNetworkAuth.py**: Componente del sistema.
@@ -6262,6 +6365,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **hook-PyQt6.QtXml.py**: Componente del sistema.
 - **_client.py**: Componente del sistema.
 - **functions.py**: Componente del sistema.
+- **_docs_extraction.py**: Componente del sistema.
 - **realfield.py**: Componente del sistema.
 - **_runtime_estimation.py**: Componente del sistema.
 - **mixture_same_family.py**: Componente del sistema.
@@ -6290,6 +6394,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **hook-PySide2.QtQuick.py**: Componente del sistema.
 - **from_matrix_to_array.py**: Componente del sistema.
 - **auto.py**: Componente del sistema.
+- **_type1font.py**: Componente del sistema.
 - **__meta__.py**: Componente del sistema.
 - **_numdiff.py**: Componente del sistema.
 - **tables.py**: Componente del sistema.
@@ -6322,6 +6427,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **tensorrt.py**: Componente del sistema.
 - **network_shield.py**: Componente del sistema.
 - **alt_format_49.py**: Componente del sistema.
+- **quiver.py**: Componente del sistema.
 - **cffi_opcode.py**: Componente del sistema.
 - **region_NF.py**: Componente del sistema.
 - **modeling_speecht5.py**: Componente del sistema.
@@ -6510,6 +6616,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **modeling_falcon_mamba.py**: Componente del sistema.
 - **cocoaPen.py**: Componente del sistema.
 - **thai.py**: Componente del sistema.
+- **websockets.py**: Componente del sistema.
 - **T_S_I_S_.py**: Componente del sistema.
 - **hook-PyQt5.QtNfc.py**: Componente del sistema.
 - **hook-xmlschema.py**: Componente del sistema.
@@ -6533,6 +6640,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **commutator.py**: Componente del sistema.
 - **guest_task_1791161708388.py**: Componente del sistema.
 - **_typedattr.py**: Componente del sistema.
+- **_cm.py**: Componente del sistema.
 - **hook-PySide2.QtConcurrent.py**: Componente del sistema.
 - **signals.py**: Componente del sistema.
 - **pynodes.py**: Componente del sistema.
@@ -6559,6 +6667,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **processing_csm.py**: Componente del sistema.
 - **widgets.py**: Componente del sistema.
 - **hook-nltk.py**: Componente del sistema.
+- **_trifinder.py**: Componente del sistema.
 - **noop.py**: Componente del sistema.
 - **remote_module_test.py**: Componente del sistema.
 - **_distributor_init.py**: Componente del sistema.
@@ -6580,6 +6689,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **type_a.py**: Componente del sistema.
 - **hook-rpy2.py**: Componente del sistema.
 - **settings.py**: Componente del sistema.
+- **texmanager.py**: Componente del sistema.
 - **websockets_sansio_impl.py**: Componente del sistema.
 - **bench_special.py**: Componente del sistema.
 - **von_mises.py**: Componente del sistema.
@@ -6619,6 +6729,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **mrecords.py**: Componente del sistema.
 - **preview.py**: Componente del sistema.
 - **integerring.py**: Componente del sistema.
+- **_url.py**: Componente del sistema.
 - **relational.py**: Componente del sistema.
 - **setupplan.py**: Componente del sistema.
 - **processing_udop.py**: Componente del sistema.
@@ -6710,6 +6821,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **image_processing_pil_prompt_depth_anything.py**: Componente del sistema.
 - **modular_t5gemma2.py**: Componente del sistema.
 - **_mio.py**: Componente del sistema.
+- **unicode6-0-0.py**: Componente del sistema.
 - **tfqmr.py**: Componente del sistema.
 - **core_schema.py**: Núcleo de orquestación y control temporal/espacial.
 - **hook-duckdb.py**: Componente del sistema.
@@ -6773,6 +6885,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **stage.py**: Componente del sistema.
 - **wcwidth.py**: Componente del sistema.
 - **region_AT.py**: Componente del sistema.
+- **_testbase.py**: Componente del sistema.
 - **_decomp_lu.py**: Componente del sistema.
 - **width.py**: Componente del sistema.
 - **lower_to_qnnpack.py**: Componente del sistema.
@@ -7482,6 +7595,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **modular_video_llama_3.py**: Componente del sistema.
 - **rn.py**: Componente del sistema.
 - **_events.py**: Componente del sistema.
+- **api_jwt.py**: Componente del sistema.
 - **region_MC.py**: Componente del sistema.
 - **python_tracer.py**: Componente del sistema.
 - **_cse_diff.py**: Componente del sistema.
@@ -7490,6 +7604,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **modeling_efficientloftr.py**: Componente del sistema.
 - **hook-pkg_resources.py**: Componente del sistema.
 - **hook-gi.repository.GdkPixbuf.py**: Componente del sistema.
+- **jsobject.py**: Componente del sistema.
 - **hook-trame_vtk3d.py**: Componente del sistema.
 - **hook-gi.repository.GstController.py**: Componente del sistema.
 - **region_TL.py**: Componente del sistema.
@@ -7499,6 +7614,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **greedy_coloring.py**: Componente del sistema.
 - **modeling_qwen3_moe.py**: Componente del sistema.
 - **bench_basic.py**: Componente del sistema.
+- **jsfunction.py**: Componente del sistema.
 - **hook-vtkmodules.vtkImagingFourier.py**: Componente del sistema.
 - **ctx_base.py**: Componente del sistema.
 - **graphviews.py**: Componente del sistema.
@@ -7625,6 +7741,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **processing_voxtral.py**: Componente del sistema.
 - **_elementwise.py**: Componente del sistema.
 - **_bunch.py**: Componente del sistema.
+- **missing_sentinel.py**: Componente del sistema.
 - **rref.py**: Componente del sistema.
 - **polymatrix.py**: Componente del sistema.
 - **pytorch_utils.py**: Componente del sistema.
@@ -7672,6 +7789,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **processing_granite_speech.py**: Componente del sistema.
 - **container.py**: Componente del sistema.
 - **data26.py**: Componente del sistema.
+- **layout_engine.py**: Componente del sistema.
 - **hook-vtkmodules.vtkFiltersHybrid.py**: Componente del sistema.
 - **SpiderImagePlugin.py**: Componente del sistema.
 - **http_proxy.py**: Componente del sistema.
@@ -7679,6 +7797,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **driver_info.py**: Componente del sistema.
 - **_max_len_seq.py**: Componente del sistema.
 - **hook-sentry_sdk.py**: Componente del sistema.
+- **cors.py**: Componente del sistema.
 - **nodes.py**: Componente del sistema.
 - **_internal.py**: Componente del sistema.
 - **copy.py**: Componente del sistema.
@@ -7714,6 +7833,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **hook-bcrypt.py**: Componente del sistema.
 - **graph_module.py**: Componente del sistema.
 - **region_878.py**: Componente del sistema.
+- **jsboolean.py**: Componente del sistema.
 - **rings.py**: Componente del sistema.
 - **_hessian_update_strategy.py**: Componente del sistema.
 - **hook-vtkmodules.vtkIOPLY.py**: Componente del sistema.
@@ -7835,6 +7955,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **tls.py**: Componente del sistema.
 - **candidates.py**: Componente del sistema.
 - **_byteordercodes.py**: Componente del sistema.
+- **backend_tkcairo.py**: Componente del sistema.
 - **hook-gi.repository.Soup.py**: Componente del sistema.
 - **symbolic_opset15.py**: Componente del sistema.
 - **_backward.py**: Componente del sistema.
@@ -7974,6 +8095,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **boson.py**: Componente del sistema.
 - **modeling_mobilebert.py**: Componente del sistema.
 - **compound_rv.py**: Componente del sistema.
+- **textpath.py**: Componente del sistema.
 - **hook-timezonefinder_data.py**: Componente del sistema.
 - **rule.py**: Componente del sistema.
 - **decompositions_for_rng.py**: Componente del sistema.
@@ -8016,6 +8138,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **hook-urllib3.packages.six.moves.py**: Componente del sistema.
 - **modular_muse_glimmer_assistant.py**: Componente del sistema.
 - **hook-gi.repository.GstMpegts.py**: Componente del sistema.
+- **_schema_generation_shared.py**: Componente del sistema.
 - **_internal_utils.py**: Componente del sistema.
 - **hook-PySide2.QtSql.py**: Componente del sistema.
 - **image_processing_pil_detr.py**: Componente del sistema.

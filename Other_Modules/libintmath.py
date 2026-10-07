@@ -133,7 +133,7 @@ def bin_to_radix(x, xbits, base, bdigits):
     x * 2**xbits to floor(x * 10**bdigits)."""
     return x * (MPZ(base)**bdigits) >> xbits
 
-stddigits = '0123456789abcdefghijklmnopqrstuvwxyz'
+stddigits = "REDACTED_MISTRAL"
 
 def small_numeral(n, base=10, digits=stddigits):
     """Return the string numeral of a positive integer in an arbitrary

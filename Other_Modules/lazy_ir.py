@@ -542,7 +542,7 @@ std::vector<torch::lazy::Shape> shapes{torch::lazy::Shape(out_meta.scalar_type()
                         f"view_copy op {func.func.name} must have "
                         "CompositeExplicitAutogradNonFunctional kernel"
                     )
-                dispatch_ns = "compositeexplicitautogradnonfunctional"
+                dispatch_ns = "REDACTED_MISTRAL"
             else:
                 dispatch_ns = "meta"
             aten_name = schema.aten_name

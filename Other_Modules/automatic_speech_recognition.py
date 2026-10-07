@@ -17,7 +17,7 @@ class AutomaticSpeechRecognitionGenerationParameters(BaseInferenceType):
 
     do_sample: bool | None = None
     """Whether to use sampling instead of greedy decoding when generating new tokens."""
-    early_stopping: Union[bool, "AutomaticSpeechRecognitionEarlyStoppingEnum"] | None = None
+    early_stopping: Union[bool, "REDACTED_MISTRAL"] | None = None
     """Controls the stopping condition for beam-based methods."""
     epsilon_cutoff: float | None = None
     """If set to float strictly between 0 and 1, only tokens with a conditional probability

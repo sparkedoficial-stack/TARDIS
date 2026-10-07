@@ -291,4 +291,4 @@ class DeepseekVLForConditionalGeneration(DeepseekVLPreTrainedModel, GenerationMi
         )
 
 
-__all__ = ["DeepseekVLPreTrainedModel", "DeepseekVLModel", "DeepseekVLForConditionalGeneration"]
+__all__ = ["DeepseekVLPreTrainedModel", "DeepseekVLModel", "REDACTED_MISTRAL"]

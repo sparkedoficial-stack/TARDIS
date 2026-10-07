@@ -667,7 +667,7 @@ class DecisionTransformerModel(DecisionTransformerPreTrainedModel):
 
 __all__ = [
     "DecisionTransformerGPT2Model",
-    "DecisionTransformerGPT2PreTrainedModel",
+    "REDACTED_MISTRAL",
     "DecisionTransformerModel",
-    "DecisionTransformerPreTrainedModel",
+    "REDACTED_MISTRAL",
 ]

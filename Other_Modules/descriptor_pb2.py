@@ -1838,7 +1838,7 @@ if not _descriptor._USE_C_DESCRIPTORS:
         has_default_value=False, default_value=False,
         message_type=None, enum_type=None, containing_type=None,
         is_extension=False, extension_scope=None,
-        serialized_options=b'\030\001', json_name='deprecatedLegacyJsonFieldConflicts', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+        serialized_options=b'\030\001', json_name="REDACTED_MISTRAL", file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
       _descriptor.FieldDescriptor(
         name='features', full_name='google.protobuf.MessageOptions.features', index=5,
         number=12, type=11, cpp_type=10, label=1,
@@ -2146,7 +2146,7 @@ if not _descriptor._USE_C_DESCRIPTORS:
         has_default_value=False, default_value=False,
         message_type=None, enum_type=None, containing_type=None,
         is_extension=False, extension_scope=None,
-        serialized_options=b'\030\001', json_name='deprecatedLegacyJsonFieldConflicts', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+        serialized_options=b'\030\001', json_name="REDACTED_MISTRAL", file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
       _descriptor.FieldDescriptor(
         name='features', full_name='google.protobuf.EnumOptions.features', index=3,
         number=7, type=11, cpp_type=10, label=1,

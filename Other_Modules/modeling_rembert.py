@@ -1115,7 +1115,7 @@ __all__ = [
     "RemBertForMaskedLM",
     "RemBertForMultipleChoice",
     "RemBertForQuestionAnswering",
-    "RemBertForSequenceClassification",
+    "REDACTED_MISTRAL",
     "RemBertForTokenClassification",
     "RemBertLayer",
     "RemBertModel",

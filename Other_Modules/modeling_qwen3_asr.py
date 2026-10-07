@@ -692,7 +692,7 @@ class Qwen3ASRForTokenClassification(GenericForTokenClassification, Qwen3ASRPreT
 
 __all__ = [
     "Qwen3ASREncoder",
-    "Qwen3ASRForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "Qwen3ASRModel",
     "Qwen3ASRPreTrainedModel",
     "Qwen3ASRForTokenClassification",

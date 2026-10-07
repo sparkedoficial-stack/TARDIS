@@ -1146,6 +1146,6 @@ __all__ = [
     "Qwen4ExpTextModel",
     "Qwen4ExpModel",
     "Qwen4ExpForCausalLM",
-    "Qwen4ExpForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "Qwen4ExpPreTrainedModel",
 ]

@@ -1164,7 +1164,7 @@ class DebertaForQuestionAnswering(DebertaPreTrainedModel):
 __all__ = [
     "DebertaForMaskedLM",
     "DebertaForQuestionAnswering",
-    "DebertaForSequenceClassification",
+    "REDACTED_MISTRAL",
     "DebertaForTokenClassification",
     "DebertaModel",
     "DebertaPreTrainedModel",

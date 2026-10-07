@@ -355,7 +355,7 @@ class Data2VecVisionAttention(nn.Module):
         self,
         hidden_states: torch.Tensor,
         output_attentions: bool = False,
-        relative_position_bias: Optional["Data2VecVisionRelativePositionBias"] = None,
+        relative_position_bias: Optional["REDACTED_MISTRAL"] = None,
         interpolate_pos_encoding: bool = False,
         resolution: tuple[int] | None = None,
     ) -> tuple[torch.Tensor] | tuple[torch.Tensor, torch.Tensor]:
@@ -1197,8 +1197,8 @@ class Data2VecVisionForSemanticSegmentation(Data2VecVisionPreTrainedModel):
 
 
 __all__ = [
-    "Data2VecVisionForImageClassification",
-    "Data2VecVisionForSemanticSegmentation",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
     "Data2VecVisionModel",
     "Data2VecVisionPreTrainedModel",
 ]

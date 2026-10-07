@@ -187,5 +187,5 @@ __all__ = [
     "HunYuanDenseV1ForCausalLM",
     "HunYuanDenseV1Model",
     "HunYuanDenseV1PreTrainedModel",
-    "HunYuanDenseV1ForSequenceClassification",
+    "REDACTED_MISTRAL",
 ]

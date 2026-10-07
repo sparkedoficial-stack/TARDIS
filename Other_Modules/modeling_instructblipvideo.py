@@ -192,12 +192,12 @@ class InstructBlipVideoPreTrainedModel(PreTrainedModel):
     _can_compile_fullgraph = True
 
     _no_split_modules = [
-        "InstructBlipVideoQFormerEmbeddings",
+        "REDACTED_MISTRAL",
         "InstructBlipVideoAttention",
         "InstructBlipVideoEncoderLayer",
         "InstructBlipVideoQFormerLayer",
-        "InstructBlipVideoQFormerMultiHeadAttention",
-        "InstructBlipVideoQFormerSelfOutput",
+        "REDACTED_MISTRAL",
+        "REDACTED_MISTRAL",
     ]
 
     @torch.no_grad()
@@ -1403,8 +1403,8 @@ class InstructBlipVideoForConditionalGeneration(InstructBlipVideoPreTrainedModel
 
 __all__ = [
     "InstructBlipVideoVisionModel",
-    "InstructBlipVideoPreTrainedModel",
+    "REDACTED_MISTRAL",
     "InstructBlipVideoQFormerModel",
     "InstructBlipVideoModel",
-    "InstructBlipVideoForConditionalGeneration",
+    "REDACTED_MISTRAL",
 ]

@@ -1588,10 +1588,10 @@ class UniSpeechSatForXVector(UniSpeechSatPreTrainedModel):
 
 
 __all__ = [
-    "UniSpeechSatForAudioFrameClassification",
+    "REDACTED_MISTRAL",
     "UniSpeechSatForCTC",
     "UniSpeechSatForPreTraining",
-    "UniSpeechSatForSequenceClassification",
+    "REDACTED_MISTRAL",
     "UniSpeechSatForXVector",
     "UniSpeechSatModel",
     "UniSpeechSatPreTrainedModel",

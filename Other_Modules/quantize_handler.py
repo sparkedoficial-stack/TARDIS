@@ -26,7 +26,7 @@ __all__ = [
     "DefaultNodeQuantizeHandler",
     "FixedQParamsOpQuantizeHandler",
     "CopyNodeQuantizeHandler",
-    "GeneralTensorShapeOpQuantizeHandler",
+    "REDACTED_MISTRAL",
     "CustomModuleQuantizeHandler",
     "StandaloneModuleQuantizeHandler",
 ]

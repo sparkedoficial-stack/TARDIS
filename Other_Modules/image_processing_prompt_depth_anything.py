@@ -354,4 +354,4 @@ class PromptDepthAnythingImageProcessor(TorchvisionBackend):
         return results
 
 
-__all__ = ["PromptDepthAnythingImageProcessor"]
+__all__ = ["REDACTED_MISTRAL"]

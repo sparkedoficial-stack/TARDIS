@@ -1161,8 +1161,8 @@ __all__ = [
     "MetaClip2Model",
     "MetaClip2PreTrainedModel",
     "MetaClip2TextModel",
-    "MetaClip2TextModelWithProjection",
+    "REDACTED_MISTRAL",
     "MetaClip2VisionModel",
-    "MetaClip2VisionModelWithProjection",
+    "REDACTED_MISTRAL",
     "MetaClip2ForImageClassification",
 ]

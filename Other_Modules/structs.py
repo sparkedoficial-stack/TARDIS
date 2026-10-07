@@ -1,161 +1,209 @@
-# Xlib.protocol.structs -- some common request structures
-#
-#    Copyright (C) 2000 Peter Liljenberg <petli@ctrl-c.liu.se>
-#
-# This library is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public License
-# as published by the Free Software Foundation; either version 2.1
-# of the License, or (at your option) any later version.
-#
-# This library is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU Lesser General Public License for more details.
-#
-# You should have received a copy of the GNU Lesser General Public
-# License along with this library; if not, write to the
-#    Free Software Foundation, Inc.,
-#    59 Temple Place,
-#    Suite 330,
-#    Boston, MA 02111-1307 USA
+from __future__ import annotations
 
-# Xlib modules
-from .. import X
+import itertools
+from collections import namedtuple
+from typing import (
+    TYPE_CHECKING,
+    Callable,
+    Generic,
+    Iterable,
+    Iterator,
+    Mapping,
+    NamedTuple,
+    Sequence,
+    TypeVar,
+    Union,
+)
 
-# Xlib.protocol modules
-from . import rq
+KT = TypeVar("KT")  # Identifier.
+RT = TypeVar("RT")  # Requirement.
+CT = TypeVar("CT")  # Candidate.
 
-def WindowValues(arg):
-    return rq.ValueList( arg, 4, 0,
-                         rq.Pixmap('background_pixmap'),
-                         rq.Card32('background_pixel'),
-                         rq.Pixmap('border_pixmap'),
-                         rq.Card32('border_pixel'),
-                         rq.Gravity('bit_gravity'),
-                         rq.Gravity('win_gravity'),
-                         rq.Set('backing_store', 1,
-                                (X.NotUseful, X.WhenMapped, X.Always)),
-                         rq.Card32('backing_planes'),
-                         rq.Card32('backing_pixel'),
-                         rq.Bool('override_redirect'),
-                         rq.Bool('save_under'),
-                         rq.Card32('event_mask'),
-                         rq.Card32('do_not_propagate_mask'),
-                         rq.Colormap('colormap'),
-                         rq.Cursor('cursor'),
-                         )
+Matches = Union[Iterable[CT], Callable[[], Iterable[CT]]]
 
-def GCValues(arg):
-    return rq.ValueList( arg, 4, 0,
-                         rq.Set('function', 1,
-                                (X.GXclear, X.GXand, X.GXandReverse,
-                                 X.GXcopy, X.GXandInverted, X.GXnoop,
-                                 X.GXxor, X.GXor, X.GXnor, X.GXequiv,
-                                 X.GXinvert, X.GXorReverse, X.GXcopyInverted,
-                                 X.GXorInverted, X.GXnand, X.GXset)),
-                         rq.Card32('plane_mask'),
-                         rq.Card32('foreground'),
-                         rq.Card32('background'),
-                         rq.Card16('line_width'),
-                         rq.Set('line_style', 1,
-                                (X.LineSolid, X.LineOnOffDash, X.LineDoubleDash)),
-                         rq.Set('cap_style', 1,
-                                (X.CapNotLast, X.CapButt,
-                                 X.CapRound, X.CapProjecting)),
-                         rq.Set('join_style', 1,
-                                (X.JoinMiter, X.JoinRound, X.JoinBevel)),
-                         rq.Set('fill_style', 1,
-                                (X.FillSolid, X.FillTiled,
-                                 X.FillStippled, X.FillOpaqueStippled)),
-                         rq.Set('fill_rule', 1,
-                                (X.EvenOddRule, X.WindingRule)),
-                         rq.Pixmap('tile'),
-                         rq.Pixmap('stipple'),
-                         rq.Int16('tile_stipple_x_origin'),
-                         rq.Int16('tile_stipple_y_origin'),
-                         rq.Font('font'),
-                         rq.Set('subwindow_mode', 1,
-                                (X.ClipByChildren, X.IncludeInferiors)),
-                         rq.Bool('graphics_exposures'),
-                         rq.Int16('clip_x_origin'),
-                         rq.Int16('clip_y_origin'),
-                         rq.Pixmap('clip_mask'),
-                         rq.Card16('dash_offset'),
-                         rq.Card8('dashes'),
-                         rq.Set('arc_mode', 1, (X.ArcChord, X.ArcPieSlice))
-                         )
+if TYPE_CHECKING:
+    from .resolvers.criterion import Criterion
 
+    class RequirementInformation(NamedTuple, Generic[RT, CT]):
+        requirement: RT
+        parent: CT | None
 
+    class State(NamedTuple, Generic[RT, CT, KT]):
+        """Resolution state in a round."""
 
-TimeCoord = rq.Struct(
-    rq.Card32('time'),
-    rq.Int16('x'),
-    rq.Int16('y'),
+        mapping: dict[KT, CT]
+        criteria: dict[KT, Criterion[RT, CT]]
+        backtrack_causes: list[RequirementInformation[RT, CT]]
+
+else:
+    RequirementInformation = namedtuple(
+        "RequirementInformation", ["requirement", "parent"]
     )
-
-Host = rq.Struct(
-    rq.Set('family', 1, (X.FamilyInternet, X.FamilyDECnet, X.FamilyChaos)),
-    rq.Pad(1),
-    rq.LengthOf('name', 2),
-    rq.List('name', rq.Card8Obj)
-    )
-
-CharInfo = rq.Struct(
-    rq.Int16('left_side_bearing'),
-    rq.Int16('right_side_bearing'),
-    rq.Int16('character_width'),
-    rq.Int16('ascent'),
-    rq.Int16('descent'),
-    rq.Card16('attributes'),
-    )
-
-FontProp = rq.Struct(
-    rq.Card32('name'),
-    rq.Card32('value'),
-    )
-
-ColorItem = rq.Struct(
-    rq.Card32('pixel'),
-    rq.Card16('red'),
-    rq.Card16('green'),
-    rq.Card16('blue'),
-    rq.Card8('flags'),
-    rq.Pad(1),
-    )
+    State = namedtuple("State", ["mapping", "criteria", "backtrack_causes"])
 
 
-RGB = rq.Struct(
-    rq.Card16('red'),
-    rq.Card16('green'),
-    rq.Card16('blue'),
-    rq.Pad(2),
-    )
+class DirectedGraph(Generic[KT]):
+    """A graph structure with directed edges."""
+
+    def __init__(self) -> None:
+        self._vertices: set[KT] = set()
+        self._forwards: dict[KT, set[KT]] = {}  # <key> -> Set[<key>]
+        self._backwards: dict[KT, set[KT]] = {}  # <key> -> Set[<key>]
+
+    def __iter__(self) -> Iterator[KT]:
+        return iter(self._vertices)
+
+    def __len__(self) -> int:
+        return len(self._vertices)
+
+    def __contains__(self, key: KT) -> bool:
+        return key in self._vertices
+
+    def copy(self) -> DirectedGraph[KT]:
+        """Return a shallow copy of this graph."""
+        other = type(self)()
+        other._vertices = set(self._vertices)
+        other._forwards = {k: set(v) for k, v in self._forwards.items()}
+        other._backwards = {k: set(v) for k, v in self._backwards.items()}
+        return other
+
+    def add(self, key: KT) -> None:
+        """Add a new vertex to the graph."""
+        if key in self._vertices:
+            raise ValueError("vertex exists")
+        self._vertices.add(key)
+        self._forwards[key] = set()
+        self._backwards[key] = set()
+
+    def remove(self, key: KT) -> None:
+        """Remove a vertex from the graph, disconnecting all edges from/to it."""
+        self._vertices.remove(key)
+        for f in self._forwards.pop(key):
+            self._backwards[f].remove(key)
+        for t in self._backwards.pop(key):
+            self._forwards[t].remove(key)
+
+    def connected(self, f: KT, t: KT) -> bool:
+        return f in self._backwards[t] and t in self._forwards[f]
+
+    def connect(self, f: KT, t: KT) -> None:
+        """Connect two existing vertices.
+
+        Nothing happens if the vertices are already connected.
+        """
+        if t not in self._vertices:
+            raise KeyError(t)
+        self._forwards[f].add(t)
+        self._backwards[t].add(f)
+
+    def iter_edges(self) -> Iterator[tuple[KT, KT]]:
+        for f, children in self._forwards.items():
+            for t in children:
+                yield f, t
+
+    def iter_children(self, key: KT) -> Iterator[KT]:
+        return iter(self._forwards[key])
+
+    def iter_parents(self, key: KT) -> Iterator[KT]:
+        return iter(self._backwards[key])
 
 
-Point = rq.Struct(
-    rq.Int16('x'),
-    rq.Int16('y'),
-    )
+class IteratorMapping(Mapping[KT, Iterator[CT]], Generic[RT, CT, KT]):
+    def __init__(
+        self,
+        mapping: Mapping[KT, RT],
+        accessor: Callable[[RT], Iterable[CT]],
+        appends: Mapping[KT, Iterable[CT]] | None = None,
+    ) -> None:
+        self._mapping = mapping
+        self._accessor = accessor
+        self._appends: Mapping[KT, Iterable[CT]] = appends or {}
 
-Segment = rq.Struct(
-    rq.Int16('x1'),
-    rq.Int16('y1'),
-    rq.Int16('x2'),
-    rq.Int16('y2'),
-    )
+    def __repr__(self) -> str:
+        return "IteratorMapping({!r}, {!r}, {!r})".format(
+            self._mapping,
+            self._accessor,
+            self._appends,
+        )
 
-Rectangle = rq.Struct(
-    rq.Int16('x'),
-    rq.Int16('y'),
-    rq.Card16('width'),
-    rq.Card16('height'),
-   )
+    def __bool__(self) -> bool:
+        return bool(self._mapping or self._appends)
 
-Arc = rq.Struct(
-    rq.Int16('x'),
-    rq.Int16('y'),
-    rq.Card16('width'),
-    rq.Card16('height'),
-    rq.Int16('angle1'),
-    rq.Int16('angle2'),
-   )
+    def __contains__(self, key: object) -> bool:
+        return key in self._mapping or key in self._appends
+
+    def __getitem__(self, k: KT) -> Iterator[CT]:
+        try:
+            v = self._mapping[k]
+        except KeyError:
+            return iter(self._appends[k])
+        return itertools.chain(self._accessor(v), self._appends.get(k, ()))
+
+    def __iter__(self) -> Iterator[KT]:
+        more = (k for k in self._appends if k not in self._mapping)
+        return itertools.chain(self._mapping, more)
+
+    def __len__(self) -> int:
+        more = sum(1 for k in self._appends if k not in self._mapping)
+        return len(self._mapping) + more
+
+
+class _FactoryIterableView(Iterable[RT]):
+    """Wrap an iterator factory returned by `find_matches()`.
+
+    Calling `iter()` on this class would invoke the underlying iterator
+    factory, making it a "collection with ordering" that can be iterated
+    through multiple times, but lacks random access methods presented in
+    built-in Python sequence types.
+    """
+
+    def __init__(self, factory: Callable[[], Iterable[RT]]) -> None:
+        self._factory = factory
+        self._iterable: Iterable[RT] | None = None
+
+    def __repr__(self) -> str:
+        return f"{type(self).__name__}({list(self)})"
+
+    def __bool__(self) -> bool:
+        try:
+            next(iter(self))
+        except StopIteration:
+            return False
+        return True
+
+    def __iter__(self) -> Iterator[RT]:
+        iterable = self._factory() if self._iterable is None else self._iterable
+        self._iterable, current = itertools.tee(iterable)
+        return current
+
+
+class _SequenceIterableView(Iterable[RT]):
+    """Wrap an iterable returned by find_matches().
+
+    This is essentially just a proxy to the underlying sequence that provides
+    the same interface as `_FactoryIterableView`.
+    """
+
+    def __init__(self, sequence: Sequence[RT]):
+        self._sequence = sequence
+
+    def __repr__(self) -> str:
+        return f"{type(self).__name__}({self._sequence})"
+
+    def __bool__(self) -> bool:
+        return bool(self._sequence)
+
+    def __iter__(self) -> Iterator[RT]:
+        return iter(self._sequence)
+
+
+def build_iter_view(matches: Matches[CT]) -> Iterable[CT]:
+    """Build an iterable view from the value returned by `find_matches()`."""
+    if callable(matches):
+        return _FactoryIterableView(matches)
+    if not isinstance(matches, Sequence):
+        matches = list(matches)
+    return _SequenceIterableView(matches)
+
+
+IterableView = Iterable

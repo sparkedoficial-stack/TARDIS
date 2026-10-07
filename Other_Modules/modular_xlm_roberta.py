@@ -529,8 +529,8 @@ __all__ = [
     "XLMRobertaForMaskedLM",
     "XLMRobertaForMultipleChoice",
     "XLMRobertaForQuestionAnswering",
-    "XLMRobertaForSequenceClassification",
-    "XLMRobertaForTokenClassification",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
     "XLMRobertaModel",
     "XLMRobertaPreTrainedModel",
 ]

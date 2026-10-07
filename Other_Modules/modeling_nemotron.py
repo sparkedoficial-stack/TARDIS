@@ -538,6 +538,6 @@ __all__ = [
     "NemotronForCausalLM",
     "NemotronModel",
     "NemotronPreTrainedModel",
-    "NemotronForSequenceClassification",
+    "REDACTED_MISTRAL",
     "NemotronForTokenClassification",
 ]

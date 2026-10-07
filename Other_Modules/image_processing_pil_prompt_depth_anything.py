@@ -330,4 +330,4 @@ class PromptDepthAnythingImageProcessorPil(PilBackend):
         return results
 
 
-__all__ = ["PromptDepthAnythingImageProcessorPil"]
+__all__ = ["REDACTED_MISTRAL"]

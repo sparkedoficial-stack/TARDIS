@@ -82,7 +82,7 @@ from typing import ParamSpec, TypeVar
 
 P = ParamSpec("P")
 R = TypeVar("R")
-HOP_VT_Alias = TypeVar("HOP_VT_Alias", bound="TorchHigherOrderOperatorVariable")
+HOP_VT_Alias = TypeVar("HOP_VT_Alias", bound="REDACTED_MISTRAL")
 
 log = logging.getLogger(__name__)
 hc_log = torch._logging.getArtifactLogger(__name__, "hierarchical_compile")
@@ -751,7 +751,7 @@ def _check_supported_callable_arg(
 
 def _call_while_loop(
     self: Union[
-        "WhileLoopHigherOrderVariable", "WhileLoopStackOutputHigherOrderVariable"
+        "WhileLoopHigherOrderVariable", "REDACTED_MISTRAL"
     ],
     tx: "InstructionTranslatorBase",
     args: list[VariableTracker],
@@ -2288,7 +2288,7 @@ class TorchHigherOrderOperatorVariable(VariableTracker):
     @staticmethod
     def make(
         value: HigherOrderOperator, source: Source | None = None, **kwargs: Any
-    ) -> "TorchHigherOrderOperatorVariable":
+    ) -> "REDACTED_MISTRAL":
         variable_class = _hop_name_to_variable_class.get(value.__name__)
         if variable_class is not None:
             return variable_class(value, source, **kwargs)
@@ -6106,7 +6106,7 @@ class LocalMapWrappedHigherOrderVariable(WrapHigherOrderVariable):
 
     @staticmethod
     # pyrefly: ignore[bad-override]
-    def build(**options: Any) -> "TorchHigherOrderOperatorVariable":
+    def build(**options: Any) -> "REDACTED_MISTRAL":
         return TorchHigherOrderOperatorVariable.make(
             torch._higher_order_ops.local_map_hop,
             **options,

@@ -1172,7 +1172,7 @@ __all__ = [
     "MuseGlimmerTextModel",
     "MuseGlimmerVisionModel",
     "MuseGlimmerModel",
-    "MuseGlimmerForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "MuseGlimmerImageProcessor",
     "MuseGlimmerVideoProcessor",
 ]

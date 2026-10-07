@@ -2038,6 +2038,6 @@ __all__ = [
     "PatchTSMixerModel",
     "PatchTSMixerForPretraining",
     "PatchTSMixerForPrediction",
-    "PatchTSMixerForTimeSeriesClassification",
+    "REDACTED_MISTRAL",
     "PatchTSMixerForRegression",
 ]

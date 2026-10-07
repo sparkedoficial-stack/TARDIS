@@ -1,282 +1,339 @@
-"""Object representations for debugging purposes. Unlike the default
-repr, these expose more information and produce HTML instead of ASCII.
+"""
+A Printer for generating executable code.
 
-Together with the CSS and JavaScript of the debugger this gives a
-colorful and more compact output.
+The most important function here is srepr that returns a string so that the
+relation eval(srepr(expr))=expr holds in an appropriate environment.
 """
 
 from __future__ import annotations
+from typing import Any
 
-import codecs
-import re
-import sys
-import typing as t
-from collections import deque
-from traceback import format_exception_only
+from sympy.core.function import AppliedUndef
+from sympy.core.mul import Mul
+from mpmath.libmp import repr_dps, to_str as mlib_to_str
 
-from markupsafe import escape
-
-missing = object()
-_paragraph_re = re.compile(r"(?:\r\n|\r|\n){2,}")
-RegexType = type(_paragraph_re)
-
-HELP_HTML = """\
-<div class=box>
-  <h3>%(title)s</h3>
-  <pre class=help>%(text)s</pre>
-</div>\
-"""
-OBJECT_DUMP_HTML = """\
-<div class=box>
-  <h3>%(title)s</h3>
-  %(repr)s
-  <table>%(items)s</table>
-</div>\
-"""
+from .printer import Printer, print_function
 
 
-def debug_repr(obj: object) -> str:
-    """Creates a debug repr of an object as HTML string."""
-    return DebugReprGenerator().repr(obj)
+class ReprPrinter(Printer):
+    printmethod = "_sympyrepr"
 
+    _default_settings: dict[str, Any] = {
+        "order": None,
+        "perm_cyclic" : True,
+    }
 
-def dump(obj: object = missing) -> None:
-    """Print the object details to stdout._write (for the interactive
-    console of the web debugger.
-    """
-    gen = DebugReprGenerator()
-    if obj is missing:
-        rv = gen.dump_locals(sys._getframe(1).f_locals)
-    else:
-        rv = gen.dump_object(obj)
-    sys.stdout._write(rv)  # type: ignore
+    def reprify(self, args, sep):
+        """
+        Prints each item in `args` and joins them with `sep`.
+        """
+        return sep.join([self.doprint(item) for item in args])
 
-
-class _Helper:
-    """Displays an HTML version of the normal help, for the interactive
-    debugger only because it requires a patched sys.stdout.
-    """
-
-    def __repr__(self) -> str:
-        return "Type help(object) for help about object."
-
-    def __call__(self, topic: t.Any | None = None) -> None:
-        if topic is None:
-            sys.stdout._write(f"<span class=help>{self!r}</span>")  # type: ignore
-            return
-        import pydoc
-
-        pydoc.help(topic)
-        rv = sys.stdout.reset()  # type: ignore
-        paragraphs = _paragraph_re.split(rv)
-        if len(paragraphs) > 1:
-            title = paragraphs[0]
-            text = "\n\n".join(paragraphs[1:])
+    def emptyPrinter(self, expr):
+        """
+        The fallback printer.
+        """
+        if isinstance(expr, str):
+            return expr
+        elif hasattr(expr, "__srepr__"):
+            return expr.__srepr__()
+        elif hasattr(expr, "args") and hasattr(expr.args, "__iter__"):
+            l = []
+            for o in expr.args:
+                l.append(self._print(o))
+            return expr.__class__.__name__ + '(%s)' % ', '.join(l)
+        elif hasattr(expr, "__module__") and hasattr(expr, "__name__"):
+            return "<'%s.%s'>" % (expr.__module__, expr.__name__)
         else:
-            title = "Help"
-            text = paragraphs[0]
-        sys.stdout._write(HELP_HTML % {"title": title, "text": text})  # type: ignore
+            return str(expr)
 
+    def _print_Add(self, expr, order=None):
+        args = self._as_ordered_terms(expr, order=order)
+        args = map(self._print, args)
+        clsname = type(expr).__name__
+        return clsname + "(%s)" % ", ".join(args)
 
-helper = _Helper()
+    def _print_Cycle(self, expr):
+        return expr.__repr__()
 
+    def _print_Permutation(self, expr):
+        from sympy.combinatorics.permutations import Permutation, Cycle
+        from sympy.utilities.exceptions import sympy_deprecation_warning
 
-def _add_subclass_info(inner: str, obj: object, base: type | tuple[type, ...]) -> str:
-    if isinstance(base, tuple):
-        for cls in base:
-            if type(obj) is cls:
-                return inner
-    elif type(obj) is base:
-        return inner
-    module = ""
-    if obj.__class__.__module__ not in ("__builtin__", "exceptions"):
-        module = f'<span class="module">{obj.__class__.__module__}.</span>'
-    return f"{module}{type(obj).__name__}({inner})"
-
-
-def _sequence_repr_maker(
-    left: str, right: str, base: type, limit: int = 8
-) -> t.Callable[[DebugReprGenerator, t.Iterable[t.Any], bool], str]:
-    def proxy(self: DebugReprGenerator, obj: t.Iterable[t.Any], recursive: bool) -> str:
-        if recursive:
-            return _add_subclass_info(f"{left}...{right}", obj, base)
-        buf = [left]
-        have_extended_section = False
-        for idx, item in enumerate(obj):
-            if idx:
-                buf.append(", ")
-            if idx == limit:
-                buf.append('<span class="extended">')
-                have_extended_section = True
-            buf.append(self.repr(item))
-        if have_extended_section:
-            buf.append("</span>")
-        buf.append(right)
-        return _add_subclass_info("".join(buf), obj, base)
-
-    return proxy
-
-
-class DebugReprGenerator:
-    def __init__(self) -> None:
-        self._stack: list[t.Any] = []
-
-    list_repr = _sequence_repr_maker("[", "]", list)
-    tuple_repr = _sequence_repr_maker("(", ")", tuple)
-    set_repr = _sequence_repr_maker("set([", "])", set)
-    frozenset_repr = _sequence_repr_maker("frozenset([", "])", frozenset)
-    deque_repr = _sequence_repr_maker(
-        '<span class="module">collections.</span>deque([', "])", deque
-    )
-
-    def regex_repr(self, obj: t.Pattern[t.AnyStr]) -> str:
-        pattern = repr(obj.pattern)
-        pattern = codecs.decode(pattern, "unicode-escape", "ignore")
-        pattern = f"r{pattern}"
-        return f're.compile(<span class="string regex">{pattern}</span>)'
-
-    def string_repr(self, obj: str | bytes, limit: int = 70) -> str:
-        buf = ['<span class="string">']
-        r = repr(obj)
-
-        # shorten the repr when the hidden part would be at least 3 chars
-        if len(r) - limit > 2:
-            buf.extend(
-                (
-                    escape(r[:limit]),
-                    '<span class="extended">',
-                    escape(r[limit:]),
-                    "</span>",
-                )
+        perm_cyclic = Permutation.print_cyclic
+        if perm_cyclic is not None:
+            sympy_deprecation_warning(
+                f"""
+                Setting Permutation.print_cyclic is deprecated. Instead use
+                init_printing(perm_cyclic={perm_cyclic}).
+                """,
+                deprecated_since_version="1.6",
+                active_deprecations_target="deprecated-permutation-print_cyclic",
+                stacklevel=7,
             )
         else:
-            buf.append(escape(r))
+            perm_cyclic = self._settings.get("perm_cyclic", True)
 
-        buf.append("</span>")
-        out = "".join(buf)
+        if perm_cyclic:
+            if not expr.size:
+                return 'Permutation()'
+            # before taking Cycle notation, see if the last element is
+            # a singleton and move it to the head of the string
+            s = Cycle(expr)(expr.size - 1).__repr__()[len('Cycle'):]
+            last = s.rfind('(')
+            if not last == 0 and ',' not in s[last:]:
+                s = s[last:] + s[:last]
+            return 'Permutation%s' %s
+        else:
+            s = expr.support()
+            if not s:
+                if expr.size < 5:
+                    return 'Permutation(%s)' % str(expr.array_form)
+                return 'Permutation([], size=%s)' % expr.size
+            trim = str(expr.array_form[:s[-1] + 1]) + ', size=%s' % expr.size
+            use = full = str(expr.array_form)
+            if len(trim) < len(full):
+                use = trim
+            return 'Permutation(%s)' % use
 
-        # if the repr looks like a standard string, add subclass info if needed
-        if r[0] in "'\"" or (r[0] == "b" and r[1] in "'\""):
-            return _add_subclass_info(out, obj, (bytes, str))
+    def _print_Function(self, expr):
+        r = self._print(expr.func)
+        r += '(%s)' % ', '.join([self._print(a) for a in expr.args])
+        return r
 
-        # otherwise, assume the repr distinguishes the subclass already
-        return out
+    def _print_Heaviside(self, expr):
+        # Same as _print_Function but uses pargs to suppress default value for
+        # 2nd arg.
+        r = self._print(expr.func)
+        r += '(%s)' % ', '.join([self._print(a) for a in expr.pargs])
+        return r
 
-    def dict_repr(
-        self,
-        d: dict[int, None] | dict[str, int] | dict[str | int, int],
-        recursive: bool,
-        limit: int = 5,
-    ) -> str:
-        if recursive:
-            return _add_subclass_info("{...}", d, dict)
-        buf = ["{"]
-        have_extended_section = False
-        for idx, (key, value) in enumerate(d.items()):
-            if idx:
-                buf.append(", ")
-            if idx == limit - 1:
-                buf.append('<span class="extended">')
-                have_extended_section = True
-            buf.append(
-                f'<span class="pair"><span class="key">{self.repr(key)}</span>:'
-                f' <span class="value">{self.repr(value)}</span></span>'
+    def _print_FunctionClass(self, expr):
+        if issubclass(expr, AppliedUndef):
+            return 'Function(%r)' % (expr.__name__)
+        else:
+            return expr.__name__
+
+    def _print_Half(self, expr):
+        return 'Rational(1, 2)'
+
+    def _print_RationalConstant(self, expr):
+        return str(expr)
+
+    def _print_AtomicExpr(self, expr):
+        return str(expr)
+
+    def _print_NumberSymbol(self, expr):
+        return str(expr)
+
+    def _print_Integer(self, expr):
+        return 'Integer(%i)' % expr.p
+
+    def _print_Complexes(self, expr):
+        return 'Complexes'
+
+    def _print_Integers(self, expr):
+        return 'Integers'
+
+    def _print_Naturals(self, expr):
+        return 'Naturals'
+
+    def _print_Naturals0(self, expr):
+        return 'Naturals0'
+
+    def _print_Rationals(self, expr):
+        return 'Rationals'
+
+    def _print_Reals(self, expr):
+        return 'Reals'
+
+    def _print_EmptySet(self, expr):
+        return 'EmptySet'
+
+    def _print_UniversalSet(self, expr):
+        return 'UniversalSet'
+
+    def _print_EmptySequence(self, expr):
+        return 'EmptySequence'
+
+    def _print_list(self, expr):
+        return "[%s]" % self.reprify(expr, ", ")
+
+    def _print_dict(self, expr):
+        sep = ", "
+        dict_kvs = ["%s: %s" % (self.doprint(key), self.doprint(value)) for key, value in expr.items()]
+        return "{%s}" % sep.join(dict_kvs)
+
+    def _print_set(self, expr):
+        if not expr:
+            return "set()"
+        return "{%s}" % self.reprify(expr, ", ")
+
+    def _print_MatrixBase(self, expr):
+        # special case for some empty matrices
+        if (expr.rows == 0) ^ (expr.cols == 0):
+            return '%s(%s, %s, %s)' % (expr.__class__.__name__,
+                                       self._print(expr.rows),
+                                       self._print(expr.cols),
+                                       self._print([]))
+        l = []
+        for i in range(expr.rows):
+            l.append([])
+            for j in range(expr.cols):
+                l[-1].append(expr[i, j])
+        return '%s(%s)' % (expr.__class__.__name__, self._print(l))
+
+    def _print_BooleanTrue(self, expr):
+        return "true"
+
+    def _print_BooleanFalse(self, expr):
+        return "false"
+
+    def _print_NaN(self, expr):
+        return "nan"
+
+    def _print_Mul(self, expr, order=None):
+        if self.order not in ('old', 'none'):
+            args = expr.as_ordered_factors()
+        else:
+            # use make_args in case expr was something like -x -> x
+            args = Mul.make_args(expr)
+
+        args = map(self._print, args)
+        clsname = type(expr).__name__
+        return clsname + "(%s)" % ", ".join(args)
+
+    def _print_Rational(self, expr):
+        return 'Rational(%s, %s)' % (self._print(expr.p), self._print(expr.q))
+
+    def _print_PythonRational(self, expr):
+        return "%s(%d, %d)" % (expr.__class__.__name__, expr.p, expr.q)
+
+    def _print_Fraction(self, expr):
+        return 'Fraction(%s, %s)' % (self._print(expr.numerator), self._print(expr.denominator))
+
+    def _print_Float(self, expr):
+        r = mlib_to_str(expr._mpf_, repr_dps(expr._prec))
+        return "%s('%s', precision=%i)" % (expr.__class__.__name__, r, expr._prec)
+
+    def _print_Sum2(self, expr):
+        return "Sum2(%s, (%s, %s, %s))" % (self._print(expr.f), self._print(expr.i),
+                                           self._print(expr.a), self._print(expr.b))
+
+    def _print_Str(self, s):
+        return "%s(%s)" % (s.__class__.__name__, self._print(s.name))
+
+    def _print_Symbol(self, expr):
+        d = expr._assumptions_orig
+        # print the dummy_index like it was an assumption
+        if expr.is_Dummy:
+            d = d.copy()
+            d['dummy_index'] = expr.dummy_index
+
+        if d == {}:
+            return "%s(%s)" % (expr.__class__.__name__, self._print(expr.name))
+        else:
+            attr = ['%s=%s' % (k, v) for k, v in d.items()]
+            return "%s(%s, %s)" % (expr.__class__.__name__,
+                                   self._print(expr.name), ', '.join(attr))
+
+    def _print_CoordinateSymbol(self, expr):
+        d = expr._assumptions.generator
+
+        if d == {}:
+            return "%s(%s, %s)" % (
+                expr.__class__.__name__,
+                self._print(expr.coord_sys),
+                self._print(expr.index)
             )
-        if have_extended_section:
-            buf.append("</span>")
-        buf.append("}")
-        return _add_subclass_info("".join(buf), d, dict)
+        else:
+            attr = ['%s=%s' % (k, v) for k, v in d.items()]
+            return "%s(%s, %s, %s)" % (
+                expr.__class__.__name__,
+                self._print(expr.coord_sys),
+                self._print(expr.index),
+                ', '.join(attr)
+            )
 
-    def object_repr(self, obj: t.Any) -> str:
-        r = repr(obj)
-        return f'<span class="object">{escape(r)}</span>'
+    def _print_Predicate(self, expr):
+        return "Q.%s" % expr.name
 
-    def dispatch_repr(self, obj: t.Any, recursive: bool) -> str:
-        if obj is helper:
-            return f'<span class="help">{helper!r}</span>'
-        if isinstance(obj, (int, float, complex)):
-            return f'<span class="number">{obj!r}</span>'
-        if isinstance(obj, str) or isinstance(obj, bytes):
-            return self.string_repr(obj)
-        if isinstance(obj, RegexType):
-            return self.regex_repr(obj)
-        if isinstance(obj, list):
-            return self.list_repr(obj, recursive)
-        if isinstance(obj, tuple):
-            return self.tuple_repr(obj, recursive)
-        if isinstance(obj, set):
-            return self.set_repr(obj, recursive)
-        if isinstance(obj, frozenset):
-            return self.frozenset_repr(obj, recursive)
-        if isinstance(obj, dict):
-            return self.dict_repr(obj, recursive)
-        if isinstance(obj, deque):
-            return self.deque_repr(obj, recursive)
-        return self.object_repr(obj)
+    def _print_AppliedPredicate(self, expr):
+        # will be changed to just expr.args when args overriding is removed
+        args = expr._args
+        return "%s(%s)" % (expr.__class__.__name__, self.reprify(args, ", "))
 
-    def fallback_repr(self) -> str:
-        try:
-            info = "".join(format_exception_only(*sys.exc_info()[:2]))
-        except Exception:
-            info = "?"
-        return (
-            '<span class="brokenrepr">'
-            f"&lt;broken repr ({escape(info.strip())})&gt;</span>"
-        )
+    def _print_str(self, expr):
+        return repr(expr)
 
-    def repr(self, obj: object) -> str:
-        recursive = False
-        for item in self._stack:
-            if item is obj:
-                recursive = True
-                break
-        self._stack.append(obj)
-        try:
-            try:
-                return self.dispatch_repr(obj, recursive)
-            except Exception:
-                return self.fallback_repr()
-        finally:
-            self._stack.pop()
+    def _print_tuple(self, expr):
+        if len(expr) == 1:
+            return "(%s,)" % self._print(expr[0])
+        else:
+            return "(%s)" % self.reprify(expr, ", ")
 
-    def dump_object(self, obj: object) -> str:
-        repr = None
-        items: list[tuple[str, str]] | None = None
+    def _print_WildFunction(self, expr):
+        return "%s('%s')" % (expr.__class__.__name__, expr.name)
 
-        if isinstance(obj, dict):
-            title = "Contents of"
-            items = []
-            for key, value in obj.items():
-                if not isinstance(key, str):
-                    items = None
-                    break
-                items.append((key, self.repr(value)))
-        if items is None:
-            items = []
-            repr = self.repr(obj)
-            for key in dir(obj):
-                try:
-                    items.append((key, self.repr(getattr(obj, key))))
-                except Exception:
-                    pass
-            title = "Details for"
-        title += f" {object.__repr__(obj)[1:-1]}"
-        return self.render_object_dump(items, title, repr)
+    def _print_AlgebraicNumber(self, expr):
+        return "%s(%s, %s)" % (expr.__class__.__name__,
+            self._print(expr.root), self._print(expr.coeffs()))
 
-    def dump_locals(self, d: dict[str, t.Any]) -> str:
-        items = [(key, self.repr(value)) for key, value in d.items()]
-        return self.render_object_dump(items, "Local variables in frame")
+    def _print_PolyRing(self, ring):
+        return "%s(%s, %s, %s)" % (ring.__class__.__name__,
+            self._print(ring.symbols), self._print(ring.domain), self._print(ring.order))
 
-    def render_object_dump(
-        self, items: list[tuple[str, str]], title: str, repr: str | None = None
-    ) -> str:
-        html_items = []
-        for key, value in items:
-            html_items.append(f"<tr><th>{escape(key)}<td><pre class=repr>{value}</pre>")
-        if not html_items:
-            html_items.append("<tr><td><em>Nothing</em>")
-        return OBJECT_DUMP_HTML % {
-            "title": escape(title),
-            "repr": f"<pre class=repr>{repr if repr else ''}</pre>",
-            "items": "\n".join(html_items),
-        }
+    def _print_FracField(self, field):
+        return "%s(%s, %s, %s)" % (field.__class__.__name__,
+            self._print(field.symbols), self._print(field.domain), self._print(field.order))
+
+    def _print_PolyElement(self, poly):
+        terms = list(poly.terms())
+        terms.sort(key=poly.ring.order, reverse=True)
+        return "%s(%s, %s)" % (poly.__class__.__name__, self._print(poly.ring), self._print(terms))
+
+    def _print_FracElement(self, frac):
+        numer_terms = list(frac.numer.terms())
+        numer_terms.sort(key=frac.field.order, reverse=True)
+        denom_terms = list(frac.denom.terms())
+        denom_terms.sort(key=frac.field.order, reverse=True)
+        numer = self._print(numer_terms)
+        denom = self._print(denom_terms)
+        return "%s(%s, %s, %s)" % (frac.__class__.__name__, self._print(frac.field), numer, denom)
+
+    def _print_FractionField(self, domain):
+        cls = domain.__class__.__name__
+        field = self._print(domain.field)
+        return "%s(%s)" % (cls, field)
+
+    def _print_PolynomialRingBase(self, ring):
+        cls = ring.__class__.__name__
+        dom = self._print(ring.domain)
+        gens = ', '.join(map(self._print, ring.gens))
+        order = str(ring.order)
+        if order != ring.default_order:
+            orderstr = ", order=" + order
+        else:
+            orderstr = ""
+        return "%s(%s, %s%s)" % (cls, dom, gens, orderstr)
+
+    def _print_DMP(self, p):
+        cls = p.__class__.__name__
+        rep = self._print(p.to_list())
+        dom = self._print(p.dom)
+        return "%s(%s, %s)" % (cls, rep, dom)
+
+    def _print_MonogenicFiniteExtension(self, ext):
+        # The expanded tree shown by srepr(ext.modulus)
+        # is not practical.
+        return "FiniteExtension(%s)" % str(ext.modulus)
+
+    def _print_ExtensionElement(self, f):
+        rep = self._print(f.rep)
+        ext = self._print(f.ext)
+        return "ExtElem(%s, %s)" % (rep, ext)
+
+@print_function(ReprPrinter)
+def srepr(expr, **settings):
+    """return expr in repr form"""
+    return ReprPrinter(settings).doprint(expr)

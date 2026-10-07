@@ -160,7 +160,7 @@ class BundledAOTAutogradSerializableCallable(SerializableCallable):
 
     @classmethod
     def serialize_compile_artifacts(
-        cls, fn: "BundledAOTAutogradSerializableCallable"
+        cls, fn: "REDACTED_MISTRAL"
     ) -> bytes:
         from torch._higher_order_ops.triton_kernel_wrap import kernel_side_table
 

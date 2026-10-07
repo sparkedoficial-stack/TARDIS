@@ -75,7 +75,7 @@ class PPOCRV5MobileRecForTextRecognition(PPOCRV5ServerRecForTextRecognition):
 
 
 __all__ = [
-    "PPOCRV5MobileRecForTextRecognition",
+    "REDACTED_MISTRAL",
     "PPOCRV5MobileRecConfig",
     "PPOCRV5MobileRecModel",
     "PPOCRV5MobileRecPreTrainedModel",  # noqa: F822

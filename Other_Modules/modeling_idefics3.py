@@ -866,4 +866,4 @@ class Idefics3ForConditionalGeneration(Idefics3PreTrainedModel, GenerationMixin)
         )
 
 
-__all__ = ["Idefics3ForConditionalGeneration", "Idefics3PreTrainedModel", "Idefics3Model", "Idefics3VisionTransformer"]
+__all__ = ["REDACTED_MISTRAL", "Idefics3PreTrainedModel", "Idefics3Model", "Idefics3VisionTransformer"]

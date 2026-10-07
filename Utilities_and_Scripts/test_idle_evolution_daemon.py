@@ -75,7 +75,7 @@ def test_execute_evolution_cycle_mock():
 
 def test_api_conjectures_endpoints():
     client = TestClient(app)
-    auth = {"X-API-Key": "Imznu9ZNtdbFl2ebIGSzpYqe7A3OS4Y5"}
+    auth = {"X-API-Key": "REDACTED_MISTRAL"}
 
     # 1. Status
     r_st = client.get("/api/conjectures/status", headers=auth)

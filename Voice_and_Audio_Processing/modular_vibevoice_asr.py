@@ -474,7 +474,7 @@ class VibeVoiceAsrForConditionalGeneration(VibeVoiceAsrPreTrainedModel, Generati
 
 __all__ = [
     "VibeVoiceAsrConfig",
-    "VibeVoiceAsrForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "VibeVoiceAsrModel",
     "VibeVoiceAsrPreTrainedModel",
 ]

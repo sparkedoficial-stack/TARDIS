@@ -478,7 +478,7 @@ _RES_TYPE_TO_3LETTER: dict[int, str] = {rt: three for three, rt in PROTEIN_RESID
 _RES_TYPE_TO_3LETTER[PROTEIN_UNK_RES_TYPE] = "UNK"
 
 # Chain tags for the PDB chain-identifier column, indexed by ``asym_id``.
-_PDB_CHAIN_TAGS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+_PDB_CHAIN_TAGS = "REDACTED_MISTRAL"
 
 
 def _decode_atom_name(name_chars) -> str:

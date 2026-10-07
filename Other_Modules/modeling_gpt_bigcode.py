@@ -788,8 +788,8 @@ class GPTBigCodeForTokenClassification(GPTBigCodePreTrainedModel):
 
 
 __all__ = [
-    "GPTBigCodeForSequenceClassification",
-    "GPTBigCodeForTokenClassification",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
     "GPTBigCodeForCausalLM",
     "GPTBigCodeModel",
     "GPTBigCodePreTrainedModel",

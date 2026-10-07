@@ -224,52 +224,54 @@
         <div class="grid">
             <div class="card">
                 <div>
-                    <div class="field-label">Modo de Operación:</div>
+                    <div class="field-label">Enlace Remoto Mundial (Con Token de Seguridad):</div>
                     <div class="field-value">
-                        <span style="color:var(--teal); font-weight:700; flex:1;">Soberano Local Aislado (Loopback Only)</span>
+                        <a href="https://housewives-lyric-festivals-grow.trycloudflare.com/?key=DiosDelTiempo01" target="_blank" id="authLink">https://housewives-lyric-festivals-grow.trycloudflare.com/?key=DiosDelTiempo01</a>
+                        <button class="btn-copy" onclick="navigator.clipboard.writeText('https://housewives-lyric-festivals-grow.trycloudflare.com/?key=DiosDelTiempo01'); this.innerText='¡Copiado!'; setTimeout(()=>this.innerText='Copiar', 2000)">Copiar</button>
                     </div>
                 </div>
 
                 <div>
-                    <div class="field-label">URL del Servidor Local:</div>
+                    <div class="field-label">URL Base del Servidor (Para App iOS / API):</div>
                     <div class="field-value">
-                        <span style="color:#fff; flex:1;">http://REDACTED_IP:8757</span>
-                        <button class="btn-copy" onclick="navigator.clipboard.writeText('http://REDACTED_IP:8757'); this.innerText='¡Copiado!'; setTimeout(()=>this.innerText='Copiar', 2000)">Copiar</button>
+                        <span style="color:#fff; flex:1;">https://housewives-lyric-festivals-grow.trycloudflare.com</span>
+                        <button class="btn-copy" onclick="navigator.clipboard.writeText('https://housewives-lyric-festivals-grow.trycloudflare.com'); this.innerText='¡Copiado!'; setTimeout(()=>this.innerText='Copiar', 2000)">Copiar</button>
                     </div>
                 </div>
 
                 <div>
-                    <div class="field-label">Seguridad de Acceso:</div>
+                    <div class="field-label">Token Secreto de Acceso:</div>
                     <div class="field-value">
-                        <span style="color:var(--gold); font-weight:700; flex:1;">Token Dinámico Local Protegido</span>
+                        <span style="color:var(--gold); font-weight:700; flex:1;">DiosDelTiempo01</span>
+                        <button class="btn-copy" onclick="navigator.clipboard.writeText('DiosDelTiempo01'); this.innerText='¡Copiado!'; setTimeout(()=>this.innerText='Copiar', 2000)">Copiar</button>
                     </div>
                 </div>
 
                 <div>
-                    <div class="field-label">Enlace Local Loopback:</div>
+                    <div class="field-label">Enlace Local / Red Misma Wi-Fi:</div>
                     <div class="field-value">
-                        <a href="http://REDACTED_IP:8757" target="_blank">http://REDACTED_IP:8757</a>
+                        <a href="http://REDACTED_IP:8757/?key=DiosDelTiempo01" target="_blank">http://REDACTED_IP:8757/?key=DiosDelTiempo01</a>
                     </div>
                 </div>
             </div>
 
             <div class="qr-box">
-                <div style="font-size:48px; padding:30px;">🛡️</div>
-                <div class="qr-caption">ACCESO LOCAL RESTRINGIDO</div>
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=260x260&amp;data=https://housewives-lyric-festivals-grow.trycloudflare.com/?key=DiosDelTiempo01" alt="Código QR de Acceso">
+                <div class="qr-caption">📱 ESCANEA CON TU CELULAR</div>
             </div>
         </div>
 
         <div class="instructions">
-            <h4>🛡️ Política de Seguridad de GODWORKS SYSTEM:</h4>
+            <h4>📱 Cómo Conectar tu iPhone / iPad / Android desde Cualquier Lugar:</h4>
             <ol>
-                <li><strong>Aislamiento Local:</strong> Todas las conexiones externas e interfaces públicas han sido desacopladas.</li>
-                <li><strong>Control de Terminal:</strong> La ejecución de comandos en shell está confinada estrictamente a la consola local del dispositivo.</li>
-                <li><strong>Anonimización de IPs:</strong> Todos los registros de red e identificadores se procesan mediante HMAC-SHA256 irreversibles.</li>
+                <li><strong>Desde el Navegador (Safari / Chrome):</strong> Escanea el código QR de arriba o abre el <em>Enlace Remoto Mundial</em> en tu teléfono. Podrás chatear, ver sensores y usar la interfaz OMNI en cualquier red móvil.</li>
+                <li><strong>Desde la App Nativa iOS de GIA:</strong> En los Ajustes de la App, coloca en <em>URL del Servidor</em>: <code style="color:var(--teal)">https://housewives-lyric-festivals-grow.trycloudflare.com</code> y en <em>Token</em>: <code style="color:var(--gold)">DiosDelTiempo01</code>.</li>
+                <li><strong>Instalar como App (PWA):</strong> En Safari en tu iPhone, pulsa el botón Compartir (el ícono de flecha hacia arriba) y selecciona <em>"Agregar a pantalla de inicio"</em>.</li>
             </ol>
         </div>
 
         <div class="footer">
-            SISTEMA GODWORKS · GIA V26 ARCHITECT · MODELO: huihui_ai/llama3.1-8b-instruct-abliterated:latest · ACTUALIZADO: 2026-09-17 08:07:52
+            SISTEMA GODWORKS · GIA V26 ARCHITECT · MODELO: dolphin3:latest · ACTUALIZADO: 2026-09-13 13:12:49
         </div>
     </div>
 </body>

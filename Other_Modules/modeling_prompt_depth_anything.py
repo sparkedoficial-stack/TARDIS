@@ -475,4 +475,4 @@ class PromptDepthAnythingForDepthEstimation(PromptDepthAnythingPreTrainedModel):
         )
 
 
-__all__ = ["PromptDepthAnythingForDepthEstimation", "PromptDepthAnythingPreTrainedModel"]
+__all__ = ["REDACTED_MISTRAL", "REDACTED_MISTRAL"]

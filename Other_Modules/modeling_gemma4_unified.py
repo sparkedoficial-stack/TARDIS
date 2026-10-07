@@ -1416,7 +1416,7 @@ class Gemma4UnifiedForConditionalGeneration(Gemma4UnifiedPreTrainedModel, Genera
 
 __all__ = [
     "Gemma4UnifiedForCausalLM",
-    "Gemma4UnifiedForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "Gemma4UnifiedModel",
     "Gemma4UnifiedPreTrainedModel",
     "Gemma4UnifiedTextModel",

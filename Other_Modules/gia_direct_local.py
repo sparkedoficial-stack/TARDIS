@@ -82,7 +82,7 @@ class DirectLocalGIA:
 
         # Garantizar dependencias en el arranque
         self.status = gia_bootstrap.ensure_all_dependencies(preferred_model=model, verbose=False)
-        self.model = self.status.get("active_model", model or "llama3.2:3b")
+        self.model = self.status.get("active_model", model or "Llama-3.2-3B-Instruct-uncensored-GGUF:latest")
 
         # Cargar directivas de contexto permanente si están disponibles
         self._refresh_directives()

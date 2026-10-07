@@ -1364,4 +1364,4 @@ class EfficientLoFTRForKeypointMatching(EfficientLoFTRPreTrainedModel):
         )
 
 
-__all__ = ["EfficientLoFTRPreTrainedModel", "EfficientLoFTRModel", "EfficientLoFTRForKeypointMatching"]
+__all__ = ["EfficientLoFTRPreTrainedModel", "EfficientLoFTRModel", "REDACTED_MISTRAL"]

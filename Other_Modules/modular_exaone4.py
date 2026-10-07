@@ -381,7 +381,7 @@ __all__ = [
     "Exaone4PreTrainedModel",
     "Exaone4Model",
     "Exaone4ForCausalLM",
-    "Exaone4ForSequenceClassification",
+    "REDACTED_MISTRAL",
     "Exaone4ForTokenClassification",
     "Exaone4ForQuestionAnswering",
 ]

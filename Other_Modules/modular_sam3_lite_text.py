@@ -432,7 +432,7 @@ class Sam3LiteTextModel(Sam3Model):
 __all__ = [
     "Sam3LiteTextConfig",
     "Sam3LiteTextTextConfig",
-    "Sam3LiteTextGeometryEncoderConfig",
+    "REDACTED_MISTRAL",
     "Sam3LiteTextDETREncoderConfig",
     "Sam3LiteTextDETRDecoderConfig",
     "Sam3LiteTextMaskDecoderConfig",

@@ -992,7 +992,7 @@ class LayoutLMForQuestionAnswering(LayoutLMPreTrainedModel):
 
 __all__ = [
     "LayoutLMForMaskedLM",
-    "LayoutLMForSequenceClassification",
+    "REDACTED_MISTRAL",
     "LayoutLMForTokenClassification",
     "LayoutLMForQuestionAnswering",
     "LayoutLMModel",

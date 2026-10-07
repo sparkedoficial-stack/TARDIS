@@ -310,7 +310,7 @@ class GraniteSpeech5PreTrainedModel(PreTrainedModel):
     main_input_name = "input_features"
     input_modalities = "audio"
     supports_gradient_checkpointing = True
-    _no_split_modules = ["GraniteSpeech5EncoderBlock", "GraniteSpeech5EncoderSubsamplingBlock"]
+    _no_split_modules = ["GraniteSpeech5EncoderBlock", "REDACTED_MISTRAL"]
     _supports_flat_attention_mask = True
     _supports_sdpa = True
     _supports_flex_attn = True

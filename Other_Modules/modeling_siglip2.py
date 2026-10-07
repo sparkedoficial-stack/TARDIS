@@ -395,7 +395,7 @@ class Siglip2PreTrainedModel(PreTrainedModel):
         "Siglip2TextEmbeddings",
         "Siglip2VisionEmbeddings",
         "Siglip2EncoderLayer",
-        "Siglip2MultiheadAttentionPoolingHead",
+        "REDACTED_MISTRAL",
     ]
     _supports_flash_attn = False
     _supports_sdpa = True

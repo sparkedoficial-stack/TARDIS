@@ -506,7 +506,7 @@ __all__ = [
     "MinistralPreTrainedModel",
     "MinistralModel",
     "MinistralForCausalLM",
-    "MinistralForSequenceClassification",
+    "REDACTED_MISTRAL",
     "MinistralForTokenClassification",
     "MinistralForQuestionAnswering",
 ]

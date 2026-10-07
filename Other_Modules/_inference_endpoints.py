@@ -372,7 +372,7 @@ class InferenceEndpoint:
             framework (`str`, *optional*):
                 The machine learning framework used for the model (e.g. `"custom"`).
             revision (`str`, *optional*):
-                The specific model revision to deploy on the Inference Endpoint (e.g. `"6c0e6080953db56375760c0471a8c5f2929baf11"`).
+                The specific model revision to deploy on the Inference Endpoint (e.g. `"REDACTED_MISTRAL"`).
             task (`str`, *optional*):
                 The task on which to deploy the model (e.g. `"text-classification"`).
             custom_image (`dict`, *optional*):

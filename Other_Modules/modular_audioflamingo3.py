@@ -350,7 +350,7 @@ class AudioFlamingo3ForConditionalGeneration(VoxtralForConditionalGeneration):
 
 
 __all__ = [
-    "AudioFlamingo3ForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "AudioFlamingo3PreTrainedModel",
     "AudioFlamingo3Encoder",
     "AudioFlamingo3Model",

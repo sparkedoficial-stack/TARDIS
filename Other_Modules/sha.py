@@ -51,7 +51,7 @@ def git_hash(data: bytes) -> str:
     ```python
     >>> from huggingface_hub.utils.sha import git_hash
     >>> git_hash(b"Hello, World!")
-    'b45ef6fec89518d314f546fd6c3025367b721684'
+    "REDACTED_MISTRAL"
     ```
     """
     # Taken from https://gist.github.com/msabramo/763200

@@ -439,4 +439,4 @@ class PaliGemmaForConditionalGeneration(PaliGemmaPreTrainedModel, GenerationMixi
         )
 
 
-__all__ = ["PaliGemmaForConditionalGeneration", "PaliGemmaPreTrainedModel", "PaliGemmaModel"]
+__all__ = ["REDACTED_MISTRAL", "PaliGemmaPreTrainedModel", "PaliGemmaModel"]

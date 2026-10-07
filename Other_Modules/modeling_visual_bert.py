@@ -1486,7 +1486,7 @@ __all__ = [
     "VisualBertForMultipleChoice",
     "VisualBertForPreTraining",
     "VisualBertForQuestionAnswering",
-    "VisualBertForRegionToPhraseAlignment",
+    "REDACTED_MISTRAL",
     "VisualBertForVisualReasoning",
     "VisualBertLayer",
     "VisualBertModel",

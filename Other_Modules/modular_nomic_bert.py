@@ -288,6 +288,6 @@ __all__ = [
     "NomicBertPreTrainedModel",
     "NomicBertModel",
     "NomicBertForMaskedLM",
-    "NomicBertForSequenceClassification",
+    "REDACTED_MISTRAL",
     "NomicBertForTokenClassification",
 ]

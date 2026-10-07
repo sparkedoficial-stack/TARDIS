@@ -1317,7 +1317,7 @@ __all__ = [
     "MiniMaxM3VLTextConfig",
     "MiniMaxM3VLVisionConfig",
     "MiniMaxM3VLForCausalLM",
-    "MiniMaxM3SparseForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "MiniMaxM3VLModel",
     "MiniMaxM3VLPreTrainedModel",
     "MiniMaxM3VLProcessor",

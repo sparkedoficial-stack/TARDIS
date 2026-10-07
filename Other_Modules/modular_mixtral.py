@@ -426,6 +426,6 @@ __all__ = [
     "MixtralForQuestionAnswering",
     "MixtralModel",
     "MixtralPreTrainedModel",
-    "MixtralForSequenceClassification",
+    "REDACTED_MISTRAL",
     "MixtralForTokenClassification",
 ]

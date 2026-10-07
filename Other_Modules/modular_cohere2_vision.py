@@ -329,7 +329,7 @@ class Cohere2VisionImageProcessor(GotOcr2ImageProcessor):
 
 
 __all__ = [
-    "Cohere2VisionForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "Cohere2VisionPreTrainedModel",
     "Cohere2VisionModel",
     "Cohere2VisionImageProcessor",

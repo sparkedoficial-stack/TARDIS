@@ -2494,7 +2494,7 @@ __all__ = [
     "BigBirdForMultipleChoice",
     "BigBirdForPreTraining",
     "BigBirdForQuestionAnswering",
-    "BigBirdForSequenceClassification",
+    "REDACTED_MISTRAL",
     "BigBirdForTokenClassification",
     "BigBirdLayer",
     "BigBirdModel",

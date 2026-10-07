@@ -1961,7 +1961,7 @@ class EsmFoldingTrunk(nn.Module):
     """
 )
 class EsmForProteinFolding(EsmPreTrainedModel):
-    _no_split_modules = ["EsmFoldStructureModule", "EsmFoldTriangularSelfAttentionBlock"]
+    _no_split_modules = ["EsmFoldStructureModule", "REDACTED_MISTRAL"]
     _supports_flash_attn = False
     _supports_sdpa = False
     _supports_attention_backend = False

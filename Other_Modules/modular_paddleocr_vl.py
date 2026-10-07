@@ -893,7 +893,7 @@ class PaddleOCRVLForConditionalGeneration(Qwen2VLForConditionalGeneration):
 
 
 __all__ = [
-    "PaddleOCRVLForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "PaddleOCRVLModel",
     "PaddleOCRVLPreTrainedModel",
     "PaddleOCRVisionTransformer",

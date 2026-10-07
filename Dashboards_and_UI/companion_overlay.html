@@ -354,7 +354,7 @@
     const avatarWrap = document.getElementById('companion-avatar-wrap');
 
     const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get('key') || '';
+    const token = urlParams.get('key') || 'DiosDelTiempo01';
 
     let state = 'idle'; // 'idle' | 'listening' | 'thinking' | 'speaking'
     let voiceEnabled = true;
@@ -445,99 +445,10 @@
         if (state === 'listening') setState('idle');
     }
 
-    // =========================================================================
-    // --- MOTOR FONÉTICO Y BIOMECÁNICO DE EXPRESIÓN VOCAL SOBERANO ---
-    // =========================================================================
-    const vocalState = {
-        activeWord: '',
-        viseme: 'REST',        // 'A' | 'E' | 'I' | 'O' | 'U' | 'REST'
-        mouthOpen: 0.04,       // Apertura actual (0.0 a 1.0)
-        targetMouthOpen: 0.04, // Apertura objetivo
-        mouthWidth: 1.0,       // Ancho labial actual (0.6 a 1.3)
-        targetMouthWidth: 1.0,
-        smileRatio: 0.16,
-        targetSmileRatio: 0.16,
-        vocalPulse: 0.0,       // Pulso acústico por palabra/sílaba
-        pupilPulse: 0.0,       // Micro-dilatación pupilar
-        browLift: 0.0,         // Elevación expresiva
-        lastWordTime: 0,
-        wordDurationEst: 280,
-        isSpeaking: false
-    };
-
-    function getWordViseme(word) {
-        const w = (word || '').toLowerCase().replace(/[^a-záéíóúüñ]/g, '');
-        if (!w) return { viseme: 'REST', open: 0.04, width: 1.0, smile: 0.16, emphasis: false };
-
-        const hasAccent = /[áéíóú]/.test(word);
-        const isCaps = word.length > 1 && word === word.toUpperCase();
-        const emphasis = hasAccent || isCaps;
-
-        const vowels = w.split('').filter(c => 'aeiouáéíóúü'.includes(c));
-        let dominant = 'a';
-        if (/[aá]/.test(w)) dominant = 'a';
-        else if (/[oó]/.test(w)) dominant = 'o';
-        else if (/[eé]/.test(w)) dominant = 'e';
-        else if (/[uü]/.test(w)) dominant = 'u';
-        else if (/[ií]/.test(w)) dominant = 'i';
-        else if (vowels.length > 0) dominant = vowels[0];
-
-        let viseme = 'A', open = 0.78, width = 1.05, smile = 0.20;
-        if (dominant === 'a') {
-            viseme = 'A';
-            open = emphasis ? 0.92 : 0.80;
-            width = 1.06;
-            smile = 0.22;
-        } else if (dominant === 'o') {
-            viseme = 'O';
-            open = emphasis ? 0.76 : 0.65;
-            width = 0.72;
-            smile = 0.12;
-        } else if (dominant === 'e') {
-            viseme = 'E';
-            open = emphasis ? 0.56 : 0.46;
-            width = 1.28;
-            smile = 0.38;
-        } else if (dominant === 'i') {
-            viseme = 'I';
-            open = emphasis ? 0.38 : 0.32;
-            width = 1.22;
-            smile = 0.42;
-        } else if (dominant === 'u') {
-            viseme = 'U';
-            open = emphasis ? 0.46 : 0.38;
-            width = 0.62;
-            smile = 0.08;
-        }
-
-        return { viseme, open, width, smile, emphasis };
-    }
-
-    function onSpeechWordBoundary(wordText, charIndex) {
-        vocalState.activeWord = wordText;
-        vocalState.lastWordTime = performance.now();
-        const v = getWordViseme(wordText);
-        vocalState.viseme = v.viseme;
-        vocalState.targetMouthOpen = v.open;
-        vocalState.targetMouthWidth = v.width;
-        vocalState.targetSmileRatio = v.smile;
-        vocalState.vocalPulse = v.emphasis ? 1.0 : 0.75;
-        vocalState.pupilPulse = v.emphasis ? 0.22 : 0.14;
-        vocalState.browLift = v.emphasis ? 0.45 : (/[¿?¡!]/.test(wordText) ? 0.6 : 0.1);
-        vocalState.wordDurationEst = Math.max(220, Math.min(650, wordText.length * 65));
-    }
-
     function stopSpeaking() {
         if (window.speechSynthesis && window.speechSynthesis.speaking) {
             window.speechSynthesis.cancel();
         }
-        vocalState.isSpeaking = false;
-        vocalState.targetMouthOpen = 0.04;
-        vocalState.targetMouthWidth = 1.0;
-        vocalState.targetSmileRatio = 0.16;
-        vocalState.vocalPulse = 0;
-        vocalState.pupilPulse = 0;
-        vocalState.browLift = 0;
         if (state === 'speaking') setState('idle');
     }
 
@@ -557,45 +468,11 @@
                 utter.lang = 'es-MX';
                 utter.rate = 1.05;
                 utter.pitch = 1.05;
-
-                utter.onstart = () => {
-                    vocalState.isSpeaking = true;
-                    setState('speaking');
-                };
-
-                utter.onboundary = (event) => {
-                    const full = utter.text || clean;
-                    const idx = event.charIndex !== undefined ? event.charIndex : 0;
-                    const slice = full.slice(idx);
-                    const match = slice.match(/^([^\s.,;?!:]+)/);
-                    const word = match ? match[1] : '';
-                    if (word) {
-                        onSpeechWordBoundary(word, idx);
-                    }
-                };
-
-                const finishSpeech = () => {
-                    vocalState.isSpeaking = false;
-                    vocalState.targetMouthOpen = 0.04;
-                    vocalState.targetMouthWidth = 1.0;
-                    vocalState.targetSmileRatio = 0.16;
-                    vocalState.vocalPulse = 0;
-                    vocalState.pupilPulse = 0;
-                    vocalState.browLift = 0;
-                    setState('idle');
-                };
-
-                utter.onend = finishSpeech;
-                utter.onerror = finishSpeech;
+                utter.onend = () => setState('idle');
+                utter.onerror = () => setState('idle');
                 window.speechSynthesis.speak(utter);
-            } catch(e) { 
-                vocalState.isSpeaking = false;
-                setState('idle'); 
-            }
-        } else { 
-            vocalState.isSpeaking = false;
-            setState('idle'); 
-        }
+            } catch(e) { setState('idle'); }
+        } else { setState('idle'); }
     }
 
     function showText(text) {
@@ -1055,100 +932,25 @@
 
         targetCtx.restore();
 
-        // 11. Boca Biomecánica Articulada Palabra a Palabra
-        const curVocal = options.vocal || vocalState;
-        const mouthOpen = (curVocal && curVocal.mouthOpen !== undefined) ? curVocal.mouthOpen : 0.04;
-        const mouthWidth = (curVocal && curVocal.mouthWidth !== undefined) ? curVocal.mouthWidth : 1.0;
-        const smileRatio = (curVocal && curVocal.smileRatio !== undefined) ? curVocal.smileRatio : 0.16;
-        const vocalPulse = (curVocal && curVocal.vocalPulse !== undefined) ? curVocal.vocalPulse : 0.0;
-
-        const mouthY = height * 0.18;
-        const curMouthW = (size * 0.28) * mouthWidth;
-        const leftX = -curMouthW * 0.5;
-        const rightX = curMouthW * 0.5;
-
-        targetCtx.save();
-        if (mouthOpen > 0.08) {
-            // --- BOCA EN PRONUNCIACIÓN / APERTURA VOCALIZADA ---
-            const curOpenH = (size * 0.22) * mouthOpen;
-            const topCurve = curOpenH * 0.40;
-            const bottomCurve = curOpenH * 0.85;
-            const smileOffset = curMouthW * smileRatio;
-
-            // 1. Cavidad Bucal con Profundidad
+        // 11. Ondas de Frecuencia Neural en Habla
+        if (state === 'speaking' || audioLevel > 0.05) {
+            targetCtx.save();
+            const mouthY = height * 0.18;
+            const mouthW = size * 0.26;
+            const amp = (size * 0.024) * (0.6 + 0.4 * Math.sin(time * 14)) * Math.max(0.5, audioLevel * 1.5);
             targetCtx.beginPath();
-            targetCtx.moveTo(leftX, mouthY);
-            targetCtx.quadraticCurveTo(0, mouthY - topCurve + smileOffset * 0.2, rightX, mouthY);
-            targetCtx.quadraticCurveTo(0, mouthY + bottomCurve + smileOffset, leftX, mouthY);
-            targetCtx.closePath();
-
-            const mouthGrad = targetCtx.createLinearGradient(0, mouthY - topCurve, 0, mouthY + bottomCurve);
-            mouthGrad.addColorStop(0, 'rgba(4, 12, 22, 0.96)');
-            mouthGrad.addColorStop(0.5, 'rgba(0, 212, 200, 0.25)');
-            mouthGrad.addColorStop(1, 'rgba(2, 6, 14, 0.96)');
-            targetCtx.fillStyle = mouthGrad;
-            targetCtx.fill();
-
-            // Contorno Labial Articulado
-            targetCtx.strokeStyle = strokeSecondary;
-            targetCtx.lineWidth = Math.max(1.2, size * 0.012);
-            targetCtx.lineCap = 'round';
-            targetCtx.lineJoin = 'round';
-            targetCtx.stroke();
-
-            // Resonador acústico interno
-            if (curOpenH > 4) {
-                targetCtx.beginPath();
-                targetCtx.moveTo(leftX * 0.65, mouthY - topCurve * 0.3 + 1);
-                targetCtx.quadraticCurveTo(0, mouthY - topCurve * 0.4 + 2, rightX * 0.65, mouthY - topCurve * 0.3 + 1);
-                targetCtx.strokeStyle = 'rgba(255, 255, 255, 0.75)';
-                targetCtx.lineWidth = Math.max(0.8, size * 0.007);
-                targetCtx.stroke();
+            for (let x = -mouthW * 0.5; x <= mouthW * 0.5; x += 4) {
+                const norm = (x / (mouthW * 0.5));
+                const env = 1 - norm * norm;
+                const y = mouthY + Math.sin(norm * Math.PI * 3 + time * 18) * amp * env;
+                if (x === -mouthW * 0.5) targetCtx.moveTo(x, y);
+                else targetCtx.lineTo(x, y);
             }
-
-            // Nodos terminales brillantes en comisuras
-            targetCtx.fillStyle = strokePrimary;
-            targetCtx.beginPath();
-            targetCtx.arc(leftX, mouthY, Math.max(1.5, size * 0.012), 0, Math.PI * 2);
-            targetCtx.arc(rightX, mouthY, Math.max(1.5, size * 0.012), 0, Math.PI * 2);
-            targetCtx.fill();
-
-            // Ondas acústicas armónicas sincronizadas con la palabra
-            if (vocalPulse > 0.05 || audioLevel > 0.05) {
-                targetCtx.beginPath();
-                const waveAmp = (size * 0.02) * Math.max(vocalPulse, audioLevel * 1.5);
-                for (let x = leftX; x <= rightX; x += 3) {
-                    const norm = x / (curMouthW * 0.5);
-                    const env = 1 - norm * norm;
-                    const wy = mouthY + Math.sin(norm * Math.PI * 2 + time * 24) * waveAmp * env;
-                    if (x === leftX) targetCtx.moveTo(x, wy);
-                    else targetCtx.lineTo(x, wy);
-                }
-                targetCtx.strokeStyle = strokePrimary;
-                targetCtx.lineWidth = Math.max(0.8, size * 0.006);
-                targetCtx.globalAlpha = Math.max(vocalPulse * 0.8, audioLevel);
-                targetCtx.stroke();
-                targetCtx.globalAlpha = 1.0;
-            }
-        } else {
-            // --- BOCA EN REPOSO / SONRISA SERENA Y FAMILIAR ---
-            const smileOffset = curMouthW * smileRatio;
-            targetCtx.beginPath();
-            targetCtx.moveTo(leftX, mouthY);
-            targetCtx.quadraticCurveTo(0, mouthY + smileOffset, rightX, mouthY);
             targetCtx.strokeStyle = strokeSecondary;
-            targetCtx.lineWidth = Math.max(1.2, size * 0.01);
-            targetCtx.lineCap = 'round';
+            targetCtx.lineWidth = Math.max(1.0, size * 0.008);
             targetCtx.stroke();
-
-            // Nodos en comisuras
-            targetCtx.fillStyle = strokePrimary;
-            targetCtx.beginPath();
-            targetCtx.arc(leftX, mouthY, Math.max(1.2, size * 0.01), 0, Math.PI * 2);
-            targetCtx.arc(rightX, mouthY, Math.max(1.2, size * 0.01), 0, Math.PI * 2);
-            targetCtx.fill();
+            targetCtx.restore();
         }
-        targetCtx.restore();
 
         // 12. Enjambre Orbital de Partículas
         const orbitParticleCount = 8;
@@ -1189,27 +991,6 @@
             }
         }
 
-        // Interpolación biomecánica vocal palabra a palabra
-        const nowMs = performance.now();
-        if (vocalState.isSpeaking) {
-            const elapsedSinceWord = nowMs - vocalState.lastWordTime;
-            if (elapsedSinceWord > vocalState.wordDurationEst) {
-                // Micro-pausa natural entre palabras para respirar y articular como humano
-                vocalState.targetMouthOpen = 0.05;
-                vocalState.targetMouthWidth = 1.0;
-            }
-        } else {
-            vocalState.targetMouthOpen = 0.04;
-            vocalState.targetMouthWidth = 1.0;
-        }
-
-        vocalState.mouthOpen += (vocalState.targetMouthOpen - vocalState.mouthOpen) * Math.min(1, dt * 26);
-        vocalState.mouthWidth += (vocalState.targetMouthWidth - vocalState.mouthWidth) * Math.min(1, dt * 18);
-        vocalState.smileRatio += (vocalState.targetSmileRatio - vocalState.smileRatio) * Math.min(1, dt * 10);
-        vocalState.vocalPulse *= 0.86;
-        vocalState.pupilPulse *= 0.88;
-        vocalState.browLift *= 0.90;
-
         const W = canvas.width;
         const H = canvas.height;
         ctx.clearRect(0, 0, W, H);
@@ -1221,8 +1002,7 @@
             eyeLookX: eyeLookX,
             eyeLookY: eyeLookY,
             blinkVal: blinkVal,
-            glow: 1.0,
-            vocal: vocalState
+            glow: 1.0
         });
     }
     requestAnimationFrame(render);

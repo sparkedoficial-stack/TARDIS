@@ -349,4 +349,4 @@ class Cohere2VisionForConditionalGeneration(Cohere2VisionPreTrainedModel, Genera
         )
 
 
-__all__ = ["Cohere2VisionForConditionalGeneration", "Cohere2VisionPreTrainedModel", "Cohere2VisionModel"]
+__all__ = ["REDACTED_MISTRAL", "Cohere2VisionPreTrainedModel", "Cohere2VisionModel"]

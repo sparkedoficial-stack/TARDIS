@@ -73,7 +73,7 @@ class BridgeTowerModelOutput(ModelOutput):
 
 @auto_docstring(
     custom_intro="""
-    Output type of ['BridgeTowerForContrastiveLearning']
+    Output type of ["REDACTED_MISTRAL"]
     """
 )
 @dataclass
@@ -1748,8 +1748,8 @@ class BridgeTowerForContrastiveLearning(BridgeTowerPreTrainedModel):
 
 
 __all__ = [
-    "BridgeTowerForContrastiveLearning",
-    "BridgeTowerForImageAndTextRetrieval",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
     "BridgeTowerForMaskedLM",
     "BridgeTowerModel",
     "BridgeTowerPreTrainedModel",

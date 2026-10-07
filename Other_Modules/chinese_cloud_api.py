@@ -69,11 +69,12 @@ PROVIDERS_CATALOG = {
     "groq_deepseek": {
         "name": "Groq LPU (Acelerador Extremo Qwen/DeepSeek/GPT-OSS)",
         "base_url": "https://api.groq.com/openai/v1",
-        "default_model": "openai/gpt-oss-120b",
+        "default_model": "qwen/qwen3.8-27b",
         "available_models": [
+            "qwen/qwen3.8-27b",
             "openai/gpt-oss-120b",
             "openai/gpt-oss-20b",
-            "qwen/qwen3.8-27b"
+            "groq/compound"
         ],
         "website": "https://console.groq.com",
         "free_tier_info": "250-350 tokens/segundo gratis permanente."
@@ -225,7 +226,7 @@ class ChineseCloudAPI:
         max_tokens: Optional[int] = None,
         timeout: float = 35.0
     ) -> Dict[str, Any]:
-        """Ejecuta una solicitud de inferencia hacia el proveedor activo con conmutación resiliente multi-modelo."""
+        """Ejecuta una solicitud de inferencia hacia el proveedor activo con medicion de tokens/segundo."""
         with self._db_lock:
             p_id = provider or self._config.get("active_provider", "siliconflow")
             p_info = PROVIDERS_CATALOG.get(p_id, PROVIDERS_CATALOG["siliconflow"])
@@ -234,14 +235,8 @@ class ChineseCloudAPI:
             api_key = self._config.get("api_keys", {}).get(p_id, "")
             temp = temperature if temperature is not None else self._config.get("temperature", 0.3)
             max_t = max_tokens if max_tokens is not None else self._config.get("max_tokens", 4096)
-            if p_id == "groq_deepseek" and max_t > 3500:
-                max_t = 3500
-
-        # Lista de modelos candidatos para failover transparente
-        model_candidates = [target_model]
-        for alt_m in p_info.get("available_models", []):
-            if alt_m not in model_candidates:
-                model_candidates.append(alt_m)
+            if p_id == "groq_deepseek" and max_t > 1000:
+                max_t = 1000
 
         url = f"{base_url.rstrip('/')}/chat/completions"
         headers = {
@@ -252,88 +247,79 @@ class ChineseCloudAPI:
         elif p_id == "openrouter":
             headers["Authorization"] = "Bearer free"
 
-        t0 = time.time()
-        last_error = "No hay modelos disponibles"
-
-        for cand_model in model_candidates:
-            payload = {
-                "model": cand_model,
-                "messages": messages,
-                "temperature": temp,
-                "max_tokens": max_t,
-                "stream": False
-            }
-            try:
-                with httpx.Client(timeout=timeout) as client:
-                    res = client.post(url, json=payload, headers=headers)
-                    elapsed = time.time() - t0
-
-                    if res.status_code == 429:
-                        last_error = f"HTTP 429 Rate limit en {cand_model}"
-                        logger.warning(f"Rate limit en {p_id} ({cand_model}). Probando modelo alternativo...")
-                        continue
-
-                    if res.status_code != 200:
-                        last_error = f"HTTP {res.status_code}: {res.text[:200]}"
-                        logger.warning(f"Fallo en API ({p_id} - {cand_model}): {last_error}")
-                        continue
-
-                    data = res.json()
-                    choice = data.get("choices", [{}])[0]
-                    msg_obj = choice.get("message", {})
-                    reply_text = (msg_obj.get("content") or "").strip()
-                    # Soporte para modelos de razonamiento si content viene vacío
-                    if not reply_text and msg_obj.get("reasoning"):
-                        reply_text = msg_obj["reasoning"].strip()
-
-                    usage = data.get("usage", {})
-                    completion_tokens = usage.get("completion_tokens", len(reply_text.split()))
-                    total_tokens = usage.get("total_tokens", completion_tokens)
-                    tok_per_sec = round(completion_tokens / elapsed, 1) if elapsed > 0 else 0.0
-
-                    # Actualizar métricas y auto-fijar modelo exitoso si cambió
-                    with self._db_lock:
-                        if self._config.get("active_model") != cand_model and not model:
-                            self._config["active_model"] = cand_model
-                        prev_reqs = self._config.get("total_requests", 0)
-                        self._config["total_requests"] = prev_reqs + 1
-                        self._config["total_tokens"] = self._config.get("total_tokens", 0) + total_tokens
-                        prev_avg = self._config.get("avg_tokens_per_sec", 0.0)
-                        self._config["avg_tokens_per_sec"] = ((prev_avg * prev_reqs) + tok_per_sec) / (prev_reqs + 1)
-                        self._config["last_test"] = {
-                            "timestamp": time.time(),
-                            "ok": True,
-                            "provider": p_id,
-                            "model": cand_model,
-                            "tokens_per_sec": tok_per_sec,
-                            "elapsed_s": round(elapsed, 2),
-                            "tokens": completion_tokens
-                        }
-                        self._save_config_unlocked()
-
-                    return {
-                        "ok": True,
-                        "reply": reply_text,
-                        "provider": f"{p_info.get('name')} ({p_id})",
-                        "model": cand_model,
-                        "elapsed_s": round(elapsed, 2),
-                        "tokens": completion_tokens,
-                        "tokens_per_sec": tok_per_sec,
-                        "usage": usage
-                    }
-            except Exception as e:
-                last_error = str(e)
-                logger.warning(f"Excepción en {p_id} ({cand_model}): {e}")
-                continue
-
-        elapsed = time.time() - t0
-        return {
-            "ok": False,
-            "error": last_error,
-            "provider": p_id,
+        payload = {
             "model": target_model,
-            "elapsed_s": round(elapsed, 2)
+            "messages": messages,
+            "temperature": temp,
+            "max_tokens": max_t,
+            "stream": False
         }
+
+        t0 = time.time()
+        try:
+            with httpx.Client(timeout=timeout) as client:
+                res = client.post(url, json=payload, headers=headers)
+                elapsed = time.time() - t0
+
+                if res.status_code != 200:
+                    err_msg = f"HTTP {res.status_code}: {res.text[:300]}"
+                    logger.warning(f"Fallo en API China ({p_id}): {err_msg}")
+                    return {
+                        "ok": False,
+                        "error": err_msg,
+                        "provider": p_id,
+                        "model": target_model,
+                        "elapsed_s": round(elapsed, 2)
+                    }
+
+                data = res.json()
+                choice = data.get("choices", [{}])[0]
+                reply_text = choice.get("message", {}).get("content", "").strip()
+
+                usage = data.get("usage", {})
+                completion_tokens = usage.get("completion_tokens", len(reply_text.split()))
+                total_tokens = usage.get("total_tokens", completion_tokens)
+                tok_per_sec = round(completion_tokens / elapsed, 1) if elapsed > 0 else 0.0
+
+                # Actualizar metricas
+                with self._db_lock:
+                    prev_reqs = self._config.get("total_requests", 0)
+                    self._config["total_requests"] = prev_reqs + 1
+                    self._config["total_tokens"] = self._config.get("total_tokens", 0) + total_tokens
+                    prev_avg = self._config.get("avg_tokens_per_sec", 0.0)
+                    self._config["avg_tokens_per_sec"] = ((prev_avg * prev_reqs) + tok_per_sec) / (prev_reqs + 1)
+                    self._config["last_test"] = {
+                        "timestamp": time.time(),
+                        "ok": True,
+                        "provider": p_id,
+                        "model": target_model,
+                        "tokens_per_sec": tok_per_sec,
+                        "elapsed_s": round(elapsed, 2),
+                        "tokens": completion_tokens
+                    }
+                    self._save_config_unlocked()
+
+                return {
+                    "ok": True,
+                    "reply": reply_text,
+                    "provider": f"{p_info.get('name')} ({p_id})",
+                    "model": target_model,
+                    "elapsed_s": round(elapsed, 2),
+                    "tokens": completion_tokens,
+                    "tokens_per_sec": tok_per_sec,
+                    "usage": usage
+                }
+
+        except Exception as e:
+            elapsed = time.time() - t0
+            logger.error(f"Error conectando a API China {p_id}: {e}")
+            return {
+                "ok": False,
+                "error": str(e),
+                "provider": p_id,
+                "model": target_model,
+                "elapsed_s": round(elapsed, 2)
+            }
 
 
 def get_chinese_cloud_api() -> ChineseCloudAPI:

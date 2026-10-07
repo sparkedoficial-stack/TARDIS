@@ -741,4 +741,4 @@ class TimesformerForVideoClassification(TimesformerPreTrainedModel):
         )
 
 
-__all__ = ["TimesformerModel", "TimesformerForVideoClassification", "TimesformerPreTrainedModel"]
+__all__ = ["TimesformerModel", "REDACTED_MISTRAL", "TimesformerPreTrainedModel"]

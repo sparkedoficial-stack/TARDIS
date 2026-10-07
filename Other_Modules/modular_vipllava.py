@@ -283,4 +283,4 @@ class VipLlavaForConditionalGeneration(LlavaForConditionalGeneration):
         )
 
 
-__all__ = ["VipLlavaModel", "VipLlavaForConditionalGeneration", "VipLlavaPreTrainedModel"]
+__all__ = ["VipLlavaModel", "REDACTED_MISTRAL", "VipLlavaPreTrainedModel"]

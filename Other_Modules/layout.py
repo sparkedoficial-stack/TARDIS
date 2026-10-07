@@ -1,442 +1,525 @@
-from abc import ABC, abstractmethod
-from itertools import islice
-from operator import itemgetter
-from threading import RLock
-from typing import (
-    TYPE_CHECKING,
-    Dict,
-    Iterable,
-    List,
-    NamedTuple,
-    Optional,
-    Sequence,
-    Tuple,
-    Union,
+# Copyright 2013 Google, Inc. All Rights Reserved.
+#
+# Google Author(s): Behdad Esfahbod, Roozbeh Pournader
+
+from fontTools import ttLib
+from fontTools.ttLib.tables.DefaultTable import DefaultTable
+from fontTools.ttLib.tables import otTables
+from fontTools.merge.base import add_method, mergeObjects
+from fontTools.merge.util import *
+import logging
+
+log = logging.getLogger("fontTools.merge")
+
+
+def mergeLookupLists(lst):
+    # TODO Do smarter merge.
+    return sumLists(lst)
+
+
+def mergeFeatures(lst):
+    assert lst
+    self = otTables.Feature()
+    self.FeatureParams = None
+    self.LookupListIndex = mergeLookupLists(
+        [l.LookupListIndex for l in lst if l.LookupListIndex]
+    )
+    self.LookupCount = len(self.LookupListIndex)
+    return self
+
+
+def mergeFeatureLists(lst):
+    d = {}
+    for l in lst:
+        for f in l:
+            tag = f.FeatureTag
+            if tag not in d:
+                d[tag] = []
+            d[tag].append(f.Feature)
+    ret = []
+    for tag in sorted(d.keys()):
+        rec = otTables.FeatureRecord()
+        rec.FeatureTag = tag
+        rec.Feature = mergeFeatures(d[tag])
+        ret.append(rec)
+    return ret
+
+
+def mergeLangSyses(lst):
+    assert lst
+
+    # TODO Support merging ReqFeatureIndex
+    assert all(l.ReqFeatureIndex == 0xFFFF for l in lst)
+
+    self = otTables.LangSys()
+    self.LookupOrder = None
+    self.ReqFeatureIndex = 0xFFFF
+    self.FeatureIndex = mergeFeatureLists(
+        [l.FeatureIndex for l in lst if l.FeatureIndex]
+    )
+    self.FeatureCount = len(self.FeatureIndex)
+    return self
+
+
+def mergeScripts(lst):
+    assert lst
+
+    if len(lst) == 1:
+        return lst[0]
+    langSyses = {}
+    for sr in lst:
+        for lsr in sr.LangSysRecord:
+            if lsr.LangSysTag not in langSyses:
+                langSyses[lsr.LangSysTag] = []
+            langSyses[lsr.LangSysTag].append(lsr.LangSys)
+    lsrecords = []
+    for tag, langSys_list in sorted(langSyses.items()):
+        lsr = otTables.LangSysRecord()
+        lsr.LangSys = mergeLangSyses(langSys_list)
+        lsr.LangSysTag = tag
+        lsrecords.append(lsr)
+
+    self = otTables.Script()
+    self.LangSysRecord = lsrecords
+    self.LangSysCount = len(lsrecords)
+    dfltLangSyses = [s.DefaultLangSys for s in lst if s.DefaultLangSys]
+    if dfltLangSyses:
+        self.DefaultLangSys = mergeLangSyses(dfltLangSyses)
+    else:
+        self.DefaultLangSys = None
+    return self
+
+
+def mergeScriptRecords(lst):
+    d = {}
+    for l in lst:
+        for s in l:
+            tag = s.ScriptTag
+            if tag not in d:
+                d[tag] = []
+            d[tag].append(s.Script)
+    ret = []
+    for tag in sorted(d.keys()):
+        rec = otTables.ScriptRecord()
+        rec.ScriptTag = tag
+        rec.Script = mergeScripts(d[tag])
+        ret.append(rec)
+    return ret
+
+
+otTables.ScriptList.mergeMap = {
+    "ScriptCount": lambda lst: None,  # TODO
+    "ScriptRecord": mergeScriptRecords,
+}
+otTables.BaseScriptList.mergeMap = {
+    "BaseScriptCount": lambda lst: None,  # TODO
+    # TODO: Merge duplicate entries
+    "BaseScriptRecord": lambda lst: sorted(
+        sumLists(lst), key=lambda s: s.BaseScriptTag
+    ),
+}
+
+otTables.FeatureList.mergeMap = {
+    "FeatureCount": sum,
+    "FeatureRecord": lambda lst: sorted(sumLists(lst), key=lambda s: s.FeatureTag),
+}
+
+otTables.LookupList.mergeMap = {
+    "LookupCount": sum,
+    "Lookup": sumLists,
+}
+
+otTables.Coverage.mergeMap = {
+    "Format": min,
+    "glyphs": sumLists,
+}
+
+otTables.ClassDef.mergeMap = {
+    "Format": min,
+    "classDefs": sumDicts,
+}
+
+otTables.LigCaretList.mergeMap = {
+    "Coverage": mergeObjects,
+    "LigGlyphCount": sum,
+    "LigGlyph": sumLists,
+}
+
+otTables.AttachList.mergeMap = {
+    "Coverage": mergeObjects,
+    "GlyphCount": sum,
+    "AttachPoint": sumLists,
+}
+
+# XXX Renumber MarkFilterSets of lookups
+otTables.MarkGlyphSetsDef.mergeMap = {
+    "MarkSetTableFormat": equal,
+    "MarkSetCount": sum,
+    "Coverage": sumLists,
+}
+
+otTables.Axis.mergeMap = {
+    "*": mergeObjects,
+}
+
+# XXX Fix BASE table merging
+otTables.BaseTagList.mergeMap = {
+    "BaseTagCount": sum,
+    "BaselineTag": sumLists,
+}
+
+otTables.GDEF.mergeMap = otTables.GSUB.mergeMap = otTables.GPOS.mergeMap = (
+    otTables.BASE.mergeMap
+) = otTables.JSTF.mergeMap = otTables.MATH.mergeMap = {
+    "*": mergeObjects,
+    "Version": max,
+}
+
+ttLib.getTableClass("GDEF").mergeMap = ttLib.getTableClass("GSUB").mergeMap = (
+    ttLib.getTableClass("GPOS").mergeMap
+) = ttLib.getTableClass("BASE").mergeMap = ttLib.getTableClass(
+    "JSTF"
+).mergeMap = ttLib.getTableClass(
+    "MATH"
+).mergeMap = {
+    "tableTag": onlyExisting(equal),  # XXX clean me up
+    "table": mergeObjects,
+}
+
+
+@add_method(ttLib.getTableClass("GSUB"))
+def merge(self, m, tables):
+    assert len(tables) == len(m.duplicateGlyphsPerFont)
+    for i, (table, dups) in enumerate(zip(tables, m.duplicateGlyphsPerFont)):
+        if not dups:
+            continue
+        if table is None or table is NotImplemented:
+            log.warning(
+                "Have non-identical duplicates to resolve for '%s' but no GSUB. Are duplicates intended?: %s",
+                m.fonts[i]._merger__name,
+                dups,
+            )
+            continue
+
+        synthFeature = None
+        synthLookup = None
+        for script in table.table.ScriptList.ScriptRecord:
+            if script.ScriptTag == "DFLT":
+                continue  # XXX
+            for langsys in [script.Script.DefaultLangSys] + [
+                l.LangSys for l in script.Script.LangSysRecord
+            ]:
+                if langsys is None:
+                    continue  # XXX Create!
+                feature = [v for v in langsys.FeatureIndex if v.FeatureTag == "locl"]
+                assert len(feature) <= 1
+                if feature:
+                    feature = feature[0]
+                else:
+                    if not synthFeature:
+                        synthFeature = otTables.FeatureRecord()
+                        synthFeature.FeatureTag = "locl"
+                        f = synthFeature.Feature = otTables.Feature()
+                        f.FeatureParams = None
+                        f.LookupCount = 0
+                        f.LookupListIndex = []
+                        table.table.FeatureList.FeatureRecord.append(synthFeature)
+                        table.table.FeatureList.FeatureCount += 1
+                    feature = synthFeature
+                    langsys.FeatureIndex.append(feature)
+                    langsys.FeatureIndex.sort(key=lambda v: v.FeatureTag)
+
+                if not synthLookup:
+                    subtable = otTables.SingleSubst()
+                    subtable.mapping = dups
+                    synthLookup = otTables.Lookup()
+                    synthLookup.LookupFlag = 0
+                    synthLookup.LookupType = 1
+                    synthLookup.SubTableCount = 1
+                    synthLookup.SubTable = [subtable]
+                    if table.table.LookupList is None:
+                        # mtiLib uses None as default value for LookupList,
+                        # while feaLib points to an empty array with count 0
+                        # TODO: make them do the same
+                        table.table.LookupList = otTables.LookupList()
+                        table.table.LookupList.Lookup = []
+                        table.table.LookupList.LookupCount = 0
+                    table.table.LookupList.Lookup.append(synthLookup)
+                    table.table.LookupList.LookupCount += 1
+
+                if feature.Feature.LookupListIndex[:1] != [synthLookup]:
+                    feature.Feature.LookupListIndex[:0] = [synthLookup]
+                    feature.Feature.LookupCount += 1
+
+    DefaultTable.merge(self, m, tables)
+    return self
+
+
+@add_method(
+    otTables.SingleSubst,
+    otTables.MultipleSubst,
+    otTables.AlternateSubst,
+    otTables.LigatureSubst,
+    otTables.ReverseChainSingleSubst,
+    otTables.SinglePos,
+    otTables.PairPos,
+    otTables.CursivePos,
+    otTables.MarkBasePos,
+    otTables.MarkLigPos,
+    otTables.MarkMarkPos,
 )
-
-from ._ratio import ratio_resolve
-from .align import Align
-from .console import Console, ConsoleOptions, RenderableType, RenderResult
-from .highlighter import ReprHighlighter
-from .panel import Panel
-from .pretty import Pretty
-from .region import Region
-from .repr import Result, rich_repr
-from .segment import Segment
-from .style import StyleType
-
-if TYPE_CHECKING:
-    from rich.tree import Tree
+def mapLookups(self, lookupMap):
+    pass
 
 
-class LayoutRender(NamedTuple):
-    """An individual layout render."""
+# Copied and trimmed down from subset.py
+@add_method(
+    otTables.ContextSubst,
+    otTables.ChainContextSubst,
+    otTables.ContextPos,
+    otTables.ChainContextPos,
+)
+def __merge_classify_context(self):
+    class ContextHelper(object):
+        def __init__(self, klass, Format):
+            if klass.__name__.endswith("Subst"):
+                Typ = "Sub"
+                Type = "Subst"
+            else:
+                Typ = "Pos"
+                Type = "Pos"
+            if klass.__name__.startswith("Chain"):
+                Chain = "Chain"
+            else:
+                Chain = ""
+            ChainTyp = Chain + Typ
 
-    region: Region
-    render: List[List[Segment]]
+            self.Typ = Typ
+            self.Type = Type
+            self.Chain = Chain
+            self.ChainTyp = ChainTyp
 
+            self.LookupRecord = Type + "LookupRecord"
 
-RegionMap = Dict["Layout", Region]
-RenderMap = Dict["Layout", LayoutRender]
+            if Format == 1:
+                self.Rule = ChainTyp + "Rule"
+                self.RuleSet = ChainTyp + "RuleSet"
+            elif Format == 2:
+                self.Rule = ChainTyp + "ClassRule"
+                self.RuleSet = ChainTyp + "ClassSet"
 
-
-class LayoutError(Exception):
-    """Layout related error."""
-
-
-class NoSplitter(LayoutError):
-    """Requested splitter does not exist."""
-
-
-class _Placeholder:
-    """An internal renderable used as a Layout placeholder."""
-
-    highlighter = ReprHighlighter()
-
-    def __init__(self, layout: "Layout", style: StyleType = "") -> None:
-        self.layout = layout
-        self.style = style
-
-    def __rich_console__(
-        self, console: Console, options: ConsoleOptions
-    ) -> RenderResult:
-        width = options.max_width
-        height = options.height or options.size.height
-        layout = self.layout
-        title = (
-            f"{layout.name!r} ({width} x {height})"
-            if layout.name
-            else f"({width} x {height})"
-        )
-        yield Panel(
-            Align.center(Pretty(layout), vertical="middle"),
-            style=self.style,
-            title=self.highlighter(title),
-            border_style="blue",
-            height=height,
-        )
+    if self.Format not in [1, 2, 3]:
+        return None  # Don't shoot the messenger; let it go
+    if not hasattr(self.__class__, "_merge__ContextHelpers"):
+        self.__class__._merge__ContextHelpers = {}
+    if self.Format not in self.__class__._merge__ContextHelpers:
+        helper = ContextHelper(self.__class__, self.Format)
+        self.__class__._merge__ContextHelpers[self.Format] = helper
+    return self.__class__._merge__ContextHelpers[self.Format]
 
 
-class Splitter(ABC):
-    """Base class for a splitter."""
+@add_method(
+    otTables.ContextSubst,
+    otTables.ChainContextSubst,
+    otTables.ContextPos,
+    otTables.ChainContextPos,
+)
+def mapLookups(self, lookupMap):
+    c = self.__merge_classify_context()
 
-    name: str = ""
-
-    @abstractmethod
-    def get_tree_icon(self) -> str:
-        """Get the icon (emoji) used in layout.tree"""
-
-    @abstractmethod
-    def divide(
-        self, children: Sequence["Layout"], region: Region
-    ) -> Iterable[Tuple["Layout", Region]]:
-        """Divide a region amongst several child layouts.
-
-        Args:
-            children (Sequence(Layout)): A number of child layouts.
-            region (Region): A rectangular region to divide.
-        """
-
-
-class RowSplitter(Splitter):
-    """Split a layout region in to rows."""
-
-    name = "row"
-
-    def get_tree_icon(self) -> str:
-        return "[layout.tree.row]⬌"
-
-    def divide(
-        self, children: Sequence["Layout"], region: Region
-    ) -> Iterable[Tuple["Layout", Region]]:
-        x, y, width, height = region
-        render_widths = ratio_resolve(width, children)
-        offset = 0
-        _Region = Region
-        for child, child_width in zip(children, render_widths):
-            yield child, _Region(x + offset, y, child_width, height)
-            offset += child_width
+    if self.Format in [1, 2]:
+        for rs in getattr(self, c.RuleSet):
+            if not rs:
+                continue
+            for r in getattr(rs, c.Rule):
+                if not r:
+                    continue
+                for ll in getattr(r, c.LookupRecord):
+                    if not ll:
+                        continue
+                    ll.LookupListIndex = lookupMap[ll.LookupListIndex]
+    elif self.Format == 3:
+        for ll in getattr(self, c.LookupRecord):
+            if not ll:
+                continue
+            ll.LookupListIndex = lookupMap[ll.LookupListIndex]
+    else:
+        assert 0, "unknown format: %s" % self.Format
 
 
-class ColumnSplitter(Splitter):
-    """Split a layout region in to columns."""
-
-    name = "column"
-
-    def get_tree_icon(self) -> str:
-        return "[layout.tree.column]⬍"
-
-    def divide(
-        self, children: Sequence["Layout"], region: Region
-    ) -> Iterable[Tuple["Layout", Region]]:
-        x, y, width, height = region
-        render_heights = ratio_resolve(height, children)
-        offset = 0
-        _Region = Region
-        for child, child_height in zip(children, render_heights):
-            yield child, _Region(x, y + offset, width, child_height)
-            offset += child_height
+@add_method(otTables.ExtensionSubst, otTables.ExtensionPos)
+def mapLookups(self, lookupMap):
+    if self.Format == 1:
+        self.ExtSubTable.mapLookups(lookupMap)
+    else:
+        assert 0, "unknown format: %s" % self.Format
 
 
-@rich_repr
-class Layout:
-    """A renderable to divide a fixed height in to rows or columns.
+@add_method(otTables.Lookup)
+def mapLookups(self, lookupMap):
+    for st in self.SubTable:
+        if not st:
+            continue
+        st.mapLookups(lookupMap)
 
-    Args:
-        renderable (RenderableType, optional): Renderable content, or None for placeholder. Defaults to None.
-        name (str, optional): Optional identifier for Layout. Defaults to None.
-        size (int, optional): Optional fixed size of layout. Defaults to None.
-        minimum_size (int, optional): Minimum size of layout. Defaults to 1.
-        ratio (int, optional): Optional ratio for flexible layout. Defaults to 1.
-        visible (bool, optional): Visibility of layout. Defaults to True.
-    """
 
-    splitters = {"row": RowSplitter, "column": ColumnSplitter}
+@add_method(otTables.LookupList)
+def mapLookups(self, lookupMap):
+    for l in self.Lookup:
+        if not l:
+            continue
+        l.mapLookups(lookupMap)
 
-    def __init__(
-        self,
-        renderable: Optional[RenderableType] = None,
-        *,
-        name: Optional[str] = None,
-        size: Optional[int] = None,
-        minimum_size: int = 1,
-        ratio: int = 1,
-        visible: bool = True,
-    ) -> None:
-        self._renderable = renderable or _Placeholder(self)
-        self.size = size
-        self.minimum_size = minimum_size
-        self.ratio = ratio
-        self.name = name
-        self.visible = visible
-        self.splitter: Splitter = self.splitters["column"]()
-        self._children: List[Layout] = []
-        self._render_map: RenderMap = {}
-        self._lock = RLock()
 
-    def __rich_repr__(self) -> Result:
-        yield "name", self.name, None
-        yield "size", self.size, None
-        yield "minimum_size", self.minimum_size, 1
-        yield "ratio", self.ratio, 1
+@add_method(otTables.Lookup)
+def mapMarkFilteringSets(self, markFilteringSetMap):
+    if self.LookupFlag & 0x0010:
+        self.MarkFilteringSet = markFilteringSetMap[self.MarkFilteringSet]
 
-    @property
-    def renderable(self) -> RenderableType:
-        """Layout renderable."""
-        return self if self._children else self._renderable
 
-    @property
-    def children(self) -> List["Layout"]:
-        """Gets (visible) layout children."""
-        return [child for child in self._children if child.visible]
+@add_method(otTables.LookupList)
+def mapMarkFilteringSets(self, markFilteringSetMap):
+    for l in self.Lookup:
+        if not l:
+            continue
+        l.mapMarkFilteringSets(markFilteringSetMap)
 
-    @property
-    def map(self) -> RenderMap:
-        """Get a map of the last render."""
-        return self._render_map
 
-    def get(self, name: str) -> Optional["Layout"]:
-        """Get a named layout, or None if it doesn't exist.
+@add_method(otTables.Feature)
+def mapLookups(self, lookupMap):
+    self.LookupListIndex = [lookupMap[i] for i in self.LookupListIndex]
 
-        Args:
-            name (str): Name of layout.
 
-        Returns:
-            Optional[Layout]: Layout instance or None if no layout was found.
-        """
-        if self.name == name:
-            return self
-        else:
-            for child in self._children:
-                named_layout = child.get(name)
-                if named_layout is not None:
-                    return named_layout
-        return None
+@add_method(otTables.FeatureList)
+def mapLookups(self, lookupMap):
+    for f in self.FeatureRecord:
+        if not f or not f.Feature:
+            continue
+        f.Feature.mapLookups(lookupMap)
 
-    def __getitem__(self, name: str) -> "Layout":
-        layout = self.get(name)
-        if layout is None:
-            raise KeyError(f"No layout with name {name!r}")
-        return layout
 
-    @property
-    def tree(self) -> "Tree":
-        """Get a tree renderable to show layout structure."""
-        from rich.styled import Styled
-        from rich.table import Table
-        from rich.tree import Tree
+@add_method(otTables.DefaultLangSys, otTables.LangSys)
+def mapFeatures(self, featureMap):
+    self.FeatureIndex = [featureMap[i] for i in self.FeatureIndex]
+    if self.ReqFeatureIndex != 65535:
+        self.ReqFeatureIndex = featureMap[self.ReqFeatureIndex]
 
-        def summary(layout: "Layout") -> Table:
-            icon = layout.splitter.get_tree_icon()
 
-            table = Table.grid(padding=(0, 1, 0, 0))
+@add_method(otTables.Script)
+def mapFeatures(self, featureMap):
+    if self.DefaultLangSys:
+        self.DefaultLangSys.mapFeatures(featureMap)
+    for l in self.LangSysRecord:
+        if not l or not l.LangSys:
+            continue
+        l.LangSys.mapFeatures(featureMap)
 
-            text: RenderableType = (
-                Pretty(layout) if layout.visible else Styled(Pretty(layout), "dim")
+
+@add_method(otTables.ScriptList)
+def mapFeatures(self, featureMap):
+    for s in self.ScriptRecord:
+        if not s or not s.Script:
+            continue
+        s.Script.mapFeatures(featureMap)
+
+
+def layoutPreMerge(font):
+    # Map indices to references
+
+    GDEF = font.get("GDEF")
+    GSUB = font.get("GSUB")
+    GPOS = font.get("GPOS")
+
+    for t in [GSUB, GPOS]:
+        if not t:
+            continue
+
+        if t.table.LookupList:
+            lookupMap = {i: v for i, v in enumerate(t.table.LookupList.Lookup)}
+            t.table.LookupList.mapLookups(lookupMap)
+            t.table.FeatureList.mapLookups(lookupMap)
+
+            if (
+                GDEF
+                and GDEF.table.Version >= 0x00010002
+                and GDEF.table.MarkGlyphSetsDef
+            ):
+                markFilteringSetMap = {
+                    i: v for i, v in enumerate(GDEF.table.MarkGlyphSetsDef.Coverage)
+                }
+                t.table.LookupList.mapMarkFilteringSets(markFilteringSetMap)
+
+        if t.table.FeatureList and t.table.ScriptList:
+            featureMap = {i: v for i, v in enumerate(t.table.FeatureList.FeatureRecord)}
+            t.table.ScriptList.mapFeatures(featureMap)
+
+    # TODO FeatureParams nameIDs
+
+
+def layoutPostMerge(font):
+    # Map references back to indices
+
+    GDEF = font.get("GDEF")
+    GSUB = font.get("GSUB")
+    GPOS = font.get("GPOS")
+
+    for t in [GSUB, GPOS]:
+        if not t:
+            continue
+
+        if t.table.FeatureList and t.table.ScriptList:
+            # Collect unregistered (new) features.
+            featureMap = GregariousIdentityDict(t.table.FeatureList.FeatureRecord)
+            t.table.ScriptList.mapFeatures(featureMap)
+
+            # Record used features.
+            featureMap = AttendanceRecordingIdentityDict(
+                t.table.FeatureList.FeatureRecord
             )
-            table.add_row(icon, text)
-            _summary = table
-            return _summary
+            t.table.ScriptList.mapFeatures(featureMap)
+            usedIndices = featureMap.s
 
-        layout = self
-        tree = Tree(
-            summary(layout),
-            guide_style=f"layout.tree.{layout.splitter.name}",
-            highlight=True,
-        )
+            # Remove unused features
+            t.table.FeatureList.FeatureRecord = [
+                f
+                for i, f in enumerate(t.table.FeatureList.FeatureRecord)
+                if i in usedIndices
+            ]
 
-        def recurse(tree: "Tree", layout: "Layout") -> None:
-            for child in layout._children:
-                recurse(
-                    tree.add(
-                        summary(child),
-                        guide_style=f"layout.tree.{child.splitter.name}",
-                    ),
-                    child,
+            # Map back to indices.
+            featureMap = NonhashableDict(t.table.FeatureList.FeatureRecord)
+            t.table.ScriptList.mapFeatures(featureMap)
+
+            t.table.FeatureList.FeatureCount = len(t.table.FeatureList.FeatureRecord)
+
+        if t.table.LookupList:
+            # Collect unregistered (new) lookups.
+            lookupMap = GregariousIdentityDict(t.table.LookupList.Lookup)
+            t.table.FeatureList.mapLookups(lookupMap)
+            t.table.LookupList.mapLookups(lookupMap)
+
+            # Record used lookups.
+            lookupMap = AttendanceRecordingIdentityDict(t.table.LookupList.Lookup)
+            t.table.FeatureList.mapLookups(lookupMap)
+            t.table.LookupList.mapLookups(lookupMap)
+            usedIndices = lookupMap.s
+
+            # Remove unused lookups
+            t.table.LookupList.Lookup = [
+                l for i, l in enumerate(t.table.LookupList.Lookup) if i in usedIndices
+            ]
+
+            # Map back to indices.
+            lookupMap = NonhashableDict(t.table.LookupList.Lookup)
+            t.table.FeatureList.mapLookups(lookupMap)
+            t.table.LookupList.mapLookups(lookupMap)
+
+            t.table.LookupList.LookupCount = len(t.table.LookupList.Lookup)
+
+            if GDEF and GDEF.table.Version >= 0x00010002:
+                markFilteringSetMap = NonhashableDict(
+                    GDEF.table.MarkGlyphSetsDef.Coverage
                 )
+                t.table.LookupList.mapMarkFilteringSets(markFilteringSetMap)
 
-        recurse(tree, self)
-        return tree
-
-    def split(
-        self,
-        *layouts: Union["Layout", RenderableType],
-        splitter: Union[Splitter, str] = "column",
-    ) -> None:
-        """Split the layout in to multiple sub-layouts.
-
-        Args:
-            *layouts (Layout): Positional arguments should be (sub) Layout instances.
-            splitter (Union[Splitter, str]): Splitter instance or name of splitter.
-        """
-        _layouts = [
-            layout if isinstance(layout, Layout) else Layout(layout)
-            for layout in layouts
-        ]
-        try:
-            self.splitter = (
-                splitter
-                if isinstance(splitter, Splitter)
-                else self.splitters[splitter]()
-            )
-        except KeyError:
-            raise NoSplitter(f"No splitter called {splitter!r}")
-        self._children[:] = _layouts
-
-    def add_split(self, *layouts: Union["Layout", RenderableType]) -> None:
-        """Add a new layout(s) to existing split.
-
-        Args:
-            *layouts (Union[Layout, RenderableType]): Positional arguments should be renderables or (sub) Layout instances.
-
-        """
-        _layouts = (
-            layout if isinstance(layout, Layout) else Layout(layout)
-            for layout in layouts
-        )
-        self._children.extend(_layouts)
-
-    def split_row(self, *layouts: Union["Layout", RenderableType]) -> None:
-        """Split the layout in to a row (layouts side by side).
-
-        Args:
-            *layouts (Layout): Positional arguments should be (sub) Layout instances.
-        """
-        self.split(*layouts, splitter="row")
-
-    def split_column(self, *layouts: Union["Layout", RenderableType]) -> None:
-        """Split the layout in to a column (layouts stacked on top of each other).
-
-        Args:
-            *layouts (Layout): Positional arguments should be (sub) Layout instances.
-        """
-        self.split(*layouts, splitter="column")
-
-    def unsplit(self) -> None:
-        """Reset splits to initial state."""
-        del self._children[:]
-
-    def update(self, renderable: RenderableType) -> None:
-        """Update renderable.
-
-        Args:
-            renderable (RenderableType): New renderable object.
-        """
-        with self._lock:
-            self._renderable = renderable
-
-    def refresh_screen(self, console: "Console", layout_name: str) -> None:
-        """Refresh a sub-layout.
-
-        Args:
-            console (Console): Console instance where Layout is to be rendered.
-            layout_name (str): Name of layout.
-        """
-        with self._lock:
-            layout = self[layout_name]
-            region, _lines = self._render_map[layout]
-            (x, y, width, height) = region
-            lines = console.render_lines(
-                layout, console.options.update_dimensions(width, height)
-            )
-            self._render_map[layout] = LayoutRender(region, lines)
-            console.update_screen_lines(lines, x, y)
-
-    def _make_region_map(self, width: int, height: int) -> RegionMap:
-        """Create a dict that maps layout on to Region."""
-        stack: List[Tuple[Layout, Region]] = [(self, Region(0, 0, width, height))]
-        push = stack.append
-        pop = stack.pop
-        layout_regions: List[Tuple[Layout, Region]] = []
-        append_layout_region = layout_regions.append
-        while stack:
-            append_layout_region(pop())
-            layout, region = layout_regions[-1]
-            children = layout.children
-            if children:
-                for child_and_region in layout.splitter.divide(children, region):
-                    push(child_and_region)
-
-        region_map = {
-            layout: region
-            for layout, region in sorted(layout_regions, key=itemgetter(1))
-        }
-        return region_map
-
-    def render(self, console: Console, options: ConsoleOptions) -> RenderMap:
-        """Render the sub_layouts.
-
-        Args:
-            console (Console): Console instance.
-            options (ConsoleOptions): Console options.
-
-        Returns:
-            RenderMap: A dict that maps Layout on to a tuple of Region, lines
-        """
-        render_width = options.max_width
-        render_height = options.height or console.height
-        region_map = self._make_region_map(render_width, render_height)
-        layout_regions = [
-            (layout, region)
-            for layout, region in region_map.items()
-            if not layout.children
-        ]
-        render_map: Dict["Layout", "LayoutRender"] = {}
-        render_lines = console.render_lines
-        update_dimensions = options.update_dimensions
-
-        for layout, region in layout_regions:
-            lines = render_lines(
-                layout.renderable, update_dimensions(region.width, region.height)
-            )
-            render_map[layout] = LayoutRender(region, lines)
-        return render_map
-
-    def __rich_console__(
-        self, console: Console, options: ConsoleOptions
-    ) -> RenderResult:
-        with self._lock:
-            width = options.max_width or console.width
-            height = options.height or console.height
-            render_map = self.render(console, options.update_dimensions(width, height))
-            self._render_map = render_map
-            layout_lines: List[List[Segment]] = [[] for _ in range(height)]
-            _islice = islice
-            for region, lines in render_map.values():
-                _x, y, _layout_width, layout_height = region
-                for row, line in zip(
-                    _islice(layout_lines, y, y + layout_height), lines
-                ):
-                    row.extend(line)
-
-            new_line = Segment.line()
-            for layout_row in layout_lines:
-                yield from layout_row
-                yield new_line
-
-
-if __name__ == "__main__":
-    from rich.console import Console
-
-    console = Console()
-    layout = Layout()
-
-    layout.split_column(
-        Layout(name="header", size=3),
-        Layout(ratio=1, name="main"),
-        Layout(size=10, name="footer"),
-    )
-
-    layout["main"].split_row(Layout(name="side"), Layout(name="body", ratio=2))
-
-    layout["body"].split_row(Layout(name="content", ratio=2), Layout(name="s2"))
-
-    layout["s2"].split_column(
-        Layout(name="top"), Layout(name="middle"), Layout(name="bottom")
-    )
-
-    layout["side"].split_column(Layout(layout.tree, name="left1"), Layout(name="left2"))
-
-    layout["content"].update("foo")
-
-    console.print(layout)
+    # TODO FeatureParams nameIDs

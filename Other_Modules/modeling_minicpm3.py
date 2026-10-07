@@ -599,4 +599,4 @@ class MiniCPM3ForSequenceClassification(GenericForSequenceClassification, MiniCP
     pass
 
 
-__all__ = ["MiniCPM3PreTrainedModel", "MiniCPM3Model", "MiniCPM3ForCausalLM", "MiniCPM3ForSequenceClassification"]
+__all__ = ["MiniCPM3PreTrainedModel", "MiniCPM3Model", "MiniCPM3ForCausalLM", "REDACTED_MISTRAL"]

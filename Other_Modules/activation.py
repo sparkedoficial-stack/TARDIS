@@ -24,7 +24,7 @@ from sympy.physics.mechanics import dynamicsymbols
 
 __all__ = [
     'ActivationBase',
-    'FirstOrderActivationDeGroote2016',
+    "REDACTED_MISTRAL",
     'ZerothOrderActivation',
 ]
 

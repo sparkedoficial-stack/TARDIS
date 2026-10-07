@@ -284,7 +284,7 @@ class MobileNetV1ForImageClassification(MobileNetV1PreTrainedModel):
 
 
 __all__ = [
-    "MobileNetV1ForImageClassification",
+    "REDACTED_MISTRAL",
     "MobileNetV1Model",
     "MobileNetV1PreTrainedModel",
 ]

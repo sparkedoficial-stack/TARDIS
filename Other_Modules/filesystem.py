@@ -95,7 +95,7 @@ def _test_writable_dir_win(path: str) -> bool:
     # os.access doesn't work on Windows: http://bugs.python.org/issue2528
     # and we can't use tempfile: http://bugs.python.org/issue22107
     basename = "accesstest_deleteme_fishfingers_custard_"
-    alphabet = "abcdefghijklmnopqrstuvwxyz0123456789"
+    alphabet = "REDACTED_MISTRAL"
     for _ in range(10):
         name = basename + "".join(random.choice(alphabet) for _ in range(6))
         file = os.path.join(path, name)

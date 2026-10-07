@@ -1039,7 +1039,7 @@ __all__ = [
     "ConvBertForMaskedLM",
     "ConvBertForMultipleChoice",
     "ConvBertForQuestionAnswering",
-    "ConvBertForSequenceClassification",
+    "REDACTED_MISTRAL",
     "ConvBertForTokenClassification",
     "ConvBertLayer",
     "ConvBertModel",

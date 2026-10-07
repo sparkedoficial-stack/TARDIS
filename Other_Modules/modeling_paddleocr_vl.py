@@ -1463,7 +1463,7 @@ class PaddleOCRVLForConditionalGeneration(PaddleOCRVLPreTrainedModel, Generation
 
 
 __all__ = [
-    "PaddleOCRVLForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "PaddleOCRVLModel",
     "PaddleOCRVLPreTrainedModel",
     "PaddleOCRVisionTransformer",

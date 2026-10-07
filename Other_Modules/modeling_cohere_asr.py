@@ -663,4 +663,4 @@ class CohereAsrForConditionalGeneration(CohereAsrPreTrainedModel, GenerationMixi
         return super().prepare_inputs_for_generation(*args, **kwargs)
 
 
-__all__ = ["CohereAsrPreTrainedModel", "CohereAsrModel", "CohereAsrForConditionalGeneration"]
+__all__ = ["CohereAsrPreTrainedModel", "CohereAsrModel", "REDACTED_MISTRAL"]

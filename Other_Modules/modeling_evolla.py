@@ -1257,8 +1257,8 @@ class EvollaPreTrainedModel(PreTrainedModel):
     _no_split_modules = [
         "EvollaDecoderLayer",
         "EvollaSaProtLayer",
-        "EvollaSequenceCompressorResampler",
-        "EvollaSequenceAlignerCrossAttention",
+        "REDACTED_MISTRAL",
+        "REDACTED_MISTRAL",
     ]
     _skip_keys_device_placement = ["past_key_values"]
     _supports_flash_attn = False  # see dependency on `EvollaSequenceCompressorResampler`

@@ -961,5 +961,5 @@ __all__ = [
     "Gemma3ForConditionalGeneration",
     "Gemma3Model",
     "Gemma3ForSequenceClassification",
-    "Gemma3TextForSequenceClassification",
+    "REDACTED_MISTRAL",
 ]

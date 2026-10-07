@@ -1335,10 +1335,10 @@ __all__ = [
     "T5Gemma2TextConfig",
     "T5Gemma2EncoderConfig",
     "T5Gemma2DecoderConfig",
-    "T5Gemma2ForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "T5Gemma2Model",
     "T5Gemma2Encoder",
     "T5Gemma2PreTrainedModel",
-    "T5Gemma2ForSequenceClassification",
+    "REDACTED_MISTRAL",
     "T5Gemma2ForTokenClassification",
 ]

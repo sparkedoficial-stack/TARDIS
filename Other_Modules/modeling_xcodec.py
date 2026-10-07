@@ -333,7 +333,7 @@ class XcodecPreTrainedModel(PreTrainedAudioTokenizerBase):
     base_model_prefix = "xcodec"
     main_input_name = "input_values"
     input_modalities = "audio"
-    _no_split_modules = ["XcodecResidualVectorQuantization"]
+    _no_split_modules = ["REDACTED_MISTRAL"]
 
     @torch.no_grad()
     def _init_weights(self, module):

@@ -805,7 +805,7 @@ class NemotronAsrStreamingPreTrainedModel(PreTrainedModel):
     main_input_name = "input_features"
     input_modalities = "audio"
     supports_gradient_checkpointing = True
-    _no_split_modules = ["NemotronAsrStreamingEncoderBlock"]
+    _no_split_modules = ["REDACTED_MISTRAL"]
     _supports_flat_attention_mask = True
     _supports_sdpa = True
     # flex attention is incompatible as this model uses a float attention mask (relative position bias) across the board
@@ -1242,9 +1242,9 @@ class NemotronAsrStreamingForRNNT(NemotronAsrStreamingPreTrainedModel, NemotronA
 
 
 __all__ = [
-    "NemotronAsrStreamingEncoderModelOutput",
+    "REDACTED_MISTRAL",
     "NemotronAsrStreamingRNNTOutput",
     "NemotronAsrStreamingForRNNT",
     "NemotronAsrStreamingEncoder",
-    "NemotronAsrStreamingPreTrainedModel",
+    "REDACTED_MISTRAL",
 ]

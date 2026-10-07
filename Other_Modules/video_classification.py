@@ -17,7 +17,7 @@ class VideoClassificationParameters(BaseInferenceType):
 
     frame_sampling_rate: int | None = None
     """The sampling rate used to select frames from the video."""
-    function_to_apply: Optional["VideoClassificationOutputTransform"] = None
+    function_to_apply: Optional["REDACTED_MISTRAL"] = None
     """The function to apply to the model outputs in order to retrieve the scores."""
     num_frames: int | None = None
     """The number of sampled frames to consider for classification."""

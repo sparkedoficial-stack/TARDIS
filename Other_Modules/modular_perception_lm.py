@@ -376,7 +376,7 @@ class PerceptionLMForConditionalGeneration(LlavaForConditionalGeneration):
 
 
 __all__ = [
-    "PerceptionLMForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "PerceptionLMPreTrainedModel",
     "PerceptionLMModel",
 ]

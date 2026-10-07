@@ -317,5 +317,5 @@ keyboardMapping.update({
 })
 
 # Trading memory for time" populate winKB so we don't have to call VkKeyScanA each time.
-for c in """abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890""":
+for c in """REDACTED_MISTRAL""":
     keyboardMapping[c] = _display.keysym_to_keycode(Xlib.XK.string_to_keysym(c))

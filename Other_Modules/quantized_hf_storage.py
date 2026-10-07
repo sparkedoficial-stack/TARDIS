@@ -15,7 +15,7 @@ from .hf_storage import HuggingFaceStorageReader
 
 logger: logging.Logger = logging.getLogger(__name__)
 
-__all__ = ["QuantizedHuggingFaceStorageReader"]
+__all__ = ["REDACTED_MISTRAL"]
 
 
 class QuantizedHuggingFaceStorageReader(HuggingFaceStorageReader):

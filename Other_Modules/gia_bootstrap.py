@@ -39,25 +39,13 @@ def normalize_endpoint(endpoint: Optional[str] = None) -> str:
 DEFAULT_OLLAMA_ENDPOINT = normalize_endpoint(os.environ.get("OLLAMA_HOST", "http://REDACTED_IP:11434"))
 
 DEFAULT_MODELS_PREFERENCE = [
+    "dolphin3:latest",
+    "dolphin3",
+    "dolphin3.0",
+    "dolphin",
     "hermes3:8b",
     "hermes3",
-    "hermes3:latest",
-    "Qwen3.8-27B-Uncensored-MLX:latest",
-    "Qwen3.8-27B-Uncensored:latest",
-    "orcarouter/Qwen3.8-27B-Uncensored:latest",
-    "orcarouter/Qwen3.8-27B-Uncensored",
-    "Qwen3.8-27B-Uncensored",
-    "qwen3.8-27b-uncensored",
-    "qwen3.8:27b",
-    "llama3.2:3b",
-    "qwen2.5:3b",
-    "llama3.1:8b",
-    "qwen2.5-coder:7b",
-    "deepseek-r1:8b",
-    "qwen3-coder:30b",
-    "mistral:latest",
-    "gemma2:9b",
-    "llama3.2:1b"
+    "hermes3:latest"
 ]
 
 
@@ -85,6 +73,16 @@ def find_ollama_binary() -> Optional[str]:
             Path(os.environ.get("ProgramFiles", r"C:\Program Files")) / "Ollama" / "ollama.exe",
             Path(os.environ.get("ProgramFiles(x86)", r"C:\Program Files (x86)")) / "Ollama" / "ollama.exe",
             Path(os.path.expanduser("~")) / "AppData" / "Local" / "Programs" / "Ollama" / "ollama.exe",
+        ]
+        for c in candidates:
+            if c.is_file():
+                return str(c)
+    else:
+        candidates = [
+            Path(os.path.expanduser("~")) / ".local" / "bin" / "ollama",
+            Path("/usr/local/bin/ollama"),
+            Path("/usr/bin/ollama"),
+            Path("/opt/ollama/bin/ollama"),
         ]
         for c in candidates:
             if c.is_file():
@@ -135,6 +133,7 @@ def start_ollama_service(endpoint: str = DEFAULT_OLLAMA_ENDPOINT) -> bool:
             stderr=subprocess.DEVNULL,
             stdin=subprocess.DEVNULL,
             creationflags=creationflags,
+            start_new_session=(sys.platform != "win32"),
             close_fds=(sys.platform != "win32")
         )
         return True
@@ -145,7 +144,9 @@ def start_ollama_service(endpoint: str = DEFAULT_OLLAMA_ENDPOINT) -> bool:
                 [binary],
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
-                creationflags=creationflags
+                creationflags=creationflags,
+                start_new_session=(sys.platform != "win32"),
+                close_fds=(sys.platform != "win32")
             )
             return True
         except Exception as e2:

@@ -112,7 +112,7 @@ class SuperPointImageProcessorPil(PilBackend):
 
     @requires(backends=("torch",))
     def post_process_keypoint_detection(
-        self, outputs: "SuperPointKeypointDescriptionOutput", target_sizes: TensorType | list[tuple]
+        self, outputs: "REDACTED_MISTRAL", target_sizes: TensorType | list[tuple]
     ) -> list[dict[str, "torch.Tensor"]]:
         """
         Converts the raw output of [`SuperPointForKeypointDetection`] into lists of keypoints, scores and descriptors

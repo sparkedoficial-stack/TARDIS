@@ -694,8 +694,8 @@ class EvollaPreTrainedModel(LlamaPreTrainedModel):
     _no_split_modules = [
         "EvollaDecoderLayer",
         "EvollaSaProtLayer",
-        "EvollaSequenceCompressorResampler",
-        "EvollaSequenceAlignerCrossAttention",
+        "REDACTED_MISTRAL",
+        "REDACTED_MISTRAL",
     ]
 
     @torch.no_grad()

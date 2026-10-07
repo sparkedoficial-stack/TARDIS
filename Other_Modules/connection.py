@@ -1,222 +1,137 @@
 from __future__ import annotations
 
-import itertools
-import logging
-import ssl
-import types
+import socket
 import typing
 
-from .._backends.auto import AutoBackend
-from .._backends.base import SOCKET_OPTION, AsyncNetworkBackend, AsyncNetworkStream
-from .._exceptions import ConnectError, ConnectTimeout
-from .._models import Origin, Request, Response
-from .._ssl import default_ssl_context
-from .._synchronization import AsyncLock
-from .._trace import Trace
-from .http11 import AsyncHTTP11Connection
-from .interfaces import AsyncConnectionInterface
+from ..exceptions import LocationParseError
+from .timeout import _DEFAULT_TIMEOUT, _TYPE_TIMEOUT
 
-RETRIES_BACKOFF_FACTOR = 0.5  # 0s, 0.5s, 1s, 2s, 4s, etc.
+_TYPE_SOCKET_OPTIONS = list[tuple[int, int, typing.Union[int, bytes]]]
+
+if typing.TYPE_CHECKING:
+    from .._base_connection import BaseHTTPConnection
 
 
-logger = logging.getLogger("httpcore.connection")
-
-
-def exponential_backoff(factor: float) -> typing.Iterator[float]:
+def is_connection_dropped(conn: BaseHTTPConnection) -> bool:  # Platform-specific
     """
-    Generate a geometric sequence that has a ratio of 2 and starts with 0.
-
-    For example:
-    - `factor = 2`: `0, 2, 4, 8, 16, 32, 64, ...`
-    - `factor = 3`: `0, 3, 6, 12, 24, 48, 96, ...`
+    Returns True if the connection is dropped and should be closed.
+    :param conn: :class:`urllib3.connection.HTTPConnection` object.
     """
-    yield 0
-    for n in itertools.count():
-        yield factor * 2**n
+    return not conn.is_connected
 
 
-class AsyncHTTPConnection(AsyncConnectionInterface):
-    def __init__(
-        self,
-        origin: Origin,
-        ssl_context: ssl.SSLContext | None = None,
-        keepalive_expiry: float | None = None,
-        http1: bool = True,
-        http2: bool = False,
-        retries: int = 0,
-        local_address: str | None = None,
-        uds: str | None = None,
-        network_backend: AsyncNetworkBackend | None = None,
-        socket_options: typing.Iterable[SOCKET_OPTION] | None = None,
-    ) -> None:
-        self._origin = origin
-        self._ssl_context = ssl_context
-        self._keepalive_expiry = keepalive_expiry
-        self._http1 = http1
-        self._http2 = http2
-        self._retries = retries
-        self._local_address = local_address
-        self._uds = uds
+# This function is copied from socket.py in the Python 2.7 standard
+# library test suite. Added to its signature is only `socket_options`.
+# One additional modification is that we avoid binding to IPv6 servers
+# discovered in DNS if the system doesn't have IPv6 functionality.
+def create_connection(
+    address: tuple[str, int],
+    timeout: _TYPE_TIMEOUT = _DEFAULT_TIMEOUT,
+    source_address: tuple[str, int] | None = None,
+    socket_options: _TYPE_SOCKET_OPTIONS | None = None,
+) -> socket.socket:
+    """Connect to *address* and return the socket object.
 
-        self._network_backend: AsyncNetworkBackend = (
-            AutoBackend() if network_backend is None else network_backend
-        )
-        self._connection: AsyncConnectionInterface | None = None
-        self._connect_failed: bool = False
-        self._request_lock = AsyncLock()
-        self._socket_options = socket_options
+    Convenience function.  Connect to *address* (a 2-tuple ``(host,
+    port)``) and return the socket object.  Passing the optional
+    *timeout* parameter will set the timeout on the socket instance
+    before attempting to connect.  If no *timeout* is supplied, the
+    global default timeout setting returned by :func:`socket.getdefaulttimeout`
+    is used.  If *source_address* is set it must be a tuple of (host, port)
+    for the socket to bind as a source address before making the connection.
+    An host of '' or port 0 tells the OS to use the default.
+    """
 
-    async def handle_async_request(self, request: Request) -> Response:
-        if not self.can_handle_request(request.url.origin):
-            raise RuntimeError(
-                f"Attempted to send request to {request.url.origin} on connection to {self._origin}"
-            )
+    host, port = address
+    if host.startswith("["):
+        host = host.strip("[]")
+    err = None
 
+    # Using the value from allowed_gai_family() in the context of getaddrinfo lets
+    # us select whether to work with IPv4 DNS records, IPv6 records, or both.
+    # The original create_connection function always returns all records.
+    family = allowed_gai_family()
+
+    try:
+        host.encode("idna")
+    except UnicodeError:
+        raise LocationParseError(f"'{host}', label empty or too long") from None
+
+    for res in socket.getaddrinfo(host, port, family, socket.SOCK_STREAM):
+        af, socktype, proto, canonname, sa = res
+        sock = None
         try:
-            async with self._request_lock:
-                if self._connection is None:
-                    stream = await self._connect(request)
+            sock = socket.socket(af, socktype, proto)
 
-                    ssl_object = stream.get_extra_info("ssl_object")
-                    http2_negotiated = (
-                        ssl_object is not None
-                        and ssl_object.selected_alpn_protocol() == "h2"
-                    )
-                    if http2_negotiated or (self._http2 and not self._http1):
-                        from .http2 import AsyncHTTP2Connection
+            # If provided, set socket level options before connecting.
+            _set_socket_options(sock, socket_options)
 
-                        self._connection = AsyncHTTP2Connection(
-                            origin=self._origin,
-                            stream=stream,
-                            keepalive_expiry=self._keepalive_expiry,
-                        )
-                    else:
-                        self._connection = AsyncHTTP11Connection(
-                            origin=self._origin,
-                            stream=stream,
-                            keepalive_expiry=self._keepalive_expiry,
-                        )
-        except BaseException as exc:
-            self._connect_failed = True
-            raise exc
+            if timeout is not _DEFAULT_TIMEOUT:
+                sock.settimeout(timeout)
+            if source_address:
+                sock.bind(source_address)
+            sock.connect(sa)
+            # Break explicitly a reference cycle
+            err = None
+            return sock
 
-        return await self._connection.handle_async_request(request)
+        except OSError as _:
+            err = _
+            if sock is not None:
+                sock.close()
 
-    async def _connect(self, request: Request) -> AsyncNetworkStream:
-        timeouts = request.extensions.get("timeout", {})
-        sni_hostname = request.extensions.get("sni_hostname", None)
-        timeout = timeouts.get("connect", None)
+    if err is not None:
+        try:
+            raise err
+        finally:
+            # Break explicitly a reference cycle
+            err = None
+    else:
+        raise OSError("getaddrinfo returns an empty list")
 
-        retries_left = self._retries
-        delays = exponential_backoff(factor=RETRIES_BACKOFF_FACTOR)
 
-        while True:
-            try:
-                if self._uds is None:
-                    kwargs = {
-                        "host": self._origin.host.decode("ascii"),
-                        "port": self._origin.port,
-                        "local_address": self._local_address,
-                        "timeout": timeout,
-                        "socket_options": self._socket_options,
-                    }
-                    async with Trace("connect_tcp", logger, request, kwargs) as trace:
-                        stream = await self._network_backend.connect_tcp(**kwargs)
-                        trace.return_value = stream
-                else:
-                    kwargs = {
-                        "path": self._uds,
-                        "timeout": timeout,
-                        "socket_options": self._socket_options,
-                    }
-                    async with Trace(
-                        "connect_unix_socket", logger, request, kwargs
-                    ) as trace:
-                        stream = await self._network_backend.connect_unix_socket(
-                            **kwargs
-                        )
-                        trace.return_value = stream
+def _set_socket_options(
+    sock: socket.socket, options: _TYPE_SOCKET_OPTIONS | None
+) -> None:
+    if options is None:
+        return
 
-                if self._origin.scheme in (b"https", b"wss"):
-                    ssl_context = (
-                        default_ssl_context()
-                        if self._ssl_context is None
-                        else self._ssl_context
-                    )
-                    alpn_protocols = ["http/1.1", "h2"] if self._http2 else ["http/1.1"]
-                    ssl_context.set_alpn_protocols(alpn_protocols)
+    for opt in options:
+        sock.setsockopt(*opt)
 
-                    kwargs = {
-                        "ssl_context": ssl_context,
-                        "server_hostname": sni_hostname
-                        or self._origin.host.decode("ascii"),
-                        "timeout": timeout,
-                    }
-                    async with Trace("start_tls", logger, request, kwargs) as trace:
-                        stream = await stream.start_tls(**kwargs)
-                        trace.return_value = stream
-                return stream
-            except (ConnectError, ConnectTimeout):
-                if retries_left <= 0:
-                    raise
-                retries_left -= 1
-                delay = next(delays)
-                async with Trace("retry", logger, request, kwargs) as trace:
-                    await self._network_backend.sleep(delay)
 
-    def can_handle_request(self, origin: Origin) -> bool:
-        return origin == self._origin
+def allowed_gai_family() -> socket.AddressFamily:
+    """This function is designed to work in the context of
+    getaddrinfo, where family=socket.AF_UNSPEC is the default and
+    will perform a DNS search for both IPv6 and IPv4 records."""
 
-    async def aclose(self) -> None:
-        if self._connection is not None:
-            async with Trace("close", logger, None, {}):
-                await self._connection.aclose()
+    family = socket.AF_INET
+    if HAS_IPV6:
+        family = socket.AF_UNSPEC
+    return family
 
-    def is_available(self) -> bool:
-        if self._connection is None:
-            # If HTTP/2 support is enabled, and the resulting connection could
-            # end up as HTTP/2 then we should indicate the connection as being
-            # available to service multiple requests.
-            return (
-                self._http2
-                and (self._origin.scheme == b"https" or not self._http1)
-                and not self._connect_failed
-            )
-        return self._connection.is_available()
 
-    def has_expired(self) -> bool:
-        if self._connection is None:
-            return self._connect_failed
-        return self._connection.has_expired()
+def _has_ipv6(host: str) -> bool:
+    """Returns True if the system can bind an IPv6 address."""
+    sock = None
+    has_ipv6 = False
 
-    def is_idle(self) -> bool:
-        if self._connection is None:
-            return self._connect_failed
-        return self._connection.is_idle()
+    if socket.has_ipv6:
+        # has_ipv6 returns true if cPython was compiled with IPv6 support.
+        # It does not tell us if the system has IPv6 support enabled. To
+        # determine that we must bind to an IPv6 address.
+        # https://github.com/urllib3/urllib3/pull/611
+        # https://bugs.python.org/issue658327
+        try:
+            sock = socket.socket(socket.AF_INET6)
+            sock.bind((host, 0))
+            has_ipv6 = True
+        except Exception:
+            pass
 
-    def is_closed(self) -> bool:
-        if self._connection is None:
-            return self._connect_failed
-        return self._connection.is_closed()
+    if sock:
+        sock.close()
+    return has_ipv6
 
-    def info(self) -> str:
-        if self._connection is None:
-            return "CONNECTION FAILED" if self._connect_failed else "CONNECTING"
-        return self._connection.info()
 
-    def __repr__(self) -> str:
-        return f"<{self.__class__.__name__} [{self.info()}]>"
-
-    # These context managers are not used in the standard flow, but are
-    # useful for testing or working with connection instances directly.
-
-    async def __aenter__(self) -> AsyncHTTPConnection:
-        return self
-
-    async def __aexit__(
-        self,
-        exc_type: type[BaseException] | None = None,
-        exc_value: BaseException | None = None,
-        traceback: types.TracebackType | None = None,
-    ) -> None:
-        await self.aclose()
+HAS_IPV6 = _has_ipv6("::1")

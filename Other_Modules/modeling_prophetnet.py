@@ -1844,7 +1844,7 @@ __all__ = [
     "ProphetNetDecoder",
     "ProphetNetEncoder",
     "ProphetNetForCausalLM",
-    "ProphetNetForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "ProphetNetModel",
     "ProphetNetPreTrainedModel",
 ]

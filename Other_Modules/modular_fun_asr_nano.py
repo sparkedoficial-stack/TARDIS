@@ -540,5 +540,5 @@ __all__ = [
     "FunAsrNanoPreTrainedModel",
     "FunAsrNanoEncoder",
     "FunAsrNanoModel",
-    "FunAsrNanoForConditionalGeneration",
+    "REDACTED_MISTRAL",
 ]

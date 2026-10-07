@@ -570,7 +570,7 @@ class HiggsAudioV2ForConditionalGeneration(HiggsAudioV2PreTrainedModel, HiggsAud
 
 
 __all__ = [
-    "HiggsAudioV2ForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "HiggsAudioV2PreTrainedModel",
     "HiggsAudioV2Model",
     "HiggsAudioV2Config",

@@ -640,4 +640,4 @@ class LlavaNextForConditionalGeneration(LlavaNextPreTrainedModel, GenerationMixi
         )
 
 
-__all__ = ["LlavaNextForConditionalGeneration", "LlavaNextPreTrainedModel", "LlavaNextModel"]
+__all__ = ["REDACTED_MISTRAL", "LlavaNextPreTrainedModel", "LlavaNextModel"]

@@ -403,7 +403,7 @@ class VibeVoiceForConditionalGeneration(VibeVoicePreTrainedModel, VibeVoiceGener
 
 
 __all__ = [
-    "VibeVoiceForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "VibeVoicePreTrainedModel",
     "VibeVoiceModel",
 ]

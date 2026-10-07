@@ -310,7 +310,7 @@ class LightOnOcrForConditionalGeneration(Mistral3ForConditionalGeneration):
 
 __all__ = [
     "LightOnOcrPreTrainedModel",  # noqa
-    "LightOnOcrForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "LightOnOcrModel",
     "LightOnOcrConfig",
     "LightOnOcrProcessor",

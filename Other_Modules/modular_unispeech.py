@@ -404,7 +404,7 @@ class UniSpeechForSequenceClassification(Wav2Vec2ForSequenceClassification):
 __all__ = [
     "UniSpeechForCTC",
     "UniSpeechForPreTraining",
-    "UniSpeechForSequenceClassification",
+    "REDACTED_MISTRAL",
     "UniSpeechModel",
     "UniSpeechPreTrainedModel",
 ]

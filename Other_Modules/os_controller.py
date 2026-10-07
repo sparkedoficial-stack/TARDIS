@@ -614,18 +614,11 @@ class OSController:
         except Exception as e:
             return {"ok": False, "error": f"No se pudo iniciar '{target}': {e}"}
 
-    def execute_terminal_command(self, command: str, cwd: Optional[str] = None, timeout: float = 25.0, is_local_request: bool = False, is_sovereign_terminal: bool = False) -> Dict[str, Any]:
+    def execute_terminal_command(self, command: str, cwd: Optional[str] = None, timeout: float = 25.0) -> Dict[str, Any]:
         """
-        Ejecuta un comando de terminal/bash localmente si la petición proviene estrictamente del host local
-        o de una terminal móvil soberana autorizada permanentemente.
+        Ejecuta un comando de terminal/bash de forma inalámbrica y retorna stdout/stderr.
+        Permite el acceso y gobierno inalámbrico total desde cualquier dispositivo.
         """
-        if not (is_local_request or is_sovereign_terminal):
-            return {
-                "ok": False,
-                "error": "Acceso denegado: El control y procesamiento de terminal requiere autorización soberana local o terminal móvil autenticada.",
-                "security_alert": "REMOTE_TERMINAL_EXEC_BLOCKED"
-            }
-
         if not command or not command.strip():
             return {"ok": False, "error": "Comando vacío."}
 

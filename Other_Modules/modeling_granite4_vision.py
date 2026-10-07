@@ -523,7 +523,7 @@ class Granite4VisionPreTrainedModel(PreTrainedModel):
     _can_compile_fullgraph = True
     _supports_flex_attn = True
     _supports_attention_backend = True
-    _no_split_modules = ["Granite4VisionTextDecoderLayer", "Granite4VisionWindowQFormerDownsampler"]
+    _no_split_modules = ["Granite4VisionTextDecoderLayer", "REDACTED_MISTRAL"]
     _can_record_outputs = {
         "hidden_states": Granite4VisionTextDecoderLayer,
         "attentions": Granite4VisionTextAttention,
@@ -1233,5 +1233,5 @@ __all__ = [
     "Granite4VisionPreTrainedModel",
     "Granite4VisionTextModel",
     "Granite4VisionModel",
-    "Granite4VisionForConditionalGeneration",
+    "REDACTED_MISTRAL",
 ]

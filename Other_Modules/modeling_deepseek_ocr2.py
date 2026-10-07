@@ -1663,7 +1663,7 @@ class DeepseekOcr2ForConditionalGeneration(DeepseekOcr2PreTrainedModel, Generati
 
 
 __all__ = [
-    "DeepseekOcr2ForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "DeepseekOcr2Model",
     "DeepseekOcr2PreTrainedModel",
     "DeepseekOcr2TextModel",

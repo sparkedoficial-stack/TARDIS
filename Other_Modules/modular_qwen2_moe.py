@@ -255,6 +255,6 @@ __all__ = [
     "Qwen2MoeForQuestionAnswering",
     "Qwen2MoeModel",
     "Qwen2MoePreTrainedModel",
-    "Qwen2MoeForSequenceClassification",
+    "REDACTED_MISTRAL",
     "Qwen2MoeForTokenClassification",
 ]

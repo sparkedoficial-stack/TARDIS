@@ -628,7 +628,7 @@ class LlavaNextVideoForConditionalGeneration(LlavaNextForConditionalGeneration):
 
 __all__ = [
     "LlavaNextVideoConfig",
-    "LlavaNextVideoForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "LlavaNextVideoModel",
     "LlavaNextVideoPreTrainedModel",
 ]

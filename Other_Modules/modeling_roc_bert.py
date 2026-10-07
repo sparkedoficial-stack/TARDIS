@@ -1634,7 +1634,7 @@ __all__ = [
     "RoCBertForMultipleChoice",
     "RoCBertForPreTraining",
     "RoCBertForQuestionAnswering",
-    "RoCBertForSequenceClassification",
+    "REDACTED_MISTRAL",
     "RoCBertForTokenClassification",
     "RoCBertLayer",
     "RoCBertModel",

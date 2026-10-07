@@ -1214,6 +1214,6 @@ __all__ = [
     "T5GemmaModel",
     "T5GemmaEncoderModel",
     "T5GemmaPreTrainedModel",
-    "T5GemmaForSequenceClassification",
+    "REDACTED_MISTRAL",
     "T5GemmaForTokenClassification",
 ]

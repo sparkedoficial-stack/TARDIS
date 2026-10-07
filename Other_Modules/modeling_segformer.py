@@ -607,7 +607,7 @@ class SegformerForSemanticSegmentation(SegformerPreTrainedModel):
 __all__ = [
     "SegformerDecodeHead",
     "SegformerForImageClassification",
-    "SegformerForSemanticSegmentation",
+    "REDACTED_MISTRAL",
     "SegformerLayer",
     "SegformerModel",
     "SegformerPreTrainedModel",

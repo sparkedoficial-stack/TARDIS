@@ -2370,5 +2370,5 @@ __all__ = [
     "Glm5NextTextModel",
     "Glm5NextVisionModel",
     "Glm5NextModel",
-    "Glm5NextForConditionalGeneration",
+    "REDACTED_MISTRAL",
 ]

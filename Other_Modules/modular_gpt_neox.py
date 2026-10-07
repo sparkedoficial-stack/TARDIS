@@ -605,7 +605,7 @@ class GPTNeoXForQuestionAnswering(GPTNeoXPreTrainedModel):
 __all__ = [
     "GPTNeoXForCausalLM",
     "GPTNeoXForQuestionAnswering",
-    "GPTNeoXForSequenceClassification",
+    "REDACTED_MISTRAL",
     "GPTNeoXForTokenClassification",
     "GPTNeoXLayer",
     "GPTNeoXModel",

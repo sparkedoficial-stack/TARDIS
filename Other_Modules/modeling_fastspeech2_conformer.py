@@ -1592,5 +1592,5 @@ __all__ = [
     "FastSpeech2ConformerWithHifiGan",
     "FastSpeech2ConformerHifiGan",
     "FastSpeech2ConformerModel",
-    "FastSpeech2ConformerPreTrainedModel",
+    "REDACTED_MISTRAL",
 ]

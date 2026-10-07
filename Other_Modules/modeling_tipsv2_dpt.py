@@ -705,5 +705,5 @@ __all__ = [
     "Tipsv2DptForDensePrediction",
     "Tipsv2DptForDepthEstimation",
     "Tipsv2DptForNormalEstimation",
-    "Tipsv2DptForSemanticSegmentation",
+    "REDACTED_MISTRAL",
 ]

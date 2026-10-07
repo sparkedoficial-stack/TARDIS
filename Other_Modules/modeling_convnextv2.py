@@ -417,4 +417,4 @@ class ConvNextV2Backbone(BackboneMixin, ConvNextV2PreTrainedModel):
         return BackboneOutput(feature_maps=tuple(feature_maps), hidden_states=hidden_states)
 
 
-__all__ = ["ConvNextV2ForImageClassification", "ConvNextV2Model", "ConvNextV2PreTrainedModel", "ConvNextV2Backbone"]
+__all__ = ["REDACTED_MISTRAL", "ConvNextV2Model", "ConvNextV2PreTrainedModel", "ConvNextV2Backbone"]

@@ -10851,7 +10851,7 @@ def PyJs_LONG_1235_(var=var):
                     def PyJsHoisted_getDefaultOptions_(this, arguments, var=var):
                         var = Scope({'this':this, 'arguments':arguments}, var)
                         var.registers([])
-                        return Js({'indent':var.get(u"null"),'base':var.get(u"null"),'parse':var.get(u"null"),'comment':Js(False),'format':Js({'indent':Js({'style':Js('    '),'base':Js(0.0),'adjustMultilineComment':Js(False)}),'newline':Js('\n'),'space':Js(' '),'json':Js(False),'renumber':Js(False),'hexadecimal':Js(False),'quotes':Js('single'),'escapeless':Js(False),'compact':Js(False),'parentheses':Js(True),'semicolons':Js(True),'safeConcatenation':Js(False)}),'moz':Js({'comprehensionExpressionStartsWithAssignment':Js(False),'starlessGenerator':Js(False),'parenthesizedComprehensionBlock':Js(False)}),'sourceMap':var.get(u"null"),'sourceMapRoot':var.get(u"null"),'sourceMapWithCode':Js(False),'directive':Js(False),'verbatim':var.get(u"null")})
+                        return Js({'indent':var.get(u"null"),'base':var.get(u"null"),'parse':var.get(u"null"),'comment':Js(False),'format':Js({'indent':Js({'style':Js('    '),'base':Js(0.0),'adjustMultilineComment':Js(False)}),'newline':Js('\n'),'space':Js(' '),'json':Js(False),'renumber':Js(False),'hexadecimal':Js(False),'quotes':Js('single'),'escapeless':Js(False),'compact':Js(False),'parentheses':Js(True),'semicolons':Js(True),'safeConcatenation':Js(False)}),'moz':Js({"REDACTED_MISTRAL":Js(False),'starlessGenerator':Js(False),'parenthesizedComprehensionBlock':Js(False)}),'sourceMap':var.get(u"null"),'sourceMapRoot':var.get(u"null"),'sourceMapWithCode':Js(False),'directive':Js(False),'verbatim':var.get(u"null")})
                     PyJsHoisted_getDefaultOptions_.func_name = 'getDefaultOptions'
                     var.put('getDefaultOptions', PyJsHoisted_getDefaultOptions_)
                     @Js
@@ -11816,7 +11816,7 @@ def PyJs_LONG_1235_(var=var):
                             if SWITCHED or PyJsStrictEq(CONDITION, var.get('Syntax').get('ComprehensionExpression')):
                                 SWITCHED = True
                                 var.put('result', (Js([Js('(')]) if PyJsStrictEq(var.get('type'),var.get('Syntax').get('GeneratorExpression')) else Js([Js('[')])))
-                                if var.get('extra').get('moz').get('comprehensionExpressionStartsWithAssignment'):
+                                if var.get('extra').get('moz').get("REDACTED_MISTRAL"):
                                     var.put('fragment', var.get('generateExpression')(var.get('expr').get('body'), Js({'precedence':var.get('Precedence').get('Assignment'),'allowIn':Js(True),'allowCall':Js(True)})))
                                     var.get('result').callprop('push', var.get('fragment'))
                                 if var.get('expr').get('blocks'):
@@ -11829,7 +11829,7 @@ def PyJs_LONG_1235_(var=var):
                                         while (var.get('i')<var.get('len')):
                                             try:
                                                 var.put('fragment', var.get('generateExpression')(var.get('expr').get('blocks').get(var.get('i')), Js({'precedence':var.get('Precedence').get('Sequence'),'allowIn':Js(True),'allowCall':Js(True)})))
-                                                if ((var.get('i')>Js(0.0)) or var.get('extra').get('moz').get('comprehensionExpressionStartsWithAssignment')):
+                                                if ((var.get('i')>Js(0.0)) or var.get('extra').get('moz').get("REDACTED_MISTRAL")):
                                                     var.put('result', var.get('join')(var.get('result'), var.get('fragment')))
                                                 else:
                                                     var.get('result').callprop('push', var.get('fragment'))
@@ -11844,7 +11844,7 @@ def PyJs_LONG_1235_(var=var):
                                         var.put('result', var.get('join')(var.get('result'), Js([Js('('), var.get('fragment'), Js(')')])))
                                     else:
                                         var.put('result', var.get('join')(var.get('result'), var.get('fragment')))
-                                if var.get('extra').get('moz').get('comprehensionExpressionStartsWithAssignment').neg():
+                                if var.get('extra').get('moz').get("REDACTED_MISTRAL").neg():
                                     var.put('fragment', var.get('generateExpression')(var.get('expr').get('body'), Js({'precedence':var.get('Precedence').get('Assignment'),'allowIn':Js(True),'allowCall':Js(True)})))
                                     var.put('result', var.get('join')(var.get('result'), var.get('fragment')))
                                 var.get('result').callprop('push', (Js(')') if PyJsStrictEq(var.get('type'),var.get('Syntax').get('GeneratorExpression')) else Js(']')))

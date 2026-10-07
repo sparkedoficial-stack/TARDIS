@@ -476,4 +476,4 @@ class MusicFlamingoForConditionalGeneration(MusicFlamingoPreTrainedModel, Genera
         )
 
 
-__all__ = ["MusicFlamingoForConditionalGeneration", "MusicFlamingoModel", "MusicFlamingoPreTrainedModel"]
+__all__ = ["REDACTED_MISTRAL", "MusicFlamingoModel", "MusicFlamingoPreTrainedModel"]

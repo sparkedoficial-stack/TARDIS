@@ -4145,7 +4145,7 @@ def PyJs_anonymous_400_(require, module, exports, this, arguments, var=var):
     PyJs_Object_408_ = Js({u'babel-code-frame':Js(u'^6.16.0'),u'babel-generator':Js(u'^6.18.0'),u'babel-helpers':Js(u'^6.16.0'),u'babel-messages':Js(u'^6.8.0'),u'babel-register':Js(u'^6.18.0'),u'babel-runtime':Js(u'^6.9.1'),u'babel-template':Js(u'^6.16.0'),u'babel-traverse':Js(u'^6.18.0'),u'babel-types':Js(u'^6.18.0'),u'babylon':Js(u'^6.11.0'),u'convert-source-map':Js(u'^1.1.0'),u'debug':Js(u'^2.1.1'),u'json5':Js(u'^0.5.0'),u'lodash':Js(u'^4.2.0'),u'minimatch':Js(u'^3.0.2'),u'path-is-absolute':Js(u'^1.0.0'),u'private':Js(u'^0.1.6'),u'slash':Js(u'^1.0.0'),u'source-map':Js(u'^0.5.0')})
     PyJs_Object_409_ = Js({u'babel-helper-fixtures':Js(u'^6.18.2'),u'babel-helper-transform-fixture-test-runner':Js(u'^6.18.2'),u'babel-polyfill':Js(u'^6.16.0')})
     PyJs_Object_410_ = Js({})
-    PyJs_Object_411_ = Js({u'shasum':Js(u'd8bb14dd6986fa4f3566a26ceda3964fa0e04e5b'),u'tarball':Js(u'https://registry.npmjs.org/babel-core/-/babel-core-6.18.2.tgz')})
+    PyJs_Object_411_ = Js({u'shasum':Js(u"REDACTED_MISTRAL"),u'tarball':Js(u'https://registry.npmjs.org/babel-core/-/babel-core-6.18.2.tgz')})
     PyJs_Object_412_ = Js({u'name':Js(u'amasad'),u'email':Js(u'amjad.masad@gmail.com')})
     PyJs_Object_413_ = Js({u'name':Js(u'hzoo'),u'email':Js(u'hi@henryzoo.com')})
     PyJs_Object_414_ = Js({u'name':Js(u'jmm'),u'email':Js(u'npm-public@jessemccarthy.net')})
@@ -4155,7 +4155,7 @@ def PyJs_anonymous_400_(require, module, exports, this, arguments, var=var):
     PyJs_Object_418_ = Js({})
     PyJs_Object_419_ = Js({u'type':Js(u'git'),u'url':Js(u'https://github.com/babel/babel/tree/master/packages/babel-core')})
     PyJs_Object_420_ = Js({u'bench':Js(u'make bench'),u'test':Js(u'make test')})
-    PyJs_Object_401_ = Js({u'_args':Js([Js([PyJs_Object_402_, Js(u'/Users/PiotrDabkowski/PycharmProjects/Js2Py/js2py/es6')])]),u'_from':Js(u'babel-core@latest'),u'_id':Js(u'babel-core@6.18.2'),u'_inCache':var.get(u'true'),u'_location':Js(u'/babel-core'),u'_nodeVersion':Js(u'6.8.1'),u'_npmOperationalInternal':PyJs_Object_403_,u'_npmUser':PyJs_Object_404_,u'_npmVersion':Js(u'3.10.9'),u'_phantomChildren':PyJs_Object_405_,u'_requested':PyJs_Object_406_,u'_requiredBy':Js([Js(u'#USER'), Js(u'/babel-cli'), Js(u'/babel-register'), Js(u'/babelify')]),u'_resolved':Js(u'https://registry.npmjs.org/babel-core/-/babel-core-6.18.2.tgz'),u'_shasum':Js(u'd8bb14dd6986fa4f3566a26ceda3964fa0e04e5b'),u'_shrinkwrap':var.get(u"null"),u'_spec':Js(u'babel-core'),u'_where':Js(u'/Users/PiotrDabkowski/PycharmProjects/Js2Py/js2py/es6'),u'author':PyJs_Object_407_,u'dependencies':PyJs_Object_408_,u'description':Js(u'Babel compiler core.'),u'devDependencies':PyJs_Object_409_,u'directories':PyJs_Object_410_,u'dist':PyJs_Object_411_,u'homepage':Js(u'https://babeljs.io/'),u'keywords':Js([Js(u'6to5'), Js(u'babel'), Js(u'classes'), Js(u'const'), Js(u'es6'), Js(u'harmony'), Js(u'let'), Js(u'modules'), Js(u'transpile'), Js(u'transpiler'), Js(u'var')]),u'license':Js(u'MIT'),u'maintainers':Js([PyJs_Object_412_, PyJs_Object_413_, PyJs_Object_414_, PyJs_Object_415_, PyJs_Object_416_, PyJs_Object_417_]),u'name':Js(u'babel-core'),u'optionalDependencies':PyJs_Object_418_,u'readme':Js(u'ERROR: No README data found!'),u'repository':PyJs_Object_419_,u'scripts':PyJs_Object_420_,u'version':Js(u'6.18.2')})
+    PyJs_Object_401_ = Js({u'_args':Js([Js([PyJs_Object_402_, Js(u'/Users/PiotrDabkowski/PycharmProjects/Js2Py/js2py/es6')])]),u'_from':Js(u'babel-core@latest'),u'_id':Js(u'babel-core@6.18.2'),u'_inCache':var.get(u'true'),u'_location':Js(u'/babel-core'),u'_nodeVersion':Js(u'6.8.1'),u'_npmOperationalInternal':PyJs_Object_403_,u'_npmUser':PyJs_Object_404_,u'_npmVersion':Js(u'3.10.9'),u'_phantomChildren':PyJs_Object_405_,u'_requested':PyJs_Object_406_,u'_requiredBy':Js([Js(u'#USER'), Js(u'/babel-cli'), Js(u'/babel-register'), Js(u'/babelify')]),u'_resolved':Js(u'https://registry.npmjs.org/babel-core/-/babel-core-6.18.2.tgz'),u'_shasum':Js(u"REDACTED_MISTRAL"),u'_shrinkwrap':var.get(u"null"),u'_spec':Js(u'babel-core'),u'_where':Js(u'/Users/PiotrDabkowski/PycharmProjects/Js2Py/js2py/es6'),u'author':PyJs_Object_407_,u'dependencies':PyJs_Object_408_,u'description':Js(u'Babel compiler core.'),u'devDependencies':PyJs_Object_409_,u'directories':PyJs_Object_410_,u'dist':PyJs_Object_411_,u'homepage':Js(u'https://babeljs.io/'),u'keywords':Js([Js(u'6to5'), Js(u'babel'), Js(u'classes'), Js(u'const'), Js(u'es6'), Js(u'harmony'), Js(u'let'), Js(u'modules'), Js(u'transpile'), Js(u'transpiler'), Js(u'var')]),u'license':Js(u'MIT'),u'maintainers':Js([PyJs_Object_412_, PyJs_Object_413_, PyJs_Object_414_, PyJs_Object_415_, PyJs_Object_416_, PyJs_Object_417_]),u'name':Js(u'babel-core'),u'optionalDependencies':PyJs_Object_418_,u'readme':Js(u'ERROR: No README data found!'),u'repository':PyJs_Object_419_,u'scripts':PyJs_Object_420_,u'version':Js(u'6.18.2')})
     var.get(u'module').put(u'exports', PyJs_Object_401_)
 PyJs_anonymous_400_._set_name(u'anonymous')
 PyJs_Object_421_ = Js({})
@@ -8671,7 +8671,7 @@ PyJs_Object_679_ = Js({u'babel-helper-function-name':Js(49.0),u'babel-types':Js(
 @Js
 def PyJs_anonymous_680_(require, module, exports, this, arguments, var=var):
     var = Scope({u'this':this, u'require':require, u'exports':exports, u'module':module, u'arguments':arguments}, var)
-    var.registers([u'module', u'exports', u'_interopRequireWildcard', u'visitor', u'_babelHelperGetFunctionArity', u'_babelTypes', u'visit', u'_babelHelperGetFunctionArity2', u'wrap', u'_babelTemplate', u'buildPropertyMethodAssignmentWrapper', u'_babelTemplate2', u't', u'_interopRequireDefault', u'require', u'buildGeneratorPropertyMethodAssignmentWrapper'])
+    var.registers([u'module', u'exports', u'_interopRequireWildcard', u'visitor', u'_babelHelperGetFunctionArity', u'_babelTypes', u'visit', u'_babelHelperGetFunctionArity2', u'wrap', u'_babelTemplate', u"REDACTED_MISTRAL", u'_babelTemplate2', u't', u'_interopRequireDefault', u'require', u"REDACTED_MISTRAL"])
     @Js
     def PyJsHoisted__interopRequireDefault_(obj, this, arguments, var=var):
         var = Scope({u'this':this, u'obj':obj, u'arguments':arguments}, var)
@@ -8690,9 +8690,9 @@ def PyJs_anonymous_680_(require, module, exports, this, arguments, var=var):
             else:
                 if var.get(u't').callprop(u'isFunction', var.get(u'method')).neg():
                     return var.get('undefined')
-                var.put(u'build', var.get(u'buildPropertyMethodAssignmentWrapper'))
+                var.put(u'build', var.get(u"REDACTED_MISTRAL"))
                 if var.get(u'method').get(u'generator'):
-                    var.put(u'build', var.get(u'buildGeneratorPropertyMethodAssignmentWrapper'))
+                    var.put(u'build', var.get(u"REDACTED_MISTRAL"))
                 PyJs_Object_687_ = Js({u'FUNCTION':var.get(u'method'),u'FUNCTION_ID':var.get(u'id'),u'FUNCTION_KEY':var.get(u'scope').callprop(u'generateUidIdentifier', var.get(u'id').get(u'name'))})
                 var.put(u'_template', var.get(u'build')(PyJs_Object_687_).get(u'expression'))
                 var.get(u'_template').get(u'callee').put(u'_skipModulesRemap', var.get(u'true'))
@@ -8799,11 +8799,11 @@ def PyJs_anonymous_680_(require, module, exports, this, arguments, var=var):
     var.put(u't', var.get(u'_interopRequireWildcard')(var.get(u'_babelTypes')))
     pass
     pass
-    var.put(u'buildPropertyMethodAssignmentWrapper', PyJsComma(Js(0.0),var.get(u'_babelTemplate2').get(u'default'))(Js(u'\n  (function (FUNCTION_KEY) {\n    function FUNCTION_ID() {\n      return FUNCTION_KEY.apply(this, arguments);\n    }\n\n    FUNCTION_ID.toString = function () {\n      return FUNCTION_KEY.toString();\n    }\n\n    return FUNCTION_ID;\n  })(FUNCTION)\n')))
-    var.put(u'buildGeneratorPropertyMethodAssignmentWrapper', PyJsComma(Js(0.0),var.get(u'_babelTemplate2').get(u'default'))(Js(u'\n  (function (FUNCTION_KEY) {\n    function* FUNCTION_ID() {\n      return yield* FUNCTION_KEY.apply(this, arguments);\n    }\n\n    FUNCTION_ID.toString = function () {\n      return FUNCTION_KEY.toString();\n    };\n\n    return FUNCTION_ID;\n  })(FUNCTION)\n')))
+    var.put(u"REDACTED_MISTRAL", PyJsComma(Js(0.0),var.get(u'_babelTemplate2').get(u'default'))(Js(u'\n  (function (FUNCTION_KEY) {\n    function FUNCTION_ID() {\n      return FUNCTION_KEY.apply(this, arguments);\n    }\n\n    FUNCTION_ID.toString = function () {\n      return FUNCTION_KEY.toString();\n    }\n\n    return FUNCTION_ID;\n  })(FUNCTION)\n')))
+    var.put(u"REDACTED_MISTRAL", PyJsComma(Js(0.0),var.get(u'_babelTemplate2').get(u'default'))(Js(u'\n  (function (FUNCTION_KEY) {\n    function* FUNCTION_ID() {\n      return yield* FUNCTION_KEY.apply(this, arguments);\n    }\n\n    FUNCTION_ID.toString = function () {\n      return FUNCTION_KEY.toString();\n    };\n\n    return FUNCTION_ID;\n  })(FUNCTION)\n')))
     @Js
     def PyJs_ReferencedIdentifierBindingIdentifier_686_(path, state, this, arguments, var=var):
-        var = Scope({u'this':this, u'path':path, u'state':state, u'ReferencedIdentifierBindingIdentifier':PyJs_ReferencedIdentifierBindingIdentifier_686_, u'arguments':arguments}, var)
+        var = Scope({u'this':this, u'path':path, u'state':state, u"REDACTED_MISTRAL":PyJs_ReferencedIdentifierBindingIdentifier_686_, u'arguments':arguments}, var)
         var.registers([u'path', u'state', u'localDeclar'])
         if PyJsStrictNeq(var.get(u'path').get(u'node').get(u'name'),var.get(u'state').get(u'name')):
             return var.get('undefined')
@@ -8812,7 +8812,7 @@ def PyJs_anonymous_680_(require, module, exports, this, arguments, var=var):
             return var.get('undefined')
         var.get(u'state').put(u'selfReference', var.get(u'true'))
         var.get(u'path').callprop(u'stop')
-    PyJs_ReferencedIdentifierBindingIdentifier_686_._set_name(u'ReferencedIdentifierBindingIdentifier')
+    PyJs_ReferencedIdentifierBindingIdentifier_686_._set_name(u"REDACTED_MISTRAL")
     PyJs_Object_685_ = Js({u'ReferencedIdentifier|BindingIdentifier':PyJs_ReferencedIdentifierBindingIdentifier_686_})
     var.put(u'visitor', PyJs_Object_685_)
     pass
@@ -9598,7 +9598,7 @@ def PyJs_anonymous_764_(require, module, exports, this, arguments, var=var):
     var.put(u'util', var.get(u'_interopRequireWildcard')(var.get(u'_util')))
     pass
     pass
-    PyJs_Object_767_ = Js({u'tailCallReassignmentDeopt':Js(u"Function reference has been reassigned, so it will probably be dereferenced, therefore we can't optimise this with confidence"),u'classesIllegalBareSuper':Js(u'Illegal use of bare super'),u'classesIllegalSuperCall':Js(u'Direct super call is illegal in non-constructor, use super.$1() instead'),u'scopeDuplicateDeclaration':Js(u'Duplicate declaration $1'),u'settersNoRest':Js(u"Setters aren't allowed to have a rest"),u'noAssignmentsInForHead':Js(u'No assignments allowed in for-in/of head'),u'expectedMemberExpressionOrIdentifier':Js(u'Expected type MemberExpression or Identifier'),u'invalidParentForThisNode':Js(u"We don't know how to handle this node within the current parent - please open an issue"),u'readOnly':Js(u'$1 is read-only'),u'unknownForHead':Js(u'Unknown node type $1 in ForStatement'),u'didYouMean':Js(u'Did you mean $1?'),u'codeGeneratorDeopt':Js(u'Note: The code generator has deoptimised the styling of $1 as it exceeds the max of $2.'),u'missingTemplatesDirectory':Js(u'no templates directory - this is most likely the result of a broken `npm publish`. Please report to https://github.com/babel/babel/issues'),u'unsupportedOutputType':Js(u'Unsupported output type $1'),u'illegalMethodName':Js(u'Illegal method name $1'),u'lostTrackNodePath':Js(u"We lost track of this node's position, likely because the AST was directly manipulated"),u'modulesIllegalExportName':Js(u'Illegal export $1'),u'modulesDuplicateDeclarations':Js(u'Duplicate module declarations with the same source but in different scopes'),u'undeclaredVariable':Js(u'Reference to undeclared variable $1'),u'undeclaredVariableType':Js(u'Referencing a type alias outside of a type annotation'),u'undeclaredVariableSuggestion':Js(u'Reference to undeclared variable $1 - did you mean $2?'),u'traverseNeedsParent':Js(u'You must pass a scope and parentPath unless traversing a Program/File. Instead of that you tried to traverse a $1 node without passing scope and parentPath.'),u'traverseVerifyRootFunction':Js(u"You passed `traverse()` a function when it expected a visitor object, are you sure you didn't mean `{ enter: Function }`?"),u'traverseVerifyVisitorProperty':Js(u'You passed `traverse()` a visitor object with the property $1 that has the invalid property $2'),u'traverseVerifyNodeType':Js(u"You gave us a visitor for the node type $1 but it's not a valid type"),u'pluginNotObject':Js(u'Plugin $2 specified in $1 was expected to return an object when invoked but returned $3'),u'pluginNotFunction':Js(u'Plugin $2 specified in $1 was expected to return a function but returned $3'),u'pluginUnknown':Js(u'Unknown plugin $1 specified in $2 at $3, attempted to resolve relative to $4'),u'pluginInvalidProperty':Js(u'Plugin $2 specified in $1 provided an invalid property of $3')})
+    PyJs_Object_767_ = Js({u'tailCallReassignmentDeopt':Js(u"Function reference has been reassigned, so it will probably be dereferenced, therefore we can't optimise this with confidence"),u'classesIllegalBareSuper':Js(u'Illegal use of bare super'),u'classesIllegalSuperCall':Js(u'Direct super call is illegal in non-constructor, use super.$1() instead'),u'scopeDuplicateDeclaration':Js(u'Duplicate declaration $1'),u'settersNoRest':Js(u"Setters aren't allowed to have a rest"),u'noAssignmentsInForHead':Js(u'No assignments allowed in for-in/of head'),u"REDACTED_MISTRAL":Js(u'Expected type MemberExpression or Identifier'),u'invalidParentForThisNode':Js(u"We don't know how to handle this node within the current parent - please open an issue"),u'readOnly':Js(u'$1 is read-only'),u'unknownForHead':Js(u'Unknown node type $1 in ForStatement'),u'didYouMean':Js(u'Did you mean $1?'),u'codeGeneratorDeopt':Js(u'Note: The code generator has deoptimised the styling of $1 as it exceeds the max of $2.'),u'missingTemplatesDirectory':Js(u'no templates directory - this is most likely the result of a broken `npm publish`. Please report to https://github.com/babel/babel/issues'),u'unsupportedOutputType':Js(u'Unsupported output type $1'),u'illegalMethodName':Js(u'Illegal method name $1'),u'lostTrackNodePath':Js(u"We lost track of this node's position, likely because the AST was directly manipulated"),u'modulesIllegalExportName':Js(u'Illegal export $1'),u'modulesDuplicateDeclarations':Js(u'Duplicate module declarations with the same source but in different scopes'),u'undeclaredVariable':Js(u'Reference to undeclared variable $1'),u'undeclaredVariableType':Js(u'Referencing a type alias outside of a type annotation'),u'undeclaredVariableSuggestion':Js(u'Reference to undeclared variable $1 - did you mean $2?'),u'traverseNeedsParent':Js(u'You must pass a scope and parentPath unless traversing a Program/File. Instead of that you tried to traverse a $1 node without passing scope and parentPath.'),u'traverseVerifyRootFunction':Js(u"You passed `traverse()` a function when it expected a visitor object, are you sure you didn't mean `{ enter: Function }`?"),u'traverseVerifyVisitorProperty':Js(u'You passed `traverse()` a visitor object with the property $1 that has the invalid property $2'),u'traverseVerifyNodeType':Js(u"You gave us a visitor for the node type $1 but it's not a valid type"),u'pluginNotObject':Js(u'Plugin $2 specified in $1 was expected to return an object when invoked but returned $3'),u'pluginNotFunction':Js(u'Plugin $2 specified in $1 was expected to return a function but returned $3'),u'pluginUnknown':Js(u'Unknown plugin $1 specified in $2 at $3, attempted to resolve relative to $4'),u'pluginInvalidProperty':Js(u'Plugin $2 specified in $1 provided an invalid property of $3')})
     var.put(u'MESSAGES', var.get(u'exports').put(u'MESSAGES', PyJs_Object_767_))
     pass
     pass
@@ -9946,12 +9946,12 @@ def PyJs_anonymous_794_(require, module, exports, this, arguments, var=var):
         PyJs_CatchClause_800_._set_name(u'CatchClause')
         @Js
         def PyJs_BlockStatementSwitchStatementProgram_801_(path, file, this, arguments, var=var):
-            var = Scope({u'this':this, u'path':path, u'BlockStatementSwitchStatementProgram':PyJs_BlockStatementSwitchStatementProgram_801_, u'arguments':arguments, u'file':file}, var)
+            var = Scope({u'this':this, u'path':path, u"REDACTED_MISTRAL":PyJs_BlockStatementSwitchStatementProgram_801_, u'arguments':arguments, u'file':file}, var)
             var.registers([u'path', u'blockScoping', u'file'])
             if var.get(u'ignoreBlock')(var.get(u'path')).neg():
                 var.put(u'blockScoping', var.get(u'BlockScoping').create(var.get(u"null"), var.get(u'path'), var.get(u'path').get(u'parent'), var.get(u'path').get(u'scope'), var.get(u'file')))
                 var.get(u'blockScoping').callprop(u'run')
-        PyJs_BlockStatementSwitchStatementProgram_801_._set_name(u'BlockStatementSwitchStatementProgram')
+        PyJs_BlockStatementSwitchStatementProgram_801_._set_name(u"REDACTED_MISTRAL")
         PyJs_Object_797_ = Js({u'VariableDeclaration':PyJs_VariableDeclaration_798_,u'Loop':PyJs_Loop_799_,u'CatchClause':PyJs_CatchClause_800_,u'BlockStatement|SwitchStatement|Program':PyJs_BlockStatementSwitchStatementProgram_801_})
         PyJs_Object_796_ = Js({u'visitor':PyJs_Object_797_})
         return PyJs_Object_796_
@@ -10083,7 +10083,7 @@ def PyJs_anonymous_794_(require, module, exports, this, arguments, var=var):
     PyJs_SwitchCase_819_._set_name(u'SwitchCase')
     @Js
     def PyJs_BreakStatementContinueStatementReturnStatement_820_(path, state, this, arguments, var=var):
-        var = Scope({u'this':this, u'path':path, u'state':state, u'arguments':arguments, u'BreakStatementContinueStatementReturnStatement':PyJs_BreakStatementContinueStatementReturnStatement_820_}, var)
+        var = Scope({u'this':this, u'path':path, u'state':state, u'arguments':arguments, u"REDACTED_MISTRAL":PyJs_BreakStatementContinueStatementReturnStatement_820_}, var)
         var.registers([u'node', u'parent', u'loopText', u'replace', u'state', u'path', u'scope'])
         var.put(u'node', var.get(u'path').get(u'node'))
         var.put(u'parent', var.get(u'path').get(u'parent'))
@@ -10115,7 +10115,7 @@ def PyJs_anonymous_794_(require, module, exports, this, arguments, var=var):
             var.get(u'replace').put(var.get(u"this").get(u'LOOP_IGNORE'), var.get(u'true'))
             var.get(u'path').callprop(u'skip')
             var.get(u'path').callprop(u'replaceWith', var.get(u't').callprop(u'inherits', var.get(u'replace'), var.get(u'node')))
-    PyJs_BreakStatementContinueStatementReturnStatement_820_._set_name(u'BreakStatementContinueStatementReturnStatement')
+    PyJs_BreakStatementContinueStatementReturnStatement_820_._set_name(u"REDACTED_MISTRAL")
     PyJs_Object_816_ = Js({u'Loop':PyJs_Loop_817_,u'Function':PyJs_Function_818_,u'SwitchCase':PyJs_SwitchCase_819_,u'BreakStatement|ContinueStatement|ReturnStatement':PyJs_BreakStatementContinueStatementReturnStatement_820_})
     var.put(u'loopVisitor', PyJs_Object_816_)
     @Js
@@ -10772,11 +10772,11 @@ def PyJs_anonymous_865_(require, module, exports, this, arguments, var=var):
     var.put(u'buildDerivedConstructor', PyJsComma(Js(0.0),var.get(u'_babelTemplate2').get(u'default'))(Js(u'\n  (function () {\n    super(...arguments);\n  })\n')))
     @Js
     def PyJs_FunctionExpressionFunctionDeclaration_869_(path, this, arguments, var=var):
-        var = Scope({u'this':this, u'path':path, u'arguments':arguments, u'FunctionExpressionFunctionDeclaration':PyJs_FunctionExpressionFunctionDeclaration_869_}, var)
+        var = Scope({u'this':this, u'path':path, u'arguments':arguments, u"REDACTED_MISTRAL":PyJs_FunctionExpressionFunctionDeclaration_869_}, var)
         var.registers([u'path'])
         if var.get(u'path').callprop(u'is', Js(u'shadow')).neg():
             var.get(u'path').callprop(u'skip')
-    PyJs_FunctionExpressionFunctionDeclaration_869_._set_name(u'FunctionExpressionFunctionDeclaration')
+    PyJs_FunctionExpressionFunctionDeclaration_869_._set_name(u"REDACTED_MISTRAL")
     @Js
     def PyJs_Method_870_(path, this, arguments, var=var):
         var = Scope({u'this':this, u'path':path, u'arguments':arguments, u'Method':PyJs_Method_870_}, var)
@@ -10871,7 +10871,7 @@ def PyJs_anonymous_865_(require, module, exports, this, arguments, var=var):
             var.put(u'closureArgs', Js([]))
             if var.get(u"this").get(u'isDerived'):
                 var.get(u'closureArgs').callprop(u'push', var.get(u'superName'))
-                var.put(u'superName', var.get(u"this").get(u'scope').callprop(u'generateUidIdentifierBasedOnNode', var.get(u'superName')))
+                var.put(u'superName', var.get(u"this").get(u'scope').callprop(u"REDACTED_MISTRAL", var.get(u'superName')))
                 var.get(u'closureParams').callprop(u'push', var.get(u'superName'))
                 var.get(u"this").put(u'superName', var.get(u'superName'))
             var.get(u"this").callprop(u'buildBody')
@@ -11479,7 +11479,7 @@ def PyJs_anonymous_908_(require, module, exports, this, arguments, var=var):
                 else:
                     var.get(u'initProps').callprop(u'push', var.get(u'_prop'))
             
-            var.put(u'objId', var.get(u'scope').callprop(u'generateUidIdentifierBasedOnNode', var.get(u'parent')))
+            var.put(u'objId', var.get(u'scope').callprop(u"REDACTED_MISTRAL", var.get(u'parent')))
             var.put(u'initPropExpression', var.get(u't').callprop(u'objectExpression', var.get(u'initProps')))
             var.put(u'body', Js([]))
             var.get(u'body').callprop(u'push', var.get(u't').callprop(u'variableDeclaration', Js(u'var'), Js([var.get(u't').callprop(u'variableDeclarator', var.get(u'objId'), var.get(u'initPropExpression'))])))
@@ -11681,7 +11681,7 @@ def PyJs_anonymous_920_(require, module, exports, this, arguments, var=var):
             def PyJs_pushAssignmentPattern_930_(pattern, valueRef, this, arguments, var=var):
                 var = Scope({u'this':this, u'pattern':pattern, u'valueRef':valueRef, u'arguments':arguments, u'pushAssignmentPattern':PyJs_pushAssignmentPattern_930_}, var)
                 var.registers([u'pattern', u'tempValueDefault', u'declar', u'tempValueRef', u'tempConditional', u'valueRef', u'left'])
-                var.put(u'tempValueRef', var.get(u"this").get(u'scope').callprop(u'generateUidIdentifierBasedOnNode', var.get(u'valueRef')))
+                var.put(u'tempValueRef', var.get(u"this").get(u'scope').callprop(u"REDACTED_MISTRAL", var.get(u'valueRef')))
                 var.put(u'declar', var.get(u't').callprop(u'variableDeclaration', Js(u'var'), Js([var.get(u't').callprop(u'variableDeclarator', var.get(u'tempValueRef'), var.get(u'valueRef'))])))
                 var.get(u'declar').put(u'_blockHoist', var.get(u"this").get(u'blockHoist'))
                 var.get(u"this").get(u'nodes').callprop(u'push', var.get(u'declar'))
@@ -11742,7 +11742,7 @@ def PyJs_anonymous_920_(require, module, exports, this, arguments, var=var):
                 if var.get(u'pattern').get(u'properties').get(u'length').neg():
                     var.get(u"this").get(u'nodes').callprop(u'push', var.get(u't').callprop(u'expressionStatement', var.get(u't').callprop(u'callExpression', var.get(u"this").get(u'file').callprop(u'addHelper', Js(u'objectDestructuringEmpty')), Js([var.get(u'objRef')]))))
                 if ((var.get(u'pattern').get(u'properties').get(u'length')>Js(1.0)) and var.get(u"this").get(u'scope').callprop(u'isStatic', var.get(u'objRef')).neg()):
-                    var.put(u'temp', var.get(u"this").get(u'scope').callprop(u'generateUidIdentifierBasedOnNode', var.get(u'objRef')))
+                    var.put(u'temp', var.get(u"this").get(u'scope').callprop(u"REDACTED_MISTRAL", var.get(u'objRef')))
                     var.get(u"this").get(u'nodes').callprop(u'push', var.get(u"this").callprop(u'buildVariableDeclaration', var.get(u'temp'), var.get(u'objRef')))
                     var.put(u'objRef', var.get(u'temp'))
                 #for JS loop
@@ -11851,7 +11851,7 @@ def PyJs_anonymous_920_(require, module, exports, this, arguments, var=var):
                 if var.get(u't').callprop(u'isIdentifier', var.get(u'toArray')):
                     var.put(u'arrayRef', var.get(u'toArray'))
                 else:
-                    var.put(u'arrayRef', var.get(u"this").get(u'scope').callprop(u'generateUidIdentifierBasedOnNode', var.get(u'arrayRef')))
+                    var.put(u'arrayRef', var.get(u"this").get(u'scope').callprop(u"REDACTED_MISTRAL", var.get(u'arrayRef')))
                     var.get(u"this").get(u'arrays').put(var.get(u'arrayRef').get(u'name'), var.get(u'true'))
                     var.get(u"this").get(u'nodes').callprop(u'push', var.get(u"this").callprop(u'buildVariableDeclaration', var.get(u'arrayRef'), var.get(u'toArray')))
                 #for JS loop
@@ -11965,7 +11965,7 @@ def PyJs_anonymous_920_(require, module, exports, this, arguments, var=var):
             var.put(u'destructuring', var.get(u'DestructuringTransformer').create(PyJs_Object_947_))
             var.put(u'ref', PyJsComma(Js(0.0), Js(None)))
             if (var.get(u'path').callprop(u'isCompletionRecord') or var.get(u'path').get(u'parentPath').callprop(u'isExpressionStatement').neg()):
-                var.put(u'ref', var.get(u'scope').callprop(u'generateUidIdentifierBasedOnNode', var.get(u'node').get(u'right'), Js(u'ref')))
+                var.put(u'ref', var.get(u'scope').callprop(u"REDACTED_MISTRAL", var.get(u'node').get(u'right'), Js(u'ref')))
                 var.get(u'nodes').callprop(u'push', var.get(u't').callprop(u'variableDeclaration', Js(u'var'), Js([var.get(u't').callprop(u'variableDeclarator', var.get(u'ref'), var.get(u'node').get(u'right'))])))
                 if var.get(u't').callprop(u'isArrayExpression', var.get(u'node').get(u'right')):
                     var.get(u'destructuring').get(u'arrays').put(var.get(u'ref').get(u'name'), var.get(u'true'))
@@ -12553,7 +12553,7 @@ PyJs_Object_1008_ = Js({u'babel-plugin-transform-es2015-modules-commonjs':Js(73.
 @Js
 def PyJs_anonymous_1009_(require, module, exports, this, arguments, var=var):
     var = Scope({u'this':this, u'require':require, u'exports':exports, u'module':module, u'arguments':arguments}, var)
-    var.registers([u'_symbol2', u'_babelTemplate', u'module', u'buildLooseExportsModuleDeclaration', u'_interopRequireDefault', u'_getIterator2', u'_getIterator3', u'buildExportAll', u'_create2', u'_keys', u'buildExportsAssignment', u'THIS_BREAK_KEYS', u'_create', u'exports', u'_interopRequireWildcard', u'_babelTypes', u'buildRequire', u'buildExportsModuleDeclaration', u'_symbol', u'_path2', u'buildExportsFrom', u'_keys2', u'_babelTemplate2', u't', u'require'])
+    var.registers([u'_symbol2', u'_babelTemplate', u'module', u"REDACTED_MISTRAL", u'_interopRequireDefault', u'_getIterator2', u'_getIterator3', u'buildExportAll', u'_create2', u'_keys', u'buildExportsAssignment', u'THIS_BREAK_KEYS', u'_create', u'exports', u'_interopRequireWildcard', u'_babelTypes', u'buildRequire', u'buildExportsModuleDeclaration', u'_symbol', u'_path2', u'buildExportsFrom', u'_keys2', u'_babelTemplate2', u't', u'require'])
     @Js
     def PyJsHoisted__interopRequireDefault_(obj, this, arguments, var=var):
         var = Scope({u'this':this, u'obj':obj, u'arguments':arguments}, var)
@@ -13015,7 +13015,7 @@ def PyJs_anonymous_1009_(require, module, exports, this, arguments, var=var):
             if (var.get(u'hasExports') and var.get(u'strict').neg()):
                 var.put(u'buildTemplate', var.get(u'buildExportsModuleDeclaration'))
                 if var.get(u"this").get(u'opts').get(u'loose'):
-                    var.put(u'buildTemplate', var.get(u'buildLooseExportsModuleDeclaration'))
+                    var.put(u'buildTemplate', var.get(u"REDACTED_MISTRAL"))
                 var.put(u'declar', var.get(u'buildTemplate')())
                 var.get(u'declar').put(u'_blockHoist', Js(3.0))
                 var.get(u'topNodes').callprop(u'unshift', var.get(u'declar'))
@@ -13045,7 +13045,7 @@ def PyJs_anonymous_1009_(require, module, exports, this, arguments, var=var):
     var.put(u'buildRequire', PyJsComma(Js(0.0),var.get(u'_babelTemplate2').get(u'default'))(Js(u'\n  require($0);\n')))
     var.put(u'buildExportsModuleDeclaration', PyJsComma(Js(0.0),var.get(u'_babelTemplate2').get(u'default'))(Js(u'\n  Object.defineProperty(exports, "__esModule", {\n    value: true\n  });\n')))
     var.put(u'buildExportsFrom', PyJsComma(Js(0.0),var.get(u'_babelTemplate2').get(u'default'))(Js(u'\n  Object.defineProperty(exports, $0, {\n    enumerable: true,\n    get: function () {\n      return $1;\n    }\n  });\n')))
-    var.put(u'buildLooseExportsModuleDeclaration', PyJsComma(Js(0.0),var.get(u'_babelTemplate2').get(u'default'))(Js(u'\n  exports.__esModule = true;\n')))
+    var.put(u"REDACTED_MISTRAL", PyJsComma(Js(0.0),var.get(u'_babelTemplate2').get(u'default'))(Js(u'\n  exports.__esModule = true;\n')))
     var.put(u'buildExportsAssignment', PyJsComma(Js(0.0),var.get(u'_babelTemplate2').get(u'default'))(Js(u'\n  exports.$0 = $1;\n')))
     var.put(u'buildExportAll', PyJsComma(Js(0.0),var.get(u'_babelTemplate2').get(u'default'))(Js(u'\n  Object.keys(OBJECT).forEach(function (key) {\n    if (key === "default" || key === "__esModule") return;\n    Object.defineProperty(exports, key, {\n      enumerable: true,\n      get: function () {\n        return OBJECT[key];\n      }\n    });\n  });\n')))
     var.put(u'THIS_BREAK_KEYS', Js([Js(u'FunctionExpression'), Js(u'FunctionDeclaration'), Js(u'ClassProperty'), Js(u'ClassMethod'), Js(u'ObjectMethod')]))
@@ -13080,7 +13080,7 @@ def PyJs_anonymous_1030_(require, module, exports, this, arguments, var=var):
         var.put(u'IGNORE_REASSIGNMENT_SYMBOL', PyJsComma(Js(0.0),var.get(u'_symbol2').get(u'default'))())
         @Js
         def PyJs_AssignmentExpressionUpdateExpression_1033_(path, this, arguments, var=var):
-            var = Scope({u'this':this, u'path':path, u'arguments':arguments, u'AssignmentExpressionUpdateExpression':PyJs_AssignmentExpressionUpdateExpression_1033_}, var)
+            var = Scope({u'this':this, u'path':path, u'arguments':arguments, u"REDACTED_MISTRAL":PyJs_AssignmentExpressionUpdateExpression_1033_}, var)
             var.registers([u'node', u'_isArray', u'_iterator', u'name', u'exportedNames', u'_ref2', u'exportedName', u'_i', u'arg', u'isPostUpdateExpression', u'path'])
             if var.get(u'path').get(u'node').get(var.get(u'IGNORE_REASSIGNMENT_SYMBOL')):
                 return var.get('undefined')
@@ -13126,7 +13126,7 @@ def PyJs_anonymous_1030_(require, module, exports, this, arguments, var=var):
             if var.get(u'isPostUpdateExpression'):
                 var.put(u'node', var.get(u't').callprop(u'sequenceExpression', Js([var.get(u'node'), var.get(u'path').get(u'node')])))
             var.get(u'path').callprop(u'replaceWith', var.get(u'node'))
-        PyJs_AssignmentExpressionUpdateExpression_1033_._set_name(u'AssignmentExpressionUpdateExpression')
+        PyJs_AssignmentExpressionUpdateExpression_1033_._set_name(u"REDACTED_MISTRAL")
         PyJs_Object_1032_ = Js({u'AssignmentExpression|UpdateExpression':PyJs_AssignmentExpressionUpdateExpression_1033_})
         var.put(u'reassignmentVisitor', PyJs_Object_1032_)
         @Js
@@ -13992,7 +13992,7 @@ PyJs_Object_1102_ = Js({u'./default':Js(77.0),u'./destructuring':Js(78.0),u'./re
 @Js
 def PyJs_anonymous_1103_(require, module, exports, this, arguments, var=var):
     var = Scope({u'this':this, u'require':require, u'exports':exports, u'module':module, u'arguments':arguments}, var)
-    var.registers([u'restIndexImpure', u'exports', u'optimiseLengthGetter', u'hasRest', u'_interopRequireWildcard', u'visitor', u'require', u'_babelTypes', u'_babelTemplate', u'module', u'restIndex', u'buildRest', u'_babelTemplate2', u't', u'_interopRequireDefault', u'restLength', u'_getIterator2', u'_getIterator3', u'optimiseIndexGetter', u'memberExpressionOptimisationVisitor'])
+    var.registers([u'restIndexImpure', u'exports', u'optimiseLengthGetter', u'hasRest', u'_interopRequireWildcard', u'visitor', u'require', u'_babelTypes', u'_babelTemplate', u'module', u'restIndex', u'buildRest', u'_babelTemplate2', u't', u'_interopRequireDefault', u'restLength', u'_getIterator2', u'_getIterator3', u'optimiseIndexGetter', u"REDACTED_MISTRAL"])
     @Js
     def PyJsHoisted__interopRequireDefault_(obj, this, arguments, var=var):
         var = Scope({u'this':this, u'obj':obj, u'arguments':arguments}, var)
@@ -14026,7 +14026,7 @@ def PyJs_anonymous_1103_(require, module, exports, this, arguments, var=var):
                 var.put(u'index', var.get(u't').callprop(u'binaryExpression', Js(u'+'), var.get(u'path').get(u'parent').get(u'property'), var.get(u't').callprop(u'numericLiteral', var.get(u'offset'))))
         var.put(u'scope', var.get(u'path').get(u'scope'))
         if var.get(u'scope').callprop(u'isPure', var.get(u'index')).neg():
-            var.put(u'temp', var.get(u'scope').callprop(u'generateUidIdentifierBasedOnNode', var.get(u'index')))
+            var.put(u'temp', var.get(u'scope').callprop(u"REDACTED_MISTRAL", var.get(u'index')))
             PyJs_Object_1118_ = Js({u'id':var.get(u'temp'),u'kind':Js(u'var')})
             var.get(u'scope').callprop(u'push', PyJs_Object_1118_)
             PyJs_Object_1119_ = Js({u'ARGUMENTS':var.get(u'argsId'),u'INDEX':var.get(u'index'),u'REF':var.get(u'temp')})
@@ -14097,7 +14097,7 @@ def PyJs_anonymous_1103_(require, module, exports, this, arguments, var=var):
         var.registers([u'oldNoOptimise', u'state', u'path'])
         var.put(u'oldNoOptimise', var.get(u'state').get(u'noOptimise'))
         var.get(u'state').put(u'noOptimise', var.get(u'true'))
-        var.get(u'path').callprop(u'traverse', var.get(u'memberExpressionOptimisationVisitor'), var.get(u'state'))
+        var.get(u'path').callprop(u'traverse', var.get(u"REDACTED_MISTRAL"), var.get(u'state'))
         var.get(u'state').put(u'noOptimise', var.get(u'oldNoOptimise'))
         var.get(u'path').callprop(u'skip')
     PyJs_FunctionClassProperty_1109_._set_name(u'FunctionClassProperty')
@@ -14149,7 +14149,7 @@ def PyJs_anonymous_1103_(require, module, exports, this, arguments, var=var):
             var.get(u'state').put(u'deopted', var.get(u'true'))
     PyJs_BindingIdentifier_1117_._set_name(u'BindingIdentifier')
     PyJs_Object_1106_ = Js({u'Scope':PyJs_Scope_1107_,u'Flow':PyJs_Flow_1108_,u'Function|ClassProperty':PyJs_FunctionClassProperty_1109_,u'ReferencedIdentifier':PyJs_ReferencedIdentifier_1110_,u'BindingIdentifier':PyJs_BindingIdentifier_1117_})
-    var.put(u'memberExpressionOptimisationVisitor', PyJs_Object_1106_)
+    var.put(u"REDACTED_MISTRAL", PyJs_Object_1106_)
     pass
     pass
     pass
@@ -14166,7 +14166,7 @@ def PyJs_anonymous_1103_(require, module, exports, this, arguments, var=var):
         var.get(u'argsId').put(u'_shadowedFunctionLiteral', var.get(u'path'))
         PyJs_Object_1124_ = Js({u'references':Js([]),u'offset':var.get(u'node').get(u'params').get(u'length'),u'argumentsNode':var.get(u'argsId'),u'outerBinding':var.get(u'scope').callprop(u'getBindingIdentifier', var.get(u'rest').get(u'name')),u'candidates':Js([]),u'name':var.get(u'rest').get(u'name'),u'deopted':Js(False)})
         var.put(u'state', PyJs_Object_1124_)
-        var.get(u'path').callprop(u'traverse', var.get(u'memberExpressionOptimisationVisitor'), var.get(u'state'))
+        var.get(u'path').callprop(u'traverse', var.get(u"REDACTED_MISTRAL"), var.get(u'state'))
         if (var.get(u'state').get(u'deopted').neg() and var.get(u'state').get(u'references').get(u'length').neg()):
             #for JS loop
             var.put(u'_iterator', var.get(u'state').get(u'candidates'))
@@ -16391,10 +16391,10 @@ def PyJs_anonymous_1291_(require, module, exports, this, arguments, var=var):
     pass
     @Js
     def PyJs_FunctionExpressionFunctionDeclaration_1303_(path, this, arguments, var=var):
-        var = Scope({u'this':this, u'path':path, u'arguments':arguments, u'FunctionExpressionFunctionDeclaration':PyJs_FunctionExpressionFunctionDeclaration_1303_}, var)
+        var = Scope({u'this':this, u'path':path, u'arguments':arguments, u"REDACTED_MISTRAL":PyJs_FunctionExpressionFunctionDeclaration_1303_}, var)
         var.registers([u'path'])
         var.get(u'path').callprop(u'skip')
-    PyJs_FunctionExpressionFunctionDeclaration_1303_._set_name(u'FunctionExpressionFunctionDeclaration')
+    PyJs_FunctionExpressionFunctionDeclaration_1303_._set_name(u"REDACTED_MISTRAL")
     @Js
     def PyJs_Identifier_1304_(path, state, this, arguments, var=var):
         var = Scope({u'this':this, u'path':path, u'state':state, u'Identifier':PyJs_Identifier_1304_, u'arguments':arguments}, var)
@@ -22460,7 +22460,7 @@ PyJs_Object_1985_ = Js({u'./inferers':Js(235.0),u'babel-runtime/core-js/get-iter
 @Js
 def PyJs_anonymous_1986_(require, module, exports, this, arguments, var=var):
     var = Scope({u'this':this, u'require':require, u'exports':exports, u'module':module, u'arguments':arguments}, var)
-    var.registers([u'exports', u'getConditionalAnnotation', u'_interopRequireWildcard', u'getParentConditionalPath', u'require', u'_babelTypes', u'module', u'inferAnnotationFromBinaryExpression', u't', u'_interopRequireDefault', u'_getIterator2', u'_getIterator3', u'getTypeAnnotationBindingConstantViolations', u'getConstantViolationsBefore'])
+    var.registers([u'exports', u'getConditionalAnnotation', u'_interopRequireWildcard', u'getParentConditionalPath', u'require', u'_babelTypes', u'module', u"REDACTED_MISTRAL", u't', u'_interopRequireDefault', u'_getIterator2', u'_getIterator3', u"REDACTED_MISTRAL", u'getConstantViolationsBefore'])
     @Js
     def PyJsHoisted__interopRequireWildcard_(obj, this, arguments, var=var):
         var = Scope({u'this':this, u'obj':obj, u'arguments':arguments}, var)
@@ -22542,9 +22542,9 @@ def PyJs_anonymous_1986_(require, module, exports, this, arguments, var=var):
         PyJs_Object_1997_ = Js({u'name':var.get(u'name')})
         if var.get(u'typeofPath').callprop(u'get', Js(u'argument')).callprop(u'isIdentifier', PyJs_Object_1997_).neg():
             return var.get('undefined')
-        return var.get(u't').callprop(u'createTypeAnnotationBasedOnTypeof', var.get(u'typePath').get(u'node').get(u'value'))
-    PyJsHoisted_inferAnnotationFromBinaryExpression_.func_name = u'inferAnnotationFromBinaryExpression'
-    var.put(u'inferAnnotationFromBinaryExpression', PyJsHoisted_inferAnnotationFromBinaryExpression_)
+        return var.get(u't').callprop(u"REDACTED_MISTRAL", var.get(u'typePath').get(u'node').get(u'value'))
+    PyJsHoisted_inferAnnotationFromBinaryExpression_.func_name = u"REDACTED_MISTRAL"
+    var.put(u"REDACTED_MISTRAL", PyJsHoisted_inferAnnotationFromBinaryExpression_)
     @Js
     def PyJsHoisted__interopRequireDefault_(obj, this, arguments, var=var):
         var = Scope({u'this':this, u'obj':obj, u'arguments':arguments}, var)
@@ -22588,7 +22588,7 @@ def PyJs_anonymous_1986_(require, module, exports, this, arguments, var=var):
                 var.get(u'paths').callprop(u'push', var.get(u'_path').callprop(u'get', Js(u'left')))
                 var.get(u'paths').callprop(u'push', var.get(u'_path').callprop(u'get', Js(u'right')))
             if var.get(u'_path').callprop(u'isBinaryExpression'):
-                var.put(u'type', var.get(u'inferAnnotationFromBinaryExpression')(var.get(u'name'), var.get(u'_path')))
+                var.put(u'type', var.get(u"REDACTED_MISTRAL")(var.get(u'name'), var.get(u'_path')))
                 if var.get(u'type'):
                     var.get(u'types').callprop(u'push', var.get(u'type'))
             if not var.get(u'paths').get(u'length'):
@@ -22649,8 +22649,8 @@ def PyJs_anonymous_1986_(require, module, exports, this, arguments, var=var):
             
         if var.get(u'types').get(u'length'):
             return var.get(u't').callprop(u'createUnionTypeAnnotation', var.get(u'types'))
-    PyJsHoisted_getTypeAnnotationBindingConstantViolations_.func_name = u'getTypeAnnotationBindingConstantViolations'
-    var.put(u'getTypeAnnotationBindingConstantViolations', PyJsHoisted_getTypeAnnotationBindingConstantViolations_)
+    PyJsHoisted_getTypeAnnotationBindingConstantViolations_.func_name = u"REDACTED_MISTRAL"
+    var.put(u"REDACTED_MISTRAL", PyJsHoisted_getTypeAnnotationBindingConstantViolations_)
     Js(u'use strict')
     var.get(u'exports').put(u'__esModule', var.get(u'true'))
     var.put(u'_getIterator2', var.get(u'require')(Js(u'babel-runtime/core-js/get-iterator')))
@@ -22666,7 +22666,7 @@ def PyJs_anonymous_1986_(require, module, exports, this, arguments, var=var):
             if var.get(u'binding').get(u'identifier').get(u'typeAnnotation'):
                 return var.get(u'binding').get(u'identifier').get(u'typeAnnotation')
             else:
-                return var.get(u'getTypeAnnotationBindingConstantViolations')(var.get(u"this"), var.get(u'node').get(u'name'))
+                return var.get(u"REDACTED_MISTRAL")(var.get(u"this"), var.get(u'node').get(u'name'))
         if PyJsStrictEq(var.get(u'node').get(u'name'),Js(u'undefined')):
             return var.get(u't').callprop(u'voidTypeAnnotation')
         else:
@@ -22996,7 +22996,7 @@ PyJs_Object_2005_ = Js({u'./inferer-reference':Js(234.0),u'babel-types':Js(258.0
 @Js
 def PyJs_anonymous_2006_(require, module, exports, this, arguments, var=var):
     var = Scope({u'this':this, u'require':require, u'exports':exports, u'module':module, u'arguments':arguments}, var)
-    var.registers([u'_resolve', u'is', u'exports', u'module', u'isnt', u'canSwapBetweenExpressionAndStatement', u'_interopRequireDefault', u'_getIterator2', u'_getIterator3', u'referencesImport', u'_typeof2', u'_typeof3', u'canHaveVariableDeclarationOrExpression', u'isStatementOrBlock', u't', u'has', u'_guessExecutionStatusRelativeTo', u'_includes', u'isStatic', u'isCompletionRecord', u'_interopRequireWildcard', u'_babelTypes', u'_includes2', u'equals', u'isNodeType', u'_guessExecutionStatusRelativeToDifferentFunctions', u'resolve', u'willIMaybeExecuteBefore', u'require', u'matchesPattern', u'getSource'])
+    var.registers([u'_resolve', u'is', u'exports', u'module', u'isnt', u"REDACTED_MISTRAL", u'_interopRequireDefault', u'_getIterator2', u'_getIterator3', u'referencesImport', u'_typeof2', u'_typeof3', u"REDACTED_MISTRAL", u'isStatementOrBlock', u't', u'has', u'_guessExecutionStatusRelativeTo', u'_includes', u'isStatic', u'isCompletionRecord', u'_interopRequireWildcard', u'_babelTypes', u'_includes2', u'equals', u'isNodeType', u'_guessExecutionStatusRelativeToDifferentFunctions', u'resolve', u'willIMaybeExecuteBefore', u'require', u'matchesPattern', u'getSource'])
     @Js
     def PyJsHoisted__resolve_(dangerous, resolved, this, arguments, var=var):
         var = Scope({u'resolved':resolved, u'dangerous':dangerous, u'this':this, u'arguments':arguments}, var)
@@ -23143,8 +23143,8 @@ def PyJs_anonymous_2006_(require, module, exports, this, arguments, var=var):
         var = Scope({u'this':this, u'arguments':arguments}, var)
         var.registers([])
         return ((PyJsStrictEq(var.get(u"this").get(u'key'),Js(u'init')) or PyJsStrictEq(var.get(u"this").get(u'key'),Js(u'left'))) and var.get(u"this").get(u'parentPath').callprop(u'isFor'))
-    PyJsHoisted_canHaveVariableDeclarationOrExpression_.func_name = u'canHaveVariableDeclarationOrExpression'
-    var.put(u'canHaveVariableDeclarationOrExpression', PyJsHoisted_canHaveVariableDeclarationOrExpression_)
+    PyJsHoisted_canHaveVariableDeclarationOrExpression_.func_name = u"REDACTED_MISTRAL"
+    var.put(u"REDACTED_MISTRAL", PyJsHoisted_canHaveVariableDeclarationOrExpression_)
     @Js
     def PyJsHoisted__guessExecutionStatusRelativeTo_(target, this, arguments, var=var):
         var = Scope({u'this':this, u'target':target, u'arguments':arguments}, var)
@@ -23411,8 +23411,8 @@ def PyJs_anonymous_2006_(require, module, exports, this, arguments, var=var):
             if var.get(u"this").callprop(u'isBlockStatement'):
                 return var.get(u't').callprop(u'isExpression', var.get(u'replacement'))
         return Js(False)
-    PyJsHoisted_canSwapBetweenExpressionAndStatement_.func_name = u'canSwapBetweenExpressionAndStatement'
-    var.put(u'canSwapBetweenExpressionAndStatement', PyJsHoisted_canSwapBetweenExpressionAndStatement_)
+    PyJsHoisted_canSwapBetweenExpressionAndStatement_.func_name = u"REDACTED_MISTRAL"
+    var.put(u"REDACTED_MISTRAL", PyJsHoisted_canSwapBetweenExpressionAndStatement_)
     Js(u'use strict')
     var.get(u'exports').put(u'__esModule', var.get(u'true'))
     var.get(u'exports').put(u'is', var.get(u'undefined'))
@@ -23426,8 +23426,8 @@ def PyJs_anonymous_2006_(require, module, exports, this, arguments, var=var):
     var.get(u'exports').put(u'isnt', var.get(u'isnt'))
     var.get(u'exports').put(u'equals', var.get(u'equals'))
     var.get(u'exports').put(u'isNodeType', var.get(u'isNodeType'))
-    var.get(u'exports').put(u'canHaveVariableDeclarationOrExpression', var.get(u'canHaveVariableDeclarationOrExpression'))
-    var.get(u'exports').put(u'canSwapBetweenExpressionAndStatement', var.get(u'canSwapBetweenExpressionAndStatement'))
+    var.get(u'exports').put(u"REDACTED_MISTRAL", var.get(u"REDACTED_MISTRAL"))
+    var.get(u'exports').put(u"REDACTED_MISTRAL", var.get(u"REDACTED_MISTRAL"))
     var.get(u'exports').put(u'isCompletionRecord', var.get(u'isCompletionRecord'))
     var.get(u'exports').put(u'isStatementOrBlock', var.get(u'isStatementOrBlock'))
     var.get(u'exports').put(u'referencesImport', var.get(u'referencesImport'))
@@ -24426,10 +24426,10 @@ def PyJs_anonymous_2083_(require, module, exports, this, arguments, var=var):
             PyJsTempException = JsToPyException(var.get(u'Error').create(Js(u"Don't use `path.replaceWith()` with a source string, use `path.replaceWithSourceString()`")))
             raise PyJsTempException
         if (var.get(u"this").callprop(u'isNodeType', Js(u'Statement')) and var.get(u't').callprop(u'isExpression', var.get(u'replacement'))):
-            if (var.get(u"this").callprop(u'canHaveVariableDeclarationOrExpression').neg() and var.get(u"this").callprop(u'canSwapBetweenExpressionAndStatement', var.get(u'replacement')).neg()):
+            if (var.get(u"this").callprop(u"REDACTED_MISTRAL").neg() and var.get(u"this").callprop(u"REDACTED_MISTRAL", var.get(u'replacement')).neg()):
                 var.put(u'replacement', var.get(u't').callprop(u'expressionStatement', var.get(u'replacement')))
         if (var.get(u"this").callprop(u'isNodeType', Js(u'Expression')) and var.get(u't').callprop(u'isStatement', var.get(u'replacement'))):
-            if (var.get(u"this").callprop(u'canHaveVariableDeclarationOrExpression').neg() and var.get(u"this").callprop(u'canSwapBetweenExpressionAndStatement', var.get(u'replacement')).neg()):
+            if (var.get(u"this").callprop(u"REDACTED_MISTRAL").neg() and var.get(u"this").callprop(u"REDACTED_MISTRAL", var.get(u'replacement')).neg()):
                 return var.get(u"this").callprop(u'replaceExpressionWithStatements', Js([var.get(u'replacement')]))
         var.put(u'oldNode', var.get(u"this").get(u'node'))
         if var.get(u'oldNode'):
@@ -25053,7 +25053,7 @@ def PyJs_anonymous_2103_(require, module, exports, this, arguments, var=var):
         var.get(u'Scope').get(u'prototype').put(u'_generateUid', PyJs__generateUid_2126_)
         @Js
         def PyJs_generateUidIdentifierBasedOnNode_2127_(parent, defaultName, this, arguments, var=var):
-            var = Scope({u'this':this, u'defaultName':defaultName, u'generateUidIdentifierBasedOnNode':PyJs_generateUidIdentifierBasedOnNode_2127_, u'arguments':arguments, u'parent':parent}, var)
+            var = Scope({u'this':this, u'defaultName':defaultName, u"REDACTED_MISTRAL":PyJs_generateUidIdentifierBasedOnNode_2127_, u'arguments':arguments, u'parent':parent}, var)
             var.registers([u'node', u'parent', u'defaultName', u'add', u'parts', u'id'])
             var.put(u'node', var.get(u'parent'))
             if var.get(u't').callprop(u'isAssignmentExpression', var.get(u'parent')):
@@ -25139,8 +25139,8 @@ def PyJs_anonymous_2103_(require, module, exports, this, arguments, var=var):
             var.put(u'id', var.get(u'parts').callprop(u'join', Js(u'$')))
             var.put(u'id', ((var.get(u'id').callprop(u'replace', JsRegExp(u'/^_/'), Js(u'')) or var.get(u'defaultName')) or Js(u'ref')))
             return var.get(u"this").callprop(u'generateUidIdentifier', var.get(u'id').callprop(u'slice', Js(0.0), Js(20.0)))
-        PyJs_generateUidIdentifierBasedOnNode_2127_._set_name(u'generateUidIdentifierBasedOnNode')
-        var.get(u'Scope').get(u'prototype').put(u'generateUidIdentifierBasedOnNode', PyJs_generateUidIdentifierBasedOnNode_2127_)
+        PyJs_generateUidIdentifierBasedOnNode_2127_._set_name(u"REDACTED_MISTRAL")
+        var.get(u'Scope').get(u'prototype').put(u"REDACTED_MISTRAL", PyJs_generateUidIdentifierBasedOnNode_2127_)
         @Js
         def PyJs_isStatic_2129_(node, this, arguments, var=var):
             var = Scope({u'node':node, u'this':this, u'isStatic':PyJs_isStatic_2129_, u'arguments':arguments}, var)
@@ -25163,7 +25163,7 @@ def PyJs_anonymous_2103_(require, module, exports, this, arguments, var=var):
             if var.get(u"this").callprop(u'isStatic', var.get(u'node')):
                 return var.get(u"null")
             else:
-                var.put(u'_id2', var.get(u"this").callprop(u'generateUidIdentifierBasedOnNode', var.get(u'node')))
+                var.put(u'_id2', var.get(u"this").callprop(u"REDACTED_MISTRAL", var.get(u'node')))
                 if var.get(u'dontPush').neg():
                     PyJs_Object_2131_ = Js({u'id':var.get(u'_id2')})
                     var.get(u"this").callprop(u'push', PyJs_Object_2131_)
@@ -26101,7 +26101,7 @@ def PyJs_anonymous_2179_(require, module, exports, this, arguments, var=var):
         pass
         @Js
         def PyJs_maybeConvertFromExportDeclaration_2187_(parentDeclar, this, arguments, var=var):
-            var = Scope({u'this':this, u'parentDeclar':parentDeclar, u'maybeConvertFromExportDeclaration':PyJs_maybeConvertFromExportDeclaration_2187_, u'arguments':arguments}, var)
+            var = Scope({u'this':this, u'parentDeclar':parentDeclar, u"REDACTED_MISTRAL":PyJs_maybeConvertFromExportDeclaration_2187_, u'arguments':arguments}, var)
             var.registers([u'specifiers', u'exportDeclar', u'name', u'bindingIdentifiers', u'exportedName', u'parentDeclar', u'localName', u'aliasDeclar', u'isDefault'])
             var.put(u'exportDeclar', (var.get(u'parentDeclar').get(u'parentPath').callprop(u'isExportDeclaration') and var.get(u'parentDeclar').get(u'parentPath')))
             if var.get(u'exportDeclar').neg():
@@ -26122,11 +26122,11 @@ def PyJs_anonymous_2179_(require, module, exports, this, arguments, var=var):
                     var.get(u'aliasDeclar').put(u'_blockHoist', Js(3.0))
                 var.get(u'exportDeclar').callprop(u'insertAfter', var.get(u'aliasDeclar'))
                 var.get(u'exportDeclar').callprop(u'replaceWith', var.get(u'parentDeclar').get(u'node'))
-        PyJs_maybeConvertFromExportDeclaration_2187_._set_name(u'maybeConvertFromExportDeclaration')
-        var.get(u'Renamer').get(u'prototype').put(u'maybeConvertFromExportDeclaration', PyJs_maybeConvertFromExportDeclaration_2187_)
+        PyJs_maybeConvertFromExportDeclaration_2187_._set_name(u"REDACTED_MISTRAL")
+        var.get(u'Renamer').get(u'prototype').put(u"REDACTED_MISTRAL", PyJs_maybeConvertFromExportDeclaration_2187_)
         @Js
         def PyJs_maybeConvertFromClassFunctionDeclaration_2188_(path, this, arguments, var=var):
-            var = Scope({u'this':this, u'path':path, u'arguments':arguments, u'maybeConvertFromClassFunctionDeclaration':PyJs_maybeConvertFromClassFunctionDeclaration_2188_}, var)
+            var = Scope({u'this':this, u'path':path, u'arguments':arguments, u"REDACTED_MISTRAL":PyJs_maybeConvertFromClassFunctionDeclaration_2188_}, var)
             var.registers([u'path'])
             return var.get('undefined')
             if (var.get(u'path').callprop(u'isFunctionDeclaration').neg() and var.get(u'path').callprop(u'isClassDeclaration').neg()):
@@ -26136,11 +26136,11 @@ def PyJs_anonymous_2179_(require, module, exports, this, arguments, var=var):
             var.get(u'path').get(u'node').put(u'id', var.get(u't').callprop(u'identifier', var.get(u"this").get(u'oldName')))
             var.get(u'path').get(u'node').put(u'_blockHoist', Js(3.0))
             var.get(u'path').callprop(u'replaceWith', var.get(u't').callprop(u'variableDeclaration', Js(u'let'), Js([var.get(u't').callprop(u'variableDeclarator', var.get(u't').callprop(u'identifier', var.get(u"this").get(u'newName')), var.get(u't').callprop(u'toExpression', var.get(u'path').get(u'node')))])))
-        PyJs_maybeConvertFromClassFunctionDeclaration_2188_._set_name(u'maybeConvertFromClassFunctionDeclaration')
-        var.get(u'Renamer').get(u'prototype').put(u'maybeConvertFromClassFunctionDeclaration', PyJs_maybeConvertFromClassFunctionDeclaration_2188_)
+        PyJs_maybeConvertFromClassFunctionDeclaration_2188_._set_name(u"REDACTED_MISTRAL")
+        var.get(u'Renamer').get(u'prototype').put(u"REDACTED_MISTRAL", PyJs_maybeConvertFromClassFunctionDeclaration_2188_)
         @Js
         def PyJs_maybeConvertFromClassFunctionExpression_2189_(path, this, arguments, var=var):
-            var = Scope({u'this':this, u'path':path, u'arguments':arguments, u'maybeConvertFromClassFunctionExpression':PyJs_maybeConvertFromClassFunctionExpression_2189_}, var)
+            var = Scope({u'this':this, u'path':path, u'arguments':arguments, u"REDACTED_MISTRAL":PyJs_maybeConvertFromClassFunctionExpression_2189_}, var)
             var.registers([u'path'])
             return var.get('undefined')
             if (var.get(u'path').callprop(u'isFunctionExpression').neg() and var.get(u'path').callprop(u'isClassExpression').neg()):
@@ -26151,8 +26151,8 @@ def PyJs_anonymous_2179_(require, module, exports, this, arguments, var=var):
             PyJs_Object_2190_ = Js({u'id':var.get(u't').callprop(u'identifier', var.get(u"this").get(u'newName'))})
             var.get(u"this").get(u'binding').get(u'scope').get(u'parent').callprop(u'push', PyJs_Object_2190_)
             var.get(u'path').callprop(u'replaceWith', var.get(u't').callprop(u'assignmentExpression', Js(u'='), var.get(u't').callprop(u'identifier', var.get(u"this").get(u'newName')), var.get(u'path').get(u'node')))
-        PyJs_maybeConvertFromClassFunctionExpression_2189_._set_name(u'maybeConvertFromClassFunctionExpression')
-        var.get(u'Renamer').get(u'prototype').put(u'maybeConvertFromClassFunctionExpression', PyJs_maybeConvertFromClassFunctionExpression_2189_)
+        PyJs_maybeConvertFromClassFunctionExpression_2189_._set_name(u"REDACTED_MISTRAL")
+        var.get(u'Renamer').get(u'prototype').put(u"REDACTED_MISTRAL", PyJs_maybeConvertFromClassFunctionExpression_2189_)
         @Js
         def PyJs_rename_2191_(block, this, arguments, var=var):
             var = Scope({u'this':this, u'rename':PyJs_rename_2191_, u'arguments':arguments, u'block':block}, var)
@@ -26170,7 +26170,7 @@ def PyJs_anonymous_2179_(require, module, exports, this, arguments, var=var):
             PyJs_anonymous_2192_._set_name(u'anonymous')
             var.put(u'parentDeclar', var.get(u'path').callprop(u'find', PyJs_anonymous_2192_))
             if var.get(u'parentDeclar'):
-                var.get(u"this").callprop(u'maybeConvertFromExportDeclaration', var.get(u'parentDeclar'))
+                var.get(u"this").callprop(u"REDACTED_MISTRAL", var.get(u'parentDeclar'))
             var.get(u'scope').callprop(u'traverse', (var.get(u'block') or var.get(u'scope').get(u'block')), var.get(u'renameVisitor'), var.get(u"this"))
             if var.get(u'block').neg():
                 var.get(u'scope').callprop(u'removeOwnBinding', var.get(u'oldName'))
@@ -26179,8 +26179,8 @@ def PyJs_anonymous_2179_(require, module, exports, this, arguments, var=var):
             if PyJsStrictEq(var.get(u'binding').get(u'type'),Js(u'hoisted')):
                 pass
             if var.get(u'parentDeclar'):
-                var.get(u"this").callprop(u'maybeConvertFromClassFunctionDeclaration', var.get(u'parentDeclar'))
-                var.get(u"this").callprop(u'maybeConvertFromClassFunctionExpression', var.get(u'parentDeclar'))
+                var.get(u"this").callprop(u"REDACTED_MISTRAL", var.get(u'parentDeclar'))
+                var.get(u"this").callprop(u"REDACTED_MISTRAL", var.get(u'parentDeclar'))
         PyJs_rename_2191_._set_name(u'rename')
         var.get(u'Renamer').get(u'prototype').put(u'rename', PyJs_rename_2191_)
         return var.get(u'Renamer')
@@ -28107,7 +28107,7 @@ PyJs_Object_2712_ = Js({u'./index':Js(253.0)})
 @Js
 def PyJs_anonymous_2713_(require, module, exports, this, arguments, var=var):
     var = Scope({u'this':this, u'require':require, u'exports':exports, u'module':module, u'arguments':arguments}, var)
-    var.registers([u'exports', u'_interopRequireWildcard', u'removeTypeDuplicates', u'createUnionTypeAnnotation', u'require', u'_index', u'createTypeAnnotationBasedOnTypeof', u'module', u't'])
+    var.registers([u'exports', u'_interopRequireWildcard', u'removeTypeDuplicates', u'createUnionTypeAnnotation', u'require', u'_index', u"REDACTED_MISTRAL", u'module', u't'])
     @Js
     def PyJsHoisted_createTypeAnnotationBasedOnTypeof_(type, this, arguments, var=var):
         var = Scope({u'this':this, u'type':type, u'arguments':arguments}, var)
@@ -28135,8 +28135,8 @@ def PyJs_anonymous_2713_(require, module, exports, this, arguments, var=var):
                                 else:
                                     PyJsTempException = JsToPyException(var.get(u'Error').create(Js(u'Invalid typeof value')))
                                     raise PyJsTempException
-    PyJsHoisted_createTypeAnnotationBasedOnTypeof_.func_name = u'createTypeAnnotationBasedOnTypeof'
-    var.put(u'createTypeAnnotationBasedOnTypeof', PyJsHoisted_createTypeAnnotationBasedOnTypeof_)
+    PyJsHoisted_createTypeAnnotationBasedOnTypeof_.func_name = u"REDACTED_MISTRAL"
+    var.put(u"REDACTED_MISTRAL", PyJsHoisted_createTypeAnnotationBasedOnTypeof_)
     @Js
     def PyJsHoisted_removeTypeDuplicates_(nodes, this, arguments, var=var):
         var = Scope({u'this':this, u'nodes':nodes, u'arguments':arguments}, var)
@@ -28223,7 +28223,7 @@ def PyJs_anonymous_2713_(require, module, exports, this, arguments, var=var):
     var.get(u'exports').put(u'__esModule', var.get(u'true'))
     var.get(u'exports').put(u'createUnionTypeAnnotation', var.get(u'createUnionTypeAnnotation'))
     var.get(u'exports').put(u'removeTypeDuplicates', var.get(u'removeTypeDuplicates'))
-    var.get(u'exports').put(u'createTypeAnnotationBasedOnTypeof', var.get(u'createTypeAnnotationBasedOnTypeof'))
+    var.get(u'exports').put(u"REDACTED_MISTRAL", var.get(u"REDACTED_MISTRAL"))
     var.put(u'_index', var.get(u'require')(Js(u'./index')))
     var.put(u't', var.get(u'_interopRequireWildcard')(var.get(u'_index')))
     pass
@@ -28756,7 +28756,7 @@ def PyJs_anonymous_2718_(require, module, exports, this, arguments, var=var):
                 return var.get(u'exports').put(u'TYPES', var.get(u'exports').put(u'react', var.get(u'exports').put(u'DEPRECATED_KEYS', var.get(u'exports').put(u'BUILDER_KEYS', var.get(u'exports').put(u'NODE_FIELDS', var.get(u'exports').put(u'ALIAS_KEYS', var.get(u'exports').put(u'VISITOR_KEYS', var.get(u'exports').put(u'NOT_LOCAL_BINDING', var.get(u'exports').put(u'BLOCK_SCOPED_SYMBOL', var.get(u'exports').put(u'INHERIT_KEYS', PyJs_LONG_2720_()))))))))))
             return var.get(u'exports').put(u'isSpecifierDefault', var.get(u'exports').put(u'isVar', var.get(u'exports').put(u'isBlockScoped', var.get(u'exports').put(u'isLet', var.get(u'exports').put(u'isValidIdentifier', var.get(u'exports').put(u'isReferenced', var.get(u'exports').put(u'isBinding', var.get(u'exports').put(u'getOuterBindingIdentifiers', var.get(u'exports').put(u'getBindingIdentifiers', PyJs_LONG_2721_())))))))))
         return var.get(u'exports').put(u'toExpression', var.get(u'exports').put(u'toStatement', var.get(u'exports').put(u'toBindingIdentifierName', var.get(u'exports').put(u'toIdentifier', var.get(u'exports').put(u'toKeyAlias', var.get(u'exports').put(u'toSequenceExpression', var.get(u'exports').put(u'toComputedKey', var.get(u'exports').put(u'isImmutable', var.get(u'exports').put(u'isScope', PyJs_LONG_2722_())))))))))
-    var.get(u'exports').put(u'createTypeAnnotationBasedOnTypeof', var.get(u'exports').put(u'removeTypeDuplicates', var.get(u'exports').put(u'createUnionTypeAnnotation', var.get(u'exports').put(u'valueToNode', var.get(u'exports').put(u'toBlock', PyJs_LONG_2723_())))))
+    var.get(u'exports').put(u"REDACTED_MISTRAL", var.get(u'exports').put(u'removeTypeDuplicates', var.get(u'exports').put(u'createUnionTypeAnnotation', var.get(u'exports').put(u'valueToNode', var.get(u'exports').put(u'toBlock', PyJs_LONG_2723_())))))
     var.put(u'_getOwnPropertySymbols', var.get(u'require')(Js(u'babel-runtime/core-js/object/get-own-property-symbols')))
     var.put(u'_getOwnPropertySymbols2', var.get(u'_interopRequireDefault')(var.get(u'_getOwnPropertySymbols')))
     var.put(u'_getIterator2', var.get(u'require')(Js(u'babel-runtime/core-js/get-iterator')))
@@ -29124,10 +29124,10 @@ def PyJs_anonymous_2718_(require, module, exports, this, arguments, var=var):
     def PyJs_get_2807_(this, arguments, var=var):
         var = Scope({u'this':this, u'arguments':arguments, u'get':PyJs_get_2807_}, var)
         var.registers([])
-        return var.get(u'_flow').get(u'createTypeAnnotationBasedOnTypeof')
+        return var.get(u'_flow').get(u"REDACTED_MISTRAL")
     PyJs_get_2807_._set_name(u'get')
     PyJs_Object_2806_ = Js({u'enumerable':var.get(u'true'),u'get':PyJs_get_2807_})
-    var.get(u'Object').callprop(u'defineProperty', var.get(u'exports'), Js(u'createTypeAnnotationBasedOnTypeof'), PyJs_Object_2806_)
+    var.get(u'Object').callprop(u'defineProperty', var.get(u'exports'), Js(u"REDACTED_MISTRAL"), PyJs_Object_2806_)
     var.put(u'_toFastProperties', var.get(u'require')(Js(u'to-fast-properties')))
     var.put(u'_toFastProperties2', var.get(u'_interopRequireDefault')(var.get(u'_toFastProperties')))
     var.put(u'_compact', var.get(u'require')(Js(u'lodash/compact')))
@@ -33135,7 +33135,7 @@ def PyJs_anonymous_2842_(require, module, exports, this, arguments, var=var):
                                 var.get(u"this").callprop(u'raise', var.get(u'_node4').get(u'start'), Js(u'import() requires exactly one argument'))
                             var.put(u'base', var.get(u"this").callprop(u'finishNode', var.get(u'_node4'), Js(u'CallExpression')))
                             if (var.get(u'possibleAsync') and var.get(u"this").callprop(u'shouldParseAsyncArrow')):
-                                return var.get(u"this").callprop(u'parseAsyncArrowFromCallExpression', var.get(u"this").callprop(u'startNodeAt', var.get(u'startPos'), var.get(u'startLoc')), var.get(u'_node4'))
+                                return var.get(u"this").callprop(u"REDACTED_MISTRAL", var.get(u"this").callprop(u'startNodeAt', var.get(u'startPos'), var.get(u'startLoc')), var.get(u'_node4'))
                             else:
                                 var.get(u"this").callprop(u'toReferencedList', var.get(u'_node4').get(u'arguments'))
                         else:
@@ -33186,7 +33186,7 @@ def PyJs_anonymous_2842_(require, module, exports, this, arguments, var=var):
         var.get(u"this").callprop(u'expect', var.get(u'types').get(u'arrow'))
         return var.get(u"this").callprop(u'parseArrowExpression', var.get(u'node'), var.get(u'call').get(u'arguments'), var.get(u'true'))
     PyJs_anonymous_3043_._set_name(u'anonymous')
-    var.get(u'pp$3').put(u'parseAsyncArrowFromCallExpression', PyJs_anonymous_3043_)
+    var.get(u'pp$3').put(u"REDACTED_MISTRAL", PyJs_anonymous_3043_)
     @Js
     def PyJs_anonymous_3044_(this, arguments, var=var):
         var = Scope({u'this':this, u'arguments':arguments}, var)
@@ -33297,7 +33297,7 @@ def PyJs_anonymous_2842_(require, module, exports, this, arguments, var=var):
                 return var.get(u"this").callprop(u'finishNode', var.get(u'node'), Js(u'BooleanLiteral'))
             if SWITCHED or PyJsStrictEq(CONDITION, var.get(u'types').get(u'parenL')):
                 SWITCHED = True
-                return var.get(u"this").callprop(u'parseParenAndDistinguishExpression', var.get(u"null"), var.get(u"null"), var.get(u'canBeArrow'))
+                return var.get(u"this").callprop(u"REDACTED_MISTRAL", var.get(u"null"), var.get(u"null"), var.get(u'canBeArrow'))
             if SWITCHED or PyJsStrictEq(CONDITION, var.get(u'types').get(u'bracketL')):
                 SWITCHED = True
                 var.put(u'node', var.get(u"this").callprop(u'startNode'))
@@ -33468,7 +33468,7 @@ def PyJs_anonymous_2842_(require, module, exports, this, arguments, var=var):
         var.get(u"this").callprop(u'addExtra', var.get(u'val'), Js(u'parenStart'), var.get(u'startPos'))
         return var.get(u'val')
     PyJs_anonymous_3050_._set_name(u'anonymous')
-    var.get(u'pp$3').put(u'parseParenAndDistinguishExpression', PyJs_anonymous_3050_)
+    var.get(u'pp$3').put(u"REDACTED_MISTRAL", PyJs_anonymous_3050_)
     @Js
     def PyJs_anonymous_3053_(this, arguments, var=var):
         var = Scope({u'this':this, u'arguments':arguments}, var)
@@ -34083,7 +34083,7 @@ def PyJs_anonymous_2842_(require, module, exports, this, arguments, var=var):
         var.put(u'typeNode', var.get(u"this").callprop(u'startNode'))
         var.put(u'typeContainer', var.get(u"this").callprop(u'startNode'))
         if var.get(u"this").callprop(u'isRelational', Js(u'<')):
-            var.get(u'typeNode').put(u'typeParameters', var.get(u"this").callprop(u'flowParseTypeParameterDeclaration'))
+            var.get(u'typeNode').put(u'typeParameters', var.get(u"this").callprop(u"REDACTED_MISTRAL"))
         else:
             var.get(u'typeNode').put(u'typeParameters', var.get(u"null"))
         var.get(u"this").callprop(u'expect', var.get(u'types').get(u'parenL'))
@@ -34132,7 +34132,7 @@ def PyJs_anonymous_2842_(require, module, exports, this, arguments, var=var):
         var = Scope({u'node':node, u'this':this, u'arguments':arguments}, var)
         var.registers([u'node'])
         var.get(u"this").callprop(u'next')
-        var.get(u'node').put(u'id', var.get(u"this").callprop(u'flowParseTypeAnnotatableIdentifier'))
+        var.get(u'node').put(u'id', var.get(u"this").callprop(u"REDACTED_MISTRAL"))
         var.get(u"this").callprop(u'semicolon')
         return var.get(u"this").callprop(u'finishNode', var.get(u'node'), Js(u'DeclareVariable'))
     PyJs_anonymous_3086_._set_name(u'anonymous')
@@ -34193,7 +34193,7 @@ def PyJs_anonymous_2842_(require, module, exports, this, arguments, var=var):
         var.registers([u'node', u'allowStatic'])
         var.get(u'node').put(u'id', var.get(u"this").callprop(u'parseIdentifier'))
         if var.get(u"this").callprop(u'isRelational', Js(u'<')):
-            var.get(u'node').put(u'typeParameters', var.get(u"this").callprop(u'flowParseTypeParameterDeclaration'))
+            var.get(u'node').put(u'typeParameters', var.get(u"this").callprop(u"REDACTED_MISTRAL"))
         else:
             var.get(u'node').put(u'typeParameters', var.get(u"null"))
         var.get(u'node').put(u'extends', Js([]))
@@ -34217,9 +34217,9 @@ def PyJs_anonymous_2842_(require, module, exports, this, arguments, var=var):
         var = Scope({u'this':this, u'arguments':arguments}, var)
         var.registers([u'node'])
         var.put(u'node', var.get(u"this").callprop(u'startNode'))
-        var.get(u'node').put(u'id', var.get(u"this").callprop(u'flowParseQualifiedTypeIdentifier'))
+        var.get(u'node').put(u'id', var.get(u"this").callprop(u"REDACTED_MISTRAL"))
         if var.get(u"this").callprop(u'isRelational', Js(u'<')):
-            var.get(u'node').put(u'typeParameters', var.get(u"this").callprop(u'flowParseTypeParameterInstantiation'))
+            var.get(u'node').put(u'typeParameters', var.get(u"this").callprop(u"REDACTED_MISTRAL"))
         else:
             var.get(u'node').put(u'typeParameters', var.get(u"null"))
         return var.get(u"this").callprop(u'finishNode', var.get(u'node'), Js(u'InterfaceExtends'))
@@ -34239,7 +34239,7 @@ def PyJs_anonymous_2842_(require, module, exports, this, arguments, var=var):
         var.registers([u'node'])
         var.get(u'node').put(u'id', var.get(u"this").callprop(u'parseIdentifier'))
         if var.get(u"this").callprop(u'isRelational', Js(u'<')):
-            var.get(u'node').put(u'typeParameters', var.get(u"this").callprop(u'flowParseTypeParameterDeclaration'))
+            var.get(u'node').put(u'typeParameters', var.get(u"this").callprop(u"REDACTED_MISTRAL"))
         else:
             var.get(u'node').put(u'typeParameters', var.get(u"null"))
         var.get(u'node').put(u'right', var.get(u"this").callprop(u'flowParseTypeInitialiser', var.get(u'types').get(u'eq'), var.get(u'true')))
@@ -34253,7 +34253,7 @@ def PyJs_anonymous_2842_(require, module, exports, this, arguments, var=var):
         var.registers([u'node', u'variance', u'ident'])
         var.put(u'node', var.get(u"this").callprop(u'startNode'))
         var.put(u'variance', var.get(u"this").callprop(u'flowParseVariance'))
-        var.put(u'ident', var.get(u"this").callprop(u'flowParseTypeAnnotatableIdentifier'))
+        var.put(u'ident', var.get(u"this").callprop(u"REDACTED_MISTRAL"))
         var.get(u'node').put(u'name', var.get(u'ident').get(u'name'))
         var.get(u'node').put(u'variance', var.get(u'variance'))
         var.get(u'node').put(u'bound', var.get(u'ident').get(u'typeAnnotation'))
@@ -34285,7 +34285,7 @@ def PyJs_anonymous_2842_(require, module, exports, this, arguments, var=var):
         var.get(u"this").get(u'state').put(u'inType', var.get(u'oldInType'))
         return var.get(u"this").callprop(u'finishNode', var.get(u'node'), Js(u'TypeParameterDeclaration'))
     PyJs_anonymous_3096_._set_name(u'anonymous')
-    var.get(u'pp$7').put(u'flowParseTypeParameterDeclaration', PyJs_anonymous_3096_)
+    var.get(u'pp$7').put(u"REDACTED_MISTRAL", PyJs_anonymous_3096_)
     @Js
     def PyJs_anonymous_3097_(this, arguments, var=var):
         var = Scope({u'this':this, u'arguments':arguments}, var)
@@ -34303,7 +34303,7 @@ def PyJs_anonymous_2842_(require, module, exports, this, arguments, var=var):
         var.get(u"this").get(u'state').put(u'inType', var.get(u'oldInType'))
         return var.get(u"this").callprop(u'finishNode', var.get(u'node'), Js(u'TypeParameterInstantiation'))
     PyJs_anonymous_3097_._set_name(u'anonymous')
-    var.get(u'pp$7').put(u'flowParseTypeParameterInstantiation', PyJs_anonymous_3097_)
+    var.get(u'pp$7').put(u"REDACTED_MISTRAL", PyJs_anonymous_3097_)
     @Js
     def PyJs_anonymous_3098_(this, arguments, var=var):
         var = Scope({u'this':this, u'arguments':arguments}, var)
@@ -34334,7 +34334,7 @@ def PyJs_anonymous_2842_(require, module, exports, this, arguments, var=var):
         var.get(u'node').put(u'rest', var.get(u"null"))
         var.get(u'node').put(u'typeParameters', var.get(u"null"))
         if var.get(u"this").callprop(u'isRelational', Js(u'<')):
-            var.get(u'node').put(u'typeParameters', var.get(u"this").callprop(u'flowParseTypeParameterDeclaration'))
+            var.get(u'node').put(u'typeParameters', var.get(u"this").callprop(u"REDACTED_MISTRAL"))
         var.get(u"this").callprop(u'expect', var.get(u'types').get(u'parenL'))
         while var.get(u"this").callprop(u'match', var.get(u'types').get(u'name')):
             var.get(u'node').get(u'params').callprop(u'push', var.get(u"this").callprop(u'flowParseFunctionTypeParam'))
@@ -34457,16 +34457,16 @@ def PyJs_anonymous_2842_(require, module, exports, this, arguments, var=var):
             var.put(u'node', var.get(u"this").callprop(u'finishNode', var.get(u'node2'), Js(u'QualifiedTypeIdentifier')))
         return var.get(u'node')
     PyJs_anonymous_3105_._set_name(u'anonymous')
-    var.get(u'pp$7').put(u'flowParseQualifiedTypeIdentifier', PyJs_anonymous_3105_)
+    var.get(u'pp$7').put(u"REDACTED_MISTRAL", PyJs_anonymous_3105_)
     @Js
     def PyJs_anonymous_3106_(startPos, startLoc, id, this, arguments, var=var):
         var = Scope({u'this':this, u'startPos':startPos, u'id':id, u'startLoc':startLoc, u'arguments':arguments}, var)
         var.registers([u'node', u'startPos', u'id', u'startLoc'])
         var.put(u'node', var.get(u"this").callprop(u'startNodeAt', var.get(u'startPos'), var.get(u'startLoc')))
         var.get(u'node').put(u'typeParameters', var.get(u"null"))
-        var.get(u'node').put(u'id', var.get(u"this").callprop(u'flowParseQualifiedTypeIdentifier', var.get(u'startPos'), var.get(u'startLoc'), var.get(u'id')))
+        var.get(u'node').put(u'id', var.get(u"this").callprop(u"REDACTED_MISTRAL", var.get(u'startPos'), var.get(u'startLoc'), var.get(u'id')))
         if var.get(u"this").callprop(u'isRelational', Js(u'<')):
-            var.get(u'node').put(u'typeParameters', var.get(u"this").callprop(u'flowParseTypeParameterInstantiation'))
+            var.get(u'node').put(u'typeParameters', var.get(u"this").callprop(u"REDACTED_MISTRAL"))
         return var.get(u"this").callprop(u'finishNode', var.get(u'node'), Js(u'GenericTypeAnnotation'))
     PyJs_anonymous_3106_._set_name(u'anonymous')
     var.get(u'pp$7').put(u'flowParseGenericType', PyJs_anonymous_3106_)
@@ -34591,7 +34591,7 @@ def PyJs_anonymous_2842_(require, module, exports, this, arguments, var=var):
             if SWITCHED or PyJsStrictEq(CONDITION, var.get(u'types').get(u'relational')):
                 SWITCHED = True
                 if PyJsStrictEq(var.get(u"this").get(u'state').get(u'value'),Js(u'<')):
-                    var.get(u'node').put(u'typeParameters', var.get(u"this").callprop(u'flowParseTypeParameterDeclaration'))
+                    var.get(u'node').put(u'typeParameters', var.get(u"this").callprop(u"REDACTED_MISTRAL"))
                     var.get(u"this").callprop(u'expect', var.get(u'types').get(u'parenL'))
                     var.put(u'tmp', var.get(u"this").callprop(u'flowParseFunctionTypeParams'))
                     var.get(u'node').put(u'params', var.get(u'tmp').get(u'params'))
@@ -34758,7 +34758,7 @@ def PyJs_anonymous_2842_(require, module, exports, this, arguments, var=var):
             var.get(u"this").callprop(u'finishNode', var.get(u'ident'), var.get(u'ident').get(u'type'))
         return var.get(u'ident')
     PyJs_anonymous_3120_._set_name(u'anonymous')
-    var.get(u'pp$7').put(u'flowParseTypeAnnotatableIdentifier', PyJs_anonymous_3120_)
+    var.get(u'pp$7').put(u"REDACTED_MISTRAL", PyJs_anonymous_3120_)
     @Js
     def PyJs_anonymous_3121_(node, this, arguments, var=var):
         var = Scope({u'node':node, u'this':this, u'arguments':arguments}, var)
@@ -34967,7 +34967,7 @@ def PyJs_anonymous_2842_(require, module, exports, this, arguments, var=var):
                 var.registers([u'node'])
                 var.get(u'inner').callprop(u'apply', var.get(u"this"), var.get(u'arguments'))
                 if var.get(u"this").callprop(u'isRelational', Js(u'<')):
-                    var.get(u'node').put(u'typeParameters', var.get(u"this").callprop(u'flowParseTypeParameterDeclaration'))
+                    var.get(u'node').put(u'typeParameters', var.get(u"this").callprop(u"REDACTED_MISTRAL"))
             PyJs_anonymous_3141_._set_name(u'anonymous')
             return PyJs_anonymous_3141_
         PyJs_anonymous_3140_._set_name(u'anonymous')
@@ -35172,7 +35172,7 @@ def PyJs_anonymous_2842_(require, module, exports, this, arguments, var=var):
                 var.get(u'method').delete(u'variance')
                 var.get(u'method').delete(u'variancePos')
                 if var.get(u"this").callprop(u'isRelational', Js(u'<')):
-                    var.get(u'method').put(u'typeParameters', var.get(u"this").callprop(u'flowParseTypeParameterDeclaration'))
+                    var.get(u'method').put(u'typeParameters', var.get(u"this").callprop(u"REDACTED_MISTRAL"))
                 var.get(u"this").callprop(u'parseMethod', var.get(u'method'), var.get(u'isGenerator'), var.get(u'isAsync'))
                 var.get(u'classBody').get(u'body').callprop(u'push', var.get(u"this").callprop(u'finishNode', var.get(u'method'), Js(u'ClassMethod')))
             PyJs_anonymous_3165_._set_name(u'anonymous')
@@ -35189,7 +35189,7 @@ def PyJs_anonymous_2842_(require, module, exports, this, arguments, var=var):
                 var.registers([u'node', u'_node', u'implemented', u'isStatement'])
                 var.get(u'inner').callprop(u'call', var.get(u"this"), var.get(u'node'), var.get(u'isStatement'))
                 if (var.get(u'node').get(u'superClass') and var.get(u"this").callprop(u'isRelational', Js(u'<'))):
-                    var.get(u'node').put(u'superTypeParameters', var.get(u"this").callprop(u'flowParseTypeParameterInstantiation'))
+                    var.get(u'node').put(u'superTypeParameters', var.get(u"this").callprop(u"REDACTED_MISTRAL"))
                 if var.get(u"this").callprop(u'isContextual', Js(u'implements')):
                     var.get(u"this").callprop(u'next')
                     var.put(u'implemented', var.get(u'node').put(u'implements', Js([])))
@@ -35197,7 +35197,7 @@ def PyJs_anonymous_2842_(require, module, exports, this, arguments, var=var):
                         var.put(u'_node', var.get(u"this").callprop(u'startNode'))
                         var.get(u'_node').put(u'id', var.get(u"this").callprop(u'parseIdentifier'))
                         if var.get(u"this").callprop(u'isRelational', Js(u'<')):
-                            var.get(u'_node').put(u'typeParameters', var.get(u"this").callprop(u'flowParseTypeParameterInstantiation'))
+                            var.get(u'_node').put(u'typeParameters', var.get(u"this").callprop(u"REDACTED_MISTRAL"))
                         else:
                             var.get(u'_node').put(u'typeParameters', var.get(u"null"))
                         var.get(u'implemented').callprop(u'push', var.get(u"this").callprop(u'finishNode', var.get(u'_node'), Js(u'ClassImplements')))
@@ -35239,7 +35239,7 @@ def PyJs_anonymous_2842_(require, module, exports, this, arguments, var=var):
                 var.get(u'prop').delete(u'variancePos')
                 var.put(u'typeParameters', PyJsComma(Js(0.0), Js(None)))
                 if var.get(u"this").callprop(u'isRelational', Js(u'<')):
-                    var.put(u'typeParameters', var.get(u"this").callprop(u'flowParseTypeParameterDeclaration'))
+                    var.put(u'typeParameters', var.get(u"this").callprop(u"REDACTED_MISTRAL"))
                     if var.get(u"this").callprop(u'match', var.get(u'types').get(u'parenL')).neg():
                         var.get(u"this").callprop(u'unexpected')
                 var.get(u'inner').callprop(u'apply', var.get(u"this"), var.get(u'arguments'))
@@ -35326,7 +35326,7 @@ def PyJs_anonymous_2842_(require, module, exports, this, arguments, var=var):
                 var = Scope({u'node':node, u'this':this, u'arguments':arguments}, var)
                 var.registers([u'node'])
                 if var.get(u"this").callprop(u'isRelational', Js(u'<')):
-                    var.get(u'node').put(u'typeParameters', var.get(u"this").callprop(u'flowParseTypeParameterDeclaration'))
+                    var.get(u'node').put(u'typeParameters', var.get(u"this").callprop(u"REDACTED_MISTRAL"))
                 var.get(u'inner').callprop(u'call', var.get(u"this"), var.get(u'node'))
             PyJs_anonymous_3179_._set_name(u'anonymous')
             return PyJs_anonymous_3179_
@@ -35362,7 +35362,7 @@ def PyJs_anonymous_2842_(require, module, exports, this, arguments, var=var):
             PyJs_anonymous_3183_._set_name(u'anonymous')
             return PyJs_anonymous_3183_
         PyJs_anonymous_3182_._set_name(u'anonymous')
-        var.get(u'instance').callprop(u'extend', Js(u'parseAsyncArrowFromCallExpression'), PyJs_anonymous_3182_)
+        var.get(u'instance').callprop(u'extend', Js(u"REDACTED_MISTRAL"), PyJs_anonymous_3182_)
         @Js
         def PyJs_anonymous_3184_(inner, this, arguments, var=var):
             var = Scope({u'this':this, u'inner':inner, u'arguments':arguments}, var)
@@ -35419,7 +35419,7 @@ def PyJs_anonymous_2842_(require, module, exports, this, arguments, var=var):
                     var.put(u'arrowExpression', PyJsComma(Js(0.0), Js(None)))
                     var.put(u'typeParameters', PyJsComma(Js(0.0), Js(None)))
                     try:
-                        var.put(u'typeParameters', var.get(u"this").callprop(u'flowParseTypeParameterDeclaration'))
+                        var.put(u'typeParameters', var.get(u"this").callprop(u"REDACTED_MISTRAL"))
                         var.put(u'arrowExpression', var.get(u'inner').callprop(u'apply', var.get(u"this"), var.get(u'args')))
                         var.get(u'arrowExpression').put(u'typeParameters', var.get(u'typeParameters'))
                         var.get(u'arrowExpression').put(u'start', var.get(u'typeParameters').get(u'start'))
@@ -37828,7 +37828,7 @@ def PyJs_anonymous_3322_(require, module, exports, this, arguments, var=var):
     PyJs_Object_3324_ = Js({u'Array':Js(False),u'ArrayBuffer':Js(False),u'Boolean':Js(False),u'constructor':Js(False),u'DataView':Js(False),u'Date':Js(False),u'decodeURI':Js(False),u'decodeURIComponent':Js(False),u'encodeURI':Js(False),u'encodeURIComponent':Js(False),u'Error':Js(False),u'escape':Js(False),u'eval':Js(False),u'EvalError':Js(False),u'Float32Array':Js(False),u'Float64Array':Js(False),u'Function':Js(False),u'hasOwnProperty':Js(False),u'Infinity':Js(False),u'Int16Array':Js(False),u'Int32Array':Js(False),u'Int8Array':Js(False),u'isFinite':Js(False),u'isNaN':Js(False),u'isPrototypeOf':Js(False),u'JSON':Js(False),u'Map':Js(False),u'Math':Js(False),u'NaN':Js(False),u'Number':Js(False),u'Object':Js(False),u'parseFloat':Js(False),u'parseInt':Js(False),u'Promise':Js(False),u'propertyIsEnumerable':Js(False),u'Proxy':Js(False),u'RangeError':Js(False),u'ReferenceError':Js(False),u'Reflect':Js(False),u'RegExp':Js(False),u'Set':Js(False),u'String':Js(False),u'Symbol':Js(False),u'SyntaxError':Js(False),u'System':Js(False),u'toLocaleString':Js(False),u'toString':Js(False),u'TypeError':Js(False),u'Uint16Array':Js(False),u'Uint32Array':Js(False),u'Uint8Array':Js(False),u'Uint8ClampedArray':Js(False),u'undefined':Js(False),u'unescape':Js(False),u'URIError':Js(False),u'valueOf':Js(False),u'WeakMap':Js(False),u'WeakSet':Js(False)})
     PyJs_Object_3325_ = Js({u'Array':Js(False),u'Boolean':Js(False),u'constructor':Js(False),u'Date':Js(False),u'decodeURI':Js(False),u'decodeURIComponent':Js(False),u'encodeURI':Js(False),u'encodeURIComponent':Js(False),u'Error':Js(False),u'escape':Js(False),u'eval':Js(False),u'EvalError':Js(False),u'Function':Js(False),u'hasOwnProperty':Js(False),u'Infinity':Js(False),u'isFinite':Js(False),u'isNaN':Js(False),u'isPrototypeOf':Js(False),u'JSON':Js(False),u'Math':Js(False),u'NaN':Js(False),u'Number':Js(False),u'Object':Js(False),u'parseFloat':Js(False),u'parseInt':Js(False),u'propertyIsEnumerable':Js(False),u'RangeError':Js(False),u'ReferenceError':Js(False),u'RegExp':Js(False),u'String':Js(False),u'SyntaxError':Js(False),u'toLocaleString':Js(False),u'toString':Js(False),u'TypeError':Js(False),u'undefined':Js(False),u'unescape':Js(False),u'URIError':Js(False),u'valueOf':Js(False)})
     PyJs_Object_3326_ = Js({u'Array':Js(False),u'ArrayBuffer':Js(False),u'Boolean':Js(False),u'constructor':Js(False),u'DataView':Js(False),u'Date':Js(False),u'decodeURI':Js(False),u'decodeURIComponent':Js(False),u'encodeURI':Js(False),u'encodeURIComponent':Js(False),u'Error':Js(False),u'escape':Js(False),u'eval':Js(False),u'EvalError':Js(False),u'Float32Array':Js(False),u'Float64Array':Js(False),u'Function':Js(False),u'hasOwnProperty':Js(False),u'Infinity':Js(False),u'Int16Array':Js(False),u'Int32Array':Js(False),u'Int8Array':Js(False),u'isFinite':Js(False),u'isNaN':Js(False),u'isPrototypeOf':Js(False),u'JSON':Js(False),u'Map':Js(False),u'Math':Js(False),u'NaN':Js(False),u'Number':Js(False),u'Object':Js(False),u'parseFloat':Js(False),u'parseInt':Js(False),u'Promise':Js(False),u'propertyIsEnumerable':Js(False),u'Proxy':Js(False),u'RangeError':Js(False),u'ReferenceError':Js(False),u'Reflect':Js(False),u'RegExp':Js(False),u'Set':Js(False),u'String':Js(False),u'Symbol':Js(False),u'SyntaxError':Js(False),u'System':Js(False),u'toLocaleString':Js(False),u'toString':Js(False),u'TypeError':Js(False),u'Uint16Array':Js(False),u'Uint32Array':Js(False),u'Uint8Array':Js(False),u'Uint8ClampedArray':Js(False),u'undefined':Js(False),u'unescape':Js(False),u'URIError':Js(False),u'valueOf':Js(False),u'WeakMap':Js(False),u'WeakSet':Js(False)})
-    PyJs_Object_3327_ = Js({u'addEventListener':Js(False),u'alert':Js(False),u'AnalyserNode':Js(False),u'Animation':Js(False),u'AnimationEffectReadOnly':Js(False),u'AnimationEffectTiming':Js(False),u'AnimationEffectTimingReadOnly':Js(False),u'AnimationEvent':Js(False),u'AnimationPlaybackEvent':Js(False),u'AnimationTimeline':Js(False),u'applicationCache':Js(False),u'ApplicationCache':Js(False),u'ApplicationCacheErrorEvent':Js(False),u'atob':Js(False),u'Attr':Js(False),u'Audio':Js(False),u'AudioBuffer':Js(False),u'AudioBufferSourceNode':Js(False),u'AudioContext':Js(False),u'AudioDestinationNode':Js(False),u'AudioListener':Js(False),u'AudioNode':Js(False),u'AudioParam':Js(False),u'AudioProcessingEvent':Js(False),u'AutocompleteErrorEvent':Js(False),u'BarProp':Js(False),u'BatteryManager':Js(False),u'BeforeUnloadEvent':Js(False),u'BiquadFilterNode':Js(False),u'Blob':Js(False),u'blur':Js(False),u'btoa':Js(False),u'Cache':Js(False),u'caches':Js(False),u'CacheStorage':Js(False),u'cancelAnimationFrame':Js(False),u'CanvasGradient':Js(False),u'CanvasPattern':Js(False),u'CanvasRenderingContext2D':Js(False),u'CDATASection':Js(False),u'ChannelMergerNode':Js(False),u'ChannelSplitterNode':Js(False),u'CharacterData':Js(False),u'clearInterval':Js(False),u'clearTimeout':Js(False),u'clientInformation':Js(False),u'ClientRect':Js(False),u'ClientRectList':Js(False),u'ClipboardEvent':Js(False),u'close':Js(False),u'closed':Js(False),u'CloseEvent':Js(False),u'Comment':Js(False),u'CompositionEvent':Js(False),u'confirm':Js(False),u'console':Js(False),u'ConvolverNode':Js(False),u'Credential':Js(False),u'CredentialsContainer':Js(False),u'crypto':Js(False),u'Crypto':Js(False),u'CryptoKey':Js(False),u'CSS':Js(False),u'CSSAnimation':Js(False),u'CSSFontFaceRule':Js(False),u'CSSImportRule':Js(False),u'CSSKeyframeRule':Js(False),u'CSSKeyframesRule':Js(False),u'CSSMediaRule':Js(False),u'CSSPageRule':Js(False),u'CSSRule':Js(False),u'CSSRuleList':Js(False),u'CSSStyleDeclaration':Js(False),u'CSSStyleRule':Js(False),u'CSSStyleSheet':Js(False),u'CSSSupportsRule':Js(False),u'CSSTransition':Js(False),u'CSSUnknownRule':Js(False),u'CSSViewportRule':Js(False),u'CustomEvent':Js(False),u'DataTransfer':Js(False),u'DataTransferItem':Js(False),u'DataTransferItemList':Js(False),u'Debug':Js(False),u'defaultStatus':Js(False),u'defaultstatus':Js(False),u'DelayNode':Js(False),u'DeviceMotionEvent':Js(False),u'DeviceOrientationEvent':Js(False),u'devicePixelRatio':Js(False),u'dispatchEvent':Js(False),u'document':Js(False),u'Document':Js(False),u'DocumentFragment':Js(False),u'DocumentTimeline':Js(False),u'DocumentType':Js(False),u'DOMError':Js(False),u'DOMException':Js(False),u'DOMImplementation':Js(False),u'DOMParser':Js(False),u'DOMSettableTokenList':Js(False),u'DOMStringList':Js(False),u'DOMStringMap':Js(False),u'DOMTokenList':Js(False),u'DragEvent':Js(False),u'DynamicsCompressorNode':Js(False),u'Element':Js(False),u'ElementTimeControl':Js(False),u'ErrorEvent':Js(False),u'event':Js(False),u'Event':Js(False),u'EventSource':Js(False),u'EventTarget':Js(False),u'external':Js(False),u'FederatedCredential':Js(False),u'fetch':Js(False),u'File':Js(False),u'FileError':Js(False),u'FileList':Js(False),u'FileReader':Js(False),u'find':Js(False),u'focus':Js(False),u'FocusEvent':Js(False),u'FontFace':Js(False),u'FormData':Js(False),u'frameElement':Js(False),u'frames':Js(False),u'GainNode':Js(False),u'Gamepad':Js(False),u'GamepadButton':Js(False),u'GamepadEvent':Js(False),u'getComputedStyle':Js(False),u'getSelection':Js(False),u'HashChangeEvent':Js(False),u'Headers':Js(False),u'history':Js(False),u'History':Js(False),u'HTMLAllCollection':Js(False),u'HTMLAnchorElement':Js(False),u'HTMLAppletElement':Js(False),u'HTMLAreaElement':Js(False),u'HTMLAudioElement':Js(False),u'HTMLBaseElement':Js(False),u'HTMLBlockquoteElement':Js(False),u'HTMLBodyElement':Js(False),u'HTMLBRElement':Js(False),u'HTMLButtonElement':Js(False),u'HTMLCanvasElement':Js(False),u'HTMLCollection':Js(False),u'HTMLContentElement':Js(False),u'HTMLDataListElement':Js(False),u'HTMLDetailsElement':Js(False),u'HTMLDialogElement':Js(False),u'HTMLDirectoryElement':Js(False),u'HTMLDivElement':Js(False),u'HTMLDListElement':Js(False),u'HTMLDocument':Js(False),u'HTMLElement':Js(False),u'HTMLEmbedElement':Js(False),u'HTMLFieldSetElement':Js(False),u'HTMLFontElement':Js(False),u'HTMLFormControlsCollection':Js(False),u'HTMLFormElement':Js(False),u'HTMLFrameElement':Js(False),u'HTMLFrameSetElement':Js(False),u'HTMLHeadElement':Js(False),u'HTMLHeadingElement':Js(False),u'HTMLHRElement':Js(False),u'HTMLHtmlElement':Js(False),u'HTMLIFrameElement':Js(False),u'HTMLImageElement':Js(False),u'HTMLInputElement':Js(False),u'HTMLIsIndexElement':Js(False),u'HTMLKeygenElement':Js(False),u'HTMLLabelElement':Js(False),u'HTMLLayerElement':Js(False),u'HTMLLegendElement':Js(False),u'HTMLLIElement':Js(False),u'HTMLLinkElement':Js(False),u'HTMLMapElement':Js(False),u'HTMLMarqueeElement':Js(False),u'HTMLMediaElement':Js(False),u'HTMLMenuElement':Js(False),u'HTMLMetaElement':Js(False),u'HTMLMeterElement':Js(False),u'HTMLModElement':Js(False),u'HTMLObjectElement':Js(False),u'HTMLOListElement':Js(False),u'HTMLOptGroupElement':Js(False),u'HTMLOptionElement':Js(False),u'HTMLOptionsCollection':Js(False),u'HTMLOutputElement':Js(False),u'HTMLParagraphElement':Js(False),u'HTMLParamElement':Js(False),u'HTMLPictureElement':Js(False),u'HTMLPreElement':Js(False),u'HTMLProgressElement':Js(False),u'HTMLQuoteElement':Js(False),u'HTMLScriptElement':Js(False),u'HTMLSelectElement':Js(False),u'HTMLShadowElement':Js(False),u'HTMLSourceElement':Js(False),u'HTMLSpanElement':Js(False),u'HTMLStyleElement':Js(False),u'HTMLTableCaptionElement':Js(False),u'HTMLTableCellElement':Js(False),u'HTMLTableColElement':Js(False),u'HTMLTableElement':Js(False),u'HTMLTableRowElement':Js(False),u'HTMLTableSectionElement':Js(False),u'HTMLTemplateElement':Js(False),u'HTMLTextAreaElement':Js(False),u'HTMLTitleElement':Js(False),u'HTMLTrackElement':Js(False),u'HTMLUListElement':Js(False),u'HTMLUnknownElement':Js(False),u'HTMLVideoElement':Js(False),u'IDBCursor':Js(False),u'IDBCursorWithValue':Js(False),u'IDBDatabase':Js(False),u'IDBEnvironment':Js(False),u'IDBFactory':Js(False),u'IDBIndex':Js(False),u'IDBKeyRange':Js(False),u'IDBObjectStore':Js(False),u'IDBOpenDBRequest':Js(False),u'IDBRequest':Js(False),u'IDBTransaction':Js(False),u'IDBVersionChangeEvent':Js(False),u'Image':Js(False),u'ImageBitmap':Js(False),u'ImageData':Js(False),u'indexedDB':Js(False),u'innerHeight':Js(False),u'innerWidth':Js(False),u'InputEvent':Js(False),u'InputMethodContext':Js(False),u'IntersectionObserver':Js(False),u'IntersectionObserverEntry':Js(False),u'Intl':Js(False),u'KeyboardEvent':Js(False),u'KeyframeEffect':Js(False),u'KeyframeEffectReadOnly':Js(False),u'length':Js(False),u'localStorage':Js(False),u'location':Js(False),u'Location':Js(False),u'locationbar':Js(False),u'matchMedia':Js(False),u'MediaElementAudioSourceNode':Js(False),u'MediaEncryptedEvent':Js(False),u'MediaError':Js(False),u'MediaKeyError':Js(False),u'MediaKeyEvent':Js(False),u'MediaKeyMessageEvent':Js(False),u'MediaKeys':Js(False),u'MediaKeySession':Js(False),u'MediaKeyStatusMap':Js(False),u'MediaKeySystemAccess':Js(False),u'MediaList':Js(False),u'MediaQueryList':Js(False),u'MediaQueryListEvent':Js(False),u'MediaSource':Js(False),u'MediaStream':Js(False),u'MediaStreamAudioDestinationNode':Js(False),u'MediaStreamAudioSourceNode':Js(False),u'MediaStreamEvent':Js(False),u'MediaStreamTrack':Js(False),u'menubar':Js(False),u'MessageChannel':Js(False),u'MessageEvent':Js(False),u'MessagePort':Js(False),u'MIDIAccess':Js(False),u'MIDIConnectionEvent':Js(False),u'MIDIInput':Js(False),u'MIDIInputMap':Js(False),u'MIDIMessageEvent':Js(False),u'MIDIOutput':Js(False),u'MIDIOutputMap':Js(False),u'MIDIPort':Js(False),u'MimeType':Js(False),u'MimeTypeArray':Js(False),u'MouseEvent':Js(False),u'moveBy':Js(False),u'moveTo':Js(False),u'MutationEvent':Js(False),u'MutationObserver':Js(False),u'MutationRecord':Js(False),u'name':Js(False),u'NamedNodeMap':Js(False),u'navigator':Js(False),u'Navigator':Js(False),u'Node':Js(False),u'NodeFilter':Js(False),u'NodeIterator':Js(False),u'NodeList':Js(False),u'Notification':Js(False),u'OfflineAudioCompletionEvent':Js(False),u'OfflineAudioContext':Js(False),u'offscreenBuffering':Js(False),u'onbeforeunload':var.get(u'true'),u'onblur':var.get(u'true'),u'onerror':var.get(u'true'),u'onfocus':var.get(u'true'),u'onload':var.get(u'true'),u'onresize':var.get(u'true'),u'onunload':var.get(u'true'),u'open':Js(False),u'openDatabase':Js(False),u'opener':Js(False),u'opera':Js(False),u'Option':Js(False),u'OscillatorNode':Js(False),u'outerHeight':Js(False),u'outerWidth':Js(False),u'PageTransitionEvent':Js(False),u'pageXOffset':Js(False),u'pageYOffset':Js(False),u'parent':Js(False),u'PasswordCredential':Js(False),u'Path2D':Js(False),u'performance':Js(False),u'Performance':Js(False),u'PerformanceEntry':Js(False),u'PerformanceMark':Js(False),u'PerformanceMeasure':Js(False),u'PerformanceNavigation':Js(False),u'PerformanceResourceTiming':Js(False),u'PerformanceTiming':Js(False),u'PeriodicWave':Js(False),u'Permissions':Js(False),u'PermissionStatus':Js(False),u'personalbar':Js(False),u'Plugin':Js(False),u'PluginArray':Js(False),u'PopStateEvent':Js(False),u'postMessage':Js(False),u'print':Js(False),u'ProcessingInstruction':Js(False),u'ProgressEvent':Js(False),u'PromiseRejectionEvent':Js(False),u'prompt':Js(False),u'PushManager':Js(False),u'PushSubscription':Js(False),u'RadioNodeList':Js(False),u'Range':Js(False),u'ReadableByteStream':Js(False),u'ReadableStream':Js(False),u'removeEventListener':Js(False),u'Request':Js(False),u'requestAnimationFrame':Js(False),u'requestIdleCallback':Js(False),u'resizeBy':Js(False),u'resizeTo':Js(False),u'Response':Js(False),u'RTCIceCandidate':Js(False),u'RTCSessionDescription':Js(False),u'RTCPeerConnection':Js(False),u'screen':Js(False),u'Screen':Js(False),u'screenLeft':Js(False),u'ScreenOrientation':Js(False),u'screenTop':Js(False),u'screenX':Js(False),u'screenY':Js(False),u'ScriptProcessorNode':Js(False),u'scroll':Js(False),u'scrollbars':Js(False),u'scrollBy':Js(False),u'scrollTo':Js(False),u'scrollX':Js(False),u'scrollY':Js(False),u'SecurityPolicyViolationEvent':Js(False),u'Selection':Js(False),u'self':Js(False),u'ServiceWorker':Js(False),u'ServiceWorkerContainer':Js(False),u'ServiceWorkerRegistration':Js(False),u'sessionStorage':Js(False),u'setInterval':Js(False),u'setTimeout':Js(False),u'ShadowRoot':Js(False),u'SharedKeyframeList':Js(False),u'SharedWorker':Js(False),u'showModalDialog':Js(False),u'SiteBoundCredential':Js(False),u'speechSynthesis':Js(False),u'SpeechSynthesisEvent':Js(False),u'SpeechSynthesisUtterance':Js(False),u'status':Js(False),u'statusbar':Js(False),u'stop':Js(False),u'Storage':Js(False),u'StorageEvent':Js(False),u'styleMedia':Js(False),u'StyleSheet':Js(False),u'StyleSheetList':Js(False),u'SubtleCrypto':Js(False),u'SVGAElement':Js(False),u'SVGAltGlyphDefElement':Js(False),u'SVGAltGlyphElement':Js(False),u'SVGAltGlyphItemElement':Js(False),u'SVGAngle':Js(False),u'SVGAnimateColorElement':Js(False),u'SVGAnimatedAngle':Js(False),u'SVGAnimatedBoolean':Js(False),u'SVGAnimatedEnumeration':Js(False),u'SVGAnimatedInteger':Js(False),u'SVGAnimatedLength':Js(False),u'SVGAnimatedLengthList':Js(False),u'SVGAnimatedNumber':Js(False),u'SVGAnimatedNumberList':Js(False),u'SVGAnimatedPathData':Js(False),u'SVGAnimatedPoints':Js(False),u'SVGAnimatedPreserveAspectRatio':Js(False),u'SVGAnimatedRect':Js(False),u'SVGAnimatedString':Js(False),u'SVGAnimatedTransformList':Js(False),u'SVGAnimateElement':Js(False),u'SVGAnimateMotionElement':Js(False),u'SVGAnimateTransformElement':Js(False),u'SVGAnimationElement':Js(False),u'SVGCircleElement':Js(False),u'SVGClipPathElement':Js(False),u'SVGColor':Js(False),u'SVGColorProfileElement':Js(False),u'SVGColorProfileRule':Js(False),u'SVGComponentTransferFunctionElement':Js(False),u'SVGCSSRule':Js(False),u'SVGCursorElement':Js(False),u'SVGDefsElement':Js(False),u'SVGDescElement':Js(False),u'SVGDiscardElement':Js(False),u'SVGDocument':Js(False),u'SVGElement':Js(False),u'SVGElementInstance':Js(False),u'SVGElementInstanceList':Js(False),u'SVGEllipseElement':Js(False),u'SVGEvent':Js(False),u'SVGExternalResourcesRequired':Js(False),u'SVGFEBlendElement':Js(False),u'SVGFEColorMatrixElement':Js(False),u'SVGFEComponentTransferElement':Js(False),u'SVGFECompositeElement':Js(False),u'SVGFEConvolveMatrixElement':Js(False),u'SVGFEDiffuseLightingElement':Js(False),u'SVGFEDisplacementMapElement':Js(False),u'SVGFEDistantLightElement':Js(False),u'SVGFEDropShadowElement':Js(False),u'SVGFEFloodElement':Js(False),u'SVGFEFuncAElement':Js(False),u'SVGFEFuncBElement':Js(False),u'SVGFEFuncGElement':Js(False),u'SVGFEFuncRElement':Js(False),u'SVGFEGaussianBlurElement':Js(False),u'SVGFEImageElement':Js(False),u'SVGFEMergeElement':Js(False),u'SVGFEMergeNodeElement':Js(False),u'SVGFEMorphologyElement':Js(False),u'SVGFEOffsetElement':Js(False),u'SVGFEPointLightElement':Js(False),u'SVGFESpecularLightingElement':Js(False),u'SVGFESpotLightElement':Js(False),u'SVGFETileElement':Js(False),u'SVGFETurbulenceElement':Js(False),u'SVGFilterElement':Js(False),u'SVGFilterPrimitiveStandardAttributes':Js(False),u'SVGFitToViewBox':Js(False),u'SVGFontElement':Js(False),u'SVGFontFaceElement':Js(False),u'SVGFontFaceFormatElement':Js(False),u'SVGFontFaceNameElement':Js(False),u'SVGFontFaceSrcElement':Js(False),u'SVGFontFaceUriElement':Js(False),u'SVGForeignObjectElement':Js(False),u'SVGGElement':Js(False),u'SVGGeometryElement':Js(False),u'SVGGlyphElement':Js(False),u'SVGGlyphRefElement':Js(False),u'SVGGradientElement':Js(False),u'SVGGraphicsElement':Js(False),u'SVGHKernElement':Js(False),u'SVGICCColor':Js(False),u'SVGImageElement':Js(False),u'SVGLangSpace':Js(False),u'SVGLength':Js(False),u'SVGLengthList':Js(False),u'SVGLinearGradientElement':Js(False),u'SVGLineElement':Js(False),u'SVGLocatable':Js(False),u'SVGMarkerElement':Js(False),u'SVGMaskElement':Js(False),u'SVGMatrix':Js(False),u'SVGMetadataElement':Js(False),u'SVGMissingGlyphElement':Js(False),u'SVGMPathElement':Js(False),u'SVGNumber':Js(False),u'SVGNumberList':Js(False),u'SVGPaint':Js(False),u'SVGPathElement':Js(False),u'SVGPathSeg':Js(False),u'SVGPathSegArcAbs':Js(False),u'SVGPathSegArcRel':Js(False),u'SVGPathSegClosePath':Js(False),u'SVGPathSegCurvetoCubicAbs':Js(False),u'SVGPathSegCurvetoCubicRel':Js(False),u'SVGPathSegCurvetoCubicSmoothAbs':Js(False),u'SVGPathSegCurvetoCubicSmoothRel':Js(False),u'SVGPathSegCurvetoQuadraticAbs':Js(False),u'SVGPathSegCurvetoQuadraticRel':Js(False),u'SVGPathSegCurvetoQuadraticSmoothAbs':Js(False),u'SVGPathSegCurvetoQuadraticSmoothRel':Js(False),u'SVGPathSegLinetoAbs':Js(False),u'SVGPathSegLinetoHorizontalAbs':Js(False),u'SVGPathSegLinetoHorizontalRel':Js(False),u'SVGPathSegLinetoRel':Js(False),u'SVGPathSegLinetoVerticalAbs':Js(False),u'SVGPathSegLinetoVerticalRel':Js(False),u'SVGPathSegList':Js(False),u'SVGPathSegMovetoAbs':Js(False),u'SVGPathSegMovetoRel':Js(False),u'SVGPatternElement':Js(False),u'SVGPoint':Js(False),u'SVGPointList':Js(False),u'SVGPolygonElement':Js(False),u'SVGPolylineElement':Js(False),u'SVGPreserveAspectRatio':Js(False),u'SVGRadialGradientElement':Js(False),u'SVGRect':Js(False),u'SVGRectElement':Js(False),u'SVGRenderingIntent':Js(False),u'SVGScriptElement':Js(False),u'SVGSetElement':Js(False),u'SVGStopElement':Js(False),u'SVGStringList':Js(False),u'SVGStylable':Js(False),u'SVGStyleElement':Js(False),u'SVGSVGElement':Js(False),u'SVGSwitchElement':Js(False),u'SVGSymbolElement':Js(False),u'SVGTests':Js(False),u'SVGTextContentElement':Js(False),u'SVGTextElement':Js(False),u'SVGTextPathElement':Js(False),u'SVGTextPositioningElement':Js(False),u'SVGTitleElement':Js(False),u'SVGTransform':Js(False),u'SVGTransformable':Js(False),u'SVGTransformList':Js(False),u'SVGTRefElement':Js(False),u'SVGTSpanElement':Js(False),u'SVGUnitTypes':Js(False),u'SVGURIReference':Js(False),u'SVGUseElement':Js(False),u'SVGViewElement':Js(False),u'SVGViewSpec':Js(False),u'SVGVKernElement':Js(False),u'SVGZoomAndPan':Js(False),u'SVGZoomEvent':Js(False),u'Text':Js(False),u'TextDecoder':Js(False),u'TextEncoder':Js(False),u'TextEvent':Js(False),u'TextMetrics':Js(False),u'TextTrack':Js(False),u'TextTrackCue':Js(False),u'TextTrackCueList':Js(False),u'TextTrackList':Js(False),u'TimeEvent':Js(False),u'TimeRanges':Js(False),u'toolbar':Js(False),u'top':Js(False),u'Touch':Js(False),u'TouchEvent':Js(False),u'TouchList':Js(False),u'TrackEvent':Js(False),u'TransitionEvent':Js(False),u'TreeWalker':Js(False),u'UIEvent':Js(False),u'URL':Js(False),u'URLSearchParams':Js(False),u'ValidityState':Js(False),u'VTTCue':Js(False),u'WaveShaperNode':Js(False),u'WebGLActiveInfo':Js(False),u'WebGLBuffer':Js(False),u'WebGLContextEvent':Js(False),u'WebGLFramebuffer':Js(False),u'WebGLProgram':Js(False),u'WebGLRenderbuffer':Js(False),u'WebGLRenderingContext':Js(False),u'WebGLShader':Js(False),u'WebGLShaderPrecisionFormat':Js(False),u'WebGLTexture':Js(False),u'WebGLUniformLocation':Js(False),u'WebSocket':Js(False),u'WheelEvent':Js(False),u'window':Js(False),u'Window':Js(False),u'Worker':Js(False),u'XDomainRequest':Js(False),u'XMLDocument':Js(False),u'XMLHttpRequest':Js(False),u'XMLHttpRequestEventTarget':Js(False),u'XMLHttpRequestProgressEvent':Js(False),u'XMLHttpRequestUpload':Js(False),u'XMLSerializer':Js(False),u'XPathEvaluator':Js(False),u'XPathException':Js(False),u'XPathExpression':Js(False),u'XPathNamespace':Js(False),u'XPathNSResolver':Js(False),u'XPathResult':Js(False),u'XSLTProcessor':Js(False)})
+    PyJs_Object_3327_ = Js({u'addEventListener':Js(False),u'alert':Js(False),u'AnalyserNode':Js(False),u'Animation':Js(False),u'AnimationEffectReadOnly':Js(False),u'AnimationEffectTiming':Js(False),u'AnimationEffectTimingReadOnly':Js(False),u'AnimationEvent':Js(False),u'AnimationPlaybackEvent':Js(False),u'AnimationTimeline':Js(False),u'applicationCache':Js(False),u'ApplicationCache':Js(False),u'ApplicationCacheErrorEvent':Js(False),u'atob':Js(False),u'Attr':Js(False),u'Audio':Js(False),u'AudioBuffer':Js(False),u'AudioBufferSourceNode':Js(False),u'AudioContext':Js(False),u'AudioDestinationNode':Js(False),u'AudioListener':Js(False),u'AudioNode':Js(False),u'AudioParam':Js(False),u'AudioProcessingEvent':Js(False),u'AutocompleteErrorEvent':Js(False),u'BarProp':Js(False),u'BatteryManager':Js(False),u'BeforeUnloadEvent':Js(False),u'BiquadFilterNode':Js(False),u'Blob':Js(False),u'blur':Js(False),u'btoa':Js(False),u'Cache':Js(False),u'caches':Js(False),u'CacheStorage':Js(False),u'cancelAnimationFrame':Js(False),u'CanvasGradient':Js(False),u'CanvasPattern':Js(False),u'CanvasRenderingContext2D':Js(False),u'CDATASection':Js(False),u'ChannelMergerNode':Js(False),u'ChannelSplitterNode':Js(False),u'CharacterData':Js(False),u'clearInterval':Js(False),u'clearTimeout':Js(False),u'clientInformation':Js(False),u'ClientRect':Js(False),u'ClientRectList':Js(False),u'ClipboardEvent':Js(False),u'close':Js(False),u'closed':Js(False),u'CloseEvent':Js(False),u'Comment':Js(False),u'CompositionEvent':Js(False),u'confirm':Js(False),u'console':Js(False),u'ConvolverNode':Js(False),u'Credential':Js(False),u'CredentialsContainer':Js(False),u'crypto':Js(False),u'Crypto':Js(False),u'CryptoKey':Js(False),u'CSS':Js(False),u'CSSAnimation':Js(False),u'CSSFontFaceRule':Js(False),u'CSSImportRule':Js(False),u'CSSKeyframeRule':Js(False),u'CSSKeyframesRule':Js(False),u'CSSMediaRule':Js(False),u'CSSPageRule':Js(False),u'CSSRule':Js(False),u'CSSRuleList':Js(False),u'CSSStyleDeclaration':Js(False),u'CSSStyleRule':Js(False),u'CSSStyleSheet':Js(False),u'CSSSupportsRule':Js(False),u'CSSTransition':Js(False),u'CSSUnknownRule':Js(False),u'CSSViewportRule':Js(False),u'CustomEvent':Js(False),u'DataTransfer':Js(False),u'DataTransferItem':Js(False),u'DataTransferItemList':Js(False),u'Debug':Js(False),u'defaultStatus':Js(False),u'defaultstatus':Js(False),u'DelayNode':Js(False),u'DeviceMotionEvent':Js(False),u'DeviceOrientationEvent':Js(False),u'devicePixelRatio':Js(False),u'dispatchEvent':Js(False),u'document':Js(False),u'Document':Js(False),u'DocumentFragment':Js(False),u'DocumentTimeline':Js(False),u'DocumentType':Js(False),u'DOMError':Js(False),u'DOMException':Js(False),u'DOMImplementation':Js(False),u'DOMParser':Js(False),u'DOMSettableTokenList':Js(False),u'DOMStringList':Js(False),u'DOMStringMap':Js(False),u'DOMTokenList':Js(False),u'DragEvent':Js(False),u'DynamicsCompressorNode':Js(False),u'Element':Js(False),u'ElementTimeControl':Js(False),u'ErrorEvent':Js(False),u'event':Js(False),u'Event':Js(False),u'EventSource':Js(False),u'EventTarget':Js(False),u'external':Js(False),u'FederatedCredential':Js(False),u'fetch':Js(False),u'File':Js(False),u'FileError':Js(False),u'FileList':Js(False),u'FileReader':Js(False),u'find':Js(False),u'focus':Js(False),u'FocusEvent':Js(False),u'FontFace':Js(False),u'FormData':Js(False),u'frameElement':Js(False),u'frames':Js(False),u'GainNode':Js(False),u'Gamepad':Js(False),u'GamepadButton':Js(False),u'GamepadEvent':Js(False),u'getComputedStyle':Js(False),u'getSelection':Js(False),u'HashChangeEvent':Js(False),u'Headers':Js(False),u'history':Js(False),u'History':Js(False),u'HTMLAllCollection':Js(False),u'HTMLAnchorElement':Js(False),u'HTMLAppletElement':Js(False),u'HTMLAreaElement':Js(False),u'HTMLAudioElement':Js(False),u'HTMLBaseElement':Js(False),u'HTMLBlockquoteElement':Js(False),u'HTMLBodyElement':Js(False),u'HTMLBRElement':Js(False),u'HTMLButtonElement':Js(False),u'HTMLCanvasElement':Js(False),u'HTMLCollection':Js(False),u'HTMLContentElement':Js(False),u'HTMLDataListElement':Js(False),u'HTMLDetailsElement':Js(False),u'HTMLDialogElement':Js(False),u'HTMLDirectoryElement':Js(False),u'HTMLDivElement':Js(False),u'HTMLDListElement':Js(False),u'HTMLDocument':Js(False),u'HTMLElement':Js(False),u'HTMLEmbedElement':Js(False),u'HTMLFieldSetElement':Js(False),u'HTMLFontElement':Js(False),u'HTMLFormControlsCollection':Js(False),u'HTMLFormElement':Js(False),u'HTMLFrameElement':Js(False),u'HTMLFrameSetElement':Js(False),u'HTMLHeadElement':Js(False),u'HTMLHeadingElement':Js(False),u'HTMLHRElement':Js(False),u'HTMLHtmlElement':Js(False),u'HTMLIFrameElement':Js(False),u'HTMLImageElement':Js(False),u'HTMLInputElement':Js(False),u'HTMLIsIndexElement':Js(False),u'HTMLKeygenElement':Js(False),u'HTMLLabelElement':Js(False),u'HTMLLayerElement':Js(False),u'HTMLLegendElement':Js(False),u'HTMLLIElement':Js(False),u'HTMLLinkElement':Js(False),u'HTMLMapElement':Js(False),u'HTMLMarqueeElement':Js(False),u'HTMLMediaElement':Js(False),u'HTMLMenuElement':Js(False),u'HTMLMetaElement':Js(False),u'HTMLMeterElement':Js(False),u'HTMLModElement':Js(False),u'HTMLObjectElement':Js(False),u'HTMLOListElement':Js(False),u'HTMLOptGroupElement':Js(False),u'HTMLOptionElement':Js(False),u'HTMLOptionsCollection':Js(False),u'HTMLOutputElement':Js(False),u'HTMLParagraphElement':Js(False),u'HTMLParamElement':Js(False),u'HTMLPictureElement':Js(False),u'HTMLPreElement':Js(False),u'HTMLProgressElement':Js(False),u'HTMLQuoteElement':Js(False),u'HTMLScriptElement':Js(False),u'HTMLSelectElement':Js(False),u'HTMLShadowElement':Js(False),u'HTMLSourceElement':Js(False),u'HTMLSpanElement':Js(False),u'HTMLStyleElement':Js(False),u'HTMLTableCaptionElement':Js(False),u'HTMLTableCellElement':Js(False),u'HTMLTableColElement':Js(False),u'HTMLTableElement':Js(False),u'HTMLTableRowElement':Js(False),u'HTMLTableSectionElement':Js(False),u'HTMLTemplateElement':Js(False),u'HTMLTextAreaElement':Js(False),u'HTMLTitleElement':Js(False),u'HTMLTrackElement':Js(False),u'HTMLUListElement':Js(False),u'HTMLUnknownElement':Js(False),u'HTMLVideoElement':Js(False),u'IDBCursor':Js(False),u'IDBCursorWithValue':Js(False),u'IDBDatabase':Js(False),u'IDBEnvironment':Js(False),u'IDBFactory':Js(False),u'IDBIndex':Js(False),u'IDBKeyRange':Js(False),u'IDBObjectStore':Js(False),u'IDBOpenDBRequest':Js(False),u'IDBRequest':Js(False),u'IDBTransaction':Js(False),u'IDBVersionChangeEvent':Js(False),u'Image':Js(False),u'ImageBitmap':Js(False),u'ImageData':Js(False),u'indexedDB':Js(False),u'innerHeight':Js(False),u'innerWidth':Js(False),u'InputEvent':Js(False),u'InputMethodContext':Js(False),u'IntersectionObserver':Js(False),u'IntersectionObserverEntry':Js(False),u'Intl':Js(False),u'KeyboardEvent':Js(False),u'KeyframeEffect':Js(False),u'KeyframeEffectReadOnly':Js(False),u'length':Js(False),u'localStorage':Js(False),u'location':Js(False),u'Location':Js(False),u'locationbar':Js(False),u'matchMedia':Js(False),u'MediaElementAudioSourceNode':Js(False),u'MediaEncryptedEvent':Js(False),u'MediaError':Js(False),u'MediaKeyError':Js(False),u'MediaKeyEvent':Js(False),u'MediaKeyMessageEvent':Js(False),u'MediaKeys':Js(False),u'MediaKeySession':Js(False),u'MediaKeyStatusMap':Js(False),u'MediaKeySystemAccess':Js(False),u'MediaList':Js(False),u'MediaQueryList':Js(False),u'MediaQueryListEvent':Js(False),u'MediaSource':Js(False),u'MediaStream':Js(False),u'MediaStreamAudioDestinationNode':Js(False),u'MediaStreamAudioSourceNode':Js(False),u'MediaStreamEvent':Js(False),u'MediaStreamTrack':Js(False),u'menubar':Js(False),u'MessageChannel':Js(False),u'MessageEvent':Js(False),u'MessagePort':Js(False),u'MIDIAccess':Js(False),u'MIDIConnectionEvent':Js(False),u'MIDIInput':Js(False),u'MIDIInputMap':Js(False),u'MIDIMessageEvent':Js(False),u'MIDIOutput':Js(False),u'MIDIOutputMap':Js(False),u'MIDIPort':Js(False),u'MimeType':Js(False),u'MimeTypeArray':Js(False),u'MouseEvent':Js(False),u'moveBy':Js(False),u'moveTo':Js(False),u'MutationEvent':Js(False),u'MutationObserver':Js(False),u'MutationRecord':Js(False),u'name':Js(False),u'NamedNodeMap':Js(False),u'navigator':Js(False),u'Navigator':Js(False),u'Node':Js(False),u'NodeFilter':Js(False),u'NodeIterator':Js(False),u'NodeList':Js(False),u'Notification':Js(False),u'OfflineAudioCompletionEvent':Js(False),u'OfflineAudioContext':Js(False),u'offscreenBuffering':Js(False),u'onbeforeunload':var.get(u'true'),u'onblur':var.get(u'true'),u'onerror':var.get(u'true'),u'onfocus':var.get(u'true'),u'onload':var.get(u'true'),u'onresize':var.get(u'true'),u'onunload':var.get(u'true'),u'open':Js(False),u'openDatabase':Js(False),u'opener':Js(False),u'opera':Js(False),u'Option':Js(False),u'OscillatorNode':Js(False),u'outerHeight':Js(False),u'outerWidth':Js(False),u'PageTransitionEvent':Js(False),u'pageXOffset':Js(False),u'pageYOffset':Js(False),u'parent':Js(False),u'PasswordCredential':Js(False),u'Path2D':Js(False),u'performance':Js(False),u'Performance':Js(False),u'PerformanceEntry':Js(False),u'PerformanceMark':Js(False),u'PerformanceMeasure':Js(False),u'PerformanceNavigation':Js(False),u'PerformanceResourceTiming':Js(False),u'PerformanceTiming':Js(False),u'PeriodicWave':Js(False),u'Permissions':Js(False),u'PermissionStatus':Js(False),u'personalbar':Js(False),u'Plugin':Js(False),u'PluginArray':Js(False),u'PopStateEvent':Js(False),u'postMessage':Js(False),u'print':Js(False),u'ProcessingInstruction':Js(False),u'ProgressEvent':Js(False),u'PromiseRejectionEvent':Js(False),u'prompt':Js(False),u'PushManager':Js(False),u'PushSubscription':Js(False),u'RadioNodeList':Js(False),u'Range':Js(False),u'ReadableByteStream':Js(False),u'ReadableStream':Js(False),u'removeEventListener':Js(False),u'Request':Js(False),u'requestAnimationFrame':Js(False),u'requestIdleCallback':Js(False),u'resizeBy':Js(False),u'resizeTo':Js(False),u'Response':Js(False),u'RTCIceCandidate':Js(False),u'RTCSessionDescription':Js(False),u'RTCPeerConnection':Js(False),u'screen':Js(False),u'Screen':Js(False),u'screenLeft':Js(False),u'ScreenOrientation':Js(False),u'screenTop':Js(False),u'screenX':Js(False),u'screenY':Js(False),u'ScriptProcessorNode':Js(False),u'scroll':Js(False),u'scrollbars':Js(False),u'scrollBy':Js(False),u'scrollTo':Js(False),u'scrollX':Js(False),u'scrollY':Js(False),u'SecurityPolicyViolationEvent':Js(False),u'Selection':Js(False),u'self':Js(False),u'ServiceWorker':Js(False),u'ServiceWorkerContainer':Js(False),u'ServiceWorkerRegistration':Js(False),u'sessionStorage':Js(False),u'setInterval':Js(False),u'setTimeout':Js(False),u'ShadowRoot':Js(False),u'SharedKeyframeList':Js(False),u'SharedWorker':Js(False),u'showModalDialog':Js(False),u'SiteBoundCredential':Js(False),u'speechSynthesis':Js(False),u'SpeechSynthesisEvent':Js(False),u'SpeechSynthesisUtterance':Js(False),u'status':Js(False),u'statusbar':Js(False),u'stop':Js(False),u'Storage':Js(False),u'StorageEvent':Js(False),u'styleMedia':Js(False),u'StyleSheet':Js(False),u'StyleSheetList':Js(False),u'SubtleCrypto':Js(False),u'SVGAElement':Js(False),u'SVGAltGlyphDefElement':Js(False),u'SVGAltGlyphElement':Js(False),u'SVGAltGlyphItemElement':Js(False),u'SVGAngle':Js(False),u'SVGAnimateColorElement':Js(False),u'SVGAnimatedAngle':Js(False),u'SVGAnimatedBoolean':Js(False),u'SVGAnimatedEnumeration':Js(False),u'SVGAnimatedInteger':Js(False),u'SVGAnimatedLength':Js(False),u'SVGAnimatedLengthList':Js(False),u'SVGAnimatedNumber':Js(False),u'SVGAnimatedNumberList':Js(False),u'SVGAnimatedPathData':Js(False),u'SVGAnimatedPoints':Js(False),u'SVGAnimatedPreserveAspectRatio':Js(False),u'SVGAnimatedRect':Js(False),u'SVGAnimatedString':Js(False),u'SVGAnimatedTransformList':Js(False),u'SVGAnimateElement':Js(False),u'SVGAnimateMotionElement':Js(False),u'SVGAnimateTransformElement':Js(False),u'SVGAnimationElement':Js(False),u'SVGCircleElement':Js(False),u'SVGClipPathElement':Js(False),u'SVGColor':Js(False),u'SVGColorProfileElement':Js(False),u'SVGColorProfileRule':Js(False),u"REDACTED_MISTRAL":Js(False),u'SVGCSSRule':Js(False),u'SVGCursorElement':Js(False),u'SVGDefsElement':Js(False),u'SVGDescElement':Js(False),u'SVGDiscardElement':Js(False),u'SVGDocument':Js(False),u'SVGElement':Js(False),u'SVGElementInstance':Js(False),u'SVGElementInstanceList':Js(False),u'SVGEllipseElement':Js(False),u'SVGEvent':Js(False),u'SVGExternalResourcesRequired':Js(False),u'SVGFEBlendElement':Js(False),u'SVGFEColorMatrixElement':Js(False),u'SVGFEComponentTransferElement':Js(False),u'SVGFECompositeElement':Js(False),u'SVGFEConvolveMatrixElement':Js(False),u'SVGFEDiffuseLightingElement':Js(False),u'SVGFEDisplacementMapElement':Js(False),u'SVGFEDistantLightElement':Js(False),u'SVGFEDropShadowElement':Js(False),u'SVGFEFloodElement':Js(False),u'SVGFEFuncAElement':Js(False),u'SVGFEFuncBElement':Js(False),u'SVGFEFuncGElement':Js(False),u'SVGFEFuncRElement':Js(False),u'SVGFEGaussianBlurElement':Js(False),u'SVGFEImageElement':Js(False),u'SVGFEMergeElement':Js(False),u'SVGFEMergeNodeElement':Js(False),u'SVGFEMorphologyElement':Js(False),u'SVGFEOffsetElement':Js(False),u'SVGFEPointLightElement':Js(False),u'SVGFESpecularLightingElement':Js(False),u'SVGFESpotLightElement':Js(False),u'SVGFETileElement':Js(False),u'SVGFETurbulenceElement':Js(False),u'SVGFilterElement':Js(False),u"REDACTED_MISTRAL":Js(False),u'SVGFitToViewBox':Js(False),u'SVGFontElement':Js(False),u'SVGFontFaceElement':Js(False),u'SVGFontFaceFormatElement':Js(False),u'SVGFontFaceNameElement':Js(False),u'SVGFontFaceSrcElement':Js(False),u'SVGFontFaceUriElement':Js(False),u'SVGForeignObjectElement':Js(False),u'SVGGElement':Js(False),u'SVGGeometryElement':Js(False),u'SVGGlyphElement':Js(False),u'SVGGlyphRefElement':Js(False),u'SVGGradientElement':Js(False),u'SVGGraphicsElement':Js(False),u'SVGHKernElement':Js(False),u'SVGICCColor':Js(False),u'SVGImageElement':Js(False),u'SVGLangSpace':Js(False),u'SVGLength':Js(False),u'SVGLengthList':Js(False),u'SVGLinearGradientElement':Js(False),u'SVGLineElement':Js(False),u'SVGLocatable':Js(False),u'SVGMarkerElement':Js(False),u'SVGMaskElement':Js(False),u'SVGMatrix':Js(False),u'SVGMetadataElement':Js(False),u'SVGMissingGlyphElement':Js(False),u'SVGMPathElement':Js(False),u'SVGNumber':Js(False),u'SVGNumberList':Js(False),u'SVGPaint':Js(False),u'SVGPathElement':Js(False),u'SVGPathSeg':Js(False),u'SVGPathSegArcAbs':Js(False),u'SVGPathSegArcRel':Js(False),u'SVGPathSegClosePath':Js(False),u'SVGPathSegCurvetoCubicAbs':Js(False),u'SVGPathSegCurvetoCubicRel':Js(False),u'SVGPathSegCurvetoCubicSmoothAbs':Js(False),u'SVGPathSegCurvetoCubicSmoothRel':Js(False),u'SVGPathSegCurvetoQuadraticAbs':Js(False),u'SVGPathSegCurvetoQuadraticRel':Js(False),u"REDACTED_MISTRAL":Js(False),u"REDACTED_MISTRAL":Js(False),u'SVGPathSegLinetoAbs':Js(False),u'SVGPathSegLinetoHorizontalAbs':Js(False),u'SVGPathSegLinetoHorizontalRel':Js(False),u'SVGPathSegLinetoRel':Js(False),u'SVGPathSegLinetoVerticalAbs':Js(False),u'SVGPathSegLinetoVerticalRel':Js(False),u'SVGPathSegList':Js(False),u'SVGPathSegMovetoAbs':Js(False),u'SVGPathSegMovetoRel':Js(False),u'SVGPatternElement':Js(False),u'SVGPoint':Js(False),u'SVGPointList':Js(False),u'SVGPolygonElement':Js(False),u'SVGPolylineElement':Js(False),u'SVGPreserveAspectRatio':Js(False),u'SVGRadialGradientElement':Js(False),u'SVGRect':Js(False),u'SVGRectElement':Js(False),u'SVGRenderingIntent':Js(False),u'SVGScriptElement':Js(False),u'SVGSetElement':Js(False),u'SVGStopElement':Js(False),u'SVGStringList':Js(False),u'SVGStylable':Js(False),u'SVGStyleElement':Js(False),u'SVGSVGElement':Js(False),u'SVGSwitchElement':Js(False),u'SVGSymbolElement':Js(False),u'SVGTests':Js(False),u'SVGTextContentElement':Js(False),u'SVGTextElement':Js(False),u'SVGTextPathElement':Js(False),u'SVGTextPositioningElement':Js(False),u'SVGTitleElement':Js(False),u'SVGTransform':Js(False),u'SVGTransformable':Js(False),u'SVGTransformList':Js(False),u'SVGTRefElement':Js(False),u'SVGTSpanElement':Js(False),u'SVGUnitTypes':Js(False),u'SVGURIReference':Js(False),u'SVGUseElement':Js(False),u'SVGViewElement':Js(False),u'SVGViewSpec':Js(False),u'SVGVKernElement':Js(False),u'SVGZoomAndPan':Js(False),u'SVGZoomEvent':Js(False),u'Text':Js(False),u'TextDecoder':Js(False),u'TextEncoder':Js(False),u'TextEvent':Js(False),u'TextMetrics':Js(False),u'TextTrack':Js(False),u'TextTrackCue':Js(False),u'TextTrackCueList':Js(False),u'TextTrackList':Js(False),u'TimeEvent':Js(False),u'TimeRanges':Js(False),u'toolbar':Js(False),u'top':Js(False),u'Touch':Js(False),u'TouchEvent':Js(False),u'TouchList':Js(False),u'TrackEvent':Js(False),u'TransitionEvent':Js(False),u'TreeWalker':Js(False),u'UIEvent':Js(False),u'URL':Js(False),u'URLSearchParams':Js(False),u'ValidityState':Js(False),u'VTTCue':Js(False),u'WaveShaperNode':Js(False),u'WebGLActiveInfo':Js(False),u'WebGLBuffer':Js(False),u'WebGLContextEvent':Js(False),u'WebGLFramebuffer':Js(False),u'WebGLProgram':Js(False),u'WebGLRenderbuffer':Js(False),u'WebGLRenderingContext':Js(False),u'WebGLShader':Js(False),u'WebGLShaderPrecisionFormat':Js(False),u'WebGLTexture':Js(False),u'WebGLUniformLocation':Js(False),u'WebSocket':Js(False),u'WheelEvent':Js(False),u'window':Js(False),u'Window':Js(False),u'Worker':Js(False),u'XDomainRequest':Js(False),u'XMLDocument':Js(False),u'XMLHttpRequest':Js(False),u'XMLHttpRequestEventTarget':Js(False),u'XMLHttpRequestProgressEvent':Js(False),u'XMLHttpRequestUpload':Js(False),u'XMLSerializer':Js(False),u'XPathEvaluator':Js(False),u'XPathException':Js(False),u'XPathExpression':Js(False),u'XPathNamespace':Js(False),u'XPathNSResolver':Js(False),u'XPathResult':Js(False),u'XSLTProcessor':Js(False)})
     PyJs_Object_3328_ = Js({u'applicationCache':Js(False),u'atob':Js(False),u'Blob':Js(False),u'BroadcastChannel':Js(False),u'btoa':Js(False),u'Cache':Js(False),u'caches':Js(False),u'clearInterval':Js(False),u'clearTimeout':Js(False),u'close':var.get(u'true'),u'console':Js(False),u'fetch':Js(False),u'FileReaderSync':Js(False),u'FormData':Js(False),u'Headers':Js(False),u'IDBCursor':Js(False),u'IDBCursorWithValue':Js(False),u'IDBDatabase':Js(False),u'IDBFactory':Js(False),u'IDBIndex':Js(False),u'IDBKeyRange':Js(False),u'IDBObjectStore':Js(False),u'IDBOpenDBRequest':Js(False),u'IDBRequest':Js(False),u'IDBTransaction':Js(False),u'IDBVersionChangeEvent':Js(False),u'ImageData':Js(False),u'importScripts':var.get(u'true'),u'indexedDB':Js(False),u'location':Js(False),u'MessageChannel':Js(False),u'MessagePort':Js(False),u'name':Js(False),u'navigator':Js(False),u'Notification':Js(False),u'onclose':var.get(u'true'),u'onconnect':var.get(u'true'),u'onerror':var.get(u'true'),u'onlanguagechange':var.get(u'true'),u'onmessage':var.get(u'true'),u'onoffline':var.get(u'true'),u'ononline':var.get(u'true'),u'onrejectionhandled':var.get(u'true'),u'onunhandledrejection':var.get(u'true'),u'performance':Js(False),u'Performance':Js(False),u'PerformanceEntry':Js(False),u'PerformanceMark':Js(False),u'PerformanceMeasure':Js(False),u'PerformanceNavigation':Js(False),u'PerformanceResourceTiming':Js(False),u'PerformanceTiming':Js(False),u'postMessage':var.get(u'true'),u'Promise':Js(False),u'Request':Js(False),u'Response':Js(False),u'self':var.get(u'true'),u'ServiceWorkerRegistration':Js(False),u'setInterval':Js(False),u'setTimeout':Js(False),u'TextDecoder':Js(False),u'TextEncoder':Js(False),u'URL':Js(False),u'URLSearchParams':Js(False),u'WebSocket':Js(False),u'Worker':Js(False),u'XMLHttpRequest':Js(False)})
     PyJs_Object_3329_ = Js({u'__dirname':Js(False),u'__filename':Js(False),u'arguments':Js(False),u'Buffer':Js(False),u'clearImmediate':Js(False),u'clearInterval':Js(False),u'clearTimeout':Js(False),u'console':Js(False),u'exports':var.get(u'true'),u'GLOBAL':Js(False),u'global':Js(False),u'Intl':Js(False),u'module':Js(False),u'process':Js(False),u'require':Js(False),u'root':Js(False),u'setImmediate':Js(False),u'setInterval':Js(False),u'setTimeout':Js(False)})
     PyJs_Object_3330_ = Js({u'exports':var.get(u'true'),u'module':Js(False),u'require':Js(False),u'global':Js(False)})
@@ -46826,7 +46826,7 @@ def PyJs_anonymous_4054_(require, module, exports, this, arguments, var=var):
         var.put(u'lineB', var.get(u'mappingB').get(u'generatedLine'))
         var.put(u'columnA', var.get(u'mappingA').get(u'generatedColumn'))
         var.put(u'columnB', var.get(u'mappingB').get(u'generatedColumn'))
-        return (((var.get(u'lineB')>var.get(u'lineA')) or ((var.get(u'lineB')==var.get(u'lineA')) and (var.get(u'columnB')>=var.get(u'columnA')))) or (var.get(u'util').callprop(u'compareByGeneratedPositionsInflated', var.get(u'mappingA'), var.get(u'mappingB'))<=Js(0.0)))
+        return (((var.get(u'lineB')>var.get(u'lineA')) or ((var.get(u'lineB')==var.get(u'lineA')) and (var.get(u'columnB')>=var.get(u'columnA')))) or (var.get(u'util').callprop(u"REDACTED_MISTRAL", var.get(u'mappingA'), var.get(u'mappingB'))<=Js(0.0)))
     PyJsHoisted_generatedPositionAfter_.func_name = u'generatedPositionAfter'
     var.put(u'generatedPositionAfter', PyJsHoisted_generatedPositionAfter_)
     @Js
@@ -46866,7 +46866,7 @@ def PyJs_anonymous_4054_(require, module, exports, this, arguments, var=var):
         var = Scope({u'this':this, u'MappingList_toArray':PyJs_MappingList_toArray_4058_, u'arguments':arguments}, var)
         var.registers([])
         if var.get(u"this").get(u'_sorted').neg():
-            var.get(u"this").get(u'_array').callprop(u'sort', var.get(u'util').get(u'compareByGeneratedPositionsInflated'))
+            var.get(u"this").get(u'_array').callprop(u'sort', var.get(u'util').get(u"REDACTED_MISTRAL"))
             var.get(u"this").put(u'_sorted', var.get(u'true'))
         return var.get(u"this").get(u'_array')
     PyJs_MappingList_toArray_4058_._set_name(u'MappingList_toArray')
@@ -47278,7 +47278,7 @@ def PyJs_anonymous_4063_(require, module, exports, this, arguments, var=var):
                     var.get(u'generatedMappings').callprop(u'push', var.get(u'mapping'))
                     if PyJsStrictEq(var.get(u'mapping').get(u'originalLine').typeof(),Js(u'number')):
                         var.get(u'originalMappings').callprop(u'push', var.get(u'mapping'))
-        var.get(u'quickSort')(var.get(u'generatedMappings'), var.get(u'util').get(u'compareByGeneratedPositionsDeflated'))
+        var.get(u'quickSort')(var.get(u'generatedMappings'), var.get(u'util').get(u"REDACTED_MISTRAL"))
         var.get(u"this").put(u'__generatedMappings', var.get(u'generatedMappings'))
         var.get(u'quickSort')(var.get(u'originalMappings'), var.get(u'util').get(u'compareByOriginalPositions'))
         var.get(u"this").put(u'__originalMappings', var.get(u'originalMappings'))
@@ -47322,7 +47322,7 @@ def PyJs_anonymous_4063_(require, module, exports, this, arguments, var=var):
         var.registers([u'index', u'name', u'aArgs', u'needle', u'mapping', u'source'])
         PyJs_Object_4089_ = Js({u'generatedLine':var.get(u'util').callprop(u'getArg', var.get(u'aArgs'), Js(u'line')),u'generatedColumn':var.get(u'util').callprop(u'getArg', var.get(u'aArgs'), Js(u'column'))})
         var.put(u'needle', PyJs_Object_4089_)
-        var.put(u'index', var.get(u"this").callprop(u'_findMapping', var.get(u'needle'), var.get(u"this").get(u'_generatedMappings'), Js(u'generatedLine'), Js(u'generatedColumn'), var.get(u'util').get(u'compareByGeneratedPositionsDeflated'), var.get(u'util').callprop(u'getArg', var.get(u'aArgs'), Js(u'bias'), var.get(u'SourceMapConsumer').get(u'GREATEST_LOWER_BOUND'))))
+        var.put(u'index', var.get(u"this").callprop(u'_findMapping', var.get(u'needle'), var.get(u"this").get(u'_generatedMappings'), Js(u'generatedLine'), Js(u'generatedColumn'), var.get(u'util').get(u"REDACTED_MISTRAL"), var.get(u'util').callprop(u'getArg', var.get(u'aArgs'), Js(u'bias'), var.get(u'SourceMapConsumer').get(u'GREATEST_LOWER_BOUND'))))
         if (var.get(u'index')>=Js(0.0)):
             var.put(u'mapping', var.get(u"this").get(u'_generatedMappings').get(var.get(u'index')))
             if PyJsStrictEq(var.get(u'mapping').get(u'generatedLine'),var.get(u'needle').get(u'generatedLine')):
@@ -47543,7 +47543,7 @@ def PyJs_anonymous_4063_(require, module, exports, this, arguments, var=var):
                             (var.put(u'j',Js(var.get(u'j').to_number())+Js(1))-Js(1))
             finally:
                     (var.put(u'i',Js(var.get(u'i').to_number())+Js(1))-Js(1))
-        var.get(u'quickSort')(var.get(u"this").get(u'__generatedMappings'), var.get(u'util').get(u'compareByGeneratedPositionsDeflated'))
+        var.get(u'quickSort')(var.get(u"this").get(u'__generatedMappings'), var.get(u'util').get(u"REDACTED_MISTRAL"))
         var.get(u'quickSort')(var.get(u"this").get(u'__originalMappings'), var.get(u'util').get(u'compareByOriginalPositions'))
     PyJs_IndexedSourceMapConsumer_parseMappings_4117_._set_name(u'IndexedSourceMapConsumer_parseMappings')
     var.get(u'IndexedSourceMapConsumer').get(u'prototype').put(u'_parseMappings', PyJs_IndexedSourceMapConsumer_parseMappings_4117_)
@@ -47757,7 +47757,7 @@ def PyJs_anonymous_4120_(require, module, exports, this, arguments, var=var):
                         (var.put(u'previousGeneratedLine',Js(var.get(u'previousGeneratedLine').to_number())+Js(1))-Js(1))
                 else:
                     if (var.get(u'i')>Js(0.0)):
-                        if var.get(u'util').callprop(u'compareByGeneratedPositionsInflated', var.get(u'mapping'), var.get(u'mappings').get((var.get(u'i')-Js(1.0)))).neg():
+                        if var.get(u'util').callprop(u"REDACTED_MISTRAL", var.get(u'mapping'), var.get(u'mappings').get((var.get(u'i')-Js(1.0)))).neg():
                             continue
                         var.put(u'next', Js(u','), u'+')
                 var.put(u'next', var.get(u'base64VLQ').callprop(u'encode', (var.get(u'mapping').get(u'generatedColumn')-var.get(u'previousGeneratedColumn'))), u'+')
@@ -48147,7 +48147,7 @@ PyJs_Object_4176_ = Js({u'./source-map-generator':Js(516.0),u'./util':Js(518.0)}
 @Js
 def PyJs_anonymous_4177_(require, module, exports, this, arguments, var=var):
     var = Scope({u'this':this, u'require':require, u'exports':exports, u'module':module, u'arguments':arguments}, var)
-    var.registers([u'normalize', u'urlGenerate', u'exports', u'compareByGeneratedPositionsDeflated', u'join', u'module', u'relative', u'require', u'fromSetString', u'strcmp', u'urlParse', u'dataUrlRegexp', u'identity', u'supportsNullProto', u'compareByGeneratedPositionsInflated', u'isProtoString', u'compareByOriginalPositions', u'urlRegexp', u'getArg', u'toSetString'])
+    var.registers([u'normalize', u'urlGenerate', u'exports', u"REDACTED_MISTRAL", u'join', u'module', u'relative', u'require', u'fromSetString', u'strcmp', u'urlParse', u'dataUrlRegexp', u'identity', u'supportsNullProto', u"REDACTED_MISTRAL", u'isProtoString', u'compareByOriginalPositions', u'urlRegexp', u'getArg', u'toSetString'])
     @Js
     def PyJsHoisted_normalize_(aPath, this, arguments, var=var):
         var = Scope({u'this':this, u'aPath':aPath, u'arguments':arguments}, var)
@@ -48229,8 +48229,8 @@ def PyJs_anonymous_4177_(require, module, exports, this, arguments, var=var):
         if PyJsStrictNeq(var.get(u'cmp'),Js(0.0)):
             return var.get(u'cmp')
         return (var.get(u'mappingA').get(u'name')-var.get(u'mappingB').get(u'name'))
-    PyJsHoisted_compareByGeneratedPositionsDeflated_.func_name = u'compareByGeneratedPositionsDeflated'
-    var.put(u'compareByGeneratedPositionsDeflated', PyJsHoisted_compareByGeneratedPositionsDeflated_)
+    PyJsHoisted_compareByGeneratedPositionsDeflated_.func_name = u"REDACTED_MISTRAL"
+    var.put(u"REDACTED_MISTRAL", PyJsHoisted_compareByGeneratedPositionsDeflated_)
     @Js
     def PyJsHoisted_join_(aRoot, aPath, this, arguments, var=var):
         var = Scope({u'aRoot':aRoot, u'aPath':aPath, u'this':this, u'arguments':arguments}, var)
@@ -48325,8 +48325,8 @@ def PyJs_anonymous_4177_(require, module, exports, this, arguments, var=var):
         if PyJsStrictNeq(var.get(u'cmp'),Js(0.0)):
             return var.get(u'cmp')
         return var.get(u'strcmp')(var.get(u'mappingA').get(u'name'), var.get(u'mappingB').get(u'name'))
-    PyJsHoisted_compareByGeneratedPositionsInflated_.func_name = u'compareByGeneratedPositionsInflated'
-    var.put(u'compareByGeneratedPositionsInflated', PyJsHoisted_compareByGeneratedPositionsInflated_)
+    PyJsHoisted_compareByGeneratedPositionsInflated_.func_name = u"REDACTED_MISTRAL"
+    var.put(u"REDACTED_MISTRAL", PyJsHoisted_compareByGeneratedPositionsInflated_)
     @Js
     def PyJsHoisted_isProtoString_(s, this, arguments, var=var):
         var = Scope({u'this':this, u's':s, u'arguments':arguments}, var)
@@ -48447,10 +48447,10 @@ def PyJs_anonymous_4177_(require, module, exports, this, arguments, var=var):
     pass
     var.get(u'exports').put(u'compareByOriginalPositions', var.get(u'compareByOriginalPositions'))
     pass
-    var.get(u'exports').put(u'compareByGeneratedPositionsDeflated', var.get(u'compareByGeneratedPositionsDeflated'))
+    var.get(u'exports').put(u"REDACTED_MISTRAL", var.get(u"REDACTED_MISTRAL"))
     pass
     pass
-    var.get(u'exports').put(u'compareByGeneratedPositionsInflated', var.get(u'compareByGeneratedPositionsInflated'))
+    var.get(u'exports').put(u"REDACTED_MISTRAL", var.get(u"REDACTED_MISTRAL"))
 PyJs_anonymous_4177_._set_name(u'anonymous')
 PyJs_Object_4183_ = Js({})
 @Js

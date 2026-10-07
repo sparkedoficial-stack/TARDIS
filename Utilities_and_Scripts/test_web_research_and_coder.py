@@ -210,7 +210,7 @@ def test_api_research_endpoints():
     from starlette.testclient import TestClient
     from server.api import app
     client = TestClient(app)
-    auth = {"X-API-Key": "Imznu9ZNtdbFl2ebIGSzpYqe7A3OS4Y5"}
+    auth = {"X-API-Key": "REDACTED_MISTRAL"}
 
     # 1. Search endpoint
     resp = client.get("/api/research/search?q=python+dataclass&limit=2", headers=auth)

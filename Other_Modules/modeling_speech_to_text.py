@@ -953,4 +953,4 @@ class Speech2TextForConditionalGeneration(Speech2TextPreTrainedModel, Generation
         )
 
 
-__all__ = ["Speech2TextForConditionalGeneration", "Speech2TextModel", "Speech2TextPreTrainedModel"]
+__all__ = ["REDACTED_MISTRAL", "Speech2TextModel", "Speech2TextPreTrainedModel"]

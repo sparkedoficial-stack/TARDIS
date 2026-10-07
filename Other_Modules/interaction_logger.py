@@ -1,6 +1,5 @@
 """
-core/interaction_logger.py - GODWORKS SYSTEM · TARDIS Sistema de Vigilancia y Control Temporal
-=============================================================================================
+core/interaction_logger.py - GODWORKS SYSTEM v26.4
 Registro Cronológico e Historial Fotográfico de Interacciones Locales.
 
 Guarda de manera permanente:
@@ -333,7 +332,7 @@ class InteractionLogger:
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>TARDIS - Galería Local de Interacciones & Fotos</title>
+    <title>TARDIS v26.4 - Galería Local de Interacciones & Fotos</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         :root {{
@@ -477,7 +476,7 @@ class InteractionLogger:
         <div>
             <h1>📸 Registro e Historial de Interacciones & Fotos</h1>
             <div style="font-size:12px; color:var(--text-dim); margin-top:3px;">
-                TARDIS &middot; Sistema de Vigilancia y Control Temporal &middot; Visualizador Local Autónomo
+                TARDIS v26.4 &middot; Visualizador Local Autónomo
             </div>
         </div>
         <div class="stats">

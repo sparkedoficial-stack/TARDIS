@@ -338,7 +338,7 @@ class InstructBlipPreTrainedModel(PreTrainedModel):
         "InstructBlipAttention",
         "InstructBlipEncoderLayer",
         "InstructBlipQFormerLayer",
-        "InstructBlipQFormerMultiHeadAttention",
+        "REDACTED_MISTRAL",
         "InstructBlipQFormerSelfOutput",
     ]
 
@@ -1384,6 +1384,6 @@ __all__ = [
     "InstructBlipQFormerModel",
     "InstructBlipPreTrainedModel",
     "InstructBlipModel",
-    "InstructBlipForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "InstructBlipVisionModel",
 ]

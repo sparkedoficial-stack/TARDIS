@@ -1623,8 +1623,8 @@ class FlaubertForMultipleChoice(FlaubertPreTrainedModel):
 __all__ = [
     "FlaubertForMultipleChoice",
     "FlaubertForQuestionAnswering",
-    "FlaubertForQuestionAnsweringSimple",
-    "FlaubertForSequenceClassification",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
     "FlaubertForTokenClassification",
     "FlaubertModel",
     "FlaubertWithLMHeadModel",

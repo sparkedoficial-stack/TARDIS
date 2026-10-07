@@ -841,5 +841,5 @@ __all__ = [
     "QianfanOCRVisionModel",
     "QianfanOCRPreTrainedModel",
     "QianfanOCRModel",
-    "QianfanOCRForConditionalGeneration",
+    "REDACTED_MISTRAL",
 ]

@@ -342,5 +342,5 @@ __all__ = [
     "MiniCPM3PreTrainedModel",
     "MiniCPM3Model",
     "MiniCPM3ForCausalLM",
-    "MiniCPM3ForSequenceClassification",
+    "REDACTED_MISTRAL",
 ]

@@ -44,6 +44,6 @@ class Gemma4UnifiedAssistantForCausalLM(Gemma4AssistantForCausalLM):
 
 
 __all__ = [
-    "Gemma4UnifiedAssistantPreTrainedModel",  # noqa: F822
-    "Gemma4UnifiedAssistantForCausalLM",
+    "REDACTED_MISTRAL",  # noqa: F822
+    "REDACTED_MISTRAL",
 ]

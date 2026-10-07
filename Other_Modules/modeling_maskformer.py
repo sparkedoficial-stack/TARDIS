@@ -2078,7 +2078,7 @@ class MaskFormerForInstanceSegmentation(MaskFormerPreTrainedModel):
 
 
 __all__ = [
-    "MaskFormerForInstanceSegmentation",
+    "REDACTED_MISTRAL",
     "MaskFormerModel",
     "MaskFormerPreTrainedModel",
     "MaskFormerDetrPreTrainedModel",

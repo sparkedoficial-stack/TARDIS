@@ -1324,7 +1324,7 @@ class UniSpeechForSequenceClassification(UniSpeechPreTrainedModel):
 __all__ = [
     "UniSpeechForCTC",
     "UniSpeechForPreTraining",
-    "UniSpeechForSequenceClassification",
+    "REDACTED_MISTRAL",
     "UniSpeechModel",
     "UniSpeechPreTrainedModel",
 ]

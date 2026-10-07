@@ -315,5 +315,5 @@ class Mistral3ForConditionalGeneration(LlavaForConditionalGeneration):
 __all__ = [
     "Mistral3Model",
     "Mistral3PreTrainedModel",
-    "Mistral3ForConditionalGeneration",
+    "REDACTED_MISTRAL",
 ]

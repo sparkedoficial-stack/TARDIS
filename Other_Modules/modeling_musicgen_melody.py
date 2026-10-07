@@ -2069,7 +2069,7 @@ class MusicgenMelodyForConditionalGeneration(PreTrainedModel, GenerationMixin):
 
 
 __all__ = [
-    "MusicgenMelodyForConditionalGeneration",
+    "REDACTED_MISTRAL",
     "MusicgenMelodyForCausalLM",
     "MusicgenMelodyModel",
     "MusicgenMelodyPreTrainedModel",

@@ -776,7 +776,7 @@ class MllamaPreTrainedModel(PreTrainedModel):
     supports_gradient_checkpointing = True
     _no_split_modules = [
         "MllamaVisionEncoderLayer",
-        "MllamaCrossAttentionDecoderLayer",
+        "REDACTED_MISTRAL",
         "MllamaSelfAttentionDecoderLayer",
     ]
     _supports_sdpa = True

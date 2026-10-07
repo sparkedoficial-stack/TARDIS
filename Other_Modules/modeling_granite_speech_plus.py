@@ -632,6 +632,6 @@ class GraniteSpeechPlusForConditionalGeneration(GraniteSpeechPlusPreTrainedModel
 __all__ = [
     "GraniteSpeechPlusModel",
     "GraniteSpeechPlusCTCEncoder",
-    "GraniteSpeechPlusForConditionalGeneration",
-    "GraniteSpeechPlusPreTrainedModel",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
 ]

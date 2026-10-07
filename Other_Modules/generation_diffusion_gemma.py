@@ -1320,6 +1320,6 @@ __all__ = [
     "DiffusionGemmaGenerationConfig",
     "EntropyBoundSamplerConfig",
     "EntropyBoundSampler",
-    "StableAndConfidentStoppingCriteria",
-    "LinearTemperatureScheduleLogitsProcessor",
+    "REDACTED_MISTRAL",
+    "REDACTED_MISTRAL",
 ]
