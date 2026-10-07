@@ -5,6 +5,7 @@ import logging
 import time
 import types
 import typing
+from collections.abc import AsyncGenerator
 
 import h2.config
 import h2.connection
@@ -13,24 +14,18 @@ import h2.exceptions
 import h2.settings
 
 from .._backends.base import AsyncNetworkStream
-from .._exceptions import (
-    ConnectionNotAvailable,
-    LocalProtocolError,
-    RemoteProtocolError,
-)
+from .._exceptions import ConnectionNotAvailable, LocalProtocolError, RemoteProtocolError
 from .._models import Origin, Request, Response
 from .._synchronization import AsyncLock, AsyncSemaphore, AsyncShieldCancellation
 from .._trace import Trace
+from .._utils import safe_async_iterate
 from .interfaces import AsyncConnectionInterface
 
-logger = logging.getLogger("httpcore.http2")
+logger = logging.getLogger("httpcore2.http2")
 
 
 def has_body_headers(request: Request) -> bool:
-    return any(
-        k.lower() == b"content-length" or k.lower() == b"transfer-encoding"
-        for k, v in request.headers
-    )
+    return any(k.lower() == b"content-length" or k.lower() == b"transfer-encoding" for k, _v in request.headers)
 
 
 class HTTPConnectionState(enum.IntEnum):
@@ -67,12 +62,7 @@ class AsyncHTTP2Connection(AsyncConnectionInterface):
         # Mapping from stream ID to response stream events.
         self._events: dict[
             int,
-            list[
-                h2.events.ResponseReceived
-                | h2.events.DataReceived
-                | h2.events.StreamEnded
-                | h2.events.StreamReset,
-            ],
+            list[h2.events.ResponseReceived | h2.events.DataReceived | h2.events.StreamEnded | h2.events.StreamReset,],
         ] = {}
 
         # Connection terminated events are stored as state since
@@ -88,10 +78,7 @@ class AsyncHTTP2Connection(AsyncConnectionInterface):
             # will only send requests on connections that handle them.
             # It's in place simply for resilience as a guard against incorrect
             # usage, for anyone working directly with httpcore connections.
-            raise RuntimeError(
-                f"Attempted to send request to {request.url.origin} on connection "
-                f"to {self._origin}"
-            )
+            raise RuntimeError(f"Attempted to send request to {request.url.origin} on connection to {self._origin}")
 
         async with self._state_lock:
             if self._state in (HTTPConnectionState.ACTIVE, HTTPConnectionState.IDLE):
@@ -105,9 +92,7 @@ class AsyncHTTP2Connection(AsyncConnectionInterface):
             if not self._sent_connection_init:
                 try:
                     sci_kwargs = {"request": request}
-                    async with Trace(
-                        "send_connection_init", logger, request, sci_kwargs
-                    ):
+                    async with Trace("send_connection_init", logger, request, sci_kwargs):
                         await self._send_connection_init(**sci_kwargs)
                 except BaseException as exc:
                     with AsyncShieldCancellation():
@@ -120,9 +105,7 @@ class AsyncHTTP2Connection(AsyncConnectionInterface):
                 # its max_concurrent_streams value
                 self._max_streams = 1
 
-                local_settings_max_streams = (
-                    self._h2_state.local_settings.max_concurrent_streams
-                )
+                local_settings_max_streams = self._h2_state.local_settings.max_concurrent_streams
                 self._max_streams_semaphore = AsyncSemaphore(local_settings_max_streams)
 
                 for _ in range(local_settings_max_streams - self._max_streams):
@@ -133,9 +116,10 @@ class AsyncHTTP2Connection(AsyncConnectionInterface):
         try:
             stream_id = self._h2_state.get_next_available_stream_id()
             self._events[stream_id] = []
-        except h2.exceptions.NoAvailableStreamIDError:  # pragma: nocover
+        except h2.exceptions.NoAvailableStreamIDError:  # pragma: no cover
             self._used_all_stream_ids = True
             self._request_count -= 1
+            await self._max_streams_semaphore.release()
             raise ConnectionNotAvailable()
 
         try:
@@ -144,12 +128,8 @@ class AsyncHTTP2Connection(AsyncConnectionInterface):
                 await self._send_request_headers(request=request, stream_id=stream_id)
             async with Trace("send_request_body", logger, request, kwargs):
                 await self._send_request_body(request=request, stream_id=stream_id)
-            async with Trace(
-                "receive_response_headers", logger, request, kwargs
-            ) as trace:
-                status, headers = await self._receive_response(
-                    request=request, stream_id=stream_id
-                )
+            async with Trace("receive_response_headers", logger, request, kwargs) as trace:
+                status, headers = await self._receive_response(request=request, stream_id=stream_id)
                 trace.return_value = (status, headers)
 
             return Response(
@@ -178,11 +158,11 @@ class AsyncHTTP2Connection(AsyncConnectionInterface):
                 #
                 # In this case we'll have stored the event, and should raise
                 # it as a RemoteProtocolError.
-                if self._connection_terminated:  # pragma: nocover
+                if self._connection_terminated:  # pragma: no cover
                     raise RemoteProtocolError(self._connection_terminated)
                 # If h2 raises a protocol error in some other state then we
                 # must somehow have made a protocol violation.
-                raise LocalProtocolError(exc)  # pragma: nocover
+                raise LocalProtocolError(exc)  # pragma: no cover
 
             raise exc
 
@@ -209,9 +189,7 @@ class AsyncHTTP2Connection(AsyncConnectionInterface):
         # Some websites (*cough* Yahoo *cough*) balk at this setting being
         # present in the initial handshake since it's not defined in the original
         # RFC despite the RFC mandating ignoring settings you don't know about.
-        del self._h2_state.local_settings[
-            h2.settings.SettingCodes.ENABLE_CONNECT_PROTOCOL
-        ]
+        del self._h2_state.local_settings[h2.settings.SettingCodes.ENABLE_CONNECT_PROTOCOL]
 
         self._h2_state.initiate_connection()
         self._h2_state.increment_flow_control_window(2**24)
@@ -258,20 +236,21 @@ class AsyncHTTP2Connection(AsyncConnectionInterface):
             return
 
         assert isinstance(request.stream, typing.AsyncIterable)
-        async for data in request.stream:
-            await self._send_stream_data(request, stream_id, data)
+        async with safe_async_iterate(request.stream) as iterator:
+            async for chunk in iterator:
+                await self._send_stream_data(request, stream_id, chunk)
+
         await self._send_end_stream(request, stream_id)
 
-    async def _send_stream_data(
-        self, request: Request, stream_id: int, data: bytes
-    ) -> None:
+    async def _send_stream_data(self, request: Request, stream_id: int, data: bytes) -> None:
         """
         Send a single chunk of data in one or more data frames.
         """
-        while data:
+        position = 0
+        while position < len(data):
             max_flow = await self._wait_for_outgoing_flow(request, stream_id)
-            chunk_size = min(len(data), max_flow)
-            chunk, data = data[:chunk_size], data[chunk_size:]
+            chunk = data[position : position + max_flow]
+            position += len(chunk)
             self._h2_state.send_data(stream_id, chunk)
             await self._write_outgoing_data(request)
 
@@ -284,9 +263,7 @@ class AsyncHTTP2Connection(AsyncConnectionInterface):
 
     # Receiving the response...
 
-    async def _receive_response(
-        self, request: Request, stream_id: int
-    ) -> tuple[int, list[tuple[bytes, bytes]]]:
+    async def _receive_response(self, request: Request, stream_id: int) -> tuple[int, list[tuple[bytes, bytes]]]:
         """
         Return the response status code and headers for a given stream ID.
         """
@@ -296,7 +273,7 @@ class AsyncHTTP2Connection(AsyncConnectionInterface):
                 break
 
         status_code = 200
-        headers = []
+        headers: list[tuple[bytes, bytes]] = []
         assert event.headers is not None
         for k, v in event.headers:
             if k == b":status":
@@ -306,9 +283,7 @@ class AsyncHTTP2Connection(AsyncConnectionInterface):
 
         return (status_code, headers)
 
-    async def _receive_response_body(
-        self, request: Request, stream_id: int
-    ) -> typing.AsyncIterator[bytes]:
+    async def _receive_response_body(self, request: Request, stream_id: int) -> AsyncGenerator[bytes]:
         """
         Iterator that returns the bytes of the response body for a given stream ID.
         """
@@ -339,9 +314,7 @@ class AsyncHTTP2Connection(AsyncConnectionInterface):
             raise RemoteProtocolError(event)
         return event
 
-    async def _receive_events(
-        self, request: Request, stream_id: int | None = None
-    ) -> None:
+    async def _receive_events(self, request: Request, stream_id: int | None = None) -> None:
         """
         Read some data from the network until we see one or more events
         for a given stream ID.
@@ -364,9 +337,7 @@ class AsyncHTTP2Connection(AsyncConnectionInterface):
                 events = await self._read_incoming_data(request)
                 for event in events:
                     if isinstance(event, h2.events.RemoteSettingsChanged):
-                        async with Trace(
-                            "receive_remote_settings", logger, request
-                        ) as trace:
+                        async with Trace("receive_remote_settings", logger, request) as trace:
                             await self._receive_remote_settings_change(event)
                             trace.return_value = event
 
@@ -387,12 +358,8 @@ class AsyncHTTP2Connection(AsyncConnectionInterface):
 
         await self._write_outgoing_data(request)
 
-    async def _receive_remote_settings_change(
-        self, event: h2.events.RemoteSettingsChanged
-    ) -> None:
-        max_concurrent_streams = event.changed_settings.get(
-            h2.settings.SettingCodes.MAX_CONCURRENT_STREAMS
-        )
+    async def _receive_remote_settings_change(self, event: h2.events.RemoteSettingsChanged) -> None:
+        max_concurrent_streams = event.changed_settings.get(h2.settings.SettingCodes.MAX_CONCURRENT_STREAMS)
         if max_concurrent_streams:
             new_max_streams = min(
                 max_concurrent_streams.new_value,
@@ -407,9 +374,10 @@ class AsyncHTTP2Connection(AsyncConnectionInterface):
                     self._max_streams -= 1
 
     async def _response_closed(self, stream_id: int) -> None:
-        await self._max_streams_semaphore.release()
-        del self._events[stream_id]
         async with self._state_lock:
+            if stream_id in self._events:
+                await self._max_streams_semaphore.release()
+                del self._events[stream_id]
             if self._connection_terminated and not self._events:
                 await self.aclose()
 
@@ -418,7 +386,7 @@ class AsyncHTTP2Connection(AsyncConnectionInterface):
                 if self._keepalive_expiry is not None:
                     now = time.monotonic()
                     self._expire_at = now + self._keepalive_expiry
-                if self._used_all_stream_ids:  # pragma: nocover
+                if self._used_all_stream_ids:  # pragma: no cover
                     await self.aclose()
 
     async def aclose(self) -> None:
@@ -435,7 +403,7 @@ class AsyncHTTP2Connection(AsyncConnectionInterface):
         timeout = timeouts.get("read", None)
 
         if self._read_exception is not None:
-            raise self._read_exception  # pragma: nocover
+            raise self._read_exception  # pragma: no cover
 
         try:
             data = await self._network_stream.read(self.READ_NUM_BYTES, timeout)
@@ -466,11 +434,11 @@ class AsyncHTTP2Connection(AsyncConnectionInterface):
             data_to_send = self._h2_state.data_to_send()
 
             if self._write_exception is not None:
-                raise self._write_exception  # pragma: nocover
+                raise self._write_exception  # pragma: no cover
 
             try:
                 await self._network_stream.write(data_to_send, timeout)
-            except Exception as exc:  # pragma: nocover
+            except Exception as exc:  # pragma: no cover
                 # If we get a network error we should:
                 #
                 # 1. Save the exception and just raise it immediately on any future write.
@@ -496,7 +464,7 @@ class AsyncHTTP2Connection(AsyncConnectionInterface):
         local_flow: int = self._h2_state.local_flow_control_window(stream_id)
         max_frame_size: int = self._h2_state.max_outbound_frame_size
         flow = min(local_flow, max_frame_size)
-        while flow == 0:
+        while flow <= 0:
             await self._receive_events(request)
             local_flow = self._h2_state.local_flow_control_window(stream_id)
             max_frame_size = self._h2_state.max_outbound_frame_size
@@ -508,41 +476,41 @@ class AsyncHTTP2Connection(AsyncConnectionInterface):
     def can_handle_request(self, origin: Origin) -> bool:
         return origin == self._origin
 
+    def is_connected(self) -> bool:
+        return not self.is_closed()
+
     def is_available(self) -> bool:
         return (
             self._state != HTTPConnectionState.CLOSED
             and not self._connection_error
             and not self._used_all_stream_ids
-            and not (
-                self._h2_state.state_machine.state
-                == h2.connection.ConnectionState.CLOSED
-            )
+            and not (self._h2_state.state_machine.state == h2.connection.ConnectionState.CLOSED)
         )
 
     def has_expired(self) -> bool:
         now = time.monotonic()
-        return self._expire_at is not None and now > self._expire_at
+        # Read `_expire_at` once into a local: on free-threaded builds another
+        # thread may reset it to `None` between the check and the comparison.
+        expire_at = self._expire_at
+        return expire_at is not None and now > expire_at
 
     def is_idle(self) -> bool:
         return self._state == HTTPConnectionState.IDLE
+
+    def can_multiplex(self) -> bool:
+        return True
 
     def is_closed(self) -> bool:
         return self._state == HTTPConnectionState.CLOSED
 
     def info(self) -> str:
         origin = str(self._origin)
-        return (
-            f"{origin!r}, HTTP/2, {self._state.name}, "
-            f"Request Count: {self._request_count}"
-        )
+        return f"{origin!r}, HTTP/2, {self._state.name}, Request Count: {self._request_count}"
 
     def __repr__(self) -> str:
         class_name = self.__class__.__name__
         origin = str(self._origin)
-        return (
-            f"<{class_name} [{origin!r}, {self._state.name}, "
-            f"Request Count: {self._request_count}]>"
-        )
+        return f"<{class_name} [{origin!r}, {self._state.name}, Request Count: {self._request_count}]>"
 
     # These context managers are not used in the standard flow, but are
     # useful for testing or working with connection instances directly.
@@ -560,22 +528,21 @@ class AsyncHTTP2Connection(AsyncConnectionInterface):
 
 
 class HTTP2ConnectionByteStream:
-    def __init__(
-        self, connection: AsyncHTTP2Connection, request: Request, stream_id: int
-    ) -> None:
+    def __init__(self, connection: AsyncHTTP2Connection, request: Request, stream_id: int) -> None:
         self._connection = connection
         self._request = request
         self._stream_id = stream_id
         self._closed = False
 
-    async def __aiter__(self) -> typing.AsyncIterator[bytes]:
+    async def __aiter__(self) -> AsyncGenerator[bytes]:
         kwargs = {"request": self._request, "stream_id": self._stream_id}
         try:
             async with Trace("receive_response_body", logger, self._request, kwargs):
-                async for chunk in self._connection._receive_response_body(
-                    request=self._request, stream_id=self._stream_id
-                ):
-                    yield chunk
+                async with safe_async_iterate(
+                    self._connection._receive_response_body(request=self._request, stream_id=self._stream_id)
+                ) as iterator:
+                    async for chunk in iterator:
+                        yield chunk
         except BaseException as exc:
             # If we get an exception while streaming the response,
             # we want to close the response (and possibly the connection)

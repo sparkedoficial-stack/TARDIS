@@ -266,8 +266,29 @@ class ClosingIterator:
     def __iter__(self) -> ClosingIterator:
         return self
 
-    def __next__(self) -> bytes:
-        return self._next()
+        port = request.url.port or {"http": 80, "https": 443}[request.url.scheme]
+        environ = {
+            "wsgi.version": (1, 0),
+            "wsgi.url_scheme": request.url.scheme,
+            "wsgi.input": wsgi_input,
+            "wsgi.errors": self.wsgi_errors or sys.stderr,
+            "wsgi.multithread": True,
+            "wsgi.multiprocess": False,
+            "wsgi.run_once": False,
+            "REQUEST_METHOD": request.method,
+            "SCRIPT_NAME": self.script_name,
+            "PATH_INFO": request.url.path,
+            "QUERY_STRING": request.url.query.decode("ascii"),
+            "SERVER_NAME": request.url.host,
+            "SERVER_PORT": str(port),
+            "SERVER_PROTOCOL": "HTTP/1.1",
+            "REMOTE_ADDR": self.remote_addr,
+        }
+        for header_key, header_value in request.headers.raw:
+            key = header_key.decode("ascii").upper().replace("-", "_")
+            if key not in ("CONTENT_TYPE", "CONTENT_LENGTH"):
+                key = "REDACTED" + key
+            environ[key] = header_value.decode("ascii")
 
     def close(self) -> None:
         for callback in self._callbacks:

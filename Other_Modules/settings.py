@@ -1,132 +1,244 @@
-import sys
-from enum import Enum
+from __future__ import annotations
 
-import numpy as np
+import multiprocessing
 
+from typing import Any, Optional, List, Literal, Union, Dict, cast
+from typing_extensions import Self
 
-# Exit status.
-class ExitStatus(Enum):
-    """
-    Exit statuses.
-    """
+from pydantic import Field, model_validator
+from pydantic_settings import BaseSettings
 
-    RADIUS_SUCCESS = 0
-    TARGET_SUCCESS = 1
-    FIXED_SUCCESS = 2
-    CALLBACK_SUCCESS = 3
-    FEASIBLE_SUCCESS = 4
-    MAX_EVAL_WARNING = 5
-    MAX_ITER_WARNING = 6
-    INFEASIBLE_ERROR = -1
-    LINALG_ERROR = -2
+import llama_cpp
+
+# Disable warning for model and model_alias settings
+BaseSettings.model_config["protected_namespaces"] = ()
 
 
-class Options(str, Enum):
-    """
-    Options.
-    """
+class ModelSettings(BaseSettings):
+    """Model settings used to load a Llama model."""
 
-    DEBUG = "debug"
-    FEASIBILITY_TOL = "feasibility_tol"
-    FILTER_SIZE = "filter_size"
-    HISTORY_SIZE = "history_size"
-    MAX_EVAL = "maxfev"
-    MAX_ITER = "maxiter"
-    NPT = "nb_points"
-    RHOBEG = "radius_init"
-    RHOEND = "radius_final"
-    SCALE = "scale"
-    STORE_HISTORY = "store_history"
-    TARGET = "target"
-    VERBOSE = "disp"
+    model: str = Field(
+        description="The path to the model to use for generating completions."
+    )
+    model_alias: Optional[str] = Field(
+        default=None,
+        description="The alias of the model to use for generating completions.",
+    )
+    # Model Params
+    n_gpu_layers: int = Field(
+        default=0,
+        ge=-1,
+        description="The number of layers to put on the GPU. The rest will be on the CPU. Set -1 to move all to GPU.",
+    )
+    split_mode: int = Field(
+        default=llama_cpp.LLAMA_SPLIT_MODE_LAYER,
+        description="The split mode to use.",
+    )
+    main_gpu: int = Field(
+        default=0,
+        ge=0,
+        description="Main GPU to use.",
+    )
+    tensor_split: Optional[List[float]] = Field(
+        default=None,
+        description="Split layers across multiple GPUs in proportion.",
+    )
+    vocab_only: bool = Field(
+        default=False, description="Whether to only return the vocabulary."
+    )
+    use_mmap: bool = Field(
+        default=llama_cpp.llama_supports_mmap(),
+        description="Use mmap.",
+    )
+    use_mlock: bool = Field(
+        default=llama_cpp.llama_supports_mlock(),
+        description="Use mlock.",
+    )
+    kv_overrides: Optional[List[str]] = Field(
+        default=None,
+        description="List of model kv overrides in the format key=type:value where type is one of (bool, int, float). Valid true values are (true, TRUE, 1), otherwise false.",
+    )
+    rpc_servers: Optional[str] = Field(
+        default=None,
+        description="comma separated list of rpc servers for offloading",
+    )
+    # Context Params
+    seed: int = Field(
+        default=llama_cpp.LLAMA_DEFAULT_SEED, description="Random seed. -1 for random."
+    )
+    n_ctx: int = Field(default=2048, ge=0, description="The context size.")
+    n_batch: int = Field(
+        default=512, ge=1, description="The batch size to use per eval."
+    )
+    n_ubatch: int = Field(
+        default=512, ge=1, description="The physical batch size used by llama.cpp"
+    )
+    n_threads: int = Field(
+        default=max(multiprocessing.cpu_count() // 2, 1),
+        ge=1,
+        description="The number of threads to use. Use -1 for max cpu threads",
+    )
+    n_threads_batch: int = Field(
+        default=max(multiprocessing.cpu_count(), 1),
+        ge=0,
+        description="The number of threads to use when batch processing. Use -1 for max cpu threads",
+    )
+    rope_scaling_type: int = Field(
+        default=llama_cpp.LLAMA_ROPE_SCALING_TYPE_UNSPECIFIED
+    )
+    rope_freq_base: float = Field(default=0.0, description="RoPE base frequency")
+    rope_freq_scale: float = Field(
+        default=0.0, description="RoPE frequency scaling factor"
+    )
+    yarn_ext_factor: float = Field(default=-1.0)
+    yarn_attn_factor: float = Field(default=1.0)
+    yarn_beta_fast: float = Field(default=32.0)
+    yarn_beta_slow: float = Field(default=1.0)
+    yarn_orig_ctx: int = Field(default=0)
+    mul_mat_q: bool = Field(
+        default=True, description="if true, use experimental mul_mat_q kernels"
+    )
+    logits_all: bool = Field(default=True, description="Whether to return logits.")
+    embedding: bool = Field(default=False, description="Whether to use embeddings.")
+    offload_kqv: bool = Field(
+        default=True, description="Whether to offload kqv to the GPU."
+    )
+    flash_attn: bool = Field(
+        default=False, description="Whether to use flash attention."
+    )
+    # Sampling Params
+    last_n_tokens_size: int = Field(
+        default=64,
+        ge=0,
+        description="Last n tokens to keep for repeat penalty calculation.",
+    )
+    # LoRA Params
+    lora_base: Optional[str] = Field(
+        default=None,
+        description="Optional path to base model, useful if using a quantized base model and you want to apply LoRA to an f16 model.",
+    )
+    lora_path: Optional[str] = Field(
+        default=None,
+        description="Path to a LoRA file to apply to the model.",
+    )
+    # Backend Params
+    numa: Union[bool, int] = Field(
+        default=False,
+        description="Enable NUMA support.",
+    )
+    # Chat Format Params
+    chat_format: Optional[str] = Field(
+        default=None,
+        description="Chat format to use.",
+    )
+    chat_template_kwargs: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="Extra keyword arguments forwarded to chat templates at model load time. Matches llama.cpp server `chat_template_kwargs`.",
+    )
+    clip_model_path: Optional[str] = Field(
+        default=None,
+        description="Path to a CLIP model to use for multi-modal chat completion.",
+    )
+    # Cache Params
+    cache: bool = Field(
+        default=False,
+        description="Use a cache to reduce processing times for evaluated prompts.",
+    )
+    cache_type: Literal["ram", "disk"] = Field(
+        default="ram",
+        description="The type of cache to use. Only used if cache is True.",
+    )
+    cache_size: int = Field(
+        default=2 << 30,
+        description="The size of the cache in bytes. Only used if cache is True.",
+    )
+    # Tokenizer Options
+    hf_tokenizer_config_path: Optional[str] = Field(
+        default=None,
+        description="The path to a HuggingFace tokenizer_config.json file.",
+    )
+    hf_pretrained_model_name_or_path: Optional[str] = Field(
+        default=None,
+        description="The model name or path to a pretrained HuggingFace tokenizer model. Same as you would pass to AutoTokenizer.from_pretrained().",
+    )
+    # Loading from HuggingFace Model Hub
+    hf_model_repo_id: Optional[str] = Field(
+        default=None,
+        description="The model repo id to use for the HuggingFace tokenizer model.",
+    )
+    # Speculative Decoding
+    draft_model: Optional[str] = Field(
+        default=None,
+        description="Method to use for speculative decoding. One of (prompt-lookup-decoding).",
+    )
+    draft_model_num_pred_tokens: int = Field(
+        default=10,
+        description="Number of tokens to predict using the draft model.",
+    )
+    # KV Cache Quantization
+    type_k: Optional[int] = Field(
+        default=None,
+        description="Type of the key cache quantization.",
+    )
+    type_v: Optional[int] = Field(
+        default=None,
+        description="Type of the value cache quantization.",
+    )
+    # Misc
+    verbose: bool = Field(
+        default=True, description="Whether to print debug information."
+    )
+
+    @model_validator(
+        mode="before"
+    )  # pre=True to ensure this runs before any other validation
+    def set_dynamic_defaults(self) -> Self:
+        # If n_threads or n_threads_batch is -1, set it to multiprocessing.cpu_count()
+        cpu_count = multiprocessing.cpu_count()
+        values = cast(Dict[str, int], self)
+        if values.get("n_threads", 0) == -1:
+            values["n_threads"] = cpu_count
+        if values.get("n_threads_batch", 0) == -1:
+            values["n_threads_batch"] = cpu_count
+        return self
 
 
-class Constants(str, Enum):
-    """
-    Constants.
-    """
+class ServerSettings(BaseSettings):
+    """Server settings used to configure the FastAPI and Uvicorn server."""
 
-    DECREASE_RADIUS_FACTOR = "decrease_radius_factor"
-    INCREASE_RADIUS_FACTOR = "increase_radius_factor"
-    INCREASE_RADIUS_THRESHOLD = "increase_radius_threshold"
-    DECREASE_RADIUS_THRESHOLD = "decrease_radius_threshold"
-    DECREASE_RESOLUTION_FACTOR = "decrease_resolution_factor"
-    LARGE_RESOLUTION_THRESHOLD = "large_resolution_threshold"
-    MODERATE_RESOLUTION_THRESHOLD = "moderate_resolution_threshold"
-    LOW_RATIO = "low_ratio"
-    HIGH_RATIO = "high_ratio"
-    VERY_LOW_RATIO = "very_low_ratio"
-    PENALTY_INCREASE_THRESHOLD = "penalty_increase_threshold"
-    PENALTY_INCREASE_FACTOR = "penalty_increase_factor"
-    SHORT_STEP_THRESHOLD = "short_step_threshold"
-    LOW_RADIUS_FACTOR = "low_radius_factor"
-    BYRD_OMOJOKUN_FACTOR = "byrd_omojokun_factor"
-    THRESHOLD_RATIO_CONSTRAINTS = "threshold_ratio_constraints"
-    LARGE_SHIFT_FACTOR = "large_shift_factor"
-    LARGE_GRADIENT_FACTOR = "large_gradient_factor"
-    RESOLUTION_FACTOR = "resolution_factor"
-    IMPROVE_TCG = "improve_tcg"
+    # Uvicorn Settings
+    host: str = Field(default="localhost", description="Listen address")
+    port: int = Field(default=8000, description="Listen port")
+    ssl_keyfile: Optional[str] = Field(
+        default=None, description="SSL key file for HTTPS"
+    )
+    ssl_certfile: Optional[str] = Field(
+        default=None, description="SSL certificate file for HTTPS"
+    )
+    # FastAPI Settings
+    api_key: Optional[str] = Field(
+        default=None,
+        description="API key for authentication. If set all requests need to be authenticated.",
+    )
+    interrupt_requests: bool = Field(
+        default=True,
+        description="Whether to interrupt requests when a new request is received.",
+    )
+    disable_ping_events: bool = Field(
+        default=False,
+        description="Disable EventSource pings (may be needed for some clients).",
+    )
+    root_path: str = Field(
+        default="",
+        description="The root path for the server. Useful when running behind a reverse proxy.",
+    )
 
 
-# Default options.
-DEFAULT_OPTIONS = {
-    Options.DEBUG.value: False,
-    Options.FEASIBILITY_TOL.value: np.sqrt(np.finfo(float).eps),
-    Options.FILTER_SIZE.value: sys.maxsize,
-    Options.HISTORY_SIZE.value: sys.maxsize,
-    Options.MAX_EVAL.value: lambda n: 500 * n,
-    Options.MAX_ITER.value: lambda n: 1000 * n,
-    Options.NPT.value: lambda n: 2 * n + 1,
-    Options.RHOBEG.value: 1.0,
-    Options.RHOEND.value: 1e-6,
-    Options.SCALE.value: False,
-    Options.STORE_HISTORY.value: False,
-    Options.TARGET.value: -np.inf,
-    Options.VERBOSE.value: False,
-}
+class Settings(ServerSettings, ModelSettings):
+    pass
 
-# Default constants.
-DEFAULT_CONSTANTS = {
-    Constants.DECREASE_RADIUS_FACTOR.value: 0.5,
-    Constants.INCREASE_RADIUS_FACTOR.value: np.sqrt(2.0),
-    Constants.INCREASE_RADIUS_THRESHOLD.value: 2.0,
-    Constants.DECREASE_RADIUS_THRESHOLD.value: 1.4,
-    Constants.DECREASE_RESOLUTION_FACTOR.value: 0.1,
-    Constants.LARGE_RESOLUTION_THRESHOLD.value: 250.0,
-    Constants.MODERATE_RESOLUTION_THRESHOLD.value: 16.0,
-    Constants.LOW_RATIO.value: 0.1,
-    Constants.HIGH_RATIO.value: 0.7,
-    Constants.VERY_LOW_RATIO.value: 0.01,
-    Constants.PENALTY_INCREASE_THRESHOLD.value: 1.5,
-    Constants.PENALTY_INCREASE_FACTOR.value: 2.0,
-    Constants.SHORT_STEP_THRESHOLD.value: 0.5,
-    Constants.LOW_RADIUS_FACTOR.value: 0.1,
-    Constants.BYRD_OMOJOKUN_FACTOR.value: 0.8,
-    Constants.THRESHOLD_RATIO_CONSTRAINTS.value: 2.0,
-    Constants.LARGE_SHIFT_FACTOR.value: 10.0,
-    Constants.LARGE_GRADIENT_FACTOR.value: 10.0,
-    Constants.RESOLUTION_FACTOR.value: 2.0,
-    Constants.IMPROVE_TCG.value: True,
-}
 
-# Printing options.
-PRINT_OPTIONS = {
-    "threshold": 6,
-    "edgeitems": 2,
-    "linewidth": sys.maxsize,
-    "formatter": {
-        "float_kind": lambda x: np.format_float_scientific(
-            x,
-            precision=3,
-            unique=False,
-            pad_left=2,
-        )
-    },
-}
+class ConfigFileSettings(ServerSettings):
+    """Configuration file format settings."""
 
-# Constants.
-BARRIER = 2.0 ** min(
-    100,
-    np.finfo(float).maxexp // 2,
-    -np.finfo(float).minexp // 2,
-)
+    models: List[ModelSettings] = Field(default=[], description="Model configs")

@@ -833,6 +833,42 @@
     });
 
     loadHistory();
-  </script>
+  
+    function startPocketVoice() {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            alert("El navegador no soporta control por voz.");
+            return;
+        }
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'es-ES';
+        recognition.interimResults = false;
+        
+        recognition.onstart = function() {
+            if(typeof showToast === "function") showToast("Escuchando...");
+            else alert("Escuchando (Voz Activa)...");
+        };
+        
+        recognition.onresult = function(event) {
+            const transcript = event.results[0][0].transcript;
+            
+            // Intenta pasarlo al backend local del pocket daemon
+            fetch('/api/command', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({command: transcript})
+            }).then(res => res.json()).then(data => {
+                if(typeof showToast === "function") showToast("Comando de voz enviado.");
+            }).catch(e => {
+                // Copia al portapapeles
+                navigator.clipboard.writeText(transcript);
+                if(typeof showToast === "function") showToast("Copiado al portapapeles: " + transcript);
+                else alert("Copiado: " + transcript);
+            });
+        };
+        recognition.start();
+    }
+</script>
+
 </body>
 </html>

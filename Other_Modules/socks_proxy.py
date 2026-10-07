@@ -16,7 +16,7 @@ from .connection_pool import AsyncConnectionPool
 from .http11 import AsyncHTTP11Connection
 from .interfaces import AsyncConnectionInterface
 
-logger = logging.getLogger("httpcore.socks")
+logger = logging.getLogger("httpcore2.socks")
 
 
 AUTH_METHODS = {
@@ -45,7 +45,11 @@ async def _init_socks5_connection(
     host: bytes,
     port: int,
     auth: tuple[bytes, bytes] | None = None,
+    timeouts: dict[str, float | None] | None = None,
 ) -> None:
+    timeouts = timeouts or {}
+    write_timeout = timeouts.get("write", None)
+    read_timeout = timeouts.get("read", None)
     conn = socksio.socks5.SOCKS5Connection()
 
     # Auth method request
@@ -56,18 +60,16 @@ async def _init_socks5_connection(
     )
     conn.send(socksio.socks5.SOCKS5AuthMethodsRequest([auth_method]))
     outgoing_bytes = conn.data_to_send()
-    await stream.write(outgoing_bytes)
+    await stream.write(outgoing_bytes, timeout=write_timeout)
 
     # Auth method response
-    incoming_bytes = await stream.read(max_bytes=4096)
+    incoming_bytes = await stream.read(max_bytes=4096, timeout=read_timeout)
     response = conn.receive_data(incoming_bytes)
     assert isinstance(response, socksio.socks5.SOCKS5AuthReply)
     if response.method != auth_method:
         requested = AUTH_METHODS.get(auth_method, "UNKNOWN")
         responded = AUTH_METHODS.get(response.method, "UNKNOWN")
-        raise ProxyError(
-            f"Requested {requested} from proxy server, but got {responded}."
-        )
+        raise ProxyError(f"Requested {requested} from proxy server, but got {responded}.")
 
     if response.method == socksio.socks5.SOCKS5AuthMethod.USERNAME_PASSWORD:
         # Username/password request
@@ -75,26 +77,22 @@ async def _init_socks5_connection(
         username, password = auth
         conn.send(socksio.socks5.SOCKS5UsernamePasswordRequest(username, password))
         outgoing_bytes = conn.data_to_send()
-        await stream.write(outgoing_bytes)
+        await stream.write(outgoing_bytes, timeout=write_timeout)
 
         # Username/password response
-        incoming_bytes = await stream.read(max_bytes=4096)
+        incoming_bytes = await stream.read(max_bytes=4096, timeout=read_timeout)
         response = conn.receive_data(incoming_bytes)
         assert isinstance(response, socksio.socks5.SOCKS5UsernamePasswordReply)
         if not response.success:
             raise ProxyError("Invalid username/password")
 
     # Connect request
-    conn.send(
-        socksio.socks5.SOCKS5CommandRequest.from_address(
-            socksio.socks5.SOCKS5Command.CONNECT, (host, port)
-        )
-    )
+    conn.send(socksio.socks5.SOCKS5CommandRequest.from_address(socksio.socks5.SOCKS5Command.CONNECT, (host, port)))
     outgoing_bytes = conn.data_to_send()
-    await stream.write(outgoing_bytes)
+    await stream.write(outgoing_bytes, timeout=write_timeout)
 
     # Connect response
-    incoming_bytes = await stream.read(max_bytes=4096)
+    incoming_bytes = await stream.read(max_bytes=4096, timeout=read_timeout)
     response = conn.receive_data(incoming_bytes)
     assert isinstance(response, socksio.socks5.SOCKS5Reply)
     if response.reply_code != socksio.socks5.SOCKS5ReplyCode.SUCCEEDED:
@@ -102,7 +100,7 @@ async def _init_socks5_connection(
         raise ProxyError(f"Proxy Server could not connect: {reply_code}.")
 
 
-class AsyncSOCKSProxy(AsyncConnectionPool):  # pragma: nocover
+class AsyncSOCKSProxy(AsyncConnectionPool):  # pragma: no cover
     """
     A connection pool that sends requests via an HTTP proxy.
     """
@@ -127,7 +125,7 @@ class AsyncSOCKSProxy(AsyncConnectionPool):  # pragma: nocover
             proxy_url: The URL to use when connecting to the proxy server.
                 For example `"http://REDACTED_IP:8080/"`.
             ssl_context: An SSL context to use for verifying connections.
-                If not specified, the default `httpcore.default_ssl_context()`
+                If not specified, the default `httpcore2.default_ssl_context()`
                 will be used.
             max_connections: The maximum number of concurrent HTTP connections that
                 the pool should allow. Any attempt to send a request on a pool that
@@ -206,9 +204,7 @@ class AsyncSocks5Connection(AsyncConnectionInterface):
         self._http1 = http1
         self._http2 = http2
 
-        self._network_backend: AsyncNetworkBackend = (
-            AutoBackend() if network_backend is None else network_backend
-        )
+        self._network_backend: AsyncNetworkBackend = AutoBackend() if network_backend is None else network_backend
         self._connect_lock = AsyncLock()
         self._connection: AsyncConnectionInterface | None = None
         self._connect_failed = False
@@ -237,29 +233,23 @@ class AsyncSocks5Connection(AsyncConnectionInterface):
                         "host": self._remote_origin.host.decode("ascii"),
                         "port": self._remote_origin.port,
                         "auth": self._proxy_auth,
+                        "timeouts": timeouts,
                     }
-                    async with Trace(
-                        "setup_socks5_connection", logger, request, kwargs
-                    ) as trace:
+                    async with Trace("setup_socks5_connection", logger, request, kwargs) as trace:
                         await _init_socks5_connection(**kwargs)
                         trace.return_value = stream
 
                     # Upgrade the stream to SSL
-                    if self._remote_origin.scheme == b"https":
-                        ssl_context = (
-                            default_ssl_context()
-                            if self._ssl_context is None
-                            else self._ssl_context
-                        )
+                    if self._remote_origin.scheme in (b"https", b"wss"):
+                        ssl_context = default_ssl_context() if self._ssl_context is None else self._ssl_context
                         alpn_protocols = (
-                            ["http/1.1", "h2"] if self._http2 else ["http/1.1"]
+                            (["h2", "http/1.1"] if self._http1 else ["h2"]) if self._http2 else ["http/1.1"]
                         )
                         ssl_context.set_alpn_protocols(alpn_protocols)
 
                         kwargs = {
                             "ssl_context": ssl_context,
-                            "server_hostname": sni_hostname
-                            or self._remote_origin.host.decode("ascii"),
+                            "server_hostname": sni_hostname or self._remote_origin.host.decode("ascii"),
                             "timeout": timeout,
                         }
                         async with Trace("start_tls", logger, request, kwargs) as trace:
@@ -268,15 +258,10 @@ class AsyncSocks5Connection(AsyncConnectionInterface):
 
                     # Determine if we should be using HTTP/1.1 or HTTP/2
                     ssl_object = stream.get_extra_info("ssl_object")
-                    http2_negotiated = (
-                        ssl_object is not None
-                        and ssl_object.selected_alpn_protocol() == "h2"
-                    )
+                    http2_negotiated = ssl_object is not None and ssl_object.selected_alpn_protocol() == "h2"
 
                     # Create the HTTP/1.1 or HTTP/2 connection
-                    if http2_negotiated or (
-                        self._http2 and not self._http1
-                    ):  # pragma: nocover
+                    if http2_negotiated or (self._http2 and not self._http1):  # pragma: no cover
                         from .http2 import AsyncHTTP2Connection
 
                         self._connection = AsyncHTTP2Connection(
@@ -293,7 +278,7 @@ class AsyncSocks5Connection(AsyncConnectionInterface):
                 except Exception as exc:
                     self._connect_failed = True
                     raise exc
-            elif not self._connection.is_available():  # pragma: nocover
+            elif not self._connection.is_available():  # pragma: no cover
                 raise ConnectionNotAvailable()
 
         return await self._connection.handle_async_request(request)
@@ -305,35 +290,36 @@ class AsyncSocks5Connection(AsyncConnectionInterface):
         if self._connection is not None:
             await self._connection.aclose()
 
+    def is_connected(self) -> bool:
+        return self._connection is not None and self._connection.is_connected()
+
     def is_available(self) -> bool:
-        if self._connection is None:  # pragma: nocover
+        if self._connection is None:  # pragma: no cover
             # If HTTP/2 support is enabled, and the resulting connection could
             # end up as HTTP/2 then we should indicate the connection as being
             # available to service multiple requests.
             return (
-                self._http2
-                and (self._remote_origin.scheme == b"https" or not self._http1)
-                and not self._connect_failed
+                self._http2 and (self._remote_origin.scheme == b"https" or not self._http1) and not self._connect_failed
             )
         return self._connection.is_available()
 
     def has_expired(self) -> bool:
-        if self._connection is None:  # pragma: nocover
+        if self._connection is None:  # pragma: no cover
             return self._connect_failed
         return self._connection.has_expired()
 
     def is_idle(self) -> bool:
-        if self._connection is None:  # pragma: nocover
+        if self._connection is None:  # pragma: no cover
             return self._connect_failed
         return self._connection.is_idle()
 
     def is_closed(self) -> bool:
-        if self._connection is None:  # pragma: nocover
+        if self._connection is None:  # pragma: no cover
             return self._connect_failed
         return self._connection.is_closed()
 
     def info(self) -> str:
-        if self._connection is None:  # pragma: nocover
+        if self._connection is None:  # pragma: no cover
             return "CONNECTION FAILED" if self._connect_failed else "CONNECTING"
         return self._connection.info()
 

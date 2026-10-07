@@ -79,6 +79,34 @@
     }
 
     probeAndLaunch();
-  </script>
+  
+    function startTerminalVoice() {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            alert("El navegador no soporta voz.");
+            return;
+        }
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'es-ES';
+        recognition.onstart = () => {
+            const btn = document.getElementById("voiceBtn");
+            if(btn) btn.innerText = "Escuchando...";
+        };
+        recognition.onresult = (event) => {
+            const btn = document.getElementById("voiceBtn");
+            if(btn) btn.innerText = "🎤 Usar Control por Voz";
+            const transcript = event.results[0][0].transcript;
+            
+            navigator.clipboard.writeText(transcript);
+            alert("Texto copiado para pegar en la terminal: " + transcript);
+        };
+        recognition.onerror = () => {
+            const btn = document.getElementById("voiceBtn");
+            if(btn) btn.innerText = "🎤 Usar Control por Voz";
+        };
+        recognition.start();
+    }
+</script>
+
 </body>
 </html>

@@ -1,247 +1,129 @@
+from __future__ import annotations
+
+import argparse
 import json
-import os
-import shlex
-import sys
-from contextlib import contextmanager
-from typing import IO, Any, Dict, Iterator, List, Optional
 
-if sys.platform == "win32":
-    from subprocess import Popen
+from typing import List, Literal, Union, Any, Type, TypeVar, Dict
 
-try:
-    import click
-except ImportError:
-    sys.stderr.write(
-        "It seems python-dotenv is not installed with cli option. \n"
-        'Run pip install "python-dotenv[cli]" to fix this.'
-    )
-    sys.exit(1)
-
-from .main import dotenv_values, set_key, unset_key
-from .version import __version__
+from pydantic import BaseModel
 
 
-def enumerate_env() -> Optional[str]:
-    """
-    Return a path for the ${pwd}/.env file.
-
-    If pwd does not exist, return None.
-    """
-    try:
-        cwd = os.getcwd()
-    except FileNotFoundError:
-        return None
-    path = os.path.join(cwd, ".env")
-    return path
-
-
-@click.group()
-@click.option(
-    "-f",
-    "--file",
-    default=enumerate_env(),
-    type=click.Path(file_okay=True),
-    help="Location of the .env file, defaults to .env file in current working directory.",
-)
-@click.option(
-    "-q",
-    "--quote",
-    default="always",
-    type=click.Choice(["always", "never", "auto"]),
-    help="Whether to quote or not the variable values. Default mode is always. This does not affect parsing.",
-)
-@click.option(
-    "-e",
-    "--export",
-    default=False,
-    type=click.BOOL,
-    help="Whether to write the dot file as an executable bash script.",
-)
-@click.version_option(version=__version__)
-@click.pass_context
-def cli(ctx: click.Context, file: Any, quote: Any, export: Any) -> None:
-    """This script is used to set, get or unset values from a .env file."""
-    ctx.obj = {"QUOTE": quote, "EXPORT": export, "FILE": file}
+def _get_base_type(annotation: Type[Any]) -> Type[Any]:
+    if getattr(annotation, "__origin__", None) is Literal:
+        assert hasattr(annotation, "__args__") and len(annotation.__args__) >= 1  # type: ignore
+        return type(annotation.__args__[0])  # type: ignore
+    elif getattr(annotation, "__origin__", None) is Union:
+        assert hasattr(annotation, "__args__") and len(annotation.__args__) >= 1  # type: ignore
+        non_optional_args: List[Type[Any]] = [
+            arg
+            for arg in annotation.__args__
+            if arg is not type(None)  # type: ignore
+        ]
+        if non_optional_args:
+            return _get_base_type(non_optional_args[0])
+    elif (
+        getattr(annotation, "__origin__", None) is list
+        or getattr(annotation, "__origin__", None) is List
+    ):
+        assert hasattr(annotation, "__args__") and len(annotation.__args__) >= 1  # type: ignore
+        return _get_base_type(annotation.__args__[0])  # type: ignore
+    return annotation
 
 
-@contextmanager
-def stream_file(path: os.PathLike) -> Iterator[IO[str]]:
-    """
-    Open a file and yield the corresponding (decoded) stream.
+def _contains_list_type(annotation: Type[Any] | None) -> bool:
+    origin = getattr(annotation, "__origin__", None)
 
-    Exits with error code 2 if the file cannot be opened.
-    """
-
-    try:
-        with open(path) as stream:
-            yield stream
-    except OSError as exc:
-        print(f"Error opening env file: {exc}", file=sys.stderr)
-        sys.exit(2)
-
-
-@cli.command(name="list")
-@click.pass_context
-@click.option(
-    "--format",
-    "output_format",
-    default="simple",
-    type=click.Choice(["simple", "json", "shell", "export"]),
-    help="The format in which to display the list. Default format is simple, "
-    "which displays name=value without quotes.",
-)
-def list_values(ctx: click.Context, output_format: str) -> None:
-    """Display all the stored key/value."""
-    file = ctx.obj["FILE"]
-
-    with stream_file(file) as stream:
-        values = dotenv_values(stream=stream)
-
-    if output_format == "json":
-        click.echo(json.dumps(values, indent=2, sort_keys=True))
+    if origin is list or origin is List:
+        return True
+    elif origin in (Literal, Union):
+        return any(_contains_list_type(arg) for arg in annotation.__args__)  # type: ignore
     else:
-        prefix = "export " if output_format == "export" else ""
-        for k in sorted(values):
-            v = values[k]
-            if v is not None:
-                if output_format in ("export", "shell"):
-                    v = shlex.quote(v)
-                click.echo(f"{prefix}{k}={v}")
+        return False
 
 
-@cli.command(name="set")
-@click.pass_context
-@click.argument("key", required=True)
-@click.argument("value", required=True)
-def set_value(ctx: click.Context, key: Any, value: Any) -> None:
-    """
-    Store the given key/value.
+def _contains_dict_type(annotation: Type[Any] | None) -> bool:
+    origin = getattr(annotation, "__origin__", None)
 
-    This doesn't follow symlinks, to avoid accidentally modifying a file at a
-    potentially untrusted path.
-    """
-
-    file = ctx.obj["FILE"]
-    quote = ctx.obj["QUOTE"]
-    export = ctx.obj["EXPORT"]
-    success, key, value = set_key(file, key, value, quote, export)
-    if success:
-        click.echo(f"{key}={value}")
+    if origin is dict or origin is Dict:
+        return True
+    elif origin in (Literal, Union):
+        return any(_contains_dict_type(arg) for arg in annotation.__args__)  # type: ignore
     else:
-        sys.exit(1)
+        return False
 
 
-@cli.command()
-@click.pass_context
-@click.argument("key", required=True)
-def get(ctx: click.Context, key: Any) -> None:
-    """Retrieve the value for the given key."""
-    file = ctx.obj["FILE"]
+def _parse_bool_arg(arg: str | bytes | bool) -> bool:
+    if isinstance(arg, bytes):
+        arg = arg.decode("utf-8")
 
-    with stream_file(file) as stream:
-        values = dotenv_values(stream=stream)
+    true_values = {"1", "on", "t", "true", "y", "yes"}
+    false_values = {"0", "off", "f", "false", "n", "no"}
 
-    stored_value = values.get(key)
-    if stored_value:
-        click.echo(stored_value)
+    arg_str = str(arg).lower().strip()
+
+    if arg_str in true_values:
+        return True
+    elif arg_str in false_values:
+        return False
     else:
-        sys.exit(1)
+        raise ValueError(f"Invalid boolean argument: {arg}")
 
 
-@cli.command()
-@click.pass_context
-@click.argument("key", required=True)
-def unset(ctx: click.Context, key: Any) -> None:
-    """
-    Removes the given key.
+def _parse_json_object_arg(arg: str | bytes) -> dict[str, Any]:
+    if isinstance(arg, bytes):
+        arg = arg.decode("utf-8")
 
-    This doesn't follow symlinks, to avoid accidentally modifying a file at a
-    potentially untrusted path.
-    """
-    file = ctx.obj["FILE"]
-    quote = ctx.obj["QUOTE"]
-    success, key = unset_key(file, key, quote)
-    if success:
-        click.echo(f"Successfully removed {key}")
-    else:
-        sys.exit(1)
+    value = json.loads(arg)
+    if not isinstance(value, dict):
+        raise ValueError(f"Invalid JSON object argument: {arg}")
+    return value
 
 
-@cli.command(
-    context_settings={
-        "allow_extra_args": True,
-        "allow_interspersed_args": False,
-        "ignore_unknown_options": True,
-    }
-)
-@click.pass_context
-@click.option(
-    "--override/--no-override",
-    default=True,
-    help="Override variables from the environment file with those from the .env file.",
-)
-@click.argument("commandline", nargs=-1, type=click.UNPROCESSED)
-def run(ctx: click.Context, override: bool, commandline: tuple[str, ...]) -> None:
-    """Run command with environment variables present."""
-    file = ctx.obj["FILE"]
-    if not os.path.isfile(file):
-        raise click.BadParameter(
-            f"Invalid value for '-f' \"{file}\" does not exist.", ctx=ctx
+def add_args_from_model(parser: argparse.ArgumentParser, model: Type[BaseModel]):
+    """Add arguments from a pydantic model to an argparse parser."""
+
+    for name, field in model.model_fields.items():
+        description = field.description
+        if description and not field.is_required() and field.default is not None:
+            description += f" (default: {field.default})"
+        base_type = (
+            _get_base_type(field.annotation) if field.annotation is not None else str
         )
-    dotenv_as_dict = {
-        k: v
-        for (k, v) in dotenv_values(file).items()
-        if v is not None and (override or k not in os.environ)
-    }
-
-    if not commandline:
-        click.echo("No command given.")
-        sys.exit(1)
-
-    run_command([*commandline, *ctx.args], dotenv_as_dict)
-
-
-def run_command(command: List[str], env: Dict[str, str]) -> None:
-    """Replace the current process with the specified command.
-
-    Replaces the current process with the specified command and the variables from `env`
-    added in the current environment variables.
-
-    Parameters
-    ----------
-    command: List[str]
-        The command and it's parameters
-    env: Dict
-        The additional environment variables
-
-    Returns
-    -------
-    None
-        This function does not return any value. It replaces the current process with the new one.
-
-    """
-    # copy the current environment variables and add the vales from
-    # `env`
-    cmd_env = os.environ.copy()
-    cmd_env.update(env)
-
-    if sys.platform == "win32":
-        # execvpe on Windows returns control immediately
-        # rather than once the command has finished.
-        try:
-            p = Popen(
-                command, universal_newlines=True, bufsize=0, shell=False, env=cmd_env
+        list_type = _contains_list_type(field.annotation)
+        dict_type = _contains_dict_type(field.annotation)
+        if dict_type:
+            parser.add_argument(
+                f"--{name}",
+                dest=name,
+                type=_parse_json_object_arg,
+                help=description,
             )
-        except FileNotFoundError:
-            print(f"Command not found: {command[0]}", file=sys.stderr)
-            sys.exit(1)
+        elif base_type is not bool:
+            parser.add_argument(
+                f"--{name}",
+                dest=name,
+                nargs="*" if list_type else None,
+                type=base_type,
+                help=description,
+            )
+        if base_type is bool:
+            parser.add_argument(
+                f"--{name}",
+                dest=name,
+                type=_parse_bool_arg,
+                help=f"{description}",
+            )
 
-        _, _ = p.communicate()
 
-        sys.exit(p.returncode)
-    else:
-        try:
-            os.execvpe(command[0], args=command, env=cmd_env)
-        except FileNotFoundError:
-            print(f"Command not found: {command[0]}", file=sys.stderr)
-            sys.exit(1)
+T = TypeVar("T", bound=Type[BaseModel])
+
+
+def parse_model_from_args(model: T, args: argparse.Namespace) -> T:
+    """Parse a pydantic model from an argparse namespace."""
+    return model(
+        **{
+            k: v
+            for k, v in vars(args).items()
+            if v is not None and k in model.model_fields
+        }
+    )

@@ -1,192 +1,290 @@
-import pyjsparser
-import pyjsparser.parser
-from . import translating_nodes
+import argparse
+import ast
+import builtins
+import inspect
+from dataclasses import dataclass, field
+from types import FunctionType, ModuleType
+from typing import Any, cast
 
-import hashlib
-import re
-
-# Enable Js2Py exceptions and pyimport in parser
-pyjsparser.parser.ENABLE_PYIMPORT = True
-
-# the re below is how we'll recognise numeric constants.
-# it finds any 'simple numeric that is not preceded with an alphanumeric character
-# the numeric can be a float (so a dot is found) but
-# it does not recognise notation such as 123e5, 0xFF, infinity or NaN
-CP_NUMERIC_RE = re.compile(r'(?<![a-zA-Z0-9_"\'])([0-9\.]+)')
-CP_NUMERIC_PLACEHOLDER = '__PyJsNUM_%i_PyJsNUM__'
-CP_NUMERIC_PLACEHOLDER_REVERSE_RE = re.compile(
-    CP_NUMERIC_PLACEHOLDER.replace('%i', r'([0-9\.]+)'))
-
-# the re below is how we'll recognise string constants
-# it finds a ' or ", then reads until the next matching ' or "
-# this re only services simple cases, it can not be used when
-# there are escaped quotes in the expression
-
-#CP_STRING_1 = re.compile(r'(["\'])(.*?)\1') # this is how we'll recognise string constants
-
-CP_STRING = '"([^\\\\"]+|\\\\([bfnrtv\'"\\\\]|[0-3]?[0-7]{1,2}|x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4}))*"|\'([^\\\\\']+|\\\\([bfnrtv\'"\\\\]|[0-3]?[0-7]{1,2}|x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4}))*\''
-CP_STRING_RE = re.compile(
-    CP_STRING)  # this is how we'll recognise string constants
-CP_STRING_PLACEHOLDER = '__PyJsSTR_%i_PyJsSTR__'
-CP_STRING_PLACEHOLDER_REVERSE_RE = re.compile(
-    CP_STRING_PLACEHOLDER.replace('%i', r'([0-9\.]+)'))
-
-cache = {}
-
-# This crap is still needed but I removed it for speed reasons. Have to think ofa  better idea
-# import js2py.pyjs, sys
-# # Redefine builtin objects... Do you have a better idea?
-# for m in list(sys.modules):
-# 	if m.startswith('js2py'):
-# 		del sys.modules[m]
-# del js2py.pyjs
-# del js2py
-
-DEFAULT_HEADER = u'''from js2py.pyjs import *
-# setting scope
-var = Scope( JS_BUILTINS )
-set_global_object(var)
-
-# Code follows:
-'''
+import triton.language as tl  # type: ignore[import-untyped]
+from triton.runtime.jit import JITCallable, JITFunction  # type: ignore[import-untyped]
+from triton.tools.triton_to_gluon_translator.ordered_set import ordered_set
+from triton.tools.triton_to_gluon_translator.scoped_dict import scoped_dict
+from triton.tools.triton_to_gluon_translator.slice_kernel import (
+    GlobalValue,
+    ReferenceRewriter,
+    RewriteFn,
+    add_sugar_rewrites,
+    find_references,
+    get_base_value,
+    is_submodule,
+    mangle_reference_names,
+    parse_expr,
+)
+from triton.tools.triton_to_gluon_translator.target import TranslatorTarget
+from triton.tools.triton_to_gluon_translator.stable_toposort import stable_toposort
 
 
-def dbg(x):
-    """does nothing, legacy dummy function"""
-    return ''
+def one_to_one_rewrite(obj: Any) -> RewriteFn:
 
-# Another way of doing that would be with my auto esprima translation but its much slower:
-# parsed = esprima.parse(js).to_dict()
-def pyjsparser_parse_fn(code):
-    parser = pyjsparser.PyJsParser()
-    return parser.parse(code)
+    def rewrite(global_value: GlobalValue, imports: ordered_set[str]) -> ast.AST | None:
+        if global_value.original_value is obj:
+            return ast.Attribute(value=ast.Name(id="gl", ctx=ast.Load()), attr=obj.__name__, ctx=ast.Load())
+        return None
 
-def translate_js(js, HEADER=DEFAULT_HEADER, use_compilation_plan=False, parse_fn=pyjsparser_parse_fn):
-    """js has to be a javascript source code.
-       returns equivalent python code."""
-    if use_compilation_plan and not '//' in js and not '/*' in js:
-        return translate_js_with_compilation_plan(js, HEADER=HEADER)
-
-    parsed = parse_fn(js)
-    translating_nodes.clean_stacks()
-    return HEADER + translating_nodes.trans(
-        parsed)  # syntax tree to python code
+    return rewrite
 
 
-class match_unumerator(object):
-    """This class ise used """
-    matchcount = -1
+def add_one_to_one_rewrites(rewrites: list[RewriteFn]) -> None:
+    import triton.experimental.gluon.language as gl  # type: ignore[import-untyped]
 
-    def __init__(self, placeholder_mask):
-        self.placeholder_mask = placeholder_mask
-        self.matches = []
-
-    def __call__(self, match):
-        self.matchcount += 1
-        self.matches.append(match.group(0))
-        return self.placeholder_mask % self.matchcount
-
-    def __repr__(self):
-        return '\n'.join(self.placeholder_mask % counter + '=' + match
-                         for counter, match in enumerate(self.matches))
-
-    def wrap_up(self, output):
-        for counter, value in enumerate(self.matches):
-            output = output.replace(
-                "u'" + self.placeholder_mask % (counter) + "'", value, 1)
-        return output
-
-
-def get_compilation_plan(js):
-    match_increaser_str = match_unumerator(CP_STRING_PLACEHOLDER)
-    compilation_plan = re.sub(CP_STRING, match_increaser_str, js)
-
-    match_increaser_num = match_unumerator(CP_NUMERIC_PLACEHOLDER)
-    compilation_plan = re.sub(CP_NUMERIC_RE, match_increaser_num,
-                              compilation_plan)
-    # now put quotes, note that just patching string replaces is somewhat faster than
-    # using another re:
-    compilation_plan = compilation_plan.replace(
-        '__PyJsNUM_', '"__PyJsNUM_').replace('_PyJsNUM__', '_PyJsNUM__"')
-    compilation_plan = compilation_plan.replace(
-        '__PyJsSTR_', '"__PyJsSTR_').replace('_PyJsSTR__', '_PyJsSTR__"')
-
-    return match_increaser_str, match_increaser_num, compilation_plan
+    for value in vars(gl).values():
+        module = inspect.getmodule(value)
+        if module is None:
+            continue
+        if getattr(value, "__triton_builtin__", False) and is_submodule(module, ["triton.language"]):
+            tl_value = getattr(tl, value.__name__, None)
+            if tl_value is None:
+                tl_value = getattr(tl.core, value.__name__, None)
+            if tl_value is None:
+                continue
+            rewrites.append(one_to_one_rewrite(tl_value))
+        elif isinstance(value, JITFunction):
+            tl_value = getattr(tl, value.fn.__name__, None)
+            if tl_value is None:
+                tl_value = getattr(tl.standard, value.fn.__name__, None)
+            if tl_value is None:
+                continue
+            assert isinstance(tl_value, JITFunction) and value is not tl_value
+            if value.fn is tl_value.fn:
+                rewrites.append(one_to_one_rewrite(tl_value))
 
 
-def translate_js_with_compilation_plan(js, HEADER=DEFAULT_HEADER):
-    """js has to be a javascript source code.
-       returns equivalent python code.
+def translator_helper_rewrite(obj: Any, helper_name: str) -> RewriteFn:
 
-       compile plans only work with the following restrictions:
-       - only enabled for oneliner expressions
-       - when there are comments in the js code string substitution is disabled
-       - when there nested escaped quotes string substitution is disabled, so
+    def rewrite(global_value: GlobalValue, imports: ordered_set[str]) -> ast.AST | None:
+        if global_value.original_value is obj:
+            return ast.Attribute(value=ast.Name(id="helpers", ctx=ast.Load()), attr=helper_name, ctx=ast.Load())
+        return None
 
-       cacheable:
-       Q1 == 1 && name == 'harry'
-
-       not cacheable:
-       Q1 == 1 && name == 'harry' // some comment
-
-       not cacheable:
-       Q1 == 1 && name == 'o\'Reilly'
-
-       not cacheable:
-       Q1 == 1 && name /* some comment */ == 'o\'Reilly'
-       """
-
-    match_increaser_str, match_increaser_num, compilation_plan = get_compilation_plan(
-        js)
-
-    cp_hash = hashlib.md5(compilation_plan.encode('utf-8')).digest()
-    try:
-        python_code = cache[cp_hash]['proto_python_code']
-    except:
-        parser = pyjsparser.PyJsParser()
-        parsed = parser.parse(compilation_plan)  # js to esprima syntax tree
-        # Another way of doing that would be with my auto esprima translation but its much slower and causes import problems:
-        # parsed = esprima.parse(js).to_dict()
-        translating_nodes.clean_stacks()
-        python_code = translating_nodes.trans(
-            parsed)  # syntax tree to python code
-        cache[cp_hash] = {
-            'compilation_plan': compilation_plan,
-            'proto_python_code': python_code,
-        }
-
-    python_code = match_increaser_str.wrap_up(python_code)
-    python_code = match_increaser_num.wrap_up(python_code)
-
-    return HEADER + python_code
+    return rewrite
 
 
-def trasnlate(js, HEADER=DEFAULT_HEADER):
-    """js has to be a javascript source code.
-       returns equivalent python code.
+def add_translator_helper_rewrites(rewrites: list[RewriteFn]) -> None:
+    remap: list[tuple[Any, str]] = [
+        (tl.arange, "tl_arange"),
+        (tl.full, "tl_full"),
+        (tl.trans, "tl_trans"),
+        (tl.cat, "tl_cat"),
+        (tl.dot, "tl_dot"),
+        (tl.dot_scaled, "tl_dot_scaled"),
+        (tl.make_tensor_descriptor, "tl_make_tensor_descriptor"),
+        (tl.load_tensor_descriptor, "tl_load_tensor_descriptor"),
+        (tl.store_tensor_descriptor, "tl_store_tensor_descriptor"),
+    ]
+    if (tl_cuda := getattr(tl.extra, "cuda", None)) is not None:
+        remap.append((tl_cuda.num_threads, "get_num_threads_per_program"))
+    for value, helper_name in remap:
+        rewrites.append(translator_helper_rewrite(value, helper_name))
 
-       Equivalent to translate_js"""
-    return translate_js(js, HEADER)
+
+def expr_rewrite(obj: Any, expr: str) -> RewriteFn:
+
+    def rewrite(value: GlobalValue, imports: ordered_set[str]) -> ast.AST | None:
+        if value.original_value is obj:
+            return parse_expr(expr)
+        return None
+
+    return rewrite
 
 
-syntax_tree_translate = translating_nodes.trans
+def add_expr_rewrites(rewrites: list[RewriteFn]) -> None:
+    import triton
+    import triton.language as tl
 
-if __name__ == '__main__':
-    PROFILE = False
-    import js2py
-    import codecs
+    rewrites.append(expr_rewrite(triton.jit, "gluon.jit"))
+    rewrites.append(expr_rewrite(tl.debug_barrier, "gl.barrier"))
 
-    def main():
-        with codecs.open("esprima.js", "r", "utf-8") as f:
-            d = f.read()
-            r = js2py.translate_js(d)
 
-            with open('res.py', 'wb') as f2:
-                f2.write(r)
-            exec (r, {})
+@dataclass
+class Translator(ReferenceRewriter):
+    target: TranslatorTarget = field(kw_only=True)
+    tensor_member_match_fns: list[str] = field(default_factory=list)
 
-    if PROFILE:
-        import cProfile
-        cProfile.run('main()', sort='tottime')
-    else:
-        main()
+    def __post_init__(self) -> None:
+        import triton
+        import triton.language as tl
+
+        self.context.setdefault("tl", tl)
+        self.context.setdefault("triton", triton)
+
+        add_sugar_rewrites(self.rewrites, translate_to_gluon=True)
+        add_translator_helper_rewrites(self.rewrites)
+        add_one_to_one_rewrites(self.rewrites)
+        add_expr_rewrites(self.rewrites)
+
+        self.imports.add("import triton.experimental.gluon as gluon")
+        self.imports.add("import triton.experimental.gluon.language as gl")
+        self.imports.add(f"import {self.target.helpers_module} as helpers")
+
+        self.tensor_member_match_fns = ["reshape", "trans", "permute", "split", "reduce", "sum", "expand_dims"]
+
+    def visit_Attribute(self, node: ast.Attribute) -> ast.AST:
+        new_node = super().visit_Attribute(node)
+        if node.attr == "T":
+            new_node = parse_expr(f"helpers.reset_to_default_layout({ast.unparse(new_node)})")
+        return new_node
+
+    def canonicalize_call(self, node: ast.Call) -> tuple[ast.Call, str | None]:
+        if self.get_reference(node.func) is not None:
+            return node, None
+        if (not isinstance(node.func, ast.Attribute) or node.func.attr not in self.tensor_member_match_fns):
+            return node, None
+        new_callable = parse_expr(f"tl.{node.func.attr}")
+        new_call = ast.Call(func=new_callable, args=[node.func.value] + node.args, keywords=node.keywords)
+        return new_call, node.func.attr
+
+    def uncanonicalize_call(self, node: ast.Call, fn_name: str | None) -> ast.Call:
+        if fn_name is None:
+            return node
+        value = node.args[0]
+        new_callable = ast.Attribute(value, fn_name, ctx=ast.Load())
+        return ast.Call(func=new_callable, args=node.args[1:], keywords=node.keywords)
+
+    def visit_Call(self, node: ast.Call) -> ast.AST:
+        node, canonicalized = self.canonicalize_call(node)
+        ref = self.get_reference(node.func)
+        if ref is None:
+            assert canonicalized is None
+            if isinstance(node.func, ast.Attribute) and node.func.attr in [
+                    "store",
+                    "load",
+                    "gather",
+                    "scatter",
+            ]:
+                new_callee = parse_expr(f"helpers.tl_obj_{node.func.attr}")
+                node = ast.Call(func=new_callee, args=[node.func.value] + node.args, keywords=node.keywords)
+            return self.generic_visit(node)
+        value, _, _ = ref
+        if value in [tl.reshape, tl.ravel]:
+            node.keywords = [kw for kw in node.keywords if kw.arg != "can_reorder"]
+        elif value is tl.split:
+            node.args[0] = parse_expr(f"helpers.set_split_src_layout({ast.unparse(node.args[0])})")
+        elif value is tl.expand_dims:
+            node.args[0] = parse_expr(
+                f"helpers.convert_to_expand_dims_layout({ast.unparse(node.args[0])}, [{ast.unparse(node.args[1])}])")
+        elif value is tl.range:
+            return ast.Call(
+                func=ast.Name("range", ast.Load()),
+                args=[cast(ast.expr, self.generic_visit(arg)) for arg in node.args],
+                keywords=[],
+            )
+
+        node = self.uncanonicalize_call(node, canonicalized)
+        new_node = self.generic_visit(node)
+        if value in [tl.reshape, tl.trans, tl.permute, tl.join, tl.split, tl.reduce, tl.sum, tl.max, tl.min]:
+            new_node = cast(ast.Call, parse_expr(f"helpers.reset_to_default_layout({ast.unparse(new_node)})"))
+        return new_node
+
+    def visit_Subscript(self, node: ast.Subscript) -> ast.AST:
+        if not isinstance(node.slice, ast.Tuple):
+            return self.generic_visit(node)
+
+        expand_dims: list[int] = []
+        for index, dim in enumerate(node.slice.elts):
+            if isinstance(dim, ast.Constant) and dim.value is None:
+                expand_dims.append(index)
+            elif isinstance(dim, ast.Slice) and all(d is None for d in [dim.lower, dim.upper, dim.step]):
+                continue
+            else:
+                return self.generic_visit(node)
+        value_expr = parse_expr(f"helpers.convert_to_expand_dims_layout({ast.unparse(node.value)}, {expand_dims})")
+        node = ast.Subscript(value=value_expr, slice=node.slice, ctx=node.ctx)
+        return self.generic_visit(node)
+
+
+def translate_kernels(kernels: list[GlobalValue], target: TranslatorTarget) -> str:
+
+    def filter(value: ModuleType | GlobalValue) -> bool:
+        if isinstance(value, ModuleType):
+            return False
+        if getattr(value.original_value, "__triton_builtin__", False):
+            return True
+        if isinstance(value.original_value, JITFunction):
+            if getattr(tl.tensor, value.name, None) is value.original_value:
+                return True
+            if value.original_value.is_gluon():
+                return True
+            return False
+        assert isinstance(value.original_value, object)
+        if isinstance(value.original_value, type | FunctionType | JITCallable):
+            return True
+        if isinstance(value.original_value, int | float | tl.constexpr):
+            return False
+        return True
+
+    references, graph = find_references(kernels, filter, value_remap={})
+    mangle_reference_names(references, filter)
+
+    ordered_ids = stable_toposort(graph)
+
+    output = ""
+    imports: ordered_set[str] = ordered_set()
+
+    ordered_ids = stable_toposort(graph)
+    for ref_id in reversed(ordered_ids):
+        reference = references[ref_id]
+        if filter(reference.value.module) or filter(reference.value):
+            continue
+        tree = reference.value.parse_ast()
+        context = reference.value.get_contextual_defs()
+        rewriter = Translator(
+            reference.value.module,
+            scoped_dict(context),
+            references,
+            imports,
+            filter,
+            value_remap={},
+            target=target,
+        )
+        tree = rewriter.visit(tree)
+        source = ast.unparse(tree)
+        assert reference.mangled_name is not None
+        source = reference.value.mangle_source(source, reference.mangled_name)
+        output += source + "\n\n\n"
+    output = "\n".join(imports) + "\n\n" + output
+    return output
+
+
+def translate_paths(kernel_paths: list[str], target: TranslatorTarget) -> str:
+    kernels = [get_base_value(kernel_path) for kernel_path in kernel_paths]
+    return translate_kernels(kernels, target=target)
+
+
+def convert_triton_to_gluon(src: list[JITCallable], target: TranslatorTarget) -> str:
+
+    def wrap_global(kernel):
+        name = getattr(getattr(kernel, "fn", kernel), "__name__", "")
+        return GlobalValue.wrap(kernel, name, lambda: (name, builtins))
+
+    kernels = [wrap_global(kernel) for kernel in src]
+    return translate_kernels(kernels, target=target)
+
+
+def main(kernels: list[str], output_path: str, target: TranslatorTarget) -> None:
+    output = translate_paths(kernels, target=target)
+    with open(output_path, "w") as f:
+        f.write(output)
+
+
+def _main_cli() -> None:
+    parser = argparse.ArgumentParser(description="Translate Triton kernels to Gluon source.")
+    parser.add_argument("kernels", nargs="+", help="Kernel symbols in module.path:object format.")
+    parser.add_argument("--output-path", required=True, help="Path to write the translated source.")
+    parser.add_argument("--target", required=True, help="Target architecture (e.g. nvidia, gfx1250).")
+    args = parser.parse_args()
+    main(args.kernels, args.output_path, target=TranslatorTarget(args.target))
+
+
+if __name__ == "__main__":
+    _main_cli()

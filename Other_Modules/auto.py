@@ -1,52 +1,40 @@
-from __future__ import annotations
+"""
+Enables multiple commonly used features.
 
-import typing
+Method resolution order:
 
-from .._synchronization import current_async_library
-from .base import SOCKET_OPTION, AsyncNetworkBackend, AsyncNetworkStream
+- `tqdm.autonotebook` without import warnings
+- `tqdm.asyncio`
+- `tqdm.std` base class
+
+Usage:
+>>> from tqdm.auto import trange, tqdm
+>>> for i in trange(10):
+...     ...
+"""
+import warnings
+
+from .std import TqdmExperimentalWarning
+
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore", category=TqdmExperimentalWarning)
+    from .autonotebook import tqdm as notebook_tqdm
+
+from .asyncio import tqdm as asyncio_tqdm
+from .std import tqdm as std_tqdm
+
+if notebook_tqdm != std_tqdm:
+    class tqdm(notebook_tqdm, asyncio_tqdm):  # pylint: disable=inconsistent-mro
+        pass
+else:
+    tqdm = asyncio_tqdm
 
 
-class AutoBackend(AsyncNetworkBackend):
-    async def _init_backend(self) -> None:
-        if not (hasattr(self, "_backend")):
-            backend = current_async_library()
-            if backend == "trio":
-                from .trio import TrioBackend
+def trange(*args, **kwargs):
+    """
+    A shortcut for `tqdm.auto.tqdm(range(*args), **kwargs)`.
+    """
+    return tqdm(range(*args), **kwargs)
 
-                self._backend: AsyncNetworkBackend = TrioBackend()
-            else:
-                from .anyio import AnyIOBackend
 
-                self._backend = AnyIOBackend()
-
-    async def connect_tcp(
-        self,
-        host: str,
-        port: int,
-        timeout: float | None = None,
-        local_address: str | None = None,
-        socket_options: typing.Iterable[SOCKET_OPTION] | None = None,
-    ) -> AsyncNetworkStream:
-        await self._init_backend()
-        return await self._backend.connect_tcp(
-            host,
-            port,
-            timeout=timeout,
-            local_address=local_address,
-            socket_options=socket_options,
-        )
-
-    async def connect_unix_socket(
-        self,
-        path: str,
-        timeout: float | None = None,
-        socket_options: typing.Iterable[SOCKET_OPTION] | None = None,
-    ) -> AsyncNetworkStream:  # pragma: nocover
-        await self._init_backend()
-        return await self._backend.connect_unix_socket(
-            path, timeout=timeout, socket_options=socket_options
-        )
-
-    async def sleep(self, seconds: float) -> None:  # pragma: nocover
-        await self._init_backend()
-        return await self._backend.sleep(seconds)
+__all__ = ["tqdm", "trange"]

@@ -12,6 +12,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **curiosity_debater_dashboard.html**: Interfaz de control y monitoreo en tiempo real.
 - **telegram_group_manager.py**: Componente del sistema.
 - **start_client_gateway.sh**: Componente del sistema.
+- **jev_tardis_symbiosis.py**: Componente del sistema.
 - **share_client_link.py**: Componente del sistema.
 - **ftl_telegram_runner.py**: Componente del sistema.
 - **curiosity_debate_manager.py**: Componente del sistema.

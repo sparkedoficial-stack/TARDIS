@@ -1,92 +1,138 @@
-from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Optional, Tuple
+import threading
+import time
+from functools import wraps
+from typing import Optional, Union, Any, Sequence
 
-from .highlighter import ReprHighlighter
-from .panel import Panel
-from .pretty import Pretty
-from .table import Table
-from .text import Text, TextType
+from .flags import flags
+from .metric import transform_tensor_metrics, set_metric_kernels
+from .state import metadata_state
+from triton._C.libproton import proton as libproton
 
-if TYPE_CHECKING:
-    from .console import ConsoleRenderable, OverflowMethod
+thread_local_scopes = threading.local()
+
+MetricValueType = Union[float, int, Sequence[float], Sequence[int]]
 
 
-def render_scope(
-    scope: "Mapping[str, Any]",
-    *,
-    title: Optional[TextType] = None,
-    sort_keys: bool = True,
-    indent_guides: bool = False,
-    max_length: Optional[int] = None,
-    max_string: Optional[int] = None,
-    max_depth: Optional[int] = None,
-    overflow: Optional["OverflowMethod"] = None,
-) -> "ConsoleRenderable":
-    """Render python variables in a given scope.
+class scope:
+    """
+    A context manager and decorator for entering and exiting a scope.
+
+    Usage:
+        context manager:
+        ```python
+        with proton.scope("test0", {metric_name: metric_value}):
+            foo[1,](x, y)
+        ```
+
+        decorator:
+        ```python
+        @proton.scope("test0", {metric_name: metric_value})
+        def foo(x, y):
+            ...
+        ```
 
     Args:
-        scope (Mapping): A mapping containing variable names and values.
-        title (str, optional): Optional title. Defaults to None.
-        sort_keys (bool, optional): Enable sorting of items. Defaults to True.
-        indent_guides (bool, optional): Enable indentation guides. Defaults to False.
-        max_length (int, optional): Maximum length of containers before abbreviating, or None for no abbreviation.
-            Defaults to None.
-        max_string (int, optional): Maximum length of string before truncating, or None to disable. Defaults to None.
-        max_depth (int, optional): Maximum depths of locals before truncating, or None to disable. Defaults to None.
-        overflow (OverflowMethod, optional): How to handle overflowing locals, or None to disable. Defaults to None.
-
-    Returns:
-        ConsoleRenderable: A renderable object.
+        name (str): The name of the scope.
+        metrics (dict[str, float], optional): The metrics of the scope. Default is None.
     """
-    highlighter = ReprHighlighter()
-    items_table = Table.grid(padding=(0, 1), expand=False)
-    items_table.add_column(justify="right")
 
-    def sort_items(item: Tuple[str, Any]) -> Tuple[bool, str]:
-        """Sort special variables first, then alphabetically."""
-        key, _ = item
-        return (not key.startswith("__"), key.lower())
+    def __init__(self, name: str, metrics: Optional[dict[str, Any]] = None) -> None:
+        self.name = name
+        self.metrics = metrics
+        self.id = None
 
-    items = sorted(scope.items(), key=sort_items) if sort_keys else scope.items()
-    for key, value in items:
-        key_text = Text.assemble(
-            (key, "scope.key.special" if key.startswith("__") else "scope.key"),
-            (" =", "scope.equals"),
-        )
-        items_table.add_row(
-            key_text,
-            Pretty(
-                value,
-                highlighter=highlighter,
-                indent_guides=indent_guides,
-                max_length=max_length,
-                max_string=max_string,
-                max_depth=max_depth,
-                overflow=overflow,
-            ),
-        )
-    return Panel.fit(
-        items_table,
-        title=title,
-        border_style="scope.border",
-        padding=(0, 1),
-    )
+    def _enter_scope(self):
+        if not flags.profiling_on:
+            return
+        self.id = libproton.record_scope()
+        libproton.enter_scope(self.id, self.name)
+        if self.metrics:
+            with metadata_state():
+                set_metric_kernels()
+                libproton.add_metrics(self.id, *transform_tensor_metrics(self.metrics))
+
+    def _exit_scope(self):
+        if not flags.profiling_on or self.id is None:
+            return
+        libproton.exit_scope(self.id, self.name)
+
+    def __enter__(self):
+        self._enter_scope()
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self._exit_scope()
+
+    def __call__(self, func):
+
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            self._enter_scope()
+            try:
+                return func(*args, **kwargs)
+            finally:
+                self._exit_scope()
+
+        return wrapper
 
 
-if __name__ == "__main__":  # pragma: no cover
-    from rich import print
+class cpu_timed_scope(scope):
+    """
+    A scope that measures elapsed time (cpu_time).
+
+    Args:
+        name (str): The name of the scope.
+        metrics (dict[str, float], optional): Additional metrics to add. Default is None.
+    """
+
+    def __init__(self, name: str, metrics: Optional[dict[str, Any]] = None) -> None:
+        super().__init__(name, metrics)
+        self.start_time = None
+        if metrics and "cpu_time" in metrics:
+            raise ValueError("The metric name 'cpu_time' is reserved.")
+
+    def _enter_scope(self):
+        if not flags.profiling_on:
+            return
+        self.start_time = time.perf_counter_ns()
+        super()._enter_scope()
+
+    def _exit_scope(self):
+        if not flags.profiling_on:
+            return
+        if self.start_time is not None:
+            cpu_time = time.perf_counter_ns() - self.start_time
+            libproton.add_metrics(self.id, {"cpu_time (ns)(exc)": cpu_time})
+        super()._exit_scope()
 
     print()
 
-    def test(foo: float, bar: float) -> None:
-        list_of_things = [1, 2, 3, None, 4, True, False, "Hello World"]
-        dict_of_things = {
-            "version": "1.1",
-            "method": "confirmFruitPurchase",
-            "params": [["apple", "orange", "mangoes", "pomelo"], 1.123],
-            "id": "194521489",
-        }
-        print(render_scope(locals(), title="[i]locals", sort_keys=False))
+def enter_scope(name: str, *, metrics: Optional[dict[str, Any]] = None) -> Optional[int]:
+    if not flags.profiling_on:
+        return None
+    id = libproton.record_scope()
+    thread_local_scopes.scopes = getattr(thread_local_scopes, "scopes", [])
+    thread_local_scopes.scopes.append((id, name))
+    libproton.enter_scope(id, name)
+    if metrics:
+        with metadata_state():
+            set_metric_kernels()
+            libproton.add_metrics(id, *transform_tensor_metrics(metrics))
+    return id
 
-    test(20.3423, 3.1427)
-    print()
+
+def exit_scope(name: Optional[str] = None, *, metrics: Optional[dict[str, Any]] = None) -> Optional[int]:
+    # `name` is an optional argument here, only to match the counterpart in enter_scope to make the API consistent with `proton.language.exit_scope`
+    if not flags.profiling_on:
+        return None
+    id, popped_name = thread_local_scopes.scopes.pop()
+    if name and name != popped_name:
+        raise ValueError(f"Scope name mismatch: {name} != {popped_name}")
+    elif not name:
+        name = popped_name
+    if metrics:
+        with metadata_state():
+            set_metric_kernels()
+            libproton.add_metrics(id, *transform_tensor_metrics(metrics))
+    libproton.exit_scope(id, name)
+    return id

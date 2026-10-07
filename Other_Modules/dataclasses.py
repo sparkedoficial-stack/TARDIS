@@ -1,500 +1,684 @@
-"""
-The main purpose is to enhance stdlib dataclasses by adding validation
-A pydantic dataclass can be generated from scratch or from a stdlib one.
+import collections.abc
+import inspect
+import types
+from collections.abc import Callable
+from dataclasses import MISSING, Field, field, fields, make_dataclass
+from functools import lru_cache, wraps
+from typing import (
+    Annotated,
+    Any,
+    ForwardRef,
+    Literal,
+    Type,
+    TypeVar,
+    Union,
+    get_args,
+    get_origin,
+    overload,
+)
 
-Behind the scene, a pydantic dataclass is just like a regular one on which we attach
-a `BaseModel` and magic methods to trigger the validation of the data.
-`__init__` and `__post_init__` are hence overridden and have extra logic to be
-able to validate input data.
-
-When a pydantic dataclass is generated from scratch, it's just a plain dataclass
-with validation triggered at initialization
-
-The tricky part if for stdlib dataclasses that are converted after into pydantic ones e.g.
-
-```py
-@dataclasses.dataclass
-class M:
-    x: int
-
-ValidatedM = pydantic.dataclasses.dataclass(M)
-```
-
-We indeed still want to support equality, hashing, repr, ... as if it was the stdlib one!
-
-```py
-assert isinstance(ValidatedM(x=1), M)
-assert ValidatedM(x=1) == M(x=1)
-```
-
-This means we **don't want to create a new dataclass that inherits from it**
-The trick is to create a wrapper around `M` that will act as a proxy to trigger
-validation without altering default `M` behaviour.
-"""
-import copy
-import dataclasses
-import sys
-from contextlib import contextmanager
-from functools import wraps
 
 try:
-    from functools import cached_property
+    # Python 3.11+
+    from typing import NotRequired, Required  # type: ignore
 except ImportError:
-    # cached_property available only for python3.8+
-    pass
+    try:
+        # In case typing_extensions is installed
+        from typing_extensions import NotRequired, Required  # type: ignore
+    except ImportError:
+        # Fallback: create dummy types that will never match
+        Required = type("Required", (), {})  # type: ignore
+        NotRequired = type("NotRequired", (), {})  # type: ignore
 
-from typing import TYPE_CHECKING, Any, Callable, ClassVar, Dict, Generator, Optional, Type, TypeVar, Union, overload
+from .errors import (
+    StrictDataclassClassValidationError,
+    StrictDataclassDefinitionError,
+    StrictDataclassFieldValidationError,
+)
 
-from typing_extensions import dataclass_transform
 
-from pydantic.v1.class_validators import gather_all_validators
-from pydantic.v1.config import BaseConfig, ConfigDict, Extra, get_config
-from pydantic.v1.error_wrappers import ValidationError
-from pydantic.v1.errors import DataclassTypeError
-from pydantic.v1.fields import Field, FieldInfo, Required, Undefined
-from pydantic.v1.main import create_model, validate_model
-from pydantic.v1.utils import ClassAttribute
+Validator_T = Callable[[Any], None]
+T = TypeVar("T")
+TypedDictType = TypeVar("TypedDictType", bound=dict[str, Any])
 
-if TYPE_CHECKING:
-    from pydantic.v1.main import BaseModel
-    from pydantic.v1.typing import CallableGenerator, NoArgAnyCallable
+_TYPED_DICT_DEFAULT_VALUE = object()  # used as default value in TypedDict fields (to distinguish from None)
 
-    DataclassT = TypeVar('DataclassT', bound='Dataclass')
 
-    DataclassClassOrWrapper = Union[Type['Dataclass'], 'DataclassProxy']
+# The overload decorator helps type checkers understand the different return types
+@overload
+def strict(cls: Type[T]) -> Type[T]: ...
 
-    class Dataclass:
-        # stdlib attributes
-        __dataclass_fields__: ClassVar[Dict[str, Any]]
-        __dataclass_params__: ClassVar[Any]  # in reality `dataclasses._DataclassParams`
-        __post_init__: ClassVar[Callable[..., None]]
 
-        # Added by pydantic
-        __pydantic_run_validation__: ClassVar[bool]
-        __post_init_post_parse__: ClassVar[Callable[..., None]]
-        __pydantic_initialised__: ClassVar[bool]
-        __pydantic_model__: ClassVar[Type[BaseModel]]
-        __pydantic_validate_values__: ClassVar[Callable[['Dataclass'], None]]
-        __pydantic_has_field_info_default__: ClassVar[bool]  # whether a `pydantic.Field` is used as default value
+@overload
+def strict(*, accept_kwargs: bool = False) -> Callable[[Type[T]], Type[T]]: ...
 
-        def __init__(self, *args: object, **kwargs: object) -> None:
-            pass
 
-        @classmethod
-        def __get_validators__(cls: Type['Dataclass']) -> 'CallableGenerator':
-            pass
+def strict(cls: Type[T] | None = None, *, accept_kwargs: bool = False) -> Type[T] | Callable[[Type[T]], Type[T]]:
+    """
+    Decorator to add strict validation to a dataclass.
 
-        @classmethod
-        def __validate__(cls: Type['DataclassT'], v: Any) -> 'DataclassT':
-            pass
+    This decorator must be used on top of `@dataclass` to ensure IDEs and static typing tools
+    recognize the class as a dataclass.
+
+    Can be used with or without arguments:
+    - `@strict`
+    - `@strict(accept_kwargs=True)`
+
+    Args:
+        cls:
+            The class to convert to a strict dataclass.
+        accept_kwargs (`bool`, *optional*):
+            If True, allows arbitrary keyword arguments in `__init__`. Defaults to False.
+
+    Returns:
+        The enhanced dataclass with strict validation on field assignment.
+
+    Example:
+    ```py
+    >>> from dataclasses import dataclass
+    >>> from huggingface_hub.dataclasses import as_validated_field, strict, validated_field
+
+    >>> @as_validated_field
+    >>> def positive_int(value: int):
+    ...     if not value >= 0:
+    ...         raise ValueError(f"Value must be positive, got {value}")
+
+    >>> @strict(accept_kwargs=True)
+    ... @dataclass
+    ... class User:
+    ...     name: str
+    ...     age: int = positive_int(default=10)
+
+    # Initialize
+    >>> User(name="John")
+    User(name='John', age=10)
+
+    # Extra kwargs are accepted
+    >>> User(name="John", age=30, lastname="Doe")
+    User(name='John', age=30, *lastname='Doe')
+
+    # Invalid type => raises
+    >>> User(name="John", age="30")
+    huggingface_hub.errors.StrictDataclassFieldValidationError: Validation error for field 'age':
+        TypeError: Field 'age' expected int, got str (value: '30')
+
+    # Invalid value => raises
+    >>> User(name="John", age=-1)
+    huggingface_hub.errors.StrictDataclassFieldValidationError: Validation error for field 'age':
+        ValueError: Value must be positive, got -1
+    ```
+    """
+
+    def wrap(cls: Type[T]) -> Type[T]:
+        if not hasattr(cls, "__dataclass_fields__"):
+            raise StrictDataclassDefinitionError(
+                f"Class '{cls.__name__}' must be a dataclass before applying @strict."
+            )
+
+        # List and store validators
+        field_validators: dict[str, list[Validator_T]] = {}
+        for f in fields(cls):  # type: ignore
+            validators = []
+            validators.append(_create_type_validator(f))
+            custom_validator = f.metadata.get("validator")
+            if custom_validator is not None:
+                if not isinstance(custom_validator, list):
+                    custom_validator = [custom_validator]
+                for validator in custom_validator:
+                    if not _is_validator(validator):
+                        raise StrictDataclassDefinitionError(
+                            f"Invalid validator for field '{f.name}': {validator}. Must be a callable taking a single argument."
+                        )
+                validators.extend(custom_validator)
+            field_validators[f.name] = validators
+        cls.__validators__ = field_validators  # type: ignore
+
+        # Override __setattr__ to validate fields on assignment
+        original_setattr = cls.__setattr__
+
+        def __strict_setattr__(self: Any, name: str, value: Any) -> None:
+            """Custom __setattr__ method for strict dataclasses."""
+            # Run all validators
+            for validator in self.__validators__.get(name, []):
+                try:
+                    validator(value)
+                except (ValueError, TypeError) as e:
+                    raise StrictDataclassFieldValidationError(field=name, cause=e) from e
+
+            # If validation passed, set the attribute
+            original_setattr(self, name, value)
+
+        cls.__setattr__ = __strict_setattr__  # type: ignore
+
+        if accept_kwargs:
+            # (optional) Override __init__ to accept arbitrary keyword arguments
+            original_init = cls.__init__
+
+            @wraps(original_init)
+            def __init__(self, *args, **kwargs: Any) -> None:
+                # Extract only the fields that are part of the dataclass
+                dataclass_fields = {f.name for f in fields(cls)}  # type: ignore
+                standard_kwargs = {k: v for k, v in kwargs.items() if k in dataclass_fields}
+
+                # User shouldn't define custom `__init__` when `accepts_kwargs`, and instead
+                # are advised to move field manipulation to `__post_init__` (e.g., derive new field from existing ones)
+                # We need to call bare `__init__` here without `__post_init__` but the``original_init`` would call
+                # post-init right away with no kwargs.
+                if len(args) > 0:
+                    raise ValueError(
+                        f"When `accept_kwargs=True`, {cls.__name__} accepts only keyword arguments, "
+                        f"but found `{len(args)}` positional args."
+                    )
+
+                for f in fields(cls):  # type: ignore
+                    if f.name in standard_kwargs:
+                        setattr(self, f.name, standard_kwargs[f.name])
+                    elif f.default is not MISSING:
+                        setattr(self, f.name, f.default)
+                    elif f.default_factory is not MISSING:
+                        setattr(self, f.name, f.default_factory())
+                    else:
+                        raise TypeError(f"Missing required field - '{f.name}'")
+
+                # Pass any additional kwargs to `__post_init__` and let the object
+                # decide whether to set the attr or use for different purposes (e.g. BC checks)
+                additional_kwargs = {}
+                for name, value in kwargs.items():
+                    if name not in dataclass_fields:
+                        additional_kwargs[name] = value
+
+                self.__post_init__(**additional_kwargs)
+
+            cls.__init__ = __init__  # type: ignore
+
+            # Define a default __post_init__ if not defined
+            if not hasattr(cls, "__post_init__"):
+
+                def __post_init__(self, **kwargs: Any) -> None:
+                    """Default __post_init__ to accept additional kwargs."""
+                    for name, value in kwargs.items():
+                        setattr(self, name, value)
+
+                cls.__post_init__ = __post_init__  # type: ignore
+
+            # (optional) Override __repr__ to include additional kwargs
+            original_repr = cls.__repr__
+
+            @wraps(original_repr)
+            def __repr__(self) -> str:
+                # Call the original __repr__ to get the standard fields
+                standard_repr = original_repr(self)
+
+                # Get additional kwargs
+                additional_kwargs = [
+                    # add a '*' in front of additional kwargs to let the user know they are not part of the dataclass
+                    f"*{k}={v!r}"
+                    for k, v in self.__dict__.items()
+                    if k not in cls.__dataclass_fields__  # type: ignore [attr-defined]
+                ]
+                additional_repr = ", ".join(additional_kwargs)
+
+                # Combine both representations
+                return f"{standard_repr[:-1]}, {additional_repr})" if additional_kwargs else standard_repr
+
+            if cls.__dataclass_params__.repr is True:  # type: ignore [attr-defined]
+                cls.__repr__ = __repr__  # type: ignore
+
+        # List all public methods starting with `validate_` => class validators.
+        class_validators = []
+
+        for name in dir(cls):
+            if not name.startswith("validate_"):
+                continue
+            method = getattr(cls, name)
+            if not callable(method):
+                continue
+            if len(inspect.signature(method).parameters) != 1:
+                raise StrictDataclassDefinitionError(
+                    f"Class '{cls.__name__}' has a class validator '{name}' that takes more than one argument."
+                    " Class validators must take only 'self' as an argument. Methods starting with 'validate_'"
+                    " are considered to be class validators."
+                )
+            class_validators.append(method)
+
+        cls.__class_validators__ = class_validators  # type: ignore
+
+        # Add `validate` method to the class, but first check if it already exists
+        def validate(self: T) -> None:
+            """Run class validators on the instance."""
+            for validator in cls.__class_validators__:  # type: ignore [attr-defined]
+                try:
+                    validator(self)
+                except (ValueError, TypeError) as e:
+                    raise StrictDataclassClassValidationError(validator=validator.__name__, cause=e) from e
+
+        # Hack to be able to raise if `.validate()` already exists except if it was created by this decorator on a parent class
+        # (in which case we just override it)
+        validate.__is_defined_by_strict_decorator__ = True  # type: ignore [attr-defined]
+
+        if hasattr(cls, "validate"):
+            if not getattr(cls.validate, "__is_defined_by_strict_decorator__", False):  # type: ignore [attr-defined]
+                raise StrictDataclassDefinitionError(
+                    f"Class '{cls.__name__}' already implements a method called 'validate'."
+                    " This method name is reserved when using the @strict decorator on a dataclass."
+                    " If you want to keep your own method, please rename it."
+                )
+
+        cls.validate = validate  # type: ignore
+
+        # Run class validators after initialization
+        initial_init = cls.__init__
+
+        @wraps(initial_init)
+        def init_with_validate(self, *args, **kwargs) -> None:
+            """Run class validators after initialization."""
+            initial_init(self, *args, **kwargs)  # type: ignore [call-arg]
+            cls.validate(self)  # type: ignore [attr-defined]
+
+        setattr(cls, "__init__", init_with_validate)
+
+        return cls
+
+    # Return wrapped class or the decorator itself
+    return wrap(cls) if cls is not None else wrap
+
+
+def validate_typed_dict(schema: type[TypedDictType], data: dict) -> None:
+    """
+    Validate that a dictionary conforms to the types defined in a TypedDict class.
+
+    Under the hood, the typed dict is converted to a strict dataclass and validated using the `@strict` decorator.
+
+    Args:
+        schema (`type[TypedDictType]`):
+            The TypedDict class defining the expected structure and types.
+        data (`dict`):
+            The dictionary to validate.
+
+    Raises:
+        `StrictDataclassFieldValidationError`:
+            If any field in the dictionary does not conform to the expected type.
+
+    Example:
+    ```py
+    >>> from typing import Annotated, TypedDict
+    >>> from huggingface_hub.dataclasses import validate_typed_dict
+
+    >>> def positive_int(value: int):
+    ...     if not value >= 0:
+    ...         raise ValueError(f"Value must be positive, got {value}")
+
+    >>> class User(TypedDict):
+    ...     name: str
+    ...     age: Annotated[int, positive_int]
+
+    >>> # Valid data
+    >>> validate_typed_dict(User, {"name": "John", "age": 30})
+
+    >>> # Invalid type for age
+    >>> validate_typed_dict(User, {"name": "John", "age": "30"})
+    huggingface_hub.errors.StrictDataclassFieldValidationError: Validation error for field 'age':
+        TypeError: Field 'age' expected int, got str (value: '30')
+
+    >>> # Invalid value for age
+    >>> validate_typed_dict(User, {"name": "John", "age": -1})
+    huggingface_hub.errors.StrictDataclassFieldValidationError: Validation error for field 'age':
+        ValueError: Value must be positive, got -1
+    ```
+    """
+    # Convert typed dict to dataclass
+    strict_cls = _build_strict_cls_from_typed_dict(schema)
+
+    # Validate the data by instantiating the strict dataclass
+    strict_cls(**data)  # will raise if validation fails
+
+
+@lru_cache
+def _build_strict_cls_from_typed_dict(schema: type[TypedDictType]) -> Type:
+    # Extract type hints from the TypedDict class
+    type_hints = _get_typed_dict_annotations(schema)
+
+    # If the TypedDict is not total, wrap fields as NotRequired (unless explicitly Required or NotRequired)
+    if not getattr(schema, "__total__", True):
+        for key, value in type_hints.items():
+            origin = get_origin(value)
+
+            if origin is Annotated:
+                base, *meta = get_args(value)
+                if not _is_required_or_notrequired(base):
+                    base = NotRequired[base]
+                type_hints[key] = Annotated[tuple([base] + list(meta))]  # type: ignore
+            elif not _is_required_or_notrequired(value):
+                type_hints[key] = NotRequired[value]
+
+    # Convert type hints to dataclass fields
+    fields = []
+    for key, value in type_hints.items():
+        if get_origin(value) is Annotated:
+            base, *meta = get_args(value)
+            fields.append((key, base, field(default=_TYPED_DICT_DEFAULT_VALUE, metadata={"validator": meta[0]})))
+        else:
+            fields.append((key, value, field(default=_TYPED_DICT_DEFAULT_VALUE)))
+
+    # Create a strict dataclass from the TypedDict fields
+    return strict(make_dataclass(schema.__name__, fields))
+
+
+def _get_typed_dict_annotations(schema: type[TypedDictType]) -> dict[str, Any]:
+    """Extract type annotations from a TypedDict class."""
+    try:
+        # Available in Python 3.14+
+        import annotationlib
+
+        return annotationlib.get_annotations(schema)
+    except ImportError:
+        return {
+            # We do not use `get_type_hints` here to avoid evaluating ForwardRefs (which might fail).
+            # ForwardRefs are not validated by @strict anyway.
+            name: value if value is not None else type(None)
+            for name, value in schema.__dict__.get("__annotations__", {}).items()
+        }
+
+
+def validated_field(
+    validator: list[Validator_T] | Validator_T,
+    default: Any = MISSING,
+    default_factory: Any = MISSING,
+    init: bool = True,
+    repr: bool = True,
+    hash: bool | None = None,
+    compare: bool = True,
+    metadata: dict | None = None,
+    **kwargs: Any,
+) -> Any:
+    """
+    Create a dataclass field with a custom validator.
+
+    Useful to apply several checks to a field. If only applying one rule, check out the [`as_validated_field`] decorator.
+
+    Args:
+        validator (`Callable` or `list[Callable]`):
+            A method that takes a value as input and raises ValueError/TypeError if the value is invalid.
+            Can be a list of validators to apply multiple checks.
+        **kwargs:
+            Additional arguments to pass to `dataclasses.field()`.
+
+    Returns:
+        A field with the validator attached in metadata
+    """
+    if not isinstance(validator, list):
+        validator = [validator]
+    if metadata is None:
+        metadata = {}
+    metadata["validator"] = validator
+    return field(  # type: ignore
+        default=default,  # type: ignore
+        default_factory=default_factory,  # type: ignore
+        init=init,
+        repr=repr,
+        hash=hash,
+        compare=compare,
+        metadata=metadata,
+        **kwargs,
+    )
+
+
+def as_validated_field(validator: Validator_T):
+    """
+    Decorates a validator function as a [`validated_field`] (i.e. a dataclass field with a custom validator).
+
+    Args:
+        validator (`Callable`):
+            A method that takes a value as input and raises ValueError/TypeError if the value is invalid.
+    """
+
+    def _inner(
+        default: Any = MISSING,
+        default_factory: Any = MISSING,
+        init: bool = True,
+        repr: bool = True,
+        hash: bool | None = None,
+        compare: bool = True,
+        metadata: dict | None = None,
+        **kwargs: Any,
+    ):
+        return validated_field(
+            validator,
+            default=default,
+            default_factory=default_factory,
+            init=init,
+            repr=repr,
+            hash=hash,
+            compare=compare,
+            metadata=metadata,
+            **kwargs,
+        )
+
+    return _inner
+
+
+def type_validator(name: str, value: Any, expected_type: Any) -> None:
+    """Validate that 'value' matches 'expected_type'."""
+    origin = get_origin(expected_type)
+    args = get_args(expected_type)
+
+    if expected_type is Any:
+        return
+    elif expected_type is None:
+        _validate_none(name, value)
+    elif validator := _BASIC_TYPE_VALIDATORS.get(origin):
+        validator(name, value, args)
+    elif isinstance(expected_type, type):  # simple types
+        _validate_simple_type(name, value, expected_type)
+    elif isinstance(expected_type, ForwardRef) or isinstance(expected_type, str):
+        return
+    elif origin is Required:
+        if value is _TYPED_DICT_DEFAULT_VALUE:
+            raise TypeError(f"Field '{name}' is required but missing.")
+        type_validator(name, value, args[0])
+    elif origin is NotRequired:
+        if value is _TYPED_DICT_DEFAULT_VALUE:
+            return
+        type_validator(name, value, args[0])
+    else:
+        raise TypeError(f"Unsupported type for field '{name}': {expected_type}")
+
+
+def _validate_none(name: str, value: Any) -> None:
+    """Validate None type.
+
+    'None' is not a type, it's a special value. Type should be `NoneType` instead.
+    But in type annotations 'None' is accepted so we must support it.
+    """
+    if value is not None:
+        raise TypeError(f"Field '{name}' expected None, got {type(value).__name__}")
+
+
+def _validate_union(name: str, value: Any, args: tuple[Any, ...]) -> None:
+    """Validate that value matches one of the types in a Union."""
+    errors = []
+    for t in args:
+        try:
+            type_validator(name, value, t)
+            return  # Valid if any type matches
+        except TypeError as e:
+            errors.append(str(e))
+
+    raise TypeError(
+        f"Field '{name}' with value {repr(value)} doesn't match any type in {args}. Errors: {'; '.join(errors)}"
+    )
+
+
+def _validate_literal(name: str, value: Any, args: tuple[Any, ...]) -> None:
+    """Validate Literal type."""
+    if isinstance(value, bool):
+        if value not in [arg for arg in args if isinstance(arg, bool)]:
+            raise TypeError(f"Field '{name}' expected one of {args}, got {value}")
+    elif isinstance(value, int):
+        if value not in [arg for arg in args if isinstance(arg, int) and not isinstance(arg, bool)]:
+            raise TypeError(f"Field '{name}' expected one of {args}, got {value}")
+    elif value not in args:
+        raise TypeError(f"Field '{name}' expected one of {args}, got {value}")
+
+
+def _validate_list(name: str, value: Any, args: tuple[Any, ...]) -> None:
+    """Validate list[T] type."""
+    if not isinstance(value, list):
+        raise TypeError(f"Field '{name}' expected a list, got {type(value).__name__}")
+
+    # Validate each item in the list
+    item_type = args[0]
+    for i, item in enumerate(value):
+        try:
+            type_validator(f"{name}[{i}]", item, item_type)
+        except TypeError as e:
+            raise TypeError(f"Invalid item at index {i} in list '{name}'") from e
+
+
+def _validate_dict(name: str, value: Any, args: tuple[Any, ...]) -> None:
+    """Validate dict[K, V] type."""
+    if not isinstance(value, dict):
+        raise TypeError(f"Field '{name}' expected a dict, got {type(value).__name__}")
+
+    # Validate keys and values
+    key_type, value_type = args
+    for k, v in value.items():
+        try:
+            type_validator(f"{name}.key", k, key_type)
+            type_validator(f"{name}[{k!r}]", v, value_type)
+        except TypeError as e:
+            raise TypeError(f"Invalid key or value in dict '{name}'") from e
+
+
+def _validate_tuple(name: str, value: Any, args: tuple[Any, ...]) -> None:
+    """Validate Tuple type."""
+    if not isinstance(value, tuple):
+        raise TypeError(f"Field '{name}' expected a tuple, got {type(value).__name__}")
+
+    # Handle variable-length tuples: tuple[T, ...]
+    if len(args) == 2 and args[1] is Ellipsis:
+        for i, item in enumerate(value):
+            try:
+                type_validator(f"{name}[{i}]", item, args[0])
+            except TypeError as e:
+                raise TypeError(f"Invalid item at index {i} in tuple '{name}'") from e
+    # Handle fixed-length tuples: tuple[T1, T2, ...]
+    elif len(args) != len(value):
+        raise TypeError(f"Field '{name}' expected a tuple of length {len(args)}, got {len(value)}")
+    else:
+        for i, (item, expected) in enumerate(zip(value, args)):
+            try:
+                type_validator(f"{name}[{i}]", item, expected)
+            except TypeError as e:
+                raise TypeError(f"Invalid item at index {i} in tuple '{name}'") from e
+
+
+def _validate_set(name: str, value: Any, args: tuple[Any, ...]) -> None:
+    """Validate set[T] type."""
+    if not isinstance(value, set):
+        raise TypeError(f"Field '{name}' expected a set, got {type(value).__name__}")
+
+    # Validate each item in the set
+    item_type = args[0]
+    for i, item in enumerate(value):
+        try:
+            type_validator(f"{name} item", item, item_type)
+        except TypeError as e:
+            raise TypeError(f"Invalid item in set '{name}'") from e
+
+
+def _validate_sequence(name: str, value: Any, args: tuple[Any, ...]) -> None:
+    """Validate Sequence or Sequence[T] type."""
+    if not isinstance(value, collections.abc.Sequence):
+        raise TypeError(f"Field '{name}' expected a Sequence, got {type(value).__name__}")
+
+    # If no type argument is provided (i.e., just `Sequence`), skip item validation
+    if not args:
+        return
+
+    # Validate each item in the sequence
+    item_type = args[0]
+    for i, item in enumerate(value):
+        try:
+            type_validator(f"{name}[{i}]", item, item_type)
+        except TypeError as e:
+            raise TypeError(f"Invalid item at index {i} in sequence '{name}'") from e
+
+
+def _validate_simple_type(name: str, value: Any, expected_type: type) -> None:
+    """Validate simple type (int, str, etc.)."""
+    if expected_type is int and isinstance(value, bool):
+        raise TypeError(
+            f"Field '{name}' expected {expected_type.__name__}, got {type(value).__name__} (value: {repr(value)})"
+        )
+    if not isinstance(value, expected_type):
+        raise TypeError(
+            f"Field '{name}' expected {expected_type.__name__}, got {type(value).__name__} (value: {repr(value)})"
+        )
+
+
+def _create_type_validator(field: Field) -> Validator_T:
+    """Create a type validator function for a field."""
+    # Hacky: we cannot use a lambda here because of reference issues
+
+    def validator(value: Any) -> None:
+        type_validator(field.name, value, field.type)
+
+    return validator
+
+
+def _is_validator(validator: Any) -> bool:
+    """Check if a function is a validator.
+
+    A validator is a Callable that can be called with a single positional argument.
+    The validator can have more arguments with default values.
+
+    Basically, returns True if `validator(value)` is possible.
+    """
+    if not callable(validator):
+        return False
+
+    signature = inspect.signature(validator)
+    parameters = list(signature.parameters.values())
+    if len(parameters) == 0:
+        return False
+    if parameters[0].kind not in (
+        inspect.Parameter.POSITIONAL_OR_KEYWORD,
+        inspect.Parameter.POSITIONAL_ONLY,
+        inspect.Parameter.VAR_POSITIONAL,
+    ):
+        return False
+    for parameter in parameters[1:]:
+        if parameter.default == inspect.Parameter.empty:
+            return False
+    return True
+
+
+def _is_required_or_notrequired(type_hint: Any) -> bool:
+    """Helper to check if a type is Required/NotRequired."""
+    return type_hint in (Required, NotRequired) or (get_origin(type_hint) in (Required, NotRequired))
+
+
+_BASIC_TYPE_VALIDATORS: dict[Any, Callable[[str, Any, tuple[Any, ...]], None]] = {
+    Union: _validate_union,
+    Literal: _validate_literal,
+    list: _validate_list,
+    dict: _validate_dict,
+    tuple: _validate_tuple,
+    set: _validate_set,
+    collections.abc.Sequence: _validate_sequence,
+}
+
+# TODO: make it first class citizen when bumping to Python 3.10+
+_BASIC_TYPE_VALIDATORS[types.UnionType] = _validate_union  # x | y syntax, available only Python 3.10+
 
 
 __all__ = [
-    'dataclass',
-    'set_validation',
-    'create_pydantic_model_from_dataclass',
-    'is_builtin_dataclass',
-    'make_dataclass_validator',
+    "strict",
+    "validate_typed_dict",
+    "validated_field",
+    "Validator_T",
+    "StrictDataclassClassValidationError",
+    "StrictDataclassDefinitionError",
+    "StrictDataclassFieldValidationError",
 ]
-
-_T = TypeVar('_T')
-
-if sys.version_info >= (3, 10):
-
-    @dataclass_transform(field_specifiers=(dataclasses.field, Field))
-    @overload
-    def dataclass(
-        *,
-        init: bool = True,
-        repr: bool = True,
-        eq: bool = True,
-        order: bool = False,
-        unsafe_hash: bool = False,
-        frozen: bool = False,
-        config: Union[ConfigDict, Type[object], None] = None,
-        validate_on_init: Optional[bool] = None,
-        use_proxy: Optional[bool] = None,
-        kw_only: bool = ...,
-    ) -> Callable[[Type[_T]], 'DataclassClassOrWrapper']:
-        ...
-
-    @dataclass_transform(field_specifiers=(dataclasses.field, Field))
-    @overload
-    def dataclass(
-        _cls: Type[_T],
-        *,
-        init: bool = True,
-        repr: bool = True,
-        eq: bool = True,
-        order: bool = False,
-        unsafe_hash: bool = False,
-        frozen: bool = False,
-        config: Union[ConfigDict, Type[object], None] = None,
-        validate_on_init: Optional[bool] = None,
-        use_proxy: Optional[bool] = None,
-        kw_only: bool = ...,
-    ) -> 'DataclassClassOrWrapper':
-        ...
-
-else:
-
-    @dataclass_transform(field_specifiers=(dataclasses.field, Field))
-    @overload
-    def dataclass(
-        *,
-        init: bool = True,
-        repr: bool = True,
-        eq: bool = True,
-        order: bool = False,
-        unsafe_hash: bool = False,
-        frozen: bool = False,
-        config: Union[ConfigDict, Type[object], None] = None,
-        validate_on_init: Optional[bool] = None,
-        use_proxy: Optional[bool] = None,
-    ) -> Callable[[Type[_T]], 'DataclassClassOrWrapper']:
-        ...
-
-    @dataclass_transform(field_specifiers=(dataclasses.field, Field))
-    @overload
-    def dataclass(
-        _cls: Type[_T],
-        *,
-        init: bool = True,
-        repr: bool = True,
-        eq: bool = True,
-        order: bool = False,
-        unsafe_hash: bool = False,
-        frozen: bool = False,
-        config: Union[ConfigDict, Type[object], None] = None,
-        validate_on_init: Optional[bool] = None,
-        use_proxy: Optional[bool] = None,
-    ) -> 'DataclassClassOrWrapper':
-        ...
-
-
-@dataclass_transform(field_specifiers=(dataclasses.field, Field))
-def dataclass(
-    _cls: Optional[Type[_T]] = None,
-    *,
-    init: bool = True,
-    repr: bool = True,
-    eq: bool = True,
-    order: bool = False,
-    unsafe_hash: bool = False,
-    frozen: bool = False,
-    config: Union[ConfigDict, Type[object], None] = None,
-    validate_on_init: Optional[bool] = None,
-    use_proxy: Optional[bool] = None,
-    kw_only: bool = False,
-) -> Union[Callable[[Type[_T]], 'DataclassClassOrWrapper'], 'DataclassClassOrWrapper']:
-    """
-    Like the python standard lib dataclasses but with type validation.
-    The result is either a pydantic dataclass that will validate input data
-    or a wrapper that will trigger validation around a stdlib dataclass
-    to avoid modifying it directly
-    """
-    the_config = get_config(config)
-
-    def wrap(cls: Type[Any]) -> 'DataclassClassOrWrapper':
-        should_use_proxy = (
-            use_proxy
-            if use_proxy is not None
-            else (
-                is_builtin_dataclass(cls)
-                and (cls.__bases__[0] is object or set(dir(cls)) == set(dir(cls.__bases__[0])))
-            )
-        )
-        if should_use_proxy:
-            dc_cls_doc = ''
-            dc_cls = DataclassProxy(cls)
-            default_validate_on_init = False
-        else:
-            dc_cls_doc = cls.__doc__ or ''  # needs to be done before generating dataclass
-            if sys.version_info >= (3, 10):
-                dc_cls = dataclasses.dataclass(
-                    cls,
-                    init=init,
-                    repr=repr,
-                    eq=eq,
-                    order=order,
-                    unsafe_hash=unsafe_hash,
-                    frozen=frozen,
-                    kw_only=kw_only,
-                )
-            else:
-                dc_cls = dataclasses.dataclass(  # type: ignore
-                    cls, init=init, repr=repr, eq=eq, order=order, unsafe_hash=unsafe_hash, frozen=frozen
-                )
-            default_validate_on_init = True
-
-        should_validate_on_init = default_validate_on_init if validate_on_init is None else validate_on_init
-        _add_pydantic_validation_attributes(cls, the_config, should_validate_on_init, dc_cls_doc)
-        dc_cls.__pydantic_model__.__try_update_forward_refs__(**{cls.__name__: cls})
-        return dc_cls
-
-    if _cls is None:
-        return wrap
-
-    return wrap(_cls)
-
-
-@contextmanager
-def set_validation(cls: Type['DataclassT'], value: bool) -> Generator[Type['DataclassT'], None, None]:
-    original_run_validation = cls.__pydantic_run_validation__
-    try:
-        cls.__pydantic_run_validation__ = value
-        yield cls
-    finally:
-        cls.__pydantic_run_validation__ = original_run_validation
-
-
-class DataclassProxy:
-    __slots__ = '__dataclass__'
-
-    def __init__(self, dc_cls: Type['Dataclass']) -> None:
-        object.__setattr__(self, '__dataclass__', dc_cls)
-
-    def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        with set_validation(self.__dataclass__, True):
-            return self.__dataclass__(*args, **kwargs)
-
-    def __getattr__(self, name: str) -> Any:
-        return getattr(self.__dataclass__, name)
-
-    def __setattr__(self, __name: str, __value: Any) -> None:
-        return setattr(self.__dataclass__, __name, __value)
-
-    def __instancecheck__(self, instance: Any) -> bool:
-        return isinstance(instance, self.__dataclass__)
-
-    def __copy__(self) -> 'DataclassProxy':
-        return DataclassProxy(copy.copy(self.__dataclass__))
-
-    def __deepcopy__(self, memo: Any) -> 'DataclassProxy':
-        return DataclassProxy(copy.deepcopy(self.__dataclass__, memo))
-
-
-def _add_pydantic_validation_attributes(  # noqa: C901 (ignore complexity)
-    dc_cls: Type['Dataclass'],
-    config: Type[BaseConfig],
-    validate_on_init: bool,
-    dc_cls_doc: str,
-) -> None:
-    """
-    We need to replace the right method. If no `__post_init__` has been set in the stdlib dataclass
-    it won't even exist (code is generated on the fly by `dataclasses`)
-    By default, we run validation after `__init__` or `__post_init__` if defined
-    """
-    init = dc_cls.__init__
-
-    @wraps(init)
-    def handle_extra_init(self: 'Dataclass', *args: Any, **kwargs: Any) -> None:
-        if config.extra == Extra.ignore:
-            init(self, *args, **{k: v for k, v in kwargs.items() if k in self.__dataclass_fields__})
-
-        elif config.extra == Extra.allow:
-            for k, v in kwargs.items():
-                self.__dict__.setdefault(k, v)
-            init(self, *args, **{k: v for k, v in kwargs.items() if k in self.__dataclass_fields__})
-
-        else:
-            init(self, *args, **kwargs)
-
-    if hasattr(dc_cls, '__post_init__'):
-        try:
-            post_init = dc_cls.__post_init__.__wrapped__  # type: ignore[attr-defined]
-        except AttributeError:
-            post_init = dc_cls.__post_init__
-
-        @wraps(post_init)
-        def new_post_init(self: 'Dataclass', *args: Any, **kwargs: Any) -> None:
-            if config.post_init_call == 'before_validation':
-                post_init(self, *args, **kwargs)
-
-            if self.__class__.__pydantic_run_validation__:
-                self.__pydantic_validate_values__()
-                if hasattr(self, '__post_init_post_parse__'):
-                    self.__post_init_post_parse__(*args, **kwargs)
-
-            if config.post_init_call == 'after_validation':
-                post_init(self, *args, **kwargs)
-
-        setattr(dc_cls, '__init__', handle_extra_init)
-        setattr(dc_cls, '__post_init__', new_post_init)
-
-    else:
-
-        @wraps(init)
-        def new_init(self: 'Dataclass', *args: Any, **kwargs: Any) -> None:
-            handle_extra_init(self, *args, **kwargs)
-
-            if self.__class__.__pydantic_run_validation__:
-                self.__pydantic_validate_values__()
-
-            if hasattr(self, '__post_init_post_parse__'):
-                # We need to find again the initvars. To do that we use `__dataclass_fields__` instead of
-                # public method `dataclasses.fields`
-
-                # get all initvars and their default values
-                initvars_and_values: Dict[str, Any] = {}
-                for i, f in enumerate(self.__class__.__dataclass_fields__.values()):
-                    if f._field_type is dataclasses._FIELD_INITVAR:  # type: ignore[attr-defined]
-                        try:
-                            # set arg value by default
-                            initvars_and_values[f.name] = args[i]
-                        except IndexError:
-                            initvars_and_values[f.name] = kwargs.get(f.name, f.default)
-
-                self.__post_init_post_parse__(**initvars_and_values)
-
-        setattr(dc_cls, '__init__', new_init)
-
-    setattr(dc_cls, '__pydantic_run_validation__', ClassAttribute('__pydantic_run_validation__', validate_on_init))
-    setattr(dc_cls, '__pydantic_initialised__', False)
-    setattr(dc_cls, '__pydantic_model__', create_pydantic_model_from_dataclass(dc_cls, config, dc_cls_doc))
-    setattr(dc_cls, '__pydantic_validate_values__', _dataclass_validate_values)
-    setattr(dc_cls, '__validate__', classmethod(_validate_dataclass))
-    setattr(dc_cls, '__get_validators__', classmethod(_get_validators))
-
-    if dc_cls.__pydantic_model__.__config__.validate_assignment and not dc_cls.__dataclass_params__.frozen:
-        setattr(dc_cls, '__setattr__', _dataclass_validate_assignment_setattr)
-
-
-def _get_validators(cls: 'DataclassClassOrWrapper') -> 'CallableGenerator':
-    yield cls.__validate__
-
-
-def _validate_dataclass(cls: Type['DataclassT'], v: Any) -> 'DataclassT':
-    with set_validation(cls, True):
-        if isinstance(v, cls):
-            v.__pydantic_validate_values__()
-            return v
-        elif isinstance(v, (list, tuple)):
-            return cls(*v)
-        elif isinstance(v, dict):
-            return cls(**v)
-        else:
-            raise DataclassTypeError(class_name=cls.__name__)
-
-
-def create_pydantic_model_from_dataclass(
-    dc_cls: Type['Dataclass'],
-    config: Type[Any] = BaseConfig,
-    dc_cls_doc: Optional[str] = None,
-) -> Type['BaseModel']:
-    field_definitions: Dict[str, Any] = {}
-    for field in dataclasses.fields(dc_cls):
-        default: Any = Undefined
-        default_factory: Optional['NoArgAnyCallable'] = None
-        field_info: FieldInfo
-
-        if field.default is not dataclasses.MISSING:
-            default = field.default
-        elif field.default_factory is not dataclasses.MISSING:
-            default_factory = field.default_factory
-        else:
-            default = Required
-
-        if isinstance(default, FieldInfo):
-            field_info = default
-            dc_cls.__pydantic_has_field_info_default__ = True
-        else:
-            field_info = Field(default=default, default_factory=default_factory, **field.metadata)
-
-        field_definitions[field.name] = (field.type, field_info)
-
-    validators = gather_all_validators(dc_cls)
-    model: Type['BaseModel'] = create_model(
-        dc_cls.__name__,
-        __config__=config,
-        __module__=dc_cls.__module__,
-        __validators__=validators,
-        __cls_kwargs__={'__resolve_forward_refs__': False},
-        **field_definitions,
-    )
-    model.__doc__ = dc_cls_doc if dc_cls_doc is not None else dc_cls.__doc__ or ''
-    return model
-
-
-if sys.version_info >= (3, 8):
-
-    def _is_field_cached_property(obj: 'Dataclass', k: str) -> bool:
-        return isinstance(getattr(type(obj), k, None), cached_property)
-
-else:
-
-    def _is_field_cached_property(obj: 'Dataclass', k: str) -> bool:
-        return False
-
-
-def _dataclass_validate_values(self: 'Dataclass') -> None:
-    # validation errors can occur if this function is called twice on an already initialised dataclass.
-    # for example if Extra.forbid is enabled, it would consider __pydantic_initialised__ an invalid extra property
-    if getattr(self, '__pydantic_initialised__'):
-        return
-    if getattr(self, '__pydantic_has_field_info_default__', False):
-        # We need to remove `FieldInfo` values since they are not valid as input
-        # It's ok to do that because they are obviously the default values!
-        input_data = {
-            k: v
-            for k, v in self.__dict__.items()
-            if not (isinstance(v, FieldInfo) or _is_field_cached_property(self, k))
-        }
-    else:
-        input_data = {k: v for k, v in self.__dict__.items() if not _is_field_cached_property(self, k)}
-    d, _, validation_error = validate_model(self.__pydantic_model__, input_data, cls=self.__class__)
-    if validation_error:
-        raise validation_error
-    self.__dict__.update(d)
-    object.__setattr__(self, '__pydantic_initialised__', True)
-
-
-def _dataclass_validate_assignment_setattr(self: 'Dataclass', name: str, value: Any) -> None:
-    if self.__pydantic_initialised__:
-        d = dict(self.__dict__)
-        d.pop(name, None)
-        known_field = self.__pydantic_model__.__fields__.get(name, None)
-        if known_field:
-            value, error_ = known_field.validate(value, d, loc=name, cls=self.__class__)
-            if error_:
-                raise ValidationError([error_], self.__class__)
-
-    object.__setattr__(self, name, value)
-
-
-def is_builtin_dataclass(_cls: Type[Any]) -> bool:
-    """
-    Whether a class is a stdlib dataclass
-    (useful to discriminated a pydantic dataclass that is actually a wrapper around a stdlib dataclass)
-
-    we check that
-    - `_cls` is a dataclass
-    - `_cls` is not a processed pydantic dataclass (with a basemodel attached)
-    - `_cls` is not a pydantic dataclass inheriting directly from a stdlib dataclass
-    e.g.
-    ```
-    @dataclasses.dataclass
-    class A:
-        x: int
-
-    @pydantic.dataclasses.dataclass
-    class B(A):
-        y: int
-    ```
-    In this case, when we first check `B`, we make an extra check and look at the annotations ('y'),
-    which won't be a superset of all the dataclass fields (only the stdlib fields i.e. 'x')
-    """
-    return (
-        dataclasses.is_dataclass(_cls)
-        and not hasattr(_cls, '__pydantic_model__')
-        and set(_cls.__dataclass_fields__).issuperset(set(getattr(_cls, '__annotations__', {})))
-    )
-
-
-def make_dataclass_validator(dc_cls: Type['Dataclass'], config: Type[BaseConfig]) -> 'CallableGenerator':
-    """
-    Create a pydantic.dataclass from a builtin dataclass to add type validation
-    and yield the validators
-    It retrieves the parameters of the dataclass and forwards them to the newly created dataclass
-    """
-    yield from _get_validators(dataclass(dc_cls, config=config, use_proxy=True))

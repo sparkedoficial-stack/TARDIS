@@ -1,51 +1,67 @@
 from __future__ import annotations
 
 import typing as t
-from contextvars import ContextVar
+from threading import local
 
-from werkzeug.local import LocalProxy
+if t.TYPE_CHECKING:
+    from .core import Context
 
-if t.TYPE_CHECKING:  # pragma: no cover
-    from .app import Flask
-    from .ctx import _AppCtxGlobals
-    from .ctx import AppContext
-    from .ctx import RequestContext
-    from .sessions import SessionMixin
-    from .wrappers import Request
+_local = local()
 
 
-_no_app_msg = """\
-Working outside of application context.
+@t.overload
+def get_current_context(silent: t.Literal[False] = False) -> Context: ...
 
-This typically means that you attempted to use functionality that needed
-the current application. To solve this, set up an application context
-with app.app_context(). See the documentation for more information.\
-"""
-_cv_app: ContextVar[AppContext] = ContextVar("flask.app_ctx")
-app_ctx: AppContext = LocalProxy(  # type: ignore[assignment]
-    _cv_app, unbound_message=_no_app_msg
-)
-current_app: Flask = LocalProxy(  # type: ignore[assignment]
-    _cv_app, "app", unbound_message=_no_app_msg
-)
-g: _AppCtxGlobals = LocalProxy(  # type: ignore[assignment]
-    _cv_app, "g", unbound_message=_no_app_msg
-)
 
-_no_req_msg = """\
-Working outside of request context.
+@t.overload
+def get_current_context(silent: bool = ...) -> Context | None: ...
 
-This typically means that you attempted to use functionality that needed
-an active HTTP request. Consult the documentation on testing for
-information about how to avoid this problem.\
-"""
-_cv_request: ContextVar[RequestContext] = ContextVar("flask.request_ctx")
-request_ctx: RequestContext = LocalProxy(  # type: ignore[assignment]
-    _cv_request, unbound_message=_no_req_msg
-)
-request: Request = LocalProxy(  # type: ignore[assignment]
-    _cv_request, "request", unbound_message=_no_req_msg
-)
-session: SessionMixin = LocalProxy(  # type: ignore[assignment]
-    _cv_request, "session", unbound_message=_no_req_msg
-)
+
+def get_current_context(silent: bool = False) -> Context | None:
+    """Returns the current click context.  This can be used as a way to
+    access the current context object from anywhere.  This is a more implicit
+    alternative to the :func:`pass_context` decorator.  This function is
+    primarily useful for helpers such as :func:`echo` which might be
+    interested in changing its behavior based on the current context.
+
+    To push the current context, :meth:`Context.scope` can be used.
+
+    .. versionadded:: 5.0
+
+    :param silent: if set to `True` the return value is `None` if no context
+                   is available.  The default behavior is to raise a
+                   :exc:`RuntimeError`.
+    """
+    try:
+        return t.cast("Context", _local.stack[-1])
+    except (AttributeError, IndexError) as e:
+        if not silent:
+            raise RuntimeError("There is no active click context.") from e
+
+    return None
+
+
+def push_context(ctx: Context) -> None:
+    """Pushes a new context to the current stack."""
+    _local.__dict__.setdefault("stack", []).append(ctx)
+
+
+def pop_context() -> None:
+    """Removes the top level from the stack."""
+    _local.stack.pop()
+
+
+def resolve_color_default(color: bool | None = None) -> bool | None:
+    """Internal helper to get the default value of the color flag.  If a
+    value is passed it's returned unchanged, otherwise it's looked up from
+    the current context.
+    """
+    if color is not None:
+        return color
+
+    ctx = get_current_context(silent=True)
+
+    if ctx is not None:
+        return ctx.color
+
+    return None

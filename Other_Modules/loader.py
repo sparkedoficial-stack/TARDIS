@@ -1,50 +1,62 @@
-from ctypes.util import find_library
-import ctypes
-import sys
-import glob
-import os.path
+# Copyright (c) 2023 Riverbank Computing Limited.
+# Copyright (c) 2006 Thorsten Marek.
+# All right reserved.
+#
+# This file is part of PyQt.
+#
+# You may use this file under the terms of the GPL v3 or the revised BSD
+# license as follows:
+#
+# "Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#   * Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#   * Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in
+#     the documentation and/or other materials provided with the
+#     distribution.
+#   * Neither the name of the Riverbank Computing Limited nor the names
+#     of its contributors may be used to endorse or promote products
+#     derived from this software without specific prior written
+#     permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
 
-def _lib_candidates():
 
-  yield find_library('magic')
+from PyQt6 import QtCore, QtGui, QtWidgets
 
-  if sys.platform == 'darwin':
-
-    paths = [
-      '/opt/local/lib',
-      '/usr/local/lib',
-      '/opt/homebrew/lib',
-    ] + glob.glob('/usr/local/Cellar/libmagic/*/lib')
-
-    for i in paths:
-      yield os.path.join(i, 'libmagic.dylib')
-
-  elif sys.platform in ('win32', 'cygwin'):
-
-    prefixes = ['libmagic', 'magic1', 'cygmagic-1', 'libmagic-1', 'msys-magic-1']
-
-    for i in prefixes:
-      # find_library searches in %PATH% but not the current directory,
-      # so look for both
-      yield './%s.dll' % (i,)
-      yield find_library(i)
-
-  elif sys.platform == 'linux':
-    # This is necessary because alpine is bad
-    yield 'libmagic.so.1'
+from ..uiparser import UIParser
+from .qobjectcreator import LoaderCreatorPolicy
 
 
-def load_lib():
+class DynamicUILoader(UIParser):
+    def __init__(self, package):
+        UIParser.__init__(self, QtCore, QtGui, QtWidgets,
+                LoaderCreatorPolicy(package))
 
-  for lib in _lib_candidates():
-    # find_library returns None when lib not found
-    if lib is None:
-      continue
-    try:
-      return ctypes.CDLL(lib)
-    except OSError:
-      pass
-  else:
-    # It is better to raise an ImportError since we are importing magic module
-    raise ImportError('failed to find libmagic.  Check your installation')
+    def createToplevelWidget(self, classname, widgetname):
+        if self.toplevelInst is None:
+            return self.factory.createQtObject(classname, widgetname)
 
+        if not isinstance(self.toplevelInst, self.factory.findQObjectType(classname)):
+            raise TypeError(
+                    ("Wrong base class of toplevel widget",
+                            (type(self.toplevelInst), classname)))
+
+        return self.toplevelInst
+
+    def loadUi(self, filename, toplevelInst):
+        self.toplevelInst = toplevelInst
+
+        return self.parse(filename)

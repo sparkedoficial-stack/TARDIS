@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import contextlib
 import typing
+from collections.abc import AsyncGenerator
 
 from .._models import (
     URL,
@@ -58,7 +59,7 @@ class AsyncRequestInterface:
         headers: HeaderTypes = None,
         content: bytes | typing.AsyncIterator[bytes] | None = None,
         extensions: Extensions | None = None,
-    ) -> typing.AsyncIterator[Response]:
+    ) -> AsyncGenerator[Response]:
         # Strict type checking on our parameters.
         method = enforce_bytes(method, name="method")
         url = enforce_url(url, name="url")
@@ -81,18 +82,30 @@ class AsyncRequestInterface:
             await response.aclose()
 
     async def handle_async_request(self, request: Request) -> Response:
-        raise NotImplementedError()  # pragma: nocover
+        raise NotImplementedError()  # pragma: no cover
 
 
 class AsyncConnectionInterface(AsyncRequestInterface):
     async def aclose(self) -> None:
-        raise NotImplementedError()  # pragma: nocover
+        raise NotImplementedError()  # pragma: no cover
 
     def info(self) -> str:
-        raise NotImplementedError()  # pragma: nocover
+        raise NotImplementedError()  # pragma: no cover
 
     def can_handle_request(self, origin: Origin) -> bool:
-        raise NotImplementedError()  # pragma: nocover
+        raise NotImplementedError()  # pragma: no cover
+
+    def is_connected(self) -> bool:
+        """
+        Return `True` if the connection is open (the underlying socket has been
+        established).  A connection in the NEW state (just created but not yet
+        connected) returns `False`.
+
+        Note: for some implementations `is_connected() != not is_closed()`.
+        The default implementation returns `not self.is_closed()`, which is
+        correct for connections that are never in the NEW (pre-TCP) state.
+        """
+        return not self.is_closed()  # pragma: no cover
 
     def is_available(self) -> bool:
         """
@@ -110,7 +123,7 @@ class AsyncConnectionInterface(AsyncRequestInterface):
         required exceptions if multiple requests are attempted over a connection
         that ends up being established as HTTP/1.1.
         """
-        raise NotImplementedError()  # pragma: nocover
+        raise NotImplementedError()  # pragma: no cover
 
     def has_expired(self) -> bool:
         """
@@ -119,13 +132,23 @@ class AsyncConnectionInterface(AsyncRequestInterface):
         This either means that the connection is idle and it has passed the
         expiry time on its keep-alive, or that server has sent an EOF.
         """
-        raise NotImplementedError()  # pragma: nocover
+        raise NotImplementedError()  # pragma: no cover
 
     def is_idle(self) -> bool:
         """
         Return `True` if the connection is currently idle.
         """
-        raise NotImplementedError()  # pragma: nocover
+        raise NotImplementedError()  # pragma: no cover
+
+    def can_multiplex(self) -> bool:
+        """
+        Return `True` if the connection can serve multiple requests
+        concurrently, such as an established HTTP/2 connection.
+
+        The default covers HTTP/1.1-style implementations, which serve a
+        single request at a time.
+        """
+        return False
 
     def is_closed(self) -> bool:
         """
@@ -134,4 +157,4 @@ class AsyncConnectionInterface(AsyncRequestInterface):
         Used when a response is closed to determine if the connection may be
         returned to the connection pool or not.
         """
-        raise NotImplementedError()  # pragma: nocover
+        raise NotImplementedError()  # pragma: no cover

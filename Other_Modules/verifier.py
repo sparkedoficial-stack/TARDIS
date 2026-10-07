@@ -1,306 +1,584 @@
-#
-# DEPRECATED: implementation for ffi.verify()
-#
-import sys, os, binascii, shutil, io
-from . import __version_verifier_modules__
-from . import ffiplatform
-from .error import VerificationError
+# mypy: allow-untyped-defs
+import inspect
+import math
+import operator
+from collections.abc import Iterable
+from typing import Any, final, TYPE_CHECKING
 
-if sys.version_info >= (3, 3):
-    import importlib.machinery
-    def _extension_suffixes():
-        return importlib.machinery.EXTENSION_SUFFIXES[:]
-else:
-    import imp
-    def _extension_suffixes():
-        return [suffix for suffix, _, type in imp.get_suffixes()
-                if type == imp.C_EXTENSION]
-
-
-if sys.version_info >= (3,):
-    NativeIO = io.StringIO
-else:
-    class NativeIO(io.BytesIO):
-        def write(self, s):
-            if isinstance(s, unicode):
-                s = s.encode('ascii')
-            super().write(s)
+import torch
+from torch._library.opaque_object import is_custom_class
+from torch._ops import HigherOrderOperator, OpOverload
+from torch._subclasses.fake_tensor import FakeTensor
+from torch.export.graph_signature import (
+    CustomObjArgument,
+    InputKind,
+    SymBoolArgument,
+    SymFloatArgument,
+    SymIntArgument,
+    TensorArgument,
+    TokenArgument,
+)
+from torch.fx import GraphModule
 
 
-class Verifier:
+if TYPE_CHECKING:
+    from torch.export.exported_program import ExportedProgram
 
-    def __init__(self, ffi, preamble, tmpdir=None, modulename=None,
-                 ext_package=None, tag='', force_generic_engine=False,
-                 source_extension='.c', flags=None, relative_to=None, **kwds):
-        if ffi._parser._uses_new_feature:
-            raise VerificationError(
-                "feature not supported with ffi.verify(), but only "
-                "with ffi.set_source(): %s" % (ffi._parser._uses_new_feature,))
-        self.ffi = ffi
-        self.preamble = preamble
-        if not modulename:
-            flattened_kwds = ffiplatform.flatten(kwds)
-        vengine_class = _locate_engine_class(ffi, force_generic_engine)
-        self._vengine = vengine_class(self)
-        self._vengine.patch_extension_kwds(kwds)
-        self.flags = flags
-        self.kwds = self.make_relative_to(kwds, relative_to)
-        #
-        if modulename:
-            if tag:
-                raise TypeError("can't specify both 'modulename' and 'tag'")
+
+class SpecViolationError(Exception):
+    pass
+
+
+def is_functional(op: OpOverload) -> bool:
+    return not op._schema.is_mutable
+
+
+def _check_has_fake_tensor(node: torch.fx.Node) -> None:
+    # TODO(angelayi): remove this in favor of _check_val
+    return _check_val(node)
+
+
+def _check_val(node: torch.fx.Node) -> None:
+    from torch.fx.experimental.symbolic_shapes import SymBool, SymFloat, SymInt
+
+    def _check_correct_val(val):
+        if val is None:
+            return True
+        elif isinstance(val, (int, bool, str, float)):
+            return True
+        elif isinstance(
+            val, (torch.memory_format, torch.dtype, torch.device, torch.layout)
+        ):
+            return True
+        elif isinstance(
+            val, (FakeTensor, torch.Tensor)
+        ):  # TODO(zhxchen17) Remove Tensor.
+            return True
+        elif isinstance(val, (SymInt, SymFloat, SymBool)):
+            return True
+        elif isinstance(val, CustomObjArgument):
+            return True
+        elif isinstance(val, Iterable):
+            return all(_check_correct_val(x) for x in val)
+        elif is_custom_class(type(val)):
+            return True
+        return False
+
+    def _no_returns(op):
+        if not isinstance(op, OpOverload):
+            return False
+        return len(op._schema.returns) == 0
+
+    if "val" not in node.meta:
+        if node.op == "call_function" and _no_returns(node.target):
+            return
+        raise SpecViolationError(f"Node.meta {node.name} is missing val field.")
+
+    val = node.meta["val"]
+    if not _check_correct_val(val):
+        raise SpecViolationError(f"Node.meta {node.name} has invalid val field {val}")
+
+
+def _check_torch_fn(node: torch.fx.Node) -> None:
+    torch_fn = node.meta.get("torch_fn")
+    if torch_fn is None:
+        raise SpecViolationError(
+            f"Unable to find torch_fn metadata for node {node.name}"
+        )
+    if (
+        not isinstance(torch_fn, tuple)
+        and isinstance(torch_fn[0], str)
+        and isinstance(torch_fn[1], str)
+    ):
+        raise SpecViolationError(
+            f"Node.meta {node.name} has invalid torch_fn field {torch_fn}"
+        )
+
+
+class _VerifierMeta(type):
+    _registry: dict[str, type["Verifier"]] = {}
+
+    def __new__(metacls, name, bases, attrs):
+        if bases:
+            if "check" in attrs or "_check_graph_module" in attrs:
+                raise SyntaxError("Overriding method check is not allowed.")
+            if "dialect" not in attrs or attrs["dialect"] == "ATEN":
+                raise AssertionError(
+                    f"subclass must define dialect != 'ATEN', got {attrs.get('dialect')}"
+                )
         else:
-            key = '\x00'.join(['%d.%d' % sys.version_info[:2],
-                               __version_verifier_modules__,
-                               preamble, flattened_kwds] +
-                              ffi._cdefsources)
-            if sys.version_info >= (3,):
-                key = key.encode('utf-8')
-            k1 = hex(binascii.crc32(key[0::2]) & 0xffffffff)
-            k1 = k1.lstrip('0x').rstrip('L')
-            k2 = hex(binascii.crc32(key[1::2]) & 0xffffffff)
-            k2 = k2.lstrip('0').rstrip('L')
-            modulename = '_cffi_%s_%s%s%s' % (tag, self._vengine._class_key,
-                                              k1, k2)
-        suffix = _get_so_suffixes()[0]
-        self.tmpdir = tmpdir or _caller_dir_pycache()
-        self.sourcefilename = os.path.join(self.tmpdir, modulename + source_extension)
-        self.modulefilename = os.path.join(self.tmpdir, modulename + suffix)
-        self.ext_package = ext_package
-        self._has_source = False
-        self._has_module = False
+            if "check" not in attrs:
+                raise AssertionError("base class must define 'check' method")
+            if "_check_graph_module" not in attrs:
+                raise AssertionError(
+                    "base class must define '_check_graph_module' method"
+                )
+            if attrs["dialect"] != "ATEN":
+                raise AssertionError(
+                    f"base class dialect must be 'ATEN', got {attrs['dialect']}"
+                )
 
-    def write_source(self, file=None):
-        """Write the C source code.  It is produced in 'self.sourcefilename',
-        which can be tweaked beforehand."""
-        with self.ffi._lock:
-            if self._has_source and file is None:
-                raise VerificationError(
-                    "source code already written")
-            self._write_source(file)
+        if not isinstance(attrs["dialect"], str):
+            raise AssertionError(f"dialect must be str, got {type(attrs['dialect'])}")
+        ret = type.__new__(metacls, name, bases, attrs)
+        metacls._registry[attrs["dialect"]] = ret  # type: ignore[assignment]
+        return ret
 
-    def compile_module(self):
-        """Write the C source code (if not done already) and compile it.
-        This produces a dynamic link library in 'self.modulefilename'."""
-        with self.ffi._lock:
-            if self._has_module:
-                raise VerificationError("module already compiled")
-            if not self._has_source:
-                self._write_source()
-            self._compile_module()
 
-    def load_library(self):
-        """Get a C module from this Verifier instance.
-        Returns an instance of a FFILibrary class that behaves like the
-        objects returned by ffi.dlopen(), but that delegates all
-        operations to the C module.  If necessary, the C code is written
-        and compiled first.
+def getattr_recursive(obj: Any, target: str) -> Any:
+    target_atoms = target.split(".")
+    attr_itr = obj
+    for i, atom in enumerate(target_atoms):
+        if not hasattr(attr_itr, atom):
+            raise RuntimeError(
+                f"Node referenced nonexistent target {'.'.join(target_atoms[:i])}"
+            )
+        attr_itr = getattr(attr_itr, atom)
+    return attr_itr
+
+
+class Verifier(metaclass=_VerifierMeta):
+    dialect = "ATEN"
+
+    def allowed_builtin_ops(self) -> list:
+        return [
+            operator.getitem,
+            operator.add,
+            operator.mul,
+            operator.sub,
+            operator.truediv,
+            operator.ge,
+            operator.le,
+            operator.gt,
+            operator.lt,
+            operator.eq,
+            operator.ne,
+            operator.floordiv,
+            operator.mod,
+            operator.and_,
+            operator.or_,
+            operator.not_,
+            operator.pow,
+            operator.neg,
+            operator.abs,
+            operator.lshift,
+            operator.rshift,
+            math.ceil,
+            math.floor,
+            math.trunc,
+            round,
+        ]
+
+    def allowed_op_types(self) -> tuple[type[Any], ...]:
+        return (OpOverload, HigherOrderOperator)
+
+    def allowed_getattr_types(self) -> tuple[type[Any], ...]:
+        return (torch.fx.GraphModule, torch.utils._pytree.TreeSpec)
+
+    def allowed_getattr_types_for_subgm(self) -> tuple[type[Any], ...]:
+        # subgm in HOP's argument could have getattr(weight) nodes, thus stateful
+        return (
+            torch.fx.GraphModule,
+            torch.nn.parameter.Parameter,
+            torch.Tensor,  # for buffer and constant tensor
+            torch.utils._pytree.TreeSpec,
+        )
+
+    def check_valid_op(self, op):
+        pass
+
+    def check_additional(self, gm: GraphModule) -> None:
         """
-        with self.ffi._lock:
-            if not self._has_module:
-                self._locate_module()
-                if not self._has_module:
-                    if not self._has_source:
-                        self._write_source()
-                    self._compile_module()
-            return self._load_library()
+        Additional checks that are specific to some dialects.
+        """
 
-    def get_module_name(self):
-        basename = os.path.basename(self.modulefilename)
-        # kill both the .so extension and the other .'s, as introduced
-        # by Python 3: 'basename.cpython-33m.so'
-        basename = basename.split('.', 1)[0]
-        # and the _d added in Python 2 debug builds --- but try to be
-        # conservative and not kill a legitimate _d
-        if basename.endswith('_d') and hasattr(sys, 'gettotalrefcount'):
-            basename = basename[:-2]
-        return basename
+    @final
+    def check(self, ep: "ExportedProgram") -> None:
+        self._check_graph_module(ep.graph_module)
+        _verify_exported_program_module_call_graph(ep)
+        _verify_exported_program_signature(ep)
 
-    def get_extension(self):
-        if not self._has_source:
-            with self.ffi._lock:
-                if not self._has_source:
-                    self._write_source()
-        sourcename = ffiplatform.maybe_relative_path(self.sourcefilename)
-        modname = self.get_module_name()
-        return ffiplatform.get_extension(sourcename, modname, **self.kwds)
-
-    def generates_python_module(self):
-        return self._vengine._gen_python_module
-
-    def make_relative_to(self, kwds, relative_to):
-        if relative_to and os.path.dirname(relative_to):
-            dirname = os.path.dirname(relative_to)
-            kwds = kwds.copy()
-            for key in ffiplatform.LIST_OF_FILE_NAMES:
-                if key in kwds:
-                    lst = kwds[key]
-                    if not isinstance(lst, (list, tuple)):
-                        raise TypeError("keyword '%s' should be a list or tuple"
-                                        % (key,))
-                    lst = [os.path.join(dirname, fn) for fn in lst]
-                    kwds[key] = lst
-        return kwds
-
-    # ----------
-
-    def _locate_module(self):
-        if not os.path.isfile(self.modulefilename):
-            if self.ext_package:
-                try:
-                    pkg = __import__(self.ext_package, None, None, ['__doc__'])
-                except ImportError:
-                    return      # cannot import the package itself, give up
-                    # (e.g. it might be called differently before installation)
-                path = pkg.__path__
+    @final
+    def _check_graph_module(self, gm: torch.fx.GraphModule) -> None:
+        def _allowed_getattr_types(is_toplevel_gm) -> tuple[type[Any], ...]:
+            if is_toplevel_gm:
+                ret = self.allowed_getattr_types()
             else:
-                path = None
-            filename = self._vengine.find_module(self.get_module_name(), path,
-                                                 _get_so_suffixes())
-            if filename is None:
-                return
-            self.modulefilename = filename
-        self._vengine.collect_types()
-        self._has_module = True
+                ret = self.allowed_getattr_types_for_subgm()
+            if any(t is object for t in ret):
+                raise AssertionError("allowed_getattr_types must not contain 'object'")
+            return ret
 
-    def _write_source_to(self, file):
-        self._vengine._f = file
-        try:
-            self._vengine.write_source_to_f()
-        finally:
-            del self._vengine._f
+        def _check_valid_op(op) -> None:
+            def _allowed_builtin_ops() -> list:
+                ret = self.allowed_builtin_ops()
+                if not all(inspect.isbuiltin(op) for op in ret):
+                    raise AssertionError("allowed_builtin_ops must all be builtins")
+                return ret
 
-    def _write_source(self, file=None):
-        if file is not None:
-            self._write_source_to(file)
+            def _allowed_op_types() -> tuple[type[Any], ...]:
+                ret = self.allowed_op_types()
+                if any(t is object for t in ret):
+                    raise AssertionError("allowed_op_types must not contain 'object'")
+                return ret
+
+            # TODO Remove this allowlist.
+            _allowed_torch_functions = (
+                torch.autograd.grad_mode.set_grad_enabled,
+                torch.sym_int,
+                torch.sym_float,
+                torch.sym_ite,
+                torch.sym_max,
+                torch.sym_min,
+                torch.sym_not,
+                torch.sym_sqrt,
+                torch.sym_sum,
+                torch.export.custom_ops._call_custom_autograd_function_in_pre_dispatch,
+                # TODO (tmanlaibaatar)
+                # Predispatch export is able to contain autograd ops.
+                # These will be modeled as HOO later
+                torch._C._set_grad_enabled,
+                torch.amp.autocast_mode._enter_autocast,
+                torch.amp.autocast_mode._exit_autocast,
+                torch.fx.experimental.symbolic_shapes.cast_symbool_to_symint_guardless,
+                torch._functorch.predispatch._add_batch_dim,
+                torch._functorch.predispatch._remove_batch_dim,
+                torch._functorch.predispatch._vmap_increment_nesting,
+                torch._functorch.predispatch._vmap_decrement_nesting,
+                torch._functorch.predispatch.lazy_load_decompositions,
+                torch._functorch.predispatch._make_dual,
+                torch._functorch.predispatch._unpack_dual,
+                torch._functorch.predispatch._jvp_increment_nesting,
+                torch._functorch.predispatch._jvp_decrement_nesting,
+                torch._functorch.predispatch._unwrap_for_grad,
+                torch._functorch.predispatch._enter_dual_level,
+                torch._functorch.predispatch._exit_dual_level,
+            )
+
+            if not isinstance(op, _allowed_op_types()):
+                if (
+                    op not in _allowed_builtin_ops()
+                    and op not in _allowed_torch_functions
+                ):
+                    raise SpecViolationError(
+                        f"Operator '{op}' is not an allowed operator type: {_allowed_op_types()}\n"
+                        f"Valid builtin ops: {_allowed_builtin_ops()}"
+                        f"Valid torch functions: {_allowed_torch_functions}"
+                    )
+
+            if isinstance(op, OpOverload):
+                # All ops functional
+                # TODO (tmanlaibaatar) more proper way is needed here
+                if self.dialect != "TRAINING" and not is_functional(op):
+                    raise SpecViolationError(f"operator '{op}' is not functional")
+            self.check_valid_op(op)
+
+        for mod in gm.modules():
+            is_toplevel_gm = mod is gm
+
+            if not isinstance(mod, torch.fx.GraphModule):
+                continue
+
+            mod.graph.lint()
+            for node in mod.graph.nodes:
+                # TODO(T140410192): should have fake tensor for all dialects
+                if node.op in {"call_module", "call_method"}:
+                    raise SpecViolationError(
+                        f"call_module is not valid: got a class '{node.target}' ",
+                    )
+
+                elif node.op == "call_function":
+                    _check_val(node)
+
+                    _check_valid_op(node.target)
+
+                elif node.op == "get_attr":
+                    if not isinstance(node.target, str):
+                        raise SpecViolationError(
+                            f"Expected get_attr target to be string, but got {type(node.target)}"
+                        )
+
+                    attr = getattr_recursive(mod, node.target)
+                    if isinstance(attr, torch.nn.Module):
+
+                        def _is_type(name, ty):
+                            return isinstance(getattr(attr, name, None), ty)
+
+                        if type(attr).__name__ == "LoweredBackendModule":
+                            if (
+                                _is_type("backend_id", str)
+                                and hasattr(attr, "original_module")
+                                and hasattr(attr, "module_name")
+                                and getattr(attr, "backend_id", None) == "aoti"
+                            ):
+                                continue
+                            if (
+                                _is_type("backend_id", str)
+                                and _is_type("processed_bytes", bytes)
+                                and _is_type("compile_specs", list)
+                                and hasattr(attr, "original_module")
+                            ):
+                                continue
+                            else:
+                                backend_id = getattr(attr, "backend_id", None)
+                                processed_bytes = getattr(attr, "processed_bytes", None)
+                                compile_specs = getattr(attr, "compile_specs", None)
+                                raise SpecViolationError(
+                                    f"Invalid get_attr type {type(attr)}. \n"
+                                    f"LoweredBackendModule fields: "
+                                    f"backend_id(str) : {type(backend_id)}, "
+                                    f"processed_bytes(bytes) : {type(processed_bytes)}, "
+                                    f"compile_specs(list) : {type(compile_specs)}"
+                                )
+                        elif type(attr).__name__ == "AOTInductorEPModule":
+                            continue
+
+                        elif type(attr).__name__ == "AOTInductorRunnerWrapper":
+                            continue
+
+                    if not isinstance(attr, _allowed_getattr_types(is_toplevel_gm)):
+                        raise SpecViolationError(
+                            f"Invalid get_attr type {type(attr)} on target {node.target}. \n"
+                            f"Valid get_attr types: {_allowed_getattr_types(is_toplevel_gm)}"
+                        )
+
+                elif node.op == "placeholder":
+                    _check_val(node)
+                # TODO(zhxchen17)
+                # elif node.op == "output":
+                #     _check_flattened_outputs()
+
+        self.check_additional(gm)
+
+
+class TrainingIRVerifier(Verifier):
+    dialect = "TRAINING"
+
+
+def _verify_exported_program_module_call_graph(exported_program) -> None:
+    module_call_graph = exported_program.module_call_graph
+    nodes = {node.name for node in exported_program.graph.nodes}
+    for entry in module_call_graph:
+        if entry.signature is not None:
+            for arg in entry.signature.inputs:
+                if arg.name and arg.name not in nodes:
+                    raise SpecViolationError(
+                        f"Input {arg.name} does not exist in the graph."
+                    )
+            for arg in entry.signature.outputs:
+                if arg.name and arg.name not in nodes:
+                    raise SpecViolationError(
+                        f"Output {arg.name} does not exist in the graph."
+                    )
+
+
+def _verify_exported_program_signature(exported_program) -> None:
+    # Check ExportedProgram signature matches
+    gs = exported_program.graph_signature
+
+    # Lazily computed on first use; avoids calling graph_module.state_dict()
+    # unless at least one buffer is missing from the top-level state_dict.
+    _gm_state_dict: dict | None = None
+
+    # Check every node in the signature exists in the graph
+    input_node_names = [
+        node.name for node in exported_program.graph.nodes if node.op == "placeholder"
+    ]
+
+    if len(input_node_names) != len(gs.input_specs):
+        input_spec_names = [
+            spec.arg.name for spec in gs.input_specs if hasattr(spec.arg, "name")
+        ]
+        missing_in_specs = set(input_node_names) - set(input_spec_names)
+        missing_in_graph = set(input_spec_names) - set(input_node_names)
+        raise SpecViolationError(
+            f"Number of graph inputs ({len(input_node_names)}) "
+            f"does not match number of inputs in the graph signature ({len(gs.input_specs)})\n"
+            f"Placeholders missing input_specs: {missing_in_specs}\n"
+            f"Input_specs missing placeholders: {missing_in_graph}"
+        )
+
+    for input_spec, node in zip(gs.input_specs, input_node_names):
+        if isinstance(
+            input_spec.arg,
+            (TensorArgument, SymIntArgument, SymFloatArgument, SymBoolArgument),
+        ):
+            if input_spec.arg.name != node:
+                raise SpecViolationError(
+                    f"Input spec name {input_spec.arg.name} does not match node name {node}"
+                )
+
+        if input_spec.kind == InputKind.USER_INPUT:
+            continue
+
+        elif input_spec.kind == InputKind.PARAMETER:
+            if not isinstance(input_spec.arg, TensorArgument):
+                raise SpecViolationError(
+                    f"Parameter {input_spec.name} is not a tensor argument. Found {input_spec.arg} instead."
+                )
+            if input_spec.target is None:
+                raise SpecViolationError(
+                    f"InputSpec for {input_spec.name} has no target."
+                )
+
+            param = input_spec.target
+            if param not in exported_program.state_dict:
+                raise SpecViolationError(f"Parameter {param} is not in the state dict.")
+
+            if not isinstance(exported_program.state_dict[param], torch.nn.Parameter):
+                raise SpecViolationError(
+                    f"State dict entry for parameter {param} is not an instance of torch.nn.Parameter."
+                )
+
+        elif input_spec.kind == InputKind.BUFFER:
+            if not isinstance(input_spec.arg, TensorArgument):
+                raise SpecViolationError(
+                    f"Buffer {input_spec.name} is not a tensor argument. Found {input_spec.arg} instead."
+                )
+            if input_spec.target is None:
+                raise SpecViolationError(
+                    f"InputSpec for {input_spec.name} has no target."
+                )
+
+            buffer = input_spec.target
+            if input_spec.persistent is None:
+                raise SpecViolationError(
+                    f"Buffer {buffer} is missing a persistence flag"
+                )
+
+            if (
+                input_spec.persistent is True
+                and buffer not in exported_program.state_dict
+            ):
+                # Allow buffers that live in constants or in a subgraph
+                # submodule (e.g. lifted tensor constants from
+                # invoke_subgraph tracing stored under repeated_subgraph0).
+                # Use a lazy copy of the graph module state to avoid the
+                # cost of state_dict() when no fallback is needed.
+                if buffer not in exported_program.constants:
+                    if _gm_state_dict is None:
+                        _gm_state_dict = exported_program.graph_module.state_dict()
+                    if buffer not in _gm_state_dict:
+                        raise SpecViolationError(
+                            f"Buffer {buffer} is not in the state dict."
+                        )
+
+            if input_spec.persistent is False and buffer in exported_program.state_dict:
+                raise SpecViolationError(
+                    f"Non-persistent buffer {buffer} is in the state dict, it should not be."
+                )
+        elif input_spec.kind == InputKind.CONSTANT_TENSOR:
+            if not isinstance(input_spec.arg, TensorArgument):
+                raise SpecViolationError(
+                    f"Constant tensor {input_spec.name} is not a tensor argument. Found {input_spec.arg} instead."
+                )
+            if input_spec.target is None:
+                raise SpecViolationError(
+                    f"InputSpec for {input_spec.name} has no target."
+                )
+
+            tensor_const = input_spec.target
+            if tensor_const not in exported_program.constants:
+                raise SpecViolationError(
+                    f"Constant tensor {tensor_const} is not in the constants dictionary."
+                )
+        elif input_spec.kind == InputKind.CUSTOM_OBJ:
+            if not isinstance(input_spec.arg, CustomObjArgument):
+                raise SpecViolationError(
+                    f"Custom object {input_spec.name} is not a custom object argument. Found {input_spec.arg} instead."
+                )
+            if input_spec.target is None:
+                raise SpecViolationError(
+                    f"InputSpec for {input_spec.name} has no target."
+                )
+
+            custom_obj = input_spec.target
+            if custom_obj not in exported_program.constants:
+                raise SpecViolationError(
+                    f"Custom object {custom_obj} is not in the constants dictionary."
+                )
+        elif input_spec.kind == InputKind.TOKEN:
+            if not isinstance(input_spec.arg, TokenArgument):
+                raise SpecViolationError(
+                    f"Constant tensor {input_spec.name} is not a tensor argument. Found {input_spec.arg} instead."
+                )
         else:
-            # Write our source file to an in memory file.
-            f = NativeIO()
-            self._write_source_to(f)
-            source_data = f.getvalue()
+            raise SpecViolationError(f"Unknown InputKind {input_spec.kind}.")
 
-            # Determine if this matches the current file
-            if os.path.exists(self.sourcefilename):
-                with open(self.sourcefilename, "r") as fp:
-                    needs_written = fp.read() != source_data
-            else:
-                needs_written = True
+    # Check outputs
+    output_node = list(exported_program.graph.nodes)[-1]
+    if output_node.op != "output":
+        raise AssertionError(f"last node must be output, got {output_node.op}")
+    output_nodes = [
+        arg.name if isinstance(arg, torch.fx.Node) else arg
+        for arg in output_node.args[0]
+    ]
 
-            # Actually write the file out if it doesn't match
-            if needs_written:
-                _ensure_dir(self.sourcefilename)
-                with open(self.sourcefilename, "w") as fp:
-                    fp.write(source_data)
+    if len(output_nodes) != len(gs.output_specs):
+        output_spec_names = [
+            spec.arg.name if hasattr(spec.arg, "name") else str(spec.arg)
+            for spec in gs.output_specs
+        ]
+        missing_out_specs = set(output_nodes) - set(output_spec_names)
+        missing_out_graph = set(output_spec_names) - set(output_nodes)
+        raise SpecViolationError(
+            f"Number of output nodes {len(output_nodes)} is different "
+            f"Than the number of outputs specified by the graph signature: {len(gs.output_specs)}\n"
+            f"Nodes missing output_specs: {missing_out_specs}\n"
+            f"Output_specs missing nodes: {missing_out_graph}"
+        )
 
-            # Set this flag
-            self._has_source = True
+    num_tokens = len(gs.output_tokens)
+    buffers_to_mutate = gs.buffers_to_mutate
+    parameters_to_mutate = gs.parameters_to_mutate
+    user_inputs_to_mutate = gs.user_inputs_to_mutate
+    end = (
+        len(buffers_to_mutate)
+        + len(parameters_to_mutate)
+        + len(user_inputs_to_mutate)
+        + num_tokens
+    )
+    mutate_nodes: list[str] = output_nodes[num_tokens:end]
+    user_output_nodes = output_nodes[end : end + len(gs.user_outputs)]
 
-    def _compile_module(self):
-        # compile this C source
-        tmpdir = os.path.dirname(self.sourcefilename)
-        outputfilename = ffiplatform.compile(tmpdir, self.get_extension())
-        try:
-            same = ffiplatform.samefile(outputfilename, self.modulefilename)
-        except OSError:
-            same = False
-        if not same:
-            _ensure_dir(self.modulefilename)
-            shutil.move(outputfilename, self.modulefilename)
-        self._has_module = True
-
-    def _load_library(self):
-        assert self._has_module
-        if self.flags is not None:
-            return self._vengine.load_library(self.flags)
+    for mutation_node in mutate_nodes:
+        if mutation_node in buffers_to_mutate:
+            if buffers_to_mutate[mutation_node] not in gs.buffers:
+                raise SpecViolationError(
+                    f"Buffer output {mutation_node} does not point to a buffer that exists. \n"
+                    f"Dict of buffers that are mutated, in order: {buffers_to_mutate} \n"
+                    f"Buffer nodes available: {gs.buffers} \n"
+                )
+        elif mutation_node in parameters_to_mutate:
+            if parameters_to_mutate[mutation_node] not in gs.parameters:
+                raise SpecViolationError(
+                    f"Parameter output {mutation_node} does not point to a parameter that exists. \n"
+                    f"Dict of parameters that are mutated, in order: {parameters_to_mutate} \n"
+                    f"Parameter nodes available: {gs.parameters} \n"
+                )
+        elif mutation_node in user_inputs_to_mutate:
+            if user_inputs_to_mutate[mutation_node] not in gs.user_inputs:
+                raise SpecViolationError(
+                    f"User input output {mutation_node} does not point to a user input that exists. \n"
+                    f"Dict of user inputs that are mutated, in order: {user_inputs_to_mutate} \n"
+                    f"User input nodes available: {gs.user_inputs} \n"
+                )
         else:
-            return self._vengine.load_library()
+            raise SpecViolationError(
+                f"Mutation node {mutation_node} is neither a buffer nor a user input. "
+                f"Buffers to mutate: {buffers_to_mutate}, User inputs to mutate: {user_inputs_to_mutate}"
+            )
 
-# ____________________________________________________________
+    for user_output_node, user_output_name in zip(user_output_nodes, gs.user_outputs):
+        if user_output_node != user_output_name:
+            raise SpecViolationError(
+                f"User output {user_output_node} is not in the correct "
+                "order or is not found in the "
+                f"exported program's user_output list: {gs.user_outputs}. "
+            )
 
-_FORCE_GENERIC_ENGINE = False      # for tests
 
-def _locate_engine_class(ffi, force_generic_engine):
-    if _FORCE_GENERIC_ENGINE:
-        force_generic_engine = True
-    if not force_generic_engine:
-        if '__pypy__' in sys.builtin_module_names:
-            force_generic_engine = True
-        else:
-            try:
-                import _cffi_backend
-            except ImportError:
-                _cffi_backend = '?'
-            if ffi._backend is not _cffi_backend:
-                force_generic_engine = True
-    if force_generic_engine:
-        from . import vengine_gen
-        return vengine_gen.VGenericEngine
-    else:
-        from . import vengine_cpy
-        return vengine_cpy.VCPythonEngine
-
-# ____________________________________________________________
-
-_TMPDIR = None
-
-def _caller_dir_pycache():
-    if _TMPDIR:
-        return _TMPDIR
-    result = os.environ.get('CFFI_TMPDIR')
-    if result:
-        return result
-    filename = sys._getframe(2).f_code.co_filename
-    return os.path.abspath(os.path.join(os.path.dirname(filename),
-                           '__pycache__'))
-
-def set_tmpdir(dirname):
-    """Set the temporary directory to use instead of __pycache__."""
-    global _TMPDIR
-    _TMPDIR = dirname
-
-def cleanup_tmpdir(tmpdir=None, keep_so=False):
-    """Clean up the temporary directory by removing all files in it
-    called `_cffi_*.{c,so}` as well as the `build` subdirectory."""
-    tmpdir = tmpdir or _caller_dir_pycache()
-    try:
-        filelist = os.listdir(tmpdir)
-    except OSError:
-        return
-    if keep_so:
-        suffix = '.c'   # only remove .c files
-    else:
-        suffix = _get_so_suffixes()[0].lower()
-    for fn in filelist:
-        if fn.lower().startswith('_cffi_') and (
-                fn.lower().endswith(suffix) or fn.lower().endswith('.c')):
-            try:
-                os.unlink(os.path.join(tmpdir, fn))
-            except OSError:
-                pass
-    clean_dir = [os.path.join(tmpdir, 'build')]
-    for dir in clean_dir:
-        try:
-            for fn in os.listdir(dir):
-                fn = os.path.join(dir, fn)
-                if os.path.isdir(fn):
-                    clean_dir.append(fn)
-                else:
-                    os.unlink(fn)
-        except OSError:
-            pass
-
-def _get_so_suffixes():
-    suffixes = _extension_suffixes()
-    if not suffixes:
-        # bah, no C_EXTENSION available.  Occurs on pypy without cpyext
-        if sys.platform == 'win32':
-            suffixes = [".pyd"]
-        else:
-            suffixes = [".so"]
-
-    return suffixes
-
-def _ensure_dir(filename):
-    dirname = os.path.dirname(filename)
-    if dirname and not os.path.isdir(dirname):
-        os.makedirs(dirname)
+def load_verifier(dialect: str) -> type[Verifier]:
+    if dialect == "ATEN" or dialect == "":
+        return _VerifierMeta._registry.get(dialect, Verifier)
+    return _VerifierMeta._registry[dialect]

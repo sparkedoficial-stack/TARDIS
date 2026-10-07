@@ -1,84 +1,143 @@
-"""
-Some light wrappers around Python's multiprocessing, to deal with cleanly
-starting child processes.
-"""
+# Copyright 2021 The HuggingFace Inc. team. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License
+"""Contains utilities to easily handle subprocesses in `huggingface_hub`."""
 
-from __future__ import annotations
-
-import multiprocessing
 import os
+import subprocess
 import sys
-from collections.abc import Callable
-from multiprocessing.context import SpawnProcess
-from socket import socket
+from collections.abc import Generator
+from contextlib import contextmanager
+from io import StringIO
+from pathlib import Path
+from typing import IO
 
-from uvicorn.config import Config
-
-multiprocessing.allow_connection_pickling()
-spawn = multiprocessing.get_context("spawn")
+from .logging import get_logger
 
 
-def get_subprocess(
-    config: Config,
-    target: Callable[..., None],
-    sockets: list[socket],
-) -> SpawnProcess:
+logger = get_logger(__name__)
+
+
+@contextmanager
+def capture_output() -> Generator[StringIO, None, None]:
+    """Capture output that is printed to terminal.
+
+    Taken from https://stackoverflow.com/a/34738440
+
+    Example:
+    ```py
+    >>> with capture_output() as output:
+    ...     print("hello world")
+    >>> assert output.getvalue() == "hello world\n"
+    ```
     """
-    Called in the parent process, to instantiate a new child process instance.
-    The child is not yet started at this point.
-
-    * config - The Uvicorn configuration instance.
-    * target - A callable that accepts a list of sockets. In practice this will
-               be the `Server.run()` method.
-    * sockets - A list of sockets to pass to the server. Sockets are bound once
-                by the parent process, and then passed to the child processes.
-    """
-    # We pass across the stdin fileno, and reopen it in the child process.
-    # This is required for some debugging environments.
+    output = StringIO()
+    previous_output = sys.stdout
+    sys.stdout = output
     try:
-        stdin_fileno = sys.stdin.fileno()
-    # The `sys.stdin` can be `None`, see https://docs.python.org/3/library/sys.html#sys.__stdin__.
-    except (AttributeError, OSError):
-        stdin_fileno = None
-
-    kwargs = {
-        "config": config,
-        "target": target,
-        "sockets": sockets,
-        "stdin_fileno": stdin_fileno,
-    }
-
-    return spawn.Process(target=subprocess_started, kwargs=kwargs)
+        yield output
+    finally:
+        sys.stdout = previous_output
 
 
-def subprocess_started(
-    config: Config,
-    target: Callable[..., None],
-    sockets: list[socket],
-    stdin_fileno: int | None,
-) -> None:
+def run_subprocess(
+    command: str | list[str],
+    folder: str | Path | None = None,
+    check=True,
+    **kwargs,
+) -> subprocess.CompletedProcess:
     """
-    Called when the child process starts.
+    Method to run subprocesses. Calling this will capture the `stderr` and `stdout`,
+    please call `subprocess.run` manually in case you would like for them not to
+    be captured.
 
-    * config - The Uvicorn configuration instance.
-    * target - A callable that accepts a list of sockets. In practice this will
-               be the `Server.run()` method.
-    * sockets - A list of sockets to pass to the server. Sockets are bound once
-                by the parent process, and then passed to the child processes.
-    * stdin_fileno - The file number of sys.stdin, so that it can be reattached
-                     to the child process.
+    Args:
+        command (`str` or `list[str]`):
+            The command to execute as a string or list of strings.
+        folder (`str`, *optional*):
+            The folder in which to run the command. Defaults to current working
+            directory (from `os.getcwd()`).
+        check (`bool`, *optional*, defaults to `True`):
+            Setting `check` to `True` will raise a `subprocess.CalledProcessError`
+            when the subprocess has a non-zero exit code.
+        kwargs (`dict[str]`):
+            Keyword arguments to be passed to the `subprocess.run` underlying command.
+
+    Returns:
+        `subprocess.CompletedProcess`: The completed process.
     """
-    # Re-open stdin.
-    if stdin_fileno is not None:
-        sys.stdin = os.fdopen(stdin_fileno)  # pragma: full coverage
+    if isinstance(command, str):
+        command = command.split()
 
-    # Logging needs to be setup again for each child.
-    config.configure_logging()
+    if isinstance(folder, Path):
+        folder = str(folder)
 
-    try:
-        # Now we can call into `Server.run(sockets=sockets)`
-        target(sockets=sockets)
-    except KeyboardInterrupt:  # pragma: no cover
-        # suppress the exception to avoid a traceback from subprocess.Popen
-        # the parent already expects us to end, so no vital information is lost
-        pass
+    return subprocess.run(
+        command,
+        capture_output=True,
+        check=check,
+        encoding="utf-8",
+        errors="replace",  # if not utf-8, replace char by �
+        cwd=folder or os.getcwd(),
+        **kwargs,
+    )
+
+
+@contextmanager
+def run_interactive_subprocess(
+    command: str | list[str],
+    folder: str | Path | None = None,
+    **kwargs,
+) -> Generator[tuple[IO[str], IO[str]], None, None]:
+    """Run a subprocess in an interactive mode in a context manager.
+
+    Args:
+        command (`str` or `list[str]`):
+            The command to execute as a string or list of strings.
+        folder (`str`, *optional*):
+            The folder in which to run the command. Defaults to current working
+            directory (from `os.getcwd()`).
+        kwargs (`dict[str]`):
+            Keyword arguments to be passed to the `subprocess.run` underlying command.
+
+    Returns:
+        `tuple[IO[str], IO[str]]`: A tuple with `stdin` and `stdout` to interact
+        with the process (input and output are utf-8 encoded).
+
+    Example:
+    ```python
+    with _interactive_subprocess("git credential-store get") as (stdin, stdout):
+        # Write to stdin
+        stdin.write("url=hf.co\nusername=obama\n".encode("utf-8"))
+        stdin.flush()
+
+        # Read from stdout
+        output = stdout.read().decode("utf-8")
+    ```
+    """
+    if isinstance(command, str):
+        command = command.split()
+
+    with subprocess.Popen(
+        command,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        encoding="utf-8",
+        errors="replace",  # if not utf-8, replace char by �
+        cwd=folder or os.getcwd(),
+        **kwargs,
+    ) as process:
+        assert process.stdin is not None, "subprocess is opened as subprocess.PIPE"
+        assert process.stdout is not None, "subprocess is opened as subprocess.PIPE"
+        yield process.stdin, process.stdout

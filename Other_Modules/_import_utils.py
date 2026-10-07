@@ -1,20 +1,37 @@
-from functools import cache
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from pydantic import BaseModel
-    from pydantic.fields import FieldInfo
+import functools
+import importlib.util
+from types import ModuleType
 
 
-@cache
-def import_cached_base_model() -> type['BaseModel']:
-    from pydantic import BaseModel
+def _check_module_exists(name: str) -> bool:
+    r"""Returns if a top-level module with :attr:`name` exists *without**
+    importing it. This is generally safer than try-catch block around a
+    `import X`. It avoids third party libraries breaking assumptions of some of
+    our tests, e.g., setting multiprocessing start method when imported
+    (see librosa/#747, torchvision/#544).
+    """
+    try:
+        spec = importlib.util.find_spec(name)
+        return spec is not None
+    except ImportError:
+        return False
 
-    return BaseModel
+
+@functools.lru_cache
+def dill_available() -> bool:
+    return _check_module_exists("dill")
 
 
-@cache
-def import_cached_field_info() -> type['FieldInfo']:
-    from pydantic.fields import FieldInfo
+@functools.lru_cache
+def import_dill() -> ModuleType | None:
+    if not dill_available():
+        return None
 
-    return FieldInfo
+    import dill
+
+    # XXX: By default, dill writes the Pickler dispatch table to inject its
+    # own logic there. This globally affects the behavior of the standard library
+    # pickler for any user who transitively depends on this module!
+    # Undo this extension to avoid altering the behavior of the pickler globally.
+    dill.extend(use_dill=False)
+    return dill

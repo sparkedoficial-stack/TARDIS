@@ -1,257 +1,399 @@
-from __future__ import annotations
+import inspect
+from collections.abc import Callable, Generator, Iterable
+from contextlib import contextmanager
+from functools import wraps
+from typing import Any, TYPE_CHECKING, TypeVar
+from typing_extensions import ParamSpec
 
-import typing as t
+import torch
+import torch._custom_ops
+from torch._C import DispatchKey
+from torch._export.utils import _maybe_find_pre_dispatch_tf_mode_for_export
+from torch._higher_order_ops.flat_apply import (
+    _ConstantFunction,
+    flat_apply,
+    to_graphable,
+)
+from torch._higher_order_ops.strict_mode import strict_mode
+from torch._higher_order_ops.utils import autograd_not_implemented, register_fake
+from torch._ops import HigherOrderOperator
+from torch.fx.experimental.proxy_tensor import (
+    PreDispatchTorchFunctionMode,
+    ProxyTorchDispatchMode,
+    track_tensor_tree,
+)
+from torch.utils import _pytree as pytree
+from torch.utils._python_dispatch import is_traceable_wrapper_subclass_type
 
-from werkzeug.exceptions import BadRequest
-from werkzeug.exceptions import HTTPException
-from werkzeug.wrappers import Request as RequestBase
-from werkzeug.wrappers import Response as ResponseBase
 
-from . import json
-from .globals import current_app
-from .helpers import _split_blueprint_path
-
-if t.TYPE_CHECKING:  # pragma: no cover
-    from werkzeug.routing import Rule
+if TYPE_CHECKING:
+    from torch._subclasses.functional_tensor import BaseFunctionalizeAPI
+    from torch.fx.experimental.proxy_tensor import _ProxyTracer
+    from torch.fx.proxy import Proxy
+    from torch.utils.hooks import RemovableHandle
 
 
-class Request(RequestBase):
-    """The request object used by default in Flask.  Remembers the
-    matched endpoint and view arguments.
+_P = ParamSpec("_P")
+_R = TypeVar("_R")
 
-    It is what ends up as :class:`~flask.request`.  If you want to replace
-    the request object used you can subclass this and set
-    :attr:`~flask.Flask.request_class` to your subclass.
 
-    The request object is a :class:`~werkzeug.wrappers.Request` subclass and
-    provides all of the attributes Werkzeug defines plus a few Flask
-    specific ones.
+class ExportTracepoint(HigherOrderOperator):
+    def __init__(self) -> None:
+        super().__init__("_export_tracepoint")
+
+    def __call__(self, *args: Any, **kwargs: Any) -> Any:
+        # pyrefly: ignore [missing-attribute]
+        return super().__call__(*args, **kwargs)
+
+
+_export_tracepoint = ExportTracepoint()
+
+
+@_export_tracepoint.py_impl(ProxyTorchDispatchMode)
+def export_tracepoint_dispatch_mode(
+    mode: ProxyTorchDispatchMode, *args: Any, **kwargs: Any
+) -> Any:
+    # pyrefly: ignore[missing-attribute]  # TODO tracer is PythonKeyTracer here, not _GraphAppendingTracerEx
+    p_args, p_kwargs = pytree.tree_map(mode.tracer.unwrap_proxy, (args, kwargs))
+    proxy = mode.tracer.create_proxy(
+        "call_function", _export_tracepoint, p_args, p_kwargs
+    )
+    return track_tensor_tree(args, proxy, constant=None, tracer=mode.tracer)
+
+
+@register_fake(_export_tracepoint, skip_cache=True)
+def export_tracepoint_fake_tensor_mode(*args: Any, **kwargs: Any) -> tuple[Any, ...]:
+    return args
+
+
+@_export_tracepoint.py_functionalize_impl
+def export_tracepoint_functional(
+    ctx: "BaseFunctionalizeAPI", *args: Any, **kwargs: Any
+) -> tuple[Any, ...]:
+    unwrapped_args = ctx.unwrap_tensors(args)
+    # pyrefly: ignore[bad-argument-type]  # TODO unwrap_tensors accepts pytrees at runtime
+    unwrapped_kwargs = ctx.unwrap_tensors(kwargs)
+
+    with ctx.redispatch_to_next():
+        _export_tracepoint(*unwrapped_args, **unwrapped_kwargs)
+        return args
+
+
+_export_tracepoint.py_impl(DispatchKey.Autograd)(
+    autograd_not_implemented(_export_tracepoint, deferred_error=True)
+)
+
+
+@_export_tracepoint.py_impl(DispatchKey.CPU)
+def export_tracepoint_cpu(*args: Any, **kwargs: Any) -> tuple[Any, ...]:
+    return args
+
+
+def _wrap_submodule(
+    mod: torch.nn.Module,
+    path: str,
+    module_call_specs: dict[str, dict[str, pytree.TreeSpec]],
+) -> tuple["RemovableHandle", "RemovableHandle"]:
+    if not isinstance(mod, torch.nn.Module):
+        raise AssertionError(f"expected torch.nn.Module, got {type(mod)}")
+    if path == "":
+        raise AssertionError("path must not be empty")
+    submodule = torch.fx.graph_module._get_attr(mod, path)
+
+    def update_module_call_signatures(
+        path: str, in_spec: pytree.TreeSpec, out_spec: pytree.TreeSpec
+    ) -> None:
+        if path in module_call_specs:
+            if module_call_specs[path]["in_spec"] != in_spec:
+                raise AssertionError(
+                    f"in_spec mismatch for {path}: {module_call_specs[path]['in_spec']} != {in_spec}"
+                )
+            if module_call_specs[path]["out_spec"] != out_spec:
+                raise AssertionError(
+                    f"out_spec mismatch for {path}: {module_call_specs[path]['out_spec']} != {out_spec}"
+                )
+        module_call_specs[path] = {"in_spec": in_spec, "out_spec": out_spec}
+
+    def check_flattened(flat_args: list[Any]) -> None:
+        for a in flat_args:
+            if not (isinstance(a, (torch.Tensor, str, int, float, bool)) or a is None):
+                raise AssertionError(
+                    f"Only Tensors or scalars are supported as pytree flattened inputs, got: {a}"
+                )
+
+    def pre_hook(
+        module: torch.nn.Module, args: tuple[Any, ...], kwargs: dict[str, Any]
+    ) -> tuple[tuple[Any, ...], dict[str, Any]]:
+        flat_args, in_spec = pytree.tree_flatten((args, kwargs))
+        check_flattened(flat_args)
+        flat_args = _export_tracepoint(*flat_args, kind="module_call_inputs", path=path)
+        args, kwargs = pytree.tree_unflatten(flat_args, in_spec)
+        return args, kwargs
+
+    def post_hook(
+        module: torch.nn.Module,
+        args: tuple[Any, ...],
+        kwargs: dict[str, Any],
+        res: Any,
+    ) -> Any:
+        _, in_spec = pytree.tree_flatten((args, kwargs))
+        flat_res, out_spec = pytree.tree_flatten(res)
+        check_flattened(flat_res)
+        flat_res = _export_tracepoint(*flat_res, kind="module_call_outputs", path=path)
+        update_module_call_signatures(path, in_spec, out_spec)
+        return pytree.tree_unflatten(flat_res, out_spec)
+
+    pre_handle = submodule.register_forward_pre_hook(pre_hook, with_kwargs=True)
+    post_handle = submodule.register_forward_hook(post_hook, with_kwargs=True)
+    return pre_handle, post_handle
+
+
+@contextmanager
+def _wrap_submodules(
+    f: torch.nn.Module | Callable[..., object],
+    preserve_signature: Iterable[str],
+    module_call_signatures: dict[str, dict[str, pytree.TreeSpec]],
+) -> Generator[None, None, None]:
+    handles: list[RemovableHandle] = []
+
+    try:
+        for path in preserve_signature:
+            # pyrefly: ignore[bad-argument-type]  # TODO f is an nn.Module at runtime (asserted in _wrap_submodule)
+            handles.extend(_wrap_submodule(f, path, module_call_signatures))
+        yield
+    finally:
+        for handle in handles:
+            handle.remove()
+
+
+def _mark_strict_experimental(cls: type[_R]) -> type[_R]:
+    def call(self: Any, *args: Any) -> Any:
+        return strict_mode(self, args)
+
+    cls.__call__ = call  # type: ignore[attr-defined]
+    return cls
+
+
+def _register_func_spec_proxy_in_tracer(
+    tracer: "_ProxyTracer", name: str, spec: pytree.TreeSpec
+) -> "Proxy":
     """
-
-    json_module: t.Any = json
-
-    #: The internal URL rule that matched the request.  This can be
-    #: useful to inspect which methods are allowed for the URL from
-    #: a before/after handler (``request.url_rule.methods``) etc.
-    #: Though if the request's method was invalid for the URL rule,
-    #: the valid list is available in ``routing_exception.valid_methods``
-    #: instead (an attribute of the Werkzeug exception
-    #: :exc:`~werkzeug.exceptions.MethodNotAllowed`)
-    #: because the request was never internally bound.
-    #:
-    #: .. versionadded:: 0.6
-    url_rule: Rule | None = None
-
-    #: A dict of view arguments that matched the request.  If an exception
-    #: happened when matching, this will be ``None``.
-    view_args: dict[str, t.Any] | None = None
-
-    #: If matching the URL failed, this is the exception that will be
-    #: raised / was raised as part of the request handling.  This is
-    #: usually a :exc:`~werkzeug.exceptions.NotFound` exception or
-    #: something similar.
-    routing_exception: HTTPException | None = None
-
-    _max_content_length: int | None = None
-    _max_form_memory_size: int | None = None
-    _max_form_parts: int | None = None
-
-    @property
-    def max_content_length(self) -> int | None:
-        """The maximum number of bytes that will be read during this request. If
-        this limit is exceeded, a 413 :exc:`~werkzeug.exceptions.RequestEntityTooLarge`
-        error is raised. If it is set to ``None``, no limit is enforced at the
-        Flask application level. However, if it is ``None`` and the request has
-        no ``Content-Length`` header and the WSGI server does not indicate that
-        it terminates the stream, then no data is read to avoid an infinite
-        stream.
-
-        Each request defaults to the :data:`MAX_CONTENT_LENGTH` config, which
-        defaults to ``None``. It can be set on a specific ``request`` to apply
-        the limit to that specific view. This should be set appropriately based
-        on an application's or view's specific needs.
-
-        .. versionchanged:: 3.1
-            This can be set per-request.
-
-        .. versionchanged:: 0.6
-            This is configurable through Flask config.
-        """
-        if self._max_content_length is not None:
-            return self._max_content_length
-
-        if not current_app:
-            return super().max_content_length
-
-        return current_app.config["MAX_CONTENT_LENGTH"]  # type: ignore[no-any-return]
-
-    @max_content_length.setter
-    def max_content_length(self, value: int | None) -> None:
-        self._max_content_length = value
-
-    @property
-    def max_form_memory_size(self) -> int | None:
-        """The maximum size in bytes any non-file form field may be in a
-        ``multipart/form-data`` body. If this limit is exceeded, a 413
-        :exc:`~werkzeug.exceptions.RequestEntityTooLarge` error is raised. If it
-        is set to ``None``, no limit is enforced at the Flask application level.
-
-        Each request defaults to the :data:`MAX_FORM_MEMORY_SIZE` config, which
-        defaults to ``500_000``. It can be set on a specific ``request`` to
-        apply the limit to that specific view. This should be set appropriately
-        based on an application's or view's specific needs.
-
-        .. versionchanged:: 3.1
-            This is configurable through Flask config.
-        """
-        if self._max_form_memory_size is not None:
-            return self._max_form_memory_size
-
-        if not current_app:
-            return super().max_form_memory_size
-
-        return current_app.config["MAX_FORM_MEMORY_SIZE"]  # type: ignore[no-any-return]
-
-    @max_form_memory_size.setter
-    def max_form_memory_size(self, value: int | None) -> None:
-        self._max_form_memory_size = value
-
-    @property  # type: ignore[override]
-    def max_form_parts(self) -> int | None:
-        """The maximum number of fields that may be present in a
-        ``multipart/form-data`` body. If this limit is exceeded, a 413
-        :exc:`~werkzeug.exceptions.RequestEntityTooLarge` error is raised. If it
-        is set to ``None``, no limit is enforced at the Flask application level.
-
-        Each request defaults to the :data:`MAX_FORM_PARTS` config, which
-        defaults to ``1_000``. It can be set on a specific ``request`` to apply
-        the limit to that specific view. This should be set appropriately based
-        on an application's or view's specific needs.
-
-        .. versionchanged:: 3.1
-            This is configurable through Flask config.
-        """
-        if self._max_form_parts is not None:
-            return self._max_form_parts
-
-        if not current_app:
-            return super().max_form_parts
-
-        return current_app.config["MAX_FORM_PARTS"]  # type: ignore[no-any-return]
-
-    @max_form_parts.setter
-    def max_form_parts(self, value: int | None) -> None:
-        self._max_form_parts = value
-
-    @property
-    def endpoint(self) -> str | None:
-        """The endpoint that matched the request URL.
-
-        This will be ``None`` if matching failed or has not been
-        performed yet.
-
-        This in combination with :attr:`view_args` can be used to
-        reconstruct the same URL or a modified URL.
-        """
-        if self.url_rule is not None:
-            return self.url_rule.endpoint  # type: ignore[no-any-return]
-
-        return None
-
-    @property
-    def blueprint(self) -> str | None:
-        """The registered name of the current blueprint.
-
-        This will be ``None`` if the endpoint is not part of a
-        blueprint, or if URL matching failed or has not been performed
-        yet.
-
-        This does not necessarily match the name the blueprint was
-        created with. It may have been nested, or registered with a
-        different name.
-        """
-        endpoint = self.endpoint
-
-        if endpoint is not None and "." in endpoint:
-            return endpoint.rpartition(".")[0]
-
-        return None
-
-    @property
-    def blueprints(self) -> list[str]:
-        """The registered names of the current blueprint upwards through
-        parent blueprints.
-
-        This will be an empty list if there is no current blueprint, or
-        if URL matching failed.
-
-        .. versionadded:: 2.0.1
-        """
-        name = self.blueprint
-
-        if name is None:
-            return []
-
-        return _split_blueprint_path(name)
-
-    def _load_form_data(self) -> None:
-        super()._load_form_data()
-
-        # In debug mode we're replacing the files multidict with an ad-hoc
-        # subclass that raises a different error for key errors.
-        if (
-            current_app
-            and current_app.debug
-            and self.mimetype != "multipart/form-data"
-            and not self.files
-        ):
-            from .debughelpers import attach_enctype_error_multidict
-
-            attach_enctype_error_multidict(self)
-
-    def on_json_loading_failed(self, e: ValueError | None) -> t.Any:
-        try:
-            return super().on_json_loading_failed(e)
-        except BadRequest as ebr:
-            if current_app and current_app.debug:
-                raise
-
-            raise BadRequest() from ebr
-
-
-class Response(ResponseBase):
-    """The response object that is used by default in Flask.  Works like the
-    response object from Werkzeug but is set to have an HTML mimetype by
-    default.  Quite often you don't have to create this object yourself because
-    :meth:`~flask.Flask.make_response` will take care of that for you.
-
-    If you want to replace the response object used you can subclass this and
-    set :attr:`~flask.Flask.response_class` to your subclass.
-
-    .. versionchanged:: 1.0
-        JSON support is added to the response, like the request. This is useful
-        when testing to get the test client response data as JSON.
-
-    .. versionchanged:: 1.0
-
-        Added :attr:`max_cookie_size`.
+    This is a wrapper utility method on top of tracer to cache the
+    already registered subclass spec attribute. This is useful because
+    Subclass.__init__ will be same for each subclass. By default, fx will
+    create multiple attributes/proxies for given attribute.
     """
+    fx_name = name + "0"
+    # pyrefly: ignore[missing-attribute]  # TODO tracer is PythonKeyTracer here, not _GraphAppendingTracerEx
+    if hasattr(tracer.root, fx_name):
+        # pyrefly: ignore[missing-attribute]  # TODO tracer is PythonKeyTracer here, not _GraphAppendingTracerEx
+        if getattr(tracer.root, fx_name) != spec:
+            raise AssertionError(f"spec mismatch for {fx_name}")
+        return tracer.create_proxy("get_attr", fx_name, (), {})
 
-    default_mimetype: str | None = "text/html"
+    # pyrefly: ignore[missing-attribute]  # TODO tracer is PythonKeyTracer here, not _GraphAppendingTracerEx
+    qualname = tracer.get_fresh_qualname(name)
+    # pyrefly: ignore[missing-attribute]  # TODO tracer is PythonKeyTracer here, not _GraphAppendingTracerEx
+    setattr(tracer.root, qualname, spec)
+    return tracer.create_proxy("get_attr", qualname, (), {})
 
-    json_module = json
 
-    autocorrect_location_header = False
+def _emit_flat_apply_call(
+    *,
+    tracer: "_ProxyTracer",
+    spec_name: str,
+    const_target_for_apply: Callable[..., object],
+    graphable_args: pytree.PyTree,
+    track_value: object,
+    call_spec_cache_key: str,
+) -> None:
+    # Flatten to graphable form and record the spec on the FX root
+    flat_args, in_spec = to_graphable(graphable_args)
+    qualname = tracer.get_fresh_qualname(spec_name)  # type: ignore[union-attr]
+    setattr(tracer.root, qualname, in_spec)  # type: ignore[union-attr]
+    spec_proxy = tracer.create_proxy("get_attr", qualname, (), {})
 
-    @property
-    def max_cookie_size(self) -> int:  # type: ignore
-        """Read-only view of the :data:`MAX_COOKIE_SIZE` config key.
+    # Reuse/cached ConstantFunction spec on the root
+    _, func_spec = pytree.tree_flatten(_ConstantFunction(const_target_for_apply))
+    func_spec_proxy = _register_func_spec_proxy_in_tracer(
+        tracer, f"{call_spec_cache_key}_const_func_spec", func_spec
+    )
 
-        See :attr:`~werkzeug.wrappers.Response.max_cookie_size` in
-        Werkzeug's docs.
-        """
-        if current_app:
-            return current_app.config["MAX_COOKIE_SIZE"]  # type: ignore[no-any-return]
+    # Map runtime args -> proxies (always via tracer.unwrap_proxy now)
+    # pyrefly: ignore[missing-attribute]  # TODO tracer is PythonKeyTracer here, not _GraphAppendingTracerEx
+    flat_proxy_args = pytree.tree_map(tracer.unwrap_proxy, flat_args)
 
-        # return Werkzeug's default when not in an app context
-        return super().max_cookie_size
+    # Emit flat_apply and track result structure
+    out_proxy = tracer.create_proxy(
+        "call_function", flat_apply, (func_spec_proxy, spec_proxy, *flat_proxy_args), {}
+    )
+    track_tensor_tree(track_value, out_proxy, constant=None, tracer=tracer)
+
+
+def _is_init(fn: object) -> bool:
+    return callable(fn) and fn.__name__ == "__init__"
+
+
+def mark_subclass_constructor_exportable_experimental(
+    constructor_subclass: Callable[_P, None],
+) -> Callable[_P, None]:
+    """
+    Experimental decorator that makes subclass to be traceable in export
+    with pre-dispatch IR. To make your subclass traceable in export, you need to:
+        1. Implement __init__ method for your subclass (Look at DTensor implementation)
+        2. Decorate your __init__ method with _mark_constructor_exportable_experimental
+        3. Put torch._dynamo_disable decorator to prevent dynamo from peeking into its' impl
+
+    Example:
+
+    class FooTensor(torch.Tensor):
+        @staticmethod
+        def __new__(cls, elem, *, requires_grad=False):
+            # ...
+            return torch.Tensor._make_subclass(cls, elem, requires_grad=requires_grad)
+
+        @torch._dynamo_disable
+        @mark_subclass_constructor_exportable_experimental
+        def __init__(self, elem, ...):
+            # ...
+    """
+    if not _is_init(constructor_subclass):
+        raise RuntimeError(
+            f"torch._export.wrappers.mark_constructor_exportable_experimental can only be applied on subclass tensor.__init__"
+            f"But, you are adding it on {constructor_subclass.__name__} which is not supported. "
+            f"If __init__ doesn't exist on your subclass, please add it. Look at DTensor.__init__ implementation for example"
+        )
+
+    def wrapper(*args: _P.args, **kwargs: _P.kwargs) -> None:
+        constructor_subclass(*args, **kwargs)
+
+        if not torch.compiler.is_exporting():
+            return
+
+        if not is_traceable_wrapper_subclass_type(type(args[0])):
+            if not constructor_subclass.__qualname__.endswith("__init__"):
+                raise AssertionError(
+                    f"expected __qualname__ to end with '__init__', got {constructor_subclass.__qualname__}"
+                )
+            obj_name = constructor_subclass.__qualname__[: -len("__init__")]
+            raise RuntimeError(
+                f"Can't intercept {obj_name} in export because this object is not a traceable "
+                f"tensor subclass. Please look at DTensor.__init__ implementation as an example of proper usage of this API."
+            )
+
+        mode = _maybe_find_pre_dispatch_tf_mode_for_export()
+        if mode is None:
+            return
+
+        if not isinstance(mode, PreDispatchTorchFunctionMode):
+            raise AssertionError(
+                f"expected PreDispatchTorchFunctionMode, got {type(mode)}"
+            )
+
+        tracer = mode.tracer
+        subclass = args[0]
+        graphable = (tuple(args[1:]), kwargs)
+
+        spec_name = "_".join(constructor_subclass.__qualname__.lower().split("."))
+        call_spec_cache_key = type(subclass).__name__.lower()
+
+        _emit_flat_apply_call(
+            tracer=tracer,
+            spec_name=spec_name,
+            const_target_for_apply=type(subclass),
+            graphable_args=graphable,
+            track_value=subclass,  # track the constructed subclass instance
+            call_spec_cache_key=call_spec_cache_key,
+        )
+        return
+
+    return wrapper
+
+
+def allow_in_pre_dispatch_graph(func: Callable[_P, _R]) -> Callable[_P, _R]:
+    """
+    Experimental decorator that adds user function to export pre-dispatch graph. Note that
+    we only support custom autograd function/subclass constructors today. To use this function:
+        1. For subclasses:
+            1. refer to instructions in mark_subclass_constructor_exportable_experimental
+        2. Define apply method on your custom autograd function and apply this decorator.
+
+    Example:
+
+    class MyCoolCustomAutogradFunc(autograd.Function):
+        @classmethod
+        @torch._export.wrappers.allow_in_pre_dispatch_graph
+        def apply(cls, *args, **kwargs):
+            return super(MyCoolCustomAutogradFunc, cls).apply(*args, **kwargs)
+
+    """
+    if _is_init(func):
+        # pyrefly: ignore[bad-return, bad-argument-type]  # TODO _is_init(func) implies func returns None
+        return mark_subclass_constructor_exportable_experimental(func)
+
+    if not (_is_init(func) or func.__name__ == "apply"):
+        raise RuntimeError(
+            f"torch._export.wrappers.allow_in_pre_dispatch_graph can only be applied on subclass tensor.__init_ "
+            f"or custom_autograd_function.apply. "
+            f"But, you are adding it on {func.__name__} which is not supported. "
+            f"If __init__ doesn't exist on your subclass, please add it. Look at DTensor.__init__ implementation for example. "
+            f"If you are adding it on custom autograd function, please add it on apply method. "
+            f"If anything else, file an issue on github and we may consider extending our support. "
+        )
+
+    @wraps(func)
+    def wrapper(*args: _P.args, **kwargs: _P.kwargs) -> _R:
+        if not torch.compiler.is_exporting():
+            return func(*args, **kwargs)
+
+        if not inspect.isclass(args[0]):
+            return func(*args, **kwargs)
+
+        if not issubclass(args[0], torch.autograd.Function):
+            return func(*args, **kwargs)
+
+        from torch._ops import _get_dispatch_mode_pre_dispatch
+
+        mode = _get_dispatch_mode_pre_dispatch(torch._C._TorchDispatchModeKey.PROXY)
+        if mode is None:
+            return func(*args, **kwargs)
+
+        # Sometimes custom autograd functions can call into HOPs that don't have proxy impl
+        # at PreDispatch level, so we just dispatch it below to get the concrete result.
+        include_to_set = torch._C._dispatch_tls_local_include_set().remove(
+            torch._C.DispatchKey.PreDispatch
+        )
+        exclude_to_set = (
+            torch._C._dispatch_tls_local_exclude_set()
+            | torch._C.DispatchKeySet(torch._C.DispatchKey.PreDispatch)
+        )
+
+        with torch._C._ForceDispatchKeyGuard(include_to_set, exclude_to_set):
+            out = func(*args, **kwargs)
+
+        if not mode.pre_dispatch:
+            raise AssertionError("Should only do this in predispatch")
+        tracer = mode.tracer
+
+        function_cls_name = f"{args[0].__module__}.{args[0].__qualname__}"
+        graphable = ((function_cls_name, *args[1:]), kwargs)
+
+        from torch.export.custom_ops import (
+            _call_custom_autograd_function_in_pre_dispatch,
+        )
+
+        spec_name = "_".join(function_cls_name.split("."))
+        call_spec_cache_key = type(
+            _call_custom_autograd_function_in_pre_dispatch
+        ).__name__.lower()
+        _emit_flat_apply_call(
+            tracer=tracer,
+            spec_name=spec_name,
+            const_target_for_apply=_call_custom_autograd_function_in_pre_dispatch,
+            graphable_args=graphable,
+            track_value=out,
+            call_spec_cache_key=call_spec_cache_key,
+        )
+        return out
+
+    return wrapper

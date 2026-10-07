@@ -1,282 +1,208 @@
-import re
-from typing import AnyStr, cast, List, overload, Sequence, Tuple, TYPE_CHECKING, Union
+# Copyright 2022-present, the HuggingFace Inc. team.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+"""Contains utilities to handle headers to send in calls to Huggingface Hub."""
 
-from ._abnf import field_name, field_value
-from ._util import bytesify, LocalProtocolError, validate
+from huggingface_hub.errors import LocalTokenNotFoundError
 
-if TYPE_CHECKING:
-    from ._events import Request
-
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal  # type: ignore
-
-CONTENT_LENGTH_MAX_DIGITS = 20  # allow up to 1 billion TB - 1
-
-
-# Facts
-# -----
-#
-# Headers are:
-#   keys: case-insensitive ascii
-#   values: mixture of ascii and raw bytes
-#
-# "Historically, HTTP has allowed field content with text in the ISO-8859-1
-# charset [ISO-8859-1], supporting other charsets only through use of
-# [RFC2047] encoding.  In practice, most HTTP header field values use only a
-# subset of the US-ASCII charset [USASCII]. Newly defined header fields SHOULD
-# limit their field values to US-ASCII octets.  A recipient SHOULD treat other
-# octets in field content (obs-text) as opaque data."
-# And it deprecates all non-ascii values
-#
-# Leading/trailing whitespace in header names is forbidden
-#
-# Values get leading/trailing whitespace stripped
-#
-# Content-Disposition actually needs to contain unicode semantically; to
-# accomplish this it has a terrifically weird way of encoding the filename
-# itself as ascii (and even this still has lots of cross-browser
-# incompatibilities)
-#
-# Order is important:
-# "a proxy MUST NOT change the order of these field values when forwarding a
-# message"
-# (and there are several headers where the order indicates a preference)
-#
-# Multiple occurences of the same header:
-# "A sender MUST NOT generate multiple header fields with the same field name
-# in a message unless either the entire field value for that header field is
-# defined as a comma-separated list [or the header is Set-Cookie which gets a
-# special exception]" - RFC 7230. (cookies are in RFC 6265)
-#
-# So every header aside from Set-Cookie can be merged by b", ".join if it
-# occurs repeatedly. But, of course, they can't necessarily be split by
-# .split(b","), because quoting.
-#
-# Given all this mess (case insensitive, duplicates allowed, order is
-# important, ...), there doesn't appear to be any standard way to handle
-# headers in Python -- they're almost like dicts, but... actually just
-# aren't. For now we punt and just use a super simple representation: headers
-# are a list of pairs
-#
-#   [(name1, value1), (name2, value2), ...]
-#
-# where all entries are bytestrings, names are lowercase and have no
-# leading/trailing whitespace, and values are bytestrings with no
-# leading/trailing whitespace. Searching and updating are done via naive O(n)
-# methods.
-#
-# Maybe a dict-of-lists would be better?
-
-_content_length_re = re.compile(rb"[0-9]+")
-_field_name_re = re.compile(field_name.encode("ascii"))
-_field_value_re = re.compile(field_value.encode("ascii"))
+from .. import constants
+from ._auth import get_token
+from ._detect_agent import detect_agent
+from ._runtime import (
+    get_hf_hub_version,
+    get_python_version,
+    get_torch_version,
+    is_torch_available,
+)
+from ._validators import validate_hf_hub_args
 
 
-class Headers(Sequence[Tuple[bytes, bytes]]):
+@validate_hf_hub_args
+def build_hf_headers(
+    *,
+    token: bool | str | None = None,
+    library_name: str | None = None,
+    library_version: str | None = None,
+    user_agent: dict | str | None = None,
+    headers: dict[str, str] | None = None,
+) -> dict[str, str]:
     """
-    A list-like interface that allows iterating over headers as byte-pairs
-    of (lowercased-name, value).
+    Build headers dictionary to send in a HF Hub call.
 
-    Internally we actually store the representation as three-tuples,
-    including both the raw original casing, in order to preserve casing
-    over-the-wire, and the lowercased name, for case-insensitive comparisions.
+    By default, authorization token is always provided either from argument (explicit
+    use) or retrieved from the cache (implicit use). To explicitly avoid sending the
+    token to the Hub, set `token=False` or set the `HF_HUB_DISABLE_IMPLICIT_TOKEN`
+    environment variable.
 
-    r = Request(
-        method="GET",
-        target="/",
-        headers=[("Host", "example.org"), ("Connection", "keep-alive")],
-        http_version="1.1",
-    )
-    assert r.headers == [
-        (b"host", b"example.org"),
-        (b"connection", b"keep-alive")
-    ]
-    assert r.headers.raw_items() == [
-        (b"Host", b"example.org"),
-        (b"Connection", b"keep-alive")
-    ]
+    In case of an API call that requires write access, an error is thrown if token is
+    `None` or token is an organization token (starting with `"api_org***"`).
+
+    In addition to the auth header, a user-agent is added to provide information about
+    the installed packages (versions of python, huggingface_hub, torch).
+
+    Args:
+        token (`str`, `bool`, *optional*):
+            The token to be sent in authorization header for the Hub call:
+                - if a string, it is used as the Hugging Face token
+                - if `True`, the token is read from the machine (cache or env variable)
+                - if `False`, authorization header is not set
+                - if `None`, the token is read from the machine only except if
+                  `HF_HUB_DISABLE_IMPLICIT_TOKEN` env variable is set.
+        library_name (`str`, *optional*):
+            The name of the library that is making the HTTP request. Will be added to
+            the user-agent header.
+        library_version (`str`, *optional*):
+            The version of the library that is making the HTTP request. Will be added
+            to the user-agent header.
+        user_agent (`str`, `dict`, *optional*):
+            The user agent info in the form of a dictionary or a single string. It will
+            be completed with information about the installed packages.
+        headers (`dict`, *optional*):
+            Additional headers to include in the request. Those headers take precedence
+            over the ones generated by this function.
+
+    Returns:
+        A `dict` of headers to pass in your API call.
+
+    Example:
+    ```py
+        >>> build_hf_headers(token="hf_***") # explicit token
+        {"authorization": "Bearer hf_***", "user-agent": ""}
+
+        >>> build_hf_headers(token=True) # explicitly use cached token
+        {"authorization": "Bearer hf_***",...}
+
+        >>> build_hf_headers(token=False) # explicitly don't use cached token
+        {"user-agent": ...}
+
+        >>> build_hf_headers() # implicit use of the cached token
+        {"authorization": "Bearer hf_***",...}
+
+        # HF_HUB_DISABLE_IMPLICIT_TOKEN=True # to set as env variable
+        >>> build_hf_headers() # token is not sent
+        {"user-agent": ...}
+
+        >>> build_hf_headers(library_name="transformers", library_version="1.2.3")
+        {"authorization": ..., "user-agent": "transformers/1.2.3; hf_hub/0.10.2; python/3.10.4; tensorflow/1.55"}
+    ```
+
+    Raises:
+        [`ValueError`](https://docs.python.org/3/library/exceptions.html#ValueError)
+            If organization token is passed and "write" access is required.
+        [`ValueError`](https://docs.python.org/3/library/exceptions.html#ValueError)
+            If "write" access is required but token is not passed and not saved locally.
+        [`EnvironmentError`](https://docs.python.org/3/library/exceptions.html#EnvironmentError)
+            If `token=True` but token is not saved locally.
     """
+    # Get auth token to send
+    token_to_send = get_token_to_send(token)
 
-    __slots__ = "_full_items"
-
-    def __init__(self, full_items: List[Tuple[bytes, bytes, bytes]]) -> None:
-        self._full_items = full_items
-
-    def __bool__(self) -> bool:
-        return bool(self._full_items)
-
-    def __eq__(self, other: object) -> bool:
-        return list(self) == list(other)  # type: ignore
-
-    def __len__(self) -> int:
-        return len(self._full_items)
-
-    def __repr__(self) -> str:
-        return "<Headers(%s)>" % repr(list(self))
-
-    def __getitem__(self, idx: int) -> Tuple[bytes, bytes]:  # type: ignore[override]
-        _, name, value = self._full_items[idx]
-        return (name, value)
-
-    def raw_items(self) -> List[Tuple[bytes, bytes]]:
-        return [(raw_name, value) for raw_name, _, value in self._full_items]
+    # Combine headers
+    hf_headers = {
+        "user-agent": _http_user_agent(
+            library_name=library_name,
+            library_version=library_version,
+            user_agent=user_agent,
+        )
+    }
+    if token_to_send is not None:
+        hf_headers["authorization"] = f"Bearer {token_to_send}"
+    if headers is not None:
+        hf_headers.update(headers)
+    return hf_headers
 
 
-HeaderTypes = Union[
-    List[Tuple[bytes, bytes]],
-    List[Tuple[bytes, str]],
-    List[Tuple[str, bytes]],
-    List[Tuple[str, str]],
-]
+def get_token_to_send(token: bool | str | None) -> str | None:
+    """Select the token to send from either `token` or the cache."""
+    # Case token is explicitly provided
+    if isinstance(token, str):
+        return token
+
+    # Case token is explicitly forbidden
+    if token is False:
+        return None
+
+    # Case token is explicitly required
+    if token is True:
+        cached_token = get_token()
+        if cached_token is None:
+            raise LocalTokenNotFoundError(
+                "Token is required (`token=True`), but no token found. You"
+                " need to provide a token or be logged in to Hugging Face with"
+                " `hf auth login` or `huggingface_hub.login`. See"
+                " https://huggingface.co/settings/tokens."
+            )
+        return cached_token
+
+    # Case implicit use of the token is forbidden by env variable. Checked before resolving the
+    # cached token: `get_token()` may refresh an OAuth token (network call + file writes), which
+    # must not happen when the resolved token wouldn't be used anyway.
+    if constants.HF_HUB_DISABLE_IMPLICIT_TOKEN:
+        return None
+
+    # Otherwise: we use the cached token as the user has not explicitly forbidden it
+    return get_token()
 
 
-@overload
-def normalize_and_validate(headers: Headers, _parsed: Literal[True]) -> Headers:
-    ...
+def _http_user_agent(
+    *,
+    library_name: str | None = None,
+    library_version: str | None = None,
+    user_agent: dict | str | None = None,
+) -> str:
+    """Format a user-agent string containing information about the installed packages.
+
+    Args:
+        library_name (`str`, *optional*):
+            The name of the library that is making the HTTP request.
+        library_version (`str`, *optional*):
+            The version of the library that is making the HTTP request.
+        user_agent (`str`, `dict`, *optional*):
+            The user agent info in the form of a dictionary or a single string.
+
+    Returns:
+        The formatted user-agent string.
+    """
+    if library_name is not None:
+        ua = f"{library_name}/{library_version}"
+    else:
+        ua = "unknown/None"
+    ua += f"; hf_hub/{get_hf_hub_version()}"
+    ua += f"; python/{get_python_version()}"
+
+    if not constants.HF_HUB_DISABLE_TELEMETRY:
+        if is_torch_available():
+            ua += f"; torch/{get_torch_version()}"
+
+        agent = detect_agent()
+        if agent:
+            ua += f"; agent/{agent}"
+
+    if isinstance(user_agent, dict):
+        ua += "; " + "; ".join(f"{k}/{v}" for k, v in user_agent.items())
+    elif isinstance(user_agent, str):
+        ua += "; " + user_agent
+
+    # Retrieve user-agent origin headers from environment variable
+    origin = constants.HF_HUB_USER_AGENT_ORIGIN
+    if origin is not None:
+        ua += "; origin/" + origin
+
+    return _deduplicate_user_agent(ua)
 
 
-@overload
-def normalize_and_validate(headers: HeaderTypes, _parsed: Literal[False]) -> Headers:
-    ...
-
-
-@overload
-def normalize_and_validate(
-    headers: Union[Headers, HeaderTypes], _parsed: bool = False
-) -> Headers:
-    ...
-
-
-def normalize_and_validate(
-    headers: Union[Headers, HeaderTypes], _parsed: bool = False
-) -> Headers:
-    new_headers = []
-    seen_content_length = None
-    saw_transfer_encoding = False
-    for name, value in headers:
-        # For headers coming out of the parser, we can safely skip some steps,
-        # because it always returns bytes and has already run these regexes
-        # over the data:
-        if not _parsed:
-            name = bytesify(name)
-            value = bytesify(value)
-            validate(_field_name_re, name, "Illegal header name {!r}", name)
-            validate(_field_value_re, value, "Illegal header value {!r}", value)
-        assert isinstance(name, bytes)
-        assert isinstance(value, bytes)
-
-        raw_name = name
-        name = name.lower()
-        if name == b"content-length":
-            lengths = {length.strip() for length in value.split(b",")}
-            if len(lengths) != 1:
-                raise LocalProtocolError("conflicting Content-Length headers")
-            value = lengths.pop()
-            validate(_content_length_re, value, "bad Content-Length")
-            if len(value) > CONTENT_LENGTH_MAX_DIGITS:
-                raise LocalProtocolError("bad Content-Length")
-            if seen_content_length is None:
-                seen_content_length = value
-                new_headers.append((raw_name, name, value))
-            elif seen_content_length != value:
-                raise LocalProtocolError("conflicting Content-Length headers")
-        elif name == b"transfer-encoding":
-            # "A server that receives a request message with a transfer coding
-            # it does not understand SHOULD respond with 501 (Not
-            # Implemented)."
-            # https://tools.ietf.org/html/rfc7230#section-3.3.1
-            if saw_transfer_encoding:
-                raise LocalProtocolError(
-                    "multiple Transfer-Encoding headers", error_status_hint=501
-                )
-            # "All transfer-coding names are case-insensitive"
-            # -- https://tools.ietf.org/html/rfc7230#section-4
-            value = value.lower()
-            if value != b"chunked":
-                raise LocalProtocolError(
-                    "Only Transfer-Encoding: chunked is supported",
-                    error_status_hint=501,
-                )
-            saw_transfer_encoding = True
-            new_headers.append((raw_name, name, value))
-        else:
-            new_headers.append((raw_name, name, value))
-    return Headers(new_headers)
-
-
-def get_comma_header(headers: Headers, name: bytes) -> List[bytes]:
-    # Should only be used for headers whose value is a list of
-    # comma-separated, case-insensitive values.
-    #
-    # The header name `name` is expected to be lower-case bytes.
-    #
-    # Connection: meets these criteria (including cast insensitivity).
-    #
-    # Content-Length: technically is just a single value (1*DIGIT), but the
-    # standard makes reference to implementations that do multiple values, and
-    # using this doesn't hurt. Ditto, case insensitivity doesn't things either
-    # way.
-    #
-    # Transfer-Encoding: is more complex (allows for quoted strings), so
-    # splitting on , is actually wrong. For example, this is legal:
-    #
-    #    Transfer-Encoding: foo; options="1,2", chunked
-    #
-    # and should be parsed as
-    #
-    #    foo; options="1,2"
-    #    chunked
-    #
-    # but this naive function will parse it as
-    #
-    #    foo; options="1
-    #    2"
-    #    chunked
-    #
-    # However, this is okay because the only thing we are going to do with
-    # any Transfer-Encoding is reject ones that aren't just "chunked", so
-    # both of these will be treated the same anyway.
-    #
-    # Expect: the only legal value is the literal string
-    # "100-continue". Splitting on commas is harmless. Case insensitive.
-    #
-    out: List[bytes] = []
-    for _, found_name, found_raw_value in headers._full_items:
-        if found_name == name:
-            found_raw_value = found_raw_value.lower()
-            for found_split_value in found_raw_value.split(b","):
-                found_split_value = found_split_value.strip()
-                if found_split_value:
-                    out.append(found_split_value)
-    return out
-
-
-def set_comma_header(headers: Headers, name: bytes, new_values: List[bytes]) -> Headers:
-    # The header name `name` is expected to be lower-case bytes.
-    #
-    # Note that when we store the header we use title casing for the header
-    # names, in order to match the conventional HTTP header style.
-    #
-    # Simply calling `.title()` is a blunt approach, but it's correct
-    # here given the cases where we're using `set_comma_header`...
-    #
-    # Connection, Content-Length, Transfer-Encoding.
-    new_headers: List[Tuple[bytes, bytes]] = []
-    for found_raw_name, found_name, found_raw_value in headers._full_items:
-        if found_name != name:
-            new_headers.append((found_raw_name, found_raw_value))
-    for new_value in new_values:
-        new_headers.append((name.title(), new_value))
-    return normalize_and_validate(new_headers)
-
-
-def has_expect_100_continue(request: "Request") -> bool:
-    # https://tools.ietf.org/html/rfc7231#section-5.1.1
-    # "A server that receives a 100-continue expectation in an HTTP/1.0 request
-    # MUST ignore that expectation."
-    if request.http_version < b"1.1":
-        return False
-    expect = get_comma_header(request.headers, b"expect")
-    return b"100-continue" in expect
+def _deduplicate_user_agent(user_agent: str) -> str:
+    """Deduplicate redundant information in the generated user-agent."""
+    # Split around ";" > Strip whitespaces > Store as dict keys (ensure unicity) > format back as string
+    # Order is implicitly preserved by dictionary structure (see https://stackoverflow.com/a/53657523).
+    return "; ".join({key.strip(): None for key in user_agent.split(";")}.keys())

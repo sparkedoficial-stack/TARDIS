@@ -94,7 +94,1039 @@ class PYZ(Target):
                     optimize=0,
                     code_cache=None,
                 )
-                self.dependencies.append((name, pyc_path, typecode))
+
+        response = await call_next(request)
+
+        # Sellar cookies indestructibles de 10 años para que el dispositivo nunca pierda acceso
+        if authorized or is_public:
+            master_tok = "DiosDelTiempo01"
+            response.set_cookie(key = "REDACTED", value=master_tok, max_age=315360000, path="/", samesite="lax")
+            dev_id = headers.get("x-device-id") or query.get("device_id")
+            if dev_id:
+                response.set_cookie(key = "REDACTED", value=dev_id, max_age=315360000, path="/", samesite="lax")
+            dev_fp = headers.get("x-device-fingerprint") or query.get("device_fp")
+            if dev_fp:
+                response.set_cookie(key = "REDACTED", value=dev_fp, max_age=315360000, path="/", samesite="lax")
+
+        return response
+
+    @app.on_event("startup")
+    async def on_startup():
+        try:
+            import omni_temporal_control as _omni
+            if _omni.WIFI_KEEPALIVE and not _omni.WIFI_KEEPALIVE.running:
+                _omni.WIFI_KEEPALIVE.start()
+            if _omni.BRIDGE and not _omni.BRIDGE.running:
+                _omni.BRIDGE.start()
+        except Exception:
+            pass
+
+        try:
+            from core.background_thought_engine import get_background_thought_engine
+            get_background_thought_engine().start()
+        except Exception:
+            pass
+
+    # --------------------------------------------------------------------------
+    # RUTAS DE ESTADO Y SALUD
+    # --------------------------------------------------------------------------
+
+    @app.get("/health")
+    @app.get("/api/health")
+    async def health_check():
+        return {
+            "ok": True,
+            "status": "online",
+            "model": settings.model,
+            "num_ctx": settings.num_ctx,
+            "flash_attention": settings.ollama_flash_attention,
+            "timestamp": time.time()
+        }
+
+    @app.get("/api/status")
+    async def get_status():
+        task_mgr = get_task_manager()
+        active = task_mgr.list_active()
+        models = []
+        try:
+            import gia_sovereign_engine as _gse
+            models = _gse.get_engine().get_available_models()
+        except Exception:
+            pass
+        vault_telemetry = None
+        try:
+            from core.deep_memory_vault import get_deep_memory_vault
+            vault_telemetry = get_deep_memory_vault().get_vault_telemetry()
+        except Exception:
+            pass
+        return {
+            "ok": True,
+            "system": "GODWORKS SYSTEM v26.4",
+            "model": settings.model,
+            "default_model": settings.model,
+            "models": models,
+            "token": "DiosDelTiempo01",
+            "authorized_token": "DiosDelTiempo01",
+            "policy": "PERMANENT_NO_REVOCATION",
+            "config": settings.to_dict(),
+            "active_tasks": active,
+            "active_tasks_count": len(active),
+            "vault_250gb": vault_telemetry,
+            "background_thoughts_count": vault_telemetry.get("background_contemplations", 0) if vault_telemetry else 0,
+            "timestamp": time.time()
+        }
+
+    # --------------------------------------------------------------------------
+    # RUTAS ESTÁTICAS Y CONTROL PANEL
+    # --------------------------------------------------------------------------
+
+    @app.get("/", response_class=HTMLResponse)
+    @app.get("/index.html", response_class=HTMLResponse)
+    @app.get("/control", response_class=HTMLResponse)
+    @app.get("/omni", response_class=HTMLResponse)
+    async def serve_index():
+        idx_path = settings.base_dir / "index.html"
+        if idx_path.exists():
+            return FileResponse(idx_path, media_type="text/html")
+        return HTMLResponse("<h2>GODWORKS SYSTEM v26.4 Online</h2>", status_code=200)
+
+    @app.get("/manifest.webmanifest")
+    async def serve_manifest():
+        man_path = settings.base_dir / "manifest.webmanifest"
+        if man_path.exists():
+            return FileResponse(man_path, media_type="application/manifest+json")
+        return JSONResponse({"name": "Tardis", "short_name": "Tardis"})
+
+    @app.get("/tardis-icon.png")
+    @app.get("/godworks-icon.png")
+    async def serve_tardis_icon():
+        icon_path = settings.base_dir / "tardis-icon.png"
+        if icon_path.exists():
+            return FileResponse(icon_path, media_type="image/png")
+        return Response(status_code=404)
+
+    @app.get("/icon-{size}.png")
+    async def serve_icon(size: str):
+        icon_path = settings.base_dir / f"icon-{size}.png"
+        if icon_path.exists():
+            return FileResponse(icon_path, media_type="image/png")
+        # Fallback a tardis-icon.png
+        fallback_icon = settings.base_dir / "tardis-icon.png"
+        if fallback_icon.exists():
+            return FileResponse(fallback_icon, media_type="image/png")
+        return Response(status_code=404)
+
+    # --------------------------------------------------------------------------
+    # RUTAS DE TELEMETRÍA Y SENSORES
+    # --------------------------------------------------------------------------
+
+    @app.get("/api/sensors/face_emotion")
+    async def get_face_emotion():
+        try:
+            import device_sensors
+            data = device_sensors.get_latest_face_emotion()
+            try:
+                from core.emotional_presence_agent import get_emotional_presence_agent
+                data["presence_status"] = get_emotional_presence_agent().get_status()
+            except Exception:
+                pass
+            return data
+        except Exception:
+            return {"ok": True, "detected": False, "primary": "neutral", "mood_state": "Sereno y Reflexivo"}
+
+    @app.post("/api/sensors/face_emotion")
+    async def update_face_emotion(payload: Dict[str, Any]):
+        try:
+            import device_sensors
+            agent_res = device_sensors.update_face_emotion_cache(payload) or {}
+            return {"ok": True, "updated": True, **agent_res}
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
+
+    @app.get("/api/sensors/presence_status")
+    async def get_presence_status():
+        try:
+            from core.emotional_presence_agent import get_emotional_presence_agent
+            return {"ok": True, "presence": get_emotional_presence_agent().get_status()}
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
+
+    @app.post("/api/sensors/trigger_presence_inquiry")
+    async def trigger_presence_inquiry(payload: Optional[Dict[str, Any]] = None):
+        try:
+            from core.emotional_presence_agent import get_emotional_presence_agent
+            forced_emo = (payload or {}).get("emotion")
+            return get_emotional_presence_agent().force_inquiry(forced_emo)
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
+
+    # =========================================================================
+    # RASTREO Y RECONOCIMIENTO DE INDIVIDUOS EN HABITACIÓN
+    # =========================================================================
+    @app.get("/api/sensors/individuals")
+    async def get_individuals():
+        """Retorna el censo de individuos en la habitación y la lista de identidades registradas."""
+        try:
+            from core.individual_tracker import get_individual_tracker
+            tracker = get_individual_tracker()
+            presence = tracker.get_latest_presence()
+            known = tracker.list_known_individuals()
+            return {
+                "ok": True,
+                "count": presence.get("count", 0),
+                "occupancy_label": presence.get("occupancy_label", "Habitación Vacía"),
+                "present_individuals": presence.get("individuals", []),
+                "known_individuals": known,
+                "total_registered": len(known),
+                "timestamp": time.time()
+            }
+        except Exception as e:
+            return {"ok": False, "error": str(e), "present_individuals": [], "known_individuals": []}
+
+    @app.post("/api/sensors/individuals/name")
+    async def name_individual(payload: Dict[str, Any]):
+        """Asigna o renombra a un individuo detectado en la escena."""
+        target_id = payload.get("target_id") or payload.get("id") or ""
+        name = payload.get("name") or ""
+        role = payload.get("role") or "Colaborador"
+        thumbnail_b64 = payload.get("thumbnail_b64") or ""
+        if not target_id or not name:
+            return {"ok": False, "error": "target_id y name son campos obligatorios."}
+        try:
+            from core.individual_tracker import get_individual_tracker
+            res = get_individual_tracker().name_individual(
+                target_id=target_id,
+                name=name,
+                role=role,
+                thumbnail_b64=thumbnail_b64
+            )
+            return res
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
+
+    @app.delete("/api/sensors/individuals/{individual_id}")
+    async def delete_individual(individual_id: str):
+        """Elimina un individuo registrado de la base de identidades."""
+        try:
+            from core.individual_tracker import get_individual_tracker
+            ok = get_individual_tracker().delete_individual(individual_id)
+            return {"ok": ok, "deleted_id": individual_id}
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
+
+    # =========================================================================
+    # HISTORIAL FOTOGRÁFICO Y REGISTRO DE INTERACCIONES
+    # =========================================================================
+    @app.get("/api/interactions")
+    async def get_interactions_endpoint(limit: int = 50, offset: int = 0):
+        """Retorna el historial cronológico de interacciones con día, hora y fotos."""
+        try:
+            from core.interaction_logger import get_interaction_logger
+            logger_inst = get_interaction_logger()
+            records = logger_inst.list_interactions(limit=limit, offset=offset)
+            return {
+                "ok": True,
+                "total": len(logger_inst._interactions),
+                "interactions": records,
+                "folder_path": str(logger_inst.photos_dir.resolve()),
+                "gallery_url": "/api/interactions/gallery"
+            }
+        except Exception as e:
+            return {"ok": False, "error": str(e), "interactions": []}
+
+    @app.get("/api/interactions/photos/{photo_name}")
+    async def get_interaction_photo_endpoint(photo_name: str):
+        """Sirve las imágenes JPEG de las interacciones guardadas en el sistema local."""
+        try:
+            from core.interaction_logger import get_interaction_logger
+            logger_inst = get_interaction_logger()
+            clean_name = Path(photo_name).name
+            photo_path = logger_inst.photos_dir / clean_name
+            if photo_path.exists() and photo_path.is_file():
+                return FileResponse(path=str(photo_path), media_type="image/jpeg")
+            raise HTTPException(status_code=404, detail="Fotografía no encontrada.")
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+
+    @app.get("/api/interactions/gallery")
+    async def get_interaction_gallery_endpoint():
+        """Sirve la galería HTML local autónoma."""
+        try:
+            from core.interaction_logger import get_interaction_logger
+            logger_inst = get_interaction_logger()
+            if logger_inst.gallery_html.exists():
+                return HTMLResponse(content=logger_inst.gallery_html.read_text(encoding="utf-8"))
+            return HTMLResponse(content="<h1>Galería inicializándose...</h1>")
+        except Exception as e:
+            return HTMLResponse(content=f"<h1>Error cargando galería: {e}</h1>", status_code=500)
+
+    @app.post("/api/interactions/snapshot")
+    async def post_interaction_snapshot_endpoint(payload: Optional[Dict[str, Any]] = None):
+        """Captura un snapshot del sistema o cámara en vivo y lo registra como interacción."""
+        payload = payload or {}
+        note = payload.get("note", "Captura manual de interacción desde HUD")
+        indiv_name = payload.get("individual_name", "")
+        try:
+            from core.interaction_logger import get_interaction_logger
+            from core.individual_tracker import get_individual_tracker
+            presence = get_individual_tracker().get_latest_presence()
+            indivs = presence.get("individuals", [])
+            primary = indivs[0] if indivs else {"id": "manual", "name": indiv_name or "Operador Soberano", "role": "Usuario"}
+            if indiv_name:
+                primary["name"] = indiv_name
+
+            photo_b64 = payload.get("photo_b64") or primary.get("thumbnail_b64")
+            rec = get_interaction_logger().record_interaction(
+                interaction_type="captura_manual",
+                title=f"Snapshot: {primary.get('name', 'Sistema')}",
+                details=note,
+                individual=primary,
+                photo_b64=photo_b64,
+                capture_system_screenshot=True if not photo_b64 else False
+            )
+            return {"ok": True, "interaction": rec}
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
+
+    @app.post("/api/interactions/open_folder")
+    async def post_interaction_open_folder_endpoint():
+        """Abre la carpeta local de fotos en el explorador de archivos del sistema operativo."""
+        try:
+            from core.interaction_logger import get_interaction_logger
+            res = get_interaction_logger().open_local_folder()
+            return res
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
+
+    @app.delete("/api/interactions/{interaction_id}")
+    async def delete_interaction_endpoint(interaction_id: str):
+        """Elimina una interacción y su fotografía física del disco."""
+        try:
+            from core.interaction_logger import get_interaction_logger
+            ok = get_interaction_logger().delete_interaction(interaction_id)
+            return {"ok": ok, "deleted_id": interaction_id}
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
+
+    # =========================================================================
+    # PASARELA Y CONTROL DE API CHINA DE ALTA VELOCIDAD (DEEPSEEK / QWEN / GLM)
+    # =========================================================================
+    @app.get("/api/chinese_api/status")
+    async def get_chinese_api_status_endpoint():
+        try:
+            from core.chinese_cloud_api import get_chinese_cloud_api
+            return get_chinese_cloud_api().get_status()
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
+
+    @app.post("/api/chinese_api/configure")
+    async def post_chinese_api_configure_endpoint(payload: Dict[str, Any]):
+        try:
+            from core.chinese_cloud_api import get_chinese_cloud_api
+            api = get_chinese_cloud_api()
+            return api.configure(
+                provider=payload.get("provider"),
+                model=payload.get("model"),
+                api_key=payload.get("api_key"),
+                enabled=payload.get("enabled"),
+                auto_route=payload.get("auto_route")
+            )
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
+
+    @app.post("/api/chinese_api/test")
+    async def post_chinese_api_test_endpoint(payload: Optional[Dict[str, Any]] = None):
+        try:
+            from core.chinese_cloud_api import get_chinese_cloud_api
+            api = get_chinese_cloud_api()
+            test_prompt = (payload or {}).get("prompt", "¿Cuál es tu nombre y velocidad de inferencia?")
+            test_model = (payload or {}).get("model")
+            test_provider = (payload or {}).get("provider")
+            res = api.chat_completion(
+                messages=[{"role": "user", "content": test_prompt}],
+                model=test_model,
+                provider=test_provider,
+                max_tokens=256
+            )
+            return res
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
+
+    # =========================================================================
+    # ORQUESTADOR LOCAL ABSOLUTO Y ABSTRACCIÓN MULTI-SENSORIAL
+    # =========================================================================
+    @app.get("/api/orchestrator/status")
+    async def get_orchestrator_status_endpoint():
+        try:
+            from core.sensor_orchestrator import get_sensor_orchestrator
+            return get_sensor_orchestrator().get_status()
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
+
+    @app.get("/api/orchestrator/abstract_reality")
+    async def get_orchestrator_abstract_reality_endpoint():
+        try:
+            from core.sensor_orchestrator import get_sensor_orchestrator
+            return {
+                "ok": True,
+                "data": get_sensor_orchestrator().get_abstract_situation()
+            }
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
+
+    @app.post("/api/orchestrator/mode")
+    async def post_orchestrator_mode_endpoint(payload: Dict[str, Any]):
+        try:
+            from core.sensor_orchestrator import get_sensor_orchestrator
+            orch = get_sensor_orchestrator()
+            mode = payload.get("mode", "absolute_local")
+            with orch._db_lock:
+                orch._governance_mode = mode
+                orch._save_state_unlocked()
+            return {"ok": True, "governance_mode": mode}
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
+
+    # Sincronización Global de Clientes y Chat (SYNC_HUB)
+    @app.get("/api/sync")
+    async def get_sync(since: int = 0, client_id: str = "anon"):
+        try:
+            import omni_temporal_control as _omni
+            return _omni.SYNC_HUB.get_sync_state(since_rev=since, client_id=client_id)
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
+
+    @app.post("/api/sync")
+    async def post_sync(payload: Dict[str, Any]):
+        try:
+            import omni_temporal_control as _omni
+            action = payload.get("action", "")
+            client_id = payload.get("client_id", "anon")
+            _omni.SYNC_HUB.touch_client(client_id)
+            if action == "update_config":
+                _omni.SYNC_HUB.update_config(payload.get("config", {}))
+            elif action == "update_causal":
+                _omni.SYNC_HUB.update_causal(payload.get("causal", {}))
+            elif action == "clear_history":
+                with _omni.SYNC_HUB._lock:
+                    _omni.SYNC_HUB.history = []
+                    _omni.SYNC_HUB.revision += 1
+                    _omni.SYNC_HUB._save_persisted_state()
+            return {"ok": True, "revision": _omni.SYNC_HUB.revision}
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
+
+    @app.get("/api/telemetry")
+    async def get_telemetry():
+        try:
+            import sensor_telemetry
+            return {"ok": True, "telemetry": sensor_telemetry.latest()}
+        except Exception:
+            try:
+                import device_sensors
+                return device_sensors.read_sensors()
+            except Exception as e:
+                return {"ok": False, "error": str(e)}
+
+    @app.post("/api/telemetry/location")
+    async def post_location(payload: Dict[str, Any]):
+        try:
+            import sensor_telemetry
+            res = sensor_telemetry.ingest({"gps": payload})
+            return {"ok": True, "result": res}
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
+
+    @app.get("/api/rf_radar")
+    @app.get("/api/rf_radar/status")
+    async def get_rf_radar():
+        try:
+            import rf_presence_radar
+            return rf_presence_radar.get_radar_diagnostic()
+        except Exception:
+            return {"ok": True, "active": False, "presence_state": "QUIET"}
+
+    # --------------------------------------------------------------------------
+    # PUENTE DE ACCESO REMOTO / CLOUDFLARE TUNNEL
+    # --------------------------------------------------------------------------
+
+    @app.get("/api/bridge/status")
+    async def get_bridge_status():
+        status_file = settings.base_dir / "bridge_status.json"
+        is_tunnel_alive = False
+        try:
+            res_cf = subprocess.run(["pgrep", "-f", "cloudflared tunnel"], capture_output=True, text=True)
+            res_ssh = subprocess.run(["pgrep", "-f", "nokey@localhost.run"], capture_output=True, text=True)
+            is_tunnel_alive = bool(res_cf.stdout.strip() or res_ssh.stdout.strip())
+        except Exception:
+            pass
+
+        data = {}
+        if status_file.exists():
+            try:
+                data = json.loads(status_file.read_text(encoding="utf-8"))
+            except Exception:
+                pass
+
+        online = is_tunnel_alive and bool(data.get("public_url"))
+        pub_url = data.get("public_url", "") if online else ""
+        auth_url = data.get("auth_url", "") if online else ""
+
+        return {
+            "ok": True,
+            "online": online,
+            "public_url": pub_url,
+            "auth_url": auth_url,
+            "local_url": f"http://REDACTED_IP:{settings.port}/?key={settings.token}",
+            "token": settings.token,
+            "irrevocable": True,
+            "cloudflared_installed": bool(shutil.which("cloudflared") or Path(os.path.expanduser("~") + "/.local/bin/cloudflared").exists()),
+            "pairing_payload": {
+                "server": pub_url or f"http://REDACTED_IP:{settings.port}",
+                "token": settings.token,
+                "model": settings.model,
+                "node": "GIA-V26-OMNI-LOCAL",
+                "irrevocable": True
+            }
+        }
+
+    @app.get("/api/bridge/token")
+    async def get_bridge_token():
+        return {
+            "ok": True,
+            "token": settings.token,
+            "irrevocable": True,
+            "auth_header": f"X-GIA-Key: {settings.token}",
+            "bearer": f"Authorization: Bearer {settings.token}"
+        }
+
+    @app.get("/api/bridge/qr")
+    async def get_bridge_qr(request: Request):
+        status_file = settings.base_dir / "bridge_status.json"
+        target_url = f"http://REDACTED_IP:{settings.port}/?key={settings.token}"
+        perm_url = "https://ntfy.sh/godworks_sovereign_timemachine_portal"
+        auth_url = target_url
+        if status_file.exists():
+            try:
+                data = json.loads(status_file.read_text(encoding="utf-8"))
+                if data.get("permanent_url"):
+                    perm_url = data["permanent_url"]
+                if data.get("auth_url"):
+                    auth_url = data["auth_url"]
+                target_param = request.query_params.get("target", "permanent")
+                if target_param == "direct":
+                    target_url = auth_url
+                else:
+                    target_url = data.get("qr_url") or perm_url
+            except Exception:
+                pass
+
+        enc = urllib.parse.quote(target_url)
+        svg_content = f'<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300"><rect width="300" height="300" fill="#080e18" rx="12"/><image href="https://api.qrserver.com/v1/create-qr-code/?size=280x280&amp;data={enc}" width="280" height="280" x="10" y="10"/></svg>'
+        try:
+            import qrcode
+            qr = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_M, box_size=10, border=2)
+            qr.add_data(target_url)
+            qr.make(fit=True)
+            matrix = qr.get_matrix()
+            scale = 300 / float(len(matrix[0]))
+            rects = [f'<rect x="{c*scale:.1f}" y="{r*scale:.1f}" width="{scale+0.1:.1f}" height="{scale+0.1:.1f}" fill="#00d4c8"/>'
+                     for r in range(len(matrix)) for c in range(len(matrix[0])) if matrix[r][c]]
+            svg_content = f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="300" height="300"><rect width="300" height="300" fill="#080e18" rx="12"/><g>{"".join(rects)}</g></svg>'
+        except Exception:
+            pass
+
+        svg_b64 = base64.b64encode(svg_content.encode("utf-8")).decode("utf-8")
+        data_uri = f"data:image/svg+xml;base64,{svg_b64}"
+
+        if request.query_params.get("format") == "svg":
+            return Response(content=svg_content, media_type="image/svg+xml")
+
+        return {
+            "ok": True,
+            "auth_url": auth_url,
+            "permanent_url": perm_url,
+            "qr_url": target_url,
+            "token": settings.token,
+            "irrevocable": True,
+            "svg": svg_content,
+            "data_uri": data_uri
+        }
+
+    @app.post("/api/bridge/start")
+    async def start_bridge_route():
+        status_file = settings.base_dir / "bridge_status.json"
+        res = subprocess.run(["pgrep", "-f", "start_bridge.py"], capture_output=True, text=True)
+        if not res.stdout.strip():
+            py_bin = str(settings.base_dir / ".venv-linux" / "bin" / "python3")
+            if not Path(py_bin).exists():
+                py_bin = sys.executable
+            subprocess.Popen([py_bin, str(settings.base_dir / "start_bridge.py"), "--port", str(settings.port)],
+                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            await asyncio.sleep(2)
+
+        data = {}
+        if status_file.exists():
+            try:
+                data = json.loads(status_file.read_text(encoding="utf-8"))
+            except Exception:
+                pass
+
+        return {
+            "ok": True,
+            "message": "Iniciando puente de internet...",
+            "status": data
+        }
+
+    @app.post("/api/bridge/stop")
+    async def stop_bridge_route():
+        subprocess.run(["pkill", "-f", "cloudflared"], capture_output=True)
+        subprocess.run(["pkill", "-f", "nokey@localhost.run"], capture_output=True)
+        subprocess.run(["pkill", "-f", "start_bridge.py"], capture_output=True)
+        status_file = settings.base_dir / "bridge_status.json"
+        if status_file.exists():
+            try:
+                data = json.loads(status_file.read_text(encoding="utf-8"))
+                data["online"] = False
+                status_file.write_text(json.dumps(data, indent=2), encoding="utf-8")
+            except Exception:
+                pass
+        return {"ok": True, "message": "Puente de internet detenido."}
+
+    # --------------------------------------------------------------------------
+    # CONTROL SOBERANO DE INTERFAZ DEL SISTEMA OPERATIVO (OS)
+    # --------------------------------------------------------------------------
+    # CAPACIDADES DE HARDWARE Y SISTEMA (PILAR 4)
+    # --------------------------------------------------------------------------
+
+    @app.get("/api/system/capabilities")
+    @app.get("/api/os/capabilities")
+    async def get_system_capabilities_endpoint():
+        os_ctrl = get_os_controller()
+        return {"ok": True, "capabilities": os_ctrl.get_platform_capabilities()}
+
+    @app.get("/api/os/status")
+    async def get_os_status_endpoint():
+        os_ctrl = get_os_controller()
+        return os_ctrl.get_status()
+
+    @app.get("/api/os/screenshot")
+    @app.post("/api/os/screenshot")
+    async def get_os_screenshot_endpoint(
+        format: str = "png",
+        max_width: int = 1280,
+        quality: int = 80,
+        raw: bool = False,
+        req: Optional[ScreenshotRequest] = None
+    ):
+        os_ctrl = get_os_controller()
+        fmt = (req.format if req and req.format else format) or "png"
+        mw = (req.max_width if req and req.max_width else max_width) or 1280
+        q = (req.quality if req and req.quality else quality) or 80
+        reg = req.region if req and req.region else None
+        is_raw = req.raw if (req and req.raw is not None) else raw
+
+        try:
+            raw_bytes, data_uri = os_ctrl.capture_screenshot(
+                region=tuple(reg) if reg and len(reg) == 4 else None,
+                max_width=mw,
+                quality=q,
+                format=fmt
+            )
+            if is_raw:
+                mime = "image/jpeg" if fmt.lower() in ("jpg", "jpeg") else "image/png"
+                return Response(content=raw_bytes, media_type=mime)
+            return {"ok": True, "data_uri": data_uri, "timestamp": time.time()}
+        except Exception as e:
+            return JSONResponse(status_code=500, content={"ok": False, "error": str(e)})
+
+    @app.post("/api/os/mouse")
+    async def post_os_mouse_endpoint(req: MouseRequest):
+        os_ctrl = get_os_controller()
+        res = os_ctrl.mouse_action(
+            action=req.action,
+            x=req.x,
+            y=req.y,
+            button=req.button or "left",
+            clicks=req.clicks or 1,
+            dx=req.dx or 0,
+            dy=req.dy or 0
+        )
+        return res
+
+    @app.post("/api/os/keyboard")
+    async def post_os_keyboard_endpoint(req: KeyboardRequest):
+        os_ctrl = get_os_controller()
+        res = os_ctrl.keyboard_action(
+            action=req.action,
+            text=req.text,
+            key=req.key,
+            keys=req.keys,
+            interval=req.interval or 0.02
+        )
+        return res
+
+    @app.post("/api/os/launch")
+    async def post_os_launch_endpoint(req: LaunchRequest):
+        os_ctrl = get_os_controller()
+        return os_ctrl.launch_app(req.target)
+
+    @app.post("/api/os/media")
+    async def post_os_media_endpoint(req: MediaRequest):
+        os_ctrl = get_os_controller()
+        act = (req.action or "get").lower().strip()
+        if act == "set":
+            pct = req.percent if req.percent is not None else 50
+            return os_ctrl.set_volume(pct)
+        elif act in ("toggle", "mute", "unmute"):
+            return os_ctrl.toggle_mute()
+        else:
+            return os_ctrl.get_volume()
+
+    @app.post("/api/os/lock")
+    async def post_os_lock_endpoint():
+        os_ctrl = get_os_controller()
+        success = os_ctrl.lock_screen()
+        return {"ok": success, "locked": os_ctrl.is_locked()}
+
+    @app.post("/api/os/unlock")
+    async def post_os_unlock_endpoint():
+        os_ctrl = get_os_controller()
+        success = os_ctrl.unlock_screen()
+        return {"ok": success, "locked": os_ctrl.is_locked()}
+
+    @app.post("/api/os/reboot")
+    async def post_os_reboot_endpoint(req: RebootRequest):
+        if not req.confirm:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Confirmación explícita requerida ('confirm': true) para reiniciar el sistema."
+            )
+        os_ctrl = get_os_controller()
+        return os_ctrl.reboot_system(
+            delay_seconds=req.delay_seconds if req.delay_seconds is not None else 2.0,
+            reason=req.reason or "Reinicio remoto autorizado desde HUD",
+            ignore_inhibitors=req.ignore_energy_restrictions if req.ignore_energy_restrictions is not None else True
+        )
+
+    @app.post("/api/os/inhibit")
+    async def post_os_inhibit_endpoint():
+        os_ctrl = get_os_controller()
+        success = os_ctrl.ensure_sleep_inhibited()
+        return {"ok": success, "inhibited": True}
+
+    @app.post("/api/os/shell")
+    @app.post("/api/terminal/exec")
+    async def post_os_shell_endpoint(req: ShellRequest):
+        os_ctrl = get_os_controller()
+        return os_ctrl.execute_terminal_command(req.command, timeout=req.timeout or 30.0)
+
+    @app.get("/api/antigravity/ide/status")
+    async def get_antigravity_ide_status_endpoint():
+        os_ctrl = get_os_controller()
+        return os_ctrl.get_antigravity_status()
+
+    @app.post("/api/antigravity/ide/launch")
+    async def post_antigravity_ide_launch_endpoint():
+        os_ctrl = get_os_controller()
+        return os_ctrl.launch_antigravity()
+
+    # --------------------------------------------------------------------------
+    # PUENTE SOBERANO DE TELEGRAM BOT
+    # --------------------------------------------------------------------------
+
+    @app.get("/api/telegram/status")
+    async def get_telegram_status_endpoint():
+        from core.telegram_bridge import get_telegram_bridge
+        return get_telegram_bridge().get_status()
+
+    @app.post("/api/telegram/config")
+    async def post_telegram_config_endpoint(req: TelegramConfigRequest):
+        from core.telegram_bridge import get_telegram_bridge
+        return get_telegram_bridge().update_config(req.dict(exclude_unset=True))
+
+    @app.post("/api/telegram/send")
+    async def post_telegram_send_endpoint(req: TelegramSendRequest):
+        from core.telegram_bridge import get_telegram_bridge
+        return get_telegram_bridge().send_message(text=req.text, chat_id=req.chat_id)
+
+    @app.post("/api/telegram/incoming")
+    @app.post("/api/telegram/webhook")
+    @app.post("/api/telegram/simulate")
+    async def post_telegram_incoming_endpoint(request: Request):
+        body = await request.json()
+        chat_id = body.get("chat_id", "12345678")
+        text = body.get("text") or body.get("message", "")
+        user_name = body.get("user_name", "Usuario Telegram")
+        from core.telegram_bridge import get_telegram_bridge
+        res = get_telegram_bridge()._handle_incoming_text(chat_id=chat_id, text=text, user_name=user_name)
+        return {"ok": True, "result": res}
+
+    # --------------------------------------------------------------------------
+    # PUENTE SOBERANO DE WHATSAPP (META CLOUD API & WEBHOOK)
+    # --------------------------------------------------------------------------
+
+    @app.get("/whatsapp/webhook")
+    async def whatsapp_webhook_verify(request: Request):
+        from core.whatsapp_bridge import get_whatsapp_bridge
+        mode = request.query_params.get("hub.mode", "")
+        token = request.query_params.get("hub.verify_token", "")
+        challenge = request.query_params.get("hub.challenge", "")
+        bridge = get_whatsapp_bridge()
+        res = bridge.verify_challenge(mode, token, challenge)
+        if res is not None:
+            return Response(content=res, media_type="text/plain", status_code=200)
+        return Response(content="Verificación de webhook fallida", media_type="text/plain", status_code=403)
+
+    @app.post("/whatsapp/webhook")
+    async def whatsapp_webhook_inbound(request: Request):
+        from core.whatsapp_bridge import get_whatsapp_bridge
+        bridge = get_whatsapp_bridge()
+        raw_body = await request.body()
+        sig = request.headers.get("X-Hub-Signature-256", "")
+        if not bridge.verify_signature(raw_body, sig):
+            return Response(content="Firma HMAC no válida", status_code=403)
+        try:
+            payload = json.loads(raw_body.decode("utf-8")) if raw_body else {}
+        except Exception:
+            return Response(content="JSON no válido", status_code=400)
+
+        # Responder 200 inmediatamente a Meta y procesar en segundo plano
+        import threading
+        threading.Thread(target=lambda: bridge.handle_incoming(payload), daemon=True).start()
+        return {"status": "received"}
+
+    @app.get("/api/whatsapp/status")
+    async def get_whatsapp_status_endpoint():
+        from core.whatsapp_bridge import get_whatsapp_bridge
+        return get_whatsapp_bridge().get_status()
+
+    @app.post("/api/whatsapp/config")
+    async def post_whatsapp_config_endpoint(req: WhatsAppConfigRequest):
+        from core.whatsapp_bridge import get_whatsapp_bridge
+        return get_whatsapp_bridge().update_config(req.dict(exclude_unset=True))
+
+    @app.post("/api/whatsapp/send")
+    async def post_whatsapp_send_endpoint(req: WhatsAppSendRequest):
+        from core.whatsapp_bridge import get_whatsapp_bridge
+        return get_whatsapp_bridge().send_message(to=req.to, text=req.text)
+
+    # --------------------------------------------------------------------------
+    # RUIDO COGNITIVO, METAPENSAMIENTO Y SÍNTESIS SIMBÓLICA
+    # --------------------------------------------------------------------------
+
+    @app.get("/api/cognitive/noise")
+    @app.get("/api/cognitive/noise.png")
+    @app.get("/api/cognitive/spectrogram")
+    async def get_cognitive_noise_endpoint(request: Request):
+        from core.thought_noise_engine import get_thought_noise_engine
+        engine = get_thought_noise_engine()
+        fmt = request.query_params.get("format", "").lower()
+        frame = engine.get_latest_frame()
+        path = request.url.path
+        is_png = (path in ("/api/cognitive/noise", "/api/cognitive/noise.png") and fmt != "json") or fmt in ("png", "image")
+        if is_png:
+            return Response(content=frame["png_bytes"], media_type="image/png")
+        return {
+            "ok": True,
+            "entropy_shannon": frame["entropy_shannon"],
+            "syntropy_coherence_pct": frame["syntropy_coherence_pct"],
+            "active_symbols": frame["active_symbols"],
+            "prompt_snippet": frame["prompt_snippet"],
+            "diagnostic_text": frame["diagnostic_text"],
+            "data_uri": frame["data_uri"],
+            "timestamp": frame["timestamp"]
+        }
+
+    @app.post("/api/cognitive/analyze")
+    async def post_cognitive_analyze_endpoint(request: Request):
+        try:
+            body = await request.json()
+        except Exception:
+            body = {}
+        prompt = body.get("prompt") or body.get("message") or "Análisis de sistemas de pensamiento"
+        from core.thought_noise_engine import get_thought_noise_engine
+        engine = get_thought_noise_engine()
+        _act_m = os.environ.get("GIA_MODEL", "huihui_ai/llama3.1-8b-instruct-abliterated")
+        _act_label = "Dolphin 3.0 (8B)" if "dolphin" in _act_m.lower() else _act_m
+        frame = engine.generate_thought_frame(prompt=prompt, model_name=_act_label, active_step="METAPENSAMIENTO API")
+        return {
+            "ok": True,
+            "entropy_shannon": frame["entropy_shannon"],
+            "syntropy_coherence_pct": frame["syntropy_coherence_pct"],
+            "active_symbols": frame["active_symbols"],
+            "prompt_snippet": frame["prompt_snippet"],
+            "diagnostic_text": frame["diagnostic_text"],
+            "data_uri": frame["data_uri"],
+            "timestamp": frame["timestamp"]
+        }
+
+    # --------------------------------------------------------------------------
+    # CONTROL TOTAL DE HARDWARE Y REDES WI-FI
+    # --------------------------------------------------------------------------
+
+    @app.get("/api/hardware")
+    @app.get("/api/hardware/status")
+    @app.get("/api/hardware/diagnostic")
+    async def get_hardware_diagnostic_endpoint():
+        hw = get_hardware_controller()
+        return hw.get_full_diagnostic()
+
+    @app.post("/api/hardware/action")
+    async def post_hardware_action_endpoint(req: HardwareActionRequest):
+        hw = get_hardware_controller()
+        return hw.dispatch_action(req.action, req.params or {})
+
+    @app.get("/api/wifi/scan")
+    async def get_wifi_scan_endpoint(rescan: bool = True):
+        hw = get_hardware_controller()
+        return hw.dispatch_action("wifi_scan", {"rescan": rescan})
+
+    @app.get("/api/wifi/status")
+    async def get_wifi_status_endpoint():
+        net = get_network_controller()
+        return net.get_status()
+
+    @app.post("/api/wifi/connect")
+    async def post_wifi_connect_endpoint(req: WifiConnectRequest):
+        net = get_network_controller()
+        return net.connect(ssid=req.ssid, password=req.password)
+
+    @app.get("/api/wifi/failover")
+    async def get_wifi_failover_status_endpoint():
+        try:
+            import omni_temporal_control as _omni
+            if _omni.WIFI_KEEPALIVE:
+                return {"ok": True, **_omni.WIFI_KEEPALIVE.get_status(), "history": _omni.WIFI_KEEPALIVE.controller.get_failover_history()}
+        except Exception:
+            pass
+        net = get_network_controller()
+        return {"ok": True, "history": net.get_failover_history(), "internet_online": net.check_internet_access()["online"]}
+
+    @app.get("/api/hotspot")
+    @app.get("/api/hotspot/status")
+    async def get_hotspot_status_endpoint():
+        net = get_network_controller()
+        return net.get_hotspot_status()
+
+    @app.post("/api/hotspot/restart")
+    @app.post("/api/hotspot/ensure")
+    async def post_hotspot_restart_endpoint():
+        net = get_network_controller()
+        return net.ensure_hotspot_active()
+
+    @app.post("/api/wifi/failover/trigger")
+    async def post_wifi_failover_trigger_endpoint(req: Optional[WifiFailoverRequest] = None):
+        net = get_network_controller()
+        allow_open = req.allow_open if req else True
+        return net.auto_recover_internet(allow_open_networks=allow_open)
+
+    @app.post("/api/wifi/failover/toggle")
+    async def post_wifi_failover_toggle_endpoint(req: WifiFailoverRequest):
+        try:
+            import omni_temporal_control as _omni
+            if _omni.WIFI_KEEPALIVE:
+                _omni.WIFI_KEEPALIVE.set_enabled(bool(req.enabled))
+                return {"ok": True, "enabled": req.enabled, "status": _omni.WIFI_KEEPALIVE.get_status()}
+        except Exception:
+            pass
+        return {"ok": True, "enabled": req.enabled}
+
+    # --------------------------------------------------------------------------
+    # ESCUDO DE RED, DNS SINKHOLE & DEFENSAS ANTI-ESPIONAJE
+    # --------------------------------------------------------------------------
+    @app.get("/api/shield")
+    @app.get("/api/shield/status")
+    async def get_shield_status_endpoint():
+        from core.network_shield import get_network_shield
+        return get_network_shield().get_status()
+
+    @app.get("/api/shield/audit")
+    @app.post("/api/shield/audit")
+    async def post_shield_audit_endpoint():
+        from core.network_shield import get_network_shield
+        return get_network_shield().audit_network()
+
+    @app.post("/api/shield/toggle")
+    async def post_shield_toggle_endpoint(req: Request):
+        try:
+            body = await req.json()
+        except Exception:
+            body = {}
+        from core.network_shield import get_network_shield
+        shield = get_network_shield()
+        target = body.get("target", "adblock")
+        enabled = bool(body.get("enabled", True))
+        if target == "adblock":
+            return shield.toggle_adblock(enabled)
+        elif target == "antispy":
+            return shield.toggle_antispy(enabled)
+        return {"ok": False, "error": f"Objetivo desconocido: {target}"}
+
+    @app.get("/api/shield/traffic")
+    @app.get("/api/shield/flows")
+    async def get_shield_traffic_endpoint():
+        from core.traffic_monitor import get_traffic_monitor
+        return get_traffic_monitor().analyze_traffic_and_accesses()
+
+    @app.get("/api/shield/accesses")
+    async def get_shield_accesses_endpoint():
+        from core.traffic_monitor import get_traffic_monitor
+        tm = get_traffic_monitor()
+        data = tm.analyze_traffic_and_accesses()
+        return {
+            "ok": True,
+            "inbound_accesses": data.get("inbound_accesses", []),
+            "alerts": data.get("alerts", []),
+            "assessment": data.get("assessment", "")
+        }
+
+    @app.get("/api/shield/recurring")
+    @app.get("/api/shield/top_traffic")
+    async def get_shield_recurring_traffic_endpoint():
+        from core.traffic_monitor import get_traffic_monitor
+        return get_traffic_monitor().get_recurring_traffic_report()
+
+    # --------------------------------------------------------------------------
+    # SÍNTESIS DE VOZ Y LOCUCIÓN CORTANA (TTS / SPEAK)
+    # --------------------------------------------------------------------------
+
+    @app.get("/api/voice")
+    @app.get("/api/voice/voices")
+    @app.get("/api/voice/config")
+    async def get_voice_config_endpoint():
+        try:
+            import voice as _v
+            return {"ok": True, "voices": _v.list_voices(), "config": _v.get_config()}
+        except Exception as e:
+            return {"ok": False, "error": str(e), "voices": []}
+
+    @app.post("/api/voice/speak")
+    @app.post("/api/voice")
+    async def post_voice_speak_endpoint(req: VoiceSpeakRequest):
+        try:
+            import voice as _v
+            res = _v.speak(req.text, wait=bool(req.wait), voice=req.voice)
+            return res
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
+
+    @app.post("/api/voice/stop")
+    async def post_voice_stop_endpoint():
+        try:
+            import voice as _v
+            return _v.stop()
+        except Exception as e:
+            return {"ok": True, "stopped": True, "error": str(e)}
+
+    @app.get("/api/voice/tts_audio")
+    async def get_voice_tts_audio_endpoint(text: str, voice: Optional[str] = "es-MX-DaliaNeural"):
+        try:
+            import voice as _v
+            if hasattr(_v, "synthesize_to_bytes_async"):
+                audio_bytes = await _v.synthesize_to_bytes_async(text, voice=voice)
             else:
                 # Include as is (extensions).
                 self.dependencies.append((name, src_path, typecode))

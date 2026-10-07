@@ -1,93 +1,269 @@
+"""
+Python implementation of function wrapping functionality for functorch.dim.
+"""
+
 from __future__ import annotations
 
-import re
-from typing import Iterable
+import functools
+from typing import Any, TYPE_CHECKING
 
-from ._loop import loop_last
-from .cells import cell_len, chop_cells
+import torch
+from torch.utils._pytree import tree_map
 
-re_word = re.compile(r"\s*\S+\s*")
+from ._dim_entry import DimEntry
+from ._enable_all_layers import EnableAllLayers
+from ._tensor_info import TensorInfo
 
 
-def words(text: str) -> Iterable[tuple[int, int, str]]:
-    """Yields each word from the text as a tuple
-    containing (start_index, end_index, word). A "word" in this context may
-    include the actual word and any whitespace to the right.
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+
+def handle_from_tensor(tensor: torch.Tensor) -> torch.Tensor:
+    """Handle tensor conversion for torch function integration."""
+    return tensor
+
+
+class WrappedOperator:
     """
-    position = 0
-    word_match = re_word.match(text, position)
-    while word_match is not None:
-        start, end = word_match.span()
-        word = word_match.group(0)
-        yield start, end, word
-        word_match = re_word.match(text, end)
+    This class wraps PyTorch operations to support first-class dimensions.
+    """
+
+    def __init__(
+        self, orig: Callable, wrapper_implementation: Callable, dim_name: str = "dim"
+    ):
+        self.orig = orig
+        self.wrapper_implementation = wrapper_implementation
+        self.name = getattr(orig, "__name__", "")
+        self.doc = getattr(orig, "__doc__", None)
+        self.dim_name = dim_name
+
+        self.is_pointwise = False
+        self.dim_offset = 0
+        self.keepdim_offset = 1
+        self.single_dim = False
+        self.reduce = True
+
+        # Update docstring if we have a dim_name
+        if self.doc and self.dim_name:
+            self.doc = f"{self.doc}\nArgument '{self.dim_name}' can be either an integer or a torchdim.Dim object.\n"
+
+    def function(self) -> Callable:
+        """Create a wrapped function that calls our wrapper implementation."""
+
+        def wrapped_func(*args: Any, **kwargs: Any) -> Any:
+            return self.wrapper_implementation(self, *args, **kwargs)
+
+        # Copy metadata using functools.update_wrapper for just __name__ and __doc__
+        functools.update_wrapper(
+            wrapped_func, self.orig, assigned=("__name__",), updated=()
+        )
+        wrapped_func.__doc__ = self.doc
+
+        return wrapped_func
 
 
-def divide_line(text: str, width: int, fold: bool = True) -> list[int]:
-    """Given a string of text, and a width (measured in cells), return a list
-    of cell offsets which the string should be split at in order for it to fit
-    within the given width.
+def _wrap_dim(dim: Any, ndim: int, keepdim: bool = False) -> DimEntry:
+    """Convert single dimension specification to DimEntry object."""
+    from . import Dim
+
+    if isinstance(dim, Dim):
+        if keepdim:
+            raise ValueError("cannot preserve first-class dimensions with keepdim=True")
+        return DimEntry(dim)
+    elif isinstance(dim, int):
+        i = dim
+        while i >= 0:
+            i -= ndim
+        return DimEntry(i)
+    else:
+        return DimEntry()
+
+
+def _wrap_dims(dim: Any, ndim: int, keepdim: bool = False) -> list[DimEntry]:
+    """Convert dimension specification to list of DimEntry objects."""
+    de = _wrap_dim(dim, ndim, keepdim)
+    result = []
+    if not de.is_none():
+        result.append(de)
+    else:
+        for d in dim:
+            result.append(_wrap_dim(d, ndim, keepdim))
+    return result
+
+
+def patched_dim_method(wrapper: WrappedOperator, *args: Any, **kwargs: Any) -> Any:
+    """
+    This is the core method that handles dimension-aware operations.
+    """
+    if not args:
+        raise ValueError("Expected at least one argument (self)")
+
+    # Get dimension argument
+    dim_arg = kwargs.get(wrapper.dim_name)
+    if dim_arg is None and wrapper.dim_offset < len(args):
+        # Try to get dim from positional args (accounting for self at index 0)
+        dim_idx = wrapper.dim_offset + 1
+        if dim_idx < len(args):
+            dim_arg = args[dim_idx]
+
+    # If no dimension argument provided, fall back to standard functorch handling
+    if dim_arg is None:
+        info = TensorInfo.create(args[0], ensure_batched=True, ensure_present=False)
+        if not info:
+            return wrapper.orig(*args, **kwargs)
+
+        with EnableAllLayers(info.levels) as guard:
+            if info.batchedtensor is None:
+                raise AssertionError("Expected batchedtensor to be non-None")
+            guard.inplace_update_layers(info.batchedtensor, info.levels)
+            new_args = list(args)
+            new_args[0] = handle_from_tensor(info.batchedtensor)
+            result = wrapper.orig(*new_args, **kwargs)
+            return guard.from_batched(result, info.has_device)
+
+    # Handle dimension-aware operation
+    info = TensorInfo.create(args[0])
+    if not info:
+        return wrapper.orig(*args, **kwargs)
+
+    # Check for keepdim parameter
+    keepdim = False
+    if wrapper.reduce:
+        keepdim_arg = kwargs.get("keepdim")
+        if keepdim_arg is None and wrapper.keepdim_offset < len(args):
+            keepdim_idx = wrapper.keepdim_offset + 1
+            if keepdim_idx < len(args):
+                keepdim_arg = args[keepdim_idx]
+        if keepdim_arg is not None:
+            keepdim = bool(keepdim_arg)
+
+    # Wrap dimensions
+    ndim = info.ndim()
+    dims = _wrap_dims(dim_arg, ndim, keepdim)
+
+    # Convert dimensions to indices and validate
+    dim_indices: list[int] = []
+    seen = [False] * len(info.levels)
+
+    for d in dims:
+        midx = None
+        for i, level in enumerate(info.levels):
+            if level == d:
+                midx = i
+                break
+
+        if midx is None:
+            # Try to match by position/name more flexibly
+            for i, level in enumerate(info.levels):
+                if hasattr(level, "matches") and level.matches(d):
+                    midx = i
+                    break
+
+            if midx is None:
+                level_strs = [str(level) for level in info.levels]
+                raise ValueError(
+                    f"Tensor with dimensions {level_strs} does not contain {d}"
+                )
+
+        seen[midx] = True
+        dim_indices.append(midx)
+
+    # Determine new levels after reduction
+    new_levels = []
+    if wrapper.reduce and not keepdim:
+        for i, level in enumerate(info.levels):
+            if not seen[i]:
+                new_levels.append(level)
+    else:
+        new_levels = info.levels[:]
+
+    # Create dimension indices for the original function
+    if len(dim_indices) == 1:
+        py_indices: Any = dim_indices[0]
+    else:
+        py_indices = tuple(dim_indices)
+
+    # Update arguments
+    new_args = list(args)
+    new_kwargs = kwargs.copy()
+    if info.tensor is None:
+        raise AssertionError("Expected tensor to be non-None")
+    new_args[0] = handle_from_tensor(info.tensor)
+
+    # Update dimension argument
+    if wrapper.dim_name in new_kwargs:
+        new_kwargs[wrapper.dim_name] = py_indices
+    else:
+        dim_idx = wrapper.dim_offset + 1
+        if dim_idx < len(new_args):
+            new_args = list(new_args)
+            new_args[dim_idx] = py_indices
+
+    # Call original function
+    result = wrapper.orig(*new_args, **new_kwargs)
+
+    # Wrap results
+    def wrap_result(obj: Any) -> Any:
+        if isinstance(obj, torch.Tensor):
+            from . import Tensor
+
+            return Tensor.from_positional(obj, new_levels, info.has_device)
+        return obj
+
+    return tree_map(wrap_result, result)
+
+
+def _wrap(
+    orig: Callable,
+    dim_offset: int | None = None,
+    keepdim_offset: int | None = None,
+    dim_name: str | None = None,
+    single_dim: bool | None = None,
+    reduce: bool | None = None,
+) -> Callable:
+    """
+    Wrap a PyTorch function to support first-class dimensions.
 
     Args:
-        text: The text to examine.
-        width: The available cell width.
-        fold: If True, words longer than `width` will be folded onto a new line.
-
-    Returns:
-        A list of indices to break the line at.
+        orig: Original function to wrap
+        dim_offset: Offset for dimension argument (default: 0)
+        keepdim_offset: Offset for keepdim argument (default: 1)
+        dim_name: Name of dimension parameter (default: "dim")
+        single_dim: Whether function takes single dimension (default: False)
+        reduce: Whether function reduces dimensions (default: True)
     """
-    break_positions: list[int] = []  # offsets to insert the breaks at
-    append = break_positions.append
-    cell_offset = 0
-    _cell_len = cell_len
+    dim_name = dim_name or "dim"
 
-    for start, _end, word in words(text):
-        word_length = _cell_len(word.rstrip())
-        remaining_space = width - cell_offset
-        word_fits_remaining_space = remaining_space >= word_length
+    wrapper = WrappedOperator(orig, patched_dim_method, dim_name)
 
-        if word_fits_remaining_space:
-            # Simplest case - the word fits within the remaining width for this line.
-            cell_offset += _cell_len(word)
-        else:
-            # Not enough space remaining for this word on the current line.
-            if word_length > width:
-                # The word doesn't fit on any line, so we can't simply
-                # place it on the next line...
-                if fold:
-                    # Fold the word across multiple lines.
-                    folded_word = chop_cells(word, width=width)
-                    for last, line in loop_last(folded_word):
-                        if start:
-                            append(start)
-                        if last:
-                            cell_offset = _cell_len(line)
-                        else:
-                            start += len(line)
-                else:
-                    # Folding isn't allowed, so crop the word.
-                    if start:
-                        append(start)
-                    cell_offset = _cell_len(word)
-            elif cell_offset and start:
-                # The word doesn't fit within the remaining space on the current
-                # line, but it *can* fit on to the next (empty) line.
-                append(start)
-                cell_offset = _cell_len(word)
+    if dim_offset is not None:
+        wrapper.dim_offset = dim_offset
+    if keepdim_offset is not None:
+        wrapper.keepdim_offset = keepdim_offset
+    if single_dim is not None:
+        wrapper.single_dim = single_dim
+    if reduce is not None:
+        wrapper.reduce = reduce
 
-    return break_positions
+    return wrapper.function()
 
 
-if __name__ == "__main__":  # pragma: no cover
-    from .console import Console
+def call_torch_function(
+    wrapper: WrappedOperator,
+    func: Callable,
+    types: tuple,
+    args: tuple = (),
+    kwargs: dict | None = None,
+) -> Any:
+    """
+    Handle __torch_function__ calls for wrapped operators.
+    """
+    if kwargs is None:
+        kwargs = {}
 
-    console = Console(width=10)
-    console.print("12345 abcdefghijklmnopqrstuvwyxzABCDEFGHIJKLMNOPQRSTUVWXYZ 12345")
-    print(chop_cells("abcdefghijklmnopqrstuvwxyz", 10))
+    # Import here to avoid circular imports
+    from . import _Tensor
 
-    console = Console(width=20)
-    console.rule()
-    console.print("TextualはPythonの高速アプリケーション開発フレームワークです")
-
-    console.rule()
-    console.print("アプリケーションは1670万色を使用でき")
+    # Use the torch function mechanism from _Tensor
+    return _Tensor.__torch_function__(func, types, args, kwargs)

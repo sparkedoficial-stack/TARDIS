@@ -179,11 +179,18 @@ class _UnixDefaults(PlatformDirsABC):  # noqa: PLR0904
 
         If ``$XDG_RUNTIME_DIR`` is unset, tries the platform default (``/tmp/run/user/$(id -u)`` on OpenBSD, ``/var/run/user/$(id -u)`` on FreeBSD/NetBSD, ``/run/user/$(id -u)`` otherwise). If the default is not writable, falls back to a temporary directory.
 
-        """
-        if sys.platform.startswith("openbsd"):
-            path = f"/tmp/run/user/{getuid()}"  # noqa: S108
-        elif sys.platform.startswith(("freebsd", "netbsd")):
-            path = f"/var/run/user/{getuid()}"
+    tzname = _get_localzone_name(_root)
+    if tzname is None:
+        # No explicit setting existed. Use localtime
+        log.debug("No explicit setting existed. Use localtime")
+        for filename in ("etc/localtime", "usr/local/etc/localtime"):
+            tzpath = os.path.join(_root, filename)
+
+            if not os.path.exists(tzpath):
+                continue
+            with open(tzpath, "rb") as tzfile:
+                tz = zoneinfo.ZoneInfo.from_file(tzfile, key = "REDACTED")
+                break
         else:
             path = f"/run/user/{getuid()}"
         if not os.access(path, os.W_OK):

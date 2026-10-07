@@ -1,516 +1,740 @@
-"""
-Public testing utilities.
-
-See also _lib._testing for additional private testing utilities.
-"""
-
-from __future__ import annotations
-
-import contextlib
-import enum
-import warnings
-from collections.abc import Callable, Generator, Iterator, Sequence
-from functools import update_wrapper, wraps
-from inspect import getattr_static
-from types import FunctionType, ModuleType
-from typing import TYPE_CHECKING, Any, ParamSpec, TypeVar, cast
-
-from ._lib._utils._compat import is_dask_namespace, is_jax_namespace
-from ._lib._utils._helpers import jax_autojit, pickle_flatten, pickle_unflatten
-
-__all__ = ["lazy_xp_function", "patch_lazy_xp_functions"]
-
-if TYPE_CHECKING:  # pragma: no cover
-    # TODO import override from typing (requires Python >=3.12)
-    import pytest
-    from dask.typing import Graph, Key, SchedulerGetCallable
-    from typing_extensions import override
-
-else:
-    # Sphinx hacks
-    SchedulerGetCallable = object
-
-    def override(func):
-        return func
-
-
-P = ParamSpec("P")
-T = TypeVar("T")
-
-_ufuncs_tags: dict[object, dict[str, Any]] = {}
-
-
-class Deprecated(enum.Enum):
-    """Unique type for deprecated parameters."""
-
-    DEPRECATED = 1
-
-
-DEPRECATED = Deprecated.DEPRECATED
-
-
-def _clone_function(f: Callable[..., Any]) -> Callable[..., Any]:
-    """Returns a clone of an existing function."""
-    f_new = FunctionType(
-        f.__code__,
-        f.__globals__,
-        name=f.__name__,
-        argdefs=f.__defaults__,
-        closure=f.__closure__,
-    )
-    f_new.__kwdefaults__ = f.__kwdefaults__
-    return update_wrapper(f_new, f)
-
-
-def lazy_xp_function(
-    func: Callable[..., Any] | tuple[type, str],
-    *,
-    allow_dask_compute: bool | int = False,
-    jax_jit: bool = True,
-    static_argnums: Deprecated = DEPRECATED,
-    static_argnames: Deprecated = DEPRECATED,
-) -> None:  # numpydoc ignore=GL07
-    """
-    Tag a function to be tested on lazy backends.
-
-    Tag a function so that when any tests are executed with ``xp=jax.numpy`` the
-    function is replaced with a jitted version of itself, and when it is executed with
-    ``xp=dask.array`` the function will raise if it attempts to materialize the graph.
-    This will be later expanded to provide test coverage for other lazy backends.
-
-    In order for the tag to be effective, the test or a fixture must call
-    :func:`patch_lazy_xp_functions`.
-
-    Parameters
-    ----------
-    func : callable | tuple[type, str]
-        Function to be tested, or a tuple containing an (uninstantiated) class and a
-        method name to specify a class method to be tested.
-    allow_dask_compute : bool | int, optional
-        Whether `func` is allowed to internally materialize the Dask graph, or maximum
-        number of times it is allowed to do so. This is typically triggered by
-        ``bool()``, ``float()``, or ``np.asarray()``.
-
-        Set to 1 if you are aware that `func` converts the input parameters to NumPy and
-        want to let it do so at least for the time being, knowing that it is going to be
-        extremely detrimental for performance.
-
-        If a test needs values higher than 1 to pass, it is a canary that the conversion
-        to NumPy/bool/float is happening multiple times, which translates to multiple
-        computations of the whole graph. Short of making the function fully lazy, you
-        should at least add explicit calls to ``np.asarray()`` early in the function.
-        *Note:* the counter of `allow_dask_compute` resets after each call to `func`, so
-        a test function that invokes `func` multiple times should still work with this
-        parameter set to 1.
-
-        Set to True to allow `func` to materialize the graph an unlimited number
-        of times.
-
-        Default: False, meaning that `func` must be fully lazy and never materialize the
-        graph.
-    jax_jit : bool, optional
-        Set to True to replace `func` with a smart variant of ``jax.jit(func)`` after
-        calling the :func:`patch_lazy_xp_functions` test helper with ``xp=jax.numpy``.
-        This is the default behaviour.
-        Set to False if `func` is only compatible with eager (non-jitted) JAX.
-
-        Unlike with vanilla ``jax.jit``, all arguments and return types that are not JAX
-        arrays are treated as static; the function can accept and return arbitrary
-        wrappers around JAX arrays. This difference is because, in real life, most users
-        won't wrap the function directly with ``jax.jit`` but rather they will use it
-        within their own code, which is itself then wrapped by ``jax.jit``, and
-        internally consume the function's outputs.
-
-        In other words, the pattern that is being tested is::
-
-            >>> @jax.jit
-            ... def user_func(x):
-            ...     y = user_prepares_inputs(x)
-            ...     z = func(y, some_static_arg=True)
-            ...     return user_consumes(z)
-
-        Default: True.
-    static_argnums :
-        Deprecated; ignored
-    static_argnames :
-        Deprecated; ignored
-
-    See Also
-    --------
-    patch_lazy_xp_functions : Companion function to call from the test or fixture.
-    jax.jit : JAX function to compile a function for performance.
-
-    Examples
-    --------
-    In ``test_mymodule.py``::
-
-      from array_api_extra.testing import lazy_xp_function from mymodule import myfunc
-
-      lazy_xp_function(myfunc)
-
-      def test_myfunc(xp):
-          a = xp.asarray([1, 2])
-          # When xp=jax.numpy, this is similar to `b = jax.jit(myfunc)(a)`
-          # When xp=dask.array, crash on compute() or persist()
-          b = myfunc(a)
-
-    Notes
-    -----
-    In order for this tag to be effective, the test function must be imported into the
-    test module globals without its namespace; alternatively its namespace must be
-    declared in a ``lazy_xp_modules`` list in the test module globals.
-
-    Example 1::
-
-      from mymodule import myfunc
-
-      lazy_xp_function(myfunc)
-
-      def test_myfunc(xp):
-          x = myfunc(xp.asarray([1, 2]))
-
-    Example 2::
-
-      import mymodule
-
-      lazy_xp_modules = [mymodule]
-      lazy_xp_function(mymodule.myfunc)
-
-      def test_myfunc(xp):
-          x = mymodule.myfunc(xp.asarray([1, 2]))
-
-    A test function can circumvent this monkey-patching system by using a namespace
-    outside of the two above patterns. You need to sanitize your code to make sure this
-    only happens intentionally.
-
-    Example 1::
-
-      import mymodule
-      from mymodule import myfunc
-
-      lazy_xp_function(myfunc)
-
-      def test_myfunc(xp):
-          a = xp.asarray([1, 2])
-          b = myfunc(a)  # This is wrapped when xp=jax.numpy or xp=dask.array
-          c = mymodule.myfunc(a)  # This is not
-
-    Example 2::
-
-      import mymodule
-
-      class naked:
-          myfunc = mymodule.myfunc
-
-      lazy_xp_modules = [mymodule]
-      lazy_xp_function(mymodule.myfunc)
-
-      def test_myfunc(xp):
-          a = xp.asarray([1, 2])
-          b = mymodule.myfunc(a)  # This is wrapped when xp=jax.numpy or xp=dask.array
-          c = naked.myfunc(a)  # This is not
-    """
-    if static_argnums is not DEPRECATED or static_argnames is not DEPRECATED:
-        warnings.warn(
-            (
-                "The `static_argnums` and `static_argnames` parameters are deprecated "
-                "and ignored. They will be removed in a future version."
-            ),
-            DeprecationWarning,
-            stacklevel=2,
-        )
-    tags: dict[str, bool | int | type] = {
-        "allow_dask_compute": allow_dask_compute,
-        "jax_jit": jax_jit,
-    }
-
-    if isinstance(func, tuple):
-        # Replace the method with a clone before adding tags
-        # to avoid adding unwanted tags to a parent method when
-        # the method was inherited from a parent class.
-        # Note: can't just accept an unbound method `cls.method_name` because in
-        # case of inheritance it would be impossible to attribute it to the child class.
-        # This also makes it so tagged methods will appear in their class's ``__dict__``
-        # and thus findable by ``iter_tagged_modules`` below.
-        cls, method_name = func
-        # The method might be a staticmethod or classmethod so we need to do a dance
-        # to ensure that this is preserved.
-        raw_attr = getattr_static(cls, method_name)
-        method = getattr(cls, method_name)
-        if isinstance(raw_attr, classmethod):
-            method = method.__func__
-        cloned_method = _clone_function(method)
-
-        method_to_set: Any
-        if isinstance(raw_attr, staticmethod):
-            method_to_set = staticmethod(cloned_method)
-        elif isinstance(raw_attr, classmethod):
-            method_to_set = classmethod(cloned_method)
-        else:
-            method_to_set = cloned_method
-
-        setattr(cls, method_name, method_to_set)
-        f = getattr(cls, method_name)
-        if isinstance(raw_attr, classmethod):
-            f = f.__func__
-        # Annotate that cls owns this method so we can check that later.
-        tags["owner"] = cls
-    else:
-        f = func
-
-    try:
-        f._lazy_xp_function = tags  # pylint: disable=protected-access  # pyright: ignore[reportFunctionMemberAccess]
-    except AttributeError:  # @cython.vectorize
-        _ufuncs_tags[f] = tags
-
-
-def patch_lazy_xp_functions(
-    request: pytest.FixtureRequest,
-    monkeypatch: pytest.MonkeyPatch | None = None,
-    *,
-    xp: ModuleType,
-) -> contextlib.AbstractContextManager[None]:
-    """
-    Test lazy execution of functions tagged with :func:`lazy_xp_function`.
-
-    If ``xp==jax.numpy``, search for all functions and methods which have been tagged
-    with :func:`lazy_xp_function` in the globals of the module that defines the current
-    test, as well as in the ``lazy_xp_modules`` list in the globals of the same module,
-    and wrap them with :func:`jax.jit`.
-    Unwrap them at the end of the test.
-
-    If ``xp==dask.array``, wrap the functions with a decorator that disables
-    ``compute()`` and ``persist()`` and ensures that exceptions and warnings are raised
-    eagerly.
-
-    This function should be typically called by your library's `xp` fixture that runs
-    tests on multiple backends::
-
-        @pytest.fixture(params=[
-            numpy,
-            array_api_strict,
-            pytest.param(jax.numpy, marks=pytest.mark.thread_unsafe),
-            pytest.param(dask.array, marks=pytest.mark.thread_unsafe),
-        ])
-        def xp(request):
-            with patch_lazy_xp_functions(request, xp=request.param):
-                yield request.param
-
-    but it can be otherwise be called by the test itself too.
-
-    Parameters
-    ----------
-    request : pytest.FixtureRequest
-        Pytest fixture, as acquired by the test itself or by one of its fixtures.
-    monkeypatch : pytest.MonkeyPatch
-        Deprecated
-    xp : array_namespace
-        Array namespace to be tested.
-
-    See Also
-    --------
-    lazy_xp_function : Tag a function to be tested on lazy backends.
-    pytest.FixtureRequest : `request` test function parameter.
-
-    Notes
-    -----
-    This context manager monkey-patches modules and as such is thread unsafe
-    on Dask and JAX. If you run your test suite with
-    `pytest-run-parallel <https://github.com/Quansight-Labs/pytest-run-parallel/>`_,
-    you should mark these backends with ``@pytest.mark.thread_unsafe``, as shown in
-    the example above.
-    """
-    mod = cast(ModuleType, request.module)
-    search_targets: list[ModuleType | type] = [
-        mod,
-        *cast(list[ModuleType], getattr(mod, "lazy_xp_modules", [])),
-    ]
-    # Also search for classes within the above modules which have had lazy_xp_function
-    # applied to methods through ``lazy_xp_function((cls, method_name))`` syntax.
-    # We might end up adding classes incidentally imported into modules, so using a
-    # set here to cut down on potential redundancy.
-    classes: set[type] = set()
-    for target in search_targets:
-        for obj in target.__dict__.values():
-            if isinstance(obj, type):
-                classes.add(obj)
-    search_targets.extend(classes)
-
-    to_revert: list[tuple[ModuleType | type, str, object]] = []
-
-    def temp_setattr(target: ModuleType | type, name: str, func: object) -> None:
-        """
-        Variant of monkeypatch.setattr, which allows monkey-patching only selected
-        parameters of a test so that pytest-run-parallel can run on the remainder.
-        """
-        assert hasattr(target, name)
-        # Need getattr_static because the attr could be a staticmethod or other
-        # descriptor and we don't want that to be stripped away.
-        original = getattr_static(target, name)
-        to_revert.append((target, name, original))
-        setattr(target, name, func)
-
-    if monkeypatch is not None:
-        warnings.warn(
-            (
-                "The `monkeypatch` parameter is deprecated and will be removed in a "
-                "future version. "
-                "Use `patch_lazy_xp_function` as a context manager instead."
-            ),
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        # Enable using patch_lazy_xp_function not as a context manager
-        temp_setattr = monkeypatch.setattr  # type: ignore[assignment]  # pyright: ignore[reportAssignmentType]
-
-    def iter_tagged() -> Iterator[
-        tuple[ModuleType | type, str, Any, Callable[..., Any], dict[str, Any]]
-    ]:
-        for target in search_targets:
-            for name, attr in target.__dict__.items():
-                # attr might be a staticmethod or classmethod. If so we need
-                # to peel it back and wrap the underlying function and later
-                # make sure not to accidentally replace it with a regular
-                # method.
-                func: Any = (
-                    attr.__func__
-                    if isinstance(attr, (staticmethod, classmethod))
-                    else attr
-                )
-                tags: dict[str, Any] | None = None
-                with contextlib.suppress(AttributeError):
-                    tags = func._lazy_xp_function  # pylint: disable=protected-access
-                if tags is None:
-                    with contextlib.suppress(KeyError, TypeError):
-                        tags = _ufuncs_tags[func]
-                if tags is not None:
-                    if isinstance(target, type) and tags.get("owner") is not target:
-                        # There's a common pattern to wrap functions in namespace
-                        # classes to bypass lazy_xp_function like this:
-                        #
-                        # class naked:
-                        #     myfunc = mymodule.myfunc
-                        #
-                        # To ensure this still works when checking for tags in
-                        # attributes of classes, ensure that target is the actual
-                        # owning class where func was defined.
-                        continue
-                    # put attr, and func in the outputs so we can later tell
-                    # if this was a staticmethod or classmethod.
-                    yield target, name, attr, func, tags
-
-    wrapped: Any
-    if is_dask_namespace(xp):
-        for target, name, attr, func, tags in iter_tagged():
-            n = tags["allow_dask_compute"]
-            if n is True:
-                n = 1_000_000
-            elif n is False:
-                n = 0
-            wrapped = _dask_wrap(func, n)
-            # If we're dealing with a staticmethod or classmethod, make
-            # sure things stay that way.
-            if isinstance(attr, staticmethod):
-                wrapped = staticmethod(wrapped)
-            elif isinstance(attr, classmethod):
-                wrapped = classmethod(wrapped)
-            temp_setattr(target, name, wrapped)
-
-    elif is_jax_namespace(xp):
-        for target, name, attr, func, tags in iter_tagged():
-            if tags["jax_jit"]:
-                wrapped = jax_autojit(func)
-                # If we're dealing with a staticmethod or classmethod, make
-                # sure things stay that way.
-                if isinstance(attr, staticmethod):
-                    wrapped = staticmethod(wrapped)
-                elif isinstance(attr, classmethod):
-                    wrapped = classmethod(wrapped)
-                temp_setattr(target, name, wrapped)
-
-    # We can't just decorate patch_lazy_xp_functions with
-    # @contextlib.contextmanager because it would not work with the
-    # deprecated monkeypatch when not used as a context manager.
-    @contextlib.contextmanager
-    def revert_on_exit() -> Generator[None]:
+import functools
+import math
+import os
+import statistics
+import subprocess
+import sys
+import tempfile
+import uuid
+from contextlib import contextmanager
+from typing import Any, Dict, List
+from . import language as tl
+from . import runtime
+
+
+def nvsmi(attrs):
+    attrs = ','.join(attrs)
+    cmd = ['nvidia-smi', '-i', '0', '--query-gpu=' + attrs, '--format=csv,noheader,nounits']
+    out = subprocess.check_output(cmd)
+    ret = out.decode(sys.stdout.encoding).split(',')
+    ret = [int(x) for x in ret]
+    return ret
+
+
+# pure Python implementation of np.quantile/torch.quantile
+# to avoid unnecessary runtime dependency on numpy/torch
+
+
+def _quantile(a, q):
+    n = len(a)
+    a = sorted(a)
+
+    def get_quantile(q):
+        if not (0 <= q <= 1):
+            raise ValueError("Quantiles must be in the range [0, 1]")
+        point = q * (n - 1)
+        lower = math.floor(point)
+        upper = math.ceil(point)
+        t = point - lower
+        return (1 - t) * a[lower] + t * a[upper]
+
+    return [get_quantile(qi) for qi in q]
+
+
+def _summarize_statistics(times, quantiles, return_mode):
+    if quantiles is not None:
+        ret = _quantile(times, quantiles)
+        if len(ret) == 1:
+            ret = ret[0]
+        return ret
+    if return_mode == "all":
+        return times
+    elif return_mode == "min":
+        return min(times)
+    elif return_mode == "max":
+        return max(times)
+    elif return_mode == "mean":
+        return statistics.mean(times)
+    elif return_mode == "median":
+        return statistics.median(times)
+
+
+@contextmanager
+def _proton_bench_session():
+    import triton.profiler as proton
+
+    with tempfile.TemporaryDirectory(prefix=f"triton-bench-proton-{uuid.uuid4().hex}") as tmpdir:
+        session = proton.start(os.path.join(tmpdir, "profile"), context="shadow", data="tree")
         try:
-            yield
+            yield proton, session
         finally:
-            for target, name, orig_func in to_revert:
-                setattr(target, name, orig_func)
-
-    return revert_on_exit()
+            if session is not None:
+                proton.finalize(session)
 
 
-class CountingDaskScheduler(SchedulerGetCallable):
+def _collect_proton_scope_times(database, prefix):
+    scope_times = []
+
+    def kernel_time_ms(node):
+        children = node.get("children", [])
+        if len(children) == 0:
+            return node.get("metrics", {}).get("time (ns)", 0) / 1e6
+        return sum(kernel_time_ms(child) for child in children)
+
+    def visit(node):
+        name = node.get("frame", {}).get("name", "")
+        if name.startswith(prefix):
+            time_ms = kernel_time_ms(node)
+            if time_ms > 0:
+                scope_times.append((name, time_ms))
+            return
+        for child in node.get("children", []):
+            visit(child)
+
+    for node in database:
+        visit(node)
+    return [time for _, time in sorted(scope_times)]
+
+
+def do_bench_cudagraph(fn, rep=20, grad_to_none=None, quantiles=None, return_mode="mean"):
     """
-    Dask scheduler that counts how many times `dask.compute` is called.
+    Benchmark the runtime of the provided function.
 
-    If the number of times exceeds 'max_count', it raises an error.
-    This is a wrapper around Dask's own 'synchronous' scheduler.
+    :param fn: Function to benchmark
+    :type fn: Callable
+    :param rep: Repetition time (in ms)
+    :type rep: int
+    :param grad_to_none: Reset the gradient of the provided tensor to None
+    :type grad_to_none: torch.tensor, optional
+    :param return_mode: The statistical measure to return. Options are "min", "max", "mean", "median", or "all". Default is "mean".
+    :type return_mode: str
+    """
+    import torch
+    assert return_mode in ["min", "max", "mean", "median", "all"]
 
-    Parameters
-    ----------
-    max_count : int
-        Maximum number of allowed calls to `dask.compute`.
-    msg : str
-        Assertion to raise when the count exceeds `max_count`.
+    with torch.cuda.stream(torch.cuda.Stream()):
+        # warmup
+        fn()
+        if grad_to_none is not None:
+            for x in grad_to_none:
+                x.detach_()
+                x.requires_grad_(True)
+                x.grad = None
+        # step 1 - we estimate the amount of time the kernel call takes
+        # NOTE: this estimate isn't super accurate because the GPU isn't warmed up at this point
+        #       but it is probably good enough
+        # NOTE: we don't use a graph to estimate the runtime because creating a graph is expensive,
+        #       ~300ms on A100, so we default to the same method used in `do_bench` (minus the L2
+        #       cache flush).
+        start_event = torch.cuda.Event(enable_timing=True)
+        end_event = torch.cuda.Event(enable_timing=True)
+        start_event.record()
+        for _ in range(5):
+            fn()
+        end_event.record()
+        torch.cuda.synchronize()
+        estimate_ms = start_event.elapsed_time(end_event) / 5
+        # Rewrite to avoid possible division by 0 issues with fast benchmarks
+        if estimate_ms == 0:
+            n_repeat = 1000
+        else:
+            n_repeat = max(1, int(rep / estimate_ms))
+        # step 2 - construct a cuda graph with `n_repeat` unrolled function calls to minimize
+        # host overhead
+        g = torch.cuda.CUDAGraph()
+        with torch.cuda.graph(g):
+            for _ in range(n_repeat):
+                if grad_to_none is not None:
+                    for x in grad_to_none:
+                        x.grad = None
+                fn()
+        torch.cuda.synchronize()
+        # measure time and return
+        ret = []
+        n_retries = 10
+        for _ in range(n_retries):
+            start_event = torch.cuda.Event(enable_timing=True)
+            end_event = torch.cuda.Event(enable_timing=True)
+            start_event.record()
+            g.replay()
+            end_event.record()
+            torch.cuda.synchronize()
+            ret += [start_event.elapsed_time(end_event) / n_repeat]
+        return _summarize_statistics(ret, quantiles, return_mode)
+
+
+def do_bench_cudagraph_proton(fn, rep=20, grad_to_none=None, quantiles=None, return_mode="mean"):
+    """
+    Benchmark the runtime of kernels invoked by the provided function using the Proton profiler and CUDA graphs.
+    This function is similar to `do_bench_cudagraph` that avoids CPU overhead by replaying a CUDA graph with multiple iterations of the provided function,
+    but it uses the Proton profiler to measure the runtime of each kernel in the graph instead of using CUDA events to measure the total runtime of the graph.
+    This allows us to get more fine-grained measurements of the kernel runtimes and to exclude cache flushes from the measurement.
+    Note that this function has several constraints compared to `do_bench_cudagraph`:
+    - It does not measure GPU operations other than kernels (e.g., memory copies, synchronization, etc.).
+    - It supports only the NVIDIA GPU. AMD GPU is a TODO.
+
+    :param fn: Function to benchmark
+    :type fn: Callable
+    :param rep: Repetition time (in ms)
+    :type rep: int
+    :param grad_to_none: Reset the gradient of the provided tensor to None
+    :type grad_to_none: torch.tensor, optional
+    :param return_mode: The statistical measure to return. Options are "min", "max", "mean", "median", or "all". Default is "mean".
+    :type return_mode: str
+    """
+    assert return_mode in ["min", "max", "mean", "median", "all"]
+
+    target = runtime.driver.active.get_current_target()
+    if target.backend != "cuda":
+        raise RuntimeError("do_bench_cudagraph_proton requires the NVIDIA backend because Proton does not reliably "
+                           "attribute CUDA graph replay launches to scopes on HIP.")
+
+    import torch
+
+    with torch.cuda.stream(torch.cuda.Stream()):
+        fn()
+        if grad_to_none is not None:
+            for x in grad_to_none:
+                x.detach_()
+                x.requires_grad_(True)
+                x.grad = None
+
+        start_event = torch.cuda.Event(enable_timing=True)
+        end_event = torch.cuda.Event(enable_timing=True)
+        start_event.record()
+        for _ in range(5):
+            fn()
+        end_event.record()
+        torch.cuda.synchronize()
+        estimate_ms = start_event.elapsed_time(end_event) / 5
+        n_repeat = 1000 if estimate_ms == 0 else max(1, int(rep / estimate_ms))
+
+        with _proton_bench_session() as (proton, session):
+            if session is None:
+                raise RuntimeError(
+                    "Proton profiler session could not be created. Make sure you are running on a supported GPU and "
+                    "that the Proton profiler is properly installed.")
+            cache = runtime.driver.active.get_empty_cache_for_benchmark()
+            g = torch.cuda.CUDAGraph()
+            scope_prefix = f"proton.{uuid.uuid4().hex}."
+            with torch.cuda.graph(g):
+                for i in range(n_repeat):
+                    if grad_to_none is not None:
+                        for x in grad_to_none:
+                            x.grad = None
+                    runtime.driver.active.clear_cache(cache)
+                    with proton.scope(f"{scope_prefix}{i:08d}"):
+                        fn()
+            torch.cuda.synchronize()
+            n_retries = 10
+            try:
+                for i in range(n_retries):
+                    g.replay()
+                torch.cuda.synchronize()
+            finally:
+                proton.deactivate(session, flushing=True)
+
+            times = [t / n_retries for t in _collect_proton_scope_times(proton.data.get(session), scope_prefix)]
+
+        return _summarize_statistics(times, quantiles, return_mode)
+
+
+def do_bench(fn, warmup=25, rep=100, grad_to_none=None, quantiles=None, return_mode="mean"):
+    """
+    Benchmark the runtime of the provided function. By default, returns the mean runtime of :code:`fn` as a single float.
+
+    :param fn: Function to benchmark
+    :type fn: Callable
+    :param warmup: Warmup time (in ms). Controls how long the function is run before timing begins.
+    :type warmup: int
+    :param rep: Repetition time (in ms). Controls the total duration of the timed runs.
+    :type rep: int
+    :param grad_to_none: Reset the gradient of the provided tensors to None before each run,
+        to avoid gradient accumulation affecting timing.
+    :type grad_to_none: list[torch.Tensor], optional
+    :param quantiles: If provided, return these quantiles of the runtime distribution instead
+        of a summary statistic. For example, ``[0.2, 0.5, 0.8]`` returns the 20th, 50th, and
+        80th percentile runtimes in ms. When set, ``return_mode`` is ignored.
+    :type quantiles: list[float], optional
+    :param return_mode: The summary statistic to return when ``quantiles`` is not set.
+        ``"mean"`` and ``"median"`` return a single float. ``"min"`` and ``"max"`` return
+        the fastest and slowest run respectively. ``"all"`` returns the raw list of
+        per-run timings in ms. Default is ``"mean"``.
+    :type return_mode: str
+    :return: A single float by default, a list of floats if ``quantiles`` is provided,
+        or a list of all per-run timings if ``return_mode="all"``.
+    :rtype: float | list[float]
+    """
+    assert return_mode in ["min", "max", "mean", "median", "all"]
+
+    di = runtime.driver.active.get_device_interface()
+
+    fn()
+    di.synchronize()
+
+    cache = runtime.driver.active.get_empty_cache_for_benchmark()
+
+    # Estimate the runtime of the function
+    start_event = di.Event(enable_timing=True)
+    end_event = di.Event(enable_timing=True)
+    start_event.record()
+    for _ in range(5):
+        runtime.driver.active.clear_cache(cache)
+        fn()
+    end_event.record()
+    di.synchronize()
+    estimate_ms = start_event.elapsed_time(end_event) / 5
+
+    # compute number of warmup and repeat
+    n_warmup = max(1, int(warmup / estimate_ms))
+    n_repeat = max(1, int(rep / estimate_ms))
+    start_event = [di.Event(enable_timing=True) for i in range(n_repeat)]
+    end_event = [di.Event(enable_timing=True) for i in range(n_repeat)]
+    # Warm-up
+    for _ in range(n_warmup):
+        fn()
+    # Benchmark
+    for i in range(n_repeat):
+        # we don't want `fn` to accumulate gradient values
+        # if it contains a backward pass. So we clear the
+        # provided gradients
+        if grad_to_none is not None:
+            for x in grad_to_none:
+                x.grad = None
+        # we clear the L2 cache before each run
+        runtime.driver.active.clear_cache(cache)
+        # record time of `fn`
+        start_event[i].record()
+        fn()
+        end_event[i].record()
+    # Record clocks
+    di.synchronize()
+    times = [s.elapsed_time(e) for s, e in zip(start_event, end_event)]
+    return _summarize_statistics(times, quantiles, return_mode)
+
+
+def do_bench_proton(fn, warmup=25, rep=100, grad_to_none=None, quantiles=None, return_mode="mean"):
+    """
+    Benchmark the runtime of kernels invoked by the provided function using the Proton profiler.
+
+    The measured runtime is generally more accurate than `do_bench` for short kernels that are affected by CPU overhead.
+    Note that this function has several constraints compared to `do_bench`:
+    - It does not measure GPU operations other than kernels (e.g., memory copies, synchronization, etc.).
+    - It supports only AMD and NVIDIA GPUs.
+
+    :param fn: Function to benchmark.
+    :type fn: Callable
+    :param warmup: Warmup time (in ms).
+    :type warmup: int
+    :param rep: Repetition time (in ms).
+    :type rep: int
+    :param grad_to_none: Reset the gradient of the provided tensor(s) to `None`.
+    :type grad_to_none: torch.Tensor, optional
+    :param quantiles: Performance percentiles to return in addition to the median.
+    :type quantiles: list[float], optional
+    :param return_mode: The statistical measure to return. Options are "min", "max", "mean", "median", or "all". Default is "mean".
+    :type return_mode: str
+    """
+    assert return_mode in ["min", "max", "mean", "median", "all"]
+
+    di = runtime.driver.active.get_device_interface()
+
+    fn()
+    di.synchronize()
+
+    cache = runtime.driver.active.get_empty_cache_for_benchmark()
+
+    start_event = di.Event(enable_timing=True)
+    end_event = di.Event(enable_timing=True)
+    start_event.record()
+    for _ in range(5):
+        runtime.driver.active.clear_cache(cache)
+        fn()
+    end_event.record()
+    di.synchronize()
+    estimate_ms = start_event.elapsed_time(end_event) / 5
+
+    if estimate_ms == 0:
+        n_warmup = 1000
+        n_repeat = 1000
+    else:
+        n_warmup = max(1, int(warmup / estimate_ms))
+        n_repeat = max(1, int(rep / estimate_ms))
+
+    for _ in range(n_warmup):
+        fn()
+    di.synchronize()
+
+    scope_prefix = f"proton.{uuid.uuid4().hex}."
+    with _proton_bench_session() as (proton, session):
+        if session is None:
+            raise RuntimeError(
+                "Proton profiler session could not be created. Make sure you are running on a supported GPU and "
+                "that the Proton profiler is properly installed.")
+        try:
+            for i in range(n_repeat):
+                if grad_to_none is not None:
+                    for x in grad_to_none:
+                        x.grad = None
+                runtime.driver.active.clear_cache(cache)
+                with proton.scope(f"{scope_prefix}{i:08d}"):
+                    fn()
+            di.synchronize()
+        finally:
+            proton.deactivate(session, flushing=True)
+
+        times = _collect_proton_scope_times(proton.data.get(session), scope_prefix)
+
+    return _summarize_statistics(times, quantiles, return_mode)
+
+
+def assert_close(x, y, atol=None, rtol=None, err_msg=''):
+    """
+    Asserts that two inputs are close within a certain tolerance.
+
+    :param x: The first input.
+    :type x: scala, list, numpy.ndarray, or torch.Tensor
+    :param y: The second input.
+    :type y: scala, list, numpy.ndarray, or torch.Tensor
+    :param atol: The absolute tolerance. Default value is 1e-2.
+    :type atol: float, optional
+    :param rtol: The relative tolerance. Default value is 0.
+    :type rtol: float, optional
+    :param err_msg: The error message to use if the assertion fails.
+    :type err_msg: str
+    """
+    import numpy as np
+    import torch
+
+    # canonicalize arguments to be tensors
+    if not isinstance(x, torch.Tensor):
+        x = torch.tensor(x)
+    if not isinstance(y, torch.Tensor):
+        y = torch.tensor(y)
+    # absolute tolerance
+    if atol is None:
+        atol = 1e-2
+    atol = atol(x.dtype) if callable(atol) else atol
+    # relative tolerance hook
+    if rtol is None:
+        rtol = 0.
+    rtol = rtol(x.dtype) if callable(rtol) else rtol
+    # we use numpy instead of pytorch
+    # as it seems more memory efficient
+    # pytorch tends to oom on large tensors
+    if isinstance(x, torch.Tensor):
+        if x.dtype == torch.bfloat16:
+            x = x.float()
+        x = x.cpu().detach().numpy()
+    if isinstance(y, torch.Tensor):
+        if y.dtype == torch.bfloat16:
+            y = y.float()
+        y = y.cpu().detach().numpy()
+    # we handle size==1 case separately as we can
+    # provide better error message there
+    if x.size > 1 or y.size > 1:
+        np.testing.assert_allclose(x, y, atol=atol, rtol=rtol, equal_nan=True, err_msg=err_msg)
+        return
+    if not np.allclose(x, y, atol=atol, rtol=rtol):
+        raise AssertionError(f'{err_msg} {x} is not close to {y} (atol={atol}, rtol={rtol})')
+
+
+class Benchmark:
+    """
+    This class is used by the :code:`perf_report` function to generate line plots with a concise API.
     """
 
-    count: int
-    max_count: int
-    msg: str
+    def __init__(
+        self,
+        x_names: List[str],
+        x_vals: List[Any],
+        line_arg: str,
+        line_vals: List[Any],
+        line_names: List[str],
+        plot_name: str,
+        args: Dict[str, Any],
+        xlabel: str = '',
+        ylabel: str = '',
+        x_log: bool = False,
+        y_log: bool = False,
+        styles=None,
+    ):
+        """
+        Constructor.
+        x_vals can be a list of scalars or a list of tuples/lists. If x_vals is a list
+        of scalars and there are multiple x_names, all arguments will have the same value.
+        If x_vals is a list of tuples/lists, each element should have the same length as
+        x_names.
 
-    def __init__(self, max_count: int, msg: str):  # numpydoc ignore=GL08
-        self.count = 0
-        self.max_count = max_count
-        self.msg = msg
+        :param x_names: Name of the arguments that should appear on the x axis of the plot.
+        :type x_names: List[str]
+        :param x_vals: List of values to use for the arguments in :code:`x_names`.
+        :type x_vals: List[Any]
+        :param line_arg: Argument name for which different values correspond to different lines in the plot.
+        :type line_arg: str
+        :param line_vals: List of values to use for the arguments in :code:`line_arg`.
+        :type line_vals: List[Any]
+        :param line_names: Label names for the different lines.
+        :type line_names: List[str]
+        :param plot_name: Name of the plot.
+        :type plot_name: str
+        :param args: Dictionary of keyword arguments to remain fixed throughout the benchmark.
+        :type args: Dict[str, Any]
+        :param xlabel: Label for the x axis of the plot.
+        :type xlabel: str, optional
+        :param ylabel: Label for the y axis of the plot.
+        :type ylabel: str, optional
+        :param x_log: Whether the x axis should be log scale.
+        :type x_log: bool, optional
+        :param y_log: Whether the y axis should be log scale.
+        :type y_log: bool, optional
+        :param styles: A list of tuples, where each tuple contains two elements: a color and a linestyle.
+        :type styles: list[tuple[str, str]]
+        """
+        self.x_names = x_names
+        self.x_vals = x_vals
+        self.x_log = x_log
+        self.line_arg = line_arg
+        self.line_vals = line_vals
+        self.line_names = line_names
+        self.y_log = y_log
+        self.styles = styles
+        # plot info
+        self.xlabel = xlabel
+        self.ylabel = ylabel
+        self.plot_name = plot_name
+        self.args = args
 
-    @override
-    def __call__(
-        self, dsk: Graph, keys: Sequence[Key] | Key, **kwargs: Any
-    ) -> Any:  # numpydoc ignore=GL08
-        import dask
 
-        self.count += 1
-        # This should yield a nice traceback to the
-        # offending line in the user's code
-        assert self.count <= self.max_count, self.msg
+class Mark:
 
-        return dask.get(dsk, keys, **kwargs)  # type: ignore[attr-defined]  # pyright: ignore[reportPrivateImportUsage]
+    def __init__(self, fn, benchmarks):
+        self.fn = fn
+        self.benchmarks = benchmarks
+
+    def _run(self, bench: Benchmark, save_path: str, show_plots: bool, print_data: bool, diff_col=False,
+             save_precision=6, **kwargs):
+        import os
+
+        import matplotlib.pyplot as plt
+        import pandas as pd
+        y_mean_labels = [f'{x} ({bench.ylabel})' for x in bench.line_names]
+        y_min_labels = [f'{x}-min ({bench.ylabel})' for x in bench.line_names]
+        y_max_labels = [f'{x}-max ({bench.ylabel})' for x in bench.line_names]
+        x_names = list(bench.x_names)
+        df = pd.DataFrame(columns=x_names + y_mean_labels + y_min_labels + y_max_labels)
+        for x in bench.x_vals:
+            # x can be a single value or a sequence of values.
+            if not isinstance(x, (list, tuple)):
+                x = [x for _ in x_names]
+
+            if len(x) != len(x_names):
+                raise ValueError(f"Expected {len(x_names)} values, got {x}")
+            x_args = dict(zip(x_names, x))
+
+            row_mean, row_min, row_max = [], [], []
+            for y in bench.line_vals:
+                ret = self.fn(**x_args, **{bench.line_arg: y}, **bench.args, **kwargs)
+                try:
+                    y_mean, y_min, y_max = ret
+                except TypeError:
+                    y_mean, y_min, y_max = ret, None, None
+                row_mean += [y_mean]
+                row_min += [y_min]
+                row_max += [y_max]
+            df.loc[len(df)] = list(x) + row_mean + row_min + row_max
+
+        if bench.plot_name:
+            plt.figure()
+            ax = plt.subplot()
+            # Plot first x value on x axis if there are multiple.
+            first_x = x_names[0]
+            for i, (mean_label, min_label, max_label) in enumerate(zip(y_mean_labels, y_min_labels, y_max_labels)):
+                y_min, y_max = df[min_label], df[max_label]
+                col = bench.styles[i][0] if bench.styles else None
+                sty = bench.styles[i][1] if bench.styles else None
+                ax.plot(df[first_x], df[mean_label], label=mean_label, color=col, ls=sty)
+                if not y_min.isnull().all() and not y_max.isnull().all():
+                    y_min = y_min.astype(float)
+                    y_max = y_max.astype(float)
+                    ax.fill_between(df[first_x], y_min, y_max, alpha=0.15, color=col)
+            ax.legend()
+            ax.set_xlabel(bench.xlabel or first_x)
+            ax.set_ylabel(bench.ylabel)
+            # ax.set_title(bench.plot_name)
+            ax.set_xscale("log" if bench.x_log else "linear")
+            ax.set_yscale("log" if bench.y_log else "linear")
+            if show_plots:
+                plt.show()
+            if save_path:
+                plt.savefig(os.path.join(save_path, f"{bench.plot_name}.png"))
+        df = df[x_names + y_mean_labels]
+        if diff_col and df.shape[1] == 2:
+            col0, col1 = df.columns.tolist()
+            df['Diff'] = df[col1] - df[col0]
+
+        if print_data:
+            print(bench.plot_name + ':')
+            print(df.to_string())
+        if save_path:
+            df.to_csv(os.path.join(save_path, f"{bench.plot_name}.csv"), float_format=f"%.{save_precision}f",
+                      index=False)
+        return df
+
+    def run(self, show_plots=False, print_data=False, save_path='', return_df=False, **kwargs):
+        has_single_bench = isinstance(self.benchmarks, Benchmark)
+        benchmarks = [self.benchmarks] if has_single_bench else self.benchmarks
+        result_dfs = []
+        try:
+            for bench in benchmarks:
+                result_dfs.append(self._run(bench, save_path, show_plots, print_data, **kwargs))
+        finally:
+            if save_path:
+                # Create directory if it doesn't exist
+                os.makedirs(save_path, exist_ok=True)
+                with open(os.path.join(save_path, "results.html"), "w") as html:
+                    html.write("<html><body>\n")
+                    for bench in benchmarks[:len(result_dfs)]:
+                        html.write(f"<image src=\"{bench.plot_name}.png\"/>\n")
+                    html.write("</body></html>\n")
+        if return_df:
+            if has_single_bench:
+                return result_dfs[0]
+            else:
+                return result_dfs
+        return None
 
 
-def _dask_wrap(
-    func: Callable[P, T], n: int
-) -> Callable[P, T]:  # numpydoc ignore=PR01,RT01
+def perf_report(benchmarks):
     """
-    Wrap `func` to raise if it attempts to call `dask.compute` more than `n` times.
+    Mark a function for benchmarking. The benchmark can then be executed by using the :code:`.run` method on the return value.
 
-    After the function returns, materialize the graph in order to re-raise exceptions.
+    :param benchmarks: Benchmarking configurations.
+    :type benchmarks: List of :class:`Benchmark`
     """
-    import dask
-    import dask.array as da
-
-    func_name = getattr(func, "__name__", str(func))
-    n_str = f"only up to {n}" if n else "no"
-    msg = (
-        f"Called `dask.compute()` or `dask.persist()` {n + 1} times, "
-        f"but {n_str} calls are allowed. Set "
-        f"`lazy_xp_function({func_name}, allow_dask_compute={n + 1})` "
-        "to allow for more (but note that this will harm performance). "
-    )
-
-    @wraps(func)
-    def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:  # numpydoc ignore=GL08
-        scheduler = CountingDaskScheduler(n, msg)
-        with dask.config.set({"scheduler": scheduler}):  # pyright: ignore[reportPrivateImportUsage]
-            out = func(*args, **kwargs)
-
-        # Block until the graph materializes and reraise exceptions. This allows
-        # `pytest.raises` and `pytest.warns` to work as expected. Note that this would
-        # not work on scheduler='distributed', as it would not block.
-        arrays, rest = pickle_flatten(out, da.Array)
-        arrays = dask.persist(arrays, scheduler="threads")[0]  # type: ignore[attr-defined,no-untyped-call]  # pyright: ignore[reportPrivateImportUsage]
-        return pickle_unflatten(arrays, rest)  # pyright: ignore[reportUnknownArgumentType]
-
+    wrapper = lambda fn: Mark(fn, benchmarks)
     return wrapper
+
+
+def get_dram_gbps(device=None):
+    ''' return DRAM bandwidth in GB/s '''
+
+    from .runtime import driver
+    if device is None:
+        device = driver.active.get_device_interface().current_device()
+    mem_clock_khz = driver.active.utils.get_device_properties(device)["mem_clock_rate"]  # in kHz
+    bus_width = driver.active.utils.get_device_properties(device)["mem_bus_width"]
+    bw_gbps = mem_clock_khz * bus_width * 2 / 1e6 / 8  # In GB/s
+    return bw_gbps
+
+
+def get_max_tensorcore_tflops(dtype, clock_rate, device=None):
+    import torch
+
+    from .runtime import driver
+    if not device:
+        device = torch.cuda.current_device()
+
+    num_subcores = driver.active.utils.get_device_properties(device)["multiprocessor_count"] * 4
+    capability = torch.cuda.get_device_capability(device)
+    if capability[0] < 8:
+        assert dtype == torch.float16
+        ops_per_sub_core = 256  # 2 4x4x4 Tensor Cores
+    else:
+        if dtype in [torch.float32, torch.int32]:
+            ops_per_sub_core = 256
+        elif dtype in [torch.float16, torch.bfloat16, torch.int16]:
+            ops_per_sub_core = 512
+        elif dtype in [torch.int8, tl.float8e4nv, tl.float8e4b15, tl.float8e5]:
+            ops_per_sub_core = 1024
+        else:
+            raise RuntimeError("dtype not supported")
+    tflops = num_subcores * clock_rate * ops_per_sub_core * 1e-9
+    return tflops
+
+
+# create decorator that wraps test function into
+# a cuda-memcheck system call
+
+
+def cuda_memcheck(**target_kwargs):
+
+    def decorator(test_fn):
+
+        @functools.wraps(test_fn)
+        def wrapper(*args, **kwargs):
+            import psutil
+            ppid_name = psutil.Process(os.getppid()).name()
+            run_cuda_memcheck = target_kwargs.items() <= kwargs.items()
+            if run_cuda_memcheck and ppid_name != "cuda-memcheck":
+                path = os.path.realpath(test_fn.__globals__["__file__"])
+                # get path of current file
+                env = {"PATH": os.environ["PATH"], "PYTORCH_NO_CUDA_MEMORY_CACHING": "1"}
+                assert 'request' in kwargs, "memcheck'ed test must have a (possibly unused) `request` fixture"
+                test_id = kwargs['request'].node.callspec.id
+                cmd = f"{path}::{test_fn.__name__}[{test_id}]"
+                out = subprocess.run(["cuda-memcheck", "pytest", "-vs", cmd], capture_output=True, env=env)
+                assert out.returncode == 0, "cuda-memcheck returned an error: bounds checking failed"
+                assert "ERROR SUMMARY: 0 errors" in str(out.stdout)
+            else:
+                test_fn(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
+
+
+@contextmanager
+def set_gpu_clock(ref_sm_clock=1350, ref_mem_clock=1215):
+    try:
+        subprocess.check_output(["nvidia-smi", "-i", "0", "-pm", "1"])
+        subprocess.check_output([
+            "nvidia-smi",
+            "-i",
+            "0",
+            f"--lock-gpu-clocks={ref_sm_clock},{ref_sm_clock}",
+        ])
+        subprocess.check_output([
+            "nvidia-smi",
+            "-i",
+            "0",
+            f"--lock-memory-clocks={ref_mem_clock},{ref_mem_clock}",
+        ])
+        cur_sm_clock = nvsmi(["clocks.current.sm"])[0]
+        cur_mem_clock = nvsmi(["clocks.current.memory"])[0]
+        assert abs(cur_sm_clock - ref_sm_clock) < 10, f"GPU SMs must run at {ref_sm_clock} MHz"
+        assert abs(cur_mem_clock - ref_mem_clock) < 10, f"GPU SMs must run at {ref_mem_clock} MHz"
+        tflops = 1e-6 * 2 * 108 * 4 * 256 * ref_sm_clock
+        gbps = 640 * 2 * ref_mem_clock * 1e-3
+        yield tflops, gbps
+    finally:
+        subprocess.check_output(["nvidia-smi", "-i", "0", "-pm", "0"])
+        subprocess.check_output(["nvidia-smi", "-i", "0", "-rgc"])
+        subprocess.check_output(["nvidia-smi", "-i", "0", "-rmc"])
+
+
+def get_max_simd_tflops(dtype, clock_rate, device=None):
+    import torch
+
+    from .runtime import driver
+    if not device:
+        device = torch.cuda.current_device()
+
+    num_subcores = driver.active.utils.get_device_properties(device)["multiprocessor_count"] * 4
+    capability = torch.cuda.get_device_capability()
+    if capability[0] < 8:
+        if dtype == torch.float32:
+            ops_per_sub_core = 32  # 2*16
+        elif dtype == torch.float16:
+            ops_per_sub_core = 64
+        else:
+            raise RuntimeError("dtype not supported")
+    else:
+        if dtype == torch.float32:
+            ops_per_sub_core = 32
+        elif dtype in [torch.float16, torch.bfloat16]:
+            ops_per_sub_core = 64
+        else:
+            raise RuntimeError("dtype not supported")
+    tflops = num_subcores * clock_rate * ops_per_sub_core * 1e-9
+    return tflops

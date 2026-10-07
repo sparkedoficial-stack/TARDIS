@@ -16,6 +16,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **vw_vault_dashboard.html**: Interfaz de control y monitoreo en tiempo real.
 - **quantum_explorer_dashboard.html**: Interfaz de control y monitoreo en tiempo real.
 - **kaiju_safety_dashboard.html**: Interfaz de control y monitoreo en tiempo real.
+- **skeleton.html**: Componente del sistema.
 - **offline_chat_vault.html**: Componente del sistema.
 - **adaptation_sys_dashboard.html**: Interfaz de control y monitoreo en tiempo real.
 - **scientific_researcher_dashboard.html**: Interfaz de control y monitoreo en tiempo real.

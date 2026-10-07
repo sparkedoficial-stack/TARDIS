@@ -1,78 +1,96 @@
-from __future__ import annotations
-
-from typing import TYPE_CHECKING, Any
-
-import numpy as np
-
-if TYPE_CHECKING:
-    from contourpy._contourpy import CoordinateArray
+from typing import Optional
+from triton._C.libproton import proton as libproton  # type: ignore
+import json as json
+from .flags import flags
 
 
-def simple(
-    shape: tuple[int, int], want_mask: bool = False,
-) -> tuple[CoordinateArray, CoordinateArray, CoordinateArray | np.ma.MaskedArray[Any, Any]]:
-    """Return simple test data consisting of the sum of two gaussians.
+def get(session: Optional[int] = 0, phase: int = 0):
+    """
+    Retrieves profiling data for a given session.
 
     Args:
-        shape (tuple(int, int)): 2D shape of data to return.
-        want_mask (bool, optional): Whether test data should be masked or not, default ``False``.
-
-    Return:
-        Tuple of 3 arrays: ``x``, ``y``, ``z`` test data, ``z`` will be masked if
-        ``want_mask=True``.
+        session (Optional[int]): The session ID of the profiling session, or None if profiling is inactive.
+    Returns:
+        str: The profiling data in JSON format.
     """
-    ny, nx = shape
-    x = np.arange(nx, dtype=np.float64)
-    y = np.arange(ny, dtype=np.float64)
-    x, y = np.meshgrid(x, y)
-
-    xscale = nx - 1.0
-    yscale = ny - 1.0
-
-    # z is sum of 2D gaussians.
-    amp = np.asarray([1.0, -1.0, 0.8, -0.9, 0.7])
-    mid = np.asarray([[0.4, 0.2], [0.3, 0.8], [0.9, 0.75], [0.7, 0.3], [0.05, 0.7]])
-    width = np.asarray([0.4, 0.2, 0.2, 0.2, 0.1])
-
-    z = np.zeros_like(x)
-    for i in range(len(amp)):
-        z += amp[i]*np.exp(-((x/xscale - mid[i, 0])**2 + (y/yscale - mid[i, 1])**2) / width[i]**2)
-
-    if want_mask:
-        mask = np.logical_or(
-            ((x/xscale - 1.0)**2 / 0.2 + (y/yscale - 0.0)**2 / 0.1) < 1.0,
-            ((x/xscale - 0.2)**2 / 0.02 + (y/yscale - 0.45)**2 / 0.08) < 1.0,
-        )
-        z = np.ma.array(z, mask=mask)
-
-    return x, y, z
+    if session is None:
+        return None
+    if flags.command_line and session != 0:
+        raise ValueError("Only one session can be retrieved when running from the command line.")
+    return json.loads(libproton.get_data(session, phase))
 
 
-def random(
-    shape: tuple[int, int], seed: int = 2187, mask_fraction: float = 0.0,
-) -> tuple[CoordinateArray, CoordinateArray, CoordinateArray | np.ma.MaskedArray[Any, Any]]:
-    """Return random test data in the range 0 to 1.
+def get_msgpack(session: Optional[int] = 0, phase: int = 0):
+    """
+    Retrieves profiling data for a given session encoded with MessagePack.
 
     Args:
-        shape (tuple(int, int)): 2D shape of data to return.
-        seed (int, optional): Seed for random number generator, default 2187.
-        mask_fraction (float, optional): Fraction of elements to mask, default 0.
+        session (Optional[int]): The session ID of the profiling session, or None if profiling is inactive.
 
-    Return:
-        Tuple of 3 arrays: ``x``, ``y``, ``z`` test data, ``z`` will be masked if
-        ``mask_fraction`` is greater than zero.
+    Returns:
+        bytes: The profiling data encoded with MessagePack.
     """
-    ny, nx = shape
-    x = np.arange(nx, dtype=np.float64)
-    y = np.arange(ny, dtype=np.float64)
-    x, y = np.meshgrid(x, y)
+    if session is None:
+        return None
+    if flags.command_line and session != 0:
+        raise ValueError("Only one session can be retrieved when running from the command line.")
+    return libproton.get_data_msgpack(session, phase)
 
-    rng = np.random.default_rng(seed)
-    z = rng.uniform(size=shape)
 
-    if mask_fraction > 0.0:
-        mask_fraction = min(mask_fraction, 0.99)
-        mask = rng.uniform(size=shape) < mask_fraction
-        z = np.ma.array(z, mask=mask)
+def advance_phase(session: Optional[int] = 0) -> Optional[int]:
+    """
+    Advances the profiling phase for a given session.
 
-    return x, y, z
+    Args:
+        session (Optional[int]): The session ID of the profiling session, or None if profiling is inactive.
+
+    Returns:
+        Optional[int]: The next phase number after advancing.
+    """
+    if session is None:
+        return None
+    if flags.command_line and session != 0:
+        raise ValueError("Only one session can advance phase when running from the command line.")
+    return libproton.advance_data_phase(session)
+
+
+def is_phase_complete(session: Optional[int] = 0, phase: int = 0) -> bool:
+    """
+    Checks if the profiling data for a given session and phase is complete.
+
+    A "complete" phase is safe to read/clear because all device-side records for
+    the phase have been flushed to the host and the phase will no longer receive
+    new records.
+
+    Args:
+        session (Optional[int]): The session ID of the profiling session, or None if profiling is inactive.
+        phase (int): The phase number to check. Defaults to 0.
+
+    Returns:
+        bool: True if the phase data is complete, False otherwise.
+    """
+    if session is None:
+        return False
+    if flags.command_line and session != 0:
+        raise ValueError("Only one session can check phase completion status when running from the command line.")
+    return libproton.is_data_phase_complete(session, phase)
+
+
+def clear(
+    session: Optional[int] = 0,
+    phase: int = 0,
+    clear_up_to_phase: bool = False,
+) -> None:
+    """
+    Clears profiling data for a given session.
+
+    Args:
+        session (Optional[int]): The session ID of the profiling session, or None if profiling is inactive.
+        phase (int): The phase number to clear. Defaults to 0.
+        clear_up_to_phase (bool): If True, clear all phases up to and including `phase`.
+    """
+    if session is None:
+        return
+    if flags.command_line and session != 0:
+        raise ValueError("Only one session can be cleared when running from the command line.")
+    libproton.clear_data(session, phase, clear_up_to_phase)

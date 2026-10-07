@@ -4,6 +4,8 @@ import ssl
 import typing
 
 import anyio
+import anyio.abc
+import anyio.streams.tls
 
 from .._exceptions import (
     ConnectError,
@@ -23,7 +25,7 @@ class AnyIOStream(AsyncNetworkStream):
         self._stream = stream
 
     async def read(self, max_bytes: int, timeout: float | None = None) -> bytes:
-        exc_map = {
+        exc_map: dict[type[Exception], type[Exception]] = {
             TimeoutError: ReadTimeout,
             anyio.BrokenResourceError: ReadError,
             anyio.ClosedResourceError: ReadError,
@@ -33,14 +35,14 @@ class AnyIOStream(AsyncNetworkStream):
             with anyio.fail_after(timeout):
                 try:
                     return await self._stream.receive(max_bytes=max_bytes)
-                except anyio.EndOfStream:  # pragma: nocover
+                except anyio.EndOfStream:  # pragma: no cover
                     return b""
 
     async def write(self, buffer: bytes, timeout: float | None = None) -> None:
         if not buffer:
             return
 
-        exc_map = {
+        exc_map: dict[type[Exception], type[Exception]] = {
             TimeoutError: WriteTimeout,
             anyio.BrokenResourceError: WriteError,
             anyio.ClosedResourceError: WriteError,
@@ -58,7 +60,7 @@ class AnyIOStream(AsyncNetworkStream):
         server_hostname: str | None = None,
         timeout: float | None = None,
     ) -> AsyncNetworkStream:
-        exc_map = {
+        exc_map: dict[type[Exception], type[Exception]] = {
             TimeoutError: ConnectTimeout,
             anyio.BrokenResourceError: ConnectError,
             anyio.EndOfStream: ConnectError,
@@ -74,7 +76,7 @@ class AnyIOStream(AsyncNetworkStream):
                         standard_compatible=False,
                         server_side=False,
                     )
-            except Exception as exc:  # pragma: nocover
+            except Exception as exc:  # pragma: no cover
                 await self.aclose()
                 raise exc
         return AnyIOStream(ssl_stream)
@@ -102,10 +104,10 @@ class AnyIOBackend(AsyncNetworkBackend):
         timeout: float | None = None,
         local_address: str | None = None,
         socket_options: typing.Iterable[SOCKET_OPTION] | None = None,
-    ) -> AsyncNetworkStream:  # pragma: nocover
+    ) -> AsyncNetworkStream:  # pragma: no cover
         if socket_options is None:
             socket_options = []
-        exc_map = {
+        exc_map: dict[type[Exception], type[Exception]] = {
             TimeoutError: ConnectTimeout,
             OSError: ConnectError,
             anyio.BrokenResourceError: ConnectError,
@@ -127,10 +129,10 @@ class AnyIOBackend(AsyncNetworkBackend):
         path: str,
         timeout: float | None = None,
         socket_options: typing.Iterable[SOCKET_OPTION] | None = None,
-    ) -> AsyncNetworkStream:  # pragma: nocover
+    ) -> AsyncNetworkStream:  # pragma: no cover
         if socket_options is None:
             socket_options = []
-        exc_map = {
+        exc_map: dict[type[Exception], type[Exception]] = {
             TimeoutError: ConnectTimeout,
             OSError: ConnectError,
             anyio.BrokenResourceError: ConnectError,
@@ -143,4 +145,4 @@ class AnyIOBackend(AsyncNetworkBackend):
         return AnyIOStream(stream)
 
     async def sleep(self, seconds: float) -> None:
-        await anyio.sleep(seconds)  # pragma: nocover
+        await anyio.sleep(seconds)  # pragma: no cover

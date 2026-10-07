@@ -1,0 +1,184 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+from __future__ import annotations
+
+import ctypes
+import ctypes.wintypes
+import os
+import struct
+import sys
+import warnings
+from typing import TYPE_CHECKING
+
+from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL
+
+if TYPE_CHECKING:
+    from cuda.pathfinder._dynamic_libs.lib_descriptor import LibDescriptor
+
+# Mirrors WinBase.h (unfortunately not defined already elsewhere)
+WINBASE_LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR = 0x00000100
+WINBASE_LOAD_LIBRARY_SEARCH_DEFAULT_DIRS = 0x00001000
+
+POINTER_ADDRESS_SPACE = 2 ** (struct.calcsize("P") * 8)
+
+# Set up kernel32 functions with proper types
+windll = getattr(ctypes, "windll", None)
+if windll is None:
+    raise RuntimeError("ctypes.windll is required on Windows")
+kernel32 = windll.kernel32
+
+# GetModuleHandleW
+kernel32.GetModuleHandleW.argtypes = [ctypes.wintypes.LPCWSTR]
+kernel32.GetModuleHandleW.restype = ctypes.wintypes.HMODULE
+
+# LoadLibraryExW
+kernel32.LoadLibraryExW.argtypes = [
+    ctypes.wintypes.LPCWSTR,  # lpLibFileName
+    ctypes.wintypes.HANDLE,  # hFile (reserved, must be NULL)
+    ctypes.wintypes.DWORD,  # dwFlags
+]
+kernel32.LoadLibraryExW.restype = ctypes.wintypes.HMODULE
+
+# GetModuleFileNameW
+kernel32.GetModuleFileNameW.argtypes = [
+    ctypes.wintypes.HMODULE,  # hModule
+    ctypes.wintypes.LPWSTR,  # lpFilename
+    ctypes.wintypes.DWORD,  # nSize
+]
+kernel32.GetModuleFileNameW.restype = ctypes.wintypes.DWORD
+
+
+# GetLastError
+kernel32.GetLastError.argtypes = []
+kernel32.GetLastError.restype = ctypes.wintypes.DWORD
+
+
+def ctypes_handle_to_unsigned_int(handle: ctypes.wintypes.HMODULE) -> int:
+    """Convert ctypes HMODULE to unsigned int."""
+    handle_uint = int(handle)
+    if handle_uint < 0:
+        # Convert from signed to unsigned representation
+        handle_uint += POINTER_ADDRESS_SPACE
+    return handle_uint
+
+
+def add_dll_directory(dll_abs_path: str) -> None:
+    """Add a DLL directory to the search path and update PATH environment variable.
+
+    Args:
+        dll_abs_path: Absolute path to the DLL file
+
+    Raises:
+        AssertionError: If the directory containing the DLL does not exist
+    """
+    dirpath = os.path.dirname(dll_abs_path)
+    assert os.path.isdir(dirpath), dll_abs_path
+
+    # Add the DLL directory to the native search path via the stdlib wrapper
+    # around AddDllDirectory. This only affects the LOAD_LIBRARY_SEARCH_USER_DIRS
+    # search; PATH is updated unconditionally below to also cover legacy
+    # dependent-DLL resolution. The returned handle is intentionally discarded:
+    # the directory must stay on the search path for the process lifetime, and
+    # the handle has no finalizer, so dropping it does not remove the directory.
+    try:
+        if sys.platform == "win32":
+            os.add_dll_directory(dirpath)
+    except OSError as e:
+        # Warn instead of failing silently; the PATH update below is a weaker
+        # fallback that newer loaders may ignore.
+        warnings.warn(
+            f"os.add_dll_directory({dirpath!r}) failed ({e}); "
+            "falling back to process-global PATH mutation for dependent-DLL resolution.",
+            RuntimeWarning,
+            stacklevel=2,
+        )
+
+    # Update PATH as a fallback for dependent DLL resolution
+    curr_path = os.environ.get("PATH")
+    os.environ["PATH"] = dirpath if curr_path is None else os.pathsep.join((curr_path, dirpath))
+
+
+def abs_path_for_dynamic_library(libname: str, handle: ctypes.wintypes.HMODULE) -> str:
+    """Get the absolute path of a loaded dynamic library on Windows."""
+    # Create buffer for the path
+    buffer = ctypes.create_unicode_buffer(260)  # MAX_PATH
+    length = kernel32.GetModuleFileNameW(handle, buffer, len(buffer))
+
+    if length == 0:
+        error_code = kernel32.GetLastError()
+        raise RuntimeError(f"GetModuleFileNameW failed for {libname!r} (error code: {error_code})")
+
+    # If buffer was too small, try with larger buffer
+    if length == len(buffer):
+        buffer = ctypes.create_unicode_buffer(32768)  # Extended path length
+        length = kernel32.GetModuleFileNameW(handle, buffer, len(buffer))
+        if length == 0:
+            error_code = kernel32.GetLastError()
+            raise RuntimeError(f"GetModuleFileNameW failed for {libname!r} (error code: {error_code})")
+
+    return buffer.value
+
+
+def check_if_already_loaded_from_elsewhere(desc: LibDescriptor) -> LoadedDL | None:
+    for dll_name in desc.windows_dlls:
+        handle = kernel32.GetModuleHandleW(dll_name)
+        if handle:
+            abs_path = abs_path_for_dynamic_library(desc.name, handle)
+            if desc.requires_add_dll_directory:
+                # Match load_with_abs_path(): lazy component DLLs need the directory
+                # of the module that is actually loaded, regardless of how it arrived.
+                add_dll_directory(abs_path)
+            return LoadedDL(abs_path, True, ctypes_handle_to_unsigned_int(handle), "was-already-loaded-from-elsewhere")
+    return None
+
+
+def load_with_system_search(desc: LibDescriptor) -> LoadedDL | None:
+    """Try to load a DLL using the native Windows process DLL search path.
+
+    This calls ``LoadLibraryExW(dll_name, NULL, 0)`` directly. Under Python
+    3.8+, CPython configures the process with
+    ``SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_DEFAULT_DIRS)``, so this
+    search does **not** include the system ``PATH``. Directories added via
+    ``AddDllDirectory()`` still participate.
+
+    Args:
+        desc: Descriptor for the library to load
+
+    Returns:
+        A LoadedDL object if successful, None if the library cannot be loaded
+    """
+    for dll_name in desc.windows_dlls:
+        handle = kernel32.LoadLibraryExW(dll_name, None, 0)
+        if handle:
+            abs_path = abs_path_for_dynamic_library(desc.name, handle)
+            return LoadedDL(abs_path, False, ctypes_handle_to_unsigned_int(handle), "system-search")
+
+    return None
+
+
+def load_with_abs_path(desc: LibDescriptor, found_path: str, found_via: str | None = None) -> LoadedDL:
+    """Load a dynamic library from the given path.
+
+    Args:
+        desc: Descriptor for the library to load.
+        found_path: The absolute path to the DLL file.
+        found_via: Label indicating how the path was discovered.
+
+    Returns:
+        A LoadedDL object representing the loaded library.
+
+    Raises:
+        RuntimeError: If the DLL cannot be loaded.
+    """
+    if desc.requires_add_dll_directory:
+        add_dll_directory(found_path)
+
+    flags = WINBASE_LOAD_LIBRARY_SEARCH_DEFAULT_DIRS | WINBASE_LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR
+    handle = kernel32.LoadLibraryExW(found_path, None, flags)
+
+    if not handle:
+        error_code = kernel32.GetLastError()
+        raise RuntimeError(f"Failed to load DLL at {found_path}: Windows error {error_code}")
+
+    return LoadedDL(found_path, False, ctypes_handle_to_unsigned_int(handle), found_via)
