@@ -7254,6 +7254,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **_shmem_triton.py**: Componente del sistema.
 - **fileopener.py**: Componente del sistema.
 - **modeling_video_llava.py**: Componente del sistema.
+- **tardis_math_engine.py**: Componente del sistema.
 - **pkg_resources.py**: Componente del sistema.
 - **processing_mllama.py**: Componente del sistema.
 - **ask.py**: Componente del sistema.
@@ -7351,6 +7352,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **summarization.py**: Componente del sistema.
 - **geomutils.py**: Componente del sistema.
 - **model.py**: Componente del sistema.
+- **tardis_calculadora_voz.py**: Componente del sistema.
 - **interp.py**: Componente del sistema.
 - **pin_memory.py**: Componente del sistema.
 - **image_processing_pil_clip.py**: Componente del sistema.

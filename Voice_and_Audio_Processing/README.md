@@ -9,6 +9,7 @@ Este módulo contiene los siguientes subsistemas y funciones principales:
 - **apply_voice_ftl.py**: Componente del sistema.
 - **voice_assistant.py**: Componente del sistema.
 - **autonomous_voice.py**: Componente del sistema.
+- **tardis_voice_feedback.py**: Componente del sistema.
 - **voice.py**: Componente del sistema.
 - **tardis_snap_voice_assistant.py**: Componente del sistema.
 - **processing_vibevoice_asr.py**: Componente del sistema.
