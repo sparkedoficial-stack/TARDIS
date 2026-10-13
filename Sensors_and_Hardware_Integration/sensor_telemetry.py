@@ -6,7 +6,7 @@ Ingesta la telemetria que el navegador (PC o movil) captura de los sensores
 reales del dispositivo y la pone a disposicion del modelo, para que GIA
 correlacione el ESTADO FISICO con el texto del chat.
 
-Arquitecto: Miguel Angel May Canche  ·  Ancla: Playa del Carmen, MX
+Arquitecto: El Arquitecto (₪)  ·  Ancla: Playa del Carmen, MX
 
 QUE ES REAL AQUI (todo medido, nada inventado):
   - kinematic       : acelerometro/giroscopio del dispositivo (devicemotion)
@@ -35,6 +35,7 @@ API:
 """
 from __future__ import annotations
 
+import logging
 import base64
 import hashlib
 import json
@@ -64,6 +65,50 @@ _buffer: deque = deque(maxlen=MAX_BUFFER)
 _lamport = 0                     # reloj logico del servidor
 _entropy_pool = bytearray()
 _counters = {"packets": 0, "frames": 0, "started": time.time()}
+
+
+
+# =====================================================================
+#  SISTEMA DE LOGS DEL AGENTE
+# =====================================================================
+class Logger:
+    _instance = None
+
+    def __new__(cls, log_file="agent_operations.log", level=logging.INFO):
+        if cls._instance is None:
+            cls._instance = super(Logger, cls).__new__(cls)
+            cls._instance.logger = logging.getLogger("AgentLogger")
+            cls._instance.logger.setLevel(level)
+            
+            # Evitar handlers duplicados
+            if not cls._instance.logger.handlers:
+                formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+                
+                fh = logging.FileHandler(log_file, encoding='utf-8')
+                fh.setFormatter(formatter)
+                cls._instance.logger.addHandler(fh)
+        return cls._instance
+
+    @classmethod
+    def set_level(cls, level_name):
+        level = getattr(logging, level_name.upper(), logging.INFO)
+        if cls._instance is None:
+            cls("agent_operations.log", level)
+        cls._instance.logger.setLevel(level)
+        for handler in cls._instance.logger.handlers:
+            handler.setLevel(level)
+
+    def debug(self, msg):
+        self.logger.debug(msg)
+        
+    def info(self, msg):
+        self.logger.info(msg)
+        
+    def warning(self, msg):
+        self.logger.warning(msg)
+        
+    def error(self, msg):
+        self.logger.error(msg)
 
 
 # =====================================================================

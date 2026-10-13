@@ -43,7 +43,7 @@ class TestPermanentQRBridge(unittest.TestCase):
         """Verifica que BridgeSupervisor exporta permanent_url y qr_url consistentes."""
         with patch("omni_temporal_control.STATUS_FILE", self.status_file), \
              patch("omni_temporal_control.URL_FILE", self.url_file):
-            supervisor = BridgeSupervisor(port=8757, token = "REDACTED")
+            supervisor = BridgeSupervisor(port=8757, token="REDACTED")
             supervisor.permanent_portal_url = "https://ntfy.sh/godworks_sovereign_timemachine_portal"
             
             # Escribir estado simulado con túnel activo
@@ -60,7 +60,7 @@ class TestPermanentQRBridge(unittest.TestCase):
 
     def test_sync_permanent_portal_dispatches_http(self):
         """Verifica que al activarse el túnel, la URL se publica en el portal permanente ntfy."""
-        supervisor = BridgeSupervisor(port=8757, token = "REDACTED")
+        supervisor = BridgeSupervisor(port=8757, token="REDACTED")
         supervisor.permanent_portal_url = "https://ntfy.sh/godworks_sovereign_timemachine_portal"
         
         test_auth_url = "https://test-reboot-tunnel.trycloudflare.com/?key=DiosDelTiempo01"

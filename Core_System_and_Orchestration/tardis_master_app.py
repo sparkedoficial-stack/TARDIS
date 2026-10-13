@@ -14,7 +14,7 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
 ICON_PATH = BASE_DIR / "tardis-master-hub-icon.png"
-DEFAULT_URL = "http://REDACTED_IP:8757/hub"
+DEFAULT_URL = "http://127.0.0.1:8757/hub"
 
 
 def launch_native_gtk(url: str):

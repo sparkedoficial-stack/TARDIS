@@ -29,7 +29,7 @@ class TestTardisPocketZeroUrl(unittest.TestCase):
         endpoints = bridge.get_connection_endpoints()
         self.assertIn("routes", endpoints)
         self.assertEqual(endpoints["routes"]["priority_1_hotspot"], "http://REDACTED_IP:8757")
-        self.assertEqual(endpoints["routes"]["local_daemon"], "http://REDACTED_IP:8080")
+        self.assertEqual(endpoints["routes"]["local_daemon"], "http://127.0.0.1:8080")
 
         # Test telemetry recording
         payload = {

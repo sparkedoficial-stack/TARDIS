@@ -34,7 +34,7 @@ SECRET_KEY: str = SECRETS["secret_key"]
 SMTP_CFG: dict = SECRETS["smtp"]
 ALLOWLIST = {e.strip().lower() for e in SECRETS.get("allowlist", [])}
 GATEWAY_PORT: int = SECRETS.get("gateway_port", 8790)
-BRIDGE_URL: str = SECRETS.get("bridge_url", "http://REDACTED_IP:8757").rstrip("/")
+BRIDGE_URL: str = SECRETS.get("bridge_url", "http://127.0.0.1:8757").rstrip("/")
 
 LOGIN_SALT = "client-gateway-login"
 SESSION_SALT = "client-gateway-session"
@@ -60,7 +60,7 @@ def _client_id_for(email: str) -> str:
 
 
 def _public_base_url(request: Request) -> str:
-    host = request.headers.get("host", f"REDACTED_IP:{GATEWAY_PORT}")
+    host = request.headers.get("host", f"127.0.0.1:{GATEWAY_PORT}")
     proto = request.headers.get("x-forwarded-proto", "https")
     return f"{proto}://{host}"
 
@@ -320,4 +320,4 @@ async def health():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="REDACTED_IP", port=GATEWAY_PORT)
+    uvicorn.run(app, host="127.0.0.1", port=GATEWAY_PORT)

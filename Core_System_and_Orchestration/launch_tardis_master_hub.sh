@@ -11,7 +11,7 @@ set -e
 APP_DIR="/home/timemachine/Escritorio/GODWORKS SYSTEM"
 cd "$APP_DIR"
 
-SERVER_URL="http://REDACTED_IP:8757"
+SERVER_URL="http://127.0.0.1:8757"
 HUB_URL="$SERVER_URL/hub"
 MAX_WAIT_SECONDS=15
 

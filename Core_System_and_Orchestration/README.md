@@ -1,21 +1,43 @@
 # Core_System_and_Orchestration
 
-Este módulo contiene los siguientes subsistemas y funciones principales:
+Núcleo de orquestación temporal, bucles de control soberano FTL y sincronización multi-hilo.
 
-- **supervisor_thermal_dashboard.html**: Interfaz de control y monitoreo en tiempo real.
-- **tardis_parallel_orchestrator.py**: Núcleo de orquestación y control temporal/espacial.
-- **ftl_master_hub.py**: Componente del sistema.
-- **gia_sovereign_bridge.py**: Componente del sistema.
-- **tardis_app.py**: Componente del sistema.
-- **tardis_master_cockpit.html**: Componente del sistema.
-- **gia_control.py**: Componente del sistema.
-- **launch_tardis_master_hub.sh**: Componente del sistema.
+## Subsistemas y Funciones Principales:
+
+- **autonomous_controller.py**: Componente de alta eficiencia.
+- **background_hardware_orchestrator.py**: Núcleo de orquestación y control temporal/espacial.
+- **button_orchestrator.py**: Núcleo de orquestación y control temporal/espacial.
 - **ecca_orchestrator.py**: Núcleo de orquestación y control temporal/espacial.
-- **tardis_master_app.py**: Componente del sistema.
+- **ftl_master_hub.py**: Componente de alta eficiencia.
+- **gia_control.py**: Componente de alta eficiencia.
+- **gia_sovereign_bridge.py**: Componente de alta eficiencia.
+- **gia_sovereign_engine.py**: Componente de alta eficiencia.
+- **hardware_controller.py**: Componente de alta eficiencia.
+- **launch_tardis_master_hub.sh**: Componente de alta eficiencia.
+- **network_controller.py**: Componente de alta eficiencia.
+- **omni_temporal_control.py**: Componente de alta eficiencia.
+- **os_controller.py**: Componente de alta eficiencia.
+- **package_manager.py**: Componente de alta eficiencia.
+- **sovereign_local_runner.py**: Componente de alta eficiencia.
+- **supervisor.py**: Componente de alta eficiencia.
+- **supervisor_thermal_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
+- **tardis_app.py**: Componente de alta eficiencia.
+- **tardis_cli.py**: Componente de alta eficiencia.
+- **tardis_continuity_engine.py**: Componente de alta eficiencia.
 - **tardis_core.py**: Núcleo de orquestación y control temporal/espacial.
-- **omni_temporal_control.py**: Componente del sistema.
-- **supervisor.py**: Componente del sistema.
-- **gia_sovereign_engine.py**: Componente del sistema.
+- **tardis_distributed_mesh.py**: Componente de alta eficiencia.
+- **tardis_failover_engine.py**: Componente de alta eficiencia.
+- **tardis_ftl_engineer.py**: Componente de alta eficiencia.
+- **tardis_identificacion_contexto.py**: Componente de alta eficiencia.
+- **tardis_master_app.py**: Componente de alta eficiencia.
+- **tardis_master_cockpit.html**: Interfaz interactiva de monitoreo en tiempo real.
+- **tardis_parallel_orchestrator.py**: Núcleo de orquestación y control temporal/espacial.
+- **task_manager.py**: Componente de alta eficiencia.
+- **test_autonomous_controller.py**: Componente de alta eficiencia.
+- **test_os_controller.py**: Componente de alta eficiencia.
+- **test_package_manager_and_buttons.py**: Componente de alta eficiencia.
+- **test_sovereign_local_runner.py**: Componente de alta eficiencia.
+- **test_task_manager.py**: Componente de alta eficiencia.
 
-## Dependencias Generales
-Para instalar dependencias, consulte el entorno general del proyecto y utilice `pip install -r requirements.txt` (si aplica) u observe las cabeceras de cada archivo.
+## Requisitos e Integración
+Los módulos operan bajo el stack soberano de Linux (x86_64), integrando aceleración por GPU y telemetría de bajo nivel.

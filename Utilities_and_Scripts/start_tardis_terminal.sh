@@ -4,7 +4,7 @@
 # ==============================================================================
 # Dispositivo : Motorola Moto X Play (lux / ZY222ZXWPP)
 # Función     : Inicia el demonio soberano local y levanta la interfaz nativa
-#               offline en REDACTED_IP:8080 sin depender de ningún URL externo.
+#               offline en 127.0.0.1:8080 sin depender de ningún URL externo.
 # ==============================================================================
 
 if [ -d "/data/data/com.termux/files/usr/bin" ]; then
@@ -39,8 +39,8 @@ if command -v termux-tts-speak >/dev/null 2>&1; then
     termux-tts-speak "TARDIS POCKET iniciado en modo soberano nativo." &
 fi
 
-# 3. Lanzar la interfaz en pantalla local (REDACTED_IP:8080)
-LOCAL_UI="http://REDACTED_IP:8080"
+# 3. Lanzar la interfaz en pantalla local (127.0.0.1:8080)
+LOCAL_UI="http://127.0.0.1:8080"
 echo "[TARDIS-POCKET] Desplegando interfaz en pantalla: $LOCAL_UI"
 
 # Intentar primero con el Launcher Soberano Nativo si está disponible

@@ -62,7 +62,7 @@ def process_voice_request(text):
             # Intento de contacto al FTL HUB si está activo
             try:
                 import requests
-                FTL_HUB_API = "http://REDACTED_IP:8757/api/chat?key=DiosDelTiempo01"
+                FTL_HUB_API = "http://127.0.0.1:8757/api/chat?key=DiosDelTiempo01"
                 payload = {"message": f"Desde terminal de voz: {text}", "source": "voice"}
                 response = requests.post(FTL_HUB_API, json=payload, timeout=60)
                 if response.status_code == 200:

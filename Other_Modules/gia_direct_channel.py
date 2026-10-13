@@ -5,7 +5,7 @@ GODWORKS SYSTEM v26.4 · Suite Soberana GIA
 
 Establece una ruta de comunicación directa y de mínima latencia directamente
 con el binario del modelo LLM mediante tuberías de proceso nativas (stdin/stdout).
-Elimina por completo la intermediación de servidores web/HTTP (REDACTED_IP:11434),
+Elimina por completo la intermediación de servidores web/HTTP (127.0.0.1:11434),
 bloqueos de firewall, interferencia de red, latencia de proxy o saturación de puertos.
 
 Modos de uso:
@@ -37,7 +37,7 @@ from pathlib import Path
 from typing import Dict, Generator, List, Optional
 
 WORKSPACE_DIR = Path(__file__).resolve().parent
-DEFAULT_MODEL = os.environ.get("GIA_MODEL", "dolphin3:latest")
+DEFAULT_MODEL = os.environ.get("GIA_MODEL", "TARDIS-NEURAL-SPACE-KAIJU")
 DEFAULT_SYSTEM = (
     "Eres GIA-V26, Sistema Autónomo y Soberano de GODWORKS SYSTEM. "
     "Operas en modo de CONEXIÓN DIRECTA LOCAL por tubería de proceso nativa (Zero-Network-Port). "

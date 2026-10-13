@@ -12,33 +12,48 @@ class TestTelegramBridge(unittest.TestCase):
         self.tmp_dir = tempfile.TemporaryDirectory()
         self.config_path = Path(self.tmp_dir.name) / "test_telegram_config.json"
         self.bridge = TelegramBridge(config_path=self.config_path)
+        try:
+            from omni_temporal_control import SYNC_HUB
+            self.sync_patch = patch.object(SYNC_HUB, "add_chat_turn")
+            self.sync_patch.start()
+        except Exception:
+            self.sync_patch = None
 
     def tearDown(self):
+        if getattr(self, "sync_patch", None):
+            self.sync_patch.stop()
         self.tmp_dir.cleanup()
 
     def test_initial_status_and_defaults(self):
-        """Verifica el estado inicial y las llaves de seguridad."""
+        """Verifica el estado inicial y que no existan puertas traseras."""
         status = self.bridge.get_status()
         self.assertFalse(status["polling_active"])
         self.assertFalse(status["bot_token_configured"])
         self.assertEqual(len(status["authorized_chat_ids"]), 0)
-        self.assertIn("0", self.bridge.pairing_passwords)
-        self.assertIn("DiosDelTiempo01", self.bridge.pairing_passwords)
+        self.assertNotIn("0", self.bridge.pairing_passwords)
+        self.assertNotIn("DiosDelTiempo01", self.bridge.pairing_passwords)
 
     def test_master_key_pairing(self):
-        """Verifica que enviar la contraseña maestra '0' autoriza de inmediato el chat de Telegram."""
+        """Verifica que contraseñas por defecto sean rechazadas y solo una clave explícita autorice."""
         chat_id = 987654321
         self.assertFalse(self.bridge.is_chat_authorized(chat_id))
 
         with patch.object(self.bridge, "send_message") as mock_send:
-            # Enviar clave maestra '0'
+            # Enviar clave '0' debe ser rechazado
             self.bridge._handle_incoming_text(chat_id, "0", "TestUser")
-            
-            # El chat debe quedar autorizado permanentemente
+            self.assertFalse(self.bridge.is_chat_authorized(chat_id))
+
+            # Enviar clave 'DiosDelTiempo01' debe ser rechazado
+            self.bridge._handle_incoming_text(chat_id, "DiosDelTiempo01", "TestUser")
+            self.assertFalse(self.bridge.is_chat_authorized(chat_id))
+
+            # Configurar clave explícita no vacía
+            self.bridge.config["master_key"] = "SecureTelegramKey_492"
+            self.bridge._handle_incoming_text(chat_id, "SecureTelegramKey_492", "TestUser")
             self.assertTrue(self.bridge.is_chat_authorized(chat_id))
             mock_send.assert_called()
             sent_text = mock_send.call_args.args[0]
-            self.assertIn("ACCESO SOBERANO CONCEDIDO", sent_text)
+            self.assertIn("ACCESO CONCEDIDO", sent_text)
 
     def test_unauthorized_chat_blocked(self):
         """Verifica que mensajes sin clave maestra son rechazados si el chat no está autorizado."""
@@ -50,30 +65,75 @@ class TestTelegramBridge(unittest.TestCase):
             self.assertIn("AUTENTICACIÓN REQUERIDA", sent_text)
 
     def test_command_start_and_help(self):
-        """Verifica que los comandos /start y /help devuelven el menú operativo soberano."""
-        chat_id = 55555
-        self.bridge.authorized_chat_ids.add(chat_id)
-
+        """Verifica que /start y /help devuelven el menú soberano al Arquitecto y bienvenida a terceros."""
+        # 1. Arquitecto desde su terminal privada (7153384115)
+        arch_chat = 7153384115
+        self.bridge.authorized_chat_ids.add(arch_chat)
         with patch.object(self.bridge, "send_message") as mock_send:
-            self.bridge._handle_incoming_text(chat_id, "/start", "Owner")
+            self.bridge._handle_incoming_text(arch_chat, "/start", "Arquitecto")
             sent_text = mock_send.call_args.args[0]
-            self.assertIn("GODWORKS SYSTEM v26.4", sent_text)
-            self.assertIn("/sh", sent_text)
+            self.assertIn("TARDIS · SISTEMA DE VIGILANCIA Y CONTROL TEMPORAL", sent_text)
+            self.assertNotIn("v26.4", sent_text)
             self.assertIn("/status", sent_text)
 
-    def test_command_sh_execution(self):
-        """Verifica que /sh ejecuta comandos del shell de forma inalámbrica."""
+        # 2. Usuario tercero / público (55555)
+        visitor_chat = 55555
+        self.bridge.authorized_chat_ids.add(visitor_chat)
+        with patch.object(self.bridge, "send_message") as mock_send:
+            self.bridge._handle_incoming_text(visitor_chat, "/start", "SimulatedVisitor")
+            sent_text = mock_send.call_args.args[0]
+            self.assertIn("Un placer, soy TARDIS asistente de inteligencia artificial", sent_text)
+            self.assertNotIn("/sh <cmd>", sent_text)
+
+    def test_command_sh_execution_non_admin(self):
+        """Verifica que /sh sea bloqueado para usuarios no administradores."""
         chat_id = 77777
         self.bridge.authorized_chat_ids.add(chat_id)
 
         with patch.object(self.bridge, "send_message") as mock_send:
-            self.bridge._handle_incoming_text(chat_id, "/sh echo 'TELEGRAM_WIRELESS_OK'", "Owner")
+            self.bridge._handle_incoming_text(chat_id, "/sh echo 'TELEGRAM_WIRELESS_OK'", "SimulatedUser")
             sent_text = mock_send.call_args.args[0]
-            self.assertIn("TELEGRAM_WIRELESS_OK", sent_text)
+            self.assertIn("ACCESO DENEGADO", sent_text)
+
+    def test_command_sh_execution_architect_terminal(self):
+        """Verifica que /sh ejecute comandos reales desde la terminal privada del Arquitecto."""
+        arch_chat = 7153384115
+        self.bridge.authorized_chat_ids.add(arch_chat)
+
+        with patch.object(self.bridge, "send_message") as mock_send:
+            self.bridge._handle_incoming_text(arch_chat, "/sh echo 'TEST_TERMINAL_SOBERANA_OK'", "Arquitecto")
+            # Dado que corre en un hilo daemon, esperar brevemente
+            import time
+            for _ in range(20):
+                if mock_send.called:
+                    break
+                time.sleep(0.1)
+            self.assertTrue(mock_send.called)
+            sent_text = mock_send.call_args.args[0]
+            self.assertIn("TERMINAL HOST", sent_text)
+            self.assertIn("TEST_TERMINAL_SOBERANA_OK", sent_text)
+
+    def test_architect_group_control_exclusion(self):
+        """Verifica que comandos de control ejecutados por el Arquitecto en grupos sean denegados con Terminal Exclusiva."""
+        group_chat_id = -1002696477485
+        arch_user_id = 7153384115
+        self.bridge.authorized_chat_ids.add(group_chat_id)
+
+        with patch.object(self.bridge, "send_message") as mock_send:
+            msg_dict = {
+                "message_id": 99,
+                "chat": {"id": group_chat_id, "type": "supergroup"},
+                "from": {"id": arch_user_id, "first_name": "Arquitecto"},
+                "text": "/reboot"
+            }
+            self.bridge._handle_update({"update_id": 1, "message": msg_dict})
+            mock_send.assert_called()
+            sent_text = mock_send.call_args.args[0]
+            self.assertIn("TERMINAL EXCLUSIVA", sent_text)
 
     def test_configure_token_persists(self):
         """Verifica que configurar el token persiste en archivo y recarga."""
-        test_token = "123456789:ABCDEF_mock_telegram_token"
+        test_token = "REDACTED"
         ok = self.bridge.configure_token(test_token, enabled=False)
         self.assertTrue(ok)
         self.assertEqual(self.bridge.bot_token, test_token)
@@ -92,14 +152,14 @@ class TestTelegramBridge(unittest.TestCase):
              patch.object(self.bridge, "send_voice") as mock_voice:
 
             # Iniciar llamada
-            self.bridge._handle_incoming_text(chat_id, "/llamar", "Owner")
+            self.bridge._handle_incoming_text(chat_id, "/llamar", "SimulatedUser")
             self.assertIn(chat_id, self.bridge.active_calls)
             mock_msg.assert_called()
             self.assertIn("LLAMADA ENTRANTE DE GIA", mock_msg.call_args.args[0])
             mock_voice.assert_called()
 
             # Finalizar llamada
-            self.bridge._handle_incoming_text(chat_id, "/colgar", "Owner")
+            self.bridge._handle_incoming_text(chat_id, "/colgar", "SimulatedUser")
             self.assertNotIn(chat_id, self.bridge.active_calls)
             self.assertIn("LLAMADA FINALIZADA", mock_msg.call_args.args[0])
 
@@ -109,8 +169,8 @@ class TestTelegramBridge(unittest.TestCase):
         self.bridge.authorized_chat_ids.add(chat_id)
 
         with patch.object(self.bridge, "start_call") as mock_start:
-            self.bridge._handle_incoming_text(chat_id, "GIA, por favor llámame ahora", "Owner")
-            mock_start.assert_called_with(chat_id, user_name="Owner")
+            self.bridge._handle_incoming_text(chat_id, "GIA, por favor llámame ahora", "SimulatedUser")
+            mock_start.assert_called_with(chat_id, user_name="SimulatedUser")
 
     def test_incoming_voice_message_transcription_and_reply(self):
         """Verifica el flujo completo de nota de voz: descarga, transcripción STT y respuesta por voz."""
@@ -120,16 +180,18 @@ class TestTelegramBridge(unittest.TestCase):
         self.bridge.voice_mode_always = True
 
         fake_voice_bytes = b"OggS_test_voice_bytes"
-        mock_chat_reply = {"reply": "Comando de voz recibido y procesado correctamente."}
+        self.bridge.video_mode_always = False
+        mock_chat_reply = {"reply": "Comando de voz recibido y procesado con éxito."}
 
         with patch.object(self.bridge, "download_telegram_file", return_value=fake_voice_bytes), \
              patch.object(self.bridge, "transcribe_audio", return_value="cómo está el sistema"), \
+             patch("core.kaiju_cognitive_orchestrator.KaijuCognitiveOrchestrator.process_turn", return_value={"response": "Comando de voz recibido y procesado con éxito."}), \
              patch("omni_temporal_control.process_agentic_chat", return_value=mock_chat_reply), \
              patch.object(self.bridge, "synthesize_speech", return_value=b"OggS_response_audio"), \
              patch.object(self.bridge, "send_voice") as mock_voice, \
              patch.object(self.bridge, "send_photo"):
 
-            self.bridge._handle_incoming_voice(chat_id, file_id="voice_xyz_123", user_name="Owner")
+            self.bridge._handle_incoming_voice(chat_id, file_id="voice_xyz_123", user_name="SimulatedUser")
 
             # Debe haber quedado en active_calls
             self.assertIn(chat_id, self.bridge.active_calls)
@@ -148,12 +210,13 @@ class TestTelegramBridge(unittest.TestCase):
 
         mock_chat_reply = {"reply": "Respondiendo a tu consulta en modo llamada."}
 
-        with patch("omni_temporal_control.process_agentic_chat", return_value=mock_chat_reply), \
+        with patch("core.kaiju_cognitive_orchestrator.KaijuCognitiveOrchestrator.process_turn", return_value={"response": "Respondiendo a tu consulta en modo llamada."}), \
+             patch("omni_temporal_control.process_agentic_chat", return_value=mock_chat_reply), \
              patch.object(self.bridge, "synthesize_speech", return_value=b"OggS_call_audio"), \
              patch.object(self.bridge, "send_voice") as mock_voice, \
              patch.object(self.bridge, "send_photo"):
 
-            self.bridge._handle_incoming_text(chat_id, "Hola GIA, ¿me escuchas?", "Owner")
+            self.bridge._handle_incoming_text(chat_id, "Hola GIA, ¿me escuchas?", "SimulatedUser")
             mock_voice.assert_called()
             sent_caption = mock_voice.call_args.kwargs.get("caption", "")
             self.assertIn("Respondiendo a tu consulta", sent_caption)
@@ -164,7 +227,7 @@ class TestTelegramBridge(unittest.TestCase):
         self.bridge.authorized_chat_ids.add(chat_id)
         self.bridge.voice_mode_always = True
 
-        test_reply = "Hola Miguel, el sistema está 100% operativo y seguro."
+        test_reply = "Hola Arquitecto, el sistema está 100% operativo y seguro."
 
         with patch.object(self.bridge, "send_message") as mock_msg, \
              patch.object(self.bridge, "synthesize_speech", return_value=b"OggS_cortana_audio") as mock_synth, \
@@ -264,37 +327,199 @@ class TestTelegramBridge(unittest.TestCase):
 
         with patch.object(self.bridge, "send_message") as mock_msg:
             # /video on
-            self.bridge._handle_incoming_text(chat_id, "/video on", "Owner")
+            self.bridge._handle_incoming_text(chat_id, "/video on", "SimulatedUser")
             self.assertTrue(self.bridge.video_mode_always)
             self.assertIn("MODO VIDEO ACTIVADO", mock_msg.call_args.args[0])
 
             # /video off
-            self.bridge._handle_incoming_text(chat_id, "/video off", "Owner")
+            self.bridge._handle_incoming_text(chat_id, "/video off", "SimulatedUser")
             self.assertFalse(self.bridge.video_mode_always)
             self.assertIn("MODO VIDEO DESACTIVADO", mock_msg.call_args.args[0])
 
             # /modo video
-            self.bridge._handle_incoming_text(chat_id, "/modo video", "Owner")
+            self.bridge._handle_incoming_text(chat_id, "/modo video", "SimulatedUser")
             self.assertTrue(self.bridge.video_mode_always)
             self.assertFalse(self.bridge.voice_mode_always)
 
-    def test_conversational_chat_dispatches_video_exclusively(self):
-        """Verifica que una consulta normal en modo video despacha send_reply_with_video y no texto/voz."""
+    def test_conversational_chat_dispatches_video_and_text(self):
+        """Verifica que una consulta normal despacha send_reply_with_video Y send_message (video y texto indefinido)."""
         chat_id = 998877
         self.bridge.authorized_chat_ids.add(chat_id)
         self.bridge.video_mode_always = True
 
         with patch.object(self.bridge, "send_reply_with_video") as mock_video_reply, \
              patch.object(self.bridge, "send_reply_with_voice") as mock_voice_reply, \
+             patch.object(self.bridge, "send_message") as mock_msg, \
+             patch("core.kaiju_cognitive_orchestrator.KaijuCognitiveOrchestrator.process_turn", return_value={"response": "Respuesta soberana en video"}), \
              patch("omni_temporal_control.process_agentic_chat", return_value={"reply": "Respuesta soberana en video"}):
 
-            self.bridge._handle_incoming_text(chat_id, "¿Cómo estás hoy?", "Owner")
+            self.bridge._handle_incoming_text(chat_id, "¿Cómo estás hoy?", "SimulatedUser")
 
             # Debe haber llamado a send_reply_with_video
             mock_video_reply.assert_called_once()
             self.assertEqual(mock_video_reply.call_args.args[0], "Respuesta soberana en video")
+            # Debe haber llamado a send_message con el texto completo
+            mock_msg.assert_called()
+            self.assertIn("Respuesta soberana en video", mock_msg.call_args.args[0])
             # NO debe haber llamado a send_reply_with_voice
             mock_voice_reply.assert_not_called()
+
+    def test_no_active_system_notifications_when_conversation_started(self):
+        """Verifica que no se envían notificaciones de sistema activo una vez iniciada la conversación."""
+        chat_id = 7153384115
+        self.bridge.authorized_chat_ids.add(chat_id)
+        self.bridge.config["notify_on_boot"] = True
+
+        with patch.object(self.bridge, "send_message") as mock_msg, \
+             patch.object(self.bridge, "send_reply_with_video"), \
+             patch("omni_temporal_control.process_agentic_chat", return_value={"reply": "Hola"}):
+
+            # Iniciar conversación enviando un mensaje
+            self.bridge._handle_incoming_text(chat_id, "Hola TARDIS", "Usuario")
+            self.assertTrue(self.bridge.has_active_conversation(chat_id))
+
+            mock_msg.reset_mock()
+            # Si se llama a notify_system_boot con la conversación ya iniciada, debe ser omitido
+            self.bridge.notify_system_boot("https://test.auth.url", "http://REDACTED_IP:8757")
+            mock_msg.assert_not_called()
+
+    def test_send_3d_model_hd_to_architect(self):
+        """Verifica que send_3d_model_hd_to_architect despache la foto HD al Arquitecto (7153384115)."""
+        from core.render_3d_engine import get_render_3d_engine
+        engine = get_render_3d_engine()
+        mesh = engine.get_mesh("atom")
+
+        with patch.object(self.bridge, "send_photo", return_value={"ok": True}) as mock_photo:
+            res = self.bridge.send_3d_model_hd_to_architect(mesh)
+            self.assertTrue(res["ok"])
+            mock_photo.assert_called_once()
+            args, kwargs = mock_photo.call_args
+            # args[0] es la imagen PNG bytes
+            png_bytes = args[0]
+            self.assertTrue(png_bytes.startswith(b"\x89PNG\r\n\x1a\n"))
+            # chat_id debe ser 7153384115 (Arquitecto)
+            self.assertEqual(kwargs.get("chat_id"), 7153384115)
+            # caption debe contener metadatos HD
+            caption = kwargs.get("caption", "")
+            self.assertIn("ALTA DEFINICIÓN (HD)", caption)
+            self.assertIn("1920 × 1440", caption)
+            self.assertIn("Átomo de Bohr", caption)
+
+    def test_client_context_isolation_zero_crossing(self):
+        """Verifica el aislamiento estricto de contexto entre clientes (Zero Cross-Context)."""
+        chat_1 = 111100
+        chat_2 = 222200
+        self.bridge.authorized_chat_ids.add(chat_1)
+        self.bridge.authorized_chat_ids.add(chat_2)
+        self.bridge.video_mode_always = True
+
+        with patch.object(self.bridge, "send_reply_with_video") as mock_video, \
+             patch.object(self.bridge, "send_message") as mock_msg, \
+             patch("core.kaiju_cognitive_orchestrator.KaijuCognitiveOrchestrator.process_turn") as mock_orch, \
+             patch("omni_temporal_control.process_agentic_chat") as mock_chat:
+
+            mock_orch.side_effect = [
+                {"response": "Respuesta para Usuario 1"},
+                {"response": "Respuesta para Usuario 2"}
+            ]
+            mock_chat.side_effect = [
+                {"reply": "Respuesta para Usuario 1"},
+                {"reply": "Respuesta para Usuario 2"}
+            ]
+
+            # Mensaje de Usuario 1
+            self.bridge._handle_incoming_text(chat_1, "Secreto 1 de Usuario 1", "UserOne")
+            # Mensaje de Usuario 2
+            self.bridge._handle_incoming_text(chat_2, "Secreto 2 de Usuario 2", "UserTwo")
+
+            # 1. Historial de chat_1 no debe contener nada de chat_2
+            hist_1 = self.bridge.chat_histories[chat_1]
+            contents_1 = [m["content"] for m in hist_1]
+            self.assertIn("Secreto 1 de Usuario 1", contents_1)
+            self.assertIn("Respuesta para Usuario 1", contents_1)
+            self.assertNotIn("Secreto 2 de Usuario 2", contents_1)
+            self.assertNotIn("Respuesta para Usuario 2", contents_1)
+
+            # 2. Historial de chat_2 no debe contener nada de chat_1
+            hist_2 = self.bridge.chat_histories[chat_2]
+            contents_2 = [m["content"] for m in hist_2]
+            self.assertIn("Secreto 2 de Usuario 2", contents_2)
+            self.assertIn("Respuesta para Usuario 2", contents_2)
+            self.assertNotIn("Secreto 1 de Usuario 1", contents_2)
+            self.assertNotIn("Respuesta para Usuario 1", contents_2)
+
+            # 3. Verificación de enrutado: cada respuesta se envió estrictamente a su respectivo chat_id
+            video_calls = mock_video.call_args_list
+            self.assertEqual(len(video_calls), 2)
+            self.assertEqual(video_calls[0].kwargs.get("chat_id"), chat_1)
+            self.assertEqual(video_calls[1].kwargs.get("chat_id"), chat_2)
+
+            msg_calls = mock_msg.call_args_list
+            self.assertEqual(len(msg_calls), 2)
+            self.assertEqual(msg_calls[0].kwargs.get("chat_id"), chat_1)
+            self.assertEqual(msg_calls[1].kwargs.get("chat_id"), chat_2)
+
+    def test_sync_hub_client_isolation(self):
+        """Verifica que GlobalSyncHub aísle contextos por cliente salvo para el Arquitecto local."""
+        from omni_temporal_control import GlobalSyncHub
+        hub = GlobalSyncHub()
+        hub.history = []
+
+        hub.add_chat_turn("user", "Pregunta de Alice", client_id="client_alice")
+        hub.add_chat_turn("assistant", "Respuesta para Alice", client_id="client_alice")
+        hub.add_chat_turn("user", "Pregunta de Bob", client_id="client_bob")
+        hub.add_chat_turn("assistant", "Respuesta para Bob", client_id="client_bob")
+
+        # Alice no debe ver los turnos de Bob
+        state_alice = hub.get_sync_state(client_id="client_alice", is_local=False)
+        alice_contents = [t["content"] for t in state_alice["history"]]
+        self.assertIn("Pregunta de Alice", alice_contents)
+        self.assertIn("Respuesta para Alice", alice_contents)
+        self.assertNotIn("Pregunta de Bob", alice_contents)
+        self.assertNotIn("Respuesta para Bob", alice_contents)
+
+        # Bob no debe ver los turnos de Alice
+        state_bob = hub.get_sync_state(client_id="client_bob", is_local=False)
+        bob_contents = [t["content"] for t in state_bob["history"]]
+        self.assertIn("Pregunta de Bob", bob_contents)
+        self.assertIn("Respuesta para Bob", bob_contents)
+        self.assertNotIn("Pregunta de Alice", bob_contents)
+        self.assertNotIn("Respuesta para Alice", bob_contents)
+
+        # El Arquitecto desde el nodo local (is_local=True) puede ver todas las conversaciones
+        state_architect = hub.get_sync_state(client_id="architect_master", is_local=True)
+        arch_contents = [t["content"] for t in state_architect["history"]]
+        self.assertIn("Pregunta de Alice", arch_contents)
+        self.assertIn("Respuesta para Alice", arch_contents)
+        self.assertIn("Pregunta de Bob", arch_contents)
+        self.assertIn("Respuesta para Bob", arch_contents)
+
+    def test_offline_vault_client_isolation(self):
+        """Verifica que OfflineChatVault aísle búsquedas y recientes para usuarios externos."""
+        from core.offline_chat_vault import OfflineChatVault
+        with tempfile.TemporaryDirectory() as tmp_v:
+            v_dir = Path(tmp_v)
+            vault = OfflineChatVault(db_path=v_dir / "test_offline.db")
+            vault.record_turn(user_message="Consulta Alfa de Usuario 1", assistant_reply="Info Alfa", client_id="user_1")
+            vault.record_turn(user_message="Consulta Beta de Usuario 2", assistant_reply="Info Beta", client_id="user_2")
+
+            # Usuario 1 no ve turnos de Usuario 2
+            recent_1 = vault.get_recent(client_id="user_1", is_local=False)
+            recent_1_texts = [t["user_message"] for t in recent_1]
+            self.assertIn("Consulta Alfa de Usuario 1", recent_1_texts)
+            self.assertNotIn("Consulta Beta de Usuario 2", recent_1_texts)
+
+            # Usuario 2 no ve turnos de Usuario 1
+            recent_2 = vault.get_recent(client_id="user_2", is_local=False)
+            recent_2_texts = [t["user_message"] for t in recent_2]
+            self.assertIn("Consulta Beta de Usuario 2", recent_2_texts)
+            self.assertNotIn("Consulta Alfa de Usuario 1", recent_2_texts)
+
+            # Arquitecto local ve todos los turnos
+            recent_local = vault.get_recent(is_local=True)
+            recent_local_texts = [t["user_message"] for t in recent_local]
+            self.assertIn("Consulta Alfa de Usuario 1", recent_local_texts)
+            self.assertIn("Consulta Beta de Usuario 2", recent_local_texts)
 
 
 if __name__ == "__main__":

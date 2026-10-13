@@ -29,14 +29,22 @@ if sys.stderr and hasattr(sys.stderr, "reconfigure"):
 
 import httpx
 
-_raw_ollama = os.environ.get("OLLAMA_HOST", "http://REDACTED_IP:11434").strip()
+_raw_ollama = os.environ.get("OLLAMA_HOST", "http://127.0.0.1:11434").strip()
+OLLAMA_URL = _raw_ollama.rstrip("/")
+IMAC_OLLAMA_URL = os.environ.get("IMAC_OLLAMA_HOST", "http://REDACTED_IP:11434").strip().rstrip("/")
+
 try:
     import gia_sovereign_engine as _gse
     DEFAULT_MODEL = _gse.get_engine().resolve_model()
 except Exception:
-    DEFAULT_MODEL = os.environ.get("GIA_MODEL", "Qwen3.8-27B-Uncensored-MLX:latest")
+    DEFAULT_MODEL = os.environ.get("GIA_MODEL", "TARDIS-NEURAL-SPACE-KAIJU")
 
 SPECIALIST_PROMPTS = {
+    "cluster_compute": (
+        "Eres el Sub-Agente Gestor de Cómputo Distribuido en el iMac 14,1. "
+        "Tu misión es coordinar el procesamiento pesado, compilaciones y tareas distribuidas "
+        "en los 4 núcleos Haswell, 8 GB de RAM y almacenamiento del nodo iMac."
+    ),
     "code_auditor": (
         "Eres el Sub-Agente Auditor de Código de GIA. Tu misión es analizar archivos, "
         "detectar fallos de sintaxis, cuellos de botella, problemas de seguridad o proponer mejoras concisas. "
@@ -116,6 +124,18 @@ class SubAgentWorker:
             except Exception as e:
                 injected_facts += f"\n[Error en Búsqueda Web]: {e}\n"
 
+        elif self.role == "cluster_compute":
+            try:
+                from core.tardis_distributed_mesh import get_mesh
+                mesh = get_mesh()
+                topo = mesh.get_cluster_topology()
+                beta = topo.get("nodes", {}).get("beta_satellite", {})
+                injected_facts += f"\n[NODO DE PROCESAMIENTO EXTERNO IMAC 14,1]:\n"
+                injected_facts += f"Cores: {beta.get('cpu_cores')} | RAM Disp: {beta.get('ram_available_gb')} GB | Disco Libre: {beta.get('disk_free_gb')} GB | Latencia: {beta.get('latency_ms')} ms\n"
+                tools_used.append("tardis_distributed_mesh")
+            except Exception as e:
+                injected_facts += f"\n[Error consultando iMac Cluster]: {e}\n"
+
         if context_data:
             injected_facts += f"\n[CONTEXTO ADICIONAL PROVISTO]:\n{json.dumps(context_data, ensure_ascii=False)[:1000]}\n"
 
@@ -125,16 +145,21 @@ class SubAgentWorker:
             "Elabora tu respuesta como reporte ejecutivo estructurado para el orquestador principal."
         )
 
+        target_url = IMAC_OLLAMA_URL if self.role == "cluster_compute" else OLLAMA_URL
+        # Para resúmenes rápidos de sub-agente en CPU Haswell de iMac, limitamos predict a 180 tokens para tiempos < 20s
+        target_model = "qwen2.5:0.5b" if self.role == "cluster_compute" else self.model
+        predict_limit = 180 if self.role == "cluster_compute" else 256
+
         try:
-            r = httpx.post(f"{OLLAMA_URL}/api/chat", json={
-                "model": self.model,
+            r = httpx.post(f"{target_url}/api/chat", json={
+                "model": target_model,
                 "messages": [
                     {"role": "system", "content": self.system_prompt},
                     {"role": "user", "content": full_prompt}
                 ],
                 "stream": False,
-                "options": {"num_ctx": 4096, "temperature": 0.3}
-            }, timeout=120.0)
+                "options": {"num_ctx": 2048, "num_predict": predict_limit, "temperature": 0.2}
+            }, timeout=90.0)
 
             if r.status_code == 200:
                 answer = r.json().get("message", {}).get("content", "").strip()
@@ -148,8 +173,50 @@ class SubAgentWorker:
                     "report": answer
                 }
             else:
+                # Intento de contingencia en nodo redundante iMac
+                if target_url != IMAC_OLLAMA_URL:
+                    try:
+                        r_fb = httpx.post(f"{IMAC_OLLAMA_URL}/api/chat", json={
+                            "model": "qwen2.5:0.5b",
+                            "messages": [{"role": "system", "content": self.system_prompt}, {"role": "user", "content": full_prompt}],
+                            "stream": False,
+                            "options": {"num_ctx": 2048, "num_predict": 180, "temperature": 0.2}
+                        }, timeout=60.0)
+                        if r_fb.status_code == 200:
+                            answer = r_fb.json().get("message", {}).get("content", "").strip()
+                            return {
+                                "ok": True,
+                                "subagent_role": self.role,
+                                "model": "qwen2.5:0.5b (iMac Failover)",
+                                "execution_time_s": round(time.time() - start_t, 2),
+                                "tools_used": tools_used + ["imac_failover_cascade"],
+                                "report": answer
+                            }
+                    except Exception:
+                        pass
                 return {"ok": False, "error": f"Ollama HTTP {r.status_code}: {r.text}"}
         except Exception as e:
+            # Contingencia si el nodo central no responde
+            if target_url != IMAC_OLLAMA_URL:
+                try:
+                    r_fb = httpx.post(f"{IMAC_OLLAMA_URL}/api/chat", json={
+                        "model": "qwen2.5:0.5b",
+                        "messages": [{"role": "system", "content": self.system_prompt}, {"role": "user", "content": full_prompt}],
+                        "stream": False,
+                        "options": {"num_ctx": 2048, "num_predict": 180, "temperature": 0.2}
+                    }, timeout=60.0)
+                    if r_fb.status_code == 200:
+                        answer = r_fb.json().get("message", {}).get("content", "").strip()
+                        return {
+                            "ok": True,
+                            "subagent_role": self.role,
+                            "model": "qwen2.5:0.5b (iMac Failover)",
+                            "execution_time_s": round(time.time() - start_t, 2),
+                            "tools_used": tools_used + ["imac_failover_cascade"],
+                            "report": answer
+                        }
+                except Exception:
+                    pass
             return {"ok": False, "error": f"Fallo en ejecución del sub-agente: {e}"}
 
 

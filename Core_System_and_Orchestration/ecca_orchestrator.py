@@ -41,7 +41,7 @@ try:
 except Exception:
     _creds = None
 
-OLLAMA = "http://REDACTED_IP:11434"
+OLLAMA = "http://127.0.0.1:11434"
 
 # Enruta al mejor nodo local del cluster si esta disponible
 try:

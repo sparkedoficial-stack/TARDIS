@@ -15,32 +15,60 @@ if BASE_DIR not in sys.path:
 from server.api import app
 import omni_temporal_control
 from core.os_controller import get_os_controller
+from core.security import get_authorized_tokens
 
 client = TestClient(app)
-AUTH_HEADERS = {"X-API-Key": "DiosDelTiempo01"}
+_tok = next(iter(get_authorized_tokens()), "test_fallback_tok")
+AUTH_HEADERS = {"X-API-Key": _tok}
 
 
 def test_slash_sh_terminal_execution():
-    """Prueba que el slash command /sh ejecute comandos bash inalámbricamente."""
-    res = omni_temporal_control.process_hardware_chat_intent("/sh echo 'SOVEREIGN_WIRELESS_OK'")
-    assert res is not None
-    assert res.get("action") == "terminal_exec"
-    assert res.get("executed") is True
-    assert "SOVEREIGN_WIRELESS_OK" in res.get("system_feedback", "")
-    assert res.get("raw", {}).get("returncode") == 0
+    """Prueba que el slash command /sh ejecute comandos bash localmente y bloquee accesos remotos."""
+    # Acceso remoto denegado por defecto
+    res_remote = omni_temporal_control.process_hardware_chat_intent("/sh echo 'SOVEREIGN_WIRELESS_OK'", is_local_request=False)
+    assert res_remote is not None
+    assert res_remote.get("action") == "terminal_exec"
+    assert res_remote.get("executed") is False
+    assert "restringido exclusivamente" in res_remote.get("system_feedback", "")
+
+    # Acceso local autorizado
+    res_local = omni_temporal_control.process_hardware_chat_intent("/sh echo 'SOVEREIGN_WIRELESS_OK'", is_local_request=True)
+    assert res_local is not None
+    assert res_local.get("action") == "terminal_exec"
+    assert res_local.get("executed") is True
+    assert "SOVEREIGN_WIRELESS_OK" in res_local.get("system_feedback", "")
+    assert res_local.get("raw", {}).get("returncode") == 0
 
 
 def test_natural_language_terminal_execution():
-    """Prueba que frases como 'ejecuta en terminal: whoami' se interpreten y ejecuten."""
-    res = omni_temporal_control.process_hardware_chat_intent("ejecuta en terminal: echo 'NL_TEST_SUCCESS'")
-    assert res is not None
-    assert res.get("action") == "terminal_exec"
-    assert res.get("executed") is True
-    assert "NL_TEST_SUCCESS" in res.get("system_feedback", "")
+    """Prueba que frases en lenguaje natural de terminal respeten el aislamiento local."""
+    # Remoto denegado
+    res_remote = omni_temporal_control.process_hardware_chat_intent("ejecuta en terminal: echo 'NL_TEST_SUCCESS'", is_local_request=False)
+    assert res_remote is not None
+    assert res_remote.get("action") == "terminal_exec"
+    assert res_remote.get("executed") is False
+
+    # Local ejecutado
+    res_local = omni_temporal_control.process_hardware_chat_intent("ejecuta en terminal: echo 'NL_TEST_SUCCESS'", is_local_request=True)
+    assert res_local is not None
+    assert res_local.get("action") == "terminal_exec"
+    assert res_local.get("executed") is True
+    assert "NL_TEST_SUCCESS" in res_local.get("system_feedback", "")
 
 
 def test_api_terminal_exec_endpoint():
     """Prueba el endpoint HTTP POST /api/terminal/exec."""
+    # Intento remoto con cabeceras proxy -> 403 Forbidden
+    remote_headers = dict(AUTH_HEADERS)
+    remote_headers["X-Forwarded-For"] = "REDACTED_IP"
+    resp_remote = client.post(
+        "/api/terminal/exec",
+        headers=remote_headers,
+        json={"command": "echo 'HTTP_API_TEST'", "timeout": 10.0}
+    )
+    assert resp_remote.status_code == 403
+
+    # Ejecución local autorizada
     resp = client.post(
         "/api/terminal/exec",
         headers=AUTH_HEADERS,
@@ -101,4 +129,4 @@ def test_antigravity_autostart_files_exist_and_safe():
 
     content_notifier = open(boot_notifier_path, "r", encoding="utf-8").read()
     assert "start_antigravity_safe.sh" in content_notifier
-    assert "unlock_screen(password = "REDACTED")" in content_notifier
+    assert "unlock_screen(password='REDACTED')" in content_notifier

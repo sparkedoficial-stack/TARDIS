@@ -577,7 +577,7 @@ def context_em_binary_block(duration_sec: float = 1.0) -> str:
         return f"[Error al consolidar espectro electromagnético binario: {e}]"
 
 
-def infer_from_ambient_em(user_prompt: str, model: Optional[str] = None, endpoint: str = "http://REDACTED_IP:11434", capture_duration_s: float = 1.0) -> Dict[str, Any]:
+def infer_from_ambient_em(user_prompt: str, model: Optional[str] = None, endpoint: str = "http://127.0.0.1:11434", capture_duration_s: float = 1.0) -> Dict[str, Any]:
     """
     Ejecuta inferencia directa con cualquier modelo inyectándole exactamente 1 segundo (1sg)
     de captura del espectro electromagnético, Bluetooth, térmico y el tren binario.
@@ -604,7 +604,7 @@ def infer_from_ambient_em(user_prompt: str, model: Optional[str] = None, endpoin
         {"role": "user", "content": user_prompt}
     ]
 
-    chosen_model = model or os.environ.get("GIA_MODEL", "Qwen3.8-27B-Uncensored-MLX:latest")
+    chosen_model = model or os.environ.get("GIA_MODEL", "TARDIS-NEURAL-SPACE-KAIJU")
     t_model_start = time.time()
     try:
         r = httpx.post(f"{endpoint}/api/chat", json={

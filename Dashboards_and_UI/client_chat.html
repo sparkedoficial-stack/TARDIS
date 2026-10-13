@@ -852,6 +852,35 @@
             return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         }
 
+        function appendMedia(base64Data, type) {
+            const row = document.createElement("div");
+            row.className = "message-row bot";
+            const avatar = document.createElement("div");
+            avatar.className = "msg-avatar bot";
+            avatar.textContent = "✦";
+            row.appendChild(avatar);
+            const bubble = document.createElement("div");
+            bubble.className = "msg-bubble";
+            if (type === "image") {
+                const img = document.createElement("img");
+                img.src = base64Data;
+                img.style.maxWidth = "100%";
+                img.style.borderRadius = "8px";
+                bubble.appendChild(img);
+            } else if (type === "video") {
+                const vid = document.createElement("video");
+                vid.src = base64Data;
+                vid.controls = true;
+                vid.autoplay = true;
+                vid.style.maxWidth = "100%";
+                vid.style.borderRadius = "8px";
+                bubble.appendChild(vid);
+            }
+            row.appendChild(bubble);
+            chatStream.insertBefore(row, typingRow);
+            scrollToBottom();
+        }
+
         function appendMessage(text, role) {
             if (welcomeCard && welcomeCard.style.display !== 'none') {
                 welcomeCard.style.display = 'none';
@@ -961,9 +990,13 @@
 
                 if (data.ok && data.reply) {
                     appendMessage(data.reply, 'bot');
+                    if (data.image_base64) appendMedia(data.image_base64, "image");
+                    if (data.video_base64) appendMedia(data.video_base64, "video");
                     speak(data.reply);
                 } else if (data.reply) {
                     appendMessage(data.reply, 'bot');
+                    if (data.image_base64) appendMedia(data.image_base64, "image");
+                    if (data.video_base64) appendMedia(data.video_base64, "video");
                     speak(data.reply);
                 } else {
                     const fallback = "Lo siento, no pude procesar tu solicitud en este momento. Por favor, intenta de nuevo.";

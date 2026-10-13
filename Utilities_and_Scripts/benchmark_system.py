@@ -24,7 +24,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent
 VAULT_DIR = Path(os.environ.get("LOCALAPPDATA", os.path.expanduser("~"))) / "vw-control"
 CONFIG_FILE = VAULT_DIR / "chinese_api_config.json"
-API_URL = "http://REDACTED_IP:8757"
+API_URL = "http://127.0.0.1:8757"
 TOKEN = os.getenv("GIA_TOKEN", "")
 
 results = {
@@ -93,7 +93,7 @@ try:
         "options": {"num_predict": 128, "temperature": 0.2}
     }).encode("utf-8")
 
-    req = urllib.request.Request("http://REDACTED_IP:11434/api/generate", data=payload, headers={"Content-Type": "application/json", "User-Agent": "Mozilla/5.0 (X11; Linux x86_64)"})
+    req = urllib.request.Request("http://127.0.0.1:11434/api/generate", data=payload, headers={"Content-Type": "application/json", "User-Agent": "Mozilla/5.0 (X11; Linux x86_64)"})
     t0 = time.perf_counter()
     with urllib.request.urlopen(req, timeout=60) as resp:
         data = json.loads(resp.read().decode("utf-8"))

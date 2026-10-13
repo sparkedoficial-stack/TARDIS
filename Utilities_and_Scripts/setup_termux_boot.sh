@@ -67,7 +67,7 @@ else
     if command -v python3 >/dev/null 2>&1 && [ -f "$POCKET_DIR/tardis_pocket_daemon.py" ]; then
         python3 "$POCKET_DIR/tardis_pocket_daemon.py" &
         sleep 2
-        am start -a android.intent.action.VIEW -d "http://REDACTED_IP:8080" >/dev/null 2>&1
+        am start -a android.intent.action.VIEW -d "http://127.0.0.1:8080" >/dev/null 2>&1
     fi
 fi
 EOF
@@ -80,7 +80,7 @@ echo "==========================================================================
 echo "✓ INSTALACIÓN COMPLETADA EXITOSAMENTE"
 echo "=============================================================================="
 echo "A partir de ahora, cada vez que enciendas el Moto X Play:"
-echo "  1. Termux-Boot iniciará el demonio local en REDACTED_IP:8080 automáticamente."
+echo "  1. Termux-Boot iniciará el demonio local en 127.0.0.1:8080 automáticamente."
 echo "  2. Se conectará por Hotspot (REDACTED_IP) o LAN en segundo plano."
 echo "  3. La telemetría física (Batería, GPS) se transmitirá sin abrir nada."
 echo "  4. La cabina soberana funcionará 100% offline o conectada sin URLs manuales."

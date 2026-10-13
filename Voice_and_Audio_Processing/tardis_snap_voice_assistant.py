@@ -43,7 +43,7 @@ import numpy as np
 BASE_DIR = "/home/timemachine/Escritorio/GODWORKS SYSTEM"
 SOUNDS_DIR = "/home/timemachine/.tardis/sounds"
 CONFIG_PATH = "/home/timemachine/.tardis/voice_config.json"
-API_URL = "http://REDACTED_IP:8757"
+API_URL = "http://127.0.0.1:8757"
 API_TOKEN = "REDACTED"
 
 if BASE_DIR not in sys.path:
@@ -169,7 +169,13 @@ def play_audio_file(filepath: str, wait: bool = False):
     if not player:
         return
     try:
-        proc = subprocess.Popen([player, filepath], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        proc = subprocess.Popen(
+            [player, filepath],
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            start_new_session=True
+        )
         if wait:
             proc.wait(timeout=3.0)
     except Exception:

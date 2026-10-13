@@ -87,7 +87,7 @@ class TestTardisPocketKaijuOffline(unittest.TestCase):
         telemetry = {
             "battery": {"level": 77, "charging": True, "temp": 28.5},
             "gps": {"lat": 20.6288, "lon": -87.0721, "alt": 14.0},
-            "network": {"ssid": "Offline_Mesh", "ip": "REDACTED_IP"}
+            "network": {"ssid": "Offline_Mesh", "ip": "127.0.0.1"}
         }
 
         res = engine.chat("¿Cuál es el estado de la batería y el GPS?", telemetry=telemetry)

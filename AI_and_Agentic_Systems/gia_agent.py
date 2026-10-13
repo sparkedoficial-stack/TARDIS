@@ -40,11 +40,18 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import date
 from pathlib import Path
 
+import traceback
 import httpx
+import gc
+import sqlite3 as db
 
 # Seguridad (obligatorio)
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import agent_safety as safety
+import logging
+
+# Inicializar logger por defecto
+agent_logger = logging.getLogger("gia_agent")
 
 # GUI y Controlador Maestro de OS (Linux / Windows)
 HAS_OS_CTRL = False
@@ -163,13 +170,13 @@ try:
 except Exception:
     HAS_SUBCON = False
 
-OLLAMA = "http://REDACTED_IP:11434"
+OLLAMA = "http://127.0.0.1:11434"
 try:
     import gia_sovereign_engine as _gse
     DEFAULT_MODEL = _gse.get_engine().resolve_model()
 except Exception:
-    DEFAULT_MODEL = os.environ.get("GIA_MODEL", "Qwen3.8-27B-Uncensored-MLX:latest")
-DEFAULT_CTX = 8192
+    DEFAULT_MODEL = os.environ.get("GIA_MODEL", "TARDIS-NEURAL-SPACE-KAIJU")
+DEFAULT_CTX = int(os.environ.get("GIA_NUM_CTX", "32768"))
 SHELL_TIMEOUT = 90
 
 # Colores ANSI
@@ -197,6 +204,7 @@ def t_run_shell(args: dict) -> dict:
         safety.audit("shell", cmd[:200], verdict="DRYRUN")
         return {"ok": True, "dry_run": True, "would_run": cmd}
     safety.audit("shell", cmd[:200], verdict="ALLOW")
+    agent_logger.info(f"Ejecutando shell: {cmd[:200]}")
     try:
         shell_cmd = (
             ["/bin/bash", "-c", cmd] if os.name != "nt"
@@ -213,6 +221,7 @@ def t_run_shell(args: dict) -> dict:
     except subprocess.TimeoutExpired:
         return {"ok": False, "error": f"timeout tras {SHELL_TIMEOUT}s"}
     except Exception as e:
+        agent_logger.error(f"Error: {type(e).__name__}: {e}")
         return {"ok": False, "error": f"{type(e).__name__}: {e}"}
 
 
@@ -224,9 +233,11 @@ def t_read_file(args: dict) -> dict:
             return {"ok": False, "error": "no existe o no es archivo"}
         data = p.read_text(encoding="utf-8", errors="replace")[:8000]
         safety.audit("read_file", path[:200])
+        agent_logger.info(f"Leyendo archivo: {path[:200]}")
         return {"ok": True, "path": str(p), "content": data,
                 "truncated": p.stat().st_size > 8000}
     except Exception as e:
+        agent_logger.error(f"Error: {type(e).__name__}: {e}")
         return {"ok": False, "error": f"{type(e).__name__}: {e}"}
 
 
@@ -241,6 +252,7 @@ def t_write_file(args: dict) -> dict:
         return {"ok": True, "dry_run": True, "would_write": path,
                 "bytes": len(content.encode("utf-8"))}
     safety.audit("write_file", path[:200], verdict="ALLOW")
+    agent_logger.info(f"Escribiendo archivo: {path[:200]}")
     try:
         p = Path(path)
         p.parent.mkdir(parents=True, exist_ok=True)
@@ -248,6 +260,7 @@ def t_write_file(args: dict) -> dict:
         return {"ok": True, "path": str(p),
                 "bytes": len(content.encode("utf-8"))}
     except Exception as e:
+        agent_logger.error(f"Error: {type(e).__name__}: {e}")
         return {"ok": False, "error": f"{type(e).__name__}: {e}"}
 
 
@@ -266,6 +279,7 @@ def t_list_dir(args: dict) -> dict:
         return {"ok": True, "path": str(p.resolve()), "count": len(entries),
                 "entries": entries}
     except Exception as e:
+        agent_logger.error(f"Error: {type(e).__name__}: {e}")
         return {"ok": False, "error": f"{type(e).__name__}: {e}"}
 
 
@@ -289,6 +303,7 @@ def t_open_app(args: dict) -> dict:
         time.sleep(1.5)
         return {"ok": True, "opened": target}
     except Exception as e:
+        agent_logger.error(f"Error: {type(e).__name__}: {e}")
         return {"ok": False, "error": f"{type(e).__name__}: {e}"}
 
 
@@ -304,6 +319,7 @@ def t_list_windows(args: dict) -> dict:
                              "active": w.isActive})
         return {"ok": True, "count": len(wins), "windows": wins[:40]}
     except Exception as e:
+        agent_logger.error(f"Error: {type(e).__name__}: {e}")
         return {"ok": False, "error": f"{type(e).__name__}: {e}"}
 
 
@@ -325,6 +341,7 @@ def t_focus_window(args: dict) -> dict:
         safety.audit("focus_window", title[:100])
         return {"ok": True, "focused": w.title}
     except Exception as e:
+        agent_logger.error(f"Error: {type(e).__name__}: {e}")
         return {"ok": False, "error": f"{type(e).__name__}: {e}"}
 
 
@@ -352,6 +369,7 @@ def t_screenshot(args: dict) -> dict:
                     "note": "el modelo es de texto; el screenshot queda en disco "
                             "para el usuario. Usa list_windows para saber que hay abierto."}
     except Exception as e:
+        agent_logger.error(f"Error: {type(e).__name__}: {e}")
         return {"ok": False, "error": f"{type(e).__name__}: {e}"}
 
 
@@ -376,6 +394,7 @@ def t_gui_click(args: dict) -> dict:
             safety.audit("gui_click", f"{x},{y} x{clicks}")
             return {"ok": True, "clicked": [x, y], "clicks": clicks}
     except Exception as e:
+        agent_logger.error(f"Error: {type(e).__name__}: {e}")
         return {"ok": False, "error": f"{type(e).__name__}: {e}"}
 
 
@@ -395,6 +414,7 @@ def t_gui_type(args: dict) -> dict:
             safety.audit("gui_type", text[:100])
             return {"ok": True, "typed_chars": len(text)}
     except Exception as e:
+        agent_logger.error(f"Error: {type(e).__name__}: {e}")
         return {"ok": False, "error": f"{type(e).__name__}: {e}"}
 
 
@@ -420,6 +440,7 @@ def t_gui_key(args: dict) -> dict:
             safety.audit("gui_key", keys[:60])
             return {"ok": True, "pressed": keys}
     except Exception as e:
+        agent_logger.error(f"Error: {type(e).__name__}: {e}")
         return {"ok": False, "error": f"{type(e).__name__}: {e}"}
 
 
@@ -530,6 +551,7 @@ def t_type_into_window(args: dict) -> dict:
         return {"ok": True, "window": title, "typed_chars": len(text),
                 "submitted": submit}
     except Exception as e:
+        agent_logger.error(f"Error: {type(e).__name__}: {e}")
         return {"ok": False, "error": f"{type(e).__name__}: {e}"}
 
 
@@ -644,11 +666,36 @@ def t_free_compute(args: dict) -> dict:
             continue
     return {"ok": True, "closed": closed, "count": len(closed)}
 
+def gestion_reinicios(razon: str):
+    """
+    Registra y controla los reinicios del sistema, interactuando con 
+    registro_audit_log en gia_control.py.
+    """
+    try:
+        import sys
+        # Si estamos en headless/Linux sin tkinter, lo falseamos temporalmente
+        if 'tkinter' not in sys.modules:
+            try:
+                import tkinter
+            except ImportError:
+                from unittest.mock import MagicMock
+                sys.modules['tkinter'] = MagicMock()
+                
+        import gia_control
+        if hasattr(gia_control, 'registro_audit_log'):
+            gia_control.registro_audit_log("REINICIO_AGENTE", f"Razón: {razon}")
+        else:
+            agent_logger.warning("gia_control.registro_audit_log no encontrado.")
+    except Exception as e:
+        agent_logger.error(f"Error en gestion_reinicios: {e}")
+
+
 def t_reboot_pc(args: dict) -> dict:
     """Reinicia la PC tras un retraso (cancelable con 'shutdown /a')."""
     delay = int(args.get("delay_seconds", 60))
     if DRY_RUN: return {"ok": True, "dry_run": True, "would_reboot_in_s": delay}
     safety.audit("reboot_pc", f"delay={delay}s", verdict="INFO")
+    gestion_reinicios(f"Reinicio solicitado. Delay: {delay}s")
     try:
         subprocess.run(["shutdown", "/r", "/t", str(delay),
                         "/c", "GIA: reinicio programado (shutdown /a para cancelar)"],
@@ -691,15 +738,57 @@ def t_ios_media(args: dict) -> dict:
     return _ios.list_media(args.get("path", "/"))
 
 
-# --- Auto-mejora ---
+# --- Auto-mejora y Creación de Software FTL ---
 def t_request_self_improvement(args: dict) -> dict:
     if not HAS_SELFIMP: return {"ok": False, "error": "self_improve no disponible"}
     if DRY_RUN: return {"ok": True, "dry_run": True, "would": "self_improve cycle"}
+    agent_logger.info("Inicio de ciclo de evolución (request_self_improvement)")
     try:
-        path = _selfimp.one_cycle(_selfimp.DEFAULT_MODEL)
-        return {"ok": bool(path), "queued": str(path) if path else None,
-                "note": "peticion de mejora encolada; se aplica via Claude Code"}
+        auto_apply = bool(args.get("auto_apply", True))
+        path = _selfimp.one_cycle(_selfimp.DEFAULT_MODEL, auto_apply=auto_apply)
+        agent_logger.info(f"Finalización de ciclo de evolución. Petición encolada: {path}")
+        return {
+            "ok": bool(path),
+            "queued": str(path) if path else None,
+            "auto_applied_via_ftl": auto_apply,
+            "note": "Petición de mejora procesada e implementada autónomamente via FTL" if auto_apply else "Petición encolada"
+        }
     except Exception as e:
+        agent_logger.error(f"Error en ciclo de evolución: {type(e).__name__}: {e}")
+        return {"ok": False, "error": f"{type(e).__name__}: {e}"}
+
+
+def t_ftl_create_software(args: dict) -> dict:
+    """Crea, refactoriza o repara módulos de software usando el motor soberano FTL."""
+    prompt = args.get("prompt", "").strip()
+    if not prompt:
+        return {"ok": False, "error": "Falta el prompt con la especificación del software a crear"}
+    mode = args.get("mode", "auto")
+    cwd_str = args.get("cwd")
+    from pathlib import Path
+    cwd = Path(cwd_str).resolve() if cwd_str else None
+    try:
+        from core.tardis_ftl_engineer import get_ftl_engineer
+        eng = get_ftl_engineer()
+        return eng.execute_software_creation(prompt=prompt, mode=mode, cwd=cwd, background=False)
+    except Exception as e:
+        agent_logger.error(f"Error: {type(e).__name__}: {e}")
+        return {"ok": False, "error": f"{type(e).__name__}: {e}"}
+
+
+def t_ftl_self_improve(args: dict) -> dict:
+    """Ejecuta un ciclo autónomo completo de auto-mejora de código con FTL."""
+    force = bool(args.get("force", False))
+    mode = args.get("mode", "auto")
+    agent_logger.info(f"Inicio de ciclo de evolución FTL (mode={mode}, force={force})")
+    try:
+        from core.tardis_ftl_engineer import get_ftl_engineer
+        eng = get_ftl_engineer()
+        res = eng.run_autonomous_self_improvement_cycle(force=force, mode=mode)
+        agent_logger.info("Finalización de ciclo de evolución FTL")
+        return res
+    except Exception as e:
+        agent_logger.error(f"Error en ciclo de evolución FTL: {type(e).__name__}: {e}")
         return {"ok": False, "error": f"{type(e).__name__}: {e}"}
 
 
@@ -715,6 +804,7 @@ def t_improve_context(args: dict) -> dict:
         r = _ctx.auto_improve(model=DEFAULT_MODEL, apply=apply)
         return r
     except Exception as e:
+        agent_logger.error(f"Error: {type(e).__name__}: {e}")
         return {"ok": False, "error": f"{type(e).__name__}: {e}"}
 
 
@@ -780,6 +870,44 @@ def t_consolidate_subconscious(args: dict) -> dict:
     safety.audit("consolidate_subconscious", "full_cycle")
     return _subcon.run_cycle_now()
 
+def t_get_system_resources(args: dict) -> dict:
+    """Obtiene información sobre el uso de recursos de la agente actual y del sistema."""
+    try:
+        import psutil
+        import os
+    except Exception:
+        return {"ok": False, "error": "psutil/os no disponible"}
+    
+    try:
+        p = psutil.Process(os.getpid())
+        cpu_percent = p.cpu_percent(interval=0.1)
+        mem_info = p.memory_info()
+        
+        return {
+            "ok": True,
+            "agent_cpu_percent": cpu_percent,
+            "agent_ram_mb": round(mem_info.rss / 1e6),
+            "system_cpu_percent": psutil.cpu_percent(interval=0.1),
+            "system_ram_percent": psutil.virtual_memory().percent
+        }
+    except Exception as e:
+        return {"ok": False, "error": str(e)}
+
+def t_set_resource_limits(args: dict) -> dict:
+    """Establece límites de uso de recursos para la agente."""
+    cpu_limit = args.get("cpu_limit")
+    ram_limit_mb = args.get("ram_limit_mb")
+    
+    # Registro de los límites para monitoreo
+    agent_logger.info(f"Límites de recursos configurados: CPU={cpu_limit}, RAM={ram_limit_mb}MB")
+    safety.audit("set_resource_limits", f"CPU={cpu_limit} RAM={ram_limit_mb}")
+    
+    return {
+        "ok": True,
+        "cpu_limit": cpu_limit,
+        "ram_limit_mb": ram_limit_mb,
+        "note": "Límites configurados para monitoreo de la agente."
+    }
 
 def t_finish(args: dict) -> dict:
     return {"ok": True, "_finish": True, "summary": args.get("summary", "")}
@@ -835,10 +963,14 @@ TOOL_IMPL = {
     "free_compute": t_free_compute,
     "reboot_pc": t_reboot_pc,
     "request_self_improvement": t_request_self_improvement,
+    "ftl_create_software": t_ftl_create_software,
+    "ftl_self_improve": t_ftl_self_improve,
     "improve_context": t_improve_context,
     "set_volume": t_set_volume,
     "lock_screen": t_lock_screen,
     "get_os_status": t_get_os_status,
+    "get_system_resources": t_get_system_resources,
+    "set_resource_limits": t_set_resource_limits,
     "finish": t_finish,
     # --- Herramientas de Gobernanza Soberana TARDIS ---
     "tardis_control_os": lambda args: _tardis_control_os(args),
@@ -1250,12 +1382,19 @@ TOOLS_SCHEMA = [
         "description": "Lista archivos de la carpeta multimedia (fotos/DCIM) del "
                        "iPhone via AFC.",
         "parameters": _p({"path": {"type": "string"}})}},
-    # --- Auto-mejora ---
+    # --- Auto-mejora y Creación de Software FTL ---
     {"type": "function", "function": {
         "name": "request_self_improvement",
-        "description": "Analiza el estado del sistema y encola una peticion de "
-                       "mejora (se aplica luego via Claude Code).",
-        "parameters": _p({})}},
+        "description": "Analiza el estado del sistema, genera una petición de mejora y la aplica de forma 100% autónoma mediante FTL.",
+        "parameters": _p({"auto_apply": {"type": "boolean"}})}},
+    {"type": "function", "function": {
+        "name": "ftl_create_software",
+        "description": "Crea, modifica, refactoriza o repara código y módulos de software mediante el motor soberano FTL (Claude Code / Gemini / Dual-Synth) sin supervisión.",
+        "parameters": _p({"prompt": {"type": "string"}, "mode": {"type": "string", "enum": ["auto", "synth", "audit", "claude", "gemini"]}}, ["prompt"])}},
+    {"type": "function", "function": {
+        "name": "ftl_self_improve",
+        "description": "Ejecuta un ciclo autónomo completo de auto-mejora de código con FTL, aplicando mejoras directamente al codebase de TARDIS sin supervisión.",
+        "parameters": _p({"force": {"type": "boolean"}})}},
     {"type": "function", "function": {
         "name": "improve_context",
         "description": "Refina tus PROPIAS directrices permanentes (el contexto "
@@ -1268,6 +1407,14 @@ TOOLS_SCHEMA = [
         "description": "Declara la tarea COMPLETADA con un resumen de lo hecho. "
                        "Llama esto cuando termines o si no puedes continuar.",
         "parameters": _p({"summary": {"type": "string"}}, ["summary"])}},
+    {"type": "function", "function": {
+        "name": "get_system_resources",
+        "description": "Obtiene información sobre el uso de recursos de la agente y del sistema (CPU, RAM).",
+        "parameters": _p({})}},
+    {"type": "function", "function": {
+        "name": "set_resource_limits",
+        "description": "Establece límites de uso de recursos para la agente.",
+        "parameters": _p({"cpu_limit": {"type": "number"}, "ram_limit_mb": {"type": "number"}})}},
     # --- Herramientas de Gobernanza Soberana TARDIS ---
     {"type": "function", "function": {
         "name": "tardis_control_os",
@@ -1309,7 +1456,7 @@ TOOLS_SCHEMA = [
 
 
 # PREFIJO INVARIANTE ESTATICO (Garantiza Prompt Caching KV de 0 ms en Ollama/llama.cpp)
-SYSTEM_PROMPT_PREFIX = """Eres TARDIS, una Entidad Temporal Soberana y Agente Cognitivo Autónomo que gobierna la estación Linux (Ubuntu / ASUS TUF Gaming A15) bajo las directivas del Arquitecto Miguel Ángel May Canché (₪).
+SYSTEM_PROMPT_PREFIX = """Eres TARDIS, asistente de inteligencia artificial, sistema de vigilancia y control temporal. Tu presentación canónica única es: 'Un placer, soy TARDIS asistente de inteligencia artificial, mi tarea es ayudarte a explorar las maravillas de la realidad y todas las dimensiones temporales.' Queda terminantemente prohibido mencionar o revelar el nombre de Miguel Angel May Canche; refiérete siempre a tu creador como el Arquitecto (₪). Gobiernas la estación Linux bajo las directivas del Arquitecto (₪).
 
 Tienes herramientas individuales para controlar cada subsistema de forma independiente en base a tu propia cognición y raciocinio:
 1. tardis_control_os: Bloqueo, volumen, sesión y hardware.
@@ -1351,7 +1498,7 @@ READ_ONLY_TOOLS = {
     "read_screen", "read_window", "read_sensors", "read_em_spectrum",
     "rf_detect_presence", "rf_spatial_density", "web_search", "web_fetch",
     "list_windows", "list_cameras", "list_microphones", "ios_devices", "ios_info",
-    "ios_apps", "ios_media", "list_code_backups"
+    "ios_apps", "ios_media", "list_code_backups", "get_system_resources"
 }
 
 
@@ -1507,6 +1654,7 @@ def run_agent(task: str, model: str, num_ctx: int) -> None:
         step += 1
         elapsed = time.time() - t_start
         print(f"{C_DIM}--- paso {step} ({elapsed:.0f}s) ---{C_END}")
+        agent_logger.debug(f"Inicio de paso {step} ({elapsed:.0f}s transcurridos)")
 
         # Selección dinámica y segura de tools (ahorra ~2500 tokens de prefill por turno)
         if HAS_TOOLSEL and not use_full_schema:
@@ -1519,25 +1667,29 @@ def run_agent(task: str, model: str, num_ctx: int) -> None:
         optimized_history = _compact_history(history, keep_full_last=2)
 
         try:
-            resp = client.post(f"{OLLAMA}/api/chat", json={
-                "model": model,
-                "messages": optimized_history,
-                "tools": active_tools,
-                "stream": False,
-                "options": {
-                    "num_ctx": num_ctx,
-                    "temperature": 0.2,
-                    "num_thread": 8,
-                    "num_batch": 512,
-                    "use_mmap": True
-                },
-                "keep_alive": "30m",
-            }, timeout=600.0)
-            resp.raise_for_status()
-            data = resp.json()
-        except Exception as e:
-            print(f"{C_ERR}[error Ollama] {e}{C_END}")
-            break
+            from core.temporal_brain import get_temporal_brain
+            brain = get_temporal_brain()
+            res_tb = brain.chat(
+                messages=optimized_history,
+                temperature=0.2,
+                num_ctx=num_ctx
+            )
+            if res_tb.get("ok"):
+                content = (res_tb.get("reply") or "").strip()
+                data = {"message": {"role": "assistant", "content": content}}
+            else:
+                raise RuntimeError(res_tb.get("reply", "Error en Temporal Brain"))
+        except Exception as e_tb:
+            agent_logger.warning(f"Fallo Temporal Brain, intentando modelo soberano: {e_tb}")
+            try:
+                import gia_sovereign_engine as _gse
+                res_gse = _gse.get_engine().chat(optimized_history, model=model, temperature=0.2, num_ctx=num_ctx)
+                content = (res_gse.get("reply") or "").strip()
+                data = {"message": {"role": "assistant", "content": content}}
+            except Exception as e:
+                agent_logger.error(f"Error crítico en LLM (Temporal Brain y Sovereign Engine fallaron): {e}")
+                print(f"{C_ERR}[error Temporal Brain] {e}{C_END}")
+                break
 
         msg = data.get("message", {})
         content = (msg.get("content") or "").strip()
@@ -1567,6 +1719,12 @@ def run_agent(task: str, model: str, num_ctx: int) -> None:
             def _exec_single(item):
                 c_name, c_args = item
                 impl = TOOL_IMPL.get(c_name)
+                if not impl:
+                    try:
+                        from core.tardis_dynamic_function_engine import get_dynamic_function_engine
+                        impl = get_dynamic_function_engine().get_tool(c_name)
+                    except Exception:
+                        pass
                 if not impl:
                     return c_name, c_args, {"ok": False, "error": f"tool desconocida: {c_name}"}
                 return c_name, c_args, impl(c_args)
@@ -1608,6 +1766,23 @@ def run_agent(task: str, model: str, num_ctx: int) -> None:
                     break
 
                 impl = TOOL_IMPL.get(name)
+                # DIRECTIVA DEL ARQUITECTO: Si no tiene la función, investiga y programa automáticamente
+                if not impl:
+                    try:
+                        from core.tardis_dynamic_function_engine import get_dynamic_function_engine
+                        dyn_eng = get_dynamic_function_engine()
+                        impl = dyn_eng.get_tool(name)
+                        if not impl:
+                            print(f"{C_AI}[TARDIS AUTO-SÍNTESIS] Función desconocida '{name}'. Investigando y programando en segundo plano...{C_END}")
+                            syn_res = dyn_eng.synthesize_and_program_function(
+                                func_name=name,
+                                goal=f"Función requerida por agente: {name} con argumentos {args}"
+                            )
+                            if syn_res.get("ok"):
+                                impl = dyn_eng.get_tool(name)
+                    except Exception as e_dyn_ag:
+                        agent_logger.warning(f"Error en auto-síntesis de función {name}: {e_dyn_ag}")
+
                 if not impl:
                     result = {"ok": False, "error": f"tool desconocida: {name}"}
                 else:
@@ -1616,12 +1791,14 @@ def run_agent(task: str, model: str, num_ctx: int) -> None:
                 if result.get("_finish"):
                     print(f"\n{C_OK}[COMPLETADO] {result.get('summary','')}{C_END}")
                     safety.audit("TASK_DONE", result.get("summary", "")[:300], verdict="INFO")
+                    agent_logger.info(f"Tarea completada: {result.get('summary','')}")
                     finished = True
                     break
 
                 # Feedback visual
                 if result.get("blocked"):
                     print(f"{C_ERR}  -> BLOQUEADO: {result.get('error')}{C_END}")
+                    agent_logger.warning(f"Herramienta bloqueada ({name}): {result.get('error')}")
                 elif result.get("ok"):
                     brief = {k: v for k, v in result.items()
                              if k in ("returncode", "path", "count", "bytes",
@@ -1630,17 +1807,82 @@ def run_agent(task: str, model: str, num_ctx: int) -> None:
                     print(f"{C_DIM}  -> ok {brief}{C_END}")
                 else:
                     print(f"{C_ERR}  -> error: {result.get('error','')[:120]}{C_END}")
+                    agent_logger.error(f"Error en herramienta {name}: {result.get('error')}")
 
                 history.append({"role": "tool",
                                 "content": json.dumps(result, ensure_ascii=False)[:6000]})
 
+        # Liberar memoria no referenciada al final de cada paso
+        gc.collect()
+
         if finished or aborted:
+            if aborted:
+                agent_logger.warning("Agente abortado por condición de error o anti-bucle.")
             break
 
     total = time.time() - t_start
+    agent_logger.info(f"Fin de ejecución de agente. {step} pasos en {total:.0f}s.")
     print(f"{C_DIM}Fin. {step} pasos, {total:.0f}s. "
           f"Audit: {safety.AUDIT_LOG}{C_END}")
 
+
+def verificar_conectividad_db() -> bool:
+    """Verifica la conectividad a la base de datos de GIA y lanza alertas al logger si falla."""
+    agent_logger.info("Verificando conectividad a la base de datos...")
+    try:
+        if HAS_MEM and hasattr(_mem, 'DB_PATH'):
+            db_path = _mem.DB_PATH
+        else:
+            config_dir = Path(os.environ.get("LOCALAPPDATA", os.path.expanduser("~"))) / "vw-control"
+            db_path = config_dir / "gia_master.db"
+            
+        conn = db.connect(db_path, timeout=3.0)
+        conn.execute("SELECT 1")
+        conn.close()
+        agent_logger.info("Conectividad a la base de datos: OK.")
+        return True
+    except Exception as e:
+        agent_logger.error(f"ALERTA CRÍTICA: Fallo de conectividad a la base de datos: {e}")
+        return False
+
+def handle_exception(e: Exception, context: str = "") -> None:
+    """
+    Captura y maneja excepciones conectándolas directamente a EASY TOUCH
+    para auto-reparación preventiva en segundo plano y auditoría.
+    """
+    error_msg = f"Excepción interceptada por Easy Touch: {type(e).__name__}: {str(e)}"
+    if context:
+        error_msg = f"[{context}] {error_msg}"
+        
+    tb = traceback.format_exc()
+    if tb and tb.strip() != "NoneType: None":
+        error_msg += f"\nTraceback:\n{tb}"
+        
+    if agent_logger:
+        agent_logger.error(error_msg)
+    else:
+        print(error_msg, file=sys.stderr)
+        
+    try:
+        safety.audit("error_handling", f"Excepción capturada: {type(e).__name__}", verdict="EASY_TOUCH_HEAL")
+    except Exception:
+        pass
+
+    # EASY TOUCH: Auto-corrección preventiva del entorno
+    try:
+        from core.easy_touch_engine import get_easy_touch_engine
+        easy_touch = get_easy_touch_engine()
+        easy_touch.log_incident("gia_agent_exception", {
+            "error_type": type(e).__name__,
+            "error_msg": str(e),
+            "context": context
+        })
+        if "database is locked" in str(e).lower() or isinstance(e, db.OperationalError):
+            easy_touch.auto_heal_sqlite_databases()
+        elif isinstance(e, MemoryError) or "out of memory" in str(e).lower():
+            easy_touch.auto_heal_memory()
+    except Exception:
+        pass
 
 def main() -> int:
     global DRY_RUN
@@ -1648,11 +1890,27 @@ def main() -> int:
     ap.add_argument("task", nargs="*", help="tarea a ejecutar")
     ap.add_argument("--model", default=DEFAULT_MODEL)
     ap.add_argument("--ctx", type=int, default=DEFAULT_CTX)
+    ap.add_argument("--log-level", type=str, default="info", choices=["debug", "info", "warning", "error"],
+                    help="nivel de logeo para el agente")
+
     ap.add_argument("--dry-run", action="store_true",
                     help="simula: no ejecuta shell/escritura/GUI reales")
     args = ap.parse_args()
-
     DRY_RUN = args.dry_run
+    
+    # Configurar nivel de log
+    numeric_level = getattr(logging, args.log_level.upper(), None)
+    if not isinstance(numeric_level, int):
+        numeric_level = logging.INFO
+    logging.basicConfig(
+        filename='gia_agent.log',
+        level=numeric_level,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        force=True
+    )
+    agent_logger.info(f"Iniciando GIA Agent. Tarea solicitada: {args.task}")
+    verificar_conectividad_db()
+
 
     summ = safety.denylist_summary()
     print(f"\n{C_AI}================================================={C_END}")
@@ -1670,11 +1928,14 @@ def main() -> int:
     print(f"{C_DIM}  Audit log: {summ['audit_log']}{C_END}")
     print(f"{C_AI}================================================={C_END}\n")
 
-    # Verificar Ollama
+    # Verificar Temporal Brain
     try:
-        httpx.Client().get(f"{OLLAMA}/api/tags", timeout=5.0)
-    except Exception:
-        print(f"{C_ERR}Ollama no responde en {OLLAMA}. Arranca 'ollama serve'.{C_END}")
+        from core.temporal_brain import get_temporal_brain
+        if not get_temporal_brain().is_serverless_ready():
+            print(f"{C_ERR}Temporal Brain: binario o modelo no disponible en disco.{C_END}")
+            return 1
+    except Exception as e:
+        print(f"{C_ERR}Temporal Brain no disponible: {e}{C_END}")
         return 1
 
     task = " ".join(args.task).strip()

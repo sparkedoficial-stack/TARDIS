@@ -36,7 +36,7 @@ CONFIG_DIR = Path(os.environ.get("LOCALAPPDATA", os.path.expanduser("~"))) / "vw
 CONFIG_DIR.mkdir(parents=True, exist_ok=True)
 NODES_FILE = CONFIG_DIR / "compute_nodes.json"
 
-LOCAL = "http://REDACTED_IP:11434"
+LOCAL = "http://127.0.0.1:11434"
 
 
 # =====================================================================

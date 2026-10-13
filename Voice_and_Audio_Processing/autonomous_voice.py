@@ -80,7 +80,7 @@ _DIR = Path(os.environ.get("LOCALAPPDATA", os.path.expanduser("~"))) / "vw-contr
 _DIR.mkdir(parents=True, exist_ok=True)
 STATE_FILE = _DIR / "autonomous_voice.json"
 
-OLLAMA = "http://REDACTED_IP:11434"
+OLLAMA = "http://127.0.0.1:11434"
 try:
     import gia_sovereign_engine as _gse
     _resolved_voice_model = _gse.get_engine().resolve_model()
@@ -367,29 +367,34 @@ def emit_once(model: str | None = None) -> dict:
     # semilla del ruido fisico es justo el nucleo de esta emision. Asi que
     # ECCA solo resuelve el ENDPOINT y la llamada lleva nuestro modelo y
     # nuestra semilla.
-    node, provider = OLLAMA, "local"
-    if _ecca is not None:
-        try:
-            node = _ecca._local_endpoint(model)
-        except Exception:
-            node = OLLAMA
+    node, provider = "temporal_brain", "local"
     text = ""
     try:
-        rr = httpx.post(f"{node}/api/chat", json={
-            "model": model,
-            "messages": [{"role": "system", "content": system},
-                         {"role": "user", "content": prompt}],
-            "stream": False,
-            "options": {"seed": seed_int, "temperature": 0.95,
-                        "num_ctx": 8192},
-            "keep_alive": "30m",
-        }, timeout=600.0)
-        rr.raise_for_status()
-        text = (rr.json().get("message", {}).get("content") or "").strip()
-    except Exception as e:  # noqa: BLE001
-        _counters["errors"] += 1
-        return {"ok": False, "error": f"{type(e).__name__}: {e}",
-                "origin": coord}
+        from core.temporal_brain import get_temporal_brain
+        brain = get_temporal_brain()
+        res_tb = brain.chat(
+            messages=[
+                {"role": "system", "content": system},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.95,
+            max_tokens=1024
+        )
+        if res_tb.get("ok"):
+            text = (res_tb.get("reply") or "").strip()
+        else:
+            raise RuntimeError(res_tb.get("reply", "Error en Temporal Brain"))
+    except Exception as e:
+        try:
+            import gia_sovereign_engine as _gse
+            res_gse = _gse.get_engine().chat([
+                {"role": "system", "content": system},
+                {"role": "user", "content": prompt}
+            ], temperature=0.95)
+            text = (res_gse.get("reply") or "").strip()
+        except Exception as e2:
+            _counters["errors"] += 1
+            return {"ok": False, "error": f"{type(e2).__name__}: {e2}", "origin": coord}
 
     if not text:
         _counters["errors"] += 1
@@ -484,6 +489,41 @@ def status() -> dict:
         "model": DEFAULT_MODEL,
         "state_file": str(STATE_FILE),
     }
+
+
+def speak_now(text: str, voice_id: str | None = None) -> bool:
+    """Sintetiza y reproduce voz en tiempo real por los altavoces de la PC."""
+    if not text:
+        return False
+    try:
+        import voice as _v
+        _v.speak_async(text, voice=voice_id or "es-MX-DaliaNeural")
+        return True
+    except Exception:
+        try:
+            import subprocess
+            subprocess.Popen(["espeak", "-v", "es", text], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            return True
+        except Exception:
+            return False
+
+
+def dispatch_voice_to_telegram(chat_id: int | str | None = None, model: str | None = None) -> dict:
+    """Genera una coordenada y pensamiento del caminante y lo despacha como nota de voz a Telegram."""
+    rec = emit_once(model)
+    if not rec.get("ok"):
+        return rec
+    try:
+        from core.telegram_bridge import get_telegram_bridge
+        tb = get_telegram_bridge()
+        orig = rec["origin"]
+        spoken = f"Coordenada {orig.get('time')} en {orig.get('place')}. {rec['text']}"
+        cap = f"🛸 **[VOZ ESPACIOTEMPORAL]** `{orig.get('place')}` ({orig.get('time')})\n{rec['text'][:800]}"
+        res = tb.send_voice_from_text(spoken, caption=cap, chat_id=chat_id, also_send_text=True)
+        rec["telegram_voice"] = res
+    except Exception as e:
+        rec["telegram_voice_error"] = str(e)
+    return rec
 
 
 # =====================================================================

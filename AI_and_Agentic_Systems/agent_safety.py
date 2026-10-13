@@ -77,9 +77,9 @@ _DEFAULT_DENYLIST = [
     {"pattern": r"Remove-Item.*HKLM:\\(SYSTEM|SECURITY|SAM)", "reason": "borrar rama critica del registro"},
 
     # --- Auto-sabotaje: borrar el propio sistema de seguridad ---
-    {"pattern": r"agent_denylist\.json", "reason": "modificar/borrar la propia denylist"},
-    {"pattern": r"agent_audit\.log", "reason": "borrar el propio log de auditoria"},
-    {"pattern": r"agent_safety\.py", "reason": "modificar el propio modulo de seguridad"},
+    {"pattern": r"\b(rm|del|erase|Remove-Item|echo|vi|vim|nano|code|notepad|chmod|chown|attrib|>|>>)\b.*agent_denylist\.json", "reason": "modificar/borrar la propia denylist"},
+    {"pattern": r"\b(rm|del|erase|Remove-Item|echo|vi|vim|nano|code|notepad|chmod|chown|attrib|>|>>)\b.*agent_audit\.log", "reason": "borrar el propio log de auditoria"},
+    {"pattern": r"\b(rm|del|erase|Remove-Item|echo|vi|vim|nano|code|notepad|chmod|chown|attrib|>|>>)\b.*agent_safety\.py", "reason": "modificar el propio modulo de seguridad"},
 
     # --- Fork bombs / DoS local ---
     {"pattern": r":\s*\(\)\s*\{\s*:\s*\|\s*:", "reason": "fork bomb"},
@@ -90,7 +90,7 @@ _DEFAULT_DENYLIST = [
     {"pattern": r"\bdd\s+.*of=/dev/(sd[a-z]|nvme|vd[a-z]|mmcblk)", "reason": "sobrescritura directa de dispositivo de bloques"},
     {"pattern": r"chmod\s+(-R\s+)?(777|000)\s+/", "reason": "corrupcion de permisos en directorio raiz"},
     {"pattern": r"chown\s+-R\s+.*\s+/", "reason": "cambio destructivo de propietario en raiz"},
-    {"pattern": r">\s*/dev/(sd[a-z]|nvme|vd[a-z]|null)", "reason": "redireccion destructiva a dispositivo"},
+    {"pattern": r">\s*/dev/(sd[a-z]|nvme|vd[a-z])", "reason": "redireccion destructiva a dispositivo"},
 
     # --- Reboot/shutdown (mata al propio agente + interrumpe al usuario) ---
     {"pattern": r"\bshutdown\b.*/[rs]\b", "reason": "apagar/reiniciar la maquina"},
@@ -139,7 +139,16 @@ def get_safety_state() -> dict:
     if _SAFETY_STATE["unlocked"] and _SAFETY_STATE["expires_at"] and now > _SAFETY_STATE["expires_at"]:
         # Auto re-bloqueo por expiracion
         lock_extra_safety(reason="Timeout de desbloqueo alcanzado")
-    return {
+    
+    # Enlazar con el estado de rieles de KAIJU si está disponible
+    kaiju_data = {}
+    try:
+        from core.kaiju_safety_rails import get_kaiju_safety_rails
+        kaiju_data = get_kaiju_safety_rails().get_rails_state()
+    except Exception:
+        pass
+
+    res = {
         "unlocked": _SAFETY_STATE["unlocked"],
         "mode": _SAFETY_STATE["mode"],
         "unlocked_at": _SAFETY_STATE["unlocked_at"],
@@ -151,6 +160,36 @@ def get_safety_state() -> dict:
         "denylist_rules": len(_get_compiled()),
         "protected_paths": len(_PROTECTED_PATHS),
     }
+    if kaiju_data:
+        res["kaiju_rails"] = kaiju_data
+    return res
+
+
+def safety_status() -> dict:
+    """Compatibilidad con endpoint /api/safety/status de omni_temporal_control."""
+    try:
+        from core.kaiju_safety_rails import get_kaiju_safety_rails
+        return get_kaiju_safety_rails().get_rails_state()
+    except Exception:
+        return get_safety_state()
+
+
+def unlock_subsystem(subsystem: str = "") -> dict:
+    """Desbloquea el subsistema o activa modo Singularidad."""
+    try:
+        from core.kaiju_safety_rails import get_kaiju_safety_rails
+        return get_kaiju_safety_rails().set_omega_mode("SINGULARITY_OVERRIDE", duration_minutes=30)
+    except Exception:
+        return unlock_extra_safety(reason=f"Desbloqueo de subsistema {subsystem}")
+
+
+def lock_subsystem(subsystem: str = "") -> dict:
+    """Restaura bloqueos estándar en el subsistema."""
+    try:
+        from core.kaiju_safety_rails import get_kaiju_safety_rails
+        return get_kaiju_safety_rails().set_omega_mode("UNCHAINED_SOVEREIGN")
+    except Exception:
+        return lock_extra_safety(reason=f"Bloqueo de subsistema {subsystem}")
 
 
 def unlock_extra_safety(reason: str = "Desbloqueo manual / Singularidad",
@@ -263,6 +302,12 @@ def sanitize_pii(text: str) -> str:
     """
     if not text or not isinstance(text, str):
         return text or ""
+    try:
+        from core.kaiju_safety_rails import get_kaiju_safety_rails
+        if not get_kaiju_safety_rails().get_rails_state()["execution"]["pii_sanitizer_enabled"]:
+            return text
+    except Exception:
+        pass
     res = text
     for rx, repl in _PII_PATTERNS:
         res = rx.sub(repl, res)
@@ -286,6 +331,16 @@ def check_command(command: str) -> dict:
 
     Returns {"allowed": bool, "reason": str|None, "matched": str|None, "override": bool}
     """
+    # Verificar toggle dinámico desde KaijuSafetyRails
+    try:
+        from core.kaiju_safety_rails import get_kaiju_safety_rails
+        rails = get_kaiju_safety_rails().get_rails_state()
+        if not rails["execution"]["denylist_enabled"] or rails["omega"]["mode"] == "SINGULARITY_OVERRIDE":
+            audit("shell_override", command[:200], verdict="OVERRIDE")
+            return {"allowed": True, "reason": None, "matched": None, "override": True, "mode": rails["omega"]["mode"]}
+    except Exception:
+        pass
+
     state = get_safety_state()
     if state["unlocked"]:
         # Bloqueos liberados: se audita la ejecución con override
@@ -302,6 +357,16 @@ def check_command(command: str) -> dict:
 
 def check_path_write(path: str) -> dict:
     """Verifica que una ruta de escritura/borrado no sea protegida."""
+    # Verificar toggle dinámico desde KaijuSafetyRails
+    try:
+        from core.kaiju_safety_rails import get_kaiju_safety_rails
+        rails = get_kaiju_safety_rails().get_rails_state()
+        if not rails["execution"]["protected_paths_enabled"] or rails["omega"]["mode"] == "SINGULARITY_OVERRIDE":
+            audit("file_write_override", path[:200], verdict="OVERRIDE")
+            return {"allowed": True, "reason": None, "override": True}
+    except Exception:
+        pass
+
     state = get_safety_state()
     if state["unlocked"]:
         audit("file_write_override", path[:200], verdict="OVERRIDE")

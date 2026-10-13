@@ -4,8 +4,10 @@ from starlette.testclient import TestClient
 from server.api import app
 from core.os_controller import get_os_controller
 
+from core.security import get_authorized_tokens
+
 client = TestClient(app)
-AUTH_HEADERS = {"X-API-Key": "REDACTED_MISTRAL"}
+AUTH_HEADERS = {"X-API-Key": next(iter(get_authorized_tokens()), "test_tok")}
 
 
 def test_reboot_requires_authentication():

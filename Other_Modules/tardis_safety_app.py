@@ -15,7 +15,7 @@ BASE_DIR = Path(__file__).resolve().parent
 ICON_PATH = BASE_DIR / "tardis-master-hub-icon.png"
 if not ICON_PATH.exists():
     ICON_PATH = BASE_DIR / "tardis-icon.png"
-DEFAULT_URL = "http://REDACTED_IP:8757/safety"
+DEFAULT_URL = "http://127.0.0.1:8757/safety"
 
 
 def launch_native_gtk(url: str):

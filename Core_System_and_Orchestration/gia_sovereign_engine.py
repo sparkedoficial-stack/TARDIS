@@ -5,7 +5,7 @@ GODWORKS SYSTEM v26.4 · Suite Soberana GIA
 
 Arquitectura de Inferencia Dual Redundante (Zero-Drop):
 1. CANAL HTTP RESILIENTE (Socket Multi-Host + Auto-Revive Daemon + KeepAlive):
-   - Sondeo dinámico en REDACTED_IP, localhost y [::1].
+   - Sondeo dinámico en 127.0.0.1, localhost y [::1].
    - Reanimación automática del demonio Ollama ante caídas o reposo del sistema.
    - Reintentos exponenciales con manejo de desconexiones y socket timeouts.
    - Anclaje de memoria en VRAM/RAM (keep_alive: 24h).
@@ -40,53 +40,37 @@ try:
 except Exception:
     _COLIBRI_ACTIVE = False
 
+try:
+    from core.temporal_brain import TemporalBrain, get_temporal_brain
+    from core.sovereign_local_runner import SovereignLocalRunner, get_sovereign_local_runner
+    _TEMPORAL_BRAIN_ACTIVE = True
+    _LOCAL_RUNNER_ACTIVE = True
+except Exception:
+    _TEMPORAL_BRAIN_ACTIVE = False
+    try:
+        from core.sovereign_local_runner import SovereignLocalRunner, get_sovereign_local_runner
+        _LOCAL_RUNNER_ACTIVE = True
+    except Exception:
+        try:
+            from sovereign_local_runner import SovereignLocalRunner, get_sovereign_local_runner
+            _LOCAL_RUNNER_ACTIVE = True
+        except Exception:
+            _LOCAL_RUNNER_ACTIVE = False
+
 # Rutas del entorno de trabajo
 WORKSPACE_DIR = Path(__file__).resolve().parent
 LOCALAPPDATA = Path(os.environ.get("LOCALAPPDATA", os.path.expanduser("~")))
 
 CANDIDATE_ENDPOINTS = [
-    "http://REDACTED_IP:11434",
+    "http://127.0.0.1:11434",
     "http://localhost:11434",
     "http://[::1]:11434",
-    "http://REDACTED_IP:11434"
+    "http://0.0.0.0:11434"
 ]
 
 DEFAULT_MODELS_PREFERENCE = [
-    "huihui_ai/llama3.1-8b-instruct-abliterated",
-    "dolphin3",
-    "dolphin3.0",
-    "dolphin",
-    "hermes3:8b",
-    "hermes3",
-    "hermes3:latest",
-    "Llama-3.2-3B-Instruct-uncensored-GGUF:latest",
-    "Llama-3.2-3B-Instruct-uncensored",
-    "llama3.2-uncensored:latest",
-    "hf.co/bartowski/Llama-3.2-3B-Instruct-uncensored-GGUF:Q4_K_M",
-    "llama3.2:3b",
-    "llama3.2",
-    "llama3.2:latest",
-    "qwen2.5:3b",
-    "Qwen3.8-Flash-Next",
-    "Qwen3.8-27B-Uncensored-MLX:latest",
-    "Qwen3.8-27B-Uncensored:latest",
-    "orcarouter/Qwen3.8-27B-Uncensored:latest",
-    "Qwen3.8-27B-Uncensored",
-    "qwen3.8-27b-uncensored",
-    "qwen3.8:27b",
-    "Qwen3.6-35B-A3B",
-    "DeepSeek-V4-Flash",
-    "GLM-5.3-Flash",
-    "colibri-active",
-    "olmoe",
-    "llama3.2:3b",
-    "qwen2.5:3b",
-    "llama3.1:8b",
-    "qwen2.5-coder:7b",
-    "deepseek-r1:8b",
-    "qwen3.6:latest",
-    "qwen3-coder:30b",
-    "llama4:scout"
+    "TARDIS-NEURAL-SPACE-KAIJU",
+    "TARDIS-NEURAL-SPACE-KAIJU:latest"
 ]
 
 DEFAULT_SYSTEM_PROMPT = (
@@ -135,9 +119,9 @@ class SovereignInferenceEngine:
     _singleton_lock = threading.Lock()
 
     def __init__(self, preferred_endpoint: Optional[str] = None, default_model: Optional[str] = None):
-        self.preferred_endpoint = preferred_endpoint or os.environ.get("OLLAMA_HOST", "http://REDACTED_IP:11434")
+        self.preferred_endpoint = preferred_endpoint or os.environ.get("OLLAMA_HOST", "http://127.0.0.1:11434")
         self.active_endpoint: Optional[str] = None
-        self.default_model = default_model or os.environ.get("GIA_MODEL", "huihui_ai/llama3.1-8b-instruct-abliterated")
+        self.default_model = default_model or os.environ.get("GIA_MODEL", "TARDIS-NEURAL-SPACE-KAIJU")
         self.binary_path = find_ollama_binary()
         self._lock = threading.Lock()
         self._cached_models: List[str] = []
@@ -183,57 +167,31 @@ class SovereignInferenceEngine:
         return None
 
     def auto_spawn_daemon(self) -> bool:
-        """Inicia el demonio de Ollama en segundo plano sin ventana."""
-        if self.find_working_endpoint():
-            return True
-        if not self.binary_path:
-            self.binary_path = find_ollama_binary()
-        if not self.binary_path:
-            return False
-
-        creationflags = subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0
-        spawn_env = os.environ.copy()
-        spawn_env["OLLAMA_FLASH_ATTENTION"] = "1"
-        spawn_env["OLLAMA_KEEP_ALIVE"] = "-1"
-        spawn_env["OLLAMA_NUM_PARALLEL"] = "1"
-        spawn_env["OLLAMA_MAX_LOADED_MODELS"] = "1"
-        spawn_env["OLLAMA_MAX_QUEUE"] = "512"
-        spawn_env["CUDA_VISIBLE_DEVICES"] = "0"
-        spawn_env["OLLAMA_KV_CACHE_TYPE"] = os.environ.get("OLLAMA_KV_CACHE_TYPE", "f16")
-        spawn_env["OMP_NUM_THREADS"] = os.environ.get("GIA_NUM_THREADS", "12")
-        spawn_env["OMP_PROC_BIND"] = "close"
-        spawn_env["OMP_PLACES"] = "cores"
-        spawn_env["RAM_GB"] = "18.0"
-
-        try:
-            subprocess.Popen(
-                [self.binary_path, "serve"],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                stdin=subprocess.DEVNULL,
-                creationflags=creationflags,
-                env=spawn_env,
-                start_new_session=(sys.platform != "win32"),
-                close_fds=(sys.platform != "win32")
-            )
-            return True
-        except Exception:
+        """Asegura que el motor soberano Temporal Brain esté listo para inferencia."""
+        if _TEMPORAL_BRAIN_ACTIVE or _LOCAL_RUNNER_ACTIVE:
             try:
-                subprocess.Popen(
-                    [self.binary_path],
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
-                    creationflags=creationflags,
-                    env=spawn_env,
-                    start_new_session=(sys.platform != "win32"),
-                    close_fds=(sys.platform != "win32")
-                )
-                return True
+                local_runner = get_temporal_brain() if _TEMPORAL_BRAIN_ACTIVE else get_sovereign_local_runner()
+                return local_runner.is_serverless_ready()
             except Exception:
-                return False
+                pass
+        return False
 
     def diagnose_and_heal(self, auto_start: bool = True, wait_seconds: float = 12.0) -> Dict[str, Any]:
-        """Diagnostica el estado del motor y reanima el servicio si es necesario."""
+        """Diagnostica el estado del motor soberano Temporal Brain."""
+        # 0. TIER 0: Temporal Brain (Ejecutor Directo Serverless Local / Socket UNIX IPC / Zero Ports)
+        if _TEMPORAL_BRAIN_ACTIVE or _LOCAL_RUNNER_ACTIVE:
+            try:
+                local_runner = get_temporal_brain() if _TEMPORAL_BRAIN_ACTIVE else get_sovereign_local_runner()
+                if local_runner.is_serverless_ready():
+                    return {
+                        "ok": True,
+                        "mode": "temporal_brain",
+                        "endpoint": str(local_runner.socket_path),
+                        "models": self.get_available_models(refresh=True)
+                    }
+            except Exception:
+                pass
+
         working_ep = self.find_working_endpoint()
         if working_ep:
             return {
@@ -243,22 +201,6 @@ class SovereignInferenceEngine:
                 "models": self.get_available_models(refresh=True)
             }
 
-        if auto_start:
-            spawned = self.auto_spawn_daemon()
-            if spawned:
-                start_t = time.time()
-                while time.time() - start_t < wait_seconds:
-                    time.sleep(0.4)
-                    working_ep = self.find_working_endpoint()
-                    if working_ep:
-                        return {
-                            "ok": True,
-                            "mode": "http_socket",
-                            "endpoint": working_ep,
-                            "models": self.get_available_models(refresh=True)
-                        }
-
-        # Si el socket HTTP no levanta, el motor nativo por tubería sigue operativo
         pipe_ok = (self.binary_path is not None)
         return {
             "ok": pipe_ok,
@@ -273,33 +215,44 @@ class SovereignInferenceEngine:
     # -------------------------------------------------------------------------
 
     def get_available_models(self, refresh: bool = False) -> List[str]:
-        """Devuelve la lista de modelos instalados mediante HTTP o manifiestos en disco."""
+        """Devuelve la lista de modelos soberanos disponibles en disco o socket."""
         now = time.time()
         if not refresh and self._cached_models and (now - self._last_model_check < 60.0):
             return self._cached_models
 
         models: List[str] = []
 
-        # 1. Intentar por HTTP
+        # 0. Modelos soberanos locales en data/models/
+        sovereign_dir = WORKSPACE_DIR / "data" / "models"
+        if sovereign_dir.exists():
+            for p in sovereign_dir.glob("*.gguf"):
+                if p.is_file():
+                    name = p.stem
+                    if name not in models:
+                        models.append(name)
+
+        # 1. Intentar por HTTP si hubiera un endpoint de respaldo activo
         ep = self.active_endpoint or self.preferred_endpoint
         if ep:
             try:
                 url = f"{ep}/api/tags"
                 req = urllib.request.Request(url, headers={"User-Agent": "GIA-Sovereign-Engine/26.4"})
-                with urllib.request.urlopen(req, timeout=2.0) as resp:
+                with urllib.request.urlopen(req, timeout=1.5) as resp:
                     if resp.status == 200:
                         data = json.loads(resp.read().decode("utf-8"))
-                        models = [m.get("name") for m in data.get("models", []) if m.get("name")]
+                        for m in data.get("models", []):
+                            m_name = m.get("name")
+                            if m_name and m_name not in models:
+                                models.append(m_name)
             except Exception:
                 pass
 
-        # 2. Si falló HTTP, intentar leyendo manifiestos locales de Ollama en disco
+        # 2. Leer manifiestos existentes en disco
         if not models:
             manifest_dir = Path(os.path.expanduser("~")) / ".ollama" / "models" / "manifests"
             if manifest_dir.exists():
                 for p in manifest_dir.glob("*/*/*/*"):
                     if p.is_file():
-                        # Ejemplo: registry.ollama.ai/library/llama3.2/3b -> llama3.2:3b
                         parts = p.parts
                         if len(parts) >= 2:
                             model_name = f"{parts[-2]}:{parts[-1]}"
@@ -452,7 +405,8 @@ class SovereignInferenceEngine:
         )
 
         full_reply = []
-        opener = urllib.request.urlopen(req, timeout=timeout) if timeout else urllib.request.urlopen(req)
+        effective_timeout = float(timeout if timeout is not None else os.environ.get("GIA_HTTP_TIMEOUT", 45.0))
+        opener = urllib.request.urlopen(req, timeout=effective_timeout)
         with opener as resp:
             for line in resp:
                 if cancel_event and cancel_event.is_set():
@@ -547,13 +501,15 @@ class SovereignInferenceEngine:
                 pass
 
         full_reply = []
+        pipe_deadline = time.time() + float(timeout or os.environ.get("GIA_PIPE_TIMEOUT", 45.0))
         try:
             # Enviar el prompt completo y cerrar stdin para señalar fin de entrada
             if proc.stdin:
                 proc.stdin.write(full_input)
                 proc.stdin.close()
 
-            # Leer streaming desde stdout sin artifacts de terminal
+            # Leer streaming desde stdout sin artifacts de terminal con timeout garantizado
+            import select
             while True:
                 if cancel_event and cancel_event.is_set():
                     try:
@@ -565,6 +521,24 @@ class SovereignInferenceEngine:
                     yield msg
                     return msg
 
+                remaining = pipe_deadline - time.time()
+                if remaining <= 0:
+                    try:
+                        proc.kill()
+                    except Exception:
+                        pass
+                    msg = "\n[⚠️ Tiempo límite de inferencia local alcanzado]"
+                    full_reply.append(msg)
+                    yield msg
+                    return msg
+
+                if sys.platform != "win32":
+                    r, _, _ = select.select([proc.stdout], [], [], min(remaining, 1.0))
+                    if not r:
+                        if proc.poll() is not None:
+                            break
+                        continue
+
                 chunk = proc.stdout.read(8)
                 if not chunk:
                     break
@@ -573,13 +547,19 @@ class SovereignInferenceEngine:
                     full_reply.append(clean_chunk)
                     yield clean_chunk
 
-            proc.wait(timeout=timeout if timeout else None)
+            proc.wait(timeout=2.0)
         except Exception as e:
             try:
                 proc.kill()
             except Exception:
                 pass
             raise e
+        finally:
+            try:
+                if proc.poll() is None:
+                    proc.kill()
+            except Exception:
+                pass
 
         return self._clean_ansi("".join(full_reply))
 
@@ -636,7 +616,23 @@ class SovereignInferenceEngine:
             )
             return
 
-        # 0. TIER 0: Motor Colibri MoE Ultrarrápido y Soberano (solo si el servidor Colibri está vivo en puerto 8765)
+        # 0. TIER 0: Temporal Brain (Socket UNIX IPC, Zero Daemon / Serverless)
+        if _TEMPORAL_BRAIN_ACTIVE or _LOCAL_RUNNER_ACTIVE:
+            try:
+                local_runner = get_temporal_brain() if _TEMPORAL_BRAIN_ACTIVE else get_sovereign_local_runner()
+                if local_runner.is_serverless_ready(target_model):
+                    self.last_channel_used = "temporal_brain"
+                    yield from local_runner.chat_stream(
+                        unified_msgs,
+                        temperature=temperature,
+                        num_ctx=num_ctx,
+                        cancel_event=cancel_event
+                    )
+                    return
+            except Exception:
+                pass
+
+        # 0.5. TIER 0.5: Motor Colibri MoE Ultrarrápido y Soberano (solo si el servidor Colibri está vivo en puerto 8765)
         if _COLIBRI_ACTIVE:
             try:
                 c_bridge = colibri_bridge.get_colibri()
@@ -727,7 +723,10 @@ class SovereignInferenceEngine:
         is_ok = bool(reply and not reply.startswith("[Error de Inferencia Soberana") and not is_cancelled)
         
         channel = getattr(self, "last_channel_used", "http")
-        if channel == "colibri":
+        if channel in ("temporal_brain", "sovereign_local_runner"):
+            active_provider = "temporal_brain"
+            active_node = "temporal_brain_ipc"
+        elif channel == "colibri":
             active_provider = "colibri"
             active_node = "colibri_moe_8765"
         elif channel == "pipe" or self.force_pipe_mode:

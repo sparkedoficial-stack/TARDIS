@@ -1,41 +1,36 @@
 # Dashboards_and_UI
 
-Este módulo contiene los siguientes subsistemas y funciones principales:
+Cockpits de control en tiempo real, portales soberanos y tableros de visualización cuántica/térmica.
 
-- **system_optimizer_dashboard.html**: Interfaz de control y monitoreo en tiempo real.
-- **tardis_sdr_radar_dashboard.html**: Sistema de telemetría y percepción del entorno físico/RF.
-- **single_figure.html**: Componente del sistema.
-- **bridge_dashboard.html**: Interfaz de control y monitoreo en tiempo real.
-- **embeddings_dashboard.html**: Interfaz de control y monitoreo en tiempo real.
-- **all_figures.html**: Componente del sistema.
-- **colony_embassy.html**: Componente del sistema.
-- **shield_dashboard.html**: Interfaz de control y monitoreo en tiempo real.
-- **airplay_monitor_dashboard.html**: Interfaz de control y monitoreo en tiempo real.
-- **index.html**: Componente del sistema.
-- **advanced_telemetry_dashboard.html**: Interfaz de control y monitoreo en tiempo real.
-- **client_user_manager.html**: Componente del sistema.
-- **idle_daemon_dashboard.html**: Interfaz de control y monitoreo en tiempo real.
-- **vw_vault_dashboard.html**: Interfaz de control y monitoreo en tiempo real.
-- **quantum_explorer_dashboard.html**: Interfaz de control y monitoreo en tiempo real.
-- **kaiju_safety_dashboard.html**: Interfaz de control y monitoreo en tiempo real.
-- **skeleton.html**: Componente del sistema.
-- **offline_chat_vault.html**: Componente del sistema.
-- **adaptation_sys_dashboard.html**: Interfaz de control y monitoreo en tiempo real.
-- **scientific_researcher_dashboard.html**: Interfaz de control y monitoreo en tiempo real.
-- **TARDIS_TERMINAL_APP.html**: Componente del sistema.
-- **ipython_inline_figure.html**: Componente del sistema.
-- **blender_animator_dashboard.html**: Interfaz de control y monitoreo en tiempo real.
-- **holodeck_dashboard.html**: Interfaz de control y monitoreo en tiempo real.
-- **gods_eye_dashboard.html**: Interfaz de control y monitoreo en tiempo real.
-- **client_chat.html**: Componente del sistema.
-- **video_studio_dashboard.html**: Interfaz de control y monitoreo en tiempo real.
-- **sovereign_portal.html**: Componente del sistema.
-- **benchmark_dashboard.html**: Interfaz de control y monitoreo en tiempo real.
-- **background_subsystem.html**: Componente del sistema.
-- **companion_overlay.html**: Componente del sistema.
+## Subsistemas y Funciones Principales:
+
+- **TARDIS_TERMINAL_APP.html**: Interfaz interactiva de monitoreo en tiempo real.
+- **adaptation_sys_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
+- **advanced_telemetry_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
+- **airplay_monitor_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
+- **background_subsystem.html**: Interfaz interactiva de monitoreo en tiempo real.
+- **benchmark_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
+- **blender_animator_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
+- **bridge_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
+- **client_chat.html**: Interfaz interactiva de monitoreo en tiempo real.
+- **client_user_manager.html**: Interfaz interactiva de monitoreo en tiempo real.
+- **colony_embassy.html**: Interfaz interactiva de monitoreo en tiempo real.
+- **companion_overlay.html**: Interfaz interactiva de monitoreo en tiempo real.
+- **curiosity_debater_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
+- **embeddings_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
+- **gods_eye_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
+- **holodeck_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
+- **idle_daemon_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
+- **index.html**: Interfaz interactiva de monitoreo en tiempo real.
+- **quantum_explorer_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
+- **safety_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
+- **scientific_researcher_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
 - **sensors_dashboard.html**: Sistema de telemetría y percepción del entorno físico/RF.
-- **hook-xml.dom.html.HTMLDocument.py**: Componente del sistema.
-- **safety_dashboard.html**: Interfaz de control y monitoreo en tiempo real.
+- **sovereign_portal.html**: Interfaz interactiva de monitoreo en tiempo real.
+- **system_optimizer_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
+- **temporal_canvas.jsx**: Componente de alta eficiencia.
+- **video_studio_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
+- **vw_vault_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
 
-## Dependencias Generales
-Para instalar dependencias, consulte el entorno general del proyecto y utilice `pip install -r requirements.txt` (si aplica) u observe las cabeceras de cada archivo.
+## Requisitos e Integración
+Los módulos operan bajo el stack soberano de Linux (x86_64), integrando aceleración por GPU y telemetría de bajo nivel.

@@ -1,27 +1,30 @@
 # Bridges_and_Communications
 
-Este módulo contiene los siguientes subsistemas y funciones principales:
+Pasarelas de comunicación omnicanal (WhatsApp, Telegram, SMS, túneles seguros y APIs inter-IA).
 
-- **test_ftl_telegram_runner.py**: Componente del sistema.
-- **ios_bridge.py**: Componente del sistema.
-- **test_whatsapp_bridge.py**: Componente del sistema.
-- **telegram.py**: Componente del sistema.
-- **test_telegram_auth_bypass.py**: Componente del sistema.
-- **telegram_bridge.py**: Componente del sistema.
-- **test_telegram_bridge.py**: Componente del sistema.
-- **curiosity_debater_dashboard.html**: Interfaz de control y monitoreo en tiempo real.
-- **telegram_group_manager.py**: Componente del sistema.
-- **start_client_gateway.sh**: Componente del sistema.
-- **jev_tardis_symbiosis.py**: Componente del sistema.
-- **share_client_link.py**: Componente del sistema.
-- **ftl_telegram_runner.py**: Componente del sistema.
-- **curiosity_debate_manager.py**: Componente del sistema.
-- **client_gateway.py**: Componente del sistema.
-- **gemini_bridge.py**: Componente del sistema.
-- **whatsapp_group_service.py**: Componente del sistema.
-- **hook-adios.py**: Componente del sistema.
-- **antigravity_bridge.py**: Componente del sistema.
-- **whatsapp_bridge.py**: Componente del sistema.
+## Subsistemas y Funciones Principales:
 
-## Dependencias Generales
-Para instalar dependencias, consulte el entorno general del proyecto y utilice `pip install -r requirements.txt` (si aplica) u observe las cabeceras de cada archivo.
+- **antigravity_bridge.py**: Componente de alta eficiencia.
+- **antigravity_remote_controller.py**: Componente de alta eficiencia.
+- **chinese_cloud_api.py**: Componente de alta eficiencia.
+- **client_gateway.py**: Componente de alta eficiencia.
+- **ftl_telegram_runner.py**: Componente de alta eficiencia.
+- **gemini_bridge.py**: Componente de alta eficiencia.
+- **share_client_link.py**: Componente de alta eficiencia.
+- **sms_bridge.py**: Componente de alta eficiencia.
+- **start_bridge.py**: Componente de alta eficiencia.
+- **start_client_gateway.sh**: Componente de alta eficiencia.
+- **start_tunnel.py**: Componente de alta eficiencia.
+- **telegram_bridge.py**: Componente de alta eficiencia.
+- **telegram_group_manager.py**: Componente de alta eficiencia.
+- **test_chinese_cloud_api.py**: Componente de alta eficiencia.
+- **test_ftl_telegram_runner.py**: Componente de alta eficiencia.
+- **test_telegram_auth_bypass.py**: Componente de alta eficiencia.
+- **test_telegram_bridge.py**: Componente de alta eficiencia.
+- **test_whatsapp_bridge.py**: Componente de alta eficiencia.
+- **wa_group_manager.py**: Componente de alta eficiencia.
+- **whatsapp_bridge.py**: Componente de alta eficiencia.
+- **whatsapp_group_service.py**: Componente de alta eficiencia.
+
+## Requisitos e Integración
+Los módulos operan bajo el stack soberano de Linux (x86_64), integrando aceleración por GPU y telemetría de bajo nivel.

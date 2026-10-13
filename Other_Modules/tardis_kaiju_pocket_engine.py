@@ -142,7 +142,7 @@ class TardisKaijuPocketEngine:
         self.last_hardware_telemetry: Dict[str, Any] = {
             "battery": {"level": 100, "charging": False, "temp": 25.0},
             "gps": {"lat": 20.6274, "lon": -87.0799, "alt": 10.0},
-            "network": {"ssid": "Offline", "ip": "REDACTED_IP"}
+            "network": {"ssid": "Offline", "ip": "127.0.0.1"}
         }
 
     def update_hardware_telemetry(self, telemetry: Dict[str, Any]):
@@ -260,7 +260,7 @@ class TardisKaijuPocketEngine:
             f"• **Memoria Operativa:** {DEVICE_PROFILE['ram']} (Optimizada para KAIJU-NANO)\n"
             f"• **Batería:** {level}% ({charging}) · Temp: {temp}°C\n"
             f"• **Coordenadas Espaciales:** Lat {lat:.4f}°, Lon {lon:.4f}° (Altitud: {alt} m)\n"
-            f"• **Entorno de Red:** {net.get('ssid', 'Autónomo Local')} (IP: {net.get('ip', 'REDACTED_IP')})\n"
+            f"• **Entorno de Red:** {net.get('ssid', 'Autónomo Local')} (IP: {net.get('ip', '127.0.0.1')})\n"
             f"• **Estado Cognitivo:** Operación 100% offline nativa lista para reconexión automática."
         )
 

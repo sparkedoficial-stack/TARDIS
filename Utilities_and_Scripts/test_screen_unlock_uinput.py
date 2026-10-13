@@ -26,11 +26,11 @@ class TestScreenUnlockUinput(unittest.TestCase):
             self.assertTrue(success)
 
     def test_03_unlock_screen_execution(self):
-        res = self.os_ctrl.unlock_screen(password = "REDACTED")
+        res = self.os_ctrl.unlock_screen(password="REDACTED")
         self.assertIsInstance(res, bool)
 
     def test_04_hardware_dispatch_unlock(self):
-        res = self.hw_ctrl.dispatch_action("unlock_screen", {"password": "0"})
+        res = self.hw_ctrl.dispatch_action("unlock_screen", {"password": "REDACTED"})
         self.assertIn("ok", res)
         self.assertIn("locked", res)
         self.assertIn("unlocked", res)

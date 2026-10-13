@@ -19,7 +19,7 @@ cd "$DIR"
 
 echo -e "${C_CYAN}${C_BOLD}"
 echo "=============================================================================="
-echo "   COMPILADOR SOBERANO TARDIS v26.4 · LINUX NATIVO (UBUNTU x86_64)            "
+echo "   COMPILADOR SOBERANO TARDIS · LINUX NATIVO (UBUNTU x86_64)                  "
 echo "=============================================================================="
 echo -e "${C_RESET}"
 
@@ -45,6 +45,7 @@ echo -e "${C_YELLOW}[2/3] Compilando suite TARDIS con PyInstaller...${C_RESET}"
     --clean \
     --noconfirm \
     --add-data "$DIR/index.html:." \
+    --add-data "$DIR/client_chat.html:." \
     --add-data "$DIR/companion_overlay.html:." \
     --add-data "$DIR/gia_context_matrix.json:." \
     --add-data "$DIR/agent_context.py:." \
@@ -52,14 +53,38 @@ echo -e "${C_YELLOW}[2/3] Compilando suite TARDIS con PyInstaller...${C_RESET}"
     --add-data "$DIR/godworks-icon.png:." \
     --add-data "$DIR/tardis_app.py:." \
     --add-data "$DIR/tardis_desktop_companion.py:." \
+    --add-data "$DIR/tardis_master_app.py:." \
+    --add-data "$DIR/launch_tardis_master_hub.sh:." \
+    --add-data "$DIR/tardis-master-hub-icon.png:." \
+    --add-data "$DIR/Tardis-Master-Hub.desktop:." \
+    --add-data "$DIR/temporal_brain_config.json:." \
     --add-data "$DIR/launch_tardis.sh:." \
     --add-data "$DIR/launch_tardis_companion.sh:." \
     --add-data "$DIR/tardis_command.sh:." \
     --add-data "$DIR/tardis_cli.py:." \
+    --add-data "$DIR/share_client_link.py:." \
+    --add-data "$DIR/optimize_os.sh:." \
+    --add-data "$DIR/client_user_manager.html:." \
+    --add-data "$DIR/bridge_dashboard.html:." \
+    --add-data "$DIR/offline_chat_vault.html:." \
+    --add-data "$DIR/tardis_master_cockpit.html:." \
+    --add-data "$DIR/client_gateway.py:." \
+    --add-data "$DIR/start_client_gateway.sh:." \
+    --add-data "$DIR/mobile_terminal:mobile_terminal" \
+    --add-data "$DIR/web:web" \
     --add-data "$DIR/native_gui:native_gui" \
+    --add-data "$DIR/Modelfile.kaiju:." \
     --add-data "$DIR/core:core" \
     --add-data "$DIR/server:server" \
     --add-data "$DIR/telemetry:telemetry" \
+    --hidden-import="core.rag_vault" \
+    --hidden-import="core.knowledge_graph" \
+    --hidden-import="core.atmospheric_sensor" \
+    --hidden-import="core.video_pipeline_4k" \
+    --hidden-import="core.character_3d_renderer" \
+    --hidden-import="core.causal_prompt_graph" \
+    --hidden-import="client_gateway" \
+    --hidden-import="jinja2" \
     --hidden-import="server" \
     --hidden-import="server.api" \
     --hidden-import="httpx" \
@@ -117,6 +142,9 @@ echo -e "${C_YELLOW}[2/3] Compilando suite TARDIS con PyInstaller...${C_RESET}"
     --hidden-import="numpy" \
     --hidden-import="cryptography" \
     --hidden-import="rich" \
+    --hidden-import="core.temporal_brain" \
+    --hidden-import="core.sovereign_local_runner" \
+    --hidden-import="core.ai_improvement_sandbox" \
     --hidden-import="core.tardis_error_sentinel" \
     --hidden-import="core.chinese_cloud_api" \
     --hidden-import="core.interaction_logger" \
@@ -140,16 +168,61 @@ echo -e "${C_YELLOW}[2/3] Compilando suite TARDIS con PyInstaller...${C_RESET}"
     --hidden-import="core.web_research_engine" \
     --hidden-import="core.autonomous_coder" \
     --hidden-import="core.idle_evolution_daemon" \
+    --hidden-import="core.mission_scouting_engine" \
+    --hidden-import="core.telegram_bridge" \
+    --hidden-import="core.render_3d_engine" \
+    --hidden-import="core.protected_users_vault" \
+    --hidden-import="core.sms_bridge" \
+    --hidden-import="core.emotional_presence_agent" \
+    --hidden-import="core.daily_context_rotator" \
+    --hidden-import="core.os_optimizer" \
+    --hidden-import="core.sovereign_neural_engine" \
+    --hidden-import="core.kaiju_cognitive_orchestrator" \
+    --hidden-import="core.hardware_controller" \
+    --hidden-import="core.network_controller" \
+    --hidden-import="core.task_manager" \
+    --hidden-import="core.background_hardware_orchestrator" \
+    --hidden-import="core.autonomous_existence_learner" \
+    --hidden-import="core.physical_presence_sensor" \
+    --hidden-import="core.agent_harness" \
+    --hidden-import="core.whatsapp_bridge" \
+    --hidden-import="core.ip_vault" \
+    --hidden-import="core.device_vault" \
+    --hidden-import="core.security" \
+    --hidden-import="core.config" \
     --hidden-import="telemetry" \
     --hidden-import="telemetry.camera_grabber" \
     "$DIR/omni_temporal_control.py"
 
-# 3. Post-Limpieza
-echo -e "${C_YELLOW}[3/3] Post-limpieza de artefactos temporales...${C_RESET}"
+# Copiar archivos maestros del Hub y Gateway al directorio compilado
+echo -e "${C_CYAN}[+] Inyectando lanzadores y componentes de TARDIS Master Hub y Gateway...${C_RESET}"
+cp -f "$DIR/launch_tardis_master_hub.sh" "$DIR/dist/TARDIS-v26.4-Linux/"
+cp -f "$DIR/tardis_master_app.py" "$DIR/dist/TARDIS-v26.4-Linux/"
+cp -f "$DIR/tardis-master-hub-icon.png" "$DIR/dist/TARDIS-v26.4-Linux/"
+cp -f "$DIR/Tardis-Master-Hub.desktop" "$DIR/dist/TARDIS-v26.4-Linux/"
+cp -f "$DIR/temporal_brain_config.json" "$DIR/dist/TARDIS-v26.4-Linux/"
+cp -f "$DIR/start_client_gateway.sh" "$DIR/dist/TARDIS-v26.4-Linux/" 2>/dev/null || true
+cp -f "$DIR/client_gateway.py" "$DIR/dist/TARDIS-v26.4-Linux/" 2>/dev/null || true
+cp -rf "$DIR/mobile_terminal" "$DIR/dist/TARDIS-v26.4-Linux/" 2>/dev/null || true
+chmod +x "$DIR/dist/TARDIS-v26.4-Linux/launch_tardis_master_hub.sh" 2>/dev/null || true
+chmod +x "$DIR/dist/TARDIS-v26.4-Linux/start_client_gateway.sh" 2>/dev/null || true
+
+# 3. Empaquetado Soberano (Tarball de Distribución)
+echo -e "${C_CYAN}[3/4] Empaquetando distribución soberana en dist/TARDIS-Master-Hub-Linux.tar.gz...${C_RESET}"
+tar -czf "$DIR/dist/TARDIS-Master-Hub-Linux.tar.gz" -C "$DIR/dist" TARDIS-v26.4-Linux
+cp -f "$DIR/dist/TARDIS-Master-Hub-Linux.tar.gz" "$DIR/dist/TARDIS-Linux-Sovereign.tar.gz"
+cp -f "$DIR/dist/TARDIS-Master-Hub-Linux.tar.gz" "$DIR/dist/TARDIS-v26.4-Linux-Sovereign.tar.gz"
+PKG_SIZE=$(du -h "$DIR/dist/TARDIS-Master-Hub-Linux.tar.gz" | cut -f1)
+echo -e "${C_GREEN}✓ Paquete TARDIS Master Hub generado con éxito: dist/TARDIS-Master-Hub-Linux.tar.gz (${PKG_SIZE})${C_RESET}"
+
+# 4. Post-Limpieza
+echo -e "${C_YELLOW}[4/4] Post-limpieza de artefactos temporales...${C_RESET}"
 rm -rf build
 find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
 
 echo ""
 echo -e "${C_GREEN}${C_BOLD}==============================================================================${C_RESET}"
 echo -e "${C_GREEN}${C_BOLD}   BUILD EXITOSO: dist/TARDIS-v26.4-Linux/TARDIS-v26.4-Linux                 ${C_RESET}"
+echo -e "${C_GREEN}${C_BOLD}   PAQUETE: dist/TARDIS-Linux-Sovereign.tar.gz (${PKG_SIZE})                ${C_RESET}"
 echo -e "${C_GREEN}${C_BOLD}==============================================================================${C_RESET}"
+

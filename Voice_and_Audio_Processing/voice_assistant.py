@@ -57,12 +57,12 @@ try:
 except Exception:
     HAS_CTX = False
 
-OLLAMA = "http://REDACTED_IP:11434"
+OLLAMA = "http://127.0.0.1:11434"
 try:
     import gia_sovereign_engine as _gse
     DEFAULT_MODEL = _gse.get_engine().resolve_model()
 except Exception:
-    DEFAULT_MODEL = os.environ.get("GIA_MODEL", "Qwen3.8-27B-Uncensored-MLX:latest")
+    DEFAULT_MODEL = os.environ.get("GIA_MODEL", "TARDIS-NEURAL-SPACE-KAIJU")
 
 C_USER = "\033[93m"; C_AI = "\033[96m"; C_TOOL = "\033[95m"
 C_DIM = "\033[90m"; C_ERR = "\033[91m"; C_GREEN = "\033[92m"; C_END = "\033[0m"

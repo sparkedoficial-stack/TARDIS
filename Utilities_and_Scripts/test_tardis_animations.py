@@ -133,7 +133,7 @@ class TestTardisAnimations(unittest.TestCase):
         # Instanciar bridge sin arranque de red
         bridge = TelegramBridge.__new__(TelegramBridge)
         bridge.config = {
-            "bot_token": "TEST_TOKEN_12345",
+            "bot_token": "REDACTED",
             "admin_chat_id": 7153384115,
             "allowed_chats": [7153384115],
             "prefer_animations_over_still_images": True,
@@ -192,7 +192,7 @@ class TestTardisAnimations(unittest.TestCase):
 
         bridge = TelegramBridge.__new__(TelegramBridge)
         bridge.config = {
-            "bot_token": "TEST_TOKEN",
+            "bot_token": "REDACTED",
             "animation_render_fps": 240,
             "animation_telegram_fps": 60,
             "animation_width": 3840,

@@ -42,12 +42,12 @@
     let targetUrl = "tardis_pocket.html";
 
     async function probeAndLaunch() {
-      // 1. Probar demonio local en REDACTED_IP:8080
+      // 1. Probar demonio local en 127.0.0.1:8080
       try {
-        const resp = await fetch("http://REDACTED_IP:8080/api/local/status", { signal: AbortSignal.timeout(1200) });
+        const resp = await fetch("http://127.0.0.1:8080/api/local/status", { signal: AbortSignal.timeout(1200) });
         if (resp.ok) {
-          targetUrl = "http://REDACTED_IP:8080/tardis_pocket.html";
-          onSuccess("Demonio Local Activo (REDACTED_IP:8080)");
+          targetUrl = "http://127.0.0.1:8080/tardis_pocket.html";
+          onSuccess("Demonio Local Activo (127.0.0.1:8080)");
           return;
         }
       } catch (e) {}

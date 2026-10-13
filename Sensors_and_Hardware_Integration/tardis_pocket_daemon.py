@@ -6,7 +6,7 @@ DEMONIO SOBERANO LOCAL AUTÓNOMO 24/7 PARA TARDIS-POCKET (MOTOROLA MOTO X PLAY)
 ========================================================================================
 Convierte a TARDIS-POCKET en un nodo autónomo independiente que opera continuamente sin
 necesidad de abrir navegadores ni escribir URLs externas:
-  1. Servidor HTTP local embebido en REDACTED_IP:8080 para la cabina soberana offline.
+  1. Servidor HTTP local embebido en 127.0.0.1:8080 para la cabina soberana offline.
   2. Bucle centinela de telemetría física (Batería, GPS, Red) en segundo plano.
   3. Enrutador Omni-Ruta dinámico:
        - Prioridad 1: Hotspot Soberano Directo (http://REDACTED_IP:8757)
@@ -45,7 +45,7 @@ ROUTES_CACHE = CACHE_DIR / "active_routes.json"
 
 LOCAL_PORT = 8080
 AUTHORIZED_SERIAL = "ZY222ZXWPP"
-SOVEREIGN_KEY = "REDACTED"
+SOVEREIGN_KEY = "DiosDelTiempo01"
 
 logging.basicConfig(
     level=logging.INFO,
@@ -143,7 +143,7 @@ class SystemHardwareProber:
     @staticmethod
     def get_network_info() -> Dict[str, Any]:
         """Obtiene la interfaz y estado de red actual."""
-        net = {"ssid": "Unknown", "ip": "REDACTED_IP", "interface": "unknown"}
+        net = {"ssid": "Unknown", "ip": "127.0.0.1", "interface": "unknown"}
         if shutil.which("termux-wifi-connectioninfo"):
             try:
                 res = subprocess.run(
@@ -152,7 +152,7 @@ class SystemHardwareProber:
                 if res.returncode == 0:
                     data = json.loads(res.stdout)
                     net["ssid"] = data.get("ssid", "").replace('"', '')
-                    net["ip"] = data.get("ip", "REDACTED_IP")
+                    net["ip"] = data.get("ip", "127.0.0.1")
             except Exception:
                 pass
         return net
@@ -213,10 +213,10 @@ class OmniRouteResolver:
         chosen_route = "AUTONOMOUS_FALLBACK"
         chosen_base = ""
 
-        # 0. Enlace Directo USB / ADB Loopback Central (http://REDACTED_IP:8757)
-        if self.test_url("http://REDACTED_IP:8757", timeout=0.8):
+        # 0. Enlace Directo USB / ADB Loopback Central (http://127.0.0.1:8757)
+        if self.test_url("http://127.0.0.1:8757", timeout=0.8):
             chosen_route = "DIRECT_USB_TETHER"
-            chosen_base = "http://REDACTED_IP:8757"
+            chosen_base = "http://127.0.0.1:8757"
 
         # 1. Hotspot Soberano Directo TimeMachine (REDACTED_IP:8757)
         elif self.test_url("http://REDACTED_IP:8757", timeout=1.2):
@@ -314,7 +314,7 @@ class CommandExecutor:
                 subprocess.Popen(["termux-notification", "--title", title, "--content", content])
 
         elif action == "open_ui":
-            url = f"http://REDACTED_IP:{LOCAL_PORT}"
+            url = f"http://127.0.0.1:{LOCAL_PORT}"
             logger.info(f"🖥️ Levantando interfaz local nativa en pantalla: {url}")
             subprocess.Popen([
                 "am", "start", "-a", "android.intent.action.VIEW", "-d", url
@@ -671,17 +671,17 @@ class TardisPocketDaemon:
         self.resolver = OmniRouteResolver()
         self.last_battery = {"level": 100, "charging": False, "temp": 25.0}
         self.last_gps = {"lat": 20.6274, "lon": -87.0799, "alt": 10.0}
-        self.last_network = {"ssid": "Unknown", "ip": "REDACTED_IP"}
+        self.last_network = {"ssid": "Unknown", "ip": "127.0.0.1"}
         self.server: Optional[socketserver.TCPServer] = None
 
     def start_local_server(self):
-        """Inicia el servidor web local en REDACTED_IP:8080."""
+        """Inicia el servidor web local en 127.0.0.1:8080."""
         class ReusableTCPServer(socketserver.TCPServer):
             allow_reuse_address = True
 
         try:
-            self.server = ReusableTCPServer(("REDACTED_IP", LOCAL_PORT), TardisPocketHTTPRequestHandler)
-            logger.info(f"🚀 Servidor Web Soberano local escuchando en http://REDACTED_IP:{LOCAL_PORT}")
+            self.server = ReusableTCPServer(("0.0.0.0", LOCAL_PORT), TardisPocketHTTPRequestHandler)
+            logger.info(f"🚀 Servidor Web Soberano local escuchando en http://127.0.0.1:{LOCAL_PORT}")
             self.server.serve_forever()
         except Exception as e:
             logger.error(f"Error iniciando servidor web local: {e}")

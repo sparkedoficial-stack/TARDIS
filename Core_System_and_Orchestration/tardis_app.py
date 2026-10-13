@@ -32,14 +32,14 @@ from gi.repository import Gtk, Gdk, WebKit2, GLib, GdkPixbuf
 
 PORT = 8757
 AUTH_TOKEN = os.environ.get("GIA_AUTH_TOKEN", "DiosDelTiempo01")
-APP_URL = f"http://REDACTED_IP:{PORT}?key={AUTH_TOKEN}"
+APP_URL = f"http://127.0.0.1:{PORT}?key={AUTH_TOKEN}"
 ICON_PATH = PROJECT_DIR / "tardis-icon.png"
 
 
 def is_backend_online(timeout: float = 1.0) -> bool:
     """Comprueba si el servidor maestro TARDIS responde en el puerto local."""
     try:
-        req = urllib.request.Request(f"http://REDACTED_IP:{PORT}/api/health", headers={"User-Agent": "TardisApp/1.0"})
+        req = urllib.request.Request(f"http://127.0.0.1:{PORT}/api/health", headers={"User-Agent": "TardisApp/1.0"})
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             return resp.status == 200
     except Exception:

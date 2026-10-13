@@ -104,9 +104,61 @@ def main():
         action="store_true",
         help="Salida estructurada en JSON puro en la terminal."
     )
+    parser.add_argument(
+        "--publish-physics",
+        action="store_true",
+        help="Publicar avance en física en foros internacionales, Zenodo y Telegram."
+    )
+    parser.add_argument(
+        "--list-physics-advances",
+        action="store_true",
+        help="Mostrar catálogo de avances en física disponibles para publicación."
+    )
+    parser.add_argument(
+        "--advance-id",
+        type=str,
+        default="geon_retrocausal_mechanics",
+        help="ID o tema del avance en física a publicar (def: geon_retrocausal_mechanics)."
+    )
 
     args = parser.parse_args()
     engine = get_scientific_research_engine()
+
+    # 0. Listar avances de física
+    if args.list_physics_advances:
+        advances = engine.list_physics_advances()
+        print("\n" + "=" * 70)
+        print("🌌 AVANCES EN FÍSICA CATALOGADOS PARA DISEMINACIÓN INTERNACIONAL")
+        print("=" * 70)
+        for i, adv in enumerate(advances, 1):
+            print(f"[{i}] ID: {adv.get('advance_id')}")
+            print(f"    Título: {adv.get('title')}")
+            print(f"    Dominio: {adv.get('domain')}")
+        print("=" * 70 + "\n")
+        return 0
+
+    # 0.1 Publicar avance de física
+    if args.publish_physics:
+        target = args.topic or args.advance_id
+        print(f"\n🚀 Diseminando avance de física a foros internacionales: '{target}'...")
+        res = engine.disseminate_physics_advance(
+            advance_id_or_topic=target,
+            send_telegram=args.send_telegram,
+            chat_id=args.chat_id
+        )
+        if args.json:
+            print(json.dumps(res, indent=2, ensure_ascii=False))
+        else:
+            print(f"✅ Avance publicado: {res.get('title')}")
+            print(f"   DOI: {res.get('doi')}")
+            print(f"   Preprint PDF: {res.get('pdf_path')}")
+            print(f"   arXiv Bundle: {res.get('arxiv_package')}")
+            print(f"   Zenodo: {res.get('zenodo_record', {}).get('url')}")
+            print(f"   Foro: {res.get('forum_record', {}).get('url')}")
+            if res.get("telegram_result"):
+                tg_ok = res["telegram_result"].get("ok", False)
+                print(f"   Telegram: {'✅ Despachado' if tg_ok else '⚠️ Error al despachar'}")
+        return 0
 
     # 1. Listar agenda
     if args.list_agenda:

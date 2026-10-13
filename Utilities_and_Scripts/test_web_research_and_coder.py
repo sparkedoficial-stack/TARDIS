@@ -210,7 +210,8 @@ def test_api_research_endpoints():
     from starlette.testclient import TestClient
     from server.api import app
     client = TestClient(app)
-    auth = {"X-API-Key": "REDACTED_MISTRAL"}
+    from core.security import get_authorized_tokens
+    auth = {"X-API-Key": next(iter(get_authorized_tokens()), "test_tok")}
 
     # 1. Search endpoint
     resp = client.get("/api/research/search?q=python+dataclass&limit=2", headers=auth)
@@ -232,3 +233,51 @@ def test_api_research_endpoints():
     data_bak = resp_bak.json()
     assert data_bak["ok"] is True
     assert "backups" in data_bak
+
+
+def test_multi_engine_search():
+    engine = get_web_research_engine()
+
+    # 1. Google News search
+    gn_res = engine.search_google_news("inteligencia artificial", max_results=2)
+    assert isinstance(gn_res, list)
+
+    # 2. Wikipedia search
+    wiki_res = engine.search_wikipedia("mecánica cuántica", max_results=2)
+    assert isinstance(wiki_res, list)
+
+    # 3. arXiv search
+    arxiv_res = engine.search_arxiv("deep learning", max_results=2)
+    assert isinstance(arxiv_res, list)
+
+    # 4. Orchestrated search
+    all_res = engine.search("Navier Stokes", max_results=3)
+    assert isinstance(all_res, list)
+    assert len(all_res) > 0
+
+
+def test_need_web_detection():
+    from omni_temporal_control import _need_web
+
+    # Greetings / pleasantries should NOT trigger web search
+    assert _need_web("hola") is False
+    assert _need_web("buenos días") is False
+    assert _need_web("muchas gracias") is False
+    assert _need_web("ok entendido") is False
+
+    # Identity / internal questions should NOT trigger web search
+    assert _need_web("quién eres") is False
+    assert _need_web("cuáles son tus funciones") is False
+    assert _need_web("quién te creó") is False
+
+    # Hardware control commands should NOT trigger web search
+    assert _need_web("sube el volumen") is False
+    assert _need_web("apaga wifi") is False
+
+    # Informational queries, science, news, surf, questions SHOULD trigger web search
+    assert _need_web("investiga sobre Navier Stokes") is True
+    assert _need_web("cuáles son las mejores playas para surfear en México") is True
+    assert _need_web("noticias recientes de astrofísica") is True
+    assert _need_web("qué es la computación cuántica") is True
+    assert _need_web("explícame la conjetura de Poincaré") is True
+

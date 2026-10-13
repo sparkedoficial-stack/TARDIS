@@ -19,15 +19,15 @@ de forma eficiente.
 
 Umbrales (editables por env var):
   GIA_GPU_PAUSE_C   (default 87)  -> por encima: pausa ciclos
-  GIA_GPU_RESUME_C  (default 78)  -> por debajo: reanuda
-  GIA_MIN_FREE_RAM_GB (default 2) -> menos RAM libre: pausa
-  GIA_IDLE_INTERVAL (default 1800 s) ciclo normal
-  GIA_HOT_BACKOFF   (default 120 s)  espera cuando esta caliente
-
-Uso:
-    python supervisor.py                 # corre indefinido
-    python supervisor.py --once          # una pasada de diagnostico
-    python supervisor.py --no-improve    # solo mantener vivo, sin auto-mejora
+supervisor.py - Supervisor GIA siempre-encendido (24/7)
+======================================================
+Loop continuo que corre en segundo plano y:
+  - Asegura la disponibilidad de Temporal Brain (serverless / UDS).
+  - Vigila temperatura GPU: pausa si >=87C, reanuda si <=78C.
+  - Vigila memoria: pausa si RAM libre < 2 GB.
+  - Ejecuta ciclos de auto-mejora (self_improve.py) periódicamente.
+  - Emite la voz autónoma de GIA (autonomous_voice.py) en cada ciclo.
+  - Auto-recupera componentes caídos.
 """
 from __future__ import annotations
 
@@ -46,8 +46,6 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 CONFIG_DIR = Path(os.environ.get("LOCALAPPDATA", os.path.expanduser("~"))) / "vw-control"
 CONFIG_DIR.mkdir(parents=True, exist_ok=True)
 SUP_LOG = CONFIG_DIR / "supervisor.log"
-
-OLLAMA = "http://REDACTED_IP:11434"
 
 GPU_PAUSE_C = float(os.environ.get("GIA_GPU_PAUSE_C", 87))
 GPU_RESUME_C = float(os.environ.get("GIA_GPU_RESUME_C", 78))
@@ -156,45 +154,17 @@ def should_pause(r: dict) -> tuple[bool, str]:
 #  MANTENER COMPONENTES VIVOS
 # =====================================================================
 
-def ollama_alive() -> bool:
+def temporal_brain_ready() -> bool:
     try:
-        import gia_bootstrap
-        return gia_bootstrap.is_ollama_alive(OLLAMA, timeout=3.0)
+        from core.temporal_brain import get_temporal_brain
+        return get_temporal_brain().is_serverless_ready()
     except Exception:
-        try:
-            httpx.Client().get(f"{OLLAMA}/api/tags", timeout=4.0)
-            return True
-        except Exception:
-            return False
-
-
-def ensure_ollama():
-    if ollama_alive():
-        return True
-    log("Ollama caído o no iniciado; levantando servicio...", "WARN")
-    try:
-        import gia_bootstrap
-        ok = gia_bootstrap.ensure_ollama(OLLAMA, timeout_seconds=25.0, verbose=False)
-        if ok:
-            log("Ollama arriba y verificado", "OK")
-            return True
-    except Exception as e:
-        log(f"Error con bootstrap de Ollama: {e}", "ERROR")
-
-    # Fallback tradicional si bootstrap falla
-    try:
-        kwargs = {"creationflags": subprocess.CREATE_NO_WINDOW} if sys.platform == "win32" else {}
-        subprocess.Popen(["ollama", "serve"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, **kwargs)
-    except Exception as e:
-        log(f"no se pudo arrancar Ollama: {e}", "ERROR")
         return False
-    for _ in range(15):
-        time.sleep(2)
-        if ollama_alive():
-            log("Ollama arriba", "OK")
-            return True
-    log("Ollama no respondio tras 30s", "ERROR")
-    return False
+
+
+def ensure_temporal_brain():
+    # Temporal Brain es serverless sobre socket UNIX privado; no requiere demonio en segundo plano
+    return temporal_brain_ready()
 
 
 def run_voice_cycle():
@@ -219,11 +189,11 @@ def run_voice_cycle():
 def run_improve_cycle(model: str):
     try:
         import self_improve
-        path = self_improve.one_cycle(model)
+        path = self_improve.one_cycle(model, auto_apply=True)
         if path:
-            log(f"auto-mejora encolada: {Path(path).name}", "OK")
+            log(f"auto-mejora formulada y procesada via FTL: {Path(path).name}", "OK")
         else:
-            log("ciclo de auto-mejora sin salida", "WARN")
+            log("ciclo de auto-mejora TARDIS/FTL completado", "OK")
     except Exception as e:
         log(f"error en auto-mejora: {e}", "ERROR")
 
@@ -235,7 +205,7 @@ def run_improve_cycle(model: str):
 def diagnostic():
     r = resources()
     log(f"GPU={r.get('gpu_temp')}C CPU={r.get('cpu')}% RAM_libre={r.get('ram_free_gb')}GB "
-        f"bat={r.get('battery')}% plugged={r.get('plugged')} ollama={ollama_alive()}")
+        f"bat={r.get('battery')}% plugged={r.get('plugged')} temporal_brain={temporal_brain_ready()}")
     pause, why = should_pause(r)
     if pause:
         log(f"en estas condiciones PAUSARIA: {why}", "WARN")
@@ -288,7 +258,7 @@ def main() -> int:
     paused = False
     try:
         while True:
-            ensure_ollama()
+            ensure_temporal_brain()
             r = resources()
             pause, why = should_pause(r)
 

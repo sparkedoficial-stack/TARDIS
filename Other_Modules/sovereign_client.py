@@ -62,34 +62,61 @@ class SovereignClient:
             "options": options
         }
 
-        req = urllib.request.Request(
-            f"{self.settings.ollama_url}/api/chat",
-            data=json.dumps(payload).encode("utf-8"),
-            headers={"Content-Type": "application/json", "User-Agent": "GODWORKS-Sovereign-Client/26.4"}
-        )
+        # Cluster candidate endpoints
+        endpoints = [self.settings.ollama_url]
+        imac_ollama = "http://REDACTED_IP:11434"
+        if imac_ollama not in endpoints:
+            endpoints.append(imac_ollama)
 
         full_reply = []
-        try:
-            with urllib.request.urlopen(req, timeout=120) as resp:
-                for line in resp:
-                    if cancel_event and cancel_event.is_set():
-                        msg = "\n[⛔ Inferencia cancelada y proceso cortado por el usuario]"
-                        full_reply.append(msg)
-                        yield msg
-                        return msg
-                    if not line:
-                        continue
-                    try:
-                        data = json.loads(line.decode("utf-8", errors="replace"))
-                        content = data.get("message", {}).get("content", "")
-                        if content:
-                            full_reply.append(content)
-                            yield content
-                        if data.get("done", False):
-                            break
-                    except Exception:
-                        continue
-        except urllib.error.HTTPError as e:
+        last_error = None
+        succeeded = False
+
+        for endpoint in endpoints:
+            cur_payload = dict(payload)
+            # If failing over to remote iMac node, adapt model and resources for fast execution
+            if endpoint == imac_ollama:
+                if target_model not in ("qwen2.5:1.5b", "qwen2.5:0.5b"):
+                    cur_payload["model"] = "qwen2.5:1.5b"
+                imac_opts = dict(options)
+                imac_opts["num_ctx"] = min(imac_opts.get("num_ctx", 2048), 2048)
+                imac_opts["use_mlock"] = False
+                imac_opts["num_batch"] = 256
+                imac_opts["num_thread"] = 4
+                cur_payload["options"] = imac_opts
+
+            req = urllib.request.Request(
+                f"{endpoint}/api/chat",
+                data=json.dumps(cur_payload).encode("utf-8"),
+                headers={"Content-Type": "application/json", "User-Agent": "GODWORKS-Sovereign-Client/26.4"}
+            )
+            try:
+                with urllib.request.urlopen(req, timeout=120) as resp:
+                    for line in resp:
+                        if cancel_event and cancel_event.is_set():
+                            msg = "\n[⛔ Inferencia cancelada y proceso cortado por el usuario]"
+                            full_reply.append(msg)
+                            yield msg
+                            return msg
+                        if not line:
+                            continue
+                        try:
+                            data = json.loads(line.decode("utf-8", errors="replace"))
+                            content = data.get("message", {}).get("content", "")
+                            if content:
+                                full_reply.append(content)
+                                yield content
+                            if data.get("done", False):
+                                break
+                        except Exception:
+                            continue
+                succeeded = True
+                break
+            except Exception as e_ep:
+                last_error = e_ep
+                continue
+
+        if not succeeded:
             # Fallback a motor directo soberano si el puerto responde con error
             try:
                 import gia_sovereign_engine as _gse
@@ -97,14 +124,11 @@ class SovereignClient:
                 for chunk in eng.chat_stream(messages, model=target_model, cancel_event=cancel_event):
                     full_reply.append(chunk)
                     yield chunk
+                succeeded = True
             except Exception as e_fb:
-                err = f"[Error HTTP Inferencia: {e} | Fallback: {e_fb}]"
+                err = f"[Error Inferencia Clúster: {last_error} | Fallback: {e_fb}]"
                 full_reply.append(err)
                 yield err
-        except Exception as e_gen:
-            err = f"[Error de Conexión: {e_gen}]"
-            full_reply.append(err)
-            yield err
 
         return "".join(full_reply)
 

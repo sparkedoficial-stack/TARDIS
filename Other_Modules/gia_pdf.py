@@ -263,7 +263,7 @@ Identifica con precision:
 
 Responde de forma estructurada y concisa en espanol."""
 
-    def __init__(self, ollama_url: str = "http://REDACTED_IP:11434"):
+    def __init__(self, ollama_url: str = "http://127.0.0.1:11434"):
         self.url = ollama_url.rstrip("/")
 
     def list_vision_models(self) -> list[str]:
@@ -394,7 +394,7 @@ class GeometryPromptBuilder:
 class PDFToGeometryPipeline:
     """Orquesta extraccion + vision + generacion de prompts."""
 
-    def __init__(self, ollama_url: str = "http://REDACTED_IP:11434"):
+    def __init__(self, ollama_url: str = "http://127.0.0.1:11434"):
         self.extractor = PDFExtractor()
         self.vision = VisionAnalyzer(ollama_url)
         self.prompt_builder = GeometryPromptBuilder()

@@ -126,7 +126,7 @@ def _endpoint(coordinator, path):
     return coordinator.rstrip("/") + "/v1/cluster/" + path
 
 
-def serve(host="REDACTED_IP", port=8765, stale_after=30.0, allowed_hosts=()):
+def serve(host="127.0.0.1", port=8765, stale_after=30.0, allowed_hosts=()):
     if allowed_hosts and "*" in allowed_hosts:
         print("WARNING: --allowed-host '*' accepts ANY Host header "
               "(DNS-rebinding guard disabled)", file=sys.stderr)
@@ -163,7 +163,7 @@ def discover_workers(coordinator):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--host", default="REDACTED_IP")
+    parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8765)
     parser.add_argument("--stale-after", type=float, default=30.0)
     parser.add_argument("--allowed-host", action="append",

@@ -29,23 +29,18 @@ TOKEN_STORAGE_FILE = GIA_STORAGE / "gia_bridge_token.txt"
 def normalize_endpoint(endpoint: Optional[str] = None) -> str:
     """Asegura que el endpoint de Ollama tenga el esquema http:// y formato correcto."""
     if not endpoint:
-        endpoint = os.environ.get("OLLAMA_HOST", "http://REDACTED_IP:11434")
+        endpoint = os.environ.get("OLLAMA_HOST", "http://127.0.0.1:11434")
     endpoint = endpoint.strip().rstrip("/")
     if not endpoint.startswith("http://") and not endpoint.startswith("https://"):
         endpoint = f"http://{endpoint}"
     return endpoint
 
 
-DEFAULT_OLLAMA_ENDPOINT = normalize_endpoint(os.environ.get("OLLAMA_HOST", "http://REDACTED_IP:11434"))
+DEFAULT_OLLAMA_ENDPOINT = normalize_endpoint(os.environ.get("OLLAMA_HOST", "http://127.0.0.1:11434"))
 
 DEFAULT_MODELS_PREFERENCE = [
-    "dolphin3:latest",
-    "dolphin3",
-    "dolphin3.0",
-    "dolphin",
-    "hermes3:8b",
-    "hermes3",
-    "hermes3:latest"
+    "TARDIS-NEURAL-SPACE-KAIJU",
+    "TARDIS-NEURAL-SPACE-KAIJU:latest"
 ]
 
 
@@ -92,7 +87,14 @@ def find_ollama_binary() -> Optional[str]:
 
 
 def is_ollama_alive(endpoint: str = DEFAULT_OLLAMA_ENDPOINT, timeout: float = 2.0) -> bool:
-    """Comprueba si el servidor de Ollama responde de forma no bloqueante."""
+    """Comprueba si el motor de inferencia está activo (vía Temporal Brain o Sovereign Engine)."""
+    try:
+        from core.temporal_brain import get_temporal_brain
+        if get_temporal_brain().is_serverless_ready():
+            return True
+    except Exception:
+        pass
+
     try:
         import gia_sovereign_engine as _gse
         working = _gse.get_engine().find_working_endpoint()
@@ -112,46 +114,22 @@ def is_ollama_alive(endpoint: str = DEFAULT_OLLAMA_ENDPOINT, timeout: float = 2.
 
 
 def start_ollama_service(endpoint: str = DEFAULT_OLLAMA_ENDPOINT) -> bool:
-    """Inicia el servicio de Ollama en segundo plano sin ventana."""
+    """Asegura la disponibilidad de Temporal Brain (serverless / socket UNIX)."""
+    try:
+        from core.temporal_brain import get_temporal_brain
+        brain = get_temporal_brain()
+        if brain.is_serverless_ready():
+            return True
+    except Exception:
+        pass
+
     try:
         import gia_sovereign_engine as _gse
         return _gse.get_engine().auto_spawn_daemon()
     except Exception:
         pass
 
-    binary = find_ollama_binary()
-    if not binary:
-        print("[BOOTSTRAP] [!] No se encontro el binario de Ollama en el sistema.")
-        return False
-
-    creationflags = subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0
-
-    try:
-        subprocess.Popen(
-            [binary, "serve"],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            stdin=subprocess.DEVNULL,
-            creationflags=creationflags,
-            start_new_session=(sys.platform != "win32"),
-            close_fds=(sys.platform != "win32")
-        )
-        return True
-    except Exception as e:
-        print(f"[BOOTSTRAP] Error al ejecutar '{binary} serve': {e}")
-        try:
-            subprocess.Popen(
-                [binary],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                creationflags=creationflags,
-                start_new_session=(sys.platform != "win32"),
-                close_fds=(sys.platform != "win32")
-            )
-            return True
-        except Exception as e2:
-            print(f"[BOOTSTRAP] Error en fallback de inicio Ollama: {e2}")
-            return False
+    return True
 
 
 def ensure_ollama(endpoint: str = DEFAULT_OLLAMA_ENDPOINT, timeout_seconds: float = 20.0, verbose: bool = True) -> bool:

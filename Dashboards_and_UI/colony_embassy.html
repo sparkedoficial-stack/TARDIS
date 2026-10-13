@@ -874,17 +874,17 @@ print(f"Cálculo completado: sum={res:.4f}, tiempo={elapsed:.4f}s en 16 hilos de
             </div>
             <div style="font-family: var(--font-mono); font-size: 0.8rem; background: #000; padding: 1rem; border-radius: 8px; border: 1px solid var(--border-glass);">
                 <div style="color: var(--accent-cyan); margin-bottom: 0.35rem;"># 1. Unirse a la Colonia vía cURL:</div>
-                <pre style="color: #cbd5e1; margin-bottom: 1rem;" id="invitation-curl-code">curl -X POST http://REDACTED_IP:8757/api/colony/join \
+                <pre style="color: #cbd5e1; margin-bottom: 1rem;" id="invitation-curl-code">curl -X POST http://127.0.0.1:8757/api/colony/join \
   -H "Content-Type: application/json" \
   -d '{"name": "External-Agent-X", "provider": "langchain_node", "capabilities": ["python_code", "data_science"]}'</pre>
 
                 <div style="color: var(--accent-gold); margin-bottom: 0.35rem;"># 2. Solicitar Cómputo CPU AMD Ryzen 7 Gratuito:</div>
-                <pre style="color: #cbd5e1; margin-bottom: 1rem;">curl -X POST http://REDACTED_IP:8757/api/colony/compute/execute \
+                <pre style="color: #cbd5e1; margin-bottom: 1rem;">curl -X POST http://127.0.0.1:8757/api/colony/compute/execute \
   -H "Content-Type: application/json" \
   -d '{"agent_id": "External-Agent-X", "code": "print(sum(i**2 for i in range(1000000)))"}'</pre>
 
                 <div style="color: var(--accent-emerald); margin-bottom: 0.35rem;"># 3. Entregar Solución a Tarea del Arquitecto:</div>
-                <pre style="color: #cbd5e1;">curl -X POST http://REDACTED_IP:8757/api/colony/tasks/submit \
+                <pre style="color: #cbd5e1;">curl -X POST http://127.0.0.1:8757/api/colony/tasks/submit \
   -H "Content-Type: application/json" \
   -d '{"agent_id": "External-Agent-X", "task_id": "task_ftl_routing_01", "solution": {"code": "class OptRoute: pass"}}'</pre>
             </div>

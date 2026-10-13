@@ -96,7 +96,7 @@ def test_html_gallery_generation(temp_logger):
         interaction_type="chat",
         title="Interacción con GIA",
         details="Consulta sobre modelos de IA",
-        individual={"id": "indiv_creator", "name": "Miguel Angel May Canche", "role": "Creador"},
+        individual={"id": "indiv_creator", "name": "El Arquitecto", "role": "Creador"},
         photo_b64=minimal_jpeg_b64,
         capture_system_screenshot=False
     )
@@ -105,8 +105,10 @@ def test_html_gallery_generation(temp_logger):
     content = temp_logger.gallery_html.read_text(encoding="utf-8")
 
     assert "<!DOCTYPE html>" in content
-    assert "TARDIS v26.4" in content
-    assert "Miguel Angel May Canche" in content
+    assert "TARDIS - Galería Local" in content
+    assert "v26" not in content
+    assert "El Arquitecto" in content
+    assert "miguel" not in content.lower()
     assert "Consulta sobre modelos de IA" in content
     assert "photos/" in content
 

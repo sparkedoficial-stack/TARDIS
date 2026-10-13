@@ -27,29 +27,34 @@ class TestWhatsAppBridge(unittest.TestCase):
         self.assertEqual(_digits(None), "")
 
     def test_initial_status_and_defaults(self):
-        """Verifica el estado inicial y los parámetros por defecto."""
+        """Verifica el estado inicial y que no existan puertas traseras."""
         status = self.bridge.get_status()
         self.assertTrue(status["ok"])
         self.assertFalse(status["configured"])
-        self.assertEqual(status["verify_token"], "DiosDelTiempo01")
-        self.assertIn("0", self.bridge.pairing_passwords)
-        self.assertIn("DiosDelTiempo01", self.bridge.pairing_passwords)
+        self.assertFalse(status.get("verify_token_set", False))
+        self.assertNotIn("0", self.bridge.pairing_passwords)
+        self.assertNotIn("DiosDelTiempo01", self.bridge.pairing_passwords)
 
     def test_webhook_challenge_verification(self):
-        """Verifica el handshake de verificación de Meta (GET /whatsapp/webhook)."""
+        """Verifica el handshake de verificación de Meta con token explícito."""
         challenge = "random_meta_challenge_str_123"
-        
+        self.bridge.config["verify_token"] = "SecureMetaToken_123"
+
         # Con verify_token correcto
-        res = self.bridge.verify_challenge("subscribe", "DiosDelTiempo01", challenge)
+        res = self.bridge.verify_challenge("subscribe", "SecureMetaToken_123", challenge)
         self.assertEqual(res, challenge)
-        self.assertTrue(self.bridge.verify_webhook_token("DiosDelTiempo01"))
+        self.assertTrue(self.bridge.verify_webhook_token("SecureMetaToken_123"))
+
+        # Con verify_token antiguo/backdoor rechazado
+        res_backdoor = self.bridge.verify_challenge("subscribe", "DiosDelTiempo01", challenge)
+        self.assertIsNone(res_backdoor)
 
         # Con verify_token incorrecto o modo inválido
         res_bad = self.bridge.verify_challenge("subscribe", "wrong_token", challenge)
         self.assertIsNone(res_bad)
         self.assertFalse(self.bridge.verify_webhook_token("wrong_token"))
 
-        res_bad_mode = self.bridge.verify_challenge("not_subscribe", "DiosDelTiempo01", challenge)
+        res_bad_mode = self.bridge.verify_challenge("not_subscribe", "SecureMetaToken_123", challenge)
         self.assertIsNone(res_bad_mode)
 
     def test_signature_verification(self):
@@ -68,20 +73,30 @@ class TestWhatsAppBridge(unittest.TestCase):
         self.assertFalse(self.bridge.verify_signature(body, ""))
 
     def test_master_key_pairing(self):
-        """Verifica que enviar la contraseña maestra '0' autoriza de inmediato el número de WhatsApp."""
+        """Verifica que '0' y 'DiosDelTiempo01' sean rechazados y solo una clave explícita autorice."""
         sender_phone = "+52 155 9876-5432"
         clean_num = "5215598765432"
         self.assertFalse(self.bridge.is_number_authorized(clean_num))
 
         with patch.object(self.bridge, "send_message") as mock_send:
-            # Enviar clave maestra '0'
-            res = self.bridge._handle_incoming_text(clean_num, "0", "TestUser")
-            
-            self.assertTrue(res.get("ok"))
+            # Enviar clave '0' debe fallar
+            res0 = self.bridge._handle_incoming_text(clean_num, "0", "TestUser")
+            self.assertFalse(res0.get("ok"))
+            self.assertFalse(self.bridge.is_number_authorized(clean_num))
+
+            # Enviar clave 'DiosDelTiempo01' debe fallar
+            res_ddt = self.bridge._handle_incoming_text(clean_num, "DiosDelTiempo01", "TestUser")
+            self.assertFalse(res_ddt.get("ok"))
+            self.assertFalse(self.bridge.is_number_authorized(clean_num))
+
+            # Con clave explícita configurada
+            self.bridge.config["master_key"] = "SuperSecretWhatsAppKey99"
+            res_ok = self.bridge._handle_incoming_text(clean_num, "SuperSecretWhatsAppKey99", "TestUser")
+            self.assertTrue(res_ok.get("ok"))
             self.assertTrue(self.bridge.is_number_authorized(clean_num))
             mock_send.assert_called()
             sent_text = mock_send.call_args.args[1]
-            self.assertIn("ACCESO SOBERANO CONCEDIDO", sent_text)
+            self.assertIn("ACCESO CONCEDIDO", sent_text)
 
     def test_unauthorized_number_blocked(self):
         """Verifica que mensajes sin clave maestra son rechazados si el número no está autorizado."""
@@ -99,23 +114,23 @@ class TestWhatsAppBridge(unittest.TestCase):
         self.bridge.authorized_numbers.add(sender)
 
         with patch.object(self.bridge, "send_message") as mock_send:
-            res = self.bridge._handle_incoming_text(sender, "/start", "Owner")
+            res = self.bridge._handle_incoming_text(sender, "/start", "SimulatedUser")
             self.assertTrue(res.get("ok"))
             sent_text = mock_send.call_args.args[1]
             self.assertIn("GODWORKS SYSTEM v26.4", sent_text)
-            self.assertIn("/sh", sent_text)
             self.assertIn("/status", sent_text)
 
     def test_command_sh_execution(self):
-        """Verifica que /sh ejecuta comandos de shell en la terminal."""
+        """Verifica que /sh sea bloqueado por política de seguridad remota."""
         sender = "5215500002222"
         self.bridge.authorized_numbers.add(sender)
 
         with patch.object(self.bridge, "send_message") as mock_send:
-            res = self.bridge._handle_incoming_text(sender, "/sh echo 'WHATSAPP_WIRELESS_OK'", "Owner")
-            self.assertTrue(res.get("ok"))
+            res = self.bridge._handle_incoming_text(sender, "/sh echo 'WHATSAPP_WIRELESS_OK'", "SimulatedUser")
+            self.assertFalse(res.get("ok"))
+            self.assertEqual(res.get("error"), "remote_terminal_execution_blocked")
             sent_text = mock_send.call_args.args[1]
-            self.assertIn("WHATSAPP_WIRELESS_OK", sent_text)
+            self.assertIn("ACCESO DENEGADO", sent_text)
 
     def test_send_message_post_payload(self):
         """Verifica el envío de mensajes a la Graph API de Meta."""
@@ -145,7 +160,7 @@ class TestWhatsAppBridge(unittest.TestCase):
         """Verifica la persistencia en disco de la configuración actualizada."""
         res = self.bridge.update_config({
             "phone_number_id": "1234509876",
-            "access_token": "EAAG_SAVED_TOKEN",
+            "access_token": "REDACTED",
             "allowed_numbers": "5215511112222, +52 155 3333 4444"
         })
         self.assertTrue(res["configured"])

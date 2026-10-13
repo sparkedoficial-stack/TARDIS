@@ -17,8 +17,14 @@ C_DIM="\033[90m"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
+if [ -f "$SCRIPT_DIR/.env" ]; then
+    set -a
+    source "$SCRIPT_DIR/.env" 2>/dev/null || true
+    set +a
+fi
+
 export PATH="$HOME/.local/bin:$SCRIPT_DIR/.venv-linux/bin:$PATH"
-export GIA_AUTH_TOKEN="${GIA_AUTH_TOKEN:-Imznu9ZNtdbFl2ebIGSzpYqe7A3OS4Y5}"
+export GIA_AUTH_TOKEN="REDACTED"
 export GIA_MODEL="${GIA_MODEL:-dolphin3:latest}"
 export GIA_NUM_CTX="${GIA_NUM_CTX:-16384}"
 export OLLAMA_KEEP_ALIVE="24h"

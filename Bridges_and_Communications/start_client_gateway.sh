@@ -23,23 +23,23 @@ URL_FILE="$DIR/CLIENT_GATEWAY_TUNNEL_URL.txt"
 
 echo "🔐 [Client Gateway] Deteniendo instancias previas..."
 pkill -f "client_gateway.py" 2>/dev/null || true
-pkill -f "cloudflared tunnel --url http://REDACTED_IP:${GATEWAY_PORT}" 2>/dev/null || true
+pkill -f "cloudflared tunnel --url http://127.0.0.1:${GATEWAY_PORT}" 2>/dev/null || true
 sleep 1
 
-echo "🔐 [Client Gateway] Iniciando servicio en REDACTED_IP:${GATEWAY_PORT}..."
+echo "🔐 [Client Gateway] Iniciando servicio en 127.0.0.1:${GATEWAY_PORT}..."
 nohup "$VENV_PYTHON" "$DIR/client_gateway.py" > "$LOG_FILE" 2>&1 &
 GATEWAY_PID=$!
 echo "   PID: $GATEWAY_PID"
 
 sleep 2
-if ! curl -s -m 5 "http://REDACTED_IP:${GATEWAY_PORT}/health" > /dev/null; then
+if ! curl -s -m 5 "http://127.0.0.1:${GATEWAY_PORT}/health" > /dev/null; then
     echo "❌ El gateway no respondió. Revisá $LOG_FILE"
     exit 1
 fi
 
 echo "🌐 [Client Gateway] Levantando túnel público (cloudflared)..."
 CF_BIN="$(command -v cloudflared || echo "$HOME/.local/bin/cloudflared")"
-nohup "$CF_BIN" tunnel --url "http://REDACTED_IP:${GATEWAY_PORT}" > "$TUNNEL_LOG" 2>&1 &
+nohup "$CF_BIN" tunnel --url "http://127.0.0.1:${GATEWAY_PORT}" > "$TUNNEL_LOG" 2>&1 &
 TUNNEL_PID=$!
 
 PUBLIC_URL=""

@@ -9,7 +9,7 @@ echo "Ejemplo: proxychains4 curl ifconfig.me"
 
 echo ""
 echo "Para enrutar todo el sistema, configura tu proxy de red (SOCKS5) a:"
-echo "Host: REDACTED_IP"
+echo "Host: 127.0.0.1"
 echo "Puerto: 9050"
 
 systemctl status tor@default --no-pager | grep Active

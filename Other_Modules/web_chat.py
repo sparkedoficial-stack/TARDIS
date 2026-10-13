@@ -25,7 +25,7 @@ Comandos dentro del chat:
 
 PRIVACIDAD (v1.1):
     - La conversacion vive SOLO en RAM de este proceso; no se persiste.
-    - La inferencia es 100% local (Ollama en REDACTED_IP).
+    - La inferencia es 100% local (Ollama en 127.0.0.1).
     - Lo UNICO que sale de la maquina son las queries de web_search y las
       URLs de web_fetch que el modelo decide invocar (solo si /web on).
     - CADA egreso se muestra en pantalla y se registra en
@@ -45,13 +45,13 @@ import urllib.parse
 
 import httpx
 
-OLLAMA = "http://REDACTED_IP:11434"
+OLLAMA = "http://127.0.0.1:11434"
 try:
     import gia_sovereign_engine as _gse
     DEFAULT_MODEL = _gse.get_engine().resolve_model()
 except Exception:
-    DEFAULT_MODEL = os.environ.get("GIA_MODEL", "Qwen3.8-27B-Uncensored-MLX:latest")
-DEFAULT_CTX = 4096          # óptimo para Ryzen 7 + RTX 3050 (24 GB RAM)
+    DEFAULT_MODEL = os.environ.get("GIA_MODEL", "TARDIS-NEURAL-SPACE-KAIJU")
+DEFAULT_CTX = int(os.environ.get("GIA_NUM_CTX", "32768"))  # óptimo para Ryzen 7 + RTX 3050 (32 GB RAM)
 REQUEST_TIMEOUT = 300.0
 MAX_TOOL_ROUNDS = 6
 
@@ -104,89 +104,42 @@ def _egress_blocked() -> dict:
 
 
 def web_search(query: str, max_results: int = 6) -> dict:
-    """Busca en DuckDuckGo HTML y devuelve [{title, url, snippet}]."""
+    """Busca en la web usando el motor de investigación autónomo (Google News, Wikipedia, arXiv, etc.)."""
     if not WEB_ENABLED:
         return _egress_blocked()
     if not query.strip():
         return {"ok": False, "error": "query vacio", "results": []}
-    _log_egress("SEARCH->duckduckgo.com", query)
-    print(f"{C_ERR}   [EGRESO] query enviada a DuckDuckGo: \"{query}\"{C_END}")
+    _log_egress("SEARCH", query)
+    print(f"{C_ERR}   [EGRESO] búsqueda multi-motor para: \"{query}\"{C_END}")
     try:
-        r = httpx.post(
-            "https://html.duckduckgo.com/html/",
-            data={"q": query},
-            headers={"User-Agent": _UA},
-            timeout=20.0,
-            follow_redirects=True,
-        )
-        r.raise_for_status()
-        page = r.text
-    except Exception as e:  # noqa: BLE001
-        return {"ok": False, "error": f"search fallo: {type(e).__name__}: {e}",
-                "results": []}
-
-    results = []
-    # Bloques de resultado: <a class="result__a" href="...">titulo</a>
-    for m in re.finditer(
-        r'<a[^>]+class="result__a"[^>]+href="([^"]+)"[^>]*>(.*?)</a>',
-        page, re.DOTALL,
-    ):
-        raw_href, raw_title = m.group(1), m.group(2)
-        # DDG envuelve la URL real en /l/?uddg=<url-encoded>
-        url = raw_href
-        uddg = re.search(r"[?&]uddg=([^&]+)", raw_href)
-        if uddg:
-            url = urllib.parse.unquote(uddg.group(1))
-        title = html_mod.unescape(re.sub(r"<[^>]+>", "", raw_title)).strip()
-        if url.startswith("//"):
-            url = "https:" + url
-        results.append({"title": title, "url": url, "snippet": ""})
-        if len(results) >= max_results:
-            break
-
-    # Snippets (mismo orden que los resultados)
-    snippets = re.findall(
-        r'<a[^>]+class="result__snippet"[^>]*>(.*?)</a>', page, re.DOTALL)
-    for i, sn in enumerate(snippets[: len(results)]):
-        results[i]["snippet"] = html_mod.unescape(
-            re.sub(r"<[^>]+>", "", sn)).strip()[:300]
-
-    if not results:
-        return {"ok": False, "error": "sin resultados (DDG pudo bloquear)",
-                "results": []}
-    return {"ok": True, "query": query, "results": results}
+        from core.web_research_engine import get_web_research_engine
+        eng = get_web_research_engine()
+        items = eng.search(query, max_results=max_results)
+        results = [{"title": r.title, "url": r.url, "snippet": r.snippet} for r in items]
+        if not results:
+            return {"ok": False, "error": "sin resultados", "results": []}
+        return {"ok": True, "query": query, "results": results}
+    except Exception as e:
+        return {"ok": False, "error": f"search fallo: {type(e).__name__}: {e}", "results": []}
 
 
 def web_fetch(url: str, max_chars: int = 7000) -> dict:
-    """Descarga una URL y devuelve el texto visible (sin tags)."""
+    """Descarga una URL y devuelve el texto limpio usando el motor de extracción."""
     if not WEB_ENABLED:
         return _egress_blocked()
     if not url.strip():
         return {"ok": False, "error": "url vacia", "text": ""}
-    if not url.startswith(("http://", "https://")):
-        url = "https://" + url
     _log_egress("FETCH", url)
     print(f"{C_ERR}   [EGRESO] descargando URL: {url}{C_END}")
     try:
-        r = httpx.get(url, headers={"User-Agent": _UA},
-                      timeout=25.0, follow_redirects=True)
-        r.raise_for_status()
-        page = r.text
-    except Exception as e:  # noqa: BLE001
-        return {"ok": False, "error": f"fetch fallo: {type(e).__name__}: {e}",
-                "text": ""}
-
-    # Quitar bloques no-texto
-    page = re.sub(r"<(script|style|noscript|svg|head)[^>]*>.*?</\1>",
-                  " ", page, flags=re.DOTALL | re.IGNORECASE)
-    # Tags -> espacio; entidades -> chars
-    text = html_mod.unescape(re.sub(r"<[^>]+>", " ", page))
-    # Colapsar whitespace
-    text = re.sub(r"\s+", " ", text).strip()
-    if len(text) > max_chars:
-        text = text[:max_chars] + " ...[truncado]"
-    return {"ok": True, "url": str(r.url), "status": r.status_code,
-            "chars": len(text), "text": text}
+        from core.web_research_engine import get_web_research_engine
+        eng = get_web_research_engine()
+        page = eng.fetch_page(url, max_chars=max_chars)
+        if page.error:
+            return {"ok": False, "error": page.error, "text": ""}
+        return {"ok": True, "url": page.url, "status": page.status_code, "chars": len(page.text), "text": page.text}
+    except Exception as e:
+        return {"ok": False, "error": f"fetch fallo: {type(e).__name__}: {e}", "text": ""}
 
 
 TOOLS_SCHEMA = [

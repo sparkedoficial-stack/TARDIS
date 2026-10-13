@@ -32,7 +32,7 @@ from colibri_optimizer import ColibriParameterOptimizer
 WORKSPACE_DIR = Path(__file__).resolve().parent
 COLIBRI_DIR = WORKSPACE_DIR / "colibri"
 DEFAULT_COLIBRI_PORT = int(os.environ.get("COLIBRI_PORT", "8765"))
-DEFAULT_HOST = "REDACTED_IP"
+DEFAULT_HOST = "127.0.0.1"
 DEFAULT_RAM_GB = float(os.environ.get("RAM_GB", "20.0"))
 
 
@@ -314,7 +314,7 @@ class ColibriBridge:
         """
         m_tag = Path(model_name).name if ("/" in str(model_name) or "\\" in str(model_name)) else str(model_name)
         if not m_tag or m_tag in ("Qwen3.8-27B-Uncensored", "Qwen3.8-27B-Uncensored-MLX:latest", "colibri-active", "auto"):
-            m_tag = os.environ.get("GIA_MODEL", "dolphin3:latest")
+            m_tag = os.environ.get("GIA_MODEL", "TARDIS-NEURAL-SPACE-KAIJU")
         elif ":" not in m_tag and not m_tag.endswith(".exe"):
             m_tag = f"{m_tag}:latest"
 
@@ -333,7 +333,7 @@ class ColibriBridge:
             "keep_alive": "24h"
         }
         req = urllib.request.Request(
-            "http://REDACTED_IP:11434/api/chat",
+            "http://127.0.0.1:11434/api/chat",
             data=json.dumps(req_body).encode("utf-8"),
             headers={"Content-Type": "application/json", "User-Agent": "GODWORKS-ColibriBridge-Managed/26.4"}
         )

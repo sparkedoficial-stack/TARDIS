@@ -3,7 +3,7 @@ Regresion: control de acceso del servidor FastAPI.
 
 - Las APIs sensibles (admin de usuarios, sandbox, camaras, sensores) eran publicas:
   un equipo de la red local podia darse de alta como autorizado.
-- Una peticion reenviada por un tunel llega desde REDACTED_IP y se trataba como local.
+- Una peticion reenviada por un tunel llega desde 127.0.0.1 y se trataba como local.
 """
 import pytest
 from fastapi.testclient import TestClient
@@ -30,7 +30,7 @@ def remote():
 
 @pytest.fixture
 def local():
-    return TestClient(app, client=("REDACTED_IP", 50000))
+    return TestClient(app, client=("127.0.0.1", 50000))
 
 
 @pytest.mark.parametrize("path", SENSITIVE)

@@ -2,16 +2,23 @@ import pytest
 from starlette.testclient import TestClient
 from server.api import app
 
+from core.security import get_authorized_tokens
+
 client = TestClient(app)
-AUTH_HEADERS = {"X-API-Key": "REDACTED_MISTRAL"}
+_tok = next(iter(get_authorized_tokens()), "test_fallback_tok")
+AUTH_HEADERS = {"X-API-Key": _tok}
 
 def test_health_public():
     resp = client.get("/health")
     assert resp.status_code == 200
     data = resp.json()
     assert data["ok"] is True
-    assert data["model"] in ("dolphin3:latest", "hermes3:8b")
-    assert data["num_ctx"] in (4096, 16384, 32768)
+    assert isinstance(data["model"], str) and data["model"]
+    # num_ctx refleja el contexto real del servidor LLM cuando esta en linea
+    assert isinstance(data["num_ctx"], int) and data["num_ctx"] > 0
+    assert data["status"] in ("online", "degraded")
+    assert isinstance(data["llm_online"], bool)
+    assert data["status"] == ("online" if data["llm_online"] else "degraded")
     assert data["flash_attention"] is True
 
 def test_status_authorized():

@@ -54,13 +54,13 @@ def get_lan_ip() -> str:
         s.close()
         return ip
     except Exception:
-        return "REDACTED_IP"
+        return "127.0.0.1"
 
 
 def is_local_server_up(port: int = PORT, timeout: float = 1.5) -> bool:
     try:
         req = urllib.request.Request(
-            f"http://REDACTED_IP:{port}/client",
+            f"http://127.0.0.1:{port}/client",
             headers={"User-Agent": "ClientServiceMonitor/1.0"}
         )
         with urllib.request.urlopen(req, timeout=timeout) as resp:

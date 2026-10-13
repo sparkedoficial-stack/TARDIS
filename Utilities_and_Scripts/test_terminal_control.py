@@ -11,7 +11,7 @@ from server.api import app
 import omni_temporal_control
 
 client = TestClient(app)
-AUTH_HEADERS = {"X-API-Key": "DiosDelTiempo01"}
+AUTH_HEADERS = {"X-API-Key": "REDACTED"}
 
 
 def test_global_sync_hub_dispatch_broadcast():

@@ -76,7 +76,7 @@ class TestColibriIntegration(unittest.TestCase):
         bridge = colibri_bridge.get_colibri()
         self.assertIsNotNone(bridge)
         self.assertEqual(bridge.port, 8765)
-        self.assertEqual(bridge.endpoint_url, "http://REDACTED_IP:8765")
+        self.assertEqual(bridge.endpoint_url, "http://127.0.0.1:8765")
 
         # Debe permitir listar modelos locales sin arrojar excepciones
         local_models = bridge.list_local_colibri_models()

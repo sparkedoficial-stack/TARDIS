@@ -41,12 +41,12 @@ CAPTURES_DIR = CONFIG_DIR / "captures"
 MEMORY_DIR = CONFIG_DIR / "subconscious_insights"
 MEMORY_DIR.mkdir(parents=True, exist_ok=True)
 
-_raw_ollama = os.environ.get("OLLAMA_HOST", "http://REDACTED_IP:11434").strip()
+_raw_ollama = os.environ.get("OLLAMA_HOST", "http://127.0.0.1:11434").strip()
 try:
     import gia_sovereign_engine as _gse
     DEFAULT_MODEL = _gse.get_engine().resolve_model()
 except Exception:
-    DEFAULT_MODEL = os.environ.get("GIA_MODEL", "Qwen3.8-27B-Uncensored-MLX:latest")
+    DEFAULT_MODEL = os.environ.get("GIA_MODEL", "TARDIS-NEURAL-SPACE-KAIJU")
 
 C_CYAN = "\033[96m"; C_GREEN = "\033[92m"; C_YELLOW = "\033[93m"; C_RED = "\033[91m"; C_DIM = "\033[90m"; C_END = "\033[0m"
 

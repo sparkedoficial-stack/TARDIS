@@ -29,7 +29,7 @@ from gi.repository import Gtk, Gdk, WebKit2, GLib, GdkPixbuf
 
 PORT = 8757
 AUTH_TOKEN = os.environ.get("GIA_AUTH_TOKEN", "DiosDelTiempo01")
-OVERLAY_URL = f"http://REDACTED_IP:{PORT}/companion?key={AUTH_TOKEN}"
+OVERLAY_URL = f"http://127.0.0.1:{PORT}/companion?key={AUTH_TOKEN}"
 FALLBACK_FILE = PROJECT_DIR / "companion_overlay.html"
 ICON_PATH = PROJECT_DIR / "tardis-icon.png"
 
@@ -110,7 +110,7 @@ class TardisDesktopCompanion(Gtk.Window):
         import urllib.request
         backend_online = False
         try:
-            with urllib.request.urlopen(f"http://REDACTED_IP:{PORT}/api/health", timeout=0.8) as resp:
+            with urllib.request.urlopen(f"http://127.0.0.1:{PORT}/api/health", timeout=0.8) as resp:
                 backend_online = (resp.status == 200)
         except Exception:
             backend_online = False

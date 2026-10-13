@@ -7,8 +7,12 @@ python3 /home/timemachine/build_portfolio.py
 echo "Committing and pushing to GitHub..."
 cd /home/timemachine/TARDIS_Portfolio
 
-git add .
-git commit -m "Auto-update TARDIS Core: $(date)"
-git push origin main
+git add -A
 
-echo "TARDIS Portfolio updated successfully."
+if ! git diff-index --quiet HEAD --; then
+    git commit -m "Auto-update TARDIS Core: $(date)"
+    git push origin main
+    echo "TARDIS Portfolio updated and pushed successfully."
+else
+    echo "No changes detected. Working tree is clean."
+fi

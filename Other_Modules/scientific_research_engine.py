@@ -929,6 +929,32 @@ class ScientificResearchEngine:
         if self._autonomous_thread and self._autonomous_thread.is_alive():
             self._autonomous_thread.join(timeout=2.0)
 
+    # -------------------------------------------------------------------------
+    # 6. DISEMINACIÓN DE AVANCES DE FÍSICA EN FOROS INTERNACIONALES
+    # -------------------------------------------------------------------------
+    def disseminate_physics_advance(
+        self,
+        advance_id_or_topic: str,
+        send_telegram: bool = True,
+        chat_id: Optional[int | str] = None
+    ) -> Dict[str, Any]:
+        """Delega en el motor de diseminación de física para publicar avances en foros internacionales y repositorios."""
+        from core.physics_dissemination_engine import get_physics_dissemination_engine
+        engine = get_physics_dissemination_engine()
+        return engine.publish_physics_advance_complete(
+            advance_id_or_topic=advance_id_or_topic,
+            send_telegram=send_telegram,
+            chat_id=chat_id
+        )
+
+    def list_physics_advances(self) -> List[Dict[str, Any]]:
+        """Lista los avances catalogados en física listos para publicación internacional."""
+        from core.physics_dissemination_engine import get_physics_dissemination_engine
+        engine = get_physics_dissemination_engine()
+        advances = engine.get_cataloged_advances()
+        return [adv.to_dict() for adv in advances.values()]
+
 
 def get_scientific_research_engine() -> ScientificResearchEngine:
     return ScientificResearchEngine.get_instance()
+

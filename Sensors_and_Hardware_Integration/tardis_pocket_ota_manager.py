@@ -49,7 +49,7 @@ class TardisPocketOTAManager:
             from core.tardis_pocket_tunnel_bridge import TardisPocketBridge
             bridge = TardisPocketBridge.get_instance()
             last_ip = bridge.last_telemetry.get("client_ip", "").strip()
-            if last_ip and last_ip not in ("REDACTED_IP", "localhost"):
+            if last_ip and last_ip not in ("127.0.0.1", "localhost"):
                 return last_ip
         except Exception:
             pass

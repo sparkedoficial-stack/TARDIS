@@ -117,7 +117,7 @@ def act_all():
         run_script("supervisor.py", hidden=True, new_console=False)
     run_script("omni_temporal_control.py", ["--port", str(WEB_PORT)])
     threading.Thread(target=lambda: (time.sleep(3),
-                     open_browser(f"http://REDACTED_IP:{WEB_PORT}")), daemon=True).start()
+                     open_browser(f"http://127.0.0.1:{WEB_PORT}")), daemon=True).start()
     set_status("Sistema completo iniciado. Abriendo interfaz...")
 
 
@@ -132,8 +132,8 @@ def act_supervisor():
 def act_web_local():
     run_script("gia_web_server.py", ["--port", str(WEB_PORT)])
     threading.Thread(target=lambda: (time.sleep(4),
-                     open_browser(f"http://REDACTED_IP:{WEB_PORT}")), daemon=True).start()
-    set_status(f"Interfaz web local en http://REDACTED_IP:{WEB_PORT}")
+                     open_browser(f"http://127.0.0.1:{WEB_PORT}")), daemon=True).start()
+    set_status(f"Interfaz web local en http://127.0.0.1:{WEB_PORT}")
 
 
 def act_web_lan():

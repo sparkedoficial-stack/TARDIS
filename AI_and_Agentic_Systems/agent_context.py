@@ -384,6 +384,8 @@ def check_proposal(proposal: str, current: str) -> tuple[bool, str]:
     """
     if not proposal or len(proposal) < 10:
         return False, "propuesta vacia o invalida"
+    if re.search(r"miguel\s*([aá]ngel)?\s*may\s*canch[eé]", proposal, re.IGNORECASE):
+        return False, "rechazada: contiene el nombre confidencial prohibido del Arquitecto"
     missing = [a for a in required_anchors() if a not in proposal]
     if missing:
         return False, ("borraria anclas de identidad: " + ", ".join(missing))
@@ -398,7 +400,7 @@ def check_proposal(proposal: str, current: str) -> tuple[bool, str]:
 
 
 def auto_improve(model: str | None = None,
-                 ollama_url: str = "http://REDACTED_IP:11434",
+                 ollama_url: str = "http://127.0.0.1:11434",
                  apply: bool = False) -> dict:
     """El modelo local propone una version mejorada de las directrices, basada
     en la demanda real (historial maestro) y el contexto reciente.
@@ -443,7 +445,7 @@ def auto_improve(model: str | None = None,
             prompt,
             model=model,
             temperature=0.3,
-            num_ctx=8192
+            num_ctx=int(os.environ.get("GIA_NUM_CTX", "32768"))
         )
         content = res.get("reply", "{}")
         # Intentar extraer bloque JSON si viene envuelto
@@ -569,7 +571,7 @@ def read_and_process_document(file_path: str, max_chars: int = 24000) -> dict:
 
 
 def compress_context(text: str, max_tokens: int = 2000, model: str | None = None,
-                     ollama_url: str = "http://REDACTED_IP:11434") -> dict:
+                     ollama_url: str = "http://127.0.0.1:11434") -> dict:
     """Comprime semánticamente un bloque extenso de texto preservando hechos clave, código y directivas."""
     if not text:
         return {"ok": True, "compressed": "", "tokens_est": 0, "ratio": 1.0}
@@ -600,7 +602,7 @@ def compress_context(text: str, max_tokens: int = 2000, model: str | None = None
             prompt,
             model=model,
             temperature=0.2,
-            num_ctx=8192
+            num_ctx=int(os.environ.get("GIA_NUM_CTX", "32768"))
         )
         compressed = (res.get("reply") or "").strip()
         comp_tokens = estimate_tokens(compressed)

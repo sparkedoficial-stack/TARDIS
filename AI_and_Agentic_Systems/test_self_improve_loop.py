@@ -13,8 +13,10 @@ from starlette.testclient import TestClient
 import antigravity_bridge
 from server.api import app
 
+from core.security import get_authorized_tokens
+
 client = TestClient(app)
-AUTH_HEADERS = {"X-API-Key": "REDACTED_MISTRAL"}
+AUTH_HEADERS = {"X-API-Key": next(iter(get_authorized_tokens()), "test_tok")}
 
 
 class TestSelfImproveLoopCore:

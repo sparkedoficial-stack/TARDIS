@@ -441,7 +441,7 @@
 
     // CONFIGURACIÓN SOBERANA MULTI-RUTA (CERO DEPENDENCIAS DE URLS FIJAS)
     const CONFIG = {
-      localDaemon: "http://REDACTED_IP:8080",
+      localDaemon: "http://127.0.0.1:8080",
       directHotspot: "http://REDACTED_IP:8757",
       localLan: "http://REDACTED_IP:8757",
       authKey: "DiosDelTiempo01",
@@ -613,7 +613,7 @@
     async function checkLink() {
       let isConnectedNow = false;
 
-      // A) Comprobar si estamos ejecutando sobre el demonio nativo local (REDACTED_IP:8080)
+      // A) Comprobar si estamos ejecutando sobre el demonio nativo local (127.0.0.1:8080)
       try {
         const res = await fetch("/api/local/status", { method: "GET", signal: AbortSignal.timeout(1200) });
         if (res.ok) {
@@ -659,7 +659,7 @@
 
       // B) Probar origen actual si no hay demonio
       const currentOrigin = (window.location.origin && window.location.origin.startsWith("http")) ? window.location.origin : "";
-      if (currentOrigin && !currentOrigin.includes("REDACTED_IP") && !currentOrigin.includes("localhost")) {
+      if (currentOrigin && !currentOrigin.includes("127.0.0.1") && !currentOrigin.includes("localhost")) {
         try {
           const res = await fetch(`${currentOrigin}/health`, { method: "GET", signal: AbortSignal.timeout(1500) });
           if (res.ok) {

@@ -28,20 +28,11 @@ import gia_sovereign_engine as gse
 logger = logging.getLogger("GIA_SOVEREIGN_BRIDGE")
 
 EXCLUSIVE_MODEL_TAGS = [
-    "huihui_ai/llama3.1-8b-instruct-abliterated",
-    "dolphin3",
-    "dolphin3.0",
-    "dolphin",
-    "hermes3:8b",
-    "hermes3",
-    "hermes3:latest",
-    "Qwen3.8-Flash-Next",
-    "Qwen3.8-27B-Uncensored-MLX:latest",
-    "Qwen3.8-27B-Uncensored:latest",
-    "colibri-active"
+    "TARDIS-NEURAL-SPACE-KAIJU",
+    "TARDIS-NEURAL-SPACE-KAIJU:latest"
 ]
 
-PRIMARY_EXCLUSIVE_MODEL = os.environ.get("GIA_MODEL", "huihui_ai/llama3.1-8b-instruct-abliterated")
+PRIMARY_EXCLUSIVE_MODEL = os.environ.get("GIA_MODEL", "TARDIS-NEURAL-SPACE-KAIJU")
 
 HARDWARE_CALIBRATION = {
     "num_thread": 8,

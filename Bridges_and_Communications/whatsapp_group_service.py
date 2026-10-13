@@ -56,7 +56,7 @@ SESSION_DB = DATA_DIR / "session.sqlite3"
 STORE_FILE = DATA_DIR / "groups.json"
 EVENTS_FILE = DATA_DIR / "events.jsonl"
 SOCKET_PATH = Path(os.environ.get("XDG_RUNTIME_DIR") or f"/run/user/{os.getuid()}") / "tardis-whatsapp.sock"
-TARDIS_API = os.environ.get("GIA_API_URL", "http://REDACTED_IP:8757")
+TARDIS_API = os.environ.get("GIA_API_URL", "http://127.0.0.1:8757")
 LEGACY_WA_CONFIG = BASE_DIR / "whatsapp_config.json"
 MAX_MESSAGE_AGE_SEC = 300
 

@@ -46,9 +46,9 @@ READY = b"\x01\x01READY\x01\x01\n"
 MAX_BODY = 4 << 20
 PROFILE_TURNS = 120           # rolling window of per-turn PROF snapshots kept for /profile
 DEFAULT_CORS_ORIGINS = (
-    "http://REDACTED_IP:8000",
+    "http://127.0.0.1:8000",
     "http://localhost:8000",
-    "http://REDACTED_IP:5173",
+    "http://127.0.0.1:5173",
     "http://localhost:5173",
     "http://tauri.localhost",
     "tauri://localhost",
@@ -3296,7 +3296,7 @@ class APIHandler(BaseHTTPRequestHandler):
         if "*" not in self.server.cors_origins:
             self.send_header("Vary", "Origin")
 
-    LOOPBACK_HOSTS = {"REDACTED_IP", "localhost", "::1", ""}
+    LOOPBACK_HOSTS = {"127.0.0.1", "localhost", "::1", ""}
 
     def _is_authed(self):
         """True if no key is configured, or a correct key was presented. Anthropic clients
@@ -3316,7 +3316,7 @@ class APIHandler(BaseHTTPRequestHandler):
                            "authentication_error")
 
     def _check_host(self):
-        """DNS-rebinding guard: a web page can resolve a hostname to REDACTED_IP and
+        """DNS-rebinding guard: a web page can resolve a hostname to 127.0.0.1 and
         drive this local server unless we pin the Host header to loopback / the bind
         address. Rejects requests whose Host is anything else. (#SEC-7)"""
         host = self.headers.get("Host", "")
@@ -3333,7 +3333,7 @@ class APIHandler(BaseHTTPRequestHandler):
         # the guard cannot serve: a container/LAN bind reached by an IP or DNS
         # name the server cannot predict (#990 -- Docker port-map, the browser
         # sends the host's address, which the container never knows). The guard
-        # protects a LOOPBACK bind from a malicious page; once bound to REDACTED_IP
+        # protects a LOOPBACK bind from a malicious page; once bound to 0.0.0.0
         # the exposure is already chosen, so `*` adds no risk that bind did not.
         if "*" in allowed:
             return
@@ -4202,7 +4202,7 @@ class APIHandler(BaseHTTPRequestHandler):
         self.generation(body, prompt, request_id, False)
 
 
-def serve(model, host="REDACTED_IP", port=8000, model_id=None, api_key=None,
+def serve(model, host="127.0.0.1", port=8000, model_id=None, api_key=None,
           cap=None, max_tokens=1024, engine=None, env=None, cors_origins=None,
           max_queue=8, queue_timeout=300, kv_slots=1, allowed_hosts=(), family=None):
     if not 1 <= max_tokens:
@@ -4218,7 +4218,7 @@ def serve(model, host="REDACTED_IP", port=8000, model_id=None, api_key=None,
     pending_family = family
     pending_model_id = model_id
     pending_engine = engine
-    if host not in ("REDACTED_IP", "localhost", "::1") and not api_key:
+    if host not in ("127.0.0.1", "localhost", "::1") and not api_key:
         # (#SEC-6) Fail closed: an unauthenticated engine on a non-loopback bind exposes
         # a compute-heavy API to the network. Refuse unless explicitly overridden.
         if os.environ.get("COLI_ALLOW_INSECURE_BIND") == "1":
@@ -4270,7 +4270,7 @@ def main():
     parser.add_argument("--engine")
     parser.add_argument("--arch", choices=("auto", *family_ids()), default="auto",
                         help="chat-template family; auto reads model_type from the model's config.json")
-    parser.add_argument("--host", default="REDACTED_IP")
+    parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8000)
     parser.add_argument("--model-id", default=os.environ.get("COLI_MODEL_ID"))
     parser.add_argument("--api-key", default=os.environ.get("COLI_API_KEY"))

@@ -1,25 +1,19 @@
 """
-self_improve.py - Motor de auto-mejora del sistema GIA.
-========================================================
+self_improve.py - Motor de auto-mejora del sistema TARDIS / GIA.
+================================================================
 
-Corre de forma indefinida (daemon). En cada ciclo:
+Corre de forma continua o bajo demanda. En cada ciclo:
   1. Agrega senales: audit log del agente, gia.log, error_chat.json,
      y estadisticas del propio codebase.
-  2. Le pide al modelo local que redacte una PETICION DE MEJORA concreta
+  2. Le pide al modelo que redacte una PETICION DE MEJORA concreta
      y accionable (que archivo tocar, que problema resuelve, como probarlo).
   3. Escribe la peticion como .md en la carpeta-cola:
        %LOCALAPPDATA%\\vw-control\\improvement_queue\\
-  4. Duerme y repite.
-
-Las peticiones NO se auto-aplican al codigo. Se aplican canalizandolas a
-una sesion de Claude Code (manual, o programada con /schedule) que lee la
-cola. El sistema "pide sus mejoras solo"; el paso de aplicar pasa por una
-sesion de Claude Code real (que es donde se revisa y ejecuta).
-
-Uso:
-    python self_improve.py                 # ciclo cada 30 min, indefinido
-    python self_improve.py --interval 600  # cada 10 min
-    python self_improve.py --once          # un solo ciclo y salir
+  4. AUTONOMÍA SOBERANA FTL: Canaliza de inmediato la propuesta a FTL
+     (~/.ftl/ftl_cli.py) para que implemente el código, valide la sintaxis,
+     ejecute los tests y archive la propuesta procesada SIN requerir
+     supervisión humana ni confirmaciones.
+  5. Refina el contexto agentico si está habilitado.
 """
 from __future__ import annotations
 
@@ -37,7 +31,7 @@ QUEUE_DIR = CONFIG_DIR / "improvement_queue"
 QUEUE_DIR.mkdir(parents=True, exist_ok=True)
 
 PROJECT_DIR = Path(__file__).resolve().parent
-OLLAMA = os.environ.get("OLLAMA_HOST", "http://REDACTED_IP:11434")
+OLLAMA = os.environ.get("OLLAMA_HOST", "http://127.0.0.1:11434")
 try:
     import gia_sovereign_engine as _gse
     DEFAULT_MODEL = _gse.get_engine().resolve_model()
@@ -202,7 +196,7 @@ def generate_request(model: str, sig: dict, timeout: float = 300.0) -> str | Non
                 {"role": "user", "content": build_prompt(sig)},
             ],
             "stream": False,
-            "options": {"num_ctx": 8192, "temperature": 0.5},
+            "options": {"num_ctx": int(os.environ.get("GIA_NUM_CTX", "32768")), "temperature": 0.5},
             "keep_alive": "30m",
         }, timeout=timeout)
         r.raise_for_status()
@@ -261,7 +255,18 @@ def refine_context() -> None:
               f"{type(e).__name__}: {e}{C_END}")
 
 
-def one_cycle(model: str) -> Path | None:
+def one_cycle(model: str, auto_apply: bool | None = None) -> Path | None:
+    # Comprobar si el ciclo ha sido desactivado por GIA (ej. por demasiados reinicios)
+    halt_flag = CONFIG_DIR / "evolution_halt.flag"
+    if halt_flag.exists():
+        print(f"\n{C_ERR}¡ALERTA! El ciclo de evolución ha sido bloqueado de emergencia.{C_END}")
+        print(f"{C_ERR}Archivo presente: {halt_flag}{C_END}")
+        print(f"{C_ERR}Revise los logs (GIA Control Center). Intervención manual requerida.{C_END}")
+        return None
+
+    if auto_apply is None:
+        auto_apply = os.environ.get("GIA_AUTO_APPLY_IMPROVEMENTS", "1").strip().lower() in ("1", "true", "yes", "on")
+
     print(f"{C_DIM}[{datetime.now().strftime('%H:%M:%S')}] recolectando senales...{C_END}")
     sig = gather_signals()
     print(f"{C_DIM}  errores={sig['error_count']} bloqueos={sig['recent_blocks']} "
@@ -284,26 +289,79 @@ def one_cycle(model: str) -> Path | None:
             print(f"{C_OK}  + {path.name}{C_END}")
             print(f"{C_DIM}    {first_line[:70]}{C_END}")
 
+    # Si se generó una propuesta y auto_apply está activo, FTL la aplica de inmediato sin supervisión
+    if path and auto_apply:
+        try:
+            from core.tardis_ftl_engineer import get_ftl_engineer
+            eng = get_ftl_engineer()
+            if eng.is_ftl_available():
+                print(f"{C_AI}  🛸 FTL: Aplicando propuesta de forma 100% autónoma...{C_END}")
+                res = eng.apply_improvement_proposal(path)
+                if res.get("ok"):
+                    print(f"{C_OK}  ✔ FTL implementó la mejora con éxito ({res.get('duration_sec')}s){C_END}")
+                    if res.get("files_changed"):
+                        print(f"{C_OK}    Archivos modificados: {', '.join(res.get('files_changed'))}{C_END}")
+                else:
+                    print(f"{C_ERR}  ✖ Fallo al aplicar mejora con FTL: {res.get('error')}{C_END}")
+            else:
+                print(f"{C_DIM}  · FTL no disponible localmente; la propuesta permanece en cola.{C_END}")
+        except Exception as ex:
+            print(f"{C_ERR}  ! Error invocando FTL Engineer: {ex}{C_END}")
+    elif not path and auto_apply and sig.get("queue_size", 0) > 0:
+        # Si no hubo propuesta nueva pero hay cola pendiente, procesar una pendiente
+        try:
+            from core.tardis_ftl_engineer import get_ftl_engineer
+            eng = get_ftl_engineer()
+            if eng.is_ftl_available():
+                print(f"{C_AI}  🛸 FTL: Procesando propuesta pendiente de la cola...{C_END}")
+                applied = eng.process_pending_improvements(max_items=1)
+                if applied and applied[0].get("ok"):
+                    print(f"{C_OK}  ✔ Propuesta pendiente resuelta por FTL.{C_END}")
+        except Exception:
+            pass
+
     refine_context()
     return path
 
 
+def process_queue_now(max_items: int = 1) -> list:
+    """Procesa propuestas pendientes usando FTL."""
+    try:
+        from core.tardis_ftl_engineer import get_ftl_engineer
+        eng = get_ftl_engineer()
+        return eng.process_pending_improvements(max_items=max_items)
+    except Exception as ex:
+        print(f"{C_ERR}  ! Error procesando cola con FTL: {ex}{C_END}")
+        return []
+
+
 def main() -> int:
-    ap = argparse.ArgumentParser(description="Motor de auto-mejora GIA")
+    ap = argparse.ArgumentParser(description="Motor de auto-mejora TARDIS / FTL")
     ap.add_argument("--model", default=DEFAULT_MODEL)
     ap.add_argument("--interval", type=int, default=DEFAULT_INTERVAL,
                     help="segundos entre ciclos (default 1800)")
     ap.add_argument("--once", action="store_true", help="un ciclo y salir")
+    ap.add_argument("--no-apply", action="store_true", help="solo generar propuesta sin aplicar via FTL")
+    ap.add_argument("--apply", action="store_true", help="forzar auto-aplicación con FTL")
+    ap.add_argument("--process-queue", action="store_true", help="procesar propuestas pendientes de la cola")
     args = ap.parse_args()
 
+    auto_apply = not args.no_apply
+
     print(f"\n{C_AI}================================================={C_END}")
-    print(f"{C_AI}  GIA - MOTOR DE AUTO-MEJORA{C_END}")
+    print(f"{C_AI}  TARDIS - MOTOR DE AUTO-MEJORA SOBERANO (FTL){C_END}")
     print(f"{C_AI}  Modelo: {args.model}{C_END}")
     print(f"{C_AI}  Cola: {QUEUE_DIR}{C_END}")
-    print(f"{C_DIM}  Genera peticiones de mejora; se aplican via Claude Code.{C_END}")
-    if not args.once:
+    print(f"{C_AI}  Auto-Aplicación FTL: {'ACTIVA (Sin supervisión)' if auto_apply else 'DESACTIVADA'}{C_END}")
+    if not args.once and not args.process_queue:
         print(f"{C_DIM}  Ciclo cada {args.interval}s. Ctrl+C para detener.{C_END}")
     print(f"{C_AI}================================================={C_END}\n")
+
+    if args.process_queue:
+        print(f"{C_AI}Procesando cola de propuestas pendientes con FTL...{C_END}")
+        res = process_queue_now(max_items=1)
+        print(f"{C_OK}Resultado: {res}{C_END}")
+        return 0
 
     try:
         httpx.Client().get(f"{OLLAMA}/api/tags", timeout=5.0)
@@ -312,15 +370,23 @@ def main() -> int:
         return 1
 
     if args.once:
-        one_cycle(args.model)
+        one_cycle(args.model, auto_apply=auto_apply)
         return 0
 
     cycle = 0
     try:
         while True:
+            # Comprobar si el ciclo ha sido desactivado por GIA (ej. por demasiados reinicios)
+            halt_flag = CONFIG_DIR / "evolution_halt.flag"
+            if halt_flag.exists():
+                print(f"\n{C_ERR}¡ALERTA! El ciclo de evolución ha sido bloqueado de emergencia.{C_END}")
+                print(f"{C_ERR}Archivo presente: {halt_flag}{C_END}")
+                print(f"{C_ERR}Revise los logs (GIA Control Center). Intervención manual requerida.{C_END}")
+                return 1
+
             cycle += 1
             print(f"{C_DIM}--- ciclo {cycle} ---{C_END}")
-            one_cycle(args.model)
+            one_cycle(args.model, auto_apply=auto_apply)
             print(f"{C_DIM}  durmiendo {args.interval}s...{C_END}\n")
             time.sleep(args.interval)
     except KeyboardInterrupt:

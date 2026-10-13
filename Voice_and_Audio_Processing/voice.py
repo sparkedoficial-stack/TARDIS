@@ -19,6 +19,7 @@ from __future__ import annotations
 import asyncio
 import io
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -401,9 +402,224 @@ def speak(text: str, wait: bool = True, voice: Optional[str] = None) -> Dict[str
         return {"ok": True, "spoke_async": text[:120], "voice": voice or _PREF_VOICE}
 
 
+def extract_word_visemes(word: str) -> Dict[str, Any]:
+    """
+    Analiza la fonología de una palabra (español/general) y extrae sus visemas dominantes,
+    parámetros de apertura bucal, anchura labial y énfasis para sincronización facial.
+    """
+    w_clean = re.sub(r"[^\wáéíóúüñÁÉÍÓÚÜÑ]", "", word or "").lower()
+    if not w_clean:
+        return {
+            "viseme": "REST",
+            "target_open": 0.05,
+            "target_width": 1.0,
+            "jaw_drop": 0.0,
+            "emphasis": False,
+            "syllables": 1
+        }
+
+    # Detección de énfasis (acentos o mayúsculas originales)
+    has_accent = any(c in "áéíóúÁÉÍÓÚ" for c in word)
+    is_caps = word.isupper() and len(word) > 1
+    emphasis = has_accent or is_caps
+
+    # Búsqueda de vocales ordenadas por precedencia acústica y resonancia
+    # Priorizamos la vocal tónica o la última/dominante
+    vowels = [c for c in w_clean if c in "aeiouáéíóúü"]
+    syllables = max(1, len(vowels))
+
+    # Identificar vocal dominante
+    dominant_vowel = "a"
+    if any(c in "áa" for c in vowels):
+        dominant_vowel = "a"
+    elif any(c in "óo" for c in vowels):
+        dominant_vowel = "o"
+    elif any(c in "ée" for c in vowels):
+        dominant_vowel = "e"
+    elif any(c in "íuü" for c in vowels):
+        dominant_vowel = "u" if any(c in "uü" for c in vowels) else "i"
+    elif vowels:
+        dominant_vowel = vowels[0]
+
+    # Mapeo fonético de visemas
+    if dominant_vowel in ("a", "á"):
+        viseme = "A"
+        target_open = 0.88 if emphasis else 0.76
+        target_width = 1.05
+        jaw_drop = 0.85
+    elif dominant_vowel in ("o", "ó"):
+        viseme = "O"
+        target_open = 0.72 if emphasis else 0.62
+        target_width = 0.72
+        jaw_drop = 0.65
+    elif dominant_vowel in ("e", "é"):
+        viseme = "E"
+        target_open = 0.52 if emphasis else 0.44
+        target_width = 1.28
+        jaw_drop = 0.45
+    elif dominant_vowel in ("i", "í"):
+        viseme = "I"
+        target_open = 0.36 if emphasis else 0.30
+        target_width = 1.22
+        jaw_drop = 0.30
+    elif dominant_vowel in ("u", "ú", "ü"):
+        viseme = "U"
+        target_open = 0.42 if emphasis else 0.35
+        target_width = 0.60
+        jaw_drop = 0.35
+    else:
+        viseme = "REST"
+        target_open = 0.08
+        target_width = 1.0
+        jaw_drop = 0.05
+
+    # Moduladores consonánticos iniciales
+    if w_clean[0] in ("m", "b", "p"):
+        initial_closure = True
+    else:
+        initial_closure = False
+
+    return {
+        "viseme": viseme,
+        "target_open": round(target_open, 3),
+        "target_width": round(target_width, 3),
+        "jaw_drop": round(jaw_drop, 3),
+        "emphasis": emphasis,
+        "initial_closure": initial_closure,
+        "syllables": syllables
+    }
+
+
+async def synthesize_with_timing_async(
+    text: str,
+    voice: Optional[str] = None,
+    rate: Optional[float] = None
+) -> Dict[str, Any]:
+    """
+    Sintetiza audio neural MP3 y extrae en tiempo real los límites exactos de cada palabra
+    (WordBoundary) con milisegundos de precisión y cálculo de visemas biomecánicos.
+    """
+    clean_text = (text or "").strip()
+    if not clean_text:
+        return {"ok": False, "audio_bytes": None, "word_timings": [], "duration": 0.0}
+
+    target_voice = voice or _PREF_VOICE
+    if target_voice.startswith("SERVER:"):
+        target_voice = target_voice.replace("SERVER:", "")
+
+    active_rate = rate if rate is not None else _RATE
+    rate_pct = int((active_rate - 1.0) * 100)
+    rate_str = f"+{rate_pct}%" if rate_pct >= 0 else f"{rate_pct}%"
+
+    if HAS_EDGE_TTS and not target_voice.startswith("SAPI5:"):
+        try:
+            comm = edge_tts.Communicate(
+                clean_text,
+                target_voice,
+                rate=rate_str,
+                pitch=_PITCH,
+                boundary="WordBoundary"
+            )
+            audio_buf = io.BytesIO()
+            raw_boundaries: List[Dict[str, Any]] = []
+
+            async for chunk in comm.stream():
+                if chunk["type"] == "audio":
+                    audio_buf.write(chunk["data"])
+                elif chunk["type"] == "WordBoundary":
+                    raw_boundaries.append(chunk)
+
+            audio_data = audio_buf.getvalue()
+            if audio_data:
+                word_timings: List[Dict[str, Any]] = []
+                for b in raw_boundaries:
+                    w_text = b.get("text", "").strip()
+                    offset_sec = b.get("offset", 0) / 10_000_000.0
+                    dur_sec = b.get("duration", 0) / 10_000_000.0
+                    vis = extract_word_visemes(w_text)
+                    word_timings.append({
+                        "word": w_text,
+                        "start": round(offset_sec, 3),
+                        "end": round(offset_sec + dur_sec, 3),
+                        "duration": round(dur_sec, 3),
+                        "viseme": vis["viseme"],
+                        "target_open": vis["target_open"],
+                        "target_width": vis["target_width"],
+                        "jaw_drop": vis["jaw_drop"],
+                        "emphasis": vis["emphasis"],
+                        "initial_closure": vis.get("initial_closure", False),
+                        "syllables": vis.get("syllables", 1)
+                    })
+
+                total_duration = word_timings[-1]["end"] if word_timings else 0.0
+                return {
+                    "ok": True,
+                    "audio_bytes": audio_data,
+                    "word_timings": word_timings,
+                    "duration": total_duration,
+                    "voice": target_voice,
+                    "word_count": len(word_timings)
+                }
+        except Exception:
+            pass
+
+    # Fallback sintetizando audio estándar y estimando timestamps
+    audio_data = synthesize_to_bytes(clean_text, voice=target_voice)
+    words = clean_text.split()
+    word_timings = []
+    running_sec = 0.0
+    for w in words:
+        vis = extract_word_visemes(w)
+        dur = max(0.18, min(0.75, len(w) * 0.065 / (active_rate or 1.0)))
+        word_timings.append({
+            "word": w,
+            "start": round(running_sec, 3),
+            "end": round(running_sec + dur, 3),
+            "duration": round(dur, 3),
+            "viseme": vis["viseme"],
+            "target_open": vis["target_open"],
+            "target_width": vis["target_width"],
+            "jaw_drop": vis["jaw_drop"],
+            "emphasis": vis["emphasis"],
+            "initial_closure": vis.get("initial_closure", False),
+            "syllables": vis.get("syllables", 1)
+        })
+        running_sec += dur + 0.04
+
+    return {
+        "ok": audio_data is not None,
+        "audio_bytes": audio_data,
+        "word_timings": word_timings,
+        "duration": running_sec,
+        "voice": target_voice,
+        "word_count": len(word_timings)
+    }
+
+
+def synthesize_with_timing(
+    text: str,
+    voice: Optional[str] = None,
+    rate: Optional[float] = None
+) -> Dict[str, Any]:
+    """Versión síncrona de synthesize_with_timing_async."""
+    try:
+        loop = asyncio.get_running_loop()
+    except RuntimeError:
+        loop = None
+
+    if loop and loop.is_running():
+        import concurrent.futures
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+            future = pool.submit(asyncio.run, synthesize_with_timing_async(text, voice, rate))
+            return future.result()
+    else:
+        return asyncio.run(synthesize_with_timing_async(text, voice, rate))
+
+
 def speak_async(text: str, voice: Optional[str] = None) -> Dict[str, Any]:
     """Versión asíncrona no bloqueante de speak()."""
     return speak(text, wait=False, voice=voice)
+
 
 
 if __name__ == "__main__":

@@ -7,7 +7,7 @@ navegador del PC y desde el celular). Habla con el modelo local (Ollama),
 con acceso a internet opcional y voz opcional por las bocinas del PC.
 
 MODOS DE ACCESO:
-  Local     : http://REDACTED_IP:8757            (solo esta maquina)
+  Local     : http://127.0.0.1:8757            (solo esta maquina)
   LAN/movil : --lan  -> http://<IP-de-tu-PC>:8757  (celular en la misma WiFi)
   Internet  : monta un tunel (cloudflared/ngrok) apuntando al puerto.
 
@@ -133,7 +133,7 @@ except Exception:
     HAS_GEON = False
 
 
-OLLAMA = "http://REDACTED_IP:11434"
+OLLAMA = "http://127.0.0.1:11434"
 
 
 def _endpoint(model: str = "") -> str:
@@ -453,7 +453,7 @@ def _authorized() -> bool:
     )
     
     # Loopback directo local puro (sin cabecera de proxy) no requiere token
-    if not is_external_proxy and request.remote_addr in ("REDACTED_IP", "localhost", "::1"):
+    if not is_external_proxy and request.remote_addr in ("127.0.0.1", "localhost", "::1"):
         return True
         
     # Obtener token de query param (?key=...), header X-GIA-Key o Authorization: Bearer
@@ -1026,6 +1026,64 @@ def api_geon_simulate():
         sens_data = _tele.latest() if HAS_TELE else {}
         res = _geon.simulate_temporal_chat_geon(prompt=prompt, direction=direction, sensor_data=sens_data)
         return jsonify(res)
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+# =====================================================================
+# RUTAS DE DISEMINACIÓN DE FÍSICA EN FOROS INTERNACIONALES (CIENCIA ABIERTA)
+# =====================================================================
+
+@app.route("/api/physics/advances", methods=["GET"])
+def api_physics_advances():
+    """Retorna la lista de avances teóricos y aplicados de física catalogados."""
+    if not _authorized():
+        return jsonify({"ok": False, "error": "no autorizado"}), 401
+    try:
+        from core.physics_dissemination_engine import get_physics_dissemination_engine
+        engine = get_physics_dissemination_engine()
+        advances = engine.get_cataloged_advances()
+        return jsonify({
+            "ok": True,
+            "count": len(advances),
+            "advances": [adv.to_dict() for adv in advances.values()]
+        })
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/physics/publications", methods=["GET"])
+def api_physics_publications():
+    """Retorna el historial de depósitos y publicaciones en Zenodo, foros y repositorios."""
+    if not _authorized():
+        return jsonify({"ok": False, "error": "no autorizado"}), 401
+    try:
+        from core.physics_dissemination_engine import get_physics_dissemination_engine
+        engine = get_physics_dissemination_engine()
+        return jsonify({
+            "ok": True,
+            "publications": engine._publications_log
+        })
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/physics/publish", methods=["POST"])
+def api_physics_publish():
+    """Publica o sintetiza un avance de física a Zenodo, foros internacionales y Telegram."""
+    if not _authorized():
+        return jsonify({"ok": False, "error": "no autorizado"}), 401
+    try:
+        data = request.get_json(force=True, silent=True) or {}
+        advance_id = data.get("advance_id") or data.get("topic") or "geon_retrocausal_mechanics"
+        send_tg = data.get("send_telegram", True)
+        from core.physics_dissemination_engine import get_physics_dissemination_engine
+        engine = get_physics_dissemination_engine()
+        result = engine.publish_physics_advance_complete(
+            advance_id_or_topic=advance_id,
+            send_telegram=send_tg
+        )
+        return jsonify(result)
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)}), 500
 
@@ -5004,7 +5062,7 @@ def lan_ip() -> str:
         s.close()
         return ip
     except Exception:
-        return "REDACTED_IP"
+        return "127.0.0.1"
 
 
 def main() -> int:
@@ -5032,8 +5090,8 @@ def main() -> int:
     if CFG["auth"]:
         CFG["token"] = args.token if args.token else secrets.token_urlsafe(12)
 
-    host = "REDACTED_IP" if args.lan else "REDACTED_IP"
-    ip = lan_ip() if args.lan else "REDACTED_IP"
+    host = "0.0.0.0" if args.lan else "127.0.0.1"
+    ip = lan_ip() if args.lan else "127.0.0.1"
     base = f"http://{ip}:{args.port}"
     url = base + (f"/?key={CFG['token']}" if CFG["auth"] else "/")
 

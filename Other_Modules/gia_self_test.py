@@ -187,7 +187,7 @@ class SelfTestEngine:
         port = 8757
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.settimeout(0.5)
-            in_use = (s.connect_ex(("REDACTED_IP", port)) == 0)
+            in_use = (s.connect_ex(("127.0.0.1", port)) == 0)
 
         if in_use:
             self._log_result("Puerto Maestro 8757", True, "Puerto ocupado (Servidor ya en ejecución)")

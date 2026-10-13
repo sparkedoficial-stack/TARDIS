@@ -145,7 +145,7 @@ try:
     }).encode("utf-8")
 
     req = urllib.request.Request(
-        "http://REDACTED_IP:11434/api/generate",
+        "http://127.0.0.1:11434/api/generate",
         data=payload,
         headers={"Content-Type": "application/json"}
     )
@@ -370,7 +370,7 @@ endpoints = [
 ]
 api_latencies: Dict[str, Any] = {}
 for ep, method in endpoints:
-    url = f"http://REDACTED_IP:8757{ep}"
+    url = f"http://127.0.0.1:8757{ep}"
     try:
         lat_list = []
         for _ in range(3):

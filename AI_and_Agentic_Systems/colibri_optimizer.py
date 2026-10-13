@@ -195,9 +195,9 @@ class ColibriParameterOptimizer:
             try:
                 ram_budget_gb = float(forced_ram)
             except ValueError:
-                ram_budget_gb = 20.0
-        elif total_ram >= 32.0:
-            ram_budget_gb = 26.0
+                ram_budget_gb = 28.0
+        elif total_ram >= 30.0:
+            ram_budget_gb = 28.0  # 28.0 GB dedicados para sistema de 32 GB físicos (mlock activo, 4 GB SO)
         elif total_ram >= 22.0:
             ram_budget_gb = 18.0  # 18.0 GB dedicados exactamente de los 22+ GB totales para inferencia de ultra-alta velocidad
         elif total_ram >= 16.0:

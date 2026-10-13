@@ -34,7 +34,7 @@ DATA_DIR.mkdir(parents=True, exist_ok=True)
 TELEMETRY_LOG = DATA_DIR / "pocket_telemetry.json"
 COMMAND_QUEUE_FILE = DATA_DIR / "command_queue.json"
 AUTHORIZED_SERIAL = "ZY222ZXWPP"
-SOVEREIGN_KEY = "REDACTED"
+SOVEREIGN_KEY = "DiosDelTiempo01"
 
 
 def get_local_lan_ip() -> str:
@@ -185,7 +185,7 @@ class TardisPocketBridge:
                 "priority_1_hotspot": "http://REDACTED_IP:8757",
                 "priority_2_lan": f"http://{lan_ip}:8757",
                 "priority_3_tunnel": dynamic_tunnel,
-                "local_daemon": "http://REDACTED_IP:8080"
+                "local_daemon": "http://127.0.0.1:8080"
             },
             "timestamp": int(time.time())
         }
@@ -342,7 +342,7 @@ class TardisPocketBridge:
 
                 # 4. Verificar si el demonio en el teléfono responde en 8080
                 try:
-                    req = urllib.request.Request("http://REDACTED_IP:8080/api/local/status", headers={"User-Agent": "TARDIS-Central/26.4"})
+                    req = urllib.request.Request("http://127.0.0.1:8080/api/local/status", headers={"User-Agent": "TARDIS-Central/26.4"})
                     with urllib.request.urlopen(req, timeout=1.5) as resp:
                         if resp.status == 200:
                             status["daemon_alive"] = True
@@ -352,7 +352,7 @@ class TardisPocketBridge:
                     subprocess.run(wake_cmd, capture_output=True, timeout=5.0)
                     time.sleep(1.0)
                     try:
-                        req = urllib.request.Request("http://REDACTED_IP:8080/api/local/status", headers={"User-Agent": "TARDIS-Central/26.4"})
+                        req = urllib.request.Request("http://127.0.0.1:8080/api/local/status", headers={"User-Agent": "TARDIS-Central/26.4"})
                         with urllib.request.urlopen(req, timeout=1.5) as resp:
                             if resp.status == 200:
                                 status["daemon_alive"] = True
@@ -365,10 +365,10 @@ class TardisPocketBridge:
         return status
 
     def _call_pocket_api(self, endpoint: str, method: str = "GET", payload: Optional[Dict[str, Any]] = None, timeout: float = 6.0) -> Optional[Dict[str, Any]]:
-        """Intenta invocar la API REST local de TARDIS POCKET (REDACTED_IP:8080 o IP LAN)."""
-        urls = ["http://REDACTED_IP:8080"]
+        """Intenta invocar la API REST local de TARDIS POCKET (127.0.0.1:8080 o IP LAN)."""
+        urls = ["http://127.0.0.1:8080"]
         lan_ip = self.last_telemetry.get("client_ip", "REDACTED_IP")
-        if lan_ip and lan_ip != "REDACTED_IP":
+        if lan_ip and lan_ip != "127.0.0.1":
             urls.append(f"http://{lan_ip}:8080")
 
         data_bytes = json.dumps(payload).encode("utf-8") if payload else None
@@ -406,7 +406,7 @@ class TardisPocketBridge:
     def send_sms(self, to_number: str, message: str) -> Dict[str, Any]:
         """
         Envía un SMS a través de la tarjeta SIM o RIL móvil de TARDIS POCKET.
-        Prioridad 1: API REST HTTP directa (REDACTED_IP:8080).
+        Prioridad 1: API REST HTTP directa (127.0.0.1:8080).
         Prioridad 2: Invocación directa ADB shell (fallback resiliente).
         """
         clean_num = to_number.strip().replace(" ", "").replace("-", "")

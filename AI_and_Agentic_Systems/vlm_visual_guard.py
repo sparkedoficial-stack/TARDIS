@@ -15,7 +15,7 @@ Capacidades:
   3. Detección de cambios visuales por diferencia de histogramas (diferenciación de frames).
   4. Integración completa con gia_agent, screen_reader y device_sensors.
 
-Arquitecto: Miguel Angel May Canche  ·  GIA-V26-VISION-CORE
+Arquitecto: El Arquitecto (₪)  ·  TARDIS Vision Core
 """
 from __future__ import annotations
 
@@ -33,7 +33,7 @@ CONFIG_DIR = Path(os.environ.get("LOCALAPPDATA", os.path.expanduser("~"))) / "vw
 CAPTURES_DIR = CONFIG_DIR / "captures"
 CAPTURES_DIR.mkdir(parents=True, exist_ok=True)
 
-_raw_ollama = os.environ.get("OLLAMA_HOST", "http://REDACTED_IP:11434").strip()
+_raw_ollama = os.environ.get("OLLAMA_HOST", "http://127.0.0.1:11434").strip()
 OLLAMA_URL = _raw_ollama if _raw_ollama.startswith(("http://", "https://")) else f"http://{_raw_ollama}"
 
 # Modelos multimodales conocidos ordenados por preferencia
