@@ -88,8 +88,10 @@ Módulos y componentes auxiliares del sistema.
 - **tardis_desktop_companion.py**: Componente de alta eficiencia.
 - **tardis_dynamic_function_engine.py**: Componente de alta eficiencia.
 - **tardis_kaiju_pocket_engine.py**: Componente de alta eficiencia.
+- **tardis_phone_harness_bridge.py**: Componente de alta eficiencia.
 - **tardis_physics_disseminator.py**: Motor de cálculo simbólico y simulación física.
 - **tardis_progress.py**: Componente de alta eficiencia.
+- **tardis_rea_bridge.py**: Componente de alta eficiencia.
 - **tardis_safety_app.py**: Componente de alta eficiencia.
 - **tardis_telephony_controller.py**: Componente de alta eficiencia.
 - **tool_escribe_m_dulo_python.py**: Componente de alta eficiencia.

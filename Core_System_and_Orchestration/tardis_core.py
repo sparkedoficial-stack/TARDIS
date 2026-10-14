@@ -94,3 +94,39 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+def init_phone_harness():
+    """
+    Inicializa el puente soberano con Phone Harness para control de dispositivos móviles.
+    """
+    print("[+] Vinculando Phone Harness con el núcleo TARDIS...")
+    try:
+        sys_path = "/home/timemachine/Escritorio/GODWORKS SYSTEM"
+        if sys_path not in sys.path:
+            sys.path.insert(0, sys_path)
+        from core.tardis_phone_harness_bridge import get_phone_harness_bridge
+        bridge = get_phone_harness_bridge()
+        telemetry = bridge.get_telemetry()
+        print(f"[✓] Phone Harness en línea. Dispositivos detectados: Android={len(telemetry['android_devices'])}, iOS={len(telemetry['ios_devices'])}")
+        return bridge
+    except Exception as e:
+        print(f"[-] Aviso al inicializar Phone Harness: {e}")
+        return None
+
+def init_rea():
+    """
+    Inicializa el puente soberano con REA (Reverse Engineer Anything).
+    """
+    print("[+] Vinculando REA (Reverse Engineer Anything) con el núcleo TARDIS...")
+    try:
+        sys_path = "/home/timemachine/Escritorio/GODWORKS SYSTEM"
+        if sys_path not in sys.path:
+            sys.path.insert(0, sys_path)
+        from core.tardis_rea_bridge import get_rea_bridge
+        bridge = get_rea_bridge()
+        status = bridge.get_status()
+        print(f"[✓] REA v{status['version']} en línea. Herramientas disponibles: {status['tools_count']}")
+        return bridge
+    except Exception as e:
+        print(f"[-] Aviso al inicializar REA: {e}")
+        return None
