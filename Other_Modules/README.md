@@ -187,6 +187,7 @@ Módulos y componentes auxiliares del sistema.
 - **tardis_dynamic_function_engine.py**: Componente de alta eficiencia.
 - **tardis_evolutionary_codex.py**: Componente de alta eficiencia.
 - **tardis_ipad_edge_server.py**: Componente de alta eficiencia.
+- **tardis_ipad_sync_daemon.py**: Componente de alta eficiencia.
 - **tardis_kaiju_pocket_engine.py**: Componente de alta eficiencia.
 - **tardis_phone_harness_bridge.py**: Harness de control bidireccional Android/iOS/iPadOS y Cloud Phones.
 - **tardis_physics_disseminator.py**: Motor de cálculo simbólico y simulación física.
