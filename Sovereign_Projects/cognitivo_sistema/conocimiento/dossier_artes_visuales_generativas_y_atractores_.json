@@ -1,0 +1,33 @@
+{
+  "topic": "artes visuales generativas y atractores caoticos",
+  "timestamp": REDACTED_PHONE.5988262,
+  "queries": [
+    "artes visuales generativas y atractores caoticos",
+    "artes visuales generativas y atractores caoticos algoritmos python simulacion",
+    "artes visuales generativas y atractores caoticos generative mathematical models"
+  ],
+  "snippets": [
+    {
+      "title": "ArXiv: Observation of the $Y(4230)$ and evidence for a new vector charmonium-like state $Y(4710)$ in $e^{+}e^{-}\\to K_{S}^{0} K_{S}^{0} J/ψ$",
+      "url": "http://arxiv.org/abs/2211.08561v5",
+      "snippet": "Cross sections for the process $e^{+} e^{-} \\to K_{S}^{0} K_{S}^{0} J/ψ$ at center-of-mass energies from $4.128$ to $4.950$ GeV are measured using data samples with a total integrated luminosity of 21.2 fb$^{-1}$ collected by the BESIII detector operating at the BEPCII storage ring. The $Y(4230)$ state is observed in the energy dependence of the $e^{+} e^{-} \\to K_{S}^{0} K_{S}^{0} J/ψ$ cross section for the first time with a statistical significance of 26.0$σ$. In addition, an enhancement around $4.710$ GeV, called the $Y(4710)$, is seen with a statistical significance of 4.2$σ$. There is no clear structure around $4.484$ GeV. Using a fit with a coherent sum of three Breit-Wigner functions, we determine the mass and width of the $Y(4230)$ state to be $4226.9 \\pm 6.6 \\pm 21.9$ MeV/$c^{2}$ ",
+      "source": "arxiv"
+    },
+    {
+      "title": "ArXiv: Observation of the $Y(4230)$ and a new structure in $e^+e^- \\rightarrow K^+K^-J/ψ$",
+      "url": "http://arxiv.org/abs/2204.07800v3",
+      "snippet": "The cross sections of $e^+e^- \\rightarrow K^+K^-J/ψ$ at center-of-mass energies from 4.127 to 4.600~GeV are measured based on 15.6 fb$^{-1}$ data collected with the BESIII detector operating at the BEPCII storage ring. Two resonant structures are observed in the line shape of the cross sections. The mass and width of the first structure are measured to be ($4225.3\\pm2.3\\pm21.5$) MeV and ($72.9\\pm6.1\\pm30.8$)~MeV, respectively. They are consistent with those of the established $Y(4230)$. The second structure is observed for the first time with a statistical significance greater than 8$σ$, denoted as $Y(4500)$. Its mass and width are determined to be ($4484.7\\pm13.3\\pm24.1$) MeV and ($111.1\\pm30.1\\pm15.2$) MeV, respectively. The first presented uncertainties are statistical and the second on",
+      "source": "arxiv"
+    }
+  ],
+  "extracted_concepts": [
+    "Atractor"
+  ],
+  "code_examples": [],
+  "synthesis_markdown": "# Dossier Cognitivo de Investigación: Artes Visuales Generativas Y Atractores Caoticos\n**Fecha y Registro:** 2026-10-13 17:08:43\n\n## 1. Conceptos Fundamentales Identificados\n`Atractor`\n\n## 2. Hallazgos y Fuentes Consultadas\n- **[ArXiv: Observation of the $Y(4230)$ and evidence for a new vector charmonium-like state $Y(4710)$ in $e^{+}e^{-}\\to K_{S}^{0} K_{S}^{0} J/ψ$](http://arxiv.org/abs/2211.08561v5)** (arxiv):\n  > Cross sections for the process $e^{+} e^{-} \\to K_{S}^{0} K_{S}^{0} J/ψ$ at center-of-mass energies from $4.128$ to $4.950$ GeV are measured using data samples with a total integrated luminosity of 21.2 fb$^{-1}$ collected by the BESIII detector operating at the BEPCII storage ri...\n- **[ArXiv: Observation of the $Y(4230)$ and a new structure in $e^+e^- \\rightarrow K^+K^-J/ψ$](http://arxiv.org/abs/2204.07800v3)** (arxiv):\n  > The cross sections of $e^+e^- \\rightarrow K^+K^-J/ψ$ at center-of-mass energies from 4.127 to 4.600~GeV are measured based on 15.6 fb$^{-1}$ data collected with the BESIII detector operating at the BEPCII storage ring. Two resonant structures are observed in the line shape of the...\n\n## 3. Metas de Auto-Programación Derivadas\n- [ ] Crear simulador procedural interactivo para modelar 'artes visuales generativas y atractores caoticos' utilizando Atractor.\n- [ ] Generar suite de renderizado visual de alta resolución exportable a PNG/SVG basada en artes visuales generativas y atractores caoticos.\n- [ ] Implementar módulo matemático con aceleración tensorial en PyTorch y optimización de kernel.",
+  "suggested_software_goals": [
+    "Crear simulador procedural interactivo para modelar 'artes visuales generativas y atractores caoticos' utilizando Atractor.",
+    "Generar suite de renderizado visual de alta resolución exportable a PNG/SVG basada en artes visuales generativas y atractores caoticos.",
+    "Implementar módulo matemático con aceleración tensorial en PyTorch y optimización de kernel."
+  ]
+}

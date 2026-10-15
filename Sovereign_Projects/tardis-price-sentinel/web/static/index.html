@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TARDIS :: Cazador Soberano de Ofertas y Errores de Precio</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="logo-container">
+      <div class="logo-badge">₪ TARDIS</div>
+      <div class="logo-title">
+        <h1>ORÁCULO DE OFERTAS & GLITCHES</h1>
+        <span>Cazador Soberano Multitienda • 100% Ofertas Vigentes</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div style="background: rgba(6, 214, 160, 0.15); border: 1px solid var(--accent-green); color: var(--accent-green); font-size: 0.75rem; font-weight: 700; padding: 0.35rem 0.65rem; border-radius: 20px; display: flex; align-items: center; gap: 0.3rem;">
+        <span>🟢</span> SOLO OFERTAS VIGENTES
+      </div>
+      <div class="sync-indicator" id="sync-indicator" title="Estado de sincronización en tiempo real">
+        <span class="sync-dot"></span>
+        <span id="sync-text">Sincronizado</span>
+      </div>
+      <div class="auto-refresh-wrap">
+        <label style="cursor: pointer; display: flex; align-items: center; gap: 0.35rem;" title="Mantener ofertas actualizadas automáticamente en vivo">
+          <input type="checkbox" id="toggle-autorefresh" checked>
+          <span>Auto-sync (30s)</span>
+        </label>
+      </div>
+      <button id="btn-toggle-fast-cart" class="btn" title="Modo 1-Clic: Al hacer clic en cualquier tarjeta abre el carrito">⚡ 1-Clic Carrito: OFF</button>
+      <button id="btn-scan" class="btn btn-primary" title="Escanear todas las tiendas ahora">🔄 Sincronizar Ahora</button>
+      <button id="btn-test-alert" class="btn" title="Probar notificación en tu escritorio ASUS TUF">🔔 Alerta</button>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <nav class="tab-nav">
+    <button class="tab-btn active" data-tab="deals">🔥 Radar General (Vigentes)</button>
+    <button class="tab-btn" data-tab="glitches">🚨 Errores de Precio Vigentes</button>
+    <button class="tab-btn" data-tab="arbitrage">⚖️ Arbitraje Multitienda</button>
+    <button class="tab-btn" data-tab="banking">💳 Cupones & Promos Bancarias</button>
+    <button class="tab-btn" data-tab="watchlist">🎯 Watchlist & Alertas</button>
+  </nav>
+
+  <!-- Main Container -->
+  <main class="container">
+    
+    <!-- Telemetry Stats Bar -->
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Ofertas Vigentes Activas</div>
+        <div class="stat-value" id="stat-total-deals">0</div>
+      </div>
+      <div class="stat-card alert">
+        <div class="stat-label">Glitches & Errores de Precio</div>
+        <div class="stat-value" id="stat-glitches" style="color: var(--accent-red);">0</div>
+      </div>
+      <div class="stat-card free">
+        <div class="stat-label">Artículos 100% Gratis</div>
+        <div class="stat-value" id="stat-free" style="color: var(--accent-green);">0</div>
+      </div>
+      <div class="stat-card amber">
+        <div class="stat-label">Descuento Máximo Detectado</div>
+        <div class="stat-value" id="stat-max-discount" style="color: var(--accent-amber);">0%</div>
+      </div>
+    </section>
+
+    <!-- TAB 1: RADAR GENERAL -->
+    <section id="tab-deals" class="tab-content">
+      <!-- Toolbar & Filters -->
+      <div class="toolbar">
+        <div class="toolbar-row">
+          <div class="search-input-wrap">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="search-input" placeholder="Buscar por producto, marca o palabra clave (ej: RTX, Nintendo, Laptop, Tenis)...">
+          </div>
+
+          <select id="category-select" class="filter-select">
+            <option value="todos">Todas las Categorías</option>
+            <option value="Videojuegos">Videojuegos</option>
+            <option value="Electrónica">Electrónica y Cómputo</option>
+            <option value="Ropa">Ropa y Calzado</option>
+            <option value="Hogar">Hogar y Muebles</option>
+            <option value="Salud">Salud y Belleza</option>
+          </select>
+
+          <select id="sort-select" class="filter-select">
+            <option value="syntropy_score">Mayor Sintropía (Prioridad)</option>
+            <option value="discount_percent">Mayor % de Descuento</option>
+            <option value="price_asc">Precio: Menor a Mayor</option>
+            <option value="price_desc">Precio: Mayor a Menor</option>
+            <option value="created_at">Más Recientes</option>
+          </select>
+
+          <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; cursor: pointer;">
+            <input type="checkbox" id="toggle-glitches">
+            <span style="color: var(--accent-red); font-weight: 700;">Solo Errores / Glitches</span>
+          </label>
+
+          <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; cursor: pointer;">
+            <input type="checkbox" id="toggle-free">
+            <span style="color: var(--accent-green); font-weight: 700;">Solo Gratis (100% OFF)</span>
+          </label>
+        </div>
+
+        <!-- Store Filter Chips -->
+        <div class="chip-group">
+          <span style="font-size: 0.8rem; color: var(--text-muted); align-self: center;">Tienda:</span>
+          <div class="chip active" data-merchant="todos">Todas las Tiendas</div>
+          <div class="chip" data-merchant="Amazon">Amazon México</div>
+          <div class="chip" data-merchant="Mercado Libre">Mercado Libre</div>
+          <div class="chip" data-merchant="Walmart">Walmart México</div>
+          <div class="chip" data-merchant="Nintendo">Nintendo eShop</div>
+          <div class="chip" data-merchant="PlayStation">PlayStation Store</div>
+          <div class="chip" data-merchant="Steam">Steam</div>
+          <div class="chip" data-merchant="Liverpool">Liverpool</div>
+          <div class="chip" data-merchant="AliExpress">AliExpress</div>
+        </div>
+      </div>
+
+      <!-- Deals Grid -->
+      <div class="deals-grid" id="deals-container">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+
+    <!-- TAB 2: ERRORES DE PRECIO & GLITCHES -->
+    <section id="tab-glitches" class="tab-content hidden">
+      <div style="margin-bottom: 1.5rem; background: rgba(255, 42, 95, 0.1); border: 1px solid var(--accent-red); padding: 1rem 1.5rem; border-radius: 8px;">
+        <h2 style="color: var(--accent-red); font-size: 1.1rem; margin-bottom: 0.25rem;">🚨 Radar de Anomalías, Liquidaciones y Errores de Precio</h2>
+        <p style="font-size: 0.85rem; color: var(--text-main);">
+          Este monitor filtra en tiempo real productos con descuentos anómalos (>75%), terminaciones de remate (.01, .02 en tiendas de autoservicio), regalos accidentales o bugs de catálogo reportados por la comunidad.
+        </p>
+      </div>
+      <div class="deals-grid" id="glitches-container">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+
+    <!-- TAB 3: ARBITRAJE MULTITIENDA -->
+    <section id="tab-arbitrage" class="tab-content hidden">
+      <div class="arbitrage-card">
+        <h2 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--accent-cyan);">⚖️ Motor de Arbitraje & Comparador Intertienda</h2>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">
+          Ingresa un modelo o artículo específico. TARDIS rastreará simultáneamente todas las publicaciones disponibles en Amazon, Mercado Libre, Walmart y tiendas especializadas para calcular la dispersión de precios y encontrar la tienda más económica.
+        </p>
+        <div style="display: flex; gap: 0.75rem; max-width: 600px;">
+          <input type="text" id="arbitrage-query" class="search-input-wrap" style="flex: 1; padding: 0.65rem 1rem; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff; border-radius: 6px;" placeholder="Ej: Nintendo Switch OLED, RTX 4060, Audífonos Sony XM5...">
+          <button id="btn-run-arbitrage" class="btn btn-primary">Comparar Precios</button>
+        </div>
+      </div>
+
+      <div id="arbitrage-results">
+        <div style="text-align: center; padding: 3rem; color: var(--text-muted); border: 1px dashed var(--border-color); border-radius: 10px;">
+          Ingresa un término arriba para calcular el arbitraje y margen de ahorro.
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: CUPONES & PROMOS BANCARIAS -->
+    <section id="tab-banking" class="tab-content hidden">
+      <!-- Stacking Calculator -->
+      <div class="arbitrage-card" style="margin-bottom: 1.5rem;">
+        <h2 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--accent-amber);">⚡ Simulador de Stacking (Cupón Tienda + Bonificación Bancaria)</h2>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">
+          Calcula el precio efectivo final combinando descuentos base de la tienda, cupones de código promocional y bonificaciones con tarjeta de crédito en México.
+        </p>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+          <div>
+            <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.3rem;">Precio en Tienda ($ MXN):</label>
+            <input type="number" id="calc-price" value="5000" style="width: 100%; padding: 0.65rem; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff; border-radius: 6px;">
+          </div>
+          <div>
+            <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.3rem;">Descuento Cupón (%):</label>
+            <input type="number" id="calc-coupon" value="10" placeholder="0" style="width: 100%; padding: 0.65rem; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff; border-radius: 6px;">
+          </div>
+          <div>
+            <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.3rem;">Tarjeta / Banco Participante:</label>
+            <select id="calc-bank" style="width: 100%; padding: 0.65rem; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff; border-radius: 6px;">
+              <option value="">(Automático: Mejor Bonificación)</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="background: var(--bg-primary); border: 1px solid var(--accent-cyan); padding: 1.25rem; border-radius: 8px; display: flex; justify-content: space-around; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <div class="stat-label">Precio Efectivo Final</div>
+            <div id="calc-result-final" class="stat-value" style="color: var(--accent-cyan);">$3,825.00</div>
+          </div>
+          <div>
+            <div class="stat-label">Ahorro Total Combinado</div>
+            <div id="calc-result-savings" class="stat-value" style="color: var(--accent-green);">$1,175.00 (-23.5%)</div>
+          </div>
+          <div style="flex-basis: 100%; font-size: 0.8rem; color: var(--text-muted); text-align: center;" id="calc-result-bank-info">
+            Aplica bonificación Banorte Digital por -$675.00
+          </div>
+        </div>
+      </div>
+
+      <!-- Bank Promos Grid -->
+      <h3 style="font-size: 1.1rem; margin-bottom: 1rem; color: var(--text-main);">Matriz de Bonificaciones Bancarias Activas en México</h3>
+      <div class="stats-grid" id="bank-promos-grid" style="margin-bottom: 2rem;">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <!-- Discovered Store Coupons -->
+      <h3 style="font-size: 1.1rem; margin-bottom: 1rem; color: var(--text-main);">Cupones de Descuento Extraídos en Vivo</h3>
+      <div id="discovered-coupons-list">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+
+    <!-- TAB 5: WATCHLIST & ALERTAS -->
+    <section id="tab-watchlist" class="tab-content hidden">
+      <div class="arbitrage-card" style="margin-bottom: 1.5rem;">
+        <h2 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--accent-cyan);">🎯 Configurar Centinela de Precios</h2>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">
+          Agrega palabras clave o artículos que estés buscando. Cuando el centinela en segundo plano detecte una coincidencia que cumpla tus criterios de precio o descuento, recibirás una notificación directa en tu escritorio.
+        </p>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) 120px; gap: 0.75rem; align-items: end;">
+          <div>
+            <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.3rem;">Palabra Clave / Artículo:</label>
+            <input type="text" id="watch-keyword" placeholder="Ej: RTX 4070, PS5, LEGO..." style="width: 100%; padding: 0.65rem; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff; border-radius: 6px;">
+          </div>
+          <div>
+            <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.3rem;">Precio Máximo ($ MXN):</label>
+            <input type="number" id="watch-price" placeholder="Opcional" style="width: 100%; padding: 0.65rem; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff; border-radius: 6px;">
+          </div>
+          <div>
+            <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.3rem;">Descuento Mínimo (%):</label>
+            <input type="number" id="watch-discount" placeholder="Opcional" style="width: 100%; padding: 0.65rem; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff; border-radius: 6px;">
+          </div>
+          <button id="btn-add-watch" class="btn btn-primary" style="height: 42px;">+ Agregar</button>
+        </div>
+      </div>
+
+      <h3 style="font-size: 1.1rem; margin-bottom: 1rem; color: var(--text-main);">Tus Alertas Activas</h3>
+      <div id="watchlist-items">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Cart Jump Toast Notification -->
+  <div id="cart-toast" class="cart-toast hidden">
+    <div class="cart-toast-icon">🛒</div>
+    <div class="cart-toast-body">
+      <div class="cart-toast-title" id="toast-title">Abriendo Carrito de Compra...</div>
+      <div class="cart-toast-desc" id="toast-desc">Preparando navegador con tu producto listo para pagar.</div>
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

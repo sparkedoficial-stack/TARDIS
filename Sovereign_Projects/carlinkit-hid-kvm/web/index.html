@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>⚡ Carlinkit Universal Virtual KVM (Teclado y Mouse)</title>
+    <style>
+        :root {
+            --bg: #090d13;
+            --surface: #161b22;
+            --border: #30363d;
+            --accent: #58a6ff;
+            --accent-glow: rgba(88, 166, 255, 0.25);
+            --text: #e6edf3;
+            --muted: #8b949e;
+            --green: #3fb950;
+            --red: #f85149;
+            --yellow: #d29922;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; }
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 12px;
+            overflow-x: hidden;
+        }
+        header {
+            width: 100%;
+            max-width: 640px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 12px;
+        }
+        .header-title {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        h1 { font-size: 1.15rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; }
+        .sub-badge { font-size: 0.72rem; color: var(--muted); }
+        .badge {
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 12px;
+            background: #21262d;
+            border: 1px solid var(--border);
+            color: var(--yellow);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .badge.online { background: rgba(63, 185, 80, 0.15); border-color: rgba(63, 185, 80, 0.4); color: var(--green); }
+        .badge.offline { background: rgba(248, 81, 73, 0.15); border-color: rgba(248, 81, 73, 0.4); color: var(--red); }
+        .indicator { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+
+        .container { width: 100%; max-width: 640px; display: flex; flex-direction: column; gap: 12px; }
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .section-title { font-size: 0.85rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* Trackpad */
+        .trackpad-container { position: relative; }
+        .trackpad {
+            height: 220px;
+            background: #0d1117;
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            touch-action: none;
+            cursor: crosshair;
+            position: relative;
+            transition: border-color 0.15s, background-color 0.15s;
+        }
+        .trackpad.active {
+            border-color: var(--accent);
+            background-color: rgba(88, 166, 255, 0.04);
+            box-shadow: inset 0 0 20px var(--accent-glow);
+        }
+        .trackpad-hint { color: var(--muted); font-size: 0.85rem; pointer-events: none; text-align: center; }
+        .trackpad-subhint { color: #586069; font-size: 0.72rem; margin-top: 4px; pointer-events: none; }
+
+        .mouse-buttons { display: flex; gap: 8px; margin-top: 10px; }
+        .btn {
+            background: #21262d;
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.1s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .btn:hover { background: #30363d; border-color: #8b949e; }
+        .btn:active, .btn.pressed { background: var(--accent); color: #000; border-color: var(--accent); transform: scale(0.97); }
+        .btn-full { flex: 1; height: 46px; font-size: 0.95rem; }
+        .btn-danger { background: rgba(248,81,73,0.12); border-color: rgba(248,81,73,0.35); color: var(--red); }
+        .btn-danger:hover { background: rgba(248,81,73,0.25); border-color: var(--red); }
+        .btn-warning { background: rgba(210,153,34,0.12); border-color: rgba(210,153,34,0.35); color: var(--yellow); }
+
+        .control-row { display: flex; gap: 8px; align-items: center; }
+        .toggle-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.82rem;
+            color: var(--text);
+            cursor: pointer;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 38px;
+            height: 20px;
+        }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #30363d; transition: .2s; border-radius: 20px;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px;
+            background-color: white; transition: .2s; border-radius: 50%;
+        }
+        input:checked + .slider { background-color: var(--green); }
+        input:checked + .slider:before { transform: translateX(18px); }
+
+        /* Keyboard & Input */
+        .input-group { display: flex; gap: 8px; margin-top: 8px; }
+        input[type="text"] {
+            flex: 1;
+            background: #0d1117;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: #fff;
+            padding: 10px 12px;
+            font-size: 0.92rem;
+            user-select: text;
+        }
+        input[type="text"]:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-glow); }
+
+        .grid-keys { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 8px; }
+        .grid-fkeys { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; margin-top: 8px; }
+
+        .drawer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.25s ease-out;
+        }
+        .drawer.open { max-height: 300px; }
+
+        /* Sensitivity slider */
+        .slider-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; font-size: 0.8rem; color: var(--muted); }
+        .slider-row input[type="range"] { flex: 1; accent-color: var(--accent); }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-title">
+            <h1>⚡ Carlinkit KVM</h1>
+            <span class="sub-badge" id="modeInfo">Modo: Detectando...</span>
+        </div>
+        <div id="statusBadge" class="badge">
+            <div class="indicator"></div>
+            <span id="statusText">CONECTANDO</span>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Trackpad & Mouse -->
+        <div class="card">
+            <div class="section-header">
+                <span class="section-title">Trackpad y Ratón Virtual</span>
+                <div class="control-row">
+                    <button class="btn" style="padding: 4px 8px; font-size: 0.75rem;" onclick="toggleDrawer('fkeysDrawer')">Teclas F1-F12</button>
+                </div>
+            </div>
+
+            <div id="trackpad" class="trackpad">
+                <p class="trackpad-hint">Desliza para mover el cursor</p>
+                <p class="trackpad-subhint">1 dedo: Mover / Tap: Click Izq | 2 dedos: Scroll / Click Der</p>
+            </div>
+
+            <div class="slider-row">
+                <span>Sensibilidad:</span>
+                <input type="range" id="sensitivity" min="0.5" max="3.0" step="0.1" value="1.5" oninput="sensVal.textContent = this.value">
+                <span id="sensVal">1.5</span>x
+            </div>
+
+            <div class="mouse-buttons">
+                <button class="btn btn-full" id="btnLeft" onpointerdown="btnAction('left','down')" onpointerup="btnAction('left','up')">Click Izquierdo</button>
+                <button class="btn btn-full" id="btnMiddle" onpointerdown="btnAction('middle','down')" onpointerup="btnAction('middle','up')">Rueda/Medio</button>
+                <button class="btn btn-full" id="btnRight" onpointerdown="btnAction('right','down')" onpointerup="btnAction('right','up')">Click Derecho</button>
+            </div>
+        </div>
+
+        <!-- Teclas de Función F1-F12 (Colapsables) -->
+        <div id="fkeysDrawer" class="drawer">
+            <div class="card" style="margin-bottom: 12px;">
+                <span class="section-title">Teclas de Función</span>
+                <div class="grid-fkeys">
+                    <button class="btn" onclick="sendKey('f1')">F1</button>
+                    <button class="btn" onclick="sendKey('f2')">F2</button>
+                    <button class="btn" onclick="sendKey('f3')">F3</button>
+                    <button class="btn" onclick="sendKey('f4')">F4</button>
+                    <button class="btn" onclick="sendKey('f5')">F5</button>
+                    <button class="btn" onclick="sendKey('f6')">F6</button>
+                    <button class="btn" onclick="sendKey('f7')">F7</button>
+                    <button class="btn" onclick="sendKey('f8')">F8</button>
+                    <button class="btn" onclick="sendKey('f9')">F9</button>
+                    <button class="btn" onclick="sendKey('f10')">F10</button>
+                    <button class="btn" onclick="sendKey('f11')">F11</button>
+                    <button class="btn" onclick="sendKey('f12')">F12</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inyección de Teclado y Atajos -->
+        <div class="card">
+            <div class="section-header">
+                <span class="section-title">Teclado y Atajos USB-C</span>
+                <label class="toggle-label">
+                    <span>Captura en Vivo</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="liveCaptureToggle">
+                        <span class="slider"></span>
+                    </label>
+                </label>
+            </div>
+
+            <div class="input-group">
+                <input type="text" id="textInput" placeholder="Escribe o pega texto/comandos aquí..." autocomplete="off">
+                <button class="btn" style="background: var(--accent); color: #000; font-weight: 700;" onclick="sendText()">Enviar ⏎</button>
+            </div>
+
+            <!-- Botonera de Atajos Rápidos -->
+            <div class="grid-keys">
+                <button class="btn" onclick="sendKey('enter')">Enter ⏎</button>
+                <button class="btn" onclick="sendKey('backspace')">Borrar ⌫</button>
+                <button class="btn" onclick="sendKey('esc')">Esc</button>
+                <button class="btn" onclick="sendKey('tab')">Tab ⇥</button>
+
+                <button class="btn" onclick="sendKey('super')">Win ⊞ / Cmd ⌘</button>
+                <button class="btn" onclick="sendKey('alt+tab')">Alt + Tab</button>
+                <button class="btn" onclick="sendKey('ctrl+c')">Ctrl + C</button>
+                <button class="btn" onclick="sendKey('ctrl+v')">Ctrl + V</button>
+
+                <button class="btn" onclick="sendKey('ctrl+a')">Ctrl + A</button>
+                <button class="btn" onclick="sendKey('ctrl+z')">Ctrl + Z</button>
+                <button class="btn btn-warning" onclick="sendKey('ctrl+shift+esc')">Admin Tareas</button>
+                <button class="btn btn-danger" onclick="sendKey('ctrl+alt+del')">Ctrl+Alt+Del</button>
+
+                <button class="btn" onclick="sendKey('up')">↑ Arriba</button>
+                <button class="btn" onclick="sendKey('down')">↓ Abajo</button>
+                <button class="btn" onclick="sendKey('left')">← Izquierda</button>
+                <button class="btn" onclick="sendKey('right')">→ Derecha</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let ws = null;
+        let wsReady = false;
+        let sensitivity = 1.5;
+        const trackpad = document.getElementById('trackpad');
+        const statusBadge = document.getElementById('statusBadge');
+        const statusText = document.getElementById('statusText');
+        const modeInfo = document.getElementById('modeInfo');
+
+        // WebSocket Connection & Keep-Alive
+        function connectWS() {
+            const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${proto}//${location.host}/ws`;
+            ws = new WebSocket(wsUrl);
+
+            ws.onopen = () => {
+                wsReady = true;
+                statusBadge.className = "badge online";
+                statusText.textContent = "CONECTADO";
+                fetchStatus();
+            };
+
+            ws.onclose = () => {
+                wsReady = false;
+                statusBadge.className = "badge offline";
+                statusText.textContent = "RECONECTANDO";
+                setTimeout(connectWS, 1500);
+            };
+
+            ws.onerror = () => {
+                ws.close();
+            };
+        }
+        connectWS();
+
+        function fetchStatus() {
+            fetch('/api/status')
+                .then(r => r.json())
+                .then(d => {
+                    if (d.mode === 'hardware_hid') {
+                        modeInfo.textContent = "Modo: Hardware USB Gadget (/dev/hidg0, /dev/hidg1)";
+                    } else if (d.mode === 'kernel_uinput') {
+                        modeInfo.textContent = "Modo: Linux Kernel Input (/dev/uinput)";
+                    } else {
+                        modeInfo.textContent = "Modo: Simulación";
+                    }
+                })
+                .catch(() => {});
+        }
+        setInterval(fetchStatus, 5000);
+
+        function emitWS(payload) {
+            if (wsReady && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify(payload));
+            } else {
+                // Fallback to HTTP POST
+                if (payload.type === 'm') {
+                    fetch('/api/mouse/move', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ dx: payload.dx, dy: payload.dy, wheel: payload.w || 0 })
+                    }).catch(() => {});
+                } else if (payload.type === 'c') {
+                    fetch('/api/mouse/click', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ button: payload.btn, action: payload.act })
+                    }).catch(() => {});
+                } else if (payload.type === 'k') {
+                    fetch('/api/key', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ key: payload.key, action: payload.act })
+                    }).catch(() => {});
+                } else if (payload.type === 't') {
+                    fetch('/api/type', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ text: payload.text })
+                    }).catch(() => {});
+                }
+            }
+        }
+
+        // ================= TRACKPAD LOGIC =================
+        let isTouching = false;
+        let lastTouchX = 0, lastTouchY = 0;
+        let touchStartTimestamp = 0;
+        let touchCount = 1;
+        let isDrag = false;
+
+        document.getElementById('sensitivity').addEventListener('input', (e) => {
+            sensitivity = parseFloat(e.target.value);
+        });
+
+        trackpad.addEventListener('touchstart', (e) => {
+            isTouching = true;
+            trackpad.classList.add('active');
+            touchCount = e.touches.length;
+            touchStartTimestamp = Date.now();
+            isDrag = false;
+
+            if (touchCount >= 1) {
+                lastTouchX = e.touches[0].clientX;
+                lastTouchY = e.touches[0].clientY;
+            }
+        }, { passive: false });
+
+        trackpad.addEventListener('touchmove', (e) => {
+            if (!isTouching) return;
+            e.preventDefault();
+
+            touchCount = e.touches.length;
+            if (touchCount === 1) {
+                const curX = e.touches[0].clientX;
+                const curY = e.touches[0].clientY;
+                const dx = Math.round((curX - lastTouchX) * sensitivity);
+                const dy = Math.round((curY - lastTouchY) * sensitivity);
+                lastTouchX = curX;
+                lastTouchY = curY;
+
+                if (Math.abs(dx) > 0 || Math.abs(dy) > 0) {
+                    isDrag = true;
+                    emitWS({ type: 'm', dx: dx, dy: dy });
+                }
+            } else if (touchCount === 2) {
+                // Two-finger scroll
+                const curY = e.touches[0].clientY;
+                const dScroll = Math.round((curY - lastTouchY) / 10);
+                lastTouchY = curY;
+                if (dScroll !== 0) {
+                    emitWS({ type: 'm', dx: 0, dy: 0, w: dScroll });
+                }
+            }
+        }, { passive: false });
+
+        trackpad.addEventListener('touchend', (e) => {
+            isTouching = false;
+            trackpad.classList.remove('active');
+            const duration = Date.now() - touchStartTimestamp;
+
+            if (!isDrag && duration < 250) {
+                if (touchCount === 1) {
+                    btnAction('left', 'click');
+                } else if (touchCount === 2) {
+                    btnAction('right', 'click');
+                }
+            }
+        });
+
+        // Desktop Mouse Support inside Trackpad
+        let isMouseDown = false;
+        trackpad.addEventListener('mousedown', (e) => {
+            isMouseDown = true;
+            lastTouchX = e.clientX;
+            lastTouchY = e.clientY;
+            trackpad.classList.add('active');
+        });
+        window.addEventListener('mousemove', (e) => {
+            if (!isMouseDown) return;
+            const dx = Math.round((e.clientX - lastTouchX) * sensitivity);
+            const dy = Math.round((e.clientY - lastTouchY) * sensitivity);
+            lastTouchX = e.clientX;
+            lastTouchY = e.clientY;
+            if (dx !== 0 || dy !== 0) {
+                emitWS({ type: 'm', dx: dx, dy: dy });
+            }
+        });
+        window.addEventListener('mouseup', () => {
+            if (isMouseDown) {
+                isMouseDown = false;
+                trackpad.classList.remove('active');
+            }
+        });
+
+        // Wheel on trackpad
+        trackpad.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const w = e.deltaY < 0 ? 1 : -1;
+            emitWS({ type: 'm', dx: 0, dy: 0, w: w });
+        }, { passive: false });
+
+        // ================= BUTTONS =================
+        function btnAction(btn, act) {
+            emitWS({ type: 'c', btn: btn, act: act });
+        }
+
+        function sendKey(k, act = 'press') {
+            emitWS({ type: 'k', key: k, act: act });
+        }
+
+        function sendText() {
+            const input = document.getElementById('textInput');
+            const txt = input.value;
+            if (!txt) return;
+            emitWS({ type: 't', text: txt });
+            input.value = '';
+        }
+
+        document.getElementById('textInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                sendText();
+                sendKey('enter');
+            }
+        });
+
+        function toggleDrawer(id) {
+            const el = document.getElementById(id);
+            el.classList.toggle('open');
+        }
+
+        // ================= LIVE PHYSICAL KEYBOARD CAPTURE =================
+        const liveCaptureToggle = document.getElementById('liveCaptureToggle');
+        window.addEventListener('keydown', (e) => {
+            if (!liveCaptureToggle.checked) return;
+            if (document.activeElement === document.getElementById('textInput')) return;
+
+            e.preventDefault();
+            const keyMap = {
+                'Enter': 'enter', 'Backspace': 'backspace', 'Tab': 'tab', 'Escape': 'esc',
+                'ArrowUp': 'up', 'ArrowDown': 'down', 'ArrowLeft': 'left', 'ArrowRight': 'right',
+                'Delete': 'delete', 'Home': 'home', 'End': 'end', 'PageUp': 'pageup', 'PageDown': 'pagedown',
+                'Control': 'ctrl', 'Shift': 'shift', 'Alt': 'alt', 'Meta': 'super'
+            };
+            const mapped = keyMap[e.key] || e.key.toLowerCase();
+            sendKey(mapped, 'down');
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if (!liveCaptureToggle.checked) return;
+            if (document.activeElement === document.getElementById('textInput')) return;
+
+            e.preventDefault();
+            const keyMap = {
+                'Enter': 'enter', 'Backspace': 'backspace', 'Tab': 'tab', 'Escape': 'esc',
+                'ArrowUp': 'up', 'ArrowDown': 'down', 'ArrowLeft': 'left', 'ArrowRight': 'right',
+                'Delete': 'delete', 'Home': 'home', 'End': 'end', 'PageUp': 'pageup', 'PageDown': 'pagedown',
+                'Control': 'ctrl', 'Shift': 'shift', 'Alt': 'alt', 'Meta': 'super'
+            };
+            const mapped = keyMap[e.key] || e.key.toLowerCase();
+            sendKey(mapped, 'up');
+        });
+    </script>
+</body>
+</html>

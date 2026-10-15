@@ -1,0 +1,15 @@
+{
+  "cycle": 25465,
+  "status": "KERNEL_ACTIVE_SYNTROPY",
+  "psi_norm": 1.152415102018455,
+  "best_psi_norm": 1.1524166798125466,
+  "coherence_factor": 0.9999757427119871,
+  "gate_status": "OK",
+  "kernel_telemetry": {
+    "cpu_temp": 66.0,
+    "rtt_latency": 0.0001,
+    "shot_noise": 1e-07,
+    "squid_flux": 0.9999919579476275
+  },
+  "timestamp": "2026-10-15T10:00:00.641673"
+}

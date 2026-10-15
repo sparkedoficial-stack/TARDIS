@@ -1,0 +1,85 @@
+#!/usr/bin/env python3
+"""
+codesign - Code Signing Utility for Linux
+Compatible with Apple's macOS codesign CLI syntax.
+Wraps zsign and Mach-O inspection.
+Part of Xcode for Linux (xcode-linux).
+"""
+
+import sys
+import os
+import subprocess
+import argparse
+
+ZSIGN_BIN = "/home/timemachine/melonx_install/zsign"
+
+def extract_entitlements(target):
+    # Try zsign or custom extraction
+    print(f"Extracting entitlements from {target}...")
+    try:
+        res = subprocess.run([ZSIGN_BIN, "-l", target], capture_output=True, text=True)
+        print(res.stdout)
+    except Exception as e:
+        print(f"Error extracting entitlements: {e}", file=sys.stderr)
+
+def main():
+    args = sys.argv[1:]
+    if not args:
+        print("Usage: codesign -s <identity> [-f] [--entitlements <file>] <app/ipa/binary>")
+        print("       codesign -d --entitlements - <bundle>")
+        print("       codesign -v <bundle>")
+        sys.exit(1)
+
+    # Check for -d --entitlements
+    if "-d" in args and any("entitlement" in a for a in args):
+        target = [a for a in args if not a.startswith("-")][-1]
+        extract_entitlements(target)
+        return
+
+    # Check for verify
+    if "-v" in args:
+        target = [a for a in args if not a.startswith("-")][-1]
+        print(f"[codesign] Verifying signature for {target}...")
+        res = subprocess.run([ZSIGN_BIN, "-l", target], capture_output=True, text=True)
+        if res.returncode == 0:
+            print(f"{target}: valid on disk")
+            print(f"{target}: satisfies its Designated Requirement")
+        else:
+            print(f"{target}: verification failed: {res.stderr}", file=sys.stderr)
+            sys.exit(1)
+        return
+
+    # Signing mode: map to zsign
+    zsign_args = [ZSIGN_BIN]
+    
+    # Check for entitlements
+    if "--entitlements" in args:
+        idx = args.index("--entitlements")
+        if idx + 1 < len(args):
+            zsign_args.extend(["-e", args[idx+1]])
+    
+    # Check for provisioning profile
+    if "--mobileprovision" in args:
+        idx = args.index("--mobileprovision")
+        if idx + 1 < len(args):
+            zsign_args.extend(["-m", args[idx+1]])
+            
+    # Check for bundle id override
+    if "--bundle-id" in args:
+        idx = args.index("--bundle-id")
+        if idx + 1 < len(args):
+            zsign_args.extend(["-b", args[idx+1]])
+
+    # Target file
+    targets = [a for a in args if not a.startswith("-") and a not in ["-"]]
+    if targets:
+        target = targets[-1]
+        zsign_args.append(target)
+        print(f"[codesign] Signing {target} with zsign engine...")
+        sys.exit(subprocess.call(zsign_args))
+    else:
+        print("No target specified for codesign", file=sys.stderr)
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()

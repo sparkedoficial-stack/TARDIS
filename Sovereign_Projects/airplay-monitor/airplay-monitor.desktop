@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=AirPlay Monitor
+GenericName=Monitor y Receptor AirPlay
+Comment=Control interactivo y telemetría en tiempo real del receptor AirPlay para iOS y macOS
+Exec=/home/timemachine/.local/bin/airplay-monitor
+Icon=airplay-monitor
+Terminal=false
+Categories=AudioVideo;
+Keywords=AirPlay;Apple;iPad;iPhone;Screen;Mirroring;UxPlay;Monitor;
+StartupNotify=true
+StartupWMClass=org.timemachine.AirPlayMonitor
