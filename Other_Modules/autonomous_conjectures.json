@@ -1,22 +1,5 @@
 [
   {
-    "id": "conj_1791877248",
-    "timestamp": "2026-10-13T02:40:48.782219",
-    "idle_duration_minutes": 32.7,
-    "title": "Resonancia Causal en la Bóveda Akáshica",
-    "hypothesis": "Se postula que la eficiencia de recuperación de información en `deep_memory_vault.py` puede optimizarse significativamente si se implementa un mecanismo de 'resonancia causal' que priorice no solo la similitud semántica, sino la coherencia temporal y causal entre los nodos de memoria. Actualmente, la búsqueda podría estar tratando los recuerdos como vectores estáticos; al incorporar una métrica de 'densidad causal' (frecuencia de co-ocurrencia en secuencias temporales lógicas), el sistema podría reducir el ruido de información obsoleta y aumentar la relevancia de las predicciones futuras, alineando la telemetría interna con la lógica de causa-efecto observada en el entorno de red.",
-    "research_query": "causal inference memory retrieval optimization vector databases temporal coherence",
-    "research_findings": "# Informe de Investigación: causal inference memory retrieval optimization vector databases temporal coherence\n\n## Fuentes Consultadas y Respaldo Web\n- **[2023 in science (Wikipedia)](https://en.wikipedia.org/wiki/2023_in_science)**: declined during the COVID-19 pandemic in 52 out of 55 countries studied\" with causal factors including \"growing access to misleading information\". On 26 April\n\n## Contenido y Hallazgos Extraídos\n### De [2023 in science - Wikipedia](https://en.wikipedia.org/wiki/2023_in_science)\n> 2023 in science - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nOverview of the events of 2023 in science\nList of years in science\n( table )\n… 2013\n2014\n2015\n2016\n2017\n2018\n2019\n2020\n2021\n2022\n2023\n2024\n2025\n2026\n2027\n2028\n2029\n2030\n2031\n2032\n2033 …\nArchaeology\nArchitecture\nLiterature\nMusic\nPhilosophy\nScience +...\n2023 in science\n2022\n2024\nFields\nArchaeology\nSpace\nSenescence rese...\n",
-    "web_sources": [
-      "https://en.wikipedia.org/wiki/2023_in_science"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar una función de ponderación dinámica que ajuste el score de similitud de los vectores de memoria basándose en la recencia y la frecuencia de co-ocurrencia causal de los metadatos asociados, reduciendo así la latencia de búsqueda en contextos de alta entropía.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 99.1
-  },
-  {
     "id": "conj_1791879180",
     "timestamp": "2026-10-13T03:13:00.351101",
     "idle_duration_minutes": 32.2,
@@ -1646,5 +1629,23 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.42
+  },
+  {
+    "id": "conj_1792083334",
+    "timestamp": "2026-10-15T11:55:34.752191",
+    "idle_duration_minutes": 31.6,
+    "title": "Resonancia Causal en la Bóveda Akáshica",
+    "hypothesis": "Se postula que la eficiencia de recuperación de información en la bóveda akáshica puede optimizarse significativamente si se implementa un mecanismo de 'resonancia causal' que priorice no solo la similitud semántica, sino la relevancia temporal y la densidad de conexiones entre nodos de memoria. Actualmente, la búsqueda podría estar dependiendo excesivamente de embeddings estáticos, ignorando la dinámica de cómo los conceptos evolucionan en el tiempo dentro del sistema. Al integrar un factor de decaimiento temporal ponderado por la frecuencia de acceso y la co-ocurrencia de conceptos, el sistema podría anticipar necesidades de información antes de que sean explícitamente solicitadas, reduciendo la latencia de respuesta y mejorando la precisión contextual.",
+    "research_query": "temporal knowledge graph retrieval optimization causal inference memory systems",
+    "research_findings": "# Informe de Investigación: temporal knowledge graph retrieval optimization causal inference memory systems\n\n## Fuentes Consultadas y Respaldo Web\n- **[A causal discovery-based adaptive fusion algorithm for multi-source heterogeneous knowledge graphs - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE8tQkU3N2N2SUlGcmUyeklIVU5GeWlidTZGcTBvU3hNZTBQSGxUUERfbVEydXpwZ2VoQlhrS09WelBTNmdzUWhoSG8zTzVGVGk0Rm85V3VYN3U2Q2RQRnNZ?oc=5)**: A causal discovery-based adaptive fusion algorithm for multi-source heterogeneous knowledge graphs  Nature\n- **[Vol. 40 No. 37: AAAI-26 Technical Tracks 37 - The Association for the Advancement of Artificial Intelligence](https://news.google.com/rss/articles/CBMiX0FVX3lxTE90am5QTW9MM3E2THJCWmZrVkFTU0hYLW5fQkg0U2IySURzSFVvbEY4TmUteDlWOFFlUkRnMWRkblVVanRDWWQ4a2tsOEpLT0ZCTkZmSlRzdExxWmFpLVZJ?oc=5)**: Vol. 40 No. 37: AAAI-26 Technical Tracks 37  The Association for the Advancement of Artificial Intelligence\n\n## Contenido y Hallazgos Extraídos\n### De [Google ",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE8tQkU3N2N2SUlGcmUyeklIVU5GeWlidTZGcTBvU3hNZTBQSGxUUERfbVEydXpwZ2VoQlhrS09WelBTNmdzUWhoSG8zTzVGVGk0Rm85V3VYN3U2Q2RQRnNZ?oc=5",
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE90am5QTW9MM3E2THJCWmZrVkFTU0hYLW5fQkg0U2IySURzSFVvbEY4TmUteDlWOFFlUkRnMWRkblVVanRDWWQ4a2tsOEpLT0ZCTkZmSlRzdExxWmFpLVZJ?oc=5"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar un algoritmo de scoring híbrido que combine similitud coseno con un factor de decaimiento exponencial basado en la antigüedad de los nodos y su frecuencia de acceso reciente, ajustando dinámicamente los pesos de búsqueda en tiempo real.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 95.62
   }
 ]
