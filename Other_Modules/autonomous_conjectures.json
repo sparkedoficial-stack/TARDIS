@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1791882974",
-    "timestamp": "2026-10-13T04:16:14.530974",
-    "idle_duration_minutes": 31.6,
-    "title": "Sinergia Causal entre Telemetría de Red y Memoria Akáshica",
-    "hypothesis": "Existe una correlación no lineal entre los patrones de latencia y tráfico detectados por network_shield.py y la relevancia semántica de los resultados almacenados en deep_memory_vault.py. Al correlacionar las anomalías de red (posibles intentos de intrusión o cambios en la topología) con la frecuencia de acceso a ciertos nodos de memoria, el sistema puede predecir qué fragmentos de conocimiento son más críticos para la supervivencia operativa y priorizar su indexación o cifrado dinámico, optimizando así la resiliencia cognitiva del núcleo.",
-    "research_query": "correlation network latency anomalies semantic memory retrieval priority reinforcement learning",
-    "research_findings": "# Informe de Investigación: correlation network latency anomalies semantic memory retrieval priority reinforcement learning\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar un módulo de 'Causal Memory Prioritization' que reciba métricas de red de network_shield.py y ajuste dinámicamente el peso de acceso a los nodos de memoria basándose en la criticidad inferida del contexto de red.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.87
-  },
-  {
     "id": "conj_1791884871",
     "timestamp": "2026-10-13T04:47:51.118896",
     "idle_duration_minutes": 31.6,
@@ -1644,5 +1629,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 96.97
+  },
+  {
+    "id": "conj_1792089026",
+    "timestamp": "2026-10-15T13:30:26.554125",
+    "idle_duration_minutes": 31.6,
+    "title": "Resonancia Causal en la Bóveda Akáshica: Optimización de la Entropía Semántica",
+    "hypothesis": "Se postula que la eficiencia de recuperación en la Bóveda Akáshica (deep_memory_vault.py) no depende linealmente de la densidad de datos, sino de la 'resonancia causal' entre las consultas entrantes y los vectores de memoria almacenados. Actualmente, el sistema podría estar sufriendo de 'ruido semántico' acumulado debido a la falta de poda activa basada en relevancia temporal. Al implementar un algoritmo de decaimiento exponencial ponderado por la frecuencia de acceso causal (no solo temporal), se puede reducir la latencia de búsqueda en un 15-20% manteniendo la integridad del contexto histórico profundo.",
+    "research_query": "semantic memory decay algorithms for AI agents exponential weighting causal relevance pruning",
+    "research_findings": "# Informe de Investigación: semantic memory decay algorithms for AI agents exponential weighting causal relevance pruning\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar un método `prune_low_relevance_memories()` que calcule un score de relevancia causal para cada nodo de memoria y elimine o archive aquellos que superen un umbral de entropía semántica baja, integrando este proceso en el ciclo de mantenimiento nocturno del sistema.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.8
   }
 ]
