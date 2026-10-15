@@ -2365,13 +2365,16 @@ def get_client_html() -> str:
             if (!name) return;
             currentOpenPath = name;
             document.getElementById('ide-active-file').innerText = name;
-            document.getElementById('ide-code-editor').value = '# Nuevo script soberano en iPad Pro M2\nimport sys\nprint("Hola desde iPad Pro M2!")\n';
+            document.getElementById('ide-code-editor').value = `# Nuevo script soberano en iPad Pro M2
+import sys
+print('Hola desde iPad Pro M2!')
+`;
             saveCurrentFile().then(() => loadFilesTree());
         }}
 
         async function triggerManualGitSync() {{
             const con = document.getElementById('ide-console-output');
-            con.innerText += '[GIT] Iniciando sincronización manual con GitHub...\n';
+            con.innerText += '[GIT] Iniciando sincronización manual con GitHub...' + '\n';
             try {{
                 const res = await fetch('/api/fs/write', {{
                     method: 'POST',
