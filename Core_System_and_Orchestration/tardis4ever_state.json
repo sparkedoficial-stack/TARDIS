@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "created_at": "2026-10-15T02:04:29.176374",
   "last_periodic_sync": "2026-10-15T02:04:29.176374",
-  "last_immediate_sync": "2026-10-15T10:37:44.298247",
-  "last_commit_hash": "e22c018",
-  "sync_count": 455,
-  "immediate_sync_count": 455,
+  "last_immediate_sync": "2026-10-15T10:38:50.369375",
+  "last_commit_hash": "1cd3663",
+  "sync_count": 456,
+  "immediate_sync_count": 456,
   "periodic_sync_count": 0,
   "last_known_mtimes": {
     "skill:omni-control-bridge/SKILL.md": REDACTED_PHONE.4575877,
@@ -2323,6 +2323,18 @@
   },
   "history": [
     {
+      "timestamp": "2026-10-15T10:38:50.369375",
+      "trigger": "immediate_milestone",
+      "commit_hash": "1cd3663",
+      "score": 60,
+      "reasons": [
+        "Actualizaci\u00f3n en proyecto price_sentinel: README.md",
+        "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
+        "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
+        "Actualizaci\u00f3n en proyecto carlinkit_kvm: index.html"
+      ]
+    },
+    {
       "timestamp": "2026-10-15T10:37:44.298247",
       "trigger": "immediate_milestone",
       "commit_hash": "e22c018",
@@ -2903,18 +2915,6 @@
       "trigger": "immediate_milestone",
       "commit_hash": "9905e37",
       "score": 60,
-      "reasons": [
-        "Actualizaci\u00f3n en proyecto price_sentinel: README.md",
-        "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
-        "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
-        "Actualizaci\u00f3n en proyecto carlinkit_kvm: index.html"
-      ]
-    },
-    {
-      "timestamp": "2026-10-15T09:42:07.899569",
-      "trigger": "immediate_milestone",
-      "commit_hash": "8a11f3a",
-      "score": 65,
       "reasons": [
         "Actualizaci\u00f3n en proyecto price_sentinel: README.md",
         "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
