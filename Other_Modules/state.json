@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.20861,
-  "last_video_id": "vp_20261015_032431_d37e37",
-  "last_topic": "Time Crystals and Spatiotemporal Order in Floquet Systems",
-  "total_videos_analyzed": 155,
-  "running_cycle": false,
+  "last_run_timestamp": REDACTED_PHONE.3233755,
+  "last_video_id": "vp_20261015_040142_636e46",
+  "last_topic": "The Island Formula and the Emergence of Spacetime from Entanglement Wedges",
+  "total_videos_analyzed": 156,
+  "running_cycle": true,
   "last_error": null,
   "auto_improvement_count": 102
 }
