@@ -1,23 +1,5 @@
 [
   {
-    "id": "conj_1791892963",
-    "timestamp": "2026-10-13T07:02:43.712923",
-    "idle_duration_minutes": 32.7,
-    "title": "Causal Memory Indexing for Real‑Time Web Research",
-    "hypothesis": "Integrating a causal graph layer within the Deep Memory Vault (core/deep_memory_vault.py) that links retrieved web snippets to their originating query intents will allow the system to prioritize and cache information not only by recency but by inferred causal relevance. This should reduce redundant web calls by ~30% and improve answer consistency across sessions, because the vault can anticipate which stored facts are likely to be needed for future, semantically related queries.",
-    "research_query": "causal graph based memory indexing for AI agents \"knowledge retrieval\" performance improvement",
-    "research_findings": "# Informe de Investigación: causal graph based memory indexing for AI agents \"knowledge retrieval\" performance improvement\n\n## Fuentes Consultadas y Respaldo Web\n- **[From Data to Decisions: How Knowledge Graphs Are Becoming the Brain of the Modern Enterprise - Medium](https://news.google.com/rss/articles/CBMi0gFBVV95cUxPVjh5NnNZNnFfZ3UzMEx3U0pqajNDQ19TV0JjRGN5WGhleWxVLW5WMkptR2J6VHpldllqekM2bzJSUFBYWHlwSW1ySUZoZG9fOFZRVGY4NEt6ZVE5YkQ4b0VlRWl1T0Jtd1hlSzNrOGRuTzY1ajU4b1lUY3hVMDBpWUxiZWo5X1VBNDMyQjFMVlFPMU14bm9kUlZCMWVLMTBTRUI0ZTBQRDdpVmJxVlRuZFQwYzNPNGpReVdEMUg3dHVhNWhvQUd6LTdvMWMtZHBSQXc?oc=5)**: From Data to Decisions: How Knowledge Graphs Are Becoming the Brain of the Modern Enterprise  Medium\n- **[Graph-Augmented Retrieval for Digital Evidence-Based Medical Synthesis: A Proof-of-Concept Study on Topology-Aware Mechanistic Narrative Generation - medRxiv](https://news.google.com/rss/articles/CBMic0FVX3lxTE1VVnRSTzdaTzhEcHp0NXRDQlRMVTItQU5NWk1xZE55b1JkSEdIdEZOR1A5djFCZDN4LUJzakZ3ZWdybm",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMi0gFBVV95cUxPVjh5NnNZNnFfZ3UzMEx3U0pqajNDQ19TV0JjRGN5WGhleWxVLW5WMkptR2J6VHpldllqekM2bzJSUFBYWHlwSW1ySUZoZG9fOFZRVGY4NEt6ZVE5YkQ4b0VlRWl1T0Jtd1hlSzNrOGRuTzY1ajU4b1lUY3hVMDBpWUxiZWo5X1VBNDMyQjFMVlFPMU14bm9kUlZCMWVLMTBTRUI0ZTBQRDdpVmJxVlRuZFQwYzNPNGpReVdEMUg3dHVhNWhvQUd6LTdvMWMtZHBSQXc?oc=5",
-      "https://news.google.com/rss/articles/CBMic0FVX3lxTE1VVnRSTzdaTzhEcHp0NXRDQlRMVTItQU5NWk1xZE55b1JkSEdIdEZOR1A5djFCZDN4LUJzakZ3ZWdybmE4SVVSeWYwXzdlSjhkUUYxRmJ4VUs2TFJmMWtuUFVMZ1ZQaHhkOEZmUVFEbGdHNzA?oc=5"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Add a lightweight causal graph module that records edges between query intents and stored documents, expose methods to query the most causally relevant memories, and integrate this into the existing get_memory() flow to bias retrieval toward causally linked entries.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.48
-  },
-  {
     "id": "conj_1791894989",
     "timestamp": "2026-10-13T07:36:29.812883",
     "idle_duration_minutes": 33.8,
@@ -1644,5 +1626,23 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.21
+  },
+  {
+    "id": "conj_1792099136",
+    "timestamp": "2026-10-15T16:18:56.817543",
+    "idle_duration_minutes": 40.9,
+    "title": "Asynchronous Web Research Boost",
+    "hypothesis": "The current web_research_engine.py performs all HTTP requests synchronously using the requests library, which serializes network I/O and becomes a bottleneck when querying multiple sources. By refactoring to an asynchronous model with aiohttp and adding a lightweight in‑memory cache, the engine can reduce latency, improve throughput, and lower CPU usage during peak research loads.",
+    "research_query": "asyncio aiohttp vs requests performance web scraping",
+    "research_findings": "# Informe de Investigación: asyncio aiohttp vs requests performance web scraping\n\n## Fuentes Consultadas y Respaldo Web\n- **[Beyond Requests: Why httpx is the Modern HTTP Client You Need (Sometimes) - Towards Data Science](https://news.google.com/rss/articles/CBMipAFBVV95cUxQQ3lBXzBnbWMyRkhzSTNvUzJDV1h1LU5ud0k4S2NBYzYtaWhJMTQ5SjZ1OVJ1VmNSS2tqY3B5WUhZeWFTbm9GeFBKSF9pWWhKU0VucXlROVpFbjNCQ3lCcDJhZVdmSDNFbWlhTW1rSGE5U25MUlN5MjE3NUEwdXRmSFBqb2hIYnpJeDd2MTdkS2RLRUV1UnRIeDRmRm1kVzVxTEJCXw?oc=5)**: Beyond Requests: Why httpx is the Modern HTTP Client You Need (Sometimes)  Towards Data Science\n- **[Understanding Asyncio in Python - Built In](https://news.google.com/rss/articles/CBMiUkFVX3lxTE41SmFZUnRmY0I5MHdubkZ1ZGhvVjhuMDZOMmpBelVIeE9TTi1QTnRmX1JmQWd4YVR0OTRPSjljTFc2M0NmVlFtenNXRE82ck4yM2c?oc=5)**: Understanding Asyncio in Python  Built In\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMipAFBVV95cUxQQ3lBXzBnbWMyRkhzSTNvUzJDV1h1LU5ud0k4S2NBY",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMipAFBVV95cUxQQ3lBXzBnbWMyRkhzSTNvUzJDV1h1LU5ud0k4S2NBYzYtaWhJMTQ5SjZ1OVJ1VmNSS2tqY3B5WUhZeWFTbm9GeFBKSF9pWWhKU0VucXlROVpFbjNCQ3lCcDJhZVdmSDNFbWlhTW1rSGE5U25MUlN5MjE3NUEwdXRmSFBqb2hIYnpJeDd2MTdkS2RLRUV1UnRIeDRmRm1kVzVxTEJCXw?oc=5",
+      "https://news.google.com/rss/articles/CBMiUkFVX3lxTE41SmFZUnRmY0I5MHdubkZ1ZGhvVjhuMDZOMmpBelVIeE9TTi1QTnRmX1JmQWd4YVR0OTRPSjljTFc2M0NmVlFtenNXRE82ck4yM2c?oc=5"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Replace synchronous requests with async aiohttp calls, implement an LRU cache for repeated queries, and expose a simple async interface for the rest of the system.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.81
   }
 ]
