@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1791849119",
-    "timestamp": "2026-10-12T18:51:59.006506",
-    "idle_duration_minutes": 32.1,
-    "title": "Causal‑Feedback Loop for Adaptive Web Research",
-    "hypothesis": "Integrating a causal‑feedback mechanism between `web_research_engine.py` and `deep_memory_vault.py` will allow the system to dynamically adjust its query formulation based on the confidence scores of previously retrieved documents. By propagating provenance metadata (timestamp, source reliability, semantic similarity) into the memory vault and feeding back a weighted relevance signal, the engine can prioritize higher‑impact queries, reduce redundant searches, and improve overall answer precision in real‑time.",
-    "research_query": "adaptive web search engine causal feedback loop memory vault relevance weighting",
-    "research_findings": "# Informe de Investigación: adaptive web search engine causal feedback loop memory vault relevance weighting\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a relevance‑feedback API that receives confidence scores from `deep_memory_vault` and modifies the next search query's parameters (e.g., keywords, depth, source filters) before dispatching the request.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.28
-  },
-  {
     "id": "conj_1791851201",
     "timestamp": "2026-10-12T19:26:41.354226",
     "idle_duration_minutes": 34.7,
@@ -1649,5 +1634,22 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 98.72
+  },
+  {
+    "id": "conj_1792056383",
+    "timestamp": "2026-10-15T04:26:23.617495",
+    "idle_duration_minutes": 32.7,
+    "title": "Integración de Memoria Causal Híbrida para Optimizar la Prioridad de Búsqueda Web",
+    "hypothesis": "Si el motor de investigación web (core/web_research_engine.py) incorpora un modelo de memoria causal híbrida que combina embeddings temporales de deep_memory_vault con métricas de relevancia basadas en la red de confianza del network_shield, entonces la latencia de recuperación de información relevante disminuirá en al menos un 30% y la precisión de los resultados aumentará, especialmente en consultas que requieren contexto histórico o multidisciplinario.",
+    "research_query": "hybrid causal memory model for web search relevance improvement combining temporal embeddings and trust network metrics",
+    "research_findings": "# Informe de Investigación: hybrid causal memory model for web search relevance improvement combining temporal embeddings and trust network metrics\n\n## Fuentes Consultadas y Respaldo Web\n- **[List of datasets for machine-learning research (Wikipedia)](https://en.wikipedia.org/wiki/List_of_datasets_for_machine-learning_research)**: Hamparsum; Balaban, M. Erdal (2014). \"A novel Hybrid RBF Neural Networks model as a forecaster\". Statistics and Computing. 24 (3): 365–375. doi:10.1007/s11222-013-9375-7\n\n## Contenido y Hallazgos Extraídos\n### De [List of datasets for machine-learning research - Wikipedia](https://en.wikipedia.org/wiki/List_of_datasets_for_machine-learning_research)\n> List of datasets for machine-learning research - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nThis article contains dynamic lists that may never be able to satisfy particular standards for completeness. You can help by editing the page to add missing items, with references to reliable sources ",
+    "web_sources": [
+      "https://en.wikipedia.org/wiki/List_of_datasets_for_machine-learning_research"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Añadir una capa de pre‑filtrado que consulte deep_memory_vault para obtener embeddings temporales del contexto del usuario y utilice network_shield para ponderar dominios de alta confianza, integrando ambos factores en el ranking de resultados antes de la llamada al motor de búsqueda externo.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 100.95
   }
 ]
