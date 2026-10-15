@@ -16,16 +16,18 @@ Núcleo de orquestación temporal, bucles de control soberano FTL y sincronizaci
 - **ftl_git_sync.py**: Motor de aceleración FTL y computación adaptativa.
 - **ftl_kernel_bridge.py**: Puente de control a nivel de Kernel (Ring 0 / Root Scope).
 - **ftl_master_hub.py**: Motor de aceleración FTL y computación adaptativa.
+- **ftl_omni_registry.py**: Directorio y puente soberano de interoperabilidad omni-herramientas.
 - **ftl_phone_harness.py**: Motor de aceleración FTL y computación adaptativa.
 - **ftl_rea.py**: Motor de aceleración FTL y computación adaptativa.
 - **ftl_web_server.py**: Motor de aceleración FTL y computación adaptativa.
+- **ftl_xcode_linux.py**: Toolchain soberano de compilación, análisis Mach-O y despliegue iOS para Linux.
 - **gia_control.py**: Componente de alta eficiencia.
 - **gia_sovereign_bridge.py**: Componente de alta eficiencia.
 - **gia_sovereign_engine.py**: Componente de alta eficiencia.
 - **hardware_controller.py**: Componente de alta eficiencia.
 - **launch_tardis_master_hub.sh**: Componente de alta eficiencia.
 - **network_controller.py**: Componente de alta eficiencia.
-- **omni_temporal_control.py**: Componente de alta eficiencia.
+- **omni_temporal_control.py**: Directorio y puente soberano de interoperabilidad omni-herramientas.
 - **os_controller.py**: Componente de alta eficiencia.
 - **package_manager.py**: Componente de alta eficiencia.
 - **router.py**: Componente de alta eficiencia.
@@ -44,6 +46,7 @@ Núcleo de orquestación temporal, bucles de control soberano FTL y sincronizaci
 - **tardis_identificacion_contexto.py**: Componente de alta eficiencia.
 - **tardis_master_app.py**: Componente de alta eficiencia.
 - **tardis_master_cockpit.html**: Interfaz interactiva de monitoreo en tiempo real.
+- **tardis_omni_tool_bridge.py**: Directorio y puente soberano de interoperabilidad omni-herramientas.
 - **tardis_parallel_orchestrator.py**: Núcleo de orquestación y control temporal/espacial.
 - **tardis_singularity_engine.py**: Motor de aceleración FTL y computación adaptativa.
 - **task_manager.py**: Componente de alta eficiencia.

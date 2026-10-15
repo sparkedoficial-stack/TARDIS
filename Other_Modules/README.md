@@ -74,6 +74,7 @@ Módulos y componentes auxiliares del sistema.
 - **guest_task_1791161710035.py**: Componente de alta eficiencia.
 - **guest_task_1791161712948.py**: Componente de alta eficiencia.
 - **guest_task_1791161733330.py**: Componente de alta eficiencia.
+- **ingest_omni_tools_knowledge.py**: Directorio y puente soberano de interoperabilidad omni-herramientas.
 - **interaction_logger.py**: Componente de alta eficiencia.
 - **ios_bridge.py**: Componente de alta eficiencia.
 - **jev_tardis_symbiosis.py**: Componente de alta eficiencia.

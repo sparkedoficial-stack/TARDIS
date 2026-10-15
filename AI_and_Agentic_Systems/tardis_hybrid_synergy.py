@@ -223,6 +223,42 @@ class TardisHybridSynergy:
                 description="Latido continuo cada 3s, conmutación instantánea a iMac y sincronización limpia a la vuelta.",
                 hardware_affinity="Daemon Systemd + Watchdog de Socket 8758",
                 active=True
+            ),
+            "xcode_linux_layer": EngineeringLayerOption(
+                id="xcode_linux_layer",
+                name="Xcode para Linux & Apple CoreDevice Toolchain",
+                domain="mobile_engineering",
+                paradigm="Darwin/iOS Cross-Toolchain, Mach-O Parsing, REA Bridge & CoreDevice USB Deployment",
+                description="Compilación, análisis estático, firmado zsign y despliegue local de software para Apple iOS/iPadOS sin depender de macOS.",
+                hardware_affinity="Clang ARM64 + USBMUXD / Apple File Conduit + iPad M2 USB-C",
+                active=True
+            ),
+            "phone_harness_layer": EngineeringLayerOption(
+                id="phone_harness_layer",
+                name="Phone Harness & Control Perceptual Móvil",
+                domain="hardware_control",
+                paradigm="Multi-Platform Mobile Perception & Synthetic Input Injection",
+                description="Control integral de dispositivos móviles físicos (Android ADB / iPhone) y Cloud Phones para automatización, lectura OCR y acciones de usuario.",
+                hardware_affinity="ADB USB/Wi-Fi + CGEvents / Accessibility Tree + Kernel uinput",
+                active=True
+            ),
+            "rea_reverse_engineering_layer": EngineeringLayerOption(
+                id="rea_reverse_engineering_layer",
+                name="REA - Reverse Engineer Anything",
+                domain="reverse_engineering",
+                paradigm="Multi-Architecture Decompilation & Static/Dynamic Artifact Graphing",
+                description="Ingeniería inversa profunda de binarios nativos (Mach-O, ELF, PE), paquetes APK/IPA, aplicaciones JavaScript/Electron y firmwares.",
+                hardware_affinity="Ghidra / REA Core + LLVM Disassembler + MCP Server",
+                active=True
+            ),
+            "kernel_ring0_bridge_layer": EngineeringLayerOption(
+                id="kernel_ring0_bridge_layer",
+                name="Kernel Ring 0 Bridge & Hardware Injection",
+                domain="kernel_control",
+                paradigm="Ring 0 Autonomous Telemetry, Pressure Stall Information & Low-Level Hardware Node Access",
+                description="Supervisión continua a nivel de Kernel Linux, purga de memoria en caliente, dmesg irrestricto y control /dev/uinput y /dev/uhid.",
+                hardware_affinity="Linux Kernel 7.0 + /proc + /sys + udev + PSI",
+                active=True
             )
         }
 
@@ -255,6 +291,10 @@ class TardisHybridSynergy:
         is_code_heavy = any(w in p_lower for w in ("código", "script", "programa", "algoritmo", "refactoriza", "debug", "módulo", "modulo"))
         is_sensorial = any(w in p_lower for w in ("presencia", "radar", "sensor", "temperatura", "cpu", "ram", "hardware", "wifi", "rf"))
         is_conversational = any(w in p_lower for w in ("hola", "explica", "opinas", "tardis", "quién eres", "dialogo", "chat", "debate"))
+        is_ios_xcode = any(w in p_lower for w in ("ios", "ipad", "iphone", "xcode", "macho", "mach-o", "ipa", "zsign", "sideload", "testflight", "afc", "usbmuxd"))
+        is_mobile_harness = any(w in p_lower for w in ("phone", "harness", "telefono", "teléfono", "android", "adb", "tap", "swipe", "screen", "mobile"))
+        is_reverse_engineering = any(w in p_lower for w in ("rea", "reverse", "descompilar", "desensamblar", "apk", "decompile", "disassemble", "binario"))
+        is_kernel_ring0 = any(w in p_lower for w in ("kernel", "ring 0", "ring0", "dmesg", "sysctl", "psi", "uinput", "uhid", "root", "soberano"))
 
         # 1. Asignación de Modelos
         selected_models.append(self.models["tardis_kaiju"])  # Siempre el córtex central
@@ -286,6 +326,22 @@ class TardisHybridSynergy:
 
         if is_code_heavy and not is_visual:
             selected_engineerings.append(self.engineering_layers["ftl_dynamic_codegen"])
+
+        if is_ios_xcode:
+            selected_engineerings.append(self.engineering_layers["xcode_linux_layer"])
+            execution_strategy += "Toolchain Xcode para Linux y CoreDevice activados para inspección/despliegue iOS. "
+
+        if is_mobile_harness:
+            selected_engineerings.append(self.engineering_layers["phone_harness_layer"])
+            execution_strategy += "Phone Harness habilitado para percepción y control móvil omnicanal. "
+
+        if is_reverse_engineering:
+            selected_engineerings.append(self.engineering_layers["rea_reverse_engineering_layer"])
+            execution_strategy += "Motor REA acoplado para descompilación y análisis estático/dinámico. "
+
+        if is_kernel_ring0:
+            selected_engineerings.append(self.engineering_layers["kernel_ring0_bridge_layer"])
+            execution_strategy += "Puente Kernel Ring 0 activo con acceso irrestricto a hardware y telemetría. "
 
         # Capas universales siempre presentes
         selected_engineerings.append(self.engineering_layers["hybrid_memory_ssm_fts5"])
