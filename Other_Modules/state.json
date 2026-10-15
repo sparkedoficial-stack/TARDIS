@@ -6,7 +6,7 @@
   "last_video_id": "vp_20261015_173943_3884ee",
   "last_topic": "Causal Dynamical Triangulations: Simulating the Emergence of 4‑Dimensional Spacetime",
   "total_videos_analyzed": 178,
-  "running_cycle": false,
+  "running_cycle": true,
   "last_error": null,
   "auto_improvement_count": 110
 }
