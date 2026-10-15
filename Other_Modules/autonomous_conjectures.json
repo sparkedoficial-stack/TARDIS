@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1791898790",
-    "timestamp": "2026-10-13T08:39:50.135207",
-    "idle_duration_minutes": 31.6,
-    "title": "Sinergia Causal entre Telemetría de Red y Memoria Profunda",
-    "hypothesis": "Se postula que la eficiencia de la investigación web (web_research_engine.py) puede optimizarse dinámicamente si se correlaciona en tiempo real la telemetría de latencia y estabilidad de red (network_shield.py) con los patrones de acceso a la bóveda akáshica (deep_memory_vault.py). Específicamente, cuando la red presenta micro-cortes o alta latencia, el sistema debería priorizar la recuperación de contextos históricos relevantes desde la memoria profunda antes de lanzar nuevas peticiones HTTP, reduciendo así la carga cognitiva y el tiempo de respuesta total.",
-    "research_query": "adaptive web scraping latency compensation using local semantic memory cache",
-    "research_findings": "# Informe de Investigación: adaptive web scraping latency compensation using local semantic memory cache\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Implementar un 'Latency-Aware Memory Gate' que consulte deep_memory_vault.py antes de ejecutar fetches HTTP si network_shield.py reporta una métrica de inestabilidad superior a un umbral configurable.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.65
-  },
-  {
     "id": "conj_1791900687",
     "timestamp": "2026-10-13T09:11:27.044557",
     "idle_duration_minutes": 31.6,
@@ -1645,5 +1630,23 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 98.0
+  },
+  {
+    "id": "conj_1792104923",
+    "timestamp": "2026-10-15T17:55:23.748230",
+    "idle_duration_minutes": 32.7,
+    "title": "Causal Memory Indexing for Real‑Time Web Research",
+    "hypothesis": "Integrar un índice causal basado en grafos temporales dentro de core/deep_memory_vault.py permitirá que el motor de búsqueda (core/web_research_engine.py) priorice fuentes que históricamente han influido en decisiones del sistema, reduciendo el tiempo medio de respuesta en un 30% y mejorando la relevancia de los resultados en contextos de alta incertidumbre.",
+    "research_query": "graph causal memory indexing for AI web research engines performance improvement",
+    "research_findings": "# Informe de Investigación: graph causal memory indexing for AI web research engines performance improvement\n\n## Fuentes Consultadas y Respaldo Web\n- **[From Data to Decisions: How Knowledge Graphs Are Becoming the Brain of the Modern Enterprise - Medium](https://news.google.com/rss/articles/CBMi0gFBVV95cUxPVjh5NnNZNnFfZ3UzMEx3U0pqajNDQ19TV0JjRGN5WGhleWxVLW5WMkptR2J6VHpldllqekM2bzJSUFBYWHlwSW1ySUZoZG9fOFZRVGY4NEt6ZVE5YkQ4b0VlRWl1T0Jtd1hlSzNrOGRuTzY1ajU4b1lUY3hVMDBpWUxiZWo5X1VBNDMyQjFMVlFPMU14bm9kUlZCMWVLMTBTRUI0ZTBQRDdpVmJxVlRuZFQwYzNPNGpReVdEMUg3dHVhNWhvQUd6LTdvMWMtZHBSQXc?oc=5)**: From Data to Decisions: How Knowledge Graphs Are Becoming the Brain of the Modern Enterprise  Medium\n- **[Artificial intelligence (Wikipedia)](https://en.wikipedia.org/wiki/Artificial_intelligence)**: of achieving defined goals. High-profile applications of AI include advanced web search engines, chatbots, virtual assistants, autonomous vehicles, play\n\n## Contenido y Hallazgos Extraídos\n### De [Google Notic",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMi0gFBVV95cUxPVjh5NnNZNnFfZ3UzMEx3U0pqajNDQ19TV0JjRGN5WGhleWxVLW5WMkptR2J6VHpldllqekM2bzJSUFBYWHlwSW1ySUZoZG9fOFZRVGY4NEt6ZVE5YkQ4b0VlRWl1T0Jtd1hlSzNrOGRuTzY1ajU4b1lUY3hVMDBpWUxiZWo5X1VBNDMyQjFMVlFPMU14bm9kUlZCMWVLMTBTRUI0ZTBQRDdpVmJxVlRuZFQwYzNPNGpReVdEMUg3dHVhNWhvQUd6LTdvMWMtZHBSQXc?oc=5",
+      "https://en.wikipedia.org/wiki/Artificial_intelligence"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Añadir una capa de grafo causal que registre relaciones de causa‑efecto entre entradas de la bóveda akáshica y consultas de investigación, y exponer una API get_causal_context(query) que el motor de búsqueda pueda usar para re‑rankear resultados.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.28
   }
 ]
