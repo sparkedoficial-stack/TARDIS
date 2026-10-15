@@ -15,12 +15,10 @@ Sistemas agénticos autónomos, enjambres cognitivos MoE, autorreflexión y evol
 - **colibri_optimizer.py**: Componente de alta eficiencia.
 - **daily_context_rotator.py**: Componente de alta eficiencia.
 - **deep_search.py**: Componente de alta eficiencia.
-- **easy_touch_agent.py**: Modelo lógico y comportamiento autónomo distribuido.
 - **emotional_presence_agent.py**: Modelo lógico y comportamiento autónomo distribuido.
 - **gia_agent.py**: Modelo lógico y comportamiento autónomo distribuido.
 - **gia_subconscious.py**: Componente de alta eficiencia.
 - **gia_swarm.py**: Modelo lógico y comportamiento autónomo distribuido.
-- **idle_evolution_daemon.py**: Componente de alta eficiencia.
 - **inter_ai_protocol.py**: Componente de alta eficiencia.
 - **kaiju_cognitive_orchestrator.py**: Núcleo de orquestación y control temporal/espacial.
 - **kaiju_safety_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
@@ -43,13 +41,13 @@ Sistemas agénticos autónomos, enjambres cognitivos MoE, autorreflexión y evol
 - **test_ai_improvement_sandbox.py**: Componente de alta eficiencia.
 - **test_background_thought_engine.py**: Componente de alta eficiencia.
 - **test_colibri_integration.py**: Componente de alta eficiencia.
-- **test_idle_evolution_daemon.py**: Componente de alta eficiencia.
 - **test_inter_ai_protocol.py**: Componente de alta eficiencia.
 - **test_kaiju_cognitive_orchestrator.py**: Núcleo de orquestación y control temporal/espacial.
 - **test_kaiju_safety_rails.py**: Componente de alta eficiencia.
 - **test_self_improve_loop.py**: Componente de alta eficiencia.
 - **test_sovereign_neural_engine.py**: Componente de alta eficiencia.
 - **test_tardis_agent_colony.py**: Modelo lógico y comportamiento autónomo distribuido.
+- **test_tardis_autoprogrammer.py**: Componente de alta eficiencia.
 - **test_temporal_brain.py**: Componente de alta eficiencia.
 - **test_temporal_brain_socket_ownership.py**: Componente de alta eficiencia.
 - **test_thought_noise_engine.py**: Componente de alta eficiencia.

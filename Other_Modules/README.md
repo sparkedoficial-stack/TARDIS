@@ -7,6 +7,7 @@ Módulos y componentes auxiliares del sistema.
 - **__init__.py**: Componente de alta eficiencia.
 - **api.py**: Componente de alta eficiencia.
 - **app.py**: Componente de alta eficiencia.
+- **arbitraje_causal_colaborativo.py**: Componente de alta eficiencia.
 - **auto_context_synchronizer.py**: Componente de alta eficiencia.
 - **autonomous_existence_learner.py**: Componente de alta eficiencia.
 - **autotune.py**: Componente de alta eficiencia.
@@ -14,19 +15,23 @@ Módulos y componentes auxiliares del sistema.
 - **blender_generator.py**: Componente de alta eficiencia.
 - **cluster.py**: Componente de alta eficiencia.
 - **cognitivo_artes_visuales_generativas_y_atractores_caoticos_1791929323.py**: Componente de alta eficiencia.
+- **colab_deep_memory__estructuraci_n_de_.py**: Componente de alta eficiencia.
+- **colab_tardis_causa_optimizaci_n_de_fi.py**: Componente de alta eficiencia.
+- **colab_tardis_neura_compresi_n_sintr_p.py**: Componente de alta eficiencia.
+- **compresor_historial_colaborativo.py**: Componente de alta eficiencia.
 - **config.py**: Componente de alta eficiencia.
 - **conftest.py**: Componente de alta eficiencia.
 - **convert_fp8_to_int4.py**: Componente de alta eficiencia.
 - **curiosity_debate_manager.py**: Componente de alta eficiencia.
-- **debug_ftl.py**: Componente de alta eficiencia.
+- **debug_ftl.py**: Motor de aceleración FTL y computación adaptativa.
 - **distributed_compute.py**: Componente de alta eficiencia.
 - **doctor.py**: Componente de alta eficiencia.
-- **easy_touch_engine.py**: Componente de alta eficiencia.
 - **ecca_v3_core.py**: Núcleo de orquestación y control temporal/espacial.
 - **eval_glm.py**: Componente de alta eficiencia.
 - **evaluator_nn.py**: Componente de alta eficiencia.
+- **explorador_cuantico.py**: Componente de alta eficiencia.
 - **family_registry.py**: Componente de alta eficiencia.
-- **fix_ftl.py**: Componente de alta eficiencia.
+- **fix_ftl.py**: Motor de aceleración FTL y computación adaptativa.
 - **gemini_privacy_vault.py**: Centinela de seguridad, blindaje perimetral o bóveda segura.
 - **gia_bootstrap.py**: Componente de alta eficiencia.
 - **gia_configuration_manager.py**: Componente de alta eficiencia.
@@ -74,28 +79,38 @@ Módulos y componentes auxiliares del sistema.
 - **jev_tardis_symbiosis.py**: Componente de alta eficiencia.
 - **k3_tokenizer.py**: Componente de alta eficiencia.
 - **mirror_plan.py**: Componente de alta eficiencia.
+- **models.py**: Componente de alta eficiencia.
 - **openai_server.py**: Componente de alta eficiencia.
+- **orquestador_computo_distribuido.py**: Componente de alta eficiencia.
 - **pdf_processor.py**: Componente de alta eficiencia.
 - **pipeline.py**: Componente de alta eficiencia.
+- **progress.py**: Componente de alta eficiencia.
 - **qwen38_image.py**: Componente de alta eficiencia.
 - **resource_plan.py**: Componente de alta eficiencia.
 - **run.py**: Componente de alta eficiencia.
 - **scientific_research_engine.py**: Componente de alta eficiencia.
+- **self_updater.py**: Componente de alta eficiencia.
 - **sovereign_client.py**: Componente de alta eficiencia.
+- **tardis_bridge.py**: Componente de alta eficiencia.
 - **tardis_browser.py**: Componente de alta eficiencia.
 - **tardis_calculadora_voz.py**: Componente de alta eficiencia.
+- **tardis_cell_parser.py**: Componente de alta eficiencia.
 - **tardis_conversation_analyzer.py**: Componente de alta eficiencia.
 - **tardis_desktop_companion.py**: Componente de alta eficiencia.
 - **tardis_dynamic_function_engine.py**: Componente de alta eficiencia.
+- **tardis_evolutionary_codex.py**: Componente de alta eficiencia.
 - **tardis_kaiju_pocket_engine.py**: Componente de alta eficiencia.
 - **tardis_phone_harness_bridge.py**: Componente de alta eficiencia.
 - **tardis_physics_disseminator.py**: Motor de cálculo simbólico y simulación física.
 - **tardis_progress.py**: Componente de alta eficiencia.
 - **tardis_rea_bridge.py**: Componente de alta eficiencia.
 - **tardis_safety_app.py**: Componente de alta eficiencia.
+- **tardis_singularity_daemon.py**: Motor de aceleración FTL y computación adaptativa.
 - **tardis_telephony_controller.py**: Componente de alta eficiencia.
+- **telemetria_avanzada.py**: Componente de alta eficiencia.
 - **tool_escribe_m_dulo_python.py**: Componente de alta eficiencia.
 - **tool_selector.py**: Componente de alta eficiencia.
+- **ui.py**: Componente de alta eficiencia.
 - **v4_dsml.py**: Componente de alta eficiencia.
 - **version.py**: Componente de alta eficiencia.
 - **web_chat.py**: Componente de alta eficiencia.

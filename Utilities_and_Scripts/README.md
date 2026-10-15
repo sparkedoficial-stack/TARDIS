@@ -8,6 +8,7 @@ Automatizaciones de sistema, diagnósticos de hardware, optimizadores de SO y he
 - **benchmark_system.py**: Componente de alta eficiencia.
 - **build_tardis_linux.sh**: Componente de alta eficiencia.
 - **cleanup_models.py**: Componente de alta eficiencia.
+- **colab_test_subsyst_m_dulo_de_telemetr.py**: Componente de alta eficiencia.
 - **fetch_benchmarks.py**: Componente de alta eficiencia.
 - **generate_pdf.py**: Componente de alta eficiencia.
 - **install_context_matrix.py**: Componente de alta eficiencia.
@@ -46,7 +47,7 @@ Automatizaciones de sistema, diagnósticos de hardware, optimizadores de SO y he
 - **test_cognitive_adaptability.py**: Componente de alta eficiencia.
 - **test_config.py**: Componente de alta eficiencia.
 - **test_emotional_presence.py**: Componente de alta eficiencia.
-- **test_ftl_tardis_integration.py**: Componente de alta eficiencia.
+- **test_ftl_tardis_integration.py**: Motor de aceleración FTL y computación adaptativa.
 - **test_geon.py**: Componente de alta eficiencia.
 - **test_handle_exception.py**: Componente de alta eficiencia.
 - **test_hardware_and_network.py**: Componente de alta eficiencia.
@@ -57,6 +58,8 @@ Automatizaciones de sistema, diagnósticos de hardware, optimizadores de SO y he
 - **test_mission_scouting.py**: Componente de alta eficiencia.
 - **test_native_gui.py**: Componente de alta eficiencia.
 - **test_permanent_qr_bridge.py**: Componente de alta eficiencia.
+- **test_progress.py**: Componente de alta eficiencia.
+- **test_recursion_guard.py**: Componente de alta eficiencia.
 - **test_remote_reboot.py**: Componente de alta eficiencia.
 - **test_rf_3d_tomography.py**: Componente de alta eficiencia.
 - **test_rf_surveillance_proximity.py**: Componente de alta eficiencia.
@@ -64,6 +67,7 @@ Automatizaciones de sistema, diagnósticos de hardware, optimizadores de SO y he
 - **test_screen_unlock_uinput.py**: Componente de alta eficiencia.
 - **test_tardis_animations.py**: Componente de alta eficiencia.
 - **test_tardis_audio_enforcement.py**: Procesamiento de señal de audio y síntesis vocal biométrica.
+- **test_tardis_bridge.py**: Componente de alta eficiencia.
 - **test_tardis_dynamic_function_engine.py**: Componente de alta eficiencia.
 - **test_tardis_identity_no_version.py**: Componente de alta eficiencia.
 - **test_tardis_terminal_and_companion.py**: Componente de alta eficiencia.

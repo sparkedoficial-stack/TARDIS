@@ -749,14 +749,41 @@ class EasyTouchEngine:
     # =========================================================================
 
     def auto_heal_memory(self) -> bool:
-        """Purga la memoria RAM del sistema, recolecta basura y ejecuta sync."""
+        """Purga la memoria RAM del sistema, recolecta basura, ejecuta sync y libera pagecaches a nivel Kernel."""
         try:
             gc.collect()
             subprocess.run(["sync"], check=False, timeout=5)
-            logger.info("[EASY-TOUCH] Presión de memoria aliviada con sync y GC.")
+            # Purga a nivel kernel vía Ring 0 / FTL Kernel Bridge
+            try:
+                sys_ftl = "/home/timemachine"
+                if sys_ftl not in sys.path:
+                    sys.path.insert(0, sys_ftl)
+                from modulos_ftl.ftl_kernel_bridge import get_kernel_bridge
+                get_kernel_bridge().drop_kernel_caches()
+            except Exception:
+                subprocess.run(["sudo", "-n", "bash", "-c", "echo 3 > /proc/sys/vm/drop_caches"], check=False, timeout=5)
+            logger.info("[EASY-TOUCH] Presión de memoria aliviada con sync, GC y purga de caché de kernel Ring 0.")
             return True
         except Exception as e:
             logger.debug(f"[EASY-TOUCH] Error al liberar memoria: {e}")
+            return False
+
+    def auto_heal_kernel_hardware(self) -> bool:
+        """Asegura acceso a nivel kernel para todos los subsistemas y dispositivos uinput/uhid/hidraw."""
+        try:
+            sys_ftl = "/home/timemachine"
+            if sys_ftl not in sys.path:
+                sys.path.insert(0, sys_ftl)
+            from modulos_ftl.ftl_kernel_bridge import get_kernel_bridge
+            bridge = get_kernel_bridge()
+            res = bridge.check_hardware_nodes()
+            need_fix = any(not info.get("writable", False) for info in res.values() if info.get("exists"))
+            if need_fix:
+                bridge.exec_root("chmod 0666 /dev/uinput /dev/uhid /dev/hidraw* 2>/dev/null || true")
+                logger.info("[EASY-TOUCH] Permisos de hardware de kernel reparados automáticamente.")
+            return True
+        except Exception as e:
+            logger.debug(f"[EASY-TOUCH] Error en verificación de hardware de kernel: {e}")
             return False
 
     def auto_heal_sqlite_databases(self) -> bool:

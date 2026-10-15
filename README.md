@@ -9,6 +9,9 @@ El código ha sido estructurado modularmente para exhibir sus capacidades técni
 ### 🔹 [AI_and_Agentic_Systems](./AI_and_Agentic_Systems)
 Sistemas agénticos autónomos, enjambres cognitivos MoE, autorreflexión y evolución continua.
 
+### 🔹 [Autonomous_Wisdom_and_Evolution](./Autonomous_Wisdom_and_Evolution)
+Módulos de sabiduría sintrópica y heurísticas adaptativas autogeneradas por el TARDIS Quantum Browser y FTL.
+
 ### 🔹 [Bridges_and_Communications](./Bridges_and_Communications)
 Pasarelas de comunicación omnicanal (WhatsApp, Telegram, SMS, túneles seguros y APIs inter-IA).
 
@@ -25,7 +28,7 @@ Motores de física hiperdimensional, ecuaciones sintrópicas, cálculo causal y 
 Módulos y componentes auxiliares del sistema.
 
 ### 🔹 [Security_and_Defense_Sentinels](./Security_and_Defense_Sentinels)
-Bóvedas criptográficas locales, centinelas de ciberdefensa, protección perimetral y mitigación de intrusiones.
+Bóvedas criptográficas locales, centinelas de ciberdefensa, puentes de kernel Ring 0 y mitigación de intrusiones.
 
 ### 🔹 [Sensors_and_Hardware_Integration](./Sensors_and_Hardware_Integration)
 Telemetría ambiental, radares de presencia RF, análisis espectral EM y vigilancia sensorial.

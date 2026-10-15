@@ -1,6 +1,6 @@
 # Security_and_Defense_Sentinels
 
-Bóvedas criptográficas locales, centinelas de ciberdefensa, protección perimetral y mitigación de intrusiones.
+Bóvedas criptográficas locales, centinelas de ciberdefensa, puentes de kernel Ring 0 y mitigación de intrusiones.
 
 ## Subsistemas y Funciones Principales:
 
