@@ -6,7 +6,7 @@
   "last_video_id": "vp_20261015_104041_eb6334",
   "last_topic": "Quantum Simulation of Lattice Supersymmetry with Ultracold Atoms",
   "total_videos_analyzed": 167,
-  "running_cycle": false,
+  "running_cycle": true,
   "last_error": null,
   "auto_improvement_count": 104
 }
