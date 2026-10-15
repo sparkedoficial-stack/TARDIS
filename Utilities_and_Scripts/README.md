@@ -63,6 +63,7 @@ Automatizaciones de sistema, diagnósticos de hardware, optimizadores de SO y he
 - **test_hotspot_controller.py**: Componente de alta eficiencia.
 - **test_hybrid_synergy.py**: Componente de alta eficiencia.
 - **test_interaction_logger.py**: Componente de alta eficiencia.
+- **test_ipad_program.py**: Componente de alta eficiencia.
 - **test_mission_scouting.py**: Componente de alta eficiencia.
 - **test_native_gui.py**: Componente de alta eficiencia.
 - **test_permanent_qr_bridge.py**: Componente de alta eficiencia.
