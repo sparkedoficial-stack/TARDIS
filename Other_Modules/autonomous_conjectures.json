@@ -1,22 +1,5 @@
 [
   {
-    "id": "conj_1791859256",
-    "timestamp": "2026-10-12T21:40:56.549828",
-    "idle_duration_minutes": 34.2,
-    "title": "Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching subsystem can dynamically predict the obsolescence of cached search results based on observed changes in source domains (e.g., content updates, SEO shifts). By modeling the causal relationship between external signals (last‑modified headers, content‑type changes, link graph variations) and result relevance, the engine can pre‑emptively invalidate or refresh cached entries, reducing stale data latency without a full‑re‑crawl. This should improve the freshness‑to‑latency ratio by at least 30% in environments with high content churn, such as news portals, while keeping overall cache hit rate stable.",
-    "research_query": "causal inference based cache invalidation web search engine freshness latency trade‑off",
-    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web search engine freshness latency trade‑off\n\n## Fuentes Consultadas y Respaldo Web\n- **[Algorithms of Engagement — Optimizing Attention, Evidence‑Based Engineering Practices - Medium](https://news.google.com/rss/articles/CBMixgFBVV95cUxQbzdkVEtrZmt4R0RVQ19xcXdET29tZFBxYzdDUmNNOXd6ZlVsY1BOYlZBUWpuZndWN2M4bEdNTGxaYXlIeG9hZ0w1dWtvaURyMjg3UTg1SEY0RndjRTYtRWpGWm1Nb3VsUU9jRnVFdVdSZ1BkZXR0UlIxVmR2eFN4Vllhd3ZZdVBJOE9FVkcyWEphdlNUeW9NMThtWmpoc1FkYXlhdzVlWlFwRE13N3NfLXRsMktJMl85M2R4dTJzWmhNem9vMXc?oc=5)**: Algorithms of Engagement — Optimizing Attention, Evidence‑Based Engineering Practices  Medium\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMixgFBVV95cUxQbzdkVEtrZmt4R0RVQ19xcXdET29tZFBxYzdDUmNNOXd6ZlVsY1BOYlZBUWpuZndWN2M4bEdNTGxaYXlIeG9hZ0w1dWtvaURyMjg3UTg1SEY0RndjRTYtRWpGWm1Nb3VsUU9jRnVFdVdSZ1BkZXR0UlIxVmR2eFN4Vllhd3ZZdVBJOE9FVkcyWEphdlNUeW9NMThtWmpoc1FkYXlhdzVlWlFwRE",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMixgFBVV95cUxQbzdkVEtrZmt4R0RVQ19xcXdET29tZFBxYzdDUmNNOXd6ZlVsY1BOYlZBUWpuZndWN2M4bEdNTGxaYXlIeG9hZ0w1dWtvaURyMjg3UTg1SEY0RndjRTYtRWpGWm1Nb3VsUU9jRnVFdVdSZ1BkZXR0UlIxVmR2eFN4Vllhd3ZZdVBJOE9FVkcyWEphdlNUeW9NMThtWmpoc1FkYXlhdzVlWlFwRE13N3NfLXRsMktJMl85M2R4dTJzWmhNem9vMXc?oc=5"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal inference module that monitors external change signals and triggers selective cache invalidation; expose a new method `invalidate_stale_cache(entry_id)` and integrate it into the request handling pipeline.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 99.1
-  },
-  {
     "id": "conj_1791861645",
     "timestamp": "2026-10-12T22:20:45.366220",
     "idle_duration_minutes": 32.2,
@@ -1647,5 +1630,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.39
+  },
+  {
+    "id": "conj_1792066223",
+    "timestamp": "2026-10-15T07:10:23.292042",
+    "idle_duration_minutes": 31.6,
+    "title": "Resonancia Temporal en la Bóveda Akáshica",
+    "hypothesis": "La eficiencia de recuperación de la bóveda akáshica puede optimizarse mediante un mecanismo de 'resonancia temporal' que priorice no solo la similitud semántica, sino la coherencia causal y temporal de los nodos de memoria. Al integrar métricas de decaimiento exponencial ponderado por la relevancia contextual actual del sistema, se reduce la latencia de búsqueda y se mitiga la 'contaminación' por datos obsoletos, mejorando la precisión de la inferencia causal en tiempo real.",
+    "research_query": "temporal decay weighting semantic memory retrieval causal inference optimization",
+    "research_findings": "# Informe de Investigación: temporal decay weighting semantic memory retrieval causal inference optimization\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar una función de puntuación dinámica que aplique un factor de decaimiento temporal (time-decay factor) a los vectores de memoria, ajustado por la frecuencia de acceso reciente y la relevancia contextual, para refinar el ranking de resultados en la búsqueda vectorial.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.78
   }
 ]
