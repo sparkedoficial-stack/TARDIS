@@ -7,6 +7,9 @@ Módulos de sabiduría sintrópica y heurísticas adaptativas autogeneradas por 
 - **browser_evol_computaci_n_cu_ntica_alg_1577.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
 - **browser_evol_computaci_n_cu_ntica_alg_1584.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
 - **browser_evol_computaci_n_cu_ntica_alg_1589.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
+- **browser_evol_computaci_n_cu_ntica_alg_2770.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
+- **browser_evol_computaci_n_cu_ntica_alg_2774.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
+- **browser_evol_computaci_n_cu_ntica_alg_2778.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
 - **browser_evol_computaci_n_cu_ntica_alg_3315.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
 - **browser_evol_computaci_n_cu_ntica_alg_3324.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
 - **browser_evol_computaci_n_cu_ntica_alg_3330.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
@@ -101,9 +104,6 @@ Módulos de sabiduría sintrópica y heurísticas adaptativas autogeneradas por 
 - **browser_evol_teor_a_de_control_causal_655.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
 - **browser_evol_teor_a_de_control_causal_6888.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
 - **browser_evol_teor_a_de_control_causal_8860.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
-- **browser_evol_teor_a_de_control_causal_9496.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
-- **browser_evol_teor_a_de_control_causal_9500.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
-- **browser_evol_teor_a_de_control_causal_9504.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
 - **idle_evolution_daemon.py**: Componente de alta eficiencia.
 - **self_evolution_log.json**: Componente de alta eficiencia.
 - **test_idle_evolution_daemon.py**: Componente de alta eficiencia.
