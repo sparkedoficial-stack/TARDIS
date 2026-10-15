@@ -1,23 +1,5 @@
 [
   {
-    "id": "conj_1791851201",
-    "timestamp": "2026-10-12T19:26:41.354226",
-    "idle_duration_minutes": 34.7,
-    "title": "Asyncify the Web Research Engine",
-    "hypothesis": "The current synchronous HTTP request model in core/web_research_engine.py is a major source of latency and CPU contention, especially under high query load. By refactoring to an asynchronous, event‑driven architecture with built‑in request caching, the system can achieve lower average response times, higher throughput, and reduced memory footprint, thereby improving overall user experience and enabling more complex research queries.",
-    "research_query": "asyncio aiohttp web scraping performance vs requests library",
-    "research_findings": "# Informe de Investigación: asyncio aiohttp web scraping performance vs requests library\n\n## Fuentes Consultadas y Respaldo Web\n- **[Beyond Requests: Why httpx is the Modern HTTP Client You Need (Sometimes) - Towards Data Science](https://news.google.com/rss/articles/CBMipAFBVV95cUxQQ3lBXzBnbWMyRkhzSTNvUzJDV1h1LU5ud0k4S2NBYzYtaWhJMTQ5SjZ1OVJ1VmNSS2tqY3B5WUhZeWFTbm9GeFBKSF9pWWhKU0VucXlROVpFbjNCQ3lCcDJhZVdmSDNFbWlhTW1rSGE5U25MUlN5MjE3NUEwdXRmSFBqb2hIYnpJeDd2MTdkS2RLRUV1UnRIeDRmRm1kVzVxTEJCXw?oc=5)**: Beyond Requests: Why httpx is the Modern HTTP Client You Need (Sometimes)  Towards Data Science\n- **[Understanding Asyncio in Python - Built In](https://news.google.com/rss/articles/CBMiUkFVX3lxTE41SmFZUnRmY0I5MHdubkZ1ZGhvVjhuMDZOMmpBelVIeE9TTi1QTnRmX1JmQWd4YVR0OTRPSjljTFc2M0NmVlFtenNXRE82ck4yM2c?oc=5)**: Understanding Asyncio in Python  Built In\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMipAFBVV95cUxQQ3lBXzBnbWMyRkhzSTNvUzJDV1h1LU5ud",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMipAFBVV95cUxQQ3lBXzBnbWMyRkhzSTNvUzJDV1h1LU5ud0k4S2NBYzYtaWhJMTQ5SjZ1OVJ1VmNSS2tqY3B5WUhZeWFTbm9GeFBKSF9pWWhKU0VucXlROVpFbjNCQ3lCcDJhZVdmSDNFbWlhTW1rSGE5U25MUlN5MjE3NUEwdXRmSFBqb2hIYnpJeDd2MTdkS2RLRUV1UnRIeDRmRm1kVzVxTEJCXw?oc=5",
-      "https://news.google.com/rss/articles/CBMiUkFVX3lxTE41SmFZUnRmY0I5MHdubkZ1ZGhvVjhuMDZOMmpBelVIeE9TTi1QTnRmX1JmQWd4YVR0OTRPSjljTFc2M0NmVlFtenNXRE82ck4yM2c?oc=5"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Replace blocking requests with aiohttp async calls, add an LRU cache for query results, and refactor the query pipeline to run concurrently.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.06
-  },
-  {
     "id": "conj_1791853159",
     "timestamp": "2026-10-12T19:59:19.844471",
     "idle_duration_minutes": 32.6,
@@ -1651,5 +1633,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 100.95
+  },
+  {
+    "id": "conj_1792058539",
+    "timestamp": "2026-10-15T05:02:19.767136",
+    "idle_duration_minutes": 35.9,
+    "title": "Causal Latency Reduction via Predictive Cache Pruning",
+    "hypothesis": "La latencia percibida en la cadena de investigación web no se debe únicamente a la velocidad de red, sino a la 'entropía de contexto' acumulada en la bóveda akáshica. Al implementar un algoritmo de poda predictiva basado en la relevancia causal histórica (no solo temporal), podemos reducir el tiempo de inferencia del motor de investigación al pre-cargar solo los nodos de memoria que tienen alta probabilidad de ser consultados en la siguiente iteración lógica, minimizando la carga de contexto irrelevante.",
+    "research_query": "predictive cache pruning algorithm for LLM context window optimization causal relevance",
+    "research_findings": "# Informe de Investigación: predictive cache pruning algorithm for LLM context window optimization causal relevance\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar un método `prune_by_causal_relevance()` que asigne un score de probabilidad de uso futuro a cada entrada de memoria y elimine o archive las de bajo score antes de cada consulta al motor de investigación.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 104.99
   }
 ]
