@@ -167,6 +167,7 @@ def generate_webclip_profile(host_ip: str = USB_HOST_IP, port: int = EDGE_PORT) 
 
 # Vistas y Rutas HTTP
 async def index_handler(request: web.Request) -> web.Response:
+    logger.info(f"[HTTP] Solicitud recibida GET / desde cliente IP: {request.remote}")
     html_content = get_client_html()
     return web.Response(text=html_content, content_type="text/html")
 
@@ -1126,10 +1127,37 @@ def create_app() -> web.Application:
 
     return app
 
-def main():
-    logger.info(f"Iniciando Servidor Edge TARDIS para iPad Pro M2 en http://{EDGE_HOST}:{EDGE_PORT}...")
+async def async_main():
     app = create_app()
-    web.run_app(app, host=EDGE_HOST, port=EDGE_PORT, access_log=None)
+    runner = web.AppRunner(app)
+    await runner.setup()
+
+    # Iniciar en puerto 80 (para acceso directo http://REDACTED_IP/)
+    try:
+        site_80 = web.TCPSite(runner, EDGE_HOST, 80)
+        await site_80.start()
+        logger.info(f"Servidor Edge TARDIS escuchando en puerto nativo 80 (http://{EDGE_HOST}:80)")
+    except Exception as e:
+        logger.warning(f"Aviso puerto 80: {e}")
+
+    # Iniciar en puerto 8088
+    try:
+        site_8088 = web.TCPSite(runner, EDGE_HOST, EDGE_PORT)
+        await site_8088.start()
+        logger.info(f"Servidor Edge TARDIS escuchando en puerto 8088 (http://{EDGE_HOST}:{EDGE_PORT})")
+    except Exception as e:
+        logger.error(f"Error puerto 8088: {e}")
+
+    # Mantener en ejecución indefinida
+    while True:
+        await asyncio.sleep(3600)
+
+def main():
+    logger.info("Iniciando Servidor Edge TARDIS para iPad Pro M2...")
+    try:
+        asyncio.run(async_main())
+    except (KeyboardInterrupt, SystemExit):
+        logger.info("Servidor detenido limpiamente.")
 
 if __name__ == "__main__":
     main()
