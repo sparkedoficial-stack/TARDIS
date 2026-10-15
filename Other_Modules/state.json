@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.6407168,
-  "last_video_id": "vp_20261015_142315_4b4057",
-  "last_topic": "Twistor Theory and Scattering Amplitudes in Quantum Gravity",
-  "total_videos_analyzed": 173,
-  "running_cycle": false,
+  "last_run_timestamp": REDACTED_PHONE.2005727,
+  "last_video_id": "vp_20261015_151527_ed9afa",
+  "last_topic": "Tensorial Group Field Theory and the Emergence of Spacetime Geometry",
+  "total_videos_analyzed": 174,
+  "running_cycle": true,
   "last_error": null,
   "auto_improvement_count": 108
 }
