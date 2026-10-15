@@ -6,7 +6,7 @@
   "last_video_id": "vp_20261015_115455_738d8d",
   "last_topic": "Persistent Homology of Brain Connectomes: Topological Data Analysis in Neuroscience",
   "total_videos_analyzed": 169,
-  "running_cycle": true,
-  "last_error": "No fue posible descargar el video desde https://www.youtube.com/watch?v=Hb78KkbI0Tg",
+  "running_cycle": false,
+  "last_error": null,
   "auto_improvement_count": 106
 }
