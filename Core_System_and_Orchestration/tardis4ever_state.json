@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "created_at": "2026-10-15T02:04:29.176374",
   "last_periodic_sync": "2026-10-15T02:04:29.176374",
-  "last_immediate_sync": "2026-10-15T05:18:06.553765",
-  "last_commit_hash": "58bb1a6",
-  "sync_count": 169,
-  "immediate_sync_count": 169,
+  "last_immediate_sync": "2026-10-15T05:19:12.493623",
+  "last_commit_hash": "d2296ad",
+  "sync_count": 170,
+  "immediate_sync_count": 170,
   "periodic_sync_count": 0,
   "last_known_mtimes": {
     "skill:omni-control-bridge/SKILL.md": REDACTED_PHONE.4575877,
@@ -524,6 +524,7 @@
     "ftl:browser_evol_redes_neuronales_de_espa_2742.py": REDACTED_PHONE.5174162,
     "ftl:browser_evol_redes_neuronales_de_espa_4146.py": REDACTED_PHONE.3448908,
     "ftl:browser_evol_t_cnicas_de_compresi_n_s_5434.py": REDACTED_PHONE.604777,
+    "ftl:browser_evol_teor_a_de_control_causal_9500.py": REDACTED_PHONE.445261,
     "ftl:browser_evol_computaci_n_cu_ntica_alg_6466.py": REDACTED_PHONE.043098,
     "ftl:browser_evol_computaci_n_cu_ntica_alg_1771.py": REDACTED_PHONE.6383543,
     "ftl:browser_evol_sistemas_operativos_basa_4743.py": REDACTED_PHONE.8789318,
@@ -918,6 +919,7 @@
     "ftl:browser_evol_computaci_n_cu_ntica_alg_4509.py": REDACTED_PHONE.1299338,
     "ftl:browser_evol_neurotopolog_a_y_mapeo_d_733.py": REDACTED_PHONE.240101,
     "ftl:browser_evol_computaci_n_cu_ntica_alg_4345.py": REDACTED_PHONE.5761032,
+    "ftl:browser_evol_teor_a_de_control_causal_9504.py": REDACTED_PHONE.431785,
     "ftl:browser_evol_neurotopolog_a_y_mapeo_d_7174.py": REDACTED_PHONE.6043239,
     "ftl:browser_evol_criptograf_a_postcu_ntic_5232.py": REDACTED_PHONE.7330773,
     "ftl:browser_evol_neurotopolog_a_y_mapeo_d_9627.py": REDACTED_PHONE.5955625,
@@ -1259,6 +1261,7 @@
     "ftl:browser_evol_criptograf_a_postcu_ntic_4267.py": REDACTED_PHONE.3407166,
     "ftl:browser_evol_criptograf_a_postcu_ntic_32.py": REDACTED_PHONE.7961342,
     "ftl:browser_evol_redes_neuronales_de_espa_8083.py": REDACTED_PHONE.81773,
+    "ftl:browser_evol_teor_a_de_control_causal_9496.py": REDACTED_PHONE.6321146,
     "ftl:browser_evol_neurotopolog_a_y_mapeo_d_2512.py": REDACTED_PHONE.1579134,
     "ftl:browser_evol_criptograf_a_postcu_ntic_746.py": REDACTED_PHONE.6169207,
     "ftl:browser_evol_criptograf_a_postcu_ntic_5217.py": REDACTED_PHONE.6244295,
@@ -2185,6 +2188,18 @@
   },
   "history": [
     {
+      "timestamp": "2026-10-15T05:19:12.493623",
+      "trigger": "immediate_milestone",
+      "commit_hash": "d2296ad",
+      "score": 75,
+      "reasons": [
+        "Actualizaci\u00f3n en proyecto price_sentinel: README.md",
+        "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
+        "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
+        "Actualizaci\u00f3n en proyecto carlinkit_kvm: index.html"
+      ]
+    },
+    {
       "timestamp": "2026-10-15T05:18:06.553765",
       "trigger": "immediate_milestone",
       "commit_hash": "58bb1a6",
@@ -2766,18 +2781,6 @@
       "trigger": "immediate_milestone",
       "commit_hash": "20f8d8f",
       "score": 60,
-      "reasons": [
-        "Actualizaci\u00f3n en proyecto price_sentinel: README.md",
-        "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
-        "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
-        "Actualizaci\u00f3n en proyecto carlinkit_kvm: index.html"
-      ]
-    },
-    {
-      "timestamp": "2026-10-15T04:23:39.767571",
-      "trigger": "immediate_milestone",
-      "commit_hash": "eb53c02",
-      "score": 70,
       "reasons": [
         "Actualizaci\u00f3n en proyecto price_sentinel: README.md",
         "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
