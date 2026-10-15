@@ -1448,6 +1448,8 @@ def get_client_html() -> str:
                 </div>
 
                 <div class="chat-chips">
+                    <div class="chat-chip" style="border-color:var(--neon-cyan);color:var(--neon-cyan);font-weight:700;" onclick="switchTab('view-ide')">💻 IDE Soberano</div>
+                    <div class="chat-chip" style="border-color:var(--neon-gold);color:var(--neon-gold);font-weight:700;" onclick="switchTab('view-terminal')">⚡ Terminal & Kernel</div>
                     <div class="chat-chip" onclick="quickPrompt('Hola TARDIS, ¿cómo estás?')">👋 Saludo Local</div>
                     <div class="chat-chip" onclick="quickPrompt('Estado general y telemetría de TARDIS')">📊 Estado General</div>
                     <div class="chat-chip" onclick="quickPrompt('Auditoría profunda de Kernel Ring 0 y PSI')">⚡ Kernel Ring 0</div>
