@@ -1,23 +1,5 @@
 [
   {
-    "id": "conj_1791845293",
-    "timestamp": "2026-10-12T17:48:13.724449",
-    "idle_duration_minutes": 31.6,
-    "title": "Causal Graph Cache for Contextual Web Research",
-    "hypothesis": "Integrating a lightweight causal graph cache within the Web Research Engine, which records inferred cause‑effect relationships between queried concepts and retrieved documents, will enable the engine to prioritize sources that are causally relevant rather than merely lexical matches, thereby improving the precision of retrieved information in multi‑step reasoning tasks.",
-    "research_query": "causal graph based web search relevance improvement techniques",
-    "research_findings": "# Informe de Investigación: causal graph based web search relevance improvement techniques\n\n## Fuentes Consultadas y Respaldo Web\n- **[Knowledge augmented causal discovery through large language models and knowledge graphs: application in chronic low back pain - medRxiv](https://news.google.com/rss/articles/CBMifEFVX3lxTE5TMVJFZzBDTmM4amxHQ01MemNEblQyejdtY0ZyYlk4NkdzS3dJWGhyTmJZSjRyZGo4ckZYc2M2V3hjbjFpZ2NveTI1RHlJOXM1aUsxWENoeHJjSWF2UkdEMWpyNlRkU1hpamRfeGJ4bmNtV3N1Y2NmM2loWnQ?oc=5)**: Knowledge augmented causal discovery through large language models and knowledge graphs: application in chronic low back pain  medRxiv\n- **[Vol. 40 No. 37: AAAI-26 Technical Tracks 37 - The Association for the Advancement of Artificial Intelligence](https://news.google.com/rss/articles/CBMiX0FVX3lxTE90am5QTW9MM3E2THJCWmZrVkFTU0hYLW5fQkg0U2IySURzSFVvbEY4TmUteDlWOFFlUkRnMWRkblVVanRDWWQ4a2tsOEpLT0ZCTkZmSlRzdExxWmFpLVZJ?oc=5)**: Vol. 40 No. 37: AAAI-26 Technical Tracks 37  The Association for the Advancement ",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMifEFVX3lxTE5TMVJFZzBDTmM4amxHQ01MemNEblQyejdtY0ZyYlk4NkdzS3dJWGhyTmJZSjRyZGo4ckZYc2M2V3hjbjFpZ2NveTI1RHlJOXM1aUsxWENoeHJjSWF2UkdEMWpyNlRkU1hpamRfeGJ4bmNtV3N1Y2NmM2loWnQ?oc=5",
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE90am5QTW9MM3E2THJCWmZrVkFTU0hYLW5fQkg0U2IySURzSFVvbEY4TmUteDlWOFFlUkRnMWRkblVVanRDWWQ4a2tsOEpLT0ZCTkZmSlRzdExxWmFpLVZJ?oc=5"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal graph cache module that stores and updates cause‑effect edges between query entities and fetched URLs, and modify the ranking pipeline to boost results that align with high‑confidence causal paths.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.57
-  },
-  {
     "id": "conj_1791847190",
     "timestamp": "2026-10-12T18:19:50.326429",
     "idle_duration_minutes": 31.6,
@@ -1655,5 +1637,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 101.47
+  },
+  {
+    "id": "conj_1792048740",
+    "timestamp": "2026-10-15T02:19:00.442088",
+    "idle_duration_minutes": 32.7,
+    "title": "Dynamic Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "If the Web Research Engine maintains a lightweight causal graph of query dependencies (e.g., which queries rely on which external APIs or data sources), it can predict when cached results are likely to become stale. By using this causal information to trigger proactive cache invalidation or refresh, the system will reduce latency for time‑sensitive queries and improve the relevance of returned results without a significant overhead in memory or CPU.",
+    "research_query": "causal graph based cache invalidation web search engine performance",
+    "research_findings": "# Informe de Investigación: causal graph based cache invalidation web search engine performance\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal dependency tracker that records which external endpoints each query touches, then implement an adaptive cache TTL mechanism that invalidates or refreshes entries based on detected changes in those endpoints.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 99.43
   }
 ]
