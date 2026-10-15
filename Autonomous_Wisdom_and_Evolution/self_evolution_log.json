@@ -1,20 +1,6 @@
 [
   {
     "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
-    "goal": "Add a causal cache manager that tracks update signals (RSS feeds, HTTP Last-Modified headers, sitemap change frequencies) and uses a lightweight Bayesian network to decide cache expiry, exposing a new function `invalidate_stale_cache()` called before each search.",
-    "status": "REJECTED",
-    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
-    "elapsed_seconds": 91.29,
-    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/web_research_engine.py.20261013_002735.bak",
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Respuesta generada demasiado corta (0 vs 35266 bytes)",
-    "timestamp": "2026-10-13T00:29:06.482527"
-  },
-  {
-    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
     "goal": "Add a causal‑fingerprint based caching layer that registers each query with its semantic embedding and links it to the version hash of deep_memory_vault; on vault updates, automatically purge or refresh affected cache entries.",
     "status": "REJECTED",
     "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
@@ -1398,5 +1384,19 @@
     "efficiency_improvement": null,
     "error": "Respuesta generada demasiado corta (0 vs 33875 bytes)",
     "timestamp": "2026-10-15T09:49:06.425988"
+  },
+  {
+    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/deep_memory_vault.py",
+    "goal": "Implementar una función de 'causal_pruning' que evalúe la similitud coseno y la recencia de acceso de los vectores en la bóveda, eliminando o re-pesando los nodos con baja coherencia causal para optimizar la indexación.",
+    "status": "REJECTED",
+    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
+    "elapsed_seconds": 90.97,
+    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/deep_memory_vault.py.20261015_101913.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "Respuesta generada demasiado corta (0 vs 33875 bytes)",
+    "timestamp": "2026-10-15T10:20:44.522513"
   }
 ]
