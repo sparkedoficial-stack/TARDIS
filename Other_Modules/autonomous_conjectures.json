@@ -1,23 +1,5 @@
 [
   {
-    "id": "conj_1791847190",
-    "timestamp": "2026-10-12T18:19:50.326429",
-    "idle_duration_minutes": 31.6,
-    "title": "Optimización de la caché semántica en el motor de búsqueda web",
-    "hypothesis": "Integrar una capa de caché semántica basada en embeddings de consultas y resultados permitirá reducir la latencia del motor de búsqueda web en un 30% y disminuir la carga de peticiones externas, al reutilizar respuestas similares mediante similitud de vectores en lugar de repetir consultas idénticas.",
-    "research_query": "semantic cache for web search engines using vector embeddings latency reduction",
-    "research_findings": "# Informe de Investigación: semantic cache for web search engines using vector embeddings latency reduction\n\n## Fuentes Consultadas y Respaldo Web\n- **[AWS vector solutions: Build agentic AI where your data lives - Amazon Web Services (AWS)](https://news.google.com/rss/articles/CBMiqgFBVV95cUxOSjkzT256UDNBZUphVnFuQmZyYzVGVU82SEVINVdVX2EwQUJYblFrM1RadF82b0lLS3NXUHpkcl9CSEVabm1tUXpJeDl0ZHFXdWFEWjAtcHFlODhvMkVudEhBOUZtb0E5d2dMMHFkcTA4SDNGaHF3aXhQLWt3RHRyYlNIU3ZFOEU5dS0xaFlONmFUaE9kUzNVMG40UUF1MlpqaEttODQ1bzJTdw?oc=5)**: AWS vector solutions: Build agentic AI where your data lives  Amazon Web Services (AWS)\n- **[Why smarter AI caching sometimes makes everything slower - The New Stack](https://news.google.com/rss/articles/CBMiZEFVX3lxTE1JclBPWkprTnJXODRxQTlPQmhLZFJIUG1Mc2tkRU11WEEtbW14bXFmRWl1ZVowMmZLM0l3bl9KUFVmRm9SYmt1b2kxWTgycVNBRWJ5SHBLNkgtUDFraE96R1ZzZmI?oc=5)**: Why smarter AI caching sometimes makes everything slower  The New Stack\n\n## Contenido y Hallazgos Extraídos\n### De [Google N",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMiqgFBVV95cUxOSjkzT256UDNBZUphVnFuQmZyYzVGVU82SEVINVdVX2EwQUJYblFrM1RadF82b0lLS3NXUHpkcl9CSEVabm1tUXpJeDl0ZHFXdWFEWjAtcHFlODhvMkVudEhBOUZtb0E5d2dMMHFkcTA4SDNGaHF3aXhQLWt3RHRyYlNIU3ZFOEU5dS0xaFlONmFUaE9kUzNVMG40UUF1MlpqaEttODQ1bzJTdw?oc=5",
-      "https://news.google.com/rss/articles/CBMiZEFVX3lxTE1JclBPWkprTnJXODRxQTlPQmhLZFJIUG1Mc2tkRU11WEEtbW14bXFmRWl1ZVowMmZLM0l3bl9KUFVmRm9SYmt1b2kxWTgycVNBRWJ5SHBLNkgtUDFraE96R1ZzZmI?oc=5"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Añadir una caché en memoria que almacene embeddings de la última consulta y sus resultados; antes de ejecutar una nueva búsqueda, comparar el embedding de la nueva consulta con los almacenados usando cosine similarity y devolver resultados cacheados si la similitud supera un umbral configurable.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.58
-  },
-  {
     "id": "conj_1791849119",
     "timestamp": "2026-10-12T18:51:59.006506",
     "idle_duration_minutes": 32.1,
@@ -1652,5 +1634,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 99.43
+  },
+  {
+    "id": "conj_1792054420",
+    "timestamp": "2026-10-15T03:53:40.107672",
+    "idle_duration_minutes": 32.6,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer that tracks dependencies between fetched web resources and downstream reasoning steps can enable selective cache invalidation, reducing stale data usage and improving response latency in the web_research_engine module. By modeling each request as a node in a directed acyclic graph (DAG) with edges representing semantic dependencies (e.g., citation, topic overlap), the system can automatically purge only those cached entries whose downstream conclusions have changed, rather than flushing the entire cache on periodic timers.",
+    "research_query": "causal inference based cache invalidation web scraping DAG dependencies",
+    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web scraping DAG dependencies\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Implement a dependency graph for cached web responses and add a routine that traverses the graph to invalidate only affected cache entries when new data is fetched or when a knowledge node in deep_memory_vault is updated.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.72
   }
 ]
