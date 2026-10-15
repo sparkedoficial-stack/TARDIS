@@ -1,5 +1,5 @@
 {
-  "timestamp": REDACTED_PHONE.0160992,
+  "timestamp": REDACTED_PHONE.714101,
   "latitude": 20.6274,
   "longitude": -87.0799,
   "location_name": "Host Telemetry",
@@ -8,7 +8,7 @@
   "relative_humidity_pct": 95,
   "surface_pressure_hpa": 1011.7,
   "pressure_msl_hpa": 1012.9,
-  "pressure_trend": "En ligero ascenso (Tiempo estable)",
+  "pressure_trend": "En ascenso rápido (Mejora de tiempo / Alta presión)",
   "weather_code": 51,
   "weather_description": "Llovizna Ligera",
   "cloud_cover_pct": 37,
@@ -29,6 +29,6 @@
   "nitrogen_dioxide_ugm3": 2.3,
   "sulphur_dioxide_ugm3": 0.3,
   "ozone_ugm3": 37.0,
-  "summary_for_llm": "• Atmósfera y Clima Local: 25.3°C (Sensación térmica: 30.2°C) · Humedad: 95% · Presión: 1012.9 hPa (En ligero ascenso (Tiempo estable)) · Condición: Llovizna Ligera (37% nubes) · Viento: 10.2 km/h ESE (Ráfagas 18.7 km/h) · Precipitación: 0.1 mm · Radiación UV: 0.1 · Calidad del Aire: AQI 31 (Excelente (Poco o nulo riesgo)) con PM2.5: 4.0 µg/m³",
+  "summary_for_llm": "• Atmósfera y Clima Local: 25.3°C (Sensación térmica: 30.2°C) · Humedad: 95% · Presión: 1012.9 hPa (En ascenso rápido (Mejora de tiempo / Alta presión)) · Condición: Llovizna Ligera (37% nubes) · Viento: 10.2 km/h ESE (Ráfagas 18.7 km/h) · Precipitación: 0.1 mm · Radiación UV: 0.1 · Calidad del Aire: AQI 31 (Excelente (Poco o nulo riesgo)) con PM2.5: 4.0 µg/m³",
   "provider": "open-meteo"
 }
