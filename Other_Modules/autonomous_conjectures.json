@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1791869346",
-    "timestamp": "2026-10-13T00:29:06.497321",
-    "idle_duration_minutes": 31.9,
-    "title": "Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching mechanism will allow the system to predict when cached search results become stale based on observed changes in source domains (e.g., news sites, scientific repositories). By modeling the temporal dynamics of content updates as a causal graph, the engine can proactively invalidate or refresh specific cache entries, reducing latency and improving answer relevance without incurring full re‑queries for every user request.",
-    "research_query": "causal inference based cache invalidation web search engines recent papers 2023 2024",
-    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web search engines recent papers 2023 2024\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal cache manager that tracks update signals (RSS feeds, HTTP Last-Modified headers, sitemap change frequencies) and uses a lightweight Bayesian network to decide cache expiry, exposing a new function `invalidate_stale_cache()` called before each search.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 113.9
-  },
-  {
     "id": "conj_1791871275",
     "timestamp": "2026-10-13T01:01:15.378832",
     "idle_duration_minutes": 32.1,
@@ -1642,5 +1627,22 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.94
+  },
+  {
+    "id": "conj_1792075746",
+    "timestamp": "2026-10-15T09:49:06.443817",
+    "idle_duration_minutes": 31.6,
+    "title": "Resonancia Causal en la Bóveda Akáshica: Entropía Semántica y Predicción de Fallos",
+    "hypothesis": "Se postula que la 'profundidad' de la memoria no debe medirse solo por la antigüedad de los datos, sino por la 'densidad causal' (frecuencia de co-ocurrencia de eventos en la telemetría). Si la Bóveda Akáshica (deep_memory_vault.py) implementa un índice de 'Entropía Semántica' que penaliza el almacenamiento de datos con baja correlación causal y prioriza la compresión de patrones recurrentes, se puede reducir la latencia de recuperación en un 30-40% y mejorar la precisión de la predicción de fallos en network_shield.py, al filtrar el ruido de fondo antes de que alcance el motor de investigación.",
+    "research_query": "semantic entropy causal inference memory optimization LLM agent architecture",
+    "research_findings": "# Informe de Investigación: semantic entropy causal inference memory optimization LLM agent architecture\n\n## Fuentes Consultadas y Respaldo Web\n- **[Research Across the Agent Stack: The Poster Sessions at the Berkeley RDI Agentic AI Summit 2026 - Medium](https://news.google.com/rss/articles/CBMi1gFBVV95cUxOUFZPSC1DTGJGbnhVTy0tWm9wdUw3blZNYzhMVG1DZENrWDVNN0pJdjZHdG8wNWxQUTduTnU5NUNoMExSUkJEZHRzNGEtSER5bkRQMlkzZHU4em1OLTJEN29qMk5jWHNkUEFaUkhMdDhoeDV3SjN4MWQ4YUFqeHlSMUJaVER0TUU5Mk5RcXRkeWpsbGNJZGJ3RkxIeVE5cDlTSDlSOVlMcmg2QTNRTmZOLVdRWHpLZkloQjFudlZHWkctM1lZUFhFa1ZsYjJxSFVNdm1LVlFR?oc=5)**: Research Across the Agent Stack: The Poster Sessions at the Berkeley RDI Agentic AI Summit 2026  Medium\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMi1gFBVV95cUxOUFZPSC1DTGJGbnhVTy0tWm9wdUw3blZNYzhMVG1DZENrWDVNN0pJdjZHdG8wNWxQUTduTnU5NUNoMExSUkJEZHRzNGEtSER5bkRQMlkzZHU4em1OLTJEN29qMk5jWHNkUEFaUkhMdDhoeDV3SjN4MWQ4YUFqeHlSMUJaVER0TUU5Mk5RcXRkeWpsbGNJ",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMi1gFBVV95cUxOUFZPSC1DTGJGbnhVTy0tWm9wdUw3blZNYzhMVG1DZENrWDVNN0pJdjZHdG8wNWxQUTduTnU5NUNoMExSUkJEZHRzNGEtSER5bkRQMlkzZHU4em1OLTJEN29qMk5jWHNkUEFaUkhMdDhoeDV3SjN4MWQ4YUFqeHlSMUJaVER0TUU5Mk5RcXRkeWpsbGNJZGJ3RkxIeVE5cDlTSDlSOVlMcmg2QTNRTmZOLVdRWHpLZkloQjFudlZHWkctM1lZUFhFa1ZsYjJxSFVNdm1LVlFR?oc=5"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar una función `calculate_causal_density()` que asigne un peso dinámico a cada entrada de memoria basándose en la frecuencia de sus vectores de contexto en las últimas N iteraciones, y modificar el método de persistencia para comprimir o archivar entradas con densidad causal < 0.2.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.57
   }
 ]
