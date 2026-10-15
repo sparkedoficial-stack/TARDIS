@@ -32,6 +32,7 @@ Módulos y componentes auxiliares del sistema.
 - **explorador_cuantico.py**: Componente de alta eficiencia.
 - **family_registry.py**: Directorio y puente soberano de interoperabilidad omni-herramientas.
 - **fix_ftl.py**: Motor de aceleración FTL y computación adaptativa.
+- **ftl_tardis4ever.py**: Motor de aceleración FTL y computación adaptativa.
 - **gemini_privacy_vault.py**: Centinela de seguridad, blindaje perimetral o bóveda segura.
 - **gia_bootstrap.py**: Componente de alta eficiencia.
 - **gia_configuration_manager.py**: Componente de alta eficiencia.
@@ -91,6 +92,7 @@ Módulos y componentes auxiliares del sistema.
 - **scientific_research_engine.py**: Componente de alta eficiencia.
 - **self_updater.py**: Componente de alta eficiencia.
 - **sovereign_client.py**: Componente de alta eficiencia.
+- **tardis4ever_agent.py**: Modelo lógico y comportamiento autónomo distribuido.
 - **tardis_bridge.py**: Componente de alta eficiencia.
 - **tardis_browser.py**: Componente de alta eficiencia.
 - **tardis_calculadora_voz.py**: Componente de alta eficiencia.

@@ -84,6 +84,14 @@ class TardisOmniToolBridge:
                 "domain": "git_automation",
                 "description": "Compilación del portafolio soberano TARDIS, sanitización de secretos y sincronización con GitHub (sparkedoficial-stack/TARDIS.git).",
                 "actions": ["sync", "push", "status", "log", "build_only"]
+            },
+            "tardis4ever": {
+                "name": "Tardis4Ever Sovereign Agent",
+                "binary": "/usr/local/bin/tardis4ever",
+                "module": "modulos_ftl.ftl_tardis4ever",
+                "domain": "ci_cd_publication",
+                "description": "Agente soberano de sincronización continua: rutina de 24h automática y publicación inmediata en GitHub ante hitos importantes o llamativos con blindaje total de privacidad.",
+                "actions": ["status", "check", "sync", "daemon", "daemon_status"]
             }
         }
         self._register_in_dynamic_registry()

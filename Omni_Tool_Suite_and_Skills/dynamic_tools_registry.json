@@ -104,5 +104,19 @@
       "build_only"
     ],
     "status": "ACTIVE_SOVEREIGN"
+  },
+  "omni_tool_tardis4ever": {
+    "name": "omni_tool_tardis4ever",
+    "tool_id": "tardis4ever",
+    "title": "Tardis4Ever Sovereign Agent",
+    "domain": "ci_cd_publication",
+    "description": "Agente soberano de sincronización continua: rutina 24h, detección y publicación inmediata de hitos con blindaje total de datos personales.",
+    "actions": [
+      "status",
+      "check",
+      "sync",
+      "daemon_status"
+    ],
+    "status": "ACTIVE_SOVEREIGN"
   }
 }

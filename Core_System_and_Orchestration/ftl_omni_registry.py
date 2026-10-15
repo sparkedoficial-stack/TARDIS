@@ -115,6 +115,17 @@ class FtlOmniRegistry:
                 "description": "Matriz unificada que evalúa la combinación óptima de modelos de lenguaje (KAIJU, Gemini, Claude, DeepSeek, Qwen) y capas de ingeniería (ECCA, SSM, FTS5, Radar, ChronoVision).",
                 "capabilities": ["evaluate", "matrix", "get_models", "get_layers"],
                 "active": True
+            },
+            "tardis4ever": {
+                "name": "Tardis4Ever Sovereign Agent",
+                "binary": "/usr/local/bin/tardis4ever",
+                "module": "modulos_ftl.ftl_tardis4ever",
+                "service": "tardis4ever.service",
+                "skill_path": "/home/timemachine/.agents/skills/tardis4ever/SKILL.md",
+                "category": "Continuous Integration, Milestone Watcher & Automated Publication",
+                "description": "Agente soberano de sincronización continua: rutina de 24h automática y publicación inmediata en GitHub ante hitos importantes o llamativos con blindaje total de privacidad.",
+                "capabilities": ["status", "check", "sync", "daemon", "daemon_status"],
+                "active": True
             }
         }
 
