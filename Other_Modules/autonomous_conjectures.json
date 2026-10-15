@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1791891002",
-    "timestamp": "2026-10-13T06:30:02.335382",
-    "idle_duration_minutes": 38.3,
-    "title": "Causal Memory Indexing for Real‑Time Web Research",
-    "hypothesis": "Integrating a causal graph layer within the Deep Memory Vault (core/deep_memory_vault.py) that indexes incoming web research results by inferred cause‑effect relationships will enable the system to prioritize retrieval of information that directly influences pending hypotheses, reducing latency and improving relevance of auto‑generated insights.",
-    "research_query": "how to implement causal graph based indexing for knowledge bases in Python async web crawlers",
-    "research_findings": "# Informe de Investigación: how to implement causal graph based indexing for knowledge bases in Python async web crawlers\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add an asynchronous caching layer that stores fetched pages together with a lightweight causal metadata object (source, timestamp, inferred causal tags) and expose a get_recent_causal_results() API for the Deep Memory Vault to query the most causally relevant documents.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.72
-  },
-  {
     "id": "conj_1791892963",
     "timestamp": "2026-10-13T07:02:43.712923",
     "idle_duration_minutes": 32.7,
@@ -1644,5 +1629,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.94
+  },
+  {
+    "id": "conj_1792096683",
+    "timestamp": "2026-10-15T15:38:03.793977",
+    "idle_duration_minutes": 32.7,
+    "title": "Causal Embedding Cache for Real‑Time Web Research",
+    "hypothesis": "Integrating a causal embedding cache layer between core/web_research_engine.py and core/deep_memory_vault.py will allow the system to reuse previously retrieved web snippets not only by lexical similarity but by inferred causal relationships, reducing latency by up to 40% and improving answer relevance in domains where cause‑effect chains dominate (e.g., scientific literature, troubleshooting logs). The cache would store embeddings of retrieved documents together with a lightweight directed acyclic graph (DAG) of inferred causal links, enabling the research engine to retrieve semantically causal matches instead of purely keyword‑based ones.",
+    "research_query": "causal embedding cache for web search engines latency reduction causal inference embeddings DAG retrieval",
+    "research_findings": "# Informe de Investigación: causal embedding cache for web search engines latency reduction causal inference embeddings DAG retrieval\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a CausalCache class that indexes retrieved page embeddings with causal DAG edges, expose get_causal_results(query) that queries the cache before performing a fresh web fetch, and integrate it into the existing fetch_and_process pipeline.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.21
   }
 ]
