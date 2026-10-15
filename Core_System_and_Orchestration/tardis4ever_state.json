@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "created_at": "2026-10-15T02:04:29.176374",
   "last_periodic_sync": "2026-10-15T02:04:29.176374",
-  "last_immediate_sync": "2026-10-15T04:34:48.416434",
-  "last_commit_hash": "34160c3",
-  "sync_count": 130,
-  "immediate_sync_count": 130,
+  "last_immediate_sync": "2026-10-15T04:35:54.409146",
+  "last_commit_hash": "6203cf6",
+  "sync_count": 131,
+  "immediate_sync_count": 131,
   "periodic_sync_count": 0,
   "last_known_mtimes": {
     "skill:omni-control-bridge/SKILL.md": REDACTED_PHONE.4575877,
@@ -759,6 +759,7 @@
     "ftl:browser_evol_redes_neuronales_de_espa_4089.py": REDACTED_PHONE.5842347,
     "ftl:browser_evol_t_cnicas_de_compresi_n_s_9253.py": REDACTED_PHONE.7166178,
     "ftl:browser_evol_computaci_n_cu_ntica_alg_5817.py": REDACTED_PHONE.016146,
+    "ftl:browser_evol_neurotopolog_a_y_mapeo_d_6942.py": REDACTED_PHONE.7365918,
     "ftl:ftl_tardis4ever.py": REDACTED_PHONE.736255,
     "ftl:browser_evol_sistemas_operativos_basa_3973.py": REDACTED_PHONE.69626,
     "ftl:browser_evol_computaci_n_cu_ntica_alg_3685.py": REDACTED_PHONE.2901528,
@@ -1041,6 +1042,7 @@
     "ftl:browser_evol_sistemas_operativos_basa_4295.py": REDACTED_PHONE.6813252,
     "ftl:browser_evol_criptograf_a_postcu_ntic_51.py": REDACTED_PHONE.8562555,
     "ftl:browser_evol_computaci_n_cu_ntica_alg_792.py": REDACTED_PHONE.4591866,
+    "ftl:browser_evol_neurotopolog_a_y_mapeo_d_6937.py": REDACTED_PHONE.114823,
     "ftl:browser_evol_computaci_n_cu_ntica_alg_7090.py": REDACTED_PHONE.3080802,
     "ftl:browser_evol_computaci_n_cu_ntica_alg_9636.py": REDACTED_PHONE.8140452,
     "ftl:browser_evol_criptograf_a_postcu_ntic_6210.py": REDACTED_PHONE.6563516,
@@ -2017,7 +2019,7 @@
     "core:knowledge_graph.py": REDACTED_PHONE.8576238,
     "core:easy_touch_engine.py": REDACTED_PHONE.9785917,
     "core:ftl_telegram_runner.py": REDACTED_PHONE.1491292,
-    "core:tardis_ipad_edge_server.py": REDACTED_PHONE.2279487,
+    "core:tardis_ipad_edge_server.py": REDACTED_PHONE.4158537,
     "core:curiosity_debate_manager.py": REDACTED_PHONE.5321302,
     "core:gods_eye_engine.py": REDACTED_PHONE.3320367,
     "core:sovereign_local_runner.py": REDACTED_PHONE.053532,
@@ -2165,6 +2167,19 @@
     "sat:gia_ios:GIAModels.swift": REDACTED_PHONE.5796177
   },
   "history": [
+    {
+      "timestamp": "2026-10-15T04:35:54.409146",
+      "trigger": "immediate_milestone",
+      "commit_hash": "6203cf6",
+      "score": 95,
+      "reasons": [
+        "Evoluci\u00f3n en subsistema core TARDIS: tardis_ipad_edge_server.py",
+        "Actualizaci\u00f3n en proyecto price_sentinel: README.md",
+        "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
+        "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
+        "Actualizaci\u00f3n en proyecto carlinkit_kvm: index.html"
+      ]
+    },
     {
       "timestamp": "2026-10-15T04:34:48.416434",
       "trigger": "immediate_milestone",
@@ -2749,18 +2764,6 @@
       "trigger": "immediate_milestone",
       "commit_hash": "b4bf2ca",
       "score": 60,
-      "reasons": [
-        "Actualizaci\u00f3n en proyecto price_sentinel: README.md",
-        "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
-        "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
-        "Actualizaci\u00f3n en proyecto carlinkit_kvm: index.html"
-      ]
-    },
-    {
-      "timestamp": "2026-10-15T03:39:51.756801",
-      "trigger": "immediate_milestone",
-      "commit_hash": "2d7c6ad",
-      "score": 65,
       "reasons": [
         "Actualizaci\u00f3n en proyecto price_sentinel: README.md",
         "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
