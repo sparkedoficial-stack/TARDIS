@@ -18,7 +18,8 @@ TARDIS, FTL y Antigravity (AGY) operan con acceso y control unificado sobre herr
 3. **REA (Reverse Engineer Anything)**: Descompilación e ingeniería inversa profunda de binarios nativos (Mach-O, ELF, PE), APKs, IPAs y aplicaciones Electron/JS.
 4. **FTL Kernel Bridge (Ring 0 / Root Scope)**: Observabilidad PSI (`/proc/pressure`), ring buffer dmesg sin restricciones, sintonización de sysctl y control `/dev/uinput` y `/dev/uhid`.
 5. **FTL Git Sync & Portfolio Builder**: Pipeline continuo de sanitización, staging y sincronización soberana con GitHub.
-6. **Easy Touch Engine**: Sentinel en segundo plano para auto-reparación preventiva y balance de hardware.
+6. **Tardis4Ever**: Agente soberano de sincronización continua 24h y publicación inmediata ante avances importantes o llamativos con blindaje de privacidad.
+7. **Easy Touch Engine**: Sentinel en segundo plano para auto-reparación preventiva y balance de hardware.
 
 ## 🌌 Arquitectura de Sistemas y Capacidades
 
@@ -37,6 +38,9 @@ Núcleo de orquestación temporal, bucles de control soberano FTL y sincronizaci
 ### 🔹 [Dashboards_and_UI](./Dashboards_and_UI)
 Cockpits de control en tiempo real, portales soberanos y tableros de visualización cuántica/térmica.
 
+### 🔹 [Documentation](./Documentation)
+Documentación técnica, actas de continuidad de TARDIS, especificaciones y bitácoras de descubrimientos cuánticos/sintrópicos.
+
 ### 🔹 [Mathematical_and_Physics_Engines](./Mathematical_and_Physics_Engines)
 Motores de física hiperdimensional, ecuaciones sintrópicas, cálculo causal y difusión de física teórica.
 
@@ -51,6 +55,9 @@ Bóvedas criptográficas locales, centinelas de ciberdefensa, puentes de kernel 
 
 ### 🔹 [Sensors_and_Hardware_Integration](./Sensors_and_Hardware_Integration)
 Telemetría ambiental, radares de presencia RF, análisis espectral EM y vigilancia sensorial.
+
+### 🔹 [Sovereign_Projects](./Sovereign_Projects)
+Proyectos satélite y sistemas autónomos completos (TARDIS Price Sentinel, AirPlay Monitor, Carlinkit HID KVM, Cognitivo Sistema, GIA iOS App).
 
 ### 🔹 [Utilities_and_Scripts](./Utilities_and_Scripts)
 Automatizaciones de sistema, diagnósticos de hardware, optimizadores de SO y herramientas de despliegue.

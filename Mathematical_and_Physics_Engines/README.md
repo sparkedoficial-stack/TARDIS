@@ -7,6 +7,7 @@ Motores de física hiperdimensional, ecuaciones sintrópicas, cálculo causal y 
 - **chronovision_engine.py**: Componente de alta eficiencia.
 - **ecca_fft_engine.py**: Componente de alta eficiencia.
 - **geon_causal_engine.py**: Componente de alta eficiencia.
+- **physics_dissemination_config.json**: Motor de cálculo simbólico y simulación física.
 - **physics_dissemination_engine.py**: Motor de cálculo simbólico y simulación física.
 - **tardis_formula_animator.py**: Componente de alta eficiencia.
 - **tardis_hyper_physics_animator.py**: Motor de cálculo simbólico y simulación física.

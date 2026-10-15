@@ -105,10 +105,10 @@ class OSOptimizer:
             # Para 32 GB de RAM, asignar 4 GB de MMAP y 128 MB de caché SQLite
             if total_ram_gb >= 30.0:
                 cache_size = -128000       # 128 MB de caché en RAM
-                mmap_size = 4294967296     # 4 GB zero-copy memory-mapped I/O
+                mmap_size = REDACTED_PHONE     # 4 GB zero-copy memory-mapped I/O
             else:
                 cache_size = -64000        # 64 MB de caché en RAM
-                mmap_size = 2147483648     # 2 GB zero-copy memory-mapped I/O
+                mmap_size = REDACTED_PHONE     # 2 GB zero-copy memory-mapped I/O
 
             conn.execute("PRAGMA journal_mode = WAL")
             conn.execute("PRAGMA synchronous = NORMAL")

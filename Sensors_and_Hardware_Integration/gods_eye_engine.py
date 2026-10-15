@@ -855,7 +855,7 @@ class GodsEyeEngine:
                     },
                     "device": {
                         "device_type": "Terminal Inteligente / Transceptor",
-                        "imei": f"86{random.randint(1000000000000, 9999999999999)}",
+                        "imei": f"86{random.randint(REDACTED_PHONE, REDACTED_PHONE)}",
                         "mac_address": f"{random.randint(10,99):02X}:{random.randint(10,99):02X}:{random.randint(10,99):02X}:{random.randint(10,99):02X}:AA:01",
                         "ip_address": f"187.{random.randint(10,250)}.{random.randint(1,254)}.{random.randint(1,254)}",
                         "carrier_network": "Enlace Móvil LTE/5G Interceptado"

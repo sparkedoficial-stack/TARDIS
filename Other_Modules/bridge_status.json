@@ -1,0 +1,14 @@
+{
+  "online": true,
+  "tunnel_online": true,
+  "public_url": "https://degree-assure-install-proxy.trycloudflare.com",
+  "auth_url": "https://degree-assure-install-proxy.trycloudflare.com/?key=GIA-XvTWSlB_GtpqqhtL30SetF7uebndxOZf",
+  "permanent_url": "https://ntfy.sh/godworks_sovereign_timemachine_portal",
+  "qr_url": "https://ntfy.sh/godworks_sovereign_timemachine_portal",
+  "local_url": "http://REDACTED_IP:8757/?key=GIA-XvTWSlB_GtpqqhtL30SetF7uebndxOZf",
+  "lan_ip": "REDACTED_IP",
+  "token": "REDACTED",
+  "irrevocable": true,
+  "timestamp": REDACTED_PHONE.0653617,
+  "updated_at": "2026-10-02T20:08:33.065371"
+}

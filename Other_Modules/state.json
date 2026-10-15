@@ -1,0 +1,12 @@
+{
+  "enabled": true,
+  "interval_minutes": 35.0,
+  "interval_seconds": 2100.0,
+  "last_run_timestamp": REDACTED_PHONE.5613453,
+  "last_video_id": "vp_20261015_013528_6a733f",
+  "last_topic": "Analog Hawking Radiation in Bose‑Einstein Condensates: Experimental Observation and Theoretical Modeling",
+  "total_videos_analyzed": 152,
+  "running_cycle": false,
+  "last_error": null,
+  "auto_improvement_count": 102
+}

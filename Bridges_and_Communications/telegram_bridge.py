@@ -203,7 +203,7 @@ class TelegramBridge:
         allowed = self.config.setdefault("allowed_chats", [])
         if cid not in allowed:
             allowed.append(cid)
-        # El único usuario con acceso de administración soberana es exclusivamente el Arquitecto (7153384115)
+        # El único usuario con acceso de administración soberana es exclusivamente el Arquitecto (REDACTED_PHONE)
         self.config["admin_chat_id"] = ARCHITECT_TELEGRAM_ID
         self.save_config()
         return {"ok": True, "chat_id": cid, "allowed_count": len(allowed)}
@@ -213,7 +213,7 @@ class TelegramBridge:
         return is_architect(chat_id)
 
     def is_architect_private_terminal(self, chat_id: Any, user_id: Any = None) -> bool:
-        """Verifica si la petición proviene estrictamente de la terminal privada del Arquitecto (7153384115)."""
+        """Verifica si la petición proviene estrictamente de la terminal privada del Arquitecto (REDACTED_PHONE)."""
         return is_architect_private_terminal(chat_id, user_id)
 
     def is_chat_authorized(self, chat_id: int | str) -> bool:
@@ -830,13 +830,13 @@ class TelegramBridge:
     ) -> Dict[str, Any]:
         """
         Renderiza y despacha automáticamente un modelo 3D como animación orbital 360°
-        o en Alta Definición estática (1920x1440 HD) al Telegram del Arquitecto (7153384115).
+        o en Alta Definición estática (1920x1440 HD) al Telegram del Arquitecto (REDACTED_PHONE).
         """
         try:
             from core.render_3d_engine import get_render_3d_engine
             engine = get_render_3d_engine()
 
-            target_chat = chat_id or self.config.get("admin_chat_id") or 7153384115
+            target_chat = chat_id or self.config.get("admin_chat_id") or REDACTED_PHONE
 
             # Determinar si se envía como animación 3D u objeto fijo
             should_animate = as_animation is True
@@ -1488,7 +1488,7 @@ class TelegramBridge:
 
         # Si el usuario es el administrador conocido
         if user_name in ("Usuario", None, ""):
-            if str(cid) == str(self.config.get("admin_chat_id")) or str(cid) == "7153384115":
+            if str(cid) == str(self.config.get("admin_chat_id")) or str(cid) == "REDACTED_PHONE":
                 user_name = "Arquitecto (X)"
 
         auth_url = ""
@@ -1567,7 +1567,7 @@ class TelegramBridge:
             target_chat = self.config["allowed_chats"][0]
         if not target_chat:
             return {"ok": False, "error": "No hay chat_id destino disponible"}
-        u_name = "Arquitecto (X)" if str(target_chat) in (str(self.config.get("admin_chat_id")), "7153384115") else "Usuario"
+        u_name = "Arquitecto (X)" if str(target_chat) in (str(self.config.get("admin_chat_id")), "REDACTED_PHONE") else "Usuario"
         return self.start_call(target_chat, user_name=u_name, initial_speech=initial_speech)
 
     def notify_system_boot(self, auth_url: str, local_url: str):
@@ -2016,7 +2016,7 @@ class TelegramBridge:
         arg_str = " ".join(args).strip()
 
         # ----------------------------------------------------------------------
-        # REGLA SOBERANA 2: CONTROL ABSOLUTO EXCLUSIVO DESDE LA TERMINAL PRIVADA DEL ARQUITECTO (7153384115)
+        # REGLA SOBERANA 2: CONTROL ABSOLUTO EXCLUSIVO DESDE LA TERMINAL PRIVADA DEL ARQUITECTO (REDACTED_PHONE)
         # ----------------------------------------------------------------------
         if cmd in ADMIN_RESERVED_COMMANDS:
             if not self.is_architect_private_terminal(chat_id, user_id):
@@ -2533,7 +2533,7 @@ class TelegramBridge:
                     "• **Uso:** `/enviar <nombre_o_id> <mensaje>`\n"
                     "• **Ejemplos:**\n"
                     "   `/enviar Gonzalo Hola Gonzalo, ¿cómo estás?`\n"
-                    "   `/enviar 8697885926 Saludos desde el puente de control.`\n"
+                    "   `/enviar REDACTED_PHONE Saludos desde el puente de control.`\n"
                     "   `/enviar T.A.R.D.I.S Hola a todos los del grupo.`",
                     chat_id=chat_id, reply_to_message_id=msg_id
                 )
@@ -2589,7 +2589,7 @@ class TelegramBridge:
                     "• **Ejemplos:**\n"
                     "   `/enviar_dibujo Gonzalo galaxia`\n"
                     "   `/enviar_dibujo Gonzalo flor de la vida`\n"
-                    "   `/enviar_dibujo 8697885926 reloj temporal`\n"
+                    "   `/enviar_dibujo REDACTED_PHONE reloj temporal`\n"
                     "   `/enviar_dibujo T.A.R.D.I.S mandala` (envía al grupo)",
                     chat_id=chat_id, reply_to_message_id=msg_id
                 )
@@ -2740,7 +2740,7 @@ class TelegramBridge:
                 help_sh = (
                     "⚡ <b>[TERMINAL SOBERANA :: CONTROL ABSOLUTO]</b>\n"
                     "━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                    "• <b>Terminal exclusiva del Arquitecto (7153384115)</b>\n"
+                    "• <b>Terminal exclusiva del Arquitecto (REDACTED_PHONE)</b>\n"
                     "• Ejecuta cualquier comando bash directamente en el host.\n\n"
                     "<b>Uso:</b> <code>/sh &lt;comando bash&gt;</code>\n\n"
                     "<b>Ejemplos:</b>\n"
@@ -3804,7 +3804,7 @@ class TelegramBridge:
                 self.send_message(
                     "📱 **[ENVÍO DE SMS]**\n"
                     "• **Uso:** `/sms <número> <mensaje>`\n"
-                    "• **Ejemplo:** `/sms 9842615588 Alerta del sistema GODWORKS`\n"
+                    "• **Ejemplo:** `/sms REDACTED_PHONE Alerta del sistema GODWORKS`\n"
                     "• **Soporte:** Twilio, Gateway Android/Termux, Webhook, Módem GSM/LTE, Email Gateway.",
                     chat_id=chat_id,
                     reply_to_message_id=msg_id

@@ -91,7 +91,7 @@ def build_app(project_dir, output_dir=None, app_name=None, bundle_id=None, sign=
             "CFBundleVersion": "1.0.0",
             "MinimumOSVersion": "14.0",
             "UIDeviceFamily": [1, 2],
-            "REDACTED_TOKEN": [
+            "UISupportedInterfaceOrientations": [
                 "UIInterfaceOrientationPortrait",
                 "REDACTED_TOKEN",
                 "REDACTED_TOKEN"

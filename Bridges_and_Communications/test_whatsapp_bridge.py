@@ -21,8 +21,8 @@ class TestWhatsAppBridge(unittest.TestCase):
 
     def test_digits_helper(self):
         """Verifica la normalización estricta de números telefónicos."""
-        self.assertEqual(_digits("+52 (55) 1234-5678"), "525512345678")
-        self.assertEqual(_digits("54-9-999-123456"), "549999123456")
+        self.assertEqual(_digits("+52 (55) 1234-5678"), "REDACTED_PHONE")
+        self.assertEqual(_digits("54-9-999-123456"), "REDACTED_PHONE")
         self.assertEqual(_digits(""), "")
         self.assertEqual(_digits(None), "")
 
@@ -75,7 +75,7 @@ class TestWhatsAppBridge(unittest.TestCase):
     def test_master_key_pairing(self):
         """Verifica que '0' y 'DiosDelTiempo01' sean rechazados y solo una clave explícita autorice."""
         sender_phone = "+52 155 9876-5432"
-        clean_num = "5215598765432"
+        clean_num = "REDACTED_PHONE"
         self.assertFalse(self.bridge.is_number_authorized(clean_num))
 
         with patch.object(self.bridge, "send_message") as mock_send:
@@ -100,7 +100,7 @@ class TestWhatsAppBridge(unittest.TestCase):
 
     def test_unauthorized_number_blocked(self):
         """Verifica que mensajes sin clave maestra son rechazados si el número no está autorizado."""
-        sender = "1234567890"
+        sender = "REDACTED_PHONE"
         with patch.object(self.bridge, "send_message") as mock_send:
             res = self.bridge._handle_incoming_text(sender, "hola sistema", "Intruder")
             self.assertFalse(res.get("ok"))
@@ -110,7 +110,7 @@ class TestWhatsAppBridge(unittest.TestCase):
 
     def test_command_start_and_help(self):
         """Verifica que los comandos /start y /help devuelven el menú operativo soberano."""
-        sender = "5215500001111"
+        sender = "REDACTED_PHONE"
         self.bridge.authorized_numbers.add(sender)
 
         with patch.object(self.bridge, "send_message") as mock_send:
@@ -122,7 +122,7 @@ class TestWhatsAppBridge(unittest.TestCase):
 
     def test_command_sh_execution(self):
         """Verifica que /sh sea bloqueado por política de seguridad remota."""
-        sender = "5215500002222"
+        sender = "REDACTED_PHONE"
         self.bridge.authorized_numbers.add(sender)
 
         with patch.object(self.bridge, "send_message") as mock_send:
@@ -135,14 +135,14 @@ class TestWhatsAppBridge(unittest.TestCase):
     def test_send_message_post_payload(self):
         """Verifica el envío de mensajes a la Graph API de Meta."""
         self.bridge.config["access_token"] = "EAAG_TEST_ACCESS_TOKEN_123"
-        self.bridge.config["phone_number_id"] = "109876543210"
+        self.bridge.config["phone_number_id"] = "REDACTED_PHONE"
 
         with patch("requests.post") as mock_post:
             mock_post.return_value.status_code = 200
             mock_post.return_value.content = b'{"messages":[{"id":"wamid.HBgL..."}]}'
             mock_post.return_value.json.return_value = {"messages": [{"id": "wamid.HBgL..."}]}
 
-            res = self.bridge.send_message("5215512345678", "Notificación soberana de prueba")
+            res = self.bridge.send_message("REDACTED_PHONE", "Notificación soberana de prueba")
             self.assertTrue(res["ok"])
             self.assertEqual(res["status"], 200)
 
@@ -151,26 +151,26 @@ class TestWhatsAppBridge(unittest.TestCase):
             called_json = mock_post.call_args.kwargs["json"]
             called_headers = mock_post.call_args.kwargs["headers"]
 
-            self.assertIn("/v21.0/109876543210/messages", called_url)
-            self.assertEqual(called_json["to"], "5215512345678")
+            self.assertIn("/v21.0/REDACTED_PHONE/messages", called_url)
+            self.assertEqual(called_json["to"], "REDACTED_PHONE")
             self.assertEqual(called_json["text"]["body"], "Notificación soberana de prueba")
             self.assertEqual(called_headers["Authorization"], "Bearer EAAG_TEST_ACCESS_TOKEN_123")
 
     def test_update_config_persists(self):
         """Verifica la persistencia en disco de la configuración actualizada."""
         res = self.bridge.update_config({
-            "phone_number_id": "1234509876",
+            "phone_number_id": "REDACTED_PHONE",
             "access_token": "REDACTED",
-            "allowed_numbers": "5215511112222, +52 155 3333 4444"
+            "allowed_numbers": "REDACTED_PHONE, +52 155 3333 4444"
         })
         self.assertTrue(res["configured"])
         self.assertTrue(self.config_path.exists())
 
         saved = json.loads(self.config_path.read_text(encoding="utf-8"))
-        self.assertEqual(saved["phone_number_id"], "1234509876")
+        self.assertEqual(saved["phone_number_id"], "REDACTED_PHONE")
         self.assertEqual(saved["access_token"], "EAAG_SAVED_TOKEN")
-        self.assertIn("5215511112222", saved["allowed_numbers"])
-        self.assertIn("5215533334444", saved["allowed_numbers"])
+        self.assertIn("REDACTED_PHONE", saved["allowed_numbers"])
+        self.assertIn("REDACTED_PHONE", saved["allowed_numbers"])
 
 
 if __name__ == "__main__":

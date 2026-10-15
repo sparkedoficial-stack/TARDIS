@@ -66,8 +66,8 @@ class TestTelegramBridge(unittest.TestCase):
 
     def test_command_start_and_help(self):
         """Verifica que /start y /help devuelven el menú soberano al Arquitecto y bienvenida a terceros."""
-        # 1. Arquitecto desde su terminal privada (7153384115)
-        arch_chat = 7153384115
+        # 1. Arquitecto desde su terminal privada (REDACTED_PHONE)
+        arch_chat = REDACTED_PHONE
         self.bridge.authorized_chat_ids.add(arch_chat)
         with patch.object(self.bridge, "send_message") as mock_send:
             self.bridge._handle_incoming_text(arch_chat, "/start", "Arquitecto")
@@ -97,7 +97,7 @@ class TestTelegramBridge(unittest.TestCase):
 
     def test_command_sh_execution_architect_terminal(self):
         """Verifica que /sh ejecute comandos reales desde la terminal privada del Arquitecto."""
-        arch_chat = 7153384115
+        arch_chat = REDACTED_PHONE
         self.bridge.authorized_chat_ids.add(arch_chat)
 
         with patch.object(self.bridge, "send_message") as mock_send:
@@ -115,8 +115,8 @@ class TestTelegramBridge(unittest.TestCase):
 
     def test_architect_group_control_exclusion(self):
         """Verifica que comandos de control ejecutados por el Arquitecto en grupos sean denegados con Terminal Exclusiva."""
-        group_chat_id = -1002696477485
-        arch_user_id = 7153384115
+        group_chat_id = -REDACTED_PHONE
+        arch_user_id = REDACTED_PHONE
         self.bridge.authorized_chat_ids.add(group_chat_id)
 
         with patch.object(self.bridge, "send_message") as mock_send:
@@ -366,7 +366,7 @@ class TestTelegramBridge(unittest.TestCase):
 
     def test_no_active_system_notifications_when_conversation_started(self):
         """Verifica que no se envían notificaciones de sistema activo una vez iniciada la conversación."""
-        chat_id = 7153384115
+        chat_id = REDACTED_PHONE
         self.bridge.authorized_chat_ids.add(chat_id)
         self.bridge.config["notify_on_boot"] = True
 
@@ -384,7 +384,7 @@ class TestTelegramBridge(unittest.TestCase):
             mock_msg.assert_not_called()
 
     def test_send_3d_model_hd_to_architect(self):
-        """Verifica que send_3d_model_hd_to_architect despache la foto HD al Arquitecto (7153384115)."""
+        """Verifica que send_3d_model_hd_to_architect despache la foto HD al Arquitecto (REDACTED_PHONE)."""
         from core.render_3d_engine import get_render_3d_engine
         engine = get_render_3d_engine()
         mesh = engine.get_mesh("atom")
@@ -397,8 +397,8 @@ class TestTelegramBridge(unittest.TestCase):
             # args[0] es la imagen PNG bytes
             png_bytes = args[0]
             self.assertTrue(png_bytes.startswith(b"\x89PNG\r\n\x1a\n"))
-            # chat_id debe ser 7153384115 (Arquitecto)
-            self.assertEqual(kwargs.get("chat_id"), 7153384115)
+            # chat_id debe ser REDACTED_PHONE (Arquitecto)
+            self.assertEqual(kwargs.get("chat_id"), REDACTED_PHONE)
             # caption debe contener metadatos HD
             caption = kwargs.get("caption", "")
             self.assertIn("ALTA DEFINICIÓN (HD)", caption)

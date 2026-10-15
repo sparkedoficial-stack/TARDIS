@@ -12,7 +12,7 @@ from unittest.mock import patch
 
 from core.telegram_bridge import TelegramBridge
 
-ALLOWED = "+52 999 123 4567"
+ALLOWED = "+REDACTED_PHONE"
 ATTACKER = 555000111
 OWNER = 777000222
 
@@ -46,14 +46,14 @@ class TestTelegramPhoneAuth(unittest.TestCase):
             return [c for c in b.config.get("allowed_chats", [])]
 
     def test_single_digit_suffix_rejected(self):
-        for d in "0123456789":
+        for d in "REDACTED_PHONE":
             self.assertEqual(self._run(_update(ATTACKER, d)), [], f"el digito {d} no debe autorizar")
 
     def test_typed_full_number_rejected(self):
-        self.assertEqual(self._run(_update(ATTACKER, "529991234567")), [])
+        self.assertEqual(self._run(_update(ATTACKER, "REDACTED_PHONE")), [])
 
     def test_someone_elses_contact_rejected(self):
-        c = {"phone_number": "529991234567", "user_id": OWNER}
+        c = {"phone_number": "REDACTED_PHONE", "user_id": OWNER}
         self.assertEqual(self._run(_update(ATTACKER, contact=c, from_id=ATTACKER)), [])
 
     def test_short_contact_rejected(self):
@@ -61,7 +61,7 @@ class TestTelegramPhoneAuth(unittest.TestCase):
         self.assertEqual(self._run(_update(ATTACKER, contact=c, from_id=ATTACKER)), [])
 
     def test_owner_sharing_own_contact_accepted(self):
-        c = {"phone_number": "+529991234567", "user_id": OWNER}
+        c = {"phone_number": "+REDACTED_PHONE", "user_id": OWNER}
         self.assertEqual(self._run(_update(OWNER, contact=c, from_id=OWNER)), [OWNER])
 
     def test_master_key_still_works(self):

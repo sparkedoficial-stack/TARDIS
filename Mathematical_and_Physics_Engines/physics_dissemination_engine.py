@@ -39,7 +39,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 CONFIG_FILE = BASE_DIR / "physics_dissemination_config.json"
 PUBLICATIONS_LOG_FILE = BASE_DIR / "physics_publications_log.json"
 ADVANCES_DIR = BASE_DIR / "reports" / "physics_advances"
-DEFAULT_UA = "TARDIS-PhysicsDissemination/2.0 (OpenScience; mailto:tardis@godworks.local)"
+DEFAULT_UA = "TARDIS-PhysicsDissemination/2.0 (OpenScience; mailto:REDACTED_EMAIL)"
 
 
 @dataclass
@@ -600,7 +600,7 @@ class PhysicsDisseminationEngine:
 \\title{{\\textbf{{{advance.title}}}}}
 \\author{{{authors_str}\\\\
 \\small \\textit{{{", ".join(advance.affiliations)}}}\\\\
-\\small \\texttt{{tardis@godworks.local}}
+\\small \\texttt{{REDACTED_EMAIL}}
 }}
 \\date{{\\today}}
 

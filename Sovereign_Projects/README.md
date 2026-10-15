@@ -1,0 +1,121 @@
+# Sovereign_Projects
+
+Proyectos satélite y sistemas autónomos completos (TARDIS Price Sentinel, AirPlay Monitor, Carlinkit HID KVM, Cognitivo Sistema, GIA iOS App).
+
+## Subsistemas y Componentes Principales:
+
+- **airplay-monitor/airplay-monitor.desktop**: Módulo de transmisión y monitoreo de streaming de video/audio AirPlay.
+- **airplay-monitor/airplay_monitor/backend/__init__.py**: Módulo de transmisión y monitoreo de streaming de video/audio AirPlay.
+- **airplay-monitor/airplay_monitor/backend/config.py**: Módulo de transmisión y monitoreo de streaming de video/audio AirPlay.
+- **airplay-monitor/airplay_monitor/backend/log_monitor.py**: Módulo de transmisión y monitoreo de streaming de video/audio AirPlay.
+- **airplay-monitor/airplay_monitor/backend/mdns_scanner.py**: Módulo de transmisión y monitoreo de streaming de video/audio AirPlay.
+- **airplay-monitor/airplay_monitor/backend/service.py**: Módulo de transmisión y monitoreo de streaming de video/audio AirPlay.
+- **airplay-monitor/airplay_monitor/backend/usb_manager.py**: Módulo de transmisión y monitoreo de streaming de video/audio AirPlay.
+- **airplay-monitor/airplay_monitor/main.py**: Módulo de transmisión y monitoreo de streaming de video/audio AirPlay.
+- **airplay-monitor/airplay_monitor/ui/__init__.py**: Módulo de transmisión y monitoreo de streaming de video/audio AirPlay.
+- **airplay-monitor/airplay_monitor/ui/app.py**: Módulo de transmisión y monitoreo de streaming de video/audio AirPlay.
+- **airplay-monitor/airplay_monitor/ui/apple_devices_page.py**: Módulo de transmisión y monitoreo de streaming de video/audio AirPlay.
+- **airplay-monitor/airplay_monitor/ui/connections_page.py**: Módulo de transmisión y monitoreo de streaming de video/audio AirPlay.
+- **airplay-monitor/airplay_monitor/ui/dashboard_page.py**: Módulo de transmisión y monitoreo de streaming de video/audio AirPlay.
+- **airplay-monitor/airplay_monitor/ui/logs_page.py**: Módulo de transmisión y monitoreo de streaming de video/audio AirPlay.
+- **airplay-monitor/airplay_monitor/ui/settings_page.py**: Módulo de transmisión y monitoreo de streaming de video/audio AirPlay.
+- **airplay-monitor/airplay_monitor/ui/style.css**: Módulo de transmisión y monitoreo de streaming de video/audio AirPlay.
+- **airplay-monitor/install.sh**: Módulo de transmisión y monitoreo de streaming de video/audio AirPlay.
+- **carlinkit-hid-kvm/payload_dist/AutoBox.sh**: Controlador KVM e integración de hardware HID para Carlinkit.
+- **carlinkit-hid-kvm/payload_dist/AutoKit.sh**: Controlador KVM e integración de hardware HID para Carlinkit.
+- **carlinkit-hid-kvm/payload_dist/U2W.sh**: Controlador KVM e integración de hardware HID para Carlinkit.
+- **carlinkit-hid-kvm/payload_dist/auto_run.sh**: Controlador KVM e integración de hardware HID para Carlinkit.
+- **carlinkit-hid-kvm/payload_dist/autobox.sh**: Controlador KVM e integración de hardware HID para Carlinkit.
+- **carlinkit-hid-kvm/payload_dist/autokit.sh**: Controlador KVM e integración de hardware HID para Carlinkit.
+- **carlinkit-hid-kvm/payload_dist/autorun.sh**: Controlador KVM e integración de hardware HID para Carlinkit.
+- **carlinkit-hid-kvm/payload_dist/carlinkit-hid.service**: Controlador KVM e integración de hardware HID para Carlinkit.
+- **carlinkit-hid-kvm/payload_dist/carlinkit_sentinel.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **carlinkit-hid-kvm/payload_dist/factory.sh**: Controlador KVM e integración de hardware HID para Carlinkit.
+- **carlinkit-hid-kvm/payload_dist/hid_server.py**: Controlador KVM e integración de hardware HID para Carlinkit.
+- **carlinkit-hid-kvm/payload_dist/install.sh**: Controlador KVM e integración de hardware HID para Carlinkit.
+- **carlinkit-hid-kvm/payload_dist/install_network.sh**: Controlador KVM e integración de hardware HID para Carlinkit.
+- **carlinkit-hid-kvm/payload_dist/run.sh**: Controlador KVM e integración de hardware HID para Carlinkit.
+- **carlinkit-hid-kvm/payload_dist/set_carlinkit_led_solid_red.sh**: Controlador KVM e integración de hardware HID para Carlinkit.
+- **carlinkit-hid-kvm/payload_dist/setup_carlinkit_smart_boot.sh**: Controlador KVM e integración de hardware HID para Carlinkit.
+- **carlinkit-hid-kvm/payload_dist/setup_hid.sh**: Controlador KVM e integración de hardware HID para Carlinkit.
+- **carlinkit-hid-kvm/payload_dist/setup_wifi_0hack.sh**: Controlador KVM e integración de hardware HID para Carlinkit.
+- **carlinkit-hid-kvm/payload_dist/update.sh**: Controlador KVM e integración de hardware HID para Carlinkit.
+- **carlinkit-hid-kvm/payload_dist/web/index.html**: Controlador KVM e integración de hardware HID para Carlinkit.
+- **carlinkit-hid-kvm/scripts/airplay_portable_monitor.sh**: Módulo de transmisión y monitoreo de streaming de video/audio AirPlay.
+- **carlinkit-hid-kvm/scripts/autoinstall_http_server.py**: Controlador KVM e integración de hardware HID para Carlinkit.
+- **carlinkit-hid-kvm/scripts/carlinkit_remote.sh**: Controlador KVM e integración de hardware HID para Carlinkit.
+- **carlinkit-hid-kvm/scripts/carlinkit_sentinel.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **carlinkit-hid-kvm/scripts/create_update_payload.sh**: Motor de ingeniería inversa multi-arquitectura y descompilación.
+- **carlinkit-hid-kvm/scripts/install_local_service.sh**: Controlador KVM e integración de hardware HID para Carlinkit.
+- **carlinkit-hid-kvm/scripts/prepare_imac14_bootable_usb.sh**: Controlador KVM e integración de hardware HID para Carlinkit.
+- **carlinkit-hid-kvm/scripts/prepare_ubuntu_imac14_installer.sh**: Controlador KVM e integración de hardware HID para Carlinkit.
+- **carlinkit-hid-kvm/scripts/prepare_usb_drive.sh**: Controlador KVM e integración de hardware HID para Carlinkit.
+- **carlinkit-hid-kvm/scripts/setup_carlinkit_hid.sh**: Controlador KVM e integración de hardware HID para Carlinkit.
+- **carlinkit-hid-kvm/scripts/setup_imac14_netinstall_server.sh**: Controlador KVM e integración de hardware HID para Carlinkit.
+- **carlinkit-hid-kvm/scripts/sync_android_payload_only.sh**: Controlador KVM e integración de hardware HID para Carlinkit.
+- **carlinkit-hid-kvm/server/carlinkit_hid_server.py**: Controlador KVM e integración de hardware HID para Carlinkit.
+- **carlinkit-hid-kvm/server/carlinkit_sentinel.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **carlinkit-hid-kvm/web/index.html**: Controlador KVM e integración de hardware HID para Carlinkit.
+- **cognitivo_sistema/__init__.py**: Sistema cognitivo autónomo y autoprogramador evolutivo.
+- **cognitivo_sistema/agenda_curiosidad.json**: Sistema cognitivo autónomo y autoprogramador evolutivo.
+- **cognitivo_sistema/autoprogrammer.py**: Sistema cognitivo autónomo y autoprogramador evolutivo.
+- **cognitivo_sistema/cli.py**: Sistema cognitivo autónomo y autoprogramador evolutivo.
+- **cognitivo_sistema/cognitivo_core.py**: Sistema cognitivo autónomo y autoprogramador evolutivo.
+- **cognitivo_sistema/config.py**: Sistema cognitivo autónomo y autoprogramador evolutivo.
+- **cognitivo_sistema/conocimiento/dossier_artes_visuales_generativas_y_atractores_.json**: Sistema cognitivo autónomo y autoprogramador evolutivo.
+- **cognitivo_sistema/curiosity_engine.py**: Sistema cognitivo autónomo y autoprogramador evolutivo.
+- **cognitivo_sistema/diario_cognitivo.json**: Sistema cognitivo autónomo y autoprogramador evolutivo.
+- **cognitivo_sistema/estado_cognitivo.json**: Sistema cognitivo autónomo y autoprogramador evolutivo.
+- **cognitivo_sistema/kernel_controller.py**: Puente de control a nivel de Kernel (Ring 0 / Root Scope).
+- **cognitivo_sistema/parallel_project.py**: Sistema cognitivo autónomo y autoprogramador evolutivo.
+- **cognitivo_sistema/run_cognitivo_daemon.sh**: Sistema cognitivo autónomo y autoprogramador evolutivo.
+- **cognitivo_sistema/simulation_engine.py**: Sistema cognitivo autónomo y autoprogramador evolutivo.
+- **cognitivo_sistema/software_generado/cognitivo_artes_visuales_generativas_y_atractores_caoticos_1791929323.py**: Sistema cognitivo autónomo y autoprogramador evolutivo.
+- **cognitivo_sistema/web_researcher.py**: Sistema cognitivo autónomo y autoprogramador evolutivo.
+- **gia_ios_app/GIA/GIAApp.swift**: Componente nativo iOS/SwiftUI de la aplicación móvil GIA.
+- **gia_ios_app/GIA/Info.plist**: Componente de alta eficiencia.
+- **gia_ios_app/GIA/Intents/GIAAppIntents.swift**: Componente nativo iOS/SwiftUI de la aplicación móvil GIA.
+- **gia_ios_app/GIA/Services/AudioVoiceService.swift**: Componente nativo iOS/SwiftUI de la aplicación móvil GIA.
+- **gia_ios_app/GIA/Services/GIANetworkService.swift**: Componente nativo iOS/SwiftUI de la aplicación móvil GIA.
+- **gia_ios_app/GIA/Services/MotionSensorManager.swift**: Componente nativo iOS/SwiftUI de la aplicación móvil GIA.
+- **gia_ios_app/GIA/ViewModels/ChatViewModel.swift**: Componente nativo iOS/SwiftUI de la aplicación móvil GIA.
+- **gia_ios_app/GIA/ViewModels/MonitorViewModel.swift**: Componente nativo iOS/SwiftUI de la aplicación móvil GIA.
+- **gia_ios_app/GIA/Views/ChatView.swift**: Componente nativo iOS/SwiftUI de la aplicación móvil GIA.
+- **gia_ios_app/GIA/Views/MainTabView.swift**: Componente nativo iOS/SwiftUI de la aplicación móvil GIA.
+- **gia_ios_app/GIA/Views/MonitorView.swift**: Componente nativo iOS/SwiftUI de la aplicación móvil GIA.
+- **gia_ios_app/GIA/Views/SensorsView.swift**: Componente nativo iOS/SwiftUI de la aplicación móvil GIA.
+- **gia_ios_app/GIA/Views/SettingsView.swift**: Componente nativo iOS/SwiftUI de la aplicación móvil GIA.
+- **gia_ios_app/GIA/Views/Theme.swift**: Componente nativo iOS/SwiftUI de la aplicación móvil GIA.
+- **gia_ios_app/Package.swift**: Componente nativo iOS/SwiftUI de la aplicación móvil GIA.
+- **tardis-price-sentinel/config.json**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **tardis-price-sentinel/core/__init__.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **tardis-price-sentinel/core/banking.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **tardis-price-sentinel/core/cart_resolver.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **tardis-price-sentinel/core/detector.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **tardis-price-sentinel/core/models.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **tardis-price-sentinel/core/notifier.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **tardis-price-sentinel/core/storage.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **tardis-price-sentinel/core/validity.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **tardis-price-sentinel/launch_gui.sh**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **tardis-price-sentinel/scrapers/__init__.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **tardis-price-sentinel/scrapers/aggregator.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **tardis-price-sentinel/scrapers/base.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **tardis-price-sentinel/scrapers/liquidaciones.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **tardis-price-sentinel/scrapers/mercadolibre.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **tardis-price-sentinel/scrapers/promodescuentos.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **tardis-price-sentinel/sentinel/__init__.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **tardis-price-sentinel/sentinel/daemon.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **tardis-price-sentinel/tardis_deals_gui.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **tardis-price-sentinel/tardis_hunter.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **tardis-price-sentinel/tests/test_cart_resolver.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **tardis-price-sentinel/tests/test_detector.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **tardis-price-sentinel/tests/test_storage.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **tardis-price-sentinel/tests/test_validity.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **tardis-price-sentinel/web/__init__.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **tardis-price-sentinel/web/app.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **tardis-price-sentinel/web/static/app.js**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **tardis-price-sentinel/web/static/index.html**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **tardis-price-sentinel/web/static/style.css**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+
+## Requisitos e Integración
+Los módulos operan bajo el stack soberano de Linux (x86_64), integrando aceleración por GPU y telemetría de bajo nivel.

@@ -155,7 +155,7 @@ def gmst_hours(when: datetime | None = None) -> float:
     d = jd - 2451545.0                       # dias desde J2000.0
     t = d / 36525.0
     # GMST en grados (Meeus, cap. 12)
-    gmst_deg = (280.46061837 + 360.98564736629 * d
+    gmst_deg = (280.46061837 + 360.REDACTED_PHONE * d
                 + 0.000387933 * t * t - (t ** 3) / 38710000.0)
     return (gmst_deg % 360.0) / 15.0
 

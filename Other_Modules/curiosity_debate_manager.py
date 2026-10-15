@@ -9,7 +9,7 @@ Diseñado para enriquecer continuamente a la comunidad '🔝🚀🧡POLIMATAS LA
   2. Desarrolla un Tema de Investigación multidisciplinario con datos cuantitativos.
   3. Formula dilemas de debate dialéctico (Tesis vs Antítesis) y preguntas detonadoras.
   4. Genera automáticamente un Dossier de Rigor en PDF con ReportLab.
-  5. Despacha tanto el mensaje interactivo como el PDF a Telegram (-1002696477485).
+  5. Despacha tanto el mensaje interactivo como el PDF a Telegram (-REDACTED_PHONE).
   6. Opera 100% de forma autónoma 24/7 mediante daemon y systemd.
 """
 
@@ -54,7 +54,7 @@ REPORTS_DIR = BASE_DIR / "reports" / "polimatas_debates"
 STATE_FILE = DATA_DIR / "curiosity_debate_state.json"
 
 DEFAULT_INTERVAL_SECONDS = 5400.0  # 1.5 horas
-TARGET_GROUP_CHAT_ID = -1002696477485  # Supergrupo POLIMATAS LATAM
+TARGET_GROUP_CHAT_ID = -REDACTED_PHONE  # Supergrupo POLIMATAS LATAM
 TARGET_MESSAGE_THREAD_ID = 453        # Hilo / Topic de debate en el supergrupo
 
 
@@ -177,7 +177,7 @@ CURATED_TOPICS: List[DebateTopicData] = [
         ],
         academic_references=[
             {"title": "Languages of the Brain: Experimental Paradoxes and Principles in Neuropsychology", "authors": "Pribram, K. H.", "venue": "Prentice-Hall", "doi": "10.1016/0028-3932(73)90040-0"},
-            {"title": "Wholeness and the Implicate Order", "authors": "Bohm, D.", "venue": "Routledge & Kegan Paul", "doi": "10.4324/9780203995150"},
+            {"title": "Wholeness and the Implicate Order", "authors": "Bohm, D.", "venue": "Routledge & Kegan Paul", "doi": "10.4324/REDACTED_PHONE"},
             {"title": "The Neural Basis of the Holographic Brain Hypothesis: Dendritic Microprocessing", "authors": "Pribram, K. & Meade, C.", "venue": "Frontiers in Systems Neuroscience", "doi": "10.3389/fnsys.2013.00042"},
         ],
     ),
@@ -210,7 +210,7 @@ CURATED_TOPICS: List[DebateTopicData] = [
             "¿Cómo podemos aplicar las leyes de estructuras disipativas al diseño de economías y organizaciones humanas resilientes?",
         ],
         academic_references=[
-            {"title": "Self-Organization in Nonequilibrium Systems", "authors": "Nicolis, G. & Prigogine, I.", "venue": "Wiley-Interscience", "doi": "10.1002/bbpc.19780820627"},
+            {"title": "Self-Organization in Nonequilibrium Systems", "authors": "Nicolis, G. & Prigogine, I.", "venue": "Wiley-Interscience", "doi": "10.1002/bbpc.REDACTED_PHONE"},
             {"title": "The arrow of time in dissipative systems and biological syntropy", "authors": "Vannini, A. & Di Corpo, U.", "venue": "Syntropy Journal", "doi": "10.2139/ssrn.1989445"},
             {"title": "Thermodynamics of natural selection", "authors": "Dewar, R. C.", "venue": "Journal of Physics A: Mathematical and General", "doi": "10.1088/0305-4470/38/21/001"},
         ],
@@ -313,7 +313,7 @@ CURATED_TOPICS: List[DebateTopicData] = [
         ],
         academic_references=[
             {"title": "Über formal unentscheidbare Sätze der Principia Mathematica und verwandter Systeme I", "authors": "Gödel, K.", "venue": "Monatshefte für Mathematik und Physik", "doi": "10.1007/BF01700692"},
-            {"title": "The Emperor's New Mind: Concerning Computers, Minds, and the Laws of Physics", "authors": "Penrose, R.", "venue": "Oxford University Press", "doi": "10.1093/oso/9780198519737.001.0001"},
+            {"title": "The Emperor's New Mind: Concerning Computers, Minds, and the Laws of Physics", "authors": "Penrose, R.", "venue": "Oxford University Press", "doi": "10.1093/oso/REDACTED_PHONE.001.0001"},
             {"title": "Minds, Machines and Gödel", "authors": "Lucas, J. R.", "venue": "Philosophy 36 (137), 112–127", "doi": "10.1017/S003181910005798X"},
         ],
     ),

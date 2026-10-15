@@ -134,8 +134,8 @@ class TestTardisAnimations(unittest.TestCase):
         bridge = TelegramBridge.__new__(TelegramBridge)
         bridge.config = {
             "bot_token": "REDACTED",
-            "admin_chat_id": 7153384115,
-            "allowed_chats": [7153384115],
+            "admin_chat_id": REDACTED_PHONE,
+            "allowed_chats": [REDACTED_PHONE],
             "prefer_animations_over_still_images": True,
             "animation_delivery_type": "animation",
             "animation_render_fps": 240,
@@ -155,7 +155,7 @@ class TestTardisAnimations(unittest.TestCase):
         res = bridge.send_animation(
             sample_mp4,
             caption="Test Animation",
-            chat_id=7153384115,
+            chat_id=REDACTED_PHONE,
             duration=3,
             width=3840,
             height=2160
@@ -165,7 +165,7 @@ class TestTardisAnimations(unittest.TestCase):
         mock_post.assert_called_once()
         args, kwargs = mock_post.call_args
         self.assertIn("sendAnimation", args[0])
-        self.assertEqual(kwargs["data"]["chat_id"], 7153384115)
+        self.assertEqual(kwargs["data"]["chat_id"], REDACTED_PHONE)
         self.assertIn("animation", kwargs["files"])
 
     def test_11_render_default_240fps_4k_hdr(self):

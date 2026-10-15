@@ -1,0 +1,58 @@
+[
+  {
+    "name": "artes visuales generativas y atractores caoticos",
+    "category": "Interés Prioritario",
+    "interest_score": 1.0,
+    "times_explored": 1,
+    "last_explored": REDACTED_PHONE.1256192
+  },
+  {
+    "name": "Artes Generativas y Atractores Caóticos",
+    "category": "Arte Computacional",
+    "interest_score": 0.98,
+    "times_explored": 0,
+    "last_explored": 0.0
+  },
+  {
+    "name": "Morfogénesis de Turing y Patrones Biológicos",
+    "category": "Biología Teórica",
+    "interest_score": 0.95,
+    "times_explored": 0,
+    "last_explored": 0.0
+  },
+  {
+    "name": "Arte Vectorial Procedural y Geometría Sagrada",
+    "category": "Arte y Geometría",
+    "interest_score": 0.92,
+    "times_explored": 0,
+    "last_explored": 0.0
+  },
+  {
+    "name": "Acústica Fractal y Síntesis de Frecuencias Resonantes",
+    "category": "Acústica",
+    "interest_score": 0.88,
+    "times_explored": 0,
+    "last_explored": 0.0
+  },
+  {
+    "name": "Mecánica Cuántica Wheeler-Feynman y Sintropía",
+    "category": "Física Teórica",
+    "interest_score": 0.9,
+    "times_explored": 0,
+    "last_explored": 0.0
+  },
+  {
+    "name": "Autómatas Celulares y Vida Artificial",
+    "category": "Sistemas Complejos",
+    "interest_score": 0.85,
+    "times_explored": 0,
+    "last_explored": 0.0
+  },
+  {
+    "name": "Topología Tensorial en GPU",
+    "category": "Cómputo Cuántico",
+    "interest_score": 0.87,
+    "times_explored": 0,
+    "last_explored": 0.0
+  }
+]

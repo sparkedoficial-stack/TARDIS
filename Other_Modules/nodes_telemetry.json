@@ -1,0 +1,1982 @@
+{
+  "host_coords": {
+    "latitude": 20.6274,
+    "longitude": -87.0799
+  },
+  "nodes": {
+    "cli_ube0wp1": {
+      "client_id": "cli_ube0wp1",
+      "ip": "node_local_loopback",
+      "connection_type": "Host Local (Loopback)",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/REDACTED_IP Safari/537.36 Edg/REDACTED_IP",
+      "coords": {
+        "latitude": 20.660828395931624,
+        "longitude": -87.10921540217171,
+        "accuracy_m": 76.0,
+        "altitude_m": null,
+        "altitude_accuracy_m": null,
+        "speed_ms": null,
+        "speed_kmh": 0.0,
+        "heading_deg": null,
+        "timestamp": REDACTED_PHONE,
+        "maps_url": "[LOCATION_PROTECTED]",
+        "osm_url": "[LOCATION_PROTECTED]"
+      },
+      "device": {
+        "platform": "Win32",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/REDACTED_IP Safari/537.36 Edg/REDACTED_IP",
+        "screen": "1280x721",
+        "dpr": 1.5,
+        "touch_points": 0,
+        "cores": 16,
+        "memory_gb": 16,
+        "gpu": {
+          "vendor": "Google Inc. (NVIDIA)",
+          "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 3050 Laptop GPU (0x000025A2) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "language": "es-MX",
+        "timezone": "America/Cancun",
+        "battery": {
+          "level": 99,
+          "charging": true,
+          "chargingTime": null,
+          "dischargingTime": null
+        },
+        "orientation": {
+          "alpha": null,
+          "beta": null,
+          "gamma": null
+        },
+        "network": {
+          "effectiveType": "4g",
+          "downlink": 1.65,
+          "rtt": 200,
+          "saveData": false
+        }
+      },
+      "first_seen": REDACTED_PHONE.631791,
+      "last_seen": REDACTED_PHONE.8854613,
+      "last_seen_iso": "2026-08-29T01:49:59.885461",
+      "online": true
+    },
+    "cli_hcr36b2": {
+      "client_id": "cli_hcr36b2",
+      "ip": "node_local_loopback",
+      "connection_type": "Host Local (Loopback)",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/REDACTED_IP Safari/537.36 Edg/REDACTED_IP",
+      "coords": {
+        "latitude": 20.660825076232825,
+        "longitude": -87.10920896459218,
+        "accuracy_m": 77.0,
+        "altitude_m": null,
+        "altitude_accuracy_m": null,
+        "speed_ms": null,
+        "speed_kmh": 0.0,
+        "heading_deg": null,
+        "timestamp": REDACTED_PHONE,
+        "maps_url": "[LOCATION_PROTECTED]",
+        "osm_url": "[LOCATION_PROTECTED]"
+      },
+      "device": {
+        "platform": "Win32",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/REDACTED_IP Safari/537.36 Edg/REDACTED_IP",
+        "screen": "2048x1152",
+        "dpr": 1.25,
+        "touch_points": 0,
+        "cores": 16,
+        "memory_gb": 16,
+        "gpu": {
+          "vendor": "Google Inc. (NVIDIA)",
+          "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 3050 Laptop GPU (0x000025A2) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "language": "es-MX",
+        "timezone": "America/Cancun",
+        "battery": {
+          "level": 99,
+          "charging": true,
+          "chargingTime": null,
+          "dischargingTime": null
+        },
+        "orientation": {
+          "alpha": null,
+          "beta": null,
+          "gamma": null
+        },
+        "network": {
+          "effectiveType": "4g",
+          "downlink": 1.35,
+          "rtt": 100,
+          "saveData": false
+        }
+      },
+      "first_seen": REDACTED_PHONE.075401,
+      "last_seen": REDACTED_PHONE.2292402,
+      "last_seen_iso": "2026-08-29T01:53:38.229240",
+      "online": true
+    },
+    "cli_o4e66u6": {
+      "client_id": "cli_o4e66u6",
+      "ip": "node_local_loopback",
+      "connection_type": "Host Local (Loopback)",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/REDACTED_IP Safari/537.36 Edg/REDACTED_IP",
+      "coords": {
+        "latitude": 20.660815166177972,
+        "longitude": -87.10918711882358,
+        "accuracy_m": 76.0,
+        "altitude_m": null,
+        "altitude_accuracy_m": null,
+        "speed_ms": null,
+        "speed_kmh": 0.0,
+        "heading_deg": null,
+        "timestamp": REDACTED_PHONE,
+        "maps_url": "[LOCATION_PROTECTED]",
+        "osm_url": "[LOCATION_PROTECTED]"
+      },
+      "device": {
+        "platform": "Win32",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/REDACTED_IP Safari/537.36 Edg/REDACTED_IP",
+        "screen": "2048x1152",
+        "dpr": 1.25,
+        "touch_points": 0,
+        "cores": 16,
+        "memory_gb": 16,
+        "gpu": {
+          "vendor": "Google Inc. (NVIDIA)",
+          "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 3050 Laptop GPU (0x000025A2) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "language": "es-MX",
+        "timezone": "America/Cancun",
+        "battery": {
+          "level": 99,
+          "charging": true,
+          "chargingTime": null,
+          "dischargingTime": null
+        },
+        "orientation": {
+          "alpha": null,
+          "beta": null,
+          "gamma": null
+        },
+        "network": {
+          "effectiveType": "4g",
+          "downlink": 1.55,
+          "rtt": 100,
+          "saveData": false
+        }
+      },
+      "first_seen": REDACTED_PHONE.5561318,
+      "last_seen": REDACTED_PHONE.5110648,
+      "last_seen_iso": "2026-08-30T22:05:14.511064",
+      "online": true
+    },
+    "cli_un7xmkl": {
+      "client_id": "cli_un7xmkl",
+      "ip": "node_local_loopback",
+      "connection_type": "Host Local (Loopback)",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/REDACTED_IP Safari/537.36",
+      "coords": {},
+      "device": {
+        "platform": "Win32",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/REDACTED_IP Safari/537.36",
+        "screen": "2048x1152",
+        "dpr": 1.25,
+        "touch_points": 0,
+        "cores": 16,
+        "memory_gb": 16,
+        "gpu": {
+          "vendor": "Google Inc. (NVIDIA)",
+          "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 3050 Laptop GPU (0x000025A2) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "language": "es-ES",
+        "timezone": "America/Cancun",
+        "battery": {
+          "level": 99,
+          "charging": true,
+          "chargingTime": null,
+          "dischargingTime": null
+        },
+        "orientation": null,
+        "network": {
+          "effectiveType": "4g",
+          "downlink": 10,
+          "rtt": 100,
+          "saveData": false
+        }
+      },
+      "first_seen": REDACTED_PHONE.2277136,
+      "last_seen": REDACTED_PHONE.4463425,
+      "last_seen_iso": "2026-08-31T01:59:19.446342",
+      "online": true
+    },
+    "cli_tw1ge1g": {
+      "client_id": "cli_tw1ge1g",
+      "ip": "node_local_loopback",
+      "connection_type": "Host Local (Loopback)",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/REDACTED_IP Safari/537.36",
+      "coords": {
+        "latitude": 20.660818643626005,
+        "longitude": -87.10919755515143,
+        "accuracy_m": 76.0,
+        "altitude_m": null,
+        "altitude_accuracy_m": null,
+        "speed_ms": null,
+        "speed_kmh": 0.0,
+        "heading_deg": null,
+        "timestamp": REDACTED_PHONE,
+        "maps_url": "[LOCATION_PROTECTED]",
+        "osm_url": "[LOCATION_PROTECTED]"
+      },
+      "device": {
+        "platform": "Win32",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/REDACTED_IP Safari/537.36",
+        "screen": "2048x1152",
+        "dpr": 1.25,
+        "touch_points": 0,
+        "cores": 16,
+        "memory_gb": 16,
+        "gpu": {
+          "vendor": "Google Inc. (NVIDIA)",
+          "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 3050 Laptop GPU (0x000025A2) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+        },
+        "language": "es-ES",
+        "timezone": "America/Cancun",
+        "battery": {
+          "level": 99,
+          "charging": true,
+          "chargingTime": null,
+          "dischargingTime": null
+        },
+        "orientation": {
+          "alpha": null,
+          "beta": null,
+          "gamma": null
+        },
+        "network": {
+          "effectiveType": "4g",
+          "downlink": 1.6,
+          "rtt": 100,
+          "saveData": false
+        }
+      },
+      "first_seen": REDACTED_PHONE.809696,
+      "last_seen": REDACTED_PHONE.921127,
+      "last_seen_iso": "2026-08-31T02:06:15.921127",
+      "online": true
+    },
+    "cli_p45vix8": {
+      "client_id": "cli_p45vix8",
+      "ip": "node_local_loopback",
+      "connection_type": "Host Local (Loopback)",
+      "user_agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:154.0) Gecko/20100101 Firefox/154.0",
+      "coords": {
+        "latitude": 20.6733312,
+        "longitude": -87.1071744,
+        "accuracy_m": 1705468.REDACTED_PHONE,
+        "altitude_m": null,
+        "altitude_accuracy_m": null,
+        "speed_ms": null,
+        "speed_kmh": 0.0,
+        "heading_deg": null,
+        "timestamp": REDACTED_PHONE,
+        "maps_url": "[LOCATION_PROTECTED]",
+        "osm_url": "[LOCATION_PROTECTED]"
+      },
+      "device": {
+        "platform": "Linux x86_64",
+        "userAgent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:154.0) Gecko/20100101 Firefox/154.0",
+        "screen": "2560x1440",
+        "dpr": 1,
+        "touch_points": 0,
+        "cores": 16,
+        "memory_gb": 8,
+        "gpu": {
+          "vendor": "AMD",
+          "renderer": "Radeon HD 3200 Graphics, or similar"
+        },
+        "language": "es-ES",
+        "timezone": "America/Cancun",
+        "battery": null,
+        "orientation": null,
+        "network": {
+          "effectiveType": "ethernet/wifi"
+        }
+      },
+      "first_seen": REDACTED_PHONE.8319106,
+      "last_seen": REDACTED_PHONE.6008506,
+      "last_seen_iso": "2026-09-04T23:53:06.600871",
+      "online": true
+    },
+    "cli_m2cpoy6": {
+      "client_id": "cli_m2cpoy6",
+      "ip": "node_local_loopback",
+      "connection_type": "Host Local (Loopback)",
+      "user_agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:154.0) Gecko/20100101 Firefox/154.0",
+      "coords": {},
+      "device": {
+        "platform": "Linux x86_64",
+        "userAgent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:154.0) Gecko/20100101 Firefox/154.0",
+        "screen": "2560x1440",
+        "dpr": 1,
+        "touch_points": 0,
+        "cores": 16,
+        "memory_gb": 8,
+        "gpu": {
+          "vendor": "AMD",
+          "renderer": "Radeon HD 3200 Graphics, or similar"
+        },
+        "language": "es-ES",
+        "timezone": "America/Cancun",
+        "battery": null,
+        "orientation": null,
+        "network": {
+          "effectiveType": "ethernet/wifi"
+        }
+      },
+      "first_seen": REDACTED_PHONE.9061644,
+      "last_seen": REDACTED_PHONE.9281325,
+      "last_seen_iso": "2026-09-04T23:45:36.928146",
+      "online": true
+    },
+    "cli_pjm1nm4": {
+      "client_id": "cli_pjm1nm4",
+      "ip": "node_local_loopback",
+      "connection_type": "Host Local (Loopback)",
+      "user_agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:154.0) Gecko/20100101 Firefox/154.0",
+      "coords": {},
+      "device": {
+        "platform": "Linux x86_64",
+        "userAgent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:154.0) Gecko/20100101 Firefox/154.0",
+        "screen": "2560x1440",
+        "dpr": 1,
+        "touch_points": 0,
+        "cores": 16,
+        "memory_gb": 8,
+        "gpu": {
+          "vendor": "AMD",
+          "renderer": "Radeon HD 3200 Graphics, or similar"
+        },
+        "language": "es-ES",
+        "timezone": "America/Cancun",
+        "battery": null,
+        "orientation": null,
+        "network": {
+          "effectiveType": "ethernet/wifi"
+        }
+      },
+      "first_seen": REDACTED_PHONE.459452,
+      "last_seen": REDACTED_PHONE.469665,
+      "last_seen_iso": "2026-09-04T23:45:37.469673",
+      "online": true
+    },
+    "cli_jb1shdm": {
+      "client_id": "cli_jb1shdm",
+      "ip": "node_local_loopback",
+      "connection_type": "Host Local (Loopback)",
+      "user_agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:154.0) Gecko/20100101 Firefox/154.0",
+      "coords": {
+        "latitude": 20.6274,
+        "longitude": -87.0799,
+        "accuracy_m": 25000.0,
+        "altitude_m": -1.7976931348623157e+308,
+        "altitude_accuracy_m": 0,
+        "speed_ms": 0,
+        "speed_kmh": 0.0,
+        "heading_deg": null,
+        "timestamp": REDACTED_PHONE,
+        "maps_url": "[LOCATION_PROTECTED]",
+        "osm_url": "[LOCATION_PROTECTED]"
+      },
+      "device": {
+        "platform": "Linux x86_64",
+        "userAgent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:154.0) Gecko/20100101 Firefox/154.0",
+        "screen": "2560x1440",
+        "dpr": 1,
+        "touch_points": 0,
+        "cores": 16,
+        "memory_gb": 8,
+        "gpu": {
+          "vendor": "AMD",
+          "renderer": "Radeon HD 3200 Graphics, or similar"
+        },
+        "language": "es-ES",
+        "timezone": "America/Cancun",
+        "battery": null,
+        "orientation": null,
+        "network": {
+          "effectiveType": "ethernet/wifi"
+        }
+      },
+      "first_seen": REDACTED_PHONE.1278057,
+      "last_seen": REDACTED_PHONE.0452063,
+      "last_seen_iso": "2026-09-05T00:32:17.045210",
+      "online": true
+    },
+    "cli_ddttbuf": {
+      "client_id": "cli_ddttbuf",
+      "ip": "node_local_loopback",
+      "connection_type": "Host Local (Loopback)",
+      "user_agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:154.0) Gecko/20100101 Firefox/154.0",
+      "coords": {
+        "latitude": 20.6274,
+        "longitude": -87.0799,
+        "accuracy_m": 25000.0,
+        "altitude_m": -1.7976931348623157e+308,
+        "altitude_accuracy_m": 0,
+        "speed_ms": 0,
+        "speed_kmh": 0.0,
+        "heading_deg": null,
+        "timestamp": REDACTED_PHONE,
+        "maps_url": "[LOCATION_PROTECTED]",
+        "osm_url": "[LOCATION_PROTECTED]"
+      },
+      "device": {
+        "platform": "Linux x86_64",
+        "userAgent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:154.0) Gecko/20100101 Firefox/154.0",
+        "screen": "2560x1440",
+        "dpr": 1,
+        "touch_points": 0,
+        "cores": 16,
+        "memory_gb": 8,
+        "gpu": {
+          "vendor": "AMD",
+          "renderer": "Radeon HD 3200 Graphics, or similar"
+        },
+        "language": "es-ES",
+        "timezone": "America/Cancun",
+        "battery": null,
+        "orientation": null,
+        "network": {
+          "effectiveType": "ethernet/wifi"
+        }
+      },
+      "first_seen": REDACTED_PHONE.4246476,
+      "last_seen": REDACTED_PHONE.5522048,
+      "last_seen_iso": "2026-09-05T00:38:15.552211",
+      "online": true
+    },
+    "cli_z7ihkov": {
+      "client_id": "cli_z7ihkov",
+      "ip": "node_local_loopback",
+      "connection_type": "Host Local (Loopback)",
+      "user_agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:154.0) Gecko/20100101 Firefox/154.0",
+      "coords": {
+        "latitude": 20.6274,
+        "longitude": -87.0799,
+        "accuracy_m": 25000.0,
+        "altitude_m": -1.7976931348623157e+308,
+        "altitude_accuracy_m": 0,
+        "speed_ms": 0,
+        "speed_kmh": 0.0,
+        "heading_deg": null,
+        "timestamp": REDACTED_PHONE,
+        "maps_url": "[LOCATION_PROTECTED]",
+        "osm_url": "[LOCATION_PROTECTED]"
+      },
+      "device": {
+        "platform": "Linux x86_64",
+        "userAgent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:154.0) Gecko/20100101 Firefox/154.0",
+        "screen": "2560x1440",
+        "dpr": 1,
+        "touch_points": 0,
+        "cores": 16,
+        "memory_gb": 8,
+        "gpu": {
+          "vendor": "AMD",
+          "renderer": "Radeon HD 3200 Graphics, or similar"
+        },
+        "language": "es-ES",
+        "timezone": "America/Cancun",
+        "battery": null,
+        "orientation": null,
+        "network": {
+          "effectiveType": "ethernet/wifi"
+        }
+      },
+      "first_seen": REDACTED_PHONE.4393578,
+      "last_seen": REDACTED_PHONE.1209605,
+      "last_seen_iso": "2026-09-05T00:50:59.120969",
+      "online": true
+    },
+    "cli_mjngkpb": {
+      "client_id": "cli_mjngkpb",
+      "ip": "node_local_loopback",
+      "connection_type": "Host Local (Loopback)",
+      "user_agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:154.0) Gecko/20100101 Firefox/154.0",
+      "coords": {},
+      "device": {},
+      "first_seen": REDACTED_PHONE.463893,
+      "last_seen": REDACTED_PHONE.463893,
+      "last_seen_iso": "2026-09-05T00:44:34.463903",
+      "online": true
+    },
+    "cli_ifxn4c8": {
+      "client_id": "cli_ifxn4c8",
+      "ip": "node_anon_e9687e58ddb4f024",
+      "connection_type": "Red Local (LAN Wi-Fi)",
+      "user_agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.5 Mobile/15E148 Safari/604.1",
+      "coords": {},
+      "device": {
+        "platform": "iPhone",
+        "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.5 Mobile/15E148 Safari/604.1",
+        "screen": "393x852",
+        "dpr": 3,
+        "touch_points": 5,
+        "cores": 4,
+        "memory_gb": 8,
+        "gpu": {
+          "vendor": "Apple Inc.",
+          "renderer": "Apple GPU"
+        },
+        "language": "es-MX",
+        "timezone": "America/Cancun",
+        "battery": null,
+        "orientation": null,
+        "network": {
+          "effectiveType": "ethernet/wifi"
+        }
+      },
+      "first_seen": REDACTED_PHONE.9438736,
+      "last_seen": REDACTED_PHONE.7629151,
+      "last_seen_iso": "2026-09-05T00:49:42.762930",
+      "online": true
+    },
+    "cli_k3bjb42": {
+      "client_id": "cli_k3bjb42",
+      "ip": "node_anon_e9687e58ddb4f024",
+      "connection_type": "Red Local (LAN Wi-Fi)",
+      "user_agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.5 Mobile/15E148 Safari/604.1",
+      "coords": {},
+      "device": {
+        "platform": "iPhone",
+        "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.5 Mobile/15E148 Safari/604.1",
+        "screen": "393x852",
+        "dpr": 3,
+        "touch_points": 5,
+        "cores": 4,
+        "memory_gb": 8,
+        "gpu": {
+          "vendor": "Apple Inc.",
+          "renderer": "Apple GPU"
+        },
+        "language": "es-MX",
+        "timezone": "America/Cancun",
+        "battery": null,
+        "orientation": null,
+        "network": {
+          "effectiveType": "ethernet/wifi"
+        }
+      },
+      "first_seen": REDACTED_PHONE.755766,
+      "last_seen": REDACTED_PHONE.567137,
+      "last_seen_iso": "2026-09-05T00:51:13.567143",
+      "online": true
+    },
+    "cli_xn4z2ca": {
+      "client_id": "cli_xn4z2ca",
+      "ip": "node_local_loopback",
+      "connection_type": "Host Local (Loopback)",
+      "user_agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:154.0) Gecko/20100101 Firefox/154.0",
+      "coords": {
+        "latitude": 20.6274,
+        "longitude": -87.0799,
+        "accuracy_m": 25000.0,
+        "altitude_m": -1.7976931348623157e+308,
+        "altitude_accuracy_m": 0,
+        "speed_ms": 0,
+        "speed_kmh": 0.0,
+        "heading_deg": null,
+        "timestamp": REDACTED_PHONE,
+        "maps_url": "[LOCATION_PROTECTED]",
+        "osm_url": "[LOCATION_PROTECTED]"
+      },
+      "device": {
+        "platform": "Linux x86_64",
+        "userAgent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:154.0) Gecko/20100101 Firefox/154.0",
+        "screen": "2560x1440",
+        "dpr": 1,
+        "touch_points": 0,
+        "cores": 16,
+        "memory_gb": 8,
+        "gpu": {
+          "vendor": "AMD",
+          "renderer": "Radeon HD 3200 Graphics, or similar"
+        },
+        "language": "es-ES",
+        "timezone": "America/Cancun",
+        "battery": null,
+        "orientation": null,
+        "network": {
+          "effectiveType": "ethernet/wifi"
+        }
+      },
+      "first_seen": REDACTED_PHONE.761465,
+      "last_seen": REDACTED_PHONE.6078587,
+      "last_seen_iso": "2026-09-05T01:30:25.607868",
+      "online": true
+    },
+    "cli_2x5aa0o": {
+      "client_id": "cli_2x5aa0o",
+      "ip": "node_local_loopback",
+      "connection_type": "Host Local (Loopback)",
+      "user_agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:154.0) Gecko/20100101 Firefox/154.0",
+      "coords": {
+        "latitude": 20.6274,
+        "longitude": -87.0799,
+        "accuracy_m": 25000.0,
+        "altitude_m": -1.7976931348623157e+308,
+        "altitude_accuracy_m": 0,
+        "speed_ms": 0,
+        "speed_kmh": 0.0,
+        "heading_deg": null,
+        "timestamp": REDACTED_PHONE,
+        "maps_url": "[LOCATION_PROTECTED]",
+        "osm_url": "[LOCATION_PROTECTED]"
+      },
+      "device": {
+        "platform": "Linux x86_64",
+        "userAgent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:154.0) Gecko/20100101 Firefox/154.0",
+        "screen": "2560x1440",
+        "dpr": 1,
+        "touch_points": 0,
+        "cores": 16,
+        "memory_gb": 8,
+        "gpu": {
+          "vendor": "AMD",
+          "renderer": "Radeon HD 3200 Graphics, or similar"
+        },
+        "language": "es-ES",
+        "timezone": "America/Cancun",
+        "battery": null,
+        "orientation": null,
+        "network": {
+          "effectiveType": "ethernet/wifi"
+        }
+      },
+      "first_seen": REDACTED_PHONE.526958,
+      "last_seen": REDACTED_PHONE.593819,
+      "last_seen_iso": "2026-09-05T01:30:27.593825",
+      "online": true
+    },
+    "cli_3pkgdnf": {
+      "client_id": "cli_3pkgdnf",
+      "ip": "node_local_loopback",
+      "connection_type": "Host Local (Loopback)",
+      "user_agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:154.0) Gecko/20100101 Firefox/154.0",
+      "coords": {
+        "latitude": 20.6274,
+        "longitude": -87.0799,
+        "accuracy_m": 25000.0,
+        "altitude_m": -1.7976931348623157e+308,
+        "altitude_accuracy_m": 0,
+        "speed_ms": 0,
+        "speed_kmh": 0.0,
+        "heading_deg": null,
+        "timestamp": REDACTED_PHONE,
+        "maps_url": "[LOCATION_PROTECTED]",
+        "osm_url": "[LOCATION_PROTECTED]"
+      },
+      "device": {
+        "platform": "Linux x86_64",
+        "userAgent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:154.0) Gecko/20100101 Firefox/154.0",
+        "screen": "2560x1440",
+        "dpr": 1,
+        "touch_points": 0,
+        "cores": 16,
+        "memory_gb": 8,
+        "gpu": {
+          "vendor": "AMD",
+          "renderer": "Radeon HD 3200 Graphics, or similar"
+        },
+        "language": "es-ES",
+        "timezone": "America/Cancun",
+        "battery": null,
+        "orientation": null,
+        "network": {
+          "effectiveType": "ethernet/wifi"
+        }
+      },
+      "first_seen": REDACTED_PHONE.5740056,
+      "last_seen": REDACTED_PHONE.9217777,
+      "last_seen_iso": "2026-09-05T01:49:33.921787",
+      "online": true
+    },
+    "cli_sqt6web": {
+      "client_id": "cli_sqt6web",
+      "ip": "node_anon_0879c4c8bac2c8e4",
+      "connection_type": "Red Local (LAN Wi-Fi)",
+      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.6.1 Safari/605.1.15",
+      "coords": {},
+      "device": {
+        "platform": "MacIntel",
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.6.1 Safari/605.1.15",
+        "screen": "1024x1366",
+        "dpr": 2,
+        "touch_points": 5,
+        "cores": 8,
+        "memory_gb": 8,
+        "gpu": {
+          "vendor": "Apple Inc.",
+          "renderer": "Apple GPU"
+        },
+        "language": "es-MX",
+        "timezone": "America/Cancun",
+        "battery": null,
+        "orientation": null,
+        "network": {
+          "effectiveType": "ethernet/wifi"
+        }
+      },
+      "first_seen": REDACTED_PHONE.9224284,
+      "last_seen": REDACTED_PHONE.3351731,
+      "last_seen_iso": "2026-09-05T01:49:41.335181",
+      "online": true
+    },
+    "cli_re07ow1": {
+      "client_id": "cli_re07ow1",
+      "ip": "node_anon_0879c4c8bac2c8e4",
+      "connection_type": "Red Local (LAN Wi-Fi)",
+      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.6.1 Safari/605.1.15",
+      "coords": {},
+      "device": {
+        "platform": "MacIntel",
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.6.1 Safari/605.1.15",
+        "screen": "1024x1366",
+        "dpr": 2,
+        "touch_points": 5,
+        "cores": 8,
+        "memory_gb": 8,
+        "gpu": {
+          "vendor": "Apple Inc.",
+          "renderer": "Apple GPU"
+        },
+        "language": "es-MX",
+        "timezone": "America/Cancun",
+        "battery": null,
+        "orientation": null,
+        "network": {
+          "effectiveType": "ethernet/wifi"
+        }
+      },
+      "first_seen": REDACTED_PHONE.6185653,
+      "last_seen": REDACTED_PHONE.7852352,
+      "last_seen_iso": "2026-09-05T02:01:39.785241",
+      "online": true
+    },
+    "cli_t03eds1": {
+      "client_id": "cli_t03eds1",
+      "ip": "node_local_loopback",
+      "connection_type": "Host Local (Loopback)",
+      "user_agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:154.0) Gecko/20100101 Firefox/154.0",
+      "coords": {
+        "latitude": 20.6274,
+        "longitude": -87.0799,
+        "accuracy_m": 25000.0,
+        "altitude_m": -1.7976931348623157e+308,
+        "altitude_accuracy_m": 0,
+        "speed_ms": 0,
+        "speed_kmh": 0.0,
+        "heading_deg": null,
+        "timestamp": REDACTED_PHONE,
+        "maps_url": "[LOCATION_PROTECTED]",
+        "osm_url": "[LOCATION_PROTECTED]"
+      },
+      "device": {
+        "platform": "Linux x86_64",
+        "userAgent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:154.0) Gecko/20100101 Firefox/154.0",
+        "screen": "2560x1440",
+        "dpr": 1,
+        "touch_points": 0,
+        "cores": 16,
+        "memory_gb": 8,
+        "gpu": {
+          "vendor": "AMD",
+          "renderer": "Radeon HD 3200 Graphics, or similar"
+        },
+        "language": "es-ES",
+        "timezone": "America/Cancun",
+        "battery": null,
+        "orientation": null,
+        "network": {
+          "effectiveType": "ethernet/wifi"
+        }
+      },
+      "first_seen": REDACTED_PHONE.4499915,
+      "last_seen": REDACTED_PHONE.992489,
+      "last_seen_iso": "2026-09-05T02:00:41.992495",
+      "online": true
+    },
+    "cli_wpxncdp": {
+      "client_id": "cli_wpxncdp",
+      "ip": "node_local_loopback",
+      "connection_type": "Host Local (Loopback)",
+      "user_agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:154.0) Gecko/20100101 Firefox/154.0",
+      "coords": {
+        "latitude": 20.6274,
+        "longitude": -87.0799,
+        "accuracy_m": 25000.0,
+        "altitude_m": -1.7976931348623157e+308,
+        "altitude_accuracy_m": 0,
+        "speed_ms": 0,
+        "speed_kmh": 0.0,
+        "heading_deg": null,
+        "timestamp": REDACTED_PHONE,
+        "maps_url": "[LOCATION_PROTECTED]",
+        "osm_url": "[LOCATION_PROTECTED]"
+      },
+      "device": {
+        "platform": "Linux x86_64",
+        "userAgent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:154.0) Gecko/20100101 Firefox/154.0",
+        "screen": "2560x1440",
+        "dpr": 1,
+        "touch_points": 0,
+        "cores": 16,
+        "memory_gb": 8,
+        "gpu": {
+          "vendor": "AMD",
+          "renderer": "Radeon HD 3200 Graphics, or similar"
+        },
+        "language": "es-ES",
+        "timezone": "America/Cancun",
+        "battery": null,
+        "orientation": null,
+        "network": {
+          "effectiveType": "ethernet/wifi"
+        }
+      },
+      "first_seen": REDACTED_PHONE.4577858,
+      "last_seen": REDACTED_PHONE.915621,
+      "last_seen_iso": "2026-09-05T02:03:12.915628",
+      "online": true
+    },
+    "cli_hbgtgzm": {
+      "client_id": "cli_hbgtgzm",
+      "ip": "node_local_loopback",
+      "connection_type": "Host Local (Loopback)",
+      "user_agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:154.0) Gecko/20100101 Firefox/154.0",
+      "coords": {
+        "latitude": 20.6274,
+        "longitude": -87.0799,
+        "accuracy_m": 25000.0,
+        "altitude_m": -1.7976931348623157e+308,
+        "altitude_accuracy_m": 0,
+        "speed_ms": 0,
+        "speed_kmh": 0.0,
+        "heading_deg": null,
+        "timestamp": REDACTED_PHONE,
+        "maps_url": "[LOCATION_PROTECTED]",
+        "osm_url": "[LOCATION_PROTECTED]"
+      },
+      "device": {
+        "platform": "Linux x86_64",
+        "userAgent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:154.0) Gecko/20100101 Firefox/154.0",
+        "screen": "2560x1440",
+        "dpr": 1,
+        "touch_points": 0,
+        "cores": 16,
+        "memory_gb": 8,
+        "gpu": {
+          "vendor": "AMD",
+          "renderer": "Radeon HD 3200 Graphics, or similar"
+        },
+        "language": "es-ES",
+        "timezone": "America/Cancun",
+        "battery": null,
+        "orientation": null,
+        "network": {
+          "effectiveType": "ethernet/wifi"
+        }
+      },
+      "first_seen": REDACTED_PHONE.1681886,
+      "last_seen": REDACTED_PHONE.3132713,
+      "last_seen_iso": "2026-09-05T02:11:32.313276",
+      "online": true
+    },
+    "cli_myhi48z": {
+      "client_id": "cli_myhi48z",
+      "ip": "node_local_loopback",
+      "connection_type": "Host Local (Loopback)",
+      "user_agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:154.0) Gecko/20100101 Firefox/154.0",
+      "coords": {
+        "latitude": 20.6274,
+        "longitude": -87.0799,
+        "accuracy_m": 25000.0,
+        "altitude_m": -1.7976931348623157e+308,
+        "altitude_accuracy_m": 0,
+        "speed_ms": 0,
+        "speed_kmh": 0.0,
+        "heading_deg": null,
+        "timestamp": REDACTED_PHONE,
+        "maps_url": "[LOCATION_PROTECTED]",
+        "osm_url": "[LOCATION_PROTECTED]"
+      },
+      "device": {
+        "platform": "Linux x86_64",
+        "userAgent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:154.0) Gecko/20100101 Firefox/154.0",
+        "screen": "2560x1440",
+        "dpr": 1,
+        "touch_points": 0,
+        "cores": 16,
+        "memory_gb": 8,
+        "gpu": {
+          "vendor": "AMD",
+          "renderer": "Radeon HD 3200 Graphics, or similar"
+        },
+        "language": "es-ES",
+        "timezone": "America/Cancun",
+        "battery": null,
+        "orientation": null,
+        "network": {
+          "effectiveType": "ethernet/wifi"
+        }
+      },
+      "first_seen": REDACTED_PHONE.0749884,
+      "last_seen": REDACTED_PHONE.4340181,
+      "last_seen_iso": "2026-09-05T02:13:42.434049",
+      "online": true
+    },
+    "cli_3xibddi": {
+      "client_id": "cli_3xibddi",
+      "ip": "node_local_loopback",
+      "connection_type": "Host Local (Loopback)",
+      "user_agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:154.0) Gecko/20100101 Firefox/154.0",
+      "coords": {
+        "latitude": 20.6274,
+        "longitude": -87.0799,
+        "accuracy_m": 25000.0,
+        "altitude_m": -1.7976931348623157e+308,
+        "altitude_accuracy_m": 0,
+        "speed_ms": 0,
+        "speed_kmh": 0.0,
+        "heading_deg": null,
+        "timestamp": REDACTED_PHONE,
+        "maps_url": "[LOCATION_PROTECTED]",
+        "osm_url": "[LOCATION_PROTECTED]"
+      },
+      "device": {
+        "platform": "Linux x86_64",
+        "userAgent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:154.0) Gecko/20100101 Firefox/154.0",
+        "screen": "2560x1440",
+        "dpr": 1,
+        "touch_points": 0,
+        "cores": 16,
+        "memory_gb": 8,
+        "gpu": {
+          "vendor": "AMD",
+          "renderer": "Radeon HD 3200 Graphics, or similar"
+        },
+        "language": "es-ES",
+        "timezone": "America/Cancun",
+        "battery": null,
+        "orientation": null,
+        "network": {
+          "effectiveType": "ethernet/wifi"
+        }
+      },
+      "first_seen": REDACTED_PHONE.7531464,
+      "last_seen": REDACTED_PHONE.8069186,
+      "last_seen_iso": "2026-09-05T02:24:00.806931",
+      "online": true
+    },
+    "cli_0mwq4j7": {
+      "client_id": "cli_0mwq4j7",
+      "ip": "node_anon_0879c4c8bac2c8e4",
+      "connection_type": "Red Local (LAN Wi-Fi)",
+      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.6.1 Safari/605.1.15",
+      "coords": {},
+      "device": {
+        "platform": "MacIntel",
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.6.1 Safari/605.1.15",
+        "screen": "1024x1366",
+        "dpr": 2,
+        "touch_points": 5,
+        "cores": 8,
+        "memory_gb": 8,
+        "gpu": {
+          "vendor": "Apple Inc.",
+          "renderer": "Apple GPU"
+        },
+        "language": "es-MX",
+        "timezone": "America/Cancun",
+        "battery": null,
+        "orientation": null,
+        "network": {
+          "effectiveType": "ethernet/wifi"
+        }
+      },
+      "first_seen": REDACTED_PHONE.952312,
+      "last_seen": REDACTED_PHONE.4070551,
+      "last_seen_iso": "2026-09-05T02:24:15.407061",
+      "online": true
+    },
+    "cli_0xlojbx": {
+      "client_id": "cli_0xlojbx",
+      "ip": "node_local_loopback",
+      "connection_type": "Host Local (Loopback)",
+      "user_agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:154.0) Gecko/20100101 Firefox/154.0",
+      "coords": {
+        "latitude": 20.6274,
+        "longitude": -87.0799,
+        "accuracy_m": 25000.0,
+        "altitude_m": -1.7976931348623157e+308,
+        "altitude_accuracy_m": 0,
+        "speed_ms": 0,
+        "speed_kmh": 0.0,
+        "heading_deg": null,
+        "timestamp": REDACTED_PHONE,
+        "maps_url": "[LOCATION_PROTECTED]",
+        "osm_url": "[LOCATION_PROTECTED]"
+      },
+      "device": {
+        "platform": "Linux x86_64",
+        "userAgent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:154.0) Gecko/20100101 Firefox/154.0",
+        "screen": "2560x1440",
+        "dpr": 1,
+        "touch_points": 0,
+        "cores": 16,
+        "memory_gb": 8,
+        "gpu": {
+          "vendor": "AMD",
+          "renderer": "Radeon HD 3200 Graphics, or similar"
+        },
+        "language": "es-ES",
+        "timezone": "America/Cancun",
+        "battery": null,
+        "orientation": null,
+        "network": {
+          "effectiveType": "ethernet/wifi"
+        }
+      },
+      "first_seen": REDACTED_PHONE.8318994,
+      "last_seen": REDACTED_PHONE.8786583,
+      "last_seen_iso": "2026-09-05T21:07:47.878664",
+      "online": true
+    },
+    "cli_9zblj7s": {
+      "client_id": "cli_9zblj7s",
+      "ip": "node_anon_9c16001144dcffc0",
+      "connection_type": "Remoto Mundial (Cloudflare / Móvil)",
+      "user_agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 26_5_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/151.0.7922.47 Mobile/15E148 Safari/604.1",
+      "coords": {
+        "latitude": 20.660960230772105,
+        "longitude": -87.10936564642522,
+        "accuracy_m": 9.131799325438877,
+        "altitude_m": 14.079997138977053,
+        "altitude_accuracy_m": 10.403402584039386,
+        "speed_ms": null,
+        "speed_kmh": 0.0,
+        "heading_deg": null,
+        "timestamp": REDACTED_PHONE,
+        "maps_url": "[LOCATION_PROTECTED]",
+        "osm_url": "[LOCATION_PROTECTED]"
+      },
+      "device": {
+        "platform": "iPhone",
+        "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 26_5_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/151.0.7922.47 Mobile/15E148 Safari/604.1",
+        "screen": "393x852",
+        "dpr": 3,
+        "touch_points": 5,
+        "cores": 4,
+        "memory_gb": 8,
+        "gpu": {
+          "vendor": "Apple Inc.",
+          "renderer": "Apple GPU"
+        },
+        "language": "es-MX",
+        "timezone": "America/Cancun",
+        "battery": null,
+        "orientation": null,
+        "network": {
+          "effectiveType": "ethernet/wifi"
+        }
+      },
+      "first_seen": REDACTED_PHONE.7176604,
+      "last_seen": REDACTED_PHONE.732726,
+      "last_seen_iso": "2026-09-05T20:40:16.732734",
+      "online": true
+    },
+    "cli_zt6px69": {
+      "client_id": "cli_zt6px69",
+      "ip": "node_anon_9c16001144dcffc0",
+      "connection_type": "Remoto Mundial (Cloudflare / Móvil)",
+      "user_agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.5 Mobile/15E148 Safari/604.1",
+      "coords": {
+        "latitude": 20.660967955973415,
+        "longitude": -87.10937164680696,
+        "accuracy_m": 7.696255201481241,
+        "altitude_m": 14.079997138977053,
+        "altitude_accuracy_m": 10.401531575670486,
+        "speed_ms": null,
+        "speed_kmh": 0.0,
+        "heading_deg": null,
+        "timestamp": REDACTED_PHONE,
+        "maps_url": "[LOCATION_PROTECTED]",
+        "osm_url": "[LOCATION_PROTECTED]"
+      },
+      "device": {
+        "platform": "iPhone",
+        "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.5 Mobile/15E148 Safari/604.1",
+        "screen": "393x852",
+        "dpr": 3,
+        "touch_points": 5,
+        "cores": 4,
+        "memory_gb": 8,
+        "gpu": {
+          "vendor": "Apple Inc.",
+          "renderer": "Apple GPU"
+        },
+        "language": "es-MX",
+        "timezone": "America/Cancun",
+        "battery": null,
+        "orientation": null,
+        "network": {
+          "effectiveType": "ethernet/wifi"
+        }
+      },
+      "first_seen": REDACTED_PHONE.7332404,
+      "last_seen": REDACTED_PHONE.5945675,
+      "last_seen_iso": "2026-09-05T20:40:50.594575",
+      "online": true
+    },
+    "cli_yat39jb": {
+      "client_id": "cli_yat39jb",
+      "ip": "node_anon_aecd47f9faa69fc5",
+      "connection_type": "Remoto Mundial (Cloudflare / Móvil)",
+      "user_agent": "Mozilla/5.0 (iPad; CPU OS 26_6_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/151.0.7922.47 Mobile/15E148 Safari/604.1",
+      "coords": {
+        "latitude": 20.660991037076943,
+        "longitude": -87.10942234088186,
+        "accuracy_m": 5.0,
+        "altitude_m": 10.418899383544922,
+        "altitude_accuracy_m": 30,
+        "speed_ms": null,
+        "speed_kmh": 0.0,
+        "heading_deg": null,
+        "timestamp": REDACTED_PHONE,
+        "maps_url": "[LOCATION_PROTECTED]",
+        "osm_url": "[LOCATION_PROTECTED]"
+      },
+      "device": {
+        "platform": "iPad",
+        "userAgent": "Mozilla/5.0 (iPad; CPU OS 26_6_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/151.0.7922.47 Mobile/15E148 Safari/604.1",
+        "screen": "1024x1366",
+        "dpr": 2,
+        "touch_points": 5,
+        "cores": 8,
+        "memory_gb": 8,
+        "gpu": {
+          "vendor": "Apple Inc.",
+          "renderer": "Apple GPU"
+        },
+        "language": "es-MX",
+        "timezone": "America/Cancun",
+        "battery": null,
+        "orientation": null,
+        "network": {
+          "effectiveType": "ethernet/wifi"
+        }
+      },
+      "first_seen": REDACTED_PHONE.857058,
+      "last_seen": REDACTED_PHONE.2373438,
+      "last_seen_iso": "2026-09-05T20:41:37.237355",
+      "online": true
+    },
+    "cli_eu7o3z8": {
+      "client_id": "cli_eu7o3z8",
+      "ip": "node_anon_aecd47f9faa69fc5",
+      "connection_type": "Remoto Mundial (Cloudflare / Móvil)",
+      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.6.1 Safari/605.1.15",
+      "coords": {
+        "latitude": 20.660991037076943,
+        "longitude": -87.10942234088186,
+        "accuracy_m": 5.0,
+        "altitude_m": 10.415617236558155,
+        "altitude_accuracy_m": 30,
+        "speed_ms": null,
+        "speed_kmh": 0.0,
+        "heading_deg": null,
+        "timestamp": REDACTED_PHONE,
+        "maps_url": "[LOCATION_PROTECTED]",
+        "osm_url": "[LOCATION_PROTECTED]"
+      },
+      "device": {
+        "platform": "MacIntel",
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.6.1 Safari/605.1.15",
+        "screen": "1024x1366",
+        "dpr": 2,
+        "touch_points": 5,
+        "cores": 8,
+        "memory_gb": 8,
+        "gpu": {
+          "vendor": "Apple Inc.",
+          "renderer": "Apple GPU"
+        },
+        "language": "es-MX",
+        "timezone": "America/Cancun",
+        "battery": null,
+        "orientation": null,
+        "network": {
+          "effectiveType": "ethernet/wifi"
+        }
+      },
+      "first_seen": REDACTED_PHONE.1672003,
+      "last_seen": REDACTED_PHONE.6063504,
+      "last_seen_iso": "2026-09-05T20:42:01.606355",
+      "online": true
+    },
+    "cli_ik5p0ms": {
+      "client_id": "cli_ik5p0ms",
+      "ip": "node_anon_d9abde6eeed9c4e6",
+      "connection_type": "Remoto Mundial (Cloudflare / Móvil)",
+      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.6.1 Safari/605.1.15",
+      "coords": {
+        "latitude": 20.66096426479225,
+        "longitude": -87.10940127670217,
+        "accuracy_m": 14.456954354862523,
+        "altitude_m": 10.02891409271821,
+        "altitude_accuracy_m": 30,
+        "speed_ms": null,
+        "speed_kmh": 0.0,
+        "heading_deg": null,
+        "timestamp": REDACTED_PHONE,
+        "maps_url": "[LOCATION_PROTECTED]",
+        "osm_url": "[LOCATION_PROTECTED]"
+      },
+      "device": {
+        "platform": "MacIntel",
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.6.1 Safari/605.1.15",
+        "screen": "1024x1366",
+        "dpr": 2,
+        "touch_points": 5,
+        "cores": 8,
+        "memory_gb": 8,
+        "gpu": {
+          "vendor": "Apple Inc.",
+          "renderer": "Apple GPU"
+        },
+        "language": "es-MX",
+        "timezone": "America/Cancun",
+        "battery": null,
+        "orientation": null,
+        "network": {
+          "effectiveType": "ethernet/wifi"
+        }
+      },
+      "first_seen": REDACTED_PHONE.8089776,
+      "last_seen": REDACTED_PHONE.9496913,
+      "last_seen_iso": "2026-09-05T21:11:10.949695",
+      "online": true
+    },
+    "cli_oh24dbz": {
+      "client_id": "cli_oh24dbz",
+      "ip": "node_anon_9c16001144dcffc0",
+      "connection_type": "Remoto Mundial (Cloudflare / Móvil)",
+      "user_agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.5 Mobile/15E148 Safari/604.1",
+      "coords": {
+        "latitude": 20.REDACTED_PHONE,
+        "longitude": -87.10941207230192,
+        "accuracy_m": 2.4568891271985365,
+        "altitude_m": 10.684338863939047,
+        "altitude_accuracy_m": 5.377598845021057,
+        "speed_ms": 0.013206186472443407,
+        "speed_kmh": 0.0,
+        "heading_deg": null,
+        "timestamp": REDACTED_PHONE,
+        "maps_url": "[LOCATION_PROTECTED]",
+        "osm_url": "[LOCATION_PROTECTED]"
+      },
+      "device": {
+        "platform": "iPhone",
+        "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.5 Mobile/15E148 Safari/604.1",
+        "screen": "393x852",
+        "dpr": 3,
+        "touch_points": 5,
+        "cores": 4,
+        "memory_gb": 8,
+        "gpu": {
+          "vendor": "Apple Inc.",
+          "renderer": "Apple GPU"
+        },
+        "language": "es-MX",
+        "timezone": "America/Cancun",
+        "battery": null,
+        "orientation": null,
+        "network": {
+          "effectiveType": "ethernet/wifi"
+        }
+      },
+      "first_seen": REDACTED_PHONE.2017696,
+      "last_seen": REDACTED_PHONE.096085,
+      "last_seen_iso": "2026-09-05T20:59:13.096142",
+      "online": true
+    },
+    "cli_y7f46wm": {
+      "client_id": "cli_y7f46wm",
+      "ip": "node_local_loopback",
+      "connection_type": "Host Local (Loopback)",
+      "user_agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:154.0) Gecko/20100101 Firefox/154.0",
+      "coords": {
+        "latitude": 20.6274,
+        "longitude": -87.0799,
+        "accuracy_m": 25000.0,
+        "altitude_m": -1.7976931348623157e+308,
+        "altitude_accuracy_m": 0,
+        "speed_ms": 0,
+        "speed_kmh": 0.0,
+        "heading_deg": null,
+        "timestamp": REDACTED_PHONE,
+        "maps_url": "[LOCATION_PROTECTED]",
+        "osm_url": "[LOCATION_PROTECTED]"
+      },
+      "device": {
+        "platform": "Linux x86_64",
+        "userAgent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:154.0) Gecko/20100101 Firefox/154.0",
+        "screen": "2560x1440",
+        "dpr": 1,
+        "touch_points": 0,
+        "cores": 16,
+        "memory_gb": 8,
+        "gpu": {
+          "vendor": "AMD",
+          "renderer": "Radeon HD 3200 Graphics, or similar"
+        },
+        "language": "es-ES",
+        "timezone": "America/Cancun",
+        "battery": null,
+        "orientation": null,
+        "network": {
+          "effectiveType": "ethernet/wifi"
+        }
+      },
+      "first_seen": REDACTED_PHONE.1967115,
+      "last_seen": REDACTED_PHONE.15128,
+      "last_seen_iso": "2026-09-05T21:14:41.151284",
+      "online": true
+    },
+    "cli_65nep6n": {
+      "client_id": "cli_65nep6n",
+      "ip": "node_anon_2dceb07596751026",
+      "connection_type": "Remoto Mundial (Cloudflare / Móvil)",
+      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.6.1 Safari/605.1.15",
+      "coords": {
+        "latitude": 20.660982948539903,
+        "longitude": -87.10940200176121,
+        "accuracy_m": 2.522623283938515,
+        "altitude_m": 11.232273308560252,
+        "altitude_accuracy_m": 11.044015170390237,
+        "speed_ms": 0,
+        "speed_kmh": 0.0,
+        "heading_deg": null,
+        "timestamp": REDACTED_PHONE,
+        "maps_url": "[LOCATION_PROTECTED]",
+        "osm_url": "[LOCATION_PROTECTED]"
+      },
+      "device": {
+        "platform": "MacIntel",
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.6.1 Safari/605.1.15",
+        "screen": "1024x1366",
+        "dpr": 2,
+        "touch_points": 5,
+        "cores": 8,
+        "memory_gb": 8,
+        "gpu": {
+          "vendor": "Apple Inc.",
+          "renderer": "Apple GPU"
+        },
+        "language": "es-MX",
+        "timezone": "America/Cancun",
+        "battery": null,
+        "orientation": null,
+        "network": {
+          "effectiveType": "ethernet/wifi"
+        }
+      },
+      "first_seen": REDACTED_PHONE.4165542,
+      "last_seen": REDACTED_PHONE.148232,
+      "last_seen_iso": "2026-09-05T21:14:07.148253",
+      "online": true
+    },
+    "cli_cttw933": {
+      "client_id": "cli_cttw933",
+      "ip": "node_local_loopback",
+      "connection_type": "Host Local (Loopback)",
+      "user_agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:154.0) Gecko/20100101 Firefox/154.0",
+      "coords": {
+        "latitude": 20.6274,
+        "longitude": -87.0799,
+        "accuracy_m": 25000.0,
+        "altitude_m": -1.7976931348623157e+308,
+        "altitude_accuracy_m": 0,
+        "speed_ms": 0,
+        "speed_kmh": 0.0,
+        "heading_deg": null,
+        "timestamp": REDACTED_PHONE,
+        "maps_url": "[LOCATION_PROTECTED]",
+        "osm_url": "[LOCATION_PROTECTED]"
+      },
+      "device": {
+        "platform": "Linux x86_64",
+        "userAgent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:154.0) Gecko/20100101 Firefox/154.0",
+        "screen": "2560x1440",
+        "dpr": 1,
+        "touch_points": 0,
+        "cores": 16,
+        "memory_gb": 8,
+        "gpu": {
+          "vendor": "AMD",
+          "renderer": "Radeon HD 3200 Graphics, or similar"
+        },
+        "language": "es-ES",
+        "timezone": "America/Cancun",
+        "battery": null,
+        "orientation": null,
+        "network": {
+          "effectiveType": "ethernet/wifi"
+        }
+      },
+      "first_seen": REDACTED_PHONE.2000186,
+      "last_seen": REDACTED_PHONE.5653617,
+      "last_seen_iso": "2026-09-05T21:14:41.565366",
+      "online": true
+    },
+    "cli_ghmbpoh": {
+      "client_id": "cli_ghmbpoh",
+      "ip": "node_anon_77382bea9bd5b71c",
+      "connection_type": "Remoto Mundial (Cloudflare / Móvil)",
+      "user_agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.5 Mobile/15E148 Safari/604.1",
+      "coords": {
+        "latitude": 20.671249848300913,
+        "longitude": -87.11772970960246,
+        "accuracy_m": 12.275484734419518,
+        "altitude_m": 9.874702482733603,
+        "altitude_accuracy_m": 30.000019268166447,
+        "speed_ms": null,
+        "speed_kmh": 0.0,
+        "heading_deg": null,
+        "timestamp": REDACTED_PHONE,
+        "maps_url": "[LOCATION_PROTECTED]",
+        "osm_url": "[LOCATION_PROTECTED]"
+      },
+      "device": {
+        "platform": "iPhone",
+        "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.5 Mobile/15E148 Safari/604.1",
+        "screen": "393x852",
+        "dpr": 3,
+        "touch_points": 5,
+        "cores": 4,
+        "memory_gb": 8,
+        "gpu": {
+          "vendor": "Apple Inc.",
+          "renderer": "Apple GPU"
+        },
+        "language": "es-MX",
+        "timezone": "America/Cancun",
+        "battery": null,
+        "orientation": null,
+        "network": {
+          "effectiveType": "ethernet/wifi"
+        }
+      },
+      "first_seen": REDACTED_PHONE.5552819,
+      "last_seen": REDACTED_PHONE.1206012,
+      "last_seen_iso": "2026-09-05T22:47:32.120605",
+      "online": true
+    },
+    "cli_wnx7pdu": {
+      "client_id": "cli_wnx7pdu",
+      "ip": "node_anon_8a1ade6dd590ae75",
+      "connection_type": "Remoto Mundial (Cloudflare / Móvil)",
+      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.6.1 Safari/605.1.15",
+      "coords": {
+        "latitude": 20.660990709534296,
+        "longitude": -87.10940419897072,
+        "accuracy_m": 2.0,
+        "altitude_m": 11.767603039741516,
+        "altitude_accuracy_m": 12.044336116225551,
+        "speed_ms": 0,
+        "speed_kmh": 0.0,
+        "heading_deg": null,
+        "timestamp": REDACTED_PHONE,
+        "maps_url": "[LOCATION_PROTECTED]",
+        "osm_url": "[LOCATION_PROTECTED]"
+      },
+      "device": {
+        "platform": "MacIntel",
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.6.1 Safari/605.1.15",
+        "screen": "1024x1366",
+        "dpr": 2,
+        "touch_points": 5,
+        "cores": 8,
+        "memory_gb": 8,
+        "gpu": {
+          "vendor": "Apple Inc.",
+          "renderer": "Apple GPU"
+        },
+        "language": "es-MX",
+        "timezone": "America/Cancun",
+        "battery": null,
+        "orientation": null,
+        "network": {
+          "effectiveType": "ethernet/wifi"
+        }
+      },
+      "first_seen": REDACTED_PHONE.7059393,
+      "last_seen": REDACTED_PHONE.9320748,
+      "last_seen_iso": "2026-09-06T01:09:36.932079",
+      "online": true
+    },
+    "cli_c7afddm": {
+      "client_id": "cli_c7afddm",
+      "ip": "node_anon_8a1ade6dd590ae75",
+      "connection_type": "Remoto Mundial (Cloudflare / Móvil)",
+      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.6.1 Safari/605.1.15",
+      "coords": {
+        "latitude": 20.66099106478941,
+        "longitude": -87.10941282495604,
+        "accuracy_m": 3.097177188364241,
+        "altitude_m": 11.608553415164351,
+        "altitude_accuracy_m": 11.42770609278508,
+        "speed_ms": 0,
+        "speed_kmh": 0.0,
+        "heading_deg": null,
+        "timestamp": REDACTED_PHONE,
+        "maps_url": "[LOCATION_PROTECTED]",
+        "osm_url": "[LOCATION_PROTECTED]"
+      },
+      "device": {
+        "platform": "MacIntel",
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.6.1 Safari/605.1.15",
+        "screen": "1024x1366",
+        "dpr": 2,
+        "touch_points": 5,
+        "cores": 8,
+        "memory_gb": 8,
+        "gpu": {
+          "vendor": "Apple Inc.",
+          "renderer": "Apple GPU"
+        },
+        "language": "es-MX",
+        "timezone": "America/Cancun",
+        "battery": null,
+        "orientation": null,
+        "network": {
+          "effectiveType": "ethernet/wifi"
+        }
+      },
+      "first_seen": REDACTED_PHONE.4965515,
+      "last_seen": REDACTED_PHONE.3480604,
+      "last_seen_iso": "2026-09-06T01:09:38.348064",
+      "online": true
+    },
+    "cli_rbs0g6i": {
+      "client_id": "cli_rbs0g6i",
+      "ip": "node_local_loopback",
+      "connection_type": "Host Local (Loopback)",
+      "user_agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:154.0) Gecko/20100101 Firefox/154.0",
+      "coords": {},
+      "device": {
+        "platform": "Linux x86_64",
+        "userAgent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:154.0) Gecko/20100101 Firefox/154.0",
+        "screen": "1366x768",
+        "dpr": 1,
+        "touch_points": 0,
+        "cores": 16,
+        "memory_gb": 8,
+        "gpu": {
+          "vendor": "AMD",
+          "renderer": "Radeon HD 3200 Graphics, or similar"
+        },
+        "language": "es-ES",
+        "timezone": "America/Cancun",
+        "battery": null,
+        "orientation": null,
+        "network": {
+          "effectiveType": "ethernet/wifi"
+        }
+      },
+      "first_seen": REDACTED_PHONE.0504808,
+      "last_seen": REDACTED_PHONE.1039221,
+      "last_seen_iso": "2026-09-06T01:25:53.103935",
+      "online": true
+    },
+    "cli_qed3bqt": {
+      "client_id": "cli_qed3bqt",
+      "ip": "node_local_loopback",
+      "connection_type": "Host Local (Loopback)",
+      "user_agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:154.0) Gecko/20100101 Firefox/154.0",
+      "coords": {},
+      "device": {
+        "platform": "Linux x86_64",
+        "userAgent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:154.0) Gecko/20100101 Firefox/154.0",
+        "screen": "1366x768",
+        "dpr": 1,
+        "touch_points": 0,
+        "cores": 16,
+        "memory_gb": 8,
+        "gpu": {
+          "vendor": "AMD",
+          "renderer": "Radeon HD 3200 Graphics, or similar"
+        },
+        "language": "es-ES",
+        "timezone": "America/Cancun",
+        "battery": null,
+        "orientation": null,
+        "network": {
+          "effectiveType": "ethernet/wifi"
+        }
+      },
+      "first_seen": REDACTED_PHONE.6709588,
+      "last_seen": REDACTED_PHONE.0237184,
+      "last_seen_iso": "2026-09-06T01:27:12.023722",
+      "online": true
+    },
+    "cli_1ukdu2h": {
+      "client_id": "cli_1ukdu2h",
+      "ip": "node_anon_aecd47f9faa69fc5",
+      "connection_type": "Remoto Mundial (Cloudflare / Móvil)",
+      "user_agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:154.0) Gecko/20100101 Firefox/154.0",
+      "coords": {},
+      "device": {
+        "platform": "Linux x86_64",
+        "userAgent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:154.0) Gecko/20100101 Firefox/154.0",
+        "screen": "1366x768",
+        "dpr": 1,
+        "touch_points": 0,
+        "cores": 16,
+        "memory_gb": 8,
+        "gpu": {
+          "vendor": "AMD",
+          "renderer": "Radeon HD 3200 Graphics, or similar"
+        },
+        "language": "es-ES",
+        "timezone": "America/Cancun",
+        "battery": null,
+        "orientation": null,
+        "network": {
+          "effectiveType": "ethernet/wifi"
+        }
+      },
+      "first_seen": REDACTED_PHONE.9576983,
+      "last_seen": REDACTED_PHONE.3514442,
+      "last_seen_iso": "2026-09-06T01:28:06.351450",
+      "online": true
+    },
+    "cli_6cremb8": {
+      "client_id": "cli_6cremb8",
+      "ip": "node_local_loopback",
+      "connection_type": "Host Local (Loopback)",
+      "user_agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:154.0) Gecko/20100101 Firefox/154.0",
+      "coords": {},
+      "device": {
+        "platform": "Linux x86_64",
+        "userAgent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:154.0) Gecko/20100101 Firefox/154.0",
+        "screen": "2048x1152",
+        "dpr": 1.25,
+        "touch_points": 0,
+        "cores": 16,
+        "memory_gb": 8,
+        "gpu": {
+          "vendor": "AMD",
+          "renderer": "Radeon HD 3200 Graphics, or similar"
+        },
+        "language": "es-ES",
+        "timezone": "America/Cancun",
+        "battery": null,
+        "orientation": null,
+        "network": {
+          "effectiveType": "ethernet/wifi"
+        }
+      },
+      "first_seen": REDACTED_PHONE.1392765,
+      "last_seen": REDACTED_PHONE.143623,
+      "last_seen_iso": "2026-09-06T02:09:06.143629",
+      "online": true
+    },
+    "cli_x9ue7l0": {
+      "client_id": "cli_x9ue7l0",
+      "ip": "node_anon_55ca276cee2ea7a5",
+      "connection_type": "Remoto Mundial (Cloudflare / Móvil)",
+      "user_agent": "Mozilla/5.0 (iPad; CPU OS 26_6_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/151.0.7922.47 Mobile/15E148 Safari/604.1",
+      "coords": {
+        "latitude": 20.660970420592374,
+        "longitude": -87.REDACTED_PHONE,
+        "accuracy_m": 4.748651530191761,
+        "altitude_m": 6.497547826729715,
+        "altitude_accuracy_m": 8.058728876376453,
+        "speed_ms": 0,
+        "speed_kmh": 0.0,
+        "heading_deg": null,
+        "timestamp": REDACTED_PHONE,
+        "maps_url": "[LOCATION_PROTECTED]",
+        "osm_url": "[LOCATION_PROTECTED]"
+      },
+      "device": {
+        "platform": "iPad",
+        "userAgent": "Mozilla/5.0 (iPad; CPU OS 26_6_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/151.0.7922.47 Mobile/15E148 Safari/604.1",
+        "screen": "1024x1366",
+        "dpr": 2,
+        "touch_points": 5,
+        "cores": 8,
+        "memory_gb": 8,
+        "gpu": {
+          "vendor": "Apple Inc.",
+          "renderer": "Apple GPU"
+        },
+        "language": "es-MX",
+        "timezone": "America/Cancun",
+        "battery": null,
+        "orientation": null,
+        "network": {
+          "effectiveType": "ethernet/wifi"
+        }
+      },
+      "first_seen": REDACTED_PHONE.7735248,
+      "last_seen": REDACTED_PHONE.2142546,
+      "last_seen_iso": "2026-09-06T01:32:11.214265",
+      "online": true
+    },
+    "cli_zvqbngq": {
+      "client_id": "cli_zvqbngq",
+      "ip": "node_anon_923afc5149ab63ca",
+      "connection_type": "Remoto Mundial (Cloudflare / Móvil)",
+      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.6.1 Safari/605.1.15",
+      "coords": {
+        "latitude": 20.660992268507393,
+        "longitude": -87.10940133103966,
+        "accuracy_m": 2.0000223581871683,
+        "altitude_m": 8.309041023254395,
+        "altitude_accuracy_m": 4,
+        "speed_ms": 0,
+        "speed_kmh": 0.0,
+        "heading_deg": 34.453125,
+        "timestamp": REDACTED_PHONE,
+        "maps_url": "[LOCATION_PROTECTED]",
+        "osm_url": "[LOCATION_PROTECTED]"
+      },
+      "device": {
+        "platform": "MacIntel",
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.6.1 Safari/605.1.15",
+        "screen": "1024x1366",
+        "dpr": 2,
+        "touch_points": 5,
+        "cores": 8,
+        "memory_gb": 8,
+        "gpu": {
+          "vendor": "Apple Inc.",
+          "renderer": "Apple GPU"
+        },
+        "language": "es-MX",
+        "timezone": "America/Cancun",
+        "battery": null,
+        "orientation": null,
+        "network": {
+          "effectiveType": "ethernet/wifi"
+        }
+      },
+      "first_seen": REDACTED_PHONE.864845,
+      "last_seen": REDACTED_PHONE.060885,
+      "last_seen_iso": "2026-09-06T01:32:35.060890",
+      "online": true
+    },
+    "cli_cyp22ej": {
+      "client_id": "cli_cyp22ej",
+      "ip": "node_anon_503147e9c015f1f0",
+      "connection_type": "Remoto Mundial (Cloudflare / Móvil)",
+      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.6.1 Safari/605.1.15",
+      "coords": {
+        "latitude": 20.660997200776507,
+        "longitude": -87.10940723315544,
+        "accuracy_m": 14.0,
+        "altitude_m": 8.700825691223145,
+        "altitude_accuracy_m": 6,
+        "speed_ms": 0,
+        "speed_kmh": 0.0,
+        "heading_deg": null,
+        "timestamp": REDACTED_PHONE,
+        "maps_url": "[LOCATION_PROTECTED]",
+        "osm_url": "[LOCATION_PROTECTED]"
+      },
+      "device": {
+        "platform": "MacIntel",
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.6.1 Safari/605.1.15",
+        "screen": "1024x1366",
+        "dpr": 2,
+        "touch_points": 5,
+        "cores": 8,
+        "memory_gb": 8,
+        "gpu": {
+          "vendor": "Apple Inc.",
+          "renderer": "Apple GPU"
+        },
+        "language": "es-MX",
+        "timezone": "America/Cancun",
+        "battery": null,
+        "orientation": null,
+        "network": {
+          "effectiveType": "ethernet/wifi"
+        }
+      },
+      "first_seen": REDACTED_PHONE.235528,
+      "last_seen": REDACTED_PHONE.3495672,
+      "last_seen_iso": "2026-09-06T01:32:45.349572",
+      "online": true
+    },
+    "cli_vz02d2b": {
+      "client_id": "cli_vz02d2b",
+      "ip": "node_anon_f6bab799f788aec5",
+      "connection_type": "Remoto Mundial (Cloudflare / Móvil)",
+      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.6.1 Safari/605.1.15",
+      "coords": {
+        "latitude": 20.660993147867277,
+        "longitude": -87.10941206807085,
+        "accuracy_m": 2.00002490520212,
+        "altitude_m": 11.874359661713243,
+        "altitude_accuracy_m": 15.174660756171463,
+        "speed_ms": 0.0704721560140814,
+        "speed_kmh": 0.3,
+        "heading_deg": null,
+        "timestamp": REDACTED_PHONE,
+        "maps_url": "[LOCATION_PROTECTED]",
+        "osm_url": "[LOCATION_PROTECTED]"
+      },
+      "device": {
+        "platform": "MacIntel",
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.6.1 Safari/605.1.15",
+        "screen": "1024x1366",
+        "dpr": 2,
+        "touch_points": 5,
+        "cores": 8,
+        "memory_gb": 8,
+        "gpu": {
+          "vendor": "Apple Inc.",
+          "renderer": "Apple GPU"
+        },
+        "language": "es-MX",
+        "timezone": "America/Cancun",
+        "battery": null,
+        "orientation": null,
+        "network": {
+          "effectiveType": "ethernet/wifi"
+        }
+      },
+      "first_seen": REDACTED_PHONE.9047992,
+      "last_seen": REDACTED_PHONE.5304644,
+      "last_seen_iso": "2026-09-06T01:35:40.530477",
+      "online": true
+    },
+    "cli_fy1k9sy": {
+      "client_id": "cli_fy1k9sy",
+      "ip": "node_local_loopback",
+      "connection_type": "Host Local (Loopback)",
+      "user_agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:154.0) Gecko/20100101 Firefox/154.0",
+      "coords": {},
+      "device": {
+        "platform": "Linux x86_64",
+        "userAgent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:154.0) Gecko/20100101 Firefox/154.0",
+        "screen": "2048x1152",
+        "dpr": 1.25,
+        "touch_points": 0,
+        "cores": 16,
+        "memory_gb": 8,
+        "gpu": {
+          "vendor": "AMD",
+          "renderer": "Radeon HD 3200 Graphics, or similar"
+        },
+        "language": "es-ES",
+        "timezone": "America/Cancun",
+        "battery": null,
+        "orientation": null,
+        "network": {
+          "effectiveType": "ethernet/wifi"
+        }
+      },
+      "first_seen": REDACTED_PHONE.100796,
+      "last_seen": REDACTED_PHONE.0235798,
+      "last_seen_iso": "2026-09-06T02:24:42.023585",
+      "online": true
+    },
+    "cli_9w9814t": {
+      "client_id": "cli_9w9814t",
+      "ip": "node_local_loopback",
+      "connection_type": "Host Local (Loopback)",
+      "user_agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:154.0) Gecko/20100101 Firefox/154.0",
+      "coords": {},
+      "device": {
+        "platform": "Linux x86_64",
+        "userAgent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:154.0) Gecko/20100101 Firefox/154.0",
+        "screen": "2560x1440",
+        "dpr": 1,
+        "touch_points": 0,
+        "cores": 16,
+        "memory_gb": 8,
+        "gpu": {
+          "vendor": "AMD",
+          "renderer": "Radeon HD 3200 Graphics, or similar"
+        },
+        "language": "es-ES",
+        "timezone": "America/Cancun",
+        "battery": null,
+        "orientation": null,
+        "network": {
+          "effectiveType": "ethernet/wifi"
+        }
+      },
+      "first_seen": REDACTED_PHONE.6357396,
+      "last_seen": REDACTED_PHONE.4399607,
+      "last_seen_iso": "2026-09-06T02:35:07.439973",
+      "online": true
+    },
+    "imac_gia_compute_node": {
+      "client_id": "imac_gia_compute_node",
+      "ip": "REDACTED_IP",
+      "connection_type": "Gigabit LAN Cluster Fabric",
+      "user_agent": "GIA-Sovereign-Node/v26.4.0 (iMac14,1 x86_64 Debian)",
+      "coords": {
+        "latitude": 20.6274,
+        "longitude": -87.0799,
+        "accuracy_m": 5.0,
+        "speed_kmh": 0.0,
+        "timestamp": REDACTED_PHONE
+      },
+      "device": {
+        "platform": "Linux x86_64",
+        "model": "Apple iMac 14,1 (Late 2013)",
+        "cores": 4,
+        "memory_gb": 8,
+        "storage_free_gb": 864,
+        "gpu": {
+          "vendor": "Intel",
+          "renderer": "Intel Iris Pro Graphics 5200 (Haswell GT3e)"
+        },
+        "services": {
+          "gia_daemon_port": 8757,
+          "ollama_port": 11434,
+          "distcc_port": 3632,
+          "nfs_port": 2049,
+          "rdp_display": "active"
+        }
+      },
+      "first_seen": REDACTED_PHONE.1240082,
+      "last_seen": REDACTED_PHONE.124009,
+      "last_seen_iso": "2026-10-01T06:44:59Z",
+      "online": true
+    },
+    "tardis-worker-test-sim": {
+      "client_id": "tardis-worker-test-sim",
+      "ip": "REDACTED_IP",
+      "hostname": "test-x86-station",
+      "connection_type": "TARDIS Distributed Cluster Node",
+      "device": {
+        "platform": "x86_64",
+        "cores": 14,
+        "model": "Intel Core i7-12700H",
+        "memory_gb": 32.0,
+        "gpu": "NVIDIA GeForce RTX 3070 Mobile"
+      },
+      "first_seen": REDACTED_PHONE.1763535,
+      "last_seen": REDACTED_PHONE.1763546,
+      "last_seen_iso": "2026-10-02T04:35:32.176413Z",
+      "online": true
+    }
+  },
+  "updated_at": "2026-09-06T02:35:07.440007"
+}

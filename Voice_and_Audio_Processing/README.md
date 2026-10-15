@@ -5,6 +5,8 @@ Interfaces biométricas de voz, síntesis de audio autónoma, retroalimentación
 ## Subsistemas y Componentes Principales:
 
 - **apply_voice_ftl.py**: Motor de aceleración FTL y computación adaptativa.
+- **apply_voice_pocket.py**: Procesamiento de señal de audio y síntesis vocal biométrica.
+- **apply_voice_terminal.py**: Procesamiento de señal de audio y síntesis vocal biométrica.
 - **autonomous_voice.py**: Procesamiento de señal de audio y síntesis vocal biométrica.
 - **recurring_voice_manager.py**: Procesamiento de señal de audio y síntesis vocal biométrica.
 - **screen_reader.py**: Motor de ingeniería inversa multi-arquitectura y descompilación.

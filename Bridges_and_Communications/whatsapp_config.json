@@ -1,0 +1,19 @@
+{
+  "enabled": false,
+  "provider": "meta",
+  "bot_name": "GIA",
+  "phone_number_id": "",
+  "access_token": "",
+  "verify_token": "",
+  "app_secret": "",
+  "allowed_numbers": [
+    "REDACTED_PHONE",
+    "+REDACTED_PHONE",
+    "REDACTED_PHONE"
+  ],
+  "admin_number": "REDACTED_PHONE",
+  "master_password": "",
+  "master_key": "REDACTED_TOKEN",
+  "notify_on_boot": true,
+  "graph_version": "v21.0"
+}

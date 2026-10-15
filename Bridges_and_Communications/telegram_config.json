@@ -1,0 +1,39 @@
+{
+  "enabled": true,
+  "bot_token": "REDACTED",
+  "allowed_chats": [
+    REDACTED_PHONE,
+    999888777,
+    -REDACTED_PHONE,
+    -REDACTED_PHONE
+  ],
+  "admin_chat_id": REDACTED_PHONE,
+  "master_password": "",
+  "master_key": "REDACTED_TOKEN",
+  "notify_on_boot": false,
+  "last_public_url": "",
+  "bot_username": "GODMODE69bot",
+  "voice_mode_always": false,
+  "video_mode_always": true,
+  "video_delivery_type": "video",
+  "animations_enabled": true,
+  "prefer_animations_over_still_images": true,
+  "animation_delivery_type": "video",
+  "animation_render_fps": 60,
+  "animation_telegram_fps": 60,
+  "animation_resolution": "4K_HDR",
+  "animation_width": 3840,
+  "animation_height": 2160,
+  "animation_hdr_enabled": true,
+  "cortana_voice": "es-MX-DaliaNeural",
+  "allowed_phones": [
+    "REDACTED_PHONE",
+    "+REDACTED_PHONE",
+    "REDACTED_PHONE"
+  ],
+  "allow_public_chat": true,
+  "bot_name": "T.A.R.D.I.S",
+  "recurring_voice_enabled": false,
+  "recurring_voice_interval_sec": 900.0,
+  "recurring_voice_mode": "telemetria"
+}

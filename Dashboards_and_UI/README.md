@@ -7,7 +7,7 @@ Cockpits de control en tiempo real, portales soberanos y tableros de visualizaci
 - **TARDIS_TERMINAL_APP.html**: Interfaz interactiva de monitoreo en tiempo real.
 - **adaptation_sys_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
 - **advanced_telemetry_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
-- **airplay_monitor_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
+- **airplay_monitor_dashboard.html**: Módulo de transmisión y monitoreo de streaming de video/audio AirPlay.
 - **background_subsystem.html**: Interfaz interactiva de monitoreo en tiempo real.
 - **benchmark_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
 - **blender_animator_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
@@ -21,13 +21,13 @@ Cockpits de control en tiempo real, portales soberanos y tableros de visualizaci
 - **gods_eye_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
 - **holodeck_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
 - **idle_daemon_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
-- **index.html**: Interfaz interactiva de monitoreo en tiempo real.
 - **quantum_explorer_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
 - **safety_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
 - **scientific_researcher_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
 - **sensors_dashboard.html**: Sistema de telemetría y percepción del entorno físico/RF.
 - **sovereign_portal.html**: Interfaz interactiva de monitoreo en tiempo real.
 - **system_optimizer_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
+- **tardis_calculadora_voz.html**: Interfaz interactiva de monitoreo en tiempo real.
 - **temporal_canvas.jsx**: Componente de alta eficiencia.
 - **video_studio_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
 - **vw_vault_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.

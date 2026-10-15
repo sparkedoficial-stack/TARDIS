@@ -1,0 +1,22 @@
+{
+  "system_name": "TARDIS Syntropic Price Sentinel & Deal Oracle",
+  "version": "1.0.0",
+  "scan_interval_seconds": 300,
+  "alert_min_discount": 50.0,
+  "alert_min_temperature": 300.0,
+  "glitch_threshold_discount": 75.0,
+  "enable_desktop_notifications": true,
+  "enable_sound_alerts": true,
+  "web": {
+    "host": "0.0.0.0",
+    "port": 8787
+  },
+  "default_watchlist": [
+    {"keyword": "error de precio", "max_price": null, "min_discount": 70.0, "category": "all"},
+    {"keyword": "liquidación", "max_price": null, "min_discount": 50.0, "category": "all"},
+    {"keyword": "gratis", "max_price": 0.0, "min_discount": 100.0, "category": "all"},
+    {"keyword": "RTX", "max_price": 12000.0, "min_discount": 25.0, "category": "computacion"},
+    {"keyword": "Nintendo Switch", "max_price": 4200.0, "min_discount": 35.0, "category": "videojuegos"},
+    {"keyword": "PlayStation 5", "max_price": 8500.0, "min_discount": 30.0, "category": "videojuegos"}
+  ]
+}

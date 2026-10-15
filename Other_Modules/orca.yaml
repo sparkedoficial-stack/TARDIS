@@ -1,0 +1,26 @@
+# Orca Workspace Configuration for GODWORKS SYSTEM v26.4
+setupAgentStartupPolicy: start-immediately
+
+scripts:
+  setup: "godworks status"
+
+worktree:
+  sharedDirectories:
+    - data
+    - models
+    - .agents
+    - _selfmod_backups
+
+defaultTabs:
+  - title: "🛸 TARDIS Sovereign Node"
+    command: "godworks status"
+    color: "#3b82f6"
+  - title: "🔬 Autonomous Research"
+    command: "echo 'Usa: godworks research \"<consulta>\"' && godworks status"
+    color: "#10b981"
+  - title: "🧬 Autonomous Coder"
+    command: "echo 'Usa: godworks evolve <archivo> \"<meta>\"'"
+    color: "#a855f7"
+  - title: "⚡ Agent Shell"
+    command: "bash"
+    color: "#f59e0b"

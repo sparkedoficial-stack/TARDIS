@@ -4,6 +4,7 @@ Núcleo de orquestación temporal, bucles de control soberano FTL y sincronizaci
 
 ## Subsistemas y Componentes Principales:
 
+- **apply_easy_touch_fixes.py**: Sistema de auto-corrección preventiva y cicatrización en segundo plano.
 - **autonomous_controller.py**: Componente de alta eficiencia.
 - **background_hardware_orchestrator.py**: Núcleo de orquestación y control temporal/espacial.
 - **button_orchestrator.py**: Núcleo de orquestación y control temporal/espacial.
@@ -19,6 +20,7 @@ Núcleo de orquestación temporal, bucles de control soberano FTL y sincronizaci
 - **ftl_omni_registry.py**: Directorio y puente soberano de interoperabilidad omni-herramientas.
 - **ftl_phone_harness.py**: Harness de control bidireccional Android/iOS/iPadOS y Cloud Phones.
 - **ftl_rea.py**: Motor de ingeniería inversa multi-arquitectura y descompilación.
+- **ftl_tardis4ever.py**: Agente soberano de sincronización continua 24h y publicación inmediata de hitos.
 - **ftl_web_server.py**: Motor de aceleración FTL y computación adaptativa.
 - **ftl_xcode_linux.py**: Toolchain soberano de compilación, análisis Mach-O y despliegue iOS para Linux.
 - **gia_control.py**: Componente de alta eficiencia.
@@ -32,9 +34,12 @@ Núcleo de orquestación temporal, bucles de control soberano FTL y sincronizaci
 - **package_manager.py**: Componente de alta eficiencia.
 - **router.py**: Componente de alta eficiencia.
 - **singularity_engine.py**: Motor de aceleración FTL y computación adaptativa.
+- **singularity_engine_state.json**: Motor de aceleración FTL y computación adaptativa.
 - **sovereign_local_runner.py**: Componente de alta eficiencia.
 - **supervisor.py**: Componente de alta eficiencia.
 - **supervisor_thermal_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
+- **tardis4ever_agent.py**: Agente soberano de sincronización continua 24h y publicación inmediata de hitos.
+- **tardis4ever_state.json**: Agente soberano de sincronización continua 24h y publicación inmediata de hitos.
 - **tardis_app.py**: Componente de alta eficiencia.
 - **tardis_browser_engine.py**: Componente de alta eficiencia.
 - **tardis_cli.py**: Componente de alta eficiencia.

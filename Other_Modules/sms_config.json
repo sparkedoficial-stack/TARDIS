@@ -1,0 +1,47 @@
+{
+  "enabled": true,
+  "default_provider": "auto",
+  "default_country_prefix": "+52",
+  "tardis_pocket": {
+    "enabled": true,
+    "priority": 1,
+    "serial": "ZY222ZXWPP",
+    "host": "127.0.0.1",
+    "port": 8080,
+    "fallback_lan_ip": "REDACTED_IP",
+    "use_adb_fallback": true
+  },
+  "twilio": {
+    "account_sid": "",
+    "auth_token": "",
+    "from_number": ""
+  },
+  "textbelt": {
+    "api_key": "REDACTED"
+  },
+  "android_gateway": {
+    "url": "http://127.0.0.1:8080/api/local/sms/send",
+    "token": ""
+  },
+  "custom_webhook": {
+    "url": "",
+    "auth_header": "",
+    "auth_token": "",
+    "payload_template": "json"
+  },
+  "email_gateway": {
+    "enabled": false,
+    "smtp_host": "smtp.gmail.com",
+    "smtp_port": 587,
+    "smtp_user": "",
+    "smtp_pass": "",
+    "carrier": "telcel"
+  },
+  "modem": {
+    "enabled": true,
+    "device": "",
+    "mmcli_modem_index": 0
+  },
+  "allowed_numbers": [],
+  "rate_limit_per_hour": 30
+}

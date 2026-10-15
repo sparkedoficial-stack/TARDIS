@@ -4,17 +4,17 @@ Bóvedas criptográficas locales, centinelas de ciberdefensa, puentes de kernel 
 
 ## Subsistemas y Componentes Principales:
 
-- **cyberdefense_sentinel.py**: Centinela de seguridad, blindaje perimetral o bóveda segura.
+- **cyberdefense_sentinel.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
 - **deep_memory_vault.py**: Centinela de seguridad, blindaje perimetral o bóveda segura.
 - **device_vault.py**: Centinela de seguridad, blindaje perimetral o bóveda segura.
 - **ip_vault.py**: Centinela de seguridad, blindaje perimetral o bóveda segura.
 - **network_shield.py**: Centinela de seguridad, blindaje perimetral o bóveda segura.
-- **offline_chat_vault.html**: Interfaz interactiva de monitoreo en tiempo real.
 - **offline_chat_vault.py**: Centinela de seguridad, blindaje perimetral o bóveda segura.
 - **protected_users_vault.py**: Centinela de seguridad, blindaje perimetral o bóveda segura.
 - **security.py**: Componente de alta eficiencia.
+- **shield_config.json**: Centinela de seguridad, blindaje perimetral o bóveda segura.
 - **shield_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
-- **tardis_error_sentinel.py**: Centinela de seguridad, blindaje perimetral o bóveda segura.
+- **tardis_error_sentinel.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
 - **test_deep_memory_vault.py**: Centinela de seguridad, blindaje perimetral o bóveda segura.
 - **test_device_vault.py**: Centinela de seguridad, blindaje perimetral o bóveda segura.
 - **test_network_shield.py**: Centinela de seguridad, blindaje perimetral o bóveda segura.

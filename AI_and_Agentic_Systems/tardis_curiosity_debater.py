@@ -64,7 +64,7 @@ def main():
         "--chat-id",
         type=str,
         default=None,
-        help="Chat ID de Telegram de destino (por defecto: -1002696477485)."
+        help="Chat ID de Telegram de destino (por defecto: -REDACTED_PHONE)."
     )
     parser.add_argument(
         "--thread-id",

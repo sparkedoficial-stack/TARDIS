@@ -67,7 +67,7 @@ H3_CACHE_DIR = BASE_DIR / "data" / "h3_cache"
 H3_CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
 # Constantes Fundamentales y Sintrópicas
-PHI = (1.0 + math.sqrt(5.0)) / 2.0  # 1.61803398875 (Proporción Áurea)
+PHI = (1.0 + math.sqrt(5.0)) / 2.0  # 1.REDACTED_PHONE (Proporción Áurea)
 FREQ_COSMIC_A = 432.0               # La Cósmico Sintrópico (Hz)
 FREQ_LIFE_REPAIR = 528.0            # Frecuencia de Transformación (Hz)
 SCHUMANN_RESONANCE = 7.83           # Resonancia Schumann Fundamental (Hz)

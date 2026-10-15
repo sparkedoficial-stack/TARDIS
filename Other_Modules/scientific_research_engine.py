@@ -40,7 +40,7 @@ logger = logging.getLogger("TARDIS.ScientificResearch")
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 AGENDA_FILE = BASE_DIR / "scientific_learning_agenda.json"
-DEFAULT_UA = "TARDIS-ScientificResearch/2.0 (Linux x86_64; mailto:tardis@godworks.local)"
+DEFAULT_UA = "TARDIS-ScientificResearch/2.0 (Linux x86_64; mailto:REDACTED_EMAIL)"
 
 
 @dataclass

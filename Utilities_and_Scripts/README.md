@@ -6,12 +6,17 @@ Automatizaciones de sistema, diagnósticos de hardware, optimizadores de SO y he
 
 - **auto_update_tardis.sh**: Componente de alta eficiencia.
 - **benchmark_system.py**: Componente de alta eficiencia.
+- **build_imac_os_usb.sh**: Componente de alta eficiencia.
 - **build_tardis_linux.sh**: Componente de alta eficiencia.
+- **clean_install_android17_imac.sh**: Componente de alta eficiencia.
 - **cleanup_models.py**: Componente de alta eficiencia.
 - **colab_test_subsyst_m_dulo_de_telemetr.py**: Componente de alta eficiencia.
+- **deploy_android_imac.sh**: Componente de alta eficiencia.
 - **fetch_benchmarks.py**: Componente de alta eficiencia.
 - **generate_pdf.py**: Componente de alta eficiencia.
+- **imac_remote.sh**: Componente de alta eficiencia.
 - **ingest_omni_tools_knowledge.py**: Directorio y puente soberano de interoperabilidad omni-herramientas.
+- **install_android_imac.sh**: Componente de alta eficiencia.
 - **install_context_matrix.py**: Componente de alta eficiencia.
 - **lanzar_jev_monitor.sh**: Componente de alta eficiencia.
 - **launch_direct_gia.sh**: Componente de alta eficiencia.
@@ -25,6 +30,7 @@ Automatizaciones de sistema, diagnósticos de hardware, optimizadores de SO y he
 - **patch_agent.py**: Modelo lógico y comportamiento autónomo distribuido.
 - **patch_telemetry.py**: Componente de alta eficiencia.
 - **run_comprehensive_benchmark.py**: Componente de alta eficiencia.
+- **setup_imac_chroot.sh**: Componente de alta eficiencia.
 - **setup_termux_boot.sh**: Componente de alta eficiencia.
 - **setup_ubuntu.sh**: Componente de alta eficiencia.
 - **sovereign_antarctic_network.sh**: Componente de alta eficiencia.

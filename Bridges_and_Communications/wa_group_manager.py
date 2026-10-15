@@ -789,7 +789,7 @@ class GroupManager:
     def _cmd_agregar(self, msg, args, snap, is_manager):
         nums = [d for d in (digits(t) for t in re.split(r"[\s,;]+", args)) if len(d) >= 8]
         if not nums:
-            return "Uso: /agregar <número con lada de país> [...]  (ej. /agregar 5215512345678)"
+            return "Uso: /agregar <número con lada de país> [...]  (ej. /agregar REDACTED_PHONE)"
         results = self.wa.update_participants(msg.chat, [f"{n}@s.whatsapp.net" for n in nums], "add")
         lines = []
         for jid, code in results:

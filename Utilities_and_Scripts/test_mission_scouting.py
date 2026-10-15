@@ -97,8 +97,8 @@ def test_generate_and_dispatch_proposal():
         "mission_title": engine.missions[0]["title"],
         "status": "SCOUTED",
         "proposal_text": None,
-        "created_ts": 1789200000.0,
-        "last_updated": 1789200000.0
+        "created_ts": REDACTED_PHONE.0,
+        "last_updated": REDACTED_PHONE.0
     })
 
     # Generar propuesta
@@ -161,18 +161,18 @@ def test_contact_extraction():
     engine = get_mission_scouting_engine()
     sample_text = """
     Dra. Clara Valenzuela - Investigadora en Computación Cuántica
-    Contacto: clara.valenzuela@quantum-lab.org o cvalenzuela_unam@gmail.com
-    Teléfono: +52 999 123 4567, WhatsApp: https://wa.me/529997654321
+    Contacto: REDACTED_EMAIL o REDACTED_EMAIL
+    Teléfono: +REDACTED_PHONE, WhatsApp: https://wa.me/REDACTED_PHONE
     Telegram: @clara_quantum, https://t.me/clara_lab
     GitHub: https://github.com/clara-valenzuela
-    Descartar falsos positivos: asset@2x.png, schema@example.com
+    Descartar falsos positivos: REDACTED_EMAIL, REDACTED_EMAIL
     """
     contacts = engine.extract_contact_info(sample_text, target_name="Dra. Clara Valenzuela")
-    assert "clara.valenzuela@quantum-lab.org" in contacts["emails"]
-    assert "cvalenzuela_unam@gmail.com" in contacts["emails"]
+    assert "REDACTED_EMAIL" in contacts["emails"]
+    assert "REDACTED_EMAIL" in contacts["emails"]
     assert not any("example.com" in e or e.endswith(".png") for e in contacts["emails"])
 
-    assert any("529991234567" in p or "529997654321" in p for p in contacts["phones"])
+    assert any("REDACTED_PHONE" in p or "REDACTED_PHONE" in p for p in contacts["phones"])
     assert "@clara_quantum" in contacts["telegram_handles"]
     assert contacts["social_links"].get("github") == "https://github.com/clara-valenzuela"
 
@@ -200,7 +200,7 @@ def test_api_contact_enrichment_and_invitations():
         "id": test_pid,
         "name": "Dr. Claude Shannon",
         "headline": "Teoría de la Información Cuántica",
-        "bio": "Email: shannon.lab@bell-labs.org Phone: +1 617 253 1000 Telegram: @shannon_info",
+        "bio": "Email: REDACTED_EMAIL Phone: +REDACTED_PHONE Telegram: @shannon_info",
         "url": "https://bell-labs.org/shannon",
         "channel": "web",
         "handle": "shannon_bell",
@@ -208,8 +208,8 @@ def test_api_contact_enrichment_and_invitations():
         "mission_id": engine.missions[0]["id"],
         "mission_title": engine.missions[0]["title"],
         "status": "SCOUTED",
-        "created_ts": 1789200000.0,
-        "last_updated": 1789200000.0
+        "created_ts": REDACTED_PHONE.0,
+        "last_updated": REDACTED_PHONE.0
     })
 
     # Test POST /api/missions/enrich_contacts
@@ -218,7 +218,7 @@ def test_api_contact_enrichment_and_invitations():
     d_enrich = r_enrich.json()
     assert d_enrich["ok"] is True
     assert "emails" in d_enrich
-    assert "shannon.lab@bell-labs.org" in d_enrich["emails"]
+    assert "REDACTED_EMAIL" in d_enrich["emails"]
 
     # Test POST /api/missions/create_invite
     r_inv = client.post("/api/missions/create_invite", headers=AUTH_HEADERS, json={

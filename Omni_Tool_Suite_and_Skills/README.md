@@ -10,6 +10,7 @@ Toolchains soberanos (Xcode para Linux, Phone Harness, REA), registro omni-herra
 - **ftl_omni_registry.py**: Directorio y puente soberano de interoperabilidad omni-herramientas.
 - **ftl_phone_harness.py**: Harness de control bidireccional Android/iOS/iPadOS y Cloud Phones.
 - **ftl_rea.py**: Motor de ingeniería inversa multi-arquitectura y descompilación.
+- **ftl_tardis4ever.py**: Agente soberano de sincronización continua 24h y publicación inmediata de hitos.
 - **ftl_xcode_linux.py**: Toolchain soberano de compilación, análisis Mach-O y despliegue iOS para Linux.
 - **ingest_omni_tools_knowledge.py**: Directorio y puente soberano de interoperabilidad omni-herramientas.
 - **skills/godworks-system-suite/SKILL.md**: Especificación agéntica de capacidades soberanas para agentes autónomos.
@@ -29,8 +30,9 @@ Toolchains soberanos (Xcode para Linux, Phone Harness, REA), registro omni-herra
 - **skills/reverse-engineer-anything/references/javascript-applications.md**: Especificación agéntica de capacidades soberanas para agentes autónomos.
 - **skills/reverse-engineer-anything/references/native-and-artifacts.md**: Especificación agéntica de capacidades soberanas para agentes autónomos.
 - **skills/reverse-engineer-anything/references/runtime-observation.md**: Especificación agéntica de capacidades soberanas para agentes autónomos.
-- **skills/tardis4ever/SKILL.md**: Especificación agéntica de capacidades soberanas para agentes autónomos.
+- **skills/tardis4ever/SKILL.md**: Agente soberano de sincronización continua 24h y publicación inmediata de hitos.
 - **skills/xcode-for-linux/SKILL.md**: Toolchain soberano de compilación, análisis Mach-O y despliegue iOS para Linux.
+- **tardis4ever_agent.py**: Agente soberano de sincronización continua 24h y publicación inmediata de hitos.
 - **tardis_omni_tool_bridge.py**: Directorio y puente soberano de interoperabilidad omni-herramientas.
 - **xcode_linux_toolchain/bin/codesign**: Toolchain soberano de compilación, análisis Mach-O y despliegue iOS para Linux.
 - **xcode_linux_toolchain/bin/lipo**: Toolchain soberano de compilación, análisis Mach-O y despliegue iOS para Linux.

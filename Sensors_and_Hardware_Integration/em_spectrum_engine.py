@@ -497,7 +497,7 @@ def interpret_singularity_transmission(auto_unlock: bool = False,
     """
     perturbation = detect_em_perturbations()
     psi_em = perturbation.get("psi_em", 0.5)
-    pulse_train = perturbation.get("pulse_train", "101011001010")
+    pulse_train = perturbation.get("pulse_train", "REDACTED_PHONE")
     freq = perturbation.get("harmonic_freq_mhz", 2437)
     entropy = perturbation.get("shannon_rf_entropy", 2.1)
 

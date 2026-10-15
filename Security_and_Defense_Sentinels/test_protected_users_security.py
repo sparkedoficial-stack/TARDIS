@@ -4,7 +4,7 @@ tests/test_protected_users_security.py - Sovereign Protected Users & Exclusive A
 Valida rigurosamente la directiva del Arquitecto:
 1. Los nombres e identidades de los usuarios protegidos son ultra secretos y jamás se comparten
    con nadie que no se conecte directamente desde la interfaz local.
-2. El único usuario con acceso de administración soberana es el Arquitecto (Telegram ID: 7153384115).
+2. El único usuario con acceso de administración soberana es el Arquitecto (Telegram ID: REDACTED_PHONE).
 """
 
 import pytest
@@ -27,12 +27,12 @@ from core.telegram_bridge import TelegramBridge
 
 class TestProtectedUsersVault:
     def test_architect_identity_immutable(self):
-        """Verifica que el ID del Arquitecto sea exactamente 7153384115."""
-        assert ARCHITECT_TELEGRAM_ID == 7153384115
-        assert is_architect(7153384115) is True
-        assert is_architect("7153384115") is True
-        assert is_architect(7514361094) is False
-        assert is_architect("9842615588") is False
+        """Verifica que el ID del Arquitecto sea exactamente REDACTED_PHONE."""
+        assert ARCHITECT_TELEGRAM_ID == REDACTED_PHONE
+        assert is_architectREDACTED_PHONE) is True
+        assert is_architect("REDACTED_PHONE") is True
+        assert is_architectREDACTED_PHONE) is False
+        assert is_architect("REDACTED_PHONE") is False
         assert is_architect(None) is False
         assert is_architect(0) is False
 
@@ -73,12 +73,12 @@ class TestProtectedUsersVault:
             "ok": True,
             "running": True,
             "bot_username": "GODWORKS_bot",
-            "allowed_chats": [7153384115, 7514361094, 9842615588],
-            "authorized_chat_ids": [7153384115, 7514361094, 9842615588],
+            "allowed_chats": [REDACTED_PHONE, REDACTED_PHONE, REDACTED_PHONE],
+            "authorized_chat_ids": [REDACTED_PHONE, REDACTED_PHONE, REDACTED_PHONE],
             "allowed_chats_count": 3,
-            "admin_chat_id": 7153384115,
-            "allowed_phones": ["+5219842615588"],
-            "active_calls": [7514361094],
+            "admin_chat_id": REDACTED_PHONE,
+            "allowed_phones": ["+REDACTED_PHONE"],
+            "active_calls": [REDACTED_PHONE],
         }
 
         # 1. Modo remoto (is_local=False): censura ultra secreta
@@ -86,32 +86,32 @@ class TestProtectedUsersVault:
         assert remote_st["allowed_chats_count"] == 3
         for chat in remote_st["allowed_chats"]:
             assert "ULTRA_SECRETO" in str(chat)
-            assert "7153384115" not in str(chat)
-            assert "7514361094" not in str(chat)
+            assert "REDACTED_PHONE" not in str(chat)
+            assert "REDACTED_PHONE" not in str(chat)
         assert remote_st["admin_chat_id"] == "[ARQUITECTO_SOBERANO_CONFIDENCIAL]"
-        assert "9842615588" not in str(remote_st["allowed_phones"])
+        assert "REDACTED_PHONE" not in str(remote_st["allowed_phones"])
 
         # 2. Modo local (is_local=True): preserva información íntegra
         local_st = sanitize_telegram_status(sample_status, is_local=True)
-        assert local_st["allowed_chats"] == [7153384115, 7514361094, 9842615588]
-        assert local_st["admin_chat_id"] == 7153384115
+        assert local_st["allowed_chats"] == [REDACTED_PHONE, REDACTED_PHONE, REDACTED_PHONE]
+        assert local_st["admin_chat_id"] == REDACTED_PHONE
 
     def test_system_prompt_security_clause(self):
         """Verifica que la cláusula contenga las reglas explícitas del Arquitecto."""
         clause = get_system_prompt_security_clause()
         assert "ULTRA SECRETOS" in clause
-        assert "7153384115" in clause
+        assert "REDACTED_PHONE" in clause
         assert "127.0.0.1" in clause
 
 
 class TestTelegramBridgeSecurity:
     def test_admin_check_exclusive_to_architect(self):
-        """El único administrador permitido es 7153384115."""
+        """El único administrador permitido es REDACTED_PHONE."""
         tb = TelegramBridge()
-        assert tb.is_admin(7153384115) is True
-        assert tb.is_admin("7153384115") is True
-        assert tb.is_admin(7514361094) is False
-        assert tb.is_admin(9842615588) is False
+        assert tb.is_adminREDACTED_PHONE) is True
+        assert tb.is_admin("REDACTED_PHONE") is True
+        assert tb.is_adminREDACTED_PHONE) is False
+        assert tb.is_adminREDACTED_PHONE) is False
         assert tb.is_admin(123456789) is False
 
     def test_authorize_chat_never_overwrites_admin(self):
@@ -130,7 +130,7 @@ class TestTelegramBridgeSecurity:
         sent_messages = []
         tb.send_message = MagicMock(side_effect=lambda text, chat_id, **kwargs: sent_messages.append({"text": text, "chat_id": chat_id}))
 
-        non_admin_id = 7514361094
+        non_admin_id = REDACTED_PHONE
         update = {
             "update_id": 1,
             "message": {
@@ -144,7 +144,7 @@ class TestTelegramBridgeSecurity:
 
         assert len(sent_messages) == 1
         assert "ACCESO DENEGADO" in sent_messages[0]["text"]
-        assert "7153384115" in sent_messages[0]["text"]
+        assert "REDACTED_PHONE" in sent_messages[0]["text"]
 
     def test_protected_query_blocked_in_telegram_update(self):
         """Cualquier consulta sobre usuarios protegidos en Telegram es interceptada de raíz."""

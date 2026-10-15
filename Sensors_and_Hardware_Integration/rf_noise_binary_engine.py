@@ -311,7 +311,7 @@ def sample_analog_noise_vector(sample_count: int = 128, duration_sec: float = 1.
     if duration_sec > 0:
         target_delta = duration_sec / max(1, sample_count)
         for i in range(sample_count):
-            _ = math.sin(i * 1.6180339887) * math.cos(t_prev % 9973)
+            _ = math.sin(i * REDACTED_PHONE) * math.cos(t_prev % 9973)
             t_curr = time.perf_counter_ns()
             delta_ns = t_curr - t_prev
             t_prev = t_curr
@@ -326,7 +326,7 @@ def sample_analog_noise_vector(sample_count: int = 128, duration_sec: float = 1.
             time.sleep(rem_total)
     else:
         for i in range(sample_count):
-            _ = math.sin(i * 1.6180339887) * math.cos(t_prev % 9973)
+            _ = math.sin(i * REDACTED_PHONE) * math.cos(t_prev % 9973)
             t_curr = time.perf_counter_ns()
             delta_ns = t_curr - t_prev
             t_prev = t_curr

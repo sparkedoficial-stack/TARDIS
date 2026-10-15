@@ -13,6 +13,7 @@ Sistemas agénticos autónomos, enjambres cognitivos MoE, autorreflexión y evol
 - **causal_prompt_graph.py**: Componente de alta eficiencia.
 - **colibri_bridge.py**: Componente de alta eficiencia.
 - **colibri_optimizer.py**: Componente de alta eficiencia.
+- **colibri_profile.json**: Componente de alta eficiencia.
 - **daily_context_rotator.py**: Componente de alta eficiencia.
 - **deep_search.py**: Componente de alta eficiencia.
 - **emotional_presence_agent.py**: Modelo lógico y comportamiento autónomo distribuido.
@@ -29,6 +30,7 @@ Sistemas agénticos autónomos, enjambres cognitivos MoE, autorreflexión y evol
 - **self_improve.py**: Componente de alta eficiencia.
 - **self_modify.py**: Componente de alta eficiencia.
 - **sovereign_neural_engine.py**: Componente de alta eficiencia.
+- **tardis_agent_colony.json**: Modelo lógico y comportamiento autónomo distribuido.
 - **tardis_agent_colony.py**: Modelo lógico y comportamiento autónomo distribuido.
 - **tardis_autoprogrammer.py**: Componente de alta eficiencia.
 - **tardis_curiosity_debater.py**: Componente de alta eficiencia.
@@ -37,6 +39,7 @@ Sistemas agénticos autónomos, enjambres cognitivos MoE, autorreflexión y evol
 - **tardis_infinite_code.py**: Componente de alta eficiencia.
 - **tardis_scientific_researcher.py**: Componente de alta eficiencia.
 - **temporal_brain.py**: Componente de alta eficiencia.
+- **temporal_brain_config.json**: Componente de alta eficiencia.
 - **test_agent_harness.py**: Modelo lógico y comportamiento autónomo distribuido.
 - **test_ai_improvement_sandbox.py**: Componente de alta eficiencia.
 - **test_background_thought_engine.py**: Componente de alta eficiencia.

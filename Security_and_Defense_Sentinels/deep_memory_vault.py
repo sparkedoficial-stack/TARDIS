@@ -59,7 +59,7 @@ class DeepMemoryVault:
             pass
 
         cache_kb = -131072 if total_ram_gb >= 30.0 else -64000      # 128 MB caché en RAM para 32 GB
-        mmap_bytes = 4294967296 if total_ram_gb >= 30.0 else 2147483648  # 4 GB zero-copy MMAP para 32 GB
+        mmap_bytes = REDACTED_PHONE if total_ram_gb >= 30.0 else REDACTED_PHONE  # 4 GB zero-copy MMAP para 32 GB
 
         con.execute(f"PRAGMA cache_size={cache_kb}")
         con.execute("PRAGMA temp_store=MEMORY")

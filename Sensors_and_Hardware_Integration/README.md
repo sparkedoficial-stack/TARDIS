@@ -23,6 +23,7 @@ Telemetría ambiental, radares de presencia RF, análisis espectral EM y vigilan
 - **tardis_pocket_sdr.py**: Componente de alta eficiencia.
 - **tardis_pocket_tunnel_bridge.py**: Componente de alta eficiencia.
 - **tardis_radar_daemon.py**: Sistema de telemetría y percepción del entorno físico/RF.
+- **tardis_radar_log.txt**: Sistema de telemetría y percepción del entorno físico/RF.
 - **tardis_sdr_radar_dashboard.html**: Sistema de telemetría y percepción del entorno físico/RF.
 - **tardis_sdr_radar_module.py**: Sistema de telemetría y percepción del entorno físico/RF.
 - **terminal_camera_hub.py**: Componente de alta eficiencia.

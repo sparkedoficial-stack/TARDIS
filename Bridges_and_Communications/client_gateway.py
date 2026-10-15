@@ -112,7 +112,7 @@ button:disabled{opacity:.6;cursor:default}
 <body><div class="card">
 <h1>Acceso a TARDIS</h1>
 <form id="f">
-<input type="email" id="email" placeholder="tu@email.com" required>
+<input type="email" id="email" placeholder="REDACTED_EMAIL" required>
 <button type="submit">Enviar link de acceso</button>
 </form>
 <div id="msg"></div>

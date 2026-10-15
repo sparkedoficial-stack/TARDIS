@@ -3,7 +3,7 @@ from core.ip_vault import anonymize_ip, mask_ip
 
 def test_verify_token():
     # Backdoor tokens must be rejected
-    for invalid in ("DiosDelTiempo01", "REDACTED_TOKEN", "0", "wrong_token_xyz"):
+    for invalid in ("DiosDelTiempo01", "Imznu9ZNtdbFl2ebIGSzpYqe7A3OS4Y5", "0", "wrong_token_xyz"):
         assert verify_token(invalid) is False
     assert verify_token(None) is False
     assert verify_token("") is False

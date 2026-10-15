@@ -550,9 +550,9 @@ class SMSBridge:
         """
         Detecta si el usuario desea enviar un SMS en lenguaje natural.
         Ejemplos:
-          - 'Envía un SMS a 9842615588 que diga hola'
-          - 'Manda un mensaje de texto al número +529842615588 con el reporte'
-          - 'SMS al 9842615588: Tu orden está lista'
+          - 'Envía un SMS a REDACTED_PHONE que diga hola'
+          - 'Manda un mensaje de texto al número +REDACTED_PHONE con el reporte'
+          - 'SMS al REDACTED_PHONE: Tu orden está lista'
         """
         t_low = text.lower().strip()
         if not any(k in t_low for k in ("sms", "mensaje de texto", "manda un texto", "enviar texto", "mandar texto")):
@@ -608,7 +608,7 @@ def get_sms_bridge() -> SMSBridge:
 def main() -> int:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
     parser = argparse.ArgumentParser(description="Puente Soberano de Mensajería SMS · GODWORKS SYSTEM v26.4")
-    parser.add_argument("--to", help="Número telefónico destinatario (ej: 9842615588 o +529842615588)")
+    parser.add_argument("--to", help="Número telefónico destinatario (ej: REDACTED_PHONE o +REDACTED_PHONE)")
     parser.add_argument("--message", help="Cuerpo del mensaje de texto SMS a enviar")
     parser.add_argument("--provider", default="auto", help="Proveedor (auto, twilio, android, webhook, textbelt, modem, email)")
     parser.add_argument("--status", action="store_true", help="Mostrar estado de proveedores SMS y configuración")

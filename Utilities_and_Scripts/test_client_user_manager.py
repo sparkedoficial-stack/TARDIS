@@ -37,7 +37,7 @@ def test_telegram_config_security_rules(tmp_path):
     initial_data = {
         "allowed_chats": [ARCHITECT_TELEGRAM_ID, 12345678],
         "admin_chat_id": ARCHITECT_TELEGRAM_ID,
-        "allowed_phones": ["+529841112233"]
+        "allowed_phones": ["+REDACTED_PHONE"]
     }
     cfg_file.write_text(json.dumps(initial_data), encoding="utf-8")
 

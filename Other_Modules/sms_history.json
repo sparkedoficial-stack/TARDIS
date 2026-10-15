@@ -1,0 +1,144 @@
+[
+  {
+    "timestamp": REDACTED_PHONE.4181018,
+    "timestamp_iso": "2026-09-17T14:09:24.418106",
+    "to": "+REDACTED_PHONE",
+    "message_preview": "Mensaje de prueba soberana desde GODWORKS SYSTEM",
+    "characters": 48,
+    "provider": "textbelt",
+    "providers_tried": [
+      "textbelt",
+      "modem"
+    ],
+    "success": false,
+    "status_message": "Sorry, free SMS are disabled for this country due to abuse.",
+    "details": {
+      "success": false,
+      "provider": "textbelt",
+      "error": "Sorry, free SMS are disabled for this country due to abuse.",
+      "raw": {
+        "success": false,
+        "error": "Sorry, free SMS are disabled for this country due to abuse."
+      }
+    }
+  },
+  {
+    "timestamp": REDACTED_PHONE.142602,
+    "timestamp_iso": "2026-09-17T14:09:33.142606",
+    "to": "+REDACTED_PHONE",
+    "message_preview": "Código de acceso confirmado",
+    "characters": 27,
+    "provider": "textbelt",
+    "providers_tried": [
+      "textbelt",
+      "modem"
+    ],
+    "success": false,
+    "status_message": "Sorry, free SMS are disabled for this country due to abuse.",
+    "details": {
+      "success": false,
+      "provider": "textbelt",
+      "error": "Sorry, free SMS are disabled for this country due to abuse.",
+      "raw": {
+        "success": false,
+        "error": "Sorry, free SMS are disabled for this country due to abuse."
+      }
+    }
+  },
+  {
+    "timestamp": REDACTED_PHONE.7484064,
+    "timestamp_iso": "2026-09-29T16:36:31.748412",
+    "to": "+REDACTED_PHONE",
+    "message_preview": "Test SMS via SMSBridge through TARDIS Pocket",
+    "characters": 44,
+    "provider": "tardis_pocket",
+    "providers_tried": [
+      "tardis_pocket"
+    ],
+    "success": true,
+    "status_message": "Enviado con éxito",
+    "details": {
+      "success": true,
+      "provider": "tardis_pocket",
+      "transport": "HTTP_REST",
+      "raw": {
+        "ok": true,
+        "provider": "tardis_pocket",
+        "transport": "HTTP_REST",
+        "to": "+REDACTED_PHONE",
+        "message": "Test SMS via SMSBridge through TARDIS Pocket",
+        "raw": {
+          "ok": true,
+          "action": "send_sms",
+          "dest": "+REDACTED_PHONE",
+          "parts": 1,
+          "subId": -1
+        }
+      }
+    }
+  },
+  {
+    "timestamp": REDACTED_PHONE.43214,
+    "timestamp_iso": "2026-09-29T16:44:24.432146",
+    "to": "+REDACTED_PHONE",
+    "message_preview": "Prueba desde terminal TARDIS CLI",
+    "characters": 32,
+    "provider": "tardis_pocket",
+    "providers_tried": [
+      "tardis_pocket"
+    ],
+    "success": true,
+    "status_message": "Enviado con éxito",
+    "details": {
+      "success": true,
+      "provider": "tardis_pocket",
+      "transport": "HTTP_REST",
+      "raw": {
+        "ok": true,
+        "provider": "tardis_pocket",
+        "transport": "HTTP_REST",
+        "to": "+REDACTED_PHONE",
+        "message": "Prueba desde terminal TARDIS CLI",
+        "raw": {
+          "ok": true,
+          "action": "send_sms",
+          "dest": "+REDACTED_PHONE",
+          "parts": 1,
+          "subId": -1
+        }
+      }
+    }
+  },
+  {
+    "timestamp": REDACTED_PHONE.4648135,
+    "timestamp_iso": "2026-09-29T16:45:39.464820",
+    "to": "+REDACTED_PHONE",
+    "message_preview": "Saludos Arquitecto enlace activo",
+    "characters": 32,
+    "provider": "tardis_pocket",
+    "providers_tried": [
+      "tardis_pocket"
+    ],
+    "success": true,
+    "status_message": "Enviado con éxito",
+    "details": {
+      "success": true,
+      "provider": "tardis_pocket",
+      "transport": "HTTP_REST",
+      "raw": {
+        "ok": true,
+        "provider": "tardis_pocket",
+        "transport": "HTTP_REST",
+        "to": "+REDACTED_PHONE",
+        "message": "Saludos Arquitecto enlace activo",
+        "raw": {
+          "ok": true,
+          "action": "send_sms",
+          "dest": "+REDACTED_PHONE",
+          "parts": 1,
+          "subId": -1
+        }
+      }
+    }
+  }
+]

@@ -110,7 +110,7 @@ class TestTelegramBridgeRecurringVoice(unittest.TestCase):
         self.tmp_dir = tempfile.TemporaryDirectory()
         self.config_path = Path(self.tmp_dir.name) / "test_tg_config.json"
         self.bridge = TelegramBridge(config_path=self.config_path)
-        self.chat_id = 7153384115  # Architect ID
+        self.chat_id = REDACTED_PHONE  # Architect ID
         self.bridge.config["allowed_chats"] = [self.chat_id]
         self.bridge.config["admin_chat_id"] = self.chat_id
         self.bridge.authorized_chat_ids.add(self.chat_id)

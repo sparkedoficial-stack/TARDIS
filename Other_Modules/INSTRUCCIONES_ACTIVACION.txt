@@ -1,0 +1,49 @@
+==============================================================================
+   TARDIS POCKET · SISTEMA OPERATIVO Y TERMINAL SOBERANA (MOTO X PLAY)
+==============================================================================
+AUTONOMÍA 100% · CERO DEPENDENCIAS DE URLS MANUALES · OPERACIÓN CONTINUA 24/7
+
+Este dispositivo cuenta con autorización criptográfica irrevocable por hardware:
+- Dispositivo : Motorola Moto X Play (lux)
+- Serial      : ZY222ZXWPP
+- Arquitectura: Qualcomm Snapdragon 615 / 2GB RAM
+- Modo        : NODO SOBERANO AUTÓNOMO MESH (ZERO-URL)
+
+------------------------------------------------------------------------------
+CÓMO FUNCIONA LA MEJORA DEL SISTEMA OPERATIVO (CERO URLS):
+------------------------------------------------------------------------------
+Anteriormente, para usar TARDIS POCKET era necesario abrir un navegador Chrome
+e ingresar una URL de Cloudflare o LAN. Si el túnel cambiaba o se reiniciaba,
+el enlace moría y la telemetría dejaba de fluir.
+
+CON LA NUEVA ACTUALIZACIÓN SOBERANA (v2.0):
+1. El dispositivo ejecuta su propio DEMONIO SOBERANO LOCAL en segundo plano:
+   - Servidor HTTP local embebido en 127.0.0.1:8080.
+   - Sonda continua de hardware (batería real, GPS físico, conexión de red).
+   - Bucle centinela que transmite telemetría automáticamente cada 20 segundos
+     sin requerir abrir ninguna ventana ni navegador.
+   - Escucha y ejecución de comandos remotos en tiempo real (Voz por altavoz
+     con termux-tts-speak, pulsos hápticos con vibrador, comandos bash).
+
+2. ENRUTAMIENTO OMNI-RUTA AUTOMÁTICO (Cascada de conexión):
+   - Prioridad 1: Hotspot Soberano Directo TimeMachine (REDACTED_IP:8757).
+     Si el teléfono está conectado al Wi-Fi TimeMachine, se conecta directo
+     con latencia mínima y sin tocar internet.
+   - Prioridad 2: Red Local LAN (REDACTED_IP:8757).
+   - Prioridad 3: Túnel Dinámico Auto-Descubierto (obtenido automáticamente
+     del nodo central, sin enlaces estáticos caducados).
+   - Prioridad 4: Modo Offline Autónomo (la interfaz y las herramientas
+     siguen respondiendo 100% de forma local).
+
+------------------------------------------------------------------------------
+ACTIVACIÓN RÁPIDA EN EL DISPOSITIVO (UNA SOLA VEZ):
+------------------------------------------------------------------------------
+1. En el Moto X Play, copia la carpeta "mobile_terminal" a /sdcard/tardis.
+2. Abre la app Termux y ejecuta:
+   bash /sdcard/tardis/setup_termux_boot.sh
+
+¡LISTO! A partir de ese momento, cada vez que enciendas el Moto X Play:
+- Termux-Boot levantará el demonio local automáticamente.
+- El sistema empezará a transmitir telemetría y recibir comandos en segundo plano.
+- La pantalla mostrará la cabina soberana nativa en 127.0.0.1:8080 al instante.
+==============================================================================

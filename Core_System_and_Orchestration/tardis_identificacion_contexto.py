@@ -64,7 +64,7 @@ if __name__ == "__main__":
     
     # Simulación de mensajes entrantes de distintos orígenes
     msg_1 = {"id_usuario": "Arquitecto_Omega", "texto": "Iniciando secuencia."}
-    msg_2 = {"numero_telefonico": "+529841234567", "texto": "¿Cuál es el estatus?"}
+    msg_2 = {"numero_telefonico": "+REDACTED_PHONE", "texto": "¿Cuál es el estatus?"}
     msg_3 = {"texto": "Mensaje interceptado sin remitente, posible anomalía.", "metadatos": "sector_7G"}
     
     # Procesamiento

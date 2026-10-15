@@ -1,0 +1,62 @@
+{
+  "hardware": {
+    "cpu": {
+      "name": "AMD Ryzen 7 4800H with Radeon Graphics",
+      "physical_cores": 8,
+      "logical_cores": 16,
+      "architecture": "x86_64"
+    },
+    "memory": {
+      "total_gb": 22.39,
+      "available_gb": 14.06
+    },
+    "gpu": {
+      "available": true,
+      "name": "NVIDIA GeForce RTX 3050 Laptop GPU",
+      "vram_total_mb": 4096,
+      "vram_free_mb": 1510,
+      "sm_arch": "sm_86"
+    },
+    "storage": {
+      "drive": "/",
+      "free_gb": 388.8,
+      "total_gb": 467.3,
+      "is_nvme": true
+    }
+  },
+  "environment_variables": {
+    "OMP_NUM_THREADS": "8",
+    "OMP_PROC_BIND": "close",
+    "OMP_PLACES": "cores",
+    "OLLAMA_KV_CACHE_TYPE": "q4_0",
+    "COLI_NO_OMP_TUNE": "0",
+    "RAM_GB": "18.0",
+    "DIRECT": "1",
+    "PIPE": "1",
+    "PIPE_WORKERS": "12",
+    "PILOT": "1",
+    "PILOT_WORKERS": "1",
+    "AUTOPIN": "1",
+    "PIN": "auto",
+    "KVSAVE": "1",
+    "MTP": "1",
+    "SPEC_PIN": "1",
+    "COLI_TEMP": "0.3",
+    "NUCLEUS": "0.90",
+    "REP_PEN": "1.15",
+    "CTX": "4096",
+    "COLI_PREFILL_CHUNK": "256",
+    "COLI_POLICY": "balanced",
+    "COLI_CUDA": "1",
+    "COLI_CUDA_MOE_BATCH": "1"
+  },
+  "recommended_cli_flags": [
+    "--ram 18.0",
+    "--ctx 4096",
+    "--temp 0.3",
+    "--topp 0.90",
+    "--policy balanced",
+    "--gpu 0"
+  ],
+  "model_path": ""
+}

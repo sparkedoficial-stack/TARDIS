@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=TARDIS Rieles de Seguridad
+GenericName=Rieles de Seguridad KAIJU
+Comment=Consola Local Soberana para Control de Rieles de Seguridad de TARDIS-NEURAL-SPACE-KAIJU
+Exec="/home/timemachine/Escritorio/GODWORKS SYSTEM/launch_tardis_safety_rails.sh"
+Icon=/home/timemachine/Escritorio/GODWORKS SYSTEM/tardis-master-hub-icon.png
+Path=/home/timemachine/Escritorio/GODWORKS SYSTEM
+Terminal=false
+Categories=Utility;System;Security;
+StartupNotify=true
+StartupWMClass=tardis-safety-rails

@@ -28,7 +28,7 @@ class TestPIISanitization:
     def test_sanitize_bearer_token(self):
         raw = "Authorization: Bearer Imznu9ZNtdbFl2ebIGSzpYqe7A3OS4Y5"
         clean = agent_safety.sanitize_pii(raw)
-        assert "REDACTED_TOKEN" not in clean
+        assert "Imznu9ZNtdbFl2ebIGSzpYqe7A3OS4Y5" not in clean
         assert "Bearer [REDACTED_TOKEN]" in clean
 
     def test_sanitize_jwt(self):

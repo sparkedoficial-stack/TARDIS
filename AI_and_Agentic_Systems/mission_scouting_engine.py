@@ -57,7 +57,7 @@ DEFAULT_MISSIONS = [
         "status": "ACTIVE",
         "priority": "HIGH",
         "synergy_tags": ["physics", "quantum", "causality", "entropy", "syntropy", "research"],
-        "created_ts": 1789200000.0,
+        "created_ts": REDACTED_PHONE.0,
         "collaborator_count": 0
     },
     {
@@ -69,7 +69,7 @@ DEFAULT_MISSIONS = [
         "status": "ACTIVE",
         "priority": "HIGH",
         "synergy_tags": ["mesh", "networking", "p2p", "security", "linux", "hardware"],
-        "created_ts": 1789200100.0,
+        "created_ts": REDACTED_PHONE.0,
         "collaborator_count": 0
     },
     {
@@ -81,7 +81,7 @@ DEFAULT_MISSIONS = [
         "status": "ACTIVE",
         "priority": "MEDIUM",
         "synergy_tags": ["robotics", "ros", "arduino", "esp32", "vision", "control"],
-        "created_ts": 1789200200.0,
+        "created_ts": REDACTED_PHONE.0,
         "collaborator_count": 0
     },
     {
@@ -93,7 +93,7 @@ DEFAULT_MISSIONS = [
         "status": "ACTIVE",
         "priority": "HIGH",
         "synergy_tags": ["ai", "llm", "cuda", "inference", "voice", "agents"],
-        "created_ts": 1789200300.0,
+        "created_ts": REDACTED_PHONE.0,
         "collaborator_count": 0
     }
 ]
@@ -931,7 +931,7 @@ class MissionScoutingEngine:
                     from email.mime.text import MIMEText
                     from email.mime.multipart import MIMEMultipart
                     msg = MIMEMultipart()
-                    msg["From"] = os.environ.get("SMTP_FROM", "tardis@godworks.ai")
+                    msg["From"] = os.environ.get("SMTP_FROM", "REDACTED_EMAIL")
                     msg["To"] = target_email
                     msg["Subject"] = f"Invitación a Colaboración Soberana: {prospect.get('mission_title', 'Misión TARDIS')}"
                     msg.attach(MIMEText(text, "plain", "utf-8"))

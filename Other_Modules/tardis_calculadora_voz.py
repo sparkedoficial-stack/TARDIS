@@ -290,7 +290,7 @@ class TardisVoiceCalculator(tk.Tk):
         self.bind("<space>", lambda e: self.toggle_voice_listening())
         
         # Mapeo de teclas numéricas y operadores
-        for char in "0123456789.+-*/()%^":
+        for char in "REDACTED_PHONE.+-*/()%^":
             self.bind(char, lambda e, c=char: self._append_char(c))
 
     def _on_btn_click(self, val):

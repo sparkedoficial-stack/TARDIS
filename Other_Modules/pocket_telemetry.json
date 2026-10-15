@@ -1,0 +1,24 @@
+{
+  "device": "TARDIS_POCKET",
+  "serial": "ZY222ZXWPP",
+  "battery": {
+    "level": 100,
+    "charging": false,
+    "temp": 25.0,
+    "health": "GOOD",
+    "source": "sysfs"
+  },
+  "gps": {
+    "lat": 20.6274,
+    "lon": -87.0799,
+    "alt": 10.0,
+    "accuracy": 15.0,
+    "source": "anchor"
+  },
+  "network": "Unknown",
+  "client_ip": "REDACTED_IP",
+  "route_mode": "LOCAL_LAN",
+  "daemon_version": "2.0-SOVEREIGN",
+  "last_seen": REDACTED_PHONE,
+  "status": "ONLINE"
+}

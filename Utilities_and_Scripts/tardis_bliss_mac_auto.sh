@@ -10,7 +10,7 @@ while true; do
       # Disable sleep, set up screen, bypass setup wizard, etc.
       adb -s $TARGET:5555 shell settings put global setup_wizard_has_run 1
       adb -s $TARGET:5555 shell settings put secure user_setup_complete 1
-      adb -s $TARGET:5555 shell settings put system screen_off_timeout 2147483647
+      adb -s $TARGET:5555 shell settings put system screen_off_timeout REDACTED_PHONE
       echo "TARDIS SOBERANO: Configuración post-instalación completada."
       break
   fi

@@ -1553,7 +1553,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
         is_tunnel_alive = False
         try:
             res_cf = subprocess.run(["pgrep", "-f", "cloudflared tunnel"], capture_output=True, text=True)
-            res_ssh = subprocess.run(["pgrep", "-f", "nokey@localhost.run"], capture_output=True, text=True)
+            res_ssh = subprocess.run(["pgrep", "-f", "REDACTED_EMAIL"], capture_output=True, text=True)
             is_tunnel_alive = bool(res_cf.stdout.strip() or res_ssh.stdout.strip())
         except Exception:
             pass
@@ -1679,7 +1679,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
     @app.post("/api/bridge/stop")
     async def stop_bridge_route():
         subprocess.run(["pkill", "-f", "cloudflared"], capture_output=True)
-        subprocess.run(["pkill", "-f", "nokey@localhost.run"], capture_output=True)
+        subprocess.run(["pkill", "-f", "REDACTED_EMAIL"], capture_output=True)
         subprocess.run(["pkill", "-f", "start_bridge.py"], capture_output=True)
         status_file = settings.base_dir / "bridge_status.json"
         if status_file.exists():

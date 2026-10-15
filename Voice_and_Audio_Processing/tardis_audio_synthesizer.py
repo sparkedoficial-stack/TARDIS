@@ -12,7 +12,7 @@ Funcionalidades:
    - Transforma fórmulas (LaTeX), símbolos de geometría sagrada, atractores caóticos,
      mecánica cuántica, fluidos micropolares y conceptos en paisajes acústicos ricos y armónicos.
    - Afinación canónica en La Cósmico (432 Hz), frecuencia de reparación y vida (528 Hz),
-     proporción áurea (Phi = 1.6180339887...), y resonancia Schumann (7.83 Hz).
+     proporción áurea (Phi = REDACTED_PHONE...), y resonancia Schumann (7.83 Hz).
 2. Generación Procedural Nativa:
    - Síntesis estéreo a 48,000 Hz con modulación de fase, armónicos pares/impares,
      sub-bajos profundos y paneo espacial 3D.

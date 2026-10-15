@@ -60,10 +60,10 @@ if not logger.handlers:
     logger.addHandler(h)
     logger.setLevel(logging.INFO)
 
-ARCHITECT_CHAT_ID = 7153384115
-GENERAL_GROUP_CHAT_ID = -1002696477485  # Chat General / POLIMATAS LATAM
+ARCHITECT_CHAT_ID = REDACTED_PHONE
+GENERAL_GROUP_CHAT_ID = -REDACTED_PHONE  # Chat General / POLIMATAS LATAM
 GENERAL_GROUP_THREAD_ID = 453           # Topic de debates e investigación
-SECONDARY_GROUP_CHAT_ID = -5362256148
+SECONDARY_GROUP_CHAT_ID = -REDACTED_PHONE
 
 CANONICAL_GREETING = "Un placer, soy TARDIS asistente de inteligencia artificial, mi tarea es ayudarte a explorar las maravillas de la realidad y todas las dimensiones temporales."
 
@@ -686,8 +686,8 @@ class TardisVideoThinkingEngine:
         """
         Despacha el video analizado y su reporte de abstracción a:
         1. Terminal local (stdout estructurado).
-        2. Telegram: Chat Privado del Arquitecto (7153384115).
-        3. Telegram: Chat General de TARDIS (-1002696477485, thread 453 y -5362256148).
+        2. Telegram: Chat Privado del Arquitecto (REDACTED_PHONE).
+        3. Telegram: Chat General de TARDIS (-REDACTED_PHONE, thread 453 y -REDACTED_PHONE).
         """
         results = {"terminal": True, "telegram_admin": False, "telegram_general": False}
 

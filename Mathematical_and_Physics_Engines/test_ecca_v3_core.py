@@ -70,7 +70,7 @@ class _LegacyCore:
             "pt_symmetry_state": "EXACT" if pt_exact else "BROKEN",
             "spectral_radius": spectral_radius,
             "omega_vector": omega_ent.tolist(),
-            "aegis_invariance_audit": 1.0000000000,
+            "aegis_invariance_audit": REDACTED_PHONE,
         }
 
 

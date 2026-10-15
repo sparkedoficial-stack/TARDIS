@@ -160,7 +160,7 @@ class SpacetimeGeometricAction:
         """
         S_geom = ∮_∂M (R_geom + Holonomía) * √(-g) dΩ
         """
-        base_action = (lattice_curvature * 1.57079632679) + (holonomy_flux * 0.6180339887)
+        base_action = (lattice_curvature * 1.REDACTED_PHONE) + (holonomy_flux * REDACTED_PHONE)
         # Factor normalizado en múltiplos de π
         return float(base_action % (2.0 * math.pi))
 

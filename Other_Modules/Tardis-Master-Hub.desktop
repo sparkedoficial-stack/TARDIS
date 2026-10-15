@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=TARDIS Master Hub
+GenericName=Cabina Maestra TARDIS
+Comment=GODWORKS SYSTEM - Cabina de Mando Soberana Unificada de Todos los Subsistemas
+Exec="/home/timemachine/Escritorio/GODWORKS SYSTEM/launch_tardis_master_hub.sh"
+Icon=/home/timemachine/Escritorio/GODWORKS SYSTEM/tardis-master-hub-icon.png
+Path=/home/timemachine/Escritorio/GODWORKS SYSTEM
+Terminal=false
+Categories=Utility;System;
+StartupNotify=true
+StartupWMClass=tardis-master-hub

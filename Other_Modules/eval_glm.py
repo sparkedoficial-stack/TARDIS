@@ -167,7 +167,7 @@ def main():
     threading.Thread(target=_drain_stderr, daemon=True).start()
     for line in proc.stdout:
         line = line.strip()
-        if not line or line[0] not in "-0123456789": continue
+        if not line or line[0] not in "-REDACTED_PHONE": continue
         parts = line.split()
         if n_done >= len(reqs): break
         try: logprob = float(parts[0])

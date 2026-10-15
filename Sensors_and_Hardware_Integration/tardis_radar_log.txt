@@ -1,0 +1,3 @@
+--- REPORTE DE RADAR TARDIS (2026-10-04 12:17:08) ---
+Total de dispositivos únicos detectados: 0
+

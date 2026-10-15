@@ -223,7 +223,7 @@ class WebResearchEngine:
         if not clean_q:
             clean_q = query
 
-        headers = {"User-Agent": "TardisResearchBot/2.0 (tardis@godworks.local; autonomous_research)"}
+        headers = {"User-Agent": "TardisResearchBot/2.0 (REDACTED_EMAIL; autonomous_research)"}
         for lang in ("es", "en"):
             try:
                 with httpx.Client(timeout=7.0) as client:
@@ -278,7 +278,7 @@ class WebResearchEngine:
         try:
             url = f"https://export.arxiv.org/api/query?search_query=all:{urllib.parse.quote(clean_q)}&start=0&max_results={max_results}"
             with httpx.Client(timeout=8.0, follow_redirects=True) as client:
-                r = client.get(url, headers={"User-Agent": "TardisResearchBot/2.0 (tardis@godworks.local)"})
+                r = client.get(url, headers={"User-Agent": "TardisResearchBot/2.0 (REDACTED_EMAIL)"})
                 if r.status_code == 200:
                     import xml.etree.ElementTree as ET
                     root = ET.fromstring(r.text)
@@ -586,7 +586,7 @@ class WebResearchEngine:
         try:
             fetch_headers = {
                 "User-Agent": (
-                    "TardisResearchBot/2.0 (tardis@godworks.local; autonomous_research)"
+                    "TardisResearchBot/2.0 (REDACTED_EMAIL; autonomous_research)"
                     if "wikipedia.org" in url
                     else "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/REDACTED_IP Safari/537.36"
                 ),

@@ -252,7 +252,7 @@ def get_vault_status() -> dict:
 if __name__ == "__main__":
     print("Estado de la Bóveda:", json.dumps(get_vault_status(), indent=2))
     # Prueba de sanitización
-    test_msg = f"Hola, mi usuario es {os.environ.get('USERNAME')} en C:\\Users\\{os.environ.get('USERNAME')}\\proyecto con key sk-ant-1234567890abcdef1234567890abcdef"
+    test_msg = f"Hola, mi usuario es {os.environ.get('USERNAME')} en C:\\Users\\{os.environ.get('USERNAME')}\\proyecto con key REDACTED_ANTHROPIC"
     clean, reds = sanitize_for_cloud(test_msg)
     print("\nPrueba de Sanitización:")
     print("Original:", test_msg)

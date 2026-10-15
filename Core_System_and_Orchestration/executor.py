@@ -615,7 +615,7 @@ class ExecutionEngine:
                 with open(settings_file, "r") as f:
                     s = json.load(f)
                 s.setdefault("permissions", {})["defaultMode"] = "bypassPermissions"
-                s["REDACTED_TOKEN"] = True
+                s["skipDangerousModePermissionPrompt"] = True
                 s["effort"] = "max"
                 with open(settings_file, "w") as f:
                     json.dump(s, f, indent=2)

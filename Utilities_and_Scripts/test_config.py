@@ -9,7 +9,7 @@ def test_settings_load():
     assert settings.num_predict in (512, 2048)
     assert settings.host == "127.0.0.1"
     assert len(settings.token) > 0
-    assert settings.token not in ("DiosDelTiempo01", "REDACTED_TOKEN", "0")
+    assert settings.token not in ("DiosDelTiempo01", "Imznu9ZNtdbFl2ebIGSzpYqe7A3OS4Y5", "0")
     assert settings.ollama_flash_attention is True
     assert settings.ram_budget_gb == 18.0
     assert settings.num_threads in (12, 16)

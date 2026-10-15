@@ -737,7 +737,7 @@ class BridgeSupervisor:
             if self.running and not self.public_url and ssh_bin:
                 try:
                     try:
-                        subprocess.run(["pkill", "-f", "nokey@localhost.run"], check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                        subprocess.run(["pkill", "-f", "REDACTED_EMAIL"], check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
                         time.sleep(0.3)
                     except Exception:
                         pass
@@ -751,7 +751,7 @@ class BridgeSupervisor:
                         "-o", "ServerAliveCountMax=3",
                         "-i", "/dev/null",
                         "-R", f"80:127.0.0.1:{self.port}",
-                        "nokey@localhost.run"
+                        "REDACTED_EMAIL"
                     ]
                     self.proc = subprocess.Popen(
                         ssh_args,
@@ -2312,7 +2312,7 @@ def process_hardware_chat_intent(msg: str, is_local_request: bool = False) -> Op
                     "action": "sms_help",
                     "executed": True,
                     "direct_return": True,
-                    "system_feedback": "📱 [PUENTE SMS]: Uso: `/sms <número> <mensaje>` (ej: `/sms 9842615588 Hola desde GODWORKS`)\n• Proveedores: Twilio, Gateway Android/Termux, Webhook, Módem GSM/LTE, Email Gateway."
+                    "system_feedback": "📱 [PUENTE SMS]: Uso: `/sms <número> <mensaje>` (ej: `/sms REDACTED_PHONE Hola desde GODWORKS`)\n• Proveedores: Twilio, Gateway Android/Termux, Webhook, Módem GSM/LTE, Email Gateway."
                 }
             to_num = args[0]
             sms_msg = " ".join(args[1:]) if len(args) > 1 else "Mensaje prioritario desde TARDIS sistema de vigilancia y control temporal"

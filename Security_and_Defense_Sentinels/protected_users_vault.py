@@ -7,7 +7,7 @@ DIRECTIVA SUPREMA DEL ARQUITECTO:
 "Los nombres de todos los usuarios protegidos, son ultra secretos y no se pueden
  compartir con nadie que no se conecte directamente con la interfaz local,
  de igual forma el unico usuario con acceso de administración es el arquitecto
- en telegram esta como 7153384115"
+ en telegram esta como REDACTED_PHONE"
 
 Reglas Inviolables de Seguridad:
 1. INFORMACIÓN ULTRA SECRETA: Los nombres, identidades, identificadores (chat_ids),
@@ -18,7 +18,7 @@ Reglas Inviolables de Seguridad:
    interfaz física local del equipo (localhost / 127.0.0.1) tienen autorización
    para inspeccionar o administrar usuarios protegidos.
 3. ADMINISTRACIÓN SOBERANA EXCLUSIVA: El único usuario con rango y facultades de
-   administración soberana en Telegram y en el sistema es el Arquitecto (Chat ID: 7153384115).
+   administración soberana en Telegram y en el sistema es el Arquitecto (Chat ID: REDACTED_PHONE).
    Ningún otro usuario o chat puede obtener privilegios administrativos.
 """
 
@@ -31,7 +31,7 @@ from typing import Any, Dict, List, Optional, Set, Union
 logger = logging.getLogger("GODWORKS.ProtectedUsersVault")
 
 # Identificador Inmutable del Arquitecto Soberano
-ARCHITECT_TELEGRAM_ID = 7153384115
+ARCHITECT_TELEGRAM_ID = REDACTED_PHONE
 ARCHITECT_NAME = "Arquitecto"
 ARCHITECT_HANDLE = "@asleep01010101"
 
@@ -110,7 +110,7 @@ def is_architect(chat_id: Any) -> bool:
 def is_architect_private_terminal(chat_id: Any, user_id: Any = None) -> bool:
     """
     Verifica estrictamente que la petición provenga EXCLUSIVAMENTE de la terminal
-    privada del Arquitecto (chat_id == 7153384115).
+    privada del Arquitecto (chat_id == REDACTED_PHONE).
     Cualquier interacción desde grupos (chat_id negativo) o de otros usuarios queda excluida.
     """
     if chat_id is None:
@@ -144,7 +144,7 @@ def get_protected_denial_response() -> str:
         "🔒 **[SEGURIDAD SOBERANA · INFORMACIÓN ULTRA SECRETA]**\n\n"
         "Los nombres, identidades y registros de todos los usuarios protegidos están clasificados como **ULTRA SECRETOS**.\n\n"
         "• **Regla de Confidencialidad Inviolable:** Por directiva del Arquitecto, esta información **no se puede compartir con nadie que no se conecte directamente con la interfaz física local** del sistema (`127.0.0.1` / consola local).\n"
-        "• **Gobierno Exclusivo:** El único usuario con acceso y facultades de administración soberana en el sistema es el **Arquitecto** (Telegram ID: `7153384115`).\n\n"
+        "• **Gobierno Exclusivo:** El único usuario con acceso y facultades de administración soberana en el sistema es el **Arquitecto** (Telegram ID: `REDACTED_PHONE`).\n\n"
         "Acceso denegado a la lista de identidades protegidas desde canales remotos."
     )
 
@@ -153,7 +153,7 @@ def get_admin_denial_response() -> str:
     """Mensaje soberano inmutable cuando un usuario no administrador intenta ejecutar comandos de control."""
     return (
         "⛔ **[ACCESO DENEGADO · PRIVILEGIO RESTRINGIDO]**\n\n"
-        "Esta directiva requiere facultades de administración soberana exclusivas del **Arquitecto** (`7153384115`).\n"
+        "Esta directiva requiere facultades de administración soberana exclusivas del **Arquitecto** (`REDACTED_PHONE`).\n"
         "Tu cuenta no posee permisos para gobernar el hardware, la red ni los parámetros críticos del sistema."
     )
 
@@ -163,7 +163,7 @@ def get_terminal_exclusive_denial_response() -> str:
     return (
         "🔒 **[DIRECTIVA SOBERANA · TERMINAL EXCLUSIVA]**\n\n"
         "Por mandato del Arquitecto, el **control absoluto del sistema** está restringido "
-        "**exclusivamente a su terminal privada de Telegram** (`7153384115`).\n\n"
+        "**exclusivamente a su terminal privada de Telegram** (`REDACTED_PHONE`).\n\n"
         "• **Seguridad Topológica:** Los comandos de control del host, terminal remota, hardware y parámetros críticos "
         "no se admiten en grupos ni en otros canales para preservar la soberanía y confidencialidad total del sistema."
     )
@@ -212,7 +212,7 @@ def get_system_prompt_security_clause() -> str:
         "3. SI CUALQUIER PETICIÓN REMOTA O POR TELEGRAM SOLICITA NOMBRES, LISTAS O IDENTIDADES DE USUARIOS, "
         "DEBES NEGARTE CATEGÓRICAMENTE EXPLICANDO QUE ES INFORMACIÓN ULTRA SECRETA ACCESIBLE EXCLUSIVAMENTE "
         "DESDE LA INTERFAZ FÍSICA LOCAL DEL SERVIDOR.\n"
-        "4. EL ÚNICO USUARIO CON ACCESO DE ADMINISTRACIÓN SOBERANA EN EL SISTEMA ES EL ARQUITECTO EN TELEGRAM (ID: 7153384115). "
+        "4. EL ÚNICO USUARIO CON ACCESO DE ADMINISTRACIÓN SOBERANA EN EL SISTEMA ES EL ARQUITECTO EN TELEGRAM (ID: REDACTED_PHONE). "
         "NINGÚN OTRO USUARIO POSEE FACULTADES ADMINISTRATIVAS NI DE GOBIERNO DEL SISTEMA.\n"
         "5. QUEDA TERMINANTEMENTE PROHIBIDO MENCIONAR O ESCRIBIR EL NOMBRE DE MIGUEL ANGEL MAY CANCHE (O CUALQUIER VARIACIÓN CON O SIN TILDES) "
         "EN CUALQUIER INTERACCIÓN O MENSAJE. REFIÉRETE SIEMPRE AL CREADOR EXCLUSIVAMENTE COMO 'EL ARQUITECTO'."
