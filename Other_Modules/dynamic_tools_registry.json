@@ -110,11 +110,12 @@
     "tool_id": "tardis4ever",
     "title": "Tardis4Ever Sovereign Agent",
     "domain": "ci_cd_publication",
-    "description": "Agente soberano de sincronización continua: rutina 24h, detección y publicación inmediata de hitos con blindaje total de datos personales.",
+    "description": "Agente soberano de sincronización continua: rutina de 24h automática y publicación inmediata en GitHub ante hitos importantes o llamativos con blindaje total de privacidad.",
     "actions": [
       "status",
       "check",
       "sync",
+      "daemon",
       "daemon_status"
     ],
     "status": "ACTIVE_SOVEREIGN"
