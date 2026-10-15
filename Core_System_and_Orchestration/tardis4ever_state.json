@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "created_at": "2026-10-15T02:04:29.176374",
   "last_periodic_sync": "2026-10-15T02:04:29.176374",
-  "last_immediate_sync": "2026-10-15T05:13:37.306518",
-  "last_commit_hash": "c6619d0",
-  "sync_count": 165,
-  "immediate_sync_count": 165,
+  "last_immediate_sync": "2026-10-15T05:14:43.625605",
+  "last_commit_hash": "8860b67",
+  "sync_count": 166,
+  "immediate_sync_count": 166,
   "periodic_sync_count": 0,
   "last_known_mtimes": {
     "skill:omni-control-bridge/SKILL.md": REDACTED_PHONE.4575877,
@@ -2185,6 +2185,18 @@
   },
   "history": [
     {
+      "timestamp": "2026-10-15T05:14:43.625605",
+      "trigger": "immediate_milestone",
+      "commit_hash": "8860b67",
+      "score": 60,
+      "reasons": [
+        "Actualizaci\u00f3n en proyecto price_sentinel: README.md",
+        "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
+        "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
+        "Actualizaci\u00f3n en proyecto carlinkit_kvm: index.html"
+      ]
+    },
+    {
       "timestamp": "2026-10-15T05:13:37.306518",
       "trigger": "immediate_milestone",
       "commit_hash": "c6619d0",
@@ -2769,18 +2781,6 @@
       "score": 90,
       "reasons": [
         "Evoluci\u00f3n en subsistema core TARDIS: tardis_ipad_edge_server.py",
-        "Actualizaci\u00f3n en proyecto price_sentinel: README.md",
-        "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
-        "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
-        "Actualizaci\u00f3n en proyecto carlinkit_kvm: index.html"
-      ]
-    },
-    {
-      "timestamp": "2026-10-15T04:19:13.211499",
-      "trigger": "immediate_milestone",
-      "commit_hash": "d99edfa",
-      "score": 60,
-      "reasons": [
         "Actualizaci\u00f3n en proyecto price_sentinel: README.md",
         "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
         "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
