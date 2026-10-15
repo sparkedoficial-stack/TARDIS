@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1791865535",
-    "timestamp": "2026-10-12T23:25:35.285252",
-    "idle_duration_minutes": 33.2,
-    "title": "Causal Latency Compression via Predictive Telemetry",
-    "hypothesis": "La latencia en la toma de decisiones del núcleo cognitivo no está limitada por la velocidad de cómputo, sino por la 'entropía de contexto' no resuelta. Si el motor de investigación web (web_research_engine.py) pre-carga y vectoriza patrones de respuesta basados en la telemetría histórica de deep_memory_vault.py antes de que se genere la consulta explícita, se puede reducir el tiempo de inferencia causal en un 30-40%, transformando el flujo reactivo en uno predictivo.",
-    "research_query": "predictive caching strategies for LLM inference latency reduction using historical telemetry data",
-    "research_findings": "# Informe de Investigación: predictive caching strategies for LLM inference latency reduction using historical telemetry data\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Implementar un módulo de 'Pre-fetching Causal' que analice los últimos 5 estados de telemetría en deep_memory_vault.py para anticipar el próximo tipo de consulta web y precargar los resultados relevantes en memoria caché antes de la solicitud del usuario.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 99.14
-  },
-  {
     "id": "conj_1791867432",
     "timestamp": "2026-10-12T23:57:12.578944",
     "idle_duration_minutes": 31.6,
@@ -1642,5 +1627,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 96.79
+  },
+  {
+    "id": "conj_1792071949",
+    "timestamp": "2026-10-15T08:45:49.899710",
+    "idle_duration_minutes": 32.1,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer into the WebResearchEngine's caching mechanism—where cache entries are invalidated based on detected causal dependencies between query parameters and external data change signals—will reduce stale data retrieval by at least 30% without increasing latency, improving the overall reliability of the akáshic vault's knowledge updates.",
+    "research_query": "causal cache invalidation techniques for web APIs and knowledge graphs",
+    "research_findings": "# Informe de Investigación: causal cache invalidation techniques for web APIs and knowledge graphs\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Implement a causal dependency tracker that subscribes to change events from core/deep_memory_vault.py and triggers selective cache eviction, adding async invalidation hooks and unit tests.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.86
   }
 ]
