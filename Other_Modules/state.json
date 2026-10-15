@@ -6,7 +6,7 @@
   "last_video_id": "vp_20261015_111755_236991",
   "last_topic": "Random Tensor Models as a Framework for Emergent Spacetime and Holography",
   "total_videos_analyzed": 168,
-  "running_cycle": false,
-  "last_error": null,
-  "auto_improvement_count": 104
+  "running_cycle": true,
+  "last_error": "No fue posible descargar el video desde https://www.youtube.com/watch?v=Hb78KkbI0Tg",
+  "auto_improvement_count": 106
 }
