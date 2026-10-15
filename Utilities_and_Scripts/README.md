@@ -13,6 +13,7 @@ Automatizaciones de sistema, diagnósticos de hardware, optimizadores de SO y he
 - **colab_test_subsyst_m_dulo_de_telemetr.py**: Componente de alta eficiencia.
 - **deploy_android_imac.sh**: Componente de alta eficiencia.
 - **fetch_benchmarks.py**: Componente de alta eficiencia.
+- **generate_icons.py**: Componente de alta eficiencia.
 - **generate_pdf.py**: Componente de alta eficiencia.
 - **imac_remote.sh**: Componente de alta eficiencia.
 - **ingest_omni_tools_knowledge.py**: Directorio y puente soberano de interoperabilidad omni-herramientas.
