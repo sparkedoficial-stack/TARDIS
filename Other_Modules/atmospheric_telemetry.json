@@ -1,12 +1,12 @@
 {
-  "timestamp": REDACTED_PHONE.6301713,
+  "timestamp": REDACTED_PHONE.2093253,
   "latitude": 20.6274,
   "longitude": -87.0799,
   "location_name": "Host Telemetry",
-  "temperature_c": 30.0,
-  "apparent_temperature_c": 34.4,
-  "relative_humidity_pct": 71,
-  "surface_pressure_hpa": 1011.8,
+  "temperature_c": 26.3,
+  "apparent_temperature_c": 30.8,
+  "relative_humidity_pct": 88,
+  "surface_pressure_hpa": 1011.7,
   "pressure_msl_hpa": 1012.9,
   "pressure_trend": "En descenso moderado (Aumento de nubosidad/humedad)",
   "weather_code": 95,
@@ -29,6 +29,6 @@
   "nitrogen_dioxide_ugm3": 0.6,
   "sulphur_dioxide_ugm3": 0.4,
   "ozone_ugm3": 66.0,
-  "summary_for_llm": "• Atmósfera y Clima Local: 30.0°C (Sensación térmica: 34.4°C) · Humedad: 71% · Presión: 1012.9 hPa (En descenso moderado (Aumento de nubosidad/humedad)) · Condición: Tormenta Eléctrica (97% nubes) · Viento: 14.8 km/h E (Ráfagas 34.6 km/h) · Precipitación: 1.0 mm · Radiación UV: 7.8 · Calidad del Aire: AQI 28 (Excelente (Poco o nulo riesgo)) con PM2.5: 4.0 µg/m³",
+  "summary_for_llm": "• Atmósfera y Clima Local: 26.3°C (Sensación térmica: 30.8°C) · Humedad: 88% · Presión: 1012.9 hPa (En descenso moderado (Aumento de nubosidad/humedad)) · Condición: Tormenta Eléctrica (97% nubes) · Viento: 14.8 km/h E (Ráfagas 34.6 km/h) · Precipitación: 1.0 mm · Radiación UV: 7.8 · Calidad del Aire: AQI 28 (Excelente (Poco o nulo riesgo)) con PM2.5: 4.0 µg/m³",
   "provider": "open-meteo"
 }
