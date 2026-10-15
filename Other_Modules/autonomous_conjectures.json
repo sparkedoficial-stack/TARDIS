@@ -1,23 +1,5 @@
 [
   {
-    "id": "conj_1791853159",
-    "timestamp": "2026-10-12T19:59:19.844471",
-    "idle_duration_minutes": 32.6,
-    "title": "Temporal Decay Augmented Vector Retrieval for Deep Memory Vault",
-    "hypothesis": "Incorporar un factor de decaimiento temporal en los embeddings almacenados en `deep_memory_vault` permitirá que los recuerdos más recientes tengan mayor peso en las búsquedas de similitud, mejorando la relevancia de las respuestas en contextos dinámicos sin sacrificar la capacidad de recuperación de información histórica.",
-    "research_query": "temporal decay weighting vector similarity retrieval recent memory relevance research",
-    "research_findings": "# Informe de Investigación: temporal decay weighting vector similarity retrieval recent memory relevance research\n\n## Fuentes Consultadas y Respaldo Web\n- **[Agent Memory: Why Your AI Has Amnesia and How to Fix It - Oracle Blogs](https://news.google.com/rss/articles/CBMilAFBVV95cUxNV3pqZVBnU29IUHVPT09LZ1B1RFJDWGV6bXd4Q0pkV284UXpBVkNZSFJwMmFxcmc1ZlBWNlNLUTA0V2NQcm5vVFZ1d0dsNVJNdnVKU3FKWmRGcTdSendzRHhTZTI5NXA1NG45TzUteU42MkRPblU0MS0tcElJU3pMWk9vdUJVVklPUGdzc1laX05HekN3?oc=5)**: Agent Memory: Why Your AI Has Amnesia and How to Fix It  Oracle Blogs\n- **[memweave: Zero-Infra AI Agent Memory with Markdown and SQLite — No Vector Database Required - Towards Data Science](https://news.google.com/rss/articles/CBMivAFBVV95cUxPR3BMRngzdkstTkUyT3NaOEthS2lyNXE2dU5kQjNwSlZlQW1kVzl6RlpWamJ5R2J1NTlCcEE3Ulo1MmMtdDZ0dkhmVWZHeUk5b2thNjFrdGhIVERGMFMzYTFINXlhWko5QlE1STlNYXhkSU1USmNIVXJsSWFaSFlqamRaSDVFVUZjRWZUWTRuODl3UEN2T01xVkZCQ0dfb2FJZ01vcWZhRklSaFdnU202NFc4aS1NalAxNEpHTQ?oc=5)**: memweave: Zero-Infra AI",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMilAFBVV95cUxNV3pqZVBnU29IUHVPT09LZ1B1RFJDWGV6bXd4Q0pkV284UXpBVkNZSFJwMmFxcmc1ZlBWNlNLUTA0V2NQcm5vVFZ1d0dsNVJNdnVKU3FKWmRGcTdSendzRHhTZTI5NXA1NG45TzUteU42MkRPblU0MS0tcElJU3pMWk9vdUJVVklPUGdzc1laX05HekN3?oc=5",
-      "https://news.google.com/rss/articles/CBMivAFBVV95cUxPR3BMRngzdkstTkUyT3NaOEthS2lyNXE2dU5kQjNwSlZlQW1kVzl6RlpWamJ5R2J1NTlCcEE3Ulo1MmMtdDZ0dkhmVWZHeUk5b2thNjFrdGhIVERGMFMzYTFINXlhWko5QlE1STlNYXhkSU1USmNIVXJsSWFaSFlqamRaSDVFVUZjRWZUWTRuODl3UEN2T01xVkZCQ0dfb2FJZ01vcWZhRklSaFdnU202NFc4aS1NalAxNEpHTQ?oc=5"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Añadir un campo de timestamp a cada vector almacenado y modificar la función de búsqueda para aplicar un factor de decaimiento exponencial basado en la edad del vector antes de calcular la similitud final.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.15
-  },
-  {
     "id": "conj_1791855057",
     "timestamp": "2026-10-12T20:30:57.706113",
     "idle_duration_minutes": 31.6,
@@ -1648,5 +1630,22 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 104.99
+  },
+  {
+    "id": "conj_1792060531",
+    "timestamp": "2026-10-15T05:35:31.238066",
+    "idle_duration_minutes": 33.2,
+    "title": "Asyncify the Web Research Engine",
+    "hypothesis": "The current web_research_engine.py performs blocking HTTP requests using the requests library, causing the entire system to stall while waiting for external content. By refactoring the engine to use asyncio with aiohttp and a connection pool, we can reduce average query latency by 40–60% and increase concurrent query throughput, which will directly improve the responsiveness of the deep_memory_vault and network_shield modules that depend on timely data.",
+    "research_query": "Python asyncio aiohttp connection pool performance web scraping",
+    "research_findings": "# Informe de Investigación: Python asyncio aiohttp connection pool performance web scraping\n\n## Fuentes Consultadas y Respaldo Web\n- **[Beyond Requests: Why httpx is the Modern HTTP Client You Need (Sometimes) - Towards Data Science](https://news.google.com/rss/articles/CBMipAFBVV95cUxQQ3lBXzBnbWMyRkhzSTNvUzJDV1h1LU5ud0k4S2NBYzYtaWhJMTQ5SjZ1OVJ1VmNSS2tqY3B5WUhZeWFTbm9GeFBKSF9pWWhKU0VucXlROVpFbjNCQ3lCcDJhZVdmSDNFbWlhTW1rSGE5U25MUlN5MjE3NUEwdXRmSFBqb2hIYnpJeDd2MTdkS2RLRUV1UnRIeDRmRm1kVzVxTEJCXw?oc=5)**: Beyond Requests: Why httpx is the Modern HTTP Client You Need (Sometimes)  Towards Data Science\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMipAFBVV95cUxQQ3lBXzBnbWMyRkhzSTNvUzJDV1h1LU5ud0k4S2NBYzYtaWhJMTQ5SjZ1OVJ1VmNSS2tqY3B5WUhZeWFTbm9GeFBKSF9pWWhKU0VucXlROVpFbjNCQ3lCcDJhZVdmSDNFbWlhTW1rSGE5U25MUlN5MjE3NUEwdXRmSFBqb2hIYnpJeDd2MTdkS2RLRUV1UnRIeDRmRm1kVzVxTEJCXw?oc=5)\n",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMipAFBVV95cUxQQ3lBXzBnbWMyRkhzSTNvUzJDV1h1LU5ud0k4S2NBYzYtaWhJMTQ5SjZ1OVJ1VmNSS2tqY3B5WUhZeWFTbm9GeFBKSF9pWWhKU0VucXlROVpFbjNCQ3lCcDJhZVdmSDNFbWlhTW1rSGE5U25MUlN5MjE3NUEwdXRmSFBqb2hIYnpJeDd2MTdkS2RLRUV1UnRIeDRmRm1kVzVxTEJCXw?oc=5"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Replace synchronous requests with asynchronous aiohttp calls, implement a reusable session pool, and add timeout/error handling to improve throughput and reliability.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.41
   }
 ]
