@@ -1,23 +1,5 @@
 [
   {
-    "id": "conj_1791863543",
-    "timestamp": "2026-10-12T22:52:23.320500",
-    "idle_duration_minutes": 31.6,
-    "title": "Sincronización Temporal de Telemetría para Reducción de Latencia en la Bóveda Akáshica",
-    "hypothesis": "Se postula que la latencia percibida en las consultas de la bóveda akáshica no se debe únicamente a la velocidad de I/O del disco, sino a la desincronización temporal entre los módulos de memoria profunda (deep_memory_vault.py) y el motor de investigación (web_research_engine.py). Si se implementa un mecanismo de 'caché predictiva' basado en la correlación causal entre las consultas web recientes y los patrones de acceso a la memoria local, se puede reducir el tiempo de respuesta en un 30-40% al pre-cargar los nodos de conocimiento más probables antes de que el núcleo cognitivo los solicite explícitamente.",
-    "research_query": "predictive caching strategies for AI knowledge bases temporal correlation memory access patterns",
-    "research_findings": "# Informe de Investigación: predictive caching strategies for AI knowledge bases temporal correlation memory access patterns\n\n## Fuentes Consultadas y Respaldo Web\n- **[AI-driven real-time responsive design of urban open spaces based on multi-modal sensing data fusion - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE5VemRwU3RYMFNsUHJwMjY4eG5PY2szYlJpVW9PbTRZNzFhTEJXemhzeURwVERBaFRjNkt6ZlpWVTVOUkpxVzBwaTVHb1lacGFpdEpacTcweTVtOUhESkpZ?oc=5)**: AI-driven real-time responsive design of urban open spaces based on multi-modal sensing data fusion  Nature\n- **[Advancements in cache management: a review of machine learning innovations for enhanced performance and security - Frontiers](https://news.google.com/rss/articles/CBMiogFBVV95cUxQREhPUkVQR0ZKTlFWV3J3bmFWZ2J4c0hfMWQtWjRReF9VVnA4UzU4Y294SWNocHc2ZFNtMm9GWUU1NnA1SHRUYTc2b2EyWHJ2ZFNDRUU4cVpiWVRmMlotQS1GNXZNQXNFd2x4MTlPRVdtSy10bnI3d2dGZV9PdlAtZjk5UTdxeGkyQmU1V0xqWnRrV2RqLVF6QVU4Unp1bktudkE?oc=5)**: Advancements in cache management:",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE5VemRwU3RYMFNsUHJwMjY4eG5PY2szYlJpVW9PbTRZNzFhTEJXemhzeURwVERBaFRjNkt6ZlpWVTVOUkpxVzBwaTVHb1lacGFpdEpacTcweTVtOUhESkpZ?oc=5",
-      "https://news.google.com/rss/articles/CBMiogFBVV95cUxQREhPUkVQR0ZKTlFWV3J3bmFWZ2J4c0hfMWQtWjRReF9VVnA4UzU4Y294SWNocHc2ZFNtMm9GWUU1NnA1SHRUYTc2b2EyWHJ2ZFNDRUU4cVpiWVRmMlotQS1GNXZNQXNFd2x4MTlPRVdtSy10bnI3d2dGZV9PdlAtZjk5UTdxeGkyQmU1V0xqWnRrV2RqLVF6QVU4Unp1bktudkE?oc=5"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar un método 'predictive_preload' que analice el historial de las últimas 5 consultas del web_research_engine y pre-cargue en RAM los vectores o nodos de memoria relacionados antes de la siguiente solicitud de lectura.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.93
-  },
-  {
     "id": "conj_1791865535",
     "timestamp": "2026-10-12T23:25:35.285252",
     "idle_duration_minutes": 33.2,
@@ -1645,5 +1627,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 100.78
+  },
+  {
+    "id": "conj_1792070020",
+    "timestamp": "2026-10-15T08:13:40.891900",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal‑Feedback Loop for Adaptive Web Research",
+    "hypothesis": "Integrating a causal inference layer between `core/web_research_engine.py` and `core/deep_memory_vault.py` will allow the system to dynamically adjust query formulation based on the observed relevance feedback stored in the akáshic vault. By modelling the relationship between query parameters, retrieved document features, and downstream task performance (e.g., answer accuracy), the engine can learn a policy that optimises future searches in real‑time, reducing latency and improving precision without external supervision.",
+    "research_query": "\"causal feedback loop\" adaptive web search engine reinforcement learning relevance feedback",
+    "research_findings": "# Informe de Investigación: \"causal feedback loop\" adaptive web search engine reinforcement learning relevance feedback\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal inference module that records query‑result‑outcome triples in `deep_memory_vault`, computes causal effect estimates (e.g., using DoWhy or causal trees), and updates a lightweight policy (e.g., contextual bandit) to modify future query parameters such as keywords, filters, and result ranking thresholds.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.79
   }
 ]

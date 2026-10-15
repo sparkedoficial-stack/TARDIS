@@ -44,6 +44,7 @@ Módulos de sabiduría sintrópica y heurísticas adaptativas autogeneradas por 
 - **browser_evol_criptograf_a_postcu_ntic_9640.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
 - **browser_evol_criptograf_a_postcu_ntic_9643.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
 - **browser_evol_criptograf_a_postcu_ntic_9647.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
+- **browser_evol_modelos_de_razonamiento__26.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
 - **browser_evol_modelos_de_razonamiento__6184.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
 - **browser_evol_modelos_de_razonamiento__666.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
 - **browser_evol_modelos_de_razonamiento__7129.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
@@ -57,7 +58,6 @@ Módulos de sabiduría sintrópica y heurísticas adaptativas autogeneradas por 
 - **browser_evol_neurotopolog_a_y_mapeo_d_480.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
 - **browser_evol_neurotopolog_a_y_mapeo_d_5990.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
 - **browser_evol_neurotopolog_a_y_mapeo_d_5996.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
-- **browser_evol_neurotopolog_a_y_mapeo_d_6942.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
 - **browser_evol_neurotopolog_a_y_mapeo_d_7974.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
 - **browser_evol_neurotopolog_a_y_mapeo_d_8720.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
 - **browser_evol_neurotopolog_a_y_mapeo_d_8726.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
