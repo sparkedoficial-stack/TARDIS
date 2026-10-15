@@ -1,15 +1,15 @@
 {
-  "cycle": 30866,
+  "cycle": 30891,
   "status": "KERNEL_ACTIVE_SYNTROPY",
-  "psi_norm": 1.1524144656862578,
+  "psi_norm": 1.1524159263992582,
   "best_psi_norm": 1.1524166798125466,
-  "coherence_factor": 0.9999751905526477,
+  "coherence_factor": 0.9999764580452074,
   "gate_status": "OK",
   "kernel_telemetry": {
     "cpu_temp": 94.0,
     "rtt_latency": 0.0001,
     "shot_noise": 1e-07,
-    "squid_flux": 1.0000087990806816
+    "squid_flux": 0.9999782025522997
   },
-  "timestamp": "2026-10-15T14:30:15.387979"
+  "timestamp": "2026-10-15T14:31:30.563548"
 }
