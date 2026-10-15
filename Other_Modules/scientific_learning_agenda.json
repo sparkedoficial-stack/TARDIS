@@ -1,0 +1,98 @@
+{
+  "version": "1.0",
+  "autonomous_mode": true,
+  "interval_hours": 12.0,
+  "last_cycle_timestamp": 0.0,
+  "topics": [
+    {
+      "id": "quant_entangle",
+      "topic": "Entrelazamiento Cuántico, Teorema de Bell y Decoherencia",
+      "domain": "Física Cuántica & Información Cuántica",
+      "status": "pending",
+      "priority": 1,
+      "researched_count": 0,
+      "last_researched": null
+    },
+    {
+      "id": "syntropy_thermo",
+      "topic": "Termodinámica del No Equilibrio y Sintropía Retrocausal",
+      "domain": "Física Teórica & Sistemas Complejos",
+      "status": "pending",
+      "priority": 1,
+      "researched_count": 0,
+      "last_researched": null
+    },
+    {
+      "id": "ssm_transformers",
+      "topic": "State Space Models (Mamba) vs Arquitectura Transformer en Redes Neuronales",
+      "domain": "Inteligencia Artificial & Modelos de Lenguaje",
+      "status": "pending",
+      "priority": 2,
+      "researched_count": 0,
+      "last_researched": null
+    },
+    {
+      "id": "nuclear_fusion",
+      "topic": "Fusión Nuclear por Confinamiento Magnético: Avances en Tokamaks y Stellarators",
+      "domain": "Física de Plasmas & Energía",
+      "status": "pending",
+      "priority": 2,
+      "researched_count": 0,
+      "last_researched": null
+    },
+    {
+      "id": "crispr_epigenetics",
+      "topic": "CRISPR-Cas9, Reprogramación Celular y Rejuvenecimiento Epigenético",
+      "domain": "Biología Molecular & Biotecnología",
+      "status": "pending",
+      "priority": 2,
+      "researched_count": 0,
+      "last_researched": null
+    },
+    {
+      "id": "navier_stokes",
+      "topic": "Ecuaciones de Navier-Stokes: Regularidad, Existencia Suave y Turbulencia",
+      "domain": "Matemáticas Puras & Mecánica de Fluidos",
+      "status": "pending",
+      "priority": 3,
+      "researched_count": 0,
+      "last_researched": null
+    },
+    {
+      "id": "topological_insulators",
+      "topic": "Aislantes Topológicos, Estados de Borde y Fermiones de Majorana",
+      "domain": "Física de la Materia Condensada",
+      "status": "pending",
+      "priority": 3,
+      "researched_count": 0,
+      "last_researched": null
+    },
+    {
+      "id": "post_quantum_crypto",
+      "topic": "Criptografía Post-Cuántica: Algoritmos Basados en Reticulados (Lattices)",
+      "domain": "Criptografía & Ciencias de la Computación",
+      "status": "pending",
+      "priority": 3,
+      "researched_count": 0,
+      "last_researched": null
+    },
+    {
+      "id": "neural_decoding",
+      "topic": "Decodificación Neural Directa: Interfaces Cerebro-Computador y Reconstrucción del Lenguaje",
+      "domain": "Neurociencia Computacional",
+      "status": "pending",
+      "priority": 3,
+      "researched_count": 0,
+      "last_researched": null
+    },
+    {
+      "id": "dark_matter_axions",
+      "topic": "Materia Oscura: Detección Experimental de Axiones y WIMPs",
+      "domain": "Cosmología & Física de Partículas",
+      "status": "pending",
+      "priority": 3,
+      "researched_count": 0,
+      "last_researched": null
+    }
+  ]
+}

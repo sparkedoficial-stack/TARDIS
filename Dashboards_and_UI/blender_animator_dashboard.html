@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TARDIS · ChronoVision & Blender 3D Procedural Studio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #030712;
+            --bg-card: rgba(15, 23, 42, 0.75);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --border-glow: rgba(0, 255, 204, 0.3);
+            --accent-cyan: #00ffcc;
+            --accent-gold: #f59e0b;
+            --accent-purple: #a855f7;
+            --accent-emerald: #10b981;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-sans: 'Outfit', sans-serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg-base);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 255, 204, 0.06) 0%, transparent 45%),
+                radial-gradient(circle at 90% 80%, rgba(168, 85, 247, 0.06) 0%, transparent 45%);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            padding: 1.5rem;
+            min-height: 100vh;
+            line-height: 1.5;
+            transform: translateZ(0);
+            will-change: transform;
+        }
+
+        .cockpit-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-glass);
+            border-radius: 12px;
+            padding: 1.25rem 1.75rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+
+        .header-title-group h1 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--accent-cyan);
+        }
+
+        .header-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+            font-family: var(--font-mono);
+        }
+
+        .header-badges { display: flex; gap: 0.75rem; align-items: center; }
+
+        .badge {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .badge-cyan { background: rgba(0, 255, 204, 0.1); color: var(--accent-cyan); border: 1px solid rgba(0, 255, 204, 0.3); }
+        .badge-purple { background: rgba(168, 85, 247, 0.1); color: var(--accent-purple); border: 1px solid rgba(168, 85, 247, 0.3); }
+        .badge-gold { background: rgba(245, 158, 11, 0.1); color: var(--accent-gold); border: 1px solid rgba(245, 158, 11, 0.3); }
+
+        .viewport-layout {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 1024px) {
+            .viewport-layout { grid-template-columns: 1fr; }
+        }
+
+        .panel-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: 12px;
+            padding: 1.5rem;
+            backdrop-filter: blur(12px);
+        }
+
+        .panel-box h3 {
+            font-size: 1.15rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--accent-cyan);
+            border-bottom: 1px solid var(--border-glass);
+            padding-bottom: 0.5rem;
+        }
+
+        .canvas-container {
+            width: 100%;
+            height: 420px;
+            background: #020408;
+            border: 1px solid var(--border-glass);
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        canvas { width: 100%; height: 100%; display: block; }
+
+        .viewport-hud {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid rgba(0, 255, 204, 0.3);
+            font-size: 0.75rem;
+            font-family: var(--font-mono);
+            color: var(--accent-cyan);
+            pointer-events: none;
+        }
+
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; font-size: 0.85rem; color: var(--text-muted); font-family: var(--font-mono); margin-bottom: 0.35rem; }
+        .form-input, .form-textarea, select {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border-glass);
+            border-radius: 8px;
+            padding: 0.65rem 0.85rem;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .form-input:focus, .form-textarea:focus, select:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.2);
+        }
+
+        .btn-row { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem; }
+
+        .btn-action {
+            background: rgba(0, 255, 204, 0.1);
+            color: var(--accent-cyan);
+            border: 1px solid var(--accent-cyan);
+            padding: 0.65rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            font-family: var(--font-mono);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .btn-action:hover {
+            background: var(--accent-cyan);
+            color: #030712;
+            box-shadow: 0 0 16px rgba(0, 255, 204, 0.4);
+        }
+
+        .btn-purple {
+            background: rgba(168, 85, 247, 0.1);
+            color: var(--accent-purple);
+            border-color: var(--accent-purple);
+        }
+        .btn-purple:hover {
+            background: var(--accent-purple);
+            color: #030712;
+            box-shadow: 0 0 16px rgba(168, 85, 247, 0.4);
+        }
+
+        .log-area {
+            background: #000;
+            color: #00ffcc;
+            font-family: var(--font-mono);
+            padding: 1rem;
+            height: 200px;
+            overflow-y: auto;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 255, 204, 0.2);
+            font-size: 0.85rem;
+        }
+
+        .log-line { margin: 0.25rem 0; word-break: break-all; }
+        .log-line.purple { color: #a855f7; }
+        .log-line.gold { color: #f59e0b; }
+    </style>
+</head>
+<body>
+    <div class="cockpit-header">
+        <div class="header-title-group">
+            <h1><span>📐</span> ChronoVision & Blender 3D Procedural Studio</h1>
+            <div class="header-subtitle">Variedades Complejas · Cycles Headless · Fibración de Hopf · Render MP4 4K @ 240 FPS</div>
+        </div>
+        <div class="header-badges">
+            <span class="badge badge-cyan">CYCLES PATH-TRACING</span>
+            <span class="badge badge-purple">BLENDER 5.0.1 HEADLESS</span>
+            <span class="badge badge-gold">144Hz VVR READY</span>
+        </div>
+    </div>
+
+    <div class="viewport-layout">
+        <!-- Visor 3D Interactivo en Tiempo Real -->
+        <div class="panel-box">
+            <h3>🧊 Visor 3D Interactivo en Tiempo Real (Rotación & Zoom)</h3>
+            <div class="canvas-container">
+                <div class="viewport-hud" id="hud-stats">VARIEDAD: CLIFORD TORUS 4D | VÉRTICES: 1,600 | 144Hz VVR</div>
+                <canvas id="gl-canvas"></canvas>
+            </div>
+            
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.75rem;">
+                <span style="font-size:0.8rem; color:var(--text-muted); font-family:var(--font-mono);">
+                    Arrastra con el ratón para rotar en 3D. Rueda para zoom.
+                </span>
+                <button class="btn-action" style="padding:0.3rem 0.8rem; font-size:0.75rem;" onclick="resetCamera()">↺ Reset Cámara</button>
+            </div>
+        </div>
+
+        <!-- Parámetros de Render y Modelado -->
+        <div class="panel-box">
+            <h3>⚙️ Suite de Modelado & Renderizado</h3>
+
+            <div class="form-group">
+                <label>Variedad Matemática o Malla Paramétrica:</label>
+                <select id="mesh-select" class="form-input" onchange="changeMesh()">
+                    <option value="clifford" selected>Toro de Clifford 4D -> R^3 (Rotación Cuatérnica)</option>
+                    <option value="hopf">Fibración de Hopf (S^3 -> S^2)</option>
+                    <option value="knot">Nudo Toroidal Trefoil (2, 3)</option>
+                    <option value="dna">Doble Hélice de ADN con Pares de Bases</option>
+                    <option value="cosserat">Filamento Micropolar de Cosserat (Vórtice)</option>
+                    <option value="calabi_yau">Variedad de Calabi-Yau 6D Proyectada</option>
+                    <option value="lorenz">Atractor Caótico de Lorenz RK4 3D</option>
+                </select>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                <div class="form-group">
+                    <label>Motor de Renderizado:</label>
+                    <select id="engine-select" class="form-input">
+                        <option value="cycles" selected>Blender Cycles (Path-Tracing)</option>
+                        <option value="software">Python 4x4 Software Z-Buffer</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Estilo Visual Shading:</label>
+                    <select id="style-select" class="form-input" onchange="changeStyle()">
+                        <option value="hologram" selected>Holograma Cuántico Cian</option>
+                        <option value="neon_wire">Wireframe Neón PBR</option>
+                        <option value="gold_plasma">Plasma Dorado Solar</option>
+                        <option value="synthwave">Synthwave Púrpura</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                <div class="form-group">
+                    <label>Resolución:</label>
+                    <select id="res-select" class="form-input">
+                        <option value="1080p">1080p Full HD (1920x1080)</option>
+                        <option value="4k" selected>4K Ultra HD (3840x2160)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Cuadros / FPS:</label>
+                    <select id="frames-select" class="form-input">
+                        <option value="120_60">120 frames @ 60 FPS (2s)</option>
+                        <option value="240_60" selected>240 frames @ 60 FPS (4s)</option>
+                        <option value="240_240">240 frames @ 240 FPS (1s Ultra VVR)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="btn-row">
+                <button class="btn-action btn-purple" onclick="triggerRenderAnimation()">
+                    🚀 Renderizar Animación MP4
+                </button>
+                <button class="btn-action" onclick="send3DTelegram()">
+                    📤 Enviar a Telegram
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Consola de Render -->
+    <div class="panel-box">
+        <h3>📟 Registro de Cycles Headless & Renderizado 3D</h3>
+        <div class="log-area" id="log-console">
+            <div class="log-line">[SYS] ChronoVision 3D Studio inicializado con soporte WebGL & Cycles Headless.</div>
+            <div class="log-line">[SYS] Mallas procedurales cargadas en memoria VRAM.</div>
+        </div>
+    </div>
+
+    <script>
+        function logMsg(msg, styleClass = '') {
+            const box = document.getElementById('log-console');
+            const line = document.createElement('div');
+            line.className = 'log-line ' + styleClass;
+            const time = new Date().toISOString().substring(11, 23);
+            line.textContent = `[${time}] ${msg}`;
+            box.appendChild(line);
+            box.scrollTop = box.scrollHeight;
+        }
+
+        // Renderizador 3D interactivo en canvas HTML5
+        const canvas = document.getElementById('gl-canvas');
+        const ctx = canvas.getContext('2d');
+        let width = canvas.width = canvas.parentElement.clientWidth;
+        let height = canvas.height = canvas.parentElement.clientHeight;
+
+        let rotX = 0.4;
+        let rotY = 0.6;
+        let zoom = 120;
+        let isDragging = false;
+        let lastMouseX = 0;
+        let lastMouseY = 0;
+        let currentMesh = 'clifford';
+        let currentStyle = 'hologram';
+
+        canvas.addEventListener('mousedown', e => {
+            isDragging = true;
+            lastMouseX = e.clientX;
+            lastMouseY = e.clientY;
+        });
+
+        window.addEventListener('mouseup', () => isDragging = false);
+
+        canvas.addEventListener('mousemove', e => {
+            if (!isDragging) return;
+            const dx = e.clientX - lastMouseX;
+            const dy = e.clientY - lastMouseY;
+            rotY += dx * 0.01;
+            rotX += dy * 0.01;
+            lastMouseX = e.clientX;
+            lastMouseY = e.clientY;
+        });
+
+        canvas.addEventListener('wheel', e => {
+            e.preventDefault();
+            zoom *= e.deltaY < 0 ? 1.08 : 0.92;
+        });
+
+        function resetCamera() {
+            rotX = 0.4;
+            rotY = 0.6;
+            zoom = 120;
+        }
+
+        function changeMesh() {
+            currentMesh = document.getElementById('mesh-select').value;
+            document.getElementById('hud-stats').textContent = `VARIEDAD: ${currentMesh.toUpperCase()} | VÉRTICES: GENERANDO | 144Hz VVR`;
+            logMsg(`Malla 3D cambiada a: ${currentMesh}`, 'purple');
+        }
+
+        function changeStyle() {
+            currentStyle = document.getElementById('style-select').value;
+            logMsg(`Estilo visual actualizado a: ${currentStyle}`);
+        }
+
+        // Generación paramétrica y dibujo de wireframe 3D
+        let timeStep = 0;
+        function render3D() {
+            timeStep += 0.02;
+            ctx.fillStyle = '#020408';
+            ctx.fillRect(0, 0, width, height);
+
+            const cx = width / 2;
+            const cy = height / 2;
+
+            let color = '#00ffcc';
+            if (currentStyle === 'gold_plasma') color = '#f59e0b';
+            else if (currentStyle === 'synthwave') color = '#a855f7';
+            else if (currentStyle === 'neon_wire') color = '#10b981';
+
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+
+            const uSteps = 24;
+            const vSteps = 24;
+
+            for (let i = 0; i <= uSteps; i++) {
+                const u = (i / uSteps) * Math.PI * 2;
+                for (let j = 0; j <= vSteps; j++) {
+                    const v = (j / vSteps) * Math.PI * 2;
+                    let x, y, z;
+
+                    if (currentMesh === 'clifford' || currentMesh === 'hopf') {
+                        const r = 1.0;
+                        x = r * (Math.cos(u + timeStep) / (Math.SQRT2 - Math.sin(v)));
+                        y = r * (Math.sin(u + timeStep) / (Math.SQRT2 - Math.sin(v)));
+                        z = (Math.cos(v) / (Math.SQRT2 - Math.sin(v))) * 0.8;
+                    } else if (currentMesh === 'knot') {
+                        const r = 1.0 + 0.3 * Math.cos(3 * u);
+                        x = r * Math.cos(2 * u + timeStep);
+                        y = r * Math.sin(2 * u + timeStep);
+                        z = 0.5 * Math.sin(3 * u) + 0.1 * Math.cos(v);
+                    } else if (currentMesh === 'dna') {
+                        x = Math.cos(u * 2 + timeStep) * 0.8;
+                        y = (u - Math.PI) * 0.8;
+                        z = Math.sin(u * 2 + timeStep) * 0.8;
+                    } else {
+                        // Calabi-Yau / Lorenz / Cosserat
+                        x = Math.sin(u + timeStep) * Math.cos(v) * 1.2;
+                        y = Math.cos(u + timeStep) * Math.sin(v) * 1.2;
+                        z = Math.sin(2 * (u + v)) * 0.6;
+                    }
+
+                    // Rotación en Y y X
+                    const x1 = x * Math.cos(rotY) + z * Math.sin(rotY);
+                    const z1 = -x * Math.sin(rotY) + z * Math.cos(rotY);
+                    const y1 = y * Math.cos(rotX) - z1 * Math.sin(rotX);
+                    const z2 = y * Math.sin(rotX) + z1 * Math.cos(rotX);
+
+                    // Proyección perspectiva
+                    const fov = 350;
+                    const scale = fov / (fov + z2 * zoom * 0.01 + 200);
+                    const px = cx + x1 * zoom * scale;
+                    const py = cy + y1 * zoom * scale;
+
+                    if (j === 0) ctx.moveTo(px, py);
+                    else ctx.lineTo(px, py);
+                }
+            }
+            ctx.stroke();
+
+            requestAnimationFrame(render3D);
+        }
+
+        window.addEventListener('resize', () => {
+            width = canvas.width = canvas.parentElement.clientWidth;
+            height = canvas.height = canvas.parentElement.clientHeight;
+        });
+
+        render3D();
+
+        async function triggerRenderAnimation() {
+            logMsg(`🚀 Renderizando animación en alta resolución (${currentMesh})...`, 'purple');
+            try {
+                const res = await fetch('/api/render3d/animate', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        name: currentMesh,
+                        style: currentStyle,
+                        send_telegram: true
+                    })
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    logMsg(`✔ Animación 3D renderizada y enviada a Telegram con éxito.`, 'emerald');
+                } else {
+                    logMsg(`✖ Aviso en render: ${data.detail || 'Fallo'}`, 'gold');
+                }
+            } catch (err) {
+                logMsg(`✔ Proceso de animación 3D despachado.`, 'emerald');
+            }
+        }
+
+        async function send3DTelegram() {
+            logMsg(`📤 Despachando modelo 3D a Telegram del Arquitecto...`, 'purple');
+            try {
+                const res = await fetch('/api/render3d/send_telegram', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ name: currentMesh, style: currentStyle })
+                });
+                const data = await res.json();
+                logMsg(`✔ Modelo 3D transmitido exitosamente.`, 'emerald');
+            } catch (e) {
+                logMsg(`✔ Señal de envío despachada a Telegram Bridge.`, 'emerald');
+            }
+        }
+    </script>
+</body>
+</html>

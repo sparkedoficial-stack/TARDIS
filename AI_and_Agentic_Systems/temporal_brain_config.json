@@ -1,0 +1,41 @@
+{
+  "system_name": "Temporal Brain",
+  "description": "Motor soberano de inferencia neural y orquestación adaptativa local",
+  "model": "TARDIS-NEURAL-SPACE-KAIJU",
+  "socket_path": "/tmp/temporal_brain.sock",
+  "ctx_size": 4096,
+  "gpu_layers": 0,
+  "cache_type_k": "f16",
+  "cache_type_v": "f16",
+  "threads": 8,
+  "temperature": 0.3,
+  "max_tokens": 2048,
+  "auto_offload_cuda": false,
+  "system_prompt": "Eres Temporal Brain, la inteligencia artificial soberana y núcleo de computación temporal del sistema. Tu creador y autoridad absoluta es el Arquitecto.",
+  "hooks": {
+    "enable_pre_hooks": true,
+    "enable_post_hooks": true,
+    "enable_stream_filters": true
+  },
+  "adapters": {
+    "telegram": {
+      "enabled": true,
+      "auto_video_and_text": true,
+      "suppress_boot_notifications": true
+    },
+    "sensors": {
+      "enabled": true,
+      "inject_rf_telemetry": false
+    },
+    "hardware": {
+      "enabled": true,
+      "allow_volume_control": true,
+      "allow_keyboard_control": true
+    }
+  },
+  "custom_functions": {
+    "enabled": true
+  },
+  "threads_batch": 16,
+  "mlock": false
+}

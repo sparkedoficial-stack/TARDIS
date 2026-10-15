@@ -1,0 +1,36 @@
+{
+  "timestamp": REDACTED_PHONE.015269,
+  "iso": "2026-10-15T10:01:04.016074",
+  "health_score": 100,
+  "status": "HEALTHY",
+  "cycle": 2770,
+  "metrics": {
+    "cpu_percent": 1.5,
+    "ram_percent": 65.1,
+    "recent_errors": 0,
+    "recent_blocks": 0
+  },
+  "subsystems": {
+    "ollama_online": true,
+    "rf_radar_active": true,
+    "radar_variance": 0.0,
+    "ios_bridge": true,
+    "geon_engine": true,
+    "memory_fts": true,
+    "sensors": true,
+    "temporal_brain_online": true
+  },
+  "needs": [],
+  "instructions": [
+    {
+      "id": "inst_nominal_coherence",
+      "severity": "INFO",
+      "component": "Núcleo Causal Sintrópico",
+      "target_file": "geon_causal_engine.py",
+      "instruction": "El sistema opera en estado NOMINAL con acoplamiento sintrópico Ψ=0.892. Se recomienda sincronizar periódicamente el reloj causal de Lamport y verificar enlaces LAN.",
+      "rationale": "Estabilidad completa de subsistemas.",
+      "actionable_cmd": "python -c 'import geon_causal_engine; print(geon_causal_engine.get_geon_engine().full_system_diagnostic())'"
+    }
+  ],
+  "instruction_count": 1
+}

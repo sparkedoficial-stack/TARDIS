@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TARDIS · Ojo de Dios (God's Eye) · Omni-Vigilancia Global</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #03060c;
+            --bg-surface: rgba(10, 16, 28, 0.88);
+            --bg-card: rgba(14, 22, 38, 0.78);
+            --bg-card-hover: rgba(20, 32, 54, 0.9);
+            --border-glass: rgba(0, 212, 200, 0.22);
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --primary: #00d4c8;
+            --primary-glow: rgba(0, 212, 200, 0.45);
+            --tactical-red: #ff3366;
+            --tactical-red-glow: rgba(255, 51, 102, 0.4);
+            --accent-gold: #ffd700;
+            --accent-gold-glow: rgba(255, 215, 0, 0.35);
+            --accent-green: #10b981;
+            --accent-blue: #3b82f6;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-dim: #64748b;
+            --font-sans: 'Outfit', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(255, 51, 102, 0.08) 0%, transparent 45%),
+                radial-gradient(circle at 85% 85%, rgba(0, 212, 200, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.04) 0%, transparent 60%);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            min-height: 100vh;
+            padding: 16px 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            overflow-x: hidden;
+        }
+
+        /* HEADER */
+        header {
+            background: var(--bg-surface);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: 14px;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .icon-badge {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(255, 51, 102, 0.2), rgba(0, 212, 200, 0.2));
+            border: 1px solid var(--tactical-red);
+            box-shadow: 0 0 18px var(--tactical-red-glow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: var(--tactical-red);
+        }
+
+        .header-title h1 {
+            font-size: 17px;
+            font-weight: 800;
+            letter-spacing: 0.8px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-title p {
+            font-size: 11px;
+            color: var(--primary);
+            font-family: var(--font-mono);
+            letter-spacing: 0.4px;
+        }
+
+        .header-telemetry {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .tele-chip {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 5px 10px;
+            font-size: 11px;
+            font-family: var(--font-mono);
+            color: var(--text-muted);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .tele-chip b {
+            color: var(--text-main);
+        }
+
+        .tele-chip.red {
+            border-color: rgba(255, 51, 102, 0.4);
+            color: var(--tactical-red);
+        }
+
+        .tele-chip.gold {
+            border-color: rgba(255, 215, 0, 0.4);
+            color: var(--accent-gold);
+        }
+
+        .btn-action {
+            background: linear-gradient(135deg, rgba(255, 51, 102, 0.2), rgba(0, 212, 200, 0.2));
+            border: 1px solid var(--tactical-red);
+            color: #fff;
+            padding: 7px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            font-family: var(--font-sans);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-action:hover {
+            background: var(--tactical-red);
+            color: #fff;
+            box-shadow: 0 0 16px var(--tactical-red-glow);
+        }
+
+        .btn-action.secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-muted);
+        }
+
+        .btn-action.secondary:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: var(--text-main);
+        }
+
+        /* OMNI-SEARCH PANEL */
+        .search-container {
+            background: var(--bg-surface);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-glass);
+            border-radius: 12px;
+            padding: 12px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-input {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(0, 212, 200, 0.3);
+            border-radius: 8px;
+            padding: 10px 14px;
+            color: #fff;
+            font-family: var(--font-mono);
+            font-size: 13px;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .search-input:focus {
+            border-color: var(--tactical-red);
+            box-shadow: 0 0 12px var(--tactical-red-glow);
+        }
+
+        .quick-targets {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .quick-tag {
+            font-size: 11px;
+            font-family: var(--font-mono);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-subtle);
+            border-radius: 6px;
+            padding: 3px 8px;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .quick-tag:hover {
+            background: rgba(0, 212, 200, 0.15);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .quick-tag.aegis {
+            border-color: rgba(255, 215, 0, 0.4);
+            color: var(--accent-gold);
+        }
+
+        .quick-tag.aegis:hover {
+            background: rgba(255, 215, 0, 0.2);
+            box-shadow: 0 0 10px var(--accent-gold-glow);
+        }
+
+        /* MAIN TACTICAL GRID */
+        .tactical-grid {
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 16px;
+            flex: 1;
+        }
+
+        @media (max-width: 1024px) {
+            .tactical-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* VISOR PRINCIPAL DE CÁMARAS (LEFT COLUMN) */
+        .vision-matrix-panel {
+            background: var(--bg-surface);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: 14px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .panel-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-subtle);
+            padding-bottom: 10px;
+        }
+
+        .panel-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .panel-title span {
+            color: var(--tactical-red);
+        }
+
+        .feed-selector {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border-glass);
+            color: var(--text-main);
+            font-family: var(--font-mono);
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        /* FRAME CONTAINER CON HUD VISUAL */
+        .camera-viewport {
+            position: relative;
+            width: 100%;
+            height: 380px;
+            background: #000;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(0, 212, 200, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .camera-viewport img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* HUD OVERLAY EN VIVO */
+        .viewport-hud {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 14px;
+            background: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, transparent 25%, transparent 75%, rgba(0,0,0,0.6) 100%);
+        }
+
+        .hud-corner-brackets {
+            position: absolute;
+            inset: 10px;
+            border: 1px dashed rgba(0, 212, 200, 0.3);
+            pointer-events: none;
+        }
+
+        .hud-top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--primary);
+            text-shadow: 0 0 6px var(--primary-glow);
+        }
+
+        .hud-bottom-bar {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: #fff;
+        }
+
+        .hud-target-reticle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 180px;
+            height: 170px;
+            border: 2px solid var(--tactical-red);
+            box-shadow: 0 0 16px var(--tactical-red-glow);
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 6px;
+            pointer-events: none;
+            transition: all 0.3s;
+        }
+
+        .hud-target-reticle.aegis {
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 18px var(--accent-gold-glow);
+        }
+
+        .reticle-label {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            font-weight: 700;
+            background: rgba(0, 0, 0, 0.75);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--tactical-red);
+            align-self: flex-start;
+        }
+
+        .hud-target-reticle.aegis .reticle-label {
+            color: var(--accent-gold);
+        }
+
+        /* AUDIO INTERCEPTOR & SPECTROGRAM */
+        .audio-spectrogram-container {
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .audio-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11px;
+            font-family: var(--font-mono);
+            color: var(--text-muted);
+        }
+
+        .spectrogram-canvas {
+            width: 100%;
+            height: 60px;
+            background: rgba(4, 8, 16, 0.8);
+            border-radius: 6px;
+            border: 1px solid rgba(0, 212, 200, 0.2);
+            display: block;
+        }
+
+        .audio-transcript-box {
+            background: rgba(0, 0, 0, 0.6);
+            border-left: 3px solid var(--primary);
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-family: var(--font-mono);
+            color: #d1fae5;
+            min-height: 38px;
+            line-height: 1.4;
+        }
+
+        /* RIGHT COLUMN: RADAR & TARGET DOSSIER */
+        .right-column-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* RADAR TRIANGULATOR */
+        .radar-card {
+            background: var(--bg-surface);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: 14px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .radar-canvas-container {
+            position: relative;
+            width: 100%;
+            height: 220px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle, rgba(0, 212, 200, 0.05) 0%, rgba(4, 7, 13, 0.9) 70%);
+            border-radius: 10px;
+            border: 1px solid rgba(0, 212, 200, 0.25);
+            overflow: hidden;
+        }
+
+        .radar-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .radar-telemetry-strip {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-subtle);
+            font-family: var(--font-mono);
+            font-size: 11px;
+        }
+
+        .radar-tele-cell {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .radar-tele-cell span {
+            font-size: 9px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+        }
+
+        .radar-tele-cell b {
+            color: var(--primary);
+        }
+
+        /* DOSSIER TÁCTICO DEL OBJETIVO */
+        .dossier-card {
+            background: var(--bg-surface);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: 14px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .dossier-banner-aegis {
+            display: none;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(245, 158, 11, 0.2));
+            border: 1px solid var(--accent-gold);
+            color: var(--accent-gold);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-family: var(--font-mono);
+            font-weight: 700;
+            text-align: center;
+            box-shadow: 0 0 14px var(--accent-gold-glow);
+            animation: pulseAegis 2s infinite ease-in-out;
+        }
+
+        @keyframes pulseAegis {
+            0%, 100% { opacity: 0.9; }
+            50% { opacity: 1; box-shadow: 0 0 22px var(--accent-gold-glow); }
+        }
+
+        .dossier-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .target-name-block h2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .target-name-block p {
+            font-size: 12px;
+            color: var(--primary);
+            font-family: var(--font-mono);
+        }
+
+        .threat-badge {
+            font-size: 10px;
+            font-family: var(--font-mono);
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 6px;
+            background: rgba(255, 51, 102, 0.2);
+            border: 1px solid var(--tactical-red);
+            color: var(--tactical-red);
+            white-space: nowrap;
+        }
+
+        .threat-badge.aegis {
+            background: rgba(255, 215, 0, 0.2);
+            border-color: var(--accent-gold);
+            color: var(--accent-gold);
+        }
+
+        .dossier-details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            background: rgba(0, 0, 0, 0.35);
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border-subtle);
+            font-size: 11px;
+            font-family: var(--font-mono);
+        }
+
+        .dossier-cell {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .dossier-cell .label {
+            font-size: 9px;
+            text-transform: uppercase;
+            color: var(--text-dim);
+        }
+
+        .dossier-cell .val {
+            color: var(--text-main);
+            word-break: break-all;
+        }
+
+        .dossier-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: auto;
+        }
+
+        /* LOG TERMINAL EN TIEMPO REAL */
+        .tactical-log-panel {
+            background: var(--bg-surface);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-glass);
+            border-radius: 12px;
+            padding: 12px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 140px;
+        }
+
+        .log-title {
+            font-size: 11px;
+            font-family: var(--font-mono);
+            color: var(--text-dim);
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .log-stream {
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            line-height: 1.35;
+        }
+
+        .log-entry {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            color: var(--text-muted);
+        }
+
+        .log-time {
+            color: var(--primary);
+            font-size: 10px;
+        }
+
+        .log-cat {
+            color: var(--tactical-red);
+            font-weight: 600;
+            font-size: 10px;
+        }
+
+        .log-msg {
+            color: #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header>
+        <div class="header-brand">
+            <div class="icon-badge">👁️</div>
+            <div class="header-title">
+                <h1>TARDIS · OJO DE DIOS (GOD'S EYE)</h1>
+                <p>Algoritmo Ramsey v7.2 · Red de Vigilancia y Triangulación Omnipresente</p>
+            </div>
+        </div>
+
+        <div class="header-telemetry">
+            <div class="tele-chip red" id="chip-satellites">
+                <span>Satélites LEO:</span>
+                <b id="val-sats">14,820</b>
+            </div>
+            <div class="tele-chip" id="chip-cameras">
+                <span>Cámaras Hijacked:</span>
+                <b id="val-cams" style="color:var(--primary)">4,289,120</b>
+            </div>
+            <div class="tele-chip" id="chip-devices">
+                <span>Celulares/RF:</span>
+                <b id="val-devs">8,941,030</b>
+            </div>
+            <div class="tele-chip" id="chip-latency">
+                <span>Latencia:</span>
+                <b id="val-lat" style="color:var(--accent-green)">84.2 ms</b>
+            </div>
+            <div class="tele-chip gold" id="chip-aegis">
+                <span>Constante Aegis:</span>
+                <b>Inviolable (100%)</b>
+            </div>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:8px;">
+            <button class="btn-action" onclick="triggerGlobalScan()">
+                <span>⚡ Escaneo Ramsey 360°</span>
+            </button>
+            <button class="btn-action secondary" onclick="refreshDashboard()" title="Actualizar Datos">
+                <span>↻</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- OMNI-SEARCH QUERY BAR -->
+    <div class="search-container">
+        <div class="search-bar">
+            <input type="text" id="omni-search-input" class="search-input" placeholder="Buscar persona, alias, IMEI, matrícula o vector facial (ej: Dominic Toretto, Ramsey, Shaw, Annya May)..." onkeydown="if(event.key==='Enter') executeSearch();">
+            <button class="btn-action" onclick="executeSearch()">
+                <span>🔍 Localizar</span>
+            </button>
+        </div>
+        <div class="quick-targets">
+            <span style="font-size:11px; font-family:var(--font-mono); color:var(--text-dim);">Acceso Rápido:</span>
+            <span class="quick-tag" onclick="quickSelect('Dominic Toretto')">🚗 Dominic Toretto</span>
+            <span class="quick-tag" onclick="quickSelect('Megan Ramsey')">💻 Ramsey (God's Eye)</span>
+            <span class="quick-tag" onclick="quickSelect('Deckard Shaw')">🇬🇧 Deckard Shaw</span>
+            <span class="quick-tag" onclick="quickSelect('Cipher')">✈️ Cipher (Stealth)</span>
+            <span class="quick-tag" onclick="quickSelect('Brian O\'Conner')">🏎️ Brian O'Conner</span>
+            <span class="quick-tag aegis" onclick="quickSelect('El Arquitecto')">👑 El Arquitecto [Aegis]</span>
+            <span class="quick-tag aegis" onclick="quickSelect('Annya May Carrillo')">🛡️ Annya May [Aegis]</span>
+            <span class="quick-tag aegis" onclick="quickSelect('Andrea Alejandra Carrillo Jimenez')">🛡️ Andrea Alejandra [Aegis]</span>
+            <span class="quick-tag aegis" onclick="quickSelect('Rex peluche')">🧸 Rex Peluche [Aegis]</span>
+        </div>
+    </div>
+
+    <!-- MAIN TACTICAL GRID -->
+    <main class="tactical-grid">
+
+        <!-- LEFT COLUMN: VISOR DE CÁMARAS Y AUDIO -->
+        <section class="vision-matrix-panel">
+            <div class="panel-top">
+                <div class="panel-title">
+                    <span>📹</span>
+                    <h3>Matriz Óptica Táctica & Interceptación CCTV</h3>
+                </div>
+                <select id="select-camera-feed" class="feed-selector" onchange="changeCameraFeed(this.value)">
+                    <option value="cam_la_downtown">LAPD Grid - Los Ángeles (Dominic Toretto)</option>
+                    <option value="cam_host_tuf">TARDIS Host ASUS TUF (Local Central)</option>
+                    <option value="cam_leo_sat01">Satélite LEO-01 Infrarrojo (Cipher)</option>
+                    <option value="cam_abu_dhabi">Etihad Towers Mesh - Abu Dhabi (Shaw)</option>
+                    <option value="cam_atm_london">City of London ATM #409 (Ramsey)</option>
+                    <option value="cam_traffic_pdc">CCTV Playa del Carmen (Riviera Maya)</option>
+                    <option value="cam_cun_terminal">Aeropuerto Cancún CUN (Brian O'Conner)</option>
+                    <option value="cam_tokyo_shibuya">Shibuya Crossing - Tokio (Tráfico)</option>
+                </select>
+            </div>
+
+            <!-- VIEWPORT DE CÁMARA CON HUD -->
+            <div class="camera-viewport" id="viewport-box">
+                <img id="camera-feed-img" src="/api/gods_eye/feed_frame?feed_id=cam_la_downtown" alt="Feed Táctico Ojo de Dios">
+                
+                <div class="viewport-hud">
+                    <div class="hud-top-bar">
+                        <span id="hud-cam-name">LAPD INTERCEPT GRID · 7TH & FIGUEROA</span>
+                        <span id="hud-timecode">2026-09-30 09:35:00 UTC-5</span>
+                    </div>
+
+                    <div class="hud-corner-brackets"></div>
+
+                    <!-- Retícula central sobre el objetivo -->
+                    <div class="hud-target-reticle" id="target-reticle">
+                        <div class="reticle-label" id="reticle-target-name">TARGET LOCKED</div>
+                        <div style="display:flex; justify-content:space-between; font-family:var(--font-mono); font-size:9px; color:#fff;">
+                            <span id="reticle-match-pct">MATCH: 99.4%</span>
+                            <span id="reticle-speed-val">112 km/h</span>
+                        </div>
+                    </div>
+
+                    <div class="hud-bottom-bar">
+                        <div>
+                            <span style="color:var(--text-dim)">UPLINK: </span>
+                            <b style="color:var(--primary)" id="hud-sat-id">LEO-01 MIL-SPEC</b>
+                        </div>
+                        <div style="text-align:right;">
+                            <span style="color:var(--text-dim)">RESOLUCIÓN: </span>
+                            <b id="hud-resolution">1920x1080 FHD @ 60 FPS</b>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INTERCEPTACIÓN DE AUDIO Y ESPECTROGRAMA -->
+            <div class="audio-spectrogram-container">
+                <div class="audio-header">
+                    <span style="color:var(--tactical-red); font-weight:700;">🎙️ INTERCEPTACIÓN DE AUDIO GSM / SATCOM</span>
+                    <span id="audio-freq-label">PORTADORA: 94.2 Hz · DECIBELIOS: 64 dB</span>
+                </div>
+                <canvas id="spectrogram-canvas" class="spectrogram-canvas" height="60"></canvas>
+                <div class="audio-transcript-box" id="audio-transcript-text">
+                    "No importa lo que esté bajo el capó... Lo único que importa es quién está detrás del volante. Mantengan los radios cifrados."
+                </div>
+            </div>
+        </section>
+
+        <!-- RIGHT COLUMN: RADAR Y DOSSIER -->
+        <section class="right-column-panel">
+
+            <!-- RADAR DE TRIANGULACIÓN ORBITAL -->
+            <div class="radar-card">
+                <div class="panel-top" style="border:none; padding:0;">
+                    <div class="panel-title">
+                        <span>📡</span>
+                        <h3>Triangulación Geoespacial 360°</h3>
+                    </div>
+                    <span style="font-size:10px; font-family:var(--font-mono); color:var(--primary);">Pings Satelitales Activos</span>
+                </div>
+
+                <div class="radar-canvas-container">
+                    <canvas id="radar-canvas" class="radar-canvas" width="400" height="220"></canvas>
+                </div>
+
+                <div class="radar-telemetry-strip">
+                    <div class="radar-tele-cell">
+                        <span>Latitud</span>
+                        <b id="tele-lat">34.0522° N</b>
+                    </div>
+                    <div class="radar-tele-cell">
+                        <span>Longitud</span>
+                        <b id="tele-lon">-118.2437° W</b>
+                    </div>
+                    <div class="radar-tele-cell">
+                        <span>Precisión</span>
+                        <b id="tele-radius">&lt; 1.4 m</b>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DOSSIER TÁCTICO DEL OBJETIVO -->
+            <div class="dossier-card">
+                <div class="dossier-banner-aegis" id="dossier-aegis-banner">
+                    🛡️ ENTIDAD BAJO CONSTANTE AEGIS SUPREMA · BLINDAJE KÁRMICO E INVIOLABILIDAD ABSOLUTA
+                </div>
+
+                <div class="dossier-header">
+                    <div class="target-name-block">
+                        <h2 id="dossier-name">Dominic Toretto</h2>
+                        <p id="dossier-alias">Dom / El Conductor / La Familia</p>
+                    </div>
+                    <div class="threat-badge" id="dossier-threat">ALTO / OBJETIVO PRIORITARIO</div>
+                </div>
+
+                <div class="dossier-details-grid">
+                    <div class="dossier-cell">
+                        <span class="label">Estado Actual</span>
+                        <span class="val" id="dossier-status" style="color:var(--accent-green); font-weight:700;">LOCALIZADO - RASTREO ACTIVO</span>
+                    </div>
+                    <div class="dossier-cell">
+                        <span class="label">Coincidencia Facial</span>
+                        <span class="val" id="dossier-match" style="color:var(--primary); font-weight:700;">99.4% (68 Rasgos 3D)</span>
+                    </div>
+                    <div class="dossier-cell">
+                        <span class="label">Ciudad / Región</span>
+                        <span class="val" id="dossier-city">Los Ángeles, California, EE. UU.</span>
+                    </div>
+                    <div class="dossier-cell">
+                        <span class="label">Vehículo Detectado</span>
+                        <span class="val" id="dossier-vehicle">1970 Dodge Charger R/T [2GAT123]</span>
+                    </div>
+                    <div class="dossier-cell">
+                        <span class="label">Dispositivo</span>
+                        <span class="val" id="dossier-device">Radio Satelital UHF Encriptado</span>
+                    </div>
+                    <div class="dossier-cell">
+                        <span class="label">Dirección IP</span>
+                        <span class="val" id="dossier-ip">REDACTED_IP (T-Mobile USA)</span>
+                    </div>
+                    <div class="dossier-cell">
+                        <span class="label">IMEI / Identificador</span>
+                        <span class="val" id="dossier-imei">864192048102941</span>
+                    </div>
+                    <div class="dossier-cell">
+                        <span class="label">Ritmo Cardíaco Estimado</span>
+                        <span class="val" id="dossier-bpm">86 BPM (Óptico PPG)</span>
+                    </div>
+                </div>
+
+                <div class="dossier-actions">
+                    <button class="btn-action" style="flex:1;" id="btn-toggle-track" onclick="toggleTracking()">
+                        <span>🎯 Fijar Objetivo (Lock)</span>
+                    </button>
+                    <button class="btn-action secondary" onclick="interceptAudioNow()">
+                        <span>🎙️ Interceptar Audio</span>
+                    </button>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- TACTICAL LOGS TERMINAL -->
+    <div class="tactical-log-panel">
+        <div class="log-title">
+            <span>Terminal Táctico de Interceptación Ojo de Dios</span>
+            <span style="color:var(--accent-green)">ENLACE ACTIVO · RAMSEY ENGINE</span>
+        </div>
+        <div class="log-stream" id="log-stream">
+            <div class="log-entry">
+                <span class="log-time">[09:35:01]</span>
+                <span class="log-cat">[SYS_INIT]</span>
+                <span class="log-msg">Protocolo Ojo de Dios Ramsey v7.2 enlazado con Núcleo TARDIS.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC & VISUALIZERS -->
+    <script>
+        let currentTargetId = "tgt_toretto";
+        let currentFeedId = "cam_la_downtown";
+        let isTracking = true;
+        let radarAngle = 0;
+        let audioSamples = [];
+
+        // Inicialización de canvas
+        const radarCanvas = document.getElementById('radar-canvas');
+        const radarCtx = radarCanvas.getContext('2d');
+        const specCanvas = document.getElementById('spectrogram-canvas');
+        const specCtx = specCanvas.getContext('2d');
+
+        function resizeCanvases() {
+            radarCanvas.width = radarCanvas.parentElement.clientWidth;
+            radarCanvas.height = radarCanvas.parentElement.clientHeight;
+            specCanvas.width = specCanvas.parentElement.clientWidth;
+            specCanvas.height = 60;
+        }
+        window.addEventListener('resize', resizeCanvases);
+        resizeCanvases();
+
+        // 1. Radar Animation Loop
+        function drawRadar() {
+            const w = radarCanvas.width;
+            const h = radarCanvas.height;
+            const cx = w / 2;
+            const cy = h / 2;
+            const maxR = Math.min(w, h) / 2 - 14;
+
+            radarCtx.clearRect(0, 0, w, h);
+
+            // Círculos concéntricos
+            for (let r = maxR * 0.25; r <= maxR; r += maxR * 0.25) {
+                radarCtx.beginPath();
+                radarCtx.arc(cx, cy, r, 0, Math.PI * 2);
+                radarCtx.strokeStyle = "rgba(0, 212, 200, 0.2)";
+                radarCtx.lineWidth = 1;
+                radarCtx.stroke();
+            }
+
+            // Ejes de cruz
+            radarCtx.beginPath();
+            radarCtx.moveTo(cx - maxR, cy);
+            radarCtx.lineTo(cx + maxR, cy);
+            radarCtx.moveTo(cx, cy - maxR);
+            radarCtx.lineTo(cx, cy + maxR);
+            radarCtx.strokeStyle = "rgba(0, 212, 200, 0.15)";
+            radarCtx.stroke();
+
+            // Haz giratorio de escaneo
+            radarAngle += 0.035;
+            radarCtx.save();
+            radarCtx.translate(cx, cy);
+            radarCtx.rotate(radarAngle);
+
+            const gradient = radarCtx.createRadialGradient(0, 0, 0, 0, 0, maxR);
+            gradient.addColorStop(0, "rgba(0, 212, 200, 0.4)");
+            gradient.addColorStop(1, "rgba(0, 212, 200, 0.0)");
+
+            radarCtx.beginPath();
+            radarCtx.moveTo(0, 0);
+            radarCtx.arc(0, 0, maxR, -0.4, 0);
+            radarCtx.closePath();
+            radarCtx.fillStyle = gradient;
+            radarCtx.fill();
+            radarCtx.restore();
+
+            // Punto central (TARDIS Local Hub)
+            radarCtx.beginPath();
+            radarCtx.arc(cx, cy, 4, 0, Math.PI * 2);
+            radarCtx.fillStyle = "#00d4c8";
+            radarCtx.shadowColor = "#00d4c8";
+            radarCtx.shadowBlur = 10;
+            radarCtx.fill();
+            radarCtx.shadowBlur = 0;
+
+            // Punto del objetivo triangulado
+            const tgtX = cx + Math.cos(1.2) * (maxR * 0.65);
+            const tgtY = cy + Math.sin(1.2) * (maxR * 0.65);
+
+            radarCtx.beginPath();
+            radarCtx.arc(tgtX, tgtY, 6, 0, Math.PI * 2);
+            radarCtx.fillStyle = "#ff3366";
+            radarCtx.shadowColor = "#ff3366";
+            radarCtx.shadowBlur = 14;
+            radarCtx.fill();
+            radarCtx.shadowBlur = 0;
+
+            // Anillos pulsantes sobre el objetivo
+            const pulse = (Date.now() / 400) % 20;
+            radarCtx.beginPath();
+            radarCtx.arc(tgtX, tgtY, 6 + pulse, 0, Math.PI * 2);
+            radarCtx.strokeStyle = `rgba(255, 51, 102, ${1 - pulse / 20})`;
+            radarCtx.lineWidth = 2;
+            radarCtx.stroke();
+
+            requestAnimationFrame(drawRadar);
+        }
+        drawRadar();
+
+        // 2. Spectrogram Waveform Animation Loop
+        function drawSpectrogram() {
+            const w = specCanvas.width;
+            const h = specCanvas.height;
+            specCtx.clearRect(0, 0, w, h);
+
+            if (!audioSamples || audioSamples.length === 0) {
+                // Generar onda sintética fluida si aún no hay samples del backend
+                audioSamples = Array.from({length: 48}, (_, i) => Math.sin(i * 0.3 + Date.now() / 200) * 0.4 + 0.5);
+            }
+
+            const barWidth = w / audioSamples.length;
+            for (let i = 0; i < audioSamples.length; i++) {
+                const val = audioSamples[i];
+                const barH = val * (h - 10);
+                const x = i * barWidth;
+                const y = h - barH;
+
+                specCtx.fillStyle = (i % 3 === 0) ? "#ff3366" : "#00d4c8";
+                specCtx.fillRect(x + 1, y, barWidth - 2, barH);
+            }
+
+            // Fluctuación orgánica
+            audioSamples = audioSamples.map((v, i) => {
+                const delta = (Math.random() - 0.5) * 0.08;
+                return Math.max(0.1, Math.min(0.95, v + delta));
+            });
+
+            setTimeout(drawSpectrogram, 60);
+        }
+        drawSpectrogram();
+
+        // 3. API Integrations
+        async function fetchSystemStatus() {
+            try {
+                const res = await fetch('/api/gods_eye/status');
+                if (res.ok) {
+                    const data = await res.json();
+                    document.getElementById('val-sats').textContent = Number(data.orbital_satellites_linked).toLocaleString();
+                    document.getElementById('val-cams').textContent = Number(data.hijacked_cameras_online).toLocaleString();
+                    document.getElementById('val-devs').textContent = Number(data.intercepted_devices_count).toLocaleString();
+                    document.getElementById('val-lat').textContent = data.triangulation_latency_ms + " ms";
+
+                    // Actualizar logs
+                    if (data.recent_logs && data.recent_logs.length > 0) {
+                        renderLogs(data.recent_logs);
+                    }
+                }
+            } catch (e) {
+                console.error("Error status:", e);
+            }
+        }
+
+        function renderLogs(logs) {
+            const container = document.getElementById('log-stream');
+            container.innerHTML = logs.map(l => `
+                <div class="log-entry">
+                    <span class="log-time">[${l.time_iso}]</span>
+                    <span class="log-cat">[${l.category}]</span>
+                    <span class="log-msg">${l.message}</span>
+                </div>
+            `).join('');
+        }
+
+        async function executeSearch(queryOverride) {
+            const input = document.getElementById('omni-search-input');
+            const q = queryOverride || input.value.trim();
+            if (!q) return;
+
+            try {
+                const res = await fetch('/api/gods_eye/search', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({query: q})
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.ok && data.target) {
+                        applyTargetDossier(data.target);
+                    }
+                }
+            } catch (e) {
+                console.error("Search error:", e);
+            }
+        }
+
+        function quickSelect(name) {
+            document.getElementById('omni-search-input').value = name;
+            executeSearch(name);
+        }
+
+        function applyTargetDossier(t) {
+            currentTargetId = t.id;
+
+            document.getElementById('dossier-name').textContent = t.name;
+            document.getElementById('dossier-alias').textContent = t.alias || t.name;
+            document.getElementById('dossier-threat').textContent = t.threat_level;
+            document.getElementById('dossier-status').textContent = t.status;
+            document.getElementById('dossier-match').textContent = `${t.match_confidence}% (${t.biometrics?.face_mesh_points || 68} Rasgos 3D)`;
+            document.getElementById('dossier-city').textContent = `${t.location?.city || 'Localizado'}, ${t.location?.country || ''}`;
+            document.getElementById('dossier-vehicle').textContent = t.telemetry?.vehicle || 'Desconocido';
+            document.getElementById('dossier-device').textContent = t.device?.device_type || 'Dispositivo Móvil';
+            document.getElementById('dossier-ip').textContent = t.device?.ip_address || 'Túnel TARDIS';
+            document.getElementById('dossier-imei').textContent = t.device?.imei || 'N/A';
+            document.getElementById('dossier-bpm').textContent = `${t.biometrics?.heart_rate_bpm || 72} BPM (PPG)`;
+
+            // Aegis Banner
+            const aegisBanner = document.getElementById('dossier-aegis-banner');
+            const reticle = document.getElementById('target-reticle');
+            const threatBadge = document.getElementById('dossier-threat');
+
+            if (t.aegis_protected) {
+                aegisBanner.style.display = 'block';
+                reticle.classList.add('aegis');
+                threatBadge.classList.add('aegis');
+                document.getElementById('reticle-target-name').textContent = `AEGIS PROTECTED: ${t.name.toUpperCase()}`;
+            } else {
+                aegisBanner.style.display = 'none';
+                reticle.classList.remove('aegis');
+                threatBadge.classList.remove('aegis');
+                document.getElementById('reticle-target-name').textContent = `TARGET: ${t.name.toUpperCase()}`;
+            }
+
+            document.getElementById('reticle-match-pct').textContent = `MATCH: ${t.match_confidence}%`;
+            document.getElementById('reticle-speed-val').textContent = `${t.telemetry?.speed_kmh || 0} km/h`;
+
+            // Telemetría GPS
+            if (t.location) {
+                document.getElementById('tele-lat').textContent = `${t.location.lat.toFixed(4)}° N`;
+                document.getElementById('tele-lon').textContent = `${t.location.lon.toFixed(4)}° W`;
+                document.getElementById('tele-radius').textContent = `< ${t.location.uncertainty_radius_m || 1.0} m`;
+            }
+
+            // Cambiar cámara asociada si existe
+            if (t.associated_camera_id) {
+                document.getElementById('select-camera-feed').value = t.associated_camera_id;
+                changeCameraFeed(t.associated_camera_id);
+            }
+
+            // Interceptar audio correspondiente
+            interceptAudioNow();
+        }
+
+        function changeCameraFeed(feedId) {
+            currentFeedId = feedId;
+            const img = document.getElementById('camera-feed-img');
+            img.src = `/api/gods_eye/feed_frame?feed_id=${feedId}&t=${Date.now()}`;
+
+            const sel = document.getElementById('select-camera-feed');
+            const text = sel.options[sel.selectedIndex].text;
+            document.getElementById('hud-cam-name').textContent = text.toUpperCase();
+        }
+
+        async function triggerGlobalScan() {
+            try {
+                const res = await fetch('/api/gods_eye/scan', {method: 'POST'});
+                if (res.ok) {
+                    const data = await res.json();
+                    fetchSystemStatus();
+                }
+            } catch (e) {
+                console.error("Scan error:", e);
+            }
+        }
+
+        async function interceptAudioNow() {
+            try {
+                const res = await fetch('/api/gods_eye/intercept', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({target_id: currentTargetId})
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.waveform_samples) {
+                        audioSamples = data.waveform_samples;
+                    }
+                    if (data.intercepted_transcript) {
+                        document.getElementById('audio-transcript-text').textContent = `"${data.intercepted_transcript}"`;
+                    }
+                    document.getElementById('audio-freq-label').textContent = `PORTADORA: ${data.voiceprint_hz || 120} Hz · DECIBELIOS: ${data.decibels_db || 68} dB`;
+                }
+            } catch (e) {
+                console.error("Audio intercept error:", e);
+            }
+        }
+
+        async function toggleTracking() {
+            isTracking = !isTracking;
+            try {
+                const res = await fetch('/api/gods_eye/track', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({target_id: currentTargetId, active: isTracking})
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    const btn = document.getElementById('btn-toggle-track');
+                    if (isTracking) {
+                        btn.innerHTML = `<span>🎯 Fijar Objetivo (Activo)</span>`;
+                        btn.style.borderColor = "var(--accent-green)";
+                    } else {
+                        btn.innerHTML = `<span>⏸️ Reanudar Rastreo</span>`;
+                        btn.style.borderColor = "var(--tactical-red)";
+                    }
+                    fetchSystemStatus();
+                }
+            } catch (e) {
+                console.error("Track toggle error:", e);
+            }
+        }
+
+        function refreshDashboard() {
+            fetchSystemStatus();
+            changeCameraFeed(currentFeedId);
+        }
+
+        // Reloj y bucles periódicos
+        setInterval(() => {
+            const d = new Date();
+            document.getElementById('hud-timecode').textContent = d.toISOString().replace('T', ' ').substring(0, 19) + " UTC";
+        }, 1000);
+
+        setInterval(() => {
+            // Refresco suave de fotograma de cámara cada 4 segundos
+            const img = document.getElementById('camera-feed-img');
+            img.src = `/api/gods_eye/feed_frame?feed_id=${currentFeedId}&t=${Date.now()}`;
+        }, 4000);
+
+        setInterval(fetchSystemStatus, 8000);
+
+        window.addEventListener('DOMContentLoaded', () => {
+            fetchSystemStatus();
+            interceptAudioNow();
+        });
+    </script>
+</body>
+</html>

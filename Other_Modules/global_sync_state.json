@@ -1,0 +1,34 @@
+{
+  "revision": 2430,
+  "lamport": 2749,
+  "history": [],
+  "config": {
+    "model": "TARDIS-NEURAL-SPACE-KAIJU",
+    "temperature": 0.3,
+    "num_ctx": 16384,
+    "voice_target": "client",
+    "voice_rate": 1.0,
+    "voice_pitch": 1.0,
+    "voice_volume": 1.0,
+    "handsFreeActive": false,
+    "webSearchActive": true
+  },
+  "causal": {
+    "psi": 0.892,
+    "sintropy": 0.965,
+    "phi_adv": 0.78,
+    "o_qco": 0.84,
+    "s_geom": 1.57,
+    "q_topo": 3,
+    "bifurcation": "CAMINO_DE_AGUA_SINTROPICO",
+    "coneActive": true,
+    "oscilloscopeActive": true
+  },
+  "updated_at": "2026-10-14T19:02:25.065212",
+  "visual_intelligence": {
+    "active": true,
+    "pid": 2103,
+    "videos_stored": 167,
+    "last_ping": REDACTED_PHONE.251799
+  }
+}

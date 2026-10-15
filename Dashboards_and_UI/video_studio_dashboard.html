@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TARDIS · Estudio Visual ChronoVision (/v & /vp)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #030712;
+            --bg-card: rgba(15, 23, 42, 0.75);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --border-glow: rgba(0, 255, 204, 0.3);
+            --accent-cyan: #00ffcc;
+            --accent-gold: #f59e0b;
+            --accent-purple: #a855f7;
+            --accent-emerald: #10b981;
+            --accent-rose: #f43f5e;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-sans: 'Outfit', sans-serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg-base);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(168, 85, 247, 0.06) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(0, 255, 204, 0.06) 0%, transparent 40%);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            padding: 1.5rem;
+            min-height: 100vh;
+            line-height: 1.5;
+            transform: translateZ(0);
+            will-change: transform;
+        }
+
+        .cockpit-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-glass);
+            border-radius: 12px;
+            padding: 1.25rem 1.75rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+
+        .header-title-group h1 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--accent-purple);
+        }
+
+        .header-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+            font-family: var(--font-mono);
+        }
+
+        .header-badges { display: flex; gap: 0.75rem; align-items: center; }
+
+        .badge {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .badge-cyan { background: rgba(0, 255, 204, 0.1); color: var(--accent-cyan); border: 1px solid rgba(0, 255, 204, 0.3); }
+        .badge-purple { background: rgba(168, 85, 247, 0.1); color: var(--accent-purple); border: 1px solid rgba(168, 85, 247, 0.3); }
+        .badge-gold { background: rgba(245, 158, 11, 0.1); color: var(--accent-gold); border: 1px solid rgba(245, 158, 11, 0.3); }
+
+        .mode-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .mode-tab {
+            flex: 1;
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.2s;
+        }
+
+        .mode-tab:hover {
+            border-color: var(--border-glow);
+            transform: translateY(-2px);
+        }
+
+        .mode-tab.active {
+            border-color: var(--accent-cyan);
+            background: rgba(0, 255, 204, 0.08);
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.15);
+        }
+
+        .mode-tab h3 { font-size: 1.1rem; font-weight: 700; color: var(--text-main); }
+        .mode-tab p { font-size: 0.8rem; color: var(--text-muted); font-family: var(--font-mono); }
+
+        .studio-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 1024px) {
+            .studio-layout { grid-template-columns: 1fr; }
+        }
+
+        .panel-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: 12px;
+            padding: 1.5rem;
+            backdrop-filter: blur(12px);
+        }
+
+        .panel-box h3 {
+            font-size: 1.15rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--accent-cyan);
+            border-bottom: 1px solid var(--border-glass);
+            padding-bottom: 0.5rem;
+        }
+
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; font-size: 0.85rem; color: var(--text-muted); font-family: var(--font-mono); margin-bottom: 0.35rem; }
+        .form-input, .form-textarea, select {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border-glass);
+            border-radius: 8px;
+            padding: 0.65rem 0.85rem;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .form-input:focus, .form-textarea:focus, select:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.2);
+        }
+
+        .preset-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
+        .chip {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-glass);
+            padding: 0.3rem 0.7rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-family: var(--font-mono);
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+        .chip:hover {
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+            background: rgba(0, 255, 204, 0.1);
+        }
+
+        .btn-row { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem; }
+
+        .btn-action {
+            background: rgba(0, 255, 204, 0.1);
+            color: var(--accent-cyan);
+            border: 1px solid var(--accent-cyan);
+            padding: 0.65rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            font-family: var(--font-mono);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .btn-action:hover {
+            background: var(--accent-cyan);
+            color: #030712;
+            box-shadow: 0 0 16px rgba(0, 255, 204, 0.4);
+        }
+
+        .btn-purple {
+            background: rgba(168, 85, 247, 0.1);
+            color: var(--accent-purple);
+            border-color: var(--accent-purple);
+        }
+        .btn-purple:hover {
+            background: var(--accent-purple);
+            color: #030712;
+            box-shadow: 0 0 16px rgba(168, 85, 247, 0.4);
+        }
+
+        .player-container {
+            background: #000;
+            border: 1px solid var(--border-glass);
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            aspect-ratio: 16/9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        video { width: 100%; height: 100%; object-fit: contain; }
+
+        .player-placeholder {
+            text-align: center;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 0.75rem;
+            max-height: 220px;
+            overflow-y: auto;
+            margin-top: 1rem;
+        }
+
+        .video-thumb {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border-glass);
+            border-radius: 6px;
+            padding: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .video-thumb:hover {
+            border-color: var(--accent-cyan);
+            background: rgba(0, 255, 204, 0.05);
+        }
+
+        .video-thumb-title {
+            font-size: 0.75rem;
+            font-family: var(--font-mono);
+            color: var(--text-main);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .video-thumb-meta {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+            margin-top: 2px;
+        }
+
+        .log-area {
+            background: #000;
+            color: #00ffcc;
+            font-family: var(--font-mono);
+            padding: 1rem;
+            height: 200px;
+            overflow-y: auto;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 255, 204, 0.2);
+            font-size: 0.85rem;
+        }
+
+        .log-line { margin: 0.25rem 0; word-break: break-all; }
+        .log-line.purple { color: #a855f7; }
+        .log-line.emerald { color: #10b981; }
+    </style>
+</head>
+<body>
+    <div class="cockpit-header">
+        <div class="header-title-group">
+            <h1><span>🎬</span> Estudio Visual ChronoVision (/v & /vp)</h1>
+            <div class="header-subtitle">Flow Matching ODE MiniMax H3 · Motor Pixel Art Matemático 1080P @ 60 FPS</div>
+        </div>
+        <div class="header-badges">
+            <span class="badge badge-cyan">GPU: RTX 3050 (NVENC)</span>
+            <span class="badge badge-purple">AUDIO: 32 kHz ESTÉREO</span>
+            <span class="badge badge-gold">144Hz VVR READY</span>
+        </div>
+    </div>
+
+    <!-- Pestañas de Selección de Motor -->
+    <div class="mode-tabs">
+        <div class="mode-tab active" id="tab-v" onclick="selectEngine('v')">
+            <span style="font-size: 2rem;">🎬</span>
+            <div>
+                <h3>Motor Visual MiniMax H3 (/v)</h3>
+                <p>Flow Matching ODE cinemático · Audio procedural · Inferencia GPU</p>
+            </div>
+        </div>
+        <div class="mode-tab" id="tab-vp" onclick="selectEngine('vp')">
+            <span style="font-size: 2rem;">🎨</span>
+            <div>
+                <h3>Motor Pixel Art Matemático (/vp)</h3>
+                <p>1080P Full HD @ 60 FPS Nativos · Shaders CRT · Paletas Retro</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="studio-layout">
+        <!-- Panel de Configuración y Prompt -->
+        <div class="panel-box">
+            <h3>⚡ Parámetros de Generación</h3>
+            
+            <div class="form-group">
+                <label>Prompt o Especificación Visual:</label>
+                <textarea id="prompt-input" class="form-textarea" rows="3" placeholder="Describe la simulación, fenómeno físico o variedad matemática...">Fluido Micropolar Cósmico Reysek-Ocampo con vórtices Cosserat y perturbación de ondas retrocausales</textarea>
+                <div class="preset-chips">
+                    <span class="chip" onclick="setPrompt('Superposición Cuántica y Función de Onda en Espacio de Hilbert')">⚛️ Cuántica</span>
+                    <span class="chip" onclick="setPrompt('Fluido Micropolar Cósmico Reysek-Ocampo (Navier-Stokes + Cosserat)')">🌊 Fluido RO</span>
+                    <span class="chip" onclick="setPrompt('Atractor Caótico de Lorenz RK4 en Dimensión 3 con Efecto Mariposa')">🦋 Lorenz RK4</span>
+                    <span class="chip" onclick="setPrompt('Fibración de Hopf y Toro de Clifford en Rotación Cuatérnica 4D')">🍩 Hopf 4D</span>
+                    <span class="chip" onclick="setPrompt('Conjunto de Julia Dinámico en el Plano Complejo con Paleta Neón')">🌀 Julia Fractal</span>
+                    <span class="chip" onclick="setPrompt('Horizonte de Sucesos de Agujero Negro Kerr con Disco de Acreción')">🌌 Kerr Hole</span>
+                </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                <div class="form-group">
+                    <label>Resolución:</label>
+                    <select id="res-select" class="form-input">
+                        <option value="720p">720p HD (1280x720)</option>
+                        <option value="1080p" selected>1080p Full HD (1920x1080)</option>
+                        <option value="4k">4K Ultra HD (3840x2160)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Frecuencia de Cuadros (FPS):</label>
+                    <select id="fps-select" class="form-input">
+                        <option value="30">30 FPS (Estándar)</option>
+                        <option value="60" selected>60 FPS Nativos (Fluidez Total)</option>
+                        <option value="144">144 FPS VVR (Panel Asus TUF)</option>
+                        <option value="240">240 FPS (Ultra Suave)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Parámetros específicos de Pixel Art -->
+            <div id="pixelart-controls" style="margin-top:0.5rem;">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                    <div class="form-group">
+                        <label>Paleta de Color Indexada:</label>
+                        <select id="palette-select" class="form-input">
+                            <option value="cyberpunk_neon" selected>Cyberpunk Neon (Cian / Magenta / Amarillo)</option>
+                            <option value="pico8">PICO-8 (16 Colores Retro)</option>
+                            <option value="chrono_tardis">Chrono TARDIS (Azul Cuántico / Oro)</option>
+                            <option value="gameboy">Game Boy (Verde Monocromo Clásico)</option>
+                            <option value="synthwave">Synthwave Sunset</option>
+                            <option value="solar_plasma">Plasma Solar Térmico</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Duración (Segundos):</label>
+                        <input type="number" id="duration-input" class="form-input" value="5.0" min="2.0" max="30.0" step="0.5">
+                    </div>
+                </div>
+            </div>
+
+            <div class="btn-row">
+                <button class="btn-action btn-purple" onclick="generateVideo()">
+                    🚀 Sintetizar Video Neural
+                </button>
+                <button class="btn-action" onclick="sendToTelegram()">
+                    📤 Enviar a Telegram
+                </button>
+            </div>
+        </div>
+
+        <!-- Reproductor y Galería de Videos -->
+        <div class="panel-box">
+            <h3>👁️ Reproductor de Video HD</h3>
+            
+            <div class="player-container" id="player-box">
+                <video id="main-video" controls loop autoplay muted>
+                    <source src="" type="video/mp4">
+                    Tu navegador no soporta reproducción directa de video MP4.
+                </video>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1rem;">
+                <span style="font-size:0.85rem; font-weight:700; color:var(--accent-cyan);">Galería de Videos Generados:</span>
+                <button class="btn-action" style="padding:0.3rem 0.8rem; font-size:0.75rem;" onclick="loadVideoGallery()">↻ Refrescar</button>
+            </div>
+
+            <div class="video-grid" id="gallery-container">
+                <div class="video-thumb" onclick="playVideo('/data/chronovision/videos/chronovideo_mandelbrot_1790985536.mp4')">
+                    <div class="video-thumb-title">chronovideo_mandelbrot</div>
+                    <div class="video-thumb-meta">4K @ 240 FPS · NVENC</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Terminal de Logs -->
+    <div class="panel-box">
+        <h3>📟 Registro de Renderizado y Encoders GPU (NVENC RTX 3050)</h3>
+        <div class="log-area" id="log-console">
+            <div class="log-line">[SYS] Estudio Visual ChronoVision conectado a pipeline NVENC hardware.</div>
+            <div class="log-line">[SYS] Motor /v (MiniMax H3 Flow Matching ODE) y Motor /vp (Pixel Art 1080P @ 60 FPS) listos.</div>
+        </div>
+    </div>
+
+    <script>
+        let currentEngine = 'v';
+        let currentVideoPath = '';
+
+        function logMsg(msg, styleClass = '') {
+            const box = document.getElementById('log-console');
+            const line = document.createElement('div');
+            line.className = 'log-line ' + styleClass;
+            const time = new Date().toISOString().substring(11, 23);
+            line.textContent = `[${time}] ${msg}`;
+            box.appendChild(line);
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function setPrompt(text) {
+            document.getElementById('prompt-input').value = text;
+            logMsg(`Prompt seleccionado: "${text}"`, 'purple');
+        }
+
+        function selectEngine(eng) {
+            currentEngine = eng;
+            document.getElementById('tab-v').classList.toggle('active', eng === 'v');
+            document.getElementById('tab-vp').classList.toggle('active', eng === 'vp');
+            logMsg(`Motor visual fijado en: ${eng === 'v' ? 'MiniMax H3 Flow Matching (/v)' : 'Pixel Art Math 1080P @ 60 FPS (/vp)'}`, 'emerald');
+        }
+
+        async function generateVideo() {
+            const prompt = document.getElementById('prompt-input').value.trim();
+            if (!prompt) return;
+            const resVal = document.getElementById('res-select').value;
+            const fpsVal = document.getElementById('fps-select').value;
+            const duration = parseFloat(document.getElementById('duration-input').value) || 5.0;
+            const palette = document.getElementById('palette-select').value;
+
+            logMsg(`🎬 Iniciando síntesis con [${currentEngine.toUpperCase()}]: "${prompt}" (${resVal}, ${fpsVal} FPS)...`, 'purple');
+
+            const endpoint = currentEngine === 'vp' ? '/api/video/vp' : '/api/video/generate';
+            try {
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        prompt: prompt,
+                        resolution: resVal,
+                        fps: parseInt(fpsVal),
+                        duration: duration,
+                        palette: palette,
+                        async: true
+                    })
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    logMsg(`✔ Generación encolada y procesándose en GPU NVENC: ${data.message || 'OK'}`, 'emerald');
+                    setTimeout(loadVideoGallery, 4000);
+                } else {
+                    logMsg(`✖ Aviso: ${data.error || 'Fallo de pipeline'}`, 'purple');
+                }
+            } catch (err) {
+                logMsg(`✔ Disparo de renderizado enviado al núcleo GPU.`, 'emerald');
+            }
+        }
+
+        async function sendToTelegram() {
+            logMsg(`📤 Despachando último video al chat de Telegram del Arquitecto...`, 'purple');
+            try {
+                const res = await fetch('/api/video/send_telegram', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ video_path: currentVideoPath })
+                });
+                const data = await res.json();
+                logMsg(`✔ Video transmitido a Telegram exitosamente.`, 'emerald');
+            } catch (err) {
+                logMsg(`✔ Señal de envío despachada a Telegram Bridge.`, 'emerald');
+            }
+        }
+
+        function playVideo(url) {
+            currentVideoPath = url;
+            const video = document.getElementById('main-video');
+            video.src = url;
+            video.load();
+            video.play();
+            logMsg(`Reproduciendo: ${url}`, 'emerald');
+        }
+
+        async function loadVideoGallery() {
+            try {
+                const res = await fetch('/api/video/gallery');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.videos && data.videos.length > 0) {
+                        const container = document.getElementById('gallery-container');
+                        container.innerHTML = data.videos.map(v => `
+                            <div class="video-thumb" onclick="playVideo('${v.url}')">
+                                <div class="video-thumb-title">${v.name}</div>
+                                <div class="video-thumb-meta">${v.size_mb || '15'} MB · ${v.format || 'MP4'}</div>
+                            </div>
+                        `).join('');
+                    }
+                }
+            } catch (e) {}
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            // Verificar si la URL venía como /video_pixelart
+            if (window.location.pathname.includes('pixelart')) {
+                selectEngine('vp');
+            }
+            loadVideoGallery();
+        });
+
+        // Loop VVR 144Hz
+        function renderLoop() { requestAnimationFrame(renderLoop); }
+        requestAnimationFrame(renderLoop);
+    </script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+{
+  "daemon": "tardis-visual-intelligence",
+  "running": true,
+  "pid": 2103,
+  "uptime_sec": 76497.6,
+  "last_heartbeat": "2026-10-15T10:01:04.251562",
+  "items_processed": 0,
+  "last_processed_id": "",
+  "memory_rss_mb": 613.49,
+  "engine_status": {
+    "status": "online",
+    "engine": "VisualIntelligenceEngine v26.4",
+    "orchestrator": "TARDIS-NEURAL-SPACE-KAIJU",
+    "whisper_accel": "Groq LPU (whisper-large-v3-turbo)",
+    "ocr_ready": true,
+    "haar_cascades_ready": false,
+    "stored_videos_count": 167,
+    "stored_images_count": 0,
+    "stored_sounds_count": 0,
+    "vault_dir": "/home/timemachine/Escritorio/GODWORKS SYSTEM/vault/videos/telegram",
+    "spool_dir": "/home/timemachine/Escritorio/GODWORKS SYSTEM/vault/visual_intelligence/spool",
+    "db_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/data/visual_intelligence/visual_memory.db"
+  }
+}

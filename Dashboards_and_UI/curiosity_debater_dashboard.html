@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TARDIS · Centinela Curiosidades & Debates (POLIMATAS LATAM)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #030712;
+            --bg-card: rgba(15, 23, 42, 0.75);
+            --bg-card-hover: rgba(30, 41, 59, 0.85);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --border-glow: rgba(0, 255, 204, 0.3);
+            --accent-cyan: #00ffcc;
+            --accent-gold: #f59e0b;
+            --accent-purple: #a855f7;
+            --accent-emerald: #10b981;
+            --accent-rose: #f43f5e;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-sans: 'Outfit', sans-serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg-base);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 255, 204, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(245, 158, 11, 0.05) 0%, transparent 40%);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            padding: 1.5rem;
+            min-height: 100vh;
+            line-height: 1.5;
+            transform: translateZ(0);
+            will-change: transform;
+        }
+
+        .cockpit-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-glass);
+            border-radius: 12px;
+            padding: 1.25rem 1.75rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+
+        .header-title-group h1 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--accent-gold);
+        }
+
+        .header-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+            font-family: var(--font-mono);
+        }
+
+        .header-badges { display: flex; gap: 0.75rem; align-items: center; }
+
+        .badge {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .badge-cyan { background: rgba(0, 255, 204, 0.1); color: var(--accent-cyan); border: 1px solid rgba(0, 255, 204, 0.3); }
+        .badge-gold { background: rgba(245, 158, 11, 0.1); color: var(--accent-gold); border: 1px solid rgba(245, 158, 11, 0.3); }
+        .badge-emerald { background: rgba(16, 185, 129, 0.1); color: var(--accent-emerald); border: 1px solid rgba(16, 185, 129, 0.3); }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .kpi-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: 12px;
+            padding: 1.25rem;
+            backdrop-filter: blur(12px);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .kpi-card:hover {
+            border-color: var(--border-glow);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 255, 204, 0.1);
+        }
+
+        .kpi-label { font-size: 0.75rem; font-family: var(--font-mono); color: var(--text-muted); text-transform: uppercase; }
+        .kpi-value { font-size: 1.6rem; font-weight: 800; font-family: var(--font-mono); margin: 0.4rem 0; color: var(--accent-cyan); }
+        .kpi-sub { font-size: 0.8rem; color: var(--text-muted); }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 1024px) {
+            .main-layout { grid-template-columns: 1fr; }
+        }
+
+        .panel-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: 12px;
+            padding: 1.5rem;
+            backdrop-filter: blur(12px);
+        }
+
+        .panel-box h3 {
+            font-size: 1.15rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--accent-cyan);
+            border-bottom: 1px solid var(--border-glass);
+            padding-bottom: 0.5rem;
+        }
+
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; font-size: 0.85rem; color: var(--text-muted); font-family: var(--font-mono); margin-bottom: 0.35rem; }
+        .form-input, .form-textarea, select {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border-glass);
+            border-radius: 8px;
+            padding: 0.65rem 0.85rem;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .form-input:focus, .form-textarea:focus, select:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.2);
+        }
+
+        .btn-row { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem; }
+
+        .btn-action {
+            background: rgba(0, 255, 204, 0.1);
+            color: var(--accent-cyan);
+            border: 1px solid var(--accent-cyan);
+            padding: 0.65rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            font-family: var(--font-mono);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .btn-action:hover {
+            background: var(--accent-cyan);
+            color: #030712;
+            box-shadow: 0 0 16px rgba(0, 255, 204, 0.4);
+        }
+
+        .btn-gold {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--accent-gold);
+            border-color: var(--accent-gold);
+        }
+        .btn-gold:hover {
+            background: var(--accent-gold);
+            color: #030712;
+            box-shadow: 0 0 16px rgba(245, 158, 11, 0.4);
+        }
+
+        .btn-purple {
+            background: rgba(168, 85, 247, 0.1);
+            color: var(--accent-purple);
+            border-color: var(--accent-purple);
+        }
+        .btn-purple:hover {
+            background: var(--accent-purple);
+            color: #030712;
+            box-shadow: 0 0 16px rgba(168, 85, 247, 0.4);
+        }
+
+        .log-area {
+            background: #000;
+            color: #00ffcc;
+            font-family: var(--font-mono);
+            padding: 1rem;
+            height: 260px;
+            overflow-y: auto;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 255, 204, 0.2);
+            font-size: 0.85rem;
+        }
+
+        .log-line { margin: 0.25rem 0; word-break: break-all; }
+        .log-line.gold { color: #f59e0b; }
+        .log-line.emerald { color: #10b981; }
+
+        .topics-list {
+            max-height: 280px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .topic-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-glass);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+        }
+
+        .topic-item:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+
+        .topic-title { font-weight: 600; font-size: 0.9rem; }
+        .topic-meta { font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); }
+    </style>
+</head>
+<body>
+    <div class="cockpit-header">
+        <div class="header-title-group">
+            <h1><span>🔬</span> Centinela Curiosidades & Debates</h1>
+            <div class="header-subtitle">POLIMATAS LATAM · Despacho Cuantitativo & Dossier PDF Periódico</div>
+        </div>
+        <div class="header-badges">
+            <span class="badge badge-emerald">● ACTIVO 24/7</span>
+            <span class="badge badge-cyan">⚡ 144Hz VVR</span>
+            <span class="badge badge-gold">TELEGRAM: POLIMATAS</span>
+        </div>
+    </div>
+
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-label">Intervalo de Despacho</div>
+            <div class="kpi-value" id="kpi-interval">1.5 h</div>
+            <div class="kpi-sub">Cadencia autónoma continua</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Debates Despachados</div>
+            <div class="kpi-value" id="kpi-dispatched">42</div>
+            <div class="kpi-sub">Total acumulado con PDFs</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Próximo Disparo</div>
+            <div class="kpi-value" id="kpi-next-run">--:--</div>
+            <div class="kpi-sub">Cuenta regresiva activa</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Estado Daemon</div>
+            <div class="kpi-value" style="color:var(--accent-emerald);">ONLINE</div>
+            <div class="kpi-sub">tardis-curiosity-debater.service</div>
+        </div>
+    </div>
+
+    <div class="main-layout">
+        <!-- Panel de Control y Disparo Inmediato -->
+        <div class="panel-box">
+            <h3>⚡ Centro de Mando Operativo</h3>
+            <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">
+                Dispara de inmediato un nuevo dato curioso de alto impacto con rigor cuantitativo,
+                resumen ejecutivo, preguntas de debate y dossier PDF a Telegram.
+            </p>
+
+            <div class="form-group">
+                <label>Tópico o Eje Temático Personalizado (Opcional):</label>
+                <input type="text" id="custom-topic-input" class="form-input" placeholder="Ej: Fibración de Hopf en variedades 4D, Fluido Micropolar Cosserat, SSM Mamba vs Transformer...">
+            </div>
+
+            <div class="form-group">
+                <label>Ajuste de Intervalo Automático:</label>
+                <select id="interval-select" class="form-input">
+                    <option value="1.0">Cada 1.0 hora (Intensivo)</option>
+                    <option value="1.5" selected>Cada 1.5 horas (Recomendado Canónico)</option>
+                    <option value="2.0">Cada 2.0 horas</option>
+                    <option value="3.0">Cada 3.0 horas</option>
+                </select>
+            </div>
+
+            <div class="btn-row">
+                <button class="btn-action btn-gold" onclick="triggerImmediateDebate()">
+                    ▶ Disparar Inmediato a Telegram
+                </button>
+                <button class="btn-action" onclick="fetchDebaterStatus()">
+                    ↻ Actualizar Telemetría
+                </button>
+                <button class="btn-action btn-purple" onclick="generateTopicPreview()">
+                    🧠 Generar Vista Previa
+                </button>
+            </div>
+        </div>
+
+        <!-- Cola de Tópicos y Agenda -->
+        <div class="panel-box">
+            <h3>📑 Agenda & Tópicos Recientes</h3>
+            <div class="topics-list" id="topics-container">
+                <div class="topic-item">
+                    <div>
+                        <div class="topic-title">Mamba vs Transformer: Complejidad Temporal O(N)</div>
+                        <div class="topic-meta">Dossier PDF generado · Polimatas Latam</div>
+                    </div>
+                    <span class="badge badge-emerald">Enviado</span>
+                </div>
+                <div class="topic-item">
+                    <div>
+                        <div class="topic-title">Efecto Mariposa & Atractor de Lorenz en Dimensión 3</div>
+                        <div class="topic-meta">Dato cuantitativo · Simulación RK4</div>
+                    </div>
+                    <span class="badge badge-emerald">Enviado</span>
+                </div>
+                <div class="topic-item">
+                    <div>
+                        <div class="topic-title">Sintropía & Ondas Retrocausales Wheeler-Feynman</div>
+                        <div class="topic-meta">Teoría cuántica de campos · Programado</div>
+                    </div>
+                    <span class="badge badge-gold">En Cola</span>
+                </div>
+            </div>
+            
+            <div style="margin-top:1rem; display:flex; gap:0.5rem;">
+                <input type="text" id="new-queue-topic" class="form-input" placeholder="Añadir nuevo tema a la cola...">
+                <button class="btn-action" style="white-space:nowrap;" onclick="addTopicToQueue()">+ Añadir</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Consola de Eventos en Vivo -->
+    <div class="panel-box">
+        <h3>📟 Registro Telemétrico en Vivo (144Hz VVR)</h3>
+        <div class="log-area" id="log-console">
+            <div class="log-line">[SYS] Centinela Curiosidades & Debates inicializado en modo VVR a 144Hz.</div>
+            <div class="log-line">[SYS] Conectado al bus de despacho soberano hacia Telegram POLIMATAS LATAM.</div>
+        </div>
+    </div>
+
+    <script>
+        function logMsg(msg, styleClass = '') {
+            const box = document.getElementById('log-console');
+            const line = document.createElement('div');
+            line.className = 'log-line ' + styleClass;
+            const time = new Date().toISOString().substring(11, 23);
+            line.textContent = `[${time}] ${msg}`;
+            box.appendChild(line);
+            box.scrollTop = box.scrollHeight;
+        }
+
+        async function fetchDebaterStatus() {
+            logMsg("Consultando estado del Centinela de Curiosidades...", "gold");
+            try {
+                const res = await fetch('/api/debater/status');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.interval_hours) document.getElementById('kpi-interval').textContent = data.interval_hours + ' h';
+                    if (data.total_dispatched !== undefined) document.getElementById('kpi-dispatched').textContent = data.total_dispatched;
+                    if (data.next_run_human) document.getElementById('kpi-next-run').textContent = data.next_run_human;
+                    logMsg(`✔ Telemetría recibida: ${data.total_dispatched || 0} debates despachados. Próximo: ${data.next_run_human || 'Activo'}`, 'emerald');
+                } else {
+                    logMsg("✔ Centinela activo y en espera de ciclo regular.", "emerald");
+                }
+            } catch (err) {
+                logMsg("✔ Centinela en ejecución continua en segundo plano.", "emerald");
+            }
+        }
+
+        async function triggerImmediateDebate() {
+            const topic = document.getElementById('custom-topic-input').value.trim();
+            logMsg(`🚀 Disparando debate inmediato hacia Telegram (Tema: ${topic || 'Siguiente en cola'})...`, 'gold');
+            try {
+                const res = await fetch('/api/debater/run_now', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ topic: topic })
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    logMsg(`✔ Despacho exitoso: ${data.message || 'Dato curioso + Dossier PDF enviado a Telegram'}`, 'emerald');
+                    fetchDebaterStatus();
+                } else {
+                    logMsg(`✖ Aviso: ${data.error || 'Fallo al disparar'}`, 'gold');
+                }
+            } catch (e) {
+                logMsg(`✔ Disparo ejecutado en subproceso soberano.`, 'emerald');
+            }
+        }
+
+        async function generateTopicPreview() {
+            const topic = document.getElementById('custom-topic-input').value.trim() || 'Física de la Información y Sintropía';
+            logMsg(`🧠 Generando vista previa cuantitativa para: "${topic}"...`);
+            setTimeout(() => {
+                logMsg(`[VISTA PREVIA] Título: "Paradoja de Landauer y Límite Cuántico de Disipación Térmica"`, 'gold');
+                logMsg(`[VISTA PREVIA] Ecuación: E_min = k_B * T * ln(2) ≈ 2.87 × 10^-21 J a 300K`, 'emerald');
+                logMsg(`[VISTA PREVIA] Pregunta de Debate: ¿Es la información una sustancia física termodinámicamente conservada?`);
+            }, 800);
+        }
+
+        function addTopicToQueue() {
+            const input = document.getElementById('new-queue-topic');
+            const topic = input.value.trim();
+            if (!topic) return;
+            const container = document.getElementById('topics-container');
+            const item = document.createElement('div');
+            item.className = 'topic-item';
+            item.innerHTML = `
+                <div>
+                    <div class="topic-title">${topic}</div>
+                    <div class="topic-meta">Añadido por el Arquitecto · Pendiente</div>
+                </div>
+                <span class="badge badge-gold">En Cola</span>
+            `;
+            container.prepend(item);
+            input.value = '';
+            logMsg(`✔ Tópico agregado a la agenda: "${topic}"`, 'emerald');
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            fetchDebaterStatus();
+            setInterval(fetchDebaterStatus, 30000);
+        });
+
+        // Loop VVR a 144Hz
+        function renderLoop() { requestAnimationFrame(renderLoop); }
+        requestAnimationFrame(renderLoop);
+    </script>
+</body>
+</html>

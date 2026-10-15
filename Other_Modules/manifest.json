@@ -1,0 +1,22 @@
+{
+  "name": "TARDIS POCKET",
+  "short_name": "TARDIS",
+  "description": "Terminal Soberana Autónoma TARDIS POCKET para Motorola Moto X Play",
+  "start_url": "/tardis_pocket.html",
+  "display": "fullscreen",
+  "orientation": "portrait",
+  "background_color": "#030712",
+  "theme_color": "#00d4c8",
+  "icons": [
+    {
+      "src": "/tardis-icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/tardis-master-hub-icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
