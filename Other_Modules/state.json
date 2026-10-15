@@ -6,7 +6,7 @@
   "last_video_id": "vp_20261015_130651_1b64ee",
   "last_topic": "Holographic Quantum Error Correction and Emergent Geometry: Tensor Network Models of AdS/CFT",
   "total_videos_analyzed": 171,
-  "running_cycle": true,
+  "running_cycle": false,
   "last_error": null,
   "auto_improvement_count": 108
 }
