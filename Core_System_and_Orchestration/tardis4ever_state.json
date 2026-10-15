@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "created_at": "2026-10-15T02:04:29.176374",
   "last_periodic_sync": "2026-10-15T02:04:29.176374",
-  "last_immediate_sync": "2026-10-15T05:30:18.129025",
-  "last_commit_hash": "3757abb",
-  "sync_count": 180,
-  "immediate_sync_count": 180,
+  "last_immediate_sync": "2026-10-15T05:31:28.266006",
+  "last_commit_hash": "c6b787a",
+  "sync_count": 181,
+  "immediate_sync_count": 181,
   "periodic_sync_count": 0,
   "last_known_mtimes": {
     "skill:omni-control-bridge/SKILL.md": REDACTED_PHONE.4575877,
@@ -157,6 +157,7 @@
     "ftl:browser_evol_redes_neuronales_de_espa_5416.py": REDACTED_PHONE.888759,
     "ftl:browser_evol_sistemas_operativos_basa_3521.py": REDACTED_PHONE.1212304,
     "ftl:browser_evol_t_cnicas_de_compresi_n_s_1396.py": REDACTED_PHONE.606043,
+    "ftl:browser_evol_criptograf_a_postcu_ntic_278.py": REDACTED_PHONE.6527207,
     "ftl:browser_evol_redes_neuronales_de_espa_3365.py": REDACTED_PHONE.3730133,
     "ftl:browser_evol_neurotopolog_a_y_mapeo_d_6130.py": REDACTED_PHONE.9155571,
     "ftl:browser_evol_neurotopolog_a_y_mapeo_d_3111.py": REDACTED_PHONE.7368546,
@@ -1094,6 +1095,7 @@
     "ftl:browser_evol_computaci_n_cu_ntica_alg_5.py": REDACTED_PHONE.5073478,
     "ftl:browser_evol_neurotopolog_a_y_mapeo_d_9152.py": REDACTED_PHONE.6033268,
     "ftl:browser_evol_redes_neuronales_de_espa_2204.py": REDACTED_PHONE.190387,
+    "ftl:browser_evol_criptograf_a_postcu_ntic_282.py": REDACTED_PHONE.537013,
     "ftl:browser_evol_redes_neuronales_de_espa_7525.py": REDACTED_PHONE.708555,
     "ftl:browser_evol_sistemas_operativos_basa_9671.py": REDACTED_PHONE.8370392,
     "ftl:browser_evol_t_cnicas_de_compresi_n_s_6222.py": REDACTED_PHONE.8219576,
@@ -1504,6 +1506,7 @@
     "ftl:browser_evol_sistemas_operativos_basa_8513.py": REDACTED_PHONE.072485,
     "ftl:browser_evol_sistemas_operativos_basa_8266.py": REDACTED_PHONE.5059278,
     "ftl:browser_evol_t_cnicas_de_compresi_n_s_963.py": REDACTED_PHONE.1824613,
+    "ftl:browser_evol_criptograf_a_postcu_ntic_286.py": REDACTED_PHONE.261458,
     "ftl:browser_evol_criptograf_a_postcu_ntic_2985.py": REDACTED_PHONE.8742645,
     "ftl:browser_evol_modelos_de_razonamiento__636.py": REDACTED_PHONE.6651778,
     "ftl:browser_evol_t_cnicas_de_compresi_n_s_9139.py": REDACTED_PHONE.7158477,
@@ -2195,6 +2198,18 @@
   },
   "history": [
     {
+      "timestamp": "2026-10-15T05:31:28.266006",
+      "trigger": "immediate_milestone",
+      "commit_hash": "c6b787a",
+      "score": 75,
+      "reasons": [
+        "Actualizaci\u00f3n en proyecto price_sentinel: README.md",
+        "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
+        "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
+        "Actualizaci\u00f3n en proyecto carlinkit_kvm: index.html"
+      ]
+    },
+    {
       "timestamp": "2026-10-15T05:30:18.129025",
       "trigger": "immediate_milestone",
       "commit_hash": "3757abb",
@@ -2776,19 +2791,6 @@
       "commit_hash": "f1cf4f0",
       "score": 60,
       "reasons": [
-        "Actualizaci\u00f3n en proyecto price_sentinel: README.md",
-        "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
-        "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
-        "Actualizaci\u00f3n en proyecto carlinkit_kvm: index.html"
-      ]
-    },
-    {
-      "timestamp": "2026-10-15T04:35:54.409146",
-      "trigger": "immediate_milestone",
-      "commit_hash": "6203cf6",
-      "score": 95,
-      "reasons": [
-        "Evoluci\u00f3n en subsistema core TARDIS: tardis_ipad_edge_server.py",
         "Actualizaci\u00f3n en proyecto price_sentinel: README.md",
         "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
         "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
