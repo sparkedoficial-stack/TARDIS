@@ -2090,8 +2090,14 @@ def get_client_html() -> str:
         function switchTab(tabId, btn) {{
             document.querySelectorAll('.tab-view').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.dock-btn').forEach(el => el.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            btn.classList.add('active');
+            const target = document.getElementById(tabId);
+            if (target) target.classList.add('active');
+            if (btn) {{
+                btn.classList.add('active');
+            }} else {{
+                const b = document.querySelector(`button[onclick*="${{tabId}}"]`);
+                if (b) b.classList.add('active');
+            }}
             if (tabId === 'view-ide') loadFilesTree();
             if (tabId === 'view-terminal') loadKernelBase();
             if (tabId === 'view-tools') loadToolsCatalog();

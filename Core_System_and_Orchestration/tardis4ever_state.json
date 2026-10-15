@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "created_at": "2026-10-15T02:04:29.176374",
   "last_periodic_sync": "2026-10-15T02:04:29.176374",
-  "last_immediate_sync": "2026-10-15T04:19:13.211499",
-  "last_commit_hash": "d99edfa",
-  "sync_count": 116,
-  "immediate_sync_count": 116,
+  "last_immediate_sync": "2026-10-15T04:20:21.174335",
+  "last_commit_hash": "232c8a8",
+  "sync_count": 117,
+  "immediate_sync_count": 117,
   "periodic_sync_count": 0,
   "last_known_mtimes": {
     "skill:omni-control-bridge/SKILL.md": REDACTED_PHONE.4575877,
@@ -1031,6 +1031,7 @@
     "ftl:browser_evol_computaci_n_cu_ntica_alg_2235.py": REDACTED_PHONE.1545987,
     "ftl:browser_evol_criptograf_a_postcu_ntic_8969.py": REDACTED_PHONE.0984254,
     "ftl:browser_evol_t_cnicas_de_compresi_n_s_1851.py": REDACTED_PHONE.1528366,
+    "ftl:browser_evol_teor_a_de_control_causal_5956.py": REDACTED_PHONE.9522274,
     "ftl:browser_evol_computaci_n_cu_ntica_alg_3170.py": REDACTED_PHONE.6942534,
     "ftl:browser_evol_sistemas_operativos_basa_4295.py": REDACTED_PHONE.6813252,
     "ftl:browser_evol_criptograf_a_postcu_ntic_51.py": REDACTED_PHONE.8562555,
@@ -2008,7 +2009,7 @@
     "core:knowledge_graph.py": REDACTED_PHONE.8576238,
     "core:easy_touch_engine.py": REDACTED_PHONE.9785917,
     "core:ftl_telegram_runner.py": REDACTED_PHONE.1491292,
-    "core:tardis_ipad_edge_server.py": REDACTED_PHONE.6593163,
+    "core:tardis_ipad_edge_server.py": REDACTED_PHONE.3193855,
     "core:curiosity_debate_manager.py": REDACTED_PHONE.5321302,
     "core:gods_eye_engine.py": REDACTED_PHONE.3320367,
     "core:sovereign_local_runner.py": REDACTED_PHONE.053532,
@@ -2156,6 +2157,19 @@
     "sat:gia_ios:GIAModels.swift": REDACTED_PHONE.5796177
   },
   "history": [
+    {
+      "timestamp": "2026-10-15T04:20:21.174335",
+      "trigger": "immediate_milestone",
+      "commit_hash": "232c8a8",
+      "score": 90,
+      "reasons": [
+        "Evoluci\u00f3n en subsistema core TARDIS: tardis_ipad_edge_server.py",
+        "Actualizaci\u00f3n en proyecto price_sentinel: README.md",
+        "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
+        "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
+        "Actualizaci\u00f3n en proyecto carlinkit_kvm: index.html"
+      ]
+    },
     {
       "timestamp": "2026-10-15T04:19:13.211499",
       "trigger": "immediate_milestone",
@@ -2738,18 +2752,6 @@
       "timestamp": "2026-10-15T03:25:15.132288",
       "trigger": "immediate_milestone",
       "commit_hash": "a24f8be",
-      "score": 60,
-      "reasons": [
-        "Actualizaci\u00f3n en proyecto price_sentinel: README.md",
-        "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
-        "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
-        "Actualizaci\u00f3n en proyecto carlinkit_kvm: index.html"
-      ]
-    },
-    {
-      "timestamp": "2026-10-15T03:24:08.815673",
-      "trigger": "immediate_milestone",
-      "commit_hash": "0716d14",
       "score": 60,
       "reasons": [
         "Actualizaci\u00f3n en proyecto price_sentinel: README.md",
