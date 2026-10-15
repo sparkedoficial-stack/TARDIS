@@ -2,7 +2,7 @@
 
 Módulos y componentes auxiliares del sistema.
 
-## Subsistemas y Funciones Principales:
+## Subsistemas y Componentes Principales:
 
 - **__init__.py**: Componente de alta eficiencia.
 - **api.py**: Componente de alta eficiencia.
@@ -30,7 +30,7 @@ Módulos y componentes auxiliares del sistema.
 - **eval_glm.py**: Componente de alta eficiencia.
 - **evaluator_nn.py**: Componente de alta eficiencia.
 - **explorador_cuantico.py**: Componente de alta eficiencia.
-- **family_registry.py**: Componente de alta eficiencia.
+- **family_registry.py**: Directorio y puente soberano de interoperabilidad omni-herramientas.
 - **fix_ftl.py**: Motor de aceleración FTL y computación adaptativa.
 - **gemini_privacy_vault.py**: Centinela de seguridad, blindaje perimetral o bóveda segura.
 - **gia_bootstrap.py**: Componente de alta eficiencia.
@@ -74,7 +74,6 @@ Módulos y componentes auxiliares del sistema.
 - **guest_task_1791161710035.py**: Componente de alta eficiencia.
 - **guest_task_1791161712948.py**: Componente de alta eficiencia.
 - **guest_task_1791161733330.py**: Componente de alta eficiencia.
-- **ingest_omni_tools_knowledge.py**: Directorio y puente soberano de interoperabilidad omni-herramientas.
 - **interaction_logger.py**: Componente de alta eficiencia.
 - **ios_bridge.py**: Componente de alta eficiencia.
 - **jev_tardis_symbiosis.py**: Componente de alta eficiencia.
@@ -101,10 +100,10 @@ Módulos y componentes auxiliares del sistema.
 - **tardis_dynamic_function_engine.py**: Componente de alta eficiencia.
 - **tardis_evolutionary_codex.py**: Componente de alta eficiencia.
 - **tardis_kaiju_pocket_engine.py**: Componente de alta eficiencia.
-- **tardis_phone_harness_bridge.py**: Componente de alta eficiencia.
+- **tardis_phone_harness_bridge.py**: Harness de control bidireccional Android/iOS/iPadOS y Cloud Phones.
 - **tardis_physics_disseminator.py**: Motor de cálculo simbólico y simulación física.
 - **tardis_progress.py**: Componente de alta eficiencia.
-- **tardis_rea_bridge.py**: Componente de alta eficiencia.
+- **tardis_rea_bridge.py**: Motor de ingeniería inversa multi-arquitectura y descompilación.
 - **tardis_safety_app.py**: Componente de alta eficiencia.
 - **tardis_singularity_daemon.py**: Motor de aceleración FTL y computación adaptativa.
 - **tardis_telephony_controller.py**: Componente de alta eficiencia.

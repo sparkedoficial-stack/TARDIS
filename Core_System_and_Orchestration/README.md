@@ -2,7 +2,7 @@
 
 Núcleo de orquestación temporal, bucles de control soberano FTL y sincronización multi-hilo.
 
-## Subsistemas y Funciones Principales:
+## Subsistemas y Componentes Principales:
 
 - **autonomous_controller.py**: Componente de alta eficiencia.
 - **background_hardware_orchestrator.py**: Núcleo de orquestación y control temporal/espacial.
@@ -17,8 +17,8 @@ Núcleo de orquestación temporal, bucles de control soberano FTL y sincronizaci
 - **ftl_kernel_bridge.py**: Puente de control a nivel de Kernel (Ring 0 / Root Scope).
 - **ftl_master_hub.py**: Motor de aceleración FTL y computación adaptativa.
 - **ftl_omni_registry.py**: Directorio y puente soberano de interoperabilidad omni-herramientas.
-- **ftl_phone_harness.py**: Motor de aceleración FTL y computación adaptativa.
-- **ftl_rea.py**: Motor de aceleración FTL y computación adaptativa.
+- **ftl_phone_harness.py**: Harness de control bidireccional Android/iOS/iPadOS y Cloud Phones.
+- **ftl_rea.py**: Motor de ingeniería inversa multi-arquitectura y descompilación.
 - **ftl_web_server.py**: Motor de aceleración FTL y computación adaptativa.
 - **ftl_xcode_linux.py**: Toolchain soberano de compilación, análisis Mach-O y despliegue iOS para Linux.
 - **gia_control.py**: Componente de alta eficiencia.

@@ -2,7 +2,7 @@
 
 Automatizaciones de sistema, diagnósticos de hardware, optimizadores de SO y herramientas de despliegue.
 
-## Subsistemas y Funciones Principales:
+## Subsistemas y Componentes Principales:
 
 - **auto_update_tardis.sh**: Componente de alta eficiencia.
 - **benchmark_system.py**: Componente de alta eficiencia.
@@ -11,6 +11,7 @@ Automatizaciones de sistema, diagnósticos de hardware, optimizadores de SO y he
 - **colab_test_subsyst_m_dulo_de_telemetr.py**: Componente de alta eficiencia.
 - **fetch_benchmarks.py**: Componente de alta eficiencia.
 - **generate_pdf.py**: Componente de alta eficiencia.
+- **ingest_omni_tools_knowledge.py**: Directorio y puente soberano de interoperabilidad omni-herramientas.
 - **install_context_matrix.py**: Componente de alta eficiencia.
 - **lanzar_jev_monitor.sh**: Componente de alta eficiencia.
 - **launch_direct_gia.sh**: Componente de alta eficiencia.

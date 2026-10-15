@@ -4,6 +4,22 @@ Este repositorio contiene la arquitectura de vanguardia, sistemas y subsistemas 
 
 El código ha sido estructurado modularmente para exhibir sus capacidades técnicas, manteniendo todas las credenciales y datos sensibles rigurosamente protegidos.
 
+## ⚡ Directivas Globales Soberanas y Gobernanza Agéntica
+
+- **[AGENTS.md](./AGENTS.md)**: Directiva Global Soberana (Operación 100% Autónoma, Alta Verbosidad, Ring 0 Kernel Authority, Aislamiento Estricto de Procesos en Segundo Plano, Modo Ultra Permanente y Control Omni-Herramientas).
+- **[GEMINI.md](./GEMINI.md)**: Protocolo de alineación operacional para modelos de razonamiento avanzado y orquestación de agentes.
+
+## 🛠️ Omni-Tool Suite & Kernel Bridge (Ring 0 / Root Scope)
+
+TARDIS, FTL y Antigravity (AGY) operan con acceso y control unificado sobre herramientas soberanas:
+
+1. **Xcode para Linux (`xcode-linux`)**: Toolchain soberano en Linux para compilación ARM64 iOS, análisis Mach-O, firma zsign, puente REA, transferencia AFC y despliegue USB.
+2. **Phone Harness (`phone-harness`)**: Control bidireccional integral de dispositivos móviles (Android ADB, Apple iOS/iPadOS Mirroring y Cloud Phones).
+3. **REA (Reverse Engineer Anything)**: Descompilación e ingeniería inversa profunda de binarios nativos (Mach-O, ELF, PE), APKs, IPAs y aplicaciones Electron/JS.
+4. **FTL Kernel Bridge (Ring 0 / Root Scope)**: Observabilidad PSI (`/proc/pressure`), ring buffer dmesg sin restricciones, sintonización de sysctl y control `/dev/uinput` y `/dev/uhid`.
+5. **FTL Git Sync & Portfolio Builder**: Pipeline continuo de sanitización, staging y sincronización soberana con GitHub.
+6. **Easy Touch Engine**: Sentinel en segundo plano para auto-reparación preventiva y balance de hardware.
+
 ## 🌌 Arquitectura de Sistemas y Capacidades
 
 ### 🔹 [AI_and_Agentic_Systems](./AI_and_Agentic_Systems)
@@ -23,6 +39,9 @@ Cockpits de control en tiempo real, portales soberanos y tableros de visualizaci
 
 ### 🔹 [Mathematical_and_Physics_Engines](./Mathematical_and_Physics_Engines)
 Motores de física hiperdimensional, ecuaciones sintrópicas, cálculo causal y difusión de física teórica.
+
+### 🔹 [Omni_Tool_Suite_and_Skills](./Omni_Tool_Suite_and_Skills)
+Toolchains soberanos (Xcode para Linux, Phone Harness, REA), registro omni-herramientas y especificaciones de skills agénticos.
 
 ### 🔹 [Other_Modules](./Other_Modules)
 Módulos y componentes auxiliares del sistema.

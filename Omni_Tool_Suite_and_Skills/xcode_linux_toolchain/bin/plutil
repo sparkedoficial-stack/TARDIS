@@ -1,0 +1,132 @@
+#!/usr/bin/env python3
+"""
+plutil - Apple Property List Utility for Linux
+Compatible with Apple's macOS plutil CLI syntax.
+Part of Xcode for Linux (xcode-linux).
+"""
+
+import sys
+import os
+import plistlib
+import json
+import argparse
+
+def format_value(val, indent=0):
+    ind = "  " * indent
+    if isinstance(val, dict):
+        lines = ["{"]
+        for k, v in val.items():
+            lines.append(f"{ind}  \"{k}\" => {format_value(v, indent + 1)}")
+        lines.append(f"{ind}}}")
+        return "\n".join(lines)
+    elif isinstance(val, list):
+        lines = ["["]
+        for i, item in enumerate(val):
+            lines.append(f"{ind}  {i}: {format_value(item, indent + 1)}")
+        lines.append(f"{ind}]")
+        return "\n".join(lines)
+    elif isinstance(val, bytes):
+        return f"<data: {len(val)} bytes>"
+    elif isinstance(val, bool):
+        return "1" if val else "0"
+    else:
+        return repr(val)
+
+def main():
+    if len(sys.argv) == 1:
+        print("Usage: plutil -convert format [-o output] file...")
+        print("       plutil -p file...")
+        print("       plutil -lint file...")
+        sys.exit(1)
+
+    args = sys.argv[1:]
+    
+    # Check for -p (print)
+    if "-p" in args:
+        idx = args.index("-p")
+        files = args[idx+1:]
+        if not files:
+            files = [f for f in args if f != "-p"]
+        for f in files:
+            try:
+                with open(f, "rb") as fp:
+                    pl = plistlib.load(fp)
+                print(format_value(pl))
+            except Exception as e:
+                print(f"{f}: parse error: {e}", file=sys.stderr)
+                sys.exit(1)
+        return
+
+    # Check for -lint
+    if "-lint" in args:
+        files = [f for f in args if not f.startswith("-")]
+        for f in files:
+            try:
+                with open(f, "rb") as fp:
+                    plistlib.load(fp)
+                print(f"{f}: OK")
+            except Exception as e:
+                print(f"{f}: parse error: {e}", file=sys.stderr)
+                sys.exit(1)
+        return
+
+    # Check for -convert
+    if "-convert" in args:
+        c_idx = args.index("-convert")
+        fmt = args[c_idx + 1] if c_idx + 1 < len(args) else "xml1"
+        out_file = None
+        if "-o" in args:
+            o_idx = args.index("-o")
+            out_file = args[o_idx + 1]
+        
+        target_files = []
+        skip_next = False
+        for i, a in enumerate(args):
+            if skip_next:
+                skip_next = False
+                continue
+            if a in ("-convert", "-o", "-e"):
+                skip_next = True
+                continue
+            if not a.startswith("-"):
+                target_files.append(a)
+
+        for src in target_files:
+            try:
+                with open(src, "rb") as fp:
+                    pl = plistlib.load(fp)
+                
+                dest = out_file if out_file else src
+                
+                if fmt in ("xml1", "xml"):
+                    with open(dest, "wb") as fp:
+                        plistlib.dump(pl, fp, fmt=plistlib.FMT_XML)
+                elif fmt in ("binary1", "bin"):
+                    with open(dest, "wb") as fp:
+                        plistlib.dump(pl, fp, fmt=plistlib.FMT_BINARY)
+                elif fmt == "json":
+                    # Convert bytes to hex or string representation for json
+                    def sanitize(obj):
+                        if isinstance(obj, bytes):
+                            return obj.hex()
+                        elif isinstance(obj, dict):
+                            return {k: sanitize(v) for k, v in obj.items()}
+                        elif isinstance(obj, list):
+                            return [sanitize(v) for v in obj]
+                        return obj
+                    
+                    with open(dest, "w", encoding="utf-8") as fp:
+                        json.dump(sanitize(pl), fp, indent=2, ensure_ascii=False)
+                else:
+                    print(f"Unknown format: {fmt}", file=sys.stderr)
+                    sys.exit(1)
+            except Exception as e:
+                print(f"{src}: error: {e}", file=sys.stderr)
+                sys.exit(1)
+        return
+
+    # Fallback to plistutil
+    os.execvp("plistutil", ["plistutil"] + args)
+
+if __name__ == "__main__":
+    main()

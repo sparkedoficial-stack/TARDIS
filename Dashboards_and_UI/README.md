@@ -2,7 +2,7 @@
 
 Cockpits de control en tiempo real, portales soberanos y tableros de visualización cuántica/térmica.
 
-## Subsistemas y Funciones Principales:
+## Subsistemas y Componentes Principales:
 
 - **TARDIS_TERMINAL_APP.html**: Interfaz interactiva de monitoreo en tiempo real.
 - **adaptation_sys_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.

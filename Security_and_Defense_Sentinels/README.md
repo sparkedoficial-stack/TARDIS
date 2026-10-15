@@ -2,7 +2,7 @@
 
 Bóvedas criptográficas locales, centinelas de ciberdefensa, puentes de kernel Ring 0 y mitigación de intrusiones.
 
-## Subsistemas y Funciones Principales:
+## Subsistemas y Componentes Principales:
 
 - **cyberdefense_sentinel.py**: Centinela de seguridad, blindaje perimetral o bóveda segura.
 - **deep_memory_vault.py**: Centinela de seguridad, blindaje perimetral o bóveda segura.

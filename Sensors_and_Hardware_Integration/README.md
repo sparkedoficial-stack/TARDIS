@@ -2,7 +2,7 @@
 
 Telemetría ambiental, radares de presencia RF, análisis espectral EM y vigilancia sensorial.
 
-## Subsistemas y Funciones Principales:
+## Subsistemas y Componentes Principales:
 
 - **atmospheric_sensor.py**: Sistema de telemetría y percepción del entorno físico/RF.
 - **camera_grabber.py**: Componente de alta eficiencia.

@@ -2,7 +2,7 @@
 
 Motores de física hiperdimensional, ecuaciones sintrópicas, cálculo causal y difusión de física teórica.
 
-## Subsistemas y Funciones Principales:
+## Subsistemas y Componentes Principales:
 
 - **chronovision_engine.py**: Componente de alta eficiencia.
 - **ecca_fft_engine.py**: Componente de alta eficiencia.

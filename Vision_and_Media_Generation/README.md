@@ -2,7 +2,7 @@
 
 Pipelines de procesamiento y generación de video 4K, avatares 3D interactivos y visión computacional.
 
-## Subsistemas y Funciones Principales:
+## Subsistemas y Componentes Principales:
 
 - **character_3d_renderer.py**: Componente de alta eficiencia.
 - **render_3d_engine.py**: Componente de alta eficiencia.

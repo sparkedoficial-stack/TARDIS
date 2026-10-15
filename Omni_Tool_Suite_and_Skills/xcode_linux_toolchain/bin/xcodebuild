@@ -1,0 +1,41 @@
+#!/usr/bin/env python3
+"""
+xcodebuild - Build tool for Xcode on Linux
+Compatible with Apple's xcodebuild CLI syntax.
+Part of Xcode for Linux (xcode-linux).
+"""
+
+import sys
+import os
+import subprocess
+
+def main():
+    args = sys.argv[1:]
+    
+    if "-version" in args:
+        print("Xcode 16.4")
+        print("Build version 16E115 (Linux Sovereign Edition)")
+        return
+
+    if "-showsdks" in args:
+        print("iOS SDKs:")
+        print("\tiOS 18.2                      \t-sdk iphoneos18.2")
+        print("\tiOS 17.5                      \t-sdk iphoneos17.5")
+        print("\tiOS 14.0                      \t-sdk iphoneos14.0")
+        print("\nmacOS SDKs:")
+        print("\tmacOS 15.2                    \t-sdk macosx15.2")
+        print("\nSimulator SDKs:")
+        print("\tiOS 18.2 Simulator            \t-sdk iphonesimulator18.2")
+        return
+
+    # Check for build project
+    project_dir = os.getcwd()
+    for i, a in enumerate(args):
+        if a in ("-project", "-target"):
+            pass
+
+    cmd = ["/opt/xcode-linux/bin/xcode-linux", "build", project_dir]
+    sys.exit(subprocess.call(cmd))
+
+if __name__ == "__main__":
+    main()

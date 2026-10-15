@@ -2,7 +2,7 @@
 
 Sistemas agénticos autónomos, enjambres cognitivos MoE, autorreflexión y evolución continua.
 
-## Subsistemas y Funciones Principales:
+## Subsistemas y Componentes Principales:
 
 - **agent_context.py**: Modelo lógico y comportamiento autónomo distribuido.
 - **agent_harness.py**: Modelo lógico y comportamiento autónomo distribuido.

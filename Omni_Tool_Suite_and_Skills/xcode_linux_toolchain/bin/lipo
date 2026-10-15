@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# lipo wrapper for Linux Xcode using LLVM llvm-lipo
+exec /usr/bin/llvm-lipo "$@"

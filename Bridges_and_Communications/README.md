@@ -2,7 +2,7 @@
 
 Pasarelas de comunicación omnicanal (WhatsApp, Telegram, SMS, túneles seguros y APIs inter-IA).
 
-## Subsistemas y Funciones Principales:
+## Subsistemas y Componentes Principales:
 
 - **antigravity_bridge.py**: Componente de alta eficiencia.
 - **antigravity_remote_controller.py**: Componente de alta eficiencia.
