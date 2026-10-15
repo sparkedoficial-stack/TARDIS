@@ -649,6 +649,37 @@ def get_client_html() -> str:
                 radial-gradient(circle at 85% 85%, rgba(168, 85, 247, 0.08) 0%, transparent 40%);
         }}
         /* Header Superior */
+        
+        .header-nav {{
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }}
+        .nav-chip {{
+            background: rgba(15, 23, 42, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: var(--text-muted);
+            padding: 6px 14px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }}
+        .nav-chip:hover {{
+            border-color: var(--neon-cyan);
+            color: #fff;
+        }}
+        .nav-chip.active {{
+            background: rgba(6, 182, 212, 0.18);
+            border-color: var(--neon-cyan);
+            color: #ffffff;
+            box-shadow: 0 0 12px rgba(6, 182, 212, 0.3);
+        }}
+
         header {{
             height: 64px;
             padding: 0 20px;
@@ -1044,7 +1075,38 @@ def get_client_html() -> str:
             gap: 12px;
             backdrop-filter: blur(15px);
         }}
-        .tool-header {{
+        .tool-
+        .header-nav {{
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }}
+        .nav-chip {{
+            background: rgba(15, 23, 42, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: var(--text-muted);
+            padding: 6px 14px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }}
+        .nav-chip:hover {{
+            border-color: var(--neon-cyan);
+            color: #fff;
+        }}
+        .nav-chip.active {{
+            background: rgba(6, 182, 212, 0.18);
+            border-color: var(--neon-cyan);
+            color: #ffffff;
+            box-shadow: 0 0 12px rgba(6, 182, 212, 0.3);
+        }}
+
+        header {{
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -1407,6 +1469,13 @@ def get_client_html() -> str:
                 <div class="brand-subtitle">APPLE SILICON 120Hz · GODWORKS v26.4</div>
             </div>
         </div>
+        <div class="header-nav">
+            <button class="nav-chip active" onclick="switchTab('view-chat', this)">💬 Neural GIA</button>
+            <button class="nav-chip" onclick="switchTab('view-ide', this)">💻 IDE Soberano</button>
+            <button class="nav-chip" onclick="switchTab('view-terminal', this)">⚡ Terminal & Kernel</button>
+            <button class="nav-chip" onclick="switchTab('view-tools', this)">🛠️ Omni-Tools</button>
+            <button class="nav-chip" onclick="switchTab('view-telemetry', this)">📈 Telemetría</button>
+        </div>
         <div class="header-badges">
             <a href="{internet_url}" target="_blank" class="internet-badge" title="Acceso público por Internet">
                 <span class="status-dot"></span>
@@ -1507,6 +1576,7 @@ def get_client_html() -> str:
                             <button class="btn-ide btn-ide-save" onclick="saveCurrentFile()">💾 Guardar (Sync)</button>
                             <button class="btn-ide btn-ide-run" onclick="executeCurrentCode()">▶️ Ejecutar</button>
                             <button class="btn-ide btn-ide-push" onclick="triggerManualGitSync()">🚀 Push GitHub</button>
+                            <button class="btn-ide" style="background:rgba(234,179,8,0.2);border:1px solid var(--neon-gold);color:var(--neon-gold);" onclick="switchTab('view-terminal')">⚡ Terminal</button>
                         </div>
                     </div>
                     <textarea class="ide-code-box" id="ide-code-editor" spellcheck="false" placeholder="// Escribe código Python, Shell o C aquí para compilar y ejecutar directamente en el iPad..."></textarea>
@@ -2089,15 +2159,10 @@ def get_client_html() -> str:
 
         function switchTab(tabId, btn) {{
             document.querySelectorAll('.tab-view').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.dock-btn').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.dock-btn, .nav-chip').forEach(el => el.classList.remove('active'));
             const target = document.getElementById(tabId);
             if (target) target.classList.add('active');
-            if (btn) {{
-                btn.classList.add('active');
-            }} else {{
-                const b = document.querySelector(`button[onclick*="${{tabId}}"]`);
-                if (b) b.classList.add('active');
-            }}
+            document.querySelectorAll(`[onclick*="${{tabId}}"]`).forEach(el => el.classList.add('active'));
             if (tabId === 'view-ide') loadFilesTree();
             if (tabId === 'view-terminal') loadKernelBase();
             if (tabId === 'view-tools') loadToolsCatalog();
