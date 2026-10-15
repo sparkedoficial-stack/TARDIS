@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "created_at": "2026-10-15T02:04:29.176374",
   "last_periodic_sync": "2026-10-15T02:04:29.176374",
-  "last_immediate_sync": "2026-10-15T08:13:58.558697",
-  "last_commit_hash": "cfe4e2c",
-  "sync_count": 327,
-  "immediate_sync_count": 327,
+  "last_immediate_sync": "2026-10-15T08:15:04.755284",
+  "last_commit_hash": "94be491",
+  "sync_count": 328,
+  "immediate_sync_count": 328,
   "periodic_sync_count": 0,
   "last_known_mtimes": {
     "skill:omni-control-bridge/SKILL.md": REDACTED_PHONE.4575877,
@@ -2268,6 +2268,18 @@
   },
   "history": [
     {
+      "timestamp": "2026-10-15T08:15:04.755284",
+      "trigger": "immediate_milestone",
+      "commit_hash": "94be491",
+      "score": 60,
+      "reasons": [
+        "Actualizaci\u00f3n en proyecto price_sentinel: README.md",
+        "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
+        "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
+        "Actualizaci\u00f3n en proyecto carlinkit_kvm: index.html"
+      ]
+    },
+    {
       "timestamp": "2026-10-15T08:13:58.558697",
       "trigger": "immediate_milestone",
       "commit_hash": "cfe4e2c",
@@ -2851,19 +2863,6 @@
       "commit_hash": "6ffd479",
       "score": 60,
       "reasons": [
-        "Actualizaci\u00f3n en proyecto price_sentinel: README.md",
-        "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
-        "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
-        "Actualizaci\u00f3n en proyecto carlinkit_kvm: index.html"
-      ]
-    },
-    {
-      "timestamp": "2026-10-15T07:19:18.107590",
-      "trigger": "immediate_milestone",
-      "commit_hash": "de83df2",
-      "score": 85,
-      "reasons": [
-        "Evoluci\u00f3n en subsistema core TARDIS: tardis_ipad_edge_server.py",
         "Actualizaci\u00f3n en proyecto price_sentinel: README.md",
         "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
         "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
