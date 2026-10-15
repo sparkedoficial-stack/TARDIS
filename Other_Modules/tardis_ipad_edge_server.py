@@ -127,7 +127,7 @@ def get_system_telemetry() -> Dict[str, Any]:
     }
 
 # Generador del WebClip Mobileconfig
-def generate_webclip_profile(host_ip: str = USB_HOST_IP, port: int = EDGE_PORT) -> bytes:
+def generate_webclip_profile(host_ip: str = LAN_HOST_IP, port: int = EDGE_PORT) -> bytes:
     profile_uuid = "REDACTED_PHONE-2108-201E-TARDIS000001"
     payload_uuid = "REDACTED_PHONE-2108-201E-TARDIS000002"
 

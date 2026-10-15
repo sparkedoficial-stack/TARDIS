@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "created_at": "2026-10-15T02:04:29.176374",
   "last_periodic_sync": "2026-10-15T02:04:29.176374",
-  "last_immediate_sync": "2026-10-15T02:46:20.610667",
-  "last_commit_hash": "3c9c0c6",
-  "sync_count": 33,
-  "immediate_sync_count": 33,
+  "last_immediate_sync": "2026-10-15T02:47:26.980334",
+  "last_commit_hash": "61e16b8",
+  "sync_count": 34,
+  "immediate_sync_count": 34,
   "periodic_sync_count": 0,
   "last_known_mtimes": {
     "skill:omni-control-bridge/SKILL.md": REDACTED_PHONE.4575877,
@@ -486,6 +486,7 @@
     "ftl:browser_evol_teor_a_de_control_causal_3971.py": REDACTED_PHONE.4808452,
     "ftl:browser_evol_computaci_n_cu_ntica_alg_5820.py": REDACTED_PHONE.6631734,
     "ftl:browser_evol_criptograf_a_postcu_ntic_1072.py": REDACTED_PHONE.832481,
+    "ftl:browser_evol_teor_a_de_control_causal_414.py": REDACTED_PHONE.1956975,
     "ftl:browser_evol_computaci_n_cu_ntica_alg_620.py": REDACTED_PHONE.877091,
     "ftl:browser_evol_neurotopolog_a_y_mapeo_d_1568.py": REDACTED_PHONE.567877,
     "ftl:browser_evol_sistemas_operativos_basa_7626.py": REDACTED_PHONE.6838171,
@@ -1172,6 +1173,7 @@
     "ftl:browser_evol_neurotopolog_a_y_mapeo_d_1260.py": REDACTED_PHONE.97798,
     "ftl:browser_evol_neurotopolog_a_y_mapeo_d_4844.py": REDACTED_PHONE.518753,
     "ftl:browser_evol_neurotopolog_a_y_mapeo_d_9157.py": REDACTED_PHONE.612343,
+    "ftl:browser_evol_teor_a_de_control_causal_406.py": REDACTED_PHONE.7007935,
     "ftl:browser_evol_teor_a_de_control_causal_1139.py": REDACTED_PHONE.3079238,
     "ftl:browser_evol_teor_a_de_control_causal_9450.py": REDACTED_PHONE.828711,
     "ftl:browser_evol_computaci_n_cu_ntica_alg_4324.py": REDACTED_PHONE.1547318,
@@ -1972,7 +1974,7 @@
     "core:knowledge_graph.py": REDACTED_PHONE.8576238,
     "core:easy_touch_engine.py": REDACTED_PHONE.9785917,
     "core:ftl_telegram_runner.py": REDACTED_PHONE.1491292,
-    "core:tardis_ipad_edge_server.py": REDACTED_PHONE.1627169,
+    "core:tardis_ipad_edge_server.py": REDACTED_PHONE.4466965,
     "core:curiosity_debate_manager.py": REDACTED_PHONE.5321302,
     "core:gods_eye_engine.py": REDACTED_PHONE.3320367,
     "core:sovereign_local_runner.py": REDACTED_PHONE.053532,
@@ -2119,6 +2121,19 @@
     "sat:gia_ios:GIAModels.swift": REDACTED_PHONE.5796177
   },
   "history": [
+    {
+      "timestamp": "2026-10-15T02:47:26.980334",
+      "trigger": "immediate_milestone",
+      "commit_hash": "61e16b8",
+      "score": 95,
+      "reasons": [
+        "Evoluci\u00f3n en subsistema core TARDIS: tardis_ipad_edge_server.py",
+        "Actualizaci\u00f3n en proyecto price_sentinel: README.md",
+        "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
+        "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
+        "Actualizaci\u00f3n en proyecto carlinkit_kvm: index.html"
+      ]
+    },
     {
       "timestamp": "2026-10-15T02:46:20.610667",
       "trigger": "immediate_milestone",
