@@ -2374,7 +2374,7 @@ print('Hola desde iPad Pro M2!')
 
         async function triggerManualGitSync() {{
             const con = document.getElementById('ide-console-output');
-            con.innerText += '[GIT] Iniciando sincronización manual con GitHub...' + '\n';
+            con.innerText += `[GIT] Iniciando sincronización manual con GitHub...\n`;
             try {{
                 const res = await fetch('/api/fs/write', {{
                     method: 'POST',
@@ -2445,7 +2445,7 @@ print('Hola desde iPad Pro M2!')
                         html += `<div><strong>I/O Pressure:</strong> ${{escapeHtml(data.linux_ring0.psi.io)}}</div>`;
                         html += `<div><strong>sysctl:</strong> swappiness=${{data.linux_ring0.swappiness}} | dirty_ratio=${{data.linux_ring0.dirty_ratio}} | tcp_cc=${{data.linux_ring0.tcp_congestion}}</div>`;
                         html += `<div style="margin-top:8px;font-weight:700;color:var(--neon-gold)">dmesg ring buffer (reciente):</div>`;
-                        html += `<pre style="color:#94a3b8;font-size:0.75rem;max-height:120px;overflow-y:auto;background:rgba(0,0,0,0.4);padding:6px;border-radius:6px;">${{escapeHtml((data.linux_ring0.dmesg || []).join('\n'))}}</pre>`;
+                        html += `<pre style="color:#94a3b8;font-size:0.75rem;max-height:120px;overflow-y:auto;background:rgba(0,0,0,0.4);padding:6px;border-radius:6px;">${{escapeHtml((data.linux_ring0.dmesg || []).join(`\n`))}}</pre>`;
                         ring0Box.innerHTML = html;
                     }}
                 }}
