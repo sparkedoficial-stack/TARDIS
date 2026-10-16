@@ -1,23 +1,5 @@
 [
   {
-    "id": "conj_1791908274",
-    "timestamp": "2026-10-13T11:17:54.875565",
-    "idle_duration_minutes": 31.6,
-    "title": "Resonancia Causal en la Bóveda Akáshica",
-    "hypothesis": "La eficiencia de recuperación de información en la bóveda akáshica puede optimizarse mediante la implementación de un índice de 'resonancia causal' que priorice no solo la similitud semántica, sino la correlación temporal y de causa-efecto entre los nodos de memoria. Esto permitiría que el sistema anticipe consultas futuras basándose en patrones de dependencia lógica previos, reduciendo la latencia de búsqueda en un 30-40%.",
-    "research_query": "causal graph indexing for semantic memory retrieval optimization",
-    "research_findings": "# Informe de Investigación: causal graph indexing for semantic memory retrieval optimization\n\n## Fuentes Consultadas y Respaldo Web\n- **[Graph-Augmented Retrieval for Digital Evidence-Based Medical Synthesis: A Proof-of-Concept Study on Topology-Aware Mechanistic Narrative Generation - medRxiv](https://news.google.com/rss/articles/CBMic0FVX3lxTE1VVnRSTzdaTzhEcHp0NXRDQlRMVTItQU5NWk1xZE55b1JkSEdIdEZOR1A5djFCZDN4LUJzakZ3ZWdybmE4SVVSeWYwXzdlSjhkUUYxRmJ4VUs2TFJmMWtuUFVMZ1ZQaHhkOEZmUVFEbGdHNzA?oc=5)**: Graph-Augmented Retrieval for Digital Evidence-Based Medical Synthesis: A Proof-of-Concept Study on Topology-Aware Mechanistic Narrative Generation  medRxiv\n- **[Vol. 40 No. 39: AAAI-26 Technical Tracks 39 - The Association for the Advancement of Artificial Intelligence](https://news.google.com/rss/articles/CBMiX0FVX3lxTE1udHJDQmZyNW9aWF95MV9yNVVkZERkd3B1WU1FVUliSlRiUzk1dEVuX3hHdjBVMjJELWRGM3lBdEJOdW5zN0hVeUVWaGlhWnYtakJNMFdpRDA3Qmo2d0Z3?oc=5)**: Vol. 40 No. 39: AAAI-26 Technical Tracks 39  Th",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMic0FVX3lxTE1VVnRSTzdaTzhEcHp0NXRDQlRMVTItQU5NWk1xZE55b1JkSEdIdEZOR1A5djFCZDN4LUJzakZ3ZWdybmE4SVVSeWYwXzdlSjhkUUYxRmJ4VUs2TFJmMWtuUFVMZ1ZQaHhkOEZmUVFEbGdHNzA?oc=5",
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE1udHJDQmZyNW9aWF95MV9yNVVkZERkd3B1WU1FVUliSlRiUzk1dEVuX3hHdjBVMjJELWRGM3lBdEJOdW5zN0hVeUVWaGlhWnYtakJNMFdpRDA3Qmo2d0Z3?oc=5"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar un grafo de dependencias causales en la estructura de datos de la bóveda para ponderar los resultados de búsqueda según la relevancia temporal y lógica.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 95.99
-  },
-  {
     "id": "conj_1791910173",
     "timestamp": "2026-10-13T11:49:33.410280",
     "idle_duration_minutes": 31.6,
@@ -1642,5 +1624,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.33
+  },
+  {
+    "id": "conj_1792114915",
+    "timestamp": "2026-10-15T20:41:55.236040",
+    "idle_duration_minutes": 34.7,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching mechanism can dynamically predict the relevance decay of stored web snippets based on observed changes in source domains, leading to a 30‑40% reduction in stale data retrieval without sacrificing latency. The hypothesis posits that by modeling the temporal causality between content update patterns (e.g., RSS frequency, Git commit activity) and cached entry usage, the system can proactively invalidate or refresh entries before they become obsolete, improving the overall precision of the akáshic vault's knowledge base.",
+    "research_query": "causal inference based cache invalidation web scraping dynamic content freshness prediction",
+    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web scraping dynamic content freshness prediction\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add an asynchronous causal cache manager that tracks source update signals (RSS, sitemap changefreq, GitHub webhook timestamps) and applies a lightweight Bayesian decay model to decide when to purge or refresh cached search results.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.86
   }
 ]
