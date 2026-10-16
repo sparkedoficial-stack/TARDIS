@@ -149,6 +149,7 @@ Módulos y componentes auxiliares del sistema.
 - **ios_bridge.py**: Componente de alta eficiencia.
 - **jev_tardis_symbiosis.py**: Componente de alta eficiencia.
 - **k3_tokenizer.py**: Componente de alta eficiencia.
+- **linpad_m2.py**: Componente de alta eficiencia.
 - **live_telemetry.json**: Componente de alta eficiencia.
 - **manifest.json**: Componente de alta eficiencia.
 - **mirror_plan.py**: Componente de alta eficiencia.

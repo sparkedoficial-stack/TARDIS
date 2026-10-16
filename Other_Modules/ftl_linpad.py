@@ -73,16 +73,15 @@ class FtlLinpad:
         """Obtiene el estado integral de LinPad 1.6.0-TARDIS-M2."""
         dev_info = {}
         for field in (
-            "model",
+            "app",
+            "host",
             "chip",
-            "arch",
-            "mode",
-            "ios",
+            "cpu",
+            "jit",
             "gpu",
-            "linpad",
-            "display",
+            "style",
+            "theme",
             "ftl",
-            "summary",
         ):
             r = self._run_cmd(["/usr/local/bin/ish-device-info", field], timeout=5)
             dev_info[field] = r.get("stdout", "")

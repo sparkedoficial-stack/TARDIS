@@ -218,7 +218,9 @@ async def profile_handler(request: web.Request) -> web.Response:
         target_url = get_internet_url()
     else:
         host = request.headers.get("Host", f"{LAN_HOST_IP}:{EDGE_PORT}").split(":")[0]
-        target_url = f"http://{host}/"
+        if host in ("127.0.0.1", "localhost", "0.0.0.0"):
+            host = LAN_HOST_IP
+        target_url = f"http://{host}:{EDGE_PORT}/"
 
     profile_data = generate_webclip_profile(target_url=target_url)
     return web.Response(
@@ -254,7 +256,9 @@ async def download_linpad_ipa_handler(request: web.Request) -> web.Response:
 
 async def linpad_profile_handler(request: web.Request) -> web.Response:
     host = request.headers.get("Host", f"{LAN_HOST_IP}:{EDGE_PORT}").split(":")[0]
-    target_url = f"http://{host}/linpad"
+    if host in ("127.0.0.1", "localhost", "0.0.0.0"):
+        host = LAN_HOST_IP
+    target_url = f"http://{host}:{EDGE_PORT}/linpad"
     icon_data = b""
     if LINPAD_ICON_PNG.exists():
         icon_data = LINPAD_ICON_PNG.read_bytes()
