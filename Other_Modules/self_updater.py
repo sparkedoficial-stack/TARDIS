@@ -32,7 +32,29 @@ class SelfImprover:
         # 2. Update Claude
         try:
             res_claude = subprocess.run(["claude", "update"], capture_output=True, text=True, timeout=30)
-            results["claude"] = res_claude.stdout.strip() or res_claude.stderr.strip()
+            claude_out = res_claude.stdout.strip() or res_claude.stderr.strip()
+            versions_dir = Path.home() / ".local" / "share" / "claude" / "versions"
+            if versions_dir.exists():
+                vers = sorted(
+                    [p for p in versions_dir.iterdir() if p.is_file()],
+                    key=lambda p: p.stat().st_mtime,
+                    reverse=True
+                )
+                if vers:
+                    latest_bin = vers[0]
+                    claude_real = Path.home() / ".local" / "bin" / "claude-real"
+                    try:
+                        if claude_real.is_symlink() or claude_real.exists():
+                            claude_real.unlink()
+                        claude_real.symlink_to(latest_bin)
+                    except Exception:
+                        pass
+                    for old_v in vers[2:]:
+                        try:
+                            old_v.unlink()
+                        except Exception:
+                            pass
+            results["claude"] = claude_out
         except Exception as e:
             results["claude"] = f"Failed to check claude update: {str(e)}"
 
