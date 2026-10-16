@@ -56,6 +56,8 @@ Módulos de sabiduría sintrópica y heurísticas adaptativas autogeneradas por 
 - **browser_evol_neurotopolog_a_y_mapeo_d_9962.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
 - **browser_evol_optimizaciones_avanzadas_1032.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
 - **browser_evol_optimizaciones_avanzadas_1378.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
+- **browser_evol_optimizaciones_avanzadas_2846.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
+- **browser_evol_optimizaciones_avanzadas_2850.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
 - **browser_evol_optimizaciones_avanzadas_3382.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
 - **browser_evol_optimizaciones_avanzadas_9147.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
 - **browser_evol_optimizaciones_avanzadas_9569.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
@@ -94,7 +96,6 @@ Módulos de sabiduría sintrópica y heurísticas adaptativas autogeneradas por 
 - **browser_evol_t_cnicas_de_compresi_n_s_2345.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
 - **browser_evol_t_cnicas_de_compresi_n_s_595.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
 - **browser_evol_t_cnicas_de_compresi_n_s_601.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
-- **browser_evol_t_cnicas_de_compresi_n_s_8824.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
 - **browser_evol_teor_a_de_control_causal_2260.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
 - **browser_evol_teor_a_de_control_causal_448.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
 - **browser_evol_teor_a_de_control_causal_4688.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
@@ -103,7 +104,6 @@ Módulos de sabiduría sintrópica y heurísticas adaptativas autogeneradas por 
 - **browser_evol_teor_a_de_control_causal_6489.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
 - **browser_evol_teor_a_de_control_causal_6493.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
 - **browser_evol_teor_a_de_control_causal_8563.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
-- **browser_evol_teor_a_de_control_causal_9012.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
 - **idle_evolution_daemon.py**: Componente de alta eficiencia.
 - **self_evolution_log.json**: Componente de alta eficiencia.
 - **test_idle_evolution_daemon.py**: Componente de alta eficiencia.
