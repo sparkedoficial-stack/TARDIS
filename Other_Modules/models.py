@@ -38,7 +38,7 @@ class ModelRegistry:
         self.models: Dict[str, ModelProfile] = {}
         self.flagships: Dict[str, str] = {
             "google_flash_high": "gemini-3.8-flash-high",
-            "google_pro_high": "gemini-4-pro",
+            "google_pro_high": "gemini-4-argon-high",
             "anthropic_sonnet": "sonnet",
             "anthropic_opus": "opus",
             "tardis_kaiju": "TARDIS-NEURAL-SPACE-KAIJU",
@@ -71,9 +71,9 @@ class ModelRegistry:
         if "base" in mid or "lite" in mid or "flash-8b" in mid:
             return False
 
-        # Allow Google high-tier frontier models (Gemini 4 Pro, Gemini Pro, Flash High)
+        # Allow Google high-tier frontier models (Gemini 4 Argon High, Gemini Pro, Flash High)
         if "gemini" in mid:
-            if "high" in mid or "high" in dname or "pro" in mid or "4" in mid:
+            if "high" in mid or "high" in dname or "pro" in mid or "argon" in mid or "4" in mid:
                 return True
             return False
 
@@ -119,7 +119,7 @@ class ModelRegistry:
         return [
             ModelProfile(
                 model_id="opus",
-                display_name="Claude Opus 4.6 (Thinking - Max Power)",
+                display_name="Claude Opus 5.5 (Thinking - Max Power)",
                 provider="anthropic",
                 tier="opus-thinking",
                 effort_level="max",
@@ -132,7 +132,7 @@ class ModelRegistry:
             ),
             ModelProfile(
                 model_id="sonnet",
-                display_name="Claude Sonnet 4.6 (Thinking - High Power)",
+                display_name="Claude Sonnet 5.5 (Thinking - High Power)",
                 provider="anthropic",
                 tier="sonnet-thinking",
                 effort_level="max",
@@ -144,8 +144,8 @@ class ModelRegistry:
                 is_latest=True
             ),
             ModelProfile(
-                model_id="claude-opus-4-6-thinking",
-                display_name="Claude Opus 4.6 Thinking",
+                model_id="claude-opus-5-5-high",
+                display_name="Claude Opus 5.5 (High) [MAX EFFORT]",
                 provider="anthropic",
                 tier="opus-thinking",
                 effort_level="max",
@@ -153,12 +153,12 @@ class ModelRegistry:
                 cost_factor=10.0,
                 abstraction_score=9.9,
                 speed_score=6.0,
-                is_flagship=False,
+                is_flagship=True,
                 is_latest=True
             ),
             ModelProfile(
-                model_id="claude-sonnet-4-6",
-                display_name="Claude Sonnet 4.6 Thinking",
+                model_id="claude-sonnet-5-5-high",
+                display_name="Claude Sonnet 5.5 (High) [MAX EFFORT]",
                 provider="anthropic",
                 tier="sonnet-thinking",
                 effort_level="max",
@@ -166,7 +166,7 @@ class ModelRegistry:
                 cost_factor=2.5,
                 abstraction_score=9.5,
                 speed_score=7.8,
-                is_flagship=False,
+                is_flagship=True,
                 is_latest=True
             )
         ]
@@ -183,7 +183,7 @@ class ModelRegistry:
                 cost = 0.15
                 abs_score = min(7.5 + (version_val - 3.0) * 1.5, 9.5)
                 speed = 9.5
-            elif "pro" in mid or version_val >= 4.0:
+            elif "pro" in mid or "argon" in mid or version_val >= 4.0:
                 tier = "pro-high"
                 ctx = 2_000_000
                 cost = 1.2 if version_val >= 4.0 else 1.0
@@ -280,11 +280,11 @@ class ModelRegistry:
         ]
 
     def discover_from_frontier(self) -> List[ModelProfile]:
-        """Sovereign Apex Frontier Models: Gemini 4 Pro & Emerging Checkpoints."""
+        """Sovereign Apex Frontier Models: Gemini 4 Argon (High) & Emerging Checkpoints."""
         return [
             ModelProfile(
-                model_id="gemini-4-pro",
-                display_name="Gemini 4 Pro (Apex Frontier / Ultra Deep Reasoning) [MAX EFFORT]",
+                model_id="gemini-4-argon-high",
+                display_name="Gemini 4 Argon (High) [MAX EFFORT]",
                 provider="google",
                 tier="pro-high",
                 effort_level="high",
@@ -381,7 +381,7 @@ class ModelRegistry:
             self.validate_model_override(override, "google")
             return override
         if tier == "pro":
-            return self.flagships.get("google_pro_high", "gemini-4-pro")
+            return self.flagships.get("google_pro_high", "gemini-4-argon-high")
         return self.flagships.get("google_flash_high", "gemini-3.8-flash-high")
 
     def get_anthropic_model(self, tier: str = "sonnet") -> str:
