@@ -24,7 +24,10 @@ Módulos de sabiduría sintrópica y heurísticas adaptativas autogeneradas por 
 - **browser_evol_criptograf_a_postcu_ntic_1566.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
 - **browser_evol_criptograf_a_postcu_ntic_1571.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
 - **browser_evol_criptograf_a_postcu_ntic_2308.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
+- **browser_evol_criptograf_a_postcu_ntic_3568.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
 - **browser_evol_criptograf_a_postcu_ntic_357.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
+- **browser_evol_criptograf_a_postcu_ntic_3572.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
+- **browser_evol_criptograf_a_postcu_ntic_3575.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
 - **browser_evol_criptograf_a_postcu_ntic_359.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
 - **browser_evol_criptograf_a_postcu_ntic_364.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
 - **browser_evol_criptograf_a_postcu_ntic_4258.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
@@ -37,7 +40,6 @@ Módulos de sabiduría sintrópica y heurísticas adaptativas autogeneradas por 
 - **browser_evol_criptograf_a_postcu_ntic_8615.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
 - **browser_evol_criptograf_a_postcu_ntic_9767.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
 - **browser_evol_modelos_de_razonamiento__1946.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
-- **browser_evol_modelos_de_razonamiento__7241.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
 - **browser_evol_neurotopolog_a_y_mapeo_d_1760.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
 - **browser_evol_neurotopolog_a_y_mapeo_d_2495.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
 - **browser_evol_neurotopolog_a_y_mapeo_d_2500.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
@@ -81,8 +83,6 @@ Módulos de sabiduría sintrópica y heurísticas adaptativas autogeneradas por 
 - **browser_evol_sistemas_operativos_basa_4830.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
 - **browser_evol_sistemas_operativos_basa_6676.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
 - **browser_evol_sistemas_operativos_basa_6698.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
-- **browser_evol_sistemas_operativos_basa_7428.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
-- **browser_evol_sistemas_operativos_basa_7454.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
 - **browser_evol_sistemas_operativos_basa_8614.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
 - **browser_evol_sistemas_operativos_basa_8638.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
 - **browser_evol_sistemas_operativos_basa_9191.py**: Heurística de auto-mejora asimilada autónomamente por FTL.
