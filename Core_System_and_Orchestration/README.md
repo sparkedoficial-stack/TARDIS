@@ -4,6 +4,7 @@ Núcleo de orquestación temporal, bucles de control soberano FTL y sincronizaci
 
 ## Subsistemas y Componentes Principales:
 
+- **agy.py**: Componente de alta eficiencia.
 - **apply_easy_touch_fixes.py**: Sistema de auto-corrección preventiva y cicatrización en segundo plano.
 - **autonomous_controller.py**: Componente de alta eficiencia.
 - **background_hardware_orchestrator.py**: Núcleo de orquestación y control temporal/espacial.
@@ -49,6 +50,8 @@ Núcleo de orquestación temporal, bucles de control soberano FTL y sincronizaci
 - **tardis_failover_engine.py**: Componente de alta eficiencia.
 - **tardis_ftl_engineer.py**: Motor de aceleración FTL y computación adaptativa.
 - **tardis_identificacion_contexto.py**: Componente de alta eficiencia.
+- **tardis_ipad_edge_server.py**: Componente de alta eficiencia.
+- **tardis_ipad_sync_daemon.py**: Componente de alta eficiencia.
 - **tardis_master_app.py**: Componente de alta eficiencia.
 - **tardis_master_cockpit.html**: Interfaz interactiva de monitoreo en tiempo real.
 - **tardis_omni_tool_bridge.py**: Directorio y puente soberano de interoperabilidad omni-herramientas.
