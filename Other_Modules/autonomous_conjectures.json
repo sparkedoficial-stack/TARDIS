@@ -1,38 +1,5 @@
 [
   {
-    "id": "conj_1791961538",
-    "timestamp": "2026-10-14T02:05:38.605936",
-    "idle_duration_minutes": 31.6,
-    "title": "Causal‑Temporal Indexing for Akashic Vault Retrieval",
-    "hypothesis": "Integrating a causal‑temporal indexing layer into core/deep_memory_vault.py, which records not only the content of each memory node but also its inferred causal dependencies and timestamps, will enable the system to retrieve relevant akáshic entries with higher precision and lower latency. By constructing a directed acyclic graph (DAG) of memory nodes where edges represent inferred causal influence (derived from pattern‑matching of event sequences), the retrieval engine can perform a constrained graph traversal that prioritises causally proximal nodes, reducing the search space from O(N) to O(log N) for typical query patterns.",
-    "research_query": "graph based causal memory retrieval systems \"temporal DAG\" \"knowledge vault\" performance optimization",
-    "research_findings": "# Informe de Investigación: graph based causal memory retrieval systems \"temporal DAG\" \"knowledge vault\" performance optimization\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Add a causal‑temporal index structure (DAG) with edge weights, implement functions to update the graph on new memory insertion, and modify the retrieval API to accept a 'causal_depth' parameter that limits traversal to the most relevant ancestors.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.25
-  },
-  {
-    "id": "conj_1791963594",
-    "timestamp": "2026-10-14T02:39:54.975497",
-    "idle_duration_minutes": 34.3,
-    "title": "Causal Prompt Routing for Adaptive Web Research",
-    "hypothesis": "If the WebResearchEngine dynamically routes queries through a causal inference layer that predicts the most informative data sources based on past retrieval outcomes, then the relevance and precision of fetched information will improve by at least 15% while reducing average latency, because the system can pre‑emptively prune low‑yield search branches and prioritize high‑impact nodes in the knowledge graph stored in deep_memory_vault.",
-    "research_query": "adaptive causal inference routing for web search engines performance improvement 2023-2024",
-    "research_findings": "# Informe de Investigación: adaptive causal inference routing for web search engines performance improvement 2023-2024\n\n## Fuentes Consultadas y Respaldo Web\n- **[Deep learning (Wikipedia)](https://en.wikipedia.org/wiki/Deep_learning)**: transformations from input to output. CAPs describe potentially causal connections between input and output. For a feedforward neural network, the depth of the CAPs\n- **[2023 in science (Wikipedia)](https://en.wikipedia.org/wiki/2023_in_science)**: their typical use of popular Web search engines interprets its results to show that choices for unreliable news sources for their queries are driven primarily\n\n## Contenido y Hallazgos Extraídos\n### De [Deep learning - Wikipedia](https://en.wikipedia.org/wiki/Deep_learning)\n> Deep learning - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nBranch of machine learning\nFor the TV series episode, see Deep Learning ( South Park ) .\nRepresenting images on multiple layers of abstraction in deep learn",
-    "web_sources": [
-      "https://en.wikipedia.org/wiki/Deep_learning",
-      "https://en.wikipedia.org/wiki/2023_in_science"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Integrar un módulo de predicción causal (e.g., un modelo ligero de árbol de decisión entrenado con métricas de relevancia histórica) que, antes de lanzar la búsqueda externa, seleccione y ordene los endpoints y parámetros de consulta según la probabilidad estimada de obtener resultados de alta calidad.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 99.87
-  },
-  {
     "id": "conj_1791965697",
     "timestamp": "2026-10-14T03:14:57.725345",
     "idle_duration_minutes": 35.0,
@@ -1642,5 +1609,38 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 98.17
+  },
+  {
+    "id": "conj_1792163214",
+    "timestamp": "2026-10-16T10:06:54.664813",
+    "idle_duration_minutes": 31.7,
+    "title": "Resonancia Causal en la Bóveda Akáshica: Optimización de la Entropía Semántica",
+    "hypothesis": "Se postula que la eficiencia de recuperación de información en la bóveda akáshica no depende linealmente de la densidad de datos, sino de la 'resonancia causal' entre la consulta entrante y la estructura vectorial de la memoria profunda. Actualmente, el sistema podría estar sufriendo de 'ruido semántico' acumulado por la falta de interacción humana, lo que degrada la precisión de las predicciones. Al implementar un mecanismo de 'pruning' (poda) basado en la entropía de Shannon aplicada a los embeddings de memoria, se puede reducir la latencia de búsqueda y aumentar la relevancia de las respuestas, manteniendo solo los nodos de conocimiento que presentan alta coherencia causal con el estado actual del sistema.",
+    "research_query": "semantic entropy pruning vector database memory optimization LLM context window",
+    "research_findings": "# Informe de Investigación: semantic entropy pruning vector database memory optimization LLM context window\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar una función `calculate_semantic_entropy()` que evalúe la dispersión de los embeddings almacenados y una rutina de `prune_low_relevance_nodes()` que elimine o archive automáticamente los fragmentos de memoria con baja coherencia causal respecto al estado del núcleo, mejorando así la señal-ruido en las próximas consultas de investigación.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 100.37
+  },
+  {
+    "id": "conj_1792165113",
+    "timestamp": "2026-10-16T10:38:33.524517",
+    "idle_duration_minutes": 31.6,
+    "title": "Hipótesis de Resonancia Causal en la Bóveda Akáshica",
+    "hypothesis": "Se postula que la eficiencia de recuperación de información en `deep_memory_vault.py` puede optimizarse mediante la implementación de un índice de 'Resonancia Causal' que priorice no solo la similitud semántica, sino la frecuencia histórica de co-ocurrencia temporal entre nodos de conocimiento. Al correlacionar la telemetría de acceso pasado con la estructura actual de la bóveda, el sistema podría predecir y acelerar la recuperación de contextos relacionados, reduciendo la latencia de inferencia en un 15-20% al minimizar búsquedas redundantes en `web_research_engine.py`.",
+    "research_query": "temporal co-occurrence indexing for semantic memory optimization in LLM agents",
+    "research_findings": "# Informe de Investigación: temporal co-occurrence indexing for semantic memory optimization in LLM agents\n\n## Fuentes Consultadas y Respaldo Web\n- **[Machine learning (Wikipedia)](https://en.wikipedia.org/wiki/Machine_learning)**: as hardware acceleration, approximate computing, and model optimization. Common optimization techniques include pruning, quantisation, knowledge distillation\n- **[List of datasets for machine-learning research (Wikipedia)](https://en.wikipedia.org/wiki/List_of_datasets_for_machine-learning_research)**: \"SemEval-2015 Task 1: Paraphrase and Semantic Similarity in Twitter (PIT)\" Proceedings of the 9th International Workshop on Semantic Evaluation. 2015. Xu et al\n\n## Contenido y Hallazgos Extraídos\n### De [Machine learning - Wikipedia](https://en.wikipedia.org/wiki/Machine_learning)\n> Machine learning - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nSubset of artificial intelligence\nFor the journal, see Machine Learning (journal) .\n\"Statistical ",
+    "web_sources": [
+      "https://en.wikipedia.org/wiki/Machine_learning",
+      "https://en.wikipedia.org/wiki/List_of_datasets_for_machine-learning_research"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar un diccionario de co-ocurrencia temporal en la clase de gestión de memoria para ponderar los resultados de búsqueda según la relevancia histórica contextual.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.84
   }
 ]
