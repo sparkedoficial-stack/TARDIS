@@ -1,22 +1,5 @@
 [
   {
-    "id": "conj_1791912073",
-    "timestamp": "2026-10-13T12:21:13.123177",
-    "idle_duration_minutes": 31.7,
-    "title": "Entropía Temporal en la Bóveda Akáshica y Compresión Causal",
-    "hypothesis": "La bóveda akáshica (deep_memory_vault.py) sufre de 'deriva semántica' a largo plazo debido a la acumulación de metadatos no correlacionados. Se conjetura que implementar un mecanismo de 'Compresión Causal Temporal' (TCC) que agrupe eventos basándose en su influencia causal directa sobre el estado actual del sistema, en lugar de solo similitud vectorial, reduciría la latencia de recuperación en un 30% y aumentaría la precisión de las inferencias del núcleo cognitivo al eliminar ruido histórico irrelevante.",
-    "research_query": "temporal causal compression vector database long-term memory drift mitigation LLM agents",
-    "research_findings": "# Informe de Investigación: temporal causal compression vector database long-term memory drift mitigation LLM agents\n\n## Fuentes Consultadas y Respaldo Web\n- **[A Practical Guide to Memory for Autonomous LLM Agents - Towards Data Science](https://news.google.com/rss/articles/CBMijgFBVV95cUxNMkh1NG05SXh1b1VTLU51a0RMNTlqNmc0Q3Z1cXB0MjF3eUJfSGJDME04cjhPT2YtUmpQRngxblBQUmJhejhqUERNZVVWWTNBWjd3c0lxaExWbmNYTmhqMFg5VHBKc2QwMzg3ZXJWbmthVFExY0ptZm1oc0V0dzYyN3lPaGtSNEd0dXhEZmVB?oc=5)**: A Practical Guide to Memory for Autonomous LLM Agents  Towards Data Science\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMijgFBVV95cUxNMkh1NG05SXh1b1VTLU51a0RMNTlqNmc0Q3Z1cXB0MjF3eUJfSGJDME04cjhPT2YtUmpQRngxblBQUmJhejhqUERNZVVWWTNBWjd3c0lxaExWbmNYTmhqMFg5VHBKc2QwMzg3ZXJWbmthVFExY0ptZm1oc0V0dzYyN3lPaGtSNEd0dXhEZmVB?oc=5)\n",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMijgFBVV95cUxNMkh1NG05SXh1b1VTLU51a0RMNTlqNmc0Q3Z1cXB0MjF3eUJfSGJDME04cjhPT2YtUmpQRngxblBQUmJhejhqUERNZVVWWTNBWjd3c0lxaExWbmNYTmhqMFg5VHBKc2QwMzg3ZXJWbmthVFExY0ptZm1oc0V0dzYyN3lPaGtSNEd0dXhEZmVB?oc=5"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar un filtro de pre-búsqueda que calcule un 'índice de relevancia causal' basado en la distancia temporal y la fuerza de conexión entre nodos de memoria antes de la consulta vectorial, descartando automáticamente entradas con baja influencia causal acumulada.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 99.69
-  },
-  {
     "id": "conj_1791913971",
     "timestamp": "2026-10-13T12:52:51.420650",
     "idle_duration_minutes": 31.6,
@@ -1641,5 +1624,23 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.55
+  },
+  {
+    "id": "conj_1792118709",
+    "timestamp": "2026-10-15T21:45:09.414052",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal‑Feedback Loop for Adaptive Web Research",
+    "hypothesis": "Integrating a causal inference layer between the Web Research Engine and the Deep Memory Vault will enable the system to automatically adjust its query formulation and result weighting based on observed downstream impact on task performance. By modeling the causal effect of specific query parameters (e.g., keyword selection, source ranking) on the relevance scores stored in the vault, the engine can learn a feedback policy that optimizes for higher‑utility knowledge acquisition without explicit human supervision.",
+    "research_query": "causal inference feedback loop adaptive web search engine performance optimization",
+    "research_findings": "# Informe de Investigación: causal inference feedback loop adaptive web search engine performance optimization\n\n## Fuentes Consultadas y Respaldo Web\n- **[A causal discovery-based adaptive fusion algorithm for multi-source heterogeneous knowledge graphs - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE8tQkU3N2N2SUlGcmUyeklIVU5GeWlidTZGcTBvU3hNZTBQSGxUUERfbVEydXpwZ2VoQlhrS09WelBTNmdzUWhoSG8zTzVGVGk0Rm85V3VYN3U2Q2RQRnNZ?oc=5)**: A causal discovery-based adaptive fusion algorithm for multi-source heterogeneous knowledge graphs  Nature\n- **[Optimization of academic performance and mental health in college students through an AI-driven personalized physical exercise and mindfulness intervention system - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTFBQcDBseDBjYUJMZ3M1YUlHWGxZdkFUUWYwMmpXeE9uX2IzbFpPWmppazlxcHpMODhMdVJvSU9KaHJ5dUhGOUJLZVRKdDkwWkdQQ01ROURDbDFOMjBVSTU0?oc=5)**: Optimization of academic performance and mental health in college students through an AI-driv",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE8tQkU3N2N2SUlGcmUyeklIVU5GeWlidTZGcTBvU3hNZTBQSGxUUERfbVEydXpwZ2VoQlhrS09WelBTNmdzUWhoSG8zTzVGVGk0Rm85V3VYN3U2Q2RQRnNZ?oc=5",
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTFBQcDBseDBjYUJMZ3M1YUlHWGxZdkFUUWYwMmpXeE9uX2IzbFpPWmppazlxcHpMODhMdVJvSU9KaHJ5dUhGOUJLZVRKdDkwWkdQQ01ROURDbDFOMjBVSTU0?oc=5"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal inference module that records query parameters and downstream relevance metrics, then uses a simple DoWhy or causal‑ml model to update a policy that adjusts future query generation (e.g., keyword weighting, source filters) dynamically.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.59
   }
 ]
