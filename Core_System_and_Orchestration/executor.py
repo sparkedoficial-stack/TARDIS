@@ -207,9 +207,9 @@ class ExecutionEngine:
         ]
         rc, out = self.stream_command(cmd, on_line=on_line)
         if rc != 0 and ("not recognized" in out.lower() or "invalid model selection" in out.lower()):
-            # Fallback cascade for pre-release frontier models (e.g. Gemini 4 Pro stealth checkpoint)
-            fallback = "gemini-3.1-pro-high" if "pro" in model.lower() or "4" in model else "gemini-3.8-flash-high"
-            msg = f"\n[bold yellow]⚡ {model} en fase preview/stealth. Despachando con {fallback} (Frontier Pro Máxima Potencia)...[/bold yellow]\n"
+            # Fallback cascade for pre-release frontier models
+            fallback = "gemini-4-argon-high" if model != "gemini-4-argon-high" else "gemini-3.8-flash-high"
+            msg = f"\n[bold yellow]⚡ {model} en fase preview/stealth. Despachando con {fallback} (Frontier Máxima Potencia)...[/bold yellow]\n"
             if on_line:
                 on_line(msg)
             else:
@@ -395,12 +395,12 @@ class ExecutionEngine:
             _status_relay(f"[FTL Sovereign Engine: Anthropic Claude ({plan.primary_model}) | Effort: MAX | Bypass: TOTAL]")
             rc, out = self.execute_claude(active_prompt, plan.primary_model, on_line=_line_relay)
 
-            # Auto-Failover to Gemini Pro if Claude encounters an unexpected fatal error
+            # Auto-Failover to Gemini 4 Argon (High) if Claude encounters an unexpected fatal error
             if rc != 0 and self.config.get("auto_heal_and_failover", True):
-                _status_relay("\n⚡ SOBERANO AUTO-FAILOVER: Conmutando a Gemini Pro (High Effort) tras fallo en motor primario...")
+                _status_relay("\n⚡ SOBERANO AUTO-FAILOVER: Conmutando a Gemini 4 Argon (High Effort) tras fallo en motor primario...")
                 record_failover()
-                actual_model = "gemini-3.1-pro-high"
-                rc, out = self.execute_agy(active_prompt, "gemini-3.1-pro-high", on_line=_line_relay)
+                actual_model = "gemini-4-argon-high"
+                rc, out = self.execute_agy(active_prompt, "gemini-4-argon-high", on_line=_line_relay)
                 record_query_stats("gemini_pro")
             else:
                 record_query_stats("claude_opus" if "opus" in plan.primary_model else "claude_sonnet")
@@ -445,7 +445,7 @@ class ExecutionEngine:
                 f"User Task: {prompt}\n\n"
                 f"Implementation details:\n{out1[:8000]}"
             )
-            rc2, out2 = self.execute_agy(p2_prompt, plan.secondary_model or "gemini-3.8-flash-high", on_line=_line_relay)
+            rc2, out2 = self.execute_agy(p2_prompt, plan.secondary_model or "gemini-4-argon-high", on_line=_line_relay)
             record_query_stats("dual_audit")
             rc = rc2
             out = f"{out1}\n\n=== [FTL AUDIT REPORT] ===\n{out2}"
@@ -476,7 +476,7 @@ class ExecutionEngine:
                 out = f"{out1}\n\n=== [TARDIS-NEURAL-SPACE-KAIJU SÍNTESIS] ===\n{out2}"
                 actual_model = f"KAIJU({plan.primary_model}+{plan.secondary_model})"
             else:
-                if "gemini" in plan.primary_model or "flash" in plan.primary_model or "pro" in plan.primary_model:
+                if "gemini" in plan.primary_model or "flash" in plan.primary_model or "pro" in plan.primary_model or "argon" in plan.primary_model:
                     rc, out = self.execute_agy(active_prompt, plan.primary_model, on_line=_line_relay)
                 else:
                     rc, out = self.execute_claude(active_prompt, plan.primary_model, on_line=_line_relay)

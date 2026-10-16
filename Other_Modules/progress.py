@@ -65,7 +65,7 @@ class TimeEstimator:
             return "dual_audit"
         if mode == "claude" or "claude" in model or "sonnet" in model or "opus" in model:
             return "claude_opus" if "opus" in model.lower() else "claude_sonnet"
-        if "pro" in model.lower():
+        if "pro" in model.lower() or "argon" in model.lower():
             return "gemini_pro"
         return "gemini_flash"
 
@@ -114,7 +114,7 @@ class TimeEstimator:
         prompt: str,
         complexity: int = 2,
         mode: str = "gemini",
-        model: str = "gemini-3.8-flash-high",
+        model: str = "gemini-4-argon-high",
         context_scope: str = "compact"
     ) -> float:
         """
@@ -173,7 +173,7 @@ class TemporalProgressBar:
         prompt: str,
         estimated_duration: float,
         engine_label: str = "GEMINI",
-        model_name: str = "gemini-3.8-flash-high",
+        model_name: str = "gemini-4-argon-high",
         complexity_label: str = "Level 2: Standard Implementation",
         console: Optional[Console] = None
     ):
@@ -373,7 +373,7 @@ def run_command_with_progress(
     prompt: str,
     estimated_duration: float,
     engine_label: str = "GEMINI",
-    model_name: str = "gemini-3.8-flash-high",
+    model_name: str = "gemini-4-argon-high",
     complexity_label: str = "Level 2: Standard Implementation",
     prefix: str = "",
     on_line: Optional[Callable[[str], None]] = None,
