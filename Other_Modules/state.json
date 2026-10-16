@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.5423307,
-  "last_video_id": "vp_20261015_200802_7d1967",
-  "last_topic": "The AdS/CFT Correspondence: Visualizing the Emergence of Spacetime from Entanglement Entropy",
-  "total_videos_analyzed": 182,
-  "running_cycle": false,
+  "last_run_timestamp": REDACTED_PHONE.5132601,
+  "last_video_id": "vp_20261015_204341_017ffc",
+  "last_topic": "Persistent Homology of Brain Functional Connectivity: Visualizing High‑Dimensional Topological Features",
+  "total_videos_analyzed": 183,
+  "running_cycle": true,
   "last_error": null,
   "auto_improvement_count": 113
 }
