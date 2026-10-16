@@ -520,14 +520,27 @@ async def api_terminal_exec_handler(request: web.Request) -> web.Response:
         return web.json_response({"ok": False, "error": "Comando vacío"}, status=400)
 
     start_t = time.time()
+    env = os.environ.copy()
+    bin_dir = "/home/timemachine/Escritorio/GODWORKS SYSTEM/bin"
+    local_bin = "/home/timemachine/.local/bin"
+    env["PATH"] = f"{bin_dir}:{local_bin}:{env.get('PATH', '')}"
+    env["AGY_MODE"] = "ultra"
+    env["AGY_MODEL"] = "claude-opus-5-5-high"
+    env["AGY_VERBOSITY"] = "high"
+    env["AGY_KERNEL_LEVEL"] = "1"
+    env["FTL_AUTONOMOUS"] = "1"
+    env["PYTHONUNBUFFERED"] = "1"
+
+    timeout_limit = 180 if ("agy" in command) else 45
     try:
         res = subprocess.run(
             command,
             shell=True,
             capture_output=True,
             text=True,
-            timeout=45,
-            cwd=str(LOCAL_WORKSPACE)
+            timeout=timeout_limit,
+            cwd=str(LOCAL_WORKSPACE),
+            env=env
         )
         elapsed = round(time.time() - start_t, 3)
         return web.json_response({
@@ -538,7 +551,7 @@ async def api_terminal_exec_handler(request: web.Request) -> web.Response:
             "elapsed_s": elapsed
         })
     except subprocess.TimeoutExpired:
-        return web.json_response({"ok": False, "error": "Comando excedió límite de 45 segundos", "elapsed_s": 45.0}, status=504)
+        return web.json_response({"ok": False, "error": f"Comando excedió límite de {timeout_limit} segundos", "elapsed_s": float(timeout_limit)}, status=504)
     except Exception as e:
         return web.json_response({"ok": False, "error": str(e)}, status=500)
 
