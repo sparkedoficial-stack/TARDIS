@@ -1607,17 +1607,29 @@ def get_client_html() -> str:
                         <div><span style="color:var(--neon-cyan)">[TARDIS-KERNEL]</span> Entorno de programación base interactivo inicializado.</div>
                         <div><span style="color:var(--neon-cyan)">[TARDIS-KERNEL]</span> Dispositivo: Apple iPad Pro 12.9" M2 · iPadOS 27.0 · Host: Linux Kernel 6.17-liquorix</div>
                     </div>
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;flex-wrap:wrap;gap:6px;">
+                        <div style="display:inline-flex;align-items:center;gap:6px;padding:3px 8px;border-radius:6px;background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.4);color:#60a5fa;font-size:0.75rem;font-weight:700;">
+                            ⚡ AGY ULTRA MODE · CLAUDE OPUS 5.5 HIGH · RING 0
+                        </div>
+                        <div style="font-size:0.75rem;color:#94a3b8;">
+                            Path: <code style="color:var(--neon-cyan)">/TARDIS_WORKSPACE/bin/agy</code>
+                        </div>
+                    </div>
                     <div class="term-input-row" style="margin-top:10px;">
                         <span class="term-prompt">tardis@m2:~$</span>
-                        <input type="text" class="term-input" id="term-cmd-input" placeholder="Escribe comando (p.ej. python3 -V, uname -a, git status -s, df -h)..." onkeydown="if(event.key==='Enter') runTerminalCommand()">
+                        <input type="text" class="term-input" id="term-cmd-input" placeholder="Escribe comando (p.ej. agy --version, agy models, python3 -V, uname -a)..." onkeydown="if(event.key==='Enter') runTerminalCommand()">
                         <button class="btn-ide btn-ide-run" onclick="runTerminalCommand()">Ejecutar</button>
                     </div>
                     <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+                        <span class="chat-chip" style="border-color:rgba(59,130,246,0.5);color:#93c5fd;font-weight:600;" onclick="quickTermCmd('agy --version')">🤖 agy --version</span>
+                        <span class="chat-chip" style="border-color:rgba(59,130,246,0.5);color:#93c5fd;font-weight:600;" onclick="quickTermCmd('agy models')">⚡ agy models</span>
+                        <span class="chat-chip" style="border-color:rgba(59,130,246,0.5);color:#93c5fd;font-weight:600;" onclick="quickTermCmd('agy agents')">🧠 agy agents</span>
+                        <span class="chat-chip" style="border-color:rgba(59,130,246,0.5);color:#93c5fd;font-weight:600;" onclick="quickTermCmd('agy -p &quot;di hola desde iPad M2&quot;')">💬 agy prompt</span>
                         <span class="chat-chip" onclick="quickTermCmd('python3 -V')">python3 -V</span>
                         <span class="chat-chip" onclick="quickTermCmd('uname -a')">uname -a</span>
                         <span class="chat-chip" onclick="quickTermCmd('git status -s')">git status</span>
                         <span class="chat-chip" onclick="quickTermCmd('df -h')">df -h</span>
-                        <span class="chat-chip" onclick="quickTermCmd('ls -lh /home/timemachine/modulos_ftl')">ls modulos_ftl</span>
+                        <span class="chat-chip" onclick="quickTermCmd('ls -la /home/timemachine/Escritorio/GODWORKS\\ SYSTEM/bin')">ls bin/agy</span>
                     </div>
                 </div>
 
@@ -2482,18 +2494,33 @@ print('Hola desde iPad Pro M2!')
             const box = document.getElementById('terminal-log');
             box.innerHTML += `<div><span style="color:var(--neon-cyan)">tardis@m2:~$</span> ${{escapeHtml(cmd)}}</div>`;
             
+            const isAgy = cmd.includes('agy');
+            const tempId = 'exec_' + Date.now();
+            const msg = isAgy ? '⚡ [AGY ULTRA] Pensando y ejecutando modelo Claude Opus 5.5 High...' : '⏳ Ejecutando en sistema...';
+            box.innerHTML += `<div id="${{tempId}}" style="color:var(--neon-gold);font-style:italic;margin:4px 0;">${{msg}}</div>`;
+            box.scrollTop = box.scrollHeight;
+            
             try {{
                 const res = await fetch('/api/terminal/exec', {{
                     method: 'POST',
                     headers: {{'Content-Type': 'application/json'}},
                     body: JSON.stringify({{command: cmd}})
                 }});
+                const tempEl = document.getElementById(tempId);
+                if (tempEl) tempEl.remove();
+                
                 const data = await res.json();
-                if (data.stdout) box.innerHTML += `<pre style="color:#e2e8f0;margin:4px 0;">${{escapeHtml(data.stdout)}}</pre>`;
-                if (data.stderr) box.innerHTML += `<pre style="color:#ef4444;margin:4px 0;">${{escapeHtml(data.stderr)}}</pre>`;
+                if (data.stdout) box.innerHTML += `<pre style="color:#e2e8f0;margin:4px 0;white-space:pre-wrap;font-family:monospace;">${{escapeHtml(data.stdout)}}</pre>`;
+                if (data.stderr) box.innerHTML += `<pre style="color:#ef4444;margin:4px 0;white-space:pre-wrap;font-family:monospace;">${{escapeHtml(data.stderr)}}</pre>`;
+                if (!data.stdout && !data.stderr && data.error) {{
+                    box.innerHTML += `<div style="color:#ef4444">Error: ${{escapeHtml(data.error)}}</div>`;
+                }}
                 box.scrollTop = box.scrollHeight;
             }} catch(err) {{
+                const tempEl = document.getElementById(tempId);
+                if (tempEl) tempEl.remove();
                 box.innerHTML += `<div style="color:#ef4444">Error: ${{err.message}}</div>`;
+                box.scrollTop = box.scrollHeight;
             }}
         }}
 
