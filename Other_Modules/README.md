@@ -30,6 +30,7 @@ Módulos y componentes auxiliares del sistema.
 - **Tardis-Safety-Rails.desktop**: Componente de alta eficiencia.
 - **Theme.swift**: Componente nativo iOS/SwiftUI de la aplicación móvil GIA.
 - **__init__.py**: Componente de alta eficiencia.
+- **agy.py**: Componente de alta eficiencia.
 - **api.py**: Componente de alta eficiencia.
 - **app.py**: Componente de alta eficiencia.
 - **apply_timeemergency.py**: Componente de alta eficiencia.
