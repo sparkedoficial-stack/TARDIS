@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.1285439,
-  "last_video_id": "vp_20261015_192933_c4f0c3",
-  "last_topic": "Tensor Network Renormalization and Emergent Geometry: Visualizing the Flow of Entanglement",
-  "total_videos_analyzed": 181,
-  "running_cycle": false,
+  "last_run_timestamp": REDACTED_PHONE.5423307,
+  "last_video_id": "vp_20261015_200802_7d1967",
+  "last_topic": "The AdS/CFT Correspondence: Visualizing the Emergence of Spacetime from Entanglement Entropy",
+  "total_videos_analyzed": 182,
+  "running_cycle": true,
   "last_error": null,
   "auto_improvement_count": 113
 }
