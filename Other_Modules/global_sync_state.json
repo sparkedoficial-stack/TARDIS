@@ -1,7 +1,19 @@
 {
-  "revision": 2431,
-  "lamport": 2749,
-  "history": [],
+  "revision": 2433,
+  "lamport": 2750,
+  "history": [
+    {
+      "id": "msg_1792127912824_1",
+      "role": "system",
+      "content": "⚡ [FTL] PLAN COGNITIVO (TEST): Verificación de puente FTL-TARDIS (RC:0, 0.5s)",
+      "timestamp": REDACTED_PHONE.8242524,
+      "iso": "2026-10-16T00:18:32.824264",
+      "lamport": 2750,
+      "meta": "FTL · TEST",
+      "raw_data": {},
+      "client_id": "ftl_sovereign"
+    }
+  ],
   "config": {
     "model": "TARDIS-NEURAL-SPACE-KAIJU",
     "temperature": 0.3,
@@ -24,11 +36,11 @@
     "coneActive": true,
     "oscilloscopeActive": true
   },
-  "updated_at": "2026-10-15T19:02:25.981232",
+  "updated_at": "2026-10-16T00:18:32.824289",
   "visual_intelligence": {
     "active": true,
     "pid": 2130,
     "videos_stored": 190,
-    "last_ping": REDACTED_PHONE.15009
+    "last_ping": REDACTED_PHONE.1621788
   }
 }
