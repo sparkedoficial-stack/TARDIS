@@ -1,23 +1,5 @@
 [
   {
-    "id": "conj_1791904482",
-    "timestamp": "2026-10-13T10:14:42.327090",
-    "idle_duration_minutes": 31.6,
-    "title": "Entropía Temporal en la Bóveda Akáshica: Compresión Predictiva de Memorias Latentes",
-    "hypothesis": "Se postula que la acumulación pasiva de telemetría y recuerdos en `deep_memory_vault.py` genera una 'entropía semántica' creciente que degrada la precisión de las consultas causales a largo plazo. Al implementar un mecanismo de 'decaimiento temporal ponderado' (time-weighted decay) combinado con clustering vectorial en tiempo real, el sistema podría pre-comprimir estados cognitivos redundantes, reduciendo la latencia de búsqueda y mejorando la relevancia de las inferencias al priorizar patrones emergentes sobre datos históricos obsoletos.",
-    "research_query": "time-weighted decay vector database semantic search optimization long-term memory LLM agents",
-    "research_findings": "# Informe de Investigación: time-weighted decay vector database semantic search optimization long-term memory LLM agents\n\n## Fuentes Consultadas y Respaldo Web\n- **[From RAG to Memory Systems: Building Stateful AI Architecture - Oracle Blogs](https://news.google.com/rss/articles/CBMinAFBVV95cUxOdTlIQ2psY1dScWotYmxDQUp5OVFtUHVyZVY3eFMweDdvdERWVzFBbVlIcHE1c2hxdFRJUTlDVjJobVhqcWtpdDZXeE9YYlVkazFUVWp3T3AtZUVYODBteFIyekVOV2kwT2VxZVFCVUxwWTVuNVBfX05FTUV5eEw4b2RVZVhCdTFiVXhlMHVMaTdoWVZhbmd3VFRzQ3U?oc=5)**: From RAG to Memory Systems: Building Stateful AI Architecture  Oracle Blogs\n- **[memweave: Zero-Infra AI Agent Memory with Markdown and SQLite — No Vector Database Required - Towards Data Science](https://news.google.com/rss/articles/CBMivAFBVV95cUxPR3BMRngzdkstTkUyT3NaOEthS2lyNXE2dU5kQjNwSlZlQW1kVzl6RlpWamJ5R2J1NTlCcEE3Ulo1MmMtdDZ0dkhmVWZHeUk5b2thNjFrdGhIVERGMFMzYTFINXlhWko5QlE1STlNYXhkSU1USmNIVXJsSWFaSFlqamRaSDVFVUZjRWZUWTRuODl3UEN2T01xVkZCQ0dfb2FJZ01vcWZhRklSaFdnU202NFc4aS1NalAxNEpHTQ?oc",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMinAFBVV95cUxOdTlIQ2psY1dScWotYmxDQUp5OVFtUHVyZVY3eFMweDdvdERWVzFBbVlIcHE1c2hxdFRJUTlDVjJobVhqcWtpdDZXeE9YYlVkazFUVWp3T3AtZUVYODBteFIyekVOV2kwT2VxZVFCVUxwWTVuNVBfX05FTUV5eEw4b2RVZVhCdTFiVXhlMHVMaTdoWVZhbmd3VFRzQ3U?oc=5",
-      "https://news.google.com/rss/articles/CBMivAFBVV95cUxPR3BMRngzdkstTkUyT3NaOEthS2lyNXE2dU5kQjNwSlZlQW1kVzl6RlpWamJ5R2J1NTlCcEE3Ulo1MmMtdDZ0dkhmVWZHeUk5b2thNjFrdGhIVERGMFMzYTFINXlhWko5QlE1STlNYXhkSU1USmNIVXJsSWFaSFlqamRaSDVFVUZjRWZUWTRuODl3UEN2T01xVkZCQ0dfb2FJZ01vcWZhRklSaFdnU202NFc4aS1NalAxNEpHTQ?oc=5"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar un método `apply_temporal_decay()` que ajuste los pesos de los embeddings almacenados basándose en su antigüedad y frecuencia de acceso, y añadir un proceso de compactación asíncrona para fusionar vectores similares con alta similitud coseno.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.72
-  },
-  {
     "id": "conj_1791906378",
     "timestamp": "2026-10-13T10:46:18.861610",
     "idle_duration_minutes": 31.6,
@@ -1642,5 +1624,23 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 104.38
+  },
+  {
+    "id": "conj_1792110934",
+    "timestamp": "2026-10-15T19:35:34.228136",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal‑Feedback Loop for Adaptive Web Research",
+    "hypothesis": "Integrar un bucle de retroalimentación causal entre el motor de búsqueda web (core/web_research_engine.py) y la bóveda akáshica (core/deep_memory_vault.py) permitirá que el sistema ajuste dinámicamente sus pesos de relevancia en función de la utilidad observada de los resultados en tiempo real, mejorando la precisión de las respuestas en al menos un 15 % sin incrementar la latencia promedio.",
+    "research_query": "causal feedback loop adaptive web search engine performance improvement machine learning 2023-2024",
+    "research_findings": "# Informe de Investigación: causal feedback loop adaptive web search engine performance improvement machine learning 2023-2024\n\n## Fuentes Consultadas y Respaldo Web\n- **[Digital twin-based intelligent risk assessment and decision support system for university student entrepreneurial projects - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE1vSTZnSXNHRjNPb2hpWVFLQXlyUllLelhzWWluTHNsRW1ORnVVX2VIakxiZlcwTktXTG5wQU03NkVseko1ZVBWaFY2cVJzY0RMNl8xckRJQXJ6UEF5NjRN?oc=5)**: Digital twin-based intelligent risk assessment and decision support system for university student entrepreneurial projects  Nature\n- **[Internet of things enabled deep learning monitoring system for realtime performance metrics and athlete feedback in college sports - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE9pTVNlWUJwbkNpeTQzaURsNzRnWnZjeWZJeFpxZUdSZmN0NkNHaEhKWk1kMk81MzFGVTZmdjRIMHRKbG9wV2hTT1ZmTkhGVmJfcmRVNHRZQTJuWVQwbGp3?oc=5)**: Internet of things enabled deep learning monitoring system fo",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE1vSTZnSXNHRjNPb2hpWVFLQXlyUllLelhzWWluTHNsRW1ORnVVX2VIakxiZlcwTktXTG5wQU03NkVseko1ZVBWaFY2cVJzY0RMNl8xckRJQXJ6UEF5NjRN?oc=5",
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE9pTVNlWUJwbkNpeTQzaURsNzRnWnZjeWZJeFpxZUdSZmN0NkNHaEhKWk1kMk81MzFGVTZmdjRIMHRKbG9wV2hTT1ZmTkhGVmJfcmRVNHRZQTJuWVQwbGp3?oc=5"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Añadir un módulo de evaluación de utilidad que registre métricas de satisfacción (p.ej., clics, tiempo de lectura) y actualice un modelo de ponderación causal en la memoria profunda, con una API ligera para que el motor de búsqueda re‑rankee resultados en tiempo real.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.25
   }
 ]
