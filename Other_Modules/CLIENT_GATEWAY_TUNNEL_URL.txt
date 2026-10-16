@@ -1,1 +1,1 @@
-https://christopher-winning-explanation-joe.trycloudflare.com
+https://api.trycloudflare.com
