@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.98505,
-  "last_video_id": "vp_20261016_013118_e36e60",
-  "last_topic": "Non-Hermitian Topological Phases and Exceptional Points in Quantum Systems",
-  "total_videos_analyzed": 191,
+  "last_run_timestamp": REDACTED_PHONE.8270538,
+  "last_video_id": "vp_20261016_024224_d41790",
+  "last_topic": "Twistor Space and Scattering Amplitudes in Quantum Gravity",
+  "total_videos_analyzed": 193,
   "running_cycle": false,
   "last_error": null,
-  "auto_improvement_count": 114
+  "auto_improvement_count": 115
 }
