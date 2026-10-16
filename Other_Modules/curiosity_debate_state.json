@@ -3,28 +3,17 @@
   "interval_seconds": 5400.0,
   "target_chat_id": -REDACTED_PHONE,
   "target_thread_id": 453,
-  "last_run_timestamp": REDACTED_PHONE.7569208,
-  "last_run_iso": "2026-10-16T02:01:55.756924",
-  "total_dispatches": 195,
-  "curator_index": 4,
+  "last_run_timestamp": REDACTED_PHONE.1965644,
+  "last_run_iso": "2026-10-16T03:31:58.196567",
+  "total_dispatches": 196,
+  "curator_index": 5,
   "dispatched_topic_ids": [
     "holographic_brain_neurophysics",
     "fermi_paradox_great_filter",
-    "godel_incompleteness_ai_limits"
+    "godel_incompleteness_ai_limits",
+    "neural_decoding_mind_reading_bci"
   ],
   "history": [
-    {
-      "dispatch_id": 96,
-      "timestamp": REDACTED_PHONE.0721154,
-      "iso": "2026-10-09T21:18:37.072120",
-      "topic_id": "quantum_spacetime_er_epr",
-      "topic_title": "Entrelazamiento Cuántico, No-Localidad y Espacio-Tiempo Emergente (ER=EPR)",
-      "pdf_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/reports/polimatas_debates/Dossier_Debate_20261009_211834_quantum_spacetime_er_epr.pdf",
-      "chat_id": -REDACTED_PHONE,
-      "thread_id": 453,
-      "text_sent": true,
-      "doc_sent": true
-    },
     {
       "dispatch_id": 97,
       "timestamp": REDACTED_PHONE.0813224,
@@ -1208,6 +1197,18 @@
       "topic_id": "godel_incompleteness_ai_limits",
       "topic_title": "Los Teoremas de Incompletitud de Gödel y los Límites Epistemológicos de la Computación",
       "pdf_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/reports/polimatas_debates/Dossier_Debate_20261016_020153_godel_incompleteness_ai_limits.pdf",
+      "chat_id": -REDACTED_PHONE,
+      "thread_id": 453,
+      "text_sent": true,
+      "doc_sent": true
+    },
+    {
+      "dispatch_id": 196,
+      "timestamp": REDACTED_PHONE.1965644,
+      "iso": "2026-10-16T03:31:58.196567",
+      "topic_id": "neural_decoding_mind_reading_bci",
+      "topic_title": "Decodificación Neural Directa y Reconstrucción Semántica: ¿El Fin de la Privacidad Mental?",
+      "pdf_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/reports/polimatas_debates/Dossier_Debate_20261016_033156_neural_decoding_mind_reading_b.pdf",
       "chat_id": -REDACTED_PHONE,
       "thread_id": 453,
       "text_sent": true,
