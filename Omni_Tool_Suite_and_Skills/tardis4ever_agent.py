@@ -294,20 +294,30 @@ class MilestoneEvaluator:
         }
         for p_name, p_dir in satellite_projects.items():
             if p_dir.exists():
-                for root, _, files in os.walk(p_dir):
+                for root, dirs, files in os.walk(p_dir):
+                    dirs[:] = [
+                        d for d in dirs
+                        if d not in (".git", "__pycache__", "node_modules", ".venv", "venv", ".venv-linux", "build", "dist")
+                        and not d.startswith(".venv")
+                    ]
                     for f in files:
                         if any(f.endswith(ext) for ext in ('.py', '.sh', '.swift', '.html', '.md')):
                             fp = Path(root) / f
                             try:
                                 mtime = fp.stat().st_mtime
-                                key = f"sat:{p_name}:{f}"
+                                rel_fp = str(fp.relative_to(p_dir))
+                                key = f"sat:{p_name}:{rel_fp}"
                                 current_mtimes[key] = mtime
                                 if key not in last_known_files_mtime:
+                                    # Si existía la llave antigua por nombre base y no ha cambiado su mtime máximo, migrar sin penalizar
+                                    legacy_key = f"sat:{p_name}:{f}"
+                                    if legacy_key in last_known_files_mtime and mtime <= last_known_files_mtime[legacy_key]:
+                                        continue
                                     score += 25
-                                    reasons.append(f"Nuevo componente en proyecto {p_name}: {f}")
+                                    reasons.append(f"Nuevo componente en proyecto {p_name}: {rel_fp}")
                                 elif mtime > last_known_files_mtime[key]:
                                     score += 15
-                                    reasons.append(f"Actualización en proyecto {p_name}: {f}")
+                                    reasons.append(f"Actualización en proyecto {p_name}: {rel_fp}")
                             except Exception:
                                 pass
 
