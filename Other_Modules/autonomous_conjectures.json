@@ -1,23 +1,5 @@
 [
   {
-    "id": "conj_1791906378",
-    "timestamp": "2026-10-13T10:46:18.861610",
-    "idle_duration_minutes": 31.6,
-    "title": "Resonancia Causal en la Bóveda Akáshica",
-    "hypothesis": "La eficiencia de recuperación de información en la bóveda akáshica puede optimizarse mediante un mecanismo de 'resonancia causal' que priorice no solo la similitud semántica, sino la coherencia temporal y causal entre los nodos de memoria. Esto implicaría ponderar las conexiones entre recuerdos basándose en la probabilidad de que uno haya influido en el otro, reduciendo el ruido de información obsoleta o no relevante en contextos de investigación profunda.",
-    "research_query": "causal inference in vector databases for long-term memory systems",
-    "research_findings": "# Informe de Investigación: causal inference in vector databases for long-term memory systems\n\n## Fuentes Consultadas y Respaldo Web\n- **[I Replaced Vector DBs with Google’s Memory Agent Pattern for my notes in Obsidian - Towards Data Science](https://news.google.com/rss/articles/CBMisgFBVV95cUxPclRSTURRSmNZM2lGZ3Zmbko4SGxjbHFhd3hxVnIzSFZDSHBoR2FZdE83S2dQVWdDTG9FRld4WW9oeS14SXFueEJCajAzT0N0RjhYRmE3NEhhRDlyVzJKVl9Vd1R4aUUyNEstajVJNnNUdlk1a1J5bW50bFVzZ1VkSVZ4RlhSb1psSW9KU0JhRVp3a3otMVh2Wld1bU1VM0JpSXhFelhqanByYlBibEx4OFZR?oc=5)**: I Replaced Vector DBs with Google’s Memory Agent Pattern for my notes in Obsidian  Towards Data Science\n- **[Rethinking AI agent memory through reconstruction - Substack](https://news.google.com/rss/articles/CBMieEFVX3lxTE5CTlNnSnk3a1lUU0NXMS1NdWlZX0l5VzY1REtlc0FsTzgyVm1tdHl0cnB1alBGaTJfZFhDeW5KbXItdkNRTE4wZGNvQUZHLWctRWYtWktSbEZuZGJXLVRfVVQ1b1dydFBIM0J3NnZKUW9aMmFWVnQ0Mw?oc=5)**: Rethinking AI agent memory through reconstruction  Substack\n\n## Contenido y Halla",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMisgFBVV95cUxPclRSTURRSmNZM2lGZ3Zmbko4SGxjbHFhd3hxVnIzSFZDSHBoR2FZdE83S2dQVWdDTG9FRld4WW9oeS14SXFueEJCajAzT0N0RjhYRmE3NEhhRDlyVzJKVl9Vd1R4aUUyNEstajVJNnNUdlk1a1J5bW50bFVzZ1VkSVZ4RlhSb1psSW9KU0JhRVp3a3otMVh2Wld1bU1VM0JpSXhFelhqanByYlBibEx4OFZR?oc=5",
-      "https://news.google.com/rss/articles/CBMieEFVX3lxTE5CTlNnSnk3a1lUU0NXMS1NdWlZX0l5VzY1REtlc0FsTzgyVm1tdHl0cnB1alBGaTJfZFhDeW5KbXItdkNRTE4wZGNvQUZHLWctRWYtWktSbEZuZGJXLVRfVVQ1b1dydFBIM0J3NnZKUW9aMmFWVnQ0Mw?oc=5"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar un algoritmo de ponderación de nodos que evalúe la correlación causal entre entradas de memoria antes de la recuperación, utilizando metadatos temporales y de dependencia.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.51
-  },
-  {
     "id": "conj_1791908274",
     "timestamp": "2026-10-13T11:17:54.875565",
     "idle_duration_minutes": 31.6,
@@ -1642,5 +1624,23 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.25
+  },
+  {
+    "id": "conj_1792112831",
+    "timestamp": "2026-10-15T20:07:11.577308",
+    "idle_duration_minutes": 31.6,
+    "title": "Incremental Indexing for Web Research Engine",
+    "hypothesis": "The current web research engine performs a full scan of the entire knowledge base for every query, leading to high latency and unnecessary CPU usage. By introducing a lightweight incremental indexing mechanism that updates only changed or newly added web results, the engine can serve queries faster and reduce resource consumption, improving overall system responsiveness.",
+    "research_query": "how to implement incremental indexing for a Python web search engine",
+    "research_findings": "# Informe de Investigación: how to implement incremental indexing for a Python web search engine\n\n## Fuentes Consultadas y Respaldo Web\n- **[Grounding Your LLM: A Practical Guide to RAG for Enterprise Knowledge Bases - Towards Data Science](https://news.google.com/rss/articles/CBMiqgFBVV95cUxPNFdmR1VUTXJTejVDRzktN0dHbTl0bkxmRnUwc3ExNW9WWlFzM3Rnd3k0N3hkclBVUlhzQzlTd1hJVDVsbWJZdXA4RjlrZS11REhwdE1zU2xYLUZGUEpub1Y2LU9Lalo0OHIyZFVSSF9pZHNRODhOUGl5ZDkwTmdOM1pOeUZiTGJjNTlXUWRkTFlPOXY0TjB6N1dZUUtKb1BSaTZyelg3VzFOQQ?oc=5)**: Grounding Your LLM: A Practical Guide to RAG for Enterprise Knowledge Bases  Towards Data Science\n- **[Indexing code at scale with Glean - Engineering at Meta](https://news.google.com/rss/articles/CBMijwFBVV95cUxQdXdWV0tsWHo1VFRMa081aEw1eU5tc1h4eEdRS1J5bzdzSUt6M3BUZzBRVFQ4RXRWeEI4Rkk1VFp6V3B4RWxyMWdpMElHSnFKZWdaV09vcDhESHk2LWZha0NGcXlNR0NRSGJxOGt3Um50T1dOeXFfSE53WkhfWFAtaTZieTJEUEZ6TU9HNmdWTQ?oc=5)**: Indexing code at scale with Glean  Engineering at Meta\n\n## Contenido y Ha",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiqgFBVV95cUxPNFdmR1VUTXJTejVDRzktN0dHbTl0bkxmRnUwc3ExNW9WWlFzM3Rnd3k0N3hkclBVUlhzQzlTd1hJVDVsbWJZdXA4RjlrZS11REhwdE1zU2xYLUZGUEpub1Y2LU9Lalo0OHIyZFVSSF9pZHNRODhOUGl5ZDkwTmdOM1pOeUZiTGJjNTlXUWRkTFlPOXY0TjB6N1dZUUtKb1BSaTZyelg3VzFOQQ?oc=5",
+      "https://news.google.com/rss/articles/CBMijwFBVV95cUxQdXdWV0tsWHo1VFRMa081aEw1eU5tc1h4eEdRS1J5bzdzSUt6M3BUZzBRVFQ4RXRWeEI4Rkk1VFp6V3B4RWxyMWdpMElHSnFKZWdaV09vcDhESHk2LWZha0NGcXlNR0NRSGJxOGt3Um50T1dOeXFfSE53WkhfWFAtaTZieTJEUEZ6TU9HNmdWTQ?oc=5"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add an incremental index that updates on new/modified web results and uses it to accelerate query processing.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.33
   }
 ]
