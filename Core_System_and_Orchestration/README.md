@@ -4,6 +4,7 @@ Núcleo de orquestación temporal, bucles de control soberano FTL y sincronizaci
 
 ## Subsistemas y Componentes Principales:
 
+- **agy**: Componente de alta eficiencia.
 - **agy.py**: Componente de alta eficiencia.
 - **apply_easy_touch_fixes.py**: Sistema de auto-corrección preventiva y cicatrización en segundo plano.
 - **autonomous_controller.py**: Componente de alta eficiencia.

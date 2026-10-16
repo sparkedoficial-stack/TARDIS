@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+# ==============================================================================
+# Antigravity CLI (AGY) - iPad Pro M2 & Terminal Sovereign Client
+# Mode: ULTRA MODE | Model: Claude Opus 5.5 High | Ring 0 Kernel Operations
+# ==============================================================================
+
+export PATH="/home/timemachine/.local/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
+export AGY_MODE="ultra"
+export AGY_MODEL="${AGY_MODEL:-claude-opus-5-5-high}"
+export AGY_VERBOSITY="high"
+export AGY_KERNEL_LEVEL="1"
+export KERNEL_OPERATIONS="1"
+export FTL_AUTONOMOUS="1"
+
+REAL_AGY="/home/timemachine/.local/bin/agy"
+if [[ ! -x "$REAL_AGY" ]]; then
+    REAL_AGY="/home/timemachine/.local/bin/agy-real"
+fi
+
+if [[ ! -x "$REAL_AGY" ]]; then
+    echo "[AGY-IPAD] Error: Binario de Antigravity CLI no encontrado en el sistema." >&2
+    exit 1
+fi
+
+# Si se llama sin argumentos, mostrar estado y opciones
+if [[ $# -eq 0 ]]; then
+    echo "================================================================================"
+    echo "⚡ ANTIGRAVITY CLI (AGY) - NODO SOBERANO IPAD PRO M2 (APPLE SILICON 120Hz)"
+    echo "================================================================================"
+    echo "Modo: ULTRA | Modelo: ${AGY_MODEL} | Esfuerzo: high | Ring 0 Kernel: Habilitado"
+    echo ""
+    "$REAL_AGY" --help
+    exit 0
+fi
+
+# Si el primer argumento es un texto directo sin guiones y no es un subcomando oficial,
+# ejecutar en modo --print autónomo con ultra-effort
+SUBCOMMANDS=" agent agents changelog help install mcp mic-serve models plugin plugins remote-control update "
+first_arg="$1"
+
+if [[ ! "$first_arg" =~ ^- ]] && [[ ! "$SUBCOMMANDS" =~ [[:space:]]"$first_arg"[[:space:]] ]]; then
+    # El usuario escribió: agy "mi consulta o tarea"
+    exec "$REAL_AGY" --mode auto --effort high --dangerously-skip-permissions -p "$*"
+else
+    # El usuario pasó flags oficiales o subcomandos
+    exec "$REAL_AGY" "$@"
+fi
