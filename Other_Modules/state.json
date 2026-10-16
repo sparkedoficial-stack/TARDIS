@@ -6,7 +6,7 @@
   "last_video_id": "vp_20261015_215447_ab1e23",
   "last_topic": "Causal Dynamical Triangulations: Visualizing the Emergence of 4D Spacetime from Simplicial Complexes",
   "total_videos_analyzed": 185,
-  "running_cycle": true,
+  "running_cycle": false,
   "last_error": null,
   "auto_improvement_count": 113
 }
