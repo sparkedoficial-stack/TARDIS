@@ -126,6 +126,17 @@ class FtlOmniRegistry:
                 "description": "Agente soberano de sincronización continua: rutina de 24h automática y publicación inmediata en GitHub ante hitos importantes o llamativos con blindaje total de privacidad.",
                 "capabilities": ["status", "check", "sync", "daemon", "daemon_status"],
                 "active": True
+            },
+            "linpad": {
+                "name": "LinPad 1.6.0-TARDIS-M2 (Linux Desktop on iPad Pro M2)",
+                "binary": "/home/timemachine/.local/bin/linpad-ctl",
+                "module": "modulos_ftl.ftl_linpad",
+                "repo_path": "/home/timemachine/LinPad",
+                "ipa_path": "/home/timemachine/LinPad/build/LinPad-1.6.0-TARDIS-M2.ipa",
+                "category": "Apple iPadOS Linux Desktop & Wayland Compositor Bridge",
+                "description": "Entorno de escritorio Linux completo para iPad Pro M2 (Sway + Waybar + Wofi + Foot + Chromium + LibreOffice + GIMP + TARDIS/FTL/AGY Bridge) sobre motor nativo iSH ARM64 + Wayland Bridge ishwl y aceleración Metal/Venus.",
+                "capabilities": ["status", "fetch", "catalog", "themes", "benchmark", "tests"],
+                "active": True
             }
         }
 

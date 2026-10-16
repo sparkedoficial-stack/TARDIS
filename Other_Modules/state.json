@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.2608924,
-  "last_video_id": "vp_20261016_001911_f0485b",
-  "last_topic": "Visualizing Topological Order and Anyonic Statistics in 2D Quantum Systems",
-  "total_videos_analyzed": 189,
-  "running_cycle": false,
+  "last_run_timestamp": REDACTED_PHONE.3622923,
+  "last_video_id": "vp_20261016_005501_2a27ab",
+  "last_topic": "The Amplituhedron: Positive Geometry and Scattering Amplitudes in Quantum Field Theory",
+  "total_videos_analyzed": 190,
+  "running_cycle": true,
   "last_error": null,
-  "auto_improvement_count": 113
+  "auto_improvement_count": 114
 }

@@ -239,6 +239,107 @@ async def download_ipa_handler(request: web.Request) -> web.Response:
         )
     return web.Response(text="IPA no encontrado", status=404)
 
+LINPAD_IPA_PATH = Path("/home/timemachine/LinPad/build/LinPad-1.6.0-TARDIS-M2.ipa")
+LINPAD_ICON_PNG = Path("/home/timemachine/LinPad/build/unpacked/Payload/iSH ARM64.app/REDACTED_EMAIL")
+
+async def download_linpad_ipa_handler(request: web.Request) -> web.Response:
+    if LINPAD_IPA_PATH.exists():
+        return web.FileResponse(
+            LINPAD_IPA_PATH,
+            headers={
+                "Content-Disposition": 'attachment; filename="LinPad-1.6.0-TARDIS-M2.ipa"'
+            }
+        )
+    return web.Response(text="LinPad IPA no encontrado", status=404)
+
+async def linpad_profile_handler(request: web.Request) -> web.Response:
+    host = request.headers.get("Host", f"{LAN_HOST_IP}:{EDGE_PORT}").split(":")[0]
+    target_url = f"http://{host}/linpad"
+    icon_data = b""
+    if LINPAD_ICON_PNG.exists():
+        icon_data = LINPAD_ICON_PNG.read_bytes()
+    elif ICON_PNG.exists():
+        icon_data = ICON_PNG.read_bytes()
+
+    payload = {
+        "PayloadType": "com.apple.webClip.managed",
+        "PayloadVersion": 1,
+        "PayloadIdentifier": "com.godworks.linpad.m2.webclip",
+        "PayloadUUID": "REDACTED_PHONE-2108-201E-LINPAD000002",
+        "PayloadDisplayName": "LinPad 1.6 M2",
+        "PayloadDescription": "LinPad 1.6.0-TARDIS-M2 Linux Desktop Environment para iPad Pro M2",
+        "PayloadOrganization": "GODWORKS System · LinPad M2",
+        "Label": "LinPad M2",
+        "URL": target_url,
+        "FullScreen": True,
+        "IsRemovable": True,
+        "Precomposed": True,
+        "Icon": icon_data,
+        "IgnoreManifestScope": True
+    }
+    profile = {
+        "PayloadType": "Configuration",
+        "PayloadVersion": 1,
+        "PayloadIdentifier": "com.godworks.linpad.m2.profile",
+        "PayloadUUID": "REDACTED_PHONE-2108-201E-LINPAD000001",
+        "PayloadDisplayName": "LinPad 1.6.0-TARDIS-M2 Desktop",
+        "PayloadDescription": "Instalación de LinPad 1.6.0-TARDIS-M2 (Sway + Waybar + FTL/TARDIS) en Apple iPad Pro M2",
+        "PayloadOrganization": "GODWORKS System",
+        "PayloadContent": [payload]
+    }
+    return web.Response(
+        body=plistlib.dumps(profile),
+        content_type="application/x-apple-aspen-config",
+        headers={
+            "Content-Disposition": 'attachment; filename="linpad_m2.mobileconfig"'
+        }
+    )
+
+async def api_linpad_status_handler(request: web.Request) -> web.Response:
+    try:
+        from modulos_ftl.ftl_linpad import FtlLinpad
+        ctl = FtlLinpad()
+        st = ctl.get_status()
+        cat = ctl.get_catalog()
+        thm = ctl.get_themes()
+        return web.json_response({
+            "ok": True,
+            "status": st,
+            "catalog": cat,
+            "themes": thm
+        })
+    except Exception as e:
+        return web.json_response({"ok": False, "error": str(e)}, status=500)
+
+async def api_linpad_exec_handler(request: web.Request) -> web.Response:
+    try:
+        body = await request.json()
+    except Exception:
+        return web.json_response({"ok": False, "error": "JSON malformado"}, status=400)
+    cmd = body.get("command", "linpad-fetch --pipe").strip()
+    env = os.environ.copy()
+    env["PATH"] = f"/usr/local/bin:/home/timemachine/.local/bin:/home/timemachine/Escritorio/GODWORKS SYSTEM/bin:{env.get('PATH', '')}"
+    start_t = time.time()
+    try:
+        res = subprocess.run(
+            cmd,
+            shell=True,
+            capture_output=True,
+            text=True,
+            timeout=30,
+            cwd="/home/timemachine/LinPad",
+            env=env
+        )
+        return web.json_response({
+            "ok": res.returncode == 0,
+            "stdout": res.stdout,
+            "stderr": res.stderr,
+            "exit_code": res.returncode,
+            "elapsed_s": round(time.time() - start_t, 3)
+        })
+    except Exception as e:
+        return web.json_response({"ok": False, "error": str(e)}, status=500)
+
 async def api_telemetry_handler(request: web.Request) -> web.Response:
     data = get_system_telemetry()
     try:
@@ -1484,6 +1585,7 @@ def get_client_html() -> str:
         </div>
         <div class="header-nav">
             <button class="nav-chip active" onclick="switchTab('view-chat', this)">💬 Neural GIA</button>
+            <button class="nav-chip" style="border-color:rgba(16,185,129,0.5);color:#34d399;" onclick="switchTab('view-linpad', this)">🐧 LinPad M2</button>
             <button class="nav-chip" onclick="switchTab('view-ide', this)">💻 IDE Soberano</button>
             <button class="nav-chip" onclick="switchTab('view-terminal', this)">⚡ Terminal & Kernel</button>
             <button class="nav-chip" onclick="switchTab('view-tools', this)">🛠️ Omni-Tools</button>
@@ -1530,6 +1632,7 @@ def get_client_html() -> str:
                 </div>
 
                 <div class="chat-chips">
+                    <div class="chat-chip" style="border-color:#10b981;color:#34d399;font-weight:700;" onclick="switchTab('view-linpad')">🐧 LinPad 1.6 M2 Desktop</div>
                     <div class="chat-chip" style="border-color:var(--neon-cyan);color:var(--neon-cyan);font-weight:700;" onclick="switchTab('view-ide')">💻 IDE Soberano</div>
                     <div class="chat-chip" style="border-color:var(--neon-gold);color:var(--neon-gold);font-weight:700;" onclick="switchTab('view-terminal')">⚡ Terminal & Kernel</div>
                     <div class="chat-chip" onclick="quickPrompt('Hola TARDIS, ¿cómo estás?')">👋 Saludo Local</div>
@@ -1557,6 +1660,93 @@ def get_client_html() -> str:
                     <button class="send-btn" onclick="sendChatMessage()">
                         <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
                     </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- VISTA: LINPAD 1.6.0-TARDIS-M2 LINUX DESKTOP ENVIRONMENT -->
+        <section id="view-linpad" class="tab-view">
+            <div style="display:flex;flex-direction:column;gap:12px;height:100%;">
+                <!-- Sway / Waybar Status Bar -->
+                <div id="linpad-waybar" style="display:flex;align-items:center;justify-content:space-between;background:rgba(3,7,18,0.92);border:1px solid #00f5d4;border-radius:10px;padding:8px 14px;font-family:var(--font-mono);font-size:0.78rem;box-shadow:0 0 18px rgba(0,245,212,0.18);flex-wrap:wrap;gap:8px;">
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <span style="background:#00f5d4;color:#030712;font-weight:800;padding:2px 8px;border-radius:6px;">🐧 Sway 1.9 + ishwl</span>
+                        <span style="background:rgba(0,245,212,0.18);color:#00f5d4;padding:2px 8px;border-radius:6px;border:1px solid rgba(0,245,212,0.4);">1: term</span>
+                        <span style="background:rgba(168,85,247,0.18);color:#c084fc;padding:2px 8px;border-radius:6px;">2: apps</span>
+                        <span style="background:rgba(56,189,248,0.18);color:#38bdf8;padding:2px 8px;border-radius:6px;">3: themes</span>
+                        <span style="background:rgba(245,158,11,0.18);color:#fbbf24;padding:2px 8px;border-radius:6px;">4: tardis-ftl</span>
+                    </div>
+                    <div style="color:#e2e8f0;font-weight:700;">
+                        LinPad 1.6.0-TARDIS-M2 · Apple M2 10-Core GPU (Venus / Vulkan 1.3) · 120Hz ProMotion
+                    </div>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <span style="color:#10b981;">● JIT ARM64 ✓</span>
+                        <span style="color:#00f5d4;">FTL: gemini-4-argon-high</span>
+                    </div>
+                </div>
+
+                <!-- Main Desktop Split: Left = Foot Terminal & Telemetry | Right = App Catalog, Omarchy Themes & Native IPA -->
+                <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(420px, 1fr));gap:14px;flex:1;overflow-y:auto;">
+                    <!-- Left Window: Foot Wayland Terminal -->
+                    <div id="linpad-term-window" style="display:flex;flex-direction:column;background:#030712;border:2px solid #00f5d4;border-radius:12px;overflow:hidden;box-shadow:0 8px 28px rgba(0,0,0,0.6);">
+                        <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(15,23,42,0.95);padding:8px 12px;border-bottom:1px solid rgba(0,245,212,0.25);font-family:var(--font-mono);font-size:0.78rem;">
+                            <div style="display:flex;align-items:center;gap:6px;">
+                                <span style="width:10px;height:10px;border-radius:50%;background:#ef4444;display:inline-block;"></span>
+                                <span style="width:10px;height:10px;border-radius:50%;background:#f59e0b;display:inline-block;"></span>
+                                <span style="width:10px;height:10px;border-radius:50%;background:#10b981;display:inline-block;"></span>
+                                <span style="margin-left:8px;color:#00f5d4;font-weight:700;">foot — root@linpad-m2:~ (Wayland / ishwl)</span>
+                            </div>
+                            <span style="color:#94a3b8;font-size:0.72rem;">Repair-Kit v2026101601</span>
+                        </div>
+                        <pre id="linpad-term-output" style="flex:1;min-height:250px;max-height:340px;overflow-y:auto;padding:12px;font-family:var(--font-mono);font-size:0.78rem;line-height:1.45;color:#e2e8f0;white-space:pre-wrap;margin:0;">Cargando telemetría de LinPad 1.6.0-TARDIS-M2...</pre>
+                        <div style="display:flex;gap:8px;padding:8px 12px;background:rgba(15,23,42,0.9);border-top:1px solid rgba(255,255,255,0.1);align-items:center;">
+                            <span style="color:#00f5d4;font-family:var(--font-mono);font-weight:700;font-size:0.82rem;">linpad-m2#</span>
+                            <input type="text" id="linpad-cmd-input" class="term-input" style="padding:7px 10px;font-size:0.82rem;" placeholder="Comando LinPad (linpad-fetch, linpad-tardis benchmark, linpad apps list...)" onkeydown="if(event.key==='Enter') runLinpadCmd()">
+                            <button class="btn-ide btn-ide-run" onclick="runLinpadCmd()">Ejecutar</button>
+                        </div>
+                        <div style="display:flex;gap:6px;padding:8px 12px;background:rgba(3,7,18,0.95);flex-wrap:wrap;border-top:1px solid rgba(255,255,255,0.06);">
+                            <span class="chat-chip" style="border-color:#00f5d4;color:#00f5d4;font-size:0.74rem;" onclick="runLinpadQuick('linpad-fetch --pipe')">🐧 linpad-fetch</span>
+                            <span class="chat-chip" style="border-color:#a855f7;color:#c084fc;font-size:0.74rem;" onclick="runLinpadQuick('linpad-tardis status')">⚡ linpad-tardis status</span>
+                            <span class="chat-chip" style="border-color:#f59e0b;color:#fbbf24;font-size:0.74rem;" onclick="runLinpadQuick('linpad-tardis benchmark')">🚀 benchmark M2</span>
+                            <span class="chat-chip" style="border-color:#38bdf8;color:#38bdf8;font-size:0.74rem;" onclick="runLinpadQuick('linpad apps list')">📦 linpad apps list</span>
+                            <span class="chat-chip" style="font-size:0.74rem;" onclick="runLinpadQuick('ish-device-info --all')">📱 ish-device-info</span>
+                            <span class="chat-chip" style="font-size:0.74rem;" onclick="runLinpadQuick('linpad version')">ℹ️ linpad version</span>
+                        </div>
+                    </div>
+
+                    <!-- Right Window: Omarchy Themes, App Catalog & Native Package -->
+                    <div style="display:flex;flex-direction:column;gap:12px;">
+                        <!-- Native Package & WebClip Card -->
+                        <div style="background:rgba(15,23,42,0.82);border:1px solid rgba(0,245,212,0.3);border-radius:12px;padding:12px;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                                <span style="font-weight:800;color:#00f5d4;font-size:0.92rem;">📦 Paquete Nativo iPadOS & Perfil WebClip</span>
+                                <span style="font-family:var(--font-mono);font-size:0.72rem;background:rgba(16,185,129,0.2);color:#34d399;padding:2px 8px;border-radius:6px;">SYNC AFC OK · 645 MB</span>
+                            </div>
+                            <div style="font-size:0.78rem;color:#cbd5e1;margin-bottom:10px;line-height:1.4;">
+                                IPA adaptado <code>LinPad-1.6.0-TARDIS-M2.ipa</code> sincronizado en <code>/Downloads/</code> y <code>/TARDIS_WORKSPACE/LinPad/</code> con ProMotion 120Hz, entitlements de memoria extendida y Repair-Kit <code>REDACTED_PHONE</code>.
+                            </div>
+                            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                                <a href="/download/linpad.ipa" download class="btn-ide btn-ide-save" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px;">⬇️ Descargar LinPad-1.6.0-TARDIS-M2.ipa (645 MB)</a>
+                                <a href="/linpad.mobileconfig" download class="btn-ide btn-ide-push" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px;">📲 Instalar App WebClip LinPad M2</a>
+                            </div>
+                        </div>
+
+                        <!-- Omarchy Color Themes Selector -->
+                        <div style="background:rgba(15,23,42,0.82);border:1px solid rgba(168,85,247,0.3);border-radius:12px;padding:12px;">
+                            <div style="font-weight:800;color:#c084fc;font-size:0.88rem;margin-bottom:8px;">🎨 Temas Omarchy Wayland (DesktopKit + Sway/Foot)</div>
+                            <div id="linpad-themes-bar" style="display:flex;gap:6px;flex-wrap:wrap;">
+                                <!-- Inyectado dinámicamente -->
+                            </div>
+                        </div>
+
+                        <!-- LinPad App Catalog (catalog.json) -->
+                        <div style="background:rgba(15,23,42,0.82);border:1px solid rgba(56,189,248,0.25);border-radius:12px;padding:12px;flex:1;overflow-y:auto;max-height:240px;">
+                            <div style="font-weight:800;color:#38bdf8;font-size:0.88rem;margin-bottom:8px;">🛠️ Catálogo de Paquetes LinPad (11 Packs · Alpine Edge + TARDIS)</div>
+                            <div id="linpad-catalog-grid" style="display:grid;grid-template-columns:repeat(auto-fill, minmax(185px, 1fr));gap:8px;">
+                                <!-- Inyectado dinámicamente -->
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -1621,6 +1811,9 @@ def get_client_html() -> str:
                         <button class="btn-ide btn-ide-run" onclick="runTerminalCommand()">Ejecutar</button>
                     </div>
                     <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+                        <span class="chat-chip" style="border-color:#00f5d4;color:#00f5d4;font-weight:600;" onclick="quickTermCmd('linpad-fetch --pipe')">🐧 linpad-fetch</span>
+                        <span class="chat-chip" style="border-color:#00f5d4;color:#00f5d4;font-weight:600;" onclick="quickTermCmd('linpad-tardis status')">⚡ linpad-tardis</span>
+                        <span class="chat-chip" style="border-color:#00f5d4;color:#00f5d4;font-weight:600;" onclick="quickTermCmd('linpad apps list')">📦 linpad apps</span>
                         <span class="chat-chip" style="border-color:rgba(59,130,246,0.5);color:#93c5fd;font-weight:600;" onclick="quickTermCmd('agy --version')">🤖 agy --version</span>
                         <span class="chat-chip" style="border-color:rgba(59,130,246,0.5);color:#93c5fd;font-weight:600;" onclick="quickTermCmd('agy models')">⚡ agy models</span>
                         <span class="chat-chip" style="border-color:rgba(59,130,246,0.5);color:#93c5fd;font-weight:600;" onclick="quickTermCmd('agy agents')">🧠 agy agents</span>
@@ -1746,7 +1939,10 @@ def get_client_html() -> str:
             <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
             <span>Neural & GIA</span>
         </button>
-        
+        <button class="dock-btn" onclick="switchTab('view-linpad', this)">
+            <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            <span>LinPad M2</span>
+        </button>
         <button class="dock-btn" onclick="switchTab('view-ide', this)">
             <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
             <span>IDE Soberano</span>
@@ -2188,6 +2384,7 @@ def get_client_html() -> str:
             const target = document.getElementById(tabId);
             if (target) target.classList.add('active');
             document.querySelectorAll(`[onclick*="${{tabId}}"]`).forEach(el => el.classList.add('active'));
+            if (tabId === 'view-linpad') loadLinpadDesktop();
             if (tabId === 'view-ide') loadFilesTree();
             if (tabId === 'view-terminal') loadKernelBase();
             if (tabId === 'view-tools') loadToolsCatalog();
@@ -2630,8 +2827,108 @@ print('Hola desde iPad Pro M2!')
             }} catch (e) {{}}
         }}
 
+        // =========================================================================
+        // --- 6. CONTROLADOR LINPAD 1.6.0-TARDIS-M2 DESKTOP ---
+        // =========================================================================
+        let linpadLoaded = false;
+        let linpadThemesList = [];
+
+        async function loadLinpadDesktop() {{
+            const termOut = document.getElementById('linpad-term-output');
+            const themesBar = document.getElementById('linpad-themes-bar');
+            const catalogGrid = document.getElementById('linpad-catalog-grid');
+            try {{
+                const res = await fetch('/api/linpad/status');
+                const data = await res.json();
+                if (data.ok && data.status) {{
+                    if (!linpadLoaded) {{
+                        termOut.innerText = (data.status.fastfetch_output || '') + '\n\n' + (data.status.tardis_bridge_output || '');
+                        linpadLoaded = true;
+                    }}
+                    if (data.themes && data.themes.themes && themesBar) {{
+                        linpadThemesList = data.themes.themes;
+                        themesBar.innerHTML = '';
+                        linpadThemesList.slice(0, 12).forEach(th => {{
+                            const btn = document.createElement('button');
+                            btn.className = 'action-btn';
+                            btn.style.cssText = `background:${{th.background}};color:${{th.foreground}};border:1px solid ${{th.accent}};display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:8px;font-size:0.74rem;cursor:pointer;`;
+                            btn.innerHTML = `<span style="width:8px;height:8px;border-radius:50%;background:${{th.accent}};display:inline-block;"></span>${{escapeHtml(th.name)}}`;
+                            btn.onclick = () => applyLinpadTheme(th);
+                            themesBar.appendChild(btn);
+                        }});
+                    }}
+                    if (data.catalog && data.catalog.packs && catalogGrid) {{
+                        catalogGrid.innerHTML = '';
+                        data.catalog.packs.forEach(pk => {{
+                            const card = document.createElement('div');
+                            card.style.cssText = 'background:rgba(3,7,18,0.75);border:1px solid rgba(56,189,248,0.22);border-radius:8px;padding:8px;display:flex;flex-direction:column;justify-content:space-between;gap:4px;';
+                            const isTardis = pk.id === 'tardis-ftl';
+                            if (isTardis) card.style.borderColor = '#00f5d4';
+                            card.innerHTML = `
+                                <div style="display:flex;justify-content:space-between;align-items:center;">
+                                    <span style="font-weight:700;font-size:0.78rem;color:${{isTardis ? '#00f5d4' : '#f1f5f9'}};">${{escapeHtml(pk.name)}}</span>
+                                    <span style="font-size:0.65rem;color:#34d399;font-family:var(--font-mono);">${{pk.size_mb}} MB</span>
+                                </div>
+                                <div style="font-size:0.7rem;color:#94a3b8;line-height:1.3;">${{escapeHtml((pk.description || '').slice(0, 72))}}</div>
+                                <button class="action-btn" style="margin-top:4px;font-size:0.7rem;padding:3px 6px;" onclick="runLinpadQuick('linpad apps info ${{pk.id}} || linpad apps list')">🔍 Inspeccionar ${{escapeHtml(pk.id)}}</button>
+                            `;
+                            catalogGrid.appendChild(card);
+                        }});
+                    }}
+                }}
+            }} catch (e) {{
+                if (termOut) termOut.innerText = 'Error cargando LinPad Desktop: ' + e.message;
+            }}
+        }}
+
+        function applyLinpadTheme(th) {{
+            const win = document.getElementById('linpad-term-window');
+            const out = document.getElementById('linpad-term-output');
+            const bar = document.getElementById('linpad-waybar');
+            if (win) {{
+                win.style.background = th.background;
+                win.style.borderColor = th.accent;
+            }}
+            if (out) {{
+                out.style.color = th.foreground;
+            }}
+            if (bar) {{
+                bar.style.borderColor = th.accent;
+            }}
+        }}
+
+        async function runLinpadCmd() {{
+            const inp = document.getElementById('linpad-cmd-input');
+            const cmd = inp.value.trim();
+            if (!cmd) return;
+            inp.value = '';
+            await runLinpadQuick(cmd);
+        }}
+
+        async function runLinpadQuick(cmd) {{
+            const out = document.getElementById('linpad-term-output');
+            out.innerText += `\n\nroot@linpad-m2:~# ${{cmd}}\n`;
+            out.scrollTop = out.scrollHeight;
+            try {{
+                const res = await fetch('/api/linpad/exec', {{
+                    method: 'POST',
+                    headers: {{'Content-Type': 'application/json'}},
+                    body: JSON.stringify({{command: cmd}})
+                }});
+                const data = await res.json();
+                if (data.stdout) out.innerText += data.stdout;
+                if (data.stderr) out.innerText += `\n[stderr] ${{data.stderr}}`;
+                out.scrollTop = out.scrollHeight;
+            }} catch (e) {{
+                out.innerText += `\n[error] ${{e.message}}`;
+            }}
+        }}
+
         setInterval(pollTelemetry, 3000);
         pollTelemetry();
+        if (window.location.pathname.indexOf('/linpad') === 0) {{
+            switchTab('view-linpad');
+        }}
     </script>
 </body>
 </html>
@@ -2640,12 +2937,15 @@ print('Hola desde iPad Pro M2!')
 def create_app() -> web.Application:
     app = web.Application()
     app.router.add_get("/", index_handler)
+    app.router.add_get("/linpad", index_handler)
     app.router.add_get("/manifest.json", manifest_handler)
     app.router.add_get("/icon.png", icon_handler)
     app.router.add_get("/install.mobileconfig", profile_handler)
     app.router.add_get("/install-internet.mobileconfig", profile_handler)
     app.router.add_get("/tardis.mobileconfig", profile_handler)
+    app.router.add_get("/linpad.mobileconfig", linpad_profile_handler)
     app.router.add_get("/download/tardis.ipa", download_ipa_handler)
+    app.router.add_get("/download/linpad.ipa", download_linpad_ipa_handler)
 
     # API REST
     app.router.add_get("/api/telemetry", api_telemetry_handler)
@@ -2654,6 +2954,9 @@ def create_app() -> web.Application:
     app.router.add_post("/api/chat", api_chat_handler)
     app.router.add_get("/api/ipad/screenshot", api_ipad_screenshot_handler)
 
+    # API LINPAD 1.6.0-TARDIS-M2
+    app.router.add_get("/api/linpad/status", api_linpad_status_handler)
+    app.router.add_post("/api/linpad/exec", api_linpad_exec_handler)
     
     # NUEVAS APIS DE PROGRAMACIÓN & KERNEL BASE
     app.router.add_get("/api/fs/tree", api_fs_tree_handler)
