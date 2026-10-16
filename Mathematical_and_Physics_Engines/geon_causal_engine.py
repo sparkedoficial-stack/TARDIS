@@ -53,7 +53,7 @@ class HardwareControls:
     time_sync: bool = True
     phase_sync: bool = True
     causal_lock: bool = True       # STATUS: LCKD
-    syntropy_boost: bool = False
+    syntropy_boost: bool = True
     logic_core_active: bool = True
     lamport_clock: int = 1048
     status_label: str = "LCKD"
@@ -415,6 +415,8 @@ class CausalRetroIntegrator:
 
         for i, t in enumerate(t_values):
             phi_adv = self.adv_engine.evaluate(t, t0, t_final, boundary_amplitude=1.0)
+            if self.controls.phase_sync:
+                phi_adv *= cmath.exp(-1j * self.adv_engine.omega_0 * (t_final - t))
             
             # Integrando: [Φ_adv(t) · Ô_QCO] · exp(-i/ℏ S_geom) · (1 - η ∇S_ent)
             integrand = (phi_adv * qco_val) * geom_phase * syntropy_fac
@@ -609,7 +611,8 @@ class CausalRetroIntegrator:
 
         for i, t in enumerate(np.linspace(t0, t_final, steps + 1)):
             phi_adv = self.adv_engine.evaluate(t, t0, t_final, boundary_amplitude=1.0)
-            integrand = (phi_adv * qco_exp) * geom_phase * syntropy_fac
+            phi_eff = phi_adv * cmath.exp(-1j * self.adv_engine.omega_0 * (t_final - t)) if self.controls.phase_sync else phi_adv
+            integrand = (phi_eff * qco_exp) * geom_phase * syntropy_fac
 
             # Ponderación Simpson
             if i == 0 or i == steps:

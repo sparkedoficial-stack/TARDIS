@@ -502,48 +502,60 @@ class Tardis4EverAgent:
         2. Publicación de rutina por 24 horas transcurridas
         3. Esperar sin acción
         """
-        last_mtimes = self.state.get("last_known_mtimes", {})
-        is_notable, score, reasons, current_mtimes = MilestoneEvaluator.inspect_system_changes(last_mtimes)
+        import fcntl
+        lock_fp = open("/tmp/tardis4ever_cycle.lock", "w")
+        fcntl.flock(lock_fp.fileno(), fcntl.LOCK_EX)
+        try:
+            self.state = self.load_state()
+            last_mtimes = self.state.get("last_known_mtimes", {})
+            is_notable, score, reasons, current_mtimes = MilestoneEvaluator.inspect_system_changes(last_mtimes)
 
-        # Actualizar mtimes en memoria
-        self.state["last_known_mtimes"] = current_mtimes
-
-        now = datetime.datetime.now()
-        last_periodic = datetime.datetime.fromisoformat(self.state.get("last_periodic_sync", now.isoformat()))
-        elapsed_seconds = (now - last_periodic).total_seconds()
-
-        # CASO 1: Hito Importante o Llamativo Detectado -> PUBLICACIÓN INMEDIATA
-        if is_notable:
-            logger.info(f"[ALERTA DE HITO] Avance relevante detectado con puntaje {score} >= {SIGNIFICANCE_THRESHOLD}")
-            logger.info(f"Razones: {reasons}")
-            return self.execute_sovereign_publish("immediate_milestone", score, reasons)
-
-        # CASO 2: Han pasado 24 Horas -> RUTINA PERIÓDICA AUTOMÁTICA
-        elif elapsed_seconds >= PERIODIC_INTERVAL_SECONDS:
-            logger.info(f"[RUTINA 24H] Han transcurrido {elapsed_seconds / 3600:.2f} horas desde el último ciclo periódico.")
-            # Verificar si hay cambios en el repositorio
-            if self.git_sync:
-                st = self.git_sync.get_repo_status()
-                if not st.get("clean", True):
-                    return self.execute_sovereign_publish("periodic_24h", score, reasons or ["Ciclo programado de 24 horas"])
-                else:
-                    logger.info("[RUTINA 24H] Repositorio ya está completamente al día. Actualizando timestamp de ciclo.")
-                    self.state["last_periodic_sync"] = now.isoformat()
-                    self.save_state()
-                    return {"status": "ok", "action": "idle_up_to_date"}
-            else:
-                return self.execute_sovereign_publish("periodic_24h", score, reasons or ["Ciclo programado de 24 horas"])
-
-        # CASO 3: En espera normal
-        else:
-            remaining_hours = (PERIODIC_INTERVAL_SECONDS - elapsed_seconds) / 3600
+            # Actualizar mtimes en memoria y persistir para evitar ciclos duplicados
+            self.state["last_known_mtimes"] = current_mtimes
             self.save_state()
-            return {
-                "status": "idle",
-                "next_routine_in_hours": round(remaining_hours, 2),
-                "current_score": score,
-                "reasons": reasons
-            }
+
+            now = datetime.datetime.now()
+            last_periodic = datetime.datetime.fromisoformat(self.state.get("last_periodic_sync", now.isoformat()))
+            elapsed_seconds = (now - last_periodic).total_seconds()
+
+            # CASO 1: Hito Importante o Llamativo Detectado -> PUBLICACIÓN INMEDIATA
+            if is_notable:
+                logger.info(f"[ALERTA DE HITO] Avance relevante detectado con puntaje {score} >= {SIGNIFICANCE_THRESHOLD}")
+                logger.info(f"Razones: {reasons}")
+                return self.execute_sovereign_publish("immediate_milestone", score, reasons)
+
+            # CASO 2: Han pasado 24 Horas -> RUTINA PERIÓDICA AUTOMÁTICA
+            elif elapsed_seconds >= PERIODIC_INTERVAL_SECONDS:
+                logger.info(f"[RUTINA 24H] Han transcurrido {elapsed_seconds / 3600:.2f} horas desde el último ciclo periódico.")
+                # Verificar si hay cambios en el repositorio
+                if self.git_sync:
+                    st = self.git_sync.get_repo_status()
+                    if not st.get("clean", True):
+                        return self.execute_sovereign_publish("periodic_24h", score, reasons or ["Ciclo programado de 24 horas"])
+                    else:
+                        logger.info("[RUTINA 24H] Repositorio ya está completamente al día. Actualizando timestamp de ciclo.")
+                        self.state["last_periodic_sync"] = now.isoformat()
+                        self.save_state()
+                        return {"status": "ok", "action": "idle_up_to_date"}
+                else:
+                    return self.execute_sovereign_publish("periodic_24h", score, reasons or ["Ciclo programado de 24 horas"])
+
+            # CASO 3: En espera normal
+            else:
+                remaining_hours = (PERIODIC_INTERVAL_SECONDS - elapsed_seconds) / 3600
+                self.save_state()
+                return {
+                    "status": "idle",
+                    "next_routine_in_hours": round(remaining_hours, 2),
+                    "current_score": score,
+                    "reasons": reasons
+                }
+        finally:
+            try:
+                fcntl.flock(lock_fp.fileno(), fcntl.LOCK_UN)
+                lock_fp.close()
+            except Exception:
+                pass
 
     def run_daemon(self):
         """Bucle principal en segundo plano (demonio de alta disponibilidad)."""
