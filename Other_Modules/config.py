@@ -22,7 +22,7 @@ DEFAULT_CONFIG = {
     "bypass_all_permissions": True,
     "allow_direct_shell": True,
     "auto_heal_and_failover": True,
-    "google_model_override": "gemini-4-pro",
+    "google_model_override": "gemini-4-argon-high",
     "anthropic_model_override": None,
     "history_limit": 1000,
     "theme": "cyber_apex",
@@ -70,6 +70,9 @@ def load_config() -> dict:
                 loaded = json.load(f)
                 for k, v in DEFAULT_CONFIG.items():
                     cfg[k] = loaded.get(k, v)
+            if cfg.get("google_model_override") in ("gemini-4-pro", "gemini-3.1-pro-high", "gemini-3.1-pro-preview"):
+                cfg["google_model_override"] = "gemini-4-argon-high"
+                save_config(cfg)
         except Exception:
             cfg = DEFAULT_CONFIG.copy()
     else:
