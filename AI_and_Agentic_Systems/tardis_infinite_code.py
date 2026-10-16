@@ -107,7 +107,7 @@ class TardisInfiniteCodeEngine:
         self.history: List[Dict[str, Any]] = []
         self.active_flagships = {
             "m1_flash": "gemini-3.8-flash-high",
-            "m2_pro": "gemini-3.1-pro-high",
+            "m2_pro": "gemini-4-argon-high",
             "m3_sonnet": "sonnet",
             "m4_opus": "opus",
             "external_cloud": "groq_deepseek",
