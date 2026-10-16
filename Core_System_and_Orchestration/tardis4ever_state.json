@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "created_at": "2026-10-15T02:04:29.176374",
   "last_periodic_sync": "2026-10-15T02:04:29.176374",
-  "last_immediate_sync": "2026-10-15T20:37:21.756727",
-  "last_commit_hash": "98b8e560",
-  "sync_count": 990,
-  "immediate_sync_count": 990,
+  "last_immediate_sync": "2026-10-15T20:38:27.712924",
+  "last_commit_hash": "ea4d5a62",
+  "sync_count": 991,
+  "immediate_sync_count": 991,
   "periodic_sync_count": 0,
   "last_known_mtimes": {
     "skill:omni-control-bridge/SKILL.md": REDACTED_PHONE.4575877,
@@ -194,6 +194,7 @@
     "ftl:browser_evol_criptograf_a_postcu_ntic_9355.py": REDACTED_PHONE.6210082,
     "ftl:browser_evol_neurotopolog_a_y_mapeo_d_2506.py": REDACTED_PHONE.2599978,
     "ftl:browser_evol_neurotopolog_a_y_mapeo_d_3628.py": REDACTED_PHONE.7305121,
+    "ftl:browser_evol_teor_a_de_control_causal_4688.py": REDACTED_PHONE.346117,
     "ftl:ftl_omni_registry.py": REDACTED_PHONE.8598595,
     "ftl:browser_evol_modelos_de_razonamiento__9157.py": REDACTED_PHONE.2624288,
     "ftl:browser_evol_criptograf_a_postcu_ntic_6205.py": REDACTED_PHONE.271296,
@@ -1229,6 +1230,7 @@
     "ftl:browser_evol_criptograf_a_postcu_ntic_8969.py": REDACTED_PHONE.0984254,
     "ftl:browser_evol_t_cnicas_de_compresi_n_s_1851.py": REDACTED_PHONE.1528366,
     "ftl:browser_evol_teor_a_de_control_causal_5956.py": REDACTED_PHONE.9522274,
+    "ftl:browser_evol_teor_a_de_control_causal_4692.py": REDACTED_PHONE.1938887,
     "ftl:browser_evol_computaci_n_cu_ntica_alg_3170.py": REDACTED_PHONE.6942534,
     "ftl:browser_evol_sistemas_operativos_basa_4295.py": REDACTED_PHONE.6813252,
     "ftl:browser_evol_neurotopolog_a_y_mapeo_d_2674.py": REDACTED_PHONE.7370691,
@@ -2548,6 +2550,18 @@
   },
   "history": [
     {
+      "timestamp": "2026-10-15T20:38:27.712924",
+      "trigger": "immediate_milestone",
+      "commit_hash": "ea4d5a62",
+      "score": 70,
+      "reasons": [
+        "Actualizaci\u00f3n en proyecto price_sentinel: README.md",
+        "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
+        "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
+        "Actualizaci\u00f3n en proyecto carlinkit_kvm: index.html"
+      ]
+    },
+    {
       "timestamp": "2026-10-15T20:37:21.756727",
       "trigger": "immediate_milestone",
       "commit_hash": "98b8e560",
@@ -3128,18 +3142,6 @@
       "trigger": "immediate_milestone",
       "commit_hash": "c5ffa6d2",
       "score": 60,
-      "reasons": [
-        "Actualizaci\u00f3n en proyecto price_sentinel: README.md",
-        "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
-        "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
-        "Actualizaci\u00f3n en proyecto carlinkit_kvm: index.html"
-      ]
-    },
-    {
-      "timestamp": "2026-10-15T19:43:09.849721",
-      "trigger": "immediate_milestone",
-      "commit_hash": "4375102f",
-      "score": 65,
       "reasons": [
         "Actualizaci\u00f3n en proyecto price_sentinel: README.md",
         "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
