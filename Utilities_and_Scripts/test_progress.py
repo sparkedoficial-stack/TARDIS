@@ -17,9 +17,9 @@ def test_time_estimator_tiers():
     # Test level 1 to 5 estimation
     e1 = time_estimator.estimate("crea un archivo de configuracion", complexity=1, mode="gemini", model="gemini-3.8-flash-high")
     e2 = time_estimator.estimate("agrega un endpoint REST de telemetria", complexity=2, mode="gemini", model="gemini-3.8-flash-high")
-    e3 = time_estimator.estimate("refactoriza modulo de seguridad y base de datos", complexity=3, mode="gemini", model="gemini-3.1-pro-high")
+    e3 = time_estimator.estimate("refactoriza modulo de seguridad y base de datos", complexity=3, mode="gemini", model="gemini-4-argon-high")
     e4 = time_estimator.estimate("arquitectura distribuida y orquestacion con failover", complexity=4, mode="dual_synth")
-    e5 = time_estimator.estimate("compilador formal y verificacion matematica con AST", complexity=5, mode="claude", model="claude-opus-4-6")
+    e5 = time_estimator.estimate("compilador formal y verificacion matematica con AST", complexity=5, mode="claude", model="claude-opus-5-5-high")
 
     assert e1 >= 10.0, f"e1 too low: {e1}"
     assert e2 >= e1, f"e2 should be >= e1: {e2} vs {e1}"

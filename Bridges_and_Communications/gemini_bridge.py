@@ -56,6 +56,13 @@ except Exception:
 
 # Modelos soportados (ordenados por peso / capacidad de razonamiento)
 GEMINI_MODELS = {
+    "gemini-4-argon-high": {
+        "name": "Gemini 4 Argon (High) (Apex Frontier / Ultra Deep Reasoning)",
+        "context_window": 2000000,
+        "is_heavy": True,
+        "supports_thinking": True,
+        "supports_grounding": True
+    },
     "gemini-4-pro": {
         "name": "Gemini 4 Pro (Apex Frontier / Ultra Deep Reasoning)",
         "context_window": 2000000,
@@ -121,7 +128,7 @@ GEMINI_MODELS = {
     }
 }
 
-DEFAULT_HEAVY_MODEL = "gemini-4-pro"
+DEFAULT_HEAVY_MODEL = "gemini-4-argon-high"
 TIMEOUT_HEAVY_SECONDS = 120.0  # Umbral de escalado a 2 minutos
 
 
