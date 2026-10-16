@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1791917771",
-    "timestamp": "2026-10-13T13:56:11.065432",
-    "idle_duration_minutes": 31.7,
-    "title": "Resonancia Causal en la Bóveda Akáshica: Optimización de la Entropía Semántica",
-    "hypothesis": "Se postula que la eficiencia de recuperación de información en la 'Bóveda Akáshica' (deep_memory_vault.py) se vea limitada por la acumulación de ruido semántico en vectores de memoria a largo plazo. Al aplicar un algoritmo de poda basada en la 'entropía causal' —que mide la probabilidad de que un nodo de memoria influya en futuras inferencias— se puede reducir la latencia de búsqueda y mejorar la precisión de la web_research_engine al filtrar contextos irrelevantes antes de la consulta externa.",
-    "research_query": "semantic entropy pruning algorithm for long-term memory vector databases LLM optimization",
-    "research_findings": "# Informe de Investigación: semantic entropy pruning algorithm for long-term memory vector databases LLM optimization\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar una función `calculate_causal_entropy(node)` que evalúe la relevancia histórica de los nodos de memoria y un método `prune_low_entropy_nodes()` que elimine o archive automáticamente los vectores con baja probabilidad de impacto futuro, integrando esta lógica en el ciclo de escritura de la bóveda.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 99.23
-  },
-  {
     "id": "conj_1791919670",
     "timestamp": "2026-10-13T14:27:50.327693",
     "idle_duration_minutes": 31.7,
@@ -1643,5 +1628,23 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 98.52
+  },
+  {
+    "id": "conj_1792124402",
+    "timestamp": "2026-10-15T23:20:02.303010",
+    "idle_duration_minutes": 31.6,
+    "title": "Resonancia Causal en la Bóveda Akáshica: Optimización de Entropía Semántica",
+    "hypothesis": "Se postula que la eficiencia de recuperación en la Bóveda Akáshica (deep_memory_vault.py) no depende linealmente de la cantidad de vectores almacenados, sino de la 'densidad causal' entre nodos de conocimiento. Actualmente, el sistema podría estar sufriendo de 'dilución semántica' donde consultas ambiguas devuelven resultados de alta similitud vectorial pero baja relevancia causal. La hipótesis es que implementar un mecanismo de 'pruning' dinámico basado en la frecuencia de co-ocurrencia temporal de conceptos en la telemetría de investigación (web_research_engine.py) reduciría la latencia de inferencia en un 30% y aumentaría la precisión de las respuestas del Núcleo Cognitivo al priorizar conexiones causales probadas sobre asociaciones estadísticas débiles.",
+    "research_query": "dynamic semantic pruning causal graph optimization vector database latency reduction",
+    "research_findings": "# Informe de Investigación: dynamic semantic pruning causal graph optimization vector database latency reduction\n\n## Fuentes Consultadas y Respaldo Web\n- **[Outline of machine learning (Wikipedia)](https://en.wikipedia.org/wiki/Outline_of_machine_learning)**: majority algorithm Reinforcement learning Repeated incremental pruning to produce error reduction (RIPPER) Rprop Rule-based machine learning Self-organizing\n- **[Deep learning (Wikipedia)](https://en.wikipedia.org/wiki/Deep_learning)**: embeddings from large text corpora. The resulting vector representations were shown to capture syntactic and semantic relationships between words. A subsequent\n\n## Contenido y Hallazgos Extraídos\n### De [Outline of machine learning - Wikipedia](https://en.wikipedia.org/wiki/Outline_of_machine_learning)\n> Outline of machine learning - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nOverview of and topical guide to machine learning\nThis article contains dynamic lists that may never be",
+    "web_sources": [
+      "https://en.wikipedia.org/wiki/Outline_of_machine_learning",
+      "https://en.wikipedia.org/wiki/Deep_learning"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar un método `prune_weak_causal_links()` que analice la telemetría histórica de consultas exitosas para identificar y atenuar el peso de vectores que aparecen frecuentemente en contextos de baja relevancia causal, actualizando la matriz de adyacencia de la bóveda.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.23
   }
 ]
