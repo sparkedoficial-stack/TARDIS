@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.4517639,
-  "last_video_id": "vp_20261016_194538_a8ecec",
-  "last_topic": "Tensor Network Holography and the Emergence of Spacetime Geometry",
-  "total_videos_analyzed": 221,
-  "running_cycle": false,
+  "last_run_timestamp": REDACTED_PHONE.289559,
+  "last_video_id": "vp_20261016_202146_1ca053",
+  "last_topic": "Holographic Quantum Error‑Correcting Codes (HaPPY Codes) and Their Role in AdS/CFT",
+  "total_videos_analyzed": 222,
+  "running_cycle": true,
   "last_error": null,
   "auto_improvement_count": 125
 }

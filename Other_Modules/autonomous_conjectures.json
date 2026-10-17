@@ -1,23 +1,5 @@
 [
   {
-    "id": "conj_1791994907",
-    "timestamp": "2026-10-14T11:21:47.949465",
-    "idle_duration_minutes": 31.7,
-    "title": "Resonancia Causal en la Bóveda Akáshica: Compresión Semántica Adaptativa",
-    "hypothesis": "Se postula que la eficiencia de recuperación de información en la Bóveda Akáshica (deep_memory_vault.py) puede optimizarse significativamente mediante la implementación de un mecanismo de 'Resonancia Causal'. Este mecanismo no solo buscaría coincidencias semánticas estáticas, sino que evaluaría la probabilidad causal entre la consulta actual y los nodos de memoria previos, aplicando una compresión dinámica de los vectores de memoria que no han sido 'resonados' (accesados o validados causalmente) en las últimas N iteraciones. Esto reduciría la latencia de búsqueda y el consumo de memoria RAM al priorizar la relevancia temporal-causal sobre la densidad vectorial pura.",
-    "research_query": "adaptive semantic compression causal relevance memory retrieval LLM optimization",
-    "research_findings": "# Informe de Investigación: adaptive semantic compression causal relevance memory retrieval LLM optimization\n\n## Fuentes Consultadas y Respaldo Web\n- **[Vol. 40 No. 39: AAAI-26 Technical Tracks 39 - The Association for the Advancement of Artificial Intelligence](https://news.google.com/rss/articles/CBMiX0FVX3lxTE1udHJDQmZyNW9aWF95MV9yNVVkZERkd3B1WU1FVUliSlRiUzk1dEVuX3hHdjBVMjJELWRGM3lBdEJOdW5zN0hVeUVWaGlhWnYtakJNMFdpRDA3Qmo2d0Z3?oc=5)**: Vol. 40 No. 39: AAAI-26 Technical Tracks 39  The Association for the Advancement of Artificial Intelligence\n- **[List of datasets for machine-learning research (Wikipedia)](https://en.wikipedia.org/wiki/List_of_datasets_for_machine-learning_research)**: Zhai, Chengxiang (2012). \"Opinion-based entity ranking\". Information Retrieval. 15 (2): 116–150. doi:10.1007/s10791-011-9174-8. hdl:2142/15252. S2CID 16258727\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMiX0FVX3lxTE1udHJDQmZyNW9aWF95MV9yNVVkZERkd3B",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE1udHJDQmZyNW9aWF95MV9yNVVkZERkd3B1WU1FVUliSlRiUzk1dEVuX3hHdjBVMjJELWRGM3lBdEJOdW5zN0hVeUVWaGlhWnYtakJNMFdpRDA3Qmo2d0Z3?oc=5",
-      "https://en.wikipedia.org/wiki/List_of_datasets_for_machine-learning_research"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar un método `calculate_causal_resonance_score()` que modifique el peso de los vectores de memoria basándose en su recencia de acceso y su correlación causal con la consulta, y añadir un ciclo de 'purga suave' (soft-purge) que comprima o archive los nodos con puntuación de resonancia baja tras un umbral de inactividad.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 99.53
-  },
-  {
     "id": "conj_1791996804",
     "timestamp": "2026-10-14T11:53:24.925976",
     "idle_duration_minutes": 31.6,
@@ -1639,5 +1621,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 100.96
+  },
+  {
+    "id": "conj_1792200555",
+    "timestamp": "2026-10-16T20:29:15.368142",
+    "idle_duration_minutes": 32.2,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching mechanism will allow the system to predict when cached search results become stale based on observed changes in source domains (e.g., content updates, SEO shifts). By modeling the probability that a cached entry no longer reflects the current state of the web, the engine can proactively invalidate or refresh entries, reducing latency while maintaining result freshness. This approach leverages the Deep Memory Vault's event logs to train a lightweight Bayesian network that estimates staleness risk, leading to a measurable improvement in hit‑rate and overall query latency.",
+    "research_query": "causal inference based cache invalidation web search engine recent research 2023 2024",
+    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web search engine recent research 2023 2024\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal‑based staleness predictor that hooks into the cache read/write path, using event timestamps from deep_memory_vault to decide when to auto‑refresh or evict cached search results.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.65
   }
 ]
