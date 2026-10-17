@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.1472707,
-  "last_video_id": "vp_20261016_232339_51736f",
-  "last_topic": "Spin Foam Models and Emergent Space‑time Geometry",
-  "total_videos_analyzed": 227,
-  "running_cycle": true,
+  "last_run_timestamp": REDACTED_PHONE.6787777,
+  "last_video_id": "vp_20261017_003619_821cd8",
+  "last_topic": "Holographic Quantum Error‑Correcting Codes (HaPPY Code) and Bulk Reconstruction",
+  "total_videos_analyzed": 229,
+  "running_cycle": false,
   "last_error": null,
   "auto_improvement_count": 125
 }

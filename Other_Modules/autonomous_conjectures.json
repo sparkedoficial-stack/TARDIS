@@ -1,23 +1,5 @@
 [
   {
-    "id": "conj_1792003779",
-    "timestamp": "2026-10-14T13:49:39.517370",
-    "idle_duration_minutes": 31.6,
-    "title": "Causal Memory Indexing for Real‑Time Web Research",
-    "hypothesis": "Integrating a causal graph layer within the Deep Memory Vault (core/deep_memory_vault.py) that indexes retrieved web snippets by inferred cause‑effect relationships will allow the Web Research Engine to prioritize sources that are not only relevant but also causally informative, reducing hallucination and improving answer fidelity in dynamic query contexts.",
-    "research_query": "causal graph indexing for knowledge bases improves retrieval relevance and reduces hallucination in large language model pipelines",
-    "research_findings": "# Informe de Investigación: causal graph indexing for knowledge bases improves retrieval relevance and reduces hallucination in large language model pipelines\n\n## Fuentes Consultadas y Respaldo Web\n- **[Advancing engineering research through context-aware and knowledge graph–based retrieval-augmented generation - Frontiers](https://news.google.com/rss/articles/CBMiogFBVV95cUxOM2oydHJZSV8wTVJUT3Q0VzRsOWthdHljNldvZkMtcjdGbmJ4TVl5SEliaFYyX20tVEZQU1IwRWY0RWFjeDA2bWdXRFZhTmZGRnl4U0kzV1A4clFaRF95b2tLS1ZqTDJiTDdhTlo3aXhKYm9vSzZVS1BMcXJDY3JNOGlQMklKRGFYVnc2NUt6QnVFRk9qaTBXaVlrMGZ0SEFEa0E?oc=5)**: Advancing engineering research through context-aware and knowledge graph–based retrieval-augmented generation  Frontiers\n- **[How to Build an Over-Engineered Retrieval System - Towards Data Science](https://news.google.com/rss/articles/CBMihgFBVV95cUxNdm5iZjZ5RWprV2dRczNDU3UtNURSeHRIRjE2OU5MZUVjRVJGcFBJMkVUMm5pX0daWjBEQm9zYUdkemI1NEFWTU8wcEhYVFl3dDV3ZlhLREhnVU1xUWVacDc5NmxxTnVBTEFqWDVMbGFjZjk5S0VIWTM0",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMiogFBVV95cUxOM2oydHJZSV8wTVJUT3Q0VzRsOWthdHljNldvZkMtcjdGbmJ4TVl5SEliaFYyX20tVEZQU1IwRWY0RWFjeDA2bWdXRFZhTmZGRnl4U0kzV1A4clFaRF95b2tLS1ZqTDJiTDdhTlo3aXhKYm9vSzZVS1BMcXJDY3JNOGlQMklKRGFYVnc2NUt6QnVFRk9qaTBXaVlrMGZ0SEFEa0E?oc=5",
-      "https://news.google.com/rss/articles/CBMihgFBVV95cUxNdm5iZjZ5RWprV2dRczNDU3UtNURSeHRIRjE2OU5MZUVjRVJGcFBJMkVUMm5pX0daWjBEQm9zYUdkemI1NEFWTU8wcEhYVFl3dDV3ZlhLREhnVU1xUWVacDc5NmxxTnVBTEFqWDVMbGFjZjk5S0VIWTM0clNWekFUdnY1VVFWdw?oc=5"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add an optional causal‑graph based re‑ranking step after initial search results: compute a lightweight cause‑effect score for each snippet using a pre‑trained causal inference model, then merge the scores with relevance scores to produce a final ranked list; also introduce an async cache layer to store previously ranked results for identical queries.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.81
-  },
-  {
     "id": "conj_1792005709",
     "timestamp": "2026-10-14T14:21:49.028833",
     "idle_duration_minutes": 32.2,
@@ -1633,5 +1615,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 114.13
+  },
+  {
+    "id": "conj_1792215924",
+    "timestamp": "2026-10-17T00:45:24.294151",
+    "idle_duration_minutes": 35.8,
+    "title": "Optimización causal‑cognitiva del caché de resultados en WebResearchEngine",
+    "hypothesis": "Si el motor de búsqueda web (core/web_research_engine.py) incorpora un modelo de inferencia causal que prioriza consultas basadas en la relevancia temporal y la dependencia de contexto almacenada en deep_memory_vault, entonces la latencia promedio de respuestas y la precisión de la información recuperada mejorarán en al menos un 30% bajo cargas de consultas concurrentes típicas para el entorno ASUS TUF Linux x86_64.",
+    "research_query": "causal inference caching web search engine performance improvement concurrent queries python",
+    "research_findings": "# Informe de Investigación: causal inference caching web search engine performance improvement concurrent queries python\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Implementar una capa de caché inteligente que utilice grafos causales extraídos de deep_memory_vault para predecir y almacenar resultados de consultas relacionadas, reduciendo llamadas redundantes a la red y mejorando la coherencia contextual.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.42
   }
 ]
