@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1792005709",
-    "timestamp": "2026-10-14T14:21:49.028833",
-    "idle_duration_minutes": 32.2,
-    "title": "Causal‑Feedback Loop for Adaptive Web Research Prioritization",
-    "hypothesis": "Integrating a causal inference layer between the Web Research Engine and the Deep Memory Vault can dynamically re‑rank search queries based on observed downstream impact on knowledge retrieval success. By modeling the causal effect of query formulation on the relevance of cached results, the system can learn to prefer query patterns that historically yield higher recall and lower latency, effectively creating a self‑optimizing feedback loop that improves both precision and resource utilization.",
-    "research_query": "causal inference for adaptive query ranking in web search engines \"feedback loop\"",
-    "research_findings": "# Informe de Investigación: causal inference for adaptive query ranking in web search engines \"feedback loop\"\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a lightweight causal inference module that records query metadata, outcome metrics (relevance score, latency), and updates a Bayesian network to adjust query weighting in the ranking algorithm. Implement async logging, a simple API for the Deep Memory Vault to query causal scores, and fallback to default ranking when insufficient data exists.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.09
-  },
-  {
     "id": "conj_1792007886",
     "timestamp": "2026-10-14T14:58:06.852262",
     "idle_duration_minutes": 36.3,
@@ -1630,5 +1615,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 98.42
+  },
+  {
+    "id": "conj_1792219526",
+    "timestamp": "2026-10-17T01:45:26.042222",
+    "idle_duration_minutes": 32.7,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer into the web_research_engine's result cache can dynamically invalidate stale entries based on detected changes in source content, reducing redundant network calls and improving response relevance. By modeling the relationship between query parameters, source URLs, and content change signals (e.g., HTTP ETag, Last-Modified, or content hash), the engine can predict when cached results are likely outdated and trigger selective re‑fetching, leading to a measurable drop in latency and bandwidth usage without sacrificing answer quality.",
+    "research_query": "causal inference based cache invalidation web scraping \"ETag\" \"Last-Modified\" predictive model",
+    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web scraping \"ETag\" \"Last-Modified\" predictive model\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal cache manager that tracks source metadata (ETag, Last-Modified, content hash) and uses a lightweight Bayesian network to decide when to invalidate or refresh cached search results.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.04
   }
 ]
