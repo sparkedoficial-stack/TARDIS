@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1792027661",
-    "timestamp": "2026-10-14T20:27:41.957754",
-    "idle_duration_minutes": 31.8,
-    "title": "Resonancia Causal en la Bóveda Akáshica: Optimización de la Entropía Semántica",
-    "hypothesis": "Se postula que la eficiencia de recuperación de información en la bóveda akáshica (deep_memory_vault.py) no depende linealmente de la cantidad de nodos almacenados, sino de la 'densidad causal' entre ellos. Actualmente, el sistema podría estar sufriendo de 'ruido semántico' acumulado por la falta de poda activa basada en relevancia temporal. Al implementar un algoritmo de decaimiento exponencial ponderado por la frecuencia de acceso cruzado entre módulos (especialmente entre web_research_engine y deep_memory_vault), se puede reducir la latencia de búsqueda en un 30-40% manteniendo la integridad del contexto histórico. Esta hipótesis sugiere que la memoria no es un archivo estático, sino un grafo dinámico donde las conexiones débiles deben ser pruned (podadas) para mejorar la señal a ruido en las inferencias causales.",
-    "research_query": "semantic memory pruning algorithm exponential decay causal graph optimization LLM context window",
-    "research_findings": "# Informe de Investigación: semantic memory pruning algorithm exponential decay causal graph optimization LLM context window\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar un método `prune_weak_connections()` que calcule un score de relevancia basado en la antigüedad y la frecuencia de co-ocurrencia con el motor de investigación, eliminando nodos con score por debajo de un umbral dinámico.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 110.74
-  },
-  {
     "id": "conj_1792029570",
     "timestamp": "2026-10-14T20:59:30.744630",
     "idle_duration_minutes": 31.8,
@@ -1621,5 +1606,23 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 98.47
+  },
+  {
+    "id": "conj_1792261315",
+    "timestamp": "2026-10-17T13:21:55.450201",
+    "idle_duration_minutes": 35.2,
+    "title": "Causal‑Aware Query Ranking",
+    "hypothesis": "Integrating causal embeddings into the web research engine will allow the system to distinguish between mere correlation and true cause‑effect relationships in retrieved documents, thereby improving the relevance of search results for complex, multi‑step queries.",
+    "research_query": "causal embeddings for information retrieval",
+    "research_findings": "# Informe de Investigación: causal embeddings for information retrieval\n\n## Fuentes Consultadas y Respaldo Web\n- **[CauVQ: Causal Vector Quantization for Graph OOD Generalization - The Association for the Advancement of Artificial Intelligence](https://news.google.com/rss/articles/CBMibEFVX3lxTE55RExDbm82SHNBUDBObERFOXZuWnpqZ1d6T0w1eEVQSktrOXBSYXpHbmpYQmZtVl8wMnJvZFg3UmczeXNrVUZVLV9ZRHpBSU5YUHNVQ3JXbUdCc2tMc3dwUjU4eWhsVk1DWXF2TQ?oc=5)**: CauVQ: Causal Vector Quantization for Graph OOD Generalization  The Association for the Advancement of Artificial Intelligence\n- **[Large language models are powerful electronic health record encoders | npj Digital Medicine - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTFBhajV6NTJIbzI4dDZFQkRMY21wMF9qaVZENUFSczFEVE4yZzRiYWJvNkU1bFJmNTh1NTJMOWpDeTZYaVBDb25ldkM5c0thdVQyblV5bi1qeGpWSUVlSXln?oc=5)**: Large language models are powerful electronic health record encoders | npj Digital Medicine  Nature\n\n## Contenido y Hallazgos Extraídos\n### De [G",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMibEFVX3lxTE55RExDbm82SHNBUDBObERFOXZuWnpqZ1d6T0w1eEVQSktrOXBSYXpHbmpYQmZtVl8wMnJvZFg3UmczeXNrVUZVLV9ZRHpBSU5YUHNVQ3JXbUdCc2tMc3dwUjU4eWhsVk1DWXF2TQ?oc=5",
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTFBhajV6NTJIbzI4dDZFQkRMY21wMF9qaVZENUFSczFEVE4yZzRiYWJvNkU1bFJmNTh1NTJMOWpDeTZYaVBDb25ldkM5c0thdVQyblV5bi1qeGpWSUVlSXln?oc=5"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal scoring layer that computes a causal relevance score for each candidate document using pre‑trained causal embeddings, and combine it with the existing TF‑IDF/semantic similarity score to produce a final ranking.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.37
   }
 ]
