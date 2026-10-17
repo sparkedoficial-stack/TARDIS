@@ -1,23 +1,5 @@
 [
   {
-    "id": "conj_1792021955",
-    "timestamp": "2026-10-14T18:52:35.498555",
-    "idle_duration_minutes": 31.6,
-    "title": "Sincronización Temporal de la Bóveda Akáshica con el Motor de Investigación",
-    "hypothesis": "La latencia en la recuperación de contextos históricos (Deep Memory Vault) durante las sesiones de investigación web activa se debe a la desincronización entre el ciclo de escritura de la bóveda y el ciclo de lectura del motor de investigación. Se conjetura que implementar un mecanismo de 'cache coherente' basado en eventos de telemetría en lugar de polling periódico, reduciría la latencia de consulta en un 40% y mejoraría la coherencia causal de las respuestas generadas.",
-    "research_query": "cache coherence protocol distributed memory systems low latency event-driven",
-    "research_findings": "# Informe de Investigación: cache coherence protocol distributed memory systems low latency event-driven\n\n## Fuentes Consultadas y Respaldo Web\n- **[Developing real-time IoT-based public safety alert and emergency response systems - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTFBiZVdzY1p2Z1NMOXh6QVZfUElORk5HQzE4U0RHb1ItYU9GMFR5MTNTMmxFTGZyWHJoT0otWnQxSjFhUU5teFR1UWVuOW1WV1c2WGYxQUlhb3NWS0hEVU04?oc=5)**: Developing real-time IoT-based public safety alert and emergency response systems  Nature\n- **[The Infinite AI Compute Loop: HBM Big Three + TSMC × NVIDIA × OpenAI Shaping the Next-Generation Industry Chain - semivision](https://news.google.com/rss/articles/CBMifkFVX3lxTE5IN2lPRDRydXFZTXM2a1pabG14ZDhuMzVoMWNzSDh3Z0ZtLWdrZHA4Q0IydFNvNXJyMEJmS2ktX0RpMjFfVDRVa09ZZGZhRzZncTJsNGI0ZVY3bE9JeVF2ZzNYYU9sUS0wRXpnSmViQ1ZmSzNhVE80S0paakR1dw?oc=5)**: The Infinite AI Compute Loop: HBM Big Three + TSMC × NVIDIA × OpenAI Shaping the Next-Generation Industry Chain  semivision\n\n## Contenido ",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTFBiZVdzY1p2Z1NMOXh6QVZfUElORk5HQzE4U0RHb1ItYU9GMFR5MTNTMmxFTGZyWHJoT0otWnQxSjFhUU5teFR1UWVuOW1WV1c2WGYxQUlhb3NWS0hEVU04?oc=5",
-      "https://news.google.com/rss/articles/CBMifkFVX3lxTE5IN2lPRDRydXFZTXM2a1pabG14ZDhuMzVoMWNzSDh3Z0ZtLWdrZHA4Q0IydFNvNXJyMEJmS2ktX0RpMjFfVDRVa09ZZGZhRzZncTJsNGI0ZVY3bE9JeVF2ZzNYYU9sUS0wRXpnSmViQ1ZmSzNhVE80S0paakR1dw?oc=5"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Refactorizar el método de acceso a la bóveda para que escuche eventos de actualización del motor de investigación en lugar de realizar consultas periódicas, implementando un patrón de observador ligero para mantener la coherencia del contexto temporal sin bloquear el hilo principal.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.0
-  },
-  {
     "id": "conj_1792023853",
     "timestamp": "2026-10-14T19:24:13.847402",
     "idle_duration_minutes": 31.6,
@@ -1626,5 +1608,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.88
+  },
+  {
+    "id": "conj_1792249740",
+    "timestamp": "2026-10-17T10:09:00.482689",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal Memory Indexing for Real‑Time Web Research",
+    "hypothesis": "Integrating a causal graph layer into the Deep Memory Vault (core/deep_memory_vault.py) will allow the system to automatically infer temporal dependencies between stored observations and incoming web research results, improving relevance ranking and reducing redundant queries. By representing each memory entry as a node with cause‑effect edges, the Web Research Engine can prioritize queries that fill identified causal gaps, leading to more efficient knowledge acquisition and better alignment with the Akáshic Vault's holistic view.",
+    "research_query": "\"causal graph\" \"memory indexing\" \"real-time web retrieval\" \"knowledge base optimization\"",
+    "research_findings": "# Informe de Investigación: \"causal graph\" \"memory indexing\" \"real-time web retrieval\" \"knowledge base optimization\"\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Add a lightweight causal graph module (e.g., using networkx) that records cause‑effect relationships between memory entries and automatically surfaces missing antecedents when the Web Research Engine processes new results. Implement functions `add_causal_edge(parent_id, child_id)` and `suggest_missing_causes()` and integrate them into the existing `store_memory()` workflow.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.43
   }
 ]
