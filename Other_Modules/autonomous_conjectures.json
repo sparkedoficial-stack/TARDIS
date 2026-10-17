@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1792016262",
-    "timestamp": "2026-10-14T17:17:42.844296",
-    "idle_duration_minutes": 31.6,
-    "title": "Causal Latency Compression via Predictive Telemetry",
-    "hypothesis": "La latencia percibida en la toma de decisiones del núcleo cognitivo no depende exclusivamente de la velocidad de procesamiento, sino de la 'entropía causal' de los datos entrantes. Si el sistema puede predecir la probabilidad de éxito de una acción antes de ejecutarla completa (usando telemetría histórica de la bóveda akáshica), puede reducir el ciclo de feedback en un 40%. La conjetura es que existe una correlación no lineal entre la densidad de memoria contextual y la capacidad de anticipación de fallos en el motor de investigación web.",
-    "research_query": "predictive telemetry in autonomous AI agents latency reduction causal inference",
-    "research_findings": "# Informe de Investigación: predictive telemetry in autonomous AI agents latency reduction causal inference\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Implementar un módulo de 'Pre-flight Causal Check' que consulte la bóveda de memoria antes de lanzar una petición web, estimando la relevancia del resultado y ajustando dinámicamente los parámetros de timeout y reintentos basándose en la confianza causal previa.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.75
-  },
-  {
     "id": "conj_1792018160",
     "timestamp": "2026-10-14T17:49:20.446465",
     "idle_duration_minutes": 31.6,
@@ -1631,5 +1616,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 96.23
+  },
+  {
+    "id": "conj_1792238464",
+    "timestamp": "2026-10-17T07:01:04.801612",
+    "idle_duration_minutes": 32.7,
+    "title": "Causal Memory Indexing for Real‑Time Web Research",
+    "hypothesis": "Integrating a causal graph layer between the Deep Memory Vault and the Web Research Engine will allow the system to prioritize and retrieve information not only by semantic similarity but also by inferred causal relevance, reducing latency of context‑aware queries by up to 30% and improving answer coherence in multi‑step reasoning tasks.",
+    "research_query": "\"causal graph\" \"semantic search\" \"real-time information retrieval\" \"knowledge graph augmentation\"",
+    "research_findings": "# Informe de Investigación: \"causal graph\" \"semantic search\" \"real-time information retrieval\" \"knowledge graph augmentation\"\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal‑graph pre‑filter module that receives the query, extracts potential causal entities using the Deep Memory Vault, scores candidate web results by causal relevance, and re‑ranks them before the final parsing step.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.79
   }
 ]
