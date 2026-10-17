@@ -1,23 +1,5 @@
 [
   {
-    "id": "conj_1792001882",
-    "timestamp": "2026-10-14T13:18:02.694242",
-    "idle_duration_minutes": 31.6,
-    "title": "Correlación Causal entre Latencia de Red y Densidad de Memoria Akáshica",
-    "hypothesis": "Se postula que existe una correlación inversa no lineal entre la latencia de red detectada por 'network_shield.py' y la eficiencia de recuperación de contextos en 'deep_memory_vault.py'. Específicamente, cuando la latencia de red supera un umbral crítico (indicando posible inestabilidad o filtrado), el sistema debe priorizar la compresión semántica en la bóveda para reducir la carga cognitiva, en lugar de intentar nuevas consultas web, lo cual optimiza la coherencia causal del núcleo.",
-    "research_query": "impact of network latency on LLM context window efficiency and semantic compression strategies",
-    "research_findings": "# Informe de Investigación: impact of network latency on LLM context window efficiency and semantic compression strategies\n\n## Fuentes Consultadas y Respaldo Web\n- **[Architecting the Semantic MCP Server: Edge Deployment of Fine-Tuned SLMs to Solve the Data Ingestion Problem for Telco Operations - Amazon Web Services (AWS)](https://news.google.com/rss/articles/CBMi_gFBVV95cUxNUWd0eDUxaE93RDhJUi1aVVUtTEUyc0xpaDlhLTNSV25rd3I2QlJNVGRPU1hhV2VkcS00eEItTWdpZ3FYZDhxbUFYMFdsZUplVS1fNVlHLU1neUVnOFpxN19sT2xtSVY2WFBsQV93Qk5hMFZsZjVCWmVnR2lfLUF5cmRkMGJyTkJnU2hia3JIbUw3T0JmdlN6UmxMWjYxNEg1Zk4tVjVYamZqcTFLZExBc2d0SnVSSm84djBGRThTdjkxQ0NhTjdZZFZ1NWc1REl4djY2dk9ZNkNuajB6SE5oeUVWTTJjSk9YTjFfOV9Mb0ZMNTNWOHhteUtqM3N2QQ?oc=5)**: Architecting the Semantic MCP Server: Edge Deployment of Fine-Tuned SLMs to Solve the Data Ingestion Problem for Telco Operations  Amazon Web Services (AWS)\n- **[TurboQuant Targets the KV Cache Memory Wall: Extreme Compression for Long-Context LLMs and Vector Search - Intelligent ",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMi_gFBVV95cUxNUWd0eDUxaE93RDhJUi1aVVUtTEUyc0xpaDlhLTNSV25rd3I2QlJNVGRPU1hhV2VkcS00eEItTWdpZ3FYZDhxbUFYMFdsZUplVS1fNVlHLU1neUVnOFpxN19sT2xtSVY2WFBsQV93Qk5hMFZsZjVCWmVnR2lfLUF5cmRkMGJyTkJnU2hia3JIbUw3T0JmdlN6UmxMWjYxNEg1Zk4tVjVYamZqcTFLZExBc2d0SnVSSm84djBGRThTdjkxQ0NhTjdZZFZ1NWc1REl4djY2dk9ZNkNuajB6SE5oeUVWTTJjSk9YTjFfOV9Mb0ZMNTNWOHhteUtqM3N2QQ?oc=5",
-      "https://news.google.com/rss/articles/CBMifEFVX3lxTE92VFRSUzdudXc1MlpDYk0tb0xHbUhlcDFENXlkd2ZTWThiMFRhaks3MjNuUnJVU1dzTVdDRUxjYlhVWUlXcnpSRnhIajhPY2MxNzZFWC1hQWR6TjhTSWhIeEJFc1F6cXRtcmE1QlAxbEM1WDJNUFRjMURubkc?oc=5"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar un 'Latency-Aware Compression Trigger' que ajuste dinámicamente el nivel de compresión de los vectores de memoria basándose en los métricas de latencia en tiempo real proporcionadas por el módulo de red.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.92
-  },
-  {
     "id": "conj_1792003779",
     "timestamp": "2026-10-14T13:49:39.517370",
     "idle_duration_minutes": 31.6,
@@ -1636,5 +1618,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.09
+  },
+  {
+    "id": "conj_1792212736",
+    "timestamp": "2026-10-16T23:52:16.408314",
+    "idle_duration_minutes": 45.8,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "If the Web Research Engine maintains a causal graph of query‑result dependencies, then cache invalidation can be performed selectively based on the propagation of changes in the underlying knowledge base (deep_memory_vault). This would reduce redundant network calls while preserving the freshness of information, especially when the akáshic vault updates only a subset of its nodes. The hypothesis predicts a ≥30% reduction in average latency for repeated queries without measurable loss in result relevance.",
+    "research_query": "causal graph based cache invalidation web search engine research papers 2022-2024",
+    "research_findings": "# Informe de Investigación: causal graph based cache invalidation web search engine research papers 2022-2024\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Implement a lightweight causal dependency tracker that records which vault entries each query touches, and add an invalidation routine that clears only the cached results whose dependency graph intersects with recently updated vault nodes.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 114.13
   }
 ]

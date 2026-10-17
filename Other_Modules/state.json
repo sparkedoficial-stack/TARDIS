@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.0296319,
-  "last_video_id": "vp_20261016_224805_4b4399",
-  "last_topic": "Quantum Graphity: Emergent Space from Graph Dynamics",
-  "total_videos_analyzed": 226,
-  "running_cycle": false,
+  "last_run_timestamp": REDACTED_PHONE.1472707,
+  "last_video_id": "vp_20261016_232339_51736f",
+  "last_topic": "Spin Foam Models and Emergent Space‑time Geometry",
+  "total_videos_analyzed": 227,
+  "running_cycle": true,
   "last_error": null,
   "auto_improvement_count": 125
 }
