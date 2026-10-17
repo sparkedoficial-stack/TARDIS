@@ -1,23 +1,5 @@
 [
   {
-    "id": "conj_1791999073",
-    "timestamp": "2026-10-14T12:31:13.862526",
-    "idle_duration_minutes": 37.8,
-    "title": "Dynamic Causal Prompt Routing for Context‑Sensitive Web Research",
-    "hypothesis": "Si el motor de investigación web (core/web_research_engine.py) incorpora un enrutador de prompts basado en inferencia causal que evalúa la relevancia temporal y semántica de cada sub‑consulta, entonces el sistema podrá priorizar fuentes de alta fiabilidad y reducir la latencia de respuesta en un 30 % sin perder precisión epistemológica. La hipótesis se apoya en la premisa de que la memoria akáshica del vault (core/deep_memory_vault.py) puede servir como grafo de causalidad que guía la selección de motores de búsqueda y filtros de contenido en tiempo real.",
-    "research_query": "dynamic causal prompt routing web search engine performance optimization 2024",
-    "research_findings": "# Informe de Investigación: dynamic causal prompt routing web search engine performance optimization 2024\n\n## Fuentes Consultadas y Respaldo Web\n- **[2024 in science (Wikipedia)](https://en.wikipedia.org/wiki/2024_in_science)**: (2 February 2024). \"Measurement of three-body chaotic absorptivity predicts chaotic outcome distribution\". Celestial Mechanics and Dynamical Astronomy.\n- **[2023 in science (Wikipedia)](https://en.wikipedia.org/wiki/2023_in_science)**: on what real users are shown during their typical use of popular Web search engines interprets its results to show that choices for unreliable news sources\n\n## Contenido y Hallazgos Extraídos\n### De [2024 in science - Wikipedia](https://en.wikipedia.org/wiki/2024_in_science)\n> 2024 in science - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nOverview of the events of 2024 in science\nList of years in science\n( table )\n… 2014\n2015\n2016\n2017\n2018\n2019\n2020\n2021\n2022\n2023\n2024\n2025\n2026\n2027\n2028\n2029\n2030\n2031\n2032\n2",
-    "web_sources": [
-      "https://en.wikipedia.org/wiki/2024_in_science",
-      "https://en.wikipedia.org/wiki/2023_in_science"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Implementar una clase CausalPromptRouter que, usando el grafo de relaciones almacenado en deep_memory_vault, evalúe cada sub‑consulta y asigne un peso de prioridad antes de lanzar búsquedas paralelas; además, añadir caché de resultados basados en contexto para evitar consultas redundantes.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.27
-  },
-  {
     "id": "conj_1792001882",
     "timestamp": "2026-10-14T13:18:02.694242",
     "idle_duration_minutes": 31.6,
@@ -1636,5 +1618,23 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.53
+  },
+  {
+    "id": "conj_1792208622",
+    "timestamp": "2026-10-16T22:43:42.081227",
+    "idle_duration_minutes": 40.4,
+    "title": "Asynchronous Web Research Engine",
+    "hypothesis": "The current web_research_engine.py performs blocking HTTP requests using the requests library, causing high latency and limiting parallel query throughput. Switching to an asynchronous model (aiohttp) combined with an LRU cache for repeated queries will reduce average response time by ~30% and increase concurrent query capacity, improving overall system responsiveness.",
+    "research_query": "asyncio aiohttp vs requests library performance web scraping",
+    "research_findings": "# Informe de Investigación: asyncio aiohttp vs requests library performance web scraping\n\n## Fuentes Consultadas y Respaldo Web\n- **[Beyond Requests: Why httpx is the Modern HTTP Client You Need (Sometimes) - Towards Data Science](https://news.google.com/rss/articles/CBMipAFBVV95cUxQQ3lBXzBnbWMyRkhzSTNvUzJDV1h1LU5ud0k4S2NBYzYtaWhJMTQ5SjZ1OVJ1VmNSS2tqY3B5WUhZeWFTbm9GeFBKSF9pWWhKU0VucXlROVpFbjNCQ3lCcDJhZVdmSDNFbWlhTW1rSGE5U25MUlN5MjE3NUEwdXRmSFBqb2hIYnpJeDd2MTdkS2RLRUV1UnRIeDRmRm1kVzVxTEJCXw?oc=5)**: Beyond Requests: Why httpx is the Modern HTTP Client You Need (Sometimes)  Towards Data Science\n- **[Understanding Asyncio in Python - Built In](https://news.google.com/rss/articles/CBMiUkFVX3lxTE41SmFZUnRmY0I5MHdubkZ1ZGhvVjhuMDZOMmpBelVIeE9TTi1QTnRmX1JmQWd4YVR0OTRPSjljTFc2M0NmVlFtenNXRE82ck4yM2c?oc=5)**: Understanding Asyncio in Python  Built In\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMipAFBVV95cUxQQ3lBXzBnbWMyRkhzSTNvUzJDV1h1LU5ud",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMipAFBVV95cUxQQ3lBXzBnbWMyRkhzSTNvUzJDV1h1LU5ud0k4S2NBYzYtaWhJMTQ5SjZ1OVJ1VmNSS2tqY3B5WUhZeWFTbm9GeFBKSF9pWWhKU0VucXlROVpFbjNCQ3lCcDJhZVdmSDNFbWlhTW1rSGE5U25MUlN5MjE3NUEwdXRmSFBqb2hIYnpJeDd2MTdkS2RLRUV1UnRIeDRmRm1kVzVxTEJCXw?oc=5",
+      "https://news.google.com/rss/articles/CBMiUkFVX3lxTE41SmFZUnRmY0I5MHdubkZ1ZGhvVjhuMDZOMmpBelVIeE9TTi1QTnRmX1JmQWd4YVR0OTRPSjljTFc2M0NmVlFtenNXRE82ck4yM2c?oc=5"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Refactor web_research_engine to use aiohttp for non-blocking requests, implement an LRU cache for query results, and expose an async interface for the rest of the system.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.09
   }
 ]
