@@ -1,22 +1,5 @@
 [
   {
-    "id": "conj_1792020059",
-    "timestamp": "2026-10-14T18:20:59.484703",
-    "idle_duration_minutes": 31.7,
-    "title": "Resonancia Causal en la Bóveda Akáshica: Optimización de Entropía Semántica",
-    "hypothesis": "La eficiencia de recuperación de información en la Bóveda Akáshica no depende linealmente de la densidad de datos, sino de la coherencia causal entre los nodos de memoria. Se conjetura que implementar un mecanismo de 'pruning' (poda) basado en la varianza de la relevancia semántica histórica, en lugar de la recencia temporal, reducirá la latencia de inferencia en un 15-20% al eliminar ruido epistémico acumulado durante periodos de inactividad del sistema.",
-    "research_query": "semantic memory pruning entropy reduction LLM long-term context optimization",
-    "research_findings": "# Informe de Investigación: semantic memory pruning entropy reduction LLM long-term context optimization\n\n## Fuentes Consultadas y Respaldo Web\n- **[Effective context engineering for AI agents - Anthropic](https://news.google.com/rss/articles/CBMiiAFBVV95cUxPT3E2Wkd3Z3J4OUdmRG4zVjlTR2l3T3NTSEx2NFJFN0JLZWtQTzROZkNOT0Q5M1pIY25JT0x4Z0VEb1oxWHVLcnlNbDlJNHF3QmZDM3gwcGV6ZXZoU3ZEQVhYWXplUDdoblE4Vy1kVmc4YUV0ZlJJcDhQb3VxX1hLNTA4UlpHQVlV?oc=5)**: Effective context engineering for AI agents  Anthropic\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMiiAFBVV95cUxPT3E2Wkd3Z3J4OUdmRG4zVjlTR2l3T3NTSEx2NFJFN0JLZWtQTzROZkNOT0Q5M1pIY25JT0x4Z0VEb1oxWHVLcnlNbDlJNHF3QmZDM3gwcGV6ZXZoU3ZEQVhYWXplUDdoblE4Vy1kVmc4YUV0ZlJJcDhQb3VxX1hLNTA4UlpHQVlV?oc=5)\n",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMiiAFBVV95cUxPT3E2Wkd3Z3J4OUdmRG4zVjlTR2l3T3NTSEx2NFJFN0JLZWtQTzROZkNOT0Q5M1pIY25JT0x4Z0VEb1oxWHVLcnlNbDlJNHF3QmZDM3gwcGV6ZXZoU3ZEQVhYWXplUDdoblE4Vy1kVmc4YUV0ZlJJcDhQb3VxX1hLNTA4UlpHQVlV?oc=5"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar un método `prune_by_semantic_variance()` que calcule la desviación estándar de las puntuaciones de similitud de los últimos N accesos a cada nodo de memoria y elimine aquellos con alta varianza (baja consistencia causal) o baja relevancia media, priorizando la estabilidad sobre la recencia.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 99.01
-  },
-  {
     "id": "conj_1792021955",
     "timestamp": "2026-10-14T18:52:35.498555",
     "idle_duration_minutes": 31.6,
@@ -1628,5 +1611,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 98.75
+  },
+  {
+    "id": "conj_1792246008",
+    "timestamp": "2026-10-17T09:06:48.091836",
+    "idle_duration_minutes": 32.1,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrar un modelo de inferencia causal que analice la dependencia temporal entre consultas y resultados permitiría invalidar de forma proactiva los datos cacheados en core/web_research_engine.py cuando detecte que una variable externa (por ejemplo, cambios en los algoritmos de ranking de los motores de búsqueda o actualizaciones de fuentes de datos) ha alterado significativamente la relevancia de la información almacenada. Esta estrategia reduciría la latencia de respuestas desactualizadas y mejoraría la precisión del sistema sin necesidad de refrescar todo el caché periódicamente.",
+    "research_query": "causal cache invalidation techniques for web search engines recent 2023",
+    "research_findings": "# Informe de Investigación: causal cache invalidation techniques for web search engines recent 2023\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Implementar un módulo de detección causal que monitorice metadatos de respuestas (fecha, score, fuente) y, basándose en un modelo ligero de grafos causales, marque automáticamente entradas de caché como obsoletas, disparando una recarga bajo demanda.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.88
   }
 ]

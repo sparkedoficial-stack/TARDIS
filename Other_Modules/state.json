@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.048035,
-  "last_video_id": "vp_20261017_082730_d19c4c",
-  "last_topic": "Holographic Quantum Error-Correcting Codes: Visualizing the Tensor Network Realization of AdS/CFT",
-  "total_videos_analyzed": 242,
+  "last_run_timestamp": REDACTED_PHONE.3529677,
+  "last_video_id": "vp_20261017_094031_27ba97",
+  "last_topic": "Non-Hermitian Topological Phases: Visualizing Exceptional Points and the Non-Hermitian Skin Effect",
+  "total_videos_analyzed": 244,
   "running_cycle": false,
   "last_error": null,
-  "auto_improvement_count": 127
+  "auto_improvement_count": 128
 }
