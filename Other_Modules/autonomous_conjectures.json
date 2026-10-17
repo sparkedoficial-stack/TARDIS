@@ -1,23 +1,5 @@
 [
   {
-    "id": "conj_1792009818",
-    "timestamp": "2026-10-14T15:30:18.648905",
-    "idle_duration_minutes": 32.2,
-    "title": "Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching subsystem can dynamically predict the obsolescence of cached search results based on detected changes in source domains (e.g., content updates, SEO shifts). By modeling the causal relationship between external events (content revision timestamps, HTTP header changes, link structure modifications) and the relevance decay of cached entries, the system can proactively invalidate or refresh only the affected cache items, reducing unnecessary network traffic while maintaining up‑to‑date knowledge in the Akáshic Vault.",
-    "research_query": "causal inference based cache invalidation web scraping dynamic content detection research papers",
-    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web scraping dynamic content detection research papers\n\n## Fuentes Consultadas y Respaldo Web\n- **[Causal inference via algebraic geometry: feasibility tests for functional causal structures with two binary observed variables (arXiv)](http://arxiv.org/abs/1506.03880v2)**: We provide a scheme for inferring causal relations from uncontrolled statistical data based on tools from computational algebraic geometry, in particular, the computation of Groebner bases. We focus on causal structures containing just two observed variables, each of which is binary. We consider the consequences of imposing different restrictions o\n- **[Dynamic cache reconfiguration based techniques for improving cache energy efficiency (arXiv)](http://arxiv.org/abs/1310.4231v1)**: Modern multicore processors are employing large last-level caches, for example Intel's E7-8800 processor uses 24MB L3 cache. Further, with each CMOS technology generation",
-    "web_sources": [
-      "http://arxiv.org/abs/1506.03880v2",
-      "http://arxiv.org/abs/1310.4231v1"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal cache manager that tracks source metadata (ETag, Last-Modified, sitemap change frequency) and uses a lightweight Bayesian network to estimate the probability that a cached result is stale, triggering selective refreshes.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 100.4
-  },
-  {
     "id": "conj_1792011715",
     "timestamp": "2026-10-14T16:01:55.669673",
     "idle_duration_minutes": 31.6,
@@ -1628,5 +1610,23 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.81
+  },
+  {
+    "id": "conj_1792227068",
+    "timestamp": "2026-10-17T03:51:08.004245",
+    "idle_duration_minutes": 32.1,
+    "title": "Causal Retrieval Augmentation for Akashic Vault Queries",
+    "hypothesis": "Integrating a lightweight causal inference layer into the deep_memory_vault module will allow the system to prioritize and retrieve memories not only by semantic similarity but also by inferred causal relevance to the current query, improving answer precision and reducing irrelevant context retrieval in multi‑step reasoning tasks.",
+    "research_query": "causal inference based retrieval augmentation for vector databases semantic search",
+    "research_findings": "# Informe de Investigación: causal inference based retrieval augmentation for vector databases semantic search\n\n## Fuentes Consultadas y Respaldo Web\n- **[RAG-based architectures for drug side effect retrieval using compact LLMs - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE5ISTN6N2ktemhjcVNMYWpJMnVTRmE1eGRZZVN3NzlRcDZpNC1wUV83VzJSdGV5dE9YS0hpa0hMMUV6SVJOQkRQR1hrQ19ZVTFPaTJaNWg5VkEtZ2puZmlv?oc=5)**: RAG-based architectures for drug side effect retrieval using compact LLMs  Nature\n- **[A unified multimodal GenAI platform integrating GraphRAG multi-agent systems and custom language models for intelligent document processing and knowledge synthesis | Scientific Reports - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE5JV0JFR2ExZGVqeHdMdW5QZm40Ri13WnNTOVdreWJwRTdCaGJXZEFJb1FFTU5vOWI5WUw3c3cyTDdlVlJwem0zYjJkaVpkZXpZbU1fQ05mczhwcnQycEhj?oc=5)**: A unified multimodal GenAI platform integrating GraphRAG multi-agent systems and custom language models for intelligent d",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE5ISTN6N2ktemhjcVNMYWpJMnVTRmE1eGRZZVN3NzlRcDZpNC1wUV83VzJSdGV5dE9YS0hpa0hMMUV6SVJOQkRQR1hrQ19ZVTFPaTJaNWg5VkEtZ2puZmlv?oc=5",
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE5JV0JFR2ExZGVqeHdMdW5QZm40Ri13WnNTOVdreWJwRTdCaGJXZEFJb1FFTU5vOWI5WUw3c3cyTDdlVlJwem0zYjJkaVpkZXpZbU1fQ05mczhwcnQycEhj?oc=5"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Add a post‑retrieval ranking step that computes a causal relevance score using a pre‑trained causal language model (e.g., CausalBERT) and re‑orders the top‑k retrieved memory embeddings before returning them to the caller.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.29
   }
 ]
