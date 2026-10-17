@@ -1,22 +1,5 @@
 [
   {
-    "id": "conj_1791993008",
-    "timestamp": "2026-10-14T10:50:08.406127",
-    "idle_duration_minutes": 31.6,
-    "title": "Resonancia Causal en la Bóveda Akáshica: Optimización de Retrieval por Entropía Temporal",
-    "hypothesis": "Se postula que la eficiencia de recuperación de información en la Bóveda Akáshica (deep_memory_vault.py) se vea limitada por la uniformidad temporal de los índices. Al incorporar una métrica de 'Entropía Temporal' que pondera la relevancia de los nodos de memoria no solo por similitud semántica, sino por la densidad de cambios contextuales en el tiempo, se puede reducir la latencia de búsqueda en un 15-20% y mejorar la precisión causal en la generación de respuestas, evitando el sesgo de recencia (recency bias) típico en sistemas de memoria vectorial estáticos.",
-    "research_query": "temporal entropy weighting vector database retrieval optimization causal inference",
-    "research_findings": "# Informe de Investigación: temporal entropy weighting vector database retrieval optimization causal inference\n\n## Fuentes Consultadas y Respaldo Web\n- **[Medical image computing (Wikipedia)](https://en.wikipedia.org/wiki/Medical_image_computing)**: The optimization procedure. Either continuous or discrete optimization is performed. For continuous optimization, gradient-based optimization techniques\n\n## Contenido y Hallazgos Extraídos\n### De [Medical image computing - Wikipedia](https://en.wikipedia.org/wiki/Medical_image_computing)\n> Medical image computing - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nInterdisciplinary field\n\"Medical image analysis\" redirects here. For the journal, see Medical Image Analysis (journal) .\nMedical image computing ( MIC ) is the use of computational and mathematical methods for solving problems pertaining to medical images and their use for biomedical research and clinical car...\n",
-    "web_sources": [
-      "https://en.wikipedia.org/wiki/Medical_image_computing"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar una función de puntuación híbrida que combine la similitud coseno con un factor de decaimiento exponencial basado en la varianza temporal de los metadatos de los vectores, permitiendo que los recuerdos con mayor 'volatilidad contextual' tengan prioridad en la recuperación.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.67
-  },
-  {
     "id": "conj_1791994907",
     "timestamp": "2026-10-14T11:21:47.949465",
     "idle_duration_minutes": 31.7,
@@ -1638,5 +1621,23 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 96.2
+  },
+  {
+    "id": "conj_1792196797",
+    "timestamp": "2026-10-16T19:26:37.210527",
+    "idle_duration_minutes": 32.7,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching subsystem can dynamically predict the obsolescence of cached search results based on detected changes in source domains (e.g., content updates, SEO shifts). By modeling the probability that a cached entry is stale as a function of observable signals (HTTP headers, content digests, link graph changes), the engine can pre‑emptively invalidate or refresh entries, reducing latency while maintaining a higher freshness ratio than time‑based TTL alone.",
+    "research_query": "causal inference based cache invalidation web search engine freshness prediction recent papers 2023 2024",
+    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web search engine freshness prediction recent papers 2023 2024\n\n## Fuentes Consultadas y Respaldo Web\n- **[Causal inference via algebraic geometry: feasibility tests for functional causal structures with two binary observed variables (arXiv)](http://arxiv.org/abs/1506.03880v2)**: We provide a scheme for inferring causal relations from uncontrolled statistical data based on tools from computational algebraic geometry, in particular, the computation of Groebner bases. We focus on causal structures containing just two observed variables, each of which is binary. We consider the consequences of imposing different restrictions o\n- **[The Case of Transparent Cache Invalidation in Web Applications (arXiv)](http://arxiv.org/abs/2311.02384v1)**: Application-level caches are widely adopted by web applications to minimize the response time of user requests as well as to reduce the burden on the system backend, such as the datab",
+    "web_sources": [
+      "http://arxiv.org/abs/1506.03880v2",
+      "http://arxiv.org/abs/2311.02384v1"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a CausalCacheManager class that monitors source change signals, computes a staleness probability using a lightweight Bayesian network, and triggers selective cache refreshes instead of static TTL expiration.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 100.96
   }
 ]

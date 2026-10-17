@@ -1,19 +1,5 @@
 [
   {
-    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/deep_memory_vault.py",
-    "goal": "Implementar un método `calculate_causal_resonance_score()` que modifique el peso de los vectores de memoria basándose en su recencia de acceso y su correlación causal con la consulta, y añadir un ciclo de 'purga suave' (soft-purge) que comprima o archive los nodos con puntuación de resonancia baja tras un umbral de inactividad.",
-    "status": "REJECTED",
-    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
-    "elapsed_seconds": 91.32,
-    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/deep_memory_vault.py.20261014_112016.bak",
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Respuesta generada demasiado corta (0 vs 33875 bytes)",
-    "timestamp": "2026-10-14T11:21:47.934263"
-  },
-  {
     "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
     "goal": "Introducir una función de scoring híbrida que combine la recencia (factor temporal) con la densidad de conexiones en el grafo de memoria profunda (factor causal), permitiendo que fuentes antiguas pero altamente conectadas a problemas actuales del sistema tengan prioridad sobre noticias recientes no relacionadas.",
     "status": "REJECTED",
@@ -1398,5 +1384,19 @@
     "efficiency_improvement": null,
     "error": "Respuesta generada demasiado corta (0 vs 35266 bytes)",
     "timestamp": "2026-10-16T18:22:22.713069"
+  },
+  {
+    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
+    "goal": "Add a CausalCacheManager class that monitors source change signals, computes a staleness probability using a lightweight Bayesian network, and triggers selective cache refreshes instead of static TTL expiration.",
+    "status": "REJECTED",
+    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
+    "elapsed_seconds": 91.28,
+    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/web_research_engine.py.20261016_192505.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "Respuesta generada demasiado corta (0 vs 35266 bytes)",
+    "timestamp": "2026-10-16T19:26:37.196955"
   }
 ]
