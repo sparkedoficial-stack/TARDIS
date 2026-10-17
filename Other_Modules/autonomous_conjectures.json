@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1791996804",
-    "timestamp": "2026-10-14T11:53:24.925976",
-    "idle_duration_minutes": 31.6,
-    "title": "Causal Resonance in Web Research: Temporal Decay vs. Causal Weighting",
-    "hypothesis": "La mayoría de los motores de investigación web actuales (incluyendo el módulo core/web_research_engine.py) aplican una atenuación temporal lineal o exponencial a los resultados basándose estrictamente en la fecha de publicación. Sin embargo, en contextos de ingeniería de sistemas y seguridad, la relevancia de una fuente no depende solo de su recencia, sino de su 'peso causal' dentro del grafo de dependencias técnicas. Conjeturo que implementar un algoritmo de 'Resonancia Causal' que priorice fuentes que citan o son citadas por nodos críticos del grafo de conocimiento del sistema (Deep Memory Vault) sobre fuentes meramente recientes pero aisladas, aumentaría la precisión de la recuperación de información para tareas de depuración y optimización de código en un 15-20%.",
-    "research_query": "causal graph weighting for web search relevance vs temporal decay in technical documentation retrieval",
-    "research_findings": "# Informe de Investigación: causal graph weighting for web search relevance vs temporal decay in technical documentation retrieval\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Introducir una función de scoring híbrida que combine la recencia (factor temporal) con la densidad de conexiones en el grafo de memoria profunda (factor causal), permitiendo que fuentes antiguas pero altamente conectadas a problemas actuales del sistema tengan prioridad sobre noticias recientes no relacionadas.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.96
-  },
-  {
     "id": "conj_1791999073",
     "timestamp": "2026-10-14T12:31:13.862526",
     "idle_duration_minutes": 37.8,
@@ -1636,5 +1621,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.65
+  },
+  {
+    "id": "conj_1792204372",
+    "timestamp": "2026-10-16T21:32:52.691771",
+    "idle_duration_minutes": 32.7,
+    "title": "Causal Memory Indexing for Real‑Time Web Research",
+    "hypothesis": "Integrating a causal graph layer into the Deep Memory Vault, which indexes each stored fact with its inferred causal dependencies, will allow the Web Research Engine to prioritize and retrieve sources that are not only topically relevant but also causally influential for a given query. This should reduce latency of answer generation by ~30% and improve factual coherence, because the system can pre‑filter web results using the causal relevance scores derived from the vault's graph.",
+    "research_query": "\"causal graph indexing\" \"knowledge base\" \"real-time web retrieval\" performance improvement",
+    "research_findings": "# Informe de Investigación: \"causal graph indexing\" \"knowledge base\" \"real-time web retrieval\" performance improvement\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Add a lightweight causal graph module that records parent‑child relationships between stored facts and expose a method get_causal_score(query) that the web_research_engine can call to rank candidate URLs before fetching them.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.53
   }
 ]
