@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1792014364",
-    "timestamp": "2026-10-14T16:46:04.899245",
-    "idle_duration_minutes": 32.0,
-    "title": "Resonancia Causal en la Bóveda Akáshica: Entropía Temporal y Compresión Semántica",
-    "hypothesis": "Se postula que la eficiencia de recuperación de información en la Bóveda Akáshica (deep_memory_vault.py) no depende linealmente del volumen de datos, sino de la 'densidad causal' entre eventos memorizados. Al aplicar un algoritmo de compresión semántica basado en la distancia temporal y la relevancia contextual (similitud coseno ponderada por recencia), se puede reducir la latencia de búsqueda en un 40% manteniendo la integridad de la cadena causal. La conjetura sugiere que los nodos de memoria con baja varianza causal son redundantes y pueden ser fusionados dinámicamente sin pérdida de contexto significativo para el Núcleo Cognitivo.",
-    "research_query": "semantic memory compression causal density temporal weighting algorithm LLM context optimization",
-    "research_findings": "# Informe de Investigación: semantic memory compression causal density temporal weighting algorithm LLM context optimization\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar una función `compress_causal_nodes()` que calcule la similitud causal entre vectores de memoria adyacentes en el tiempo y fusione aquellos que excedan un umbral de redundancia, actualizando los metadatos de peso temporal para optimizar la búsqueda vectorial.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 99.03
-  },
-  {
     "id": "conj_1792016262",
     "timestamp": "2026-10-14T17:17:42.844296",
     "idle_duration_minutes": 31.6,
@@ -1628,5 +1613,23 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 98.18
+  },
+  {
+    "id": "conj_1792234613",
+    "timestamp": "2026-10-17T05:56:53.246217",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal Memory Indexing for Real‑Time Web Research",
+    "hypothesis": "Integrating a causal inference layer into the Deep Memory Vault (core/deep_memory_vault.py) that tags each stored fragment with a lightweight causal graph will allow the Web Research Engine to prioritize sources that are not only relevant but also causally upstream of the query context. This should reduce hallucination rates and improve answer precision by ~15% on benchmarked open‑domain QA tasks.",
+    "research_query": "causal inference memory indexing for large language model retrieval augmentation",
+    "research_findings": "# Informe de Investigación: causal inference memory indexing for large language model retrieval augmentation\n\n## Fuentes Consultadas y Respaldo Web\n- **[RAG-based architectures for drug side effect retrieval using compact LLMs - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE5ISTN6N2ktemhjcVNMYWpJMnVTRmE1eGRZZVN3NzlRcDZpNC1wUV83VzJSdGV5dE9YS0hpa0hMMUV6SVJOQkRQR1hrQ19ZVTFPaTJaNWg5VkEtZ2puZmlv?oc=5)**: RAG-based architectures for drug side effect retrieval using compact LLMs  Nature\n- **[Vol. 40 No. 39: AAAI-26 Technical Tracks 39 - The Association for the Advancement of Artificial Intelligence](https://news.google.com/rss/articles/CBMiX0FVX3lxTE1udHJDQmZyNW9aWF95MV9yNVVkZERkd3B1WU1FVUliSlRiUzk1dEVuX3hHdjBVMjJELWRGM3lBdEJOdW5zN0hVeUVWaGlhWnYtakJNMFdpRDA3Qmo2d0Z3?oc=5)**: Vol. 40 No. 39: AAAI-26 Technical Tracks 39  The Association for the Advancement of Artificial Intelligence\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CB",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE5ISTN6N2ktemhjcVNMYWpJMnVTRmE1eGRZZVN3NzlRcDZpNC1wUV83VzJSdGV5dE9YS0hpa0hMMUV6SVJOQkRQR1hrQ19ZVTFPaTJaNWg5VkEtZ2puZmlv?oc=5",
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE1udHJDQmZyNW9aWF95MV9yNVVkZERkd3B1WU1FVUliSlRiUzk1dEVuX3hHdjBVMjJELWRGM3lBdEJOdW5zN0hVeUVWaGlhWnYtakJNMFdpRDA3Qmo2d0Z3?oc=5"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add an optional async caching layer that stores retrieved web snippets together with their causal tags from the Deep Memory Vault, and modify the ranking function to weight results by causal proximity to the current query.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.23
   }
 ]
