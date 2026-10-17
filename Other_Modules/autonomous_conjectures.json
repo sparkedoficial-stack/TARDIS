@@ -1,22 +1,5 @@
 [
   {
-    "id": "conj_1792007886",
-    "timestamp": "2026-10-14T14:58:06.852262",
-    "idle_duration_minutes": 36.3,
-    "title": "Optimizing Causal Retrieval via Temporal Embedding Cache in the Deep Memory Vault",
-    "hypothesis": "Integrating a lightweight temporal embedding cache layer between core/web_research_engine.py and core/deep_memory_vault.py will allow the system to reuse recent causal inference results, reducing redundant web queries by up to 40% while preserving retrieval accuracy. The cache would store vector representations of recent query contexts with timestamps, enabling fast nearest‑neighbor look‑ups for semantically similar future queries, and automatically evicting entries based on a decay function that respects the causal relevance window.",
-    "research_query": "how to implement temporal embedding cache for causal retrieval in large language model pipelines",
-    "research_findings": "# Informe de Investigación: how to implement temporal embedding cache for causal retrieval in large language model pipelines\n\n## Fuentes Consultadas y Respaldo Web\n- **[Transformer (deep learning) (Wikipedia)](https://en.wikipedia.org/wiki/Transformer_%28deep_learning%29)**: the embedding matrix M {\\displaystyle M} as the un-embedding matrix W {\\displaystyle W} in order to avoid needing double the amount of embedding-related\n\n## Contenido y Hallazgos Extraídos\n### De [Transformer (deep learning) - Wikipedia](https://en.wikipedia.org/wiki/Transformer_%28deep_learning%29)\n> Transformer (deep learning) - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nAlgorithm for modelling sequential data\nThis article has multiple issues. Please help improve it or discuss these issues on the talk page . ( Learn how and when to remove these messages )\nThis article needs more citations . Please help improve this article by adding citations to reliable sources . Unsourc...\n",
-    "web_sources": [
-      "https://en.wikipedia.org/wiki/Transformer_%28deep_learning%29"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a TemporalEmbeddingCache class with insert, retrieve, and decay methods; modify the search function to query the cache before performing external web requests, and log cache hit/miss statistics.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.45
-  },
-  {
     "id": "conj_1792009818",
     "timestamp": "2026-10-14T15:30:18.648905",
     "idle_duration_minutes": 32.2,
@@ -1630,5 +1613,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 98.04
+  },
+  {
+    "id": "conj_1792223281",
+    "timestamp": "2026-10-17T02:48:01.978956",
+    "idle_duration_minutes": 32.2,
+    "title": "Optimización de la caché semántica en WebResearchEngine mediante índices de similitud causal",
+    "hypothesis": "Integrar un índice de similitud causal basado en embeddings temporales dentro del módulo core/web_research_engine.py reducirá el tiempo medio de respuesta de búsquedas repetitivas en un 30% y mejorará la coherencia de los resultados al reutilizar contextos previamente almacenados en deep_memory_vault, al aprovechar la relación causal entre consultas y resultados históricos.",
+    "research_query": "semantic cache causal similarity index web search engine performance improvement",
+    "research_findings": "# Informe de Investigación: semantic cache causal similarity index web search engine performance improvement\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Implementar una capa de caché que almacene embeddings de consultas y resultados, calcule similitud causal con nuevas consultas y sirva respuestas cacheadas cuando la similitud supere un umbral configurable.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.81
   }
 ]
