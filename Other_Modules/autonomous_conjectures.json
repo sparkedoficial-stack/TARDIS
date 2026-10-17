@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1791991109",
-    "timestamp": "2026-10-14T10:18:29.728467",
-    "idle_duration_minutes": 31.6,
-    "title": "Sincronización Temporal de Telemetría en la Bóveda Akáshica",
-    "hypothesis": "La eficiencia de la recuperación de memoria profunda se degrada linealmente con la latencia de escritura en disco si no se implementa un mecanismo de 'temporal alignment' que agrupe las escrituras de telemetría en micro-batches basados en la entropía de los eventos, en lugar de escrituras síncronas individuales. Esto reduciría la fragmentación del índice vectorial en deep_memory_vault.py y mejoraría la coherencia causal de las consultas posteriores.",
-    "research_query": "vector database write batching latency optimization temporal alignment memory fragmentation",
-    "research_findings": "# Informe de Investigación: vector database write batching latency optimization temporal alignment memory fragmentation\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar un buffer de cola asíncrona con umbral de entropía para agrupar escrituras de telemetría antes de persistir en el índice vectorial, minimizando la fragmentación y la latencia de I/O.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.66
-  },
-  {
     "id": "conj_1791993008",
     "timestamp": "2026-10-14T10:50:08.406127",
     "idle_duration_minutes": 31.6,
@@ -1635,5 +1620,23 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.39
+  },
+  {
+    "id": "conj_1792192942",
+    "timestamp": "2026-10-16T18:22:22.728624",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal‑Feedback Loop for Adaptive Web Research",
+    "hypothesis": "Integrating a causal‑feedback loop between the Web Research Engine and the Deep Memory Vault will enable the system to dynamically adjust its query formulation and result weighting based on observed downstream task performance, thereby reducing hallucination rates and improving relevance over time. The loop would capture execution telemetry (latency, confidence scores, result usage metrics) as causal variables, infer their impact on final outcomes using a lightweight structural causal model, and feed adjusted parameters back into the research engine's prompt templates and ranking heuristics.",
+    "research_query": "how to implement causal feedback loops for AI web search agents to reduce hallucination and improve relevance",
+    "research_findings": "# Informe de Investigación: how to implement causal feedback loops for AI web search agents to reduce hallucination and improve relevance\n\n## Fuentes Consultadas y Respaldo Web\n- **[The Must-Know Topics for an LLM Engineer - Towards Data Science](https://news.google.com/rss/articles/CBMifEFVX3lxTE9RcW41MTRQd25xdm5Jekc0V3JQSlhLTzlfVXgwNVRtOWpDTENJM1VOeDJlNXlXdjBwUVVvb1ZzUTZFclNrYWc1aC1fbTZ1aUpPR1ladXBLNlo3YlkzXzlHVEFsclFxM3B1TGRqOTJyNEtCOVgxQmxVRTNra2w?oc=5)**: The Must-Know Topics for an LLM Engineer  Towards Data Science\n- **[RAG Models in Generative AI: Improve Accuracy, Trust & Enterprise ROI - Appinventiv](https://news.google.com/rss/articles/CBMiX0FVX3lxTE9EdDdYZTdVNHZFNHBFS2l5NlZrZUNFeHNKTXc2aFZkMjdHeFc0QTl1NWdMekp3RHd5aHkwTWl2QWIwUjR0ZFIzc2IwVWotdnlpWnoxX29qMlBXXzZ5QWJF?oc=5)**: RAG Models in Generative AI: Improve Accuracy, Trust & Enterprise ROI  Appinventiv\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMifEFVX3lxTE9RcW41MT",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMifEFVX3lxTE9RcW41MTRQd25xdm5Jekc0V3JQSlhLTzlfVXgwNVRtOWpDTENJM1VOeDJlNXlXdjBwUVVvb1ZzUTZFclNrYWc1aC1fbTZ1aUpPR1ladXBLNlo3YlkzXzlHVEFsclFxM3B1TGRqOTJyNEtCOVgxQmxVRTNra2w?oc=5",
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE9EdDdYZTdVNHZFNHBFS2l5NlZrZUNFeHNKTXc2aFZkMjdHeFc0QTl1NWdMekp3RHd5aHkwTWl2QWIwUjR0ZFIzc2IwVWotdnlpWnoxX29qMlBXXzZ5QWJF?oc=5"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a telemetry collector and a simple causal inference module that updates query templates and result ranking weights based on observed performance metrics from the Deep Memory Vault.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.2
   }
 ]

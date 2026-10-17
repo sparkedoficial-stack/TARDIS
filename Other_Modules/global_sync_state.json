@@ -160,8 +160,8 @@
   "updated_at": "2026-10-16T13:56:00.278482",
   "visual_intelligence": {
     "active": true,
-    "pid": 2112,
-    "videos_stored": 220,
-    "last_ping": REDACTED_PHONE.7104998
+    "pid": 2100,
+    "videos_stored": 221,
+    "last_ping": REDACTED_PHONE.613397
   }
 }
