@@ -1,37 +1,5 @@
 [
   {
-    "id": "conj_1792054420",
-    "timestamp": "2026-10-15T03:53:40.107672",
-    "idle_duration_minutes": 32.6,
-    "title": "Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "Integrating a causal inference layer that tracks dependencies between fetched web resources and downstream reasoning steps can enable selective cache invalidation, reducing stale data usage and improving response latency in the web_research_engine module. By modeling each request as a node in a directed acyclic graph (DAG) with edges representing semantic dependencies (e.g., citation, topic overlap), the system can automatically purge only those cached entries whose downstream conclusions have changed, rather than flushing the entire cache on periodic timers.",
-    "research_query": "causal inference based cache invalidation web scraping DAG dependencies",
-    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web scraping DAG dependencies\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Implement a dependency graph for cached web responses and add a routine that traverses the graph to invalidate only affected cache entries when new data is fetched or when a knowledge node in deep_memory_vault is updated.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.72
-  },
-  {
-    "id": "conj_1792056383",
-    "timestamp": "2026-10-15T04:26:23.617495",
-    "idle_duration_minutes": 32.7,
-    "title": "Integración de Memoria Causal Híbrida para Optimizar la Prioridad de Búsqueda Web",
-    "hypothesis": "Si el motor de investigación web (core/web_research_engine.py) incorpora un modelo de memoria causal híbrida que combina embeddings temporales de deep_memory_vault con métricas de relevancia basadas en la red de confianza del network_shield, entonces la latencia de recuperación de información relevante disminuirá en al menos un 30% y la precisión de los resultados aumentará, especialmente en consultas que requieren contexto histórico o multidisciplinario.",
-    "research_query": "hybrid causal memory model for web search relevance improvement combining temporal embeddings and trust network metrics",
-    "research_findings": "# Informe de Investigación: hybrid causal memory model for web search relevance improvement combining temporal embeddings and trust network metrics\n\n## Fuentes Consultadas y Respaldo Web\n- **[List of datasets for machine-learning research (Wikipedia)](https://en.wikipedia.org/wiki/List_of_datasets_for_machine-learning_research)**: Hamparsum; Balaban, M. Erdal (2014). \"A novel Hybrid RBF Neural Networks model as a forecaster\". Statistics and Computing. 24 (3): 365–375. doi:10.1007/s11222-013-9375-7\n\n## Contenido y Hallazgos Extraídos\n### De [List of datasets for machine-learning research - Wikipedia](https://en.wikipedia.org/wiki/List_of_datasets_for_machine-learning_research)\n> List of datasets for machine-learning research - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nThis article contains dynamic lists that may never be able to satisfy particular standards for completeness. You can help by editing the page to add missing items, with references to reliable sources ",
-    "web_sources": [
-      "https://en.wikipedia.org/wiki/List_of_datasets_for_machine-learning_research"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Añadir una capa de pre‑filtrado que consulte deep_memory_vault para obtener embeddings temporales del contexto del usuario y utilice network_shield para ponderar dominios de alta confianza, integrando ambos factores en el ranking de resultados antes de la llamada al motor de búsqueda externo.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 100.95
-  },
-  {
     "id": "conj_1792058539",
     "timestamp": "2026-10-15T05:02:19.767136",
     "idle_duration_minutes": 35.9,
@@ -1614,5 +1582,38 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 98.33
+  },
+  {
+    "id": "conj_1792306882",
+    "timestamp": "2026-10-18T02:01:22.600862",
+    "idle_duration_minutes": 37.3,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching mechanism can dynamically predict the obsolescence of stored query results based on detected changes in source domains (e.g., content updates, SEO shifts). By modeling the causal relationship between external events (content revision timestamps, HTTP header changes, backlink fluctuations) and the relevance decay of cached data, the system can pre‑emptively invalidate or refresh entries, reducing stale information while minimizing redundant network calls. This should improve the overall freshness‑latency ratio of the akáshic vault without a proportional increase in bandwidth consumption.",
+    "research_query": "causal inference based cache invalidation web scraping freshness prediction research papers 2023 2024",
+    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web scraping freshness prediction research papers 2023 2024\n\n## Fuentes Consultadas y Respaldo Web\n- **[Causal inference via algebraic geometry: feasibility tests for functional causal structures with two binary observed variables (arXiv)](http://arxiv.org/abs/1506.03880v2)**: We provide a scheme for inferring causal relations from uncontrolled statistical data based on tools from computational algebraic geometry, in particular, the computation of Groebner bases. We focus on causal structures containing just two observed variables, each of which is binary. We consider the consequences of imposing different restrictions o\n- **[Quantitative probing: Validating causal models using quantitative domain knowledge (arXiv)](http://arxiv.org/abs/2209.03013v1)**: We present quantitative probing as a model-agnostic framework for validating causal models in the presence of quantitative domain knowledge. The method is constructed",
+    "web_sources": [
+      "http://arxiv.org/abs/1506.03880v2",
+      "http://arxiv.org/abs/2209.03013v1"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal cache manager that tracks source change signals (ETag, Last-Modified, sitemap diffs) and uses a lightweight Bayesian network to decide when to purge or refresh cached query results.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 100.58
+  },
+  {
+    "id": "conj_1792310324",
+    "timestamp": "2026-10-18T02:58:44.847500",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal‑Cache Hybrid for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer with a probabilistic cache in core/web_research_engine.py will reduce redundant external queries by up to 40% while preserving answer relevance. The cache stores not only raw query‑response pairs but also inferred causal graphs of query intent; when a new query arrives, the engine matches its intent graph against stored graphs to decide whether a cached result can be safely reused or if a fresh fetch is required. This hybrid approach leverages the deep_memory_vault's latent embeddings to compute intent similarity and the network_shield's rate‑limit metadata to respect external API quotas, leading to more efficient resource usage and lower latency.",
+    "research_query": "hybrid causal inference cache web search engine performance reduction redundant queries",
+    "research_findings": "# Informe de Investigación: hybrid causal inference cache web search engine performance reduction redundant queries\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal‑aware caching middleware that builds intent graphs from query embeddings, checks similarity against cached entries, and decides reuse vs fresh fetch; include async support and integrate with network_shield rate‑limit counters.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.77
   }
 ]

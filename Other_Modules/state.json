@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.871305,
-  "last_video_id": "vp_20261018_012321_24e29f",
-  "last_topic": "Topological Data Analysis of Neural Connectomes: Persistent Homology of Brain Networks",
-  "total_videos_analyzed": 269,
+  "last_run_timestamp": REDACTED_PHONE.3813646,
+  "last_video_id": "vp_20261018_024555_cde3aa",
+  "last_topic": "Fracton Topological Order and Its Connection to Emergent Gravitational Dynamics",
+  "total_videos_analyzed": 271,
   "running_cycle": false,
   "last_error": null,
-  "auto_improvement_count": 133
+  "auto_improvement_count": 134
 }
