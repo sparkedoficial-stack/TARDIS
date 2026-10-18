@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1792046777",
-    "timestamp": "2026-10-15T01:46:17.463028",
-    "idle_duration_minutes": 31.7,
-    "title": "Adaptive Causal Cache for Web Research Engine",
-    "hypothesis": "Integrating a causal, time‑aware cache layer into `core/web_research_engine.py` that records the provenance and confidence of each fetched result will reduce redundant network calls by ~30% and improve the system's ability to reason about the temporal relevance of information, especially under the constraints of the Akáshic Vault's long‑term memory model.",
-    "research_query": "adaptive causal caching web scraping python provenance confidence temporal relevance",
-    "research_findings": "# Informe de Investigación: adaptive causal caching web scraping python provenance confidence temporal relevance\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Implement an async LRU cache that stores each query's result together with a timestamp, source hash, and a confidence score derived from HTTP status and content validation. Add logic to invalidate entries based on a configurable freshness policy and to expose the cache metadata to the deep memory vault for causal reasoning.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 101.47
-  },
-  {
     "id": "conj_1792048740",
     "timestamp": "2026-10-15T02:19:00.442088",
     "idle_duration_minutes": 32.7,
@@ -1614,5 +1599,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.12
+  },
+  {
+    "id": "conj_1792298998",
+    "timestamp": "2026-10-17T23:49:58.811388",
+    "idle_duration_minutes": 32.2,
+    "title": "Causal‑Cache Layer for Web Research Engine",
+    "hypothesis": "Integrating a causal‑aware cache that stores not only raw HTTP responses but also the inferred causal graph of extracted entities will reduce redundant network calls by up to 40% and improve the consistency of downstream reasoning in the Deep Memory Vault. The cache would tag each entry with provenance metadata (timestamp, request parameters, causal dependencies) and invalidate entries when upstream causal nodes change, enabling the system to reuse prior knowledge while preserving causal integrity.",
+    "research_query": "causal aware caching web scraping framework \"provenance metadata\" \"causal graph\"",
+    "research_findings": "# Informe de Investigación: causal aware caching web scraping framework \"provenance metadata\" \"causal graph\"\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a CausalCache class with async get/set methods, integrate it into the request pipeline, and implement automatic invalidation based on causal dependency updates from deep_memory_vault.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.75
   }
 ]
