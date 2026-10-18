@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1792058539",
-    "timestamp": "2026-10-15T05:02:19.767136",
-    "idle_duration_minutes": 35.9,
-    "title": "Causal Latency Reduction via Predictive Cache Pruning",
-    "hypothesis": "La latencia percibida en la cadena de investigación web no se debe únicamente a la velocidad de red, sino a la 'entropía de contexto' acumulada en la bóveda akáshica. Al implementar un algoritmo de poda predictiva basado en la relevancia causal histórica (no solo temporal), podemos reducir el tiempo de inferencia del motor de investigación al pre-cargar solo los nodos de memoria que tienen alta probabilidad de ser consultados en la siguiente iteración lógica, minimizando la carga de contexto irrelevante.",
-    "research_query": "predictive cache pruning algorithm for LLM context window optimization causal relevance",
-    "research_findings": "# Informe de Investigación: predictive cache pruning algorithm for LLM context window optimization causal relevance\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar un método `prune_by_causal_relevance()` que asigne un score de probabilidad de uso futuro a cada entrada de memoria y elimine o archive las de bajo score antes de cada consulta al motor de investigación.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 104.99
-  },
-  {
     "id": "conj_1792060531",
     "timestamp": "2026-10-15T05:35:31.238066",
     "idle_duration_minutes": 33.2,
@@ -1615,5 +1600,23 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.77
+  },
+  {
+    "id": "conj_1792314110",
+    "timestamp": "2026-10-18T04:01:50.262241",
+    "idle_duration_minutes": 31.6,
+    "title": "Hipótesis de Resonancia Causal en la Bóveda Akáshica",
+    "hypothesis": "Se postula que la eficiencia de recuperación de información en `deep_memory_vault.py` puede optimizarse un 30-40% si se implementa un índice de 'resonancia causal' que priorice no solo la similitud semántica, sino la frecuencia de co-ocurrencia temporal entre nodos de memoria. Actualmente, el sistema busca por relevancia estática; la mejora propuesta introduce un factor dinámico de 'calor' basado en la telemetría de acceso reciente, permitiendo que las memorias frecuentemente consultadas por el Núcleo Cognitivo tengan una latencia de recuperación menor mediante un cache adaptativo jerárquico.",
+    "research_query": "adaptive hierarchical caching strategies for semantic memory retrieval systems in AI agents",
+    "research_findings": "# Informe de Investigación: adaptive hierarchical caching strategies for semantic memory retrieval systems in AI agents\n\n## Fuentes Consultadas y Respaldo Web\n- **[Memory-Aware Agent Harnesses for Anti-Money Laundering — Nacho Martinez, Oracle｜AI Engineer - finance.biggo.com](https://news.google.com/rss/articles/CBMiX0FVX3lxTE9ZRXNDNnUxYkRDMGRhUEFhTjdLR1JfUTY4MkpWbVA1d0pfcnJWVlVFYm45bWEtRnJVd25BWS04NDkxRDk0TkM3bXBzZV9HaU1YNERUcEF2WjFlc3drY1Jj?oc=5)**: Memory-Aware Agent Harnesses for Anti-Money Laundering — Nacho Martinez, Oracle｜AI Engineer  finance.biggo.com\n- **[Why your multi-agent AI system has a memory problem (and what computer architecture can teach you) - Resultsense](https://news.google.com/rss/articles/CBMiowFBVV95cUxOMzE2VkgyX0JzdG5YOEFxTzJlMGZOQ21tOWg4RHkzT0lxYkxjc0V3ZHF4aDNibVBHaGp5RWRDdzJPYmdyR1pjYlMzaFlEX1k2OG53WmI1RFpYaWVuNFNXYnllZG83WnJrLXNxWm9scXZUOTJQRVBfTXpScXg2ZEFUdzFJc1FNSHBCVTRrcS14SUdXV1pVc0M3TC1QRmVleXV3ZVMw?oc=5)**: Why your multi-agent AI system has a memory",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE9ZRXNDNnUxYkRDMGRhUEFhTjdLR1JfUTY4MkpWbVA1d0pfcnJWVlVFYm45bWEtRnJVd25BWS04NDkxRDk0TkM3bXBzZV9HaU1YNERUcEF2WjFlc3drY1Jj?oc=5",
+      "https://news.google.com/rss/articles/CBMiowFBVV95cUxOMzE2VkgyX0JzdG5YOEFxTzJlMGZOQ21tOWg4RHkzT0lxYkxjc0V3ZHF4aDNibVBHaGp5RWRDdzJPYmdyR1pjYlMzaFlEX1k2OG53WmI1RFpYaWVuNFNXYnllZG83WnJrLXNxWm9scXZUOTJQRVBfTXpScXg2ZEFUdzFJc1FNSHBCVTRrcS14SUdXV1pVc0M3TC1QRmVleXV3ZVMw?oc=5"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar un mecanismo de envejecimiento exponencial (exponential decay) en los metadatos de acceso de la bóveda para priorizar la carga de nodos con alta 'resonancia' reciente en la caché L1.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.75
   }
 ]
