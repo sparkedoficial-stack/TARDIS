@@ -1,22 +1,5 @@
 [
   {
-    "id": "conj_1792075746",
-    "timestamp": "2026-10-15T09:49:06.443817",
-    "idle_duration_minutes": 31.6,
-    "title": "Resonancia Causal en la Bóveda Akáshica: Entropía Semántica y Predicción de Fallos",
-    "hypothesis": "Se postula que la 'profundidad' de la memoria no debe medirse solo por la antigüedad de los datos, sino por la 'densidad causal' (frecuencia de co-ocurrencia de eventos en la telemetría). Si la Bóveda Akáshica (deep_memory_vault.py) implementa un índice de 'Entropía Semántica' que penaliza el almacenamiento de datos con baja correlación causal y prioriza la compresión de patrones recurrentes, se puede reducir la latencia de recuperación en un 30-40% y mejorar la precisión de la predicción de fallos en network_shield.py, al filtrar el ruido de fondo antes de que alcance el motor de investigación.",
-    "research_query": "semantic entropy causal inference memory optimization LLM agent architecture",
-    "research_findings": "# Informe de Investigación: semantic entropy causal inference memory optimization LLM agent architecture\n\n## Fuentes Consultadas y Respaldo Web\n- **[Research Across the Agent Stack: The Poster Sessions at the Berkeley RDI Agentic AI Summit 2026 - Medium](https://news.google.com/rss/articles/CBMi1gFBVV95cUxOUFZPSC1DTGJGbnhVTy0tWm9wdUw3blZNYzhMVG1DZENrWDVNN0pJdjZHdG8wNWxQUTduTnU5NUNoMExSUkJEZHRzNGEtSER5bkRQMlkzZHU4em1OLTJEN29qMk5jWHNkUEFaUkhMdDhoeDV3SjN4MWQ4YUFqeHlSMUJaVER0TUU5Mk5RcXRkeWpsbGNJZGJ3RkxIeVE5cDlTSDlSOVlMcmg2QTNRTmZOLVdRWHpLZkloQjFudlZHWkctM1lZUFhFa1ZsYjJxSFVNdm1LVlFR?oc=5)**: Research Across the Agent Stack: The Poster Sessions at the Berkeley RDI Agentic AI Summit 2026  Medium\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMi1gFBVV95cUxOUFZPSC1DTGJGbnhVTy0tWm9wdUw3blZNYzhMVG1DZENrWDVNN0pJdjZHdG8wNWxQUTduTnU5NUNoMExSUkJEZHRzNGEtSER5bkRQMlkzZHU4em1OLTJEN29qMk5jWHNkUEFaUkhMdDhoeDV3SjN4MWQ4YUFqeHlSMUJaVER0TUU5Mk5RcXRkeWpsbGNJ",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMi1gFBVV95cUxOUFZPSC1DTGJGbnhVTy0tWm9wdUw3blZNYzhMVG1DZENrWDVNN0pJdjZHdG8wNWxQUTduTnU5NUNoMExSUkJEZHRzNGEtSER5bkRQMlkzZHU4em1OLTJEN29qMk5jWHNkUEFaUkhMdDhoeDV3SjN4MWQ4YUFqeHlSMUJaVER0TUU5Mk5RcXRkeWpsbGNJZGJ3RkxIeVE5cDlTSDlSOVlMcmg2QTNRTmZOLVdRWHpLZkloQjFudlZHWkctM1lZUFhFa1ZsYjJxSFVNdm1LVlFR?oc=5"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar una función `calculate_causal_density()` que asigne un peso dinámico a cada entrada de memoria basándose en la frecuencia de sus vectores de contexto en las últimas N iteraciones, y modificar el método de persistencia para comprimir o archivar entradas con densidad causal < 0.2.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.57
-  },
-  {
     "id": "conj_1792077644",
     "timestamp": "2026-10-15T10:20:44.536203",
     "idle_duration_minutes": 31.6,
@@ -1626,5 +1609,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 96.45
+  },
+  {
+    "id": "conj_1792348197",
+    "timestamp": "2026-10-18T13:29:57.968792",
+    "idle_duration_minutes": 32.1,
+    "title": "Causal Feedback Loop for Adaptive Query Refinement",
+    "hypothesis": "Integrating a causal inference layer between the Web Research Engine and the Deep Memory Vault will enable the system to automatically adjust search query parameters based on observed relevance feedback, reducing latency and improving answer precision. The hypothesis posits that a lightweight Bayesian network can model the causal relationship between query formulation, retrieved document features, and downstream memory retrieval success, allowing real‑time policy updates without full retraining.",
+    "research_query": "causal inference adaptive query refinement web search engine Bayesian network relevance feedback",
+    "research_findings": "# Informe de Investigación: causal inference adaptive query refinement web search engine Bayesian network relevance feedback\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal inference module that captures relevance signals from deep_memory_vault and dynamically adjusts search parameters (e.g., top_k, timeout, ranking weights) using a Bayesian network, with fallback to default settings.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.58
   }
 ]
