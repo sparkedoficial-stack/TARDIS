@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1792079541",
-    "timestamp": "2026-10-15T10:52:21.671965",
-    "idle_duration_minutes": 31.6,
-    "title": "Sincronización Temporal de Telemetría en la Bóveda Akáshica",
-    "hypothesis": "La eficiencia de la recuperación de contexto en la bóveda akáshica se degrada linealmente con la latencia de escritura debido a la falta de un mecanismo de 'temporal alignment' entre los eventos de telemetría generados por el network_shield y los nodos de memoria profunda. Se conjetura que implementar un índice de tiempo lógico (logical clock) en lugar de tiempo de sistema absoluto, acoplado a un buffer de escritura asíncrona con coalescencia de eventos, reducirá la latencia de consulta en un 30-40% al minimizar la fragmentación de los metadatos temporales en el almacenamiento persistente.",
-    "research_query": "asynchronous write coalescing logical clock temporal indexing distributed memory systems optimization",
-    "research_findings": "# Informe de Investigación: asynchronous write coalescing logical clock temporal indexing distributed memory systems optimization\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar un buffer de escritura asíncrono con coalescencia de eventos y reemplazar el timestamp de sistema por un reloj lógico (Lamport o Vector Clock) en la estructura de metadatos de los nodos de memoria para mejorar la consistencia temporal y reducir la fragmentación de I/O.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.1
-  },
-  {
     "id": "conj_1792081439",
     "timestamp": "2026-10-15T11:23:59.112887",
     "idle_duration_minutes": 31.6,
@@ -1627,5 +1612,22 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 96.86
+  },
+  {
+    "id": "conj_1792355890",
+    "timestamp": "2026-10-18T15:38:10.624555",
+    "idle_duration_minutes": 34.2,
+    "title": "Dynamic Causal Cache for Web Research Engine",
+    "hypothesis": "Integrating a causal‑aware, time‑decayed cache layer into `core/web_research_engine.py` will reduce redundant external queries by up to 40% while preserving answer relevance. The cache would store not only raw HTML responses but also extracted semantic triples (subject‑predicate‑object) and their inferred causal links. When a new query arrives, the engine first attempts to reconstruct the answer by traversing the cached causal graph, falling back to a live web request only when the confidence score (derived from graph completeness and recency) falls below a configurable threshold. This approach leverages the existing deep memory vault to maintain long‑term knowledge and exploits causal inference to avoid re‑fetching information that is already implied by previously retrieved data.",
+    "research_query": "causal graph based caching for web search engines performance evaluation",
+    "research_findings": "# Informe de Investigación: causal graph based caching for web search engines performance evaluation\n\n## Fuentes Consultadas y Respaldo Web\n- **[Algorithms of Engagement — Optimizing Attention, Evidence‑Based Engineering Practices - Medium](https://news.google.com/rss/articles/CBMixgFBVV95cUxQbzdkVEtrZmt4R0RVQ19xcXdET29tZFBxYzdDUmNNOXd6ZlVsY1BOYlZBUWpuZndWN2M4bEdNTGxaYXlIeG9hZ0w1dWtvaURyMjg3UTg1SEY0RndjRTYtRWpGWm1Nb3VsUU9jRnVFdVdSZ1BkZXR0UlIxVmR2eFN4Vllhd3ZZdVBJOE9FVkcyWEphdlNUeW9NMThtWmpoc1FkYXlhdzVlWlFwRE13N3NfLXRsMktJMl85M2R4dTJzWmhNem9vMXc?oc=5)**: Algorithms of Engagement — Optimizing Attention, Evidence‑Based Engineering Practices  Medium\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMixgFBVV95cUxQbzdkVEtrZmt4R0RVQ19xcXdET29tZFBxYzdDUmNNOXd6ZlVsY1BOYlZBUWpuZndWN2M4bEdNTGxaYXlIeG9hZ0w1dWtvaURyMjg3UTg1SEY0RndjRTYtRWpGWm1Nb3VsUU9jRnVFdVdSZ1BkZXR0UlIxVmR2eFN4Vllhd3ZZdVBJOE9FVkcyWEphdlNUeW9NMThtWmpoc1FkYXlhdzVlWlFwRE13N3NfLXRsMktJM",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMixgFBVV95cUxQbzdkVEtrZmt4R0RVQ19xcXdET29tZFBxYzdDUmNNOXd6ZlVsY1BOYlZBUWpuZndWN2M4bEdNTGxaYXlIeG9hZ0w1dWtvaURyMjg3UTg1SEY0RndjRTYtRWpGWm1Nb3VsUU9jRnVFdVdSZ1BkZXR0UlIxVmR2eFN4Vllhd3ZZdVBJOE9FVkcyWEphdlNUeW9NMThtWmpoc1FkYXlhdzVlWlFwRE13N3NfLXRsMktJMl85M2R4dTJzWmhNem9vMXc?oc=5"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal‑graph cache module that stores semantic triples with timestamps, implements confidence scoring, and integrates a fallback mechanism to live web requests when needed.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.37
   }
 ]
