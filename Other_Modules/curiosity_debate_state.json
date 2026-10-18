@@ -3,10 +3,10 @@
   "interval_seconds": 5400.0,
   "target_chat_id": -REDACTED_PHONE,
   "target_thread_id": 453,
-  "last_run_timestamp": REDACTED_PHONE.499952,
-  "last_run_iso": "2026-10-17T20:07:26.499957",
-  "total_dispatches": 223,
-  "curator_index": 2,
+  "last_run_timestamp": REDACTED_PHONE.649301,
+  "last_run_iso": "2026-10-17T21:37:34.649303",
+  "total_dispatches": 224,
+  "curator_index": 1,
   "dispatched_topic_ids": [
     "holographic_brain_neurophysics",
     "fermi_paradox_great_filter",
@@ -14,21 +14,10 @@
     "neural_decoding_mind_reading_bci",
     "syntropy_prigogine_thermodynamics",
     "synthetic_biology_xenobiology_xna",
-    "ssm_mamba_vs_transformer"
+    "ssm_mamba_vs_transformer",
+    "quantum_spacetime_er_epr"
   ],
   "history": [
-    {
-      "dispatch_id": 124,
-      "timestamp": REDACTED_PHONE.4590778,
-      "iso": "2026-10-11T15:25:48.459082",
-      "topic_id": "neural_decoding_mind_reading_bci",
-      "topic_title": "Decodificación Neural Directa y Reconstrucción Semántica: ¿El Fin de la Privacidad Mental?",
-      "pdf_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/reports/polimatas_debates/Dossier_Debate_20261011_152546_neural_decoding_mind_reading_b.pdf",
-      "chat_id": -REDACTED_PHONE,
-      "thread_id": 453,
-      "text_sent": true,
-      "doc_sent": true
-    },
     {
       "dispatch_id": 125,
       "timestamp": REDACTED_PHONE.6811566,
@@ -1216,6 +1205,18 @@
       "thread_id": 453,
       "text_sent": false,
       "doc_sent": false
+    },
+    {
+      "dispatch_id": 224,
+      "timestamp": REDACTED_PHONE.649301,
+      "iso": "2026-10-17T21:37:34.649303",
+      "topic_id": "quantum_spacetime_er_epr",
+      "topic_title": "Entrelazamiento Cuántico, No-Localidad y Espacio-Tiempo Emergente (ER=EPR)",
+      "pdf_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/reports/polimatas_debates/Dossier_Debate_20261017_213732_quantum_spacetime_er_epr.pdf",
+      "chat_id": -REDACTED_PHONE,
+      "thread_id": 453,
+      "text_sent": true,
+      "doc_sent": true
     }
   ]
 }
