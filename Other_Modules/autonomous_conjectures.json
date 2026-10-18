@@ -1,23 +1,5 @@
 [
   {
-    "id": "conj_1792083334",
-    "timestamp": "2026-10-15T11:55:34.752191",
-    "idle_duration_minutes": 31.6,
-    "title": "Resonancia Causal en la Bóveda Akáshica",
-    "hypothesis": "Se postula que la eficiencia de recuperación de información en la bóveda akáshica puede optimizarse significativamente si se implementa un mecanismo de 'resonancia causal' que priorice no solo la similitud semántica, sino la relevancia temporal y la densidad de conexiones entre nodos de memoria. Actualmente, la búsqueda podría estar dependiendo excesivamente de embeddings estáticos, ignorando la dinámica de cómo los conceptos evolucionan en el tiempo dentro del sistema. Al integrar un factor de decaimiento temporal ponderado por la frecuencia de acceso y la co-ocurrencia de conceptos, el sistema podría anticipar necesidades de información antes de que sean explícitamente solicitadas, reduciendo la latencia de respuesta y mejorando la precisión contextual.",
-    "research_query": "temporal knowledge graph retrieval optimization causal inference memory systems",
-    "research_findings": "# Informe de Investigación: temporal knowledge graph retrieval optimization causal inference memory systems\n\n## Fuentes Consultadas y Respaldo Web\n- **[A causal discovery-based adaptive fusion algorithm for multi-source heterogeneous knowledge graphs - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE8tQkU3N2N2SUlGcmUyeklIVU5GeWlidTZGcTBvU3hNZTBQSGxUUERfbVEydXpwZ2VoQlhrS09WelBTNmdzUWhoSG8zTzVGVGk0Rm85V3VYN3U2Q2RQRnNZ?oc=5)**: A causal discovery-based adaptive fusion algorithm for multi-source heterogeneous knowledge graphs  Nature\n- **[Vol. 40 No. 37: AAAI-26 Technical Tracks 37 - The Association for the Advancement of Artificial Intelligence](https://news.google.com/rss/articles/CBMiX0FVX3lxTE90am5QTW9MM3E2THJCWmZrVkFTU0hYLW5fQkg0U2IySURzSFVvbEY4TmUteDlWOFFlUkRnMWRkblVVanRDWWQ4a2tsOEpLT0ZCTkZmSlRzdExxWmFpLVZJ?oc=5)**: Vol. 40 No. 37: AAAI-26 Technical Tracks 37  The Association for the Advancement of Artificial Intelligence\n\n## Contenido y Hallazgos Extraídos\n### De [Google ",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE8tQkU3N2N2SUlGcmUyeklIVU5GeWlidTZGcTBvU3hNZTBQSGxUUERfbVEydXpwZ2VoQlhrS09WelBTNmdzUWhoSG8zTzVGVGk0Rm85V3VYN3U2Q2RQRnNZ?oc=5",
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE90am5QTW9MM3E2THJCWmZrVkFTU0hYLW5fQkg0U2IySURzSFVvbEY4TmUteDlWOFFlUkRnMWRkblVVanRDWWQ4a2tsOEpLT0ZCTkZmSlRzdExxWmFpLVZJ?oc=5"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar un algoritmo de scoring híbrido que combine similitud coseno con un factor de decaimiento exponencial basado en la antigüedad de los nodos y su frecuencia de acceso reciente, ajustando dinámicamente los pesos de búsqueda en tiempo real.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 95.62
-  },
-  {
     "id": "conj_1792085232",
     "timestamp": "2026-10-15T12:27:12.744757",
     "idle_duration_minutes": 31.6,
@@ -1627,5 +1609,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 96.82
+  },
+  {
+    "id": "conj_1792363332",
+    "timestamp": "2026-10-18T17:42:12.118203",
+    "idle_duration_minutes": 32.1,
+    "title": "Dynamic Causal Weighting for Web Research Retrieval",
+    "hypothesis": "Integrating a causal inference layer that dynamically adjusts the weighting of search result relevance based on temporal telemetry and prior query outcomes will improve the precision of the Web Research Engine in the GODWORKS system. By modeling the causal impact of query formulation, network latency, and vault memory feedback, the engine can prioritize sources that historically contributed to successful knowledge integration, reducing noise and accelerating convergence on high‑utility information.",
+    "research_query": "causal inference dynamic weighting search engine relevance temporal telemetry",
+    "research_findings": "# Informe de Investigación: causal inference dynamic weighting search engine relevance temporal telemetry\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a CausalWeightingEngine class that consumes telemetry (latency, success flags) and adjusts the score of each retrieved URL before ranking, and integrate it into the existing fetch_and_rank pipeline.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.7
   }
 ]
