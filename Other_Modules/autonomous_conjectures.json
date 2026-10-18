@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1792048740",
-    "timestamp": "2026-10-15T02:19:00.442088",
-    "idle_duration_minutes": 32.7,
-    "title": "Dynamic Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "If the Web Research Engine maintains a lightweight causal graph of query dependencies (e.g., which queries rely on which external APIs or data sources), it can predict when cached results are likely to become stale. By using this causal information to trigger proactive cache invalidation or refresh, the system will reduce latency for time‑sensitive queries and improve the relevance of returned results without a significant overhead in memory or CPU.",
-    "research_query": "causal graph based cache invalidation web search engine performance",
-    "research_findings": "# Informe de Investigación: causal graph based cache invalidation web search engine performance\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal dependency tracker that records which external endpoints each query touches, then implement an adaptive cache TTL mechanism that invalidates or refreshes entries based on detected changes in those endpoints.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 99.43
-  },
-  {
     "id": "conj_1792054420",
     "timestamp": "2026-10-15T03:53:40.107672",
     "idle_duration_minutes": 32.6,
@@ -1614,5 +1599,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.75
+  },
+  {
+    "id": "conj_1792302846",
+    "timestamp": "2026-10-18T00:54:06.916885",
+    "idle_duration_minutes": 33.2,
+    "title": "Resonancia Causal en la Bóveda Akáshica: Optimización de la Entropía Informacional",
+    "hypothesis": "Se postula que la eficiencia de recuperación de la 'Bóveda Akáshica' (deep_memory_vault.py) no depende linealmente del volumen de datos almacenados, sino de la coherencia causal entre los metadatos de telemetría y el contexto semántico de la consulta. Actualmente, el sistema podría estar sufriendo de 'ruido de memoria' donde entradas antiguas o no validadas aumentan la latencia de búsqueda sin aportar valor predictivo. La conjetura es que implementar un mecanismo de 'decaimiento semántico' basado en la recencia y la relevancia causal (no solo temporal) reduciría la entropía de la base de conocimiento, permitiendo que el motor de investigación web (web_research_engine.py) filtre resultados con mayor precisión al alinear la consulta externa con el estado interno optimizado de la bóveda.",
+    "research_query": "semantic memory decay algorithms for AI agents causal relevance weighting vector database optimization",
+    "research_findings": "# Informe de Investigación: semantic memory decay algorithms for AI agents causal relevance weighting vector database optimization\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar una función de 'causal_decay_score' que reasigne pesos a los vectores de memoria basándose en la frecuencia de uso reciente y la correlación con eventos de éxito del sistema, eliminando o archivando entradas con puntuación bajo un umbral dinámico para reducir la latencia de búsqueda.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.33
   }
 ]
