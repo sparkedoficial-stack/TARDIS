@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1792070020",
-    "timestamp": "2026-10-15T08:13:40.891900",
-    "idle_duration_minutes": 31.6,
-    "title": "Causal‑Feedback Loop for Adaptive Web Research",
-    "hypothesis": "Integrating a causal inference layer between `core/web_research_engine.py` and `core/deep_memory_vault.py` will allow the system to dynamically adjust query formulation based on the observed relevance feedback stored in the akáshic vault. By modelling the relationship between query parameters, retrieved document features, and downstream task performance (e.g., answer accuracy), the engine can learn a policy that optimises future searches in real‑time, reducing latency and improving precision without external supervision.",
-    "research_query": "\"causal feedback loop\" adaptive web search engine reinforcement learning relevance feedback",
-    "research_findings": "# Informe de Investigación: \"causal feedback loop\" adaptive web search engine reinforcement learning relevance feedback\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal inference module that records query‑result‑outcome triples in `deep_memory_vault`, computes causal effect estimates (e.g., using DoWhy or causal trees), and updates a lightweight policy (e.g., contextual bandit) to modify future query parameters such as keywords, filters, and result ranking thresholds.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.79
-  },
-  {
     "id": "conj_1792071949",
     "timestamp": "2026-10-15T08:45:49.899710",
     "idle_duration_minutes": 32.1,
@@ -1621,5 +1606,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 98.38
+  },
+  {
+    "id": "conj_1792337120",
+    "timestamp": "2026-10-18T10:25:20.001902",
+    "idle_duration_minutes": 36.6,
+    "title": "Causal Embedding Sync for Real‑Time Web Research",
+    "hypothesis": "Integrar un mecanismo de sincronización causal entre el módulo core/web_research_engine.py y core/deep_memory_vault.py, basado en embeddings temporales de eventos, permitirá que los resultados de búsquedas web se indexen automáticamente con su contexto causal, reduciendo la latencia de recuperación de información relevante en un 30% y mejorando la precisión de inferencias posteriores del sistema.",
+    "research_query": "\"causal embedding synchronization\" \"real-time web search\" \"knowledge vault\" \"temporal context indexing\"",
+    "research_findings": "# Informe de Investigación: \"causal embedding synchronization\" \"real-time web search\" \"knowledge vault\" \"temporal context indexing\"\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Añadir una capa de pre‑procesamiento que genere embeddings temporales (p.ej., usando SentenceTransformers con timestamps) para cada resultado de búsqueda y los envíe al deep_memory_vault mediante una API interna, garantizando que cada entrada esté vinculada a su causa (consulta original, hora, parámetros) y actualizando la caché de resultados de forma incremental.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 114.68
   }
 ]
