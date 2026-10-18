@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.9639657,
-  "last_video_id": "vp_20261018_064028_ea2f22",
-  "last_topic": "Emergent Time from Quantum Entanglement in Tensor Networks: Visualizing the Flow of Time",
-  "total_videos_analyzed": 277,
-  "running_cycle": false,
+  "last_run_timestamp": REDACTED_PHONE.7260482,
+  "last_video_id": "vp_20261018_071806_452f88",
+  "last_topic": "SYK Model and Holographic Duality: Connecting Quantum Chaos to Black Hole Dynamics",
+  "total_videos_analyzed": 278,
+  "running_cycle": true,
   "last_error": null,
   "auto_improvement_count": 134
 }
