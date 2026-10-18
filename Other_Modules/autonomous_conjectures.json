@@ -1,38 +1,5 @@
 [
   {
-    "id": "conj_1792039091",
-    "timestamp": "2026-10-14T23:38:11.649473",
-    "idle_duration_minutes": 32.2,
-    "title": "Causal Prompt Routing for Adaptive Web Research",
-    "hypothesis": "Integrating a lightweight causal inference layer into core/web_research_engine.py, which dynamically routes search prompts based on inferred intent hierarchy, will reduce irrelevant result retrieval by at least 30% and improve downstream knowledge synthesis in deep_memory_vault. The hypothesis rests on the premise that the current engine treats each query as independent, ignoring temporal and contextual causality captured in the akáshic vault, leading to sub‑optimal query formulation.",
-    "research_query": "causal inference prompt routing web search engine performance improvement",
-    "research_findings": "# Informe de Investigación: causal inference prompt routing web search engine performance improvement\n\n## Fuentes Consultadas y Respaldo Web\n- **[Mosaic effect (Wikipedia)](https://en.wikipedia.org/wiki/Mosaic_effect)**: search of the home under the Fourth Amendment, relying on Carpenter v. United States and the mosaic theory to argue that such data enables inferences\n- **[List of cognitive biases (Wikipedia)](https://en.wikipedia.org/wiki/List_of_cognitive_biases)**: forget information that can be found readily online by using Internet search engines. Duration neglect, the neglect of the duration of an episode in determining\n\n## Contenido y Hallazgos Extraídos\n### De [Mosaic effect - Wikipedia](https://en.wikipedia.org/wiki/Mosaic_effect)\n> Mosaic effect - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nDeduction of secret data from public sources\nThe examples and perspectives in this article may not represent a worldwide view of the subject . You may improve this arti",
-    "web_sources": [
-      "https://en.wikipedia.org/wiki/Mosaic_effect",
-      "https://en.wikipedia.org/wiki/List_of_cognitive_biases"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a CausalRouter class that analyses recent query‑intent patterns from deep_memory_vault, rewrites incoming prompts using a template hierarchy, and selects the most relevant search engine endpoint; also expose a toggle in config to enable/disable the causal routing.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.11
-  },
-  {
-    "id": "conj_1792041028",
-    "timestamp": "2026-10-15T00:10:28.760802",
-    "idle_duration_minutes": 32.3,
-    "title": "Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching mechanism will reduce stale data retrieval by 30% and improve response latency. The hypothesis posits that by tracking the causal dependencies between query parameters, source URLs, and temporal relevance signals, the system can predict when cached results are likely to become invalid and proactively refresh them, rather than relying on static TTLs. This approach leverages the Deep Memory Vault's event graph to infer causality and could be generalized to other modules like Network Shield for adaptive firewall rule updates.",
-    "research_query": "causal inference based cache invalidation techniques for web scraping and API response caching",
-    "research_findings": "# Informe de Investigación: causal inference based cache invalidation techniques for web scraping and API response caching\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Implement an async LRU cache with causal invalidation hooks that consult the Deep Memory Vault's event graph to decide when to evict or refresh entries.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 99.79
-  },
-  {
     "id": "conj_1792042938",
     "timestamp": "2026-10-15T00:42:18.215595",
     "idle_duration_minutes": 31.8,
@@ -1614,5 +1581,35 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 99.6
+  },
+  {
+    "id": "conj_1792285296",
+    "timestamp": "2026-10-17T20:01:36.443168",
+    "idle_duration_minutes": 32.9,
+    "title": "Causal‑Cache Hybrid for Web Research Engine",
+    "hypothesis": "Integrating a lightweight causal inference layer into the Web Research Engine's request pipeline can prioritize queries that are likely to yield novel information, reducing redundant network calls and improving overall latency. The hypothesis posits that by maintaining a short‑term causal graph of recent queries, results, and their semantic embeddings, the engine can predict the marginal utility of a new request. If the predicted utility falls below a configurable threshold, the engine serves the cached result or a synthesized summary, thereby conserving bandwidth and CPU cycles while preserving answer relevance.",
+    "research_query": "\"causal inference cache\" web search engine latency reduction \"semantic embeddings\"",
+    "research_findings": "# Informe de Investigación: \"causal inference cache\" web search engine latency reduction \"semantic embeddings\"\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal‑utility estimator module that updates a directed acyclic graph of query–result relationships and integrates a decision hook before issuing external HTTP calls, with fallback to cache or summary generation.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.24
+  },
+  {
+    "id": "conj_1792287642",
+    "timestamp": "2026-10-17T20:40:42.371468",
+    "idle_duration_minutes": 32.1,
+    "title": "Causal Memory Indexing for Real‑Time Web Research",
+    "hypothesis": "Integrating a causal graph layer within the Deep Memory Vault (core/deep_memory_vault.py) that tracks provenance and dependency relations of stored akáshic entries will enable the Web Research Engine to prioritize and retrieve information based on inferred causal relevance, reducing latency and improving answer accuracy in dynamic query contexts.",
+    "research_query": "causal graph based memory indexing for AI agents \"deep memory vault\" retrieval performance",
+    "research_findings": "# Informe de Investigación: causal graph based memory indexing for AI agents \"deep memory vault\" retrieval performance\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Add a lightweight causal graph module that records parent‑child relationships between stored facts, expose an API to query most causally relevant nodes, and modify the insertion routine to automatically link new entries to existing ones based on semantic similarity.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.12
   }
 ]
