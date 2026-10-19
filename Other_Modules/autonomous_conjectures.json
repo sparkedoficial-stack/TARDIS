@@ -1,23 +1,5 @@
 [
   {
-    "id": "conj_1792124402",
-    "timestamp": "2026-10-15T23:20:02.303010",
-    "idle_duration_minutes": 31.6,
-    "title": "Resonancia Causal en la Bóveda Akáshica: Optimización de Entropía Semántica",
-    "hypothesis": "Se postula que la eficiencia de recuperación en la Bóveda Akáshica (deep_memory_vault.py) no depende linealmente de la cantidad de vectores almacenados, sino de la 'densidad causal' entre nodos de conocimiento. Actualmente, el sistema podría estar sufriendo de 'dilución semántica' donde consultas ambiguas devuelven resultados de alta similitud vectorial pero baja relevancia causal. La hipótesis es que implementar un mecanismo de 'pruning' dinámico basado en la frecuencia de co-ocurrencia temporal de conceptos en la telemetría de investigación (web_research_engine.py) reduciría la latencia de inferencia en un 30% y aumentaría la precisión de las respuestas del Núcleo Cognitivo al priorizar conexiones causales probadas sobre asociaciones estadísticas débiles.",
-    "research_query": "dynamic semantic pruning causal graph optimization vector database latency reduction",
-    "research_findings": "# Informe de Investigación: dynamic semantic pruning causal graph optimization vector database latency reduction\n\n## Fuentes Consultadas y Respaldo Web\n- **[Outline of machine learning (Wikipedia)](https://en.wikipedia.org/wiki/Outline_of_machine_learning)**: majority algorithm Reinforcement learning Repeated incremental pruning to produce error reduction (RIPPER) Rprop Rule-based machine learning Self-organizing\n- **[Deep learning (Wikipedia)](https://en.wikipedia.org/wiki/Deep_learning)**: embeddings from large text corpora. The resulting vector representations were shown to capture syntactic and semantic relationships between words. A subsequent\n\n## Contenido y Hallazgos Extraídos\n### De [Outline of machine learning - Wikipedia](https://en.wikipedia.org/wiki/Outline_of_machine_learning)\n> Outline of machine learning - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nOverview of and topical guide to machine learning\nThis article contains dynamic lists that may never be",
-    "web_sources": [
-      "https://en.wikipedia.org/wiki/Outline_of_machine_learning",
-      "https://en.wikipedia.org/wiki/Deep_learning"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar un método `prune_weak_causal_links()` que analice la telemetría histórica de consultas exitosas para identificar y atenuar el peso de vectores que aparecen frecuentemente en contextos de baja relevancia causal, actualizando la matriz de adyacencia de la bóveda.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.23
-  },
-  {
     "id": "conj_1792126299",
     "timestamp": "2026-10-15T23:51:39.992360",
     "idle_duration_minutes": 0.6,
@@ -1615,5 +1597,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 96.8
+  },
+  {
+    "id": "conj_1792409607",
+    "timestamp": "2026-10-19T06:33:27.851134",
+    "idle_duration_minutes": 35.7,
+    "title": "Causal Memory Indexing for Real‑Time Web Research",
+    "hypothesis": "Integrating a causal graph layer into the Deep Memory Vault will allow the system to automatically infer dependencies between stored akáshic entries and newly retrieved web data, improving relevance ranking and reducing redundant queries. By representing each memory node with provenance metadata and causal edges, the Web Research Engine can prioritize sources that are causally upstream of the current query, leading to faster convergence on high‑quality information.",
+    "research_query": "causal graph indexing for knowledge bases \"real-time web retrieval\" \"memory vault\"",
+    "research_findings": "# Informe de Investigación: causal graph indexing for knowledge bases \"real-time web retrieval\" \"memory vault\"\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Add a lightweight causal graph module that records provenance edges when storing new entries, and expose an API (e.g., get_causal_upstream(query)) for the web_research_engine to weight results based on causal relevance.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.75
   }
 ]
