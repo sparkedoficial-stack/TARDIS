@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1792092825",
-    "timestamp": "2026-10-15T14:33:45.908251",
-    "idle_duration_minutes": 31.7,
-    "title": "Sinergia Causal entre Telemetría de Red y Memoria Profunda",
-    "hypothesis": "La eficiencia del motor de investigación web se degrada linealmente cuando la telemetría de red (latencia, jitter, tasa de error) no se correlaciona en tiempo real con los vectores de contexto almacenados en la bóveda akáshica. Se conjetura que implementar un 'Loop de Retroalimentación Adaptativa' donde los parámetros de red modifiquen dinámicamente la profundidad de búsqueda y la ventana de atención de la memoria profunda reducirá la latencia de respuesta en un 30% y mejorará la precisión causal en entornos de red inestables.",
-    "research_query": "adaptive web scraping latency compensation deep memory context window optimization",
-    "research_findings": "# Informe de Investigación: adaptive web scraping latency compensation deep memory context window optimization\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Integrar un hook de telemetría de red que ajuste dinámicamente el parámetro 'max_depth' y la 'context_window_size' del motor de investigación basándose en la latencia media de los últimos 5 segundos.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 100.91
-  },
-  {
     "id": "conj_1792094723",
     "timestamp": "2026-10-15T15:05:23.940699",
     "idle_duration_minutes": 31.6,
@@ -1624,5 +1609,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 101.51
+  },
+  {
+    "id": "conj_1792378477",
+    "timestamp": "2026-10-18T21:54:37.392688",
+    "idle_duration_minutes": 34.3,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching mechanism will allow the system to predict when cached search results become stale based on observed changes in source domains (e.g., news sites, API version updates). By modeling the causal relationship between external content update frequency and cache validity, the engine can proactively invalidate or refresh entries, reducing latency and improving answer freshness without incurring full re‑search on every query.",
+    "research_query": "causal inference based cache invalidation techniques for web scraping and API data freshness",
+    "research_findings": "# Informe de Investigación: causal inference based cache invalidation techniques for web scraping and API data freshness\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal cache manager that tracks source update signals (e.g., HTTP Last-Modified, ETag, RSS change frequency) and uses a lightweight Bayesian model to decide when to invalidate cached results, exposing a new method `invalidate_stale_cache()` and integrating it into the existing `search()` workflow.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 102.0
   }
 ]
