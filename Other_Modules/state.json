@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.3057718,
-  "last_video_id": "vp_20261019_124636_1ea34d",
-  "last_topic": "Causal Dynamical Triangulations: Visualizing the Emergence of 4D Spacetime from Simplicial Quantum Gravity",
-  "total_videos_analyzed": 325,
-  "running_cycle": false,
+  "last_run_timestamp": REDACTED_PHONE.6909664,
+  "last_video_id": "vp_20261019_132313_5367d0",
+  "last_topic": "Tensor Network Renormalization of 2D Quantum Spin Liquids",
+  "total_videos_analyzed": 326,
+  "running_cycle": true,
   "last_error": null,
   "auto_improvement_count": 149
 }
