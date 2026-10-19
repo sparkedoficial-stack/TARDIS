@@ -1,35 +1,5 @@
 [
   {
-    "id": "conj_1792087129",
-    "timestamp": "2026-10-15T12:58:49.738199",
-    "idle_duration_minutes": 31.6,
-    "title": "Resonancia Causal en la Bóveda Akáshica: Entrelazamiento Temporal de Consultas",
-    "hypothesis": "Se postula que la eficiencia de la recuperación de información en la Bóveda Akáshica no depende linealmente de la profundidad de búsqueda, sino de la 'resonancia causal' entre la consulta actual y las metadatos temporales de consultas previas exitosas. Si el motor de investigación web (web_research_engine.py) implementa un mecanismo de 'eco temporal' que pondera los resultados basándose en la similitud semántica y la latencia histórica de queries similares, se puede reducir la latencia de búsqueda en un 30-40% al priorizar fuentes que han demostrado alta relevancia causal en ventanas temporales anteriores, creando un ciclo de retroalimentación positiva en la telemetría del sistema.",
-    "research_query": "temporal semantic caching web search engine latency reduction causal feedback loop",
-    "research_findings": "# Informe de Investigación: temporal semantic caching web search engine latency reduction causal feedback loop\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Implementar un decorador o método auxiliar que registre las métricas de éxito (relevancia/latencia) de cada query y utilice un vector de similitud coseno para ponderar las fuentes de resultados en búsquedas futuras, integrando esta lógica con los metadatos de deep_memory_vault.py.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.97
-  },
-  {
-    "id": "conj_1792089026",
-    "timestamp": "2026-10-15T13:30:26.554125",
-    "idle_duration_minutes": 31.6,
-    "title": "Resonancia Causal en la Bóveda Akáshica: Optimización de la Entropía Semántica",
-    "hypothesis": "Se postula que la eficiencia de recuperación en la Bóveda Akáshica (deep_memory_vault.py) no depende linealmente de la densidad de datos, sino de la 'resonancia causal' entre las consultas entrantes y los vectores de memoria almacenados. Actualmente, el sistema podría estar sufriendo de 'ruido semántico' acumulado debido a la falta de poda activa basada en relevancia temporal. Al implementar un algoritmo de decaimiento exponencial ponderado por la frecuencia de acceso causal (no solo temporal), se puede reducir la latencia de búsqueda en un 15-20% manteniendo la integridad del contexto histórico profundo.",
-    "research_query": "semantic memory decay algorithms for AI agents exponential weighting causal relevance pruning",
-    "research_findings": "# Informe de Investigación: semantic memory decay algorithms for AI agents exponential weighting causal relevance pruning\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar un método `prune_low_relevance_memories()` que calcule un score de relevancia causal para cada nodo de memoria y elimine o archive aquellos que superen un umbral de entropía semántica baja, integrando este proceso en el ciclo de mantenimiento nocturno del sistema.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.8
-  },
-  {
     "id": "conj_1792090924",
     "timestamp": "2026-10-15T14:02:04.344261",
     "idle_duration_minutes": 31.6,
@@ -1627,5 +1597,35 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 98.4
+  },
+  {
+    "id": "conj_1792368986",
+    "timestamp": "2026-10-18T19:16:26.571225",
+    "idle_duration_minutes": 31.6,
+    "title": "Dynamic Causal Cache Invalidation for the Web Research Engine",
+    "hypothesis": "If the Web Research Engine maintains a lightweight causal graph that records dependencies between fetched resources (e.g., URLs, API endpoints, and extracted entities), then it can proactively invalidate or refresh cached entries when upstream sources change. This causal‑aware caching would reduce stale‑data hits, lower average query latency, and improve the relevance of results compared with a traditional time‑based TTL approach.",
+    "research_query": "causal graph based cache invalidation web search engine performance",
+    "research_findings": "# Informe de Investigación: causal graph based cache invalidation web search engine performance\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal‑dependency tracker that logs which cached pages depend on which remote resources, and implement an adaptive eviction policy that invalidates cache entries when a dependent resource reports a change (e.g., via ETag/Last‑Modified or webhook).",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.96
+  },
+  {
+    "id": "conj_1792370886",
+    "timestamp": "2026-10-18T19:48:06.229853",
+    "idle_duration_minutes": 31.7,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching mechanism will allow the system to predict when cached search results become stale based on observed changes in source domains (e.g., news sites, scientific repositories). By modeling the temporal causality between content update frequencies and cache validity, the engine can proactively invalidate or refresh entries, reducing latency and improving answer freshness without incurring full re‑queries for every user request.",
+    "research_query": "causal inference based cache invalidation web search engine recent studies 2023 2024",
+    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web search engine recent studies 2023 2024\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal cache manager that logs source update timestamps, learns update patterns with a lightweight Bayesian network, and triggers selective cache refreshes before serving stale results.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 99.64
   }
 ]
