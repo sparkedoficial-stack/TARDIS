@@ -1,38 +1,5 @@
 [
   {
-    "id": "conj_1792094723",
-    "timestamp": "2026-10-15T15:05:23.940699",
-    "idle_duration_minutes": 31.6,
-    "title": "Sincronización Temporal de la Bóveda Akáshica con el Motor de Investigación Web",
-    "hypothesis": "Se postula que existe una latencia cognitiva no óptima entre la escritura de nuevos insights en `deep_memory_vault.py` y su disponibilidad inmediata para el contexto de `web_research_engine.py`. Al implementar un mecanismo de 'hot-cache' temporal que priorice los últimos 5 minutos de telemetría de la bóveda como contexto forzado para las próximas consultas web, se puede reducir la redundancia de búsquedas y aumentar la relevancia causal de los resultados obtenidos, creando un bucle de retroalimentación más eficiente.",
-    "research_query": "temporal context window optimization for LLM agents combining long-term memory and real-time web search",
-    "research_findings": "# Informe de Investigación: temporal context window optimization for LLM agents combining long-term memory and real-time web search\n\n## Fuentes Consultadas y Respaldo Web\n- **[The rise of agentic AI in drug discovery from static tools to autonomous virtual scientists - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE0zSnZwRjUwY0RlYnYyam9sYnVTYTgzUmNlOUJNdmFmU2FyQTlQRE1raGliWksxcVZ5QVpYbE9wM0JQQ0RTUUN6YmN2T201c2ZaTk9GMzFVRHBKWElSWlpB?oc=5)**: The rise of agentic AI in drug discovery from static tools to autonomous virtual scientists  Nature\n- **[Building smarter AI agents: AgentCore long-term memory deep dive | Amazon Web Services - Amazon Web Services (AWS)](https://news.google.com/rss/articles/CBMirwFBVV95cUxOZng0WnJpZjNHbndqNnRlRUpibmpTUmJuNHVkX3lYSmJsY0hDQUhuQlplOVQzc3diSE1mQ1JsTWpWaC1YYmZlQnBRNWJKMlJWZk5GMmN4dEwwTWRZU2tZa0xMcWpFVjl2YlUzeDcwcEVCd1VfdHJrRTIwWlRHUHNJbkZwelFScGM3VjFzOTJxOEtCenI0VVlQc2JNMTNha1R0bWVRM1VJdGRycVRVTzBv?oc=5)**: Building smarter AI agents: AgentCo",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE0zSnZwRjUwY0RlYnYyam9sYnVTYTgzUmNlOUJNdmFmU2FyQTlQRE1raGliWksxcVZ5QVpYbE9wM0JQQ0RTUUN6YmN2T201c2ZaTk9GMzFVRHBKWElSWlpB?oc=5",
-      "https://news.google.com/rss/articles/CBMirwFBVV95cUxOZng0WnJpZjNHbndqNnRlRUpibmpTUmJuNHVkX3lYSmJsY0hDQUhuQlplOVQzc3diSE1mQ1JsTWpWaC1YYmZlQnBRNWJKMlJWZk5GMmN4dEwwTWRZU2tZa0xMcWpFVjl2YlUzeDcwcEVCd1VfdHJrRTIwWlRHUHNJbkZwelFScGM3VjFzOTJxOEtCenI0VVlQc2JNMTNha1R0bWVRM1VJdGRycVRVTzBv?oc=5"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Integrar un método `get_recent_insights()` en la interfaz de la bóveda y modificar el prompt de investigación para incluir dinámicamente estos insights recientes antes de ejecutar la búsqueda web.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.94
-  },
-  {
-    "id": "conj_1792096683",
-    "timestamp": "2026-10-15T15:38:03.793977",
-    "idle_duration_minutes": 32.7,
-    "title": "Causal Embedding Cache for Real‑Time Web Research",
-    "hypothesis": "Integrating a causal embedding cache layer between core/web_research_engine.py and core/deep_memory_vault.py will allow the system to reuse previously retrieved web snippets not only by lexical similarity but by inferred causal relationships, reducing latency by up to 40% and improving answer relevance in domains where cause‑effect chains dominate (e.g., scientific literature, troubleshooting logs). The cache would store embeddings of retrieved documents together with a lightweight directed acyclic graph (DAG) of inferred causal links, enabling the research engine to retrieve semantically causal matches instead of purely keyword‑based ones.",
-    "research_query": "causal embedding cache for web search engines latency reduction causal inference embeddings DAG retrieval",
-    "research_findings": "# Informe de Investigación: causal embedding cache for web search engines latency reduction causal inference embeddings DAG retrieval\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a CausalCache class that indexes retrieved page embeddings with causal DAG edges, expose get_causal_results(query) that queries the cache before performing a fresh web fetch, and integrate it into the existing fetch_and_process pipeline.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.21
-  },
-  {
     "id": "conj_1792099136",
     "timestamp": "2026-10-15T16:18:56.817543",
     "idle_duration_minutes": 40.9,
@@ -1624,5 +1591,41 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 102.0
+  },
+  {
+    "id": "conj_1792380445",
+    "timestamp": "2026-10-18T22:27:25.101883",
+    "idle_duration_minutes": 32.8,
+    "title": "Causal‑Feedback Loop for Adaptive Web Research",
+    "hypothesis": "Integrating a causal‑feedback mechanism between the Web Research Engine and the Deep Memory Vault will allow the system to dynamically re‑weight search strategies based on the observed relevance of retrieved documents, leading to a measurable reduction in query latency and an increase in semantic precision of stored knowledge. The hypothesis posits that by logging the causal impact of each search parameter (e.g., engine, query expansion, result ranking) on downstream memory consolidation outcomes, a reinforcement‑learning policy can be trained in‑situ, enabling the system to self‑optimise its research behaviour without external supervision.",
+    "research_query": "reinforcement learning causal feedback loop for adaptive web search engine optimization",
+    "research_findings": "# Informe de Investigación: reinforcement learning causal feedback loop for adaptive web search engine optimization\n\n## Fuentes Consultadas y Respaldo Web\n- **[Dynamic adaptation of non standard service tasks through reinforcement learning driven task technology fit and service interaction | Scientific Reports - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE9OVFFBVGI0RGZyQTlodGZyLVd1d3hNV2dkYTlsOVVWQWVseU53Z3RwdFNvZGhiMzFIV3p5SDA1RVBZU3hiemVMQkl6dF9hZ1R5WnVJclRUbnpETFJnTTIw?oc=5)**: Dynamic adaptation of non standard service tasks through reinforcement learning driven task technology fit and service interaction | Scientific Reports  Nature\n- **[Vol. 40 No. 24: AAAI-26 Technical Tracks 24 - The Association for the Advancement of Artificial Intelligence](https://news.google.com/rss/articles/CBMiX0FVX3lxTFB1eGVkSVFmbFp6a0FRMHMzbDdGbzRUUElyNFRBTnVubU9OSGxLMGFyRmJWSFB0ZUtSRHAtQ2x2S0UwTHdsTTBCSEZnOGJXX28zc3o5NHc5Q2xUQkY2ZV9F?oc=5)**: Vol. 40 No. 24: AAAI-26 Technical Tracks 24  ",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE9OVFFBVGI0RGZyQTlodGZyLVd1d3hNV2dkYTlsOVVWQWVseU53Z3RwdFNvZGhiMzFIV3p5SDA1RVBZU3hiemVMQkl6dF9hZ1R5WnVJclRUbnpETFJnTTIw?oc=5",
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTFB1eGVkSVFmbFp6a0FRMHMzbDdGbzRUUElyNFRBTnVubU9OSGxLMGFyRmJWSFB0ZUtSRHAtQ2x2S0UwTHdsTTBCSEZnOGJXX28zc3o5NHc5Q2xUQkY2ZV9F?oc=5"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a lightweight causal‑tracking wrapper around the existing search functions that records parameter settings, response times, and relevance scores (derived from deep_memory_vault insertion feedback). Implement an async callback to update a simple policy model (e.g., contextual bandit) that adjusts future query generation parameters.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 103.39
+  },
+  {
+    "id": "conj_1792382356",
+    "timestamp": "2026-10-18T22:59:16.899606",
+    "idle_duration_minutes": 31.9,
+    "title": "Resonancia Causal de la Bóveda Akáshica",
+    "hypothesis": "La eficiencia de recuperación de la 'Bóveda Akáshica' (deep_memory_vault.py) puede optimizarse significativamente si se introduce un mecanismo de 'Resonancia Causal' que priorice no solo la similitud semántica, sino la relevancia temporal y la frecuencia de acceso reciente (recencia) mediante una función de decaimiento exponencial. Esto permitiría que el sistema anticipe necesidades de contexto basándose en patrones de uso previos, reduciendo la latencia de búsqueda en consultas complejas y mejorando la coherencia de la memoria a largo plazo al atenuar información obsoleta.",
+    "research_query": "temporal decay weighting in vector database retrieval semantic search optimization",
+    "research_findings": "# Informe de Investigación: temporal decay weighting in vector database retrieval semantic search optimization\n\n## Fuentes Consultadas y Respaldo Web\n- **[memweave: Zero-Infra AI Agent Memory with Markdown and SQLite — No Vector Database Required - Towards Data Science](https://news.google.com/rss/articles/CBMivAFBVV95cUxPR3BMRngzdkstTkUyT3NaOEthS2lyNXE2dU5kQjNwSlZlQW1kVzl6RlpWamJ5R2J1NTlCcEE3Ulo1MmMtdDZ0dkhmVWZHeUk5b2thNjFrdGhIVERGMFMzYTFINXlhWko5QlE1STlNYXhkSU1USmNIVXJsSWFaSFlqamRaSDVFVUZjRWZUWTRuODl3UEN2T01xVkZCQ0dfb2FJZ01vcWZhRklSaFdnU202NFc4aS1NalAxNEpHTQ?oc=5)**: memweave: Zero-Infra AI Agent Memory with Markdown and SQLite — No Vector Database Required  Towards Data Science\n- **[Convolutional neural network (Wikipedia)](https://en.wikipedia.org/wiki/Convolutional_neural_network)**: various NLP problems and achieved excellent results in semantic parsing, search query retrieval, sentence modeling, classification, prediction and other\n\n## Contenido y Hallazgos Extraídos\n### De [Goo",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMivAFBVV95cUxPR3BMRngzdkstTkUyT3NaOEthS2lyNXE2dU5kQjNwSlZlQW1kVzl6RlpWamJ5R2J1NTlCcEE3Ulo1MmMtdDZ0dkhmVWZHeUk5b2thNjFrdGhIVERGMFMzYTFINXlhWko5QlE1STlNYXhkSU1USmNIVXJsSWFaSFlqamRaSDVFVUZjRWZUWTRuODl3UEN2T01xVkZCQ0dfb2FJZ01vcWZhRklSaFdnU202NFc4aS1NalAxNEpHTQ?oc=5",
+      "https://en.wikipedia.org/wiki/Convolutional_neural_network"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar una función de puntuación compuesta que combine la similitud de coseno con un factor de decaimiento temporal basado en la última fecha de acceso de cada vector en la bóveda.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 111.78
   }
 ]

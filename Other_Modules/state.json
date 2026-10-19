@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.81615,
-  "last_video_id": "vp_20261018_213020_ea8780",
-  "last_topic": "Sachdev-Ye-Kitaev (SYK) Model and its Holographic Dual: Visualizing Quantum Chaos and Black Hole Dynamics",
-  "total_videos_analyzed": 300,
+  "last_run_timestamp": REDACTED_PHONE.5640843,
+  "last_video_id": "vp_20261018_225232_919948",
+  "last_topic": "Complexity=Volume (CV) vs Complexity=Action (CA): Visualizing the Holographic Complexity of Black Hole Interiors",
+  "total_videos_analyzed": 302,
   "running_cycle": false,
   "last_error": null,
-  "auto_improvement_count": 143
+  "auto_improvement_count": 144
 }
