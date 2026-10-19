@@ -2,17 +2,17 @@
 """
 Módulo Autogenerado por TARDIS Quantum Browser & FTL
 ====================================================
-Tema: teoría de control causal y retroalimentación adaptativa
-Fecha: 2026-10-19 13:18:13
+Tema: modelos de razonamiento guiados por búsqueda monte carlo
+Fecha: 2026-10-19 17:52:05
 """
 
 import time
 import logging
 
-class BrowserEvolTeorADeControlCausal3893:
-    """Módulo de auto-mejora asimilado de teoría de control causal y retroalimentación adaptativa."""
+class BrowserEvolModelosDeRazonamiento325:
+    """Módulo de auto-mejora asimilado de modelos de razonamiento guiados por búsqueda monte carlo."""
     def __init__(self):
-        self.topic = "teor\u00eda de control causal y retroalimentaci\u00f3n adaptativa"
+        self.topic = "modelos de razonamiento guiados por b\u00fasqueda monte carlo"
         self.findings = ["Informaci\u00f3n preliminar asimilada."]
         self.created_at = time.time()
 
