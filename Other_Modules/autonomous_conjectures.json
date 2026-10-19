@@ -1,23 +1,5 @@
 [
   {
-    "id": "conj_1792090924",
-    "timestamp": "2026-10-15T14:02:04.344261",
-    "idle_duration_minutes": 31.6,
-    "title": "Sincronización Temporal de la Bóveda Akáshica con el Motor de Investigación",
-    "hypothesis": "Se postula que la latencia percibida en la recuperación de contexto no se debe a la velocidad de I/O de `deep_memory_vault.py`, sino a la desincronización semántica entre los metadatos indexados en la bóveda y las consultas generadas en tiempo real por `web_research_engine.py`. Al implementar un 'handshake' de relevancia causal antes de la consulta externa, el sistema podría reducir el ruido de búsqueda en un 40%, priorizando solo las fuentes que validan las hipótesis locales almacenadas.",
-    "research_query": "semantic synchronization between local vector database and real-time web search engines for context retrieval optimization",
-    "research_findings": "# Informe de Investigación: semantic synchronization between local vector database and real-time web search engines for context retrieval optimization\n\n## Fuentes Consultadas y Respaldo Web\n- **[Grep or Embeddings? Agentic Search Over Company Documents — George He, LlamaIndex｜AI Engineer - BigGo Finance](https://news.google.com/rss/articles/CBMiX0FVX3lxTFByV1RYY3lnOVpETFdfdXVUOHBlTl95RmpodEtVVWRQYWJobmxqZmNfLUZTODZEakg5aHN3cGlsYTRCb0tKYzVrLUZIZ0p4dEFKZlVMc1VrZjdGZXBsWmdZ?oc=5)**: Grep or Embeddings? Agentic Search Over Company Documents — George He, LlamaIndex｜AI Engineer  BigGo Finance\n- **[A unified multimodal GenAI platform integrating GraphRAG multi-agent systems and custom language models for intelligent document processing and knowledge synthesis | Scientific Reports - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE5JV0JFR2ExZGVqeHdMdW5QZm40Ri13WnNTOVdreWJwRTdCaGJXZEFJb1FFTU5vOWI5WUw3c3cyTDdlVlJwem0zYjJkaVpkZXpZbU1fQ05mczhwcnQycEhj?oc=5)**: A unified multimodal GenAI ",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTFByV1RYY3lnOVpETFdfdXVUOHBlTl95RmpodEtVVWRQYWJobmxqZmNfLUZTODZEakg5aHN3cGlsYTRCb0tKYzVrLUZIZ0p4dEFKZlVMc1VrZjdGZXBsWmdZ?oc=5",
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE5JV0JFR2ExZGVqeHdMdW5QZm40Ri13WnNTOVdreWJwRTdCaGJXZEFJb1FFTU5vOWI5WUw3c3cyTDdlVlJwem0zYjJkaVpkZXpZbU1fQ05mczhwcnQycEhj?oc=5"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Integrar un filtro de pre-búsqueda que consulte `deep_memory_vault.py` para extraer vectores de contexto y refinar la query de búsqueda web antes de ejecutar la petición HTTP.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.76
-  },
-  {
     "id": "conj_1792092825",
     "timestamp": "2026-10-15T14:33:45.908251",
     "idle_duration_minutes": 31.7,
@@ -1627,5 +1609,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 99.64
+  },
+  {
+    "id": "conj_1792374521",
+    "timestamp": "2026-10-18T20:48:41.201256",
+    "idle_duration_minutes": 31.7,
+    "title": "Dynamic Causal Cache Invalidation for the Web Research Engine",
+    "hypothesis": "If the Web Research Engine records causal dependencies between each executed search query, the retrieved documents, and the subsequent transformations applied by the Deep Memory Vault, then a lightweight dependency graph can be used to invalidate only the cache entries that are affected by changes in the underlying data sources. This selective invalidation should reduce unnecessary cache flushes, lower latency for repeat queries, and improve overall throughput without sacrificing result freshness.",
+    "research_query": "causal inference based cache invalidation techniques for web search engines performance evaluation",
+    "research_findings": "# Informe de Investigación: causal inference based cache invalidation techniques for web search engines performance evaluation\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a dependency‑graph module that tracks which cached results depend on which external URLs or API endpoints, and implement a selective invalidation routine that purges only those cache entries when source data changes are detected.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 101.51
   }
 ]
