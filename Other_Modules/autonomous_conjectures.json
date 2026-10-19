@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1792085232",
-    "timestamp": "2026-10-15T12:27:12.744757",
-    "idle_duration_minutes": 31.6,
-    "title": "Sinergia Causal entre Telemetría de Red y Memoria Profunda",
-    "hypothesis": "La eficiencia de la investigación web se degrada cuando el motor de búsqueda opera de forma aislada de la telemetría de red. Se conjetura que implementar un 'feedback loop' donde los patrones de latencia y bloqueos detectados por network_shield.py modifiquen dinámicamente la estrategia de scraping y la profundidad de la memoria en deep_memory_vault.py (priorizando fuentes locales o cacheadas ante inestabilidad de red) aumentaría la resiliencia del sistema en un 30%.",
-    "research_query": "adaptive web scraping strategies based on real-time network telemetry and latency monitoring",
-    "research_findings": "# Informe de Investigación: adaptive web scraping strategies based on real-time network telemetry and latency monitoring\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Integrar un listener de eventos de red que ajuste los timeouts y la frecuencia de reintentos del motor de investigación según el estado actual del escudo de red.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.98
-  },
-  {
     "id": "conj_1792087129",
     "timestamp": "2026-10-15T12:58:49.738199",
     "idle_duration_minutes": 31.6,
@@ -1624,5 +1609,23 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.7
+  },
+  {
+    "id": "conj_1792367087",
+    "timestamp": "2026-10-18T18:44:47.597975",
+    "idle_duration_minutes": 31.6,
+    "title": "Dynamic Causal Cache for Web Research Engine",
+    "hypothesis": "If the Web Research Engine incorporates a causal relevance model that evaluates the relationship between incoming queries and previously cached results, then the system can prioritize cache retention and pre‑fetching of pages that are causally linked to the user's current information need. This should reduce latency and increase the relevance of returned snippets compared to a purely timestamp‑ or frequency‑based cache policy.",
+    "research_query": "causal inference based caching strategies for web search engines",
+    "research_findings": "# Informe de Investigación: causal inference based caching strategies for web search engines\n\n## Fuentes Consultadas y Respaldo Web\n- **[Outline of machine learning (Wikipedia)](https://en.wikipedia.org/wiki/Outline_of_machine_learning)**: selection Algorithmic inference Algorithmic learning theory AlphaGo AlphaGo Zero Alternating decision tree Apprenticeship learning Causal Markov condition\n- **[Big data (Wikipedia)](https://en.wikipedia.org/wiki/Big_data)**: precursors for stock market moves, using trading strategies based on search volume data provided by Google Trends. Their analysis of Google search volume for 98\n\n## Contenido y Hallazgos Extraídos\n### De [Outline of machine learning - Wikipedia](https://en.wikipedia.org/wiki/Outline_of_machine_learning)\n> Outline of machine learning - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nOverview of and topical guide to machine learning\nThis article contains dynamic lists that may never be able to satisfy particular sta",
+    "web_sources": [
+      "https://en.wikipedia.org/wiki/Outline_of_machine_learning",
+      "https://en.wikipedia.org/wiki/Big_data"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a context‑aware caching layer that assigns causal relevance scores to cached entries and uses them for eviction and pre‑fetch decisions.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.4
   }
 ]
