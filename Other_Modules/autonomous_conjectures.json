@@ -1,38 +1,5 @@
 [
   {
-    "id": "conj_1792196797",
-    "timestamp": "2026-10-16T19:26:37.210527",
-    "idle_duration_minutes": 32.7,
-    "title": "Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching subsystem can dynamically predict the obsolescence of cached search results based on detected changes in source domains (e.g., content updates, SEO shifts). By modeling the probability that a cached entry is stale as a function of observable signals (HTTP headers, content digests, link graph changes), the engine can pre‑emptively invalidate or refresh entries, reducing latency while maintaining a higher freshness ratio than time‑based TTL alone.",
-    "research_query": "causal inference based cache invalidation web search engine freshness prediction recent papers 2023 2024",
-    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web search engine freshness prediction recent papers 2023 2024\n\n## Fuentes Consultadas y Respaldo Web\n- **[Causal inference via algebraic geometry: feasibility tests for functional causal structures with two binary observed variables (arXiv)](http://arxiv.org/abs/1506.03880v2)**: We provide a scheme for inferring causal relations from uncontrolled statistical data based on tools from computational algebraic geometry, in particular, the computation of Groebner bases. We focus on causal structures containing just two observed variables, each of which is binary. We consider the consequences of imposing different restrictions o\n- **[The Case of Transparent Cache Invalidation in Web Applications (arXiv)](http://arxiv.org/abs/2311.02384v1)**: Application-level caches are widely adopted by web applications to minimize the response time of user requests as well as to reduce the burden on the system backend, such as the datab",
-    "web_sources": [
-      "http://arxiv.org/abs/1506.03880v2",
-      "http://arxiv.org/abs/2311.02384v1"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a CausalCacheManager class that monitors source change signals, computes a staleness probability using a lightweight Bayesian network, and triggers selective cache refreshes instead of static TTL expiration.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 100.96
-  },
-  {
-    "id": "conj_1792200555",
-    "timestamp": "2026-10-16T20:29:15.368142",
-    "idle_duration_minutes": 32.2,
-    "title": "Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching mechanism will allow the system to predict when cached search results become stale based on observed changes in source domains (e.g., content updates, SEO shifts). By modeling the probability that a cached entry no longer reflects the current state of the web, the engine can proactively invalidate or refresh entries, reducing latency while maintaining result freshness. This approach leverages the Deep Memory Vault's event logs to train a lightweight Bayesian network that estimates staleness risk, leading to a measurable improvement in hit‑rate and overall query latency.",
-    "research_query": "causal inference based cache invalidation web search engine recent research 2023 2024",
-    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web search engine recent research 2023 2024\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal‑based staleness predictor that hooks into the cache read/write path, using event timestamps from deep_memory_vault to decide when to auto‑refresh or evict cached search results.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.65
-  },
-  {
     "id": "conj_1792204372",
     "timestamp": "2026-10-16T21:32:52.691771",
     "idle_duration_minutes": 32.7,
@@ -1615,5 +1582,41 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 96.93
+  },
+  {
+    "id": "conj_1792476473",
+    "timestamp": "2026-10-20T01:07:53.650282",
+    "idle_duration_minutes": 33.7,
+    "title": "Resonancia Causal en la Bóveda Akáshica",
+    "hypothesis": "Se postula que la eficiencia de recuperación de la 'deep_memory_vault' puede optimizarse significativamente si se introduce un mecanismo de 'resonancia causal' que priorice no solo la similitud semántica, sino la correlación temporal y de impacto entre los nodos de memoria. Actualmente, la búsqueda es estática; al integrar un peso dinámico basado en la frecuencia de acceso reciente y la relevancia contextual del 'network_shield', el sistema podría predecir qué fragmentos de conocimiento son más probables para ser requeridos en la próxima iteración de investigación, reduciendo la latencia de consulta y mejorando la coherencia de las respuestas generadas por el motor de investigación web.",
+    "research_query": "temporal causal weighting in vector database retrieval systems for LLM memory",
+    "research_findings": "# Informe de Investigación: temporal causal weighting in vector database retrieval systems for LLM memory\n\n## Fuentes Consultadas y Respaldo Web\n- **[Hindsight is 20/20: Building Agent Memory that Retains, Recalls, and Reflects - alphaXiv](https://news.google.com/rss/articles/CBMiUEFVX3lxTE1aMVVSanJ2MHVmeENMbEpxYUhvQWI1QmM2YWpJSzFyRDNuNFpGd001c3ZjQkJGQko5MmhNM2pteXNJdWdqQ1ZJVklFMTVNRDBt?oc=5)**: Hindsight is 20/20: Building Agent Memory that Retains, Recalls, and Reflects  alphaXiv\n- **[From Data to Decisions: How Knowledge Graphs Are Becoming the Brain of the Modern Enterprise - Medium](https://news.google.com/rss/articles/CBMi0gFBVV95cUxPVjh5NnNZNnFfZ3UzMEx3U0pqajNDQ19TV0JjRGN5WGhleWxVLW5WMkptR2J6VHpldllqekM2bzJSUFBYWHlwSW1ySUZoZG9fOFZRVGY4NEt6ZVE5YkQ4b0VlRWl1T0Jtd1hlSzNrOGRuTzY1ajU4b1lUY3hVMDBpWUxiZWo5X1VBNDMyQjFMVlFPMU14bm9kUlZCMWVLMTBTRUI0ZTBQRDdpVmJxVlRuZFQwYzNPNGpReVdEMUg3dHVhNWhvQUd6LTdvMWMtZHBSQXc?oc=5)**: From Data to Decisions: How Knowledge Graphs Are Becoming the Brain of ",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiUEFVX3lxTE1aMVVSanJ2MHVmeENMbEpxYUhvQWI1QmM2YWpJSzFyRDNuNFpGd001c3ZjQkJGQko5MmhNM2pteXNJdWdqQ1ZJVklFMTVNRDBt?oc=5",
+      "https://news.google.com/rss/articles/CBMi0gFBVV95cUxPVjh5NnNZNnFfZ3UzMEx3U0pqajNDQ19TV0JjRGN5WGhleWxVLW5WMkptR2J6VHpldllqekM2bzJSUFBYWHlwSW1ySUZoZG9fOFZRVGY4NEt6ZVE5YkQ4b0VlRWl1T0Jtd1hlSzNrOGRuTzY1ajU4b1lUY3hVMDBpWUxiZWo5X1VBNDMyQjFMVlFPMU14bm9kUlZCMWVLMTBTRUI0ZTBQRDdpVmJxVlRuZFQwYzNPNGpReVdEMUg3dHVhNWhvQUd6LTdvMWMtZHBSQXc?oc=5"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar un factor de decaimiento temporal y un índice de relevancia causal en el método de búsqueda de la bóveda de memoria, ajustando los pesos de los vectores antes de la comparación de similitud.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.88
+  },
+  {
+    "id": "conj_1792478370",
+    "timestamp": "2026-10-20T01:39:30.781714",
+    "idle_duration_minutes": 31.6,
+    "title": "Resonancia Causal en la Bóveda Akáshica: Compresión Semántica Adaptativa",
+    "hypothesis": "Se postula que la eficiencia de recuperación de información en `deep_memory_vault.py` puede optimizarse significativamente implementando un mecanismo de 'compresión semántica adaptativa'. Actualmente, los módulos de investigación web (`web_research_engine.py`) generan datos crudos que se almacenan sin una jerarquía de relevancia causal. La hipótesis sugiere que al aplicar un algoritmo de clustering dinámico basado en la frecuencia de co-ocurrencia de entidades dentro de la bóveda, se puede reducir la latencia de búsqueda en un 30-40% manteniendo la integridad causal, al priorizar nodos de memoria que actúan como 'puntos de pivote' en la red de conocimiento del sistema.",
+    "research_query": "adaptive semantic compression for vector databases causal inference optimization",
+    "research_findings": "# Informe de Investigación: adaptive semantic compression for vector databases causal inference optimization\n\n## Fuentes Consultadas y Respaldo Web\n- **[Outline of machine learning (Wikipedia)](https://en.wikipedia.org/wiki/Outline_of_machine_learning)**: learning Activation function Activity recognition ADALINE Adaptive neuro fuzzy inference system Adaptive resonance theory Additive smoothing Adjusted mutual\n- **[Deep learning (Wikipedia)](https://en.wikipedia.org/wiki/Deep_learning)**: derives from the field of machine learning. It features inference, as well as the optimization concepts of training and testing, related to fitting and\n\n## Contenido y Hallazgos Extraídos\n### De [Outline of machine learning - Wikipedia](https://en.wikipedia.org/wiki/Outline_of_machine_learning)\n> Outline of machine learning - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nOverview of and topical guide to machine learning\nThis article contains dynamic lists that may never be able to sat",
+    "web_sources": [
+      "https://en.wikipedia.org/wiki/Outline_of_machine_learning",
+      "https://en.wikipedia.org/wiki/Deep_learning"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar una función `optimize_causal_clusters()` que reorganice los vectores de memoria basándose en la densidad de conexiones causales detectadas por el motor de investigación, creando índices secundarios para acelerar las consultas de alto impacto.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.11
   }
 ]
