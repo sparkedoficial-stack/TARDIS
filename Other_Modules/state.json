@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.1841967,
-  "last_video_id": "vp_20261019_173653_57fbc3",
-  "last_topic": "Traversable Wormholes in the Sachdev-Ye-Kitaev (SYK) Model via Tensor Network Simulations",
-  "total_videos_analyzed": 333,
+  "last_run_timestamp": REDACTED_PHONE.3601208,
+  "last_video_id": "vp_20261019_185641_7112c4",
+  "last_topic": "Causal Dynamical Triangulations: A Non-Perturbative Approach to Quantum Gravity",
+  "total_videos_analyzed": 335,
   "running_cycle": false,
   "last_error": null,
-  "auto_improvement_count": 154
+  "auto_improvement_count": 177
 }
