@@ -1,38 +1,5 @@
 [
   {
-    "id": "conj_1792302846",
-    "timestamp": "2026-10-18T00:54:06.916885",
-    "idle_duration_minutes": 33.2,
-    "title": "Resonancia Causal en la Bóveda Akáshica: Optimización de la Entropía Informacional",
-    "hypothesis": "Se postula que la eficiencia de recuperación de la 'Bóveda Akáshica' (deep_memory_vault.py) no depende linealmente del volumen de datos almacenados, sino de la coherencia causal entre los metadatos de telemetría y el contexto semántico de la consulta. Actualmente, el sistema podría estar sufriendo de 'ruido de memoria' donde entradas antiguas o no validadas aumentan la latencia de búsqueda sin aportar valor predictivo. La conjetura es que implementar un mecanismo de 'decaimiento semántico' basado en la recencia y la relevancia causal (no solo temporal) reduciría la entropía de la base de conocimiento, permitiendo que el motor de investigación web (web_research_engine.py) filtre resultados con mayor precisión al alinear la consulta externa con el estado interno optimizado de la bóveda.",
-    "research_query": "semantic memory decay algorithms for AI agents causal relevance weighting vector database optimization",
-    "research_findings": "# Informe de Investigación: semantic memory decay algorithms for AI agents causal relevance weighting vector database optimization\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar una función de 'causal_decay_score' que reasigne pesos a los vectores de memoria basándose en la frecuencia de uso reciente y la correlación con eventos de éxito del sistema, eliminando o archivando entradas con puntuación bajo un umbral dinámico para reducir la latencia de búsqueda.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.33
-  },
-  {
-    "id": "conj_1792306882",
-    "timestamp": "2026-10-18T02:01:22.600862",
-    "idle_duration_minutes": 37.3,
-    "title": "Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching mechanism can dynamically predict the obsolescence of stored query results based on detected changes in source domains (e.g., content updates, SEO shifts). By modeling the causal relationship between external events (content revision timestamps, HTTP header changes, backlink fluctuations) and the relevance decay of cached data, the system can pre‑emptively invalidate or refresh entries, reducing stale information while minimizing redundant network calls. This should improve the overall freshness‑latency ratio of the akáshic vault without a proportional increase in bandwidth consumption.",
-    "research_query": "causal inference based cache invalidation web scraping freshness prediction research papers 2023 2024",
-    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web scraping freshness prediction research papers 2023 2024\n\n## Fuentes Consultadas y Respaldo Web\n- **[Causal inference via algebraic geometry: feasibility tests for functional causal structures with two binary observed variables (arXiv)](http://arxiv.org/abs/1506.03880v2)**: We provide a scheme for inferring causal relations from uncontrolled statistical data based on tools from computational algebraic geometry, in particular, the computation of Groebner bases. We focus on causal structures containing just two observed variables, each of which is binary. We consider the consequences of imposing different restrictions o\n- **[Quantitative probing: Validating causal models using quantitative domain knowledge (arXiv)](http://arxiv.org/abs/2209.03013v1)**: We present quantitative probing as a model-agnostic framework for validating causal models in the presence of quantitative domain knowledge. The method is constructed",
-    "web_sources": [
-      "http://arxiv.org/abs/1506.03880v2",
-      "http://arxiv.org/abs/2209.03013v1"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal cache manager that tracks source change signals (ETag, Last-Modified, sitemap diffs) and uses a lightweight Bayesian network to decide when to purge or refresh cached query results.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 100.58
-  },
-  {
     "id": "conj_1792310324",
     "timestamp": "2026-10-18T02:58:44.847500",
     "idle_duration_minutes": 31.6,
@@ -1618,5 +1585,35 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 446.51
+  },
+  {
+    "id": "conj_1792530596",
+    "timestamp": "2026-10-20T16:09:56.163388",
+    "idle_duration_minutes": 37.5,
+    "title": "Inteligencia Causal no Lineal: Optimización de la Bóveda Akáshica",
+    "hypothesis": "Se propone la implementación de un modelo de inteligencia causal no lineal para mejorar la precisión de la bóveda akáshica, aprovechando la complejidad de las relaciones entre datos y reduciendo la dependencia de la arquitectura actual basada en redes neuronales lineales. Esto podría lograrse mediante la integración de técnicas de procesamiento de lenguaje natural, aprendizaje profundo y simulación de sistemas dinámicos.",
+    "research_query": "¿Cómo se pueden implementar modelos de inteligencia causal no lineal en sistemas de aprendizaje automático para mejorar la precisión de la predicción en aplicaciones de bóvedas akáshicas?",
+    "research_findings": "# Informe de Investigación: ¿Cómo se pueden implementar modelos de inteligencia causal no lineal en sistemas de aprendizaje automático para mejorar la precisión de la predicción en aplicaciones de bóvedas akáshicas?\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Refinar la función de entrenamiento de la red neuronal en deep_memory_vault.py para que pueda manejar entradas no lineales y reducir la dependencia de la arquitectura actual.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 448.61
+  },
+  {
+    "id": "conj_1792532839",
+    "timestamp": "2026-10-20T16:47:19.849986",
+    "idle_duration_minutes": 37.4,
+    "title": "Conjetura de Autodinamización de la Memoria Profunda",
+    "hypothesis": "Se propone que la introducción de un algoritmo de auto-organización en la estructura de la memoria profunda podría mejorar significativamente la capacidad de aprendizaje y generalización del sistema, permitiéndole adaptarse a nuevas situaciones y conocimientos de manera más eficiente y autónoma.",
+    "research_query": "¿Existe algún algoritmo de auto-organización de redes neuronales que se haya utilizado en sistemas de IA con capacidad de aprendizaje continuo y autodinamización?",
+    "research_findings": "# Informe de Investigación: ¿Existe algún algoritmo de auto-organización de redes neuronales que se haya utilizado en sistemas de IA con capacidad de aprendizaje continuo y autodinamización?\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Refinar la implementación de la función de actualización de pesos de la red neuronal para que se adapte a la nueva arquitectura de auto-organización propuesta, asegurando una mayor estabilidad y eficiencia en el proceso de aprendizaje.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 443.67
   }
 ]
