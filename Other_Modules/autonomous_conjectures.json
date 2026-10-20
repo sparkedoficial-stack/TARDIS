@@ -1,35 +1,5 @@
 [
   {
-    "id": "conj_1792285296",
-    "timestamp": "2026-10-17T20:01:36.443168",
-    "idle_duration_minutes": 32.9,
-    "title": "Causal‑Cache Hybrid for Web Research Engine",
-    "hypothesis": "Integrating a lightweight causal inference layer into the Web Research Engine's request pipeline can prioritize queries that are likely to yield novel information, reducing redundant network calls and improving overall latency. The hypothesis posits that by maintaining a short‑term causal graph of recent queries, results, and their semantic embeddings, the engine can predict the marginal utility of a new request. If the predicted utility falls below a configurable threshold, the engine serves the cached result or a synthesized summary, thereby conserving bandwidth and CPU cycles while preserving answer relevance.",
-    "research_query": "\"causal inference cache\" web search engine latency reduction \"semantic embeddings\"",
-    "research_findings": "# Informe de Investigación: \"causal inference cache\" web search engine latency reduction \"semantic embeddings\"\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal‑utility estimator module that updates a directed acyclic graph of query–result relationships and integrates a decision hook before issuing external HTTP calls, with fallback to cache or summary generation.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.24
-  },
-  {
-    "id": "conj_1792287642",
-    "timestamp": "2026-10-17T20:40:42.371468",
-    "idle_duration_minutes": 32.1,
-    "title": "Causal Memory Indexing for Real‑Time Web Research",
-    "hypothesis": "Integrating a causal graph layer within the Deep Memory Vault (core/deep_memory_vault.py) that tracks provenance and dependency relations of stored akáshic entries will enable the Web Research Engine to prioritize and retrieve information based on inferred causal relevance, reducing latency and improving answer accuracy in dynamic query contexts.",
-    "research_query": "causal graph based memory indexing for AI agents \"deep memory vault\" retrieval performance",
-    "research_findings": "# Informe de Investigación: causal graph based memory indexing for AI agents \"deep memory vault\" retrieval performance\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Add a lightweight causal graph module that records parent‑child relationships between stored facts, expose an API to query most causally relevant nodes, and modify the insertion routine to automatically link new entries to existing ones based on semantic similarity.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.12
-  },
-  {
     "id": "conj_1792291552",
     "timestamp": "2026-10-17T21:45:52.647017",
     "idle_duration_minutes": 34.2,
@@ -1618,5 +1588,35 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.79
+  },
+  {
+    "id": "conj_1792520275",
+    "timestamp": "2026-10-20T13:17:55.520107",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal Memory Indexing for Real‑Time Web Research",
+    "hypothesis": "Integrating a causal graph layer into the Deep Memory Vault will allow the system to automatically infer relevance pathways between stored akáshic entries and newly retrieved web data, reducing redundant queries by up to 40% and improving answer precision. The hypothesis posits that each memory node can be annotated with cause‑effect tags derived from the Network Shield's telemetry, enabling the Web Research Engine to prioritize sources that close existing causal gaps rather than performing blind keyword searches.",
+    "research_query": "\"causal graph\" \"memory indexing\" \"real-time web retrieval\" optimization",
+    "research_findings": "# Informe de Investigación: \"causal graph\" \"memory indexing\" \"real-time web retrieval\" optimization\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Add a lightweight causal graph module that tags memory entries with cause/effect metadata and expose an API for the Web Research Engine to query the most causally relevant nodes before issuing external searches.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.06
+  },
+  {
+    "id": "conj_1792522172",
+    "timestamp": "2026-10-20T13:49:32.672366",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal Prompt Routing for Adaptive Web Research",
+    "hypothesis": "Integrating a causal inference layer into the Web Research Engine can dynamically prioritize search queries based on the inferred impact of retrieved documents on downstream reasoning tasks. By modeling the causal effect of each result on the system's internal belief state (stored in deep_memory_vault), the engine can allocate more resources (e.g., deeper crawling, higher ranking) to sources that are likely to produce high‑utility knowledge updates, thereby reducing noise and improving the signal‑to‑noise ratio of the Akáshic Vault.",
+    "research_query": "causal inference for query prioritization in web search engines \"causal prompt routing\"",
+    "research_findings": "# Informe de Investigación: causal inference for query prioritization in web search engines \"causal prompt routing\"\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a lightweight causal scoring module that evaluates the expected belief‑state change of each candidate URL and re‑ranks results before they are fetched, using a simple Bayesian network derived from past update logs in deep_memory_vault.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.13
   }
 ]
