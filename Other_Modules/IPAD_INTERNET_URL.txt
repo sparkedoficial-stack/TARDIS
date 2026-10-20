@@ -1,1 +1,1 @@
-https://commodity-distance-responded-scsi.trycloudflare.com
+https://api.trycloudflare.com

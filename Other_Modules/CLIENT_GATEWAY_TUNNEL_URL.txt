@@ -1,1 +1,1 @@
-https://bookmark-engineering-compliance-receptors.trycloudflare.com
+https://api.trycloudflare.com
