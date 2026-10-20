@@ -1,35 +1,5 @@
 [
   {
-    "id": "conj_1792276401",
-    "timestamp": "2026-10-17T17:33:21.649199",
-    "idle_duration_minutes": 34.2,
-    "title": "Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "Integrating a causal‑aware cache invalidation layer into core/web_research_engine.py will reduce redundant external queries by up to 40% while preserving result freshness. The hypothesis rests on the idea that the Deep Memory Vault records the provenance and timestamp of each fetched document; by analysing causal dependencies (e.g., topic similarity, query drift) the engine can predict when a cached entry is still valid for a new, semantically related query, thus avoiding unnecessary network calls without sacrificing relevance.",
-    "research_query": "causal cache invalidation techniques for web search engines and semantic similarity based cache reuse",
-    "research_findings": "# Informe de Investigación: causal cache invalidation techniques for web search engines and semantic similarity based cache reuse\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Implement an async LRU cache that stores fetched pages together with their provenance metadata, and add a causal‑invalidation routine that checks semantic similarity between incoming queries and cached entries before deciding to reuse or discard them.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.39
-  },
-  {
-    "id": "conj_1792280066",
-    "timestamp": "2026-10-17T18:34:26.001347",
-    "idle_duration_minutes": 32.2,
-    "title": "Sincronización Temporal de Telemetría y Memoria Akáshica",
-    "hypothesis": "Se postula que la latencia en la recuperación de contextos históricos desde la 'Bóveda Akáshica' (deep_memory_vault.py) se vea reducida en un 40% si se implementa un mecanismo de 'pre-fetching' predictivo basado en la correlación temporal entre las consultas del motor de investigación web (web_research_engine.py) y los patrones de acceso previos. Actualmente, la bóveda opera de forma reactiva; al anticipar las necesidades de contexto del motor web mediante análisis de series temporales de las últimas 50 interacciones, se puede mantener en caché RAM los nodos de memoria más probables, reduciendo la carga de I/O en disco y mejorando la coherencia causal de las respuestas del sistema.",
-    "research_query": "predictive memory prefetching algorithm for LLM context retrieval latency reduction",
-    "research_findings": "# Informe de Investigación: predictive memory prefetching algorithm for LLM context retrieval latency reduction\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar un método `predict_next_context_access()` que utilice un modelo ligero de Markov o regresión lineal sobre los timestamps de acceso recientes para precargar en memoria los chunks de datos más relevantes antes de que `web_research_engine.py` solicite el contexto completo.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 99.6
-  },
-  {
     "id": "conj_1792285296",
     "timestamp": "2026-10-17T20:01:36.443168",
     "idle_duration_minutes": 32.9,
@@ -1618,5 +1588,35 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 98.73
+  },
+  {
+    "id": "conj_1792516480",
+    "timestamp": "2026-10-20T12:14:40.635913",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching mechanism will allow the system to predict when cached search results become stale based on observed changes in source domains (e.g., content updates, SEO shifts). By modeling the causal relationship between external events (content revision timestamps, HTTP header changes, link structure modifications) and the relevance decay of cached results, the engine can proactively invalidate or refresh entries, reducing latency while maintaining up‑to‑date information. This should improve overall query latency by ~15‑25% and increase answer accuracy in dynamic domains such as news or software documentation.",
+    "research_query": "causal inference based cache invalidation techniques for web search engines",
+    "research_findings": "# Informe de Investigación: causal inference based cache invalidation techniques for web search engines\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal cache manager that tracks source change signals (ETag, Last-Modified, sitemap diffs) and uses a lightweight Bayesian network to decide when to purge or refresh cached query results.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.48
+  },
+  {
+    "id": "conj_1792518378",
+    "timestamp": "2026-10-20T12:46:18.437644",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal‑Feedback Loop for Adaptive Web Research",
+    "hypothesis": "Integrating a causal‑feedback loop between the Web Research Engine and the Deep Memory Vault will allow the system to dynamically re‑weight search strategies based on downstream task success, improving relevance by at least 15% on benchmark query sets. The loop would capture execution telemetry (latency, click‑through, result satisfaction) from core/network_shield.py, feed it into a lightweight causal inference module in core/web_research_engine.py, and adjust query formulation and result ranking in real time.",
+    "research_query": "causal feedback loop adaptive search engine relevance improvement 15% benchmark",
+    "research_findings": "# Informe de Investigación: causal feedback loop adaptive search engine relevance improvement 15% benchmark\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal inference wrapper that records telemetry from network_shield, updates a Bayesian network model, and modifies the search query generation and ranking functions accordingly.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.79
   }
 ]
