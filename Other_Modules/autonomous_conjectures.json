@@ -1,35 +1,5 @@
 [
   {
-    "id": "conj_1792219526",
-    "timestamp": "2026-10-17T01:45:26.042222",
-    "idle_duration_minutes": 32.7,
-    "title": "Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "Integrating a causal inference layer into the web_research_engine's result cache can dynamically invalidate stale entries based on detected changes in source content, reducing redundant network calls and improving response relevance. By modeling the relationship between query parameters, source URLs, and content change signals (e.g., HTTP ETag, Last-Modified, or content hash), the engine can predict when cached results are likely outdated and trigger selective re‑fetching, leading to a measurable drop in latency and bandwidth usage without sacrificing answer quality.",
-    "research_query": "causal inference based cache invalidation web scraping \"ETag\" \"Last-Modified\" predictive model",
-    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web scraping \"ETag\" \"Last-Modified\" predictive model\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal cache manager that tracks source metadata (ETag, Last-Modified, content hash) and uses a lightweight Bayesian network to decide when to invalidate or refresh cached search results.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.04
-  },
-  {
-    "id": "conj_1792223281",
-    "timestamp": "2026-10-17T02:48:01.978956",
-    "idle_duration_minutes": 32.2,
-    "title": "Optimización de la caché semántica en WebResearchEngine mediante índices de similitud causal",
-    "hypothesis": "Integrar un índice de similitud causal basado en embeddings temporales dentro del módulo core/web_research_engine.py reducirá el tiempo medio de respuesta de búsquedas repetitivas en un 30% y mejorará la coherencia de los resultados al reutilizar contextos previamente almacenados en deep_memory_vault, al aprovechar la relación causal entre consultas y resultados históricos.",
-    "research_query": "semantic cache causal similarity index web search engine performance improvement",
-    "research_findings": "# Informe de Investigación: semantic cache causal similarity index web search engine performance improvement\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Implementar una capa de caché que almacene embeddings de consultas y resultados, calcule similitud causal con nuevas consultas y sirva respuestas cacheadas cuando la similitud supere un umbral configurable.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.81
-  },
-  {
     "id": "conj_1792227068",
     "timestamp": "2026-10-17T03:51:08.004245",
     "idle_duration_minutes": 32.1,
@@ -1620,5 +1590,35 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.43
+  },
+  {
+    "id": "conj_1792487922",
+    "timestamp": "2026-10-20T04:18:42.518171",
+    "idle_duration_minutes": 32.7,
+    "title": "Causal Memory Indexing for Real‑Time Web Research",
+    "hypothesis": "Integrating a causal graph layer into the Deep Memory Vault, which indexes each stored fact with its originating query, timestamp, and inferred causal relationships, will enable the Web Research Engine to prioritize and retrieve information that is not only semantically relevant but also causally pertinent to the current task. This should reduce hallucination rates by 30‑40% and improve answer precision in multi‑step reasoning scenarios on the ASUS TUF Linux platform.",
+    "research_query": "\"causal graph memory indexing\" \"LLM web retrieval\" performance improvement hallucination reduction",
+    "research_findings": "# Informe de Investigación: \"causal graph memory indexing\" \"LLM web retrieval\" performance improvement hallucination reduction\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Add a causal graph data structure (e.g., using networkx) to store nodes representing stored facts and edges representing inferred causal links; expose methods to query facts by causal relevance and integrate these methods into core/web_research_engine.py's result ranking pipeline.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.55
+  },
+  {
+    "id": "conj_1792489818",
+    "timestamp": "2026-10-20T04:50:18.955188",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal‑Feedback Loop for Adaptive Web Research",
+    "hypothesis": "Integrating a causal inference layer between the Web Research Engine and the Deep Memory Vault will enable the system to dynamically adjust query formulation and result weighting based on observed downstream effects on task success. By modeling the causal impact of specific search terms and retrieved snippets on the quality of subsequent reasoning steps, the engine can learn to prioritize semantically richer or more diverse sources, reducing hallucination and improving alignment with the Akáshic Vault's latent knowledge graph.",
+    "research_query": "causal inference for adaptive web search query optimization \"feedback loop\" knowledge graph retrieval",
+    "research_findings": "# Informe de Investigación: causal inference for adaptive web search query optimization \"feedback loop\" knowledge graph retrieval\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal analysis module that records the outcome of each research request (e.g., success flag, confidence delta) and uses a lightweight Bayesian network to re‑rank future search terms and source URLs, updating a persistent model stored in deep_memory_vault.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.42
   }
 ]
