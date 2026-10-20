@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1792242191",
-    "timestamp": "2026-10-17T08:03:11.974460",
-    "idle_duration_minutes": 31.6,
-    "title": "Causal Embedding Sync for Real‑Time Knowledge Refresh",
-    "hypothesis": "Integrar un mecanismo de sincronización causal entre el módulo core/web_research_engine.py y core/deep_memory_vault.py, basado en grafos de eventos temporales, permitirá que los resultados de búsquedas web se inserten automáticamente en la bóveda akáshica con preservación de la línea de tiempo de inferencia. Esto reduciría la latencia de actualización de conocimientos en un 40‑60 % y mejorará la coherencia de respuestas al evitar la duplicación de conceptos que ya existen en la memoria profunda, al mismo tiempo que habilita trazabilidad completa de la procedencia de cada hecho almacenado.",
-    "research_query": "causal graph based knowledge synchronization between web search engine and long‑term memory vault python implementation",
-    "research_findings": "# Informe de Investigación: causal graph based knowledge synchronization between web search engine and long‑term memory vault python implementation\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Añadir una capa de 'CausalSyncManager' que, tras cada fetch exitoso, genere un nodo de evento con timestamp, relaciones de causa‑efecto y lo inserte en deep_memory_vault mediante una API de inserción incremental que preserve la topología del grafo de conocimiento.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.75
-  },
-  {
     "id": "conj_1792246008",
     "timestamp": "2026-10-17T09:06:48.091836",
     "idle_duration_minutes": 32.1,
@@ -1620,5 +1605,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.2
+  },
+  {
+    "id": "conj_1792499336",
+    "timestamp": "2026-10-20T07:28:56.237518",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal Embedding Synchronization between Deep Memory Vault and Web Research Engine",
+    "hypothesis": "Integrating a causal embedding layer that propagates provenance tags from the Deep Memory Vault (core/deep_memory_vault.py) into the Web Research Engine (core/web_research_engine.py) will enable the system to automatically prioritize retrieved information that aligns with previously stored causal chains, reducing hallucination and improving answer relevance by at least 15% in benchmarked QA tasks.",
+    "research_query": "causal embedding propagation for knowledge bases and web retrieval systems \"provenance tags\" \"causal chain\" performance improvement",
+    "research_findings": "# Informe de Investigación: causal embedding propagation for knowledge bases and web retrieval systems \"provenance tags\" \"causal chain\" performance improvement\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a preprocessing step that extracts causal provenance metadata from deep_memory_vault queries, injects it into the search request as weighted query terms, and updates the result ranking algorithm to favor sources that match these causal tags.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.65
   }
 ]
