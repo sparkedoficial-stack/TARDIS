@@ -6,7 +6,7 @@
   "last_video_id": "vp_20261020_144938_d95067",
   "last_topic": "Visualizing the Holographic Principle and Entanglement Entropy in AdS/CFT Correspondence",
   "total_videos_analyzed": 368,
-  "running_cycle": false,
-  "last_error": null,
-  "auto_improvement_count": 179
+  "running_cycle": true,
+  "last_error": "No fue posible descargar el video desde https://www.youtube.com/watch?v=6yfWdb-JOA8",
+  "auto_improvement_count": 189
 }

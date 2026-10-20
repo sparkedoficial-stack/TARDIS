@@ -3,28 +3,17 @@
   "interval_seconds": 5400.0,
   "target_chat_id": -REDACTED_PHONE,
   "target_thread_id": 453,
-  "last_run_timestamp": REDACTED_PHONE.4225466,
-  "last_run_iso": "2026-10-20T14:11:30.422549",
-  "total_dispatches": 267,
-  "curator_index": 4,
+  "last_run_timestamp": REDACTED_PHONE.0307968,
+  "last_run_iso": "2026-10-20T15:42:11.030801",
+  "total_dispatches": 268,
+  "curator_index": 5,
   "dispatched_topic_ids": [
     "holographic_brain_neurophysics",
     "fermi_paradox_great_filter",
-    "godel_incompleteness_ai_limits"
+    "godel_incompleteness_ai_limits",
+    "neural_decoding_mind_reading_bci"
   ],
   "history": [
-    {
-      "dispatch_id": 168,
-      "timestamp": REDACTED_PHONE.3016398,
-      "iso": "2026-10-14T09:29:25.301642",
-      "topic_id": "quantum_spacetime_er_epr",
-      "topic_title": "Entrelazamiento Cuántico, No-Localidad y Espacio-Tiempo Emergente (ER=EPR)",
-      "pdf_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/reports/polimatas_debates/Dossier_Debate_20261014_092923_quantum_spacetime_er_epr.pdf",
-      "chat_id": -REDACTED_PHONE,
-      "thread_id": 453,
-      "text_sent": true,
-      "doc_sent": true
-    },
     {
       "dispatch_id": 169,
       "timestamp": REDACTED_PHONE.7512643,
@@ -1212,6 +1201,18 @@
       "thread_id": 453,
       "text_sent": true,
       "doc_sent": true
+    },
+    {
+      "dispatch_id": 268,
+      "timestamp": REDACTED_PHONE.0307968,
+      "iso": "2026-10-20T15:42:11.030801",
+      "topic_id": "neural_decoding_mind_reading_bci",
+      "topic_title": "Decodificación Neural Directa y Reconstrucción Semántica: ¿El Fin de la Privacidad Mental?",
+      "pdf_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/reports/polimatas_debates/Dossier_Debate_20261020_154130_neural_decoding_mind_reading_b.pdf",
+      "chat_id": -REDACTED_PHONE,
+      "thread_id": 453,
+      "text_sent": false,
+      "doc_sent": false
     }
   ]
 }
