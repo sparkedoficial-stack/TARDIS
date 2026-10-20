@@ -1,38 +1,5 @@
 [
   {
-    "id": "conj_1792234613",
-    "timestamp": "2026-10-17T05:56:53.246217",
-    "idle_duration_minutes": 31.6,
-    "title": "Causal Memory Indexing for Real‑Time Web Research",
-    "hypothesis": "Integrating a causal inference layer into the Deep Memory Vault (core/deep_memory_vault.py) that tags each stored fragment with a lightweight causal graph will allow the Web Research Engine to prioritize sources that are not only relevant but also causally upstream of the query context. This should reduce hallucination rates and improve answer precision by ~15% on benchmarked open‑domain QA tasks.",
-    "research_query": "causal inference memory indexing for large language model retrieval augmentation",
-    "research_findings": "# Informe de Investigación: causal inference memory indexing for large language model retrieval augmentation\n\n## Fuentes Consultadas y Respaldo Web\n- **[RAG-based architectures for drug side effect retrieval using compact LLMs - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE5ISTN6N2ktemhjcVNMYWpJMnVTRmE1eGRZZVN3NzlRcDZpNC1wUV83VzJSdGV5dE9YS0hpa0hMMUV6SVJOQkRQR1hrQ19ZVTFPaTJaNWg5VkEtZ2puZmlv?oc=5)**: RAG-based architectures for drug side effect retrieval using compact LLMs  Nature\n- **[Vol. 40 No. 39: AAAI-26 Technical Tracks 39 - The Association for the Advancement of Artificial Intelligence](https://news.google.com/rss/articles/CBMiX0FVX3lxTE1udHJDQmZyNW9aWF95MV9yNVVkZERkd3B1WU1FVUliSlRiUzk1dEVuX3hHdjBVMjJELWRGM3lBdEJOdW5zN0hVeUVWaGlhWnYtakJNMFdpRDA3Qmo2d0Z3?oc=5)**: Vol. 40 No. 39: AAAI-26 Technical Tracks 39  The Association for the Advancement of Artificial Intelligence\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CB",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE5ISTN6N2ktemhjcVNMYWpJMnVTRmE1eGRZZVN3NzlRcDZpNC1wUV83VzJSdGV5dE9YS0hpa0hMMUV6SVJOQkRQR1hrQ19ZVTFPaTJaNWg5VkEtZ2puZmlv?oc=5",
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE1udHJDQmZyNW9aWF95MV9yNVVkZERkd3B1WU1FVUliSlRiUzk1dEVuX3hHdjBVMjJELWRGM3lBdEJOdW5zN0hVeUVWaGlhWnYtakJNMFdpRDA3Qmo2d0Z3?oc=5"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add an optional async caching layer that stores retrieved web snippets together with their causal tags from the Deep Memory Vault, and modify the ranking function to weight results by causal proximity to the current query.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.23
-  },
-  {
-    "id": "conj_1792238464",
-    "timestamp": "2026-10-17T07:01:04.801612",
-    "idle_duration_minutes": 32.7,
-    "title": "Causal Memory Indexing for Real‑Time Web Research",
-    "hypothesis": "Integrating a causal graph layer between the Deep Memory Vault and the Web Research Engine will allow the system to prioritize and retrieve information not only by semantic similarity but also by inferred causal relevance, reducing latency of context‑aware queries by up to 30% and improving answer coherence in multi‑step reasoning tasks.",
-    "research_query": "\"causal graph\" \"semantic search\" \"real-time information retrieval\" \"knowledge graph augmentation\"",
-    "research_findings": "# Informe de Investigación: \"causal graph\" \"semantic search\" \"real-time information retrieval\" \"knowledge graph augmentation\"\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal‑graph pre‑filter module that receives the query, extracts potential causal entities using the Deep Memory Vault, scores candidate web results by causal relevance, and re‑ranks them before the final parsing step.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.79
-  },
-  {
     "id": "conj_1792242191",
     "timestamp": "2026-10-17T08:03:11.974460",
     "idle_duration_minutes": 31.6,
@@ -1620,5 +1587,38 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 95.8
+  },
+  {
+    "id": "conj_1792495541",
+    "timestamp": "2026-10-20T06:25:41.343213",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal‑Feedback Loop for Adaptive Web Research",
+    "hypothesis": "Integrar un bucle de retroalimentación causal entre el motor de búsqueda web (core/web_research_engine.py) y la bóveda akáshica (core/deep_memory_vault.py) permitirá que el sistema ajuste dinámicamente sus pesos de relevancia en función de la precisión observada de los resultados en tiempo real, reduciendo la latencia de convergencia de consultas complejas en al menos un 30% y mejorando la coherencia semántica de las respuestas en entornos de alta incertidumbre.",
+    "research_query": "causal feedback loop adaptive web search engine memory vault performance optimization",
+    "research_findings": "# Informe de Investigación: causal feedback loop adaptive web search engine memory vault performance optimization\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Implementar un módulo de monitorización de métricas de relevancia (precision@k, latency) que alimente un modelo de causal inference ligero (por ejemplo, DoWhy o CausalML) y ajuste automáticamente los parámetros de ranking y caché de resultados en la función de búsqueda.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.74
+  },
+  {
+    "id": "conj_1792497438",
+    "timestamp": "2026-10-20T06:57:18.558104",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal Retrieval Augmentation for Akashic Vault Queries",
+    "hypothesis": "Integrating a lightweight causal inference layer into the deep_memory_vault module will allow the system to prioritize and retrieve memories not only by semantic similarity but also by inferred causal relevance to the current query, thereby improving the precision of akáshic vault responses in complex multi‑step reasoning tasks.",
+    "research_query": "\"causal inference for semantic memory retrieval\" OR \"causal attention mechanisms in neural retrieval\"",
+    "research_findings": "# Informe de Investigación: \"causal inference for semantic memory retrieval\" OR \"causal attention mechanisms in neural retrieval\"\n\n## Fuentes Consultadas y Respaldo Web\n- **[BioLib (Wikipedia)](https://es.wikipedia.org/wiki/BioLib)**: inglés). Consultado el 1 de julio de 2026.  «BioLib». Wikispecies (en inglés). Consultado el 1 de julio de 2026.  «BioLib.cz – encyklopedie života». Vesmír\n- **[Confederación Sudamericana de Fútbol (Wikipedia)](https://es.wikipedia.org/wiki/Confederaci%C3%B3n_Sudamericana_de_F%C3%BAtbol)**: octubre de 2026 muestra a las siguientes selecciones masculinas de la Conmebol.​ La clasificación mundial de la FIFA del 16 de junio de 2026 muestra a\n\n## Contenido y Hallazgos Extraídos\n### De [BioLib - Wikipedia, la enciclopedia libre](https://es.wikipedia.org/wiki/BioLib)\n> BioLib - Wikipedia, la enciclopedia libre\nIr al contenido\nDe Wikipedia, la enciclopedia libre\nBiological Library\nTipo\nEnciclopedia en línea\nFundación\n2002\nSede central\nRepública Checa\nSitio web\nw",
+    "web_sources": [
+      "https://es.wikipedia.org/wiki/BioLib",
+      "https://es.wikipedia.org/wiki/Confederaci%C3%B3n_Sudamericana_de_F%C3%BAtbol"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Add a causal relevance scoring function that combines existing vector similarity scores with a learned causal graph over stored memory nodes, and expose it through the vault's query API.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.2
   }
 ]
