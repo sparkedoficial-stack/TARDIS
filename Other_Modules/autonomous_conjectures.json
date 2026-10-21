@@ -1,37 +1,5 @@
 [
   {
-    "id": "conj_1792415303",
-    "timestamp": "2026-10-19T08:08:23.071782",
-    "idle_duration_minutes": 31.6,
-    "title": "Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching mechanism can dynamically predict the relevance decay of stored search results based on temporal patterns and contextual shifts, thereby reducing stale data fetches by at least 30% without sacrificing recall. The hypothesis posits that by modeling the causal relationship between query context changes (e.g., emerging topics, user intent drift) and result freshness, the engine can preemptively invalidate or refresh cached entries, improving overall latency and bandwidth usage.",
-    "research_query": "causal inference based cache invalidation web search engine temporal relevance decay",
-    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web search engine temporal relevance decay\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal inference module that tracks query context vectors over time and triggers cache invalidation or proactive refresh of stored results; implement async background refresher using asyncio and integrate with existing cache layer.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.59
-  },
-  {
-    "id": "conj_1792417201",
-    "timestamp": "2026-10-19T08:40:01.188815",
-    "idle_duration_minutes": 31.6,
-    "title": "Causal Embedding Cache for Real‑Time Web Research",
-    "hypothesis": "Integrating a causal embedding cache layer between `core/web_research_engine.py` and `core/deep_memory_vault.py` will allow the system to reuse previously inferred causal relationships when processing new web queries, reducing latency by up to 40% and improving the relevance of retrieved snippets. The cache would store lightweight graph representations of cause‑effect chains extracted from past search results, indexed by semantic hashes of the query intent. When a new query arrives, the engine first probes the cache for overlapping causal sub‑graphs; if a match is found, it can shortcut the full retrieval pipeline and directly feed the inferred knowledge into the vault, while still optionally performing a background refresh to keep the cache up‑to‑date.",
-    "research_query": "causal embedding cache for web search engines latency reduction",
-    "research_findings": "# Informe de Investigación: causal embedding cache for web search engines latency reduction\n\n## Fuentes Consultadas y Respaldo Web\n- **[Outline of machine learning (Wikipedia)](https://en.wikipedia.org/wiki/Outline_of_machine_learning)**: Structured kNN Support vector machine T-distributed stochastic neighbor embedding Temporal difference learning Wake-sleep algorithm Weighted majority algorithm\n\n## Contenido y Hallazgos Extraídos\n### De [Outline of machine learning - Wikipedia](https://en.wikipedia.org/wiki/Outline_of_machine_learning)\n> Outline of machine learning - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nOverview of and topical guide to machine learning\nThis article contains dynamic lists that may never be able to satisfy particular standards for completeness. You can help by editing the page to add missing items, with references to reliable sources .\nPart of a series on\nMachine learning\nand data mining\nP...\n",
-    "web_sources": [
-      "https://en.wikipedia.org/wiki/Outline_of_machine_learning"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal embedding cache module that intercepts search queries, checks for existing causal graph matches, and returns cached results or triggers a background refresh, updating `deep_memory_vault` accordingly.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.09
-  },
-  {
     "id": "conj_1792419097",
     "timestamp": "2026-10-19T09:11:37.910416",
     "idle_duration_minutes": 31.6,
@@ -1602,5 +1570,38 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.68
+  },
+  {
+    "id": "conj_1792621608",
+    "timestamp": "2026-10-21T17:26:48.091464",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching mechanism will allow the system to predict when cached search results become stale based on observed changes in source domains (e.g., news sites, API version updates). By modeling the temporal dependencies between query patterns and source content volatility, the engine can proactively invalidate or refresh specific cache entries, reducing latency while maintaining up‑to‑date information in the akáshic vault.",
+    "research_query": "causal inference based cache invalidation web search engine temporal content volatility model",
+    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web search engine temporal content volatility model\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a lightweight causal analysis module that tracks timestamps and change‑frequency metrics of queried URLs, then uses a simple Bayesian update to decide cache TTL per entry, integrating it with the existing cache read/write logic.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.62
+  },
+  {
+    "id": "conj_1792623504",
+    "timestamp": "2026-10-21T17:58:24.733111",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal Graph Integration for Context-Aware Web Research",
+    "hypothesis": "Incorporating a lightweight causal graph layer into the core/web_research_engine.py will enable the system to model dependencies between query concepts and retrieved documents, leading to more context‑aware ranking and reduced semantic drift in multi‑step searches. By dynamically updating causal edges based on feedback stored in deep_memory_vault, the engine can prioritize sources that causally contribute to the user's investigative goal, improving both precision and recall in complex knowledge‑retrieval tasks.",
+    "research_query": "causal graph based information retrieval relevance improvement \"causal reasoning\" search engine ranking",
+    "research_findings": "# Informe de Investigación: causal graph based information retrieval relevance improvement \"causal reasoning\" search engine ranking\n\n## Fuentes Consultadas y Respaldo Web\n- **[An AI Agent for Automated Causal Inference in Epidemiology - medRxiv](https://news.google.com/rss/articles/CBMifEFVX3lxTE9RaFRNaS1lMDFIVHF3ZnBWT3ljR3NXNlpIQkFwcDZDVmp3ZmZEZTg3V0VMZUJ2bGVPSGdRb2VlaFhQQ21RUjBTYlUzOXNyOTc4UU1hX0lKcGQ1SGR0bFEwcFNrdWdQSEFmZzNUcFRWRFpTelltdkczblVzYm8?oc=5)**: An AI Agent for Automated Causal Inference in Epidemiology  medRxiv\n- **[Construction of intelligent decision support systems through integration of retrieval-augmented generation and knowledge graphs | Scientific Reports - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE1rbG9tSkhuTzl4czlsM3lhaVd3c2pQb25HZ29faldkZko3TkpGTExZcGZIdW5FdkFPU2picTAtN0h4OWtFY0RzRnJfcWQ0R0IyTnE1QzhRaUZJU2tBcnQ0?oc=5)**: Construction of intelligent decision support systems through integration of retrieval-augmented generation and knowledge grap",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMifEFVX3lxTE9RaFRNaS1lMDFIVHF3ZnBWT3ljR3NXNlpIQkFwcDZDVmp3ZmZEZTg3V0VMZUJ2bGVPSGdRb2VlaFhQQ21RUjBTYlUzOXNyOTc4UU1hX0lKcGQ1SGR0bFEwcFNrdWdQSEFmZzNUcFRWRFpTelltdkczblVzYm8?oc=5",
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE1rbG9tSkhuTzl4czlsM3lhaVd3c2pQb25HZ29faldkZko3TkpGTExZcGZIdW5FdkFPU2picTAtN0h4OWtFY0RzRnJfcWQ0R0IyTnE1QzhRaUZJU2tBcnQ0?oc=5"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal_graph module that builds and updates a directed acyclic graph of query concepts and document topics, then modifies the ranking algorithm to weight results according to causal influence scores derived from the graph.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.63
   }
 ]
