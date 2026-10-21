@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.2621834,
-  "last_video_id": "vp_20261020_234312_c5d72d",
-  "last_topic": "Tensor Network Models of Holographic Spacetime and Black Hole Interiors",
-  "total_videos_analyzed": 374,
-  "running_cycle": false,
+  "last_run_timestamp": REDACTED_PHONE.477596,
+  "last_video_id": "vp_20261021_005752_c60a01",
+  "last_topic": "Sachdev-Ye-Kitaev (SYK) Model: Random Matrix Quantum Mechanics and Holographic Duality",
+  "total_videos_analyzed": 376,
+  "running_cycle": true,
   "last_error": null,
   "auto_improvement_count": 274
 }
