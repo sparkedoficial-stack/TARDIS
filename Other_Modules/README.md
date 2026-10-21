@@ -184,6 +184,7 @@ Módulos y componentes auxiliares del sistema.
 - **system_feedback.json**: Componente de alta eficiencia.
 - **tardis_bridge.py**: Componente de alta eficiencia.
 - **tardis_browser.py**: Componente de alta eficiencia.
+- **tardis_browser_gui.py**: Componente de alta eficiencia.
 - **tardis_calculadora_voz.py**: Componente de alta eficiencia.
 - **tardis_cell_parser.py**: Componente de alta eficiencia.
 - **tardis_conversation_analyzer.py**: Componente de alta eficiencia.
@@ -191,6 +192,7 @@ Módulos y componentes auxiliares del sistema.
 - **tardis_dynamic_function_engine.py**: Componente de alta eficiencia.
 - **tardis_evolutionary_codex.py**: Componente de alta eficiencia.
 - **tardis_kaiju_pocket_engine.py**: Componente de alta eficiencia.
+- **tardis_navigator_engine.py**: Componente de alta eficiencia.
 - **tardis_phone_harness_bridge.py**: Harness de control bidireccional Android/iOS/iPadOS y Cloud Phones.
 - **tardis_physics_disseminator.py**: Motor de cálculo simbólico y simulación física.
 - **tardis_progress.py**: Componente de alta eficiencia.

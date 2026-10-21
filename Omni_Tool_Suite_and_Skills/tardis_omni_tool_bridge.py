@@ -92,6 +92,14 @@ class TardisOmniToolBridge:
                 "domain": "ci_cd_publication",
                 "description": "Agente soberano de sincronización continua: rutina de 24h automática y publicación inmediata en GitHub ante hitos importantes o llamativos con blindaje total de privacidad.",
                 "actions": ["status", "check", "sync", "daemon", "daemon_status"]
+            },
+            "tardis_navigator": {
+                "name": "TARDIS Quantum Navigator & Automation Studio",
+                "binary": str(HOME_DIR / ".local" / "bin" / "tardis-browser"),
+                "module": "core.tardis_navigator_engine",
+                "domain": "browser_ai_automation",
+                "description": "Navegador gráfico multi-pestaña (GTK3+WebKit2) con TARDIS como asistente de búsqueda IA multi-motor, inspector DOM en vivo, grabadora de macros y estudio de automatización de procesos.",
+                "actions": ["gui", "search", "analyze_dom", "run_workflow", "generate_workflow", "record_macro", "schedule"]
             }
         }
         self._register_in_dynamic_registry()

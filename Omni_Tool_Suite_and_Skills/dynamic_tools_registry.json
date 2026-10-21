@@ -119,5 +119,22 @@
       "daemon_status"
     ],
     "status": "ACTIVE_SOVEREIGN"
+  },
+  "omni_tool_tardis_navigator": {
+    "name": "omni_tool_tardis_navigator",
+    "tool_id": "tardis_navigator",
+    "title": "TARDIS Quantum Navigator & Automation Studio",
+    "domain": "browser_ai_automation",
+    "description": "Navegador gráfico multi-pestaña (GTK3+WebKit2) con TARDIS como asistente de búsqueda IA multi-motor, inspector DOM en vivo, grabadora de macros y estudio de automatización de procesos.",
+    "actions": [
+      "gui",
+      "search",
+      "analyze_dom",
+      "run_workflow",
+      "generate_workflow",
+      "record_macro",
+      "schedule"
+    ],
+    "status": "ACTIVE_SOVEREIGN"
   }
 }

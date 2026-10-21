@@ -24,6 +24,7 @@ Automatizaciones de sistema, diagnósticos de hardware, optimizadores de SO y he
 - **launch_godworks.sh**: Componente de alta eficiencia.
 - **launch_native.sh**: Componente de alta eficiencia.
 - **launch_tardis.sh**: Componente de alta eficiencia.
+- **launch_tardis_browser.sh**: Componente de alta eficiencia.
 - **launch_tardis_companion.sh**: Componente de alta eficiencia.
 - **launch_tardis_safety_rails.sh**: Componente de alta eficiencia.
 - **optimize_os.sh**: Componente de alta eficiencia.
