@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.9945793,
-  "last_video_id": "vp_20261020_144938_d95067",
-  "last_topic": "Visualizing the Holographic Principle and Entanglement Entropy in AdS/CFT Correspondence",
-  "total_videos_analyzed": 368,
-  "running_cycle": true,
-  "last_error": "No fue posible descargar el video desde https://www.youtube.com/watch?v=6yfWdb-JOA8",
-  "auto_improvement_count": 260
+  "last_run_timestamp": REDACTED_PHONE.8339553,
+  "last_video_id": "vp_20261020_204359_d82e25",
+  "last_topic": "Visualizing the Black Hole Information Paradox and the Page Curve via Quantum Error Correction",
+  "total_videos_analyzed": 369,
+  "running_cycle": false,
+  "last_error": null,
+  "auto_improvement_count": 273
 }

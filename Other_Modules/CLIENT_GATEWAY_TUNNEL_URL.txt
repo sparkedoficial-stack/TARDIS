@@ -1,1 +1,1 @@
-https://api.trycloudflare.com
+https://bryan-couples-traffic-vault.trycloudflare.com
