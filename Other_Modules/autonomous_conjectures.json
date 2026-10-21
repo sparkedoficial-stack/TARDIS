@@ -1,38 +1,5 @@
 [
   {
-    "id": "conj_1792378477",
-    "timestamp": "2026-10-18T21:54:37.392688",
-    "idle_duration_minutes": 34.3,
-    "title": "Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching mechanism will allow the system to predict when cached search results become stale based on observed changes in source domains (e.g., news sites, API version updates). By modeling the causal relationship between external content update frequency and cache validity, the engine can proactively invalidate or refresh entries, reducing latency and improving answer freshness without incurring full re‑search on every query.",
-    "research_query": "causal inference based cache invalidation techniques for web scraping and API data freshness",
-    "research_findings": "# Informe de Investigación: causal inference based cache invalidation techniques for web scraping and API data freshness\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal cache manager that tracks source update signals (e.g., HTTP Last-Modified, ETag, RSS change frequency) and uses a lightweight Bayesian model to decide when to invalidate cached results, exposing a new method `invalidate_stale_cache()` and integrating it into the existing `search()` workflow.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 102.0
-  },
-  {
-    "id": "conj_1792380445",
-    "timestamp": "2026-10-18T22:27:25.101883",
-    "idle_duration_minutes": 32.8,
-    "title": "Causal‑Feedback Loop for Adaptive Web Research",
-    "hypothesis": "Integrating a causal‑feedback mechanism between the Web Research Engine and the Deep Memory Vault will allow the system to dynamically re‑weight search strategies based on the observed relevance of retrieved documents, leading to a measurable reduction in query latency and an increase in semantic precision of stored knowledge. The hypothesis posits that by logging the causal impact of each search parameter (e.g., engine, query expansion, result ranking) on downstream memory consolidation outcomes, a reinforcement‑learning policy can be trained in‑situ, enabling the system to self‑optimise its research behaviour without external supervision.",
-    "research_query": "reinforcement learning causal feedback loop for adaptive web search engine optimization",
-    "research_findings": "# Informe de Investigación: reinforcement learning causal feedback loop for adaptive web search engine optimization\n\n## Fuentes Consultadas y Respaldo Web\n- **[Dynamic adaptation of non standard service tasks through reinforcement learning driven task technology fit and service interaction | Scientific Reports - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE9OVFFBVGI0RGZyQTlodGZyLVd1d3hNV2dkYTlsOVVWQWVseU53Z3RwdFNvZGhiMzFIV3p5SDA1RVBZU3hiemVMQkl6dF9hZ1R5WnVJclRUbnpETFJnTTIw?oc=5)**: Dynamic adaptation of non standard service tasks through reinforcement learning driven task technology fit and service interaction | Scientific Reports  Nature\n- **[Vol. 40 No. 24: AAAI-26 Technical Tracks 24 - The Association for the Advancement of Artificial Intelligence](https://news.google.com/rss/articles/CBMiX0FVX3lxTFB1eGVkSVFmbFp6a0FRMHMzbDdGbzRUUElyNFRBTnVubU9OSGxLMGFyRmJWSFB0ZUtSRHAtQ2x2S0UwTHdsTTBCSEZnOGJXX28zc3o5NHc5Q2xUQkY2ZV9F?oc=5)**: Vol. 40 No. 24: AAAI-26 Technical Tracks 24  ",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE9OVFFBVGI0RGZyQTlodGZyLVd1d3hNV2dkYTlsOVVWQWVseU53Z3RwdFNvZGhiMzFIV3p5SDA1RVBZU3hiemVMQkl6dF9hZ1R5WnVJclRUbnpETFJnTTIw?oc=5",
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTFB1eGVkSVFmbFp6a0FRMHMzbDdGbzRUUElyNFRBTnVubU9OSGxLMGFyRmJWSFB0ZUtSRHAtQ2x2S0UwTHdsTTBCSEZnOGJXX28zc3o5NHc5Q2xUQkY2ZV9F?oc=5"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a lightweight causal‑tracking wrapper around the existing search functions that records parameter settings, response times, and relevance scores (derived from deep_memory_vault insertion feedback). Implement an async callback to update a simple policy model (e.g., contextual bandit) that adjusts future query generation parameters.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 103.39
-  },
-  {
     "id": "conj_1792382356",
     "timestamp": "2026-10-18T22:59:16.899606",
     "idle_duration_minutes": 31.9,
@@ -1608,5 +1575,38 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 98.26
+  },
+  {
+    "id": "conj_1792585115",
+    "timestamp": "2026-10-21T07:18:35.851858",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal Prompt Routing for Adaptive Web Research",
+    "hypothesis": "Integrating a lightweight causal inference layer into the Web Research Engine will enable dynamic routing of search prompts based on inferred intent hierarchy, improving relevance and reducing redundant queries. By modeling the relationship between previous query outcomes and latent user goals, the engine can predict the most promising search strategy (e.g., keyword expansion vs. semantic embedding) before execution, leading to higher precision in retrieved sources and lower latency in the overall pipeline.",
+    "research_query": "causal inference prompt routing web search engine performance optimization",
+    "research_findings": "# Informe de Investigación: causal inference prompt routing web search engine performance optimization\n\n## Fuentes Consultadas y Respaldo Web\n- **[2024 in science (Wikipedia)](https://en.wikipedia.org/wiki/2024_in_science)**: depression aids locus discovery, fine mapping, gene prioritization and causal inference\". Nature Genetics. 56 (2): 222–233. doi:10.1038/s41588-023-01596-4\n- **[2023 in science (Wikipedia)](https://en.wikipedia.org/wiki/2023_in_science)**: on what real users are shown during their typical use of popular Web search engines interprets its results to show that choices for unreliable news sources\n\n## Contenido y Hallazgos Extraídos\n### De [2024 in science - Wikipedia](https://en.wikipedia.org/wiki/2024_in_science)\n> 2024 in science - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nOverview of the events of 2024 in science\nList of years in science\n( table )\n… 2014\n2015\n2016\n2017\n2018\n2019\n2020\n2021\n2022\n2023\n2024\n2025\n2026\n2027\n2028\n2029\n2030\n2031\n2032\n2",
+    "web_sources": [
+      "https://en.wikipedia.org/wiki/2024_in_science",
+      "https://en.wikipedia.org/wiki/2023_in_science"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal decision module that evaluates past query success metrics and selects the optimal search strategy (keyword, semantic, or hybrid) before issuing the request, with fallback to a confidence‑based re‑routing mechanism.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.2
+  },
+  {
+    "id": "conj_1792587047",
+    "timestamp": "2026-10-21T07:50:47.771147",
+    "idle_duration_minutes": 32.2,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching subsystem can dynamically predict the relevance decay of stored search results based on observed changes in source domains (e.g., content updates, SEO shifts). By modeling the causal relationship between external events (content revision timestamps, domain authority fluctuations) and the utility of cached snippets, the engine can pre‑emptively invalidate or reprioritize cache entries, reducing stale data retrieval and improving answer accuracy without a full re‑crawl on every query.",
+    "research_query": "causal inference based cache invalidation techniques for web search engines recent 2023-2024",
+    "research_findings": "# Informe de Investigación: causal inference based cache invalidation techniques for web search engines recent 2023-2024\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal‑analysis module that monitors source metadata (last‑modified headers, sitemap change frequency) and assigns a decay score to each cached result; integrate this score into the cache eviction policy to automatically purge or refresh low‑relevance entries.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 100.51
   }
 ]
