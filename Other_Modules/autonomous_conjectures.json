@@ -1,38 +1,5 @@
 [
   {
-    "id": "conj_1792382356",
-    "timestamp": "2026-10-18T22:59:16.899606",
-    "idle_duration_minutes": 31.9,
-    "title": "Resonancia Causal de la Bóveda Akáshica",
-    "hypothesis": "La eficiencia de recuperación de la 'Bóveda Akáshica' (deep_memory_vault.py) puede optimizarse significativamente si se introduce un mecanismo de 'Resonancia Causal' que priorice no solo la similitud semántica, sino la relevancia temporal y la frecuencia de acceso reciente (recencia) mediante una función de decaimiento exponencial. Esto permitiría que el sistema anticipe necesidades de contexto basándose en patrones de uso previos, reduciendo la latencia de búsqueda en consultas complejas y mejorando la coherencia de la memoria a largo plazo al atenuar información obsoleta.",
-    "research_query": "temporal decay weighting in vector database retrieval semantic search optimization",
-    "research_findings": "# Informe de Investigación: temporal decay weighting in vector database retrieval semantic search optimization\n\n## Fuentes Consultadas y Respaldo Web\n- **[memweave: Zero-Infra AI Agent Memory with Markdown and SQLite — No Vector Database Required - Towards Data Science](https://news.google.com/rss/articles/CBMivAFBVV95cUxPR3BMRngzdkstTkUyT3NaOEthS2lyNXE2dU5kQjNwSlZlQW1kVzl6RlpWamJ5R2J1NTlCcEE3Ulo1MmMtdDZ0dkhmVWZHeUk5b2thNjFrdGhIVERGMFMzYTFINXlhWko5QlE1STlNYXhkSU1USmNIVXJsSWFaSFlqamRaSDVFVUZjRWZUWTRuODl3UEN2T01xVkZCQ0dfb2FJZ01vcWZhRklSaFdnU202NFc4aS1NalAxNEpHTQ?oc=5)**: memweave: Zero-Infra AI Agent Memory with Markdown and SQLite — No Vector Database Required  Towards Data Science\n- **[Convolutional neural network (Wikipedia)](https://en.wikipedia.org/wiki/Convolutional_neural_network)**: various NLP problems and achieved excellent results in semantic parsing, search query retrieval, sentence modeling, classification, prediction and other\n\n## Contenido y Hallazgos Extraídos\n### De [Goo",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMivAFBVV95cUxPR3BMRngzdkstTkUyT3NaOEthS2lyNXE2dU5kQjNwSlZlQW1kVzl6RlpWamJ5R2J1NTlCcEE3Ulo1MmMtdDZ0dkhmVWZHeUk5b2thNjFrdGhIVERGMFMzYTFINXlhWko5QlE1STlNYXhkSU1USmNIVXJsSWFaSFlqamRaSDVFVUZjRWZUWTRuODl3UEN2T01xVkZCQ0dfb2FJZ01vcWZhRklSaFdnU202NFc4aS1NalAxNEpHTQ?oc=5",
-      "https://en.wikipedia.org/wiki/Convolutional_neural_network"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar una función de puntuación compuesta que combine la similitud de coseno con un factor de decaimiento temporal basado en la última fecha de acceso de cada vector en la bóveda.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 111.78
-  },
-  {
-    "id": "conj_1792384255",
-    "timestamp": "2026-10-18T23:30:55.083361",
-    "idle_duration_minutes": 31.6,
-    "title": "Causal Latency Compression via Predictive Telemetry Caching",
-    "hypothesis": "La latencia percibida en la toma de decisiones del núcleo cognitivo no depende únicamente de la velocidad de procesamiento, sino de la 'profundidad causal' requerida para validar una acción. Si el sistema pre-cachéa no solo los datos, sino las *consecuencias probables* (telemetría predictiva) de las acciones más frecuentes basándose en patrones históricos de la bóveda akáshica, se puede reducir el tiempo de inferencia causal en un 40-60% para tareas recurrentes, permitiendo una respuesta casi instantánea sin sacrificar la profundidad analítica en casos nuevos.",
-    "research_query": "predictive caching strategies for causal inference in autonomous AI agents latency reduction",
-    "research_findings": "# Informe de Investigación: predictive caching strategies for causal inference in autonomous AI agents latency reduction\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar un módulo de 'Causal Pre-computation' que, durante los ciclos de inactividad, calcule y almacene en memoria volátil las trayectorias de resultado más probables para las 10 últimas consultas de investigación web, actualizando los pesos de probabilidad en tiempo real.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.17
-  },
-  {
     "id": "conj_1792386151",
     "timestamp": "2026-10-19T00:02:31.851466",
     "idle_duration_minutes": 31.6,
@@ -1608,5 +1575,38 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 100.51
+  },
+  {
+    "id": "conj_1792588976",
+    "timestamp": "2026-10-21T08:22:56.346867",
+    "idle_duration_minutes": 32.1,
+    "title": "Causal Memory Indexing for Real‑Time Web Research",
+    "hypothesis": "Integrating a causal graph layer between the Deep Memory Vault and the Web Research Engine will allow the system to prioritize and retrieve information based on inferred cause‑effect relationships rather than simple keyword matching, resulting in faster convergence on relevant sources and reduced token consumption during multi‑step reasoning.",
+    "research_query": "\"causal graph\" \"memory retrieval\" \"knowledge base\" \"real-time web search\" optimization",
+    "research_findings": "# Informe de Investigación: \"causal graph\" \"memory retrieval\" \"knowledge base\" \"real-time web search\" optimization\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a lightweight causal indexing module that annotates stored memory nodes with cause‑effect edges and modifies the search pipeline to rank results by causal relevance before sending queries to the external web search API.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.23
+  },
+  {
+    "id": "conj_1792590873",
+    "timestamp": "2026-10-21T08:54:33.602511",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal‑Feedback Loop for Adaptive Web Research",
+    "hypothesis": "Integrating a causal inference layer between the Web Research Engine and the Deep Memory Vault will enable the system to dynamically adjust its query formulation based on observed outcome relevance, reducing redundant searches by at least 30% and improving answer precision. The loop would record each search's metadata (timestamp, keywords, source credibility score) in the vault, infer causal relationships between query patterns and relevance feedback, and automatically rewrite future queries using a lightweight Bayesian network. This architecture leverages the existing telemetry in core/network_shield.py to validate external request latency and trustworthiness, turning raw telemetry into a feedback signal for the research engine.",
+    "research_query": "causal inference feedback loop for adaptive web search engines performance improvement",
+    "research_findings": "# Informe de Investigación: causal inference feedback loop for adaptive web search engines performance improvement\n\n## Fuentes Consultadas y Respaldo Web\n- **[Digital twin-assisted blockchain IoT security model using contrastive and causal learning techniques - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE5YZUlmNkc3SmZQZkZaV3MwVFFmY0VoenlqYVZtS29Kb0JfRVgxQzFhdFdUYmZib1Z6Z0ZmWFZ4Nm1qUlZzTW9yQk9ZT1NaRm9Ta2kxT0tfYmtrbFpOMktz?oc=5)**: Digital twin-assisted blockchain IoT security model using contrastive and causal learning techniques  Nature\n- **[Deep learning (Wikipedia)](https://en.wikipedia.org/wiki/Deep_learning)**: J. (2017). \"Efficient probabilistic inference in generic neural networks trained with non-probabilistic feedback\". Nature Communications. 8 (1): 138.\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMiX0FVX3lxTE5YZUlmNkc3SmZQZkZaV3MwVFFmY0VoenlqYVZtS29Kb0JfRVgxQzFhdFdUYmZib1Z6Z0ZmWFZ4Nm1qUlZzTW9yQk9ZT1NaRm9Ta2",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE5YZUlmNkc3SmZQZkZaV3MwVFFmY0VoenlqYVZtS29Kb0JfRVgxQzFhdFdUYmZib1Z6Z0ZmWFZ4Nm1qUlZzTW9yQk9ZT1NaRm9Ta2kxT0tfYmtrbFpOMktz?oc=5",
+      "https://en.wikipedia.org/wiki/Deep_learning"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal inference module that logs search metadata to deep_memory_vault, trains a simple Bayesian network on relevance feedback, and rewrites subsequent queries to maximize expected relevance.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.24
   }
 ]
