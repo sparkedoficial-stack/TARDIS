@@ -70,7 +70,7 @@
       "welcome_enabled": true,
       "welcome_text": "👋 ¡Bienvenido/a {nombre} al grupo *{grupo}*! Soy TARDIS, asistente de inteligencia artificial y sistema de control temporal. Un placer tenerte aquí.",
       "created_at": "2026-09-29T09:31:52.567223",
-      "updated_at": "2026-10-18T23:46:11.161752",
+      "updated_at": "2026-10-21T13:07:19.236551",
       "members": {
         "REDACTED_PHONE": {
           "user_id": REDACTED_PHONE,
@@ -153,8 +153,8 @@
           "is_architect": false,
           "role": "member",
           "first_seen": "2026-09-30T17:51:05.048992",
-          "last_seen": "2026-10-02T00:11:28.637849",
-          "message_count": 5
+          "last_seen": "2026-10-21T13:07:19.236551",
+          "message_count": 6
         },
         "REDACTED_PHONE": {
           "user_id": REDACTED_PHONE,
@@ -316,5 +316,5 @@
       "message_count": 6
     }
   },
-  "last_updated": "2026-10-19T11:41:49.591522"
+  "last_updated": "2026-10-21T13:07:19.236600"
 }
