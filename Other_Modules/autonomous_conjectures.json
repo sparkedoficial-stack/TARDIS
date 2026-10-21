@@ -1,23 +1,5 @@
 [
   {
-    "id": "conj_1792314110",
-    "timestamp": "2026-10-18T04:01:50.262241",
-    "idle_duration_minutes": 31.6,
-    "title": "Hipótesis de Resonancia Causal en la Bóveda Akáshica",
-    "hypothesis": "Se postula que la eficiencia de recuperación de información en `deep_memory_vault.py` puede optimizarse un 30-40% si se implementa un índice de 'resonancia causal' que priorice no solo la similitud semántica, sino la frecuencia de co-ocurrencia temporal entre nodos de memoria. Actualmente, el sistema busca por relevancia estática; la mejora propuesta introduce un factor dinámico de 'calor' basado en la telemetría de acceso reciente, permitiendo que las memorias frecuentemente consultadas por el Núcleo Cognitivo tengan una latencia de recuperación menor mediante un cache adaptativo jerárquico.",
-    "research_query": "adaptive hierarchical caching strategies for semantic memory retrieval systems in AI agents",
-    "research_findings": "# Informe de Investigación: adaptive hierarchical caching strategies for semantic memory retrieval systems in AI agents\n\n## Fuentes Consultadas y Respaldo Web\n- **[Memory-Aware Agent Harnesses for Anti-Money Laundering — Nacho Martinez, Oracle｜AI Engineer - finance.biggo.com](https://news.google.com/rss/articles/CBMiX0FVX3lxTE9ZRXNDNnUxYkRDMGRhUEFhTjdLR1JfUTY4MkpWbVA1d0pfcnJWVlVFYm45bWEtRnJVd25BWS04NDkxRDk0TkM3bXBzZV9HaU1YNERUcEF2WjFlc3drY1Jj?oc=5)**: Memory-Aware Agent Harnesses for Anti-Money Laundering — Nacho Martinez, Oracle｜AI Engineer  finance.biggo.com\n- **[Why your multi-agent AI system has a memory problem (and what computer architecture can teach you) - Resultsense](https://news.google.com/rss/articles/CBMiowFBVV95cUxOMzE2VkgyX0JzdG5YOEFxTzJlMGZOQ21tOWg4RHkzT0lxYkxjc0V3ZHF4aDNibVBHaGp5RWRDdzJPYmdyR1pjYlMzaFlEX1k2OG53WmI1RFpYaWVuNFNXYnllZG83WnJrLXNxWm9scXZUOTJQRVBfTXpScXg2ZEFUdzFJc1FNSHBCVTRrcS14SUdXV1pVc0M3TC1QRmVleXV3ZVMw?oc=5)**: Why your multi-agent AI system has a memory",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE9ZRXNDNnUxYkRDMGRhUEFhTjdLR1JfUTY4MkpWbVA1d0pfcnJWVlVFYm45bWEtRnJVd25BWS04NDkxRDk0TkM3bXBzZV9HaU1YNERUcEF2WjFlc3drY1Jj?oc=5",
-      "https://news.google.com/rss/articles/CBMiowFBVV95cUxOMzE2VkgyX0JzdG5YOEFxTzJlMGZOQ21tOWg4RHkzT0lxYkxjc0V3ZHF4aDNibVBHaGp5RWRDdzJPYmdyR1pjYlMzaFlEX1k2OG53WmI1RFpYaWVuNFNXYnllZG83WnJrLXNxWm9scXZUOTJQRVBfTXpScXg2ZEFUdzFJc1FNSHBCVTRrcS14SUdXV1pVc0M3TC1QRmVleXV3ZVMw?oc=5"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar un mecanismo de envejecimiento exponencial (exponential decay) en los metadatos de acceso de la bóveda para priorizar la carga de nodos con alta 'resonancia' reciente en la caché L1.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.75
-  },
-  {
     "id": "conj_1792317897",
     "timestamp": "2026-10-18T05:04:57.852281",
     "idle_duration_minutes": 31.6,
@@ -1615,5 +1597,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 488.38
+  },
+  {
+    "id": "conj_1792538468",
+    "timestamp": "2026-10-20T18:21:08.295324",
+    "idle_duration_minutes": 37.7,
+    "title": "Hipótesis de Integración de Aprendizaje Profundo y Redes Neuronales para la Web de Conocimiento",
+    "hypothesis": "Se propone la integración de un modelo de aprendizaje profundo (Deep Learning) con la web de conocimiento (Knowledge Graph) para mejorar la precisión y eficiencia en la búsqueda de información. El modelo utilizará la estructura de la web de conocimiento como base para entrenar un modelo de red neuronal que pueda inferir relaciones y patrones entre conceptos. Esto permitiría al sistema proporcionar respuestas más precisas y relevantes a las consultas de búsqueda.",
+    "research_query": "¿Cómo se pueden integrar modelos de aprendizaje profundo con Knowledge Graphs para mejorar la precisión en la búsqueda de información?",
+    "research_findings": "# Informe de Investigación: ¿Cómo se pueden integrar modelos de aprendizaje profundo con Knowledge Graphs para mejorar la precisión en la búsqueda de información?\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Refinar la función de entrenamiento del modelo de red neuronal para que pueda aprovechar al máximo la estructura de la web de conocimiento y mejorar la precisión en la inferencia de relaciones entre conceptos.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 462.44
   }
 ]
