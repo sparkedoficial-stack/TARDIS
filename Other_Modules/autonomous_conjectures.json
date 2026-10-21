@@ -1,23 +1,5 @@
 [
   {
-    "id": "conj_1792329253",
-    "timestamp": "2026-10-18T08:14:13.263479",
-    "idle_duration_minutes": 31.6,
-    "title": "Resonancia Causal en la Bóveda Akáshica: Optimización de la Entropía Semántica",
-    "hypothesis": "Se postula que la eficiencia de recuperación de información en la 'Bóveda Akáshica' (deep_memory_vault.py) se vea limitada por la acumulación de ruido semántico (entropía) en vectores de memoria antiguos. Al correlacionar la telemetría de latencia de red (network_shield.py) con la profundidad de búsqueda en el motor de investigación (web_research_engine.py), se puede inferir que los ciclos de investigación redundantes generan 'eco-causal': patrones de consulta repetitivos que degradan la precisión de la memoria a largo plazo. Una conjetura técnica es que implementar un mecanismo de 'decaimiento temporal ponderado por relevancia causal' en la bóveda, donde los nodos de memoria pierden peso no solo por tiempo, sino por la falta de confirmación en ciclos de investigación subsecuentes, reduciría la latencia de inferencia y aumentaría la precisión de las respuestas del núcleo cognitivo.",
-    "research_query": "temporal decay semantic memory vector databases causal reinforcement learning LLM agents",
-    "research_findings": "# Informe de Investigación: temporal decay semantic memory vector databases causal reinforcement learning LLM agents\n\n## Fuentes Consultadas y Respaldo Web\n- **[A Practical Guide to Memory for Autonomous LLM Agents - Towards Data Science](https://news.google.com/rss/articles/CBMijgFBVV95cUxNMkh1NG05SXh1b1VTLU51a0RMNTlqNmc0Q3Z1cXB0MjF3eUJfSGJDME04cjhPT2YtUmpQRngxblBQUmJhejhqUERNZVVWWTNBWjd3c0lxaExWbmNYTmhqMFg5VHBKc2QwMzg3ZXJWbmthVFExY0ptZm1oc0V0dzYyN3lPaGtSNEd0dXhEZmVB?oc=5)**: A Practical Guide to Memory for Autonomous LLM Agents  Towards Data Science\n- **[Hindsight is 20/20: Building Agent Memory that Retains, Recalls, and Reflects - alphaXiv](https://news.google.com/rss/articles/CBMiUEFVX3lxTE1aMVVSanJ2MHVmeENMbEpxYUhvQWI1QmM2YWpJSzFyRDNuNFpGd001c3ZjQkJGQko5MmhNM2pteXNJdWdqQ1ZJVklFMTVNRDBt?oc=5)**: Hindsight is 20/20: Building Agent Memory that Retains, Recalls, and Reflects  alphaXiv\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CB",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMijgFBVV95cUxNMkh1NG05SXh1b1VTLU51a0RMNTlqNmc0Q3Z1cXB0MjF3eUJfSGJDME04cjhPT2YtUmpQRngxblBQUmJhejhqUERNZVVWWTNBWjd3c0lxaExWbmNYTmhqMFg5VHBKc2QwMzg3ZXJWbmthVFExY0ptZm1oc0V0dzYyN3lPaGtSNEd0dXhEZmVB?oc=5",
-      "https://news.google.com/rss/articles/CBMiUEFVX3lxTE1aMVVSanJ2MHVmeENMbEpxYUhvQWI1QmM2YWpJSzFyRDNuNFpGd001c3ZjQkJGQko5MmhNM2pteXNJdWdqQ1ZJVklFMTVNRDBt?oc=5"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar una función de 'causal_relevance_decay' que ajuste los pesos de los vectores de memoria basándose en la frecuencia de acceso exitoso durante las últimas N operaciones del web_research_engine, en lugar de un decaimiento lineal por tiempo.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.51
-  },
-  {
     "id": "conj_1792333037",
     "timestamp": "2026-10-18T09:17:17.441585",
     "idle_duration_minutes": 31.6,
@@ -1609,5 +1591,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 98.63
+  },
+  {
+    "id": "conj_1792554440",
+    "timestamp": "2026-10-20T22:47:20.296677",
+    "idle_duration_minutes": 31.7,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer that tracks dependency graphs between fetched web resources and downstream reasoning steps can enable proactive cache invalidation, reducing stale data propagation and improving the accuracy of the akáshic vault's knowledge base. By logging the provenance of each fact (URL, timestamp, extraction pipeline) and modeling temporal decay based on observed changes in source domains, the system can automatically refresh only the most impact‑critical entries, lowering bandwidth usage while preserving epistemic fidelity.",
+    "research_query": "causal inference based cache invalidation web scraping temporal decay models",
+    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web scraping temporal decay models\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a provenance tracking decorator to fetch functions, store dependency metadata in deep_memory_vault, and implement a scheduler that queries a change‑frequency model to selectively purge or refresh cached pages.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 99.25
   }
 ]
