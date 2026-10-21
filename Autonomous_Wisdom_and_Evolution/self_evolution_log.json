@@ -1,33 +1,5 @@
 [
   {
-    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/deep_memory_vault.py",
-    "goal": "Implementar un módulo de telemetría de acceso que ajuste dinámicamente la dimensión o el índice de los embeddings en la bóveda según la frecuencia de consulta, integrando una lógica de caché jerárquica semántica.",
-    "status": "REJECTED",
-    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
-    "elapsed_seconds": 91.91,
-    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/deep_memory_vault.py.20261019_044646.bak",
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Respuesta generada demasiado corta (0 vs 33875 bytes)",
-    "timestamp": "2026-10-19T04:48:17.991369"
-  },
-  {
-    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
-    "goal": "Implementar una capa de \"CausalPromptChain\" que, antes de cada solicitud HTTP, genere un prompt intermedio usando embeddings del Deep Memory Vault para extraer relaciones causales entre la pregunta del usuario y los resultados previos, y que ajuste dinámicamente los parámetros de búsqueda (top‑k, filtros de dominio) basándose en esa información.",
-    "status": "REJECTED",
-    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
-    "elapsed_seconds": 91.21,
-    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/web_research_engine.py.20261019_052435.bak",
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Respuesta generada demasiado corta (0 vs 35266 bytes)",
-    "timestamp": "2026-10-19T05:26:06.949115"
-  },
-  {
     "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
     "goal": "Add a causal inference module that tracks update frequencies of indexed domains and automatically flags cached results for refresh; expose a new method `invalidate_stale_cache()` that runs periodically and integrates with the existing async fetch pipeline.",
     "status": "REJECTED",
@@ -1398,5 +1370,33 @@
     "efficiency_improvement": null,
     "error": "Respuesta generada demasiado corta (0 vs 35266 bytes)",
     "timestamp": "2026-10-21T13:44:08.528777"
+  },
+  {
+    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
+    "goal": "Añadir una capa de registro de eventos (event_id, timestamp, source_url, query_hash) y una función push_to_vault(event) que envíe los resultados al deep_memory_vault usando un protocolo de inserción atómica con control de versiones.",
+    "status": "REJECTED",
+    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
+    "elapsed_seconds": 91.31,
+    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/web_research_engine.py.20261021_141415.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "Respuesta generada demasiado corta (0 vs 35266 bytes)",
+    "timestamp": "2026-10-21T14:15:47.289279"
+  },
+  {
+    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
+    "goal": "Implementar una función `causal_chain_query(previous_results: List[Dict]) -> List[str]` que analice los resultados obtenidos, extraiga relaciones causales mediante un modelo de razonamiento (p.ej., un LLM finamente ajustado) y genere una lista de sub‑consultas refinadas para re‑ejecutar la búsqueda, integrando un mecanismo de retroalimentación iterativa en el flujo de `search()`.",
+    "status": "REJECTED",
+    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
+    "elapsed_seconds": 91.44,
+    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/web_research_engine.py.20261021_144625.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "Respuesta generada demasiado corta (0 vs 35266 bytes)",
+    "timestamp": "2026-10-21T14:47:57.077350"
   }
 ]
