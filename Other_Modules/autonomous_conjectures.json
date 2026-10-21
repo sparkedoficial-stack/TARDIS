@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1792348197",
-    "timestamp": "2026-10-18T13:29:57.968792",
-    "idle_duration_minutes": 32.1,
-    "title": "Causal Feedback Loop for Adaptive Query Refinement",
-    "hypothesis": "Integrating a causal inference layer between the Web Research Engine and the Deep Memory Vault will enable the system to automatically adjust search query parameters based on observed relevance feedback, reducing latency and improving answer precision. The hypothesis posits that a lightweight Bayesian network can model the causal relationship between query formulation, retrieved document features, and downstream memory retrieval success, allowing real‑time policy updates without full retraining.",
-    "research_query": "causal inference adaptive query refinement web search engine Bayesian network relevance feedback",
-    "research_findings": "# Informe de Investigación: causal inference adaptive query refinement web search engine Bayesian network relevance feedback\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal inference module that captures relevance signals from deep_memory_vault and dynamically adjusts search parameters (e.g., top_k, timeout, ranking weights) using a Bayesian network, with fallback to default settings.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.58
-  },
-  {
     "id": "conj_1792352258",
     "timestamp": "2026-10-18T14:37:38.123598",
     "idle_duration_minutes": 36.8,
@@ -1604,5 +1589,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 98.8
+  },
+  {
+    "id": "conj_1792567839",
+    "timestamp": "2026-10-21T02:30:39.236295",
+    "idle_duration_minutes": 32.2,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer that tracks dependencies between fetched web resources and downstream reasoning steps will allow the web_research_engine to automatically invalidate stale cache entries when a causal trigger (e.g., a change in a source's content hash or a shift in query semantics) is detected, reducing latency and improving answer freshness without manual cache flushing.",
+    "research_query": "causal cache invalidation techniques for web scraping pipelines and AI reasoning systems",
+    "research_findings": "# Informe de Investigación: causal cache invalidation techniques for web scraping pipelines and AI reasoning systems\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a dependency graph module that records which cached pages support which higher‑level queries, compute content hashes on fetch, and implement an automatic invalidation routine that purges only affected cache nodes when a change is detected.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 100.07
   }
 ]
