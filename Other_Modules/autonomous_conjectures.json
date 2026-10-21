@@ -1,38 +1,5 @@
 [
   {
-    "id": "conj_1792367087",
-    "timestamp": "2026-10-18T18:44:47.597975",
-    "idle_duration_minutes": 31.6,
-    "title": "Dynamic Causal Cache for Web Research Engine",
-    "hypothesis": "If the Web Research Engine incorporates a causal relevance model that evaluates the relationship between incoming queries and previously cached results, then the system can prioritize cache retention and pre‑fetching of pages that are causally linked to the user's current information need. This should reduce latency and increase the relevance of returned snippets compared to a purely timestamp‑ or frequency‑based cache policy.",
-    "research_query": "causal inference based caching strategies for web search engines",
-    "research_findings": "# Informe de Investigación: causal inference based caching strategies for web search engines\n\n## Fuentes Consultadas y Respaldo Web\n- **[Outline of machine learning (Wikipedia)](https://en.wikipedia.org/wiki/Outline_of_machine_learning)**: selection Algorithmic inference Algorithmic learning theory AlphaGo AlphaGo Zero Alternating decision tree Apprenticeship learning Causal Markov condition\n- **[Big data (Wikipedia)](https://en.wikipedia.org/wiki/Big_data)**: precursors for stock market moves, using trading strategies based on search volume data provided by Google Trends. Their analysis of Google search volume for 98\n\n## Contenido y Hallazgos Extraídos\n### De [Outline of machine learning - Wikipedia](https://en.wikipedia.org/wiki/Outline_of_machine_learning)\n> Outline of machine learning - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nOverview of and topical guide to machine learning\nThis article contains dynamic lists that may never be able to satisfy particular sta",
-    "web_sources": [
-      "https://en.wikipedia.org/wiki/Outline_of_machine_learning",
-      "https://en.wikipedia.org/wiki/Big_data"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a context‑aware caching layer that assigns causal relevance scores to cached entries and uses them for eviction and pre‑fetch decisions.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.4
-  },
-  {
-    "id": "conj_1792368986",
-    "timestamp": "2026-10-18T19:16:26.571225",
-    "idle_duration_minutes": 31.6,
-    "title": "Dynamic Causal Cache Invalidation for the Web Research Engine",
-    "hypothesis": "If the Web Research Engine maintains a lightweight causal graph that records dependencies between fetched resources (e.g., URLs, API endpoints, and extracted entities), then it can proactively invalidate or refresh cached entries when upstream sources change. This causal‑aware caching would reduce stale‑data hits, lower average query latency, and improve the relevance of results compared with a traditional time‑based TTL approach.",
-    "research_query": "causal graph based cache invalidation web search engine performance",
-    "research_findings": "# Informe de Investigación: causal graph based cache invalidation web search engine performance\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal‑dependency tracker that logs which cached pages depend on which remote resources, and implement an adaptive eviction policy that invalidates cache entries when a dependent resource reports a change (e.g., via ETag/Last‑Modified or webhook).",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.96
-  },
-  {
     "id": "conj_1792370886",
     "timestamp": "2026-10-18T19:48:06.229853",
     "idle_duration_minutes": 31.7,
@@ -1605,5 +1572,38 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 99.89
+  },
+  {
+    "id": "conj_1792577398",
+    "timestamp": "2026-10-21T05:09:58.134932",
+    "idle_duration_minutes": 31.7,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrating a causal‑aware cache invalidation layer into `core/web_research_engine.py`—which tracks dependencies between fetched resources and downstream reasoning steps—will reduce redundant network calls by up to 40% while preserving the fidelity of the deep memory vault's contextual embeddings. The hypothesis rests on the premise that most web‑research queries share overlapping sub‑queries (e.g., definitions, API docs) and that a lightweight provenance graph can be used to invalidate only the affected cache entries when the underlying knowledge base (deep_memory_vault) updates, rather than flushing the entire cache.",
+    "research_query": "how to implement causal dependency graphs for cache invalidation in Python web scraping frameworks",
+    "research_findings": "# Informe de Investigación: how to implement causal dependency graphs for cache invalidation in Python web scraping frameworks\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a provenance‑based caching subsystem that records which URLs contribute to each higher‑level query, stores results in an LRU cache, and automatically invalidates entries when related memory vault embeddings are refreshed.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 99.91
+  },
+  {
+    "id": "conj_1792579296",
+    "timestamp": "2026-10-21T05:41:36.100314",
+    "idle_duration_minutes": 31.6,
+    "title": "Integración de Memoria Causal Temporal en el Motor de Búsqueda Web",
+    "hypothesis": "Si el motor de búsqueda web (core/web_research_engine.py) incorpora un modelo de memoria causal que indexe no solo los resultados actuales sino también sus relaciones temporales y de dependencia con consultas previas almacenadas en deep_memory_vault, entonces el sistema podrá predecir y priorizar fuentes de información relevantes antes de completar la búsqueda, reduciendo la latencia de respuesta en un 30% y mejorando la precisión de la información contextualizada en entornos de alta complejidad epistemológica.",
+    "research_query": "temporal causal memory integration for web search engines academic papers 2023 2024",
+    "research_findings": "# Informe de Investigación: temporal causal memory integration for web search engines academic papers 2023 2024\n\n## Fuentes Consultadas y Respaldo Web\n- **[The Retrieval Effectiveness of Web Search Engines: Considering Results Descriptions (arXiv)](http://arxiv.org/abs/1511.05800v1)**: Purpose: To compare five major Web search engines (Google, Yahoo, MSN, Ask.com, and Seekport) for their retrieval effectiveness, taking into account not only the results but also the results descriptions.   Design/Methodology/Approach: The study uses real-life queries. Results are made anonymous and are randomised. Results are judged by the persons\n- **[Problems with the use of Web search engines to find results in foreign languages (arXiv)](http://arxiv.org/abs/1511.05798v1)**: Purpose - To test the ability of major search engines, Google, Yahoo, MSN, and Ask, to distinguish between German and English-language documents   Design/methodology/approach - 50 queries, using words common in German and in Engl",
+    "web_sources": [
+      "http://arxiv.org/abs/1511.05800v1",
+      "http://arxiv.org/abs/1511.05798v1"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Añadir una capa de gestión de memoria causal que registre cada consulta y sus resultados en deep_memory_vault, y que utilice un grafo de dependencias temporales para re‑ordenar y pre‑filtrar resultados en futuras búsquedas.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.95
   }
 ]
