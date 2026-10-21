@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.05764,
-  "last_video_id": "vp_20261021_024523_884188",
-  "last_topic": "Neurotopology: Visualizing the Topological Structure of Brain Networks with Persistent Homology",
-  "total_videos_analyzed": 379,
-  "running_cycle": false,
+  "last_run_timestamp": REDACTED_PHONE.867157,
+  "last_video_id": "vp_20261021_035745_6a2c6f",
+  "last_topic": "Tensor Network Renormalization and Emergent Space-Time",
+  "total_videos_analyzed": 381,
+  "running_cycle": true,
   "last_error": null,
-  "auto_improvement_count": 274
+  "auto_improvement_count": 276
 }
