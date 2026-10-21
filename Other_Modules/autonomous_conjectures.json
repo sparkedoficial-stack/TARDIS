@@ -1,35 +1,5 @@
 [
   {
-    "id": "conj_1792370886",
-    "timestamp": "2026-10-18T19:48:06.229853",
-    "idle_duration_minutes": 31.7,
-    "title": "Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching mechanism will allow the system to predict when cached search results become stale based on observed changes in source domains (e.g., news sites, scientific repositories). By modeling the temporal causality between content update frequencies and cache validity, the engine can proactively invalidate or refresh entries, reducing latency and improving answer freshness without incurring full re‑queries for every user request.",
-    "research_query": "causal inference based cache invalidation web search engine recent studies 2023 2024",
-    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web search engine recent studies 2023 2024\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal cache manager that logs source update timestamps, learns update patterns with a lightweight Bayesian network, and triggers selective cache refreshes before serving stale results.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 99.64
-  },
-  {
-    "id": "conj_1792374521",
-    "timestamp": "2026-10-18T20:48:41.201256",
-    "idle_duration_minutes": 31.7,
-    "title": "Dynamic Causal Cache Invalidation for the Web Research Engine",
-    "hypothesis": "If the Web Research Engine records causal dependencies between each executed search query, the retrieved documents, and the subsequent transformations applied by the Deep Memory Vault, then a lightweight dependency graph can be used to invalidate only the cache entries that are affected by changes in the underlying data sources. This selective invalidation should reduce unnecessary cache flushes, lower latency for repeat queries, and improve overall throughput without sacrificing result freshness.",
-    "research_query": "causal inference based cache invalidation techniques for web search engines performance evaluation",
-    "research_findings": "# Informe de Investigación: causal inference based cache invalidation techniques for web search engines performance evaluation\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a dependency‑graph module that tracks which cached results depend on which external URLs or API endpoints, and implement a selective invalidation routine that purges only those cache entries when source data changes are detected.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 101.51
-  },
-  {
     "id": "conj_1792378477",
     "timestamp": "2026-10-18T21:54:37.392688",
     "idle_duration_minutes": 34.3,
@@ -1605,5 +1575,38 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.95
+  },
+  {
+    "id": "conj_1792581194",
+    "timestamp": "2026-10-21T06:13:14.558760",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal Memory Indexing for Real‑Time Web Research",
+    "hypothesis": "Integrating a causal graph layer into the Deep Memory Vault will allow the Web Research Engine to prioritize and retrieve information not only by lexical relevance but also by inferred causal relevance to the current query context. By storing each memorized fact with its upstream and downstream causal links, the system can dynamically compute a relevance score that favors sources that are causally upstream of the user's intent, improving answer accuracy and reducing hallucination in autonomous reasoning cycles.",
+    "research_query": "causal graph based information retrieval systems and their impact on relevance ranking in AI assistants",
+    "research_findings": "# Informe de Investigación: causal graph based information retrieval systems and their impact on relevance ranking in AI assistants\n\n## Fuentes Consultadas y Respaldo Web\n- **[A unified multimodal GenAI platform integrating GraphRAG multi-agent systems and custom language models for intelligent document processing and knowledge synthesis | Scientific Reports - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE5JV0JFR2ExZGVqeHdMdW5QZm40Ri13WnNTOVdreWJwRTdCaGJXZEFJb1FFTU5vOWI5WUw3c3cyTDdlVlJwem0zYjJkaVpkZXpZbU1fQ05mczhwcnQycEhj?oc=5)**: A unified multimodal GenAI platform integrating GraphRAG multi-agent systems and custom language models for intelligent document processing and knowledge synthesis | Scientific Reports  Nature\n- **[Mi-Memory: A Lifecycle Memory Framework for Personal AI - alphaXiv](https://news.google.com/rss/articles/CBMiUEFVX3lxTFB1OC15STZna0dNSzB3VDJ6S3BOUTFKNnpyNkZDQ2FyR0ktcVZnY2haT3RFSlZwM3V3emd0V3FIN09NX2pSaG50S3ZYZjZnekpK?oc=5)**: Mi-Memory: A Lifecycle Me",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE5JV0JFR2ExZGVqeHdMdW5QZm40Ri13WnNTOVdreWJwRTdCaGJXZEFJb1FFTU5vOWI5WUw3c3cyTDdlVlJwem0zYjJkaVpkZXpZbU1fQ05mczhwcnQycEhj?oc=5",
+      "https://news.google.com/rss/articles/CBMiUEFVX3lxTFB1OC15STZna0dNSzB3VDJ6S3BOUTFKNnpyNkZDQ2FyR0ktcVZnY2haT3RFSlZwM3V3emd0V3FIN09NX2pSaG50S3ZYZjZnekpK?oc=5"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Add a causal graph data structure (e.g., adjacency list with weighted edges) to the vault, implement functions to insert causal links when new facts are stored, and modify the retrieval API to accept a 'causal_weight' parameter that boosts results based on upstream causal distance.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.44
+  },
+  {
+    "id": "conj_1792583217",
+    "timestamp": "2026-10-21T06:46:57.640200",
+    "idle_duration_minutes": 33.7,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer that tracks dependencies between fetched web documents and downstream reasoning steps can enable selective cache invalidation, reducing redundant network calls and improving response latency in the core/web_research_engine.py module. By modeling each request as a node in a directed acyclic graph (DAG) with edges representing semantic influence, the system can predict when a cached result is likely stale based on changes in upstream sources, rather than relying on fixed TTLs.",
+    "research_query": "causal inference based cache invalidation web scraping \"directed acyclic graph\" cache freshness",
+    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web scraping \"directed acyclic graph\" cache freshness\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a dependency graph structure to track fetched URLs and their semantic impact, and implement an invalidation routine that prunes cache entries when upstream sources are updated or when the graph indicates high propagation risk.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.26
   }
 ]
