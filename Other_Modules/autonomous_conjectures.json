@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1792333037",
-    "timestamp": "2026-10-18T09:17:17.441585",
-    "idle_duration_minutes": 31.6,
-    "title": "Causal Cache Coherence for Web Research Engine",
-    "hypothesis": "Integrating a causal‑aware cache layer into core/web_research_engine.py, which records the provenance and temporal dependencies of each fetched result, will reduce redundant network calls by up to 30% and improve the relevance of subsequent queries by allowing the engine to infer which cached entries are still valid under changing context (e.g., news cycles, API versioning). The hypothesis rests on the premise that the deep memory vault already stores causal links between events; exposing these links to the web research engine enables a lightweight inference step that discards stale entries before a network request is issued.",
-    "research_query": "causal cache invalidation techniques for web scraping engines and their impact on latency reduction",
-    "research_findings": "# Informe de Investigación: causal cache invalidation techniques for web scraping engines and their impact on latency reduction\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal cache manager that logs each request's timestamp, source URL, and associated context tags; implement a validity check that uses the deep_memory_vault's causal graph to decide if a cached entry can be reused, and fall back to a fresh fetch only when necessary.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.38
-  },
-  {
     "id": "conj_1792337120",
     "timestamp": "2026-10-18T10:25:20.001902",
     "idle_duration_minutes": 36.6,
@@ -1606,5 +1591,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 99.25
+  },
+  {
+    "id": "conj_1792558228",
+    "timestamp": "2026-10-20T23:50:28.150631",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal‑Feedback Loop for Adaptive Web Research",
+    "hypothesis": "Integrating a causal‑feedback mechanism between the Web Research Engine and the Deep Memory Vault will allow the system to dynamically re‑weight search strategies based on the observed relevance of retrieved documents, leading to a measurable reduction in query latency and an increase in semantic precision. The hypothesis posits that a lightweight Bayesian network can model the causal influence of past retrieval outcomes on future query formulation, enabling the engine to anticipate the most promising search operators (e.g., site:, filetype:, semantic embeddings) without exhaustive trial‑and‑error.",
+    "research_query": "\"causal feedback loop\" web search engine adaptive relevance weighting Bayesian network",
+    "research_findings": "# Informe de Investigación: \"causal feedback loop\" web search engine adaptive relevance weighting Bayesian network\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a modular causal‑feedback component that records retrieval success metrics in deep_memory_vault, updates a Bayesian belief model, and adjusts the search parameter generator in real time.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.93
   }
 ]

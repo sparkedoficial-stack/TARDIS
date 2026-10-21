@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.036091,
-  "last_video_id": "vp_20261020_223148_e05366",
-  "last_topic": "Persistent Homology of the Human Connectome: Unveiling Multiscale Brain Architecture",
-  "total_videos_analyzed": 372,
+  "last_run_timestamp": REDACTED_PHONE.2621834,
+  "last_video_id": "vp_20261020_234312_c5d72d",
+  "last_topic": "Tensor Network Models of Holographic Spacetime and Black Hole Interiors",
+  "total_videos_analyzed": 374,
   "running_cycle": false,
   "last_error": null,
-  "auto_improvement_count": 273
+  "auto_improvement_count": 274
 }

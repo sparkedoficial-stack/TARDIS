@@ -3,33 +3,14 @@
   "interval_seconds": 5400.0,
   "target_chat_id": -REDACTED_PHONE,
   "target_thread_id": 453,
-  "last_run_timestamp": REDACTED_PHONE.8869445,
-  "last_run_iso": "2026-10-20T21:46:27.886948",
-  "total_dispatches": 272,
-  "curator_index": 1,
+  "last_run_timestamp": REDACTED_PHONE.4764407,
+  "last_run_iso": "2026-10-20T23:17:42.476445",
+  "total_dispatches": 273,
+  "curator_index": 2,
   "dispatched_topic_ids": [
-    "holographic_brain_neurophysics",
-    "fermi_paradox_great_filter",
-    "godel_incompleteness_ai_limits",
-    "neural_decoding_mind_reading_bci",
-    "syntropy_prigogine_thermodynamics",
-    "synthetic_biology_xenobiology_xna",
-    "ssm_mamba_vs_transformer",
-    "quantum_spacetime_er_epr"
+    "holographic_brain_neurophysics"
   ],
   "history": [
-    {
-      "dispatch_id": 173,
-      "timestamp": REDACTED_PHONE.8671126,
-      "iso": "2026-10-14T17:00:14.867117",
-      "topic_id": "syntropy_prigogine_thermodynamics",
-      "topic_title": "Termodinámica del No Equilibrio y Sintropía: ¿El Orden es una Ley Fundamental?",
-      "pdf_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/reports/polimatas_debates/Dossier_Debate_20261014_170012_syntropy_prigogine_thermodynam.pdf",
-      "chat_id": -REDACTED_PHONE,
-      "thread_id": 453,
-      "text_sent": true,
-      "doc_sent": true
-    },
     {
       "dispatch_id": 174,
       "timestamp": REDACTED_PHONE.6478927,
@@ -1217,6 +1198,18 @@
       "thread_id": 453,
       "text_sent": true,
       "doc_sent": true
+    },
+    {
+      "dispatch_id": 273,
+      "timestamp": REDACTED_PHONE.4764407,
+      "iso": "2026-10-20T23:17:42.476445",
+      "topic_id": "holographic_brain_neurophysics",
+      "topic_title": "La Hipótesis del Cerebro Holográfico: Memoria Distribuida y Resonancia Cuántica",
+      "pdf_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/reports/polimatas_debates/Dossier_Debate_20261020_231742_holographic_brain_neurophysics.pdf",
+      "chat_id": -REDACTED_PHONE,
+      "thread_id": 453,
+      "text_sent": false,
+      "doc_sent": false
     }
   ]
 }
