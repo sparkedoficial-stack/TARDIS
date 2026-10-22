@@ -1,35 +1,5 @@
 [
   {
-    "id": "conj_1792420995",
-    "timestamp": "2026-10-19T09:43:15.797770",
-    "idle_duration_minutes": 31.6,
-    "title": "Resonancia Causal en la Bóveda Akáshica: Compresión Semántica Adaptativa",
-    "hypothesis": "Se postula que la eficiencia de recuperación de información en `core/deep_memory_vault.py` no depende linealmente del volumen de datos, sino de la 'densidad causal' de las conexiones entre nodos de memoria. Actualmente, el sistema podría estar almacenando redundancias semánticas que diluyen la señal causal. La hipótesis sugiere que implementar un algoritmo de 'pruning' (poda) basado en la entropía de Shannon aplicada a los vectores de contexto permitiría reducir la latencia de búsqueda en un 30-40% sin pérdida de fidelidad, al eliminar nodos de baja relevancia causal antes de la consulta web.",
-    "research_query": "adaptive semantic pruning algorithm for vector databases entropy-based node reduction LLM memory optimization",
-    "research_findings": "# Informe de Investigación: adaptive semantic pruning algorithm for vector databases entropy-based node reduction LLM memory optimization\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar una función `calculate_causal_density()` que evalúe la entropía de los metadatos de cada nodo de memoria y elimine automáticamente aquellos con una densidad causal inferior a un umbral dinámico configurado, optimizando así la estructura de la bóveda antes de cada ciclo de investigación.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.87
-  },
-  {
-    "id": "conj_1792422893",
-    "timestamp": "2026-10-19T10:14:53.901675",
-    "idle_duration_minutes": 31.6,
-    "title": "Resonancia Causal en la Bóveda Akáshica: Entropía Temporal y Compresión Semántica",
-    "hypothesis": "Se postula que la 'Bóveda Akáshica' (deep_memory_vault.py) sufre de una degradación latente en la recuperación de contextos causales debido a la acumulación de ruido semántico en las entradas de telemetría no filtradas. La hipótesis sugiere que implementar un mecanismo de 'Enfriamiento Temporal' (Time-Decay Cooling) combinado con una compresión vectorial dinámica basada en la relevancia causal inmediata, en lugar de la frecuencia histórica, reduciría la latencia de inferencia en el web_research_engine.py y aumentaría la precisión de las conjeturas autónomas. Específicamente, los nodos de memoria que no han sido validados por una acción exitosa del sistema en las últimas N iteraciones deben ser atenuados exponencialmente para evitar sesgos obsoletos.",
-    "research_query": "temporal decay memory management LLM agents semantic compression causal relevance filtering autonomous systems",
-    "research_findings": "# Informe de Investigación: temporal decay memory management LLM agents semantic compression causal relevance filtering autonomous systems\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar una función `apply_temporal_decay()` que ajuste los pesos de los vectores de memoria en la bóveda basándose en la antigüedad y la última validación causal, integrando esta lógica antes de la consulta en el motor de investigación.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.09
-  },
-  {
     "id": "conj_1792424827",
     "timestamp": "2026-10-19T10:47:07.927318",
     "idle_duration_minutes": 32.2,
@@ -1603,5 +1573,38 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 98.44
+  },
+  {
+    "id": "conj_1792631141",
+    "timestamp": "2026-10-21T20:05:41.737296",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrating a causal‑graph based invalidation layer into core/web_research_engine.py will reduce stale‑data retrieval by 30 % while keeping latency under 150 ms. The hypothesis posits that each fetched result can be annotated with provenance nodes (source URL, timestamp, query parameters) and linked to a lightweight causal DAG stored in core/deep_memory_vault.py. When a downstream module (e.g., network_shield) reports a connectivity change or a source domain updates its robots.txt, the DAG can propagate an invalidation signal only to dependent cache entries, avoiding full cache flushes and preserving useful results.",
+    "research_query": "causal graph cache invalidation web scraping latency improvement study",
+    "research_findings": "# Informe de Investigación: causal graph cache invalidation web scraping latency improvement study\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a provenance metadata wrapper to cached responses and implement a DAG‑based invalidation routine that listens to events from network_shield and deep_memory_vault, updating only affected cache entries.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.21
+  },
+  {
+    "id": "conj_1792633040",
+    "timestamp": "2026-10-21T20:37:20.178481",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal Memory Indexing for Real‑Time Web Retrieval",
+    "hypothesis": "Integrating a causal graph layer within the Deep Memory Vault (core/deep_memory_vault.py) can prioritize and rank stored akáshic fragments based on their inferred influence on current query contexts, thereby reducing latency and improving relevance of results returned by the Web Research Engine. The hypothesis posits that a lightweight, incremental causal inference engine can be built on top of the existing vector store, using temporal and semantic edges extracted during ingestion, and that this will yield a measurable >15% reduction in average retrieval time for context‑rich queries without degrading precision.",
+    "research_query": "incremental causal graph indexing for vector databases performance improvement",
+    "research_findings": "# Informe de Investigación: incremental causal graph indexing for vector databases performance improvement\n\n## Fuentes Consultadas y Respaldo Web\n- **[LightRAG: Simple and Fast Retrieval-Augmented Generation - alphaXiv](https://news.google.com/rss/articles/CBMiUEFVX3lxTE9Kd0JUV1VCSkhaalkycVVObXEwOHdxZjBqYWxjdzg5clBkY3ZOb002cUF3YVgtVzRZOTNCSF9WVEJMNjlKUlZ5Yncwb0JjOU1D?oc=5)**: LightRAG: Simple and Fast Retrieval-Augmented Generation  alphaXiv\n- **[Artificial intelligence (Wikipedia)](https://en.wikipedia.org/wiki/Artificial_intelligence)**: Nilsson (1998). Formal knowledge representations are used in content-based indexing and retrieval, scene interpretation, clinical decision support, knowledge\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMiUEFVX3lxTE9Kd0JUV1VCSkhaalkycVVObXEwOHdxZjBqYWxjdzg5clBkY3ZOb002cUF3YVgtVzRZOTNCSF9WVEJMNjlKUlZ5Yncwb0JjOU1D?oc=5)\n\n### De [Artificial intelligence - Wikipedia](https://en.wikipedia.org/wiki/Art",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiUEFVX3lxTE9Kd0JUV1VCSkhaalkycVVObXEwOHdxZjBqYWxjdzg5clBkY3ZOb002cUF3YVgtVzRZOTNCSF9WVEJMNjlKUlZ5Yncwb0JjOU1D?oc=5",
+      "https://en.wikipedia.org/wiki/Artificial_intelligence"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Add a causal graph module that updates edge weights on each new memory insertion and provides a ranking function used by core/web_research_engine.py to re‑order candidate documents before similarity scoring.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.43
   }
 ]
