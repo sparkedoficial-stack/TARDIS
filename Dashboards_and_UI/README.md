@@ -21,6 +21,7 @@ Cockpits de control en tiempo real, portales soberanos y tableros de visualizaci
 - **gods_eye_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
 - **holodeck_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
 - **idle_daemon_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
+- **network_auditor_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
 - **quantum_explorer_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
 - **safety_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
 - **scientific_researcher_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.

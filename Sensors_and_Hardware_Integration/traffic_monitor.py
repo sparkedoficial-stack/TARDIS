@@ -87,15 +87,36 @@ KNOWN_ORGANIZATIONS = [
     },
     {
         "name": "Google LLC / Alphabet",
-        "category": "Servicios Web & APIs Google",
-        "purpose": "Búsquedas, navegación web, sincronización de cuentas y conectividad de servicios Android/Google.",
+        "category": "Servicios Web, APIs & DNS Google",
+        "purpose": " Inferencia Antigravity/Gemini, resolución DNS (REDACTED_IP), búsquedas y conectividad de servicios Google.",
         "networks": [
+            ipaddress.ip_network("REDACTED_IP/24"),
+            ipaddress.ip_network("REDACTED_IP/24"),
             ipaddress.ip_network("REDACTED_IP/16"),
             ipaddress.ip_network("REDACTED_IP/15"),
             ipaddress.ip_network("REDACTED_IP/16"),
             ipaddress.ip_network("REDACTED_IP/9"),
             ipaddress.ip_network("REDACTED_IP/13"),
             ipaddress.ip_network("REDACTED_IP/16")
+        ]
+    },
+    {
+        "name": "GitHub Inc.",
+        "category": "Repositorios de Código & Sincronización TARDIS",
+        "purpose": "Sincronización de repositorios soberanos (sparkedoficial-stack/TARDIS) y actualizaciones de herramientas.",
+        "networks": [
+            ipaddress.ip_network("REDACTED_IP/20"),
+            ipaddress.ip_network("REDACTED_IP/22")
+        ]
+    },
+    {
+        "name": "Tailscale Inc.",
+        "category": "Malla VPN Soberana (WireGuard / DERP)",
+        "purpose": "Plano de control y relés DERP cifrados de la red privada virtual Tailscale.",
+        "networks": [
+            ipaddress.ip_network("REDACTED_IP/24"),
+            ipaddress.ip_network("REDACTED_IP/24"),
+            ipaddress.ip_network("REDACTED_IP/10")
         ]
     },
     {

@@ -2559,6 +2559,68 @@ iframe{border:none;width:100%;height:100%;}</style></head>
         return get_traffic_monitor().get_recurring_traffic_report()
 
     # --------------------------------------------------------------------------
+    # SISTEMA DE RASTREO, AUDITORÍA Y CONTROL DE TRÁFICO (ETHERNET + WI-FI)
+    # --------------------------------------------------------------------------
+    @app.get("/api/netguard")
+    @app.get("/api/netguard/overview")
+    async def get_netguard_overview_endpoint(sweep: bool = False):
+        try:
+            from core.network_traffic_controller import get_traffic_controller
+            return get_traffic_controller().get_complete_audit_snapshot(active_sweep=sweep)
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
+
+    @app.post("/api/netguard/scan")
+    async def post_netguard_scan_endpoint():
+        try:
+            from core.network_traffic_controller import get_traffic_controller
+            return get_traffic_controller().get_complete_audit_snapshot(active_sweep=True)
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
+
+    @app.post("/api/netguard/control")
+    async def post_netguard_control_endpoint(req: Request):
+        try:
+            body = await req.json()
+        except Exception:
+            body = {}
+        try:
+            from core.network_traffic_controller import get_traffic_controller
+            ctrl = get_traffic_controller()
+            action = str(body.get("action", "")).lower().strip()
+            target = str(body.get("target", "")).strip()
+            if action == "quarantine":
+                return ctrl.quarantine_device(target, reason=body.get("reason", "Aislamiento manual"))
+            elif action == "release":
+                return ctrl.release_device(target)
+            elif action == "throttle":
+                return ctrl.throttle_device(target, int(body.get("rate_kbps", 256)))
+            elif action == "unthrottle":
+                return ctrl.unthrottle_device(target)
+            elif action == "block_ip":
+                return ctrl.block_remote_endpoint(target)
+            elif action == "unblock_ip":
+                return ctrl.unblock_remote_endpoint(target)
+            elif action in ("alias", "metadata", "set_trust"):
+                return ctrl.set_device_metadata(
+                    target,
+                    alias=body.get("alias"),
+                    trust_level=body.get("trust_level")
+                )
+            elif action == "apply_policy":
+                return ctrl.apply_firewall_and_traffic_policy()
+            return {"ok": False, "error": f"Acción de control desconocida: {action}"}
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
+
+    @app.get("/netguard", response_class=HTMLResponse)
+    async def get_netguard_dashboard_page():
+        dash_path = settings.base_dir / "network_auditor_dashboard.html"
+        if dash_path.exists():
+            return HTMLResponse(dash_path.read_text(encoding="utf-8"))
+        return HTMLResponse("<h1>Panel NetGuard en construcción</h1>", status_code=404)
+
+    # --------------------------------------------------------------------------
     # CENTINELA AUTÓNOMO DE CIBERDEFENSA SOBERANA
     # --------------------------------------------------------------------------
     @app.get("/api/cyberdefense")

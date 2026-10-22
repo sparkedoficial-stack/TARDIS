@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TARDIS NetGuard · Rastreador, Auditoría y Control de Tráfico (Ethernet + Wi-Fi)</title>
+  <style>
+    :root {
+      --bg: #070b14;
+      --panel: #0f172a;
+      --panel-alt: #131f38;
+      --border: #1e293b;
+      --accent: #00f0ff;
+      --gold: #fbbf24;
+      --green: #10b981;
+      --red: #ef4444;
+      --purple: #a855f7;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
+      background: radial-gradient(circle at top right, #0f1b33 0%, var(--bg) 65%);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 14px;
+      padding: 18px 24px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(0, 240, 255, 0.25);
+      border-radius: 14px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+    }
+    .brand h1 {
+      font-size: 1.35rem;
+      color: var(--accent);
+      letter-spacing: 0.6px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand p {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    button {
+      background: var(--panel-alt);
+      color: var(--text);
+      border: 1px solid rgba(0, 240, 255, 0.35);
+      padding: 9px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-weight: 600;
+      transition: all 0.18s ease;
+    }
+    button:hover {
+      background: rgba(0, 240, 255, 0.16);
+      border-color: var(--accent);
+    }
+    button.btn-danger {
+      border-color: rgba(239, 68, 68, 0.55);
+      color: #fca5a5;
+    }
+    button.btn-danger:hover {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: var(--red);
+    }
+    button.btn-success {
+      border-color: rgba(16, 185, 129, 0.55);
+      color: #6ee7b7;
+    }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(195px, 1fr));
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    .kpi-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .kpi-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      color: var(--muted);
+      letter-spacing: 0.7px;
+    }
+    .kpi-value {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-top: 6px;
+      color: var(--accent);
+    }
+    .kpi-sub {
+      font-size: 0.76rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+    .section-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 20px;
+      margin-bottom: 20px;
+      overflow-x: auto;
+    }
+    .section-title {
+      font-size: 1.02rem;
+      font-weight: 700;
+      color: var(--gold);
+      margin-bottom: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+    th, td {
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+    }
+    th {
+      color: var(--muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.72rem;
+      letter-spacing: 0.5px;
+    }
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+    .badge-aegis { background: rgba(168, 85, 247, 0.2); color: #d8b4fe; border: 1px solid rgba(168,85,247,0.4); }
+    .badge-trusted { background: rgba(16, 185, 129, 0.18); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.4); }
+    .badge-known { background: rgba(0, 240, 255, 0.14); color: #67e8f9; border: 1px solid rgba(0,240,255,0.35); }
+    .badge-quarantined { background: rgba(239, 68, 68, 0.22); color: #fca5a5; border: 1px solid rgba(239,68,68,0.5); }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(460px, 1fr));
+      gap: 20px;
+    }
+    .mono { font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <h1>🛡️ TARDIS NETGUARD · AUDITORÍA Y CONTROL DE TRÁFICO</h1>
+      <p>Vigilancia Activa Multi-Subred: Ethernet LAN (REDACTED_IP/24) · Wi-Fi Soberana (REDACTED_IP/24) · NetNS Antarctica (REDACTED_IP/24)</p>
+    </div>
+    <div class="actions">
+      <button onclick="loadOverview(false)">🔄 Actualizar Vista</button>
+      <button class="btn-success" onclick="triggerActiveSweep()">📡 Escaneo Profundo (ARP + Puertos)</button>
+      <button onclick="promptBlockRemoteIp()">🚫 Bloquear IP Externa</button>
+    </div>
+  </header>
+
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Dispositivos Online</div>
+      <div class="kpi-value" id="kpi-online">--</div>
+      <div class="kpi-sub" id="kpi-segments">Ethernet: -- | Wi-Fi: --</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Flujos de Datos Activos</div>
+      <div class="kpi-value" id="kpi-flows">--</div>
+      <div class="kpi-sub">Conntrack Kernel + Sockets Locales</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Tráfico Ethernet (enp2s0)</div>
+      <div class="kpi-value" id="kpi-eth-mb">-- MB</div>
+      <div class="kpi-sub" id="kpi-eth-rate">RX/TX Caudal Instantáneo</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Dispositivos en Cuarentena</div>
+      <div class="kpi-value" id="kpi-quarantined" style="color: var(--gold);">0</div>
+      <div class="kpi-sub" id="kpi-throttled">Limitados QoS: 0</div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-title">
+      <span>📡 INVENTARIO Y CONTROL DE DISPOSITIVOS EN RED (ETHERNET + WI-FI + VIRTUAL)</span>
+      <span id="scan-elapsed" style="font-size:0.76rem; color:var(--muted);"></span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Estado</th>
+          <th>Dispositivo / Alias</th>
+          <th>Dirección IP / IPv6</th>
+          <th>MAC / Fabricante OUI</th>
+          <th>Medio / Segmento</th>
+          <th>Puertos Abiertos</th>
+          <th>Latencia</th>
+          <th>Confianza</th>
+          <th>Acciones de Control</th>
+        </tr>
+      </thead>
+      <tbody id="devices-tbody"></tbody>
+    </table>
+  </div>
+
+  <div class="grid-2">
+    <div class="section-card">
+      <div class="section-title">⚙️ TRÁFICO POR PROCESO LOCAL (PID / EJECUTABLE)</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Proceso / PID</th>
+            <th>Usuario</th>
+            <th>Flujos</th>
+            <th>Volumen</th>
+            <th>Destinos Principales</th>
+          </tr>
+        </thead>
+        <tbody id="processes-tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="section-card">
+      <div class="section-title">🌐 TELEMETRÍA DE INTERFACES DE KERNEL (/proc/net/dev)</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Interfaz</th>
+            <th>Rol</th>
+            <th>RX Total</th>
+            <th>TX Total</th>
+            <th>Paquetes</th>
+            <th>Caudal</th>
+          </tr>
+        </thead>
+        <tbody id="interfaces-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-title">🔍 AUDITORÍA EN TIEMPO REAL DE CONEXIONES Y FLUJOS DE DATOS (CONNTRACK)</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Tipo</th>
+          <th>Proto / Estado</th>
+          <th>Origen (Dispositivo)</th>
+          <th>Destino / Organización</th>
+          <th>Puerto / Servicio</th>
+          <th>Proceso Local</th>
+          <th>Paquetes / Bytes</th>
+        </tr>
+      </thead>
+      <tbody id="flows-tbody"></tbody>
+    </table>
+  </div>
+
+  <script>
+    function fmtBytes(b) {
+      if (!b || b <= 0) return '0 B';
+      if (b < 1024) return b + ' B';
+      if (b < 1048576) return (b / 1024).toFixed(1) + ' KB';
+      return (b / 1048576).toFixed(2) + ' MB';
+    }
+
+    function trustBadge(level) {
+      if (level === 'AEGIS_PROTECTED') return '<span class="badge badge-aegis">AEGIS SOBERANO</span>';
+      if (level === 'TRUSTED') return '<span class="badge badge-trusted">CONFIABLE</span>';
+      if (level === 'QUARANTINED') return '<span class="badge badge-quarantined">CUARENTENA</span>';
+      return '<span class="badge badge-known">' + (level || 'KNOWN') + '</span>';
+    }
+
+    async function loadOverview(sweep = false) {
+      try {
+        const res = await fetch('/api/netguard/overview?sweep=' + (sweep ? 'true' : 'false'));
+        const data = await res.json();
+        if (!data.ok) return;
+
+        const sum = data.summary || {};
+        document.getElementById('kpi-online').textContent = sum.online_devices_count + ' / ' + sum.total_registered_devices;
+        document.getElementById('kpi-segments').textContent = `Ethernet: ${sum.ethernet_online_count} | Wi-Fi: ${sum.wifi_online_count} | Virtual: ${sum.virtual_online_count}`;
+        document.getElementById('kpi-flows').textContent = sum.active_flows_count;
+        document.getElementById('kpi-quarantined').textContent = sum.quarantined_count;
+        document.getElementById('kpi-throttled').textContent = `Limitados QoS: ${sum.throttled_count}`;
+        document.getElementById('scan-elapsed').textContent = `Auditoría completada en ${data.elapsed_ms} ms`;
+
+        const ethIface = (data.interfaces || []).find(i => i.interface === 'enp2s0');
+        if (ethIface) {
+          document.getElementById('kpi-eth-mb').textContent = `${ethIface.rx_mb} MB ↓ / ${ethIface.tx_mb} MB ↑`;
+          document.getElementById('kpi-eth-rate').textContent = `RX: ${ethIface.rx_rate_kbps} KB/s | TX: ${ethIface.tx_rate_kbps} KB/s`;
+        }
+
+        // Render devices
+        const devTbody = document.getElementById('devices-tbody');
+        devTbody.innerHTML = (data.devices || []).map(d => {
+          const dot = d.online ? '🟢 Online' : '⚪ Offline';
+          const ports = (d.port_details || []).map(p => `${p.port} (${p.service})`).join(', ') || 'Ninguno expuesto';
+          const rtt = d.rtt_ms != null ? `${d.rtt_ms} ms` : '—';
+          const isHost = d.arp_state === 'HOST_LOCAL' || d.arp_state === 'HOST_GATEWAY';
+          let actionsHtml = '—';
+          if (!isHost) {
+            const qBtn = d.is_quarantined
+              ? `<button class="btn-success" onclick="controlDevice('release', '${d.ip}')">Liberar</button>`
+              : `<button class="btn-danger" onclick="controlDevice('quarantine', '${d.ip}')">Aislar</button>`;
+            const tBtn = d.throttle_kbps
+              ? `<button onclick="controlDevice('unthrottle', '${d.ip}')">Quitar QoS (${d.throttle_kbps}KB/s)</button>`
+              : `<button onclick="promptThrottle('${d.ip}')">Limitar QoS</button>`;
+            const aBtn = `<button onclick="promptAlias('${d.mac}', '${d.alias}')">Renombrar</button>`;
+            actionsHtml = `<div style="display:flex;gap:6px;">${qBtn}${tBtn}${aBtn}</div>`;
+          }
+          return `<tr>
+            <td>${dot} <div style="font-size:0.7rem;color:var(--muted);">${d.arp_state}</div></td>
+            <td><strong>${d.alias}</strong><div style="font-size:0.72rem;color:var(--muted);">${d.device_type}</div></td>
+            <td class="mono">${d.ip}<div style="font-size:0.68rem;color:var(--muted);">${(d.ipv6_addresses || [])[0] || ''}</div></td>
+            <td class="mono">${d.mac}<div style="font-size:0.72rem;color:var(--muted);">${d.vendor}</div></td>
+            <td>${d.connection_medium}</td>
+            <td style="max-width:220px;">${ports}</td>
+            <td class="mono">${rtt}</td>
+            <td>${trustBadge(d.trust_level)}</td>
+            <td>${actionsHtml}</td>
+          </tr>`;
+        }).join('');
+
+        // Render processes
+        const procTbody = document.getElementById('processes-tbody');
+        procTbody.innerHTML = ((data.traffic || {}).by_process || []).slice(0, 12).map(p => `<tr>
+          <td class="mono"><strong>${p.process}</strong> ${p.pid ? '(PID ' + p.pid + ')' : ''}</td>
+          <td>${p.user}</td>
+          <td>${p.flows_count}</td>
+          <td class="mono">${fmtBytes(p.bytes)}</td>
+          <td style="font-size:0.74rem;color:var(--muted);">${(p.destinations || []).slice(0, 3).join('<br>')}</td>
+        </tr>`).join('');
+
+        // Render interfaces
+        const ifTbody = document.getElementById('interfaces-tbody');
+        ifTbody.innerHTML = (data.interfaces || []).map(i => `<tr>
+          <td class="mono"><strong>${i.interface}</strong></td>
+          <td>${i.role}</td>
+          <td class="mono">${i.rx_mb} MB</td>
+          <td class="mono">${i.tx_mb} MB</td>
+          <td class="mono">${i.rx_packets + i.tx_packets}</td>
+          <td class="mono">↓${i.rx_rate_kbps} / ↑${i.tx_rate_kbps} KB/s</td>
+        </tr>`).join('');
+
+        // Render flows
+        const flTbody = document.getElementById('flows-tbody');
+        flTbody.innerHTML = ((data.traffic || {}).flows || []).slice(0, 40).map(f => `<tr>
+          <td><span class="badge badge-known">${f.flow_type}</span></td>
+          <td class="mono">${f.proto} · ${f.state}</td>
+          <td class="mono">${f.src_name}<div style="font-size:0.7rem;color:var(--muted);">${f.src_ip}:${f.sport}</div></td>
+          <td><strong>${f.dst_org}</strong><div class="mono" style="font-size:0.7rem;color:var(--muted);">${f.dst_ip}:${f.dport} (${f.dst_category})</div></td>
+          <td>${f.service} (${f.dport})</td>
+          <td class="mono">${f.process} ${f.pid ? '[' + f.pid + ']' : ''}</td>
+          <td class="mono">${f.packets} pkts / ${fmtBytes(f.bytes)}</td>
+        </tr>`).join('');
+
+      } catch (err) {
+        console.error('Error cargando NetGuard:', err);
+      }
+    }
+
+    async function triggerActiveSweep() {
+      document.getElementById('scan-elapsed').textContent = 'Ejecutando barrido activo ICMP + ARP + Puertos...';
+      await fetch('/api/netguard/scan', { method: 'POST' });
+      await loadOverview(false);
+    }
+
+    async function controlDevice(action, target, extra = {}) {
+      await fetch('/api/netguard/control', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action, target, ...extra })
+      });
+      await loadOverview(false);
+    }
+
+    function promptThrottle(ip) {
+      const val = prompt('Ingresa el límite máximo de ancho de banda en KB/s para ' + ip + ':', '256');
+      if (val && !isNaN(parseInt(val))) {
+        controlDevice('throttle', ip, { rate_kbps: parseInt(val) });
+      }
+    }
+
+    function promptAlias(mac, currentAlias) {
+      const alias = prompt('Nuevo nombre o alias para el dispositivo (' + mac + '):', currentAlias);
+      if (alias) {
+        controlDevice('alias', mac, { alias });
+      }
+    }
+
+    function promptBlockRemoteIp() {
+      const ip = prompt('Ingresa la dirección IP o bloque CIDR externo que deseas bloquear en el Firewall NFTables:');
+      if (ip) {
+        controlDevice('block_ip', ip);
+      }
+    }
+
+    loadOverview(false);
+    setInterval(() => loadOverview(false), 12000);
+  </script>
+</body>
+</html>
