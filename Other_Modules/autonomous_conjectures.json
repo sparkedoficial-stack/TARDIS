@@ -1,23 +1,5 @@
 [
   {
-    "id": "conj_1792443838",
-    "timestamp": "2026-10-19T16:03:58.175054",
-    "idle_duration_minutes": 31.6,
-    "title": "Resonancia Causal en la Bóveda Akáshica: Optimización de la Entropía Semántica",
-    "hypothesis": "Se postula que la eficiencia de recuperación de la 'Bóveda Akáshica' (deep_memory_vault.py) no depende linealmente del volumen de datos, sino de la 'densidad causal' entre los nodos de memoria. Actualmente, la telemetría sugiere una acumulación de ruido semántico (entropía alta) que degrada la precisión de las consultas del motor de investigación. La conjetura es que implementar un mecanismo de 'pruning' basado en la relevancia causal histórica (no solo temporal) reduciría la latencia de inferencia en un 15-20% y aumentaría la coherencia de las respuestas del núcleo cognitivo, al eliminar conexiones débiles que no aportan valor predictivo.",
-    "research_query": "semantic memory pruning causal relevance graph neural networks optimization",
-    "research_findings": "# Informe de Investigación: semantic memory pruning causal relevance graph neural networks optimization\n\n## Fuentes Consultadas y Respaldo Web\n- **[Outline of machine learning (Wikipedia)](https://en.wikipedia.org/wiki/Outline_of_machine_learning)**: separation Graph-based methods Co-training Transduction Deep learning Deep belief networks Deep Boltzmann machines Deep Convolutional neural networks Deep Recurrent\n- **[Outline of artificial intelligence (Wikipedia)](https://en.wikipedia.org/wiki/Outline_of_artificial_intelligence)**: Convolutional neural network – Type of feedforward neural network Recurrent neural networks Long short-term memory Hopfield networks Attractor networks Deep learning –\n\n## Contenido y Hallazgos Extraídos\n### De [Outline of machine learning - Wikipedia](https://en.wikipedia.org/wiki/Outline_of_machine_learning)\n> Outline of machine learning - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nOverview of and topical guide to machine learning\nThis",
-    "web_sources": [
-      "https://en.wikipedia.org/wiki/Outline_of_machine_learning",
-      "https://en.wikipedia.org/wiki/Outline_of_artificial_intelligence"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar una función `prune_low_causal_nodes()` que evalúe la fuerza de las conexiones entre nodos de memoria y elimine automáticamente aquellas con un peso causal inferior a un umbral dinámico, integrando esta limpieza en el ciclo de mantenimiento nocturno del sistema.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.33
-  },
-  {
     "id": "conj_1792445735",
     "timestamp": "2026-10-19T16:35:35.432097",
     "idle_duration_minutes": 31.6,
@@ -1601,5 +1583,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 393.42
+  },
+  {
+    "id": "conj_1792670194",
+    "timestamp": "2026-10-22T06:56:34.035409",
+    "idle_duration_minutes": 31.6,
+    "title": "Dynamic Causal Caching for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's request scheduler can predict the relevance of upcoming queries based on past interaction patterns stored in the Deep Memory Vault, allowing the system to pre‑fetch and cache high‑probability results. This would reduce latency by up to 30% and lower network load, while preserving the integrity of the Akáshic Vault's immutable logs.",
+    "research_query": "causal inference based prefetch caching web search engine performance study",
+    "research_findings": "# Informe de Investigación: causal inference based prefetch caching web search engine performance study\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a lightweight causal predictor that analyses recent query embeddings from deep_memory_vault and updates a priority cache; implement async prefetch hooks and expose a configuration flag to enable/disable the feature.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.19
   }
 ]
