@@ -1,22 +1,5 @@
 [
   {
-    "id": "conj_1792436213",
-    "timestamp": "2026-10-19T13:56:53.123533",
-    "idle_duration_minutes": 31.6,
-    "title": "Hipótesis de Resonancia Causal en la Bóveda Akáshica",
-    "hypothesis": "Se postula que la eficiencia de recuperación de información en `deep_memory_vault.py` no depende linealmente de la cantidad de nodos indexados, sino de la 'densidad causal' entre los metadatos de telemetría y los vectores semánticos. Si se introduce un mecanismo de 'pruning' (poda) basado en la entropía de Shannon aplicada a los registros de red (`network_shield.py`), se puede reducir la latencia de búsqueda en un 30-40% al eliminar nodos de baja relevancia causal antes de la consulta vectorial, transformando la bóveda de un almacén pasivo a un filtro activo de señal-ruido.",
-    "research_query": "vector database entropy based pruning causal relevance optimization",
-    "research_findings": "# Informe de Investigación: vector database entropy based pruning causal relevance optimization\n\n## Fuentes Consultadas y Respaldo Web\n- **[Outline of machine learning (Wikipedia)](https://en.wikipedia.org/wiki/Outline_of_machine_learning)**: Reinforcement learning Repeated incremental pruning to produce error reduction (RIPPER) Rprop Rule-based machine learning Self-organizing map Skill chaining\n\n## Contenido y Hallazgos Extraídos\n### De [Outline of machine learning - Wikipedia](https://en.wikipedia.org/wiki/Outline_of_machine_learning)\n> Outline of machine learning - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nOverview of and topical guide to machine learning\nThis article contains dynamic lists that may never be able to satisfy particular standards for completeness. You can help by editing the page to add missing items, with references to reliable sources .\nPart of a series on\nMachine learning\nand data mining\nP...\n",
-    "web_sources": [
-      "https://en.wikipedia.org/wiki/Outline_of_machine_learning"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar una función `calculate_causal_entropy()` que evalúe la varianza de los metadatos de red asociados a cada vector antes de la inserción o consulta, y aplicar un umbral de retención para filtrar nodos con baja densidad de información causal.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.17
-  },
-  {
     "id": "conj_1792438144",
     "timestamp": "2026-10-19T14:29:04.637687",
     "idle_duration_minutes": 32.2,
@@ -1598,5 +1581,23 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.72
+  },
+  {
+    "id": "conj_1792655316",
+    "timestamp": "2026-10-22T02:48:36.117591",
+    "idle_duration_minutes": 37.3,
+    "title": "Hierarchical Relevance‑Weighted Memory Retrieval",
+    "hypothesis": "The current deep_memory_vault uses a flat LRU cache for embedding retrieval, which leads to frequent eviction of semantically relevant but temporally older contexts. Introducing a two‑tier memory hierarchy—an active short‑term buffer and a long‑term relevance‑scored archive—will reduce retrieval latency and improve recall accuracy for causal inference tasks.",
+    "research_query": "hierarchical memory architecture for large language models with relevance weighting",
+    "research_findings": "# Informe de Investigación: hierarchical memory architecture for large language models with relevance weighting\n\n## Fuentes Consultadas y Respaldo Web\n- **[Pretraining with hierarchical memories: separating long-tail and common knowledge - alphaXiv](https://news.google.com/rss/articles/CBMiUEFVX3lxTE0wcmpGdlhMb09tRW5vMExQQ1RxSmo1QkFiOUxOUExBTGZkS09rTm1iQ2hqWXdXQTkzeFNJTEgxa21oTXFVVmt6VUVLVzFJMEZz?oc=5)**: Pretraining with hierarchical memories: separating long-tail and common knowledge  alphaXiv\n- **[Predicting concrete compressive strength using optimized deep learning and large language models - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE4zME1relVsVjNmVWIwbDRpZElVb3lVNzltd2ZlRlZOVU5jQ19TX3Ffa0t6N1lQZVFkYy0tUVdhVk93ZXZHdFpmOHJTdnB5QVR4VGRKaXlMTU80S2NOZ05R?oc=5)**: Predicting concrete compressive strength using optimized deep learning and large language models  Nature\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMiU",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiUEFVX3lxTE0wcmpGdlhMb09tRW5vMExQQ1RxSmo1QkFiOUxOUExBTGZkS09rTm1iQ2hqWXdXQTkzeFNJTEgxa21oTXFVVmt6VUVLVzFJMEZz?oc=5",
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE4zME1relVsVjNmVWIwbDRpZElVb3lVNzltd2ZlRlZOVU5jQ19TX3Ffa0t6N1lQZVFkYy0tUVdhVk93ZXZHdFpmOHJTdnB5QVR4VGRKaXlMTU80S2NOZ05R?oc=5"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implement a two‑tier memory system with relevance scoring and adaptive eviction policy.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 95.55
   }
 ]
