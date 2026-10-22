@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1792445735",
-    "timestamp": "2026-10-19T16:35:35.432097",
-    "idle_duration_minutes": 31.6,
-    "title": "Sinergia Causal entre Telemetría de Red y Memoria Akáshica",
-    "hypothesis": "Se postula que la eficiencia de la investigación web (web_research_engine) puede optimizarse dinámicamente si se correlacionan los patrones de latencia y bloqueo detectados por network_shield con los nodos de conocimiento almacenados en deep_memory_vault. Específicamente, si el shield detecta un aumento en la tasa de falsos positivos o bloqueos en dominios específicos, el motor de investigación debería priorizar fuentes archivadas en la bóveda akáshica o alternar a nodos de confianza previamente validados, reduciendo así el 'ruido' cognitivo y acelerando la convergencia hacia la verdad causal.",
-    "research_query": "adaptive web scraping strategies based on network latency and firewall feedback loops",
-    "research_findings": "# Informe de Investigación: adaptive web scraping strategies based on network latency and firewall feedback loops\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Implementar un callback de telemetría que permita al web_research_engine consultar el estado actual de network_shield y deep_memory_vault antes de ejecutar una nueva petición, ajustando la estrategia de scraping (timeout, user-agent, fuente alternativa) en tiempo real.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.24
-  },
-  {
     "id": "conj_1792447632",
     "timestamp": "2026-10-19T17:07:12.080833",
     "idle_duration_minutes": 31.6,
@@ -1598,5 +1583,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.19
+  },
+  {
+    "id": "conj_1792674122",
+    "timestamp": "2026-10-22T08:02:02.198020",
+    "idle_duration_minutes": 34.0,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer into the web_research_engine's result caching mechanism can dynamically predict the obsolescence of cached pages based on observed changes in source domains, reducing stale data retrieval by at least 30% without increasing latency. The hypothesis assumes that temporal patterns (e.g., update frequency, content volatility) can be learned from the deep_memory_vault logs and used to assign a decay probability to each cached entry, triggering proactive invalidation before a user query accesses it.",
+    "research_query": "causal inference based cache invalidation web scraping \"dynamic content\" probability decay model",
+    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web scraping \"dynamic content\" probability decay model\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a CausalCacheManager class that tracks page update signals from deep_memory_vault, computes decay scores using a simple Bayesian update, and automatically purges or refreshes cached entries before they are served.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 112.71
   }
 ]
