@@ -1,23 +1,5 @@
 [
   {
-    "id": "conj_1792451427",
-    "timestamp": "2026-10-19T18:10:27.677150",
-    "idle_duration_minutes": 31.6,
-    "title": "Resonancia Causal en la Bóveda Akáshica",
-    "hypothesis": "La eficiencia de recuperación de información en la bóveda akáshica se ve limitada por la linealidad de las consultas actuales. Se conjetura que implementar un mecanismo de 'Resonancia Causal' —donde las consultas no solo buscan coincidencias semánticas, sino que evalúan la probabilidad causal de que un dato A influya en un dato B dentro del contexto temporal del sistema— reduciría la latencia de inferencia en un 15-20% y aumentaría la precisión de las predicciones del motor de investigación web al filtrar ruido epistémico irrelevante.",
-    "research_query": "causal inference optimization for vector databases semantic search latency reduction",
-    "research_findings": "# Informe de Investigación: causal inference optimization for vector databases semantic search latency reduction\n\n## Fuentes Consultadas y Respaldo Web\n- **[Optimizing LLM Performance with LM Cache: Architectures, Strategies, and Real-World Applications - HackerNoon](https://news.google.com/rss/articles/CBMitwFBVV95cUxNNWx4OWN2Yms5SHZHd2lFSk1rRXpCdUxmRnpydzR6U3c5eWIxbEJDZ2JEMTB6WmdQNkFfdEtnOGRVdE00RGkxWG1lQVpQZlFZcllRTUFwbHdkZENBLVVRODkyR0wydzBpcWZlZWdZVzB4WUFwQXFUSHJlc3AyTnhBNjNQRHpJcllieXp4NWJoNUpQTzUyMW51M2kwaDd5ZnhjT0ROR2ZBX2pFR1EwMmxIdkNEcF9PNFU?oc=5)**: Optimizing LLM Performance with LM Cache: Architectures, Strategies, and Real-World Applications  HackerNoon\n- **[Outline of machine learning (Wikipedia)](https://en.wikipedia.org/wiki/Outline_of_machine_learning)**: selection Algorithmic inference Algorithmic learning theory AlphaGo AlphaGo Zero Alternating decision tree Apprenticeship learning Causal Markov condition\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](h",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMitwFBVV95cUxNNWx4OWN2Yms5SHZHd2lFSk1rRXpCdUxmRnpydzR6U3c5eWIxbEJDZ2JEMTB6WmdQNkFfdEtnOGRVdE00RGkxWG1lQVpQZlFZcllRTUFwbHdkZENBLVVRODkyR0wydzBpcWZlZWdZVzB4WUFwQXFUSHJlc3AyTnhBNjNQRHpJcllieXp4NWJoNUpQTzUyMW51M2kwaDd5ZnhjT0ROR2ZBX2pFR1EwMmxIdkNEcF9PNFU?oc=5",
-      "https://en.wikipedia.org/wiki/Outline_of_machine_learning"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Integrar un filtro de ponderación causal en la función de búsqueda de la bóveda, priorizando nodos de memoria que tengan una correlación temporal y lógica fuerte con la consulta actual, en lugar de solo similitud coseno.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.15
-  },
-  {
     "id": "conj_1792453325",
     "timestamp": "2026-10-19T18:42:05.229814",
     "idle_duration_minutes": 31.6,
@@ -1598,5 +1580,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 98.1
+  },
+  {
+    "id": "conj_1792685469",
+    "timestamp": "2026-10-22T11:11:09.181229",
+    "idle_duration_minutes": 33.7,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching subsystem can dynamically predict the relevance decay of stored query results based on observed changes in source content and user interaction patterns, thereby reducing stale data retrieval and improving response relevance without a full cache purge.",
+    "research_query": "causal inference based cache invalidation techniques for web search engines and dynamic content freshness",
+    "research_findings": "# Informe de Investigación: causal inference based cache invalidation techniques for web search engines and dynamic content freshness\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a lightweight causal model that monitors timestamps, content hash changes, and user click‑through feedback to assign a decay score to each cached entry and automatically evict or refresh entries whose predicted relevance falls below a threshold.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.86
   }
 ]
