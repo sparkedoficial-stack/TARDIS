@@ -350,41 +350,72 @@ class NetworkShield:
             except Exception:
                 pass
 
-        # 3. Mapear y auditar cada dispositivo
-        for entry in arp_entries:
-            mac = entry["mac"]
-            ip = entry["ip"]
-            iface = entry["device"]
+        # 3. Mapear y auditar cada dispositivo (preferentemente vía TardisNetworkTrafficController)
+        try:
+            from core.network_traffic_controller import get_traffic_controller
+            ctrl = get_traffic_controller()
+            discovered = ctrl.discover_all_devices(active_sweep=False)
+            for d in discovered:
+                if not d.get("online", True):
+                    continue
+                r_ports = d.get("risky_ports", [])
+                if r_ports:
+                    alerts.append(
+                        f"🚨 Dispositivo en {d['ip']} ({d['alias']}) tiene puertos de riesgo abiertos: {', '.join(map(str, r_ports))}"
+                    )
+                devices.append({
+                    "ip": d["ip"],
+                    "mac": d["mac"],
+                    "hostname": d.get("alias") or d.get("hostname", "Dispositivo Conectado"),
+                    "interface": d.get("interface", "enp2s0"),
+                    "vendor": d.get("vendor", "Fabricante de Red"),
+                    "device_type": d.get("device_type", "Dispositivo de Red"),
+                    "open_ports": d.get("open_ports", []),
+                    "risky_ports": r_ports,
+                    "rtt_ms": d.get("rtt_ms"),
+                    "trust_level": d.get("trust_level", "KNOWN"),
+                    "is_quarantined": d.get("is_quarantined", False),
+                    "is_safe": d.get("is_safe", True),
+                    "network_type": "Wi-Fi TimeMachine" if d.get("interface") == "wlp3s0" else (
+                        "Namespace Virtual" if d.get("interface") == "veth-host-aq" else "Ethernet LAN"
+                    )
+                })
+        except Exception as e_ctrl:
+            logger.warning(f"[NetworkShield] Fallback a ARP básico: {e_ctrl}")
+            for entry in arp_entries:
+                mac = entry["mac"]
+                ip = entry["ip"]
+                iface = entry["device"]
 
-            # Detección de ARP Spoofing (mismo MAC con IPs conflictivas anómalas)
-            if mac in seen_macs and iface == "wlp3s0":
-                alerts.append(f"⚠️ Posible anomalía ARP o IP duplicada detectada para MAC {mac}")
-            seen_macs.add(mac)
+                # Detección de ARP Spoofing (mismo MAC con IPs conflictivas anómalas)
+                if mac in seen_macs and iface == "wlp3s0":
+                    alerts.append(f"⚠️ Posible anomalía ARP o IP duplicada detectada para MAC {mac}")
+                seen_macs.add(mac)
 
-            hostname = leases.get(mac, {}).get("host") or ("Gateway Router" if ip.endswith(".1") else "Dispositivo Conectado")
-            if hostname == "*":
-                hostname = "Dispositivo Móvil / Laptop"
+                hostname = leases.get(mac, {}).get("host") or ("Gateway Router" if ip.endswith(".1") else "Dispositivo Conectado")
+                if hostname == "*":
+                    hostname = "Dispositivo Móvil / Laptop"
 
-            # Fabricante aproximado por OUI
-            vendor = self._resolve_vendor(mac)
+                # Fabricante aproximado por OUI
+                vendor = self._resolve_vendor(mac)
 
-            # Análisis rápido de puertos de riesgo (no intrusivo, timeout ultracorto)
-            risky_ports = self._check_risky_ports(ip)
+                # Análisis rápido de puertos de riesgo (no intrusivo, timeout ultracorto)
+                risky_ports = self._check_risky_ports(ip)
 
-            is_safe = len(risky_ports) == 0
-            if risky_ports:
-                alerts.append(f"🚨 Dispositivo en {ip} ({hostname}) tiene puertos de riesgo abiertos: {', '.join(map(str, risky_ports))}")
+                is_safe = len(risky_ports) == 0
+                if risky_ports:
+                    alerts.append(f"🚨 Dispositivo en {ip} ({hostname}) tiene puertos de riesgo abiertos: {', '.join(map(str, risky_ports))}")
 
-            devices.append({
-                "ip": ip,
-                "mac": mac,
-                "hostname": hostname,
-                "interface": iface,
-                "vendor": vendor,
-                "risky_ports": risky_ports,
-                "is_safe": is_safe,
-                "network_type": "Wi-Fi TimeMachine" if iface == "wlp3s0" else "Ethernet LAN"
-            })
+                devices.append({
+                    "ip": ip,
+                    "mac": mac,
+                    "hostname": hostname,
+                    "interface": iface,
+                    "vendor": vendor,
+                    "risky_ports": risky_ports,
+                    "is_safe": is_safe,
+                    "network_type": "Wi-Fi TimeMachine" if iface == "wlp3s0" else "Ethernet LAN"
+                })
 
         # 4. Cálculo de puntuación de seguridad (Score 0-100)
         base_score = 100

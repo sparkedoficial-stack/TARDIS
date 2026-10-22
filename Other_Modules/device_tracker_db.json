@@ -1,0 +1,604 @@
+{
+  "44:D2:44:12:42:DC": {
+    "mac": "44:D2:44:12:42:DC",
+    "ip": "REDACTED_IP",
+    "ipv6_addresses": [
+      "fe80::46d2:44ff:fe12:42dc"
+    ],
+    "alias": "Impresora Multifuncional EPSON L375 (EPSON1242DC)",
+    "hostname": "EPSON1242DC.local",
+    "vendor": "Seiko Epson Corporation",
+    "device_type": "Impresora / Escáner de Red",
+    "interface": "enp2s0",
+    "connection_medium": "Ethernet / LAN (enp2s0)",
+    "network_segment": "Ethernet / LAN Principal (REDACTED_IP/24)",
+    "arp_state": "REACHABLE",
+    "online": true,
+    "rtt_ms": 6.98,
+    "open_ports": [
+      80,
+      443,
+      515,
+      1865,
+      9100
+    ],
+    "port_details": [
+      {
+        "port": 80,
+        "service": "HTTP Web"
+      },
+      {
+        "port": 443,
+        "service": "HTTPS SSL"
+      },
+      {
+        "port": 515,
+        "service": "LPD Printer"
+      },
+      {
+        "port": 1865,
+        "service": "Epson Net Scan"
+      },
+      {
+        "port": 9100,
+        "service": "PDL RAW JetDirect Printer"
+      }
+    ],
+    "risky_ports": [],
+    "mdns_services": [
+      "EPSON L375 Series (UNIX Printer)",
+      "EPSON L375 Series (PDL Printer)",
+      "EPSON L375 Series (Web Site)",
+      "EPSON L375 Series (_scanner._tcp)"
+    ],
+    "wifi_metrics": {},
+    "trust_level": "TRUSTED",
+    "is_quarantined": false,
+    "throttle_kbps": null,
+    "is_safe": true,
+    "traffic_bytes_rx": 0,
+    "traffic_bytes_tx": 0,
+    "traffic_packets": 0,
+    "first_seen": "2026-10-22T00:02:39.625586+00:00",
+    "last_seen": "2026-10-22T00:04:58.195369+00:00",
+    "ip_history": [
+      "REDACTED_IP"
+    ]
+  },
+  "48:22:54:3E:A0:CE": {
+    "mac": "48:22:54:3E:A0:CE",
+    "ip": "REDACTED_IP",
+    "ipv6_addresses": [],
+    "alias": "Nodo TP-Link Smart / Extensor de Red",
+    "hostname": "Nodo TP-Link Smart / Extensor de Red",
+    "vendor": "TP-Link Systems Inc.",
+    "device_type": "Infraestructura de Red TP-Link",
+    "interface": "enp2s0",
+    "connection_medium": "Ethernet / LAN (enp2s0)",
+    "network_segment": "Ethernet / LAN Principal (REDACTED_IP/24)",
+    "arp_state": "REACHABLE",
+    "online": true,
+    "rtt_ms": 2.16,
+    "open_ports": [
+      443,
+      8443
+    ],
+    "port_details": [
+      {
+        "port": 443,
+        "service": "HTTPS SSL"
+      },
+      {
+        "port": 8443,
+        "service": "HTTPS Control API"
+      }
+    ],
+    "risky_ports": [],
+    "mdns_services": [],
+    "wifi_metrics": {},
+    "trust_level": "TRUSTED",
+    "is_quarantined": false,
+    "throttle_kbps": null,
+    "is_safe": true,
+    "traffic_bytes_rx": 0,
+    "traffic_bytes_tx": 0,
+    "traffic_packets": 0,
+    "first_seen": "2026-10-22T00:02:39.625586+00:00",
+    "last_seen": "2026-10-22T00:04:58.195369+00:00",
+    "ip_history": [
+      "REDACTED_IP"
+    ]
+  },
+  "26:6E:AA:8E:AC:76": {
+    "mac": "26:6E:AA:8E:AC:76",
+    "ip": "REDACTED_IP",
+    "ipv6_addresses": [],
+    "alias": "Nodo Aislado Antarctica (NetNS Tunnel)",
+    "hostname": "Nodo Aislado Antarctica (NetNS Tunnel)",
+    "vendor": "Linux Virtual Ethernet (NetNS)",
+    "device_type": "Namespace Virtual de Enrutamiento",
+    "interface": "veth-host-aq",
+    "connection_medium": "Virtual Bridge (veth-host-aq)",
+    "network_segment": "Namespace Virtual Antarctica (REDACTED_IP/24)",
+    "arp_state": "REACHABLE",
+    "online": true,
+    "rtt_ms": 0.03,
+    "open_ports": [],
+    "port_details": [],
+    "risky_ports": [],
+    "mdns_services": [],
+    "wifi_metrics": {},
+    "trust_level": "AEGIS_PROTECTED",
+    "is_quarantined": false,
+    "throttle_kbps": null,
+    "is_safe": true,
+    "traffic_bytes_rx": 0,
+    "traffic_bytes_tx": 0,
+    "traffic_packets": 0,
+    "first_seen": "2026-10-22T00:02:39.625586+00:00",
+    "last_seen": "2026-10-22T00:04:58.195369+00:00",
+    "ip_history": [
+      "REDACTED_IP"
+    ]
+  },
+  "00:31:92:DC:30:34": {
+    "mac": "00:31:92:DC:30:34",
+    "ip": "REDACTED_IP",
+    "ipv6_addresses": [],
+    "alias": "Router TP-Link Archer AX50 (Gateway Principal)",
+    "hostname": "Router TP-Link Archer AX50 (Gateway Principal)",
+    "vendor": "TP-Link Systems Inc.",
+    "device_type": "Router / Gateway Wi-Fi 6",
+    "interface": "enp2s0",
+    "connection_medium": "Ethernet / LAN (enp2s0)",
+    "network_segment": "Ethernet / LAN Principal (REDACTED_IP/24)",
+    "arp_state": "REACHABLE",
+    "online": true,
+    "rtt_ms": 0.5,
+    "open_ports": [
+      53,
+      80,
+      443,
+      49152
+    ],
+    "port_details": [
+      {
+        "port": 53,
+        "service": "DNS"
+      },
+      {
+        "port": 80,
+        "service": "HTTP Web"
+      },
+      {
+        "port": 443,
+        "service": "HTTPS SSL"
+      },
+      {
+        "port": 49152,
+        "service": "UPnP / Apple Companion"
+      }
+    ],
+    "risky_ports": [],
+    "mdns_services": [],
+    "wifi_metrics": {},
+    "trust_level": "TRUSTED",
+    "is_quarantined": false,
+    "throttle_kbps": null,
+    "is_safe": true,
+    "traffic_bytes_rx": 0,
+    "traffic_bytes_tx": 0,
+    "traffic_packets": 0,
+    "first_seen": "2026-10-22T00:02:39.625586+00:00",
+    "last_seen": "2026-10-22T00:04:58.195369+00:00",
+    "ip_history": [
+      "REDACTED_IP"
+    ]
+  },
+  "B8:16:5F:C3:5B:53": {
+    "mac": "B8:16:5F:C3:5B:53",
+    "ip": "REDACTED_IP",
+    "ipv6_addresses": [],
+    "alias": "Smart TV LG webOS (Sala / Principal)",
+    "hostname": "Smart TV LG webOS (Sala / Principal)",
+    "vendor": "LG Innotek",
+    "device_type": "Smart TV / Multimedia",
+    "interface": "enp2s0",
+    "connection_medium": "Ethernet / LAN (enp2s0)",
+    "network_segment": "Ethernet / LAN Principal (REDACTED_IP/24)",
+    "arp_state": "REACHABLE",
+    "online": true,
+    "rtt_ms": 8.34,
+    "open_ports": [],
+    "port_details": [],
+    "risky_ports": [],
+    "mdns_services": [],
+    "wifi_metrics": {},
+    "trust_level": "KNOWN",
+    "is_quarantined": false,
+    "throttle_kbps": null,
+    "is_safe": true,
+    "traffic_bytes_rx": 0,
+    "traffic_bytes_tx": 0,
+    "traffic_packets": 0,
+    "first_seen": "2026-10-22T00:02:39.625586+00:00",
+    "last_seen": "2026-10-22T00:04:58.195369+00:00",
+    "ip_history": [
+      "REDACTED_IP"
+    ]
+  },
+  "D8:E3:5E:52:49:90": {
+    "mac": "D8:E3:5E:52:49:90",
+    "ip": "REDACTED_IP",
+    "ipv6_addresses": [],
+    "alias": "Smart TV LG webOS (Recámara / Secundaria)",
+    "hostname": "Smart TV LG webOS (Recámara / Secundaria)",
+    "vendor": "LG Innotek",
+    "device_type": "Smart TV / Multimedia",
+    "interface": "enp2s0",
+    "connection_medium": "Ethernet / LAN (enp2s0)",
+    "network_segment": "Ethernet / LAN Principal (REDACTED_IP/24)",
+    "arp_state": "REACHABLE",
+    "online": true,
+    "rtt_ms": null,
+    "open_ports": [],
+    "port_details": [],
+    "risky_ports": [],
+    "mdns_services": [],
+    "wifi_metrics": {},
+    "trust_level": "KNOWN",
+    "is_quarantined": false,
+    "throttle_kbps": null,
+    "is_safe": true,
+    "traffic_bytes_rx": 0,
+    "traffic_bytes_tx": 0,
+    "traffic_packets": 0,
+    "first_seen": "2026-10-22T00:02:39.625586+00:00",
+    "last_seen": "2026-10-22T00:04:58.195369+00:00",
+    "ip_history": [
+      "REDACTED_IP"
+    ]
+  },
+  "D0:39:57:27:47:E5": {
+    "mac": "D0:39:57:27:47:E5",
+    "ip": "REDACTED_IP",
+    "ipv6_addresses": [],
+    "alias": "Dispositivo Multimedia / Cliente Liteon",
+    "hostname": "Dispositivo Multimedia / Cliente Liteon",
+    "vendor": "Liteon Technology Corporation",
+    "device_type": "Smart Device / Estación Cliente",
+    "interface": "enp2s0",
+    "connection_medium": "Ethernet / LAN (enp2s0)",
+    "network_segment": "Ethernet / LAN Principal (REDACTED_IP/24)",
+    "arp_state": "REACHABLE",
+    "online": true,
+    "rtt_ms": null,
+    "open_ports": [],
+    "port_details": [],
+    "risky_ports": [],
+    "mdns_services": [],
+    "wifi_metrics": {},
+    "trust_level": "KNOWN",
+    "is_quarantined": false,
+    "throttle_kbps": null,
+    "is_safe": true,
+    "traffic_bytes_rx": 0,
+    "traffic_bytes_tx": 0,
+    "traffic_packets": 0,
+    "first_seen": "2026-10-22T00:02:39.625586+00:00",
+    "last_seen": "2026-10-22T00:04:58.195369+00:00",
+    "ip_history": [
+      "REDACTED_IP"
+    ]
+  },
+  "A8:CA:77:52:B9:E4": {
+    "mac": "A8:CA:77:52:B9:E4",
+    "ip": "REDACTED_IP",
+    "ipv6_addresses": [],
+    "alias": "Amazon Echo / Alexa (SpotifyConnect)",
+    "hostname": "none.local",
+    "vendor": "Amazon Technologies Inc.",
+    "device_type": "Altavoz Inteligente / IoT",
+    "interface": "enp2s0",
+    "connection_medium": "Ethernet / LAN (enp2s0)",
+    "network_segment": "Ethernet / LAN Principal (REDACTED_IP/24)",
+    "arp_state": "REACHABLE",
+    "online": true,
+    "rtt_ms": null,
+    "open_ports": [
+      4070,
+      8888
+    ],
+    "port_details": [
+      {
+        "port": 4070,
+        "service": "SpotifyConnect Audio"
+      },
+      {
+        "port": 8888,
+        "service": "Antarctica Proxy"
+      }
+    ],
+    "risky_ports": [],
+    "mdns_services": [
+      "SpotifyConnect (_spotify-connect._tcp)"
+    ],
+    "wifi_metrics": {},
+    "trust_level": "KNOWN",
+    "is_quarantined": false,
+    "throttle_kbps": null,
+    "is_safe": true,
+    "traffic_bytes_rx": 0,
+    "traffic_bytes_tx": 0,
+    "traffic_packets": 0,
+    "first_seen": "2026-10-22T00:02:39.625586+00:00",
+    "last_seen": "2026-10-22T00:04:58.195369+00:00",
+    "ip_history": [
+      "REDACTED_IP"
+    ]
+  },
+  "1E:FA:BF:35:00:B2": {
+    "mac": "1E:FA:BF:35:00:B2",
+    "ip": "REDACTED_IP",
+    "ipv6_addresses": [
+      "fe80::c80:68fd:afaf:5e3"
+    ],
+    "alias": "Apple iOS / iPadOS #2 (Ecosistema Aegis)",
+    "hostname": "Apple iOS / iPadOS #2 (Ecosistema Aegis)",
+    "vendor": "Apple Inc. (MAC Privada iOS)",
+    "device_type": "Apple iPad Pro / iPhone (iOS Sync Activo)",
+    "interface": "enp2s0",
+    "connection_medium": "Ethernet / LAN (enp2s0)",
+    "network_segment": "Ethernet / LAN Principal (REDACTED_IP/24)",
+    "arp_state": "REACHABLE",
+    "online": true,
+    "rtt_ms": 2.14,
+    "open_ports": [
+      49152,
+      62078
+    ],
+    "port_details": [
+      {
+        "port": 49152,
+        "service": "UPnP / Apple Companion"
+      },
+      {
+        "port": 62078,
+        "service": "Apple iOS Wi-Fi Sync (lockdownd)"
+      }
+    ],
+    "risky_ports": [],
+    "mdns_services": [],
+    "wifi_metrics": {},
+    "trust_level": "AEGIS_PROTECTED",
+    "is_quarantined": false,
+    "throttle_kbps": null,
+    "is_safe": true,
+    "traffic_bytes_rx": 0,
+    "traffic_bytes_tx": 0,
+    "traffic_packets": 0,
+    "first_seen": "2026-10-22T00:02:39.625586+00:00",
+    "last_seen": "2026-10-22T00:04:58.195369+00:00",
+    "ip_history": [
+      "REDACTED_IP"
+    ]
+  },
+  "50:EB:F6:E2:B8:50": {
+    "mac": "50:EB:F6:E2:B8:50",
+    "ip": "REDACTED_IP",
+    "ipv6_addresses": [
+      "fe80::52eb:f6ff:fee2:b850"
+    ],
+    "alias": "TimeMachine (ASUS TUF Gaming A15 - Ethernet Host)",
+    "hostname": "TimeMachine (ASUS TUF Gaming A15 - Ethernet Host)",
+    "vendor": "ASUSTek COMPUTER INC.",
+    "device_type": "Estación Central Soberana (Host)",
+    "interface": "enp2s0",
+    "connection_medium": "Ethernet / LAN (enp2s0)",
+    "network_segment": "Ethernet / LAN Principal (REDACTED_IP/24)",
+    "arp_state": "HOST_LOCAL",
+    "online": true,
+    "rtt_ms": 0.05,
+    "open_ports": [
+      22,
+      53,
+      111,
+      3389,
+      7681,
+      8080,
+      8757,
+      8765
+    ],
+    "port_details": [
+      {
+        "port": 22,
+        "service": "SSH"
+      },
+      {
+        "port": 53,
+        "service": "DNS"
+      },
+      {
+        "port": 111,
+        "service": "RPCBind"
+      },
+      {
+        "port": 3389,
+        "service": "RDP Remote Desktop"
+      },
+      {
+        "port": 7681,
+        "service": "FTL Web Terminal"
+      },
+      {
+        "port": 8080,
+        "service": "HTTP Proxy / Alt"
+      },
+      {
+        "port": 8757,
+        "service": "GODWORKS Master HUD"
+      },
+      {
+        "port": 8765,
+        "service": "FTL Telemetry Portal"
+      }
+    ],
+    "risky_ports": [],
+    "mdns_services": [],
+    "wifi_metrics": {},
+    "trust_level": "AEGIS_PROTECTED",
+    "is_quarantined": false,
+    "throttle_kbps": null,
+    "is_safe": true,
+    "traffic_bytes_rx": 0,
+    "traffic_bytes_tx": 0,
+    "traffic_packets": 0,
+    "first_seen": "2026-10-22T00:02:39.625586+00:00",
+    "last_seen": "2026-10-22T00:04:58.195369+00:00",
+    "ip_history": [
+      "REDACTED_IP"
+    ]
+  },
+  "14:13:33:88:17:95": {
+    "mac": "14:13:33:88:17:95",
+    "ip": "REDACTED_IP",
+    "ipv6_addresses": [
+      "fe80::1613:33ff:fe88:1795"
+    ],
+    "alias": "TimeMachine-Hotspot (Gateway Wi-Fi Soberano)",
+    "hostname": "TimeMachine-Hotspot (Gateway Wi-Fi Soberano)",
+    "vendor": "AzureWave / MediaTek MT7921",
+    "device_type": "Gateway Wi-Fi 6 Soberano (Host)",
+    "interface": "wlp3s0",
+    "connection_medium": "Wi-Fi (wlp3s0)",
+    "network_segment": "Wi-Fi Soberana TimeMachine (REDACTED_IP/24)",
+    "arp_state": "HOST_GATEWAY",
+    "online": true,
+    "rtt_ms": 0.05,
+    "open_ports": [
+      22,
+      53,
+      111,
+      3389,
+      7681,
+      8080,
+      8757,
+      8765
+    ],
+    "port_details": [
+      {
+        "port": 22,
+        "service": "SSH"
+      },
+      {
+        "port": 53,
+        "service": "DNS"
+      },
+      {
+        "port": 111,
+        "service": "RPCBind"
+      },
+      {
+        "port": 3389,
+        "service": "RDP Remote Desktop"
+      },
+      {
+        "port": 7681,
+        "service": "FTL Web Terminal"
+      },
+      {
+        "port": 8080,
+        "service": "HTTP Proxy / Alt"
+      },
+      {
+        "port": 8757,
+        "service": "GODWORKS Master HUD"
+      },
+      {
+        "port": 8765,
+        "service": "FTL Telemetry Portal"
+      }
+    ],
+    "risky_ports": [],
+    "mdns_services": [],
+    "wifi_metrics": {},
+    "trust_level": "AEGIS_PROTECTED",
+    "is_quarantined": false,
+    "throttle_kbps": null,
+    "is_safe": true,
+    "traffic_bytes_rx": 0,
+    "traffic_bytes_tx": 0,
+    "traffic_packets": 0,
+    "first_seen": "2026-10-22T00:02:39.625586+00:00",
+    "last_seen": "2026-10-22T00:04:58.195369+00:00",
+    "ip_history": [
+      "REDACTED_IP"
+    ]
+  },
+  "22:BA:EE:8B:BD:2F": {
+    "mac": "22:BA:EE:8B:BD:2F",
+    "ip": "REDACTED_IP",
+    "ipv6_addresses": [
+      "fe80::141c:bb57:1ac2:b6f5"
+    ],
+    "alias": "Apple iOS / iPadOS #1 (Ecosistema Aegis)",
+    "hostname": "Apple iOS / iPadOS #1 (Ecosistema Aegis)",
+    "vendor": "Apple Inc. (MAC Privada iOS)",
+    "device_type": "Apple iPhone / iPad (iOS Sync Activo)",
+    "interface": "enp2s0",
+    "connection_medium": "Ethernet / LAN (enp2s0)",
+    "network_segment": "Ethernet / LAN Principal (REDACTED_IP/24)",
+    "arp_state": "IPV6_STALE",
+    "online": true,
+    "rtt_ms": null,
+    "open_ports": [],
+    "port_details": [],
+    "risky_ports": [],
+    "mdns_services": [],
+    "wifi_metrics": {},
+    "trust_level": "AEGIS_PROTECTED",
+    "is_quarantined": false,
+    "throttle_kbps": null,
+    "is_safe": true,
+    "traffic_bytes_rx": 0,
+    "traffic_bytes_tx": 0,
+    "traffic_packets": 0,
+    "first_seen": "2026-10-22T00:02:39.625586+00:00",
+    "last_seen": "2026-10-22T00:04:58.195369+00:00",
+    "ip_history": [
+      "REDACTED_IP"
+    ]
+  },
+  "BE:5B:68:1B:53:13": {
+    "mac": "BE:5B:68:1B:53:13",
+    "ip": "fe80::18d0:4686:ca01:39ac",
+    "ipv6_addresses": [
+      "fe80::18d0:4686:ca01:39ac"
+    ],
+    "alias": "Dispositivo LAN (fe80::18d0:4686:ca01:39ac)",
+    "hostname": "Dispositivo LAN (fe80::18d0:4686:ca01:39ac)",
+    "vendor": "Dirección MAC Privada / Aleatoria (iOS / Android / Linux)",
+    "device_type": "Dispositivo de Red (Dirección MAC Privada / Aleatoria (iOS / Android / Linux))",
+    "interface": "enp2s0",
+    "connection_medium": "Ethernet / LAN (enp2s0)",
+    "network_segment": "Ethernet / LAN Principal (REDACTED_IP/24)",
+    "arp_state": "IPV6_STALE",
+    "online": true,
+    "rtt_ms": null,
+    "open_ports": [],
+    "port_details": [],
+    "risky_ports": [],
+    "mdns_services": [],
+    "wifi_metrics": {},
+    "trust_level": "KNOWN",
+    "is_quarantined": false,
+    "throttle_kbps": null,
+    "is_safe": true,
+    "traffic_bytes_rx": 0,
+    "traffic_bytes_tx": 0,
+    "traffic_packets": 0,
+    "first_seen": "2026-10-22T00:02:39.625586+00:00",
+    "last_seen": "2026-10-22T00:04:58.195369+00:00",
+    "ip_history": []
+  }
+}

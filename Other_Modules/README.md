@@ -64,6 +64,7 @@ Módulos y componentes auxiliares del sistema.
 - **cyber_theme.css**: Componente de alta eficiencia.
 - **daemon_status.json**: Componente de alta eficiencia.
 - **debug_ftl.py**: Motor de aceleración FTL y computación adaptativa.
+- **device_tracker_db.json**: Componente de alta eficiencia.
 - **distributed_compute.py**: Componente de alta eficiencia.
 - **doctor.py**: Componente de alta eficiencia.
 - **dynamic_tools_registry.json**: Directorio y puente soberano de interoperabilidad omni-herramientas.
@@ -154,6 +155,7 @@ Módulos y componentes auxiliares del sistema.
 - **manifest.json**: Componente de alta eficiencia.
 - **mirror_plan.py**: Componente de alta eficiencia.
 - **models.py**: Componente de alta eficiencia.
+- **network_traffic_controller.py**: Componente de alta eficiencia.
 - **nodes_telemetry.json**: Componente de alta eficiencia.
 - **offline_pocket_vault.json**: Centinela de seguridad, blindaje perimetral o bóveda segura.
 - **openai_server.py**: Componente de alta eficiencia.
@@ -205,6 +207,7 @@ Módulos y componentes auxiliares del sistema.
 - **telemetria_avanzada.py**: Componente de alta eficiencia.
 - **tool_escribe_m_dulo_python.py**: Componente de alta eficiencia.
 - **tool_selector.py**: Componente de alta eficiencia.
+- **traffic_control_policy.json**: Componente de alta eficiencia.
 - **tunnel_config.json**: Componente de alta eficiencia.
 - **ui.py**: Componente de alta eficiencia.
 - **v4_dsml.py**: Componente de alta eficiencia.

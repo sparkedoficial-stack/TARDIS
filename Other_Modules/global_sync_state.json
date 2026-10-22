@@ -1,30 +1,7 @@
 {
-  "revision": 2465,
+  "revision": 2467,
   "lamport": 2769,
-  "history": [
-    {
-      "id": "msg_1792564910227_1",
-      "role": "system",
-      "content": "⚡ [FTL] PLAN COGNITIVO (KAIJU): Crea un navegador con interfaz con el que pueda usar a tardis como asistente de  (RC:0, 1349.7s)",
-      "timestamp": REDACTED_PHONE.2272098,
-      "iso": "2026-10-21T01:41:50.227222",
-      "lamport": 2768,
-      "meta": "FTL · KAIJU",
-      "raw_data": {},
-      "client_id": "ftl_sovereign"
-    },
-    {
-      "id": "msg_1792624852737_2",
-      "role": "system",
-      "content": "⚡ [FTL] PLAN COGNITIVO (KAIJU): En base a los presentes ataques haz de mi sistema se auto proteja de espionajes (RC:0, 375.7s)",
-      "timestamp": REDACTED_PHONE.7374454,
-      "iso": "2026-10-21T18:20:52.738507",
-      "lamport": 2769,
-      "meta": "FTL · KAIJU",
-      "raw_data": {},
-      "client_id": "ftl_sovereign"
-    }
-  ],
+  "history": [],
   "config": {
     "model": "TARDIS-NEURAL-SPACE-KAIJU",
     "temperature": 0.3,
@@ -47,11 +24,11 @@
     "coneActive": true,
     "oscilloscopeActive": true
   },
-  "updated_at": "2026-10-21T18:20:52.739641",
+  "updated_at": "2026-10-21T19:07:49.555401",
   "visual_intelligence": {
     "active": true,
     "pid": 2084,
     "videos_stored": 408,
-    "last_ping": REDACTED_PHONE.0843456
+    "last_ping": REDACTED_PHONE.2995992
   }
 }

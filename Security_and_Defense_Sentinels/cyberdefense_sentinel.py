@@ -97,6 +97,7 @@ HARDENED_SYSCTLS = {
     "net.ipv4.conf.default.accept_source_route": "0",
     "net.ipv6.conf.all.accept_source_route": "0",
     "net.ipv6.conf.default.accept_source_route": "0",
+    "net.netfilter.nf_conntrack_acct": "1",
 }
 
 
@@ -213,7 +214,16 @@ class CyberdefenseSentinel:
         return {"ok": True, "applied_count": sum(1 for v in applied.values() if v), "details": applied}
 
     def enforce_nftables_shield(self) -> Dict[str, Any]:
-        """Despliega la tabla inet tardis_aegis_shield para aislar puertos sensibles de accesos externos."""
+        """Despliega la tabla inet tardis_aegis_shield integrando las políticas de control de tráfico y cuarentena."""
+        try:
+            from core.network_traffic_controller import get_traffic_controller
+            res_ctrl = get_traffic_controller().apply_firewall_and_traffic_policy()
+            if res_ctrl.get("ok"):
+                self._countermeasures.add("NFTABLES_PERIMETER_GUARD")
+                return res_ctrl
+        except Exception as e_ctrl:
+            logger.warning(f"Fallback nftables en sentinel: {e_ctrl}")
+
         protected_ports = "22, 111, 1701, 3389, 5555, 6969, 7681, 7682, 8080, 8088, 8757, 8758, 8765, 8787, 8888, 9001"
         nft_script = f"""table inet tardis_aegis_shield
 delete table inet tardis_aegis_shield

@@ -1,0 +1,10 @@
+{
+  "quarantined_ips": [],
+  "quarantined_macs": [],
+  "blocked_remote_ips": [],
+  "blocked_ports": [],
+  "throttled_devices": {},
+  "auto_quarantine_unknown": false,
+  "strict_perimeter_mode": true,
+  "last_policy_sync": REDACTED_PHONE.1949384
+}
