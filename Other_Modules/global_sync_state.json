@@ -1,6 +1,6 @@
 {
-  "revision": 2470,
-  "lamport": 2771,
+  "revision": 2471,
+  "lamport": 2772,
   "history": [
     {
       "id": "msg_1792628079117_1",
@@ -20,6 +20,17 @@
       "timestamp": REDACTED_PHONE.293695,
       "iso": "2026-10-21T19:47:28.293711",
       "lamport": 2771,
+      "meta": "FTL · KAIJU",
+      "raw_data": {},
+      "client_id": "ftl_sovereign"
+    },
+    {
+      "id": "msg_1792635445167_3",
+      "role": "system",
+      "content": "⚡ [FTL] PLAN COGNITIVO (KAIJU): npm install -g deepseek-terminal-cli (RC:3, 16.6s)",
+      "timestamp": REDACTED_PHONE.167324,
+      "iso": "2026-10-21T21:17:25.167341",
+      "lamport": 2772,
       "meta": "FTL · KAIJU",
       "raw_data": {},
       "client_id": "ftl_sovereign"
@@ -47,11 +58,11 @@
     "coneActive": true,
     "oscilloscopeActive": true
   },
-  "updated_at": "2026-10-21T19:47:28.293733",
+  "updated_at": "2026-10-21T21:17:25.167367",
   "visual_intelligence": {
     "active": true,
-    "pid": 2315,
-    "videos_stored": 411,
-    "last_ping": REDACTED_PHONE.719961
+    "pid": 2100,
+    "videos_stored": 413,
+    "last_ping": REDACTED_PHONE.7172894
   }
 }

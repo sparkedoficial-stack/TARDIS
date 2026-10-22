@@ -1,34 +1,6 @@
 [
   {
     "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/deep_memory_vault.py",
-    "goal": "Implementar un algoritmo de ponderación dinámica en la función de búsqueda de la bóveda que asigne un 'score de coherencia temporal' a cada nodo de memoria, penalizando recuerdos obsoletos o contextualmente aislados y favoreciendo cadenas causales recientes y coherentes.",
-    "status": "REJECTED",
-    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
-    "elapsed_seconds": 91.91,
-    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/deep_memory_vault.py.20261019_104535.bak",
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Respuesta generada demasiado corta (0 vs 33875 bytes)",
-    "timestamp": "2026-10-19T10:47:07.899635"
-  },
-  {
-    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/deep_memory_vault.py",
-    "goal": "Introducir un campo 'causal_context_hash' en el esquema de almacenamiento de la bóveda que integre el hash del estado de red y el timestamp de la investigación web asociada, permitiendo consultas indexadas por causalidad temporal.",
-    "status": "REJECTED",
-    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
-    "elapsed_seconds": 91.55,
-    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/deep_memory_vault.py.20261019_111714.bak",
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Respuesta generada demasiado corta (0 vs 33875 bytes)",
-    "timestamp": "2026-10-19T11:18:45.867367"
-  },
-  {
-    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/deep_memory_vault.py",
     "goal": "Implementar un método `calculate_causal_resonance()` que asigne pesos dinámicos a los vectores de memoria basándose en la densidad de conexiones temporales y de dependencia lógica, integrándolo en la función de scoring de búsqueda.",
     "status": "REJECTED",
     "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
@@ -1398,5 +1370,33 @@
     "efficiency_improvement": null,
     "error": "Respuesta generada demasiado corta (0 vs 33875 bytes)",
     "timestamp": "2026-10-21T20:37:20.145501"
+  },
+  {
+    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
+    "goal": "Añadir un módulo de detección de cambios basado en hashes de contenido y un algoritmo de causal inference que decida cuándo refrescar la caché, implementando también soporte async para actualizar entradas en segundo plano.",
+    "status": "REJECTED",
+    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
+    "elapsed_seconds": 91.38,
+    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/web_research_engine.py.20261021_210726.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "Respuesta generada demasiado corta (0 vs 35266 bytes)",
+    "timestamp": "2026-10-21T21:08:58.280764"
+  },
+  {
+    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
+    "goal": "Add a lightweight causal predictor that scores cached pages against incoming query vectors and implements a prefetch decision hook before network calls.",
+    "status": "REJECTED",
+    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
+    "elapsed_seconds": 91.34,
+    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/web_research_engine.py.20261021_213903.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "Respuesta generada demasiado corta (0 vs 35266 bytes)",
+    "timestamp": "2026-10-21T21:40:35.032890"
   }
 ]
