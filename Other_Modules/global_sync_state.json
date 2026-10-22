@@ -1,6 +1,6 @@
 {
-  "revision": 2471,
-  "lamport": 2772,
+  "revision": 2473,
+  "lamport": 2773,
   "history": [
     {
       "id": "msg_1792628079117_1",
@@ -34,6 +34,17 @@
       "meta": "FTL · KAIJU",
       "raw_data": {},
       "client_id": "ftl_sovereign"
+    },
+    {
+      "id": "msg_1792642219680_4",
+      "role": "system",
+      "content": "⚡ [FTL] PLAN COGNITIVO (KAIJU): instálate deepseek 4.1 flash en tu sistema local (RC:3, 41.2s)",
+      "timestamp": REDACTED_PHONE.6808844,
+      "iso": "2026-10-21T23:10:19.680905",
+      "lamport": 2773,
+      "meta": "FTL · KAIJU",
+      "raw_data": {},
+      "client_id": "ftl_sovereign"
     }
   ],
   "config": {
@@ -58,11 +69,11 @@
     "coneActive": true,
     "oscilloscopeActive": true
   },
-  "updated_at": "2026-10-21T21:17:25.167367",
+  "updated_at": "2026-10-21T23:10:19.680931",
   "visual_intelligence": {
     "active": true,
-    "pid": 2100,
-    "videos_stored": 413,
-    "last_ping": REDACTED_PHONE.7172894
+    "pid": 2304,
+    "videos_stored": 416,
+    "last_ping": REDACTED_PHONE.4395468
   }
 }
