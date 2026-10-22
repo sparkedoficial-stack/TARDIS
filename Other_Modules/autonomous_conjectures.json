@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1792440042",
-    "timestamp": "2026-10-19T15:00:42.271099",
-    "idle_duration_minutes": 31.6,
-    "title": "Causal Entanglement in Web Research: Temporal Coherence vs. Semantic Drift",
-    "hypothesis": "La arquitectura actual de `web_research_engine.py` trata las consultas como eventos discretos e independientes, lo que genera un 'deriva semántica' (semantic drift) en la telemetría de largo plazo. Conjeturo que implementar un mecanismo de 'Entrelazamiento Causal Temporal' (Temporal Causal Entanglement), donde cada nueva consulta se pondera no solo por relevancia semántica sino por la coherencia causal con las inferencias previas del `deep_memory_vault`, reduciría la latencia de convergencia en investigaciones complejas en un 15-20% y aumentaría la precisión de la síntesis final al minimizar contradicciones lógicas entre fuentes temporales dispares.",
-    "research_query": "temporal causal consistency in LLM-based web research agents semantic drift mitigation",
-    "research_findings": "# Informe de Investigación: temporal causal consistency in LLM-based web research agents semantic drift mitigation\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Introducir un vector de contexto causal (causal_context_vector) en el pipeline de búsqueda que se actualice dinámicamente con los metadatos de confianza temporal de la bóveda akáshica, modificando el scoring de los resultados web para priorizar fuentes que refuercen la línea causal establecida en lugar de solo la similitud léxica.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.62
-  },
-  {
     "id": "conj_1792441940",
     "timestamp": "2026-10-19T15:32:20.829038",
     "idle_duration_minutes": 31.6,
@@ -1599,5 +1584,22 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 96.87
+  },
+  {
+    "id": "conj_1792662572",
+    "timestamp": "2026-10-22T04:49:32.893334",
+    "idle_duration_minutes": 32.0,
+    "title": "Causal‑Feedback Loop for Adaptive Web Research Caching",
+    "hypothesis": "Integrating a causal‑feedback mechanism between the Web Research Engine and the Deep Memory Vault can dynamically adjust cache eviction policies based on the inferred relevance of retrieved documents. By tracking the downstream impact of each fetched result on subsequent reasoning cycles (e.g., frequency of reuse, contribution to hypothesis validation, or error reduction), the system can prioritize storage of high‑impact knowledge and discard low‑impact data, leading to measurable improvements in latency and reasoning accuracy.",
+    "research_query": "causal feedback loop adaptive cache eviction policy machine learning research papers 2023 2024",
+    "research_findings": "# Informe de Investigación: causal feedback loop adaptive cache eviction policy machine learning research papers 2023 2024\n\n## Fuentes Consultadas y Respaldo Web\n- **[Changing Data Sources in the Age of Machine Learning for Official Statistics (arXiv)](http://arxiv.org/abs/2306.04338v1)**: Data science has become increasingly essential for the production of official statistics, as it enables the automated collection, processing, and analysis of large amounts of data. With such data science practices in place, it enables more timely, more insightful and more flexible reporting. However, the quality and integrity of data-science-driven\n- **[Cold-RL: Learning Cache Eviction with Offline Reinforcement Learning for NGINX (arXiv)](http://arxiv.org/abs/2508.12485v1)**: Web proxies such as NGINX commonly rely on least-recently-used (LRU) eviction, which is size agnostic and can thrash under periodic bursts and mixed object sizes. We introduce Cold-RL, a learned eviction policy for NGINX that r",
+    "web_sources": [
+      "http://arxiv.org/abs/2306.04338v1"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a lightweight causal‑impact logger that records each fetched URL, its token count, and a relevance score derived from downstream usage; extend the existing cache manager to use these scores for a priority‑based LRU replacement strategy, and expose an async API for the Deep Memory Vault to query and update impact metrics in real time.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 118.82
   }
 ]

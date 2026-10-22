@@ -1,19 +1,5 @@
 [
   {
-    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
-    "goal": "Introducir un vector de contexto causal (causal_context_vector) en el pipeline de búsqueda que se actualice dinámicamente con los metadatos de confianza temporal de la bóveda akáshica, modificando el scoring de los resultados web para priorizar fuentes que refuercen la línea causal establecida en lugar de solo la similitud léxica.",
-    "status": "REJECTED",
-    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
-    "elapsed_seconds": 91.07,
-    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/web_research_engine.py.20261019_145911.bak",
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Respuesta generada demasiado corta (0 vs 35266 bytes)",
-    "timestamp": "2026-10-19T15:00:42.257096"
-  },
-  {
     "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/deep_memory_vault.py",
     "goal": "Implementar una función 'prune_low_causal_density' que analice el grafo de memoria y elimine o de-priorice nodos con baja conectividad causal durante ciclos de inactividad, actualizando los pesos de las aristas restantes para maximizar la coherencia semántica.",
     "status": "REJECTED",
@@ -1398,5 +1384,19 @@
     "efficiency_improvement": null,
     "error": "Respuesta generada demasiado corta (0 vs 35266 bytes)",
     "timestamp": "2026-10-22T03:47:06.420769"
+  },
+  {
+    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
+    "goal": "Add a lightweight causal‑impact logger that records each fetched URL, its token count, and a relevance score derived from downstream usage; extend the existing cache manager to use these scores for a priority‑based LRU replacement strategy, and expose an async API for the Deep Memory Vault to query and update impact metrics in real time.",
+    "status": "REJECTED",
+    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
+    "elapsed_seconds": 91.21,
+    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/web_research_engine.py.20261022_044801.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "Respuesta generada demasiado corta (0 vs 35266 bytes)",
+    "timestamp": "2026-10-22T04:49:32.878702"
   }
 ]
