@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1792462855",
-    "timestamp": "2026-10-19T21:20:55.772038",
-    "idle_duration_minutes": 31.7,
-    "title": "Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "Integrating a causal inference layer that predicts the relevance decay of cached web search results based on temporal patterns and topic drift will reduce stale data retrieval by at least 30% while keeping latency under 200 ms. The hypothesis posits that the current cache invalidation strategy, which relies on fixed TTLs, ignores the causal relationship between content update frequency and query semantics. By modeling this relationship with a lightweight Bayesian network, the engine can proactively invalidate only those entries whose expected relevance probability falls below a configurable threshold, improving both freshness and resource utilization.",
-    "research_query": "how to implement causal inference based cache invalidation for web search results using Bayesian networks python",
-    "research_findings": "# Informe de Investigación: how to implement causal inference based cache invalidation for web search results using Bayesian networks python\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal inference module that computes relevance decay scores for cached entries and integrates it into the cache eviction policy, replacing static TTLs with dynamic, probability‑based invalidation.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 103.97
-  },
-  {
     "id": "conj_1792464795",
     "timestamp": "2026-10-19T21:53:15.651789",
     "idle_duration_minutes": 32.3,
@@ -1589,5 +1574,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.4
+  },
+  {
+    "id": "conj_1792708252",
+    "timestamp": "2026-10-22T17:30:52.093945",
+    "idle_duration_minutes": 34.7,
+    "title": "Dynamic Causal Prompt Routing for Context‑Aware Web Research",
+    "hypothesis": "Si el motor de investigación web (core/web_research_engine.py) incorpora un enrutador de prompts basado en causalidad dinámica que evalúa la relevancia temporal y semántica de los tokens de memoria en deep_memory_vault antes de lanzar la búsqueda, entonces la precisión de los resultados y la velocidad de convergencia de la hipótesis aumentarán significativamente, reduciendo la latencia de búsqueda en al menos un 30% y mejorando la coherencia de la información recuperada en entornos con alta carga de consultas concurrentes.",
+    "research_query": "dynamic causal prompt routing web search engine performance optimization causal inference in LLM pipelines",
+    "research_findings": "# Informe de Investigación: dynamic causal prompt routing web search engine performance optimization causal inference in LLM pipelines\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Implementar una capa de enrutamiento causal que, usando métricas de similitud temporal y de dependencia de conceptos extraídas de deep_memory_vault, seleccione y priorice los sub‑prompts enviados al motor de búsqueda; además, añadir caché de resultados y fallback adaptativo para consultas fallidas.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.71
   }
 ]
