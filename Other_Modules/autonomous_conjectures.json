@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1792438144",
-    "timestamp": "2026-10-19T14:29:04.637687",
-    "idle_duration_minutes": 32.2,
-    "title": "Sinergia Causal entre Telemetría de Red y Memoria Profunda",
-    "hypothesis": "Se postula que la eficiencia de la recuperación de información en `deep_memory_vault.py` puede optimizarse dinámicamente si se correlaciona con los patrones de latencia y estabilidad de red capturados por `network_shield.py`. Al integrar métricas de telemetría de red (como jitter o pérdida de paquetes) como factores de ponderación en el algoritmo de búsqueda semántica, el sistema podría priorizar fuentes de datos locales o cachés recientes cuando la red es inestable, reduciendo el tiempo de respuesta y mejorando la resiliencia cognitiva ante fluctuaciones de conectividad.",
-    "research_query": "adaptive semantic search latency network telemetry correlation machine learning",
-    "research_findings": "# Informe de Investigación: adaptive semantic search latency network telemetry correlation machine learning\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar un módulo de 'Red-Aware Scoring' que ajuste los pesos de relevancia de los resultados de búsqueda basándose en las métricas de salud de la red proporcionadas por network_shield.py.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 131.5
-  },
-  {
     "id": "conj_1792440042",
     "timestamp": "2026-10-19T15:00:42.271099",
     "idle_duration_minutes": 31.6,
@@ -1599,5 +1584,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 95.55
+  },
+  {
+    "id": "conj_1792658826",
+    "timestamp": "2026-10-22T03:47:06.436574",
+    "idle_duration_minutes": 32.7,
+    "title": "Dynamic Causal Prompt Routing for Context‑Sensitive Web Research",
+    "hypothesis": "If the web_research_engine module incorporates a causal inference layer that dynamically routes prompts to specialized sub‑agents based on detected epistemic intent (e.g., factual retrieval, hypothesis validation, or exploratory synthesis), then the system’s overall latency will decrease by ~20% and the relevance score of retrieved sources will improve by at least 15% compared to the current static query pipeline.",
+    "research_query": "dynamic causal routing in AI web search agents \"prompt routing\" \"causal inference\" performance improvement",
+    "research_findings": "# Informe de Investigación: dynamic causal routing in AI web search agents \"prompt routing\" \"causal inference\" performance improvement\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Agregar una capa de análisis de intención que, usando un modelo ligero de clasificación causal, seleccione entre varios sub‑módulos de búsqueda (API‑first, headless‑browser, semantic‑vector) y ajuste los parámetros de timeout y ranking antes de ejecutar la petición.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.87
   }
 ]
