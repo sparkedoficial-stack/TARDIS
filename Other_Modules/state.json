@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.8953,
-  "last_video_id": "vp_20261022_002616_238c76",
-  "last_topic": "Khovanov Homology and the Topological Classification of Quantum Knots",
-  "total_videos_analyzed": 415,
+  "last_run_timestamp": REDACTED_PHONE.287718,
+  "last_video_id": "vp_20261022_014223_8b5f14",
+  "last_topic": "Topological Data Analysis of Neural Activity: Persistent Homology and Mapper Applied to fMRI Data",
+  "total_videos_analyzed": 417,
   "running_cycle": false,
   "last_error": null,
-  "auto_improvement_count": 283
+  "auto_improvement_count": 284
 }
