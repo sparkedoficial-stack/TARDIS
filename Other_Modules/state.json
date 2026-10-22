@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.4603434,
-  "last_video_id": "vp_20261022_083040_bf5cc1",
-  "last_topic": "Fracton Topological Order and Subdimensional Particle Dynamics: Visualizing Constrained Mobility in Exotic Quantum Phases",
-  "total_videos_analyzed": 428,
+  "last_run_timestamp": REDACTED_PHONE.2707012,
+  "last_video_id": "vp_20261022_095415_286eaa",
+  "last_topic": "Random Tensor Models and Emergent Spacetime Geometry",
+  "total_videos_analyzed": 430,
   "running_cycle": false,
   "last_error": null,
-  "auto_improvement_count": 284
+  "auto_improvement_count": 285
 }

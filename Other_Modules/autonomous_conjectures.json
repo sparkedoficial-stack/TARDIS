@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1792447632",
-    "timestamp": "2026-10-19T17:07:12.080833",
-    "idle_duration_minutes": 31.6,
-    "title": "Resonancia Causal en la Bóveda Akáshica: Optimización de Latencia mediante Predicción de Entropía",
-    "hypothesis": "Se postula que la latencia percibida en las consultas de la bóveda akáshica no es lineal con el tamaño del dataset, sino que depende de la 'entropía semántica' de la consulta. Si el motor de investigación web (web_research_engine.py) puede predecir la dispersión de resultados antes de ejecutar la búsqueda completa, puede activar un modo de 'fusión local' en deep_memory_vault.py, reduciendo la carga de red y mejorando la coherencia causal de la respuesta. Actualmente, el sistema trata todas las consultas como eventos de alta entropía, desperdiciando ciclos de CPU en validaciones de red innecesarias para patrones de baja varianza.",
-    "research_query": "semantic entropy prediction for RAG systems latency optimization local vs remote retrieval trade-off",
-    "research_findings": "# Informe de Investigación: semantic entropy prediction for RAG systems latency optimization local vs remote retrieval trade-off\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Implementar un módulo de 'Entropía Semántica Pre-Búsqueda' que calcule un score de dispersión basado en la similitud coseno con los vectores más recientes de deep_memory_vault.py. Si el score es bajo (< 0.15), omitir la llamada a la API externa y resolver localmente, registrando el evento en telemetría para ajustar el umbral dinámicamente.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.63
-  },
-  {
     "id": "conj_1792449530",
     "timestamp": "2026-10-19T17:38:50.513164",
     "idle_duration_minutes": 31.6,
@@ -1598,5 +1583,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 112.71
+  },
+  {
+    "id": "conj_1792677832",
+    "timestamp": "2026-10-22T09:03:52.738653",
+    "idle_duration_minutes": 32.7,
+    "title": "Causal‑Feedback Loop for Adaptive Query Prioritization",
+    "hypothesis": "Integrating a causal‑feedback mechanism between the Web Research Engine and the Deep Memory Vault can dynamically re‑rank pending search queries based on the inferred relevance of previously retrieved documents, thereby reducing latency and improving answer precision. The hypothesis posits that a lightweight Bayesian network, trained on the vault's provenance metadata (timestamp, source credibility, semantic similarity), can predict the utility of upcoming queries and adjust their execution priority in real time.",
+    "research_query": "how to implement causal inference for dynamic query prioritization in asynchronous web crawlers",
+    "research_findings": "# Informe de Investigación: how to implement causal inference for dynamic query prioritization in asynchronous web crawlers\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add an async priority queue that consumes a Bayesian relevance estimator (using the vault's metadata) to reorder pending HTTP requests, and expose a hook in the engine to update the estimator after each successful fetch.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.92
   }
 ]
