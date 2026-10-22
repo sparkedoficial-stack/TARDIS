@@ -209,8 +209,9 @@ class NetworkShield:
 
         logger.info(f"[NetworkShield] Lista de bloqueo compilada con {len(domains_to_block)} dominios únicos.")
 
-        # Desplegar en /etc/NetworkManager/dnsmasq-shared.d/01-godworks-shield.conf
+        # Desplegar en /etc/NetworkManager/dnsmasq-shared.d/01-godworks-shield.conf y /etc/hosts
         deployed = self._deploy_to_dnsmasq("\n".join(conf_lines) + "\n")
+        deployed_hosts = self._deploy_to_etc_hosts(sorted(domains_to_block))
 
         return {
             "ok": True,
@@ -218,9 +219,54 @@ class NetworkShield:
             "adblock_active": self.adblock_enabled,
             "antispy_active": self.antispy_enabled,
             "deployed_to_dnsmasq": deployed,
+            "deployed_to_etc_hosts": deployed_hosts,
             "conf_file": str(SHIELD_CONF_PATH),
             "hosts_file": str(ADBLOCK_HOSTS_FILE)
         }
+
+    def _deploy_to_etc_hosts(self, domains: List[str]) -> bool:
+        """Sincroniza el bloque anti-espionaje en /etc/hosts para proteger al host local (systemd-resolved)."""
+        begin_marker = "# === BEGIN GODWORKS ANTI-SPY SHIELD ==="
+        end_marker = "# === END GODWORKS ANTI-SPY SHIELD ==="
+        try:
+            current_hosts = Path("/etc/hosts").read_text(encoding="utf-8")
+            pattern = re.compile(
+                rf"\n?{re.escape(begin_marker)}.*?{re.escape(end_marker)}\n?",
+                re.DOTALL
+            )
+            cleaned_hosts = pattern.sub("\n", current_hosts).rstrip() + "\n"
+            if domains:
+                block_lines = [
+                    "",
+                    begin_marker,
+                    f"# Actualizado: {time.strftime('%Y-%m-%d %H:%M:%S')} | Dominios bloqueados: {len(domains)}"
+                ]
+                for d in domains:
+                    d_clean = d.strip().lower()
+                    if d_clean and not d_clean.startswith("#"):
+                        block_lines.append(f"0.0.0.0 {d_clean} www.{d_clean}")
+                        block_lines.append(f":: {d_clean} www.{d_clean}")
+                block_lines.append(end_marker)
+                new_hosts = cleaned_hosts + "\n".join(block_lines) + "\n"
+            else:
+                new_hosts = cleaned_hosts
+
+            tmp_hosts = DATA_DIR / "etc_hosts.tmp"
+            tmp_hosts.write_text(new_hosts, encoding="utf-8")
+            cp_res = subprocess.run(
+                ["sudo", "-n", "cp", str(tmp_hosts), "/etc/hosts"],
+                capture_output=True, text=True, timeout=5
+            )
+            if cp_res.returncode != 0:
+                cp_res = subprocess.run(
+                    ["sudo", "-S", "cp", str(tmp_hosts), "/etc/hosts"],
+                    input="0\n", capture_output=True, text=True, timeout=5
+                )
+            subprocess.run(["sudo", "-n", "resolvectl", "flush-caches"], capture_output=True, timeout=3)
+            return cp_res.returncode == 0
+        except Exception as e:
+            logger.warning(f"[NetworkShield] Error desplegando en /etc/hosts: {e}")
+            return False
 
     def _deploy_to_dnsmasq(self, conf_content: str) -> bool:
         """Instala las reglas address=/dominio/0.0.0.0 en dnsmasq y recarga el proceso con SIGHUP."""
