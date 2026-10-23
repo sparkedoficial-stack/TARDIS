@@ -1,19 +1,5 @@
 [
   {
-    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
-    "goal": "Implementar un módulo de monitorización de métricas de relevancia (precision@k, latency) que alimente un modelo de causal inference ligero (por ejemplo, DoWhy o CausalML) y ajuste automáticamente los parámetros de ranking y caché de resultados en la función de búsqueda.",
-    "status": "REJECTED",
-    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
-    "elapsed_seconds": 91.31,
-    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/web_research_engine.py.20261020_062410.bak",
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Respuesta generada demasiado corta (0 vs 35266 bytes)",
-    "timestamp": "2026-10-20T06:25:41.327988"
-  },
-  {
     "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/deep_memory_vault.py",
     "goal": "Add a causal relevance scoring function that combines existing vector similarity scores with a learned causal graph over stored memory nodes, and expose it through the vault's query API.",
     "status": "REJECTED",
@@ -1398,5 +1384,19 @@
     "efficiency_improvement": null,
     "error": "Respuesta generada demasiado corta (0 vs 33875 bytes)",
     "timestamp": "2026-10-23T10:19:48.567646"
+  },
+  {
+    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
+    "goal": "Integrar un módulo de causal inference que utilice embeddings de deep_memory_vault para predecir la relevancia de fuentes y ajustar dinámicamente el orden de llamadas a APIs externas, con fallback a un plan de ejecución basado en métricas de latencia y precisión.",
+    "status": "REJECTED",
+    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
+    "elapsed_seconds": 92.91,
+    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/web_research_engine.py.20261023_111930.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "Respuesta generada demasiado corta (0 vs 35266 bytes)",
+    "timestamp": "2026-10-23T11:21:03.651226"
   }
 ]
