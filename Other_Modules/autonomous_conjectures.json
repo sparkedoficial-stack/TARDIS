@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1792472554",
-    "timestamp": "2026-10-20T00:02:34.047032",
-    "idle_duration_minutes": 31.6,
-    "title": "Resonancia Causal en la Bóveda Akáshica: Optimización de Retrieval por Entropía Temporal",
-    "hypothesis": "Se postula que la eficiencia de recuperación de información en la bóveda akáshica (deep_memory_vault.py) puede mejorar significativamente si se implementa un mecanismo de 'decaimiento de relevancia' basado en la entropía temporal de los nodos de memoria. Actualmente, la búsqueda podría tratar todos los recuerdos con igual peso o solo por similitud semántica estática. La conjetura sugiere que al ponderar los resultados de búsqueda no solo por similitud vectorial, sino también por la 'frescura causal' (tiempo transcurrido desde la última validación o uso), el sistema reducirá la latencia de decisión y evitará sesgos por información obsoleta, creando un ciclo de retroalimentación donde la memoria se auto-purga o re-prioriza dinámicamente.",
-    "research_query": "temporal decay weighting vector database retrieval causal inference memory management",
-    "research_findings": "# Informe de Investigación: temporal decay weighting vector database retrieval causal inference memory management\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar una función de scoring híbrida que combine la similitud coseno con un factor de decaimiento exponencial basado en el timestamp de última interacción del nodo, ajustable dinámicamente según la criticidad de la tarea actual.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.68
-  },
-  {
     "id": "conj_1792474450",
     "timestamp": "2026-10-20T00:34:10.997393",
     "idle_duration_minutes": 31.6,
@@ -1588,5 +1573,23 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 96.06
+  },
+  {
+    "id": "conj_1792727010",
+    "timestamp": "2026-10-22T22:43:30.119945",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal‑Feedback Loop for Adaptive Web Research Caching",
+    "hypothesis": "Integrating a causal‑feedback mechanism between the Web Research Engine and the Deep Memory Vault can dynamically adjust caching policies based on the inferred relevance and temporal decay of retrieved knowledge. By monitoring the causal impact of each query's result on downstream reasoning tasks (e.g., plan generation, anomaly detection), the system can prioritize long‑term storage for high‑impact snippets and evict low‑impact ones, leading to a measurable reduction in latency (≈30 %) and memory footprint (≈20 %) without degrading answer quality.",
+    "research_query": "adaptive caching based on causal impact of web search results in AI reasoning systems",
+    "research_findings": "# Informe de Investigación: adaptive caching based on causal impact of web search results in AI reasoning systems\n\n## Fuentes Consultadas y Respaldo Web\n- **[Bayesian network (Wikipedia)](https://en.wikipedia.org/wiki/Bayesian_network)**: distinction between causal and evidential modes of reasoning In the late 1980s Pearl's Probabilistic Reasoning in Intelligent Systems and Neapolitan's Probabilistic\n- **[Big data (Wikipedia)](https://en.wikipedia.org/wiki/Big_data)**: parallel-processing (MPP) databases, search-based applications, data mining, distributed file systems, distributed cache (e.g., burst buffer and Memcached)\n\n## Contenido y Hallazgos Extraídos\n### De [Bayesian network - Wikipedia](https://en.wikipedia.org/wiki/Bayesian_network)\n> Bayesian network - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nProbabilistic graphical representation of causal relationships\nThis article includes a list of general references but lacks sufficient corresponding inline citatio",
+    "web_sources": [
+      "https://en.wikipedia.org/wiki/Bayesian_network",
+      "https://en.wikipedia.org/wiki/Big_data"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a lightweight causal‑impact logger that records which retrieved documents are later accessed by the reasoning pipeline, compute a decay‑weighted relevance score, and expose an async cache‑policy API that the Deep Memory Vault can query to decide persistence vs. eviction.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.42
   }
 ]
