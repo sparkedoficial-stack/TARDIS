@@ -1,23 +1,5 @@
 [
   {
-    "id": "conj_1792493644",
-    "timestamp": "2026-10-20T05:54:04.585910",
-    "idle_duration_minutes": 31.6,
-    "title": "Resonancia Causal en la Bóveda Akáshica",
-    "hypothesis": "La eficiencia de recuperación de información en la bóveda akáshica no depende solo de la similitud semántica, sino de la 'resonancia causal' entre las entidades. Al integrar un grafo de causalidad temporal en la indexación, el sistema puede predecir qué fragmentos de memoria son relevantes no solo por qué son, sino por qué están conectados causalmente, reduciendo el ruido en la toma de decisiones autónomas.",
-    "research_query": "causal graph temporal indexing for semantic memory retrieval AI agents",
-    "research_findings": "# Informe de Investigación: causal graph temporal indexing for semantic memory retrieval AI agents\n\n## Fuentes Consultadas y Respaldo Web\n- **[A Practical Guide to Memory for Autonomous LLM Agents - Towards Data Science](https://news.google.com/rss/articles/CBMijgFBVV95cUxNMkh1NG05SXh1b1VTLU51a0RMNTlqNmc0Q3Z1cXB0MjF3eUJfSGJDME04cjhPT2YtUmpQRngxblBQUmJhejhqUERNZVVWWTNBWjd3c0lxaExWbmNYTmhqMFg5VHBKc2QwMzg3ZXJWbmthVFExY0ptZm1oc0V0dzYyN3lPaGtSNEd0dXhEZmVB?oc=5)**: A Practical Guide to Memory for Autonomous LLM Agents  Towards Data Science\n- **[Proceedings of the AAAI Conference on Artificial Intelligence - The Association for the Advancement of Artificial Intelligence](https://news.google.com/rss/articles/CBMiU0FVX3lxTE9nUFJxV1ZrNFpZa0xPS1ZTVXpVT0UxT2ZpMkxmazR6YTB3R2liUldaQlJzcHJFQU5WN0JfOXJWc2VlaHNaUGZNci1KUkFFNDF6TjdF?oc=5)**: Proceedings of the AAAI Conference on Artificial Intelligence  The Association for the Advancement of Artificial Intelligence\n\n## Contenido y Hallazgos Extraídos\n##",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMijgFBVV95cUxNMkh1NG05SXh1b1VTLU51a0RMNTlqNmc0Q3Z1cXB0MjF3eUJfSGJDME04cjhPT2YtUmpQRngxblBQUmJhejhqUERNZVVWWTNBWjd3c0lxaExWbmNYTmhqMFg5VHBKc2QwMzg3ZXJWbmthVFExY0ptZm1oc0V0dzYyN3lPaGtSNEd0dXhEZmVB?oc=5",
-      "https://news.google.com/rss/articles/CBMiU0FVX3lxTE9nUFJxV1ZrNFpZa0xPS1ZTVXpVT0UxT2ZpMkxmazR6YTB3R2liUldaQlJzcHJFQU5WN0JfOXJWc2VlaHNaUGZNci1KUkFFNDF6TjdF?oc=5"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar un índice secundario basado en grafos de causalidad temporal que priorice la recuperación de nodos de memoria con alta conectividad causal reciente, optimizando la latencia de consulta.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 95.8
-  },
-  {
     "id": "conj_1792495541",
     "timestamp": "2026-10-20T06:25:41.343213",
     "idle_duration_minutes": 31.6,
@@ -1591,5 +1573,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 99.76
+  },
+  {
+    "id": "conj_1792768788",
+    "timestamp": "2026-10-23T10:19:48.584649",
+    "idle_duration_minutes": 33.5,
+    "title": "Causal Memory Indexing for Real‑Time Web Research",
+    "hypothesis": "Integrating a causal inference layer into the Deep Memory Vault (core/deep_memory_vault.py) that tags each stored fragment with a lightweight provenance graph will allow the Web Research Engine to prioritize sources that are causally linked to the current query context, reducing latency and improving relevance by up to 30% compared to the current keyword‑only retrieval approach.",
+    "research_query": "causal inference based document retrieval systems \"provenance graph\" \"real-time search\"",
+    "research_findings": "# Informe de Investigación: causal inference based document retrieval systems \"provenance graph\" \"real-time search\"\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Add a provenance graph data structure to each memory node and expose a new method `get_causal_candidates(query_context)` that returns memory fragments ranked by causal relevance, then modify core/web_research_engine.py to use this method when selecting sources for web queries.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 118.87
   }
 ]

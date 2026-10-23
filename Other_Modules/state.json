@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.522604,
-  "last_video_id": "vp_20261023_094647_b9baa5",
-  "last_topic": "Twistor String Theory and the Amplituhedron: Geometric Foundations of Scattering Amplitudes",
-  "total_videos_analyzed": 469,
-  "running_cycle": false,
+  "last_run_timestamp": REDACTED_PHONE.0025098,
+  "last_video_id": "vp_20261023_102247_fa0ca1",
+  "last_topic": "ER=EPR: Entanglement as Wormholes and the Geometry of Quantum Spacetime",
+  "total_videos_analyzed": 470,
+  "running_cycle": true,
   "last_error": null,
   "auto_improvement_count": 293
 }
