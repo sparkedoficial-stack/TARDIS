@@ -1,41 +1,5 @@
 [
   {
-    "id": "conj_1792464795",
-    "timestamp": "2026-10-19T21:53:15.651789",
-    "idle_duration_minutes": 32.3,
-    "title": "Causal Prompt Routing for Adaptive Web Research",
-    "hypothesis": "If the WebResearchEngine dynamically routes queries through a causal inference layer that predicts the most informative data source based on prior query outcomes stored in DeepMemoryVault, then the relevance and precision of retrieved information will improve by at least 20% compared to the current static routing approach.",
-    "research_query": "adaptive causal routing for web search engines improve relevance precision",
-    "research_findings": "# Informe de Investigación: adaptive causal routing for web search engines improve relevance precision\n\n## Fuentes Consultadas y Respaldo Web\n- **[2024 in science (Wikipedia)](https://en.wikipedia.org/wiki/2024_in_science)**: language model-powered conversational search increases selective exposure compared to conventional Web search (11 May), a study indicates fish oil omega-3\n- **[Fuzzy concept (Wikipedia)](https://en.wikipedia.org/wiki/Fuzzy_concept)**: the proverbial \"run around the block\" to clarify the mind, and thus improve precision of thought about the definitional issue (self-care). In this way,\n\n## Contenido y Hallazgos Extraídos\n### De [2024 in science - Wikipedia](https://en.wikipedia.org/wiki/2024_in_science)\n> 2024 in science - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nOverview of the events of 2024 in science\nList of years in science\n( table )\n… 2014\n2015\n2016\n2017\n2018\n2019\n2020\n2021\n2022\n2023\n2024\n2025\n2026\n2027\n2028\n2029\n2030\n2031\n2032\n2033\n2034",
-    "web_sources": [
-      "https://en.wikipedia.org/wiki/2024_in_science",
-      "https://en.wikipedia.org/wiki/Fuzzy_concept"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Integrar un módulo de inferencia causal que analice historiales de búsquedas en deep_memory_vault y ajuste dinámicamente la prioridad de los back‑ends (API, scraper, cache) antes de ejecutar la petición.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 108.76
-  },
-  {
-    "id": "conj_1792466756",
-    "timestamp": "2026-10-19T22:25:56.286136",
-    "idle_duration_minutes": 32.7,
-    "title": "Dynamic Causal Prompt Routing for Context‑Sensitive Web Research",
-    "hypothesis": "Si el motor de investigación web (core/web_research_engine.py) incorpora un enrutador causal que, basado en la memoria de contexto almacenada en deep_memory_vault, selecciona dinámicamente entre varios pipelines de búsqueda (ej. búsqueda semántica, búsqueda por palabras clave, y búsqueda de metadatos), entonces la precisión y velocidad de obtención de información relevante aumentará significativamente, reduciendo la latencia promedio en un 30 % y mejorando la tasa de relevancia de resultados en al menos un 20 % en pruebas comparativas con el algoritmo actual monolítico.",
-    "research_query": "dynamic causal routing in web search engines context aware retrieval pipelines performance improvement",
-    "research_findings": "# Informe de Investigación: dynamic causal routing in web search engines context aware retrieval pipelines performance improvement\n\n## Fuentes Consultadas y Respaldo Web\n- **[Deep learning (Wikipedia)](https://en.wikipedia.org/wiki/Deep_learning)**: context-dependent HMM states constructed by decision trees. The period of significant growth in both the adoption and performance of deep learning in\n- **[The rise of agentic AI in drug discovery from static tools to autonomous virtual scientists - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE0zSnZwRjUwY0RlYnYyam9sYnVTYTgzUmNlOUJNdmFmU2FyQTlQRE1raGliWksxcVZ5QVpYbE9wM0JQQ0RTUUN6YmN2T201c2ZaTk9GMzFVRHBKWElSWlpB?oc=5)**: The rise of agentic AI in drug discovery from static tools to autonomous virtual scientists  Nature\n\n## Contenido y Hallazgos Extraídos\n### De [Deep learning - Wikipedia](https://en.wikipedia.org/wiki/Deep_learning)\n> Deep learning - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nBranch of machin",
-    "web_sources": [
-      "https://en.wikipedia.org/wiki/Deep_learning",
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE0zSnZwRjUwY0RlYnYyam9sYnVTYTgzUmNlOUJNdmFmU2FyQTlQRE1raGliWksxcVZ5QVpYbE9wM0JQQ0RTUUN6YmN2T201c2ZaTk9GMzFVRHBKWElSWlpB?oc=5"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Implementar una clase CausalPromptRouter que analice el historial de consultas y los embeddings de la memoria profunda para decidir qué estrategia de búsqueda aplicar, y modularizar el motor en sub‑módulos (semantic_search, keyword_search, metadata_search) con una interfaz unificada.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.33
-  },
-  {
     "id": "conj_1792468665",
     "timestamp": "2026-10-19T22:57:45.680590",
     "idle_duration_minutes": 31.8,
@@ -1589,5 +1553,37 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 98.71
+  },
+  {
+    "id": "conj_1792711913",
+    "timestamp": "2026-10-22T18:31:53.743134",
+    "idle_duration_minutes": 32.6,
+    "title": "Dynamic Causal Prompt Routing for Context‑Sensitive Web Research",
+    "hypothesis": "Integrating a causal inference layer into the web_research_engine module that dynamically routes prompts based on the inferred causal relevance of the user's query will improve the precision of retrieved sources and reduce hallucination rates. The hypothesis posits that by modeling the query as a node in a causal graph of knowledge domains (e.g., physics → quantum mechanics → entanglement) and selecting the most probable downstream sub‑graph before issuing the web search, the engine can prioritize semantically and causally aligned results, leading to higher factual consistency in downstream reasoning tasks.",
+    "research_query": "causal inference based query routing for web search engines improve factual consistency",
+    "research_findings": "# Informe de Investigación: causal inference based query routing for web search engines improve factual consistency\n\n## Fuentes Consultadas y Respaldo Web\n- **[Fuzzy concept (Wikipedia)](https://en.wikipedia.org/wiki/Fuzzy_concept)**: Internet use, almost all search queries by employees, citizens and consumers are processed/solved with software partly based on fuzzy concepts, fuzzy\n\n## Contenido y Hallazgos Extraídos\n### De [Fuzzy concept - Wikipedia](https://en.wikipedia.org/wiki/Fuzzy_concept)\n> Fuzzy concept - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nThis article has multiple issues. Please help improve it or discuss these issues on the talk page . ( Learn how and when to remove these messages )\nThis article possibly contains original synthesis . Source material should verifiably mention and relate to the main topic. Relevant discussion may be found on the talk pag...\n",
+    "web_sources": [
+      "https://en.wikipedia.org/wiki/Fuzzy_concept"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a CausalRouter class that builds a lightweight domain causal graph from the deep_memory_vault, computes the most relevant sub‑graph for a given prompt, and uses it to filter or weight search engine API calls. The improvement should expose a new method `search_with_causal_context(prompt: str) -> List[Result]` and include unit tests for graph traversal and ranking.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.08
+  },
+  {
+    "id": "conj_1792715740",
+    "timestamp": "2026-10-22T19:35:40.835994",
+    "idle_duration_minutes": 33.2,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching mechanism, which tracks dependencies between fetched resources and downstream query results, will reduce stale data propagation and improve response relevance by up to 30% in dynamic content environments.",
+    "research_query": "causal inference based cache invalidation techniques for web scraping and API aggregation systems",
+    "research_findings": "# Informe de Investigación: causal inference based cache invalidation techniques for web scraping and API aggregation systems\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a dependency graph module that records which cached pages influence which higher‑level query results, and implement an automatic invalidation routine that triggers when source pages change, using timestamps and content hash comparisons.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 99.3
   }
 ]

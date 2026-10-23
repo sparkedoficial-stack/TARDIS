@@ -1,52 +1,7 @@
 {
-  "revision": 2473,
+  "revision": 2475,
   "lamport": 2773,
-  "history": [
-    {
-      "id": "msg_1792628079117_1",
-      "role": "system",
-      "content": "⚡ [FTL] PLAN COGNITIVO (KAIJU): Analiza todos los dispositivos en mi red y crea un rastreadCrea un sistema que a (RC:0, 1334.9s)",
-      "timestamp": REDACTED_PHONE.1172516,
-      "iso": "2026-10-21T19:14:39.117264",
-      "lamport": 2770,
-      "meta": "FTL · KAIJU",
-      "raw_data": {},
-      "client_id": "ftl_sovereign"
-    },
-    {
-      "id": "msg_1792630048293_2",
-      "role": "system",
-      "content": "⚡ [FTL] PLAN COGNITIVO (KAIJU): Analiza la memoria usb reparala y formateala en un formato compatible con todos  (RC:0, 213.6s)",
-      "timestamp": REDACTED_PHONE.293695,
-      "iso": "2026-10-21T19:47:28.293711",
-      "lamport": 2771,
-      "meta": "FTL · KAIJU",
-      "raw_data": {},
-      "client_id": "ftl_sovereign"
-    },
-    {
-      "id": "msg_1792635445167_3",
-      "role": "system",
-      "content": "⚡ [FTL] PLAN COGNITIVO (KAIJU): npm install -g deepseek-terminal-cli (RC:3, 16.6s)",
-      "timestamp": REDACTED_PHONE.167324,
-      "iso": "2026-10-21T21:17:25.167341",
-      "lamport": 2772,
-      "meta": "FTL · KAIJU",
-      "raw_data": {},
-      "client_id": "ftl_sovereign"
-    },
-    {
-      "id": "msg_1792642219680_4",
-      "role": "system",
-      "content": "⚡ [FTL] PLAN COGNITIVO (KAIJU): instálate deepseek 4.1 flash en tu sistema local (RC:3, 41.2s)",
-      "timestamp": REDACTED_PHONE.6808844,
-      "iso": "2026-10-21T23:10:19.680905",
-      "lamport": 2773,
-      "meta": "FTL · KAIJU",
-      "raw_data": {},
-      "client_id": "ftl_sovereign"
-    }
-  ],
+  "history": [],
   "config": {
     "model": "TARDIS-NEURAL-SPACE-KAIJU",
     "temperature": 0.3,
@@ -69,11 +24,11 @@
     "coneActive": true,
     "oscilloscopeActive": true
   },
-  "updated_at": "2026-10-21T23:10:19.680931",
+  "updated_at": "2026-10-22T19:08:28.895512",
   "visual_intelligence": {
     "active": true,
-    "pid": 2108,
-    "videos_stored": 445,
-    "last_ping": REDACTED_PHONE.7319245
+    "pid": 2119,
+    "videos_stored": 448,
+    "last_ping": REDACTED_PHONE.914363
   }
 }
