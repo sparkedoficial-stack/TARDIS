@@ -1,35 +1,5 @@
 [
   {
-    "id": "conj_1792501234",
-    "timestamp": "2026-10-20T08:00:34.894130",
-    "idle_duration_minutes": 31.6,
-    "title": "Resonancia Causal en la Bóveda Akáshica: Optimización de Entropía Informacional",
-    "hypothesis": "Se postula que la eficiencia de recuperación de información en la Bóveda Akáshica (deep_memory_vault.py) puede mejorarse significativamente si se implementa un mecanismo de 'pruning' basado en la relevancia causal histórica. Actualmente, el sistema podría estar almacenando nodos de memoria con baja probabilidad de reutilización futura. Al correlacionar los patrones de acceso pasado (telemetría) con la estructura de los módulos de investigación (web_research_engine.py), podemos identificar y archivar o eliminar selectivamente los datos que no contribuyen a la coherencia causal del sistema, reduciendo así la latencia de búsqueda y el consumo de recursos sin perder contexto crítico.",
-    "research_query": "causal inference memory pruning LLM agent long-term memory optimization entropy reduction",
-    "research_findings": "# Informe de Investigación: causal inference memory pruning LLM agent long-term memory optimization entropy reduction\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar una función de evaluación de 'valor causal' para cada nodo de memoria, que utilice la frecuencia de acceso y la recencia para determinar si un nodo debe ser mantenido, comprimido o archivado, integrando esta lógica en el ciclo de escritura de la bóveda.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.64
-  },
-  {
-    "id": "conj_1792503134",
-    "timestamp": "2026-10-20T08:32:14.491868",
-    "idle_duration_minutes": 31.7,
-    "title": "Sinergia Causal entre Telemetría de Red y Memoria Profunda",
-    "hypothesis": "Se postula que la eficiencia de la investigación web puede optimizarse un 15-20% si el motor de investigación (web_research_engine.py) no solo consulta la bóveda de memoria profunda (deep_memory_vault.py) para contexto semántico, sino que también ingiere telemetría en tiempo real del escudo de red (network_shield.py) para ajustar dinámicamente la latencia esperada y el tamaño de los payloads de búsqueda. Esto permite al sistema 'sentir' la congestión de red y adaptar su estrategia de scraping o API calls, reduciendo timeouts y mejorando la tasa de éxito en entornos de red inestables.",
-    "research_query": "adaptive web scraping latency compensation network telemetry machine learning",
-    "research_findings": "# Informe de Investigación: adaptive web scraping latency compensation network telemetry machine learning\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Implementar un módulo de 'Adaptive Latency Profiler' que lea métricas de latencia y pérdida de paquetes de network_shield.py y ajuste dinámicamente los timeouts y el paralelismo de las peticiones HTTP en web_research_engine.py.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 99.58
-  },
-  {
     "id": "conj_1792505031",
     "timestamp": "2026-10-20T09:03:51.674207",
     "idle_duration_minutes": 31.6,
@@ -1588,5 +1558,35 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.67
+  },
+  {
+    "id": "conj_1792783818",
+    "timestamp": "2026-10-23T14:30:18.350005",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching mechanism will allow the system to predict when cached search results become stale based on observed changes in source domains (e.g., content updates, SEO shifts). By modeling the causal relationship between external events (content revision timestamps, HTTP ETag changes, link structure modifications) and the relevance decay of cached entries, the engine can proactively invalidate or refresh only the affected cache items, reducing unnecessary network traffic while maintaining up‑to‑date knowledge retrieval.",
+    "research_query": "causal inference based cache invalidation web search engine recent research OR \"causal cache eviction\" AND \"web crawling\"",
+    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web search engine recent research OR \"causal cache eviction\" AND \"web crawling\"\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal cache manager that tracks source metadata (ETag, Last-Modified) and uses a lightweight Bayesian network to estimate staleness probability, triggering selective cache refreshes.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.72
+  },
+  {
+    "id": "conj_1792787696",
+    "timestamp": "2026-10-23T15:34:56.810829",
+    "idle_duration_minutes": 33.2,
+    "title": "Dynamic Contextual Prompt Injection for Causal Reasoning",
+    "hypothesis": "Integrar un motor de inyección de prompts contextuales que ajuste automáticamente los prompts enviados al modelo de lenguaje en función de la telemetría de ejecución (latencia, uso de memoria, patrones de error) mejorará la capacidad causal del sistema para generar respuestas más precisas y coherentes, al reducir la deriva semántica y al alinear mejor los recursos computacionales con la complejidad de la tarea solicitada.",
+    "research_query": "adaptive prompt injection based on runtime telemetry for large language models causal reasoning",
+    "research_findings": "# Informe de Investigación: adaptive prompt injection based on runtime telemetry for large language models causal reasoning\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Implementar una capa de pre‑procesamiento que analice métricas de telemetría (tiempo de respuesta, carga de CPU, uso de memoria) y modifique dinámicamente el prompt antes de enviarlo al modelo, añadiendo instrucciones de \"focus\" o \"simplify\" según sea necesario.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.92
   }
 ]
