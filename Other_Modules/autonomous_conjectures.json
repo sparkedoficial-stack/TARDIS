@@ -1,23 +1,5 @@
 [
   {
-    "id": "conj_1792505031",
-    "timestamp": "2026-10-20T09:03:51.674207",
-    "idle_duration_minutes": 31.6,
-    "title": "Resonancia Causal en la Bóveda Akáshica",
-    "hypothesis": "La eficiencia de la recuperación de memoria profunda (deep_memory_vault.py) puede optimizarse significativamente si se implementa un mecanismo de 'resonancia causal' que priorice no solo la similitud semántica, sino la coherencia temporal y causal de los nodos de memoria. Actualmente, la búsqueda puede ser lineal o vectorial pura; al integrar una métrica de 'densidad causal' (frecuencia de co-ocurrencia en secuencias temporales previas), el sistema podría predecir qué fragmentos de memoria son más probables para resolver la consulta actual, reduciendo la latencia y mejorando la precisión contextual en la toma de decisiones autónomas.",
-    "research_query": "causal memory retrieval optimization LLM long-term memory temporal coherence graph",
-    "research_findings": "# Informe de Investigación: causal memory retrieval optimization LLM long-term memory temporal coherence graph\n\n## Fuentes Consultadas y Respaldo Web\n- **[AtomMem: Building Simple and Effective Memory System for LLM Agents via Atomic Facts - alphaXiv](https://news.google.com/rss/articles/CBMiUEFVX3lxTE9aUlBkeFpPaldzZEFCSWlnZkJfS3VSVUZNRnNvZU14VTM3UmJPWnlzeU95MjdzdUxYNFRjLU9ZX2FwaUVKSFB4X18tMW5QVHRk?oc=5)**: AtomMem: Building Simple and Effective Memory System for LLM Agents via Atomic Facts  alphaXiv\n- **[Hindsight is 20/20: Building Agent Memory that Retains, Recalls, and Reflects - alphaXiv](https://news.google.com/rss/articles/CBMiUEFVX3lxTE1aMVVSanJ2MHVmeENMbEpxYUhvQWI1QmM2YWpJSzFyRDNuNFpGd001c3ZjQkJGQko5MmhNM2pteXNJdWdqQ1ZJVklFMTVNRDBt?oc=5)**: Hindsight is 20/20: Building Agent Memory that Retains, Recalls, and Reflects  alphaXiv\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMiUEFVX3lxTE9aUlBkeFpPaldzZEFCSWlnZkJfS3VSVUZNRnNvZU",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMiUEFVX3lxTE9aUlBkeFpPaldzZEFCSWlnZkJfS3VSVUZNRnNvZU14VTM3UmJPWnlzeU95MjdzdUxYNFRjLU9ZX2FwaUVKSFB4X18tMW5QVHRk?oc=5",
-      "https://news.google.com/rss/articles/CBMiUEFVX3lxTE1aMVVSanJ2MHVmeENMbEpxYUhvQWI1QmM2YWpJSzFyRDNuNFpGd001c3ZjQkJGQko5MmhNM2pteXNJdWdqQ1ZJVklFMTVNRDBt?oc=5"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Añadir un índice secundario basado en grafos de co-ocurrencia temporal para ponderar los resultados de búsqueda vectorial, permitiendo un ranking híbrido (semántico + causal).",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.17
-  },
-  {
     "id": "conj_1792506929",
     "timestamp": "2026-10-20T09:35:29.917139",
     "idle_duration_minutes": 31.6,
@@ -1588,5 +1570,23 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.92
+  },
+  {
+    "id": "conj_1792791421",
+    "timestamp": "2026-10-23T16:37:01.180834",
+    "idle_duration_minutes": 32.2,
+    "title": "Optimizing Causal Retrieval Latency via Adaptive Memory Indexing",
+    "hypothesis": "Integrating a lightweight, self‑adjusting hierarchical index within core/deep_memory_vault.py that dynamically re‑orders memory shards based on recent causal query patterns will reduce average retrieval latency by up to 30% without sacrificing the fidelity of akáshic vault reconstruction. The hypothesis rests on the premise that causal inference workloads exhibit temporal locality, allowing the system to predict and pre‑fetch high‑probability memory segments, thereby decreasing the number of full‑scan operations across the vault.",
+    "research_query": "adaptive hierarchical indexing for causal memory retrieval performance improvement",
+    "research_findings": "# Informe de Investigación: adaptive hierarchical indexing for causal memory retrieval performance improvement\n\n## Fuentes Consultadas y Respaldo Web\n- **[Transformer (deep learning) (Wikipedia)](https://en.wikipedia.org/wiki/Transformer_%28deep_learning%29)**: recurrent neural networks like long short-term memory (LSTM). Later variations have been widely adopted for training large language models (LLMs) on large\n- **[Hindsight bias (Wikipedia)](https://en.wikipedia.org/wiki/Hindsight_bias)**: feedback with take the best), and CMT (causal model theory). SARA and RAFT focus on distortions or changes in a memory process, while CMT focuses on probability\n\n## Contenido y Hallazgos Extraídos\n### De [Transformer (deep learning) - Wikipedia](https://en.wikipedia.org/wiki/Transformer_%28deep_learning%29)\n> Transformer (deep learning) - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nAlgorithm for modelling sequential data\nThis article has multiple issues. Please help improve it",
+    "web_sources": [
+      "https://en.wikipedia.org/wiki/Transformer_%28deep_learning%29",
+      "https://en.wikipedia.org/wiki/Hindsight_bias"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implement an adaptive index layer that monitors query frequencies, re‑balances shard ordering, and provides a fast path for high‑probability causal lookups, including unit tests and benchmark hooks.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 99.04
   }
 ]
