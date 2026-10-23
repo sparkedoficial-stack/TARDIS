@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1792487922",
-    "timestamp": "2026-10-20T04:18:42.518171",
-    "idle_duration_minutes": 32.7,
-    "title": "Causal Memory Indexing for Real‑Time Web Research",
-    "hypothesis": "Integrating a causal graph layer into the Deep Memory Vault, which indexes each stored fact with its originating query, timestamp, and inferred causal relationships, will enable the Web Research Engine to prioritize and retrieve information that is not only semantically relevant but also causally pertinent to the current task. This should reduce hallucination rates by 30‑40% and improve answer precision in multi‑step reasoning scenarios on the ASUS TUF Linux platform.",
-    "research_query": "\"causal graph memory indexing\" \"LLM web retrieval\" performance improvement hallucination reduction",
-    "research_findings": "# Informe de Investigación: \"causal graph memory indexing\" \"LLM web retrieval\" performance improvement hallucination reduction\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Add a causal graph data structure (e.g., using networkx) to store nodes representing stored facts and edges representing inferred causal links; expose methods to query facts by causal relevance and integrate these methods into core/web_research_engine.py's result ranking pipeline.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.55
-  },
-  {
     "id": "conj_1792489818",
     "timestamp": "2026-10-20T04:50:18.955188",
     "idle_duration_minutes": 31.6,
@@ -1589,5 +1574,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.73
+  },
+  {
+    "id": "conj_1792757312",
+    "timestamp": "2026-10-23T07:08:32.309901",
+    "idle_duration_minutes": 31.6,
+    "title": "Entropía Temporal en la Bóveda Akáshica: Compresión Predictiva de Memorias Obsoletas",
+    "hypothesis": "Se postula que la Bóveda Akáshica (deep_memory_vault.py) sufre de 'ruido cognitivo' acumulado por la retención lineal de telemetría y conocimientos de baja relevancia causal. Al aplicar un algoritmo de decaimiento exponencial ponderado por la 'frecuencia de acceso causal' (no solo temporal), el sistema podría reducir la latencia de recuperación en un 30-40% y mejorar la precisión de las inferencias del Núcleo, al priorizar patrones que han demostrado utilidad recurrente en la resolución de problemas, en lugar de datos crudos recientes.",
+    "research_query": "exponential decay memory consolidation algorithms AI agents causal relevance weighting",
+    "research_findings": "# Informe de Investigación: exponential decay memory consolidation algorithms AI agents causal relevance weighting\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar un método `prune_and_compress()` que evalúe cada nodo de memoria asignándole un score de relevancia basado en la frecuencia de consultas exitosas y la antigüedad, eliminando o comprimiendo (resumen LLM) los nodos con score bajo umbral dinámico.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.22
   }
 ]
