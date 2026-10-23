@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1792491748",
-    "timestamp": "2026-10-20T05:22:28.767895",
-    "idle_duration_minutes": 32.2,
-    "title": "Causal Cache Layer for Web Research Engine",
-    "hypothesis": "Integrating a causally-aware caching layer into core/web_research_engine.py, which records the provenance and temporal context of each query-response pair, will reduce redundant external requests by up to 40% while preserving the fidelity of causal reasoning in downstream modules such as deep_memory_vault. The cache would store not only the raw HTML but also a lightweight semantic fingerprint (e.g., TF‑IDF vector) and a timestamp, enabling the engine to decide whether a cached result is still valid given the evolving knowledge graph.",
-    "research_query": "causal caching strategies for web scraping engines with provenance tracking",
-    "research_findings": "# Informe de Investigación: causal caching strategies for web scraping engines with provenance tracking\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add an async LRU cache with provenance metadata (timestamp, semantic fingerprint) and a validity check that compares new query fingerprints against cached ones to decide reuse versus fresh fetch.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.7
-  },
-  {
     "id": "conj_1792493644",
     "timestamp": "2026-10-20T05:54:04.585910",
     "idle_duration_minutes": 31.6,
@@ -1591,5 +1576,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.9
+  },
+  {
+    "id": "conj_1792765664",
+    "timestamp": "2026-10-23T09:27:44.190719",
+    "idle_duration_minutes": 44.6,
+    "title": "Dynamic Causal Cache for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching mechanism—where cached results are tagged with provenance metadata and causal dependencies—will reduce redundant external queries by up to 30% while preserving answer fidelity. The hypothesis posits that by tracking which downstream queries depend on which upstream sources, the engine can invalidate or reuse cache entries based on detected changes in source content, rather than using simple time‑based TTLs.",
+    "research_query": "causal inference based cache invalidation web scraping \"provenance metadata\"",
+    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web scraping \"provenance metadata\"\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a CausalCache class that stores query results with source URLs, timestamps, and a lightweight dependency graph; modify the fetch routine to consult this cache, invalidate entries when source content hash changes, and log causal relationships for future learning.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 99.76
   }
 ]
