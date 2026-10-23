@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.9512725,
-  "last_video_id": "vp_20261023_124813_f1ccc0",
-  "last_topic": "Holographic Quantum Error-Correcting Codes and Tensor Network Models of AdS/CFT",
-  "total_videos_analyzed": 474,
-  "running_cycle": true,
+  "last_run_timestamp": REDACTED_PHONE.2735007,
+  "last_video_id": "vp_20261023_132449_661b20",
+  "last_topic": "Causal Dynamical Triangulations and the Emergence of 4D Spacetime",
+  "total_videos_analyzed": 475,
+  "running_cycle": false,
   "last_error": null,
   "auto_improvement_count": 294
 }
