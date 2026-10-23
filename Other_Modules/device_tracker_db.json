@@ -454,7 +454,7 @@
     "traffic_bytes_tx": 0,
     "traffic_packets": 0,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-23T21:03:43.911299+00:00",
+    "last_seen": "2026-10-23T22:06:49.859931+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -527,10 +527,10 @@
     "throttle_kbps": null,
     "is_safe": true,
     "traffic_bytes_rx": 0,
-    "traffic_bytes_tx": 288,
-    "traffic_packets": 4,
+    "traffic_bytes_tx": 524,
+    "traffic_packets": 7,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-23T21:03:43.911299+00:00",
+    "last_seen": "2026-10-23T22:06:49.859931+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
