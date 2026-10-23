@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1792474450",
-    "timestamp": "2026-10-20T00:34:10.997393",
-    "idle_duration_minutes": 31.6,
-    "title": "Dynamic Causal Prompt Routing for Context‑Aware Web Research",
-    "hypothesis": "Integrating a causal inference layer into the WebResearchEngine that dynamically routes prompts based on inferred causal dependencies between the user's query, the system's memory vault, and real‑time network conditions will improve relevance and latency of retrieved information. The hypothesis posits that by modeling the query as a node in a causal graph and conditioning the selection of search APIs (e.g., DuckDuckGo, Bing, scholarly) on upstream variables (user intent confidence, vault relevance score, network shield latency), the engine can prioritize sources that are causally most likely to satisfy the information need, thereby reducing unnecessary external calls and improving answer quality.",
-    "research_query": "causal inference based routing in language model web search pipelines \"dynamic prompt routing\" \"causal graph\" information retrieval",
-    "research_findings": "# Informe de Investigación: causal inference based routing in language model web search pipelines \"dynamic prompt routing\" \"causal graph\" information retrieval\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a CausalRouter class that builds a lightweight causal graph from query metadata, computes a relevance score using Bayesian networks, and selects the optimal search backend. Refactor the existing fetch() method to accept a routing decision, log causal variables, and fallback gracefully when network_shield latency spikes.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.93
-  },
-  {
     "id": "conj_1792476473",
     "timestamp": "2026-10-20T01:07:53.650282",
     "idle_duration_minutes": 33.7,
@@ -1591,5 +1576,23 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.42
+  },
+  {
+    "id": "conj_1792730801",
+    "timestamp": "2026-10-22T23:46:41.067073",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal‑Feedback Loop for Adaptive Web Research",
+    "hypothesis": "Integrar un bucle de retroalimentación causal entre el motor de búsqueda web (core/web_research_engine.py) y la bóveda akáshica (core/deep_memory_vault.py) permitirá que el sistema ajuste dinámicamente sus pesos de relevancia en función de la precisión observada de los resultados en tiempo real, mejorando la calidad de la información recuperada en al menos un 20% sin incrementar la latencia promedio.",
+    "research_query": "causal feedback loop adaptive web search engine relevance weighting real-time evaluation",
+    "research_findings": "# Informe de Investigación: causal feedback loop adaptive web search engine relevance weighting real-time evaluation\n\n## Fuentes Consultadas y Respaldo Web\n- **[Cross-modal adaptive reconstruction of open education resources - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE5qTUdiSGM3b2xzU2lCT0pZa1doSkhIcmVYd21mVHMzdVMxTXBsTUdXbzFfcVdCNmhwMGcyd215YUtDMy1hVnY5ejE5ZTJwbnlROElkUC1VbFhwbnF4bTc0?oc=5)**: Cross-modal adaptive reconstruction of open education resources  Nature\n- **[List of cognitive biases (Wikipedia)](https://en.wikipedia.org/wiki/List_of_cognitive_biases)**: Pollyanna principle – Tendency to remember pleasant things better Positive feedback – Loop that increases an initial effect Propaganda – Communication used to\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMiX0FVX3lxTE5qTUdiSGM3b2xzU2lCT0pZa1doSkhIcmVYd21mVHMzdVMxTXBsTUdXbzFfcVdCNmhwMGcyd215YUtDMy1hVnY5ejE5ZTJwbnlROElkUC1VbFhwbnF4bTc0?oc=5)\n\n### De [List of",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE5qTUdiSGM3b2xzU2lCT0pZa1doSkhIcmVYd21mVHMzdVMxTXBsTUdXbzFfcVdCNmhwMGcyd215YUtDMy1hVnY5ejE5ZTJwbnlROElkUC1VbFhwbnF4bTc0?oc=5",
+      "https://en.wikipedia.org/wiki/List_of_cognitive_biases"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Añadir un módulo de monitorización de métricas de precisión (p.ej., hit‑rate, relevancia) que retroalimente un algoritmo de ajuste de pesos basado en causal inference (como DoWhy o CausalML) para actualizar dinámicamente la puntuación de resultados antes de devolverlos al usuario.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.36
   }
 ]
