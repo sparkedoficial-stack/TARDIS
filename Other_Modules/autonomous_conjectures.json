@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1792516480",
-    "timestamp": "2026-10-20T12:14:40.635913",
-    "idle_duration_minutes": 31.6,
-    "title": "Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching mechanism will allow the system to predict when cached search results become stale based on observed changes in source domains (e.g., content updates, SEO shifts). By modeling the causal relationship between external events (content revision timestamps, HTTP header changes, link structure modifications) and the relevance decay of cached results, the engine can proactively invalidate or refresh entries, reducing latency while maintaining up‑to‑date information. This should improve overall query latency by ~15‑25% and increase answer accuracy in dynamic domains such as news or software documentation.",
-    "research_query": "causal inference based cache invalidation techniques for web search engines",
-    "research_findings": "# Informe de Investigación: causal inference based cache invalidation techniques for web search engines\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal cache manager that tracks source change signals (ETag, Last-Modified, sitemap diffs) and uses a lightweight Bayesian network to decide when to purge or refresh cached query results.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.48
-  },
-  {
     "id": "conj_1792518378",
     "timestamp": "2026-10-20T12:46:18.437644",
     "idle_duration_minutes": 31.6,
@@ -1593,5 +1578,23 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 96.58
+  },
+  {
+    "id": "conj_1792813147",
+    "timestamp": "2026-10-23T22:39:07.847829",
+    "idle_duration_minutes": 34.2,
+    "title": "Graph‑Based Causal Ranking for Web Research",
+    "hypothesis": "The current web research engine ranks results purely on keyword relevance and link popularity, which ignores causal relationships between concepts. By constructing a dynamic knowledge graph from indexed documents and applying a lightweight graph neural network (GNN) to infer causal influence scores, the engine can prioritize results that not only match the query but also provide the most actionable causal insights. This should reduce noise from highly linked but irrelevant pages and improve user satisfaction in complex, multi‑step queries.",
+    "research_query": "graph neural network causal inference for search ranking",
+    "research_findings": "# Informe de Investigación: graph neural network causal inference for search ranking\n\n## Fuentes Consultadas y Respaldo Web\n- **[Combinatorial prediction of therapeutic perturbations using causally inspired neural networks - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTFBwaHlsM3k0cmYyYlFXeTFjc3NsbmtmUXU0VGlFWUttMGhmQ1Z4UGFDVFQ5RzZqNENGaXdxM0dhd1k5bTFyMDg4MHoxMjhobktyV0Q5cDNZcnlfLUFRODUw?oc=5)**: Combinatorial prediction of therapeutic perturbations using causally inspired neural networks  Nature\n- **[Causal inference-integrated temporal graph convolutional networks for dynamic prediction and optimization of enterprise total factor productivity - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTFA2Sm9XbGF4d1RINV84eURTTmNLTFJnZk5teTUwajZpMUhadFBDZzJHQXM2TmE2b3NTR0lDUUtFRFZQTVhEYWhSVjVGeWtKWUFNaU5LZDd5Q3hJdllqNGdV?oc=5)**: Causal inference-integrated temporal graph convolutional networks for dynamic prediction and optimization of enterprise total factor productivity ",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTFBwaHlsM3k0cmYyYlFXeTFjc3NsbmtmUXU0VGlFWUttMGhmQ1Z4UGFDVFQ5RzZqNENGaXdxM0dhd1k5bTFyMDg4MHoxMjhobktyV0Q5cDNZcnlfLUFRODUw?oc=5",
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTFA2Sm9XbGF4d1RINV84eURTTmNLTFJnZk5teTUwajZpMUhadFBDZzJHQXM2TmE2b3NTR0lDUUtFRFZQTVhEYWhSVjVGeWtKWUFNaU5LZDd5Q3hJdllqNGdV?oc=5"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a GraphCausalRanker class that builds a knowledge graph from document embeddings, runs a GNN to compute causal influence scores, and integrates these scores into the final ranking pipeline.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.16
   }
 ]
