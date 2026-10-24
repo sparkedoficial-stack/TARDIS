@@ -1794,7 +1794,9 @@ iframe{border:none;width:100%;height:100%;}</style></head>
         return {"ok": success, "locked": os_ctrl.is_locked()}
 
     @app.post("/api/os/reboot")
-    async def post_os_reboot_endpoint(req: RebootRequest):
+    async def post_os_reboot_endpoint(req: RebootRequest, request: Request):
+        if request.client and request.client.host not in ("127.0.0.1", "::1", "localhost", "testclient"):
+            raise HTTPException(status_code=403, detail="El reinicio sólo se acepta desde el equipo físico.")
         if not req.confirm:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,

@@ -426,6 +426,16 @@ class TardisSnapVoiceAssistant:
         self.voice_captured_event = threading.Event()
         self.captured_audio_data: Optional[np.ndarray] = None
 
+        # STT local: Whisper en CPU, sin subir el audio a servicios externos.
+        self.local_stt = None
+        if config.get("stt_engine", "local") == "local":
+            try:
+                from core.tardis_voice_local import LocalSpeechToText
+                self.local_stt = LocalSpeechToText(model_size=config.get("stt_model", "base"))
+                threading.Thread(target=self.local_stt.warmup, daemon=True, name="STT-Warmup").start()
+            except Exception as e:
+                print(f"{C_YELLOW}[STT local no disponible: {e}]{C_RESET}")
+
         ensure_chimes()
 
     def play_chime(self, which: str = "activation"):
@@ -549,7 +559,26 @@ class TardisSnapVoiceAssistant:
             audio_int16 = (np.clip(all_chunks, -1.0, 1.0) * 32767).astype(np.int16)
 
             text_transcribed = None
-            if HAS_SR:
+            # STT local (Whisper): no envía el audio a ningún servicio externo.
+            if self.local_stt is not None:
+                try:
+                    import io
+                    import wave
+                    buffer = io.BytesIO()
+                    with wave.open(buffer, "wb") as wf:
+                        wf.setnchannels(1)
+                        wf.setsampwidth(2)
+                        wf.setframerate(44100)
+                        wf.writeframes(audio_int16.tobytes())
+                    text_transcribed, _stt_s = self.local_stt.transcribe_bytes(
+                        buffer.getvalue(), language="es"
+                    )
+                    text_transcribed = text_transcribed.strip() or None
+                except Exception as e:
+                    if not self.daemon_mode:
+                        print(f"{C_RED}[STT local Error: {e}]{C_RESET}")
+                    text_transcribed = None
+            if text_transcribed is None and HAS_SR and self.config.get("stt_fallback_google", False):
                 try:
                     recognizer = sr.Recognizer()
                     audio_data = sr.AudioData(audio_int16.tobytes(), 44100, 2)
@@ -693,6 +722,9 @@ def main():
         print(f"  ● Sensibilidad:            {cfg.get('sensitivity', 1.0)}x")
         print(f"  ● Síntesis Vocal (TTS):    {cfg.get('voice', 'es-MX-DaliaNeural')}")
         print(f"  ● Idioma STT:              {cfg.get('language', 'es-MX')}")
+        stt_engine = cfg.get("stt_engine", "local")
+        stt_desc = f"Whisper local ({cfg.get('stt_model', 'base')}, CPU)" if stt_engine == "local" else "Google en línea"
+        print(f"  ● Motor STT:               {stt_desc}")
         print(f"  ● Núcleo LLM:              {cfg.get('model', 'TARDIS-NEURAL-SPACE-KAIJU')} @ {API_URL}")
         return 0
 

@@ -645,15 +645,14 @@ class AutonomousController:
         return None
 
     def schedule_autonomous_reboot(self, reason: str = "Reinicio autónomo de evolución solicitado", immediate: bool = False, delay_seconds: float = 3.0) -> Dict[str, Any]:
-        """Programa o ejecuta inmediatamente un reinicio autónomo sin restricciones energéticas."""
+        """Sólo deja constancia de un reinicio pendiente; nunca lo ejecuta (manual-only desde 2026-10-24)."""
         if immediate:
-            ignore_energy = bool(self.config.get("ignore_energy_restrictions", True))
-            return self.reboot_for_improvement(
-                reason=reason,
-                force=True,
-                delay_seconds=delay_seconds,
-                ignore_energy_restrictions=ignore_energy
-            )
+            return {
+                "ok": False,
+                "status": "manual_only",
+                "error": "El reinicio autónomo está desactivado: ejecútalo manualmente.",
+                "reason": reason
+            }
         self._evolution_state["pending_autonomous_reboot"] = True
         self._evolution_state["pending_reboot_reason"] = reason
         self._save_evolution_state()

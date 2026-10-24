@@ -7697,6 +7697,9 @@ iframe{{border:none;width:100%;height:100%;}}</style></head>
             if not body.get("confirm"):
                 self.send_json({"ok": False, "error": "Confirmación explícita requerida ('confirm': true)."}, status=400)
                 return
+            if not self._is_local_request():
+                self.send_json({"ok": False, "error": "El reinicio sólo se acepta desde el equipo físico."}, status=403)
+                return
             try:
                 from core.os_controller import get_os_controller
                 res = get_os_controller().reboot_system(

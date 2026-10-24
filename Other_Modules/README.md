@@ -168,6 +168,8 @@ Módulos y componentes auxiliares del sistema.
 - **pocket_synced_chats.json**: Componente de alta eficiencia.
 - **pocket_telemetry.json**: Componente de alta eficiencia.
 - **progress.py**: Componente de alta eficiencia.
+- **qoder_change_request.py**: Componente de alta eficiencia.
+- **qoder_request_bridge.py**: Componente de alta eficiencia.
 - **quantum_m2_matrix.py**: Componente de alta eficiencia.
 - **qwen38_image.py**: Componente de alta eficiencia.
 - **requirements-linux.txt**: Componente de alta eficiencia.
