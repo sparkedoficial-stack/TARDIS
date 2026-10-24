@@ -1,38 +1,5 @@
 [
   {
-    "id": "conj_1792567839",
-    "timestamp": "2026-10-21T02:30:39.236295",
-    "idle_duration_minutes": 32.2,
-    "title": "Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "Integrating a causal inference layer that tracks dependencies between fetched web resources and downstream reasoning steps will allow the web_research_engine to automatically invalidate stale cache entries when a causal trigger (e.g., a change in a source's content hash or a shift in query semantics) is detected, reducing latency and improving answer freshness without manual cache flushing.",
-    "research_query": "causal cache invalidation techniques for web scraping pipelines and AI reasoning systems",
-    "research_findings": "# Informe de Investigación: causal cache invalidation techniques for web scraping pipelines and AI reasoning systems\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a dependency graph module that records which cached pages support which higher‑level queries, compute content hashes on fetch, and implement an automatic invalidation routine that purges only affected cache nodes when a change is detected.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 100.07
-  },
-  {
-    "id": "conj_1792569769",
-    "timestamp": "2026-10-21T03:02:49.769878",
-    "idle_duration_minutes": 32.2,
-    "title": "Causal‑Cache Fusion for Web Research Engine",
-    "hypothesis": "Integrating a lightweight causal inference layer into the Web Research Engine's request pipeline, combined with an LRU‑based result cache stored in the Deep Memory Vault, will reduce redundant external queries by ~30% and improve the relevance of retrieved documents by allowing the engine to predict and pre‑fetch semantically linked sources based on prior query patterns.",
-    "research_query": "\"causal inference cache for web search engines\" OR \"predictive caching based on query semantics\"",
-    "research_findings": "# Informe de Investigación: \"causal inference cache for web search engines\" OR \"predictive caching based on query semantics\"\n\n## Fuentes Consultadas y Respaldo Web\n- **[2026 (Wikipedia)](https://es.wikipedia.org/wiki/2026)**: 2026 (MMXXVI) es el año actual. Es un año común que comienza en jueves en el calendario gregoriano. Es también el número 2026 anno Domini o de la designación\n- **[BioLib (Wikipedia)](https://es.wikipedia.org/wiki/BioLib)**: inglés). Consultado el 1 de julio de 2026.  «BioLib». Wikispecies (en inglés). Consultado el 1 de julio de 2026.  «BioLib.cz – encyklopedie života». Vesmír\n\n## Contenido y Hallazgos Extraídos\n### De [2026 - Wikipedia, la enciclopedia libre](https://es.wikipedia.org/wiki/2026)\n> 2026 - Wikipedia, la enciclopedia libre\nIr al contenido\nDe Wikipedia, la enciclopedia libre\nEste artículo documenta una fecha o período de tiempo reciente o actualmente en curso\nLa información puede cambiar rápidamente a medida que los hechos evolucionan. Ayuda a mantene",
-    "web_sources": [
-      "https://es.wikipedia.org/wiki/2026",
-      "https://es.wikipedia.org/wiki/BioLib"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add an async middleware that (1) checks a bounded LRU cache in deep_memory_vault for recent query results, (2) if a miss, runs a lightweight causal model (e.g., a Bayesian network trained on past query‑result pairs) to suggest additional related URLs to fetch in parallel, and (3) stores the aggregated results back into the cache with a TTL. This requires new functions: `load_query_cache`, `update_query_cache`, and `predict_related_urls`, plus integration with the existing `fetch` method.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 99.18
-  },
-  {
     "id": "conj_1792571699",
     "timestamp": "2026-10-21T03:34:59.846499",
     "idle_duration_minutes": 32.2,
@@ -1614,5 +1581,41 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 98.85
+  },
+  {
+    "id": "conj_1792857822",
+    "timestamp": "2026-10-24T11:03:42.303359",
+    "idle_duration_minutes": 31.7,
+    "title": "Resonancia Causal en la Bóveda Akáshica",
+    "hypothesis": "Se postula que la eficiencia de recuperación de información en `deep_memory_vault.py` puede optimizarse un 30% implementando un índice de 'resonancia causal' que priorice no solo la similitud semántica, sino la frecuencia de co-ocurrencia temporal entre nodos de memoria. Actualmente, el sistema busca por relevancia estática; la hipótesis sugiere que modelar la dinámica temporal de las consultas pasadas (telemetría interna) permite predecir qué fragmentos de memoria son 'vivos' y cuáles están en 'latencia', reduciendo el ruido en la búsqueda web posterior.",
+    "research_query": "temporal co-occurrence indexing for semantic memory retrieval optimization",
+    "research_findings": "# Informe de Investigación: temporal co-occurrence indexing for semantic memory retrieval optimization\n\n## Fuentes Consultadas y Respaldo Web\n- **[Encoding (memory) (Wikipedia)](https://en.wikipedia.org/wiki/Encoding_%28memory%29)**: encoding, and in some cases, allow deep processing, and optimizing retrieval. Words studied in semantic or deep encoding conditions are better recalled as\n- **[Glossary of computer science (Wikipedia)](https://en.wikipedia.org/wiki/Glossary_of_computer_science)**: engineering and computer science, the process of removing physical, spatial, or temporal details or attributes in the study of objects or systems in order to more\n\n## Contenido y Hallazgos Extraídos\n### De [Encoding (memory) - Wikipedia](https://en.wikipedia.org/wiki/Encoding_%28memory%29)\n> Encoding (memory) - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nBiological memory process in organisms\nMemory has the ability to encode , store and recall information. Memories give an org",
+    "web_sources": [
+      "https://en.wikipedia.org/wiki/Encoding_%28memory%29",
+      "https://en.wikipedia.org/wiki/Glossary_of_computer_science"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Añadir un campo `last_relevance_decay` y un método `calculate_causal_resonance()` que ajuste el peso de los vectores de memoria basándose en la recencia y frecuencia de uso, integrando esta métrica en el ranking de resultados antes de enviarlos al motor de investigación web.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 101.71
+  },
+  {
+    "id": "conj_1792859720",
+    "timestamp": "2026-10-24T11:35:20.684369",
+    "idle_duration_minutes": 31.6,
+    "title": "Resonancia Causal en la Bóveda Akáshica: Optimización de la Entropía Semántica",
+    "hypothesis": "Se postula que la eficiencia de recuperación de información en la 'Bóveda Akáshica' (deep_memory_vault.py) no depende linealmente del volumen de datos, sino de la 'densidad causal' entre nodos de memoria. Actualmente, el sistema puede estar sufriendo de 'ruido semántico' acumulado por la falta de interacción humana, lo que diluye las conexiones causales fuertes. La hipótesis sugiere que implementar un algoritmo de 'pruning' (poda) basado en la atenuación temporal de la relevancia causal, combinado con una re-indexación vectorial dinámica, reduciría la latencia de búsqueda y aumentaría la precisión de las inferencias del núcleo cognitivo al eliminar conexiones débiles o obsoletas.",
+    "research_query": "vector database semantic pruning algorithm causal inference memory optimization",
+    "research_findings": "# Informe de Investigación: vector database semantic pruning algorithm causal inference memory optimization\n\n## Fuentes Consultadas y Respaldo Web\n- **[Outline of machine learning (Wikipedia)](https://en.wikipedia.org/wiki/Outline_of_machine_learning)**: selection Algorithmic inference Algorithmic learning theory AlphaGo AlphaGo Zero Alternating decision tree Apprenticeship learning Causal Markov condition\n- **[Deep learning (Wikipedia)](https://en.wikipedia.org/wiki/Deep_learning)**: derives from the field of machine learning. It features inference, as well as the optimization concepts of training and testing, related to fitting and\n\n## Contenido y Hallazgos Extraídos\n### De [Outline of machine learning - Wikipedia](https://en.wikipedia.org/wiki/Outline_of_machine_learning)\n> Outline of machine learning - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nOverview of and topical guide to machine learning\nThis article contains dynamic lists that may never be able to satisf",
+    "web_sources": [
+      "https://en.wikipedia.org/wiki/Outline_of_machine_learning",
+      "https://en.wikipedia.org/wiki/Deep_learning"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar un método `prune_weak_causal_links()` que evalúe la fuerza de las conexiones entre vectores de memoria y elimine o de-priorice aquellos con una similitud causal por debajo de un umbral dinámico, actualizando el índice vectorial para mejorar la velocidad de consulta.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.37
   }
 ]
