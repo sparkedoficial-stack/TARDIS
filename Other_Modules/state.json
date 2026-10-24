@@ -6,7 +6,7 @@
   "last_video_id": "vp_20261024_163444_42a508",
   "last_topic": "Quantum Foam and the Emergence of Space-Time from Causal Dynamical Triangulations",
   "total_videos_analyzed": 520,
-  "running_cycle": false,
-  "last_error": null,
-  "auto_improvement_count": 303
+  "running_cycle": true,
+  "last_error": "No fue posible descargar el video desde https://www.youtube.com/watch?v=6yfWdb-JOA8",
+  "auto_improvement_count": 316
 }
