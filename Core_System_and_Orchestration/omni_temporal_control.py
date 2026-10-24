@@ -9232,7 +9232,7 @@ def main():
     print("   SUITE MAESTRA SOBERANA · ACCESO REMOTO IRREVOCABLE")
     print("====================================================================")
     print(f"[OMNI-LOCAL] Directorio Base       : {BASE_DIR}")
-    print(f"[OMNI-LOCAL] Token Irrevocable     : \033[93m{IRREVOCABLE_TOKEN}\033[0m")
+    print(f"[OMNI-LOCAL] Token Irrevocable     : \033[93mGIA-****{str(IRREVOCABLE_TOKEN)[-4:] if IRREVOCABLE_TOKEN else 'sin-configurar'}\033[0m")
     print(f"[OMNI-LOCAL] Subsistemas Activos   : Radar={HAS_RADAR} iOS={HAS_IOS} PDF={HAS_PDF} Geon={HAS_GEON} Sensors={HAS_TELE} Antigravity={HAS_AG_BRIDGE}")
 
     # --- INHIBICIÓN DE SUSPENSIÓN Y PERSISTENCIA EN SEGUNDO PLANO 24/7 ---

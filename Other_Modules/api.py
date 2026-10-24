@@ -682,6 +682,59 @@ def create_app() -> FastAPI:
         }
 
     # --------------------------------------------------------------------------
+    # BANDEJA FTL -> QODER (peticiones de cambio y mejora hacia el agente)
+    # --------------------------------------------------------------------------
+
+    def _qoder_token_ok(request: Request, body: Optional[dict] = None) -> bool:
+        """Alimenta a un agente con herramientas: exige token real; la IP no autoriza."""
+        key = (
+            request.headers.get("x-gia-key") or request.headers.get("x-api-key") or
+            request.query_params.get("key") or request.query_params.get("token") or
+            (body or {}).get("key") or (body or {}).get("token") or
+            request.headers.get("authorization", "").replace("Bearer ", "").strip()
+        )
+        return bool(key) and verify_token(key)
+
+    @app.post("/api/qoder/request")
+    async def qoder_request_submit(request: Request):
+        from core import qoder_request_bridge as qrb
+        try:
+            body = await request.json()
+        except Exception:
+            body = {}
+        if not isinstance(body, dict):
+            return JSONResponse(status_code=400, content={"ok": False, "error": "cuerpo_json_requerido"})
+        if not _qoder_token_ok(request, body):
+            return JSONResponse(status_code=401, content={"ok": False, "error": "token_requerido"})
+        res = qrb.submit_request(
+            source=body.get("source") or "ftl:http",
+            kind=body.get("kind", "improvement"),
+            title=body.get("title", ""),
+            body=body.get("body") or body.get("message") or "",
+            target_files=body.get("target_files") or body.get("files") or [],
+            evidence=body.get("evidence") or [],
+            risk=body.get("risk", "low"),
+            priority=body.get("priority", "normal"),
+            context=body.get("context") or {},
+        )
+        return JSONResponse(status_code=200 if res.get("ok") else 400, content=res)
+
+    @app.get("/api/qoder/requests")
+    async def qoder_requests_list(request: Request, state: Optional[List[str]] = None):
+        from core import qoder_request_bridge as qrb
+        if not _qoder_token_ok(request):
+            return JSONResponse(status_code=401, content={"ok": False, "error": "token_requerido"})
+        return {"ok": True, "requests": qrb.list_requests(state), "stats": qrb.stats()}
+
+    @app.get("/api/qoder/request/{request_id}")
+    async def qoder_request_show(request_id: str, request: Request):
+        from core import qoder_request_bridge as qrb
+        if not _qoder_token_ok(request):
+            return JSONResponse(status_code=401, content={"ok": False, "error": "token_requerido"})
+        rec = qrb.get_request(request_id)
+        return rec or JSONResponse(status_code=404, content={"ok": False, "error": "not_found"})
+
+    # --------------------------------------------------------------------------
     # CLÚSTER DISTRIBUIDO HETEROGÉNEO (ALFA + IMAC 14,1)
     # --------------------------------------------------------------------------
 
