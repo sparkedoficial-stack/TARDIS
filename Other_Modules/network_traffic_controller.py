@@ -1093,7 +1093,7 @@ table inet tardis_aegis_shield {{
     }}
 
     chain input {{
-        type filter hook input priority -10; policy accept;
+        type filter hook input priority -10; policy drop;
 
         iifname "lo" accept
         ct state invalid drop
@@ -1107,18 +1107,20 @@ table inet tardis_aegis_shield {{
         tcp dport @blocked_ports counter drop
         udp dport @blocked_ports counter drop
 
+        # Handshakes LAN acotados: salida real a Internet y servicios anunciados (mDNS/SSDP)
+        meta nfproto ipv4 ip saddr {{ REDACTED_IP/24, REDACTED_IP/24, REDACTED_IP/24 }} udp dport {{ 53, 67, 123 }} accept
+        meta nfproto ipv4 ip saddr {{ REDACTED_IP/24, REDACTED_IP/24 }} udp dport {{ 5353, 1900 }} accept
+        meta nfproto ipv6 ip6 saddr {{ fe80::/10 }} udp dport {{ 546, 547, 5353 }} accept
+
         # Reglas de limitación de caudal (Throttling) por dispositivo
 {throttle_in_str}
 
-        ct state established,related accept
-
         # Permitir subredes locales soberanas y malla Tailscale hacia puertos de control
         ip saddr {{ REDACTED_IP/8, REDACTED_IP/24, REDACTED_IP/24, REDACTED_IP/24, REDACTED_IP/10 }} tcp dport {{ {protected_ports} }} accept
-        ip6 saddr {{ ::1/128, fe80::/10, fd7a:115c:a1e0::/48 }} tcp dport {{ {protected_ports} }} accept
+        ip6 saddr {{ ::1/128, fd7a:115c:a1e0::/48 }} tcp dport {{ {protected_ports} }} accept
+        ip saddr {{ REDACTED_IP/8, REDACTED_IP/24, REDACTED_IP/24, REDACTED_IP/24, REDACTED_IP/10 }} udp dport 11434 accept
 
-        # Bloquear cualquier intento externo no autorizado hacia puertos sensibles y RPC UDP
-        tcp dport {{ {protected_ports} }} counter drop
-        ip saddr != {{ REDACTED_IP/8, REDACTED_IP/24, REDACTED_IP/24, REDACTED_IP/24, REDACTED_IP/10 }} udp dport {{ 111, 5000 }} counter drop
+        ct state established,related accept
     }}
 
     chain forward {{

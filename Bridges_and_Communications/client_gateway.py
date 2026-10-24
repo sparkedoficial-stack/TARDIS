@@ -60,6 +60,14 @@ def _client_id_for(email: str) -> str:
 
 
 def _public_base_url(request: Request) -> str:
+    forwarded_host = request.headers.get("x-forwarded-host", "").strip()
+    if forwarded_host:
+        candidate = forwarded_host.split(",")[0].strip()
+    else:
+        candidate = request.headers.get("host", f"127.0.0.1:{GATEWAY_PORT}").strip()
+    if candidate in PUBLIC_HOSTS:
+        proto = request.headers.get("x-forwarded-proto", "https").split(",")[0].strip()
+        return f"{proto}://{candidate}"
     host = request.headers.get("host", f"127.0.0.1:{GATEWAY_PORT}")
     proto = request.headers.get("x-forwarded-proto", "https")
     return f"{proto}://{host}"

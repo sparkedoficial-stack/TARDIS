@@ -24,6 +24,7 @@ import time
 import uuid
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+from urllib.parse import parse_qs
 
 import aiohttp
 from aiohttp import web
@@ -2938,8 +2939,38 @@ print('Hola desde iPad Pro M2!')
 </html>
 """
 
+def _edge_authorized(request: web.Request, body: Optional[Dict[str, Any]] = None) -> bool:
+    device_id = request.headers.get("X-TARDIS-Device-ID", "")
+    if not device_id and body:
+        device_id = str(body.get("device_id", ""))
+    if device_id:
+        try:
+            from core.security import is_request_authorized
+            headers = {k.lower(): v for k, v in request.headers.items()}
+            params = {k: v[0] for k, v in parse_qs(request.query_string).items()}
+            return is_request_authorized(headers, params, client_ip=request.remote or "")
+        except Exception:
+            return False
+    return False
+
+
+@web.middleware
+async def _edge_auth_middleware(request: web.Request, handler):
+    if not request.path.startswith("/api/"):
+        return await handler(request)
+    body = None
+    if request.method == "POST":
+        try:
+            body = await request.json()
+        except Exception:
+            body = None
+    if not _edge_authorized(request, body):
+        return web.json_response({"ok": False, "error": "dispositivo no autorizado"}, status=401)
+    return await handler(request)
+
+
 def create_app() -> web.Application:
-    app = web.Application()
+    app = web.Application(middlewares=[_edge_auth_middleware])
     app.router.add_get("/", index_handler)
     app.router.add_get("/linpad", index_handler)
     app.router.add_get("/manifest.json", manifest_handler)
