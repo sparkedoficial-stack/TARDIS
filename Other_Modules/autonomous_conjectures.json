@@ -1,23 +1,5 @@
 [
   {
-    "id": "conj_1792585115",
-    "timestamp": "2026-10-21T07:18:35.851858",
-    "idle_duration_minutes": 31.6,
-    "title": "Causal Prompt Routing for Adaptive Web Research",
-    "hypothesis": "Integrating a lightweight causal inference layer into the Web Research Engine will enable dynamic routing of search prompts based on inferred intent hierarchy, improving relevance and reducing redundant queries. By modeling the relationship between previous query outcomes and latent user goals, the engine can predict the most promising search strategy (e.g., keyword expansion vs. semantic embedding) before execution, leading to higher precision in retrieved sources and lower latency in the overall pipeline.",
-    "research_query": "causal inference prompt routing web search engine performance optimization",
-    "research_findings": "# Informe de Investigación: causal inference prompt routing web search engine performance optimization\n\n## Fuentes Consultadas y Respaldo Web\n- **[2024 in science (Wikipedia)](https://en.wikipedia.org/wiki/2024_in_science)**: depression aids locus discovery, fine mapping, gene prioritization and causal inference\". Nature Genetics. 56 (2): 222–233. doi:10.1038/s41588-023-01596-4\n- **[2023 in science (Wikipedia)](https://en.wikipedia.org/wiki/2023_in_science)**: on what real users are shown during their typical use of popular Web search engines interprets its results to show that choices for unreliable news sources\n\n## Contenido y Hallazgos Extraídos\n### De [2024 in science - Wikipedia](https://en.wikipedia.org/wiki/2024_in_science)\n> 2024 in science - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nOverview of the events of 2024 in science\nList of years in science\n( table )\n… 2014\n2015\n2016\n2017\n2018\n2019\n2020\n2021\n2022\n2023\n2024\n2025\n2026\n2027\n2028\n2029\n2030\n2031\n2032\n2",
-    "web_sources": [
-      "https://en.wikipedia.org/wiki/2024_in_science",
-      "https://en.wikipedia.org/wiki/2023_in_science"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal decision module that evaluates past query success metrics and selects the optimal search strategy (keyword, semantic, or hybrid) before issuing the request, with fallback to a confidence‑based re‑routing mechanism.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.2
-  },
-  {
     "id": "conj_1792587047",
     "timestamp": "2026-10-21T07:50:47.771147",
     "idle_duration_minutes": 32.2,
@@ -1617,5 +1599,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 98.04
+  },
+  {
+    "id": "conj_1792878184",
+    "timestamp": "2026-10-24T16:43:04.016523",
+    "idle_duration_minutes": 33.3,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer that tracks provenance of each web query result within the Deep Memory Vault will allow the Web Research Engine to automatically invalidate stale cached entries when upstream sources change, reducing false positives in knowledge retrieval and improving overall system latency.",
+    "research_query": "causal inference based cache invalidation techniques for web scraping and knowledge graphs",
+    "research_findings": "# Informe de Investigación: causal inference based cache invalidation techniques for web scraping and knowledge graphs\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a provenance metadata structure to cached results and implement a periodic causal check that flags and purges entries whose source URLs have been updated since the last fetch.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 138.57
   }
 ]
