@@ -1,35 +1,5 @@
 [
   {
-    "id": "conj_1792554440",
-    "timestamp": "2026-10-20T22:47:20.296677",
-    "idle_duration_minutes": 31.7,
-    "title": "Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "Integrating a causal inference layer that tracks dependency graphs between fetched web resources and downstream reasoning steps can enable proactive cache invalidation, reducing stale data propagation and improving the accuracy of the akáshic vault's knowledge base. By logging the provenance of each fact (URL, timestamp, extraction pipeline) and modeling temporal decay based on observed changes in source domains, the system can automatically refresh only the most impact‑critical entries, lowering bandwidth usage while preserving epistemic fidelity.",
-    "research_query": "causal inference based cache invalidation web scraping temporal decay models",
-    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web scraping temporal decay models\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a provenance tracking decorator to fetch functions, store dependency metadata in deep_memory_vault, and implement a scheduler that queries a change‑frequency model to selectively purge or refresh cached pages.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 99.25
-  },
-  {
-    "id": "conj_1792558228",
-    "timestamp": "2026-10-20T23:50:28.150631",
-    "idle_duration_minutes": 31.6,
-    "title": "Causal‑Feedback Loop for Adaptive Web Research",
-    "hypothesis": "Integrating a causal‑feedback mechanism between the Web Research Engine and the Deep Memory Vault will allow the system to dynamically re‑weight search strategies based on the observed relevance of retrieved documents, leading to a measurable reduction in query latency and an increase in semantic precision. The hypothesis posits that a lightweight Bayesian network can model the causal influence of past retrieval outcomes on future query formulation, enabling the engine to anticipate the most promising search operators (e.g., site:, filetype:, semantic embeddings) without exhaustive trial‑and‑error.",
-    "research_query": "\"causal feedback loop\" web search engine adaptive relevance weighting Bayesian network",
-    "research_findings": "# Informe de Investigación: \"causal feedback loop\" web search engine adaptive relevance weighting Bayesian network\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a modular causal‑feedback component that records retrieval success metrics in deep_memory_vault, updates a Bayesian belief model, and adjusts the search parameter generator in real time.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.93
-  },
-  {
     "id": "conj_1792562077",
     "timestamp": "2026-10-21T00:54:37.228897",
     "idle_duration_minutes": 32.7,
@@ -1611,5 +1581,35 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 96.06
+  },
+  {
+    "id": "conj_1792848329",
+    "timestamp": "2026-10-24T08:25:29.114137",
+    "idle_duration_minutes": 31.6,
+    "title": "Resonancia Causal en la Bóveda Akáshica: Optimización de la Entropía Semántica",
+    "hypothesis": "La eficiencia de la recuperación de información en la Bóveda Akáshica (deep_memory_vault.py) se ve limitada por la 'entropía semántica' acumulada en vectores de memoria que no han sido validados causalmente por el motor de investigación web. Se conjetura que implementar un mecanismo de 'pruning' (poda) basado en la correlación temporal entre las consultas de web_research_engine.py y los accesos a deep_memory_vault.py reduciría la latencia de inferencia en un 15-20% al eliminar nodos de memoria obsoletos o de baja relevancia causal, mejorando la precisión de la respuesta del núcleo cognitivo.",
+    "research_query": "semantic memory pruning causal correlation web search engine latency optimization LLM context window",
+    "research_findings": "# Informe de Investigación: semantic memory pruning causal correlation web search engine latency optimization LLM context window\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar un método `prune_stale_semantic_nodes()` que analice la última actividad de `web_research_engine.py` y elimine o deprecie vectores de memoria en `deep_memory_vault.py` que no hayan sido referenciados en las últimas N iteraciones de investigación, priorizando la coherencia causal sobre la retención bruta.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.67
+  },
+  {
+    "id": "conj_1792850226",
+    "timestamp": "2026-10-24T08:57:06.355447",
+    "idle_duration_minutes": 31.6,
+    "title": "Conjetura de Resonancia Causal en la Bóveda Akáshica",
+    "hypothesis": "Se postula que la eficiencia de recuperación de información en la 'Bóveda Akáshica' (deep_memory_vault.py) puede optimizarse significativamente si se implementa un mecanismo de 'Resonancia Causal' que priorice no solo la similitud semántica, sino la relevancia temporal y causal de los nodos de memoria. Actualmente, la búsqueda podría estar sesgada hacia la proximidad vectorial pura, ignorando que en sistemas de investigación profunda (web_research_engine.py), la validez de un dato depende de su contexto temporal y de su capacidad para resolver una cadena causal específica. Al integrar una métrica de 'peso causal' que decaiga exponencialmente con la obsolescencia del dato pero se amplifique si el dato es un 'hito' (breakthrough) en la cadena de investigación, se reduciría el ruido epistémico y se aceleraría la convergencia hacia respuestas de alta fidelidad.",
+    "research_query": "causal inference in vector databases temporal decay weighting for RAG systems",
+    "research_findings": "# Informe de Investigación: causal inference in vector databases temporal decay weighting for RAG systems\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Añadir un parámetro 'causal_weight' al método de búsqueda que modifique el score de similitud vectorial basándose en la antigüedad del nodo y su frecuencia de citación en cadenas de investigación previas, implementando una función de decaimiento temporal adaptativo.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.23
   }
 ]
