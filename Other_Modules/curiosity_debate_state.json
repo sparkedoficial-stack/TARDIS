@@ -3,30 +3,19 @@
   "interval_seconds": 5400.0,
   "target_chat_id": -REDACTED_PHONE,
   "target_thread_id": 453,
-  "last_run_timestamp": REDACTED_PHONE.5910487,
-  "last_run_iso": "2026-10-24T05:27:13.591051",
-  "total_dispatches": 325,
-  "curator_index": 2,
+  "last_run_timestamp": REDACTED_PHONE.9649727,
+  "last_run_iso": "2026-10-24T06:57:15.964976",
+  "total_dispatches": 326,
+  "curator_index": 3,
   "dispatched_topic_ids": [
     "holographic_brain_neurophysics",
     "fermi_paradox_great_filter",
     "godel_incompleteness_ai_limits",
     "neural_decoding_mind_reading_bci",
-    "syntropy_prigogine_thermodynamics"
+    "syntropy_prigogine_thermodynamics",
+    "synthetic_biology_xenobiology_xna"
   ],
   "history": [
-    {
-      "dispatch_id": 226,
-      "timestamp": REDACTED_PHONE.8593574,
-      "iso": "2026-10-18T00:37:49.859360",
-      "topic_id": "fermi_paradox_great_filter",
-      "topic_title": "La Paradoja de Fermi y el Gran Filtro: ¿Estamos Solos, Fuimos Primeros o Estamos Aislados?",
-      "pdf_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/reports/polimatas_debates/Dossier_Debate_20261018_003747_fermi_paradox_great_filter.pdf",
-      "chat_id": -REDACTED_PHONE,
-      "thread_id": 453,
-      "text_sent": true,
-      "doc_sent": true
-    },
     {
       "dispatch_id": 227,
       "timestamp": REDACTED_PHONE.95704,
@@ -1210,6 +1199,18 @@
       "topic_id": "syntropy_prigogine_thermodynamics",
       "topic_title": "Termodinámica del No Equilibrio y Sintropía: ¿El Orden es una Ley Fundamental?",
       "pdf_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/reports/polimatas_debates/Dossier_Debate_20261024_052711_syntropy_prigogine_thermodynam.pdf",
+      "chat_id": -REDACTED_PHONE,
+      "thread_id": 453,
+      "text_sent": true,
+      "doc_sent": true
+    },
+    {
+      "dispatch_id": 326,
+      "timestamp": REDACTED_PHONE.9649727,
+      "iso": "2026-10-24T06:57:15.964976",
+      "topic_id": "synthetic_biology_xenobiology_xna",
+      "topic_title": "Xenobiología y Ácidos Nucleicos Artificiales (XNAs): Rediseñando el Código Genético",
+      "pdf_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/reports/polimatas_debates/Dossier_Debate_20261024_065714_synthetic_biology_xenobiology_.pdf",
       "chat_id": -REDACTED_PHONE,
       "thread_id": 453,
       "text_sent": true,
