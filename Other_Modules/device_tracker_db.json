@@ -388,7 +388,7 @@
       "fe80::52eb:f6ff:fee2:b850"
     ],
     "alias": "TimeMachine (ASUS TUF Gaming A15 - Ethernet Host)",
-    "hostname": "TimeMachine.local",
+    "hostname": "TimeMachine (ASUS TUF Gaming A15 - Ethernet Host)",
     "vendor": "ASUSTek COMPUTER INC.",
     "device_type": "Estación Central Soberana (Host)",
     "interface": "enp2s0",
@@ -442,20 +442,17 @@
       }
     ],
     "risky_ports": [],
-    "mdns_services": [
-      "TARDIS (AirPlay Remote Video)",
-      "50EBF6E2B850@TARDIS (AirTunes Remote Audio)"
-    ],
+    "mdns_services": [],
     "wifi_metrics": {},
     "trust_level": "AEGIS_PROTECTED",
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 93154071,
-    "traffic_bytes_tx": 222935217,
-    "traffic_packets": 449316,
+    "traffic_bytes_rx": 0,
+    "traffic_bytes_tx": 643,
+    "traffic_packets": 4,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-24T00:57:57.971367+00:00",
+    "last_seen": "2026-10-24T02:00:45.009816+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -528,10 +525,10 @@
     "throttle_kbps": null,
     "is_safe": true,
     "traffic_bytes_rx": 0,
-    "traffic_bytes_tx": 139609,
-    "traffic_packets": 1310,
+    "traffic_bytes_tx": 620,
+    "traffic_packets": 8,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-24T00:57:57.971367+00:00",
+    "last_seen": "2026-10-24T02:00:45.009816+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]

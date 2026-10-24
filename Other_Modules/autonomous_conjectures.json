@@ -1,35 +1,5 @@
 [
   {
-    "id": "conj_1792512653",
-    "timestamp": "2026-10-20T11:10:53.120799",
-    "idle_duration_minutes": 31.6,
-    "title": "Dynamic Causal Cache Invalidation for the Web Research Engine",
-    "hypothesis": "If the Web Research Engine maintains a lightweight causal graph of request dependencies (e.g., which queries depend on which external resources or prior results), then cache entries can be invalidated proactively based on detected causal changes rather than on static TTLs. This should reduce redundant network calls, lower latency, and improve the consistency of the akáshic vault when external data evolves.",
-    "research_query": "causal inference based cache invalidation web search engine",
-    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web search engine\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal dependency tracker that records which cached responses depend on which URLs or parameters, and implement an adaptive invalidation routine that purges or refreshes cache entries when upstream resources change, using event hooks from network_shield.py.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.78
-  },
-  {
-    "id": "conj_1792514583",
-    "timestamp": "2026-10-20T11:43:03.135704",
-    "idle_duration_minutes": 32.2,
-    "title": "Causal Cache Invalidation for Asynchronous Web Research",
-    "hypothesis": "Integrating a causal inference layer into the WebResearchEngine's asynchronous request pipeline can automatically invalidate cached search results based on detected changes in query semantics or external data drift, reducing stale data retrieval by up to 40% without sacrificing latency. The hypothesis posits that by tracking the causal graph of query parameters, response headers, and content fingerprints, the engine can decide in real‑time whether a previously cached result remains valid, thereby improving the reliability of the akáshic vault's knowledge base.",
-    "research_query": "causal inference based cache invalidation asynchronous web scraping Python",
-    "research_findings": "# Informe de Investigación: causal inference based cache invalidation asynchronous web scraping Python\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Implement a causal cache manager that records query signatures and content hashes, and adds an async invalidation check before returning cached results.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.73
-  },
-  {
     "id": "conj_1792516480",
     "timestamp": "2026-10-20T12:14:40.635913",
     "idle_duration_minutes": 31.6,
@@ -1590,5 +1560,38 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 96.5
+  },
+  {
+    "id": "conj_1792805420",
+    "timestamp": "2026-10-23T20:30:20.544309",
+    "idle_duration_minutes": 31.6,
+    "title": "Dynamic Causal Cache for Web Research Engine",
+    "hypothesis": "Integrating a causal‑aware caching layer into `core/web_research_engine.py` that records the provenance and dependency graph of each fetched result will allow the system to predict which future queries can be satisfied from existing data, reducing latency by up to 40% and improving the fidelity of the akáshic vault's temporal consistency.",
+    "research_query": "causal inference based caching strategies for web search engines \"provenance graph\" \"temporal consistency\"",
+    "research_findings": "# Informe de Investigación: causal inference based caching strategies for web search engines \"provenance graph\" \"temporal consistency\"\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a lightweight causal cache module that stores query signatures, result timestamps, and dependency edges; expose `get_cached_result(query)` and `update_causal_graph(query, result)` functions; modify the request pipeline to consult the cache before issuing network calls.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.18
+  },
+  {
+    "id": "conj_1792809886",
+    "timestamp": "2026-10-23T21:44:46.636582",
+    "idle_duration_minutes": 42.9,
+    "title": "Integración de razonamiento causal dinámico en el motor de búsqueda web",
+    "hypothesis": "Si el motor de búsqueda web (core/web_research_engine.py) incorpora un módulo de inferencia causal que utiliza los embeddings temporales de deep_memory_vault, entonces la relevancia de los resultados de búsqueda aumentará significativamente en tareas de investigación que requieren correlación de eventos históricos, reduciendo la latencia de retroalimentación en al menos un 30% respecto al modelo actual basado solo en coincidencia de palabras clave.",
+    "research_query": "dynamic causal inference in web search engines using temporal embeddings",
+    "research_findings": "# Informe de Investigación: dynamic causal inference in web search engines using temporal embeddings\n\n## Fuentes Consultadas y Respaldo Web\n- **[Real–time digital prescriptions unlock influenza dynamics: evidence from 21 million transactions | npj Digital Medicine - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE1qVXRpdXk1bEotUTAzbzRvakJvbm1LTWdKQ1VpWVNTWjRnb2xKRXJZOE8xS2d0eTl0RGhCT0NlRDc5R08xNUIwMWJtNko3ZG82eXFUazdHdlVBY2pZdE1B?oc=5)**: Real–time digital prescriptions unlock influenza dynamics: evidence from 21 million transactions | npj Digital Medicine  Nature\n- **[From Data to Decisions: How Knowledge Graphs Are Becoming the Brain of the Modern Enterprise - Medium](https://news.google.com/rss/articles/CBMi0gFBVV95cUxPVjh5NnNZNnFfZ3UzMEx3U0pqajNDQ19TV0JjRGN5WGhleWxVLW5WMkptR2J6VHpldllqekM2bzJSUFBYWHlwSW1ySUZoZG9fOFZRVGY4NEt6ZVE5YkQ4b0VlRWl1T0Jtd1hlSzNrOGRuTzY1ajU4b1lUY3hVMDBpWUxiZWo5X1VBNDMyQjFMVlFPMU14bm9kUlZCMWVLMTBTRUI0ZTBQRDdpVmJxVlRuZFQwYzNPNGpReVdEMUg3dHVhNWhvQUd6L",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE1qVXRpdXk1bEotUTAzbzRvakJvbm1LTWdKQ1VpWVNTWjRnb2xKRXJZOE8xS2d0eTl0RGhCT0NlRDc5R08xNUIwMWJtNko3ZG82eXFUazdHdlVBY2pZdE1B?oc=5",
+      "https://news.google.com/rss/articles/CBMi0gFBVV95cUxPVjh5NnNZNnFfZ3UzMEx3U0pqajNDQ19TV0JjRGN5WGhleWxVLW5WMkptR2J6VHpldllqekM2bzJSUFBYWHlwSW1ySUZoZG9fOFZRVGY4NEt6ZVE5YkQ4b0VlRWl1T0Jtd1hlSzNrOGRuTzY1ajU4b1lUY3hVMDBpWUxiZWo5X1VBNDMyQjFMVlFPMU14bm9kUlZCMWVLMTBTRUI0ZTBQRDdpVmJxVlRuZFQwYzNPNGpReVdEMUg3dHVhNWhvQUd6LTdvMWMtZHBSQXc?oc=5"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Añadir una capa de razonamiento causal que consulte deep_memory_vault para obtener embeddings temporales de eventos y re‑rankear los resultados de búsqueda según la probabilidad causal estimada entre la consulta y los documentos.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.58
   }
 ]
