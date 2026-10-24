@@ -34,6 +34,7 @@ SECRET_KEY: str = SECRETS["secret_key"]
 SMTP_CFG: dict = SECRETS["smtp"]
 ALLOWLIST = {e.strip().lower() for e in SECRETS.get("allowlist", [])}
 GATEWAY_PORT: int = SECRETS.get("gateway_port", 8790)
+PUBLIC_HOSTS = {h.strip().lower() for h in SECRETS.get("public_hosts", []) if h.strip()}
 BRIDGE_URL: str = SECRETS.get("bridge_url", "http://127.0.0.1:8757").rstrip("/")
 
 LOGIN_SALT = "client-gateway-login"

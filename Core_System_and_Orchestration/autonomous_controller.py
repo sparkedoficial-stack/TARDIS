@@ -440,19 +440,8 @@ class AutonomousController:
                     if len(parts) >= 4 and parts[3] != "00:00:00:00:00:00":
                         ip = parts[0]
                         active_ips.append(ip)
-                if active_ips:
-                    # Registrar en device vault
-                    try:
-                        from core.device_vault import get_device_vault
-                        dv = get_device_vault()
-                        for ip in active_ips[:8]:
-                            dv.register_device(
-                                device_id=f"lan_node_{ip.replace('.', '_')}",
-                                ip=ip,
-                                client_name="Nodo LAN Detectado"
-                            )
-                    except Exception:
-                        pass
+                # Visibilidad de nodos = telemetría; la autorización de acceso sólo se
+                # concede con el token maestro, nunca por presencia en la tabla ARP.
         except Exception:
             pass
         return active_ips

@@ -162,6 +162,32 @@ class DeviceVault:
                 return True
             return False
 
+    def revoke_prefix(self, prefix: str, reason: str = "revocación selectiva") -> int:
+        """Revoca los dispositivos cuyo id empieza por `prefix`, conservando historial."""
+        with self._lock:
+            targets = [k for k in self._devices_data if k.startswith(prefix)]
+            if not targets:
+                return 0
+            history = dict(self._devices_data.get("revoked_history", {}) or {})
+            for clean_id in targets:
+                dev = self._devices_data.pop(clean_id, None)
+                self._authorized_ids.discard(clean_id)
+                if dev:
+                    dev["status"] = "REVOKED"
+                    dev["revoke_reason"] = reason
+                    dev["revoked_iso"] = time.strftime("%Y-%m-%d %H:%M:%S")
+                    history[clean_id] = dev
+            payload = {
+                "version": "26.4",
+                "policy": "PERMANENT_NO_REVOCATION",
+                "updated_ts": time.time(),
+                "total_devices": len(self._devices_data),
+                "devices": self._devices_data,
+                "revoked_history": history
+            }
+            self.file_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
+            return len(targets)
+
     def revoke_all(self) -> int:
         """Revoca de forma absoluta todas las sesiones y dispositivos autorizados."""
         with self._lock:
