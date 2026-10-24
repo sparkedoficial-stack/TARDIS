@@ -200,8 +200,8 @@
       "is_bot": false,
       "is_architect": true,
       "first_seen": "2026-09-25T15:13:39.080612",
-      "last_seen": "2026-10-22T20:54:30.654512",
-      "message_count": 123
+      "last_seen": "2026-10-23T18:28:50.490894",
+      "message_count": 124
     },
     "555000111": {
       "chat_id": 555000111,
@@ -316,5 +316,5 @@
       "message_count": 6
     }
   },
-  "last_updated": "2026-10-22T20:56:18.759397"
+  "last_updated": "2026-10-23T18:28:50.490953"
 }
