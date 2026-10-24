@@ -297,8 +297,27 @@ class OSController:
 
         return not self.is_locked()
 
-    def reboot_system(self, delay_seconds: float = 2.0, reason: str = "Reinicio remoto autorizado", ignore_inhibitors: bool = True) -> Dict[str, Any]:
-        """Programa un reinicio seguro del sistema operativo en segundo plano sin restricciones energéticas."""
+    def reboot_system(self, delay_seconds: float = 2.0, reason: str = "Reinicio remoto autorizado", ignore_inhibitors: bool = True, manual: bool = False) -> Dict[str, Any]:
+        """Programa un reinicio seguro del sistema operativo en segundo plano sin restricciones energéticas.
+
+        Desde 2026-10-24 el reinicio es sólo manual: cualquier llamada debe declarar
+        `manual=True` (usuarios que piden explícitamente el reinicio). Los subsistemas
+        autónomos no lo hacen, de modo que no pueden reiniciar el equipo.
+        """
+        if not manual:
+            try:
+                import agent_safety
+                agent_safety.audit("system_reboot_blocked", f"Reinicio no manual rechazado | Reason: {reason}")
+            except Exception:
+                pass
+            return {
+                "ok": False,
+                "status": "manual_only",
+                "error": "El reinicio está restringido a comandos manuales (manual=True).",
+                "reason": reason,
+                "timestamp": time.time()
+            }
+
         try:
             import agent_safety
             agent_safety.audit("system_reboot", f"Reason: {reason} | Delay: {delay_seconds}s | IgnoreInhibitors: {ignore_inhibitors}")

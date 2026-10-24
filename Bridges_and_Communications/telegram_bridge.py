@@ -2393,7 +2393,7 @@ class TelegramBridge:
                 f"• `/say <texto>` : Síntesis de voz hablada en los altavoces de la PC\n"
                 f"• `/sms <número> <msg>` : Enviar SMS a cualquier teléfono móvil\n"
                 f"• `/sms_status` : Estado del puente SMS y proveedores\n"
-                f"• `/reboot` : Reiniciar el equipo para auto-mejora continua\n"
+                f"• `/reboot` : Reiniciar el equipo (orden manual) (orden manual)\n"
                 f"• `/agy` : Estado y arranque de Google Antigravity\n"
                 f"• `/ftl <petición>` : Pedir a FTL creación o mejora de código (`/ftl` para ver opciones)\n"
                 f"• `/timeemergency <msg>` : Chatear con TimeEmergency (Qwen3.8-27B)\n\n"
@@ -3050,7 +3050,7 @@ class TelegramBridge:
             from core.autonomous_controller import get_autonomous_controller
             ac = get_autonomous_controller()
             self.send_message("🔄 Reinicio de optimización programado en 3 segundos. El bot se reconectará y te notificará al arrancar.", chat_id=chat_id)
-            ac.reboot_for_improvement(reason="Reinicio ordenado desde Telegram", force=True)
+            ac.reboot_for_improvement(reason="Reinicio /reboot ordenado desde Telegram", force=True, manual=True)
             return
 
         

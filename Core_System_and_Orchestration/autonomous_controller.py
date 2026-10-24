@@ -68,13 +68,13 @@ class AutonomousController:
             "auto_guardian": True,
             "auto_memory": True,
             "auto_packages": True,
-            "auto_evolution": True,
+            "auto_evolution": False,  # Desactivado 2026-10-24: causaba un reinicio cada hora
             "auto_missions": True,
-            "allow_autonomous_reboot": True,  # Autorizado explícitamente por el usuario
+            "allow_autonomous_reboot": False,  # Desactivado 2026-10-24: reinicios horarios no deseados
             "ignore_energy_restrictions": True,  # Sin restricciones de energía para reinicios automáticos y rendimiento
             "unrestricted_energy_reboot": True,
             "min_reboot_interval_s": 1800.0,  # Salvaguarda anti-bucles repetidos (30 min salvo forzado)
-            "evolution_reboot_cycles": 120,  # Ciclos antes de auto-reinicio de mejora
+            "evolution_reboot_cycles": 0,  # 0 = nunca reiniciar por evolución
             "temp_threshold_high": 78.0,
             "memory_consolidation_interval_s": 1800.0,  # 30 min
         }
@@ -185,7 +185,7 @@ class AutonomousController:
             # Verificar recuperación tras reinicio de auto-mejora si aplica
             threading.Thread(target=self._check_post_reboot_recovery, daemon=True, name="PostRebootRecovery").start()
 
-    def reboot_for_improvement(self, reason: str = "Optimización integral y auto-mejora del sistema", force: bool = False, delay_seconds: float = 3.0, ignore_energy_restrictions: Optional[bool] = None) -> Dict[str, Any]:
+    def reboot_for_improvement(self, reason: str = "Optimización integral y auto-mejora del sistema", force: bool = False, delay_seconds: float = 3.0, ignore_energy_restrictions: Optional[bool] = None, manual: bool = False) -> Dict[str, Any]:
         """
         Ejecuta un reinicio seguro del dispositivo plenamente autorizado por el usuario para auto-mejora
         sin restricciones energéticas ni bloqueos por políticas de energía o inhibidores.
@@ -253,7 +253,8 @@ class AutonomousController:
         res = self.os_ctrl.reboot_system(
             delay_seconds=delay_seconds,
             reason=reason,
-            ignore_inhibitors=ignore_energy_restrictions
+            ignore_inhibitors=ignore_energy_restrictions,
+            manual=manual
         )
         return {
             "ok": True,

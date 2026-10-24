@@ -1802,6 +1802,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
             )
         os_ctrl = get_os_controller()
         return os_ctrl.reboot_system(
+            manual=True,
             delay_seconds=req.delay_seconds if req.delay_seconds is not None else 2.0,
             reason=req.reason or "Reinicio remoto autorizado desde HUD",
             ignore_inhibitors=req.ignore_energy_restrictions if req.ignore_energy_restrictions is not None else True

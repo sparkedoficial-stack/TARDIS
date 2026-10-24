@@ -1573,7 +1573,7 @@ def process_hardware_chat_intent(msg: str, is_local_request: bool = False) -> Op
             if sub in ("auto", "optimize", "opt", "mejora", "mejorar"):
                 from core.autonomous_controller import get_autonomous_controller
                 ac = get_autonomous_controller()
-                res = ac.reboot_for_improvement(reason="Reinicio de optimización y auto-mejora solicitado por chat", force=True)
+                res = ac.reboot_for_improvement(reason="Reinicio /reboot solicitado por chat", force=True, manual=True)
                 return {
                     "action": "reboot_for_improvement",
                     "executed": True,
@@ -2880,7 +2880,9 @@ def process_hardware_chat_intent(msg: str, is_local_request: bool = False) -> Op
         res = HARDWARE.dispatch_action("lock_screen") if HARDWARE else {}
         return {"action": "lock_screen", "executed": True, "direct_return": True, "system_feedback": "🔒 [CONTROL OS]: Pantalla y sesión del sistema bloqueadas inmediatamente.", "raw": res}
 
-    # 1.4 Autorización y Ejecución de Reinicios para Auto-Mejora del Sistema
+    # 1.4 Autorización de Reinicios de Auto-Mejora: deshabilitada el 2026-10-24.
+    # Antes, una frase ambigua ("mejorar tu sistema", "reiniciar para mejorar") activaba
+    # auto_evolution y los reinicios autónomos cada hora. Ahora sólo se informa.
     if any(k in msg_l for k in [
         "puede reiniciar el dispositivo",
         "reiniciar el dispositivo las veces que sean necesarias",
@@ -2897,44 +2899,24 @@ def process_hardware_chat_intent(msg: str, is_local_request: bool = False) -> Op
         "mejorar su sistema",
         "mejorar tu sistema"
     ]):
-        from core.autonomous_controller import get_autonomous_controller
-        ac = get_autonomous_controller()
-        if any(w in msg_l for w in ["ahora", "ya", "ejecuta", "hazlo", "procede", "inicia"]):
-            res = ac.reboot_for_improvement(reason="Reinicio de optimización solicitado explícitamente por el usuario", force=True)
-            return {
-                "action": "reboot_for_improvement",
-                "executed": True,
-                "direct_return": True,
-                "system_feedback": f"🔄 [AUTO-MEJORA AUTÓNOMA]: Reinicio de optimización programado en 3 segundos (Reinicio #{res.get('reboot_number')}). Al arrancar, el dispositivo conectará red/internet, desbloqueará la pantalla con clave '0' y continuará su ciclo de mejora.",
-                "raw": res
-            }
-        else:
-            ac.config["allow_autonomous_reboot"] = True
-            ac.config["auto_evolution"] = True
-            ac._evolution_state["reboot_authorized_by_user"] = True
-            ac._save_evolution_state()
-            tot = ac._evolution_state.get("total_improvement_reboots", 0)
-            fb = (
-                "👑 [SISTEMA AUTÓNOMO SOBERANO - AUTORIZACIÓN DE REINICIO CONFIRMADA]\n"
-                "• Estado de Autorización: 🟢 AUTORIZADO (Sin límite de veces, plenamente soberano).\n"
-                "• Directiva Asignada: El sistema puede reiniciar el dispositivo las veces que sean necesarias para auto-mejorarse, limpiar memorias, aplicar kernels o afinar el rendimiento.\n"
-                "• Arranque sin Bloqueos: Servicio activo antes del login (systemd linger).\n"
-                "• Auto-Desbloqueo al Iniciar: Desbloqueo kernel uinput inmediato (contraseña: 0).\n"
-                "• Conectividad Inmediata: Red local 0.0.0.0:8757 y túnel Cloudflare automáticos al encender.\n"
-                f"• Historial de Reinicios de Mejora: {tot} completados.\n"
-                "• El sistema ejecutará reinicios de auto-mejora de manera completamente autónoma cuando la optimización lo requiera."
-            )
-            return {
-                "action": "authorize_autonomous_reboot",
-                "executed": True,
-                "direct_return": True,
-                "system_feedback": fb,
-                "raw": {"authorized": True, "total_reboots": tot}
-            }
+        return {
+            "action": "autonomous_reboot_disabled",
+            "executed": False,
+            "direct_return": True,
+            "system_feedback": "⛔ [AUTO-MEJORA]: Los reinicios autónomos están desactivados (desde 2026-10-24). El equipo sólo se reinicia con una orden explícita tuya, por ejemplo `/reboot` o «reinicia el equipo»."
+        }
 
     # 1.5 Reinicio General del Sistema
-    if any(k in msg_l for k in ["reiniciar sistema", "reinicia el sistema", "reinicia el equipo", "reiniciar equipo", "reinicia la maquina", "reinicia la máquina", "reboot al sistema"]):
-        res = HARDWARE.dispatch_action("reboot", {"delay": 3.0, "reason": "Petición por lenguaje natural en chat"}) if HARDWARE else {}
+    _reboot_order = any(k in msg_l for k in ["reiniciar sistema", "reinicia el sistema", "reinicia el equipo", "reiniciar equipo", "reinicia la maquina", "reinicia la máquina", "reboot al sistema"])
+    if _reboot_order and not is_local_request:
+        return {
+            "action": "system_reboot",
+            "executed": False,
+            "direct_return": True,
+            "system_feedback": "⛔ [SISTEMA OS]: El reinicio sólo se ejecuta como orden manual desde el equipo físico."
+        }
+    if _reboot_order:
+        res = HARDWARE.dispatch_action("reboot", {"delay": 3.0, "reason": "Petición explícita por lenguaje natural en chat"}) if HARDWARE else {}
         return {"action": "system_reboot", "executed": True, "direct_return": True, "system_feedback": "🔄 [SISTEMA OS]: Reinicio del sistema programado en 3 segundos (autorizado).", "raw": res}
 
     # 1.5 Captura de Pantalla
@@ -7718,6 +7700,7 @@ iframe{{border:none;width:100%;height:100%;}}</style></head>
             try:
                 from core.os_controller import get_os_controller
                 res = get_os_controller().reboot_system(
+                    manual=True,
                     delay_seconds=body.get("delay_seconds", 2.0),
                     reason=body.get("reason", "Reinicio remoto autorizado desde HUD")
                 )

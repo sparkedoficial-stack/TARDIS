@@ -513,7 +513,7 @@ class HardwareController:
         elif action in ("reboot", "system_reboot", "reboot_system"):
             delay = float(params.get("delay", 2.0))
             reason = str(params.get("reason", "Reinicio solicitado por chat soberano"))
-            return self.os_ctrl.reboot_system(delay_seconds=delay, reason=reason)
+            return self.os_ctrl.reboot_system(delay_seconds=delay, reason=reason, manual=True)
 
         elif action in ("keep_awake", "inhibit_sleep", "awake"):
             enabled = bool(params.get("enabled", True))

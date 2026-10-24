@@ -497,7 +497,7 @@ class ButtonOrchestrator:
                     "simulation": True,
                     "message": "Comando de reinicio validado correctamente (Modo Seguro / Simulación). Para ejecución física enviar dry_run=false.",
                 }
-            res = self.os_ctrl.reboot_system(delay_seconds=params.get("delay", 2.0))
+            res = self.os_ctrl.reboot_system(delay_seconds=params.get("delay", 2.0), manual=True)
             return {"ok": True, "action": act_clean, "details": res}
 
         elif act_clean in ("os_refresh_shot", "btn-os-refresh-shot"):

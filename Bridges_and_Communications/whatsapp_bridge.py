@@ -351,7 +351,7 @@ class WhatsAppBridge:
                 f"• `/vol <0-100>` : Ajustar volumen de la laptop\n"
                 f"• `/mute` / `/unmute` : Silenciar o activar audio\n"
                 f"• `/say <texto>` : Síntesis de voz hablada en los altavoces\n"
-                f"• `/reboot` : Reiniciar el equipo\n\n"
+                f"• `/reboot` : Reiniciar el equipo (orden manual)\n\n"
                 f"💬 *Puedes escribir cualquier directiva o pregunta. {self.active_model_label} responderá directamente.*"
             )
             self.send_message(sender, help_msg)
