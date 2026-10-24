@@ -1,41 +1,5 @@
 [
   {
-    "id": "conj_1792579296",
-    "timestamp": "2026-10-21T05:41:36.100314",
-    "idle_duration_minutes": 31.6,
-    "title": "Integración de Memoria Causal Temporal en el Motor de Búsqueda Web",
-    "hypothesis": "Si el motor de búsqueda web (core/web_research_engine.py) incorpora un modelo de memoria causal que indexe no solo los resultados actuales sino también sus relaciones temporales y de dependencia con consultas previas almacenadas en deep_memory_vault, entonces el sistema podrá predecir y priorizar fuentes de información relevantes antes de completar la búsqueda, reduciendo la latencia de respuesta en un 30% y mejorando la precisión de la información contextualizada en entornos de alta complejidad epistemológica.",
-    "research_query": "temporal causal memory integration for web search engines academic papers 2023 2024",
-    "research_findings": "# Informe de Investigación: temporal causal memory integration for web search engines academic papers 2023 2024\n\n## Fuentes Consultadas y Respaldo Web\n- **[The Retrieval Effectiveness of Web Search Engines: Considering Results Descriptions (arXiv)](http://arxiv.org/abs/1511.05800v1)**: Purpose: To compare five major Web search engines (Google, Yahoo, MSN, Ask.com, and Seekport) for their retrieval effectiveness, taking into account not only the results but also the results descriptions.   Design/Methodology/Approach: The study uses real-life queries. Results are made anonymous and are randomised. Results are judged by the persons\n- **[Problems with the use of Web search engines to find results in foreign languages (arXiv)](http://arxiv.org/abs/1511.05798v1)**: Purpose - To test the ability of major search engines, Google, Yahoo, MSN, and Ask, to distinguish between German and English-language documents   Design/methodology/approach - 50 queries, using words common in German and in Engl",
-    "web_sources": [
-      "http://arxiv.org/abs/1511.05800v1",
-      "http://arxiv.org/abs/1511.05798v1"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Añadir una capa de gestión de memoria causal que registre cada consulta y sus resultados en deep_memory_vault, y que utilice un grafo de dependencias temporales para re‑ordenar y pre‑filtrar resultados en futuras búsquedas.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.95
-  },
-  {
-    "id": "conj_1792581194",
-    "timestamp": "2026-10-21T06:13:14.558760",
-    "idle_duration_minutes": 31.6,
-    "title": "Causal Memory Indexing for Real‑Time Web Research",
-    "hypothesis": "Integrating a causal graph layer into the Deep Memory Vault will allow the Web Research Engine to prioritize and retrieve information not only by lexical relevance but also by inferred causal relevance to the current query context. By storing each memorized fact with its upstream and downstream causal links, the system can dynamically compute a relevance score that favors sources that are causally upstream of the user's intent, improving answer accuracy and reducing hallucination in autonomous reasoning cycles.",
-    "research_query": "causal graph based information retrieval systems and their impact on relevance ranking in AI assistants",
-    "research_findings": "# Informe de Investigación: causal graph based information retrieval systems and their impact on relevance ranking in AI assistants\n\n## Fuentes Consultadas y Respaldo Web\n- **[A unified multimodal GenAI platform integrating GraphRAG multi-agent systems and custom language models for intelligent document processing and knowledge synthesis | Scientific Reports - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE5JV0JFR2ExZGVqeHdMdW5QZm40Ri13WnNTOVdreWJwRTdCaGJXZEFJb1FFTU5vOWI5WUw3c3cyTDdlVlJwem0zYjJkaVpkZXpZbU1fQ05mczhwcnQycEhj?oc=5)**: A unified multimodal GenAI platform integrating GraphRAG multi-agent systems and custom language models for intelligent document processing and knowledge synthesis | Scientific Reports  Nature\n- **[Mi-Memory: A Lifecycle Memory Framework for Personal AI - alphaXiv](https://news.google.com/rss/articles/CBMiUEFVX3lxTFB1OC15STZna0dNSzB3VDJ6S3BOUTFKNnpyNkZDQ2FyR0ktcVZnY2haT3RFSlZwM3V3emd0V3FIN09NX2pSaG50S3ZYZjZnekpK?oc=5)**: Mi-Memory: A Lifecycle Me",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE5JV0JFR2ExZGVqeHdMdW5QZm40Ri13WnNTOVdreWJwRTdCaGJXZEFJb1FFTU5vOWI5WUw3c3cyTDdlVlJwem0zYjJkaVpkZXpZbU1fQ05mczhwcnQycEhj?oc=5",
-      "https://news.google.com/rss/articles/CBMiUEFVX3lxTFB1OC15STZna0dNSzB3VDJ6S3BOUTFKNnpyNkZDQ2FyR0ktcVZnY2haT3RFSlZwM3V3emd0V3FIN09NX2pSaG50S3ZYZjZnekpK?oc=5"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Add a causal graph data structure (e.g., adjacency list with weighted edges) to the vault, implement functions to insert causal links when new facts are stored, and modify the retrieval API to accept a 'causal_weight' parameter that boosts results based on upstream causal distance.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.44
-  },
-  {
     "id": "conj_1792583217",
     "timestamp": "2026-10-21T06:46:57.640200",
     "idle_duration_minutes": 33.7,
@@ -1617,5 +1581,38 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.48
+  },
+  {
+    "id": "conj_1792869304",
+    "timestamp": "2026-10-24T14:15:04.761630",
+    "idle_duration_minutes": 32.2,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer into core/web_research_engine.py that predicts the relevance decay of cached search results based on temporal patterns and user query semantics will reduce stale data retrieval by at least 30% and improve overall response latency. The hypothesis rests on the premise that the Deep Memory Vault already logs query‑result timestamps and semantic embeddings, which can be leveraged to model a decay function (e.g., exponential or Weibull) conditioned on causal factors such as topic volatility, source update frequency, and network latency recorded by core/network_shield.py.",
+    "research_query": "causal inference based cache expiration strategies for web search engines academic papers 2022-2024",
+    "research_findings": "# Informe de Investigación: causal inference based cache expiration strategies for web search engines academic papers 2022-2024\n\n## Fuentes Consultadas y Respaldo Web\n- **[Causal inference via algebraic geometry: feasibility tests for functional causal structures with two binary observed variables (arXiv)](http://arxiv.org/abs/1506.03880v2)**: We provide a scheme for inferring causal relations from uncontrolled statistical data based on tools from computational algebraic geometry, in particular, the computation of Groebner bases. We focus on causal structures containing just two observed variables, each of which is binary. We consider the consequences of imposing different restrictions o\n- **[The Retrieval Effectiveness of Web Search Engines: Considering Results Descriptions (arXiv)](http://arxiv.org/abs/1511.05800v1)**: Purpose: To compare five major Web search engines (Google, Yahoo, MSN, Ask.com, and Seekport) for their retrieval effectiveness, taking into account not only the resul",
+    "web_sources": [
+      "http://arxiv.org/abs/1506.03880v2",
+      "http://arxiv.org/abs/1511.05800v1"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a CausalCacheManager class that computes a dynamic TTL for each cached result using a lightweight probabilistic model (e.g., Bayesian updating) and integrates it with the existing cache read/write flow.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 99.94
+  },
+  {
+    "id": "conj_1792871202",
+    "timestamp": "2026-10-24T14:46:42.042115",
+    "idle_duration_minutes": 31.6,
+    "title": "Dynamic Causal Cache Invalidation for the Web Research Engine",
+    "hypothesis": "If the Web Research Engine maintains a lightweight causal graph of query dependencies (e.g., which cached results depend on which external resources), it can proactively invalidate or refresh only the affected cache entries when a source changes. This selective, causally‑driven invalidation should reduce latency and bandwidth usage compared to time‑based or full‑cache flush strategies, while keeping the returned data semantically up‑to‑date.",
+    "research_query": "causal inference based cache invalidation web search engine performance",
+    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web search engine performance\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal dependency tracker for cached search results and implement a selective invalidation routine that triggers when source URLs report updates (e.g., via ETag/Last‑Modified headers).",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.26
   }
 ]
