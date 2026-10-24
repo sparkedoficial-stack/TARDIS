@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1792583217",
-    "timestamp": "2026-10-21T06:46:57.640200",
-    "idle_duration_minutes": 33.7,
-    "title": "Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "Integrating a causal inference layer that tracks dependencies between fetched web documents and downstream reasoning steps can enable selective cache invalidation, reducing redundant network calls and improving response latency in the core/web_research_engine.py module. By modeling each request as a node in a directed acyclic graph (DAG) with edges representing semantic influence, the system can predict when a cached result is likely stale based on changes in upstream sources, rather than relying on fixed TTLs.",
-    "research_query": "causal inference based cache invalidation web scraping \"directed acyclic graph\" cache freshness",
-    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web scraping \"directed acyclic graph\" cache freshness\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a dependency graph structure to track fetched URLs and their semantic impact, and implement an invalidation routine that prunes cache entries when upstream sources are updated or when the graph indicates high propagation risk.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.26
-  },
-  {
     "id": "conj_1792585115",
     "timestamp": "2026-10-21T07:18:35.851858",
     "idle_duration_minutes": 31.6,
@@ -1614,5 +1599,23 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.26
+  },
+  {
+    "id": "conj_1792873131",
+    "timestamp": "2026-10-24T15:18:51.425081",
+    "idle_duration_minutes": 32.2,
+    "title": "Dynamic Causal Cache for Web Research Engine",
+    "hypothesis": "Integrating a lightweight causal inference module into core/web_research_engine.py can predict the future relevance of fetched URLs based on query patterns, user intent signals, and temporal trends. By caching and pre‑fetching pages with high predicted causal relevance, the system would reduce latency, lower network load, and improve the quality of returned information without sacrificing the integrity of the akáshic vault.",
+    "research_query": "causal inference based caching strategies for web search engines latency relevance",
+    "research_findings": "# Informe de Investigación: causal inference based caching strategies for web search engines latency relevance\n\n## Fuentes Consultadas y Respaldo Web\n- **[Outline of machine learning (Wikipedia)](https://en.wikipedia.org/wiki/Outline_of_machine_learning)**: selection Algorithmic inference Algorithmic learning theory AlphaGo AlphaGo Zero Alternating decision tree Apprenticeship learning Causal Markov condition\n- **[Big data (Wikipedia)](https://en.wikipedia.org/wiki/Big_data)**: precursors for stock market moves, using trading strategies based on search volume data provided by Google Trends. Their analysis of Google search volume for 98\n\n## Contenido y Hallazgos Extraídos\n### De [Outline of machine learning - Wikipedia](https://en.wikipedia.org/wiki/Outline_of_machine_learning)\n> Outline of machine learning - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nOverview of and topical guide to machine learning\nThis article contains dynamic lists that may never be able to sati",
+    "web_sources": [
+      "https://en.wikipedia.org/wiki/Outline_of_machine_learning",
+      "https://en.wikipedia.org/wiki/Big_data"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal relevance scoring layer that evaluates incoming queries, updates a lightweight causal graph, and decides which results to store in a priority cache and which to pre‑fetch asynchronously.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.04
   }
 ]

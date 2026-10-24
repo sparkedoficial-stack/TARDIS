@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.5243244,
-  "last_video_id": "vp_20261024_143559_a704b4",
-  "last_topic": "Discrete Time Crystals in Periodically Driven (Floquet) Quantum Systems",
-  "total_videos_analyzed": 517,
+  "last_run_timestamp": REDACTED_PHONE.8486192,
+  "last_video_id": "vp_20261024_154855_bbc21c",
+  "last_topic": "Persistent Homology of Functional Brain Networks: A Topological Data Analysis Approach",
+  "total_videos_analyzed": 519,
   "running_cycle": false,
   "last_error": null,
-  "auto_improvement_count": 295
+  "auto_improvement_count": 297
 }

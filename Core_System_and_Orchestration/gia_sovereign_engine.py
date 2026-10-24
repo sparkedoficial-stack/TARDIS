@@ -277,7 +277,10 @@ class SovereignInferenceEngine:
                 pass
 
         # 4. Consultar modelos MoE gestionados por Colibri
-        if _COLIBRI_ACTIVE:
+        # El escaneo de Colibri recorre ~/.cache/huggingface y cuesta ~20 s. Sólo
+        # aporta si el nodo no tiene ya modelos soberanos: antes se ejecutaba siempre
+        # y se pagaba dos veces en el arranque (40 s perdidos).
+        if _COLIBRI_ACTIVE and not models:
             try:
                 c_models = colibri_bridge.get_colibri().list_local_colibri_models()
                 for cm in c_models:

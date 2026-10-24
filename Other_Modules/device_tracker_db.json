@@ -186,11 +186,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 84,
-    "traffic_bytes_tx": 84,
-    "traffic_packets": 2,
+    "traffic_bytes_rx": 168,
+    "traffic_bytes_tx": 240,
+    "traffic_packets": 5,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-24T00:57:57.971367+00:00",
+    "last_seen": "2026-10-24T20:59:59.214925+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -238,7 +238,7 @@
     "interface": "enp2s0",
     "connection_medium": "Ethernet / LAN (enp2s0)",
     "network_segment": "Ethernet / LAN Principal (REDACTED_IP/24)",
-    "arp_state": "REACHABLE",
+    "arp_state": "STALE",
     "online": true,
     "rtt_ms": null,
     "open_ports": [],
@@ -254,7 +254,7 @@
     "traffic_bytes_tx": 0,
     "traffic_packets": 2,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-22T00:12:43.741483+00:00",
+    "last_seen": "2026-10-24T20:59:59.214925+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -372,11 +372,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 0,
-    "traffic_bytes_tx": 0,
-    "traffic_packets": 0,
+    "traffic_bytes_rx": 168,
+    "traffic_bytes_tx": 281,
+    "traffic_packets": 5,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-24T00:57:57.971367+00:00",
+    "last_seen": "2026-10-24T20:59:59.214925+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -388,7 +388,7 @@
       "fe80::52eb:f6ff:fee2:b850"
     ],
     "alias": "TimeMachine (ASUS TUF Gaming A15 - Ethernet Host)",
-    "hostname": "TimeMachine (ASUS TUF Gaming A15 - Ethernet Host)",
+    "hostname": "TimeMachine.local",
     "vendor": "ASUSTek COMPUTER INC.",
     "device_type": "Estación Central Soberana (Host)",
     "interface": "enp2s0",
@@ -442,17 +442,20 @@
       }
     ],
     "risky_ports": [],
-    "mdns_services": [],
+    "mdns_services": [
+      "TARDIS (AirPlay Remote Video)",
+      "50EBF6E2B850@TARDIS (AirTunes Remote Audio)"
+    ],
     "wifi_metrics": {},
     "trust_level": "AEGIS_PROTECTED",
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 0,
-    "traffic_bytes_tx": 447,
-    "traffic_packets": 2,
+    "traffic_bytes_rx": REDACTED_PHONE,
+    "traffic_bytes_tx": REDACTED_PHONE,
+    "traffic_packets": 8305367,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-24T06:13:06.827963+00:00",
+    "last_seen": "2026-10-24T20:59:59.214925+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -525,10 +528,10 @@
     "throttle_kbps": null,
     "is_safe": true,
     "traffic_bytes_rx": 0,
-    "traffic_bytes_tx": 500,
-    "traffic_packets": 6,
+    "traffic_bytes_tx": 2309162,
+    "traffic_packets": 22148,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-24T06:13:06.827963+00:00",
+    "last_seen": "2026-10-24T20:59:59.214925+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -544,7 +547,7 @@
     "interface": "enp2s0",
     "connection_medium": "Ethernet / LAN (enp2s0)",
     "network_segment": "Ethernet / LAN Principal (REDACTED_IP/24)",
-    "arp_state": "REACHABLE",
+    "arp_state": "STALE",
     "online": true,
     "rtt_ms": null,
     "open_ports": [],
@@ -556,11 +559,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 0,
+    "traffic_bytes_rx": 168,
     "traffic_bytes_tx": 0,
-    "traffic_packets": 0,
+    "traffic_packets": 2,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-24T00:57:57.971367+00:00",
+    "last_seen": "2026-10-24T20:59:59.214925+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -588,11 +591,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 0,
+    "traffic_bytes_rx": 168,
     "traffic_bytes_tx": 0,
-    "traffic_packets": 0,
+    "traffic_packets": 2,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-24T00:57:57.971367+00:00",
+    "last_seen": "2026-10-24T20:59:59.214925+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -657,6 +660,81 @@
     "traffic_packets": 1614,
     "first_seen": "2026-10-24T00:57:57.971367+00:00",
     "last_seen": "2026-10-24T00:57:57.971367+00:00",
+    "ip_history": [
+      "REDACTED_IP"
+    ]
+  },
+  "86:E8:05:64:D7:C6": {
+    "mac": "86:E8:05:64:D7:C6",
+    "ip": "REDACTED_IP",
+    "ipv6_addresses": [],
+    "alias": "Dispositivo LAN (REDACTED_IP)",
+    "hostname": "Dispositivo LAN (REDACTED_IP)",
+    "vendor": "Dirección MAC Privada / Aleatoria (iOS / Android / Linux)",
+    "device_type": "Dispositivo de Red (Dirección MAC Privada / Aleatoria (iOS / Android / Linux))",
+    "interface": "veth-host-aq",
+    "connection_medium": "Virtual Bridge (veth-host-aq)",
+    "network_segment": "Namespace Virtual Antarctica (REDACTED_IP/24)",
+    "arp_state": "STALE",
+    "online": true,
+    "rtt_ms": 0.03,
+    "open_ports": [],
+    "port_details": [],
+    "risky_ports": [],
+    "mdns_services": [],
+    "wifi_metrics": {},
+    "trust_level": "KNOWN",
+    "is_quarantined": false,
+    "throttle_kbps": null,
+    "is_safe": true,
+    "traffic_bytes_rx": 33338,
+    "traffic_bytes_tx": 1817555,
+    "traffic_packets": 21552,
+    "first_seen": "2026-10-24T20:59:59.214925+00:00",
+    "last_seen": "2026-10-24T20:59:59.214925+00:00",
+    "ip_history": [
+      "REDACTED_IP"
+    ]
+  },
+  "A8:B5:7C:6E:B1:1D": {
+    "mac": "A8:B5:7C:6E:B1:1D",
+    "ip": "REDACTED_IP",
+    "ipv6_addresses": [],
+    "alias": "X016002821XK.local",
+    "hostname": "X016002821XK.local",
+    "vendor": "Roku, Inc",
+    "device_type": "Dispositivo de Red (Roku, Inc)",
+    "interface": "enp2s0",
+    "connection_medium": "Ethernet / LAN (enp2s0)",
+    "network_segment": "Ethernet / LAN Principal (REDACTED_IP/24)",
+    "arp_state": "STALE",
+    "online": true,
+    "rtt_ms": 1.04,
+    "open_ports": [
+      7000
+    ],
+    "port_details": [
+      {
+        "port": 7000,
+        "service": "AirPlay Receiver"
+      }
+    ],
+    "risky_ports": [],
+    "mdns_services": [
+      "Roku Express 4K (_display._tcp)",
+      "722808a3-ca10-576b-b384-8a7f40944a61 (_spotify-connect._tcp)",
+      "Roku Express 4K (AirPlay Remote Video)"
+    ],
+    "wifi_metrics": {},
+    "trust_level": "KNOWN",
+    "is_quarantined": false,
+    "throttle_kbps": null,
+    "is_safe": true,
+    "traffic_bytes_rx": 168,
+    "traffic_bytes_tx": 589,
+    "traffic_packets": 6,
+    "first_seen": "2026-10-24T20:59:59.214925+00:00",
+    "last_seen": "2026-10-24T20:59:59.214925+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]

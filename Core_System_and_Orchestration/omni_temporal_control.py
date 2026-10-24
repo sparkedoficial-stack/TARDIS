@@ -9257,6 +9257,11 @@ def main():
 
     # --- ASEGURAR QUE EL DEMONIO OLLAMA ESTÉ EN EJECUCIÓN (INFERENCIA SOBERANA) ---
     def ensure_ollama_running():
+        import shutil as _shutil
+        # En este nodo la inferencia vive en el socket temporal_brain. Si el binario
+        # 'ollama' no existe, el intento sólo costaba un sleep(3) y un error en el log.
+        if _shutil.which("ollama") is None:
+            return
         try:
             import urllib.request
             req = urllib.request.Request("http://127.0.0.1:11434/")
