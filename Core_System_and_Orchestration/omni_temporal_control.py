@@ -5434,6 +5434,28 @@ class OmniTemporalHTTPHandler(http.server.SimpleHTTPRequestHandler):
                 return True
         return False
 
+    def _qoder_strict_auth(self, body: Optional[dict] = None) -> bool:
+        """Buzón FTL->Qoder: exige token real. La confianza implícita por IP no aplica."""
+        url_parsed = urllib.parse.urlparse(self.path)
+        query_params = {k: v[0] for k, v in urllib.parse.parse_qs(url_parsed.query).items() if v}
+        headers = {k.lower(): v for k, v in self.headers.items()}
+        key_candidate = (
+            query_params.get("key") or query_params.get("token") or
+            headers.get("x-gia-key") or headers.get("x-api-key") or
+            headers.get("authorization", "").replace("Bearer ", "").strip()
+        )
+        if not key_candidate and body and isinstance(body, dict):
+            key_candidate = body.get("key") or body.get("token") or body.get("auth_token")
+        if not key_candidate:
+            return False
+        try:
+            from core.security import verify_token
+            if verify_token(key_candidate):
+                return True
+        except Exception:
+            pass
+        return bool(IRREVOCABLE_TOKEN and secrets.compare_digest(key_candidate, IRREVOCABLE_TOKEN))
+
     def do_GET(self):
         url_parsed = urllib.parse.urlparse(self.path)
         url_path = url_parsed.path
@@ -5450,6 +5472,31 @@ class OmniTemporalHTTPHandler(http.server.SimpleHTTPRequestHandler):
                 "bridge_online": BRIDGE.running and bool(BRIDGE.public_url),
                 "timestamp": time.time()
             })
+            return
+
+        # Bandeja FTL -> Qoder (lectura exige token real)
+        elif url_path in ("/api/qoder/requests", "/api/qoder/inbox"):
+            if not self._qoder_strict_auth():
+                self.send_json({"ok": False, "error": "token_requerido"}, status=401)
+                return
+            try:
+                from core import qoder_request_bridge as qrb
+                states = query_params.get("state") or query_params.get("states") or None
+                self.send_json({"ok": True, "requests": qrb.list_requests(states), "stats": qrb.stats()})
+            except Exception as e_qrb:
+                self.send_json({"ok": False, "error": str(e_qrb)}, status=500)
+            return
+
+        elif url_path.startswith("/api/qoder/request/"):
+            if not self._qoder_strict_auth():
+                self.send_json({"ok": False, "error": "token_requerido"}, status=401)
+                return
+            try:
+                from core import qoder_request_bridge as qrb
+                rec = qrb.get_request(url_path.rsplit("/", 1)[-1].strip())
+                self.send_json(rec or {"ok": False, "error": "not_found"}, status=200 if rec else 404)
+            except Exception as e_qrs:
+                self.send_json({"ok": False, "error": str(e_qrs)}, status=500)
             return
 
         # Rutas Públicas de Inteligencia Visual TARDIS
@@ -7179,6 +7226,29 @@ iframe{{border:none;width:100%;height:100%;}}</style></head>
             except Exception as e_an:
                 self.send_json({"ok": False, "error": str(e_an)}, status=500)
                 return
+
+        # Bandeja FTL -> Qoder: solicitar cambios y mejoras (exige token real, incluso en loopback)
+        if url_path == "/api/qoder/request":
+            if not self._qoder_strict_auth(body=body):
+                self.send_json({"ok": False, "error": "token_requerido"}, status=401)
+                return
+            try:
+                from core import qoder_request_bridge as qrb
+                res = qrb.submit_request(
+                    source=body.get("source") or "ftl:http",
+                    kind=body.get("kind", "improvement"),
+                    title=body.get("title", ""),
+                    body=body.get("body") or body.get("message") or "",
+                    target_files=body.get("target_files") or body.get("files") or [],
+                    evidence=body.get("evidence") or [],
+                    risk=body.get("risk", "low"),
+                    priority=body.get("priority", "normal"),
+                    context=body.get("context") or {},
+                )
+                self.send_json(res, status=200 if res.get("ok") else 400)
+            except Exception as e_qpost:
+                self.send_json({"ok": False, "error": str(e_qpost)}, status=500)
+            return
 
         # 1. Chat Agéntico & Inferencia Sincronizada Multi-Cliente (Local & Clientes)
         if url_path in ("/api/chat", "/api/client/chat"):
