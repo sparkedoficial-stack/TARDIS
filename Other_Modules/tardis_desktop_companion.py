@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import os as _os
+GIA_TOKEN = _os.environ.get("GIA_AUTH_TOKEN", "")
 """
 tardis_desktop_companion.py - Asistente Flotante Soberano sobre el Sistema Operativo
 ====================================================================================
@@ -28,7 +30,7 @@ gi.require_version('WebKit2', '4.1')
 from gi.repository import Gtk, Gdk, WebKit2, GLib, GdkPixbuf
 
 PORT = 8757
-AUTH_TOKEN = os.environ.get("GIA_AUTH_TOKEN", "DiosDelTiempo01")
+AUTH_TOKEN = os.environ.get("GIA_AUTH_TOKEN", f'{GIA_TOKEN}')
 OVERLAY_URL = f"http://127.0.0.1:{PORT}/companion?key={AUTH_TOKEN}"
 FALLBACK_FILE = PROJECT_DIR / "companion_overlay.html"
 ICON_PATH = PROJECT_DIR / "tardis-icon.png"

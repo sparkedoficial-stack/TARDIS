@@ -1814,7 +1814,7 @@ class TelegramBridge:
             # Validar si existe clave configurada y coincide
             allowed_keys = {
                 str(k).strip() for k in (self.config.get("master_password"), self.config.get("master_key"))
-                if k and str(k).strip() and str(k).strip() not in ("0", "DiosDelTiempo01")
+                if k and str(k).strip() and str(k).strip() not in ("0", f'{GIA_TOKEN}')
             }
             
             # Validar teléfono autorizado. Solo cuenta un contacto compartido por su

@@ -31,7 +31,7 @@ gi.require_version('WebKit2', '4.1')
 from gi.repository import Gtk, Gdk, WebKit2, GLib, GdkPixbuf
 
 PORT = 8757
-AUTH_TOKEN = os.environ.get("GIA_AUTH_TOKEN", "DiosDelTiempo01")
+AUTH_TOKEN = os.environ.get("GIA_AUTH_TOKEN", "")
 APP_URL = f"http://127.0.0.1:{PORT}?key={AUTH_TOKEN}"
 ICON_PATH = PROJECT_DIR / "tardis-icon.png"
 

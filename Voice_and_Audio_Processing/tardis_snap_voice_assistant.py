@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import os as _os
+GIA_TOKEN = _os.environ.get("GIA_AUTH_TOKEN", "")
 """
 tardis_snap_voice_assistant.py - Asistente de Voz TARDIS Activado por Chasquido de Dedos
 ========================================================================================
@@ -44,7 +46,7 @@ BASE_DIR = "/home/timemachine/Escritorio/GODWORKS SYSTEM"
 SOUNDS_DIR = "/home/timemachine/.tardis/sounds"
 CONFIG_PATH = "/home/timemachine/.tardis/voice_config.json"
 API_URL = "http://127.0.0.1:8757"
-API_TOKEN = "REDACTED"
+API_TOKEN = f'{GIA_TOKEN}'
 
 if BASE_DIR not in sys.path:
     sys.path.insert(0, BASE_DIR)

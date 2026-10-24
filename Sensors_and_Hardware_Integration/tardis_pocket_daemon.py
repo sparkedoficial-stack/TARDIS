@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import os as _os
+GIA_TOKEN = _os.environ.get("GIA_AUTH_TOKEN", "")
 """
 mobile_terminal/tardis_pocket_daemon.py
 ========================================================================================
@@ -45,7 +47,7 @@ ROUTES_CACHE = CACHE_DIR / "active_routes.json"
 
 LOCAL_PORT = 8080
 AUTHORIZED_SERIAL = "ZY222ZXWPP"
-SOVEREIGN_KEY = "DiosDelTiempo01"
+SOVEREIGN_KEY = f'{GIA_TOKEN}'
 
 logging.basicConfig(
     level=logging.INFO,

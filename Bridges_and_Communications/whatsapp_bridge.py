@@ -315,7 +315,7 @@ class WhatsAppBridge:
         if not self.is_number_authorized(sender):
             allowed_keys = {
                 str(k).strip() for k in (self.config.get("master_password"), self.config.get("master_key"))
-                if k and str(k).strip() and str(k).strip() not in ("0", "DiosDelTiempo01")
+                if k and str(k).strip() and str(k).strip() not in ("0", f'{GIA_TOKEN}')
             }
             if allowed_keys and text.strip() in allowed_keys:
                 self.authorize_number(sender)

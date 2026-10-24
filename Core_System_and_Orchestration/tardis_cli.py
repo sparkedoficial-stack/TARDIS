@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import os as _os
+GIA_TOKEN = _os.environ.get("GIA_AUTH_TOKEN", "")
 """
 TARDIS Sovereign CLI · Consola de Terminal Universal
 Permite consultar telemetría, chatear con el núcleo soberano (Dolphin 3.0 / Ollama), reactivar botones
@@ -15,7 +17,7 @@ import shutil
 import subprocess
 
 PORT = 8757
-TOKEN = "REDACTED"
+TOKEN = f'{GIA_TOKEN}'
 API_BASE = f"http://127.0.0.1:{PORT}"
 
 C_RESET = "\033[0m"
