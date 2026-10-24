@@ -1,5 +1,5 @@
 """
-sensor_telemetry.py - Rejilla de sensores fisicos de GIA (GIA-V26-SENSOR-GRID).
+sensor_telemetry.py - Rejilla de sensores fisicos de GIA (GIA-V26-OMNI-LOCAL).
 ==============================================================================
 
 Ingesta la telemetria que el navegador (PC o movil) captura de los sensores

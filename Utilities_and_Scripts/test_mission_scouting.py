@@ -184,7 +184,7 @@ def test_invitation_creation_and_authorization():
 
     inv = engine.create_invitation(mission_id=mission["id"], guest_name="Colaborador Test OSINT")
     assert inv["token"].startswith("TARDIS-INV-")
-    assert "key=DiosDelTiempo01" in inv["access_url"]
+    assert "key=%s" % os.environ.get("GIA_AUTH_TOKEN", "") + "" in inv["access_url"]
     assert f"invite={inv['token']}" in inv["access_url"]
     assert inv["expires_ts"] > 0
 

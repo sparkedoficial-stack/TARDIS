@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-import os as _os
-GIA_TOKEN = _os.environ.get("GIA_AUTH_TOKEN", "")
 """
 mobile_terminal/tardis_pocket_daemon.py
 ========================================================================================
@@ -36,6 +34,7 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+GIA_TOKEN = __import__("os").environ.get("GIA_AUTH_TOKEN", "")
 
 # Configuración Base
 SCRIPT_DIR = Path(__file__).resolve().parent

@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-import os as _os
-GIA_TOKEN = _os.environ.get("GIA_AUTH_TOKEN", "")
 """
 tardis_snap_voice_assistant.py - Asistente de Voz TARDIS Activado por Chasquido de Dedos
 ========================================================================================
@@ -40,6 +38,7 @@ import time
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
+GIA_TOKEN = __import__("os").environ.get("GIA_AUTH_TOKEN", "")
 
 # Rutas del ecosistema TARDIS
 BASE_DIR = "/home/timemachine/Escritorio/GODWORKS SYSTEM"

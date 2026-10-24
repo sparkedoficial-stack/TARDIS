@@ -29,7 +29,7 @@ from config import load_config
 logger = logging.getLogger("FTL_TARDIS_BRIDGE")
 
 DEFAULT_API_URL = os.environ.get("GIA_API_URL", "http://127.0.0.1:8757")
-DEFAULT_TOKEN = os.environ.get("GIA_TOKEN", "DiosDelTiempo01")
+DEFAULT_TOKEN = os.environ.get("GIA_TOKEN", "")
 VAULT_DB_PATH = Path.home() / "vw-control" / "deep_memory_vault" / "vault_master.db"
 AGENT_CONTEXT_FILE = Path.home() / "vw-control" / "agent_context.json"
 KAIJU_RAILS_PATH = Path.home() / "vw-control" / "kaiju_safety_rails.json"

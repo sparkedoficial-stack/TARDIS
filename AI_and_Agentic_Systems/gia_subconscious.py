@@ -14,7 +14,7 @@ Responsabilidades:
      para que el agente no repita errores del día anterior.
   4. Enlace con Akashic: Indexa resúmenes estructurales en gia_akashic.db.
 
-Arquitecto: Miguel Angel May Canche  ·  GIA-V26-SUBCONSCIOUS
+Arquitecto: Miguel Angel May Canche  ·  GIA-V26-SOVEREIGN
 """
 from __future__ import annotations
 

@@ -1929,7 +1929,7 @@
       "client_id": "imac_gia_compute_node",
       "ip": "REDACTED_IP",
       "connection_type": "Gigabit LAN Cluster Fabric",
-      "user_agent": "GIA-Sovereign-Node/v26.4.0 (iMac14,1 x86_64 Debian)",
+      "user_agent": "<GIA_TOKEN>/v26.4.0 (iMac14,1 x86_64 Debian)",
       "coords": {
         "latitude": 20.6274,
         "longitude": -87.0799,

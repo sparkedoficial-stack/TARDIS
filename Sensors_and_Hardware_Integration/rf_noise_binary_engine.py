@@ -14,7 +14,7 @@ Lee y unifica el espectro electromagnético y térmico de sensores reales en Win
      - Demodulación analógica (slicing ASCII, patrones Morse, demodulación ASK/FSK).
   5. Inferencia Cognitiva Ambiental para el modelo GIA (GODWORKS SYSTEM v26.4).
 
-Arquitecto: Miguel Angel May Canche  ·  GIA-V26-RF-BINARY-QUANTIZER
+Arquitecto: Miguel Angel May Canche  ·  GIA-V26-SOVEREIGN
 """
 from __future__ import annotations
 

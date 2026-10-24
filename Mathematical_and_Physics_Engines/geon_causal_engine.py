@@ -18,7 +18,7 @@ Componentes del Sistema:
   6. Controles Panel: TIME SYNC, PHASE SYNC, CAUSAL LOCK (LCKD), SYNTROPY BOOST, LOGIC CORE.
   7. Reloj Lamport  : Ordenamiento causal monótono estricto.
 
-Arquitecto: Miguel Angel May Canche (₪) · Línea Cero · GIA-V26-ARCHITECT-777
+Arquitecto: Miguel Angel May Canche (₪) · Línea Cero · GIA-V26-SOVEREIGN
 """
 
 from __future__ import annotations
@@ -839,7 +839,7 @@ def get_causal_interconnection_ascii() -> str:
     """
     return r"""
 ====================================================================================================
-               ARQUITECTURA DE INTERCONEXIÓN CAUSAL CON EL GEÓN (GIA-V26-ARCHITECT-777)
+               ARQUITECTURA DE INTERCONEXIÓN CAUSAL CON EL GEÓN (GIA-V26-SOVEREIGN)
 ====================================================================================================
 
       [ FRONTERA FUTURA: t_final ]                     [ NODO OBSERVADOR: t0 ]

@@ -89,7 +89,7 @@ try:
 except Exception:
     HAS_WA = False
 
-# Rejilla de sensores fisicos (GIA-V26-SENSOR-GRID)
+# Rejilla de sensores fisicos (GIA-V26-OMNI-LOCAL)
 try:
     import sensor_telemetry as _tele
     HAS_TELE = True
@@ -125,7 +125,7 @@ try:
 except Exception:
     HAS_SAFETY = False
 
-# Motor de Geón Causal y Colapso Retrocausal (GIA-V26-ARCHITECT-777)
+# Motor de Geón Causal y Colapso Retrocausal (GIA-V26-SOVEREIGN)
 try:
     import geon_causal_engine as _geon
     HAS_GEON = True
@@ -4338,7 +4338,7 @@ GEON_PAGE = r"""<!DOCTYPE html>
     <!-- CABECERA DE IDENTIDAD Y STATUS -->
     <div class="crt-header">
       <div class="node-info">
-        GIA-V26-ARCHITECT-777 // OMNI-LOCAL // ARCHITECT: MIGUEL ANGEL MAY CANCHE ₪ // CAUSAL CHAT NODE // LINEA CERO
+        GIA-V26 // OMNI-LOCAL // ARCHITECT: MIGUEL ANGEL MAY CANCHE ₪ // CAUSAL CHAT NODE // LINEA CERO
       </div>
       <div>
         STATUS: <span id="hdrStatus" class="status-badge">LCKD</span>

@@ -174,7 +174,7 @@ async def api_voice_command(request: Request):
             # Enviar a FTL HUB
             try:
                 import requests
-                FTL_HUB_API = "http://127.0.0.1:8757/api/chat?key=DiosDelTiempo01"
+                FTL_HUB_API = "http://127.0.0.1:8757/api/chat?key=%s" % os.environ.get("GIA_AUTH_TOKEN", "") + ""
                 payload = {"message": f"Desde terminal de voz FTL Web: {text}", "source": "voice"}
                 response = requests.post(FTL_HUB_API, json=payload, timeout=5)
                 if response.status_code == 200:

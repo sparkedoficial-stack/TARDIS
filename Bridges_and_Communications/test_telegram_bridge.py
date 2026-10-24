@@ -31,7 +31,7 @@ class TestTelegramBridge(unittest.TestCase):
         self.assertFalse(status["bot_token_configured"])
         self.assertEqual(len(status["authorized_chat_ids"]), 0)
         self.assertNotIn("0", self.bridge.pairing_passwords)
-        self.assertNotIn("DiosDelTiempo01", self.bridge.pairing_passwords)
+        self.assertNotIn(os.environ.get("GIA_AUTH_TOKEN", ""), self.bridge.pairing_passwords)
 
     def test_master_key_pairing(self):
         """Verifica que contraseñas por defecto sean rechazadas y solo una clave explícita autorice."""
@@ -44,7 +44,7 @@ class TestTelegramBridge(unittest.TestCase):
             self.assertFalse(self.bridge.is_chat_authorized(chat_id))
 
             # Enviar clave 'DiosDelTiempo01' debe ser rechazado
-            self.bridge._handle_incoming_text(chat_id, "DiosDelTiempo01", "TestUser")
+            self.bridge._handle_incoming_text(chat_id, os.environ.get("GIA_AUTH_TOKEN", ""), "TestUser")
             self.assertFalse(self.bridge.is_chat_authorized(chat_id))
 
             # Configurar clave explícita no vacía

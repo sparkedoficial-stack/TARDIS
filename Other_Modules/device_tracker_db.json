@@ -56,11 +56,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 168,
-    "traffic_bytes_tx": 466,
-    "traffic_packets": 5,
+    "traffic_bytes_rx": 0,
+    "traffic_bytes_tx": 0,
+    "traffic_packets": 0,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-22T00:12:43.741483+00:00",
+    "last_seen": "2026-10-24T00:57:57.971367+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -186,11 +186,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 168,
-    "traffic_bytes_tx": 168,
-    "traffic_packets": 4,
+    "traffic_bytes_rx": 84,
+    "traffic_bytes_tx": 84,
+    "traffic_packets": 2,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-22T00:12:43.741483+00:00",
+    "last_seen": "2026-10-24T00:57:57.971367+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -340,9 +340,7 @@
   "1E:FA:BF:35:00:B2": {
     "mac": "1E:FA:BF:35:00:B2",
     "ip": "REDACTED_IP",
-    "ipv6_addresses": [
-      "fe80::c80:68fd:afaf:5e3"
-    ],
+    "ipv6_addresses": [],
     "alias": "Apple iOS / iPadOS #2 (Ecosistema Aegis)",
     "hostname": "Apple iOS / iPadOS #2 (Ecosistema Aegis)",
     "vendor": "Apple Inc. (MAC Privada iOS)",
@@ -350,7 +348,7 @@
     "interface": "enp2s0",
     "connection_medium": "Ethernet / LAN (enp2s0)",
     "network_segment": "Ethernet / LAN Principal (REDACTED_IP/24)",
-    "arp_state": "DELAY",
+    "arp_state": "REACHABLE",
     "online": true,
     "rtt_ms": 2.14,
     "open_ports": [
@@ -374,11 +372,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 168,
-    "traffic_bytes_tx": 1534,
-    "traffic_packets": 13,
+    "traffic_bytes_rx": 0,
+    "traffic_bytes_tx": 0,
+    "traffic_packets": 0,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-22T00:12:43.741483+00:00",
+    "last_seen": "2026-10-24T00:57:57.971367+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -390,7 +388,7 @@
       "fe80::52eb:f6ff:fee2:b850"
     ],
     "alias": "TimeMachine (ASUS TUF Gaming A15 - Ethernet Host)",
-    "hostname": "TimeMachine (ASUS TUF Gaming A15 - Ethernet Host)",
+    "hostname": "TimeMachine.local",
     "vendor": "ASUSTek COMPUTER INC.",
     "device_type": "Estación Central Soberana (Host)",
     "interface": "enp2s0",
@@ -444,17 +442,20 @@
       }
     ],
     "risky_ports": [],
-    "mdns_services": [],
+    "mdns_services": [
+      "TARDIS (AirPlay Remote Video)",
+      "50EBF6E2B850@TARDIS (AirTunes Remote Audio)"
+    ],
     "wifi_metrics": {},
     "trust_level": "AEGIS_PROTECTED",
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 0,
-    "traffic_bytes_tx": 447,
-    "traffic_packets": 2,
+    "traffic_bytes_rx": 93154071,
+    "traffic_bytes_tx": 222935217,
+    "traffic_packets": 449316,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-24T00:13:03.864891+00:00",
+    "last_seen": "2026-10-24T00:57:57.971367+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -527,10 +528,10 @@
     "throttle_kbps": null,
     "is_safe": true,
     "traffic_bytes_rx": 0,
-    "traffic_bytes_tx": 0,
-    "traffic_packets": 0,
+    "traffic_bytes_tx": 139609,
+    "traffic_packets": 1310,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-24T00:13:03.864891+00:00",
+    "last_seen": "2026-10-24T00:57:57.971367+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -538,9 +539,7 @@
   "22:BA:EE:8B:BD:2F": {
     "mac": "22:BA:EE:8B:BD:2F",
     "ip": "REDACTED_IP",
-    "ipv6_addresses": [
-      "fe80::141c:bb57:1ac2:b6f5"
-    ],
+    "ipv6_addresses": [],
     "alias": "Apple iOS / iPadOS #1 (Ecosistema Aegis)",
     "hostname": "Apple iOS / iPadOS #1 (Ecosistema Aegis)",
     "vendor": "Apple Inc. (MAC Privada iOS)",
@@ -548,7 +547,7 @@
     "interface": "enp2s0",
     "connection_medium": "Ethernet / LAN (enp2s0)",
     "network_segment": "Ethernet / LAN Principal (REDACTED_IP/24)",
-    "arp_state": "STALE",
+    "arp_state": "REACHABLE",
     "online": true,
     "rtt_ms": null,
     "open_ports": [],
@@ -564,25 +563,23 @@
     "traffic_bytes_tx": 0,
     "traffic_packets": 0,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-22T00:12:43.741483+00:00",
+    "last_seen": "2026-10-24T00:57:57.971367+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
   },
   "BE:5B:68:1B:53:13": {
     "mac": "BE:5B:68:1B:53:13",
-    "ip": "fe80::18d0:4686:ca01:39ac",
-    "ipv6_addresses": [
-      "fe80::18d0:4686:ca01:39ac"
-    ],
-    "alias": "Dispositivo LAN (fe80::18d0:4686:ca01:39ac)",
-    "hostname": "Dispositivo LAN (fe80::18d0:4686:ca01:39ac)",
+    "ip": "REDACTED_IP",
+    "ipv6_addresses": [],
+    "alias": "Dispositivo LAN (REDACTED_IP)",
+    "hostname": "Dispositivo LAN (REDACTED_IP)",
     "vendor": "Dirección MAC Privada / Aleatoria (iOS / Android / Linux)",
     "device_type": "Dispositivo de Red (Dirección MAC Privada / Aleatoria (iOS / Android / Linux))",
     "interface": "enp2s0",
     "connection_medium": "Ethernet / LAN (enp2s0)",
     "network_segment": "Ethernet / LAN Principal (REDACTED_IP/24)",
-    "arp_state": "IPV6_STALE",
+    "arp_state": "STALE",
     "online": true,
     "rtt_ms": null,
     "open_ports": [],
@@ -598,7 +595,73 @@
     "traffic_bytes_tx": 0,
     "traffic_packets": 0,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-22T00:12:43.741483+00:00",
-    "ip_history": []
+    "last_seen": "2026-10-24T00:57:57.971367+00:00",
+    "ip_history": [
+      "REDACTED_IP"
+    ]
+  },
+  "04:4A:69:EA:31:47": {
+    "mac": "04:4A:69:EA:31:47",
+    "ip": "REDACTED_IP",
+    "ipv6_addresses": [],
+    "alias": "Dispositivo LAN (REDACTED_IP)",
+    "hostname": "Dispositivo LAN (REDACTED_IP)",
+    "vendor": "Shenzhen Phaten Tech. LTD",
+    "device_type": "Dispositivo de Red (Shenzhen Phaten Tech. LTD)",
+    "interface": "enp2s0",
+    "connection_medium": "Ethernet / LAN (enp2s0)",
+    "network_segment": "Ethernet / LAN Principal (REDACTED_IP/24)",
+    "arp_state": "REACHABLE",
+    "online": true,
+    "rtt_ms": 1.52,
+    "open_ports": [],
+    "port_details": [],
+    "risky_ports": [],
+    "mdns_services": [],
+    "wifi_metrics": {},
+    "trust_level": "KNOWN",
+    "is_quarantined": false,
+    "throttle_kbps": null,
+    "is_safe": true,
+    "traffic_bytes_rx": 84,
+    "traffic_bytes_tx": 84,
+    "traffic_packets": 2,
+    "first_seen": "2026-10-24T00:57:57.971367+00:00",
+    "last_seen": "2026-10-24T00:57:57.971367+00:00",
+    "ip_history": [
+      "REDACTED_IP"
+    ]
+  },
+  "EE:50:19:5F:ED:25": {
+    "mac": "EE:50:19:5F:ED:25",
+    "ip": "REDACTED_IP",
+    "ipv6_addresses": [],
+    "alias": "Dispositivo LAN (REDACTED_IP)",
+    "hostname": "Dispositivo LAN (REDACTED_IP)",
+    "vendor": "Dirección MAC Privada / Aleatoria (iOS / Android / Linux)",
+    "device_type": "Dispositivo de Red (Dirección MAC Privada / Aleatoria (iOS / Android / Linux))",
+    "interface": "veth-host-aq",
+    "connection_medium": "Virtual Bridge (veth-host-aq)",
+    "network_segment": "Namespace Virtual Antarctica (REDACTED_IP/24)",
+    "arp_state": "STALE",
+    "online": true,
+    "rtt_ms": 0.06,
+    "open_ports": [],
+    "port_details": [],
+    "risky_ports": [],
+    "mdns_services": [],
+    "wifi_metrics": {},
+    "trust_level": "KNOWN",
+    "is_quarantined": false,
+    "throttle_kbps": null,
+    "is_safe": true,
+    "traffic_bytes_rx": 21492,
+    "traffic_bytes_tx": 113191,
+    "traffic_packets": 1614,
+    "first_seen": "2026-10-24T00:57:57.971367+00:00",
+    "last_seen": "2026-10-24T00:57:57.971367+00:00",
+    "ip_history": [
+      "REDACTED_IP"
+    ]
   }
 }

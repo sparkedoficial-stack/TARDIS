@@ -33,7 +33,7 @@ class TestWhatsAppBridge(unittest.TestCase):
         self.assertFalse(status["configured"])
         self.assertFalse(status.get("verify_token_set", False))
         self.assertNotIn("0", self.bridge.pairing_passwords)
-        self.assertNotIn("DiosDelTiempo01", self.bridge.pairing_passwords)
+        self.assertNotIn(os.environ.get("GIA_AUTH_TOKEN", ""), self.bridge.pairing_passwords)
 
     def test_webhook_challenge_verification(self):
         """Verifica el handshake de verificación de Meta con token explícito."""
@@ -46,7 +46,7 @@ class TestWhatsAppBridge(unittest.TestCase):
         self.assertTrue(self.bridge.verify_webhook_token("SecureMetaToken_123"))
 
         # Con verify_token antiguo/backdoor rechazado
-        res_backdoor = self.bridge.verify_challenge("subscribe", "DiosDelTiempo01", challenge)
+        res_backdoor = self.bridge.verify_challenge("subscribe", os.environ.get("GIA_AUTH_TOKEN", ""), challenge)
         self.assertIsNone(res_backdoor)
 
         # Con verify_token incorrecto o modo inválido
@@ -85,7 +85,7 @@ class TestWhatsAppBridge(unittest.TestCase):
             self.assertFalse(self.bridge.is_number_authorized(clean_num))
 
             # Enviar clave 'DiosDelTiempo01' debe fallar
-            res_ddt = self.bridge._handle_incoming_text(clean_num, "DiosDelTiempo01", "TestUser")
+            res_ddt = self.bridge._handle_incoming_text(clean_num, os.environ.get("GIA_AUTH_TOKEN", ""), "TestUser")
             self.assertFalse(res_ddt.get("ok"))
             self.assertFalse(self.bridge.is_number_authorized(clean_num))
 

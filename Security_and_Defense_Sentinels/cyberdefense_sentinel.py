@@ -225,6 +225,17 @@ class CyberdefenseSentinel:
             logger.warning(f"Fallback nftables en sentinel: {e_ctrl}")
 
         protected_ports = "22, 111, 1701, 3389, 5555, 6969, 7681, 7682, 8080, 8088, 8757, 8758, 8765, 8787, 8888, 9001"
+        persistent = Path("/etc/nftables.d/10-tardis-aegis.nft")
+        if persistent.exists():
+            try:
+                res = self._run_sudo(["nft", "-f", str(persistent)], timeout=5)
+                ok = res.returncode == 0
+                if ok:
+                    self._countermeasures.add("NFTABLES_PERIMETER_GUARD")
+                return {"ok": ok, "error": res.stderr.strip() if not ok else ""}
+            except Exception as e:
+                logger.warning(f"Error aplicando escudo persistente: {e}")
+
         nft_script = f"""table inet tardis_aegis_shield
 delete table inet tardis_aegis_shield
 table inet tardis_aegis_shield {{

@@ -5420,12 +5420,6 @@ class OmniTemporalHTTPHandler(http.server.SimpleHTTPRequestHandler):
         if self._is_local_request():
             return True
 
-        url_parsed = urllib.parse.urlparse(self.path)
-        url_path = url_parsed.path
-        # Endpoints públicos para clientes externos
-        if url_path in ("/api/client/chat", "/api/client/clear"):
-            return True
-
         client_ip = (
             self.headers.get("CF-Connecting-IP") or
             self.headers.get("X-Forwarded-For", "").split(",")[0].strip() or

@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "created_at": "2026-10-15T02:04:29.176374",
   "last_periodic_sync": "2026-10-23T00:42:03.923484",
-  "last_immediate_sync": "2026-10-23T19:27:15.029686",
-  "last_commit_hash": "c594244f",
-  "sync_count": 1197,
-  "immediate_sync_count": 1196,
+  "last_immediate_sync": "2026-10-23T19:28:24.453390",
+  "last_commit_hash": "09917e84",
+  "sync_count": 1198,
+  "immediate_sync_count": 1197,
   "periodic_sync_count": 1,
   "last_known_mtimes": {
     "skill:omni-control-bridge/SKILL.md": REDACTED_PHONE.4575877,
@@ -5120,7 +5120,7 @@
     "core:gods_eye_engine.py": REDACTED_PHONE.3320367,
     "core:sovereign_local_runner.py": REDACTED_PHONE.053532,
     "core:protected_users_vault.py": REDACTED_PHONE.5939357,
-    "core:cyberdefense_sentinel.py": REDACTED_PHONE.3492131,
+    "core:cyberdefense_sentinel.py": REDACTED_PHONE.1679835,
     "core:wa_group_manager.py": REDACTED_PHONE.9201853,
     "core:tardis_browser.py": REDACTED_PHONE.1120427,
     "core:traffic_monitor.py": REDACTED_PHONE.252815,
@@ -5272,6 +5272,17 @@
     "sat:gia_ios:GIA/Models/GIAModels.swift": REDACTED_PHONE.5796177
   },
   "history": [
+    {
+      "timestamp": "2026-10-23T19:28:24.453390",
+      "trigger": "immediate_milestone",
+      "commit_hash": "09917e84",
+      "score": 75,
+      "reasons": [
+        "Evoluci\u00f3n en subsistema core TARDIS: telegram_bridge.py",
+        "Evoluci\u00f3n en subsistema core TARDIS: tardis_pocket_tunnel_bridge.py",
+        "Evoluci\u00f3n en subsistema core TARDIS: whatsapp_bridge.py"
+      ]
+    },
     {
       "timestamp": "2026-10-23T19:27:15.029686",
       "trigger": "immediate_milestone",
@@ -5848,18 +5859,6 @@
       "trigger": "immediate_milestone",
       "commit_hash": "f6d2a2f0",
       "score": 65,
-      "reasons": [
-        "Actualizaci\u00f3n en proyecto price_sentinel: README.md",
-        "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
-        "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
-        "Actualizaci\u00f3n en proyecto carlinkit_kvm: index.html"
-      ]
-    },
-    {
-      "timestamp": "2026-10-15T23:32:40.125083",
-      "trigger": "immediate_milestone",
-      "commit_hash": "7f8ec8ca",
-      "score": 60,
       "reasons": [
         "Actualizaci\u00f3n en proyecto price_sentinel: README.md",
         "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",

@@ -364,7 +364,7 @@ def required_anchors() -> list[str]:
     arch = str(seed.get("target_architect") or "").split("(")[0].strip()
     if arch:
         out.append(arch)
-    # Token de identidad tipo GIA-V26-ARCHITECT-777 dentro del prompt maestro
+    # Token de identidad tipo GIA-V26-SOVEREIGN dentro del prompt maestro
     mt = re.search(r"GIA-[A-Z0-9]+-[A-Z0-9\-]+", str(m.get("llm_system_prompt_master", "")))
     if mt:
         out.append(mt.group(0))

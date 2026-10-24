@@ -12,7 +12,7 @@ Roles del Enjambre:
   4. vision_scout    : Inspección visual de pantalla/cámara mediante VLM y OCR.
   5. system_medic    : Diagnóstico de procesos, recursos de memoria, disco y salud del SO.
 
-Arquitecto: Miguel Angel May Canche  ·  GIA-V26-SWARM-ORCHESTRATOR
+Arquitecto: Miguel Angel May Canche  ·  GIA-V26-SOVEREIGN
 """
 from __future__ import annotations
 

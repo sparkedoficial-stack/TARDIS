@@ -28,7 +28,7 @@ DEFAULT_CONFIG = {
     "theme": "cyber_apex",
     "tardis_integration": True,
     "tardis_api_url": "http://127.0.0.1:8757",
-    "tardis_token": "REDACTED",
+    "tardis_token": os.environ.get("GIA_AUTH_TOKEN", ""),
     "tardis_rag_injection": True,
     "tardis_context_max_chars": 3500,
     "tardis_voice_notify": True,

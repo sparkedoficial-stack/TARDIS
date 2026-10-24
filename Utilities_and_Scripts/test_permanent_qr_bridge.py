@@ -23,9 +23,9 @@ class TestPermanentQRBridge(unittest.TestCase):
         perm_url = "https://ntfy.sh/godworks_sovereign_timemachine_portal"
         
         # Simulación de Reinicio 1: Túnel A
-        tunnel_url_boot_1 = "https://random-alpha-123.trycloudflare.com/?key=DiosDelTiempo01"
+        tunnel_url_boot_1 = "https://random-alpha-123.trycloudflare.com/?key=%s" % os.environ.get("GIA_AUTH_TOKEN", "") + ""
         # Simulación de Reinicio 2: Túnel B (completamente diferente)
-        tunnel_url_boot_2 = "https://random-beta-999.trycloudflare.com/?key=DiosDelTiempo01"
+        tunnel_url_boot_2 = "https://random-beta-999.trycloudflare.com/?key=%s" % os.environ.get("GIA_AUTH_TOKEN", "") + ""
 
         # Generar QR para el portal permanente en ambos reinicios
         qr_svg_boot_1 = generate_qr_svg(perm_url)
@@ -43,7 +43,7 @@ class TestPermanentQRBridge(unittest.TestCase):
         """Verifica que BridgeSupervisor exporta permanent_url y qr_url consistentes."""
         with patch("omni_temporal_control.STATUS_FILE", self.status_file), \
              patch("omni_temporal_control.URL_FILE", self.url_file):
-            supervisor = BridgeSupervisor(port=8757, token="REDACTED")
+            supervisor = BridgeSupervisor(port=8757, token=os.environ.get("GIA_AUTH_TOKEN", ""))
             supervisor.permanent_portal_url = "https://ntfy.sh/godworks_sovereign_timemachine_portal"
             
             # Escribir estado simulado con túnel activo
@@ -56,14 +56,14 @@ class TestPermanentQRBridge(unittest.TestCase):
             self.assertTrue(status["online"])
             self.assertEqual(status["permanent_url"], "https://ntfy.sh/godworks_sovereign_timemachine_portal")
             self.assertEqual(status["qr_url"], "https://ntfy.sh/godworks_sovereign_timemachine_portal")
-            self.assertIn("DiosDelTiempo01", status["auth_url"])
+            self.assertIn(os.environ.get("GIA_AUTH_TOKEN", ""), status["auth_url"])
 
     def test_sync_permanent_portal_dispatches_http(self):
         """Verifica que al activarse el túnel, la URL se publica en el portal permanente ntfy."""
-        supervisor = BridgeSupervisor(port=8757, token="REDACTED")
+        supervisor = BridgeSupervisor(port=8757, token=os.environ.get("GIA_AUTH_TOKEN", ""))
         supervisor.permanent_portal_url = "https://ntfy.sh/godworks_sovereign_timemachine_portal"
         
-        test_auth_url = "https://test-reboot-tunnel.trycloudflare.com/?key=DiosDelTiempo01"
+        test_auth_url = "https://test-reboot-tunnel.trycloudflare.com/?key=%s" % os.environ.get("GIA_AUTH_TOKEN", "") + ""
         with patch("omni_temporal_control.requests.post") as mock_post:
             supervisor._sync_permanent_portal(test_auth_url)
             

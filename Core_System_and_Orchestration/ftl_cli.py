@@ -655,7 +655,7 @@ def dispatch_unified_command(cmd_name: str, args_list: list[str] = None) -> bool
         return True
 
     elif cmd in ("ui", "cockpit"):
-        url = "http://127.0.0.1:8757/?key=DiosDelTiempo01"
+        url = "http://127.0.0.1:8757/?key=%s" % os.environ.get("GIA_AUTH_TOKEN", "") + ""
         try:
             subprocess.Popen(
                 ["google-chrome", url],
