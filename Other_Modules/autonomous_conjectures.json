@@ -1,23 +1,5 @@
 [
   {
-    "id": "conj_1792615913",
-    "timestamp": "2026-10-21T15:51:53.537303",
-    "idle_duration_minutes": 32.3,
-    "title": "Causal Memory Indexing for Real‑Time Web Retrieval",
-    "hypothesis": "Integrating a causal inference layer into the Deep Memory Vault (core/deep_memory_vault.py) that tags each stored akáshic fragment with its inferred causal provenance will allow the Web Research Engine to prioritize and retrieve information that is not only topically relevant but also causally upstream of the current query, thereby reducing hallucination and improving answer fidelity in real‑time.",
-    "research_query": "causal inference memory indexing for large language model retrieval systems",
-    "research_findings": "# Informe de Investigación: causal inference memory indexing for large language model retrieval systems\n\n## Fuentes Consultadas y Respaldo Web\n- **[Generative large language models in medicine: a scoping review of recent methodological advances - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE8xQ0xQOE5qZDBMd194TmhIYks5OTlwZF9KN1VRaHhIWVhCcThoS0w3dG8zUlAxMTE1THUxdVlZSFlDNTlHX0Q3Q3JBYTJnYWpLcGdhUmxzY1h4QjBJUGpB?oc=5)**: Generative large language models in medicine: a scoping review of recent methodological advances  Nature\n- **[Vol. 40 No. 43: AAAI-26 Technical Tracks 43 - The Association for the Advancement of Artificial Intelligence](https://news.google.com/rss/articles/CBMiX0FVX3lxTE56WkFRQUE1bUY5RkVPckE0S2FUSDRiOEVlYTJyRG5CemowUG5vSVhRQkUzWmswSE05dHVETzhoVHJyaWZkRWtiZWkxbjV3TWp4V3lVWExjY3BfZ2JiZXAw?oc=5)**: Vol. 40 No. 43: AAAI-26 Technical Tracks 43  The Association for the Advancement of Artificial Intelligence\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE8xQ0xQOE5qZDBMd194TmhIYks5OTlwZF9KN1VRaHhIWVhCcThoS0w3dG8zUlAxMTE1THUxdVlZSFlDNTlHX0Q3Q3JBYTJnYWpLcGdhUmxzY1h4QjBJUGpB?oc=5",
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE56WkFRQUE1bUY5RkVPckE0S2FUSDRiOEVlYTJyRG5CemowUG5vSVhRQkUzWmswSE05dHVETzhoVHJyaWZkRWtiZWkxbjV3TWp4V3lVWExjY3BfZ2JiZXAw?oc=5"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add an asynchronous caching layer that stores recent query‑to‑result mappings together with their causal tags, and modify the search pipeline to first consult this cache before invoking external APIs, reducing latency and network load.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 107.05
-  },
-  {
     "id": "conj_1792617812",
     "timestamp": "2026-10-21T16:23:32.758653",
     "idle_duration_minutes": 31.7,
@@ -1608,5 +1590,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 96.22
+  },
+  {
+    "id": "conj_1792913181",
+    "timestamp": "2026-10-25T02:26:21.903151",
+    "idle_duration_minutes": 31.6,
+    "title": "Dynamic Causal Cache Invalidation for the Web Research Engine",
+    "hypothesis": "If the Web Research Engine maintains a lightweight causal graph of query‑result dependencies and uses it to predict when external sources are likely to have changed, then cache entries can be invalidated proactively rather than reactively. This should reduce latency for repeat queries, improve result freshness, and lower overall network traffic without sacrificing relevance, especially under the constraints of the ASUS TUF Linux environment and the active akáshic vault.",
+    "research_query": "causal inference based cache invalidation techniques for web search engines",
+    "research_findings": "# Informe de Investigación: causal inference based cache invalidation techniques for web search engines\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal‑graph module that tracks source URLs and their last‑known update timestamps, computes dependency scores, and automatically expires or refreshes cached results when the model predicts a high probability of change.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.16
   }
 ]
