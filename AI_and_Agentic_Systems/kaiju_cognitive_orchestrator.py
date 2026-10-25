@@ -24,12 +24,48 @@ from __future__ import annotations
 
 import logging
 import os
+import queue
 import re
 import threading
 import time
 from typing import Any, Dict, List, Optional, Tuple
 
 logger = logging.getLogger("GODWORKS.KaijuOrchestrator")
+
+# El motor KAIJU cuesta ~100 ms por token de ingesta: medido en el turno interactivo,
+# la ingesta en línea costaba 3.6 s antes de inferir y asimilar una respuesta larga
+# hasta 20 s después. Se difería en un único hilo ordenado (ingesta → síntesis), así el
+# estado SSM sigue alimentándose en el mismo orden sin atar la respuesta del usuario.
+_INGESTA_COLA: "queue.Queue[Optional[tuple]]" = queue.Queue(maxsize=8)
+_INGESTA_HILO: Optional[threading.Thread] = None
+_INGESTA_LOCK = threading.Lock()
+
+
+def _ingesta_worker() -> None:
+    while True:
+        job = _INGESTA_COLA.get()
+        if job is None:
+            return
+        sne, texto, session_id, on_result = job
+        try:
+            proc = sne.process_context(texto, session_id=session_id)
+            if on_result:
+                on_result(proc)
+        except Exception as e_ing:
+            logger.debug(f"[KAIJU-ORCHESTRATOR] Ingesta diferida falló ({session_id}): {e_ing}")
+
+
+def encolar_ingesta(sne, texto: str, session_id: str, on_result=None) -> None:
+    """Diferir una ingesta causal sin bloquear el turno en curso."""
+    global _INGESTA_HILO
+    with _INGESTA_LOCK:
+        if _INGESTA_HILO is None or not _INGESTA_HILO.is_alive():
+            _INGESTA_HILO = threading.Thread(target=_ingesta_worker, daemon=True, name="KaijuIngesta")
+            _INGESTA_HILO.start()
+    try:
+        _INGESTA_COLA.put_nowait((sne, texto, session_id, on_result))
+    except queue.Full:
+        logger.debug("[KAIJU-ORCHESTRATOR] Cola de ingesta llena; se omite esta diferencia.")
 
 
 class KaijuCognitiveOrchestrator:
@@ -63,6 +99,7 @@ class KaijuCognitiveOrchestrator:
 
     def __init__(self):
         self._enabled = True
+        self._latente: Dict[str, Dict[str, Any]] = {}
         logger.info("[KAIJU-ORCHESTRATOR] ⚡ Orquestador Cognitivo Causal Inicializado (TARDIS-NEURAL-SPACE-KAIJU Core).")
 
     @classmethod
@@ -71,6 +108,10 @@ class KaijuCognitiveOrchestrator:
             if cls._instance is None:
                 cls._instance = cls()
             return cls._instance
+
+    def latent_telemetry(self, session_id: str) -> Dict[str, Any]:
+        """Último estado latente asimilado de la sesión (la ingesta del turno va diferida)."""
+        return dict(self._latente.get(session_id) or {})
 
     def evaluate_task_complexity(
         self,
@@ -258,7 +299,7 @@ class KaijuCognitiveOrchestrator:
         except Exception as e_atmos:
             logger.debug(f"Aviso al consultar sensor atmosférico: {e_atmos}")
 
-        # 1. Ingesta Causal Obligatoria en TARDIS-NEURAL-SPACE-KAIJU
+        # 1. Ingesta Causal en TARDIS-NEURAL-SPACE-KAIJU (diferida por latencia)
         from core.sovereign_neural_engine import get_sovereign_neural_engine
         sne = get_sovereign_neural_engine()
         ctx_tags = []
@@ -268,20 +309,32 @@ class KaijuCognitiveOrchestrator:
             ctx_tags.append(f"[ATMÓSFERA_LOCAL: {atmospheric_summary}]")
         ctx_tags.append(message)
         context_input = " ".join(ctx_tags)
-        kaiju_proc = sne.process_context(context_input, session_id=session_id)
 
-        top_expert = "Expert_TemporalCausality"
-        if kaiju_proc.get("moe_expert_load"):
-            top_expert = max(kaiju_proc["moe_expert_load"].items(), key=lambda x: x[1])[0]
+        # Continuidad recurrente: el turno reporta el experto y la telemetría que la
+        # ingesta anterior produjo; la de este turno se calcula en segundo plano.
+        lat = self._latente.get(session_id) or {}
+        top_expert = lat.get("expert", "Expert_TemporalCausality")
+
+        def _fijar_latente(proc: Dict[str, Any], _exp: str = top_expert) -> None:
+            load = proc.get("moe_expert_load") or {}
+            self._latente[session_id] = {
+                "expert": max(load.items(), key=lambda x: x[1])[0] if load else _exp,
+                "latent_vector_norm": proc.get("latent_vector_norm", 0.0),
+                "ssm_state_shape": proc.get("ssm_state_shape", []),
+                "tokens_per_sec": proc.get("tokens_per_sec", 0.0)
+            }
+
+        encolar_ingesta(sne, context_input, session_id, on_result=_fijar_latente)
 
         telemetry = {
             "engine": "TARDIS-NEURAL-SPACE-KAIJU",
             "active_expert": top_expert,
-            "latent_vector_norm": kaiju_proc.get("latent_vector_norm", 0.0),
-            "ssm_state_shape": kaiju_proc.get("ssm_state_shape", []),
-            "mla_compression_ratio": kaiju_proc.get("mla_compression_ratio", 8.0),
-            "tokens_per_sec": kaiju_proc.get("tokens_per_sec", 0.0),
-            "atmospheric": atmospheric_info
+            "latent_vector_norm": lat.get("latent_vector_norm", 0.0),
+            "ssm_state_shape": lat.get("ssm_state_shape", []),
+            "mla_compression_ratio": 8.0,
+            "tokens_per_sec": lat.get("tokens_per_sec", 0.0),
+            "atmospheric": atmospheric_info,
+            "ingesta": "diferida"
         }
 
         # 2. Evaluación de Carga de Cómputo
@@ -397,11 +450,8 @@ class KaijuCognitiveOrchestrator:
 
         # 5. Asimilación del Resultado en el Estado Continuo SSM
         if raw_reply and not raw_reply.startswith("[Error"):
-            try:
-                # Absorber la respuesta en la memoria continua recurrente
-                sne.process_context(f"ASISTENTE_SÍNTESIS: {raw_reply[:1500]}", session_id=session_id)
-            except Exception:
-                pass
+            max_chars = int(os.environ.get("TARDIS_KAIJU_MAX_CHARS", "600"))
+            encolar_ingesta(sne, f"ASISTENTE_SÍNTESIS: {raw_reply[:max_chars]}", session_id)
 
         elapsed_total = round(time.time() - t0, 2)
         worker_info["elapsed_s"] = elapsed_total

@@ -3885,23 +3885,27 @@ def process_agentic_chat(
     history = history or []
     attachments = attachments or []
     target_model = os.environ.get("GIA_MODEL", CFG.get("model", "TARDIS-NEURAL-SPACE-KAIJU"))
+    # El estado latente se indexa por cliente: con request_id (único por turno) el SSM
+    # abría una sesión nueva en cada pregunta y no acumulaba continuidad jamás.
+    latent_session = f"omni_{(client_id or 'app').strip()}"
 
     # Ingesta y Procesamiento Central con TARDIS-NEURAL-SPACE-KAIJU (MLA + SSM + MoE)
+    # La ingesta causal del turno la diferencia el orquestador: repetirla aquí costaba
+    # ~100 ms por token dentro de la respuesta y duplicaba el mismo texto en el SSM.
     kaiju_telemetry = {}
     try:
-        from core.sovereign_neural_engine import get_sovereign_neural_engine
-        _sne = get_sovereign_neural_engine()
-        kaiju_proc = _sne.process_context(message, session_id=request_id or "omni_app")
-        top_expert = max(kaiju_proc.get("moe_expert_load", {}).items(), key=lambda x: x[1])[0] if kaiju_proc.get("moe_expert_load") else "Expert_TemporalCausality"
+        from core.kaiju_cognitive_orchestrator import get_kaiju_orchestrator
+        _kaiju_lat = get_kaiju_orchestrator().latent_telemetry(latent_session)
+        top_expert = _kaiju_lat.get("expert", "Expert_TemporalCausality")
         kaiju_telemetry = {
             "engine": "TARDIS-NEURAL-SPACE-KAIJU",
             "active_expert": top_expert,
-            "latent_vector_norm": kaiju_proc.get("latent_vector_norm", 0.0),
-            "ssm_state_shape": kaiju_proc.get("ssm_state_shape", []),
-            "mla_compression_ratio": kaiju_proc.get("mla_compression_ratio", 8.0),
-            "tokens_per_sec": kaiju_proc.get("tokens_per_sec", 0.0)
+            "latent_vector_norm": _kaiju_lat.get("latent_vector_norm", 0.0),
+            "ssm_state_shape": _kaiju_lat.get("ssm_state_shape", []),
+            "mla_compression_ratio": 8.0,
+            "tokens_per_sec": _kaiju_lat.get("tokens_per_sec", 0.0)
         }
-        print(f"[{request_id or 'CHAT'}] 🦖 TARDIS-NEURAL-SPACE-KAIJU: mensaje ingerido en espacio latente (experto activo: {top_expert}, norma={kaiju_proc.get('latent_vector_norm'):.2f}).", flush=True)
+        print(f"[{request_id or 'CHAT'}] 🦖 TARDIS-NEURAL-SPACE-KAIJU: espacio latente en sesión {latent_session} (experto activo: {top_expert}, norma={float(kaiju_telemetry['latent_vector_norm'] or 0):.2f}).", flush=True)
     except Exception as e_kaiju:
         print(f"[OMNI-LOCAL] Ingesta TARDIS-NEURAL-SPACE-KAIJU: {e_kaiju}", flush=True)
 
@@ -4406,7 +4410,7 @@ def process_agentic_chat(
                 orch_res = orchestrator.orchestrate_chat_turn(
                     message=message,
                     history=history,
-                    session_id=request_id or "omni_app",
+                    session_id=latent_session,
                     temperature=float(temperature),
                     user_emotion=user_emotion,
                     force_offload=force_cloud

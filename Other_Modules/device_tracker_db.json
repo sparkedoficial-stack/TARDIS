@@ -186,11 +186,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 271,
-    "traffic_bytes_tx": 528,
-    "traffic_packets": 10,
+    "traffic_bytes_rx": 168,
+    "traffic_bytes_tx": 168,
+    "traffic_packets": 4,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-25T04:22:31.351244+00:00",
+    "last_seen": "2026-10-25T05:42:57.070291+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -232,29 +232,34 @@
     "ip": "REDACTED_IP",
     "ipv6_addresses": [],
     "alias": "Smart TV LG webOS (Recámara / Secundaria)",
-    "hostname": "Smart TV LG webOS (Recámara / Secundaria)",
+    "hostname": "LGwebOSTV.local",
     "vendor": "LG Innotek",
     "device_type": "Smart TV / Multimedia",
     "interface": "enp2s0",
     "connection_medium": "Ethernet / LAN (enp2s0)",
     "network_segment": "Ethernet / LAN Principal (REDACTED_IP/24)",
-    "arp_state": "STALE",
+    "arp_state": "REACHABLE",
     "online": true,
     "rtt_ms": null,
     "open_ports": [],
     "port_details": [],
     "risky_ports": [],
-    "mdns_services": [],
+    "mdns_services": [
+      "LG webOS TV CD40 (_hap._tcp)",
+      "0_0 (_display._tcp)",
+      "0_0 (_ghp._tcp)",
+      "0_0 (AirPlay Remote Video)"
+    ],
     "wifi_metrics": {},
     "trust_level": "KNOWN",
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
     "traffic_bytes_rx": 168,
-    "traffic_bytes_tx": 0,
-    "traffic_packets": 2,
+    "traffic_bytes_tx": 491,
+    "traffic_packets": 6,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-24T20:59:59.214925+00:00",
+    "last_seen": "2026-10-25T05:42:57.070291+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -348,7 +353,7 @@
     "interface": "enp2s0",
     "connection_medium": "Ethernet / LAN (enp2s0)",
     "network_segment": "Ethernet / LAN Principal (REDACTED_IP/24)",
-    "arp_state": "REACHABLE",
+    "arp_state": "DELAY",
     "online": true,
     "rtt_ms": 2.14,
     "open_ports": [
@@ -373,10 +378,10 @@
     "throttle_kbps": null,
     "is_safe": true,
     "traffic_bytes_rx": 168,
-    "traffic_bytes_tx": 168,
-    "traffic_packets": 4,
+    "traffic_bytes_tx": 0,
+    "traffic_packets": 2,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-25T04:22:31.351244+00:00",
+    "last_seen": "2026-10-25T05:42:57.070291+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -443,8 +448,8 @@
     ],
     "risky_ports": [],
     "mdns_services": [
-      "TARDIS (AirPlay Remote Video)",
-      "50EBF6E2B850@TARDIS (AirTunes Remote Audio)"
+      "50EBF6E2B850@TARDIS (AirTunes Remote Audio)",
+      "TARDIS (AirPlay Remote Video)"
     ],
     "wifi_metrics": {},
     "trust_level": "AEGIS_PROTECTED",
@@ -453,9 +458,9 @@
     "is_safe": true,
     "traffic_bytes_rx": REDACTED_PHONE,
     "traffic_bytes_tx": REDACTED_PHONE,
-    "traffic_packets": 10463719,
+    "traffic_packets": 10958286,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-25T04:22:31.351244+00:00",
+    "last_seen": "2026-10-25T05:42:57.070291+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -528,10 +533,10 @@
     "throttle_kbps": null,
     "is_safe": true,
     "traffic_bytes_rx": 151982409,
-    "traffic_bytes_tx": 55441394,
-    "traffic_packets": 332567,
+    "traffic_bytes_tx": 55552833,
+    "traffic_packets": 333696,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-25T04:22:31.351244+00:00",
+    "last_seen": "2026-10-25T05:42:57.070291+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -547,7 +552,7 @@
     "interface": "enp2s0",
     "connection_medium": "Ethernet / LAN (enp2s0)",
     "network_segment": "Ethernet / LAN Principal (REDACTED_IP/24)",
-    "arp_state": "REACHABLE",
+    "arp_state": "DELAY",
     "online": true,
     "rtt_ms": null,
     "open_ports": [],
@@ -563,7 +568,7 @@
     "traffic_bytes_tx": 168,
     "traffic_packets": 4,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-25T04:22:31.351244+00:00",
+    "last_seen": "2026-10-25T05:42:57.070291+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -579,7 +584,7 @@
     "interface": "enp2s0",
     "connection_medium": "Ethernet / LAN (enp2s0)",
     "network_segment": "Ethernet / LAN Principal (REDACTED_IP/24)",
-    "arp_state": "REACHABLE",
+    "arp_state": "STALE",
     "online": true,
     "rtt_ms": null,
     "open_ports": [],
@@ -591,11 +596,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 168,
+    "traffic_bytes_rx": 84,
     "traffic_bytes_tx": 0,
-    "traffic_packets": 2,
+    "traffic_packets": 1,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-25T04:22:31.351244+00:00",
+    "last_seen": "2026-10-25T05:42:57.070291+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -687,11 +692,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 35862,
-    "traffic_bytes_tx": 3035260,
-    "traffic_packets": 35692,
+    "traffic_bytes_rx": 35932,
+    "traffic_bytes_tx": 3202197,
+    "traffic_packets": 37624,
     "first_seen": "2026-10-24T20:59:59.214925+00:00",
-    "last_seen": "2026-10-25T04:22:31.351244+00:00",
+    "last_seen": "2026-10-25T05:42:57.070291+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
