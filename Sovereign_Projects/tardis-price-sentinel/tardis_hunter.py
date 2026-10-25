@@ -217,7 +217,7 @@ def cmd_monitor(args):
 def cmd_serve(args):
     import uvicorn
     from web.app import app
-    host = args.host or "0.0.0.0"
+    host = args.host or "127.0.0.1"
     port = args.port or 8787
     console.print(f"[bold cyan]🚀 Desplegando Dashboard Web en http://localhost:{port}[/bold cyan]")
     uvicorn.run(app, host=host, port=port)
@@ -352,7 +352,7 @@ def main():
     # serve
     p_serve = subparsers.add_parser("serve", help="Inicia el servidor y dashboard web")
     p_serve.add_argument("--port", type=int, help="Puerto HTTP", default=8787)
-    p_serve.add_argument("--host", type=str, help="Host HTTP", default="0.0.0.0")
+    p_serve.add_argument("--host", type=str, help="Host HTTP", default="127.0.0.1")
 
     # status
     subparsers.add_parser("status", help="Muestra estado del sistema y telemetría")

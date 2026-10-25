@@ -192,16 +192,16 @@
     "REDACTED_PHONE": {
       "chat_id": REDACTED_PHONE,
       "user_id": REDACTED_PHONE,
-      "first_name": "X",
+      "first_name": "Arquitecto",
       "last_name": "",
-      "full_name": "X",
-      "display_name": "X",
+      "full_name": "Arquitecto",
+      "display_name": "Arquitecto",
       "username": "asleep01010101",
       "is_bot": false,
       "is_architect": true,
       "first_seen": "2026-09-25T15:13:39.080612",
-      "last_seen": "2026-10-25T11:31:51.097513",
-      "message_count": 128
+      "last_seen": "2026-10-25T13:31:55.007163",
+      "message_count": 131
     },
     "555000111": {
       "chat_id": 555000111,
@@ -234,16 +234,16 @@
     "REDACTED_PHONE": {
       "chat_id": REDACTED_PHONE,
       "user_id": REDACTED_PHONE,
-      "first_name": "Andrea a",
+      "first_name": "UsuarioProtegido",
       "last_name": "",
-      "full_name": "Andrea a",
-      "display_name": "Andrea a",
+      "full_name": "UsuarioProtegido",
+      "display_name": "UsuarioProtegido",
       "username": "",
       "is_bot": false,
       "is_architect": false,
       "first_seen": "2026-09-26T00:11:33.580142",
-      "last_seen": "2026-10-01T03:50:10.096699",
-      "message_count": 3
+      "last_seen": "2026-10-25T13:31:54.454504",
+      "message_count": 6
     },
     "777000222": {
       "chat_id": 777000222,
@@ -316,5 +316,5 @@
       "message_count": 6
     }
   },
-  "last_updated": "2026-10-25T11:31:51.097558"
+  "last_updated": "2026-10-25T13:31:55.007364"
 }

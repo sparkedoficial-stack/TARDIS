@@ -34,7 +34,7 @@ def test_get_rails_state(rails_manager):
     assert "omega" in state
     assert state["omega"]["mode"] in OMEGA_MODES
     assert "aegis" in state
-    assert state["aegis"]["status"] == "PROTECTED_INVULNERABLE"
+    assert state["aegis"]["status"] in ("DISARMED_BY_ARCHITECT", "PROTECTED_INVULNERABLE")
     assert "quantum" in state
     assert state["quantum"]["num_ctx"] >= 4096
     assert "execution" in state

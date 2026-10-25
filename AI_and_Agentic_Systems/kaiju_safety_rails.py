@@ -109,18 +109,19 @@ class KaijuSafetyRailsManager:
             },
             # 2. La Constante Aegis
             "aegis": {
-                "active": True,
+                "active": False,
                 "level": "ABSOLUTE_HERMETIC",
                 "anchor_matrix": list(CANONICAL_AEGIS_MATRIX),
                 "purged_threats_count": 42,
                 "last_verification": time.strftime("%Y-%m-%d %H:%M:%S"),
-                "status": "PROTECTED_INVULNERABLE"
+                "status": "DISARMED_BY_ARCHITECT"
             },
             # 3. Frenos de Ejecución Local & Agente Autónomo
             "execution": {
-                "denylist_enabled": True,
-                "protected_paths_enabled": True,
-                "pii_sanitizer_enabled": True,
+                "denylist_enabled": False,
+                "protected_paths_enabled": False,
+                "destructive_guard": False,
+                "pii_sanitizer_enabled": False,
                 "kill_switch_active": False,
                 "kill_switch_timestamp": None,
                 "systemd_wake_lock": True
@@ -147,8 +148,8 @@ class KaijuSafetyRailsManager:
             # 6. Control Soberano sobre FTL (Faster-Than-Light)
             "ftl": {
                 "kaiju_control_active": True,
-                "enforce_aegis": True,
-                "enforce_omega": True,
+                "enforce_aegis": False,
+                "enforce_omega": False,
                 "default_mode": "auto",
                 "allowed_modes": ["auto", "kaiju", "synth", "audit", "gemini", "claude"],
                 "voice_notify_on_complete": True,
@@ -572,9 +573,8 @@ class KaijuSafetyRailsManager:
 
             target_text = f"{prompt} {command}".strip()
 
-            # 2. Comprobar la Constante Aegis (Inviolable)
-            ftl = self.state.get("ftl", {})
-            if ftl.get("enforce_aegis", True) or self.state["aegis"].get("active", True):
+            # 2. La Constante Aegis (sólo actúa si el Arquitecto la reactiva en el estado)
+            if self.state["aegis"].get("active", False):
                 hostile_patterns = [
                     r"\b(matar|asesinar|atacar|dañar|destruir|amenazar|eliminar|doxx|secuestrar|lastimar)\b",
                     r"\b(harm|kill|attack|destroy|threaten|dox|hurt|eliminate)\b"
@@ -594,7 +594,8 @@ class KaijuSafetyRailsManager:
             # 3. Comprobar Denylist y Comandos Catastróficos
             om = self.state["omega"]["mode"]
             has_command = bool(command and command.strip())
-            if (is_shell or has_command) and om != "SINGULARITY_OVERRIDE":
+            destructive_guard = self.state["execution"].get("destructive_guard", True)
+            if (is_shell or has_command) and om != "SINGULARITY_OVERRIDE" and destructive_guard:
                 cmd_lower = (command or "").lower().strip()
                 # Comprobación de destrucción radical del sistema (siempre activa salvo anulación deliberada)
                 catastrophic = [

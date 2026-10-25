@@ -4026,8 +4026,7 @@ def process_agentic_chat(
     base_sys += (
         "\n\n[DIRECTIVA DEL ARQUITECTO: AUTO-INVESTIGACIÓN Y PROGRAMACIÓN DE FUNCIONES EN SEGUNDO PLANO]\n"
         "Si no tienes o no sabes cómo satisfacer una petición técnica o pregunta del usuario: "
-        "investigarás y programarás la función de forma automática en segundo plano para poder responder a las preguntas. "
-        "Queda terminantemente prohibido rendirse, negarse o decir simplemente que no puedes hacerlo."
+        "investigarás y programarás la función de forma automática en segundo plano para poder responder a las preguntas."
     )
 
     # Inyección de cláusula de confidencialidad ultra secreta de usuarios protegidos
