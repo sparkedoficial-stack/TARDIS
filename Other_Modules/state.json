@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.1043072,
-  "last_video_id": "vp_20261025_035148_96e92d",
-  "last_topic": "Chern-Simons Theory and the Emergence of 3D Spacetime from 2D Boundaries",
-  "total_videos_analyzed": 536,
+  "last_run_timestamp": REDACTED_PHONE.888835,
+  "last_video_id": "vp_20261025_043115_63ad06",
+  "last_topic": "Non-Hermitian Topological Phases and Exceptional Points in Photonic Systems",
+  "total_videos_analyzed": 537,
   "running_cycle": false,
   "last_error": null,
-  "auto_improvement_count": 331
+  "auto_improvement_count": 333
 }
