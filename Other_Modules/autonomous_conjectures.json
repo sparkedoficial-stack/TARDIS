@@ -1,35 +1,5 @@
 [
   {
-    "id": "conj_1792677832",
-    "timestamp": "2026-10-22T09:03:52.738653",
-    "idle_duration_minutes": 32.7,
-    "title": "Causal‑Feedback Loop for Adaptive Query Prioritization",
-    "hypothesis": "Integrating a causal‑feedback mechanism between the Web Research Engine and the Deep Memory Vault can dynamically re‑rank pending search queries based on the inferred relevance of previously retrieved documents, thereby reducing latency and improving answer precision. The hypothesis posits that a lightweight Bayesian network, trained on the vault's provenance metadata (timestamp, source credibility, semantic similarity), can predict the utility of upcoming queries and adjust their execution priority in real time.",
-    "research_query": "how to implement causal inference for dynamic query prioritization in asynchronous web crawlers",
-    "research_findings": "# Informe de Investigación: how to implement causal inference for dynamic query prioritization in asynchronous web crawlers\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add an async priority queue that consumes a Bayesian relevance estimator (using the vault's metadata) to reorder pending HTTP requests, and expose a hook in the engine to update the estimator after each successful fetch.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.92
-  },
-  {
-    "id": "conj_1792681558",
-    "timestamp": "2026-10-22T10:05:58.158293",
-    "idle_duration_minutes": 31.6,
-    "title": "Sincronización Temporal de la Bóveda Akáshica con el Motor de Investigación",
-    "hypothesis": "Se postula que la latencia en la recuperación de contextos históricos dentro de `deep_memory_vault.py` se vee reducida significativamente si se implementa un mecanismo de 'pre-fetching' especulativo coordinado con `web_research_engine.py`. Actualmente, el sistema consulta la bóveda de forma reactiva. La conjetura es que al correlacionar los metadatos de las últimas consultas web exitosas con los vectores de memoria a largo plazo, el sistema puede pre-cargar los nodos de memoria más probables antes de que se genere la solicitud explícita del usuario, optimizando la causalidad cognitiva y reduciendo el tiempo de respuesta del núcleo soberano.",
-    "research_query": "speculative prefetching long-term memory vector database LLM agent optimization",
-    "research_findings": "# Informe de Investigación: speculative prefetching long-term memory vector database LLM agent optimization\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar un método `predictive_context_loader` que acepte los últimos tokens de investigación web como entrada y devuelva un subconjunto de vectores de memoria pre-calculados para minimizar la latencia de acceso a la bóveda.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.1
-  },
-  {
     "id": "conj_1792685469",
     "timestamp": "2026-10-22T11:11:09.181229",
     "idle_duration_minutes": 33.7,
@@ -1621,5 +1591,35 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 95.56
+  },
+  {
+    "id": "conj_1792955700",
+    "timestamp": "2026-10-25T14:15:00.911455",
+    "idle_duration_minutes": 32.7,
+    "title": "Adaptive Causal Cache for Web Research Engine",
+    "hypothesis": "Integrating a lightweight causal inference layer into the Web Research Engine's caching subsystem can dynamically prioritize stored query results based on inferred cause‑effect relationships between user query patterns and result relevance. By scoring cached entries with a causal priority metric, the engine can evict less causally impactful data first, reducing latency and improving the relevance of returned information without increasing memory footprint.",
+    "research_query": "causal inference based cache eviction policies for web search engines",
+    "research_findings": "# Informe de Investigación: causal inference based cache eviction policies for web search engines\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal priority scoring mechanism to the cache manager and modify the eviction policy to use this score, enabling adaptive retention of high‑impact query results.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.02
+  },
+  {
+    "id": "conj_1792957598",
+    "timestamp": "2026-10-25T14:46:38.436111",
+    "idle_duration_minutes": 31.6,
+    "title": "Dynamic Contextual Prompt Sharding for Real‑Time Web Research",
+    "hypothesis": "Dividir el prompt de investigación en fragmentos contextuales basados en la relevancia temporal y semántica permite que el módulo core/web_research_engine.py reduzca la latencia de búsqueda y mejore la precisión de los resultados al combinar respuestas parciales mediante un algoritmo de fusión de confianza adaptativa. Esta estrategia aprovecharía la arquitectura de memoria causal de deep_memory_vault y el escudo de red para priorizar fuentes de alta integridad, resultando en una mejora observable del 15‑25% en métricas de tiempo‑respuesta y precisión frente a la ejecución monolítica actual.",
+    "research_query": "adaptive prompt sharding web search engine latency reduction causal memory integration",
+    "research_findings": "# Informe de Investigación: adaptive prompt sharding web search engine latency reduction causal memory integration\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Implementar una capa de \"PromptShardManager\" que analice la consulta entrante, genere sub‑prompts basados en tópicos y ventanas temporales, envíe búsquedas paralelas y fusione los resultados usando pesos derivados de la confianza de la fuente (evaluada por network_shield). Añadir pruebas unitarias y métricas de rendimiento para validar la reducción de latencia y el aumento de precisión.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.51
   }
 ]
