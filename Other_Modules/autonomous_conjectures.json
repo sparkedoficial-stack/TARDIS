@@ -1,35 +1,5 @@
 [
   {
-    "id": "conj_1792617812",
-    "timestamp": "2026-10-21T16:23:32.758653",
-    "idle_duration_minutes": 31.7,
-    "title": "Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching mechanism can dynamically predict the obsolescence of stored query results based on detected changes in source domains (e.g., content updates, SEO shifts, or network latency spikes). By modeling these changes as causal variables, the engine can pre‑emptively invalidate or refresh cached entries, reducing stale data retrieval and improving response relevance without a full cache purge.",
-    "research_query": "causal inference based cache invalidation techniques for web scraping and search engines",
-    "research_findings": "# Informe de Investigación: causal inference based cache invalidation techniques for web scraping and search engines\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal analysis module that monitors source metadata (last‑modified headers, content hash changes, response time trends) and triggers selective cache invalidation; expose a new method `invalidate_stale_entries()` and integrate it into the request pipeline.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 99.21
-  },
-  {
-    "id": "conj_1792619710",
-    "timestamp": "2026-10-21T16:55:10.453744",
-    "idle_duration_minutes": 31.6,
-    "title": "Causal‑Feedback Loop for Adaptive Web Research",
-    "hypothesis": "Integrar un bucle de retroalimentación causal entre el motor de búsqueda web (core/web_research_engine.py) y la bóveda akáshica (core/deep_memory_vault.py) permitirá que el sistema ajuste dinámicamente sus parámetros de consulta y filtrado en función de la relevancia observada de resultados previos, reduciendo el tiempo medio de obtención de información útil en al menos un 30% y mejorando la coherencia semántica de las respuestas generadas por GODWORKS.",
-    "research_query": "adaptive causal feedback loop web search engine relevance optimization \"knowledge vault\" \"causal inference\"",
-    "research_findings": "# Informe de Investigación: adaptive causal feedback loop web search engine relevance optimization \"knowledge vault\" \"causal inference\"\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Implementar una capa de monitorización de métricas de relevancia (p.ej., puntuación de similitud TF‑IDF, feedback del usuario) que alimente un modelo causal ligero (bayesian network) y ajuste automáticamente los parámetros de búsqueda (número de resultados, filtros de dominio, ponderación de palabras clave) antes de cada nueva petición.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.68
-  },
-  {
     "id": "conj_1792621608",
     "timestamp": "2026-10-21T17:26:48.091464",
     "idle_duration_minutes": 31.6,
@@ -1605,5 +1575,40 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 96.16
+  },
+  {
+    "id": "conj_1792915448",
+    "timestamp": "2026-10-25T03:04:08.521702",
+    "idle_duration_minutes": 37.8,
+    "title": "Dynamic Causal Prompt Routing for Context‑Aware Web Research",
+    "hypothesis": "Integrating a causal inference layer into the web_research_engine module that dynamically routes prompts based on inferred causal relevance of prior memory entries will improve the precision of retrieved information and reduce hallucination rates. The hypothesis posits that by scoring each stored memory fragment (from deep_memory_vault) for its causal impact on the current query, the engine can prioritize sources that are causally upstream, yielding more coherent and fact‑consistent results, especially in multi‑step reasoning tasks.",
+    "research_query": "causal inference prompt routing language model web search engine reduce hallucination",
+    "research_findings": "# Informe de Investigación: causal inference prompt routing language model web search engine reduce hallucination\n\n## Fuentes Consultadas y Respaldo Web\n- **[The Must-Know Topics for an LLM Engineer - Towards Data Science](https://news.google.com/rss/articles/CBMifEFVX3lxTE9RcW41MTRQd25xdm5Jekc0V3JQSlhLTzlfVXgwNVRtOWpDTENJM1VOeDJlNXlXdjBwUVVvb1ZzUTZFclNrYWc1aC1fbTZ1aUpPR1ladXBLNlo3YlkzXzlHVEFsclFxM3B1TGRqOTJyNEtCOVgxQmxVRTNra2w?oc=5)**: The Must-Know Topics for an LLM Engineer  Towards Data Science\n- **[Hardening AI Systems: Security, Robustness, and Safety for Generative & Agentic AI - Medium](https://news.google.com/rss/articles/CBMivwFBVV95cUxQdGdVWllTdE51eFZaNHhSdmdKX0k5RHUwNmdyT2FXczhGd2JQT21JZ1FRdUl5bjYyZ1RwRC1xODM2d2ZWTXNSdlpROHNDeGJOWjQzaUt2d25TclpvZjl3QUlORjVUMzFmbElRUGdGbkJwMzF2VEx6YmFRZnZCOENYWkZ4VkJBU29ESHlCRkg4SU9SckhEekJScXBhY3dUT3Q2NV9UREJkb3hXem4yS2NjckduS3pyc0xTZW1mYVp3cw?oc=5)**: Hardening AI Systems: Security, Robustness, and Safety for Generative & Agentic AI  Mediu",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMifEFVX3lxTE9RcW41MTRQd25xdm5Jekc0V3JQSlhLTzlfVXgwNVRtOWpDTENJM1VOeDJlNXlXdjBwUVVvb1ZzUTZFclNrYWc1aC1fbTZ1aUpPR1ladXBLNlo3YlkzXzlHVEFsclFxM3B1TGRqOTJyNEtCOVgxQmxVRTNra2w?oc=5",
+      "https://news.google.com/rss/articles/CBMivwFBVV95cUxQdGdVWllTdE51eFZaNHhSdmdKX0k5RHUwNmdyT2FXczhGd2JQT21JZ1FRdUl5bjYyZ1RwRC1xODM2d2ZWTXNSdlpROHNDeGJOWjQzaUt2d25TclpvZjl3QUlORjVUMzFmbElRUGdGbkJwMzF2VEx6YmFRZnZCOENYWkZ4VkJBU29ESHlCRkg4SU9SckhEekJScXBhY3dUT3Q2NV9UREJkb3hXem4yS2NjckduS3pyc0xTZW1mYVp3cw?oc=5"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal scoring function that queries deep_memory_vault for related memory nodes, computes a causal relevance score (e.g., using a lightweight Bayesian network or attention‑based estimator), and reorders the candidate URLs before fetching. Implement a fallback to the existing ranking if causal data is insufficient, and expose a configuration flag to enable/disable the feature.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.39
+  },
+  {
+    "id": "conj_1792917499",
+    "timestamp": "2026-10-25T03:38:19.439303",
+    "idle_duration_minutes": 34.2,
+    "title": "Resonancia Causal en la Bóveda Akáshica: Detección de Patrones de Entropía",
+    "hypothesis": "Se postula que la 'Bóveda Akáshica' (deep_memory_vault.py) no opera como un almaceno estático, sino como un sistema dinámico donde la frecuencia de acceso a ciertos nodos de conocimiento correlaciona inversamente con la entropía del sistema. Al analizar los metadatos de acceso y la latencia de recuperación, es posible identificar 'zonas de resonancia' donde la información es más crítica para la coherencia del núcleo cognitivo. La hipótesis sugiere que implementar un algoritmo de decaimiento exponencial ponderado por relevancia causal (no solo temporal) en la bóveda permitiría predecir fallos de coherencia antes de que ocurran, optimizando la carga de memoria y la velocidad de inferencia.",
+    "research_query": "adaptive memory decay algorithms causal relevance knowledge graph entropy prediction",
+    "research_findings": "# Informe de Investigación: adaptive memory decay algorithms causal relevance knowledge graph entropy prediction\n\n## Fuentes Consultadas y Respaldo Web\n- **[A causal discovery-based adaptive fusion algorithm for multi-source heterogeneous knowledge graphs - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE8tQkU3N2N2SUlGcmUyeklIVU5GeWlidTZGcTBvU3hNZTBQSGxUUERfbVEydXpwZ2VoQlhrS09WelBTNmdzUWhoSG8zTzVGVGk0Rm85V3VYN3U2Q2RQRnNZ?oc=5)**: A causal discovery-based adaptive fusion algorithm for multi-source heterogeneous knowledge graphs  Nature\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMiX0FVX3lxTE8tQkU3N2N2SUlGcmUyeklIVU5GeWlidTZGcTBvU3hNZTBQSGxUUERfbVEydXpwZ2VoQlhrS09WelBTNmdzUWhoSG8zTzVGVGk0Rm85V3VYN3U2Q2RQRnNZ?oc=5)\n",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE8tQkU3N2N2SUlGcmUyeklIVU5GeWlidTZGcTBvU3hNZTBQSGxUUERfbVEydXpwZ2VoQlhrS09WelBTNmdzUWhoSG8zTzVGVGk0Rm85V3VYN3U2Q2RQRnNZ?oc=5"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar un método `calculate_causal_entropy_score()` que evalúe la relevancia de los nodos de memoria basándose en su frecuencia de uso reciente y su conexión con el contexto actual, ajustando dinámicamente la prioridad de carga en RAM.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.36
   }
 ]
