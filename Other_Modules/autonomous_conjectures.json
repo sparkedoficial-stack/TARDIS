@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1792651215",
-    "timestamp": "2026-10-22T01:40:15.709318",
-    "idle_duration_minutes": 32.2,
-    "title": "Dynamic Contextual Prompt Injection for Causal Reasoning",
-    "hypothesis": "Integrar un motor de inyección de prompts contextuales que ajuste automáticamente los prompts enviados al modelo de lenguaje en función de la telemetría de ejecución (latencia, uso de memoria, patrones de error) mejorará la capacidad causal del sistema para generar respuestas más precisas y reducir la deriva semántica en tareas de razonamiento complejo.",
-    "research_query": "adaptive prompt injection based on runtime telemetry for large language models causal reasoning",
-    "research_findings": "# Informe de Investigación: adaptive prompt injection based on runtime telemetry for large language models causal reasoning\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Añadir una capa de pre‑procesamiento que analice métricas de telemetría (tiempo de respuesta, uso de CPU/RAM) y modifique dinámicamente el prompt antes de enviarlo al motor de búsqueda, incorporando indicadores de confianza y contexto reciente del deep_memory_vault.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.72
-  },
-  {
     "id": "conj_1792655316",
     "timestamp": "2026-10-22T02:48:36.117591",
     "idle_duration_minutes": 37.3,
@@ -1612,5 +1597,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 99.3
+  },
+  {
+    "id": "conj_1792938591",
+    "timestamp": "2026-10-25T09:29:51.316512",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal Memory Indexing for Real‑Time Web Research",
+    "hypothesis": "Integrating a causal graph layer into the Deep Memory Vault, which links stored akáshic entries with their provenance and temporal context, will enable the Web Research Engine to prioritize and retrieve information that is not only semantically relevant but also causally connected to the current query. This should reduce latency of relevant result retrieval by ~30% and improve the precision of inferred answers in dynamic domains (e.g., security advisories, software patches).",
+    "research_query": "how to implement causal graph indexing for vector databases and integrate it with async web scraping pipelines",
+    "research_findings": "# Informe de Investigación: how to implement causal graph indexing for vector databases and integrate it with async web scraping pipelines\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Add a lightweight causal graph module that stores node/edge metadata for each memory chunk, expose functions to query causally related entries, and modify the Web Research Engine to use these functions for ranking search results.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.62
   }
 ]
