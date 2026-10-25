@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.8863971,
-  "last_video_id": "vp_20261024_183142_a8b0f7",
-  "last_topic": "Gravitational Entanglement Renormalization and the Emergence of Spacetime Geometry from Holographic Codes",
-  "total_videos_analyzed": 521,
+  "last_run_timestamp": REDACTED_PHONE.156336,
+  "last_video_id": "vp_20261024_194702_46931d",
+  "last_topic": "Simulating Traversable Wormholes with Quantum Circuits: From SYK Model to Superconducting Qubits",
+  "total_videos_analyzed": 523,
   "running_cycle": false,
   "last_error": null,
-  "auto_improvement_count": 329
+  "auto_improvement_count": 330
 }
