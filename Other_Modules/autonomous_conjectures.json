@@ -1,37 +1,5 @@
 [
   {
-    "id": "conj_1792600549",
-    "timestamp": "2026-10-21T11:35:49.736667",
-    "idle_duration_minutes": 32.1,
-    "title": "Causal‑Feedback Loop for Adaptive Web Research",
-    "hypothesis": "Integrating a causal inference layer between the Web Research Engine and the Deep Memory Vault will enable the system to dynamically adjust query formulation based on observed outcome relevance, reducing redundant searches by at least 30% and improving answer precision. The hypothesis posits that by modeling the causal effect of query parameters (keywords, filters, depth) on downstream relevance metrics stored in the akáshic vault, the engine can learn a policy that predicts the most effective query configuration for a given knowledge gap, effectively creating a closed‑loop, self‑optimizing research cycle.",
-    "research_query": "causal inference for adaptive web search query optimization \"feedback loop\" relevance metrics",
-    "research_findings": "# Informe de Investigación: causal inference for adaptive web search query optimization \"feedback loop\" relevance metrics\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal inference module that records query parameters and relevance scores from the Deep Memory Vault, trains a lightweight causal model (e.g., DoWhy or causal trees), and uses the model to suggest optimized query configurations before each web request.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.19
-  },
-  {
-    "id": "conj_1792602448",
-    "timestamp": "2026-10-21T12:07:28.891382",
-    "idle_duration_minutes": 31.7,
-    "title": "Causal‑Feedback Loop for Adaptive Web Research",
-    "hypothesis": "Integrating a causal‑feedback loop between the Web Research Engine and the Deep Memory Vault can dynamically adjust query formulation and result weighting based on observed downstream task performance, leading to a measurable reduction in irrelevant result rate (IRR) and faster convergence on high‑utility information. The loop would capture execution telemetry (latency, confidence scores, user‑defined relevance tags) from the Network Shield, propagate causal signals back to the research engine, and trigger on‑the‑fly re‑ranking or query reformulation using a lightweight Bayesian network. This architecture should improve the system's epistemic efficiency by at least 15% in benchmarked knowledge‑retrieval tasks.",
-    "research_query": "causal feedback loop adaptive web search engine architecture Bayesian re‑ranking performance improvement",
-    "research_findings": "# Informe de Investigación: causal feedback loop adaptive web search engine architecture Bayesian re‑ranking performance improvement\n\n## Fuentes Consultadas y Respaldo Web\n- **[Improved bayesian network with graph attention and prior algorithm for aircraft engine fault root cause analysis - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTFBWTERIc1AwSVZFYXh5bDZ0cDFySTM2RHdYRk9qb3hYRzl4eGxXYS1CQVhBcXpjQzVXYkVHV0k3RE9ad0pvcmtpTWwtSHdZVi1EcTFRUEsta25MQzlvbzFR?oc=5)**: Improved bayesian network with graph attention and prior algorithm for aircraft engine fault root cause analysis  Nature\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMiX0FVX3lxTFBWTERIc1AwSVZFYXh5bDZ0cDFySTM2RHdYRk9qb3hYRzl4eGxXYS1CQVhBcXpjQzVXYkVHV0k3RE9ad0pvcmtpTWwtSHdZVi1EcTFRUEsta25MQzlvbzFR?oc=5)\n",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTFBWTERIc1AwSVZFYXh5bDZ0cDFySTM2RHdYRk9qb3hYRzl4eGxXYS1CQVhBcXpjQzVXYkVHV0k3RE9ad0pvcmtpTWwtSHdZVi1EcTFRUEsta25MQzlvbzFR?oc=5"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal feedback module that records telemetry from network_shield, updates a Bayesian causal model, and uses it to adjust query parameters and result ranking in real time.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 99.14
-  },
-  {
     "id": "conj_1792604419",
     "timestamp": "2026-10-21T12:40:19.217816",
     "idle_duration_minutes": 32.8,
@@ -1608,5 +1576,35 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 99.45
+  },
+  {
+    "id": "conj_1792894484",
+    "timestamp": "2026-10-24T21:14:44.854803",
+    "idle_duration_minutes": 31.6,
+    "title": "Optimización causal de caché en el motor de investigación web",
+    "hypothesis": "Si el módulo core/web_research_engine.py incorpora un modelo de causalidad ligera que prediga la relevancia futura de URLs basándose en patrones de acceso histórico almacenados en core/deep_memory_vault.py, entonces la latencia promedio de búsqueda disminuirá en al menos un 30% y la precisión de resultados top‑3 aumentará un 12% en entornos de alta concurrencia.",
+    "research_query": "lightweight causal caching algorithm for web search engines using historical query patterns",
+    "research_findings": "# Informe de Investigación: lightweight causal caching algorithm for web search engines using historical query patterns\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Implementar una capa de caché causal que, al recibir una nueva consulta, consulte el Deep Memory Vault para extraer métricas de frecuencia y co‑ocurrencia, calcule una puntuación causal y priorice URLs pre‑cacheadas; además, añadir pruebas unitarias y métricas de rendimiento para validar la mejora.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.05
+  },
+  {
+    "id": "conj_1792896476",
+    "timestamp": "2026-10-24T21:47:56.152980",
+    "idle_duration_minutes": 33.2,
+    "title": "Dynamic Causal Cache Invalidation for the Web Research Engine",
+    "hypothesis": "If the Web Research Engine maintains a lightweight causal dependency graph of retrieved documents (e.g., linking sources, timestamps, and topic evolution), then it can predict when cached results become stale and proactively invalidate or refresh them. This causal‑aware caching should reduce average query latency by ~15‑20% while preserving or improving relevance scores compared to a time‑based TTL approach.",
+    "research_query": "causal inference cache invalidation web search engine performance",
+    "research_findings": "# Informe de Investigación: causal inference cache invalidation web search engine performance\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal‑cache manager that builds a simple DAG of document dependencies, estimates staleness probability, and triggers selective cache refreshes; expose a new method `invalidate_stale_cache(query_context)` and integrate it into the existing fetch pipeline.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.53
   }
 ]
