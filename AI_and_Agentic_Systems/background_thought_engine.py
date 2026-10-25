@@ -180,7 +180,7 @@ class BackgroundThoughtEngine:
                 snippets = [f"• {m['content'][:300].strip()}" for m in prior_matches]
                 prior_context = "PREVALENCIA HISTÓRICA EN BÓVEDA:\n" + "\n".join(snippets)
         except Exception:
-            pass
+            pass  # fallo silenciado: revisar con log
 
         # 2. Generar respuesta profunda
         deep_answer = self._synthesize_answer(q_clean, context or "", prior_context)
@@ -286,7 +286,7 @@ class BackgroundThoughtEngine:
                     logger.info("[BACKGROUND_THOUGHT] Inferencia de usuario activa; usando síntesis analítica instantánea.")
                     return self._heuristic_deep_synthesis(question, context, prior_context)
             except Exception:
-                pass
+                pass  # fallo silenciado: revisar con log
 
             try:
                 import gia_sovereign_engine as _gse

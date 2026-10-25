@@ -622,6 +622,16 @@
             color: var(--accent-green);
             border: 1px solid rgba(16, 185, 129, 0.3);
         }
+        .status-pill.degraded {
+            background: rgba(245, 158, 11, 0.15);
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.35);
+        }
+        .status-pill.offline {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.35);
+        }
         .status-pill.standby {
             background: rgba(245, 158, 11, 0.15);
             color: var(--accent-gold);
@@ -1963,7 +1973,7 @@
                 <!-- CATÁLOGO DINÁMICO DE TODAS LAS FUNCIONES Y SUBSISTEMAS EN SEGUNDO PLANO -->
                 <div class="catalog-container" id="functions-catalog-section">
                     <div class="catalog-header">
-                        <h2><span>⚡</span> Catálogo Maestro de Funciones & Procesos en Segundo Plano</h2>
+                        <h2><span>⚡</span> Catálogo Maestro de Funciones & Procesos en Segundo Plano <span id="hub-health-summary" style="font-size:11px; font-family:var(--font-mono); margin-left:10px; color:var(--text-dim);"></span></h2>
                         <div class="catalog-controls">
                             <input type="text" id="catalog-search" class="catalog-search-input" placeholder="🔍 Filtrar función o comando..." oninput="filterCatalog(this.value)">
                             <button class="btn-func-action" onclick="loadFunctionsCatalog()">↻ Refrescar Estado</button>
@@ -2168,6 +2178,27 @@
             renderCatalog(filtered);
         }
 
+        /* La Matriz ya no declara estados: el API devuelve salud medida (sonda HTTP +
+           unidad systemd) y aquí se pinta sin reinterpretarla. */
+        let hubHealth = {};
+
+        async function loadHubHealth() {
+            try {
+                const res = await fetch('/api/hub/subsystems');
+                if (!res.ok) return;
+                const data = await res.json();
+                hubHealth = {};
+                (data.subsystems || []).forEach(s => { hubHealth[s.id] = s; });
+                renderCatalog(allCatalogFunctions);
+                const badge = document.getElementById('hub-health-summary');
+                if (badge && data.counts) {
+                    const c = data.counts;
+                    badge.textContent = `● ${c.online || 0} en línea · ${c.degraded || 0} degradados · ${c.offline || 0} caídos`;
+                    badge.style.color = (c.offline ? '#ef4444' : (c.degraded ? '#f59e0b' : 'var(--accent-green)'));
+                }
+            } catch (e) {}
+        }
+
         function renderCatalog(items) {
             const grid = document.getElementById('catalog-grid-items');
             if (!grid) return;
@@ -2176,9 +2207,19 @@
                 return;
             }
             grid.innerHTML = items.map(f => {
-                const statusClass = f.status === 'running' || f.status === 'online' || f.status === 'active' ? 'online' : (f.is_background ? 'bg' : 'standby');
-                const statusLabel = f.status === 'running' || f.status === 'online' || f.status === 'active' ? 'Activo' : (f.is_background ? 'Segundo Plano' : 'Standby');
-                const portLabel = f.port ? `:${f.port}` : (f.pid ? `PID ${f.pid}` : (f.systemd_service || 'Daemon'));
+                const h = hubHealth[f.id];
+                const health = h ? h.health : null;
+                const statusClass = health === 'online' ? 'online'
+                    : health === 'degraded' ? 'degraded'
+                    : health === 'offline' ? 'offline' : 'standby';
+                const statusLabel = health === 'online' ? 'En línea'
+                    : health === 'degraded' ? 'Degradado'
+                    : health === 'offline' ? 'Caído'
+                    : (f.is_background ? 'Segundo Plano' : 'Sin sonda');
+                const lat = h && h.latency_ms != null ? `${Math.round(h.latency_ms)} ms` : '';
+                const portLabel = h && h.unit ? `${h.unit}${lat ? ' · ' + lat : ''}`
+                    : (f.port ? `:${f.port}` : (f.systemd_service || 'Daemon'));
+                const detail = h && h.detail ? `<span title="${h.detail}" style="font-size:9px; color:#ef4444;">${h.detail}</span>` : '';
                 return `
                 <div class="func-card">
                     <div>
@@ -2195,6 +2236,7 @@
                         <div style="display:flex; flex-direction:column; gap:2px;">
                             <span class="cmd-badge">${f.cmd || ':help'}</span>
                             <span style="font-size:9px; color:var(--text-dim); font-family:var(--font-mono);">${portLabel}</span>
+                            ${detail}
                         </div>
                         <div style="display:flex; gap:6px;">
                             ${f.route ? `<button class="btn-func-action" onclick="embedSubsystem('${f.route}', '${f.name}')">Abrir</button>` : ''}
@@ -2261,8 +2303,10 @@
         window.addEventListener('DOMContentLoaded', () => {
             updateTelemetry();
             loadFunctionsCatalog();
+            loadHubHealth();
             setInterval(updateTelemetry, 10000);
             setInterval(loadFunctionsCatalog, 30000);
+            setInterval(loadHubHealth, 15000);
         });
     </script>
 

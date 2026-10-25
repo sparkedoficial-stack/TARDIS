@@ -798,7 +798,7 @@ class CuriosityDebateManager:
                 direction="present",
             )
         except Exception:
-            pass
+            pass  # fallo silenciado: revisar con log
 
         return {
             "ok": send_msg_res.get("ok", False) and send_doc_res.get("ok", False),

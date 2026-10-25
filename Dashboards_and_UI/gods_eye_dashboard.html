@@ -677,26 +677,26 @@
             <div class="icon-badge">👁️</div>
             <div class="header-title">
                 <h1>TARDIS · OJO DE DIOS (GOD'S EYE)</h1>
-                <p>Algoritmo Ramsey v7.2 · Red de Vigilancia y Triangulación Omnipresente</p>
+                <p>Conciencia situacional local · cámaras reales del Hub · sin rastreo de personas</p>
             </div>
         </div>
 
         <div class="header-telemetry">
             <div class="tele-chip red" id="chip-satellites">
-                <span>Satélites LEO:</span>
-                <b id="val-sats">14,820</b>
+                <span>Cámaras online:</span>
+                <b id="val-sats">0</b>
             </div>
             <div class="tele-chip" id="chip-cameras">
-                <span>Cámaras Hijacked:</span>
-                <b id="val-cams" style="color:var(--primary)">4,289,120</b>
+                <span>Cámaras registradas:</span>
+                <b id="val-cams" style="color:var(--primary)">0</b>
             </div>
             <div class="tele-chip" id="chip-devices">
-                <span>Celulares/RF:</span>
-                <b id="val-devs">8,941,030</b>
+                <span>Eventos 24 h:</span>
+                <b id="val-devs">0</b>
             </div>
             <div class="tele-chip" id="chip-latency">
-                <span>Latencia:</span>
-                <b id="val-lat" style="color:var(--accent-green)">84.2 ms</b>
+                <span>Motor:</span>
+                <b id="val-lat" style="color:var(--accent-green)">idle</b>
             </div>
             <div class="tele-chip gold" id="chip-aegis">
                 <span>Constante Aegis:</span>
@@ -706,7 +706,7 @@
 
         <div style="display:flex; align-items:center; gap:8px;">
             <button class="btn-action" onclick="triggerGlobalScan()">
-                <span>⚡ Escaneo Ramsey 360°</span>
+                <span>⟳ Actualizar fuentes reales</span>
             </button>
             <button class="btn-action secondary" onclick="refreshDashboard()" title="Actualizar Datos">
                 <span>↻</span>
@@ -717,22 +717,13 @@
     <!-- OMNI-SEARCH QUERY BAR -->
     <div class="search-container">
         <div class="search-bar">
-            <input type="text" id="omni-search-input" class="search-input" placeholder="Buscar persona, alias, IMEI, matrícula o vector facial (ej: Dominic Toretto, Ramsey, Shaw, Annya May)..." onkeydown="if(event.key==='Enter') executeSearch();">
+            <input type="text" id="omni-search-input" class="search-input" placeholder="Buscar una zona o cámara registrada (el motor real no publica nombres ni búsqueda de personas)..." onkeydown="if(event.key==='Enter') executeSearch();">
             <button class="btn-action" onclick="executeSearch()">
                 <span>🔍 Localizar</span>
             </button>
         </div>
         <div class="quick-targets">
             <span style="font-size:11px; font-family:var(--font-mono); color:var(--text-dim);">Acceso Rápido:</span>
-            <span class="quick-tag" onclick="quickSelect('Dominic Toretto')">🚗 Dominic Toretto</span>
-            <span class="quick-tag" onclick="quickSelect('Megan Ramsey')">💻 Ramsey (God's Eye)</span>
-            <span class="quick-tag" onclick="quickSelect('Deckard Shaw')">🇬🇧 Deckard Shaw</span>
-            <span class="quick-tag" onclick="quickSelect('Cipher')">✈️ Cipher (Stealth)</span>
-            <span class="quick-tag" onclick="quickSelect('Brian O\'Conner')">🏎️ Brian O'Conner</span>
-            <span class="quick-tag aegis" onclick="quickSelect('El Arquitecto')">👑 El Arquitecto [Aegis]</span>
-            <span class="quick-tag aegis" onclick="quickSelect('Annya May Carrillo')">🛡️ Annya May [Aegis]</span>
-            <span class="quick-tag aegis" onclick="quickSelect('Andrea Alejandra Carrillo Jimenez')">🛡️ Andrea Alejandra [Aegis]</span>
-            <span class="quick-tag aegis" onclick="quickSelect('Rex peluche')">🧸 Rex Peluche [Aegis]</span>
         </div>
     </div>
 
@@ -747,24 +738,17 @@
                     <h3>Matriz Óptica Táctica & Interceptación CCTV</h3>
                 </div>
                 <select id="select-camera-feed" class="feed-selector" onchange="changeCameraFeed(this.value)">
-                    <option value="cam_la_downtown">LAPD Grid - Los Ángeles (Dominic Toretto)</option>
-                    <option value="cam_host_tuf">TARDIS Host ASUS TUF (Local Central)</option>
-                    <option value="cam_leo_sat01">Satélite LEO-01 Infrarrojo (Cipher)</option>
-                    <option value="cam_abu_dhabi">Etihad Towers Mesh - Abu Dhabi (Shaw)</option>
-                    <option value="cam_atm_london">City of London ATM #409 (Ramsey)</option>
-                    <option value="cam_traffic_pdc">CCTV Playa del Carmen (Riviera Maya)</option>
-                    <option value="cam_cun_terminal">Aeropuerto Cancún CUN (Brian O'Conner)</option>
-                    <option value="cam_tokyo_shibuya">Shibuya Crossing - Tokio (Tráfico)</option>
-                </select>
+                    <option value="">— sin cámaras emitiendo (abre la Cámara del Hub) —</option>
+                    </select>
             </div>
 
             <!-- VIEWPORT DE CÁMARA CON HUD -->
             <div class="camera-viewport" id="viewport-box">
-                <img id="camera-feed-img" src="/api/gods_eye/feed_frame?feed_id=cam_la_downtown" alt="Feed Táctico Ojo de Dios">
+                <img id="camera-feed-img" src="/api/gods_eye/feed_frame" alt="Ojo de Dios · fuente real">
                 
                 <div class="viewport-hud">
                     <div class="hud-top-bar">
-                        <span id="hud-cam-name">LAPD INTERCEPT GRID · 7TH & FIGUEROA</span>
+                        <span id="hud-cam-name">SIN FUENTE ASIGNADA</span>
                         <span id="hud-timecode">2026-09-30 09:35:00 UTC-5</span>
                     </div>
 
@@ -846,7 +830,7 @@
 
                 <div class="dossier-header">
                     <div class="target-name-block">
-                        <h2 id="dossier-name">Dominic Toretto</h2>
+                        <h2 id="dossier-name">Sin objetivo seleccionado</h2>
                         <p id="dossier-alias">Dom / El Conductor / La Familia</p>
                     </div>
                     <div class="threat-badge" id="dossier-threat">ALTO / OBJETIVO PRIORITARIO</div>
@@ -905,20 +889,20 @@
     <div class="tactical-log-panel">
         <div class="log-title">
             <span>Terminal Táctico de Interceptación Ojo de Dios</span>
-            <span style="color:var(--accent-green)">ENLACE ACTIVO · RAMSEY ENGINE</span>
+            <span style="color:var(--accent-green)">MOTOR REAL · VISIÓN POR MOVIMIENTO</span>
         </div>
         <div class="log-stream" id="log-stream">
             <div class="log-entry">
                 <span class="log-time">[09:35:01]</span>
                 <span class="log-cat">[SYS_INIT]</span>
-                <span class="log-msg">Protocolo Ojo de Dios Ramsey v7.2 enlazado con Núcleo TARDIS.</span>
+                <span class="log-msg">Ojo de Dios conectado: esperando fotogramas de fuentes reales.</span>
             </div>
         </div>
     </div>
 
     <!-- JAVASCRIPT LOGIC & VISUALIZERS -->
     <script>
-        let currentTargetId = "tgt_toretto";
+        let currentTargetId = "";
         let currentFeedId = "cam_la_downtown";
         let isTracking = true;
         let radarAngle = 0;
@@ -1056,14 +1040,19 @@
                 const res = await fetch('/api/gods_eye/status');
                 if (res.ok) {
                     const data = await res.json();
-                    document.getElementById('val-sats').textContent = Number(data.orbital_satellites_linked).toLocaleString();
-                    document.getElementById('val-cams').textContent = Number(data.hijacked_cameras_online).toLocaleString();
-                    document.getElementById('val-devs').textContent = Number(data.intercepted_devices_count).toLocaleString();
-                    document.getElementById('val-lat').textContent = data.triangulation_latency_ms + " ms";
+                    document.getElementById('val-sats').textContent = data.cameras_online ?? 0;
+                    document.getElementById('val-cams').textContent = data.cameras_total ?? 0;
+                    document.getElementById('val-devs').textContent = (data.stats && data.stats.events_window) || 0;
+                    document.getElementById('val-lat').textContent = data.mode || "idle";
 
-                    // Actualizar logs
-                    if (data.recent_logs && data.recent_logs.length > 0) {
-                        renderLogs(data.recent_logs);
+                    // Log de eventos reales (sin nombres de personas)
+                    const evts = (data.events || []).map(e => ({
+                        time_iso: new Date((e.ts || 0) * 1000).toLocaleTimeString(),
+                        category: e.kind || "EVENTO",
+                        message: `${e.zone || e.terminal_id}: ${e.detail || ""}`
+                    }));
+                    if (evts.length > 0) {
+                        renderLogs(evts);
                     }
                 }
             } catch (e) {

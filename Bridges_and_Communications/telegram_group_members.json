@@ -70,7 +70,7 @@
       "welcome_enabled": true,
       "welcome_text": "👋 ¡Bienvenido/a {nombre} al grupo *{grupo}*! Soy TARDIS, asistente de inteligencia artificial y sistema de control temporal. Un placer tenerte aquí.",
       "created_at": "2026-09-29T09:31:52.567223",
-      "updated_at": "2026-10-22T20:56:18.759167",
+      "updated_at": "2026-10-25T16:29:26.464614",
       "members": {
         "REDACTED_PHONE": {
           "user_id": REDACTED_PHONE,
@@ -88,17 +88,17 @@
         },
         "REDACTED_PHONE": {
           "user_id": REDACTED_PHONE,
-          "first_name": "Contacto",
-          "last_name": "REDACTED_PHONE",
-          "full_name": "Contacto REDACTED_PHONE",
-          "display_name": "Contacto REDACTED_PHONE",
-          "username": "",
+          "first_name": "Reysek",
+          "last_name": "Acosta",
+          "full_name": "Reysek Acosta",
+          "display_name": "Reysek",
+          "username": "Reysekacosta023",
           "is_bot": false,
           "is_architect": false,
           "role": "creator",
           "first_seen": "2026-09-29T09:31:53.238465",
-          "last_seen": "2026-10-18T23:46:11.161752",
-          "message_count": 130
+          "last_seen": "2026-10-25T16:29:26.464614",
+          "message_count": 132
         },
         "REDACTED_PHONE": {
           "user_id": REDACTED_PHONE,
@@ -200,8 +200,8 @@
       "is_bot": false,
       "is_architect": true,
       "first_seen": "2026-09-25T15:13:39.080612",
-      "last_seen": "2026-10-25T15:25:59.940464",
-      "message_count": 133
+      "last_seen": "2026-10-25T16:39:55.859763",
+      "message_count": 134
     },
     "555000111": {
       "chat_id": 555000111,
@@ -242,8 +242,8 @@
       "is_bot": false,
       "is_architect": false,
       "first_seen": "2026-09-26T00:11:33.580142",
-      "last_seen": "2026-10-25T15:25:59.400749",
-      "message_count": 8
+      "last_seen": "2026-10-25T16:39:55.345696",
+      "message_count": 9
     },
     "777000222": {
       "chat_id": 777000222,
@@ -316,5 +316,5 @@
       "message_count": 6
     }
   },
-  "last_updated": "2026-10-25T15:25:59.940515"
+  "last_updated": "2026-10-25T16:39:55.859906"
 }

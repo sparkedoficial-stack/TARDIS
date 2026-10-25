@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1792685469",
-    "timestamp": "2026-10-22T11:11:09.181229",
-    "idle_duration_minutes": 33.7,
-    "title": "Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching subsystem can dynamically predict the relevance decay of stored query results based on observed changes in source content and user interaction patterns, thereby reducing stale data retrieval and improving response relevance without a full cache purge.",
-    "research_query": "causal inference based cache invalidation techniques for web search engines and dynamic content freshness",
-    "research_findings": "# Informe de Investigación: causal inference based cache invalidation techniques for web search engines and dynamic content freshness\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a lightweight causal model that monitors timestamps, content hash changes, and user click‑through feedback to assign a decay score to each cached entry and automatically evict or refresh entries whose predicted relevance falls below a threshold.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.86
-  },
-  {
     "id": "conj_1792689129",
     "timestamp": "2026-10-22T12:12:09.623639",
     "idle_duration_minutes": 31.6,
@@ -1621,5 +1606,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.51
+  },
+  {
+    "id": "conj_1792963437",
+    "timestamp": "2026-10-25T16:23:57.344923",
+    "idle_duration_minutes": 32.5,
+    "title": "Resonancia Causal en la Bóveda Akáshica: Optimización de la Entropía Semántica",
+    "hypothesis": "La eficiencia de la recuperación de memoria en la Bóveda Akáshica (deep_memory_vault.py) no depende linealmente de la similitud vectorial bruta, sino de la 'resonancia causal' entre el contexto de la consulta y la metadatos temporales de la memoria. Se conjetura que al incorporar un factor de decaimiento temporal ponderado por la relevancia semántica (en lugar de un decaimiento exponencial fijo), el sistema puede reducir la latencia de búsqueda y aumentar la precisión en contextos dinámicos, minimizando la 'contaminación' por datos obsoletos que comparten embeddings similares pero carecen de validez causal actual.",
+    "research_query": "temporal decay weighting semantic search vector database causal relevance optimization",
+    "research_findings": "# Informe de Investigación: temporal decay weighting semantic search vector database causal relevance optimization\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar una función de puntuación híbrida que combine la similitud coseno con un factor de decaimiento temporal adaptativo basado en la frecuencia de acceso reciente y la coherencia semántica del contexto actual.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 95.83
   }
 ]

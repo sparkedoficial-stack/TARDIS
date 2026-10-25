@@ -4410,6 +4410,28 @@ iframe{border:none;width:100%;height:100%;}</style></head>
             country=country,
             reported_bitrate=payload.bitrate_kbps
         )
+
+        # Ojo de Dios: el fotograma real alimenta el motor de conciencia situacional.
+        # Corre en un worker para no bloquear el envío del feed con ~8 ms de análisis.
+        analysis = {}
+        try:
+            import base64 as _b64
+            from core.gods_eye_realtime import get_gods_eye_realtime
+            raw = _b64.b64decode(payload.image_base64.split(",")[-1])
+            loop = asyncio.get_event_loop()
+            analysis = await loop.run_in_executor(
+                None,
+                lambda: get_gods_eye_realtime().process_frame(
+                    terminal_id=payload.terminal_id,
+                    frame_bytes=raw,
+                    terminal_name=payload.terminal_name or "",
+                    device_type=payload.device_type or "browser",
+                    resolution=payload.resolution or "",
+                ),
+            )
+        except Exception as e_ge:
+            analysis = {"ok": False, "error": str(e_ge)[:120]}
+
         return {
             "ok": res.get("ok", False),
             "terminal_id": payload.terminal_id,
@@ -4417,6 +4439,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
             "bitrate_kbps": res.get("bitrate_kbps", 1000.0),
             "origin": res.get("origin", "INTERNET"),
             "resolution": res.get("resolution", "1280x720"),
+            "gods_eye": analysis,
             "timestamp": time.time()
         }
 
@@ -5268,10 +5291,19 @@ iframe{border:none;width:100%;height:100%;}</style></head>
         ]
 
         mod_dir = Path("/home/timemachine/modulos_ftl")
+        stubs = 0
         if mod_dir.exists():
-            for py_file in mod_dir.glob("*.py"):
+            # El generador dejó 5.000 copias del mismo stub ("active_wisdom") y el catálogo
+            # las publicaba como subsistemas online. Sólo se listan módulos con lógica real.
+            for py_file in sorted(mod_dir.glob("*.py")):
                 mod_name = py_file.stem
                 if mod_name.startswith("__"):
+                    continue
+                try:
+                    if '"status": "active_wisdom"' in py_file.read_text(encoding="utf-8", errors="ignore"):
+                        stubs += 1
+                        continue
+                except OSError:
                     continue
                 base_funcs.append({
                     "id": f"dyn_{mod_name}",
@@ -5288,8 +5320,59 @@ iframe{border:none;width:100%;height:100%;}</style></head>
         return {
             "ok": True,
             "total_functions": len(base_funcs),
+            "stubs_ocultos": stubs,
             "functions": base_funcs
         }
+
+    @app.get("/api/hub/health")
+    async def api_hub_health(force: bool = False):
+        """Estado REAL de los 32 subsistemas: sonda HTTP + unidad systemd, con caché de 10 s."""
+        try:
+            from core.hub_health import hub_health
+            loop = asyncio.get_event_loop()
+            return await loop.run_in_executor(None, lambda: hub_health(force=force))
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
+
+    @app.get("/api/hub/subsystems")
+    async def api_hub_subsystems(force: bool = False):
+        """Catálogo curado + salud medida en una sola respuesta para la cabina."""
+        from core.hub_health import hub_health
+        loop = asyncio.get_event_loop()
+        health = await loop.run_in_executor(None, lambda: hub_health(force=force))
+        catalog = await api_hub_functions_catalog()
+        subs = []
+        for fn in catalog["functions"]:
+            if str(fn.get("id", "")).startswith("dyn_"):
+                continue
+            h = health["subsystems"].get(fn["id"], {})
+            item = dict(fn)
+            item["health"] = h.get("status", "unknown")
+            item.update({k: h[k] for k in ("latency_ms", "detail", "unit", "unit_active") if k in h})
+            subs.append(item)
+        return {"ok": True, "counts": health["counts"], "subsystems": subs}
+
+    @app.get("/api/hub/agents")
+    async def api_hub_agents():
+        """Flota de agentes de auto-mejora: un agente por subsistema."""
+        from core.subsystem_agents import get_agent_fleet
+        return get_agent_fleet().status()
+
+    @app.post("/api/hub/agents/cycle")
+    async def api_hub_agents_cycle(payload: Optional[Dict[str, Any]] = None):
+        """Ejecuta un ciclo de revisión. `subsystem` limita a uno; `force` salta el cooldown."""
+        from core.subsystem_agents import get_agent_fleet
+        body = payload or {}
+        fleet = get_agent_fleet()
+        sid = body.get("subsystem")
+        force = bool(body.get("force", False))
+        loop = asyncio.get_event_loop()
+        if sid:
+            agent = fleet.agents.get(sid)
+            if not agent:
+                raise HTTPException(status_code=404, detail=f"subsistema desconocido: {sid}")
+            return await loop.run_in_executor(None, lambda: agent.cycle(force=force))
+        return {"ok": True, "results": await loop.run_in_executor(None, lambda: fleet.run_all(force=force))}
 
     @app.get("/api/synergy/status")
     @app.get("/api/synergy")
@@ -5527,16 +5610,23 @@ iframe{border:none;width:100%;height:100%;}</style></head>
     # 5. Bóveda Vehicular VW & Telemetría
     @app.get("/api/vw/telemetry")
     async def api_vw_telemetry():
-        return {
-            "ok": True,
-            "speed": 0,
-            "rpm": 780,
-            "coolant": 90,
-            "fuel": 72,
-            "battery": 14.2,
-            "boost": 0.05,
-            "dtc_active": False
-        }
+        # Antes devolvía rpm/fuel/coolant fijos aunque no hubiera coche ni adaptador OBD-II.
+        # Sin enlace real la respuesta es explícita; el puerto serie sólo se usa si el
+        # operador declara el adaptador con VW_OBD_PORT.
+        port = os.environ.get("VW_OBD_PORT", "")
+        if not port or not Path(port).exists():
+            return {"ok": True, "linked": False, "source": "sin-enlace",
+                    "detail": "No hay adaptador OBD-II configurado (VW_OBD_PORT).",
+                    "telemetry": None}
+        try:
+            import serial  # pyserial
+            with serial.Serial(port, 38400, timeout=1) as ser:
+                ser.write(b"ATZ\r")
+                ident = ser.read(64).decode("ascii", "ignore").strip()
+            return {"ok": True, "linked": True, "source": "obd-serial", "adapter": ident,
+                    "telemetry": None}
+        except Exception as e:
+            return {"ok": False, "linked": False, "source": "obd-serial", "error": str(e)[:120]}
 
     # 6. Demonio de Evolución Pasiva (144Hz)
     @app.get("/api/idle/status")
@@ -5676,39 +5766,76 @@ if __name__ == "__main__":
     # 11. Ojo de Dios (God's Eye · Ramsey Omni-Vigilance)
     @app.get("/api/gods_eye/status")
     async def api_gods_eye_status():
+        # Motor real: cámaras que emiten de verdad, movimiento, eventos en SQLite.
+        # El antiguo gods_eye_engine (satélites y objetivos de ficción) ya no se sirve aquí.
         try:
-            from core.gods_eye_engine import get_gods_eye_engine
-            engine = get_gods_eye_engine()
-            return engine.get_system_status()
+            from core.gods_eye_realtime import get_gods_eye_realtime
+            return get_gods_eye_realtime().status()
         except Exception as e:
             return {"ok": False, "error": str(e)}
+
+    @app.get("/api/gods_eye/cameras")
+    async def api_gods_eye_cameras():
+        from core.gods_eye_realtime import get_gods_eye_realtime
+        eng = get_gods_eye_realtime()
+        return {"ok": True, "cameras": eng.cameras_view()}
+
+    @app.get("/api/gods_eye/events")
+    async def api_gods_eye_events(limit: int = 50):
+        from core.gods_eye_realtime import get_gods_eye_realtime
+        eng = get_gods_eye_realtime()
+        return {"ok": True, "events": eng.recent_events(limit),
+                "detections": eng.recent_detections(limit), "stats": eng.stats()}
+
+    @app.post("/api/gods_eye/cameras/pose")
+    async def api_gods_eye_camera_pose(payload: Dict[str, Any]):
+        from core.gods_eye_realtime import get_gods_eye_realtime
+        eng = get_gods_eye_realtime()
+        ok = eng.set_camera_pose(
+            str(payload.get("terminal_id", "")),
+            float(payload.get("pos_x", 0.0)),
+            float(payload.get("pos_y", 0.0)),
+            float(payload.get("view_yaw_deg", 0.0)),
+            float(payload.get("pix_per_meter", 100.0)),
+        )
+        return {"ok": ok}
 
     @app.get("/api/gods_eye/feeds")
     async def api_gods_eye_feeds():
-        try:
-            from core.gods_eye_engine import get_gods_eye_engine
-            engine = get_gods_eye_engine()
-            return {"ok": True, "feeds": engine.get_camera_feeds()}
-        except Exception as e:
-            return {"ok": False, "error": str(e)}
+        from core.gods_eye_realtime import get_gods_eye_realtime
+        return {"ok": True, "feeds": get_gods_eye_realtime().cameras_view(),
+                "note": "fuentes reales registradas por /api/terminal_cameras/feed"}
 
     @app.get("/api/gods_eye/targets")
     async def api_gods_eye_targets():
-        try:
-            from core.gods_eye_engine import get_gods_eye_engine
-            engine = get_gods_eye_engine()
-            return {"ok": True, "targets": engine.get_all_targets()}
-        except Exception as e:
-            return {"ok": False, "error": str(e)}
+        # Objetivos geo-rastreados eliminados: no hay fuente legítima para ellos.
+        return {"ok": True, "targets": [],
+                "deprecated": "El Ojo de Dios ya no publica objetivos ni geolocalización de personas."}
 
     @app.get("/api/gods_eye/feed_frame")
     async def api_gods_eye_feed_frame(feed_id: Optional[str] = None):
+        """Fotograma de una fuente real. Si no hay fuente emitiendo, devuelve un panel que lo dice."""
         try:
-            from core.gods_eye_engine import get_gods_eye_engine
-            engine = get_gods_eye_engine()
-            frame_data = engine.generate_feed_frame(feed_id=feed_id)
-            return Response(content=frame_data, media_type="image/jpeg")
-        except Exception as e:
+            if feed_id:
+                from core.terminal_camera_hub import get_terminal_camera_hub
+                raw = get_terminal_camera_hub().get_terminal_snapshot(feed_id)
+                if raw:
+                    return Response(content=raw, media_type="image/jpeg")
+            from core.gods_eye_realtime import get_gods_eye_realtime
+            eng = get_gods_eye_realtime()
+            stats = eng.stats()
+            import io as _io
+            from PIL import Image as _Img, ImageDraw as _Draw
+            img = _Img.new("RGB", (960, 540), (6, 12, 22))
+            d = _Draw.Draw(img)
+            d.rectangle([(16, 16), (944, 524)], outline=(0, 212, 200), width=2)
+            d.text((32, 40), "OJO DE DIOS · SIN SEÑAL DE FUENTE REAL", fill=(0, 212, 200))
+            d.text((32, 70), f"Cámaras registradas: {stats['cameras_registered']}  ·  en línea: {stats['cameras_online']}", fill=(200, 210, 220))
+            d.text((32, 96), "Abre la Cámara del Hub o envía frames a /api/terminal_cameras/feed para activar la visión.", fill=(140, 160, 180))
+            buf = _io.BytesIO()
+            img.save(buf, "JPEG", quality=85)
+            return Response(content=buf.getvalue(), media_type="image/jpeg")
+        except Exception:
             return Response(status_code=500)
 
     @app.post("/api/gods_eye/search")

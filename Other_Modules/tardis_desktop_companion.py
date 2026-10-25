@@ -74,7 +74,7 @@ class TardisDesktopCompanion(Gtk.Window):
             try:
                 self.set_icon_from_file(str(ICON_PATH))
             except Exception:
-                pass
+                pass  # fallo silenciado: revisar con log
 
         # 5. Configurar WebKit2
         settings = WebKit2.Settings()
@@ -147,7 +147,7 @@ class TardisDesktopCompanion(Gtk.Window):
                 _, rx, ry = dev.get_position()
                 self.begin_move_drag(1, rx, ry, Gtk.get_current_event_time())
             except Exception:
-                pass
+                pass  # fallo silenciado: revisar con log
 
     def _on_open_main_app(self, *args):
         """Lanza o trae al frente la interfaz principal de TARDIS."""

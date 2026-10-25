@@ -5333,10 +5333,18 @@ def get_functions_catalog_payload() -> Dict[str, Any]:
     ]
 
     mod_dir = Path("/home/timemachine/modulos_ftl")
+    stubs_ocultos = 0
     if mod_dir.exists():
-        for py_file in mod_dir.glob("*.py"):
+        # Mismo filtro que server/api.py: no publicar los stubs "active_wisdom" del generador.
+        for py_file in sorted(mod_dir.glob("*.py")):
             mod_name = py_file.stem
             if mod_name.startswith("__"):
+                continue
+            try:
+                if '"status": "active_wisdom"' in py_file.read_text(encoding="utf-8", errors="ignore"):
+                    stubs_ocultos += 1
+                    continue
+            except OSError:
                 continue
             base_funcs.append({
                 "id": f"dyn_{mod_name}",
@@ -5353,6 +5361,7 @@ def get_functions_catalog_payload() -> Dict[str, Any]:
     return {
         "ok": True,
         "total_functions": len(base_funcs),
+        "stubs_ocultos": stubs_ocultos,
         "functions": base_funcs,
         "active_daemons": {
             "price_sentinel": sentinel_status,

@@ -1,5 +1,20 @@
 [
   {
+    "id": "capture_1792964371_HOST_cam_prueba_real.jpg",
+    "timestamp": REDACTED_PHONE.1029878,
+    "iso_time": "2026-10-25T16:39:31-0500",
+    "terminal_id": "cam_prueba_real",
+    "terminal_name": "Cámara de Prueba",
+    "origin": "HOST",
+    "client_ip": "127.0.0.1",
+    "country": "LOCAL",
+    "resolution": "640x480",
+    "filename": "capture_1792964371_HOST_cam_prueba_real.jpg",
+    "file_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/data/terminal_captures/capture_1792964371_HOST_cam_prueba_real.jpg",
+    "size_bytes": 10692,
+    "biometrics": {}
+  },
+  {
     "id": "capture_1790313983_HOST_test_airgap_cctv_camera_01.jpg",
     "timestamp": REDACTED_PHONE.6322434,
     "iso_time": "2026-09-25T00:26:23-0500",

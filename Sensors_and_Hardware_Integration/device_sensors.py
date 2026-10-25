@@ -201,7 +201,7 @@ def analyze_face_emotion(args: dict | None = None) -> dict:
             from core.individual_tracker import get_individual_tracker
             tracker_res = get_individual_tracker().process_frame(frame)
         except Exception:
-            pass
+            pass  # fallo silenciado: revisar con log
 
         individuals = tracker_res.get("individuals", [])
         individuals_count = tracker_res.get("count", 1 if detected else 0)
@@ -266,7 +266,7 @@ def update_face_emotion_cache(payload: dict) -> dict:
             payload["individuals_count"] = tracker_state.get("count", 1 if payload.get("detected") else 0)
             payload["occupancy_label"] = tracker_state.get("occupancy_label", "Presencia activa")
         except Exception:
-            pass
+            pass  # fallo silenciado: revisar con log
 
         _LAST_BACKGROUND_FACE.update(payload)
         _LAST_BACKGROUND_FACE["timestamp"] = time.time()
@@ -296,13 +296,13 @@ def update_face_emotion_cache(payload: dict) -> dict:
                         capture_system_screenshot=True if not primary_indiv.get("thumbnail_b64") else False
                     )
         except Exception:
-            pass
+            pass  # fallo silenciado: revisar con log
     agent_res = {}
     try:
         from core.emotional_presence_agent import get_emotional_presence_agent
         agent_res = get_emotional_presence_agent().process_face_frame(payload if isinstance(payload, dict) else {})
     except Exception:
-        pass
+        pass  # fallo silenciado: revisar con log
     return agent_res
 
 def start_background_face_scanner(interval_sec: float = 3.0) -> None:
@@ -413,7 +413,7 @@ def read_sensors(args: dict = None) -> dict:
             if freq:
                 data["cpu_freq_mhz"] = round(freq.current)
         except Exception:
-            pass
+            pass  # fallo silenciado: revisar con log
         vm = psutil.virtual_memory()
         data["ram_total_gb"] = round(vm.total / 1e9, 1)
         data["ram_used_gb"] = round(vm.used / 1e9, 1)
@@ -438,7 +438,7 @@ def read_sensors(args: dict = None) -> dict:
                 data["battery_percent"] = bat.percent
                 data["battery_plugged"] = bat.power_plugged
         except Exception:
-            pass
+            pass  # fallo silenciado: revisar con log
         # Temperaturas (a veces no expuestas en Windows)
         try:
             temps = psutil.sensors_temperatures()
@@ -446,7 +446,7 @@ def read_sensors(args: dict = None) -> dict:
                 data["temperatures"] = {
                     k: [round(t.current, 1) for t in v] for k, v in temps.items()}
         except Exception:
-            pass
+            pass  # fallo silenciado: revisar con log
 
         # Lectura del espectro electromagnético & Wi-Fi
         if args and (args.get("include_em_spectrum") or args.get("include_all_spectrum")):

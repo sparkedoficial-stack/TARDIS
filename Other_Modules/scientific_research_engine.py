@@ -326,7 +326,7 @@ class ScientificResearchEngine:
                     try:
                         year = int(pub_elem.text[:4])
                     except ValueError:
-                        pass
+                        pass  # fallo silenciado: revisar con log
 
                 authors = []
                 for auth in entry.findall("atom:author", ns):
@@ -455,7 +455,7 @@ class ScientificResearchEngine:
                 try:
                     year = int(item.get("pubYear"))
                 except (ValueError, TypeError):
-                    pass
+                    pass  # fallo silenciado: revisar con log
 
                 journal = item.get("journalTitle") or "Europe PMC Journal"
                 doi = item.get("doi")
@@ -519,7 +519,7 @@ class ScientificResearchEngine:
                             info["url"] = f"https://{lang}.wikipedia.org/wiki/{urllib.parse.quote(title.replace(' ', '_'))}"
                             return info
             except Exception:
-                pass
+                pass  # fallo silenciado: revisar con log
 
         return info
 

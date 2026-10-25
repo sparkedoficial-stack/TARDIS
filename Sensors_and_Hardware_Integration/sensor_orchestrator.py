@@ -107,7 +107,7 @@ class SensorOrchestrator:
             occupancy_label = tracker_pres.get("occupancy_label", occupancy_label)
             individuals_list = tracker_pres.get("individuals", [])
         except Exception:
-            pass
+            pass  # fallo silenciado: revisar con log
 
         try:
             import device_sensors as _ds
@@ -120,7 +120,7 @@ class SensorOrchestrator:
                 if isinstance(face_emo.get("neurochemistry"), dict):
                     neurochem.update(face_emo["neurochemistry"])
         except Exception:
-            pass
+            pass  # fallo silenciado: revisar con log
 
         # 2. Hardware Físico del Nodo (ASUS TUF / Linux)
         battery_pct = 100
@@ -149,7 +149,7 @@ class SensorOrchestrator:
                         cpu_temp = round(temps[k][0].current, 1)
                         break
         except Exception:
-            pass
+            pass  # fallo silenciado: revisar con log
 
         try:
             from core.autonomous_controller import get_autonomous_controller
@@ -157,7 +157,7 @@ class SensorOrchestrator:
             bt_devices = ac._evolution_state.get("last_bluetooth_scan", {}).get("devices", [])
             bt_devices_count = len(bt_devices)
         except Exception:
-            pass
+            pass  # fallo silenciado: revisar con log
 
         # 3. Radiofrecuencia y Espectro Electromagnético
         rf_variance = 0.0
@@ -173,7 +173,7 @@ class SensorOrchestrator:
                 rf_entropy = round(radar_diag.get("shannon_entropy", 1.2), 2)
                 rf_state = radar_diag.get("presence_state", rf_state)
         except Exception:
-            pass
+            pass  # fallo silenciado: revisar con log
 
         # 4. Vector Cuántico, Sintropía y Orden Causal
         shannon_entropy = 0.65
@@ -186,13 +186,13 @@ class SensorOrchestrator:
             shannon_entropy = round(noise_st.get("entropy_shannon", shannon_entropy), 2)
             syntropy_index = round(noise_st.get("syntropy_index", syntropy_index), 2)
         except Exception:
-            pass
+            pass  # fallo silenciado: revisar con log
 
         try:
             import sensor_telemetry as _st
             lamport_clk = getattr(_st, "_lamport", lamport_clk)
         except Exception:
-            pass
+            pass  # fallo silenciado: revisar con log
 
         # 5. Sensores Atmosféricos y Situación Meteorológica Local Abierta
         atmospheric_summary = "• Atmósfera Local: Información meteorológica en espera"

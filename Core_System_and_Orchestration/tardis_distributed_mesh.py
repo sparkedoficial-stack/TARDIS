@@ -90,10 +90,11 @@ class TARDISDistributedMesh:
     def __init__(self):
         self.imac_daemon_url = f"http://{IMAC_HOST}:{IMAC_DAEMON_PORT}"
         self.imac_ollama_url = f"http://{IMAC_HOST}:{IMAC_OLLAMA_PORT}"
-        self.nfs_available = SHARED_NFS_MOUNT.exists() and os.path.ismount(SHARED_NFS_MOUNT)
+        self.nfs_available = self._nfs_mount_ready()
         if self.nfs_available:
             IMAC_JOBS_DIR.mkdir(parents=True, exist_ok=True)
             IMAC_VAULT_REPLICA.mkdir(parents=True, exist_ok=True)
+
 
     @classmethod
     def get_mesh(cls) -> TARDISDistributedMesh:
@@ -128,6 +129,23 @@ class TARDISDistributedMesh:
             except Exception:
                 pass
         return -1.0
+
+    def _nfs_mount_ready(self) -> bool:
+        """Comprueba el montaje sin tocarlo.
+
+        /mnt/imac_compute lo monta autofs al primer acceso. Si el iMac está apagado,
+        cualquier stat() bloquea el timeout entero del automount (medidos 31 s en
+        /api/cluster/status): se consulta /proc/self/mountinfo, que no dispara montajes.
+        """
+        target = str(SHARED_NFS_MOUNT)
+        try:
+            with open("/proc/self/mountinfo", "r", encoding="utf-8") as fh:
+                for line in fh:
+                    if f" {target} " in line and "autofs" not in line:
+                        return True
+        except OSError:
+            pass
+        return False
 
     def get_local_telemetry(self) -> NodeTelemetry:
         """Recolecta telemetría del nodo Alfa (Local)."""
@@ -165,8 +183,20 @@ class TARDISDistributedMesh:
             available_models=models
         )
 
-    def get_imac_telemetry(self) -> NodeTelemetry:
-        """Recolecta telemetría en vivo del nodo Beta (iMac 14,1)."""
+    def get_imac_telemetry(self, max_age_sec: float = 15.0) -> NodeTelemetry:
+        """Recolecta telemetría en vivo del nodo Beta (iMac 14,1).
+
+        Cachea el resultado: cada sondeo cuesta ~1 s de ping + 2 s de REST, y el iMac
+        suele estar apagado, así que la cabina consultaba la misma ausencia en cada carga.
+        """
+        cached = getattr(self, "_imac_cache", None)
+        if cached and (time.time() - cached[0]) < max_age_sec:
+            return cached[1]
+        tele = self._collect_imac_telemetry()
+        self._imac_cache = (time.time(), tele)
+        return tele
+
+    def _collect_imac_telemetry(self) -> NodeTelemetry:
         latency = self.ping_node(IMAC_HOST)
         online = latency >= 0
 
@@ -349,8 +379,8 @@ class TARDISDistributedMesh:
         Ejecuta un script Python en el iMac utilizando almacenamiento compartido NFS de copia cero.
         El archivo se escribe localmente en /mnt/imac_compute y se ejecuta remotamente en segundos.
         """
-        if not self.nfs_available:
-            return {"ok": False, "error": "El montaje NFS /mnt/imac_compute no está activo."}
+        if not self._nfs_mount_ready():
+            return {"ok": False, "error": "El montaje NFS /mnt/imac_compute no está activo (iMac apagado o sin red)."}
 
         job_id = f"job_{int(time.time()*1000)}"
         job_file = IMAC_JOBS_DIR / f"{job_id}.py"
@@ -791,7 +821,7 @@ print(json.dumps(res))
         Copia o sincroniza respaldos y snapshots de la Bóveda Akáshica en el disco de 1 TB del iMac.
         Aprovecha los 862 GB libres montados en /mnt/imac_compute.
         """
-        if not self.nfs_available:
+        if not self._nfs_mount_ready():
             return {"ok": False, "error": "Almacenamiento NFS del iMac no accesible."}
 
         target_dir = IMAC_VAULT_REPLICA / subpath_name

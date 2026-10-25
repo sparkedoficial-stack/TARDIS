@@ -36,6 +36,7 @@ Módulos y componentes auxiliares del sistema.
 - **apply_timeemergency_help.py**: Componente de alta eficiencia.
 - **arbitraje_causal_colaborativo.py**: Componente de alta eficiencia.
 - **atmospheric_telemetry.json**: Componente de alta eficiencia.
+- **auto_agents.py**: Modelo lógico y comportamiento autónomo distribuido.
 - **auto_context_synchronizer.py**: Componente de alta eficiencia.
 - **autonomous_conjectures.json**: Componente de alta eficiencia.
 - **autonomous_existence_learner.py**: Componente de alta eficiencia.
@@ -92,6 +93,7 @@ Módulos y componentes auxiliares del sistema.
 - **gia_web_server.py**: Componente de alta eficiencia.
 - **glm53_image.py**: Componente de alta eficiencia.
 - **global_sync_state.json**: Componente de alta eficiencia.
+- **gods_eye_realtime.py**: Motor de ingeniería inversa multi-arquitectura y descompilación.
 - **godworks.service**: Componente de alta eficiencia.
 - **guest_task_1790776663146.py**: Componente de alta eficiencia.
 - **guest_task_1790776982245.py**: Componente de alta eficiencia.
@@ -123,6 +125,8 @@ Módulos y componentes auxiliares del sistema.
 - **guest_task_1791161712948.py**: Componente de alta eficiencia.
 - **guest_task_1791161733330.py**: Componente de alta eficiencia.
 - **guest_task_1792127911765.py**: Componente de alta eficiencia.
+- **hub_audit.json**: Componente de alta eficiencia.
+- **hub_health.py**: Componente de alta eficiencia.
 - **icon_base64.txt**: Componente de alta eficiencia.
 - **improvement_20260909_160207_validación_de_coherencia_causal_sintrópi.md**: Componente de alta eficiencia.
 - **improvement_20260909_160630_validacion_de_coherencia_causal_sintropi.md**: Componente de alta eficiencia.
@@ -182,6 +186,7 @@ Módulos y componentes auxiliares del sistema.
 - **sms_history.json**: Componente de alta eficiencia.
 - **sovereign_client.py**: Componente de alta eficiencia.
 - **state.json**: Componente de alta eficiencia.
+- **subsystem_agents.py**: Modelo lógico y comportamiento autónomo distribuido.
 - **sw.js**: Componente de alta eficiencia.
 - **syntropic_thermodynamics_solitons.json**: Componente de alta eficiencia.
 - **syntropic_thermodynamics_solitons_forum_post.md**: Componente de alta eficiencia.
