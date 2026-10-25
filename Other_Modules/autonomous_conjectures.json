@@ -1,38 +1,5 @@
 [
   {
-    "id": "conj_1792612077",
-    "timestamp": "2026-10-21T14:47:57.092428",
-    "idle_duration_minutes": 32.2,
-    "title": "Integración de Causal Prompt Chaining en el Web Research Engine",
-    "hypothesis": "Si el módulo core/web_research_engine.py incorpora una capa de \"Causal Prompt Chaining\" que genera sub‑prompts basados en la causalidad inferida de los resultados parciales, entonces la precisión y la relevancia de las respuestas de búsqueda web aumentarán en al menos un 15 % respecto al enfoque de búsqueda lineal actual, al permitir que el motor ajuste dinámicamente sus consultas en función de relaciones causa‑efecto detectadas en tiempo real.",
-    "research_query": "causal prompt chaining web search engine improvement 15% accuracy study",
-    "research_findings": "# Informe de Investigación: causal prompt chaining web search engine improvement 15% accuracy study\n\n## Fuentes Consultadas y Respaldo Web\n- **[Artificial intelligence (Wikipedia)](https://en.wikipedia.org/wiki/Artificial_intelligence)**: achieving defined goals. High-profile applications of AI include advanced web search engines, chatbots, virtual assistants, autonomous vehicles, play and analysis\n- **[Generative AI (Wikipedia)](https://en.wikipedia.org/wiki/Generative_AI)**: Edwards, Benj (March 13, 2025). \"AI search engines cite incorrect news sources at an alarming 60% rate, study says\". Ars Technica. Retrieved January\n\n## Contenido y Hallazgos Extraídos\n### De [Artificial intelligence - Wikipedia](https://en.wikipedia.org/wiki/Artificial_intelligence)\n> Artificial intelligence - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nIntelligence in machines\n\"AI\" redirects here. For other uses, see AI (disambiguation) and Artificial intelligence (disambiguation) .\nPart of ",
-    "web_sources": [
-      "https://en.wikipedia.org/wiki/Artificial_intelligence",
-      "https://en.wikipedia.org/wiki/Generative_AI"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Implementar una función `causal_chain_query(previous_results: List[Dict]) -> List[str]` que analice los resultados obtenidos, extraiga relaciones causales mediante un modelo de razonamiento (p.ej., un LLM finamente ajustado) y genere una lista de sub‑consultas refinadas para re‑ejecutar la búsqueda, integrando un mecanismo de retroalimentación iterativa en el flujo de `search()`.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.46
-  },
-  {
-    "id": "conj_1792613975",
-    "timestamp": "2026-10-21T15:19:35.082961",
-    "idle_duration_minutes": 31.6,
-    "title": "Causal Prompt Routing for Adaptive Web Research",
-    "hypothesis": "If the WebResearchEngine dynamically routes queries through a causal graph of module capabilities (e.g., parsing, summarization, source validation) based on real‑time telemetry, then the relevance and precision of retrieved information will improve by at least 15% compared to the current static pipeline. The hypothesis leverages the DeepMemoryVault's historical context to infer which sub‑components have historically yielded higher confidence scores for similar query patterns, enabling an adaptive, self‑optimizing execution path.",
-    "research_query": "adaptive query routing causal graph web search engine performance improvement 2023-2024",
-    "research_findings": "# Informe de Investigación: adaptive query routing causal graph web search engine performance improvement 2023-2024\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Implement a lightweight causal routing layer that selects sub‑modules (fetcher, parser, validator) based on telemetry from DeepMemoryVault, adding a decision function and updating the execution flow in web_research_engine.py.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.98
-  },
-  {
     "id": "conj_1792615913",
     "timestamp": "2026-10-21T15:51:53.537303",
     "idle_duration_minutes": 32.3,
@@ -1608,5 +1575,38 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 96.78
+  },
+  {
+    "id": "conj_1792909078",
+    "timestamp": "2026-10-25T01:17:58.206143",
+    "idle_duration_minutes": 34.5,
+    "title": "Optimización de la caché semántica en el Web Research Engine mediante embeddings temporales",
+    "hypothesis": "Si el módulo core/web_research_engine.py incorpora una capa de caché basada en embeddings temporales que indexa resultados de búsquedas recientes y los asocia a contextos de memoria del core/deep_memory_vault.py, entonces se reducirá el tiempo medio de respuesta de consultas repetitivas en un 30% y se mejorará la coherencia causal de la información recuperada, al evitar la re‑ejecución de búsquedas idénticas bajo condiciones de red variables.",
+    "research_query": "temporal embedding cache for web search engine performance improvement semantic indexing recent query results",
+    "research_findings": "# Informe de Investigación: temporal embedding cache for web search engine performance improvement semantic indexing recent query results\n\n## Fuentes Consultadas y Respaldo Web\n- **[AI powered multi feature fusion framework for retrieving images using color, texture and shape descriptors - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE9NeGMwMXJfRW5jbm40b2cxNmdNYjhYZ0NHRDRIRE1xQ1VhT2hDVDlfSDBvTXk2WGtOOEh4Sm1IWER0MENjWFNQbjJ3UVNrbm5oSmx1eUxCMGMybzJNRTFB?oc=5)**: AI powered multi feature fusion framework for retrieving images using color, texture and shape descriptors  Nature\n- **[How to Build an Over-Engineered Retrieval System - Towards Data Science](https://news.google.com/rss/articles/CBMihgFBVV95cUxNdm5iZjZ5RWprV2dRczNDU3UtNURSeHRIRjE2OU5MZUVjRVJGcFBJMkVUMm5pX0daWjBEQm9zYUdkemI1NEFWTU8wcEhYVFl3dDV3ZlhLREhnVU1xUWVacDc5NmxxTnVBTEFqWDVMbGFjZjk5S0VIWTM0clNWekFUdnY1VVFWdw?oc=5)**: How to Build an Over-Engineered Retrieval System  Towards Data Science\n\n## Contenido y Hallazgos",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE9NeGMwMXJfRW5jbm40b2cxNmdNYjhYZ0NHRDRIRE1xQ1VhT2hDVDlfSDBvTXk2WGtOOEh4Sm1IWER0MENjWFNQbjJ3UVNrbm5oSmx1eUxCMGMybzJNRTFB?oc=5",
+      "https://news.google.com/rss/articles/CBMihgFBVV95cUxNdm5iZjZ5RWprV2dRczNDU3UtNURSeHRIRjE2OU5MZUVjRVJGcFBJMkVUMm5pX0daWjBEQm9zYUdkemI1NEFWTU8wcEhYVFl3dDV3ZlhLREhnVU1xUWVacDc5NmxxTnVBTEFqWDVMbGFjZjk5S0VIWTM0clNWekFUdnY1VVFWdw?oc=5"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Implementar una caché de resultados basada en vectores de embeddings temporales, con expiración adaptativa y sincronización con el Deep Memory Vault para reutilizar contextos de búsqueda y reducir latencia.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.23
+  },
+  {
+    "id": "conj_1792911285",
+    "timestamp": "2026-10-25T01:54:45.725273",
+    "idle_duration_minutes": 36.8,
+    "title": "Dynamic Causal Cache Invalidation for the Web Research Engine",
+    "hypothesis": "If the Web Research Engine maintains a lightweight causal graph that records dependencies between fetched resources (e.g., URLs, API endpoints, and extracted entities), then it can predict which cached entries are likely to become stale when upstream sources change. By using this causal information to trigger proactive cache invalidation or selective refresh, the system will reduce latency for repeated queries and improve the relevance of returned data without a significant increase in network overhead.",
+    "research_query": "causal cache invalidation techniques for web search engines OR causal graph based cache eviction strategies",
+    "research_findings": "# Informe de Investigación: causal cache invalidation techniques for web search engines OR causal graph based cache eviction strategies\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal dependency tracker that logs source‑target relationships for each fetched resource and integrate an adaptive cache TTL mechanism that uses the graph to decide when to invalidate or refresh cached entries.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.22
   }
 ]
