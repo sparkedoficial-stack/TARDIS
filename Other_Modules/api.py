@@ -816,7 +816,10 @@ def create_app() -> FastAPI:
     async def serve_master_cockpit():
         mc_path = settings.base_dir / "tardis_master_cockpit.html"
         if mc_path.exists():
-            return FileResponse(mc_path, media_type="text/html")
+            # no-cache (revalidar con ETag/Last-Modified, que FileResponse ya envía): la cabina
+            # cambia sola y un HTML servido desde caché trae de vuelta consumo de CPU viejo.
+            return FileResponse(mc_path, media_type="text/html",
+                                headers={"Cache-Control": "no-cache"})
         return HTMLResponse("<h2>Error: No se encontró tardis_master_cockpit.html</h2>", status_code=404)
 
     @app.get("/colony_embassy", response_class=HTMLResponse)

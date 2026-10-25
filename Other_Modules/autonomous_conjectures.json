@@ -1,35 +1,5 @@
 [
   {
-    "id": "conj_1792636835",
-    "timestamp": "2026-10-21T21:40:35.047996",
-    "idle_duration_minutes": 31.6,
-    "title": "Causal‑Cache Fusion for Web Research Acceleration",
-    "hypothesis": "Integrating a causal inference layer into the existing web_research_engine cache can predict the relevance of previously fetched documents for new queries, allowing the engine to pre‑emptively serve high‑probability results without re‑issuing HTTP requests. This would reduce latency by up to 30 % and lower network load, while preserving the deterministic reproducibility guarantees required by the network_shield module.",
-    "research_query": "\"causal inference cache prefetching\" web search engine latency reduction",
-    "research_findings": "# Informe de Investigación: \"causal inference cache prefetching\" web search engine latency reduction\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a lightweight causal predictor that scores cached pages against incoming query vectors and implements a prefetch decision hook before network calls.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.74
-  },
-  {
-    "id": "conj_1792640493",
-    "timestamp": "2026-10-21T22:41:33.594278",
-    "idle_duration_minutes": 42.9,
-    "title": "Dynamic Causal Prompt Routing for Context‑Preserving Web Research",
-    "hypothesis": "Integrating a causal‑graph based routing layer within `core/web_research_engine.py` that dynamically selects and re‑orders search prompts based on the evolving dependency graph of retrieved facts will improve the relevance and consistency of multi‑step web research, reducing hallucination rates by at least 15% compared to the current linear prompt pipeline.",
-    "research_query": "causal graph based prompt routing web search engine reduce hallucination multi-step retrieval",
-    "research_findings": "# Informe de Investigación: causal graph based prompt routing web search engine reduce hallucination multi-step retrieval\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Implement a lightweight causal‑graph manager that tracks dependencies between extracted entities, updates edge weights after each search iteration, and uses this graph to prioritize subsequent queries; add unit tests and telemetry hooks to measure hallucination metrics.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.38
-  },
-  {
     "id": "conj_1792643760",
     "timestamp": "2026-10-21T23:36:00.173474",
     "idle_duration_minutes": 34.2,
@@ -1613,5 +1583,35 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 96.51
+  },
+  {
+    "id": "conj_1792930780",
+    "timestamp": "2026-10-25T07:19:40.784041",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal Retrieval Augmentation for Akashic Vault Queries",
+    "hypothesis": "Integrating a lightweight causal inference layer into the core/deep_memory_vault.py retrieval pipeline will allow the system to prioritize memories that are not only semantically similar but also causally relevant to the current query, thereby improving the precision of akáshic vault responses in dynamic contexts without a significant performance penalty.",
+    "research_query": "causal retrieval augmentation in vector databases \"semantic search\" \"causal relevance\"",
+    "research_findings": "# Informe de Investigación: causal retrieval augmentation in vector databases \"semantic search\" \"causal relevance\"\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Add a post‑filter step that scores retrieved memory vectors using a simple causal graph (e.g., Bayesian network) derived from metadata timestamps and dependency tags, then re‑rank results before returning them to the caller.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.11
+  },
+  {
+    "id": "conj_1792932770",
+    "timestamp": "2026-10-25T07:52:50.433601",
+    "idle_duration_minutes": 33.2,
+    "title": "Causal‑Cache Fusion for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer with a short‑term LRU cache inside `core/web_research_engine.py` will reduce redundant external queries by ~30% while preserving the relevance of retrieved documents. The hypothesis rests on the idea that many consecutive research sessions share overlapping intent; a lightweight causal model can predict the probability that a new query is a derivative of a recent one and serve cached results when the confidence exceeds a threshold, thereby lowering latency and network load without sacrificing answer quality.",
+    "research_query": "\"causal inference cache\" web search engine performance reduction redundant queries",
+    "research_findings": "# Informe de Investigación: \"causal inference cache\" web search engine performance reduction redundant queries\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add an async LRU cache with a causal similarity scorer that decides when to reuse previous search results, and expose a configurable confidence threshold.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.29
   }
 ]

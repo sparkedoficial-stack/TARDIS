@@ -10,6 +10,7 @@ en una sola ventana nativa soberana.
 import sys
 import os
 import signal
+import time
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -51,7 +52,10 @@ def launch_native_gtk(url: str):
 
             # Contexto y caché
             context = WebKit2.WebContext.get_default()
-            context.set_cache_model(WebKit2.CacheModel.DOCUMENT_BROWSER)
+            # El propio sistema reescribe su HTML de la cabina. Con DOCUMENT_BROWSER, WebKit
+            # reutilizaba el /hub en disco sin revalidar: la versión vieja recargaba la consola
+            # completa en el iframe oculto (0.95 núcleos frente a 0.13 con HTML fresco).
+            context.set_cache_model(WebKit2.CacheModel.WEB_BROWSER)
 
             # Color de fondo oscuro acorde al tema TARDIS
             dark_color = Gdk.RGBA()
@@ -67,9 +71,12 @@ def launch_native_gtk(url: str):
             self.connect("key-press-event", self._on_key_press)
             self.connect("destroy", Gtk.main_quit)
 
-            # Carga de la URL
-            print(f"[TARDIS Hub] Navegando a {target_url}...")
-            self.webview.load_uri(target_url)
+            # Carga de la URL. El query fuerza HTML fresco: el sistema reescribe su propia cabina
+            # y sin Cache-Control WebKit apenas revalidaba (servir la versión vieja cuesta
+            # 0.95 núcleos frente a 0.13 de la actualizada).
+            fresh_url = f"{target_url}{'&' if '?' in target_url else '?'}t={int(time.time())}"
+            print(f"[TARDIS Hub] Navegando a {fresh_url}...")
+            self.webview.load_uri(fresh_url)
 
         def _on_key_press(self, widget, event):
             # F11: Alternar Pantalla Completa
@@ -120,11 +127,17 @@ def launch_browser_fallback(url: str):
 def main():
     target_url = sys.argv[1] if len(sys.argv) > 1 else DEFAULT_URL
 
+    # Sólo se cae al navegador cuando faltan GTK/WebKit. Cubrir cualquier excepción con el
+    # fallback lanzaba una segunda interfaz en Chrome mientras la cabina seguía (o acababa de
+    # morir) consumiendo núcleos.
     try:
-        launch_native_gtk(target_url)
-    except Exception as e:
-        print(f"[Native Launch Notice]: {e}. Activando modo aplicación web...", file=sys.stderr)
+        import gi  # noqa: F401
+    except ImportError as e:
+        print(f"[TARDIS Hub] GTK/WebKit no disponible ({e}); abriendo en el navegador.", file=sys.stderr)
         launch_browser_fallback(target_url)
+        return
+
+    launch_native_gtk(target_url)
 
 
 if __name__ == "__main__":

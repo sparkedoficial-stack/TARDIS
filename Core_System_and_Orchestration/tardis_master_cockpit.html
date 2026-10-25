@@ -1990,7 +1990,7 @@
                         <button class="btn-view-toggle" onclick="switchViewMode('matrix')" title="Volver a la Matriz">✕ Cerrar</button>
                     </div>
                 </div>
-                <iframe id="main-viewport-frame" class="viewport-iframe" src="/" allow="camera; microphone; geolocation; autoplay"></iframe>
+                <iframe id="main-viewport-frame" class="viewport-iframe" allow="camera; microphone; geolocation; autoplay"></iframe>
             </div>
         </main>
     </div>
@@ -2016,6 +2016,29 @@
             }, 3000);
         }
 
+        /* El viewport incrusta la consola completa (900 KB, canvas a 60 fps y ~25 temporizadores
+           de sondeo). Si queda cargada bajo la Matriz consume ~0.8 núcleos sin verse: sólo se
+           carga al abrirla y se libera al volver a la Matriz. */
+        let viewportCargado = null;
+
+        function viewportFrame() {
+            return document.getElementById('main-viewport-frame');
+        }
+
+        function asegurarViewportCargado() {
+            const iframe = viewportFrame();
+            if (viewportCargado === currentSubsystemUrl) return;
+            viewportCargado = currentSubsystemUrl;
+            iframe.src = currentSubsystemUrl;
+        }
+
+        function liberarViewport() {
+            const iframe = viewportFrame();
+            if (!viewportCargado) return;
+            viewportCargado = null;
+            iframe.src = 'about:blank';
+        }
+
         function switchViewMode(mode) {
             const matrixView = document.getElementById('view-matrix');
             const viewportView = document.getElementById('view-viewport');
@@ -2027,11 +2050,13 @@
                 viewportView.style.display = 'flex';
                 btnMatrix.classList.remove('active');
                 btnViewport.classList.add('active');
+                asegurarViewportCargado();
             } else {
                 matrixView.style.display = 'grid';
                 viewportView.style.display = 'none';
                 btnMatrix.classList.add('active');
                 btnViewport.classList.remove('active');
+                liberarViewport();
             }
         }
 
@@ -2048,17 +2073,13 @@
             currentSubsystemTitle = title;
             document.getElementById('viewport-title').textContent = title;
             document.getElementById('viewport-url').textContent = url;
-            const iframe = document.getElementById('main-viewport-frame');
-            if (iframe.src !== window.location.origin + url && iframe.getAttribute('src') !== url) {
-                iframe.src = url;
-            }
             switchViewMode('viewport');
             showHubToast(`Cargando ${title}...`);
         }
 
         function reloadViewport() {
-            const iframe = document.getElementById('main-viewport-frame');
-            iframe.src = currentSubsystemUrl;
+            viewportCargado = currentSubsystemUrl;
+            viewportFrame().src = currentSubsystemUrl;
             showHubToast("Recargando subsistema...");
         }
 
