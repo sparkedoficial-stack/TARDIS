@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1792608248",
-    "timestamp": "2026-10-21T13:44:08.544921",
-    "idle_duration_minutes": 32.2,
-    "title": "Causal Prompt Routing for Adaptive Web Research",
-    "hypothesis": "If the WebResearchEngine dynamically routes search prompts through a causal inference layer that evaluates the temporal relevance and epistemic uncertainty of prior queries stored in DeepMemoryVault, then the system will achieve a measurable reduction in redundant API calls and improve answer precision by at least 15% on benchmark knowledge‑retrieval tasks.",
-    "research_query": "causal inference based query routing web search engine reduce redundant API calls precision improvement",
-    "research_findings": "# Informe de Investigación: causal inference based query routing web search engine reduce redundant API calls precision improvement\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Integrar un módulo de análisis causal que, antes de ejecutar una búsqueda, consulte DeepMemoryVault para extraer patrones de consultas previas, calcule una puntuación de relevancia causal y decida si reutilizar resultados cacheados o lanzar una nueva petición, añadiendo métricas de telemetría para validar la hipótesis.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.6
-  },
-  {
     "id": "conj_1792610147",
     "timestamp": "2026-10-21T14:15:47.302912",
     "idle_duration_minutes": 31.6,
@@ -1608,5 +1593,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 98.11
+  },
+  {
+    "id": "conj_1792904304",
+    "timestamp": "2026-10-24T23:58:24.755734",
+    "idle_duration_minutes": 34.5,
+    "title": "Dynamic Causal Cache for Web Research Engine",
+    "hypothesis": "Integrating a lightweight causal inference layer into the Web Research Engine's caching subsystem can predict the future relevance of cached query results based on the semantic context of incoming queries. By scoring cached entries with a causal relevance score and evicting those with low predicted impact, the system would reduce latency, lower bandwidth usage, and improve the factual consistency of generated answers, especially under high query throughput.",
+    "research_query": "causal inference based cache eviction policies for web search engines OR context-aware caching using causal models",
+    "research_findings": "# Informe de Investigación: causal inference based cache eviction policies for web search engines OR context-aware caching using causal models\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a context‑aware cache module that computes a causal relevance score for each cached result and implements an adaptive eviction policy based on that score.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.3
   }
 ]

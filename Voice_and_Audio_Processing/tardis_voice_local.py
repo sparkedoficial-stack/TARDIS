@@ -174,6 +174,21 @@ class TextToSpeech:
             )
 
 
+_MD_CODE_BLOCK = re.compile(r"```.*?(?:```|\Z)", re.DOTALL)
+_MD_TABLE_ROW = re.compile(r"^\s*\|.*$", re.MULTILINE)
+_MD_LINK = re.compile(r"\[([^\]]*)\]\([^)]*\)")
+_MD_MARKS = re.compile(r"[`*_#>|~]")
+
+
+def for_speech(text: str) -> str:
+    """Markdown a prosa hablada: edge-tts acababa leyendo bloques de código y filas de tabla."""
+    body = _MD_CODE_BLOCK.sub(" ", text)
+    body = _MD_LINK.sub(r"\1", body)
+    body = _MD_TABLE_ROW.sub(" ", body)
+    body = _MD_MARKS.sub(" ", body)
+    return re.sub(r"\s+", " ", body).strip()
+
+
 def split_sentences(text: str, first_chunk_min: int = _MIN_FIRST_CHUNK) -> List[str]:
     parts = [p.strip() for p in _SENTENCE_END.split(text) if p.strip()]
     if not parts:
@@ -221,10 +236,11 @@ class VoiceConversation:
     """Enlaza STT local, el LLM de TARDIS y TTS en frases con reproducción solapada."""
 
     def __init__(self, stt: Optional[LocalSpeechToText] = None, tts: Optional[TextToSpeech] = None,
-                 chat: Optional[TardisChatClient] = None):
+                 chat: Optional[TardisChatClient] = None, max_sentences: Optional[int] = None):
         self.stt = stt or LocalSpeechToText()
         self.tts = tts or TextToSpeech()
         self.chat = chat or TardisChatClient()
+        self.max_sentences = int(max_sentences) if max_sentences is not None else int(os.environ.get("TARDIS_VOICE_MAX_SENTENCES", "8"))
 
     def handle_audio(self, audio_path: str | Path, play: bool = True) -> VoiceTurn:
         turn = VoiceTurn(transcript="", reply="")
@@ -244,7 +260,10 @@ class VoiceConversation:
 
         def producer():
             try:
-                for sentence in split_sentences(turn.reply):
+                spoken = split_sentences(for_speech(turn.reply))
+                if self.max_sentences > 0:
+                    spoken = spoken[: self.max_sentences]
+                for sentence in spoken:
                     sentence_queue.put(sentence)
             finally:
                 sentence_queue.put(None)
@@ -282,11 +301,13 @@ def main(argv: Optional[List[str]] = None) -> int:
     parser.add_argument("audio", nargs="?", help="Archivo de audio a transcribir y responder")
     parser.add_argument("--text", help="Saltar el STT y usar este texto")
     parser.add_argument("--voice", default=DEFAULT_VOICE)
+    parser.add_argument("--max-sentences", type=int, default=None,
+                        help="Frases máximo sintetizadas por turno (voz corta; 0 = todas)")
     parser.add_argument("--no-play", action="store_true", help="Generar audio sin reproducirlo")
     parser.add_argument("--warmup", action="store_true", help="Precargar el modelo y salir")
     args = parser.parse_args(argv)
 
-    conversation = VoiceConversation(tts=TextToSpeech(voice=args.voice))
+    conversation = VoiceConversation(tts=TextToSpeech(voice=args.voice), max_sentences=args.max_sentences)
     if args.warmup:
         started = time.perf_counter()
         conversation.stt.warmup()

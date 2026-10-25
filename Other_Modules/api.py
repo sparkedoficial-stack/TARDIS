@@ -4053,7 +4053,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
             # Si omni_temporal_control tiene el pipeline completo de sensores y RAG
             try:
                 import omni_temporal_control as _omni
-                res = _omni.process_agentic_chat(
+                chat_kwargs = dict(
                     message=msg,
                     history=req.history,
                     use_web=bool(req.use_web),
@@ -4073,6 +4073,22 @@ iframe{border:none;width:100%;height:100%;}</style></head>
                     is_local_request=is_local,
                     is_client_mode=bool(req.client_mode),
                     client_id=client_id,
+                )
+                loop = asyncio.get_event_loop()
+                # process_agentic_chat es síncrono (sensores, RAG e inferencia). En el
+                # event loop bloqueaba todo el servidor: /health dejaba de responder.
+                chat_future = loop.run_in_executor(
+                    None, lambda: _omni.process_agentic_chat(**chat_kwargs)
+                )
+                res = await asyncio.wait_for(
+                    chat_future, timeout=float(os.environ.get("GIA_CHAT_TIMEOUT", "240"))
+                )
+            except asyncio.TimeoutError:
+                cancel_event.set()
+                chat_future.cancel()
+                raise HTTPException(
+                    status_code=504,
+                    detail=f"Turno excedió {os.environ.get('GIA_CHAT_TIMEOUT', '240')}s y fue cancelado.",
                 )
             except Exception:
                 # Fallback directo al cliente soberano

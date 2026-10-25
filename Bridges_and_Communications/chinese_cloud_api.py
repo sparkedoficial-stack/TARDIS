@@ -275,6 +275,17 @@ class ChineseCloudAPI:
 
                     if res.status_code != 200:
                         last_error = f"HTTP {res.status_code}: {res.text[:200]}"
+                        body_low = res.text.lower()
+                        # 413/401/402/403 y los 400 por tamaño no dependen del modelo:
+                        # reintentarlos con otros candidatos sólo volvía a subir el mismo
+                        # payload gigante y estiraba el turno varios minutos.
+                        non_retryable = res.status_code in (401, 402, 403, 413) or (
+                            res.status_code == 400
+                            and any(k in body_low for k in ("too large", "context_length", "maximum context", "reduce"))
+                        )
+                        if non_retryable:
+                            logger.warning(f"Fallo no recuperable en {p_id} ({cand_model}): HTTP {res.status_code}. Se omite el failover de modelos.")
+                            break
                         logger.warning(f"Fallo en API ({p_id} - {cand_model}): {last_error}")
                         continue
 
