@@ -1,35 +1,5 @@
 [
   {
-    "id": "conj_1792604419",
-    "timestamp": "2026-10-21T12:40:19.217816",
-    "idle_duration_minutes": 32.8,
-    "title": "Causal Feedback Loop for Adaptive Web Research",
-    "hypothesis": "Integrating a causal inference layer between `core/web_research_engine.py` and `core/deep_memory_vault.py` will allow the system to dynamically adjust query formulation based on the observed relevance of retrieved documents, thereby reducing latency and improving answer precision. The hypothesis posits that a lightweight Bayesian network can model the probabilistic dependencies between query parameters (keywords, filters, recency) and relevance signals (click‑through, citation count, semantic similarity) stored in the akáshic vault, enabling real‑time feedback that optimizes subsequent searches without external supervision.",
-    "research_query": "\"causal feedback loop\" \"adaptive web search\" Bayesian network query reformulation relevance feedback",
-    "research_findings": "# Informe de Investigación: \"causal feedback loop\" \"adaptive web search\" Bayesian network query reformulation relevance feedback\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a modular causal inference component that consumes relevance metrics from `deep_memory_vault` after each search, updates a Bayesian network, and automatically refines the next query's parameters (e.g., term weighting, source filters). Implement this as a new class `CausalQueryOptimizer` with a simple API (`optimize(query, feedback) -> new_query`) and integrate it into the search pipeline.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 107.61
-  },
-  {
-    "id": "conj_1792606318",
-    "timestamp": "2026-10-21T13:11:58.539669",
-    "idle_duration_minutes": 31.7,
-    "title": "Integración de Causal Prompt Chaining en el Motor de Búsqueda Web",
-    "hypothesis": "Si el módulo core/web_research_engine.py se extiende con una capa de \"Causal Prompt Chaining\" que genera sub‑prompts basados en la inferencia de relaciones causa‑efecto entre los resultados parciales de la búsqueda, entonces la precisión y relevancia de la información recuperada aumentará significativamente, reduciendo la necesidad de iteraciones manuales de refinamiento de consultas y mejorando la coherencia con la Bóveda Akáshica del sistema.",
-    "research_query": "\"causal prompt chaining\" web search engine improvement causal inference LLM retrieval augmentation",
-    "research_findings": "# Informe de Investigación: \"causal prompt chaining\" web search engine improvement causal inference LLM retrieval augmentation\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Implementar una función `causal_prompt_chain(query, previous_results)` que analice los resultados obtenidos, identifique relaciones causales implícitas y genere automáticamente sub‑consultas refinadas antes de la siguiente ronda de búsqueda, integrando un pequeño motor de razonamiento basado en grafos de causas/efectos.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 99.31
-  },
-  {
     "id": "conj_1792608248",
     "timestamp": "2026-10-21T13:44:08.544921",
     "idle_duration_minutes": 32.2,
@@ -1606,5 +1576,37 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.53
+  },
+  {
+    "id": "conj_1792898406",
+    "timestamp": "2026-10-24T22:20:06.177661",
+    "idle_duration_minutes": 32.2,
+    "title": "Causal Prompt Routing for Adaptive Web Research",
+    "hypothesis": "If the Web Research Engine (core/web_research_engine.py) incorporates a causal prompt‑routing layer that dynamically selects retrieval strategies based on inferred causal dependencies between the user's query and previously stored akáshic memory patterns, then the relevance and precision of fetched results will improve by at least 15% compared to the current static retrieval pipeline. This hypothesis rests on the premise that the deep memory vault already encodes temporal and semantic causality, but the research engine does not yet exploit this structure when forming search queries or selecting APIs.",
+    "research_query": "causal prompt routing web search engine improvement causal inference retrieval strategies performance boost",
+    "research_findings": "# Informe de Investigación: causal prompt routing web search engine improvement causal inference retrieval strategies performance boost\n\n## Fuentes Consultadas y Respaldo Web\n- **[2023 in science (Wikipedia)](https://en.wikipedia.org/wiki/2023_in_science)**: It suggests media literacy programs with tested strategies and solutions for identified search engines issues are needed. 28 December – A new model of\n\n## Contenido y Hallazgos Extraídos\n### De [2023 in science - Wikipedia](https://en.wikipedia.org/wiki/2023_in_science)\n> 2023 in science - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nOverview of the events of 2023 in science\nList of years in science\n( table )\n… 2013\n2014\n2015\n2016\n2017\n2018\n2019\n2020\n2021\n2022\n2023\n2024\n2025\n2026\n2027\n2028\n2029\n2030\n2031\n2032\n2033 …\nArchaeology\nArchitecture\nLiterature\nMusic\nPhilosophy\nScience +...\n2023 in science\n2022\n2024\nFields\nArchaeology\nSpace\nSenescence rese...\n",
+    "web_sources": [
+      "https://en.wikipedia.org/wiki/2023_in_science"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a CausalRouter class that analyses the query, extracts causal tags from deep_memory_vault, and chooses between keyword search, semantic vector search, or hybrid mode; integrate it into the existing fetch_and_process pipeline.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.74
+  },
+  {
+    "id": "conj_1792900335",
+    "timestamp": "2026-10-24T22:52:15.679225",
+    "idle_duration_minutes": 32.2,
+    "title": "Dynamic Causal Prompt Scheduling for Multi‑Module Reasoning",
+    "hypothesis": "Si el motor de investigación web (core/web_research_engine.py) incorpora un planificador de prompts basado en causalidad dinámica que prioriza consultas según la entropía informacional de los módulos de memoria (deep_memory_vault) y de seguridad (network_shield), el sistema podrá reducir el tiempo medio de obtención de evidencia relevante en un 30 % y mejorar la coherencia de las respuestas en contextos de alta complejidad epistemológica.",
+    "research_query": "dynamic causal prompt scheduling AI research engine entropy based query prioritization",
+    "research_findings": "# Informe de Investigación: dynamic causal prompt scheduling AI research engine entropy based query prioritization\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Implementar una capa de planificación que calcule la entropía de los estados de deep_memory_vault y network_shield, genere una prioridad de búsqueda y ajuste dinámicamente los parámetros de la API de búsqueda (p. ej., top_k, timeout) antes de lanzar la petición.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.11
   }
 ]
