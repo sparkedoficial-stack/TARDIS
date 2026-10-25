@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.749908,
-  "last_video_id": "vp_20261025_104539_6a6b12",
-  "last_topic": "Visualizing the Holographic Principle: From Black Hole Entropy to AdS/CFT Correspondence",
-  "total_videos_analyzed": 547,
-  "running_cycle": false,
+  "last_run_timestamp": REDACTED_PHONE.2816095,
+  "last_video_id": "vp_20261025_112106_7c6add",
+  "last_topic": "Visualizing the Spin Foam Dynamics and the Emergence of Spacetime from Quantum Geometry",
+  "total_videos_analyzed": 548,
+  "running_cycle": true,
   "last_error": null,
   "auto_improvement_count": 341
 }
