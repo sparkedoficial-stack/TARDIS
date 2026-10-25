@@ -98,9 +98,9 @@ class TardisAudioSynthesizer:
         elif any(k in combined_text for k in ("cuantica", "cuántica", "quantum", "onda", "schrodinger", "hilbert", "entanglement", "er=epr", "tunnel", "orbital", "bohr")):
             arr = self._synth_quantum_wave(t, duration, sr)
             archetype = "Interferometría Cuántica & Coherencia de Fase Hilbert"
-        elif any(k in combined_text for k in ("fluido", "fluid", "reysek", "ocampo", "micropolar", "navier", "vorticidad", "cosserat", "telaraña")):
+        elif any(k in combined_text for k in ("fluido", "fluid", "micropolar", "navier", "vorticidad", "cosserat", "telaraña")):
             arr = self._synth_cosmic_fluid(t, duration, sr)
-            archetype = "Fluidos Micropolares & Dinámica Vorticial Reysek-Ocampo"
+            archetype = "Fluidos Micropolares & Dinámica Vorticial"
         elif any(k in combined_text for k in ("reloj", "clock", "tiempo", "cronos", "temporal", "cronometro", "sincronizacion", "linea cero", "línea cero")):
             arr = self._synth_temporal_clock(t, duration, sr)
             archetype = "Reloj Temporal & Pulsación Isoacrónica Línea Cero"
@@ -274,7 +274,7 @@ class TardisAudioSynthesizer:
 
     def _synth_cosmic_fluid(self, t: np.ndarray, dur: float, sr: int) -> np.ndarray:
         """
-        Fluidos Micropolares Cósmicos & Ecuación Reysek-Ocampo:
+        Fluidos Micropolares Cósmicos & Ecuación de Cosserat:
         Resonancia de doble escala de Cosserat (flujo u macro y microrrotación omega).
         """
         # Macroflujo (Gravedad e inercia hidroacústica)

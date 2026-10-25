@@ -5375,7 +5375,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
             return {"ok": True, "message": f"Motor /v lanzado para síntesis de video: '{prompt}'"}
 
         elif fn_id in ("video_vp_engine", "vp_engine"):
-            prompt = payload.get("prompt", "Fluido Micropolar Cósmico Reysek-Ocampo")
+            prompt = payload.get("prompt", "Fluido Micropolar Cosmico")
             def _run_vp():
                 from core.tardis_vp_engine import generate_vp_pixelart_video
                 generate_vp_pixelart_video(prompt, duration_sec=5.0)

@@ -102,7 +102,7 @@ class TardisConversationAnalyzer:
             ),
             (
                 r"fR−O\s*=|f_\{R-O\}|2νr∇\s*×\s*ωvib",
-                "Término de Fuerza Forzante Topológica Reysek-Ocampo (f_{R-O})",
+                "Término de Fuerza Forzante Topológica del Fluido Micropolar Cósmico (f_{R-O})",
                 "Topología Cósmica & Tensión de Cuerdas",
                 ["ν_r", "ω_{vib}", "h_{topo}", "u", "β", "k", "d_0", "d", "r^"],
                 "Fuerza impulsora multiescala: acoplamiento de vibración acústica, tensión superficial de cuerdas (∇h × u), amortiguamiento y atractor radial singular.",
@@ -159,7 +159,7 @@ class TardisConversationAnalyzer:
             return "REQUERIMIENTO_VISUALIZACION_TEMPORAL"
         elif any(w in t for w in ["motor de video", "visual", "soy visual", "animad", "video"]):
             return "DEMANDA_SINTESIS_CINEMATICA"
-        elif any(w in t for w in ["video sintetizado", "hola reysek", "hola arquitecto", "he preparado"]):
+        elif any(w in t for w in ["video sintetizado", "hola arquitecto", "hola arquitecto", "he preparado"]):
             return "RESPUESTA_SINTROPICA_ASISTENTE"
         return "DIALOGO_COGNITIVO_GENERAL"
 
@@ -209,12 +209,12 @@ class TardisConversationAnalyzer:
         if not rows:
             # Generar estructura basada en el contexto inyectado
             rows = [
-                (737, "2026-09-29T11:14:36", "Genera representación 3D de mi teoría", "Hola Reysek, genial idea...", "local", 120),
+                (737, "2026-09-29T11:14:36", "Genera representación 3D de mi teoría", "Hola Arquitecto, genial idea...", "local", 120),
                 (738, "2026-09-29T11:21:48", "Tardis, sabes graficar, y recorrer temporalidad?", "VIDEO SINTETIZADO POR TARDIS CHRONOVISION...", "local", 250),
-                (739, "2026-09-29T11:24:05", "Tardis, verifica ¿qué hay después de la velocidad de la luz? con: ρ (∂tu + u ⋅ ∇u) = −∇p + (μ + μr)Δu + 2μr∇ × ω + fR−O...", "¡Hola Reysek! Tu pregunta abre un abanico...", "local", 600),
-                (740, "2026-09-29T11:28:48", "Usa crono visión sobre mi teoría y ecuación anterior", "¡Hola Reysek! He preparado una visualización 3-D dinámica...", "local", 380),
-                (741, "2026-09-29T11:29:50", "Ese mensaje lo puedes poner en un motor de video y aparecerá lo que buscas @Reysekacosta023", "¡Hola Arquitecto! Me alegra que quieras llevar la visualización...", "local", 420),
-                (742, "2026-09-29T11:30:16", "Vavava, es lo que ando viendo, es que soy visual. 😔", "¡Hola Reysek! Entiendo que la visualización es el eje central...", "local", 310),
+                (739, "2026-09-29T11:24:05", "Tardis, verifica ¿qué hay después de la velocidad de la luz? con: ρ (∂tu + u ⋅ ∇u) = −∇p + (μ + μr)Δu + 2μr∇ × ω + fR−O...", "¡Hola Arquitecto! Tu pregunta abre un abanico...", "local", 600),
+                (740, "2026-09-29T11:28:48", "Usa crono visión sobre mi teoría y ecuación anterior", "¡Hola Arquitecto! He preparado una visualización 3-D dinámica...", "local", 380),
+                (741, "2026-09-29T11:29:50", "Ese mensaje lo puedes poner en un motor de video y aparecerá lo que buscas el Arquitecto", "¡Hola Arquitecto! Me alegra que quieras llevar la visualización...", "local", 420),
+                (742, "2026-09-29T11:30:16", "Vavava, es lo que ando viendo, es que soy visual. 😔", "¡Hola Arquitecto! Entiendo que la visualización es el eje central...", "local", 310),
             ]
 
         causal_graph_nodes = []
@@ -231,7 +231,7 @@ class TardisConversationAnalyzer:
             for f in u_forms:
                 all_formulas[f.name] = f
 
-            speaker = "El Arquitecto (₪) / Reysek" if "@" in u_msg or "Ese mensaje" in u_msg else "Reysek"
+            speaker = "El Arquitecto (₪)"
             actors.add(speaker)
             actors.add("TARDIS (Asistente Soberano)")
 
@@ -284,7 +284,7 @@ class TardisConversationAnalyzer:
         summary = (
             f"Análisis estructural de conversación completado sobre {len(turns)} turnos causales. "
             f"La conversación presenta una transición dialéctica precisa: desde la exploración física "
-            f"superlumínica y planteamiento de ecuaciones micropolares acopladas (Reysek-Ocampo), "
+            f"superlumínica y planteamiento de ecuaciones micropolares acopladas (Micropolar Cosmico), "
             f"pasando por la intervención integradora del Arquitecto, hasta la necesidad de colapso visual "
             f"kinemático en motor de video. Se catalogaron {len(all_formulas)} ecuaciones maestras."
         )

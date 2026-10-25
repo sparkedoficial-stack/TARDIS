@@ -5,7 +5,7 @@ tardis_formula_animator.py - Motor de Síntesis Cinemática de Fórmulas y Diná
 
 Genera videos animados MP4 (H.264 / ffmpeg) y GIFs animados en bucle representando todas las
 fórmulas físico-matemáticas presentes en TARDIS y en la conversación:
-  1. Sistema Micropolar Hidrodinámico de la Telaraña Cósmica Reysek-Ocampo (Navier-Stokes + Cosserat + f_{R-O}).
+  1. Sistema Micropolar Hidrodinámico de la Telaraña Cosmica (Navier-Stokes + Cosserat + f_{R-O}).
   2. Ecuación de Onda Retrocausal Wheeler-Feynman & Sintropía ECCA V2.0 (Psi_Retro, Phi_adv, S_geom, Aegis).
   3. Compendio Unificado ChronoVision (Simulación multiescala de campos, fases y orden causal).
 
@@ -61,19 +61,19 @@ class TardisFormulaAnimator:
 
     def render_cosmic_fluid_video(self) -> Tuple[Path, Path]:
         """
-        Renderiza la animación del Sistema Micropolar de Fluidos Cósmicos Reysek-Ocampo:
+        Renderiza la animación del Fluido Micropolar Cósmico:
           ρ(∂tu + u·∇u) = -∇p + (μ+μr)Δu + 2μr(∇×ω) + f_{R-O}
           I(∂tω + u·∇ω) = γΔω + κ∇(∇·ω) - 4μrω + 2μr(∇×u)
           f_{R-O} = 2νr(∇×ω_vib) + (∇h_topo)×u - β∇u + k(d0/d)^2 r^
         """
-        print("[TARDIS-ANIMATOR] Sintetizando video: Fluido Micropolar Cósmico Reysek-Ocampo...")
-        mp4_path = OUTPUT_DIR / "tardis_cosmic_fluid_reysek_ocampo.mp4"
-        gif_path = OUTPUT_DIR / "tardis_cosmic_fluid_reysek_ocampo.gif"
+        print("[TARDIS-ANIMATOR] Sintetizando video: Fluido Micropolar Cósmico...")
+        mp4_path = OUTPUT_DIR / "tardis_cosmic_fluid_micropolar_cosmico.mp4"
+        gif_path = OUTPUT_DIR / "tardis_cosmic_fluid_micropolar_cosmico.gif"
 
         fig = plt.figure(figsize=(10, 6), dpi=100)
         gs = GridSpec(2, 2, width_ratios=[1.3, 1], height_ratios=[1, 1], figure=fig)
         fig.suptitle(
-            "TARDIS CHRONOVISION :: DINÁMICA DE LA TELARAÑA CÓSMICA MICROPOLAR [REYSEK-OCAMPO]",
+            "TARDIS CHRONOVISION :: DINÁMICA DE LA TELARAÑA CÓSMICA MICROPOLAR",
             fontsize=11, color="#00f5d4", weight="bold", y=0.98
         )
 
@@ -120,7 +120,7 @@ class TardisFormulaAnimator:
             u_x = -Y / (R**1.2) * (1.0 + 0.3 * np.sin(2 * X + t)) + 0.2 * np.cos(t + Y)
             u_y =  X / (R**1.2) * (1.0 + 0.3 * np.cos(2 * Y + t)) - 0.2 * np.sin(t + X)
 
-            # Fuerza forzante Reysek-Ocampo f_{R-O}: tensión superficial y atractor singular
+            # Fuerza forzante micropolar f_{R-O}: tensión superficial y atractor singular
             f_ro_x = 0.5 * (-Y / R**2) * np.sin(3 * t) + 0.3 * np.sin(X * Y + t)
             f_ro_y = 0.5 * ( X / R**2) * np.sin(3 * t) + 0.3 * np.cos(X * Y + t)
             u_x += 0.4 * f_ro_x
@@ -210,7 +210,7 @@ class TardisFormulaAnimator:
             from core.tardis_audio_synthesizer import ensure_video_has_audio
             ensure_video_has_audio(
                 mp4_path,
-                title="Fluido Micropolar Cósmico Reysek-Ocampo",
+                title="Fluido Micropolar Cósmico",
                 formula=r"\rho(\partial_t u + u\cdot\nabla u) = -\nabla p + (\mu+\mu_r)\Delta u + 2\mu_r(\nabla\times\omega) + f_{R-O}",
                 domain="Física de Fluidos & Teoría de Cuerdas Micropolar"
             )
@@ -373,12 +373,12 @@ class TardisFormulaAnimator:
 
         # Nodos del grafo conversacional
         nodes = [
-            ("T737", "Reysek:\nReq 3D", 0.1, 0.8, "#7209b7"),
+            ("T737", "Arquitecto:\nReq 3D", 0.1, 0.8, "#7209b7"),
             ("T738", "TARDIS:\nChronoVision", 0.3, 0.8, "#00b4d8"),
-            ("T739", "Reysek:\nEq Navier-Cosserat", 0.5, 0.8, "#ff007f"),
+            ("T739", "Arquitecto:\nEq Navier-Cosserat", 0.5, 0.8, "#ff007f"),
             ("T740", "TARDIS:\nCronoVisión Eq", 0.7, 0.8, "#00f5d4"),
             ("T741", "Arquitecto:\nMotor Video", 0.9, 0.8, "#ffb703"),
-            ("T742", "Reysek:\nDemanda Visual", 0.7, 0.2, "#f72585"),
+            ("T742", "Arquitecto:\nDemanda Visual", 0.7, 0.2, "#f72585"),
             ("T743", "TARDIS:\nSoberanía Video", 0.3, 0.2, "#00f5d4"),
         ]
 
@@ -389,7 +389,7 @@ class TardisFormulaAnimator:
 
             # Panel 1: Cosmología de Fluidos
             ax1.set_facecolor("#040814")
-            ax1.set_title(r"[1] Flujo Cósmico Reysek-Ocampo: $\rho(\partial_t u + u\cdot\nabla u) = \dots + f_{R-O}$", color="#00f5d4", fontsize=8.5)
+            ax1.set_title(r"[1] Flujo Cósmico Micropolar Cósmico: $\rho(\partial_t u + u\cdot\nabla u) = \dots + f_{R-O}$", color="#00f5d4", fontsize=8.5)
             x_g = np.linspace(-2, 2, 16)
             y_g = np.linspace(-2, 2, 16)
             Xg, Yg = np.meshgrid(x_g, y_g)

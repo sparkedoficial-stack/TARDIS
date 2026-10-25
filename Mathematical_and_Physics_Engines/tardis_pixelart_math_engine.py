@@ -13,7 +13,7 @@ Modelo de generación de video procedural en Pixel Art de alta fidelidad estéti
   6. Tipografía bitmap de píxeles 5x7 integrada para visualización de ecuaciones, simbología griega y HUD de telemetría.
   7. Escalado entero por vecino más cercano (Nearest-Neighbor) a 720p / 1080p sin distorsión ni suavizado borroso.
   8. Graficación de Sistemas Físico-Matemáticos Complejos:
-     - Fluido Micropolar Cósmico Reysek-Ocampo (Navier-Stokes + Cosserat + f_RO)
+     - Fluido Micropolar Cósmico (Navier-Stokes + Cosserat + f_RO)
      - Ondas Cuánticas Retrocausales Wheeler-Feynman & Sintropía ECCA V2.0
      - Atractor Caótico No Lineal de Lorenz (RK4 3D con efecto mariposa)
      - Epiciclos de Fourier y Síntesis Armónica de Ondas
@@ -451,11 +451,11 @@ class BasePixelMathSystem:
 
 
 # -----------------------------------------------------------------------------
-# 4.1 FÓRMULA 1: FLUIDO MICROPOLAR CÓSMICO REYSEK-OCAMPO
+# 4.1 FÓRMULA 1: Fluido Micropolar Cósmico
 # -----------------------------------------------------------------------------
-class ReysekOcampoMicropolarSystem(BasePixelMathSystem):
+class FluidoMicropolarCosmicoSystem(BasePixelMathSystem):
     r"""
-    Simulación y visualización Pixel Art del Fluido Micropolar Reysek-Ocampo:
+    Simulación y visualización Pixel Art del Fluido Micropolar Cósmico:
       \rho(\partial_t u + u \cdot \nabla u) = -\nabla p + (\mu + \mu_r)\Delta u + 2\mu_r(\nabla \times \omega) + f_{R-O}
       f_{R-O} = 2\nu_r(\nabla \times \omega_{vib}) + (\nabla h_{topo}) \times u - \beta\nabla u + k(d_0/d)^2 \hat{r}
     """
@@ -529,7 +529,7 @@ class ReysekOcampoMicropolarSystem(BasePixelMathSystem):
         self.canvas.set_pixel(cx, cy, (255, 255, 255))
 
         # 5. Interfaz HUD Arcade / Cockpit TARDIS
-        self.canvas.draw_hud_box(4, 4, 180, 42, title="REYSEK-OCAMPO COSMIC FLUID")
+        self.canvas.draw_hud_box(4, 4, 180, 42, title="MICROPOLAR COSMIC FLUID")
         self.canvas.draw_text(8, 10, "FLUIDO MICROPOLAR COSSERAT", (0, 245, 212), scale=1)
         self.canvas.draw_text(8, 20, "\\rho(\\partial t u+u\\cdot\\nabla u)=-\\nabla P+fRO", (255, 255, 255), scale=1)
         self.canvas.draw_text(8, 30, f"VORTICIDAD: {abs(math.sin(t*2)*3.14):.2f} RAD/S", (255, 183, 3), scale=1)
@@ -1036,8 +1036,8 @@ class TardisPixelArtEngine:
         canvas = PixelCanvas(self.native_w, self.native_h, palette_name=self.palette)
         key = formula_key.lower().strip()
 
-        if key in ["reysek_ocampo", "cosmic_fluid", "micropolar", "fluido"]:
-            return ReysekOcampoMicropolarSystem(canvas)
+        if key in ["micropolar_cosmico", "cosmic_fluid", "micropolar", "fluido"]:
+            return FluidoMicropolarCosmicoSystem(canvas)
         elif key in ["retrocausal", "wheeler_feynman", "syntropy", "sintropia"]:
             return RetrocausalSyntropySystem(canvas)
         elif key in ["lorenz", "chaos", "caos", "atractor"]:
@@ -1052,8 +1052,8 @@ class TardisPixelArtEngine:
             expr = custom_expr if custom_expr else "sin(r*4.0 - t*3.0)"
             return CustomFormulaSystem(canvas, expr)
         else:
-            # Por defecto, Fluido Micropolar Reysek-Ocampo
-            return ReysekOcampoMicropolarSystem(canvas)
+            # Por defecto, Fluido Micropolar Cósmico
+            return FluidoMicropolarCosmicoSystem(canvas)
 
     def render_video(self,
                      formula_key: str,
@@ -1140,7 +1140,7 @@ class TardisPixelArtEngine:
         # 3. DIRECTIVA SOBERANA: Inyección y Enforzamiento de Sonificación Acústica
         if AUDIO_SYNTH_AVAILABLE and mp4_path.exists():
             formula_desc = {
-                "reysek_ocampo": r"\rho(\partial_t u + u\cdot\nabla u) = -\nabla p + (\mu+\mu_r)\Delta u + 2\mu_r(\nabla\times\omega) + f_{R-O}",
+                "micropolar_cosmico": r"\rho(\partial_t u + u\cdot\nabla u) = -\nabla p + (\mu+\mu_r)\Delta u + 2\mu_r(\nabla\times\omega) + f_{R-O}",
                 "retrocausal": r"\Psi_{Retro} = \Lambda_{Aegis}\int D[\gamma]\Phi_{adv} \exp((i/\hbar)S_{geom} - \eta\int \nabla S_{ent})",
                 "lorenz": r"\dot{x}=\sigma(y-x), \dot{y}=x(\rho-z)-y, \dot{z}=xy-\beta z",
                 "fourier": r"f(t)=\sum \frac{4}{\pi(2k-1)}\sin((2k-1)\omega t)",
@@ -1186,7 +1186,7 @@ def main():
     parser.add_argument(
         "--formula", "-f",
         default="all",
-        choices=["all", "reysek_ocampo", "retrocausal", "lorenz", "fourier", "lissajous", "julia", "custom"],
+        choices=["all", "micropolar_cosmico", "retrocausal", "lorenz", "fourier", "lissajous", "julia", "custom"],
         help="Fórmula matemática o sistema a renderizar en Pixel Art"
     )
     parser.add_argument(
@@ -1234,7 +1234,7 @@ def main():
     )
 
     if args.formula == "all":
-        formulas_to_run = ["reysek_ocampo", "retrocausal", "lorenz", "fourier", "lissajous", "julia"]
+        formulas_to_run = ["micropolar_cosmico", "retrocausal", "lorenz", "fourier", "lissajous", "julia"]
         print(f"\n⚡ [TARDIS-PIXELART] Generando suite completa de {len(formulas_to_run)} videos matemáticos...")
         results = []
         for f in formulas_to_run:

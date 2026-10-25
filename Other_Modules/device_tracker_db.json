@@ -190,7 +190,7 @@
     "traffic_bytes_tx": 168,
     "traffic_packets": 4,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-25T18:25:44.945249+00:00",
+    "last_seen": "2026-10-25T20:00:08.467077+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -232,7 +232,7 @@
     "ip": "REDACTED_IP",
     "ipv6_addresses": [],
     "alias": "Smart TV LG webOS (Recámara / Secundaria)",
-    "hostname": "LGwebOSTV-5eU4-1.local",
+    "hostname": "Smart TV LG webOS (Recámara / Secundaria)",
     "vendor": "LG Innotek",
     "device_type": "Smart TV / Multimedia",
     "interface": "enp2s0",
@@ -244,21 +244,17 @@
     "open_ports": [],
     "port_details": [],
     "risky_ports": [],
-    "mdns_services": [
-      "0_0 (_display._tcp)",
-      "0_0 (_ghp._tcp)",
-      "0_0 (AirPlay Remote Video)"
-    ],
+    "mdns_services": [],
     "wifi_metrics": {},
     "trust_level": "KNOWN",
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
     "traffic_bytes_rx": 168,
-    "traffic_bytes_tx": 2756,
-    "traffic_packets": 12,
+    "traffic_bytes_tx": 0,
+    "traffic_packets": 2,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-25T18:25:44.945249+00:00",
+    "last_seen": "2026-10-25T20:00:08.467077+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -352,7 +348,7 @@
     "interface": "enp2s0",
     "connection_medium": "Ethernet / LAN (enp2s0)",
     "network_segment": "Ethernet / LAN Principal (REDACTED_IP/24)",
-    "arp_state": "DELAY",
+    "arp_state": "STALE",
     "online": true,
     "rtt_ms": 2.14,
     "open_ports": [
@@ -377,10 +373,10 @@
     "throttle_kbps": null,
     "is_safe": true,
     "traffic_bytes_rx": 168,
-    "traffic_bytes_tx": 0,
-    "traffic_packets": 2,
+    "traffic_bytes_tx": 791,
+    "traffic_packets": 9,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-25T05:42:57.070291+00:00",
+    "last_seen": "2026-10-25T20:00:08.467077+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -392,7 +388,7 @@
       "fe80::52eb:f6ff:fee2:b850"
     ],
     "alias": "TimeMachine (ASUS TUF Gaming A15 - Ethernet Host)",
-    "hostname": "TimeMachine (ASUS TUF Gaming A15 - Ethernet Host)",
+    "hostname": "TimeMachine.local",
     "vendor": "ASUSTek COMPUTER INC.",
     "device_type": "Estación Central Soberana (Host)",
     "interface": "enp2s0",
@@ -446,17 +442,20 @@
       }
     ],
     "risky_ports": [],
-    "mdns_services": [],
+    "mdns_services": [
+      "TARDIS (AirPlay Remote Video)",
+      "50EBF6E2B850@TARDIS (AirTunes Remote Audio)"
+    ],
     "wifi_metrics": {},
     "trust_level": "AEGIS_PROTECTED",
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 0,
-    "traffic_bytes_tx": 447,
-    "traffic_packets": 2,
+    "traffic_bytes_rx": 113796960,
+    "traffic_bytes_tx": 282237376,
+    "traffic_packets": 427310,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-25T18:41:56.862359+00:00",
+    "last_seen": "2026-10-25T20:00:08.467077+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -529,10 +528,10 @@
     "throttle_kbps": null,
     "is_safe": true,
     "traffic_bytes_rx": 0,
-    "traffic_bytes_tx": 288,
-    "traffic_packets": 4,
+    "traffic_bytes_tx": 230071,
+    "traffic_packets": 2180,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-25T18:41:56.862359+00:00",
+    "last_seen": "2026-10-25T20:00:08.467077+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -580,7 +579,7 @@
     "interface": "enp2s0",
     "connection_medium": "Ethernet / LAN (enp2s0)",
     "network_segment": "Ethernet / LAN Principal (REDACTED_IP/24)",
-    "arp_state": "REACHABLE",
+    "arp_state": "PROBE",
     "online": true,
     "rtt_ms": null,
     "open_ports": [],
@@ -596,7 +595,7 @@
     "traffic_bytes_tx": 0,
     "traffic_packets": 2,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-25T18:25:44.945249+00:00",
+    "last_seen": "2026-10-25T20:00:08.467077+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -732,10 +731,10 @@
     "throttle_kbps": null,
     "is_safe": true,
     "traffic_bytes_rx": 168,
-    "traffic_bytes_tx": 732,
-    "traffic_packets": 6,
+    "traffic_bytes_tx": 456,
+    "traffic_packets": 5,
     "first_seen": "2026-10-24T20:59:59.214925+00:00",
-    "last_seen": "2026-10-25T18:25:44.945249+00:00",
+    "last_seen": "2026-10-25T20:00:08.467077+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -768,6 +767,38 @@
     "traffic_packets": 601,
     "first_seen": "2026-10-25T18:25:44.945249+00:00",
     "last_seen": "2026-10-25T18:25:44.945249+00:00",
+    "ip_history": [
+      "REDACTED_IP"
+    ]
+  },
+  "E2:F5:38:94:B2:73": {
+    "mac": "E2:F5:38:94:B2:73",
+    "ip": "REDACTED_IP",
+    "ipv6_addresses": [],
+    "alias": "Dispositivo LAN (REDACTED_IP)",
+    "hostname": "Dispositivo LAN (REDACTED_IP)",
+    "vendor": "Dirección MAC Privada / Aleatoria (iOS / Android / Linux)",
+    "device_type": "Dispositivo de Red (Dirección MAC Privada / Aleatoria (iOS / Android / Linux))",
+    "interface": "veth-host-aq",
+    "connection_medium": "Virtual Bridge (veth-host-aq)",
+    "network_segment": "Namespace Virtual Antarctica (REDACTED_IP/24)",
+    "arp_state": "REACHABLE",
+    "online": true,
+    "rtt_ms": 0.06,
+    "open_ports": [],
+    "port_details": [],
+    "risky_ports": [],
+    "mdns_services": [],
+    "wifi_metrics": {},
+    "trust_level": "KNOWN",
+    "is_quarantined": false,
+    "throttle_kbps": null,
+    "is_safe": true,
+    "traffic_bytes_rx": 262879,
+    "traffic_bytes_tx": 493278,
+    "traffic_packets": 7763,
+    "first_seen": "2026-10-25T20:00:08.467077+00:00",
+    "last_seen": "2026-10-25T20:00:08.467077+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
