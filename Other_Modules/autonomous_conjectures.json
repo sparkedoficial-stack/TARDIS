@@ -1,38 +1,5 @@
 [
   {
-    "id": "conj_1792655316",
-    "timestamp": "2026-10-22T02:48:36.117591",
-    "idle_duration_minutes": 37.3,
-    "title": "Hierarchical Relevance‑Weighted Memory Retrieval",
-    "hypothesis": "The current deep_memory_vault uses a flat LRU cache for embedding retrieval, which leads to frequent eviction of semantically relevant but temporally older contexts. Introducing a two‑tier memory hierarchy—an active short‑term buffer and a long‑term relevance‑scored archive—will reduce retrieval latency and improve recall accuracy for causal inference tasks.",
-    "research_query": "hierarchical memory architecture for large language models with relevance weighting",
-    "research_findings": "# Informe de Investigación: hierarchical memory architecture for large language models with relevance weighting\n\n## Fuentes Consultadas y Respaldo Web\n- **[Pretraining with hierarchical memories: separating long-tail and common knowledge - alphaXiv](https://news.google.com/rss/articles/CBMiUEFVX3lxTE0wcmpGdlhMb09tRW5vMExQQ1RxSmo1QkFiOUxOUExBTGZkS09rTm1iQ2hqWXdXQTkzeFNJTEgxa21oTXFVVmt6VUVLVzFJMEZz?oc=5)**: Pretraining with hierarchical memories: separating long-tail and common knowledge  alphaXiv\n- **[Predicting concrete compressive strength using optimized deep learning and large language models - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE4zME1relVsVjNmVWIwbDRpZElVb3lVNzltd2ZlRlZOVU5jQ19TX3Ffa0t6N1lQZVFkYy0tUVdhVk93ZXZHdFpmOHJTdnB5QVR4VGRKaXlMTU80S2NOZ05R?oc=5)**: Predicting concrete compressive strength using optimized deep learning and large language models  Nature\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMiU",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMiUEFVX3lxTE0wcmpGdlhMb09tRW5vMExQQ1RxSmo1QkFiOUxOUExBTGZkS09rTm1iQ2hqWXdXQTkzeFNJTEgxa21oTXFVVmt6VUVLVzFJMEZz?oc=5",
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE4zME1relVsVjNmVWIwbDRpZElVb3lVNzltd2ZlRlZOVU5jQ19TX3Ffa0t6N1lQZVFkYy0tUVdhVk93ZXZHdFpmOHJTdnB5QVR4VGRKaXlMTU80S2NOZ05R?oc=5"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implement a two‑tier memory system with relevance scoring and adaptive eviction policy.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 95.55
-  },
-  {
-    "id": "conj_1792658826",
-    "timestamp": "2026-10-22T03:47:06.436574",
-    "idle_duration_minutes": 32.7,
-    "title": "Dynamic Causal Prompt Routing for Context‑Sensitive Web Research",
-    "hypothesis": "If the web_research_engine module incorporates a causal inference layer that dynamically routes prompts to specialized sub‑agents based on detected epistemic intent (e.g., factual retrieval, hypothesis validation, or exploratory synthesis), then the system’s overall latency will decrease by ~20% and the relevance score of retrieved sources will improve by at least 15% compared to the current static query pipeline.",
-    "research_query": "dynamic causal routing in AI web search agents \"prompt routing\" \"causal inference\" performance improvement",
-    "research_findings": "# Informe de Investigación: dynamic causal routing in AI web search agents \"prompt routing\" \"causal inference\" performance improvement\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Agregar una capa de análisis de intención que, usando un modelo ligero de clasificación causal, seleccione entre varios sub‑módulos de búsqueda (API‑first, headless‑browser, semantic‑vector) y ajuste los parámetros de timeout y ranking antes de ejecutar la petición.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.87
-  },
-  {
     "id": "conj_1792662572",
     "timestamp": "2026-10-22T04:49:32.893334",
     "idle_duration_minutes": 32.0,
@@ -1612,5 +1579,38 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 98.62
+  },
+  {
+    "id": "conj_1792940771",
+    "timestamp": "2026-10-25T10:06:11.202101",
+    "idle_duration_minutes": 36.3,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer that tracks dependencies between fetched web resources and internal query contexts will allow the Web Research Engine to invalidate cached results more intelligently, reducing stale data propagation and improving response relevance without a linear increase in network load.",
+    "research_query": "causal cache invalidation techniques for web scraping frameworks and their impact on freshness vs. latency",
+    "research_findings": "# Informe de Investigación: causal cache invalidation techniques for web scraping frameworks and their impact on freshness vs. latency\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Implement a dependency graph that records which cached pages contributed to a given query result and add a periodic causal analysis routine that invalidates only the affected cache entries when source pages change, using async tasks and exponential back‑off for re‑fetching.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 99.03
+  },
+  {
+    "id": "conj_1792942668",
+    "timestamp": "2026-10-25T10:37:48.584102",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal‑Feedback Loop for Adaptive Web Research",
+    "hypothesis": "Integrar un bucle de retroalimentación causal entre el motor de búsqueda web (core/web_research_engine.py) y la bóveda de memoria profunda (core/deep_memory_vault.py) permitirá que el sistema ajuste dinámicamente sus estrategias de consulta basándose en la relevancia y la novedad de los resultados obtenidos, mejorando la precisión de la información recuperada en al menos un 20% en tareas de investigación abiertas.",
+    "research_query": "causal feedback loop adaptive web search engine deep memory integration performance improvement",
+    "research_findings": "# Informe de Investigación: causal feedback loop adaptive web search engine deep memory integration performance improvement\n\n## Fuentes Consultadas y Respaldo Web\n- **[Internet of things enabled deep learning monitoring system for realtime performance metrics and athlete feedback in college sports - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE9pTVNlWUJwbkNpeTQzaURsNzRnWnZjeWZJeFpxZUdSZmN0NkNHaEhKWk1kMk81MzFGVTZmdjRIMHRKbG9wV2hTT1ZmTkhGVmJfcmRVNHRZQTJuWVQwbGp3?oc=5)**: Internet of things enabled deep learning monitoring system for realtime performance metrics and athlete feedback in college sports  Nature\n- **[CDMRNet: multimodal meta-adaptive reasoning network with dynamic causal modeling and co-evolution of quantum states - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE40STF3bU12MUdyOGVleWlDT1I1OWJFQVRINkVpX3NjXzNwWF9GenY2dHlNMkw5WUZqNGpKVFFHa1ptRXQ4QURDSHdFdldDOWhxQ3U4eVlQSWp0cjdrNE13?oc=5)**: CDMRNet: multimodal meta-adaptive reasoning network with dynami",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE9pTVNlWUJwbkNpeTQzaURsNzRnWnZjeWZJeFpxZUdSZmN0NkNHaEhKWk1kMk81MzFGVTZmdjRIMHRKbG9wV2hTT1ZmTkhGVmJfcmRVNHRZQTJuWVQwbGp3?oc=5",
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE40STF3bU12MUdyOGVleWlDT1I1OWJFQVRINkVpX3NjXzNwWF9GenY2dHlNMkw5WUZqNGpKVFFHa1ptRXQ4QURDSHdFdldDOWhxQ3U4eVlQSWp0cjdrNE13?oc=5"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Añadir un módulo de evaluación de relevancia que registre métricas de éxito (p.ej., coincidencia semántica, frescura) y retroalimente al planificador de consultas para modificar pesos de palabras clave y seleccionar fuentes alternativas en tiempo real.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.37
   }
 ]
