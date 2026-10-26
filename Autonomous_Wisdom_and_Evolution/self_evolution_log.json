@@ -1,19 +1,5 @@
 [
   {
-    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/deep_memory_vault.py",
-    "goal": "Add a provenance graph data structure to each memory node and expose a new method `get_causal_candidates(query_context)` that returns memory fragments ranked by causal relevance, then modify core/web_research_engine.py to use this method when selecting sources for web queries.",
-    "status": "REJECTED",
-    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
-    "elapsed_seconds": 112.62,
-    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/deep_memory_vault.py.20261023_101755.bak",
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Respuesta generada demasiado corta (0 vs 33875 bytes)",
-    "timestamp": "2026-10-23T10:19:48.567646"
-  },
-  {
     "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
     "goal": "Integrar un módulo de causal inference que utilice embeddings de deep_memory_vault para predecir la relevancia de fuentes y ajustar dinámicamente el orden de llamadas a APIs externas, con fallback a un plan de ejecución basado en métricas de latencia y precisión.",
     "status": "REJECTED",
@@ -1398,5 +1384,19 @@
     "efficiency_improvement": null,
     "error": "Respuesta generada demasiado corta (0 vs 33875 bytes)",
     "timestamp": "2026-10-26T03:35:03.800739"
+  },
+  {
+    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/deep_memory_vault.py",
+    "goal": "Implementar una función de filtrado pre-procesamiento que calcule la similitud semántica y la recencia de los chunks de memoria antes de inyectarlos en el contexto del LLM, eliminando aquellos con un score de relevancia por debajo de un umbral dinámico.",
+    "status": "REJECTED",
+    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
+    "elapsed_seconds": 90.49,
+    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/deep_memory_vault.py.20261026_040511.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "Respuesta generada demasiado corta (0 vs 33875 bytes)",
+    "timestamp": "2026-10-26T04:06:41.525409"
   }
 ]
