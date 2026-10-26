@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "created_at": "2026-10-15T02:04:29.176374",
   "last_periodic_sync": "2026-10-26T00:44:01.223420",
-  "last_immediate_sync": "2026-10-26T05:32:29.580100",
-  "last_commit_hash": "60534f21",
-  "sync_count": 1247,
-  "immediate_sync_count": 1246,
+  "last_immediate_sync": "2026-10-26T05:47:36.507780",
+  "last_commit_hash": "d59694fe",
+  "sync_count": 1248,
+  "immediate_sync_count": 1247,
   "periodic_sync_count": 1,
   "last_known_mtimes": {
     "skill:omni-control-bridge/SKILL.md": REDACTED_PHONE.4575877,
@@ -279,6 +279,17 @@
     "sat:gia_ios:GIA/Models/GIAModels.swift": REDACTED_PHONE.5796177
   },
   "history": [
+    {
+      "timestamp": "2026-10-26T05:47:36.507780",
+      "trigger": "immediate_milestone",
+      "commit_hash": "d59694fe",
+      "score": 75,
+      "reasons": [
+        "Evoluci\u00f3n en subsistema core TARDIS: curiosity_debate_manager.py",
+        "Evoluci\u00f3n en subsistema core TARDIS: scientific_research_engine.py",
+        "Evoluci\u00f3n en subsistema core TARDIS: background_thought_engine.py"
+      ]
+    },
     {
       "timestamp": "2026-10-26T05:32:29.580100",
       "trigger": "immediate_milestone",
@@ -843,17 +854,6 @@
         "Evoluci\u00f3n en subsistema core TARDIS: telegram_bridge.py",
         "Evoluci\u00f3n en subsistema core TARDIS: hardware_controller.py",
         "Evoluci\u00f3n en subsistema core TARDIS: autonomous_controller.py",
-        "Evoluci\u00f3n en subsistema core TARDIS: whatsapp_bridge.py"
-      ]
-    },
-    {
-      "timestamp": "2026-10-23T19:28:24.453390",
-      "trigger": "immediate_milestone",
-      "commit_hash": "09917e84",
-      "score": 75,
-      "reasons": [
-        "Evoluci\u00f3n en subsistema core TARDIS: telegram_bridge.py",
-        "Evoluci\u00f3n en subsistema core TARDIS: tardis_pocket_tunnel_bridge.py",
         "Evoluci\u00f3n en subsistema core TARDIS: whatsapp_bridge.py"
       ]
     }
