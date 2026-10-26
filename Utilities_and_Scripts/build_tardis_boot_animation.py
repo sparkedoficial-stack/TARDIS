@@ -9,12 +9,18 @@ from typing import Any
 BASE = Path("/home/timemachine/Escritorio/GODWORKS SYSTEM")
 INDEX = BASE / "index.html"
 W, H = 1920, 1080
-FPS, FRAMES = 25, 75
+FPS = 144          # refresco real del panel (143.91 Hz)
+LOOP_S = 4
+FRAMES = FPS * LOOP_S
+SCALE = 1.0        # 1 = fotogramas a tamaño lógico; Plymouth los escala al panel
 CHAR_CX, CHAR_CY, CHAR_SIZE = 960, 453, 560
 LABEL, LABEL_SIZE = "Cargando máquina del tiempo", 44
 FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
 BG_TOP, BG_BOTTOM = (27, 40, 56), (14, 22, 33)
 PSI, SINTROPY, S_GEOM, O_QCO, PHI_ADV = 0.892, 0.965, 1.57, 0.840, 0.780
+
+# Resolución nativa del panel conectado (2560x1440 a 143.91 Hz).
+PANEL = (2560, 1440)
 
 def _extract(src, name):
     i = src.find(f"function {name}(")
@@ -84,7 +90,7 @@ def _col(c, mul):
             if v: return v
     return None
 
-def render_scene(cap, out):
+def render_scene(cap, out, out_size=None):
     from PIL import Image, ImageDraw, ImageFilter
     base = Image.new("RGB", (W, H)); d = ImageDraw.Draw(base)
     for y in range(H):
@@ -130,7 +136,12 @@ def render_scene(cap, out):
                 if col: fd.polygon(pts, fill=col)
     canvas.alpha_composite(fg.filter(ImageFilter.GaussianBlur(4)))
     canvas.alpha_composite(fg)
-    canvas.convert("RGB").save(out)
+    img = canvas.convert("RGB")
+    if out_size and out_size != (W, H):
+        from PIL import Image as _I
+        img = img.resize(out_size, _I.LANCZOS)
+    img = img.quantize(colors=192, method=Image.MEDIANCUT, dither=Image.FLOYDSTEINBERG)
+    img.save(out, optimize=True)
 
 def render_label(out):
     from PIL import Image, ImageDraw, ImageFont
@@ -164,25 +175,37 @@ def build(theme_dir, preview_dir=None):
     look=(0.0,0.0); blink=0.0; dt=1.0/FPS
     for i in range(FRAMES):
         t=i*dt; cap=capture(t, look, blink, tach, body); tach=cap["tachyons"]
-        render_scene(cap, assets/f"f{i:03d}.png")
+        render_scene(cap, assets/f"f{i:03d}.png", out_size=PANEL)
         blink = max(0.0, 1-abs(((t%3.2)-3.0))/0.18) if (t%3.2) > 2.85 else 0.0
         look = (math.sin(t*0.35)*0.18, math.sin(t*0.5)*0.10)
     lw, lh = render_label(assets/"label.png")
-    script = fit_js + f"""# tardis.script - Arranque TARDIS animado (generado desde index.html)
-BASE_W = {W};
-BASE_H = {H};
+    # Plymouth diluye la escena sobre el fondo a ~19 Hz; por eso NO se anima desde el guion
+    # (se vería a tirones). Se reproduce el bucle 144 fps como sprite que avanza cada refresco.
+    # La animación es el VÍDEO del bucle de la cabina: 144 fps reales, reproducción continua
+    # mediante Throbber (Plymouth cicla imágenes sin pasar por el script en cada tick).
+    # El guion sólo dibuja vídeo compuesto + etiqueta, así que no hay coste por refresco.
+    script = f"""# tardis.script - Arranque TARDIS animado (generado desde index.html)
+# Bucle de {LOOP_S} s a {FPS} fps renderizado desde renderMasterLoop (personaje + cono
+# retrocausal + taquiones). Reproducción con Throbber: Plymouth cicla los fotogramas a su
+# propio ritmo de refresco, sin recalcular geometría.
+BASE_W = {PANEL[0]};
+BASE_H = {PANEL[1]};
 frames_total = {FRAMES};
 
 Window.SetBackgroundTopColor({BG_TOP[0]/255:.3f}, {BG_TOP[1]/255:.3f}, {BG_TOP[2]/255:.3f});
 Window.SetBackgroundBottomColor({BG_BOTTOM[0]/255:.3f}, {BG_BOTTOM[1]/255:.3f}, {BG_BOTTOM[2]/255:.3f});
 
+# Throbber sólo cargaba el primer fotograma: se usa un Sprite y se cambia la imagen
+# según el tiempo transcurrido, que es lo que hace el bucle de la cabina.
 scene = Sprite(Image("assets/f000.png"));
 scene.SetPosition(0, 0);
+frame = 0;
+
 label = Sprite(Image("assets/label.png"));
 label.SetZ(1000);
+label.SetPosition((Window.GetWidth() - label.GetImage().GetWidth()) / 2, Window.GetHeight() - {lh} - 36);
 
-t = 0.0;
-frame = 0;
+ticks = 0;
 fun pad3(n) {{
     if (n < 10) return "00" + n;
     if (n < 100) return "0" + n;
@@ -190,15 +213,11 @@ fun pad3(n) {{
 }}
 fun refresh_callback() {{
     frame = (frame + 1) % frames_total;
-    img = Image("assets/f" + pad3(frame) + ".png");
-    s = fit_scale();
-    img.Scale(BASE_W * s, BASE_H * s);
-    scene.SetImage(img);
-    scene.SetPosition((Window.GetWidth() - BASE_W * s) / 2, (Window.GetHeight() - BASE_H * s) / 2);
+    scene.SetImage(Image("assets/f" + pad3(frame) + ".png"));
     label.SetPosition((Window.GetWidth() - label.GetImage().GetWidth()) / 2,
                       Window.GetHeight() - {lh} - 36);
-    label.SetOpacity(0.72 + 0.28 * Math.Sin(t * 1.4));
-    t += 0.04;
+    label.SetOpacity(0.72 + 0.28 * Math.Sin(ticks * 0.0233));
+    ticks = ticks + 1;
 }}
 Plymouth.SetRefreshFunction(refresh_callback);
 
