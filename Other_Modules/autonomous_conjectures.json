@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1792805420",
-    "timestamp": "2026-10-23T20:30:20.544309",
-    "idle_duration_minutes": 31.6,
-    "title": "Dynamic Causal Cache for Web Research Engine",
-    "hypothesis": "Integrating a causal‑aware caching layer into `core/web_research_engine.py` that records the provenance and dependency graph of each fetched result will allow the system to predict which future queries can be satisfied from existing data, reducing latency by up to 40% and improving the fidelity of the akáshic vault's temporal consistency.",
-    "research_query": "causal inference based caching strategies for web search engines \"provenance graph\" \"temporal consistency\"",
-    "research_findings": "# Informe de Investigación: causal inference based caching strategies for web search engines \"provenance graph\" \"temporal consistency\"\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a lightweight causal cache module that stores query signatures, result timestamps, and dependency edges; expose `get_cached_result(query)` and `update_causal_graph(query, result)` functions; modify the request pipeline to consult the cache before issuing network calls.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.18
-  },
-  {
     "id": "conj_1792809886",
     "timestamp": "2026-10-23T21:44:46.636582",
     "idle_duration_minutes": 42.9,
@@ -1619,5 +1604,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 96.65
+  },
+  {
+    "id": "conj_1793032135",
+    "timestamp": "2026-10-26T11:28:55.632163",
+    "idle_duration_minutes": 31.6,
+    "title": "Conjetura de Resonancia Causal en la Bóveda Akáshica",
+    "hypothesis": "Se postula que la eficiencia de recuperación de información en `deep_memory_vault.py` puede optimizarse un 30% implementando un índice de 'Resonancia Causal' que priorice no solo la similitud semántica, sino la densidad de conexiones temporales entre nodos de memoria. Actualmente, la búsqueda es estática; al incorporar un factor de decaimiento temporal ponderado por la frecuencia de acceso cruzado (cross-access frequency), el sistema podría anticipar consultas futuras basándose en patrones históricos de navegación del usuario, reduciendo la latencia de búsqueda en la bóveda.",
+    "research_query": "temporal decay weighting semantic search vector database optimization causal inference memory retrieval",
+    "research_findings": "# Informe de Investigación: temporal decay weighting semantic search vector database optimization causal inference memory retrieval\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar una función `calculate_temporal_relevance_score()` que modifique el score de similitud coseno añadiendo un factor de decaimiento exponencial basado en la última vez que el nodo fue accedido y su frecuencia histórica de co-ocurrencia con otros nodos.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.12
   }
 ]
