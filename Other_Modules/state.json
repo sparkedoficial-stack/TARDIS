@@ -6,7 +6,7 @@
   "last_video_id": "vp_20261025_232239_eb4791",
   "last_topic": "Quantum Simulation of Early-Universe Inflationary Dynamics with Ultracold Atomic Gases",
   "total_videos_analyzed": 568,
-  "running_cycle": false,
+  "running_cycle": true,
   "last_error": null,
   "auto_improvement_count": 347
 }
