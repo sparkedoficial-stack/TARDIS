@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.1141322,
-  "last_video_id": "vp_20261026_054413_d8fa9e",
-  "last_topic": "The SYK Model and Its Holographic Dual: Visualizing Quantum Chaos and Black Hole Correspondence",
-  "total_videos_analyzed": 578,
+  "last_run_timestamp": REDACTED_PHONE.8991015,
+  "last_video_id": "vp_20261026_061933_a5b7e8",
+  "last_topic": "Non-Hermitian Topological Phases and Exceptional Points in Photonic Systems",
+  "total_videos_analyzed": 579,
   "running_cycle": false,
   "last_error": null,
-  "auto_improvement_count": 351
+  "auto_improvement_count": 352
 }
