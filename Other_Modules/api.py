@@ -888,10 +888,11 @@ def create_app() -> FastAPI:
     @app.get("/vw_vault.html", response_class=HTMLResponse)
     @app.get("/vw", response_class=HTMLResponse)
     async def serve_vw_vault():
-        path = settings.base_dir / "vw_vault_dashboard.html"
-        if path.exists():
-            return FileResponse(path, media_type="text/html")
-        return FileResponse(settings.base_dir / "background_subsystem.html", media_type="text/html")
+        # Retirado: el panel mostraba telemetría CAN/OBD-II sin adaptador conectado.
+        return HTMLResponse(
+            "<h2>Subsistema vehicular retirado</h2><p>No hay adaptador OBD-II conectado "
+            "(<code>VW_OBD_PORT</code> sin definir). No se publican cifras sin medición.</p>",
+            status_code=410)
 
     @app.get("/idle_daemon", response_class=HTMLResponse)
     @app.get("/idle_daemon.html", response_class=HTMLResponse)
@@ -1452,9 +1453,13 @@ iframe{border:none;width:100%;height:100%;}</style></head>
 
     @app.get("/api/telemetry")
     async def get_telemetry():
+        # Sin paquetes de sensores la respuesta es explícita: antes devolvía un estado con
+        # GPS de Playa del Carmen aunque ningún cliente hubiera enviado ubicación.
         try:
             import sensor_telemetry
-            return {"ok": True, "telemetry": sensor_telemetry.latest()}
+            live = sensor_telemetry.is_live()
+            return {"ok": True, "live": live, "telemetry": sensor_telemetry.latest() if live else None,
+                    "detail": None if live else "sin paquetes de sensores recientes"}
         except Exception:
             try:
                 import device_sensors

@@ -361,6 +361,23 @@ class GodsEyeRealtime:
             "ts": time.time(),
         }
 
+    def no_signal_frame(self) -> bytes:
+        """Panel 960x540 para el servidor de respaldo cuando no hay cámara emitiendo."""
+        try:
+            import io as _io
+            from PIL import Image as _Img, ImageDraw as _Draw
+            stats = self.stats()
+            img = _Img.new("RGB", (960, 540), (6, 12, 22))
+            d = _Draw.Draw(img)
+            d.rectangle([(16, 16), (944, 524)], outline=(0, 212, 200), width=2)
+            d.text((32, 40), "OJO DE DIOS - SIN SENAL DE FUENTE REAL", fill=(0, 212, 200))
+            d.text((32, 70), f"Camaras registradas: {stats['cameras_registered']}  -  en linea: {stats['cameras_online']}", fill=(200, 210, 220))
+            buf = _io.BytesIO()
+            img.save(buf, "JPEG", quality=85)
+            return buf.getvalue()
+        except Exception:
+            return b""
+
 
 def get_gods_eye_realtime() -> GodsEyeRealtime:
     return GodsEyeRealtime.get_instance()

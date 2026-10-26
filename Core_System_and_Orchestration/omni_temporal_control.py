@@ -7011,10 +7011,14 @@ iframe{{border:none;width:100%;height:100%;}}</style></head>
 
         elif url_path == "/api/gods_eye/feed_frame":
             try:
-                from core.gods_eye_engine import get_gods_eye_engine
-                engine = get_gods_eye_engine()
                 feed_id = query_params.get("feed_id", [None])[0] if 'query_params' in locals() else None
-                frame_data = engine.generate_feed_frame(feed_id=feed_id)
+                frame_data = b""
+                if feed_id:
+                    from core.terminal_camera_hub import get_terminal_camera_hub
+                    frame_data = get_terminal_camera_hub().get_terminal_snapshot(feed_id) or b""
+                if not frame_data:
+                    from core.gods_eye_realtime import get_gods_eye_realtime
+                    frame_data = get_gods_eye_realtime().no_signal_frame()
                 self.send_response(200)
                 self.send_header("Content-type", "image/jpeg")
                 self.send_header("Content-length", str(len(frame_data)))
@@ -7278,11 +7282,6 @@ iframe{{border:none;width:100%;height:100%;}}</style></head>
 
             try:
                 SYNC_HUB.touch_client(client_id)
-                try:
-                    from core.gods_eye_engine import get_gods_eye_engine
-                    get_gods_eye_engine().register_client_ip(client_ip, client_id)
-                except Exception:
-                    pass
                 direction = body.get("direction", "present")
                 client_mode = True if is_client_endpoint else bool(body.get("client_mode", False))
                 _is_local = False if client_mode else self._is_local_request()
@@ -7488,11 +7487,6 @@ iframe{{border:none;width:100%;height:100%;}}</style></head>
             ip, conn_type = NODE_REGISTRY.extract_ip_and_type(self)
             NODE_REGISTRY.update_node(client_id, ip, conn_type, self.headers.get("User-Agent", ""))
             SYNC_HUB.touch_client(client_id)
-            try:
-                from core.gods_eye_engine import get_gods_eye_engine
-                get_gods_eye_engine().register_client_ip(ip, client_id)
-            except Exception:
-                pass
 
             if action == "update_config":
                 SYNC_HUB.update_config(body.get("config", {}))
@@ -7529,11 +7523,6 @@ iframe{{border:none;width:100%;height:100%;}}</style></head>
                 device_info=device_info
             )
             SYNC_HUB.touch_client(client_id)
-            try:
-                from core.gods_eye_engine import get_gods_eye_engine
-                get_gods_eye_engine().register_client_ip(ip, client_id)
-            except Exception:
-                pass
             self.send_json({"ok": True, "node": node_data})
             return
 
@@ -9050,46 +9039,30 @@ iframe{{border:none;width:100%;height:100%;}}</style></head>
         # Endpoints Ojo de Dios (God's Eye) - POST
         elif url_path == "/api/gods_eye/search":
             try:
-                from core.gods_eye_engine import get_gods_eye_engine
-                engine = get_gods_eye_engine()
-                q = str(body.get("query") or body.get("q") or "").strip()
-                res = engine.search_target(q)
-                self.send_json(res)
+                from core.gods_eye_realtime import get_gods_eye_realtime
+                q = str(body.get("query") or body.get("q") or "").strip().lower()
+                events = get_gods_eye_realtime().recent_events(500)
+                if q:
+                    events = [e for e in events if q in str(e.get("zone", "")).lower()
+                              or q in str(e.get("kind", "")).lower() or q in str(e.get("detail", "")).lower()]
+                self.send_json({"ok": True, "query": q, "results": events[:50], "scope": "eventos de cámaras reales"})
             except Exception as e:
                 self.send_json({"ok": False, "error": str(e)}, status=500)
             return
 
         elif url_path == "/api/gods_eye/scan":
             try:
-                from core.gods_eye_engine import get_gods_eye_engine
-                engine = get_gods_eye_engine()
-                res = engine.scan_global_grid()
-                self.send_json(res)
+                from core.gods_eye_realtime import get_gods_eye_realtime
+                eng = get_gods_eye_realtime()
+                self.send_json({"ok": True, "mode": "camera-scan", "cameras": eng.cameras_view(), "stats": eng.stats()})
             except Exception as e:
                 self.send_json({"ok": False, "error": str(e)}, status=500)
             return
 
-        elif url_path == "/api/gods_eye/track":
-            try:
-                from core.gods_eye_engine import get_gods_eye_engine
-                engine = get_gods_eye_engine()
-                target_id = str(body.get("target_id", "")).strip()
-                active = bool(body.get("active", True))
-                res = engine.track_target(target_id=target_id, active=active)
-                self.send_json(res)
-            except Exception as e:
-                self.send_json({"ok": False, "error": str(e)}, status=500)
-            return
-
-        elif url_path == "/api/gods_eye/intercept":
-            try:
-                from core.gods_eye_engine import get_gods_eye_engine
-                engine = get_gods_eye_engine()
-                target_id = body.get("target_id")
-                res = engine.intercept_audio(target_id=target_id)
-                self.send_json(res)
-            except Exception as e:
-                self.send_json({"ok": False, "error": str(e)}, status=500)
+        elif url_path in ("/api/gods_eye/track", "/api/gods_eye/intercept"):
+            self.send_json({"ok": False,
+                            "error": "Rastreo e interceptación de personas retirados: el motor sólo detecta movimiento en cámaras reales."},
+                           status=410)
             return
 
         self.send_json({"ok": False, "error": f"Ruta desconocida: {url_path}"}, status=404)

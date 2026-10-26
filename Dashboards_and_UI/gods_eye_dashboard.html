@@ -700,7 +700,7 @@
             </div>
             <div class="tele-chip gold" id="chip-aegis">
                 <span>Constante Aegis:</span>
-                <b>Inviolable (100%)</b>
+                <b id="val-aegis">desarmada</b>
             </div>
         </div>
 
@@ -719,7 +719,7 @@
         <div class="search-bar">
             <input type="text" id="omni-search-input" class="search-input" placeholder="Buscar una zona o cámara registrada (el motor real no publica nombres ni búsqueda de personas)..." onkeydown="if(event.key==='Enter') executeSearch();">
             <button class="btn-action" onclick="executeSearch()">
-                <span>🔍 Localizar</span>
+                <span>🔍 Buscar evento</span>
             </button>
         </div>
         <div class="quick-targets">
@@ -822,64 +822,11 @@
                 </div>
             </div>
 
-            <!-- DOSSIER TÁCTICO DEL OBJETIVO -->
-            <div class="dossier-card">
-                <div class="dossier-banner-aegis" id="dossier-aegis-banner">
-                    🛡️ ENTIDAD BAJO CONSTANTE AEGIS SUPREMA · BLINDAJE KÁRMICO E INVIOLABILIDAD ABSOLUTA
-                </div>
-
-                <div class="dossier-header">
-                    <div class="target-name-block">
-                        <h2 id="dossier-name">Sin objetivo seleccionado</h2>
-                        <p id="dossier-alias">Dom / El Conductor / La Familia</p>
-                    </div>
-                    <div class="threat-badge" id="dossier-threat">ALTO / OBJETIVO PRIORITARIO</div>
-                </div>
-
-                <div class="dossier-details-grid">
-                    <div class="dossier-cell">
-                        <span class="label">Estado Actual</span>
-                        <span class="val" id="dossier-status" style="color:var(--accent-green); font-weight:700;">LOCALIZADO - RASTREO ACTIVO</span>
-                    </div>
-                    <div class="dossier-cell">
-                        <span class="label">Coincidencia Facial</span>
-                        <span class="val" id="dossier-match" style="color:var(--primary); font-weight:700;">99.4% (68 Rasgos 3D)</span>
-                    </div>
-                    <div class="dossier-cell">
-                        <span class="label">Ciudad / Región</span>
-                        <span class="val" id="dossier-city">Los Ángeles, California, EE. UU.</span>
-                    </div>
-                    <div class="dossier-cell">
-                        <span class="label">Vehículo Detectado</span>
-                        <span class="val" id="dossier-vehicle">1970 Dodge Charger R/T [2GAT123]</span>
-                    </div>
-                    <div class="dossier-cell">
-                        <span class="label">Dispositivo</span>
-                        <span class="val" id="dossier-device">Radio Satelital UHF Encriptado</span>
-                    </div>
-                    <div class="dossier-cell">
-                        <span class="label">Dirección IP</span>
-                        <span class="val" id="dossier-ip">REDACTED_IP (T-Mobile USA)</span>
-                    </div>
-                    <div class="dossier-cell">
-                        <span class="label">IMEI / Identificador</span>
-                        <span class="val" id="dossier-imei">864192048102941</span>
-                    </div>
-                    <div class="dossier-cell">
-                        <span class="label">Ritmo Cardíaco Estimado</span>
-                        <span class="val" id="dossier-bpm">86 BPM (Óptico PPG)</span>
-                    </div>
-                </div>
-
-                <div class="dossier-actions">
-                    <button class="btn-action" style="flex:1;" id="btn-toggle-track" onclick="toggleTracking()">
-                        <span>🎯 Fijar Objetivo (Lock)</span>
-                    </button>
-                    <button class="btn-action secondary" onclick="interceptAudioNow()">
-                        <span>🎙️ Interceptar Audio</span>
-                    </button>
-                </div>
+            <!-- Dossier de objetivos retirado: no hay reconocimiento de personas en el motor real. -->
+            <div class="dossier-card" style="padding:18px; color:var(--text-dim); font-family:var(--font-mono); font-size:12px;">
+                Sin dossier: el motor sólo registra eventos de movimiento por cámara. No identifica personas.
             </div>
+>
 
         </section>
 
@@ -902,7 +849,6 @@
 
     <!-- JAVASCRIPT LOGIC & VISUALIZERS -->
     <script>
-        let currentTargetId = "";
         let currentFeedId = "cam_la_downtown";
         let isTracking = true;
         let radarAngle = 0;
@@ -1071,84 +1017,29 @@
             `).join('');
         }
 
+        /* Búsqueda real: devuelve eventos persistidos por el motor de cámaras, sin personas. */
         async function executeSearch(queryOverride) {
             const input = document.getElementById('omni-search-input');
-            const q = queryOverride || input.value.trim();
+            const q = queryOverride || (input ? input.value.trim() : "");
             if (!q) return;
-
             try {
                 const res = await fetch('/api/gods_eye/search', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({query: q})
                 });
-
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data.ok && data.target) {
-                        applyTargetDossier(data.target);
-                    }
-                }
+                if (!res.ok) return;
+                const data = await res.json();
+                const hits = (data.results || []).map(e => ({
+                    time_iso: new Date((e.ts || 0) * 1000).toLocaleTimeString(),
+                    category: e.kind || "EVENTO",
+                    message: `${e.zone || e.terminal_id}: ${e.detail || ""}`
+                }));
+                renderLogs(hits.length ? hits : [{time_iso: "--:--:--", category: "SIN RESULTADOS",
+                                                  message: `ningún evento coincide con "${q}"`}]);
             } catch (e) {
                 console.error("Search error:", e);
             }
-        }
-
-        function quickSelect(name) {
-            document.getElementById('omni-search-input').value = name;
-            executeSearch(name);
-        }
-
-        function applyTargetDossier(t) {
-            currentTargetId = t.id;
-
-            document.getElementById('dossier-name').textContent = t.name;
-            document.getElementById('dossier-alias').textContent = t.alias || t.name;
-            document.getElementById('dossier-threat').textContent = t.threat_level;
-            document.getElementById('dossier-status').textContent = t.status;
-            document.getElementById('dossier-match').textContent = `${t.match_confidence}% (${t.biometrics?.face_mesh_points || 68} Rasgos 3D)`;
-            document.getElementById('dossier-city').textContent = `${t.location?.city || 'Localizado'}, ${t.location?.country || ''}`;
-            document.getElementById('dossier-vehicle').textContent = t.telemetry?.vehicle || 'Desconocido';
-            document.getElementById('dossier-device').textContent = t.device?.device_type || 'Dispositivo Móvil';
-            document.getElementById('dossier-ip').textContent = t.device?.ip_address || 'Túnel TARDIS';
-            document.getElementById('dossier-imei').textContent = t.device?.imei || 'N/A';
-            document.getElementById('dossier-bpm').textContent = `${t.biometrics?.heart_rate_bpm || 72} BPM (PPG)`;
-
-            // Aegis Banner
-            const aegisBanner = document.getElementById('dossier-aegis-banner');
-            const reticle = document.getElementById('target-reticle');
-            const threatBadge = document.getElementById('dossier-threat');
-
-            if (t.aegis_protected) {
-                aegisBanner.style.display = 'block';
-                reticle.classList.add('aegis');
-                threatBadge.classList.add('aegis');
-                document.getElementById('reticle-target-name').textContent = `AEGIS PROTECTED: ${t.name.toUpperCase()}`;
-            } else {
-                aegisBanner.style.display = 'none';
-                reticle.classList.remove('aegis');
-                threatBadge.classList.remove('aegis');
-                document.getElementById('reticle-target-name').textContent = `TARGET: ${t.name.toUpperCase()}`;
-            }
-
-            document.getElementById('reticle-match-pct').textContent = `MATCH: ${t.match_confidence}%`;
-            document.getElementById('reticle-speed-val').textContent = `${t.telemetry?.speed_kmh || 0} km/h`;
-
-            // Telemetría GPS
-            if (t.location) {
-                document.getElementById('tele-lat').textContent = `${t.location.lat.toFixed(4)}° N`;
-                document.getElementById('tele-lon').textContent = `${t.location.lon.toFixed(4)}° W`;
-                document.getElementById('tele-radius').textContent = `< ${t.location.uncertainty_radius_m || 1.0} m`;
-            }
-
-            // Cambiar cámara asociada si existe
-            if (t.associated_camera_id) {
-                document.getElementById('select-camera-feed').value = t.associated_camera_id;
-                changeCameraFeed(t.associated_camera_id);
-            }
-
-            // Interceptar audio correspondiente
-            interceptAudioNow();
         }
 
         function changeCameraFeed(feedId) {
@@ -1173,53 +1064,14 @@
             }
         }
 
+        /* Interceptación de audio y rastreo de personas retirados: no hay fuente real. */
         async function interceptAudioNow() {
-            try {
-                const res = await fetch('/api/gods_eye/intercept', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({target_id: currentTargetId})
-                });
-
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data.waveform_samples) {
-                        audioSamples = data.waveform_samples;
-                    }
-                    if (data.intercepted_transcript) {
-                        document.getElementById('audio-transcript-text').textContent = `"${data.intercepted_transcript}"`;
-                    }
-                    document.getElementById('audio-freq-label').textContent = `PORTADORA: ${data.voiceprint_hz || 120} Hz · DECIBELIOS: ${data.decibels_db || 68} dB`;
-                }
-            } catch (e) {
-                console.error("Audio intercept error:", e);
-            }
+            const el = document.getElementById('audio-transcript-text');
+            if (el) el.textContent = "Interceptación de audio retirada: no hay fuente de audio asociada a las cámaras.";
         }
 
         async function toggleTracking() {
-            isTracking = !isTracking;
-            try {
-                const res = await fetch('/api/gods_eye/track', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({target_id: currentTargetId, active: isTracking})
-                });
-
-                if (res.ok) {
-                    const data = await res.json();
-                    const btn = document.getElementById('btn-toggle-track');
-                    if (isTracking) {
-                        btn.innerHTML = `<span>🎯 Fijar Objetivo (Activo)</span>`;
-                        btn.style.borderColor = "var(--accent-green)";
-                    } else {
-                        btn.innerHTML = `<span>⏸️ Reanudar Rastreo</span>`;
-                        btn.style.borderColor = "var(--tactical-red)";
-                    }
-                    fetchSystemStatus();
-                }
-            } catch (e) {
-                console.error("Track toggle error:", e);
-            }
+            console.warn("Rastreo de objetivos retirado.");
         }
 
         function refreshDashboard() {
@@ -1243,7 +1095,6 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             fetchSystemStatus();
-            interceptAudioNow();
         });
     </script>
 </body>
