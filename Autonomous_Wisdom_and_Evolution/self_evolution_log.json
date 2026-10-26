@@ -1,20 +1,6 @@
 [
   {
     "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
-    "goal": "Add a cache wrapper that checks deep_memory_vault before making HTTP requests, and stores new results for future reuse.",
-    "status": "REJECTED",
-    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
-    "elapsed_seconds": 91.3,
-    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/web_research_engine.py.20261023_025809.bak",
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Respuesta generada demasiado corta (0 vs 35266 bytes)",
-    "timestamp": "2026-10-23T02:59:40.848297"
-  },
-  {
-    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
     "goal": "Implementar un método `get_systemic_stress_index()` que lea telemetría de `network_shield.py` y métricas de `deep_memory_vault.py` para ajustar dinámicamente el timeout y la estrategia de caché en las peticiones web.",
     "status": "REJECTED",
     "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
@@ -1398,5 +1384,19 @@
     "efficiency_improvement": null,
     "error": "Respuesta generada demasiado corta (0 vs 35266 bytes)",
     "timestamp": "2026-10-26T00:02:23.807703"
+  },
+  {
+    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/deep_memory_vault.py",
+    "goal": "Implementar una función de scoring híbrida que combine la similitud coseno con un factor de decaimiento exponencial basado en la antigüedad del nodo y su peso en el grafo causal, ajustando dinámicamente los umbrales de recuperación.",
+    "status": "REJECTED",
+    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
+    "elapsed_seconds": 90.55,
+    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/deep_memory_vault.py.20261026_005216.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "Respuesta generada demasiado corta (0 vs 33875 bytes)",
+    "timestamp": "2026-10-26T00:53:46.649542"
   }
 ]

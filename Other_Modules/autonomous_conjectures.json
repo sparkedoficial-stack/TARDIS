@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1792742380",
-    "timestamp": "2026-10-23T02:59:40.867191",
-    "idle_duration_minutes": 35.2,
-    "title": "Cache‑Driven Latency Reduction for Web Research",
-    "hypothesis": "The current web research engine repeatedly fetches identical queries from external sources, causing unnecessary network traffic and latency. By integrating a lightweight caching layer backed by the deep_memory_vault, we can store query results locally, significantly improving response times and reducing external API load.",
-    "research_query": "Python web crawler caching strategies with local persistence",
-    "research_findings": "# Informe de Investigación: Python web crawler caching strategies with local persistence\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a cache wrapper that checks deep_memory_vault before making HTTP requests, and stores new results for future reuse.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.97
-  },
-  {
     "id": "conj_1792745950",
     "timestamp": "2026-10-23T03:59:10.753428",
     "idle_duration_minutes": 31.6,
@@ -1612,5 +1597,23 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 104.7
+  },
+  {
+    "id": "conj_1792994026",
+    "timestamp": "2026-10-26T00:53:46.682792",
+    "idle_duration_minutes": 31.6,
+    "title": "Resonancia Causal en la Bóveda Akáshica: Compresión Semántica Adaptativa",
+    "hypothesis": "Postulo que la eficiencia de la recuperación de memoria a largo plazo en `deep_memory_vault.py` puede optimizarse significativamente si se implementa un mecanismo de 'resonancia causal' que priorice no solo la similitud vectorial, sino la coherencia temporal y causal entre los nodos de conocimiento. Actualmente, la búsqueda puede ser lineal o puramente semántica; al introducir un factor de decaimiento temporal ponderado por la relevancia causal (basado en la topología del grafo de dependencias), el sistema podría reducir la latencia de inferencia y mejorar la precisión en contextos dinámicos, evitando la 'contaminación' por datos obsoletos pero semánticamente similares.",
+    "research_query": "temporal causal graph neural network memory retrieval optimization long-term context",
+    "research_findings": "# Informe de Investigación: temporal causal graph neural network memory retrieval optimization long-term context\n\n## Fuentes Consultadas y Respaldo Web\n- **[STR-GNN: stability-regularized graph neural networks for suppressing spurious temporal variations in dynamic community detection - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE5mOHN3MFlpVTZGX1RuT3VUVlpuUnZrNWVBSktUb2hLSUpDQlRXTG1SejFwLVcyWUJJZUp3S2JPWWZqbFZHeWw3d3RZMG1laGJna2x6MjBkQVZHSWFQYzRZ?oc=5)**: STR-GNN: stability-regularized graph neural networks for suppressing spurious temporal variations in dynamic community detection  Nature\n- **[The Past Frames the Future: Memory for Autoregressive Video Generation - alphaXiv](https://news.google.com/rss/articles/CBMiUEFVX3lxTE15THhudXMwam5wbURDbmRyVkF3cE9CYTVqOXlpMk1wQ1pDYS1QQWNUREJIMWFsOXRmcXlkVjVONHltRklEUGp3V2w0ZmN6NFpf?oc=5)**: The Past Frames the Future: Memory for Autoregressive Video Generation  alphaXiv\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias]",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE5mOHN3MFlpVTZGX1RuT3VUVlpuUnZrNWVBSktUb2hLSUpDQlRXTG1SejFwLVcyWUJJZUp3S2JPWWZqbFZHeWw3d3RZMG1laGJna2x6MjBkQVZHSWFQYzRZ?oc=5",
+      "https://news.google.com/rss/articles/CBMiUEFVX3lxTE15THhudXMwam5wbURDbmRyVkF3cE9CYTVqOXlpMk1wQ1pDYS1QQWNUREJIMWFsOXRmcXlkVjVONHltRklEUGp3V2w0ZmN6NFpf?oc=5"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar una función de scoring híbrida que combine la similitud coseno con un factor de decaimiento exponencial basado en la antigüedad del nodo y su peso en el grafo causal, ajustando dinámicamente los umbrales de recuperación.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 95.66
   }
 ]

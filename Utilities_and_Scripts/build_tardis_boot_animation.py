@@ -215,6 +215,7 @@ def emit_plymouth(ops: list[dict], frame_idx: int, assets: dict[str, dict]) -> l
         style = st.get("strokeStyle" if raw else "fillStyle")
         alpha = float(st.get("globalAlpha", 1.0) or 1.0)
         width = float(st.get("lineWidth", 1) or 1) * max(0.2, math.hypot(a, b))
+        width = float(min(4, max(1, int(round(width)))))
         key = None
         if isinstance(style, dict) and "stops" in style:
             key = _register(assets, {"kind": "grad", "stops": style["stops"],
@@ -223,11 +224,11 @@ def emit_plymouth(ops: list[dict], frame_idx: int, assets: dict[str, dict]) -> l
             m = re.match(r"rgba\(([\d.]+),\s*([\d.]+),\s*([\d.]+),\s*([\d.]+)\)", style)
             if m:
                 r, g, bl, al = (float(v) for v in m.groups())
-                key = _register(assets, {"kind": "solid", "rgb": (r, g, bl), "alpha": al * alpha,
+                key = _register(assets, {"kind": "solid", "rgb": (r, g, bl), "alpha": round(min(1.0, al * alpha) * 100) / 100,
                                          "width": width, "raw": raw})
         elif isinstance(style, str) and style.startswith("#") and len(style) == 7:
             rgb = tuple(int(style[i:i + 2], 16) for i in (1, 3, 5))
-            key = _register(assets, {"kind": "solid", "rgb": rgb, "alpha": alpha,
+            key = _register(assets, {"kind": "solid", "rgb": rgb, "alpha": round(min(1.0, alpha) * 100) / 100,
                                      "width": width, "raw": raw})
         if key:
             lines.append(f"    {'draw_image' if raw else 'fill_image'}({key});" if raw
@@ -240,7 +241,14 @@ _ASSETS: dict[str, dict] = {}
 
 def _register(assets: dict[str, dict], spec: dict) -> str:
     import hashlib
-    sig = json.dumps({k: v for k, v in spec.items() if k != "geom"}, sort_keys=True, default=str)
+    geom = spec.get("geom") or ()
+    q = dict(spec)
+    if spec["kind"] == "solid":
+        q["alpha"] = round(spec["alpha"], 2)
+        q["width"] = int(round(spec["width"]))
+    q["geom"] = [round(float(v), 1) for v in geom] if geom else None
+    q["stops"] = [[round(float(o), 2), c] for o, c in spec.get("stops", [])]
+    sig = json.dumps(q, sort_keys=True, default=str)
     key = "a" + hashlib.sha1(sig.encode()).hexdigest()[:10]
     assets[key] = spec
     return key
@@ -288,7 +296,7 @@ def _render_gradient_asset(path: Path, spec: dict) -> Path:
     from PIL import Image
     geom = spec.get("geom") or (0, 0, 0, 1, 1, 120)
     x0, y0, r0, x1, y1, r1 = geom
-    size = max(8, int(r1 * 2))
+    size = max(8, min(96, int(r1 * 2)))
     img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
     px = img.load()
     cx, cy = size / 2, size / 2
@@ -382,7 +390,7 @@ Window.SetBackgroundBottomColor(0.004, 0.008, 0.016);
     body.append("")
     morph_frames = ",\n    ".join(f"frame_{i}" for i in range(FRAMES))
     label_frames = ",\n    ".join(f"label_{i}" for i in range(len(label_assets)))
-    script = header + "\n".join(body) + f"""
+    script = header + "\n".join(body) + "\n" + "\n".join(frames_script) + f"""
 character = Morph(
     {morph_frames}
 );
@@ -420,7 +428,7 @@ Plymouth.SetBootProgressFunction(fun (a, b) {{ }});
     # Previsualización en vídeo del mismo bucle.
     if preview_dir:
         preview_dir.mkdir(parents=True, exist_ok=True)
-        _render_preview(preview_dir / "tardis-boot-animation.mp4", seq, js_body, label_png)
+        _render_preview(preview_dir / "tardis-boot-animation.mp4", seq, js_body, label_assets)
     return {"frames": FRAMES, "ops_total": total_ops, "assets": len(assets), "theme": str(theme_dir)}
 
 
@@ -428,14 +436,15 @@ def _hex(c: str):
     return tuple(int(c[i:i + 2], 16) for i in (1, 3, 5))
 
 
-def _render_preview(out: Path, seq, js_body: str, label_png: Path) -> None:
+def _render_preview(out: Path, seq, js_body: str, label_assets) -> None:
     from PIL import Image, ImageDraw, ImageFilter
     ffmpeg = shutil.which("ffmpeg")
     tmp = Path("/tmp/_tardis_boot_frames")
     if tmp.exists():
         shutil.rmtree(tmp)
     tmp.mkdir(parents=True)
-    label = Image.open(label_png).convert("RGBA")
+    label = None
+    _label_dir = Path(out).parent.parent / "plymouth-tardis" / "assets"
     for idx, (t, lx, ly, bl) in enumerate(seq):
         ops = capture_frame(js_body, t, lx, ly, bl)
         canvas = Image.new("RGBA", (SCREEN_W, SCREEN_H), (5, 9, 20, 255))
@@ -466,10 +475,14 @@ def _render_preview(out: Path, seq, js_body: str, label_png: Path) -> None:
         glow = layer.filter(ImageFilter.GaussianBlur(6))
         canvas.alpha_composite(glow)
         canvas.alpha_composite(layer)
-        lab = label.copy()
-        a = int(255 * (0.72 + 0.28 * math.sin(idx * 0.04 * 1.6)))
-        lab.putalpha(lab.getchannel("A").point(lambda v: v * a // 255))
-        canvas.alpha_composite(lab, (SCREEN_W // 2 - lab.width // 2, int(SCREEN_H * 0.80)))
+        lab_frame = label_assets[(idx // 3) % len(label_assets)]
+        lp = Path("/home/timemachine/Escritorio/GODWORKS SYSTEM/plymouth-tardis/assets") / lab_frame
+        lab = Image.open(lp).convert("RGBA") if lp.exists() else None
+        start_x = int(re.search(r"txt_(\d+)", lab_frame).group(1))
+        if lab is not None:
+            a = int(255 * (0.72 + 0.28 * math.sin(idx * 0.04 * 1.6)))
+            lab.putalpha(lab.getchannel("A").point(lambda v: v * a // 255))
+            canvas.alpha_composite(lab, (SCREEN_W // 2 - 700 + start_x, int(SCREEN_H * 0.80)))
         canvas.convert("RGB").save(tmp / f"f{idx:04d}.png")
     if ffmpeg:
         subprocess.run([ffmpeg, "-y", "-loglevel", "error", "-framerate", str(FPS), "-i", str(tmp / "f%04d.png"),
