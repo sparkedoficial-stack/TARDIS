@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.1080768,
-  "last_video_id": "vp_20261026_125850_2c25e5",
-  "last_topic": "Tensor Network Representations of Flat Space Holography: Visualizing Bulk Reconstruction in Minkowski Space",
-  "total_videos_analyzed": 590,
-  "running_cycle": true,
+  "last_run_timestamp": REDACTED_PHONE.9140406,
+  "last_video_id": "vp_20261026_133413_d5a36d",
+  "last_topic": "Tensor Network Representations of de Sitter Space: Visualizing Cosmological Horizons",
+  "total_videos_analyzed": 591,
+  "running_cycle": false,
   "last_error": null,
   "auto_improvement_count": 354
 }

@@ -192,16 +192,16 @@
     "REDACTED_PHONE": {
       "chat_id": REDACTED_PHONE,
       "user_id": REDACTED_PHONE,
-      "first_name": "Arquitecto",
+      "first_name": "X",
       "last_name": "",
-      "full_name": "Arquitecto",
-      "display_name": "Arquitecto",
+      "full_name": "X",
+      "display_name": "X",
       "username": "asleep01010101",
       "is_bot": false,
       "is_architect": true,
       "first_seen": "2026-09-25T15:13:39.080612",
-      "last_seen": "2026-10-26T00:23:48.052498",
-      "message_count": 138
+      "last_seen": "2026-10-26T13:13:28.858492",
+      "message_count": 139
     },
     "555000111": {
       "chat_id": 555000111,
@@ -316,5 +316,5 @@
       "message_count": 6
     }
   },
-  "last_updated": "2026-10-26T00:23:48.052582"
+  "last_updated": "2026-10-26T13:13:28.858543"
 }
