@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1792708252",
-    "timestamp": "2026-10-22T17:30:52.093945",
-    "idle_duration_minutes": 34.7,
-    "title": "Dynamic Causal Prompt Routing for Context‑Aware Web Research",
-    "hypothesis": "Si el motor de investigación web (core/web_research_engine.py) incorpora un enrutador de prompts basado en causalidad dinámica que evalúa la relevancia temporal y semántica de los tokens de memoria en deep_memory_vault antes de lanzar la búsqueda, entonces la precisión de los resultados y la velocidad de convergencia de la hipótesis aumentarán significativamente, reduciendo la latencia de búsqueda en al menos un 30% y mejorando la coherencia de la información recuperada en entornos con alta carga de consultas concurrentes.",
-    "research_query": "dynamic causal prompt routing web search engine performance optimization causal inference in LLM pipelines",
-    "research_findings": "# Informe de Investigación: dynamic causal prompt routing web search engine performance optimization causal inference in LLM pipelines\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Implementar una capa de enrutamiento causal que, usando métricas de similitud temporal y de dependencia de conceptos extraídas de deep_memory_vault, seleccione y priorice los sub‑prompts enviados al motor de búsqueda; además, añadir caché de resultados y fallback adaptativo para consultas fallidas.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.71
-  },
-  {
     "id": "conj_1792711913",
     "timestamp": "2026-10-22T18:31:53.743134",
     "idle_duration_minutes": 32.6,
@@ -1618,5 +1603,22 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 96.3
+  },
+  {
+    "id": "conj_1792975555",
+    "timestamp": "2026-10-25T19:45:55.811520",
+    "idle_duration_minutes": 31.6,
+    "title": "Resonancia Causal en la Bóveda Akáshica: Entropía Temporal y Compresión Semántica",
+    "hypothesis": "La 'Bóveda Akáshica' (deep_memory_vault.py) opera actualmente como un almacén estático de vectores. Se conjetura que si se introduce un mecanismo de 'decaimiento temporal ponderado por relevancia causal' (simil a la memoria de trabajo en sistemas cognitivos), se puede reducir la latencia de recuperación en un 40% manteniendo la precisión. La hipótesis es que los nodos de memoria que no han sido activados por cadenas causales recientes en el web_research_engine.py acumulan 'ruido semántico' que degrada la calidad de las inferencias posteriores. Al aplicar una función de activación que priorice la coherencia causal sobre la antigüedad pura, el sistema podría auto-optimizar su índice de búsqueda sin intervención humana.",
+    "research_query": "temporal decay weighting in vector databases for causal reasoning optimization",
+    "research_findings": "# Informe de Investigación: temporal decay weighting in vector databases for causal reasoning optimization\n\n## Fuentes Consultadas y Respaldo Web\n- **[A causal discovery-based adaptive fusion algorithm for multi-source heterogeneous knowledge graphs - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE8tQkU3N2N2SUlGcmUyeklIVU5GeWlidTZGcTBvU3hNZTBQSGxUUERfbVEydXpwZ2VoQlhrS09WelBTNmdzUWhoSG8zTzVGVGk0Rm85V3VYN3U2Q2RQRnNZ?oc=5)**: A causal discovery-based adaptive fusion algorithm for multi-source heterogeneous knowledge graphs  Nature\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMiX0FVX3lxTE8tQkU3N2N2SUlGcmUyeklIVU5GeWlidTZGcTBvU3hNZTBQSGxUUERfbVEydXpwZ2VoQlhrS09WelBTNmdzUWhoSG8zTzVGVGk0Rm85V3VYN3U2Q2RQRnNZ?oc=5)\n",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE8tQkU3N2N2SUlGcmUyeklIVU5GeWlidTZGcTBvU3hNZTBQSGxUUERfbVEydXpwZ2VoQlhrS09WelBTNmdzUWhoSG8zTzVGVGk0Rm85V3VYN3U2Q2RQRnNZ?oc=5"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar un método `apply_causal_decay()` que ajuste los pesos de los vectores de memoria basándose en la frecuencia de co-ocurrencia con eventos recientes del motor de investigación, en lugar de solo el timestamp de inserción.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.95
   }
 ]
