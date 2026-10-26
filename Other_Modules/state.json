@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.8991015,
-  "last_video_id": "vp_20261026_061933_a5b7e8",
-  "last_topic": "Non-Hermitian Topological Phases and Exceptional Points in Photonic Systems",
-  "total_videos_analyzed": 579,
-  "running_cycle": false,
+  "last_run_timestamp": REDACTED_PHONE.2957814,
+  "last_video_id": "vp_20261026_065621_a58398",
+  "last_topic": "Fracton Topological Order and Subdimensional Particle Dynamics",
+  "total_videos_analyzed": 580,
+  "running_cycle": true,
   "last_error": null,
   "auto_improvement_count": 352
 }
