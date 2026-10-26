@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.1122317,
-  "last_video_id": "vp_20261026_005714_7545c8",
-  "last_topic": "Visualizing the Emergence of Fractonic Order and Subdimensional Particles in Lattice Models",
-  "total_videos_analyzed": 570,
-  "running_cycle": true,
+  "last_run_timestamp": REDACTED_PHONE.4282827,
+  "last_video_id": "vp_20261026_013434_4fd57e",
+  "last_topic": "Holographic Tensor Networks and the Emergence of Spacetime Geometry",
+  "total_videos_analyzed": 571,
+  "running_cycle": false,
   "last_error": null,
   "auto_improvement_count": 350
 }
