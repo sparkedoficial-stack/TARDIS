@@ -1,41 +1,5 @@
 [
   {
-    "id": "conj_1792727010",
-    "timestamp": "2026-10-22T22:43:30.119945",
-    "idle_duration_minutes": 31.6,
-    "title": "Causal‑Feedback Loop for Adaptive Web Research Caching",
-    "hypothesis": "Integrating a causal‑feedback mechanism between the Web Research Engine and the Deep Memory Vault can dynamically adjust caching policies based on the inferred relevance and temporal decay of retrieved knowledge. By monitoring the causal impact of each query's result on downstream reasoning tasks (e.g., plan generation, anomaly detection), the system can prioritize long‑term storage for high‑impact snippets and evict low‑impact ones, leading to a measurable reduction in latency (≈30 %) and memory footprint (≈20 %) without degrading answer quality.",
-    "research_query": "adaptive caching based on causal impact of web search results in AI reasoning systems",
-    "research_findings": "# Informe de Investigación: adaptive caching based on causal impact of web search results in AI reasoning systems\n\n## Fuentes Consultadas y Respaldo Web\n- **[Bayesian network (Wikipedia)](https://en.wikipedia.org/wiki/Bayesian_network)**: distinction between causal and evidential modes of reasoning In the late 1980s Pearl's Probabilistic Reasoning in Intelligent Systems and Neapolitan's Probabilistic\n- **[Big data (Wikipedia)](https://en.wikipedia.org/wiki/Big_data)**: parallel-processing (MPP) databases, search-based applications, data mining, distributed file systems, distributed cache (e.g., burst buffer and Memcached)\n\n## Contenido y Hallazgos Extraídos\n### De [Bayesian network - Wikipedia](https://en.wikipedia.org/wiki/Bayesian_network)\n> Bayesian network - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nProbabilistic graphical representation of causal relationships\nThis article includes a list of general references but lacks sufficient corresponding inline citatio",
-    "web_sources": [
-      "https://en.wikipedia.org/wiki/Bayesian_network",
-      "https://en.wikipedia.org/wiki/Big_data"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a lightweight causal‑impact logger that records which retrieved documents are later accessed by the reasoning pipeline, compute a decay‑weighted relevance score, and expose an async cache‑policy API that the Deep Memory Vault can query to decide persistence vs. eviction.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.42
-  },
-  {
-    "id": "conj_1792730801",
-    "timestamp": "2026-10-22T23:46:41.067073",
-    "idle_duration_minutes": 31.6,
-    "title": "Causal‑Feedback Loop for Adaptive Web Research",
-    "hypothesis": "Integrar un bucle de retroalimentación causal entre el motor de búsqueda web (core/web_research_engine.py) y la bóveda akáshica (core/deep_memory_vault.py) permitirá que el sistema ajuste dinámicamente sus pesos de relevancia en función de la precisión observada de los resultados en tiempo real, mejorando la calidad de la información recuperada en al menos un 20% sin incrementar la latencia promedio.",
-    "research_query": "causal feedback loop adaptive web search engine relevance weighting real-time evaluation",
-    "research_findings": "# Informe de Investigación: causal feedback loop adaptive web search engine relevance weighting real-time evaluation\n\n## Fuentes Consultadas y Respaldo Web\n- **[Cross-modal adaptive reconstruction of open education resources - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE5qTUdiSGM3b2xzU2lCT0pZa1doSkhIcmVYd21mVHMzdVMxTXBsTUdXbzFfcVdCNmhwMGcyd215YUtDMy1hVnY5ejE5ZTJwbnlROElkUC1VbFhwbnF4bTc0?oc=5)**: Cross-modal adaptive reconstruction of open education resources  Nature\n- **[List of cognitive biases (Wikipedia)](https://en.wikipedia.org/wiki/List_of_cognitive_biases)**: Pollyanna principle – Tendency to remember pleasant things better Positive feedback – Loop that increases an initial effect Propaganda – Communication used to\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMiX0FVX3lxTE5qTUdiSGM3b2xzU2lCT0pZa1doSkhIcmVYd21mVHMzdVMxTXBsTUdXbzFfcVdCNmhwMGcyd215YUtDMy1hVnY5ejE5ZTJwbnlROElkUC1VbFhwbnF4bTc0?oc=5)\n\n### De [List of",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE5qTUdiSGM3b2xzU2lCT0pZa1doSkhIcmVYd21mVHMzdVMxTXBsTUdXbzFfcVdCNmhwMGcyd215YUtDMy1hVnY5ejE5ZTJwbnlROElkUC1VbFhwbnF4bTc0?oc=5",
-      "https://en.wikipedia.org/wiki/List_of_cognitive_biases"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Añadir un módulo de monitorización de métricas de precisión (p.ej., hit‑rate, relevancia) que retroalimente un algoritmo de ajuste de pesos basado en causal inference (como DoWhy o CausalML) para actualizar dinámicamente la puntuación de resultados antes de devolverlos al usuario.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.36
-  },
-  {
     "id": "conj_1792734650",
     "timestamp": "2026-10-23T00:50:50.193989",
     "idle_duration_minutes": 32.7,
@@ -1621,5 +1585,35 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.97
+  },
+  {
+    "id": "conj_1792985166",
+    "timestamp": "2026-10-25T22:26:06.542313",
+    "idle_duration_minutes": 33.2,
+    "title": "Causal Memory Indexing for Real‑Time Web Research",
+    "hypothesis": "Integrating a causal inference layer into the Deep Memory Vault (core/deep_memory_vault.py) can prioritize stored akáshic fragments that are most likely to influence the outcome of a web research query, thereby reducing latency and improving relevance of retrieved results. The hypothesis posits that by annotating each memory node with a lightweight causal score (derived from temporal proximity, semantic similarity, and prior query‑response success), the Web Research Engine can dynamically re‑rank its search space before issuing external requests, leading to a measurable drop in average response time (>15%) and an increase in answer accuracy (>10%).",
+    "research_query": "\"causal inference\" \"memory indexing\" \"real-time retrieval\" performance optimization",
+    "research_findings": "# Informe de Investigación: \"causal inference\" \"memory indexing\" \"real-time retrieval\" performance optimization\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Add a causal scoring module that computes and stores a 'causal_score' for each memory entry, and modify the retrieval pipeline in core/web_research_engine.py to pre‑filter and rank entries based on this score before external web calls.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.52
+  },
+  {
+    "id": "conj_1792987072",
+    "timestamp": "2026-10-25T22:57:52.589408",
+    "idle_duration_minutes": 31.8,
+    "title": "Causal‑Feedback Loop for Adaptive Web Research",
+    "hypothesis": "Integrating a causal inference layer between the Web Research Engine and the Deep Memory Vault will enable the system to dynamically prioritize search queries based on the inferred impact of retrieved information on downstream tasks, reducing redundant requests by up to 30% and improving answer relevance. The hypothesis posits that a lightweight Bayesian network, fed by telemetry (latency, relevance scores, and memory write‑frequency), can predict the marginal utility of a new web fetch before it is executed, allowing the engine to skip low‑utility queries and to pre‑emptively cache high‑utility results.",
+    "research_query": "\"causal inference for adaptive web search\" OR \"Bayesian query prioritization\" AND \"knowledge base caching\"",
+    "research_findings": "# Informe de Investigación: \"causal inference for adaptive web search\" OR \"Bayesian query prioritization\" AND \"knowledge base caching\"\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a new module `causal_query_prioritizer.py` that implements a simple Bayesian network using `pgmpy` to estimate query utility, and modify `WebResearchEngine.search()` to call this priorizer before issuing HTTP requests, logging the decision and updating the network with observed relevance feedback.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 103.54
   }
 ]

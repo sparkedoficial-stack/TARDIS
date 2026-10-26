@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.726396,
-  "last_video_id": "vp_20261025_213409_46bc4b",
-  "last_topic": "Tensor Network Models of AdS/CFT: MERA and Holographic Codes",
-  "total_videos_analyzed": 565,
+  "last_run_timestamp": REDACTED_PHONE.5845003,
+  "last_video_id": "vp_20261025_224536_80c225",
+  "last_topic": "Quantum Simulation of Traversable Wormholes with Superconducting Qubits",
+  "total_videos_analyzed": 567,
   "running_cycle": false,
   "last_error": null,
-  "auto_improvement_count": 342
+  "auto_improvement_count": 343
 }
