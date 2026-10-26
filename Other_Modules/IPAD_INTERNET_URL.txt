@@ -1,1 +1,1 @@
-https://api.trycloudflare.com
+https://minimal-breeding-craig-ladder.trycloudflare.com
