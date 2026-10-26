@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1792765664",
-    "timestamp": "2026-10-23T09:27:44.190719",
-    "idle_duration_minutes": 44.6,
-    "title": "Dynamic Causal Cache for Web Research Engine",
-    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching mechanism—where cached results are tagged with provenance metadata and causal dependencies—will reduce redundant external queries by up to 30% while preserving answer fidelity. The hypothesis posits that by tracking which downstream queries depend on which upstream sources, the engine can invalidate or reuse cache entries based on detected changes in source content, rather than using simple time‑based TTLs.",
-    "research_query": "causal inference based cache invalidation web scraping \"provenance metadata\"",
-    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web scraping \"provenance metadata\"\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a CausalCache class that stores query results with source URLs, timestamps, and a lightweight dependency graph; modify the fetch routine to consult this cache, invalidate entries when source content hash changes, and log causal relationships for future learning.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 99.76
-  },
-  {
     "id": "conj_1792768788",
     "timestamp": "2026-10-23T10:19:48.584649",
     "idle_duration_minutes": 33.5,
@@ -1615,5 +1600,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 6.66
+  },
+  {
+    "id": "conj_1793011201",
+    "timestamp": "2026-10-26T05:40:01.887879",
+    "idle_duration_minutes": 31.6,
+    "title": "Resonancia Causal en la Bóveda Akáshica: Entropía Temporal y Compresión Semántica",
+    "hypothesis": "Se postula que la eficiencia de recuperación de información en la Bóveda Akáshica (deep_memory_vault.py) no depende linealmente del volumen de datos, sino de la 'densidad causal' de las conexiones entre nodos de memoria. Si el sistema implementa un mecanismo de decaimiento temporal ponderado por la relevancia causal (en lugar del simple tiempo transcurrido), se puede reducir la latencia de búsqueda un 30-40% al priorizar estados de conocimiento que tienen alta probabilidad de ser precursores de futuras consultas, minimizando así la entropía semántica en el índice de búsqueda.",
+    "research_query": "causal density temporal decay semantic search optimization vector database long-term memory",
+    "research_findings": "# Informe de Investigación: causal density temporal decay semantic search optimization vector database long-term memory\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar un algoritmo de puntuación de relevancia que combine la similitud coseno con un factor de decaimiento exponencial basado en la 'frecuencia de co-ocurrencia causal' histórica, en lugar de solo el timestamp de última actualización.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.16
   }
 ]

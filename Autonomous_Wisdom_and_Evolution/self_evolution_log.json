@@ -1,20 +1,6 @@
 [
   {
     "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
-    "goal": "Añadir una capa de razonamiento causal que, antes de ejecutar la petición HTTP, consulte a deep_memory_vault por relaciones causales relevantes y expanda la query con términos derivados, implementando un caché de relaciones y un fallback a la búsqueda tradicional si no se encuentran evidencias causales.",
-    "status": "REJECTED",
-    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
-    "elapsed_seconds": 91.46,
-    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/web_research_engine.py.20261023_132612.bak",
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Respuesta generada demasiado corta (0 vs 35266 bytes)",
-    "timestamp": "2026-10-23T13:27:44.330929"
-  },
-  {
-    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
     "goal": "Add a causal cache manager that tracks source metadata (ETag, Last-Modified) and uses a lightweight Bayesian network to estimate staleness probability, triggering selective cache refreshes.",
     "status": "REJECTED",
     "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
@@ -1398,5 +1384,19 @@
     "efficiency_improvement": null,
     "error": "Respuesta generada demasiado corta (2226 vs 25056 bytes)",
     "timestamp": "2026-10-26T05:08:25.689768"
+  },
+  {
+    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/deep_memory_vault.py",
+    "goal": "Implementar un algoritmo de puntuación de relevancia que combine la similitud coseno con un factor de decaimiento exponencial basado en la 'frecuencia de co-ocurrencia causal' histórica, en lugar de solo el timestamp de última actualización.",
+    "status": "REJECTED",
+    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
+    "elapsed_seconds": 90.55,
+    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/deep_memory_vault.py.20261026_053831.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "Respuesta generada demasiado corta (0 vs 33875 bytes)",
+    "timestamp": "2026-10-26T05:40:01.869900"
   }
 ]
