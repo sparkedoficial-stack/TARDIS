@@ -1,1 +1,1 @@
-https://menu-relief-construct-noble.trycloudflare.com
+https://api.trycloudflare.com

@@ -3,26 +3,15 @@
   "interval_seconds": 5400.0,
   "target_chat_id": -REDACTED_PHONE,
   "target_thread_id": 453,
-  "last_run_timestamp": REDACTED_PHONE.7309728,
-  "last_run_iso": "2026-10-25T23:31:02.730984",
-  "total_dispatches": 353,
-  "curator_index": 2,
+  "last_run_timestamp": REDACTED_PHONE.7218447,
+  "last_run_iso": "2026-10-26T01:02:38.721849",
+  "total_dispatches": 354,
+  "curator_index": 3,
   "dispatched_topic_ids": [
-    "holographic_brain_neurophysics"
+    "holographic_brain_neurophysics",
+    "fermi_paradox_great_filter"
   ],
   "history": [
-    {
-      "dispatch_id": 254,
-      "timestamp": REDACTED_PHONE.9909134,
-      "iso": "2026-10-19T18:40:57.990952",
-      "topic_id": "synthetic_biology_xenobiology_xna",
-      "topic_title": "Xenobiología y Ácidos Nucleicos Artificiales (XNAs): Rediseñando el Código Genético",
-      "pdf_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/reports/polimatas_debates/Dossier_Debate_20261019_184056_synthetic_biology_xenobiology_.pdf",
-      "chat_id": -REDACTED_PHONE,
-      "thread_id": 453,
-      "text_sent": true,
-      "doc_sent": true
-    },
     {
       "dispatch_id": 255,
       "timestamp": REDACTED_PHONE.6062717,
@@ -1210,6 +1199,18 @@
       "thread_id": 453,
       "text_sent": true,
       "doc_sent": true
+    },
+    {
+      "dispatch_id": 354,
+      "timestamp": REDACTED_PHONE.7218447,
+      "iso": "2026-10-26T01:02:38.721849",
+      "topic_id": "fermi_paradox_great_filter",
+      "topic_title": "La Paradoja de Fermi y el Gran Filtro: ¿Estamos Solos, Fuimos Primeros o Estamos Aislados?",
+      "pdf_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/reports/polimatas_debates/Dossier_Debate_20261026_010238_fermi_paradox_great_filter.pdf",
+      "chat_id": -REDACTED_PHONE,
+      "thread_id": 453,
+      "text_sent": false,
+      "doc_sent": false
     }
   ]
 }

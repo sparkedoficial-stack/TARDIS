@@ -1,1 +1,1 @@
-https://elected-thoughts-shed-society.trycloudflare.com
+https://api.trycloudflare.com
