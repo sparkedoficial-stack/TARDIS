@@ -187,10 +187,10 @@
     "throttle_kbps": null,
     "is_safe": true,
     "traffic_bytes_rx": 168,
-    "traffic_bytes_tx": 4505,
-    "traffic_packets": 15,
+    "traffic_bytes_tx": 312,
+    "traffic_packets": 6,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-26T05:09:20.673719+00:00",
+    "last_seen": "2026-10-26T05:23:10.114037+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -246,8 +246,8 @@
     "risky_ports": [],
     "mdns_services": [
       "0_0 (AirPlay Remote Video)",
-      "0_0 (_display._tcp)",
-      "0_0 (_ghp._tcp)"
+      "0_0 (_ghp._tcp)",
+      "0_0 (_display._tcp)"
     ],
     "wifi_metrics": {},
     "trust_level": "KNOWN",
@@ -255,10 +255,10 @@
     "throttle_kbps": null,
     "is_safe": true,
     "traffic_bytes_rx": 168,
-    "traffic_bytes_tx": 2175,
-    "traffic_packets": 10,
+    "traffic_bytes_tx": 851,
+    "traffic_packets": 7,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-26T05:09:20.673719+00:00",
+    "last_seen": "2026-10-26T05:23:10.114037+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -392,7 +392,7 @@
       "fe80::52eb:f6ff:fee2:b850"
     ],
     "alias": "TimeMachine (ASUS TUF Gaming A15 - Ethernet Host)",
-    "hostname": "TimeMachine (ASUS TUF Gaming A15 - Ethernet Host)",
+    "hostname": "TimeMachine.local",
     "vendor": "ASUSTek COMPUTER INC.",
     "device_type": "Estación Central Soberana (Host)",
     "interface": "enp2s0",
@@ -446,17 +446,20 @@
       }
     ],
     "risky_ports": [],
-    "mdns_services": [],
+    "mdns_services": [
+      "TARDIS (AirPlay Remote Video)",
+      "50EBF6E2B850@TARDIS (AirTunes Remote Audio)"
+    ],
     "wifi_metrics": {},
     "trust_level": "AEGIS_PROTECTED",
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 0,
-    "traffic_bytes_tx": 643,
-    "traffic_packets": 4,
+    "traffic_bytes_rx": 151618539,
+    "traffic_bytes_tx": 95728668,
+    "traffic_packets": 233726,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-26T05:15:43.875021+00:00",
+    "last_seen": "2026-10-26T05:23:10.114037+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -529,10 +532,10 @@
     "throttle_kbps": null,
     "is_safe": true,
     "traffic_bytes_rx": 0,
-    "traffic_bytes_tx": 288,
-    "traffic_packets": 4,
+    "traffic_bytes_tx": 32697,
+    "traffic_packets": 285,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-26T05:15:43.875021+00:00",
+    "last_seen": "2026-10-26T05:23:10.114037+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -580,7 +583,7 @@
     "interface": "enp2s0",
     "connection_medium": "Ethernet / LAN (enp2s0)",
     "network_segment": "Ethernet / LAN Principal (REDACTED_IP/24)",
-    "arp_state": "REACHABLE",
+    "arp_state": "STALE",
     "online": true,
     "rtt_ms": null,
     "open_ports": [],
@@ -596,7 +599,7 @@
     "traffic_bytes_tx": 0,
     "traffic_packets": 2,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-26T05:09:20.673719+00:00",
+    "last_seen": "2026-10-26T05:23:10.114037+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -800,6 +803,38 @@
     "traffic_packets": 7763,
     "first_seen": "2026-10-25T20:00:08.467077+00:00",
     "last_seen": "2026-10-25T20:00:08.467077+00:00",
+    "ip_history": [
+      "REDACTED_IP"
+    ]
+  },
+  "8A:39:4F:A9:F5:BC": {
+    "mac": "8A:39:4F:A9:F5:BC",
+    "ip": "REDACTED_IP",
+    "ipv6_addresses": [],
+    "alias": "Dispositivo LAN (REDACTED_IP)",
+    "hostname": "Dispositivo LAN (REDACTED_IP)",
+    "vendor": "Dirección MAC Privada / Aleatoria (iOS / Android / Linux)",
+    "device_type": "Dispositivo de Red (Dirección MAC Privada / Aleatoria (iOS / Android / Linux))",
+    "interface": "veth-host-aq",
+    "connection_medium": "Virtual Bridge (veth-host-aq)",
+    "network_segment": "Namespace Virtual Antarctica (REDACTED_IP/24)",
+    "arp_state": "STALE",
+    "online": true,
+    "rtt_ms": 0.05,
+    "open_ports": [],
+    "port_details": [],
+    "risky_ports": [],
+    "mdns_services": [],
+    "wifi_metrics": {},
+    "trust_level": "KNOWN",
+    "is_quarantined": false,
+    "throttle_kbps": null,
+    "is_safe": true,
+    "traffic_bytes_rx": 5103,
+    "traffic_bytes_tx": 36656,
+    "traffic_packets": 333,
+    "first_seen": "2026-10-26T05:23:10.114037+00:00",
+    "last_seen": "2026-10-26T05:23:10.114037+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]

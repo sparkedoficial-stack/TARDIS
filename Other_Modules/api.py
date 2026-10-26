@@ -856,6 +856,30 @@ def create_app() -> FastAPI:
             return FileResponse(path, media_type="text/html")
         return FileResponse(settings.base_dir / "background_subsystem.html", media_type="text/html")
 
+    @app.get("/webtrail", response_class=HTMLResponse)
+    async def serve_webtrail():
+        """Historial de navegación del antiguo Navegador Cuántico, servido dentro del Hub."""
+        return HTMLResponse("""<!doctype html><html lang="es"><head><meta charset="utf-8">
+<title>Historial de Navegación · TARDIS</title>
+<style>
+ body{background:#05080c;color:#c9d6e3;font-family:system-ui,sans-serif;margin:0;padding:22px}
+ h1{font-size:17px;color:#00d4c8;margin:0 0 4px} .sub{font-size:11px;color:#61707f;margin-bottom:16px}
+ ul{list-style:none;padding:0;margin:0;max-width:900px}
+ li{background:#070d16;border:1px solid #16212e;border-radius:8px;padding:9px 12px;margin-bottom:7px}
+ a{color:#7fd4cf;text-decoration:none;font-size:13px} a:hover{text-decoration:underline}
+ .t{font-size:10px;color:#56646f;margin-top:3px;font-family:ui-monospace,monospace}
+</style></head><body>
+<h1>🧭 Historial de Navegación</h1>
+<div class="sub" id="sub">cargando…</div><ul id="list"></ul>
+<script>
+fetch('/api/web/history?limit=60').then(r=>r.json()).then(d=>{
+  const l=document.getElementById('list');
+  document.getElementById('sub').textContent=(d.total||0)+' entradas registradas · mostrando '+(d.history||[]).length;
+  l.innerHTML=(d.history||[]).map(h=>'<li><a href="'+h.url+'" target="_blank" rel="noopener">'+
+    (h.title||h.url)+'</a><div class="t">'+(h.when||'')+' · '+h.url+'</div></li>').join('');
+}).catch(e=>{document.getElementById('sub').textContent='error: '+e;});
+</script></body></html>""")
+
     @app.get("/scientific_researcher", response_class=HTMLResponse)
     @app.get("/scientific_researcher.html", response_class=HTMLResponse)
     @app.get("/science", response_class=HTMLResponse)
@@ -1607,6 +1631,24 @@ iframe{border:none;width:100%;height:100%;}</style></head>
     # --------------------------------------------------------------------------
     # PUENTE DE ACCESO REMOTO / CLOUDFLARE TUNNEL
     # --------------------------------------------------------------------------
+
+    @app.get("/api/web/history")
+    async def api_web_history(limit: int = 30):
+        """Historial de navegación del antiguo Navegador Cuántico, ahora dentro del Hub."""
+        path = Path.home() / ".tardis" / "navigator" / "history.json"
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except Exception:
+            return {"ok": True, "history": [], "source": str(path)}
+        out = []
+        for item in reversed(data[-max(1, min(limit, 200)):]):
+            url = str(item.get("url", ""))
+            # Las URL del propio navegador (puerto 8777) ya no existen: no se ofrecen.
+            if ":8777" in url:
+                continue
+            out.append({"title": item.get("title"), "url": url,
+                        "when": item.get("time_str"), "engine": item.get("engine")})
+        return {"ok": True, "history": out, "total": len(data)}
 
     @app.get("/api/bridge/status")
     async def get_bridge_status():

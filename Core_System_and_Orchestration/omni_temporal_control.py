@@ -7181,6 +7181,15 @@ iframe{{border:none;width:100%;height:100%;}}</style></head>
                     resolution=body.get("resolution", "1280x720"),
                     biometrics=body.get("biometrics")
                 )
+                # El Ojo de Dios también en el servidor de respaldo: mismo análisis de movimiento.
+                try:
+                    from core.gods_eye_realtime import get_gods_eye_realtime
+                    res["gods_eye"] = get_gods_eye_realtime().process_frame(
+                        terminal_id=tid, frame_bytes=raw_bytes, terminal_name=tname,
+                        device_type=body.get("device_type") or "browser",
+                        resolution=body.get("resolution", ""))
+                except Exception as e_ge:
+                    res["gods_eye"] = {"ok": False, "error": str(e_ge)[:120]}
                 self.send_json(res)
                 return
             except Exception as e:
