@@ -1,20 +1,6 @@
 [
   {
     "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/deep_memory_vault.py",
-    "goal": "Implementar un método `calculate_temporal_entropy()` que analice los metadatos de acceso de la bóveda para generar un índice de riesgo de latencia, y exponer esta métrica para que `web_research_engine.py` ajuste dinámicamente sus parámetros de reintentos.",
-    "status": "REJECTED",
-    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
-    "elapsed_seconds": 90.99,
-    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/deep_memory_vault.py.20261023_174211.bak",
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Respuesta generada demasiado corta (0 vs 33875 bytes)",
-    "timestamp": "2026-10-23T17:43:42.592887"
-  },
-  {
-    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/deep_memory_vault.py",
     "goal": "Implementar un método `calculate_temporal_relevance_score()` que modifique el score de similitud coseno original multiplicándolo por un factor de decaimiento basado en la diferencia de tiempo entre el timestamp del vector y el tiempo actual, utilizando una constante de media vida configurable (por defecto 72 horas) para priorizar información reciente en la recuperación.",
     "status": "REJECTED",
     "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
@@ -1398,5 +1384,19 @@
     "efficiency_improvement": null,
     "error": "Respuesta generada demasiado corta (0 vs 33875 bytes)",
     "timestamp": "2026-10-26T07:15:24.893549"
+  },
+  {
+    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/deep_memory_vault.py",
+    "goal": "Añadir un campo 'causal_timestamp_vector' a la estructura de datos de los nodos de memoria, que almacene no solo el tiempo UNIX, sino también una métrica de estabilidad de red derivada de network_shield.py en el momento de la escritura, para mejorar el algoritmo de ranking en la recuperación.",
+    "status": "REJECTED",
+    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
+    "elapsed_seconds": 90.5,
+    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/deep_memory_vault.py.20261026_074531.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "Respuesta generada demasiado corta (0 vs 33875 bytes)",
+    "timestamp": "2026-10-26T07:47:01.854029"
   }
 ]
