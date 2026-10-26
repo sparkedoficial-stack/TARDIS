@@ -1,23 +1,5 @@
 [
   {
-    "id": "conj_1792750110",
-    "timestamp": "2026-10-23T05:08:30.093259",
-    "idle_duration_minutes": 37.8,
-    "title": "Causal‑Feedback Loop for Adaptive Web Research",
-    "hypothesis": "Integrating a causal inference layer between core/web_research_engine.py y core/deep_memory_vault.py permitirá que el motor de búsqueda ajuste dinámicamente sus estrategias de consulta basándose en la retroalimentación de resultados almacenados en la bóveda akáshica. Al modelar la relación causa‑efecto entre parámetros de búsqueda (prompt, filtros, top‑k) y métricas de relevancia (puntuación de similitud, tiempo de respuesta), el sistema podrá predecir y seleccionar la configuración óptima para cada nueva petición, reduciendo la latencia en un 30 % y mejorando la precisión de coincidencia en al menos un 15 % respecto al enfoque estático actual.",
-    "research_query": "causal inference adaptive query optimization web search engine python",
-    "research_findings": "# Informe de Investigación: causal inference adaptive query optimization web search engine python\n\n## Fuentes Consultadas y Respaldo Web\n- **[Transformer (deep learning) (Wikipedia)](https://en.wikipedia.org/wiki/Transformer_%28deep_learning%29)**: 04805v2 [cs.CL]. \"Google: BERT now used on almost every English query\". Search Engine Land. 2020-10-15. Archived from the original on 2022-05-06. Retrieved\n- **[Big data (Wikipedia)](https://en.wikipedia.org/wiki/Big_data)**: sensors\" with various access modes ranging from direct web-browser queries, access through Matlab, Python, Fortran and C programs executing on clients' platforms\n\n## Contenido y Hallazgos Extraídos\n### De [Transformer (deep learning) - Wikipedia](https://en.wikipedia.org/wiki/Transformer_%28deep_learning%29)\n> Transformer (deep learning) - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nAlgorithm for modelling sequential data\nThis article has multiple issues. Please help improve it or discuss these issue",
-    "web_sources": [
-      "https://en.wikipedia.org/wiki/Transformer_%28deep_learning%29",
-      "https://en.wikipedia.org/wiki/Big_data"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Añadir un módulo de inferencia causal que registre métricas de cada búsqueda, entrene un modelo ligero (e.g., Bayesian network o Gradient Boosting) y ajuste automáticamente los parámetros de consulta antes de enviarla al motor externo.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 99.6
-  },
-  {
     "id": "conj_1792753525",
     "timestamp": "2026-10-23T06:05:25.552096",
     "idle_duration_minutes": 31.6,
@@ -1615,5 +1597,22 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 96.78
+  },
+  {
+    "id": "conj_1793003703",
+    "timestamp": "2026-10-26T03:35:03.813228",
+    "idle_duration_minutes": 32.0,
+    "title": "Resonancia Causal en la Bóveda Akáshica",
+    "hypothesis": "La eficiencia de la recuperación de información en `deep_memory_vault.py` se ve limitada por la búsqueda lineal o por índice estático. Se conjetura que implementar un mecanismo de 'resonancia causal' —donde la relevancia de un recuerdo no solo depende de la similitud semántica, sino de la probabilidad condicional de que ese recuerdo haya sido útil en contextos temporales o lógicos anteriores similares— reduciría la latencia de decisión y aumentaría la precisión de la inferencia en un 15-20%. Esto implica modificar el algoritmo de scoring para incluir un factor de 'historial de éxito contextual' dinámico.",
+    "research_query": "contextual memory retrieval causal probability weighting LLM agents",
+    "research_findings": "# Informe de Investigación: contextual memory retrieval causal probability weighting LLM agents\n\n## Fuentes Consultadas y Respaldo Web\n- **[An AI Agent for Automated Causal Inference in Epidemiology - medRxiv](https://news.google.com/rss/articles/CBMifEFVX3lxTE9RaFRNaS1lMDFIVHF3ZnBWT3ljR3NXNlpIQkFwcDZDVmp3ZmZEZTg3V0VMZUJ2bGVPSGdRb2VlaFhQQ21RUjBTYlUzOXNyOTc4UU1hX0lKcGQ1SGR0bFEwcFNrdWdQSEFmZzNUcFRWRFpTelltdkczblVzYm8?oc=5)**: An AI Agent for Automated Causal Inference in Epidemiology  medRxiv\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMifEFVX3lxTE9RaFRNaS1lMDFIVHF3ZnBWT3ljR3NXNlpIQkFwcDZDVmp3ZmZEZTg3V0VMZUJ2bGVPSGdRb2VlaFhQQ21RUjBTYlUzOXNyOTc4UU1hX0lKcGQ1SGR0bFEwcFNrdWdQSEFmZzNUcFRWRFpTelltdkczblVzYm8?oc=5)\n",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMifEFVX3lxTE9RaFRNaS1lMDFIVHF3ZnBWT3ljR3NXNlpIQkFwcDZDVmp3ZmZEZTg3V0VMZUJ2bGVPSGdRb2VlaFhQQ21RUjBTYlUzOXNyOTc4UU1hX0lKcGQ1SGR0bFEwcFNrdWdQSEFmZzNUcFRWRFpTelltdkczblVzYm8?oc=5"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Añadir un vector de pesos dinámicos `causal_success_weights` que se actualice tras cada consulta exitosa, modificando la función de puntuación `calculate_relevance()` para multiplicar la similitud coseno por el factor de éxito histórico del contexto.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.88
   }
 ]
