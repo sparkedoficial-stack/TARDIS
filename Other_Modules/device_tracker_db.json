@@ -186,11 +186,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 168,
+    "traffic_bytes_rx": 271,
     "traffic_bytes_tx": 312,
-    "traffic_packets": 6,
+    "traffic_packets": 7,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-26T05:23:10.114037+00:00",
+    "last_seen": "2026-10-26T06:17:39.879221+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -255,10 +255,10 @@
     "throttle_kbps": null,
     "is_safe": true,
     "traffic_bytes_rx": 168,
-    "traffic_bytes_tx": 851,
+    "traffic_bytes_tx": 1314,
     "traffic_packets": 7,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-26T05:23:10.114037+00:00",
+    "last_seen": "2026-10-26T06:17:39.879221+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -392,7 +392,7 @@
       "fe80::52eb:f6ff:fee2:b850"
     ],
     "alias": "TimeMachine (ASUS TUF Gaming A15 - Ethernet Host)",
-    "hostname": "TimeMachine (ASUS TUF Gaming A15 - Ethernet Host)",
+    "hostname": "TimeMachine.local",
     "vendor": "ASUSTek COMPUTER INC.",
     "device_type": "Estación Central Soberana (Host)",
     "interface": "enp2s0",
@@ -446,17 +446,20 @@
       }
     ],
     "risky_ports": [],
-    "mdns_services": [],
+    "mdns_services": [
+      "TARDIS (AirPlay Remote Video)",
+      "50EBF6E2B850@TARDIS (AirTunes Remote Audio)"
+    ],
     "wifi_metrics": {},
     "trust_level": "AEGIS_PROTECTED",
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 0,
-    "traffic_bytes_tx": 557,
-    "traffic_packets": 3,
+    "traffic_bytes_rx": 26820655,
+    "traffic_bytes_tx": 101215720,
+    "traffic_packets": 141195,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-26T06:02:39.169820+00:00",
+    "last_seen": "2026-10-26T06:17:39.879221+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -529,10 +532,10 @@
     "throttle_kbps": null,
     "is_safe": true,
     "traffic_bytes_rx": 0,
-    "traffic_bytes_tx": 877,
-    "traffic_packets": 10,
+    "traffic_bytes_tx": 55733,
+    "traffic_packets": 508,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-26T06:02:39.169820+00:00",
+    "last_seen": "2026-10-26T06:17:39.879221+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -592,11 +595,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 168,
-    "traffic_bytes_tx": 0,
-    "traffic_packets": 2,
+    "traffic_bytes_rx": 1190,
+    "traffic_bytes_tx": 342,
+    "traffic_packets": 7,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-26T05:23:10.114037+00:00",
+    "last_seen": "2026-10-26T06:17:39.879221+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -832,6 +835,38 @@
     "traffic_packets": 333,
     "first_seen": "2026-10-26T05:23:10.114037+00:00",
     "last_seen": "2026-10-26T05:23:10.114037+00:00",
+    "ip_history": [
+      "REDACTED_IP"
+    ]
+  },
+  "8E:28:CA:2F:83:AE": {
+    "mac": "8E:28:CA:2F:83:AE",
+    "ip": "REDACTED_IP",
+    "ipv6_addresses": [],
+    "alias": "Dispositivo LAN (REDACTED_IP)",
+    "hostname": "Dispositivo LAN (REDACTED_IP)",
+    "vendor": "Dirección MAC Privada / Aleatoria (iOS / Android / Linux)",
+    "device_type": "Dispositivo de Red (Dirección MAC Privada / Aleatoria (iOS / Android / Linux))",
+    "interface": "veth-host-aq",
+    "connection_medium": "Virtual Bridge (veth-host-aq)",
+    "network_segment": "Namespace Virtual Antarctica (REDACTED_IP/24)",
+    "arp_state": "REACHABLE",
+    "online": true,
+    "rtt_ms": 0.04,
+    "open_ports": [],
+    "port_details": [],
+    "risky_ports": [],
+    "mdns_services": [],
+    "wifi_metrics": {},
+    "trust_level": "KNOWN",
+    "is_quarantined": false,
+    "throttle_kbps": null,
+    "is_safe": true,
+    "traffic_bytes_rx": 62646,
+    "traffic_bytes_tx": 115650,
+    "traffic_packets": 1666,
+    "first_seen": "2026-10-26T06:17:39.879221+00:00",
+    "last_seen": "2026-10-26T06:17:39.879221+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]

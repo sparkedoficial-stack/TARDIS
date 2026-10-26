@@ -31,12 +31,19 @@ BASE = Path("/home/timemachine/Escritorio/GODWORKS SYSTEM")
 INDEX = BASE / "index.html"
 
 SCREEN_W, SCREEN_H = 1920, 1080
+# Azul de Steam (#1b2838) con viñeta sutil, en lugar del negro.
+BG_TOP = (0.106, 0.157, 0.220)
+BG_BOTTOM = (0.055, 0.086, 0.129)
 FPS = 25
 FRAMES = 75                      # 3 s de bucle
 CHAR_SIZE = 560
 CHAR_CX = SCREEN_W // 2
 CHAR_CY = int(SCREEN_H * 0.42)
 LABEL = "Cargando máquina del tiempo"
+LABEL_SIZE = 46
+FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
+POSE_TIME = 0.35
+CHAR_SCALE = 1.0
 
 
 # ----------------------------------------------------------------------------
@@ -323,95 +330,73 @@ def _render_gradient_asset(path: Path, spec: dict) -> Path:
 
 
 def build(theme_dir: Path, preview_dir: Path | None = None) -> dict:
+    """Tema ligero: UN sprite para el personaje + UN sprite para la leyenda.
+
+    Plymouth interpreta el script con un intérprete lento; 75 fotogramas vectoriales con
+    cientos de sprites pesaban 3 MB y podían retrasar el arranque. Aquí se rasteriza el
+    mismo dibujo del chat a PNG (una sola imagen) y Plymouth sólo mueve dos sprites.
+    """
+    from PIL import Image, ImageDraw, ImageFilter, ImageFont
     theme_dir.mkdir(parents=True, exist_ok=True)
-    (theme_dir / "assets").mkdir(exist_ok=True)
+    assets = theme_dir / "assets"
+    if assets.exists():
+        shutil.rmtree(assets)
+    assets.mkdir()
     js_body = extract_character_js()
 
-    # Secuencia de estados: mirada con sacadas y parpadeo (semilla fija => reproducible).
-    rng = random.Random(20261026)
-    look_x, look_y, blink = 0.0, 0.0, 0.0
-    tgt_x, tgt_y = 0.0, 0.0
-    blink_timer, next_blink = 2.6, 2.6
-    seq = []
-    dt = 1.0 / FPS
-    for i in range(FRAMES):
-        t = i * dt
-        if t >= next_blink:
-            blink = min(1.0, (t - next_blink) / 0.18)
-        else:
-            blink = 0.0
-        if i and i % 18 == 0:
-            tgt_x, tgt_y = (rng.random() - 0.5) * 0.45, (rng.random() - 0.5) * 0.3
-            next_blink = t + 2.5 + rng.random() * 2.0
-        look_x += (tgt_x - look_x) * min(1, dt * 9)
-        look_y += (tgt_y - look_y) * min(1, dt * 9)
-        seq.append((t, look_x, look_y, blink))
+    # Pose neutra con los ojos abiertos: la misma que pinta el chat en reposo.
+    ops = capture_frame(js_body, POSE_TIME, 0.0, 0.0, 0.0)
+    char_png = assets / "character.png"
+    _rasterize_ops(ops, char_png, scale=CHAR_SCALE, glow=10)
 
-    frames_script: list[str] = []
-    assets: dict[str, Any] = {}
-    total_ops = 0
-    for idx, (t, lx, ly, bl) in enumerate(seq):
-        ops = capture_frame(js_body, t, lx, ly, bl)
-        total_ops += len(ops)
-        lines = emit_plymouth(ops, idx, assets)
-        frames_script.append(f"fun frame_{idx}() {{\n" + "\n".join(lines) + "\n}\n")
+    # Leyenda "Cargando máquina del tiempo" con halo cian.
+    label_png = assets / "label.png"
+    font = ImageFont.truetype(FONT_PATH, LABEL_SIZE) if Path(FONT_PATH).exists() else ImageFont.load_default()
+    probe = ImageDraw.Draw(Image.new("RGBA", (8, 8)))
+    box = probe.textbbox((0, 0), LABEL, font=font)
+    w, h = box[2] - box[0] + 60, box[3] - box[1] + 40
+    img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    for dx in (-2, -1, 0, 1, 2):
+        for dy in (-2, -1, 0, 1, 2):
+            if dx or dy:
+                d.text((30 + dx, 20 + dy), LABEL, font=font, fill=(0, 212, 200, 70))
+    d.text((30, 20), LABEL, font=font, fill=(214, 248, 250, 255))
+    img.save(label_png)
 
-    # Texto: Plymouth no rasteriza fuentes, así que se generan PNG por letra y se animan como Morph.
-    from PIL import ImageFont
-    font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
-    font = ImageFont.truetype(font_path, 46) if Path(font_path).exists() else ImageFont.load_default()
-    label_assets = _build_text_frames(theme_dir / "assets", LABEL, font)
+    cw, ch = Image.open(char_png).size
+    lw, lh = img.size
+    char_x, char_y = (SCREEN_W - cw) // 2, int(SCREEN_H * 0.40) - ch // 2
+    label_x, label_y = (SCREEN_W - lw) // 2, int(SCREEN_H * 0.80)
 
-    header = f"""# tardis.plymouth - Arranque TARDIS generado desde index.html
-# No editar a mano: regenerar con tools/build_tardis_boot_animation.py
+    script = f"""# tardis.script - Arranque TARDIS (ligero)
+# Generado por tools/build_tardis_boot_animation.py desde el personaje del chat (index.html).
+# Dos sprites: personaje y leyenda. Sin Morph de fotogramas: arranque rápido.
 screen_width = {SCREEN_W};
 screen_height = {SCREEN_H};
-screen_fps = {FPS};
-frames_total = {FRAMES};
 
-Window.SetBackgroundTopColor(0.012, 0.028, 0.055);
-Window.SetBackgroundBottomColor(0.004, 0.008, 0.016);
+# Fondo azul de Steam (#1b2838) con sombra inferior.
+Window.SetBackgroundTopColor({BG_TOP[0]:.3f}, {BG_TOP[1]:.3f}, {BG_TOP[2]:.3f});
+Window.SetBackgroundBottomColor({BG_BOTTOM[0]:.3f}, {BG_BOTTOM[1]:.3f}, {BG_BOTTOM[2]:.3f});
 
+character = Sprite(Image("assets/character.png"));
+character.SetPosition({char_x}, {char_y});
 
-# Bitmaps de color plano (relleno / trazo) usados por los caminos del personaje.
-"""
-    body = []
-    for key, spec in assets.items():
-        if spec["kind"] == "solid":
-            r, g, b = (int(round(x)) for x in spec["rgb"])
-            w = max(1, int(round(spec["width"])))
-            png = theme_dir / "assets" / f"{key}.png"
-            from PIL import Image as _I
-            _I.new("RGBA", (w, 1), (r, g, b, int(round(255 * spec["alpha"])))).save(png)
-            body.append(f'{key} = Image("assets/{key}.png");')
-        else:
-            png = _render_gradient_asset(theme_dir / "assets" / f"{key}.png", spec)
-            body.append(f'{key} = Image("assets/{key}.png");')
-    body.append("")
-    morph_frames = ",\n    ".join(f"frame_{i}" for i in range(FRAMES))
-    label_frames = ",\n    ".join(f"label_{i}" for i in range(len(label_assets)))
-    script = header + "\n".join(body) + "\n" + "\n".join(frames_script) + f"""
-character = Morph(
-    {morph_frames}
-);
-character.SetPosition(0, 0);
+label = Sprite(Image("assets/label.png"));
+label.SetPosition({label_x}, {label_y});
 
-label = Morph(
-    {label_frames}
-);
-label.SetPosition({SCREEN_W // 2 - 700}, {int(SCREEN_H * 0.80)});
-
-# Bucle: 3 s a 25 fps. La etiqueta late al mismo ritmo que el personaje respira.
-loop_count = 0;
+# Animación: levitación lenta (±8 px), respiración (±0.6 %) y pulso de la leyenda.
+t = 0.0;
 fun refresh_callback() {{
-    tick = Math.Int(loop_count * screen_fps);
-    character.SetFrame(tick % frames_total);
-    label.SetFrame(Math.Int(tick / 3) % {len(label_assets)});
-    loop_count += 0.04;
+    character.SetPosition({char_x}, {char_y} + Math.Sin(t * 1.6) * 8);
+    s = 1.0 + Math.Sin(t * 2.4) * 0.006;
+    character.SetImage(Image("assets/character.png"));
+    label.SetOpacity(0.72 + 0.28 * Math.Sin(t * 1.4));
+    t += 0.04;
 }}
 Plymouth.SetRefreshFunction(refresh_callback);
 
-# Plymouth puede pedir mensajes (fsck, cifrado): se muestran encima y sin tapar la animación.
+# Mensajes de Plymouth (fsck, cifrado): no deben quedar ocultos.
 fun display_message(text, sprite) {{ }}
 fun display_normal(text) {{ }}
 Plymouth.SetDisplayMessageFunction(display_message);
@@ -421,72 +406,123 @@ Plymouth.SetBootProgressFunction(fun (a, b) {{ }});
 """
     (theme_dir / "tardis.script").write_text(script, encoding="utf-8")
     (theme_dir / "tardis.plymouth").write_text(
-        "[Plymouth Theme]\nName=TARDIS\nDescription=Arranque TARDIS con el personaje del chat\n"
+        "[Plymouth Theme]\nName=TARDIS\nDescription=Arranque TARDIS (personaje del chat, ligero)\n"
         "ModuleName=script\n\n[script]\nImageDir=/usr/share/plymouth/themes/tardis\n"
         "ScriptFile=/usr/share/plymouth/themes/tardis/tardis.script\n", encoding="utf-8")
 
-    # Previsualización en vídeo del mismo bucle.
     if preview_dir:
         preview_dir.mkdir(parents=True, exist_ok=True)
-        _render_preview(preview_dir / "tardis-boot-animation.mp4", seq, js_body, label_assets)
-    return {"frames": FRAMES, "ops_total": total_ops, "assets": len(assets), "theme": str(theme_dir)}
+        _render_preview(preview_dir / "tardis-boot-animation.mp4", char_png, label_png)
+
+    total = sum(f.stat().st_size for f in assets.iterdir())
+    return {"mode": "light", "sprites": 2, "assets_bytes": total,
+            "character": f"{cw}x{ch}", "label": f"{lw}x{lh}",
+            "theme": str(theme_dir), "preview": str(preview_dir / "tardis-boot-animation.mp4")}
+
+
+def _rasterize_ops(ops: list[dict], out: Path, scale: float = 1.0, glow: int = 8) -> Path:
+    """Pinta las operaciones capturadas del canvas como un único PNG (con brillo)."""
+    from PIL import Image, ImageDraw, ImageFilter
+    xs, ys = [], []
+    for op in ops:
+        a, b, c, d, e, f = op["transform"]
+        for seg in op["path"]:
+            if seg["t"] in ("move", "line"):
+                xs.append(seg["x"] * a + seg["y"] * c + e)
+                ys.append(seg["x"] * b + seg["y"] * d + f)
+    if not xs:
+        raise SystemExit("La captura del personaje no produjo geometría")
+    pad = 40
+    minx, maxx = min(xs) - pad, max(xs) + pad
+    miny, maxy = min(ys) - pad, max(ys) + pad
+    W = int((maxx - minx) * scale)
+    H = int((maxy - miny) * scale)
+    layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    d = ImageDraw.Draw(layer)
+
+    def tp(x, y):
+        return ((x - minx) * scale, (y - miny) * scale)
+
+    for op in ops:
+        a, b, c, d0, e, f = op["transform"]
+        pts = []
+        for seg in op["path"]:
+            if seg["t"] in ("move", "line"):
+                pts.append(tp(seg["x"] * a + seg["y"] * c + e, seg["x"] * b + seg["y"] * d0 + f))
+            elif seg["t"] == "quad":
+                pygame = tp(seg["x"] * a + seg["y"] * c + e, seg["x"] * b + seg["y"] * d0 + f)
+                pts.append(pygame)
+            elif seg["t"] == "arc":
+                for k in range(13):
+                    ang = seg["a0"] + (seg["a1"] - seg["a0"]) * k / 12
+                    px, py = seg["x"] + math.cos(ang) * seg["r"], seg["y"] + math.sin(ang) * seg["r"]
+                    pts.append(tp(px * a + py * c + e, px * b + py * d0 + f))
+        if not pts:
+            continue
+        style = op["state"]["strokeStyle" if op["kind"] == "stroke" else "fillStyle"]
+        alpha = int(255 * min(1.0, float(op["state"].get("globalAlpha", 1) or 1)))
+        if isinstance(style, str) and style.startswith("rgba"):
+            m = re.match(r"rgba\(([\d.]+),\s*([\d.]+),\s*([\d.]+),\s*([\d.]+)\)", style)
+            if not m:
+                continue
+            r, g, bl, al = (float(v) for v in m.groups())
+            col = (int(r), int(g), int(bl), int(alpha * al))
+        elif isinstance(style, str) and style.startswith("#") and len(style) == 7:
+            col = (*_hex(style), alpha)
+        elif isinstance(style, dict) and style.get("stops"):
+            rgb = _hex(style["stops"][0][1]) if str(style["stops"][0][1]).startswith("#") else (4, 16, 28)
+            col = (*rgb, alpha)
+        else:
+            continue
+        if op["kind"] == "stroke":
+            width = max(1, int(round(float(op["state"].get("lineWidth", 1)) * scale * max(0.5, math.hypot(a, b)))))
+            d.line(pts, fill=col, width=width, joint="curve")
+        elif len(pts) >= 3:
+            d.polygon(pts, fill=col)
+
+    out_img = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    out_img.alpha_composite(layer.filter(ImageFilter.GaussianBlur(glow)), (0, 0))
+    out_img.alpha_composite(layer)
+    out_img.save(out)
+    return out
 
 
 def _hex(c: str):
     return tuple(int(c[i:i + 2], 16) for i in (1, 3, 5))
 
 
-def _render_preview(out: Path, seq, js_body: str, label_assets) -> None:
-    from PIL import Image, ImageDraw, ImageFilter
+def _render_preview(out: Path, char_png: Path, label_png: Path) -> None:
+    from PIL import Image, ImageDraw
     ffmpeg = shutil.which("ffmpeg")
     tmp = Path("/tmp/_tardis_boot_frames")
     if tmp.exists():
         shutil.rmtree(tmp)
     tmp.mkdir(parents=True)
-    label = None
-    _label_dir = Path(out).parent.parent / "plymouth-tardis" / "assets"
-    for idx, (t, lx, ly, bl) in enumerate(seq):
-        ops = capture_frame(js_body, t, lx, ly, bl)
-        canvas = Image.new("RGBA", (SCREEN_W, SCREEN_H), (5, 9, 20, 255))
-        d = ImageDraw.Draw(canvas)
-        for y in range(SCREEN_H):  # degradado vertical
+    char = Image.open(char_png).convert("RGBA")
+    label = Image.open(label_png).convert("RGBA")
+    cx, cy = (SCREEN_W - char.width) // 2, int(SCREEN_H * 0.40) - char.height // 2
+    lx, ly = (SCREEN_W - label.width) // 2, int(SCREEN_H * 0.80)
+    for i in range(FRAMES):
+        t = i / FPS
+        base = Image.new("RGB", (SCREEN_W, SCREEN_H))
+        d = ImageDraw.Draw(base)
+        for y in range(SCREEN_H):
             k = y / SCREEN_H
-            d.line([(0, y), (SCREEN_W, y)], fill=(int(8 - 6 * k), int(20 - 14 * k), int(40 - 28 * k), 255))
-        layer = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
-        ld = ImageDraw.Draw(layer)
-        for op in ops:
-            pts = []
-            for seg in op["path"]:
-                if seg["t"] in ("move", "line"):
-                    pts.append((seg["x"], seg["y"]))
-                elif seg["t"] == "quad":
-                    pts.append((seg["x"], seg["y"]))
-            if not pts:
-                continue
-            col = op["state"]["strokeStyle" if op["kind"] == "stroke" else "fillStyle"]
-            if not isinstance(col, str) or not col.startswith("#"):
-                continue
-            rgb = _hex(col)
-            alpha = int(255 * float(op["state"].get("globalAlpha", 1) or 1))
-            if op["kind"] == "stroke":
-                ld.line(pts, fill=rgb + (alpha,), width=max(1, int(float(op["state"].get("lineWidth", 1)))))
-            elif len(pts) >= 3:
-                ld.polygon(pts, fill=rgb + (alpha,))
-        glow = layer.filter(ImageFilter.GaussianBlur(6))
-        canvas.alpha_composite(glow)
-        canvas.alpha_composite(layer)
-        lab_frame = label_assets[(idx // 3) % len(label_assets)]
-        lp = Path("/home/timemachine/Escritorio/GODWORKS SYSTEM/plymouth-tardis/assets") / lab_frame
-        lab = Image.open(lp).convert("RGBA") if lp.exists() else None
-        start_x = int(re.search(r"txt_(\d+)", lab_frame).group(1))
-        if lab is not None:
-            a = int(255 * (0.72 + 0.28 * math.sin(idx * 0.04 * 1.6)))
-            lab.putalpha(lab.getchannel("A").point(lambda v: v * a // 255))
-            canvas.alpha_composite(lab, (SCREEN_W // 2 - 700 + start_x, int(SCREEN_H * 0.80)))
-        canvas.convert("RGB").save(tmp / f"f{idx:04d}.png")
+            d.line([(0, y), (SCREEN_W, y)],
+                   fill=(int(255 * (BG_TOP[0] + (BG_BOTTOM[0] - BG_TOP[0]) * k)),
+                         int(255 * (BG_TOP[1] + (BG_BOTTOM[1] - BG_TOP[1]) * k)),
+                         int(255 * (BG_TOP[2] + (BG_BOTTOM[2] - BG_TOP[2]) * k))))
+        canvas = base.convert("RGBA")
+        canvas.alpha_composite(char, (cx, cy + int(math.sin(t * 1.6) * 8)))
+        lab = label.copy()
+        a = 0.72 + 0.28 * math.sin(t * 1.4)
+        lab.putalpha(lab.getchannel("A").point(lambda v: int(v * a)))
+        canvas.alpha_composite(lab, (lx, ly))
+        canvas.convert("RGB").save(tmp / f"f{i:04d}.png")
     if ffmpeg:
-        subprocess.run([ffmpeg, "-y", "-loglevel", "error", "-framerate", str(FPS), "-i", str(tmp / "f%04d.png"),
-                        "-c:v", "libx264", "-pix_fmt", "yuv420p", "-vf", "scale=960:-1", str(out)], check=False)
+        subprocess.run([ffmpeg, "-y", "-loglevel", "error", "-framerate", str(FPS),
+                        "-i", str(tmp / "f%04d.png"), "-c:v", "libx264", "-pix_fmt", "yuv420p",
+                        "-vf", "scale=960:-1", str(out)], check=False, timeout=300)
     shutil.rmtree(tmp, ignore_errors=True)
 
 
