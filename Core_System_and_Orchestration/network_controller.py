@@ -567,8 +567,8 @@ class NetworkController:
             "ok": True,
             "active": active,
             "ssid": ssid,
+            # Sin `raw_password`: el endpoint es alcanzable desde la LAN y servía la clave en claro.
             "password": "REDACTED",
-            "raw_password": "REDACTED",
             "ifname": ifname,
             "connection_name": con_name,
             "gateway_ip": ip_addr,

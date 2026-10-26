@@ -8,7 +8,6 @@ Telemetría ambiental, radares de presencia RF, análisis espectral EM y vigilan
 - **camera_grabber.py**: Componente de alta eficiencia.
 - **device_sensors.py**: Sistema de telemetría y percepción del entorno físico/RF.
 - **em_spectrum_engine.py**: Componente de alta eficiencia.
-- **gods_eye_engine.py**: Componente de alta eficiencia.
 - **hotspot_watchdog.py**: Componente de alta eficiencia.
 - **individual_tracker.py**: Componente de alta eficiencia.
 - **physical_presence_sensor.py**: Sistema de telemetría y percepción del entorno físico/RF.

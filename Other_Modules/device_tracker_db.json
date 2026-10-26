@@ -187,10 +187,10 @@
     "throttle_kbps": null,
     "is_safe": true,
     "traffic_bytes_rx": 168,
-    "traffic_bytes_tx": 7087,
-    "traffic_packets": 21,
+    "traffic_bytes_tx": 4361,
+    "traffic_packets": 13,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-25T21:38:42.124893+00:00",
+    "last_seen": "2026-10-26T05:01:02.653438+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -232,7 +232,7 @@
     "ip": "REDACTED_IP",
     "ipv6_addresses": [],
     "alias": "Smart TV LG webOS (Recámara / Secundaria)",
-    "hostname": "Smart TV LG webOS (Recámara / Secundaria)",
+    "hostname": "LGwebOSTV.local",
     "vendor": "LG Innotek",
     "device_type": "Smart TV / Multimedia",
     "interface": "enp2s0",
@@ -244,17 +244,21 @@
     "open_ports": [],
     "port_details": [],
     "risky_ports": [],
-    "mdns_services": [],
+    "mdns_services": [
+      "0_0 (AirPlay Remote Video)",
+      "0_0 (_display._tcp)",
+      "0_0 (_ghp._tcp)"
+    ],
     "wifi_metrics": {},
     "trust_level": "KNOWN",
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
     "traffic_bytes_rx": 168,
-    "traffic_bytes_tx": 0,
-    "traffic_packets": 2,
+    "traffic_bytes_tx": 688,
+    "traffic_packets": 8,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-25T21:38:42.124893+00:00",
+    "last_seen": "2026-10-26T05:01:02.653438+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -373,10 +377,10 @@
     "throttle_kbps": null,
     "is_safe": true,
     "traffic_bytes_rx": 168,
-    "traffic_bytes_tx": 168,
-    "traffic_packets": 4,
+    "traffic_bytes_tx": 536,
+    "traffic_packets": 7,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-25T21:38:42.124893+00:00",
+    "last_seen": "2026-10-26T05:01:02.653438+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -388,7 +392,7 @@
       "fe80::52eb:f6ff:fee2:b850"
     ],
     "alias": "TimeMachine (ASUS TUF Gaming A15 - Ethernet Host)",
-    "hostname": "TimeMachine (ASUS TUF Gaming A15 - Ethernet Host)",
+    "hostname": "TimeMachine.local",
     "vendor": "ASUSTek COMPUTER INC.",
     "device_type": "Estación Central Soberana (Host)",
     "interface": "enp2s0",
@@ -442,17 +446,19 @@
       }
     ],
     "risky_ports": [],
-    "mdns_services": [],
+    "mdns_services": [
+      "TARDIS (AirPlay Remote Video)"
+    ],
     "wifi_metrics": {},
     "trust_level": "AEGIS_PROTECTED",
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 145666853,
-    "traffic_bytes_tx": 575537412,
-    "traffic_packets": 767288,
+    "traffic_bytes_rx": 807119512,
+    "traffic_bytes_tx": REDACTED_PHONE,
+    "traffic_packets": 4160731,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-25T21:38:42.124893+00:00",
+    "last_seen": "2026-10-26T05:01:02.653438+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -525,10 +531,10 @@
     "throttle_kbps": null,
     "is_safe": true,
     "traffic_bytes_rx": 0,
-    "traffic_bytes_tx": 207668,
-    "traffic_packets": 1818,
+    "traffic_bytes_tx": 1356987,
+    "traffic_packets": 12832,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-25T21:38:42.124893+00:00",
+    "last_seen": "2026-10-26T05:01:02.653438+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -560,7 +566,7 @@
     "traffic_bytes_tx": 0,
     "traffic_packets": 2,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-25T21:38:42.124893+00:00",
+    "last_seen": "2026-10-26T05:01:02.653438+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -592,7 +598,7 @@
     "traffic_bytes_tx": 0,
     "traffic_packets": 2,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-25T21:38:42.124893+00:00",
+    "last_seen": "2026-10-26T05:01:02.653438+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]

@@ -300,7 +300,6 @@ SUBSYSTEM_FILES: Dict[str, List[str]] = {
     "scientific_researcher": ["core/scientific_research_engine.py"],
     "blender_3d": ["tardis_formula_animator.py"],
     "airplay_monitor": [],
-    "vw_vault": ["server/api.py"],
     "idle_daemon": ["core/idle_evolution_daemon.py"],
     "adaptation_sys": [],
     "quantum_explorer": [],

@@ -6987,27 +6987,24 @@ iframe{{border:none;width:100%;height:100%;}}</style></head>
         # Endpoints Ojo de Dios (God's Eye) - GET
         elif url_path == "/api/gods_eye/status":
             try:
-                from core.gods_eye_engine import get_gods_eye_engine
-                engine = get_gods_eye_engine()
-                self.send_json(engine.get_system_status())
+                from core.gods_eye_realtime import get_gods_eye_realtime
+                self.send_json(get_gods_eye_realtime().status())
             except Exception as e:
                 self.send_json({"ok": False, "error": str(e)}, status=500)
             return
 
         elif url_path == "/api/gods_eye/feeds":
             try:
-                from core.gods_eye_engine import get_gods_eye_engine
-                engine = get_gods_eye_engine()
-                self.send_json({"ok": True, "feeds": engine.get_camera_feeds()})
+                from core.gods_eye_realtime import get_gods_eye_realtime
+                self.send_json({"ok": True, "feeds": get_gods_eye_realtime().cameras_view()})
             except Exception as e:
                 self.send_json({"ok": False, "error": str(e)}, status=500)
             return
 
         elif url_path == "/api/gods_eye/targets":
             try:
-                from core.gods_eye_engine import get_gods_eye_engine
-                engine = get_gods_eye_engine()
-                self.send_json({"ok": True, "targets": engine.get_all_targets()})
+                self.send_json({"ok": True, "targets": [],
+                                "deprecated": "Ya no se publican objetivos ni geolocalización de personas."})
             except Exception as e:
                 self.send_json({"ok": False, "error": str(e)}, status=500)
             return

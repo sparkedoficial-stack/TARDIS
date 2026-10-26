@@ -54,8 +54,9 @@ STATE_FILE = TELEM_DIR / "last_state.json"
 for _d in (TELEM_DIR, FRAMES_DIR):
     _d.mkdir(parents=True, exist_ok=True)
 
-# Ancla geoespacial por defecto (Playa del Carmen, MX)
-ANCHOR = {"lat": 20.6296, "lng": -87.0739, "name": "Playa del Carmen, MX"}
+# Sin ancla por defecto: si el cliente no envía GPS, la posición queda en None.
+# Rellenarla con una coordenada fija convertía una ausencia de dato en una ubicación falsa.
+ANCHOR = {"lat": None, "lng": None, "name": None}
 
 MAX_BUFFER = 600          # ~10 min a 1 Hz
 MAX_FRAMES_ON_DISK = 60   # rotacion: no llenar el disco con JPEG
@@ -702,8 +703,11 @@ if __name__ == "__main__":
     if not args or args[0] == "stats":
         print(json.dumps(stats(), indent=2, ensure_ascii=False))
     elif args[0] == "sidereal":
-        lon = float(args[1]) if len(args) > 1 else ANCHOR["lng"]
-        now = datetime.now(timezone.utc)
+        if len(args) < 2:
+            print("uso: sidereal <longitud>")
+        else:
+            lon = float(args[1])
+            now = datetime.now(timezone.utc)
         print(f"UTC ahora        : {now.isoformat(timespec='seconds')}")
         print(f"Fecha Juliana    : {julian_date(now):.6f}")
         print(f"GMST             : {gmst_hours(now):.6f} h")

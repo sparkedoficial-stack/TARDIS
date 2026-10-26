@@ -5152,18 +5152,6 @@ iframe{border:none;width:100%;height:100%;}</style></head>
                 "is_background": True
             },
             {
-                "id": "vw_vault",
-                "name": "Bóveda Vehicular VW & Telemetría",
-                "icon": "🚗",
-                "category": "Proceso de Segundo Plano",
-                "status": "online",
-                "systemd_service": "vw-control",
-                "cmd": ":vw",
-                "desc": "Almacenamiento persistente de telemetría CAN/OBD-II y vault de memoria profunda.",
-                "route": "/vw_vault",
-                "is_background": True
-            },
-            {
                 "id": "idle_daemon",
                 "name": "Demonio de Evolución Pasiva (144Hz)",
                 "icon": "⚙️",
@@ -5610,9 +5598,8 @@ iframe{border:none;width:100%;height:100%;}</style></head>
     # 5. Bóveda Vehicular VW & Telemetría
     @app.get("/api/vw/telemetry")
     async def api_vw_telemetry():
-        # Antes devolvía rpm/fuel/coolant fijos aunque no hubiera coche ni adaptador OBD-II.
-        # Sin enlace real la respuesta es explícita; el puerto serie sólo se usa si el
-        # operador declara el adaptador con VW_OBD_PORT.
+        # Sin adaptador OBD-II no hay telemetría: se retiró el subsistema del catálogo y la
+        # ruta queda sólo como sonda de enlace, sin publicar cifras.
         port = os.environ.get("VW_OBD_PORT", "")
         if not port or not Path(port).exists():
             return {"ok": True, "linked": False, "source": "sin-enlace",
@@ -5838,45 +5825,30 @@ if __name__ == "__main__":
         except Exception:
             return Response(status_code=500)
 
-    @app.post("/api/gods_eye/search")
-    async def api_gods_eye_search(payload: Optional[Dict[str, Any]] = None):
-        try:
-            from core.gods_eye_engine import get_gods_eye_engine
-            engine = get_gods_eye_engine()
-            q = str((payload or {}).get("query") or (payload or {}).get("q") or "").strip()
-            return engine.search_target(q)
-        except Exception as e:
-            return {"ok": False, "error": str(e)}
-
+    # Eliminados /api/gods_eye/{search,scan,track,intercept}: buscaban objetivos inexistentes,
+    # "escaneaban" una rejilla global inventada y "capturaban audio" sin fuente (410 Gone).
     @app.post("/api/gods_eye/scan")
     async def api_gods_eye_scan():
-        try:
-            from core.gods_eye_engine import get_gods_eye_engine
-            engine = get_gods_eye_engine()
-            return engine.scan_global_grid()
-        except Exception as e:
-            return {"ok": False, "error": str(e)}
+        # Escaneo real: refresca las cámaras registradas y devuelve su estado medido.
+        from core.gods_eye_realtime import get_gods_eye_realtime
+        eng = get_gods_eye_realtime()
+        return {"ok": True, "mode": "camera-scan", "cameras": eng.cameras_view(), "stats": eng.stats()}
+
+    @app.post("/api/gods_eye/search")
+    async def api_gods_eye_search(payload: Optional[Dict[str, Any]] = None):
+        # Búsqueda real: filtra eventos persistidos por zona o tipo (sin personas).
+        from core.gods_eye_realtime import get_gods_eye_realtime
+        q = str((payload or {}).get("query") or (payload or {}).get("q") or "").strip().lower()
+        events = get_gods_eye_realtime().recent_events(500)
+        if q:
+            events = [e for e in events if q in str(e.get("zone", "")).lower()
+                      or q in str(e.get("kind", "")).lower() or q in str(e.get("detail", "")).lower()]
+        return {"ok": True, "query": q, "results": events[:50], "scope": "eventos de cámaras reales"}
 
     @app.post("/api/gods_eye/track")
     async def api_gods_eye_track(payload: Optional[Dict[str, Any]] = None):
-        try:
-            from core.gods_eye_engine import get_gods_eye_engine
-            engine = get_gods_eye_engine()
-            target_id = str((payload or {}).get("target_id", "")).strip()
-            active = bool((payload or {}).get("active", True))
-            return engine.track_target(target_id=target_id, active=active)
-        except Exception as e:
-            return {"ok": False, "error": str(e)}
-
-    @app.post("/api/gods_eye/intercept")
-    async def api_gods_eye_intercept(payload: Optional[Dict[str, Any]] = None):
-        try:
-            from core.gods_eye_engine import get_gods_eye_engine
-            engine = get_gods_eye_engine()
-            target_id = (payload or {}).get("target_id")
-            return engine.intercept_audio(target_id=target_id)
-        except Exception as e:
-            return {"ok": False, "error": str(e)}
+        from core.gods_eye_realtime import get_gods_eye_realtime
+        return {"ok": False, "error": "seguimiento de personas eliminado: el motor sólo sigue movimiento dentro de cada cámara"}
 
     return app
 

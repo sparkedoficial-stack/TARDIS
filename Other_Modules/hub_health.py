@@ -53,7 +53,6 @@ PROBES: Dict[str, Dict[str, Optional[str]]] = {
     "scientific_researcher": {"http": "/scientific_researcher", "unit": None},
     "blender_3d": {"http": "/blender_animator", "unit": None},
     "airplay_monitor": {"http": "127.0.0.1:7000", "unit": "uxplay-airplay"},
-    "vw_vault": {"http": "/api/vw/telemetry", "unit": None},
     "idle_daemon": {"http": "/api/idle/status", "unit": None},
     "adaptation_sys": {"http": "/api/adaptation/modules", "unit": None},
     "quantum_explorer": {"http": "/api/autonomous/status", "unit": None},
