@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1792768788",
-    "timestamp": "2026-10-23T10:19:48.584649",
-    "idle_duration_minutes": 33.5,
-    "title": "Causal Memory Indexing for Real‑Time Web Research",
-    "hypothesis": "Integrating a causal inference layer into the Deep Memory Vault (core/deep_memory_vault.py) that tags each stored fragment with a lightweight provenance graph will allow the Web Research Engine to prioritize sources that are causally linked to the current query context, reducing latency and improving relevance by up to 30% compared to the current keyword‑only retrieval approach.",
-    "research_query": "causal inference based document retrieval systems \"provenance graph\" \"real-time search\"",
-    "research_findings": "# Informe de Investigación: causal inference based document retrieval systems \"provenance graph\" \"real-time search\"\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Add a provenance graph data structure to each memory node and expose a new method `get_causal_candidates(query_context)` that returns memory fragments ranked by causal relevance, then modify core/web_research_engine.py to use this method when selecting sources for web queries.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 118.87
-  },
-  {
     "id": "conj_1792772463",
     "timestamp": "2026-10-23T11:21:03.678720",
     "idle_duration_minutes": 31.7,
@@ -1615,5 +1600,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 96.16
+  },
+  {
+    "id": "conj_1793013098",
+    "timestamp": "2026-10-26T06:11:38.383393",
+    "idle_duration_minutes": 31.6,
+    "title": "Sincronización Temporal Adaptativa entre Telemetría de Red y Memoria Profunda",
+    "hypothesis": "Se postula que la latencia percibida en la recuperación de información de la 'Bóveda Akáshica' (deep_memory_vault.py) no es estática, sino que correlaciona inversamente con la entropía de tráfico detectada por network_shield.py. Al implementar un mecanismo de 'pre-fetching' predictivo que ajuste la profundidad de búsqueda en web_research_engine.py basándose en la estabilidad de la red, se puede reducir el tiempo de respuesta total del sistema en entornos de alta latencia, optimizando el balance entre frescura de datos y consistencia local.",
+    "research_query": "adaptive prefetching strategies based on network entropy and latency prediction for hybrid local-web memory systems",
+    "research_findings": "# Informe de Investigación: adaptive prefetching strategies based on network entropy and latency prediction for hybrid local-web memory systems\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Integrar un hook de telemetría que lea el estado de red de network_shield.py para dinámicamente ajustar el timeout y la profundidad de crawl en web_research_engine.py, priorizando la caché local cuando la red es inestable.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.48
   }
 ]
