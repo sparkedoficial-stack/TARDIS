@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.0147235,
-  "last_video_id": "vp_20261026_163156_ff1fd2",
-  "last_topic": "HaPPY Code: Visualizing Quantum Error Correction as a Holographic Tensor Network",
-  "total_videos_analyzed": 596,
+  "last_run_timestamp": REDACTED_PHONE.842475,
+  "last_video_id": "vp_20261026_174445_512319",
+  "last_topic": "The Amplituhedron: Positive Geometry of Scattering Amplitudes in N=4 Super Yang‑Mills",
+  "total_videos_analyzed": 598,
   "running_cycle": false,
   "last_error": null,
-  "auto_improvement_count": 354
+  "auto_improvement_count": 356
 }
