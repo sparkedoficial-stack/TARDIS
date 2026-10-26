@@ -14,14 +14,10 @@ from typing import Any, Dict, List
 BASE = Path("/home/timemachine/Escritorio/GODWORKS SYSTEM")
 
 SYSTEM = (
-    "Eres un planificador de cambios de código. Responde EXACTAMENTE con tres líneas:\n"
-    "ARCHIVO: <ruta relativa de la lista>   -> si el cambio va DENTRO de un archivo existente\n"
-    "NUEVO: <ruta .py relativa>            -> si la funcionalidad no existe todavía\n"
-    "MOTIVO: <una frase en español, máximo 20 palabras, sin repetir la petición>\n"
-    "Usa sólo una de las dos primeras líneas. Elige por el rol real del archivo "
-    "(mira su nombre y su descripción), nunca el primero de la lista por comodidad. "
-    "Si la petición mezcla varios archivos, elige el principal y dilo en MOTIVO.\n"
-    "No escribas razonamientos, dudas ni listas: sólo las tres líneas."
+    "Planificador de cambios de código. Responde SOLO con una línea, sin explicaciones:\n"
+    "ARCHIVO=<ruta exacta de la lista> si el cambio va dentro de ese archivo, o\n"
+    "NUEVO=<ruta .py> si hay que crear un módulo que no existe.\n"
+    "Nada más. Sin MOTIVO, sin razonamiento, sin listas."
 )
 
 
@@ -45,19 +41,22 @@ def plan_change(instruction: str, model: str | None = None) -> Dict[str, Any]:
         resp = api.chat_completion(
             [{"role": "system", "content": SYSTEM},
              {"role": "user", "content": "Archivos:\n" + "\n".join(_candidates()) + "\n\nPetición: " + instruction}],
-            model=model, max_tokens=180, timeout=40.0)
+            model=model or "openai/gpt-oss-120b", max_tokens=200, timeout=40.0)
     except Exception as e:
         return {"ok": False, "error": f"proveedor no disponible: {e}"}
     if not resp.get("ok"):
         return {"ok": False, "error": resp.get("error") or "sin respuesta del proveedor"}
     text = (resp.get("reply") or "").strip()
-    m_new = re.search(r"NUEVO:\s*([\w./-]+\.py)", text)
-    m_arch = re.search(r"ARCHIVO:\s*([\w./-]+\.py)", text)
+    m_new = re.search(r"NUEVO\s*[:=]\s*\**\s*`?([\w./-]+\.py)", text)
+    m_arch = re.search(r"ARCHIVO\s*[:=]\s*\**\s*`?([\w./-]+\.py)", text)
     motivo = ""
     m_mot = re.search(r"MOTIVO:\s*(.+)", text)
     if m_mot:
         motivo = m_mot.group(1).strip()
         motivo = re.split(r"\s{2,}|\n", motivo)[0][:200]
+        # Los modelos pequeños a veces repiten el prompt: se descarta esa frase.
+        if re.search(r"(?i)ensure|words max|choose the|the request|look at files", motivo):
+            motivo = ""
     if m_new and (not m_arch or text.find(m_new.group(0)) < text.find(m_arch.group(0))):
         target, nuevo = m_new.group(1), True
     elif m_arch:
