@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.4276323,
-  "last_video_id": "vp_20261025_202304_70547b",
-  "last_topic": "Persistent Homology of Brain Connectomes: Topological Data Analysis of Neural Activity",
-  "total_videos_analyzed": 563,
-  "running_cycle": false,
+  "last_run_timestamp": REDACTED_PHONE.8898113,
+  "last_video_id": "vp_20261025_205826_ca4987",
+  "last_topic": "The Sachdev‑Ye‑Kitaev (SYK) Model and its Holographic Dual: Quantum Chaos and Black Hole Dynamics",
+  "total_videos_analyzed": 564,
+  "running_cycle": true,
   "last_error": null,
   "auto_improvement_count": 342
 }
