@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "created_at": "2026-10-15T02:04:29.176374",
   "last_periodic_sync": "2026-10-25T00:43:12.018200",
-  "last_immediate_sync": "2026-10-25T21:12:14.414434",
-  "last_commit_hash": "f8c373df",
-  "sync_count": 1220,
-  "immediate_sync_count": 1219,
+  "last_immediate_sync": "2026-10-25T21:27:24.132155",
+  "last_commit_hash": "37bc66f7",
+  "sync_count": 1221,
+  "immediate_sync_count": 1220,
   "periodic_sync_count": 1,
   "last_known_mtimes": {
     "skill:omni-control-bridge/SKILL.md": REDACTED_PHONE.4575877,
@@ -278,6 +278,17 @@
     "sat:gia_ios:GIA/Models/GIAModels.swift": REDACTED_PHONE.5796177
   },
   "history": [
+    {
+      "timestamp": "2026-10-25T21:27:24.132155",
+      "trigger": "immediate_milestone",
+      "commit_hash": "37bc66f7",
+      "score": 75,
+      "reasons": [
+        "Evoluci\u00f3n en subsistema core TARDIS: curiosity_debate_manager.py",
+        "Evoluci\u00f3n en subsistema core TARDIS: scientific_research_engine.py",
+        "Evoluci\u00f3n en subsistema core TARDIS: background_thought_engine.py"
+      ]
+    },
     {
       "timestamp": "2026-10-25T21:12:14.414434",
       "trigger": "immediate_milestone",
@@ -839,18 +850,6 @@
       "trigger": "immediate_milestone",
       "commit_hash": "9efe9d49",
       "score": 65,
-      "reasons": [
-        "Actualizaci\u00f3n en proyecto price_sentinel: README.md",
-        "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
-        "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",
-        "Actualizaci\u00f3n en proyecto carlinkit_kvm: index.html"
-      ]
-    },
-    {
-      "timestamp": "2026-10-15T23:58:11.433200",
-      "trigger": "immediate_milestone",
-      "commit_hash": "afcc1ecd",
-      "score": 60,
       "reasons": [
         "Actualizaci\u00f3n en proyecto price_sentinel: README.md",
         "Actualizaci\u00f3n en proyecto price_sentinel: __init__.py",

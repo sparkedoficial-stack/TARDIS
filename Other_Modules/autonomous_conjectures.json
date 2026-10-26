@@ -1,23 +1,5 @@
 [
   {
-    "id": "conj_1792723217",
-    "timestamp": "2026-10-22T21:40:17.564740",
-    "idle_duration_minutes": 31.6,
-    "title": "Optimización de la caché semántica en WebResearchEngine mediante embeddings temporales",
-    "hypothesis": "Si el motor de búsqueda web (core/web_research_engine.py) incorpora una capa de caché basada en embeddings temporales que indexa resultados recientes según su similitud semántica y su frescura, entonces la latencia promedio de consultas recurrentes disminuirá en al menos un 30% y la relevancia percibida aumentará, al evitar búsquedas redundantes y priorizar información actualizada dentro del contexto de la Bóveda Akáshica.",
-    "research_query": "temporal embedding cache for web search engine latency reduction semantic similarity recent results",
-    "research_findings": "# Informe de Investigación: temporal embedding cache for web search engine latency reduction semantic similarity recent results\n\n## Fuentes Consultadas y Respaldo Web\n- **[Enhancing adversarial resilience in semantic caching for secure retrieval augmented generation systems - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTFA4TWYxZkRtaF8wbzRrZnFrVGZ1X3d2d2RqSE9MazdHbldQSmdGaG5Kb2dUWHRSek51bTROY2NKcHB3YU9rb25VSlFZakQ1WTNxZlAyZENiZUFoM3FTblhN?oc=5)**: Enhancing adversarial resilience in semantic caching for secure retrieval augmented generation systems  Nature\n- **[Zero-Waste Agentic RAG: Designing Caching Architectures to Minimize Latency and LLM Costs at Scale - Towards Data Science](https://news.google.com/rss/articles/CBMiyAFBVV95cUxQT2QxY25heG4tcE03MkgtWjl4UTVxemtuMUd6d3pLaVF4ekF3M256cC1CbnBWaFllTWUzdDBOUjU2TmIxNTVFbXZNWnI1eHduNmxIMjRMVFZGalBkQjFwQjFQdnh4VEQ0ZmNIWG5QUWdsTDRvNXI1b0s0U0V6bHl5SXhOWU9HbDRQMEJXOXBsT2RsU3pSWjFNdDd3Nkhka2NPeWlPTXVKSmtFZGxfN2t0Z0NmNDdCY0d5M3hNZnZN",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTFA4TWYxZkRtaF8wbzRrZnFrVGZ1X3d2d2RqSE9MazdHbldQSmdGaG5Kb2dUWHRSek51bTROY2NKcHB3YU9rb25VSlFZakQ1WTNxZlAyZENiZUFoM3FTblhN?oc=5",
-      "https://news.google.com/rss/articles/CBMiyAFBVV95cUxQT2QxY25heG4tcE03MkgtWjl4UTVxemtuMUd6d3pLaVF4ekF3M256cC1CbnBWaFllTWUzdDBOUjU2TmIxNTVFbXZNWnI1eHduNmxIMjRMVFZGalBkQjFwQjFQdnh4VEQ0ZmNIWG5QUWdsTDRvNXI1b0s0U0V6bHl5SXhOWU9HbDRQMEJXOXBsT2RsU3pSWjFNdDd3Nkhka2NPeWlPTXVKSmtFZGxfN2t0Z0NmNDdCY0d5M3hNZnZNczkyTjZzSUFkYg?oc=5"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Implementar una caché de resultados basada en vectores de embeddings temporales con expiración adaptativa y lógica de recuperación por similitud semántica para acelerar consultas repetidas.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.06
-  },
-  {
     "id": "conj_1792727010",
     "timestamp": "2026-10-22T22:43:30.119945",
     "idle_duration_minutes": 31.6,
@@ -1621,5 +1603,23 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.52
+  },
+  {
+    "id": "conj_1792983176",
+    "timestamp": "2026-10-25T21:52:56.462913",
+    "idle_duration_minutes": 32.2,
+    "title": "Dynamic Causal Prompt Weighting for Contextual Retrieval",
+    "hypothesis": "Integrar un mecanismo de ponderación causal dinámica en el motor de búsqueda web permite que los prompts generados por el Deep Memory Vault influyan en tiempo real sobre la selección y el ranking de resultados, mejorando la relevancia semántica y reduciendo la latencia de inferencia en entornos de alta concurrencia.",
+    "research_query": "dynamic causal weighting in neural information retrieval systems recent advances 2023 2024",
+    "research_findings": "# Informe de Investigación: dynamic causal weighting in neural information retrieval systems recent advances 2023 2024\n\n## Fuentes Consultadas y Respaldo Web\n- **[List of cognitive biases (Wikipedia)](https://en.wikipedia.org/wiki/List_of_cognitive_biases)**: Strack F, Klumpp G, Rittenauer-Schatka H, Simons A (1991). \"Ease of Retrieval as Information: Another Look at the Availability Heuristic\" (PDF). Journal of\n- **[On the foundations of Earth foundation models - Communications Earth & Environment - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTFBKNlZRVnJsVGVVU1lYUGlFWlhKRll0UW9SSEV5TDVKNXlnQmhvdmhCbGlJZDYxRTAtell5REhPZFotY2xtQm56aWhhMkhtZ3UtSWtGT2hqNk1vNU9GQ1Nj?oc=5)**: On the foundations of Earth foundation models - Communications Earth & Environment  Nature\n\n## Contenido y Hallazgos Extraídos\n### De [List of cognitive biases - Wikipedia](https://en.wikipedia.org/wiki/List_of_cognitive_biases)\n> List of cognitive biases - Wikipedia\nJump to content\nFrom Wikipedia, the fre",
+    "web_sources": [
+      "https://en.wikipedia.org/wiki/List_of_cognitive_biases",
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTFBKNlZRVnJsVGVVU1lYUGlFWlhKRll0UW9SSEV5TDVKNXlnQmhvdmhCbGlJZDYxRTAtell5REhPZFotY2xtQm56aWhhMkhtZ3UtSWtGT2hqNk1vNU9GQ1Nj?oc=5"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Añadir una capa de \"CausalPromptWeight\" que ajuste los scores de los resultados basándose en metadatos de causalidad extraídos del Deep Memory Vault, implementando una API simple y pruebas unitarias para validar la mejora de precisión y tiempo de respuesta.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.97
   }
 ]
