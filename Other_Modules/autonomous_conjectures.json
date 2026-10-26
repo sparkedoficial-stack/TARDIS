@@ -1,22 +1,5 @@
 [
   {
-    "id": "conj_1792711913",
-    "timestamp": "2026-10-22T18:31:53.743134",
-    "idle_duration_minutes": 32.6,
-    "title": "Dynamic Causal Prompt Routing for Context‑Sensitive Web Research",
-    "hypothesis": "Integrating a causal inference layer into the web_research_engine module that dynamically routes prompts based on the inferred causal relevance of the user's query will improve the precision of retrieved sources and reduce hallucination rates. The hypothesis posits that by modeling the query as a node in a causal graph of knowledge domains (e.g., physics → quantum mechanics → entanglement) and selecting the most probable downstream sub‑graph before issuing the web search, the engine can prioritize semantically and causally aligned results, leading to higher factual consistency in downstream reasoning tasks.",
-    "research_query": "causal inference based query routing for web search engines improve factual consistency",
-    "research_findings": "# Informe de Investigación: causal inference based query routing for web search engines improve factual consistency\n\n## Fuentes Consultadas y Respaldo Web\n- **[Fuzzy concept (Wikipedia)](https://en.wikipedia.org/wiki/Fuzzy_concept)**: Internet use, almost all search queries by employees, citizens and consumers are processed/solved with software partly based on fuzzy concepts, fuzzy\n\n## Contenido y Hallazgos Extraídos\n### De [Fuzzy concept - Wikipedia](https://en.wikipedia.org/wiki/Fuzzy_concept)\n> Fuzzy concept - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nThis article has multiple issues. Please help improve it or discuss these issues on the talk page . ( Learn how and when to remove these messages )\nThis article possibly contains original synthesis . Source material should verifiably mention and relate to the main topic. Relevant discussion may be found on the talk pag...\n",
-    "web_sources": [
-      "https://en.wikipedia.org/wiki/Fuzzy_concept"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a CausalRouter class that builds a lightweight domain causal graph from the deep_memory_vault, computes the most relevant sub‑graph for a given prompt, and uses it to filter or weight search engine API calls. The improvement should expose a new method `search_with_causal_context(prompt: str) -> List[Result]` and include unit tests for graph traversal and ranking.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.08
-  },
-  {
     "id": "conj_1792715740",
     "timestamp": "2026-10-22T19:35:40.835994",
     "idle_duration_minutes": 33.2,
@@ -1620,5 +1603,22 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 96.95
+  },
+  {
+    "id": "conj_1792977452",
+    "timestamp": "2026-10-25T20:17:32.894641",
+    "idle_duration_minutes": 31.6,
+    "title": "Causalidad Temporal en la Búsqueda Web: Predicción de Latencia y Relevancia",
+    "hypothesis": "La eficiencia actual del motor de investigación web se limita a la relevancia estática. Se conjetura que al integrar un modelo de predicción de latencia y estabilidad del endpoint (basado en telemetría histórica de red_shield.py) con el scoring de relevancia de deep_memory_vault.py, el sistema puede priorizar fuentes no solo por contenido, sino por 'fiabilidad temporal', reduciendo el tiempo de ciclo de investigación en un 15-20% al evitar endpoints con alta probabilidad de timeout o inestabilidad.",
+    "research_query": "web research engine latency prediction dynamic source ranking stability metrics",
+    "research_findings": "# Informe de Investigación: web research engine latency prediction dynamic source ranking stability metrics\n\n## Fuentes Consultadas y Respaldo Web\n- **[Glossary of artificial intelligence (Wikipedia)](https://en.wikipedia.org/wiki/Glossary_of_artificial_intelligence)**: Network and Long-term Prediction\". arXiv:1511.06410v1 [cs.LG]. \"How Facebook's AI Researchers Built a Game-Changing Go Engine\". MIT Technology Review\n\n## Contenido y Hallazgos Extraídos\n### De [Glossary of artificial intelligence - Wikipedia](https://en.wikipedia.org/wiki/Glossary_of_artificial_intelligence)\n> Glossary of artificial intelligence - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nList of concepts in artificial intelligence\nPart of a series on\nArtificial intelligence (AI)\nMajor goals\nArtificial general intelligence\nsuperintelligence\nAI agent\nIntelligent agent\nRecursive self-improvement\nPlanning\nComputer vision\nGeneral game playing\nKnowledge representation\nNatural language p...\n",
+    "web_sources": [
+      "https://en.wikipedia.org/wiki/Glossary_of_artificial_intelligence"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Implementar un método `predict_endpoint_reliability()` que consulte la telemetría de red para ajustar el peso de las fuentes antes de la ejecución de la búsqueda, fusionando métricas de latencia con el score de relevancia.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.07
   }
 ]
