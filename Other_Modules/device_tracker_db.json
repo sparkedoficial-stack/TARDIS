@@ -186,11 +186,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 271,
-    "traffic_bytes_tx": 312,
-    "traffic_packets": 7,
+    "traffic_bytes_rx": 168,
+    "traffic_bytes_tx": 168,
+    "traffic_packets": 4,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-26T06:17:39.879221+00:00",
+    "last_seen": "2026-10-26T07:41:31.207606+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -392,7 +392,7 @@
       "fe80::52eb:f6ff:fee2:b850"
     ],
     "alias": "TimeMachine (ASUS TUF Gaming A15 - Ethernet Host)",
-    "hostname": "TimeMachine (ASUS TUF Gaming A15 - Ethernet Host)",
+    "hostname": "TimeMachine.local",
     "vendor": "ASUSTek COMPUTER INC.",
     "device_type": "Estación Central Soberana (Host)",
     "interface": "enp2s0",
@@ -446,17 +446,20 @@
       }
     ],
     "risky_ports": [],
-    "mdns_services": [],
+    "mdns_services": [
+      "TARDIS (AirPlay Remote Video)",
+      "50EBF6E2B850@TARDIS (AirTunes Remote Audio)"
+    ],
     "wifi_metrics": {},
     "trust_level": "AEGIS_PROTECTED",
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 0,
-    "traffic_bytes_tx": 643,
-    "traffic_packets": 4,
+    "traffic_bytes_rx": 15809275,
+    "traffic_bytes_tx": 58979215,
+    "traffic_packets": 89823,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-26T07:31:45.154276+00:00",
+    "last_seen": "2026-10-26T07:41:31.207606+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -529,10 +532,10 @@
     "throttle_kbps": null,
     "is_safe": true,
     "traffic_bytes_rx": 0,
-    "traffic_bytes_tx": 541,
-    "traffic_packets": 7,
+    "traffic_bytes_tx": 41997,
+    "traffic_packets": 376,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-26T07:31:45.154276+00:00",
+    "last_seen": "2026-10-26T07:41:31.207606+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -864,6 +867,38 @@
     "traffic_packets": 1666,
     "first_seen": "2026-10-26T06:17:39.879221+00:00",
     "last_seen": "2026-10-26T06:17:39.879221+00:00",
+    "ip_history": [
+      "REDACTED_IP"
+    ]
+  },
+  "9A:D3:A8:AA:1D:72": {
+    "mac": "9A:D3:A8:AA:1D:72",
+    "ip": "REDACTED_IP",
+    "ipv6_addresses": [],
+    "alias": "Dispositivo LAN (REDACTED_IP)",
+    "hostname": "Dispositivo LAN (REDACTED_IP)",
+    "vendor": "Dirección MAC Privada / Aleatoria (iOS / Android / Linux)",
+    "device_type": "Dispositivo de Red (Dirección MAC Privada / Aleatoria (iOS / Android / Linux))",
+    "interface": "veth-host-aq",
+    "connection_medium": "Virtual Bridge (veth-host-aq)",
+    "network_segment": "Namespace Virtual Antarctica (REDACTED_IP/24)",
+    "arp_state": "REACHABLE",
+    "online": true,
+    "rtt_ms": 0.04,
+    "open_ports": [],
+    "port_details": [],
+    "risky_ports": [],
+    "mdns_services": [],
+    "wifi_metrics": {},
+    "trust_level": "KNOWN",
+    "is_quarantined": false,
+    "throttle_kbps": null,
+    "is_safe": true,
+    "traffic_bytes_rx": 46865,
+    "traffic_bytes_tx": 88141,
+    "traffic_packets": 1254,
+    "first_seen": "2026-10-26T07:37:00.731066+00:00",
+    "last_seen": "2026-10-26T07:41:31.207606+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]

@@ -695,6 +695,36 @@ def create_app() -> FastAPI:
         )
         return bool(key) and verify_token(key)
 
+    @app.get("/api/qoder/status")
+    async def qoder_status(request: Request):
+        """Estado del canal de retroalimentación TARDIS ↔ Qoder (sin exponer contenido)."""
+        from core import qoder_request_bridge as qrb
+        if not _qoder_token_ok(request):
+            return JSONResponse(status_code=401, content={"ok": False, "error": "token_requerido"})
+        return {"ok": True, "bridge": "qoder_request_bridge", "stats": qrb.stats()}
+
+    @app.get("/api/qoder/feedback")
+    async def qoder_feedback(request: Request, limit: int = 40):
+        """Últimos eventos del canal (salud, agentes, regresiones, peticiones pendientes).
+
+        Es lo que la sesión de Qoder lee para responder en el chat; TARDIS lo expone para
+        que él mismo pueda ver qué se le ha reportado y qué se ha decidido.
+        """
+        import json as _json
+        from pathlib import Path as _P
+        fdir = _P.home() / ".local/share/tardis-qoder/feedback"
+        state_f, events_f = fdir / "state.json", fdir / "events.jsonl"
+        try:
+            state = _json.loads(state_f.read_text(encoding="utf-8"))
+        except Exception:
+            state = {}
+        events = []
+        try:
+            events = [_json.loads(l) for l in events_f.read_text(encoding="utf-8").splitlines() if l.strip()]
+        except Exception:
+            pass
+        return {"ok": True, "state": state, "events": events[-max(1, min(limit, 200)):]}
+
     @app.post("/api/qoder/request")
     async def qoder_request_submit(request: Request):
         from core import qoder_request_bridge as qrb
