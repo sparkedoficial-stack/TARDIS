@@ -381,9 +381,11 @@ Window.SetBackgroundBottomColor({BG_BOTTOM[0]:.3f}, {BG_BOTTOM[1]:.3f}, {BG_BOTT
 
 character = Sprite(Image("assets/character.png"));
 character.SetPosition({char_x}, {char_y});
+character.SetZ(-100);
 
 label = Sprite(Image("assets/label.png"));
 label.SetPosition({label_x}, {label_y});
+label.SetZ(100);
 
 # Animación: levitación lenta (±8 px), respiración (±0.6 %) y pulso de la leyenda.
 t = 0.0;
