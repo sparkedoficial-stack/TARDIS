@@ -1,22 +1,5 @@
 [
   {
-    "id": "conj_1792719558",
-    "timestamp": "2026-10-22T20:39:18.264296",
-    "idle_duration_minutes": 33.7,
-    "title": "Causal Retrieval Augmentation for Web Research Engine",
-    "hypothesis": "Integrating a lightweight causal inference layer between the Web Research Engine and the Deep Memory Vault will improve relevance ranking of retrieved documents by modeling the temporal and logical dependencies of query terms, leading to a measurable increase (≥15%) in precision@10 on benchmark web search tasks.",
-    "research_query": "causal inference for information retrieval relevance ranking temporal dependencies",
-    "research_findings": "# Informe de Investigación: causal inference for information retrieval relevance ranking temporal dependencies\n\n## Fuentes Consultadas y Respaldo Web\n- **[Mamba-based modulated fusion model for video moment retrieval - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTFBqRlEyM2l1M3Z4SXVDTWtISWZPa09ja0ZDdExrdmpwbWhYMThHRENpZElMNmNRLUdlYW52dzNBWUFoaEtleUNNa0g3ZG1KazdiSjNLZ24xYXRueHp0MTZz?oc=5)**: Mamba-based modulated fusion model for video moment retrieval  Nature\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMiX0FVX3lxTFBqRlEyM2l1M3Z4SXVDTWtISWZPa09ja0ZDdExrdmpwbWhYMThHRENpZElMNmNRLUdlYW52dzNBWUFoaEtleUNNa0g3ZG1KazdiSjNLZ24xYXRueHp0MTZz?oc=5)\n",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTFBqRlEyM2l1M3Z4SXVDTWtISWZPa09ja0ZDdExrdmpwbWhYMThHRENpZElMNmNRLUdlYW52dzNBWUFoaEtleUNNa0g3ZG1KazdiSjNLZ24xYXRueHp0MTZz?oc=5"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a modular causal scoring component that consumes query term graphs from deep_memory_vault and re‑ranks the raw search results using a simple Bayesian network before returning them to the caller.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.92
-  },
-  {
     "id": "conj_1792723217",
     "timestamp": "2026-10-22T21:40:17.564740",
     "idle_duration_minutes": 31.6,
@@ -1623,5 +1606,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 96.77
+  },
+  {
+    "id": "conj_1792981247",
+    "timestamp": "2026-10-25T21:20:47.216371",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal‑Feedback Loop for Adaptive Web Research",
+    "hypothesis": "Integrating a causal inference layer between the Web Research Engine and the Deep Memory Vault will enable the system to automatically adjust its query formulation and result weighting based on observed outcome effectiveness, leading to a measurable reduction in irrelevant result rate (>30%) and faster convergence on high‑relevance information. The hypothesis posits that a lightweight Bayesian network can model the cause‑effect relationship between query parameters (keywords, filters, recursion depth) and downstream metrics (relevance score, retrieval latency, memory consolidation success), and that feeding back posterior updates into the query generator will create a self‑optimizing feedback loop.",
+    "research_query": "how to implement causal inference feedback loops in autonomous web scraping systems using Bayesian networks python",
+    "research_findings": "# Informe de Investigación: how to implement causal inference feedback loops in autonomous web scraping systems using Bayesian networks python\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal inference module that records query parameters and result relevance, updates a Bayesian model, and uses the model to dynamically adjust future query generation (e.g., keyword weighting, depth limits) within the Web Research Engine.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.52
   }
 ]
