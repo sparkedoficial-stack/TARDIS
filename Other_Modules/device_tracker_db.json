@@ -186,11 +186,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 168,
-    "traffic_bytes_tx": 168,
-    "traffic_packets": 4,
+    "traffic_bytes_rx": 84,
+    "traffic_bytes_tx": 84,
+    "traffic_packets": 2,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-26T07:41:31.207606+00:00",
+    "last_seen": "2026-10-26T07:56:50.752862+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -455,11 +455,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 15809275,
-    "traffic_bytes_tx": 58979215,
-    "traffic_packets": 89823,
+    "traffic_bytes_rx": 72058498,
+    "traffic_bytes_tx": 278129571,
+    "traffic_packets": 360375,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-26T07:41:31.207606+00:00",
+    "last_seen": "2026-10-26T07:56:50.752862+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -532,10 +532,10 @@
     "throttle_kbps": null,
     "is_safe": true,
     "traffic_bytes_rx": 0,
-    "traffic_bytes_tx": 41997,
-    "traffic_packets": 376,
+    "traffic_bytes_tx": 88786,
+    "traffic_packets": 810,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-26T07:41:31.207606+00:00",
+    "last_seen": "2026-10-26T07:56:50.752862+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -551,7 +551,7 @@
     "interface": "enp2s0",
     "connection_medium": "Ethernet / LAN (enp2s0)",
     "network_segment": "Ethernet / LAN Principal (REDACTED_IP/24)",
-    "arp_state": "REACHABLE",
+    "arp_state": "STALE",
     "online": true,
     "rtt_ms": null,
     "open_ports": [],
@@ -563,11 +563,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 2154,
-    "traffic_bytes_tx": 676,
-    "traffic_packets": 14,
+    "traffic_bytes_rx": 144,
+    "traffic_bytes_tx": 84,
+    "traffic_packets": 3,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-26T05:09:20.673719+00:00",
+    "last_seen": "2026-10-26T07:56:50.752862+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -583,7 +583,7 @@
     "interface": "enp2s0",
     "connection_medium": "Ethernet / LAN (enp2s0)",
     "network_segment": "Ethernet / LAN Principal (REDACTED_IP/24)",
-    "arp_state": "STALE",
+    "arp_state": "REACHABLE",
     "online": true,
     "rtt_ms": null,
     "open_ports": [],
@@ -595,11 +595,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 1190,
-    "traffic_bytes_tx": 342,
-    "traffic_packets": 7,
+    "traffic_bytes_rx": 168,
+    "traffic_bytes_tx": 575,
+    "traffic_packets": 6,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-26T06:17:39.879221+00:00",
+    "last_seen": "2026-10-26T07:56:50.752862+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -882,7 +882,7 @@
     "interface": "veth-host-aq",
     "connection_medium": "Virtual Bridge (veth-host-aq)",
     "network_segment": "Namespace Virtual Antarctica (REDACTED_IP/24)",
-    "arp_state": "REACHABLE",
+    "arp_state": "DELAY",
     "online": true,
     "rtt_ms": 0.04,
     "open_ports": [],
@@ -894,11 +894,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 46865,
-    "traffic_bytes_tx": 88141,
-    "traffic_packets": 1254,
+    "traffic_bytes_rx": 93071,
+    "traffic_bytes_tx": 181330,
+    "traffic_packets": 2696,
     "first_seen": "2026-10-26T07:37:00.731066+00:00",
-    "last_seen": "2026-10-26T07:41:31.207606+00:00",
+    "last_seen": "2026-10-26T07:56:50.752862+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]

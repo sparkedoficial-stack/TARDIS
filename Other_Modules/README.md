@@ -47,6 +47,7 @@ Módulos y componentes auxiliares del sistema.
 - **calls_history.json**: Componente de alta eficiencia.
 - **captures_index.json**: Componente de alta eficiencia.
 - **cluster.py**: Componente de alta eficiencia.
+- **code_planner.py**: Componente de alta eficiencia.
 - **cognitivo_artes_visuales_generativas_y_atractores_caoticos_1791929323.py**: Sistema cognitivo autónomo y autoprogramador evolutivo.
 - **colab_deep_memory__estructuraci_n_de_.py**: Componente de alta eficiencia.
 - **colab_tardis_causa_optimizaci_n_de_fi.py**: Componente de alta eficiencia.

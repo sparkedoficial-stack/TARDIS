@@ -113,7 +113,9 @@ class AutonomousCoder:
                 return False, f"JSON inválido: {e}"
         return True, ""
 
-    def _create_backup(self, file_path: Path) -> Path:
+    def _create_backup(self, file_path: Path) -> Optional[Path]:
+        if not Path(file_path).exists():
+            return None
         ts = datetime.now().strftime("%Y%m%d_%H%M%S")
         rel_name = file_path.name
         backup_dst = BACKUP_DIR / f"{rel_name}.{ts}.bak"
@@ -194,20 +196,16 @@ class AutonomousCoder:
             self._append_log(res)
             return res
 
-        if not p.is_file():
-            res = EvolutionResult(
-                target_file=str(p),
-                goal=goal,
-                status="REJECTED",
-                model_used="none",
-                elapsed_seconds=0.0,
-                error=f"Archivo no encontrado: {p}",
-            )
-            self._append_log(res)
-            return res
-
-        original_code = p.read_text(encoding="utf-8")
-        backup_file = self._create_backup(p)
+        # Archivo nuevo: se permite crearlo dentro del proyecto (ya validado arriba).
+        # Se parte de una cabecera vacía y el resultado pasa por la misma validación
+        # de sintaxis; si no compila, no se escribe nada.
+        archivo_nuevo = not p.is_file()
+        if archivo_nuevo:
+            p.parent.mkdir(parents=True, exist_ok=True)
+            original_code = '"""Módulo generado por el agente de código de TARDIS."""\n'
+        else:
+            original_code = p.read_text(encoding="utf-8")
+        backup_file = self._create_backup(p) if p.is_file() else None
 
         # 2. Generación con API-First Offloading (Groq / Cloud API)
         model_used = "groq_deepseek"
@@ -280,7 +278,7 @@ class AutonomousCoder:
                 status="API_FAILED",
                 model_used=model_used,
                 elapsed_seconds=round(time.time() - t_start, 2),
-                backup_path=str(backup_file),
+                backup_path=str(backup_file) if backup_file else None,
                 error=str(e_gen),
             )
             self._append_log(res)
@@ -304,7 +302,7 @@ class AutonomousCoder:
                 status="REJECTED",
                 model_used=model_used,
                 elapsed_seconds=round(time.time() - t_start, 2),
-                backup_path=str(backup_file),
+                backup_path=str(backup_file) if backup_file else None,
                 error=f"Respuesta generada demasiado corta ({len(new_code)} vs {len(original_code)} bytes)",
             )
             self._append_log(res)
@@ -326,7 +324,7 @@ class AutonomousCoder:
                 status="ROLLED_BACK_SYNTAX",
                 model_used=model_used,
                 elapsed_seconds=round(time.time() - t_start, 2),
-                backup_path=str(backup_file),
+                backup_path=str(backup_file) if backup_file else None,
                 syntax_valid=False,
                 error=err_syntax,
             )
@@ -344,7 +342,7 @@ class AutonomousCoder:
                 status="REJECTED",
                 model_used=model_used,
                 elapsed_seconds=round(time.time() - t_start, 2),
-                backup_path=str(backup_file),
+                backup_path=str(backup_file) if backup_file else None,
                 error=f"Error escribiendo archivo: {e_write}",
             )
             self._append_log(res)
@@ -366,7 +364,7 @@ class AutonomousCoder:
                     status="ROLLED_BACK_TESTS",
                     model_used=model_used,
                     elapsed_seconds=round(time.time() - t_start, 2),
-                    backup_path=str(backup_file),
+                    backup_path=str(backup_file) if backup_file else None,
                     syntax_valid=True,
                     tests_passed=False,
                     test_output=test_out,
@@ -383,7 +381,7 @@ class AutonomousCoder:
             status="APPLIED",
             model_used=model_used,
             elapsed_seconds=elapsed,
-            backup_path=str(backup_file),
+            backup_path=str(backup_file) if backup_file else None,
             syntax_valid=True,
             tests_passed=tests_passed,
             test_output=test_out[:500] if test_out else "",

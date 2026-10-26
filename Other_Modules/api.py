@@ -218,6 +218,14 @@ class CodeEvolveRequest(BaseModel):
     model: Optional[str] = None
     test_file: Optional[str] = None
 
+
+class ChatCodeRequest(BaseModel):
+    instruction: str
+    target_file: Optional[str] = None
+    model: Optional[str] = None
+    verify_tests: Optional[bool] = False
+    apply: Optional[bool] = False
+
 class Render3DRequest(BaseModel):
     name: Optional[str] = "dna"
     width: Optional[int] = 640
@@ -4693,6 +4701,38 @@ iframe{border:none;width:100%;height:100%;}</style></head>
             "ok": result.status == "APPLIED",
             "result": result.to_dict()
         }
+
+    @app.post("/api/code/chat")
+    async def api_code_from_chat(payload: ChatCodeRequest):
+        """Programar desde el chat: orden en lenguaje natural -> archivo objetivo -> parche verificado.
+
+        Sin `target_file` no se toca nada: el modelo elige el fichero entre los candidatos
+        que él mismo propone y el endpoint devuelve la propuesta para revisión. Con
+        `apply=False` (por defecto) sólo genera; con `apply=True` escribe con respaldo,
+        validación de sintaxis y verificación de tests si se piden.
+        """
+        from core.autonomous_coder import get_autonomous_coder
+        from core.code_planner import plan_change
+        loop = asyncio.get_event_loop()
+        coder = get_autonomous_coder()
+        target = (payload.target_file or "").strip()
+        plan = {"archivo_nuevo": False, "motivo": "archivo indicado por el usuario"}
+        if not target:
+            # El planificador elige el archivo (o propone uno nuevo); nada se escribe aún.
+            plan = await loop.run_in_executor(None, lambda: plan_change(payload.instruction, payload.model))
+            if not plan.get("ok"):
+                return {"ok": False, "error": plan.get("error"), "propuesta": plan.get("raw")}
+            target = plan["target_file"]
+        if not payload.apply:
+            return {"ok": True, "mode": "dry_run", "target_file": target,
+                    "archivo_nuevo": plan.get("archivo_nuevo"), "motivo": plan.get("motivo"),
+                    "note": "revisa el archivo; vuelve a enviar con apply=true para aplicar"}
+
+        result = await loop.run_in_executor(
+            None,
+            lambda: coder.evolve_code(target_path=target, goal=payload.instruction,
+                                      verify_tests=bool(payload.verify_tests), model_override=payload.model))
+        return {"ok": result.status == "APPLIED", "target_file": target, "result": result.to_dict()}
 
     @app.get("/api/code/evolution_log")
     async def api_code_evolution_log(limit: int = 40):

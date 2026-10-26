@@ -1754,15 +1754,35 @@ def process_hardware_chat_intent(msg: str, is_local_request: bool = False) -> Op
                 }
 
         if slash_cmd in ("/evolve", "/autocode", "/programar", "/mejorar_codigo"):
-            if len(args) < 2:
+            if not args:
                 return {
                     "action": "code_evolution",
                     "executed": False,
                     "direct_return": True,
-                    "system_feedback": "ℹ️ Uso: `/evolve <ruta_archivo> <meta u optimización>`"
+                    "system_feedback": ("ℹ️ Uso:\n"
+                                        "· `/evolve <ruta.py> <meta>` — archivo explícito\n"
+                                        "· `/evolve <orden en lenguaje natural>` — el sistema elige el archivo y confirma")
                 }
+            # Si el primer argumento no es un .py, se trata como orden natural: el planificador
+            # elige el archivo (o propone uno nuevo) y se pide confirmación antes de escribir.
+            if not args[0].endswith(".py"):
+                try:
+                    from core.code_planner import plan_change
+                    plan = plan_change(" ".join(args))
+                except Exception as e_plan:
+                    plan = {"ok": False, "error": str(e_plan)[:160]}
+                if not plan.get("ok"):
+                    return {"action": "code_plan", "executed": False, "direct_return": True,
+                            "system_feedback": f"⚠️ No pude planificar el cambio: {plan.get('error')}"}
+                return {"action": "code_plan", "executed": False, "direct_return": True,
+                        "system_feedback": (
+                            "🧭 **[PLAN DE CAMBIO — CONFIRMACIÓN REQUERIDA]**\n"
+                            f"• **Archivo:** `{plan['target_file']}`"
+                            f"{' (nuevo)' if plan.get('archivo_nuevo') else ''}\n"
+                            f"• **Motivo:** {plan.get('motivo') or '—'}\n"
+                            f"• **Para aplicar:** `/evolve {plan['target_file']} {' '.join(args)}`")}
             target_f = args[0]
-            goal_txt = " ".join(args[1:])
+            goal_txt = " ".join(args[1:]) if len(args) > 1 else ""
             try:
                 from core.autonomous_coder import get_autonomous_coder
                 coder = get_autonomous_coder()
