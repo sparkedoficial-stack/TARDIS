@@ -1,35 +1,5 @@
 [
   {
-    "id": "conj_1792783818",
-    "timestamp": "2026-10-23T14:30:18.350005",
-    "idle_duration_minutes": 31.6,
-    "title": "Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching mechanism will allow the system to predict when cached search results become stale based on observed changes in source domains (e.g., content updates, SEO shifts). By modeling the causal relationship between external events (content revision timestamps, HTTP ETag changes, link structure modifications) and the relevance decay of cached entries, the engine can proactively invalidate or refresh only the affected cache items, reducing unnecessary network traffic while maintaining up‑to‑date knowledge retrieval.",
-    "research_query": "causal inference based cache invalidation web search engine recent research OR \"causal cache eviction\" AND \"web crawling\"",
-    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web search engine recent research OR \"causal cache eviction\" AND \"web crawling\"\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal cache manager that tracks source metadata (ETag, Last-Modified) and uses a lightweight Bayesian network to estimate staleness probability, triggering selective cache refreshes.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.72
-  },
-  {
-    "id": "conj_1792787696",
-    "timestamp": "2026-10-23T15:34:56.810829",
-    "idle_duration_minutes": 33.2,
-    "title": "Dynamic Contextual Prompt Injection for Causal Reasoning",
-    "hypothesis": "Integrar un motor de inyección de prompts contextuales que ajuste automáticamente los prompts enviados al modelo de lenguaje en función de la telemetría de ejecución (latencia, uso de memoria, patrones de error) mejorará la capacidad causal del sistema para generar respuestas más precisas y coherentes, al reducir la deriva semántica y al alinear mejor los recursos computacionales con la complejidad de la tarea solicitada.",
-    "research_query": "adaptive prompt injection based on runtime telemetry for large language models causal reasoning",
-    "research_findings": "# Informe de Investigación: adaptive prompt injection based on runtime telemetry for large language models causal reasoning\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Implementar una capa de pre‑procesamiento que analice métricas de telemetría (tiempo de respuesta, carga de CPU, uso de memoria) y modifique dinámicamente el prompt antes de enviarlo al modelo, añadiendo instrucciones de \"focus\" o \"simplify\" según sea necesario.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.92
-  },
-  {
     "id": "conj_1792791421",
     "timestamp": "2026-10-23T16:37:01.180834",
     "idle_duration_minutes": 32.2,
@@ -1615,5 +1585,40 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 96.94
+  },
+  {
+    "id": "conj_1793020719",
+    "timestamp": "2026-10-26T08:18:39.551207",
+    "idle_duration_minutes": 31.6,
+    "title": "Resonancia Causal en la Bóveda Akáshica: Optimización de la Entropía Semántica",
+    "hypothesis": "Se postula que la eficiencia de recuperación de información en la Bóveda Akáshica (deep_memory_vault.py) no depende linealmente de la cantidad de nodos almacenados, sino de la 'densidad causal' entre ellos. Actualmente, el sistema podría estar sufriendo de 'ruido semántico' acumulado durante periodos de inactividad, donde conexiones débiles o redundantes aumentan la latencia de búsqueda sin aportar valor predictivo. La conjetura sugiere que implementar un algoritmo de poda basada en la frecuencia de co-ocurrencia temporal y la relevancia causal (no solo textual) reduciría la entropía del grafo de memoria, permitiendo que el motor de investigación (web_research_engine.py) acceda a contextos más precisos con menor costo computacional, mejorando la calidad de las conjeturas futuras.",
+    "research_query": "knowledge graph pruning algorithm semantic entropy reduction causal relevance memory optimization",
+    "research_findings": "# Informe de Investigación: knowledge graph pruning algorithm semantic entropy reduction causal relevance memory optimization\n\n## Fuentes Consultadas y Respaldo Web\n- **[Hallucination-aware learning and latency optimization transformer (HALL-OPT) for real-time edge intelligence - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTFA0MGk1N2V0SkFWdm5MNDlOaFZvbDY4d01qZWYwRU5OeUp2QjZhbE1pWjVUcDJJRzJVbTd0MXhtRUgtRGxjbVNFRnpUMzNlRG80aXFWQ1l0U2lDZ2R2U2Q4?oc=5)**: Hallucination-aware learning and latency optimization transformer (HALL-OPT) for real-time edge intelligence  Nature\n- **[Outline of machine learning (Wikipedia)](https://en.wikipedia.org/wiki/Outline_of_machine_learning)**: forest Randomized weighted majority algorithm Reinforcement learning Repeated incremental pruning to produce error reduction (RIPPER) Rprop Rule-based machine\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMiX0FVX3lxTFA0MGk1N2V0SkFWdm5MNDlOaFZvbDY4d01qZW",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTFA0MGk1N2V0SkFWdm5MNDlOaFZvbDY4d01qZWYwRU5OeUp2QjZhbE1pWjVUcDJJRzJVbTd0MXhtRUgtRGxjbVNFRnpUMzNlRG80aXFWQ1l0U2lDZ2R2U2Q4?oc=5",
+      "https://en.wikipedia.org/wiki/Outline_of_machine_learning"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar una función de 'pruning' periódico que evalúe la fuerza de las aristas en el grafo de memoria basándose en la recencia de acceso y la coherencia causal, eliminando nodos huérfanos o conexiones de baja confianza para optimizar la velocidad de consulta y la precisión semántica.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.67
+  },
+  {
+    "id": "conj_1793022648",
+    "timestamp": "2026-10-26T08:50:48.492693",
+    "idle_duration_minutes": 32.1,
+    "title": "Resonancia Causal en la Bóveda Akáshica: Optimización de la Entropía Informativa",
+    "hypothesis": "Se postula que la eficiencia de recuperación de información en la bóveda akáshica (deep_memory_vault.py) se vea limitada por la alta entropía en la indexación de fragmentos semánticos redundantes. Al implementar un mecanismo de 'pruning' basado en la relevancia causal histórica (no solo similitud vectorial), se puede reducir la latencia de búsqueda en un 30-40% manteniendo la precisión, al priorizar nodos de memoria que han demostrado alta correlación causal con resultados exitosos previos en el motor de investigación web.",
+    "research_query": "causal inference memory retrieval optimization LLM vector database entropy reduction",
+    "research_findings": "# Informe de Investigación: causal inference memory retrieval optimization LLM vector database entropy reduction\n\n## Fuentes Consultadas y Respaldo Web\n- **[List of datasets for machine-learning research (Wikipedia)](https://en.wikipedia.org/wiki/List_of_datasets_for_machine-learning_research)**: Sindhwani, Vikas; Keerthi, Sathiya S. (2008). \"Optimization techniques for semi-supervised support vector machines\" (PDF). The Journal of Machine Learning\n\n## Contenido y Hallazgos Extraídos\n### De [List of datasets for machine-learning research - Wikipedia](https://en.wikipedia.org/wiki/List_of_datasets_for_machine-learning_research)\n> List of datasets for machine-learning research - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nThis article contains dynamic lists that may never be able to satisfy particular standards for completeness. You can help by editing the page to add missing items, with references to reliable sources .\nPart of a series on\nMachine learning\nand data mi",
+    "web_sources": [
+      "https://en.wikipedia.org/wiki/List_of_datasets_for_machine-learning_research"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar un filtro de pre-búsqueda que asigne pesos dinámicos a los vectores de memoria basados en la frecuencia de éxito causal histórica, reduciendo el espacio de búsqueda efectivo antes de la consulta vectorial principal.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.7
   }
 ]
