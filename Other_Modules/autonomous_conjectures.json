@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1792734650",
-    "timestamp": "2026-10-23T00:50:50.193989",
-    "idle_duration_minutes": 32.7,
-    "title": "Dynamic Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "Integrating a causal inference layer that tracks dependencies between fetched web resources and downstream reasoning steps can enable automatic, context‑aware cache invalidation. By modeling the temporal and logical relationships of data (e.g., source updates, citation chains, and query intent drift), the system can pre‑emptively purge or refresh cached entries that are likely to have become stale, improving answer relevance and reducing latency without manual TTL tuning.",
-    "research_query": "causal inference based cache invalidation web scraping research 2023 OR 2024",
-    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web scraping research 2023 OR 2024\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a dependency graph module that records which cached pages support which higher‑level queries, then implement a periodic validator that queries source change signals (e.g., HTTP Last-Modified, ETag, or RSS feeds) and triggers selective cache refresh based on the causal graph.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.66
-  },
-  {
     "id": "conj_1792738378",
     "timestamp": "2026-10-23T01:52:58.676518",
     "idle_duration_minutes": 31.7,
@@ -1615,5 +1600,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 103.54
+  },
+  {
+    "id": "conj_1792989007",
+    "timestamp": "2026-10-25T23:30:07.855176",
+    "idle_duration_minutes": 32.3,
+    "title": "Causal‑Cache Layer for Web Research Engine",
+    "hypothesis": "Integrating a causal‑aware caching layer into core/web_research_engine.py will reduce redundant external queries by 40 % while preserving the temporal relevance of retrieved data. The cache will store not only raw HTML responses but also the inferred causal graph of entities extracted from each page, allowing the engine to answer \"what‑if\" queries without re‑fetching the source when the underlying causal relationships remain unchanged.",
+    "research_query": "\"causal cache\" web scraping performance optimization \"entity graph\" caching strategy",
+    "research_findings": "# Informe de Investigación: \"causal cache\" web scraping performance optimization \"entity graph\" caching strategy\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Implement an async LRU cache that stores (url, query_params) → (response_body, causal_graph) and adds a validation step that checks if the cached causal graph is still consistent with the latest version of the page using lightweight HEAD requests or ETag headers.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 102.2
   }
 ]
