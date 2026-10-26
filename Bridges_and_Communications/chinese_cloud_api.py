@@ -25,6 +25,14 @@ import httpx
 logger = logging.getLogger("GODWORKS.ChineseCloudAPI")
 
 VAULT_DIR = Path(os.environ.get("LOCALAPPDATA", os.path.expanduser("~"))) / "vw-control"
+# Los proveedores gratuitos (Groq, DeepSeek, SiliconFlow, Zhipu) se llaman directo:
+# con un proxy corporativo en el entorno devolvían 403 de un WAF intermedio.
+for _h in ("api.groq.com", "api.deepseek.com", "api.siliconflow.cn", "open.bigmodel.cn", "openrouter.ai"):
+    _set = os.environ.get("NO_PROXY", "")
+    if _h not in _set:
+        os.environ["NO_PROXY"] = (_set + "," if _set else "") + _h
+        os.environ["no_proxy"] = os.environ["NO_PROXY"]
+
 CONFIG_FILE = VAULT_DIR / "chinese_api_config.json"
 
 PROVIDERS_CATALOG = {

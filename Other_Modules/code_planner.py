@@ -17,10 +17,11 @@ SYSTEM = (
     "Eres un planificador de cambios de código. Responde EXACTAMENTE con tres líneas:\n"
     "ARCHIVO: <ruta relativa de la lista>   -> si el cambio va DENTRO de un archivo existente\n"
     "NUEVO: <ruta .py relativa>            -> si la funcionalidad no existe todavía\n"
-    "MOTIVO: <una frase con la razón>\n"
+    "MOTIVO: <una frase en español, máximo 20 palabras, sin repetir la petición>\n"
     "Usa sólo una de las dos primeras líneas. Elige por el rol real del archivo "
     "(mira su nombre y su descripción), nunca el primero de la lista por comodidad. "
-    "Si la petición mezcla varios archivos, elige el principal y dilo en MOTIVO."
+    "Si la petición mezcla varios archivos, elige el principal y dilo en MOTIVO.\n"
+    "No escribas razonamientos, dudas ni listas: sólo las tres líneas."
 )
 
 
@@ -55,7 +56,8 @@ def plan_change(instruction: str, model: str | None = None) -> Dict[str, Any]:
     motivo = ""
     m_mot = re.search(r"MOTIVO:\s*(.+)", text)
     if m_mot:
-        motivo = m_mot.group(1).strip()[:220]
+        motivo = m_mot.group(1).strip()
+        motivo = re.split(r"\s{2,}|\n", motivo)[0][:200]
     if m_new and (not m_arch or text.find(m_new.group(0)) < text.find(m_arch.group(0))):
         target, nuevo = m_new.group(1), True
     elif m_arch:
