@@ -7,6 +7,7 @@ Automatizaciones de sistema, diagnósticos de hardware, optimizadores de SO y he
 - **auto_update_tardis.sh**: Componente de alta eficiencia.
 - **benchmark_system.py**: Componente de alta eficiencia.
 - **build_imac_os_usb.sh**: Componente de alta eficiencia.
+- **build_tardis_boot_animation.py**: Componente de alta eficiencia.
 - **build_tardis_linux.sh**: Componente de alta eficiencia.
 - **clean_install_android17_imac.sh**: Componente de alta eficiencia.
 - **cleanup_models.py**: Componente de alta eficiencia.
