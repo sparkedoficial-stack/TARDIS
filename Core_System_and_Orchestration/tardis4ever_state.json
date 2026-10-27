@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "created_at": "2026-10-15T02:04:29.176374",
   "last_periodic_sync": "2026-10-27T00:44:56.138956",
-  "last_immediate_sync": "2026-10-27T04:42:44.409679",
-  "last_commit_hash": "161eec1a",
-  "sync_count": 1282,
-  "immediate_sync_count": 1281,
+  "last_immediate_sync": "2026-10-27T04:57:51.373843",
+  "last_commit_hash": "d12c6774",
+  "sync_count": 1283,
+  "immediate_sync_count": 1282,
   "periodic_sync_count": 1,
   "last_known_mtimes": {
     "skill:omni-control-bridge/SKILL.md": REDACTED_PHONE.4575877,
@@ -280,6 +280,17 @@
     "sat:gia_ios:GIA/Models/GIAModels.swift": REDACTED_PHONE.5796177
   },
   "history": [
+    {
+      "timestamp": "2026-10-27T04:57:51.373843",
+      "trigger": "immediate_milestone",
+      "commit_hash": "d12c6774",
+      "score": 75,
+      "reasons": [
+        "Evoluci\u00f3n en subsistema core TARDIS: curiosity_debate_manager.py",
+        "Evoluci\u00f3n en subsistema core TARDIS: scientific_research_engine.py",
+        "Evoluci\u00f3n en subsistema core TARDIS: background_thought_engine.py"
+      ]
+    },
     {
       "timestamp": "2026-10-27T04:42:44.409679",
       "trigger": "immediate_milestone",
@@ -839,18 +850,6 @@
       "timestamp": "2026-10-26T02:32:44.232322",
       "trigger": "immediate_milestone",
       "commit_hash": "3f9d3ab4",
-      "score": 100,
-      "reasons": [
-        "Evoluci\u00f3n en subsistema core TARDIS: sensor_orchestrator.py",
-        "Evoluci\u00f3n en subsistema core TARDIS: curiosity_debate_manager.py",
-        "Evoluci\u00f3n en subsistema core TARDIS: scientific_research_engine.py",
-        "Evoluci\u00f3n en subsistema core TARDIS: background_thought_engine.py"
-      ]
-    },
-    {
-      "timestamp": "2026-10-26T02:16:17.207487",
-      "trigger": "immediate_milestone",
-      "commit_hash": "f741fc01",
       "score": 100,
       "reasons": [
         "Evoluci\u00f3n en subsistema core TARDIS: sensor_orchestrator.py",
