@@ -1,23 +1,5 @@
 [
   {
-    "id": "conj_1792859720",
-    "timestamp": "2026-10-24T11:35:20.684369",
-    "idle_duration_minutes": 31.6,
-    "title": "Resonancia Causal en la Bóveda Akáshica: Optimización de la Entropía Semántica",
-    "hypothesis": "Se postula que la eficiencia de recuperación de información en la 'Bóveda Akáshica' (deep_memory_vault.py) no depende linealmente del volumen de datos, sino de la 'densidad causal' entre nodos de memoria. Actualmente, el sistema puede estar sufriendo de 'ruido semántico' acumulado por la falta de interacción humana, lo que diluye las conexiones causales fuertes. La hipótesis sugiere que implementar un algoritmo de 'pruning' (poda) basado en la atenuación temporal de la relevancia causal, combinado con una re-indexación vectorial dinámica, reduciría la latencia de búsqueda y aumentaría la precisión de las inferencias del núcleo cognitivo al eliminar conexiones débiles o obsoletas.",
-    "research_query": "vector database semantic pruning algorithm causal inference memory optimization",
-    "research_findings": "# Informe de Investigación: vector database semantic pruning algorithm causal inference memory optimization\n\n## Fuentes Consultadas y Respaldo Web\n- **[Outline of machine learning (Wikipedia)](https://en.wikipedia.org/wiki/Outline_of_machine_learning)**: selection Algorithmic inference Algorithmic learning theory AlphaGo AlphaGo Zero Alternating decision tree Apprenticeship learning Causal Markov condition\n- **[Deep learning (Wikipedia)](https://en.wikipedia.org/wiki/Deep_learning)**: derives from the field of machine learning. It features inference, as well as the optimization concepts of training and testing, related to fitting and\n\n## Contenido y Hallazgos Extraídos\n### De [Outline of machine learning - Wikipedia](https://en.wikipedia.org/wiki/Outline_of_machine_learning)\n> Outline of machine learning - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nOverview of and topical guide to machine learning\nThis article contains dynamic lists that may never be able to satisf",
-    "web_sources": [
-      "https://en.wikipedia.org/wiki/Outline_of_machine_learning",
-      "https://en.wikipedia.org/wiki/Deep_learning"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar un método `prune_weak_causal_links()` que evalúe la fuerza de las conexiones entre vectores de memoria y elimine o de-priorice aquellos con una similitud causal por debajo de un umbral dinámico, actualizando el índice vectorial para mejorar la velocidad de consulta.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.37
-  },
-  {
     "id": "conj_1792861617",
     "timestamp": "2026-10-24T12:06:57.699962",
     "idle_duration_minutes": 31.6,
@@ -1613,5 +1595,23 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 96.1
+  },
+  {
+    "id": "conj_1793076676",
+    "timestamp": "2026-10-26T23:51:16.822005",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal Prompt Chaining for Adaptive Web Research",
+    "hypothesis": "Integrating a causal prompt‑chaining layer between the WebResearchEngine and DeepMemoryVault will allow the system to dynamically adjust its query formulation based on inferred cause‑effect relationships extracted from prior search results, leading to a measurable reduction in irrelevant result rate (IRR) and faster convergence on high‑relevance information. The hypothesis posits that a lightweight Bayesian network, updated in real time with extracted entities and their temporal/semantic links, can guide the next query generation more effectively than the current deterministic template approach.",
+    "research_query": "how to implement causal prompt chaining with Bayesian networks for adaptive web search query generation",
+    "research_findings": "# Informe de Investigación: how to implement causal prompt chaining with Bayesian networks for adaptive web search query generation\n\n## Fuentes Consultadas y Respaldo Web\n- **[Generative AI (Wikipedia)](https://en.wikipedia.org/wiki/Generative_AI)**: vulnerable to jailbreaks, reverse psychology and prompt injection attacks, enabling attackers to obtain help with harmful requests, such as for crafting\n- **[AI alignment (Wikipedia)](https://en.wikipedia.org/wiki/AI_alignment)**: model's chain of thought via its scratchpad. In one study, the model was informed that answers to prompts from free users would be used for retraining\n\n## Contenido y Hallazgos Extraídos\n### De [Generative AI - Wikipedia](https://en.wikipedia.org/wiki/Generative_AI)\n> Generative AI - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nAI that generates content\n\"GenAI\" redirects here; not to be confused with Artificial general intelligence .\nThéâtre D'opéra Spatial (Space Opera Theater, 2022), an image",
+    "web_sources": [
+      "https://en.wikipedia.org/wiki/Generative_AI",
+      "https://en.wikipedia.org/wiki/AI_alignment"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal inference module that builds a simple Bayesian network from extracted entities, updates it after each search, and uses it to bias the next query template in WebResearchEngine",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.07
   }
 ]
