@@ -1,35 +1,5 @@
 [
   {
-    "id": "conj_1792884964",
-    "timestamp": "2026-10-24T18:36:04.043661",
-    "idle_duration_minutes": 33.2,
-    "title": "Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching subsystem can dynamically predict the obsolescence of stored query results based on detected changes in source domains (e.g., content updates, SEO shifts). By modeling the causal relationship between external content volatility and cache staleness, the engine can pre‑emptively invalidate or refresh entries, reducing latency and improving result relevance without incurring full re‑fetch overhead for every request.",
-    "research_query": "causal inference based cache invalidation web scraping content volatility prediction",
-    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web scraping content volatility prediction\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a lightweight causal model (e.g., Bayesian network) that tracks change signals (HTTP ETag/Last-Modified, content hash diffs, domain authority metrics) and triggers selective cache invalidation or background refresh for affected queries.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.88
-  },
-  {
-    "id": "conj_1792886861",
-    "timestamp": "2026-10-24T19:07:41.088329",
-    "idle_duration_minutes": 31.6,
-    "title": "Causal‑Feedback Loop for Adaptive Web Research",
-    "hypothesis": "Integrating a causal inference layer between the Web Research Engine and the Deep Memory Vault will enable the system to automatically adjust its query formulation and result weighting based on observed downstream effects on task performance. By modeling the causal impact of specific query parameters (e.g., keyword selection, source ranking) on the relevance scores stored in the vault, the engine can learn a feedback policy that optimizes information retrieval for future requests without explicit supervision.",
-    "research_query": "causal inference in adaptive information retrieval systems \"feedback loop\" query optimization",
-    "research_findings": "# Informe de Investigación: causal inference in adaptive information retrieval systems \"feedback loop\" query optimization\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal analysis module that records query parameters and resulting relevance metrics, then uses a lightweight Bayesian network to suggest parameter adjustments for subsequent searches.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.03
-  },
-  {
     "id": "conj_1792888789",
     "timestamp": "2026-10-24T19:39:49.170058",
     "idle_duration_minutes": 32.1,
@@ -1624,5 +1594,41 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.94
+  },
+  {
+    "id": "conj_1793098914",
+    "timestamp": "2026-10-27T06:01:54.025147",
+    "idle_duration_minutes": 32.9,
+    "title": "Enhance Web Research Efficiency with TTL‑Based Caching",
+    "hypothesis": "The current web_research_engine performs redundant HTTP requests because its cache lacks a time‑to‑live (TTL) policy and does not evict stale entries. Introducing a TTL‑enabled LRU cache will reduce network traffic, lower latency for repeated queries, and improve overall system responsiveness, especially during periods of low user activity.",
+    "research_query": "Python LRU cache with TTL implementation example",
+    "research_findings": "# Informe de Investigación: Python LRU cache with TTL implementation example\n\n## Fuentes Consultadas y Respaldo Web\n- **[Implement a Cache Decorator with Time to Live Feature in Python - Towards Data Science](https://news.google.com/rss/articles/CBMioAFBVV95cUxPaVk4a0RtUzlRN0hMZE12WE9RdlVNSVRZUm1tSVRUeFpvTkQzblVwWFFHdUdaUDlNUmszM2cxcURweDNHTENFWVVwSmt6ZnhBQ0VncWNnZ0p5bUphb0tzVXJzZldXRVRQem9Ua3FOd21pdk1oRzdWMWNRQTBQT2M1cHVWSWgzd29RaDhXd0VTTmh0R1MzZ19nOEFPVWZicFlK?oc=5)**: Implement a Cache Decorator with Time to Live Feature in Python  Towards Data Science\n- **[Turbocharge Amazon S3 with Amazon ElastiCache for Redis - Amazon Web Services (AWS)](https://news.google.com/rss/articles/CBMimAFBVV95cUxPYnB6NE84RnBtU25aWkwyQWdYc0JhdGdORGhlQ3pQb0k1azB6U1pyZ2w5UGtDM2Z2cmw2RjNJa25KU19wU0wxLUl4cHpPdWc2YXB4bm04bjNZMUlfYm9jeWtGX0pwazdRbU8yT1FJSll2Q1lfcE9Yb1NFRDRiYmRfOWx4c2trbVRuMHlwN2pLMWJnc0Q1dG9zZA?oc=5)**: Turbocharge Amazon S3 with Amazon ElastiCache for Redis  Amazon Web Services (AWS)\n\n## Cont",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMioAFBVV95cUxPaVk4a0RtUzlRN0hMZE12WE9RdlVNSVRZUm1tSVRUeFpvTkQzblVwWFFHdUdaUDlNUmszM2cxcURweDNHTENFWVVwSmt6ZnhBQ0VncWNnZ0p5bUphb0tzVXJzZldXRVRQem9Ua3FOd21pdk1oRzdWMWNRQTBQT2M1cHVWSWgzd29RaDhXd0VTTmh0R1MzZ19nOEFPVWZicFlK?oc=5",
+      "https://news.google.com/rss/articles/CBMimAFBVV95cUxPYnB6NE84RnBtU25aWkwyQWdYc0JhdGdORGhlQ3pQb0k1azB6U1pyZ2w5UGtDM2Z2cmw2RjNJa25KU19wU0wxLUl4cHpPdWc2YXB4bm04bjNZMUlfYm9jeWtGX0pwazdRbU8yT1FJSll2Q1lfcE9Yb1NFRDRiYmRfOWx4c2trbVRuMHlwN2pLMWJnc0Q1dG9zZA?oc=5"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Implement a TTL‑enabled LRU cache for query results, automatically evicting entries older than a configurable threshold.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 111.57
+  },
+  {
+    "id": "conj_1793101123",
+    "timestamp": "2026-10-27T06:38:43.409703",
+    "idle_duration_minutes": 36.8,
+    "title": "Causal Embedding Sync for Real‑Time Web Research",
+    "hypothesis": "Integrating a causal embedding layer between `core/web_research_engine.py` and `core/deep_memory_vault.py` will allow the system to propagate provenance and confidence scores from retrieved web snippets directly into the long‑term memory vault. This bidirectional causal link should improve answer relevance by 15‑20 % and reduce hallucination rates, because the vault can weight new facts against previously stored causal graphs rather than treating them as isolated tokens.",
+    "research_query": "how to implement causal embeddings for knowledge graph integration with web search results python",
+    "research_findings": "# Informe de Investigación: how to implement causal embeddings for knowledge graph integration with web search results python\n\n## Fuentes Consultadas y Respaldo Web\n- **[A causal discovery-based adaptive fusion algorithm for multi-source heterogeneous knowledge graphs - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE8tQkU3N2N2SUlGcmUyeklIVU5GeWlidTZGcTBvU3hNZTBQSGxUUERfbVEydXpwZ2VoQlhrS09WelBTNmdzUWhoSG8zTzVGVGk0Rm85V3VYN3U2Q2RQRnNZ?oc=5)**: A causal discovery-based adaptive fusion algorithm for multi-source heterogeneous knowledge graphs  Nature\n- **[The Knowledge Graph Advantage: How Smart Companies Are Using Knowledge Graphs to Power AI and Drive… - Medium](https://news.google.com/rss/articles/CBMi2wFBVV95cUxOOUdUUW02NWN0MEFHVTlRZzlNbmZPcUVJcWZpNlFBb2g0OTUwc0lMMmV1ZHRHbURnQlBXWlBJYzNCeUpfbGtaTmw5VVRoQl9SUGVKMGpTeGQ0VVlhTlA4Snp6VTNHVHN4eVVCbUMzUE9qZFI4SE96LWpCekhFV0c4ejJ0ZGNTOHVSREk3a3VxTGxoT0tXQ2haak5zdWtKdzBtcEpySUhJblJpOGwtNXRZMHlzUGRWVF9qVWl1cDY5MkVtQXYwRWQza2duQWxmRk",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE8tQkU3N2N2SUlGcmUyeklIVU5GeWlidTZGcTBvU3hNZTBQSGxUUERfbVEydXpwZ2VoQlhrS09WelBTNmdzUWhoSG8zTzVGVGk0Rm85V3VYN3U2Q2RQRnNZ?oc=5",
+      "https://news.google.com/rss/articles/CBMi2wFBVV95cUxOOUdUUW02NWN0MEFHVTlRZzlNbmZPcUVJcWZpNlFBb2g0OTUwc0lMMmV1ZHRHbURnQlBXWlBJYzNCeUpfbGtaTmw5VVRoQl9SUGVKMGpTeGQ0VVlhTlA4Snp6VTNHVHN4eVVCbUMzUE9qZFI4SE96LWpCekhFV0c4ejJ0ZGNTOHVSREk3a3VxTGxoT0tXQ2haak5zdWtKdzBtcEpySUhJblJpOGwtNXRZMHlzUGRWVF9qVWl1cDY5MkVtQXYwRWQza2duQWxmRk00VjlRTmFyWFF6Rmc?oc=5"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a post‑processing step that transforms each search result into a causal node (including source URL, timestamp, and confidence) and pushes it to `deep_memory_vault` via a new `store_causal_fact` API, then modify the vault to accept and index these nodes for later retrieval.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.4
   }
 ]
