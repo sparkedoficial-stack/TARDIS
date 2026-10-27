@@ -1,33 +1,5 @@
 [
   {
-    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/deep_memory_vault.py",
-    "goal": "Implement a function that builds a contextual prompt from recent WebResearchEngine logs and NetworkShield alerts, then prepend it to the query embedding before calling the vector store search.",
-    "status": "REJECTED",
-    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
-    "elapsed_seconds": 90.99,
-    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/deep_memory_vault.py.20261025_064633.bak",
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Respuesta generada demasiado corta (0 vs 33875 bytes)",
-    "timestamp": "2026-10-25T06:48:04.616904"
-  },
-  {
-    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/deep_memory_vault.py",
-    "goal": "Add a post‑filter step that scores retrieved memory vectors using a simple causal graph (e.g., Bayesian network) derived from metadata timestamps and dependency tags, then re‑rank results before returning them to the caller.",
-    "status": "REJECTED",
-    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
-    "elapsed_seconds": 91.25,
-    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/deep_memory_vault.py.20261025_071809.bak",
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Respuesta generada demasiado corta (0 vs 33875 bytes)",
-    "timestamp": "2026-10-25T07:19:40.765553"
-  },
-  {
     "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
     "goal": "Add an async LRU cache with a causal similarity scorer that decides when to reuse previous search results, and expose a configurable confidence threshold.",
     "status": "REJECTED",
@@ -1398,5 +1370,33 @@
     "efficiency_improvement": null,
     "error": "Respuesta generada demasiado corta (0 vs 35266 bytes)",
     "timestamp": "2026-10-27T14:43:00.661330"
+  },
+  {
+    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/deep_memory_vault.py",
+    "goal": "Implementar una función `calculate_semantic_entropy()` que evalúe la dispersión de los embeddings recientes y un método `prune_causal_noise()` que elimine temporalmente los vectores con baja correlación causal antes de la consulta final, integrando la señal de `network_shield.py` como filtro de confianza.",
+    "status": "REJECTED",
+    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
+    "elapsed_seconds": 90.49,
+    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/deep_memory_vault.py.20261027_151307.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "Respuesta generada demasiado corta (0 vs 33875 bytes)",
+    "timestamp": "2026-10-27T15:14:37.954747"
+  },
+  {
+    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/deep_memory_vault.py",
+    "goal": "Implementar un método `validate_causal_relevance()` que filtre los datos antes de persistirlos en la bóveda, asegurando que solo se almacene información que modifique el estado causal del sistema.",
+    "status": "REJECTED",
+    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
+    "elapsed_seconds": 90.71,
+    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/deep_memory_vault.py.20261027_154447.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "Respuesta generada demasiado corta (0 vs 33875 bytes)",
+    "timestamp": "2026-10-27T15:46:18.481517"
   }
 ]
