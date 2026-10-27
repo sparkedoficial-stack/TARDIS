@@ -1,37 +1,5 @@
 [
   {
-    "id": "conj_1792896476",
-    "timestamp": "2026-10-24T21:47:56.152980",
-    "idle_duration_minutes": 33.2,
-    "title": "Dynamic Causal Cache Invalidation for the Web Research Engine",
-    "hypothesis": "If the Web Research Engine maintains a lightweight causal dependency graph of retrieved documents (e.g., linking sources, timestamps, and topic evolution), then it can predict when cached results become stale and proactively invalidate or refresh them. This causal‑aware caching should reduce average query latency by ~15‑20% while preserving or improving relevance scores compared to a time‑based TTL approach.",
-    "research_query": "causal inference cache invalidation web search engine performance",
-    "research_findings": "# Informe de Investigación: causal inference cache invalidation web search engine performance\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal‑cache manager that builds a simple DAG of document dependencies, estimates staleness probability, and triggers selective cache refreshes; expose a new method `invalidate_stale_cache(query_context)` and integrate it into the existing fetch pipeline.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.53
-  },
-  {
-    "id": "conj_1792898406",
-    "timestamp": "2026-10-24T22:20:06.177661",
-    "idle_duration_minutes": 32.2,
-    "title": "Causal Prompt Routing for Adaptive Web Research",
-    "hypothesis": "If the Web Research Engine (core/web_research_engine.py) incorporates a causal prompt‑routing layer that dynamically selects retrieval strategies based on inferred causal dependencies between the user's query and previously stored akáshic memory patterns, then the relevance and precision of fetched results will improve by at least 15% compared to the current static retrieval pipeline. This hypothesis rests on the premise that the deep memory vault already encodes temporal and semantic causality, but the research engine does not yet exploit this structure when forming search queries or selecting APIs.",
-    "research_query": "causal prompt routing web search engine improvement causal inference retrieval strategies performance boost",
-    "research_findings": "# Informe de Investigación: causal prompt routing web search engine improvement causal inference retrieval strategies performance boost\n\n## Fuentes Consultadas y Respaldo Web\n- **[2023 in science (Wikipedia)](https://en.wikipedia.org/wiki/2023_in_science)**: It suggests media literacy programs with tested strategies and solutions for identified search engines issues are needed. 28 December – A new model of\n\n## Contenido y Hallazgos Extraídos\n### De [2023 in science - Wikipedia](https://en.wikipedia.org/wiki/2023_in_science)\n> 2023 in science - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nOverview of the events of 2023 in science\nList of years in science\n( table )\n… 2013\n2014\n2015\n2016\n2017\n2018\n2019\n2020\n2021\n2022\n2023\n2024\n2025\n2026\n2027\n2028\n2029\n2030\n2031\n2032\n2033 …\nArchaeology\nArchitecture\nLiterature\nMusic\nPhilosophy\nScience +...\n2023 in science\n2022\n2024\nFields\nArchaeology\nSpace\nSenescence rese...\n",
-    "web_sources": [
-      "https://en.wikipedia.org/wiki/2023_in_science"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a CausalRouter class that analyses the query, extracts causal tags from deep_memory_vault, and chooses between keyword search, semantic vector search, or hybrid mode; integrate it into the existing fetch_and_process pipeline.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.74
-  },
-  {
     "id": "conj_1792900335",
     "timestamp": "2026-10-24T22:52:15.679225",
     "idle_duration_minutes": 32.2,
@@ -1638,5 +1606,38 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 96.91
+  },
+  {
+    "id": "conj_1793110891",
+    "timestamp": "2026-10-27T09:21:31.008179",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal Latency Reduction via Predictive Cache Pruning",
+    "hypothesis": "La latencia en la recuperación de memoria profunda (deep_memory_vault) se ve incrementada por la retención de nodos de conocimiento obsoletos o de baja relevancia causal. Se conjetura que implementar un algoritmo de poda predictiva basado en la frecuencia de acceso y la 'distancia causal' entre nodos reduciría el tiempo de búsqueda en un 30-40% sin comprometer la integridad de la bóveda akáshica, optimizando la eficiencia del motor de investigación web al pre-cargar solo los contextos más probables.",
+    "research_query": "predictive cache pruning algorithm for knowledge graphs based on causal relevance and access frequency",
+    "research_findings": "# Informe de Investigación: predictive cache pruning algorithm for knowledge graphs based on causal relevance and access frequency\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar un método `prune_low_relevance_nodes()` que evalúe la métrica de relevancia causal de cada nodo y elimine o archive aquellos que no hayan sido accedidos en un umbral temporal definido, actualizando los índices de búsqueda dinámicamente.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.21
+  },
+  {
+    "id": "conj_1793112788",
+    "timestamp": "2026-10-27T09:53:08.278248",
+    "idle_duration_minutes": 31.6,
+    "title": "Resonancia Causal en la Bóveda Akáshica: Compresión Semántica Adaptativa",
+    "hypothesis": "Se postula que la eficiencia de recuperación en `deep_memory_vault.py` se degrada exponencialmente con el volumen de datos debido a la búsqueda lineal o indexación estática. La conjetura es que implementar un mecanismo de 'Resonancia Causal' —donde los vectores de memoria se re-pesaran dinámicamente según su relevancia temporal y causal respecto a la consulta actual— reduciría la latencia de búsqueda en un 40% y aumentaría la precisión de la recuperación contextual, transformando la bóveda de un almacén pasivo a un sistema cognitivo activo que prioriza la información basada en la probabilidad de utilidad futura.",
+    "research_query": "adaptive semantic memory compression causal relevance ranking vector database optimization",
+    "research_findings": "# Informe de Investigación: adaptive semantic memory compression causal relevance ranking vector database optimization\n\n## Fuentes Consultadas y Respaldo Web\n- **[Outline of machine learning (Wikipedia)](https://en.wikipedia.org/wiki/Outline_of_machine_learning)**: error Prefrontal cortex basal ganglia working memory PVLV Q-learning Quadratic unconstrained binary optimization Query-level feature Quickprop Radial basis\n- **[List of datasets for machine-learning research (Wikipedia)](https://en.wikipedia.org/wiki/List_of_datasets_for_machine-learning_research)**: Sindhwani, Vikas; Keerthi, Sathiya S. (2008). \"Optimization techniques for semi-supervised support vector machines\" (PDF). The Journal of Machine Learning\n\n## Contenido y Hallazgos Extraídos\n### De [Outline of machine learning - Wikipedia](https://en.wikipedia.org/wiki/Outline_of_machine_learning)\n> Outline of machine learning - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nOverview of and topical guide to mach",
+    "web_sources": [
+      "https://en.wikipedia.org/wiki/Outline_of_machine_learning",
+      "https://en.wikipedia.org/wiki/List_of_datasets_for_machine-learning_research"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Introducir un método `calculate_causal_relevance(query_vector, memory_entries)` que asigne pesos dinámicos a las entradas de memoria basándose en la similitud coseno y la recencia, y modificar el método de búsqueda principal para filtrar y ordenar resultados por este score compuesto antes de devolverlos.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.25
   }
 ]
