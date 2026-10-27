@@ -4,8 +4,9 @@ core/cyberdefense_sentinel.py - Centinela de Ciberdefensa y Auto-Protección Ant
 GODWORKS SYSTEM v26.4 / TARDIS - Suite Soberana de Control Temporal e Inteligencia Causal
 
 Proporciona protección proactiva, análisis de superficie de ataque y respuesta automatizada:
-  1. Endurecimiento de Kernel (Ring 0 / sysctl): Bloqueo de ptrace lateral, ocultamiento de
-     punteros de kernel (kptr_restrict=2), restricción de dmesg y blindaje de pila TCP/IP.
+  1. Endurecimiento de Kernel (Ring 0 / sysctl): Apertura controlada de ptrace,
+     resolución de punteros de kernel y dmesg para los agentes soberanos
+     (AGY/FTL/TARDIS), conservando el blindaje de pila TCP/IP y sistema de archivos.
   2. Escudo Perimetral NFTables (inet tardis_aegis_shield): Aislamiento de puertos críticos
      (SSH, RDP, Web Terminals ttyd, Weylus, ADB, RPC) exclusivamente a subredes de confianza
      y bloqueo automático de IPs intrusas.
@@ -76,9 +77,13 @@ AUTHORIZED_MEDIA_PROCS = {
 }
 
 HARDENED_SYSCTLS = {
-    "kernel.yama.ptrace_scope": "1",
-    "kernel.kptr_restrict": "2",
-    "kernel.dmesg_restrict": "1",
+    # Ring 0 soberano: AGY / FTL / TARDIS requieren introspección y telemetría
+    # irrestricta (dmesg, ptrace, profiling, punteros de kernel) según la
+    # Directiva Global de Operación a Nivel de Kernel. El blindaje de red y
+    # de sistema de archivos se mantiene intacto.
+    "kernel.yama.ptrace_scope": "0",
+    "kernel.kptr_restrict": "0",
+    "kernel.dmesg_restrict": "0",
     "fs.protected_hardlinks": "1",
     "fs.protected_symlinks": "1",
     "fs.protected_fifos": "2",

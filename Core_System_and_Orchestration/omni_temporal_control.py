@@ -6485,6 +6485,24 @@ iframe{{border:none;width:100%;height:100%;}}</style></head>
             self.send_json({"ok": True, "safety_level": 7, "protected_paths": True, "audit_log": True})
             return
 
+        # Catálogo Soberano de Habilidades (sincronizado con AGY · FTL · TARDIS)
+        elif url_path in ("/api/skills", "/api/skills/catalog"):
+            try:
+                from core.tardis_skill_registry import get_skill_registry
+                self.send_json(get_skill_registry().catalog())
+            except Exception as e_skills:
+                self.send_json({"ok": False, "error": str(e_skills)}, status=500)
+            return
+
+        elif url_path.startswith("/api/skills/"):
+            try:
+                from core.tardis_skill_registry import get_skill_registry
+                _skill_name = urllib.parse.unquote(url_path[len("/api/skills/"):]).strip("/")
+                self.send_json(get_skill_registry().get_skill(_skill_name))
+            except Exception as e_skill:
+                self.send_json({"ok": False, "error": str(e_skill)}, status=500)
+            return
+
         # Monitor de Hardware & Recursos
         elif url_path == "/api/monitor":
             cpu_pct = 0.0

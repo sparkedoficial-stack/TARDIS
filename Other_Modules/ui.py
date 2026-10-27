@@ -359,6 +359,7 @@ class FTLInterface:
         help_table.add_row(":context", "Inspeccionar el contexto transversal y directivas activas de TARDIS", "Contexto Agéntico")
         help_table.add_row(":sync", "Forzar sincronización inmediata de contexto en todos los subsistemas", "Sincronización")
         help_table.add_row(":sovereign", "Muestra el manifiesto de permisos, excepciones y estatus root", "Auditoría de Poder")
+        help_table.add_row(":skills / :habilidades", "Catálogo soberano de skills sincronizadas (AGY · FTL · TARDIS)", "Conocimiento Compartido")
         help_table.add_row(":heal", "Auto-reparación profunda de configuraciones, trust y permisos", "Auto-Curación")
         help_table.add_row(":models", "Listar modelos de barrera registrados con máximo esfuerzo", "Frontier Registry")
         help_table.add_row(":update", "Ejecutar auto-mejora de binarios y modelos de frontera", "Evolución Continua")
@@ -545,15 +546,65 @@ class FTLInterface:
         console.print(help_table)
 
     def print_sovereign_status(self):
+        import json as _json
+        import subprocess as _sp
+        from pathlib import Path as _Path
+
+        sudo_ok = False
+        try:
+            sudo_ok = _sp.run(
+                ["sudo", "-n", "true"],
+                stdin=_sp.DEVNULL, stdout=_sp.DEVNULL, stderr=_sp.DEVNULL, timeout=4
+            ).returncode == 0
+        except Exception:
+            sudo_ok = False
+
+        kernel_bits = []
+        for key, label in (
+            ("kernel.dmesg_restrict", "dmesg"),
+            ("kernel.yama.ptrace_scope", "ptrace"),
+            ("kernel.kptr_restrict", "kptr"),
+        ):
+            try:
+                value = _sp.run(
+                    ["sysctl", "-n", key], capture_output=True, text=True, timeout=3
+                ).stdout.strip()
+            except Exception:
+                value = "?"
+            kernel_bits.append(f"{label}={value}")
+
+        skills_total, mirrors_ok = 0, 0
+        try:
+            catalog = _json.loads(
+                (_Path.home() / ".tardis" / "skills" / "catalog.json").read_text(encoding="utf-8")
+            )
+            skills_total = int(catalog.get("total", 0))
+        except Exception:
+            pass
+        try:
+            state = _json.loads(
+                (_Path.home() / ".config" / "godworks" / "sovereign_sync" / "state.json")
+                .read_text(encoding="utf-8")
+            )
+            mirrors_ok = len(state.get("skills", {}).get("targets", {}))
+        except Exception:
+            pass
+
         table = Table(title="FTL Apex Sovereign Authority & Immunity", box=ROUNDED)
         table.add_column("Dimensión de Control", style="bold cyan")
         table.add_column("Estado", style="bold green")
         table.add_column("Mecanismo Técnico", style="dim white")
 
-        table.add_row("Root / Sudo Host Access", "ACTIVO (Passwordless)", "Ejecución sin contraseña con sudo disponible")
+        table.add_row(
+            "Root / Sudo Host Access",
+            "ACTIVO (Passwordless)" if sudo_ok else "DISPONIBLE (con contraseña)",
+            "sudo -n validado en vivo; los agentes pueden elevar privilegios en su TTY"
+        )
         table.add_row("Direct Host Shell", "HABILITADO", "Prefijos $ y ! ejecutan bash directamente")
         table.add_row("Claude Code Permissions", "BYPASS TOTAL (bypassPermissions)", "skipDangerousModePermissionPrompt: true")
         table.add_row("Antigravity / AGY Permissions", "BYPASS TOTAL (--dangerously-skip-permissions)", "Auto-aprobación absoluta de herramientas")
+        table.add_row("Sovereign Skills Sync", f"ACTIVO ({skills_total} skills × {mirrors_ok} destinos)", "~/.agents/skills espejado por sovereign-sync")
+        table.add_row("Kernel Ring 0", "LIBERADO · " + " · ".join(kernel_bits), "dmesg/ptrace/kptr sin restricción para telemetría profunda")
         table.add_row("Sovereign Invariant Injection", "FORZADA EN CADA TURNO", "Inyección del mandato 100% autónomo")
         table.add_row("Auto-Failover Resiliente", "ACTIVO", "Conmutación en milisegundos ante fallas de motor")
         table.add_row("Reasoning Power Enforcement", "MÁXIMA POTENCIA EXCLUSIVA", "Claude: MAX Thinking | AGY: HIGH Effort")

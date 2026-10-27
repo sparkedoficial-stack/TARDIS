@@ -2849,6 +2849,35 @@ iframe{border:none;width:100%;height:100%;}</style></head>
         except Exception as e:
             return {"ok": False, "error": str(e)}
 
+    # --------------------------------------------------------------------------
+    # CATÁLOGO SOBERANO DE HABILIDADES (AGY · FTL · TARDIS · Claude · Codex · Orca)
+    # --------------------------------------------------------------------------
+
+    @app.get("/api/skills")
+    @app.get("/api/skills/catalog")
+    async def get_skills_catalog_endpoint():
+        try:
+            from core.tardis_skill_registry import get_skill_registry
+            return get_skill_registry().catalog()
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
+
+    @app.get("/api/skills/{skill_name}")
+    async def get_skill_detail_endpoint(skill_name: str):
+        try:
+            from core.tardis_skill_registry import get_skill_registry
+            return get_skill_registry().get_skill(skill_name)
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
+
+    @app.post("/api/skills/sync")
+    async def post_skills_sync_endpoint():
+        try:
+            from core.tardis_skill_registry import get_skill_registry
+            return get_skill_registry().sync()
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
+
     @app.post("/api/kaiju_safety/denylist/toggle")
     async def post_kaiju_safety_denylist_toggle_endpoint(req: Request):
         try:

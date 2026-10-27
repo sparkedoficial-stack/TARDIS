@@ -665,6 +665,23 @@ class ExecutionEngine:
             os.chmod(str(claude_real), 0o755)
             repaired.append("Verified autonomous permissions on Claude Code CLI binary & wrapper")
 
+        # 7. Synchronize sovereign permissions & skills across AGY / FTL / TARDIS
+        try:
+            cfg = load_config()
+            sync_bin = Path(cfg.get("sovereign_sync_bin", home / ".local" / "bin" / "sovereign-sync"))
+            if cfg.get("permission_sync_enabled", True) and sync_bin.is_file():
+                res = subprocess.run(
+                    [str(sync_bin), "sync", "--quick", "--quiet"],
+                    stdin=subprocess.DEVNULL,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    timeout=20,
+                )
+                if res.returncode == 0:
+                    repaired.append("Synchronized sovereign permissions & skills (AGY · FTL · TARDIS)")
+        except Exception:
+            pass
+
         return repaired
 
     def launch_interactive_claude(self):

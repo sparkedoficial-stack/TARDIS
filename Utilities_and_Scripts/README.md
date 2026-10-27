@@ -18,6 +18,7 @@ Automatizaciones de sistema, diagnósticos de hardware, optimizadores de SO y he
 - **generate_pdf.py**: Componente de alta eficiencia.
 - **imac_remote.sh**: Componente de alta eficiencia.
 - **ingest_omni_tools_knowledge.py**: Directorio y puente soberano de interoperabilidad omni-herramientas.
+- **ingest_skills_knowledge.py**: Especificación agéntica de capacidades soberanas para agentes autónomos.
 - **install_android_imac.sh**: Componente de alta eficiencia.
 - **install_context_matrix.py**: Componente de alta eficiencia.
 - **lanzar_jev_monitor.sh**: Componente de alta eficiencia.

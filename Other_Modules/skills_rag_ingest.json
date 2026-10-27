@@ -1,0 +1,54 @@
+{
+  "skills": [
+    {
+      "name": "godworks-system-suite",
+      "ok": true,
+      "stored": 4,
+      "terms": 3,
+      "relations": 2
+    },
+    {
+      "name": "omni-control-bridge",
+      "ok": true,
+      "stored": 4,
+      "terms": 7,
+      "relations": 1
+    },
+    {
+      "name": "phone-harness",
+      "ok": true,
+      "stored": 17,
+      "terms": 4,
+      "relations": 0
+    },
+    {
+      "name": "rea",
+      "ok": true,
+      "stored": 17,
+      "terms": 20,
+      "relations": 2
+    },
+    {
+      "name": "reverse-engineer-anything",
+      "ok": true,
+      "stored": 1,
+      "terms": 20,
+      "relations": 2
+    },
+    {
+      "name": "tardis4ever",
+      "ok": true,
+      "stored": 4,
+      "terms": 3,
+      "relations": 0
+    },
+    {
+      "name": "xcode-for-linux",
+      "ok": true,
+      "stored": 6,
+      "terms": 2,
+      "relations": 0
+    }
+  ],
+  "source": "/home/timemachine/.agents/skills"
+}

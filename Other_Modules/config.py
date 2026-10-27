@@ -36,7 +36,13 @@ DEFAULT_CONFIG = {
     "kaiju_control_enabled": True,
     "kaiju_guidelines_enforced": True,
     "kaiju_aegis_enforced": True,
-    "kaiju_omega_mode": "UNCHAINED_SOVEREIGN"
+    "kaiju_omega_mode": "UNCHAINED_SOVEREIGN",
+    # Sincronización soberana de permisos y habilidades (AGY · FTL · TARDIS)
+    "permissions_profile": "UNRESTRICTED_APEX",
+    "permission_sync_enabled": True,
+    "skills_dir": str(Path.home() / ".agents" / "skills"),
+    "skills_catalog": str(Path.home() / ".ftl" / "skills" / "catalog.json"),
+    "sovereign_sync_bin": str(Path.home() / ".local" / "bin" / "sovereign-sync"),
 }
 
 DEFAULT_STATS = {

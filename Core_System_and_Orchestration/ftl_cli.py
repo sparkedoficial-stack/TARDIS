@@ -95,7 +95,8 @@ UNIFIED_COMMAND_KEYWORDS = {
     "chat", "ask", "infinite", "infinite-code", "quad", "improve", "auto-improve",
     "engineer", "heal", "doctor", "models", "stats", "history", "historial",
     "ftl-history", "rag", "search-rag", "ftl-rag", "search", "context", "ftl-context",
-    "ctx", "sync", "sincronizar", "sovereign", "web", "lan", "portal", "voice",
+    "ctx", "sync", "sincronizar", "sovereign", "skills", "habilidades", "aptitudes",
+    "web", "lan", "portal", "voice",
     "voz", "speak", "habla", "decir", "easytouch", "et", "et-agent", "et-evolve", "et-solve", "auto", "kaiju", "rails",
     "kaiju-rails", "synth", "audit", "gemini", "agy", "claude", "claude-cli",
     "agy-cli", "antigravity", "ide", "gui", "clear", "ton618", "mascot", "mascota", "quasar", "reload",
@@ -142,6 +143,14 @@ def dispatch_unified_command(cmd_name: str, args_list: list[str] = None) -> bool
 
     elif cmd == "sovereign":
         ui.print_sovereign_status()
+        return True
+
+    elif cmd in ("skills", "habilidades", "aptitudes"):
+        sync_bin = Path.home() / ".local" / "bin" / "sovereign-sync"
+        if sync_bin.is_file():
+            subprocess.run([str(sync_bin), "skills"])
+        else:
+            console.print("[bold yellow]Aviso:[/bold yellow] sovereign-sync no está instalado en ~/.local/bin.")
         return True
 
     elif cmd in ("web", "lan", "portal"):
@@ -884,6 +893,7 @@ def main():
     parser.add_argument("--models", action="store_true", help="Display registered frontier models and active flagships")
     parser.add_argument("--stats", action="store_true", help="Display token savings and economic ledger")
     parser.add_argument("--sovereign", action="store_true", help="Display sovereign apex permissions and root status")
+    parser.add_argument("--skills", action="store_true", help="Display synchronized sovereign skills catalog (AGY · FTL · TARDIS)")
     parser.add_argument("--web", action="store_true", help="Display FTL Sovereign Web Terminal status, LAN URLs, and QR code")
     parser.add_argument("--heal", action="store_true", help="Run deep self-healing on permissions, files, and trust")
     parser.add_argument("--improve", action="store_true", help="Trigger autonomous self-improvement of TARDIS codebase via FTL")
@@ -1003,6 +1013,14 @@ def main():
 
     if args.sovereign:
         ui.print_sovereign_status()
+        sys.exit(0)
+
+    if args.skills:
+        sync_bin = Path.home() / ".local" / "bin" / "sovereign-sync"
+        if sync_bin.is_file():
+            subprocess.run([str(sync_bin), "skills"])
+        else:
+            console.print("[bold yellow]Aviso:[/bold yellow] sovereign-sync no está instalado en ~/.local/bin.")
         sys.exit(0)
 
     if args.web:
