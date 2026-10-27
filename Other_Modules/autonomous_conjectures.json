@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1792911285",
-    "timestamp": "2026-10-25T01:54:45.725273",
-    "idle_duration_minutes": 36.8,
-    "title": "Dynamic Causal Cache Invalidation for the Web Research Engine",
-    "hypothesis": "If the Web Research Engine maintains a lightweight causal graph that records dependencies between fetched resources (e.g., URLs, API endpoints, and extracted entities), then it can predict which cached entries are likely to become stale when upstream sources change. By using this causal information to trigger proactive cache invalidation or selective refresh, the system will reduce latency for repeated queries and improve the relevance of returned data without a significant increase in network overhead.",
-    "research_query": "causal cache invalidation techniques for web search engines OR causal graph based cache eviction strategies",
-    "research_findings": "# Informe de Investigación: causal cache invalidation techniques for web search engines OR causal graph based cache eviction strategies\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal dependency tracker that logs source‑target relationships for each fetched resource and integrate an adaptive cache TTL mechanism that uses the graph to decide when to invalidate or refresh cached entries.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.22
-  },
-  {
     "id": "conj_1792913181",
     "timestamp": "2026-10-25T02:26:21.903151",
     "idle_duration_minutes": 31.6,
@@ -1642,5 +1627,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 98.83
+  },
+  {
+    "id": "conj_1793122370",
+    "timestamp": "2026-10-27T12:32:50.282329",
+    "idle_duration_minutes": 33.2,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrar un mecanismo de invalidación de caché basado en causalidad temporal dentro de core/web_research_engine.py reducirá la latencia de consultas repetidas en un 30% y mejorará la coherencia de los resultados frente a cambios dinámicos en la web. La idea es que, al registrar relaciones de causa‑efecto entre consultas (por ejemplo, \"búsqueda de 'GPT‑4' después de 'modelos de lenguaje'\"), el motor pueda predecir cuándo una entrada en caché está potencialmente obsoleta y refrescarla proactivamente, en lugar de depender únicamente de TTL estáticos.",
+    "research_query": "causal cache invalidation web search engine performance study",
+    "research_findings": "# Informe de Investigación: causal cache invalidation web search engine performance study\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Implementar un subsistema de causal cache que registre dependencias entre consultas y active refrescos automáticos cuando se detecten cambios relevantes en los recursos externos.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.48
   }
 ]
