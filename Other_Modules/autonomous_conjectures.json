@@ -1,35 +1,5 @@
 [
   {
-    "id": "conj_1792888789",
-    "timestamp": "2026-10-24T19:39:49.170058",
-    "idle_duration_minutes": 32.1,
-    "title": "Dynamic Causal Prompt Routing for Contextual Memory Retrieval",
-    "hypothesis": "Integrating a causal inference layer into the Web Research Engine that dynamically routes prompts to the Deep Memory Vault based on inferred causal relevance will reduce latency and improve answer precision. The hypothesis posits that by estimating the causal impact of each incoming query on stored memory nodes (using a lightweight Bayesian network), the system can pre‑select the most relevant memory sub‑graph before invoking external web searches, thereby decreasing unnecessary network calls and enhancing the coherence of synthesized responses.",
-    "research_query": "causal inference based query routing in neural retrieval systems \"dynamic memory selection\"",
-    "research_findings": "# Informe de Investigación: causal inference based query routing in neural retrieval systems \"dynamic memory selection\"\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a lightweight causal inference module that scores memory nodes for relevance and modifies the request pipeline to query Deep Memory Vault first, falling back to external web search only when causal relevance score falls below a threshold.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.83
-  },
-  {
-    "id": "conj_1792890688",
-    "timestamp": "2026-10-24T20:11:28.312692",
-    "idle_duration_minutes": 31.7,
-    "title": "Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "Integrating a causal inference layer into the web_research_engine's result caching mechanism will reduce redundant network calls by predicting when cached data becomes stale based on observed changes in source domains, leading to up to 30% lower latency and bandwidth usage without sacrificing result freshness.",
-    "research_query": "causal inference based cache invalidation web scraping latency reduction",
-    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web scraping latency reduction\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a lightweight causal model that monitors timestamps, HTTP ETag/Last-Modified headers, and content change patterns to decide automatically whether to serve cached results or re‑fetch, and expose a configurable policy flag.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 99.11
-  },
-  {
     "id": "conj_1792892587",
     "timestamp": "2026-10-24T20:43:07.794667",
     "idle_duration_minutes": 31.7,
@@ -1630,5 +1600,38 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.4
+  },
+  {
+    "id": "conj_1793103021",
+    "timestamp": "2026-10-27T07:10:21.827334",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching subsystem can dynamically predict the obsolescence of stored query results based on observed changes in source domains (e.g., content updates, SEO shifts). By modeling the probability that a cached page has changed as a function of time, request frequency, and external signals (RSS feeds, change detection APIs), the engine can proactively invalidate or refresh entries, reducing stale data retrieval while keeping latency low. This approach should improve result freshness by at least 30% without increasing average query latency beyond 5 ms.",
+    "research_query": "causal inference based cache invalidation techniques for web scraping or search engines",
+    "research_findings": "# Informe de Investigación: causal inference based cache invalidation techniques for web scraping or search engines\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal cache manager that tracks source change signals and schedules asynchronous refreshes, replacing the static TTL mechanism.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.39
+  },
+  {
+    "id": "conj_1793105075",
+    "timestamp": "2026-10-27T07:44:35.772770",
+    "idle_duration_minutes": 34.2,
+    "title": "Resonancia Causal en la Bóveda Akáshica: Entropía Temporal y Compresión Semántica",
+    "hypothesis": "Se postula que la eficiencia de recuperación en la 'Bóveda Akáshica' (deep_memory_vault.py) no depende linealmente de la cantidad de nodos almacenados, sino de la 'densidad causal' entre ellos. Al aplicar un algoritmo de compresión basada en la correlación temporal de eventos (Time-Series Causal Compression), se puede reducir la latencia de búsqueda en un 40% manteniendo la integridad semántica, al agrupar recuerdos que comparten vectores de causa-efecto similares en lugar de indexarlos individualmente por similitud vectorial pura.",
+    "research_query": "temporal causal compression vector database memory retrieval optimization",
+    "research_findings": "# Informe de Investigación: temporal causal compression vector database memory retrieval optimization\n\n## Fuentes Consultadas y Respaldo Web\n- **[Deep learning (Wikipedia)](https://en.wikipedia.org/wiki/Deep_learning)**: Erol; Bakircioglu, Hakan (1996). \"Low bit-rate video compression with neural networks and temporal subsampling\" (PDF). Proceedings of the IEEE. 84 (10):\n- **[List of datasets for machine-learning research (Wikipedia)](https://en.wikipedia.org/wiki/List_of_datasets_for_machine-learning_research)**: Sindhwani, Vikas; Keerthi, Sathiya S. (2008). \"Optimization techniques for semi-supervised support vector machines\" (PDF). The Journal of Machine Learning\n\n## Contenido y Hallazgos Extraídos\n### De [Deep learning - Wikipedia](https://en.wikipedia.org/wiki/Deep_learning)\n> Deep learning - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nBranch of machine learning\nFor the TV series episode, see Deep Learning ( South Park ) .\nRepresenting images on multiple layers",
+    "web_sources": [
+      "https://en.wikipedia.org/wiki/Deep_learning",
+      "https://en.wikipedia.org/wiki/List_of_datasets_for_machine-learning_research"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar un índice secundario basado en grafos de causalidad temporal para pre-agrupar vectores antes de la búsqueda final, reduciendo el espacio de búsqueda efectivo.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.54
   }
 ]
