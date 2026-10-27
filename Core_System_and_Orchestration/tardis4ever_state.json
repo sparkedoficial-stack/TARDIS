@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "created_at": "2026-10-15T02:04:29.176374",
   "last_periodic_sync": "2026-10-27T00:44:56.138956",
-  "last_immediate_sync": "2026-10-27T02:57:55.224822",
-  "last_commit_hash": "4abbaf3e",
-  "sync_count": 1275,
-  "immediate_sync_count": 1274,
+  "last_immediate_sync": "2026-10-27T03:13:02.239930",
+  "last_commit_hash": "992cbfc6",
+  "sync_count": 1276,
+  "immediate_sync_count": 1275,
   "periodic_sync_count": 1,
   "last_known_mtimes": {
     "skill:omni-control-bridge/SKILL.md": REDACTED_PHONE.4575877,
@@ -123,7 +123,7 @@
     "core:easy_touch_engine.py": REDACTED_PHONE.4448318,
     "core:ftl_telegram_runner.py": REDACTED_PHONE.1491292,
     "core:tardis_ipad_edge_server.py": REDACTED_PHONE.7941043,
-    "core:curiosity_debate_manager.py": REDACTED_PHONE.257263,
+    "core:curiosity_debate_manager.py": REDACTED_PHONE.6398048,
     "core:tardis_feedback_bridge.py": REDACTED_PHONE.0847776,
     "core:sovereign_local_runner.py": REDACTED_PHONE.053532,
     "core:protected_users_vault.py": REDACTED_PHONE.5939357,
@@ -149,7 +149,7 @@
     "core:tardis_video_thinking_engine.py": REDACTED_PHONE.9820695,
     "core:tardis_autoprogrammer.py": REDACTED_PHONE.6407015,
     "core:emotional_presence_agent.py": REDACTED_PHONE.5575445,
-    "core:scientific_research_engine.py": REDACTED_PHONE.338274,
+    "core:scientific_research_engine.py": REDACTED_PHONE.725575,
     "core:tardis_agent_colony.py": REDACTED_PHONE.2914853,
     "core:tardis_sdr_radar_module.py": REDACTED_PHONE.176673,
     "core:easy_touch_agent.py": REDACTED_PHONE.8327923,
@@ -157,7 +157,7 @@
     "core:tardis4ever_agent.py": REDACTED_PHONE.5510595,
     "core:thought_noise_engine.py": REDACTED_PHONE.278309,
     "core:tardis_failover_engine.py": REDACTED_PHONE.9319336,
-    "core:background_thought_engine.py": REDACTED_PHONE.5517116,
+    "core:background_thought_engine.py": REDACTED_PHONE.9343545,
     "core:code_planner.py": REDACTED_PHONE.3533978,
     "core:autonomous_controller.py": REDACTED_PHONE.683386,
     "core:tardis_phone_harness_bridge.py": REDACTED_PHONE.9388921,
@@ -280,6 +280,17 @@
     "sat:gia_ios:GIA/Models/GIAModels.swift": REDACTED_PHONE.5796177
   },
   "history": [
+    {
+      "timestamp": "2026-10-27T03:13:02.239930",
+      "trigger": "immediate_milestone",
+      "commit_hash": "992cbfc6",
+      "score": 75,
+      "reasons": [
+        "Evoluci\u00f3n en subsistema core TARDIS: curiosity_debate_manager.py",
+        "Evoluci\u00f3n en subsistema core TARDIS: scientific_research_engine.py",
+        "Evoluci\u00f3n en subsistema core TARDIS: background_thought_engine.py"
+      ]
+    },
     {
       "timestamp": "2026-10-27T02:57:55.224822",
       "trigger": "immediate_milestone",
@@ -846,18 +857,6 @@
       "timestamp": "2026-10-26T01:02:38.233399",
       "trigger": "immediate_milestone",
       "commit_hash": "2265f49d",
-      "score": 100,
-      "reasons": [
-        "Evoluci\u00f3n en subsistema core TARDIS: sensor_orchestrator.py",
-        "Evoluci\u00f3n en subsistema core TARDIS: curiosity_debate_manager.py",
-        "Evoluci\u00f3n en subsistema core TARDIS: scientific_research_engine.py",
-        "Evoluci\u00f3n en subsistema core TARDIS: background_thought_engine.py"
-      ]
-    },
-    {
-      "timestamp": "2026-10-26T00:46:01.265086",
-      "trigger": "immediate_milestone",
-      "commit_hash": "6bf8fef6",
       "score": 100,
       "reasons": [
         "Evoluci\u00f3n en subsistema core TARDIS: sensor_orchestrator.py",

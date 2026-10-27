@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1792871202",
-    "timestamp": "2026-10-24T14:46:42.042115",
-    "idle_duration_minutes": 31.6,
-    "title": "Dynamic Causal Cache Invalidation for the Web Research Engine",
-    "hypothesis": "If the Web Research Engine maintains a lightweight causal graph of query dependencies (e.g., which cached results depend on which external resources), it can proactively invalidate or refresh only the affected cache entries when a source changes. This selective, causally‑driven invalidation should reduce latency and bandwidth usage compared to time‑based or full‑cache flush strategies, while keeping the returned data semantically up‑to‑date.",
-    "research_query": "causal inference based cache invalidation web search engine performance",
-    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web search engine performance\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal dependency tracker for cached search results and implement a selective invalidation routine that triggers when source URLs report updates (e.g., via ETag/Last‑Modified headers).",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.26
-  },
-  {
     "id": "conj_1792873131",
     "timestamp": "2026-10-24T15:18:51.425081",
     "idle_duration_minutes": 32.2,
@@ -1613,5 +1598,23 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 98.15
+  },
+  {
+    "id": "conj_1793089097",
+    "timestamp": "2026-10-27T03:18:17.027636",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal Graph Indexing for Deep Memory Vault Retrieval",
+    "hypothesis": "Incorporar un índice basado en grafos causales dentro del módulo core/deep_memory_vault.py permitirá que el motor de búsqueda de recuerdos akáshicos priorice relaciones de causa‑efecto entre eventos, mejorando la precisión de las respuestas en contextos de razonamiento secuencial y reduciendo la latencia de recuperación en un 15‑20% respecto al método de coincidencia de embeddings puro.",
+    "research_query": "causal graph memory retrieval performance compared to embedding similarity search",
+    "research_findings": "# Informe de Investigación: causal graph memory retrieval performance compared to embedding similarity search\n\n## Fuentes Consultadas y Respaldo Web\n- **[AMA-Bench: Evaluating Long-Horizon Memory for Agentic Applications - alphaXiv](https://news.google.com/rss/articles/CBMiUEFVX3lxTE92LTJqYzg5VUpUdVl2VjVnQ0g5cFNyNm9TUVU5OHhqLVhXMEU1cmFIcjJ2ZXUzNHkxNHphVktLT0hoczF1bVpJTnFCbmpkSGVm?oc=5)**: AMA-Bench: Evaluating Long-Horizon Memory for Agentic Applications  alphaXiv\n- **[Graph-Augmented Retrieval for Digital Evidence-Based Medical Synthesis: A Proof-of-Concept Study on Topology-Aware Mechanistic Narrative Generation - medRxiv](https://news.google.com/rss/articles/CBMic0FVX3lxTE1VVnRSTzdaTzhEcHp0NXRDQlRMVTItQU5NWk1xZE55b1JkSEdIdEZOR1A5djFCZDN4LUJzakZ3ZWdybmE4SVVSeWYwXzdlSjhkUUYxRmJ4VUs2TFJmMWtuUFVMZ1ZQaHhkOEZmUVFEbGdHNzA?oc=5)**: Graph-Augmented Retrieval for Digital Evidence-Based Medical Synthesis: A Proof-of-Concept Study on Topology-Aware Mechanistic Narrative Generation  medRxiv\n\n## ",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiUEFVX3lxTE92LTJqYzg5VUpUdVl2VjVnQ0g5cFNyNm9TUVU5OHhqLVhXMEU1cmFIcjJ2ZXUzNHkxNHphVktLT0hoczF1bVpJTnFCbmpkSGVm?oc=5",
+      "https://news.google.com/rss/articles/CBMic0FVX3lxTE1VVnRSTzdaTzhEcHp0NXRDQlRMVTItQU5NWk1xZE55b1JkSEdIdEZOR1A5djFCZDN4LUJzakZ3ZWdybmE4SVVSeWYwXzdlSjhkUUYxRmJ4VUs2TFJmMWtuUFVMZ1ZQaHhkOEZmUVFEbGdHNzA?oc=5"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar una capa de indexación causal que construya y mantenga un grafo dirigido de relaciones entre nodos de memoria, y adaptar la función de búsqueda para combinar puntuaciones de similitud de embeddings con pesos de caminos causales.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.7
   }
 ]
