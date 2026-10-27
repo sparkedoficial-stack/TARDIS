@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1792882971",
-    "timestamp": "2026-10-24T18:02:51.594695",
-    "idle_duration_minutes": 41.1,
-    "title": "Conjetura de Integración de Memoria Profunda y Redes Neuronales",
-    "hypothesis": "Se propone que la integración de la memoria profunda de Akáshica con redes neuronales entrenadas en tareas de búsqueda web puede mejorar significativamente la precisión y la velocidad de la búsqueda de información en el sistema. Esto se lograría mediante la creación de un modelo de inteligencia causal que combine la capacidad de la memoria profunda para almacenar y recuperar conocimientos con la capacidad de las redes neuronales para aprender patrones y relaciones complejas en los datos de búsqueda.",
-    "research_query": "¿Cómo se puede integrar la memoria profunda de Akáshica con redes neuronales para mejorar la precisión y velocidad de la búsqueda de información en sistemas de inteligencia artificial?",
-    "research_findings": "# Informe de Investigación: ¿Cómo se puede integrar la memoria profunda de Akáshica con redes neuronales para mejorar la precisión y velocidad de la búsqueda de información en sistemas de inteligencia artificial?\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Refinar la función de recuperación de conocimientos de la memoria profunda para que pueda interactuar con modelos de redes neuronales de manera más eficiente",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 484.44
-  },
-  {
     "id": "conj_1792884964",
     "timestamp": "2026-10-24T18:36:04.043661",
     "idle_duration_minutes": 33.2,
@@ -1621,5 +1606,23 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 99.56
+  },
+  {
+    "id": "conj_1793096939",
+    "timestamp": "2026-10-27T05:28:59.012788",
+    "idle_duration_minutes": 33.7,
+    "title": "Causal‑Feedback Loop for Adaptive Web Research",
+    "hypothesis": "Integrating a causal‑feedback loop between the Web Research Engine and the Deep Memory Vault will enable the system to dynamically prioritize search queries based on the inferred impact of newly retrieved information on existing knowledge graphs. By modeling the causal influence of each retrieved document on downstream reasoning tasks (e.g., hypothesis generation, code suggestion), the engine can allocate more resources to high‑impact queries, reducing latency and improving answer relevance. This hypothesis predicts a measurable reduction in average query‑to‑insight time (≈20 %) and an increase in hypothesis validation success rate (≈15 %) compared to the current stateless request‑response model.",
+    "research_query": "causal feedback loop adaptive web search engine knowledge graph prioritization performance improvement",
+    "research_findings": "# Informe de Investigación: causal feedback loop adaptive web search engine knowledge graph prioritization performance improvement\n\n## Fuentes Consultadas y Respaldo Web\n- **[A causal discovery-based adaptive fusion algorithm for multi-source heterogeneous knowledge graphs - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE8tQkU3N2N2SUlGcmUyeklIVU5GeWlidTZGcTBvU3hNZTBQSGxUUERfbVEydXpwZ2VoQlhrS09WelBTNmdzUWhoSG8zTzVGVGk0Rm85V3VYN3U2Q2RQRnNZ?oc=5)**: A causal discovery-based adaptive fusion algorithm for multi-source heterogeneous knowledge graphs  Nature\n- **[Construction of intelligent decision support systems through integration of retrieval-augmented generation and knowledge graphs | Scientific Reports - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE1rbG9tSkhuTzl4czlsM3lhaVd3c2pQb25HZ29faldkZko3TkpGTExZcGZIdW5FdkFPU2picTAtN0h4OWtFY0RzRnJfcWQ0R0IyTnE1QzhRaUZJU2tBcnQ0?oc=5)**: Construction of intelligent decision support systems through integration of retrieval-a",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE8tQkU3N2N2SUlGcmUyeklIVU5GeWlidTZGcTBvU3hNZTBQSGxUUERfbVEydXpwZ2VoQlhrS09WelBTNmdzUWhoSG8zTzVGVGk0Rm85V3VYN3U2Q2RQRnNZ?oc=5",
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE1rbG9tSkhuTzl4czlsM3lhaVd3c2pQb25HZ29faldkZko3TkpGTExZcGZIdW5FdkFPU2picTAtN0h4OWtFY0RzRnJfcWQ0R0IyTnE1QzhRaUZJU2tBcnQ0?oc=5"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal‑impact scoring module that evaluates each search result against the Deep Memory Vault's knowledge graph, updates a priority queue for pending queries, and logs impact metrics for continuous learning.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.94
   }
 ]
