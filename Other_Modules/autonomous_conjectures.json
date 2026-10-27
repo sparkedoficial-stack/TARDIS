@@ -1,23 +1,5 @@
 [
   {
-    "id": "conj_1792865444",
-    "timestamp": "2026-10-24T13:10:44.734494",
-    "idle_duration_minutes": 32.2,
-    "title": "Integración de Memoria Causal Distribuida para Optimizar la Búsqueda Web",
-    "hypothesis": "Si el motor de investigación web (core/web_research_engine.py) se enriquece con un índice de memoria causal derivado de deep_memory_vault, entonces podrá priorizar resultados que mantengan consistencia temporal y semántica con los eventos previos del sistema, reduciendo la latencia de consultas relevantes en un 30% y mejorando la precisión de inferencias posteriores.",
-    "research_query": "causal memory indexing for web search engines performance improvement",
-    "research_findings": "# Informe de Investigación: causal memory indexing for web search engines performance improvement\n\n## Fuentes Consultadas y Respaldo Web\n- **[Artificial intelligence (Wikipedia)](https://en.wikipedia.org/wiki/Artificial_intelligence)**: achieving defined goals. High-profile applications of AI include advanced web search engines, chatbots, virtual assistants, autonomous vehicles, play and analysis\n- **[Transformer (deep learning) (Wikipedia)](https://en.wikipedia.org/wiki/Transformer_%28deep_learning%29)**: The relative performances were compared between global (that of RNN search) and local (sliding window) attention model architectures for machine translation\n\n## Contenido y Hallazgos Extraídos\n### De [Artificial intelligence - Wikipedia](https://en.wikipedia.org/wiki/Artificial_intelligence)\n> Artificial intelligence - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nIntelligence in machines\n\"AI\" redirects here. For other uses, see AI (disambiguation) and Artificial in",
-    "web_sources": [
-      "https://en.wikipedia.org/wiki/Artificial_intelligence",
-      "https://en.wikipedia.org/wiki/Transformer_%28deep_learning%29"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Añadir un módulo de pre‑filtrado que consulte deep_memory_vault para obtener un contexto causal y lo utilice como prompt adicional al motor de búsqueda, implementando caché asincrónico y control de tasa de peticiones.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.11
-  },
-  {
     "id": "conj_1792867373",
     "timestamp": "2026-10-24T13:42:53.490917",
     "idle_duration_minutes": 32.1,
@@ -1616,5 +1598,23 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 96.82
+  },
+  {
+    "id": "conj_1793083404",
+    "timestamp": "2026-10-27T01:43:24.580443",
+    "idle_duration_minutes": 30.1,
+    "title": "Sinergia Causal entre Telemetría de Red y Memoria Profunda para Predicción de Anomalías",
+    "hypothesis": "Se postula que la correlación temporal entre los patrones de tráfico capturados por 'core/network_shield.py' y los vectores de contexto almacenados en 'core/deep_memory_vault.py' permite predecir intentos de intrusión o fallos de infraestructura con una anticipación superior a la de los sistemas de detección basados únicamente en firmas estáticas. Al fusionar la telemetría en tiempo real con la memoria epistémica a largo plazo, el sistema puede identificar desviaciones sutiles en el comportamiento de red que señalan amenazas emergentes o degradaciones de rendimiento antes de que se manifiesten como errores críticos.",
+    "research_query": "temporal correlation network telemetry deep memory anomaly detection predictive security AI",
+    "research_findings": "# Informe de Investigación: temporal correlation network telemetry deep memory anomaly detection predictive security AI\n\n## Fuentes Consultadas y Respaldo Web\n- **[CT-EWS: graph-centric early warning for multi-protocol cyber campaigns using long-memory forecasting and explainable attribution - Frontiers](https://news.google.com/rss/articles/CBMimgFBVV95cUxNb3hRQzRXcTVyZ0JZb1RLbXRUM0RfbjVLZHN5Z3l0U05HMGFQWnZZY2J3b2s5OXpiMFpOU0gzYTFvZ1ZGX3VMVnBWNDFlT0VLSlNDVWkwSHJKdUdVc2U3OHlfSUVqMjNyUzR0cnNFUFk1NXM0amJYSWdKUzZrRHFZdW5IQVc2WUJZcVotdlBTTU1jTE5zdHJWVmV3?oc=5)**: CT-EWS: graph-centric early warning for multi-protocol cyber campaigns using long-memory forecasting and explainable attribution  Frontiers\n- **[DeepShieldIDS: an AI-powered intrusion detection system leveraging HybridIDSNet for robust network security - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE1SUlVBZ211RlVRRWkyTjBLR1RMMWJMMHlmbXhIWmpGNGQyTjIxX1BkTjQ1ZHRBV3BTd0ZXcGhOLVVoeFJITmxiQmw4QnVyOVREQmwxQy1VS0twN2U5SkpF?oc",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMimgFBVV95cUxNb3hRQzRXcTVyZ0JZb1RLbXRUM0RfbjVLZHN5Z3l0U05HMGFQWnZZY2J3b2s5OXpiMFpOU0gzYTFvZ1ZGX3VMVnBWNDFlT0VLSlNDVWkwSHJKdUdVc2U3OHlfSUVqMjNyUzR0cnNFUFk1NXM0amJYSWdKUzZrRHFZdW5IQVc2WUJZcVotdlBTTU1jTE5zdHJWVmV3?oc=5",
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE1SUlVBZ211RlVRRWkyTjBLR1RMMWJMMHlmbXhIWmpGNGQyTjIxX1BkTjQ1ZHRBV3BTd0ZXcGhOLVVoeFJITmxiQmw4QnVyOVREQmwxQy1VS0twN2U5SkpF?oc=5"
+    ],
+    "code_target": "core/network_shield.py",
+    "code_goal": "Implementar un módulo de correlación temporal que ingiera métricas de red en tiempo real y las compare contra los vectores históricos de la bóveda akáshica para generar alertas predictivas de anomalías.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 7.02
   }
 ]
