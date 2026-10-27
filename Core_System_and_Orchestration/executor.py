@@ -19,6 +19,7 @@ from progress import TemporalProgressBar, time_estimator
 from router import RoutingPlan
 from tardis_bridge import tardis_bridge
 from ui import console
+import free_models as free_catalog
 
 FALLBACK_STATE_FILE = Path.home() / ".config" / "ftl" / "fallback_state.json"
 ANSI_RE = re.compile(r"\x1b\[[0-9;?]*[A-Za-z]")
@@ -355,14 +356,15 @@ class ExecutionEngine:
             return True
         return True
 
-    def execute_deepseek(
+    def execute_free_model(
         self,
         prompt: str,
-        model: Optional[str] = None,
+        model: str,
         on_line: Optional[Callable[[str], None]] = None
     ) -> Tuple[int, str]:
-        """Ejecuta el prompt con DeepSeek V4.1 Max vía OpenCode (modelo alterno)."""
-        ref = model or self.alternate_ref()
+        """Ejecuta un modelo gratuito concreto vía OpenCode (variante máxima)."""
+        resolved = free_catalog.resolve(model)
+        ref = resolved.ref if resolved else model
         binary = self.config.get("fallback_binary", "opencode")
         exe = shutil.which(binary) or binary
         full_prompt = f"{SOVEREIGN_INVARIANT}{prompt}"
@@ -375,6 +377,25 @@ class ExecutionEngine:
             if not line.strip().startswith("> build ·")
         ).strip()
         return rc, clean
+
+    def execute_deepseek(
+        self,
+        prompt: str,
+        model: Optional[str] = None,
+        on_line: Optional[Callable[[str], None]] = None
+    ) -> Tuple[int, str]:
+        """Alias soberano: DeepSeek V4.1 Max como modelo alterno primario."""
+        return self.execute_free_model(prompt, model or self.alternate_ref(), on_line=on_line)
+
+    def free_pool(self) -> List:
+        """Pool ordenado de modelos gratuitos habilitados y verificados."""
+        cfg = self.config or load_config()
+        if not cfg.get("free_models_enabled", True):
+            return []
+        pool = free_catalog.available_models()
+        preferred = cfg.get("free_model_pool") or []
+        order = {key: idx for idx, key in enumerate(preferred)}
+        return sorted(pool, key=lambda m: (order.get(m.key, 999), m.priority))
 
     def execute_imac(
         self,
@@ -513,27 +534,41 @@ class ExecutionEngine:
         # se despacha de inmediato al MODELO ALTERNO (DeepSeek V4.1 Max).
         primary_ready = any(self.engine_available(e) for e in ("agy", "claude"))
         fallback_direct = plan.mode not in ("imac", "cluster") and (
-            plan.mode == "deepseek" or not primary_ready
+            plan.mode in ("deepseek", "free_agent") or not primary_ready
         )
 
         if fallback_direct:
-            if plan.mode == "deepseek":
+            if plan.mode == "free_agent":
+                fm_match = free_catalog.resolve(plan.primary_model)
+                label = fm_match.name if fm_match else plan.primary_model
+                _status_relay(
+                    f"[FTL Sovereign Free Agent: {label} | Effort: MAX | Control: FTL]"
+                )
+                rc, out = self.execute_free_model(
+                    active_prompt, plan.primary_model, on_line=_line_relay
+                )
+                record_query_stats("free_agent")
+                actual_model = f"{label}({plan.primary_model})"
+            elif plan.mode == "deepseek":
                 _status_relay(
                     "[FTL Sovereign Engine: MODELO ALTERNO :: DeepSeek V4.1 Max | Effort: MAX | Bypass: TOTAL]"
                 )
+                rc, out = self.execute_free_model(
+                    active_prompt, plan.primary_model or self.alternate_ref(), on_line=_line_relay
+                )
+                record_query_stats("deepseek_v41_max")
+                actual_model = f"DeepSeek-V4.1-Max({self.alternate_ref()})"
             else:
                 _status_relay(
                     "⚡ Sin acceso a motores primarios (agy / claude). "
                     "Despachando al MODELO ALTERNO :: DeepSeek V4.1 Max..."
                 )
                 record_failover()
-            rc, out = self.execute_deepseek(
-                active_prompt,
-                plan.primary_model if plan.mode == "deepseek" else self.alternate_ref(),
-                on_line=_line_relay
-            )
-            record_query_stats("deepseek_v41_max")
-            actual_model = f"DeepSeek-V4.1-Max({self.alternate_ref()})"
+                rc, out = self.execute_free_model(
+                    active_prompt, self.alternate_ref(), on_line=_line_relay
+                )
+                record_query_stats("deepseek_v41_max")
+                actual_model = f"DeepSeek-V4.1-Max({self.alternate_ref()})"
 
         elif plan.mode == "gemini":
             _status_relay(f"[FTL Sovereign Engine: Google Gemini ({plan.primary_model}) | Effort: HIGH | Bypass: TOTAL]")
@@ -703,28 +738,34 @@ class ExecutionEngine:
             except Exception:
                 pass
 
-        # MODELO ALTERNO SOBERANO: última línea de defensa antes de emitir error.
-        # DeepSeek V4.1 Max garantiza respuesta cuando los modelos primarios fallan.
+        # POOL GRATUITO SOBERANO: última línea de defensa antes de emitir error.
+        # Recorre todos los modelos gratuitos habilitados hasta obtener respuesta.
         if (
             rc != 0
-            and plan.mode != "deepseek"
+            and plan.mode not in ("deepseek", "free_agent")
             and self.config.get("fallback_enabled", True)
         ):
-            _status_relay(
-                "\n⚡ MODELO ALTERNO SOBERANO: Conmutando a DeepSeek V4.1 Max "
-                "(OpenCode · variante max) para garantizar la respuesta..."
-            )
-            try:
-                fb_rc, fb_out = self.execute_deepseek(
-                    active_prompt, self.alternate_ref(), on_line=_line_relay
+            pool = self.free_pool()
+            if pool:
+                _status_relay(
+                    "\n⚡ POOL GRATUITO SOBERANO: agotando modelos alternos "
+                    f"({len(pool)} disponibles) hasta garantizar la respuesta..."
                 )
-            except Exception as exc_fb:
-                fb_rc, fb_out = 1, f"Fallback DeepSeek falló: {exc_fb}"
-            if fb_rc == 0 and fb_out.strip():
-                record_failover()
-                record_query_stats("deepseek_v41_max")
-                rc, out = 0, fb_out
-                actual_model = f"DeepSeek-V4.1-Max(alterno)"
+                for fm in pool:
+                    _status_relay(f"   → Probando {fm.name} ({fm.ref})…")
+                    try:
+                        fb_rc, fb_out = self.execute_free_model(
+                            active_prompt, fm.ref, on_line=_line_relay
+                        )
+                    except Exception as exc_fb:
+                        fb_rc, fb_out = 1, f"fallo: {exc_fb}"
+                    if fb_rc == 0 and fb_out.strip():
+                        record_failover()
+                        record_query_stats("free_agent")
+                        rc, out = 0, fb_out
+                        actual_model = f"{fm.name}(pool-gratuito)"
+                        _status_relay(f"   ✔ Respuesta obtenida con {fm.name}")
+                        break
 
         duration = bar.finish(
             returncode=rc,
@@ -870,6 +911,17 @@ class ExecutionEngine:
                 repaired.append(
                     f"Alternate model registered: DeepSeek V4.1 Max ({alt.get('model')})"
                 )
+        except Exception:
+            pass
+
+        # 9. Free model pool & agent orchestrator availability
+        try:
+            import free_models as _fm
+            summary = _fm.summary()
+            repaired.append(
+                f"Free model pool: {summary['verified']}/{summary['total']} verified · "
+                "agent orchestrator ready"
+            )
         except Exception:
             pass
 

@@ -682,6 +682,189 @@ class FTLInterface:
         table.add_row("Disparo", "Arranque de FTL · fallo de motores primarios · agotamiento de Easy Touch")
         console.print(table)
 
+    def print_agents(self, probe: bool = False):
+        """Catálogo de modelos gratuitos + estado del orquestador agéntico."""
+        import free_models as fm
+        from agent_orchestrator import orchestrator as _orch
+
+        if probe:
+            console.print("[bold cyan]🔎 Sondeando el pool gratuito (puede tardar ~1 min)…[/bold cyan]")
+            for rec in fm.refresh(force=True):
+                if rec.get("skipped"):
+                    continue
+                ok = rec.get("available")
+                console.print(
+                    f"   {'✓' if ok else '✗'} {rec.get('key'):16} "
+                    f"[dim]{rec.get('latency_s', '?')}s[/dim]"
+                    + ("" if ok else f" [red]{str(rec.get('error',''))[:70]}[/red]")
+                )
+
+        summary = fm.summary()
+        status = _orch.status()
+        policy = status["policy"]
+        by_model = status["state"].get("by_model", {})
+
+        table = Table(title="FTL · Pool de Modelos Gratuitos & Orquestador Agéntico", box=ROUNDED)
+        table.add_column("Alias", style="bold cyan")
+        table.add_column("Modelo / Referencia", style="white")
+        table.add_column("Especialidad", style="magenta")
+        table.add_column("Estado", style="bold green")
+        table.add_column("Lat.", justify="right", style="yellow")
+        table.add_column("Runs/OK", justify="right", style="dim")
+
+        for m in summary["models"]:
+            if m["available"] is True:
+                state_lbl = "[bold green]✓ VERIFICADO[/bold green]"
+            elif m["available"] is False:
+                state_lbl = "[bold red]✗ NO DISP.[/bold red]"
+            else:
+                state_lbl = "[yellow]… SIN SONDA[/yellow]"
+            if not m["enabled"]:
+                state_lbl += " [dim](off)[/dim]"
+            stats = by_model.get(m["key"], {})
+            runs = f"{stats.get('runs', 0)}/{stats.get('ok', 0)}"
+            table.add_row(
+                m["key"],
+                m["ref"],
+                ", ".join(m["roles"][:3]),
+                state_lbl,
+                f"{m['latency_s']}s" if m["latency_s"] else "—",
+                runs,
+            )
+        console.print(table)
+
+        kill = "[bold red]ACTIVO[/bold red]" if policy.get("kill_switch") else "[green]inactivo[/green]"
+        enabled = "[green]ON[/green]" if policy.get("enabled") else "[red]OFF[/red]"
+        console.print(
+            f"[dim]Orquestador:[/dim] {enabled} · kill switch: {kill} · "
+            f"concurrencia: [cyan]{policy.get('max_concurrency')}[/cyan] · "
+            f"máx agentes: [cyan]{policy.get('max_agents')}[/cyan] · "
+            f"timeout: [cyan]{policy.get('default_timeout')}s[/cyan] · "
+            f"estrategia: [cyan]{policy.get('default_strategy')}[/cyan]"
+        )
+        console.print(
+            "[dim]Uso:[/dim] :agent \\[alias] \\[tarea] · "
+            ":orchestrate [auto|single|fanout|compare|pipeline|race] \\[tarea] · "
+            ":agent-policy · :agent-history · :agent-kill on|off"
+        )
+
+    def print_agent_policy(self):
+        """Política de control del orquestador y toggles por modelo."""
+        import free_models as fm
+        from agent_orchestrator import orchestrator as _orch, ORCH_DIR
+
+        policy = _orch.policy
+        table = Table(title="FTL · Política de Control Agéntico", box=ROUNDED)
+        table.add_column("Clave", style="bold cyan")
+        table.add_column("Valor", style="bold green")
+        for key, value in policy.items():
+            table.add_row(key, json.dumps(value, ensure_ascii=False) if isinstance(value, (list, dict, bool)) else str(value))
+        console.print(table)
+
+        models = Table(title="Control Individual de Modelos", box=ROUNDED)
+        models.add_column("Alias", style="cyan")
+        models.add_column("Ref", style="white")
+        models.add_column("Habilitado", style="green")
+        models.add_column("Disponible", style="green")
+        for m in fm.all_models():
+            st = fm.model_state(m.key)
+            models.add_row(
+                m.key, m.ref,
+                "SÍ" if st.get("enabled", m.enabled_default) else "NO",
+                "SÍ" if st.get("available") else ("NO" if st.get("available") is False else "?"),
+            )
+        console.print(models)
+        console.print(f"[dim]Política: {ORCH_DIR / 'policy.json'} · Auditoría: {ORCH_DIR / 'audit.jsonl'}[/dim]")
+
+    def print_agent_result(self, rec: dict):
+        """Resultado de un agente individual."""
+        ok = rec.get("ok")
+        body = rec.get("output") or rec.get("error") or "(sin salida)"
+        title = f"{'✔' if ok else '✗'} Agente FTL · {rec.get('model', '?')}"
+        subtitle = (
+            f"{rec.get('ref', '')} · {rec.get('duration_s', 0)}s · "
+            f"rc={rec.get('rc')} · rol={rec.get('role', '')}"
+        )
+        console.print(Panel(
+            Markdown(body),
+            title=title,
+            subtitle=subtitle,
+            border_style="green" if ok else "red",
+        ))
+
+    def print_orchestration(self, result: dict):
+        """Resultado de una orquestación multi-agente."""
+        ok = result.get("ok")
+        agents = result.get("agents", [])
+        table = Table(title=f"FTL Orquestador · {result.get('strategy', '?')}", box=ROUNDED)
+        table.add_column("Agente", style="bold cyan")
+        table.add_column("Rol", style="magenta")
+        table.add_column("Estado", style="green")
+        table.add_column("Duración", justify="right", style="yellow")
+        table.add_column("Chars", justify="right", style="dim")
+        for a in agents:
+            table.add_row(
+                str(a.get("model")),
+                str(a.get("role", "")),
+                "[green]✓[/green]" if a.get("ok") else "[red]✗[/red]",
+                f"{a.get('duration_s', 0)}s",
+                str(a.get("output_chars", 0)),
+            )
+        console.print(table)
+
+        body = result.get("output") or "(sin salida)"
+        title = (
+            f"{'✔' if ok else '✗'} Resultado Orquestado · "
+            f"{result.get('agents_ok', 0)}/{result.get('agents_used', 0)} agentes OK"
+        )
+        subtitle = (
+            f"ganador: {result.get('winner') or '—'} · "
+            f"total: {result.get('elapsed_s', 0)}s · run: {result.get('run_id', '')}"
+        )
+        console.print(Panel(
+            Markdown(body),
+            title=title,
+            subtitle=subtitle,
+            border_style="green" if ok else "red",
+        ))
+
+    def print_agent_history(self, limit: int = 20):
+        """Historial de auditoría del orquestador."""
+        from agent_orchestrator import orchestrator as _orch
+
+        records = _orch.history(limit)
+        if not records:
+            console.print("[yellow]Sin registros de auditoría todavía.[/yellow]")
+            return
+        table = Table(title=f"FTL · Auditoría Agéntica (últimos {len(records)})", box=ROUNDED)
+        table.add_column("Timestamp", style="dim")
+        table.add_column("Evento", style="cyan")
+        table.add_column("Run", style="dim")
+        table.add_column("Modelo/Estrategia", style="magenta")
+        table.add_column("OK", style="green")
+        table.add_column("Duración", justify="right", style="yellow")
+
+        for rec in records:
+            if rec.get("event") == "orchestration":
+                table.add_row(
+                    str(rec.get("ts", rec.get("timestamp", "")))[:19],
+                    "orchestration",
+                    str(rec.get("run_id", ""))[:12],
+                    str(rec.get("strategy", "")),
+                    f"{rec.get('agents_ok', 0)}",
+                    f"{rec.get('elapsed_s', 0)}s",
+                )
+            else:
+                table.add_row(
+                    str(rec.get("started_at", ""))[:19],
+                    "agent_run",
+                    str(rec.get("run_id", ""))[:12],
+                    str(rec.get("model", "")),
+                    "✓" if rec.get("ok") else "✗",
+                    f"{rec.get('duration_s', 0)}s",
+                )
+        console.print(table)
+
     def print_stats(self):
         stats = load_stats()
         s_table = Table(title="FTL Token Economics & Sovereign Savings Ledger", box=ROUNDED)

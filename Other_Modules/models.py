@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 from config import CONFIG_DIR, load_config
+import free_models as free_catalog
 
 MODELS_CACHE_FILE = CONFIG_DIR / "models_cache.json"
 CACHE_TTL_SECONDS = 86400  # 24 hours
@@ -58,6 +59,10 @@ class ModelRegistry:
 
         # Sovereign TARDIS and Infinite Code models are always recognized
         if "kaiju" in mid or "tardis" in mid or "infinite" in mid or "deepseek" in mid or "groq" in mid:
+            return True
+
+        # Free OpenCode pool (todos los modelos gratuitos son elegibles)
+        if "free" in mid or mid.startswith("opencode/"):
             return True
 
         # Reject any low or medium effort versions
@@ -316,6 +321,31 @@ class ModelRegistry:
             )
         ]
 
+    def discover_from_free(self) -> List[ModelProfile]:
+        """Pool completo de modelos gratuitos (OpenCode) con sus variantes máximas."""
+        profiles: List[ModelProfile] = []
+        for m in free_catalog.all_models():
+            st = free_catalog.model_state(m.key)
+            latency = st.get("latency_s")
+            speed = 9.5 if latency and latency <= 2 else (8.5 if latency and latency <= 8 else 7.0)
+            reasoning = 9.2 if any(r in m.roles for r in ("razonamiento", "auditoría", "contexto-largo")) else 8.2
+            profiles.append(
+                ModelProfile(
+                    model_id=m.ref,
+                    display_name=f"{m.name} (GRATUITO · {'VISIÓN' if m.vision else 'TEXTO'})",
+                    provider="opencode_free",
+                    tier=f"free-{m.key}",
+                    effort_level="max" if m.variant else "high",
+                    context_window=128_000,
+                    cost_factor=0.0,
+                    abstraction_score=reasoning,
+                    speed_score=speed,
+                    is_flagship=(m.key == "deepseek"),
+                    is_latest=True,
+                )
+            )
+        return profiles
+
     def refresh(self):
         """Forces rediscovery of ONLY frontier max power models."""
         discovered_agy = self.discover_from_agy()
@@ -324,10 +354,12 @@ class ModelRegistry:
         discovered_infinite = self.discover_from_infinite()
         discovered_frontier = self.discover_from_frontier()
         discovered_alternate = self.discover_from_alternate()
+        discovered_free = self.discover_from_free()
 
         all_models: Dict[str, ModelProfile] = {}
         for m in (discovered_agy + discovered_claude + discovered_tardis
-                  + discovered_infinite + discovered_frontier + discovered_alternate):
+                  + discovered_infinite + discovered_frontier + discovered_alternate
+                  + discovered_free):
             all_models[m.model_id] = m
 
         # Select highest version Google Flash High

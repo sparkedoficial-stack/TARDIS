@@ -34,6 +34,19 @@ DEFAULT_CONFIG = {
     "fallback_priority": ["agy", "claude", "kaiju", "imac", "deepseek"],
     "fallback_probe_ttl": 900,
     "fallback_announce": True,
+    # Pool de modelos gratuitos + orquestador agéntico controlado por FTL
+    "free_models_enabled": True,
+    "free_model_pool": [
+        "deepseek", "glm", "flint", "nemotron-vl", "mimo",
+        "lightning", "beam", "pickle", "nemotron-ultra"
+    ],
+    "free_model_probe_ttl": 3600,
+    "orchestrator_enabled": True,
+    "orchestrator_max_concurrency": 4,
+    "orchestrator_max_agents": 8,
+    "orchestrator_timeout": 300,
+    "orchestrator_strategy": "auto",
+    "orchestrator_audit": True,
     "history_limit": 1000,
     "theme": "cyber_apex",
     "tardis_integration": True,
@@ -66,7 +79,9 @@ DEFAULT_STATS = {
         "dual_audit": 0,
         "direct_shell": 0,
         "tardis_kaiju": 0,
-        "deepseek_v41_max": 0
+        "deepseek_v41_max": 0,
+        "free_agent": 0,
+        "orchestrator": 0
     },
     "estimated_tokens_saved": 0,
     "estimated_usd_saved": 0.0,
@@ -170,7 +185,9 @@ def record_query_stats(engine_tier: str, est_tokens: int = 1500):
         "dual_synth": 0.70,
         "dual_audit": 0.50,
         "direct_shell": 1.0,
-        "deepseek_v41_max": 1.0
+        "deepseek_v41_max": 1.0,
+        "free_agent": 1.0,
+        "orchestrator": 1.0
     }.get(engine_tier, 0.5)
 
     tokens_saved = int(est_tokens * savings_factor)

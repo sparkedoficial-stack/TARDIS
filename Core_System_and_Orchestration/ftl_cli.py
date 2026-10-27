@@ -20,6 +20,8 @@ from models import registry
 from router import router
 from self_updater import improver
 from ui import console, ui
+import free_models as free_catalog
+from agent_orchestrator import orchestrator, STRATEGIES, OrchestratorHalt
 
 
 def run_single_prompt(prompt: str, mode: str = None):
@@ -97,6 +99,9 @@ UNIFIED_COMMAND_KEYWORDS = {
     "ftl-history", "rag", "search-rag", "ftl-rag", "search", "context", "ftl-context",
     "ctx", "sync", "sincronizar", "sovereign", "skills", "habilidades", "aptitudes",
     "fallback", "alterno", "modelo-alterno",
+    "agents", "agentes", "free", "gratis", "pool", "agent", "agente",
+    "orchestrate", "orquestar", "orquesta", "agent-policy", "politica-agentes",
+    "agent-history", "historial-agentes", "agent-kill", "kill-switch", "agent-probe",
     "web", "lan", "portal", "voice",
     "voz", "speak", "habla", "decir", "easytouch", "et", "et-agent", "et-evolve", "et-solve", "auto", "kaiju", "rails",
     "kaiju-rails", "synth", "audit", "gemini", "agy", "claude", "claude-cli",
@@ -156,6 +161,125 @@ def dispatch_unified_command(cmd_name: str, args_list: list[str] = None) -> bool
 
     elif cmd in ("fallback", "alterno", "modelo-alterno"):
         ui.print_fallback_status(force_probe=True)
+        return True
+
+    # --- POOL GRATUITO & ORQUESTADOR AGÉNTICO BAJO CONTROL DE FTL ---
+    elif cmd in ("agents", "agentes", "free", "gratis", "pool", "modelos-gratis"):
+        ui.print_agents()
+        return True
+
+    elif cmd in ("agent-probe", "probe-agents", "sondear-agentes"):
+        ui.print_agents(probe=True)
+        return True
+
+    elif cmd in ("agent", "agente"):
+        if len(args) < 2:
+            aliases = ", ".join(m.key for m in free_catalog.all_models())
+            console.print("[yellow]Uso:[/yellow] :agent <alias|modelo> <tarea>")
+            console.print(f"[dim]Alias disponibles: {aliases}[/dim]")
+            return True
+        token, task = args[0], " ".join(args[1:])
+        console.print(f"[bold cyan]🤖 FTL → Agente individual '{token}' (control soberano)...[/bold cyan]")
+        try:
+            rec = orchestrator.run(token, task, role="agente individual")
+        except (OrchestratorHalt, ValueError) as exc:
+            console.print(f"[bold red]✖ {exc}[/bold red]")
+            return True
+        ui.print_agent_result(rec)
+        return True
+
+    elif cmd in ("orchestrate", "orquestar", "orquesta"):
+        rest = list(args)
+        strategy = orchestrator.policy.get("default_strategy", "auto")
+        models = None
+        max_agents = None
+        while rest and rest[0].startswith("--"):
+            flag = rest.pop(0)
+            if flag in ("--models", "--modelos") and rest:
+                models = [m.strip() for m in rest.pop(0).split(",") if m.strip()]
+            elif flag in ("--max-agents", "--max") and rest:
+                try:
+                    max_agents = int(rest.pop(0))
+                except ValueError:
+                    console.print("[red]--max-agents requiere un número entero.[/red]")
+                    return True
+            elif flag in ("--strategy", "--estrategia") and rest:
+                strategy = rest.pop(0).lower()
+            else:
+                console.print(f"[red]Flag desconocida o sin valor: {flag}[/red]")
+                return True
+        if rest and rest[0].lower() in STRATEGIES:
+            strategy = rest.pop(0).lower()
+        task = " ".join(rest).strip()
+        if not task:
+            console.print("[yellow]Uso:[/yellow] :orchestrate [estrategia] [--models a,b] [--max-agents N] <tarea>")
+            console.print(f"[dim]Estrategias: {', '.join(STRATEGIES)}[/dim]")
+            return True
+        console.print(
+            f"[bold cyan]🕸️ FTL Orquestador → estrategia '{strategy}' "
+            f"(control soberano de agentes)...[/bold cyan]"
+        )
+        try:
+            result = orchestrator.orchestrate(
+                task, strategy=strategy, models=models, max_agents=max_agents,
+                on_progress=lambda msg: console.print(f"[dim]{msg}[/dim]"),
+            )
+        except (OrchestratorHalt, ValueError) as exc:
+            console.print(f"[bold red]✖ {exc}[/bold red]")
+            return True
+        ui.print_orchestration(result)
+        return True
+
+    elif cmd in ("agent-policy", "politica-agentes"):
+        ui.print_agent_policy()
+        return True
+
+    elif cmd in ("agent-history", "historial-agentes"):
+        limit = int(args[0]) if args and args[0].isdigit() else 20
+        ui.print_agent_history(limit=limit)
+        return True
+
+    elif cmd in ("agent-kill", "kill-switch"):
+        choice = args[0].lower() if args else "status"
+        if choice in ("on", "1", "true", "activar"):
+            orchestrator.set_kill_switch(True)
+            console.print("[bold red]⛔ KILL SWITCH ACTIVADO: ejecución de agentes bloqueada.[/bold red]")
+        elif choice in ("off", "0", "false", "desactivar"):
+            orchestrator.set_kill_switch(False)
+            console.print("[bold green]✔ KILL SWITCH DESACTIVADO: orquestador operativo.[/bold green]")
+        else:
+            state = "[bold red]ACTIVO[/bold red]" if orchestrator.policy.get("kill_switch") else "[green]inactivo[/green]"
+            console.print(f"Kill switch del orquestador: {state}")
+            console.print("[dim]Uso: :agent-kill on|off|status[/dim]")
+        return True
+
+    elif cmd in ("agent-set", "politica-set"):
+        if len(args) < 2:
+            console.print("[yellow]Uso:[/yellow] :agent-set <clave> <valor>")
+            return True
+        key, raw = args[0], " ".join(args[1:])
+        value = raw
+        if key in ("allowed_models", "denied_models"):
+            value = [v.strip() for v in raw.split(",") if v.strip()]
+        if orchestrator.set_policy(key, value):
+            console.print(f"[bold green]✔ Política actualizada:[/bold green] {key} = {orchestrator.policy[key]}")
+        else:
+            console.print(f"[red]Clave inválida o valor no aceptado: {key}[/red]")
+            console.print(f"[dim]Claves válidas: {', '.join(orchestrator.policy.keys())}[/dim]")
+        return True
+
+    elif cmd in ("agent-toggle", "toggle-agente"):
+        if len(args) < 2:
+            console.print("[yellow]Uso:[/yellow] :agent-toggle <alias|modelo> on|off")
+            return True
+        state = args[1].lower() in ("on", "1", "true", "activar", "enable")
+        if orchestrator.toggle_model(args[0], state):
+            console.print(
+                f"[bold green]✔ Modelo '{args[0]}':[/bold green] "
+                f"{'HABILITADO' if state else 'DESHABILITADO'}"
+            )
+        else:
+            console.print(f"[red]Modelo desconocido: {args[0]}[/red]")
         return True
 
     elif cmd in ("web", "lan", "portal"):
@@ -404,7 +528,7 @@ def dispatch_unified_command(cmd_name: str, args_list: list[str] = None) -> bool
                 console.print(f"  • Respaldo preservado en: {rep.backup_path}")
         return True
 
-    elif cmd in ("colony", "colonia", "embajada", "peers", "agentes"):
+    elif cmd in ("colony", "colonia", "embajada", "peers"):
         sub = args[0].lower() if args else "status"
         from tardis_bridge import tardis_bridge
         if sub in ("status", "estado", "info"):
@@ -886,7 +1010,28 @@ def main():
         description="TARDIS · FTL Sovereign Apex System :: Sistema Unificado Autoprogramable"
     )
     parser.add_argument("prompt", nargs="*", help="Optional prompt or direct shell command ($ <cmd>)")
-    parser.add_argument("-m", "--mode", choices=["auto", "kaiju", "synth", "audit", "gemini", "agy", "claude", "infinite", "quad", "imac", "cluster", "deepseek", "alterno"], help="Execution mode")
+    mode_choices = [
+        "auto", "kaiju", "synth", "audit", "gemini", "agy", "claude", "infinite",
+        "quad", "imac", "cluster", "deepseek", "alterno", "free", "gratis", "pool",
+        "agents", "agentes",
+    ]
+    for _fm in free_catalog.all_models():
+        for _alias in (_fm.key, _fm.model_id, _fm.short.lower()):
+            if _alias not in mode_choices:
+                mode_choices.append(_alias)
+    parser.add_argument("-m", "--mode", choices=mode_choices, help="Execution mode (incluye alias del pool gratuito: deepseek, glm, flint, mimo, lightning, beam, pickle, nemotron-vl, free)")
+    parser.add_argument("--agents", action="store_true", help="Display the free model pool and the FTL agent orchestrator status")
+    parser.add_argument("--agents-probe", action="store_true", help="Probe every free model for real availability now")
+    parser.add_argument("--agent", type=str, metavar="MODEL", help="Run a single free model agent under FTL control (task taken from the prompt)")
+    parser.add_argument("--orchestrate", type=str, metavar="TASK", help="Orchestrate multiple free agents under FTL control")
+    parser.add_argument("--strategy", choices=list(STRATEGIES), default="auto", help="Orchestration strategy (default: auto)")
+    parser.add_argument("--agent-models", type=str, metavar="LIST", help="Comma-separated model aliases for orchestration")
+    parser.add_argument("--max-agents", type=int, metavar="N", help="Maximum number of agents for orchestration")
+    parser.add_argument("--agent-policy", action="store_true", help="Display the agent control policy and per-model toggles")
+    parser.add_argument("--agent-set", nargs=2, metavar=("KEY", "VALUE"), help="Update an orchestrator policy key")
+    parser.add_argument("--agent-toggle", nargs=2, metavar=("MODEL", "STATE"), help="Enable/disable a free model (on|off)")
+    parser.add_argument("--agent-kill", choices=["on", "off", "status"], help="Control the orchestrator kill switch")
+    parser.add_argument("--agent-history", nargs="?", const=20, type=int, metavar="N", help="Show the agent audit history (default 20)")
     parser.add_argument("--status", action="store_true", help="Display TARDIS & system status")
     parser.add_argument("--tools", action="store_true", help="Display Master Hub dynamic modules")
     parser.add_argument("--evolve", nargs=2, metavar=("FILE", "GOAL"), help="Auto-program and evolve code with AST validation and rollback")
@@ -1072,6 +1217,96 @@ def main():
     if args.stats:
         ui.print_stats()
         sys.exit(0)
+
+    # --- POOL GRATUITO & ORQUESTADOR AGÉNTICO (CLI) ---
+    if args.agents:
+        ui.print_agents()
+        sys.exit(0)
+
+    if args.agents_probe:
+        ui.print_agents(probe=True)
+        sys.exit(0)
+
+    if args.agent_policy:
+        ui.print_agent_policy()
+        sys.exit(0)
+
+    if args.agent_history is not None:
+        ui.print_agent_history(limit=args.agent_history)
+        sys.exit(0)
+
+    if args.agent_kill:
+        if args.agent_kill == "on":
+            orchestrator.set_kill_switch(True)
+            console.print("[bold red]⛔ KILL SWITCH ACTIVADO: ejecución de agentes bloqueada.[/bold red]")
+        elif args.agent_kill == "off":
+            orchestrator.set_kill_switch(False)
+            console.print("[bold green]✔ KILL SWITCH DESACTIVADO: orquestador operativo.[/bold green]")
+        else:
+            state = "[bold red]ACTIVO[/bold red]" if orchestrator.policy.get("kill_switch") else "[green]inactivo[/green]"
+            console.print(f"Kill switch del orquestador: {state}")
+        sys.exit(0)
+
+    if args.agent_set:
+        key, raw = args.agent_set
+        value = raw
+        if key in ("allowed_models", "denied_models"):
+            value = [v.strip() for v in raw.split(",") if v.strip()]
+        if orchestrator.set_policy(key, value):
+            console.print(f"[bold green]✔ Política actualizada:[/bold green] {key} = {orchestrator.policy[key]}")
+            sys.exit(0)
+        console.print(f"[red]✖ Clave inválida o valor no aceptado: {key}[/red]")
+        sys.exit(1)
+
+    if args.agent_toggle:
+        token, state_raw = args.agent_toggle
+        enabled = state_raw.lower() in ("on", "1", "true", "activar", "enable")
+        if orchestrator.toggle_model(token, enabled):
+            console.print(
+                f"[bold green]✔ Modelo '{token}':[/bold green] "
+                f"{'HABILITADO' if enabled else 'DESHABILITADO'}"
+            )
+            sys.exit(0)
+        console.print(f"[red]✖ Modelo desconocido: {token}[/red]")
+        sys.exit(1)
+
+    if args.agent:
+        task = " ".join(args.prompt).strip()
+        if not task and not sys.stdin.isatty():
+            task = sys.stdin.read().strip()
+        if not task:
+            console.print("[red]✖ --agent requiere una tarea (posición o stdin).[/red]")
+            sys.exit(2)
+        console.print(f"[bold cyan]🤖 FTL → Agente individual '{args.agent}' (control soberano)...[/bold cyan]")
+        try:
+            rec = orchestrator.run(args.agent, task, role="agente individual")
+        except (OrchestratorHalt, ValueError) as exc:
+            console.print(f"[bold red]✖ {exc}[/bold red]")
+            sys.exit(1)
+        ui.print_agent_result(rec)
+        sys.exit(0 if rec.get("ok") else 1)
+
+    if args.orchestrate:
+        task = " ".join([args.orchestrate] + args.prompt).strip()
+        models = (
+            [m.strip() for m in args.agent_models.split(",") if m.strip()]
+            if args.agent_models else None
+        )
+        console.print(
+            f"[bold cyan]🕸️ FTL Orquestador → estrategia '{args.strategy}' "
+            f"(control soberano de agentes)...[/bold cyan]"
+        )
+        try:
+            result = orchestrator.orchestrate(
+                task, strategy=args.strategy, models=models,
+                max_agents=args.max_agents,
+                on_progress=lambda msg: console.print(f"[dim]{msg}[/dim]"),
+            )
+        except (OrchestratorHalt, ValueError) as exc:
+            console.print(f"[bold red]✖ {exc}[/bold red]")
+            sys.exit(1)
+        ui.print_orchestration(result)
+        sys.exit(0 if result.get("ok") else 1)
 
     if args.prompt:
         full_prompt = " ".join(args.prompt)

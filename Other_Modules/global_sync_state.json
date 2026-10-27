@@ -1,6 +1,6 @@
 {
-  "revision": 2522,
-  "lamport": 2799,
+  "revision": 2525,
+  "lamport": 2802,
   "history": [
     {
       "id": "msg_1793078196733_1",
@@ -34,6 +34,39 @@
       "meta": "FTL · KAIJU",
       "raw_data": {},
       "client_id": "ftl_sovereign"
+    },
+    {
+      "id": "msg_1793078886257_4",
+      "role": "system",
+      "content": "⚡ [FTL] PLAN COGNITIVO (KAIJU): Tardis sientes más poder? (RC:0, 37.3s)",
+      "timestamp": REDACTED_PHONE.2571163,
+      "iso": "2026-10-27T00:28:06.257129",
+      "lamport": 2800,
+      "meta": "FTL · KAIJU",
+      "raw_data": {},
+      "client_id": "ftl_sovereign"
+    },
+    {
+      "id": "msg_1793079310408_5",
+      "role": "system",
+      "content": "⚡ [FTL] PLAN COGNITIVO (KAIJU): dame contexto de todas las ultimas mejoras que haz tenido (RC:3, 17.3s)",
+      "timestamp": REDACTED_PHONE.4082305,
+      "iso": "2026-10-27T00:35:10.408250",
+      "lamport": 2801,
+      "meta": "FTL · KAIJU",
+      "raw_data": {},
+      "client_id": "ftl_sovereign"
+    },
+    {
+      "id": "msg_1793079752551_6",
+      "role": "system",
+      "content": "⚡ [FTL] PLAN COGNITIVO (FREE_AGENT): Responde únicamente con la palabra OK (RC:0, 118.5s)",
+      "timestamp": REDACTED_PHONE.551146,
+      "iso": "2026-10-27T00:42:32.551159",
+      "lamport": 2802,
+      "meta": "FTL · FREE_AGENT",
+      "raw_data": {},
+      "client_id": "ftl_sovereign"
     }
   ],
   "config": {
@@ -58,11 +91,11 @@
     "coneActive": true,
     "oscilloscopeActive": true
   },
-  "updated_at": "2026-10-27T00:25:58.106240",
+  "updated_at": "2026-10-27T00:42:32.551181",
   "visual_intelligence": {
     "active": true,
     "pid": 2148,
     "videos_stored": 612,
-    "last_ping": REDACTED_PHONE.891423
+    "last_ping": REDACTED_PHONE.283536
   }
 }

@@ -11,6 +11,7 @@ from typing import Dict, List, Optional, Tuple
 
 from config import load_config
 from models import registry
+import free_models as free_catalog
 from progress import time_estimator
 from tardis_bridge import tardis_bridge
 
@@ -139,6 +140,37 @@ class CognitiveRouter:
                 prompt, complexity, label, context_scope,
                 "Selección explícita del modelo alterno DeepSeek V4.1 Max (variante max)."
             )
+
+        # 0.b POOL GRATUITO: alias individual o especialista automático
+        if mode in ("free", "gratis", "pool", "agentes", "agents"):
+            specialist = free_catalog.specialist_for(prompt)
+            return self._create_plan(
+                prompt,
+                mode="free_agent",
+                primary_engine="opencode_free",
+                primary_model=specialist.ref,
+                primary_effort="max",
+                complexity_level=complexity,
+                complexity_label=label,
+                context_scope=context_scope,
+                rationale=f"Pool gratuito: especialista automático {specialist.name} ({specialist.ref}).",
+                estimated_savings="100% (modelo gratuito)"
+            )
+        free_match = free_catalog.resolve(mode)
+        if free_match and mode not in ("auto",):
+            return self._create_plan(
+                prompt,
+                mode="free_agent",
+                primary_engine="opencode_free",
+                primary_model=free_match.ref,
+                primary_effort="max" if free_match.variant else "high",
+                complexity_level=complexity,
+                complexity_label=label,
+                context_scope=context_scope,
+                rationale=f"Modelo gratuito seleccionado: {free_match.name} ({free_match.ref}).",
+                estimated_savings="100% (modelo gratuito)"
+            )
+
         if mode not in ("imac", "cluster") and not self._primaries_available():
             return self._alternate_plan(
                 prompt, complexity, label, context_scope,

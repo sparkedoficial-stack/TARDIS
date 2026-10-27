@@ -30,6 +30,7 @@ Módulos y componentes auxiliares del sistema.
 - **Tardis-Safety-Rails.desktop**: Componente de alta eficiencia.
 - **Theme.swift**: Componente nativo iOS/SwiftUI de la aplicación móvil GIA.
 - **__init__.py**: Componente de alta eficiencia.
+- **agent_orchestrator.py**: Núcleo de orquestación y control temporal/espacial.
 - **android-applications.md**: Componente de alta eficiencia.
 - **api.py**: Componente de alta eficiencia.
 - **app.py**: Componente de alta eficiencia.
@@ -79,6 +80,7 @@ Módulos y componentes auxiliares del sistema.
 - **explorador_cuantico.py**: Componente de alta eficiencia.
 - **family_registry.py**: Directorio y puente soberano de interoperabilidad omni-herramientas.
 - **fix_ftl.py**: Motor de aceleración FTL y computación adaptativa.
+- **free_models.py**: Componente de alta eficiencia.
 - **ftl_linpad.py**: Motor de aceleración FTL y computación adaptativa.
 - **gemini_privacy_vault.py**: Centinela de seguridad, blindaje perimetral o bóveda segura.
 - **geon_retrocausal_mechanics.json**: Componente de alta eficiencia.
