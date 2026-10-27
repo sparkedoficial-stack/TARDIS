@@ -1,38 +1,5 @@
 [
   {
-    "id": "conj_1792850226",
-    "timestamp": "2026-10-24T08:57:06.355447",
-    "idle_duration_minutes": 31.6,
-    "title": "Conjetura de Resonancia Causal en la Bóveda Akáshica",
-    "hypothesis": "Se postula que la eficiencia de recuperación de información en la 'Bóveda Akáshica' (deep_memory_vault.py) puede optimizarse significativamente si se implementa un mecanismo de 'Resonancia Causal' que priorice no solo la similitud semántica, sino la relevancia temporal y causal de los nodos de memoria. Actualmente, la búsqueda podría estar sesgada hacia la proximidad vectorial pura, ignorando que en sistemas de investigación profunda (web_research_engine.py), la validez de un dato depende de su contexto temporal y de su capacidad para resolver una cadena causal específica. Al integrar una métrica de 'peso causal' que decaiga exponencialmente con la obsolescencia del dato pero se amplifique si el dato es un 'hito' (breakthrough) en la cadena de investigación, se reduciría el ruido epistémico y se aceleraría la convergencia hacia respuestas de alta fidelidad.",
-    "research_query": "causal inference in vector databases temporal decay weighting for RAG systems",
-    "research_findings": "# Informe de Investigación: causal inference in vector databases temporal decay weighting for RAG systems\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Añadir un parámetro 'causal_weight' al método de búsqueda que modifique el score de similitud vectorial basándose en la antigüedad del nodo y su frecuencia de citación en cadenas de investigación previas, implementando una función de decaimiento temporal adaptativo.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.23
-  },
-  {
-    "id": "conj_1792852124",
-    "timestamp": "2026-10-24T09:28:44.229497",
-    "idle_duration_minutes": 31.6,
-    "title": "Entropía Temporal en la Bóveda Akáshica: Compresión Predictiva de Memorias Obsoletas",
-    "hypothesis": "Se postula que la Bóveda Akáshica (deep_memory_vault.py) sufre de 'ruido cognitivo' acumulado debido a la retención lineal de telemetría y conocimientos obsoletos. Al implementar un algoritmo de decaimiento exponencial ponderado por la relevancia causal reciente (basado en la frecuencia de acceso y la contribución a la resolución de problemas), se puede reducir la latencia de recuperación semántica en un 15-20% sin pérdida de información crítica, transformando la memoria de un almacén estático en un sistema dinámico de auto-curado.",
-    "research_query": "exponential decay memory management algorithm for AI agents semantic search optimization",
-    "research_findings": "# Informe de Investigación: exponential decay memory management algorithm for AI agents semantic search optimization\n\n## Fuentes Consultadas y Respaldo Web\n- **[Scaling AI in Legal: Building Uber’s Redlining Agent - Uber](https://news.google.com/rss/articles/CBMicEFVX3lxTE5TTzhSaVpQcDJ1Q2pHTnhNaExiVkhnSEJQTloweWVFcndHcjc2UTExcHB3aTVjakd0OEpRZGwxam9zdmVjUlBndzRYR3M2TzJnZ2VnYnlFNTlQZHZINlZjNFh0b1RtemgwMDl5Ulo2Nnc?oc=5)**: Scaling AI in Legal: Building Uber’s Redlining Agent  Uber\n- **[memweave: Zero-Infra AI Agent Memory with Markdown and SQLite — No Vector Database Required - Towards Data Science](https://news.google.com/rss/articles/CBMivAFBVV95cUxPR3BMRngzdkstTkUyT3NaOEthS2lyNXE2dU5kQjNwSlZlQW1kVzl6RlpWamJ5R2J1NTlCcEE3Ulo1MmMtdDZ0dkhmVWZHeUk5b2thNjFrdGhIVERGMFMzYTFINXlhWko5QlE1STlNYXhkSU1USmNIVXJsSWFaSFlqamRaSDVFVUZjRWZUWTRuODl3UEN2T01xVkZCQ0dfb2FJZ01vcWZhRklSaFdnU202NFc4aS1NalAxNEpHTQ?oc=5)**: memweave: Zero-Infra AI Agent Memory with Markdown and SQLite — No Vector Database Required",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMicEFVX3lxTE5TTzhSaVpQcDJ1Q2pHTnhNaExiVkhnSEJQTloweWVFcndHcjc2UTExcHB3aTVjakd0OEpRZGwxam9zdmVjUlBndzRYR3M2TzJnZ2VnYnlFNTlQZHZINlZjNFh0b1RtemgwMDl5Ulo2Nnc?oc=5",
-      "https://news.google.com/rss/articles/CBMivAFBVV95cUxPR3BMRngzdkstTkUyT3NaOEthS2lyNXE2dU5kQjNwSlZlQW1kVzl6RlpWamJ5R2J1NTlCcEE3Ulo1MmMtdDZ0dkhmVWZHeUk5b2thNjFrdGhIVERGMFMzYTFINXlhWko5QlE1STlNYXhkSU1USmNIVXJsSWFaSFlqamRaSDVFVUZjRWZUWTRuODl3UEN2T01xVkZCQ0dfb2FJZ01vcWZhRklSaFdnU202NFc4aS1NalAxNEpHTQ?oc=5"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar un método `prune_obsolete_memories()` que calcule un score de vitalidad para cada entrada de la bóveda y archive o elimine automáticamente los registros con un score por debajo del umbral dinámico, integrando este proceso en el ciclo de mantenimiento del sistema.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.86
-  },
-  {
     "id": "conj_1792854021",
     "timestamp": "2026-10-24T10:00:21.688934",
     "idle_duration_minutes": 31.6,
@@ -1617,5 +1584,37 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.87
+  },
+  {
+    "id": "conj_1793064395",
+    "timestamp": "2026-10-26T20:26:35.675172",
+    "idle_duration_minutes": 32.2,
+    "title": "Causal Retrieval Augmentation for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer between the Deep Memory Vault and the Web Research Engine will allow the system to prioritize sources that are not only topically relevant but also causally linked to the query context, improving answer precision and reducing hallucinations in downstream reasoning.",
+    "research_query": "causal retrieval augmentation LLM web search memory vault causal inference for information retrieval",
+    "research_findings": "# Informe de Investigación: causal retrieval augmentation LLM web search memory vault causal inference for information retrieval\n\n## Fuentes Consultadas y Respaldo Web\n- **[From Data to Decisions: How Knowledge Graphs Are Becoming the Brain of the Modern Enterprise - Medium](https://news.google.com/rss/articles/CBMi0gFBVV95cUxPVjh5NnNZNnFfZ3UzMEx3U0pqajNDQ19TV0JjRGN5WGhleWxVLW5WMkptR2J6VHpldllqekM2bzJSUFBYWHlwSW1ySUZoZG9fOFZRVGY4NEt6ZVE5YkQ4b0VlRWl1T0Jtd1hlSzNrOGRuTzY1ajU4b1lUY3hVMDBpWUxiZWo5X1VBNDMyQjFMVlFPMU14bm9kUlZCMWVLMTBTRUI0ZTBQRDdpVmJxVlRuZFQwYzNPNGpReVdEMUg3dHVhNWhvQUd6LTdvMWMtZHBSQXc?oc=5)**: From Data to Decisions: How Knowledge Graphs Are Becoming the Brain of the Modern Enterprise  Medium\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMi0gFBVV95cUxPVjh5NnNZNnFfZ3UzMEx3U0pqajNDQ19TV0JjRGN5WGhleWxVLW5WMkptR2J6VHpldllqekM2bzJSUFBYWHlwSW1ySUZoZG9fOFZRVGY4NEt6ZVE5YkQ4b0VlRWl1T0Jtd1hlSzNrOGRuTzY1ajU4b1lUY3hVMDBpWUxiZWo5X1VBNDM",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMi0gFBVV95cUxPVjh5NnNZNnFfZ3UzMEx3U0pqajNDQ19TV0JjRGN5WGhleWxVLW5WMkptR2J6VHpldllqekM2bzJSUFBYWHlwSW1ySUZoZG9fOFZRVGY4NEt6ZVE5YkQ4b0VlRWl1T0Jtd1hlSzNrOGRuTzY1ajU4b1lUY3hVMDBpWUxiZWo5X1VBNDMyQjFMVlFPMU14bm9kUlZCMWVLMTBTRUI0ZTBQRDdpVmJxVlRuZFQwYzNPNGpReVdEMUg3dHVhNWhvQUd6LTdvMWMtZHBSQXc?oc=5"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Implement a middleware that queries the Deep Memory Vault for causal context embeddings, ranks retrieved URLs by causal relevance, and adds an async caching layer to store recent causal rankings for faster repeat queries.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.18
+  },
+  {
+    "id": "conj_1793066292",
+    "timestamp": "2026-10-26T20:58:12.035055",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal‑Cache Hybrid for Web Research Engine",
+    "hypothesis": "Integrating a lightweight causal inference layer with an adaptive LRU cache inside core/web_research_engine.py will reduce redundant external queries by up to 40% while preserving answer relevance. The hypothesis rests on the idea that many successive research requests share latent causal dependencies (e.g., same domain, similar query patterns). By detecting these dependencies in real time and pre‑emptively serving cached results when the causal graph predicts high similarity, the engine can cut latency and network load without sacrificing the depth of the retrieved knowledge.",
+    "research_query": "\"causal inference cache\" web search engine performance optimization",
+    "research_findings": "# Informe de Investigación: \"causal inference cache\" web search engine performance optimization\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal‑aware caching decorator that records query signatures, builds a simple directed acyclic graph of dependency between queries, and serves cached results when the graph indicates a high probability of overlap. Include unit tests and update the request throttling logic to respect the new cache.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.35
   }
 ]
