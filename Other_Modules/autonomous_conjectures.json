@@ -1,23 +1,5 @@
 [
   {
-    "id": "conj_1792873131",
-    "timestamp": "2026-10-24T15:18:51.425081",
-    "idle_duration_minutes": 32.2,
-    "title": "Dynamic Causal Cache for Web Research Engine",
-    "hypothesis": "Integrating a lightweight causal inference module into core/web_research_engine.py can predict the future relevance of fetched URLs based on query patterns, user intent signals, and temporal trends. By caching and pre‑fetching pages with high predicted causal relevance, the system would reduce latency, lower network load, and improve the quality of returned information without sacrificing the integrity of the akáshic vault.",
-    "research_query": "causal inference based caching strategies for web search engines latency relevance",
-    "research_findings": "# Informe de Investigación: causal inference based caching strategies for web search engines latency relevance\n\n## Fuentes Consultadas y Respaldo Web\n- **[Outline of machine learning (Wikipedia)](https://en.wikipedia.org/wiki/Outline_of_machine_learning)**: selection Algorithmic inference Algorithmic learning theory AlphaGo AlphaGo Zero Alternating decision tree Apprenticeship learning Causal Markov condition\n- **[Big data (Wikipedia)](https://en.wikipedia.org/wiki/Big_data)**: precursors for stock market moves, using trading strategies based on search volume data provided by Google Trends. Their analysis of Google search volume for 98\n\n## Contenido y Hallazgos Extraídos\n### De [Outline of machine learning - Wikipedia](https://en.wikipedia.org/wiki/Outline_of_machine_learning)\n> Outline of machine learning - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nOverview of and topical guide to machine learning\nThis article contains dynamic lists that may never be able to sati",
-    "web_sources": [
-      "https://en.wikipedia.org/wiki/Outline_of_machine_learning",
-      "https://en.wikipedia.org/wiki/Big_data"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal relevance scoring layer that evaluates incoming queries, updates a lightweight causal graph, and decides which results to store in a priority cache and which to pre‑fetch asynchronously.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.04
-  },
-  {
     "id": "conj_1792878184",
     "timestamp": "2026-10-24T16:43:04.016523",
     "idle_duration_minutes": 33.3,
@@ -1616,5 +1598,23 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 96.7
+  },
+  {
+    "id": "conj_1793091025",
+    "timestamp": "2026-10-27T03:50:25.976098",
+    "idle_duration_minutes": 32.1,
+    "title": "Dynamic Causal Prompt Scheduling for Multi‑Module Reasoning",
+    "hypothesis": "Si el motor de investigación web (core/web_research_engine.py) incorpora un planificador de prompts basado en causalidad dinámica que prioriza consultas según la relevancia temporal y la retroalimentación de la Deep Memory Vault, el sistema podrá reducir la latencia de obtención de información crítica en un 30% y mejorar la coherencia de las respuestas en tareas de razonamiento encadenado.",
+    "research_query": "dynamic causal prompt scheduling AI research web retrieval latency reduction",
+    "research_findings": "# Informe de Investigación: dynamic causal prompt scheduling AI research web retrieval latency reduction\n\n## Fuentes Consultadas y Respaldo Web\n- **[Generative AI (Wikipedia)](https://en.wikipedia.org/wiki/Generative_AI)**: takes the form of natural language prompts. The prevalence of generative AI tools has increased significantly since the AI boom of the early 2020s. This boom\n- **[Artificial intelligence (Wikipedia)](https://en.wikipedia.org/wiki/Artificial_intelligence)**: operations research, and economics. AI also draws upon psychology, linguistics, philosophy, neuroscience, and other fields. Some companies, such as OpenAI, Google\n\n## Contenido y Hallazgos Extraídos\n### De [Generative AI - Wikipedia](https://en.wikipedia.org/wiki/Generative_AI)\n> Generative AI - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nAI that generates content\n\"GenAI\" redirects here; not to be confused with Artificial general intelligence .\nThéâtre D'opéra Spatial (Space Opera Theater, 202",
+    "web_sources": [
+      "https://en.wikipedia.org/wiki/Generative_AI",
+      "https://en.wikipedia.org/wiki/Artificial_intelligence"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Implementar un scheduler que evalúe la 'causal relevance score' de cada solicitud de búsqueda usando métricas de frescura, peso semántico y feedback de deep_memory_vault, y que ajuste dinámicamente el número de hilos y el timeout de cada petición.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.65
   }
 ]

@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.7759383,
-  "last_video_id": "vp_20261027_031939_484f02",
-  "last_topic": "Causal Dynamical Triangulations: Visualizing Quantum Geometry",
-  "total_videos_analyzed": 614,
-  "running_cycle": false,
+  "last_run_timestamp": REDACTED_PHONE.240898,
+  "last_video_id": "vp_20261027_035507_eb05e3",
+  "last_topic": "Fracton Topological Order and Subdimensional Particle Dynamics",
+  "total_videos_analyzed": 615,
+  "running_cycle": true,
   "last_error": null,
   "auto_improvement_count": 358
 }
