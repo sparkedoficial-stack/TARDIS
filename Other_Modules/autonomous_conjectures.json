@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1792878184",
-    "timestamp": "2026-10-24T16:43:04.016523",
-    "idle_duration_minutes": 33.3,
-    "title": "Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "Integrating a causal inference layer that tracks provenance of each web query result within the Deep Memory Vault will allow the Web Research Engine to automatically invalidate stale cached entries when upstream sources change, reducing false positives in knowledge retrieval and improving overall system latency.",
-    "research_query": "causal inference based cache invalidation techniques for web scraping and knowledge graphs",
-    "research_findings": "# Informe de Investigación: causal inference based cache invalidation techniques for web scraping and knowledge graphs\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a provenance metadata structure to cached results and implement a periodic causal check that flags and purges entries whose source URLs have been updated since the last fetch.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 138.57
-  },
-  {
     "id": "conj_1792880506",
     "timestamp": "2026-10-24T17:21:46.921223",
     "idle_duration_minutes": 38.7,
@@ -1616,5 +1601,23 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.65
+  },
+  {
+    "id": "conj_1793092923",
+    "timestamp": "2026-10-27T04:22:03.750039",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal‑Enhanced Ranking for Web Research Engine",
+    "hypothesis": "Incorporating a lightweight causal inference layer into the WebResearchEngine's result ranking pipeline will allow the system to model hidden dependencies between query terms and document features, leading to a measurable increase (≈10‑15%) in relevance precision on benchmark retrieval tasks compared to the current heuristic‑only approach.",
+    "research_query": "causal inference for information retrieval ranking improvement benchmark studies",
+    "research_findings": "# Informe de Investigación: causal inference for information retrieval ranking improvement benchmark studies\n\n## Fuentes Consultadas y Respaldo Web\n- **[Bayesian RAG: uncertainty-aware retrieval for reliable financial question answering - Frontiers](https://news.google.com/rss/articles/CBMiogFBVV95cUxNR0tQNzgwYTQ5Qy01ZHFVa0NsUUhuUklGNDZRN2F1SW43UEhoWW5lVy1QSTB1OU5uSGRWTS1vS19rMnN5d191RDdRYVlWb0VaN3VKLVloN3ZxRUpfdHcyUU93dmh0RmF5YXRzVXIyRFBEY0FVcXVLVGVRNGppNGw4M19DdWZsVTBHTEdETXc4ck1LZUswM1JISVlYelNFaS1wYWc?oc=5)**: Bayesian RAG: uncertainty-aware retrieval for reliable financial question answering  Frontiers\n- **[List of datasets for machine-learning research (Wikipedia)](https://en.wikipedia.org/wiki/List_of_datasets_for_machine-learning_research)**: Ganesan, Kavita; Zhai, Chengxiang (2012). \"Opinion-based entity ranking\". Information Retrieval. 15 (2): 116–150. doi:10.1007/s10791-011-9174-8. hdl:2142/15252\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.googl",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiogFBVV95cUxNR0tQNzgwYTQ5Qy01ZHFVa0NsUUhuUklGNDZRN2F1SW43UEhoWW5lVy1QSTB1OU5uSGRWTS1vS19rMnN5d191RDdRYVlWb0VaN3VKLVloN3ZxRUpfdHcyUU93dmh0RmF5YXRzVXIyRFBEY0FVcXVLVGVRNGppNGw4M19DdWZsVTBHTEdETXc4ck1LZUswM1JISVlYelNFaS1wYWc?oc=5",
+      "https://en.wikipedia.org/wiki/List_of_datasets_for_machine-learning_research"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Implement a causal graph module that extracts causal relationships between query tokens and document metadata, then integrates the resulting causal scores as an additional factor in the existing relevance scoring function.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.76
   }
 ]
