@@ -234,6 +234,38 @@ class EasyTouchEngine:
             except Exception as e_cli:
                 logger.debug(f"[EASY-TOUCH] Intento CLI autónomo falló: {e_cli}")
 
+        # 3.2b: MODELO ALTERNO SOBERANO — DeepSeek V4.1 Max (OpenCode headless)
+        if not healed_reply:
+            try:
+                import re as _re
+                import shutil as _shutil
+                import subprocess as _sp
+                from config import load_config as _load_cfg
+
+                _cfg = _load_cfg()
+                if _cfg.get("fallback_enabled", True):
+                    _binary = _cfg.get("fallback_binary", "opencode")
+                    _exe = _shutil.which(_binary)
+                    if _exe:
+                        if on_progress:
+                            on_progress("⚡ Easy Touch: Activando MODELO ALTERNO DeepSeek V4.1 Max...")
+                        _ref = _cfg.get("fallback_model", "opencode/deepseek-v4.1-flash-free#max")
+                        _proc = _sp.run(
+                            [_exe, "run", "--model", _ref, "--auto", message],
+                            capture_output=True, text=True, timeout=300,
+                            stdin=_sp.DEVNULL
+                        )
+                        _txt = _re.sub(r"\x1b\[[0-9;?]*[A-Za-z]", "", _proc.stdout or "").strip()
+                        if _proc.returncode == 0 and _txt:
+                            healed_reply = _txt
+                            healed_provider = "DeepSeek-OpenCode"
+                            healed_model = _ref
+                            actions_taken.append(
+                                "Inferencia resuelta con el modelo alterno soberano DeepSeek V4.1 Max"
+                            )
+            except Exception as e_ds:
+                logger.debug(f"[EASY-TOUCH] Intento DeepSeek alterno falló: {e_ds}")
+
         # 3.3: Intento con Temporal Brain Local Serverless
         if not healed_reply:
             try:

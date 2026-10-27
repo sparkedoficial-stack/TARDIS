@@ -24,6 +24,16 @@ DEFAULT_CONFIG = {
     "auto_heal_and_failover": True,
     "google_model_override": "gemini-4-argon-high",
     "anthropic_model_override": None,
+    # Modelo alterno soberano: DeepSeek V4.1 Max (vía OpenCode) cuando no hay
+    # acceso a los modelos primarios (Gemini / Claude / KAIJU / clúster).
+    "fallback_enabled": True,
+    "fallback_engine": "deepseek",
+    "fallback_model": "opencode/deepseek-v4.1-flash-free#max",
+    "fallback_variant": "max",
+    "fallback_binary": "opencode",
+    "fallback_priority": ["agy", "claude", "kaiju", "imac", "deepseek"],
+    "fallback_probe_ttl": 900,
+    "fallback_announce": True,
     "history_limit": 1000,
     "theme": "cyber_apex",
     "tardis_integration": True,
@@ -55,7 +65,8 @@ DEFAULT_STATS = {
         "dual_synth": 0,
         "dual_audit": 0,
         "direct_shell": 0,
-        "tardis_kaiju": 0
+        "tardis_kaiju": 0,
+        "deepseek_v41_max": 0
     },
     "estimated_tokens_saved": 0,
     "estimated_usd_saved": 0.0,
@@ -83,6 +94,20 @@ def load_config() -> dict:
             cfg = DEFAULT_CONFIG.copy()
     else:
         save_config(cfg)
+
+    # Migración idempotente: persistir en disco cualquier clave nueva del perfil
+    if CONFIG_FILE.exists():
+        try:
+            raw = json.loads(CONFIG_FILE.read_text(encoding="utf-8"))
+            if isinstance(raw, dict):
+                missing = [k for k in DEFAULT_CONFIG if k not in raw]
+                if missing:
+                    merged = dict(raw)
+                    for k in missing:
+                        merged[k] = cfg[k]
+                    save_config(merged)
+        except Exception:
+            pass
 
     # Sincronización soberana en vivo con TARDIS-NEURAL-SPACE-KAIJU
     kaiju_rails_path = Path.home() / "vw-control" / "kaiju_safety_rails.json"
@@ -144,7 +169,8 @@ def record_query_stats(engine_tier: str, est_tokens: int = 1500):
         "claude_opus": 0.0,
         "dual_synth": 0.70,
         "dual_audit": 0.50,
-        "direct_shell": 1.0
+        "direct_shell": 1.0,
+        "deepseek_v41_max": 1.0
     }.get(engine_tier, 0.5)
 
     tokens_saved = int(est_tokens * savings_factor)

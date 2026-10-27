@@ -276,6 +276,12 @@ class FTLInterface:
             f"Google Frontier: [cyan]{g_model} [bold red](HIGH)[/bold red][/cyan]  |  Anthropic Frontier: [magenta]{c_model} [bold red](MAX)[/bold red][/magenta]",
             f"Parámetros: [cyan]{q_ctx // 1024}K Ctx | Temp {q_temp} | 28GB Mlock[/cyan]"
         )
+
+        alt_model = load_config().get("fallback_model", "opencode/deepseek-v4.1-flash-free#max")
+        table.add_row(
+            f"Modelo Alterno: [bold cyan]DeepSeek V4.1 Max[/bold cyan] [dim]({alt_model})[/dim]",
+            "Resiliencia: [bold green]FALLBACK AUTOMÁTICO[/bold green]"
+        )
         cfg = load_config()
         voice_on = cfg.get("tardis_voice_notify", True)
         voice_lbl = "[bold green]CORTANA NEURAL (ACTIVA)[/bold green]" if voice_on else "[bold yellow]SILENCIADA[/bold yellow]"
@@ -360,6 +366,7 @@ class FTLInterface:
         help_table.add_row(":sync", "Forzar sincronización inmediata de contexto en todos los subsistemas", "Sincronización")
         help_table.add_row(":sovereign", "Muestra el manifiesto de permisos, excepciones y estatus root", "Auditoría de Poder")
         help_table.add_row(":skills / :habilidades", "Catálogo soberano de skills sincronizadas (AGY · FTL · TARDIS)", "Conocimiento Compartido")
+        help_table.add_row(":fallback / :alterno", "Verificar el modelo alterno DeepSeek V4.1 Max (fallback automático)", "Resiliencia de Modelo")
         help_table.add_row(":heal", "Auto-reparación profunda de configuraciones, trust y permisos", "Auto-Curación")
         help_table.add_row(":models", "Listar modelos de barrera registrados con máximo esfuerzo", "Frontier Registry")
         help_table.add_row(":update", "Ejecutar auto-mejora de binarios y modelos de frontera", "Evolución Continua")
@@ -604,6 +611,20 @@ class FTLInterface:
         table.add_row("Claude Code Permissions", "BYPASS TOTAL (bypassPermissions)", "skipDangerousModePermissionPrompt: true")
         table.add_row("Antigravity / AGY Permissions", "BYPASS TOTAL (--dangerously-skip-permissions)", "Auto-aprobación absoluta de herramientas")
         table.add_row("Sovereign Skills Sync", f"ACTIVO ({skills_total} skills × {mirrors_ok} destinos)", "~/.agents/skills espejado por sovereign-sync")
+
+        alt_state = {}
+        try:
+            alt_state = _json.loads(
+                (_Path.home() / ".config" / "ftl" / "fallback_state.json").read_text(encoding="utf-8")
+            )
+        except Exception:
+            alt_state = {}
+        alt_ok = bool(alt_state.get("available"))
+        table.add_row(
+            "Modelo Alterno (Fallback)",
+            ("VERIFICADO · DeepSeek V4.1 Max" if alt_ok else "REGISTRADO · DeepSeek V4.1 Max"),
+            "opencode/deepseek-v4.1-flash-free#max · variante max · automático"
+        )
         table.add_row("Kernel Ring 0", "LIBERADO · " + " · ".join(kernel_bits), "dmesg/ptrace/kptr sin restricción para telemetría profunda")
         table.add_row("Sovereign Invariant Injection", "FORZADA EN CADA TURNO", "Inyección del mandato 100% autónomo")
         table.add_row("Auto-Failover Resiliente", "ACTIVO", "Conmutación en milisegundos ante fallas de motor")
@@ -634,6 +655,32 @@ class FTLInterface:
                 flag
             )
         console.print(m_table)
+
+    def print_fallback_status(self, force_probe: bool = False):
+        """Muestra el estado verificable del modelo alterno (DeepSeek V4.1 Max)."""
+        from executor import executor as _exec
+
+        cfg = load_config()
+        state = _exec.ensure_alternate(announce=False, ttl=0 if force_probe else None)
+        available = bool(state.get("available"))
+
+        table = Table(title="Modelo Alterno Soberano · DeepSeek V4.1 Max", box=ROUNDED)
+        table.add_column("Dimensión", style="bold cyan")
+        table.add_column("Estado", style="bold green")
+
+        table.add_row("Modelo", str(cfg.get("fallback_model", "opencode/deepseek-v4.1-flash-free#max")))
+        table.add_row("Motor", "OpenCode CLI (headless, sin API key)")
+        table.add_row("Variante", str(cfg.get("fallback_variant", "max")))
+        table.add_row("Habilitado", "SÍ" if cfg.get("fallback_enabled", True) else "NO")
+        table.add_row(
+            "Disponibilidad",
+            "[bold green]VERIFICADO[/bold green]" if available else "[bold red]NO DISPONIBLE[/bold red]"
+        )
+        table.add_row("Último chequeo", str(state.get("checked_at", "nunca")))
+        table.add_row("Detalle", str(state.get("reason", "")))
+        table.add_row("Cadena", " → ".join(cfg.get("fallback_priority", [])))
+        table.add_row("Disparo", "Arranque de FTL · fallo de motores primarios · agotamiento de Easy Touch")
+        console.print(table)
 
     def print_stats(self):
         stats = load_stats()

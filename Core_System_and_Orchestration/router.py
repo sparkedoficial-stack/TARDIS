@@ -5,6 +5,7 @@ No base or low-tier models permitted.
 """
 
 import re
+import shutil
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple
 
@@ -85,6 +86,25 @@ class CognitiveRouter:
         )
         return plan
 
+    def _primaries_available(self) -> bool:
+        """True si al menos un motor primario (AGY o Claude) está instalado."""
+        return any(shutil.which(b) for b in ("agy", "claude"))
+
+    def _alternate_plan(self, prompt, complexity, label, context_scope,
+                        rationale: str) -> RoutingPlan:
+        return self._create_plan(
+            prompt,
+            mode="deepseek",
+            primary_engine="deepseek",
+            primary_model=self.registry.get_alternate_model(),
+            primary_effort="max",
+            complexity_level=complexity,
+            complexity_label=label,
+            context_scope=context_scope,
+            rationale=rationale,
+            estimated_savings="N/A (modelo alterno)"
+        )
+
     def analyze_prompt(self, prompt: str) -> Tuple[int, str, str]:
         prompt_lower = prompt.lower()
         is_massive = any(re.search(pat, prompt_lower) for pat in self.MASSIVE_CONTEXT_PATTERNS)
@@ -111,6 +131,20 @@ class CognitiveRouter:
         cost_priority = cfg.get("cost_priority", "balanced")
 
         complexity, label, context_scope = self.analyze_prompt(prompt)
+
+        # 0. MODELO ALTERNO SOBERANO (DeepSeek V4.1 Max)
+        # Se usa por selección explícita o cuando no hay acceso a motores primarios.
+        if mode in ("deepseek", "alterno", "fallback"):
+            return self._alternate_plan(
+                prompt, complexity, label, context_scope,
+                "Selección explícita del modelo alterno DeepSeek V4.1 Max (variante max)."
+            )
+        if mode not in ("imac", "cluster") and not self._primaries_available():
+            return self._alternate_plan(
+                prompt, complexity, label, context_scope,
+                "Motores primarios (agy / claude) no disponibles en el host: "
+                "enrutamiento automático al modelo alterno DeepSeek V4.1 Max."
+            )
 
         # Retrieve ONLY maximum power frontier models
         google_flash_high = self.registry.get_google_model("flash")

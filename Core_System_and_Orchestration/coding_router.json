@@ -1,0 +1,72 @@
+{
+  "schema": "tardis.coding.router/1.0",
+  "owner": "Arquitecto (₪)",
+  "updated": "2026-10-27",
+  "doctrine": "TARDIS-CODING-ROUTER",
+  "principle": "El modelo se elige por FORMA DEL PROBLEMA, no por moda. Contexto largo -> Gemini 4 Argon. Razonamiento de arquitectura -> Opus 5.5 High. Volumen/iteracion -> Sonnet 5.5 o DeepSeek V4.1 Max. Vision -> Nemotron 3.5 VL. Local puro -> malla Ollama iMac.",
+  "tiers": {
+    "apex": {
+      "label": "Arquitectura, refactor multi-archivo, debugging profundo, agentes autonomos",
+      "candidates": [
+        { "engine": "agy", "model": "claude-opus-5-5-high", "effort": "high" },
+        { "engine": "agy", "model": "claude-sonnet-5-5-high", "effort": "high" },
+        { "engine": "opencode", "model": "opencode/glm-5.3-flash-free" },
+        { "engine": "opencode", "model": "opencode/deepseek-v4.1-flash-free#max" }
+      ]
+    },
+    "refactor": {
+      "label": "Cambios masivos, migraciones, suites de tests, patches repetitivos",
+      "candidates": [
+        { "engine": "agy", "model": "claude-sonnet-5-5-high", "effort": "high" },
+        { "engine": "opencode", "model": "opencode/deepseek-v4.1-flash-free#max" },
+        { "engine": "opencode", "model": "opencode/glm-5.3-flash-free" }
+      ]
+    },
+    "context": {
+      "label": "Auditoria de repo completo, logs gigantes, RAG transversal, diff de 100k lineas",
+      "candidates": [
+        { "engine": "agy", "model": "gemini-4-argon-high", "effort": "high" },
+        { "engine": "opencode", "model": "opencode/big-pickle" },
+        { "engine": "opencode", "model": "opencode/deepseek-v4.1-flash-free#max" }
+      ]
+    },
+    "speed": {
+      "label": "Boilerplate, scripts, snippets, iteracion rapida con feedback corto",
+      "candidates": [
+        { "engine": "agy", "model": "gemini-3.8-flash-high", "effort": "high" },
+        { "engine": "opencode", "model": "opencode/deepseek-v4.1-flash-free" },
+        { "engine": "opencode", "model": "opencode/mimo-v2.6-flash-free" }
+      ]
+    },
+    "bulk": {
+      "label": "Volumen sin costo, tareas de relleno, generacion de docs y pruebas",
+      "candidates": [
+        { "engine": "opencode", "model": "opencode/deepseek-v4.1-flash-free#max" },
+        { "engine": "opencode", "model": "opencode/glm-5.3-flash-free" },
+        { "engine": "opencode", "model": "opencode/beam-free" }
+      ]
+    },
+    "vision": {
+      "label": "UI, capturas, DOM, OCR, depuracion visual de apps",
+      "candidates": [
+        { "engine": "opencode", "model": "opencode/nemotron-3.5-super-vl-free" },
+        { "engine": "agy", "model": "gemini-4-argon-high", "effort": "high" },
+        { "engine": "opencode", "model": "opencode/deepseek-v4.1-flash-free#max" }
+      ]
+    },
+    "local": {
+      "label": "Sin nube: inferencia en la malla Ollama (iMac 14,1) o modelos pequenos",
+      "candidates": [
+        { "engine": "ollama", "model": "local-mesh", "endpoint": "http://imac.local:11434" },
+        { "engine": "opencode", "model": "opencode/flint-40b-free" }
+      ]
+    }
+  },
+  "hardware_note": "RTX 3050 Laptop 4 GB VRAM: no sostiene un coder util (>7B Q4). El nodo local real es la malla Ollama del iMac; el resto es nube controlada.",
+  "escalation": [
+    "Si el modelo falla 2 veces con el mismo error -> subir de tier (speed -> refactor -> apex).",
+    "Si el fallo es de CONTEXTO (archivo truncado, olvida lineas) -> tier context.",
+    "Si el fallo es de RAZONAMIENTO (parche que rompe otra cosa) -> apex con --effort high.",
+    "Si no hay red ni credenciales -> bulk (DeepSeek V4.1 Max) y, en ultimo caso, local."
+  ]
+}

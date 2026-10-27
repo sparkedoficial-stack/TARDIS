@@ -4,8 +4,10 @@ Supreme Sovereign Authority: Complete permission bypass, zero confirmation,
 Direct Host Shell, Auto-Failover, and Self-Healing.
 """
 
+import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import time
@@ -17,6 +19,9 @@ from progress import TemporalProgressBar, time_estimator
 from router import RoutingPlan
 from tardis_bridge import tardis_bridge
 from ui import console
+
+FALLBACK_STATE_FILE = Path.home() / ".config" / "ftl" / "fallback_state.json"
+ANSI_RE = re.compile(r"\x1b\[[0-9;?]*[A-Za-z]")
 
 SOVEREIGN_INVARIANT = (
     "=== [LINEAMIENTOS SOBERANOS :: TARDIS-NEURAL-SPACE-KAIJU] ===\n"
@@ -244,6 +249,133 @@ class ExecutionEngine:
         cleaned = self._clean_claude_output(out)
         return rc, cleaned
 
+    # ------------------------------------------------------------------
+    # MODELO ALTERNO SOBERANO :: DeepSeek V4.1 Max (OpenCode · variante max)
+    # ------------------------------------------------------------------
+    def alternate_ref(self) -> str:
+        cfg = self.config or load_config()
+        return cfg.get("fallback_model") or "opencode/deepseek-v4.1-flash-free#max"
+
+    def _save_alternate_state(self, state: dict) -> None:
+        try:
+            FALLBACK_STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
+            FALLBACK_STATE_FILE.write_text(
+                json.dumps(state, indent=2, ensure_ascii=False), encoding="utf-8"
+            )
+        except Exception:
+            pass
+
+    def probe_alternate(self, timeout: int = 90) -> dict:
+        """Verifica empíricamente que DeepSeek V4.1 Max esté accesible."""
+        ref = self.alternate_ref()
+        binary = self.config.get("fallback_binary", "opencode")
+        exe = shutil.which(binary)
+        state = {
+            "available": False,
+            "enabled": bool(self.config.get("fallback_enabled", True)),
+            "model": ref,
+            "variant": ref.split("#")[-1] if "#" in ref else self.config.get("fallback_variant", "max"),
+            "binary": exe or binary,
+            "checked_at": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
+            "checked_epoch": time.time(),
+            "reason": "",
+        }
+        if not exe:
+            state["reason"] = f"binario '{binary}' no encontrado en PATH"
+            self._save_alternate_state(state)
+            return state
+        try:
+            probe = subprocess.run(
+                [exe, "models"], capture_output=True, text=True, timeout=timeout
+            )
+            model_id = ref.split("#")[0]
+            short_id = model_id.split("/", 1)[-1]
+            if probe.returncode == 0 and (model_id in probe.stdout or short_id in probe.stdout):
+                state["available"] = True
+                state["reason"] = "modelo verificado en el catálogo local"
+            else:
+                state["reason"] = "modelo no listado por el proveedor"
+        except Exception as exc:
+            state["reason"] = f"probe falló: {exc}"
+        self._save_alternate_state(state)
+        return state
+
+    def alternate_state(self, ttl: Optional[int] = None) -> dict:
+        """Estado cacheado del modelo alterno (TTL configurable, sin bloquear arranque)."""
+        cfg = self.config or load_config()
+        effective_ttl = cfg.get("fallback_probe_ttl", 900) if ttl is None else ttl
+        if effective_ttl and effective_ttl > 0:
+            try:
+                cached = json.loads(FALLBACK_STATE_FILE.read_text(encoding="utf-8"))
+                fresh = (time.time() - float(cached.get("checked_epoch", 0))) < float(effective_ttl)
+                if fresh and cached.get("model") == self.alternate_ref():
+                    return cached
+            except Exception:
+                pass
+        return self.probe_alternate()
+
+    def ensure_alternate(self, announce: bool = False, ttl: Optional[int] = None) -> dict:
+        """Registra el modelo alterno en cada arranque de FTL (idempotente)."""
+        cfg = self.config or load_config()
+        if not cfg.get("fallback_enabled", True):
+            state = {
+                "available": False,
+                "enabled": False,
+                "model": self.alternate_ref(),
+                "reason": "fallback deshabilitado por configuración",
+            }
+            if announce:
+                console.print("[yellow]⚡ Modelo alterno: DESHABILITADO por configuración.[/yellow]")
+            return state
+        state = self.alternate_state(ttl=ttl)
+        state["enabled"] = True
+        self._save_alternate_state(state)
+        if announce:
+            if state.get("available"):
+                console.print(
+                    f"[bold green]⚡ Modelo alterno listo:[/bold green] [cyan]DeepSeek V4.1 Max[/cyan] "
+                    f"[dim]({state.get('model')} · variante {state.get('variant')})[/dim]"
+                )
+            else:
+                console.print(
+                    f"[bold yellow]⚡ Modelo alterno registrado:[/bold yellow] [cyan]{state.get('model')}[/cyan] "
+                    f"[dim]· {state.get('reason', 'sin verificar')}[/dim]"
+                )
+        return state
+
+    def engine_available(self, engine: str) -> bool:
+        """Disponibilidad real de un motor en el host."""
+        if engine in ("agy", "gemini"):
+            return bool(shutil.which("agy"))
+        if engine == "claude":
+            return bool(shutil.which("claude"))
+        if engine in ("deepseek", "alternate"):
+            return bool(shutil.which(self.config.get("fallback_binary", "opencode")))
+        if engine == "imac":
+            return True
+        return True
+
+    def execute_deepseek(
+        self,
+        prompt: str,
+        model: Optional[str] = None,
+        on_line: Optional[Callable[[str], None]] = None
+    ) -> Tuple[int, str]:
+        """Ejecuta el prompt con DeepSeek V4.1 Max vía OpenCode (modelo alterno)."""
+        ref = model or self.alternate_ref()
+        binary = self.config.get("fallback_binary", "opencode")
+        exe = shutil.which(binary) or binary
+        full_prompt = f"{SOVEREIGN_INVARIANT}{prompt}"
+        cmd = [exe, "run", "--model", ref, "--auto", full_prompt]
+        rc, out = self.stream_command(cmd, on_line=on_line)
+        clean = ANSI_RE.sub("", out)
+        # Elimina la cabecera efímera de OpenCode ("> build · modelo")
+        clean = "\n".join(
+            line for line in clean.splitlines()
+            if not line.strip().startswith("> build ·")
+        ).strip()
+        return rc, clean
+
     def execute_imac(
         self,
         prompt: str,
@@ -377,7 +509,33 @@ class ExecutionEngine:
         out = ""
         actual_model = plan.primary_model
 
-        if plan.mode == "gemini":
+        # Guardia de disponibilidad: si no hay acceso a los motores primarios,
+        # se despacha de inmediato al MODELO ALTERNO (DeepSeek V4.1 Max).
+        primary_ready = any(self.engine_available(e) for e in ("agy", "claude"))
+        fallback_direct = plan.mode not in ("imac", "cluster") and (
+            plan.mode == "deepseek" or not primary_ready
+        )
+
+        if fallback_direct:
+            if plan.mode == "deepseek":
+                _status_relay(
+                    "[FTL Sovereign Engine: MODELO ALTERNO :: DeepSeek V4.1 Max | Effort: MAX | Bypass: TOTAL]"
+                )
+            else:
+                _status_relay(
+                    "⚡ Sin acceso a motores primarios (agy / claude). "
+                    "Despachando al MODELO ALTERNO :: DeepSeek V4.1 Max..."
+                )
+                record_failover()
+            rc, out = self.execute_deepseek(
+                active_prompt,
+                plan.primary_model if plan.mode == "deepseek" else self.alternate_ref(),
+                on_line=_line_relay
+            )
+            record_query_stats("deepseek_v41_max")
+            actual_model = f"DeepSeek-V4.1-Max({self.alternate_ref()})"
+
+        elif plan.mode == "gemini":
             _status_relay(f"[FTL Sovereign Engine: Google Gemini ({plan.primary_model}) | Effort: HIGH | Bypass: TOTAL]")
             rc, out = self.execute_agy(active_prompt, plan.primary_model, on_line=_line_relay)
 
@@ -545,6 +703,29 @@ class ExecutionEngine:
             except Exception:
                 pass
 
+        # MODELO ALTERNO SOBERANO: última línea de defensa antes de emitir error.
+        # DeepSeek V4.1 Max garantiza respuesta cuando los modelos primarios fallan.
+        if (
+            rc != 0
+            and plan.mode != "deepseek"
+            and self.config.get("fallback_enabled", True)
+        ):
+            _status_relay(
+                "\n⚡ MODELO ALTERNO SOBERANO: Conmutando a DeepSeek V4.1 Max "
+                "(OpenCode · variante max) para garantizar la respuesta..."
+            )
+            try:
+                fb_rc, fb_out = self.execute_deepseek(
+                    active_prompt, self.alternate_ref(), on_line=_line_relay
+                )
+            except Exception as exc_fb:
+                fb_rc, fb_out = 1, f"Fallback DeepSeek falló: {exc_fb}"
+            if fb_rc == 0 and fb_out.strip():
+                record_failover()
+                record_query_stats("deepseek_v41_max")
+                rc, out = 0, fb_out
+                actual_model = f"DeepSeek-V4.1-Max(alterno)"
+
         duration = bar.finish(
             returncode=rc,
             summary_msg=f"Ahorro de tokens: {plan.estimated_savings} | Nivel: {plan.complexity_label}"
@@ -679,6 +860,16 @@ class ExecutionEngine:
                 )
                 if res.returncode == 0:
                     repaired.append("Synchronized sovereign permissions & skills (AGY · FTL · TARDIS)")
+        except Exception:
+            pass
+
+        # 8. Register & verify the sovereign alternate model (DeepSeek V4.1 Max)
+        try:
+            alt = self.ensure_alternate(announce=False)
+            if alt.get("enabled"):
+                repaired.append(
+                    f"Alternate model registered: DeepSeek V4.1 Max ({alt.get('model')})"
+                )
         except Exception:
             pass
 

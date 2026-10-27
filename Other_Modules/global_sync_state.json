@@ -1,7 +1,41 @@
 {
-  "revision": 2518,
-  "lamport": 2796,
-  "history": [],
+  "revision": 2522,
+  "lamport": 2799,
+  "history": [
+    {
+      "id": "msg_1793078196733_1",
+      "role": "system",
+      "content": "⚡ [FTL] PLAN COGNITIVO (DEEPSEEK): Responde únicamente con: ALTERNO_FTL_OK (RC:0, 2.0s)",
+      "timestamp": REDACTED_PHONE.7337072,
+      "iso": "2026-10-27T00:16:36.733725",
+      "lamport": 2797,
+      "meta": "FTL · DEEPSEEK",
+      "raw_data": {},
+      "client_id": "ftl_sovereign"
+    },
+    {
+      "id": "msg_1793078280945_2",
+      "role": "system",
+      "content": "⚡ [FTL] PLAN COGNITIVO (GEMINI): prueba de fallback (RC:0, 0.1s)",
+      "timestamp": REDACTED_PHONE.9455168,
+      "iso": "2026-10-27T00:18:00.945529",
+      "lamport": 2798,
+      "meta": "FTL · GEMINI",
+      "raw_data": {},
+      "client_id": "ftl_sovereign"
+    },
+    {
+      "id": "msg_1793078758106_3",
+      "role": "system",
+      "content": "⚡ [FTL] PLAN COGNITIVO (KAIJU): En caso de hacer falta de otros modelos cual ocupas para codifica (RC:0, 194.7s)",
+      "timestamp": REDACTED_PHONE.106201,
+      "iso": "2026-10-27T00:25:58.106217",
+      "lamport": 2799,
+      "meta": "FTL · KAIJU",
+      "raw_data": {},
+      "client_id": "ftl_sovereign"
+    }
+  ],
   "config": {
     "model": "TARDIS-NEURAL-SPACE-KAIJU",
     "temperature": 0.3,
@@ -24,11 +58,11 @@
     "coneActive": true,
     "oscilloscopeActive": true
   },
-  "updated_at": "2026-10-26T19:10:56.251002",
+  "updated_at": "2026-10-27T00:25:58.106240",
   "visual_intelligence": {
     "active": true,
     "pid": 2148,
-    "videos_stored": 611,
-    "last_ping": REDACTED_PHONE.6049657
+    "videos_stored": 612,
+    "last_ping": REDACTED_PHONE.891423
   }
 }

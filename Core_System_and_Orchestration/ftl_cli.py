@@ -96,6 +96,7 @@ UNIFIED_COMMAND_KEYWORDS = {
     "engineer", "heal", "doctor", "models", "stats", "history", "historial",
     "ftl-history", "rag", "search-rag", "ftl-rag", "search", "context", "ftl-context",
     "ctx", "sync", "sincronizar", "sovereign", "skills", "habilidades", "aptitudes",
+    "fallback", "alterno", "modelo-alterno",
     "web", "lan", "portal", "voice",
     "voz", "speak", "habla", "decir", "easytouch", "et", "et-agent", "et-evolve", "et-solve", "auto", "kaiju", "rails",
     "kaiju-rails", "synth", "audit", "gemini", "agy", "claude", "claude-cli",
@@ -151,6 +152,10 @@ def dispatch_unified_command(cmd_name: str, args_list: list[str] = None) -> bool
             subprocess.run([str(sync_bin), "skills"])
         else:
             console.print("[bold yellow]Aviso:[/bold yellow] sovereign-sync no está instalado en ~/.local/bin.")
+        return True
+
+    elif cmd in ("fallback", "alterno", "modelo-alterno"):
+        ui.print_fallback_status(force_probe=True)
         return True
 
     elif cmd in ("web", "lan", "portal"):
@@ -734,6 +739,12 @@ def interactive_loop():
 
     ui.print_banner(animated=True)
 
+    # Modelo alterno soberano: DeepSeek V4.1 Max (registro en cada arranque)
+    try:
+        executor.ensure_alternate(announce=True)
+    except Exception:
+        pass
+
     current_ui = ui
     current_executor = executor
     current_router = router
@@ -875,7 +886,7 @@ def main():
         description="TARDIS · FTL Sovereign Apex System :: Sistema Unificado Autoprogramable"
     )
     parser.add_argument("prompt", nargs="*", help="Optional prompt or direct shell command ($ <cmd>)")
-    parser.add_argument("-m", "--mode", choices=["auto", "kaiju", "synth", "audit", "gemini", "agy", "claude", "infinite", "quad", "imac", "cluster"], help="Execution mode")
+    parser.add_argument("-m", "--mode", choices=["auto", "kaiju", "synth", "audit", "gemini", "agy", "claude", "infinite", "quad", "imac", "cluster", "deepseek", "alterno"], help="Execution mode")
     parser.add_argument("--status", action="store_true", help="Display TARDIS & system status")
     parser.add_argument("--tools", action="store_true", help="Display Master Hub dynamic modules")
     parser.add_argument("--evolve", nargs=2, metavar=("FILE", "GOAL"), help="Auto-program and evolve code with AST validation and rollback")
@@ -894,6 +905,7 @@ def main():
     parser.add_argument("--stats", action="store_true", help="Display token savings and economic ledger")
     parser.add_argument("--sovereign", action="store_true", help="Display sovereign apex permissions and root status")
     parser.add_argument("--skills", action="store_true", help="Display synchronized sovereign skills catalog (AGY · FTL · TARDIS)")
+    parser.add_argument("--fallback", action="store_true", help="Verify & display the sovereign alternate model (DeepSeek V4.1 Max)")
     parser.add_argument("--web", action="store_true", help="Display FTL Sovereign Web Terminal status, LAN URLs, and QR code")
     parser.add_argument("--heal", action="store_true", help="Run deep self-healing on permissions, files, and trust")
     parser.add_argument("--improve", action="store_true", help="Trigger autonomous self-improvement of TARDIS codebase via FTL")
@@ -906,6 +918,16 @@ def main():
     parser.add_argument("--et-solve", action="store_true", help="Trigger autonomous resolution of all pending unhealed incidents")
 
     args = parser.parse_args()
+
+    # Cada arranque de FTL registra el modelo alterno soberano (idempotente, cacheado).
+    try:
+        executor.ensure_alternate(announce=False)
+    except Exception:
+        pass
+
+    if args.fallback:
+        ui.print_fallback_status(force_probe=True)
+        sys.exit(0)
 
     if args.status:
         ui.print_tardis_status()

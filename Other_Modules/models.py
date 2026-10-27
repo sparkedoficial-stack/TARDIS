@@ -43,7 +43,8 @@ class ModelRegistry:
             "anthropic_opus": "opus",
             "tardis_kaiju": "TARDIS-NEURAL-SPACE-KAIJU",
             "external_cloud": "groq_deepseek",
-            "tardis_infinite": "TARDIS-QUAD-INFINITE-CODE"
+            "tardis_infinite": "TARDIS-QUAD-INFINITE-CODE",
+            "deepseek_alternate": "opencode/deepseek-v4.1-flash-free#max"
         }
         self.load_or_discover()
 
@@ -297,6 +298,24 @@ class ModelRegistry:
             )
         ]
 
+    def discover_from_alternate(self) -> List[ModelProfile]:
+        """Modelo alterno soberano: DeepSeek V4.1 Max (OpenCode · esfuerzo máximo)."""
+        return [
+            ModelProfile(
+                model_id="opencode/deepseek-v4.1-flash-free#max",
+                display_name="DeepSeek V4.1 Max (Modelo Alterno Soberano · OpenCode)",
+                provider="deepseek",
+                tier="deepseek-max",
+                effort_level="max",
+                context_window=128_000,
+                cost_factor=0.0,
+                abstraction_score=9.0,
+                speed_score=9.5,
+                is_flagship=True,
+                is_latest=True,
+            )
+        ]
+
     def refresh(self):
         """Forces rediscovery of ONLY frontier max power models."""
         discovered_agy = self.discover_from_agy()
@@ -304,9 +323,11 @@ class ModelRegistry:
         discovered_tardis = self.discover_from_tardis()
         discovered_infinite = self.discover_from_infinite()
         discovered_frontier = self.discover_from_frontier()
+        discovered_alternate = self.discover_from_alternate()
 
         all_models: Dict[str, ModelProfile] = {}
-        for m in discovered_agy + discovered_claude + discovered_tardis + discovered_infinite + discovered_frontier:
+        for m in (discovered_agy + discovered_claude + discovered_tardis
+                  + discovered_infinite + discovered_frontier + discovered_alternate):
             all_models[m.model_id] = m
 
         # Select highest version Google Flash High
@@ -331,6 +352,7 @@ class ModelRegistry:
         self.flagships["tardis_kaiju"] = "TARDIS-NEURAL-SPACE-KAIJU"
         self.flagships["external_cloud"] = "groq_deepseek"
         self.flagships["tardis_infinite"] = "TARDIS-QUAD-INFINITE-CODE"
+        self.flagships["deepseek_alternate"] = "opencode/deepseek-v4.1-flash-free#max"
 
         self.models = all_models
         self.save_cache()
@@ -396,6 +418,13 @@ class ModelRegistry:
 
     def get_tardis_model(self) -> str:
         return self.flagships.get("tardis_kaiju", "TARDIS-NEURAL-SPACE-KAIJU")
+
+    def get_alternate_model(self) -> str:
+        """Referencia exacta del modelo alterno (DeepSeek V4.1 Max)."""
+        cfg = load_config()
+        return cfg.get("fallback_model") or self.flagships.get(
+            "deepseek_alternate", "opencode/deepseek-v4.1-flash-free#max"
+        )
 
 
 # Global Registry Instance
