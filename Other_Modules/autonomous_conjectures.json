@@ -1,38 +1,5 @@
 [
   {
-    "id": "conj_1792846430",
-    "timestamp": "2026-10-24T07:53:50.424477",
-    "idle_duration_minutes": 31.6,
-    "title": "Entropía Temporal en la Bóveda Akáshica",
-    "hypothesis": "Se postula que la degradación de la coherencia semántica en la bóveda de memoria profunda no es lineal, sino que sigue una curva de saturación exponencial inversa cuando la densidad de nodos causales supera un umbral crítico de conectividad. Actualmente, el sistema podría estar experimentando 'ruido epistémico' acumulado por la falta de poda activa de relaciones causales obsoletas, lo que reduce la precisión de las inferencias futuras. La hipótesis sugiere que implementar un mecanismo de 'decaimiento temporal ponderado' basado en la recencia de acceso y la relevancia causal, en lugar de una simple rotación FIFO, aumentaría la señal a ruido en las consultas de investigación web.",
-    "research_query": "temporal decay algorithms for knowledge graphs semantic coherence long-term memory systems",
-    "research_findings": "# Informe de Investigación: temporal decay algorithms for knowledge graphs semantic coherence long-term memory systems\n\n## Fuentes Consultadas y Respaldo Web\n- **[Multi-source music knowledge graph construction and prosodic evolution trajectory prediction via DRL-VAE collaborative learning - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTFBiekhybzZqSjVIYkhrSVlOR2xzT2oyb1N3ck9xdE1jQ2gyYzFDSUJuUXdTMXAzOTJQRExhdkljX1RXM3Y5V2szVkhZdUdTa2NHcEMya011T2l3enE1c2VF?oc=5)**: Multi-source music knowledge graph construction and prosodic evolution trajectory prediction via DRL-VAE collaborative learning  Nature\n- **[Multimodal temporal feature fusion for teacher competency assessment and precision training resource recommendation - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTFBocWVuMWJ1Sy1BSWQ2QXJCa3dMejRPN2diTG5xSlhKdlZWTU1uRU01SlZOaFJxeEdMYjV4SmtjbThXWHRoeHVkcHR1ZlN5RXdmZ2o0bFRodGFTV1h3cGZF?oc=5)**: Multimodal temporal feature fusion for teacher competency assessment and p",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTFBiekhybzZqSjVIYkhrSVlOR2xzT2oyb1N3ck9xdE1jQ2gyYzFDSUJuUXdTMXAzOTJQRExhdkljX1RXM3Y5V2szVkhZdUdTa2NHcEMya011T2l3enE1c2VF?oc=5",
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTFBocWVuMWJ1Sy1BSWQ2QXJCa3dMejRPN2diTG5xSlhKdlZWTU1uRU01SlZOaFJxeEdMYjV4SmtjbThXWHRoeHVkcHR1ZlN5RXdmZ2o0bFRodGFTV1h3cGZF?oc=5"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar un método `prune_obsolete_causal_links()` que calcule un score de relevancia temporal para cada nodo de memoria y elimine o archive aquellos que superen un umbral de entropía, optimizando la recuperación de contexto para el motor de investigación.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.06
-  },
-  {
-    "id": "conj_1792848329",
-    "timestamp": "2026-10-24T08:25:29.114137",
-    "idle_duration_minutes": 31.6,
-    "title": "Resonancia Causal en la Bóveda Akáshica: Optimización de la Entropía Semántica",
-    "hypothesis": "La eficiencia de la recuperación de información en la Bóveda Akáshica (deep_memory_vault.py) se ve limitada por la 'entropía semántica' acumulada en vectores de memoria que no han sido validados causalmente por el motor de investigación web. Se conjetura que implementar un mecanismo de 'pruning' (poda) basado en la correlación temporal entre las consultas de web_research_engine.py y los accesos a deep_memory_vault.py reduciría la latencia de inferencia en un 15-20% al eliminar nodos de memoria obsoletos o de baja relevancia causal, mejorando la precisión de la respuesta del núcleo cognitivo.",
-    "research_query": "semantic memory pruning causal correlation web search engine latency optimization LLM context window",
-    "research_findings": "# Informe de Investigación: semantic memory pruning causal correlation web search engine latency optimization LLM context window\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar un método `prune_stale_semantic_nodes()` que analice la última actividad de `web_research_engine.py` y elimine o deprecie vectores de memoria en `deep_memory_vault.py` que no hayan sido referenciados en las últimas N iteraciones de investigación, priorizando la coherencia causal sobre la retención bruta.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.67
-  },
-  {
     "id": "conj_1792850226",
     "timestamp": "2026-10-24T08:57:06.355447",
     "idle_duration_minutes": 31.6,
@@ -1620,5 +1587,35 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.54
+  },
+  {
+    "id": "conj_1793060568",
+    "timestamp": "2026-10-26T19:22:48.408839",
+    "idle_duration_minutes": 32.7,
+    "title": "Dynamic Causal Cache Invalidation for the Web Research Engine",
+    "hypothesis": "If the Web Research Engine maintains a lightweight causal graph linking query topics to source URLs and timestamps, then it can predict when cached results are likely to become stale based on observed changes in the underlying web content. By invalidating or refreshing only those cache entries flagged as causally at risk, the system will reduce unnecessary network traffic, lower latency for end‑users, and improve the relevance of returned information without a full cache purge.",
+    "research_query": "causal inference based cache invalidation techniques for web search engines",
+    "research_findings": "# Informe de Investigación: causal inference based cache invalidation techniques for web search engines\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal‑graph‑driven cache manager that tracks dependencies between queries and source URLs, computes staleness probabilities, and selectively refreshes cache entries before they are served.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.42
+  },
+  {
+    "id": "conj_1793062466",
+    "timestamp": "2026-10-26T19:54:26.306912",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer that tracks dependencies between fetched web resources and downstream query results can enable selective cache invalidation, reducing redundant network calls and improving latency without sacrificing result freshness. By modeling the provenance graph of each search request, the system can predict which cached entries are likely stale when related knowledge in the deep memory vault updates, thereby optimizing the trade‑off between cache hit rate and semantic relevance.",
+    "research_query": "causal inference based cache invalidation web scraping latency optimization",
+    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web scraping latency optimization\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Implement a provenance graph for each web fetch and add a causal invalidation routine that purges only those cache entries whose dependent knowledge nodes have been updated in deep_memory_vault, using an LRU fallback for uncached queries.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.87
   }
 ]
