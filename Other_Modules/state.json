@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.3809798,
-  "last_video_id": "vp_20261027_162620_97ea05",
-  "last_topic": "Dynamic Visualization of Spin Foam Evolution in Loop Quantum Gravity",
-  "total_videos_analyzed": 636,
+  "last_run_timestamp": REDACTED_PHONE.94775,
+  "last_video_id": "vp_20261027_173750_950f70",
+  "last_topic": "Persistent Homology of the Human Brain Connectome: Visualizing High-Dimensional Topological Features",
+  "total_videos_analyzed": 638,
   "running_cycle": false,
   "last_error": null,
-  "auto_improvement_count": 360
+  "auto_improvement_count": 361
 }

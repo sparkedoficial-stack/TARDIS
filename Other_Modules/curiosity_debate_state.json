@@ -3,29 +3,18 @@
   "interval_seconds": 5400.0,
   "target_chat_id": -REDACTED_PHONE,
   "target_thread_id": 453,
-  "last_run_timestamp": REDACTED_PHONE.447549,
-  "last_run_iso": "2026-10-27T16:05:04.447552",
-  "total_dispatches": 380,
-  "curator_index": 5,
+  "last_run_timestamp": REDACTED_PHONE.6949701,
+  "last_run_iso": "2026-10-27T17:35:06.694975",
+  "total_dispatches": 381,
+  "curator_index": 2,
   "dispatched_topic_ids": [
     "holographic_brain_neurophysics",
     "fermi_paradox_great_filter",
     "godel_incompleteness_ai_limits",
-    "neural_decoding_mind_reading_bci"
+    "neural_decoding_mind_reading_bci",
+    "syntropy_prigogine_thermodynamics"
   ],
   "history": [
-    {
-      "dispatch_id": 281,
-      "timestamp": REDACTED_PHONE.9443839,
-      "iso": "2026-10-21T11:18:08.944385",
-      "topic_id": "holographic_brain_neurophysics",
-      "topic_title": "La Hipótesis del Cerebro Holográfico: Memoria Distribuida y Resonancia Cuántica",
-      "pdf_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/reports/polimatas_debates/Dossier_Debate_20261021_111807_holographic_brain_neurophysics.pdf",
-      "chat_id": -REDACTED_PHONE,
-      "thread_id": 453,
-      "text_sent": true,
-      "doc_sent": true
-    },
     {
       "dispatch_id": 282,
       "timestamp": REDACTED_PHONE.2104445,
@@ -1209,6 +1198,18 @@
       "topic_id": "neural_decoding_mind_reading_bci",
       "topic_title": "Decodificación Neural Directa y Reconstrucción Semántica: ¿El Fin de la Privacidad Mental?",
       "pdf_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/reports/polimatas_debates/Dossier_Debate_20261027_160500_neural_decoding_mind_reading_b.pdf",
+      "chat_id": -REDACTED_PHONE,
+      "thread_id": 453,
+      "text_sent": true,
+      "doc_sent": true
+    },
+    {
+      "dispatch_id": 381,
+      "timestamp": REDACTED_PHONE.6949701,
+      "iso": "2026-10-27T17:35:06.694975",
+      "topic_id": "syntropy_prigogine_thermodynamics",
+      "topic_title": "Termodinámica del No Equilibrio y Sintropía: ¿El Orden es una Ley Fundamental?",
+      "pdf_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/reports/polimatas_debates/Dossier_Debate_20261027_173505_syntropy_prigogine_thermodynam.pdf",
       "chat_id": -REDACTED_PHONE,
       "thread_id": 453,
       "text_sent": true,
