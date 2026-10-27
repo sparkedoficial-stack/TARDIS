@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.0681183,
-  "last_video_id": "vp_20261026_223401_a5ff00",
-  "last_topic": "Topological Data Analysis of Human Brain Connectomes: Visualizing Persistent Homology Across Cognitive States",
-  "total_videos_analyzed": 606,
-  "running_cycle": false,
+  "last_run_timestamp": REDACTED_PHONE.3857918,
+  "last_video_id": "vp_20261026_230920_140181",
+  "last_topic": "Causal Dynamical Triangulations: Simulating Quantum Spacetime Foam",
+  "total_videos_analyzed": 607,
+  "running_cycle": true,
   "last_error": null,
-  "auto_improvement_count": 357
+  "auto_improvement_count": 358
 }
