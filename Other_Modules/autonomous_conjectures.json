@@ -1,23 +1,5 @@
 [
   {
-    "id": "conj_1792869304",
-    "timestamp": "2026-10-24T14:15:04.761630",
-    "idle_duration_minutes": 32.2,
-    "title": "Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "Integrating a causal inference layer into core/web_research_engine.py that predicts the relevance decay of cached search results based on temporal patterns and user query semantics will reduce stale data retrieval by at least 30% and improve overall response latency. The hypothesis rests on the premise that the Deep Memory Vault already logs query‑result timestamps and semantic embeddings, which can be leveraged to model a decay function (e.g., exponential or Weibull) conditioned on causal factors such as topic volatility, source update frequency, and network latency recorded by core/network_shield.py.",
-    "research_query": "causal inference based cache expiration strategies for web search engines academic papers 2022-2024",
-    "research_findings": "# Informe de Investigación: causal inference based cache expiration strategies for web search engines academic papers 2022-2024\n\n## Fuentes Consultadas y Respaldo Web\n- **[Causal inference via algebraic geometry: feasibility tests for functional causal structures with two binary observed variables (arXiv)](http://arxiv.org/abs/1506.03880v2)**: We provide a scheme for inferring causal relations from uncontrolled statistical data based on tools from computational algebraic geometry, in particular, the computation of Groebner bases. We focus on causal structures containing just two observed variables, each of which is binary. We consider the consequences of imposing different restrictions o\n- **[The Retrieval Effectiveness of Web Search Engines: Considering Results Descriptions (arXiv)](http://arxiv.org/abs/1511.05800v1)**: Purpose: To compare five major Web search engines (Google, Yahoo, MSN, Ask.com, and Seekport) for their retrieval effectiveness, taking into account not only the resul",
-    "web_sources": [
-      "http://arxiv.org/abs/1506.03880v2",
-      "http://arxiv.org/abs/1511.05800v1"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a CausalCacheManager class that computes a dynamic TTL for each cached result using a lightweight probabilistic model (e.g., Bayesian updating) and integrates it with the existing cache read/write flow.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 99.94
-  },
-  {
     "id": "conj_1792871202",
     "timestamp": "2026-10-24T14:46:42.042115",
     "idle_duration_minutes": 31.6,
@@ -1616,5 +1598,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.56
+  },
+  {
+    "id": "conj_1793087200",
+    "timestamp": "2026-10-27T02:46:40.312061",
+    "idle_duration_minutes": 31.6,
+    "title": "Sinergia Causal entre Telemetría de Red y Memoria Profunda",
+    "hypothesis": "Se postula que la eficiencia de la investigación web puede optimizarse significativamente si el motor de investigación (web_research_engine.py) no opera de forma aislada, sino que ingiere en tiempo real los patrones de latencia y estabilidad de red detectados por network_shield.py. Al correlacionar la telemetría de red con los metadatos de éxito/fallo de las consultas previas almacenados en deep_memory_vault.py, el sistema puede desarrollar una 'inteligencia causal' que predice la viabilidad de nuevas fuentes antes de ejecutarlas, reduciendo el tiempo de inactividad y mejorando la precisión de los resultados mediante un ajuste dinámico de los timeouts y la selección de proxies.",
+    "research_query": "dynamic timeout adjustment based on real-time network telemetry and historical success rates in web scraping engines",
+    "research_findings": "# Informe de Investigación: dynamic timeout adjustment based on real-time network telemetry and historical success rates in web scraping engines\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Implementar un método de pre-evaluación de fuentes que consulte la telemetría de red actual y la memoria histórica para ajustar dinámicamente los parámetros de conexión (timeouts, reintentos) antes de lanzar la petición HTTP.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.15
   }
 ]
