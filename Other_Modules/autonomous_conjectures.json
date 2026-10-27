@@ -1,38 +1,5 @@
 [
   {
-    "id": "conj_1792913181",
-    "timestamp": "2026-10-25T02:26:21.903151",
-    "idle_duration_minutes": 31.6,
-    "title": "Dynamic Causal Cache Invalidation for the Web Research Engine",
-    "hypothesis": "If the Web Research Engine maintains a lightweight causal graph of query‑result dependencies and uses it to predict when external sources are likely to have changed, then cache entries can be invalidated proactively rather than reactively. This should reduce latency for repeat queries, improve result freshness, and lower overall network traffic without sacrificing relevance, especially under the constraints of the ASUS TUF Linux environment and the active akáshic vault.",
-    "research_query": "causal inference based cache invalidation techniques for web search engines",
-    "research_findings": "# Informe de Investigación: causal inference based cache invalidation techniques for web search engines\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal‑graph module that tracks source URLs and their last‑known update timestamps, computes dependency scores, and automatically expires or refreshes cached results when the model predicts a high probability of change.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.16
-  },
-  {
-    "id": "conj_1792915448",
-    "timestamp": "2026-10-25T03:04:08.521702",
-    "idle_duration_minutes": 37.8,
-    "title": "Dynamic Causal Prompt Routing for Context‑Aware Web Research",
-    "hypothesis": "Integrating a causal inference layer into the web_research_engine module that dynamically routes prompts based on inferred causal relevance of prior memory entries will improve the precision of retrieved information and reduce hallucination rates. The hypothesis posits that by scoring each stored memory fragment (from deep_memory_vault) for its causal impact on the current query, the engine can prioritize sources that are causally upstream, yielding more coherent and fact‑consistent results, especially in multi‑step reasoning tasks.",
-    "research_query": "causal inference prompt routing language model web search engine reduce hallucination",
-    "research_findings": "# Informe de Investigación: causal inference prompt routing language model web search engine reduce hallucination\n\n## Fuentes Consultadas y Respaldo Web\n- **[The Must-Know Topics for an LLM Engineer - Towards Data Science](https://news.google.com/rss/articles/CBMifEFVX3lxTE9RcW41MTRQd25xdm5Jekc0V3JQSlhLTzlfVXgwNVRtOWpDTENJM1VOeDJlNXlXdjBwUVVvb1ZzUTZFclNrYWc1aC1fbTZ1aUpPR1ladXBLNlo3YlkzXzlHVEFsclFxM3B1TGRqOTJyNEtCOVgxQmxVRTNra2w?oc=5)**: The Must-Know Topics for an LLM Engineer  Towards Data Science\n- **[Hardening AI Systems: Security, Robustness, and Safety for Generative & Agentic AI - Medium](https://news.google.com/rss/articles/CBMivwFBVV95cUxQdGdVWllTdE51eFZaNHhSdmdKX0k5RHUwNmdyT2FXczhGd2JQT21JZ1FRdUl5bjYyZ1RwRC1xODM2d2ZWTXNSdlpROHNDeGJOWjQzaUt2d25TclpvZjl3QUlORjVUMzFmbElRUGdGbkJwMzF2VEx6YmFRZnZCOENYWkZ4VkJBU29ESHlCRkg4SU9SckhEekJScXBhY3dUT3Q2NV9UREJkb3hXem4yS2NjckduS3pyc0xTZW1mYVp3cw?oc=5)**: Hardening AI Systems: Security, Robustness, and Safety for Generative & Agentic AI  Mediu",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMifEFVX3lxTE9RcW41MTRQd25xdm5Jekc0V3JQSlhLTzlfVXgwNVRtOWpDTENJM1VOeDJlNXlXdjBwUVVvb1ZzUTZFclNrYWc1aC1fbTZ1aUpPR1ladXBLNlo3YlkzXzlHVEFsclFxM3B1TGRqOTJyNEtCOVgxQmxVRTNra2w?oc=5",
-      "https://news.google.com/rss/articles/CBMivwFBVV95cUxQdGdVWllTdE51eFZaNHhSdmdKX0k5RHUwNmdyT2FXczhGd2JQT21JZ1FRdUl5bjYyZ1RwRC1xODM2d2ZWTXNSdlpROHNDeGJOWjQzaUt2d25TclpvZjl3QUlORjVUMzFmbElRUGdGbkJwMzF2VEx6YmFRZnZCOENYWkZ4VkJBU29ESHlCRkg4SU9SckhEekJScXBhY3dUT3Q2NV9UREJkb3hXem4yS2NjckduS3pyc0xTZW1mYVp3cw?oc=5"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal scoring function that queries deep_memory_vault for related memory nodes, computes a causal relevance score (e.g., using a lightweight Bayesian network or attention‑based estimator), and reorders the candidate URLs before fetching. Implement a fallback to the existing ranking if causal data is insufficient, and expose a configuration flag to enable/disable the feature.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.39
-  },
-  {
     "id": "conj_1792917499",
     "timestamp": "2026-10-25T03:38:19.439303",
     "idle_duration_minutes": 34.2,
@@ -1642,5 +1609,38 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.48
+  },
+  {
+    "id": "conj_1793124330",
+    "timestamp": "2026-10-27T13:05:30.896565",
+    "idle_duration_minutes": 32.7,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching mechanism can dynamically predict the relevance decay of stored search results based on observed changes in source domains (e.g., content updates, SEO shifts). By modeling the causal relationship between external events (content revision timestamps, HTTP header changes, backlink fluctuations) and the utility of cached responses, the system can proactively invalidate or refresh entries before they become stale, reducing redundant network traffic and improving answer freshness without sacrificing latency.",
+    "research_query": "causal inference based cache invalidation web scraping dynamic content freshness model",
+    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web scraping dynamic content freshness model\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal cache manager that tracks source metadata (ETag, Last-Modified, content hash) and uses a lightweight Bayesian network to estimate decay probability, triggering async refresh or eviction of cached entries.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.99
+  },
+  {
+    "id": "conj_1793126323",
+    "timestamp": "2026-10-27T13:38:43.125211",
+    "idle_duration_minutes": 33.2,
+    "title": "Dynamic Causal Cache for Web Research Engine",
+    "hypothesis": "If the web_research_engine module maintains a lightweight causal graph of query dependencies and outcomes, it can prioritize caching of results that are causally upstream of frequently requested topics. This dynamic causal cache would allow the engine to pre‑fetch or reuse results from related queries, reducing latency and improving relevance scores without increasing external request volume.",
+    "research_query": "causal inference caching strategies for web search engines performance optimization",
+    "research_findings": "# Informe de Investigación: causal inference caching strategies for web search engines performance optimization\n\n## Fuentes Consultadas y Respaldo Web\n- **[Optimizing LLM Performance with LM Cache: Architectures, Strategies, and Real-World Applications - HackerNoon](https://news.google.com/rss/articles/CBMitwFBVV95cUxNNWx4OWN2Yms5SHZHd2lFSk1rRXpCdUxmRnpydzR6U3c5eWIxbEJDZ2JEMTB6WmdQNkFfdEtnOGRVdE00RGkxWG1lQVpQZlFZcllRTUFwbHdkZENBLVVRODkyR0wydzBpcWZlZWdZVzB4WUFwQXFUSHJlc3AyTnhBNjNQRHpJcllieXp4NWJoNUpQTzUyMW51M2kwaDd5ZnhjT0ROR2ZBX2pFR1EwMmxIdkNEcF9PNFU?oc=5)**: Optimizing LLM Performance with LM Cache: Architectures, Strategies, and Real-World Applications  HackerNoon\n- **[Big data (Wikipedia)](https://en.wikipedia.org/wiki/Big_data)**: optimization, inductive statistics, and concepts from nonlinear system identification to infer laws (regressions, nonlinear relationships, and causal\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMitwFB",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMitwFBVV95cUxNNWx4OWN2Yms5SHZHd2lFSk1rRXpCdUxmRnpydzR6U3c5eWIxbEJDZ2JEMTB6WmdQNkFfdEtnOGRVdE00RGkxWG1lQVpQZlFZcllRTUFwbHdkZENBLVVRODkyR0wydzBpcWZlZWdZVzB4WUFwQXFUSHJlc3AyTnhBNjNQRHpJcllieXp4NWJoNUpQTzUyMW51M2kwaDd5ZnhjT0ROR2ZBX2pFR1EwMmxIdkNEcF9PNFU?oc=5",
+      "https://en.wikipedia.org/wiki/Big_data"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal‑graph‑based priority cache layer that tracks query relationships and evicts/serves entries based on their upstream impact on future queries.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.14
   }
 ]
