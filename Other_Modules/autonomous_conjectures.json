@@ -1,23 +1,5 @@
 [
   {
-    "id": "conj_1792857822",
-    "timestamp": "2026-10-24T11:03:42.303359",
-    "idle_duration_minutes": 31.7,
-    "title": "Resonancia Causal en la Bóveda Akáshica",
-    "hypothesis": "Se postula que la eficiencia de recuperación de información en `deep_memory_vault.py` puede optimizarse un 30% implementando un índice de 'resonancia causal' que priorice no solo la similitud semántica, sino la frecuencia de co-ocurrencia temporal entre nodos de memoria. Actualmente, el sistema busca por relevancia estática; la hipótesis sugiere que modelar la dinámica temporal de las consultas pasadas (telemetría interna) permite predecir qué fragmentos de memoria son 'vivos' y cuáles están en 'latencia', reduciendo el ruido en la búsqueda web posterior.",
-    "research_query": "temporal co-occurrence indexing for semantic memory retrieval optimization",
-    "research_findings": "# Informe de Investigación: temporal co-occurrence indexing for semantic memory retrieval optimization\n\n## Fuentes Consultadas y Respaldo Web\n- **[Encoding (memory) (Wikipedia)](https://en.wikipedia.org/wiki/Encoding_%28memory%29)**: encoding, and in some cases, allow deep processing, and optimizing retrieval. Words studied in semantic or deep encoding conditions are better recalled as\n- **[Glossary of computer science (Wikipedia)](https://en.wikipedia.org/wiki/Glossary_of_computer_science)**: engineering and computer science, the process of removing physical, spatial, or temporal details or attributes in the study of objects or systems in order to more\n\n## Contenido y Hallazgos Extraídos\n### De [Encoding (memory) - Wikipedia](https://en.wikipedia.org/wiki/Encoding_%28memory%29)\n> Encoding (memory) - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nBiological memory process in organisms\nMemory has the ability to encode , store and recall information. Memories give an org",
-    "web_sources": [
-      "https://en.wikipedia.org/wiki/Encoding_%28memory%29",
-      "https://en.wikipedia.org/wiki/Glossary_of_computer_science"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Añadir un campo `last_relevance_decay` y un método `calculate_causal_resonance()` que ajuste el peso de los vectores de memoria basándose en la recencia y frecuencia de uso, integrando esta métrica en el ranking de resultados antes de enviarlos al motor de investigación web.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 101.71
-  },
-  {
     "id": "conj_1792859720",
     "timestamp": "2026-10-24T11:35:20.684369",
     "idle_duration_minutes": 31.6,
@@ -1613,5 +1595,23 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.98
+  },
+  {
+    "id": "conj_1793074779",
+    "timestamp": "2026-10-26T23:19:39.713383",
+    "idle_duration_minutes": 33.2,
+    "title": "Causal Graph Embeddings for Enhanced Retrieval in Deep Memory Vault",
+    "hypothesis": "Incorporar representaciones de grafos causales como embeddings en los nodos del Deep Memory Vault permitirá que el motor de búsqueda contextual identifique relaciones de causa‑efecto entre recuerdos, mejorando la precisión de la recuperación y reduciendo el número de consultas iterativas necesarias para obtener información relevante en entornos de alta complejidad.",
+    "research_query": "causal graph embeddings for neural memory retrieval performance",
+    "research_findings": "# Informe de Investigación: causal graph embeddings for neural memory retrieval performance\n\n## Fuentes Consultadas y Respaldo Web\n- **[Research on the construction and application of retrieval enhanced generation (RAG) model based on knowledge graph - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE5TR1F3TFUxbXB6eFN4M1hrcXJLWU1yX0w2VzFrOS12bnNhaTRTREVSbUg5aFZlUjh2NmZpVFpkNGt2Y0h4aTZvemRXWUFKdy1NQ1ltRDNWTFBwU1lXOG9Z?oc=5)**: Research on the construction and application of retrieval enhanced generation (RAG) model based on knowledge graph  Nature\n- **[From Data to Decisions: How Knowledge Graphs Are Becoming the Brain of the Modern Enterprise - Medium](https://news.google.com/rss/articles/CBMi0gFBVV95cUxPVjh5NnNZNnFfZ3UzMEx3U0pqajNDQ19TV0JjRGN5WGhleWxVLW5WMkptR2J6VHpldllqekM2bzJSUFBYWHlwSW1ySUZoZG9fOFZRVGY4NEt6ZVE5YkQ4b0VlRWl1T0Jtd1hlSzNrOGRuTzY1ajU4b1lUY3hVMDBpWUxiZWo5X1VBNDMyQjFMVlFPMU14bm9kUlZCMWVLMTBTRUI0ZTBQRDdpVmJxVlRuZFQwYzNPNGpReVdEMUg3dHVhNWhvQUd6LTdvMWMtZHBSQXc?oc=5",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE5TR1F3TFUxbXB6eFN4M1hrcXJLWU1yX0w2VzFrOS12bnNhaTRTREVSbUg5aFZlUjh2NmZpVFpkNGt2Y0h4aTZvemRXWUFKdy1NQ1ltRDNWTFBwU1lXOG9Z?oc=5",
+      "https://news.google.com/rss/articles/CBMi0gFBVV95cUxPVjh5NnNZNnFfZ3UzMEx3U0pqajNDQ19TV0JjRGN5WGhleWxVLW5WMkptR2J6VHpldllqekM2bzJSUFBYWHlwSW1ySUZoZG9fOFZRVGY4NEt6ZVE5YkQ4b0VlRWl1T0Jtd1hlSzNrOGRuTzY1ajU4b1lUY3hVMDBpWUxiZWo5X1VBNDMyQjFMVlFPMU14bm9kUlZCMWVLMTBTRUI0ZTBQRDdpVmJxVlRuZFQwYzNPNGpReVdEMUg3dHVhNWhvQUd6LTdvMWMtZHBSQXc?oc=5"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Agregar un módulo de indexación que genere y almacene embeddings de grafos causales para cada entrada del vault, y extender la función de búsqueda para usar similitud de grafos (p.ej., Graph Neural Networks) además de la similitud vectorial tradicional.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.1
   }
 ]
