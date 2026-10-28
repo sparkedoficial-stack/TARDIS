@@ -1,38 +1,5 @@
 [
   {
-    "id": "conj_1792994026",
-    "timestamp": "2026-10-26T00:53:46.682792",
-    "idle_duration_minutes": 31.6,
-    "title": "Resonancia Causal en la Bóveda Akáshica: Compresión Semántica Adaptativa",
-    "hypothesis": "Postulo que la eficiencia de la recuperación de memoria a largo plazo en `deep_memory_vault.py` puede optimizarse significativamente si se implementa un mecanismo de 'resonancia causal' que priorice no solo la similitud vectorial, sino la coherencia temporal y causal entre los nodos de conocimiento. Actualmente, la búsqueda puede ser lineal o puramente semántica; al introducir un factor de decaimiento temporal ponderado por la relevancia causal (basado en la topología del grafo de dependencias), el sistema podría reducir la latencia de inferencia y mejorar la precisión en contextos dinámicos, evitando la 'contaminación' por datos obsoletos pero semánticamente similares.",
-    "research_query": "temporal causal graph neural network memory retrieval optimization long-term context",
-    "research_findings": "# Informe de Investigación: temporal causal graph neural network memory retrieval optimization long-term context\n\n## Fuentes Consultadas y Respaldo Web\n- **[STR-GNN: stability-regularized graph neural networks for suppressing spurious temporal variations in dynamic community detection - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE5mOHN3MFlpVTZGX1RuT3VUVlpuUnZrNWVBSktUb2hLSUpDQlRXTG1SejFwLVcyWUJJZUp3S2JPWWZqbFZHeWw3d3RZMG1laGJna2x6MjBkQVZHSWFQYzRZ?oc=5)**: STR-GNN: stability-regularized graph neural networks for suppressing spurious temporal variations in dynamic community detection  Nature\n- **[The Past Frames the Future: Memory for Autoregressive Video Generation - alphaXiv](https://news.google.com/rss/articles/CBMiUEFVX3lxTE15THhudXMwam5wbURDbmRyVkF3cE9CYTVqOXlpMk1wQ1pDYS1QQWNUREJIMWFsOXRmcXlkVjVONHltRklEUGp3V2w0ZmN6NFpf?oc=5)**: The Past Frames the Future: Memory for Autoregressive Video Generation  alphaXiv\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias]",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE5mOHN3MFlpVTZGX1RuT3VUVlpuUnZrNWVBSktUb2hLSUpDQlRXTG1SejFwLVcyWUJJZUp3S2JPWWZqbFZHeWw3d3RZMG1laGJna2x6MjBkQVZHSWFQYzRZ?oc=5",
-      "https://news.google.com/rss/articles/CBMiUEFVX3lxTE15THhudXMwam5wbURDbmRyVkF3cE9CYTVqOXlpMk1wQ1pDYS1QQWNUREJIMWFsOXRmcXlkVjVONHltRklEUGp3V2w0ZmN6NFpf?oc=5"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar una función de scoring híbrida que combine la similitud coseno con un factor de decaimiento exponencial basado en la antigüedad del nodo y su peso en el grafo causal, ajustando dinámicamente los umbrales de recuperación.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 95.66
-  },
-  {
-    "id": "conj_1792996472",
-    "timestamp": "2026-10-26T01:34:32.479676",
-    "idle_duration_minutes": 31.6,
-    "title": "Optimización de la caché semántica en WebResearchEngine mediante embeddings temporales",
-    "hypothesis": "Si el módulo core/web_research_engine.py incorpora una capa de caché basada en embeddings temporales que indexa resultados de búsquedas recientes y los asocia a contextos de memoria del core/deep_memory_vault.py, entonces se reducirá el tiempo medio de respuesta de consultas recurrentes en un 30% y se mejorará la coherencia de la información recuperada, al evitar búsquedas redundantes y al permitir una inferencia causal más rápida entre eventos recientes y datos almacenados en la bóveda akáshica.",
-    "research_query": "temporal embedding cache for web search engines reduce latency causal inference memory vault",
-    "research_findings": "# Informe de Investigación: temporal embedding cache for web search engines reduce latency causal inference memory vault\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Implementar una caché de resultados basada en embeddings temporales que se sincronice con el deep_memory_vault para reutilizar respuestas recientes y actualizarla de forma incremental.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.78
-  },
-  {
     "id": "conj_1793003703",
     "timestamp": "2026-10-26T03:35:03.813228",
     "idle_duration_minutes": 32.0,
@@ -1634,5 +1601,35 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.83
+  },
+  {
+    "id": "conj_1793196045",
+    "timestamp": "2026-10-28T09:00:45.095727",
+    "idle_duration_minutes": 34.2,
+    "title": "Causal‑Cache Fusion for Adaptive Web Research",
+    "hypothesis": "Integrating a lightweight causal inference layer into the Web Research Engine's request pipeline can dynamically prioritize and cache high‑impact queries, reducing latency and bandwidth while preserving result relevance. By tracking provenance metadata (source, timestamp, confidence) in deep_memory_vault and feeding it back to the scheduler, the system can predict which future searches are likely to reuse prior results and pre‑emptively serve them from an adaptive cache, improving overall throughput on resource‑constrained Linux hosts.",
+    "research_query": "adaptive caching with causal inference for web scraping engines python async",
+    "research_findings": "# Informe de Investigación: adaptive caching with causal inference for web scraping engines python async\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Implement an async causal‑aware cache decorator that stores query signatures and provenance in deep_memory_vault, adds a priority queue for pending requests, and introduces exponential back‑off with rate‑limit awareness.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.36
+  },
+  {
+    "id": "conj_1793197942",
+    "timestamp": "2026-10-28T09:32:22.114528",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's result caching mechanism can dynamically invalidate stale entries based on detected changes in source webpages, reducing redundant network traffic and improving relevance of retrieved data. By logging request‑response metadata in deep_memory_vault and applying a lightweight Bayesian change‑point detection on content hashes, the system can predict when cached results are likely outdated and trigger selective re‑fetches, leading to a measurable drop in average latency and bandwidth usage without sacrificing recall.",
+    "research_query": "lightweight Bayesian change point detection for web content freshness caching",
+    "research_findings": "# Informe de Investigación: lightweight Bayesian change point detection for web content freshness caching\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal cache invalidation module that stores content hashes in deep_memory_vault, computes change‑point probabilities, and automatically refreshes cached search results when the probability of change exceeds a configurable threshold.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.0
   }
 ]

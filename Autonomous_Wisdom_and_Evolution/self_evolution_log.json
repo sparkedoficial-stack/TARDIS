@@ -1,33 +1,5 @@
 [
   {
-    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/time_utils.py",
-    "goal": "Escribe una función que devuelva la hora actual en formato ISO",
-    "status": "REJECTED",
-    "model_used": "none",
-    "elapsed_seconds": 0.0,
-    "backup_path": null,
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Archivo no encontrado: /home/timemachine/Escritorio/GODWORKS SYSTEM/core/time_utils.py",
-    "timestamp": "2026-10-26T02:57:27.807012"
-  },
-  {
-    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/time_utils.py",
-    "goal": "Función que devuelva la hora actual en formato ISO 8601 con zona horaria.",
-    "status": "APPLIED",
-    "model_used": "Groq LPU (Acelerador Extremo Qwen/DeepSeek/GPT-OSS) (groq_deepseek) (qwen/qwen3.8-27b)",
-    "elapsed_seconds": 0.79,
-    "backup_path": null,
-    "syntax_valid": true,
-    "tests_passed": true,
-    "test_output": "Tests omitidos por configuración",
-    "efficiency_improvement": null,
-    "error": null,
-    "timestamp": "2026-10-26T02:57:59.274819"
-  },
-  {
     "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/deep_memory_vault.py",
     "goal": "Añadir un vector de pesos dinámicos `causal_success_weights` que se actualice tras cada consulta exitosa, modificando la función de puntuación `calculate_relevance()` para multiplicar la similitud coseno por el factor de éxito histórico del contexto.",
     "status": "REJECTED",
@@ -1398,5 +1370,33 @@
     "efficiency_improvement": null,
     "error": "Respuesta generada demasiado corta (0 vs 35266 bytes)",
     "timestamp": "2026-10-28T08:26:30.343879"
+  },
+  {
+    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
+    "goal": "Implement an async causal‑aware cache decorator that stores query signatures and provenance in deep_memory_vault, adds a priority queue for pending requests, and introduces exponential back‑off with rate‑limit awareness.",
+    "status": "REJECTED",
+    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
+    "elapsed_seconds": 91.33,
+    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/web_research_engine.py.20261028_085913.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "Respuesta generada demasiado corta (0 vs 35266 bytes)",
+    "timestamp": "2026-10-28T09:00:45.069564"
+  },
+  {
+    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
+    "goal": "Add a causal cache invalidation module that stores content hashes in deep_memory_vault, computes change‑point probabilities, and automatically refreshes cached search results when the probability of change exceeds a configurable threshold.",
+    "status": "REJECTED",
+    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
+    "elapsed_seconds": 91.28,
+    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/web_research_engine.py.20261028_093050.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "Respuesta generada demasiado corta (0 vs 35266 bytes)",
+    "timestamp": "2026-10-28T09:32:22.099375"
   }
 ]
