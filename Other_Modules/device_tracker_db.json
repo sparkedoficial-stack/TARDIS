@@ -100,11 +100,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 168,
-    "traffic_bytes_tx": 168,
-    "traffic_packets": 4,
+    "traffic_bytes_rx": 84,
+    "traffic_bytes_tx": 84,
+    "traffic_packets": 2,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-22T00:12:43.741483+00:00",
+    "last_seen": "2026-10-28T04:05:06.497238+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -186,11 +186,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 168,
-    "traffic_bytes_tx": 168,
-    "traffic_packets": 4,
+    "traffic_bytes_rx": 84,
+    "traffic_bytes_tx": 84,
+    "traffic_packets": 2,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-27T05:07:43.409907+00:00",
+    "last_seen": "2026-10-28T04:05:06.497238+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -232,7 +232,7 @@
     "ip": "REDACTED_IP",
     "ipv6_addresses": [],
     "alias": "Smart TV LG webOS (Recámara / Secundaria)",
-    "hostname": "LGwebOSTV.local",
+    "hostname": "Smart TV LG webOS (Recámara / Secundaria)",
     "vendor": "LG Innotek",
     "device_type": "Smart TV / Multimedia",
     "interface": "enp2s0",
@@ -244,21 +244,17 @@
     "open_ports": [],
     "port_details": [],
     "risky_ports": [],
-    "mdns_services": [
-      "0_0 (AirPlay Remote Video)",
-      "0_0 (_ghp._tcp)",
-      "0_0 (_display._tcp)"
-    ],
+    "mdns_services": [],
     "wifi_metrics": {},
     "trust_level": "KNOWN",
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 168,
-    "traffic_bytes_tx": 1314,
-    "traffic_packets": 7,
+    "traffic_bytes_rx": 84,
+    "traffic_bytes_tx": 0,
+    "traffic_packets": 1,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-26T06:17:39.879221+00:00",
+    "last_seen": "2026-10-28T04:05:06.497238+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -380,7 +376,7 @@
     "traffic_bytes_tx": 168,
     "traffic_packets": 4,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-27T05:07:43.409907+00:00",
+    "last_seen": "2026-10-27T05:05:09.328387+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -392,7 +388,7 @@
       "fe80::52eb:f6ff:fee2:b850"
     ],
     "alias": "TimeMachine (ASUS TUF Gaming A15 - Ethernet Host)",
-    "hostname": "TimeMachine.local",
+    "hostname": "TimeMachine (ASUS TUF Gaming A15 - Ethernet Host)",
     "vendor": "ASUSTek COMPUTER INC.",
     "device_type": "Estación Central Soberana (Host)",
     "interface": "enp2s0",
@@ -446,20 +442,17 @@
       }
     ],
     "risky_ports": [],
-    "mdns_services": [
-      "TARDIS (AirPlay Remote Video)",
-      "50EBF6E2B850@TARDIS (AirTunes Remote Audio)"
-    ],
+    "mdns_services": [],
     "wifi_metrics": {},
     "trust_level": "AEGIS_PROTECTED",
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 410491411,
-    "traffic_bytes_tx": 726823017,
-    "traffic_packets": 1177201,
+    "traffic_bytes_rx": REDACTED_PHONE,
+    "traffic_bytes_tx": REDACTED_PHONE,
+    "traffic_packets": 10047160,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-27T05:07:43.409907+00:00",
+    "last_seen": "2026-10-28T04:05:06.497238+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -532,10 +525,10 @@
     "throttle_kbps": null,
     "is_safe": true,
     "traffic_bytes_rx": 0,
-    "traffic_bytes_tx": 404453,
-    "traffic_packets": 3853,
+    "traffic_bytes_tx": 4176838,
+    "traffic_packets": 40018,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-27T05:07:43.409907+00:00",
+    "last_seen": "2026-10-28T04:05:06.497238+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -551,7 +544,7 @@
     "interface": "enp2s0",
     "connection_medium": "Ethernet / LAN (enp2s0)",
     "network_segment": "Ethernet / LAN Principal (REDACTED_IP/24)",
-    "arp_state": "REACHABLE",
+    "arp_state": "STALE",
     "online": true,
     "rtt_ms": null,
     "open_ports": [],
@@ -563,11 +556,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 168,
-    "traffic_bytes_tx": 168,
-    "traffic_packets": 4,
+    "traffic_bytes_rx": 84,
+    "traffic_bytes_tx": 0,
+    "traffic_packets": 1,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-26T08:01:56.298570+00:00",
+    "last_seen": "2026-10-28T04:05:06.497238+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -599,7 +592,7 @@
     "traffic_bytes_tx": 0,
     "traffic_packets": 2,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-27T05:07:43.409907+00:00",
+    "last_seen": "2026-10-27T05:05:09.328387+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -926,11 +919,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 427987,
-    "traffic_bytes_tx": 834318,
-    "traffic_packets": 12990,
+    "traffic_bytes_rx": 4260207,
+    "traffic_bytes_tx": 9052149,
+    "traffic_packets": 139887,
     "first_seen": "2026-10-27T02:57:29.508662+00:00",
-    "last_seen": "2026-10-27T05:07:43.409907+00:00",
+    "last_seen": "2026-10-28T04:05:06.497238+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]

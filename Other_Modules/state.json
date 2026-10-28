@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.595896,
-  "last_video_id": "vp_20261027_222218_069648",
-  "last_topic": "Holographic Quantum Error-Correcting Codes: The HaPPY Model and Bulk Geometry Reconstruction",
-  "total_videos_analyzed": 646,
+  "last_run_timestamp": REDACTED_PHONE.180916,
+  "last_video_id": "vp_20261027_233805_61f042",
+  "last_topic": "Visualizing the Emergence of Spacetime from Entanglement in 3D Topological Quantum Field Theories",
+  "total_videos_analyzed": 648,
   "running_cycle": false,
   "last_error": null,
-  "auto_improvement_count": 361
+  "auto_improvement_count": 363
 }
