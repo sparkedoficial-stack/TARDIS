@@ -1,33 +1,5 @@
 [
   {
-    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
-    "goal": "Implementar una caché de resultados basada en embeddings temporales que se sincronice con el deep_memory_vault para reutilizar respuestas recientes y actualizarla de forma incremental.",
-    "status": "REJECTED",
-    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
-    "elapsed_seconds": 90.85,
-    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/web_research_engine.py.20261026_013301.bak",
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Respuesta generada demasiado corta (0 vs 35266 bytes)",
-    "timestamp": "2026-10-26T01:34:32.460281"
-  },
-  {
-    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_scratch_demo.py",
-    "goal": "La función suma debe SUMAR (ahora resta). Corrige el operador.",
-    "status": "APPLIED",
-    "model_used": "Groq LPU (Acelerador Extremo Qwen/DeepSeek/GPT-OSS) (groq_deepseek) (qwen/qwen3.8-27b)",
-    "elapsed_seconds": 0.75,
-    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/_selfmod_scratch_demo.py.20261026_024731.bak",
-    "syntax_valid": true,
-    "tests_passed": true,
-    "test_output": "Tests omitidos por configuración",
-    "efficiency_improvement": null,
-    "error": null,
-    "timestamp": "2026-10-26T02:47:32.375017"
-  },
-  {
     "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_scratch2.py",
     "goal": "parsear debe devolver 0 si la cadena está vacía o no es numérica, sin lanzar excepción.",
     "status": "APPLIED",
@@ -1398,5 +1370,33 @@
     "efficiency_improvement": null,
     "error": "Respuesta generada demasiado corta (0 vs 35266 bytes)",
     "timestamp": "2026-10-28T06:51:06.854645"
+  },
+  {
+    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
+    "goal": "Add a causal graph manager that records query-result edges, compute relevance scores, and modify the search dispatcher to prioritize high‑causality nodes before issuing HTTP requests.",
+    "status": "REJECTED",
+    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
+    "elapsed_seconds": 91.25,
+    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/web_research_engine.py.20261028_072112.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "Respuesta generada demasiado corta (0 vs 35266 bytes)",
+    "timestamp": "2026-10-28T07:22:43.797124"
+  },
+  {
+    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
+    "goal": "Add a dependency‑tracking subsystem that records which cached query results depend on which URLs and timestamps, and implement a periodic causal analysis routine that invalidates or refreshes cache entries when source content changes are detected.",
+    "status": "REJECTED",
+    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
+    "elapsed_seconds": 91.24,
+    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/web_research_engine.py.20261028_075249.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "Respuesta generada demasiado corta (0 vs 35266 bytes)",
+    "timestamp": "2026-10-28T07:54:21.180889"
   }
 ]
