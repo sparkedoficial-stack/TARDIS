@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1792957598",
-    "timestamp": "2026-10-25T14:46:38.436111",
-    "idle_duration_minutes": 31.6,
-    "title": "Dynamic Contextual Prompt Sharding for Real‑Time Web Research",
-    "hypothesis": "Dividir el prompt de investigación en fragmentos contextuales basados en la relevancia temporal y semántica permite que el módulo core/web_research_engine.py reduzca la latencia de búsqueda y mejore la precisión de los resultados al combinar respuestas parciales mediante un algoritmo de fusión de confianza adaptativa. Esta estrategia aprovecharía la arquitectura de memoria causal de deep_memory_vault y el escudo de red para priorizar fuentes de alta integridad, resultando en una mejora observable del 15‑25% en métricas de tiempo‑respuesta y precisión frente a la ejecución monolítica actual.",
-    "research_query": "adaptive prompt sharding web search engine latency reduction causal memory integration",
-    "research_findings": "# Informe de Investigación: adaptive prompt sharding web search engine latency reduction causal memory integration\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Implementar una capa de \"PromptShardManager\" que analice la consulta entrante, genere sub‑prompts basados en tópicos y ventanas temporales, envíe búsquedas paralelas y fusione los resultados usando pesos derivados de la confianza de la fuente (evaluada por network_shield). Añadir pruebas unitarias y métricas de rendimiento para validar la reducción de latencia y el aumento de precisión.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.51
-  },
-  {
     "id": "conj_1792963437",
     "timestamp": "2026-10-25T16:23:57.344923",
     "idle_duration_minutes": 32.5,
@@ -1638,5 +1623,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 102.23
+  },
+  {
+    "id": "conj_1793164831",
+    "timestamp": "2026-10-28T00:20:31.233033",
+    "idle_duration_minutes": 36.1,
+    "title": "Dynamic Contextual Prompt Caching for Web Research Engine",
+    "hypothesis": "Integrating a lightweight, time‑aware cache that stores recent web‑search prompts and their semantic embeddings within the core/web_research_engine.py module will reduce redundant external API calls by up to 40% and improve latency without sacrificing result relevance. The cache should decay based on both time and semantic similarity, allowing the engine to reuse prior queries when the user's intent overlaps, leveraging the deep_memory_vault for persistent storage of high‑value query‑result pairs.",
+    "research_query": "adaptive prompt caching strategies for LLM‑driven web search engines time decay semantic similarity",
+    "research_findings": "# Informe de Investigación: adaptive prompt caching strategies for LLM‑driven web search engines time decay semantic similarity\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Implement a TTL‑based, similarity‑aware cache layer that checks incoming search queries against recent cached embeddings, retrieves stored results when similarity > 0.85, and falls back to external search otherwise; persist high‑utility entries to deep_memory_vault for long‑term reuse.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 111.34
   }
 ]
