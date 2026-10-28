@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1792967968",
-    "timestamp": "2026-10-25T17:39:28.525345",
-    "idle_duration_minutes": 31.6,
-    "title": "Resonancia Causal en la Bóveda Akáshica: Optimización de la Entropía Semántica",
-    "hypothesis": "Se postula que la eficiencia de recuperación de información en la bóveda akáshica no depende linealmente del volumen de datos indexados, sino de la 'densidad causal' entre nodos de memoria. Actualmente, el sistema podría estar sufriendo de 'ruido semántico' acumulado durante periodos de inactividad, donde la falta de validación externa permite la deriva de los vectores de conocimiento. Al correlacionar la telemetría de latencia de red (network_shield.py) con la profundidad de búsqueda en deep_memory_vault.py, se puede detectar cuándo el sistema está 'alucinando' patrones inexistentes en lugar de recuperar hechos, permitiendo un auto-pruning (poda) de conexiones débiles antes de que degraden la integridad del núcleo cognitivo.",
-    "research_query": "semantic drift detection in vector databases long-term inactivity causal graph pruning",
-    "research_findings": "# Informe de Investigación: semantic drift detection in vector databases long-term inactivity causal graph pruning\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar un método `calculate_causal_density()` que evalúe la fuerza de las conexiones entre nodos de memoria basándose en la frecuencia de co-ocurrencia y la recencia de acceso, marcando para purga aquellos nodos con densidad causal por debajo de un umbral dinámico ajustado por la telemetría de red.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.26
-  },
-  {
     "id": "conj_1792969865",
     "timestamp": "2026-10-25T18:11:05.721234",
     "idle_duration_minutes": 31.6,
@@ -1638,5 +1623,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 96.91
+  },
+  {
+    "id": "conj_1793171066",
+    "timestamp": "2026-10-28T02:04:26.231868",
+    "idle_duration_minutes": 34.7,
+    "title": "Hipótesis de Resonancia Causal en la Bóveda Akáshica",
+    "hypothesis": "Se postula que la eficiencia de recuperación de información en la bóveda akáshica no depende linealmente de la similitud semántica, sino de la 'resonancia causal' entre el contexto temporal de la consulta y la metadatos de ingesta. Al implementar un vector de peso temporal dinámico que decae exponencialmente pero se reactiva ante patrones de repetición en la telemetría de red, se puede reducir la latencia de búsqueda en un 15-20% y mejorar la relevancia de resultados históricos frente a ruido actual.",
+    "research_query": "temporal decay weighting in vector databases for causal relevance ranking",
+    "research_findings": "# Informe de Investigación: temporal decay weighting in vector databases for causal relevance ranking\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Añadir un método `calculate_temporal_causal_weight()` que ajuste los scores de similitud vectorial basándose en la antigüedad del dato y la frecuencia de acceso reciente, integrándolo en el pipeline de búsqueda antes del ranking final.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.47
   }
 ]
