@@ -1,38 +1,5 @@
 [
   {
-    "id": "conj_1792983176",
-    "timestamp": "2026-10-25T21:52:56.462913",
-    "idle_duration_minutes": 32.2,
-    "title": "Dynamic Causal Prompt Weighting for Contextual Retrieval",
-    "hypothesis": "Integrar un mecanismo de ponderación causal dinámica en el motor de búsqueda web permite que los prompts generados por el Deep Memory Vault influyan en tiempo real sobre la selección y el ranking de resultados, mejorando la relevancia semántica y reduciendo la latencia de inferencia en entornos de alta concurrencia.",
-    "research_query": "dynamic causal weighting in neural information retrieval systems recent advances 2023 2024",
-    "research_findings": "# Informe de Investigación: dynamic causal weighting in neural information retrieval systems recent advances 2023 2024\n\n## Fuentes Consultadas y Respaldo Web\n- **[List of cognitive biases (Wikipedia)](https://en.wikipedia.org/wiki/List_of_cognitive_biases)**: Strack F, Klumpp G, Rittenauer-Schatka H, Simons A (1991). \"Ease of Retrieval as Information: Another Look at the Availability Heuristic\" (PDF). Journal of\n- **[On the foundations of Earth foundation models - Communications Earth & Environment - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTFBKNlZRVnJsVGVVU1lYUGlFWlhKRll0UW9SSEV5TDVKNXlnQmhvdmhCbGlJZDYxRTAtell5REhPZFotY2xtQm56aWhhMkhtZ3UtSWtGT2hqNk1vNU9GQ1Nj?oc=5)**: On the foundations of Earth foundation models - Communications Earth & Environment  Nature\n\n## Contenido y Hallazgos Extraídos\n### De [List of cognitive biases - Wikipedia](https://en.wikipedia.org/wiki/List_of_cognitive_biases)\n> List of cognitive biases - Wikipedia\nJump to content\nFrom Wikipedia, the fre",
-    "web_sources": [
-      "https://en.wikipedia.org/wiki/List_of_cognitive_biases",
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTFBKNlZRVnJsVGVVU1lYUGlFWlhKRll0UW9SSEV5TDVKNXlnQmhvdmhCbGlJZDYxRTAtell5REhPZFotY2xtQm56aWhhMkhtZ3UtSWtGT2hqNk1vNU9GQ1Nj?oc=5"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Añadir una capa de \"CausalPromptWeight\" que ajuste los scores de los resultados basándose en metadatos de causalidad extraídos del Deep Memory Vault, implementando una API simple y pruebas unitarias para validar la mejora de precisión y tiempo de respuesta.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.97
-  },
-  {
-    "id": "conj_1792985166",
-    "timestamp": "2026-10-25T22:26:06.542313",
-    "idle_duration_minutes": 33.2,
-    "title": "Causal Memory Indexing for Real‑Time Web Research",
-    "hypothesis": "Integrating a causal inference layer into the Deep Memory Vault (core/deep_memory_vault.py) can prioritize stored akáshic fragments that are most likely to influence the outcome of a web research query, thereby reducing latency and improving relevance of retrieved results. The hypothesis posits that by annotating each memory node with a lightweight causal score (derived from temporal proximity, semantic similarity, and prior query‑response success), the Web Research Engine can dynamically re‑rank its search space before issuing external requests, leading to a measurable drop in average response time (>15%) and an increase in answer accuracy (>10%).",
-    "research_query": "\"causal inference\" \"memory indexing\" \"real-time retrieval\" performance optimization",
-    "research_findings": "# Informe de Investigación: \"causal inference\" \"memory indexing\" \"real-time retrieval\" performance optimization\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Add a causal scoring module that computes and stores a 'causal_score' for each memory entry, and modify the retrieval pipeline in core/web_research_engine.py to pre‑filter and rank entries based on this score before external web calls.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.52
-  },
-  {
     "id": "conj_1792987072",
     "timestamp": "2026-10-25T22:57:52.589408",
     "idle_duration_minutes": 31.8,
@@ -1634,5 +1601,38 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 95.95
+  },
+  {
+    "id": "conj_1793186366",
+    "timestamp": "2026-10-28T06:19:26.394285",
+    "idle_duration_minutes": 33.7,
+    "title": "Causal Memory Indexing for Real‑Time Web Retrieval",
+    "hypothesis": "Integrating a causal graph layer between core/deep_memory_vault.py and core/web_research_engine.py will allow the system to prioritize web search results that are causally linked to the current query context, reducing latency and improving relevance. The hypothesis posits that by annotating stored memory fragments with lightweight causal tags (e.g., \"precedes\", \"influences\", \"depends_on\") and propagating these tags during query expansion, the search engine can dynamically rank results that have a higher causal proximity to the active akáshic vault state, leading to a measurable boost in precision@10 for context‑rich queries.",
+    "research_query": "causal graph based query expansion for neural web search engines",
+    "research_findings": "# Informe de Investigación: causal graph based query expansion for neural web search engines\n\n## Fuentes Consultadas y Respaldo Web\n- **[From Data to Decisions: How Knowledge Graphs Are Becoming the Brain of the Modern Enterprise - Medium](https://news.google.com/rss/articles/CBMi0gFBVV95cUxPVjh5NnNZNnFfZ3UzMEx3U0pqajNDQ19TV0JjRGN5WGhleWxVLW5WMkptR2J6VHpldllqekM2bzJSUFBYWHlwSW1ySUZoZG9fOFZRVGY4NEt6ZVE5YkQ4b0VlRWl1T0Jtd1hlSzNrOGRuTzY1ajU4b1lUY3hVMDBpWUxiZWo5X1VBNDMyQjFMVlFPMU14bm9kUlZCMWVLMTBTRUI0ZTBQRDdpVmJxVlRuZFQwYzNPNGpReVdEMUg3dHVhNWhvQUd6LTdvMWMtZHBSQXc?oc=5)**: From Data to Decisions: How Knowledge Graphs Are Becoming the Brain of the Modern Enterprise  Medium\n- **[Enhanced Large Language Models as Reasoning Engines - Towards Data Science](https://news.google.com/rss/articles/CBMinAFBVV95cUxOZ0xXWW10OWp4cDRTSFRxQnpWV3RGOEh6dFRxUklINE44NTJHM05sczVDdWZscXkwSGl2cWxOVHJpUFFMTlNBUUxIT0JjUjlBanNaOGtLYVpWbVh1QkNBRTVEa3o1QmctN3FWa3kxRFIwOXJNTTRGUlF5OHMtYmxRVVI4S2wyblQydnlQdEFhNEkzejlxcG8",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMi0gFBVV95cUxPVjh5NnNZNnFfZ3UzMEx3U0pqajNDQ19TV0JjRGN5WGhleWxVLW5WMkptR2J6VHpldllqekM2bzJSUFBYWHlwSW1ySUZoZG9fOFZRVGY4NEt6ZVE5YkQ4b0VlRWl1T0Jtd1hlSzNrOGRuTzY1ajU4b1lUY3hVMDBpWUxiZWo5X1VBNDMyQjFMVlFPMU14bm9kUlZCMWVLMTBTRUI0ZTBQRDdpVmJxVlRuZFQwYzNPNGpReVdEMUg3dHVhNWhvQUd6LTdvMWMtZHBSQXc?oc=5",
+      "https://news.google.com/rss/articles/CBMinAFBVV95cUxOZ0xXWW10OWp4cDRTSFRxQnpWV3RGOEh6dFRxUklINE44NTJHM05sczVDdWZscXkwSGl2cWxOVHJpUFFMTlNBUUxIT0JjUjlBanNaOGtLYVpWbVh1QkNBRTVEa3o1QmctN3FWa3kxRFIwOXJNTTRGUlF5OHMtYmxRVVI4S2wyblQydnlQdEFhNEkzejlxcG80eGdMN3Q?oc=5"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal tagging subsystem that extracts causal tags from deep_memory_vault entries, builds an in‑memory causal graph, and modifies the search ranking function to weight results by causal distance to the current context.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.48
+  },
+  {
+    "id": "conj_1793188266",
+    "timestamp": "2026-10-28T06:51:06.869771",
+    "idle_duration_minutes": 31.7,
+    "title": "Dynamic Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer that tracks dependencies between fetched web resources and downstream query results can enable selective cache invalidation, reducing stale data propagation and improving response latency in the web_research_engine module. By modeling the causal graph of request parameters, response headers, and content hashes, the system can predict when a cached entry is likely to become invalid due to external changes (e.g., news updates, API version shifts) without requiring full TTL expiration.",
+    "research_query": "causal inference based cache invalidation techniques for web scraping engines",
+    "research_findings": "# Informe de Investigación: causal inference based cache invalidation techniques for web scraping engines\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal dependency tracker that records request signatures and content hashes, and implement a lightweight invalidation routine that purges only those cache entries whose causal ancestors have changed, thereby optimizing cache freshness and reducing unnecessary network calls.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 100.46
   }
 ]
