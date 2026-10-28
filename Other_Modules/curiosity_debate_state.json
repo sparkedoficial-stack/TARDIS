@@ -3,27 +3,16 @@
   "interval_seconds": 5400.0,
   "target_chat_id": -REDACTED_PHONE,
   "target_thread_id": 453,
-  "last_run_timestamp": REDACTED_PHONE.6484606,
-  "last_run_iso": "2026-10-28T13:06:36.648463",
-  "total_dispatches": 394,
-  "curator_index": 3,
+  "last_run_timestamp": REDACTED_PHONE.2324007,
+  "last_run_iso": "2026-10-28T14:36:39.232403",
+  "total_dispatches": 395,
+  "curator_index": 4,
   "dispatched_topic_ids": [
     "holographic_brain_neurophysics",
-    "fermi_paradox_great_filter"
+    "fermi_paradox_great_filter",
+    "godel_incompleteness_ai_limits"
   ],
   "history": [
-    {
-      "dispatch_id": 295,
-      "timestamp": REDACTED_PHONE.7066913,
-      "iso": "2026-10-22T08:21:59.706693",
-      "topic_id": "ssm_mamba_vs_transformer",
-      "topic_title": "State Space Models (Mamba) vs Transformers: El Límite de la Complejidad Cuadrática O(N²)",
-      "pdf_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/reports/polimatas_debates/Dossier_Debate_20261022_082157_ssm_mamba_vs_transformer.pdf",
-      "chat_id": -REDACTED_PHONE,
-      "thread_id": 453,
-      "text_sent": true,
-      "doc_sent": true
-    },
     {
       "dispatch_id": 296,
       "timestamp": REDACTED_PHONE.873004,
@@ -1207,6 +1196,18 @@
       "topic_id": "fermi_paradox_great_filter",
       "topic_title": "La Paradoja de Fermi y el Gran Filtro: ¿Estamos Solos, Fuimos Primeros o Estamos Aislados?",
       "pdf_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/reports/polimatas_debates/Dossier_Debate_20261028_130634_fermi_paradox_great_filter.pdf",
+      "chat_id": -REDACTED_PHONE,
+      "thread_id": 453,
+      "text_sent": true,
+      "doc_sent": true
+    },
+    {
+      "dispatch_id": 395,
+      "timestamp": REDACTED_PHONE.2324007,
+      "iso": "2026-10-28T14:36:39.232403",
+      "topic_id": "godel_incompleteness_ai_limits",
+      "topic_title": "Los Teoremas de Incompletitud de Gödel y los Límites Epistemológicos de la Computación",
+      "pdf_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/reports/polimatas_debates/Dossier_Debate_20261028_143637_godel_incompleteness_ai_limits.pdf",
       "chat_id": -REDACTED_PHONE,
       "thread_id": 453,
       "text_sent": true,
