@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1792990943",
-    "timestamp": "2026-10-26T00:02:23.832159",
-    "idle_duration_minutes": 32.3,
-    "title": "Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching mechanism can dynamically predict the obsolescence of stored web results based on detected changes in source domains, user query patterns, and temporal decay. By modeling the causal relationships between content updates (e.g., RSS feeds, site sitemaps) and query relevance, the engine can proactively invalidate or refresh cached entries, reducing stale data retrieval and improving answer accuracy without incurring full re‑fetch overhead for every request.",
-    "research_query": "causal inference based cache invalidation web scraping \"temporal decay\" \"content change detection\"",
-    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web scraping \"temporal decay\" \"content change detection\"\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal cache manager that tracks source change signals (RSS, HTTP Last-Modified, ETag) and uses a lightweight Bayesian network to decide when to purge or refresh cached search results.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 104.7
-  },
-  {
     "id": "conj_1792994026",
     "timestamp": "2026-10-26T00:53:46.682792",
     "idle_duration_minutes": 31.6,
@@ -1634,5 +1619,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.37
+  },
+  {
+    "id": "conj_1793193990",
+    "timestamp": "2026-10-28T08:26:30.357670",
+    "idle_duration_minutes": 32.2,
+    "title": "Causal Cache Layer for Web Research Engine",
+    "hypothesis": "Integrating a causal-aware caching layer into core/web_research_engine.py will reduce redundant external queries by 40% while preserving the temporal relevance of retrieved data, because the engine can infer when a new request is causally independent from previous ones based on query semantics and timestamp metadata.",
+    "research_query": "causal caching strategies for web search APIs \"temporal relevance\" \"redundant request reduction\"",
+    "research_findings": "# Informe de Investigación: causal caching strategies for web search APIs \"temporal relevance\" \"redundant request reduction\"\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Implement a lightweight causal cache that stores query signatures with timestamps and validates freshness before issuing a new HTTP request; expose async get_cached_result(query) and update_cache(query, result) methods.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.83
   }
 ]
