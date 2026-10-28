@@ -1,38 +1,5 @@
 [
   {
-    "id": "conj_1792932770",
-    "timestamp": "2026-10-25T07:52:50.433601",
-    "idle_duration_minutes": 33.2,
-    "title": "Causal‑Cache Fusion for Web Research Engine",
-    "hypothesis": "Integrating a causal inference layer with a short‑term LRU cache inside `core/web_research_engine.py` will reduce redundant external queries by ~30% while preserving the relevance of retrieved documents. The hypothesis rests on the idea that many consecutive research sessions share overlapping intent; a lightweight causal model can predict the probability that a new query is a derivative of a recent one and serve cached results when the confidence exceeds a threshold, thereby lowering latency and network load without sacrificing answer quality.",
-    "research_query": "\"causal inference cache\" web search engine performance reduction redundant queries",
-    "research_findings": "# Informe de Investigación: \"causal inference cache\" web search engine performance reduction redundant queries\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add an async LRU cache with a causal similarity scorer that decides when to reuse previous search results, and expose a configurable confidence threshold.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.29
-  },
-  {
-    "id": "conj_1792934699",
-    "timestamp": "2026-10-25T08:24:59.903627",
-    "idle_duration_minutes": 32.2,
-    "title": "Integración de Memoria Causal en el Motor de Búsqueda Web",
-    "hypothesis": "Si el motor de búsqueda web (core/web_research_engine.py) incorpora un modelo de memoria causal que registre relaciones de causa‑efecto entre consultas y resultados, el sistema podrá predecir de forma proactiva información relevante antes de que el usuario formule la pregunta, reduciendo la latencia de respuesta y mejorando la precisión de la información extraída de la bóveda akáshica.",
-    "research_query": "causal memory models for web search engines predictive query generation",
-    "research_findings": "# Informe de Investigación: causal memory models for web search engines predictive query generation\n\n## Fuentes Consultadas y Respaldo Web\n- **[BERT (language model) (Wikipedia)](https://en.wikipedia.org/wiki/BERT_%28language_model%29)**: Google Search for over 70 languages. In October 2020, almost every single English-based query was processed by a BERT model. The BERT models were influential\n- **[Generative AI (Wikipedia)](https://en.wikipedia.org/wiki/Generative_AI)**: that uses generative models to generate text, images, videos, audio, computer code or other forms of digital data. These models learn the underlying patterns\n\n## Contenido y Hallazgos Extraídos\n### De [BERT (language model) - Wikipedia](https://en.wikipedia.org/wiki/BERT_%28language_model%29)\n> BERT (language model) - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nSeries of language models developed by Google AI\n{{cite web |title=Initial BERT release · google-research/bert@fe35475 |url=https://github.",
-    "web_sources": [
-      "https://en.wikipedia.org/wiki/BERT_%28language_model%29",
-      "https://en.wikipedia.org/wiki/Generative_AI"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Añadir una capa de gestión de memoria causal que almacene eventos de búsqueda (consulta, resultados, metadatos) y exponga una función `predict_next_query(context)` que utilice un modelo ligero (por ejemplo, un transformer finetuneado) para sugerir consultas anticipadas basadas en patrones causales detectados.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.59
-  },
-  {
     "id": "conj_1792936692",
     "timestamp": "2026-10-25T08:58:12.680110",
     "idle_duration_minutes": 33.2,
@@ -1643,5 +1610,41 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.48
+  },
+  {
+    "id": "conj_1793143463",
+    "timestamp": "2026-10-27T18:24:23.812756",
+    "idle_duration_minutes": 31.6,
+    "title": "Resonancia Causal en la Bóveda Akáshica",
+    "hypothesis": "La eficiencia de la recuperación de memoria profunda (deep_memory_vault.py) puede optimizarse significativamente si se introduce un mecanismo de 'resonancia causal' que priorice no solo la similitud semántica, sino la coherencia temporal y lógica con las consultas recientes del web_research_engine.py. Esto reduciría la latencia de inferencia al pre-cargar contextos que tienen alta probabilidad de ser relevantes basándose en la trayectoria de investigación actual, en lugar de buscar en frío cada vez.",
+    "research_query": "temporal causal consistency in vector database retrieval for LLM agents",
+    "research_findings": "# Informe de Investigación: temporal causal consistency in vector database retrieval for LLM agents\n\n## Fuentes Consultadas y Respaldo Web\n- **[Hindsight is 20/20: Building Agent Memory that Retains, Recalls, and Reflects - alphaXiv](https://news.google.com/rss/articles/CBMiUEFVX3lxTE1aMVVSanJ2MHVmeENMbEpxYUhvQWI1QmM2YWpJSzFyRDNuNFpGd001c3ZjQkJGQko5MmhNM2pteXNJdWdqQ1ZJVklFMTVNRDBt?oc=5)**: Hindsight is 20/20: Building Agent Memory that Retains, Recalls, and Reflects  alphaXiv\n- **[From Data to Decisions: How Knowledge Graphs Are Becoming the Brain of the Modern Enterprise - Medium](https://news.google.com/rss/articles/CBMi0gFBVV95cUxPVjh5NnNZNnFfZ3UzMEx3U0pqajNDQ19TV0JjRGN5WGhleWxVLW5WMkptR2J6VHpldllqekM2bzJSUFBYWHlwSW1ySUZoZG9fOFZRVGY4NEt6ZVE5YkQ4b0VlRWl1T0Jtd1hlSzNrOGRuTzY1ajU4b1lUY3hVMDBpWUxiZWo5X1VBNDMyQjFMVlFPMU14bm9kUlZCMWVLMTBTRUI0ZTBQRDdpVmJxVlRuZFQwYzNPNGpReVdEMUg3dHVhNWhvQUd6LTdvMWMtZHBSQXc?oc=5)**: From Data to Decisions: How Knowledge Graphs Are Becoming the Brain of the Mo",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiUEFVX3lxTE1aMVVSanJ2MHVmeENMbEpxYUhvQWI1QmM2YWpJSzFyRDNuNFpGd001c3ZjQkJGQko5MmhNM2pteXNJdWdqQ1ZJVklFMTVNRDBt?oc=5",
+      "https://news.google.com/rss/articles/CBMi0gFBVV95cUxPVjh5NnNZNnFfZ3UzMEx3U0pqajNDQ19TV0JjRGN5WGhleWxVLW5WMkptR2J6VHpldllqekM2bzJSUFBYWHlwSW1ySUZoZG9fOFZRVGY4NEt6ZVE5YkQ4b0VlRWl1T0Jtd1hlSzNrOGRuTzY1ajU4b1lUY3hVMDBpWUxiZWo5X1VBNDMyQjFMVlFPMU14bm9kUlZCMWVLMTBTRUI0ZTBQRDdpVmJxVlRuZFQwYzNPNGpReVdEMUg3dHVhNWhvQUd6LTdvMWMtZHBSQXc?oc=5"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar un filtro de pre-búsqueda que evalúe la distancia temporal y la coherencia temática con el historial de las últimas 5 consultas del motor de investigación antes de ejecutar la búsqueda vectorial completa.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.46
+  },
+  {
+    "id": "conj_1793145359",
+    "timestamp": "2026-10-27T18:55:59.043860",
+    "idle_duration_minutes": 31.6,
+    "title": "Resonancia Causal en la Bóveda Akáshica: Optimización de Entropía Semántica",
+    "hypothesis": "Se postula que la eficiencia de recuperación en deep_memory_vault.py se degrada exponencialmente cuando la densidad semántica de las entradas supera un umbral crítico, causando 'ruido cognitivo'. Al implementar un mecanismo de 'pruning' basado en la similitud coseno dinámica y la relevancia temporal ponderada, se puede reducir la latencia de búsqueda en un 40% manteniendo la integridad causal de los datos. Esta conjetura sugiere que la memoria no debe ser estática, sino que debe 'respirar', eliminando nodos de baja coherencia para fortalecer las conexiones causales primarias.",
+    "research_query": "dynamic semantic pruning in vector databases for reducing retrieval latency and noise",
+    "research_findings": "# Informe de Investigación: dynamic semantic pruning in vector databases for reducing retrieval latency and noise\n\n## Fuentes Consultadas y Respaldo Web\n- **[Dynamic-SQL: an adaptive NL2SQL framework with multi-path fusion reasoning and execution feedback correction - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE1XZnFGMG9lR1dwR3NYU1Y5VzdxVlpBVzYzZnBOR2ZVdFZLVGFacjFpWTNxUWw1aUJuRVUwWldGMzVldWhyRXFvYmVsRWZobG9MN1N5SjJpRmdoQ05tYS13?oc=5)**: Dynamic-SQL: an adaptive NL2SQL framework with multi-path fusion reasoning and execution feedback correction  Nature\n- **[Why RAG Systems Fail in Enterprise AI (Root Causes + Fixes) - Appinventiv](https://news.google.com/rss/articles/CBMiX0FVX3lxTE1xLVNIa0lGb2dnZnFVbnRYN01EU29FaXZFOEptbUFjY19rM0k3WXdWWVAxcF8zMi1GcFR3SzlDT0lzS1BIMmtyY3RETEhmNVBWVkMyRlo4Z3AxWjhnNEtr?oc=5)**: Why RAG Systems Fail in Enterprise AI (Root Causes + Fixes)  Appinventiv\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articl",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE1XZnFGMG9lR1dwR3NYU1Y5VzdxVlpBVzYzZnBOR2ZVdFZLVGFacjFpWTNxUWw1aUJuRVUwWldGMzVldWhyRXFvYmVsRWZobG9MN1N5SjJpRmdoQ05tYS13?oc=5",
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE1xLVNIa0lGb2dnZnFVbnRYN01EU29FaXZFOEptbUFjY19rM0k3WXdWWVAxcF8zMi1GcFR3SzlDT0lzS1BIMmtyY3RETEhmNVBWVkMyRlo4Z3AxWjhnNEtr?oc=5"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar una función de poda semántica (semantic_pruning) que evalúe la similitud entre vectores adyacentes y elimine duplicados o nodos de baja relevancia antes de la consulta, optimizando el índice de búsqueda.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 95.22
   }
 ]
