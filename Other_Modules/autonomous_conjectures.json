@@ -1,41 +1,5 @@
 [
   {
-    "id": "conj_1792942668",
-    "timestamp": "2026-10-25T10:37:48.584102",
-    "idle_duration_minutes": 31.6,
-    "title": "Causal‑Feedback Loop for Adaptive Web Research",
-    "hypothesis": "Integrar un bucle de retroalimentación causal entre el motor de búsqueda web (core/web_research_engine.py) y la bóveda de memoria profunda (core/deep_memory_vault.py) permitirá que el sistema ajuste dinámicamente sus estrategias de consulta basándose en la relevancia y la novedad de los resultados obtenidos, mejorando la precisión de la información recuperada en al menos un 20% en tareas de investigación abiertas.",
-    "research_query": "causal feedback loop adaptive web search engine deep memory integration performance improvement",
-    "research_findings": "# Informe de Investigación: causal feedback loop adaptive web search engine deep memory integration performance improvement\n\n## Fuentes Consultadas y Respaldo Web\n- **[Internet of things enabled deep learning monitoring system for realtime performance metrics and athlete feedback in college sports - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE9pTVNlWUJwbkNpeTQzaURsNzRnWnZjeWZJeFpxZUdSZmN0NkNHaEhKWk1kMk81MzFGVTZmdjRIMHRKbG9wV2hTT1ZmTkhGVmJfcmRVNHRZQTJuWVQwbGp3?oc=5)**: Internet of things enabled deep learning monitoring system for realtime performance metrics and athlete feedback in college sports  Nature\n- **[CDMRNet: multimodal meta-adaptive reasoning network with dynamic causal modeling and co-evolution of quantum states - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE40STF3bU12MUdyOGVleWlDT1I1OWJFQVRINkVpX3NjXzNwWF9GenY2dHlNMkw5WUZqNGpKVFFHa1ptRXQ4QURDSHdFdldDOWhxQ3U4eVlQSWp0cjdrNE13?oc=5)**: CDMRNet: multimodal meta-adaptive reasoning network with dynami",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE9pTVNlWUJwbkNpeTQzaURsNzRnWnZjeWZJeFpxZUdSZmN0NkNHaEhKWk1kMk81MzFGVTZmdjRIMHRKbG9wV2hTT1ZmTkhGVmJfcmRVNHRZQTJuWVQwbGp3?oc=5",
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE40STF3bU12MUdyOGVleWlDT1I1OWJFQVRINkVpX3NjXzNwWF9GenY2dHlNMkw5WUZqNGpKVFFHa1ptRXQ4QURDSHdFdldDOWhxQ3U4eVlQSWp0cjdrNE13?oc=5"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Añadir un módulo de evaluación de relevancia que registre métricas de éxito (p.ej., coincidencia semántica, frescura) y retroalimente al planificador de consultas para modificar pesos de palabras clave y seleccionar fuentes alternativas en tiempo real.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.37
-  },
-  {
-    "id": "conj_1792945029",
-    "timestamp": "2026-10-25T11:17:09.922217",
-    "idle_duration_minutes": 39.4,
-    "title": "Sincronización Temporal de Telemetría en la Bóveda Akáshica",
-    "hypothesis": "La eficiencia de la recuperación de memoria profunda (deep_memory_vault.py) se ve limitada por la desincronización temporal entre los eventos de telemetría de red (network_shield.py) y los registros de investigación web (web_research_engine.py). Si se implementa un índice temporal unificado (time-series index) que correlacione automáticamente las peticiones de investigación con las alertas de seguridad en tiempo real, el sistema podría predecir patrones de ataque basándose en el contexto de la información buscada, reduciendo la latencia de respuesta del escudo de red en un 15-20%.",
-    "research_query": "time-series correlation network security telemetry web research context anomaly detection",
-    "research_findings": "# Informe de Investigación: time-series correlation network security telemetry web research context anomaly detection\n\n## Fuentes Consultadas y Respaldo Web\n- **[Attention-based and contrastive deep learning models for real-time anomaly detection in Edge-IIoT networks - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE45YnhpaG85QkZjTl9zVlVQMms4TS04TkV5Y3NrY0pGUGhYS0FrSThTT3pFdnZybXpueDlKOUhPbDJBWmYydm9EZ2dOa1RyNWNrUHM3ZHpSbWFQWkh0UTdR?oc=5)**: Attention-based and contrastive deep learning models for real-time anomaly detection in Edge-IIoT networks  Nature\n- **[The Observability Control Plane, Part II: The Action Layer | by Adnan Masood, PhD. - Medium](https://news.google.com/rss/articles/CBMiowFBVV95cUxPelBqaTBoN2xDV1p3cHlfaWR0MndKUXducGpHV1d6UGxwR1d2amNYeW1qc0tQb1lJbWVxSlRRZ2FzM3Y4S1lmT3ZaVEpieWp6SlZWV3ozODI5dWFIYklEWWpOeGR1ZE5HNlJXWE1XR1FHZURzZ014QXJjbzFNemdNZ3l5Y2s2emJfeWd1c1F1a3VnbnBhQzZJY3ctMzNXN0x2cndn?oc=5)**: The Observability Control Plane, Part II: The Action Layer",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE45YnhpaG85QkZjTl9zVlVQMms4TS04TkV5Y3NrY0pGUGhYS0FrSThTT3pFdnZybXpueDlKOUhPbDJBWmYydm9EZ2dOa1RyNWNrUHM3ZHpSbWFQWkh0UTdR?oc=5",
-      "https://news.google.com/rss/articles/CBMiowFBVV95cUxPelBqaTBoN2xDV1p3cHlfaWR0MndKUXducGpHV1d6UGxwR1d2amNYeW1qc0tQb1lJbWVxSlRRZ2FzM3Y4S1lmT3ZaVEpieWp6SlZWV3ozODI5dWFIYklEWWpOeGR1ZE5HNlJXWE1XR1FHZURzZ014QXJjbzFNemdNZ3l5Y2s2emJfeWd1c1F1a3VnbnBhQzZJY3ctMzNXN0x2cndn?oc=5"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar un método `correlate_temporal_events()` que acepte IDs de eventos de red y de investigación, y devuelva un vector de similitud contextual basado en la proximidad temporal y las etiquetas semánticas compartidas.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 95.82
-  },
-  {
     "id": "conj_1792946929",
     "timestamp": "2026-10-25T11:48:49.950254",
     "idle_duration_minutes": 31.7,
@@ -1646,5 +1610,38 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 96.7
+  },
+  {
+    "id": "conj_1793152977",
+    "timestamp": "2026-10-27T21:02:57.195297",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal Reranking for Web Research Engine",
+    "hypothesis": "Incorporating a lightweight causal inference layer into the Web Research Engine will allow the system to prioritize sources that are not only topically relevant but also causally influential on the query context, leading to higher precision in retrieved information and reduced propagation of misinformation.",
+    "research_query": "causal inference based ranking algorithms for web search relevance",
+    "research_findings": "# Informe de Investigación: causal inference based ranking algorithms for web search relevance\n\n## Fuentes Consultadas y Respaldo Web\n- **[An AI Agent for Automated Causal Inference in Epidemiology - medRxiv](https://news.google.com/rss/articles/CBMifEFVX3lxTE9RaFRNaS1lMDFIVHF3ZnBWT3ljR3NXNlpIQkFwcDZDVmp3ZmZEZTg3V0VMZUJ2bGVPSGdRb2VlaFhQQ21RUjBTYlUzOXNyOTc4UU1hX0lKcGQ1SGR0bFEwcFNrdWdQSEFmZzNUcFRWRFpTelltdkczblVzYm8?oc=5)**: An AI Agent for Automated Causal Inference in Epidemiology  medRxiv\n- **[Algorithms of Engagement — Optimizing Attention, Evidence‑Based Engineering Practices - Medium](https://news.google.com/rss/articles/CBMixgFBVV95cUxQbzdkVEtrZmt4R0RVQ19xcXdET29tZFBxYzdDUmNNOXd6ZlVsY1BOYlZBUWpuZndWN2M4bEdNTGxaYXlIeG9hZ0w1dWtvaURyMjg3UTg1SEY0RndjRTYtRWpGWm1Nb3VsUU9jRnVFdVdSZ1BkZXR0UlIxVmR2eFN4Vllhd3ZZdVBJOE9FVkcyWEphdlNUeW9NMThtWmpoc1FkYXlhdzVlWlFwRE13N3NfLXRsMktJMl85M2R4dTJzWmhNem9vMXc?oc=5)**: Algorithms of Engagement — Optimizing Attention, Evidence‑Based Engineering Practices ",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMifEFVX3lxTE9RaFRNaS1lMDFIVHF3ZnBWT3ljR3NXNlpIQkFwcDZDVmp3ZmZEZTg3V0VMZUJ2bGVPSGdRb2VlaFhQQ21RUjBTYlUzOXNyOTc4UU1hX0lKcGQ1SGR0bFEwcFNrdWdQSEFmZzNUcFRWRFpTelltdkczblVzYm8?oc=5",
+      "https://news.google.com/rss/articles/CBMixgFBVV95cUxQbzdkVEtrZmt4R0RVQ19xcXdET29tZFBxYzdDUmNNOXd6ZlVsY1BOYlZBUWpuZndWN2M4bEdNTGxaYXlIeG9hZ0w1dWtvaURyMjg3UTg1SEY0RndjRTYtRWpGWm1Nb3VsUU9jRnVFdVdSZ1BkZXR0UlIxVmR2eFN4Vllhd3ZZdVBJOE9FVkcyWEphdlNUeW9NMThtWmpoc1FkYXlhdzVlWlFwRE13N3NfLXRsMktJMl85M2R4dTJzWmhNem9vMXc?oc=5"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a modular causal reranking step that builds a simple directed acyclic graph (DAG) of entities extracted from search results, computes causal strength scores, and reorders the result list before returning it to the caller.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 95.52
+  },
+  {
+    "id": "conj_1793154908",
+    "timestamp": "2026-10-27T21:35:08.153932",
+    "idle_duration_minutes": 32.2,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching mechanism will allow the system to predict when cached search results become stale based on observed changes in source domains (e.g., content updates, SEO shifts). By modeling the causal relationship between external events (content publication timestamps, domain authority fluctuations) and result relevance, the engine can proactively invalidate or refresh specific cache entries, reducing latency and improving answer accuracy without a full re‑crawl on every query.",
+    "research_query": "causal inference based cache invalidation web search engine recent research 2023 2024",
+    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web search engine recent research 2023 2024\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal cache manager that tracks metadata (last-modified headers, RSS feed timestamps, domain authority scores) and uses a lightweight Bayesian network to decide when to purge or refresh cached query results.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 99.6
   }
 ]
