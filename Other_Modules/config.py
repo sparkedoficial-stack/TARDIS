@@ -14,7 +14,10 @@ CONFIG_FILE = CONFIG_DIR / "config.json"
 STATS_FILE = CONFIG_DIR / "stats.json"
 
 DEFAULT_CONFIG = {
-    "default_mode": "auto",  # auto, synth, audit, gemini, claude
+    # MODELO DEFAULT SOBERANO: DeepSeek V4.1 Flash Free (OpenCode · variante max)
+    "default_mode": "deepseek",  # deepseek = DeepSeek V4.1 Flash Free #max
+    "default_engine": "deepseek",
+    "default_model": "opencode/deepseek-v4.1-flash-free#max",
     "cost_priority": "balanced",
     "auto_update": True,
     "last_update_check": 0,

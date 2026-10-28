@@ -16,6 +16,8 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from pathlib import Path
 
+OUTPUT_DIR = Path.home() / "Escritorio" / "TARDIS_ARTE_GENERATIVO"
+
 def generate_chaotic_art_canvas(width: int = 1920, height: int = 1080, steps: int = 250000, seed: int = 42):
     """Genera una pieza de arte procedural basada en dinámica caótica no lineal."""
     np.random.seed(seed)
@@ -44,10 +46,33 @@ def generate_chaotic_art_canvas(width: int = 1920, height: int = 1080, steps: in
     plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
     
     output_filename = f"obra_arte_{int(time.time())}.png"
-    plt.savefig(output_filename, facecolor=fig.get_facecolor(), edgecolor='none', bbox_inches='tight', pad_inches=0)
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    output_path = OUTPUT_DIR / output_filename
+    plt.savefig(output_path, facecolor=fig.get_facecolor(), edgecolor='none', bbox_inches='tight', pad_inches=0)
     plt.close()
     
-    return output_filename
+    return str(output_path)
+
+
+class CognitivoArtesVisuales:
+    """Interfaz Master Hub: arte generativo sintrópico bajo demanda."""
+
+    name = "cognitivo_artes_visuales"
+    description = "Genera obras de arte computacional con atractores caóticos (Clifford/de Jong)."
+
+    def run(self, steps: int = 150000, seed: int = 42):
+        t0 = time.time()
+        out = generate_chaotic_art_canvas(steps=steps, seed=seed)
+        return {
+            "status": "ok",
+            "obra": out,
+            "pasos": steps,
+            "semilla": seed,
+            "elapsed_s": round(time.time() - t0, 3),
+        }
+
+    def execute(self, **kwargs):
+        return self.run(**kwargs)
 
 def main():
     parser = argparse.ArgumentParser(description="Generador de Arte y Simulación artes visuales generativas y atractores caoticos")

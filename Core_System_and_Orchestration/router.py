@@ -93,11 +93,17 @@ class CognitiveRouter:
 
     def _alternate_plan(self, prompt, complexity, label, context_scope,
                         rationale: str) -> RoutingPlan:
+        cfg = load_config()
+        model_ref = (
+            cfg.get("default_model")
+            or cfg.get("fallback_model")
+            or self.registry.get_alternate_model()
+        )
         return self._create_plan(
             prompt,
             mode="deepseek",
-            primary_engine="deepseek",
-            primary_model=self.registry.get_alternate_model(),
+            primary_engine=cfg.get("default_engine", "deepseek"),
+            primary_model=model_ref,
             primary_effort="max",
             complexity_level=complexity,
             complexity_label=label,

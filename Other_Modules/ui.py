@@ -166,14 +166,23 @@ class FTLInterface:
         self.completer = WordCompleter(COMMANDS, ignore_case=True)
         # reserve_space_for_menu=0 prevents prompt_toolkit from demanding 8 rows
         # and displaying the dreaded "Window too small" error on iPads and mobile viewports
-        self.session = PromptSession(
-            history=FileHistory(str(history_file)),
-            completer=self.completer,
-            auto_suggest=AutoSuggestFromHistory(),
-            style=PT_STYLE,
-            reserve_space_for_menu=0,
-            complete_while_typing=True,
-        )
+        # Construcción diferida: evita el aviso "Input is not a terminal" en modo
+        # no interactivo (scripts, `ftl chat -p`, cron, pipes).
+        self.session = None
+
+    def _prompt_session(self):
+        if self.session is None:
+            history_file = CONFIG_DIR / "history"
+            CONFIG_DIR.mkdir(parents=True, exist_ok=True)
+            self.session = PromptSession(
+                history=FileHistory(str(history_file)),
+                completer=self.completer,
+                auto_suggest=AutoSuggestFromHistory(),
+                style=PT_STYLE,
+                reserve_space_for_menu=0,
+                complete_while_typing=True,
+            )
+        return self.session
 
     def get_git_branch(self) -> str:
         try:
@@ -210,6 +219,7 @@ class FTLInterface:
         saved = stats.get('estimated_usd_saved', 0.0)
         mode_colors = {
             "auto": "bold green",
+            "deepseek": "bold blue",
             "infinite": "bold gold1",
             "kaiju": "bold gold1",
             "synth": "bold magenta",
@@ -234,6 +244,7 @@ class FTLInterface:
 
         mode_colors = {
             "auto": "bold green",
+            "deepseek": "bold blue",
             "infinite": "bold gold1",
             "kaiju": "bold gold1",
             "synth": "bold magenta",
@@ -278,11 +289,12 @@ class FTLInterface:
         )
 
         alt_model = load_config().get("fallback_model", "opencode/deepseek-v4.1-flash-free#max")
+        cfg = load_config()
+        default_model = cfg.get("default_model") or alt_model
         table.add_row(
-            f"Modelo Alterno: [bold cyan]DeepSeek V4.1 Max[/bold cyan] [dim]({alt_model})[/dim]",
+            f"Modelo Default: [bold blue]DeepSeek V4.1 Flash Free[/bold blue] [bold red](MAX)[/bold red] [dim]({default_model})[/dim]",
             "Resiliencia: [bold green]FALLBACK AUTOMÁTICO[/bold green]"
         )
-        cfg = load_config()
         voice_on = cfg.get("tardis_voice_notify", True)
         voice_lbl = "[bold green]CORTANA NEURAL (ACTIVA)[/bold green]" if voice_on else "[bold yellow]SILENCIADA[/bold yellow]"
 
@@ -344,7 +356,8 @@ class FTLInterface:
         help_table.add_row(":screen", "Captura y explica lo que hay en la pantalla del sistema", "Visión OS")
         help_table.add_row(":reactivate", "Reactiva todos los 63 subsistemas y botones de hardware/software", "Hardware")
         help_table.add_row(":ui / :web", "Abre la cabina web en el navegador / Portal y Terminal Web", "Portal LAN")
-        help_table.add_row(":chat <mensaje>", "Consulta directa al núcleo soberano de TARDIS", "Núcleo Soberano")
+        help_table.add_row(":chat [--new|--resume|--list] [texto]", "FTL Quantum Chat persistente: sesiones, modelos, agentes, adjuntos, thinking, herramientas y animación de cuásar (motor OpenCode)", "Chat Persistente")
+        help_table.add_row(":ask <mensaje>", "Consulta directa al núcleo soberano de TARDIS", "Núcleo Soberano")
 
         # --- FTL APEX SOVEREIGN ENGINES ---
         help_table.add_row("$ <cmd> / ! <cmd>", "Ejecuta comandos de host bash/root directamente sin salir de FTL", "Soberana Absoluta")
@@ -1032,7 +1045,7 @@ class FTLInterface:
             ('class:prompt', f"TARDIS·FTL [{self.mode.upper()}:SOBERANO] › ")
         ]
         try:
-            user_input = self.session.prompt(prompt_label).strip()
+            user_input = self._prompt_session().prompt(prompt_label).strip()
             return user_input
         except (KeyboardInterrupt, EOFError):
             return None

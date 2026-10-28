@@ -33,6 +33,14 @@ except Exception:
 
 app = FastAPI(title="FTL Sovereign Web Terminal", version="1.0.0")
 
+# --- FTL Quantum Chat (persistente, streaming SSE) -------------------------
+try:
+    from chat_web import router as chat_router
+
+    app.include_router(chat_router)
+except Exception as _chat_exc:  # noqa: BLE001
+    print(f"[ftl-web] Chat web no disponible: {_chat_exc}", file=sys.stderr)
+
 def get_network_ips() -> List[Dict[str, str]]:
     """Discovers all non-loopback IPv4 addresses."""
     ips = []
@@ -754,6 +762,7 @@ async def portal_index(request: Request):
             <button class="btn" onclick="startVoiceRecognition()" style="border-color: var(--neon-magenta); color: var(--neon-magenta);" title="Control por Voz FTL">🎤 Hablar</button>
             <button class="btn btn-gold" onclick="openQrModal()">📱 Código QR</button>
             <button class="btn" onclick="toggleCompactMode()" title="Maximizar espacio de terminal en iPad y tablets">📱 Maximizar</button>
+            <a href="/chat" target="_blank" class="btn" style="border-color: var(--neon-purple, #bd93f9); color: #bd93f9;" title="FTL Quantum Chat persistente con animación de cuásar">◉ Quantum Chat</a>
             <a href="#" onclick="window.open(termUrl, '_blank'); return false;" class="btn" title="Abrir terminal nativa en pestaña separada">↗ Nativo :7681</a>
             <button class="btn" onclick="toggleFullscreen()" title="Pantalla Completa">⛶ Pantalla</button>
         </div>

@@ -94,11 +94,13 @@ UNIFIED_COMMAND_KEYWORDS = {
     "research", "investiga", "investigar", "outreach", "contactar", "prospect",
     "missions", "misiones", "conjecture", "conjetura", "companion", "analyze",
     "animate", "screen", "explain-screen", "reactivate", "ui", "cockpit",
-    "chat", "ask", "infinite", "infinite-code", "quad", "improve", "auto-improve",
+    "chat", "conversar", "chatear", "qchat", "quantum-chat",
+    "ask", "preguntar", "infinite", "infinite-code", "quad", "improve", "auto-improve",
     "engineer", "heal", "doctor", "models", "stats", "history", "historial",
     "ftl-history", "rag", "search-rag", "ftl-rag", "search", "context", "ftl-context",
     "ctx", "sync", "sincronizar", "sovereign", "skills", "habilidades", "aptitudes",
     "fallback", "alterno", "modelo-alterno",
+    "deepseek", "defecto",
     "agents", "agentes", "free", "gratis", "pool", "agent", "agente",
     "orchestrate", "orquestar", "orquesta", "agent-policy", "politica-agentes",
     "agent-history", "historial-agentes", "agent-kill", "kill-switch", "agent-probe",
@@ -304,6 +306,14 @@ def dispatch_unified_command(cmd_name: str, args_list: list[str] = None) -> bool
     elif cmd == "auto":
         ui.mode = "auto"
         console.print("[bold green]Modo cambiado a: AUTO (Enrutador Cognitivo Soberano)[/bold green]")
+        return True
+
+    elif cmd in ("deepseek", "default", "defecto"):
+        ui.mode = "deepseek"
+        console.print(
+            "[bold blue]Modo cambiado a: DEEPSEEK V4.1 FLASH FREE (MAX) — "
+            "modelo default soberano[/bold blue]"
+        )
         return True
 
     elif cmd == "kaiju":
@@ -807,9 +817,22 @@ def dispatch_unified_command(cmd_name: str, args_list: list[str] = None) -> bool
             console.print(f"[cyan]Cabina web disponible en: {url}[/cyan]")
         return True
 
-    elif cmd in ("chat", "ask"):
+    elif cmd in ("chat", "conversar", "chatear", "quantum-chat", "qchat"):
+        from chat_ui import run_chat
+
+        argv = list(args)
+        # Texto libre → modo one-shot sobre la sesión persistente más reciente.
+        if argv and not argv[0].startswith("-"):
+            argv = ["-p", " ".join(argv)]
+        try:
+            return run_chat(argv) == 0
+        except KeyboardInterrupt:
+            console.print("\n[dim]Chat FTL interrumpido. Sesión conservada.[/dim]")
+            return True
+
+    elif cmd in ("ask", "preguntar"):
         if not args:
-            console.print("[yellow]Uso: chat <mensaje para el núcleo soberano>[/yellow]")
+            console.print("[yellow]Uso: ask <mensaje para el núcleo soberano>[/yellow]")
             return True
         from tardis_bridge import tardis_bridge
         res = tardis_bridge.chat_sovereign(" ".join(args))
@@ -1007,7 +1030,12 @@ def main():
 
     parser = argparse.ArgumentParser(
         prog="TARDIS·FTL",
-        description="TARDIS · FTL Sovereign Apex System :: Sistema Unificado Autoprogramable"
+        description="TARDIS · FTL Sovereign Apex System :: Sistema Unificado Autoprogramable",
+        epilog=(
+            "Chat persistente: `ftl chat` (TUI) · `ftl chat --list` · "
+            "`ftl chat --resume <id>` · `ftl chat -p \"texto\"` (one-shot) · "
+            "`ftl chat --web` (portal http://127.0.0.1:8765/chat)"
+        ),
     )
     parser.add_argument("prompt", nargs="*", help="Optional prompt or direct shell command ($ <cmd>)")
     mode_choices = [

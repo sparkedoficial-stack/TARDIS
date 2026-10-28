@@ -48,6 +48,10 @@ Módulos y componentes auxiliares del sistema.
 - **bridge_status.json**: Componente de alta eficiencia.
 - **calls_history.json**: Componente de alta eficiencia.
 - **captures_index.json**: Componente de alta eficiencia.
+- **chat_engine.py**: Componente de alta eficiencia.
+- **chat_store.py**: Componente de alta eficiencia.
+- **chat_ui.py**: Componente de alta eficiencia.
+- **chat_web.py**: Componente de alta eficiencia.
 - **cluster.py**: Componente de alta eficiencia.
 - **code_planner.py**: Componente de alta eficiencia.
 - **cognitivo_artes_visuales_generativas_y_atractores_caoticos_1791929323.py**: Sistema cognitivo autónomo y autoprogramador evolutivo.
