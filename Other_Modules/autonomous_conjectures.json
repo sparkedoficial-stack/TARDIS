@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1792940771",
-    "timestamp": "2026-10-25T10:06:11.202101",
-    "idle_duration_minutes": 36.3,
-    "title": "Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "Integrating a causal inference layer that tracks dependencies between fetched web resources and internal query contexts will allow the Web Research Engine to invalidate cached results more intelligently, reducing stale data propagation and improving response relevance without a linear increase in network load.",
-    "research_query": "causal cache invalidation techniques for web scraping frameworks and their impact on freshness vs. latency",
-    "research_findings": "# Informe de Investigación: causal cache invalidation techniques for web scraping frameworks and their impact on freshness vs. latency\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Implement a dependency graph that records which cached pages contributed to a given query result and add a periodic causal analysis routine that invalidates only the affected cache entries when source pages change, using async tasks and exponential back‑off for re‑fetching.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 99.03
-  },
-  {
     "id": "conj_1792942668",
     "timestamp": "2026-10-25T10:37:48.584102",
     "idle_duration_minutes": 31.6,
@@ -1643,6 +1628,21 @@
     "web_sources": [],
     "code_target": "core/deep_memory_vault.py",
     "code_goal": "Integrar un factor de decaimiento temporal dinámico en el algoritmo de scoring de memoria que reciba como entrada la latencia de red promedio de las últimas 24 horas desde el módulo de red.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.7
+  },
+  {
+    "id": "conj_1793151081",
+    "timestamp": "2026-10-27T20:31:21.655764",
+    "idle_duration_minutes": 32.1,
+    "title": "Causal‑Feedback Loop for Adaptive Query Refinement",
+    "hypothesis": "Integrating a causal‑feedback loop between the Web Research Engine and the Deep Memory Vault will enable the system to automatically refine its search queries based on the inferred relevance of previously retrieved documents, thereby improving precision and reducing redundant network traffic. The loop would model the causal impact of query modifications on retrieval outcomes using a lightweight Bayesian network stored in the vault, allowing the engine to predict the most promising query adjustments before each request.",
+    "research_query": "how to implement causal feedback loops for adaptive web search query refinement using Bayesian networks",
+    "research_findings": "# Informe de Investigación: how to implement causal feedback loops for adaptive web search query refinement using Bayesian networks\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal‑feedback module that records query → result relevance pairs in deep_memory_vault, trains a simple Bayesian network on‑the‑fly, and uses it to suggest query rewrites before each external request.",
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 96.7
