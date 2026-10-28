@@ -1,14 +1,14 @@
 {
-  "timestamp": REDACTED_PHONE.2260275,
+  "timestamp": REDACTED_PHONE.4095142,
   "latitude": 20.6274,
   "longitude": -87.0799,
   "location_name": "Host Telemetry",
   "temperature_c": 22.6,
   "apparent_temperature_c": 24.6,
   "relative_humidity_pct": 85,
-  "surface_pressure_hpa": 1013.6,
-  "pressure_msl_hpa": 1014.8,
-  "pressure_trend": "En ligero ascenso (Tiempo estable)",
+  "surface_pressure_hpa": 1013.4,
+  "pressure_msl_hpa": 1014.6,
+  "pressure_trend": "En ascenso rápido (Mejora de tiempo / Alta presión)",
   "weather_code": 0,
   "weather_description": "Despejado",
   "cloud_cover_pct": 2,
@@ -29,6 +29,6 @@
   "nitrogen_dioxide_ugm3": 1.5,
   "sulphur_dioxide_ugm3": 0.5,
   "ozone_ugm3": 58.0,
-  "summary_for_llm": "• Atmósfera y Clima Local: 22.6°C (Sensación térmica: 24.6°C) · Humedad: 85% · Presión: 1014.8 hPa (En ligero ascenso (Tiempo estable)) · Condición: Despejado (2% nubes) · Viento: 12.4 km/h N (Ráfagas 22.0 km/h) · Precipitación: 0.0 mm · Radiación UV: 0.0 · Calidad del Aire: AQI 42 (Excelente (Poco o nulo riesgo)) con PM2.5: 6.3 µg/m³",
+  "summary_for_llm": "• Atmósfera y Clima Local: 22.6°C (Sensación térmica: 24.6°C) · Humedad: 85% · Presión: 1014.6 hPa (En ascenso rápido (Mejora de tiempo / Alta presión)) · Condición: Despejado (2% nubes) · Viento: 12.4 km/h N (Ráfagas 22.0 km/h) · Precipitación: 0.0 mm · Radiación UV: 0.0 · Calidad del Aire: AQI 42 (Excelente (Poco o nulo riesgo)) con PM2.5: 6.3 µg/m³",
   "provider": "open-meteo"
 }
