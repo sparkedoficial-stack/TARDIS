@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.938796,
-  "last_video_id": "vp_20261029_040029_035c57",
-  "last_topic": "Tensor Network Representations of AdS/CFT and Emergent Geometry",
-  "total_videos_analyzed": 693,
-  "running_cycle": false,
+  "last_run_timestamp": REDACTED_PHONE.2560034,
+  "last_video_id": "vp_20261029_043555_ea99d0",
+  "last_topic": "Holographic Quantum Error-Correcting Codes and the Emergent Geometry of AdS/CFT",
+  "total_videos_analyzed": 694,
+  "running_cycle": true,
   "last_error": null,
   "auto_improvement_count": 380
 }
