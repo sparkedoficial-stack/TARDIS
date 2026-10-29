@@ -13,6 +13,7 @@ Automatizaciones de sistema, diagnósticos de hardware, optimizadores de SO y he
 - **cleanup_models.py**: Componente de alta eficiencia.
 - **colab_test_subsyst_m_dulo_de_telemetr.py**: Componente de alta eficiencia.
 - **deploy_android_imac.sh**: Componente de alta eficiencia.
+- **deploy_omarchy_imac.sh**: Componente de alta eficiencia.
 - **fetch_benchmarks.py**: Componente de alta eficiencia.
 - **generate_icons.py**: Componente de alta eficiencia.
 - **generate_pdf.py**: Componente de alta eficiencia.
@@ -33,6 +34,7 @@ Automatizaciones de sistema, diagnósticos de hardware, optimizadores de SO y he
 - **os_optimizer.py**: Componente de alta eficiencia.
 - **patch_agent.py**: Modelo lógico y comportamiento autónomo distribuido.
 - **patch_telemetry.py**: Componente de alta eficiencia.
+- **prepare_omarchy_imac14_usb.sh**: Componente de alta eficiencia.
 - **quantization_benchmark.json**: Componente de alta eficiencia.
 - **run_comprehensive_benchmark.py**: Componente de alta eficiencia.
 - **setup_imac_chroot.sh**: Componente de alta eficiencia.

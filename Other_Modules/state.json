@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.8699956,
-  "last_video_id": "vp_20261029_144602_5579a0",
-  "last_topic": "Non‑Hermitian Topological Phases and Exceptional Points in Photonic Systems",
-  "total_videos_analyzed": 711,
-  "running_cycle": false,
+  "last_run_timestamp": REDACTED_PHONE.3182707,
+  "last_video_id": "vp_20261029_155706_8658f3",
+  "last_topic": "Discrete Time Crystals in Floquet-Driven Quantum Many-Body Systems",
+  "total_videos_analyzed": 713,
+  "running_cycle": true,
   "last_error": null,
   "auto_improvement_count": 384
 }

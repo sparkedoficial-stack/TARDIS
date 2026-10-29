@@ -20,17 +20,25 @@ fi
 
 # Detectar IP y modo operativo del iMac
 detect_imac() {
-    # 1. Probar nombres y listas estáticas
-    for ip in "${FALLBACK_IPS[@]}" "$IMAC_HOST" "imac"; do
-        if ping -c 1 -W 1 "$ip" >/dev/null 2>&1; then
+    # 1. Probar IPs estáticas primero sin bloqueo DNS
+    for ip in "${FALLBACK_IPS[@]}"; do
+        if ping -n -c 1 -W 1 "$ip" >/dev/null 2>&1; then
             echo "$ip"
             return 0
         fi
     done
 
-    # 2. Escaneo dinámico por ARP neighbors (192.168.1.x y 10.42.0.x)
+    # 2. Probar nombres mDNS con timeout estricto de 1s
+    for name in "$IMAC_HOST" "imac.local" "imac"; do
+        if timeout 1 ping -c 1 -W 1 "$name" >/dev/null 2>&1; then
+            echo "$name"
+            return 0
+        fi
+    done
+
+    # 3. Escaneo dinámico por ARP neighbors (192.168.1.x, 192.168.39.x y 10.42.0.x)
     local neighbors
-    neighbors=$(ip neigh show 2>/dev/null | grep -E "192\.168\.1\.|10\.42\.0\." | awk '{print $1}')
+    neighbors=$(ip neigh show 2>/dev/null | grep -v FAILED | grep -E "192\.168\.1\.|192\.168\.39\.|10\.42\.0\." | awk '{print $1}')
     for ip in $neighbors; do
         if nc -z -w 1 "$ip" $PORT_ADB 2>/dev/null || nc -z -w 1 "$ip" $PORT_SSH 2>/dev/null || curl -s -m 0.5 "http://$ip:$PORT_API/api/ping" 2>/dev/null | grep -q "PONG"; then
             echo "$ip"
@@ -80,8 +88,9 @@ show_help() {
     echo "  install-apk <apk>    - Instala una aplicación APK en el iMac"
     echo "  optimize-android     - Configura pantalla activa, salta wizard y optimiza GPU"
     echo ""
-    echo "🐧 CONTROL LINUX (Modo Rescate / GIA OS):"
+    echo "🐧 CONTROL LINUX & OMARCHY (Modo Rescate / GIA OS / Arch):"
     echo "  ssh                  - Sesión interactiva SSH root sin contraseña"
+    echo "  install-omarchy      - Despliega e instala Omarchy 4.0 (Hyprland + BCM4360 + Iris Pro 5200) en el iMac 14,1"
     echo "  clean-install        - Dispara instalación limpia de Android 17 en el disco de 1TB"
     echo ""
     echo "⚡ CONTROL GENERAL Y ENERGÍA:"
@@ -247,6 +256,12 @@ case "$CMD" in
         TARGET=$(detect_imac)
         echo "🔑 Conectando vía SSH a $USER_SSH@$TARGET..."
         ssh $SSH_OPTS -i "$SSH_KEY" "$USER_SSH@$TARGET"
+        ;;
+
+    install-omarchy|deploy-omarchy|omarchy)
+        TARGET="${1:-$(detect_imac)}"
+        echo "🚀 Desplegando e instalando Omarchy 4.0 en el iMac 14,1 ($TARGET)..."
+        /home/timemachine/deploy_omarchy_imac.sh "$TARGET"
         ;;
 
     clean-install)
