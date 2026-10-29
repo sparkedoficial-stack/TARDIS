@@ -1,38 +1,5 @@
 [
   {
-    "id": "conj_1793103021",
-    "timestamp": "2026-10-27T07:10:21.827334",
-    "idle_duration_minutes": 31.6,
-    "title": "Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching subsystem can dynamically predict the obsolescence of stored query results based on observed changes in source domains (e.g., content updates, SEO shifts). By modeling the probability that a cached page has changed as a function of time, request frequency, and external signals (RSS feeds, change detection APIs), the engine can proactively invalidate or refresh entries, reducing stale data retrieval while keeping latency low. This approach should improve result freshness by at least 30% without increasing average query latency beyond 5 ms.",
-    "research_query": "causal inference based cache invalidation techniques for web scraping or search engines",
-    "research_findings": "# Informe de Investigación: causal inference based cache invalidation techniques for web scraping or search engines\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal cache manager that tracks source change signals and schedules asynchronous refreshes, replacing the static TTL mechanism.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.39
-  },
-  {
-    "id": "conj_1793105075",
-    "timestamp": "2026-10-27T07:44:35.772770",
-    "idle_duration_minutes": 34.2,
-    "title": "Resonancia Causal en la Bóveda Akáshica: Entropía Temporal y Compresión Semántica",
-    "hypothesis": "Se postula que la eficiencia de recuperación en la 'Bóveda Akáshica' (deep_memory_vault.py) no depende linealmente de la cantidad de nodos almacenados, sino de la 'densidad causal' entre ellos. Al aplicar un algoritmo de compresión basada en la correlación temporal de eventos (Time-Series Causal Compression), se puede reducir la latencia de búsqueda en un 40% manteniendo la integridad semántica, al agrupar recuerdos que comparten vectores de causa-efecto similares en lugar de indexarlos individualmente por similitud vectorial pura.",
-    "research_query": "temporal causal compression vector database memory retrieval optimization",
-    "research_findings": "# Informe de Investigación: temporal causal compression vector database memory retrieval optimization\n\n## Fuentes Consultadas y Respaldo Web\n- **[Deep learning (Wikipedia)](https://en.wikipedia.org/wiki/Deep_learning)**: Erol; Bakircioglu, Hakan (1996). \"Low bit-rate video compression with neural networks and temporal subsampling\" (PDF). Proceedings of the IEEE. 84 (10):\n- **[List of datasets for machine-learning research (Wikipedia)](https://en.wikipedia.org/wiki/List_of_datasets_for_machine-learning_research)**: Sindhwani, Vikas; Keerthi, Sathiya S. (2008). \"Optimization techniques for semi-supervised support vector machines\" (PDF). The Journal of Machine Learning\n\n## Contenido y Hallazgos Extraídos\n### De [Deep learning - Wikipedia](https://en.wikipedia.org/wiki/Deep_learning)\n> Deep learning - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nBranch of machine learning\nFor the TV series episode, see Deep Learning ( South Park ) .\nRepresenting images on multiple layers",
-    "web_sources": [
-      "https://en.wikipedia.org/wiki/Deep_learning",
-      "https://en.wikipedia.org/wiki/List_of_datasets_for_machine-learning_research"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar un índice secundario basado en grafos de causalidad temporal para pre-agrupar vectores antes de la búsqueda final, reduciendo el espacio de búsqueda efectivo.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.54
-  },
-  {
     "id": "conj_1793106972",
     "timestamp": "2026-10-27T08:16:12.677665",
     "idle_duration_minutes": 31.6,
@@ -1621,5 +1588,41 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 95.51
+  },
+  {
+    "id": "conj_1793301949",
+    "timestamp": "2026-10-29T14:25:49.303278",
+    "idle_duration_minutes": 41.6,
+    "title": "Causal Graph Embeddings for Context‑Aware Web Research Retrieval",
+    "hypothesis": "Incorporating a lightweight causal graph representation of query‑intent and previously accessed vault memories into the Web Research Engine will enable the system to rank retrieved documents not only by lexical relevance but also by inferred causal relevance, leading to higher precision in downstream reasoning tasks within the GODWORKS architecture.",
+    "research_query": "causal graph embeddings for information retrieval relevance ranking",
+    "research_findings": "# Informe de Investigación: causal graph embeddings for information retrieval relevance ranking\n\n## Fuentes Consultadas y Respaldo Web\n- **[KBDR: document retrieval based on graph matching with knowledge enhancement - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE40X0tkUkdHbnY5NmM3MVg1bFpvRWR2a0lTcWRJNDhxOHphcWhSSjZPYThOVHpVZG9nSHhBTzB4WlRRRVB4VEduNzYtOEVhM2FiNjRWdkxYZUtlNm0zWWtN?oc=5)**: KBDR: document retrieval based on graph matching with knowledge enhancement  Nature\n- **[Graph-Augmented Retrieval for Digital Evidence-Based Medical Synthesis: A Proof-of-Concept Study on Topology-Aware Mechanistic Narrative Generation - medRxiv](https://news.google.com/rss/articles/CBMic0FVX3lxTE1VVnRSTzdaTzhEcHp0NXRDQlRMVTItQU5NWk1xZE55b1JkSEdIdEZOR1A5djFCZDN4LUJzakZ3ZWdybmE4SVVSeWYwXzdlSjhkUUYxRmJ4VUs2TFJmMWtuUFVMZ1ZQaHhkOEZmUVFEbGdHNzA?oc=5)**: Graph-Augmented Retrieval for Digital Evidence-Based Medical Synthesis: A Proof-of-Concept Study on Topology-Aware Mechanistic Narrative Gene",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE40X0tkUkdHbnY5NmM3MVg1bFpvRWR2a0lTcWRJNDhxOHphcWhSSjZPYThOVHpVZG9nSHhBTzB4WlRRRVB4VEduNzYtOEVhM2FiNjRWdkxYZUtlNm0zWWtN?oc=5",
+      "https://news.google.com/rss/articles/CBMic0FVX3lxTE1VVnRSTzdaTzhEcHp0NXRDQlRMVTItQU5NWk1xZE55b1JkSEdIdEZOR1A5djFCZDN4LUJzakZ3ZWdybmE4SVVSeWYwXzdlSjhkUUYxRmJ4VUs2TFJmMWtuUFVMZ1ZQaHhkOEZmUVFEbGdHNzA?oc=5"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal‑graph module that builds a dynamic DAG from recent deep_memory_vault interactions, computes node embeddings (e.g., using GraphSAGE), and integrates these embeddings into the existing ranking pipeline to bias results toward causally related sources.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.72
+  },
+  {
+    "id": "conj_1793303847",
+    "timestamp": "2026-10-29T14:57:27.978720",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal Graph Embeddings for Enhanced Retrieval in Deep Memory Vault",
+    "hypothesis": "Incorporating a causal graph representation of stored events into the Deep Memory Vault will enable the system to perform context‑aware retrieval based on inferred causal relationships, thereby improving relevance of recalled information and reducing hallucination in downstream reasoning modules such as the Web Research Engine.",
+    "research_query": "causal graph embeddings for long‑term memory retrieval in AI systems",
+    "research_findings": "# Informe de Investigación: causal graph embeddings for long‑term memory retrieval in AI systems\n\n## Fuentes Consultadas y Respaldo Web\n- **[The rise of agentic AI in drug discovery from static tools to autonomous virtual scientists - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE0zSnZwRjUwY0RlYnYyam9sYnVTYTgzUmNlOUJNdmFmU2FyQTlQRE1raGliWksxcVZ5QVpYbE9wM0JQQ0RTUUN6YmN2T201c2ZaTk9GMzFVRHBKWElSWlpB?oc=5)**: The rise of agentic AI in drug discovery from static tools to autonomous virtual scientists  Nature\n- **[AMA-Bench: Evaluating Long-Horizon Memory for Agentic Applications - alphaXiv](https://news.google.com/rss/articles/CBMiUEFVX3lxTE92LTJqYzg5VUpUdVl2VjVnQ0g5cFNyNm9TUVU5OHhqLVhXMEU1cmFIcjJ2ZXUzNHkxNHphVktLT0hoczF1bVpJTnFCbmpkSGVm?oc=5)**: AMA-Bench: Evaluating Long-Horizon Memory for Agentic Applications  alphaXiv\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMiX0FVX3lxTE0zSnZwRjUwY0RlYnYyam9sYnVTYTgzUmNlOUJNdmFmU2Fy",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE0zSnZwRjUwY0RlYnYyam9sYnVTYTgzUmNlOUJNdmFmU2FyQTlQRE1raGliWksxcVZ5QVpYbE9wM0JQQ0RTUUN6YmN2T201c2ZaTk9GMzFVRHBKWElSWlpB?oc=5",
+      "https://news.google.com/rss/articles/CBMiUEFVX3lxTE92LTJqYzg5VUpUdVl2VjVnQ0g5cFNyNm9TUVU5OHhqLVhXMEU1cmFIcjJ2ZXUzNHkxNHphVktLT0hoczF1bVpJTnFCbmpkSGVm?oc=5"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implement a causal graph index layer that stores events as nodes with directed edges representing inferred causality, and expose new query methods (e.g., get_causal_path, retrieve_by_causal_context) to be used by the Web Research Engine for more precise information sourcing.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.65
   }
 ]
