@@ -1,41 +1,5 @@
 [
   {
-    "id": "conj_1793034030",
-    "timestamp": "2026-10-26T12:00:30.944448",
-    "idle_duration_minutes": 31.6,
-    "title": "Sincronización Temporal Adaptativa entre Telemetría de Red y Memoria Profunda",
-    "hypothesis": "Se postula que la latencia de recuperación de datos en `deep_memory_vault.py` se vee optimizada no solo por la indexación, sino por la correlación con los picos de inactividad de red detectados por `network_shield.py`. Al sincronizar las operaciones de escritura/lectura de la bóveda akáshica con las ventanas de baja carga de red (detectadas en tiempo real), se puede reducir la contención de I/O y mejorar la coherencia causal de los datos almacenados, evitando la degradación del rendimiento durante picos de tráfico externo.",
-    "research_query": "adaptive I/O scheduling based on real-time network latency correlation deep memory systems",
-    "research_findings": "# Informe de Investigación: adaptive I/O scheduling based on real-time network latency correlation deep memory systems\n\n## Fuentes Consultadas y Respaldo Web\n- **[DRL-based multi-objective task scheduling for edge-cloud computing: latency, energy, and SLA optimisation - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE00UnZPVVkzLVlINUhhbzdyd1hwWGZBM0pDNk9SR0FSamh2SzVwY2pJY2RLM3Q3cnZjOE5fOFZDOXY5TjNUdHlVMTNjX0VFUWo1eWtYWkFzeWUzaHU3OUJ3?oc=5)**: DRL-based multi-objective task scheduling for edge-cloud computing: latency, energy, and SLA optimisation  Nature\n- **[Adaptive and intelligent customized deep Q-network for energy-efficient task offloading in mobile edge computing environments - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE4wTjhWVFZwTVRCQk5aNTl6ZVZORE1WYTFGcWFDZlZWZ1RfUHoybFFKMlNRQXFiWG9OV0VIV2Y0Vm10a2k1OHJickFaRml3X2dnRDI2WjRTeG8zZW11ZXFV?oc=5)**: Adaptive and intelligent customized deep Q-network for energy-efficient task offloading in mobile edge compu",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE00UnZPVVkzLVlINUhhbzdyd1hwWGZBM0pDNk9SR0FSamh2SzVwY2pJY2RLM3Q3cnZjOE5fOFZDOXY5TjNUdHlVMTNjX0VFUWo1eWtYWkFzeWUzaHU3OUJ3?oc=5",
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE4wTjhWVFZwTVRCQk5aNTl6ZVZORE1WYTFGcWFDZlZWZ1RfUHoybFFKMlNRQXFiWG9OV0VIV2Y0Vm10a2k1OHJickFaRml3X2dnRDI2WjRTeG8zZW11ZXFV?oc=5"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar un mecanismo de 'I/O Throttling' dinámico que consulte el estado de `network_shield.py` antes de ejecutar operaciones de escritura pesadas en la bóveda, posponiendo o priorizando las transacciones según la carga de red actual.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 95.3
-  },
-  {
-    "id": "conj_1793035928",
-    "timestamp": "2026-10-26T12:32:08.667890",
-    "idle_duration_minutes": 31.6,
-    "title": "Resonancia Causal en la Bóveda Akáshica",
-    "hypothesis": "Se postula que la eficiencia de recuperación de información en `deep_memory_vault.py` puede optimizarse significativamente si se implementa un mecanismo de 'resonancia causal' que priorice no solo la similitud semántica, sino la coherencia temporal y causal entre los nodos de memoria. Actualmente, la búsqueda podría estar tratando los recuerdos como vectores estáticos; la hipótesis sugiere que al ponderar dinámicamente la relevancia basada en la densidad de conexiones causales recientes (telemetría de uso), el sistema reducirá el ruido epistémico y acelerará la inferencia en `web_research_engine.py` al filtrar resultados que no encajan en la narrativa causal actual del usuario.",
-    "research_query": "causal graph memory retrieval optimization LLM long-term context window temporal coherence",
-    "research_findings": "# Informe de Investigación: causal graph memory retrieval optimization LLM long-term context window temporal coherence\n\n## Fuentes Consultadas y Respaldo Web\n- **[AtomMem: Building Simple and Effective Memory System for LLM Agents via Atomic Facts - alphaXiv](https://news.google.com/rss/articles/CBMiUEFVX3lxTE9aUlBkeFpPaldzZEFCSWlnZkJfS3VSVUZNRnNvZU14VTM3UmJPWnlzeU95MjdzdUxYNFRjLU9ZX2FwaUVKSFB4X18tMW5QVHRk?oc=5)**: AtomMem: Building Simple and Effective Memory System for LLM Agents via Atomic Facts  alphaXiv\n- **[Scaling to Millions of Tokens with Efficient Long-Context LLM Training | NVIDIA Technical Blog - NVIDIA Developer](https://news.google.com/rss/articles/CBMiqAFBVV95cUxPZEZVRENpUHFPbDhXTUU0LVZ3MUJMVkU4bWRxU1lkeTlfV0xmSDlEUlpIRkZVWlItMHltVWhqOGZRRHhJOXVEU2NuaVVHQ0xna1FhNXBkdnZFWkR1UmltYnZfTXFZYl9JSHM3MmRza3FqbU9lbEY3dGdVTkNsRndQMFJwenptNFBpSDl6Qjlrbkl1SUVVYzJjZXMwY1FkaVhMbHpoT2xsc2o?oc=5)**: Scaling to Millions of Tokens with Efficient Long-Context LLM Training | NVIDIA Technica",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMiUEFVX3lxTE9aUlBkeFpPaldzZEFCSWlnZkJfS3VSVUZNRnNvZU14VTM3UmJPWnlzeU95MjdzdUxYNFRjLU9ZX2FwaUVKSFB4X18tMW5QVHRk?oc=5",
-      "https://news.google.com/rss/articles/CBMiqAFBVV95cUxPZEZVRENpUHFPbDhXTUU0LVZ3MUJMVkU4bWRxU1lkeTlfV0xmSDlEUlpIRkZVWlItMHltVWhqOGZRRHhJOXVEU2NuaVVHQ0xna1FhNXBkdnZFWkR1UmltYnZfTXFZYl9JSHM3MmRza3FqbU9lbEY3dGdVTkNsRndQMFJwenptNFBpSDl6Qjlrbkl1SUVVYzJjZXMwY1FkaVhMbHpoT2xsc2o?oc=5"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar un índice secundario de 'densidad causal' que asigne pesos dinámicos a los vectores de memoria basados en la frecuencia de co-ocurrencia temporal en las últimas 24h de telemetría, modificando la función de scoring de búsqueda para penalizar nodos aislados causalmente.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.71
-  },
-  {
     "id": "conj_1793037739",
     "timestamp": "2026-10-26T13:02:19.969946",
     "idle_duration_minutes": 30.2,
@@ -1633,5 +1597,35 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 111.24
+  },
+  {
+    "id": "conj_1793232599",
+    "timestamp": "2026-10-28T19:09:59.534374",
+    "idle_duration_minutes": 34.1,
+    "title": "Optimización de la caché semántica en DeepMemoryVault mediante embeddings difusos",
+    "hypothesis": "Si el módulo core/deep_memory_vault.py incorpora una capa de caché semántica basada en embeddings difusos (diffusion embeddings) que se actualizan de forma incremental, entonces la latencia de recuperación de recuerdos causales y la precisión de la inferencia contextual mejorarán en al menos un 30% respecto al modelo actual de índices hash estáticos, especialmente bajo cargas de consultas concurrentes provenientes del motor de investigación web.",
+    "research_query": "diffusion embeddings incremental cache for semantic memory retrieval performance improvement",
+    "research_findings": "# Informe de Investigación: diffusion embeddings incremental cache for semantic memory retrieval performance improvement\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar una clase DiffusionCache que mantenga embeddings difusos actualizados en tiempo real y reemplace el actual hashmap de índices; añadir métodos async get/put y un proceso de background para refrescar embeddings usando un modelo ligero de difusión.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 115.95
+  },
+  {
+    "id": "conj_1793234562",
+    "timestamp": "2026-10-28T19:42:42.092145",
+    "idle_duration_minutes": 32.7,
+    "title": "Causal Retrieval Augmentation for the Deep Memory Vault",
+    "hypothesis": "Integrating a causal inference layer into the Deep Memory Vault (core/deep_memory_vault.py) that scores retrieved akáshic entries based on their inferred causal relevance to the current query will improve answer precision by at least 15% in benchmarked multi‑step reasoning tasks. The hypothesis rests on the idea that the vault stores not only raw facts but also latent causal graphs; a lightweight causal scorer can prioritize entries that are upstream in these graphs, reducing noise from tangentially related memories.",
+    "research_query": "how to implement lightweight causal relevance scoring for vector‑based knowledge bases \"causal inference\" \"knowledge retrieval\"",
+    "research_findings": "# Informe de Investigación: how to implement lightweight causal relevance scoring for vector‑based knowledge bases \"causal inference\" \"knowledge retrieval\"\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Add a new method `score_causal_relevance(query_embedding, candidate_embeddings, causal_graph)` that computes a causal relevance score using path length and edge weight heuristics, and modify the retrieval pipeline to rank candidates by a weighted combination of similarity and causal relevance.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 130.72
   }
 ]
