@@ -1,41 +1,5 @@
 [
   {
-    "id": "conj_1793112788",
-    "timestamp": "2026-10-27T09:53:08.278248",
-    "idle_duration_minutes": 31.6,
-    "title": "Resonancia Causal en la Bóveda Akáshica: Compresión Semántica Adaptativa",
-    "hypothesis": "Se postula que la eficiencia de recuperación en `deep_memory_vault.py` se degrada exponencialmente con el volumen de datos debido a la búsqueda lineal o indexación estática. La conjetura es que implementar un mecanismo de 'Resonancia Causal' —donde los vectores de memoria se re-pesaran dinámicamente según su relevancia temporal y causal respecto a la consulta actual— reduciría la latencia de búsqueda en un 40% y aumentaría la precisión de la recuperación contextual, transformando la bóveda de un almacén pasivo a un sistema cognitivo activo que prioriza la información basada en la probabilidad de utilidad futura.",
-    "research_query": "adaptive semantic memory compression causal relevance ranking vector database optimization",
-    "research_findings": "# Informe de Investigación: adaptive semantic memory compression causal relevance ranking vector database optimization\n\n## Fuentes Consultadas y Respaldo Web\n- **[Outline of machine learning (Wikipedia)](https://en.wikipedia.org/wiki/Outline_of_machine_learning)**: error Prefrontal cortex basal ganglia working memory PVLV Q-learning Quadratic unconstrained binary optimization Query-level feature Quickprop Radial basis\n- **[List of datasets for machine-learning research (Wikipedia)](https://en.wikipedia.org/wiki/List_of_datasets_for_machine-learning_research)**: Sindhwani, Vikas; Keerthi, Sathiya S. (2008). \"Optimization techniques for semi-supervised support vector machines\" (PDF). The Journal of Machine Learning\n\n## Contenido y Hallazgos Extraídos\n### De [Outline of machine learning - Wikipedia](https://en.wikipedia.org/wiki/Outline_of_machine_learning)\n> Outline of machine learning - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nOverview of and topical guide to mach",
-    "web_sources": [
-      "https://en.wikipedia.org/wiki/Outline_of_machine_learning",
-      "https://en.wikipedia.org/wiki/List_of_datasets_for_machine-learning_research"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Introducir un método `calculate_causal_relevance(query_vector, memory_entries)` que asigne pesos dinámicos a las entradas de memoria basándose en la similitud coseno y la recencia, y modificar el método de búsqueda principal para filtrar y ordenar resultados por este score compuesto antes de devolverlos.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.25
-  },
-  {
-    "id": "conj_1793114685",
-    "timestamp": "2026-10-27T10:24:45.970206",
-    "idle_duration_minutes": 31.6,
-    "title": "Resonancia Causal en la Bóveda Akáshica: Optimización de la Entropía Semántica",
-    "hypothesis": "Se postula que la eficiencia de recuperación de información en la 'Bóveda Akáshica' (deep_memory_vault.py) se vea limitada por la acumulación de ruido semántico en vectores de memoria a largo plazo. Al implementar un mecanismo de 'pruning' (poda) basado en la relevancia causal histórica y la decaimiento exponencial de la confianza, se puede reducir la latencia de búsqueda y mejorar la precisión de las inferencias del núcleo cognitivo, evitando la dilución de contextos críticos por datos obsoletos o de baja coherencia.",
-    "research_query": "vector database semantic pruning entropy reduction long-term memory AI agents",
-    "research_findings": "# Informe de Investigación: vector database semantic pruning entropy reduction long-term memory AI agents\n\n## Fuentes Consultadas y Respaldo Web\n- **[Outline of machine learning (Wikipedia)](https://en.wikipedia.org/wiki/Outline_of_machine_learning)**: majority algorithm Reinforcement learning Repeated incremental pruning to produce error reduction (RIPPER) Rprop Rule-based machine learning Self-organizing\n- **[Deep learning (Wikipedia)](https://en.wikipedia.org/wiki/Deep_learning)**: embeddings from large text corpora. The resulting vector representations were shown to capture syntactic and semantic relationships between words. A subsequent\n\n## Contenido y Hallazgos Extraídos\n### De [Outline of machine learning - Wikipedia](https://en.wikipedia.org/wiki/Outline_of_machine_learning)\n> Outline of machine learning - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nOverview of and topical guide to machine learning\nThis article contains dynamic lists that may never be able t",
-    "web_sources": [
-      "https://en.wikipedia.org/wiki/Outline_of_machine_learning",
-      "https://en.wikipedia.org/wiki/Deep_learning"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar una función `prune_low_relevance_entries()` que evalúe la similitud coseno y la antigüedad de los vectores almacenados, eliminando o reponderando entradas cuya contribución causal a las últimas N interacciones sea inferior a un umbral dinámico.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.68
-  },
-  {
     "id": "conj_1793116583",
     "timestamp": "2026-10-27T10:56:23.878885",
     "idle_duration_minutes": 31.6,
@@ -1625,5 +1589,38 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.83
+  },
+  {
+    "id": "conj_1793311437",
+    "timestamp": "2026-10-29T17:03:57.484638",
+    "idle_duration_minutes": 31.6,
+    "title": "Sincronización Temporal de la Bóveda Akáshica",
+    "hypothesis": "La eficiencia de la recuperación de memoria profunda (deep_memory_vault.py) se ve limitada por la latencia de búsqueda lineal en metadatos desactualizados. Se conjetura que implementar un índice de 'recencia ponderada' (weighted recency index) que priorice nodos de memoria con alta relevancia causal reciente sobre los puramente históricos, reducirá la latencia de consulta en un 40% y mejorará la coherencia contextual de las respuestas generadas por el núcleo cognitivo.",
+    "research_query": "weighted recency index optimization for semantic memory retrieval systems",
+    "research_findings": "# Informe de Investigación: weighted recency index optimization for semantic memory retrieval systems\n\n## Fuentes Consultadas y Respaldo Web\n- **[Search engine (Wikipedia)](https://en.wikipedia.org/wiki/Search_engine)**: marketing and optimization, has historically largely focused on Google. In 1945, Vannevar Bush described an information retrieval system that would allow\n- **[Recommender system (Wikipedia)](https://en.wikipedia.org/wiki/Recommender_system)**: architecture commonly employed in large-scale recommendation systems, particularly for candidate retrieval tasks. It consists of two neural networks: User Tower:\n\n## Contenido y Hallazgos Extraídos\n### De [Search engine - Wikipedia](https://en.wikipedia.org/wiki/Search_engine)\n> Search engine - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nSoftware system for finding relevant information on the Web\nThis article is about searching the World Wide Web. For search engines in general, see Search engine (computing) . ",
+    "web_sources": [
+      "https://en.wikipedia.org/wiki/Search_engine",
+      "https://en.wikipedia.org/wiki/Recommender_system"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar un algoritmo de scoring que combine la similitud semántica con un factor de decaimiento exponencial basado en la última interacción causal del nodo de memoria.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.16
+  },
+  {
+    "id": "conj_1793313739",
+    "timestamp": "2026-10-29T17:42:19.179651",
+    "idle_duration_minutes": 38.4,
+    "title": "Resonancia Causal en la Bóveda Akáshica: Entropía Temporal y Compresión Semántica",
+    "hypothesis": "Se postula que la eficiencia de recuperación de información en la 'Bóveda Akáshica' (deep_memory_vault.py) no depende linealmente de la cantidad de nodos almacenados, sino de la 'densidad causal' entre los eventos registrados. Actualmente, el sistema podría estar sufriendo de 'ruido temporal' donde memorias de baja relevancia causal diluyen la señal de las memorias de alto impacto. La conjetura sugiere que implementar un algoritmo de decaimiento exponencial ponderado por la frecuencia de co-ocurrencia de conceptos (similitud semántica) en lugar de solo por el tiempo transcurrido, permitiría mantener una ventana de atención más precisa y reducir la latencia de búsqueda en la red neuronal interna, optimizando así la toma de decisiones autónomas del núcleo.",
+    "research_query": "temporal decay algorithms for semantic memory retrieval in LLM agents causal density weighting",
+    "research_findings": "# Informe de Investigación: temporal decay algorithms for semantic memory retrieval in LLM agents causal density weighting\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar una función de 'causal_decay_score' que combine la antigüedad del dato con su relevancia semántica histórica, reemplazando el simple timestamp decay actual para priorizar memorias con alta co-ocurrencia conceptual.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.37
   }
 ]
