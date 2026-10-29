@@ -9,6 +9,8 @@ Módulos y componentes auxiliares del sistema.
 - **CURRENT_TUNNEL_URL.txt**: Componente de alta eficiencia.
 - **ChatView.swift**: Componente nativo iOS/SwiftUI de la aplicación móvil GIA.
 - **ChatViewModel.swift**: Componente nativo iOS/SwiftUI de la aplicación móvil GIA.
+- **FTL_PUBLIC_ACCESS.txt**: Motor de aceleración FTL y computación adaptativa.
+- **FTL_PUBLIC_URL.txt**: Motor de aceleración FTL y computación adaptativa.
 - **GIAApp.swift**: Componente nativo iOS/SwiftUI de la aplicación móvil GIA.
 - **GIAAppIntents.swift**: Componente nativo iOS/SwiftUI de la aplicación móvil GIA.
 - **GIANetworkService.swift**: Componente nativo iOS/SwiftUI de la aplicación móvil GIA.
@@ -88,6 +90,7 @@ Módulos y componentes auxiliares del sistema.
 - **ftl_intv_appletv_hub.py**: Motor de aceleración FTL y computación adaptativa.
 - **ftl_linpad.py**: Motor de aceleración FTL y computación adaptativa.
 - **ftl_nxnative.py**: Motor de aceleración FTL y computación adaptativa.
+- **ftl_public_gateway.py**: Motor de aceleración FTL y computación adaptativa.
 - **gemini_privacy_vault.py**: Centinela de seguridad, blindaje perimetral o bóveda segura.
 - **geon_retrocausal_mechanics.json**: Componente de alta eficiencia.
 - **geon_retrocausal_mechanics_forum_post.md**: Componente de alta eficiencia.
@@ -196,6 +199,7 @@ Módulos y componentes auxiliares del sistema.
 - **run.py**: Componente de alta eficiencia.
 - **runtime-observation.md**: Componente de alta eficiencia.
 - **runtime_env.py**: Componente de alta eficiencia.
+- **savemode_manager.py**: Componente de alta eficiencia.
 - **scientific_learning_agenda.json**: Componente de alta eficiencia.
 - **scientific_research_engine.py**: Componente de alta eficiencia.
 - **self_updater.py**: Componente de alta eficiencia.
@@ -214,6 +218,7 @@ Módulos y componentes auxiliares del sistema.
 - **tardis_browser_gui.py**: Componente de alta eficiencia.
 - **tardis_calculadora_voz.py**: Componente de alta eficiencia.
 - **tardis_cell_parser.py**: Componente de alta eficiencia.
+- **tardis_chatter_agent.py**: Modelo lógico y comportamiento autónomo distribuido.
 - **tardis_conversation_analyzer.py**: Componente de alta eficiencia.
 - **tardis_desktop_companion.py**: Componente de alta eficiencia.
 - **tardis_dynamic_function_engine.py**: Componente de alta eficiencia.

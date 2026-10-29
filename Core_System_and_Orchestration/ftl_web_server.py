@@ -269,8 +269,12 @@ async def portal_index(request: Request):
     client_host = request.client.host if request.client else "localhost"
     primary_ip = get_primary_lan_ip()
     ips = get_network_ips()
+    behind_gateway = request.headers.get("x-ftl-gateway") == "1"
+    # Detrás del gateway público todo es mismo-origen: /terminal.
+    # En LAN directa se usa el puerto ttyd con su base-path.
+    term_url = "/terminal" if behind_gateway else f"http://{primary_ip}:7681/terminal"
     qr_portal = generate_qr_base64(f"http://{primary_ip}:8765")
-    qr_term = generate_qr_base64(f"http://{primary_ip}:7681")
+    qr_term = generate_qr_base64(f"http://{primary_ip}:7681/terminal")
 
     # Generate IP list HTML
     ip_list_html = ""
@@ -884,10 +888,8 @@ async def portal_index(request: Request):
     <div id="toast">Comando copiado al portapapeles</div>
 
     <script>
-        // Set dynamic terminal iframe URL using the browser's current host
-        const termPort = '7681';
-        const termHost = window.location.hostname || '{primary_ip}';
-        const termUrl = window.location.protocol + '//' + termHost + ':' + termPort;
+        // Terminal URL resuelta por el portal (gateway público o LAN directa)
+        const termUrl = "{term_url}";
         document.getElementById('terminal-frame').src = termUrl;
                 function startVoiceRecognition() {{
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
