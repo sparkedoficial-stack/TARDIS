@@ -1,35 +1,35 @@
 {
   "schema": "tardis.savage_update/1.0",
-  "generated_at": "2026-10-29T00:21:32-05:00",
+  "generated_at": "2026-10-29T00:34:03-05:00",
   "cycle": {
-    "items_collected": 0,
+    "items_collected": 55,
     "items_fresh": 0,
     "proposals": 0,
     "experiment_plans": 0,
-    "elapsed_s": 0.95
+    "elapsed_s": 6.18
   },
   "sources": {
     "offline": false,
     "sources": {
       "github": {
         "ok": true,
-        "count": 0,
-        "elapsed_ms": 125.0
+        "count": 6,
+        "elapsed_ms": 3494.5
       },
       "huggingface": {
         "ok": true,
-        "count": 0,
-        "elapsed_ms": 3.3
+        "count": 20,
+        "elapsed_ms": 489.1
       },
       "arxiv": {
         "ok": true,
-        "count": 0,
-        "elapsed_ms": 3.1
+        "count": 36,
+        "elapsed_ms": 1033.4
       },
       "npm": {
         "ok": true,
-        "count": 0,
-        "elapsed_ms": 1.0
+        "count": 1,
+        "elapsed_ms": 381.5
       }
     }
   },

@@ -399,6 +399,7 @@ class FTLInterface:
         # --- FTL APEX SOVEREIGN ENGINES ---
         help_table.add_row("$ <cmd> / ! <cmd>", "Ejecuta comandos de host bash/root directamente sin salir de FTL", "Soberana Absoluta")
         help_table.add_row(":easytouch / :et", "Vigilante soberano Easy Touch: Auto-corrección preventiva en segundo plano", "Resiliencia Total")
+        help_table.add_row(":savageupdate / :rea", "/SavageUpdate: aprendizaje REA continuo y auto-mejora de TARDIS, FTL y Easy Touch", "Evolución Continua")
         help_table.add_row(":ton618 / :mascot", "Reproducir animación de TON 618 (Mascota Oficial de FTL · 66B M☉)", "Mascota & Identidad")
         help_table.add_row(":auto", "Enrutador Cognitivo Autónomo (Balancea costo y abstracción)", "Bypass Total")
         help_table.add_row(":infinite", "TARDIS Infinite Code: Fusión Cuádruple (Flash+Pro+Sonnet+Opus) + Cloud Offload", "Fusión Suprema")

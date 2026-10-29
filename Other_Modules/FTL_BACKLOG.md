@@ -1,24 +1,24 @@
 # FTL · Backlog Soberano Priorizado
 
-**Generado:** 2026-10-29T00:19:23-05:00  
+**Generado:** 2026-10-29T00:33:44-05:00  
 **Fuente autoritativa:** `/home/timemachine/.tardis/continuity_vault.db`  
 **Doctrina:** prioridad P0→P3; dentro de cada nivel, mayor complejidad primero.
 
 ## Resumen ejecutivo
 
-- Peticiones totales: **138**
-- Completadas: **110** · Fallidas: **16** · En progreso: **12**
+- Peticiones totales: **139**
+- Completadas: **134** · Fallidas: **1** · En progreso: **4**
 - Pendientes reales (sin resolver/verificar): **5**
-- Resueltas y verificadas en esta sesión: **23**
+- Resueltas y verificadas en esta sesión: **24**
 - Bloqueadas por hardware/privilegios: **5**
 
 ### Distribución por complejidad
 
-- **C1**: 59
-- **C2**: 40
-- **C3**: 22
-- **C4**: 8
-- **C5**: 9
+- **C1**: 66
+- **C2**: 38
+- **C3**: 18
+- **C4**: 11
+- **C5**: 6
 
 ### Distribución por categoría
 
@@ -36,6 +36,7 @@
 - Antigravity: 1
 - Audio / Hardware: 1
 - Tooling / Paquetes: 1
+- Ruido / Chatter: 1
 - SaveMode: 1
 
 ## 1. Backlog pendiente · orden de prioridad y complejidad
@@ -52,8 +53,8 @@
 
 | ID | Categoría | Complejidad | Evidencia |
 |----|-----------|-------------|-----------|
-| #4 | Inteligencia visual | C5 | tardis-visual-intelligence.service active; tardis-video-pensante.service active |
-| #5 | Inteligencia visual | C5 | tardis-visual-intelligence.service active; data/chronovision/videos |
+| #4 | Inteligencia visual | C4 | tardis-visual-intelligence.service active; tardis-video-pensante.service active |
+| #5 | Inteligencia visual | C4 | tardis-visual-intelligence.service active; data/chronovision/videos |
 | #7 | Inteligencia visual | C4 | tardis-visual-intelligence.service active; tardis-video-pensante.service active |
 | #13 | Inteligencia visual | C3 | tardis_video_pensante.py; tardis_vp_engine.py; tardis_blender_hyper_animator.py |
 | #61 | TimeEmergency | C1 | core/telegram_bridge.py: /timeemergency -> TimeEmergencyEngine |
@@ -61,20 +62,21 @@
 | #92 | Sistema operativo | C2 | /etc/os-release: TardisOS 26.4 LTS (Temporal Sovereign) |
 | #103 | Antigravity | C1 | antigravity-cli-daemon.service active (remote-control daemon) |
 | #108 | Mejora de sistemas | C1 | Reparación integral + REA + SavageUpdate + gateway público en esta sesión |
-| #115 | Tooling / Paquetes | C2 | npm ls -g: deepseek-terminal-cli@1.3.0 |
-| #121 | Mejora de sistemas | C3 | docs/FTL_BACKLOG.md; data/ftl_backlog.json |
+| #115 | Tooling / Paquetes | C1 | npm ls -g: deepseek-terminal-cli@1.3.0 |
+| #121 | Mejora de sistemas | C2 | docs/FTL_BACKLOG.md; data/ftl_backlog.json |
 | #124 | Aprendizaje / REA | C5 | modulos_ftl/rea_learning_engine.py; modulos_ftl/savage_update.py; savage-update.service active |
-| #125 | Auto-reparación / Easy Touch | C2 | data/system_repair_report.json: 149 archivos Python, 0 errores; 13 unidades activas |
-| #126 | Acceso remoto y terminal | C2 | ftl-public-gateway.service; ftl-public-tunnel.service; FTL_PUBLIC_ACCESS.txt |
-| #127 | General | C2 | Este informe cierra la verificación solicitada |
-| #128 | Modelos | C3 | ~/.ftl/config.py: default_model=opencode/deepseek-v4.1-flash-free#max |
+| #125 | Auto-reparación / Easy Touch | C1 | data/system_repair_report.json: 153 archivos Python, 0 errores; 13 unidades activas |
+| #126 | Acceso remoto y terminal | C1 | ftl-public-gateway.service; ftl-public-tunnel.service; FTL_PUBLIC_ACCESS.txt |
+| #127 | General | C1 | Este informe cierra la verificación solicitada |
+| #128 | Modelos | C2 | ~/.ftl/config.py: default_model=opencode/deepseek-v4.1-flash-free#max |
 | #130 | Aprendizaje / REA | C5 | modulos_ftl/rea_learning_engine.py; modulos_ftl/savage_update.py; data/rea/learning_report.json |
-| #132 | Acceso remoto y terminal | C2 | Gateway 7690 + Cloudflare Quick Tunnel; WebSocket /terminal verificado |
-| #133 | General | C2 | tardis-chatter-agent.service active; API 8795; data/chatter/noise.jsonl |
-| #134 | General | C3 | tardis-chatter-agent.py controlado por TARDIS hub/portal |
-| #135 | SaveMode | C5 | tardis-savemode.service active; API 8796; endpoints /api/savemode/* |
-| #136 | Acceso remoto y terminal | C3 | Acceso por datos móviles vía Cloudflare Tunnel; Token de 43 caracteres |
+| #132 | Acceso remoto y terminal | C1 | Gateway 7690 + Cloudflare Quick Tunnel; WebSocket /terminal verificado |
+| #133 | Ruido / Chatter | C1 | tardis-chatter-agent.service active; API 8795; data/chatter/noise.jsonl |
+| #134 | General | C2 | tardis-chatter-agent.py controlado por TARDIS hub/portal |
+| #135 | SaveMode | C4 | tardis-savemode.service active; API 8796; endpoints /api/savemode/* |
+| #136 | Acceso remoto y terminal | C2 | Acceso por datos móviles vía Cloudflare Tunnel; Token de 43 caracteres |
 | #138 | General | C1 | Este informe + módulos REA/SavageUpdate + servicios |
+| #139 | General | C1 | Continuación tras reinicio verificada; Servicios activos y gateway público revalidado |
 
 ## 3. Bloqueos reales (hardware / privilegios / dependencias externas)
 

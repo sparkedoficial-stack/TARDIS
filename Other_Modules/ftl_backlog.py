@@ -130,7 +130,7 @@ RESOLUTIONS: Dict[int, Dict[str, Any]] = {
     },
     125: {
         "resolution": "completed",
-        "evidence": ["data/system_repair_report.json: 149 archivos Python, 0 errores", "13 unidades activas"],
+        "evidence": ["data/system_repair_report.json: 153 archivos Python, 0 errores", "13 unidades activas"],
         "next_action": "Aplicar reparaciones privilegiadas de udev con sudo interactivo.",
     },
     126: {
@@ -183,6 +183,11 @@ RESOLUTIONS: Dict[int, Dict[str, Any]] = {
         "evidence": ["Este informe + módulos REA/SavageUpdate + servicios"],
         "next_action": "Ninguna; petición en curso cerrada al finalizar.",
     },
+    139: {
+        "resolution": "completed",
+        "evidence": ["Continuación tras reinicio verificada", "Servicios activos y gateway público revalidado"],
+        "next_action": "Ninguna; continuación cerrada.",
+    },
 }
 
 CATEGORY_RULES: List[tuple[str, tuple[str, ...]]] = [
@@ -198,6 +203,7 @@ CATEGORY_RULES: List[tuple[str, tuple[str, ...]]] = [
     ("Hardware / Arranque", ("boot", "botear", "ideapad", "arranque", "instalación por red", "instalacion por red")),
     ("Cómputo distribuido", ("distribu", "cluster", "mac 14", "imac", "cómputo", "computo")),
     ("Auto-reparación / Easy Touch", ("easy touch", "reparad", "reparen", "reparar", "doctor", "heal")),
+    ("Ruido / Chatter", ("plática", "platica", "ruido", "chatter", "conversacional")),
     ("Acceso remoto y terminal", ("terminal", "internet", "conexión web", "conexion web", "remot", "datos móviles", "datos moviles", "enlace")),
     ("Mejora de sistemas", ("mejora mis sistemas", "mejoras")),
 ]
@@ -208,6 +214,7 @@ IMPACT = {
     "Acceso remoto y terminal": 5.0,
     "Aprendizaje / REA": 4.5,
     "Auto-reparación / Easy Touch": 4.5,
+    "Ruido / Chatter": 3.0,
     "SaveMode": 4.0,
     "Inteligencia visual": 4.0,
     "Cómputo distribuido": 3.5,

@@ -1,6 +1,6 @@
 {
   "schema": "tardis.rea.learning/1.0",
-  "generated_at": "2026-10-29T00:21:32-05:00",
+  "generated_at": "2026-10-29T00:34:03-05:00",
   "engine_version": "26.4.0",
   "artifacts_analyzed": 5,
   "formats": {
@@ -235,7 +235,7 @@
       "path": "/home/timemachine/.ollama/models/blobs/sha256-3ef322a05f28c44dec6ce8e23b5634825196867d006aad17c405cc3df23a7d82",
       "format": "gguf",
       "fingerprint": "REDACTED_TOKEN",
-      "learned_at": "2026-10-29T00:21:32-05:00",
+      "learned_at": "2026-10-29T00:34:03-05:00",
       "architecture": "llama",
       "parameters": REDACTED_PHONE,
       "parameters_human": "8.03 B",
@@ -251,7 +251,7 @@
       "path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/models/face_detection_yunet_2023mar.onnx",
       "format": "html",
       "fingerprint": "REDACTED_TOKEN",
-      "learned_at": "2026-10-29T00:21:32-05:00",
+      "learned_at": "2026-10-29T00:34:03-05:00",
       "architecture": null,
       "parameters": null,
       "parameters_human": null,
@@ -269,7 +269,7 @@
       "path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/models/face_recognition_sface_2021dec.onnx",
       "format": "html",
       "fingerprint": "REDACTED_TOKEN",
-      "learned_at": "2026-10-29T00:21:32-05:00",
+      "learned_at": "2026-10-29T00:34:03-05:00",
       "architecture": null,
       "parameters": null,
       "parameters_human": null,
@@ -287,7 +287,7 @@
       "path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/models/glm-5.2/config.json",
       "format": "config",
       "fingerprint": "REDACTED_TOKEN",
-      "learned_at": "2026-10-29T00:21:32-05:00",
+      "learned_at": "2026-10-29T00:34:03-05:00",
       "architecture": "glm-5.2",
       "parameters": null,
       "parameters_human": null,
@@ -303,7 +303,7 @@
       "path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/models/glm-5.2/glm-5.2-q4_0.gguf",
       "format": "empty",
       "fingerprint": "REDACTED_TOKEN",
-      "learned_at": "2026-10-29T00:21:32-05:00",
+      "learned_at": "2026-10-29T00:34:03-05:00",
       "architecture": null,
       "parameters": null,
       "parameters_human": null,
@@ -318,7 +318,7 @@
       ]
     }
   ],
-  "kb_records": 46,
+  "kb_records": 56,
   "coverage": {
     "has_local_models": true,
     "architectures_known": 1,

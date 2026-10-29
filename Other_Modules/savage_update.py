@@ -437,9 +437,10 @@ class SavageUpdateAgent:
                 sources[name] = {"ok": False, "error": f"{type(exc).__name__}: {exc}", "count": 0}
                 continue
             sources[name] = {
-                "ok": True,
+                "ok": bool(batch),
                 "count": len(batch),
                 "elapsed_ms": round((time.time() - started) * 1000, 1),
+                **({"error": "sin datos: red/DNS no disponible o respuesta vacía"} if not batch else {}),
             }
             items.extend(batch)
             self.log(f"{name}: {len(batch)} elementos")

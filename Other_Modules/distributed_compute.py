@@ -24,10 +24,15 @@ API:
 """
 from __future__ import annotations
 
+import concurrent.futures
+import ipaddress
 import json
 import os
 import socket
+import subprocess
 import time
+import urllib.parse
+import urllib.request
 from pathlib import Path
 
 import httpx
@@ -37,6 +42,18 @@ CONFIG_DIR.mkdir(parents=True, exist_ok=True)
 NODES_FILE = CONFIG_DIR / "compute_nodes.json"
 
 LOCAL = "http://127.0.0.1:11434"
+
+# Solo se enrolan automáticamente equipos del Arquitecto. Nunca se toma un
+# vecino de red ajeno: el nombre reverso o la IP deben coincidir con esta lista.
+TRUSTED_HOST_PATTERNS = (
+    "imac", "mac-14", "mac14", "macbook", "ideapad", "tardis", "timemachine",
+)
+TRUSTED_IPS = {
+    "REDACTED_IP",   # iMac 14,1 (IP fija histórica)
+    "REDACTED_IP",   # iMac 14,1 (IP de rescate)
+    "REDACTED_IP",   # iMac 14,1 (enlace directo Ethernet)
+}
+MESH_LOG = Path(__file__).resolve().parent / "data" / "compute_mesh.jsonl"
 
 
 # =====================================================================
@@ -192,40 +209,193 @@ def get_endpoint(model: str = "") -> str:
 
 
 # =====================================================================
-#  Descubrimiento (SUGERENCIA, no enrola solo)
+#  Descubrimiento multi-subred (SUGERENCIA / AUTO-ENROLAMIENTO CONFIANZA)
 # =====================================================================
 
-def discover(subnet: str = "", timeout: float = 0.4) -> dict:
-    """Sondea la subred local buscando hosts que respondan como Ollama.
-    SOLO sugiere; no agrega nada. El usuario decide con register_node."""
-    if not subnet:
-        # Derivar de la IP local
+def local_subnets() -> list[str]:
+    """Devuelve todas las subredes IPv4 locales, excluyendo loopback y docker."""
+    out: list[str] = []
+    try:
+        r = subprocess.run(
+            ["ip", "-4", "-o", "addr", "show"],
+            capture_output=True, text=True, timeout=3,
+        )
+        for line in r.stdout.splitlines():
+            parts = line.split()
+            if len(parts) >= 4 and parts[2] == "inet":
+                cidr = parts[3]
+                net = ipaddress.ip_network(cidr, strict=False)
+                if net.version != 4 or net.is_loopback:
+                    continue
+                if str(net.network_address).startswith(("10.240.", "172.17.", "172.18.")):
+                    continue
+                out.append(str(net))
+    except Exception:
+        pass
+
+    if not out:
+        # Fallback clásico: IP de salida + /24
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             s.connect(("REDACTED_IP", 80))
             ip = s.getsockname()[0]
             s.close()
-            subnet = ".".join(ip.split(".")[:3])
-        except Exception:
-            return {"ok": False, "error": "no pude derivar la subred"}
-    found = []
-    for i in range(1, 255):
-        host = f"{subnet}.{i}"
-        try:
-            with socket.create_connection((host, 11434), timeout=timeout):
-                pass
-        except Exception:
-            continue
-        # Puerto abierto: confirmar que es Ollama
-        try:
-            r = httpx.get(f"http://{host}:11434/api/tags", timeout=2.0)
-            if r.status_code == 200:
-                models = [m["name"] for m in r.json().get("models", [])]
-                found.append({"url": f"http://{host}:11434", "models": models})
+            out.append(".".join(ip.split(".")[:3]) + ".0/24")
         except Exception:
             pass
-    return {"ok": True, "subnet": subnet, "candidates": found,
-            "note": "Usa register_node(url) para enrolar los que sean TUYOS."}
+    return sorted(set(out))
+
+
+def _probe_ollama(host: str, port: int = 11434, timeout: float = 0.35) -> dict | None:
+    """Comprueba un host:puerto y confirma que la API sea Ollama."""
+    try:
+        with socket.create_connection((host, port), timeout=timeout):
+            pass
+    except OSError:
+        return None
+    try:
+        req = urllib.request.Request(
+            f"http://{host}:{port}/api/tags",
+            headers={"User-Agent": "TARDIS-Compute-Mesh/1.0"},
+        )
+        with urllib.request.urlopen(req, timeout=2.5) as resp:
+            if resp.status != 200:
+                return None
+            data = json.loads(resp.read().decode("utf-8", errors="replace"))
+        models = [m.get("name", "") for m in data.get("models", [])]
+        return {"url": f"http://{host}:{port}", "models": models}
+    except Exception:
+        return None
+
+
+def discover_network(
+    subnets: list[str] | None = None,
+    port: int = 11434,
+    timeout: float = 0.35,
+    workers: int = 128,
+    max_hosts: int = 4096,
+) -> list[dict]:
+    """Escanea en paralelo todas las subredes locales buscando Ollama.
+
+    No modifica el registro; devuelve candidatos para inspección o para
+    ``autoenroll_trusted``. El escaneo es de solo lectura (GET /api/tags).
+    """
+    subnets = subnets or local_subnets()
+    hosts: list[str] = []
+    for cidr in subnets:
+        try:
+            net = ipaddress.ip_network(cidr, strict=False)
+        except ValueError:
+            continue
+        if net.version != 4:
+            continue
+        # Nunca escanear más de /22 por subred (evita redes corporativas enormes)
+        if net.num_addresses > 1024:
+            net = ipaddress.ip_network(f"{net.network_address}/22", strict=False)
+        for ip in net.hosts():
+            hosts.append(str(ip))
+            if len(hosts) >= max_hosts:
+                break
+        if len(hosts) >= max_hosts:
+            break
+
+    found: list[dict] = []
+    if not hosts:
+        return found
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max(8, workers)) as ex:
+        futures = {ex.submit(_probe_ollama, h, port, timeout): h for h in hosts}
+        for fut in concurrent.futures.as_completed(futures):
+            try:
+                item = fut.result()
+            except Exception:
+                item = None
+            if item:
+                item["host"] = futures[fut]
+                found.append(item)
+    found.sort(key=lambda c: c["url"])
+    return found
+
+
+def discover(subnet: str = "", timeout: float = 0.4) -> dict:
+    """Compatibilidad: sondea una subred (o todas) buscando Ollama.
+
+    ``subnet`` puede ser "192.168.1" o "REDACTED_IP/24". Sin argumento escanea
+    todas las interfaces locales. Solo sugiere; no enrola nada.
+    """
+    if subnet:
+        cidr = subnet if "/" in subnet else subnet.rstrip(".") + ".0/24"
+        subnets = [cidr]
+    else:
+        subnets = local_subnets()
+    found = discover_network(subnets, timeout=timeout)
+    return {
+        "ok": True,
+        "subnets": subnets,
+        "candidates": found,
+        "note": "Usa register_node(url) o autoenroll_trusted() para enrolar equipos TUYOS.",
+    }
+
+
+def _reverse_name(ip: str) -> str:
+    try:
+        return socket.gethostbyaddr(ip)[0].split(".")[0]
+    except Exception:
+        return ""
+
+
+def autoenroll_trusted(candidates: list[dict] | None = None, dry_run: bool = False) -> dict:
+    """Enrola únicamente nodos que pertenezcan al Arquitecto.
+
+    Criterio: IP histórica del iMac/IdeaPad o nombre reverso que contenga
+    ``imac``, ``mac14``, ``ideapad``, ``tardis`` o ``timemachine``.
+    """
+    if candidates is None:
+        candidates = discover_network()
+    enrolled: list[dict] = []
+    skipped: list[dict] = []
+    for cand in candidates:
+        url = cand.get("url", "")
+        host = urllib.parse.urlparse(url).hostname or ""
+        name = _reverse_name(host)
+        trusted = host in TRUSTED_IPS or any(
+            pat in name.lower() for pat in TRUSTED_HOST_PATTERNS
+        )
+        if not trusted:
+            skipped.append({"url": url, "hostname": name, "reason": "no confiable"})
+            continue
+        if dry_run:
+            enrolled.append({"url": url, "name": name or host, "dry_run": True})
+            continue
+        result = register_node(url, name or f"trusted-{host}")
+        enrolled.append({"url": url, "name": name or host, "result": result})
+    return {"ok": True, "enrolled": enrolled, "skipped": skipped}
+
+
+def watch(interval: int = 300, once: bool = False) -> dict:
+    """Bucle de descubrimiento + auto-enrolamiento con bitácora JSONL."""
+    MESH_LOG.parent.mkdir(parents=True, exist_ok=True)
+    record: dict = {}
+    while True:
+        started = time.time()
+        found = discover_network()
+        auto = autoenroll_trusted(found)
+        record = {
+            "ts": started,
+            "iso": time.strftime("%Y-%m-%dT%H:%M:%S%z", time.localtime(started)),
+            "subnets": local_subnets(),
+            "candidates": found,
+            "enrolled": auto.get("enrolled", []),
+            "skipped": auto.get("skipped", []),
+            "elapsed_s": round(time.time() - started, 2),
+        }
+        try:
+            with MESH_LOG.open("a", encoding="utf-8") as fh:
+                fh.write(json.dumps(record, ensure_ascii=False) + "\n")
+        except Exception:
+            pass
+        if once:
+            return record
+        time.sleep(max(30, int(interval)))
 
 
 # =====================================================================
@@ -242,6 +412,11 @@ if __name__ == "__main__":
     pb = sub.add_parser("bench"); pb.add_argument("url", nargs="?", default=LOCAL)
     pbest = sub.add_parser("best"); pbest.add_argument("--model", default="")
     pd = sub.add_parser("discover"); pd.add_argument("--subnet", default="")
+    pd.add_argument("--all", action="store_true"); pd.add_argument("--autoenroll", action="store_true")
+    pae = sub.add_parser("autoenroll"); pae.add_argument("--dry-run", action="store_true")
+    pae.add_argument("--subnet", default="")
+    pw = sub.add_parser("watch"); pw.add_argument("--interval", type=int, default=300)
+    pw.add_argument("--once", action="store_true")
     args = ap.parse_args()
 
     if args.cmd == "list" or not args.cmd:
@@ -258,4 +433,20 @@ if __name__ == "__main__":
     elif args.cmd == "best":
         print(json.dumps(best_node(args.model), indent=2, ensure_ascii=False))
     elif args.cmd == "discover":
-        print(json.dumps(discover(args.subnet), indent=2, ensure_ascii=False))
+        if args.all or not args.subnet:
+            result = discover()
+        else:
+            result = discover(args.subnet)
+        if args.autoenroll:
+            result["autoenroll"] = autoenroll_trusted(result.get("candidates", []))
+        print(json.dumps(result, indent=2, ensure_ascii=False))
+    elif args.cmd == "autoenroll":
+        if args.subnet:
+            cands = discover(args.subnet).get("candidates", [])
+        else:
+            cands = discover_network()
+        print(json.dumps(autoenroll_trusted(cands, dry_run=args.dry_run),
+                         indent=2, ensure_ascii=False))
+    elif args.cmd == "watch":
+        print(json.dumps(watch(interval=args.interval, once=args.once),
+                         indent=2, ensure_ascii=False))
