@@ -6,7 +6,7 @@
   "last_video_id": "vp_20261029_024634_adb9f3",
   "last_topic": "Persistent Homology of Neural Activity Patterns: Unveiling Topological Signatures in Brain Dynamics",
   "total_videos_analyzed": 691,
-  "running_cycle": false,
+  "running_cycle": true,
   "last_error": null,
   "auto_improvement_count": 380
 }
