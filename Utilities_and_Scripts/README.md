@@ -33,6 +33,7 @@ Automatizaciones de sistema, diagnósticos de hardware, optimizadores de SO y he
 - **os_optimizer.py**: Componente de alta eficiencia.
 - **patch_agent.py**: Modelo lógico y comportamiento autónomo distribuido.
 - **patch_telemetry.py**: Componente de alta eficiencia.
+- **quantization_benchmark.json**: Componente de alta eficiencia.
 - **run_comprehensive_benchmark.py**: Componente de alta eficiencia.
 - **setup_imac_chroot.sh**: Componente de alta eficiencia.
 - **setup_termux_boot.sh**: Componente de alta eficiencia.

@@ -1,0 +1,61 @@
+{
+  "schema": "tardis.savage.experiment/1.0",
+  "proposal_id": "savage-f58fb1dcfe8b",
+  "experiment": "moe_routing",
+  "target": "tardis",
+  "hypothesis": "Ruteo por expertos activos (top-k)",
+  "validation": "Comparar costo por token activo vs. modelo denso equivalente.",
+  "rollback": "Volver al ruteo denso por defecto.",
+  "evidence": [
+    {
+      "title": "ggml-org/llama.cpp v0.8.0",
+      "url": "https://github.com/ggml-org/llama.cpp/releases/tag/v0.8.0",
+      "source": "github:ggml-org/llama.cpp",
+      "relevance": 25.0
+    },
+    {
+      "title": "huggingface/transformers v5.21",
+      "url": "https://github.com/huggingface/transformers/releases/tag/v5.21",
+      "source": "github:huggingface/transformers",
+      "relevance": 25.0
+    },
+    {
+      "title": "ggml-org/whisper.cpp v1.9.5",
+      "url": "https://github.com/ggml-org/whisper.cpp/releases/tag/v1.9.5",
+      "source": "github:ggml-org/whisper.cpp",
+      "relevance": 24.8
+    },
+    {
+      "title": "orcarouter/DeepSeek-V4.1-Flash-1017-abliterated-GGUF",
+      "url": "https://huggingface.co/orcarouter/DeepSeek-V4.1-Flash-1017-abliterated-GGUF",
+      "source": "huggingface:trending",
+      "relevance": 15.4
+    },
+    {
+      "title": "ISTA-DASLab/DeepSeek-V4.1-Flash-1017-GSQ-RCO-GGUF",
+      "url": "https://huggingface.co/ISTA-DASLab/DeepSeek-V4.1-Flash-1017-GSQ-RCO-GGUF",
+      "source": "huggingface:trending",
+      "relevance": 12.7
+    },
+    {
+      "title": "MiniMaxAI/MiniMax-M3.1-Flash",
+      "url": "https://huggingface.co/MiniMaxAI/MiniMax-M3.1-Flash",
+      "source": "huggingface:trending",
+      "relevance": 9.3
+    },
+    {
+      "title": "MuonGS: Pretraining LLMs with Relaxed Weight-Norm Control",
+      "url": "http://arxiv.org/abs/2610.37647v1",
+      "source": "arxiv",
+      "relevance": 5.9
+    },
+    {
+      "title": "MuonGS: Pretraining LLMs with Relaxed Weight-Norm Control",
+      "url": "http://arxiv.org/abs/2610.37647v1",
+      "source": "arxiv",
+      "relevance": 5.9
+    }
+  ],
+  "status": "planned",
+  "created_at": "2026-10-29T00:13:36-05:00"
+}

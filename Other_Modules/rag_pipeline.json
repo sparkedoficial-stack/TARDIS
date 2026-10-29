@@ -1,0 +1,61 @@
+{
+  "schema": "tardis.savage.experiment/1.0",
+  "proposal_id": "savage-db7241589fcf",
+  "experiment": "rag_pipeline",
+  "target": "tardis",
+  "hypothesis": "Mejora del pipeline RAG y embeddings",
+  "validation": "Recall@10 sobre 100 consultas doradas.",
+  "rollback": "Conservar el índice actual.",
+  "evidence": [
+    {
+      "title": "ggml-org/llama.cpp v0.8.0",
+      "url": "https://github.com/ggml-org/llama.cpp/releases/tag/v0.8.0",
+      "source": "github:ggml-org/llama.cpp",
+      "relevance": 25.0
+    },
+    {
+      "title": "vllm-project/vllm v0.32.0",
+      "url": "https://github.com/vllm-project/vllm/releases/tag/v0.32.0",
+      "source": "github:vllm-project/vllm",
+      "relevance": 25.0
+    },
+    {
+      "title": "huggingface/transformers v5.21",
+      "url": "https://github.com/huggingface/transformers/releases/tag/v5.21",
+      "source": "github:huggingface/transformers",
+      "relevance": 25.0
+    },
+    {
+      "title": "ggml-org/whisper.cpp v1.9.5",
+      "url": "https://github.com/ggml-org/whisper.cpp/releases/tag/v1.9.5",
+      "source": "github:ggml-org/whisper.cpp",
+      "relevance": 24.8
+    },
+    {
+      "title": "EnvSched: Environment-Aware Scheduling for Rollout-Efficient Agent Reinforcement Learning",
+      "url": "http://arxiv.org/abs/2610.37609v1",
+      "source": "arxiv",
+      "relevance": 10.8
+    },
+    {
+      "title": "EnvSched: Environment-Aware Scheduling for Rollout-Efficient Agent Reinforcement Learning",
+      "url": "http://arxiv.org/abs/2610.37609v1",
+      "source": "arxiv",
+      "relevance": 10.8
+    },
+    {
+      "title": "KPPax: preprocess differentiable kinetic ODE for machine learning in atmospheric chemistry",
+      "url": "http://arxiv.org/abs/2610.37655v1",
+      "source": "arxiv",
+      "relevance": 10.2
+    },
+    {
+      "title": "Follow the Gradient: Tracing Safety Degradation Back to Training Data",
+      "url": "http://arxiv.org/abs/2610.37481v1",
+      "source": "arxiv",
+      "relevance": 9.7
+    }
+  ],
+  "status": "planned",
+  "created_at": "2026-10-29T00:13:36-05:00"
+}

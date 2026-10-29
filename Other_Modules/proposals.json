@@ -1,0 +1,166 @@
+{
+  "schema": "tardis.rea.proposals/1.0",
+  "generated_at": "2026-10-29T00:16:39-05:00",
+  "based_on_report": "/home/timemachine/Escritorio/GODWORKS SYSTEM/data/rea/learning_report.json",
+  "artifacts": 5,
+  "proposals": [
+    {
+      "id": "rea-15be41e04374",
+      "title": "Publicar perfil de adaptación REA para TARDIS/FTL",
+      "target": "tardis",
+      "risk": "low",
+      "kind": "profile",
+      "change": {
+        "file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/data/rea/adaptation_profile.json",
+        "key": "profile",
+        "value": "generated"
+      },
+      "evidence": [
+        "/home/timemachine/.ollama/models/blobs/sha256-3ef322a05f28c44dec6ce8e23b5634825196867d006aad17c405cc3df23a7d82",
+        "/home/timemachine/Escritorio/GODWORKS SYSTEM/models/face_detection_yunet_2023mar.onnx",
+        "/home/timemachine/Escritorio/GODWORKS SYSTEM/models/face_recognition_sface_2021dec.onnx",
+        "/home/timemachine/Escritorio/GODWORKS SYSTEM/models/glm-5.2/config.json",
+        "/home/timemachine/Escritorio/GODWORKS SYSTEM/models/glm-5.2/glm-5.2-q4_0.gguf"
+      ],
+      "rationale": "Consolida el conocimiento arquitectónico observado en un perfil que el router y Easy Touch pueden consumir.",
+      "validation": "JSON válido y esquema tardis.rea.adaptation_profile/1.0",
+      "rollback": "Regenerar el perfil desde la base de conocimiento.",
+      "status": "applied",
+      "created_at": "2026-10-29T00:16:39-05:00",
+      "applied_at": "2026-10-29T00:16:39-05:00",
+      "result": {
+        "file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/data/rea/adaptation_profile.json"
+      }
+    },
+    {
+      "id": "rea-4261cb38b9a1",
+      "title": "Política de precisión inspirada en Q4_K",
+      "target": "ftl",
+      "risk": "low",
+      "kind": "experiment",
+      "change": {
+        "file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/data/rea/experiments/precision_policy.json",
+        "key": "precision",
+        "value": {
+          "observed": "Q4_K",
+          "source": "/home/timemachine/.ollama/models/blobs/sha256-3ef322a05f28c44dec6ce8e23b5634825196867d006aad17c405cc3df23a7d82"
+        }
+      },
+      "evidence": [
+        "/home/timemachine/.ollama/models/blobs/sha256-3ef322a05f28c44dec6ce8e23b5634825196867d006aad17c405cc3df23a7d82"
+      ],
+      "rationale": "Ajustar el presupuesto de VRAM/quantización del router según la precisión observada en modelos locales.",
+      "validation": "Comparar tokens/s y perplejidad en el mismo prompt.",
+      "rollback": "Descartar el experimento; no altera configuración activa.",
+      "status": "applied",
+      "created_at": "2026-10-29T00:16:39-05:00",
+      "applied_at": "2026-10-29T00:16:39-05:00",
+      "result": {
+        "file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/data/rea/experiments/precision_policy.json"
+      }
+    },
+    {
+      "id": "rea-65567bd37ee8",
+      "title": "Estrategia de offload por capas para 32 capas",
+      "target": "ftl",
+      "risk": "low",
+      "kind": "experiment",
+      "change": {
+        "file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/data/rea/experiments/layer_offload.json",
+        "key": "offload",
+        "value": {
+          "layers": 32,
+          "vram_gb": 4,
+          "source": "/home/timemachine/.ollama/models/blobs/sha256-3ef322a05f28c44dec6ce8e23b5634825196867d006aad17c405cc3df23a7d82"
+        }
+      },
+      "evidence": [
+        "/home/timemachine/.ollama/models/blobs/sha256-3ef322a05f28c44dec6ce8e23b5634825196867d006aad17c405cc3df23a7d82"
+      ],
+      "rationale": "Con 4 GB de VRAM, un modelo de muchas capas requiere offload parcial; planificar por capas evita OOM.",
+      "validation": "Verificar que llama.cpp/ollama acepten n_gpu_layers calculado.",
+      "rollback": "Mantener gpu_layers=0 en temporal_brain_config.json.",
+      "status": "applied",
+      "created_at": "2026-10-29T00:16:39-05:00",
+      "applied_at": "2026-10-29T00:16:39-05:00",
+      "result": {
+        "file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/data/rea/experiments/layer_offload.json"
+      }
+    },
+    {
+      "id": "rea-c2e6bfef795b",
+      "title": "Ruteo de modelos grandes (8.03 B) a la malla local",
+      "target": "tardis",
+      "risk": "low",
+      "kind": "experiment",
+      "change": {
+        "file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/data/rea/experiments/large_model_routing.json",
+        "key": "routing",
+        "value": {
+          "min_params": REDACTED_PHONE,
+          "target": "local-mesh",
+          "source": "/home/timemachine/.ollama/models/blobs/sha256-3ef322a05f28c44dec6ce8e23b5634825196867d006aad17c405cc3df23a7d82"
+        }
+      },
+      "evidence": [
+        "/home/timemachine/.ollama/models/blobs/sha256-3ef322a05f28c44dec6ce8e23b5634825196867d006aad17c405cc3df23a7d82"
+      ],
+      "rationale": "Los modelos de gran escala no caben en 4 GB de VRAM; derivarlos a la malla o a la nube evita degradación.",
+      "validation": "Comprobar latencia del endpoint imac.local:11434.",
+      "rollback": "Reactivar la ruta por defecto en coding_router.json.",
+      "status": "applied",
+      "created_at": "2026-10-29T00:16:39-05:00",
+      "applied_at": "2026-10-29T00:16:39-05:00",
+      "result": {
+        "file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/data/rea/experiments/large_model_routing.json"
+      }
+    },
+    {
+      "id": "rea-ef6aa77d777b",
+      "title": "Perfil de contexto largo (131072 tokens) para modelos llama",
+      "target": "tardis",
+      "risk": "low",
+      "kind": "experiment",
+      "change": {
+        "file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/data/rea/experiments/long_context.json",
+        "key": "context_profile",
+        "value": {
+          "context_length": 131072,
+          "source": "/home/timemachine/.ollama/models/blobs/sha256-3ef322a05f28c44dec6ce8e23b5634825196867d006aad17c405cc3df23a7d82"
+        }
+      },
+      "evidence": [
+        "/home/timemachine/.ollama/models/blobs/sha256-3ef322a05f28c44dec6ce8e23b5634825196867d006aad17c405cc3df23a7d82"
+      ],
+      "rationale": "El artefacto declara una ventana de 131072 tokens; TARDIS puede adoptar chunking y presupuesto de prompt equivalentes.",
+      "validation": "Medir latencia y calidad en una muestra de 20 prompts antes de elevar el contexto por defecto.",
+      "rollback": "Volver a ctx_size=4096 en temporal_brain_config.json.",
+      "status": "applied",
+      "created_at": "2026-10-29T00:16:39-05:00",
+      "applied_at": "2026-10-29T00:16:39-05:00",
+      "result": {
+        "file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/data/rea/experiments/long_context.json"
+      }
+    },
+    {
+      "id": "rea-886638edfa7b",
+      "title": "Habilitar caché KV con GQA en el motor temporal",
+      "target": "tardis",
+      "risk": "medium",
+      "kind": "config",
+      "change": {
+        "file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/temporal_brain_config.json",
+        "key": "cache_type_k",
+        "value": "q8_0"
+      },
+      "evidence": [
+        "/home/timemachine/.ollama/models/blobs/sha256-3ef322a05f28c44dec6ce8e23b5634825196867d006aad17c405cc3df23a7d82"
+      ],
+      "rationale": "GQA reduce el número de cabezas KV; cuantizar la caché KV a q8_0 libera VRAM sin cambiar la arquitectura.",
+      "validation": "Ejecutar 10 inferencias y comparar perplejidad; revertir si supera +2%.",
+      "rollback": "Restaurar cache_type_k=f16 desde el backup automático.",
+      "status": "proposed",
+      "created_at": "2026-10-29T00:16:39-05:00"
+    }
+  ]
+}

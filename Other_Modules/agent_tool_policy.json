@@ -1,0 +1,61 @@
+{
+  "schema": "tardis.savage.experiment/1.0",
+  "proposal_id": "savage-f7a834b450f8",
+  "experiment": "agent_tool_policy",
+  "target": "ftl",
+  "hypothesis": "Política de agentes y tool-calling",
+  "validation": "Suite de 30 tareas con herramientas; medir tasa de éxito y pasos.",
+  "rollback": "Reactivar la política anterior en coding_router.json.",
+  "evidence": [
+    {
+      "title": "Teach reality, not ethics: a drop-in continued-pretraining corpus installs coupled human-biosphere-AI welfare dispositions across model families",
+      "url": "http://arxiv.org/abs/2610.37484v1",
+      "source": "arxiv",
+      "relevance": 16.4
+    },
+    {
+      "title": "Heads of Security: Learned Attention Gates Improve Prompt Injection Robustness",
+      "url": "http://arxiv.org/abs/2610.37657v1",
+      "source": "arxiv",
+      "relevance": 13.7
+    },
+    {
+      "title": "Heads of Security: Learned Attention Gates Improve Prompt Injection Robustness",
+      "url": "http://arxiv.org/abs/2610.37657v1",
+      "source": "arxiv",
+      "relevance": 13.7
+    },
+    {
+      "title": "EnvSched: Environment-Aware Scheduling for Rollout-Efficient Agent Reinforcement Learning",
+      "url": "http://arxiv.org/abs/2610.37609v1",
+      "source": "arxiv",
+      "relevance": 10.8
+    },
+    {
+      "title": "EnvSched: Environment-Aware Scheduling for Rollout-Efficient Agent Reinforcement Learning",
+      "url": "http://arxiv.org/abs/2610.37609v1",
+      "source": "arxiv",
+      "relevance": 10.8
+    },
+    {
+      "title": "MiniMaxAI/MiniMax-M3.1-Flash",
+      "url": "https://huggingface.co/MiniMaxAI/MiniMax-M3.1-Flash",
+      "source": "huggingface:trending",
+      "relevance": 9.3
+    },
+    {
+      "title": "Rare, Relevant, and Still Wrong: How Memory Fails LLM Group Decisions",
+      "url": "http://arxiv.org/abs/2610.37624v1",
+      "source": "arxiv",
+      "relevance": 8.7
+    },
+    {
+      "title": "Rare, Relevant, and Still Wrong: How Memory Fails LLM Group Decisions",
+      "url": "http://arxiv.org/abs/2610.37624v1",
+      "source": "arxiv",
+      "relevance": 8.7
+    }
+  ],
+  "status": "planned",
+  "created_at": "2026-10-29T00:13:36-05:00"
+}

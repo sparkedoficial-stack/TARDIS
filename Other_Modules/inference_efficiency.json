@@ -1,0 +1,25 @@
+{
+  "schema": "tardis.savage.experiment/1.0",
+  "proposal_id": "savage-4b3787d02701",
+  "experiment": "inference_efficiency",
+  "target": "ftl",
+  "hypothesis": "Optimización de inferencia (caché y decodificación)",
+  "validation": "Medir tokens/s y VRAM antes/después con el mismo prompt.",
+  "rollback": "Restaurar cache_type_k/v=f16.",
+  "evidence": [
+    {
+      "title": "vllm-project/vllm v0.32.0",
+      "url": "https://github.com/vllm-project/vllm/releases/tag/v0.32.0",
+      "source": "github:vllm-project/vllm",
+      "relevance": 25.0
+    },
+    {
+      "title": "ggml-org/whisper.cpp v1.9.5",
+      "url": "https://github.com/ggml-org/whisper.cpp/releases/tag/v1.9.5",
+      "source": "github:ggml-org/whisper.cpp",
+      "relevance": 24.8
+    }
+  ],
+  "status": "planned",
+  "created_at": "2026-10-29T00:13:36-05:00"
+}

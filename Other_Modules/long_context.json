@@ -1,0 +1,10 @@
+{
+  "proposal_id": "rea-ef6aa77d777b",
+  "created_at": "2026-10-29T00:16:39-05:00",
+  "file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/data/rea/experiments/long_context.json",
+  "key": "context_profile",
+  "value": {
+    "context_length": 131072,
+    "source": "/home/timemachine/.ollama/models/blobs/sha256-3ef322a05f28c44dec6ce8e23b5634825196867d006aad17c405cc3df23a7d82"
+  }
+}

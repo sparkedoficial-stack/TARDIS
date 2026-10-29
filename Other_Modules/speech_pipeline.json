@@ -1,0 +1,61 @@
+{
+  "schema": "tardis.savage.experiment/1.0",
+  "proposal_id": "savage-466fd31376f1",
+  "experiment": "speech_pipeline",
+  "target": "tardis",
+  "hypothesis": "Actualización de voz (ASR/TTS) local",
+  "validation": "WER en 20 audios y latencia de síntesis.",
+  "rollback": "Mantener el motor de voz actual.",
+  "evidence": [
+    {
+      "title": "ggml-org/llama.cpp v0.8.0",
+      "url": "https://github.com/ggml-org/llama.cpp/releases/tag/v0.8.0",
+      "source": "github:ggml-org/llama.cpp",
+      "relevance": 25.0
+    },
+    {
+      "title": "vllm-project/vllm v0.32.0",
+      "url": "https://github.com/vllm-project/vllm/releases/tag/v0.32.0",
+      "source": "github:vllm-project/vllm",
+      "relevance": 25.0
+    },
+    {
+      "title": "huggingface/transformers v5.21",
+      "url": "https://github.com/huggingface/transformers/releases/tag/v5.21",
+      "source": "github:huggingface/transformers",
+      "relevance": 25.0
+    },
+    {
+      "title": "ggml-org/whisper.cpp v1.9.5",
+      "url": "https://github.com/ggml-org/whisper.cpp/releases/tag/v1.9.5",
+      "source": "github:ggml-org/whisper.cpp",
+      "relevance": 24.8
+    },
+    {
+      "title": "Heads of Security: Learned Attention Gates Improve Prompt Injection Robustness",
+      "url": "http://arxiv.org/abs/2610.37657v1",
+      "source": "arxiv",
+      "relevance": 13.7
+    },
+    {
+      "title": "Heads of Security: Learned Attention Gates Improve Prompt Injection Robustness",
+      "url": "http://arxiv.org/abs/2610.37657v1",
+      "source": "arxiv",
+      "relevance": 13.7
+    },
+    {
+      "title": "Beyond Answer Changes: Matched Same-Class Controls for Local Audio Evidence",
+      "url": "http://arxiv.org/abs/2610.37605v1",
+      "source": "arxiv",
+      "relevance": 7.3
+    },
+    {
+      "title": "nvidia/NVIDIA-Nemotron-3.5-Transcribe-30B-A4B",
+      "url": "https://huggingface.co/nvidia/NVIDIA-Nemotron-3.5-Transcribe-30B-A4B",
+      "source": "huggingface:trending",
+      "relevance": 6.1
+    }
+  ],
+  "status": "planned",
+  "created_at": "2026-10-29T00:13:36-05:00"
+}

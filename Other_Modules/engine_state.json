@@ -1,0 +1,12 @@
+{
+  "last_scan_at": "2026-10-29T00:15:28-05:00",
+  "artifacts_total": 5,
+  "last_scan_paths": [
+    "/home/timemachine/.ollama/models/blobs/sha256-3ef322a05f28c44dec6ce8e23b5634825196867d006aad17c405cc3df23a7d82",
+    "/home/timemachine/Escritorio/GODWORKS SYSTEM/models/face_detection_yunet_2023mar.onnx",
+    "/home/timemachine/Escritorio/GODWORKS SYSTEM/models/face_recognition_sface_2021dec.onnx",
+    "/home/timemachine/Escritorio/GODWORKS SYSTEM/models/glm-5.2/config.json",
+    "/home/timemachine/Escritorio/GODWORKS SYSTEM/models/glm-5.2/glm-5.2-q4_0.gguf"
+  ],
+  "engine_version": "26.4.0"
+}

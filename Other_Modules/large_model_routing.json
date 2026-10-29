@@ -1,0 +1,11 @@
+{
+  "proposal_id": "rea-c2e6bfef795b",
+  "created_at": "2026-10-29T00:16:39-05:00",
+  "file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/data/rea/experiments/large_model_routing.json",
+  "key": "routing",
+  "value": {
+    "min_params": REDACTED_PHONE,
+    "target": "local-mesh",
+    "source": "/home/timemachine/.ollama/models/blobs/sha256-3ef322a05f28c44dec6ce8e23b5634825196867d006aad17c405cc3df23a7d82"
+  }
+}

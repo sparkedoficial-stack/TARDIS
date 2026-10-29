@@ -109,6 +109,7 @@ UNIFIED_COMMAND_KEYWORDS = {
     "agent-history", "historial-agentes", "agent-kill", "kill-switch", "agent-probe",
     "web", "lan", "portal", "voice",
     "voz", "speak", "habla", "decir", "easytouch", "et", "et-agent", "et-evolve", "et-solve", "auto", "kaiju", "rails",
+    "savageupdate", "savage-update", "savage", "rea-learn", "rea", "reaprendizaje",
     "kaiju-rails", "synth", "audit", "gemini", "agy", "claude", "claude-cli",
     "agy-cli", "antigravity", "ide", "gui", "clear", "ton618", "mascot", "mascota", "quasar", "reload",
     "recargar", "help", "exit", "quit", "q", "config", "sh", "bash",
@@ -489,6 +490,25 @@ def dispatch_unified_command(cmd_name: str, args_list: list[str] = None) -> bool
 
     elif cmd in ("easytouch", "et"):
         ui.print_easytouch()
+        return True
+
+    elif cmd in ("savageupdate", "savage-update", "savage", "rea-learn", "rea", "reaprendizaje"):
+        project = Path("/home/timemachine/Escritorio/GODWORKS SYSTEM")
+        module = "modulos_ftl.savage_update" if cmd.startswith("savage") else "modulos_ftl.rea_learning_engine"
+        sub_args = args if args else ["status"]
+        label = "/SavageUpdate" if cmd.startswith("savage") else "REA Learning"
+        console.print(f"[bold cyan]⚡ [{label}] ejecutando: {' '.join(sub_args)}[/bold cyan]")
+        try:
+            proc = subprocess.run(
+                [sys.executable, "-m", module, *sub_args],
+                cwd=str(project), capture_output=True, text=True, timeout=300,
+            )
+            if proc.stdout.strip():
+                console.print(proc.stdout.strip())
+            if proc.returncode != 0:
+                console.print(f"[red]✖ Salida {proc.returncode}: {proc.stderr.strip()[:800]}[/red]")
+        except Exception as exc:
+            console.print(f"[red]✖ Error ejecutando {module}: {exc}[/red]")
         return True
 
     elif cmd in ("et-agent", "et-evolve", "et-solve"):

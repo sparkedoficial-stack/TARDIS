@@ -1,0 +1,132 @@
+{
+  "ok": true,
+  "started_at": "2026-10-29T00:06:10-05:00",
+  "units": {
+    "checked": [
+      {
+        "unit": "tardis.service",
+        "active": "active"
+      },
+      {
+        "unit": "tardis-supervisor.service",
+        "active": "active"
+      },
+      {
+        "unit": "tardis-singularity-kernel.service",
+        "active": "active"
+      },
+      {
+        "unit": "ftl-web-terminal.service",
+        "active": "active"
+      },
+      {
+        "unit": "ftl-web-portal.service",
+        "active": "active"
+      },
+      {
+        "unit": "ftl-public-gateway.service",
+        "active": "active"
+      },
+      {
+        "unit": "ftl-public-tunnel.service",
+        "active": "active"
+      },
+      {
+        "unit": "tardis-chatter-agent.service",
+        "active": "active"
+      },
+      {
+        "unit": "tardis-savemode.service",
+        "active": "active"
+      },
+      {
+        "unit": "tardis-easy-touch.service",
+        "active": "active"
+      },
+      {
+        "unit": "tardis4ever.service",
+        "active": "active"
+      },
+      {
+        "unit": "tardis-visual-intelligence.service",
+        "active": "active"
+      },
+      {
+        "unit": "tardis-video-pensante.service",
+        "active": "active"
+      }
+    ],
+    "restarted": [],
+    "failed": []
+  },
+  "python": {
+    "ok": true,
+    "checked": 149,
+    "errors": []
+  },
+  "endpoints": {
+    "tardis_hub": {
+      "ok": true,
+      "status": 200,
+      "latency_ms": 25.1,
+      "bytes": 152
+    },
+    "ftl_portal": {
+      "ok": true,
+      "status": 200,
+      "latency_ms": 1245.1,
+      "bytes": 1132
+    },
+    "ftl_gateway": {
+      "ok": true,
+      "status": 200,
+      "latency_ms": 0.9,
+      "bytes": 319
+    },
+    "chatter": {
+      "ok": true,
+      "status": 200,
+      "latency_ms": 0.8,
+      "bytes": 1400
+    },
+    "savemode": {
+      "ok": true,
+      "status": 200,
+      "latency_ms": 0.8,
+      "bytes": 677
+    }
+  },
+  "health": {
+    "cpu_percent": 3.8,
+    "memory_percent": 64.1,
+    "memory_available_mb": 11136,
+    "swap_percent": 40.2,
+    "disk_percent": 32.5,
+    "disk_free_gb": 299.3,
+    "load": [
+      REDACTED_PHONE,
+      0.REDACTED_PHONE,
+      REDACTED_PHONE
+    ],
+    "psi": {
+      "cpu": "some avg10=0.00 avg60=0.00 avg300=0.01 total=REDACTED_PHONE\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+      "memory": "some avg10=0.00 avg60=0.00 avg300=0.00 total=215474231\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=99458226",
+      "io": "some avg10=0.02 avg60=1.91 avg300=1.19 total=265636213\nfull avg10=0.02 avg60=1.89 avg300=1.18 total=172091448"
+    }
+  },
+  "easy_touch": {
+    "ok": true,
+    "rc": 0,
+    "stdout": "\n⚡ Ciclo autónomo completado:\n{\n  \"cycle\": 15846,\n  \"elapsed_s\": 0.028,\n  \"unresolved_found\": 86,\n  \"unresolved_solved\": 0,\n  \"improvements_applied\": [],\n  \"timestamp_iso\": \"2026-10-29T00:06:12.970919\"\n}\n",
+    "stderr": "",
+    "cmd": "/home/timemachine/Escritorio/GODWORKS SYSTEM/.venv-linux/bin/python3 /home/timemachine/Escritorio/GODWORKS SYSTEM/core/easy_touch_agent.py --cycle"
+  },
+  "privileged": {
+    "staged": true,
+    "directory": "/home/timemachine/.config/tardis/privileged",
+    "apply": "/home/timemachine/.config/tardis/privileged/install_privileged_repairs.sh",
+    "requires": "sudo interactivo"
+  },
+  "elapsed_s": 2.57,
+  "finished_at": "2026-10-29T00:06:13-05:00"
+}

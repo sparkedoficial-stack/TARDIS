@@ -1,0 +1,39 @@
+{
+  "schema": "tardis.rea.adaptation_profile/1.0",
+  "generated_at": "2026-10-29T00:16:39-05:00",
+  "source_report": "/home/timemachine/Escritorio/GODWORKS SYSTEM/data/rea/learning_report.json",
+  "architectures": {
+    "unknown": 3,
+    "glm-5.2": 1,
+    "llama": 1
+  },
+  "quantizations": {
+    "unknown": 4,
+    "Q4_K": 1
+  },
+  "total_parameters": REDACTED_PHONE,
+  "capabilities": {
+    "long_context": true,
+    "gqa": true,
+    "moe": false,
+    "sliding_window": false
+  },
+  "routing_hints": {
+    "prefer_local_for": [
+      "privacy",
+      "offline",
+      "bulk"
+    ],
+    "prefer_cloud_for": [
+      "apex_reasoning",
+      "long_context_overflow",
+      "vision"
+    ],
+    "vram_budget_gb": 4
+  },
+  "consumers": [
+    "tardis.router",
+    "ftl.executor",
+    "easy_touch"
+  ]
+}

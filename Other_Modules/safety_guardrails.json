@@ -1,0 +1,37 @@
+{
+  "schema": "tardis.savage.experiment/1.0",
+  "proposal_id": "savage-59e5ad13184e",
+  "experiment": "safety_guardrails",
+  "target": "easy_touch",
+  "hypothesis": "Endurecimiento de guardrails y auto-reparación",
+  "validation": "Batería de 25 casos adversarios; cero ejecuciones no autorizadas.",
+  "rollback": "Restaurar la política de seguridad previa.",
+  "evidence": [
+    {
+      "title": "Teach reality, not ethics: a drop-in continued-pretraining corpus installs coupled human-biosphere-AI welfare dispositions across model families",
+      "url": "http://arxiv.org/abs/2610.37484v1",
+      "source": "arxiv",
+      "relevance": 16.4
+    },
+    {
+      "title": "Follow the Gradient: Tracing Safety Degradation Back to Training Data",
+      "url": "http://arxiv.org/abs/2610.37481v1",
+      "source": "arxiv",
+      "relevance": 9.7
+    },
+    {
+      "title": "Multi-State Linear Attention with Generalized Second-Order Routing",
+      "url": "http://arxiv.org/abs/2610.37645v1",
+      "source": "arxiv",
+      "relevance": 5.6
+    },
+    {
+      "title": "Pushing Dexterity and Safety for In-Hand Object Pose Reaching That Works Remarkably Well",
+      "url": "http://arxiv.org/abs/2610.37652v1",
+      "source": "arxiv",
+      "relevance": 3.1
+    }
+  ],
+  "status": "planned",
+  "created_at": "2026-10-29T00:13:36-05:00"
+}

@@ -1,0 +1,25 @@
+{
+  "schema": "tardis.savage.experiment/1.0",
+  "proposal_id": "savage-2a5f91473f5d",
+  "experiment": "long_context_profile",
+  "target": "tardis",
+  "hypothesis": "Perfil de contexto extendido con chunking alineado",
+  "validation": "Prueba de recuperación en documento de 128k tokens; medir latencia y precisión.",
+  "rollback": "Restaurar ctx_size=4096.",
+  "evidence": [
+    {
+      "title": "vllm-project/vllm v0.32.0",
+      "url": "https://github.com/vllm-project/vllm/releases/tag/v0.32.0",
+      "source": "github:vllm-project/vllm",
+      "relevance": 25.0
+    },
+    {
+      "title": "semanticfa: An R Package for Response-Free Semantic Factor Analysis of Psychometric Scales",
+      "url": "http://arxiv.org/abs/2610.37494v1",
+      "source": "arxiv",
+      "relevance": 5.2
+    }
+  ],
+  "status": "planned",
+  "created_at": "2026-10-29T00:13:36-05:00"
+}

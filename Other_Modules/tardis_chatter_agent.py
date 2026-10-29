@@ -514,7 +514,14 @@ def main() -> None:
         return
     if args.pulse:
         agent = ChatterAgent()
-        print(json.dumps(asyncio.run(agent.pulse(force=True)), indent=2, ensure_ascii=False))
+
+        async def _one_shot() -> Dict[str, Any]:
+            try:
+                return await agent.pulse(force=True)
+            finally:
+                await agent.close()
+
+        print(json.dumps(asyncio.run(_one_shot()), indent=2, ensure_ascii=False))
         return
     if args.daemon:
         asyncio.run(_run_daemon())

@@ -12,11 +12,13 @@ import socket
 import base64
 import io
 import subprocess
+import asyncio
 from pathlib import Path
 from typing import Dict, Any, List
 
 import psutil
 import qrcode
+import httpx
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 import uvicorn
@@ -226,6 +228,141 @@ async def api_status():
         "ips": ips,
         "primary_ip": get_primary_lan_ip()
     })
+
+
+# --- SaveMode · Remote Edge Delegation -------------------------------------
+SAVEMODE_API = os.environ.get("SAVEMODE_API", "http://127.0.0.1:8796")
+
+
+@app.get("/api/savemode/status")
+async def api_savemode_status():
+    """Estado del perfil SaveMode y comandos autorizados."""
+    try:
+        async with httpx.AsyncClient(timeout=6.0) as client:
+            r = await client.get(f"{SAVEMODE_API}/status")
+            return JSONResponse(r.json(), status_code=r.status_code)
+    except Exception as exc:
+        return JSONResponse({"ok": False, "error": str(exc)}, status_code=503)
+
+
+@app.get("/api/savemode/telemetry")
+async def api_savemode_telemetry():
+    """Telemetría completa del nodo (CPU, RAM, GPU, disco, red, procesos)."""
+    try:
+        async with httpx.AsyncClient(timeout=8.0) as client:
+            r = await client.get(f"{SAVEMODE_API}/telemetry")
+            return JSONResponse(r.json(), status_code=r.status_code)
+    except Exception as exc:
+        return JSONResponse({"ok": False, "error": str(exc)}, status_code=503)
+
+
+@app.post("/api/savemode/command")
+async def api_savemode_command(request: Request):
+    """Ejecuta un comando autorizado del perfil SaveMode."""
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"ok": False, "error": "JSON inválido"}, status_code=400)
+    try:
+        async with httpx.AsyncClient(timeout=90.0) as client:
+            r = await client.post(f"{SAVEMODE_API}/command", json=body)
+            return JSONResponse(r.json(), status_code=r.status_code)
+    except Exception as exc:
+        return JSONResponse({"ok": False, "error": str(exc)}, status_code=503)
+
+
+@app.get("/api/savemode/audit")
+async def api_savemode_audit(limit: int = 50):
+    """Auditoría de comandos SaveMode ejecutados."""
+    try:
+        async with httpx.AsyncClient(timeout=6.0) as client:
+            r = await client.get(f"{SAVEMODE_API}/audit", params={"limit": limit})
+            return JSONResponse(r.json(), status_code=r.status_code)
+    except Exception as exc:
+        return JSONResponse({"ok": False, "error": str(exc)}, status_code=503)
+
+
+# --- REA Learning Engine & /SavageUpdate -----------------------------------
+GODWORKS_DIR = Path("/home/timemachine/Escritorio/GODWORKS SYSTEM")
+REA_DATA = GODWORKS_DIR / "data" / "rea"
+
+
+def _read_rea_json(name: str, default=None):
+    try:
+        with open(REA_DATA / name, "r", encoding="utf-8") as fh:
+            return json.load(fh)
+    except Exception:
+        return default if default is not None else {}
+
+
+@app.get("/api/rea/status")
+async def api_rea_status():
+    """Estado del motor de aprendizaje REA y del agente /SavageUpdate."""
+    state = _read_rea_json("engine_state.json", {})
+    report = _read_rea_json("learning_report.json", {})
+    proposals = _read_rea_json("proposals.json", {})
+    savage = _read_rea_json("savage_state.json", {})
+    return JSONResponse({
+        "ok": True,
+        "engine": {
+            "last_scan_at": state.get("last_scan_at"),
+            "artifacts_total": state.get("artifacts_total", 0),
+            "report_generated_at": report.get("generated_at"),
+            "architectures": report.get("architectures", {}),
+            "total_parameters_human": report.get("total_parameters_human"),
+        },
+        "proposals": {
+            "total": len(proposals.get("proposals", [])),
+            "applied": sum(1 for p in proposals.get("proposals", []) if p.get("status") == "applied"),
+        },
+        "savage_update": {
+            "cycles": savage.get("cycles", 0),
+            "last_cycle_at": savage.get("last_cycle_at"),
+            "last_items": savage.get("last_items", 0),
+            "last_proposals": savage.get("last_proposals", 0),
+        },
+    })
+
+
+@app.get("/api/rea/report")
+async def api_rea_report():
+    """Informe completo de aprendizaje arquitectónico."""
+    return JSONResponse(_read_rea_json("learning_report.json", {}))
+
+
+@app.get("/api/rea/proposals")
+async def api_rea_proposals():
+    """Propuestas de auto-adaptación con evidencia y riesgo."""
+    return JSONResponse(_read_rea_json("proposals.json", {}))
+
+
+@app.get("/api/savage/status")
+async def api_savage_status():
+    """Estado del agente /SavageUpdate."""
+    return JSONResponse({
+        "ok": True,
+        "state": _read_rea_json("savage_state.json", {}),
+        "report": _read_rea_json("savage_update_report.json", {}),
+    })
+
+
+@app.post("/api/savage/run")
+async def api_savage_run():
+    """Ejecuta un ciclo /SavageUpdate bajo demanda (sin ejecutar código remoto)."""
+    try:
+        proc = await asyncio.to_thread(
+            subprocess.run,
+            [sys.executable, "-m", "modulos_ftl.savage_update", "once"],
+            cwd=str(GODWORKS_DIR), capture_output=True, text=True, timeout=240,
+        )
+        return JSONResponse({
+            "ok": proc.returncode == 0,
+            "returncode": proc.returncode,
+            "stdout": proc.stdout[-4000:],
+            "stderr": proc.stderr[-2000:],
+        })
+    except Exception as exc:
+        return JSONResponse({"ok": False, "error": str(exc)}, status_code=503)
 
 
 @app.get("/api/qr")
