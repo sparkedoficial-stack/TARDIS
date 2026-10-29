@@ -100,6 +100,13 @@ class TardisOmniToolBridge:
                 "domain": "browser_ai_automation",
                 "description": "Navegador gráfico multi-pestaña (GTK3+WebKit2) con TARDIS como asistente de búsqueda IA multi-motor, inspector DOM en vivo, grabadora de macros y estudio de automatización de procesos.",
                 "actions": ["gui", "search", "analyze_dom", "run_workflow", "generate_workflow", "record_macro", "schedule"]
+            },
+            "nxnative": {
+                "name": "nxnative · Mario Kart 8 Deluxe (0100152000022000)",
+                "module": "modulos_ftl.ftl_nxnative",
+                "domain": "switch_native_ios",
+                "description": "Motor nativo nxnative para Apple iPad Pro M2 con perfil completo de Mario Kart 8 Deluxe (0100152000022000, 29,650 shaders NVN->Metal 4, DmGamepad y Launcher.swift).",
+                "actions": ["status", "profile", "catalog", "build"]
             }
         }
         self._register_in_dynamic_registry()

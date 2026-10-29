@@ -137,6 +137,16 @@ class FtlOmniRegistry:
                 "description": "Entorno de escritorio Linux completo para iPad Pro M2 (Sway + Waybar + Wofi + Foot + Chromium + LibreOffice + GIMP + TARDIS/FTL/AGY Bridge) sobre motor nativo iSH ARM64 + Wayland Bridge ishwl y aceleración Metal/Venus.",
                 "capabilities": ["status", "fetch", "catalog", "themes", "benchmark", "tests"],
                 "active": True
+            },
+            "nxnative": {
+                "name": "nxnative · Mario Kart 8 Deluxe (0100152000022000) for iPad Pro M2",
+                "module": "modulos_ftl.ftl_nxnative",
+                "repo_path": "/home/timemachine/nxnative",
+                "ipa_path": "/home/timemachine/nxnative/build/MarioKart8Deluxe.ipa",
+                "category": "Nintendo Switch AArch64 Native Runner & NVN->Metal 4 Engine",
+                "description": "Motor nativo nxnative para ejecutar juegos de Nintendo Switch en Apple Silicon / iPad Pro M2 sin emulación de CPU (AArch64 NSO Rewriter + NVN a Metal 4 con 29,650 shaders para Mario Kart 8 Deluxe 0100152000022000).",
+                "capabilities": ["status", "profile", "catalog", "build"],
+                "active": True
             }
         }
 

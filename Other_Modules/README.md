@@ -87,6 +87,7 @@ Módulos y componentes auxiliares del sistema.
 - **free_models.py**: Componente de alta eficiencia.
 - **ftl_intv_appletv_hub.py**: Motor de aceleración FTL y computación adaptativa.
 - **ftl_linpad.py**: Motor de aceleración FTL y computación adaptativa.
+- **ftl_nxnative.py**: Motor de aceleración FTL y computación adaptativa.
 - **gemini_privacy_vault.py**: Centinela de seguridad, blindaje perimetral o bóveda segura.
 - **geon_retrocausal_mechanics.json**: Componente de alta eficiencia.
 - **geon_retrocausal_mechanics_forum_post.md**: Componente de alta eficiencia.
@@ -174,6 +175,7 @@ Módulos y componentes auxiliares del sistema.
 - **native-and-artifacts.md**: Componente de alta eficiencia.
 - **network_traffic_controller.py**: Componente de alta eficiencia.
 - **nodes_telemetry.json**: Componente de alta eficiencia.
+- **nxnative_mk8d_ipad_ui.py**: Componente de alta eficiencia.
 - **offline_pocket_vault.json**: Centinela de seguridad, blindaje perimetral o bóveda segura.
 - **openai_server.py**: Componente de alta eficiencia.
 - **orca.yaml**: Componente de alta eficiencia.

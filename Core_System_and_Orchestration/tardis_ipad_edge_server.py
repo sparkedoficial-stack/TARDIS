@@ -2969,18 +2969,118 @@ async def _edge_auth_middleware(request: web.Request, handler):
     return await handler(request)
 
 
+NXNATIVE_IPA_PATH = Path("/home/timemachine/nxnative/build/MarioKart8Deluxe.ipa")
+NXNATIVE_ICON_PNG = Path("/home/timemachine/nxnative/build/mk8d_icon_512.png")
+NXNATIVE_FONT_TTF = Path("/home/timemachine/nxnative/build/Payload/DmRunner.app/dm/nintendo_ext.ttf")
+
+
+async def nxnative_ui_handler(request: web.Request) -> web.Response:
+    from core.nxnative_mk8d_ipad_ui import get_nxnative_mk8d_html
+    return web.Response(text=get_nxnative_mk8d_html(), content_type="text/html")
+
+
+async def nxnative_icon_handler(request: web.Request) -> web.Response:
+    if NXNATIVE_ICON_PNG.exists():
+        return web.FileResponse(NXNATIVE_ICON_PNG)
+    return web.Response(status=404)
+
+
+async def nxnative_font_handler(request: web.Request) -> web.Response:
+    if NXNATIVE_FONT_TTF.exists():
+        return web.FileResponse(NXNATIVE_FONT_TTF)
+    return web.Response(status=404)
+
+
+async def download_mk8d_ipa_handler(request: web.Request) -> web.Response:
+    if NXNATIVE_IPA_PATH.exists():
+        return web.FileResponse(
+            NXNATIVE_IPA_PATH,
+            headers={
+                "Content-Disposition": 'attachment; filename="MarioKart8Deluxe.ipa"'
+            },
+        )
+    return web.Response(text="MarioKart8Deluxe.ipa no encontrado", status=404)
+
+
+async def nxnative_profile_handler(request: web.Request) -> web.Response:
+    host = request.headers.get("Host", f"{LAN_HOST_IP}:{EDGE_PORT}").split(":")[0]
+    if host in ("127.0.0.1", "localhost", "0.0.0.0"):
+        host = LAN_HOST_IP
+    target_url = f"http://{host}:{EDGE_PORT}/mk8d"
+    icon_data = b""
+    if NXNATIVE_ICON_PNG.exists():
+        icon_data = NXNATIVE_ICON_PNG.read_bytes()
+    elif ICON_PNG.exists():
+        icon_data = ICON_PNG.read_bytes()
+
+    payload = {
+        "PayloadType": "com.apple.webClip.managed",
+        "PayloadVersion": 1,
+        "PayloadIdentifier": "org.nxnative.0100152000022000.webclip",
+        "PayloadUUID": "REDACTED_PHONE-2108-201E-MK8DNX000002",
+        "PayloadDisplayName": "Mario Kart 8 Deluxe",
+        "PayloadDescription": "nxnative · Mario Kart 8 Deluxe (0100152000022000) para Apple iPad Pro M2",
+        "PayloadOrganization": "nxnative · GODWORKS System",
+        "Label": "Mario Kart 8",
+        "URL": target_url,
+        "FullScreen": True,
+        "IsRemovable": True,
+        "Precomposed": True,
+        "Icon": icon_data,
+        "IgnoreManifestScope": True,
+    }
+    profile = {
+        "PayloadType": "Configuration",
+        "PayloadVersion": 1,
+        "PayloadIdentifier": "org.nxnative.0100152000022000.profile",
+        "PayloadUUID": "REDACTED_PHONE-2108-201E-MK8DNX000001",
+        "PayloadDisplayName": "Mario Kart 8 Deluxe (nxnative M2)",
+        "PayloadDescription": "Instalación Nativa de Mario Kart 8 Deluxe (0100152000022000) vía nxnative en Apple iPad Pro M2",
+        "PayloadOrganization": "nxnative · GODWORKS System",
+        "PayloadContent": [payload],
+    }
+    return web.Response(
+        body=plistlib.dumps(profile),
+        content_type="application/x-apple-aspen-config",
+        headers={
+            "Content-Disposition": 'attachment; filename="nxnative_mk8d_m2.mobileconfig"'
+        },
+    )
+
+
+async def api_nxnative_status_handler(request: web.Request) -> web.Response:
+    try:
+        from modulos_ftl.ftl_nxnative import FtlNxnative
+        ctl = FtlNxnative()
+        return web.json_response({
+            "ok": True,
+            "status": ctl.get_status(),
+            "catalog": ctl.get_games_catalog(),
+        })
+    except Exception as e:
+        return web.json_response({"ok": False, "error": str(e)}, status=500)
+
+
 def create_app() -> web.Application:
     app = web.Application(middlewares=[_edge_auth_middleware])
     app.router.add_get("/", index_handler)
     app.router.add_get("/linpad", index_handler)
+    app.router.add_get("/mk8d", nxnative_ui_handler)
+    app.router.add_get("/nxnative", nxnative_ui_handler)
+    app.router.add_get("/mk8d/icon.png", nxnative_icon_handler)
+    app.router.add_get("/mk8d/font.ttf", nxnative_font_handler)
     app.router.add_get("/manifest.json", manifest_handler)
     app.router.add_get("/icon.png", icon_handler)
     app.router.add_get("/install.mobileconfig", profile_handler)
     app.router.add_get("/install-internet.mobileconfig", profile_handler)
     app.router.add_get("/tardis.mobileconfig", profile_handler)
     app.router.add_get("/linpad.mobileconfig", linpad_profile_handler)
+    app.router.add_get("/mk8d.mobileconfig", nxnative_profile_handler)
+    app.router.add_get("/nxnative.mobileconfig", nxnative_profile_handler)
     app.router.add_get("/download/tardis.ipa", download_ipa_handler)
     app.router.add_get("/download/linpad.ipa", download_linpad_ipa_handler)
+    app.router.add_get("/download/MarioKart8Deluxe.ipa", download_mk8d_ipa_handler)
+    app.router.add_get("/download/nxnative-mk8d.ipa", download_mk8d_ipa_handler)
 
     # API REST
     app.router.add_get("/api/telemetry", api_telemetry_handler)
@@ -2989,9 +3089,10 @@ def create_app() -> web.Application:
     app.router.add_post("/api/chat", api_chat_handler)
     app.router.add_get("/api/ipad/screenshot", api_ipad_screenshot_handler)
 
-    # API LINPAD 1.6.0-TARDIS-M2
+    # API LINPAD 1.6.0-TARDIS-M2 & NXNATIVE MK8D
     app.router.add_get("/api/linpad/status", api_linpad_status_handler)
     app.router.add_post("/api/linpad/exec", api_linpad_exec_handler)
+    app.router.add_get("/api/nxnative/status", api_nxnative_status_handler)
     
     # NUEVAS APIS DE PROGRAMACIÓN & KERNEL BASE
     app.router.add_get("/api/fs/tree", api_fs_tree_handler)
