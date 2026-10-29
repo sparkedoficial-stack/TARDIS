@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.6301227,
-  "last_video_id": "vp_20261029_024634_adb9f3",
-  "last_topic": "Persistent Homology of Neural Activity Patterns: Unveiling Topological Signatures in Brain Dynamics",
-  "total_videos_analyzed": 691,
-  "running_cycle": true,
+  "last_run_timestamp": REDACTED_PHONE.852794,
+  "last_video_id": "vp_20261029_032156_0c0e54",
+  "last_topic": "Twistor Theory and the Geometry of Scattering Amplitudes (Amplituhedron and Positive Geometry)",
+  "total_videos_analyzed": 692,
+  "running_cycle": false,
   "last_error": null,
   "auto_improvement_count": 380
 }
