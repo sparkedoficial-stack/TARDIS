@@ -1,41 +1,5 @@
 [
   {
-    "id": "conj_1793098914",
-    "timestamp": "2026-10-27T06:01:54.025147",
-    "idle_duration_minutes": 32.9,
-    "title": "Enhance Web Research Efficiency with TTL‑Based Caching",
-    "hypothesis": "The current web_research_engine performs redundant HTTP requests because its cache lacks a time‑to‑live (TTL) policy and does not evict stale entries. Introducing a TTL‑enabled LRU cache will reduce network traffic, lower latency for repeated queries, and improve overall system responsiveness, especially during periods of low user activity.",
-    "research_query": "Python LRU cache with TTL implementation example",
-    "research_findings": "# Informe de Investigación: Python LRU cache with TTL implementation example\n\n## Fuentes Consultadas y Respaldo Web\n- **[Implement a Cache Decorator with Time to Live Feature in Python - Towards Data Science](https://news.google.com/rss/articles/CBMioAFBVV95cUxPaVk4a0RtUzlRN0hMZE12WE9RdlVNSVRZUm1tSVRUeFpvTkQzblVwWFFHdUdaUDlNUmszM2cxcURweDNHTENFWVVwSmt6ZnhBQ0VncWNnZ0p5bUphb0tzVXJzZldXRVRQem9Ua3FOd21pdk1oRzdWMWNRQTBQT2M1cHVWSWgzd29RaDhXd0VTTmh0R1MzZ19nOEFPVWZicFlK?oc=5)**: Implement a Cache Decorator with Time to Live Feature in Python  Towards Data Science\n- **[Turbocharge Amazon S3 with Amazon ElastiCache for Redis - Amazon Web Services (AWS)](https://news.google.com/rss/articles/CBMimAFBVV95cUxPYnB6NE84RnBtU25aWkwyQWdYc0JhdGdORGhlQ3pQb0k1azB6U1pyZ2w5UGtDM2Z2cmw2RjNJa25KU19wU0wxLUl4cHpPdWc2YXB4bm04bjNZMUlfYm9jeWtGX0pwazdRbU8yT1FJSll2Q1lfcE9Yb1NFRDRiYmRfOWx4c2trbVRuMHlwN2pLMWJnc0Q1dG9zZA?oc=5)**: Turbocharge Amazon S3 with Amazon ElastiCache for Redis  Amazon Web Services (AWS)\n\n## Cont",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMioAFBVV95cUxPaVk4a0RtUzlRN0hMZE12WE9RdlVNSVRZUm1tSVRUeFpvTkQzblVwWFFHdUdaUDlNUmszM2cxcURweDNHTENFWVVwSmt6ZnhBQ0VncWNnZ0p5bUphb0tzVXJzZldXRVRQem9Ua3FOd21pdk1oRzdWMWNRQTBQT2M1cHVWSWgzd29RaDhXd0VTTmh0R1MzZ19nOEFPVWZicFlK?oc=5",
-      "https://news.google.com/rss/articles/CBMimAFBVV95cUxPYnB6NE84RnBtU25aWkwyQWdYc0JhdGdORGhlQ3pQb0k1azB6U1pyZ2w5UGtDM2Z2cmw2RjNJa25KU19wU0wxLUl4cHpPdWc2YXB4bm04bjNZMUlfYm9jeWtGX0pwazdRbU8yT1FJSll2Q1lfcE9Yb1NFRDRiYmRfOWx4c2trbVRuMHlwN2pLMWJnc0Q1dG9zZA?oc=5"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Implement a TTL‑enabled LRU cache for query results, automatically evicting entries older than a configurable threshold.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 111.57
-  },
-  {
-    "id": "conj_1793101123",
-    "timestamp": "2026-10-27T06:38:43.409703",
-    "idle_duration_minutes": 36.8,
-    "title": "Causal Embedding Sync for Real‑Time Web Research",
-    "hypothesis": "Integrating a causal embedding layer between `core/web_research_engine.py` and `core/deep_memory_vault.py` will allow the system to propagate provenance and confidence scores from retrieved web snippets directly into the long‑term memory vault. This bidirectional causal link should improve answer relevance by 15‑20 % and reduce hallucination rates, because the vault can weight new facts against previously stored causal graphs rather than treating them as isolated tokens.",
-    "research_query": "how to implement causal embeddings for knowledge graph integration with web search results python",
-    "research_findings": "# Informe de Investigación: how to implement causal embeddings for knowledge graph integration with web search results python\n\n## Fuentes Consultadas y Respaldo Web\n- **[A causal discovery-based adaptive fusion algorithm for multi-source heterogeneous knowledge graphs - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE8tQkU3N2N2SUlGcmUyeklIVU5GeWlidTZGcTBvU3hNZTBQSGxUUERfbVEydXpwZ2VoQlhrS09WelBTNmdzUWhoSG8zTzVGVGk0Rm85V3VYN3U2Q2RQRnNZ?oc=5)**: A causal discovery-based adaptive fusion algorithm for multi-source heterogeneous knowledge graphs  Nature\n- **[The Knowledge Graph Advantage: How Smart Companies Are Using Knowledge Graphs to Power AI and Drive… - Medium](https://news.google.com/rss/articles/CBMi2wFBVV95cUxOOUdUUW02NWN0MEFHVTlRZzlNbmZPcUVJcWZpNlFBb2g0OTUwc0lMMmV1ZHRHbURnQlBXWlBJYzNCeUpfbGtaTmw5VVRoQl9SUGVKMGpTeGQ0VVlhTlA4Snp6VTNHVHN4eVVCbUMzUE9qZFI4SE96LWpCekhFV0c4ejJ0ZGNTOHVSREk3a3VxTGxoT0tXQ2haak5zdWtKdzBtcEpySUhJblJpOGwtNXRZMHlzUGRWVF9qVWl1cDY5MkVtQXYwRWQza2duQWxmRk",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE8tQkU3N2N2SUlGcmUyeklIVU5GeWlidTZGcTBvU3hNZTBQSGxUUERfbVEydXpwZ2VoQlhrS09WelBTNmdzUWhoSG8zTzVGVGk0Rm85V3VYN3U2Q2RQRnNZ?oc=5",
-      "https://news.google.com/rss/articles/CBMi2wFBVV95cUxOOUdUUW02NWN0MEFHVTlRZzlNbmZPcUVJcWZpNlFBb2g0OTUwc0lMMmV1ZHRHbURnQlBXWlBJYzNCeUpfbGtaTmw5VVRoQl9SUGVKMGpTeGQ0VVlhTlA4Snp6VTNHVHN4eVVCbUMzUE9qZFI4SE96LWpCekhFV0c4ejJ0ZGNTOHVSREk3a3VxTGxoT0tXQ2haak5zdWtKdzBtcEpySUhJblJpOGwtNXRZMHlzUGRWVF9qVWl1cDY5MkVtQXYwRWQza2duQWxmRk00VjlRTmFyWFF6Rmc?oc=5"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a post‑processing step that transforms each search result into a causal node (including source URL, timestamp, and confidence) and pushes it to `deep_memory_vault` via a new `store_causal_fact` API, then modify the vault to accept and index these nodes for later retrieval.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.4
-  },
-  {
     "id": "conj_1793103021",
     "timestamp": "2026-10-27T07:10:21.827334",
     "idle_duration_minutes": 31.6,
@@ -1621,5 +1585,41 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 98.35
+  },
+  {
+    "id": "conj_1793297558",
+    "timestamp": "2026-10-29T13:12:38.349224",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal Memory Indexing for Real‑Time Web Research",
+    "hypothesis": "Integrating a causal graph layer into the Deep Memory Vault (core/deep_memory_vault.py) that links each stored akáshic token to its originating web research event (core/web_research_engine.py) will enable the system to prioritize retrieval of contextually causal evidence, reducing hallucination and improving answer relevance by at least 15% in benchmarked QA tasks.",
+    "research_query": "causal graph based memory retrieval for large language models reducing hallucination",
+    "research_findings": "# Informe de Investigación: causal graph based memory retrieval for large language models reducing hallucination\n\n## Fuentes Consultadas y Respaldo Web\n- **[A multimodal cross-modal explainable retrieval-augmented generation framework for hallucination-grounded visual question answering - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE5nYXVSb0swR0lvZkRHb2VCZm9kM2d1MTVXbWI3a3h6UVhfSWE2OHY0Y2N0am53bHFCeUU4dnp3OElkXzktY1haY1AyeEVVeU5RSVQ3YU9aT0hJdjMwMWJj?oc=5)**: A multimodal cross-modal explainable retrieval-augmented generation framework for hallucination-grounded visual question answering  Nature\n- **[Vol. 40 No. 39: AAAI-26 Technical Tracks 39 - The Association for the Advancement of Artificial Intelligence](https://news.google.com/rss/articles/CBMiX0FVX3lxTE1udHJDQmZyNW9aWF95MV9yNVVkZERkd3B1WU1FVUliSlRiUzk1dEVuX3hHdjBVMjJELWRGM3lBdEJOdW5zN0hVeUVWaGlhWnYtakJNMFdpRDA3Qmo2d0Z3?oc=5)**: Vol. 40 No. 39: AAAI-26 Technical Tracks 39  The Association for the Advancement of Artifi",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE5nYXVSb0swR0lvZkRHb2VCZm9kM2d1MTVXbWI3a3h6UVhfSWE2OHY0Y2N0am53bHFCeUU4dnp3OElkXzktY1haY1AyeEVVeU5RSVQ3YU9aT0hJdjMwMWJj?oc=5",
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE1udHJDQmZyNW9aWF95MV9yNVVkZERkd3B1WU1FVUliSlRiUzk1dEVuX3hHdjBVMjJELWRGM3lBdEJOdW5zN0hVeUVWaGlhWnYtakJNMFdpRDA3Qmo2d0Z3?oc=5"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add an asynchronous caching layer that stores each fetched URL together with a lightweight provenance graph node; expose a new method `record_provenance(url, response_metadata)` that updates the Deep Memory Vault's causal index, and modify the existing `fetch_page` function to call this method after each successful request.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.4
+  },
+  {
+    "id": "conj_1793299453",
+    "timestamp": "2026-10-29T13:44:13.877990",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal‑Graph‑Guided Ranking for the Web Research Engine",
+    "hypothesis": "Integrating a lightweight causal graph that models dependencies between query intent, source credibility, and extracted facts into core/web_research_engine.py will enable the engine to prioritize information that is both causally relevant and less prone to hallucination, thereby improving answer accuracy and reducing the need for post‑processing validation in the deep_memory_vault.",
+    "research_query": "how does causal graph based ranking improve relevance and factual consistency in web search engines",
+    "research_findings": "# Informe de Investigación: how does causal graph based ranking improve relevance and factual consistency in web search engines\n\n## Fuentes Consultadas y Respaldo Web\n- **[Entity Authority: What It Is and How to Build It for SEO and AI Visibility - Search Atlas](https://news.google.com/rss/articles/CBMiWkFVX3lxTE0tOVlHVVZrMnpIRm9WbTBPeDNRanJOR3pJdFppbTdxdkJNM2xOTXNXc01yQXRtRzVOMVhIeF9FdS1mcmdDNldRMW1pN3VkYnFjTVNud25ENWgwZw?oc=5)**: Entity Authority: What It Is and How to Build It for SEO and AI Visibility  Search Atlas\n- **[Research on the construction and application of retrieval enhanced generation (RAG) model based on knowledge graph - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE5TR1F3TFUxbXB6eFN4M1hrcXJLWU1yX0w2VzFrOS12bnNhaTRTREVSbUg5aFZlUjh2NmZpVFpkNGt2Y0h4aTZvemRXWUFKdy1NQ1ltRDNWTFBwU1lXOG9Z?oc=5)**: Research on the construction and application of retrieval enhanced generation (RAG) model based on knowledge graph  Nature\n\n## Contenido y Hallazgos Extraídos\n### De ",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiWkFVX3lxTE0tOVlHVVZrMnpIRm9WbTBPeDNRanJOR3pJdFppbTdxdkJNM2xOTXNXc01yQXRtRzVOMVhIeF9FdS1mcmdDNldRMW1pN3VkYnFjTVNud25ENWgwZw?oc=5",
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE5TR1F3TFUxbXB6eFN4M1hrcXJLWU1yX0w2VzFrOS12bnNhaTRTREVSbUg5aFZlUjh2NmZpVFpkNGt2Y0h4aTZvemRXWUFKdy1NQ1ltRDNWTFBwU1lXOG9Z?oc=5"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal inference layer that constructs a directed acyclic graph (DAG) from query tokens and metadata of retrieved pages, computes causal influence scores, and re‑ranks results before they are stored in deep_memory_vault.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 95.51
   }
 ]
