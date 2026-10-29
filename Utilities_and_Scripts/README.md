@@ -78,6 +78,7 @@ Automatizaciones de sistema, diagnósticos de hardware, optimizadores de SO y he
 - **test_rf_surveillance_proximity.py**: Componente de alta eficiencia.
 - **test_scientific_research_engine.py**: Componente de alta eficiencia.
 - **test_screen_unlock_uinput.py**: Componente de alta eficiencia.
+- **test_sovereign_autoprovision.py**: Componente de alta eficiencia.
 - **test_tardis_animations.py**: Componente de alta eficiencia.
 - **test_tardis_audio_enforcement.py**: Procesamiento de señal de audio y síntesis vocal biométrica.
 - **test_tardis_bridge.py**: Componente de alta eficiencia.

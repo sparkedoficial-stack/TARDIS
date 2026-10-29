@@ -56,13 +56,22 @@ RESOLUTIONS: Dict[int, Dict[str, Any]] = {
     },
     8: {
         "resolution": "partial",
-        "evidence": ["distributed_compute.py presente", "imac.local no resuelve por mDNS"],
-        "next_action": "Enrolar el iMac por IP fija en compute_nodes.json y verificar Ollama remoto.",
+        "evidence": [
+            "distributed_compute.py: descubrimiento concurrente multi-subred + autoenrolamiento de confianza",
+            "tardis-compute-mesh.timer active (ciclo cada 5 min)",
+            "compute_nodes.json conserva iMac-14,1-Compute-Node (REDACTED_IP)",
+            "iMac .104 sin respuesta (100% packet loss) en el último escaneo",
+        ],
+        "next_action": "Encender el iMac; el timer lo descubrirá y enrolará automáticamente en cuanto responda Ollama en :11434.",
     },
     12: {
         "resolution": "blocked",
-        "evidence": ["Requiere el equipo IdeaPad 1 15AMN7 físicamente"],
-        "next_action": "Conectar el IdeaPad y capturar el error de arranque real (journal/plymouth).",
+        "evidence": [
+            "Requiere el equipo IdeaPad 1 15AMN7 físicamente",
+            "watch_and_deploy_android.sh endurecido: escaneo multi-subred, lock, log rotado y modo --once",
+            "No hay unidad USB ni IdeaPad conectados en este momento (lsblk sin disco extraíble)",
+        ],
+        "next_action": "Conectar el IdeaPad (USB/red); el watcher capturará el error real de arranque y ejecutará el despliegue.",
     },
     13: {
         "resolution": "verified",
@@ -76,8 +85,12 @@ RESOLUTIONS: Dict[int, Dict[str, Any]] = {
     },
     67: {
         "resolution": "blocked",
-        "evidence": ["iMac 14,1 no descubrible en la red actual"],
-        "next_action": "Verificar que el iMac esté encendido y en la misma subred; luego ejecutar instalación por red.",
+        "evidence": [
+            "iMac 14,1 no descubrible: REDACTED_IP sin ruta/ARP y sin respuesta ICMP",
+            "watch_and_deploy_android.sh v2 escanea REDACTED_IP/24, REDACTED_IP/24 y REDACTED_IP/24",
+            "Auto-deploy listo: payload Android completo (system.sfs 1.99 GB) + SSH/ADB/API + instalación limpia",
+        ],
+        "next_action": "Encender el iMac y conectarlo a la misma subred; el watcher transferirá el payload y ejecutará la instalación sin intervención.",
     },
     89: {
         "resolution": "verified",
@@ -100,9 +113,13 @@ RESOLUTIONS: Dict[int, Dict[str, Any]] = {
         "next_action": "Ninguna; mejoras aplicadas y verificadas.",
     },
     114: {
-        "resolution": "blocked",
-        "evidence": ["pactl no muestra sink XG2TBK", "Requiere la bocina física conectada"],
-        "next_action": "Conectar la XG2TBK por USB y perfilar el endpoint lossless.",
+        "resolution": "partial",
+        "evidence": [
+            "core/hardware_autoprovision.py: detecta XG2TBK por sink/card y aplica perfil + s32le 2ch 48000Hz",
+            "tardis-hardware-autoprovision.service active (watcher de pactl subscribe)",
+            "pactl no muestra sink XG2TBK: la bocina física no está conectada",
+        ],
+        "next_action": "Conectar la XG2TBK por USB; el servicio la perfilará automáticamente como salida lossless por defecto.",
     },
     115: {
         "resolution": "completed",
@@ -110,13 +127,15 @@ RESOLUTIONS: Dict[int, Dict[str, Any]] = {
         "next_action": "Ninguna; paquete instalado.",
     },
     116: {
-        "resolution": "blocked",
+        "resolution": "partial",
         "evidence": [
-            "Sólo existe TARDIS-NEURAL-SPACE-KAIJU local (8B)",
-            "DeepSeek V4.1 Flash GGUF mínimo (IQ1_M) ≈ 250 GB; no cabe operativamente en 299 GB libres / 30.9 GB RAM / 4 GB VRAM",
-            "DeepSeek V4.1 Max ya opera como modelo por defecto vía OpenCode",
+            "Ollama local restaurado en ~/.local/ollama (v0.40.13) y servicio ollama.service active",
+            "TARDIS-NEURAL-SPACE-KAIJU:latest (8B, Q4_K_M) disponible en la API local :11434",
+            "Destilado pequeño DeepSeek-R1 7B instalado como contingencia local (no equivale a V4.1 Flash)",
+            "DeepSeek V4.1 Flash GGUF mínimo (IQ1_M) ≈ 250 GB; no cabe en 299 GB libres / 30.9 GB RAM / 4 GB VRAM",
+            "DeepSeek V4.1 Max sigue siendo el modelo por defecto vía OpenCode (ruteo cloud)",
         ],
-        "next_action": "Mantener el ruteo cloud para V4.1 Flash; instalar local sólo si se habilita un nodo con ≥256 GB RAM o se opta por un destilado pequeño.",
+        "next_action": "Mantener V4.1 Flash en la nube; usar KAIJU/DeepSeek-R1 local como respaldo. Instalar V4.1 Flash local sólo con un nodo ≥256 GB RAM.",
     },
     121: {
         "resolution": "completed",
@@ -180,13 +199,21 @@ RESOLUTIONS: Dict[int, Dict[str, Any]] = {
     },
     138: {
         "resolution": "completed",
-        "evidence": ["Este informe + módulos REA/SavageUpdate + servicios"],
-        "next_action": "Ninguna; petición en curso cerrada al finalizar.",
+        "evidence": [
+            "docs/FTL_BACKLOG.md + data/ftl_backlog.json regenerados",
+            "Pendientes reales automatizados: compute mesh, watcher iMac, auto-provisión XG2TBK",
+            "Ollama local restaurado (KAIJU 8B + destilado DeepSeek-R1 7B)",
+        ],
+        "next_action": "Ninguna; backlog construido y lo que depende de hardware queda a la espera del dispositivo físico.",
     },
     139: {
         "resolution": "completed",
-        "evidence": ["Continuación tras reinicio verificada", "Servicios activos y gateway público revalidado"],
-        "next_action": "Ninguna; continuación cerrada.",
+        "evidence": [
+            "Continuación tras reinicio #280 verificada",
+            "Nuevos servicios: ollama.service, tardis-compute-mesh.timer, tardis-hardware-autoprovision.service",
+            "Watcher iMac v2 activo y probado en modo --once",
+        ],
+        "next_action": "Ninguna; continuación cerrada con evidencia empírica.",
     },
 }
 

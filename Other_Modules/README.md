@@ -146,6 +146,7 @@ Módulos y componentes auxiliares del sistema.
 - **guest_task_1791161712948.py**: Componente de alta eficiencia.
 - **guest_task_1791161733330.py**: Componente de alta eficiencia.
 - **guest_task_1792127911765.py**: Componente de alta eficiencia.
+- **hardware_autoprovision.py**: Componente de alta eficiencia.
 - **hub_audit.json**: Componente de alta eficiencia.
 - **hub_health.py**: Componente de alta eficiencia.
 - **icon_base64.txt**: Componente de alta eficiencia.

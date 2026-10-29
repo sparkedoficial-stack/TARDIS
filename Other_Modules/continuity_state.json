@@ -5,23 +5,39 @@
   "source": "FTL",
   "status": "completed",
   "progress_percent": 100,
-  "phase": "Backlog FTL construido y priorizado; REA + /SavageUpdate operativos",
+  "phase": "Completado exitosamente",
   "details": {
-    "plan_mode": "deepseek",
-    "model": "opencode/deepseek-v4.1-flash-free#max",
-    "start_iso": "2026-10-29 00:30:40",
+    "finish_iso": "2026-10-29T00:32:06-05:00",
     "artifacts": [
-      "modulos_ftl/rea_learning_engine.py",
-      "modulos_ftl/savage_update.py",
-      "modulos_ftl/ftl_backlog.py",
-      "data/rea/learning_report.json",
       "data/ftl_backlog.json",
       "docs/FTL_BACKLOG.md",
-      "FTL_PUBLIC_ACCESS.txt"
+      "data/rea/learning_report.json",
+      "FTL_PUBLIC_ACCESS.txt",
+      "distributed_compute.py",
+      "core/hardware_autoprovision.py",
+      "tests/test_sovereign_autoprovision.py",
+      "watch_and_deploy_android.sh",
+      "~/.config/systemd/user/tardis-compute-mesh.service",
+      "~/.config/systemd/user/tardis-compute-mesh.timer",
+      "~/.config/systemd/user/tardis-hardware-autoprovision.service",
+      "~/.config/systemd/user/ollama.service",
+      "ollama:deepseek-r1:7b",
+      "ollama:deepseek-r1:1.5b"
     ],
-    "finish_iso": "2026-10-29T00:31:57-05:00"
+    "files_changed": [
+      "distributed_compute.py",
+      "core/hardware_autoprovision.py",
+      "tests/test_sovereign_autoprovision.py",
+      "modulos_ftl/ftl_backlog.py",
+      "docs/FTL_BACKLOG.md",
+      "data/ftl_backlog.json",
+      "watch_and_deploy_android.sh (fuera del repo)",
+      "systemd: ollama/tardis-compute-mesh/tardis-hardware-autoprovision/imac-android-autodeploy"
+    ],
+    "completion_iso": "2026-10-29 00:50:09",
+    "output_summary": "Continuación cerrada: malla de cómputo multi-subred con auto-enrolamiento, watcher iMac 14,1 v2, Ollama local restaurado con deepseek-r1:7b y 1.5b verificados por API, auto-provisión XG2TBK, backlog FTL reconciliado (139 total, 5 pendientes bloqueados por hardware)."
   },
-  "created_ts": REDACTED_PHONE.7842999,
-  "updated_ts": REDACTED_PHONE.294473,
+  "created_ts": REDACTED_PHONE.0398629,
+  "updated_ts": REDACTED_PHONE.4914742,
   "reboot_count": 280
 }
