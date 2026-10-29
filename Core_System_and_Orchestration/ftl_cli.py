@@ -114,7 +114,8 @@ UNIFIED_COMMAND_KEYWORDS = {
     "agy-cli", "antigravity", "ide", "gui", "clear", "ton618", "mascot", "mascota", "quasar", "reload",
     "recargar", "help", "exit", "quit", "q", "config", "sh", "bash",
     "colony", "colonia", "embajada", "peers", "agentes",
-    "imac", "cluster", "router", "modem", "v", "vp"
+    "imac", "cluster", "router", "modem", "v", "vp",
+    "ftl-local", "local"  # NUEVO: Comando de acceso por red local
 }
 
 
@@ -290,6 +291,90 @@ def dispatch_unified_command(cmd_name: str, args_list: list[str] = None) -> bool
 
     elif cmd in ("web", "lan", "portal"):
         os.system("ftl-web")
+        return True
+
+    elif cmd in ("ftl-local", "local"):
+        # Parse subcommands
+        args = args_list if args_list else []
+        sub_cmd = args[0].lower() if args else ""
+        
+        if sub_cmd == "qr":
+            # Mostrar solo el código QR para acceso móvil
+            ips = []
+            import socket
+            import psutil
+            try:
+                for iface, addrs in psutil.net_if_addrs().items():
+                    for addr in addrs:
+                        if addr.family == socket.AF_INET and not addr.address.startswith("127."):
+                            ips.append({"interface": iface, "ip": addr.address})
+            except Exception:
+                pass
+            if not ips:
+                ips = [{"interface": "unknown", "ip": "127.0.0.1"}]
+            
+            primary_ip = "127.0.0.1"
+            for item in ips:
+                if item["ip"].startswith("192.168."):
+                    primary_ip = item["ip"]
+                    break
+            if primary_ip == "127.0.0.1":
+                primary_ip = ips[0]["ip"] if ips else "127.0.0.1"
+            
+            url = f"http://{primary_ip}:8765"
+            console.print(f"\n[bold white]Código QR para acceso móvil a FTL:[/bold white] [cyan]{url}[/cyan]\n")
+            import qrcode
+            qr = qrcode.QRCode(box_size=1, border=1)
+            qr.add_data(url)
+            qr.print_ascii(invert=True)
+            console.print()
+            return True
+        
+        # Verificar si los servicios web FTL están activos, si no, iniciarlos
+        import subprocess
+        term_active = False
+        portal_active = False
+        try:
+            res = subprocess.run(["systemctl", "--user", "is-active", "ftl-web-terminal.service"], 
+                               stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            term_active = res.stdout.strip() == "active"
+            res2 = subprocess.run(["systemctl", "--user", "is-active", "ftl-web-portal.service"], 
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            portal_active = res2.stdout.strip() == "active"
+        except Exception:
+            pass
+        
+        if not term_active or not portal_active:
+            console.print("[bold cyan]⚡ Iniciando servicios web FTL para acceso en red local...[/bold cyan]")
+            subprocess.run(["ftl-web", "start"])
+        
+        # Mostrar información de acceso en LAN
+        ips = []
+        try:
+            for iface, addrs in psutil.net_if_addrs().items():
+                for addr in addrs:
+                    if addr.family == socket.AF_INET and not addr.address.startswith("127."):
+                        ips.append({"interface": iface, "ip": addr.address})
+        except Exception:
+            pass
+        if not ips:
+            ips = [{"interface": "unknown", "ip": "127.0.0.1"}]
+        
+        primary_ip = "127.0.0.1"
+        for item in ips:
+            if item["ip"].startswith("192.168."):
+                primary_ip = item["ip"]
+                break
+        if primary_ip == "127.0.0.1":
+            primary_ip = ips[0]["ip"] if ips else "127.0.0.1"
+        
+        console.print("[bold cyan]⚡ FTL-Local :: Acceso por Red Local Activa[/bold cyan]")
+        console.print(f"  • Portal Web: http://{primary_ip}:8765")
+        console.print(f"  • Terminal Directa: http://{primary_ip}:7681")
+        console.print(f"  • Localhost: http://localhost:8765 y http://localhost:7681")
+        console.print(f"  • IP de la estación: {primary_ip}")
+        console.print(f"  • Cobertura: Toda la LAN / Misma red Wi-Fi")
+        console.print(f"  • Código QR disponible con :ftl-local qr")
         return True
 
     elif cmd in ("voice", "voice-snap", "snap", "voz"):

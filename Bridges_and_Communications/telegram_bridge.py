@@ -3090,7 +3090,14 @@ class TelegramBridge:
                 b_status = {}
             local_url = b_status.get("local_url") or ""
             lan_ip = b_status.get("lan_ip") or "127.0.0.1"
-            online = b_status.get("online")
+            local_ok = False
+            try:
+                import urllib.request as _urllib_request_local
+                with _urllib_request_local.urlopen(f"http://127.0.0.1:{BRIDGE.port}/health", headers={"User-Agent": "TARDIS-FTL-Local"}, timeout=3) as _resp_local:
+                    local_ok = (_resp_local.status == 200)
+            except Exception:
+                local_ok = False
+            online = bool(b_status.get("online")) or local_ok
 
             status_lbl = "🟢 OPERATIVO" if online else "🟡 EN ESPERA DE ARRANQUE"
             msg_local = (

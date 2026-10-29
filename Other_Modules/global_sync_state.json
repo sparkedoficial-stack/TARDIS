@@ -1,52 +1,7 @@
 {
-  "revision": 2563,
-  "lamport": 2835,
-  "history": [
-    {
-      "id": "msg_1793289581004_1",
-      "role": "user",
-      "content": "Pregunta de Alice",
-      "timestamp": REDACTED_PHONE.004309,
-      "iso": "2026-10-29T10:59:41.004315",
-      "lamport": 2832,
-      "meta": "",
-      "raw_data": {},
-      "client_id": "client_alice"
-    },
-    {
-      "id": "msg_1793289581004_2",
-      "role": "assistant",
-      "content": "Respuesta para Alice",
-      "timestamp": REDACTED_PHONE.0045936,
-      "iso": "2026-10-29T10:59:41.004599",
-      "lamport": 2833,
-      "meta": "",
-      "raw_data": {},
-      "client_id": "client_alice"
-    },
-    {
-      "id": "msg_1793289581006_3",
-      "role": "user",
-      "content": "Pregunta de Bob",
-      "timestamp": REDACTED_PHONE.0069783,
-      "iso": "2026-10-29T10:59:41.006991",
-      "lamport": 2834,
-      "meta": "",
-      "raw_data": {},
-      "client_id": "client_bob"
-    },
-    {
-      "id": "msg_1793289581007_4",
-      "role": "assistant",
-      "content": "Respuesta para Bob",
-      "timestamp": REDACTED_PHONE.0072892,
-      "iso": "2026-10-29T10:59:41.007293",
-      "lamport": 2835,
-      "meta": "",
-      "raw_data": {},
-      "client_id": "client_bob"
-    }
-  ],
+  "revision": 2579,
+  "lamport": 2843,
+  "history": [],
   "config": {
     "model": "TARDIS-NEURAL-SPACE-KAIJU",
     "temperature": 0.3,
@@ -69,11 +24,11 @@
     "coneActive": true,
     "oscilloscopeActive": true
   },
-  "updated_at": "2026-10-29T10:59:41.007300",
+  "updated_at": "2026-10-29T11:04:14.585960",
   "visual_intelligence": {
     "active": true,
     "pid": 2274,
-    "videos_stored": 707,
-    "last_ping": REDACTED_PHONE.8310204
+    "videos_stored": 709,
+    "last_ping": REDACTED_PHONE.0157752
   }
 }

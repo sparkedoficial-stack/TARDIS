@@ -2291,6 +2291,36 @@ def process_hardware_chat_intent(msg: str, is_local_request: bool = False) -> Op
                 fb = f"🪐 [GOOGLE ANTIGRAVITY]: Lanzamiento solicitado en pantalla del sistema (Workspace: GODWORKS SYSTEM)."
                 return {"action": "antigravity_launch", "executed": res.get("ok", False), "direct_return": True, "system_feedback": fb, "raw": res}
 
+        if slash_cmd in ("/ftl_local", "/ftl-local", "/ftllocal", "/ftllocal"):
+            # [TAREA ARQUITECTO :: /FTL-LOCAL] ACCESO LOCAL SOBERANO A FTL (RED LOCAL)
+            b_status = BRIDGE.get_status() or {}
+            local_url = b_status.get("local_url") or ""
+            lan_ip = b_status.get("lan_ip") or "127.0.0.1"
+            local_ok = False
+            try:
+                import urllib.request as _urllib_request_local
+                with _urllib_request_local.urlopen(f"http://127.0.0.1:{BRIDGE.port}/health", headers={"User-Agent": "TARDIS-FTL-Local"}, timeout=3) as _resp_local:
+                    local_ok = (_resp_local.status == 200)
+            except Exception:
+                local_ok = False
+            online = bool(b_status.get("online")) or local_ok
+            status_lbl = "🟢 OPERATIVO" if online else "🟡 EN ESPERA DE ARRANQUE"
+            fb = (
+                f"🛸 **[TARDIS · ACCESO LOCAL FTL CONCEDIDO]**\n"
+                f"━━━━━━━━━━━━━━━━━━━━━━\n"
+                f"🔒 **Estado del Puente Local:** {status_lbl}\n"
+                f"🧠 **Motor FTL Local (GIA Bridge LAN):** `{local_url}`\n"
+                f"📡 **Dirección IP Local del Host:** `{lan_ip}`\n"
+                f"💻 **Terminal FTL Local (ttyd :7681):** `http://{lan_ip}:7681/terminal`\n"
+                f"🌐 **Portal FTL Local (FastAPI :8765):** `http://{lan_ip}:8765`\n\n"
+                f"✅ **ACCESO LOCAL CONCEDIDO**: el sistema FTL te ha entregado el acceso mediante red local. Conéctate desde un dispositivo dentro de la red LAN/Wi-Fi del host físico y autentícate con el token irrevocable (`?key=...`).\n\n"
+                f"💡 **Acciones soberanas disponibles desde esta sesión local:**\n"
+                f"• `/ftl <petición>` : Dirigir el motor FTL de creación/mejora de código\n"
+                f"• `/sh <comando bash>` : Control absoluto del host desde la terminal privada\n"
+                f"• `/status` : Telemetría completa del sistema soberano"
+            )
+            return {"action": "ftl_local_access", "executed": True, "direct_return": True, "system_feedback": fb, "raw": b_status}
+
         if slash_cmd == "/telegram":
             sub = args[0].lower() if args else "status"
             if not HAS_TELEGRAM or not TELEGRAM:

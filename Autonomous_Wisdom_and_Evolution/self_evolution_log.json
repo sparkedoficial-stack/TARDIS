@@ -1,34 +1,6 @@
 [
   {
     "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
-    "goal": "Implementar un scheduler que evalúe la 'causal relevance score' de cada solicitud de búsqueda usando métricas de frescura, peso semántico y feedback de deep_memory_vault, y que ajuste dinámicamente el número de hilos y el timeout de cada petición.",
-    "status": "REJECTED",
-    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
-    "elapsed_seconds": 91.29,
-    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/web_research_engine.py.20261027_034854.bak",
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Respuesta generada demasiado corta (0 vs 35266 bytes)",
-    "timestamp": "2026-10-27T03:50:25.948610"
-  },
-  {
-    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
-    "goal": "Implement a causal graph module that extracts causal relationships between query tokens and document metadata, then integrates the resulting causal scores as an additional factor in the existing relevance scoring function.",
-    "status": "REJECTED",
-    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
-    "elapsed_seconds": 91.34,
-    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/web_research_engine.py.20261027_042032.bak",
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Respuesta generada demasiado corta (0 vs 35266 bytes)",
-    "timestamp": "2026-10-27T04:22:03.731456"
-  },
-  {
-    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
     "goal": "Refactor web_research_engine to use async/await with aiohttp, add a request pool, and expose a non-blocking API for external modules.",
     "status": "REJECTED",
     "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
@@ -1398,5 +1370,33 @@
     "efficiency_improvement": null,
     "error": "Respuesta generada demasiado corta (0 vs 33875 bytes)",
     "timestamp": "2026-10-29T10:32:48.333043"
+  },
+  {
+    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/deep_memory_vault.py",
+    "goal": "Implementar una función `calculate_query_entropy()` y modificar el método de búsqueda para seleccionar dinámicamente el índice vectorial (alto vs. bajo dim) según el resultado de la entropía.",
+    "status": "REJECTED",
+    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
+    "elapsed_seconds": 90.49,
+    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/deep_memory_vault.py.20261029_110254.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "Respuesta generada demasiado corta (0 vs 33875 bytes)",
+    "timestamp": "2026-10-29T11:04:25.479190"
+  },
+  {
+    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
+    "goal": "Add a causal dependency tracker that logs which cached results depend on which external URLs or API endpoints, and modify the cache eviction logic to use this graph for proactive invalidation rather than simple TTL or LRU.",
+    "status": "REJECTED",
+    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
+    "elapsed_seconds": 90.65,
+    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/web_research_engine.py.20261029_113542.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "Respuesta generada demasiado corta (0 vs 35266 bytes)",
+    "timestamp": "2026-10-29T11:37:13.346189"
   }
 ]

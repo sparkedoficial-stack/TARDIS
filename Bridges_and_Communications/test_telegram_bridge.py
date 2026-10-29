@@ -113,6 +113,36 @@ class TestTelegramBridge(unittest.TestCase):
             self.assertIn("TERMINAL HOST", sent_text)
             self.assertIn("TEST_TERMINAL_SOBERANA_OK", sent_text)
 
+    def test_command_ftl_local_grants_local_access(self):
+        """Verifica que /FTL-Local conceda acceso soberano a FTL mediante red local (LAN)."""
+        arch_chat = REDACTED_PHONE
+        self.bridge.authorized_chat_ids.add(arch_chat)
+
+        with patch.object(self.bridge, "send_message") as mock_send:
+            self.bridge._handle_incoming_text(arch_chat, "/FTL-Local", "Arquitecto")
+            self.assertTrue(mock_send.called)
+            sent_text = mock_send.call_args.args[0]
+            self.assertIn("ACCESO LOCAL FTL CONCEDIDO", sent_text)
+            self.assertIn("TARDIS · ACCESO LOCAL FTL CONCEDIDO", sent_text)
+
+    def test_command_ftl_local_blocked_outside_private_terminal(self):
+        """Verifica que /FTL-Local sea de exclusión soberana fuera de la terminal privada del Arquitecto."""
+        group_chat_id = -REDACTED_PHONE
+        arch_user_id = REDACTED_PHONE
+        self.bridge.authorized_chat_ids.add(group_chat_id)
+
+        with patch.object(self.bridge, "send_message") as mock_send:
+            msg_dict = {
+                "message_id": 100,
+                "chat": {"id": group_chat_id, "type": "supergroup"},
+                "from": {"id": arch_user_id, "first_name": "Arquitecto"},
+                "text": "/ftl-local"
+            }
+            self.bridge._handle_update({"update_id": 2, "message": msg_dict})
+            mock_send.assert_called()
+            sent_text = mock_send.call_args.args[0]
+            self.assertIn("TERMINAL EXCLUSIVA", sent_text)
+
     def test_architect_group_control_exclusion(self):
         """Verifica que comandos de control ejecutados por el Arquitecto en grupos sean denegados con Terminal Exclusiva."""
         group_chat_id = -REDACTED_PHONE
