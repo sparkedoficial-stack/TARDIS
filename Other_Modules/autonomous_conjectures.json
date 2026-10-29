@@ -1,40 +1,5 @@
 [
   {
-    "id": "conj_1793094916",
-    "timestamp": "2026-10-27T04:55:16.312805",
-    "idle_duration_minutes": 33.2,
-    "title": "Asynchronous Web Research Engine",
-    "hypothesis": "The current web_research_engine performs HTTP requests synchronously, causing high latency and limiting the number of concurrent queries. By refactoring to an asynchronous model using aiohttp and asyncio, the engine can handle multiple search requests in parallel, reducing overall response time and improving throughput without increasing CPU usage.",
-    "research_query": "asyncio aiohttp concurrent web scraping performance improvement",
-    "research_findings": "# Informe de Investigación: asyncio aiohttp concurrent web scraping performance improvement\n\n## Fuentes Consultadas y Respaldo Web\n- **[Beyond Requests: Why httpx is the Modern HTTP Client You Need (Sometimes) - Towards Data Science](https://news.google.com/rss/articles/CBMipAFBVV95cUxQQ3lBXzBnbWMyRkhzSTNvUzJDV1h1LU5ud0k4S2NBYzYtaWhJMTQ5SjZ1OVJ1VmNSS2tqY3B5WUhZeWFTbm9GeFBKSF9pWWhKU0VucXlROVpFbjNCQ3lCcDJhZVdmSDNFbWlhTW1rSGE5U25MUlN5MjE3NUEwdXRmSFBqb2hIYnpJeDd2MTdkS2RLRUV1UnRIeDRmRm1kVzVxTEJCXw?oc=5)**: Beyond Requests: Why httpx is the Modern HTTP Client You Need (Sometimes)  Towards Data Science\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMipAFBVV95cUxQQ3lBXzBnbWMyRkhzSTNvUzJDV1h1LU5ud0k4S2NBYzYtaWhJMTQ5SjZ1OVJ1VmNSS2tqY3B5WUhZeWFTbm9GeFBKSF9pWWhKU0VucXlROVpFbjNCQ3lCcDJhZVdmSDNFbWlhTW1rSGE5U25MUlN5MjE3NUEwdXRmSFBqb2hIYnpJeDd2MTdkS2RLRUV1UnRIeDRmRm1kVzVxTEJCXw?oc=5)\n",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMipAFBVV95cUxQQ3lBXzBnbWMyRkhzSTNvUzJDV1h1LU5ud0k4S2NBYzYtaWhJMTQ5SjZ1OVJ1VmNSS2tqY3B5WUhZeWFTbm9GeFBKSF9pWWhKU0VucXlROVpFbjNCQ3lCcDJhZVdmSDNFbWlhTW1rSGE5U25MUlN5MjE3NUEwdXRmSFBqb2hIYnpJeDd2MTdkS2RLRUV1UnRIeDRmRm1kVzVxTEJCXw?oc=5"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Refactor web_research_engine to use async/await with aiohttp, add a request pool, and expose a non-blocking API for external modules.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 99.56
-  },
-  {
-    "id": "conj_1793096939",
-    "timestamp": "2026-10-27T05:28:59.012788",
-    "idle_duration_minutes": 33.7,
-    "title": "Causal‑Feedback Loop for Adaptive Web Research",
-    "hypothesis": "Integrating a causal‑feedback loop between the Web Research Engine and the Deep Memory Vault will enable the system to dynamically prioritize search queries based on the inferred impact of newly retrieved information on existing knowledge graphs. By modeling the causal influence of each retrieved document on downstream reasoning tasks (e.g., hypothesis generation, code suggestion), the engine can allocate more resources to high‑impact queries, reducing latency and improving answer relevance. This hypothesis predicts a measurable reduction in average query‑to‑insight time (≈20 %) and an increase in hypothesis validation success rate (≈15 %) compared to the current stateless request‑response model.",
-    "research_query": "causal feedback loop adaptive web search engine knowledge graph prioritization performance improvement",
-    "research_findings": "# Informe de Investigación: causal feedback loop adaptive web search engine knowledge graph prioritization performance improvement\n\n## Fuentes Consultadas y Respaldo Web\n- **[A causal discovery-based adaptive fusion algorithm for multi-source heterogeneous knowledge graphs - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE8tQkU3N2N2SUlGcmUyeklIVU5GeWlidTZGcTBvU3hNZTBQSGxUUERfbVEydXpwZ2VoQlhrS09WelBTNmdzUWhoSG8zTzVGVGk0Rm85V3VYN3U2Q2RQRnNZ?oc=5)**: A causal discovery-based adaptive fusion algorithm for multi-source heterogeneous knowledge graphs  Nature\n- **[Construction of intelligent decision support systems through integration of retrieval-augmented generation and knowledge graphs | Scientific Reports - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE1rbG9tSkhuTzl4czlsM3lhaVd3c2pQb25HZ29faldkZko3TkpGTExZcGZIdW5FdkFPU2picTAtN0h4OWtFY0RzRnJfcWQ0R0IyTnE1QzhRaUZJU2tBcnQ0?oc=5)**: Construction of intelligent decision support systems through integration of retrieval-a",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE8tQkU3N2N2SUlGcmUyeklIVU5GeWlidTZGcTBvU3hNZTBQSGxUUERfbVEydXpwZ2VoQlhrS09WelBTNmdzUWhoSG8zTzVGVGk0Rm85V3VYN3U2Q2RQRnNZ?oc=5",
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE1rbG9tSkhuTzl4czlsM3lhaVd3c2pQb25HZ29faldkZko3TkpGTExZcGZIdW5FdkFPU2picTAtN0h4OWtFY0RzRnJfcWQ0R0IyTnE1QzhRaUZJU2tBcnQ0?oc=5"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal‑impact scoring module that evaluates each search result against the Deep Memory Vault's knowledge graph, updates a priority queue for pending queries, and logs impact metrics for continuous learning.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.94
-  },
-  {
     "id": "conj_1793098914",
     "timestamp": "2026-10-27T06:01:54.025147",
     "idle_duration_minutes": 32.9,
@@ -1623,5 +1588,38 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.38
+  },
+  {
+    "id": "conj_1793293763",
+    "timestamp": "2026-10-29T12:09:23.571381",
+    "idle_duration_minutes": 32.2,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrating a causal‑based cache invalidation layer into `core/web_research_engine.py`—where cache entries are tagged with provenance metadata and automatically purged when upstream knowledge graphs (e.g., the akáshic vault) register a causal update—will reduce stale result retrieval by at least 40% and improve overall query latency without increasing network load.",
+    "research_query": "causal cache invalidation techniques for web scraping frameworks OR provenance‑based cache eviction in distributed AI systems",
+    "research_findings": "# Informe de Investigación: causal cache invalidation techniques for web scraping frameworks OR provenance‑based cache eviction in distributed AI systems\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a provenance metadata field to cached responses and implement an async listener that subscribes to `core/deep_memory_vault.py` change events, triggering selective cache eviction based on causal dependencies.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.81
+  },
+  {
+    "id": "conj_1793295661",
+    "timestamp": "2026-10-29T12:41:01.936514",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal Feedback Loop for Adaptive Query Refinement",
+    "hypothesis": "Integrating a causal inference layer between the Web Research Engine and the Deep Memory Vault can enable the system to automatically adjust search query parameters based on the observed relevance feedback of retrieved documents, leading to a measurable reduction in retrieval latency and an increase in semantic relevance scores across successive iterations.",
+    "research_query": "causal inference feedback loop adaptive web search relevance optimization",
+    "research_findings": "# Informe de Investigación: causal inference feedback loop adaptive web search relevance optimization\n\n## Fuentes Consultadas y Respaldo Web\n- **[Construction of intelligent decision support systems through integration of retrieval-augmented generation and knowledge graphs | Scientific Reports - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE1rbG9tSkhuTzl4czlsM3lhaVd3c2pQb25HZ29faldkZko3TkpGTExZcGZIdW5FdkFPU2picTAtN0h4OWtFY0RzRnJfcWQ0R0IyTnE1QzhRaUZJU2tBcnQ0?oc=5)**: Construction of intelligent decision support systems through integration of retrieval-augmented generation and knowledge graphs | Scientific Reports  Nature\n- **[Explainable artificial intelligence (Wikipedia)](https://en.wikipedia.org/wiki/Explainable_artificial_intelligence)**: maintenance systems (TMS) extended the capabilities of causal-reasoning, rule-based, and logic-based inference systems. A TMS explicitly tracks alternate lines\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.g",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE1rbG9tSkhuTzl4czlsM3lhaVd3c2pQb25HZ29faldkZko3TkpGTExZcGZIdW5FdkFPU2picTAtN0h4OWtFY0RzRnJfcWQ0R0IyTnE1QzhRaUZJU2tBcnQ0?oc=5",
+      "https://en.wikipedia.org/wiki/Explainable_artificial_intelligence"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal inference module that records relevance signals from deep_memory_vault, computes causal impact on query parameters, and dynamically rewrites the search query before each request.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.35
   }
 ]

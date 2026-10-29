@@ -1,12 +1,12 @@
 {
   "schema": "tardis.savage_update/1.0",
-  "generated_at": "2026-10-29T06:26:00-05:00",
+  "generated_at": "2026-10-29T12:27:26-05:00",
   "cycle": {
     "items_collected": 55,
     "items_fresh": 2,
-    "proposals": 3,
-    "experiment_plans": 3,
-    "elapsed_s": 5.69
+    "proposals": 7,
+    "experiment_plans": 7,
+    "elapsed_s": 5.81
   },
   "sources": {
     "offline": false,
@@ -14,22 +14,22 @@
       "github": {
         "ok": true,
         "count": 6,
-        "elapsed_ms": 2672.6
+        "elapsed_ms": 2666.5
       },
       "huggingface": {
         "ok": true,
         "count": 20,
-        "elapsed_ms": 538.0
+        "elapsed_ms": 532.1
       },
       "arxiv": {
         "ok": true,
         "count": 36,
-        "elapsed_ms": 1057.9
+        "elapsed_ms": 1111.5
       },
       "npm": {
         "ok": true,
         "count": 1,
-        "elapsed_ms": 459.2
+        "elapsed_ms": 543.7
       }
     }
   },
@@ -41,35 +41,69 @@
   },
   "top_items": [
     {
-      "id": "59fb5cb25a490cd9",
-      "source": "huggingface:trending",
-      "category": "model",
-      "title": "DavidAU/Qwen3.8-27B-TURBO-Fable-Cold-Fusion-735-882-Heretic-Uncensored-NEO-CODER-MAX-MTP-GGUF",
-      "url": "https://huggingface.co/DavidAU/Qwen3.8-27B-TURBO-Fable-Cold-Fusion-735-882-Heretic-Uncensored-NEO-CODER-MAX-MTP-GGUF",
-      "published_at": "2026-10-17T22:34:07.000Z",
-      "summary": "pipeline=image-text-to-text downloads=1726051 likes=2214",
+      "id": "d250251e80b93fa9",
+      "source": "github:huggingface/transformers",
+      "category": "ml-framework",
+      "title": "huggingface/transformers v5.22.0",
+      "url": "https://github.com/huggingface/transformers/releases/tag/v5.22.0",
+      "published_at": "2026-10-29T14:15:39Z",
+      "summary": "## New Models\r\n\r\n### Mistral Large 4 (Le Chonk)\r\n\r\n<img width=\"1329\" height=\"780\" alt=\"image\" src=\"https://github.com/user-attachments/assets/1cff9ca7-19e3-4622-8db6-fb1cfa842579\" />\r\n\r\nMistral Large 4 is Mistral's largest and most capable model to date: a 1 trillion-parameter natively multimodal Mixture-of-Experts model with 49 billion active parameters per token (52 billion including embeddings and output layers), trained from scratch on 3,800 NVIDIA Grace Blackwell GPUs in Mistral's own datacenters in Europe.\r\n\r\nMistral Large 4 unifies instruction following, reasoning, coding, and agentic workflows in a single set of weights. While a generalist model, it shows especially good performance ",
       "tags": [
         "quantization",
+        "moe",
+        "long-context",
+        "agents",
+        "rag",
         "vision",
         "reasoning"
       ],
-      "relevance": 10.3,
+      "relevance": 25.0,
       "targets": []
     },
     {
-      "id": "a104aeb61600e6b3",
-      "source": "github:huggingface/transformers",
-      "category": "ml-framework",
-      "title": "huggingface/transformers v5.21.1",
-      "url": "https://github.com/huggingface/transformers/releases/tag/v5.21.1",
-      "published_at": "2026-10-29T08:35:02Z",
-      "summary": "# Patch release v5.21.1 \r\n\r\n** Fix rope_scaling setter for configs that assign it during init (#50080 ) \r\n\r\nWe broke remote code loading in vllm, this fixes it sorry everyone!",
-      "tags": [],
-      "relevance": 2.5,
+      "id": "62492c69fae27638",
+      "source": "huggingface:trending",
+      "category": "model",
+      "title": "mistralai/Mistral-Large-4-1T-A52B",
+      "url": "https://huggingface.co/mistralai/Mistral-Large-4-1T-A52B",
+      "published_at": "2026-10-29T14:51:07.000Z",
+      "summary": "pipeline=image-text-to-text downloads=278 likes=1143",
+      "tags": [
+        "vision"
+      ],
+      "relevance": 0.6,
       "targets": []
     }
   ],
   "proposals": [
+    {
+      "id": "savage-73e62f0aae43",
+      "title": "Integración de capacidades visión/multimodal",
+      "target": "tardis",
+      "tag": "vision",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "vision_pipeline",
+      "evidence": [
+        {
+          "title": "huggingface/transformers v5.22.0",
+          "url": "https://github.com/huggingface/transformers/releases/tag/v5.22.0",
+          "source": "github:huggingface/transformers",
+          "relevance": 25.0
+        },
+        {
+          "title": "mistralai/Mistral-Large-4-1T-A52B",
+          "url": "https://huggingface.co/mistralai/Mistral-Large-4-1T-A52B",
+          "source": "huggingface:trending",
+          "relevance": 0.6
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 2 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Evaluar 50 imágenes con ground truth; medir exactitud y latencia.",
+      "rollback": "Desactivar el pipeline visual nuevo.",
+      "status": "planned",
+      "created_at": "2026-10-29T12:27:26-05:00"
+    },
     {
       "id": "savage-0221680af214",
       "title": "Benchmark de cuantización para el modelo soberano",
@@ -80,17 +114,39 @@
       "experiment": "quantization_benchmark",
       "evidence": [
         {
-          "title": "DavidAU/Qwen3.8-27B-TURBO-Fable-Cold-Fusion-735-882-Heretic-Uncensored-NEO-CODER-MAX-MTP-GGUF",
-          "url": "https://huggingface.co/DavidAU/Qwen3.8-27B-TURBO-Fable-Cold-Fusion-735-882-Heretic-Uncensored-NEO-CODER-MAX-MTP-GGUF",
-          "source": "huggingface:trending",
-          "relevance": 10.3
+          "title": "huggingface/transformers v5.22.0",
+          "url": "https://github.com/huggingface/transformers/releases/tag/v5.22.0",
+          "source": "github:huggingface/transformers",
+          "relevance": 25.0
         }
       ],
       "rationale": "Señal tecnológica detectada en 1 fuentes; la doctrina exige evaluar antes de adoptar.",
       "validation": "Medir tokens/s, VRAM pico y perplejidad en 20 prompts; aceptar sólo si la pérdida es <2%.",
       "rollback": "Mantener el GGUF Q4_K actual y descartar el artefacto candidato.",
       "status": "planned",
-      "created_at": "2026-10-29T06:26:00-05:00"
+      "created_at": "2026-10-29T12:27:26-05:00"
+    },
+    {
+      "id": "savage-2a5f91473f5d",
+      "title": "Perfil de contexto extendido con chunking alineado",
+      "target": "tardis",
+      "tag": "long-context",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "long_context_profile",
+      "evidence": [
+        {
+          "title": "huggingface/transformers v5.22.0",
+          "url": "https://github.com/huggingface/transformers/releases/tag/v5.22.0",
+          "source": "github:huggingface/transformers",
+          "relevance": 25.0
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 1 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Prueba de recuperación en documento de 128k tokens; medir latencia y precisión.",
+      "rollback": "Restaurar ctx_size=4096.",
+      "status": "planned",
+      "created_at": "2026-10-29T12:27:26-05:00"
     },
     {
       "id": "savage-50d57ca1e5ee",
@@ -102,39 +158,83 @@
       "experiment": "reasoning_budget",
       "evidence": [
         {
-          "title": "DavidAU/Qwen3.8-27B-TURBO-Fable-Cold-Fusion-735-882-Heretic-Uncensored-NEO-CODER-MAX-MTP-GGUF",
-          "url": "https://huggingface.co/DavidAU/Qwen3.8-27B-TURBO-Fable-Cold-Fusion-735-882-Heretic-Uncensored-NEO-CODER-MAX-MTP-GGUF",
-          "source": "huggingface:trending",
-          "relevance": 10.3
+          "title": "huggingface/transformers v5.22.0",
+          "url": "https://github.com/huggingface/transformers/releases/tag/v5.22.0",
+          "source": "github:huggingface/transformers",
+          "relevance": 25.0
         }
       ],
       "rationale": "Señal tecnológica detectada en 1 fuentes; la doctrina exige evaluar antes de adoptar.",
       "validation": "Comparar exactitud/costo en 40 problemas; elegir el punto de Pareto.",
       "rollback": "Volver al esfuerzo por defecto.",
       "status": "planned",
-      "created_at": "2026-10-29T06:26:00-05:00"
+      "created_at": "2026-10-29T12:27:26-05:00"
     },
     {
-      "id": "savage-73e62f0aae43",
-      "title": "Integración de capacidades visión/multimodal",
+      "id": "savage-db7241589fcf",
+      "title": "Mejora del pipeline RAG y embeddings",
       "target": "tardis",
-      "tag": "vision",
+      "tag": "rag",
       "risk": "low",
       "kind": "experiment",
-      "experiment": "vision_pipeline",
+      "experiment": "rag_pipeline",
       "evidence": [
         {
-          "title": "DavidAU/Qwen3.8-27B-TURBO-Fable-Cold-Fusion-735-882-Heretic-Uncensored-NEO-CODER-MAX-MTP-GGUF",
-          "url": "https://huggingface.co/DavidAU/Qwen3.8-27B-TURBO-Fable-Cold-Fusion-735-882-Heretic-Uncensored-NEO-CODER-MAX-MTP-GGUF",
-          "source": "huggingface:trending",
-          "relevance": 10.3
+          "title": "huggingface/transformers v5.22.0",
+          "url": "https://github.com/huggingface/transformers/releases/tag/v5.22.0",
+          "source": "github:huggingface/transformers",
+          "relevance": 25.0
         }
       ],
       "rationale": "Señal tecnológica detectada en 1 fuentes; la doctrina exige evaluar antes de adoptar.",
-      "validation": "Evaluar 50 imágenes con ground truth; medir exactitud y latencia.",
-      "rollback": "Desactivar el pipeline visual nuevo.",
+      "validation": "Recall@10 sobre 100 consultas doradas.",
+      "rollback": "Conservar el índice actual.",
       "status": "planned",
-      "created_at": "2026-10-29T06:26:00-05:00"
+      "created_at": "2026-10-29T12:27:26-05:00"
+    },
+    {
+      "id": "savage-f58fb1dcfe8b",
+      "title": "Ruteo por expertos activos (top-k)",
+      "target": "tardis",
+      "tag": "moe",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "moe_routing",
+      "evidence": [
+        {
+          "title": "huggingface/transformers v5.22.0",
+          "url": "https://github.com/huggingface/transformers/releases/tag/v5.22.0",
+          "source": "github:huggingface/transformers",
+          "relevance": 25.0
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 1 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Comparar costo por token activo vs. modelo denso equivalente.",
+      "rollback": "Volver al ruteo denso por defecto.",
+      "status": "planned",
+      "created_at": "2026-10-29T12:27:26-05:00"
+    },
+    {
+      "id": "savage-f7a834b450f8",
+      "title": "Política de agentes y tool-calling",
+      "target": "ftl",
+      "tag": "agents",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "agent_tool_policy",
+      "evidence": [
+        {
+          "title": "huggingface/transformers v5.22.0",
+          "url": "https://github.com/huggingface/transformers/releases/tag/v5.22.0",
+          "source": "github:huggingface/transformers",
+          "relevance": 25.0
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 1 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Suite de 30 tareas con herramientas; medir tasa de éxito y pasos.",
+      "rollback": "Reactivar la política anterior en coding_router.json.",
+      "status": "planned",
+      "created_at": "2026-10-29T12:27:26-05:00"
     }
   ],
   "offline": false
