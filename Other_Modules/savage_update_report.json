@@ -1,12 +1,12 @@
 {
   "schema": "tardis.savage_update/1.0",
-  "generated_at": "2026-10-29T00:34:03-05:00",
+  "generated_at": "2026-10-29T06:26:00-05:00",
   "cycle": {
     "items_collected": 55,
-    "items_fresh": 0,
-    "proposals": 0,
-    "experiment_plans": 0,
-    "elapsed_s": 6.18
+    "items_fresh": 2,
+    "proposals": 3,
+    "experiment_plans": 3,
+    "elapsed_s": 5.69
   },
   "sources": {
     "offline": false,
@@ -14,32 +14,128 @@
       "github": {
         "ok": true,
         "count": 6,
-        "elapsed_ms": 3494.5
+        "elapsed_ms": 2672.6
       },
       "huggingface": {
         "ok": true,
         "count": 20,
-        "elapsed_ms": 489.1
+        "elapsed_ms": 538.0
       },
       "arxiv": {
         "ok": true,
         "count": 36,
-        "elapsed_ms": 1033.4
+        "elapsed_ms": 1057.9
       },
       "npm": {
         "ok": true,
         "count": 1,
-        "elapsed_ms": 381.5
+        "elapsed_ms": 459.2
       }
     }
   },
   "rea": {
     "ok": true,
-    "artifacts": 5,
-    "report_artifacts": 5,
-    "proposals": 6
+    "artifacts": 7,
+    "report_artifacts": 7,
+    "proposals": 11
   },
-  "top_items": [],
-  "proposals": [],
+  "top_items": [
+    {
+      "id": "59fb5cb25a490cd9",
+      "source": "huggingface:trending",
+      "category": "model",
+      "title": "DavidAU/Qwen3.8-27B-TURBO-Fable-Cold-Fusion-735-882-Heretic-Uncensored-NEO-CODER-MAX-MTP-GGUF",
+      "url": "https://huggingface.co/DavidAU/Qwen3.8-27B-TURBO-Fable-Cold-Fusion-735-882-Heretic-Uncensored-NEO-CODER-MAX-MTP-GGUF",
+      "published_at": "2026-10-17T22:34:07.000Z",
+      "summary": "pipeline=image-text-to-text downloads=1726051 likes=2214",
+      "tags": [
+        "quantization",
+        "vision",
+        "reasoning"
+      ],
+      "relevance": 10.3,
+      "targets": []
+    },
+    {
+      "id": "a104aeb61600e6b3",
+      "source": "github:huggingface/transformers",
+      "category": "ml-framework",
+      "title": "huggingface/transformers v5.21.1",
+      "url": "https://github.com/huggingface/transformers/releases/tag/v5.21.1",
+      "published_at": "2026-10-29T08:35:02Z",
+      "summary": "# Patch release v5.21.1 \r\n\r\n** Fix rope_scaling setter for configs that assign it during init (#50080 ) \r\n\r\nWe broke remote code loading in vllm, this fixes it sorry everyone!",
+      "tags": [],
+      "relevance": 2.5,
+      "targets": []
+    }
+  ],
+  "proposals": [
+    {
+      "id": "savage-0221680af214",
+      "title": "Benchmark de cuantización para el modelo soberano",
+      "target": "ftl",
+      "tag": "quantization",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "quantization_benchmark",
+      "evidence": [
+        {
+          "title": "DavidAU/Qwen3.8-27B-TURBO-Fable-Cold-Fusion-735-882-Heretic-Uncensored-NEO-CODER-MAX-MTP-GGUF",
+          "url": "https://huggingface.co/DavidAU/Qwen3.8-27B-TURBO-Fable-Cold-Fusion-735-882-Heretic-Uncensored-NEO-CODER-MAX-MTP-GGUF",
+          "source": "huggingface:trending",
+          "relevance": 10.3
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 1 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Medir tokens/s, VRAM pico y perplejidad en 20 prompts; aceptar sólo si la pérdida es <2%.",
+      "rollback": "Mantener el GGUF Q4_K actual y descartar el artefacto candidato.",
+      "status": "planned",
+      "created_at": "2026-10-29T06:26:00-05:00"
+    },
+    {
+      "id": "savage-50d57ca1e5ee",
+      "title": "Presupuesto de razonamiento adaptativo",
+      "target": "tardis",
+      "tag": "reasoning",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "reasoning_budget",
+      "evidence": [
+        {
+          "title": "DavidAU/Qwen3.8-27B-TURBO-Fable-Cold-Fusion-735-882-Heretic-Uncensored-NEO-CODER-MAX-MTP-GGUF",
+          "url": "https://huggingface.co/DavidAU/Qwen3.8-27B-TURBO-Fable-Cold-Fusion-735-882-Heretic-Uncensored-NEO-CODER-MAX-MTP-GGUF",
+          "source": "huggingface:trending",
+          "relevance": 10.3
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 1 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Comparar exactitud/costo en 40 problemas; elegir el punto de Pareto.",
+      "rollback": "Volver al esfuerzo por defecto.",
+      "status": "planned",
+      "created_at": "2026-10-29T06:26:00-05:00"
+    },
+    {
+      "id": "savage-73e62f0aae43",
+      "title": "Integración de capacidades visión/multimodal",
+      "target": "tardis",
+      "tag": "vision",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "vision_pipeline",
+      "evidence": [
+        {
+          "title": "DavidAU/Qwen3.8-27B-TURBO-Fable-Cold-Fusion-735-882-Heretic-Uncensored-NEO-CODER-MAX-MTP-GGUF",
+          "url": "https://huggingface.co/DavidAU/Qwen3.8-27B-TURBO-Fable-Cold-Fusion-735-882-Heretic-Uncensored-NEO-CODER-MAX-MTP-GGUF",
+          "source": "huggingface:trending",
+          "relevance": 10.3
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 1 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Evaluar 50 imágenes con ground truth; medir exactitud y latencia.",
+      "rollback": "Desactivar el pipeline visual nuevo.",
+      "status": "planned",
+      "created_at": "2026-10-29T06:26:00-05:00"
+    }
+  ],
   "offline": false
 }

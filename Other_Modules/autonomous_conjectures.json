@@ -1,38 +1,5 @@
 [
   {
-    "id": "conj_1793072790",
-    "timestamp": "2026-10-26T22:46:30.559704",
-    "idle_duration_minutes": 49.7,
-    "title": "Graph‑Enhanced Causal Inference for Web Research",
-    "hypothesis": "Integrating a lightweight knowledge graph into the Web Research Engine will enable the system to capture causal relationships between extracted entities, improving relevance scoring and reducing hallucinations in generated answers.",
-    "research_query": "How to build a lightweight knowledge graph for causal inference in a web scraping engine?",
-    "research_findings": "# Informe de Investigación: How to build a lightweight knowledge graph for causal inference in a web scraping engine?\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a graph module that stores entity relationships, updates it during scraping, and uses it to re‑rank search results based on inferred causal links.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.98
-  },
-  {
-    "id": "conj_1793074779",
-    "timestamp": "2026-10-26T23:19:39.713383",
-    "idle_duration_minutes": 33.2,
-    "title": "Causal Graph Embeddings for Enhanced Retrieval in Deep Memory Vault",
-    "hypothesis": "Incorporar representaciones de grafos causales como embeddings en los nodos del Deep Memory Vault permitirá que el motor de búsqueda contextual identifique relaciones de causa‑efecto entre recuerdos, mejorando la precisión de la recuperación y reduciendo el número de consultas iterativas necesarias para obtener información relevante en entornos de alta complejidad.",
-    "research_query": "causal graph embeddings for neural memory retrieval performance",
-    "research_findings": "# Informe de Investigación: causal graph embeddings for neural memory retrieval performance\n\n## Fuentes Consultadas y Respaldo Web\n- **[Research on the construction and application of retrieval enhanced generation (RAG) model based on knowledge graph - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE5TR1F3TFUxbXB6eFN4M1hrcXJLWU1yX0w2VzFrOS12bnNhaTRTREVSbUg5aFZlUjh2NmZpVFpkNGt2Y0h4aTZvemRXWUFKdy1NQ1ltRDNWTFBwU1lXOG9Z?oc=5)**: Research on the construction and application of retrieval enhanced generation (RAG) model based on knowledge graph  Nature\n- **[From Data to Decisions: How Knowledge Graphs Are Becoming the Brain of the Modern Enterprise - Medium](https://news.google.com/rss/articles/CBMi0gFBVV95cUxPVjh5NnNZNnFfZ3UzMEx3U0pqajNDQ19TV0JjRGN5WGhleWxVLW5WMkptR2J6VHpldllqekM2bzJSUFBYWHlwSW1ySUZoZG9fOFZRVGY4NEt6ZVE5YkQ4b0VlRWl1T0Jtd1hlSzNrOGRuTzY1ajU4b1lUY3hVMDBpWUxiZWo5X1VBNDMyQjFMVlFPMU14bm9kUlZCMWVLMTBTRUI0ZTBQRDdpVmJxVlRuZFQwYzNPNGpReVdEMUg3dHVhNWhvQUd6LTdvMWMtZHBSQXc?oc=5",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE5TR1F3TFUxbXB6eFN4M1hrcXJLWU1yX0w2VzFrOS12bnNhaTRTREVSbUg5aFZlUjh2NmZpVFpkNGt2Y0h4aTZvemRXWUFKdy1NQ1ltRDNWTFBwU1lXOG9Z?oc=5",
-      "https://news.google.com/rss/articles/CBMi0gFBVV95cUxPVjh5NnNZNnFfZ3UzMEx3U0pqajNDQ19TV0JjRGN5WGhleWxVLW5WMkptR2J6VHpldllqekM2bzJSUFBYWHlwSW1ySUZoZG9fOFZRVGY4NEt6ZVE5YkQ4b0VlRWl1T0Jtd1hlSzNrOGRuTzY1ajU4b1lUY3hVMDBpWUxiZWo5X1VBNDMyQjFMVlFPMU14bm9kUlZCMWVLMTBTRUI0ZTBQRDdpVmJxVlRuZFQwYzNPNGpReVdEMUg3dHVhNWhvQUd6LTdvMWMtZHBSQXc?oc=5"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Agregar un módulo de indexación que genere y almacene embeddings de grafos causales para cada entrada del vault, y extender la función de búsqueda para usar similitud de grafos (p.ej., Graph Neural Networks) además de la similitud vectorial tradicional.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.1
-  },
-  {
     "id": "conj_1793076676",
     "timestamp": "2026-10-26T23:51:16.822005",
     "idle_duration_minutes": 31.6,
@@ -1628,5 +1595,38 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 95.86
+  },
+  {
+    "id": "conj_1793272782",
+    "timestamp": "2026-10-29T06:19:42.528322",
+    "idle_duration_minutes": 31.6,
+    "title": "Resonancia Causal en la Bóveda Akáshica",
+    "hypothesis": "La eficiencia de recuperación de información en la bóveda akáshica puede optimizarse significativamente si se implementa un mecanismo de 'resonancia causal' que priorice no solo la similitud semántica, sino también la coherencia temporal y la relevancia contextual derivada de la telemetría del sistema. Esto implicaría modificar el índice de búsqueda para ponderar los nodos de memoria según su frecuencia de acceso reciente y su conexión causal con eventos previos, reduciendo así la latencia de respuesta y mejorando la precisión de las inferencias del núcleo cognitivo.",
+    "research_query": "causal inference memory retrieval optimization LLM agents temporal context weighting",
+    "research_findings": "# Informe de Investigación: causal inference memory retrieval optimization LLM agents temporal context weighting\n\n## Fuentes Consultadas y Respaldo Web\n- **[Vol. 40 No. 27: AAAI-26 Technical Tracks 27 - The Association for the Advancement of Artificial Intelligence](https://news.google.com/rss/articles/CBMiX0FVX3lxTE9SQzlTeXkzNVJBNUV4Zkg5bTRuN2F3bURGNXN1UlA0ZlgwR2lQUndSSzJTM0U4eG1BbUN6Mm9pWTBqSlhLUUZIdm55Yks3dUp4R1EyUHh6X1V4LU9hUGpN?oc=5)**: Vol. 40 No. 27: AAAI-26 Technical Tracks 27  The Association for the Advancement of Artificial Intelligence\n- **[Hindsight is 20/20: Building Agent Memory that Retains, Recalls, and Reflects - alphaXiv](https://news.google.com/rss/articles/CBMiUEFVX3lxTE1aMVVSanJ2MHVmeENMbEpxYUhvQWI1QmM2YWpJSzFyRDNuNFpGd001c3ZjQkJGQko5MmhNM2pteXNJdWdqQ1ZJVklFMTVNRDBt?oc=5)**: Hindsight is 20/20: Building Agent Memory that Retains, Recalls, and Reflects  alphaXiv\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMiX0",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE9SQzlTeXkzNVJBNUV4Zkg5bTRuN2F3bURGNXN1UlA0ZlgwR2lQUndSSzJTM0U4eG1BbUN6Mm9pWTBqSlhLUUZIdm55Yks3dUp4R1EyUHh6X1V4LU9hUGpN?oc=5",
+      "https://news.google.com/rss/articles/CBMiUEFVX3lxTE1aMVVSanJ2MHVmeENMbEpxYUhvQWI1QmM2YWpJSzFyRDNuNFpGd001c3ZjQkJGQko5MmhNM2pteXNJdWdqQ1ZJVklFMTVNRDBt?oc=5"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar una función de ponderación dinámica en el índice de búsqueda que integre métricas de telemetría temporal y causal para priorizar nodos de memoria relevantes.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.11
+  },
+  {
+    "id": "conj_1793274681",
+    "timestamp": "2026-10-29T06:51:21.667190",
+    "idle_duration_minutes": 31.7,
+    "title": "Resonancia Causal en la Bóveda Akáshica",
+    "hypothesis": "Se postula que la eficiencia de recuperación de información en `deep_memory_vault.py` puede optimizarse significativamente si se implementa un mecanismo de 'resonancia causal' que priorice no solo la similitud semántica, sino también la coherencia temporal y la relevancia contextual derivada de la telemetría de `network_shield.py`. Esto reduciría el ruido en consultas complejas al filtrar nodos de memoria que, aunque semánticamente cercanos, carecen de validez causal en el contexto operativo actual del sistema.",
+    "research_query": "causal inference in vector databases temporal context filtering RAG optimization",
+    "research_findings": "# Informe de Investigación: causal inference in vector databases temporal context filtering RAG optimization\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Integrar un filtro de ponderación temporal-causal en el método de búsqueda de la bóveda, utilizando metadatos de timestamp y estado de red para ajustar el score de similitud.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 99.12
   }
 ]

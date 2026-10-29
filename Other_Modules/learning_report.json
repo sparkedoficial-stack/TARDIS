@@ -1,26 +1,187 @@
 {
   "schema": "tardis.rea.learning/1.0",
-  "generated_at": "2026-10-29T00:34:03-05:00",
+  "generated_at": "2026-10-29T06:26:00-05:00",
   "engine_version": "26.4.0",
-  "artifacts_analyzed": 5,
+  "artifacts_analyzed": 7,
   "formats": {
     "html": 2,
     "config": 1,
     "empty": 1,
-    "gguf": 1
+    "gguf": 3
   },
   "architectures": {
     "unknown": 3,
     "glm-5.2": 1,
-    "llama": 1
+    "llama": 1,
+    "qwen2": 2
   },
   "quantizations": {
     "unknown": 4,
-    "Q4_K": 1
+    "Q4_K": 3
   },
   "total_parameters": REDACTED_PHONE,
-  "total_parameters_human": "8.03 B",
+  "total_parameters_human": "17.42 B",
   "insights": [
+    {
+      "kind": "architecture",
+      "key": "family",
+      "value": "decoder-only transformer",
+      "confidence": "medium",
+      "note": "architecture=llama",
+      "source": "/home/timemachine/.ollama/models/blobs/sha256-3ef322a05f28c44dec6ce8e23b5634825196867d006aad17c405cc3df23a7d82",
+      "format": "gguf",
+      "occurrences": 3,
+      "artifacts": [
+        "/home/timemachine/.ollama/models/blobs/sha256-3ef322a05f28c44dec6ce8e23b5634825196867d006aad17c405cc3df23a7d82",
+        "/home/timemachine/.ollama/models/blobs/sha256-96c415656d377afbff962f6cdb2394ab092ccbcbaab4b82525bc4ca800fe8a49",
+        "/home/timemachine/.ollama/models/blobs/sha256-aabd4debf0c8f08881923f2c25fc0fdeed24435271c2b3e92c4af36704040dbc"
+      ]
+    },
+    {
+      "kind": "design",
+      "key": "norm",
+      "value": "RMSNorm",
+      "confidence": "high",
+      "note": "",
+      "source": "/home/timemachine/.ollama/models/blobs/sha256-3ef322a05f28c44dec6ce8e23b5634825196867d006aad17c405cc3df23a7d82",
+      "format": "gguf",
+      "occurrences": 3,
+      "artifacts": [
+        "/home/timemachine/.ollama/models/blobs/sha256-3ef322a05f28c44dec6ce8e23b5634825196867d006aad17c405cc3df23a7d82",
+        "/home/timemachine/.ollama/models/blobs/sha256-96c415656d377afbff962f6cdb2394ab092ccbcbaab4b82525bc4ca800fe8a49",
+        "/home/timemachine/.ollama/models/blobs/sha256-aabd4debf0c8f08881923f2c25fc0fdeed24435271c2b3e92c4af36704040dbc"
+      ]
+    },
+    {
+      "kind": "design",
+      "key": "activation",
+      "value": "SwiGLU",
+      "confidence": "high",
+      "note": "",
+      "source": "/home/timemachine/.ollama/models/blobs/sha256-3ef322a05f28c44dec6ce8e23b5634825196867d006aad17c405cc3df23a7d82",
+      "format": "gguf",
+      "occurrences": 3,
+      "artifacts": [
+        "/home/timemachine/.ollama/models/blobs/sha256-3ef322a05f28c44dec6ce8e23b5634825196867d006aad17c405cc3df23a7d82",
+        "/home/timemachine/.ollama/models/blobs/sha256-96c415656d377afbff962f6cdb2394ab092ccbcbaab4b82525bc4ca800fe8a49",
+        "/home/timemachine/.ollama/models/blobs/sha256-aabd4debf0c8f08881923f2c25fc0fdeed24435271c2b3e92c4af36704040dbc"
+      ]
+    },
+    {
+      "kind": "design",
+      "key": "pos",
+      "value": "RoPE",
+      "confidence": "high",
+      "note": "",
+      "source": "/home/timemachine/.ollama/models/blobs/sha256-3ef322a05f28c44dec6ce8e23b5634825196867d006aad17c405cc3df23a7d82",
+      "format": "gguf",
+      "occurrences": 3,
+      "artifacts": [
+        "/home/timemachine/.ollama/models/blobs/sha256-3ef322a05f28c44dec6ce8e23b5634825196867d006aad17c405cc3df23a7d82",
+        "/home/timemachine/.ollama/models/blobs/sha256-96c415656d377afbff962f6cdb2394ab092ccbcbaab4b82525bc4ca800fe8a49",
+        "/home/timemachine/.ollama/models/blobs/sha256-aabd4debf0c8f08881923f2c25fc0fdeed24435271c2b3e92c4af36704040dbc"
+      ]
+    },
+    {
+      "kind": "efficiency",
+      "key": "precision",
+      "value": "Q4_K",
+      "confidence": "high",
+      "note": "{\"Q6_K\": 33, \"F32\": 66, \"Q4_K\": 193}",
+      "source": "/home/timemachine/.ollama/models/blobs/sha256-3ef322a05f28c44dec6ce8e23b5634825196867d006aad17c405cc3df23a7d82",
+      "format": "gguf",
+      "occurrences": 3,
+      "artifacts": [
+        "/home/timemachine/.ollama/models/blobs/sha256-3ef322a05f28c44dec6ce8e23b5634825196867d006aad17c405cc3df23a7d82",
+        "/home/timemachine/.ollama/models/blobs/sha256-96c415656d377afbff962f6cdb2394ab092ccbcbaab4b82525bc4ca800fe8a49",
+        "/home/timemachine/.ollama/models/blobs/sha256-aabd4debf0c8f08881923f2c25fc0fdeed24435271c2b3e92c4af36704040dbc"
+      ]
+    },
+    {
+      "kind": "capability",
+      "key": "context_window",
+      "value": 131072,
+      "confidence": "high",
+      "note": "",
+      "source": "/home/timemachine/.ollama/models/blobs/sha256-3ef322a05f28c44dec6ce8e23b5634825196867d006aad17c405cc3df23a7d82",
+      "format": "gguf",
+      "occurrences": 3,
+      "artifacts": [
+        "/home/timemachine/.ollama/models/blobs/sha256-3ef322a05f28c44dec6ce8e23b5634825196867d006aad17c405cc3df23a7d82",
+        "/home/timemachine/.ollama/models/blobs/sha256-96c415656d377afbff962f6cdb2394ab092ccbcbaab4b82525bc4ca800fe8a49",
+        "/home/timemachine/.ollama/models/blobs/sha256-aabd4debf0c8f08881923f2c25fc0fdeed24435271c2b3e92c4af36704040dbc"
+      ]
+    },
+    {
+      "kind": "design",
+      "key": "bias",
+      "value": "qkv",
+      "confidence": "high",
+      "note": "",
+      "source": "/home/timemachine/.ollama/models/blobs/sha256-96c415656d377afbff962f6cdb2394ab092ccbcbaab4b82525bc4ca800fe8a49",
+      "format": "gguf",
+      "occurrences": 2,
+      "artifacts": [
+        "/home/timemachine/.ollama/models/blobs/sha256-96c415656d377afbff962f6cdb2394ab092ccbcbaab4b82525bc4ca800fe8a49",
+        "/home/timemachine/.ollama/models/blobs/sha256-aabd4debf0c8f08881923f2c25fc0fdeed24435271c2b3e92c4af36704040dbc"
+      ]
+    },
+    {
+      "kind": "tokenizer",
+      "key": "vocab_size",
+      "value": 64,
+      "confidence": "high",
+      "note": "",
+      "source": "/home/timemachine/.ollama/models/blobs/sha256-96c415656d377afbff962f6cdb2394ab092ccbcbaab4b82525bc4ca800fe8a49",
+      "format": "gguf",
+      "occurrences": 2,
+      "artifacts": [
+        "/home/timemachine/.ollama/models/blobs/sha256-96c415656d377afbff962f6cdb2394ab092ccbcbaab4b82525bc4ca800fe8a49",
+        "/home/timemachine/.ollama/models/blobs/sha256-aabd4debf0c8f08881923f2c25fc0fdeed24435271c2b3e92c4af36704040dbc"
+      ]
+    },
+    {
+      "kind": "capability",
+      "key": "rope_freq_base",
+      "value": 10000.0,
+      "confidence": "high",
+      "note": "",
+      "source": "/home/timemachine/.ollama/models/blobs/sha256-96c415656d377afbff962f6cdb2394ab092ccbcbaab4b82525bc4ca800fe8a49",
+      "format": "gguf",
+      "occurrences": 2,
+      "artifacts": [
+        "/home/timemachine/.ollama/models/blobs/sha256-96c415656d377afbff962f6cdb2394ab092ccbcbaab4b82525bc4ca800fe8a49",
+        "/home/timemachine/.ollama/models/blobs/sha256-aabd4debf0c8f08881923f2c25fc0fdeed24435271c2b3e92c4af36704040dbc"
+      ]
+    },
+    {
+      "kind": "scale",
+      "key": "layers",
+      "value": 28,
+      "confidence": "high",
+      "note": "",
+      "source": "/home/timemachine/.ollama/models/blobs/sha256-96c415656d377afbff962f6cdb2394ab092ccbcbaab4b82525bc4ca800fe8a49",
+      "format": "gguf",
+      "occurrences": 2,
+      "artifacts": [
+        "/home/timemachine/.ollama/models/blobs/sha256-96c415656d377afbff962f6cdb2394ab092ccbcbaab4b82525bc4ca800fe8a49",
+        "/home/timemachine/.ollama/models/blobs/sha256-aabd4debf0c8f08881923f2c25fc0fdeed24435271c2b3e92c4af36704040dbc"
+      ]
+    },
+    {
+      "kind": "provenance",
+      "key": "basename",
+      "value": "DeepSeek-R1-Distill-Qwen",
+      "confidence": "medium",
+      "note": "",
+      "source": "/home/timemachine/.ollama/models/blobs/sha256-96c415656d377afbff962f6cdb2394ab092ccbcbaab4b82525bc4ca800fe8a49",
+      "format": "gguf",
+      "occurrences": 2,
+      "artifacts": [
+        "/home/timemachine/.ollama/models/blobs/sha256-96c415656d377afbff962f6cdb2394ab092ccbcbaab4b82525bc4ca800fe8a49",
+        "/home/timemachine/.ollama/models/blobs/sha256-aabd4debf0c8f08881923f2c25fc0fdeed24435271c2b3e92c4af36704040dbc"
+      ]
+    },
     {
       "kind": "architecture",
       "key": "family",
@@ -35,89 +196,11 @@
       ]
     },
     {
-      "kind": "architecture",
-      "key": "family",
-      "value": "decoder-only transformer",
-      "confidence": "medium",
-      "note": "architecture=llama",
-      "source": "/home/timemachine/.ollama/models/blobs/sha256-3ef322a05f28c44dec6ce8e23b5634825196867d006aad17c405cc3df23a7d82",
-      "format": "gguf",
-      "occurrences": 1,
-      "artifacts": [
-        "/home/timemachine/.ollama/models/blobs/sha256-3ef322a05f28c44dec6ce8e23b5634825196867d006aad17c405cc3df23a7d82"
-      ]
-    },
-    {
-      "kind": "design",
-      "key": "norm",
-      "value": "RMSNorm",
-      "confidence": "high",
-      "note": "",
-      "source": "/home/timemachine/.ollama/models/blobs/sha256-3ef322a05f28c44dec6ce8e23b5634825196867d006aad17c405cc3df23a7d82",
-      "format": "gguf",
-      "occurrences": 1,
-      "artifacts": [
-        "/home/timemachine/.ollama/models/blobs/sha256-3ef322a05f28c44dec6ce8e23b5634825196867d006aad17c405cc3df23a7d82"
-      ]
-    },
-    {
-      "kind": "design",
-      "key": "activation",
-      "value": "SwiGLU",
-      "confidence": "high",
-      "note": "",
-      "source": "/home/timemachine/.ollama/models/blobs/sha256-3ef322a05f28c44dec6ce8e23b5634825196867d006aad17c405cc3df23a7d82",
-      "format": "gguf",
-      "occurrences": 1,
-      "artifacts": [
-        "/home/timemachine/.ollama/models/blobs/sha256-3ef322a05f28c44dec6ce8e23b5634825196867d006aad17c405cc3df23a7d82"
-      ]
-    },
-    {
-      "kind": "design",
-      "key": "pos",
-      "value": "RoPE",
-      "confidence": "high",
-      "note": "",
-      "source": "/home/timemachine/.ollama/models/blobs/sha256-3ef322a05f28c44dec6ce8e23b5634825196867d006aad17c405cc3df23a7d82",
-      "format": "gguf",
-      "occurrences": 1,
-      "artifacts": [
-        "/home/timemachine/.ollama/models/blobs/sha256-3ef322a05f28c44dec6ce8e23b5634825196867d006aad17c405cc3df23a7d82"
-      ]
-    },
-    {
       "kind": "scale",
       "key": "parameters",
       "value": REDACTED_PHONE,
       "confidence": "high",
       "note": "8.03 B",
-      "source": "/home/timemachine/.ollama/models/blobs/sha256-3ef322a05f28c44dec6ce8e23b5634825196867d006aad17c405cc3df23a7d82",
-      "format": "gguf",
-      "occurrences": 1,
-      "artifacts": [
-        "/home/timemachine/.ollama/models/blobs/sha256-3ef322a05f28c44dec6ce8e23b5634825196867d006aad17c405cc3df23a7d82"
-      ]
-    },
-    {
-      "kind": "efficiency",
-      "key": "precision",
-      "value": "Q4_K",
-      "confidence": "high",
-      "note": "{\"Q6_K\": 33, \"F32\": 66, \"Q4_K\": 193}",
-      "source": "/home/timemachine/.ollama/models/blobs/sha256-3ef322a05f28c44dec6ce8e23b5634825196867d006aad17c405cc3df23a7d82",
-      "format": "gguf",
-      "occurrences": 1,
-      "artifacts": [
-        "/home/timemachine/.ollama/models/blobs/sha256-3ef322a05f28c44dec6ce8e23b5634825196867d006aad17c405cc3df23a7d82"
-      ]
-    },
-    {
-      "kind": "capability",
-      "key": "context_window",
-      "value": 131072,
-      "confidence": "high",
-      "note": "",
       "source": "/home/timemachine/.ollama/models/blobs/sha256-3ef322a05f28c44dec6ce8e23b5634825196867d006aad17c405cc3df23a7d82",
       "format": "gguf",
       "occurrences": 1,
@@ -228,6 +311,110 @@
       "artifacts": [
         "/home/timemachine/.ollama/models/blobs/sha256-3ef322a05f28c44dec6ce8e23b5634825196867d006aad17c405cc3df23a7d82"
       ]
+    },
+    {
+      "kind": "scale",
+      "key": "parameters",
+      "value": REDACTED_PHONE,
+      "confidence": "high",
+      "note": "7.62 B",
+      "source": "/home/timemachine/.ollama/models/blobs/sha256-96c415656d377afbff962f6cdb2394ab092ccbcbaab4b82525bc4ca800fe8a49",
+      "format": "gguf",
+      "occurrences": 1,
+      "artifacts": [
+        "/home/timemachine/.ollama/models/blobs/sha256-96c415656d377afbff962f6cdb2394ab092ccbcbaab4b82525bc4ca800fe8a49"
+      ]
+    },
+    {
+      "kind": "efficiency",
+      "key": "grouped_query_attention",
+      "value": 7.0,
+      "confidence": "high",
+      "note": "28 heads / 4 kv heads",
+      "source": "/home/timemachine/.ollama/models/blobs/sha256-96c415656d377afbff962f6cdb2394ab092ccbcbaab4b82525bc4ca800fe8a49",
+      "format": "gguf",
+      "occurrences": 1,
+      "artifacts": [
+        "/home/timemachine/.ollama/models/blobs/sha256-96c415656d377afbff962f6cdb2394ab092ccbcbaab4b82525bc4ca800fe8a49"
+      ]
+    },
+    {
+      "kind": "scale",
+      "key": "hidden_size",
+      "value": 3584,
+      "confidence": "high",
+      "note": "",
+      "source": "/home/timemachine/.ollama/models/blobs/sha256-96c415656d377afbff962f6cdb2394ab092ccbcbaab4b82525bc4ca800fe8a49",
+      "format": "gguf",
+      "occurrences": 1,
+      "artifacts": [
+        "/home/timemachine/.ollama/models/blobs/sha256-96c415656d377afbff962f6cdb2394ab092ccbcbaab4b82525bc4ca800fe8a49"
+      ]
+    },
+    {
+      "kind": "provenance",
+      "key": "name",
+      "value": "DeepSeek R1 Distill Qwen 7B",
+      "confidence": "medium",
+      "note": "",
+      "source": "/home/timemachine/.ollama/models/blobs/sha256-96c415656d377afbff962f6cdb2394ab092ccbcbaab4b82525bc4ca800fe8a49",
+      "format": "gguf",
+      "occurrences": 1,
+      "artifacts": [
+        "/home/timemachine/.ollama/models/blobs/sha256-96c415656d377afbff962f6cdb2394ab092ccbcbaab4b82525bc4ca800fe8a49"
+      ]
+    },
+    {
+      "kind": "scale",
+      "key": "parameters",
+      "value": REDACTED_PHONE,
+      "confidence": "high",
+      "note": "1.78 B",
+      "source": "/home/timemachine/.ollama/models/blobs/sha256-aabd4debf0c8f08881923f2c25fc0fdeed24435271c2b3e92c4af36704040dbc",
+      "format": "gguf",
+      "occurrences": 1,
+      "artifacts": [
+        "/home/timemachine/.ollama/models/blobs/sha256-aabd4debf0c8f08881923f2c25fc0fdeed24435271c2b3e92c4af36704040dbc"
+      ]
+    },
+    {
+      "kind": "efficiency",
+      "key": "grouped_query_attention",
+      "value": 6.0,
+      "confidence": "high",
+      "note": "12 heads / 2 kv heads",
+      "source": "/home/timemachine/.ollama/models/blobs/sha256-aabd4debf0c8f08881923f2c25fc0fdeed24435271c2b3e92c4af36704040dbc",
+      "format": "gguf",
+      "occurrences": 1,
+      "artifacts": [
+        "/home/timemachine/.ollama/models/blobs/sha256-aabd4debf0c8f08881923f2c25fc0fdeed24435271c2b3e92c4af36704040dbc"
+      ]
+    },
+    {
+      "kind": "scale",
+      "key": "hidden_size",
+      "value": 1536,
+      "confidence": "high",
+      "note": "",
+      "source": "/home/timemachine/.ollama/models/blobs/sha256-aabd4debf0c8f08881923f2c25fc0fdeed24435271c2b3e92c4af36704040dbc",
+      "format": "gguf",
+      "occurrences": 1,
+      "artifacts": [
+        "/home/timemachine/.ollama/models/blobs/sha256-aabd4debf0c8f08881923f2c25fc0fdeed24435271c2b3e92c4af36704040dbc"
+      ]
+    },
+    {
+      "kind": "provenance",
+      "key": "name",
+      "value": "DeepSeek R1 Distill Qwen 1.5B",
+      "confidence": "medium",
+      "note": "",
+      "source": "/home/timemachine/.ollama/models/blobs/sha256-aabd4debf0c8f08881923f2c25fc0fdeed24435271c2b3e92c4af36704040dbc",
+      "format": "gguf",
+      "occurrences": 1,
+      "artifacts": [
+        "/home/timemachine/.ollama/models/blobs/sha256-aabd4debf0c8f08881923f2c25fc0fdeed24435271c2b3e92c4af36704040dbc"
+      ]
     }
   ],
   "artifacts": [
@@ -235,7 +422,7 @@
       "path": "/home/timemachine/.ollama/models/blobs/sha256-3ef322a05f28c44dec6ce8e23b5634825196867d006aad17c405cc3df23a7d82",
       "format": "gguf",
       "fingerprint": "REDACTED_TOKEN",
-      "learned_at": "2026-10-29T00:34:03-05:00",
+      "learned_at": "2026-10-29T06:25:59-05:00",
       "architecture": "llama",
       "parameters": REDACTED_PHONE,
       "parameters_human": "8.03 B",
@@ -248,10 +435,42 @@
       "errors": []
     },
     {
+      "path": "/home/timemachine/.ollama/models/blobs/sha256-96c415656d377afbff962f6cdb2394ab092ccbcbaab4b82525bc4ca800fe8a49",
+      "format": "gguf",
+      "fingerprint": "REDACTED_TOKEN",
+      "learned_at": "2026-10-29T06:26:00-05:00",
+      "architecture": "qwen2",
+      "parameters": REDACTED_PHONE,
+      "parameters_human": "7.62 B",
+      "context_length": 131072,
+      "quantization": "Q4_K",
+      "layers": 28,
+      "size_human": "4.36 GiB",
+      "origin": "ollama",
+      "model": "deepseek-r1:7b",
+      "errors": []
+    },
+    {
+      "path": "/home/timemachine/.ollama/models/blobs/sha256-aabd4debf0c8f08881923f2c25fc0fdeed24435271c2b3e92c4af36704040dbc",
+      "format": "gguf",
+      "fingerprint": "REDACTED_TOKEN",
+      "learned_at": "2026-10-29T06:26:00-05:00",
+      "architecture": "qwen2",
+      "parameters": REDACTED_PHONE,
+      "parameters_human": "1.78 B",
+      "context_length": 131072,
+      "quantization": "Q4_K",
+      "layers": 28,
+      "size_human": "1.04 GiB",
+      "origin": "ollama",
+      "model": "deepseek-r1:1.5b",
+      "errors": []
+    },
+    {
       "path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/models/face_detection_yunet_2023mar.onnx",
       "format": "html",
       "fingerprint": "REDACTED_TOKEN",
-      "learned_at": "2026-10-29T00:34:03-05:00",
+      "learned_at": "2026-10-29T06:26:00-05:00",
       "architecture": null,
       "parameters": null,
       "parameters_human": null,
@@ -269,7 +488,7 @@
       "path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/models/face_recognition_sface_2021dec.onnx",
       "format": "html",
       "fingerprint": "REDACTED_TOKEN",
-      "learned_at": "2026-10-29T00:34:03-05:00",
+      "learned_at": "2026-10-29T06:26:00-05:00",
       "architecture": null,
       "parameters": null,
       "parameters_human": null,
@@ -287,7 +506,7 @@
       "path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/models/glm-5.2/config.json",
       "format": "config",
       "fingerprint": "REDACTED_TOKEN",
-      "learned_at": "2026-10-29T00:34:03-05:00",
+      "learned_at": "2026-10-29T06:26:00-05:00",
       "architecture": "glm-5.2",
       "parameters": null,
       "parameters_human": null,
@@ -303,7 +522,7 @@
       "path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/models/glm-5.2/glm-5.2-q4_0.gguf",
       "format": "empty",
       "fingerprint": "REDACTED_TOKEN",
-      "learned_at": "2026-10-29T00:34:03-05:00",
+      "learned_at": "2026-10-29T06:26:00-05:00",
       "architecture": null,
       "parameters": null,
       "parameters_human": null,
@@ -318,10 +537,10 @@
       ]
     }
   ],
-  "kb_records": 56,
+  "kb_records": 63,
   "coverage": {
     "has_local_models": true,
-    "architectures_known": 1,
+    "architectures_known": 2,
     "architectures_unknown": 1
   },
   "notes": [
