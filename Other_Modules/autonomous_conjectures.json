@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1793054814",
-    "timestamp": "2026-10-26T17:46:54.581272",
-    "idle_duration_minutes": 31.6,
-    "title": "Entropía Temporal en la Bóveda Akáshica y Compresión Causal",
-    "hypothesis": "Se postula que la 'Bóveda Akáshica' (deep_memory_vault.py) sufre de una degradación de la relevancia semántica a largo plazo debido a la acumulación lineal de vectores de memoria sin un mecanismo de 'olvido activo' basado en la causalidad. La hipótesis es que implementar un algoritmo de poda basada en la 'Entropía Temporal' (donde las memorias con baja probabilidad de ser precursoras de futuras acciones del sistema son comprimidas o archivadas) reducirá la latencia de recuperación y mejorará la precisión de la inferencia causal en el núcleo cognitivo, evitando la 'contaminación' por datos obsoletos.",
-    "research_query": "temporal entropy memory pruning LLM long-term context window optimization causal inference",
-    "research_findings": "# Informe de Investigación: temporal entropy memory pruning LLM long-term context window optimization causal inference\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar un método `prune_by_temporal_entropy()` que calcule la relevancia causal de cada vector de memoria y archive automáticamente aquellos con un score de impacto futuro menor a un umbral dinámico, liberando espacio en la ventana de contexto activa.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.04
-  },
-  {
     "id": "conj_1793056711",
     "timestamp": "2026-10-26T18:18:31.739220",
     "idle_duration_minutes": 31.6,
@@ -1623,5 +1608,23 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.25
+  },
+  {
+    "id": "conj_1793257188",
+    "timestamp": "2026-10-29T01:59:48.578071",
+    "idle_duration_minutes": 32.6,
+    "title": "Temporal Decay Augmented Memory Retrieval",
+    "hypothesis": "Incorporating a temporal decay factor into the vector embeddings stored in the Deep Memory Vault will prioritize more recent experiences during similarity search, leading to higher relevance in context‑aware responses without sacrificing recall of older, still pertinent memories.",
+    "research_query": "temporal decay vector embeddings retrieval performance recent vs. older memories",
+    "research_findings": "# Informe de Investigación: temporal decay vector embeddings retrieval performance recent vs. older memories\n\n## Fuentes Consultadas y Respaldo Web\n- **[Agent Memory: Why Your AI Has Amnesia and How to Fix It - Oracle Blogs](https://news.google.com/rss/articles/CBMilAFBVV95cUxNV3pqZVBnU29IUHVPT09LZ1B1RFJDWGV6bXd4Q0pkV284UXpBVkNZSFJwMmFxcmc1ZlBWNlNLUTA0V2NQcm5vVFZ1d0dsNVJNdnVKU3FKWmRGcTdSendzRHhTZTI5NXA1NG45TzUteU42MkRPblU0MS0tcElJU3pMWk9vdUJVVklPUGdzc1laX05HekN3?oc=5)**: Agent Memory: Why Your AI Has Amnesia and How to Fix It  Oracle Blogs\n- **[memweave: Zero-Infra AI Agent Memory with Markdown and SQLite — No Vector Database Required - Towards Data Science](https://news.google.com/rss/articles/CBMivAFBVV95cUxPR3BMRngzdkstTkUyT3NaOEthS2lyNXE2dU5kQjNwSlZlQW1kVzl6RlpWamJ5R2J1NTlCcEE3Ulo1MmMtdDZ0dkhmVWZHeUk5b2thNjFrdGhIVERGMFMzYTFINXlhWko5QlE1STlNYXhkSU1USmNIVXJsSWFaSFlqamRaSDVFVUZjRWZUWTRuODl3UEN2T01xVkZCQ0dfb2FJZ01vcWZhRklSaFdnU202NFc4aS1NalAxNEpHTQ?oc=5)**: memweave: Zero-Infra AI Agen",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMilAFBVV95cUxNV3pqZVBnU29IUHVPT09LZ1B1RFJDWGV6bXd4Q0pkV284UXpBVkNZSFJwMmFxcmc1ZlBWNlNLUTA0V2NQcm5vVFZ1d0dsNVJNdnVKU3FKWmRGcTdSendzRHhTZTI5NXA1NG45TzUteU42MkRPblU0MS0tcElJU3pMWk9vdUJVVklPUGdzc1laX05HekN3?oc=5",
+      "https://news.google.com/rss/articles/CBMivAFBVV95cUxPR3BMRngzdkstTkUyT3NaOEthS2lyNXE2dU5kQjNwSlZlQW1kVzl6RlpWamJ5R2J1NTlCcEE3Ulo1MmMtdDZ0dkhmVWZHeUk5b2thNjFrdGhIVERGMFMzYTFINXlhWko5QlE1STlNYXhkSU1USmNIVXJsSWFaSFlqamRaSDVFVUZjRWZUWTRuODl3UEN2T01xVkZCQ0dfb2FJZ01vcWZhRklSaFdnU202NFc4aS1NalAxNEpHTQ?oc=5"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Add a time‑stamp field to each stored embedding and modify the similarity scoring function to weight cosine similarity by an exponential decay based on age, plus expose a configurable decay rate parameter.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.27
   }
 ]

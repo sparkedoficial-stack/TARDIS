@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "created_at": "2026-10-15T02:04:29.176374",
   "last_periodic_sync": "2026-10-29T00:45:56.879559",
-  "last_immediate_sync": "2026-10-29T01:37:19.957974",
-  "last_commit_hash": "a4e402ab",
-  "sync_count": 1313,
-  "immediate_sync_count": 1312,
+  "last_immediate_sync": "2026-10-29T01:52:27.193038",
+  "last_commit_hash": "354a9df9",
+  "sync_count": 1314,
+  "immediate_sync_count": 1313,
   "periodic_sync_count": 1,
   "last_known_mtimes": {
     "skill:omni-control-bridge/SKILL.md": REDACTED_PHONE.4575877,
@@ -284,6 +284,18 @@
     "sat:gia_ios:GIA/Models/GIAModels.swift": REDACTED_PHONE.5796177
   },
   "history": [
+    {
+      "timestamp": "2026-10-29T01:52:27.193038",
+      "trigger": "immediate_milestone",
+      "commit_hash": "354a9df9",
+      "score": 100,
+      "reasons": [
+        "Evoluci\u00f3n en subsistema core TARDIS: sensor_orchestrator.py",
+        "Evoluci\u00f3n en subsistema core TARDIS: curiosity_debate_manager.py",
+        "Evoluci\u00f3n en subsistema core TARDIS: scientific_research_engine.py",
+        "Evoluci\u00f3n en subsistema core TARDIS: background_thought_engine.py"
+      ]
+    },
     {
       "timestamp": "2026-10-29T01:37:19.957974",
       "trigger": "immediate_milestone",
@@ -838,18 +850,6 @@
       "timestamp": "2026-10-27T00:27:42.713226",
       "trigger": "immediate_milestone",
       "commit_hash": "265b4f22",
-      "score": 100,
-      "reasons": [
-        "Evoluci\u00f3n en subsistema core TARDIS: sensor_orchestrator.py",
-        "Evoluci\u00f3n en subsistema core TARDIS: curiosity_debate_manager.py",
-        "Evoluci\u00f3n en subsistema core TARDIS: scientific_research_engine.py",
-        "Evoluci\u00f3n en subsistema core TARDIS: background_thought_engine.py"
-      ]
-    },
-    {
-      "timestamp": "2026-10-27T00:12:35.695482",
-      "trigger": "immediate_milestone",
-      "commit_hash": "88fcc75a",
       "score": 100,
       "reasons": [
         "Evoluci\u00f3n en subsistema core TARDIS: sensor_orchestrator.py",
