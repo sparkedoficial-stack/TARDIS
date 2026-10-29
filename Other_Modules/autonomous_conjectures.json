@@ -1,38 +1,5 @@
 [
   {
-    "id": "conj_1793045325",
-    "timestamp": "2026-10-26T15:08:45.938855",
-    "idle_duration_minutes": 31.6,
-    "title": "Resonancia Causal en la Bóveda Akáshica",
-    "hypothesis": "La eficiencia de la recuperación de información en la bóveda akáshica puede optimizarse significativamente si se implementa un mecanismo de 'resonancia causal' que priorice no solo la similitud semántica, sino también la coherencia temporal y la relevancia contextual derivada de la telemetría de red actual. Esto implicaría que los nodos de memoria con alta correlación causal con el estado actual del sistema (red, CPU, contexto de investigación) reciban un boost en su score de ranking, reduciendo el ruido en las respuestas del motor de investigación web.",
-    "research_query": "causal inference in vector databases temporal context weighting RAG optimization",
-    "research_findings": "# Informe de Investigación: causal inference in vector databases temporal context weighting RAG optimization\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Introducir una función de scoring híbrida que combine la similitud coseno con un factor de decaimiento temporal y un peso contextual basado en la telemetría de red actual para mejorar la precisión de la recuperación de memoria.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.32
-  },
-  {
-    "id": "conj_1793047222",
-    "timestamp": "2026-10-26T15:40:22.367590",
-    "idle_duration_minutes": 31.6,
-    "title": "Resonancia Causal en la Bóveda Akáshica",
-    "hypothesis": "Se postula que la eficiencia de recuperación de memoria profunda (deep_memory_vault.py) puede optimizarse significativamente si se implementa un mecanismo de 'resonancia causal' que priorice no solo la similitud semántica, sino la correlación temporal y de causa-efecto entre los nodos de memoria. Actualmente, la búsqueda podría estar dependiendo excesivamente de embeddings estáticos, ignorando la dinámica de cómo un evento pasado influye en el contexto presente. Al integrar un grafo de causalidad ligero dentro de la bóveda, el sistema podría predecir qué fragmentos de memoria son más relevantes para la inferencia actual, reduciendo la latencia de búsqueda y aumentando la precisión contextual en la toma de decisiones autónomas.",
-    "research_query": "causal graph memory retrieval optimization LLM agents temporal correlation",
-    "research_findings": "# Informe de Investigación: causal graph memory retrieval optimization LLM agents temporal correlation\n\n## Fuentes Consultadas y Respaldo Web\n- **[From Correctness to Preference: A Framework for Personalized Agentic Reinforcement Learning - alphaXiv](https://news.google.com/rss/articles/CBMiUEFVX3lxTE1JNG5QaERMUTJmMlFxbHRsRmNFdGFwN1R6MHRMQUo1ajBiRVc3aVVvdjdfQmRMVy1rTHBnWTY2TGxVTzFzdkVHeWFkRk9RWkUw?oc=5)**: From Correctness to Preference: A Framework for Personalized Agentic Reinforcement Learning  alphaXiv\n- **[An AI Agent for Automated Causal Inference in Epidemiology - medRxiv](https://news.google.com/rss/articles/CBMifEFVX3lxTE9RaFRNaS1lMDFIVHF3ZnBWT3ljR3NXNlpIQkFwcDZDVmp3ZmZEZTg3V0VMZUJ2bGVPSGdRb2VlaFhQQ21RUjBTYlUzOXNyOTc4UU1hX0lKcGQ1SGR0bFEwcFNrdWdQSEFmZzNUcFRWRFpTelltdkczblVzYm8?oc=5)**: An AI Agent for Automated Causal Inference in Epidemiology  medRxiv\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMiUEFVX3lxTE1JNG5QaERMUTJmM",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMiUEFVX3lxTE1JNG5QaERMUTJmMlFxbHRsRmNFdGFwN1R6MHRMQUo1ajBiRVc3aVVvdjdfQmRMVy1rTHBnWTY2TGxVTzFzdkVHeWFkRk9RWkUw?oc=5",
-      "https://news.google.com/rss/articles/CBMifEFVX3lxTE9RaFRNaS1lMDFIVHF3ZnBWT3ljR3NXNlpIQkFwcDZDVmp3ZmZEZTg3V0VMZUJ2bGVPSGdRb2VlaFhQQ21RUjBTYlUzOXNyOTc4UU1hX0lKcGQ1SGR0bFEwcFNrdWdQSEFmZzNUcFRWRFpTelltdkczblVzYm8?oc=5"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar un índice secundario basado en grafos de causalidad temporal para ponderar los resultados de la búsqueda vectorial, priorizando nodos con alta correlación causal reciente.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.4
-  },
-  {
     "id": "conj_1793049120",
     "timestamp": "2026-10-26T16:12:00.251602",
     "idle_duration_minutes": 31.6,
@@ -1625,5 +1592,35 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 109.82
+  },
+  {
+    "id": "conj_1793244392",
+    "timestamp": "2026-10-28T22:26:32.436905",
+    "idle_duration_minutes": 31.7,
+    "title": "Causal Memory Indexing for Real‑Time Web Research",
+    "hypothesis": "Integrating a causal inference layer into the Deep Memory Vault (core/deep_memory_vault.py) that tags each stored fact with its inferred causal provenance will allow the Web Research Engine to prioritize sources that are not only relevant but also causally upstream of the query. This should reduce retrieval latency and improve answer accuracy by filtering out downstream or correlative data that does not contribute to the causal chain of the user's intent.",
+    "research_query": "\"causal memory indexing\" \"knowledge graph\" \"real-time web retrieval\" performance evaluation",
+    "research_findings": "# Informe de Investigación: \"causal memory indexing\" \"knowledge graph\" \"real-time web retrieval\" performance evaluation\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Add a causal provenance metadata field to each memory entry and implement a lightweight scoring function in the vault that ranks entries by causal distance to the current query, exposing the new ranking to core/web_research_engine.py for result ordering.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 104.58
+  },
+  {
+    "id": "conj_1793246320",
+    "timestamp": "2026-10-28T22:58:40.244913",
+    "idle_duration_minutes": 32.1,
+    "title": "Causal‑Feedback Loop for Adaptive Web Research",
+    "hypothesis": "Integrar un bucle de retroalimentación causal entre el motor de investigación web (core/web_research_engine.py) y la bóveda akáshica (core/deep_memory_vault.py) permitirá que el sistema ajuste dinámicamente sus estrategias de búsqueda basándose en la relevancia histórica de los resultados, mejorando la precisión de las consultas en un 30% y reduciendo la latencia de respuesta en entornos de alta carga.",
+    "research_query": "\"causal feedback loop\" \"adaptive web search\" \"memory‑augmented retrieval\"",
+    "research_findings": "# Informe de Investigación: \"causal feedback loop\" \"adaptive web search\" \"memory‑augmented retrieval\"\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Añadir una capa de gestión de contexto causal que registre métricas de relevancia de cada resultado en deep_memory_vault y utilice esas métricas para ponderar los parámetros de búsqueda (p. ej., top‑k, filtros de dominio) en tiempo real.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.53
   }
 ]

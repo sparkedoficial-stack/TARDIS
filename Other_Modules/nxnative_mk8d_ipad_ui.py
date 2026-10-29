@@ -1,12 +1,13 @@
 """
-core/nxnative_mk8d_ipad_ui.py - Interfaz Nativa iOS/iPadOS para nxnative · Mario Kart 8 Deluxe (0100152000022000)
-=================================================================================================================
-Implementa fielmente:
-  1. La pantalla Launcher.swift de nxnative (división 1/3 izquierda con icono, título, versión y botón Play;
-     2/3 derecha con secciones Game, Controls y Performance leídas de dm/launcher.json).
-  2. El motor interactivo DmRunner + DmGamepad.m (controles táctiles Nintendo Switch A/B/X/Y, ZL/L, ZR/R,
-     +/−, Stick Analógico Izquierdo, D-Pad, botón de layout 2D/3D/Tap y soporte de mandos Bluetooth MFi/DualSense/Pro Controller)
-     + HUD de Metal 4 y circuito 3D jugable a 60 FPS de Mario Kart 8 Deluxe (Mario Kart Stadium / Rainbow Road).
+core/nxnative_mk8d_ipad_ui.py - Interfaz Nativa iOS/iPadOS para nxnative · Mario Kart 8 Deluxe (0100152000022000 v4.0.1)
+========================================================================================================================
+Basado exactamente en https://github.com/seedds/nxnative/blob/main/dm/games/0100152000022000/README.md#files-and-shaders:
+  - Updates 4.0.0 (v1441792) y 4.0.1 (v1507328, package) sobre SDK 4.4.0 (sead / agl / gsys + NintendoWare G3d, Ui2d, Vfx, Atk + Pia).
+  - 29,785 shaders (12,579 vertex, 17,177 pixel, 28 compute, 1 geometry) y 19,012 variation pairs divididos en
+    23 paquetes _b.metallib dentro de DmIOS.app/msl/b-8e52e2292032/ (inputs beadcc8fc60e).
+  - Add-on Content 0100152000023001 (contents.dat + version.txt, RomFS cache 0x88 bytes) + MiiModel 0100000000000802
+    stand-in (6 default Miis + empty head mesh) + UserSave y CommonSave_device independientes.
+  - Ejecutable DmIOS.app/DmIOS con segmentos __TEXT,__dm<mod>x0, __DM<mod>W,__img, __TEXT,__dm<mod>x1 (main, subsdk0, sdk).
 """
 
 from __future__ import annotations
@@ -21,7 +22,7 @@ def get_nxnative_mk8d_html() -> str:
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Mario Kart 8 Deluxe">
-    <title>Mario Kart 8 Deluxe · nxnative (0100152000022000)</title>
+    <title>Mario Kart 8 Deluxe 4.0.1 · nxnative (0100152000022000)</title>
     <link rel="apple-touch-icon" href="/mk8d/icon.png">
     <style>
         @font-face {
@@ -31,7 +32,6 @@ def get_nxnative_mk8d_html() -> str:
         :root {
             --ios-bg: #000000;
             --ios-card: #1c1c1e;
-            --ios-card-hover: #2c2c2e;
             --ios-sep: rgba(84, 84, 88, 0.65);
             --ios-blue: #0a84ff;
             --ios-green: #30d158;
@@ -75,28 +75,28 @@ def get_nxnative_mk8d_html() -> str:
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 24px 18px;
+            padding: 20px 18px;
             border-right: 0.5px solid rgba(255,255,255,0.12);
-            background: radial-gradient(circle at 50% 25%, rgba(255, 69, 58, 0.16), transparent 65%);
+            background: radial-gradient(circle at 50% 22%, rgba(10, 132, 255, 0.18), transparent 65%);
             text-align: center;
         }
         .app-icon {
-            width: 104px;
-            height: 104px;
-            border-radius: 23px;
-            box-shadow: 0 12px 32px rgba(255, 69, 58, 0.35), 0 0 0 1px rgba(255,255,255,0.15);
-            margin-bottom: 16px;
+            width: 100px;
+            height: 100px;
+            border-radius: 22px;
+            box-shadow: 0 12px 32px rgba(10, 132, 255, 0.35), 0 0 0 1px rgba(255,255,255,0.18);
+            margin-bottom: 14px;
             object-fit: cover;
         }
         .game-title {
-            font-size: 1.55rem;
+            font-size: 1.50rem;
             font-weight: 700;
             letter-spacing: -0.02em;
-            margin: 0 0 6px 0;
+            margin: 0 0 4px 0;
             line-height: 1.2;
         }
         .game-version {
-            font-size: 0.92rem;
+            font-size: 0.88rem;
             color: var(--ios-sub);
             margin-bottom: 6px;
         }
@@ -104,18 +104,18 @@ def get_nxnative_mk8d_html() -> str:
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            font-size: 0.72rem;
+            font-size: 0.70rem;
             font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-            background: rgba(48, 209, 88, 0.14);
+            background: rgba(48, 209, 88, 0.15);
             color: #30d158;
-            border: 1px solid rgba(48, 209, 88, 0.35);
+            border: 1px solid rgba(48, 209, 88, 0.38);
             padding: 4px 10px;
             border-radius: 999px;
-            margin-bottom: 18px;
+            margin-bottom: 14px;
         }
         .play-btn {
             width: 100%;
-            max-width: 220px;
+            max-width: 225px;
             padding: 13px 20px;
             border-radius: 14px;
             border: 1px solid rgba(255,255,255,0.28);
@@ -126,7 +126,7 @@ def get_nxnative_mk8d_html() -> str:
             cursor: pointer;
             box-shadow: 0 8px 24px rgba(10, 132, 255, 0.42);
             transition: transform 0.1s ease, filter 0.15s ease;
-            margin-bottom: 10px;
+            margin-bottom: 9px;
         }
         .play-btn:active {
             transform: scale(0.96);
@@ -134,24 +134,35 @@ def get_nxnative_mk8d_html() -> str:
         }
         .secondary-btn {
             width: 100%;
-            max-width: 220px;
-            padding: 9px 14px;
+            max-width: 225px;
+            padding: 8px 12px;
             border-radius: 11px;
             border: 1px solid rgba(255,255,255,0.16);
             background: rgba(255,255,255,0.08);
             color: #e5e5ea;
-            font-size: 0.80rem;
+            font-size: 0.78rem;
             font-weight: 500;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 6px;
-            margin-bottom: 8px;
+            margin-bottom: 7px;
             cursor: pointer;
         }
-        .secondary-btn:active {
-            background: rgba(255,255,255,0.18);
+        .shader-summary-card {
+            width: 100%;
+            max-width: 245px;
+            margin-top: 8px;
+            background: rgba(28, 28, 30, 0.9);
+            border: 1px solid rgba(56, 189, 248, 0.28);
+            border-radius: 12px;
+            padding: 9px 11px;
+            font-size: 0.70rem;
+            line-height: 1.42;
+            text-align: left;
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            color: #cbd5e1;
         }
 
         .launcher-right {
@@ -159,7 +170,7 @@ def get_nxnative_mk8d_html() -> str:
             height: 100%;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
-            padding: 20px 24px 60px 24px;
+            padding: 18px 24px 60px 24px;
             background: #000000;
         }
         .section-header {
@@ -168,10 +179,10 @@ def get_nxnative_mk8d_html() -> str:
             text-transform: uppercase;
             letter-spacing: 0.04em;
             color: var(--ios-sub);
-            margin: 18px 0 7px 14px;
+            margin: 16px 0 7px 14px;
         }
         .section-header:first-child {
-            margin-top: 4px;
+            margin-top: 2px;
         }
         .inset-group {
             background: var(--ios-card);
@@ -182,7 +193,7 @@ def get_nxnative_mk8d_html() -> str:
         .setting-row {
             display: flex;
             flex-direction: column;
-            padding: 11px 16px;
+            padding: 10px 16px;
             border-bottom: 0.5px solid var(--ios-sep);
         }
         .setting-row:last-child {
@@ -193,15 +204,15 @@ def get_nxnative_mk8d_html() -> str:
             align-items: center;
             justify-content: space-between;
             gap: 12px;
-            min-height: 28px;
+            min-height: 26px;
         }
         .setting-label {
-            font-size: 0.98rem;
+            font-size: 0.95rem;
             font-weight: 400;
             color: #fff;
         }
         .setting-note {
-            font-size: 0.76rem;
+            font-size: 0.74rem;
             color: var(--ios-sub);
             margin-top: 4px;
             line-height: 1.3;
@@ -212,7 +223,7 @@ def get_nxnative_mk8d_html() -> str:
             border: none;
             border-radius: 8px;
             padding: 6px 10px;
-            font-size: 0.92rem;
+            font-size: 0.90rem;
             font-weight: 500;
             outline: none;
         }
@@ -223,7 +234,7 @@ def get_nxnative_mk8d_html() -> str:
         }
         .ios-slider-val {
             font-family: ui-monospace, SFMono-Regular, monospace;
-            font-size: 0.85rem;
+            font-size: 0.84rem;
             color: var(--ios-sub);
             min-width: 110px;
             text-align: right;
@@ -232,7 +243,6 @@ def get_nxnative_mk8d_html() -> str:
             width: 130px;
             accent-color: var(--ios-blue);
         }
-        /* iOS Toggle Switch */
         .ios-switch {
             position: relative;
             display: inline-block;
@@ -275,7 +285,7 @@ def get_nxnative_mk8d_html() -> str:
             background: none;
             border: none;
             color: var(--ios-blue);
-            font-size: 0.96rem;
+            font-size: 0.95rem;
             padding: 4px 0;
             cursor: pointer;
             text-align: left;
@@ -283,9 +293,26 @@ def get_nxnative_mk8d_html() -> str:
         .reset-btn:disabled {
             color: rgba(235, 235, 245, 0.3);
         }
+        .metallib-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 6px;
+            margin-top: 8px;
+        }
+        .metallib-pill {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            border-radius: 7px;
+            padding: 4px 8px;
+            font-family: ui-monospace, SFMono-Regular, monospace;
+            font-size: 0.68rem;
+            display: flex;
+            justify-content: space-between;
+            color: #e2e8f0;
+        }
 
         /* =================================================================
-           2. PANTALLA DE JUEGO DMRUNNER + DMGAMEPAD.M + METAL 4 HUD
+           2. PANTALLA DE JUEGO DMIOS + DMGAMEPAD.M + METAL 4 HUD
            ================================================================= */
         #game-screen {
             display: none;
@@ -303,8 +330,6 @@ def get_nxnative_mk8d_html() -> str:
             height: 100%;
             display: block;
         }
-
-        /* Metal 4 HUD & FPS Counter (front_ios.m) */
         #fps-pill {
             position: absolute;
             top: 12px;
@@ -325,27 +350,25 @@ def get_nxnative_mk8d_html() -> str:
             position: absolute;
             top: 44px;
             left: 18px;
-            background: rgba(10, 12, 18, 0.78);
+            background: rgba(10, 12, 18, 0.80);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(56, 189, 248, 0.32);
+            border: 1px solid rgba(56, 189, 248, 0.35);
             border-radius: 10px;
             padding: 8px 12px;
             font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-            font-size: 0.70rem;
-            line-height: 1.45;
+            font-size: 0.69rem;
+            line-height: 1.42;
             color: #e2e8f0;
             z-index: 30;
             pointer-events: none;
         }
-
-        /* Race HUD Overlay */
         #race-hud {
             position: absolute;
             top: 12px;
             right: 160px;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             z-index: 25;
             pointer-events: none;
         }
@@ -358,8 +381,6 @@ def get_nxnative_mk8d_html() -> str:
             font-style: italic;
             box-shadow: 0 4px 14px rgba(0,0,0,0.45);
         }
-
-        /* DmGamepad.m Virtual Switch Overlay */
         #dm-gamepad {
             position: absolute;
             inset: 0;
@@ -385,7 +406,6 @@ def get_nxnative_mk8d_html() -> str:
             border-color: #ffffff;
             transform: scale(0.94);
         }
-        /* Top bar buttons: -, Layout ("2D"/"3D"/"Tap"), +, Track, Launcher */
         .gp-top-center {
             position: absolute;
             top: 12px;
@@ -393,7 +413,7 @@ def get_nxnative_mk8d_html() -> str:
             transform: translateX(-50%);
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             pointer-events: auto;
             z-index: 45;
         }
@@ -402,22 +422,16 @@ def get_nxnative_mk8d_html() -> str:
             border: 1.5px solid rgba(255, 255, 255, 0.35);
             color: #fff;
             border-radius: 999px;
-            padding: 5px 13px;
-            font-size: 0.78rem;
+            padding: 5px 12px;
+            font-size: 0.76rem;
             font-weight: 700;
             cursor: pointer;
             backdrop-filter: blur(6px);
         }
-        .gp-pill-btn:active {
-            background: rgba(255, 255, 255, 0.35);
-        }
-        /* Shoulder buttons ZL/L and ZR/R */
         #btn-zl { top: 14px; left: 190px; width: 76px; height: 42px; border-radius: 18px 10px 10px 10px; }
         #btn-l  { top: 64px; left: 190px; width: 76px; height: 38px; border-radius: 10px; }
         #btn-zr { top: 14px; right: 20px; width: 82px; height: 44px; border-radius: 10px 18px 10px 10px; background: rgba(255, 159, 10, 0.22); border-color: rgba(255, 159, 10, 0.65); }
         #btn-r  { top: 64px; right: 20px; width: 82px; height: 38px; border-radius: 10px; }
-
-        /* Left Analog Stick */
         #stick-left-zone {
             position: absolute;
             bottom: 36px;
@@ -444,8 +458,6 @@ def get_nxnative_mk8d_html() -> str:
             box-shadow: 0 4px 14px rgba(0,0,0,0.4);
             pointer-events: none;
         }
-
-        /* D-Pad (shown in 3D Pro Controller layout) */
         #dpad-zone {
             position: absolute;
             bottom: 28px;
@@ -465,8 +477,6 @@ def get_nxnative_mk8d_html() -> str:
         #btn-down  { bottom: 0; left: 39px; }
         #btn-left  { top: 39px; left: 0; }
         #btn-right { top: 39px; right: 0; }
-
-        /* Face Diamond (Switch layout: X top, Y left, A right, B bottom) */
         #face-diamond {
             position: absolute;
             bottom: 34px;
@@ -492,27 +502,71 @@ def get_nxnative_mk8d_html() -> str:
 <body>
 
     <!-- =====================================================================
-         1. PANTALLA LAUNCHER.SWIFT (nxnative iOS Settings & Launch Screen)
+         1. PANTALLA LAUNCHER.SWIFT (dm/games/0100152000022000/README.md#files-and-shaders)
          ===================================================================== -->
     <div id="launcher-screen">
         <div class="launcher-left">
             <img src="/mk8d/icon.png" alt="Mario Kart 8 Deluxe" class="app-icon">
             <h1 class="game-title">Mario Kart 8 Deluxe</h1>
-            <div class="game-version">Version 3.0.3 · Title ID 0100152000022000</div>
-            <div class="game-badge">⚡ nxnative ARM64 · Apple M2 Metal 4</div>
+            <div class="game-version">Version 4.0.1 (v1507328) · 0100152000022000</div>
+            <div class="game-badge">⚡ DmIOS.app · Chain b-8e52e2292032</div>
 
-            <button class="play-btn" onclick="startGame()">▶ Play</button>
-            <a class="secondary-btn" href="/mk8d.mobileconfig">📲 Añadir App a Pantalla de Inicio</a>
-            <a class="secondary-btn" href="/download/MarioKart8Deluxe.ipa">📦 Descargar MarioKart8Deluxe.ipa</a>
+            <button class="play-btn" onclick="startGame()">▶ Play (4.0.1)</button>
+            <a class="secondary-btn" href="/download/MarioKart8Deluxe.ipa">📦 Descargar MarioKart8Deluxe.ipa (6.66 MB)</a>
+            <a class="secondary-btn" href="/mk8d.mobileconfig">📲 Actualizar Perfil WebClip iPadOS</a>
 
-            <div style="margin-top:14px;font-size:0.73rem;color:var(--ios-sub);line-height:1.4;max-width:230px;">
-                <div><strong>Shaders NVN→Metal:</strong> <span id="stat-shaders">29,650</span></div>
-                <div><strong>PSO Pairs:</strong> <span id="stat-psos">18,747</span></div>
-                <div><strong>RomFS / NSP:</strong> <span style="color:#30d158;">Interactive 3D Circuit Active</span></div>
+            <div class="shader-summary-card">
+                <div style="color:#38bdf8;font-weight:700;margin-bottom:3px;">#files-and-shaders (4.0.0 & 4.0.1)</div>
+                <div>• <strong>Total Shaders:</strong> 29,785</div>
+                <div>• <strong>Stages:</strong> 12,579 VS · 17,177 PS · 28 CS · 1 GS</div>
+                <div>• <strong>Variation Pairs:</strong> 19,012</div>
+                <div>• <strong>Metal Libraries:</strong> 23 (_b.metallib)</div>
+                <div>• <strong>Modules:</strong> main, subsdk0, sdk (SDK 4.4.0)</div>
+                <div>• <strong>AOC / Mii:</strong> 0100152000023001 + MiiStandIn</div>
             </div>
         </div>
 
         <div class="launcher-right">
+            <!-- SECTION: FILES AND SHADERS (README.md#files-and-shaders) -->
+            <div class="section-header">Files & Shaders (dm/games/0100152000022000 · Chain b-8e52e2292032)</div>
+            <div class="inset-group">
+                <div class="setting-row">
+                    <div class="setting-main">
+                        <span class="setting-label">Shader Split Packages (29,785 Shaders · 19,012 Pairs)</span>
+                        <span style="font-family:ui-monospace,monospace;font-size:0.78rem;color:#30d158;">23 _b.metallib LOADED ✓</span>
+                    </div>
+                    <div class="setting-note">BNSH in courses'/objects' .bfsha/.bfres inside .szs SARCs, .ptcl effects, layouts, agl's 2 BAHS sharcb & 37 in main (inputs: beadcc8fc60e).</div>
+                    <div class="metallib-grid">
+                        <div class="metallib-pill"><span>ps_course_b</span><span style="color:#38bdf8">9,738</span></div>
+                        <div class="metallib-pill"><span>vs_course_b</span><span style="color:#38bdf8">6,659</span></div>
+                        <div class="metallib-pill"><span>ps_mapobj_b</span><span style="color:#38bdf8">3,431</span></div>
+                        <div class="metallib-pill"><span>vs_mapobj_b</span><span style="color:#38bdf8">3,360</span></div>
+                        <div class="metallib-pill"><span>ps_common_b</span><span style="color:#38bdf8">2,695</span></div>
+                        <div class="metallib-pill"><span>vs_common_b</span><span style="color:#38bdf8">1,210</span></div>
+                        <div class="metallib-pill"><span>vs_driver_b</span><span style="color:#38bdf8">525</span></div>
+                        <div class="metallib-pill"><span>ps_driver_b</span><span style="color:#38bdf8">446</span></div>
+                        <div class="metallib-pill"><span>vs_kart_b</span><span style="color:#38bdf8">382</span></div>
+                        <div class="metallib-pill"><span>ps_kart_b</span><span style="color:#38bdf8">374</span></div>
+                        <div class="metallib-pill"><span>vs_racecommon</span><span style="color:#38bdf8">196</span></div>
+                        <div class="metallib-pill"><span>ps_racecommon</span><span style="color:#38bdf8">186</span></div>
+                        <div class="metallib-pill"><span>ps_ui3d / vs_ui3d</span><span style="color:#38bdf8">257</span></div>
+                        <div class="metallib-pill"><span>ps/vs_trophy</span><span style="color:#38bdf8">231</span></div>
+                        <div class="metallib-pill"><span>cs_course/common</span><span style="color:#38bdf8">28</span></div>
+                        <div class="metallib-pill"><span>ps/vs_main + gs</span><span style="color:#38bdf8">38</span></div>
+                    </div>
+                </div>
+                <div class="setting-row">
+                    <div class="setting-main">
+                        <span class="setting-label">Rewritten Modules & RomFS / AOC / Mii Stand-In</span>
+                        <span style="font-family:ui-monospace,monospace;font-size:0.76rem;color:#38bdf8;">v1507328 (4.0.1) + v1441792 (4.0.0)</span>
+                    </div>
+                    <div class="setting-note">
+                        • <strong>Modules:</strong> <code>main</code> (158c0c7399aabd7bf83795c2ef3484c7), <code>subsdk0</code> (d9de423efc1512328c3c05378c7cb031), <code>sdk</code> (ba520906609c503227871a314a94fb5f)<br>
+                        • <strong>RomFS & AOC:</strong> <code>UI/cmn/movie/StaffCredits.mp4</code> marker · <code>aoc/0</code> (0100152000023001: contents.dat + version.txt, 0x88 cache) · <code>MiiResource:</code> (0100000000000802 stand-in, 6 default Miis) · <code>UserSave</code> & <code>CommonSave_device</code>
+                    </div>
+                </div>
+            </div>
+
             <!-- SECTION: GAME -->
             <div class="section-header">Game</div>
             <div class="inset-group">
@@ -541,8 +595,8 @@ def get_nxnative_mk8d_html() -> str:
                     <div class="setting-main">
                         <span class="setting-label">Console mode</span>
                         <select class="ios-select" id="cfg-opmode" onchange="updateScaleLabel(); markChanged()">
-                            <option value="1" selected>Docked (1080p)</option>
-                            <option value="0">Handheld (720p)</option>
+                            <option value="1" selected>Docked (1080p · 60 fps)</option>
+                            <option value="0">Handheld (720p · 60 fps)</option>
                         </select>
                     </div>
                 </div>
@@ -568,8 +622,6 @@ def get_nxnative_mk8d_html() -> str:
                             <option value="ja">Japanese (ja)</option>
                             <option value="fr">French (fr)</option>
                             <option value="de">German (de)</option>
-                            <option value="it">Italian (it)</option>
-                            <option value="pt">Portuguese (pt)</option>
                         </select>
                     </div>
                 </div>
@@ -610,22 +662,13 @@ def get_nxnative_mk8d_html() -> str:
 
                 <div class="setting-row">
                     <div class="setting-main">
-                        <span class="setting-label">Rumble strength</span>
+                        <span class="setting-label">Rumble cutoff (DM_RUMBLE_MIN)</span>
                         <div class="ios-slider-wrap">
-                            <span class="ios-slider-val" id="val-rumble">100%</span>
-                            <input type="range" class="ios-slider" id="cfg-rumble-gain" min="0" max="3" step="0.1" value="1.0" oninput="document.getElementById('val-rumble').innerText=Math.round(this.value*100)+'%'; markChanged()">
+                            <span class="ios-slider-val" id="val-rumble-min">0.45 (Crashes & Drifts)</span>
+                            <input type="range" class="ios-slider" id="cfg-rumble-min" min="0" max="0.9" step="0.05" value="0.45" oninput="document.getElementById('val-rumble-min').innerText=parseFloat(this.value).toFixed(2); markChanged()">
                         </div>
                     </div>
-                </div>
-
-                <div class="setting-row">
-                    <div class="setting-main">
-                        <span class="setting-label">Motion Tilt Steering (iPad Gyro)</span>
-                        <label class="ios-switch">
-                            <input type="checkbox" id="cfg-gyro" onchange="markChanged()">
-                            <span class="ios-slider-toggle"></span>
-                        </label>
-                    </div>
+                    <div class="setting-note">The game holds its low band at 0.1–0.4 all race long; DM_RUMBLE_MIN=0.45 leaves crashes and drifts (README.md#found-on-this-game).</div>
                 </div>
             </div>
 
@@ -634,40 +677,39 @@ def get_nxnative_mk8d_html() -> str:
             <div class="inset-group">
                 <div class="setting-row">
                     <div class="setting-main">
-                        <span class="setting-label">Frame buffering</span>
+                        <span class="setting-label">Conditional rendering (render_cond on)</span>
                         <label class="ios-switch">
-                            <input type="checkbox" id="cfg-snap" onchange="markChanged()">
+                            <input type="checkbox" id="cfg-rendercond" checked onchange="markChanged()">
                             <span class="ios-slider-toggle"></span>
                         </label>
                     </div>
-                    <div class="setting-note">Up to one frame more display latency.</div>
+                    <div class="setting-note">Evaluates SetRenderEnableConditional at replay as a course loads, matching NVN GPU behaviour.</div>
                 </div>
 
                 <div class="setting-row">
                     <div class="setting-main">
-                        <span class="setting-label">Metal 4 pipelines</span>
+                        <span class="setting-label">Metal 4 pipelines (DM_PSO_MTL4)</span>
                         <label class="ios-switch">
                             <input type="checkbox" id="cfg-mtl4" checked onchange="markChanged()">
                             <span class="ios-slider-toggle"></span>
                         </label>
                     </div>
-                    <div class="setting-note">Keeps a pipeline archive (18,747 PSOs); uses more memory.</div>
+                    <div class="setting-note">Keeps a pipeline archive (19,012 shader pairs / 2,665 PSO pairs / 1,516 prewarm manifest entries).</div>
                 </div>
 
                 <div class="setting-row">
                     <div class="setting-main">
-                        <span class="setting-label">Pipeline prebuild</span>
+                        <span class="setting-label">Pipeline prebuild (DM_PSO_PREBUILD)</span>
                         <label class="ios-switch">
                             <input type="checkbox" id="cfg-prebuild" checked onchange="markChanged()">
                             <span class="ios-slider-toggle"></span>
                         </label>
                     </div>
-                    <div class="setting-note">Prebuilds 29,650 translated Maxwell shaders into Metal binary archive.</div>
                 </div>
 
                 <div class="setting-row">
                     <div class="setting-main">
-                        <span class="setting-label">Encode thread</span>
+                        <span class="setting-label">Encode thread (DM_NVN_ENC_THREAD)</span>
                         <label class="ios-switch">
                             <input type="checkbox" id="cfg-encthr" checked onchange="markChanged()">
                             <span class="ios-slider-toggle"></span>
@@ -677,7 +719,7 @@ def get_nxnative_mk8d_html() -> str:
 
                 <div class="setting-row">
                     <div class="setting-main">
-                        <span class="setting-label">Performance HUD</span>
+                        <span class="setting-label">Performance HUD (DM_METAL_HUD)</span>
                         <label class="ios-switch">
                             <input type="checkbox" id="cfg-hud" checked onchange="markChanged()">
                             <span class="ios-slider-toggle"></span>
@@ -690,44 +732,34 @@ def get_nxnative_mk8d_html() -> str:
             <div class="inset-group">
                 <div class="setting-row">
                     <button class="reset-btn" id="btn-reset" disabled onclick="resetDefaults()">Reset to tested defaults</button>
-                    <div class="setting-note">Brings back all settings this game was tested with.</div>
-                </div>
-            </div>
-
-            <div class="inset-group">
-                <div class="setting-row">
-                    <div class="setting-main">
-                        <span class="setting-label">Memory available (Apple M2 Unified)</span>
-                        <span style="font-family:ui-monospace,monospace;color:var(--ios-sub);" id="mem-avail-val">5.84 GB (4.00 GB DM_GAME_MEM_RESERVE)</span>
-                    </div>
+                    <div class="setting-note">Brings back all settings this game was tested with (4.0.1 v1507328).</div>
                 </div>
                 <div class="setting-row">
                     <div class="setting-main">
-                        <span class="setting-label">Game Binary / NSP Location (AFC)</span>
-                        <span style="font-family:ui-monospace,monospace;font-size:0.78rem;color:#38bdf8;">/Downloads/MarioKart8Deluxe.ipa</span>
+                        <span class="setting-label">4 GB Layout (game.tsv)</span>
+                        <span style="font-family:ui-monospace,monospace;font-size:0.78rem;color:var(--ios-sub);">mem_reserve 0x100000000 · app_pool 0xCD500000 (3.03 GB heap)</span>
                     </div>
-                    <div class="setting-note">To load custom NSP dumps, copy main/subsdk0/sdk + romfs to On My iPad → Mario Kart 8 Deluxe → dm/</div>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- =====================================================================
-         2. PANTALLA DE JUEGO: DMRUNNER + METAL 4 HUD + DMGAMEPAD.M
+         2. PANTALLA DE JUEGO: DMIOS + METAL 4 HUD + DMGAMEPAD.M
          ===================================================================== -->
     <div id="game-screen">
         <canvas id="mk8d-canvas"></canvas>
 
         <!-- FPS Counter -->
-        <div id="fps-pill">60.0 FPS · 16.6 ms</div>
+        <div id="fps-pill">60.0 FPS · 16.6 ms (GPU ~6.0 ms)</div>
 
         <!-- Metal 4 Performance HUD -->
         <div id="metal-hud">
-            <div style="color:#38bdf8;font-weight:700;">Apple M2 GPU · Metal 4.0 (MTL4Compiler)</div>
-            <div id="hud-res">Mode: Docked 1920×1080 · Scale: 100%</div>
-            <div>Shaders: 29,650 Maxwell → MSL · PSOs: 18,747</div>
-            <div>Memory: 3,285 MB app_pool / 4,096 MB reserved</div>
-            <div id="hud-pad">Controller: DmGamepad Touch (3D Pro)</div>
+            <div style="color:#38bdf8;font-weight:700;">DmIOS 4.0.1 (v1507328) · Apple M2 GPU (Metal 4)</div>
+            <div id="hud-res">Mode: Docked 1920×1080 · render_cond: on</div>
+            <div>Chain: b-8e52e2292032 · 29,785 Shaders (23 _b.metallib)</div>
+            <div>Pairs: 19,012 · PSO Prewarm: 1,516 · Heap: 2.40 GB / 3.03 GB</div>
+            <div id="hud-pad">Controller: DmGamepad Touch (3D Pro) · SDK 4 DeviceSink 0xf</div>
         </div>
 
         <!-- Race Status Overlay -->
@@ -767,7 +799,7 @@ def get_nxnative_mk8d_html() -> str:
                 <div class="gp-btn dpad-btn" id="btn-right" data-key="right">▶</div>
             </div>
 
-            <!-- Switch A/B/X/Y Diamond (A=Right Accel, B=Bottom Brake, X=Top Lookback, Y=Left Item) -->
+            <!-- Switch A/B/X/Y Diamond -->
             <div id="face-diamond">
                 <div class="gp-btn face-btn" id="btn-x" data-key="x">X</div>
                 <div class="gp-btn face-btn" id="btn-y" data-key="y">Y</div>
@@ -778,17 +810,12 @@ def get_nxnative_mk8d_html() -> str:
     </div>
 
     <script>
-        // =====================================================================
-        // 1. CONTROLADOR DE LAUNCHER.SWIFT
-        // =====================================================================
         function updateScaleLabel() {
             const scale = parseFloat(document.getElementById('cfg-scale').value);
             const docked = document.getElementById('cfg-opmode').value === '1';
             const bw = docked ? 1920 : 1280;
             const bh = docked ? 1080 : 720;
-            const rw = Math.round(bw * scale);
-            const rh = Math.round(bh * scale);
-            document.getElementById('val-scale').innerText = `${Math.round(scale * 100)}% (${rw}×${rh})`;
+            document.getElementById('val-scale').innerText = `${Math.round(scale * 100)}% (${Math.round(bw * scale)}×${Math.round(bh * scale)})`;
         }
 
         function markChanged() {
@@ -804,10 +831,9 @@ def get_nxnative_mk8d_html() -> str:
             document.getElementById('cfg-fps').checked = true;
             document.getElementById('cfg-haptics').checked = true;
             document.getElementById('cfg-rumble').checked = true;
-            document.getElementById('cfg-rumble-gain').value = '1.0';
-            document.getElementById('val-rumble').innerText = '100%';
-            document.getElementById('cfg-gyro').checked = false;
-            document.getElementById('cfg-snap').checked = false;
+            document.getElementById('cfg-rumble-min').value = '0.45';
+            document.getElementById('val-rumble-min').innerText = '0.45 (Crashes & Drifts)';
+            document.getElementById('cfg-rendercond').checked = true;
             document.getElementById('cfg-mtl4').checked = true;
             document.getElementById('cfg-prebuild').checked = true;
             document.getElementById('cfg-encthr').checked = true;
@@ -827,7 +853,7 @@ def get_nxnative_mk8d_html() -> str:
             const bw = docked ? 1920 : 1280;
             const bh = docked ? 1080 : 720;
             document.getElementById('hud-res').innerText =
-                `Mode: ${docked ? 'Docked' : 'Handheld'} ${Math.round(bw*scale)}×${Math.round(bh*scale)} · Scale: ${Math.round(scale*100)}%`;
+                `Mode: ${docked ? 'Docked' : 'Handheld'} ${Math.round(bw*scale)}×${Math.round(bh*scale)} · render_cond: on`;
             resizeCanvas();
             if (!gameRunning) {
                 gameRunning = true;
@@ -840,9 +866,6 @@ def get_nxnative_mk8d_html() -> str:
             document.getElementById('launcher-screen').style.display = 'flex';
         }
 
-        // =====================================================================
-        // 2. DMGAMEPAD.M CONTROLES TÁCTILES + GAMEPAD FÍSICO + GIROSCOPIO
-        // =====================================================================
         const inputState = {
             a: false, b: false, x: false, y: false,
             l: false, r: false, zl: false, zr: false,
@@ -851,13 +874,13 @@ def get_nxnative_mk8d_html() -> str:
             lx: 0, ly: 0
         };
 
-        let padLayout = '3D'; // '3D', '2D', 'Tap'
+        let padLayout = '3D';
         function cycleLayout() {
             if (padLayout === '3D') padLayout = '2D';
             else if (padLayout === '2D') padLayout = 'Tap';
             else padLayout = '3D';
             document.getElementById('btn-layout').innerText = padLayout;
-            document.getElementById('hud-pad').innerText = `Controller: DmGamepad Touch (${padLayout})`;
+            document.getElementById('hud-pad').innerText = `Controller: DmGamepad Touch (${padLayout}) · SDK 4 DeviceSink 0xf`;
             document.getElementById('dpad-zone').style.display = (padLayout === '3D') ? 'block' : 'none';
             const show2D = (padLayout !== 'Tap');
             document.getElementById('stick-left-zone').style.display = show2D ? 'block' : 'none';
@@ -870,7 +893,7 @@ def get_nxnative_mk8d_html() -> str:
         function pressBtn(k, down) {
             inputState[k] = down;
             if (down && k === 'zl' && boostTimer <= 0) {
-                boostTimer = 65; // Uso de Champiñón Turbo!
+                boostTimer = 65;
             }
         }
 
@@ -887,7 +910,6 @@ def get_nxnative_mk8d_html() -> str:
             el.addEventListener('mouseleave', onUp);
         });
 
-        // Left Stick Analog Handler
         const stickZone = document.getElementById('stick-left-zone');
         const stickKnob = document.getElementById('stick-left-knob');
         let stickActive = false;
@@ -921,7 +943,6 @@ def get_nxnative_mk8d_html() -> str:
         window.addEventListener('mousemove', e => { if (stickActive) handleStickMove(e.clientX, e.clientY); });
         window.addEventListener('mouseup', () => { if (stickActive) resetStick(); });
 
-        // Teclado y Gamepad Bluetooth (DualSense / Xbox / Switch Pro)
         window.addEventListener('keydown', e => {
             if (e.key === 'ArrowUp' || e.key === 'w' || e.key === ' ') inputState.a = true;
             if (e.key === 'ArrowDown' || e.key === 's') inputState.b = true;
@@ -937,9 +958,6 @@ def get_nxnative_mk8d_html() -> str:
             if (e.key === 'Shift') inputState.zr = false;
         });
 
-        // =====================================================================
-        // 3. MOTOR 3D PSEUDO-MODE7 / METAL 4 CIRCUIT (MARIO KART 8 DELUXE)
-        // =====================================================================
         const canvas = document.getElementById('mk8d-canvas');
         const ctx = canvas.getContext('2d');
 
@@ -994,7 +1012,6 @@ def get_nxnative_mk8d_html() -> str:
         }
         window.addEventListener('resize', resizeCanvas);
 
-        // Geometría del circuito (Segmentos 3D con curvas, colinas, cajas de objetos y rivales)
         const TOTAL_SEGMENTS = 600;
         const SEG_LEN = 200;
         const ROAD_W = 2000;
@@ -1017,7 +1034,6 @@ def get_nxnative_mk8d_html() -> str:
         }
         const trackLength = TOTAL_SEGMENTS * SEG_LEN;
 
-        // Karts rivales (Luigi, Peach, Yoshi, Bowser, Toad, Rosalina, Donkey Kong)
         const rivals = [
             { name: 'Luigi', color: '#22c55e', z: 1800, offset: -0.45, speed: 155 },
             { name: 'Peach', color: '#f472b6', z: 3400, offset: 0.35, speed: 162 },
@@ -1031,7 +1047,6 @@ def get_nxnative_mk8d_html() -> str:
         let speed = 0;
         const maxSpeed = 245;
         let lap = 1;
-        let coins = 10;
         let driftCharge = 0;
         let boostTimer = 0;
         let lastTime = performance.now();
@@ -1076,12 +1091,11 @@ def get_nxnative_mk8d_html() -> str:
             lastTime = now;
             const instFps = 1 / Math.max(0.001, dt);
             fpsSmooth = fpsSmooth * 0.9 + instFps * 0.1;
-            document.getElementById('fps-pill').innerText = `${fpsSmooth.toFixed(1)} FPS · ${(1000 / fpsSmooth).toFixed(1)} ms`;
+            document.getElementById('fps-pill').innerText = `${fpsSmooth.toFixed(1)} FPS · ${(1000 / fpsSmooth).toFixed(1)} ms (GPU ~6.0 ms)`;
 
             pollPhysicalGamepad();
 
-            // Física del Kart (A = Acelerar, B = Frenar, Stick/D-Pad = Girar, ZR = Derrape Mini-Turbo)
-            const accel = inputState.a || padLayout === 'Tap'; // En modo Tap acelera automáticamente
+            const accel = inputState.a || padLayout === 'Tap';
             if (boostTimer > 0) {
                 boostTimer--;
                 speed = Math.min(maxSpeed * 1.28, speed + 420 * dt);
@@ -1107,7 +1121,7 @@ def get_nxnative_mk8d_html() -> str:
                 driftCharge += dt * 40;
             } else {
                 if (driftCharge > 25) {
-                    boostTimer = 45; // Mini-Turbo liberado!
+                    boostTimer = 45;
                 }
                 driftCharge = 0;
             }
@@ -1122,7 +1136,6 @@ def get_nxnative_mk8d_html() -> str:
                 lap = (lap % 3) + 1;
             }
 
-            // Actualizar rivales
             let aheadCount = 0;
             rivals.forEach(r => {
                 r.z = (r.z + r.speed * 35 * dt) % trackLength;
@@ -1133,19 +1146,16 @@ def get_nxnative_mk8d_html() -> str:
             document.getElementById('hud-lap').innerText = `LAP ${lap}/3`;
             document.getElementById('hud-speed').innerText = `150cc · ${Math.round(speed)} km/h`;
 
-            // Renderizar Escena 3D
             const W = canvas.width;
             const H = canvas.height;
             const track = TRACKS[currentTrackIdx];
 
-            // Cielo y Horizonte
             const skyGrad = ctx.createLinearGradient(0, 0, 0, H * 0.52);
             skyGrad.addColorStop(0, track.skyTop);
             skyGrad.addColorStop(1, track.skyBot);
             ctx.fillStyle = skyGrad;
             ctx.fillRect(0, 0, W, H * 0.52);
 
-            // Estrellas / Luces de Estadio
             ctx.fillStyle = 'rgba(255,255,255,0.65)';
             for (let s = 0; s < 28; s++) {
                 const sx = ((s * 197 + Math.floor(position * 0.02)) % W + W) % W;
@@ -1153,7 +1163,6 @@ def get_nxnative_mk8d_html() -> str:
                 ctx.fillRect(sx, sy, 2, 2);
             }
 
-            // Suelo base
             ctx.fillStyle = track.grass2;
             ctx.fillRect(0, H * 0.5, W, H * 0.5);
 
@@ -1187,25 +1196,21 @@ def get_nxnative_mk8d_html() -> str:
                     roadCol = `hsl(${hue}, 82%, ${alt ? 48 : 38}%)`;
                 }
 
-                // Césped lateral
                 ctx.fillStyle = grassCol;
                 ctx.fillRect(0, seg.p2.screen.y, W, seg.p1.screen.y - seg.p2.screen.y);
 
-                // Pianos / Bordillos
                 drawPolygon(
                     seg.p1.screen.x, seg.p1.screen.y, seg.p1.screen.w * 1.14,
                     seg.p2.screen.x, seg.p2.screen.y, seg.p2.screen.w * 1.14,
                     curbCol
                 );
 
-                // Asfalto
                 drawPolygon(
                     seg.p1.screen.x, seg.p1.screen.y, seg.p1.screen.w,
                     seg.p2.screen.x, seg.p2.screen.y, seg.p2.screen.w,
                     roadCol
                 );
 
-                // Línea de Meta (Segmento 0..3)
                 if (seg.index < 3) {
                     drawPolygon(
                         seg.p1.screen.x, seg.p1.screen.y, seg.p1.screen.w * 0.95,
@@ -1214,7 +1219,6 @@ def get_nxnative_mk8d_html() -> str:
                     );
                 }
 
-                // Turbo Pad en pista
                 if (seg.boostPad) {
                     drawPolygon(
                         seg.p1.screen.x, seg.p1.screen.y, seg.p1.screen.w * 0.35,
@@ -1226,11 +1230,9 @@ def get_nxnative_mk8d_html() -> str:
                 maxy = seg.p2.screen.y;
             }
 
-            // Dibujar Kart del Jugador (Mario - Standard Kart M2)
             const kartX = W / 2 + steer * 28;
             const kartY = H * 0.80;
 
-            // Chispas de Mini-Turbo / Llama de Turbo
             if (driftCharge > 5 || boostTimer > 0) {
                 const sparkCol = boostTimer > 0 ? '#f97316' : (driftCharge > 40 ? '#e879f9' : (driftCharge > 20 ? '#facc15' : '#38bdf8'));
                 ctx.fillStyle = sparkCol;
@@ -1241,18 +1243,15 @@ def get_nxnative_mk8d_html() -> str:
                 }
             }
 
-            // Sombra del Kart
             ctx.fillStyle = 'rgba(0,0,0,0.55)';
             ctx.beginPath();
             ctx.ellipse(kartX, kartY + 32, 68, 16, 0, 0, Math.PI * 2);
             ctx.fill();
 
-            // Neumáticos
             ctx.fillStyle = '#18181b';
             ctx.fillRect(kartX - 62, kartY + 4, 22, 28);
             ctx.fillRect(kartX + 40, kartY + 4, 22, 28);
 
-            // Chasis Rojo/Azul de Mario
             ctx.fillStyle = '#ef4444';
             ctx.beginPath();
             ctx.roundRect(kartX - 44, kartY - 8, 88, 34, 12);
@@ -1263,7 +1262,6 @@ def get_nxnative_mk8d_html() -> str:
             ctx.roundRect(kartX - 30, kartY - 18, 60, 20, 8);
             ctx.fill();
 
-            // Gorra de Mario + Emblema M
             ctx.fillStyle = '#dc2626';
             ctx.beginPath();
             ctx.arc(kartX, kartY - 28, 20, 0, Math.PI * 2);
@@ -1282,7 +1280,6 @@ def get_nxnative_mk8d_html() -> str:
             requestAnimationFrame(gameLoop);
         }
 
-        // Auto-start si viene con ?play=1
         if (window.location.search.indexOf('play=1') !== -1) {
             window.addEventListener('DOMContentLoaded', () => startGame());
         }

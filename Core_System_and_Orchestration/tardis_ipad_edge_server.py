@@ -1590,6 +1590,7 @@ def get_client_html() -> str:
         </div>
         <div class="header-nav">
             <button class="nav-chip active" onclick="switchTab('view-chat', this)">💬 Neural GIA</button>
+            <button class="nav-chip" style="border-color:rgba(239,68,68,0.65);color:#f87171;" onclick="window.location.href='/mk8d'">🏁 Mario Kart 8 (nxnative)</button>
             <button class="nav-chip" style="border-color:rgba(16,185,129,0.5);color:#34d399;" onclick="switchTab('view-linpad', this)">🐧 LinPad M2</button>
             <button class="nav-chip" onclick="switchTab('view-ide', this)">💻 IDE Soberano</button>
             <button class="nav-chip" onclick="switchTab('view-terminal', this)">⚡ Terminal & Kernel</button>
@@ -1637,6 +1638,7 @@ def get_client_html() -> str:
                 </div>
 
                 <div class="chat-chips">
+                    <div class="chat-chip" style="border-color:#ef4444;color:#f87171;font-weight:700;" onclick="window.location.href='/mk8d'">🏁 Mario Kart 8 Deluxe (nxnative M2)</div>
                     <div class="chat-chip" style="border-color:#10b981;color:#34d399;font-weight:700;" onclick="switchTab('view-linpad')">🐧 LinPad 1.6 M2 Desktop</div>
                     <div class="chat-chip" style="border-color:var(--neon-cyan);color:var(--neon-cyan);font-weight:700;" onclick="switchTab('view-ide')">💻 IDE Soberano</div>
                     <div class="chat-chip" style="border-color:var(--neon-gold);color:var(--neon-gold);font-weight:700;" onclick="switchTab('view-terminal')">⚡ Terminal & Kernel</div>
@@ -2971,12 +2973,16 @@ async def _edge_auth_middleware(request: web.Request, handler):
 
 NXNATIVE_IPA_PATH = Path("/home/timemachine/nxnative/build/MarioKart8Deluxe.ipa")
 NXNATIVE_ICON_PNG = Path("/home/timemachine/nxnative/build/mk8d_icon_512.png")
-NXNATIVE_FONT_TTF = Path("/home/timemachine/nxnative/build/Payload/DmRunner.app/dm/nintendo_ext.ttf")
+NXNATIVE_FONT_TTF = Path("/home/timemachine/nxnative/build/DmIOS.app/dm/font/nintendo_ext.ttf")
 
 
 async def nxnative_ui_handler(request: web.Request) -> web.Response:
     from core.nxnative_mk8d_ipad_ui import get_nxnative_mk8d_html
-    return web.Response(text=get_nxnative_mk8d_html(), content_type="text/html")
+    return web.Response(
+        text=get_nxnative_mk8d_html(),
+        content_type="text/html",
+        headers={"Cache-Control": "no-store, no-cache, must-revalidate"},
+    )
 
 
 async def nxnative_icon_handler(request: web.Request) -> web.Response:
@@ -3003,10 +3009,13 @@ async def download_mk8d_ipa_handler(request: web.Request) -> web.Response:
 
 
 async def nxnative_profile_handler(request: web.Request) -> web.Response:
-    host = request.headers.get("Host", f"{LAN_HOST_IP}:{EDGE_PORT}").split(":")[0]
-    if host in ("127.0.0.1", "localhost", "0.0.0.0"):
-        host = LAN_HOST_IP
-    target_url = f"http://{host}:{EDGE_PORT}/mk8d"
+    if "lan" in request.query:
+        host = request.headers.get("Host", f"{LAN_HOST_IP}:{EDGE_PORT}").split(":")[0]
+        if host in ("127.0.0.1", "localhost", "0.0.0.0"):
+            host = LAN_HOST_IP
+        target_url = f"http://{host}:{EDGE_PORT}/mk8d?v=4.0.1"
+    else:
+        target_url = f"{get_internet_url().rstrip('/')}/mk8d?v=4.0.1"
     icon_data = b""
     if NXNATIVE_ICON_PNG.exists():
         icon_data = NXNATIVE_ICON_PNG.read_bytes()
@@ -3018,8 +3027,8 @@ async def nxnative_profile_handler(request: web.Request) -> web.Response:
         "PayloadVersion": 1,
         "PayloadIdentifier": "org.nxnative.0100152000022000.webclip",
         "PayloadUUID": "REDACTED_PHONE-2108-201E-MK8DNX000002",
-        "PayloadDisplayName": "Mario Kart 8 Deluxe",
-        "PayloadDescription": "nxnative · Mario Kart 8 Deluxe (0100152000022000) para Apple iPad Pro M2",
+        "PayloadDisplayName": "Mario Kart 8 Deluxe 4.0.1",
+        "PayloadDescription": "nxnative · Mario Kart 8 Deluxe 4.0.1 (v1507328 · 29,785 Shaders · 23 _b.metallib) para Apple iPad Pro M2",
         "PayloadOrganization": "nxnative · GODWORKS System",
         "Label": "Mario Kart 8",
         "URL": target_url,
@@ -3034,8 +3043,8 @@ async def nxnative_profile_handler(request: web.Request) -> web.Response:
         "PayloadVersion": 1,
         "PayloadIdentifier": "org.nxnative.0100152000022000.profile",
         "PayloadUUID": "REDACTED_PHONE-2108-201E-MK8DNX000001",
-        "PayloadDisplayName": "Mario Kart 8 Deluxe (nxnative M2)",
-        "PayloadDescription": "Instalación Nativa de Mario Kart 8 Deluxe (0100152000022000) vía nxnative en Apple iPad Pro M2",
+        "PayloadDisplayName": "Mario Kart 8 Deluxe 4.0.1 (nxnative M2)",
+        "PayloadDescription": "Instalación Nativa de Mario Kart 8 Deluxe 4.0.1 (0100152000022000 · Chain b-8e52e2292032 · 29,785 Shaders) vía nxnative en Apple iPad Pro M2",
         "PayloadOrganization": "nxnative · GODWORKS System",
         "PayloadContent": [payload],
     }
