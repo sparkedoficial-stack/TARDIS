@@ -1,22 +1,5 @@
 [
   {
-    "id": "conj_1793052916",
-    "timestamp": "2026-10-26T17:15:16.522162",
-    "idle_duration_minutes": 31.6,
-    "title": "Sinergia Causal entre Telemetría de Red y Memoria Akáshica",
-    "hypothesis": "Se postula que la eficiencia de la investigación web (web_research_engine.py) puede optimizarse dinámicamente si se correlacionan los patrones de latencia y bloqueo detectados por network_shield.py con los vectores de contexto almacenados en deep_memory_vault.py. Al identificar que ciertos dominios o patrones de respuesta generan 'ruido' o 'fricción' en la red, el motor de investigación podría priorizar fuentes históricamente más estables o ajustar sus heurísticas de scraping en tiempo real, reduciendo el consumo de recursos y mejorando la precisión de la extracción de datos.",
-    "research_query": "dynamic web scraping heuristic optimization based on network latency and memory context correlation",
-    "research_findings": "# Informe de Investigación: dynamic web scraping heuristic optimization based on network latency and memory context correlation\n\n## Fuentes Consultadas y Respaldo Web\n- **[Artificial intelligence (Wikipedia)](https://en.wikipedia.org/wiki/Artificial_intelligence)**: space search and mathematical optimisation, formal logic, artificial neural networks, and methods based on statistics, operations research, and economics\n\n## Contenido y Hallazgos Extraídos\n### De [Artificial intelligence - Wikipedia](https://en.wikipedia.org/wiki/Artificial_intelligence)\n> Artificial intelligence - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nIntelligence in machines\n\"AI\" redirects here. For other uses, see AI (disambiguation) and Artificial intelligence (disambiguation) .\nPart of a series on\nArtificial intelligence (AI)\nMajor goals\nArtificial general intelligence\nsuperintelligence\nAI agent\nIntelligent agent\nRecursive self-improvement\nPlanning\nCom...\n",
-    "web_sources": [
-      "https://en.wikipedia.org/wiki/Artificial_intelligence"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Implementar un módulo de 'Adaptive Heuristics' que consulte la telemetría de red y la memoria de contexto para ajustar dinámicamente los timeouts, la frecuencia de reintentos y la selección de fuentes antes de ejecutar una nueva consulta web.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.94
-  },
-  {
     "id": "conj_1793054814",
     "timestamp": "2026-10-26T17:46:54.581272",
     "idle_duration_minutes": 31.6,
@@ -1622,5 +1605,23 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 96.9
+  },
+  {
+    "id": "conj_1793255229",
+    "timestamp": "2026-10-29T01:27:09.752088",
+    "idle_duration_minutes": 33.2,
+    "title": "Causal Latency Prediction via Temporal Graph Embeddings",
+    "hypothesis": "La latencia percibida en el motor de investigación web no es lineal con la complejidad de la consulta, sino que sigue patrones estocásticos basados en la topología de la red en tiempo real. Al implementar un grafo temporal que mapee la latencia histórica de subdominios y nodos de CDN, el sistema puede predecir rutas óptimas de scraping antes de la ejecución, reduciendo el tiempo de respuesta efectivo en un 20-30% mediante el enrutamiento proactivo en lugar de la reintentación reactiva.",
+    "research_query": "temporal graph neural networks for network latency prediction and proactive routing optimization",
+    "research_findings": "# Informe de Investigación: temporal graph neural networks for network latency prediction and proactive routing optimization\n\n## Fuentes Consultadas y Respaldo Web\n- **[Real-time optimization of urban traffic using predictive algorithms - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE10T3JBXy1COHoxMWV2cDVudlNHSHRPdEgwdDlYRlJacUJVV0FuNVd2aEUzOHF4TFgwRGczWERjTFNhRm9TYmw0c2JpM3lKRGx0djZUZFluVnZSMFM5d2tr?oc=5)**: Real-time optimization of urban traffic using predictive algorithms  Nature\n- **[An enhanced intelligent framework for 5G V2X communication using multi-objective optimization and mobility-aware transformer networks - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTFB5RFliUkFvMDUyaE5XMGxQTk5fZUxXbTZPVjVpT0hNZjdoWlpjaHl1d0lVaGNCNG91SnJWdS1PeVJDTFBZdEdxT3RWeHlaNVlVaFZUVzdiQ1ZHSjNPRUZB?oc=5)**: An enhanced intelligent framework for 5G V2X communication using multi-objective optimization and mobility-aware transformer networks  Nature\n\n## Contenido y Hallazgos Ex",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE10T3JBXy1COHoxMWV2cDVudlNHSHRPdEgwdDlYRlJacUJVV0FuNVd2aEUzOHF4TFgwRGczWERjTFNhRm9TYmw0c2JpM3lKRGx0djZUZFluVnZSMFM5d2tr?oc=5",
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTFB5RFliUkFvMDUyaE5XMGxQTk5fZUxXbTZPVjVpT0hNZjdoWlpjaHl1d0lVaGNCNG91SnJWdS1PeVJDTFBZdEdxT3RWeHlaNVlVaFZUVzdiQ1ZHSjNPRUZB?oc=5"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Integrar un módulo de caché predictiva basado en embeddings temporales que evalúe la probabilidad de éxito y latencia de cada endpoint antes de emitir la petición HTTP, ajustando dinámicamente los timeouts y las estrategias de reintentado.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.25
   }
 ]

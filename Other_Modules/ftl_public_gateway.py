@@ -318,45 +318,60 @@ async def _proxy_ws(
     headers["X-Forwarded-Host"] = request.host
     headers["X-Forwarded-Proto"] = request.scheme
 
+    ws_client = None
     try:
-        async with session.ws_connect(
+        ws_client = await session.ws_connect(
             url,
             headers=headers,
             protocols=protocols or (),
             heartbeat=30,
             timeout=ClientTimeout(total=None, sock_connect=10, sock_read=None),
-        ) as ws_client:
+        )
 
-            async def relay(src, dst) -> None:
+        async def relay(src, dst) -> None:
+            try:
+                async for msg in src:
+                    if msg.type == WSMsgType.TEXT:
+                        await dst.send_str(msg.data)
+                    elif msg.type == WSMsgType.BINARY:
+                        await dst.send_bytes(msg.data)
+                    elif msg.type == WSMsgType.PING:
+                        await dst.ping(msg.data)
+                    elif msg.type == WSMsgType.PONG:
+                        await dst.pong(msg.data)
+                    elif msg.type in (WSMsgType.CLOSE, WSMsgType.CLOSING, WSMsgType.CLOSED):
+                        break
+                    elif msg.type == WSMsgType.ERROR:
+                        break
+            except Exception:
+                pass
+            finally:
+                # Cuando un sentido termina (cliente móvil caído, ttyd cerrado,
+                # etc.) se cierra inmediatamente el socket opuesto para que el
+                # relay hermano también termine y no queden conexiones fantasma
+                # agotando el límite de --max-clients de ttyd.
                 try:
-                    async for msg in src:
-                        if msg.type == WSMsgType.TEXT:
-                            await dst.send_str(msg.data)
-                        elif msg.type == WSMsgType.BINARY:
-                            await dst.send_bytes(msg.data)
-                        elif msg.type == WSMsgType.PING:
-                            await dst.ping(msg.data)
-                        elif msg.type == WSMsgType.PONG:
-                            await dst.pong(msg.data)
-                        elif msg.type in (WSMsgType.CLOSE, WSMsgType.CLOSING, WSMsgType.CLOSED):
-                            break
-                        elif msg.type == WSMsgType.ERROR:
-                            break
+                    if dst is not None and not dst.closed:
+                        await dst.close()
                 except Exception:
                     pass
 
-            await asyncio.gather(
-                relay(ws_server, ws_client),
-                relay(ws_client, ws_server),
-            )
+        await asyncio.gather(
+            relay(ws_server, ws_client),
+            relay(ws_client, ws_server),
+        )
     except Exception:
         METRICS["errors"] += 1
     finally:
         METRICS["ws_close"] += 1
-        try:
-            await ws_server.close()
-        except Exception:
-            pass
+        for sock in (ws_client, ws_server):
+            if sock is None:
+                continue
+            try:
+                if not sock.closed:
+                    await sock.close()
+            except Exception:
+                pass
     return ws_server
 
 
