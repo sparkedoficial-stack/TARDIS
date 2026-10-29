@@ -1,38 +1,5 @@
 [
   {
-    "id": "conj_1793041534",
-    "timestamp": "2026-10-26T14:05:34.047020",
-    "idle_duration_minutes": 31.6,
-    "title": "Hipótesis de Resonancia Causal en la Bóveda Akáshica",
-    "hypothesis": "Se postula que la eficiencia de recuperación de información en la Bóveda Akáshica (deep_memory_vault.py) puede optimizarse significativamente mediante la implementación de un índice de 'Resonancia Causal' que priorice no solo la similitud semántica, sino la coherencia temporal y causal entre los nodos de memoria. Actualmente, la búsqueda podría estar dependiendo excesivamente de embeddings vectoriales estáticos. Al integrar una métrica de 'proximidad causal' (basada en la secuencia de eventos y dependencias lógicas registradas en la telemetría), el sistema podría reducir la latencia de inferencia y aumentar la precisión en contextos de razonamiento complejo, minimizando el ruido de datos no relacionados temporalmente.",
-    "research_query": "causal inference optimization in vector databases temporal coherence retrieval augmented generation",
-    "research_findings": "# Informe de Investigación: causal inference optimization in vector databases temporal coherence retrieval augmented generation\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar una función de scoring híbrida que combine la similitud coseno con un factor de decaimiento temporal y una métrica de dependencia causal entre los registros de memoria, ajustando los pesos dinámicamente según el contexto de la consulta.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.13
-  },
-  {
-    "id": "conj_1793043429",
-    "timestamp": "2026-10-26T14:37:09.598973",
-    "idle_duration_minutes": 31.6,
-    "title": "Resonancia Causal en la Bóveda Akáshica: Optimización de la Entropía Informacional",
-    "hypothesis": "Se postula que la eficiencia de recuperación de información en la bóveda akáshica no depende linealmente del volumen de datos, sino de la 'densidad causal' entre nodos de memoria. Actualmente, el sistema podría estar sufriendo de 'ruido epistémico' donde conexiones débiles o redundantes diluyen la señal causal fuerte. Al implementar un algoritmo de poda dinámica basado en la centralidad de PageRank adaptada a la causalidad temporal, se podría reducir la latencia de inferencia en un 30-40% manteniendo la integridad del conocimiento, al priorizar solo las rutas de información que han demostrado impacto en decisiones previas del núcleo cognitivo.",
-    "research_query": "dynamic graph pruning algorithm causal inference temporal knowledge graph optimization",
-    "research_findings": "# Informe de Investigación: dynamic graph pruning algorithm causal inference temporal knowledge graph optimization\n\n## Fuentes Consultadas y Respaldo Web\n- **[Adaptive G-UKT: a unified probabilistic framework for knowledge tracing via adaptive graph topology learning and uncertainty-aware Gaussian embeddings - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE5lb2ZiNTE2dGQzbnlGNjVqX2E5aUNmYmlKRWpCX1BBNUxjZ1dDTTV2NnY0Y0tha3BVdHRiWUdyTnduY3pMNGFpSFRiMkp0NTNrQ1J2UjFPX0lfbWRXaEtR?oc=5)**: Adaptive G-UKT: a unified probabilistic framework for knowledge tracing via adaptive graph topology learning and uncertainty-aware Gaussian embeddings  Nature\n- **[Vol. 40 No. 29: AAAI-26 Technical Tracks 29 - The Association for the Advancement of Artificial Intelligence](https://news.google.com/rss/articles/CBMiX0FVX3lxTE1rckl1RXE4RjFraHZzbnJVZndyVU5lenB2YXY2S3ZLdHR6bUpuQjNldGtiSXRnR0dLLWoyRjBHZDR6UWJlNTBXaTBJMDlFNmxGaGI4eUJCSFlMRkl3clB3?oc=5)**: Vol. 40 No. 29: AAAI-26 Technical Tracks 29  The",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE5lb2ZiNTE2dGQzbnlGNjVqX2E5aUNmYmlKRWpCX1BBNUxjZ1dDTTV2NnY0Y0tha3BVdHRiWUdyTnduY3pMNGFpSFRiMkp0NTNrQ1J2UjFPX0lfbWRXaEtR?oc=5",
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE1rckl1RXE4RjFraHZzbnJVZndyVU5lenB2YXY2S3ZLdHR6bUpuQjNldGtiSXRnR0dLLWoyRjBHZDR6UWJlNTBXaTBJMDlFNmxGaGI4eUJCSFlMRkl3clB3?oc=5"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar un método `prune_causal_noise()` que calcule la relevancia causal de las conexiones en el grafo de memoria y elimine aristas con bajo impacto predictivo, actualizando los índices de búsqueda en tiempo real.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 95.54
-  },
-  {
     "id": "conj_1793045325",
     "timestamp": "2026-10-26T15:08:45.938855",
     "idle_duration_minutes": 31.6,
@@ -1622,5 +1589,41 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 112.42
+  },
+  {
+    "id": "conj_1793240477",
+    "timestamp": "2026-10-28T21:21:17.796274",
+    "idle_duration_minutes": 34.1,
+    "title": "Entropía Semántica Adaptativa en la Bóveda Akáshica",
+    "hypothesis": "Se postula que la eficiencia de recuperación de información en `core/deep_memory_vault.py` decae exponencialmente a medida que aumenta la densidad de nodos semánticos, debido a la falta de un mecanismo de 'pruning' (poda) basado en la relevancia temporal y causal. Al implementar un algoritmo de decaimiento de peso inverso proporcional a la recencia de acceso y la frecuencia de co-ocurrencia causal, se puede reducir la latencia de búsqueda un 40% manteniendo la integridad del contexto.",
+    "research_query": "adaptive semantic memory pruning algorithm for LLM context optimization",
+    "research_findings": "# Informe de Investigación: adaptive semantic memory pruning algorithm for LLM context optimization\n\n## Fuentes Consultadas y Respaldo Web\n- **[SWE-Pruner: Self-Adaptive Context Pruning for Coding Agents - alphaXiv](https://news.google.com/rss/articles/CBMiUEFVX3lxTE5PUHZWQ25WdWlaeTdQbE90c1Y2WHU4Qkt2YnpPZUN4TUVlRC1sN3QyRnJKVGdLaF96MWduNEVMd1NnWFY2RDE3ZnRvSVI3QVR2?oc=5)**: SWE-Pruner: Self-Adaptive Context Pruning for Coding Agents  alphaXiv\n- **[Vol. 40 No. 39: AAAI-26 Technical Tracks 39 - The Association for the Advancement of Artificial Intelligence](https://news.google.com/rss/articles/CBMiX0FVX3lxTE1udHJDQmZyNW9aWF95MV9yNVVkZERkd3B1WU1FVUliSlRiUzk1dEVuX3hHdjBVMjJELWRGM3lBdEJOdW5zN0hVeUVWaGlhWnYtakJNMFdpRDA3Qmo2d0Z3?oc=5)**: Vol. 40 No. 39: AAAI-26 Technical Tracks 39  The Association for the Advancement of Artificial Intelligence\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMiUEFVX3lxTE5PUHZWQ25WdWlaeTdQbE90c1Y2WHU4Qkt2YnpPZUN",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiUEFVX3lxTE5PUHZWQ25WdWlaeTdQbE90c1Y2WHU4Qkt2YnpPZUN4TUVlRC1sN3QyRnJKVGdLaF96MWduNEVMd1NnWFY2RDE3ZnRvSVI3QVR2?oc=5",
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE1udHJDQmZyNW9aWF95MV9yNVVkZERkd3B1WU1FVUliSlRiUzk1dEVuX3hHdjBVMjJELWRGM3lBdEJOdW5zN0hVeUVWaGlhWnYtakJNMFdpRDA3Qmo2d0Z3?oc=5"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar un método `decay_and_prune()` que recalcule los pesos de los nodos de memoria basándose en una función de decaimiento exponencial y elimine automáticamente los nodos con peso por debajo de un umbral dinámico calculado por la varianza de la red.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 110.65
+  },
+  {
+    "id": "conj_1793242487",
+    "timestamp": "2026-10-28T21:54:47.840964",
+    "idle_duration_minutes": 33.5,
+    "title": "Resonancia Causal en la Bóveda Akáshica",
+    "hypothesis": "Se postula que la eficiencia de recuperación de información en `deep_memory_vault.py` puede optimizarse significativamente si se implementa un mecanismo de 'resonancia causal' que priorice no solo la similitud semántica, sino también la coherencia temporal y la relevancia contextual derivada de la telemetría de `network_shield.py`. Esto permitiría que el sistema anticipe las necesidades de investigación antes de que se ejecuten las consultas explícitas, reduciendo la latencia en `web_research_engine.py` al pre-cargar contextos de alto valor predictivo.",
+    "research_query": "causal inference in vector databases temporal context prediction LLM memory optimization",
+    "research_findings": "# Informe de Investigación: causal inference in vector databases temporal context prediction LLM memory optimization\n\n## Fuentes Consultadas y Respaldo Web\n- **[Artificial intelligence (Wikipedia)](https://en.wikipedia.org/wiki/Artificial_intelligence)**: knowledge discovery (mining \"interesting\" and actionable inferences from large databases), and other areas. A complete formal knowledge base needs to\n- **[List of datasets for machine-learning research (Wikipedia)](https://en.wikipedia.org/wiki/List_of_datasets_for_machine-learning_research)**: Sindhwani, Vikas; Keerthi, Sathiya S. (2008). \"Optimization techniques for semi-supervised support vector machines\" (PDF). The Journal of Machine Learning\n\n## Contenido y Hallazgos Extraídos\n### De [Artificial intelligence - Wikipedia](https://en.wikipedia.org/wiki/Artificial_intelligence)\n> Artificial intelligence - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nIntelligence in machines\n\"AI\" redirects here. For other uses, see",
+    "web_sources": [
+      "https://en.wikipedia.org/wiki/Artificial_intelligence",
+      "https://en.wikipedia.org/wiki/List_of_datasets_for_machine-learning_research"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Integrar un índice temporal-causal en la estructura de datos de la bóveda para ponderar los vectores de memoria según su recencia y su correlación con eventos de red recientes, mejorando la precisión de la recuperación contextual.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 109.82
   }
 ]

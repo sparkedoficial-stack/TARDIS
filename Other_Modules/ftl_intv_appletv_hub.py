@@ -299,6 +299,31 @@ HTML_APPLE_TV_UI = r"""<!DOCTYPE html>
     }
   }
 
+  /* Modo Pantalla Completa en TV (?tvmode=1 proyectado en INTV_ASIST) */
+  body.tv-fullscreen main.tvos-workspace {
+    grid-template-columns: 1fr;
+    padding: 18px 64px 48px;
+  }
+  body.tv-fullscreen aside.siri-remote-shell,
+  body.tv-fullscreen #pairBtn,
+  body.tv-fullscreen .topbar-right .action-pill {
+    display: none !important;
+  }
+  body.tv-fullscreen .app-grid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 24px;
+  }
+  body.tv-fullscreen .tvos-app-card {
+    height: 118px;
+    border-radius: 24px;
+  }
+  body.tv-fullscreen .app-icon-symbol {
+    font-size: 34px;
+  }
+  body.tv-fullscreen .app-card-label {
+    font-size: 15px;
+  }
+
   /* Columna Izquierda: Top Shelf + Dock + Grid de Apps */
   .tvos-stage {
     display: flex;
@@ -776,14 +801,14 @@ HTML_APPLE_TV_UI = r"""<!DOCTYPE html>
   </div>
 
   <div class="topbar-right">
+    <button class="action-pill primary" onclick="castLauncherToTV()" title="Muestra este Launcher Súper Ligero directamente en la pantalla de tu TV">
+      📺 Proyectar Launcher en TV
+    </button>
     <button class="action-pill success" onclick="triggerOptimization()" title="Elimina telemetría, procesos pesados y purga cachés en INTV_ASIST">
       ⚡ Modo Ultra-Ligero (Zero-Bloat)
     </button>
-    <button class="action-pill primary" onclick="openPairModal()" id="pairBtn">
+    <button class="action-pill primary" onclick="openPairModal()" id="pairBtn" style="display:none;">
       🔗 Vincular Control TV (PIN)
-    </button>
-    <button class="action-pill" onclick="pairBluetooth()" title="Emparejar por Bluetooth directo EC:C1:AB:56:38:72">
-      ᛒ Bluetooth
     </button>
     <div class="clock" id="clockDisplay">20:20</div>
   </div>
@@ -928,6 +953,9 @@ HTML_APPLE_TV_UI = r"""<!DOCTYPE html>
 <script>
   const cards = Array.from(document.querySelectorAll('.tvos-app-card'));
   let focusedIndex = 0;
+  if (window.location.search.includes('tvmode=1')) {
+    document.body.classList.add('tv-fullscreen');
+  }
 
   function updateClock() {
     const now = new Date();
@@ -985,13 +1013,14 @@ HTML_APPLE_TV_UI = r"""<!DOCTYPE html>
       const pairBtn = document.getElementById('pairBtn');
       if (data.remote_connected) {
         dot.className = 'status-dot';
-        rem.textContent = 'Conectado (TLS 6466 Activo)';
+        rem.textContent = 'Conectado (TLS 6466 + BT Bonded)';
         rem.style.color = '#30d158';
-        pairBtn.textContent = '✓ Control Vinculado';
+        pairBtn.style.display = 'none';
       } else if (data.reachable) {
         dot.className = 'status-dot warn';
         rem.textContent = data.needs_pairing ? 'Listo para Vincular PIN (6467)' : 'En línea (REDACTED_IP)';
         rem.style.color = '#ff9f0a';
+        pairBtn.style.display = data.needs_pairing ? 'flex' : 'none';
       } else {
         dot.className = 'status-dot warn';
         rem.textContent = 'Reconectando...';
@@ -999,10 +1028,19 @@ HTML_APPLE_TV_UI = r"""<!DOCTYPE html>
       if (data.current_app) {
         document.getElementById('heroTag').textContent = ` En reproducción en TV: ${data.current_app}`;
       }
+      if (typeof data.focused_index === 'number' && data.focused_index !== focusedIndex) {
+        focusCard(data.focused_index);
+      }
     } catch (e) {}
   }
-  setInterval(refreshStatus, 4000);
+  setInterval(refreshStatus, 1200);
   refreshStatus();
+
+  async function castLauncherToTV() {
+    showToast('📺 Activando Launcher Súper Ligero en pantalla de TV...');
+    const res = await apiCall('/api/cast_launcher', {});
+    showToast(res.message || '✓ Launcher proyectado en TV');
+  }
 
   async function sendKey(key) {
     showToast(` Remote → ${key}`);
@@ -1142,6 +1180,11 @@ class IntvAppleTVController:
         self.needs_pairing: bool = False
         self.pairing_in_progress: bool = False
         self.last_optimization_ts: float = 0.0
+        self.focused_index: int = 0
+        self.ordered_apps = [
+            "appletv", "youtube", "netflix", "prime", "disney",
+            "spotify", "kodi", "vlc", "settings", "turbo"
+        ]
         self.ssl_ctx = ssl.create_default_context()
         self.ssl_ctx.check_hostname = False
         self.ssl_ctx.verify_mode = ssl.CERT_NONE
@@ -1303,9 +1346,100 @@ class IntvAppleTVController:
         except Exception as e:
             return {"status": "error", "message": f"Error verificando PIN: {e}"}
 
+    def cast_lightweight_launcher(self) -> Dict[str, Any]:
+        """Proyecta el Launcher Súper Ligero Apple TV directamente en la pantalla del televisor vía CastV2 (8009)."""
+        try:
+            import pychromecast
+            from pychromecast.models import CastInfo, HostServiceInfo
+            from pychromecast.controllers.dashcast import DashCastController
+            from uuid import UUID
+
+            cast_info = CastInfo(
+                services={HostServiceInfo(TARGET_IP, 8009)},
+                uuid=UUID("862ee003-aa7e-b525-53c1-ec630aab5a4e"),
+                model_name="INTV_ASIST",
+                friendly_name="INTV_ASIST",
+                host=TARGET_IP,
+                port=8009,
+                cast_type="cast",
+                manufacturer="Videostrong",
+            )
+            if self.remote and self.remote_connected:
+                try:
+                    self.remote.send_key_command("BACK")
+                    self.remote.send_key_command("BACK")
+                except Exception:
+                    pass
+            import re
+            tunnel_url = f"http://REDACTED_IP:{LISTEN_PORT}/?tvmode=1"
+            try:
+                log_txt = Path("/tmp/appletv_cloudflared.log").read_text(errors="ignore")
+                matches = re.findall(r"https://[a-zA-Z0-9-]+\.trycloudflare\.com", log_txt)
+                if matches:
+                    tunnel_url = f"{matches[-1]}/?tvmode=1"
+            except Exception:
+                pass
+
+            cc = pychromecast.get_chromecast_from_cast_info(cast_info, zconf=None)
+            cc.wait(timeout=4)
+            d = DashCastController()
+            cc.register_handler(d)
+            if cc.app_id == "84912283":
+                cc.quit_app()
+                time.sleep(1.2)
+            d.load_url(tunnel_url, force=False)
+            time.sleep(3.2)
+            d.send_message({"url": tunnel_url, "force": False, "reload": False, "reload_time": 0}, inc_session_id=True)
+            time.sleep(1.0)
+            cc.disconnect()
+            return {
+                "status": "ok",
+                "tunnel_url": tunnel_url,
+                "message": f"✓ Launcher Súper Ligero Apple TV proyectado en pantalla de INTV_ASIST ({tunnel_url})",
+            }
+        except Exception as e:
+            return {"status": "error", "message": f"Error proyectando launcher: {e}"}
+
     async def send_key(self, key: str) -> Dict[str, Any]:
         if not self.remote_connected:
             await self.try_connect()
+        curr_app = getattr(self.remote, "current_app", "") if self.remote else ""
+
+        # Si el TV está mostrando nuestro Launcher Súper Ligero (mediashell), navegamos el grid en tiempo real
+        if curr_app == "com.google.android.apps.mediashell":
+            n = len(self.ordered_apps)
+            if key == "DPAD_RIGHT":
+                self.focused_index = (self.focused_index + 1) % n
+                return {"status": "ok", "message": f" Launcher Focus → {self.ordered_apps[self.focused_index].upper()}"}
+            elif key == "DPAD_LEFT":
+                self.focused_index = (self.focused_index - 1 + n) % n
+                return {"status": "ok", "message": f" Launcher Focus → {self.ordered_apps[self.focused_index].upper()}"}
+            elif key == "DPAD_DOWN":
+                self.focused_index = (self.focused_index + 5) % n
+                return {"status": "ok", "message": f" Launcher Focus → {self.ordered_apps[self.focused_index].upper()}"}
+            elif key == "DPAD_UP":
+                self.focused_index = (self.focused_index - 5 + n) % n
+                return {"status": "ok", "message": f" Launcher Focus → {self.ordered_apps[self.focused_index].upper()}"}
+            elif key == "DPAD_CENTER":
+                chosen = self.ordered_apps[self.focused_index]
+                if chosen == "turbo":
+                    self.apply_eureka_zero_bloat()
+                    return {"status": "ok", "message": "⚡ Purga Turbo Zero-Bloat ejecutada"}
+                elif chosen == "settings":
+                    if self.remote:
+                        self.remote.send_key_command("SETTINGS")
+                    return {"status": "ok", "message": "⚙ Abriendo Ajustes en INTV_ASIST"}
+                return await self.launch_app(chosen)
+
+        if key == "HOME":
+            loop = asyncio.get_running_loop()
+            res = await loop.run_in_executor(None, self.cast_lightweight_launcher)
+            return res
+
+        if key == "SETTINGS" and self.remote and self.remote_connected:
+            self.remote.send_key_command("SETTINGS")
+            return {"status": "ok", "message": "⚙ Abriendo Ajustes del Sistema"}
+
         if self.remote and self.remote_connected:
             try:
                 self.remote.send_key_command(key)
@@ -1317,10 +1451,14 @@ class IntvAppleTVController:
         return {
             "status": "needs_pairing",
             "needs_pairing": True,
-            "message": "Vincula primero el PIN que aparece en tu TV (Botón 'Vincular Control TV')",
+            "message": "Vincula primero el PIN que aparece en tu TV",
         }
 
     async def launch_app(self, app_id: str) -> Dict[str, Any]:
+        if app_id == "settings" and self.remote and self.remote_connected:
+            self.remote.send_key_command("SETTINGS")
+            return {"status": "ok", "message": "⚙ Abriendo Ajustes en INTV_ASIST"}
+
         app_info = APP_CATALOG.get(app_id)
         if not app_info:
             return {"status": "error", "message": f"App '{app_id}' no registrada."}
@@ -1383,6 +1521,7 @@ class IntvAppleTVController:
             "needs_pairing": self.needs_pairing,
             "is_on": getattr(self.remote, "is_on", None) if self.remote_connected else None,
             "current_app": getattr(self.remote, "current_app", None) if self.remote_connected else None,
+            "focused_index": self.focused_index,
             "last_optimization_ts": self.last_optimization_ts,
         }
 
@@ -1430,10 +1569,13 @@ async def handle_client(reader: asyncio.StreamReader, writer: asyncio.StreamWrit
             return
 
         if method in ("GET", "HEAD") and path in ("/", "/index.html"):
+            logger.info(f"Serving Apple TV UI ({request_line.decode('utf-8', errors='ignore').strip()}) to client")
             body = HTML_APPLE_TV_UI.encode("utf-8")
             resp_headers = (
                 "HTTP/1.1 200 OK\r\n"
                 "Content-Type: text/html; charset=utf-8\r\n"
+                "Access-Control-Allow-Origin: *\r\n"
+                "Content-Security-Policy: frame-ancestors *\r\n"
                 f"Content-Length: {len(body)}\r\n"
                 "Cache-Control: no-store\r\n"
                 "Connection: close\r\n\r\n"
@@ -1462,6 +1604,9 @@ async def handle_client(reader: asyncio.StreamReader, writer: asyncio.StreamWrit
             }
         elif path == "/api/bt/pair" and method == "POST":
             res_data = controller.pair_bluetooth()
+        elif path == "/api/cast_launcher" and method == "POST":
+            loop = asyncio.get_running_loop()
+            res_data = await loop.run_in_executor(None, controller.cast_lightweight_launcher)
         else:
             res_data = {"status": "not_found"}
 
