@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1793060568",
-    "timestamp": "2026-10-26T19:22:48.408839",
-    "idle_duration_minutes": 32.7,
-    "title": "Dynamic Causal Cache Invalidation for the Web Research Engine",
-    "hypothesis": "If the Web Research Engine maintains a lightweight causal graph linking query topics to source URLs and timestamps, then it can predict when cached results are likely to become stale based on observed changes in the underlying web content. By invalidating or refreshing only those cache entries flagged as causally at risk, the system will reduce unnecessary network traffic, lower latency for end‑users, and improve the relevance of returned information without a full cache purge.",
-    "research_query": "causal inference based cache invalidation techniques for web search engines",
-    "research_findings": "# Informe de Investigación: causal inference based cache invalidation techniques for web search engines\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal‑graph‑driven cache manager that tracks dependencies between queries and source URLs, computes staleness probabilities, and selectively refreshes cache entries before they are served.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.42
-  },
-  {
     "id": "conj_1793062466",
     "timestamp": "2026-10-26T19:54:26.306912",
     "idle_duration_minutes": 31.6,
@@ -1624,5 +1609,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 106.74
+  },
+  {
+    "id": "conj_1793263233",
+    "timestamp": "2026-10-29T03:40:33.422530",
+    "idle_duration_minutes": 32.7,
+    "title": "Dynamic Causal Routing for Web Research Engine",
+    "hypothesis": "Integrating a lightweight causal inference layer into core/web_research_engine.py, which dynamically adjusts query routing based on real‑time feedback from deep_memory_vault, will reduce average latency of knowledge retrieval by at least 20% while improving relevance scores. The hypothesis rests on the premise that the current static request‑response pipeline ignores contextual causality between successive queries, leading to redundant network calls and sub‑optimal cache utilization.",
+    "research_query": "\"causal inference routing\" web search engine latency reduction case study",
+    "research_findings": "# Informe de Investigación: \"causal inference routing\" web search engine latency reduction case study\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal routing module that records query outcomes, updates a probability graph, and selects the most promising data source (local vault, remote API, or cached result) before issuing the HTTP request.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.79
   }
 ]
