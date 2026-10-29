@@ -10,6 +10,7 @@ Módulos y componentes auxiliares del sistema.
 - **ChatView.swift**: Componente nativo iOS/SwiftUI de la aplicación móvil GIA.
 - **ChatViewModel.swift**: Componente nativo iOS/SwiftUI de la aplicación móvil GIA.
 - **FTL_BACKLOG.md**: Motor de aceleración FTL y computación adaptativa.
+- **FTL_MOBILE_TERMINAL.md**: Motor de aceleración FTL y computación adaptativa.
 - **FTL_PUBLIC_ACCESS.txt**: Motor de aceleración FTL y computación adaptativa.
 - **FTL_PUBLIC_URL.txt**: Motor de aceleración FTL y computación adaptativa.
 - **GIAApp.swift**: Componente nativo iOS/SwiftUI de la aplicación móvil GIA.

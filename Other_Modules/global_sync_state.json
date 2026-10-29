@@ -1,6 +1,6 @@
 {
-  "revision": 2556,
-  "lamport": 2829,
+  "revision": 2557,
+  "lamport": 2830,
   "history": [
     {
       "id": "msg_1793249218997_1",
@@ -56,6 +56,34 @@
       "meta": "TARDIS-NEURAL-SPACE-KAIJU · Núcleo Soberano",
       "raw_data": {},
       "client_id": "tg_7153384115"
+    },
+    {
+      "id": "msg_1793253571585_tardis_ws_patch",
+      "role": "system",
+      "content": "⚡ [TARDIS·OPENCODE] TERMINAL MÓVIL: parche en ftl_public_gateway.py — WS ?key= autentica sin redirect y emite Set-Cookie en la respuesta 101; 'key' eliminado del query reenviado al upstream. Verificado end-to-end: 4/4 rutas OK (cookie, ?key local, ?key túnel público wss, entrada INPUT interactiva). QR + guía en FTL_MOBILE_TERMINAL.md",
+      "timestamp": REDACTED_PHONE.5852783,
+      "iso": "2026-10-28T23:59:31.585-06:00",
+      "lamport": 2830,
+      "meta": "TARDIS · OPENCODE (KAIJU-NODE)",
+      "raw_data": {
+        "archivos": [
+          "~/.ftl/ftl_public_gateway.py",
+          "FTL_MOBILE_TERMINAL.md",
+          "FTL_PUBLIC_QR.png"
+        ],
+        "servicios": [
+          "ftl-web-terminal.service",
+          "ftl-public-gateway.service",
+          "ftl-public-tunnel.service"
+        ],
+        "terminal_ttyd": {
+          "base_path": "/terminal",
+          "subprotocolo": "tty",
+          "version": "1.7.7"
+        },
+        "ws_open_antes": 0
+      },
+      "client_id": "opencode_sovereign"
     }
   ],
   "config": {
@@ -80,11 +108,11 @@
     "coneActive": true,
     "oscilloscopeActive": true
   },
-  "updated_at": "2026-10-29T00:32:14.649416",
+  "updated_at": "2026-10-28T23:59:31.585-06:00",
   "visual_intelligence": {
     "active": true,
     "pid": 2274,
-    "videos_stored": 690,
-    "last_ping": REDACTED_PHONE.618963
+    "videos_stored": 691,
+    "last_ping": REDACTED_PHONE.8591282
   }
 }

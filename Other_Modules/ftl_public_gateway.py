@@ -205,6 +205,12 @@ def _upstream_for(request: web.Request) -> Tuple[str, str]:
     return PORTAL, path
 
 
+def _clean_query(request: web.Request) -> str:
+    """Query para el upstream sin filtrar secretos (ej. ?key=) ni campos hop-by-hop."""
+    params = [(k, v) for k, v in request.query.items() if k != "key"]
+    return urlencode(params, doseq=True)
+
+
 def _filtered_headers(headers: Iterable[Tuple[str, str]]) -> Dict[str, str]:
     out: Dict[str, str] = {}
     for key, value in headers:
@@ -219,7 +225,7 @@ def _filtered_headers(headers: Iterable[Tuple[str, str]]) -> Dict[str, str]:
 
 async def _proxy_http(request: web.Request, session: ClientSession) -> web.StreamResponse:
     base, path = _upstream_for(request)
-    query = request.query_string
+    query = _clean_query(request)
     url = base + path + (("?" + query) if query else "")
 
     body = await request.read()
@@ -280,10 +286,14 @@ async def _proxy_http(request: web.Request, session: ClientSession) -> web.Strea
 # ---------------------------------------------------------------------------
 
 
-async def _proxy_ws(request: web.Request, session: ClientSession) -> web.WebSocketResponse:
+async def _proxy_ws(
+    request: web.Request,
+    session: ClientSession,
+    install_cookie: bool = False,
+) -> web.WebSocketResponse:
     base, path = _upstream_for(request)
     ws_base = base.replace("https://", "wss://").replace("http://", "ws://")
-    query = request.query_string
+    query = _clean_query(request)
     url = ws_base + path + (("?" + query) if query else "")
 
     protocols = []
@@ -292,6 +302,14 @@ async def _proxy_ws(request: web.Request, session: ClientSession) -> web.WebSock
         protocols = [p.strip() for p in raw_proto.split(",") if p.strip()]
 
     ws_server = web.WebSocketResponse(protocols=protocols or (), heartbeat=30)
+    if install_cookie:
+        # Set-Cookie debe fijarse ANTES del prepare() de la respuesta 101:
+        # asi el navegador movil queda con sesion al abrir el enlace ?key=...
+        secure = "; Secure" if _cookie_secure(request) else ""
+        ws_server.headers["Set-Cookie"] = (
+            f"{COOKIE_NAME}={TOKEN}; Max-Age={SESSION_TTL}; Path=/; "
+            f"HttpOnly; SameSite=Lax{secure}"
+        )
     await ws_server.prepare(request)
     METRICS["ws_open"] += 1
 
@@ -388,6 +406,8 @@ async def gateway(request: web.Request) -> web.StreamResponse:
     METRICS["requests"] += 1
     METRICS["last_request"] = {"ts": time.time(), "path": request.path, "ip": request.remote}
 
+    is_ws = (request.headers.get("Upgrade", "").lower() == "websocket")
+
     # Healthcheck local sin token.
     if request.path == "/health":
         return await health(request)
@@ -396,6 +416,27 @@ async def gateway(request: web.Request) -> web.StreamResponse:
         if request.method == "POST":
             return await auth_post(request)
         return await auth_get(request)
+
+    session = request.app["client"]
+
+    if is_ws:
+        # Los upgrades websocket NO toleran redirecciones: aquí se autentica
+        # de forma directa. Compatibilidad total con ?key=..., cookies y
+        # cabecera X-FTL-Token. Con ?key válido además se entrega la cookie
+        # de sesión en la respuesta 101 para persistir la sesión.
+        auth_ok = (
+            _valid_token(request.query.get("key"))
+            or _valid_token(request.cookies.get(COOKIE_NAME))
+            or _valid_token(request.headers.get("X-FTL-Token"))
+        )
+        if not auth_ok:
+            METRICS["auth_fail"] += 1
+            if _wants_json(request):
+                return web.json_response({"ok": False, "error": "unauthorized"}, status=401)
+            return web.Response(status=401, text=_login_page("Acceso restringido. Introduce la clave."), content_type="text/html")
+        METRICS["auth_ok"] += 1
+        socket_key = _valid_token(request.query.get("key"))
+        return await _proxy_ws(request, session, install_cookie=socket_key)
 
     # Token por query: autentica, deja cookie y limpia la URL.
     if _valid_token(request.query.get("key")):
@@ -422,12 +463,7 @@ async def gateway(request: web.Request) -> web.StreamResponse:
 
     METRICS["auth_ok"] += 1
 
-    # WebSocket upgrade
-    if request.headers.get("Upgrade", "").lower() == "websocket":
-        session = request.app["client"]
-        return await _proxy_ws(request, session)
-
-    session = request.app["client"]
+    # Los upgrades websocket ya fueron atendidos arriba; aquí solo fluye HTTP.
     return await _proxy_http(request, session)
 
 
