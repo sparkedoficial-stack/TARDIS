@@ -85,6 +85,7 @@ Módulos y componentes auxiliares del sistema.
 - **family_registry.py**: Directorio y puente soberano de interoperabilidad omni-herramientas.
 - **fix_ftl.py**: Motor de aceleración FTL y computación adaptativa.
 - **free_models.py**: Componente de alta eficiencia.
+- **ftl_intv_appletv_hub.py**: Motor de aceleración FTL y computación adaptativa.
 - **ftl_linpad.py**: Motor de aceleración FTL y computación adaptativa.
 - **gemini_privacy_vault.py**: Centinela de seguridad, blindaje perimetral o bóveda segura.
 - **geon_retrocausal_mechanics.json**: Componente de alta eficiencia.
