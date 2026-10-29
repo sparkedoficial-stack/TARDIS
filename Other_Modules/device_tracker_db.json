@@ -2,9 +2,7 @@
   "44:D2:44:12:42:DC": {
     "mac": "44:D2:44:12:42:DC",
     "ip": "REDACTED_IP",
-    "ipv6_addresses": [
-      "fe80::46d2:44ff:fe12:42dc"
-    ],
+    "ipv6_addresses": [],
     "alias": "Impresora Multifuncional EPSON L375 (EPSON1242DC)",
     "hostname": "EPSON1242DC.local",
     "vendor": "Seiko Epson Corporation",
@@ -56,11 +54,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 0,
-    "traffic_bytes_tx": 0,
-    "traffic_packets": 0,
+    "traffic_bytes_rx": 84,
+    "traffic_bytes_tx": 483,
+    "traffic_packets": 4,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-24T00:57:57.971367+00:00",
+    "last_seen": "2026-10-29T04:53:13.655170+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -186,11 +184,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 84,
-    "traffic_bytes_tx": 84,
-    "traffic_packets": 2,
+    "traffic_bytes_rx": 187,
+    "traffic_bytes_tx": 4349,
+    "traffic_packets": 13,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-28T04:05:06.497238+00:00",
+    "last_seen": "2026-10-29T04:53:13.655170+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -372,11 +370,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 168,
-    "traffic_bytes_tx": 168,
-    "traffic_packets": 4,
+    "traffic_bytes_rx": 84,
+    "traffic_bytes_tx": 84,
+    "traffic_packets": 2,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-27T05:05:09.328387+00:00",
+    "last_seen": "2026-10-29T04:53:13.655170+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -388,7 +386,7 @@
       "fe80::52eb:f6ff:fee2:b850"
     ],
     "alias": "TimeMachine (ASUS TUF Gaming A15 - Ethernet Host)",
-    "hostname": "TimeMachine (ASUS TUF Gaming A15 - Ethernet Host)",
+    "hostname": "TimeMachine.local",
     "vendor": "ASUSTek COMPUTER INC.",
     "device_type": "Estación Central Soberana (Host)",
     "interface": "enp2s0",
@@ -442,7 +440,10 @@
       }
     ],
     "risky_ports": [],
-    "mdns_services": [],
+    "mdns_services": [
+      "TARDIS (AirPlay Remote Video)",
+      "50EBF6E2B850@TARDIS (AirTunes Remote Audio)"
+    ],
     "wifi_metrics": {},
     "trust_level": "AEGIS_PROTECTED",
     "is_quarantined": false,
@@ -450,9 +451,9 @@
     "is_safe": true,
     "traffic_bytes_rx": REDACTED_PHONE,
     "traffic_bytes_tx": REDACTED_PHONE,
-    "traffic_packets": 10047160,
+    "traffic_packets": 21255549,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-28T04:05:06.497238+00:00",
+    "last_seen": "2026-10-29T04:53:13.655170+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -525,10 +526,10 @@
     "throttle_kbps": null,
     "is_safe": true,
     "traffic_bytes_rx": 0,
-    "traffic_bytes_tx": 4176838,
-    "traffic_packets": 40018,
+    "traffic_bytes_tx": 8758025,
+    "traffic_packets": 90938,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-28T04:05:06.497238+00:00",
+    "last_seen": "2026-10-29T04:53:13.655170+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -544,7 +545,7 @@
     "interface": "enp2s0",
     "connection_medium": "Ethernet / LAN (enp2s0)",
     "network_segment": "Ethernet / LAN Principal (REDACTED_IP/24)",
-    "arp_state": "STALE",
+    "arp_state": "REACHABLE",
     "online": true,
     "rtt_ms": null,
     "open_ports": [],
@@ -560,7 +561,7 @@
     "traffic_bytes_tx": 0,
     "traffic_packets": 1,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-28T04:05:06.497238+00:00",
+    "last_seen": "2026-10-29T04:53:13.655170+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -569,8 +570,8 @@
     "mac": "BE:5B:68:1B:53:13",
     "ip": "REDACTED_IP",
     "ipv6_addresses": [],
-    "alias": "Dispositivo LAN (REDACTED_IP)",
-    "hostname": "Dispositivo LAN (REDACTED_IP)",
+    "alias": "iPad-de-Miguel.local",
+    "hostname": "iPad-de-Miguel.local",
     "vendor": "Dirección MAC Privada / Aleatoria (iOS / Android / Linux)",
     "device_type": "Dispositivo de Red (Dirección MAC Privada / Aleatoria (iOS / Android / Linux))",
     "interface": "enp2s0",
@@ -582,17 +583,19 @@
     "open_ports": [],
     "port_details": [],
     "risky_ports": [],
-    "mdns_services": [],
+    "mdns_services": [
+      "iPad de Miguel (_companion-link._tcp)"
+    ],
     "wifi_metrics": {},
     "trust_level": "KNOWN",
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 168,
-    "traffic_bytes_tx": 0,
-    "traffic_packets": 2,
+    "traffic_bytes_rx": 84,
+    "traffic_bytes_tx": 89007,
+    "traffic_packets": 763,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-27T05:05:09.328387+00:00",
+    "last_seen": "2026-10-29T04:53:13.655170+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]

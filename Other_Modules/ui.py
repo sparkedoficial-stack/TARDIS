@@ -11,10 +11,14 @@ import urllib.request
 from pathlib import Path
 from typing import Optional, List, Dict, Any, Union
 
+# PATH soberano antes de cualquier subproceso (systemd / Telegram / web).
+import runtime_env  # noqa: F401
+import terminal_guard
+
 from prompt_toolkit import PromptSession
-from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.history import FileHistory
+from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.styles import Style
 from rich.box import DOUBLE, ROUNDED
 from rich.console import Console
@@ -164,11 +168,37 @@ class FTLInterface:
         history_file = CONFIG_DIR / "history"
         CONFIG_DIR.mkdir(parents=True, exist_ok=True)
         self.completer = WordCompleter(COMMANDS, ignore_case=True)
+        self._keys = None
         # reserve_space_for_menu=0 prevents prompt_toolkit from demanding 8 rows
         # and displaying the dreaded "Window too small" error on iPads and mobile viewports
         # Construcción diferida: evita el aviso "Input is not a terminal" en modo
         # no interactivo (scripts, `ftl chat -p`, cron, pipes).
         self.session = None
+
+    def _key_bindings(self):
+        """Enter envía, Alt+Enter abre línea nueva, Ctrl+C limpia sin abortar."""
+        if self._keys is None:
+            keys = KeyBindings()
+
+            @keys.add("enter")
+            def _submit(event):  # noqa: ANN001
+                event.current_buffer.validate_and_handle()
+
+            @keys.add("escape", "enter")
+            def _newline(event):  # noqa: ANN001
+                event.current_buffer.insert_text("\n")
+
+            @keys.add("c-j")
+            def _newline_ctrl(event):  # noqa: ANN001
+                event.current_buffer.insert_text("\n")
+
+            @keys.add("c-c")
+            def _clear_line(event):  # noqa: ANN001
+                event.current_buffer.reset()
+                event.app.invalidate()
+
+            self._keys = keys
+        return self._keys
 
     def _prompt_session(self):
         if self.session is None:
@@ -177,10 +207,17 @@ class FTLInterface:
             self.session = PromptSession(
                 history=FileHistory(str(history_file)),
                 completer=self.completer,
-                auto_suggest=AutoSuggestFromHistory(),
                 style=PT_STYLE,
+                # Anti-interferencia: sin menú flotante ni autosugerencias que
+                # roben filas o alteren el texto que el Arquitecto escribe.
                 reserve_space_for_menu=0,
-                complete_while_typing=True,
+                complete_while_typing=False,
+                complete_in_thread=False,
+                enable_history_search=False,
+                mouse_support=False,
+                multiline=True,
+                key_bindings=self._key_bindings(),
+                prompt_continuation="  … ",
             )
         return self.session
 
@@ -1044,18 +1081,23 @@ class FTLInterface:
         prompt_label = [
             ('class:prompt', f"TARDIS·FTL [{self.mode.upper()}:SOBERANO] › ")
         ]
+        # Blindaje de la línea de texto: los hilos de fondo no pueden escribir
+        # sobre el prompt. Su salida se vuelca al terminar la captura.
+        guard = terminal_guard.acquire()
         try:
             user_input = self._prompt_session().prompt(prompt_label).strip()
             return user_input
         except (KeyboardInterrupt, EOFError):
             return None
-        except Exception as e:
-            # Fallback to standard input if prompt_toolkit encounters any terminal or rendering issue
+        except Exception:
+            # Fallback a input() si prompt_toolkit no puede renderizar.
             try:
                 plain_label = f"TARDIS·FTL [{self.mode.upper()}:SOBERANO] › "
                 return input(plain_label).strip()
             except (KeyboardInterrupt, EOFError):
                 return None
+        finally:
+            terminal_guard.release(guard)
 
 
 # Global UI instance

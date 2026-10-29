@@ -42,12 +42,20 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
+# Resolver PATH soberano ANTES de cualquier import que lance subprocesos:
+# los servicios systemd (Telegram, portal web) no heredan ~/.opencode/bin.
+import runtime_env  # noqa: F401  (amplía os.environ["PATH"] al importar)
+import terminal_guard
+
 import chat_store as store
 from chat_engine import (
     ChatConfig,
     ChatRunner,
     is_free_limit,
     is_missing_session,
+    is_transient_error,
+    model_pool,
+    next_free_model,
     resolve_model,
     short_model,
 )
@@ -369,31 +377,37 @@ class ChatTUI:
         self.console.print(self.render_user(text))
         self.console.print()
 
+        attempted: set[str] = set()
         attempts = 0
-        max_attempts = 2
+        # Recorre todo el pool gratuito antes de rendirse con un modelo.
+        max_attempts = max(2, min(len(model_pool()), 8))
         outcome_ok = False
         while attempts < max_attempts:
             attempts += 1
+            current = self.session.get("model", "")
+            attempted.add(current)
             outcome_ok = self._send_once(text, retry=attempts > 1)
             if outcome_ok:
                 break
             last_error = self._last_error or {}
-            if is_free_limit(last_error) and attempts < max_attempts:
-                next_model = self._next_free_model()
+            if is_transient_error(last_error) and attempts < max_attempts:
+                next_model = next_free_model(current, attempted)
                 if next_model:
-                    old = short_model(self.session.get("model", ""))
+                    old = short_model(current)
                     self.session["model"] = next_model.ref
+                    attempted.add(next_model.key)
+                    attempted.add(next_model.ref)
                     store.save_session(self.session)
                     self.console.print(
                         Panel(
                             Text(
-                                f"Límite gratuito alcanzado en {old}. "
-                                f"Conmutando a {next_model.name} ({next_model.ref})…",
+                                f"{'Límite gratuito agotado' if is_free_limit(last_error) else 'Fallo del modelo'} "
+                                f"en {old}. Conmutando a {next_model.name} ({next_model.ref})…",
                                 style=f"bold {GOLD}",
                             ),
                             border_style=GOLD,
                             box=ROUNDED,
-                            title="RESILIENCIA FTL",
+                            title="RESILIENCIA FTL · POOL GRATUITO",
                         )
                     )
                     continue
@@ -418,11 +432,7 @@ class ChatTUI:
         return outcome_ok
 
     def _next_free_model(self):
-        current = self.session.get("model")
-        for model in fm.available_models():
-            if model.ref != current:
-                return model
-        return None
+        return next_free_model(self.session.get("model", ""))
 
     def _send_once(self, text: str, retry: bool = False) -> bool:
         cfg = self._config()
@@ -578,6 +588,11 @@ class ChatTUI:
                 cost=cost,
                 tool_calls=len(tools),
             )
+        try:
+            self.console.show_cursor(True)
+            self.console.file.flush()
+        except Exception:
+            pass
         return rc == 0 or bool(answer) or bool(tools)
 
     @staticmethod
@@ -1005,37 +1020,103 @@ class ChatTUI:
             from prompt_toolkit import PromptSession
             from prompt_toolkit.completion import WordCompleter
             from prompt_toolkit.history import FileHistory
+            from prompt_toolkit.key_binding import KeyBindings
             from prompt_toolkit.styles import Style
 
             aliases = [m.key for m in fm.all_models()]
             completer = WordCompleter(COMMANDS + aliases, ignore_case=True, sentence=True)
             style = Style.from_dict({
-                "prompt": f"ansicyan bold",
+                "prompt": "ansicyan bold",
                 "bottom-toolbar": "bg:#12121f #00ffcc",
+                "completion-menu.completion": "bg:#12121f #a8b8d8",
+                "completion-menu.completion.current": "bg:#00ffcc #0a0e17 bold",
             })
+
+            # Teclado determinista: Enter envía, Alt+Enter abre línea nueva.
+            # Nada de autocompletado automático que pueda alterar el texto.
+            keys = KeyBindings()
+
+            @keys.add("enter")
+            def _submit(event):  # noqa: ANN001
+                event.current_buffer.validate_and_handle()
+
+            @keys.add("escape", "enter")
+            def _newline(event):  # noqa: ANN001
+                event.current_buffer.insert_text("\n")
+
+            @keys.add("c-j")
+            def _newline_ctrl(event):  # noqa: ANN001
+                event.current_buffer.insert_text("\n")
+
+            @keys.add("c-c")
+            def _clear_line(event):  # noqa: ANN001
+                # Limpia la línea en silencio: jamás aborta ni imprime encima.
+                event.current_buffer.reset()
+                event.app.invalidate()
+
+            @keys.add("c-l")
+            def _redraw(event):  # noqa: ANN001
+                event.app.renderer.clear()
+                event.app.invalidate()
+
             store.ensure_dirs()
             self.prompt_session = PromptSession(
                 history=FileHistory(str(store.HISTORY_FILE)),
                 completer=completer,
                 style=style,
-                complete_while_typing=True,
+                # ── Anti-interferencia ──────────────────────────────────
+                # reserve_space_for_menu=0 evita que el menú de completado
+                # robe filas y desplace el prompt en pantallas pequeñas.
+                reserve_space_for_menu=0,
+                complete_while_typing=False,   # completar sólo con Tab
+                complete_in_thread=False,      # sin hilos escribiendo en la TTY
+                enable_history_search=False,   # sin autosugerencias fantasma
+                mouse_support=False,
+                multiline=True,                # Alt+Enter = salto de línea
+                key_bindings=keys,
+                prompt_continuation="  … ",
             )
         return self.prompt_session
+
+    def _toolbar(self) -> Optional[str]:
+        """Barra inferior sólo si hay altura suficiente; nunca roba la línea de texto."""
+        try:
+            if self.console.size.height < 16 or self.console.size.width < 60:
+                return None
+        except Exception:
+            return None
+        return (
+            f"sesión {self.session.get('id')} · "
+            f"{len(self.session.get('messages', []))} mensajes · "
+            f"Enter envía · Alt+Enter línea nueva · /help"
+        )
+
+    def _read_line(self) -> str:
+        """
+        Captura de texto blindada.
+
+        Mientras el Arquitecto escribe, cualquier `print()` de un hilo de fondo
+        (vigilantes, telemetría, auto-curación, voz) queda retenido y se vuelca
+        después de enviar el prompt. Así el texto escrito nunca se corrompe.
+        """
+        guard = terminal_guard.acquire()
+        try:
+            line = self._prompt().prompt(
+                [("class:prompt", f"◉ {short_model(self.session.get('model', ''))} › ")],
+                bottom_toolbar=self._toolbar(),
+            )
+        finally:
+            terminal_guard.release(guard)
+        return line or ""
 
     def loop(self) -> int:
         self.print_header()
         self.print_history()
         while True:
             try:
-                line = self._prompt().prompt(
-                    [("class:prompt", f"◉ {short_model(self.session.get('model', ''))} › ")],
-                    bottom_toolbar=(
-                        f"sesión {self.session.get('id')} · "
-                        f"{len(self.session.get('messages', []))} mensajes · /help"
-                    ),
-                )
+                line = self._read_line()
             except KeyboardInterrupt:
-                self.console.print(f"[dim {DIM}]Ctrl+C · usa /quit para salir.[/]")
+                # Sólo ocurre en terminales sin el binding c-c; sin ruido.
                 continue
             except EOFError:
                 break

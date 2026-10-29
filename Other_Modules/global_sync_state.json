@@ -1,7 +1,19 @@
 {
-  "revision": 2549,
-  "lamport": 2824,
-  "history": [],
+  "revision": 2551,
+  "lamport": 2825,
+  "history": [
+    {
+      "id": "msg_1793249218997_1",
+      "role": "system",
+      "content": "⚡ [FTL] PLAN COGNITIVO (FREE_AGENT): Responde solo: MODE_OK (RC:0, 2.4s)",
+      "timestamp": REDACTED_PHONE.9971888,
+      "iso": "2026-10-28T23:46:58.997203",
+      "lamport": 2825,
+      "meta": "FTL · FREE_AGENT",
+      "raw_data": {},
+      "client_id": "ftl_sovereign"
+    }
+  ],
   "config": {
     "model": "TARDIS-NEURAL-SPACE-KAIJU",
     "temperature": 0.3,
@@ -24,11 +36,11 @@
     "coneActive": true,
     "oscilloscopeActive": true
   },
-  "updated_at": "2026-10-28T19:12:17.552462",
+  "updated_at": "2026-10-28T23:46:58.997229",
   "visual_intelligence": {
     "active": true,
     "pid": 867979,
-    "videos_stored": 687,
-    "last_ping": REDACTED_PHONE.187244
+    "videos_stored": 689,
+    "last_ping": REDACTED_PHONE.5399332
   }
 }

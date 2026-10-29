@@ -14,6 +14,9 @@ from pathlib import Path
 # Add ~/.ftl to Python path
 sys.path.insert(0, str(Path(__file__).parent))
 
+# PATH soberano: garantiza opencode/claude/agy incluso bajo systemd o Telegram.
+import runtime_env  # noqa: F401,E402  (amplía os.environ["PATH"] al importar)
+
 from config import load_config, save_config
 from executor import executor
 from models import registry
@@ -1047,6 +1050,10 @@ def main():
         for _alias in (_fm.key, _fm.model_id, _fm.short.lower()):
             if _alias not in mode_choices:
                 mode_choices.append(_alias)
+    # Todos los alias del pool (zhipu, glm5, v4.1, vision, rayo, fast…)
+    for _alias in free_catalog.aliases():
+        if _alias not in mode_choices:
+            mode_choices.append(_alias)
     parser.add_argument("-m", "--mode", choices=mode_choices, help="Execution mode (incluye alias del pool gratuito: deepseek, glm, flint, mimo, lightning, beam, pickle, nemotron-vl, free)")
     parser.add_argument("--agents", action="store_true", help="Display the free model pool and the FTL agent orchestrator status")
     parser.add_argument("--agents-probe", action="store_true", help="Probe every free model for real availability now")

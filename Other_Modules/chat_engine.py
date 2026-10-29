@@ -26,7 +26,6 @@ import json
 import os
 import re
 import select
-import shutil
 import signal
 import subprocess
 import time
@@ -35,6 +34,7 @@ from pathlib import Path
 from typing import Iterator, Optional
 
 import free_models as fm
+import runtime_env
 
 ANSI_RE = re.compile(r"\x1b\[[0-9;?]*[A-Za-z]")
 
@@ -74,8 +74,9 @@ def short_model(ref: str) -> str:
     return f"{base}#{variant}" if variant else base
 
 
-def _binary() -> str:
-    return shutil.which("opencode") or str(Path.home() / ".opencode" / "bin" / "opencode")
+def _binary() -> Optional[str]:
+    """Ruta absoluta del binario de OpenCode (compatible con systemd/Telegram)."""
+    return runtime_env.which("opencode")
 
 
 def _clean(text: str) -> str:
@@ -102,7 +103,7 @@ class ChatRunner:
 
     # ------------------------------------------------------------------
     def command(self) -> list[str]:
-        cmd = [_binary(), "run", "--format", "json"]
+        cmd = [_binary() or "opencode", "run", "--format", "json"]
         if self.config.model:
             cmd += ["--model", self.config.model]
         if self.config.auto:
@@ -143,9 +144,27 @@ class ChatRunner:
     # ------------------------------------------------------------------
     def run(self) -> Iterator[dict]:
         self.started_at = time.time()
+        exe = _binary()
+        if not exe:
+            yield {
+                "kind": "error",
+                "message": (
+                    "No se encontró el ejecutable 'opencode'. "
+                    "Instálalo o añade ~/.opencode/bin al PATH del servicio "
+                    "(runtime_env describe los directorios buscados)."
+                ),
+                "status": 127,
+                "error_type": "binary_missing",
+                "retry_after_ms": None,
+            }
+            yield {"kind": "process_end", "rc": 127, "session_id": self.session_id,
+                   "duration_s": round(time.time() - self.started_at, 2)}
+            return
         cwd = self.config.cwd or os.getcwd()
         if not Path(cwd).is_dir():
             cwd = os.getcwd()
+        env = runtime_env.augment_path({**os.environ})
+        env.update({"PYTHONUNBUFFERED": "1", "NO_COLOR": "1"})
         try:
             self.proc = subprocess.Popen(
                 self.command(),
@@ -156,7 +175,7 @@ class ChatRunner:
                 bufsize=1,
                 cwd=cwd,
                 start_new_session=True,
-                env={**os.environ, "PYTHONUNBUFFERED": "1", "NO_COLOR": "1"},
+                env=env,
             )
         except Exception as exc:
             yield {"kind": "error", "message": f"No se pudo iniciar OpenCode: {exc}"}
@@ -297,6 +316,64 @@ def is_missing_session(event: dict) -> bool:
         return False
     text = (event.get("message") or "").lower()
     return "session" in text and ("not found" in text or "no encontrada" in text)
+
+
+def is_transient_error(event: dict) -> bool:
+    """
+    True si el fallo justifica probar otro modelo gratuito del pool.
+
+    Cubre límites de uso, binario ausente, modelo retirado, sobrecarga,
+    timeouts y cortes de red. NO incluye sesiones inexistentes (eso se
+    resuelve recreando la sesión, no cambiando de modelo).
+    """
+    if event.get("kind") != "error":
+        return False
+    if is_missing_session(event):
+        return False
+    if is_free_limit(event):
+        return True
+    text = (event.get("message") or "").lower()
+    return any(
+        needle in text
+        for needle in (
+            "no such file or directory",
+            "not found",
+            "no encontrado",
+            "model is unavailable",
+            "unavailable",
+            "overloaded",
+            "rate limit",
+            "too many requests",
+            "timeout",
+            "timed out",
+            "connection",
+            "502",
+            "503",
+            "504",
+        )
+    )
+
+
+def model_pool() -> list:
+    """Pool operable: verificados/habilitados o, si aún no hay sondas, el catálogo."""
+    pool = fm.available_models()
+    if pool:
+        return pool
+    return [m for m in fm.all_models(include_disabled=False) if m.enabled_default]
+
+
+def next_free_model(current: str = "", attempted: Optional[set] = None):
+    """
+    Siguiente modelo gratuito del pool, evitando el actual y los ya probados.
+
+    `attempted` acepta keys o refs indistintamente.
+    """
+    tried = set(attempted or ())
+    for model in model_pool():
+        if model.ref == current or model.key in tried or model.ref in tried:
+            continue
+        return model
+    return None
 
 
 def tool_summary(tool: dict, max_output: int = 4000) -> str:

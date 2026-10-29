@@ -214,8 +214,8 @@
       "is_bot": false,
       "is_architect": true,
       "first_seen": "2026-09-25T15:13:39.080612",
-      "last_seen": "2026-10-28T10:22:15.537177",
-      "message_count": 158
+      "last_seen": "2026-10-28T23:55:01.180200",
+      "message_count": 165
     },
     "555000111": {
       "chat_id": 555000111,
@@ -228,8 +228,8 @@
       "is_bot": false,
       "is_architect": false,
       "first_seen": "2026-09-26T00:11:24.696485",
-      "last_seen": "2026-09-28T01:50:17.843743",
-      "message_count": 15
+      "last_seen": "2026-10-28T23:52:35.197736",
+      "message_count": 21
     },
     "123456": {
       "chat_id": 123456,
@@ -330,5 +330,5 @@
       "message_count": 6
     }
   },
-  "last_updated": "2026-10-28T10:22:15.537880"
+  "last_updated": "2026-10-28T23:55:01.180244"
 }

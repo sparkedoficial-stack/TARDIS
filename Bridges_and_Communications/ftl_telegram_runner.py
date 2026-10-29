@@ -34,19 +34,100 @@ HEARTBEAT_SEC = 180
 TELEGRAM_CHUNK = 3500
 MAX_RESULT_CHUNKS = 3
 
-VALID_MODES = {"auto", "synth", "audit", "gemini", "agy", "claude"}
-MODE_ALIASES = {"sintesis": "synth", "auditoria": "audit", "google": "gemini"}
+# El runner corre bajo systemd (tardis.service) con un PATH mínimo.
+# Importar runtime_env y free_models desde ~/.ftl garantiza:
+#   1. localizar `opencode`, `claude` y `agy` sin "[Errno 2] No such file or directory";
+#   2. validar y ejecutar TODOS los modelos gratuitos del proveedor.
+FTL_DIR = FTL_CLI.parent
+if str(FTL_DIR) not in sys.path:
+    sys.path.insert(0, str(FTL_DIR))
+try:
+    import runtime_env as _runtime_env
+except Exception:  # noqa: BLE001
+    _runtime_env = None
+try:
+    import free_models as _free_models
+except Exception:  # noqa: BLE001
+    _free_models = None
+
+BASE_MODES = {
+    "auto", "synth", "audit", "gemini", "agy", "claude",
+    "deepseek", "alterno", "free", "gratis", "pool", "agentes", "agents",
+    "imac", "cluster", "infinite", "quad", "kaiju",
+}
+MODE_ALIASES = {
+    "sintesis": "synth", "síntesis": "synth",
+    "auditoria": "audit", "auditoría": "audit",
+    "google": "gemini", "antigravity": "agy",
+    "alterno": "deepseek", "free_pool": "free", "gratuitos": "free",
+}
+
+
+def valid_modes() -> set[str]:
+    """Modos aceptados: motores fijos + TODOS los alias gratuitos disponibles."""
+    modes = set(BASE_MODES)
+    if _free_models is not None:
+        try:
+            modes.update(_free_models.aliases().keys())
+            modes.update(m.key for m in _free_models.all_models())
+            modes.update(m.short.lower() for m in _free_models.all_models())
+        except Exception:  # noqa: BLE001
+            pass
+    return modes
+
+
+def normalize_mode(value: str) -> Optional[str]:
+    """Canoniza un modo/alias; devuelve None si no es válido."""
+    token = (value or "").strip().lower()
+    if not token:
+        return None
+    token = MODE_ALIASES.get(token, token)
+    if token in BASE_MODES:
+        return token
+    if _free_models is not None:
+        try:
+            model = _free_models.resolve(token)
+            if model:
+                return model.key
+            alias = _free_models.aliases().get(token)
+            if alias:
+                return alias
+        except Exception:  # noqa: BLE001
+            pass
+    return None
+
 
 _ANSI_RE = re.compile(r"\x1b\[[0-?]*[ -/]*[@-~]|\x1b\][^\x07]*\x07|\r")
+
+def _mode_help() -> str:
+    """Lista corta de motores fijos + alias gratuitos para la ayuda."""
+    base = "auto, claude, gemini, agy, synth, audit, deepseek, free"
+    if _free_models is None:
+        return base
+    try:
+        names = sorted(_free_models.aliases().keys())
+    except Exception:  # noqa: BLE001
+        return base
+    if not names:
+        return base
+    # Se muestran los alias gratuitos más relevantes (el resto con /ftl models)
+    base_names = {"auto", "claude", "gemini", "agy", "synth", "audit", "deepseek", "free"}
+    sample = [n for n in names if n not in base_names and n in ("glm", "mimo", "nemotron", "beam", "pickle", "flint")]
+    shown = [n for n in (sample or [n for n in names if n not in base_names][:4]) if n not in base_names]
+    return f"{base} | {' | '.join(shown)} …"
+
 
 USAGE = (
     "🛸 <b>FTL desde Telegram · Creación y mejora de código</b>\n\n"
     "• <code>/ftl &lt;petición&gt;</code> : crea o mejora código (modo auto)\n"
-    "• <code>/ftl -m claude|gemini|synth|audit|auto &lt;petición&gt;</code> : fuerza el motor\n"
+    "• <code>/ftl -m &lt;motor&gt; &lt;petición&gt;</code> : fuerza el motor\n"
+    f"  Motores: <code>{_mode_help()}</code>\n"
     "• <code>/ftl -d ~/ruta/proyecto &lt;petición&gt;</code> : directorio de trabajo (por defecto ~)\n"
+    "• <code>/ftl models</code> : todos los modelos gratuitos disponibles\n"
     "• <code>/ftl estado</code> : trabajo en curso\n"
     "• <code>/ftl cancelar</code> : detiene el trabajo en curso\n\n"
-    "Ejemplo:\n<code>/ftl -d ~/vw-control agrega validación de entradas a la API y pruebas</code>"
+    "Ejemplo:\n<code>/ftl -d ~/vw-control agrega validación de entradas a la API y pruebas</code>\n"
+    "<code>/ftl -m glm refactoriza el módulo de facturación</code>"
 )
 
 
@@ -69,7 +150,7 @@ class FTLRequest:
     prompt: str = ""
     mode: Optional[str] = None
     cwd: Path = DEFAULT_CWD
-    action: str = "run"  # run | status | cancel | help
+    action: str = "run"  # run | status | cancel | help | models
     error: str = ""
 
 
@@ -88,10 +169,13 @@ def parse_request(arg_text: str) -> FTLRequest:
     if low in ("cancelar", "cancel", "stop", "detener"):
         req.action = "cancel"
         return req
+    if low in ("models", "modelos", "lista", "list", "model", "-m", "--model"):
+        req.action = "models"
+        return req
 
-    # Opciones iniciales -m/--mode y -d/--dir; el resto (con saltos de línea) es la petición
+    # Opciones iniciales -m/--mode/-M/--model y -d/--dir; el resto (con saltos de línea) es la petición
     while True:
-        m = re.match(r"^(-m|--mode|-d|--dir)\s+(\"[^\"]+\"|'[^']+'|\S+)\s*", text)
+        m = re.match(r"^(-m|--mode|-M|--model|-d|--dir)\s+(\"[^\"]+\"|'[^']+'|\S+)\s*", text)
         if not m:
             break
         flag, value = m.group(1), m.group(2)
@@ -100,10 +184,10 @@ def parse_request(arg_text: str) -> FTLRequest:
         except ValueError:
             value = value.strip("\"'")
         text = text[m.end():]
-        if flag in ("-m", "--mode"):
-            mode = MODE_ALIASES.get(value.lower(), value.lower())
-            if mode not in VALID_MODES:
-                req.error = f"Modo inválido: {value}. Usa: {', '.join(sorted(VALID_MODES))}"
+        if flag in ("-m", "--mode", "-M", "--model"):
+            mode = normalize_mode(value)
+            if mode is None:
+                req.error = f"Modo inválido: {value}. Usa /ftl models para ver los disponibles."
                 return req
             req.mode = mode
         else:
@@ -162,6 +246,8 @@ class FTLTelegramRunner:
             self._send(self._status_text(), chat_id, msg_id)
         elif req.action == "cancel":
             self._send(self.cancel(), chat_id, msg_id)
+        elif req.action == "models":
+            self._send(self._models_text(), chat_id, msg_id)
         elif req.error:
             self._send(f"⚠️ {html.escape(req.error)}", chat_id, msg_id)
         else:
@@ -171,6 +257,13 @@ class FTLTelegramRunner:
         if not self.ftl_cli.exists():
             self._send(f"❌ No se encontró FTL en <code>{html.escape(str(self.ftl_cli))}</code>", chat_id, msg_id)
             return None
+        # Refresca el catálogo dinámico de modelos gratuitos (≈1 s y sólo si la
+        # caché de descubrimiento expiró), de modo que /ftl -m acepte todo el pool.
+        if _free_models is not None:
+            try:
+                _free_models.refresh_discovery_if_stale()
+            except Exception:  # noqa: BLE001
+                pass
         with self._lock:
             if self.current is not None:
                 self._send(
@@ -220,6 +313,32 @@ class FTLTelegramRunner:
             + (f"\n• Última salida: <code>{html.escape(last)}</code>" if last else "")
         )
 
+    def _models_text(self) -> str:
+        """Catálogo de modelos gratuitos disponibles para /ftl -m."""
+        lines = ["🧠 <b>Modelos disponibles en FTL</b>", ""]
+        lines.append(
+            "<b>Motores fijos</b>\n<code>"
+            + "</code>, <code>".join(sorted(BASE_MODES))
+            + "</code>"
+        )
+        if _free_models is not None:
+            try:
+                models = _free_models.all_models()
+            except Exception:  # noqa: BLE001
+                models = []
+            if models:
+                lines.append("")
+                lines.append("<b>Modelos gratuitos</b>")
+                for model in models:
+                    flag = "" if _free_models.is_available(model) else " (no disponible)"
+                    lines.append(
+                        f"• <code>{html.escape(model.short.lower())}</code> · "
+                        f"<code>{html.escape(model.key)}</code>{flag}"
+                    )
+        lines.append("")
+        lines.append("Uso: <code>/ftl -m glm &lt;petición&gt;</code>")
+        return "\n".join(lines)
+
     def _build_cmd(self, req: FTLRequest) -> List[str]:
         cmd = [sys.executable, str(self.ftl_cli)]
         if req.mode:
@@ -243,6 +362,17 @@ class FTLTelegramRunner:
         req = job.request
         env = os.environ.copy()
         env.update({"PYTHONUNBUFFERED": "1", "TERM": "dumb", "NO_COLOR": "1", "COLUMNS": "120"})
+        if _runtime_env is not None:
+            try:
+                env = _runtime_env.augment_path(env)
+            except Exception:  # noqa: BLE001
+                pass
+        else:
+            # Fallback: garantiza ~/.opencode/bin aunque runtime_env no exista
+            extra = str(Path.home() / ".opencode" / "bin")
+            current = env.get("PATH", "")
+            if extra not in current.split(os.pathsep):
+                env["PATH"] = f"{extra}{os.pathsep}{current}" if current else extra
         timed_out = False
         rc = -1
         try:

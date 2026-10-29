@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.7873588,
-  "last_video_id": "vp_20261028_222740_60ea8f",
-  "last_topic": "Fracton Topological Order and Its Connection to Emergent Geometry",
-  "total_videos_analyzed": 684,
+  "last_run_timestamp": REDACTED_PHONE.4081721,
+  "last_video_id": "vp_20261028_234224_6c9761",
+  "last_topic": "Tensor Network Renormalization and the Geometry of AdS/CFT",
+  "total_videos_analyzed": 686,
   "running_cycle": false,
   "last_error": null,
-  "auto_improvement_count": 378
+  "auto_improvement_count": 380
 }

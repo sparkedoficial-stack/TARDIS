@@ -7,12 +7,11 @@ Direct Host Shell, Auto-Failover, and Self-Healing.
 import json
 import os
 import re
-import shutil
 import subprocess
 import sys
 import time
 from pathlib import Path
-from typing import Callable, Generator, List, Optional, Tuple
+from typing import Callable, Generator, Iterable, List, Optional, Tuple
 
 from config import load_config, record_failover, record_query_stats
 from progress import TemporalProgressBar, time_estimator
@@ -20,6 +19,7 @@ from router import RoutingPlan
 from tardis_bridge import tardis_bridge
 from ui import console
 import free_models as free_catalog
+import runtime_env
 
 FALLBACK_STATE_FILE = Path.home() / ".config" / "ftl" / "fallback_state.json"
 ANSI_RE = re.compile(r"\x1b\[[0-9;?]*[A-Za-z]")
@@ -34,6 +34,33 @@ SOVEREIGN_INVARIANT = (
     "- Resuelve proactivamente de inicio a fin en tu MÁXIMA POTENCIA DE RAZONAMIENTO.\n"
     "- Procede directamente a editar archivos, ejecutar comandos o aplicar cambios requeridos.\n\n"
 )
+
+
+_MODEL_ERROR_MARKERS = (
+    "free usage limit",
+    "rate limit",
+    "429",
+    "too many requests",
+    "model is unavailable",
+    "unavailable",
+    "no such file or directory",
+    "not found",
+    "no encontrado",
+    "overloaded",
+    "timeout",
+    "connection refused",
+    "502",
+    "503",
+    "504",
+)
+
+
+def _looks_like_model_error(text: str) -> bool:
+    """Distingue una respuesta válida de un error de proveedor/modelo."""
+    low = (text or "").lower()
+    if not low.strip():
+        return True
+    return any(marker in low for marker in _MODEL_ERROR_MARKERS)
 
 
 class ExecutionEngine:
@@ -159,14 +186,20 @@ class ExecutionEngine:
         Executes a command and streams output line-by-line in real time.
         """
         full_output = []
+        argv = list(cmd)
+        if argv:
+            # Resolver el ejecutable con el PATH soberano (systemd/Telegram).
+            resolved = runtime_env.which(str(argv[0]))
+            if resolved:
+                argv[0] = resolved
         try:
-            env = os.environ.copy()
+            env = runtime_env.augment_path(os.environ.copy())
             env["PYTHONUNBUFFERED"] = "1"
             env["FORCE_COLOR"] = "1"
             env["CLAUDE_CODE_SKIP_PERMISSIONS"] = "1"
 
             process = subprocess.Popen(
-                cmd,
+                argv,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 text=True,
@@ -188,6 +221,18 @@ class ExecutionEngine:
 
             process.wait()
             return process.returncode, "".join(full_output)
+        except FileNotFoundError:
+            missing = argv[0] if argv else "?"
+            err_msg = (
+                f"Execution error: ejecutable no encontrado: '{missing}'. "
+                "Comprueba su instalación o el PATH del servicio "
+                "(~/.opencode/bin, ~/.local/bin).\n"
+            )
+            if on_line:
+                on_line(err_msg)
+            else:
+                sys.stdout.write(err_msg)
+            return 127, err_msg
         except Exception as e:
             err_msg = f"Execution error: {str(e)}\n"
             if on_line:
@@ -270,7 +315,7 @@ class ExecutionEngine:
         """Verifica empíricamente que DeepSeek V4.1 Max esté accesible."""
         ref = self.alternate_ref()
         binary = self.config.get("fallback_binary", "opencode")
-        exe = shutil.which(binary)
+        exe = runtime_env.which(binary)
         state = {
             "available": False,
             "enabled": bool(self.config.get("fallback_enabled", True)),
@@ -347,11 +392,11 @@ class ExecutionEngine:
     def engine_available(self, engine: str) -> bool:
         """Disponibilidad real de un motor en el host."""
         if engine in ("agy", "gemini"):
-            return bool(shutil.which("agy"))
+            return bool(runtime_env.which("agy"))
         if engine == "claude":
-            return bool(shutil.which("claude"))
+            return bool(runtime_env.which("claude"))
         if engine in ("deepseek", "alternate"):
-            return bool(shutil.which(self.config.get("fallback_binary", "opencode")))
+            return bool(runtime_env.which(self.config.get("fallback_binary", "opencode")))
         if engine == "imac":
             return True
         return True
@@ -366,7 +411,16 @@ class ExecutionEngine:
         resolved = free_catalog.resolve(model)
         ref = resolved.ref if resolved else model
         binary = self.config.get("fallback_binary", "opencode")
-        exe = shutil.which(binary) or binary
+        exe = runtime_env.which(binary)
+        if not exe:
+            msg = (
+                f"Execution error: no se encontró el binario '{binary}'. "
+                "PATH soberano sin ~/.opencode/bin. "
+                "Ejecuta `ftl --heal` o verifica la instalación de OpenCode.\n"
+            )
+            if on_line:
+                on_line(msg)
+            return 127, msg
         full_prompt = f"{SOVEREIGN_INVARIANT}{prompt}"
         cmd = [exe, "run", "--model", ref, "--auto", full_prompt]
         rc, out = self.stream_command(cmd, on_line=on_line)
@@ -377,6 +431,44 @@ class ExecutionEngine:
             if not line.strip().startswith("> build ·")
         ).strip()
         return rc, clean
+
+    def execute_free_pool(
+        self,
+        prompt: str,
+        on_line: Optional[Callable[[str], None]] = None,
+        exclude: Optional[Iterable[str]] = None,
+    ) -> Tuple[int, str, str]:
+        """
+        Agota TODO el pool gratuito hasta obtener una respuesta válida.
+
+        Devuelve (rc, salida, ref_usada). Es la garantía de que una petición
+        de Telegram nunca muere porque un modelo concreto esté limitado,
+        retirado o inaccesible.
+        """
+        skip = {str(x) for x in (exclude or ()) if str(x)}
+        pool = self.free_pool() or free_catalog.pool_models()
+        ordered = [m for m in pool if m.ref not in skip and m.key not in skip]
+        if not ordered:
+            return 127, "No hay modelos gratuitos habilitados en el pool.", ""
+
+        last_rc = 127
+        last_out = "Pool gratuito vacío."
+        for idx, model in enumerate(ordered, 1):
+            if on_line:
+                on_line(
+                    f"\n[FTL POOL {idx}/{len(ordered)}] Probando {model.name} "
+                    f"({model.ref})…\n"
+                )
+            rc, out = self.execute_free_model(prompt, model.ref, on_line=on_line)
+            last_rc, last_out = rc, out
+            if rc == 0 and out.strip() and not _looks_like_model_error(out):
+                return rc, out, model.ref
+            if on_line:
+                on_line(
+                    f"[FTL POOL] {model.key} no respondió correctamente "
+                    f"(rc={rc}); conmutando al siguiente modelo…\n"
+                )
+        return last_rc, last_out, ""
 
     def execute_deepseek(
         self,
@@ -547,6 +639,18 @@ class ExecutionEngine:
                 rc, out = self.execute_free_model(
                     active_prompt, plan.primary_model, on_line=_line_relay
                 )
+                if rc != 0 or not out.strip() or _looks_like_model_error(out):
+                    _status_relay(
+                        "\n⚡ POOL GRATUITO SOBERANO: el modelo elegido no respondió. "
+                        "Recorriendo TODOS los modelos gratuitos disponibles…"
+                    )
+                    prc, pout, pref = self.execute_free_pool(
+                        active_prompt, on_line=_line_relay, exclude={plan.primary_model}
+                    )
+                    if prc == 0 and pout.strip() and not _looks_like_model_error(pout):
+                        rc, out = prc, pout
+                        fm_match = free_catalog.resolve(pref) if pref else fm_match
+                        label = fm_match.name if fm_match else label
                 record_query_stats("free_agent")
                 actual_model = f"{label}({plan.primary_model})"
             elif plan.mode == "deepseek":
@@ -556,6 +660,17 @@ class ExecutionEngine:
                 rc, out = self.execute_free_model(
                     active_prompt, plan.primary_model or self.alternate_ref(), on_line=_line_relay
                 )
+                if rc != 0 or not out.strip() or _looks_like_model_error(out):
+                    _status_relay(
+                        "\n⚡ POOL GRATUITO SOBERANO: DeepSeek no respondió. "
+                        "Conmutando por TODOS los modelos gratuitos disponibles…"
+                    )
+                    prc, pout, pref = self.execute_free_pool(
+                        active_prompt, on_line=_line_relay,
+                        exclude={plan.primary_model or self.alternate_ref()},
+                    )
+                    if prc == 0 and pout.strip() and not _looks_like_model_error(pout):
+                        rc, out = prc, pout
                 record_query_stats("deepseek_v41_max")
                 actual_model = f"DeepSeek-V4.1-Max({self.alternate_ref()})"
             else:
@@ -567,6 +682,16 @@ class ExecutionEngine:
                 rc, out = self.execute_free_model(
                     active_prompt, self.alternate_ref(), on_line=_line_relay
                 )
+                if rc != 0 or not out.strip() or _looks_like_model_error(out):
+                    _status_relay(
+                        "\n⚡ POOL GRATUITO SOBERANO: agotando todos los modelos "
+                        "gratuitos disponibles…"
+                    )
+                    prc, pout, pref = self.execute_free_pool(
+                        active_prompt, on_line=_line_relay, exclude={self.alternate_ref()}
+                    )
+                    if prc == 0 and pout.strip() and not _looks_like_model_error(pout):
+                        rc, out = prc, pout
                 record_query_stats("deepseek_v41_max")
                 actual_model = f"DeepSeek-V4.1-Max({self.alternate_ref()})"
 
@@ -745,27 +870,24 @@ class ExecutionEngine:
             and plan.mode not in ("deepseek", "free_agent")
             and self.config.get("fallback_enabled", True)
         ):
-            pool = self.free_pool()
+            pool = self.free_pool() or free_catalog.pool_models()
             if pool:
                 _status_relay(
                     "\n⚡ POOL GRATUITO SOBERANO: agotando modelos alternos "
                     f"({len(pool)} disponibles) hasta garantizar la respuesta..."
                 )
-                for fm in pool:
-                    _status_relay(f"   → Probando {fm.name} ({fm.ref})…")
-                    try:
-                        fb_rc, fb_out = self.execute_free_model(
-                            active_prompt, fm.ref, on_line=_line_relay
-                        )
-                    except Exception as exc_fb:
-                        fb_rc, fb_out = 1, f"fallo: {exc_fb}"
-                    if fb_rc == 0 and fb_out.strip():
-                        record_failover()
-                        record_query_stats("free_agent")
-                        rc, out = 0, fb_out
-                        actual_model = f"{fm.name}(pool-gratuito)"
-                        _status_relay(f"   ✔ Respuesta obtenida con {fm.name}")
-                        break
+                fb_rc, fb_out, fb_ref = self.execute_free_pool(
+                    active_prompt, on_line=_line_relay
+                )
+                if fb_rc == 0 and fb_out.strip() and not _looks_like_model_error(fb_out):
+                    record_failover()
+                    record_query_stats("free_agent")
+                    rc, out = 0, fb_out
+                    fb_model = free_catalog.resolve(fb_ref) if fb_ref else None
+                    actual_model = f"{fb_model.name if fb_model else fb_ref}(pool-gratuito)"
+                    _status_relay(
+                        f"   ✔ Respuesta obtenida con {fb_model.name if fb_model else fb_ref}"
+                    )
 
         duration = bar.finish(
             returncode=rc,

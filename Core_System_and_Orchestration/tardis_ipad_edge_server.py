@@ -3026,7 +3026,7 @@ async def nxnative_profile_handler(request: web.Request) -> web.Response:
         "PayloadType": "com.apple.webClip.managed",
         "PayloadVersion": 1,
         "PayloadIdentifier": "org.nxnative.0100152000022000.webclip",
-        "PayloadUUID": "REDACTED_PHONE-2108-201E-MK8DNX000002",
+        "PayloadUUID": "REDACTED_PHONE-2108-201E-TARDIS000002",
         "PayloadDisplayName": "Mario Kart 8 Deluxe 4.0.1",
         "PayloadDescription": "nxnative · Mario Kart 8 Deluxe 4.0.1 (v1507328 · 29,785 Shaders · 23 _b.metallib) para Apple iPad Pro M2",
         "PayloadOrganization": "nxnative · GODWORKS System",

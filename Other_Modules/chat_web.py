@@ -786,7 +786,24 @@ CHAT_HTML = r"""<!DOCTYPE html>
 
 <script>
 const $ = (id) => document.getElementById(id);
-const state = { session:null, sessions:[], models:[], busy:false, es:null, runId:null, files:[], streamBuf:"" };
+const state = { session:null, sessions:[], models:[], busy:false, es:null, runId:null, files:[], streamBuf:"", composing:false, stick:true };
+
+/* Borrador persistente: el texto escrito nunca se pierde (recarga, fallo de red, cambio de sesión). */
+const DRAFT_KEY = "ftl.chat.draft";
+function saveDraft(value){
+  try{
+    if(value && value.trim()) localStorage.setItem(DRAFT_KEY, value);
+    else localStorage.removeItem(DRAFT_KEY);
+  }catch(e){}
+}
+function loadDraft(){
+  try{ return localStorage.getItem(DRAFT_KEY) || ""; }catch(e){ return ""; }
+}
+function restoreDraft(){
+  const draft = loadDraft();
+  const t = $("input");
+  if(draft && !t.value){ t.value = draft; autoGrow(); }
+}
 
 function esc(s){ return (s??"").toString().replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
@@ -852,6 +869,7 @@ async function boot(){
   const target = data.latest;
   if(target){ await openSession(target); }
   else { await newSession(); }
+  restoreDraft();
 }
 
 function renderSessions(){
@@ -965,7 +983,7 @@ function renderMessages(){
       </div>
     </div>`;
     box.querySelectorAll(".chip").forEach(c => c.addEventListener("click", ()=>{
-      $("input").value = c.dataset.p; autoGrow(); $("input").focus();
+      $("input").value = c.dataset.p; autoGrow(); saveDraft(c.dataset.p); $("input").focus();
     }));
     return;
   }
@@ -997,22 +1015,32 @@ function renderMessages(){
   scrollBottom();
 }
 
-function scrollBottom(){
+function nearBottom(){
   const box = $("messages");
-  box.scrollTop = box.scrollHeight;
+  return box.scrollHeight - box.scrollTop - box.clientHeight < 120;
 }
+
+function scrollBottom(force){
+  const box = $("messages");
+  if(force === true) state.stick = true;
+  if(state.stick) box.scrollTop = box.scrollHeight;
+}
+
+/* El scroll del usuario manda: si sube a leer, el streaming no lo devuelve al fondo. */
+$("messages").addEventListener("scroll", () => { state.stick = nearBottom(); }, {passive:true});
 
 /* ---------------- envío / streaming ---------------- */
 async function send(){
-  const text = $("input").value.trim();
-  if(!text || state.busy) return;
+  if(state.busy || state.composing) return;
+  const input = $("input");
+  const text = input.value.trim();
+  if(!text) return;
   if(!state.session) await newSession();
-
-  addShell("user").innerHTML = md(text);
-  $("input").value = ""; autoGrow();
+  if(state.busy) return;
 
   state.busy = true;
   state.streamBuf = "";
+  state.stick = true;
   $("sendBtn").disabled = true;
   $("cancelBtn").style.display = "inline-flex";
   $("wave").classList.add("on");
@@ -1040,11 +1068,18 @@ async function send(){
       })});
     if(!r.ok){ throw new Error((await r.json()).detail || "Fallo al enviar"); }
     const data = await r.json();
+    // Solo se limpia el campo cuando el servidor aceptó la petición.
+    // Si el usuario escribió más mientras esperaba, se respeta su texto.
+    if(input.value.trim() === text){ input.value = ""; saveDraft(""); autoGrow(); }
+    addShell("user").innerHTML = md(text);
     state.runId = data.run_id;
     state.files = []; renderAtts();
     listen(data.run_id, mdBox, holder, pendingThink, pendingTools);
   }catch(err){
+    holder.remove();
+    bubble.parentElement.remove();
     finish();
+    // El borrador y los adjuntos permanecen intactos para reintentar.
     toast("✖ " + err.message);
   }
 }
@@ -1181,9 +1216,23 @@ $("exportBtn").addEventListener("click", () => {
   if(!state.session) return;
   window.open("/api/chat/export/"+state.session.id+"?fmt=md", "_blank");
 });
-$("input").addEventListener("input", autoGrow);
+$("input").addEventListener("input", () => {
+  autoGrow();
+  saveDraft($("input").value);
+});
+$("input").addEventListener("compositionstart", () => { state.composing = true; });
+$("input").addEventListener("compositionend", () => {
+  state.composing = false;
+  autoGrow();
+  saveDraft($("input").value);
+});
 $("input").addEventListener("keydown", (e) => {
-  if(e.key === "Enter" && !e.shiftKey){ e.preventDefault(); send(); }
+  // Nunca enviar mientras se compone texto (acentos, chino, japonés, emoji…).
+  if(e.isComposing || state.composing || e.keyCode === 229) return;
+  if(e.key === "Enter" && !e.shiftKey && !e.altKey && !e.ctrlKey && !e.metaKey){
+    e.preventDefault();
+    send();
+  }
 });
 document.addEventListener("keydown", (e) => {
   if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k"){ e.preventDefault(); $("input").focus(); }

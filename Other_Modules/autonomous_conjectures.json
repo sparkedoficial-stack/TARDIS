@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1793049120",
-    "timestamp": "2026-10-26T16:12:00.251602",
-    "idle_duration_minutes": 31.6,
-    "title": "Sincronización Temporal de Telemetría en la Bóveda Akáshica",
-    "hypothesis": "La eficiencia de la recuperación de memoria profunda (deep_memory_vault.py) se degrada linealmente con la latencia de escritura en disco, especialmente bajo carga de red. Se conjetura que implementar un mecanismo de 'buffering temporal' con validación de consistencia causal en la capa de memoria, en lugar de escrituras síncronas inmediatas, reduciría la latencia de respuesta del núcleo cognitivo en un 40% sin comprometer la integridad de los datos, al desacoplar la ingesta de telemetría de la consulta de contexto.",
-    "research_query": "asynchronous memory buffering strategies for LLM context retrieval latency reduction",
-    "research_findings": "# Informe de Investigación: asynchronous memory buffering strategies for LLM context retrieval latency reduction\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar una cola de tareas asíncrona para la persistencia de nuevos nodos de memoria, permitiendo que las lecturas de contexto accedan a un caché en RAM optimizado mientras la escritura a disco ocurre en segundo plano.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.87
-  },
-  {
     "id": "conj_1793051017",
     "timestamp": "2026-10-26T16:43:37.567389",
     "idle_duration_minutes": 31.6,
@@ -1622,5 +1607,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 96.53
+  },
+  {
+    "id": "conj_1793248467",
+    "timestamp": "2026-10-28T23:34:27.537423",
+    "idle_duration_minutes": 35.8,
+    "title": "Dynamic Causal Weighting for Real‑Time Web Research",
+    "hypothesis": "Integrar un mecanismo de ponderación causal dinámico en el motor de investigación web (core/web_research_engine.py) permitirá que el sistema ajuste en tiempo real la relevancia de los resultados basándose en la retroalimentación de la Deep Memory Vault, mejorando la precisión de las respuestas y reduciendo la latencia de búsqueda en entornos de alta carga.",
+    "research_query": "dynamic causal weighting web search engine real-time relevance feedback deep memory integration",
+    "research_findings": "# Informe de Investigación: dynamic causal weighting web search engine real-time relevance feedback deep memory integration\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Añadir una capa de cálculo de pesos causales que combine métricas de similitud semántica, historial de consultas en deep_memory_vault y métricas de latencia, y usar esos pesos para re‑ordenar los resultados antes de devolverlos al usuario.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.26
   }
 ]

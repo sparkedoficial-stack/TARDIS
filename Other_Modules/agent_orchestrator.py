@@ -25,7 +25,6 @@ from __future__ import annotations
 import json
 import os
 import re
-import shutil
 import signal
 import subprocess
 import threading
@@ -36,6 +35,7 @@ from pathlib import Path
 from typing import Callable, Iterable, Optional
 
 import free_models as fm
+import runtime_env
 
 ORCH_DIR = Path.home() / ".config" / "ftl" / "orchestrator"
 POLICY_FILE = ORCH_DIR / "policy.json"
@@ -234,7 +234,7 @@ class AgentOrchestrator:
                     raise ValueError(f"Modelo desconocido: {token}")
                 models.append(model)
         else:
-            models = fm.available_models()
+            models = fm.available_models() or fm.pool_models()
 
         filtered = [m for m in models if self._allowed(m)]
         if self.policy.get("require_verified", True):
@@ -284,7 +284,12 @@ class AgentOrchestrator:
         if len(prompt) > max_chars:
             raise ValueError(f"Prompt excede el presupuesto ({len(prompt)} > {max_chars} caracteres).")
 
-        exe = shutil.which("opencode") or str(Path.home() / ".opencode" / "bin" / "opencode")
+        exe = runtime_env.which("opencode")
+        if not exe:
+            raise OrchestratorHalt(
+                "No se encontró el binario 'opencode'. Añade ~/.opencode/bin al PATH "
+                "o ejecuta `ftl --heal`."
+            )
         ref = model.ref
         full_prompt = (
             "=== [FTL AGENT ORCHESTRATOR :: AGENTE CONTROLADO] ===\n"
@@ -313,7 +318,8 @@ class AgentOrchestrator:
                 [exe, "run", "-m", ref, "--auto", full_prompt],
                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                 text=True, stdin=subprocess.DEVNULL, cwd=cwd,
-                start_new_session=True, env={**os.environ, "PYTHONUNBUFFERED": "1"},
+                start_new_session=True,
+                env=runtime_env.augment_path({**os.environ, "PYTHONUNBUFFERED": "1"}),
             )
             out, _ = proc.communicate(timeout=timeout)
             text = _clean(out)

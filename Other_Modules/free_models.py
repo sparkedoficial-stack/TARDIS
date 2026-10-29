@@ -15,16 +15,18 @@ from __future__ import annotations
 import json
 import os
 import re
-import shutil
 import subprocess
 import time
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Callable, Iterable, Optional
 
+import runtime_env
+
 CONFIG_DIR = Path.home() / ".config" / "ftl"
 STATE_FILE = CONFIG_DIR / "free_models_state.json"
 PROBE_TTL = 3600
+DISCOVERY_TTL = 3600
 ANSI_RE = re.compile(r"\x1b\[[0-9;?]*[A-Za-z]")
 
 
@@ -158,6 +160,138 @@ DEFAULT_POOL = tuple(m.key for m in sorted(CATALOG, key=lambda x: x.priority))
 
 
 # ---------------------------------------------------------------------------
+# Descubrimiento dinámico: TODOS los modelos gratuitos del proveedor
+# ---------------------------------------------------------------------------
+_DYN_CACHE: dict = {"ts": 0.0, "models": []}
+_KNOWN_IDS = {m.model_id.split("#", 1)[0] for m in CATALOG}
+
+
+def _pretty_name(model_id: str) -> str:
+    base = model_id.split("/", 1)[-1].split("#", 1)[0]
+    for suffix in ("-flash-free", "-free"):
+        if base.endswith(suffix):
+            base = base[: -len(suffix)]
+    words = re.split(r"[-_.]+", base)
+    return " ".join(w.upper() if len(w) <= 3 and w.isalpha() else w.capitalize() for w in words if w)
+
+
+def _slugify(model_id: str) -> str:
+    base = model_id.split("/", 1)[-1].split("#", 1)[0]
+    for suffix in ("-flash-free", "-free"):
+        if base.endswith(suffix):
+            base = base[: -len(suffix)]
+    slug = re.sub(r"[^a-z0-9]+", "-", base.lower()).strip("-")
+    return slug or "modelo"
+
+
+def discover(timeout: int = 30, save: bool = True) -> list[str]:
+    """
+    Pregunta a `opencode models` por el catálogo real del proveedor.
+
+    Devuelve referencias canónicas (sin `#variante`) y las persiste para que
+    Telegram, la TUI y el portal compartan exactamente el mismo pool.
+    """
+    exe = _bin()
+    if not exe:
+        return []
+    try:
+        proc = subprocess.run(
+            [exe, "models"],
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+            stdin=subprocess.DEVNULL,
+        )
+    except Exception:
+        return []
+    if proc.returncode != 0:
+        return []
+
+    refs: list[str] = []
+    for line in _clean(proc.stdout).splitlines():
+        candidate = line.strip()
+        if not candidate or "/" not in candidate or " " in candidate:
+            continue
+        if candidate.startswith(("-", "#", ">")):
+            continue
+        base = candidate.split("#", 1)[0]
+        if "free" not in base.lower() and not base.startswith("opencode/"):
+            continue
+        if base not in refs:
+            refs.append(base)
+
+    if save:
+        state = _load_state()
+        state["discovered_refs"] = refs
+        state["discovered_at"] = time.strftime("%Y-%m-%dT%H:%M:%S%z")
+        state["discovered_epoch"] = time.time()
+        _save_state(state)
+        _DYN_CACHE["ts"] = 0.0
+    return refs
+
+
+def dynamic_models(ttl: int = DISCOVERY_TTL) -> list["FreeModel"]:
+    """Modelos gratuitos descubiertos que no están en el catálogo canónico."""
+    now = time.time()
+    if now - float(_DYN_CACHE["ts"]) < ttl:
+        return list(_DYN_CACHE["models"])
+
+    state = _load_state()
+    refs = list(state.get("discovered_refs") or [])
+    models: list[FreeModel] = []
+    for idx, ref in enumerate(refs):
+        if ref in _KNOWN_IDS:
+            continue
+        slug = _slugify(ref)
+        key = slug
+        suffix = 2
+        while key in BY_KEY or any(m.key == key for m in models):
+            key = f"{slug}-{suffix}"
+            suffix += 1
+        models.append(
+            FreeModel(
+                key=key,
+                model_id=ref,
+                name=_pretty_name(ref),
+                variant="",
+                roles=("general", "descubierto"),
+                priority=90 + idx,
+                enabled_default=True,
+                notes="Descubierto dinámicamente desde `opencode models`.",
+            )
+        )
+    _DYN_CACHE.update({"ts": now, "models": models})
+    return list(models)
+
+
+def refresh_discovery_if_stale(ttl: int = DISCOVERY_TTL) -> list[str]:
+    """Descubre el catálogo sólo si la caché persistida está vencida."""
+    state = _load_state()
+    age = time.time() - float(state.get("discovered_epoch") or 0)
+    if state.get("discovered_refs") and age < ttl:
+        return list(state["discovered_refs"])
+    return discover()
+
+
+def pool_models() -> list["FreeModel"]:
+    """Pool operable para failover: verificados o, si no hay sondas, el catálogo."""
+    pool = available_models()
+    if pool:
+        return pool
+    return [m for m in all_models(include_disabled=False) if m.enabled_default]
+
+
+def aliases() -> dict[str, str]:
+    """Mapa alias/atajo/id → key canónica, incluyendo modelos descubiertos."""
+    table: dict[str, str] = dict(ALIASES)
+    for model in all_models():
+        table.setdefault(model.key.lower(), model.key)
+        table.setdefault(model.short.lower(), model.key)
+        table.setdefault(model.model_id.lower(), model.key)
+    return table
+
+
+# ---------------------------------------------------------------------------
 # Estado persistente
 # ---------------------------------------------------------------------------
 def _load_state() -> dict:
@@ -182,8 +316,9 @@ def _save_state(state: dict) -> None:
         pass
 
 
-def _bin() -> str:
-    return shutil.which("opencode") or str(Path.home() / ".opencode" / "bin" / "opencode")
+def _bin() -> Optional[str]:
+    """Binario real de OpenCode, incluso con el PATH reducido de systemd."""
+    return runtime_env.which("opencode")
 
 
 def _clean(text: str) -> str:
@@ -213,9 +348,25 @@ def resolve(token: str) -> Optional[FreeModel]:
     for m in CATALOG:
         if short in (m.short.lower(), m.key.lower(), m.name.lower()):
             return m
+    # Modelos descubiertos dinámicamente (todos los gratuitos del proveedor).
+    for m in dynamic_models():
+        if base in (m.key.lower(), m.model_id.lower(), m.short.lower(), m.name.lower()):
+            return m
     # Coincidencia difusa por prefijo (p. ej. "nemotron")
-    matches = [m for m in CATALOG if m.key.startswith(base) or m.short.lower().startswith(base)]
-    return matches[0] if len(matches) == 1 else None
+    catalog = list(CATALOG) + dynamic_models()
+    matches = [m for m in catalog if m.key.startswith(base) or m.short.lower().startswith(base)]
+    if not matches:
+        return None
+    if len(matches) == 1:
+        return matches[0]
+    # Varios candidatos: gana el primero disponible (evita modelos caídos)
+    for m in matches:
+        try:
+            if is_available(m):
+                return m
+        except Exception:
+            continue
+    return matches[0]
 
 
 def best_ref(model: FreeModel) -> str:
@@ -240,7 +391,7 @@ def is_available(model: FreeModel, use_state: bool = True) -> bool:
 
 
 def all_models(include_disabled: bool = True) -> list[FreeModel]:
-    models = sorted(CATALOG, key=lambda m: m.priority)
+    models = sorted(list(CATALOG) + dynamic_models(), key=lambda m: m.priority)
     if include_disabled:
         return list(models)
     return [m for m in models if is_available(m)]
@@ -265,8 +416,8 @@ def probe(model: FreeModel, timeout: int = 150) -> dict:
         return entry
 
     exe = _bin()
-    if not Path(exe).exists() and not shutil.which(exe):
-        entry.update({"available": False, "error": f"binario no encontrado: {exe}",
+    if not exe:
+        entry.update({"available": False, "error": "binario 'opencode' no encontrado (PATH soberano agotado)",
                       "checked_at": time.strftime("%Y-%m-%dT%H:%M:%S%z"), "checked_epoch": time.time()})
         _save_state(state)
         return entry
@@ -306,6 +457,14 @@ def probe(model: FreeModel, timeout: int = 150) -> dict:
 def refresh(force: bool = False, ttl: int = PROBE_TTL,
             on_progress: Optional[Callable[[str], None]] = None) -> list[dict]:
     """Sondea todos los modelos cuyo estado esté vencido (secuencial, conservador)."""
+    # 1. Refrescar el catálogo real del proveedor (todos los gratuitos).
+    try:
+        if on_progress:
+            on_progress("🧭 Descubriendo modelos gratuitos en `opencode models`…")
+        discover()
+    except Exception:
+        pass
+
     results = []
     now = time.time()
     for model in all_models():
@@ -399,7 +558,11 @@ if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "--probe":
         for r in refresh(force=True, on_progress=lambda s: print(s, flush=True)):
             print(json.dumps(r, ensure_ascii=False))
+    elif len(sys.argv) > 1 and sys.argv[1] == "--discover":
+        for ref in discover():
+            print(ref)
     elif len(sys.argv) > 1 and sys.argv[1] == "--json":
+        refresh_discovery_if_stale()
         print(json.dumps(summary(), indent=2, ensure_ascii=False))
     else:
         for m in all_models():

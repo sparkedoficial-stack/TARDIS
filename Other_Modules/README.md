@@ -195,6 +195,7 @@ Módulos y componentes auxiliares del sistema.
 - **resource_plan.py**: Componente de alta eficiencia.
 - **run.py**: Componente de alta eficiencia.
 - **runtime-observation.md**: Componente de alta eficiencia.
+- **runtime_env.py**: Componente de alta eficiencia.
 - **scientific_learning_agenda.json**: Componente de alta eficiencia.
 - **scientific_research_engine.py**: Componente de alta eficiencia.
 - **self_updater.py**: Componente de alta eficiencia.
@@ -231,6 +232,7 @@ Módulos y componentes auxiliares del sistema.
 - **tardis_telephony_controller.py**: Componente de alta eficiencia.
 - **tardis_terminal_config.json**: Componente de alta eficiencia.
 - **telemetria_avanzada.py**: Componente de alta eficiencia.
+- **terminal_guard.py**: Componente de alta eficiencia.
 - **tool_escribe_m_dulo_python.py**: Componente de alta eficiencia.
 - **tool_selector.py**: Componente de alta eficiencia.
 - **traffic_control_policy.json**: Componente de alta eficiencia.

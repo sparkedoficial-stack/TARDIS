@@ -15,6 +15,18 @@ class TestParseRequest(unittest.TestCase):
         self.assertEqual(parse_request("").action, "help")
         self.assertEqual(parse_request("estado").action, "status")
         self.assertEqual(parse_request("cancelar").action, "cancel")
+        self.assertEqual(parse_request("models").action, "models")
+
+    def test_free_model_aliases_accepted(self):
+        for alias in ("deepseek", "free", "glm", "mimo", "nemotron", "beam", "pickle", "flint"):
+            req = parse_request(f"-m {alias} mejora el proyecto")
+            self.assertFalse(req.error, f"{alias}: {req.error}")
+            self.assertTrue(req.mode, alias)
+
+    def test_model_long_flag(self):
+        req = parse_request("--model glm-5.3-flash-free mejora el proyecto")
+        self.assertFalse(req.error, req.error)
+        self.assertIn("glm", req.mode)
 
     def test_mode_dir_and_multiline_prompt(self):
         with tempfile.TemporaryDirectory() as d:
