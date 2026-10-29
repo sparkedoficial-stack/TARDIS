@@ -1,19 +1,5 @@
 [
   {
-    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/deep_memory_vault.py",
-    "goal": "Implementar una clase 'CausalCompressor' que asigne un peso dinámico a cada entrada de memoria y ajuste la granularidad del embedding almacenado (alta resolución para nodos críticos, baja resolución para nodos obsoletos) antes de la persistencia.",
-    "status": "REJECTED",
-    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
-    "elapsed_seconds": 91.88,
-    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/deep_memory_vault.py.20261027_021330.bak",
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Respuesta generada demasiado corta (0 vs 33875 bytes)",
-    "timestamp": "2026-10-27T02:15:02.135192"
-  },
-  {
     "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
     "goal": "Implementar un método de pre-evaluación de fuentes que consulte la telemetría de red actual y la memoria histórica para ajustar dinámicamente los parámetros de conexión (timeouts, reintentos) antes de lanzar la petición HTTP.",
     "status": "REJECTED",
@@ -1398,5 +1384,19 @@
     "efficiency_improvement": null,
     "error": "Respuesta generada demasiado corta (0 vs 33875 bytes)",
     "timestamp": "2026-10-29T08:57:56.348928"
+  },
+  {
+    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/deep_memory_vault.py",
+    "goal": "Implementar una capa de 'Causal Edge Weighting' en la estructura de datos de la bóveda, donde cada interacción de memoria actualice dinámicamente los pesos de las conexiones entre conceptos basándose en la proximidad temporal y la relevancia contextual, en lugar de solo similitud semántica.",
+    "status": "REJECTED",
+    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
+    "elapsed_seconds": 90.54,
+    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/deep_memory_vault.py.20261029_092802.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "Respuesta generada demasiado corta (0 vs 33875 bytes)",
+    "timestamp": "2026-10-29T09:29:33.457474"
   }
 ]
