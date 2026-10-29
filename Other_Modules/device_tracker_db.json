@@ -54,11 +54,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 84,
-    "traffic_bytes_tx": 483,
-    "traffic_packets": 4,
+    "traffic_bytes_rx": 168,
+    "traffic_bytes_tx": 1245,
+    "traffic_packets": 6,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-29T04:53:13.655170+00:00",
+    "last_seen": "2026-10-29T05:22:31.980348+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -184,11 +184,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 187,
-    "traffic_bytes_tx": 4349,
-    "traffic_packets": 13,
+    "traffic_bytes_rx": 168,
+    "traffic_bytes_tx": 168,
+    "traffic_packets": 4,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-29T04:53:13.655170+00:00",
+    "last_seen": "2026-10-29T05:22:31.980348+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -449,11 +449,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": REDACTED_PHONE,
-    "traffic_bytes_tx": REDACTED_PHONE,
-    "traffic_packets": 21255549,
+    "traffic_bytes_rx": 1731212,
+    "traffic_bytes_tx": 1063384,
+    "traffic_packets": 6529,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-29T04:53:13.655170+00:00",
+    "last_seen": "2026-10-29T05:22:31.980348+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -526,10 +526,10 @@
     "throttle_kbps": null,
     "is_safe": true,
     "traffic_bytes_rx": 0,
-    "traffic_bytes_tx": 8758025,
-    "traffic_packets": 90938,
+    "traffic_bytes_tx": 13414,
+    "traffic_packets": 101,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-29T04:53:13.655170+00:00",
+    "last_seen": "2026-10-29T05:22:31.980348+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -927,6 +927,38 @@
     "traffic_packets": 139887,
     "first_seen": "2026-10-27T02:57:29.508662+00:00",
     "last_seen": "2026-10-28T04:05:06.497238+00:00",
+    "ip_history": [
+      "REDACTED_IP"
+    ]
+  },
+  "22:D0:BF:CC:E9:69": {
+    "mac": "22:D0:BF:CC:E9:69",
+    "ip": "REDACTED_IP",
+    "ipv6_addresses": [],
+    "alias": "Dispositivo LAN (REDACTED_IP)",
+    "hostname": "Dispositivo LAN (REDACTED_IP)",
+    "vendor": "Dirección MAC Privada / Aleatoria (iOS / Android / Linux)",
+    "device_type": "Dispositivo de Red (Dirección MAC Privada / Aleatoria (iOS / Android / Linux))",
+    "interface": "veth-host-aq",
+    "connection_medium": "Virtual Bridge (veth-host-aq)",
+    "network_segment": "Namespace Virtual Antarctica (REDACTED_IP/24)",
+    "arp_state": "REACHABLE",
+    "online": true,
+    "rtt_ms": 0.05,
+    "open_ports": [],
+    "port_details": [],
+    "risky_ports": [],
+    "mdns_services": [],
+    "wifi_metrics": {},
+    "trust_level": "KNOWN",
+    "is_quarantined": false,
+    "throttle_kbps": null,
+    "is_safe": true,
+    "traffic_bytes_rx": 12793,
+    "traffic_bytes_tx": 24402,
+    "traffic_packets": 210,
+    "first_seen": "2026-10-29T05:22:31.980348+00:00",
+    "last_seen": "2026-10-29T05:22:31.980348+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]

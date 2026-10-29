@@ -1,6 +1,6 @@
 {
   "schema": "tardis.ftl.backlog/1.0",
-  "generated_at": "2026-10-29T00:18:57-05:00",
+  "generated_at": "2026-10-29T00:19:23-05:00",
   "source_db": "/home/timemachine/.tardis/continuity_vault.db",
   "totals": {
     "requests": 138,
@@ -57,9 +57,10 @@
       "resolution": "blocked",
       "evidence": [
         "Sólo existe TARDIS-NEURAL-SPACE-KAIJU local (8B)",
-        "DeepSeek V4.1 opera vía OpenCode"
+        "DeepSeek V4.1 Flash GGUF mínimo (IQ1_M) ≈ 250 GB; no cabe operativamente en 299 GB libres / 30.9 GB RAM / 4 GB VRAM",
+        "DeepSeek V4.1 Max ya opera como modelo por defecto vía OpenCode"
       ],
-      "next_action": "Obtener pesos locales oficiales de DeepSeek V4.1 Flash o mantener el ruteo cloud."
+      "next_action": "Mantener el ruteo cloud para V4.1 Flash; instalar local sólo si se habilita un nodo con ≥256 GB RAM o se opta por un destilado pequeño."
     },
     {
       "id": 8,
@@ -615,9 +616,10 @@
       "resolution": "blocked",
       "evidence": [
         "Sólo existe TARDIS-NEURAL-SPACE-KAIJU local (8B)",
-        "DeepSeek V4.1 opera vía OpenCode"
+        "DeepSeek V4.1 Flash GGUF mínimo (IQ1_M) ≈ 250 GB; no cabe operativamente en 299 GB libres / 30.9 GB RAM / 4 GB VRAM",
+        "DeepSeek V4.1 Max ya opera como modelo por defecto vía OpenCode"
       ],
-      "next_action": "Obtener pesos locales oficiales de DeepSeek V4.1 Flash o mantener el ruteo cloud."
+      "next_action": "Mantener el ruteo cloud para V4.1 Flash; instalar local sólo si se habilita un nodo con ≥256 GB RAM o se opta por un destilado pequeño."
     },
     {
       "id": 8,
@@ -1031,7 +1033,7 @@
       "source": "FTL",
       "model": "gemini-3.8-flash-high",
       "created_at": "2026-10-02 23:43:03",
-      "age_days": 26.02,
+      "age_days": 26.03,
       "category": "General",
       "complexity": 2,
       "priority": "P3",
@@ -2503,7 +2505,7 @@
       "source": "FTL",
       "model": "gemini-4-pro",
       "created_at": "2026-10-13 22:02:17",
-      "age_days": 15.09,
+      "age_days": 15.1,
       "category": "Cómputo distribuido",
       "complexity": 3,
       "priority": "P3",
@@ -2705,9 +2707,10 @@
       "resolution": "blocked",
       "evidence": [
         "Sólo existe TARDIS-NEURAL-SPACE-KAIJU local (8B)",
-        "DeepSeek V4.1 opera vía OpenCode"
+        "DeepSeek V4.1 Flash GGUF mínimo (IQ1_M) ≈ 250 GB; no cabe operativamente en 299 GB libres / 30.9 GB RAM / 4 GB VRAM",
+        "DeepSeek V4.1 Max ya opera como modelo por defecto vía OpenCode"
       ],
-      "next_action": "Obtener pesos locales oficiales de DeepSeek V4.1 Flash o mantener el ruteo cloud."
+      "next_action": "Mantener el ruteo cloud para V4.1 Flash; instalar local sólo si se habilita un nodo con ≥256 GB RAM o se opta por un destilado pequeño."
     },
     {
       "id": 117,
@@ -2805,7 +2808,7 @@
       "source": "FTL",
       "model": "opencode/flint-40b-free#max",
       "created_at": "2026-10-27 00:40:34",
-      "age_days": 1.98,
+      "age_days": 1.99,
       "category": "General",
       "complexity": 1,
       "priority": "P3",

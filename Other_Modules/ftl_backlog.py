@@ -111,8 +111,12 @@ RESOLUTIONS: Dict[int, Dict[str, Any]] = {
     },
     116: {
         "resolution": "blocked",
-        "evidence": ["Sólo existe TARDIS-NEURAL-SPACE-KAIJU local (8B)", "DeepSeek V4.1 opera vía OpenCode"],
-        "next_action": "Obtener pesos locales oficiales de DeepSeek V4.1 Flash o mantener el ruteo cloud.",
+        "evidence": [
+            "Sólo existe TARDIS-NEURAL-SPACE-KAIJU local (8B)",
+            "DeepSeek V4.1 Flash GGUF mínimo (IQ1_M) ≈ 250 GB; no cabe operativamente en 299 GB libres / 30.9 GB RAM / 4 GB VRAM",
+            "DeepSeek V4.1 Max ya opera como modelo por defecto vía OpenCode",
+        ],
+        "next_action": "Mantener el ruteo cloud para V4.1 Flash; instalar local sólo si se habilita un nodo con ≥256 GB RAM o se opta por un destilado pequeño.",
     },
     121: {
         "resolution": "completed",

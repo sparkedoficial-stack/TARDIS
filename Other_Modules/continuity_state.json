@@ -3,16 +3,17 @@
   "architect_goal": "Optimización de red y router físico/software + Sistema de Continuidad Absoluta Post-Reinicio",
   "current_request": "construye todo lo que te haya pedido bajo el comando FTL que no hayas completado y enlístalo en orden de prioridad en base a complejidad",
   "source": "FTL",
-  "status": "in_progress",
+  "status": "resumed_post_reboot",
   "progress_percent": 5,
-  "phase": "Iniciando ejecución con motor DEEPSEEK (opencode/deepseek-v4.1-flash-free#max)",
+  "phase": "Reanudado automáticamente tras reinicio #280",
   "details": {
     "plan_mode": "deepseek",
     "model": "opencode/deepseek-v4.1-flash-free#max",
     "start_iso": "2026-10-28 23:55:02",
-    "artifacts": []
+    "artifacts": [],
+    "last_recovery_iso": "2026-10-29 00:21:30"
   },
-  "created_ts": REDACTED_PHONE.7667959,
-  "updated_ts": REDACTED_PHONE.7668688,
-  "reboot_count": 279
+  "created_ts": REDACTED_PHONE.0398629,
+  "updated_ts": REDACTED_PHONE.8222413,
+  "reboot_count": 280
 }
