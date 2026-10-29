@@ -50,6 +50,7 @@ ADMIN_RESERVED_COMMANDS: Set[str] = {
     "/sms", "/sms_status", "/sms_estado",
     "/agy", "/antigravity",
     "/ftl",
+    "/ftl_local", "/ftl-local", "/ftllocal", "/ftllocal",
     "/status", "/estado",
     "/link", "/enlace", "/qr",
     "/sh", "/bash", "/cmd", "/terminal",

@@ -2396,6 +2396,7 @@ class TelegramBridge:
                 f"• `/reboot` : Reiniciar el equipo (orden manual) (orden manual)\n"
                 f"• `/agy` : Estado y arranque de Google Antigravity\n"
                 f"• `/ftl <petición>` : Pedir a FTL creación o mejora de código (`/ftl` para ver opciones)\n"
+                f"• `/ftl-local` : Acceso soberano a FTL concedido mediante red local (LAN) · `/ftl-local` para activar\n"
                 f"• `/timeemergency <msg>` : Chatear con TimeEmergency (Qwen3.8-27B)\n\n"
                 f"**🔬 Exploración Científica & Papers Académicos (OpenAlex, arXiv, EuropePMC):**\n"
                 f"• `/investigar <tema>` : Investigación profunda de rigor científico con enlaces y PDFs\n"
@@ -3074,6 +3075,46 @@ class TelegramBridge:
                     self.send_message("🛸 *Modo TimeEmergency* activo. Usa `/timeemergency <mensaje>` para hablar con el sistema Qwen.", chat_id=chat_id, parse_mode="Markdown")
             except Exception as e:
                 self.send_message(f"⚠️ Error al conectar con TimeEmergency: {e}", chat_id=chat_id)
+            return
+
+        if cmd in ("/ftl_local", "/ftl-local", "/ftllocal", "/ftllocal"):
+
+            # [TAREA ARQUITECTO :: /FTL-LOCAL] ACCESO LOCAL SOBERANO A FTL:
+            # El Arquitecto solicita el acceso al sistema FTL mediante red local
+            # (LAN/Wi-Fi del host físico). Se concede el enlace local con token
+            # irrevocable y se informa del estado del puente GIA local.
+            from omni_temporal_control import BRIDGE
+            try:
+                b_status = BRIDGE.get_status() or {}
+            except Exception as e_bstatus:
+                b_status = {}
+            local_url = b_status.get("local_url") or ""
+            lan_ip = b_status.get("lan_ip") or "127.0.0.1"
+            online = b_status.get("online")
+
+            status_lbl = "🟢 OPERATIVO" if online else "🟡 EN ESPERA DE ARRANQUE"
+            msg_local = (
+                f"🛸 **[TARDIS · ACCESO LOCAL FTL CONCEDIDO]**\n"
+                f"━━━━━━━━━━━━━━━━━━━━━━\n"
+                f"🔓 **Estado del Puente Local:** {status_lbl}\n"
+                f"🧠 **Motor FTL Local (GIA Bridge LAN):** `{local_url}`\n"
+                f"📡 **Dirección IP Local del Host:** `{lan_ip}`\n"
+                f"💻 **Terminal FTL Local (ttyd :7681):** `http://{lan_ip}:7681/terminal`\n"
+                f"🌐 **Portal FTL Local (FastAPI :8765):** `http://{lan_ip}:8765`\n\n"
+                f"✅ **ACCESO LOCAL CONCEDIDO**: el sistema FTL te ha entregado el acceso "
+                f"mediante red local. Conéctate desde un dispositivo dentro de la red LAN/Wi-Fi "
+                f"del host físico y autentícate con el token irrevocable (`?key=...`).\n\n"
+                f"💡 **Acciones soberanas disponibles desde esta sesión local:**\n"
+                f"• `/ftl <petición>` : Dirigir el motor FTL de creación/mejora de código\n"
+                f"• `/sh <comando bash>` : Control absoluto del host desde la terminal privada\n"
+                f"• `/status` : Telemetría completa del sistema soberano"
+            )
+            if arg_str and arg_str.strip().lower() in ("reiniciar", "restart", "arrancar", "start", "activar", "iniciar"):
+                try:
+                    BRIDGE.start()
+                except Exception:
+                    pass
+            self.send_message(msg_local, chat_id=chat_id, reply_to_message_id=msg_id)
             return
 
         if cmd in ("/ftl",):

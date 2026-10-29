@@ -1,43 +1,18 @@
 {
   "session_id": "master_timeline",
   "architect_goal": "Optimización de red y router físico/software + Sistema de Continuidad Absoluta Post-Reinicio",
-  "current_request": "continua con esta petición",
+  "current_request": "Cuando escriba el comando /FTL-Local el sistema me dal sistema mediante red local",
   "source": "FTL",
-  "status": "completed",
-  "progress_percent": 100,
-  "phase": "Completado exitosamente",
+  "status": "in_progress",
+  "progress_percent": 5,
+  "phase": "Iniciando ejecución con motor DEEPSEEK (opencode/deepseek-v4.1-flash-free#max)",
   "details": {
-    "finish_iso": "2026-10-29T00:32:06-05:00",
-    "artifacts": [
-      "data/ftl_backlog.json",
-      "docs/FTL_BACKLOG.md",
-      "data/rea/learning_report.json",
-      "FTL_PUBLIC_ACCESS.txt",
-      "distributed_compute.py",
-      "core/hardware_autoprovision.py",
-      "tests/test_sovereign_autoprovision.py",
-      "watch_and_deploy_android.sh",
-      "~/.config/systemd/user/tardis-compute-mesh.service",
-      "~/.config/systemd/user/tardis-compute-mesh.timer",
-      "~/.config/systemd/user/tardis-hardware-autoprovision.service",
-      "~/.config/systemd/user/ollama.service",
-      "ollama:deepseek-r1:7b",
-      "ollama:deepseek-r1:1.5b"
-    ],
-    "files_changed": [
-      "distributed_compute.py",
-      "core/hardware_autoprovision.py",
-      "tests/test_sovereign_autoprovision.py",
-      "modulos_ftl/ftl_backlog.py",
-      "docs/FTL_BACKLOG.md",
-      "data/ftl_backlog.json",
-      "watch_and_deploy_android.sh (fuera del repo)",
-      "systemd: ollama/tardis-compute-mesh/tardis-hardware-autoprovision/imac-android-autodeploy"
-    ],
-    "completion_iso": "2026-10-29 00:50:09",
-    "output_summary": "Continuación cerrada: malla de cómputo multi-subred con auto-enrolamiento, watcher iMac 14,1 v2, Ollama local restaurado con deepseek-r1:7b y 1.5b verificados por API, auto-provisión XG2TBK, backlog FTL reconciliado (139 total, 5 pendientes bloqueados por hardware)."
+    "plan_mode": "deepseek",
+    "model": "opencode/deepseek-v4.1-flash-free#max",
+    "start_iso": "2026-10-29 10:53:51",
+    "artifacts": []
   },
-  "created_ts": REDACTED_PHONE.0398629,
-  "updated_ts": REDACTED_PHONE.4914742,
+  "created_ts": REDACTED_PHONE.9081953,
+  "updated_ts": REDACTED_PHONE.908229,
   "reboot_count": 280
 }

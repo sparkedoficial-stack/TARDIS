@@ -3,10 +3,10 @@
   "interval_seconds": 5400.0,
   "target_chat_id": -REDACTED_PHONE,
   "target_thread_id": 453,
-  "last_run_timestamp": REDACTED_PHONE.4667556,
-  "last_run_iso": "2026-10-29T08:37:47.466758",
-  "total_dispatches": 407,
-  "curator_index": 2,
+  "last_run_timestamp": REDACTED_PHONE.6969733,
+  "last_run_iso": "2026-10-29T10:07:49.696976",
+  "total_dispatches": 408,
+  "curator_index": 1,
   "dispatched_topic_ids": [
     "holographic_brain_neurophysics",
     "fermi_paradox_great_filter",
@@ -14,21 +14,10 @@
     "neural_decoding_mind_reading_bci",
     "syntropy_prigogine_thermodynamics",
     "synthetic_biology_xenobiology_xna",
-    "ssm_mamba_vs_transformer"
+    "ssm_mamba_vs_transformer",
+    "quantum_spacetime_er_epr"
   ],
   "history": [
-    {
-      "dispatch_id": 308,
-      "timestamp": REDACTED_PHONE.7608423,
-      "iso": "2026-10-23T03:54:28.760843",
-      "topic_id": "neural_decoding_mind_reading_bci",
-      "topic_title": "Decodificación Neural Directa y Reconstrucción Semántica: ¿El Fin de la Privacidad Mental?",
-      "pdf_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/reports/polimatas_debates/Dossier_Debate_20261023_035427_neural_decoding_mind_reading_b.pdf",
-      "chat_id": -REDACTED_PHONE,
-      "thread_id": 453,
-      "text_sent": true,
-      "doc_sent": true
-    },
     {
       "dispatch_id": 309,
       "timestamp": REDACTED_PHONE.1167526,
@@ -1212,6 +1201,18 @@
       "topic_id": "ssm_mamba_vs_transformer",
       "topic_title": "State Space Models (Mamba) vs Transformers: El Límite de la Complejidad Cuadrática O(N²)",
       "pdf_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/reports/polimatas_debates/Dossier_Debate_20261029_083745_ssm_mamba_vs_transformer.pdf",
+      "chat_id": -REDACTED_PHONE,
+      "thread_id": 453,
+      "text_sent": true,
+      "doc_sent": true
+    },
+    {
+      "dispatch_id": 408,
+      "timestamp": REDACTED_PHONE.6969733,
+      "iso": "2026-10-29T10:07:49.696976",
+      "topic_id": "quantum_spacetime_er_epr",
+      "topic_title": "Entrelazamiento Cuántico, No-Localidad y Espacio-Tiempo Emergente (ER=EPR)",
+      "pdf_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/reports/polimatas_debates/Dossier_Debate_20261029_100748_quantum_spacetime_er_epr.pdf",
       "chat_id": -REDACTED_PHONE,
       "thread_id": 453,
       "text_sent": true,
