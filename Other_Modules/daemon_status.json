@@ -1,12 +1,12 @@
 {
   "daemon": "tardis-visual-intelligence",
   "running": true,
-  "pid": 2274,
-  "uptime_sec": 90240.4,
-  "last_heartbeat": "2026-10-30T01:25:32.672843",
+  "pid": 2156,
+  "uptime_sec": 60.2,
+  "last_heartbeat": "2026-10-30T01:37:21.518562",
   "items_processed": 0,
   "last_processed_id": "",
-  "memory_rss_mb": 2075.28,
+  "memory_rss_mb": 79.93,
   "engine_status": {
     "status": "online",
     "engine": "VisualIntelligenceEngine v26.4",

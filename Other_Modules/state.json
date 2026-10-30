@@ -6,7 +6,7 @@
   "last_video_id": "vp_20261030_010142_41698c",
   "last_topic": "Tensor Network Models of AdS/CFT: MERA and Holographic Entanglement",
   "total_videos_analyzed": 728,
-  "running_cycle": false,
+  "running_cycle": true,
   "last_error": null,
   "auto_improvement_count": 387
 }

@@ -1,6 +1,6 @@
 {
   "schema": "tardis.rea.proposals/1.0",
-  "generated_at": "2026-10-30T00:15:12-05:00",
+  "generated_at": "2026-10-30T01:36:22-05:00",
   "based_on_report": "/home/timemachine/Escritorio/GODWORKS SYSTEM/data/rea/learning_report.json",
   "artifacts": 7,
   "proposals": [
@@ -28,7 +28,7 @@
       "validation": "JSON válido y esquema tardis.rea.adaptation_profile/1.0",
       "rollback": "Regenerar el perfil desde la base de conocimiento.",
       "status": "applied",
-      "created_at": "2026-10-30T00:15:12-05:00",
+      "created_at": "2026-10-30T01:36:22-05:00",
       "applied_at": "2026-10-29T00:16:39-05:00",
       "result": {
         "file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/data/rea/adaptation_profile.json"
@@ -55,7 +55,7 @@
       "validation": "Comparar tokens/s y perplejidad en el mismo prompt.",
       "rollback": "Descartar el experimento; no altera configuración activa.",
       "status": "applied",
-      "created_at": "2026-10-30T00:15:12-05:00",
+      "created_at": "2026-10-30T01:36:22-05:00",
       "applied_at": "2026-10-29T00:16:39-05:00",
       "result": {
         "file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/data/rea/experiments/precision_policy.json"
@@ -83,7 +83,7 @@
       "validation": "Comprobar latencia del endpoint imac.local:11434.",
       "rollback": "Reactivar la ruta por defecto en coding_router.json.",
       "status": "proposed",
-      "created_at": "2026-10-30T00:15:12-05:00"
+      "created_at": "2026-10-30T01:36:22-05:00"
     },
     {
       "id": "rea-65567bd37ee8",
@@ -107,7 +107,7 @@
       "validation": "Verificar que llama.cpp/ollama acepten n_gpu_layers calculado.",
       "rollback": "Mantener gpu_layers=0 en temporal_brain_config.json.",
       "status": "applied",
-      "created_at": "2026-10-30T00:15:12-05:00",
+      "created_at": "2026-10-30T01:36:22-05:00",
       "applied_at": "2026-10-29T00:16:39-05:00",
       "result": {
         "file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/data/rea/experiments/layer_offload.json"
@@ -134,7 +134,7 @@
       "validation": "Comparar tokens/s y perplejidad en el mismo prompt.",
       "rollback": "Descartar el experimento; no altera configuración activa.",
       "status": "proposed",
-      "created_at": "2026-10-30T00:15:12-05:00"
+      "created_at": "2026-10-30T01:36:22-05:00"
     },
     {
       "id": "rea-be77a9cf090c",
@@ -157,7 +157,7 @@
       "validation": "Medir latencia y calidad en una muestra de 20 prompts antes de elevar el contexto por defecto.",
       "rollback": "Volver a ctx_size=4096 en temporal_brain_config.json.",
       "status": "proposed",
-      "created_at": "2026-10-30T00:15:12-05:00"
+      "created_at": "2026-10-30T01:36:22-05:00"
     },
     {
       "id": "rea-c2e6bfef795b",
@@ -181,7 +181,7 @@
       "validation": "Comprobar latencia del endpoint imac.local:11434.",
       "rollback": "Reactivar la ruta por defecto en coding_router.json.",
       "status": "applied",
-      "created_at": "2026-10-30T00:15:12-05:00",
+      "created_at": "2026-10-30T01:36:22-05:00",
       "applied_at": "2026-10-29T00:16:39-05:00",
       "result": {
         "file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/data/rea/experiments/large_model_routing.json"
@@ -208,7 +208,7 @@
       "validation": "Medir latencia y calidad en una muestra de 20 prompts antes de elevar el contexto por defecto.",
       "rollback": "Volver a ctx_size=4096 en temporal_brain_config.json.",
       "status": "proposed",
-      "created_at": "2026-10-30T00:15:12-05:00"
+      "created_at": "2026-10-30T01:36:22-05:00"
     },
     {
       "id": "rea-daf88ac51253",
@@ -231,7 +231,7 @@
       "validation": "Comparar tokens/s y perplejidad en el mismo prompt.",
       "rollback": "Descartar el experimento; no altera configuración activa.",
       "status": "proposed",
-      "created_at": "2026-10-30T00:15:12-05:00"
+      "created_at": "2026-10-30T01:36:22-05:00"
     },
     {
       "id": "rea-ef6aa77d777b",
@@ -254,7 +254,7 @@
       "validation": "Medir latencia y calidad en una muestra de 20 prompts antes de elevar el contexto por defecto.",
       "rollback": "Volver a ctx_size=4096 en temporal_brain_config.json.",
       "status": "applied",
-      "created_at": "2026-10-30T00:15:12-05:00",
+      "created_at": "2026-10-30T01:36:22-05:00",
       "applied_at": "2026-10-29T00:16:39-05:00",
       "result": {
         "file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/data/rea/experiments/long_context.json"
@@ -280,7 +280,7 @@
       "validation": "Ejecutar 10 inferencias y comparar perplejidad; revertir si supera +2%.",
       "rollback": "Restaurar cache_type_k=f16 desde el backup automático.",
       "status": "proposed",
-      "created_at": "2026-10-30T00:15:12-05:00"
+      "created_at": "2026-10-30T01:36:22-05:00"
     }
   ]
 }

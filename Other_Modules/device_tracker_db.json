@@ -74,7 +74,7 @@
     "interface": "enp2s0",
     "connection_medium": "Ethernet / LAN (enp2s0)",
     "network_segment": "Ethernet / LAN Principal (REDACTED_IP/24)",
-    "arp_state": "STALE",
+    "arp_state": "REACHABLE",
     "online": true,
     "rtt_ms": 2.16,
     "open_ports": [
@@ -102,7 +102,7 @@
     "traffic_bytes_tx": 0,
     "traffic_packets": 0,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-29T16:05:57.708236+00:00",
+    "last_seen": "2026-10-30T06:37:20.686788+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -188,7 +188,7 @@
     "traffic_bytes_tx": 0,
     "traffic_packets": 0,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-29T16:05:57.708236+00:00",
+    "last_seen": "2026-10-30T06:37:20.686788+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -204,7 +204,7 @@
     "interface": "enp2s0",
     "connection_medium": "Ethernet / LAN (enp2s0)",
     "network_segment": "Ethernet / LAN Principal (REDACTED_IP/24)",
-    "arp_state": "STALE",
+    "arp_state": "REACHABLE",
     "online": true,
     "rtt_ms": 8.34,
     "open_ports": [],
@@ -216,11 +216,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 60,
+    "traffic_bytes_rx": 0,
     "traffic_bytes_tx": 0,
-    "traffic_packets": 1,
+    "traffic_packets": 0,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-29T16:05:57.708236+00:00",
+    "last_seen": "2026-10-30T06:37:20.686788+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -230,33 +230,29 @@
     "ip": "REDACTED_IP",
     "ipv6_addresses": [],
     "alias": "Smart TV LG webOS (Recámara / Secundaria)",
-    "hostname": "LGwebOSTV.local",
+    "hostname": "Smart TV LG webOS (Recámara / Secundaria)",
     "vendor": "LG Innotek",
     "device_type": "Smart TV / Multimedia",
     "interface": "enp2s0",
     "connection_medium": "Ethernet / LAN (enp2s0)",
     "network_segment": "Ethernet / LAN Principal (REDACTED_IP/24)",
-    "arp_state": "STALE",
+    "arp_state": "REACHABLE",
     "online": true,
     "rtt_ms": null,
     "open_ports": [],
     "port_details": [],
     "risky_ports": [],
-    "mdns_services": [
-      "0_0 (AirPlay Remote Video)",
-      "0_0 (_display._tcp)",
-      "0_0 (_ghp._tcp)"
-    ],
+    "mdns_services": [],
     "wifi_metrics": {},
     "trust_level": "KNOWN",
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 0,
-    "traffic_bytes_tx": 441,
-    "traffic_packets": 1,
+    "traffic_bytes_rx": 240,
+    "traffic_bytes_tx": 0,
+    "traffic_packets": 4,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-29T16:05:57.708236+00:00",
+    "last_seen": "2026-10-30T06:37:20.686788+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -272,7 +268,7 @@
     "interface": "enp2s0",
     "connection_medium": "Ethernet / LAN (enp2s0)",
     "network_segment": "Ethernet / LAN Principal (REDACTED_IP/24)",
-    "arp_state": "DELAY",
+    "arp_state": "REACHABLE",
     "online": true,
     "rtt_ms": null,
     "open_ports": [],
@@ -284,11 +280,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 168,
-    "traffic_bytes_tx": 0,
-    "traffic_packets": 2,
+    "traffic_bytes_rx": 240,
+    "traffic_bytes_tx": 680,
+    "traffic_packets": 14,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-22T00:12:43.741483+00:00",
+    "last_seen": "2026-10-30T06:37:20.686788+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -304,7 +300,7 @@
     "interface": "enp2s0",
     "connection_medium": "Ethernet / LAN (enp2s0)",
     "network_segment": "Ethernet / LAN Principal (REDACTED_IP/24)",
-    "arp_state": "DELAY",
+    "arp_state": "REACHABLE",
     "online": true,
     "rtt_ms": null,
     "open_ports": [
@@ -330,11 +326,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 168,
-    "traffic_bytes_tx": 151,
-    "traffic_packets": 3,
+    "traffic_bytes_rx": 240,
+    "traffic_bytes_tx": 303,
+    "traffic_packets": 6,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-22T00:12:43.741483+00:00",
+    "last_seen": "2026-10-30T06:37:20.686788+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -350,7 +346,7 @@
     "interface": "enp2s0",
     "connection_medium": "Ethernet / LAN (enp2s0)",
     "network_segment": "Ethernet / LAN Principal (REDACTED_IP/24)",
-    "arp_state": "STALE",
+    "arp_state": "REACHABLE",
     "online": true,
     "rtt_ms": 2.14,
     "open_ports": [
@@ -374,11 +370,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 0,
-    "traffic_bytes_tx": 2229,
-    "traffic_packets": 21,
+    "traffic_bytes_rx": 240,
+    "traffic_bytes_tx": 0,
+    "traffic_packets": 4,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-29T16:05:57.708236+00:00",
+    "last_seen": "2026-10-30T06:37:20.686788+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -445,19 +441,19 @@
     ],
     "risky_ports": [],
     "mdns_services": [
-      "50EBF6E2B850@TARDIS (AirTunes Remote Audio)",
-      "TARDIS (AirPlay Remote Video)"
+      "TARDIS (AirPlay Remote Video)",
+      "50EBF6E2B850@TARDIS (AirTunes Remote Audio)"
     ],
     "wifi_metrics": {},
     "trust_level": "AEGIS_PROTECTED",
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": REDACTED_PHONE,
-    "traffic_bytes_tx": REDACTED_PHONE,
-    "traffic_packets": 12251317,
+    "traffic_bytes_rx": 1181619,
+    "traffic_bytes_tx": 1380218,
+    "traffic_packets": 7801,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-29T16:05:57.708236+00:00",
+    "last_seen": "2026-10-30T06:37:20.686788+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -529,11 +525,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 26980,
-    "traffic_bytes_tx": 29306740,
-    "traffic_packets": 480218,
+    "traffic_bytes_rx": 26344,
+    "traffic_bytes_tx": 90237,
+    "traffic_packets": 1254,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-10-29T16:05:57.708236+00:00",
+    "last_seen": "2026-10-30T06:37:20.686788+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -976,7 +972,7 @@
     "interface": "enp2s0",
     "connection_medium": "Ethernet / LAN (enp2s0)",
     "network_segment": "Ethernet / LAN Principal (REDACTED_IP/24)",
-    "arp_state": "STALE",
+    "arp_state": "REACHABLE",
     "online": true,
     "rtt_ms": 2.1,
     "open_ports": [],
@@ -992,7 +988,78 @@
     "traffic_bytes_tx": 0,
     "traffic_packets": 0,
     "first_seen": "2026-10-29T16:05:57.708236+00:00",
-    "last_seen": "2026-10-29T16:05:57.708236+00:00",
+    "last_seen": "2026-10-30T06:37:20.686788+00:00",
+    "ip_history": [
+      "REDACTED_IP"
+    ]
+  },
+  "12:CE:E2:6C:14:B0": {
+    "mac": "12:CE:E2:6C:14:B0",
+    "ip": "REDACTED_IP",
+    "ipv6_addresses": [],
+    "alias": "Dispositivo LAN (REDACTED_IP)",
+    "hostname": "Dispositivo LAN (REDACTED_IP)",
+    "vendor": "Dirección MAC Privada / Aleatoria (iOS / Android / Linux)",
+    "device_type": "Dispositivo de Red (Dirección MAC Privada / Aleatoria (iOS / Android / Linux))",
+    "interface": "veth-host-aq",
+    "connection_medium": "Virtual Bridge (veth-host-aq)",
+    "network_segment": "Namespace Virtual Antarctica (REDACTED_IP/24)",
+    "arp_state": "DELAY",
+    "online": true,
+    "rtt_ms": 0.08,
+    "open_ports": [],
+    "port_details": [],
+    "risky_ports": [],
+    "mdns_services": [],
+    "wifi_metrics": {},
+    "trust_level": "KNOWN",
+    "is_quarantined": false,
+    "throttle_kbps": null,
+    "is_safe": true,
+    "traffic_bytes_rx": 20320,
+    "traffic_bytes_tx": 29961,
+    "traffic_packets": 227,
+    "first_seen": "2026-10-30T06:37:20.686788+00:00",
+    "last_seen": "2026-10-30T06:37:20.686788+00:00",
+    "ip_history": [
+      "REDACTED_IP"
+    ]
+  },
+  "AC:87:A3:0D:B1:3E": {
+    "mac": "AC:87:A3:0D:B1:3E",
+    "ip": "REDACTED_IP",
+    "ipv6_addresses": [],
+    "alias": "Dispositivo LAN (REDACTED_IP)",
+    "hostname": "Dispositivo LAN (REDACTED_IP)",
+    "vendor": "Apple, Inc.",
+    "device_type": "Dispositivo de Red (Apple, Inc.)",
+    "interface": "enp2s0",
+    "connection_medium": "Ethernet / LAN (enp2s0)",
+    "network_segment": "Ethernet / LAN Principal (REDACTED_IP/24)",
+    "arp_state": "REACHABLE",
+    "online": true,
+    "rtt_ms": 0.15,
+    "open_ports": [
+      22
+    ],
+    "port_details": [
+      {
+        "port": 22,
+        "service": "SSH"
+      }
+    ],
+    "risky_ports": [],
+    "mdns_services": [],
+    "wifi_metrics": {},
+    "trust_level": "KNOWN",
+    "is_quarantined": false,
+    "throttle_kbps": null,
+    "is_safe": true,
+    "traffic_bytes_rx": 11742,
+    "traffic_bytes_tx": 11434,
+    "traffic_packets": 79,
+    "first_seen": "2026-10-30T06:37:20.686788+00:00",
+    "last_seen": "2026-10-30T06:37:20.686788+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]

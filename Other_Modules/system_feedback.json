@@ -1,12 +1,12 @@
 {
-  "timestamp": REDACTED_PHONE.616686,
-  "iso": "2026-10-30T01:25:14.617650",
-  "health_score": 85,
+  "timestamp": REDACTED_PHONE.3722467,
+  "iso": "2026-10-30T01:37:06.375207",
+  "health_score": 100,
   "status": "HEALTHY",
-  "cycle": 1895,
+  "cycle": 2,
   "metrics": {
-    "cpu_percent": 10.2,
-    "ram_percent": 87.3,
+    "cpu_percent": 63.3,
+    "ram_percent": 20.9,
     "recent_errors": 0,
     "recent_blocks": 0
   },
