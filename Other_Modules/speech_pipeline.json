@@ -60,9 +60,15 @@
       "url": "https://huggingface.co/LiquidAI/LFM3-Omni-2B",
       "source": "huggingface:trending",
       "relevance": 9.3
+    },
+    {
+      "title": "Mind The Gap (MTG-AD): Dataset and Fine-grained Evaluation for End-to-End Inline Audio Descriptions",
+      "url": "http://arxiv.org/abs/2610.39955v1",
+      "source": "arxiv",
+      "relevance": 13.8
     }
   ],
   "status": "planned",
   "created_at": "2026-10-29T00:13:36-05:00",
-  "updated_at": "2026-10-29T18:17:00-05:00"
+  "updated_at": "2026-10-30T00:15:12-05:00"
 }

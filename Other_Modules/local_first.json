@@ -60,9 +60,27 @@
       "url": "https://huggingface.co/LiquidAI/LFM3-Omni-2B",
       "source": "huggingface:trending",
       "relevance": 9.3
+    },
+    {
+      "title": "From the Transformer to a Formal Semantics of Coordinated Transformations",
+      "url": "http://arxiv.org/abs/2610.39735v1",
+      "source": "arxiv",
+      "relevance": 8.2
+    },
+    {
+      "title": "When to spend privacy: optimal allocation in private learning",
+      "url": "http://arxiv.org/abs/2610.39954v1",
+      "source": "arxiv",
+      "relevance": 6.9
+    },
+    {
+      "title": "CovFedAvg: Local Low-Loss Curves and Federated Model Selection",
+      "url": "http://arxiv.org/abs/2610.39902v1",
+      "source": "arxiv",
+      "relevance": 6.6
     }
   ],
   "status": "planned",
   "created_at": "2026-10-29T00:13:36-05:00",
-  "updated_at": "2026-10-29T18:17:00-05:00"
+  "updated_at": "2026-10-30T00:15:12-05:00"
 }

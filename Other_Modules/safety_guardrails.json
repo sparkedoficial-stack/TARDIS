@@ -30,8 +30,21 @@
       "url": "http://arxiv.org/abs/2610.37652v1",
       "source": "arxiv",
       "relevance": 3.1
+    },
+    {
+      "title": "Hybrid AI Patterns: Thirteen Ways to Couple Language Models with Rules, and How to Choose Among Them",
+      "url": "http://arxiv.org/abs/2610.40036v1",
+      "source": "arxiv",
+      "relevance": 10.8
+    },
+    {
+      "title": "The Role of Self-Concept In Language Models",
+      "url": "http://arxiv.org/abs/2610.39795v1",
+      "source": "arxiv",
+      "relevance": 4.6
     }
   ],
   "status": "planned",
-  "created_at": "2026-10-29T00:13:36-05:00"
+  "created_at": "2026-10-29T00:13:36-05:00",
+  "updated_at": "2026-10-30T00:15:12-05:00"
 }

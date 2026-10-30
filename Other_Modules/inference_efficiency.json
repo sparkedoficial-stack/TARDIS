@@ -18,8 +18,27 @@
       "url": "https://github.com/ggml-org/whisper.cpp/releases/tag/v1.9.5",
       "source": "github:ggml-org/whisper.cpp",
       "relevance": 24.8
+    },
+    {
+      "title": "KV Cache Quantization for Diffusion Language Models",
+      "url": "http://arxiv.org/abs/2610.39853v1",
+      "source": "arxiv",
+      "relevance": 13.7
+    },
+    {
+      "title": "Attention, Dynamic Wave and Hybrid Sequence Mixers in Language Models",
+      "url": "http://arxiv.org/abs/2610.39854v1",
+      "source": "arxiv",
+      "relevance": 10.2
+    },
+    {
+      "title": "Cheap Retrieval and Observation Credit Assignment from One Quantity: The Value of Information",
+      "url": "http://arxiv.org/abs/2610.40030v1",
+      "source": "arxiv",
+      "relevance": 8.3
     }
   ],
   "status": "planned",
-  "created_at": "2026-10-29T00:13:36-05:00"
+  "created_at": "2026-10-29T00:13:36-05:00",
+  "updated_at": "2026-10-30T00:15:12-05:00"
 }

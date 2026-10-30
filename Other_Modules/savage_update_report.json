@@ -1,12 +1,12 @@
 {
   "schema": "tardis.savage_update/1.0",
-  "generated_at": "2026-10-29T18:17:00-05:00",
+  "generated_at": "2026-10-30T00:15:12-05:00",
   "cycle": {
-    "items_collected": 55,
-    "items_fresh": 1,
-    "proposals": 3,
-    "experiment_plans": 3,
-    "elapsed_s": 5.88
+    "items_collected": 58,
+    "items_fresh": 32,
+    "proposals": 11,
+    "experiment_plans": 11,
+    "elapsed_s": 5.72
   },
   "sources": {
     "offline": false,
@@ -14,22 +14,22 @@
       "github": {
         "ok": true,
         "count": 6,
-        "elapsed_ms": 2834.8
+        "elapsed_ms": 2666.4
       },
       "huggingface": {
         "ok": true,
         "count": 20,
-        "elapsed_ms": 598.2
+        "elapsed_ms": 567.0
       },
       "arxiv": {
         "ok": true,
         "count": 36,
-        "elapsed_ms": 1064.9
+        "elapsed_ms": 992.2
       },
       "npm": {
         "ok": true,
         "count": 1,
-        "elapsed_ms": 430.1
+        "elapsed_ms": 509.3
       }
     }
   },
@@ -41,23 +41,501 @@
   },
   "top_items": [
     {
-      "id": "644c93578154d28c",
-      "source": "huggingface:trending",
-      "category": "model",
-      "title": "LiquidAI/LFM3-Omni-2B",
-      "url": "https://huggingface.co/LiquidAI/LFM3-Omni-2B",
-      "published_at": "2026-10-28T23:16:38.000Z",
-      "summary": "pipeline=any-to-any downloads=1814 likes=202",
+      "id": "3a0ac5bb433998ee",
+      "source": "arxiv",
+      "category": "ml-research",
+      "title": "Low-Bit GDN Recurrent-State Quantization: Global Gradient-aware Allocation and Pure-Write Sliding Windows",
+      "url": "http://arxiv.org/abs/2610.39931v1",
+      "published_at": "2026-10-29T12:33:21Z",
+      "summary": "Linear attention stores historical information in a recurrent state of fixed size, providing a compact memory representation for long-context inference. Reducing state precision further lowers per-request storage requirements, but quantized writeback errors enter subsequent recurrences, degrade prediction quality on long-reasoning tasks, and can be accompanied by repetitive generation and excessively long outputs. We propose Global Gradient-aware Allocation (GGA) and the Pure-Write Sliding Window (PW) to address precision allocation and recent-information maintenance. GGA combines candidate quantization residuals with gradient sensitivity to future prediction loss to allocate head bit widths",
+      "tags": [
+        "quantization",
+        "rag",
+        "reasoning"
+      ],
+      "relevance": 16.8,
+      "targets": []
+    },
+    {
+      "id": "55487d388be253ef",
+      "source": "arxiv",
+      "category": "ai-research",
+      "title": "Mind The Gap (MTG-AD): Dataset and Fine-grained Evaluation for End-to-End Inline Audio Descriptions",
+      "url": "http://arxiv.org/abs/2610.39955v1",
+      "published_at": "2026-10-29T12:51:38Z",
+      "summary": "Audio descriptions (AD) are essential for making visual media accessible to blind and low-vision (BLV) users. While Multimodal Large Language Models (MLLMs) offer a scalable solution for generating audio descriptions on-demand, their performance on ``inline'' audio descriptions -- which must fit within existing silences in a video -- remains under-explored, particularly for diverse user-generated content (UGC). We present a comprehensive investigation into MLLM-generated inline audio descriptions. First, we introduce MTG-AD, a professionally annotated dataset of 36 hours of videos, each averaging $\\sim$5 mins. and 8k+ descriptions in total, co-created by paired blind and sighted AD professio",
+      "tags": [
+        "moe",
+        "vision",
+        "speech"
+      ],
+      "relevance": 13.8,
+      "targets": []
+    },
+    {
+      "id": "80fea13f3d32f5ff",
+      "source": "arxiv",
+      "category": "nlp-research",
+      "title": "KV Cache Quantization for Diffusion Language Models",
+      "url": "http://arxiv.org/abs/2610.39853v1",
+      "published_at": "2026-10-29T11:31:41Z",
+      "summary": "KV cache quantization is well studied for autoregressive language models, where cached prefix states are exact under causal attention and quantization is mainly a cache reconstruction problem. Diffusion language models (dLLMs) break this assumption. Fast dLLM inference reuses KV states across denoising steps, but bidirectional token representations can change as masked tokens are revealed, so the reused cache may already differ from full recomputation before quantization is applied. We study KV cache quantization under this cache-reuse error. We adapt KIVI and KVQuant to Fast-dLLM-style prefix and dual cache reuse, and introduce TRACE and dLLM-KVQ. TRACE reconstructs feasible dLLM reveal tra",
+      "tags": [
+        "quantization",
+        "efficiency"
+      ],
+      "relevance": 13.7,
+      "targets": []
+    },
+    {
+      "id": "f99ac1300058c652",
+      "source": "arxiv",
+      "category": "nlp-research",
+      "title": "AI Cosmos: An Agentic Infra for Situated Learning",
+      "url": "http://arxiv.org/abs/2610.40031v1",
+      "published_at": "2026-10-29T13:36:31Z",
+      "summary": "Large language models (LLMs) can improve task performance during learning, yet these gains do not necessarily reflect learners' ability to thereafter apply the knowledge and skills independently. We present AI Cosmos, an agentic infrastructure for situated learning that organizes learning around two complementary principles: scenario-based participation and cumulative assets of practice. AI Cosmos organizes learners and role-specialized agents within learning scenarios that integrate task-relevant knowledge and, when needed, executable workbenches. An asset-memory loop preserves the processes and outcomes of practice as reusable assets with explicit provenance and dependencies. We evaluate s",
+      "tags": [
+        "agents",
+        "reasoning"
+      ],
+      "relevance": 12.2,
+      "targets": []
+    },
+    {
+      "id": "db01d5b7488d21c8",
+      "source": "arxiv",
+      "category": "ai-research",
+      "title": "Hybrid AI Patterns: Thirteen Ways to Couple Language Models with Rules, and How to Choose Among Them",
+      "url": "http://arxiv.org/abs/2610.40036v1",
+      "published_at": "2026-10-29T13:37:28Z",
+      "summary": "Language models handle text well, and rule engines give conclusions with proofs. Systems that combine the two are usually described by example, and the same coupling turns up under different names in agent frameworks, guardrail toolkits and neuro-symbolic research. This document defines thirteen patterns for coupling a language model with an executable rule language, in the catalogue form introduced for object-oriented design: intent, motivation, applicability, participants, collaborations, consequences, implementation, known uses and related patterns. Four patterns concern what crosses the boundary between model and rules, five who controls whom, three how the model takes part in the reason",
+      "tags": [
+        "agents",
+        "reasoning",
+        "safety"
+      ],
+      "relevance": 10.8,
+      "targets": []
+    },
+    {
+      "id": "20932a74fc0e21bf",
+      "source": "arxiv",
+      "category": "nlp-research",
+      "title": "Attention, Dynamic Wave and Hybrid Sequence Mixers in Language Models",
+      "url": "http://arxiv.org/abs/2610.39854v1",
+      "published_at": "2026-10-29T11:33:29Z",
+      "summary": "Large Language Models (LLMs) rely on Multi-Head Attention (MHA) for sequence modeling, but scaling to long contexts is constrained by the quadratic cost of attention, motivating sub-quadratic recurrent alternatives. This paper formalizes a Dynamic Wave recurrent layer, based on input-dependent exponential damping and cosine phase modulation, and evaluates three 10.94M-parameter configurations (Pure Transformer, Pure Wave, and Hybrid Wave-Attention) on TinyStories under perplexity, latency, throughput and peak VRAM profiling up to 4096 tokens. The Hybrid configuration reaches the best perplexity, 5.95 on the full held-out split against 6.93 for the Transformer and 7.26 for Pure Wave. The effi",
+      "tags": [
+        "long-context",
+        "efficiency"
+      ],
+      "relevance": 10.2,
+      "targets": []
+    },
+    {
+      "id": "efe491637b3ac2e8",
+      "source": "arxiv",
+      "category": "ml-research",
+      "title": "Learning Calibrated Confidence for Multi-Agent Collaboration",
+      "url": "http://arxiv.org/abs/2610.39927v1",
+      "published_at": "2026-10-29T12:30:00Z",
+      "summary": "Complex information seeking on the Web often requires collecting evidence from multiple documents and reasoning across them, as in multi-hop question answering. Multi-agent systems address such tasks by dividing work among specialized agents, where upstream agents produce intermediate answers and supporting evidence that downstream agents build upon. However, upstream answers vary in correctness, and most systems provide no quantitative signal about it, leaving the downstream agent to judge whether to trust or verify what it receives based solely on the textual evidence. In this paper, we propose MASCAL. Each agent learns to produce a correctness probability for its answer by jointly optimiz",
+      "tags": [
+        "quantization",
+        "agents",
+        "rag",
+        "reasoning"
+      ],
+      "relevance": 9.4,
+      "targets": []
+    },
+    {
+      "id": "ddabfdbaeb5b9b49",
+      "source": "arxiv",
+      "category": "ml-research",
+      "title": "H$^2$R: Hierarchical Hint-Based Reward for Mathematical Reasoning via Reinforcement Learning",
+      "url": "http://arxiv.org/abs/2610.39934v1",
+      "published_at": "2026-10-29T12:36:21Z",
+      "summary": "Reinforcement Learning with Verifiable Rewards has shown great promise in enhancing mathematical reasoning in large language models. However, existing approaches provide limited intermediate supervision for complex, multi-step reasoning tasks. To bridge this gap, we propose \\textbf{Hierarchical Hint-based Reward}, a framework that leverages the intrinsic sub-question structure of mathematical problems as structured intermediate conditioning signals during RLVR training. Unlike chain-of-thought prompting, these hierarchical hints serve as logically grounded intermediate milestones that effectively reduce the reasoning horizon toward the final answer. To validate this framework, we introduce \\",
       "tags": [
         "vision",
-        "speech",
+        "reasoning"
+      ],
+      "relevance": 9.2,
+      "targets": []
+    },
+    {
+      "id": "b3de6ed25570263a",
+      "source": "arxiv",
+      "category": "ml-research",
+      "title": "Cheap Retrieval and Observation Credit Assignment from One Quantity: The Value of Information",
+      "url": "http://arxiv.org/abs/2610.40030v1",
+      "published_at": "2026-10-29T13:36:06Z",
+      "summary": "Memory in reinforcement learning raises two problems. Attention finds the relevant item by scoring the whole store, which is costly for robots under latency and energy limits. When a retrieved memory pays off, credit for acquiring it must cross the whole sequence. We argue that both are governed by one quantity, the value of information, and propose to estimate it from archived rollouts with a learned world model. We obtain that, when read at the observation, it yields a provable lower bound on the optimal value of the acquiring action, which floors its TD target and attributes this floor to the observation that earned it. Read at the decision, it defines the optimal retrieval set. A pilot r",
+      "tags": [
+        "quantization",
+        "rag",
+        "efficiency"
+      ],
+      "relevance": 8.3,
+      "targets": []
+    },
+    {
+      "id": "deeaf819947d51b4",
+      "source": "arxiv",
+      "category": "nlp-research",
+      "title": "From the Transformer to a Formal Semantics of Coordinated Transformations",
+      "url": "http://arxiv.org/abs/2610.39735v1",
+      "published_at": "2026-10-29T10:00:08Z",
+      "summary": "We develop a formal semantics for a general class of coordinated systems of parameterized transformations, taking the Transformer as a paradigmatic starting point but abstracting from its particular mathematical instantiation. Representational vectors receive both extensional reference and ordered intensional interpretations, while parameter structures acquire relative, second-level interpretations that determine how argument properties are preserved, replaced, or combined. This yields the notion of a transforming concept: a parameterized transformation whose numerical action is coordinated with a corresponding property-level map. We then distinguish the common algebraic-semantic core of the",
+      "tags": [
+        "rag",
         "local"
       ],
-      "relevance": 9.3,
+      "relevance": 8.2,
+      "targets": []
+    },
+    {
+      "id": "fea413f9ee61a989",
+      "source": "arxiv",
+      "category": "ml-research",
+      "title": "How Much Should a VLA Trust Its Reasoning? Step-Level Guidance as a Measured Action-Value Function",
+      "url": "http://arxiv.org/abs/2610.40002v1",
+      "published_at": "2026-10-29T13:20:35Z",
+      "summary": "Reasoning vision-language-action (VLA) policies write a reasoning trace and then decode the action from it. A wrong trace yields a wrong action, and even a correct-looking trace can mislead the plan. Existing remedies ask whether the reasoning is right. We ask how strongly it should steer. CoC-CFG applies classifier-free guidance between the policy's context and the same context without the reasoning span. One weight per Euler step attenuates or amplifies the reasoning, and w=1 recovers the original policy. We treat the choice of this weight as a Markov decision process whose action values are measured, not bootstrapped. With the expert frozen and the noise fixed, applying a weight for one s",
+      "tags": [
+        "moe",
+        "vision",
+        "reasoning"
+      ],
+      "relevance": 7.8,
+      "targets": []
+    },
+    {
+      "id": "7beca655fb7c083d",
+      "source": "arxiv",
+      "category": "ml-research",
+      "title": "When to spend privacy: optimal allocation in private learning",
+      "url": "http://arxiv.org/abs/2610.39954v1",
+      "published_at": "2026-10-29T12:51:07Z",
+      "summary": "Privacy accounting bounds the cumulative privacy cost of Differentially Private Stochastic Gradient Descent but does not determine how to allocate a fixed budget across iterations. We formulate the complete Gaussian noise-variance schedule as an open-loop control under a composed zero-Concentrated Differential Privacy constraint, explicitly accounting for schedule selection. For expected quadratic terminal tracking, we prove that every local minimizer exhausts the certified budget, yielding an exact-budget simplex formulation. We introduce Privacy-Budget Adjoint Mirror Descent (PB-AMD), combining pathwise adjoint gradients with entropic updates that preserve positivity, charge floors, and th",
+      "tags": [
+        "local"
+      ],
+      "relevance": 6.9,
+      "targets": []
+    },
+    {
+      "id": "b9d613f1ef47b88f",
+      "source": "huggingface:trending",
+      "category": "model",
+      "title": "openbmb/MiniCPM-OCR-1.0",
+      "url": "https://huggingface.co/openbmb/MiniCPM-OCR-1.0",
+      "published_at": "2026-10-29T15:39:19.000Z",
+      "summary": "pipeline=image-text-to-text downloads=1597 likes=331",
+      "tags": [
+        "vision"
+      ],
+      "relevance": 6.6,
+      "targets": []
+    },
+    {
+      "id": "2064ee73c2ea5fd2",
+      "source": "arxiv",
+      "category": "ml-research",
+      "title": "CovFedAvg: Local Low-Loss Curves and Federated Model Selection",
+      "url": "http://arxiv.org/abs/2610.39902v1",
+      "published_at": "2026-10-29T12:12:55Z",
+      "summary": "Clients observing different parts of a prediction task may learn locally equivalent models with incompatible behavior outside their observed support. We study whether redundant models permit local low-loss paths toward a compatible shared model. CovFedAvg retains local models and curve controls on clients, fits a common endpoint through aggregated gradient contributions, and selects an actual candidate model using distributed training losses. No centralized calibration examples or client-to-client sample exchange are required. Exact selection guarantees no higher evaluated training loss than the previous model and the current-round FedAvg candidate; this is not a global-optimality, stationar",
+      "tags": [
+        "local"
+      ],
+      "relevance": 6.6,
+      "targets": []
+    },
+    {
+      "id": "aafe30e6c5e661df",
+      "source": "arxiv",
+      "category": "ml-research",
+      "title": "Observability-Aligned Evidential Masked Pretraining for Reliable VRU Motion Prediction",
+      "url": "http://arxiv.org/abs/2610.39958v1",
+      "published_at": "2026-10-29T12:54:01Z",
+      "summary": "Vulnerable road user (VRU) prediction must operate under partial observability and distribution shift, so reliable uncertainty matters alongside accuracy. Masked pretraining is attractive in this setting because it naturally exposes the model to missing content during self-supervision, but existing time-series masked autoencoding methods are typically deterministic and do not constrain how confidence should change with observability. We introduce eCoMAE, an evidential masked pretraining method for multivariate time series that explicitly aligns predictive evidence with what is observed. eCoMAE combines block-wise time-step masking with a Normal-Inverse-Gamma decoder and three observability-a",
+      "tags": [
+        "vision"
+      ],
+      "relevance": 6.1,
       "targets": []
     }
   ],
   "proposals": [
+    {
+      "id": "savage-73e62f0aae43",
+      "title": "Integración de capacidades visión/multimodal",
+      "target": "tardis",
+      "tag": "vision",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "vision_pipeline",
+      "evidence": [
+        {
+          "title": "Mind The Gap (MTG-AD): Dataset and Fine-grained Evaluation for End-to-End Inline Audio Descriptions",
+          "url": "http://arxiv.org/abs/2610.39955v1",
+          "source": "arxiv",
+          "relevance": 13.8
+        },
+        {
+          "title": "H$^2$R: Hierarchical Hint-Based Reward for Mathematical Reasoning via Reinforcement Learning",
+          "url": "http://arxiv.org/abs/2610.39934v1",
+          "source": "arxiv",
+          "relevance": 9.2
+        },
+        {
+          "title": "How Much Should a VLA Trust Its Reasoning? Step-Level Guidance as a Measured Action-Value Function",
+          "url": "http://arxiv.org/abs/2610.40002v1",
+          "source": "arxiv",
+          "relevance": 7.8
+        },
+        {
+          "title": "openbmb/MiniCPM-OCR-1.0",
+          "url": "https://huggingface.co/openbmb/MiniCPM-OCR-1.0",
+          "source": "huggingface:trending",
+          "relevance": 6.6
+        },
+        {
+          "title": "Observability-Aligned Evidential Masked Pretraining for Reliable VRU Motion Prediction",
+          "url": "http://arxiv.org/abs/2610.39958v1",
+          "source": "arxiv",
+          "relevance": 6.1
+        },
+        {
+          "title": "Event-SAMA: Language-Grounded Video Object Segmentation on Neuromorphic Event Streams",
+          "url": "http://arxiv.org/abs/2610.39676v1",
+          "source": "arxiv",
+          "relevance": 3.2
+        },
+        {
+          "title": "FIDE: Fiber-Informed Differentiable Experimental Design for Reference-Relative Law Dynamics",
+          "url": "http://arxiv.org/abs/2610.40009v1",
+          "source": "arxiv",
+          "relevance": 3.2
+        },
+        {
+          "title": "Human--AI Interactions as First-Class Data: A Formal Interaction Model and Runtime for Explainable AI Collaboration",
+          "url": "http://arxiv.org/abs/2610.40006v1",
+          "source": "arxiv",
+          "relevance": 2.6
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 8 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Evaluar 50 imágenes con ground truth; medir exactitud y latencia.",
+      "rollback": "Desactivar el pipeline visual nuevo.",
+      "status": "planned",
+      "created_at": "2026-10-30T00:15:12-05:00"
+    },
+    {
+      "id": "savage-0221680af214",
+      "title": "Benchmark de cuantización para el modelo soberano",
+      "target": "ftl",
+      "tag": "quantization",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "quantization_benchmark",
+      "evidence": [
+        {
+          "title": "Low-Bit GDN Recurrent-State Quantization: Global Gradient-aware Allocation and Pure-Write Sliding Windows",
+          "url": "http://arxiv.org/abs/2610.39931v1",
+          "source": "arxiv",
+          "relevance": 16.8
+        },
+        {
+          "title": "KV Cache Quantization for Diffusion Language Models",
+          "url": "http://arxiv.org/abs/2610.39853v1",
+          "source": "arxiv",
+          "relevance": 13.7
+        },
+        {
+          "title": "Learning Calibrated Confidence for Multi-Agent Collaboration",
+          "url": "http://arxiv.org/abs/2610.39927v1",
+          "source": "arxiv",
+          "relevance": 9.4
+        },
+        {
+          "title": "Cheap Retrieval and Observation Credit Assignment from One Quantity: The Value of Information",
+          "url": "http://arxiv.org/abs/2610.40030v1",
+          "source": "arxiv",
+          "relevance": 8.3
+        },
+        {
+          "title": "FIDE: Fiber-Informed Differentiable Experimental Design for Reference-Relative Law Dynamics",
+          "url": "http://arxiv.org/abs/2610.40009v1",
+          "source": "arxiv",
+          "relevance": 3.2
+        },
+        {
+          "title": "Can LLMs Ignore What They Know? Measuring Knowledge Leakage in Persona-Based User Simulation",
+          "url": "http://arxiv.org/abs/2610.39939v1",
+          "source": "arxiv",
+          "relevance": 2.6
+        },
+        {
+          "title": "A physics-informed uncertainty-aware surrogate for $p$-$n$ junction diodes",
+          "url": "http://arxiv.org/abs/2610.39993v1",
+          "source": "arxiv",
+          "relevance": 2.1
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 7 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Medir tokens/s, VRAM pico y perplejidad en 20 prompts; aceptar sólo si la pérdida es <2%.",
+      "rollback": "Mantener el GGUF Q4_K actual y descartar el artefacto candidato.",
+      "status": "planned",
+      "created_at": "2026-10-30T00:15:12-05:00"
+    },
+    {
+      "id": "savage-50d57ca1e5ee",
+      "title": "Presupuesto de razonamiento adaptativo",
+      "target": "tardis",
+      "tag": "reasoning",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "reasoning_budget",
+      "evidence": [
+        {
+          "title": "Low-Bit GDN Recurrent-State Quantization: Global Gradient-aware Allocation and Pure-Write Sliding Windows",
+          "url": "http://arxiv.org/abs/2610.39931v1",
+          "source": "arxiv",
+          "relevance": 16.8
+        },
+        {
+          "title": "AI Cosmos: An Agentic Infra for Situated Learning",
+          "url": "http://arxiv.org/abs/2610.40031v1",
+          "source": "arxiv",
+          "relevance": 12.2
+        },
+        {
+          "title": "Hybrid AI Patterns: Thirteen Ways to Couple Language Models with Rules, and How to Choose Among Them",
+          "url": "http://arxiv.org/abs/2610.40036v1",
+          "source": "arxiv",
+          "relevance": 10.8
+        },
+        {
+          "title": "Learning Calibrated Confidence for Multi-Agent Collaboration",
+          "url": "http://arxiv.org/abs/2610.39927v1",
+          "source": "arxiv",
+          "relevance": 9.4
+        },
+        {
+          "title": "H$^2$R: Hierarchical Hint-Based Reward for Mathematical Reasoning via Reinforcement Learning",
+          "url": "http://arxiv.org/abs/2610.39934v1",
+          "source": "arxiv",
+          "relevance": 9.2
+        },
+        {
+          "title": "How Much Should a VLA Trust Its Reasoning? Step-Level Guidance as a Measured Action-Value Function",
+          "url": "http://arxiv.org/abs/2610.40002v1",
+          "source": "arxiv",
+          "relevance": 7.8
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 6 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Comparar exactitud/costo en 40 problemas; elegir el punto de Pareto.",
+      "rollback": "Volver al esfuerzo por defecto.",
+      "status": "planned",
+      "created_at": "2026-10-30T00:15:12-05:00"
+    },
+    {
+      "id": "savage-db7241589fcf",
+      "title": "Mejora del pipeline RAG y embeddings",
+      "target": "tardis",
+      "tag": "rag",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "rag_pipeline",
+      "evidence": [
+        {
+          "title": "Low-Bit GDN Recurrent-State Quantization: Global Gradient-aware Allocation and Pure-Write Sliding Windows",
+          "url": "http://arxiv.org/abs/2610.39931v1",
+          "source": "arxiv",
+          "relevance": 16.8
+        },
+        {
+          "title": "Learning Calibrated Confidence for Multi-Agent Collaboration",
+          "url": "http://arxiv.org/abs/2610.39927v1",
+          "source": "arxiv",
+          "relevance": 9.4
+        },
+        {
+          "title": "Cheap Retrieval and Observation Credit Assignment from One Quantity: The Value of Information",
+          "url": "http://arxiv.org/abs/2610.40030v1",
+          "source": "arxiv",
+          "relevance": 8.3
+        },
+        {
+          "title": "From the Transformer to a Formal Semantics of Coordinated Transformations",
+          "url": "http://arxiv.org/abs/2610.39735v1",
+          "source": "arxiv",
+          "relevance": 8.2
+        },
+        {
+          "title": "Data-driven Random-feature Approximation of Koopman Generators of Nonlinear Continuous-time Systems",
+          "url": "http://arxiv.org/abs/2610.39897v1",
+          "source": "arxiv",
+          "relevance": 4.1
+        },
+        {
+          "title": "Event-SAMA: Language-Grounded Video Object Segmentation on Neuromorphic Event Streams",
+          "url": "http://arxiv.org/abs/2610.39676v1",
+          "source": "arxiv",
+          "relevance": 3.2
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 6 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Recall@10 sobre 100 consultas doradas.",
+      "rollback": "Conservar el índice actual.",
+      "status": "planned",
+      "created_at": "2026-10-30T00:15:12-05:00"
+    },
+    {
+      "id": "savage-f7a834b450f8",
+      "title": "Política de agentes y tool-calling",
+      "target": "ftl",
+      "tag": "agents",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "agent_tool_policy",
+      "evidence": [
+        {
+          "title": "AI Cosmos: An Agentic Infra for Situated Learning",
+          "url": "http://arxiv.org/abs/2610.40031v1",
+          "source": "arxiv",
+          "relevance": 12.2
+        },
+        {
+          "title": "Hybrid AI Patterns: Thirteen Ways to Couple Language Models with Rules, and How to Choose Among Them",
+          "url": "http://arxiv.org/abs/2610.40036v1",
+          "source": "arxiv",
+          "relevance": 10.8
+        },
+        {
+          "title": "Learning Calibrated Confidence for Multi-Agent Collaboration",
+          "url": "http://arxiv.org/abs/2610.39927v1",
+          "source": "arxiv",
+          "relevance": 9.4
+        },
+        {
+          "title": "HEMO: Harness Self-Evolution for Multi-Objective Combinatorial Optimization",
+          "url": "http://arxiv.org/abs/2610.40023v1",
+          "source": "arxiv",
+          "relevance": 4.4
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 4 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Suite de 30 tareas con herramientas; medir tasa de éxito y pasos.",
+      "rollback": "Reactivar la política anterior en coding_router.json.",
+      "status": "planned",
+      "created_at": "2026-10-30T00:15:12-05:00"
+    },
     {
       "id": "savage-328519695b0c",
       "title": "Refuerzo del perfil local-first",
@@ -68,17 +546,147 @@
       "experiment": "local_first",
       "evidence": [
         {
-          "title": "LiquidAI/LFM3-Omni-2B",
-          "url": "https://huggingface.co/LiquidAI/LFM3-Omni-2B",
-          "source": "huggingface:trending",
-          "relevance": 9.3
+          "title": "From the Transformer to a Formal Semantics of Coordinated Transformations",
+          "url": "http://arxiv.org/abs/2610.39735v1",
+          "source": "arxiv",
+          "relevance": 8.2
+        },
+        {
+          "title": "When to spend privacy: optimal allocation in private learning",
+          "url": "http://arxiv.org/abs/2610.39954v1",
+          "source": "arxiv",
+          "relevance": 6.9
+        },
+        {
+          "title": "CovFedAvg: Local Low-Loss Curves and Federated Model Selection",
+          "url": "http://arxiv.org/abs/2610.39902v1",
+          "source": "arxiv",
+          "relevance": 6.6
         }
       ],
-      "rationale": "Señal tecnológica detectada en 1 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "rationale": "Señal tecnológica detectada en 3 fuentes; la doctrina exige evaluar antes de adoptar.",
       "validation": "Verificar que las tareas privadas no salgan del dispositivo.",
       "rollback": "Reactivar ruteo híbrido.",
       "status": "planned",
-      "created_at": "2026-10-29T18:17:00-05:00"
+      "created_at": "2026-10-30T00:15:12-05:00"
+    },
+    {
+      "id": "savage-4b3787d02701",
+      "title": "Optimización de inferencia (caché y decodificación)",
+      "target": "ftl",
+      "tag": "efficiency",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "inference_efficiency",
+      "evidence": [
+        {
+          "title": "KV Cache Quantization for Diffusion Language Models",
+          "url": "http://arxiv.org/abs/2610.39853v1",
+          "source": "arxiv",
+          "relevance": 13.7
+        },
+        {
+          "title": "Attention, Dynamic Wave and Hybrid Sequence Mixers in Language Models",
+          "url": "http://arxiv.org/abs/2610.39854v1",
+          "source": "arxiv",
+          "relevance": 10.2
+        },
+        {
+          "title": "Cheap Retrieval and Observation Credit Assignment from One Quantity: The Value of Information",
+          "url": "http://arxiv.org/abs/2610.40030v1",
+          "source": "arxiv",
+          "relevance": 8.3
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 3 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Medir tokens/s y VRAM antes/después con el mismo prompt.",
+      "rollback": "Restaurar cache_type_k/v=f16.",
+      "status": "planned",
+      "created_at": "2026-10-30T00:15:12-05:00"
+    },
+    {
+      "id": "savage-f58fb1dcfe8b",
+      "title": "Ruteo por expertos activos (top-k)",
+      "target": "tardis",
+      "tag": "moe",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "moe_routing",
+      "evidence": [
+        {
+          "title": "Mind The Gap (MTG-AD): Dataset and Fine-grained Evaluation for End-to-End Inline Audio Descriptions",
+          "url": "http://arxiv.org/abs/2610.39955v1",
+          "source": "arxiv",
+          "relevance": 13.8
+        },
+        {
+          "title": "How Much Should a VLA Trust Its Reasoning? Step-Level Guidance as a Measured Action-Value Function",
+          "url": "http://arxiv.org/abs/2610.40002v1",
+          "source": "arxiv",
+          "relevance": 7.8
+        },
+        {
+          "title": "Grammar Control for Language Learning with Sequential Monte Carlo and Small Language Models",
+          "url": "http://arxiv.org/abs/2610.39800v1",
+          "source": "arxiv",
+          "relevance": 2.6
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 3 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Comparar costo por token activo vs. modelo denso equivalente.",
+      "rollback": "Volver al ruteo denso por defecto.",
+      "status": "planned",
+      "created_at": "2026-10-30T00:15:12-05:00"
+    },
+    {
+      "id": "savage-59e5ad13184e",
+      "title": "Endurecimiento de guardrails y auto-reparación",
+      "target": "easy_touch",
+      "tag": "safety",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "safety_guardrails",
+      "evidence": [
+        {
+          "title": "Hybrid AI Patterns: Thirteen Ways to Couple Language Models with Rules, and How to Choose Among Them",
+          "url": "http://arxiv.org/abs/2610.40036v1",
+          "source": "arxiv",
+          "relevance": 10.8
+        },
+        {
+          "title": "The Role of Self-Concept In Language Models",
+          "url": "http://arxiv.org/abs/2610.39795v1",
+          "source": "arxiv",
+          "relevance": 4.6
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 2 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Batería de 25 casos adversarios; cero ejecuciones no autorizadas.",
+      "rollback": "Restaurar la política de seguridad previa.",
+      "status": "planned",
+      "created_at": "2026-10-30T00:15:12-05:00"
+    },
+    {
+      "id": "savage-2a5f91473f5d",
+      "title": "Perfil de contexto extendido con chunking alineado",
+      "target": "tardis",
+      "tag": "long-context",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "long_context_profile",
+      "evidence": [
+        {
+          "title": "Attention, Dynamic Wave and Hybrid Sequence Mixers in Language Models",
+          "url": "http://arxiv.org/abs/2610.39854v1",
+          "source": "arxiv",
+          "relevance": 10.2
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 1 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Prueba de recuperación en documento de 128k tokens; medir latencia y precisión.",
+      "rollback": "Restaurar ctx_size=4096.",
+      "status": "planned",
+      "created_at": "2026-10-30T00:15:12-05:00"
     },
     {
       "id": "savage-466fd31376f1",
@@ -90,39 +698,17 @@
       "experiment": "speech_pipeline",
       "evidence": [
         {
-          "title": "LiquidAI/LFM3-Omni-2B",
-          "url": "https://huggingface.co/LiquidAI/LFM3-Omni-2B",
-          "source": "huggingface:trending",
-          "relevance": 9.3
+          "title": "Mind The Gap (MTG-AD): Dataset and Fine-grained Evaluation for End-to-End Inline Audio Descriptions",
+          "url": "http://arxiv.org/abs/2610.39955v1",
+          "source": "arxiv",
+          "relevance": 13.8
         }
       ],
       "rationale": "Señal tecnológica detectada en 1 fuentes; la doctrina exige evaluar antes de adoptar.",
       "validation": "WER en 20 audios y latencia de síntesis.",
       "rollback": "Mantener el motor de voz actual.",
       "status": "planned",
-      "created_at": "2026-10-29T18:17:00-05:00"
-    },
-    {
-      "id": "savage-73e62f0aae43",
-      "title": "Integración de capacidades visión/multimodal",
-      "target": "tardis",
-      "tag": "vision",
-      "risk": "low",
-      "kind": "experiment",
-      "experiment": "vision_pipeline",
-      "evidence": [
-        {
-          "title": "LiquidAI/LFM3-Omni-2B",
-          "url": "https://huggingface.co/LiquidAI/LFM3-Omni-2B",
-          "source": "huggingface:trending",
-          "relevance": 9.3
-        }
-      ],
-      "rationale": "Señal tecnológica detectada en 1 fuentes; la doctrina exige evaluar antes de adoptar.",
-      "validation": "Evaluar 50 imágenes con ground truth; medir exactitud y latencia.",
-      "rollback": "Desactivar el pipeline visual nuevo.",
-      "status": "planned",
-      "created_at": "2026-10-29T18:17:00-05:00"
+      "created_at": "2026-10-30T00:15:12-05:00"
     }
   ],
   "offline": false

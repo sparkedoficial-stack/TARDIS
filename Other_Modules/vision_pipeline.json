@@ -8,30 +8,6 @@
   "rollback": "Desactivar el pipeline visual nuevo.",
   "evidence": [
     {
-      "title": "ggml-org/llama.cpp v0.8.0",
-      "url": "https://github.com/ggml-org/llama.cpp/releases/tag/v0.8.0",
-      "source": "github:ggml-org/llama.cpp",
-      "relevance": 25.0
-    },
-    {
-      "title": "vllm-project/vllm v0.32.0",
-      "url": "https://github.com/vllm-project/vllm/releases/tag/v0.32.0",
-      "source": "github:vllm-project/vllm",
-      "relevance": 25.0
-    },
-    {
-      "title": "huggingface/transformers v5.21",
-      "url": "https://github.com/huggingface/transformers/releases/tag/v5.21",
-      "source": "github:huggingface/transformers",
-      "relevance": 25.0
-    },
-    {
-      "title": "VideoLVR: Latent Visual Reasoning over Grounded Video Evidence",
-      "url": "http://arxiv.org/abs/2610.37613v1",
-      "source": "arxiv",
-      "relevance": 10.3
-    },
-    {
       "title": "MiniMaxAI/MiniMax-M3.1-Flash",
       "url": "https://huggingface.co/MiniMaxAI/MiniMax-M3.1-Flash",
       "source": "huggingface:trending",
@@ -78,9 +54,57 @@
       "url": "https://huggingface.co/LiquidAI/LFM3-Omni-2B",
       "source": "huggingface:trending",
       "relevance": 9.3
+    },
+    {
+      "title": "Mind The Gap (MTG-AD): Dataset and Fine-grained Evaluation for End-to-End Inline Audio Descriptions",
+      "url": "http://arxiv.org/abs/2610.39955v1",
+      "source": "arxiv",
+      "relevance": 13.8
+    },
+    {
+      "title": "H$^2$R: Hierarchical Hint-Based Reward for Mathematical Reasoning via Reinforcement Learning",
+      "url": "http://arxiv.org/abs/2610.39934v1",
+      "source": "arxiv",
+      "relevance": 9.2
+    },
+    {
+      "title": "How Much Should a VLA Trust Its Reasoning? Step-Level Guidance as a Measured Action-Value Function",
+      "url": "http://arxiv.org/abs/2610.40002v1",
+      "source": "arxiv",
+      "relevance": 7.8
+    },
+    {
+      "title": "openbmb/MiniCPM-OCR-1.0",
+      "url": "https://huggingface.co/openbmb/MiniCPM-OCR-1.0",
+      "source": "huggingface:trending",
+      "relevance": 6.6
+    },
+    {
+      "title": "Observability-Aligned Evidential Masked Pretraining for Reliable VRU Motion Prediction",
+      "url": "http://arxiv.org/abs/2610.39958v1",
+      "source": "arxiv",
+      "relevance": 6.1
+    },
+    {
+      "title": "Event-SAMA: Language-Grounded Video Object Segmentation on Neuromorphic Event Streams",
+      "url": "http://arxiv.org/abs/2610.39676v1",
+      "source": "arxiv",
+      "relevance": 3.2
+    },
+    {
+      "title": "FIDE: Fiber-Informed Differentiable Experimental Design for Reference-Relative Law Dynamics",
+      "url": "http://arxiv.org/abs/2610.40009v1",
+      "source": "arxiv",
+      "relevance": 3.2
+    },
+    {
+      "title": "Human--AI Interactions as First-Class Data: A Formal Interaction Model and Runtime for Explainable AI Collaboration",
+      "url": "http://arxiv.org/abs/2610.40006v1",
+      "source": "arxiv",
+      "relevance": 2.6
     }
   ],
   "status": "planned",
   "created_at": "2026-10-29T00:13:36-05:00",
-  "updated_at": "2026-10-29T18:17:00-05:00"
+  "updated_at": "2026-10-30T00:15:12-05:00"
 }

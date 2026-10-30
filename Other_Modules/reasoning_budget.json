@@ -66,9 +66,45 @@
       "url": "https://github.com/huggingface/transformers/releases/tag/v5.22.0",
       "source": "github:huggingface/transformers",
       "relevance": 25.0
+    },
+    {
+      "title": "Low-Bit GDN Recurrent-State Quantization: Global Gradient-aware Allocation and Pure-Write Sliding Windows",
+      "url": "http://arxiv.org/abs/2610.39931v1",
+      "source": "arxiv",
+      "relevance": 16.8
+    },
+    {
+      "title": "AI Cosmos: An Agentic Infra for Situated Learning",
+      "url": "http://arxiv.org/abs/2610.40031v1",
+      "source": "arxiv",
+      "relevance": 12.2
+    },
+    {
+      "title": "Hybrid AI Patterns: Thirteen Ways to Couple Language Models with Rules, and How to Choose Among Them",
+      "url": "http://arxiv.org/abs/2610.40036v1",
+      "source": "arxiv",
+      "relevance": 10.8
+    },
+    {
+      "title": "Learning Calibrated Confidence for Multi-Agent Collaboration",
+      "url": "http://arxiv.org/abs/2610.39927v1",
+      "source": "arxiv",
+      "relevance": 9.4
+    },
+    {
+      "title": "H$^2$R: Hierarchical Hint-Based Reward for Mathematical Reasoning via Reinforcement Learning",
+      "url": "http://arxiv.org/abs/2610.39934v1",
+      "source": "arxiv",
+      "relevance": 9.2
+    },
+    {
+      "title": "How Much Should a VLA Trust Its Reasoning? Step-Level Guidance as a Measured Action-Value Function",
+      "url": "http://arxiv.org/abs/2610.40002v1",
+      "source": "arxiv",
+      "relevance": 7.8
     }
   ],
   "status": "planned",
   "created_at": "2026-10-29T00:13:36-05:00",
-  "updated_at": "2026-10-29T12:27:26-05:00"
+  "updated_at": "2026-10-30T00:15:12-05:00"
 }

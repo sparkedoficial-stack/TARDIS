@@ -60,9 +60,45 @@
       "url": "https://github.com/huggingface/transformers/releases/tag/v5.22.0",
       "source": "github:huggingface/transformers",
       "relevance": 25.0
+    },
+    {
+      "title": "Low-Bit GDN Recurrent-State Quantization: Global Gradient-aware Allocation and Pure-Write Sliding Windows",
+      "url": "http://arxiv.org/abs/2610.39931v1",
+      "source": "arxiv",
+      "relevance": 16.8
+    },
+    {
+      "title": "Learning Calibrated Confidence for Multi-Agent Collaboration",
+      "url": "http://arxiv.org/abs/2610.39927v1",
+      "source": "arxiv",
+      "relevance": 9.4
+    },
+    {
+      "title": "Cheap Retrieval and Observation Credit Assignment from One Quantity: The Value of Information",
+      "url": "http://arxiv.org/abs/2610.40030v1",
+      "source": "arxiv",
+      "relevance": 8.3
+    },
+    {
+      "title": "From the Transformer to a Formal Semantics of Coordinated Transformations",
+      "url": "http://arxiv.org/abs/2610.39735v1",
+      "source": "arxiv",
+      "relevance": 8.2
+    },
+    {
+      "title": "Data-driven Random-feature Approximation of Koopman Generators of Nonlinear Continuous-time Systems",
+      "url": "http://arxiv.org/abs/2610.39897v1",
+      "source": "arxiv",
+      "relevance": 4.1
+    },
+    {
+      "title": "Event-SAMA: Language-Grounded Video Object Segmentation on Neuromorphic Event Streams",
+      "url": "http://arxiv.org/abs/2610.39676v1",
+      "source": "arxiv",
+      "relevance": 3.2
     }
   ],
   "status": "planned",
   "created_at": "2026-10-29T00:13:36-05:00",
-  "updated_at": "2026-10-29T12:27:26-05:00"
+  "updated_at": "2026-10-30T00:15:12-05:00"
 }
