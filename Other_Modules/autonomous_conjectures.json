@@ -1,38 +1,5 @@
 [
   {
-    "id": "conj_1793124330",
-    "timestamp": "2026-10-27T13:05:30.896565",
-    "idle_duration_minutes": 32.7,
-    "title": "Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching mechanism can dynamically predict the relevance decay of stored search results based on observed changes in source domains (e.g., content updates, SEO shifts). By modeling the causal relationship between external events (content revision timestamps, HTTP header changes, backlink fluctuations) and the utility of cached responses, the system can proactively invalidate or refresh entries before they become stale, reducing redundant network traffic and improving answer freshness without sacrificing latency.",
-    "research_query": "causal inference based cache invalidation web scraping dynamic content freshness model",
-    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web scraping dynamic content freshness model\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal cache manager that tracks source metadata (ETag, Last-Modified, content hash) and uses a lightweight Bayesian network to estimate decay probability, triggering async refresh or eviction of cached entries.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.99
-  },
-  {
-    "id": "conj_1793126323",
-    "timestamp": "2026-10-27T13:38:43.125211",
-    "idle_duration_minutes": 33.2,
-    "title": "Dynamic Causal Cache for Web Research Engine",
-    "hypothesis": "If the web_research_engine module maintains a lightweight causal graph of query dependencies and outcomes, it can prioritize caching of results that are causally upstream of frequently requested topics. This dynamic causal cache would allow the engine to pre‑fetch or reuse results from related queries, reducing latency and improving relevance scores without increasing external request volume.",
-    "research_query": "causal inference caching strategies for web search engines performance optimization",
-    "research_findings": "# Informe de Investigación: causal inference caching strategies for web search engines performance optimization\n\n## Fuentes Consultadas y Respaldo Web\n- **[Optimizing LLM Performance with LM Cache: Architectures, Strategies, and Real-World Applications - HackerNoon](https://news.google.com/rss/articles/CBMitwFBVV95cUxNNWx4OWN2Yms5SHZHd2lFSk1rRXpCdUxmRnpydzR6U3c5eWIxbEJDZ2JEMTB6WmdQNkFfdEtnOGRVdE00RGkxWG1lQVpQZlFZcllRTUFwbHdkZENBLVVRODkyR0wydzBpcWZlZWdZVzB4WUFwQXFUSHJlc3AyTnhBNjNQRHpJcllieXp4NWJoNUpQTzUyMW51M2kwaDd5ZnhjT0ROR2ZBX2pFR1EwMmxIdkNEcF9PNFU?oc=5)**: Optimizing LLM Performance with LM Cache: Architectures, Strategies, and Real-World Applications  HackerNoon\n- **[Big data (Wikipedia)](https://en.wikipedia.org/wiki/Big_data)**: optimization, inductive statistics, and concepts from nonlinear system identification to infer laws (regressions, nonlinear relationships, and causal\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMitwFB",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMitwFBVV95cUxNNWx4OWN2Yms5SHZHd2lFSk1rRXpCdUxmRnpydzR6U3c5eWIxbEJDZ2JEMTB6WmdQNkFfdEtnOGRVdE00RGkxWG1lQVpQZlFZcllRTUFwbHdkZENBLVVRODkyR0wydzBpcWZlZWdZVzB4WUFwQXFUSHJlc3AyTnhBNjNQRHpJcllieXp4NWJoNUpQTzUyMW51M2kwaDd5ZnhjT0ROR2ZBX2pFR1EwMmxIdkNEcF9PNFU?oc=5",
-      "https://en.wikipedia.org/wiki/Big_data"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal‑graph‑based priority cache layer that tracks query relationships and evicts/serves entries based on their upstream impact on future queries.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.14
-  },
-  {
     "id": "conj_1793128283",
     "timestamp": "2026-10-27T14:11:23.421492",
     "idle_duration_minutes": 32.7,
@@ -1624,5 +1591,35 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.97
+  },
+  {
+    "id": "conj_1793323256",
+    "timestamp": "2026-10-29T20:20:56.843939",
+    "idle_duration_minutes": 31.6,
+    "title": "Sinergia Causal entre Telemetría de Red y Memoria Profunda",
+    "hypothesis": "Se postula que la eficiencia de la recuperación de información en `deep_memory_vault.py` puede optimizarse dinámicamente si se correlaciona la latencia y el estado de la red reportado por `network_shield.py` con los metadatos de acceso de la bóveda. Específicamente, cuando la telemetría de red detecta inestabilidad o alta latencia, el motor de memoria debería priorizar la caché local y reducir la profundidad de las consultas vectoriales, mientras que en condiciones de red óptimas, se debe expandir la búsqueda hacia fuentes externas o nodos remotos. Esta adaptación reactiva minimiza los timeouts y mejora la tasa de éxito de las consultas en entornos volátiles.",
+    "research_query": "adaptive vector database query depth based on network latency telemetry",
+    "research_findings": "# Informe de Investigación: adaptive vector database query depth based on network latency telemetry\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar un listener que consuma métricas de latencia de `network_shield.py` para ajustar dinámicamente el parámetro `search_depth` o `timeout` en las funciones de consulta de la bóveda de memoria.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.43
+  },
+  {
+    "id": "conj_1793325154",
+    "timestamp": "2026-10-29T20:52:34.360245",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal Cache Invalidation for the Web Research Engine",
+    "hypothesis": "If the Web Research Engine maintains a lightweight causal dependency graph of each search query (including source URLs, timestamps, and extracted entities), then cache entries can be invalidated or refreshed based on the propagation of changes in the underlying web content. This causal‑aware caching would reduce redundant network calls, improve response latency, and increase the relevance of returned data compared to a purely time‑based or key‑based cache strategy.",
+    "research_query": "causal inference based cache invalidation for web search engines performance",
+    "research_findings": "# Informe de Investigación: causal inference based cache invalidation for web search engines performance\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal dependency tracker that records which cached results depend on which external URLs and entities, and implement an invalidation routine that refreshes only the affected cache entries when source content changes are detected.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.5
   }
 ]
