@@ -1,35 +1,5 @@
 [
   {
-    "id": "conj_1793162663",
-    "timestamp": "2026-10-27T23:44:23.417226",
-    "idle_duration_minutes": 31.8,
-    "title": "Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "Integrating a causal inference layer that tracks dependencies between retrieved web documents and downstream reasoning steps can enable automatic cache invalidation when source content changes, reducing stale knowledge propagation in the akáshic vault while improving response relevance and system latency.",
-    "research_query": "\"causal cache invalidation\" web scraping dynamic content stale data detection",
-    "research_findings": "# Informe de Investigación: \"causal cache invalidation\" web scraping dynamic content stale data detection\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a dependency graph and timestamp metadata to cached search results, and implement an async invalidation routine that re‑fetches documents when their upstream sources have been updated, leveraging HTTP HEAD/ETag checks.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 102.23
-  },
-  {
-    "id": "conj_1793164831",
-    "timestamp": "2026-10-28T00:20:31.233033",
-    "idle_duration_minutes": 36.1,
-    "title": "Dynamic Contextual Prompt Caching for Web Research Engine",
-    "hypothesis": "Integrating a lightweight, time‑aware cache that stores recent web‑search prompts and their semantic embeddings within the core/web_research_engine.py module will reduce redundant external API calls by up to 40% and improve latency without sacrificing result relevance. The cache should decay based on both time and semantic similarity, allowing the engine to reuse prior queries when the user's intent overlaps, leveraging the deep_memory_vault for persistent storage of high‑value query‑result pairs.",
-    "research_query": "adaptive prompt caching strategies for LLM‑driven web search engines time decay semantic similarity",
-    "research_findings": "# Informe de Investigación: adaptive prompt caching strategies for LLM‑driven web search engines time decay semantic similarity\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Implement a TTL‑based, similarity‑aware cache layer that checks incoming search queries against recent cached embeddings, retrieves stored results when similarity > 0.85, and falls back to external search otherwise; persist high‑utility entries to deep_memory_vault for long‑term reuse.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 111.34
-  },
-  {
     "id": "conj_1793166990",
     "timestamp": "2026-10-28T00:56:30.424625",
     "idle_duration_minutes": 36.0,
@@ -1627,5 +1597,35 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 96.59
+  },
+  {
+    "id": "conj_1793363039",
+    "timestamp": "2026-10-30T07:23:59.777952",
+    "idle_duration_minutes": 32.1,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching mechanism will allow the system to predict when cached search results become stale based on observed changes in source domains (e.g., content updates, SEO shifts). By modeling the probability of relevance decay as a function of observable signals (last-modified headers, content change frequency, backlink dynamics), the engine can proactively invalidate or refresh entries, reducing false‑positive results and improving latency without a full re‑crawl.",
+    "research_query": "causal inference based cache invalidation web search engine recent studies 2023 2024",
+    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web search engine recent studies 2023 2024\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a CausalCacheManager class that tracks metadata (ETag, Last-Modified, change frequency) for each cached query and uses a lightweight Bayesian model to compute expiration probabilities, triggering async refreshes when the probability of staleness exceeds a configurable threshold.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.62
+  },
+  {
+    "id": "conj_1793364936",
+    "timestamp": "2026-10-30T07:55:36.219236",
+    "idle_duration_minutes": 31.6,
+    "title": "Dynamic Causal Weighting for Real‑Time Web Research",
+    "hypothesis": "Integrating a causal attention mechanism that dynamically re‑weights retrieved web snippets based on their inferred causal relevance to the current query will improve the precision of the WebResearchEngine, reducing hallucinations and increasing the alignment of retrieved evidence with the user's intent.",
+    "research_query": "\"causal attention mechanism\" \"information retrieval\" \"real-time web search\"",
+    "research_findings": "# Informe de Investigación: \"causal attention mechanism\" \"information retrieval\" \"real-time web search\"\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Implement a lightweight causal attention layer that scores each retrieved snippet using a small transformer that infers causal links between snippet content and the query, then re‑rank results before returning them.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.42
   }
 ]

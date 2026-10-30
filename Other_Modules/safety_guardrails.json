@@ -42,9 +42,21 @@
       "url": "http://arxiv.org/abs/2610.39795v1",
       "source": "arxiv",
       "relevance": 4.6
+    },
+    {
+      "title": "ShallowDefend: Harnessing Shallow Safety Alignment for Multi-Turn Defender",
+      "url": "http://arxiv.org/abs/2610.40627v1",
+      "source": "arxiv",
+      "relevance": 8.1
+    },
+    {
+      "title": "Multi-View MoE: Letting Every Router Shape Expert Computation",
+      "url": "http://arxiv.org/abs/2610.40577v1",
+      "source": "arxiv",
+      "relevance": 7.7
     }
   ],
   "status": "planned",
   "created_at": "2026-10-29T00:13:36-05:00",
-  "updated_at": "2026-10-30T00:15:12-05:00"
+  "updated_at": "2026-10-30T07:26:56-05:00"
 }

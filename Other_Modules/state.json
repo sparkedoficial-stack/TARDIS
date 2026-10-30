@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.9859521,
-  "last_video_id": "vp_20261030_065856_38c0dd",
-  "last_topic": "Causal Dynamical Triangulations: A Non-Perturbative Approach to Quantum Gravity",
-  "total_videos_analyzed": 738,
-  "running_cycle": true,
+  "last_run_timestamp": REDACTED_PHONE.491114,
+  "last_video_id": "vp_20261030_073556_593e94",
+  "last_topic": "Twistor Theory and the Amplituhedron: Geometric Foundations of Scattering Amplitudes",
+  "total_videos_analyzed": 739,
+  "running_cycle": false,
   "last_error": null,
-  "auto_improvement_count": 387
+  "auto_improvement_count": 389
 }

@@ -8,18 +8,6 @@
   "rollback": "Mantener el GGUF Q4_K actual y descartar el artefacto candidato.",
   "evidence": [
     {
-      "title": "ggml-org/whisper.cpp v1.9.5",
-      "url": "https://github.com/ggml-org/whisper.cpp/releases/tag/v1.9.5",
-      "source": "github:ggml-org/whisper.cpp",
-      "relevance": 24.8
-    },
-    {
-      "title": "orcarouter/DeepSeek-V4.1-Flash-1017-abliterated-GGUF",
-      "url": "https://huggingface.co/orcarouter/DeepSeek-V4.1-Flash-1017-abliterated-GGUF",
-      "source": "huggingface:trending",
-      "relevance": 15.4
-    },
-    {
       "title": "ISTA-DASLab/DeepSeek-V4.1-Flash-1017-GSQ-RCO-GGUF",
       "url": "https://huggingface.co/ISTA-DASLab/DeepSeek-V4.1-Flash-1017-GSQ-RCO-GGUF",
       "source": "huggingface:trending",
@@ -102,9 +90,21 @@
       "url": "http://arxiv.org/abs/2610.39993v1",
       "source": "arxiv",
       "relevance": 2.1
+    },
+    {
+      "title": "Collaborative AI agents for autonomous experimental research with solid-state quantum spins",
+      "url": "http://arxiv.org/abs/2610.40589v1",
+      "source": "arxiv",
+      "relevance": 3.7
+    },
+    {
+      "title": "Comparing Human Role-Players and LLM-Simulated Clients in Online Counselling Training: An Analysis of Counselling Patterns",
+      "url": "http://arxiv.org/abs/2610.40563v1",
+      "source": "arxiv",
+      "relevance": 3.6
     }
   ],
   "status": "planned",
   "created_at": "2026-10-29T00:13:36-05:00",
-  "updated_at": "2026-10-30T00:15:12-05:00"
+  "updated_at": "2026-10-30T07:26:56-05:00"
 }

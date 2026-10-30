@@ -8,36 +8,6 @@
   "rollback": "Volver al esfuerzo por defecto.",
   "evidence": [
     {
-      "title": "ggml-org/llama.cpp v0.8.0",
-      "url": "https://github.com/ggml-org/llama.cpp/releases/tag/v0.8.0",
-      "source": "github:ggml-org/llama.cpp",
-      "relevance": 25.0
-    },
-    {
-      "title": "vllm-project/vllm v0.32.0",
-      "url": "https://github.com/vllm-project/vllm/releases/tag/v0.32.0",
-      "source": "github:vllm-project/vllm",
-      "relevance": 25.0
-    },
-    {
-      "title": "Teach reality, not ethics: a drop-in continued-pretraining corpus installs coupled human-biosphere-AI welfare dispositions across model families",
-      "url": "http://arxiv.org/abs/2610.37484v1",
-      "source": "arxiv",
-      "relevance": 16.4
-    },
-    {
-      "title": "orcarouter/DeepSeek-V4.1-Flash-1017-abliterated-GGUF",
-      "url": "https://huggingface.co/orcarouter/DeepSeek-V4.1-Flash-1017-abliterated-GGUF",
-      "source": "huggingface:trending",
-      "relevance": 15.4
-    },
-    {
-      "title": "VideoLVR: Latent Visual Reasoning over Grounded Video Evidence",
-      "url": "http://arxiv.org/abs/2610.37613v1",
-      "source": "arxiv",
-      "relevance": 10.3
-    },
-    {
       "title": "ThinkWorld: World Imagination Reinforces Chain-of-Dynamics Reasoning",
       "url": "http://arxiv.org/abs/2610.37666v1",
       "source": "arxiv",
@@ -102,9 +72,39 @@
       "url": "http://arxiv.org/abs/2610.40002v1",
       "source": "arxiv",
       "relevance": 7.8
+    },
+    {
+      "title": "VeriCUA: Verification as Agentic Exploration for Computer-Using Agents",
+      "url": "http://arxiv.org/abs/2610.40578v1",
+      "source": "arxiv",
+      "relevance": 14.4
+    },
+    {
+      "title": "Every Token Needs Its Own Teacher: Multi-teacher Adaptive On-policy Self-distillation",
+      "url": "http://arxiv.org/abs/2610.40574v1",
+      "source": "arxiv",
+      "relevance": 9.7
+    },
+    {
+      "title": "PIVOT: Progressive Intervention via Online Teacher Correction",
+      "url": "http://arxiv.org/abs/2610.40576v1",
+      "source": "arxiv",
+      "relevance": 9.2
+    },
+    {
+      "title": "Rethinking Neural Thickets Without Weight Perturbations",
+      "url": "http://arxiv.org/abs/2610.40649v1",
+      "source": "arxiv",
+      "relevance": 6.3
+    },
+    {
+      "title": "Pre-Crime for Agents, at the Last Second: Probing When a Recruited Agent Gives In",
+      "url": "http://arxiv.org/abs/2610.40588v1",
+      "source": "arxiv",
+      "relevance": 6.2
     }
   ],
   "status": "planned",
   "created_at": "2026-10-29T00:13:36-05:00",
-  "updated_at": "2026-10-30T00:15:12-05:00"
+  "updated_at": "2026-10-30T07:26:56-05:00"
 }

@@ -8,24 +8,6 @@
   "rollback": "Reactivar la política anterior en coding_router.json.",
   "evidence": [
     {
-      "title": "Teach reality, not ethics: a drop-in continued-pretraining corpus installs coupled human-biosphere-AI welfare dispositions across model families",
-      "url": "http://arxiv.org/abs/2610.37484v1",
-      "source": "arxiv",
-      "relevance": 16.4
-    },
-    {
-      "title": "Heads of Security: Learned Attention Gates Improve Prompt Injection Robustness",
-      "url": "http://arxiv.org/abs/2610.37657v1",
-      "source": "arxiv",
-      "relevance": 13.7
-    },
-    {
-      "title": "Heads of Security: Learned Attention Gates Improve Prompt Injection Robustness",
-      "url": "http://arxiv.org/abs/2610.37657v1",
-      "source": "arxiv",
-      "relevance": 13.7
-    },
-    {
       "title": "EnvSched: Environment-Aware Scheduling for Rollout-Efficient Agent Reinforcement Learning",
       "url": "http://arxiv.org/abs/2610.37609v1",
       "source": "arxiv",
@@ -84,9 +66,45 @@
       "url": "http://arxiv.org/abs/2610.40023v1",
       "source": "arxiv",
       "relevance": 4.4
+    },
+    {
+      "title": "VeriCUA: Verification as Agentic Exploration for Computer-Using Agents",
+      "url": "http://arxiv.org/abs/2610.40578v1",
+      "source": "arxiv",
+      "relevance": 14.4
+    },
+    {
+      "title": "Gym-Anything for Robotics: Scaling physical simulations with digital agents",
+      "url": "http://arxiv.org/abs/2610.40565v1",
+      "source": "arxiv",
+      "relevance": 10.3
+    },
+    {
+      "title": "Machine Learning-Based Detection of Mobile Money Scan Messages in Ghana: A Comparative Evaluation of Naive Bayes, Support Vector Machine, and Randon Forest Classifiers",
+      "url": "http://arxiv.org/abs/2610.40544v1",
+      "source": "arxiv",
+      "relevance": 10.3
+    },
+    {
+      "title": "Pre-Crime for Agents, at the Last Second: Probing When a Recruited Agent Gives In",
+      "url": "http://arxiv.org/abs/2610.40588v1",
+      "source": "arxiv",
+      "relevance": 6.2
+    },
+    {
+      "title": "From extreme weather to agricultural consequences with agentic AI",
+      "url": "http://arxiv.org/abs/2610.40641v1",
+      "source": "arxiv",
+      "relevance": 5.6
+    },
+    {
+      "title": "Collaborative AI agents for autonomous experimental research with solid-state quantum spins",
+      "url": "http://arxiv.org/abs/2610.40589v1",
+      "source": "arxiv",
+      "relevance": 3.7
     }
   ],
   "status": "planned",
   "created_at": "2026-10-29T00:13:36-05:00",
-  "updated_at": "2026-10-30T00:15:12-05:00"
+  "updated_at": "2026-10-30T07:26:56-05:00"
 }

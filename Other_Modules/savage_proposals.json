@@ -1,6 +1,397 @@
 {
   "schema": "tardis.savage_update/1.0",
-  "generated_at": "2026-10-30T01:36:22-05:00",
-  "proposals": [],
-  "items_considered": 0
+  "generated_at": "2026-10-30T07:26:56-05:00",
+  "proposals": [
+    {
+      "id": "savage-328519695b0c",
+      "title": "Refuerzo del perfil local-first",
+      "target": "tardis",
+      "tag": "local",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "local_first",
+      "evidence": [
+        {
+          "title": "Elucidating the Design Space of LM Data Attribution",
+          "url": "http://arxiv.org/abs/2610.40655v1",
+          "source": "arxiv",
+          "relevance": 14.7
+        },
+        {
+          "title": "VeriCUA: Verification as Agentic Exploration for Computer-Using Agents",
+          "url": "http://arxiv.org/abs/2610.40578v1",
+          "source": "arxiv",
+          "relevance": 14.4
+        },
+        {
+          "title": "Machine Learning-Based Detection of Mobile Money Scan Messages in Ghana: A Comparative Evaluation of Naive Bayes, Support Vector Machine, and Randon Forest Classifiers",
+          "url": "http://arxiv.org/abs/2610.40544v1",
+          "source": "arxiv",
+          "relevance": 10.3
+        },
+        {
+          "title": "Read, Allocate, Route: Role-Coupled Tokenization for Pixel-Space Generative Transformers",
+          "url": "http://arxiv.org/abs/2610.40647v1",
+          "source": "arxiv",
+          "relevance": 6.7
+        },
+        {
+          "title": "Multistatic ISAC with Deep Learning-Based Clutter Suppression for 5G and Beyond",
+          "url": "http://arxiv.org/abs/2610.40586v1",
+          "source": "arxiv",
+          "relevance": 6.1
+        },
+        {
+          "title": "Difficulty Calibration Across Time for Membership Inference in Diffusion Models",
+          "url": "http://arxiv.org/abs/2610.40616v1",
+          "source": "arxiv",
+          "relevance": 5.2
+        },
+        {
+          "title": "On the Fundamental Limits of Prefill-Based Decoding Length Prediction",
+          "url": "http://arxiv.org/abs/2610.40541v1",
+          "source": "arxiv",
+          "relevance": 4.7
+        },
+        {
+          "title": "Propose-Filter-Release: Scaling Noise to Typical Sensitivity via Private Filtering",
+          "url": "http://arxiv.org/abs/2610.40654v1",
+          "source": "arxiv",
+          "relevance": 3.1
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 8 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Verificar que las tareas privadas no salgan del dispositivo.",
+      "rollback": "Reactivar ruteo híbrido.",
+      "status": "planned",
+      "created_at": "2026-10-30T07:26:56-05:00"
+    },
+    {
+      "id": "savage-73e62f0aae43",
+      "title": "Integración de capacidades visión/multimodal",
+      "target": "tardis",
+      "tag": "vision",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "vision_pipeline",
+      "evidence": [
+        {
+          "title": "VeriCUA: Verification as Agentic Exploration for Computer-Using Agents",
+          "url": "http://arxiv.org/abs/2610.40578v1",
+          "source": "arxiv",
+          "relevance": 14.4
+        },
+        {
+          "title": "Gym-Anything for Robotics: Scaling physical simulations with digital agents",
+          "url": "http://arxiv.org/abs/2610.40565v1",
+          "source": "arxiv",
+          "relevance": 10.3
+        },
+        {
+          "title": "Every Token Needs Its Own Teacher: Multi-teacher Adaptive On-policy Self-distillation",
+          "url": "http://arxiv.org/abs/2610.40574v1",
+          "source": "arxiv",
+          "relevance": 9.7
+        },
+        {
+          "title": "PIVOT: Progressive Intervention via Online Teacher Correction",
+          "url": "http://arxiv.org/abs/2610.40576v1",
+          "source": "arxiv",
+          "relevance": 9.2
+        },
+        {
+          "title": "Read, Allocate, Route: Role-Coupled Tokenization for Pixel-Space Generative Transformers",
+          "url": "http://arxiv.org/abs/2610.40647v1",
+          "source": "arxiv",
+          "relevance": 6.7
+        },
+        {
+          "title": "Rethinking Neural Thickets Without Weight Perturbations",
+          "url": "http://arxiv.org/abs/2610.40649v1",
+          "source": "arxiv",
+          "relevance": 6.3
+        },
+        {
+          "title": "Difficulty Calibration Across Time for Membership Inference in Diffusion Models",
+          "url": "http://arxiv.org/abs/2610.40616v1",
+          "source": "arxiv",
+          "relevance": 5.2
+        },
+        {
+          "title": "Luggage re-identification: A study of strategies towards a real-world application",
+          "url": "http://arxiv.org/abs/2610.40643v1",
+          "source": "arxiv",
+          "relevance": 4.1
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 9 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Evaluar 50 imágenes con ground truth; medir exactitud y latencia.",
+      "rollback": "Desactivar el pipeline visual nuevo.",
+      "status": "planned",
+      "created_at": "2026-10-30T07:26:56-05:00"
+    },
+    {
+      "id": "savage-f7a834b450f8",
+      "title": "Política de agentes y tool-calling",
+      "target": "ftl",
+      "tag": "agents",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "agent_tool_policy",
+      "evidence": [
+        {
+          "title": "VeriCUA: Verification as Agentic Exploration for Computer-Using Agents",
+          "url": "http://arxiv.org/abs/2610.40578v1",
+          "source": "arxiv",
+          "relevance": 14.4
+        },
+        {
+          "title": "Gym-Anything for Robotics: Scaling physical simulations with digital agents",
+          "url": "http://arxiv.org/abs/2610.40565v1",
+          "source": "arxiv",
+          "relevance": 10.3
+        },
+        {
+          "title": "Machine Learning-Based Detection of Mobile Money Scan Messages in Ghana: A Comparative Evaluation of Naive Bayes, Support Vector Machine, and Randon Forest Classifiers",
+          "url": "http://arxiv.org/abs/2610.40544v1",
+          "source": "arxiv",
+          "relevance": 10.3
+        },
+        {
+          "title": "Pre-Crime for Agents, at the Last Second: Probing When a Recruited Agent Gives In",
+          "url": "http://arxiv.org/abs/2610.40588v1",
+          "source": "arxiv",
+          "relevance": 6.2
+        },
+        {
+          "title": "From extreme weather to agricultural consequences with agentic AI",
+          "url": "http://arxiv.org/abs/2610.40641v1",
+          "source": "arxiv",
+          "relevance": 5.6
+        },
+        {
+          "title": "Collaborative AI agents for autonomous experimental research with solid-state quantum spins",
+          "url": "http://arxiv.org/abs/2610.40589v1",
+          "source": "arxiv",
+          "relevance": 3.7
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 6 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Suite de 30 tareas con herramientas; medir tasa de éxito y pasos.",
+      "rollback": "Reactivar la política anterior en coding_router.json.",
+      "status": "planned",
+      "created_at": "2026-10-30T07:26:56-05:00"
+    },
+    {
+      "id": "savage-50d57ca1e5ee",
+      "title": "Presupuesto de razonamiento adaptativo",
+      "target": "tardis",
+      "tag": "reasoning",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "reasoning_budget",
+      "evidence": [
+        {
+          "title": "VeriCUA: Verification as Agentic Exploration for Computer-Using Agents",
+          "url": "http://arxiv.org/abs/2610.40578v1",
+          "source": "arxiv",
+          "relevance": 14.4
+        },
+        {
+          "title": "Every Token Needs Its Own Teacher: Multi-teacher Adaptive On-policy Self-distillation",
+          "url": "http://arxiv.org/abs/2610.40574v1",
+          "source": "arxiv",
+          "relevance": 9.7
+        },
+        {
+          "title": "PIVOT: Progressive Intervention via Online Teacher Correction",
+          "url": "http://arxiv.org/abs/2610.40576v1",
+          "source": "arxiv",
+          "relevance": 9.2
+        },
+        {
+          "title": "Rethinking Neural Thickets Without Weight Perturbations",
+          "url": "http://arxiv.org/abs/2610.40649v1",
+          "source": "arxiv",
+          "relevance": 6.3
+        },
+        {
+          "title": "Pre-Crime for Agents, at the Last Second: Probing When a Recruited Agent Gives In",
+          "url": "http://arxiv.org/abs/2610.40588v1",
+          "source": "arxiv",
+          "relevance": 6.2
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 5 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Comparar exactitud/costo en 40 problemas; elegir el punto de Pareto.",
+      "rollback": "Volver al esfuerzo por defecto.",
+      "status": "planned",
+      "created_at": "2026-10-30T07:26:56-05:00"
+    },
+    {
+      "id": "savage-db7241589fcf",
+      "title": "Mejora del pipeline RAG y embeddings",
+      "target": "tardis",
+      "tag": "rag",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "rag_pipeline",
+      "evidence": [
+        {
+          "title": "Elucidating the Design Space of LM Data Attribution",
+          "url": "http://arxiv.org/abs/2610.40655v1",
+          "source": "arxiv",
+          "relevance": 14.7
+        },
+        {
+          "title": "Machine Learning-Based Detection of Mobile Money Scan Messages in Ghana: A Comparative Evaluation of Naive Bayes, Support Vector Machine, and Randon Forest Classifiers",
+          "url": "http://arxiv.org/abs/2610.40544v1",
+          "source": "arxiv",
+          "relevance": 10.3
+        },
+        {
+          "title": "An ODE-based Sampler for Discrete Diffusion Models",
+          "url": "http://arxiv.org/abs/2610.40618v1",
+          "source": "arxiv",
+          "relevance": 5.6
+        },
+        {
+          "title": "When to Assist and What to Suggest: Joint Gating and Memory-Grounded Hint Generation in One Compact Decoder",
+          "url": "http://arxiv.org/abs/2610.40611v1",
+          "source": "arxiv",
+          "relevance": 4.1
+        },
+        {
+          "title": "Probing Spatial State Representations in Visual Foundation Models",
+          "url": "http://arxiv.org/abs/2610.40636v1",
+          "source": "arxiv",
+          "relevance": 3.5
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 5 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Recall@10 sobre 100 consultas doradas.",
+      "rollback": "Conservar el índice actual.",
+      "status": "planned",
+      "created_at": "2026-10-30T07:26:56-05:00"
+    },
+    {
+      "id": "savage-f58fb1dcfe8b",
+      "title": "Ruteo por expertos activos (top-k)",
+      "target": "tardis",
+      "tag": "moe",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "moe_routing",
+      "evidence": [
+        {
+          "title": "Gym-Anything for Robotics: Scaling physical simulations with digital agents",
+          "url": "http://arxiv.org/abs/2610.40565v1",
+          "source": "arxiv",
+          "relevance": 10.3
+        },
+        {
+          "title": "Multi-View MoE: Letting Every Router Shape Expert Computation",
+          "url": "http://arxiv.org/abs/2610.40577v1",
+          "source": "arxiv",
+          "relevance": 7.7
+        },
+        {
+          "title": "Rethinking Neural Thickets Without Weight Perturbations",
+          "url": "http://arxiv.org/abs/2610.40649v1",
+          "source": "arxiv",
+          "relevance": 6.3
+        },
+        {
+          "title": "On the Fundamental Limits of Prefill-Based Decoding Length Prediction",
+          "url": "http://arxiv.org/abs/2610.40541v1",
+          "source": "arxiv",
+          "relevance": 4.7
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 4 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Comparar costo por token activo vs. modelo denso equivalente.",
+      "rollback": "Volver al ruteo denso por defecto.",
+      "status": "planned",
+      "created_at": "2026-10-30T07:26:56-05:00"
+    },
+    {
+      "id": "savage-0221680af214",
+      "title": "Benchmark de cuantización para el modelo soberano",
+      "target": "ftl",
+      "tag": "quantization",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "quantization_benchmark",
+      "evidence": [
+        {
+          "title": "Collaborative AI agents for autonomous experimental research with solid-state quantum spins",
+          "url": "http://arxiv.org/abs/2610.40589v1",
+          "source": "arxiv",
+          "relevance": 3.7
+        },
+        {
+          "title": "Comparing Human Role-Players and LLM-Simulated Clients in Online Counselling Training: An Analysis of Counselling Patterns",
+          "url": "http://arxiv.org/abs/2610.40563v1",
+          "source": "arxiv",
+          "relevance": 3.6
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 2 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Medir tokens/s, VRAM pico y perplejidad en 20 prompts; aceptar sólo si la pérdida es <2%.",
+      "rollback": "Mantener el GGUF Q4_K actual y descartar el artefacto candidato.",
+      "status": "planned",
+      "created_at": "2026-10-30T07:26:56-05:00"
+    },
+    {
+      "id": "savage-59e5ad13184e",
+      "title": "Endurecimiento de guardrails y auto-reparación",
+      "target": "easy_touch",
+      "tag": "safety",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "safety_guardrails",
+      "evidence": [
+        {
+          "title": "ShallowDefend: Harnessing Shallow Safety Alignment for Multi-Turn Defender",
+          "url": "http://arxiv.org/abs/2610.40627v1",
+          "source": "arxiv",
+          "relevance": 8.1
+        },
+        {
+          "title": "Multi-View MoE: Letting Every Router Shape Expert Computation",
+          "url": "http://arxiv.org/abs/2610.40577v1",
+          "source": "arxiv",
+          "relevance": 7.7
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 2 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Batería de 25 casos adversarios; cero ejecuciones no autorizadas.",
+      "rollback": "Restaurar la política de seguridad previa.",
+      "status": "planned",
+      "created_at": "2026-10-30T07:26:56-05:00"
+    },
+    {
+      "id": "savage-4b3787d02701",
+      "title": "Optimización de inferencia (caché y decodificación)",
+      "target": "ftl",
+      "tag": "efficiency",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "inference_efficiency",
+      "evidence": [
+        {
+          "title": "TextSeal2: Distortion-Free LLM Watermarking with Copula Mixing and Memoryless Races",
+          "url": "http://arxiv.org/abs/2610.40613v1",
+          "source": "arxiv",
+          "relevance": 8.6
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 1 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Medir tokens/s y VRAM antes/después con el mismo prompt.",
+      "rollback": "Restaurar cache_type_k/v=f16.",
+      "status": "planned",
+      "created_at": "2026-10-30T07:26:56-05:00"
+    }
+  ],
+  "items_considered": 31
 }

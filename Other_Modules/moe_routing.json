@@ -78,9 +78,33 @@
       "url": "http://arxiv.org/abs/2610.39800v1",
       "source": "arxiv",
       "relevance": 2.6
+    },
+    {
+      "title": "Gym-Anything for Robotics: Scaling physical simulations with digital agents",
+      "url": "http://arxiv.org/abs/2610.40565v1",
+      "source": "arxiv",
+      "relevance": 10.3
+    },
+    {
+      "title": "Multi-View MoE: Letting Every Router Shape Expert Computation",
+      "url": "http://arxiv.org/abs/2610.40577v1",
+      "source": "arxiv",
+      "relevance": 7.7
+    },
+    {
+      "title": "Rethinking Neural Thickets Without Weight Perturbations",
+      "url": "http://arxiv.org/abs/2610.40649v1",
+      "source": "arxiv",
+      "relevance": 6.3
+    },
+    {
+      "title": "On the Fundamental Limits of Prefill-Based Decoding Length Prediction",
+      "url": "http://arxiv.org/abs/2610.40541v1",
+      "source": "arxiv",
+      "relevance": 4.7
     }
   ],
   "status": "planned",
   "created_at": "2026-10-29T00:13:36-05:00",
-  "updated_at": "2026-10-30T00:15:12-05:00"
+  "updated_at": "2026-10-30T07:26:56-05:00"
 }
