@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1793158927",
-    "timestamp": "2026-10-27T22:42:07.117603",
-    "idle_duration_minutes": 35.3,
-    "title": "Sincronización Cuántica de Telemetría en la Bóveda Akáshica",
-    "hypothesis": "La latencia en la recuperación de contextos históricos desde deep_memory_vault.py se debe a la desincronización temporal entre los metadatos de red (network_shield.py) y los vectores de memoria. Se conjetura que implementar un mecanismo de 'time-stamping' compartido basado en un reloj lógico interno, que valide la coherencia causal entre la telemetría de red y los accesos a memoria, reducirá la tasa de falsos positivos en el filtrado de seguridad y mejorará la precisión de la recuperación semántica en un 15-20%.",
-    "research_query": "temporal consistency in distributed memory systems causal telemetry synchronization",
-    "research_findings": "# Informe de Investigación: temporal consistency in distributed memory systems causal telemetry synchronization\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Introducir un campo 'causal_timestamp' en los registros de memoria y un validador que cruce este dato con el estado actual de network_shield.py antes de exponer la información al motor de investigación.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 99.53
-  },
-  {
     "id": "conj_1793160758",
     "timestamp": "2026-10-27T23:12:38.047403",
     "idle_duration_minutes": 30.5,
@@ -1627,5 +1612,23 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 95.98
+  },
+  {
+    "id": "conj_1793359215",
+    "timestamp": "2026-10-30T06:20:15.172286",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal Memory Indexing for Real‑Time Web Research",
+    "hypothesis": "Integrating a causal graph layer into the Deep Memory Vault will allow the Web Research Engine to prioritize and retrieve information based on inferred cause‑effect relationships rather than simple keyword similarity, resulting in faster convergence on relevant sources and reduced token consumption during autonomous reasoning cycles.",
+    "research_query": "causal graph based information retrieval vs keyword retrieval performance in large language model pipelines",
+    "research_findings": "# Informe de Investigación: causal graph based information retrieval vs keyword retrieval performance in large language model pipelines\n\n## Fuentes Consultadas y Respaldo Web\n- **[Generative large language models in medicine: a scoping review of recent methodological advances - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE8xQ0xQOE5qZDBMd194TmhIYks5OTlwZF9KN1VRaHhIWVhCcThoS0w3dG8zUlAxMTE1THUxdVlZSFlDNTlHX0Q3Q3JBYTJnYWpLcGdhUmxzY1h4QjBJUGpB?oc=5)**: Generative large language models in medicine: a scoping review of recent methodological advances  Nature\n- **[AdaMem: Adaptive User-Centric Memory for Long-Horizon Dialogue Agents - alphaXiv](https://news.google.com/rss/articles/CBMiUEFVX3lxTFBOdG5sem9PMHBHSEtGcVZ1ZXRJVXZyYTNycXc4YVRXNi12elFsYTRKVkxabFBDWWVsYWw4NUpzLTlfQ1d0ZkNXdkZyUVFXaUUx?oc=5)**: AdaMem: Adaptive User-Centric Memory for Long-Horizon Dialogue Agents  alphaXiv\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMiX",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE8xQ0xQOE5qZDBMd194TmhIYks5OTlwZF9KN1VRaHhIWVhCcThoS0w3dG8zUlAxMTE1THUxdVlZSFlDNTlHX0Q3Q3JBYTJnYWpLcGdhUmxzY1h4QjBJUGpB?oc=5",
+      "https://news.google.com/rss/articles/CBMiUEFVX3lxTFBOdG5sem9PMHBHSEtGcVZ1ZXRJVXZyYTNycXc4YVRXNi12elFsYTRKVkxabFBDWWVsYWw4NUpzLTlfQ1d0ZkNXdkZyUVFXaUUx?oc=5"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Añadir una estructura de grafo causal (usando networkx) que registre relaciones de causa‑efecto entre conceptos almacenados; exponer métodos add_causal_edge(concept_a, concept_b) y get_causal_subgraph(concept, depth) y modificar la función de búsqueda para combinar scores de similitud lexical con scores de relevancia causal.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 95.42
   }
 ]
