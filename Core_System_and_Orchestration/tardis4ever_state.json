@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "created_at": "2026-10-15T02:04:29.176374",
   "last_periodic_sync": "2026-10-30T00:46:14.589784",
-  "last_immediate_sync": "2026-10-30T02:06:38.174697",
-  "last_commit_hash": "95ba33ad",
-  "sync_count": 1337,
-  "immediate_sync_count": 1336,
+  "last_immediate_sync": "2026-10-30T02:21:45.379511",
+  "last_commit_hash": "312a7bc8",
+  "sync_count": 1338,
+  "immediate_sync_count": 1337,
   "periodic_sync_count": 1,
   "last_known_mtimes": {
     "skill:omni-control-bridge/SKILL.md": REDACTED_PHONE.4575877,
@@ -81,7 +81,7 @@
     "core:tardis_glm_brain.py": REDACTED_PHONE.5876055,
     "core:character_3d_renderer.py": REDACTED_PHONE.7840362,
     "core:button_orchestrator.py": REDACTED_PHONE.4794493,
-    "core:sensor_orchestrator.py": REDACTED_PHONE.8797307,
+    "core:sensor_orchestrator.py": REDACTED_PHONE.285017,
     "core:physical_presence_sensor.py": REDACTED_PHONE.5761573,
     "core:tardis_voice_local.py": REDACTED_PHONE.5492074,
     "core:config.py": REDACTED_PHONE.992118,
@@ -126,7 +126,7 @@
     "core:easy_touch_engine.py": REDACTED_PHONE.4448318,
     "core:ftl_telegram_runner.py": REDACTED_PHONE.8055422,
     "core:tardis_ipad_edge_server.py": REDACTED_PHONE.4384084,
-    "core:curiosity_debate_manager.py": REDACTED_PHONE.9835222,
+    "core:curiosity_debate_manager.py": REDACTED_PHONE.3830674,
     "core:tardis_feedback_bridge.py": REDACTED_PHONE.0847776,
     "core:sovereign_local_runner.py": REDACTED_PHONE.053532,
     "core:protected_users_vault.py": REDACTED_PHONE.6775165,
@@ -152,7 +152,7 @@
     "core:tardis_video_thinking_engine.py": REDACTED_PHONE.9820695,
     "core:tardis_autoprogrammer.py": REDACTED_PHONE.6407015,
     "core:emotional_presence_agent.py": REDACTED_PHONE.5575445,
-    "core:scientific_research_engine.py": REDACTED_PHONE.0695374,
+    "core:scientific_research_engine.py": REDACTED_PHONE.4651482,
     "core:tardis_agent_colony.py": REDACTED_PHONE.2914853,
     "core:tardis_sdr_radar_module.py": REDACTED_PHONE.176673,
     "core:easy_touch_agent.py": REDACTED_PHONE.8327923,
@@ -160,7 +160,7 @@
     "core:tardis4ever_agent.py": REDACTED_PHONE.5510595,
     "core:thought_noise_engine.py": REDACTED_PHONE.278309,
     "core:tardis_failover_engine.py": REDACTED_PHONE.9319336,
-    "core:background_thought_engine.py": REDACTED_PHONE.3049476,
+    "core:background_thought_engine.py": REDACTED_PHONE.674594,
     "core:code_planner.py": REDACTED_PHONE.3533978,
     "core:autonomous_controller.py": REDACTED_PHONE.683386,
     "core:tardis_phone_harness_bridge.py": REDACTED_PHONE.9388921,
@@ -284,6 +284,18 @@
     "sat:gia_ios:GIA/Models/GIAModels.swift": REDACTED_PHONE.5796177
   },
   "history": [
+    {
+      "timestamp": "2026-10-30T02:21:45.379511",
+      "trigger": "immediate_milestone",
+      "commit_hash": "312a7bc8",
+      "score": 100,
+      "reasons": [
+        "Evoluci\u00f3n en subsistema core TARDIS: sensor_orchestrator.py",
+        "Evoluci\u00f3n en subsistema core TARDIS: curiosity_debate_manager.py",
+        "Evoluci\u00f3n en subsistema core TARDIS: scientific_research_engine.py",
+        "Evoluci\u00f3n en subsistema core TARDIS: background_thought_engine.py"
+      ]
+    },
     {
       "timestamp": "2026-10-30T02:06:38.174697",
       "trigger": "immediate_milestone",
@@ -840,18 +852,6 @@
       "timestamp": "2026-10-28T01:01:12.489844",
       "trigger": "immediate_milestone",
       "commit_hash": "6012768a",
-      "score": 100,
-      "reasons": [
-        "Evoluci\u00f3n en subsistema core TARDIS: sensor_orchestrator.py",
-        "Evoluci\u00f3n en subsistema core TARDIS: curiosity_debate_manager.py",
-        "Evoluci\u00f3n en subsistema core TARDIS: scientific_research_engine.py",
-        "Evoluci\u00f3n en subsistema core TARDIS: background_thought_engine.py"
-      ]
-    },
-    {
-      "timestamp": "2026-10-28T00:45:57.736843",
-      "trigger": "immediate_milestone",
-      "commit_hash": "075b10fe",
       "score": 100,
       "reasons": [
         "Evoluci\u00f3n en subsistema core TARDIS: sensor_orchestrator.py",
