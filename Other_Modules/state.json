@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.6022234,
-  "last_video_id": "vp_20261030_035943_cf3a97",
-  "last_topic": "Persistent Homology of Brain Functional Networks",
-  "total_videos_analyzed": 733,
-  "running_cycle": false,
+  "last_run_timestamp": REDACTED_PHONE.869102,
+  "last_video_id": "vp_20261030_043511_19a713",
+  "last_topic": "Quantum Simulation of Non-Abelian Anyons in Photonic Lattices",
+  "total_videos_analyzed": 734,
+  "running_cycle": true,
   "last_error": null,
   "auto_improvement_count": 387
 }
