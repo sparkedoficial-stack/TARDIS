@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.5589304,
-  "last_video_id": "vp_20261030_095804_1e55b9",
-  "last_topic": "Holographic Quantum Error-Correcting Codes and the Entanglement Wedge Reconstruction",
-  "total_videos_analyzed": 743,
+  "last_run_timestamp": REDACTED_PHONE.3281233,
+  "last_video_id": "vp_20261030_103509_febcdf",
+  "last_topic": "Tensorial Group Field Theory and Spin Foam Visualizations of Spacetime Emergence",
+  "total_videos_analyzed": 744,
   "running_cycle": false,
   "last_error": null,
-  "auto_improvement_count": 389
+  "auto_improvement_count": 392
 }
