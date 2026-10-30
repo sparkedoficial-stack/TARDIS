@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1793156809",
-    "timestamp": "2026-10-27T22:06:49.564280",
-    "idle_duration_minutes": 31.7,
-    "title": "Causal Prompt Routing for Adaptive Web Research",
-    "hypothesis": "Integrating a causal inference layer into core/web_research_engine.py that dynamically routes queries based on inferred causal relationships between user intent, prior vault entries, and external sources will reduce irrelevant result retrieval by at least 30% and improve the relevance score of fetched documents. The hypothesis posits that a lightweight Bayesian network, trained on the interaction logs stored in core/deep_memory_vault.py, can predict the most promising search engine endpoint (e.g., general web, scholarly, code snippets) and adjust query formulation in real time, leading to more efficient telemetry usage and lower network overhead.",
-    "research_query": "how to implement causal inference for query routing in Python web search engines using Bayesian networks",
-    "research_findings": "# Informe de Investigación: how to implement causal inference for query routing in Python web search engines using Bayesian networks\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal inference module that selects the optimal search backend and rewrites the query based on context from deep_memory_vault, then log the decision for telemetry analysis",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 101.31
-  },
-  {
     "id": "conj_1793158927",
     "timestamp": "2026-10-27T22:42:07.117603",
     "idle_duration_minutes": 35.3,
@@ -1627,5 +1612,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 98.18
+  },
+  {
+    "id": "conj_1793357319",
+    "timestamp": "2026-10-30T05:48:39.741176",
+    "idle_duration_minutes": 32.1,
+    "title": "Causal‑Cache Fusion for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer with a short‑term query cache inside core/web_research_engine.py will reduce redundant external calls by ~30% and improve the relevance of retrieved snippets, because the system can predict when a new request is a logical descendant of a recent one and reuse the previous result with minor adjustments.",
+    "research_query": "\"causal inference cache\" web search engine performance optimization",
+    "research_findings": "# Informe de Investigación: \"causal inference cache\" web search engine performance optimization\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a lightweight causal‑cache module that records recent queries, their semantic embeddings, and results; on a new request compute similarity to cached entries, apply a transformation if similarity > 0.85, and return the adapted result instead of issuing a fresh HTTP request.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 95.98
   }
 ]
