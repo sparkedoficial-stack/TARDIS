@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1793154908",
-    "timestamp": "2026-10-27T21:35:08.153932",
-    "idle_duration_minutes": 32.2,
-    "title": "Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching mechanism will allow the system to predict when cached search results become stale based on observed changes in source domains (e.g., content updates, SEO shifts). By modeling the causal relationship between external events (content publication timestamps, domain authority fluctuations) and result relevance, the engine can proactively invalidate or refresh specific cache entries, reducing latency and improving answer accuracy without a full re‑crawl on every query.",
-    "research_query": "causal inference based cache invalidation web search engine recent research 2023 2024",
-    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web search engine recent research 2023 2024\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal cache manager that tracks metadata (last-modified headers, RSS feed timestamps, domain authority scores) and uses a lightweight Bayesian network to decide when to purge or refresh cached query results.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 99.6
-  },
-  {
     "id": "conj_1793156809",
     "timestamp": "2026-10-27T22:06:49.564280",
     "idle_duration_minutes": 31.7,
@@ -1624,5 +1609,23 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 96.57
+  },
+  {
+    "id": "conj_1793355392",
+    "timestamp": "2026-10-30T05:16:32.563156",
+    "idle_duration_minutes": 31.6,
+    "title": "Resonancia Causal en la Bóveda Akáshica: Entrelazamiento Temporal de Consultas",
+    "hypothesis": "Se postula que la eficiencia de la recuperación de información en la 'Bóveda Akáshica' (deep_memory_vault.py) no depende linealmente de la cantidad de datos almacenados, sino de la 'densidad causal' entre las consultas pasadas y las actuales. Si el sistema implementa un mecanismo de 'entrelazamiento temporal' donde las metadatos de una consulta exitosa modifican el peso de búsqueda de consultas futuras similares (aunque no idénticas), se puede reducir la latencia de investigación web (web_research_engine.py) en un 30-40% al evitar la re-indexación redundante de fuentes ya validadas por la red de causalidad interna.",
+    "research_query": "temporal causal inference in vector databases for LLM context optimization",
+    "research_findings": "# Informe de Investigación: temporal causal inference in vector databases for LLM context optimization\n\n## Fuentes Consultadas y Respaldo Web\n- **[Artificial intelligence (Wikipedia)](https://en.wikipedia.org/wiki/Artificial_intelligence)**: knowledge discovery (mining \"interesting\" and actionable inferences from large databases), and other areas. A complete formal knowledge base needs to\n- **[List of datasets for machine-learning research (Wikipedia)](https://en.wikipedia.org/wiki/List_of_datasets_for_machine-learning_research)**: Sindhwani, Vikas; Keerthi, Sathiya S. (2008). \"Optimization techniques for semi-supervised support vector machines\" (PDF). The Journal of Machine Learning\n\n## Contenido y Hallazgos Extraídos\n### De [Artificial intelligence - Wikipedia](https://en.wikipedia.org/wiki/Artificial_intelligence)\n> Artificial intelligence - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nIntelligence in machines\n\"AI\" redirects here. For other uses, see AI (disambigu",
+    "web_sources": [
+      "https://en.wikipedia.org/wiki/Artificial_intelligence",
+      "https://en.wikipedia.org/wiki/List_of_datasets_for_machine-learning_research"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar un campo 'causal_weight' en el esquema de metadatos de la bóveda y una función de decaimiento exponencial que aumente la relevancia de los nodos de memoria asociados a consultas con alta tasa de éxito histórico, integrando esta señal en el ranking de búsqueda antes de invocar el motor web.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.18
   }
 ]
