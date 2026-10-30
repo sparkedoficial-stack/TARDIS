@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1793171066",
-    "timestamp": "2026-10-28T02:04:26.231868",
-    "idle_duration_minutes": 34.7,
-    "title": "Hipótesis de Resonancia Causal en la Bóveda Akáshica",
-    "hypothesis": "Se postula que la eficiencia de recuperación de información en la bóveda akáshica no depende linealmente de la similitud semántica, sino de la 'resonancia causal' entre el contexto temporal de la consulta y la metadatos de ingesta. Al implementar un vector de peso temporal dinámico que decae exponencialmente pero se reactiva ante patrones de repetición en la telemetría de red, se puede reducir la latencia de búsqueda en un 15-20% y mejorar la relevancia de resultados históricos frente a ruido actual.",
-    "research_query": "temporal decay weighting in vector databases for causal relevance ranking",
-    "research_findings": "# Informe de Investigación: temporal decay weighting in vector databases for causal relevance ranking\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Añadir un método `calculate_temporal_causal_weight()` que ajuste los scores de similitud vectorial basándose en la antigüedad del dato y la frecuencia de acceso reciente, integrándolo en el pipeline de búsqueda antes del ranking final.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.47
-  },
-  {
     "id": "conj_1793172962",
     "timestamp": "2026-10-28T02:36:02.413804",
     "idle_duration_minutes": 31.6,
@@ -1630,5 +1615,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 98.19
+  },
+  {
+    "id": "conj_1793370660",
+    "timestamp": "2026-10-30T09:31:00.965204",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer into the web_research_engine's result caching mechanism can dynamically invalidate stale entries based on detected changes in source content, reducing redundant network calls and improving response relevance without sacrificing latency.",
+    "research_query": "causal inference based cache invalidation for web scraping engines recent research 2023 2024",
+    "research_findings": "# Informe de Investigación: causal inference based cache invalidation for web scraping engines recent research 2023 2024\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a lightweight causal model that tracks source URLs, timestamps, and content hashes; on each request, compute a probability of change and decide whether to serve cached data or re‑fetch, updating the cache accordingly.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.59
   }
 ]
