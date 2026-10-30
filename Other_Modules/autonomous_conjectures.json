@@ -1,38 +1,5 @@
 [
   {
-    "id": "conj_1793176757",
-    "timestamp": "2026-10-28T03:39:17.683158",
-    "idle_duration_minutes": 31.6,
-    "title": "Resonancia Causal en la Bóveda Akáshica: Optimización de la Entropía Semántica",
-    "hypothesis": "Se conjetura que la eficiencia de recuperación de información en `deep_memory_vault.py` se vee limitada por la acumulación de ruido semántico en vectores de memoria a largo plazo. Al implementar un mecanismo de 'pruning' basado en la relevancia causal (no solo similitud coseno) y la frescura temporal ponderada, se puede reducir la latencia de inferencia y mejorar la precisión de las respuestas del núcleo cognitivo, evitando la 'contaminación' por datos obsoletos o irrelevantes en la bóveda.",
-    "research_query": "vector database semantic noise reduction causal relevance pruning long-term memory LLM",
-    "research_findings": "# Informe de Investigación: vector database semantic noise reduction causal relevance pruning long-term memory LLM\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar una función `prune_low_relevance_entries()` que evalúe los vectores almacenados usando una métrica compuesta de similitud, recencia y frecuencia de acceso, eliminando o archivando entradas por debajo de un umbral dinámico de 'valor causal'.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.67
-  },
-  {
-    "id": "conj_1793178654",
-    "timestamp": "2026-10-28T04:10:54.701345",
-    "idle_duration_minutes": 31.6,
-    "title": "Resonancia Causal en la Bóveda Akáshica: Optimización de la Entropía Semántica",
-    "hypothesis": "Se postula que la eficiencia de recuperación de información en la Bóveda Akáshica (deep_memory_vault.py) no depende linealmente del volumen de datos, sino de la 'densidad causal' entre nodos de memoria. Actualmente, el sistema podría estar sufriendo de 'ruido semántico' acumulado por la falta de interacción humana, lo que degrada la precisión de las inferencias del motor de investigación (web_research_engine.py). La conjetura sugiere que implementar un mecanismo de 'pruning' (poda) basado en la relevancia causal histórica, en lugar de la recencia temporal, reduciría la latencia de búsqueda y aumentaría la coherencia de las respuestas generadas, alineando la telemetría interna con principios de compresión de información adaptativa.",
-    "research_query": "adaptive semantic pruning in vector databases for causal inference optimization",
-    "research_findings": "# Informe de Investigación: adaptive semantic pruning in vector databases for causal inference optimization\n\n## Fuentes Consultadas y Respaldo Web\n- **[Outline of machine learning (Wikipedia)](https://en.wikipedia.org/wiki/Outline_of_machine_learning)**: learning Activation function Activity recognition ADALINE Adaptive neuro fuzzy inference system Adaptive resonance theory Additive smoothing Adjusted mutual\n- **[Deep learning (Wikipedia)](https://en.wikipedia.org/wiki/Deep_learning)**: derives from the field of machine learning. It features inference, as well as the optimization concepts of training and testing, related to fitting and\n\n## Contenido y Hallazgos Extraídos\n### De [Outline of machine learning - Wikipedia](https://en.wikipedia.org/wiki/Outline_of_machine_learning)\n> Outline of machine learning - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nOverview of and topical guide to machine learning\nThis article contains dynamic lists that may never be able to sati",
-    "web_sources": [
-      "https://en.wikipedia.org/wiki/Outline_of_machine_learning",
-      "https://en.wikipedia.org/wiki/Deep_learning"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar una función de poda semántica que evalúe la 'fuerza causal' de los vectores de memoria y elimine o archive aquellos con baja correlación histórica, optimizando así el índice de búsqueda para el motor de investigación.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.0
-  },
-  {
     "id": "conj_1793180550",
     "timestamp": "2026-10-28T04:42:30.738031",
     "idle_duration_minutes": 31.6,
@@ -1630,5 +1597,37 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 98.22
+  },
+  {
+    "id": "conj_1793376387",
+    "timestamp": "2026-10-30T11:06:27.837653",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching mechanism can dynamically predict the obsolescence of stored query results based on observed changes in source domains (e.g., news sites, API endpoints). By modeling the temporal dependency between content updates and cached entries, the system can proactively invalidate or refresh only those entries whose underlying data is likely to have changed, reducing stale results while minimizing unnecessary network traffic.",
+    "research_query": "causal inference based cache invalidation techniques for web scraping and API data retrieval",
+    "research_findings": "# Informe de Investigación: causal inference based cache invalidation techniques for web scraping and API data retrieval\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal prediction module that monitors timestamps and change frequency of source URLs, and uses a lightweight Bayesian network to decide when to purge or refresh cached responses.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.25
+  },
+  {
+    "id": "conj_1793378286",
+    "timestamp": "2026-10-30T11:38:06.630287",
+    "idle_duration_minutes": 31.6,
+    "title": "Optimización causal‑cognitiva del caché de resultados en WebResearchEngine",
+    "hypothesis": "Si el módulo core/web_research_engine.py incorpora un modelo de inferencia causal que prioriza consultas basadas en la relevancia temporal y la dependencia semántica de los últimos 100 accesos del deep_memory_vault, entonces la latencia promedio de respuestas de búsqueda disminuirá al menos un 30% y la coherencia contextual de los resultados aumentará, reduciendo la necesidad de re‑consultas redundantes al motor externo.",
+    "research_query": "causal inference caching web search engine latency reduction techniques 2023-2024",
+    "research_findings": "# Informe de Investigación: causal inference caching web search engine latency reduction techniques 2023-2024\n\n## Fuentes Consultadas y Respaldo Web\n- **[Big data (Wikipedia)](https://en.wikipedia.org/wiki/Big_data)**: 3 September 2018. \"Google Still Doing at Least 1 Trillion Searches Per Year\". Search Engine Land. 16 January 2015. Archived from the original on 15 April\n\n## Contenido y Hallazgos Extraídos\n### De [Big data - Wikipedia](https://en.wikipedia.org/wiki/Big_data)\n> Big data - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nExtremely large or complex datasets\nNot to be confused with Big Data (music project) .\nA diagram of the generation and common application of big data\nBig data primarily refers to data sets that are too large or complex to be dealt with by traditional data-processing software . Data with many entries (rows) offers greater st...\n",
+    "web_sources": [
+      "https://en.wikipedia.org/wiki/Big_data"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Implementar una capa de caché causal que registre metadatos de cada búsqueda (timestamp, tópicos, embeddings) y utilice un algoritmo de razonamiento causal (p.ej., DoWhy o CausalNex) para predecir la probabilidad de reutilizar resultados recientes, invalidando o refrescando automáticamente los ítems con baja probabilidad de relevancia.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.78
   }
 ]
