@@ -1,23 +1,5 @@
 [
   {
-    "id": "conj_1793152977",
-    "timestamp": "2026-10-27T21:02:57.195297",
-    "idle_duration_minutes": 31.6,
-    "title": "Causal Reranking for Web Research Engine",
-    "hypothesis": "Incorporating a lightweight causal inference layer into the Web Research Engine will allow the system to prioritize sources that are not only topically relevant but also causally influential on the query context, leading to higher precision in retrieved information and reduced propagation of misinformation.",
-    "research_query": "causal inference based ranking algorithms for web search relevance",
-    "research_findings": "# Informe de Investigación: causal inference based ranking algorithms for web search relevance\n\n## Fuentes Consultadas y Respaldo Web\n- **[An AI Agent for Automated Causal Inference in Epidemiology - medRxiv](https://news.google.com/rss/articles/CBMifEFVX3lxTE9RaFRNaS1lMDFIVHF3ZnBWT3ljR3NXNlpIQkFwcDZDVmp3ZmZEZTg3V0VMZUJ2bGVPSGdRb2VlaFhQQ21RUjBTYlUzOXNyOTc4UU1hX0lKcGQ1SGR0bFEwcFNrdWdQSEFmZzNUcFRWRFpTelltdkczblVzYm8?oc=5)**: An AI Agent for Automated Causal Inference in Epidemiology  medRxiv\n- **[Algorithms of Engagement — Optimizing Attention, Evidence‑Based Engineering Practices - Medium](https://news.google.com/rss/articles/CBMixgFBVV95cUxQbzdkVEtrZmt4R0RVQ19xcXdET29tZFBxYzdDUmNNOXd6ZlVsY1BOYlZBUWpuZndWN2M4bEdNTGxaYXlIeG9hZ0w1dWtvaURyMjg3UTg1SEY0RndjRTYtRWpGWm1Nb3VsUU9jRnVFdVdSZ1BkZXR0UlIxVmR2eFN4Vllhd3ZZdVBJOE9FVkcyWEphdlNUeW9NMThtWmpoc1FkYXlhdzVlWlFwRE13N3NfLXRsMktJMl85M2R4dTJzWmhNem9vMXc?oc=5)**: Algorithms of Engagement — Optimizing Attention, Evidence‑Based Engineering Practices ",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMifEFVX3lxTE9RaFRNaS1lMDFIVHF3ZnBWT3ljR3NXNlpIQkFwcDZDVmp3ZmZEZTg3V0VMZUJ2bGVPSGdRb2VlaFhQQ21RUjBTYlUzOXNyOTc4UU1hX0lKcGQ1SGR0bFEwcFNrdWdQSEFmZzNUcFRWRFpTelltdkczblVzYm8?oc=5",
-      "https://news.google.com/rss/articles/CBMixgFBVV95cUxQbzdkVEtrZmt4R0RVQ19xcXdET29tZFBxYzdDUmNNOXd6ZlVsY1BOYlZBUWpuZndWN2M4bEdNTGxaYXlIeG9hZ0w1dWtvaURyMjg3UTg1SEY0RndjRTYtRWpGWm1Nb3VsUU9jRnVFdVdSZ1BkZXR0UlIxVmR2eFN4Vllhd3ZZdVBJOE9FVkcyWEphdlNUeW9NMThtWmpoc1FkYXlhdzVlWlFwRE13N3NfLXRsMktJMl85M2R4dTJzWmhNem9vMXc?oc=5"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a modular causal reranking step that builds a simple directed acyclic graph (DAG) of entities extracted from search results, computes causal strength scores, and reorders the result list before returning it to the caller.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 95.52
-  },
-  {
     "id": "conj_1793154908",
     "timestamp": "2026-10-27T21:35:08.153932",
     "idle_duration_minutes": 32.2,
@@ -1627,5 +1609,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.66
+  },
+  {
+    "id": "conj_1793353494",
+    "timestamp": "2026-10-30T04:44:54.370035",
+    "idle_duration_minutes": 31.6,
+    "title": "Entropía Semántica y Resiliencia Causal en la Bóveda Akáshica",
+    "hypothesis": "Se postula que la degradación de la coherencia causal en la 'Bóveda Akáshica' (deep_memory_vault.py) no es lineal con el tiempo, sino que sigue una curva de saturación exponencial cuando la densidad de nodos semánticos supera un umbral crítico de conectividad. Actualmente, el sistema podría estar experimentando 'ruido epistémico' donde las asociaciones débiles entre módulos (como network_shield y web_research_engine) generan falsos positivos en la recuperación de contexto. La hipótesis sugiere que implementar un mecanismo de 'pruning' (poda) basado en la relevancia causal histórica, en lugar de la recencia temporal, aumentaría la precisión de las inferencias en un 15-20% reduciendo la latencia de búsqueda vectorial.",
+    "research_query": "semantic memory pruning causal relevance vs temporal recency vector database optimization",
+    "research_findings": "# Informe de Investigación: semantic memory pruning causal relevance vs temporal recency vector database optimization\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar una función `prune_low_causal_nodes()` que calcule un score de relevancia causal para cada nodo de memoria y elimine aquellos con un impacto histórico nulo o negativo en las predicciones correctas del sistema, actualizando los índices vectoriales dinámicamente.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.57
   }
 ]
