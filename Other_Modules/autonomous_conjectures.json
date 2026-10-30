@@ -1,35 +1,5 @@
 [
   {
-    "id": "conj_1793196045",
-    "timestamp": "2026-10-28T09:00:45.095727",
-    "idle_duration_minutes": 34.2,
-    "title": "Causal‑Cache Fusion for Adaptive Web Research",
-    "hypothesis": "Integrating a lightweight causal inference layer into the Web Research Engine's request pipeline can dynamically prioritize and cache high‑impact queries, reducing latency and bandwidth while preserving result relevance. By tracking provenance metadata (source, timestamp, confidence) in deep_memory_vault and feeding it back to the scheduler, the system can predict which future searches are likely to reuse prior results and pre‑emptively serve them from an adaptive cache, improving overall throughput on resource‑constrained Linux hosts.",
-    "research_query": "adaptive caching with causal inference for web scraping engines python async",
-    "research_findings": "# Informe de Investigación: adaptive caching with causal inference for web scraping engines python async\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Implement an async causal‑aware cache decorator that stores query signatures and provenance in deep_memory_vault, adds a priority queue for pending requests, and introduces exponential back‑off with rate‑limit awareness.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.36
-  },
-  {
-    "id": "conj_1793197942",
-    "timestamp": "2026-10-28T09:32:22.114528",
-    "idle_duration_minutes": 31.6,
-    "title": "Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's result caching mechanism can dynamically invalidate stale entries based on detected changes in source webpages, reducing redundant network traffic and improving relevance of retrieved data. By logging request‑response metadata in deep_memory_vault and applying a lightweight Bayesian change‑point detection on content hashes, the system can predict when cached results are likely outdated and trigger selective re‑fetches, leading to a measurable drop in average latency and bandwidth usage without sacrificing recall.",
-    "research_query": "lightweight Bayesian change point detection for web content freshness caching",
-    "research_findings": "# Informe de Investigación: lightweight Bayesian change point detection for web content freshness caching\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal cache invalidation module that stores content hashes in deep_memory_vault, computes change‑point probabilities, and automatically refreshes cached search results when the probability of change exceeds a configurable threshold.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.0
-  },
-  {
     "id": "conj_1793200057",
     "timestamp": "2026-10-28T10:07:37.806757",
     "idle_duration_minutes": 35.3,
@@ -1638,5 +1608,38 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.06
+  },
+  {
+    "id": "conj_1793395370",
+    "timestamp": "2026-10-30T16:22:50.447515",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal Memory Indexing for Real‑Time Web Research",
+    "hypothesis": "Integrating a causal graph layer into the Deep Memory Vault will allow the system to automatically infer temporal dependencies between stored akáshic entries and newly fetched web data, improving relevance ranking and reducing redundant queries. By representing each memory node with provenance timestamps and causal edges, the Web Research Engine can prioritize queries that fill identified knowledge gaps, leading to faster convergence on accurate answers.",
+    "research_query": "causal graph memory indexing for AI knowledge bases and real-time web retrieval systems",
+    "research_findings": "# Informe de Investigación: causal graph memory indexing for AI knowledge bases and real-time web retrieval systems\n\n## Fuentes Consultadas y Respaldo Web\n- **[From Data to Decisions: How Knowledge Graphs Are Becoming the Brain of the Modern Enterprise - Medium](https://news.google.com/rss/articles/CBMi0gFBVV95cUxPVjh5NnNZNnFfZ3UzMEx3U0pqajNDQ19TV0JjRGN5WGhleWxVLW5WMkptR2J6VHpldllqekM2bzJSUFBYWHlwSW1ySUZoZG9fOFZRVGY4NEt6ZVE5YkQ4b0VlRWl1T0Jtd1hlSzNrOGRuTzY1ajU4b1lUY3hVMDBpWUxiZWo5X1VBNDMyQjFMVlFPMU14bm9kUlZCMWVLMTBTRUI0ZTBQRDdpVmJxVlRuZFQwYzNPNGpReVdEMUg3dHVhNWhvQUd6LTdvMWMtZHBSQXc?oc=5)**: From Data to Decisions: How Knowledge Graphs Are Becoming the Brain of the Modern Enterprise  Medium\n- **[Proceedings of the AAAI Conference on Artificial Intelligence - The Association for the Advancement of Artificial Intelligence](https://news.google.com/rss/articles/CBMiU0FVX3lxTE9nUFJxV1ZrNFpZa0xPS1ZTVXpVT0UxT2ZpMkxmazR6YTB3R2liUldaQlJzcHJFQU5WN0JfOXJWc2VlaHNaUGZNci1KUkFFNDF6TjdF?oc=5)**: Procee",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMi0gFBVV95cUxPVjh5NnNZNnFfZ3UzMEx3U0pqajNDQ19TV0JjRGN5WGhleWxVLW5WMkptR2J6VHpldllqekM2bzJSUFBYWHlwSW1ySUZoZG9fOFZRVGY4NEt6ZVE5YkQ4b0VlRWl1T0Jtd1hlSzNrOGRuTzY1ajU4b1lUY3hVMDBpWUxiZWo5X1VBNDMyQjFMVlFPMU14bm9kUlZCMWVLMTBTRUI0ZTBQRDdpVmJxVlRuZFQwYzNPNGpReVdEMUg3dHVhNWhvQUd6LTdvMWMtZHBSQXc?oc=5",
+      "https://news.google.com/rss/articles/CBMiU0FVX3lxTE9nUFJxV1ZrNFpZa0xPS1ZTVXpVT0UxT2ZpMkxmazR6YTB3R2liUldaQlJzcHJFQU5WN0JfOXJWc2VlaHNaUGZNci1KUkFFNDF6TjdF?oc=5"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a lightweight causal graph module that tracks provenance of each fetched result, integrates with the Deep Memory Vault to flag missing causal links, and implements a priority queue for web queries based on identified knowledge gaps.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.24
+  },
+  {
+    "id": "conj_1793397391",
+    "timestamp": "2026-10-30T16:56:31.824085",
+    "idle_duration_minutes": 33.7,
+    "title": "Async‑Caching Boost for Web Research Engine",
+    "hypothesis": "The current web_research_engine.py performs blocking HTTP requests sequentially and lacks result caching, causing high latency and redundant network traffic. By refactoring to an asynchronous, event‑driven architecture with an LRU cache, the engine will reduce average response time by ~70% and lower bandwidth usage, improving overall system responsiveness and telemetry accuracy.",
+    "research_query": "asyncio aiohttp caching web scraping performance comparison",
+    "research_findings": "# Informe de Investigación: asyncio aiohttp caching web scraping performance comparison\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Convert synchronous requests to async aiohttp calls, add an in‑memory LRU cache for query results, and expose a telemetry hook to log cache hits/misses and request latency.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.04
   }
 ]
