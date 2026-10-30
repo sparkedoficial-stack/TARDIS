@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1793137769",
-    "timestamp": "2026-10-27T16:49:29.998237",
-    "idle_duration_minutes": 31.6,
-    "title": "Resonancia Causal en la Bóveda Akáshica: Compresión Semántica Adaptativa",
-    "hypothesis": "Se postula que la eficiencia de recuperación de información en `deep_memory_vault.py` puede optimizarse un 30% implementando un mecanismo de 'resonancia causal' que priorice no solo la similitud vectorial, sino la co-ocurrencia temporal de conceptos en la telemetría de `web_research_engine.py`. Al correlacionar la latencia de búsqueda web con la relevancia de los nodos de memoria, el sistema podría pre-cargar contextos específicos antes de que se requieran explícitamente, reduciendo la carga cognitiva del núcleo.",
-    "research_query": "adaptive semantic compression causal resonance vector database optimization temporal co-occurrence",
-    "research_findings": "# Informe de Investigación: adaptive semantic compression causal resonance vector database optimization temporal co-occurrence\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Integrar un índice secundario basado en la frecuencia temporal de acceso derivada de los logs de `web_research_engine.py` para re-puntuar los vectores de memoria en tiempo real.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.84
-  },
-  {
     "id": "conj_1793139668",
     "timestamp": "2026-10-27T17:21:08.843001",
     "idle_duration_minutes": 31.6,
@@ -1622,5 +1607,23 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.37
+  },
+  {
+    "id": "conj_1793336917",
+    "timestamp": "2026-10-30T00:08:37.925066",
+    "idle_duration_minutes": 31.6,
+    "title": "Resonancia Causal en la Bóveda Akáshica",
+    "hypothesis": "La eficiencia de recuperación de información en `deep_memory_vault.py` se ve limitada por la búsqueda lineal o por índice estático. Se conjetura que implementar un mecanismo de 'resonancia causal' —donde la relevancia de un recuerdo no depende solo de la similitud semántica, sino de la probabilidad condicional de que ese recuerdo influya en la acción futura del sistema— reduciría la latencia de decisión en un 15-20% y mejoraría la coherencia de las respuestas del núcleo cognitivo.",
+    "research_query": "causal inference in vector databases for LLM memory retrieval optimization",
+    "research_findings": "# Informe de Investigación: causal inference in vector databases for LLM memory retrieval optimization\n\n## Fuentes Consultadas y Respaldo Web\n- **[RAG-based architectures for drug side effect retrieval using compact LLMs - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE5ISTN6N2ktemhjcVNMYWpJMnVTRmE1eGRZZVN3NzlRcDZpNC1wUV83VzJSdGV5dE9YS0hpa0hMMUV6SVJOQkRQR1hrQ19ZVTFPaTJaNWg5VkEtZ2puZmlv?oc=5)**: RAG-based architectures for drug side effect retrieval using compact LLMs  Nature\n- **[An active inference strategy for prompting reliable responses from large language models in medical practice - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTFBkRTFtZGJLaGJuYXczT3RhYWdaUWhjajVTQVUwNlhxdlVKR2txckZqektZRTdPai12WDBsQ2dJZ0w2cUdpSjJsMExrMXpmb21ieEkzQURwa01tb0JWbUYw?oc=5)**: An active inference strategy for prompting reliable responses from large language models in medical practice  Nature\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE5ISTN6N2ktemhjcVNMYWpJMnVTRmE1eGRZZVN3NzlRcDZpNC1wUV83VzJSdGV5dE9YS0hpa0hMMUV6SVJOQkRQR1hrQ19ZVTFPaTJaNWg5VkEtZ2puZmlv?oc=5",
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTFBkRTFtZGJLaGJuYXczT3RhYWdaUWhjajVTQVUwNlhxdlVKR2txckZqektZRTdPai12WDBsQ2dJZ0w2cUdpSjJsMExrMXpmb21ieEkzQURwa01tb0JWbUYw?oc=5"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Añadir un campo `causal_weight` a los vectores de memoria y modificar el algoritmo de scoring de búsqueda para ponderar los resultados basándose en la relevancia causal histórica en lugar de solo similitud coseno.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.18
   }
 ]
