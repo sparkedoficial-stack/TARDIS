@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "created_at": "2026-10-15T02:04:29.176374",
   "last_periodic_sync": "2026-10-30T00:46:14.589784",
-  "last_immediate_sync": "2026-10-30T06:07:32.090500",
-  "last_commit_hash": "d0f0de38",
-  "sync_count": 1353,
-  "immediate_sync_count": 1352,
+  "last_immediate_sync": "2026-10-30T06:22:39.189970",
+  "last_commit_hash": "431be87c",
+  "sync_count": 1354,
+  "immediate_sync_count": 1353,
   "periodic_sync_count": 1,
   "last_known_mtimes": {
     "skill:omni-control-bridge/SKILL.md": REDACTED_PHONE.4575877,
@@ -284,6 +284,17 @@
     "sat:gia_ios:GIA/Models/GIAModels.swift": REDACTED_PHONE.5796177
   },
   "history": [
+    {
+      "timestamp": "2026-10-30T06:22:39.189970",
+      "trigger": "immediate_milestone",
+      "commit_hash": "431be87c",
+      "score": 75,
+      "reasons": [
+        "Evoluci\u00f3n en subsistema core TARDIS: curiosity_debate_manager.py",
+        "Evoluci\u00f3n en subsistema core TARDIS: scientific_research_engine.py",
+        "Evoluci\u00f3n en subsistema core TARDIS: background_thought_engine.py"
+      ]
+    },
     {
       "timestamp": "2026-10-30T06:07:32.090500",
       "trigger": "immediate_milestone",
@@ -847,17 +858,6 @@
       "reasons": [
         "Evoluci\u00f3n en subsistema core TARDIS: tardis_ipad_edge_server.py",
         "Nuevo subsistema core TARDIS: nxnative_mk8d_ipad_ui.py"
-      ]
-    },
-    {
-      "timestamp": "2026-10-28T04:47:13.137352",
-      "trigger": "immediate_milestone",
-      "commit_hash": "48dd0ae1",
-      "score": 75,
-      "reasons": [
-        "Evoluci\u00f3n en subsistema core TARDIS: curiosity_debate_manager.py",
-        "Evoluci\u00f3n en subsistema core TARDIS: scientific_research_engine.py",
-        "Evoluci\u00f3n en subsistema core TARDIS: background_thought_engine.py"
       ]
     }
   ]
