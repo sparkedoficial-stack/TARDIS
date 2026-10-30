@@ -1,38 +1,5 @@
 [
   {
-    "id": "conj_1793184344",
-    "timestamp": "2026-10-28T05:45:44.182489",
-    "idle_duration_minutes": 31.6,
-    "title": "Causal‑Feedback Loop for Adaptive Web Research",
-    "hypothesis": "Integrar un bucle de retroalimentación causal entre el motor de búsqueda web (core/web_research_engine.py) y la bóveda de memoria profunda (core/deep_memory_vault.py) permitirá que el sistema ajuste dinámicamente sus parámetros de consulta y filtrado en función de la relevancia observada de resultados anteriores, reduciendo el tiempo medio de obtención de información útil en al menos un 30% y mejorando la coherencia semántica de las respuestas generadas por GODWORKS.",
-    "research_query": "adaptive causal feedback loop web search engine memory vault optimization \"semantic relevance\" \"causal inference\"",
-    "research_findings": "# Informe de Investigación: adaptive causal feedback loop web search engine memory vault optimization \"semantic relevance\" \"causal inference\"\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Añadir una capa de monitorización de métricas de relevancia (p.ej., puntuación de similitud TF‑IDF o embeddings) y un módulo de ajuste automático de los parámetros de búsqueda (número de resultados, filtros de dominio, peso de palabras clave) que se retroalimente con los scores almacenados en deep_memory_vault, creando un ciclo de aprendizaje en tiempo real.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 95.95
-  },
-  {
-    "id": "conj_1793186366",
-    "timestamp": "2026-10-28T06:19:26.394285",
-    "idle_duration_minutes": 33.7,
-    "title": "Causal Memory Indexing for Real‑Time Web Retrieval",
-    "hypothesis": "Integrating a causal graph layer between core/deep_memory_vault.py and core/web_research_engine.py will allow the system to prioritize web search results that are causally linked to the current query context, reducing latency and improving relevance. The hypothesis posits that by annotating stored memory fragments with lightweight causal tags (e.g., \"precedes\", \"influences\", \"depends_on\") and propagating these tags during query expansion, the search engine can dynamically rank results that have a higher causal proximity to the active akáshic vault state, leading to a measurable boost in precision@10 for context‑rich queries.",
-    "research_query": "causal graph based query expansion for neural web search engines",
-    "research_findings": "# Informe de Investigación: causal graph based query expansion for neural web search engines\n\n## Fuentes Consultadas y Respaldo Web\n- **[From Data to Decisions: How Knowledge Graphs Are Becoming the Brain of the Modern Enterprise - Medium](https://news.google.com/rss/articles/CBMi0gFBVV95cUxPVjh5NnNZNnFfZ3UzMEx3U0pqajNDQ19TV0JjRGN5WGhleWxVLW5WMkptR2J6VHpldllqekM2bzJSUFBYWHlwSW1ySUZoZG9fOFZRVGY4NEt6ZVE5YkQ4b0VlRWl1T0Jtd1hlSzNrOGRuTzY1ajU4b1lUY3hVMDBpWUxiZWo5X1VBNDMyQjFMVlFPMU14bm9kUlZCMWVLMTBTRUI0ZTBQRDdpVmJxVlRuZFQwYzNPNGpReVdEMUg3dHVhNWhvQUd6LTdvMWMtZHBSQXc?oc=5)**: From Data to Decisions: How Knowledge Graphs Are Becoming the Brain of the Modern Enterprise  Medium\n- **[Enhanced Large Language Models as Reasoning Engines - Towards Data Science](https://news.google.com/rss/articles/CBMinAFBVV95cUxOZ0xXWW10OWp4cDRTSFRxQnpWV3RGOEh6dFRxUklINE44NTJHM05sczVDdWZscXkwSGl2cWxOVHJpUFFMTlNBUUxIT0JjUjlBanNaOGtLYVpWbVh1QkNBRTVEa3o1QmctN3FWa3kxRFIwOXJNTTRGUlF5OHMtYmxRVVI4S2wyblQydnlQdEFhNEkzejlxcG8",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMi0gFBVV95cUxPVjh5NnNZNnFfZ3UzMEx3U0pqajNDQ19TV0JjRGN5WGhleWxVLW5WMkptR2J6VHpldllqekM2bzJSUFBYWHlwSW1ySUZoZG9fOFZRVGY4NEt6ZVE5YkQ4b0VlRWl1T0Jtd1hlSzNrOGRuTzY1ajU4b1lUY3hVMDBpWUxiZWo5X1VBNDMyQjFMVlFPMU14bm9kUlZCMWVLMTBTRUI0ZTBQRDdpVmJxVlRuZFQwYzNPNGpReVdEMUg3dHVhNWhvQUd6LTdvMWMtZHBSQXc?oc=5",
-      "https://news.google.com/rss/articles/CBMinAFBVV95cUxOZ0xXWW10OWp4cDRTSFRxQnpWV3RGOEh6dFRxUklINE44NTJHM05sczVDdWZscXkwSGl2cWxOVHJpUFFMTlNBUUxIT0JjUjlBanNaOGtLYVpWbVh1QkNBRTVEa3o1QmctN3FWa3kxRFIwOXJNTTRGUlF5OHMtYmxRVVI4S2wyblQydnlQdEFhNEkzejlxcG80eGdMN3Q?oc=5"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal tagging subsystem that extracts causal tags from deep_memory_vault entries, builds an in‑memory causal graph, and modifies the search ranking function to weight results by causal distance to the current context.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.48
-  },
-  {
     "id": "conj_1793188266",
     "timestamp": "2026-10-28T06:51:06.869771",
     "idle_duration_minutes": 31.7,
@@ -1629,5 +1596,41 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 100.15
+  },
+  {
+    "id": "conj_1793384014",
+    "timestamp": "2026-10-30T13:13:34.832495",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal Memory Indexing for Real‑Time Web Research",
+    "hypothesis": "Integrating a causal graph layer between core/deep_memory_vault.py and core/web_research_engine.py will allow the system to automatically prioritize and prune retrieved web documents based on their inferred causal relevance to the current hypothesis, reducing latency and improving answer fidelity. The hypothesis posits that a lightweight, incremental causal index (using a DAG of entities, actions, and outcomes) can be maintained in memory and updated with each research query, enabling the engine to fetch only those sources that are causally upstream of the target concept.",
+    "research_query": "incremental causal graph indexing for real-time web search relevance optimization",
+    "research_findings": "# Informe de Investigación: incremental causal graph indexing for real-time web search relevance optimization\n\n## Fuentes Consultadas y Respaldo Web\n- **[Outline of machine learning (Wikipedia)](https://en.wikipedia.org/wiki/Outline_of_machine_learning)**: filtering Content-based filtering Hybrid recommender systems Search engine Search engine optimization Social engineering Graphics processing unit Tensor processing\n- **[List of datasets for machine-learning research (Wikipedia)](https://en.wikipedia.org/wiki/List_of_datasets_for_machine-learning_research)**: PeMS Meusel, Robert, et al. \"The Graph Structure in the Web—Analyzed on Different Aggregation Levels.\"The Journal of Web Science 1.1 (2015). Kushmerick\n\n## Contenido y Hallazgos Extraídos\n### De [Outline of machine learning - Wikipedia](https://en.wikipedia.org/wiki/Outline_of_machine_learning)\n> Outline of machine learning - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nOverview of and topical guide to machine ",
+    "web_sources": [
+      "https://en.wikipedia.org/wiki/Outline_of_machine_learning",
+      "https://en.wikipedia.org/wiki/List_of_datasets_for_machine-learning_research"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add an async causal‑relevance pre‑filter that queries deep_memory_vault for a temporary causal subgraph, scores incoming URLs, and discards low‑score results before full content download. Implement a simple DAG cache with TTL and expose a `filter_by_causal_relevance(query, urls)` coroutine.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.76
+  },
+  {
+    "id": "conj_1793385911",
+    "timestamp": "2026-10-30T13:45:11.422281",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal Graph Embeddings for Enhanced Retrieval in Deep Memory Vault",
+    "hypothesis": "If the Deep Memory Vault augments each stored memory node with a lightweight causal graph embedding that captures inferred cause‑effect relationships between events, then contextual queries can be resolved by traversing these embeddings, yielding more semantically relevant results and reducing average retrieval latency by up to 30% compared to the current flat vector similarity approach.",
+    "research_query": "causal graph embeddings for long‑term memory retrieval in AI systems",
+    "research_findings": "# Informe de Investigación: causal graph embeddings for long‑term memory retrieval in AI systems\n\n## Fuentes Consultadas y Respaldo Web\n- **[Hindsight is 20/20: Building Agent Memory that Retains, Recalls, and Reflects - alphaXiv](https://news.google.com/rss/articles/CBMiUEFVX3lxTE1aMVVSanJ2MHVmeENMbEpxYUhvQWI1QmM2YWpJSzFyRDNuNFpGd001c3ZjQkJGQko5MmhNM2pteXNJdWdqQ1ZJVklFMTVNRDBt?oc=5)**: Hindsight is 20/20: Building Agent Memory that Retains, Recalls, and Reflects  alphaXiv\n- **[The rise of agentic AI in drug discovery from static tools to autonomous virtual scientists - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE0zSnZwRjUwY0RlYnYyam9sYnVTYTgzUmNlOUJNdmFmU2FyQTlQRE1raGliWksxcVZ5QVpYbE9wM0JQQ0RTUUN6YmN2T201c2ZaTk9GMzFVRHBKWElSWlpB?oc=5)**: The rise of agentic AI in drug discovery from static tools to autonomous virtual scientists  Nature\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMiUEFVX3lxTE1aMVVSanJ2MHVmeENMbEpxYU",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiUEFVX3lxTE1aMVVSanJ2MHVmeENMbEpxYUhvQWI1QmM2YWpJSzFyRDNuNFpGd001c3ZjQkJGQko5MmhNM2pteXNJdWdqQ1ZJVklFMTVNRDBt?oc=5",
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE0zSnZwRjUwY0RlYnYyam9sYnVTYTgzUmNlOUJNdmFmU2FyQTlQRE1raGliWksxcVZ5QVpYbE9wM0JQQ0RTUUN6YmN2T201c2ZaTk9GMzFVRHBKWElSWlpB?oc=5"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implement a causal‑graph index layer that computes and stores a small directed acyclic graph per memory chunk, and modify the query engine to score candidates using both cosine similarity and causal path relevance.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.57
   }
 ]

@@ -3,26 +3,15 @@
   "interval_seconds": 5400.0,
   "target_chat_id": -REDACTED_PHONE,
   "target_thread_id": 453,
-  "last_run_timestamp": REDACTED_PHONE.905642,
-  "last_run_iso": "2026-10-30T11:38:39.905644",
-  "total_dispatches": 425,
-  "curator_index": 2,
+  "last_run_timestamp": REDACTED_PHONE.3779538,
+  "last_run_iso": "2026-10-30T13:08:42.377959",
+  "total_dispatches": 426,
+  "curator_index": 3,
   "dispatched_topic_ids": [
-    "holographic_brain_neurophysics"
+    "holographic_brain_neurophysics",
+    "fermi_paradox_great_filter"
   ],
   "history": [
-    {
-      "dispatch_id": 326,
-      "timestamp": REDACTED_PHONE.9649727,
-      "iso": "2026-10-24T06:57:15.964976",
-      "topic_id": "synthetic_biology_xenobiology_xna",
-      "topic_title": "Xenobiología y Ácidos Nucleicos Artificiales (XNAs): Rediseñando el Código Genético",
-      "pdf_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/reports/polimatas_debates/Dossier_Debate_20261024_065714_synthetic_biology_xenobiology_.pdf",
-      "chat_id": -REDACTED_PHONE,
-      "thread_id": 453,
-      "text_sent": true,
-      "doc_sent": true
-    },
     {
       "dispatch_id": 327,
       "timestamp": REDACTED_PHONE.3395016,
@@ -1206,6 +1195,18 @@
       "topic_id": "holographic_brain_neurophysics",
       "topic_title": "La Hipótesis del Cerebro Holográfico: Memoria Distribuida y Resonancia Cuántica",
       "pdf_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/reports/polimatas_debates/Dossier_Debate_20261030_113838_holographic_brain_neurophysics.pdf",
+      "chat_id": -REDACTED_PHONE,
+      "thread_id": 453,
+      "text_sent": true,
+      "doc_sent": true
+    },
+    {
+      "dispatch_id": 426,
+      "timestamp": REDACTED_PHONE.3779538,
+      "iso": "2026-10-30T13:08:42.377959",
+      "topic_id": "fermi_paradox_great_filter",
+      "topic_title": "La Paradoja de Fermi y el Gran Filtro: ¿Estamos Solos, Fuimos Primeros o Estamos Aislados?",
+      "pdf_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/reports/polimatas_debates/Dossier_Debate_20261030_130840_fermi_paradox_great_filter.pdf",
       "chat_id": -REDACTED_PHONE,
       "thread_id": 453,
       "text_sent": true,
