@@ -3,33 +3,14 @@
   "interval_seconds": 5400.0,
   "target_chat_id": -REDACTED_PHONE,
   "target_thread_id": 453,
-  "last_run_timestamp": REDACTED_PHONE.8151655,
-  "last_run_iso": "2026-10-30T22:09:00.815167",
-  "total_dispatches": 432,
-  "curator_index": 1,
+  "last_run_timestamp": REDACTED_PHONE.2504628,
+  "last_run_iso": "2026-10-30T23:39:03.250468",
+  "total_dispatches": 433,
+  "curator_index": 2,
   "dispatched_topic_ids": [
-    "holographic_brain_neurophysics",
-    "fermi_paradox_great_filter",
-    "godel_incompleteness_ai_limits",
-    "neural_decoding_mind_reading_bci",
-    "syntropy_prigogine_thermodynamics",
-    "synthetic_biology_xenobiology_xna",
-    "ssm_mamba_vs_transformer",
-    "quantum_spacetime_er_epr"
+    "holographic_brain_neurophysics"
   ],
   "history": [
-    {
-      "dispatch_id": 333,
-      "timestamp": REDACTED_PHONE.1560867,
-      "iso": "2026-10-24T17:28:12.156090",
-      "topic_id": "syntropy_prigogine_thermodynamics",
-      "topic_title": "Termodinámica del No Equilibrio y Sintropía: ¿El Orden es una Ley Fundamental?",
-      "pdf_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/reports/polimatas_debates/Dossier_Debate_20261024_172732_syntropy_prigogine_thermodynam.pdf",
-      "chat_id": -REDACTED_PHONE,
-      "thread_id": 453,
-      "text_sent": false,
-      "doc_sent": false
-    },
     {
       "dispatch_id": 334,
       "timestamp": REDACTED_PHONE.6171665,
@@ -1213,6 +1194,18 @@
       "topic_id": "quantum_spacetime_er_epr",
       "topic_title": "Entrelazamiento Cuántico, No-Localidad y Espacio-Tiempo Emergente (ER=EPR)",
       "pdf_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/reports/polimatas_debates/Dossier_Debate_20261030_220858_quantum_spacetime_er_epr.pdf",
+      "chat_id": -REDACTED_PHONE,
+      "thread_id": 453,
+      "text_sent": true,
+      "doc_sent": true
+    },
+    {
+      "dispatch_id": 433,
+      "timestamp": REDACTED_PHONE.2504628,
+      "iso": "2026-10-30T23:39:03.250468",
+      "topic_id": "holographic_brain_neurophysics",
+      "topic_title": "La Hipótesis del Cerebro Holográfico: Memoria Distribuida y Resonancia Cuántica",
+      "pdf_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/reports/polimatas_debates/Dossier_Debate_20261030_233901_holographic_brain_neurophysics.pdf",
       "chat_id": -REDACTED_PHONE,
       "thread_id": 453,
       "text_sent": true,
