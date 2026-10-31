@@ -763,6 +763,30 @@ class TardisVideoThinkingEngine:
             logger.warning(f"Aviso despachando a Telegram: {e_tg}")
             results["error"] = str(e_tg)
 
+        # 3. Función /SOCIAL: publica el video descargado y sus conclusiones en las redes
+        try:
+            from core.tardis_social_engine import get_social_engine
+            se = get_social_engine()
+            if se.cfg.get("enabled") and se.cfg.get("auto_on_new_cycles", True):
+                rep_social = se.publish_record(rec, item="all")
+                for social_item, res_s in rep_social.get("results", {}).items():
+                    status = res_s.get("status", "")
+                    if status == "published":
+                        rec.dispatched_chats.append(f"social:tiktok:{res_s.get('publish_id')}")
+                    elif status == "pending":
+                        rec.dispatched_chats.append(f"social:tiktok-pending:{social_item}")
+                # Persistir los destinos sociales en la memoria de abstracción
+                with sqlite3.connect(str(self.db_path)) as conn:
+                    conn.execute(
+                        "UPDATE learned_videos SET dispatched_chats_json = ? WHERE id = ?",
+                        (json.dumps(rec.dispatched_chats), rec.id)
+                    )
+                    conn.commit()
+                results["social"] = {k: v.get("status") for k, v in rep_social.get("results", {}).items()}
+        except Exception as e_social:
+            logger.warning(f"Aviso despachando a Social: {e_social}")
+            results["social_error"] = str(e_social)
+
         return results
 
     def format_telegram_report(self, rec: VideoThoughtRecord) -> str:

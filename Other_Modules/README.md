@@ -263,6 +263,8 @@ Módulos y componentes auxiliares del sistema.
 - **tardis_singularity_daemon.py**: Motor de aceleración FTL y computación adaptativa.
 - **tardis_singularity_state.json**: Motor de aceleración FTL y computación adaptativa.
 - **tardis_skill_registry.py**: Directorio y puente soberano de interoperabilidad omni-herramientas.
+- **tardis_social.py**: Componente de alta eficiencia.
+- **tardis_social_engine.py**: Componente de alta eficiencia.
 - **tardis_system_repair.py**: Componente de alta eficiencia.
 - **tardis_telephony_controller.py**: Componente de alta eficiencia.
 - **tardis_terminal_config.json**: Componente de alta eficiencia.
