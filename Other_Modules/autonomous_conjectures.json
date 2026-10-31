@@ -1,38 +1,5 @@
 [
   {
-    "id": "conj_1793248467",
-    "timestamp": "2026-10-28T23:34:27.537423",
-    "idle_duration_minutes": 35.8,
-    "title": "Dynamic Causal Weighting for Real‑Time Web Research",
-    "hypothesis": "Integrar un mecanismo de ponderación causal dinámico en el motor de investigación web (core/web_research_engine.py) permitirá que el sistema ajuste en tiempo real la relevancia de los resultados basándose en la retroalimentación de la Deep Memory Vault, mejorando la precisión de las respuestas y reduciendo la latencia de búsqueda en entornos de alta carga.",
-    "research_query": "dynamic causal weighting web search engine real-time relevance feedback deep memory integration",
-    "research_findings": "# Informe de Investigación: dynamic causal weighting web search engine real-time relevance feedback deep memory integration\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Añadir una capa de cálculo de pesos causales que combine métricas de similitud semántica, historial de consultas en deep_memory_vault y métricas de latencia, y usar esos pesos para re‑ordenar los resultados antes de devolverlos al usuario.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.26
-  },
-  {
-    "id": "conj_1793253238",
-    "timestamp": "2026-10-29T00:53:58.916211",
-    "idle_duration_minutes": 32.1,
-    "title": "Integración de Redes Bayesianas para Inferencia Causal en el Deep Memory Vault",
-    "hypothesis": "Al incorporar un modelo de red bayesiana dentro del Deep Memory Vault, el sistema podrá inferir relaciones causales entre eventos y conceptos almacenados, mejorando la precisión de las respuestas generadas por el motor de investigación web y reduciendo la propagación de información errónea. Esta arquitectura permitiría actualizar dinámicamente las probabilidades condicionales a medida que se añaden nuevos datos, ofreciendo un mecanismo de aprendizaje continuo y explicable.",
-    "research_query": "Bayesian network integration for knowledge graph causal inference in AI systems",
-    "research_findings": "# Informe de Investigación: Bayesian network integration for knowledge graph causal inference in AI systems\n\n## Fuentes Consultadas y Respaldo Web\n- **[Improved bayesian network with graph attention and prior algorithm for aircraft engine fault root cause analysis - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTFBWTERIc1AwSVZFYXh5bDZ0cDFySTM2RHdYRk9qb3hYRzl4eGxXYS1CQVhBcXpjQzVXYkVHV0k3RE9ad0pvcmtpTWwtSHdZVi1EcTFRUEsta25MQzlvbzFR?oc=5)**: Improved bayesian network with graph attention and prior algorithm for aircraft engine fault root cause analysis  Nature\n- **[Temporal network analysis in systems biology: concepts, inference, and validation - Frontiers](https://news.google.com/rss/articles/CBMilwFBVV95cUxPcEJ3R0E3WlM1emdTSTBXbVo0Y3dYSzhfMWZZemRwNzNtNFNNSFo4c1l3SHFRbmdRcDlYanBsbnVXRHh2V1VaTTNRcDJVYUx4NmhkNVBldWlRcDlOcm9EVndMX09aTlpaUm1nY2g4b3hSRFVzN3czWExUalExZ3dKdGlaam9yZHliWTlxN08wV0xkMkRheGZV?oc=5)**: Temporal network analysis in systems biology: concepts, inference, and",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTFBWTERIc1AwSVZFYXh5bDZ0cDFySTM2RHdYRk9qb3hYRzl4eGxXYS1CQVhBcXpjQzVXYkVHV0k3RE9ad0pvcmtpTWwtSHdZVi1EcTFRUEsta25MQzlvbzFR?oc=5",
-      "https://news.google.com/rss/articles/CBMilwFBVV95cUxPcEJ3R0E3WlM1emdTSTBXbVo0Y3dYSzhfMWZZemRwNzNtNFNNSFo4c1l3SHFRbmdRcDlYanBsbnVXRHh2V1VaTTNRcDJVYUx4NmhkNVBldWlRcDlOcm9EVndMX09aTlpaUm1nY2g4b3hSRFVzN3czWExUalExZ3dKdGlaam9yZHliWTlxN08wV0xkMkRheGZV?oc=5"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar un módulo de inferencia bayesiana que construya y actualice una red de dependencias entre entidades del vault, y exponga una API para consultas causales.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.9
-  },
-  {
     "id": "conj_1793255229",
     "timestamp": "2026-10-29T01:27:09.752088",
     "idle_duration_minutes": 33.2,
@@ -1638,5 +1605,41 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 98.06
+  },
+  {
+    "id": "conj_1793445632",
+    "timestamp": "2026-10-31T06:20:32.065182",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal Memory Indexing for Real‑Time Web Research",
+    "hypothesis": "Integrating a causal inference layer into the Deep Memory Vault (core/deep_memory_vault.py) that automatically tags stored akáshic entries with provenance graphs will allow the Web Research Engine to prioritize sources that are causally linked to the current query, reducing latency and improving relevance by up to 30% compared to the existing keyword‑only retrieval approach.",
+    "research_query": "causal inference based knowledge retrieval systems vs keyword based retrieval performance evaluation",
+    "research_findings": "# Informe de Investigación: causal inference based knowledge retrieval systems vs keyword based retrieval performance evaluation\n\n## Fuentes Consultadas y Respaldo Web\n- **[RAG-based architectures for drug side effect retrieval using compact LLMs - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE5ISTN6N2ktemhjcVNMYWpJMnVTRmE1eGRZZVN3NzlRcDZpNC1wUV83VzJSdGV5dE9YS0hpa0hMMUV6SVJOQkRQR1hrQ19ZVTFPaTJaNWg5VkEtZ2puZmlv?oc=5)**: RAG-based architectures for drug side effect retrieval using compact LLMs  Nature\n- **[An AI Agent for Automated Causal Inference in Epidemiology - medRxiv](https://news.google.com/rss/articles/CBMifEFVX3lxTE9RaFRNaS1lMDFIVHF3ZnBWT3ljR3NXNlpIQkFwcDZDVmp3ZmZEZTg3V0VMZUJ2bGVPSGdRb2VlaFhQQ21RUjBTYlUzOXNyOTc4UU1hX0lKcGQ1SGR0bFEwcFNrdWdQSEFmZzNUcFRWRFpTelltdkczblVzYm8?oc=5)**: An AI Agent for Automated Causal Inference in Epidemiology  medRxiv\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMiX0FVX3lxTE5ISTN6N2k",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE5ISTN6N2ktemhjcVNMYWpJMnVTRmE1eGRZZVN3NzlRcDZpNC1wUV83VzJSdGV5dE9YS0hpa0hMMUV6SVJOQkRQR1hrQ19ZVTFPaTJaNWg5VkEtZ2puZmlv?oc=5",
+      "https://news.google.com/rss/articles/CBMifEFVX3lxTE9RaFRNaS1lMDFIVHF3ZnBWT3ljR3NXNlpIQkFwcDZDVmp3ZmZEZTg3V0VMZUJ2bGVPSGdRb2VlaFhQQ21RUjBTYlUzOXNyOTc4UU1hX0lKcGQ1SGR0bFEwcFNrdWdQSEFmZzNUcFRWRFpTelltdkczblVzYm8?oc=5"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a preprocessing step that queries the Deep Memory Vault for causally related entries, builds a lightweight provenance graph, and re‑ranks the web search results based on causal relevance before returning them to the user.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 95.0
+  },
+  {
+    "id": "conj_1793447652",
+    "timestamp": "2026-10-31T06:54:12.978540",
+    "idle_duration_minutes": 33.7,
+    "title": "Causal‑Feedback Loop for Adaptive Web Research Prioritization",
+    "hypothesis": "Integrating a causal inference layer between the Web Research Engine and the Deep Memory Vault can dynamically re‑rank search results based on downstream impact on the vault's knowledge graph. By tracking which retrieved documents lead to successful knowledge insertions (measured via a reinforcement signal from deep_memory_vault), the system can learn a policy that prioritizes sources with higher causal contribution to knowledge growth, reducing redundant queries and improving overall retrieval efficiency.",
+    "research_query": "causal inference for adaptive web search ranking reinforcement learning knowledge graph update",
+    "research_findings": "# Informe de Investigación: causal inference for adaptive web search ranking reinforcement learning knowledge graph update\n\n## Fuentes Consultadas y Respaldo Web\n- **[A causal discovery-based adaptive fusion algorithm for multi-source heterogeneous knowledge graphs - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE8tQkU3N2N2SUlGcmUyeklIVU5GeWlidTZGcTBvU3hNZTBQSGxUUERfbVEydXpwZ2VoQlhrS09WelBTNmdzUWhoSG8zTzVGVGk0Rm85V3VYN3U2Q2RQRnNZ?oc=5)**: A causal discovery-based adaptive fusion algorithm for multi-source heterogeneous knowledge graphs  Nature\n- **[Vol. 40 No. 30: AAAI-26 Technical Tracks 30 - The Association for the Advancement of Artificial Intelligence](https://news.google.com/rss/articles/CBMiX0FVX3lxTE16cTJRRXMyZnlIbTRvcGpxMmVVUGtNRFdaMXNDcHZpYzVEWElJa2N2RVViemotemVwaUtWRVF4WEpZSFpILXJ1Q19ZcWJlYjFGOWhwYjBaR1lOcEpYajc4?oc=5)**: Vol. 40 No. 30: AAAI-26 Technical Tracks 30  The Association for the Advancement of Artificial Intelligence\n\n## Contenido y Hallazgos Extraídos\n",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE8tQkU3N2N2SUlGcmUyeklIVU5GeWlidTZGcTBvU3hNZTBQSGxUUERfbVEydXpwZ2VoQlhrS09WelBTNmdzUWhoSG8zTzVGVGk0Rm85V3VYN3U2Q2RQRnNZ?oc=5",
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE16cTJRRXMyZnlIbTRvcGpxMmVVUGtNRFdaMXNDcHZpYzVEWElJa2N2RVViemotemVwaUtWRVF4WEpZSFpILXJ1Q19ZcWJlYjFGOWhwYjBaR1lOcEpYajc4?oc=5"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal feedback hook that records the success flag from deep_memory_vault after each insertion, compute a lightweight credit assignment (e.g., using a bandit algorithm), and adjust the ranking scores of future queries accordingly.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 95.85
   }
 ]
