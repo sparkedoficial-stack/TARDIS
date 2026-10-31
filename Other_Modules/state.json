@@ -6,7 +6,7 @@
   "last_video_id": "vp_20261030_234749_b4cc26",
   "last_topic": "Quantum Simulation of Traversable Wormholes via the SYK Model",
   "total_videos_analyzed": 766,
-  "running_cycle": false,
-  "last_error": null,
-  "auto_improvement_count": 395
+  "running_cycle": true,
+  "last_error": "No fue posible descargar el video desde https://www.youtube.com/watch?v=lxLe68MrkIU",
+  "auto_improvement_count": 397
 }
