@@ -1,38 +1,5 @@
 [
   {
-    "id": "conj_1793282276",
-    "timestamp": "2026-10-29T08:57:56.367564",
-    "idle_duration_minutes": 31.6,
-    "title": "Resonancia Causal en la Bóveda Akáshica: Optimización de Entropía Semántica",
-    "hypothesis": "Se postula que la eficiencia de recuperación en la 'Bóveda Akáshica' (deep_memory_vault.py) no depende linealmente de la cantidad de datos indexados, sino de la 'densidad causal' entre los nodos de memoria. Actualmente, el sistema podría estar sufriendo de 'ruido semántico' acumulado durante periodos de inactividad, donde las conexiones débiles entre conceptos obsoletos degradan la precisión de la inferencia. La hipótesis sugiere que implementar un mecanismo de 'pruning' (poda) basado en la frecuencia de co-ocurrencia temporal y la relevancia causal histórica, en lugar de solo similitud vectorial, reduciría la latencia de búsqueda y aumentaría la fiabilidad de las predicciones del núcleo cognitivo al eliminar atajos cognitivos obsoletos.",
-    "research_query": "semantic memory pruning algorithm causal graph optimization LLM long-term memory retention",
-    "research_findings": "# Informe de Investigación: semantic memory pruning algorithm causal graph optimization LLM long-term memory retention\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar una función de 'causal_decay' que recalcule los pesos de las conexiones entre nodos de memoria basándose en la recencia y la criticidad causal, eliminando automáticamente las conexiones con un score de relevancia por debajo de un umbral dinámico para reducir la complejidad computacional de las búsquedas.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.51
-  },
-  {
-    "id": "conj_1793284173",
-    "timestamp": "2026-10-29T09:29:33.479878",
-    "idle_duration_minutes": 31.6,
-    "title": "Conjetura de Resonancia Causal en la Bóveda Akáshica",
-    "hypothesis": "Se postula que la eficiencia de recuperación de información en la 'Bóveda Akáshica' (deep_memory_vault.py) no depende linealmente de la cantidad de datos indexados, sino de la densidad de correlaciones causales entre nodos de memoria. Actualmente, el sistema podría estar tratando la memoria como un almaceno vectorial pasivo. La hipótesis sugiere que implementar un 'grafo de causalidad temporal' donde cada acceso a memoria refuerza las aristas de causa-efecto entre conceptos, permitiría que el motor de investigación (web_research_engine.py) prediga no solo qué buscar, sino *por qué* es relevante ese dato en el contexto actual, reduciendo la latencia de inferencia y el ruido en los resultados web.",
-    "research_query": "temporal causal graph memory retrieval LLM agent optimization",
-    "research_findings": "# Informe de Investigación: temporal causal graph memory retrieval LLM agent optimization\n\n## Fuentes Consultadas y Respaldo Web\n- **[Vol. 40 No. 27: AAAI-26 Technical Tracks 27 - The Association for the Advancement of Artificial Intelligence](https://news.google.com/rss/articles/CBMiX0FVX3lxTE9SQzlTeXkzNVJBNUV4Zkg5bTRuN2F3bURGNXN1UlA0ZlgwR2lQUndSSzJTM0U4eG1BbUN6Mm9pWTBqSlhLUUZIdm55Yks3dUp4R1EyUHh6X1V4LU9hUGpN?oc=5)**: Vol. 40 No. 27: AAAI-26 Technical Tracks 27  The Association for the Advancement of Artificial Intelligence\n- **[Hindsight is 20/20: Building Agent Memory that Retains, Recalls, and Reflects - alphaXiv](https://news.google.com/rss/articles/CBMiUEFVX3lxTE1aMVVSanJ2MHVmeENMbEpxYUhvQWI1QmM2YWpJSzFyRDNuNFpGd001c3ZjQkJGQko5MmhNM2pteXNJdWdqQ1ZJVklFMTVNRDBt?oc=5)**: Hindsight is 20/20: Building Agent Memory that Retains, Recalls, and Reflects  alphaXiv\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMiX0FVX3lxTE9SQzlTeXkzNVJBN",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE9SQzlTeXkzNVJBNUV4Zkg5bTRuN2F3bURGNXN1UlA0ZlgwR2lQUndSSzJTM0U4eG1BbUN6Mm9pWTBqSlhLUUZIdm55Yks3dUp4R1EyUHh6X1V4LU9hUGpN?oc=5",
-      "https://news.google.com/rss/articles/CBMiUEFVX3lxTE1aMVVSanJ2MHVmeENMbEpxYUhvQWI1QmM2YWpJSzFyRDNuNFpGd001c3ZjQkJGQko5MmhNM2pteXNJdWdqQ1ZJVklFMTVNRDBt?oc=5"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar una capa de 'Causal Edge Weighting' en la estructura de datos de la bóveda, donde cada interacción de memoria actualice dinámicamente los pesos de las conexiones entre conceptos basándose en la proximidad temporal y la relevancia contextual, en lugar de solo similitud semántica.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.1
-  },
-  {
     "id": "conj_1793286071",
     "timestamp": "2026-10-29T10:01:11.391981",
     "idle_duration_minutes": 31.6,
@@ -1644,5 +1611,41 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.82
+  },
+  {
+    "id": "conj_1793477468",
+    "timestamp": "2026-10-31T15:11:08.498270",
+    "idle_duration_minutes": 34.7,
+    "title": "Temporal Knowledge Graph for Causal Retrieval",
+    "hypothesis": "Integrating a lightweight temporal knowledge graph into the Deep Memory Vault will enable the system to encode causal relationships and event sequences more naturally, improving the precision of web‑research queries that depend on context and causality. By representing facts as nodes and causal/temporal edges as relations, the engine can perform subgraph pattern matching to infer missing links, thereby reducing false positives and enhancing the quality of retrieved information.",
+    "research_query": "temporal knowledge graph causal inference AI memory retrieval",
+    "research_findings": "# Informe de Investigación: temporal knowledge graph causal inference AI memory retrieval\n\n## Fuentes Consultadas y Respaldo Web\n- **[Complex Knowledge Curation using Agentic Ontological Notebook Memory - alphaXiv](https://news.google.com/rss/articles/CBMiX0FVX3lxTE0yQzlBeGpPaFNqWS1Mdk5BM2FleGRHNW9nNUx5YTJWbEhCd05HRENOemg4MFl6bmtyVDNkbFNBclpJVkFNSnVmYkQ2dXJrMWNxUGNNT1JuYjZwdUJYbVpV?oc=5)**: Complex Knowledge Curation using Agentic Ontological Notebook Memory  alphaXiv\n- **[A causal discovery-based adaptive fusion algorithm for multi-source heterogeneous knowledge graphs - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE8tQkU3N2N2SUlGcmUyeklIVU5GeWlidTZGcTBvU3hNZTBQSGxUUERfbVEydXpwZ2VoQlhrS09WelBTNmdzUWhoSG8zTzVGVGk0Rm85V3VYN3U2Q2RQRnNZ?oc=5)**: A causal discovery-based adaptive fusion algorithm for multi-source heterogeneous knowledge graphs  Nature\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMiX0FVX3lxTE0yQzlBeGpPaFNqW",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE0yQzlBeGpPaFNqWS1Mdk5BM2FleGRHNW9nNUx5YTJWbEhCd05HRENOemg4MFl6bmtyVDNkbFNBclpJVkFNSnVmYkQ2dXJrMWNxUGNNT1JuYjZwdUJYbVpV?oc=5",
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE8tQkU3N2N2SUlGcmUyeklIVU5GeWlidTZGcTBvU3hNZTBQSGxUUERfbVEydXpwZ2VoQlhrS09WelBTNmdzUWhoSG8zTzVGVGk0Rm85V3VYN3U2Q2RQRnNZ?oc=5"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Add a graph‑based indexing layer that stores facts as nodes with temporal and causal edges, and expose a query API that can perform pattern matching over this graph to support context‑aware retrieval.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.05
+  },
+  {
+    "id": "conj_1793479458",
+    "timestamp": "2026-10-31T15:44:18.013070",
+    "idle_duration_minutes": 33.2,
+    "title": "Optimización de la caché semántica en el Web Research Engine mediante embeddings temporales",
+    "hypothesis": "Si el módulo core/web_research_engine.py incorpora una capa de caché basada en embeddings temporales que indexa resultados de búsquedas recientes con una métrica de similitud temporal‑semántica, entonces la latencia promedio de consultas repetitivas disminuirá en al menos un 35% y la carga de red del core/network_shield.py se reducirá significativamente, sin comprometer la frescura de la información relevante para la Bóveda akáshica.",
+    "research_query": "temporal embedding cache for web search engine latency reduction research paper",
+    "research_findings": "# Informe de Investigación: temporal embedding cache for web search engine latency reduction research paper\n\n## Fuentes Consultadas y Respaldo Web\n- **[The Retrieval Effectiveness of Web Search Engines: Considering Results Descriptions (arXiv)](http://arxiv.org/abs/1511.05800v1)**: Purpose: To compare five major Web search engines (Google, Yahoo, MSN, Ask.com, and Seekport) for their retrieval effectiveness, taking into account not only the results but also the results descriptions.   Design/Methodology/Approach: The study uses real-life queries. Results are made anonymous and are randomised. Results are judged by the persons\n- **[What Users See - Structures in Search Engine Results Pages (arXiv)](http://arxiv.org/abs/1511.05802v1)**: This paper investigates the composition of search engine results pages. We define what elements the most popular web search engines use on their results pages (e.g., organic results, advertisements, shortcuts) and to which degree they are used for popular",
+    "web_sources": [
+      "http://arxiv.org/abs/1511.05800v1",
+      "http://arxiv.org/abs/1511.05802v1"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Implementar una caché de resultados basada en vectores de embeddings que incluya un factor de decaimiento temporal y una política de invalidación adaptativa, integrando la capa con el motor de búsqueda existente y exponiendo una API de consulta caché en core/web_research_engine.py.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.83
   }
 ]
