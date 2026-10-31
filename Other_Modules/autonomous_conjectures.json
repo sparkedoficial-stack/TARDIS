@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1793234562",
-    "timestamp": "2026-10-28T19:42:42.092145",
-    "idle_duration_minutes": 32.7,
-    "title": "Causal Retrieval Augmentation for the Deep Memory Vault",
-    "hypothesis": "Integrating a causal inference layer into the Deep Memory Vault (core/deep_memory_vault.py) that scores retrieved akáshic entries based on their inferred causal relevance to the current query will improve answer precision by at least 15% in benchmarked multi‑step reasoning tasks. The hypothesis rests on the idea that the vault stores not only raw facts but also latent causal graphs; a lightweight causal scorer can prioritize entries that are upstream in these graphs, reducing noise from tangentially related memories.",
-    "research_query": "how to implement lightweight causal relevance scoring for vector‑based knowledge bases \"causal inference\" \"knowledge retrieval\"",
-    "research_findings": "# Informe de Investigación: how to implement lightweight causal relevance scoring for vector‑based knowledge bases \"causal inference\" \"knowledge retrieval\"\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Add a new method `score_causal_relevance(query_embedding, candidate_embeddings, causal_graph)` that computes a causal relevance score using path length and edge weight heuristics, and modify the retrieval pipeline to rank candidates by a weighted combination of similarity and causal relevance.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 130.72
-  },
-  {
     "id": "conj_1793236483",
     "timestamp": "2026-10-28T20:14:43.356094",
     "idle_duration_minutes": 32.0,
@@ -1638,5 +1623,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.54
+  },
+  {
+    "id": "conj_1793432263",
+    "timestamp": "2026-10-31T02:37:43.589671",
+    "idle_duration_minutes": 31.6,
+    "title": "Sincronización Temporal de la Bóveda Akáshica con el Motor de Investigación",
+    "hypothesis": "Se postula que la latencia en la recuperación de contexto profundo (deep memory) durante las sesiones de investigación web se debe a la desincronización entre el ciclo de escritura de la bóveda akáshica y las consultas del motor de investigación. Al implementar un mecanismo de 'pre-fetching' predictivo basado en la causalidad de las últimas 3 consultas, se puede reducir la latencia de respuesta en un 40% y mejorar la coherencia causal de las respuestas generadas.",
+    "research_query": "predictive cache prefetching strategy for LLM context retrieval latency reduction",
+    "research_findings": "# Informe de Investigación: predictive cache prefetching strategy for LLM context retrieval latency reduction\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar un método `predict_next_context()` que utilice un modelo ligero de secuencias para anticipar las claves de memoria más probables y precargarlas en RAM antes de que el motor de investigación las solicite explícitamente.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.38
   }
 ]
