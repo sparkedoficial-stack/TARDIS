@@ -1,12 +1,12 @@
 {
   "schema": "tardis.savage_update/1.0",
-  "generated_at": "2026-10-31T07:36:21-05:00",
+  "generated_at": "2026-10-31T13:25:31-05:00",
   "cycle": {
     "items_collected": 56,
-    "items_fresh": 0,
-    "proposals": 0,
-    "experiment_plans": 0,
-    "elapsed_s": 5.57
+    "items_fresh": 2,
+    "proposals": 2,
+    "experiment_plans": 2,
+    "elapsed_s": 5.69
   },
   "sources": {
     "offline": false,
@@ -14,22 +14,22 @@
       "github": {
         "ok": true,
         "count": 6,
-        "elapsed_ms": 2753.7
+        "elapsed_ms": 2800.3
       },
       "huggingface": {
         "ok": true,
         "count": 20,
-        "elapsed_ms": 498.8
+        "elapsed_ms": 535.2
       },
       "arxiv": {
         "ok": true,
         "count": 36,
-        "elapsed_ms": 951.8
+        "elapsed_ms": 968.4
       },
       "npm": {
         "ok": true,
         "count": 1,
-        "elapsed_ms": 406.6
+        "elapsed_ms": 425.7
       }
     }
   },
@@ -39,7 +39,88 @@
     "report_artifacts": 7,
     "proposals": 11
   },
-  "top_items": [],
-  "proposals": [],
+  "top_items": [
+    {
+      "id": "71bc274374e604e9",
+      "source": "huggingface:trending",
+      "category": "model",
+      "title": "LiquidAI/LFM3-VL-2B",
+      "url": "https://huggingface.co/LiquidAI/LFM3-VL-2B",
+      "published_at": "2026-10-28T23:16:11.000Z",
+      "summary": "pipeline=image-text-to-text downloads=8091 likes=187",
+      "tags": [
+        "vision",
+        "local"
+      ],
+      "relevance": 3.2,
+      "targets": []
+    },
+    {
+      "id": "e5ca851df4d1658f",
+      "source": "huggingface:trending",
+      "category": "model",
+      "title": "speridlabs/idol",
+      "url": "https://huggingface.co/speridlabs/idol",
+      "published_at": "2026-10-29T18:17:36.000Z",
+      "summary": "pipeline=image-to-3d downloads=2367 likes=199",
+      "tags": [
+        "vision"
+      ],
+      "relevance": 0.6,
+      "targets": []
+    }
+  ],
+  "proposals": [
+    {
+      "id": "savage-73e62f0aae43",
+      "title": "Integración de capacidades visión/multimodal",
+      "target": "tardis",
+      "tag": "vision",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "vision_pipeline",
+      "evidence": [
+        {
+          "title": "LiquidAI/LFM3-VL-2B",
+          "url": "https://huggingface.co/LiquidAI/LFM3-VL-2B",
+          "source": "huggingface:trending",
+          "relevance": 3.2
+        },
+        {
+          "title": "speridlabs/idol",
+          "url": "https://huggingface.co/speridlabs/idol",
+          "source": "huggingface:trending",
+          "relevance": 0.6
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 2 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Evaluar 50 imágenes con ground truth; medir exactitud y latencia.",
+      "rollback": "Desactivar el pipeline visual nuevo.",
+      "status": "planned",
+      "created_at": "2026-10-31T13:25:31-05:00"
+    },
+    {
+      "id": "savage-328519695b0c",
+      "title": "Refuerzo del perfil local-first",
+      "target": "tardis",
+      "tag": "local",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "local_first",
+      "evidence": [
+        {
+          "title": "LiquidAI/LFM3-VL-2B",
+          "url": "https://huggingface.co/LiquidAI/LFM3-VL-2B",
+          "source": "huggingface:trending",
+          "relevance": 3.2
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 1 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Verificar que las tareas privadas no salgan del dispositivo.",
+      "rollback": "Reactivar ruteo híbrido.",
+      "status": "planned",
+      "created_at": "2026-10-31T13:25:31-05:00"
+    }
+  ],
   "offline": false
 }

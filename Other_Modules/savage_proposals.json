@@ -1,6 +1,57 @@
 {
   "schema": "tardis.savage_update/1.0",
-  "generated_at": "2026-10-31T07:36:21-05:00",
-  "proposals": [],
-  "items_considered": 0
+  "generated_at": "2026-10-31T13:25:31-05:00",
+  "proposals": [
+    {
+      "id": "savage-73e62f0aae43",
+      "title": "Integración de capacidades visión/multimodal",
+      "target": "tardis",
+      "tag": "vision",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "vision_pipeline",
+      "evidence": [
+        {
+          "title": "LiquidAI/LFM3-VL-2B",
+          "url": "https://huggingface.co/LiquidAI/LFM3-VL-2B",
+          "source": "huggingface:trending",
+          "relevance": 3.2
+        },
+        {
+          "title": "speridlabs/idol",
+          "url": "https://huggingface.co/speridlabs/idol",
+          "source": "huggingface:trending",
+          "relevance": 0.6
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 2 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Evaluar 50 imágenes con ground truth; medir exactitud y latencia.",
+      "rollback": "Desactivar el pipeline visual nuevo.",
+      "status": "planned",
+      "created_at": "2026-10-31T13:25:31-05:00"
+    },
+    {
+      "id": "savage-328519695b0c",
+      "title": "Refuerzo del perfil local-first",
+      "target": "tardis",
+      "tag": "local",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "local_first",
+      "evidence": [
+        {
+          "title": "LiquidAI/LFM3-VL-2B",
+          "url": "https://huggingface.co/LiquidAI/LFM3-VL-2B",
+          "source": "huggingface:trending",
+          "relevance": 3.2
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 1 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Verificar que las tareas privadas no salgan del dispositivo.",
+      "rollback": "Reactivar ruteo híbrido.",
+      "status": "planned",
+      "created_at": "2026-10-31T13:25:31-05:00"
+    }
+  ],
+  "items_considered": 2
 }
