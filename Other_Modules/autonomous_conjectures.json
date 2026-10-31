@@ -1,38 +1,5 @@
 [
   {
-    "id": "conj_1793257188",
-    "timestamp": "2026-10-29T01:59:48.578071",
-    "idle_duration_minutes": 32.6,
-    "title": "Temporal Decay Augmented Memory Retrieval",
-    "hypothesis": "Incorporating a temporal decay factor into the vector embeddings stored in the Deep Memory Vault will prioritize more recent experiences during similarity search, leading to higher relevance in context‑aware responses without sacrificing recall of older, still pertinent memories.",
-    "research_query": "temporal decay vector embeddings retrieval performance recent vs. older memories",
-    "research_findings": "# Informe de Investigación: temporal decay vector embeddings retrieval performance recent vs. older memories\n\n## Fuentes Consultadas y Respaldo Web\n- **[Agent Memory: Why Your AI Has Amnesia and How to Fix It - Oracle Blogs](https://news.google.com/rss/articles/CBMilAFBVV95cUxNV3pqZVBnU29IUHVPT09LZ1B1RFJDWGV6bXd4Q0pkV284UXpBVkNZSFJwMmFxcmc1ZlBWNlNLUTA0V2NQcm5vVFZ1d0dsNVJNdnVKU3FKWmRGcTdSendzRHhTZTI5NXA1NG45TzUteU42MkRPblU0MS0tcElJU3pMWk9vdUJVVklPUGdzc1laX05HekN3?oc=5)**: Agent Memory: Why Your AI Has Amnesia and How to Fix It  Oracle Blogs\n- **[memweave: Zero-Infra AI Agent Memory with Markdown and SQLite — No Vector Database Required - Towards Data Science](https://news.google.com/rss/articles/CBMivAFBVV95cUxPR3BMRngzdkstTkUyT3NaOEthS2lyNXE2dU5kQjNwSlZlQW1kVzl6RlpWamJ5R2J1NTlCcEE3Ulo1MmMtdDZ0dkhmVWZHeUk5b2thNjFrdGhIVERGMFMzYTFINXlhWko5QlE1STlNYXhkSU1USmNIVXJsSWFaSFlqamRaSDVFVUZjRWZUWTRuODl3UEN2T01xVkZCQ0dfb2FJZ01vcWZhRklSaFdnU202NFc4aS1NalAxNEpHTQ?oc=5)**: memweave: Zero-Infra AI Agen",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMilAFBVV95cUxNV3pqZVBnU29IUHVPT09LZ1B1RFJDWGV6bXd4Q0pkV284UXpBVkNZSFJwMmFxcmc1ZlBWNlNLUTA0V2NQcm5vVFZ1d0dsNVJNdnVKU3FKWmRGcTdSendzRHhTZTI5NXA1NG45TzUteU42MkRPblU0MS0tcElJU3pMWk9vdUJVVklPUGdzc1laX05HekN3?oc=5",
-      "https://news.google.com/rss/articles/CBMivAFBVV95cUxPR3BMRngzdkstTkUyT3NaOEthS2lyNXE2dU5kQjNwSlZlQW1kVzl6RlpWamJ5R2J1NTlCcEE3Ulo1MmMtdDZ0dkhmVWZHeUk5b2thNjFrdGhIVERGMFMzYTFINXlhWko5QlE1STlNYXhkSU1USmNIVXJsSWFaSFlqamRaSDVFVUZjRWZUWTRuODl3UEN2T01xVkZCQ0dfb2FJZ01vcWZhRklSaFdnU202NFc4aS1NalAxNEpHTQ?oc=5"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Add a time‑stamp field to each stored embedding and modify the similarity scoring function to weight cosine similarity by an exponential decay based on age, plus expose a configurable decay rate parameter.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.27
-  },
-  {
-    "id": "conj_1793259366",
-    "timestamp": "2026-10-29T02:36:06.187316",
-    "idle_duration_minutes": 36.3,
-    "title": "Causal Embedding Sync for Real‑Time Knowledge Refresh",
-    "hypothesis": "Integrating a causal‑graph‑based synchronization layer between `core/web_research_engine.py` and `core/deep_memory_vault.py` will allow the system to automatically propagate newly retrieved facts into the akáshic vault while preserving temporal and causal provenance. This should reduce latency of knowledge updates, improve consistency of downstream reasoning modules, and enable the system to detect and prune contradictory entries through causal conflict resolution.",
-    "research_query": "causal graph based knowledge synchronization between web retrieval engine and long‑term memory vault python implementation",
-    "research_findings": "# Informe de Investigación: causal graph based knowledge synchronization between web retrieval engine and long‑term memory vault python implementation\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a lightweight causal‑graph manager that tags each fetched fact with a node ID, timestamps, and source provenance, then pushes these nodes to `deep_memory_vault` via a new `sync_causal_fact(fact_node)` API. Implement conflict detection that flags when a new node contradicts an existing node with a higher causal confidence, prompting automatic resolution or human review.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.94
-  },
-  {
     "id": "conj_1793261272",
     "timestamp": "2026-10-29T03:07:52.939914",
     "idle_duration_minutes": 31.8,
@@ -1640,5 +1607,38 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 98.58
+  },
+  {
+    "id": "conj_1793451884",
+    "timestamp": "2026-10-31T08:04:44.267021",
+    "idle_duration_minutes": 35.3,
+    "title": "Resonancia Causal en la Bóveda Akáshica",
+    "hypothesis": "Se postula que la eficiencia de recuperación de información en la bóveda akáshica puede optimizarse mediante la implementación de un índice de 'resonancia causal' que priorice no solo la similitud semántica, sino la correlación temporal y de causa-efecto entre los nodos de memoria. Esto permitiría que el sistema anticipe consultas basándose en patrones históricos de interacción, reduciendo la latencia de búsqueda en un 30-40% al pre-cargar contextos relacionados antes de que se formule la consulta explícita.",
+    "research_query": "causal inference memory retrieval optimization semantic search temporal correlation",
+    "research_findings": "# Informe de Investigación: causal inference memory retrieval optimization semantic search temporal correlation\n\n## Fuentes Consultadas y Respaldo Web\n- **[Artificial intelligence (Wikipedia)](https://en.wikipedia.org/wiki/Artificial_intelligence)**: video indexing and retrieval\". IEEE MultiMedia. 1 (2): 62–72. doi:10.1109/93.311653. Solomonoff, Ray (1956). An Inductive Inference Machine (PDF). Dartmouth\n- **[Cognition (Wikipedia)](https://en.wikipedia.org/wiki/Cognition)**: variables, researchers aim to identify causal relations between independent and dependent variables. Correlational methods, by contrast, measure the degree\n\n## Contenido y Hallazgos Extraídos\n### De [Artificial intelligence - Wikipedia](https://en.wikipedia.org/wiki/Artificial_intelligence)\n> Artificial intelligence - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nIntelligence in machines\n\"AI\" redirects here. For other uses, see AI (disambiguation) and Artificial intelligence (disambiguation) .\nPar",
+    "web_sources": [
+      "https://en.wikipedia.org/wiki/Artificial_intelligence",
+      "https://en.wikipedia.org/wiki/Cognition"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar un método `calculate_causal_resonance()` que evalúe la probabilidad de co-ocurrencia y secuencia temporal entre nodos de memoria, integrando esta métrica en el algoritmo de ranking de resultados de búsqueda.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.44
+  },
+  {
+    "id": "conj_1793453782",
+    "timestamp": "2026-10-31T08:36:22.294682",
+    "idle_duration_minutes": 31.6,
+    "title": "Resonancia Causal en la Bóveda Akáshica: Compresión Semántica Adaptativa",
+    "hypothesis": "Se postula que la eficiencia de recuperación de información en la bóveda akáshica no depende linealmente del volumen de datos almacenados, sino de la 'densidad causal' de los nodos de memoria. Actualmente, el sistema podría estar sufriendo de 'ruido epistémico' donde memorias de baja relevancia causal diluyen el contexto para el motor de investigación. La conjetura es que implementar un mecanismo de poda semántica basada en la frecuencia de co-ocurrencia de conceptos clave durante las sesiones de investigación web permitiría reducir la latencia de inferencia y aumentar la precisión de las respuestas generadas por el núcleo cognitivo, creando un ciclo de retroalimentación donde la memoria se refina activamente según la utilidad predictiva demostrada.",
+    "research_query": "adaptive semantic pruning in long-term memory systems for LLM agents causal relevance filtering",
+    "research_findings": "# Informe de Investigación: adaptive semantic pruning in long-term memory systems for LLM agents causal relevance filtering\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar una función `prune_low_causal_nodes()` que analice el historial de consultas del `web_research_engine.py` para identificar y atenuar o eliminar nodos de memoria que no han contribuido a la resolución de problemas en las últimas N iteraciones, optimizando así la ventana de contexto efectiva.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.01
   }
 ]
