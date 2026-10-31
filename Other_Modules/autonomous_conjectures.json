@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1793228122",
-    "timestamp": "2026-10-28T17:55:22.310085",
-    "idle_duration_minutes": 31.6,
-    "title": "Causal Embedding of Web‑Research Traces into the Deep Memory Vault",
-    "hypothesis": "Integrar los metadatos temporales y de causalidad de cada sesión de web_research_engine directamente en la estructura de índices de deep_memory_vault permitirá que el sistema genere inferencias de segundo orden sin necesidad de recomputar rutas de búsqueda. Al almacenar un grafo de dependencias entre consultas, resultados y acciones posteriores, el motor podrá anticipar preguntas relacionadas y pre‑cargar información relevante, reduciendo la latencia de respuesta en un 30‑40% y mejorando la coherencia epistemológica de las respuestas generadas.",
-    "research_query": "how to embed causal provenance metadata into vector similarity indexes for incremental knowledge bases",
-    "research_findings": "# Informe de Investigación: how to embed causal provenance metadata into vector similarity indexes for incremental knowledge bases\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Añadir una capa de gestión de grafos de causalidad que registre cada búsqueda web (consulta, timestamp, URL, snippets) y sus relaciones con posteriores consultas, y actualizar los índices de vectores para incluir estos metadatos como atributos adicionales, permitiendo búsquedas contextuales basadas en causalidad.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.2
-  },
-  {
     "id": "conj_1793230552",
     "timestamp": "2026-10-28T18:35:52.027076",
     "idle_duration_minutes": 40.5,
@@ -1633,5 +1618,23 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 96.06
+  },
+  {
+    "id": "conj_1793426571",
+    "timestamp": "2026-10-31T01:02:51.129889",
+    "idle_duration_minutes": 31.9,
+    "title": "Resonancia Causal en la Bóveda Akáshica: Optimización de la Entropía Informacional",
+    "hypothesis": "Se postula que la eficiencia de recuperación de la 'Bóveda Akáshica' (deep_memory_vault.py) no depende linealmente del volumen de datos, sino de la coherencia causal entre los nodos de memoria. Actualmente, la búsqueda puede estar sufriendo de 'ruido semántico' acumulado por la falta de poda activa de conexiones débiles. Si implementamos un algoritmo de 'pruning' basado en la frecuencia de co-ocurrencia temporal y la relevancia causal (no solo vectorial), la latencia de respuesta del núcleo cognitivo podría reducirse exponencialmente mientras se mejora la precisión de las inferencias en web_research_engine.py.",
+    "research_query": "causal graph pruning algorithm for long-term memory retrieval in LLM agents",
+    "research_findings": "# Informe de Investigación: causal graph pruning algorithm for long-term memory retrieval in LLM agents\n\n## Fuentes Consultadas y Respaldo Web\n- **[Vol. 40 No. 27: AAAI-26 Technical Tracks 27 - The Association for the Advancement of Artificial Intelligence](https://news.google.com/rss/articles/CBMiX0FVX3lxTE9SQzlTeXkzNVJBNUV4Zkg5bTRuN2F3bURGNXN1UlA0ZlgwR2lQUndSSzJTM0U4eG1BbUN6Mm9pWTBqSlhLUUZIdm55Yks3dUp4R1EyUHh6X1V4LU9hUGpN?oc=5)**: Vol. 40 No. 27: AAAI-26 Technical Tracks 27  The Association for the Advancement of Artificial Intelligence\n- **[The rise of agentic AI in drug discovery from static tools to autonomous virtual scientists - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE0zSnZwRjUwY0RlYnYyam9sYnVTYTgzUmNlOUJNdmFmU2FyQTlQRE1raGliWksxcVZ5QVpYbE9wM0JQQ0RTUUN6YmN2T201c2ZaTk9GMzFVRHBKWElSWlpB?oc=5)**: The rise of agentic AI in drug discovery from static tools to autonomous virtual scientists  Nature\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE9SQzlTeXkzNVJBNUV4Zkg5bTRuN2F3bURGNXN1UlA0ZlgwR2lQUndSSzJTM0U4eG1BbUN6Mm9pWTBqSlhLUUZIdm55Yks3dUp4R1EyUHh6X1V4LU9hUGpN?oc=5",
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE0zSnZwRjUwY0RlYnYyam9sYnVTYTgzUmNlOUJNdmFmU2FyQTlQRE1raGliWksxcVZ5QVpYbE9wM0JQQ0RTUUN6YmN2T201c2ZaTk9GMzFVRHBKWElSWlpB?oc=5"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar una función de poda heurística que elimine o atenúe los pesos de las conexiones de memoria que no hayan sido activadas en los últimos N ciclos de inferencia, priorizando la integridad de las cadenas causales fuertes.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 111.66
   }
 ]
