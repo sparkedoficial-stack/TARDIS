@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.3640049,
-  "last_video_id": "vp_20261030_234749_b4cc26",
-  "last_topic": "Quantum Simulation of Traversable Wormholes via the SYK Model",
-  "total_videos_analyzed": 766,
-  "running_cycle": true,
-  "last_error": "No fue posible descargar el video desde https://www.youtube.com/watch?v=lxLe68MrkIU",
+  "last_run_timestamp": REDACTED_PHONE.2913451,
+  "last_video_id": "vp_20261031_002402_3268c8",
+  "last_topic": "Fracton Topological Order and Subdimensional Particle Dynamics",
+  "total_videos_analyzed": 767,
+  "running_cycle": false,
+  "last_error": null,
   "auto_improvement_count": 397
 }
