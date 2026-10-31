@@ -13,6 +13,7 @@ Módulos y componentes auxiliares del sistema.
 - **FTL_MOBILE_TERMINAL.md**: Motor de aceleración FTL y computación adaptativa.
 - **FTL_PUBLIC_ACCESS.txt**: Motor de aceleración FTL y computación adaptativa.
 - **FTL_PUBLIC_URL.txt**: Motor de aceleración FTL y computación adaptativa.
+- **FUNCION_SOCIAL_TARDIS.md**: Componente de alta eficiencia.
 - **GIAApp.swift**: Componente nativo iOS/SwiftUI de la aplicación móvil GIA.
 - **GIAAppIntents.swift**: Componente nativo iOS/SwiftUI de la aplicación móvil GIA.
 - **GIANetworkService.swift**: Componente nativo iOS/SwiftUI de la aplicación móvil GIA.

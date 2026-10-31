@@ -1,23 +1,5 @@
 [
   {
-    "id": "conj_1793267090",
-    "timestamp": "2026-10-29T04:44:50.833187",
-    "idle_duration_minutes": 32.7,
-    "title": "Semantic Embedding‑Based Query Caching",
-    "hypothesis": "The current web research engine performs a full HTTP request for every user query, even when the query is semantically similar to a previous one. By computing a lightweight embedding for each query and maintaining a similarity‑based cache, the engine can serve cached results for near‑duplicate queries, reducing latency, bandwidth, and server load while preserving answer quality.",
-    "research_query": "semantic embedding query caching web search engine",
-    "research_findings": "# Informe de Investigación: semantic embedding query caching web search engine\n\n## Fuentes Consultadas y Respaldo Web\n- **[Lower cost and latency for AI using Amazon ElastiCache as a semantic cache with Amazon Bedrock - Amazon Web Services (AWS)](https://news.google.com/rss/articles/CBMizgFBVV95cUxPX245T3ozQXhneWlQWlo1a0E3UkIyQjAzRXB6ZzNkeGItOGJ6VlFKVEJqVmUxdHBfY3BPaWFjQmRyamVxelhKTTM0M3J6cENoUjFMWXpHd01EVTFTT0ZQcGtJN3dFWmJaM1ZGVFEtMy0yZjdvMFlBZ1gweVU4RzhNUzFCX0pXUEVFbHNNZnJCdlJsWFI4Y2xtYWNPa2M4LXZVTUNDN1hiNEtOU2NTOWJOaXc3anpIWE1JWnZZeHBOT3VaRWxLMFBNdGhJWkpEQQ?oc=5)**: Lower cost and latency for AI using Amazon ElastiCache as a semantic cache with Amazon Bedrock  Amazon Web Services (AWS)\n- **[How to Build an Over-Engineered Retrieval System - Towards Data Science](https://news.google.com/rss/articles/CBMihgFBVV95cUxNdm5iZjZ5RWprV2dRczNDU3UtNURSeHRIRjE2OU5MZUVjRVJGcFBJMkVUMm5pX0daWjBEQm9zYUdkemI1NEFWTU8wcEhYVFl3dDV3ZlhLREhnVU1xUWVacDc5NmxxTnVBTEFqWDVMbGFjZjk5S0VIWTM0clNWekFUdnY1VVFWdw?",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMizgFBVV95cUxPX245T3ozQXhneWlQWlo1a0E3UkIyQjAzRXB6ZzNkeGItOGJ6VlFKVEJqVmUxdHBfY3BPaWFjQmRyamVxelhKTTM0M3J6cENoUjFMWXpHd01EVTFTT0ZQcGtJN3dFWmJaM1ZGVFEtMy0yZjdvMFlBZ1gweVU4RzhNUzFCX0pXUEVFbHNNZnJCdlJsWFI4Y2xtYWNPa2M4LXZVTUNDN1hiNEtOU2NTOWJOaXc3anpIWE1JWnZZeHBOT3VaRWxLMFBNdGhJWkpEQQ?oc=5",
-      "https://news.google.com/rss/articles/CBMihgFBVV95cUxNdm5iZjZ5RWprV2dRczNDU3UtNURSeHRIRjE2OU5MZUVjRVJGcFBJMkVUMm5pX0daWjBEQm9zYUdkemI1NEFWTU8wcEhYVFl3dDV3ZlhLREhnVU1xUWVacDc5NmxxTnVBTEFqWDVMbGFjZjk5S0VIWTM0clNWekFUdnY1VVFWdw?oc=5"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a lightweight embedding cache that stores query embeddings and their corresponding results, and modify the search flow to check the cache before issuing a new HTTP request.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.56
-  },
-  {
     "id": "conj_1793268988",
     "timestamp": "2026-10-29T05:16:28.517155",
     "idle_duration_minutes": 31.6,
@@ -1643,5 +1625,23 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 101.63
+  },
+  {
+    "id": "conj_1793461440",
+    "timestamp": "2026-10-31T10:44:00.441215",
+    "idle_duration_minutes": 32.7,
+    "title": "Dynamic Causal Prompt Routing for Context‑Aware Web Research",
+    "hypothesis": "If the Web Research Engine dynamically selects and re‑ranks search prompts based on causal inference from the Deep Memory Vault's recent retrieval patterns, then the relevance and precision of fetched web snippets will improve by at least 15% compared to the current static prompt set. The hypothesis rests on the idea that the system can infer latent intent chains (e.g., \"user asked about X, then Y\") and adapt the query generation pipeline in real time, leveraging the vault's temporal embeddings as a causal context graph.",
+    "research_query": "adaptive prompt generation based on causal inference for web search engines academic papers 2023 2024",
+    "research_findings": "# Informe de Investigación: adaptive prompt generation based on causal inference for web search engines academic papers 2023 2024\n\n## Fuentes Consultadas y Respaldo Web\n- **[Causal inference via algebraic geometry: feasibility tests for functional causal structures with two binary observed variables (arXiv)](http://arxiv.org/abs/1506.03880v2)**: We provide a scheme for inferring causal relations from uncontrolled statistical data based on tools from computational algebraic geometry, in particular, the computation of Groebner bases. We focus on causal structures containing just two observed variables, each of which is binary. We consider the consequences of imposing different restrictions o\n- **[The Retrieval Effectiveness of Web Search Engines: Considering Results Descriptions (arXiv)](http://arxiv.org/abs/1511.05800v1)**: Purpose: To compare five major Web search engines (Google, Yahoo, MSN, Ask.com, and Seekport) for their retrieval effectiveness, taking into account not only the res",
+    "web_sources": [
+      "http://arxiv.org/abs/1506.03880v2",
+      "http://arxiv.org/abs/1511.05800v1"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Implement a CausalPromptRouter class that consumes recent memory embeddings from deep_memory_vault, builds a lightweight directed acyclic graph of intent causality, and produces a ranked list of query templates. Integrate this router into the existing search pipeline to replace the static prompt list, adding fallback to the original prompts when causal confidence is low.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.84
   }
 ]

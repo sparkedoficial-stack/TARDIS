@@ -1,5 +1,5 @@
 {
-  "enabled": false,
+  "enabled": true,
   "auto_on_new_cycles": true,
   "publish_downloaded_video": true,
   "publish_conclusions_card": true,

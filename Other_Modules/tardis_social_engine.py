@@ -195,10 +195,19 @@ _DOMAIN_TAGS = {
 def hashtags_for(topic: str, domain: str, max_tags: int = 9) -> List[str]:
     """Genera el bloque de hashtags a partir del dominio y tema de investigación."""
 
-    def slug(s: str) -> str:
+    _STOP = {"de", "la", "el", "los", "las", "y", "en", "del", "al", "para", "con",
+             "the", "of", "in", "and", "a", "on", "to", "for", "with", "as", "by"}
+
+    def slug(s: str, max_chars: int = 26) -> str:
         base = unicodedata.normalize("NFKD", s).encode("ascii", "ignore").decode("ascii")
-        base = re.sub(r"[^A-Za-z0-9]", "", base)
-        return (base[:40].title() or "Ciencia")
+        words = re.findall(r"[A-Za-z0-9]+", base)
+        words = [w for w in words if w.lower() not in _STOP] or words
+        out = ""
+        for w in words:
+            if len(out) + len(w) + 1 > max_chars:
+                break
+            out = (out + w.title()) if not out else (out + w.title())
+        return out or "Ciencia"
 
     tags: List[str] = []
     low_domain = unicodedata.normalize("NFKD", (domain or "").lower()).encode("ascii", "ignore").decode("ascii").lower()
