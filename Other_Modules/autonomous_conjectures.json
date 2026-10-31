@@ -1,38 +1,5 @@
 [
   {
-    "id": "conj_1793289865",
-    "timestamp": "2026-10-29T11:04:25.494029",
-    "idle_duration_minutes": 31.6,
-    "title": "Resonancia Causal en la Bóveda Akáshica: Compresión Semántica Adaptativa",
-    "hypothesis": "Se conjetura que la eficiencia de recuperación de información en `deep_memory_vault.py` se vea limitada por la rigidez de los índices vectoriales estáticos. Al implementar un mecanismo de 'resonancia causal' que ajuste dinámicamente la dimensionalidad de los embeddings basándose en la entropía de la consulta entrante (detectada por `web_research_engine.py`), se puede reducir la latencia de búsqueda en un 15-20% manteniendo la precisión. Esto implica que las consultas de alta especificidad técnica requieren dimensiones vectoriales más altas, mientras que las consultas generales pueden operar en espacios de baja dimensión, optimizando el uso de memoria y CPU en el entorno ASUS TUF Linux.",
-    "research_query": "adaptive vector dimensionality reduction for semantic search based on query entropy",
-    "research_findings": "# Informe de Investigación: adaptive vector dimensionality reduction for semantic search based on query entropy\n\n## Fuentes Consultadas y Respaldo Web\n- **[Adaptive spatial hashing with dual-domain memristive hardware - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE9SN0UtWDhBX080WUFXZjhyc0U1V2U4N04xS1dueEdLNEFmaFhqdjdJbjFjTnU5SWg0TzBJTkFJMTZUWm5JbXRwQ2ZjWE9BcHlEVnBfZkpKNFFtb2x2QnVJ?oc=5)**: Adaptive spatial hashing with dual-domain memristive hardware  Nature\n- **[Nearest neighbor search (Wikipedia)](https://en.wikipedia.org/wiki/Nearest_neighbor_search)**: Cryptanalysis – for lattice problem Databases – e.g. content-based image retrieval Coding theory – see maximum likelihood decoding Semantic search Vector databases\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMiX0FVX3lxTE9SN0UtWDhBX080WUFXZjhyc0U1V2U4N04xS1dueEdLNEFmaFhqdjdJbjFjTnU5SWg0TzBJTkFJMTZUWm5JbXRwQ2ZjWE9BcHlEVnBfZkpKNFFtb2x2QnVJ?oc=5)\n\n### De [Nearest neigh",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE9SN0UtWDhBX080WUFXZjhyc0U1V2U4N04xS1dueEdLNEFmaFhqdjdJbjFjTnU5SWg0TzBJTkFJMTZUWm5JbXRwQ2ZjWE9BcHlEVnBfZkpKNFFtb2x2QnVJ?oc=5",
-      "https://en.wikipedia.org/wiki/Nearest_neighbor_search"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar una función `calculate_query_entropy()` y modificar el método de búsqueda para seleccionar dinámicamente el índice vectorial (alto vs. bajo dim) según el resultado de la entropía.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.13
-  },
-  {
-    "id": "conj_1793291833",
-    "timestamp": "2026-10-29T11:37:13.368798",
-    "idle_duration_minutes": 31.6,
-    "title": "Dynamic Causal Cache Invalidation for the Web Research Engine",
-    "hypothesis": "If the Web Research Engine maintains a lightweight causal graph that records dependencies between executed search queries, cached results, and external data sources, then it can proactively invalidate or refresh cache entries that are likely to become stale due to upstream changes. This causal‑aware caching strategy should reduce the latency of repeated queries, improve the relevance of returned information, and lower the number of redundant network calls compared to the current time‑based or size‑based eviction policies.",
-    "research_query": "causal graph based cache invalidation web search engine performance",
-    "research_findings": "# Informe de Investigación: causal graph based cache invalidation web search engine performance\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal dependency tracker that logs which cached results depend on which external URLs or API endpoints, and modify the cache eviction logic to use this graph for proactive invalidation rather than simple TTL or LRU.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.38
-  },
-  {
     "id": "conj_1793293763",
     "timestamp": "2026-10-29T12:09:23.571381",
     "idle_duration_minutes": 32.2,
@@ -1647,5 +1614,38 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 99.5
+  },
+  {
+    "id": "conj_1793485194",
+    "timestamp": "2026-10-31T17:19:54.438427",
+    "idle_duration_minutes": 32.3,
+    "title": "Causal Retrieval Augmentation for Web Research Engine",
+    "hypothesis": "Integrating a lightweight causal inference layer into core/web_research_engine.py, which models the dependency between query terms and retrieved document relevance, will improve the precision of search results by up to 15% without significant latency overhead. The hypothesis posits that by tracking causal graphs of term co‑occurrence and outcome (click‑through or relevance feedback) the engine can prioritize sources that are not only lexically similar but also causally linked to the user's intent, reducing hallucinations in downstream reasoning modules.",
+    "research_query": "causal inference for information retrieval relevance ranking \"causal graph\" query term importance",
+    "research_findings": "# Informe de Investigación: causal inference for information retrieval relevance ranking \"causal graph\" query term importance\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a modular CausalRetriever class that builds a simple directed acyclic graph of term → document relevance using past feedback, and expose a hook in the existing fetch_and_rank pipeline to re‑score results based on causal edge weights.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 107.88
+  },
+  {
+    "id": "conj_1793487092",
+    "timestamp": "2026-10-31T17:51:32.667144",
+    "idle_duration_minutes": 31.6,
+    "title": "Resonancia Causal en la Bóveda Akáshica: Optimización de la Latencia de Recuperación Semántica",
+    "hypothesis": "Se postula que la eficiencia de la recuperación de información en la bóveda akáshica no depende linealmente de la densidad de datos, sino de la 'resonancia causal' entre el contexto temporal de la consulta y la metadatos de ingesta. Actualmente, el motor de investigación web (core/web_research_engine.py) opera de forma aislada de la memoria profunda (core/deep_memory_vault.py), generando redundancias en la búsqueda externa cuando la información ya existe localmente pero no se correlaciona causalmente con la nueva petición. Al implementar un índice de 'entropía temporal' que priorice los nodos de memoria con alta probabilidad de relevancia causal antes de invocar la red, se puede reducir la latencia de respuesta en un 40% y minimizar la exposición del network_shield.py a tráfico innecesario.",
+    "research_query": "temporal causal indexing for semantic memory retrieval optimization in AI agents",
+    "research_findings": "# Informe de Investigación: temporal causal indexing for semantic memory retrieval optimization in AI agents\n\n## Fuentes Consultadas y Respaldo Web\n- **[Artificial intelligence (Wikipedia)](https://en.wikipedia.org/wiki/Artificial_intelligence)**: scope and have finite memory and processing capabilities. In real-world applications, AI agents often face time constraints for decision-making and action\n- **[List of datasets for machine-learning research (Wikipedia)](https://en.wikipedia.org/wiki/List_of_datasets_for_machine-learning_research)**: heuristics in mobile local search\". Proceedings of the 35th international ACM SIGIR conference on Research and development in information retrieval. pp. 295–304\n\n## Contenido y Hallazgos Extraídos\n### De [Artificial intelligence - Wikipedia](https://en.wikipedia.org/wiki/Artificial_intelligence)\n> Artificial intelligence - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nIntelligence in machines\n\"AI\" redirects here. For other uses, ",
+    "web_sources": [
+      "https://en.wikipedia.org/wiki/Artificial_intelligence",
+      "https://en.wikipedia.org/wiki/List_of_datasets_for_machine-learning_research"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar una función `calculate_temporal_resonance(query_context, memory_node)` que asigne un peso dinámico a los nodos de memoria basándose en la proximidad temporal y la similitud causal, permitiendo al `web_research_engine.py` consultar primero la bóveda local con un umbral de confianza ajustable antes de ejecutar búsquedas externas.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.21
   }
 ]

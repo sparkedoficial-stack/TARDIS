@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.3939486,
-  "last_video_id": "vp_20261031_163418_c29987",
-  "last_topic": "Out-of-Time-Order Correlators (OTOCs) and Quantum Information Scrambling in Many-Body Systems",
-  "total_videos_analyzed": 794,
+  "last_run_timestamp": REDACTED_PHONE.9617012,
+  "last_video_id": "vp_20261031_174626_9f1d4e",
+  "last_topic": "Higher-Spin Gauge Theories and Vasiliev Equations",
+  "total_videos_analyzed": 796,
   "running_cycle": false,
   "last_error": null,
-  "auto_improvement_count": 402
+  "auto_improvement_count": 405
 }
