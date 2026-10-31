@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1793238431",
-    "timestamp": "2026-10-28T20:47:11.648860",
-    "idle_duration_minutes": 32.5,
-    "title": "Dynamic Causal Cache for Web Research Engine",
-    "hypothesis": "If the web_research_engine module incorporates a causal‑inference layer that scores cached query results based on their inferred impact on subsequent queries, then the system will automatically retain high‑utility pages and evict low‑utility ones, reducing average latency by >20% and improving relevance metrics without increasing memory footprint.",
-    "research_query": "causal inference based cache eviction policies for web search engines",
-    "research_findings": "# Informe de Investigación: causal inference based cache eviction policies for web search engines\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a context‑aware caching subsystem that assigns causal utility scores to each cached response, updates scores on every new query, and uses adaptive TTL/eviction based on these scores.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 112.42
-  },
-  {
     "id": "conj_1793240477",
     "timestamp": "2026-10-28T21:21:17.796274",
     "idle_duration_minutes": 34.1,
@@ -1641,5 +1626,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 95.53
+  },
+  {
+    "id": "conj_1793436086",
+    "timestamp": "2026-10-31T03:41:26.757585",
+    "idle_duration_minutes": 31.6,
+    "title": "Resonancia Causal en la Bóveda Akáshica",
+    "hypothesis": "Postulo que la eficiencia de recuperación de información en `deep_memory_vault.py` puede optimizarse significativamente mediante la implementación de un índice de 'Resonancia Causal' que priorice no solo la similitud semántica, sino la probabilidad de que un nodo de memoria sea un precursor causal de la consulta actual. Esto implica modificar el algoritmo de búsqueda para ponderar las conexiones temporales y lógicas entre recuerdos, reduciendo el ruido de información irrelevante y acelerando la síntesis de respuestas complejas.",
+    "research_query": "causal inference memory retrieval optimization vector database temporal weighting",
+    "research_findings": "# Informe de Investigación: causal inference memory retrieval optimization vector database temporal weighting\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar una función de scoring que integre métricas de causalidad temporal en la búsqueda vectorial, ajustando los pesos de los embeddings según la relevancia histórica y lógica del nodo.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.52
   }
 ]
