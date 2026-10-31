@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.0636513,
-  "last_video_id": "vp_20261031_065733_57751c",
-  "last_topic": "Persistent Homology of the Human Connectome: Visualizing High‑Dimensional Brain Networks",
-  "total_videos_analyzed": 778,
-  "running_cycle": true,
+  "last_run_timestamp": REDACTED_PHONE.821044,
+  "last_video_id": "vp_20261031_073314_6d3351",
+  "last_topic": "Discrete Time Crystals in Periodically Driven Quantum Systems",
+  "total_videos_analyzed": 779,
+  "running_cycle": false,
   "last_error": null,
   "auto_improvement_count": 401
 }

@@ -1,12 +1,12 @@
 {
   "schema": "tardis.savage_update/1.0",
-  "generated_at": "2026-10-31T01:32:57-05:00",
+  "generated_at": "2026-10-31T07:36:21-05:00",
   "cycle": {
     "items_collected": 56,
     "items_fresh": 0,
     "proposals": 0,
     "experiment_plans": 0,
-    "elapsed_s": 5.76
+    "elapsed_s": 5.57
   },
   "sources": {
     "offline": false,
@@ -14,22 +14,22 @@
       "github": {
         "ok": true,
         "count": 6,
-        "elapsed_ms": 2778.9
+        "elapsed_ms": 2753.7
       },
       "huggingface": {
         "ok": true,
         "count": 20,
-        "elapsed_ms": 531.7
+        "elapsed_ms": 498.8
       },
       "arxiv": {
         "ok": true,
         "count": 36,
-        "elapsed_ms": 1079.7
+        "elapsed_ms": 951.8
       },
       "npm": {
         "ok": true,
         "count": 1,
-        "elapsed_ms": 412.7
+        "elapsed_ms": 406.6
       }
     }
   },

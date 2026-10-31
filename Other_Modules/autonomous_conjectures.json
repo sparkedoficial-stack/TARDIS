@@ -1,23 +1,5 @@
 [
   {
-    "id": "conj_1793255229",
-    "timestamp": "2026-10-29T01:27:09.752088",
-    "idle_duration_minutes": 33.2,
-    "title": "Causal Latency Prediction via Temporal Graph Embeddings",
-    "hypothesis": "La latencia percibida en el motor de investigación web no es lineal con la complejidad de la consulta, sino que sigue patrones estocásticos basados en la topología de la red en tiempo real. Al implementar un grafo temporal que mapee la latencia histórica de subdominios y nodos de CDN, el sistema puede predecir rutas óptimas de scraping antes de la ejecución, reduciendo el tiempo de respuesta efectivo en un 20-30% mediante el enrutamiento proactivo en lugar de la reintentación reactiva.",
-    "research_query": "temporal graph neural networks for network latency prediction and proactive routing optimization",
-    "research_findings": "# Informe de Investigación: temporal graph neural networks for network latency prediction and proactive routing optimization\n\n## Fuentes Consultadas y Respaldo Web\n- **[Real-time optimization of urban traffic using predictive algorithms - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE10T3JBXy1COHoxMWV2cDVudlNHSHRPdEgwdDlYRlJacUJVV0FuNVd2aEUzOHF4TFgwRGczWERjTFNhRm9TYmw0c2JpM3lKRGx0djZUZFluVnZSMFM5d2tr?oc=5)**: Real-time optimization of urban traffic using predictive algorithms  Nature\n- **[An enhanced intelligent framework for 5G V2X communication using multi-objective optimization and mobility-aware transformer networks - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTFB5RFliUkFvMDUyaE5XMGxQTk5fZUxXbTZPVjVpT0hNZjdoWlpjaHl1d0lVaGNCNG91SnJWdS1PeVJDTFBZdEdxT3RWeHlaNVlVaFZUVzdiQ1ZHSjNPRUZB?oc=5)**: An enhanced intelligent framework for 5G V2X communication using multi-objective optimization and mobility-aware transformer networks  Nature\n\n## Contenido y Hallazgos Ex",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE10T3JBXy1COHoxMWV2cDVudlNHSHRPdEgwdDlYRlJacUJVV0FuNVd2aEUzOHF4TFgwRGczWERjTFNhRm9TYmw0c2JpM3lKRGx0djZUZFluVnZSMFM5d2tr?oc=5",
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTFB5RFliUkFvMDUyaE5XMGxQTk5fZUxXbTZPVjVpT0hNZjdoWlpjaHl1d0lVaGNCNG91SnJWdS1PeVJDTFBZdEdxT3RWeHlaNVlVaFZUVzdiQ1ZHSjNPRUZB?oc=5"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Integrar un módulo de caché predictiva basado en embeddings temporales que evalúe la probabilidad de éxito y latencia de cada endpoint antes de emitir la petición HTTP, ajustando dinámicamente los timeouts y las estrategias de reintentado.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.25
-  },
-  {
     "id": "conj_1793257188",
     "timestamp": "2026-10-29T01:59:48.578071",
     "idle_duration_minutes": 32.6,
@@ -1641,5 +1623,22 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 95.85
+  },
+  {
+    "id": "conj_1793449767",
+    "timestamp": "2026-10-31T07:29:27.467658",
+    "idle_duration_minutes": 35.2,
+    "title": "Dynamic Causal Cache Invalidation for the Web Research Engine",
+    "hypothesis": "If the Web Research Engine maintains a lightweight causal graph that records dependencies between recent queries, fetched URLs, and extracted knowledge nodes, then it can predict which cached results are likely to become stale after a new query. By using this causal inference to drive adaptive TTL (time‑to‑live) and selective eviction, the engine will reduce redundant network calls, lower latency, and improve the freshness of the Deep Memory Vault without a significant CPU overhead.",
+    "research_query": "causal inference based cache eviction policies for web search engines OR causal graph cache invalidation techniques",
+    "research_findings": "# Informe de Investigación: causal inference based cache eviction policies for web search engines OR causal graph cache invalidation techniques\n\n## Fuentes Consultadas y Respaldo Web\n- **[Optimizing LLM Performance with LM Cache: Architectures, Strategies, and Real-World Applications - HackerNoon](https://news.google.com/rss/articles/CBMitwFBVV95cUxNNWx4OWN2Yms5SHZHd2lFSk1rRXpCdUxmRnpydzR6U3c5eWIxbEJDZ2JEMTB6WmdQNkFfdEtnOGRVdE00RGkxWG1lQVpQZlFZcllRTUFwbHdkZENBLVVRODkyR0wydzBpcWZlZWdZVzB4WUFwQXFUSHJlc3AyTnhBNjNQRHpJcllieXp4NWJoNUpQTzUyMW51M2kwaDd5ZnhjT0ROR2ZBX2pFR1EwMmxIdkNEcF9PNFU?oc=5)**: Optimizing LLM Performance with LM Cache: Architectures, Strategies, and Real-World Applications  HackerNoon\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMitwFBVV95cUxNNWx4OWN2Yms5SHZHd2lFSk1rRXpCdUxmRnpydzR6U3c5eWIxbEJDZ2JEMTB6WmdQNkFfdEtnOGRVdE00RGkxWG1lQVpQZlFZcllRTUFwbHdkZENBLVVRODkyR0wydzBpcWZlZWdZVzB4WUFwQXFUSHJlc3AyTnhBNjNQRHpJcllieXp4NWJo",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMitwFBVV95cUxNNWx4OWN2Yms5SHZHd2lFSk1rRXpCdUxmRnpydzR6U3c5eWIxbEJDZ2JEMTB6WmdQNkFfdEtnOGRVdE00RGkxWG1lQVpQZlFZcllRTUFwbHdkZENBLVVRODkyR0wydzBpcWZlZWdZVzB4WUFwQXFUSHJlc3AyTnhBNjNQRHpJcllieXp4NWJoNUpQTzUyMW51M2kwaDd5ZnhjT0ROR2ZBX2pFR1EwMmxIdkNEcF9PNFU?oc=5"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal dependency tracker that logs query → URL → knowledge node relationships, compute a relevance score for each cached entry, and adjust its TTL or evict it automatically based on predicted impact of new queries.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.58
   }
 ]
