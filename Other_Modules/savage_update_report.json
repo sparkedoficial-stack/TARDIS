@@ -1,12 +1,12 @@
 {
   "schema": "tardis.savage_update/1.0",
-  "generated_at": "2026-10-30T13:39:40-05:00",
+  "generated_at": "2026-10-30T19:44:45-05:00",
   "cycle": {
     "items_collected": 56,
-    "items_fresh": 0,
-    "proposals": 0,
-    "experiment_plans": 0,
-    "elapsed_s": 5.87
+    "items_fresh": 1,
+    "proposals": 2,
+    "experiment_plans": 2,
+    "elapsed_s": 5.73
   },
   "sources": {
     "offline": false,
@@ -14,22 +14,22 @@
       "github": {
         "ok": true,
         "count": 6,
-        "elapsed_ms": 2935.3
+        "elapsed_ms": 2746.5
       },
       "huggingface": {
         "ok": true,
         "count": 20,
-        "elapsed_ms": 548.7
+        "elapsed_ms": 514.8
       },
       "arxiv": {
         "ok": true,
         "count": 36,
-        "elapsed_ms": 990.7
+        "elapsed_ms": 1105.7
       },
       "npm": {
         "ok": true,
         "count": 1,
-        "elapsed_ms": 430.0
+        "elapsed_ms": 406.7
       }
     }
   },
@@ -39,7 +39,68 @@
     "report_artifacts": 7,
     "proposals": 11
   },
-  "top_items": [],
-  "proposals": [],
+  "top_items": [
+    {
+      "id": "7b560d4e818b290d",
+      "source": "huggingface:trending",
+      "category": "model",
+      "title": "Pika-Labs/Pika-H3-Flex",
+      "url": "https://huggingface.co/Pika-Labs/Pika-H3-Flex",
+      "published_at": "2026-10-29T23:29:03.000Z",
+      "summary": "pipeline=image-to-video downloads=87 likes=197",
+      "tags": [
+        "vision",
+        "speech"
+      ],
+      "relevance": 5.2,
+      "targets": []
+    }
+  ],
+  "proposals": [
+    {
+      "id": "savage-466fd31376f1",
+      "title": "Actualización de voz (ASR/TTS) local",
+      "target": "tardis",
+      "tag": "speech",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "speech_pipeline",
+      "evidence": [
+        {
+          "title": "Pika-Labs/Pika-H3-Flex",
+          "url": "https://huggingface.co/Pika-Labs/Pika-H3-Flex",
+          "source": "huggingface:trending",
+          "relevance": 5.2
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 1 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "WER en 20 audios y latencia de síntesis.",
+      "rollback": "Mantener el motor de voz actual.",
+      "status": "planned",
+      "created_at": "2026-10-30T19:44:45-05:00"
+    },
+    {
+      "id": "savage-73e62f0aae43",
+      "title": "Integración de capacidades visión/multimodal",
+      "target": "tardis",
+      "tag": "vision",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "vision_pipeline",
+      "evidence": [
+        {
+          "title": "Pika-Labs/Pika-H3-Flex",
+          "url": "https://huggingface.co/Pika-Labs/Pika-H3-Flex",
+          "source": "huggingface:trending",
+          "relevance": 5.2
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 1 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Evaluar 50 imágenes con ground truth; medir exactitud y latencia.",
+      "rollback": "Desactivar el pipeline visual nuevo.",
+      "status": "planned",
+      "created_at": "2026-10-30T19:44:45-05:00"
+    }
+  ],
   "offline": false
 }

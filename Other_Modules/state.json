@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.1708963,
-  "last_video_id": "vp_20261030_185757_7d407b",
-  "last_topic": "Fracton Topological Order and Its Connection to Emergent Gravitational Dynamics",
-  "total_videos_analyzed": 758,
-  "running_cycle": true,
+  "last_run_timestamp": REDACTED_PHONE.632347,
+  "last_video_id": "vp_20261030_193424_95d9fe",
+  "last_topic": "Higher-Spin Gravity and Vasiliev Equations: Visualizing the Infinite Tower of Gauge Fields",
+  "total_videos_analyzed": 759,
+  "running_cycle": false,
   "last_error": null,
   "auto_improvement_count": 395
 }
