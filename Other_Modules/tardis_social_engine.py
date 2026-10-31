@@ -150,9 +150,11 @@ def strip_markdown(text: str) -> str:
     if not text:
         return ""
     t = re.sub(r"```.*?```", "", text, flags=re.DOTALL)
+    t = re.sub(r"\|", " · ", t)
+    t = re.sub(r"-{3,}", "", t)                    # separadores de tablas y reglas horizontales
+    t = re.sub(r"·\s*·+", " · ", t)                # colapsa puntos duplicados
     t = re.sub(r"[*_`#>]+", "", t)
     t = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", t)
-    t = re.sub(r"\|", " · ", t)
     t = re.sub(r"^\s*[-=]{3,}\s*$", "", t, flags=re.MULTILINE)
     t = re.sub(r"^\s*[\+\*]\s*", "· ", t, flags=re.MULTILINE)
     t = re.sub(r"- (\w)", r"· \1", t, flags=re.MULTILINE)
@@ -578,33 +580,32 @@ class ConclusionsCardRenderer:
         return [line_rgb] * w
 
     def _wrap(self, dc, text: str, font, max_w: int, max_lines: int = 30) -> List[str]:
-        """Envoltura de texto robusta: por palabra y con corte duro de tokens desmesurados."""
+        """Envoltura de texto robusta: trocea tokens más anchos que el lienzo y corta por palabra."""
         if not text:
             return []
+        words: List[str] = []
+        for raw in text.split():
+            if dc.textlength(raw, font=font) <= max_w:
+                words.append(raw)
+                continue
+            piece = ""
+            for ch in raw:
+                if piece and dc.textlength(piece + ch, font=font) > max_w:
+                    words.append(piece)
+                    piece = ch
+                else:
+                    piece += ch
+            if piece:
+                words.append(piece)
         lines: List[str] = []
         cur = ""
-        for word in text.split():
-            token = word if dc.textlength(word, font=font) <= max_w else None
-            if token is None:
-                # token más ancho que el lienzo: trocear midiendo con textlength
-                if cur:
-                    lines.append(cur)
-                    cur = ""
-                piece = ""
-                for ch in word:
-                    trial = piece + ch
-                    if dc.textlength(trial, font=font) <= max_w or not piece:
-                        piece = trial
-                    else:
-                        lines.append(piece)
-                        piece = ch
-                if piece:
-                    word = piece
-            test = (cur + " " + word).strip() if cur else word
-            if dc.textlength(test, font=font) <= max_w or not cur:
+        for word in words:
+            test = (cur + " " + word) if cur else word
+            if dc.textlength(test, font=font) <= max_w:
                 cur = test
             else:
-                lines.append(cur)
+                if cur:
+                    lines.append(cur)
                 cur = word
             if len(lines) >= max_lines:
                 break
@@ -631,7 +632,7 @@ class ConclusionsCardRenderer:
         for i in range(steps):
             t = i / (steps - 1)
             rgb = tuple(int(self.BG_TOP[c] + (self.BG_BOTTOM[c] - self.BG_TOP[c]) * t) for c in range(3))
-            img.paste(rgb if hasattr(img, "paste") else rgb, (0, i * band_h, w, min(h, (i + 1) * band_h)))
+            img.paste(rgb, (0, i * band_h, w, min(h, (i + 1) * band_h)))
 
         # Constelación de puntos fijos
         px = img.load()
@@ -696,27 +697,40 @@ class ConclusionsCardRenderer:
         self._footer(dc, f"DOMINIO · {str(getattr(rec, 'domain', 'Ciencia')).upper()[:34]}")
         return img
 
+    def _panel(self, img, box, alpha: int = 172):
+        """Panel translúcido de fondo para máxima legibilidad sobre la constelación."""
+        Image = self._Image
+        layer = Image.new("RGBA", img.size, (0, 0, 0, 0))
+        self._ImageDraw.Draw(layer).rounded_rectangle(box, radius=20, fill=(8, 12, 34, alpha))
+        return Image.alpha_composite(img.convert("RGBA"), layer).convert("RGB")
+
     def _slide_body(self, rec, header: str, body: str, bullets: bool = False, label: str = ""):
         dc, img = self._canvas(rec, header)
         y = self._header(dc, header)
+        max_w = self.WIDTH - 2 * self.MARGIN - 28
         f_body = self._font(29, bold=False)
         body_clean = strip_markdown(body or "") or "· (Sin contenido registrado)"
         if bullets:
             flow: List[str] = []
             for chunk in [c.strip() for c in body_clean.split("\n") if c.strip()]:
                 chunk = chunk if chunk.startswith("·") else f"· {trim_for_social(chunk, 150)}"
-                wrapped = self._wrap(dc, chunk, f_body, self.WIDTH - 2 * self.MARGIN, max_lines=4)
+                wrapped = self._wrap(dc, chunk, f_body, max_w, max_lines=4)
                 flow.extend(wrapped)
                 flow.append("")
             body_lines = flow
         else:
-            body_lines = self._wrap(dc, body_clean, f_body, self.WIDTH - 2 * self.MARGIN, max_lines=24)
+            body_lines = self._wrap(dc, body_clean, f_body, max_w, max_lines=24)
+
+        # Panel translúcido extensión del área de lectura (sin tapar el pie)
+        last_y = min(self.HEIGHT - 150, y + 44 * min(len(body_lines), 25) + 10)
+        img = self._panel(img, (self.MARGIN - 18, y - 16, self.WIDTH - self.MARGIN - 8, last_y))
+        dc = self._ImageDraw.Draw(img)
         for line in body_lines:
-            if y > self.HEIGHT - 150:
+            if y > self.HEIGHT - 160:
                 break
             if line.strip():
                 dc.text((self.MARGIN, y), line, font=f_body, fill=self.TEXT_MAIN)
-            y += 40
+            y += 44
         self._footer(dc, label or f"ID · {str(getattr(rec, 'id', ''))[:30]}")
         return img
 
@@ -778,8 +792,8 @@ class ConclusionsCardRenderer:
 
             total_dur = sum(durations)
             aeval = (
-                "aevalsrc='0.045*sin(2*PI*82.41*t)|0.038*sin(2*PI*123.47*t)|"
-                "0.030*sin(2*PI*164.81*t)|0.020*sin(2*PI*246.94*t)':s=44100:c=stereo"
+                "aevalsrc=0.050*sin(2*PI*82.41*t)+0.030*sin(2*PI*164.81*t)"
+                "|0.050*sin(2*PI*123.47*t)+0.030*sin(2*PI*246.94*t):s=44100:c=stereo"
             )
             cmd = [
                 "ffmpeg", "-y",
@@ -1026,6 +1040,10 @@ class TardisSocialEngine:
             if item_type == "card":
                 live_path = self.render_card_for(s)
                 if not live_path:
+                    _db_insert({"video_id": vid_id, "item_type": "card", "status": "failed",
+                                "caption": caption[:1200],
+                                "last_attempt_at": datetime.datetime.now().isoformat(),
+                                "error": "Renderizado de tarjeta falló"})
                     report["results"][item_type] = {"status": "failed", "error": "Renderizado de tarjeta falló"}
                     continue
 

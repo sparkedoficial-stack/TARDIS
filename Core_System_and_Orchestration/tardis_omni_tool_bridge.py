@@ -107,6 +107,14 @@ class TardisOmniToolBridge:
                 "domain": "switch_native_ios",
                 "description": "Motor nativo nxnative para Apple iPad Pro M2 con perfil completo de Mario Kart 8 Deluxe (0100152000022000, 29,650 shaders NVN->Metal 4, DmGamepad y Launcher.swift).",
                 "actions": ["status", "profile", "catalog", "build"]
+            },
+            "social_engine": {
+                "name": "TARDIS /Social Engine (Conclusión → Redes Publicadas)",
+                "binary": str(PROJECT_ROOT / "bin" / "tardis-social"),
+                "module": "core.tardis_social_engine",
+                "domain": "social_publishing",
+                "description": "Función soberana /SOCIAL integrada con /VideoPensante: compone la leyenda con conclusiones y hashtags, genera la tarjeta MP4 vertical 720x1280 de conclusiones cognitivas y publica en TikTok (OAuth oficial, Content Posting API v2) el video descargado a la bóveda y sus abstracciones. Cola persistente cuando no hay credenciales y filtro Constante AEGIS contra información privada.",
+                "actions": ["status", "history", "retry", "latest", "publish", "card", "backfill", "auth-url", "exchange", "refresh", "enable", "disable"]
             }
         }
         self._register_in_dynamic_registry()

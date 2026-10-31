@@ -3006,6 +3006,144 @@ class TelegramBridge:
             threading.Thread(target=_run_thinking_async, daemon=True, name="VideoThinkingThread").start()
             return
 
+        # ----------------------------------------------------------------------
+        # COMANDOS SOCIALES (/Social, /Socializar): publica conclusiones y videos
+        # ----------------------------------------------------------------------
+        if cmd in ("/social", "/socializar", "/soc"):
+            from core.tardis_social_engine import get_social_engine
+            se = get_social_engine()
+            sub = (arg_str or "").strip()
+
+            if sub.lower() in ("status", "estado", "info", ""):
+                st = se.get_status()
+                msg_st = (
+                    f"📡 **[TARDIS · FUNCIÓN SOCIAL :: ESTADO]**\n"
+                    f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                    f"• **Motor Social:** {'🟢 ACTIVO' if st.get('social_enabled') else '🔴 PAUSADO'}\n"
+                    f"• **Auto por Ciclo:** {'Sí — cada /VideoPensante publica' if st.get('auto_on_new_cycles') else 'No — solo bajo demanda'}\n"
+                    f"• **TikTok:** {'🟢 Autenticado' if st.get('platform_ready') else '⚪ Sin tokens (cola en espera)'}\n"
+                    f"• **Privacidad:** `{st.get('privacy_level')}`\n"
+                    f"• **Log por Estado:** `{st.get('log_counts')}`\n\n"
+                    f"Subcomandos: `pendientes` · `retry` · `backfill [N]` · `publicar <id>` · `tarjeta <id>` · `historial`"
+                )
+                self.send_message(msg_st, chat_id=chat_id, reply_to_message_id=msg_id)
+                return
+
+            if sub.lower() in ("pendientes", "cola", "pending"):
+                pend = se.pending_list()
+                if not pend:
+                    self.send_message("✅ La cola social está vacía: todo lo aprendido ya se publicó o rechazó.", chat_id=chat_id, reply_to_message_id=msg_id)
+                    return
+                lines = ["⏳ **[TARDIS :: COLA SOCIALES PENDIENTES]**\n"];
+                for row in pend[:10]:
+                    lines.append(f"• `{row['video_id']}` · {row['item_type']} · intentos {row.get('attempts', 0)}")
+                if len(pend) > 10:
+                    lines.append(f"\n…y {len(pend) - 10} más en cola.")
+                self.send_message("\n".join(lines), chat_id=chat_id, reply_to_message_id=msg_id)
+                return
+
+            if sub.lower() in ("retry", "reintentar", "vaciar"):
+                self.send_message("🧹 Reintentando la cola social pendiente contra TikTok…", chat_id=chat_id, reply_to_message_id=msg_id)
+
+                def _run_retry_async():
+                    try:
+                        res = se.retry_pending()
+                        pub = res.get("published", [])
+                        txt = (
+                            f"📡 **[SOCIAL :: REINTENTO COMPLETADO]**\n"
+                            f"• Publicados ahora: {len(pub)}\n"
+                            f"• Fallidos: {res.get('failed', 0)}\n"
+                            + ("\n".join([f"• ✅ `{p['video_id']}` ({p['item']}) → `{p['publish_id']}`" for p in pub]))
+                        )
+                        self.send_message(txt, chat_id=chat_id)
+                    except Exception as e_retry:
+                        self.send_message(f"⚠️ Aviso en reintento social: {e_retry}", chat_id=chat_id)
+
+                threading.Thread(target=_run_retry_async, daemon=True, name="SocialRetryThread").start()
+                return
+
+            if sub.lower().startswith("backfill") or sub.lower().startswith("socializar_todos"):
+                parts = sub.split()
+                n_arg = int(parts[1]) if len(parts) > 1 and parts[1].isdigit() else None
+                self.send_message(f"📦 Socializando videos aún sin publicar (lote de {n_arg or se.cfg.get('max_backlog_per_run', 3)})…", chat_id=chat_id, reply_to_message_id=msg_id)
+
+                def _run_backfill_async():
+                    try:
+                        out = se.backfill(maximum=n_arg)
+                        lines = [f"📦 **[SOCIAL :: BACKFILL]** Candidatos: {out.get('candidates')} · Procesados: {out.get('processed')}"]
+                        for entry in out.get("reports", []):
+                            for it, res_i in (entry.get("report", {}).get("results") or {}).items():
+                                mark = "✅" if res_i.get("status") == "published" else ("⏳" if res_i.get("status") in ("pending", "requeued") else "🛡️")
+                                lines.append(f"• {mark} `{entry.get('video_id')}` · {it} · {res_i.get('status')}{(' → ' + str(res_i.get('publish_id'))) if res_i.get('publish_id') else ''}")
+                        self.send_message("\n".join(lines) if len(lines) > 1 else "📦 Nada pendiente por socializar.", chat_id=chat_id)
+                    except Exception as e_bf:
+                        self.send_message(f"⚠️ Aviso en backfill social: {e_bf}", chat_id=chat_id)
+
+                threading.Thread(target=_run_backfill_async, daemon=True, name="SocialBackfillThread").start()
+                return
+
+            if sub.lower().startswith("publicar "):
+                vid = sub.split(maxsplit=1)[1].strip()
+                self.send_message(f"📡 Publicando `{vid}` en TikTok (video + conclusiones)…", chat_id=chat_id, reply_to_message_id=msg_id)
+
+                def _run_publish_async():
+                    try:
+                        rep = se.publish_video_by_id(vid, item="all")
+                        if "skipped" in rep:
+                            self.send_message(f"⚠️ {rep['skipped']}", chat_id=chat_id)
+                            return
+                        lines = [f"📡 **[SOCIAL :: PUBLICACIÓN `{vid}`]**"]
+                        for it, res_i in (rep.get("results") or {}).items():
+                            mark = {"published": "✅", "pending": "⏳", "refused": "🛡️", "requeued": "🔁",
+                                    "failed": "❌", "skipped": "↺"}.get(res_i.get("status"), "•")
+                            lines.append(f"• {mark} {it} → {res_i.get('publish_id') or res_i.get('reason') or res_i.get('error') or res_i.get('status')}")
+                        self.send_message("\n".join(lines), chat_id=chat_id)
+                    except Exception as e_pub:
+                        self.send_message(f"⚠️ Aviso publicando: {e_pub}", chat_id=chat_id)
+
+                threading.Thread(target=_run_publish_async, daemon=True, name="SocialPublishThread").start()
+                return
+
+            if sub.lower().startswith("tarjeta "):
+                vid = sub.split(maxsplit=1)[1].strip()
+                try:
+                    from core.tardis_video_thinking_engine import get_video_thinking_engine
+                    detail = get_video_thinking_engine().get_video_detail(vid)
+                    if not detail:
+                        self.send_message(f"⚠️ No hay videos con ID `{vid}` en la memoria de abstracción.", chat_id=chat_id, reply_to_message_id=msg_id)
+                        return
+                    card = se.render_card_for(detail)
+                    if card and Path(card).exists():
+                        self.send_video(video=card, caption=f"🧠 [TARDIS · TARJETA DE CONCLUSIONES]\n{detail.get('topic', '')}", chat_id=chat_id, reply_to_message_id=msg_id)
+                    else:
+                        self.send_message("❌ El renderizado de la tarjeta falló.", chat_id=chat_id, reply_to_message_id=msg_id)
+                except Exception as e_card:
+                    self.send_message(f"⚠️ Aviso generando tarjeta: {e_card}", chat_id=chat_id, reply_to_message_id=msg_id)
+                return
+
+            if sub.lower() in ("historial", "log", "registro"):
+                hist = se.publish_history(limit=10)
+                if not hist:
+                    self.send_message("🗄️ Sin publicaciones registradas aún.", chat_id=chat_id, reply_to_message_id=msg_id)
+                    return
+                lines = ["🗄️ **[TARDIS :: REGISTRO SOCIAL PERMANENTE]**"]
+                for row in hist:
+                    mark = {"published": "✅", "pending": "⏳", "refused": "🛡️"}.get(row["status"], "•")
+                    lines.append(f"{mark} `{row['video_id']}` · {row['item_type']} · {row['created_at'][:16].replace('T', ' ')}")
+                self.send_message("\n".join(lines), chat_id=chat_id, reply_to_message_id=msg_id)
+                return
+
+            self.send_message(
+                "📡 **Uso de /Social**\n"
+                "• `/Social status` — estado del motor\n"
+                "• `/Social publicar <id>` — publica video + conclusiones\n"
+                "• `/Social tarjeta <id>` — genera el MP4 de conclusiones\n"
+                "• `/Social backfill [N]` — socializa lo aprendido sin publicar\n"
+                "• `/Social pendientes` · `/Social retry` · `/Social historial`",
+                chat_id=chat_id, reply_to_message_id=msg_id
+            )
+            return
+
         if cmd in ("/status", "/estado"):
             from core.hardware_controller import get_hardware_controller
             hw = get_hardware_controller()

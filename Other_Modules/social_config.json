@@ -1,0 +1,37 @@
+{
+  "enabled": false,
+  "auto_on_new_cycles": true,
+  "publish_downloaded_video": true,
+  "publish_conclusions_card": true,
+  "max_backlog_per_run": 3,
+  "aegis_private_terms": [
+    "annya",
+    "annya may",
+    "annya may carrillo",
+    "andrea alejandra",
+    "andrea carrillo",
+    "carrillo jimenez",
+    "rex peluche",
+    "bot_token",
+    "client_secret",
+    "cédula",
+    "curp",
+    "rfc",
+    "domicilio"
+  ],
+  "tiktok": {
+    "enabled": false,
+    "client_key": "",
+    "client_secret": "",
+    "redirect_uri": "http://localhost:8793/auth/tiktok/callback",
+    "access_token": "",
+    "refresh_token": "",
+    "token_expires_at": 0,
+    "refresh_expires_at": 0,
+    "open_id": "",
+    "scope": "user.info.basic,video.publish",
+    "privacy_level": "PUBLIC_TO_EVERYONE",
+    "caption_max_chars": 1800,
+    "min_gap_sec": 90
+  }
+}

@@ -86,6 +86,7 @@ Automatizaciones de sistema, diagnósticos de hardware, optimizadores de SO y he
 - **test_tardis_bridge.py**: Componente de alta eficiencia.
 - **test_tardis_dynamic_function_engine.py**: Componente de alta eficiencia.
 - **test_tardis_identity_no_version.py**: Componente de alta eficiencia.
+- **test_tardis_social.py**: Componente de alta eficiencia.
 - **test_tardis_terminal_and_companion.py**: Componente de alta eficiencia.
 - **test_terminal_control.py**: Componente de alta eficiencia.
 - **test_token_saturation_and_lifecycle.py**: Componente de alta eficiencia.

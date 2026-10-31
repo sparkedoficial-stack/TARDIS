@@ -233,6 +233,7 @@ Módulos y componentes auxiliares del sistema.
 - **skills_rag_ingest.json**: Especificación agéntica de capacidades soberanas para agentes autónomos.
 - **sms_config.json**: Componente de alta eficiencia.
 - **sms_history.json**: Componente de alta eficiencia.
+- **social_config.json**: Componente de alta eficiencia.
 - **sovereign_client.py**: Componente de alta eficiencia.
 - **speech_pipeline.json**: Componente de alta eficiencia.
 - **state.json**: Componente de alta eficiencia.
