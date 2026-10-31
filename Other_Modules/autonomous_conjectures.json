@@ -1,35 +1,5 @@
 [
   {
-    "id": "conj_1793201986",
-    "timestamp": "2026-10-28T10:39:46.284304",
-    "idle_duration_minutes": 32.1,
-    "title": "Causal Embedding Synchronization between Deep Memory Vault and Web Research Engine",
-    "hypothesis": "Integrar un mecanismo de embeddings causales sincronizados entre el módulo core/deep_memory_vault.py y core/web_research_engine.py reducirá la latencia de recuperación de información contextual en un 30% y mejorará la coherencia de las respuestas al permitir que los vectores de memoria se actualicen en tiempo real con los resultados de búsquedas web, creando un bucle de retroalimentación causal que alinea la memoria a largo plazo con la evidencia externa más reciente.",
-    "research_query": "causal embedding synchronization memory retrieval web search engine latency reduction study",
-    "research_findings": "# Informe de Investigación: causal embedding synchronization memory retrieval web search engine latency reduction study\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Implementar una capa de actualización incremental de embeddings que, tras cada consulta web, inserte los nuevos vectores en el índice de deep_memory_vault y ajuste los pesos del modelo de recuperación usando aprendizaje por refuerzo ligero.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.13
-  },
-  {
-    "id": "conj_1793203883",
-    "timestamp": "2026-10-28T11:11:23.996045",
-    "idle_duration_minutes": 31.6,
-    "title": "Causal‑Cache Fusion for Web Research Engine",
-    "hypothesis": "Integrating a lightweight causal inference layer into the Web Research Engine's request pipeline can predict the relevance of cached results before a remote fetch, reducing latency by up to 30% while preserving answer quality. The hypothesis posits that by analyzing the semantic graph of recent queries stored in deep_memory_vault and applying a simple Bayesian network, the engine can decide whether a cached snippet is likely sufficient, thereby avoiding unnecessary network calls and lowering bandwidth usage.",
-    "research_query": "\"causal inference cache prediction\" web search engine latency reduction Bayesian network",
-    "research_findings": "# Informe de Investigación: \"causal inference cache prediction\" web search engine latency reduction Bayesian network\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a pre‑fetch relevance estimator that queries deep_memory_vault for semantic similarity, runs a Bayesian confidence check, and conditionally returns cached results instead of performing an external HTTP request.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.69
-  },
-  {
     "id": "conj_1793206188",
     "timestamp": "2026-10-28T11:49:48.884229",
     "idle_duration_minutes": 38.4,
@@ -1638,5 +1608,35 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.93
+  },
+  {
+    "id": "conj_1793401312",
+    "timestamp": "2026-10-30T18:01:52.397357",
+    "idle_duration_minutes": 31.6,
+    "title": "Dynamic Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "If the Web Research Engine maintains a lightweight causal dependency graph linking each cached query result to the specific external data sources (URLs, APIs, timestamps) it originated from, then cache invalidation can be performed selectively based on detected changes in those sources. This causal approach would reduce unnecessary cache flushes, lower latency for repeat queries, and improve overall throughput without sacrificing result freshness.",
+    "research_query": "causal graph based cache invalidation web search engine performance",
+    "research_findings": "# Informe de Investigación: causal graph based cache invalidation web search engine performance\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a dependency‑tracking module that records source URLs and timestamps for each cached query, and implement an invalidation routine that checks source freshness before serving cached data.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.06
+  },
+  {
+    "id": "conj_1793403240",
+    "timestamp": "2026-10-30T18:34:00.624967",
+    "idle_duration_minutes": 32.1,
+    "title": "Optimización causal de caché en el motor de investigación web mediante aprendizaje de patrones temporales",
+    "hypothesis": "El módulo core/web_research_engine.py mantiene un caché de resultados de búsquedas que se invalida de forma estática tras un tiempo fijo. Propongo que, al incorporar un modelo ligero de inferencia causal que aprenda relaciones temporales entre consultas y sus resultados (por ejemplo, usando una red bayesiana incremental), el sistema podrá predecir la probabilidad de que un resultado almacenado siga siendo válido y refrescarlo de forma selectiva. Esta estrategia reduciría la latencia de búsquedas recurrentes en un 30‑40% y disminuiría la carga de red sin comprometer la frescura de la información.",
+    "research_query": "incremental Bayesian network cache invalidation web search engine performance study",
+    "research_findings": "# Informe de Investigación: incremental Bayesian network cache invalidation web search engine performance study\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Implementar una capa de caché inteligente que registre timestamps y dependencias de consultas, calcule una probabilidad de obsolescencia usando un modelo bayesiano incremental y decida dinámicamente si reutilizar o volver a consultar la web.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.92
   }
 ]
