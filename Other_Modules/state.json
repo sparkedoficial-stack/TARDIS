@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.9330378,
-  "last_video_id": "vp_20261031_105007_ab3faf",
-  "last_topic": "relatividad general y dilatación del tiempo",
-  "total_videos_analyzed": 785,
+  "last_run_timestamp": REDACTED_PHONE.799098,
+  "last_video_id": "vp_20261031_114547_4dec94",
+  "last_topic": "Non-Hermitian Topological Phases and Exceptional Points",
+  "total_videos_analyzed": 786,
   "running_cycle": false,
   "last_error": null,
-  "auto_improvement_count": 401
+  "auto_improvement_count": 402
 }
