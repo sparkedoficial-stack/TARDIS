@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.2022405,
-  "last_video_id": "vp_20261031_185755_959785",
-  "last_topic": "Causal Dynamical Triangulations: Building Spacetime from Simplicial Complexes",
-  "total_videos_analyzed": 798,
-  "running_cycle": true,
+  "last_run_timestamp": REDACTED_PHONE.6958497,
+  "last_video_id": "vp_20261031_193318_199a0b",
+  "last_topic": "Tensor Network Holography: Connecting MERA to AdS/CFT and Emergent Spacetime Geometry",
+  "total_videos_analyzed": 799,
+  "running_cycle": false,
   "last_error": null,
   "auto_improvement_count": 405
 }
