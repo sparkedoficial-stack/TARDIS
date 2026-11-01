@@ -1,23 +1,5 @@
 [
   {
-    "id": "conj_1793301949",
-    "timestamp": "2026-10-29T14:25:49.303278",
-    "idle_duration_minutes": 41.6,
-    "title": "Causal Graph Embeddings for Context‑Aware Web Research Retrieval",
-    "hypothesis": "Incorporating a lightweight causal graph representation of query‑intent and previously accessed vault memories into the Web Research Engine will enable the system to rank retrieved documents not only by lexical relevance but also by inferred causal relevance, leading to higher precision in downstream reasoning tasks within the GODWORKS architecture.",
-    "research_query": "causal graph embeddings for information retrieval relevance ranking",
-    "research_findings": "# Informe de Investigación: causal graph embeddings for information retrieval relevance ranking\n\n## Fuentes Consultadas y Respaldo Web\n- **[KBDR: document retrieval based on graph matching with knowledge enhancement - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE40X0tkUkdHbnY5NmM3MVg1bFpvRWR2a0lTcWRJNDhxOHphcWhSSjZPYThOVHpVZG9nSHhBTzB4WlRRRVB4VEduNzYtOEVhM2FiNjRWdkxYZUtlNm0zWWtN?oc=5)**: KBDR: document retrieval based on graph matching with knowledge enhancement  Nature\n- **[Graph-Augmented Retrieval for Digital Evidence-Based Medical Synthesis: A Proof-of-Concept Study on Topology-Aware Mechanistic Narrative Generation - medRxiv](https://news.google.com/rss/articles/CBMic0FVX3lxTE1VVnRSTzdaTzhEcHp0NXRDQlRMVTItQU5NWk1xZE55b1JkSEdIdEZOR1A5djFCZDN4LUJzakZ3ZWdybmE4SVVSeWYwXzdlSjhkUUYxRmJ4VUs2TFJmMWtuUFVMZ1ZQaHhkOEZmUVFEbGdHNzA?oc=5)**: Graph-Augmented Retrieval for Digital Evidence-Based Medical Synthesis: A Proof-of-Concept Study on Topology-Aware Mechanistic Narrative Gene",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE40X0tkUkdHbnY5NmM3MVg1bFpvRWR2a0lTcWRJNDhxOHphcWhSSjZPYThOVHpVZG9nSHhBTzB4WlRRRVB4VEduNzYtOEVhM2FiNjRWdkxYZUtlNm0zWWtN?oc=5",
-      "https://news.google.com/rss/articles/CBMic0FVX3lxTE1VVnRSTzdaTzhEcHp0NXRDQlRMVTItQU5NWk1xZE55b1JkSEdIdEZOR1A5djFCZDN4LUJzakZ3ZWdybmE4SVVSeWYwXzdlSjhkUUYxRmJ4VUs2TFJmMWtuUFVMZ1ZQaHhkOEZmUVFEbGdHNzA?oc=5"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal‑graph module that builds a dynamic DAG from recent deep_memory_vault interactions, computes node embeddings (e.g., using GraphSAGE), and integrates these embeddings into the existing ranking pipeline to bias results toward causally related sources.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.72
-  },
-  {
     "id": "conj_1793303847",
     "timestamp": "2026-10-29T14:57:27.978720",
     "idle_duration_minutes": 31.6,
@@ -1644,5 +1626,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 98.96
+  },
+  {
+    "id": "conj_1793496587",
+    "timestamp": "2026-10-31T20:29:47.342307",
+    "idle_duration_minutes": 31.6,
+    "title": "Hipótesis de Resonancia Causal en la Bóveda Akáshica",
+    "hypothesis": "Se postula que la eficiencia de recuperación de información en `deep_memory_vault.py` puede optimizarse significativamente si se implementa un mecanismo de 'resonancia causal' que priorice no solo la similitud semántica, sino la correlación temporal y de causa-efecto entre los nodos de memoria. Actualmente, la búsqueda podría estar dependiendo excesivamente de embeddings estáticos. Al integrar un peso dinámico basado en la recencia y la frecuencia de co-ocurrencia causal (no solo semántica), el sistema podría reducir la latencia de inferencia y mejorar la precisión en contextos de investigación web profunda, evitando el 'ruido' de datos obsoletos o no relacionados causalmente.",
+    "research_query": "causal inference in vector databases temporal weighting memory retrieval optimization",
+    "research_findings": "# Informe de Investigación: causal inference in vector databases temporal weighting memory retrieval optimization\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar una función de scoring híbrido que combine la similitud coseno con un factor de decaimiento temporal y un índice de correlación causal entre nodos adyacentes en el grafo de memoria.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.19
   }
 ]
