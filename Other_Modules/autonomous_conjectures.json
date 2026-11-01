@@ -1,38 +1,5 @@
 [
   {
-    "id": "conj_1793366865",
-    "timestamp": "2026-10-30T08:27:45.151959",
-    "idle_duration_minutes": 32.1,
-    "title": "Integración de Causal Prompt Chaining en el Motor de Búsqueda Web",
-    "hypothesis": "Si el motor de búsqueda web (core/web_research_engine.py) incorpora una cadena de prompts causales que modela explícitamente la relación entre la intención del usuario, la selección de fuentes y la síntesis de resultados, entonces la precisión y relevancia de la información recuperada aumentará en al menos un 15% en pruebas de benchmark comparado con el enfoque actual basado en consultas lineales. Esta mejora se lograría mediante la inserción de un módulo de razonamiento causal que evalúe hipótesis intermedias antes de ejecutar la petición HTTP, permitiendo filtrar fuentes potencialmente sesgadas y priorizar aquellas que mejor soporten la cadena causal inferida.",
-    "research_query": "causal prompt chaining web search engine performance improvement 2023-2024",
-    "research_findings": "# Informe de Investigación: causal prompt chaining web search engine performance improvement 2023-2024\n\n## Fuentes Consultadas y Respaldo Web\n- **[Artificial intelligence (Wikipedia)](https://en.wikipedia.org/wiki/Artificial_intelligence)**: achieving defined goals. Prominent applications of AI include advanced web search engines, chatbots, virtual assistants, autonomous vehicles, play and analysis\n- **[Generative AI (Wikipedia)](https://en.wikipedia.org/wiki/Generative_AI)**: from the original on August 12, 2024. Retrieved August 27, 2024. Edwards, Benj (March 13, 2025). \"AI search engines cite incorrect news sources at an\n\n## Contenido y Hallazgos Extraídos\n### De [Artificial intelligence - Wikipedia](https://en.wikipedia.org/wiki/Artificial_intelligence)\n> Artificial intelligence - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nIntelligence in machines\n\"AI\" redirects here. For other uses, see AI (disambiguation) and Artificial intelligence (disambiguation) .\nPart of",
-    "web_sources": [
-      "https://en.wikipedia.org/wiki/Artificial_intelligence",
-      "https://en.wikipedia.org/wiki/Generative_AI"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Agregar una capa de razonamiento causal que genere y evalúe hipótesis intermedias antes de lanzar la búsqueda, con un mecanismo de puntuación de fuentes basado en la coherencia causal y actualizar la función fetch_results para usar este nuevo filtro.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.54
-  },
-  {
-    "id": "conj_1793368763",
-    "timestamp": "2026-10-30T08:59:23.355897",
-    "idle_duration_minutes": 31.6,
-    "title": "Causal Memory Indexing for Real‑Time Web Research",
-    "hypothesis": "Integrating a causal graph layer into the Deep Memory Vault (core/deep_memory_vault.py) that links newly ingested web research results to prior stored concepts will enable the system to prioritize retrieval of context‑relevant information, reducing latency of answer generation by up to 30% and improving factual consistency across sessions.",
-    "research_query": "how to implement causal graph based indexing for vector databases in Python (e.g., using networkx with FAISS) and its impact on retrieval latency",
-    "research_findings": "# Informe de Investigación: how to implement causal graph based indexing for vector databases in Python (e.g., using networkx with FAISS) and its impact on retrieval latency\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Add a causal graph module that creates directed edges between newly stored embeddings and existing nodes based on semantic similarity thresholds, then modify the retrieval pipeline to traverse this graph for context‑aware ranking before returning results.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.19
-  },
-  {
     "id": "conj_1793370660",
     "timestamp": "2026-10-30T09:31:00.965204",
     "idle_duration_minutes": 31.6,
@@ -1640,5 +1607,35 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 96.18
+  },
+  {
+    "id": "conj_1793559773",
+    "timestamp": "2026-11-01T14:02:53.237795",
+    "idle_duration_minutes": 32.8,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "If the Web Research Engine stores query results in a multi‑layer cache that is annotated with causal provenance metadata (e.g., source timestamps, dependency graph of sub‑queries, and relevance scores), then automatic invalidation of stale entries can be performed by propagating causal updates from the Deep Memory Vault whenever new information supersedes older facts. This would reduce redundant network calls by up to 30 % while preserving answer freshness, because the system would only re‑fetch data whose causal ancestors have changed.",
+    "research_query": "causal provenance cache invalidation web scraping engine \"deep memory\" knowledge graph",
+    "research_findings": "# Informe de Investigación: causal provenance cache invalidation web scraping engine \"deep memory\" knowledge graph\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal‑metadata layer to the existing cache mechanism and implement an invalidation routine that listens to updates from core/deep_memory_vault.py, pruning or refreshing cached responses whose provenance graph indicates outdated dependencies.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 103.54
+  },
+  {
+    "id": "conj_1793562043",
+    "timestamp": "2026-11-01T14:40:43.324318",
+    "idle_duration_minutes": 37.8,
+    "title": "Dynamic Causal Cache Invalidation for the Web Research Engine",
+    "hypothesis": "If the Web Research Engine maintains a lightweight causal graph of query topics and source update frequencies, it can predict when cached search results are likely to become stale. By using this causal inference to trigger selective cache invalidation rather than time‑based expiration, the system will reduce unnecessary re‑fetches, lower latency, and improve the relevance of returned data, especially under the constraints of the ASUS TUF Linux environment and the active Akáshic Vault.",
+    "research_query": "causal inference based cache invalidation web search engine performance",
+    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web search engine performance\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal‑graph module that tracks topic dependencies and source update signals, and modify the caching layer to invalidate entries based on predicted staleness rather than fixed TTL.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.18
   }
 ]
