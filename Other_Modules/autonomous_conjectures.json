@@ -1,41 +1,5 @@
 [
   {
-    "id": "conj_1793303847",
-    "timestamp": "2026-10-29T14:57:27.978720",
-    "idle_duration_minutes": 31.6,
-    "title": "Causal Graph Embeddings for Enhanced Retrieval in Deep Memory Vault",
-    "hypothesis": "Incorporating a causal graph representation of stored events into the Deep Memory Vault will enable the system to perform context‑aware retrieval based on inferred causal relationships, thereby improving relevance of recalled information and reducing hallucination in downstream reasoning modules such as the Web Research Engine.",
-    "research_query": "causal graph embeddings for long‑term memory retrieval in AI systems",
-    "research_findings": "# Informe de Investigación: causal graph embeddings for long‑term memory retrieval in AI systems\n\n## Fuentes Consultadas y Respaldo Web\n- **[The rise of agentic AI in drug discovery from static tools to autonomous virtual scientists - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE0zSnZwRjUwY0RlYnYyam9sYnVTYTgzUmNlOUJNdmFmU2FyQTlQRE1raGliWksxcVZ5QVpYbE9wM0JQQ0RTUUN6YmN2T201c2ZaTk9GMzFVRHBKWElSWlpB?oc=5)**: The rise of agentic AI in drug discovery from static tools to autonomous virtual scientists  Nature\n- **[AMA-Bench: Evaluating Long-Horizon Memory for Agentic Applications - alphaXiv](https://news.google.com/rss/articles/CBMiUEFVX3lxTE92LTJqYzg5VUpUdVl2VjVnQ0g5cFNyNm9TUVU5OHhqLVhXMEU1cmFIcjJ2ZXUzNHkxNHphVktLT0hoczF1bVpJTnFCbmpkSGVm?oc=5)**: AMA-Bench: Evaluating Long-Horizon Memory for Agentic Applications  alphaXiv\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMiX0FVX3lxTE0zSnZwRjUwY0RlYnYyam9sYnVTYTgzUmNlOUJNdmFmU2Fy",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE0zSnZwRjUwY0RlYnYyam9sYnVTYTgzUmNlOUJNdmFmU2FyQTlQRE1raGliWksxcVZ5QVpYbE9wM0JQQ0RTUUN6YmN2T201c2ZaTk9GMzFVRHBKWElSWlpB?oc=5",
-      "https://news.google.com/rss/articles/CBMiUEFVX3lxTE92LTJqYzg5VUpUdVl2VjVnQ0g5cFNyNm9TUVU5OHhqLVhXMEU1cmFIcjJ2ZXUzNHkxNHphVktLT0hoczF1bVpJTnFCbmpkSGVm?oc=5"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implement a causal graph index layer that stores events as nodes with directed edges representing inferred causality, and expose new query methods (e.g., get_causal_path, retrieve_by_causal_context) to be used by the Web Research Engine for more precise information sourcing.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.65
-  },
-  {
-    "id": "conj_1793305744",
-    "timestamp": "2026-10-29T15:29:04.968909",
-    "idle_duration_minutes": 31.6,
-    "title": "Causal Embedding of Web Research Results into the Deep Memory Vault",
-    "hypothesis": "Integrar los resultados de búsquedas web como nodos causales anotados dentro de la estructura de grafos del módulo deep_memory_vault permitirá que el motor de razonamiento del sistema genere inferencias de segundo orden sin necesidad de re‑ejecutar la búsqueda. Al almacenar no solo el contenido bruto sino también metadatos de origen, timestamp, y una puntuación de relevancia causal, el sistema podrá activar recuerdos contextuales de forma proactiva, reduciendo la latencia de respuesta y mejorando la consistencia epistemológica de las respuestas generadas.",
-    "research_query": "how to store web search results as causal nodes in a knowledge graph for AI reasoning systems",
-    "research_findings": "# Informe de Investigación: how to store web search results as causal nodes in a knowledge graph for AI reasoning systems\n\n## Fuentes Consultadas y Respaldo Web\n- **[From Data to Decisions: How Knowledge Graphs Are Becoming the Brain of the Modern Enterprise - Medium](https://news.google.com/rss/articles/CBMi0gFBVV95cUxPVjh5NnNZNnFfZ3UzMEx3U0pqajNDQ19TV0JjRGN5WGhleWxVLW5WMkptR2J6VHpldllqekM2bzJSUFBYWHlwSW1ySUZoZG9fOFZRVGY4NEt6ZVE5YkQ4b0VlRWl1T0Jtd1hlSzNrOGRuTzY1ajU4b1lUY3hVMDBpWUxiZWo5X1VBNDMyQjFMVlFPMU14bm9kUlZCMWVLMTBTRUI0ZTBQRDdpVmJxVlRuZFQwYzNPNGpReVdEMUg3dHVhNWhvQUd6LTdvMWMtZHBSQXc?oc=5)**: From Data to Decisions: How Knowledge Graphs Are Becoming the Brain of the Modern Enterprise  Medium\n- **[How to improve multi-hop reasoning with knowledge graphs and LLMs - Neo4j](https://news.google.com/rss/articles/CBMieEFVX3lxTE9zOGZ5czRHMGNUMG5aQlpWc0lWUS0wUTh5Z2xTbklPRHZmNjZkZ3pSSWFUeUF3NWZyTG9zd3gxZUtRcnpwTVU1Q1VSaVloaGl0bjhHYVllLW5ObS1ZbDhfc0pHekxHMjdGZ0dUYS1ZcEt4RkdYVnNEeg?oc=5)**: How",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMi0gFBVV95cUxPVjh5NnNZNnFfZ3UzMEx3U0pqajNDQ19TV0JjRGN5WGhleWxVLW5WMkptR2J6VHpldllqekM2bzJSUFBYWHlwSW1ySUZoZG9fOFZRVGY4NEt6ZVE5YkQ4b0VlRWl1T0Jtd1hlSzNrOGRuTzY1ajU4b1lUY3hVMDBpWUxiZWo5X1VBNDMyQjFMVlFPMU14bm9kUlZCMWVLMTBTRUI0ZTBQRDdpVmJxVlRuZFQwYzNPNGpReVdEMUg3dHVhNWhvQUd6LTdvMWMtZHBSQXc?oc=5",
-      "https://news.google.com/rss/articles/CBMieEFVX3lxTE9zOGZ5czRHMGNUMG5aQlpWc0lWUS0wUTh5Z2xTbklPRHZmNjZkZ3pSSWFUeUF3NWZyTG9zd3gxZUtRcnpwTVU1Q1VSaVloaGl0bjhHYVllLW5ObS1ZbDhfc0pHekxHMjdGZ0dUYS1ZcEt4RkdYVnNEeg?oc=5"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Añadir una clase CausalWebNode y una API en deep_memory_vault para insertar, indexar y recuperar nodos con metadatos de causalidad, y actualizar el motor de inserción para que web_research_engine envíe los resultados directamente a esta nueva estructura.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.95
-  },
-  {
     "id": "conj_1793307642",
     "timestamp": "2026-10-29T16:00:42.461613",
     "idle_duration_minutes": 31.6,
@@ -1641,5 +1605,35 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.19
+  },
+  {
+    "id": "conj_1793498588",
+    "timestamp": "2026-10-31T21:03:08.743339",
+    "idle_duration_minutes": 33.4,
+    "title": "Causal Cache Invalidation for Asynchronous Web Research",
+    "hypothesis": "Integrating a causal inference layer into the web_research_engine's asynchronous request handling can automatically invalidate cached search results when upstream data sources change, reducing stale data retrieval by up to 40% without manual cache TTL tuning.",
+    "research_query": "causal inference cache invalidation asynchronous web scraping Python",
+    "research_findings": "# Informe de Investigación: causal inference cache invalidation asynchronous web scraping Python\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Implement a lightweight causal monitor that tracks timestamps and content hashes of fetched URLs; when a change is detected, automatically purge related entries from the in‑memory cache and trigger a refresh in pending async tasks.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 108.71
+  },
+  {
+    "id": "conj_1793500517",
+    "timestamp": "2026-10-31T21:35:17.823909",
+    "idle_duration_minutes": 32.2,
+    "title": "Dynamic Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "If the Web Research Engine maintains a lightweight causal graph that records dependencies between issued queries, fetched URLs, and extracted semantic entities, then it can proactively invalidate or refresh cached results when upstream data sources change. This causal‑aware caching would reduce stale‑data exposure and improve average query latency compared to a time‑based TTL approach, especially under high‑frequency, overlapping research sessions.",
+    "research_query": "causal inference based cache invalidation web search engine performance",
+    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web search engine performance\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal dependency tracker and integrate it with the existing cache layer to enable proactive invalidation of cached search results when related source data updates are detected.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.64
   }
 ]
