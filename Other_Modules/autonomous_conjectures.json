@@ -1,35 +1,5 @@
 [
   {
-    "id": "conj_1793374489",
-    "timestamp": "2026-10-30T10:34:49.571718",
-    "idle_duration_minutes": 31.6,
-    "title": "Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching mechanism can dynamically invalidate stale results based on detected changes in source domains, reducing redundant queries and improving response relevance without sacrificing latency.",
-    "research_query": "causal inference based cache invalidation web scraping dynamic content",
-    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web scraping dynamic content\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal analysis module that monitors HTTP headers (ETag, Last-Modified) and content change patterns to automatically purge or refresh cached entries, and expose an async invalidate_cache(url) API.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.22
-  },
-  {
-    "id": "conj_1793376387",
-    "timestamp": "2026-10-30T11:06:27.837653",
-    "idle_duration_minutes": 31.6,
-    "title": "Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching mechanism can dynamically predict the obsolescence of stored query results based on observed changes in source domains (e.g., news sites, API endpoints). By modeling the temporal dependency between content updates and cached entries, the system can proactively invalidate or refresh only those entries whose underlying data is likely to have changed, reducing stale results while minimizing unnecessary network traffic.",
-    "research_query": "causal inference based cache invalidation techniques for web scraping and API data retrieval",
-    "research_findings": "# Informe de Investigación: causal inference based cache invalidation techniques for web scraping and API data retrieval\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal prediction module that monitors timestamps and change frequency of source URLs, and uses a lightweight Bayesian network to decide when to purge or refresh cached responses.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.25
-  },
-  {
     "id": "conj_1793378286",
     "timestamp": "2026-10-30T11:38:06.630287",
     "idle_duration_minutes": 31.6,
@@ -1640,5 +1610,35 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.61
+  },
+  {
+    "id": "conj_1793567802",
+    "timestamp": "2026-11-01T16:16:42.519283",
+    "idle_duration_minutes": 32.2,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrar un mecanismo de invalidación de caché basado en inferencias causales sobre la latencia y la relevancia de los resultados permitirá que el módulo core/web_research_engine.py reduzca el tiempo medio de respuesta en un 30% sin perder precisión. La hipótesis parte de que la \"Bóveda akáshica\" registra relaciones temporales entre consultas y fuentes; al analizar esas relaciones se pueden predecir cuándo una entrada en caché está obsoleta antes de que expire por tiempo, evitando búsquedas redundantes y mejorando la eficiencia del sistema.",
+    "research_query": "causal cache invalidation techniques for web search engines latency optimization",
+    "research_findings": "# Informe de Investigación: causal cache invalidation techniques for web search engines latency optimization\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Implementar una capa de invalidación proactiva que utilice los metadatos de causalidad almacenados en core/deep_memory_vault.py para marcar y refrescar entradas de caché antes de su expiración natural.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.03
+  },
+  {
+    "id": "conj_1793570080",
+    "timestamp": "2026-11-01T16:54:40.910726",
+    "idle_duration_minutes": 38.0,
+    "title": "Dynamic Causal Prompt Routing for Context‑Preserving Web Research",
+    "hypothesis": "Integrating a causal inference layer into the web_research_engine that dynamically routes prompts based on the inferred causal relevance of previously stored memories (deep_memory_vault) will improve the precision of retrieved information and reduce hallucination rates. The hypothesis posits that by scoring each incoming query against a causal graph of past interactions, the engine can select the most context‑appropriate retrieval strategy (e.g., direct search, cached summary, or hybrid) before invoking the network_shield, leading to measurable gains in relevance (↑15%) and factual consistency (↓20% error) compared to the current static query pipeline.",
+    "research_query": "\"causal inference\" \"prompt routing\" language model web search integration performance evaluation",
+    "research_findings": "# Informe de Investigación: \"causal inference\" \"prompt routing\" language model web search integration performance evaluation\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal relevance scoring function that queries deep_memory_vault for related causal nodes, selects a retrieval mode, and logs the decision; refactor the main search function to use this routing logic before calling external APIs.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.54
   }
 ]
