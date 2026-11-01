@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.2134542,
-  "last_video_id": "vp_20261101_001859_21ea71",
-  "last_topic": "Causal Set Theory and the Emergence of Spacetime Geometry",
-  "total_videos_analyzed": 807,
-  "running_cycle": false,
+  "last_run_timestamp": REDACTED_PHONE.5327008,
+  "last_video_id": "vp_20261101_005420_d906d8",
+  "last_topic": "The Sachdev-Ye-Kitaev (SYK) Model and Its Holographic Duals",
+  "total_videos_analyzed": 808,
+  "running_cycle": true,
   "last_error": null,
   "auto_improvement_count": 406
 }
