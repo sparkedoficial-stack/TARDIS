@@ -1,40 +1,5 @@
 [
   {
-    "id": "conj_1793378286",
-    "timestamp": "2026-10-30T11:38:06.630287",
-    "idle_duration_minutes": 31.6,
-    "title": "Optimización causal‑cognitiva del caché de resultados en WebResearchEngine",
-    "hypothesis": "Si el módulo core/web_research_engine.py incorpora un modelo de inferencia causal que prioriza consultas basadas en la relevancia temporal y la dependencia semántica de los últimos 100 accesos del deep_memory_vault, entonces la latencia promedio de respuestas de búsqueda disminuirá al menos un 30% y la coherencia contextual de los resultados aumentará, reduciendo la necesidad de re‑consultas redundantes al motor externo.",
-    "research_query": "causal inference caching web search engine latency reduction techniques 2023-2024",
-    "research_findings": "# Informe de Investigación: causal inference caching web search engine latency reduction techniques 2023-2024\n\n## Fuentes Consultadas y Respaldo Web\n- **[Big data (Wikipedia)](https://en.wikipedia.org/wiki/Big_data)**: 3 September 2018. \"Google Still Doing at Least 1 Trillion Searches Per Year\". Search Engine Land. 16 January 2015. Archived from the original on 15 April\n\n## Contenido y Hallazgos Extraídos\n### De [Big data - Wikipedia](https://en.wikipedia.org/wiki/Big_data)\n> Big data - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nExtremely large or complex datasets\nNot to be confused with Big Data (music project) .\nA diagram of the generation and common application of big data\nBig data primarily refers to data sets that are too large or complex to be dealt with by traditional data-processing software . Data with many entries (rows) offers greater st...\n",
-    "web_sources": [
-      "https://en.wikipedia.org/wiki/Big_data"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Implementar una capa de caché causal que registre metadatos de cada búsqueda (timestamp, tópicos, embeddings) y utilice un algoritmo de razonamiento causal (p.ej., DoWhy o CausalNex) para predecir la probabilidad de reutilizar resultados recientes, invalidando o refrescando automáticamente los ítems con baja probabilidad de relevancia.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.78
-  },
-  {
-    "id": "conj_1793380215",
-    "timestamp": "2026-10-30T12:10:15.888537",
-    "idle_duration_minutes": 32.2,
-    "title": "Causal Memory Indexing for Real‑Time Web Research",
-    "hypothesis": "Integrating a causal graph layer into the Deep Memory Vault that indexes each web research request and its downstream inference steps will allow the system to automatically prune irrelevant memory traces and prioritize high‑impact knowledge paths, resulting in faster retrieval latency and higher relevance scores for subsequent queries.",
-    "research_query": "how to implement causal graph based indexing for vector memory stores in AI systems",
-    "research_findings": "# Informe de Investigación: how to implement causal graph based indexing for vector memory stores in AI systems\n\n## Fuentes Consultadas y Respaldo Web\n- **[From Data to Decisions: How Knowledge Graphs Are Becoming the Brain of the Modern Enterprise - Medium](https://news.google.com/rss/articles/CBMi0gFBVV95cUxPVjh5NnNZNnFfZ3UzMEx3U0pqajNDQ19TV0JjRGN5WGhleWxVLW5WMkptR2J6VHpldllqekM2bzJSUFBYWHlwSW1ySUZoZG9fOFZRVGY4NEt6ZVE5YkQ4b0VlRWl1T0Jtd1hlSzNrOGRuTzY1ajU4b1lUY3hVMDBpWUxiZWo5X1VBNDMyQjFMVlFPMU14bm9kUlZCMWVLMTBTRUI0ZTBQRDdpVmJxVlRuZFQwYzNPNGpReVdEMUg3dHVhNWhvQUd6LTdvMWMtZHBSQXc?oc=5)**: From Data to Decisions: How Knowledge Graphs Are Becoming the Brain of the Modern Enterprise  Medium\n- **[Nanjing Yunjin intelligent question-answering system based on knowledge graphs and retrieval augmented generation technology | npj Heritage Science - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE1DMXctaDN6aGZwbnRSVXhmdEV1MkQwZEdwYktIN0tfZ2pJaEVxVmd3YTdYZkZUcEFBNENPal9GaHk3NlN1U3RibktFSn",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMi0gFBVV95cUxPVjh5NnNZNnFfZ3UzMEx3U0pqajNDQ19TV0JjRGN5WGhleWxVLW5WMkptR2J6VHpldllqekM2bzJSUFBYWHlwSW1ySUZoZG9fOFZRVGY4NEt6ZVE5YkQ4b0VlRWl1T0Jtd1hlSzNrOGRuTzY1ajU4b1lUY3hVMDBpWUxiZWo5X1VBNDMyQjFMVlFPMU14bm9kUlZCMWVLMTBTRUI0ZTBQRDdpVmJxVlRuZFQwYzNPNGpReVdEMUg3dHVhNWhvQUd6LTdvMWMtZHBSQXc?oc=5",
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE1DMXctaDN6aGZwbnRSVXhmdEV1MkQwZEdwYktIN0tfZ2pJaEVxVmd3YTdYZkZUcEFBNENPal9GaHk3NlN1U3RibktFSnYtN1JZckxfU1lXQWJfTTVjWHBR?oc=5"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Add a lightweight causal graph module that records dependencies between stored embeddings and research results, and expose a method to query the most causally influential memory nodes for a given topic",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.89
-  },
-  {
     "id": "conj_1793382116",
     "timestamp": "2026-10-30T12:41:56.056437",
     "idle_duration_minutes": 31.7,
@@ -1640,5 +1605,38 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.54
+  },
+  {
+    "id": "conj_1793571977",
+    "timestamp": "2026-11-01T17:26:17.990818",
+    "idle_duration_minutes": 31.6,
+    "title": "Integración de Memoria Causal Temporal en el Motor de Búsqueda Web",
+    "hypothesis": "Si el motor de búsqueda web (core/web_research_engine.py) incorpora un índice de causalidad temporal que relacione resultados de consultas recientes con eventos registrados en el deep_memory_vault, entonces el sistema podrá priorizar fuentes que demuestren mayor relevancia histórica y reducir la latencia de respuestas al reutilizar resultados previamente evaluados bajo contextos similares.",
+    "research_query": "temporal causal memory indexing for web search engines academic papers 2023-2024",
+    "research_findings": "# Informe de Investigación: temporal causal memory indexing for web search engines academic papers 2023-2024\n\n## Fuentes Consultadas y Respaldo Web\n- **[The Retrieval Effectiveness of Web Search Engines: Considering Results Descriptions (arXiv)](http://arxiv.org/abs/1511.05800v1)**: Purpose: To compare five major Web search engines (Google, Yahoo, MSN, Ask.com, and Seekport) for their retrieval effectiveness, taking into account not only the results but also the results descriptions.   Design/Methodology/Approach: The study uses real-life queries. Results are made anonymous and are randomised. Results are judged by the persons\n- **[Problems with the use of Web search engines to find results in foreign languages (arXiv)](http://arxiv.org/abs/1511.05798v1)**: Purpose - To test the ability of major search engines, Google, Yahoo, MSN, and Ask, to distinguish between German and English-language documents   Design/methodology/approach - 50 queries, using words common in German and in English",
+    "web_sources": [
+      "http://arxiv.org/abs/1511.05800v1",
+      "http://arxiv.org/abs/1511.05798v1"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Añadir una capa de caché causal que almacene pares (consulta, contexto_causal, resultados) y que, antes de lanzar una nueva búsqueda, consulte este índice para reutilizar resultados relevantes, implementando una API async y métricas de expiración basadas en la frescura del contexto.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.06
+  },
+  {
+    "id": "conj_1793573875",
+    "timestamp": "2026-11-01T17:57:55.767491",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching subsystem can dynamically predict the obsolescence of cached search results based on detected shifts in source content and query intent, reducing stale data retrieval by at least 30% without increasing latency. The hypothesis leverages the Deep Memory Vault's event timeline to model cause‑effect relationships between external content updates (e.g., news feeds, API version changes) and the relevance decay of previously stored results, enabling proactive invalidation rather than periodic TTL expiration.",
+    "research_query": "causal inference based cache invalidation web search engine recent studies 2023 2024",
+    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web search engine recent studies 2023 2024\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal inference module that monitors timestamps and semantic drift of source pages, updates cache metadata, and triggers selective invalidation before TTL expiry.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.76
   }
 ]
