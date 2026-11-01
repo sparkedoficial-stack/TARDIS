@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.4659624,
-  "last_video_id": "vp_20261101_031907_6f941d",
-  "last_topic": "Topological Phases of Matter and Anyonic Statistics in 2D Systems",
-  "total_videos_analyzed": 812,
-  "running_cycle": false,
+  "last_run_timestamp": REDACTED_PHONE.7618601,
+  "last_video_id": "vp_20261101_035434_6db132",
+  "last_topic": "Tensor Network Holography and the Emergence of Spacetime Geometry",
+  "total_videos_analyzed": 813,
+  "running_cycle": true,
   "last_error": null,
   "auto_improvement_count": 408
 }
