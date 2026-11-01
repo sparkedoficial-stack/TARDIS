@@ -1,11 +1,11 @@
 {
   "schema": "tardis.savage_update/1.0",
-  "generated_at": "2026-10-31T19:29:34-05:00",
+  "generated_at": "2026-11-01T01:42:37-05:00",
   "cycle": {
     "items_collected": 56,
-    "items_fresh": 1,
-    "proposals": 1,
-    "experiment_plans": 1,
+    "items_fresh": 0,
+    "proposals": 0,
+    "experiment_plans": 0,
     "elapsed_s": 5.72
   },
   "sources": {
@@ -14,22 +14,22 @@
       "github": {
         "ok": true,
         "count": 6,
-        "elapsed_ms": 2755.8
+        "elapsed_ms": 2751.7
       },
       "huggingface": {
         "ok": true,
         "count": 20,
-        "elapsed_ms": 540.4
+        "elapsed_ms": 530.4
       },
       "arxiv": {
         "ok": true,
         "count": 36,
-        "elapsed_ms": 1059.4
+        "elapsed_ms": 1047.6
       },
       "npm": {
         "ok": true,
         "count": 1,
-        "elapsed_ms": 414.0
+        "elapsed_ms": 413.2
       }
     }
   },
@@ -39,45 +39,7 @@
     "report_artifacts": 7,
     "proposals": 11
   },
-  "top_items": [
-    {
-      "id": "c2ba576e44ca8260",
-      "source": "huggingface:trending",
-      "category": "model",
-      "title": "Diffuspace/Clover-35B-A3B-Preview",
-      "url": "https://huggingface.co/Diffuspace/Clover-35B-A3B-Preview",
-      "published_at": "2026-10-28T03:07:54.000Z",
-      "summary": "pipeline=text-generation downloads=2021 likes=188",
-      "tags": [
-        "moe"
-      ],
-      "relevance": 3.1,
-      "targets": []
-    }
-  ],
-  "proposals": [
-    {
-      "id": "savage-f58fb1dcfe8b",
-      "title": "Ruteo por expertos activos (top-k)",
-      "target": "tardis",
-      "tag": "moe",
-      "risk": "low",
-      "kind": "experiment",
-      "experiment": "moe_routing",
-      "evidence": [
-        {
-          "title": "Diffuspace/Clover-35B-A3B-Preview",
-          "url": "https://huggingface.co/Diffuspace/Clover-35B-A3B-Preview",
-          "source": "huggingface:trending",
-          "relevance": 3.1
-        }
-      ],
-      "rationale": "Señal tecnológica detectada en 1 fuentes; la doctrina exige evaluar antes de adoptar.",
-      "validation": "Comparar costo por token activo vs. modelo denso equivalente.",
-      "rollback": "Volver al ruteo denso por defecto.",
-      "status": "planned",
-      "created_at": "2026-10-31T19:29:34-05:00"
-    }
-  ],
+  "top_items": [],
+  "proposals": [],
   "offline": false
 }

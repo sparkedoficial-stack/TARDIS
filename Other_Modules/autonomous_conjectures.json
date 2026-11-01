@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1793321360",
-    "timestamp": "2026-10-29T19:49:20.405009",
-    "idle_duration_minutes": 31.6,
-    "title": "Entropía Semántica Adaptativa en la Bóveda Akáshica",
-    "hypothesis": "La eficiencia de recuperación de información en la bóveda akáshica se degrada linealmente con el aumento de la diversidad temática de los registros almacenados, debido a la colisión de embeddings en espacios vectoriales de alta dimensión. Se conjetura que implementar un mecanismo de 'pruning' dinámico basado en la entropía de Shannon de los clusters semánticos, que priorice la retención de nodos con alta densidad causal y elimine progresivamente los de baja relevancia contextual, aumentaría la precisión de la recuperación en un 15-20% sin comprometer la integridad de la memoria a largo plazo.",
-    "research_query": "adaptive semantic pruning high-dimensional vector databases entropy-based memory management LLM context optimization",
-    "research_findings": "# Informe de Investigación: adaptive semantic pruning high-dimensional vector databases entropy-based memory management LLM context optimization\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar una función de reindexación periódica que calcule la entropía de los clusters de embeddings y aplique un umbral dinámico para la desindexación de nodos de baja relevancia, integrando la métrica de 'densidad causal' como factor de peso en la retención.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.97
-  },
-  {
     "id": "conj_1793323256",
     "timestamp": "2026-10-29T20:20:56.843939",
     "idle_duration_minutes": 31.6,
@@ -1636,5 +1621,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.83
+  },
+  {
+    "id": "conj_1793515833",
+    "timestamp": "2026-11-01T01:50:33.052856",
+    "idle_duration_minutes": 32.7,
+    "title": "Optimización de la caché semántica en WebResearchEngine mediante embeddings temporales",
+    "hypothesis": "Si el módulo core/web_research_engine.py incorpora una capa de caché basada en embeddings temporales de los resultados de búsqueda, entonces se reducirá el tiempo medio de respuesta en un 30% y se mejorará la coherencia contextual de las consultas recurrentes, al permitir que la Bóveda akáshica (core/deep_memory_vault.py) reutilice representaciones semánticas en lugar de volver a parsear HTML completo.",
+    "research_query": "temporal embedding cache for web search engine python performance improvement semantic caching research",
+    "research_findings": "# Informe de Investigación: temporal embedding cache for web search engine python performance improvement semantic caching research\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Implementar una caché de resultados basada en vectores de embeddings (p. ej., usando SentenceTransformers) con expiración temporal y lógica de fallback a la Bóveda akáshica para reutilizar respuestas previas.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.83
   }
 ]
