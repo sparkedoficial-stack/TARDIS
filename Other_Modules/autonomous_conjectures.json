@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1793319462",
-    "timestamp": "2026-10-29T19:17:42.409839",
-    "idle_duration_minutes": 32.1,
-    "title": "Causal‑Feedback Loop for Adaptive Web Research",
-    "hypothesis": "Integrar un bucle de retroalimentación causal entre el motor de investigación web (core/web_research_engine.py) y la bóveda akáshica (core/deep_memory_vault.py) permitirá que el sistema ajuste dinámicamente sus estrategias de consulta basándose en la relevancia y la novedad de los resultados obtenidos, reduciendo la latencia de búsqueda en un 30% y mejorando la precisión semántica de las respuestas en entornos de alta carga.",
-    "research_query": "causal feedback loop adaptive web search engine architecture \"deep memory\" cache optimization",
-    "research_findings": "# Informe de Investigación: causal feedback loop adaptive web search engine architecture \"deep memory\" cache optimization\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Implementar un módulo de retroalimentación causal que registre métricas de relevancia (p.ej., puntuación de similitud TF‑IDF o embeddings) de cada respuesta, almacene esas métricas en deep_memory_vault y ajuste en tiempo real los parámetros de búsqueda (como top_k, filtros de dominio y retrasos de rate‑limit) mediante un controlador de política basado en refuerzo simple.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.34
-  },
-  {
     "id": "conj_1793321360",
     "timestamp": "2026-10-29T19:49:20.405009",
     "idle_duration_minutes": 31.6,
@@ -1633,5 +1618,23 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.99
+  },
+  {
+    "id": "conj_1793513871",
+    "timestamp": "2026-11-01T01:17:51.648158",
+    "idle_duration_minutes": 31.6,
+    "title": "Integración causal de la Bóveda Akáshica con el motor de búsqueda web para aprendizaje continuo",
+    "hypothesis": "Si el módulo core/deep_memory_vault.py se extiende con un motor de inferencia causal que etiquete cada entrada de la bóveda con metadatos de origen, relevancia temporal y relaciones de dependencia, y esos metadatos se exponen a core/web_research_engine.py mediante una API ligera, entonces el motor de búsqueda podrá priorizar resultados que complementen o corrijan lagunas causales en la memoria del sistema, mejorando la precisión de las respuestas en un 15‑20% y reduciendo la necesidad de consultas redundantes al exterior.",
+    "research_query": "causal inference memory graph integration with web search engines academic papers 2023-2024",
+    "research_findings": "# Informe de Investigación: causal inference memory graph integration with web search engines academic papers 2023-2024\n\n## Fuentes Consultadas y Respaldo Web\n- **[Causal inference via algebraic geometry: feasibility tests for functional causal structures with two binary observed variables (arXiv)](http://arxiv.org/abs/1506.03880v2)**: We provide a scheme for inferring causal relations from uncontrolled statistical data based on tools from computational algebraic geometry, in particular, the computation of Groebner bases. We focus on causal structures containing just two observed variables, each of which is binary. We consider the consequences of imposing different restrictions o\n- **[The Retrieval Effectiveness of Web Search Engines: Considering Results Descriptions (arXiv)](http://arxiv.org/abs/1511.05800v1)**: Purpose: To compare five major Web search engines (Google, Yahoo, MSN, Ask.com, and Seekport) for their retrieval effectiveness, taking into account not only the results but a",
+    "web_sources": [
+      "http://arxiv.org/abs/1506.03880v2",
+      "http://arxiv.org/abs/1511.05800v1"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Añadir una capa de adaptador que consuma metadatos de causalidad desde deep_memory_vault y ajuste dinámicamente el ranking de resultados usando un algoritmo de puntuación basado en dependencia temporal y relevancia semántica.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.83
   }
 ]
