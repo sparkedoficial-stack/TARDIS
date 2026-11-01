@@ -1,6 +1,29 @@
 {
   "schema": "tardis.savage_update/1.0",
-  "generated_at": "2026-11-01T07:31:54-05:00",
-  "proposals": [],
-  "items_considered": 0
+  "generated_at": "2026-11-01T13:25:27-05:00",
+  "proposals": [
+    {
+      "id": "savage-466fd31376f1",
+      "title": "Actualización de voz (ASR/TTS) local",
+      "target": "tardis",
+      "tag": "speech",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "speech_pipeline",
+      "evidence": [
+        {
+          "title": "Edge0/Audio8-TTS-Realistic-0.6b",
+          "url": "https://huggingface.co/Edge0/Audio8-TTS-Realistic-0.6b",
+          "source": "huggingface:trending",
+          "relevance": 8.1
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 1 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "WER en 20 audios y latencia de síntesis.",
+      "rollback": "Mantener el motor de voz actual.",
+      "status": "planned",
+      "created_at": "2026-11-01T13:25:27-05:00"
+    }
+  ],
+  "items_considered": 1
 }

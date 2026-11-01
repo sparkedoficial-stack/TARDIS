@@ -1,12 +1,12 @@
 {
   "schema": "tardis.savage_update/1.0",
-  "generated_at": "2026-11-01T07:31:54-05:00",
+  "generated_at": "2026-11-01T13:25:27-05:00",
   "cycle": {
     "items_collected": 56,
-    "items_fresh": 0,
-    "proposals": 0,
-    "experiment_plans": 0,
-    "elapsed_s": 5.65
+    "items_fresh": 1,
+    "proposals": 1,
+    "experiment_plans": 1,
+    "elapsed_s": 5.75
   },
   "sources": {
     "offline": false,
@@ -14,22 +14,22 @@
       "github": {
         "ok": true,
         "count": 6,
-        "elapsed_ms": 2630.5
+        "elapsed_ms": 2827.6
       },
       "huggingface": {
         "ok": true,
         "count": 20,
-        "elapsed_ms": 546.2
+        "elapsed_ms": 490.8
       },
       "arxiv": {
         "ok": true,
         "count": 36,
-        "elapsed_ms": 1097.6
+        "elapsed_ms": 1028.3
       },
       "npm": {
         "ok": true,
         "count": 1,
-        "elapsed_ms": 395.9
+        "elapsed_ms": 411.3
       }
     }
   },
@@ -39,7 +39,45 @@
     "report_artifacts": 7,
     "proposals": 11
   },
-  "top_items": [],
-  "proposals": [],
+  "top_items": [
+    {
+      "id": "d86a6c485ceaf0c8",
+      "source": "huggingface:trending",
+      "category": "model",
+      "title": "Edge0/Audio8-TTS-Realistic-0.6b",
+      "url": "https://huggingface.co/Edge0/Audio8-TTS-Realistic-0.6b",
+      "published_at": "2026-11-01T14:38:29.000Z",
+      "summary": "pipeline=text-to-speech downloads=4613 likes=196",
+      "tags": [
+        "speech"
+      ],
+      "relevance": 8.1,
+      "targets": []
+    }
+  ],
+  "proposals": [
+    {
+      "id": "savage-466fd31376f1",
+      "title": "Actualización de voz (ASR/TTS) local",
+      "target": "tardis",
+      "tag": "speech",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "speech_pipeline",
+      "evidence": [
+        {
+          "title": "Edge0/Audio8-TTS-Realistic-0.6b",
+          "url": "https://huggingface.co/Edge0/Audio8-TTS-Realistic-0.6b",
+          "source": "huggingface:trending",
+          "relevance": 8.1
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 1 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "WER en 20 audios y latencia de síntesis.",
+      "rollback": "Mantener el motor de voz actual.",
+      "status": "planned",
+      "created_at": "2026-11-01T13:25:27-05:00"
+    }
+  ],
   "offline": false
 }
