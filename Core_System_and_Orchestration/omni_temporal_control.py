@@ -56,6 +56,10 @@ STATUS_FILE = BASE_DIR / "bridge_status.json"
 URL_FILE = BASE_DIR / "CURRENT_TUNNEL_URL.txt"
 DASHBOARD_FILE = BASE_DIR / "bridge_dashboard.html"
 
+# Token de sesión extendido para operaciones soberanas de 32 bytes (128 bits de entropía)
+SESSION_TOKEN_FILE = BASE_DIR / "session_token.enc"
+SESSION_TOKEN_EXPIRY = int(time.time()) + 86400  # 24 horas
+
 
 def get_or_create_irrevocable_token(custom_token: Optional[str] = None) -> str:
     """Obtiene o genera un token maestro criptográfico persistente e irrevocable."""
@@ -94,10 +98,15 @@ PORT = int(os.environ.get("GIA_PORT", "8757"))
 
 CFG = {
     "model": os.environ.get("GIA_MODEL", "TARDIS-NEURAL-SPACE-KAIJU"),
-    "temperature": 0.3,
-    "num_ctx": int(os.environ.get("GIA_NUM_CTX", "32768")),
+    "temperature": float(os.environ.get("GIA_TEMPERATURE", "0.1")),
+    "num_ctx": int(os.environ.get("GIA_NUM_CTX", "16384")),
     "prefer": None,
     "auth_required": True,
+    "sovereign_mode": True,
+    "context_budget": int(os.environ.get("GIA_CONTEXT_BUDGET", "8192")),
+    "gpu_layers": int(os.environ.get("GIA_GPU_LAYERS", "20")),
+    "reasoning_temperature": float(os.environ.get("GIA_REASONING_TEMPERATURE", "0.1")),
+    "min_health_score": int(os.environ.get("GIA_MIN_HEALTH_SCORE", "70")),
 }
 
 # --- IMPORTACIÓN ROBUSTA DE MÓDULOS DE GIA CON FALLBACKS SEGUROS ---

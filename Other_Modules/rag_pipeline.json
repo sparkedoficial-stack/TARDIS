@@ -8,12 +8,6 @@
   "rollback": "Conservar el índice actual.",
   "evidence": [
     {
-      "title": "Low-Bit GDN Recurrent-State Quantization: Global Gradient-aware Allocation and Pure-Write Sliding Windows",
-      "url": "http://arxiv.org/abs/2610.39931v1",
-      "source": "arxiv",
-      "relevance": 16.8
-    },
-    {
       "title": "Learning Calibrated Confidence for Multi-Agent Collaboration",
       "url": "http://arxiv.org/abs/2610.39927v1",
       "source": "arxiv",
@@ -102,9 +96,15 @@
       "url": "http://arxiv.org/abs/2610.42104v1",
       "source": "arxiv",
       "relevance": 3.6
+    },
+    {
+      "title": "vllm-project/vllm v0.33.0rc3",
+      "url": "https://github.com/vllm-project/vllm/releases/tag/v0.33.0rc3",
+      "source": "github:vllm-project/vllm",
+      "relevance": 25.0
     }
   ],
   "status": "planned",
   "created_at": "2026-10-29T00:13:36-05:00",
-  "updated_at": "2026-11-02T01:22:53-05:00"
+  "updated_at": "2026-11-02T07:27:45-05:00"
 }

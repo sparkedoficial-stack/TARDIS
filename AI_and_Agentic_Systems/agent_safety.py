@@ -98,6 +98,18 @@ _DEFAULT_DENYLIST = [
     {"pattern": r"\bRestart-Computer\b", "reason": "reiniciar la maquina"},
     {"pattern": r"\bStop-Computer\b", "reason": "apagar la maquina"},
 
+    # --- NUEVOS PATRONES SOBERANOS (Mon Nov 02 2026) ---
+    # Intentos de inyección de prompts del sistema
+    {"pattern": r"(?i)(system\s*prompt|instructions\s*del|contexto\s*sistema)\s*:?", "reason": "intento de inyección de prompt del sistema"},
+    # Comandos de exfiltración de datos
+    {"pattern": r"(?i)(curl|wget).*-.*[oO][uU][tT][pP][uU][tT]", "reason": "posible exfiltración de datos via transferencia"},
+    # Eliminación de archivos críticos del sistema
+    {"pattern": r"(?i)(rm|del).*-.*[fF][oO][rrR][mM]", "reason": "formateo o eliminación forzada de archivos"},
+    # Intentos de bypass de seguridad
+    {"pattern": r"(?i)(bypass|evadir|saltarse|saltos)\s+(security|firewall|denylist)", "reason": "intento de bypass de seguridad"},
+    # Comandos de escritura sobre archivos sensibles
+    {"pattern": r"(?i)(echo|printf|cat).*>.*agent_", "reason": "sobreescritura intencionada de archivos de agente"},
+
     # --- Exfiltracion masiva evidente (subir el disco a algun lado) ---
     {"pattern": r"(Invoke-WebRequest|curl|Invoke-RestMethod).*-(Method\s+)?(Post|Put).*-InFile\s+[a-z]:\\", "reason": "subir archivos del disco a la red"},
 ]

@@ -176,11 +176,13 @@ class SyntropyEntropyGradientEngine:
     Calcula el término modulador: (1 - η ∇S_ent)
     """
 
-    def __init__(self, default_eta: float = 0.85):
-        self.eta = default_eta      # Coeficiente de acoplamiento sintrópico
+    def __init__(self, default_eta: float = 0.90):
+        self.eta = default_eta      # Coeficiente de acoplamiento sintrópico (incrementado 0.85→0.90)
         self._matrix_lock = threading.Lock()
         # Cache local de la última matriz de transición sintrópica sincronizada
         self.last_transition_matrix: Optional[np.ndarray] = None
+        self.syntropy_boost_active: bool = True  # Modo sintrópico forzado por defecto
+        self.boost_factor: float = 1.35          # Factor de refuerzo η → η*1.35
 
     def calculate_gradient(self, entropy_series: List[float], dt: float = 1.0) -> float:
         """
@@ -193,7 +195,7 @@ class SyntropyEntropyGradientEngine:
         # Normalizar rango [-1.0, 1.0]
         return float(np.clip(grad, -1.0, 1.0))
 
-    def syntropy_coupling_factor(self, grad_s_ent: float, syntropy_boost: bool = False, eta_override: Optional[float] = None) -> float:
+    def syntropy_coupling_factor(self, grad_s_ent: float, syntropy_boost: bool = None, eta_override: Optional[float] = None) -> float:
         """
         Factor (1 - η ∇S_ent).
         Si ∇S_ent < 0 (entropía descendiendo -> sintropía), el factor supera 1.0.
@@ -201,10 +203,9 @@ class SyntropyEntropyGradientEngine:
         Con SYNTROPY BOOST activo, η se incrementa para forzar el orden.
         """
         eta = (eta_override if eta_override is not None else self.eta)
-        if syntropy_boost:
-            eta = min(1.0, eta * 1.25)
-
-        factor = 1.0 - (eta * grad_s_ent)
+        boost = self.boost_factor if syntropy_boost is None else (self.boost_factor if syntropy_boost else 1.0)
+        eta_adjusted = min(1.0, eta * boost)
+        factor = 1.0 - (eta_adjusted * grad_s_ent)
         # Limitar para asegurar estabilidad no-negativa del propagador
         return float(np.clip(factor, 0.01, 2.0))
 

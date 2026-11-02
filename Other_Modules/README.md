@@ -6,6 +6,7 @@ Módulos y componentes auxiliares del sistema.
 
 - **AudioVoiceService.swift**: Componente nativo iOS/SwiftUI de la aplicación móvil GIA.
 - **CAS_NEURAL_SPACE_KAIJU.md**: Componente de alta eficiencia.
+- **CHANGE_REPORT.md**: Componente de alta eficiencia.
 - **CLIENT_GATEWAY_TUNNEL_URL.txt**: Componente de alta eficiencia.
 - **CURRENT_TUNNEL_URL.txt**: Componente de alta eficiencia.
 - **ChatView.swift**: Componente nativo iOS/SwiftUI de la aplicación móvil GIA.
@@ -58,6 +59,7 @@ Módulos y componentes auxiliares del sistema.
 - **calls_history.json**: Componente de alta eficiencia.
 - **captures_index.json**: Componente de alta eficiencia.
 - **cas_neural_space_kaiju.py**: Componente de alta eficiencia.
+- **change_log.md**: Componente de alta eficiencia.
 - **chat_engine.py**: Componente de alta eficiencia.
 - **chat_history.py**: Componente de alta eficiencia.
 - **chat_store.py**: Componente de alta eficiencia.

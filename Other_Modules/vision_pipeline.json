@@ -8,12 +8,6 @@
   "rollback": "Desactivar el pipeline visual nuevo.",
   "evidence": [
     {
-      "title": "Gym-Anything for Robotics: Scaling physical simulations with digital agents",
-      "url": "http://arxiv.org/abs/2610.40565v1",
-      "source": "arxiv",
-      "relevance": 10.3
-    },
-    {
       "title": "Every Token Needs Its Own Teacher: Multi-teacher Adaptive On-policy Self-distillation",
       "url": "http://arxiv.org/abs/2610.40574v1",
       "source": "arxiv",
@@ -102,9 +96,15 @@
       "url": "http://arxiv.org/abs/2610.42036v1",
       "source": "arxiv",
       "relevance": 0.6
+    },
+    {
+      "title": "vllm-project/vllm v0.33.0rc3",
+      "url": "https://github.com/vllm-project/vllm/releases/tag/v0.33.0rc3",
+      "source": "github:vllm-project/vllm",
+      "relevance": 25.0
     }
   ],
   "status": "planned",
   "created_at": "2026-10-29T00:13:36-05:00",
-  "updated_at": "2026-11-02T01:22:53-05:00"
+  "updated_at": "2026-11-02T07:27:45-05:00"
 }
