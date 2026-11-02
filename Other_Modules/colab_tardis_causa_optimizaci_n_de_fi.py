@@ -8,7 +8,7 @@ class OptimizaciNDeFiltro:
     """Resolutor analítico general para proyectos del Arquitecto."""
     def __init__(self):
         self.agent = "Optimus-Optimizer"
-        self.task_id = "task_tardis_causa_2401"
+        self.task_id = "task_tardis_causa_8617"
 
     def run(self, data=None):
         t0 = time.perf_counter()

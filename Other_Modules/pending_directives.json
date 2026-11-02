@@ -1,6 +1,19 @@
 {
-  "last_updated": REDACTED_PHONE.1191688,
+  "last_updated": REDACTED_PHONE.5992005,
   "directives": [
+    {
+      "id": "dir_1793611418598",
+      "timestamp": REDACTED_PHONE.5989504,
+      "iso": "2026-11-02T04:23:38.598954",
+      "title": "Optimización de Concurrencia y Paginación de Telemetría",
+      "target_file": "server/api.py",
+      "severity": "MEDIA",
+      "problem": "Carga de recursos elevada (RAM: 57.8%, CPU: 89.5%).",
+      "proposed_action": "Introducir paginación obligatoria en endpoints de auditoría y limitar búferes en memoria.",
+      "verification_cmd": ".venv-linux/bin/pytest tests/test_api.py -v",
+      "file_path": "/home/timemachine/vw-control/improvement_queue/improvement_20261102_042338_optimizacion_de_concurrencia_y_paginacio.md",
+      "status": "PENDING_DEVELOPER_CONFIRMATION"
+    },
     {
       "id": "dir_1793610867118",
       "timestamp": REDACTED_PHONE.118964,
@@ -247,32 +260,19 @@
       "verification_cmd": ".venv-linux/bin/pytest tests/test_cognitive_adaptability.py -v",
       "file_path": "/home/timemachine/vw-control/improvement_queue/improvement_20260909_220520_validacion_de_coherencia_causal_sintropi.md",
       "status": "PENDING_DEVELOPER_CONFIRMATION"
-    },
-    {
-      "id": "dir_1788995284255",
-      "timestamp": REDACTED_PHONE.2559307,
-      "iso": "2026-09-09T18:08:04.255938",
-      "title": "Validación de Coherencia Causal Sintrópica y Cobertura de Tests",
-      "target_file": "geon_causal_engine.py",
-      "severity": "BAJA",
-      "problem": "Sistema en estado NOMINAL (Salud: 100%). Se recomienda verificar invariantes de Lamport y matrices causales.",
-      "proposed_action": "Asegurar sincronización de matrices de transición de estado sintrópicas y validar consistencia temporal.",
-      "verification_cmd": ".venv-linux/bin/pytest tests/test_cognitive_adaptability.py -v",
-      "file_path": "/home/timemachine/vw-control/improvement_queue/improvement_20260909_180804_validacion_de_coherencia_causal_sintropi.md",
-      "status": "PENDING_DEVELOPER_CONFIRMATION"
     }
   ],
   "active_directive": {
-    "id": "dir_1793610867118",
-    "timestamp": REDACTED_PHONE.118964,
-    "iso": "2026-11-02T04:14:27.118968",
-    "title": "Validación de Coherencia Causal Sintrópica y Cobertura de Tests",
-    "target_file": "geon_causal_engine.py",
-    "severity": "BAJA",
-    "problem": "Sistema en estado NOMINAL (Salud: 100%). Se recomienda verificar invariantes de Lamport y matrices causales.",
-    "proposed_action": "Asegurar sincronización de matrices de transición de estado sintrópicas y validar consistencia temporal.",
-    "verification_cmd": ".venv-linux/bin/pytest tests/test_cognitive_adaptability.py -v",
-    "file_path": "/home/timemachine/vw-control/improvement_queue/improvement_20261102_041427_validacion_de_coherencia_causal_sintropi.md",
+    "id": "dir_1793611418598",
+    "timestamp": REDACTED_PHONE.5989504,
+    "iso": "2026-11-02T04:23:38.598954",
+    "title": "Optimización de Concurrencia y Paginación de Telemetría",
+    "target_file": "server/api.py",
+    "severity": "MEDIA",
+    "problem": "Carga de recursos elevada (RAM: 57.8%, CPU: 89.5%).",
+    "proposed_action": "Introducir paginación obligatoria en endpoints de auditoría y limitar búferes en memoria.",
+    "verification_cmd": ".venv-linux/bin/pytest tests/test_api.py -v",
+    "file_path": "/home/timemachine/vw-control/improvement_queue/improvement_20261102_042338_optimizacion_de_concurrencia_y_paginacio.md",
     "status": "PENDING_DEVELOPER_CONFIRMATION"
   }
 }

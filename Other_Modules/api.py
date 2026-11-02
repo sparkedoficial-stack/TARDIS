@@ -802,11 +802,13 @@ def create_app() -> FastAPI:
         return JSONResponse(status_code=200 if res.get("ok") else 400, content=res)
 
     @app.get("/api/qoder/requests")
-    async def qoder_requests_list(request: Request, state: Optional[List[str]] = None):
+    async def qoder_requests_list(request: Request, state: Optional[List[str]] = None, limit: Optional[int] = PAGINATION_DEFAULT_LIMIT, offset: Optional[int] = 0):
         from core import qoder_request_bridge as qrb
         if not _qoder_token_ok(request):
             return JSONResponse(status_code=401, content={"ok": False, "error": "token_requerido"})
-        return {"ok": True, "requests": qrb.list_requests(state), "stats": qrb.stats()}
+        lim, off = sanitize_pagination(limit=limit, offset=offset)
+        items, p = paginate_list(qrb.list_requests(state), limit=lim, offset=off)
+        return {"ok": True, "requests": items, "stats": qrb.stats(), **p}
 
     @app.get("/api/qoder/request/{request_id}")
     async def qoder_request_show(request_id: str, request: Request):
@@ -1301,20 +1303,31 @@ iframe{border:none;width:100%;height:100%;}</style></head>
     # RASTREO Y RECONOCIMIENTO DE INDIVIDUOS EN HABITACIÓN
     # =========================================================================
     @app.get("/api/sensors/individuals")
-    async def get_individuals():
-        """Retorna el censo de individuos en la habitación y la lista de identidades registradas."""
+    async def get_individuals(limit: Optional[int] = None, offset: Optional[int] = None):
+        """Retorna el censo de individuos en la habitación y la lista de identidades registradas con paginación."""
         try:
             from core.individual_tracker import get_individual_tracker
             tracker = get_individual_tracker()
+            lim, off = sanitize_pagination(limit=limit, offset=offset)
             presence = tracker.get_latest_presence()
             known = tracker.list_known_individuals()
+            full_present = list(presence.get("individuals", []))
+            full_known = list(known)
+            page, meta = paginate_list(full_present, limit=lim, offset=off)
+            known_page, known_meta = paginate_list(full_known, limit=lim, offset=off)
             return {
                 "ok": True,
                 "count": presence.get("count", 0),
                 "occupancy_label": presence.get("occupancy_label", "Habitación Vacía"),
-                "present_individuals": presence.get("individuals", []),
-                "known_individuals": known,
-                "total_registered": len(known),
+                "present_individuals": page,
+                "known_individuals": known_page,
+                "total_registered": len(full_known),
+                "known_total": len(full_known),
+                "present_total": len(full_present),
+                "present_has_more": meta.get("has_more", False),
+                "known_has_more": known_meta.get("has_more", False),
+                "limit": meta.get("limit", lim),
+                "offset": meta.get("offset", off),
                 "timestamp": time.time()
             }
         except Exception as e:
@@ -1355,7 +1368,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
     # HISTORIAL FOTOGRÁFICO Y REGISTRO DE INTERACCIONES
     # =========================================================================
     @app.get("/api/interactions")
-    async def get_interactions_endpoint(limit: Optional[int] = 50, offset: Optional[int] = 0):
+    async def get_interactions_endpoint(limit: Optional[int] = None, offset: Optional[int] = None):
         """Retorna el historial cronológico de interacciones con día, hora y fotos."""
         try:
             from core.interaction_logger import get_interaction_logger
@@ -1363,17 +1376,17 @@ iframe{border:none;width:100%;height:100%;}</style></head>
             lim, off = sanitize_pagination(limit=limit, offset=offset)
             with logger_inst._db_lock:
                 full_records = list(logger_inst._interactions)
-            records = full_records[off:off + lim]
+            page, meta = paginate_list(full_records, limit=lim, offset=off)
             return {
                 "ok": True,
-                "total": len(full_records),
-                "interactions": records,
+                "total": meta.get("total", len(full_records)),
+                "interactions": page,
                 "folder_path": str(logger_inst.photos_dir.resolve()),
                 "gallery_url": "/api/interactions/gallery",
-                "limit": lim,
-                "offset": off,
-                "count": len(records),
-                "has_more": bool(off + lim < len(full_records))
+                "limit": meta.get("limit", lim),
+                "offset": meta.get("offset", off),
+                "count": meta.get("count", len(page)),
+                "has_more": meta.get("has_more", bool(off + lim < len(full_records)))
             }
         except Exception as e:
             return {"ok": False, "error": str(e), "interactions": []}
@@ -2720,9 +2733,19 @@ iframe{border:none;width:100%;height:100%;}</style></head>
 
     @app.get("/api/shield/audit")
     @app.post("/api/shield/audit")
-    async def post_shield_audit_endpoint():
+    async def post_shield_audit_endpoint(limit: Optional[int] = PAGINATION_DEFAULT_LIMIT, offset: Optional[int] = 0):
         from core.network_shield import get_network_shield
-        return get_network_shield().audit_network()
+        data = get_network_shield().audit_network()
+        if not isinstance(data, dict):
+            return data
+        lim, off = sanitize_pagination(limit=limit, offset=offset)
+        devices, p_dev = paginate_list(data.get("devices") or [], limit=lim, offset=off)
+        alerts, _p_alt = paginate_list(data.get("alerts") or [], limit=lim, offset=off)
+        out = dict(data)
+        out["devices"] = devices
+        out["alerts"] = alerts
+        out["pagination"] = p_dev
+        return out
 
     @app.post("/api/shield/toggle")
     async def post_shield_toggle_endpoint(req: Request):
