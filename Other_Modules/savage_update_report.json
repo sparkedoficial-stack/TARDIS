@@ -1,12 +1,12 @@
 {
   "schema": "tardis.savage_update/1.0",
-  "generated_at": "2026-11-02T07:27:45-05:00",
+  "generated_at": "2026-11-02T13:36:39-05:00",
   "cycle": {
     "items_collected": 59,
-    "items_fresh": 2,
-    "proposals": 7,
-    "experiment_plans": 7,
-    "elapsed_s": 5.72
+    "items_fresh": 0,
+    "proposals": 0,
+    "experiment_plans": 0,
+    "elapsed_s": 5.74
   },
   "sources": {
     "offline": false,
@@ -14,22 +14,22 @@
       "github": {
         "ok": true,
         "count": 6,
-        "elapsed_ms": 2559.1
+        "elapsed_ms": 2437.2
       },
       "huggingface": {
         "ok": true,
         "count": 20,
-        "elapsed_ms": 599.8
+        "elapsed_ms": 462.3
       },
       "arxiv": {
         "ok": true,
         "count": 36,
-        "elapsed_ms": 884.4
+        "elapsed_ms": 897.2
       },
       "npm": {
         "ok": true,
         "count": 1,
-        "elapsed_ms": 440.5
+        "elapsed_ms": 413.6
       }
     }
   },
@@ -39,196 +39,7 @@
     "report_artifacts": 7,
     "proposals": 11
   },
-  "top_items": [
-    {
-      "id": "4340df8253851d3e",
-      "source": "github:vllm-project/vllm",
-      "category": "inference-engine",
-      "title": "vllm-project/vllm v0.33.0rc3",
-      "url": "https://github.com/vllm-project/vllm/releases/tag/v0.33.0rc3",
-      "published_at": "2026-11-02T10:10:05Z",
-      "summary": "# v0.33.0\r\n\r\n## Highlights\r\n\r\nThis release features 927 commits from 389 contributors (122 new)!\r\n\r\n* **New models**: Reflection Beam-1.0 (501B MoE, 23B active) with its DFlash2 drafter (#62074), Yandex AliceAI-Foundation-80B-A3B (#57963), Recursive Flint (40B MoE, 2.5B active) (#62938), Muse Spark Open (#61879), Step-5 Preview (#61727, #63147), NVIDIA Alpamayo 2 Super (#62957), Nemotron-Labs Dory1.0-4B (#60149), Nemotron Parse 3.5 (#61651), MiniCPM-OCR 1.0 (#63095), Domyn Edge (#62544) and the ColUltraVBERT visual document retriever (#62237).\r\n* **PyTorch 2.14**: vLLM is upgraded to PyTorch 2.14.0, with torchvision 0.29.0 and Triton 3.8.0 (#52183).\r\n* **CUDA 12.9 dropped**: release wheels a",
-      "tags": [
-        "quantization",
-        "moe",
-        "rag",
-        "vision",
-        "efficiency",
-        "local"
-      ],
-      "relevance": 25.0,
-      "targets": []
-    },
-    {
-      "id": "69a98637d7386a63",
-      "source": "huggingface:trending",
-      "category": "model",
-      "title": "Edge0/Audio8-TTS-Realistic-Air",
-      "url": "https://huggingface.co/Edge0/Audio8-TTS-Realistic-Air",
-      "published_at": "2026-11-02T11:39:15.000Z",
-      "summary": "pipeline=text-to-speech downloads=7259 likes=231",
-      "tags": [
-        "speech"
-      ],
-      "relevance": 8.1,
-      "targets": []
-    }
-  ],
-  "proposals": [
-    {
-      "id": "savage-0221680af214",
-      "title": "Benchmark de cuantización para el modelo soberano",
-      "target": "ftl",
-      "tag": "quantization",
-      "risk": "low",
-      "kind": "experiment",
-      "experiment": "quantization_benchmark",
-      "evidence": [
-        {
-          "title": "vllm-project/vllm v0.33.0rc3",
-          "url": "https://github.com/vllm-project/vllm/releases/tag/v0.33.0rc3",
-          "source": "github:vllm-project/vllm",
-          "relevance": 25.0
-        }
-      ],
-      "rationale": "Señal tecnológica detectada en 1 fuentes; la doctrina exige evaluar antes de adoptar.",
-      "validation": "Medir tokens/s, VRAM pico y perplejidad en 20 prompts; aceptar sólo si la pérdida es <2%.",
-      "rollback": "Mantener el GGUF Q4_K actual y descartar el artefacto candidato.",
-      "status": "planned",
-      "created_at": "2026-11-02T07:27:45-05:00"
-    },
-    {
-      "id": "savage-328519695b0c",
-      "title": "Refuerzo del perfil local-first",
-      "target": "tardis",
-      "tag": "local",
-      "risk": "low",
-      "kind": "experiment",
-      "experiment": "local_first",
-      "evidence": [
-        {
-          "title": "vllm-project/vllm v0.33.0rc3",
-          "url": "https://github.com/vllm-project/vllm/releases/tag/v0.33.0rc3",
-          "source": "github:vllm-project/vllm",
-          "relevance": 25.0
-        }
-      ],
-      "rationale": "Señal tecnológica detectada en 1 fuentes; la doctrina exige evaluar antes de adoptar.",
-      "validation": "Verificar que las tareas privadas no salgan del dispositivo.",
-      "rollback": "Reactivar ruteo híbrido.",
-      "status": "planned",
-      "created_at": "2026-11-02T07:27:45-05:00"
-    },
-    {
-      "id": "savage-466fd31376f1",
-      "title": "Actualización de voz (ASR/TTS) local",
-      "target": "tardis",
-      "tag": "speech",
-      "risk": "low",
-      "kind": "experiment",
-      "experiment": "speech_pipeline",
-      "evidence": [
-        {
-          "title": "Edge0/Audio8-TTS-Realistic-Air",
-          "url": "https://huggingface.co/Edge0/Audio8-TTS-Realistic-Air",
-          "source": "huggingface:trending",
-          "relevance": 8.1
-        }
-      ],
-      "rationale": "Señal tecnológica detectada en 1 fuentes; la doctrina exige evaluar antes de adoptar.",
-      "validation": "WER en 20 audios y latencia de síntesis.",
-      "rollback": "Mantener el motor de voz actual.",
-      "status": "planned",
-      "created_at": "2026-11-02T07:27:45-05:00"
-    },
-    {
-      "id": "savage-4b3787d02701",
-      "title": "Optimización de inferencia (caché y decodificación)",
-      "target": "ftl",
-      "tag": "efficiency",
-      "risk": "low",
-      "kind": "experiment",
-      "experiment": "inference_efficiency",
-      "evidence": [
-        {
-          "title": "vllm-project/vllm v0.33.0rc3",
-          "url": "https://github.com/vllm-project/vllm/releases/tag/v0.33.0rc3",
-          "source": "github:vllm-project/vllm",
-          "relevance": 25.0
-        }
-      ],
-      "rationale": "Señal tecnológica detectada en 1 fuentes; la doctrina exige evaluar antes de adoptar.",
-      "validation": "Medir tokens/s y VRAM antes/después con el mismo prompt.",
-      "rollback": "Restaurar cache_type_k/v=f16.",
-      "status": "planned",
-      "created_at": "2026-11-02T07:27:45-05:00"
-    },
-    {
-      "id": "savage-73e62f0aae43",
-      "title": "Integración de capacidades visión/multimodal",
-      "target": "tardis",
-      "tag": "vision",
-      "risk": "low",
-      "kind": "experiment",
-      "experiment": "vision_pipeline",
-      "evidence": [
-        {
-          "title": "vllm-project/vllm v0.33.0rc3",
-          "url": "https://github.com/vllm-project/vllm/releases/tag/v0.33.0rc3",
-          "source": "github:vllm-project/vllm",
-          "relevance": 25.0
-        }
-      ],
-      "rationale": "Señal tecnológica detectada en 1 fuentes; la doctrina exige evaluar antes de adoptar.",
-      "validation": "Evaluar 50 imágenes con ground truth; medir exactitud y latencia.",
-      "rollback": "Desactivar el pipeline visual nuevo.",
-      "status": "planned",
-      "created_at": "2026-11-02T07:27:45-05:00"
-    },
-    {
-      "id": "savage-db7241589fcf",
-      "title": "Mejora del pipeline RAG y embeddings",
-      "target": "tardis",
-      "tag": "rag",
-      "risk": "low",
-      "kind": "experiment",
-      "experiment": "rag_pipeline",
-      "evidence": [
-        {
-          "title": "vllm-project/vllm v0.33.0rc3",
-          "url": "https://github.com/vllm-project/vllm/releases/tag/v0.33.0rc3",
-          "source": "github:vllm-project/vllm",
-          "relevance": 25.0
-        }
-      ],
-      "rationale": "Señal tecnológica detectada en 1 fuentes; la doctrina exige evaluar antes de adoptar.",
-      "validation": "Recall@10 sobre 100 consultas doradas.",
-      "rollback": "Conservar el índice actual.",
-      "status": "planned",
-      "created_at": "2026-11-02T07:27:45-05:00"
-    },
-    {
-      "id": "savage-f58fb1dcfe8b",
-      "title": "Ruteo por expertos activos (top-k)",
-      "target": "tardis",
-      "tag": "moe",
-      "risk": "low",
-      "kind": "experiment",
-      "experiment": "moe_routing",
-      "evidence": [
-        {
-          "title": "vllm-project/vllm v0.33.0rc3",
-          "url": "https://github.com/vllm-project/vllm/releases/tag/v0.33.0rc3",
-          "source": "github:vllm-project/vllm",
-          "relevance": 25.0
-        }
-      ],
-      "rationale": "Señal tecnológica detectada en 1 fuentes; la doctrina exige evaluar antes de adoptar.",
-      "validation": "Comparar costo por token activo vs. modelo denso equivalente.",
-      "rollback": "Volver al ruteo denso por defecto.",
-      "status": "planned",
-      "created_at": "2026-11-02T07:27:45-05:00"
-    }
-  ],
+  "top_items": [],
+  "proposals": [],
   "offline": false
 }
