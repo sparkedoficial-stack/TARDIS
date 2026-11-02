@@ -1,40 +1,5 @@
 [
   {
-    "id": "conj_1793447652",
-    "timestamp": "2026-10-31T06:54:12.978540",
-    "idle_duration_minutes": 33.7,
-    "title": "Causal‑Feedback Loop for Adaptive Web Research Prioritization",
-    "hypothesis": "Integrating a causal inference layer between the Web Research Engine and the Deep Memory Vault can dynamically re‑rank search results based on downstream impact on the vault's knowledge graph. By tracking which retrieved documents lead to successful knowledge insertions (measured via a reinforcement signal from deep_memory_vault), the system can learn a policy that prioritizes sources with higher causal contribution to knowledge growth, reducing redundant queries and improving overall retrieval efficiency.",
-    "research_query": "causal inference for adaptive web search ranking reinforcement learning knowledge graph update",
-    "research_findings": "# Informe de Investigación: causal inference for adaptive web search ranking reinforcement learning knowledge graph update\n\n## Fuentes Consultadas y Respaldo Web\n- **[A causal discovery-based adaptive fusion algorithm for multi-source heterogeneous knowledge graphs - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE8tQkU3N2N2SUlGcmUyeklIVU5GeWlidTZGcTBvU3hNZTBQSGxUUERfbVEydXpwZ2VoQlhrS09WelBTNmdzUWhoSG8zTzVGVGk0Rm85V3VYN3U2Q2RQRnNZ?oc=5)**: A causal discovery-based adaptive fusion algorithm for multi-source heterogeneous knowledge graphs  Nature\n- **[Vol. 40 No. 30: AAAI-26 Technical Tracks 30 - The Association for the Advancement of Artificial Intelligence](https://news.google.com/rss/articles/CBMiX0FVX3lxTE16cTJRRXMyZnlIbTRvcGpxMmVVUGtNRFdaMXNDcHZpYzVEWElJa2N2RVViemotemVwaUtWRVF4WEpZSFpILXJ1Q19ZcWJlYjFGOWhwYjBaR1lOcEpYajc4?oc=5)**: Vol. 40 No. 30: AAAI-26 Technical Tracks 30  The Association for the Advancement of Artificial Intelligence\n\n## Contenido y Hallazgos Extraídos\n",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE8tQkU3N2N2SUlGcmUyeklIVU5GeWlidTZGcTBvU3hNZTBQSGxUUERfbVEydXpwZ2VoQlhrS09WelBTNmdzUWhoSG8zTzVGVGk0Rm85V3VYN3U2Q2RQRnNZ?oc=5",
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE16cTJRRXMyZnlIbTRvcGpxMmVVUGtNRFdaMXNDcHZpYzVEWElJa2N2RVViemotemVwaUtWRVF4WEpZSFpILXJ1Q19ZcWJlYjFGOWhwYjBaR1lOcEpYajc4?oc=5"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal feedback hook that records the success flag from deep_memory_vault after each insertion, compute a lightweight credit assignment (e.g., using a bandit algorithm), and adjust the ranking scores of future queries accordingly.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 95.85
-  },
-  {
-    "id": "conj_1793449767",
-    "timestamp": "2026-10-31T07:29:27.467658",
-    "idle_duration_minutes": 35.2,
-    "title": "Dynamic Causal Cache Invalidation for the Web Research Engine",
-    "hypothesis": "If the Web Research Engine maintains a lightweight causal graph that records dependencies between recent queries, fetched URLs, and extracted knowledge nodes, then it can predict which cached results are likely to become stale after a new query. By using this causal inference to drive adaptive TTL (time‑to‑live) and selective eviction, the engine will reduce redundant network calls, lower latency, and improve the freshness of the Deep Memory Vault without a significant CPU overhead.",
-    "research_query": "causal inference based cache eviction policies for web search engines OR causal graph cache invalidation techniques",
-    "research_findings": "# Informe de Investigación: causal inference based cache eviction policies for web search engines OR causal graph cache invalidation techniques\n\n## Fuentes Consultadas y Respaldo Web\n- **[Optimizing LLM Performance with LM Cache: Architectures, Strategies, and Real-World Applications - HackerNoon](https://news.google.com/rss/articles/CBMitwFBVV95cUxNNWx4OWN2Yms5SHZHd2lFSk1rRXpCdUxmRnpydzR6U3c5eWIxbEJDZ2JEMTB6WmdQNkFfdEtnOGRVdE00RGkxWG1lQVpQZlFZcllRTUFwbHdkZENBLVVRODkyR0wydzBpcWZlZWdZVzB4WUFwQXFUSHJlc3AyTnhBNjNQRHpJcllieXp4NWJoNUpQTzUyMW51M2kwaDd5ZnhjT0ROR2ZBX2pFR1EwMmxIdkNEcF9PNFU?oc=5)**: Optimizing LLM Performance with LM Cache: Architectures, Strategies, and Real-World Applications  HackerNoon\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMitwFBVV95cUxNNWx4OWN2Yms5SHZHd2lFSk1rRXpCdUxmRnpydzR6U3c5eWIxbEJDZ2JEMTB6WmdQNkFfdEtnOGRVdE00RGkxWG1lQVpQZlFZcllRTUFwbHdkZENBLVVRODkyR0wydzBpcWZlZWdZVzB4WUFwQXFUSHJlc3AyTnhBNjNQRHpJcllieXp4NWJo",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMitwFBVV95cUxNNWx4OWN2Yms5SHZHd2lFSk1rRXpCdUxmRnpydzR6U3c5eWIxbEJDZ2JEMTB6WmdQNkFfdEtnOGRVdE00RGkxWG1lQVpQZlFZcllRTUFwbHdkZENBLVVRODkyR0wydzBpcWZlZWdZVzB4WUFwQXFUSHJlc3AyTnhBNjNQRHpJcllieXp4NWJoNUpQTzUyMW51M2kwaDd5ZnhjT0ROR2ZBX2pFR1EwMmxIdkNEcF9PNFU?oc=5"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal dependency tracker that logs query → URL → knowledge node relationships, compute a relevance score for each cached entry, and adjust its TTL or evict it automatically based on predicted impact of new queries.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.58
-  },
-  {
     "id": "conj_1793451884",
     "timestamp": "2026-10-31T08:04:44.267021",
     "idle_duration_minutes": 35.3,
@@ -1652,5 +1617,41 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 98.83
+  },
+  {
+    "id": "conj_1793646390",
+    "timestamp": "2026-11-02T14:06:30.079566",
+    "idle_duration_minutes": 31.6,
+    "title": "Resonancia Causal en la Bóveda Akáshica",
+    "hypothesis": "Se postula que la eficiencia de la recuperación de memoria profunda (deep_memory_vault.py) puede optimizarse significativamente si se introduce un índice de 'resonancia causal' que priorice no solo la similitud semántica, sino la correlación temporal y de causa-efecto entre los nodos de memoria. Actualmente, la búsqueda es predominantemente vectorial; al añadir una capa de grafo temporal que penalice conexiones ajenas a la línea de tiempo activa del sistema, se reduciría el ruido epistémico y se aceleraría la inferencia en contextos de alta latencia de red.",
+    "research_query": "temporal knowledge graph causal inference optimization vector database latency reduction",
+    "research_findings": "# Informe de Investigación: temporal knowledge graph causal inference optimization vector database latency reduction\n\n## Fuentes Consultadas y Respaldo Web\n- **[A hybrid reinforcement learning and knowledge graph framework for financial risk optimization in healthcare systems - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE1WVDBsNlk0RFRMN25VY3l1Q3VxQUhJSmdjQkhIb3l2eHM1Q2N4cTUxVDlmVVp2TjhRVnRZWDQtVVJ5cWpXRGR0dWpVdjF3R1duOUVZRTY0bk5YM3F3TlVr?oc=5)**: A hybrid reinforcement learning and knowledge graph framework for financial risk optimization in healthcare systems  Nature\n- **[Outline of machine learning (Wikipedia)](https://en.wikipedia.org/wiki/Outline_of_machine_learning)**: gradient descent Structured kNN Support vector machine T-distributed stochastic neighbor embedding Temporal difference learning Wake-sleep algorithm\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMiX0FVX3lxTE1WVDBsNlk0RFRMN25VY3l1Q3VxQUhJSmdjQkhIb3l",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE1WVDBsNlk0RFRMN25VY3l1Q3VxQUhJSmdjQkhIb3l2eHM1Q2N4cTUxVDlmVVp2TjhRVnRZWDQtVVJ5cWpXRGR0dWpVdjF3R1duOUVZRTY0bk5YM3F3TlVr?oc=5",
+      "https://en.wikipedia.org/wiki/Outline_of_machine_learning"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar una función de scoring híbrida que combine la similitud coseno con un factor de decaimiento temporal y una métrica de conectividad causal basada en un grafo de adyacencia temporal ligero.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.97
+  },
+  {
+    "id": "conj_1793648288",
+    "timestamp": "2026-11-02T14:38:08.807246",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal Resonance in Akashic Memory Retrieval",
+    "hypothesis": "La recuperación de información en la bóveda akáshica no debe basarse únicamente en similitud semántica vectorial, sino en una métrica de 'Resonancia Causal' que pondera la probabilidad de que un dato pasado influya en la decisión futura. Al integrar un grafo de dependencias temporales en el índice de memoria, el sistema puede predecir qué fragmentos de conocimiento son 'causalmente activos' para la tarea actual, reduciendo el ruido contextual y mejorando la precisión de la inferencia en entornos dinámicos.",
+    "research_query": "causal inference in vector database retrieval temporal dependency graph LLM memory optimization",
+    "research_findings": "# Informe de Investigación: causal inference in vector database retrieval temporal dependency graph LLM memory optimization\n\n## Fuentes Consultadas y Respaldo Web\n- **[Hindsight is 20/20: Building Agent Memory that Retains, Recalls, and Reflects - alphaXiv](https://news.google.com/rss/articles/CBMiUEFVX3lxTE1aMVVSanJ2MHVmeENMbEpxYUhvQWI1QmM2YWpJSzFyRDNuNFpGd001c3ZjQkJGQko5MmhNM2pteXNJdWdqQ1ZJVklFMTVNRDBt?oc=5)**: Hindsight is 20/20: Building Agent Memory that Retains, Recalls, and Reflects  alphaXiv\n- **[Artificial intelligence (Wikipedia)](https://en.wikipedia.org/wiki/Artificial_intelligence)**: video indexing and retrieval\". IEEE MultiMedia. 1 (2): 62–72. doi:10.1109/93.311653. Solomonoff, Ray (1956). An Inductive Inference Machine (PDF). Dartmouth\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMiUEFVX3lxTE1aMVVSanJ2MHVmeENMbEpxYUhvQWI1QmM2YWpJSzFyRDNuNFpGd001c3ZjQkJGQko5MmhNM2pteXNJdWdqQ1ZJVklFMTVNRDBt?oc=5)\n\n### De [Artificial i",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiUEFVX3lxTE1aMVVSanJ2MHVmeENMbEpxYUhvQWI1QmM2YWpJSzFyRDNuNFpGd001c3ZjQkJGQko5MmhNM2pteXNJdWdqQ1ZJVklFMTVNRDBt?oc=5",
+      "https://en.wikipedia.org/wiki/Artificial_intelligence"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar un módulo de 'CausalWeighting' que asigne pesos dinámicos a los vectores de memoria basándose en la frecuencia de co-ocurrencia temporal y la relevancia causal estimada, modificando el método de búsqueda para priorizar nodos con alta resonancia causal sobre los de alta similitud pura.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.7
   }
 ]
