@@ -189,10 +189,10 @@ print_section(3, "ORQUESTADOR COGNITIVO CAUSAL & MEMORIA CONTINUA SSM")
 
 try:
     from core.kaiju_cognitive_orchestrator import get_kaiju_cognitive_orchestrator
-    from core.sovereign_neural_engine import get_sovereign_neural_engine
+    from core.tardis_ssm_v27 import get_ssm_v27_engine
 
     k_orch = get_kaiju_cognitive_orchestrator()
-    sne = get_sovereign_neural_engine()
+    sne = get_ssm_v27_engine()
 
     # 1. Benchmark de compilación de Representación Intermedia (IR)
     t0 = time.perf_counter()

@@ -207,22 +207,25 @@ class AutoContextSynchronizer:
             errors.append(f"Error actualizando motor cognitivo: {e}")
 
         # ---------------------------------------------------------------------
-        # 7. Motor Neuronal Soberano (MLA + SSM + MoE)
+        # 7. Motor Neuronal Soberano Evolucionado v27 (SSM Mamba-2 + MLA + MoE)
         # ---------------------------------------------------------------------
         neural_info = {}
         try:
-            from core.sovereign_neural_engine import get_sovereign_neural_engine
-            sne = get_sovereign_neural_engine()
+            from core.tardis_ssm_v27 import get_ssm_v27_engine
+            sne27 = get_ssm_v27_engine()
             neural_info = {
-                "active_latent_sessions": list(sne.active_latent_states.keys()),
-                "d_model": sne.cfg.d_model,
-                "n_heads": sne.cfg.n_heads,
-                "mla_compression_ratio": round((sne.cfg.n_heads * sne.cfg.d_head * 2) / (sne.cfg.d_latent_kv + sne.cfg.d_rope), 2),
-                "ssm_state_mb": round((sne.cfg.d_model * sne.cfg.d_state * 2) / (1024 * 1024), 4)
+                "engine": "TARDIS-NEURAL-SPACE-KAIJU-v27",
+                "engine_version": "v27",
+                "ssm_mode": "MAMBA2",
+                "active_latent_sessions": list(sne27.active_latent_states.keys()),
+                "d_model": sne27.cfg.d_model,
+                "n_heads": sne27.cfg.n_heads,
+                "mla_compression_ratio": round((sne27.cfg.n_heads * sne27.cfg.d_head * 2) / (sne27.cfg.d_latent_kv + sne27.cfg.d_rope), 2),
+                "ssm_state_mb": round((sne27.cfg.d_model * sne27.cfg.d_state * 4) / (1024 * 1024), 4)
             }
             updated_subsystems.append("sovereign_neural_engine")
         except Exception as e:
-            errors.append(f"Error sincronizando motor neuronal soberano: {e}")
+            errors.append(f"Error sincronizando motor neuronal soberano v27: {e}")
 
         # ---------------------------------------------------------------------
         # 8. Sistema FTL :: Historial, Contexto y RAG Transversal

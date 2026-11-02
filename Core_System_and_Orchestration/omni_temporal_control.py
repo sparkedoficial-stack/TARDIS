@@ -4421,10 +4421,10 @@ def process_agentic_chat(
         except Exception as e_sat:
             print(f"[OMNI-LOCAL] Error al mitigar saturación de contexto: {e_sat}", flush=True)
 
-        # Compresión de Contexto Ultradenso con Motor Neuronal Soberano (MLA + SSM)
+        # Compresión de Contexto Ultradenso con Motor Neuronal Evolucionado v27 (SSM Mamba-2 + MLA + MoE)
         try:
-            from core.sovereign_neural_engine import get_sovereign_neural_engine
-            compact_messages, comp_info = get_sovereign_neural_engine().compress_conversation_to_latent_prefix(
+            from core.tardis_ssm_v27 import get_ssm_v27_engine
+            compact_messages, comp_info = get_ssm_v27_engine().compress_conversation_to_latent_prefix(
                 messages, max_retained_turns=4
             )
             if comp_info.get("compressed"):

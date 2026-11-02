@@ -539,8 +539,8 @@ class TARDISDistributedMesh:
         # 1. Función para la Rama Alfa (Local)
         def _alfa_worker():
             try:
-                from core.sovereign_neural_engine import get_sovereign_neural_engine
-                sne = get_sovereign_neural_engine()
+                from core.tardis_ssm_v27 import get_ssm_v27_engine
+                sne = get_ssm_v27_engine()
                 proc = sne.process_context(task, session_id="distributed_alfa")
 
                 # Inferencia de alta velocidad o local

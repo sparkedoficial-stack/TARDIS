@@ -993,11 +993,16 @@ class LatentSource(ContextSource):
     @staticmethod
     def _engine_instance() -> Any:
         try:
-            from core.sovereign_neural_engine import SovereignNeuralEngine
+            from core.tardis_ssm_v27 import SovereignSsmV27Engine
 
-            return SovereignNeuralEngine._instance
+            return SovereignSsmV27Engine._instance
         except Exception:
-            return None
+            try:
+                from core.sovereign_neural_engine import SovereignNeuralEngine
+
+                return SovereignNeuralEngine._instance
+            except Exception:
+                return None
 
     def collect(self, request: ContextRequest, limit: int) -> List[ContextChunk]:
         engine = self._engine_instance()
