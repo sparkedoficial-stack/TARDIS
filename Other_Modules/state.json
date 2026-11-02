@@ -6,7 +6,7 @@
   "last_video_id": "vp_20261102_022039_58faa3",
   "last_topic": "Sincronización de Fase y Atractores Caóticos en Redes Neuronales",
   "total_videos_analyzed": 850,
-  "running_cycle": false,
+  "running_cycle": true,
   "last_error": null,
   "auto_improvement_count": 416
 }
