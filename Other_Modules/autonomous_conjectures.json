@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1793382116",
-    "timestamp": "2026-10-30T12:41:56.056437",
-    "idle_duration_minutes": 31.7,
-    "title": "Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "Integrating a causal inference layer into the web_research_engine's caching mechanism can dynamically predict the obsolescence of stored results based on observed changes in source domains, reducing stale data retrieval by at least 30% without increasing latency.",
-    "research_query": "causal inference based cache invalidation techniques for web scraping and search engines",
-    "research_findings": "# Informe de Investigación: causal inference based cache invalidation techniques for web scraping and search engines\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a lightweight causal model that monitors source domain change signals (e.g., HTTP header ETag, Last-Modified, content hash) and automatically invalidates cached entries when the model predicts a high probability of content drift.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 100.15
-  },
-  {
     "id": "conj_1793384014",
     "timestamp": "2026-10-30T13:13:34.832495",
     "idle_duration_minutes": 31.6,
@@ -1638,5 +1623,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.76
+  },
+  {
+    "id": "conj_1793575774",
+    "timestamp": "2026-11-01T18:29:34.782504",
+    "idle_duration_minutes": 31.7,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching subsystem can dynamically predict the obsolescence of stored query results based on detected changes in source domains (e.g., content updates, SEO shifts, or API versioning). By modeling these changes as causal events, the engine can pre‑emptively invalidate or refresh cached entries, reducing stale data retrieval and improving response relevance without a full cache purge. This approach leverages the Deep Memory Vault's temporal embeddings to estimate the probability that a cached document no longer reflects the current state of its origin, enabling fine‑grained, cost‑effective cache management.",
+    "research_query": "causal inference based cache invalidation web scraping \"temporal embeddings\"",
+    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web scraping \"temporal embeddings\"\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal cache manager that uses timestamps and source change signals from deep_memory_vault to decide when to refresh or discard cached search results.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 99.0
   }
 ]
