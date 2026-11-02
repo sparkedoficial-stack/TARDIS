@@ -1273,16 +1273,21 @@ const Vault = {
 
   mount(){
     if(!this._overlay || !this._panel){ this.initDom(); }
-    const box = document.querySelector(".composer .box");
+    if(!this._overlay) return;
+    if(!document.body.contains(this._overlay)) document.body.appendChild(this._overlay);
+    const box = document.querySelector(".composer .box") || document.querySelector("#vaultSlot .box");
     if(box && !$("vaultSlot").contains(box)) $("vaultSlot").appendChild(box);
     document.body.classList.add("vault-open");
     this._overlay.classList.add("on");
-    $("vaultBackdrop").classList.add("on");
-    $("vaultPill").classList.add("on");
+    const back = $("vaultBackdrop"); if(back) back.classList.add("on");
+    const pill = $("vaultPill"); if(pill) pill.classList.add("on");
     this.updatePill();
     setTimeout(() => {
-      const el = $("input");
-      try{ el.focus({preventScroll:true}); el.setSelectionRange(el.value.length, el.value.length); }catch(e){}
+      try{
+        const el = $("input"); if(!el) return;
+        el.focus({preventScroll:true});
+        el.setSelectionRange(el.value.length, el.value.length);
+      }catch(e){}
     }, 60);
   },
 
@@ -1294,8 +1299,8 @@ const Vault = {
     }
     document.body.classList.remove("vault-open");
     if(this._overlay) this._overlay.classList.remove("on");
-    $("vaultBackdrop").classList.remove("on");
-    $("vaultPill").classList.remove("on");
+    const back = $("vaultBackdrop"); if(back) back.classList.remove("on");
+    const pill = $("vaultPill"); if(pill) pill.classList.remove("on");
   },
 
   async open(opts){
@@ -1369,34 +1374,42 @@ const Vault = {
   },
   tick(){
     if(!this.active) return;
-    const left = Math.max(0, Math.round((this.expiresAt - Date.now()) / 1000));
-    $("vaultTimer").textContent = left > 0 ? left + "s" : "renovando…";
-    this.updatePill(left);
+    // Primero la integridad: si el sistema retiró la ventana, se remonta.
     this.verify();
+    const left = Math.max(0, Math.round((this.expiresAt - Date.now()) / 1000));
+    const timerEl = $("vaultTimer");
+    if(timerEl) timerEl.textContent = left > 0 ? left + "s" : "renovando…";
+    this.updatePill(left);
     if(left <= 0) this.persist(true);
   },
   updatePill(left){
-    if(!this.active){ $("vaultPill").classList.remove("on"); return; }
-    $("vaultPill").classList.add("on");
+    const pill = $("vaultPill");
+    if(!pill) return;
+    if(!this.active){ pill.classList.remove("on"); return; }
+    pill.classList.add("on");
     const secs = (left !== undefined) ? left : Math.max(0, Math.round((this.expiresAt - Date.now()) / 1000));
-    $("vaultPillText").textContent = this.frozen ? "SELLANDO…" : "BÓVEDA " + secs + "s";
+    const txt = $("vaultPillText");
+    if(txt) txt.textContent = this.frozen ? "SELLANDO…" : "BÓVEDA " + secs + "s";
   },
 
   render(){
     if(!this.active) return;
-    $("vaultRev").textContent = "rev " + this.revision;
-    $("vaultChars").textContent = (this.text || "").length + " car.";
-    $("vaultChecksum").textContent = "sha256 " + (this.checksum || "—").slice(0, 10);
-    $("vaultState").textContent = this.frozen ? "SELLANDO" : "ESCUDO ACTIVO";
-    $("vaultState").classList.toggle("sending", !!this.frozen);
-    $("vaultClose").style.display = this.frozen ? "none" : "";
+    const set = (id, value) => { const el = $(id); if(el) el.textContent = value; };
+    set("vaultRev", "rev " + this.revision);
+    set("vaultChars", (this.text || "").length + " car.");
+    set("vaultChecksum", "sha256 " + (this.checksum || "—").slice(0, 10));
+    set("vaultState", this.frozen ? "SELLANDO" : "ESCUDO ACTIVO");
+    const stateEl = $("vaultState");
+    if(stateEl) stateEl.classList.toggle("sending", !!this.frozen);
+    const closeEl = $("vaultClose");
+    if(closeEl) closeEl.style.display = this.frozen ? "none" : "";
   },
 
   async persist(force){
     if(!this.active || this.frozen) return;
     if(this.savingPromise) return this.savingPromise;
-    const el = Guard.input();
-    const text = Guard.nativeGet();
+    let text = "";
+    try{ text = Guard.nativeGet(); }catch(e){ return; }
     this.text = text;
     this.savingPromise = (async () => {
       this.saving = true;
@@ -1456,13 +1469,14 @@ const Vault = {
       try{
         document.body.appendChild(this._overlay);
         this.mount();
-        Guard.write(this.text);
+        try{ Guard.write(this.text); autoGrow(); }catch(e){}
         this.onTamper("La ventana fue retirada del DOM; se restauró automáticamente.");
         return;
-      }catch(e){}
+      }catch(e){ console.warn("[vault] remount failed", e); }
     }
     // 2. Escritura externa en el textarea.
-    const native = Guard.nativeGet();
+    let native = "";
+    try{ native = Guard.nativeGet(); }catch(e){ return; }
     if(native !== Guard.lastSeen){
       const recent = (performance.now() - Guard.lastInputAt) < 1500;
       if(recent){
@@ -1477,8 +1491,11 @@ const Vault = {
 
   onTamper(message){
     this.tamper++;
-    $("vaultSub").textContent = "⚠ " + message;
-    $("vaultSub").style.color = "#ffb86c";
+    const sub = $("vaultSub");
+    if(sub){
+      sub.textContent = "⚠ " + message;
+      sub.style.color = "#ffb86c";
+    }
     if(Date.now() - this._tamperAt > 4000){
       this._tamperAt = Date.now();
       toast("🛡 " + message);
@@ -1505,11 +1522,16 @@ const Vault = {
   freeze(on){
     this.frozen = !!on;
     const el = Guard.input();
-    el.readOnly = !!on;
-    $("vaultState").textContent = on ? "SELLANDO" : "ESCUDO ACTIVO";
-    $("vaultState").classList.toggle("sending", !!on);
-    $("vaultLockText").textContent = on ? "TRANSMITIENDO · NO CERRAR" : "CANDADO EXCLUSIVO";
-    $("vaultClose").style.display = on ? "none" : "";
+    if(el) el.readOnly = !!on;
+    const stateEl = $("vaultState");
+    if(stateEl){
+      stateEl.textContent = on ? "SELLANDO" : "ESCUDO ACTIVO";
+      stateEl.classList.toggle("sending", !!on);
+    }
+    const lockText = $("vaultLockText");
+    if(lockText) lockText.textContent = on ? "TRANSMITIENDO · NO CERRAR" : "CANDADO EXCLUSIVO";
+    const closeEl = $("vaultClose");
+    if(closeEl) closeEl.style.display = on ? "none" : "";
     this.updatePill();
   },
 
@@ -1524,8 +1546,7 @@ const Vault = {
     this.revision = 0;
     this.checksum = "";
     try{ localStorage.removeItem(VAULT_LS); localStorage.removeItem(DRAFT_KEY); }catch(e){}
-    Guard.write("");
-    autoGrow();
+    try{ Guard.write(""); autoGrow(); }catch(e){}
     this.unmount();
   }
 };

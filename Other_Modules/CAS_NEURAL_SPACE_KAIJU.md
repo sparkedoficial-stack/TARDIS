@@ -315,9 +315,10 @@ Sin `engine=cas`, el comportamiento original de la bóveda se mantiene intacto.
 
 CaS queda registrado como herramienta soberana de primera clase:
 
+- `modulos_ftl/ftl_cas_kaiju.py` → clase `FtlCasKaiju` descubierta por el
+  Master Hub (`godworks --tools`) con despacho no bloqueante.
 - `modulos_ftl/ftl_omni_registry.py` → clave `cas_neural_space_kaiju`
-  (categoría *Cognitive Context Fabric & Retrieval Augmentation*,
-  despacho `cli`).
+  (categoría *Cognitive Context Fabric & Retrieval Augmentation*).
 - `core/tardis_omni_tool_bridge.py` → clave `cas_kaiju`
   (dominio `cognitive_context`, disponible para GIA/KAIJU/Supervisor/FTL).
 
