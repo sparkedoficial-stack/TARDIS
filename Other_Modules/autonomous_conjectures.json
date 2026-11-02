@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1793412925",
-    "timestamp": "2026-10-30T21:15:25.941579",
-    "idle_duration_minutes": 33.2,
-    "title": "Causal‑Feedback Loop for Adaptive Web Research",
-    "hypothesis": "Integrating a causal‑feedback mechanism between `core/web_research_engine.py` and `core/deep_memory_vault.py` will allow the system to dynamically adjust its query formulation based on the relevance scores of previously retrieved documents, thereby reducing redundant searches and improving the precision of future web‑research cycles. The hypothesis posits that a lightweight Bayesian causal model, updated after each research iteration, can predict the marginal utility of additional queries and trigger early termination when expected information gain falls below a threshold.",
-    "research_query": "how to implement online Bayesian causal inference for query relevance feedback in autonomous web research agents",
-    "research_findings": "# Informe de Investigación: how to implement online Bayesian causal inference for query relevance feedback in autonomous web research agents\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a modular `CausalFeedbackEngine` class that receives relevance scores from `deep_memory_vault`, updates a Bayesian model of query effectiveness, and exposes `should_continue()` to let the search loop decide whether to issue more requests or stop early. Also introduce optional async caching of HTTP responses to avoid duplicate network calls.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.6
-  },
-  {
     "id": "conj_1793414836",
     "timestamp": "2026-10-30T21:47:16.709009",
     "idle_duration_minutes": 31.8,
@@ -1641,5 +1626,23 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 99.45
+  },
+  {
+    "id": "conj_1793610395",
+    "timestamp": "2026-11-02T04:06:35.592269",
+    "idle_duration_minutes": 31.6,
+    "title": "Resonancia Causal en la Bóveda Akáshica",
+    "hypothesis": "La eficiencia de recuperación de información en la bóveda akáshica puede optimizarse mediante la implementación de un índice de 'resonancia causal' que priorice no solo la similitud semántica, sino la correlación temporal y de contexto entre los nodos de memoria. Esto permitiría que el sistema anticipe las necesidades de investigación del núcleo cognitivo, reduciendo la latencia en la generación de hipótesis al pre-cargar contextos relacionados antes de que se soliciten explícitamente.",
+    "research_query": "temporal context-aware semantic search optimization for long-term memory systems",
+    "research_findings": "# Informe de Investigación: temporal context-aware semantic search optimization for long-term memory systems\n\n## Fuentes Consultadas y Respaldo Web\n- **[Semantic-aware reinforcement and ensemble learning for signal management and anomaly detection in IoT systems - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE9yaGh2T3Zyam43dkZzX2RuQ3pKUERCLUhQaC1STlFXUk1LX24zLThPbDJxV2ZsMXU3V1RNSU1tcUd5cndjS0otcGc1SEhudE5jcTJrZlhrTUx1VkJSLVZF?oc=5)**: Semantic-aware reinforcement and ensemble learning for signal management and anomaly detection in IoT systems  Nature\n- **[Building smarter AI agents: AgentCore long-term memory deep dive | Amazon Web Services - Amazon Web Services (AWS)](https://news.google.com/rss/articles/CBMirwFBVV95cUxOZng0WnJpZjNHbndqNnRlRUpibmpTUmJuNHVkX3lYSmJsY0hDQUhuQlplOVQzc3diSE1mQ1JsTWpWaC1YYmZlQnBRNWJKMlJWZk5GMmN4dEwwTWRZU2tZa0xMcWpFVjl2YlUzeDcwcEVCd1VfdHJrRTIwWlRHUHNJbkZwelFScGM3VjFzOTJxOEtCenI0VVlQc2JNMTNha1R0bWVRM1VJdGRycVRVTzBv?oc=5)**: Building smarter AI ag",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE9yaGh2T3Zyam43dkZzX2RuQ3pKUERCLUhQaC1STlFXUk1LX24zLThPbDJxV2ZsMXU3V1RNSU1tcUd5cndjS0otcGc1SEhudE5jcTJrZlhrTUx1VkJSLVZF?oc=5",
+      "https://news.google.com/rss/articles/CBMirwFBVV95cUxOZng0WnJpZjNHbndqNnRlRUpibmpTUmJuNHVkX3lYSmJsY0hDQUhuQlplOVQzc3diSE1mQ1JsTWpWaC1YYmZlQnBRNWJKMlJWZk5GMmN4dEwwTWRZU2tZa0xMcWpFVjl2YlUzeDcwcEVCd1VfdHJrRTIwWlRHUHNJbkZwelFScGM3VjFzOTJxOEtCenI0VVlQc2JNMTNha1R0bWVRM1VJdGRycVRVTzBv?oc=5"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar un algoritmo de scoring híbrido que combine similitud vectorial con un factor de decaimiento temporal y peso de co-ocurrencia histórica para mejorar la relevancia de los resultados recuperados.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.25
   }
 ]

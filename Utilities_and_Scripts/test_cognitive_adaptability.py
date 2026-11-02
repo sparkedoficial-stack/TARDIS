@@ -9,6 +9,7 @@ Suite de pruebas para verificar:
 """
 import json
 import pytest
+import numpy as np
 from starlette.testclient import TestClient
 import agent_context
 import agent_safety
@@ -250,4 +251,45 @@ class TestGeonCausalEngine:
         assert validation["temporal_consistency"] is True
         assert validation["lamport_invariant"] is True
         assert validation["causal_matrix_synced"] is True
+        assert validation["spectral_radius_stable"] is True
+        assert validation["trace_invariant_valid"] is True
+        assert validation["matrix_shape"] == [4, 4]
+
+    def test_syntropic_matrix_shape_and_normalization(self):
+        import geon_causal_engine
+        engine = geon_causal_engine.get_geon_engine()
+        
+        mat = engine.syntropy_engine.compute_syntropic_transition_matrix(dt=0.1, states=4)
+        assert mat.shape == (4, 4)
+        for row in mat:
+            assert sum(row) == pytest.approx(1.0, abs=1e-4)
+
+    def test_syntropic_matrix_spectral_radius_stable(self):
+        import geon_causal_engine
+        engine = geon_causal_engine.get_geon_engine()
+        
+        mat = engine.syntropy_engine.compute_syntropic_transition_matrix(dt=0.1, states=4)
+        eigenvalues = np.linalg.eigvals(mat)
+        assert all(abs(complex(eig)) <= 1.0 + 1e-5 for eig in eigenvalues)
+
+    def test_synchronize_syntropic_transition_matrix(self):
+        import geon_causal_engine
+        engine = geon_causal_engine.get_geon_engine()
+        
+        sync = engine.synchronize_syntropic_transition_matrix(dt=0.1)
+        assert sync["causal_matrix_synced"] is True
+        assert sync["spectral_radius_stable"] is True
+        assert sync["trace_invariant_valid"] is True
+        assert sync["temporal_consistency"] is True
+        assert sync["matrix_state"] == "SYNCHRONIZED"
+        assert sync["lamport_invariant"] is True
+
+    def test_matrix_last_transition_cached_after_sync(self):
+        import geon_causal_engine
+        import numpy as np
+        engine = geon_causal_engine.get_geon_engine()
+        
+        engine.synchronize_syntropic_transition_matrix(dt=0.1, states=4)
+        assert engine.syntropy_engine.last_transition_matrix is not None
+        assert engine.syntropy_engine.last_transition_matrix.shape == (4, 4)
 

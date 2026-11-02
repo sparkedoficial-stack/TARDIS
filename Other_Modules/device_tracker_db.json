@@ -102,7 +102,7 @@
     "traffic_bytes_tx": 0,
     "traffic_packets": 0,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-02T08:58:40.282582+00:00",
+    "last_seen": "2026-11-02T09:13:54.288964+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -185,10 +185,10 @@
     "throttle_kbps": null,
     "is_safe": true,
     "traffic_bytes_rx": 0,
-    "traffic_bytes_tx": 4193,
-    "traffic_packets": 9,
+    "traffic_bytes_tx": 4337,
+    "traffic_packets": 11,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-02T08:58:40.282582+00:00",
+    "last_seen": "2026-11-02T09:13:54.288964+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -216,11 +216,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 240,
+    "traffic_bytes_rx": 0,
     "traffic_bytes_tx": 0,
-    "traffic_packets": 4,
+    "traffic_packets": 0,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-02T08:58:40.282582+00:00",
+    "last_seen": "2026-11-02T09:13:54.288964+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -252,7 +252,7 @@
     "traffic_bytes_tx": 0,
     "traffic_packets": 8,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-02T08:58:40.282582+00:00",
+    "last_seen": "2026-11-02T09:13:54.288964+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -281,10 +281,10 @@
     "throttle_kbps": null,
     "is_safe": true,
     "traffic_bytes_rx": 480,
-    "traffic_bytes_tx": 408,
-    "traffic_packets": 14,
+    "traffic_bytes_tx": 0,
+    "traffic_packets": 8,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-02T08:58:40.282582+00:00",
+    "last_seen": "2026-11-02T09:13:54.288964+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -330,7 +330,7 @@
     "traffic_bytes_tx": 151,
     "traffic_packets": 9,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-02T08:58:40.282582+00:00",
+    "last_seen": "2026-11-02T09:13:54.288964+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -374,7 +374,7 @@
     "traffic_bytes_tx": 0,
     "traffic_packets": 0,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-02T08:58:40.282582+00:00",
+    "last_seen": "2026-11-02T09:13:54.288964+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -451,9 +451,9 @@
     "is_safe": true,
     "traffic_bytes_rx": REDACTED_PHONE,
     "traffic_bytes_tx": REDACTED_PHONE,
-    "traffic_packets": 41870623,
+    "traffic_packets": 42136639,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-02T08:58:40.282582+00:00",
+    "last_seen": "2026-11-02T09:13:54.288964+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -525,11 +525,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 53098,
-    "traffic_bytes_tx": 305974160,
-    "traffic_packets": 5067278,
+    "traffic_bytes_rx": 53202,
+    "traffic_bytes_tx": 307017417,
+    "traffic_packets": 5084559,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-02T08:58:40.282582+00:00",
+    "last_seen": "2026-11-02T09:13:54.288964+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -577,7 +577,7 @@
     "interface": "enp2s0",
     "connection_medium": "Ethernet / LAN (enp2s0)",
     "network_segment": "Ethernet / LAN Principal (REDACTED_IP/24)",
-    "arp_state": "REACHABLE",
+    "arp_state": "STALE",
     "online": true,
     "rtt_ms": null,
     "open_ports": [],
@@ -589,11 +589,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 720,
+    "traffic_bytes_rx": 480,
     "traffic_bytes_tx": 0,
-    "traffic_packets": 12,
+    "traffic_packets": 8,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-02T08:58:40.282582+00:00",
+    "last_seen": "2026-11-02T09:13:54.288964+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -988,7 +988,7 @@
     "traffic_bytes_tx": 0,
     "traffic_packets": 0,
     "first_seen": "2026-10-29T16:05:57.708236+00:00",
-    "last_seen": "2026-11-02T08:58:40.282582+00:00",
+    "last_seen": "2026-11-02T09:13:54.288964+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]

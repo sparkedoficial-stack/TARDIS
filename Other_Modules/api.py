@@ -754,7 +754,7 @@ def create_app() -> FastAPI:
         return {"ok": True, "bridge": "qoder_request_bridge", "stats": qrb.stats()}
 
     @app.get("/api/qoder/feedback")
-    async def qoder_feedback(request: Request, limit: int = 40):
+    async def qoder_feedback(request: Request, limit: Optional[int] = None, offset: Optional[int] = None):
         """Últimos eventos del canal (salud, agentes, regresiones, peticiones pendientes).
 
         Es lo que la sesión de Qoder lee para responder en el chat; TARDIS lo expone para
@@ -773,7 +773,9 @@ def create_app() -> FastAPI:
             events = [_json.loads(l) for l in events_f.read_text(encoding="utf-8").splitlines() if l.strip()]
         except Exception:
             pass
-        return {"ok": True, "state": state, "events": events[-max(1, min(limit, 200)):]}
+        lim, off = sanitize_pagination(limit=limit, offset=offset)
+        page, meta = paginate_list(events, limit=lim, offset=off)
+        return {"ok": True, "state": state, "events": page, **meta}
 
     @app.post("/api/qoder/request")
     async def qoder_request_submit(request: Request):
