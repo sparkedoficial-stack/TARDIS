@@ -36,6 +36,48 @@ from core.tardis_sdr_radar_module import sdr_radar_instance
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
+# ==============================================================================
+# PAGINACIÓN Y BUFFERS EN MEMORIA — Optimización Auto-Mejora TARDIS (v26.4 → v26.5)
+# Propuesta FTL: "Optimización de Concurrencia y Paginación de Telemetría".
+# - PAGINATION_DEFAULT_LIMIT: tamaño de página por defecto en endpoints de historial/auditoría.
+# - PAGINATION_MAX_LIMIT: tope máximo soberano de elementos por respuesta (anti buffer bloat).
+# ==============================================================================
+PAGINATION_DEFAULT_LIMIT = 50
+PAGINATION_MAX_LIMIT = 200
+
+
+def sanitize_pagination(limit: Optional[int] = None, offset: Optional[int] = None) -> tuple[int, int]:
+    """Clamp soberano de paginación: limit ∈ [1, PAGINATION_MAX_LIMIT] y offset ≥ 0."""
+    try:
+        lim = int(limit) if limit is not None else PAGINATION_DEFAULT_LIMIT
+    except (TypeError, ValueError):
+        lim = PAGINATION_DEFAULT_LIMIT
+    lim = max(1, min(lim, PAGINATION_MAX_LIMIT))
+    try:
+        off = int(offset) if offset is not None else 0
+    except (TypeError, ValueError):
+        off = 0
+    return lim, max(0, off)
+
+
+def paginate_list(items: List[Any], limit: Optional[int] = None, offset: Optional[int] = None):
+    """Paginación sobre listas materializadas (buffers en memoria ya poblados).
+
+    Devuelve (page, meta) donde page = items[offset:offset+limit] y meta expone
+    limit/offset/total/count/has_more para que el cliente conozca el estado de paginación.
+    """
+    source = list(items or [])
+    lim, off = sanitize_pagination(limit=limit, offset=offset)
+    page = source[off:off + lim]
+    meta = {
+        "limit": lim,
+        "offset": off,
+        "total": len(source),
+        "count": len(page),
+        "has_more": bool(off + lim < len(source)),
+    }
+    return page, meta
+
 
 # ==============================================================================
 # MODELOS DE DATOS PYDANTIC
@@ -1311,18 +1353,25 @@ iframe{border:none;width:100%;height:100%;}</style></head>
     # HISTORIAL FOTOGRÁFICO Y REGISTRO DE INTERACCIONES
     # =========================================================================
     @app.get("/api/interactions")
-    async def get_interactions_endpoint(limit: int = 50, offset: int = 0):
+    async def get_interactions_endpoint(limit: Optional[int] = 50, offset: Optional[int] = 0):
         """Retorna el historial cronológico de interacciones con día, hora y fotos."""
         try:
             from core.interaction_logger import get_interaction_logger
             logger_inst = get_interaction_logger()
-            records = logger_inst.list_interactions(limit=limit, offset=offset)
+            lim, off = sanitize_pagination(limit=limit, offset=offset)
+            with logger_inst._db_lock:
+                full_records = list(logger_inst._interactions)
+            records = full_records[off:off + lim]
             return {
                 "ok": True,
-                "total": len(logger_inst._interactions),
+                "total": len(full_records),
                 "interactions": records,
                 "folder_path": str(logger_inst.photos_dir.resolve()),
-                "gallery_url": "/api/interactions/gallery"
+                "gallery_url": "/api/interactions/gallery",
+                "limit": lim,
+                "offset": off,
+                "count": len(records),
+                "has_more": bool(off + lim < len(full_records))
             }
         except Exception as e:
             return {"ok": False, "error": str(e), "interactions": []}
@@ -1632,9 +1681,10 @@ iframe{border:none;width:100%;height:100%;}</style></head>
         return get_tardis_telephony_controller().ensure_connected()
 
     @app.get("/api/pocket/calls/history")
-    async def get_pocket_calls_history():
+    async def get_pocket_calls_history(limit: Optional[int] = 50):
         from core.tardis_telephony_controller import get_tardis_telephony_controller
-        return {"ok": True, "history": get_tardis_telephony_controller().calls_history[-50:]}
+        lim, _off = sanitize_pagination(limit=limit)
+        return {"ok": True, "history": (get_tardis_telephony_controller().calls_history or [])[-lim:]}
 
     @app.get("/api/rf_radar")
     @app.get("/api/rf_radar/status")
@@ -1671,22 +1721,25 @@ iframe{border:none;width:100%;height:100%;}</style></head>
     # --------------------------------------------------------------------------
 
     @app.get("/api/web/history")
-    async def api_web_history(limit: int = 30):
+    async def api_web_history(limit: Optional[int] = 30, offset: Optional[int] = 0):
         """Historial de navegación del antiguo Navegador Cuántico, ahora dentro del Hub."""
         path = Path.home() / ".tardis" / "navigator" / "history.json"
         try:
             data = json.loads(path.read_text(encoding="utf-8"))
         except Exception:
             return {"ok": True, "history": [], "source": str(path)}
+        raw = data if isinstance(data, list) else []
+        lim, off = sanitize_pagination(limit=limit, offset=offset)
         out = []
-        for item in reversed(data[-max(1, min(limit, 200)):]):
+        for item in reversed(raw[off:off + lim]):
             url = str(item.get("url", ""))
             # Las URL del propio navegador (puerto 8777) ya no existen: no se ofrecen.
             if ":8777" in url:
                 continue
             out.append({"title": item.get("title"), "url": url,
                         "when": item.get("time_str"), "engine": item.get("engine")})
-        return {"ok": True, "history": out, "total": len(data)}
+        page, meta = paginate_list(out, limit=lim, offset=0)
+        return {"ok": True, "history": page, **meta, "total": len(raw)}
 
     @app.get("/api/bridge/status")
     async def get_bridge_status():
@@ -2447,9 +2500,10 @@ iframe{border:none;width:100%;height:100%;}</style></head>
         return get_sms_bridge().get_status()
 
     @app.get("/api/sms/history")
-    async def get_sms_history_endpoint():
+    async def get_sms_history_endpoint(limit: Optional[int] = 50):
         from core.sms_bridge import get_sms_bridge
-        return {"ok": True, "history": get_sms_bridge().history[-50:]}
+        lim, _off = sanitize_pagination(limit=limit)
+        return {"ok": True, "history": (get_sms_bridge().history or [])[-lim:]}
 
     @app.post("/api/sms")
     @app.post("/api/sms/send")
@@ -2680,20 +2734,44 @@ iframe{border:none;width:100%;height:100%;}</style></head>
 
     @app.get("/api/shield/traffic")
     @app.get("/api/shield/flows")
-    async def get_shield_traffic_endpoint():
+    async def get_shield_traffic_endpoint(limit: Optional[int] = PAGINATION_DEFAULT_LIMIT, offset: Optional[int] = 0):
         from core.traffic_monitor import get_traffic_monitor
-        return get_traffic_monitor().analyze_traffic_and_accesses()
+        data = get_traffic_monitor().analyze_traffic_and_accesses()
+        flows, _p_flows = paginate_list(data.get("active_flows") or [], limit=limit, offset=offset)
+        accesses, p_acc = paginate_list(data.get("inbound_accesses") or [], limit=limit, offset=offset)
+        alerts, _p_alt = paginate_list(data.get("alerts") or [], limit=limit, offset=offset)
+        out = dict(data)
+        out["active_flows"] = flows
+        out["inbound_accesses"] = accesses
+        out["alerts"] = alerts
+        out["pagination"] = {
+            "limit": p_acc["limit"],
+            "offset": p_acc["offset"],
+            "total": p_acc["total"],
+            "count": p_acc["count"],
+            "has_more": p_acc["has_more"],
+        }
+        return out
 
     @app.get("/api/shield/accesses")
-    async def get_shield_accesses_endpoint():
+    async def get_shield_accesses_endpoint(limit: Optional[int] = PAGINATION_DEFAULT_LIMIT, offset: Optional[int] = 0):
+        """Auditoría de accesos entrantes: paginación obligatoria sobre el buffer de accesos."""
         from core.traffic_monitor import get_traffic_monitor
         tm = get_traffic_monitor()
         data = tm.analyze_traffic_and_accesses()
+        accesses, p_acc = paginate_list(data.get("inbound_accesses") or [], limit=limit, offset=offset)
+        alerts, _p_alt = paginate_list(data.get("alerts") or [], limit=limit, offset=offset)
         return {
             "ok": True,
-            "inbound_accesses": data.get("inbound_accesses", []),
-            "alerts": data.get("alerts", []),
-            "assessment": data.get("assessment", "")
+            "inbound_accesses": accesses,
+            "alerts": alerts,
+            "assessment": data.get("assessment", ""),
+            "total_inbound_accesses": data.get("inbound_access_count", len(data.get("inbound_accesses") or [])),
+            "total_alerts": len(data.get("alerts") or []),
+            "pagination": p_acc,
+            "limit": p_acc["limit"],
+            "offset": p_acc["offset"],
+            "has_more": p_acc["has_more"]
         }
 
     @app.get("/api/shield/recurring")
@@ -2705,20 +2783,39 @@ iframe{border:none;width:100%;height:100%;}</style></head>
     # --------------------------------------------------------------------------
     # SISTEMA DE RASTREO, AUDITORÍA Y CONTROL DE TRÁFICO (ETHERNET + WI-FI)
     # --------------------------------------------------------------------------
+    async def _netguard_audit_snapshot(sweep: bool, limit: Optional[int], offset: Optional[int]):
+        """Snapshot unificado de auditoría de red con paginación soberana sobre los buffers."""
+        from core.network_traffic_controller import get_traffic_controller
+        data = get_traffic_controller().get_complete_audit_snapshot(active_sweep=sweep)
+        devices, p_dev = paginate_list(data.get("devices") or [], limit=limit, offset=offset)
+        alerts, _p_alt = paginate_list(data.get("alerts") or [], limit=limit, offset=offset)
+        flows, _p_flows = paginate_list((data.get("traffic") or {}).get("flows") or [], limit=limit, offset=offset)
+        out = dict(data)
+        out["devices"] = devices
+        out["alerts"] = alerts
+        if isinstance(out.get("traffic"), dict):
+            out["traffic"] = {**out["traffic"], "flows": flows}
+        out["pagination"] = {
+            "limit": p_dev["limit"],
+            "offset": p_dev["offset"],
+            "total": p_dev["total"],
+            "count": p_dev["count"],
+            "has_more": p_dev["has_more"],
+        }
+        return out
+
     @app.get("/api/netguard")
     @app.get("/api/netguard/overview")
-    async def get_netguard_overview_endpoint(sweep: bool = False):
+    async def get_netguard_overview_endpoint(sweep: bool = False, limit: Optional[int] = PAGINATION_DEFAULT_LIMIT, offset: Optional[int] = 0):
         try:
-            from core.network_traffic_controller import get_traffic_controller
-            return get_traffic_controller().get_complete_audit_snapshot(active_sweep=sweep)
+            return await _netguard_audit_snapshot(sweep=sweep, limit=limit, offset=offset)
         except Exception as e:
             return {"ok": False, "error": str(e)}
 
     @app.post("/api/netguard/scan")
-    async def post_netguard_scan_endpoint():
+    async def post_netguard_scan_endpoint(limit: Optional[int] = PAGINATION_DEFAULT_LIMIT, offset: Optional[int] = 0):
         try:
-            from core.network_traffic_controller import get_traffic_controller
-            return get_traffic_controller().get_complete_audit_snapshot(active_sweep=True)
+            return await _netguard_audit_snapshot(sweep=True, limit=limit, offset=offset)
         except Exception as e:
             return {"ok": False, "error": str(e)}
 
@@ -3010,10 +3107,13 @@ iframe{border:none;width:100%;height:100%;}</style></head>
             return {"ok": False, "error": str(e)}
 
     @app.get("/api/kaiju_safety/audit")
-    async def get_kaiju_safety_audit_endpoint(limit: int = 50):
+    async def get_kaiju_safety_audit_endpoint(limit: Optional[int] = PAGINATION_DEFAULT_LIMIT, offset: Optional[int] = 0):
+        """Auditoría de seguridad: logs con paginación soberana (clamp + ventana + meta)."""
         try:
             from core.kaiju_safety_rails import get_kaiju_safety_rails
-            return {"ok": True, "logs": get_kaiju_safety_rails().get_recent_audit_logs(limit=limit)}
+            lim, off = sanitize_pagination(limit=limit, offset=offset)
+            logs, p = paginate_list(get_kaiju_safety_rails().get_recent_audit_logs(limit=lim), limit=lim, offset=off)
+            return {"ok": True, **p, "logs": logs}
         except Exception as e:
             return {"ok": False, "error": str(e)}
 
@@ -3103,16 +3203,20 @@ iframe{border:none;width:100%;height:100%;}</style></head>
             return {"ok": True, "bridge_running": False, "health_score": 100, "instructions": []}
 
     @app.get("/api/antigravity/dialogue")
-    async def get_antigravity_dialogue(limit: int = 50):
+    async def get_antigravity_dialogue(limit: Optional[int] = 50, offset: Optional[int] = 0):
         try:
             import antigravity_bridge as _ag_bridge
+            bridge = _ag_bridge.get_bridge()
+            lim, off = sanitize_pagination(limit=limit, offset=offset)
+            dialogue, p = paginate_list(bridge.get_full_dialogue(limit=lim), limit=lim, offset=off)
             return {
                 "ok": True,
-                "dialogue": _ag_bridge.get_bridge().get_full_dialogue(limit=limit),
-                "status": _ag_bridge.get_bridge().get_status()
+                "dialogue": dialogue,
+                "status": bridge.get_status(),
+                **p,
             }
         except Exception:
-            return {"ok": True, "dialogue": []}
+            return {"ok": True, "dialogue": [], "limit": PAGINATION_DEFAULT_LIMIT, "offset": 0, "total": 0, "count": 0, "has_more": False}
 
     @app.post("/api/antigravity/dialogue")
     async def post_antigravity_dialogue(req: AntigravityMessageRequest):
@@ -3231,12 +3335,13 @@ iframe{border:none;width:100%;height:100%;}</style></head>
 
     @app.get("/api/self_improve/proposals")
     @app.get("/api/self_improve/queue")
-    async def get_self_improve_proposals(limit: int = 20):
+    async def get_self_improve_proposals(limit: Optional[int] = 20, offset: Optional[int] = 0):
         try:
             import antigravity_bridge as _ag_bridge
             bridge = _ag_bridge.get_bridge()
-            items = bridge.get_improvement_proposals(limit=limit)
-            return {"ok": True, "proposals": items, "queue": items, "count": len(items)}
+            lim, off = sanitize_pagination(limit=limit, offset=offset)
+            items, p = paginate_list(bridge.get_improvement_proposals(limit=lim), limit=lim, offset=off)
+            return {"ok": True, "proposals": items, "queue": items, **p}
         except Exception as e:
             return {"ok": False, "error": str(e), "proposals": [], "queue": []}
 
@@ -3534,12 +3639,13 @@ iframe{border:none;width:100%;height:100%;}</style></head>
             return {"ok": False, "error": str(e)}
 
     @app.get("/api/ftl/history")
-    async def get_ftl_history_endpoint(limit: int = 20):
+    async def get_ftl_history_endpoint(limit: Optional[int] = 20, offset: Optional[int] = 0):
         try:
             from core.deep_memory_vault import get_deep_memory_vault
             vault = get_deep_memory_vault()
-            history = vault.get_ftl_history(limit=limit)
-            return {"ok": True, "count": len(history), "history": history}
+            lim, off = sanitize_pagination(limit=limit, offset=offset)
+            history, p = paginate_list(vault.get_ftl_history(limit=lim), limit=lim, offset=off)
+            return {"ok": True, **p, "history": history}
         except Exception as e:
             return {"ok": False, "error": str(e)}
 
@@ -3726,14 +3832,17 @@ iframe{border:none;width:100%;height:100%;}</style></head>
 
     @app.get("/api/deep_memory/thoughts")
     @app.get("/api/thoughts")
-    async def get_background_thoughts_endpoint(limit: int = 20):
+    async def get_background_thoughts_endpoint(limit: Optional[int] = 20, offset: Optional[int] = 0):
         try:
             from core.background_thought_engine import get_background_thought_engine
             engine = get_background_thought_engine()
+            lim, off = sanitize_pagination(limit=limit, offset=offset)
+            thoughts, p = paginate_list(engine.get_recent_thoughts(limit=lim), limit=lim, offset=off)
             return {
                 "ok": True,
                 "stats": engine.get_stats(),
-                "thoughts": engine.get_recent_thoughts(limit=limit)
+                "thoughts": thoughts,
+                **p,
             }
         except Exception as e:
             return {"ok": False, "error": str(e), "thoughts": []}
@@ -3834,10 +3943,12 @@ iframe{border:none;width:100%;height:100%;}</style></head>
             return {"ok": False, "error": str(e)}
 
     @app.get("/api/system/packages/history")
-    async def get_packages_history(limit: int = 50):
+    async def get_packages_history(limit: Optional[int] = 50, offset: Optional[int] = 0):
         try:
             pkg_mgr = get_package_manager()
-            return {"ok": True, "history": pkg_mgr.get_history(limit=limit)}
+            lim, off = sanitize_pagination(limit=limit, offset=offset)
+            history, p = paginate_list(pkg_mgr.get_history(limit=lim), limit=lim, offset=off)
+            return {"ok": True, **p, "history": history}
         except Exception as e:
             return {"ok": False, "error": str(e), "history": []}
 
@@ -4008,10 +4119,12 @@ iframe{border:none;width:100%;height:100%;}</style></head>
 
     @app.get("/api/autonomous/log")
     @app.get("/api/autonomous/history")
-    async def get_autonomous_log(limit: int = 50):
+    async def get_autonomous_log(limit: Optional[int] = 50, offset: Optional[int] = 0):
         try:
             ac = get_autonomous_controller()
-            return {"ok": True, "count": len(ac.get_history(limit=limit)), "log": ac.get_history(limit=limit)}
+            lim, off = sanitize_pagination(limit=limit, offset=offset)
+            log, p = paginate_list(ac.get_history(limit=lim), limit=lim, offset=off)
+            return {"ok": True, **p, "log": log}
         except Exception as e:
             return {"ok": False, "error": str(e), "log": []}
 
@@ -4089,20 +4202,22 @@ iframe{border:none;width:100%;height:100%;}</style></head>
 
     @app.get("/api/chat/offline/history")
     @app.get("/api/chat/offline")
-    async def get_offline_chat_history(request: Request, limit: int = 50, client_id: Optional[str] = None):
+    async def get_offline_chat_history(request: Request, limit: Optional[int] = 50, client_id: Optional[str] = None):
         has_proxy = bool(request.headers.get("cf-connecting-ip") or request.headers.get("x-forwarded-for") or request.headers.get("x-real-ip"))
         is_local = (not has_proxy) and (request.client.host in ("127.0.0.1", "localhost", "::1", "testclient") if request.client else False)
         from core.offline_chat_vault import get_offline_chat_vault
-        turns = get_offline_chat_vault().get_recent(limit=limit, client_id=client_id, is_local=is_local)
-        return {"ok": True, "total": len(turns), "turns": turns}
+        lim, off = sanitize_pagination(limit=limit, offset=0)
+        turns, p = paginate_list(get_offline_chat_vault().get_recent(limit=lim, client_id=client_id, is_local=is_local), limit=lim, offset=off)
+        return {"ok": True, "total": len(turns), "turns": turns, **p}
 
     @app.get("/api/chat/offline/search")
-    async def search_offline_chat(request: Request, q: str = "", limit: int = 15, client_id: Optional[str] = None):
+    async def search_offline_chat(request: Request, q: str = "", limit: Optional[int] = 15, client_id: Optional[str] = None):
         has_proxy = bool(request.headers.get("cf-connecting-ip") or request.headers.get("x-forwarded-for") or request.headers.get("x-real-ip"))
         is_local = (not has_proxy) and (request.client.host in ("127.0.0.1", "localhost", "::1", "testclient") if request.client else False)
         from core.offline_chat_vault import get_offline_chat_vault
-        results = get_offline_chat_vault().search(q, limit=limit, client_id=client_id, is_local=is_local)
-        return {"ok": True, "query": q, "count": len(results), "results": results}
+        lim, _off = sanitize_pagination(limit=limit, offset=0)
+        results, p = paginate_list(get_offline_chat_vault().search(q, limit=lim, client_id=client_id, is_local=is_local), limit=lim, offset=0)
+        return {"ok": True, "query": q, "count": len(results), "results": results, **p}
 
     # --------------------------------------------------------------------------
     # INFERENCIA Y CHAT AGÉNTICO UNIFICADO
@@ -4652,7 +4767,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
         return res
 
     @app.get("/api/terminal_cameras/captures")
-    async def get_terminal_camera_captures(request: Request, limit: int = 50):
+    async def get_terminal_camera_captures(request: Request, limit: Optional[int] = 50):
         from core.terminal_camera_hub import get_terminal_camera_hub, is_local_client
         req_client = request.client.host if request.client else ""
         if not is_local_client(req_client, dict(request.headers)):
@@ -4661,7 +4776,8 @@ iframe{border:none;width:100%;height:100%;}</style></head>
                 detail="ACCESO DENEGADO [SEGURIDAD SOBERANA]: Las grabaciones y capturas de CCTV solo pueden ser consultadas desde el nodo local físico (127.0.0.1)."
             )
         hub = get_terminal_camera_hub()
-        captures = hub.get_connected_snapshots(limit=limit)
+        lim, _off = sanitize_pagination(limit=limit)
+        captures = hub.get_connected_snapshots(limit=lim)
         return {
             "ok": True,
             "captures": captures,
@@ -5919,11 +6035,22 @@ if __name__ == "__main__":
         return {"ok": True, "cameras": eng.cameras_view()}
 
     @app.get("/api/gods_eye/events")
-    async def api_gods_eye_events(limit: int = 50):
+    async def api_gods_eye_events(limit: Optional[int] = PAGINATION_DEFAULT_LIMIT, offset: Optional[int] = 0):
         from core.gods_eye_realtime import get_gods_eye_realtime
         eng = get_gods_eye_realtime()
-        return {"ok": True, "events": eng.recent_events(limit),
-                "detections": eng.recent_detections(limit), "stats": eng.stats()}
+        lim, off = sanitize_pagination(limit=limit, offset=offset)
+        events, p_ev = paginate_list(eng.recent_events(limit=lim), limit=lim, offset=off)
+        detections, p_det = paginate_list(eng.recent_detections(limit=lim), limit=lim, offset=off)
+        return {
+            "ok": True,
+            "events": events,
+            "detections": detections,
+            "stats": eng.stats(),
+            "events_pagination": p_ev,
+            "detections_pagination": p_det,
+            "events_total": p_ev["total"],
+            "detections_total": p_det["total"],
+        }
 
     @app.post("/api/gods_eye/cameras/pose")
     async def api_gods_eye_camera_pose(payload: Dict[str, Any]):
