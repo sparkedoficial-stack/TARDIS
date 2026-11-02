@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.3827088,
-  "last_video_id": "vp_20261101_185551_336602",
-  "last_topic": "Visualizing the Topological Structure of Neural Connectivity in the Human Brain using Persistent Homology",
-  "total_videos_analyzed": 838,
-  "running_cycle": true,
+  "last_run_timestamp": REDACTED_PHONE.0339565,
+  "last_video_id": "vp_20261101_193301_73b9fa",
+  "last_topic": "Visualizing the Entanglement Spectrum of Topological Phases via Tensor Network Simulations",
+  "total_videos_analyzed": 839,
+  "running_cycle": false,
   "last_error": null,
   "auto_improvement_count": 412
 }
