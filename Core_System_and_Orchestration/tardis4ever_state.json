@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "created_at": "2026-10-15T02:04:29.176374",
   "last_periodic_sync": "2026-11-01T00:47:01.518898",
-  "last_immediate_sync": "2026-11-02T00:15:55.269769",
-  "last_commit_hash": "c2bbf43e",
-  "sync_count": 1398,
-  "immediate_sync_count": 1397,
+  "last_immediate_sync": "2026-11-02T00:18:09.963566",
+  "last_commit_hash": "58b04704",
+  "sync_count": 1399,
+  "immediate_sync_count": 1398,
   "periodic_sync_count": 1,
   "last_known_mtimes": {
     "skill:omni-control-bridge/SKILL.md": REDACTED_PHONE.4575877,
@@ -39,7 +39,7 @@
     "xcode:rea_bridge.py": REDACTED_PHONE.2785594,
     "xcode:device_manager.py": REDACTED_PHONE.4790564,
     "xcode:builder.py": REDACTED_PHONE.6048222,
-    "ftl:ftl_omni_registry.py": REDACTED_PHONE.2083414,
+    "ftl:ftl_omni_registry.py": REDACTED_PHONE.6341076,
     "ftl:ftl_git_sync.py": REDACTED_PHONE.817792,
     "ftl:colab_tardis_neura_compresi_n_sintr_p.py": REDACTED_PHONE.4196546,
     "ftl:ftl_intv_appletv_hub.py": REDACTED_PHONE.2739694,
@@ -94,7 +94,7 @@
     "core:subsystem_agents.py": REDACTED_PHONE.9654834,
     "core:tardis_social_engine.py": REDACTED_PHONE.4267561,
     "core:device_vault.py": REDACTED_PHONE.059589,
-    "core:tardis_omni_tool_bridge.py": REDACTED_PHONE.5713205,
+    "core:tardis_omni_tool_bridge.py": REDACTED_PHONE.608073,
     "core:network_traffic_controller.py": REDACTED_PHONE.9932146,
     "core:inter_ai_protocol.py": REDACTED_PHONE.4301376,
     "core:deep_memory_vault.py": REDACTED_PHONE.436918,
@@ -177,7 +177,7 @@
     "core:idle_evolution_daemon.py": REDACTED_PHONE.8031204,
     "directive:AGENTS.md": REDACTED_PHONE.4880753,
     "directive:GEMINI.md": REDACTED_PHONE.6110253,
-    "registry:dynamic_tools": REDACTED_PHONE.509653,
+    "registry:dynamic_tools": REDACTED_PHONE.0470827,
     "sat:price_sentinel:tardis_deals_gui.py": REDACTED_PHONE.6812108,
     "sat:price_sentinel:README.md": REDACTED_PHONE.9704616,
     "sat:price_sentinel:launch_gui.sh": REDACTED_PHONE.1740243,
@@ -287,6 +287,17 @@
     "sat:gia_ios:GIA/Models/GIAModels.swift": REDACTED_PHONE.5796177
   },
   "history": [
+    {
+      "timestamp": "2026-11-02T00:18:09.963566",
+      "trigger": "immediate_milestone",
+      "commit_hash": "58b04704",
+      "score": 75,
+      "reasons": [
+        "Actualizaci\u00f3n cr\u00edtica en m\u00f3dulo FTL: ftl_omni_registry.py",
+        "Nuevo m\u00f3dulo central FTL creado: ftl_cas_kaiju.py",
+        "Evoluci\u00f3n en subsistema core TARDIS: tardis_omni_tool_bridge.py"
+      ]
+    },
     {
       "timestamp": "2026-11-02T00:15:55.269769",
       "trigger": "immediate_milestone",
@@ -838,17 +849,6 @@
       "timestamp": "2026-10-30T05:22:10.861545",
       "trigger": "immediate_milestone",
       "commit_hash": "39541498",
-      "score": 75,
-      "reasons": [
-        "Evoluci\u00f3n en subsistema core TARDIS: curiosity_debate_manager.py",
-        "Evoluci\u00f3n en subsistema core TARDIS: scientific_research_engine.py",
-        "Evoluci\u00f3n en subsistema core TARDIS: background_thought_engine.py"
-      ]
-    },
-    {
-      "timestamp": "2026-10-30T05:07:03.742083",
-      "trigger": "immediate_milestone",
-      "commit_hash": "137739aa",
       "score": 75,
       "reasons": [
         "Evoluci\u00f3n en subsistema core TARDIS: curiosity_debate_manager.py",

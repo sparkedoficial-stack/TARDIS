@@ -120,6 +120,7 @@ class FtlOmniRegistry:
                 "name": "CaS · Cognitive & Context as a Service",
                 "binary": "/home/timemachine/.local/bin/cas-kaiju",
                 "module": "modulos_ftl.ftl_cas_kaiju",
+                "module_file": "/home/timemachine/modulos_ftl/ftl_cas_kaiju.py",
                 "service": "cas-kaiju.service",
                 "endpoint": "http://127.0.0.1:8770",
                 "dashboard": "http://127.0.0.1:8770/dashboard",
@@ -261,12 +262,23 @@ class FtlOmniRegistry:
         # Intentar despacho por módulo FTL (omitido si la herramienta es CLI-first)
         if "module" in tool and tool.get("dispatch") != "cli":
             try:
-                mod_name = tool["module"].split(".")[-1]
-                sys_path = "/home/timemachine"
-                if sys_path not in sys.path:
-                    sys.path.insert(0, sys_path)
                 import importlib
-                mod = importlib.import_module(f"modulos_ftl.{mod_name}")
+                import importlib.util
+                module_file = tool.get("module_file")
+                if module_file and os.path.exists(module_file):
+                    mod_name = f"_omni_tool_{key}"
+                    spec = importlib.util.spec_from_file_location(mod_name, module_file)
+                    if spec is None or spec.loader is None:
+                        raise ImportError(f"No se pudo cargar {module_file}")
+                    mod = importlib.util.module_from_spec(spec)
+                    sys.modules[mod_name] = mod
+                    spec.loader.exec_module(mod)
+                else:
+                    mod_name = tool["module"].split(".")[-1]
+                    sys_path = "/home/timemachine"
+                    if sys_path not in sys.path:
+                        sys.path.insert(0, sys_path)
+                    mod = importlib.import_module(f"modulos_ftl.{mod_name}")
                 # Buscar clase o punto de entrada
                 for attr_name in dir(mod):
                     cls = getattr(mod, attr_name)

@@ -362,6 +362,10 @@ def execute_command(name: str) -> Dict[str, Any]:
         state["mode"] = "DEEP_SAVE_MODE"
         state["status"] = "SUSPENDED_SAVE_MODE"
     elif name == "restart_gateway":
+        # La bóveda de petición manda: esperar a que el Arquitecto termine.
+        guard = HOME / ".ftl" / "ftl_update_guard.py"
+        if guard.is_file():
+            _run([sys.executable, str(guard), "--wait", "--timeout", "120", "--quiet"], timeout=140)
         result = _run(
             [
                 "systemctl",

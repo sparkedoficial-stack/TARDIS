@@ -79,13 +79,27 @@ def run(cmd: List[str], timeout: float = 30.0) -> Dict[str, Any]:
         return {"ok": False, "rc": 1, "stdout": "", "stderr": str(exc), "cmd": " ".join(cmd)}
 
 
+def update_gate_busy() -> bool:
+    """True si una petición blindada está en curso (no reiniciar servicios FTL)."""
+    guard = FTL / "ftl_update_guard.py"
+    if not guard.is_file():
+        return False
+    res = run([sys.executable, str(guard), "--check"], timeout=10)
+    return res.get("rc") == 75
+
+
 def check_units() -> Dict[str, Any]:
-    result: Dict[str, Any] = {"checked": [], "restarted": [], "failed": []}
+    result: Dict[str, Any] = {"checked": [], "restarted": [], "failed": [], "deferred": []}
     for unit in CRITICAL_UNITS:
         st = run(["systemctl", "--user", "is-active", unit], timeout=8)
         active = (st.get("stdout") or "").strip()
         entry = {"unit": unit, "active": active}
         if active not in {"active", "activating"}:
+            if unit.startswith("ftl-") and update_gate_busy():
+                entry["deferred"] = "bóveda de petición activa"
+                result["deferred"].append(unit)
+                result["checked"].append(entry)
+                continue
             entry["restart"] = run(["systemctl", "--user", "restart", unit], timeout=45)
             if entry["restart"].get("ok"):
                 result["restarted"].append(unit)

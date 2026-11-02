@@ -2,6 +2,14 @@
 # Auto-update TARDIS Portfolio
 set -uo pipefail
 
+# ── Compuerta de la Bóveda de Petición ──────────────────────────────
+# Si el Arquitecto está redactando o transmitiendo una petición blindada,
+# el ciclo de actualización se pospone (y si excede 10 min, se salta).
+if ! /usr/bin/python3 /home/timemachine/.ftl/ftl_update_guard.py --wait --timeout 600 --quiet; then
+    echo "[$(date)] Petición blindada en curso: actualización diferida."
+    exit 0
+fi
+
 echo "[$(date)] Running TARDIS Portfolio Builder to sanitize and copy files..."
 python3 /home/timemachine/build_portfolio.py || echo "[$(date)] WARN: build_portfolio.py falló (rc=$?)"
 

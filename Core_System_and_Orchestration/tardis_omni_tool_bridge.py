@@ -112,6 +112,7 @@ class TardisOmniToolBridge:
                 "name": "CaS · Cognitive & Context as a Service",
                 "binary": str(HOME_DIR / ".local" / "bin" / "cas-kaiju"),
                 "module": "modulos_ftl.ftl_cas_kaiju",
+                "module_file": "/home/timemachine/modulos_ftl/ftl_cas_kaiju.py",
                 "domain": "cognitive_context",
                 "description": "Capa CaS sobre TARDIS-NEURAL-SPACE-KAIJU: recuperación multi-fuente con ranking BM25 + recencia + confianza, deduplicación SimHash, compresión extractiva sintrópica, presupuesto de tokens con citas y ancla inviolable La Constante AEGIS. Servicio local 127.0.0.1:8770 con HUD en /dashboard.",
                 "actions": ["context", "compress", "serve", "telemetry", "sources", "aegis", "selftest"]
@@ -198,7 +199,18 @@ class TardisOmniToolBridge:
         if "module" in tool and tool.get("dispatch") != "cli":
             try:
                 import importlib
-                mod = importlib.import_module(tool["module"])
+                import importlib.util
+                module_file = tool.get("module_file")
+                if module_file and os.path.exists(module_file):
+                    mod_name = f"_omni_bridge_{tool_id}"
+                    spec = importlib.util.spec_from_file_location(mod_name, module_file)
+                    if spec is None or spec.loader is None:
+                        raise ImportError(f"No se pudo cargar {module_file}")
+                    mod = importlib.util.module_from_spec(spec)
+                    sys.modules[mod_name] = mod
+                    spec.loader.exec_module(mod)
+                else:
+                    mod = importlib.import_module(tool["module"])
                 for attr in dir(mod):
                     cls_obj = getattr(mod, attr)
                     if isinstance(cls_obj, type) and hasattr(cls_obj, "run") and attr.lower().startswith("ftl"):
