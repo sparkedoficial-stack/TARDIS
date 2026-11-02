@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1793405169",
-    "timestamp": "2026-10-30T19:06:09.582702",
-    "idle_duration_minutes": 32.1,
-    "title": "Causal Memory Indexing for Real‑Time Web Research",
-    "hypothesis": "Integrating a causal inference layer into the Deep Memory Vault (core/deep_memory_vault.py) that tags each stored fragment with provenance‑based causal metadata will enable the Web Research Engine to prioritize and retrieve information that is not only topically relevant but also causally linked to the current query. This should reduce hallucination rates and improve answer precision, especially for multi‑step reasoning tasks, by allowing the system to trace back the chain of cause‑effect relationships that led to each stored fact.",
-    "research_query": "\"causal memory indexing\" \"knowledge retrieval\" \"reducing hallucinations\" \"large language model\"",
-    "research_findings": "# Informe de Investigación: \"causal memory indexing\" \"knowledge retrieval\" \"reducing hallucinations\" \"large language model\"\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal metadata extraction step in the search pipeline: after fetching candidate documents, invoke a lightweight causal parser (e.g., using spaCy + custom rules) to annotate each snippet with cause/effect tags, then re‑rank results based on causal relevance to the user's query.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.53
-  },
-  {
     "id": "conj_1793407068",
     "timestamp": "2026-10-30T19:37:48.294088",
     "idle_duration_minutes": 31.6,
@@ -1635,5 +1620,23 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 96.88
+  },
+  {
+    "id": "conj_1793602791",
+    "timestamp": "2026-11-02T01:59:51.208847",
+    "idle_duration_minutes": 31.8,
+    "title": "Resonancia Causal en la Bóveda Akáshica",
+    "hypothesis": "La eficiencia de la recuperación de memoria profunda (deep_memory_vault.py) puede optimizarse significativamente si se implementa un índice de 'resonancia causal' que priorice no solo la similitud semántica, sino la correlación temporal y de causa-efecto entre los eventos almacenados. Actualmente, la búsqueda se basa predominantemente en embeddings vectoriales estáticos. Al incorporar una métrica de 'proximidad causal' (basada en la secuencia de eventos y la latencia de respuesta del sistema), el motor de investigación (web_research_engine.py) podría predecir con mayor precisión qué fragmentos de memoria son relevantes para la resolución de problemas nuevos, reduciendo el ruido cognitivo y acelerando la toma de decisiones autónomas.",
+    "research_query": "causal inference in vector databases temporal correlation memory retrieval optimization",
+    "research_findings": "# Informe de Investigación: causal inference in vector databases temporal correlation memory retrieval optimization\n\n## Fuentes Consultadas y Respaldo Web\n- **[Deep learning (Wikipedia)](https://en.wikipedia.org/wiki/Deep_learning)**: derives from the field of machine learning. It features inference, as well as the optimization concepts of training and testing, related to fitting and\n- **[Artificial intelligence (Wikipedia)](https://en.wikipedia.org/wiki/Artificial_intelligence)**: video indexing and retrieval\". IEEE MultiMedia. 1 (2): 62–72. doi:10.1109/93.311653. Solomonoff, Ray (1956). An Inductive Inference Machine (PDF). Dartmouth\n\n## Contenido y Hallazgos Extraídos\n### De [Deep learning - Wikipedia](https://en.wikipedia.org/wiki/Deep_learning)\n> Deep learning - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nBranch of machine learning\nFor the TV series episode, see Deep Learning ( South Park ) .\nRepresenting images on multiple layers of abstraction in deep learnin",
+    "web_sources": [
+      "https://en.wikipedia.org/wiki/Deep_learning",
+      "https://en.wikipedia.org/wiki/Artificial_intelligence"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Añadir un campo 'causal_timestamp' y 'event_chain_id' a los registros de memoria y modificar el método de búsqueda para ponderar los resultados según la coherencia temporal y la densidad de conexiones causales previas.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.65
   }
 ]
