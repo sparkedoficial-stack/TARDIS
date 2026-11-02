@@ -198,6 +198,7 @@ Módulos y componentes auxiliares del sistema.
 - **mirror_plan.py**: Componente de alta eficiencia.
 - **models.py**: Componente de alta eficiencia.
 - **moe_routing.json**: Componente de alta eficiencia.
+- **mundo_sin_censura.py**: Componente de alta eficiencia.
 - **native-and-artifacts.md**: Componente de alta eficiencia.
 - **network_traffic_controller.py**: Componente de alta eficiencia.
 - **nodes_telemetry.json**: Componente de alta eficiencia.
