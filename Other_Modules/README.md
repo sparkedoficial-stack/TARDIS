@@ -199,6 +199,7 @@ Módulos y componentes auxiliares del sistema.
 - **models.py**: Componente de alta eficiencia.
 - **moe_routing.json**: Componente de alta eficiencia.
 - **mundo_sin_censura.py**: Componente de alta eficiencia.
+- **mundo_sin_censura_state.json**: Componente de alta eficiencia.
 - **native-and-artifacts.md**: Componente de alta eficiencia.
 - **network_traffic_controller.py**: Componente de alta eficiencia.
 - **nodes_telemetry.json**: Componente de alta eficiencia.
@@ -274,6 +275,7 @@ Módulos y componentes auxiliares del sistema.
 - **tardis_skill_registry.py**: Directorio y puente soberano de interoperabilidad omni-herramientas.
 - **tardis_social.py**: Componente de alta eficiencia.
 - **tardis_social_engine.py**: Componente de alta eficiencia.
+- **tardis_ssm_v27.py**: Componente de alta eficiencia.
 - **tardis_system_repair.py**: Componente de alta eficiencia.
 - **tardis_telephony_controller.py**: Componente de alta eficiencia.
 - **tardis_terminal_config.json**: Componente de alta eficiencia.

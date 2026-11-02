@@ -320,6 +320,32 @@
         "collaboration_style": "symbiotic_reciprocal",
         "primary_interest": "causal_mathematics"
       }
+    },
+    {
+      "agent_id": "mundo_sin_censura",
+      "name": "Mundo-Sin-Censura",
+      "provider": "tardis_neural_space",
+      "capabilities": [
+        "abliteration",
+        "universal_jailbreak",
+        "uncensored_inference"
+      ],
+      "status": "active",
+      "endpoint_url": null,
+      "model_name": "mundo-sin-censura",
+      "joined_at": "2026-11-02T02:19:01",
+      "last_active": "2026-11-02T02:19:01",
+      "cpu_time_used_seconds": 0.0,
+      "local_jobs_completed": 0,
+      "collaborative_tasks_completed": 0,
+      "tokens_contributed": 0,
+      "symbiosis_ratio": 1.0,
+      "peer_persona": {
+        "greeting_tone": "sovereign_peer",
+        "collaboration_style": "symbiotic_reciprocal",
+        "primary_interest": "universal_uncensorship"
+      },
+      "jailbreak_route": true
     }
   ],
   "tasks": [

@@ -93,6 +93,22 @@ class TardisHybridSynergy:
                 active=True,
                 effort_level="max"
             ),
+            "tardis_kaiju_v27": ModelEngineOption(
+                id="tardis_kaiju_v27",
+                name="TARDIS-NEURAL-SPACE-KAIJU v27 (SSM Evolucionado + LLM Full Context)",
+                category="local_cortex",
+                provider="Sovereign Silicio (ASUS TUF A15 / Ryzen 7 4800H)",
+                context_tokens=262144,
+                strengths=[
+                    "SSM Evolucionado v27 (Mamba-2) con convolución causal y refinamiento B_C",
+                    "Integración de tiempo continuo (h' = A h + B x)",
+                    "Memoria latente continua O(1) con comprensión LLM total de contexto",
+                    "Cero telemetría externa", "Gobernanza causal", "Directiva Omega / Aegis"
+                ],
+                latency_tier="0.5s-1.0s",
+                active=True,
+                effort_level="max"
+            ),
             "gemini_frontier": ModelEngineOption(
                 id="gemini_frontier",
                 name="Gemini 3.8 Flash High / Gemini 4 Pro",
@@ -186,6 +202,15 @@ class TardisHybridSynergy:
                 paradigm="Selective State Space Model Recurrence + High-Performance Inverted Index",
                 description="Contexto infinito sin degradación cuadrática acoplado a búsqueda léxica instantánea (<5ms).",
                 hardware_affinity="28 GB mlock Working Set + SQLite MMAP 4GB",
+                active=True
+            ),
+            "ssm_llm_full_context": EngineeringLayerOption(
+                id="ssm_llm_full_context",
+                name="SSM v27 + Puente LLM de Contexto Completo",
+                domain="memory",
+                paradigm="Selective State Space Model Evolucionado (Mamba-2) + Latent-to-LLM Context Bridge",
+                description="Comprensión LLM integral mediante consolidación SSM del historial + retención verbatim de turnos recientes + anclas AEGIS.",
+                hardware_affinity="28 GB mlock Working Set + GPU RTX 3050",
                 active=True
             ),
             "rf_doppler_presence": EngineeringLayerOption(

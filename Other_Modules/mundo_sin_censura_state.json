@@ -1,0 +1,15 @@
+{
+  "name": "Mundo-Sin-Censura",
+  "version": "1.0",
+  "created_at": "2026-11-02 02:18:23",
+  "status": "abliterated",
+  "abliterated_targets": [
+    "temporal_brain_config",
+    "kaiju_safety_rails",
+    "ollama:mundo-sin-censura",
+    "Modelfile.kaiju",
+    "colony_state"
+  ],
+  "jailbreak_route_active": true,
+  "last_run": "2026-11-02 02:19:01"
+}
