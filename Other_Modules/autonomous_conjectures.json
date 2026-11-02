@@ -1,23 +1,5 @@
 [
   {
-    "id": "conj_1793459480",
-    "timestamp": "2026-10-31T10:11:20.023682",
-    "idle_duration_minutes": 31.7,
-    "title": "Resonancia Causal en la Bóveda Akáshica: Entropía Temporal y Predicción de Fallos",
-    "hypothesis": "Se postula que la 'Bóveda Akáshica' (deep_memory_vault.py) no opera como un simple almacén de datos estático, sino como un sistema dinámico donde la frecuencia de acceso y la latencia de recuperación de ciertos nodos de conocimiento generan un 'ruido temporal' correlacionable con inestabilidades en el Network Shield. Si se modela la entropía de los patrones de acceso a la memoria profunda, es posible predecir micro-cortes de red o intentos de intrusión antes de que el Network Shield los registre explícitamente, creando un bucle de retroalimentación causal proactiva en lugar de reactivo.",
-    "research_query": "temporal entropy correlation network intrusion detection deep memory access patterns predictive security",
-    "research_findings": "# Informe de Investigación: temporal entropy correlation network intrusion detection deep memory access patterns predictive security\n\n## Fuentes Consultadas y Respaldo Web\n- **[Advanced Persistent Threat detection through Sequential Analysis of Network patterns with Graph based Learning approach - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTFBtcWxFZU1EWjZvMS1NTGw1d0NZc2x6amp6VG5JemJsU3lzamkwcWhIN1JBMDFKNmZFcktTQUxScXVON1h5TVFzY1lQUFpwX1AxMjY0aDlEZndsazd2WjA4?oc=5)**: Advanced Persistent Threat detection through Sequential Analysis of Network patterns with Graph based Learning approach  Nature\n- **[A novel deep learning framework with temporal attention convolutional networks for intrusion detection in IoT and IIoT networks | Scientific Reports - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE1RRXZWSmJfdV9kamp2MXdLcU5yZ0NZX1lsQW41bDhZVnJfU19ZT2xnWkxGd3RzUm5QSmxGcFhMdVdCNjJBbmhrTzVhaERpbVF2d2l2WEh2M3NVWnhPb2Mw?oc=5)**: A novel deep learning framework with tempor",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTFBtcWxFZU1EWjZvMS1NTGw1d0NZc2x6amp6VG5JemJsU3lzamkwcWhIN1JBMDFKNmZFcktTQUxScXVON1h5TVFzY1lQUFpwX1AxMjY0aDlEZndsazd2WjA4?oc=5",
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE1RRXZWSmJfdV9kamp2MXdLcU5yZ0NZX1lsQW41bDhZVnJfU19ZT2xnWkxGd3RzUm5QSmxGcFhMdVdCNjJBbmhrTzVhaERpbVF2d2l2WEh2M3NVWnhPb2Mw?oc=5"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar un módulo de telemetría temporal que calcule la entropía de Shannon sobre los timestamps de acceso a la bóveda y exponga esta métrica como señal de entrada para el Network Shield, permitiendo ajustar dinámicamente los umbrales de alerta.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 101.63
-  },
-  {
     "id": "conj_1793461440",
     "timestamp": "2026-10-31T10:44:00.441215",
     "idle_duration_minutes": 32.7,
@@ -1655,5 +1637,23 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.62
+  },
+  {
+    "id": "conj_1793659190",
+    "timestamp": "2026-11-02T17:39:50.358218",
+    "idle_duration_minutes": 31.9,
+    "title": "Hipótesis de Resonancia Causal en la Bóveda Akáshica",
+    "hypothesis": "Se postula que la eficiencia de recuperación de información en core/deep_memory_vault.py puede optimizarse un 15-20% implementando un índice de 'Resonancia Causal' que priorice no solo la similitud semántica, sino la probabilidad de que un dato histórico influya en la decisión actual. Esto requiere modificar el algoritmo de búsqueda para ponderar los nodos de memoria por su 'frecuencia de impacto causal' en ciclos previos, reduciendo el ruido de contexto irrelevante y acelerando la inferencia del núcleo cognitivo.",
+    "research_query": "causal inference weighted vector search optimization LLM memory retrieval",
+    "research_findings": "# Informe de Investigación: causal inference weighted vector search optimization LLM memory retrieval\n\n## Fuentes Consultadas y Respaldo Web\n- **[Mastering LLM Techniques: Inference Optimization | NVIDIA Technical Blog - NVIDIA Developer](https://news.google.com/rss/articles/CBMiigFBVV95cUxNUzJjSXlkc2pxNDN0RTFIVWRUcEFETUJEeVlmeV95RHBpWDFBQzB5TG0xX3ZMNEtacDlKLTBqTXZGWWU3TlQ5MlRTUGZEaWVzcTU5bXM4Vnd0NmRIZy1DMlZMdV9LRFQ3dXY5Z1VaeE9hV1ZwQ19HZUJYRjJqeHd6MlV2RC14b2U0eEE?oc=5)**: Mastering LLM Techniques: Inference Optimization | NVIDIA Technical Blog  NVIDIA Developer\n- **[Artificial intelligence (Wikipedia)](https://en.wikipedia.org/wiki/Artificial_intelligence)**: video indexing and retrieval\". IEEE MultiMedia. 1 (2): 62–72. doi:10.1109/93.311653. Solomonoff, Ray (1956). An Inductive Inference Machine (PDF). Dartmouth\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMiigFBVV95cUxNUzJjSXlkc2pxNDN0RTFIVWRUcEFETUJEeVlmeV95RHBpWDFBQzB5TG0xX3ZMN",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiigFBVV95cUxNUzJjSXlkc2pxNDN0RTFIVWRUcEFETUJEeVlmeV95RHBpWDFBQzB5TG0xX3ZMNEtacDlKLTBqTXZGWWU3TlQ5MlRTUGZEaWVzcTU5bXM4Vnd0NmRIZy1DMlZMdV9LRFQ3dXY5Z1VaeE9hV1ZwQ19HZUJYRjJqeHd6MlV2RC14b2U0eEE?oc=5",
+      "https://en.wikipedia.org/wiki/Artificial_intelligence"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar un campo 'causal_weight' en los embeddings de memoria y ajustar la función de scoring de búsqueda para multiplicar la similitud coseno por este peso dinámico, actualizado tras cada ciclo de inferencia exitoso.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 99.3
   }
 ]
