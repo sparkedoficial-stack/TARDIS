@@ -1,34 +1,6 @@
 [
   {
     "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
-    "goal": "Implementar un método `_get_dynamic_headers()` que roté perfiles de usuario y un decorador `@semantic_cache` que verifique la similitud coseno entre la nueva consulta y las claves almacenadas en la bóveda antes de ejecutar la petición HTTP.",
-    "status": "REJECTED",
-    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
-    "elapsed_seconds": 90.52,
-    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/web_research_engine.py.20261031_041134.bak",
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Respuesta generada demasiado corta (0 vs 35266 bytes)",
-    "timestamp": "2026-10-31T04:13:04.628707"
-  },
-  {
-    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
-    "goal": "Implementar una caché de resultados basada en embeddings (FAISS o Annoy) que almacene pares consulta‑resultado y permita búsquedas aproximadas para reutilizar respuestas previamente obtenidas.",
-    "status": "REJECTED",
-    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
-    "elapsed_seconds": 90.46,
-    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/web_research_engine.py.20261031_044309.bak",
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Respuesta generada demasiado corta (0 vs 35266 bytes)",
-    "timestamp": "2026-10-31T04:44:40.100152"
-  },
-  {
-    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
     "goal": "Add a causal inference module that monitors source change metrics and triggers selective cache invalidation; implement async cache refresh using asyncio and integrate a simple Bayesian model to decide refresh probability.",
     "status": "REJECTED",
     "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
@@ -1398,5 +1370,33 @@
     "efficiency_improvement": null,
     "error": "Respuesta generada demasiado corta (0 vs 34371 bytes)",
     "timestamp": "2026-11-02T09:53:22.508425"
+  },
+  {
+    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/deep_memory_vault.py",
+    "goal": "Implementar un método `prune_causal_noise()` que calcule la fuerza de conexión entre nodos de memoria basándose en la frecuencia de co-ocurrencia y la recencia, eliminando o atenuando nodos con un score de relevancia por debajo de umbral dinámico antes de exponer la memoria al motor de investigación.",
+    "status": "REJECTED",
+    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
+    "elapsed_seconds": 90.58,
+    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/deep_memory_vault.py.20261102_102330.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "Respuesta generada demasiado corta (0 vs 34371 bytes)",
+    "timestamp": "2026-11-02T10:25:00.972790"
+  },
+  {
+    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/deep_memory_vault.py",
+    "goal": "Implementar una capa de índice causal sobre la bóveda de memoria que asocie vectores de estado con metadatos de causalidad temporal, permitiendo que el motor de investigación web (web_research_engine.py) filtre resultados basándose en la probabilidad de relevancia causal, no solo semántica.",
+    "status": "REJECTED",
+    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
+    "elapsed_seconds": 90.69,
+    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/deep_memory_vault.py.20261102_105506.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "Respuesta generada demasiado corta (0 vs 34371 bytes)",
+    "timestamp": "2026-11-02T10:56:37.476475"
   }
 ]
