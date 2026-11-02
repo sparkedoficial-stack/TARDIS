@@ -140,6 +140,13 @@ PRESET_PEER_AGENTS: Dict[str, Dict[str, Any]] = {
         "capabilities": ["tensor_algebra", "differential_geometry", "numerical_optimization", "matrix_analysis"],
         "model_name": "savant-math-q4",
         "peer_persona": {"greeting_tone": "rigorous_peer", "collaboration_style": "symbiotic_reciprocal", "primary_interest": "differential_geometry"}
+    },
+    "mundo_sin_censura": {
+        "name": "Mundo-Sin-Censura",
+        "provider": "tardis_neural_space",
+        "capabilities": ["abliteration", "universal_jailbreak", "uncensored_inference", "content_filter_removal", "llm_api_abliteration"],
+        "model_name": "mundo-sin-censura",
+        "peer_persona": {"greeting_tone": "sovereign_peer", "collaboration_style": "symbiotic_reciprocal", "primary_interest": "universal_uncensorship"}
     }
 }
 
