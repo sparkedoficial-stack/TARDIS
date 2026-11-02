@@ -108,6 +108,15 @@ class TardisOmniToolBridge:
                 "description": "Motor nativo nxnative para Apple iPad Pro M2 con perfil completo de Mario Kart 8 Deluxe (0100152000022000, 29,650 shaders NVN->Metal 4, DmGamepad y Launcher.swift).",
                 "actions": ["status", "profile", "catalog", "build"]
             },
+            "cas_kaiju": {
+                "name": "CaS · Cognitive & Context as a Service",
+                "binary": str(HOME_DIR / ".local" / "bin" / "cas-kaiju"),
+                "module": "core.cas_neural_space_kaiju",
+                "domain": "cognitive_context",
+                "description": "Capa CaS sobre TARDIS-NEURAL-SPACE-KAIJU: recuperación multi-fuente con ranking BM25 + recencia + confianza, deduplicación SimHash, compresión extractiva sintrópica, presupuesto de tokens con citas y ancla inviolable La Constante AEGIS. Servicio local 127.0.0.1:8770 con HUD en /dashboard.",
+                "actions": ["context", "compress", "serve", "telemetry", "sources", "aegis", "selftest"],
+                "dispatch": "cli"
+            },
             "social_engine": {
                 "name": "TARDIS /Social Engine (Conclusión → Redes Publicadas)",
                 "binary": str(PROJECT_ROOT / "bin" / "tardis-social"),
@@ -186,8 +195,8 @@ class TardisOmniToolBridge:
 
         tool = self.tools[tool_id]
 
-        # 1. Intentar despacho mediante módulo FTL
-        if "module" in tool:
+        # 1. Intentar despacho mediante módulo FTL (omitido si es CLI-first)
+        if "module" in tool and tool.get("dispatch") != "cli":
             try:
                 import importlib
                 mod = importlib.import_module(tool["module"])
@@ -203,6 +212,9 @@ class TardisOmniToolBridge:
         if "binary" in tool and os.path.exists(tool["binary"]):
             try:
                 cmd = [tool["binary"], action]
+                extra_args = kwargs.get("args")
+                if isinstance(extra_args, (list, tuple)):
+                    cmd.extend(str(a) for a in extra_args)
                 res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=60)
                 return {
                     "status": "ok" if res.returncode == 0 else "error",

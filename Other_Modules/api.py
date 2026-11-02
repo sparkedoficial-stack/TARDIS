@@ -3544,8 +3544,13 @@ iframe{border:none;width:100%;height:100%;}</style></head>
             return {"ok": False, "error": str(e)}
 
     @app.get("/api/ftl/context")
-    async def get_ftl_context_endpoint(prompt: str = "", max_chars: int = 4000):
+    async def get_ftl_context_endpoint(prompt: str = "", max_chars: int = 4000, engine: str = "vault", budget: int = 6000, profile: str = "interactive"):
         try:
+            if engine.lower() == "cas":
+                from core.cas_neural_space_kaiju import get_cas
+                return get_cas().build_context(
+                    prompt, profile=profile, budget_tokens=budget
+                ).to_dict()
             from core.deep_memory_vault import get_deep_memory_vault
             vault = get_deep_memory_vault()
             return vault.query_transversal_ftl_context(prompt=prompt, max_chars=max_chars)

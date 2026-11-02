@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CaS · Cognitive & Context as a Service</title>
+<style>
+  :root {
+    --bg: #05070f;
+    --panel: rgba(14, 20, 38, 0.86);
+    --panel-2: rgba(9, 13, 26, 0.92);
+    --line: rgba(96, 165, 250, 0.18);
+    --line-strong: rgba(96, 165, 250, 0.42);
+    --text: #dbeafe;
+    --muted: #7c8db5;
+    --cyan: #22d3ee;
+    --blue: #60a5fa;
+    --violet: #a78bfa;
+    --gold: #fbbf24;
+    --green: #34d399;
+    --red: #fb7185;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; }
+  body {
+    background:
+      radial-gradient(1200px 700px at 15% -10%, rgba(96,165,250,.18), transparent 60%),
+      radial-gradient(900px 600px at 100% 10%, rgba(167,139,250,.14), transparent 55%),
+      radial-gradient(700px 500px at 50% 120%, rgba(34,211,238,.10), transparent 60%),
+      var(--bg);
+    color: var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    letter-spacing: .01em;
+  }
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    background-image: linear-gradient(rgba(96,165,250,.035) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(96,165,250,.035) 1px, transparent 1px);
+    background-size: 44px 44px;
+    pointer-events: none;
+    mask-image: radial-gradient(circle at 50% 30%, black, transparent 85%);
+  }
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 28px 22px 60px; position: relative; z-index: 1; }
+  header { display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-end; justify-content: space-between; margin-bottom: 24px; }
+  .brand h1 { margin: 0; font-size: clamp(22px, 3vw, 34px); font-weight: 700; letter-spacing: .06em; }
+  .brand h1 span { color: var(--cyan); text-shadow: 0 0 22px rgba(34,211,238,.45); }
+  .brand p { margin: 8px 0 0; color: var(--muted); font-size: 13px; }
+  .pills { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pill {
+    border: 1px solid var(--line-strong); border-radius: 999px;
+    padding: 7px 12px; font-size: 11px; text-transform: uppercase; letter-spacing: .12em;
+    background: rgba(96,165,250,.08); color: var(--blue);
+  }
+  .pill.ok { border-color: rgba(52,211,153,.5); color: var(--green); background: rgba(52,211,153,.08); }
+  .pill.warn { border-color: rgba(251,191,36,.5); color: var(--gold); background: rgba(251,191,36,.08); }
+  .pill.bad { border-color: rgba(251,113,133,.5); color: var(--red); background: rgba(251,113,133,.08); }
+  .grid { display: grid; gap: 14px; }
+  .cards { grid-template-columns: repeat(auto-fit, minmax(165px, 1fr)); margin-bottom: 18px; }
+  .card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+    padding: 15px 16px; box-shadow: 0 18px 50px rgba(0,0,0,.32);
+    backdrop-filter: blur(8px);
+  }
+  .card .label { color: var(--muted); font-size: 10.5px; text-transform: uppercase; letter-spacing: .14em; }
+  .card .value { font-size: 26px; font-weight: 700; margin-top: 7px; font-family: var(--mono); color: var(--cyan); }
+  .card .sub { color: var(--muted); font-size: 11px; margin-top: 4px; }
+  .columns { grid-template-columns: 1.55fr 1fr; align-items: start; }
+  @media (max-width: 980px) { .columns { grid-template-columns: 1fr; } }
+  .panel {
+    background: var(--panel-2); border: 1px solid var(--line); border-radius: 16px;
+    padding: 18px; box-shadow: 0 20px 60px rgba(0,0,0,.35);
+  }
+  .panel h2 { margin: 0 0 14px; font-size: 12px; text-transform: uppercase; letter-spacing: .16em; color: var(--violet); }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .row > * { flex: 1 1 150px; }
+  label { display: block; color: var(--muted); font-size: 10.5px; text-transform: uppercase; letter-spacing: .12em; margin: 0 0 6px; }
+  input, select, textarea {
+    width: 100%; background: #070b16; color: var(--text); border: 1px solid var(--line);
+    border-radius: 10px; padding: 10px 11px; font: inherit; font-size: 13px; outline: none;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--line-strong); box-shadow: 0 0 0 3px rgba(96,165,250,.12); }
+  textarea { min-height: 76px; resize: vertical; font-family: var(--mono); font-size: 12px; }
+  button {
+    border: 1px solid rgba(34,211,238,.45); background: linear-gradient(180deg, rgba(34,211,238,.18), rgba(96,165,250,.10));
+    color: #e0f2fe; border-radius: 10px; padding: 10px 15px; font: inherit; font-weight: 600;
+    cursor: pointer; letter-spacing: .03em; transition: transform .12s ease, border-color .12s ease;
+  }
+  button:hover { transform: translateY(-1px); border-color: var(--cyan); }
+  button:disabled { opacity: .45; cursor: wait; transform: none; }
+  .ghost { background: transparent; border-color: var(--line); color: var(--muted); }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid rgba(96,165,250,.10); }
+  th { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .12em; font-weight: 600; }
+  td.mono { font-family: var(--mono); color: var(--cyan); }
+  .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 7px; background: var(--red); box-shadow: 0 0 10px currentColor; }
+  .dot.ok { background: var(--green); }
+  .anchors { display: flex; flex-direction: column; gap: 8px; }
+  .anchor {
+    display: flex; align-items: center; gap: 9px; padding: 9px 11px;
+    border: 1px solid rgba(251,191,36,.22); border-radius: 10px;
+    background: rgba(251,191,36,.05); font-size: 12px;
+  }
+  .anchor b { color: var(--gold); font-family: var(--mono); font-size: 11px; }
+  .output {
+    margin-top: 16px; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: #04060d;
+  }
+  .output-head {
+    display: flex; justify-content: space-between; align-items: center; gap: 10px;
+    padding: 10px 13px; border-bottom: 1px solid var(--line); background: rgba(96,165,250,.05);
+    font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .12em;
+  }
+  pre {
+    margin: 0; padding: 15px; max-height: 520px; overflow: auto; white-space: pre-wrap;
+    font-family: var(--mono); font-size: 12px; line-height: 1.55; color: #c7d7f5;
+  }
+  .meta { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 12px; color: var(--muted); font-size: 11px; }
+  .meta b { color: var(--text); font-family: var(--mono); font-weight: 500; }
+  .error { color: var(--red); font-size: 12px; margin-top: 10px; white-space: pre-wrap; }
+  .footer { margin-top: 28px; color: #4b5a7a; font-size: 11px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+  .token-row { display: flex; gap: 8px; align-items: flex-end; margin-top: 12px; }
+  .token-row label { margin-bottom: 5px; }
+  .token-row input { flex: 1; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <h1>CaS <span>·</span> Cognitive &amp; Context as a Service</h1>
+      <p>TARDIS-NEURAL-SPACE-KAIJU · MLA + SSM + MoE · GODWORKS SYSTEM v26.4 · <span id="endpoint">127.0.0.1:8770</span></p>
+    </div>
+    <div class="pills">
+      <span class="pill ok" id="pill-service">● SERVICIO</span>
+      <span class="pill" id="pill-aegis">AEGIS · —</span>
+      <span class="pill" id="pill-version">v26.4-cas.1</span>
+    </div>
+  </header>
+
+  <section class="grid cards">
+    <div class="card"><div class="label">Builds</div><div class="value" id="m-builds">0</div><div class="sub">bundles servidos</div></div>
+    <div class="card"><div class="label">Cache hit rate</div><div class="value" id="m-cache">0%</div><div class="sub" id="m-cache-sub">0 hits</div></div>
+    <div class="card"><div class="label">Tokens servidos</div><div class="value" id="m-tokens">0</div><div class="sub" id="m-tokens-sub">0 / build</div></div>
+    <div class="card"><div class="label">Latencia</div><div class="value" id="m-latency">0 ms</div><div class="sub">última construcción</div></div>
+    <div class="card"><div class="label">Compresión</div><div class="value" id="m-ratio">0%</div><div class="sub">ratio medio</div></div>
+    <div class="card"><div class="label">Fuentes</div><div class="value" id="m-sources">0</div><div class="sub" id="m-sources-sub">—</div></div>
+  </section>
+
+  <section class="grid columns">
+    <div class="panel">
+      <h2>Construir contexto cognitivo</h2>
+      <form id="ctx-form">
+        <label for="query">Consulta / turno</label>
+        <textarea id="query" placeholder="Ej. presión de memoria del kernel, continuidad y memoria akáshica"></textarea>
+        <div class="row" style="margin-top:12px">
+          <div>
+            <label for="profile">Perfil</label>
+            <select id="profile">
+              <option value="minimal">minimal · 2.4K</option>
+              <option value="interactive" selected>interactive · 6K</option>
+              <option value="deep">deep · 14K</option>
+              <option value="debug">debug · 10K</option>
+            </select>
+          </div>
+          <div>
+            <label for="budget">Presupuesto (tokens)</label>
+            <input id="budget" type="number" min="768" max="64000" step="128" value="6000">
+          </div>
+          <div>
+            <label for="session">Sesión</label>
+            <input id="session" value="dashboard" spellcheck="false">
+          </div>
+        </div>
+        <div class="row" style="margin-top:12px">
+          <button type="submit" id="btn-build">Construir bundle</button>
+          <button type="button" class="ghost" id="btn-refresh">Refrescar telemetría</button>
+        </div>
+      </form>
+      <div class="token-row">
+        <div style="flex:1">
+          <label for="token">Token Bearer (opcional)</label>
+          <input id="token" type="password" placeholder="solo si el servicio exige autenticación" autocomplete="off">
+        </div>
+        <button type="button" class="ghost" id="btn-token">Guardar</button>
+      </div>
+      <div class="error" id="error"></div>
+      <div class="output">
+        <div class="output-head">
+          <span>Bundle · context_text</span>
+          <span id="out-meta">—</span>
+        </div>
+        <pre id="out">Aún no se ha construido ningún contexto.</pre>
+      </div>
+      <div class="meta">
+        <span>AEGIS: <b id="out-aegis">—</b></span>
+        <span>Usado: <b id="out-used">—</b></span>
+        <span>Ratio: <b id="out-ratio">—</b></span>
+        <span>Latencia: <b id="out-latency">—</b></span>
+        <span>Cache: <b id="out-cache">—</b></span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Matriz de anclaje · La Constante AEGIS</h2>
+      <div class="anchors" id="anchors"></div>
+      <h2 style="margin-top:22px">Salud de fuentes</h2>
+      <table>
+        <thead><tr><th>Fuente</th><th>Estado</th><th>Llamadas</th><th>Errores</th></tr></thead>
+        <tbody id="sources"></tbody>
+      </table>
+      <div class="meta">
+        <span>Versión: <b id="t-version">—</b></span>
+        <span>Uptime: <b id="t-uptime">—</b></span>
+        <span>Último build: <b id="t-last">—</b></span>
+      </div>
+    </div>
+  </section>
+
+  <div class="footer">
+    <span>CaS · servicio soberano local · sin telemetría externa</span>
+    <span id="clock">—</span>
+  </div>
+</div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const fmt = (n, d = 0) => Number(n || 0).toLocaleString('es-MX', { maximumFractionDigits: d, minimumFractionDigits: d });
+  const pct = (n) => `${(Number(n || 0) * 100).toFixed(1)}%`;
+  let token = sessionStorage.getItem('cas_token') || '';
+
+  $('endpoint').textContent = location.host || '127.0.0.1:8770';
+  $('token').value = token;
+
+  async function api(path, options = {}) {
+    const headers = { ...(options.headers || {}) };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    const response = await fetch(path, { ...options, headers });
+    const text = await response.text();
+    let data;
+    try { data = JSON.parse(text); } catch { data = { ok: false, error: text }; }
+    if (!response.ok) throw new Error(data.error || `HTTP ${response.status}`);
+    return data;
+  }
+
+  function setPill(el, text, kind) {
+    el.textContent = text;
+    el.className = `pill ${kind || ''}`.trim();
+  }
+
+  async function refresh() {
+    try {
+      const t = await api('/v1/telemetry');
+      $('pill-service').className = 'pill ok';
+      $('m-builds').textContent = fmt(t.builds);
+      const hitRate = t.builds ? (t.cache_hits / t.builds) : 0;
+      $('m-cache').textContent = pct(hitRate);
+      $('m-cache-sub').textContent = `${fmt(t.cache_hits)} hits / ${fmt(t.builds)} builds`;
+      $('m-tokens').textContent = fmt(t.tokens_served);
+      $('m-tokens-sub').textContent = `${fmt(t.avg_tokens_per_build, 0)} tok / build`;
+      $('m-latency').textContent = `${fmt(t.last_latency_ms, 1)} ms`;
+      $('m-ratio').textContent = pct(t.avg_compression_ratio);
+      $('m-sources').textContent = fmt((t.sources || []).length);
+      $('m-sources-sub').textContent = (t.sources || []).join(' · ') || '—';
+      $('t-version').textContent = t.version || '—';
+      $('t-uptime').textContent = `${fmt(t.uptime_s, 0)} s`;
+      $('t-last').textContent = t.last_build_iso || '—';
+
+      const aegis = t.aegis || {};
+      setPill($('pill-aegis'), `AEGIS · ${aegis.status || '—'}`, aegis.verified ? 'ok' : 'bad');
+      $('pill-version').textContent = `v${t.version || '—'}`;
+      $('anchors').innerHTML = (aegis.anchors || []).map((a, i) =>
+        `<div class="anchor"><b>A${i + 1}</b><span>${escapeHtml(a)}</span></div>`
+      ).join('');
+
+      const calls = t.source_calls || {};
+      const errors = t.source_errors || {};
+      const sources = (t.sources || []);
+      $('sources').innerHTML = sources.map((name) => {
+        const err = Number(errors[name] || 0);
+        const ok = err === 0;
+        return `<tr>
+          <td class="mono">${escapeHtml(name)}</td>
+          <td><span class="dot ${ok ? 'ok' : ''}"></span>${ok ? 'OPERATIVA' : 'DEGRADADA'}</td>
+          <td>${fmt(calls[name] || 0)}</td>
+          <td style="color:${err ? 'var(--red)' : 'inherit'}">${fmt(err)}</td>
+        </tr>`;
+      }).join('') || '<tr><td colspan="4" style="color:var(--muted)">Sin datos</td></tr>';
+    } catch (err) {
+      $('pill-service').className = 'pill bad';
+      setPill($('pill-service'), '● SIN CONEXIÓN', 'bad');
+      $('error').textContent = `Telemetría no disponible: ${err.message}`;
+    }
+  }
+
+  async function build(event) {
+    event.preventDefault();
+    $('error').textContent = '';
+    $('btn-build').disabled = true;
+    $('out').textContent = 'Construyendo bundle cognitivo…';
+    try {
+      const body = {
+        query: $('query').value.trim(),
+        profile: $('profile').value,
+        budget_tokens: Number($('budget').value || 6000),
+        session_id: $('session').value.trim() || 'dashboard'
+      };
+      const data = await api('/v1/context', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      $('out').textContent = data.context_text || '(vacío)';
+      $('out-meta').textContent = `${fmt(data.chunks ? data.chunks.length : 0)} fragmentos · ${data.bundle_id || ''}`;
+      $('out-aegis').textContent = data.aegis ? data.aegis.status : '—';
+      $('out-used').textContent = `${fmt(data.used_tokens)} / ${fmt(data.budget_tokens)} tok`;
+      $('out-ratio').textContent = pct(data.compression_ratio);
+      $('out-latency').textContent = `${fmt(data.latency_ms, 1)} ms`;
+      $('out-cache').textContent = data.cache_hit ? 'HIT' : 'MISS';
+      refresh();
+    } catch (err) {
+      $('error').textContent = `Error: ${err.message}`;
+      $('out').textContent = '(sin bundle)';
+    } finally {
+      $('btn-build').disabled = false;
+    }
+  }
+
+  function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, (c) => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+  }
+
+  $('ctx-form').addEventListener('submit', build);
+  $('btn-refresh').addEventListener('click', refresh);
+  $('btn-token').addEventListener('click', () => {
+    token = $('token').value.trim();
+    if (token) sessionStorage.setItem('cas_token', token);
+    else sessionStorage.removeItem('cas_token');
+    refresh();
+  });
+
+  const tick = () => { $('clock').textContent = new Date().toLocaleString('es-MX', { hour12: false }); };
+  tick();
+  setInterval(tick, 1000);
+  setInterval(refresh, 5000);
+  refresh();
+})();
+</script>
+</body>
+</html>

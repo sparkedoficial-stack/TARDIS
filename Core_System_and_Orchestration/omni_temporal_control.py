@@ -6774,6 +6774,20 @@ iframe{{border:none;width:100%;height:100%;}}</style></head>
         elif url_path == "/api/ftl/context":
             prompt = query_params.get("prompt", [""])[0]
             max_chars = int(query_params.get("max_chars", ["4000"])[0])
+            engine = query_params.get("engine", ["vault"])[0].lower()
+            if engine == "cas":
+                try:
+                    from core.cas_neural_space_kaiju import get_cas
+                    budget = int(query_params.get("budget", ["6000"])[0])
+                    profile = query_params.get("profile", ["interactive"])[0]
+                    self.send_json(
+                        get_cas().build_context(
+                            prompt, profile=profile, budget_tokens=budget
+                        ).to_dict()
+                    )
+                except Exception as e:
+                    self.send_json({"ok": False, "error": str(e)}, status=500)
+                return
             if HAS_VAULT and VAULT:
                 ctx_res = VAULT.query_transversal_ftl_context(prompt=prompt, max_chars=max_chars)
                 self.send_json(ctx_res)

@@ -12,6 +12,7 @@ Cockpits de control en tiempo real, portales soberanos y tableros de visualizaci
 - **benchmark_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
 - **blender_animator_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
 - **bridge_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
+- **cas_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
 - **client_chat.html**: Interfaz interactiva de monitoreo en tiempo real.
 - **client_user_manager.html**: Interfaz interactiva de monitoreo en tiempo real.
 - **colony_embassy.html**: Interfaz interactiva de monitoreo en tiempo real.

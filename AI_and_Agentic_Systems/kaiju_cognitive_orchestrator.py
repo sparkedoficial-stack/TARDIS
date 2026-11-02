@@ -337,6 +337,40 @@ class KaijuCognitiveOrchestrator:
             "ingesta": "diferida"
         }
 
+        # 1.5. Inyección de Contexto Cognitivo CaS (AEGIS + continuidad + memoria akáshica)
+        cas_context = ""
+        cas_telemetry: Dict[str, Any] = {"enabled": False}
+        if os.environ.get("TARDIS_CAS_ENABLED", "1").lower() not in ("0", "false", "off"):
+            try:
+                try:
+                    from core.cas_neural_space_kaiju import get_cas
+                except ImportError:
+                    import sys as _sys
+                    _sys.path.insert(0, "/home/timemachine/Escritorio/GODWORKS SYSTEM")
+                    from core.cas_neural_space_kaiju import get_cas
+                _cas = get_cas().build_context(
+                    message,
+                    session_id=session_id,
+                    profile=os.environ.get("TARDIS_CAS_PROFILE", "interactive"),
+                    budget_tokens=int(os.environ.get("TARDIS_CAS_BUDGET", "6000")),
+                )
+                if _cas.ok:
+                    cas_context = _cas.context_text
+                cas_telemetry = {
+                    "enabled": True,
+                    "ok": _cas.ok,
+                    "used_tokens": _cas.used_tokens,
+                    "budget_tokens": _cas.budget_tokens,
+                    "compression_ratio": _cas.compression_ratio,
+                    "latency_ms": _cas.latency_ms,
+                    "cache_hit": _cas.cache_hit,
+                    "aegis": _cas.aegis.get("status", "")
+                }
+            except Exception as e_cas:
+                cas_telemetry = {"enabled": True, "ok": False, "error": str(e_cas)}
+                logger.debug(f"[KAIJU-ORCHESTRATOR] CaS no disponible: {e_cas}")
+        telemetry["cas"] = cas_telemetry
+
         # 2. Evaluación de Carga de Cómputo
         eval_res = self.evaluate_task_complexity(message, active_expert=top_expert, force_offload=force_offload)
         is_heavy = eval_res.get("is_heavy", False)
@@ -390,6 +424,8 @@ class KaijuCognitiveOrchestrator:
 
                     if is_conversational:
                         sys_prompt = self.get_canonical_system_prompt(top_expert, presence_summary, atmospheric_summary)
+                        if cas_context:
+                            sys_prompt = f"{sys_prompt}\n\n{cas_context}"
                         ir_messages = [{"role": "system", "content": sys_prompt}]
                         if history:
                             for h in history[-10:]:
@@ -404,7 +440,8 @@ class KaijuCognitiveOrchestrator:
                             active_expert=top_expert,
                             history=history,
                             presence_summary=presence_summary,
-                            atmospheric_summary=atmospheric_summary
+                            atmospheric_summary=atmospheric_summary,
+                            context_prefix=cas_context
                         )
                         ir_messages = [{"role": "user", "content": ir_prompt}]
 
@@ -434,8 +471,12 @@ class KaijuCognitiveOrchestrator:
         if not raw_reply:
             try:
                 import gia_sovereign_engine as _gse
+                local_messages = []
+                if cas_context:
+                    local_messages.append({"role": "system", "content": cas_context})
+                local_messages.append({"role": "user", "content": message})
                 sovereign_res = _gse.get_engine().chat(
-                    messages=[{"role": "user", "content": message}],
+                    messages=local_messages,
                     model="TARDIS-NEURAL-SPACE-KAIJU",
                     temperature=temperature,
                     num_ctx=int(os.environ.get("GIA_NUM_CTX", "32768"))

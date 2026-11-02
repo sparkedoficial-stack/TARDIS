@@ -33,10 +33,12 @@ from pathlib import Path
 from queue import Empty, Queue
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse, Response, StreamingResponse
 
+import chat_history as history
 import chat_store as store
+import chat_vault as vault
 import free_models as fm
 from chat_engine import ChatConfig, ChatRunner, resolve_model, short_model
 
@@ -339,8 +341,55 @@ async def chat_upload(payload: dict):
 @router.post("/api/chat/send")
 async def chat_send(payload: dict):
     session = _session_or_404(str(payload.get("session_id") or ""))
-    text = (payload.get("text") or "").strip()
+    raw_text = payload.get("text") or ""
+    draft_id = str(payload.get("draft_id") or "").strip()
+    draft_token = str(payload.get("draft_token") or payload.get("token") or "")
+
+    # ------------------------------------------------------------------
+    # Camino soberano: la petición viaja sellada desde la bóveda.
+    # Sin token válido, revisión exacta y checksum intacto, NO se envía.
+    # ------------------------------------------------------------------
+    sealed = None
+    if draft_id:
+        revision = payload.get("revision")
+        try:
+            revision = int(revision) if revision is not None else None
+        except (TypeError, ValueError):
+            revision = None
+        try:
+            sealed = vault.claim_for_send(
+                draft_id,
+                draft_token,
+                revision=revision,
+                text=str(raw_text) if raw_text else None,
+            )
+        except vault.VaultError as exc:
+            return JSONResponse(status_code=exc.status, content=exc.payload())
+        text = (sealed.get("text") or "").strip()
+    else:
+        # Clientes legacy (TUI/CLI): no pueden robar una bóveda abierta.
+        try:
+            busy = [d for d in vault.active_drafts() if d.get("session_id") == session["id"]]
+        except Exception:
+            busy = []
+        if busy:
+            return JSONResponse(
+                status_code=423,
+                content={
+                    "ok": False,
+                    "code": "vault_locked",
+                    "message": "La petición blindada de esta sesión está abierta en otro cliente.",
+                    "active": busy,
+                },
+            )
+        text = raw_text.strip()
+
     if not text:
+        if sealed:
+            try:
+                vault.release(draft_id, draft_token)
+            except vault.VaultError:
+                pass
         raise HTTPException(status_code=400, detail="Mensaje vacío")
     files = [str(Path(f).expanduser()) for f in (payload.get("files") or []) if f]
 
@@ -370,6 +419,7 @@ async def chat_send(payload: dict):
         "cancelled": False,
         "started": time.time(),
         "finished": None,
+        "draft_id": draft_id or None,
     }
     with _RUNS_LOCK:
         RUNS[run_id] = entry
@@ -386,10 +436,23 @@ async def chat_send(payload: dict):
         name=f"ftlchat-{run_id}",
     )
     thread.start()
+
+    # El texto ya está en manos de FTL: se archiva la bóveda y se libera
+    # la compuerta de mantenimiento (no se interrumpen actualizaciones más
+    # allá de la transmisión de la petición).
+    if sealed:
+        try:
+            vault.attach_run(draft_id, run_id)
+            vault.consume(draft_id, run_id=run_id)
+        except vault.VaultError:
+            pass
+
     return JSONResponse({
         "run_id": run_id,
         "session_id": session["id"],
         "model": session.get("model"),
+        "sealed": bool(sealed),
+        "draft_id": draft_id or None,
         "user_message": session.get("messages", [])[-1] if session.get("messages") else None,
     })
 
@@ -450,6 +513,148 @@ async def chat_export(session_id: str, fmt: str = "md"):
     return Response(
         content=path.read_bytes(),
         media_type=media,
+        headers={
+            "Content-Disposition": f'attachment; filename="{path.name}"',
+            "X-FTL-Path": str(path),
+        },
+    )
+
+
+# ---------------------------------------------------------------------------
+# Bóveda de petición inmutable (ventana que el sistema no puede modificar)
+# ---------------------------------------------------------------------------
+@router.post("/api/chat/composer/open")
+async def composer_open(payload: dict, request: Request):
+    """Abre (o reanuda) la bóveda exclusiva de una sesión."""
+    session = _session_or_404(str(payload.get("session_id") or ""))
+    text = str(payload.get("text") or "")
+    draft_id = str(payload.get("draft_id") or "").strip()
+    token = str(payload.get("draft_token") or payload.get("token") or "")
+
+    if draft_id and token:
+        try:
+            revision = payload.get("revision")
+            record = vault.heartbeat(
+                draft_id,
+                token,
+                text=text if text else None,
+                revision=int(revision) if revision is not None else None,
+            )
+            return JSONResponse({
+                "ok": True,
+                "resumed": True,
+                "draft": record,
+                "token": token,
+                "gate": vault.gate_status(write=False),
+            })
+        except vault.VaultError:
+            pass  # bóveda vencida o de otro cliente: se abre una nueva
+
+    client_id = str(payload.get("client_id") or "web")[:120]
+    meta = {
+        "user_agent": (request.headers.get("user-agent") or "")[:300],
+        "client_ip": (request.client.host if request.client else ""),
+        "origin": (request.headers.get("origin") or "")[:200],
+    }
+    try:
+        record = vault.acquire(
+            session["id"],
+            client_id=client_id,
+            text=text,
+            takeover=bool(payload.get("takeover")),
+            meta=meta,
+        )
+    except vault.VaultError as exc:
+        return JSONResponse(status_code=exc.status, content=exc.payload())
+
+    return JSONResponse({
+        "ok": True,
+        "resumed": False,
+        "draft": record,
+        "token": record.pop("token", ""),
+        "gate": vault.gate_status(write=False),
+    })
+
+
+@router.post("/api/chat/composer/heartbeat")
+async def composer_heartbeat(payload: dict):
+    """Renueva el candado y persiste el texto autoritativo."""
+    revision = payload.get("revision")
+    try:
+        record = vault.heartbeat(
+            str(payload.get("draft_id") or ""),
+            str(payload.get("draft_token") or payload.get("token") or ""),
+            text=payload.get("text"),
+            revision=int(revision) if revision is not None else None,
+        )
+    except vault.VaultError as exc:
+        return JSONResponse(status_code=exc.status, content=exc.payload())
+    return JSONResponse({
+        "ok": True,
+        "draft": record,
+        "gate": vault.gate_status(write=False),
+    })
+
+
+@router.post("/api/chat/composer/close")
+async def composer_close(payload: dict):
+    try:
+        record = vault.release(
+            str(payload.get("draft_id") or ""),
+            str(payload.get("draft_token") or payload.get("token") or ""),
+            keep=payload.get("keep", True) is not False,
+        )
+    except vault.VaultError as exc:
+        return JSONResponse(status_code=exc.status, content=exc.payload())
+    return JSONResponse({"ok": True, "draft": record, "gate": vault.gate_status(write=False)})
+
+
+@router.get("/api/chat/composer/status")
+async def composer_status():
+    return JSONResponse(vault.status())
+
+
+@router.get("/api/chat/composer/active")
+async def composer_active():
+    return JSONResponse({"ok": True, "active": vault.active_drafts(), "gate": vault.gate_status(write=False)})
+
+
+@router.get("/api/chat/composer/recover")
+async def composer_recover(session_id: str = ""):
+    drafts = vault.recover(session_id or None)
+    return JSONResponse({
+        "ok": True,
+        "drafts": drafts,
+        "gate": vault.gate_status(write=False),
+    })
+
+
+# ---------------------------------------------------------------------------
+# Historial unificado de TODAS las interacciones con FTL
+# ---------------------------------------------------------------------------
+@router.get("/api/chat/history")
+async def chat_history(q: str = "", limit: int = 100, offset: int = 0, source: str = "all"):
+    return JSONResponse(history.unified(q, limit=limit, offset=offset, source=source))
+
+
+@router.get("/api/chat/history/stats")
+async def chat_history_stats():
+    return JSONResponse(history.stats())
+
+
+@router.get("/api/chat/history/export")
+async def chat_history_export(fmt: str = "md", source: str = "all", q: str = ""):
+    if fmt.lower() == "json":
+        payload = history.unified(q, limit=500, source=source)
+        return Response(
+            content=json.dumps(payload, indent=2, ensure_ascii=False).encode("utf-8"),
+            media_type="application/json",
+            headers={"Content-Disposition": 'attachment; filename="historial_ftl_unificado.json"'},
+        )
+    path = history.export_markdown(source=source, query=q)
+    return Response(
+        content=path.read_bytes(),
+        media_type="text/markdown",
         headers={
             "Content-Disposition": f'attachment; filename="{path.name}"',
             "X-FTL-Path": str(path),

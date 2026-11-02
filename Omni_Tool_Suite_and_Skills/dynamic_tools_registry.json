@@ -172,5 +172,22 @@
       "disable"
     ],
     "status": "ACTIVE_SOVEREIGN"
+  },
+  "omni_tool_cas_kaiju": {
+    "name": "omni_tool_cas_kaiju",
+    "tool_id": "cas_kaiju",
+    "title": "CaS · Cognitive & Context as a Service",
+    "domain": "cognitive_context",
+    "description": "Capa CaS sobre TARDIS-NEURAL-SPACE-KAIJU: recuperación multi-fuente con ranking BM25 + recencia + confianza, deduplicación SimHash, compresión extractiva sintrópica, presupuesto de tokens con citas y ancla inviolable La Constante AEGIS. Servicio local 127.0.0.1:8770 con HUD en /dashboard.",
+    "actions": [
+      "context",
+      "compress",
+      "serve",
+      "telemetry",
+      "sources",
+      "aegis",
+      "selftest"
+    ],
+    "status": "ACTIVE_SOVEREIGN"
   }
 }

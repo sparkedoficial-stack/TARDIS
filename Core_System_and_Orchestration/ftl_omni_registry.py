@@ -116,6 +116,20 @@ class FtlOmniRegistry:
                 "capabilities": ["evaluate", "matrix", "get_models", "get_layers"],
                 "active": True
             },
+            "cas_neural_space_kaiju": {
+                "name": "CaS · Cognitive & Context as a Service",
+                "binary": "/home/timemachine/.local/bin/cas-kaiju",
+                "module": "core.cas_neural_space_kaiju",
+                "service": "cas-kaiju.service",
+                "endpoint": "http://127.0.0.1:8770",
+                "dashboard": "http://127.0.0.1:8770/dashboard",
+                "docs": "/home/timemachine/Escritorio/GODWORKS SYSTEM/docs/CAS_NEURAL_SPACE_KAIJU.md",
+                "category": "Cognitive Context Fabric & Retrieval Augmentation",
+                "description": "Capa CaS (Cognitive & Context as a Service) sobre TARDIS-NEURAL-SPACE-KAIJU: recuperación multi-fuente (bóveda profunda, continuidad, rails AEGIS, telemetría /proc, estado latente), ranking BM25 + recencia + confianza, deduplicación SimHash, compresión extractiva sintrópica y presupuesto de tokens con citas. Ancla inviolable La Constante AEGIS.",
+                "capabilities": ["context", "compress", "serve", "telemetry", "sources", "aegis", "selftest"],
+                "dispatch": "cli",
+                "active": os.path.exists("/home/timemachine/.local/bin/cas-kaiju")
+            },
             "tardis4ever": {
                 "name": "Tardis4Ever Sovereign Agent",
                 "binary": "/usr/local/bin/tardis4ever",
@@ -245,8 +259,8 @@ class FtlOmniRegistry:
         if not tool:
             return {"status": "error", "error": f"Herramienta '{tool_name}' no encontrada."}
 
-        # Intentar despacho por módulo FTL
-        if "module" in tool:
+        # Intentar despacho por módulo FTL (omitido si la herramienta es CLI-first)
+        if "module" in tool and tool.get("dispatch") != "cli":
             try:
                 mod_name = tool["module"].split(".")[-1]
                 sys_path = "/home/timemachine"
@@ -267,6 +281,9 @@ class FtlOmniRegistry:
         if "binary" in tool:
             try:
                 cmd = [tool["binary"], action]
+                extra_args = kwargs.get("args")
+                if isinstance(extra_args, (list, tuple)):
+                    cmd.extend(str(a) for a in extra_args)
                 res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=60)
                 return {
                     "status": "ok" if res.returncode == 0 else "error",

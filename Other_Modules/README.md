@@ -5,6 +5,7 @@ Módulos y componentes auxiliares del sistema.
 ## Subsistemas y Componentes Principales:
 
 - **AudioVoiceService.swift**: Componente nativo iOS/SwiftUI de la aplicación móvil GIA.
+- **CAS_NEURAL_SPACE_KAIJU.md**: Componente de alta eficiencia.
 - **CLIENT_GATEWAY_TUNNEL_URL.txt**: Componente de alta eficiencia.
 - **CURRENT_TUNNEL_URL.txt**: Componente de alta eficiencia.
 - **ChatView.swift**: Componente nativo iOS/SwiftUI de la aplicación móvil GIA.
@@ -55,9 +56,12 @@ Módulos y componentes auxiliares del sistema.
 - **bridge_status.json**: Componente de alta eficiencia.
 - **calls_history.json**: Componente de alta eficiencia.
 - **captures_index.json**: Componente de alta eficiencia.
+- **cas_neural_space_kaiju.py**: Componente de alta eficiencia.
 - **chat_engine.py**: Componente de alta eficiencia.
+- **chat_history.py**: Componente de alta eficiencia.
 - **chat_store.py**: Componente de alta eficiencia.
 - **chat_ui.py**: Componente de alta eficiencia.
+- **chat_vault.py**: Centinela de seguridad, blindaje perimetral o bóveda segura.
 - **chat_web.py**: Componente de alta eficiencia.
 - **cluster.py**: Componente de alta eficiencia.
 - **code_planner.py**: Componente de alta eficiencia.
@@ -99,6 +103,7 @@ Módulos y componentes auxiliares del sistema.
 - **ftl_linpad.py**: Motor de aceleración FTL y computación adaptativa.
 - **ftl_nxnative.py**: Motor de aceleración FTL y computación adaptativa.
 - **ftl_public_gateway.py**: Motor de aceleración FTL y computación adaptativa.
+- **ftl_update_guard.py**: Motor de aceleración FTL y computación adaptativa.
 - **gemini_privacy_vault.py**: Centinela de seguridad, blindaje perimetral o bóveda segura.
 - **geon_retrocausal_mechanics.json**: Componente de alta eficiencia.
 - **geon_retrocausal_mechanics_forum_post.md**: Componente de alta eficiencia.
