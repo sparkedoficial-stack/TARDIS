@@ -765,6 +765,11 @@ CHAT_HTML = r"""<!DOCTYPE html>
     border:1px solid rgba(0,255,204,.45);color:var(--cyan);background:rgba(0,255,204,.06);
     font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;transition:.18s}
   .newchat:hover{background:rgba(0,255,204,.14);box-shadow:0 0 22px rgba(0,255,204,.22)}
+  .side-actions{display:flex;gap:6px;padding:0 16px 4px;flex-wrap:wrap}
+  .sidebtn{flex:1;min-width:120px;border:1px solid rgba(122,162,247,.26);background:rgba(10,16,28,.7);
+    color:#9fb4d4;border-radius:8px;padding:7px 6px;font-family:var(--mono);font-size:9px;
+    letter-spacing:.08em;cursor:pointer;transition:.15s}
+  .sidebtn:hover{border-color:var(--cyan);color:var(--cyan);background:rgba(0,255,204,.07)}
   .side-label{padding:12px 18px 6px;font-size:9.5px;letter-spacing:.2em;color:var(--dim)}
   .sessions{flex:1;overflow-y:auto;padding:0 10px 10px;min-height:80px}
   .session{padding:9px 10px;border-radius:8px;cursor:pointer;display:flex;gap:8px;align-items:flex-start;
@@ -908,6 +913,100 @@ CHAT_HTML = r"""<!DOCTYPE html>
   ::-webkit-scrollbar-thumb{background:rgba(0,255,204,.22);border-radius:9px}
   ::-webkit-scrollbar-thumb:hover{background:rgba(0,255,204,.4)}
 
+  /* ---------- bóveda de petición inmutable ---------- */
+  .vaultPill{display:none;border-color:rgba(0,255,204,.55);color:var(--cyan);
+    background:rgba(0,255,204,.08);animation:vaultPulse 2.4s ease-in-out infinite}
+  .vaultPill.on{display:inline-flex;align-items:center;gap:6px}
+  .vaultPill .lockico{font-size:10px}
+  .vault-overlay{position:fixed;inset:0;z-index:40;display:flex;align-items:flex-end;justify-content:center;
+    padding:0 10px 8px;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .2s ease,visibility .2s}
+  .vault-overlay.on{opacity:1;visibility:visible}
+  body.vault-open .composer{display:none}
+  .vault-panel{pointer-events:auto;width:min(1000px,100%);max-height:78vh;overflow:auto;
+    border:1px solid rgba(0,255,204,.5);border-radius:16px;
+    background:linear-gradient(180deg,rgba(6,16,26,.985),rgba(4,8,16,.995));
+    box-shadow:0 0 0 1px rgba(0,255,204,.12),0 0 70px rgba(0,255,204,.16),0 24px 80px rgba(0,0,0,.8);
+    transform:translateY(16px) scale(.995);transition:transform .24s cubic-bezier(.2,.9,.3,1)}
+  .vault-overlay.on .vault-panel{transform:none}
+  .vault-head{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid rgba(0,255,204,.16)}
+  .vault-shield{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:13px;
+    color:#04110d;background:radial-gradient(circle at 35% 30%,#8bffe6,#00ffcc 60%,#00b894);
+    box-shadow:0 0 18px rgba(0,255,204,.55);flex:none}
+  .vault-title{font-size:10.5px;letter-spacing:.2em;color:var(--cyan);font-weight:700}
+  .vault-sub{font-size:9px;color:#5f7397;letter-spacing:.06em;margin-top:2px}
+  .vault-meta{margin-left:auto;display:flex;align-items:center;gap:9px;font-size:9px;color:#7f93b3;letter-spacing:.08em}
+  .vault-meta b{color:var(--gold);font-weight:600}
+  .vault-badge{border:1px solid rgba(0,255,204,.4);border-radius:999px;padding:2px 8px;
+    color:var(--cyan);font-size:8.5px;letter-spacing:.14em;white-space:nowrap}
+  .vault-badge.sending{border-color:rgba(255,184,108,.6);color:var(--gold)}
+  .vault-close{border:1px solid rgba(255,85,85,.35);background:transparent;color:#ff8f8f;
+    border-radius:7px;padding:4px 8px;font-family:var(--mono);font-size:9px;cursor:pointer;letter-spacing:.1em}
+  .vault-close:hover{background:rgba(255,85,85,.12)}
+  .vault-panel .composer{padding:0;background:none}
+  .vault-panel .composer .box{max-width:none;border:0;border-radius:0 0 14px 14px;
+    background:transparent;box-shadow:none;backdrop-filter:none}
+  .vault-panel .composer .box:focus-within{box-shadow:none;border-color:transparent}
+  .vault-panel .hint{display:none}
+  .vault-foot{display:flex;align-items:center;gap:10px;padding:8px 14px 11px;border-top:1px solid rgba(0,255,204,.1);
+    font-size:9px;color:#55688a;letter-spacing:.06em}
+  .vault-foot .spacer{flex:1}
+  .vault-foot b{color:#9fb4d4;font-weight:600}
+  .vault-lockbox{display:flex;align-items:center;gap:7px;color:var(--cyan);font-size:9px;letter-spacing:.1em}
+  .vault-lockbox .dotlive{width:6px;height:6px;border-radius:50%;background:var(--cyan);
+    box-shadow:0 0 8px var(--cyan);animation:pulse 1.8s infinite}
+  .vault-backdrop{position:fixed;inset:0;z-index:39;background:radial-gradient(circle at 50% 100%,rgba(0,20,18,.5),rgba(0,0,0,.55));
+    opacity:0;visibility:hidden;transition:.2s;pointer-events:none;backdrop-filter:blur(1.5px)}
+  .vault-backdrop.on{opacity:1;visibility:visible}
+
+  /* ---------- historial unificado ---------- */
+  .history-drawer{position:fixed;top:0;right:0;bottom:0;width:min(520px,100%);z-index:46;
+    background:linear-gradient(180deg,rgba(7,12,22,.99),rgba(4,7,13,.995));
+    border-left:1px solid rgba(122,162,247,.25);box-shadow:-30px 0 90px rgba(0,0,0,.75);
+    transform:translateX(102%);transition:transform .26s cubic-bezier(.2,.9,.3,1);
+    display:flex;flex-direction:column}
+  .history-drawer.on{transform:none}
+  .history-scrim{position:fixed;inset:0;z-index:44;background:rgba(2,4,9,.6);opacity:0;visibility:hidden;transition:.22s}
+  .history-scrim.on{opacity:1;visibility:visible}
+  .history-head{padding:14px 16px 10px;border-bottom:1px solid rgba(122,162,247,.14)}
+  .history-head h3{margin:0;font-size:11px;letter-spacing:.2em;color:var(--blue)}
+  .history-head p{margin:5px 0 0;font-size:9px;color:#526480;letter-spacing:.05em}
+  .history-tools{display:flex;gap:7px;padding:10px 14px 4px;flex-wrap:wrap}
+  .history-tools input{flex:1;min-width:140px;border:1px solid rgba(122,162,247,.25);border-radius:8px;
+    background:rgba(8,14,26,.9);color:var(--text);font-family:var(--mono);font-size:11px;padding:7px 10px;outline:none}
+  .history-tools input:focus{border-color:rgba(0,255,204,.5)}
+  .hfilt{border:1px solid rgba(122,162,247,.25);background:rgba(10,16,28,.8);color:#8fa4c4;border-radius:999px;
+    padding:5px 10px;font-family:var(--mono);font-size:9px;cursor:pointer;letter-spacing:.08em}
+  .hfilt.on{border-color:var(--cyan);color:var(--cyan);background:rgba(0,255,204,.08)}
+  .history-list{flex:1;overflow:auto;padding:8px 12px 24px}
+  .hitem{border:1px solid rgba(122,162,247,.13);border-radius:10px;padding:9px 11px;margin-bottom:8px;
+    background:rgba(9,14,25,.7);cursor:pointer;transition:.15s}
+  .hitem:hover{border-color:rgba(0,255,204,.34);background:rgba(9,20,30,.85)}
+  .hitem .hrow{display:flex;align-items:center;gap:7px;margin-bottom:5px;font-size:8.5px;
+    letter-spacing:.1em;color:#5b6f8f}
+  .hitem .hsrc{border-radius:999px;padding:1px 7px;border:1px solid rgba(122,162,247,.3);color:#9db3d6}
+  .hitem .hsrc.chat{border-color:rgba(0,255,204,.4);color:var(--cyan)}
+  .hitem .hsrc.terminal{border-color:rgba(255,184,108,.4);color:var(--gold)}
+  .hitem .hsrc.tardis{border-color:rgba(189,147,249,.4);color:var(--purple)}
+  .hitem .hsrc.vault{border-color:rgba(80,250,123,.4);color:var(--green)}
+  .hitem .htitle{font-size:11px;color:#c7d6ea;margin-bottom:3px;line-height:1.45}
+  .hitem .hprev{font-size:10px;color:#7286a5;line-height:1.55;max-height:42px;overflow:hidden}
+  .hitem .hsid{font-size:8.5px;color:#44546f;margin-top:5px;letter-spacing:.04em}
+  .history-foot{padding:9px 14px;border-top:1px solid rgba(122,162,247,.14);display:flex;gap:8px;align-items:center;
+    font-size:9px;color:#4d5f7c}
+  .hbtn{border:1px solid rgba(0,255,204,.35);background:rgba(0,255,204,.06);color:var(--cyan);border-radius:7px;
+    padding:5px 9px;font-family:var(--mono);font-size:9px;cursor:pointer;letter-spacing:.08em}
+  .hbtn:hover{background:rgba(0,255,204,.14)}
+
+  /* aviso de borrador recuperado */
+  .recover-banner{display:none;max-width:960px;margin:0 auto 6px;padding:7px 11px;border-radius:9px;
+    border:1px solid rgba(255,184,108,.4);background:rgba(40,28,12,.65);color:#ffd9a8;font-size:10px;
+    align-items:center;gap:9px;line-height:1.45}
+  .recover-banner.on{display:flex}
+  .recover-banner button{border:1px solid rgba(255,184,108,.5);background:transparent;color:var(--gold);
+    border-radius:6px;padding:3px 8px;font-family:var(--mono);font-size:9px;cursor:pointer}
+
+  @keyframes vaultPulse{0%,100%{box-shadow:0 0 0 rgba(0,255,204,0)}50%{box-shadow:0 0 18px rgba(0,255,204,.22)}}
+
   @media (max-width:900px){
     .shell{grid-template-columns:1fr}
     aside{position:fixed;inset:0 auto 0 0;width:300px;z-index:20;transform:translateX(-102%);
@@ -943,6 +1042,10 @@ CHAT_HTML = r"""<!DOCTYPE html>
       </div>
     </div>
     <button class="newchat" id="newChat">＋ NUEVA CONVERSACIÓN</button>
+    <div class="side-actions">
+      <button class="sidebtn" id="vaultBtn">🛡 PETICIÓN BLINDADA</button>
+      <button class="sidebtn" id="historyBtn">🕘 HISTORIAL GLOBAL</button>
+    </div>
     <div class="side-label">SESIONES PERSISTENTES</div>
     <div class="sessions" id="sessions"></div>
     <div class="config">
@@ -964,12 +1067,18 @@ CHAT_HTML = r"""<!DOCTYPE html>
     <div class="topbar">
       <button class="menu-btn" id="menuBtn">☰</button>
       <div class="title" id="topTitle">Nueva conversación</div>
+      <div class="pill vaultPill" id="vaultPill"><span class="lockico">🛡</span><span id="vaultPillText">BÓVEDA ACTIVA</span></div>
       <div class="pill"><span class="dot" id="statusDot"></span><span id="statusText">EN LÍNEA</span></div>
       <div class="pill" id="tokenPill">↑0 ↓0</div>
     </div>
     <div class="wave" id="wave"></div>
     <div class="messages" id="messages"></div>
     <div class="composer">
+      <div class="recover-banner" id="recoverBanner">
+        <span>⚠ Hay un borrador no enviado recuperado de la bóveda.</span>
+        <button id="recoverLoad">RESTAURAR</button>
+        <button id="recoverDismiss">DESCARTAR</button>
+      </div>
       <div class="box">
         <div class="attachments" id="atts"></div>
         <textarea id="input" rows="1" placeholder="Transmite una instrucción al núcleo…  (Enter envía · Shift+Enter salto de línea)"></textarea>
@@ -989,12 +1098,75 @@ CHAT_HTML = r"""<!DOCTYPE html>
 <input type="file" id="filePicker" multiple style="display:none">
 <div class="toast" id="toast"></div>
 
+<!-- ================= BÓVEDA DE PETICIÓN INMUTABLE ================= -->
+<div class="vault-backdrop" id="vaultBackdrop"></div>
+<div class="vault-overlay" id="vaultOverlay" role="dialog" aria-modal="false"
+     aria-label="Bóveda de petición inmutable">
+  <div class="vault-panel" id="vaultPanel">
+    <div class="vault-head">
+      <div class="vault-shield">🛡</div>
+      <div>
+        <div class="vault-title" id="vaultTitle">BÓVEDA DE PETICIÓN · INMUTABLE</div>
+        <div class="vault-sub" id="vaultSub">Ningún proceso, actualización o cliente puede modificar este texto.</div>
+      </div>
+      <div class="vault-meta">
+        <span class="vault-badge" id="vaultState">ESCUDO ACTIVO</span>
+        <span id="vaultTimer">—</span>
+        <button class="vault-close" id="vaultClose" title="Guardar el borrador y cerrar">GUARDAR ✕</button>
+      </div>
+    </div>
+    <div id="vaultSlot"></div>
+    <div class="vault-foot">
+      <span class="vault-lockbox"><span class="dotlive"></span><span id="vaultLockText">CANDADO EXCLUSIVO</span></span>
+      <span>·</span><span id="vaultRev">rev 0</span>
+      <span>·</span><span id="vaultChars">0 car.</span>
+      <span>·</span><span id="vaultChecksum">sha256 —</span>
+      <div class="spacer"></div>
+      <span id="vaultHint">Ctrl+Enter envía · Esc guarda y cierra</span>
+    </div>
+  </div>
+</div>
+
+<!-- ================= HISTORIAL GLOBAL ================= -->
+<div class="history-scrim" id="historyScrim"></div>
+<aside class="history-drawer" id="historyDrawer" aria-label="Historial global FTL">
+  <div class="history-head">
+    <h3>HISTORIAL GLOBAL · TODAS LAS INTERACCIONES</h3>
+    <p id="historySub">Memoria transversal: chat, consola, TARDIS y bóveda.</p>
+  </div>
+  <div class="history-tools">
+    <input id="historySearch" placeholder="Buscar en la memoria FTL…" autocomplete="off">
+    <button class="hfilt on" data-src="all">TODO</button>
+    <button class="hfilt" data-src="chat">CHAT</button>
+    <button class="hfilt" data-src="terminal">TERMINAL</button>
+    <button class="hfilt" data-src="tardis">TARDIS</button>
+    <button class="hfilt" data-src="vault">BÓVEDA</button>
+  </div>
+  <div class="history-list" id="historyList"></div>
+  <div class="history-foot">
+    <button class="hbtn" id="historyExport">⇩ EXPORTAR</button>
+    <button class="hbtn" id="historyRefresh">↻ ACTUALIZAR</button>
+    <div class="spacer"></div>
+    <span id="historyCount">—</span>
+  </div>
+</aside>
+
 <script>
 const $ = (id) => document.getElementById(id);
-const state = { session:null, sessions:[], models:[], busy:false, es:null, runId:null, files:[], streamBuf:"", composing:false, stick:true };
+const state = { session:null, sessions:[], models:[], busy:false, es:null, runId:null, files:[], streamBuf:"", composing:false, stick:true, sending:false };
 
-/* Borrador persistente: el texto escrito nunca se pierde (recarga, fallo de red, cambio de sesión). */
+/* ===================================================================
+   BÓVEDA DE PETICIÓN INMUTABLE
+   -------------------------------------------------------------------
+   Mientras el Arquitecto redacta o transmite, ningún proceso del
+   sistema puede alterar esta ventana. Triple defensa:
+     1. Token exclusivo + revisión + checksum en el servidor.
+     2. Interceptor del setter `value` + observador de mutaciones.
+     3. Borrador espejo en localStorage y en disco (recuperable).
+   =================================================================== */
+const VAULT_LS = "ftl.chat.vault";
 const DRAFT_KEY = "ftl.chat.draft";
+
 function saveDraft(value){
   try{
     if(value && value.trim()) localStorage.setItem(DRAFT_KEY, value);
@@ -1004,10 +1176,418 @@ function saveDraft(value){
 function loadDraft(){
   try{ return localStorage.getItem(DRAFT_KEY) || ""; }catch(e){ return ""; }
 }
-function restoreDraft(){
-  const draft = loadDraft();
-  const t = $("input");
-  if(draft && !t.value){ t.value = draft; autoGrow(); }
+
+const Guard = {
+  _native: Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, "value"),
+  lastSeen: "",
+  lastInputAt: 0,
+  blocked: 0,
+  allowWrite: false,
+  _observer: null,
+  input(){ return $("input"); },
+  nativeGet(){ try{ return this._native.get.call(this.input()); }catch(e){ return ""; } },
+  nativeSet(value){ try{ this._native.set.call(this.input(), value); this.lastSeen = value; }catch(e){} },
+  write(value){
+    this.allowWrite = true;
+    try{ this.input().value = value; } finally { this.allowWrite = false; }
+    this.lastSeen = value;
+  },
+  init(){
+    const el = this.input();
+    const native = this._native;
+    this.lastSeen = native.get.call(el);
+    try{
+      Object.defineProperty(el, "value", {
+        configurable: true,
+        get(){ return native.get.call(this); },
+        set(v){
+          if(Vault.active && !Guard.allowWrite){
+            Guard.blocked++;
+            Guard.onBlocked();
+            return;
+          }
+          native.set.call(this, (v === null || v === undefined) ? "" : String(v));
+        }
+      });
+    }catch(e){}
+    el.addEventListener("input", () => {
+      Guard.lastSeen = Guard.nativeGet();
+      Guard.lastInputAt = performance.now();
+      if(Vault.active){
+        Vault.text = Guard.lastSeen;
+        Vault.render();
+        Vault.storeLocal();
+      }
+    });
+    // Observador: si algo reemplaza el nodo o inyecta texto, se restaura.
+    this._observer = new MutationObserver(() => { if(Vault.active) Vault.verify(); });
+    this._observer.observe(el, {attributes:true, childList:true, characterData:true, subtree:true});
+    this._observer.observe($("vaultSlot"), {childList:true, subtree:true});
+  },
+  onBlocked(){
+    if(Vault.active) Vault.onTamper("Bloqueo activo: un proceso intentó escribir en la ventana de petición.");
+  }
+};
+
+const Vault = {
+  active:false, opening:false, frozen:false,
+  draftId:null, token:null, revision:0,
+  text:"", checksum:"", expiresAt:0,
+  timer:null, hbTimer:null, saving:false, savingPromise:null,
+  tamper:0, _tamperAt:0, _overlay:null, _panel:null, _origin:null,
+
+  initDom(){
+    this._overlay = $("vaultOverlay");
+    this._panel = $("vaultPanel");
+    this._origin = document.querySelector(".composer");
+    Guard.init();
+  },
+
+  clientId(){
+    try{
+      let id = localStorage.getItem("ftl.chat.client");
+      if(!id){ id = "web_" + Math.random().toString(36).slice(2, 12); localStorage.setItem("ftl.chat.client", id); }
+      return id;
+    }catch(e){ return "web"; }
+  },
+
+  stored(){
+    try{ return JSON.parse(localStorage.getItem(VAULT_LS) || "null") || {}; }catch(e){ return {}; }
+  },
+
+  storeLocal(extra){
+    try{
+      if(this.text && this.text.trim()){
+        localStorage.setItem(VAULT_LS, JSON.stringify({
+          draft_id:this.draftId, token:this.token, text:this.text,
+          revision:this.revision, session_id:state.session ? state.session.id : null,
+          ts:Date.now(), ...(extra||{})
+        }));
+        localStorage.setItem(DRAFT_KEY, this.text);
+      } else {
+        localStorage.removeItem(VAULT_LS);
+        localStorage.removeItem(DRAFT_KEY);
+      }
+    }catch(e){}
+  },
+
+  mount(){
+    if(!this._overlay || !this._panel){ this.initDom(); }
+    const box = document.querySelector(".composer .box");
+    if(box && !$("vaultSlot").contains(box)) $("vaultSlot").appendChild(box);
+    document.body.classList.add("vault-open");
+    this._overlay.classList.add("on");
+    $("vaultBackdrop").classList.add("on");
+    $("vaultPill").classList.add("on");
+    this.updatePill();
+    setTimeout(() => {
+      const el = $("input");
+      try{ el.focus({preventScroll:true}); el.setSelectionRange(el.value.length, el.value.length); }catch(e){}
+    }, 60);
+  },
+
+  unmount(){
+    const box = document.querySelector("#vaultSlot .box");
+    if(box && this._origin){
+      const hint = this._origin.querySelector(".hint");
+      if(hint) this._origin.insertBefore(box, hint); else this._origin.appendChild(box);
+    }
+    document.body.classList.remove("vault-open");
+    if(this._overlay) this._overlay.classList.remove("on");
+    $("vaultBackdrop").classList.remove("on");
+    $("vaultPill").classList.remove("on");
+  },
+
+  async open(opts){
+    opts = opts || {};
+    if(this.opening) return;
+    if(this.active){ this.mount(); return; }
+    this.opening = true;
+    try{
+      if(!state.session) await newSession();
+      if(!state.session) throw new Error("No hay sesión activa.");
+      const resume = this.stored();
+      const text = (opts.text !== undefined && opts.text !== null) ? opts.text : (Guard.nativeGet() || loadDraft() || "");
+      const body = {
+        session_id: state.session.id,
+        text,
+        client_id: this.clientId(),
+        takeover: !!opts.takeover
+      };
+      if(resume && resume.token && resume.draft_id && resume.session_id === state.session.id){
+        body.draft_id = resume.draft_id;
+        body.draft_token = resume.token;
+        body.revision = resume.revision || 0;
+      }
+      const r = await fetch("/api/chat/composer/open", {
+        method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)
+      });
+      const d = await r.json().catch(() => ({}));
+      if(!r.ok){
+        if(r.status === 423 && d.active){
+          const ok = confirm("Otra ventana posee la bóveda de esta sesión.\n\n¿Tomar el control? La otra ventana quedará bloqueada.");
+          this.opening = false;
+          if(ok) return this.open({...opts, takeover:true});
+          return;
+        }
+        throw new Error(d.message || d.detail || "No se pudo abrir la bóveda.");
+      }
+      this.active = true;
+      this.frozen = false;
+      this.draftId = d.draft.draft_id;
+      this.token = d.token;
+      this.revision = d.draft.revision || 0;
+      this.text = d.draft.text !== undefined ? d.draft.text : text;
+      this.checksum = d.draft.checksum || "";
+      this.expiresAt = Date.now() + ((d.draft.expires_in || 120) * 1000);
+      Guard.write(this.text);
+      autoGrow();
+      this.storeLocal();
+      this.mount();
+      this.render();
+      this.startTimers();
+      if(!opts.silent && !d.resumed) toast("🛡 Bóveda abierta · la petición ya no puede ser modificada por el sistema.", true);
+    }catch(err){
+      if(!opts.silent) toast("✖ " + err.message);
+      console.warn("[vault]", err);
+    }finally{
+      this.opening = false;
+    }
+  },
+
+  startTimers(){
+    this.stopTimers();
+    this.timer = setInterval(() => this.tick(), 1000);
+    this.hbTimer = setInterval(() => this.persist(false), 2500);
+  },
+  stopTimers(){
+    if(this.timer){ clearInterval(this.timer); this.timer = null; }
+    if(this.hbTimer){ clearInterval(this.hbTimer); this.hbTimer = null; }
+  },
+  tick(){
+    if(!this.active) return;
+    const left = Math.max(0, Math.round((this.expiresAt - Date.now()) / 1000));
+    $("vaultTimer").textContent = left > 0 ? left + "s" : "renovando…";
+    this.updatePill(left);
+    this.verify();
+    if(left <= 0) this.persist(true);
+  },
+  updatePill(left){
+    if(!this.active){ $("vaultPill").classList.remove("on"); return; }
+    $("vaultPill").classList.add("on");
+    const secs = (left !== undefined) ? left : Math.max(0, Math.round((this.expiresAt - Date.now()) / 1000));
+    $("vaultPillText").textContent = this.frozen ? "SELLANDO…" : "BÓVEDA " + secs + "s";
+  },
+
+  render(){
+    if(!this.active) return;
+    $("vaultRev").textContent = "rev " + this.revision;
+    $("vaultChars").textContent = (this.text || "").length + " car.";
+    $("vaultChecksum").textContent = "sha256 " + (this.checksum || "—").slice(0, 10);
+    $("vaultState").textContent = this.frozen ? "SELLANDO" : "ESCUDO ACTIVO";
+    $("vaultState").classList.toggle("sending", !!this.frozen);
+    $("vaultClose").style.display = this.frozen ? "none" : "";
+  },
+
+  async persist(force){
+    if(!this.active || this.frozen) return;
+    if(this.savingPromise) return this.savingPromise;
+    const el = Guard.input();
+    const text = Guard.nativeGet();
+    this.text = text;
+    this.savingPromise = (async () => {
+      this.saving = true;
+      try{
+        const r = await fetch("/api/chat/composer/heartbeat", {
+          method:"POST", headers:{"Content-Type":"application/json"},
+          body: JSON.stringify({
+            draft_id:this.draftId, draft_token:this.token,
+            text, revision:this.revision
+          })
+        });
+        const d = await r.json().catch(() => ({}));
+        if(r.ok && d.draft){
+          this.revision = d.draft.revision || 0;
+          this.checksum = d.draft.checksum || "";
+          this.expiresAt = Date.now() + ((d.draft.expires_in || 120) * 1000);
+          if((d.draft.text || "") !== Guard.nativeGet()){
+            // El servidor tiene un texto distinto: restauración autoritativa.
+            this.text = d.draft.text || "";
+            Guard.write(this.text);
+            autoGrow();
+            this.onTamper("El texto de la bóveda fue restaurado desde el servidor.");
+          }
+          this.storeLocal();
+          this.render();
+        } else if(r.status === 409){
+          this.tamper++;
+          const auth = d.authoritative;
+          this.onTamper(d.message || "Modificación externa detectada.");
+          if(auth && typeof auth.text === "string" && auth.text){
+            this.text = auth.text;
+            this.revision = auth.revision || this.revision;
+            Guard.write(this.text);
+            autoGrow();
+          }
+        } else if(r.status === 403 || r.status === 404){
+          this.active = false;
+          this.stopTimers();
+          this.unmount();
+          toast("✖ La bóveda dejó de ser tuya: " + (d.message || "token invalidado"));
+        }
+      }catch(e){
+        // Sin red: el borrador local sigue siendo la verdad. La bóveda
+        // expirará en el servidor, pero nada se pierde.
+      }finally{
+        this.saving = false;
+        this.savingPromise = null;
+      }
+    })();
+    return this.savingPromise;
+  },
+
+  verify(){
+    if(!this.active) return;
+    // 1. Ventana eliminada o reemplazada por otro proceso → remontar.
+    if(this._overlay && !document.body.contains(this._overlay)){
+      try{
+        document.body.appendChild(this._overlay);
+        this.mount();
+        Guard.write(this.text);
+        this.onTamper("La ventana fue retirada del DOM; se restauró automáticamente.");
+        return;
+      }catch(e){}
+    }
+    // 2. Escritura externa en el textarea.
+    const native = Guard.nativeGet();
+    if(native !== Guard.lastSeen){
+      const recent = (performance.now() - Guard.lastInputAt) < 1500;
+      if(recent){
+        Guard.lastSeen = native;
+        this.text = native;
+      } else {
+        Guard.nativeSet(Guard.lastSeen);
+        this.onTamper("Se detectó una escritura externa; el texto original fue restaurado.");
+      }
+    }
+  },
+
+  onTamper(message){
+    this.tamper++;
+    $("vaultSub").textContent = "⚠ " + message;
+    $("vaultSub").style.color = "#ffb86c";
+    if(Date.now() - this._tamperAt > 4000){
+      this._tamperAt = Date.now();
+      toast("🛡 " + message);
+    }
+  },
+
+  async close(keep){
+    if(!this.active){ this.unmount(); return; }
+    if(this.frozen) return;
+    await this.persist(true).catch(() => {});
+    try{
+      await fetch("/api/chat/composer/close", {
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({draft_id:this.draftId, draft_token:this.token, keep:keep !== false})
+      });
+    }catch(e){}
+    this.active = false;
+    this.stopTimers();
+    this.storeLocal();
+    this.unmount();
+    toast("🛡 Bóveda cerrada · el borrador queda guardado y recuperable.", true);
+  },
+
+  freeze(on){
+    this.frozen = !!on;
+    const el = Guard.input();
+    el.readOnly = !!on;
+    $("vaultState").textContent = on ? "SELLANDO" : "ESCUDO ACTIVO";
+    $("vaultState").classList.toggle("sending", !!on);
+    $("vaultLockText").textContent = on ? "TRANSMITIENDO · NO CERRAR" : "CANDADO EXCLUSIVO";
+    $("vaultClose").style.display = on ? "none" : "";
+    this.updatePill();
+  },
+
+  sent(){
+    // Sólo tras el 200 del servidor: el texto ya está en FTL.
+    this.active = false;
+    this.frozen = false;
+    this.stopTimers();
+    this.text = "";
+    this.draftId = null;
+    this.token = null;
+    this.revision = 0;
+    this.checksum = "";
+    try{ localStorage.removeItem(VAULT_LS); localStorage.removeItem(DRAFT_KEY); }catch(e){}
+    Guard.write("");
+    autoGrow();
+    this.unmount();
+  }
+};
+
+/* ---------------- historial global ---------------- */
+const Hist = { open:false, source:"all", query:"", timer:null, loading:false };
+
+function histBadge(source){
+  return ({chat:"CHAT", terminal:"TERMINAL", tardis:"TARDIS", vault:"BÓVEDA"})[source] || source.toUpperCase();
+}
+
+function histItem(row){
+  const badge = histBadge(row.source);
+  const when = (row.iso || "").replace("T", " ").slice(0, 16);
+  return `<div class="hitem" data-id="${esc(row.id)}" data-session="${esc(row.session_id || "")}" data-src="${esc(row.source)}">
+    <div class="hrow"><span class="hsrc ${esc(row.source)}">${esc(badge)}</span>
+      <span>${esc(when)}</span><span>·</span><span>${esc(row.role || "")}</span>
+      ${row.model ? `<span>·</span><span>${esc(shortModel(row.model))}</span>` : ""}</div>
+    <div class="htitle">${esc(row.title || "")}</div>
+    <div class="hprev">${esc(row.preview || "")}</div>
+    ${row.session_id ? `<div class="hsid">sesión ${esc(row.session_id)}</div>` : ""}
+  </div>`;
+}
+
+async function historyLoad(){
+  if(Hist.loading) return;
+  Hist.loading = true;
+  try{
+    const params = new URLSearchParams({q:Hist.query, source:Hist.source, limit:"120"});
+    const r = await fetch("/api/chat/history?" + params.toString());
+    const d = await r.json();
+    const list = $("historyList");
+    if(!d.entries || !d.entries.length){
+      list.innerHTML = `<div style="padding:26px 12px;text-align:center;color:#4d5f7c;font-size:10.5px;line-height:1.8">
+        Sin interacciones que coincidan.<br>La memoria transversal se llena con cada chat, consola y operación TARDIS.</div>`;
+    } else {
+      list.innerHTML = d.entries.map(histItem).join("");
+      list.querySelectorAll(".hitem").forEach(el => {
+        el.addEventListener("click", () => {
+          if(el.dataset.session){ closeHistory(); openSession(el.dataset.session); }
+          else el.classList.toggle("expanded");
+        });
+      });
+    }
+    $("historyCount").textContent = (d.total || 0) + " interacciones";
+    $("historySub").textContent = "Memoria transversal · " +
+      Object.entries(d.counts || {}).map(([k,v]) => k + " " + v).join(" · ");
+  }catch(e){
+    $("historyList").innerHTML = `<div style="padding:20px;color:#ff8f8f;font-size:10.5px">✖ ${esc(e.message)}</div>`;
+  }finally{
+    Hist.loading = false;
+  }
+}
+
+function openHistory(){
+  Hist.open = true;
+  $("historyDrawer").classList.add("on");
+  $("historyScrim").classList.add("on");
+  historyLoad();
+  setTimeout(() => $("historySearch").focus(), 120);
+}
+function closeHistory(){
+  Hist.open = false;
+  $("historyDrawer").classList.remove("on");
+  $("historyScrim").classList.remove("on");
 }
 
 function esc(s){ return (s??"").toString().replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
