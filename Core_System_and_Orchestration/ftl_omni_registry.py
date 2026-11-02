@@ -119,7 +119,7 @@ class FtlOmniRegistry:
             "cas_neural_space_kaiju": {
                 "name": "CaS · Cognitive & Context as a Service",
                 "binary": "/home/timemachine/.local/bin/cas-kaiju",
-                "module": "core.cas_neural_space_kaiju",
+                "module": "modulos_ftl.ftl_cas_kaiju",
                 "service": "cas-kaiju.service",
                 "endpoint": "http://127.0.0.1:8770",
                 "dashboard": "http://127.0.0.1:8770/dashboard",
@@ -127,7 +127,6 @@ class FtlOmniRegistry:
                 "category": "Cognitive Context Fabric & Retrieval Augmentation",
                 "description": "Capa CaS (Cognitive & Context as a Service) sobre TARDIS-NEURAL-SPACE-KAIJU: recuperación multi-fuente (bóveda profunda, continuidad, rails AEGIS, telemetría /proc, estado latente), ranking BM25 + recencia + confianza, deduplicación SimHash, compresión extractiva sintrópica y presupuesto de tokens con citas. Ancla inviolable La Constante AEGIS.",
                 "capabilities": ["context", "compress", "serve", "telemetry", "sources", "aegis", "selftest"],
-                "dispatch": "cli",
                 "active": os.path.exists("/home/timemachine/.local/bin/cas-kaiju")
             },
             "tardis4ever": {

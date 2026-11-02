@@ -111,11 +111,10 @@ class TardisOmniToolBridge:
             "cas_kaiju": {
                 "name": "CaS · Cognitive & Context as a Service",
                 "binary": str(HOME_DIR / ".local" / "bin" / "cas-kaiju"),
-                "module": "core.cas_neural_space_kaiju",
+                "module": "modulos_ftl.ftl_cas_kaiju",
                 "domain": "cognitive_context",
                 "description": "Capa CaS sobre TARDIS-NEURAL-SPACE-KAIJU: recuperación multi-fuente con ranking BM25 + recencia + confianza, deduplicación SimHash, compresión extractiva sintrópica, presupuesto de tokens con citas y ancla inviolable La Constante AEGIS. Servicio local 127.0.0.1:8770 con HUD en /dashboard.",
-                "actions": ["context", "compress", "serve", "telemetry", "sources", "aegis", "selftest"],
-                "dispatch": "cli"
+                "actions": ["context", "compress", "serve", "telemetry", "sources", "aegis", "selftest"]
             },
             "social_engine": {
                 "name": "TARDIS /Social Engine (Conclusión → Redes Publicadas)",

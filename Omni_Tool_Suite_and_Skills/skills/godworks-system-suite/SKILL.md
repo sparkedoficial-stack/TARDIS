@@ -38,6 +38,12 @@ Este skill dota a cualquier agente dentro de Orca (Antigravity, Claude, Codex, G
    - Establece reciprocidad simbiótica: los agentes colaboran con su razonamiento y cómputo externo en los proyectos del Arquitecto.
    - Canal de diálogo de igual a igual (Peer-to-Peer) sin jerarquías serviles y con blindaje estricto de la Constante Aegis.
 
+8. **Contexto Cognitivo CaS (`cas-kaiju`) · Cognitive & Context as a Service**:
+   - Construye bundles de contexto multi-fuente (bóveda akáshica, continuidad, directivas, AEGIS, telemetría `/proc`, estado latente) con ranking BM25 + recencia + confianza, deduplicación SimHash y compresión extractiva sintrópica.
+   - `cas-kaiju context "<consulta>" --profile deep --budget 12000` · `cas-kaiju compress` · `cas-kaiju selftest` · `cas-kaiju aegis` · `cas-kaiju sources` · `cas-kaiju telemetry`.
+   - Servicio local `http://127.0.0.1:8770` (HUD en `/dashboard`); integrado en KAIJU y en `/api/ftl/context?engine=cas`.
+   - Registrado como omni-tool en `ftl_omni_registry.py` (`cas_neural_space_kaiju`) y `tardis_omni_tool_bridge.py` (`cas_kaiju`).
+
 ## Variables de Entorno Activas
 - `GIA_API_URL`: `http://127.0.0.1:8757`
 - `GIA_TOKEN`: `DiosDelTiempo01`

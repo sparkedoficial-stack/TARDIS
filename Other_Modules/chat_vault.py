@@ -309,8 +309,8 @@ def should_defer_updates() -> bool:
 # ---------------------------------------------------------------------------
 # Ciclo de vida de la bóveda
 # ---------------------------------------------------------------------------
-def purge_expired() -> int:
-    """Archiva bóvedas vencidas conservando el texto para recuperación."""
+def _purge_locked() -> int:
+    """Archiva bóvedas vencidas. Debe llamarse con el mutex tomado."""
     purged = 0
     for record in list(_iter_records()):
         if not _alive(record):
@@ -323,6 +323,12 @@ def purge_expired() -> int:
     if purged:
         gate_status()
     return purged
+
+
+def purge_expired() -> int:
+    """Archiva bóvedas vencidas conservando el texto para recuperación."""
+    with _mutex():
+        return _purge_locked()
 
 
 def acquire(
@@ -344,7 +350,7 @@ def acquire(
         raise VaultConflict("Sesión requerida para abrir la bóveda.")
     text = (text or "")[:MAX_TEXT]
     with _mutex():
-        purge_expired()
+        _purge_locked()
         for record in _iter_records():
             if record.get("session_id") != session_id or not _alive(record):
                 continue

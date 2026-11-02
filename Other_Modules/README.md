@@ -99,6 +99,7 @@ Módulos y componentes auxiliares del sistema.
 - **free_models.py**: Componente de alta eficiencia.
 - **ftl_backlog.json**: Motor de aceleración FTL y computación adaptativa.
 - **ftl_backlog.py**: Motor de aceleración FTL y computación adaptativa.
+- **ftl_cas_kaiju.py**: Motor de aceleración FTL y computación adaptativa.
 - **ftl_intv_appletv_hub.py**: Motor de aceleración FTL y computación adaptativa.
 - **ftl_linpad.py**: Motor de aceleración FTL y computación adaptativa.
 - **ftl_nxnative.py**: Motor de aceleración FTL y computación adaptativa.

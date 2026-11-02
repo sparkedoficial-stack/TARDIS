@@ -299,16 +299,40 @@ latencia, cache hit y estado AEGIS.
 
 `/api/ftl/context` acepta `engine=cas` en:
 
-- `omni_temporal_control.py` (servidor HTTP principal).
+- `omni_temporal_control.py` (servidor HTTP principal, puerto `8757`).
 - `server/api.py` (FastAPI).
 
 ```bash
-curl 'http://127.0.0.1:8765/api/ftl/context?prompt=kernel&engine=cas&budget=4000'
+curl 'http://127.0.0.1:8757/api/ftl/context?prompt=kernel&engine=cas&budget=4000'
 ```
+
+Parámetros: `prompt` (consulta), `engine=cas`, `budget` (tokens),
+`profile` (`interactive`, `deep`, `hud`, ...).
 
 Sin `engine=cas`, el comportamiento original de la bóveda se mantiene intacto.
 
-### 6.3 API Python
+### 6.3 Registro Omni-Tool
+
+CaS queda registrado como herramienta soberana de primera clase:
+
+- `modulos_ftl/ftl_omni_registry.py` → clave `cas_neural_space_kaiju`
+  (categoría *Cognitive Context Fabric & Retrieval Augmentation*,
+  despacho `cli`).
+- `core/tardis_omni_tool_bridge.py` → clave `cas_kaiju`
+  (dominio `cognitive_context`, disponible para GIA/KAIJU/Supervisor/FTL).
+
+```python
+from modulos_ftl.ftl_omni_registry import get_omni_registry
+get_omni_registry().execute_tool("cas_neural_space_kaiju", "sources")
+
+from core.tardis_omni_tool_bridge import get_omni_bridge
+get_omni_bridge().execute_tool("cas_kaiju", "telemetry")
+```
+
+También acepta `args=[...]` para pasar argumentos posicionales al CLI
+(por ejemplo `args=["consulta", "--profile", "deep"]`).
+
+### 6.4 API Python
 
 ```python
 from core.cas_neural_space_kaiju import get_cas, build_context_text

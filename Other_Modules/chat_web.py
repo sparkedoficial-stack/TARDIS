@@ -943,9 +943,9 @@ CHAT_HTML = r"""<!DOCTYPE html>
     border-radius:7px;padding:4px 8px;font-family:var(--mono);font-size:9px;cursor:pointer;letter-spacing:.1em}
   .vault-close:hover{background:rgba(255,85,85,.12)}
   .vault-panel .composer{padding:0;background:none}
-  .vault-panel .composer .box{max-width:none;border:0;border-radius:0 0 14px 14px;
+  .vault-panel .box{max-width:none;border:0;border-radius:0 0 14px 14px;
     background:transparent;box-shadow:none;backdrop-filter:none}
-  .vault-panel .composer .box:focus-within{box-shadow:none;border-color:transparent}
+  .vault-panel .box:focus-within{box-shadow:none;border-color:transparent}
   .vault-panel .hint{display:none}
   .vault-foot{display:flex;align-items:center;gap:10px;padding:8px 14px 11px;border-top:1px solid rgba(0,255,204,.1);
     font-size:9px;color:#55688a;letter-spacing:.06em}
@@ -1337,7 +1337,10 @@ const Vault = {
       this.draftId = d.draft.draft_id;
       this.token = d.token;
       this.revision = d.draft.revision || 0;
-      this.text = d.draft.text !== undefined ? d.draft.text : text;
+      const base = d.draft.text !== undefined ? d.draft.text : text;
+      const live = Guard.nativeGet();
+      // Preserva las teclas pulsadas mientras viajaba la petición de apertura.
+      this.text = (live && live.length > base.length && live.startsWith(base)) ? live : base;
       this.checksum = d.draft.checksum || "";
       this.expiresAt = Date.now() + ((d.draft.expires_in || 120) * 1000);
       Guard.write(this.text);
@@ -1654,7 +1657,36 @@ async function boot(){
   const target = data.latest;
   if(target){ await openSession(target); }
   else { await newSession(); }
-  restoreDraft();
+  await restoreDraft();
+}
+
+/* Recuperación de la bóveda: recarga, caída del portal o reinicio del sistema. */
+async function restoreDraft(){
+  Vault.initDom();
+  const local = loadDraft();
+  if(local && !Guard.nativeGet()){ Guard.write(local); autoGrow(); }
+
+  let serverDraft = null;
+  try{
+    const qs = state.session ? ("?session_id=" + encodeURIComponent(state.session.id)) : "";
+    const r = await fetch("/api/chat/composer/recover" + qs);
+    const d = await r.json();
+    if(d.drafts && d.drafts.length) serverDraft = d.drafts[0];
+  }catch(e){}
+
+  const stored = Vault.stored();
+  if(stored && stored.token && stored.draft_id && (!state.session || stored.session_id === state.session.id)){
+    await Vault.open({silent:true});
+    if(Vault.active) return;
+  }
+
+  if(serverDraft && serverDraft.text && !Guard.nativeGet()){
+    Guard.write(serverDraft.text);
+    autoGrow();
+    state.recovered = serverDraft;
+    $("recoverBanner").classList.add("on");
+    $("vaultSub").textContent = "Borrador recuperado de la bóveda · pulsa el escudo para blindarlo de nuevo.";
+  }
 }
 
 function renderSessions(){
@@ -1690,6 +1722,10 @@ function renderSessions(){
 }
 
 async function newSession(){
+  if(Vault.active && Vault.text.trim()){
+    if(!confirm("Hay una petición blindada sin enviar. ¿Cerrar la bóveda y crear otra conversación?")) return;
+    await Vault.close(true);
+  }
   const r = await fetch("/api/chat/sessions", {method:"POST", headers:{"Content-Type":"application/json"},
     body: JSON.stringify({model: $("modelSel").value || null, agent: $("agentInput").value.trim()})});
   const data = await r.json();
@@ -1700,6 +1736,13 @@ async function newSession(){
 }
 
 async function openSession(id){
+  if(state.session && state.session.id === id){
+    renderSessions(); applySession(); renderMessages(); return;
+  }
+  if(Vault.active && Vault.text.trim()){
+    if(!confirm("Hay una petición blindada sin enviar. ¿Cerrar la bóveda y abrir otra sesión?")) return;
+    await Vault.close(true);
+  }
   const r = await fetch("/api/chat/sessions/"+id);
   if(!r.ok) return;
   const data = await r.json();
@@ -1768,7 +1811,10 @@ function renderMessages(){
       </div>
     </div>`;
     box.querySelectorAll(".chip").forEach(c => c.addEventListener("click", ()=>{
-      $("input").value = c.dataset.p; autoGrow(); saveDraft(c.dataset.p); $("input").focus();
+      Guard.write(c.dataset.p); autoGrow(); saveDraft(c.dataset.p);
+      if(Vault.active) { Vault.text = c.dataset.p; Vault.persist(true); Vault.mount(); }
+      else Vault.open({silent:true, text:c.dataset.p});
+      $("input").focus();
     }));
     return;
   }
@@ -1816,13 +1862,28 @@ $("messages").addEventListener("scroll", () => { state.stick = nearBottom(); }, 
 
 /* ---------------- envío / streaming ---------------- */
 async function send(){
-  if(state.busy || state.composing) return;
-  const input = $("input");
-  const text = input.value.trim();
+  if(state.busy || state.sending || state.composing) return;
+  const text = Guard.nativeGet().trim();
   if(!text) return;
   if(!state.session) await newSession();
   if(state.busy) return;
 
+  // Toda petición se sella en la bóveda antes de viajar a FTL.
+  if(!Vault.active){
+    await Vault.open({silent:true, text:Guard.nativeGet()});
+    if(!Vault.active){
+      toast("✖ La bóveda no pudo abrirse: la petición no se envió (texto intacto).");
+      return;
+    }
+  }
+  await Vault.persist(true);
+  if(Vault.frozen) return;
+
+  const snapshot = Guard.nativeGet();
+  if(!snapshot.trim()) return;
+
+  Vault.freeze(true);
+  state.sending = true;
   state.busy = true;
   state.streamBuf = "";
   state.stick = true;
@@ -1844,28 +1905,42 @@ async function send(){
     const r = await fetch("/api/chat/send", {method:"POST", headers:{"Content-Type":"application/json"},
       body: JSON.stringify({
         session_id: state.session.id,
-        text,
+        text: snapshot,
         files: state.files,
         model: $("modelSel").value || undefined,
         agent: $("agentInput").value.trim(),
         thinking: $("tgThink").classList.contains("on"),
         auto: $("tgAuto").classList.contains("on"),
+        draft_id: Vault.draftId,
+        draft_token: Vault.token,
+        revision: Vault.revision,
       })});
-    if(!r.ok){ throw new Error((await r.json()).detail || "Fallo al enviar"); }
-    const data = await r.json();
-    // Solo se limpia el campo cuando el servidor aceptó la petición.
-    // Si el usuario escribió más mientras esperaba, se respeta su texto.
-    if(input.value.trim() === text){ input.value = ""; saveDraft(""); autoGrow(); }
-    addShell("user").innerHTML = md(text);
-    state.runId = data.run_id;
+    const data = await r.json().catch(() => ({}));
+    if(!r.ok){
+      if(data.authoritative){
+        Vault.text = data.authoritative.text || Vault.text;
+        Vault.revision = data.authoritative.revision || Vault.revision;
+        Guard.write(Vault.text);
+        autoGrow();
+      }
+      throw new Error(data.message || data.detail || "Fallo al enviar");
+    }
+
+    // El servidor aceptó: recién aquí el texto puede abandonar la ventana.
+    Vault.sent();
+    state.sending = false;
     state.files = []; renderAtts();
+    addShell("user").innerHTML = md(snapshot);
+    state.runId = data.run_id;
     listen(data.run_id, mdBox, holder, pendingThink, pendingTools);
   }catch(err){
+    Vault.freeze(false);
+    state.sending = false;
     holder.remove();
     bubble.parentElement.remove();
     finish();
     // El borrador y los adjuntos permanecen intactos para reintentar.
-    toast("✖ " + err.message);
+    toast("✖ " + err.message + " — la petición sigue protegida en la bóveda.");
   }
 }
 
@@ -2001,27 +2076,104 @@ $("exportBtn").addEventListener("click", () => {
   if(!state.session) return;
   window.open("/api/chat/export/"+state.session.id+"?fmt=md", "_blank");
 });
+
+/* ---------- bóveda ---------- */
+$("vaultBtn").addEventListener("click", () => Vault.active ? Vault.mount() : Vault.open({}));
+$("vaultClose").addEventListener("click", () => Vault.close(true));
+$("vaultBackdrop").addEventListener("click", () => { /* no cerrar: la bóveda exige acción explícita */ });
+
+/* ---------- historial ---------- */
+$("historyBtn").addEventListener("click", openHistory);
+$("historyScrim").addEventListener("click", closeHistory);
+$("historyRefresh").addEventListener("click", historyLoad);
+$("historyExport").addEventListener("click", () => {
+  window.open("/api/chat/history/export?fmt=md&source="+encodeURIComponent(Hist.source)+
+    "&q="+encodeURIComponent(Hist.query), "_blank");
+});
+$("historySearch").addEventListener("input", (e) => {
+  Hist.query = e.target.value;
+  clearTimeout(Hist.timer);
+  Hist.timer = setTimeout(historyLoad, 320);
+});
+document.querySelectorAll(".hfilt").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".hfilt").forEach(b => b.classList.remove("on"));
+    btn.classList.add("on");
+    Hist.source = btn.dataset.src || "all";
+    historyLoad();
+  });
+});
+
+/* ---------- borrador recuperado ---------- */
+$("recoverLoad").addEventListener("click", async () => {
+  const text = Guard.nativeGet();
+  $("recoverBanner").classList.remove("on");
+  await Vault.open({text});
+});
+$("recoverDismiss").addEventListener("click", () => {
+  $("recoverBanner").classList.remove("on");
+  state.recovered = null;
+  Guard.write("");
+  saveDraft("");
+  autoGrow();
+});
+
+/* ---------- entrada soberana ---------- */
 $("input").addEventListener("input", () => {
   autoGrow();
-  saveDraft($("input").value);
+  const value = Guard.nativeGet();
+  saveDraft(value);
+  if(!Vault.active && !Vault.opening && !state.busy && value.trim()){
+    Vault.open({silent:true, text:value});
+  }
 });
 $("input").addEventListener("compositionstart", () => { state.composing = true; });
 $("input").addEventListener("compositionend", () => {
   state.composing = false;
   autoGrow();
-  saveDraft($("input").value);
+  saveDraft(Guard.nativeGet());
 });
 $("input").addEventListener("keydown", (e) => {
   // Nunca enviar mientras se compone texto (acentos, chino, japonés, emoji…).
   if(e.isComposing || state.composing || e.keyCode === 229) return;
-  if(e.key === "Enter" && !e.shiftKey && !e.altKey && !e.ctrlKey && !e.metaKey){
+  if(e.key === "Enter" && !e.shiftKey && (Vault.active || !e.altKey && !e.ctrlKey && !e.metaKey)){
     e.preventDefault();
     send();
   }
+  if(e.key === "Escape" && Vault.active){
+    e.preventDefault();
+    Vault.close(true);
+  }
 });
 document.addEventListener("keydown", (e) => {
-  if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k"){ e.preventDefault(); $("input").focus(); }
+  if((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key.toLowerCase() === "k"){
+    e.preventDefault();
+    if(Vault.active){ $("input").focus(); }
+    else Vault.open({});
+  }
+  if((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === "h"){
+    e.preventDefault();
+    Hist.open ? closeHistory() : openHistory();
+  }
+  if((e.ctrlKey || e.metaKey) && e.shiftKey && e.code === "Space"){
+    e.preventDefault();
+    Vault.active ? Vault.mount() : Vault.open({});
+  }
+  if(e.key === "Escape" && Hist.open){ closeHistory(); }
 });
+
+/* Defensa de navegación: una actualización externa no debe descartar la petición. */
+window.addEventListener("beforeunload", (e) => {
+  if(Vault.active && Guard.nativeGet().trim()){
+    e.preventDefault();
+    e.returnValue = "Hay una petición blindada sin enviar. El borrador está a salvo, pero saldrás de la bóveda.";
+    return e.returnValue;
+  }
+});
+document.addEventListener("visibilitychange", () => {
+  if(document.visibilityState === "hidden" && Vault.active) Vault.persist(true);
+});
+
 $("tgThink").addEventListener("click", async () => {
   $("tgThink").classList.toggle("on");
   if(state.session) await fetch("/api/chat/sessions/"+state.session.id, {method:"PATCH",

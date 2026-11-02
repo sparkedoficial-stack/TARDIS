@@ -56,6 +56,7 @@ Automatizaciones de sistema, diagnósticos de hardware, optimizadores de SO y he
 - **test_api_access_control.py**: Componente de alta eficiencia.
 - **test_cas_neural_space_kaiju.py**: Componente de alta eficiencia.
 - **test_causal_prompt_chaining_experiment.py**: Componente de alta eficiencia.
+- **test_chat_sovereign.py**: Componente de alta eficiencia.
 - **test_chat_universal_control.py**: Componente de alta eficiencia.
 - **test_client_chat.py**: Componente de alta eficiencia.
 - **test_client_user_manager.py**: Componente de alta eficiencia.
