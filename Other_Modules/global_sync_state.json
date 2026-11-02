@@ -1,6 +1,6 @@
 {
-  "revision": 2599,
-  "lamport": 2856,
+  "revision": 2601,
+  "lamport": 2858,
   "history": [
     {
       "id": "msg_1793596157430_1",
@@ -45,6 +45,28 @@
       "meta": "TARDIS-NEURAL-SPACE-KAIJU · Núcleo Soberano",
       "raw_data": {},
       "client_id": "tg_7153384115"
+    },
+    {
+      "id": "msg_1793599709391_5",
+      "role": "system",
+      "content": "⚡ [FTL] PLAN COGNITIVO (DEEPSEEK): Dame el enlace del servicio web de tardis (RC:0, 21.1s)",
+      "timestamp": REDACTED_PHONE.3910089,
+      "iso": "2026-11-02T01:08:29.391064",
+      "lamport": 2857,
+      "meta": "FTL · DEEPSEEK",
+      "raw_data": {},
+      "client_id": "ftl_sovereign"
+    },
+    {
+      "id": "msg_1793600054402_6",
+      "role": "system",
+      "content": "⚡ [FTL] PLAN COGNITIVO (DEEPSEEK): Me refiero al enlace de red (RC:0, 273.8s)",
+      "timestamp": REDACTED_PHONE.4023826,
+      "iso": "2026-11-02T01:14:14.402410",
+      "lamport": 2858,
+      "meta": "FTL · DEEPSEEK",
+      "raw_data": {},
+      "client_id": "ftl_sovereign"
     }
   ],
   "config": {
@@ -69,5 +91,11 @@
     "coneActive": true,
     "oscilloscopeActive": true
   },
-  "updated_at": "2026-11-02T01:02:14.910205"
+  "updated_at": "2026-11-02T01:14:14.402438",
+  "visual_intelligence": {
+    "active": true,
+    "pid": 3564965,
+    "videos_stored": 852,
+    "last_ping": REDACTED_PHONE.6881804
+  }
 }
