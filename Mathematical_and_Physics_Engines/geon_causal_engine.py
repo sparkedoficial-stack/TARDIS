@@ -242,6 +242,7 @@ class SyntropyEntropyGradientEngine:
           - Normalización estocástica por filas con blindaje anti-división por cero.
           - Re-normalización numérica de precisión (filas estocásticas exactas).
           - Cache local (last_transition_matrix) de la última matriz sincronizada.
+          - Validación numérica mejorada para mayor robustez.
         """
         states = max(2, int(states))
         dt = max(0.0, float(dt))
@@ -253,14 +254,22 @@ class SyntropyEntropyGradientEngine:
                         mat[i, j] = math.exp(-self.eta * (j - i) * dt * 0.5)
                     else:
                         mat[i, j] = math.exp(-self.eta * (i - j) * dt * 2.0)
+            # Blindaje: asegurar que ni dt ni states generen valores NaN/Inf
+            mat = np.where(np.isfinite(mat), mat, 0.0)
             row_sums = mat.sum(axis=1, keepdims=True)
-            # Blindaje anti-división por cero: sustitución de fila segura
+            # Anti-división por cero: sustitución de fila segura
             safe_row_sums = np.where(row_sums > 1e-12, row_sums, np.ones_like(row_sums))
             normalized = mat / safe_row_sums
             # Re-normalización numérica de precisión para filas ya estocásticas
             norm_sums = normalized.sum(axis=1, keepdims=True)
             safe_norm_sums = np.where(norm_sums > 1e-12, norm_sums, np.ones_like(norm_sums))
             synchronized_matrix = normalized / safe_norm_sums
+            # Post-procesado: eliminar posibles NaN/Inf residuals
+            synchronized_matrix = np.where(np.isfinite(synchronized_matrix), synchronized_matrix, 0.0)
+            # Proyección final de estocasticidad: forzamiento suave de filas a suma 1.0
+            final_sums = synchronized_matrix.sum(axis=1, keepdims=True)
+            final_safe_sums = np.where(final_sums > 1e-12, final_sums, np.ones_like(final_sums))
+            synchronized_matrix = synchronized_matrix / final_safe_sums
             synchronized_matrix = synchronized_matrix.copy()
             self.last_transition_matrix = synchronized_matrix
             return synchronized_matrix
@@ -364,11 +373,13 @@ class CausalRetroIntegrator:
 
     def _evaluate_syntropic_matrix(self, mat: np.ndarray) -> Dict[str, Any]:
         """
-        Evaluación estructurada de la coherencia interna de una matriz de
+        Evaluación estructurada y robusta de la coherencia interna de una matriz de
         transición sintrópica (sincronización causal verificada):
           - Estocasticidad (suma de filas ≈ 1) para consistencia de Markov.
           - Radio espectral (valores propios |λ| <= 1) para estabilidad del bucle causal.
           - Invariante Fuerte de Traza Causal (traza > 0).
+          - Error máximo de desnormalización de filas para diagnóstico detallado.
+          - Determinante no-cero como indicador de información preservada.
         """
         row_sums = mat.sum(axis=1)
         stochastic_valid = bool(np.allclose(row_sums, 1.0, rtol=1e-5, atol=1e-8))
@@ -377,13 +388,30 @@ class CausalRetroIntegrator:
         causal_matrix_trace = float(np.trace(mat))
         trace_valid = causal_matrix_trace > 0.0
 
+        # Error máximo de desnormalización por fila (diagnóstico)
+        row_max_error = float(np.max(np.abs(row_sums - 1.0))) if np.size(row_sums) else 0.0
+
+        # Determinante no-cero: indica que el mapeo preserva información (no colapso a cero)
+        try:
+            det = float(np.linalg.det(mat))
+            det_valid = abs(det) > 1e-12
+        except np.linalg.LinAlgError:
+            det_valid = False
+            det = 0.0
+
+        # Radio espectral exacto (máximo |λ|)
+        spectral_radius = float(max(abs(complex(eig)) for eig in eigenvalues)) if eigenvalues.size else 0.0
+
         return {
             "causal_matrix_synced": stochastic_valid,
             "spectral_radius_stable": spectral_radius_stable,
             "matrix_trace": round(causal_matrix_trace, 4),
             "trace_invariant_valid": trace_valid,
             "matrix_shape": [int(mat.shape[0]), int(mat.shape[1])],
-            "row_sum_max_error": float(np.max(np.abs(row_sums - 1.0))) if np.size(row_sums) else 0.0,
+            "row_sum_max_error": row_max_error,
+            "determinant": round(det, 6),
+            "determinant_valid": det_valid,
+            "spectral_radius": round(spectral_radius, 6),
         }
 
     def synchronize_syntropic_transition_matrix(self, dt: float = 0.1, states: int = 4) -> Dict[str, Any]:
@@ -414,6 +442,8 @@ class CausalRetroIntegrator:
                 "trace_invariant_valid": matrix_eval["trace_invariant_valid"],
                 "matrix_shape": matrix_eval["matrix_shape"],
                 "row_sum_max_error": matrix_eval["row_sum_max_error"],
+                "determinant_valid": matrix_eval["determinant_valid"],
+                "spectral_radius": matrix_eval["spectral_radius"],
                 "matrix_state": "SYNCHRONIZED" if is_consistent else "DIVERGENT",
             }
 
@@ -442,6 +472,8 @@ class CausalRetroIntegrator:
             "trace_invariant_valid": matrix_eval["trace_invariant_valid"],
             "matrix_shape": matrix_eval["matrix_shape"],
             "row_sum_max_error": matrix_eval["row_sum_max_error"],
+            "determinant_valid": matrix_eval["determinant_valid"],
+            "spectral_radius": matrix_eval["spectral_radius"],
         }
 
     def compute_psi_retro(

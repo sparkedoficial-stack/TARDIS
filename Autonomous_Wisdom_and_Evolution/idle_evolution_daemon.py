@@ -404,8 +404,11 @@ class IdleEvolutionDaemon:
             "timestamp": time.time()
         }
 
-    def get_history(self, limit: int = 20) -> List[Dict[str, Any]]:
-        return list(reversed(self._conjectures))[:limit]
+    def get_history(self, limit: Optional[int] = 20) -> List[Dict[str, Any]]:
+        out = list(reversed(self._conjectures))
+        if limit is None:
+            return out
+        return out[:max(1, int(limit))]
 
 
 def get_idle_evolution_daemon() -> IdleEvolutionDaemon:

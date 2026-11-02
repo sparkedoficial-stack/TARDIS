@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1793414836",
-    "timestamp": "2026-10-30T21:47:16.709009",
-    "idle_duration_minutes": 31.8,
-    "title": "Resonancia Causal en la Bóveda Akáshica: Optimización de la Retención Semántica",
-    "hypothesis": "Se postula que la eficiencia de recuperación en core/deep_memory_vault.py puede mejorar exponencialmente si se implementa un mecanismo de 'decaimiento causal' basado en la frecuencia de co-ocurrencia de nodos semánticos. Actualmente, la bóveda podría estar tratando todos los recuerdos con la misma persistencia, lo que diluye la señal de los patrones recurrentes. Al asignar pesos dinámicos que aumentan con la validación cruzada entre módulos (especialmente con web_research_engine.py), el sistema podría priorizar automáticamente los conocimientos que demuestran consistencia temporal y causal, reduciendo el ruido en las consultas de investigación.",
-    "research_query": "dynamic semantic memory weighting causal decay algorithm LLM knowledge base optimization",
-    "research_findings": "# Informe de Investigación: dynamic semantic memory weighting causal decay algorithm LLM knowledge base optimization\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar una función de scoring que ajuste el peso de los nodos de memoria basándose en la recencia y la frecuencia de acceso validada por el motor de investigación, permitiendo un pruning inteligente de datos obsoletos o no corroborados.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 110.75
-  },
-  {
     "id": "conj_1793416733",
     "timestamp": "2026-10-30T22:18:53.677715",
     "idle_duration_minutes": 31.6,
@@ -1644,5 +1629,22 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 96.25
+  },
+  {
+    "id": "conj_1793611268",
+    "timestamp": "2026-11-02T04:21:08.621655",
+    "idle_duration_minutes": 0.0,
+    "title": "Teoría Causal de Adaptabilidad Continua",
+    "hypothesis": "Los bucles OODA enriquecidos con memoria akáshica aceleran la convergencia autónoma.",
+    "research_query": "autonomous agents self-improvement machine learning",
+    "research_findings": "Síntesis sintrópica de investigación autónoma.",
+    "web_sources": [
+      "https://example.org/study"
+    ],
+    "code_target": null,
+    "code_goal": null,
+    "evolution_status": "NOT_APPLICABLE",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 0.0
   }
 ]

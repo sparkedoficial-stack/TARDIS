@@ -521,17 +521,28 @@ class DeepMemoryVault:
             full_text = full_text[:max_chars] + "\n...[Contexto profundo sintetizado para el límite de atención]"
         return full_text
 
-    def get_ftl_history(self, limit: int = 20) -> List[Dict[str, Any]]:
-        """Recupera el historial de ejecuciones y cambios del sistema registrados por FTL."""
+    def get_ftl_history(self, limit: Optional[int] = 20) -> List[Dict[str, Any]]:
+        """Recupera el historial de ejecuciones y cambios del sistema registrados por FTL.
+
+        Si limit es None se devuelven todas las filas (paginación soberana en API).
+        """
         con = self._connect()
         try:
-            rows = con.execute(
-                """SELECT id, ts, iso, source, role, content, content_compressed, is_compressed, meta
-                   FROM vault_events
-                   WHERE source LIKE 'ftl%'
-                   ORDER BY id DESC LIMIT ?""",
-                (limit,)
-            ).fetchall()
+            if limit is None:
+                rows = con.execute(
+                    """SELECT id, ts, iso, source, role, content, content_compressed, is_compressed, meta
+                       FROM vault_events
+                       WHERE source LIKE 'ftl%'
+                       ORDER BY id DESC"""
+                ).fetchall()
+            else:
+                rows = con.execute(
+                    """SELECT id, ts, iso, source, role, content, content_compressed, is_compressed, meta
+                       FROM vault_events
+                       WHERE source LIKE 'ftl%'
+                       ORDER BY id DESC LIMIT ?""",
+                    (max(1, int(limit)),)
+                ).fetchall()
             out = []
             for r in rows:
                 txt = r[5]

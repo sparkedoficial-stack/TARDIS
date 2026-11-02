@@ -362,13 +362,15 @@ class PackageManager:
                      "Para binarios standalone o librerías de Python, use install_python_package."
         }
 
-    def get_history(self, limit: int = 50) -> List[Dict[str, Any]]:
+    def get_history(self, limit: Optional[int] = 50) -> List[Dict[str, Any]]:
         """Devuelve el historial de instalaciones recientes."""
         try:
             if self.history_file.exists():
                 with open(self.history_file, "r", encoding="utf-8") as f:
                     entries = json.load(f)
-                    return entries[-limit:]
+                    if limit is None:
+                        return list(entries)
+                    return entries[-max(1, int(limit)):]
             return []
         except Exception:
             return []

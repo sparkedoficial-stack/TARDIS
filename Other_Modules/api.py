@@ -1683,10 +1683,13 @@ iframe{border:none;width:100%;height:100%;}</style></head>
         return get_tardis_telephony_controller().ensure_connected()
 
     @app.get("/api/pocket/calls/history")
-    async def get_pocket_calls_history(limit: Optional[int] = 50):
+    async def get_pocket_calls_history(limit: Optional[int] = None, offset: Optional[int] = None):
         from core.tardis_telephony_controller import get_tardis_telephony_controller
-        lim, _off = sanitize_pagination(limit=limit)
-        return {"ok": True, "history": (get_tardis_telephony_controller().calls_history or [])[-lim:]}
+        lim, off = sanitize_pagination(limit=limit, offset=offset)
+        bridge = get_tardis_telephony_controller()
+        history = bridge.calls_history or []
+        page, meta = paginate_list(history, limit=lim, offset=off)
+        return {"ok": True, "history": page, **meta}
 
     @app.get("/api/rf_radar")
     @app.get("/api/rf_radar/status")
@@ -2502,10 +2505,13 @@ iframe{border:none;width:100%;height:100%;}</style></head>
         return get_sms_bridge().get_status()
 
     @app.get("/api/sms/history")
-    async def get_sms_history_endpoint(limit: Optional[int] = 50):
+    async def get_sms_history_endpoint(limit: Optional[int] = None, offset: Optional[int] = None):
         from core.sms_bridge import get_sms_bridge
-        lim, _off = sanitize_pagination(limit=limit)
-        return {"ok": True, "history": (get_sms_bridge().history or [])[-lim:]}
+        lim, off = sanitize_pagination(limit=limit, offset=offset)
+        bridge = get_sms_bridge()
+        history = bridge.history or []
+        page, meta = paginate_list(history, limit=lim, offset=off)
+        return {"ok": True, "history": page, **meta}
 
     @app.post("/api/sms")
     @app.post("/api/sms/send")

@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "created_at": "2026-10-15T02:04:29.176374",
   "last_periodic_sync": "2026-11-02T00:47:58.940445",
-  "last_immediate_sync": "2026-11-02T04:01:01.063856",
-  "last_commit_hash": "f3b41632",
-  "sync_count": 1417,
-  "immediate_sync_count": 1416,
+  "last_immediate_sync": "2026-11-02T04:16:10.493720",
+  "last_commit_hash": "8e61aab6",
+  "sync_count": 1418,
+  "immediate_sync_count": 1417,
   "periodic_sync_count": 1,
   "last_known_mtimes": {
     "skill:omni-control-bridge/SKILL.md": REDACTED_PHONE.4575877,
@@ -97,7 +97,7 @@
     "core:tardis_omni_tool_bridge.py": REDACTED_PHONE.608073,
     "core:network_traffic_controller.py": REDACTED_PHONE.9932146,
     "core:inter_ai_protocol.py": REDACTED_PHONE.4301376,
-    "core:deep_memory_vault.py": REDACTED_PHONE.436918,
+    "core:deep_memory_vault.py": REDACTED_PHONE.8314285,
     "core:tardis_error_sentinel.py": REDACTED_PHONE.557778,
     "core:telegram_bridge.py": REDACTED_PHONE.7978518,
     "core:hardware_controller.py": REDACTED_PHONE.4713762,
@@ -106,7 +106,7 @@
     "core:network_controller.py": REDACTED_PHONE.6589644,
     "core:tardis_continuity_engine.py": REDACTED_PHONE.2085652,
     "core:mundo_sin_censura.py": REDACTED_PHONE.9963262,
-    "core:kaiju_safety_rails.py": REDACTED_PHONE.372187,
+    "core:kaiju_safety_rails.py": REDACTED_PHONE.1855972,
     "core:tardis_h3_video_engine.py": REDACTED_PHONE.8062887,
     "core:causal_prompt_graph.py": REDACTED_PHONE.2933822,
     "core:autonomous_coder.py": REDACTED_PHONE.3816922,
@@ -289,6 +289,17 @@
     "sat:gia_ios:GIA/Models/GIAModels.swift": REDACTED_PHONE.5796177
   },
   "history": [
+    {
+      "timestamp": "2026-11-02T04:16:10.493720",
+      "trigger": "immediate_milestone",
+      "commit_hash": "8e61aab6",
+      "score": 75,
+      "reasons": [
+        "Evoluci\u00f3n en subsistema core TARDIS: curiosity_debate_manager.py",
+        "Evoluci\u00f3n en subsistema core TARDIS: scientific_research_engine.py",
+        "Evoluci\u00f3n en subsistema core TARDIS: background_thought_engine.py"
+      ]
+    },
     {
       "timestamp": "2026-11-02T04:01:01.063856",
       "trigger": "immediate_milestone",
@@ -839,17 +850,6 @@
       "timestamp": "2026-10-31T03:40:04.543508",
       "trigger": "immediate_milestone",
       "commit_hash": "73b16de9",
-      "score": 75,
-      "reasons": [
-        "Evoluci\u00f3n en subsistema core TARDIS: curiosity_debate_manager.py",
-        "Evoluci\u00f3n en subsistema core TARDIS: scientific_research_engine.py",
-        "Evoluci\u00f3n en subsistema core TARDIS: background_thought_engine.py"
-      ]
-    },
-    {
-      "timestamp": "2026-10-31T03:24:57.419346",
-      "trigger": "immediate_milestone",
-      "commit_hash": "50727a42",
       "score": 75,
       "reasons": [
         "Evoluci\u00f3n en subsistema core TARDIS: curiosity_debate_manager.py",

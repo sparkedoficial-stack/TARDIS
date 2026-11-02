@@ -676,14 +676,21 @@ class KaijuSafetyRailsManager:
     # Auditoría Histórica
     # -------------------------------------------------------------------------
 
-    def get_recent_audit_logs(self, limit: int = 50) -> List[Dict[str, str]]:
-        """Retorna las últimas líneas del archivo de auditoría parseadas."""
+    def get_recent_audit_logs(self, limit: Optional[int] = 50) -> List[Dict[str, str]]:
+        """Retorna las líneas del archivo de auditoría parseadas (más recientes primero).
+
+        Si limit es None se devuelven todas las líneas.
+        """
         logs = []
         if not AUDIT_LOG.exists():
             return logs
         try:
             lines = AUDIT_LOG.read_text(encoding="utf-8", errors="replace").splitlines()
-            for line in reversed(lines[-limit:]):
+            if limit is None:
+                selected = list(reversed(lines))
+            else:
+                selected = list(reversed(lines[-max(1, int(limit)):]))
+            for line in selected:
                 parts = [p.strip() for p in line.split("|")]
                 if len(parts) >= 4:
                     logs.append({

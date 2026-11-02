@@ -704,9 +704,11 @@ class AutonomousController:
             }
         }
 
-    def get_history(self, limit: int = 50) -> List[Dict[str, Any]]:
+    def get_history(self, limit: Optional[int] = 50) -> List[Dict[str, Any]]:
         """Devuelve las últimas acciones registradas."""
-        return self._recent_actions[-limit:]
+        if limit is None:
+            return list(self._recent_actions)
+        return self._recent_actions[-max(1, int(limit)):]
 
     def set_config(self, new_config: Dict[str, Any]) -> Dict[str, Any]:
         """Actualiza parámetros de actuación del motor autónomo."""
