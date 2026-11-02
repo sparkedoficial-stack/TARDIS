@@ -8,42 +8,6 @@
   "rollback": "Reactivar la política anterior en coding_router.json.",
   "evidence": [
     {
-      "title": "EnvSched: Environment-Aware Scheduling for Rollout-Efficient Agent Reinforcement Learning",
-      "url": "http://arxiv.org/abs/2610.37609v1",
-      "source": "arxiv",
-      "relevance": 10.8
-    },
-    {
-      "title": "EnvSched: Environment-Aware Scheduling for Rollout-Efficient Agent Reinforcement Learning",
-      "url": "http://arxiv.org/abs/2610.37609v1",
-      "source": "arxiv",
-      "relevance": 10.8
-    },
-    {
-      "title": "MiniMaxAI/MiniMax-M3.1-Flash",
-      "url": "https://huggingface.co/MiniMaxAI/MiniMax-M3.1-Flash",
-      "source": "huggingface:trending",
-      "relevance": 9.3
-    },
-    {
-      "title": "Rare, Relevant, and Still Wrong: How Memory Fails LLM Group Decisions",
-      "url": "http://arxiv.org/abs/2610.37624v1",
-      "source": "arxiv",
-      "relevance": 8.7
-    },
-    {
-      "title": "Rare, Relevant, and Still Wrong: How Memory Fails LLM Group Decisions",
-      "url": "http://arxiv.org/abs/2610.37624v1",
-      "source": "arxiv",
-      "relevance": 8.7
-    },
-    {
-      "title": "huggingface/transformers v5.22.0",
-      "url": "https://github.com/huggingface/transformers/releases/tag/v5.22.0",
-      "source": "github:huggingface/transformers",
-      "relevance": 25.0
-    },
-    {
       "title": "AI Cosmos: An Agentic Infra for Situated Learning",
       "url": "http://arxiv.org/abs/2610.40031v1",
       "source": "arxiv",
@@ -102,9 +66,45 @@
       "url": "http://arxiv.org/abs/2610.40589v1",
       "source": "arxiv",
       "relevance": 3.7
+    },
+    {
+      "title": "Subquadratic Attention with a Hierarchical Tree-Structured Indexer",
+      "url": "http://arxiv.org/abs/2610.42112v1",
+      "source": "arxiv",
+      "relevance": 23.5
+    },
+    {
+      "title": "Latent Sparse Attention: Towards Subquadratic Ultra-Long Context Attention",
+      "url": "http://arxiv.org/abs/2610.42147v1",
+      "source": "arxiv",
+      "relevance": 17.2
+    },
+    {
+      "title": "Flide: Accelerating Decision Inference with Exact State Forking",
+      "url": "http://arxiv.org/abs/2610.42148v1",
+      "source": "arxiv",
+      "relevance": 11.3
+    },
+    {
+      "title": "RoboArchitect: Automating the Design of Robotic Agents with Persistent Memory",
+      "url": "http://arxiv.org/abs/2610.42141v1",
+      "source": "arxiv",
+      "relevance": 11.0
+    },
+    {
+      "title": "Hierarchical World Models with Implicit Dynamics",
+      "url": "http://arxiv.org/abs/2610.42146v1",
+      "source": "arxiv",
+      "relevance": 8.3
+    },
+    {
+      "title": "Towards Understanding the Impact of Plasticity Loss on Reinforcement Learning in Stochastic Environments",
+      "url": "http://arxiv.org/abs/2610.42100v1",
+      "source": "arxiv",
+      "relevance": 3.1
     }
   ],
   "status": "planned",
   "created_at": "2026-10-29T00:13:36-05:00",
-  "updated_at": "2026-10-30T07:26:56-05:00"
+  "updated_at": "2026-11-02T01:22:53-05:00"
 }

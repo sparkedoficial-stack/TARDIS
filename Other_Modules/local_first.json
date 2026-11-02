@@ -8,48 +8,6 @@
   "rollback": "Reactivar ruteo híbrido.",
   "evidence": [
     {
-      "title": "EnvSched: Environment-Aware Scheduling for Rollout-Efficient Agent Reinforcement Learning",
-      "url": "http://arxiv.org/abs/2610.37609v1",
-      "source": "arxiv",
-      "relevance": 10.8
-    },
-    {
-      "title": "VideoLVR: Latent Visual Reasoning over Grounded Video Evidence",
-      "url": "http://arxiv.org/abs/2610.37613v1",
-      "source": "arxiv",
-      "relevance": 10.3
-    },
-    {
-      "title": "KPPax: preprocess differentiable kinetic ODE for machine learning in atmospheric chemistry",
-      "url": "http://arxiv.org/abs/2610.37655v1",
-      "source": "arxiv",
-      "relevance": 10.2
-    },
-    {
-      "title": "LiquidAI/LFM3-Omni-2B",
-      "url": "https://huggingface.co/LiquidAI/LFM3-Omni-2B",
-      "source": "huggingface:trending",
-      "relevance": 9.3
-    },
-    {
-      "title": "From the Transformer to a Formal Semantics of Coordinated Transformations",
-      "url": "http://arxiv.org/abs/2610.39735v1",
-      "source": "arxiv",
-      "relevance": 8.2
-    },
-    {
-      "title": "When to spend privacy: optimal allocation in private learning",
-      "url": "http://arxiv.org/abs/2610.39954v1",
-      "source": "arxiv",
-      "relevance": 6.9
-    },
-    {
-      "title": "CovFedAvg: Local Low-Loss Curves and Federated Model Selection",
-      "url": "http://arxiv.org/abs/2610.39902v1",
-      "source": "arxiv",
-      "relevance": 6.6
-    },
-    {
       "title": "Elucidating the Design Space of LM Data Attribution",
       "url": "http://arxiv.org/abs/2610.40655v1",
       "source": "arxiv",
@@ -102,9 +60,51 @@
       "url": "https://huggingface.co/LiquidAI/LFM3-VL-2B",
       "source": "huggingface:trending",
       "relevance": 3.2
+    },
+    {
+      "title": "DecisionRank: On-Policy Distillation for Decision-Model Rerankers",
+      "url": "http://arxiv.org/abs/2610.42128v1",
+      "source": "arxiv",
+      "relevance": 16.5
+    },
+    {
+      "title": "Hierarchical World Models with Implicit Dynamics",
+      "url": "http://arxiv.org/abs/2610.42146v1",
+      "source": "arxiv",
+      "relevance": 8.3
+    },
+    {
+      "title": "RangeSWA: Training-Free Length Extrapolation for Continuous Diffusion Language Models",
+      "url": "http://arxiv.org/abs/2610.42084v1",
+      "source": "arxiv",
+      "relevance": 6.7
+    },
+    {
+      "title": "Physiological Trajectories and Observation Patterns in ICU Mortality Prediction: Transportability Under Changing Measurement Conditions",
+      "url": "http://arxiv.org/abs/2610.42126v1",
+      "source": "arxiv",
+      "relevance": 5.8
+    },
+    {
+      "title": "Counting on Dummies: Privacy Amplification with Observable Counts and Truncated Batches",
+      "url": "http://arxiv.org/abs/2610.42139v1",
+      "source": "arxiv",
+      "relevance": 4.6
+    },
+    {
+      "title": "Hard Constraint Projection in a Physics Informed Neural Network (Burgers)",
+      "url": "http://arxiv.org/abs/2610.42106v1",
+      "source": "arxiv",
+      "relevance": 3.2
+    },
+    {
+      "title": "Fast Privacy Loss Accounting for Random Allocation via Multiscale FFT",
+      "url": "http://arxiv.org/abs/2610.42117v1",
+      "source": "arxiv",
+      "relevance": 2.6
     }
   ],
   "status": "planned",
   "created_at": "2026-10-29T00:13:36-05:00",
-  "updated_at": "2026-10-31T13:25:31-05:00"
+  "updated_at": "2026-11-02T01:22:53-05:00"
 }

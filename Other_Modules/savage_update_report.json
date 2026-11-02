@@ -1,12 +1,12 @@
 {
   "schema": "tardis.savage_update/1.0",
-  "generated_at": "2026-11-01T19:32:33-05:00",
+  "generated_at": "2026-11-02T01:22:53-05:00",
   "cycle": {
-    "items_collected": 56,
-    "items_fresh": 0,
-    "proposals": 0,
-    "experiment_plans": 0,
-    "elapsed_s": 5.9
+    "items_collected": 59,
+    "items_fresh": 33,
+    "proposals": 10,
+    "experiment_plans": 10,
+    "elapsed_s": 6.8
   },
   "sources": {
     "offline": false,
@@ -14,22 +14,22 @@
       "github": {
         "ok": true,
         "count": 6,
-        "elapsed_ms": 2884.2
+        "elapsed_ms": 2667.4
       },
       "huggingface": {
         "ok": true,
         "count": 20,
-        "elapsed_ms": 503.7
+        "elapsed_ms": 538.1
       },
       "arxiv": {
         "ok": true,
         "count": 36,
-        "elapsed_ms": 1078.6
+        "elapsed_ms": 980.6
       },
       "npm": {
         "ok": true,
         "count": 1,
-        "elapsed_ms": 424.6
+        "elapsed_ms": 414.2
       }
     }
   },
@@ -39,7 +39,648 @@
     "report_artifacts": 7,
     "proposals": 11
   },
-  "top_items": [],
-  "proposals": [],
+  "top_items": [
+    {
+      "id": "770e751d3eec51ed",
+      "source": "arxiv",
+      "category": "nlp-research",
+      "title": "Subquadratic Attention with a Hierarchical Tree-Structured Indexer",
+      "url": "http://arxiv.org/abs/2610.42112v1",
+      "published_at": "2026-10-30T17:48:37Z",
+      "summary": "The quadratic scaling of attention is a fundamental bottleneck limiting the long-context capabilities of large language models (LLMs). A variety of approaches have attempted to circumvent this, but they either fail to match attention's expressiveness (e.g., sliding-window or linear attention variants with fixed-size state) or only achieve constant-factor speedups (e.g., sparse attention methods whose indexers themselves scale quadratically). In this paper, we derive an asymptotically subquadratic sparse attention method based on a hierarchical, tree-structured indexer, which we call Zyphra Hierarchical Attention (ZHA). ZHA constructs a tree of recursively compressed key summaries over the KV",
+      "tags": [
+        "long-context",
+        "agents",
+        "rag",
+        "reasoning",
+        "efficiency"
+      ],
+      "relevance": 23.5,
+      "targets": []
+    },
+    {
+      "id": "4560fb164417532f",
+      "source": "arxiv",
+      "category": "ai-research",
+      "title": "Latent Sparse Attention: Towards Subquadratic Ultra-Long Context Attention",
+      "url": "http://arxiv.org/abs/2610.42147v1",
+      "published_at": "2026-10-30T17:59:34Z",
+      "summary": "Agentic workflows are increasingly shifting towards long-horizon tasks, such as open-ended scientific work, where models benefit from long context windows. However, at ultra-long context (above 1M tokens), full attention is prohibitively expensive. A promising approach is sparse attention, in which a dedicated indexer selects a subset of keys for the attention. Yet current methods of indexing either still have quadratic cost in context size or lose accuracy at ultra-long context scale. We address this with Latent Sparse Attention (LSA), an efficient attention method that maintains accuracy at ultra-long context. In LSA, keys are hierarchically clustered in a learned latent space, and queries",
+      "tags": [
+        "long-context",
+        "agents"
+      ],
+      "relevance": 17.2,
+      "targets": []
+    },
+    {
+      "id": "260cb2334b61be75",
+      "source": "arxiv",
+      "category": "nlp-research",
+      "title": "DecisionRank: On-Policy Distillation for Decision-Model Rerankers",
+      "url": "http://arxiv.org/abs/2610.42128v1",
+      "published_at": "2026-10-30T17:56:58Z",
+      "summary": "Decision models target structured tasks by directly predicting choices or scores, avoiding autoregressive decoding latency. However, transferring a generative LLM's ranking knowledge to a decision model remains challenging: the teacher expresses preferences through a ranked list of document ID sequences, while the student determines the ranking using scores from the first-token position. To bridge this gap, we introduce DecisionRank, a decision model trained through item-space on-policy distillation (OPD). Item-space OPD constructs the student's rollout by sorting its document scores into a ranked sequence. A generative teacher takes the resulting ranking list as inputs and provides conditio",
+      "tags": [
+        "rag",
+        "vision",
+        "reasoning",
+        "efficiency",
+        "local"
+      ],
+      "relevance": 16.5,
+      "targets": []
+    },
+    {
+      "id": "55d9f2880dfa3347",
+      "source": "arxiv",
+      "category": "ml-research",
+      "title": "Latent Reasoning in Continuous Space for Unified Multimodal Models",
+      "url": "http://arxiv.org/abs/2610.42149v1",
+      "published_at": "2026-10-30T17:59:43Z",
+      "summary": "Unified Multimodal Models (UMMs) achieve remarkable success on diverse multimodal understanding and generation tasks, yet they still struggle to effectively leverage language-based chain-of-thought reasoning for image generation. As a result, existing reasoning-augmented UMMs often fail to inherit the test-time scaling and fine-grained controllability observed in large language models. We attribute this failure to a fundamental modality mismatch: reasoning is performed in a discrete token space, whereas image generation operates in a continuous space. To bridge this gap, we introduce a Latent Reasoning framework in Continuous space (LARC), which alleviates the token-level bottleneck by reaso",
+      "tags": [
+        "vision",
+        "reasoning"
+      ],
+      "relevance": 13.7,
+      "targets": []
+    },
+    {
+      "id": "7344bc3b4e86446c",
+      "source": "arxiv",
+      "category": "nlp-research",
+      "title": "Flide: Accelerating Decision Inference with Exact State Forking",
+      "url": "http://arxiv.org/abs/2610.42148v1",
+      "published_at": "2026-10-30T17:59:38Z",
+      "summary": "Decision models such as Jev have emerged as a highly promising paradigm for LLM agent systems, providing lightweight and reliable categorical reasoning for rapid System One execution. However, existing generation-oriented inference engines fail to support these workloads effectively, suffering from severe prefix recomputation overheads or distorted output probabilities. To address this challenge, we propose Flide, an efficient and exact inference engine that decouples the logical tree structure of a decision request from its physical execution within a single flattened token stream. Through ForkAttention, Flide navigates request dependencies using GPU-resident indices across both standard at",
+      "tags": [
+        "agents",
+        "reasoning",
+        "efficiency"
+      ],
+      "relevance": 11.3,
+      "targets": []
+    },
+    {
+      "id": "0ada82ed8b377d90",
+      "source": "arxiv",
+      "category": "ai-research",
+      "title": "RoboArchitect: Automating the Design of Robotic Agents with Persistent Memory",
+      "url": "http://arxiv.org/abs/2610.42141v1",
+      "published_at": "2026-10-30T17:58:48Z",
+      "summary": "Recent work shows that a frozen robot policy performs far better inside an agent harness, where control code decides when to query the policy, consult vision tools, or command the arm directly. Yet today these harnesses are built by hand and redesigned for each new robot or benchmark. We show that harness design can be automated, offering a strong alternative to finetuning on a novel setup. In RoboArchitect, a coding model observes a robot's rollouts, diagnoses failures, and iteratively revises the harness around the frozen policy. The harness evolves on a set of episodes for its optimization and is evaluated on held-out scenes and tasks. Without updating any model weights, RoboArchitect rai",
+      "tags": [
+        "agents",
+        "vision"
+      ],
+      "relevance": 11.0,
+      "targets": []
+    },
+    {
+      "id": "b8aedbe54bc0dfe8",
+      "source": "arxiv",
+      "category": "nlp-research",
+      "title": "DAMI: Dual-Axis Memory Initialization for Enhanced Long-Context Retrieval in Gated Linear Attention",
+      "url": "http://arxiv.org/abs/2610.41994v1",
+      "published_at": "2026-10-30T16:39:37Z",
+      "summary": "Linear attention scales linearly with sequence length, but its finite-state memory can limit long-context retrieval. In gated linear recurrences, memory retention depends on state decay, which is shaped jointly by gate parameters A_log and dt_bias and by input activations. In controlled Gated DeltaNet (GDN) experiments, both parameters remain highly correlated with their initial values after training, highlighting the importance of initialization. Therefore, we introduce Dual-Axis Memory Initialization (DAMI), which jointly configures these parameters before training. DAMI assigns geometric timescales across heads for varied retrieval distances and a low-high-low input-sensitivity profile ac",
+      "tags": [
+        "rag",
+        "reasoning"
+      ],
+      "relevance": 10.7,
+      "targets": []
+    },
+    {
+      "id": "66a4389f39747b8a",
+      "source": "arxiv",
+      "category": "ai-research",
+      "title": "Hierarchical World Models with Implicit Dynamics",
+      "url": "http://arxiv.org/abs/2610.42146v1",
+      "published_at": "2026-10-30T17:59:25Z",
+      "summary": "Planning with world models enables test-time adaptation for embodied agents, offering superior generalization over direct policy learning. However, long-horizon tasks remain hindered by cumulative errors and search complexity. Existing hierarchical methods often use rigid macro-actions or latent skills, leading to brittle representations and limited fine-grained control. We introduce ID-WM (Implicit Dynamics World Models), a hierarchical world model that decouples state-space reachability from local control. Our framework utilizes a high-level model to sample feasible transitions across the state manifold and a low-level world model as an inverse dynamics solver to ground these transitions i",
+      "tags": [
+        "agents",
+        "reasoning",
+        "local"
+      ],
+      "relevance": 8.3,
+      "targets": []
+    },
+    {
+      "id": "b43829f01db75296",
+      "source": "arxiv",
+      "category": "nlp-research",
+      "title": "CRoS: Causality Reward on Scrambled CoTs Improves Accuracy and Reasoning Faithfulness",
+      "url": "http://arxiv.org/abs/2610.42054v1",
+      "published_at": "2026-10-30T17:18:35Z",
+      "summary": "Reinforcement learning with verifiable rewards (RLVR) has become the standard method for training language models to reason. However, RLVR typically relies solely on outcome correctness, which does not guarantee that the CoT causally contributes to the final answer. Without this connection, outcome rewards may fail to reinforce high-quality reasoning. Existing causality metrics assess CoT causality by perturbing the CoT, such as deleting reasoning steps or injecting errors, and measuring changes in the final answer. However, these perturbations inevitably alter information in each step. Consequently, high causality scores may reflect sensitivity to information changes introduced by perturbat",
+      "tags": [
+        "reasoning"
+      ],
+      "relevance": 7.6,
+      "targets": []
+    },
+    {
+      "id": "9223a2f8dde22683",
+      "source": "arxiv",
+      "category": "ai-research",
+      "title": "ACCT: Asymmetric Cross-LLM Context Transfer",
+      "url": "http://arxiv.org/abs/2610.42116v1",
+      "published_at": "2026-10-30T17:50:49Z",
+      "summary": "In real-world deployments, large language model (LLM) systems are increasingly evolving from single-model invocation toward heterogeneous deployments in which different models are dynamically invoked for inference. When the same context is reused across models, however, each newly selected target model typically has to process it again, repeatedly incurring substantial computational costs. Therefore, we propose ACCT (Asymmetric Cross-LLM Context Transfer), which targets KV cache transfer between models of different scales within the same model family. ACCT transforms the KV cache produced by a source model into sparse KV states that can be directly consumed by a target model, thereby enablin",
+      "tags": [
+        "efficiency"
+      ],
+      "relevance": 7.1,
+      "targets": []
+    },
+    {
+      "id": "ce2619a1bfb46f2f",
+      "source": "arxiv",
+      "category": "nlp-research",
+      "title": "RangeSWA: Training-Free Length Extrapolation for Continuous Diffusion Language Models",
+      "url": "http://arxiv.org/abs/2610.42084v1",
+      "published_at": "2026-10-30T17:35:48Z",
+      "summary": "Continuous diffusion language models show promising potential in text generation tasks, but are prone to problems such as text repetition, semantic drift, and generation quality degradation when the generation length exceeds the training length. To address these challenges, we propose RangeSWA, a training-free length extrapolation method. The method combines local sliding-window attention, remote block summaries, and dynamic content retrieval to preserve local details and support long-range context access. In addition, generation degradation caused by length extrapolation is mitigated through positional remapping, conditioning attention correction, and denoising-stage-adaptive window schedul",
+      "tags": [
+        "rag",
+        "local"
+      ],
+      "relevance": 6.7,
+      "targets": []
+    },
+    {
+      "id": "011ae8c5899a74f0",
+      "source": "arxiv",
+      "category": "ml-research",
+      "title": "Physiological Trajectories and Observation Patterns in ICU Mortality Prediction: Transportability Under Changing Measurement Conditions",
+      "url": "http://arxiv.org/abs/2610.42126v1",
+      "published_at": "2026-10-30T17:56:10Z",
+      "summary": "Objective: To distinguish the transferable predictive value of physiological trajectories from that of observation patterns in ICU mortality prediction, and to assess whether measurement timing affects performance independently of observation quantity. Materials and Methods: In-hospital mortality was predicted at 48 hours using MIMIC-III, MIMIC-IV, and eICU. Nested representations progressively integrated latest-value snapshots (R1), longitudinal physiological summaries (R2), and measurement frequency and timing features (R3). Models fitted on 7,762 MetaVision patients were evaluated on 21,682 MIMIC-IV patients and 43,878 eICU patients across 204 hospitals. The effect of measurement timing w",
+      "tags": [
+        "quantization",
+        "vision",
+        "local"
+      ],
+      "relevance": 5.8,
+      "targets": []
+    },
+    {
+      "id": "4c2c7e503803a2e0",
+      "source": "arxiv",
+      "category": "nlp-research",
+      "title": "TurnTurk-GPT: Text-Based Turn-Taking Prediction for Turkish",
+      "url": "http://arxiv.org/abs/2610.42010v1",
+      "published_at": "2026-10-30T16:48:32Z",
+      "summary": "This paper presents TurnTurk-GPT, a text-based turn-taking predictor for Turkish obtained by fine-tuning a Turkish GPT-2 model with the TurnGPT objective on synthetic and real dialogue, and evaluates it on real Turkish conversation against rule baselines, a zero-shot Turkish language model and a widely used multilingual end-of-turn detector. Evaluation uses word-level decision points on unpunctuated, lower-cased text approximating the output of streaming speech recognisers, recording-disjoint and speaker-disjoint folds, nested threshold selection and paired cluster bootstrap tests. TurnTurk-GPT outperforms the multilingual detector under both recording-disjoint and speaker-disjoint evaluatio",
+      "tags": [
+        "speech"
+      ],
+      "relevance": 5.1,
+      "targets": []
+    },
+    {
+      "id": "7082308aab733036",
+      "source": "arxiv",
+      "category": "ml-research",
+      "title": "Counting on Dummies: Privacy Amplification with Observable Counts and Truncated Batches",
+      "url": "http://arxiv.org/abs/2610.42139v1",
+      "published_at": "2026-10-30T17:58:42Z",
+      "summary": "In many practical deployments of Differentially Private Stochastic Gradient Descent (DP-SGD), the server processes data in batches. Randomly sampling these batches allows for better privacy bounds via privacy amplification results. Most sampling schemes with provable privacy amplification, including Poisson sampling and random allocation, result in variable batch sizes. The privacy guarantee of these schemes requires that the batch sizes are not revealed. In distributed settings, the server performing the aggregation or any party observing the communication traffic may learn these batch sizes. Furthermore, in both centralized and distributed settings, memory and computation constraints may r",
+      "tags": [
+        "local"
+      ],
+      "relevance": 4.6,
+      "targets": []
+    },
+    {
+      "id": "9bbc8ecf33171802",
+      "source": "arxiv",
+      "category": "nlp-research",
+      "title": "Asynchronous Flow Map Language Models",
+      "url": "http://arxiv.org/abs/2610.42018v1",
+      "published_at": "2026-10-30T16:51:40Z",
+      "summary": "The order in which tokens are predicted in language modeling has a profound impact on the quality of generated sequences. Autoregressive and masked diffusion models iteratively fill in tokens and can exploit such orderings across generation steps, but how to leverage an ordering for one-step parallel language modeling is unclear. We introduce asynchronous flow map language models (aFMLMs), which incorporate prediction order into one-step modeling by learning the flow maps of asynchronous flows. These flows specify an ordering through a tokenwise time schedule that controls the relative denoising progress of tokens. We formulate a general class of asynchronous flows that admit both prescribed",
+      "tags": [],
+      "relevance": 4.0,
+      "targets": []
+    }
+  ],
+  "proposals": [
+    {
+      "id": "savage-328519695b0c",
+      "title": "Refuerzo del perfil local-first",
+      "target": "tardis",
+      "tag": "local",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "local_first",
+      "evidence": [
+        {
+          "title": "DecisionRank: On-Policy Distillation for Decision-Model Rerankers",
+          "url": "http://arxiv.org/abs/2610.42128v1",
+          "source": "arxiv",
+          "relevance": 16.5
+        },
+        {
+          "title": "Hierarchical World Models with Implicit Dynamics",
+          "url": "http://arxiv.org/abs/2610.42146v1",
+          "source": "arxiv",
+          "relevance": 8.3
+        },
+        {
+          "title": "RangeSWA: Training-Free Length Extrapolation for Continuous Diffusion Language Models",
+          "url": "http://arxiv.org/abs/2610.42084v1",
+          "source": "arxiv",
+          "relevance": 6.7
+        },
+        {
+          "title": "Physiological Trajectories and Observation Patterns in ICU Mortality Prediction: Transportability Under Changing Measurement Conditions",
+          "url": "http://arxiv.org/abs/2610.42126v1",
+          "source": "arxiv",
+          "relevance": 5.8
+        },
+        {
+          "title": "Counting on Dummies: Privacy Amplification with Observable Counts and Truncated Batches",
+          "url": "http://arxiv.org/abs/2610.42139v1",
+          "source": "arxiv",
+          "relevance": 4.6
+        },
+        {
+          "title": "Hard Constraint Projection in a Physics Informed Neural Network (Burgers)",
+          "url": "http://arxiv.org/abs/2610.42106v1",
+          "source": "arxiv",
+          "relevance": 3.2
+        },
+        {
+          "title": "Fast Privacy Loss Accounting for Random Allocation via Multiscale FFT",
+          "url": "http://arxiv.org/abs/2610.42117v1",
+          "source": "arxiv",
+          "relevance": 2.6
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 7 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Verificar que las tareas privadas no salgan del dispositivo.",
+      "rollback": "Reactivar ruteo híbrido.",
+      "status": "planned",
+      "created_at": "2026-11-02T01:22:53-05:00"
+    },
+    {
+      "id": "savage-50d57ca1e5ee",
+      "title": "Presupuesto de razonamiento adaptativo",
+      "target": "tardis",
+      "tag": "reasoning",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "reasoning_budget",
+      "evidence": [
+        {
+          "title": "Subquadratic Attention with a Hierarchical Tree-Structured Indexer",
+          "url": "http://arxiv.org/abs/2610.42112v1",
+          "source": "arxiv",
+          "relevance": 23.5
+        },
+        {
+          "title": "DecisionRank: On-Policy Distillation for Decision-Model Rerankers",
+          "url": "http://arxiv.org/abs/2610.42128v1",
+          "source": "arxiv",
+          "relevance": 16.5
+        },
+        {
+          "title": "Latent Reasoning in Continuous Space for Unified Multimodal Models",
+          "url": "http://arxiv.org/abs/2610.42149v1",
+          "source": "arxiv",
+          "relevance": 13.7
+        },
+        {
+          "title": "Flide: Accelerating Decision Inference with Exact State Forking",
+          "url": "http://arxiv.org/abs/2610.42148v1",
+          "source": "arxiv",
+          "relevance": 11.3
+        },
+        {
+          "title": "DAMI: Dual-Axis Memory Initialization for Enhanced Long-Context Retrieval in Gated Linear Attention",
+          "url": "http://arxiv.org/abs/2610.41994v1",
+          "source": "arxiv",
+          "relevance": 10.7
+        },
+        {
+          "title": "Hierarchical World Models with Implicit Dynamics",
+          "url": "http://arxiv.org/abs/2610.42146v1",
+          "source": "arxiv",
+          "relevance": 8.3
+        },
+        {
+          "title": "CRoS: Causality Reward on Scrambled CoTs Improves Accuracy and Reasoning Faithfulness",
+          "url": "http://arxiv.org/abs/2610.42054v1",
+          "source": "arxiv",
+          "relevance": 7.6
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 7 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Comparar exactitud/costo en 40 problemas; elegir el punto de Pareto.",
+      "rollback": "Volver al esfuerzo por defecto.",
+      "status": "planned",
+      "created_at": "2026-11-02T01:22:53-05:00"
+    },
+    {
+      "id": "savage-73e62f0aae43",
+      "title": "Integración de capacidades visión/multimodal",
+      "target": "tardis",
+      "tag": "vision",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "vision_pipeline",
+      "evidence": [
+        {
+          "title": "DecisionRank: On-Policy Distillation for Decision-Model Rerankers",
+          "url": "http://arxiv.org/abs/2610.42128v1",
+          "source": "arxiv",
+          "relevance": 16.5
+        },
+        {
+          "title": "Latent Reasoning in Continuous Space for Unified Multimodal Models",
+          "url": "http://arxiv.org/abs/2610.42149v1",
+          "source": "arxiv",
+          "relevance": 13.7
+        },
+        {
+          "title": "RoboArchitect: Automating the Design of Robotic Agents with Persistent Memory",
+          "url": "http://arxiv.org/abs/2610.42141v1",
+          "source": "arxiv",
+          "relevance": 11.0
+        },
+        {
+          "title": "Physiological Trajectories and Observation Patterns in ICU Mortality Prediction: Transportability Under Changing Measurement Conditions",
+          "url": "http://arxiv.org/abs/2610.42126v1",
+          "source": "arxiv",
+          "relevance": 5.8
+        },
+        {
+          "title": "A Better Critic Matters for Distribution Matching Distillation",
+          "url": "http://arxiv.org/abs/2610.42135v1",
+          "source": "arxiv",
+          "relevance": 2.6
+        },
+        {
+          "title": "Learning Clean Generative Processes from Noisy Measurements",
+          "url": "http://arxiv.org/abs/2610.42036v1",
+          "source": "arxiv",
+          "relevance": 0.6
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 6 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Evaluar 50 imágenes con ground truth; medir exactitud y latencia.",
+      "rollback": "Desactivar el pipeline visual nuevo.",
+      "status": "planned",
+      "created_at": "2026-11-02T01:22:53-05:00"
+    },
+    {
+      "id": "savage-f7a834b450f8",
+      "title": "Política de agentes y tool-calling",
+      "target": "ftl",
+      "tag": "agents",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "agent_tool_policy",
+      "evidence": [
+        {
+          "title": "Subquadratic Attention with a Hierarchical Tree-Structured Indexer",
+          "url": "http://arxiv.org/abs/2610.42112v1",
+          "source": "arxiv",
+          "relevance": 23.5
+        },
+        {
+          "title": "Latent Sparse Attention: Towards Subquadratic Ultra-Long Context Attention",
+          "url": "http://arxiv.org/abs/2610.42147v1",
+          "source": "arxiv",
+          "relevance": 17.2
+        },
+        {
+          "title": "Flide: Accelerating Decision Inference with Exact State Forking",
+          "url": "http://arxiv.org/abs/2610.42148v1",
+          "source": "arxiv",
+          "relevance": 11.3
+        },
+        {
+          "title": "RoboArchitect: Automating the Design of Robotic Agents with Persistent Memory",
+          "url": "http://arxiv.org/abs/2610.42141v1",
+          "source": "arxiv",
+          "relevance": 11.0
+        },
+        {
+          "title": "Hierarchical World Models with Implicit Dynamics",
+          "url": "http://arxiv.org/abs/2610.42146v1",
+          "source": "arxiv",
+          "relevance": 8.3
+        },
+        {
+          "title": "Towards Understanding the Impact of Plasticity Loss on Reinforcement Learning in Stochastic Environments",
+          "url": "http://arxiv.org/abs/2610.42100v1",
+          "source": "arxiv",
+          "relevance": 3.1
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 6 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Suite de 30 tareas con herramientas; medir tasa de éxito y pasos.",
+      "rollback": "Reactivar la política anterior en coding_router.json.",
+      "status": "planned",
+      "created_at": "2026-11-02T01:22:53-05:00"
+    },
+    {
+      "id": "savage-db7241589fcf",
+      "title": "Mejora del pipeline RAG y embeddings",
+      "target": "tardis",
+      "tag": "rag",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "rag_pipeline",
+      "evidence": [
+        {
+          "title": "Subquadratic Attention with a Hierarchical Tree-Structured Indexer",
+          "url": "http://arxiv.org/abs/2610.42112v1",
+          "source": "arxiv",
+          "relevance": 23.5
+        },
+        {
+          "title": "DecisionRank: On-Policy Distillation for Decision-Model Rerankers",
+          "url": "http://arxiv.org/abs/2610.42128v1",
+          "source": "arxiv",
+          "relevance": 16.5
+        },
+        {
+          "title": "DAMI: Dual-Axis Memory Initialization for Enhanced Long-Context Retrieval in Gated Linear Attention",
+          "url": "http://arxiv.org/abs/2610.41994v1",
+          "source": "arxiv",
+          "relevance": 10.7
+        },
+        {
+          "title": "RangeSWA: Training-Free Length Extrapolation for Continuous Diffusion Language Models",
+          "url": "http://arxiv.org/abs/2610.42084v1",
+          "source": "arxiv",
+          "relevance": 6.7
+        },
+        {
+          "title": "Hyperbolic Inverse Reinforcement Learning",
+          "url": "http://arxiv.org/abs/2610.42104v1",
+          "source": "arxiv",
+          "relevance": 3.6
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 5 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Recall@10 sobre 100 consultas doradas.",
+      "rollback": "Conservar el índice actual.",
+      "status": "planned",
+      "created_at": "2026-11-02T01:22:53-05:00"
+    },
+    {
+      "id": "savage-4b3787d02701",
+      "title": "Optimización de inferencia (caché y decodificación)",
+      "target": "ftl",
+      "tag": "efficiency",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "inference_efficiency",
+      "evidence": [
+        {
+          "title": "Subquadratic Attention with a Hierarchical Tree-Structured Indexer",
+          "url": "http://arxiv.org/abs/2610.42112v1",
+          "source": "arxiv",
+          "relevance": 23.5
+        },
+        {
+          "title": "DecisionRank: On-Policy Distillation for Decision-Model Rerankers",
+          "url": "http://arxiv.org/abs/2610.42128v1",
+          "source": "arxiv",
+          "relevance": 16.5
+        },
+        {
+          "title": "Flide: Accelerating Decision Inference with Exact State Forking",
+          "url": "http://arxiv.org/abs/2610.42148v1",
+          "source": "arxiv",
+          "relevance": 11.3
+        },
+        {
+          "title": "ACCT: Asymmetric Cross-LLM Context Transfer",
+          "url": "http://arxiv.org/abs/2610.42116v1",
+          "source": "arxiv",
+          "relevance": 7.1
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 4 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Medir tokens/s y VRAM antes/después con el mismo prompt.",
+      "rollback": "Restaurar cache_type_k/v=f16.",
+      "status": "planned",
+      "created_at": "2026-11-02T01:22:53-05:00"
+    },
+    {
+      "id": "savage-0221680af214",
+      "title": "Benchmark de cuantización para el modelo soberano",
+      "target": "ftl",
+      "tag": "quantization",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "quantization_benchmark",
+      "evidence": [
+        {
+          "title": "Physiological Trajectories and Observation Patterns in ICU Mortality Prediction: Transportability Under Changing Measurement Conditions",
+          "url": "http://arxiv.org/abs/2610.42126v1",
+          "source": "arxiv",
+          "relevance": 5.8
+        },
+        {
+          "title": "Hard Constraint Projection in a Physics Informed Neural Network (Burgers)",
+          "url": "http://arxiv.org/abs/2610.42106v1",
+          "source": "arxiv",
+          "relevance": 3.2
+        },
+        {
+          "title": "Instance-dependent sequential limits as an exact information ledger",
+          "url": "http://arxiv.org/abs/2610.42133v1",
+          "source": "arxiv",
+          "relevance": 2.6
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 3 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Medir tokens/s, VRAM pico y perplejidad en 20 prompts; aceptar sólo si la pérdida es <2%.",
+      "rollback": "Mantener el GGUF Q4_K actual y descartar el artefacto candidato.",
+      "status": "planned",
+      "created_at": "2026-11-02T01:22:53-05:00"
+    },
+    {
+      "id": "savage-2a5f91473f5d",
+      "title": "Perfil de contexto extendido con chunking alineado",
+      "target": "tardis",
+      "tag": "long-context",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "long_context_profile",
+      "evidence": [
+        {
+          "title": "Subquadratic Attention with a Hierarchical Tree-Structured Indexer",
+          "url": "http://arxiv.org/abs/2610.42112v1",
+          "source": "arxiv",
+          "relevance": 23.5
+        },
+        {
+          "title": "Latent Sparse Attention: Towards Subquadratic Ultra-Long Context Attention",
+          "url": "http://arxiv.org/abs/2610.42147v1",
+          "source": "arxiv",
+          "relevance": 17.2
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 2 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Prueba de recuperación en documento de 128k tokens; medir latencia y precisión.",
+      "rollback": "Restaurar ctx_size=4096.",
+      "status": "planned",
+      "created_at": "2026-11-02T01:22:53-05:00"
+    },
+    {
+      "id": "savage-466fd31376f1",
+      "title": "Actualización de voz (ASR/TTS) local",
+      "target": "tardis",
+      "tag": "speech",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "speech_pipeline",
+      "evidence": [
+        {
+          "title": "TurnTurk-GPT: Text-Based Turn-Taking Prediction for Turkish",
+          "url": "http://arxiv.org/abs/2610.42010v1",
+          "source": "arxiv",
+          "relevance": 5.1
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 1 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "WER en 20 audios y latencia de síntesis.",
+      "rollback": "Mantener el motor de voz actual.",
+      "status": "planned",
+      "created_at": "2026-11-02T01:22:53-05:00"
+    },
+    {
+      "id": "savage-f58fb1dcfe8b",
+      "title": "Ruteo por expertos activos (top-k)",
+      "target": "tardis",
+      "tag": "moe",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "moe_routing",
+      "evidence": [
+        {
+          "title": "Same Question, Different Answers: Auditing Persona-Dependent Variation in Six LLMs on Smoking-Cessation Advice",
+          "url": "http://arxiv.org/abs/2610.42039v1",
+          "source": "arxiv",
+          "relevance": 3.1
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 1 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Comparar costo por token activo vs. modelo denso equivalente.",
+      "rollback": "Volver al ruteo denso por defecto.",
+      "status": "planned",
+      "created_at": "2026-11-02T01:22:53-05:00"
+    }
+  ],
   "offline": false
 }

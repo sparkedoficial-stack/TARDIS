@@ -8,36 +8,6 @@
   "rollback": "Conservar el índice actual.",
   "evidence": [
     {
-      "title": "EnvSched: Environment-Aware Scheduling for Rollout-Efficient Agent Reinforcement Learning",
-      "url": "http://arxiv.org/abs/2610.37609v1",
-      "source": "arxiv",
-      "relevance": 10.8
-    },
-    {
-      "title": "EnvSched: Environment-Aware Scheduling for Rollout-Efficient Agent Reinforcement Learning",
-      "url": "http://arxiv.org/abs/2610.37609v1",
-      "source": "arxiv",
-      "relevance": 10.8
-    },
-    {
-      "title": "KPPax: preprocess differentiable kinetic ODE for machine learning in atmospheric chemistry",
-      "url": "http://arxiv.org/abs/2610.37655v1",
-      "source": "arxiv",
-      "relevance": 10.2
-    },
-    {
-      "title": "Follow the Gradient: Tracing Safety Degradation Back to Training Data",
-      "url": "http://arxiv.org/abs/2610.37481v1",
-      "source": "arxiv",
-      "relevance": 9.7
-    },
-    {
-      "title": "huggingface/transformers v5.22.0",
-      "url": "https://github.com/huggingface/transformers/releases/tag/v5.22.0",
-      "source": "github:huggingface/transformers",
-      "relevance": 25.0
-    },
-    {
       "title": "Low-Bit GDN Recurrent-State Quantization: Global Gradient-aware Allocation and Pure-Write Sliding Windows",
       "url": "http://arxiv.org/abs/2610.39931v1",
       "source": "arxiv",
@@ -102,9 +72,39 @@
       "url": "http://arxiv.org/abs/2610.40636v1",
       "source": "arxiv",
       "relevance": 3.5
+    },
+    {
+      "title": "Subquadratic Attention with a Hierarchical Tree-Structured Indexer",
+      "url": "http://arxiv.org/abs/2610.42112v1",
+      "source": "arxiv",
+      "relevance": 23.5
+    },
+    {
+      "title": "DecisionRank: On-Policy Distillation for Decision-Model Rerankers",
+      "url": "http://arxiv.org/abs/2610.42128v1",
+      "source": "arxiv",
+      "relevance": 16.5
+    },
+    {
+      "title": "DAMI: Dual-Axis Memory Initialization for Enhanced Long-Context Retrieval in Gated Linear Attention",
+      "url": "http://arxiv.org/abs/2610.41994v1",
+      "source": "arxiv",
+      "relevance": 10.7
+    },
+    {
+      "title": "RangeSWA: Training-Free Length Extrapolation for Continuous Diffusion Language Models",
+      "url": "http://arxiv.org/abs/2610.42084v1",
+      "source": "arxiv",
+      "relevance": 6.7
+    },
+    {
+      "title": "Hyperbolic Inverse Reinforcement Learning",
+      "url": "http://arxiv.org/abs/2610.42104v1",
+      "source": "arxiv",
+      "relevance": 3.6
     }
   ],
   "status": "planned",
   "created_at": "2026-10-29T00:13:36-05:00",
-  "updated_at": "2026-10-30T07:26:56-05:00"
+  "updated_at": "2026-11-02T01:22:53-05:00"
 }

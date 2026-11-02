@@ -8,42 +8,6 @@
   "rollback": "Desactivar el pipeline visual nuevo.",
   "evidence": [
     {
-      "title": "openbmb/MiniCPM-OCR-1.0",
-      "url": "https://huggingface.co/openbmb/MiniCPM-OCR-1.0",
-      "source": "huggingface:trending",
-      "relevance": 6.6
-    },
-    {
-      "title": "Observability-Aligned Evidential Masked Pretraining for Reliable VRU Motion Prediction",
-      "url": "http://arxiv.org/abs/2610.39958v1",
-      "source": "arxiv",
-      "relevance": 6.1
-    },
-    {
-      "title": "Event-SAMA: Language-Grounded Video Object Segmentation on Neuromorphic Event Streams",
-      "url": "http://arxiv.org/abs/2610.39676v1",
-      "source": "arxiv",
-      "relevance": 3.2
-    },
-    {
-      "title": "FIDE: Fiber-Informed Differentiable Experimental Design for Reference-Relative Law Dynamics",
-      "url": "http://arxiv.org/abs/2610.40009v1",
-      "source": "arxiv",
-      "relevance": 3.2
-    },
-    {
-      "title": "Human--AI Interactions as First-Class Data: A Formal Interaction Model and Runtime for Explainable AI Collaboration",
-      "url": "http://arxiv.org/abs/2610.40006v1",
-      "source": "arxiv",
-      "relevance": 2.6
-    },
-    {
-      "title": "VeriCUA: Verification as Agentic Exploration for Computer-Using Agents",
-      "url": "http://arxiv.org/abs/2610.40578v1",
-      "source": "arxiv",
-      "relevance": 14.4
-    },
-    {
       "title": "Gym-Anything for Robotics: Scaling physical simulations with digital agents",
       "url": "http://arxiv.org/abs/2610.40565v1",
       "source": "arxiv",
@@ -102,9 +66,45 @@
       "url": "https://huggingface.co/speridlabs/idol",
       "source": "huggingface:trending",
       "relevance": 0.6
+    },
+    {
+      "title": "DecisionRank: On-Policy Distillation for Decision-Model Rerankers",
+      "url": "http://arxiv.org/abs/2610.42128v1",
+      "source": "arxiv",
+      "relevance": 16.5
+    },
+    {
+      "title": "Latent Reasoning in Continuous Space for Unified Multimodal Models",
+      "url": "http://arxiv.org/abs/2610.42149v1",
+      "source": "arxiv",
+      "relevance": 13.7
+    },
+    {
+      "title": "RoboArchitect: Automating the Design of Robotic Agents with Persistent Memory",
+      "url": "http://arxiv.org/abs/2610.42141v1",
+      "source": "arxiv",
+      "relevance": 11.0
+    },
+    {
+      "title": "Physiological Trajectories and Observation Patterns in ICU Mortality Prediction: Transportability Under Changing Measurement Conditions",
+      "url": "http://arxiv.org/abs/2610.42126v1",
+      "source": "arxiv",
+      "relevance": 5.8
+    },
+    {
+      "title": "A Better Critic Matters for Distribution Matching Distillation",
+      "url": "http://arxiv.org/abs/2610.42135v1",
+      "source": "arxiv",
+      "relevance": 2.6
+    },
+    {
+      "title": "Learning Clean Generative Processes from Noisy Measurements",
+      "url": "http://arxiv.org/abs/2610.42036v1",
+      "source": "arxiv",
+      "relevance": 0.6
     }
   ],
   "status": "planned",
   "created_at": "2026-10-29T00:13:36-05:00",
-  "updated_at": "2026-10-31T13:25:31-05:00"
+  "updated_at": "2026-11-02T01:22:53-05:00"
 }

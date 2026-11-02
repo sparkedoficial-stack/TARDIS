@@ -8,48 +8,6 @@
   "rollback": "Volver al esfuerzo por defecto.",
   "evidence": [
     {
-      "title": "ThinkWorld: World Imagination Reinforces Chain-of-Dynamics Reasoning",
-      "url": "http://arxiv.org/abs/2610.37666v1",
-      "source": "arxiv",
-      "relevance": 8.3
-    },
-    {
-      "title": "When Should We Intervene at Test Time?",
-      "url": "http://arxiv.org/abs/2610.37658v1",
-      "source": "arxiv",
-      "relevance": 3.8
-    },
-    {
-      "title": "Test-Time Communication in Trading Agent Swarms",
-      "url": "http://arxiv.org/abs/2610.37448v1",
-      "source": "arxiv",
-      "relevance": 3.7
-    },
-    {
-      "title": "DavidAU/Qwen3.8-27B-TURBO-Fable-Cold-Fusion-735-882-Heretic-Uncensored-NEO-CODER-MAX-MTP-GGUF",
-      "url": "https://huggingface.co/DavidAU/Qwen3.8-27B-TURBO-Fable-Cold-Fusion-735-882-Heretic-Uncensored-NEO-CODER-MAX-MTP-GGUF",
-      "source": "huggingface:trending",
-      "relevance": 10.3
-    },
-    {
-      "title": "huggingface/transformers v5.22.0",
-      "url": "https://github.com/huggingface/transformers/releases/tag/v5.22.0",
-      "source": "github:huggingface/transformers",
-      "relevance": 25.0
-    },
-    {
-      "title": "Low-Bit GDN Recurrent-State Quantization: Global Gradient-aware Allocation and Pure-Write Sliding Windows",
-      "url": "http://arxiv.org/abs/2610.39931v1",
-      "source": "arxiv",
-      "relevance": 16.8
-    },
-    {
-      "title": "AI Cosmos: An Agentic Infra for Situated Learning",
-      "url": "http://arxiv.org/abs/2610.40031v1",
-      "source": "arxiv",
-      "relevance": 12.2
-    },
-    {
       "title": "Hybrid AI Patterns: Thirteen Ways to Couple Language Models with Rules, and How to Choose Among Them",
       "url": "http://arxiv.org/abs/2610.40036v1",
       "source": "arxiv",
@@ -102,9 +60,51 @@
       "url": "http://arxiv.org/abs/2610.40588v1",
       "source": "arxiv",
       "relevance": 6.2
+    },
+    {
+      "title": "Subquadratic Attention with a Hierarchical Tree-Structured Indexer",
+      "url": "http://arxiv.org/abs/2610.42112v1",
+      "source": "arxiv",
+      "relevance": 23.5
+    },
+    {
+      "title": "DecisionRank: On-Policy Distillation for Decision-Model Rerankers",
+      "url": "http://arxiv.org/abs/2610.42128v1",
+      "source": "arxiv",
+      "relevance": 16.5
+    },
+    {
+      "title": "Latent Reasoning in Continuous Space for Unified Multimodal Models",
+      "url": "http://arxiv.org/abs/2610.42149v1",
+      "source": "arxiv",
+      "relevance": 13.7
+    },
+    {
+      "title": "Flide: Accelerating Decision Inference with Exact State Forking",
+      "url": "http://arxiv.org/abs/2610.42148v1",
+      "source": "arxiv",
+      "relevance": 11.3
+    },
+    {
+      "title": "DAMI: Dual-Axis Memory Initialization for Enhanced Long-Context Retrieval in Gated Linear Attention",
+      "url": "http://arxiv.org/abs/2610.41994v1",
+      "source": "arxiv",
+      "relevance": 10.7
+    },
+    {
+      "title": "Hierarchical World Models with Implicit Dynamics",
+      "url": "http://arxiv.org/abs/2610.42146v1",
+      "source": "arxiv",
+      "relevance": 8.3
+    },
+    {
+      "title": "CRoS: Causality Reward on Scrambled CoTs Improves Accuracy and Reasoning Faithfulness",
+      "url": "http://arxiv.org/abs/2610.42054v1",
+      "source": "arxiv",
+      "relevance": 7.6
     }
   ],
   "status": "planned",
   "created_at": "2026-10-29T00:13:36-05:00",
-  "updated_at": "2026-10-30T07:26:56-05:00"
+  "updated_at": "2026-11-02T01:22:53-05:00"
 }

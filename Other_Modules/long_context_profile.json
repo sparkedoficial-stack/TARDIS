@@ -30,9 +30,21 @@
       "url": "http://arxiv.org/abs/2610.39854v1",
       "source": "arxiv",
       "relevance": 10.2
+    },
+    {
+      "title": "Subquadratic Attention with a Hierarchical Tree-Structured Indexer",
+      "url": "http://arxiv.org/abs/2610.42112v1",
+      "source": "arxiv",
+      "relevance": 23.5
+    },
+    {
+      "title": "Latent Sparse Attention: Towards Subquadratic Ultra-Long Context Attention",
+      "url": "http://arxiv.org/abs/2610.42147v1",
+      "source": "arxiv",
+      "relevance": 17.2
     }
   ],
   "status": "planned",
   "created_at": "2026-10-29T00:13:36-05:00",
-  "updated_at": "2026-10-30T00:15:12-05:00"
+  "updated_at": "2026-11-02T01:22:53-05:00"
 }
