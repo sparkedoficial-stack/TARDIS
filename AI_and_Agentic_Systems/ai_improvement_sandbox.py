@@ -284,13 +284,17 @@ class AISandboxEvaluator:
             history = history[-100:]
         self.history_file.write_text(json.dumps(history, indent=2, ensure_ascii=False), encoding="utf-8")
 
-    def get_evaluation_history(self, limit: int = 50) -> List[Dict[str, Any]]:
+    def get_evaluation_history(self, limit: Optional[int] = 50) -> List[Dict[str, Any]]:
         """Obtiene el historial de evaluaciones registradas."""
         if not self.history_file.exists():
             return []
         try:
             history = json.loads(self.history_file.read_text(encoding="utf-8"))
-            return history[-limit:] if isinstance(history, list) else []
+            if not isinstance(history, list):
+                return []
+            if limit is None:
+                return list(history)
+            return history[-max(1, int(limit)):]
         except Exception:
             return []
 

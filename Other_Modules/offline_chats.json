@@ -1,0 +1,26 @@
+{
+  "version": "v26.4",
+  "updated_at": "2026-11-02T04:22:53.901539",
+  "total_turns": 1,
+  "turns": [
+    {
+      "id": 1,
+      "ts": REDACTED_PHONE.9003878,
+      "iso": "2026-11-02 04:22:53",
+      "session_id": "omni_app",
+      "client_id": "anon",
+      "user_message": "Prueba de generación de visor offline",
+      "prompt": "Prueba de generación de visor offline",
+      "assistant_reply": "El visor HTML no depende de ningún servidor ni CDN externo.",
+      "reply": "El visor HTML no depende de ningún servidor ni CDN externo.",
+      "model": "hermes3:8b",
+      "tokens_est": 24,
+      "direction": "present",
+      "meta": {},
+      "hardware_action": "",
+      "provider": "Núcleo Soberano Local",
+      "dialectic_role": "mediator",
+      "user_emotion": {}
+    }
+  ]
+}

@@ -93,9 +93,12 @@ class AutonomousCoder:
         except Exception as e:
             logger.error(f"Error escribiendo bitácora de evolución: {e}")
 
-    def get_evolution_history(self, limit: int = 30) -> List[Dict[str, Any]]:
+    def get_evolution_history(self, limit: Optional[int] = 30) -> List[Dict[str, Any]]:
         records = self._load_log()
-        return list(reversed(records))[:limit]
+        out = list(reversed(records))
+        if limit is None:
+            return out
+        return out[:max(1, int(limit))]
 
     def _validate_syntax(self, file_path: Path, code_text: str) -> Tuple[bool, str]:
         """Verifica que el código no contenga errores de sintaxis."""

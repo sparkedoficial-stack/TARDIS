@@ -209,6 +209,7 @@ Módulos y componentes auxiliares del sistema.
 - **network_traffic_controller.py**: Componente de alta eficiencia.
 - **nodes_telemetry.json**: Componente de alta eficiencia.
 - **nxnative_mk8d_ipad_ui.py**: Componente de alta eficiencia.
+- **offline_chats.json**: Componente de alta eficiencia.
 - **offline_pocket_vault.json**: Centinela de seguridad, blindaje perimetral o bóveda segura.
 - **openai_server.py**: Componente de alta eficiencia.
 - **orca.yaml**: Componente de alta eficiencia.

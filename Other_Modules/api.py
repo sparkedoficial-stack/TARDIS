@@ -2885,11 +2885,13 @@ iframe{border:none;width:100%;height:100%;}</style></head>
             return {"ok": False, "error": str(e)}
 
     @app.get("/api/cyberdefense/events")
-    async def get_cyberdefense_events_endpoint():
+    async def get_cyberdefense_events_endpoint(limit: Optional[int] = PAGINATION_DEFAULT_LIMIT, offset: Optional[int] = 0):
         try:
             from core.cyberdefense_sentinel import get_cyberdefense_sentinel
             sentinel = get_cyberdefense_sentinel()
-            return {"ok": True, "events": sentinel._events}
+            lim, off = sanitize_pagination(limit=limit, offset=offset)
+            events, p = paginate_list(list(getattr(sentinel, "_events", []) or []), limit=lim, offset=off)
+            return {"ok": True, "events": events, **p}
         except Exception as e:
             return {"ok": False, "error": str(e)}
 
@@ -3120,7 +3122,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
         try:
             from core.kaiju_safety_rails import get_kaiju_safety_rails
             lim, off = sanitize_pagination(limit=limit, offset=offset)
-            logs, p = paginate_list(get_kaiju_safety_rails().get_recent_audit_logs(limit=lim), limit=lim, offset=off)
+            logs, p = paginate_list(get_kaiju_safety_rails().get_recent_audit_logs(limit=None), limit=lim, offset=off)
             return {"ok": True, **p, "logs": logs}
         except Exception as e:
             return {"ok": False, "error": str(e)}
@@ -3652,7 +3654,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
             from core.deep_memory_vault import get_deep_memory_vault
             vault = get_deep_memory_vault()
             lim, off = sanitize_pagination(limit=limit, offset=offset)
-            history, p = paginate_list(vault.get_ftl_history(limit=lim), limit=lim, offset=off)
+            history, p = paginate_list(vault.get_ftl_history(limit=None), limit=lim, offset=off)
             return {"ok": True, **p, "history": history}
         except Exception as e:
             return {"ok": False, "error": str(e)}
@@ -3955,7 +3957,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
         try:
             pkg_mgr = get_package_manager()
             lim, off = sanitize_pagination(limit=limit, offset=offset)
-            history, p = paginate_list(pkg_mgr.get_history(limit=lim), limit=lim, offset=off)
+            history, p = paginate_list(pkg_mgr.get_history(limit=None), limit=lim, offset=off)
             return {"ok": True, **p, "history": history}
         except Exception as e:
             return {"ok": False, "error": str(e), "history": []}
@@ -4131,7 +4133,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
         try:
             ac = get_autonomous_controller()
             lim, off = sanitize_pagination(limit=limit, offset=offset)
-            log, p = paginate_list(ac.get_history(limit=lim), limit=lim, offset=off)
+            log, p = paginate_list(ac.get_history(limit=None), limit=lim, offset=off)
             return {"ok": True, **p, "log": log}
         except Exception as e:
             return {"ok": False, "error": str(e), "log": []}
@@ -4162,16 +4164,19 @@ iframe{border:none;width:100%;height:100%;}</style></head>
 
     @app.get("/api/telemetry/nodes")
     @app.get("/api/terminals/list")
-    async def get_terminals_list():
+    async def get_terminals_list(limit: Optional[int] = PAGINATION_DEFAULT_LIMIT, offset: Optional[int] = 0):
         try:
             import omni_temporal_control as _omni
-            nodes = _omni.NODE_REGISTRY.get_all_nodes()
+            nodes = _omni.NODE_REGISTRY.get_all_nodes() or []
+            lim, off = sanitize_pagination(limit=limit, offset=offset)
+            page, p = paginate_list(nodes, limit=lim, offset=off)
             return {
                 "ok": True,
-                "nodes": nodes,
-                "total_nodes": len(_omni.NODE_REGISTRY.nodes),
+                "nodes": page,
+                "total_nodes": len(nodes),
                 "active_nodes": sum(1 for n in nodes if n.get("online")),
-                "active_clients": _omni.SYNC_HUB.get_active_client_count()
+                "active_clients": _omni.SYNC_HUB.get_active_client_count(),
+                **p
             }
         except Exception as e:
             return {"ok": False, "error": str(e), "nodes": []}
@@ -4210,21 +4215,21 @@ iframe{border:none;width:100%;height:100%;}</style></head>
 
     @app.get("/api/chat/offline/history")
     @app.get("/api/chat/offline")
-    async def get_offline_chat_history(request: Request, limit: Optional[int] = 50, client_id: Optional[str] = None):
+    async def get_offline_chat_history(request: Request, limit: Optional[int] = 50, offset: Optional[int] = 0, client_id: Optional[str] = None):
         has_proxy = bool(request.headers.get("cf-connecting-ip") or request.headers.get("x-forwarded-for") or request.headers.get("x-real-ip"))
         is_local = (not has_proxy) and (request.client.host in ("127.0.0.1", "localhost", "::1", "testclient") if request.client else False)
         from core.offline_chat_vault import get_offline_chat_vault
-        lim, off = sanitize_pagination(limit=limit, offset=0)
-        turns, p = paginate_list(get_offline_chat_vault().get_recent(limit=lim, client_id=client_id, is_local=is_local), limit=lim, offset=off)
-        return {"ok": True, "total": len(turns), "turns": turns, **p}
+        lim, off = sanitize_pagination(limit=limit, offset=offset)
+        turns, p = paginate_list(get_offline_chat_vault().get_recent(limit=None, client_id=client_id, is_local=is_local), limit=lim, offset=off)
+        return {"ok": True, "total": p["total"], "turns": turns, **p}
 
     @app.get("/api/chat/offline/search")
-    async def search_offline_chat(request: Request, q: str = "", limit: Optional[int] = 15, client_id: Optional[str] = None):
+    async def search_offline_chat(request: Request, q: str = "", limit: Optional[int] = 15, offset: Optional[int] = 0, client_id: Optional[str] = None):
         has_proxy = bool(request.headers.get("cf-connecting-ip") or request.headers.get("x-forwarded-for") or request.headers.get("x-real-ip"))
         is_local = (not has_proxy) and (request.client.host in ("127.0.0.1", "localhost", "::1", "testclient") if request.client else False)
         from core.offline_chat_vault import get_offline_chat_vault
-        lim, _off = sanitize_pagination(limit=limit, offset=0)
-        results, p = paginate_list(get_offline_chat_vault().search(q, limit=lim, client_id=client_id, is_local=is_local), limit=lim, offset=0)
+        lim, off = sanitize_pagination(limit=limit, offset=offset)
+        results, p = paginate_list(get_offline_chat_vault().search(q, limit=None, client_id=client_id, is_local=is_local), limit=lim, offset=off)
         return {"ok": True, "query": q, "count": len(results), "results": results, **p}
 
     # --------------------------------------------------------------------------
@@ -4893,14 +4898,17 @@ iframe{border:none;width:100%;height:100%;}</style></head>
         return {"ok": result.status == "APPLIED", "target_file": target, "result": result.to_dict()}
 
     @app.get("/api/code/evolution_log")
-    async def api_code_evolution_log(limit: int = 40):
+    async def api_code_evolution_log(limit: Optional[int] = 40, offset: Optional[int] = 0):
         from core.autonomous_coder import get_autonomous_coder
         coder = get_autonomous_coder()
-        history = coder.get_evolution_history(limit=limit)
+        lim, off = sanitize_pagination(limit=limit, offset=offset)
+        history, p = paginate_list(coder.get_evolution_history(limit=None), limit=lim, offset=off)
         return {
             "ok": True,
-            "count": len(history),
-            "history": history
+            "count": p["count"],
+            "total": p["total"],
+            "history": history,
+            **p
         }
 
     @app.get("/api/code/backups")
@@ -4930,10 +4938,11 @@ iframe{border:none;width:100%;height:100%;}</style></head>
         return get_idle_evolution_daemon().get_status()
 
     @app.get("/api/conjectures/history")
-    async def api_conjectures_history(limit: int = 20):
+    async def api_conjectures_history(limit: Optional[int] = 20, offset: Optional[int] = 0):
         from core.idle_evolution_daemon import get_idle_evolution_daemon
-        history = get_idle_evolution_daemon().get_history(limit=limit)
-        return {"ok": True, "count": len(history), "history": history}
+        lim, off = sanitize_pagination(limit=limit, offset=offset)
+        history, p = paginate_list(get_idle_evolution_daemon().get_history(limit=None), limit=lim, offset=off)
+        return {"ok": True, "count": p["count"], "total": p["total"], "history": history, **p}
 
     @app.post("/api/conjectures/trigger")
     async def api_conjectures_trigger():
@@ -5152,16 +5161,20 @@ iframe{border:none;width:100%;height:100%;}</style></head>
         return {"ok": True, "evaluation": result}
 
     @app.get("/api/sandbox/status")
-    async def api_sandbox_status():
+    async def api_sandbox_status(limit: Optional[int] = 10, offset: Optional[int] = 0):
         """Obtiene el historial y estado de las últimas evaluaciones del sandbox."""
         from core.ai_improvement_sandbox import AISandboxEvaluator
         evaluator = AISandboxEvaluator()
-        history = evaluator.get_evaluation_history(limit=10)
+        lim, off = sanitize_pagination(limit=limit, offset=offset)
+        all_history = evaluator.get_evaluation_history(limit=None)
+        history, p = paginate_list(all_history, limit=lim, offset=off)
         return {
             "ok": True,
-            "count": len(history),
+            "count": p["count"],
+            "total": p["total"],
             "latest": history[-1] if history else None,
-            "history": history
+            "history": history,
+            **p
         }
 
     @app.get("/api/sandbox/datasets")

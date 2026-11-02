@@ -180,7 +180,7 @@ class OfflineChatVault:
 
         return turn_id
 
-    def search(self, query: str, limit: int = 10, client_id: Optional[str] = None, is_local: bool = False) -> List[Dict[str, Any]]:
+    def search(self, query: str, limit: Optional[int] = 10, client_id: Optional[str] = None, is_local: bool = False) -> List[Dict[str, Any]]:
         """Búsqueda de alta velocidad por FTS5 BM25 sobre todo el historial con aislamiento de clientes."""
         raw_terms = re.findall(r"[\wáéíóúñü]+", (query or "").lower())
         terms = [t for t in raw_terms if len(t) >= 3][:12]
@@ -204,7 +204,7 @@ class OfflineChatVault:
                            WHERE offline_chat_fts MATCH ? AND t.client_id = ?
                            ORDER BY rank ASC
                            LIMIT ?""",
-                        (fts_query, client_id, limit)
+                        (fts_query, client_id, (10**9 if limit is None else max(1, int(limit))))
                     ).fetchall()
                 else:
                     rows = con.execute(
@@ -217,7 +217,7 @@ class OfflineChatVault:
                            WHERE offline_chat_fts MATCH ?
                            ORDER BY rank ASC
                            LIMIT ?""",
-                        (fts_query, limit)
+                        (fts_query, (10**9 if limit is None else max(1, int(limit))))
                     ).fetchall()
 
                 for r in rows:
@@ -290,29 +290,51 @@ class OfflineChatVault:
 
         return results
 
-    def get_recent(self, limit: int = 50, client_id: Optional[str] = None, is_local: bool = False) -> List[Dict[str, Any]]:
+    def get_recent(self, limit: Optional[int] = 50, client_id: Optional[str] = None, is_local: bool = False) -> List[Dict[str, Any]]:
         """Recupera los turnos más recientes ordenados cronológicamente con aislamiento de clientes."""
+        if limit is None:
+            lim_sql = None
+        else:
+            lim_sql = max(1, int(limit))
         results = []
         with self._db_lock:
             con = self._connect()
             try:
                 if not is_local and client_id:
-                    rows = con.execute(
-                        """SELECT id, ts, iso, session_id, client_id, user_message, assistant_reply,
-                                  model, tokens_est, direction, meta, hardware_action
-                           FROM offline_chat_turns
-                           WHERE client_id = ?
-                           ORDER BY id DESC LIMIT ?""",
-                        (client_id, limit)
-                    ).fetchall()
+                    if lim_sql is None:
+                        rows = con.execute(
+                            """SELECT id, ts, iso, session_id, client_id, user_message, assistant_reply,
+                                      model, tokens_est, direction, meta, hardware_action
+                               FROM offline_chat_turns
+                               WHERE client_id = ?
+                               ORDER BY id DESC""",
+                            (client_id,)
+                        ).fetchall()
+                    else:
+                        rows = con.execute(
+                            """SELECT id, ts, iso, session_id, client_id, user_message, assistant_reply,
+                                      model, tokens_est, direction, meta, hardware_action
+                               FROM offline_chat_turns
+                               WHERE client_id = ?
+                               ORDER BY id DESC LIMIT ?""",
+                            (client_id, lim_sql)
+                        ).fetchall()
                 else:
-                    rows = con.execute(
-                        """SELECT id, ts, iso, session_id, client_id, user_message, assistant_reply,
-                                  model, tokens_est, direction, meta, hardware_action
-                           FROM offline_chat_turns
-                           ORDER BY id DESC LIMIT ?""",
-                        (limit,)
-                    ).fetchall()
+                    if lim_sql is None:
+                        rows = con.execute(
+                            """SELECT id, ts, iso, session_id, client_id, user_message, assistant_reply,
+                                      model, tokens_est, direction, meta, hardware_action
+                               FROM offline_chat_turns
+                               ORDER BY id DESC"""
+                        ).fetchall()
+                    else:
+                        rows = con.execute(
+                            """SELECT id, ts, iso, session_id, client_id, user_message, assistant_reply,
+                                      model, tokens_est, direction, meta, hardware_action
+                               FROM offline_chat_turns
+                               ORDER BY id DESC LIMIT ?""",
+                            (lim_sql,)
+                        ).fetchall()
                 for r in reversed(rows):
                     meta_obj = json.loads(r[10] or "{}")
                     results.append({
