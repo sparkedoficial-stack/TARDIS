@@ -324,6 +324,17 @@ class TardisHybridSynergy:
         # 1. Asignación de Modelos
         selected_models.append(self.models["tardis_kaiju"])  # Siempre el córtex central
 
+        # v27 · Versión mejorada del motor: SSM Evolucionado (Mamba-2) + LLM Full Context
+        wants_v27 = (
+            context_tokens > 262144
+            or any(w in p_lower for w in ("v27", "mejorad", "mejorar", "upgrade", "versión", "mejorado", "evolucion", "optimiz"))
+        )
+        if wants_v27:
+            if self.models["tardis_kaiju_v27"] not in selected_models:
+                selected_models.append(self.models["tardis_kaiju_v27"])
+            selected_engineerings.append(self.engineering_layers["ssm_llm_full_context"])
+            execution_strategy += "Motor v27 (SSM Evolucionado Mamba-2 + Puente LLM Full Context) priorizado: comprensión total de contexto. "
+
         if is_visual:
             selected_models.append(self.models["chronovision_minimax_h3"])
             selected_engineerings.append(self.engineering_layers["chronovision_blender_math"])

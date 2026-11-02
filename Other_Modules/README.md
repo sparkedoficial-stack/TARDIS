@@ -32,6 +32,7 @@ Módulos y componentes auxiliares del sistema.
 - **SKILL.md**: Especificación agéntica de capacidades soberanas para agentes autónomos.
 - **SensorsView.swift**: Componente nativo iOS/SwiftUI de la aplicación móvil GIA.
 - **SettingsView.swift**: Componente nativo iOS/SwiftUI de la aplicación móvil GIA.
+- **TARDIS-NEURAL-SPACE-KAIJU-v27.SPEC.md**: Componente de alta eficiencia.
 - **Tardis-Master-Hub.desktop**: Componente de alta eficiencia.
 - **Tardis-Safety-Rails.desktop**: Componente de alta eficiencia.
 - **Theme.swift**: Componente nativo iOS/SwiftUI de la aplicación móvil GIA.

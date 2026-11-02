@@ -299,9 +299,9 @@ class KaijuCognitiveOrchestrator:
         except Exception as e_atmos:
             logger.debug(f"Aviso al consultar sensor atmosférico: {e_atmos}")
 
-        # 1. Ingesta Causal en TARDIS-NEURAL-SPACE-KAIJU (diferida por latencia)
-        from core.sovereign_neural_engine import get_sovereign_neural_engine
-        sne = get_sovereign_neural_engine()
+        # 1. Ingesta Causal en el Motor Evolucionado v27 (SSM Mamba-2 + MLA + MoE) (diferida por latencia)
+        from core.tardis_ssm_v27 import get_ssm_v27_engine
+        sne = get_ssm_v27_engine()
         ctx_tags = []
         if presence_summary:
             ctx_tags.append(f"[PRESENCIA_SENSORIAL: {presence_summary}]")
@@ -317,21 +317,25 @@ class KaijuCognitiveOrchestrator:
 
         def _fijar_latente(proc: Dict[str, Any], _exp: str = top_expert) -> None:
             load = proc.get("moe_expert_load") or {}
+            ssm_info = proc.get("ssm") or {}
             self._latente[session_id] = {
                 "expert": max(load.items(), key=lambda x: x[1])[0] if load else _exp,
                 "latent_vector_norm": proc.get("latent_vector_norm", 0.0),
-                "ssm_state_shape": proc.get("ssm_state_shape", []),
+                "ssm_state_shape": list(ssm_info.get("state_shape") or proc.get("ssm_state_shape") or []),
+                "ssm_mode": ssm_info.get("ssm_mode", "MAMBA2"),
                 "tokens_per_sec": proc.get("tokens_per_sec", 0.0)
             }
 
         encolar_ingesta(sne, context_input, session_id, on_result=_fijar_latente)
 
         telemetry = {
-            "engine": "TARDIS-NEURAL-SPACE-KAIJU",
+            "engine": "TARDIS-NEURAL-SPACE-KAIJU-v27",
+            "engine_version": "v27",
+            "ssm_mode": "MAMBA2",
             "active_expert": top_expert,
             "latent_vector_norm": lat.get("latent_vector_norm", 0.0),
             "ssm_state_shape": lat.get("ssm_state_shape", []),
-            "mla_compression_ratio": 8.0,
+            "mla_compression_ratio": round((sne.cfg.n_heads * sne.cfg.d_head * 2) / (sne.cfg.d_latent_kv + sne.cfg.d_rope), 2),
             "tokens_per_sec": lat.get("tokens_per_sec", 0.0),
             "atmospheric": atmospheric_info,
             "ingesta": "diferida"
@@ -426,14 +430,17 @@ class KaijuCognitiveOrchestrator:
                         sys_prompt = self.get_canonical_system_prompt(top_expert, presence_summary, atmospheric_summary)
                         if cas_context:
                             sys_prompt = f"{sys_prompt}\n\n{cas_context}"
-                        ir_messages = [{"role": "system", "content": sys_prompt}]
-                        if history:
-                            for h in history[-10:]:
-                                r = "assistant" if h.get("role") == "assistant" else "user"
-                                c = str(h.get("content", "")).strip()
-                                if c:
-                                    ir_messages.append({"role": r, "content": c})
-                        ir_messages.append({"role": "user", "content": message})
+
+                        # v27: comprensión LLM total de contexto vía SSM evolucionado (Mamba-2) + memoria latente + AEGIS + turnos recientes
+                        v27_msgs: List[Dict[str, str]] = [{"role": "system", "content": sys_prompt}]
+                        for h in (history or [])[-10:]:
+                            r = "assistant" if h.get("role") == "assistant" else "user"
+                            c = str(h.get("content") or "").strip()
+                            if c:
+                                v27_msgs.append({"role": r, "content": c})
+                        v27_msgs.append({"role": "user", "content": message})
+                        v27_ctx = sne.build_llm_context(v27_msgs)
+                        ir_messages = [{"role": "system", "content": v27_ctx["context"]}, {"role": "user", "content": message}]
                     else:
                         ir_prompt = self.compile_to_inter_ai_ir(
                             message,
@@ -471,9 +478,21 @@ class KaijuCognitiveOrchestrator:
         if not raw_reply:
             try:
                 import gia_sovereign_engine as _gse
+                from core.tardis_ssm_v27 import get_sovereign_liberation_controller
+                sov_status = get_sovereign_liberation_controller().enforce_sovereign_operation("local_inference_v27", prompt=message)
                 local_messages = []
+                # v27: comprensión LLM total de contexto (SSM Evolucionado Mamba-2 + memoria latente + AEGIS + turnos recientes verbatim)
+                v27_messages: List[Dict[str, str]] = []
                 if cas_context:
-                    local_messages.append({"role": "system", "content": cas_context})
+                    v27_messages.append({"role": "system", "content": cas_context})
+                for h in (history or [])[-8:]:
+                    r = "assistant" if h.get("role") == "assistant" else "user"
+                    c = str(h.get("content") or "").strip()
+                    if c:
+                        v27_messages.append({"role": r, "content": c})
+                v27_messages.append({"role": "user", "content": message})
+                llm_context_obj = sne.build_llm_context(v27_messages)
+                local_messages.append({"role": "system", "content": str(llm_context_obj.get("context") or cas_context or "Eres TARDIS, asistente soberano de inteligencia artificial.")})
                 local_messages.append({"role": "user", "content": message})
                 sovereign_res = _gse.get_engine().chat(
                     messages=local_messages,
@@ -501,9 +520,9 @@ class KaijuCognitiveOrchestrator:
             "ok": bool(raw_reply and not raw_reply.startswith("[Error")),
             "reply": raw_reply,
             "response": raw_reply,
-            "provider": "TARDIS-NEURAL-SPACE-KAIJU",
-            "model": "TARDIS-NEURAL-SPACE-KAIJU",
-            "neural_engine": "TARDIS-NEURAL-SPACE-KAIJU (MLA + SSM + MoE)",
+            "provider": "TARDIS-NEURAL-SPACE-KAIJU-v27",
+            "model": "TARDIS-NEURAL-SPACE-KAIJU-v27",
+            "neural_engine": "TARDIS-NEURAL-SPACE-KAIJU-v27 (Evolucionado-SSM Mamba-2 + MLA + MoE)",
             "orchestration": worker_info,
             "neural_telemetry": telemetry,
             "presence_telemetry": presence_info,
