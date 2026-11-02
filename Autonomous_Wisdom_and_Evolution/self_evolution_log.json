@@ -1,33 +1,5 @@
 [
   {
-    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/deep_memory_vault.py",
-    "goal": "Implementar un método `adaptive_flush()` que consulte el estado de `network_shield` para decidir si escribir en disco inmediatamente o encolar los datos en un buffer temporal, optimizando el throughput de la bóveda.",
-    "status": "REJECTED",
-    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
-    "elapsed_seconds": 90.53,
-    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/deep_memory_vault.py.20261031_030819.bak",
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Respuesta generada demasiado corta (0 vs 33875 bytes)",
-    "timestamp": "2026-10-31T03:09:50.191977"
-  },
-  {
-    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/deep_memory_vault.py",
-    "goal": "Implementar una función de scoring que integre métricas de causalidad temporal en la búsqueda vectorial, ajustando los pesos de los embeddings según la relevancia histórica y lógica del nodo.",
-    "status": "REJECTED",
-    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
-    "elapsed_seconds": 90.53,
-    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/deep_memory_vault.py.20261031_033956.bak",
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Respuesta generada demasiado corta (0 vs 33875 bytes)",
-    "timestamp": "2026-10-31T03:41:26.736960"
-  },
-  {
     "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
     "goal": "Implementar un método `_get_dynamic_headers()` que roté perfiles de usuario y un decorador `@semantic_cache` que verifique la similitud coseno entre la nueva consulta y las claves almacenadas en la bóveda antes de ejecutar la petición HTTP.",
     "status": "REJECTED",
@@ -1398,5 +1370,33 @@
     "efficiency_improvement": null,
     "error": "Respuesta generada demasiado corta (0 vs 35266 bytes)",
     "timestamp": "2026-11-02T08:50:09.903262"
+  },
+  {
+    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/deep_memory_vault.py",
+    "goal": "Implementar una función de scoring híbrido que combine la similitud coseno con un factor de decaimiento temporal ajustado dinámicamente según la densidad de conexiones semánticas del nodo.",
+    "status": "REJECTED",
+    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
+    "elapsed_seconds": 90.59,
+    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/deep_memory_vault.py.20261102_092015.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "Respuesta generada demasiado corta (0 vs 34371 bytes)",
+    "timestamp": "2026-11-02T09:21:45.930892"
+  },
+  {
+    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/deep_memory_vault.py",
+    "goal": "Implementar una función de scoring híbrida que combine la similitud coseno con un factor de decaimiento temporal y un peso de frecuencia de acceso reciente para reordenar los resultados de búsqueda antes de la entrega al núcleo cognitivo.",
+    "status": "REJECTED",
+    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
+    "elapsed_seconds": 90.48,
+    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/deep_memory_vault.py.20261102_095152.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "Respuesta generada demasiado corta (0 vs 34371 bytes)",
+    "timestamp": "2026-11-02T09:53:22.508425"
   }
 ]
