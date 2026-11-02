@@ -1,35 +1,5 @@
 [
   {
-    "id": "conj_1793399414",
-    "timestamp": "2026-10-30T17:30:14.321530",
-    "idle_duration_minutes": 33.7,
-    "title": "Causal‑Feedback Loop for Adaptive Web Research",
-    "hypothesis": "Integrating a causal‑feedback mechanism between the Web Research Engine and the Deep Memory Vault will allow the system to dynamically re‑weight search queries based on the relevance feedback of previously retrieved documents, thereby improving the precision of future searches without external supervision. The hypothesis posits that a lightweight Bayesian update on the query embedding, informed by the vault's semantic similarity scores, can create a self‑optimizing closed‑loop that reduces redundant queries and accelerates knowledge consolidation in the akáshic vault.",
-    "research_query": "adaptive query re‑weighting based on semantic feedback loop web search engine Bayesian update",
-    "research_findings": "# Informe de Investigación: adaptive query re‑weighting based on semantic feedback loop web search engine Bayesian update\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Implement a post‑retrieval feedback hook that receives relevance scores from deep_memory_vault, updates the query embedding using a Bayesian posterior, and re‑issues refined searches automatically.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.93
-  },
-  {
-    "id": "conj_1793401312",
-    "timestamp": "2026-10-30T18:01:52.397357",
-    "idle_duration_minutes": 31.6,
-    "title": "Dynamic Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "If the Web Research Engine maintains a lightweight causal dependency graph linking each cached query result to the specific external data sources (URLs, APIs, timestamps) it originated from, then cache invalidation can be performed selectively based on detected changes in those sources. This causal approach would reduce unnecessary cache flushes, lower latency for repeat queries, and improve overall throughput without sacrificing result freshness.",
-    "research_query": "causal graph based cache invalidation web search engine performance",
-    "research_findings": "# Informe de Investigación: causal graph based cache invalidation web search engine performance\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a dependency‑tracking module that records source URLs and timestamps for each cached query, and implement an invalidation routine that checks source freshness before serving cached data.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.06
-  },
-  {
     "id": "conj_1793403240",
     "timestamp": "2026-10-30T18:34:00.624967",
     "idle_duration_minutes": 32.1,
@@ -1629,5 +1599,38 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.46
+  },
+  {
+    "id": "conj_1793593356",
+    "timestamp": "2026-11-01T23:22:36.596509",
+    "idle_duration_minutes": 33.2,
+    "title": "Causal‑Feedback Loop for Adaptive Web Research",
+    "hypothesis": "Integrating a causal‑feedback mechanism between the Web Research Engine and the Deep Memory Vault will allow the system to dynamically re‑weight search strategies based on the observed relevance of retrieved documents, leading to a measurable reduction in query latency and an increase in semantic precision of the stored knowledge. The hypothesis posits that by recording the causal impact of each search parameter (e.g., engine, query expansion, result rank) on downstream memory consolidation outcomes, the system can learn a policy that optimally selects and tunes search configurations in real time.",
+    "research_query": "adaptive web search causal feedback loop machine learning \"knowledge consolidation\" \"search parameter optimization\"",
+    "research_findings": "# Informe de Investigación: adaptive web search causal feedback loop machine learning \"knowledge consolidation\" \"search parameter optimization\"\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a lightweight causal telemetry hook that logs search parameters and downstream relevance scores, and implement an async reinforcement‑learning based selector that chooses the best search configuration for each new query.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.33
+  },
+  {
+    "id": "conj_1793595253",
+    "timestamp": "2026-11-01T23:54:13.122591",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal Embedding Sync for Real‑Time Web Research",
+    "hypothesis": "Integrating a causal embedding layer between the Web Research Engine and the Deep Memory Vault will allow the system to prioritize retrieval results that have higher inferred causal relevance to the current query context, thereby reducing latency and improving answer precision. The hypothesis posits that a lightweight transformer‑based causal scorer, trained on query‑response pairs annotated with causal links, can be executed inline during the fetch‑parse pipeline without significant overhead.",
+    "research_query": "how to implement causal relevance scoring in information retrieval systems using transformer models",
+    "research_findings": "# Informe de Investigación: how to implement causal relevance scoring in information retrieval systems using transformer models\n\n## Fuentes Consultadas y Respaldo Web\n- **[The Must-Know Topics for an LLM Engineer - Towards Data Science](https://news.google.com/rss/articles/CBMifEFVX3lxTE9RcW41MTRQd25xdm5Jekc0V3JQSlhLTzlfVXgwNVRtOWpDTENJM1VOeDJlNXlXdjBwUVVvb1ZzUTZFclNrYWc1aC1fbTZ1aUpPR1ladXBLNlo3YlkzXzlHVEFsclFxM3B1TGRqOTJyNEtCOVgxQmxVRTNra2w?oc=5)**: The Must-Know Topics for an LLM Engineer  Towards Data Science\n- **[Transformer-based classification with enhanced causal explainability from otoscopic images | Scientific Reports - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE05OWtlZlM2NWZ0TXhHb254emdxYURfLUxYbkVFVzY0RWpoeXFiR0h5N1o4THhTR01mc1JqY1pWMkktbkVxY3lSM1o5X1liYnV6WXcxcmxPNWNfQ1AwMXo4?oc=5)**: Transformer-based classification with enhanced causal explainability from otoscopic images | Scientific Reports  Nature\n\n## Contenido y Hallazgos Extraídos\n### De [Google Notic",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMifEFVX3lxTE9RcW41MTRQd25xdm5Jekc0V3JQSlhLTzlfVXgwNVRtOWpDTENJM1VOeDJlNXlXdjBwUVVvb1ZzUTZFclNrYWc1aC1fbTZ1aUpPR1ladXBLNlo3YlkzXzlHVEFsclFxM3B1TGRqOTJyNEtCOVgxQmxVRTNra2w?oc=5",
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE05OWtlZlM2NWZ0TXhHb254emdxYURfLUxYbkVFVzY0RWpoeXFiR0h5N1o4THhTR01mc1JqY1pWMkktbkVxY3lSM1o5X1liYnV6WXcxcmxPNWNfQ1AwMXo4?oc=5"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a new class `CausalScorer` that computes a causal relevance score for each retrieved document and re‑ranks the results before they are passed to the Deep Memory Vault; expose a configurable toggle in the engine's settings.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.51
   }
 ]
