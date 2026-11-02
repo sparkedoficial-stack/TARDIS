@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.6510344,
-  "last_video_id": "vp_20261102_111846_3353d6",
-  "last_topic": "Non-Hermitian Topological Phases and Exceptional Points in Photonic Lattices",
-  "total_videos_analyzed": 863,
+  "last_run_timestamp": REDACTED_PHONE.4501019,
+  "last_video_id": "vp_20261102_124222_c86336",
+  "last_topic": "Persistent Homology of Brain Connectomes: Visualizing Topological Features of Neural Networks",
+  "total_videos_analyzed": 865,
   "running_cycle": false,
   "last_error": null,
-  "auto_improvement_count": 416
+  "auto_improvement_count": 417
 }
