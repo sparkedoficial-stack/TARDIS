@@ -1,47 +1,5 @@
 [
   {
-    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/deep_memory_vault.py",
-    "goal": "Implementar una función de scoring que ajuste el peso de los nodos de memoria basándose en la recencia y la frecuencia de acceso validada por el motor de investigación, permitiendo un pruning inteligente de datos obsoletos o no corroborados.",
-    "status": "REJECTED",
-    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
-    "elapsed_seconds": 90.5,
-    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/deep_memory_vault.py.20261030_214546.bak",
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Respuesta generada demasiado corta (0 vs 33875 bytes)",
-    "timestamp": "2026-10-30T21:47:16.689238"
-  },
-  {
-    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/deep_memory_vault.py",
-    "goal": "Implementar una función `prune_causal_noise()` que evalúe la frecuencia de uso y el éxito histórico de las rutas de recuperación de memoria, eliminando o re-priorizando nodos con baja relevancia causal para optimizar la velocidad de búsqueda y la precisión de los resultados.",
-    "status": "REJECTED",
-    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
-    "elapsed_seconds": 90.49,
-    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/deep_memory_vault.py.20261030_221723.bak",
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Respuesta generada demasiado corta (0 vs 33875 bytes)",
-    "timestamp": "2026-10-30T22:18:53.665161"
-  },
-  {
-    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/deep_memory_vault.py",
-    "goal": "Integrar un módulo de telemetría de red en la lógica de búsqueda de la bóveda para ajustar dinámicamente la profundidad de búsqueda y la prioridad de fuentes (local vs. remoto) basándose en la latencia actual reportada por network_shield.py.",
-    "status": "REJECTED",
-    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
-    "elapsed_seconds": 90.61,
-    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/deep_memory_vault.py.20261030_224858.bak",
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Respuesta generada demasiado corta (0 vs 33875 bytes)",
-    "timestamp": "2026-10-30T22:50:29.144062"
-  },
-  {
     "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
     "goal": "Implementar un adaptador de estrategia que lea métricas de red en tiempo real y ajuste dinámicamente los timeouts y el tamaño de los lotes de peticiones HTTP antes de persistir en la memoria profunda.",
     "status": "REJECTED",
@@ -1398,5 +1356,47 @@
     "efficiency_improvement": null,
     "error": "Respuesta generada demasiado corta (0 vs 33875 bytes)",
     "timestamp": "2026-11-02T04:06:35.573362"
+  },
+  {
+    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
+    "goal": "Implementar un módulo de 'Network-Aware Search' que consulte el estado actual de network_shield.py antes de ejecutar peticiones HTTP, ajustando timeouts y estrategias de backoff exponencial basándose en la latencia histórica registrada en la bóveda.",
+    "status": "REJECTED",
+    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
+    "elapsed_seconds": 90.55,
+    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/web_research_engine.py.20261102_043642.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "Respuesta generada demasiado corta (0 vs 35266 bytes)",
+    "timestamp": "2026-11-02T04:38:13.270622"
+  },
+  {
+    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_test_dummy_rollback.py",
+    "goal": "Optimizar función foo",
+    "status": "ROLLED_BACK_SYNTAX",
+    "model_used": "mock (mock_model)",
+    "elapsed_seconds": 0.0,
+    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/_test_dummy_rollback.py.20261102_044304.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "SyntaxError línea 2: invalid syntax",
+    "timestamp": "2026-11-02T04:43:04.697436"
+  },
+  {
+    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_test_dummy_fail_tests.py",
+    "goal": "Optimizar cálculo",
+    "status": "ROLLED_BACK_TESTS",
+    "model_used": "mock (mock_model)",
+    "elapsed_seconds": 0.0,
+    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/_test_dummy_fail_tests.py.20261102_044304.bak",
+    "syntax_valid": true,
+    "tests_passed": false,
+    "test_output": "Regression failure in test_calc",
+    "efficiency_improvement": null,
+    "error": "Tests unitarios fallaron; código revertido automáticamente a versión estable previa",
+    "timestamp": "2026-11-02T04:43:04.702527"
   }
 ]

@@ -1,5 +1,103 @@
 [
   {
+    "id": "capture_1793612579_HOST_test_airgap_cctv_camera_01.jpg",
+    "timestamp": REDACTED_PHONE.7818198,
+    "iso_time": "2026-11-02T04:42:59-0500",
+    "terminal_id": "test_airgap_cctv_camera_01",
+    "terminal_name": "Cámara de Seguridad Local",
+    "origin": "HOST",
+    "client_ip": "testclient",
+    "country": "LOCAL",
+    "resolution": "1280x720",
+    "filename": "capture_1793612579_HOST_test_airgap_cctv_camera_01.jpg",
+    "file_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/data/terminal_captures/capture_1793612579_HOST_test_airgap_cctv_camera_01.jpg",
+    "size_bytes": 134,
+    "biometrics": {}
+  },
+  {
+    "id": "capture_1793612579_INTERNET_test_user_capture_terminal_99.jpg",
+    "timestamp": REDACTED_PHONE.7649891,
+    "iso_time": "2026-11-02T04:42:59-0500",
+    "terminal_id": "test_user_capture_terminal_99",
+    "terminal_name": "iPhone 16 Pro Max",
+    "origin": "INTERNET",
+    "client_ip": "REDACTED_IP",
+    "country": "MX",
+    "resolution": "1280x720",
+    "filename": "capture_1793612579_INTERNET_test_user_capture_terminal_99.jpg",
+    "file_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/data/terminal_captures/capture_1793612579_INTERNET_test_user_capture_terminal_99.jpg",
+    "size_bytes": 134,
+    "biometrics": {
+      "primary": "focused"
+    }
+  },
+  {
+    "id": "capture_1793612579_INTERNET_test_hd_terminal_720p.jpg",
+    "timestamp": REDACTED_PHONE.11634,
+    "iso_time": "2026-11-02T04:42:59-0500",
+    "terminal_id": "test_hd_terminal_720p",
+    "terminal_name": "Galaxy Ultra - 720p Stream",
+    "origin": "INTERNET",
+    "client_ip": "REDACTED_IP",
+    "country": "MX",
+    "resolution": "1280x720",
+    "filename": "capture_1793612579_INTERNET_test_hd_terminal_720p.jpg",
+    "file_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/data/terminal_captures/capture_1793612579_INTERNET_test_hd_terminal_720p.jpg",
+    "size_bytes": 134,
+    "biometrics": {}
+  },
+  {
+    "id": "capture_1793612578_LAN_api_client_terminal_03.jpg",
+    "timestamp": REDACTED_PHONE.2130003,
+    "iso_time": "2026-11-02T04:42:58-0500",
+    "terminal_id": "api_client_terminal_03",
+    "terminal_name": "Terminal Web Móvil",
+    "origin": "LAN",
+    "client_ip": "REDACTED_IP",
+    "country": "LOCAL",
+    "resolution": "480x360",
+    "filename": "capture_1793612578_LAN_api_client_terminal_03.jpg",
+    "file_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/data/terminal_captures/capture_1793612578_LAN_api_client_terminal_03.jpg",
+    "size_bytes": 134,
+    "biometrics": {
+      "emotion": "focused",
+      "confidence": 0.94
+    }
+  },
+  {
+    "id": "capture_1793612577_LAN_test_terminal_laptop_02.jpg",
+    "timestamp": REDACTED_PHONE.581478,
+    "iso_time": "2026-11-02T04:42:57-0500",
+    "terminal_id": "test_terminal_laptop_02",
+    "terminal_name": "MacBook M3 - Beta",
+    "origin": "LAN",
+    "client_ip": "REDACTED_IP",
+    "country": "LOCAL",
+    "resolution": "1280x720",
+    "filename": "capture_1793612577_LAN_test_terminal_laptop_02.jpg",
+    "file_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/data/terminal_captures/capture_1793612577_LAN_test_terminal_laptop_02.jpg",
+    "size_bytes": 134,
+    "biometrics": {}
+  },
+  {
+    "id": "capture_1793612576_LAN_test_terminal_phone_01.jpg",
+    "timestamp": REDACTED_PHONE.88537,
+    "iso_time": "2026-11-02T04:42:56-0500",
+    "terminal_id": "test_terminal_phone_01",
+    "terminal_name": "iPhone 15 Pro - Alpha",
+    "origin": "LAN",
+    "client_ip": "REDACTED_IP",
+    "country": "LOCAL",
+    "resolution": "640x480",
+    "filename": "capture_1793612576_LAN_test_terminal_phone_01.jpg",
+    "file_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/data/terminal_captures/capture_1793612576_LAN_test_terminal_phone_01.jpg",
+    "size_bytes": 134,
+    "biometrics": {
+      "emotion": "neutral",
+      "attention": 0.88
+    }
+  },
+  {
     "id": "capture_1792964371_HOST_cam_prueba_real.jpg",
     "timestamp": REDACTED_PHONE.1029878,
     "iso_time": "2026-10-25T16:39:31-0500",
