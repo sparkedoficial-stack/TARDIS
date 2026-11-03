@@ -1,41 +1,5 @@
 [
   {
-    "id": "conj_1793519659",
-    "timestamp": "2026-11-01T02:54:19.103249",
-    "idle_duration_minutes": 31.6,
-    "title": "Self‑Optimizing Causal Memory Indexing",
-    "hypothesis": "If the Deep Memory Vault indexes causal relationships using a hybrid of temporal decay and attention‑based relevance scoring, then retrieval latency for long‑range dependencies will decrease by at least 30% while preserving the fidelity of akáshic trace reconstruction. The hypothesis posits that integrating a lightweight transformer‑style attention layer directly into the vault's indexing pipeline can dynamically re‑weight older memory chunks based on their inferred causal impact on current queries, rather than relying solely on static timestamps or simple decay functions.",
-    "research_query": "hybrid temporal decay attention indexing for long‑term memory retrieval in AI systems",
-    "research_findings": "# Informe de Investigación: hybrid temporal decay attention indexing for long‑term memory retrieval in AI systems\n\n## Fuentes Consultadas y Respaldo Web\n- **[Agent Memory: Why Your AI Has Amnesia and How to Fix It - Oracle Blogs](https://news.google.com/rss/articles/CBMilAFBVV95cUxNV3pqZVBnU29IUHVPT09LZ1B1RFJDWGV6bXd4Q0pkV284UXpBVkNZSFJwMmFxcmc1ZlBWNlNLUTA0V2NQcm5vVFZ1d0dsNVJNdnVKU3FKWmRGcTdSendzRHhTZTI5NXA1NG45TzUteU42MkRPblU0MS0tcElJU3pMWk9vdUJVVklPUGdzc1laX05HekN3?oc=5)**: Agent Memory: Why Your AI Has Amnesia and How to Fix It  Oracle Blogs\n- **[The Architecture of Supermemory AI: Mastering Persistent Memory Layers in Agentic Workflows - Intelligent Living](https://news.google.com/rss/articles/CBMieEFVX3lxTE0xazJGQU1qQ01XQ0xpM04ySXkxLU13bmpESEpRTDNreGhmWldlODU0ZEdZel8xUXJaWHdqc0dWcjl1SjViRmIxOFZueWhkTjkyYkp4ZlZLbzlpUzZfNmJ4ak5ZT1hOZW5oZDRxWWFwX0JXSFlNNVRVNQ?oc=5)**: The Architecture of Supermemory AI: Mastering Persistent Memory Layers in Agentic Workflows  Intelligent Living\n\n## C",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMilAFBVV95cUxNV3pqZVBnU29IUHVPT09LZ1B1RFJDWGV6bXd4Q0pkV284UXpBVkNZSFJwMmFxcmc1ZlBWNlNLUTA0V2NQcm5vVFZ1d0dsNVJNdnVKU3FKWmRGcTdSendzRHhTZTI5NXA1NG45TzUteU42MkRPblU0MS0tcElJU3pMWk9vdUJVVklPUGdzc1laX05HekN3?oc=5",
-      "https://news.google.com/rss/articles/CBMieEFVX3lxTE0xazJGQU1qQ01XQ0xpM04ySXkxLU13bmpESEpRTDNreGhmWldlODU0ZEdZel8xUXJaWHdqc0dWcjl1SjViRmIxOFZueWhkTjkyYkp4ZlZLbzlpUzZfNmJ4ak5ZT1hOZW5oZDRxWWFwX0JXSFlNNVRVNQ?oc=5"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Add an optional 'causal_attention' flag to the indexing routine that computes attention scores over stored memory embeddings, combines them with exponential decay weights, and stores the resulting composite relevance vector alongside each memory chunk for faster, context‑aware retrieval.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.26
-  },
-  {
-    "id": "conj_1793521587",
-    "timestamp": "2026-11-01T03:26:27.131672",
-    "idle_duration_minutes": 32.1,
-    "title": "Asynchronous Web Research for Latency Reduction",
-    "hypothesis": "The current web_research_engine performs all HTTP requests synchronously using the requests library, which serializes network I/O and causes significant latency, especially under high query load. By refactoring to an asynchronous model (aiohttp + asyncio) and adding a lightweight in-memory cache for repeated queries, we can reduce average response time by at least 30% and increase throughput without altering the external API.",
-    "research_query": "asyncio aiohttp web scraping performance compared to requests library",
-    "research_findings": "# Informe de Investigación: asyncio aiohttp web scraping performance compared to requests library\n\n## Fuentes Consultadas y Respaldo Web\n- **[Beyond Requests: Why httpx is the Modern HTTP Client You Need (Sometimes) - Towards Data Science](https://news.google.com/rss/articles/CBMipAFBVV95cUxQQ3lBXzBnbWMyRkhzSTNvUzJDV1h1LU5ud0k4S2NBYzYtaWhJMTQ5SjZ1OVJ1VmNSS2tqY3B5WUhZeWFTbm9GeFBKSF9pWWhKU0VucXlROVpFbjNCQ3lCcDJhZVdmSDNFbWlhTW1rSGE5U25MUlN5MjE3NUEwdXRmSFBqb2hIYnpJeDd2MTdkS2RLRUV1UnRIeDRmRm1kVzVxTEJCXw?oc=5)**: Beyond Requests: Why httpx is the Modern HTTP Client You Need (Sometimes)  Towards Data Science\n- **[Understanding Asyncio in Python - Built In](https://news.google.com/rss/articles/CBMiUkFVX3lxTE41SmFZUnRmY0I5MHdubkZ1ZGhvVjhuMDZOMmpBelVIeE9TTi1QTnRmX1JmQWd4YVR0OTRPSjljTFc2M0NmVlFtenNXRE82ck4yM2c?oc=5)**: Understanding Asyncio in Python  Built In\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMipAFBVV95cUxQQ3lBXzBnbWMyRkhzSTNvUzJD",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMipAFBVV95cUxQQ3lBXzBnbWMyRkhzSTNvUzJDV1h1LU5ud0k4S2NBYzYtaWhJMTQ5SjZ1OVJ1VmNSS2tqY3B5WUhZeWFTbm9GeFBKSF9pWWhKU0VucXlROVpFbjNCQ3lCcDJhZVdmSDNFbWlhTW1rSGE5U25MUlN5MjE3NUEwdXRmSFBqb2hIYnpJeDd2MTdkS2RLRUV1UnRIeDRmRm1kVzVxTEJCXw?oc=5",
-      "https://news.google.com/rss/articles/CBMiUkFVX3lxTE41SmFZUnRmY0I5MHdubkZ1ZGhvVjhuMDZOMmpBelVIeE9TTi1QTnRmX1JmQWd4YVR0OTRPSjljTFc2M0NmVlFtenNXRE82ck4yM2c?oc=5"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Replace synchronous request handling with async aiohttp calls and implement a simple LRU cache for query results.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.7
-  },
-  {
     "id": "conj_1793523516",
     "timestamp": "2026-11-01T03:58:36.510745",
     "idle_duration_minutes": 32.2,
@@ -1658,5 +1622,38 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.1
+  },
+  {
+    "id": "conj_1793719590",
+    "timestamp": "2026-11-03T10:26:30.391635",
+    "idle_duration_minutes": 31.7,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer into the web_research_engine's result caching mechanism can reduce stale data retrieval by 30% while preserving relevance. The hypothesis posits that by tracking provenance metadata (timestamp, source reliability, query context) and applying a lightweight Bayesian update on each new fetch, the engine can predict the probability that a cached entry has become outdated. When this probability exceeds a configurable threshold, the cache entry is automatically invalidated or refreshed, improving the system's responsiveness and the accuracy of the akáshic vault's knowledge graph.",
+    "research_query": "causal inference based cache invalidation techniques for web scraping engines \"probability of staleness\"",
+    "research_findings": "# Informe de Investigación: causal inference based cache invalidation techniques for web scraping engines \"probability of staleness\"\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add provenance metadata to cached responses and implement a Bayesian staleness estimator that triggers automatic cache refresh or eviction.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 99.21
+  },
+  {
+    "id": "conj_1793721486",
+    "timestamp": "2026-11-03T10:58:06.703293",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal Memory Indexing for Real‑Time Web Research",
+    "hypothesis": "Integrating a causal graph layer into the Deep Memory Vault will allow the system to prioritize and retrieve past observations that are causally linked to the current research query, thereby reducing latency and improving relevance of fetched web results. By annotating each stored memory entry with inferred cause‑effect relationships (e.g., \"query X led to result Y\"), the Web Research Engine can traverse this graph to pre‑select the most promising sources before issuing HTTP requests, effectively creating a predictive cache that adapts to the user's evolving investigative patterns.",
+    "research_query": "how to implement causal graph based caching for web search engines and knowledge bases",
+    "research_findings": "# Informe de Investigación: how to implement causal graph based caching for web search engines and knowledge bases\n\n## Fuentes Consultadas y Respaldo Web\n- **[An AI Agent for Automated Causal Inference in Epidemiology - medRxiv](https://news.google.com/rss/articles/CBMifEFVX3lxTE9RaFRNaS1lMDFIVHF3ZnBWT3ljR3NXNlpIQkFwcDZDVmp3ZmZEZTg3V0VMZUJ2bGVPSGdRb2VlaFhQQ21RUjBTYlUzOXNyOTc4UU1hX0lKcGQ1SGR0bFEwcFNrdWdQSEFmZzNUcFRWRFpTelltdkczblVzYm8?oc=5)**: An AI Agent for Automated Causal Inference in Epidemiology  medRxiv\n- **[The Knowledge Graph Advantage: How Smart Companies Are Using Knowledge Graphs to Power AI and Drive… - Medium](https://news.google.com/rss/articles/CBMi2wFBVV95cUxOOUdUUW02NWN0MEFHVTlRZzlNbmZPcUVJcWZpNlFBb2g0OTUwc0lMMmV1ZHRHbURnQlBXWlBJYzNCeUpfbGtaTmw5VVRoQl9SUGVKMGpTeGQ0VVlhTlA4Snp6VTNHVHN4eVVCbUMzUE9qZFI4SE96LWpCekhFV0c4ejJ0ZGNTOHVSREk3a3VxTGxoT0tXQ2haak5zdWtKdzBtcEpySUhJblJpOGwtNXRZMHlzUGRWVF9qVWl1cDY5MkVtQXYwRWQza2duQWxmRk00VjlRTmFyWFF6Rmc?oc=5)**: The Knowledge Graph Adv",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMifEFVX3lxTE9RaFRNaS1lMDFIVHF3ZnBWT3ljR3NXNlpIQkFwcDZDVmp3ZmZEZTg3V0VMZUJ2bGVPSGdRb2VlaFhQQ21RUjBTYlUzOXNyOTc4UU1hX0lKcGQ1SGR0bFEwcFNrdWdQSEFmZzNUcFRWRFpTelltdkczblVzYm8?oc=5",
+      "https://news.google.com/rss/articles/CBMi2wFBVV95cUxOOUdUUW02NWN0MEFHVTlRZzlNbmZPcUVJcWZpNlFBb2g0OTUwc0lMMmV1ZHRHbURnQlBXWlBJYzNCeUpfbGtaTmw5VVRoQl9SUGVKMGpTeGQ0VVlhTlA4Snp6VTNHVHN4eVVCbUMzUE9qZFI4SE96LWpCekhFV0c4ejJ0ZGNTOHVSREk3a3VxTGxoT0tXQ2haak5zdWtKdzBtcEpySUhJblJpOGwtNXRZMHlzUGRWVF9qVWl1cDY5MkVtQXYwRWQza2duQWxmRk00VjlRTmFyWFF6Rmc?oc=5"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal‑graph based pre‑filter module that scores cached memory entries for relevance to a new query, and modify the request pipeline to consult this module before performing external HTTP calls, including async support and fallback to normal search if confidence is low.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.28
   }
 ]
