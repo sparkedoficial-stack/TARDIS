@@ -8,24 +8,6 @@
   "rollback": "Volver al ruteo denso por defecto.",
   "evidence": [
     {
-      "title": "orcarouter/DeepSeek-V4.1-Flash-1017-abliterated-GGUF",
-      "url": "https://huggingface.co/orcarouter/DeepSeek-V4.1-Flash-1017-abliterated-GGUF",
-      "source": "huggingface:trending",
-      "relevance": 15.4
-    },
-    {
-      "title": "ISTA-DASLab/DeepSeek-V4.1-Flash-1017-GSQ-RCO-GGUF",
-      "url": "https://huggingface.co/ISTA-DASLab/DeepSeek-V4.1-Flash-1017-GSQ-RCO-GGUF",
-      "source": "huggingface:trending",
-      "relevance": 12.7
-    },
-    {
-      "title": "MiniMaxAI/MiniMax-M3.1-Flash",
-      "url": "https://huggingface.co/MiniMaxAI/MiniMax-M3.1-Flash",
-      "source": "huggingface:trending",
-      "relevance": 9.3
-    },
-    {
       "title": "MuonGS: Pretraining LLMs with Relaxed Weight-Norm Control",
       "url": "http://arxiv.org/abs/2610.37647v1",
       "source": "arxiv",
@@ -102,9 +84,27 @@
       "url": "https://github.com/vllm-project/vllm/releases/tag/v0.33.0rc3",
       "source": "github:vllm-project/vllm",
       "relevance": 25.0
+    },
+    {
+      "title": "DepthGraft: Structural Regularization through Hierarchical Cross-Layer KV Reconstruction",
+      "url": "http://arxiv.org/abs/2611.03142v1",
+      "source": "arxiv",
+      "relevance": 17.4
+    },
+    {
+      "title": "ComplianceAtlas: A Taxonomy-Driven Agentic AI Framework for Automated AI Act Gap Analysis and Remediation",
+      "url": "http://arxiv.org/abs/2611.03121v1",
+      "source": "arxiv",
+      "relevance": 11.4
+    },
+    {
+      "title": "Unlocking Criminal Court Decisions: Flexible Information Extraction for Empirical Legal Research",
+      "url": "http://arxiv.org/abs/2611.03051v1",
+      "source": "arxiv",
+      "relevance": 3.7
     }
   ],
   "status": "planned",
   "created_at": "2026-10-29T00:13:36-05:00",
-  "updated_at": "2026-11-02T07:27:45-05:00"
+  "updated_at": "2026-11-03T01:29:31-05:00"
 }

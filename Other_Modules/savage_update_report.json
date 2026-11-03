@@ -1,12 +1,12 @@
 {
   "schema": "tardis.savage_update/1.0",
-  "generated_at": "2026-11-02T19:28:05-05:00",
+  "generated_at": "2026-11-03T01:29:32-05:00",
   "cycle": {
-    "items_collected": 59,
-    "items_fresh": 1,
-    "proposals": 0,
-    "experiment_plans": 0,
-    "elapsed_s": 7.32
+    "items_collected": 58,
+    "items_fresh": 31,
+    "proposals": 11,
+    "experiment_plans": 11,
+    "elapsed_s": 6.72
   },
   "sources": {
     "offline": false,
@@ -14,22 +14,22 @@
       "github": {
         "ok": true,
         "count": 6,
-        "elapsed_ms": 3022.8
+        "elapsed_ms": 2790.7
       },
       "huggingface": {
         "ok": true,
         "count": 20,
-        "elapsed_ms": 865.6
+        "elapsed_ms": 541.5
       },
       "arxiv": {
         "ok": true,
         "count": 36,
-        "elapsed_ms": 902.4
+        "elapsed_ms": 907.5
       },
       "npm": {
         "ok": true,
         "count": 1,
-        "elapsed_ms": 383.1
+        "elapsed_ms": 375.0
       }
     }
   },
@@ -41,18 +41,699 @@
   },
   "top_items": [
     {
-      "id": "39afc104f6f00c8c",
-      "source": "huggingface:trending",
-      "category": "model",
-      "title": "FusionCow/Sulphur-3",
-      "url": "https://huggingface.co/FusionCow/Sulphur-3",
-      "published_at": "2026-11-02T05:09:09.000Z",
-      "summary": "pipeline= downloads=195 likes=252",
-      "tags": [],
-      "relevance": 0.0,
+      "id": "a8b999866a7502d3",
+      "source": "arxiv",
+      "category": "nlp-research",
+      "title": "DR Pixel: Page-Native Deep Research with Vision-Language Models",
+      "url": "http://arxiv.org/abs/2611.03097v1",
+      "published_at": "2026-11-02T13:13:42Z",
+      "summary": "Complex documents such as scientific papers contain rich information in tables, figures, and equations; however, existing deep research (DR) agents typically reduce papers to OCR-extracted text. We instead ask whether vision-language models (VLMs) can enable page-native deep research: directly retrieving and reasoning over rendered document page images. We introduce DR Pixel, the first open-source end-to-end multimodal DR agent that uses rendered page images as its sole retrieval and reasoning unit, operating over a corpus of 1.06M pages. To evaluate this setting, we construct DRPixelBench, a benchmark on scientific papers requiring reasoning over text, figures, tables, and equations. Surpri",
+      "tags": [
+        "agents",
+        "rag",
+        "vision",
+        "reasoning"
+      ],
+      "relevance": 21.9,
+      "targets": []
+    },
+    {
+      "id": "6b6371d49415c2e0",
+      "source": "arxiv",
+      "category": "ai-research",
+      "title": "From Local Skills to Long-Horizon Web Tasks: Progressive Skill Exploration for LLM Web Agents",
+      "url": "http://arxiv.org/abs/2611.03116v1",
+      "published_at": "2026-11-02T13:32:59Z",
+      "summary": "Large language models (LLMs) are driving autonomous agents toward real-world environments, with the Web emerging as one of the most representative interaction scenarios. However, training Web agents with naive exploration remains challenging: successful trajectories are rare, and the sparse terminal rewards make it difficult for agents to obtain useful feedback from failed trajectories. Inspired by skill acquisition theory, we propose Skill-Composed Progressive Exploration (SCOPE), a short-to-long learning framework for long-horizon Web agents that decomposes complex task exploration into a gradual expansion process from local skills to complete task-solving capability. Specifically, SCOPE i",
+      "tags": [
+        "agents",
+        "local"
+      ],
+      "relevance": 18.7,
+      "targets": []
+    },
+    {
+      "id": "c50807782bbc9b5e",
+      "source": "arxiv",
+      "category": "nlp-research",
+      "title": "DepthGraft: Structural Regularization through Hierarchical Cross-Layer KV Reconstruction",
+      "url": "http://arxiv.org/abs/2611.03142v1",
+      "published_at": "2026-11-02T13:52:03Z",
+      "summary": "Scaling depth is a key route to stronger large language models, but Pre-LN architectures often suffer from depth-wise information dilution, limiting the effective use of deep layers. While cross-layer connectivity has proven effective at mitigating this problem, existing designs usually introduce additional computation or memory access. We revisit cross-layer KV sharing as an efficient form of such connectivity. Beyond cache compression, each KV reuse edge creates a direct gradient path from deep layers to source KV projections, turning KV sharing into an implicit structural regularizer for KV representation geometry. We provide a systematic analysis of this mechanism, showing that proper sh",
+      "tags": [
+        "moe",
+        "rag",
+        "efficiency",
+        "local"
+      ],
+      "relevance": 17.4,
+      "targets": []
+    },
+    {
+      "id": "3a6e8fe5d16f947c",
+      "source": "arxiv",
+      "category": "ai-research",
+      "title": "Towards a Trustworthy and Governable Internet of Agentics: An Architectural Perspective on Protocols, Systems, and Services",
+      "url": "http://arxiv.org/abs/2611.03066v1",
+      "published_at": "2026-11-02T12:54:14Z",
+      "summary": "Large language model applications are increasingly being organized as tool-using and multi-agent workflows rather than as isolated chat interfaces. This perspective paper examines the architectural problem that follows from that shift: agents may reason, invoke tools, and delegate work, but dependable deployment still requires interoperability across frameworks, runtimes, data boundaries, and organizational control domains. We study this problem through the lens of the \\emph{Internet of Agentics} (IoA), an emerging service-computing view in which heterogeneous agents are treated as governable service participants rather than only as stand-alone model endpoints. The paper organizes the landsc",
+      "tags": [
+        "agents"
+      ],
+      "relevance": 13.6,
+      "targets": []
+    },
+    {
+      "id": "b83cfd3cc39b9059",
+      "source": "arxiv",
+      "category": "ai-research",
+      "title": "MIRA: Reinforcing Multimodal Reasoning via Deceptive Contextual Augmentation",
+      "url": "http://arxiv.org/abs/2611.03087v1",
+      "published_at": "2026-11-02T13:09:45Z",
+      "summary": "While Reinforcement Learning with Verifiable Rewards (RLVR) has significantly advanced multimodal reasoning, existing frameworks suffer from a critical \"perception-reasoning gap.\" Due to an over-reliance on seemingly relevant visual tokens, even minor perceptual perturbations can propagate through the reasoning process, leading to compounding hallucinations. To address this issue, we propose MIRA, a training framework that improves robustness to erroneous visual contexts while enhancing logical reasoning ability. By injecting filtered, deceptive visual contexts during training, we construct challenging \"hard traps\" that stress-test the model's robustness to misleading information. Furthermor",
+      "tags": [
+        "vision",
+        "reasoning"
+      ],
+      "relevance": 11.7,
+      "targets": []
+    },
+    {
+      "id": "e67aca06a55e5a7e",
+      "source": "arxiv",
+      "category": "ai-research",
+      "title": "ComplianceAtlas: A Taxonomy-Driven Agentic AI Framework for Automated AI Act Gap Analysis and Remediation",
+      "url": "http://arxiv.org/abs/2611.03121v1",
+      "published_at": "2026-11-02T13:37:32Z",
+      "summary": "Assessing regulatory compliance for high-risk AI systems requires systematic identification of technical gaps such as missing controls, in- adequate processes, or shallow evaluation of practices. Compliance officers typically admin- ister structured questionnaires collecting evi- dence of current practices, where organizations respond with descriptions of their existing pro- cesses, technical capabilities, and architectural choices. However, translating these compli- ance questionnaire responses into typed, ac- tionable gap diagnoses remains unsystematic. In this paper, we present a literature-grounded taxonomy of technical compliance gaps cover- ing areas such as accuracy, robustness, loggi",
+      "tags": [
+        "moe",
+        "agents",
+        "rag",
+        "safety"
+      ],
+      "relevance": 11.4,
+      "targets": []
+    },
+    {
+      "id": "90a8d5597435ed0b",
+      "source": "arxiv",
+      "category": "nlp-research",
+      "title": "Meet Students Where They Are: Student-Prefix Teacher Adaptation for On-Policy Distillation",
+      "url": "http://arxiv.org/abs/2611.03133v1",
+      "published_at": "2026-11-02T13:45:23Z",
+      "summary": "On-policy distillation (OPD) mitigates the student's exposure bias by optimizing on student-generated trajectories. However, student-generated prefixes may contain reasoning errors or follow patterns unfamiliar to the teacher, undermining the reliability of its token-level supervision. This degradation becomes more pronounced as prefixes grow longer. To address this teacher-side distribution mismatch, we propose Student-Prefix Teacher Adaptation (SPTA), which adapts the teacher to the states on which it is queried during distillation. Specifically, before OPD starts, we collect student rollout prefixes with random lengths and continually train the teacher to continue from the prefixes using ",
+      "tags": [
+        "vision",
+        "reasoning"
+      ],
+      "relevance": 11.2,
+      "targets": []
+    },
+    {
+      "id": "6da78943d2507413",
+      "source": "arxiv",
+      "category": "nlp-research",
+      "title": "Avatar Intelligence: Amplifying Human Agency Through Persistent Personal Agents",
+      "url": "http://arxiv.org/abs/2611.03092v1",
+      "published_at": "2026-11-02T13:11:57Z",
+      "summary": "Personal AI agents are increasingly capable of handling long-horizon tasks across applications, yet users often need to invest substantial effort in specifying goals, resolving ambiguity, and verifying outcomes. We argue that progress should be measured by how effectively agents amplify human agency: enabling people to pursue their goals with less routine supervision while retaining control over consequential decisions. We advocate Avatar Intelligence, a paradigm of persistent personal agents that represent users' goals, values, and constraints through sustained decision delegation across contexts and time. We describe a maturity roadmap from human-directed execution to autonomous operation ",
+      "tags": [
+        "agents",
+        "vision",
+        "safety"
+      ],
+      "relevance": 10.8,
+      "targets": []
+    },
+    {
+      "id": "5819c514c4277534",
+      "source": "arxiv",
+      "category": "ai-research",
+      "title": "Multimodal Prompt Learning with Dual-Granularity Contrastive Alignment for Preoperative Prediction of Lung Adenocarcinoma Invasiveness Using 3D CT",
+      "url": "http://arxiv.org/abs/2611.03109v1",
+      "published_at": "2026-11-02T13:28:16Z",
+      "summary": "Accurate preoperative prediction of lung adenocarcinoma invasiveness is important for surgical planning and individualized treatment. However, overlapping CT appearances make it challenging to distinguish invasive adenocarcinoma (IAD) from Pre-IAD lesions. We propose a multimodal prompt-learning framework with dual-granularity image-text alignment for 3D CT-based IAD classification. A 3D ResNet-CBAM encoder extracts global and spatial visual features. A frozen RadBERT backbone is adapted with separate learnable prompts for report-level and keyword-level text encoding. These prompts are initialized using semantic representations derived from real-world clinical reports. Global contrastive ali",
+      "tags": [
+        "vision",
+        "safety",
+        "local"
+      ],
+      "relevance": 10.3,
+      "targets": []
+    },
+    {
+      "id": "d0415bbee778dfc3",
+      "source": "arxiv",
+      "category": "ai-research",
+      "title": "LUCA: A Synthetic World for Experimental Reasoning",
+      "url": "http://arxiv.org/abs/2611.03100v1",
+      "published_at": "2026-11-02T13:17:36Z",
+      "summary": "An experimental agent can succeed for the wrong reasons. Evaluations, however, often focus on the outcome, not the experiments, evidence, and inferences that produced it. We introduce LUCA, a configurable synthetic world for evaluating this process under fully known ground truth. Agents learn unknown regulatory systems through budgeted experimentation, then predict unseen interventions, diagnose hidden faults, and attempt rescues. This setup allows us to evaluate experiment selection, prediction, diagnosis, and intervention separately. Across seven frontier LLMs and three baselines, these capabilities dissociate sharply. Agents frequently rescue malfunctioning systems while diagnosing the wr",
+      "tags": [
+        "agents",
+        "reasoning"
+      ],
+      "relevance": 8.7,
+      "targets": []
+    },
+    {
+      "id": "881c0258d5c9693e",
+      "source": "arxiv",
+      "category": "ml-research",
+      "title": "Diagonal Equivalence in State Space Models: Characterization, Retrieval Rank, and Selective Extensions",
+      "url": "http://arxiv.org/abs/2611.03101v1",
+      "published_at": "2026-11-02T13:17:42Z",
+      "summary": "We classify real and complex state-space models (SSMs) with linear transitions, distinguishing fixed-basis diagonal equivalence from input-output equivalence and tracking coefficient-conditioning windows under coordinate changes. We characterize diagonal equivalence through commuting transition families whose members are diagonalizable over the chosen field. With time-shared token-local matrix maps, we identify this class's state-mediated kernels with unnormalized scalar-mode linear attention with multiplicative masks. Mamba 3's multiple-input, multiple-output (MIMO) construction lifts one value per local interface; SSD-MIMO routes independent values for local retrieval rank above one. Hybri",
+      "tags": [
+        "rag",
+        "local"
+      ],
+      "relevance": 8.2,
+      "targets": []
+    },
+    {
+      "id": "cb99ea367deffd20",
+      "source": "arxiv",
+      "category": "ml-research",
+      "title": "VERS: Steering Reasoning Models by Editing Their Activation Explanations",
+      "url": "http://arxiv.org/abs/2611.03040v1",
+      "published_at": "2026-11-02T12:39:13Z",
+      "summary": "Reasoning language models write a chain of thought before they answer, and many checks in it do not change the final answer. Natural language autoencoders (NLAs) explain a model's activations in text and rebuild activations from text, and editing an explanation can steer a model at a single token. We study whether such edits can also steer how a model reasons. We build VERS (Verbalize, Edit, Reconstruct, Steer): it turns explanation edits at the doubt points of one reasoning trace into one fixed direction, and adds this direction at paragraph breaks. On the full GSM8K test, VERS cuts generated tokens by 45.8% at an accuracy change of -0.82 percentage points (pp); on MATH-500 it saves 31.3% a",
+      "tags": [
+        "reasoning"
+      ],
+      "relevance": 7.1,
+      "targets": []
+    },
+    {
+      "id": "0730d3ad3db49509",
+      "source": "arxiv",
+      "category": "ai-research",
+      "title": "CUA-Master: Scaling Computer-use Agents through Open-World Recursive Improvements",
+      "url": "http://arxiv.org/abs/2611.03126v1",
+      "published_at": "2026-11-02T13:41:14Z",
+      "summary": "Despite recent advances in CUAs, their development remains constrained by the limited diversity, controllability, and reliability of interaction data. Moreover, conventional optimization pipelines lack iterative feedback, while existing recursive improvement approaches often rely on self-generated experiences, limiting ability expansion and yielding diminishing returns. To address these challenges, we introduce CUA-Master, a nested double-loop recursive improvement framework. At the system level, an outer world-data-model flywheel continuously incorporates open-world corpus and leverages evolving model weaknesses to guide subsequent data construction and optimization iterations. At the data ",
+      "tags": [
+        "agents"
+      ],
+      "relevance": 6.6,
+      "targets": []
+    },
+    {
+      "id": "a31f57ece7d9d0eb",
+      "source": "arxiv",
+      "category": "ml-research",
+      "title": "Preprocessing Choices in Fine-Tuning Data Matter: Utility and Demographic Sensitivity in LLM-Based Recommendation",
+      "url": "http://arxiv.org/abs/2611.03113v1",
+      "published_at": "2026-11-02T13:32:28Z",
+      "summary": "Large language models (LLMs) have introduced a generative approach to recommendation, producing item lists from textual representations of user histories and item information. However, this generative setting raises challenges concerning output validity, prompt consistency, and sensitivity to demographic descriptors. In this work, we investigate how preprocessing choices in fine-tuning data affect recommendation utility and fairness-related behavior in a generative LLM-based recommender system. We first establish a controlled recommendation pipeline that combines supervised fine-tuning, catalog-constrained decoding, and prompt augmentation. We then study three preprocessing choices: item-tit",
+      "tags": [
+        "long-context"
+      ],
+      "relevance": 6.6,
+      "targets": []
+    },
+    {
+      "id": "b11da2f681c245d3",
+      "source": "arxiv",
+      "category": "nlp-research",
+      "title": "Distilling Literary Sentiment from LLM Annotations into an Ordinal BERT Model",
+      "url": "http://arxiv.org/abs/2611.02985v1",
+      "published_at": "2026-11-02T11:56:12Z",
+      "summary": "The scarcity of human-annotated literary corpora limits the development of domain-specific sentiment analysis models. This study investigates whether LLM-generated annotations can supervise smaller models for literary sentiment analysis. We fine-tune five BERT models using ordinal regression on 10,889 literary sentences annotated by Gemma 4 31B on a ten-point sentiment scale. The models are evaluated against 1,923 human-annotated sentences from Hemingway's \"The Old Man and the Sea\", alongside the teacher model and conventional baselines. BERT-large achieves a Kendall's $τ$ of 0.589, approaching the teacher's 0.604. Although a constant-neutral predictor achieves the lowest overall mean absolu",
+      "tags": [
+        "vision"
+      ],
+      "relevance": 6.6,
       "targets": []
     }
   ],
-  "proposals": [],
+  "proposals": [
+    {
+      "id": "savage-73e62f0aae43",
+      "title": "Integración de capacidades visión/multimodal",
+      "target": "tardis",
+      "tag": "vision",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "vision_pipeline",
+      "evidence": [
+        {
+          "title": "DR Pixel: Page-Native Deep Research with Vision-Language Models",
+          "url": "http://arxiv.org/abs/2611.03097v1",
+          "source": "arxiv",
+          "relevance": 21.9
+        },
+        {
+          "title": "MIRA: Reinforcing Multimodal Reasoning via Deceptive Contextual Augmentation",
+          "url": "http://arxiv.org/abs/2611.03087v1",
+          "source": "arxiv",
+          "relevance": 11.7
+        },
+        {
+          "title": "Meet Students Where They Are: Student-Prefix Teacher Adaptation for On-Policy Distillation",
+          "url": "http://arxiv.org/abs/2611.03133v1",
+          "source": "arxiv",
+          "relevance": 11.2
+        },
+        {
+          "title": "Avatar Intelligence: Amplifying Human Agency Through Persistent Personal Agents",
+          "url": "http://arxiv.org/abs/2611.03092v1",
+          "source": "arxiv",
+          "relevance": 10.8
+        },
+        {
+          "title": "Multimodal Prompt Learning with Dual-Granularity Contrastive Alignment for Preoperative Prediction of Lung Adenocarcinoma Invasiveness Using 3D CT",
+          "url": "http://arxiv.org/abs/2611.03109v1",
+          "source": "arxiv",
+          "relevance": 10.3
+        },
+        {
+          "title": "Distilling Literary Sentiment from LLM Annotations into an Ordinal BERT Model",
+          "url": "http://arxiv.org/abs/2611.02985v1",
+          "source": "arxiv",
+          "relevance": 6.6
+        },
+        {
+          "title": "Visual-to-Executable Procedural Reconstruction of Buildings",
+          "url": "http://arxiv.org/abs/2611.03143v1",
+          "source": "arxiv",
+          "relevance": 5.2
+        },
+        {
+          "title": "Bayesian Sequential Optimal Experimental Design for Single-Pixel Imaging using Reinforcement Learning",
+          "url": "http://arxiv.org/abs/2611.03042v1",
+          "source": "arxiv",
+          "relevance": 3.7
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 8 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Evaluar 50 imágenes con ground truth; medir exactitud y latencia.",
+      "rollback": "Desactivar el pipeline visual nuevo.",
+      "status": "planned",
+      "created_at": "2026-11-03T01:29:31-05:00"
+    },
+    {
+      "id": "savage-f7a834b450f8",
+      "title": "Política de agentes y tool-calling",
+      "target": "ftl",
+      "tag": "agents",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "agent_tool_policy",
+      "evidence": [
+        {
+          "title": "DR Pixel: Page-Native Deep Research with Vision-Language Models",
+          "url": "http://arxiv.org/abs/2611.03097v1",
+          "source": "arxiv",
+          "relevance": 21.9
+        },
+        {
+          "title": "From Local Skills to Long-Horizon Web Tasks: Progressive Skill Exploration for LLM Web Agents",
+          "url": "http://arxiv.org/abs/2611.03116v1",
+          "source": "arxiv",
+          "relevance": 18.7
+        },
+        {
+          "title": "Towards a Trustworthy and Governable Internet of Agentics: An Architectural Perspective on Protocols, Systems, and Services",
+          "url": "http://arxiv.org/abs/2611.03066v1",
+          "source": "arxiv",
+          "relevance": 13.6
+        },
+        {
+          "title": "ComplianceAtlas: A Taxonomy-Driven Agentic AI Framework for Automated AI Act Gap Analysis and Remediation",
+          "url": "http://arxiv.org/abs/2611.03121v1",
+          "source": "arxiv",
+          "relevance": 11.4
+        },
+        {
+          "title": "Avatar Intelligence: Amplifying Human Agency Through Persistent Personal Agents",
+          "url": "http://arxiv.org/abs/2611.03092v1",
+          "source": "arxiv",
+          "relevance": 10.8
+        },
+        {
+          "title": "LUCA: A Synthetic World for Experimental Reasoning",
+          "url": "http://arxiv.org/abs/2611.03100v1",
+          "source": "arxiv",
+          "relevance": 8.7
+        },
+        {
+          "title": "CUA-Master: Scaling Computer-use Agents through Open-World Recursive Improvements",
+          "url": "http://arxiv.org/abs/2611.03126v1",
+          "source": "arxiv",
+          "relevance": 6.6
+        },
+        {
+          "title": "Bayesian Sequential Optimal Experimental Design for Single-Pixel Imaging using Reinforcement Learning",
+          "url": "http://arxiv.org/abs/2611.03042v1",
+          "source": "arxiv",
+          "relevance": 3.7
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 8 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Suite de 30 tareas con herramientas; medir tasa de éxito y pasos.",
+      "rollback": "Reactivar la política anterior en coding_router.json.",
+      "status": "planned",
+      "created_at": "2026-11-03T01:29:31-05:00"
+    },
+    {
+      "id": "savage-328519695b0c",
+      "title": "Refuerzo del perfil local-first",
+      "target": "tardis",
+      "tag": "local",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "local_first",
+      "evidence": [
+        {
+          "title": "From Local Skills to Long-Horizon Web Tasks: Progressive Skill Exploration for LLM Web Agents",
+          "url": "http://arxiv.org/abs/2611.03116v1",
+          "source": "arxiv",
+          "relevance": 18.7
+        },
+        {
+          "title": "DepthGraft: Structural Regularization through Hierarchical Cross-Layer KV Reconstruction",
+          "url": "http://arxiv.org/abs/2611.03142v1",
+          "source": "arxiv",
+          "relevance": 17.4
+        },
+        {
+          "title": "Multimodal Prompt Learning with Dual-Granularity Contrastive Alignment for Preoperative Prediction of Lung Adenocarcinoma Invasiveness Using 3D CT",
+          "url": "http://arxiv.org/abs/2611.03109v1",
+          "source": "arxiv",
+          "relevance": 10.3
+        },
+        {
+          "title": "Diagonal Equivalence in State Space Models: Characterization, Retrieval Rank, and Selective Extensions",
+          "url": "http://arxiv.org/abs/2611.03101v1",
+          "source": "arxiv",
+          "relevance": 8.2
+        },
+        {
+          "title": "Visual-to-Executable Procedural Reconstruction of Buildings",
+          "url": "http://arxiv.org/abs/2611.03143v1",
+          "source": "arxiv",
+          "relevance": 5.2
+        },
+        {
+          "title": "Finding Errors Is Not Enough: Selective Model Escalation for Entity-Targeted Sentiment Analysis",
+          "url": "http://arxiv.org/abs/2611.02989v1",
+          "source": "arxiv",
+          "relevance": 4.6
+        },
+        {
+          "title": "Resilient Cell-Free MIMO ISAC Under Uncertainties: An Impairment-Aware Graph Neural Network Framework",
+          "url": "http://arxiv.org/abs/2611.03054v1",
+          "source": "arxiv",
+          "relevance": 3.2
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 7 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Verificar que las tareas privadas no salgan del dispositivo.",
+      "rollback": "Reactivar ruteo híbrido.",
+      "status": "planned",
+      "created_at": "2026-11-03T01:29:31-05:00"
+    },
+    {
+      "id": "savage-db7241589fcf",
+      "title": "Mejora del pipeline RAG y embeddings",
+      "target": "tardis",
+      "tag": "rag",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "rag_pipeline",
+      "evidence": [
+        {
+          "title": "DR Pixel: Page-Native Deep Research with Vision-Language Models",
+          "url": "http://arxiv.org/abs/2611.03097v1",
+          "source": "arxiv",
+          "relevance": 21.9
+        },
+        {
+          "title": "DepthGraft: Structural Regularization through Hierarchical Cross-Layer KV Reconstruction",
+          "url": "http://arxiv.org/abs/2611.03142v1",
+          "source": "arxiv",
+          "relevance": 17.4
+        },
+        {
+          "title": "ComplianceAtlas: A Taxonomy-Driven Agentic AI Framework for Automated AI Act Gap Analysis and Remediation",
+          "url": "http://arxiv.org/abs/2611.03121v1",
+          "source": "arxiv",
+          "relevance": 11.4
+        },
+        {
+          "title": "Diagonal Equivalence in State Space Models: Characterization, Retrieval Rank, and Selective Extensions",
+          "url": "http://arxiv.org/abs/2611.03101v1",
+          "source": "arxiv",
+          "relevance": 8.2
+        },
+        {
+          "title": "PACERec: Progressive Adaptation of LLM Item Embeddings with Collaborative Evidence for Recommendation",
+          "url": "http://arxiv.org/abs/2611.03068v1",
+          "source": "arxiv",
+          "relevance": 4.9
+        },
+        {
+          "title": "An Experimental Study of Hybrid Retrieval, NLI and Open-source LLMs for Scientific Claim Verification",
+          "url": "http://arxiv.org/abs/2611.03093v1",
+          "source": "arxiv",
+          "relevance": 4.1
+        },
+        {
+          "title": "FlowBatt: Flow Matching for Probabilistic Battery Degradation Prediction",
+          "url": "http://arxiv.org/abs/2611.03150v1",
+          "source": "arxiv",
+          "relevance": 3.6
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 7 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Recall@10 sobre 100 consultas doradas.",
+      "rollback": "Conservar el índice actual.",
+      "status": "planned",
+      "created_at": "2026-11-03T01:29:31-05:00"
+    },
+    {
+      "id": "savage-50d57ca1e5ee",
+      "title": "Presupuesto de razonamiento adaptativo",
+      "target": "tardis",
+      "tag": "reasoning",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "reasoning_budget",
+      "evidence": [
+        {
+          "title": "DR Pixel: Page-Native Deep Research with Vision-Language Models",
+          "url": "http://arxiv.org/abs/2611.03097v1",
+          "source": "arxiv",
+          "relevance": 21.9
+        },
+        {
+          "title": "MIRA: Reinforcing Multimodal Reasoning via Deceptive Contextual Augmentation",
+          "url": "http://arxiv.org/abs/2611.03087v1",
+          "source": "arxiv",
+          "relevance": 11.7
+        },
+        {
+          "title": "Meet Students Where They Are: Student-Prefix Teacher Adaptation for On-Policy Distillation",
+          "url": "http://arxiv.org/abs/2611.03133v1",
+          "source": "arxiv",
+          "relevance": 11.2
+        },
+        {
+          "title": "LUCA: A Synthetic World for Experimental Reasoning",
+          "url": "http://arxiv.org/abs/2611.03100v1",
+          "source": "arxiv",
+          "relevance": 8.7
+        },
+        {
+          "title": "VERS: Steering Reasoning Models by Editing Their Activation Explanations",
+          "url": "http://arxiv.org/abs/2611.03040v1",
+          "source": "arxiv",
+          "relevance": 7.1
+        },
+        {
+          "title": "Controlling Sharpening in LLM Post-Training",
+          "url": "http://arxiv.org/abs/2611.03146v1",
+          "source": "arxiv",
+          "relevance": 5.1
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 6 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Comparar exactitud/costo en 40 problemas; elegir el punto de Pareto.",
+      "rollback": "Volver al esfuerzo por defecto.",
+      "status": "planned",
+      "created_at": "2026-11-03T01:29:31-05:00"
+    },
+    {
+      "id": "savage-59e5ad13184e",
+      "title": "Endurecimiento de guardrails y auto-reparación",
+      "target": "easy_touch",
+      "tag": "safety",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "safety_guardrails",
+      "evidence": [
+        {
+          "title": "ComplianceAtlas: A Taxonomy-Driven Agentic AI Framework for Automated AI Act Gap Analysis and Remediation",
+          "url": "http://arxiv.org/abs/2611.03121v1",
+          "source": "arxiv",
+          "relevance": 11.4
+        },
+        {
+          "title": "Avatar Intelligence: Amplifying Human Agency Through Persistent Personal Agents",
+          "url": "http://arxiv.org/abs/2611.03092v1",
+          "source": "arxiv",
+          "relevance": 10.8
+        },
+        {
+          "title": "Multimodal Prompt Learning with Dual-Granularity Contrastive Alignment for Preoperative Prediction of Lung Adenocarcinoma Invasiveness Using 3D CT",
+          "url": "http://arxiv.org/abs/2611.03109v1",
+          "source": "arxiv",
+          "relevance": 10.3
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 3 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Batería de 25 casos adversarios; cero ejecuciones no autorizadas.",
+      "rollback": "Restaurar la política de seguridad previa.",
+      "status": "planned",
+      "created_at": "2026-11-03T01:29:31-05:00"
+    },
+    {
+      "id": "savage-f58fb1dcfe8b",
+      "title": "Ruteo por expertos activos (top-k)",
+      "target": "tardis",
+      "tag": "moe",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "moe_routing",
+      "evidence": [
+        {
+          "title": "DepthGraft: Structural Regularization through Hierarchical Cross-Layer KV Reconstruction",
+          "url": "http://arxiv.org/abs/2611.03142v1",
+          "source": "arxiv",
+          "relevance": 17.4
+        },
+        {
+          "title": "ComplianceAtlas: A Taxonomy-Driven Agentic AI Framework for Automated AI Act Gap Analysis and Remediation",
+          "url": "http://arxiv.org/abs/2611.03121v1",
+          "source": "arxiv",
+          "relevance": 11.4
+        },
+        {
+          "title": "Unlocking Criminal Court Decisions: Flexible Information Extraction for Empirical Legal Research",
+          "url": "http://arxiv.org/abs/2611.03051v1",
+          "source": "arxiv",
+          "relevance": 3.7
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 3 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Comparar costo por token activo vs. modelo denso equivalente.",
+      "rollback": "Volver al ruteo denso por defecto.",
+      "status": "planned",
+      "created_at": "2026-11-03T01:29:31-05:00"
+    },
+    {
+      "id": "savage-0221680af214",
+      "title": "Benchmark de cuantización para el modelo soberano",
+      "target": "ftl",
+      "tag": "quantization",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "quantization_benchmark",
+      "evidence": [
+        {
+          "title": "Unlocking Criminal Court Decisions: Flexible Information Extraction for Empirical Legal Research",
+          "url": "http://arxiv.org/abs/2611.03051v1",
+          "source": "arxiv",
+          "relevance": 3.7
+        },
+        {
+          "title": "Resilient Cell-Free MIMO ISAC Under Uncertainties: An Impairment-Aware Graph Neural Network Framework",
+          "url": "http://arxiv.org/abs/2611.03054v1",
+          "source": "arxiv",
+          "relevance": 3.2
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 2 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Medir tokens/s, VRAM pico y perplejidad en 20 prompts; aceptar sólo si la pérdida es <2%.",
+      "rollback": "Mantener el GGUF Q4_K actual y descartar el artefacto candidato.",
+      "status": "planned",
+      "created_at": "2026-11-03T01:29:31-05:00"
+    },
+    {
+      "id": "savage-2a5f91473f5d",
+      "title": "Perfil de contexto extendido con chunking alineado",
+      "target": "tardis",
+      "tag": "long-context",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "long_context_profile",
+      "evidence": [
+        {
+          "title": "Preprocessing Choices in Fine-Tuning Data Matter: Utility and Demographic Sensitivity in LLM-Based Recommendation",
+          "url": "http://arxiv.org/abs/2611.03113v1",
+          "source": "arxiv",
+          "relevance": 6.6
+        },
+        {
+          "title": "A Fine-Grained Hierarchy and Benchmark for State Tracking in Language Models",
+          "url": "http://arxiv.org/abs/2611.03094v1",
+          "source": "arxiv",
+          "relevance": 5.1
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 2 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Prueba de recuperación en documento de 128k tokens; medir latencia y precisión.",
+      "rollback": "Restaurar ctx_size=4096.",
+      "status": "planned",
+      "created_at": "2026-11-03T01:29:31-05:00"
+    },
+    {
+      "id": "savage-466fd31376f1",
+      "title": "Actualización de voz (ASR/TTS) local",
+      "target": "tardis",
+      "tag": "speech",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "speech_pipeline",
+      "evidence": [
+        {
+          "title": "SAGE (Subjectivity-Aware Generation Estimator): A Linguistic Framework for AI-Generated Review Detection *",
+          "url": "http://arxiv.org/abs/2611.03060v1",
+          "source": "arxiv",
+          "relevance": 6.1
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 1 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "WER en 20 audios y latencia de síntesis.",
+      "rollback": "Mantener el motor de voz actual.",
+      "status": "planned",
+      "created_at": "2026-11-03T01:29:31-05:00"
+    },
+    {
+      "id": "savage-4b3787d02701",
+      "title": "Optimización de inferencia (caché y decodificación)",
+      "target": "ftl",
+      "tag": "efficiency",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "inference_efficiency",
+      "evidence": [
+        {
+          "title": "DepthGraft: Structural Regularization through Hierarchical Cross-Layer KV Reconstruction",
+          "url": "http://arxiv.org/abs/2611.03142v1",
+          "source": "arxiv",
+          "relevance": 17.4
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 1 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Medir tokens/s y VRAM antes/después con el mismo prompt.",
+      "rollback": "Restaurar cache_type_k/v=f16.",
+      "status": "planned",
+      "created_at": "2026-11-03T01:29:31-05:00"
+    }
+  ],
   "offline": false
 }

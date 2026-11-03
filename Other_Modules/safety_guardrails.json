@@ -54,9 +54,27 @@
       "url": "http://arxiv.org/abs/2610.40577v1",
       "source": "arxiv",
       "relevance": 7.7
+    },
+    {
+      "title": "ComplianceAtlas: A Taxonomy-Driven Agentic AI Framework for Automated AI Act Gap Analysis and Remediation",
+      "url": "http://arxiv.org/abs/2611.03121v1",
+      "source": "arxiv",
+      "relevance": 11.4
+    },
+    {
+      "title": "Avatar Intelligence: Amplifying Human Agency Through Persistent Personal Agents",
+      "url": "http://arxiv.org/abs/2611.03092v1",
+      "source": "arxiv",
+      "relevance": 10.8
+    },
+    {
+      "title": "Multimodal Prompt Learning with Dual-Granularity Contrastive Alignment for Preoperative Prediction of Lung Adenocarcinoma Invasiveness Using 3D CT",
+      "url": "http://arxiv.org/abs/2611.03109v1",
+      "source": "arxiv",
+      "relevance": 10.3
     }
   ],
   "status": "planned",
   "created_at": "2026-10-29T00:13:36-05:00",
-  "updated_at": "2026-10-30T07:26:56-05:00"
+  "updated_at": "2026-11-03T01:29:31-05:00"
 }

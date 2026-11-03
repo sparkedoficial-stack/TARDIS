@@ -8,54 +8,6 @@
   "rollback": "Reactivar la política anterior en coding_router.json.",
   "evidence": [
     {
-      "title": "AI Cosmos: An Agentic Infra for Situated Learning",
-      "url": "http://arxiv.org/abs/2610.40031v1",
-      "source": "arxiv",
-      "relevance": 12.2
-    },
-    {
-      "title": "Hybrid AI Patterns: Thirteen Ways to Couple Language Models with Rules, and How to Choose Among Them",
-      "url": "http://arxiv.org/abs/2610.40036v1",
-      "source": "arxiv",
-      "relevance": 10.8
-    },
-    {
-      "title": "Learning Calibrated Confidence for Multi-Agent Collaboration",
-      "url": "http://arxiv.org/abs/2610.39927v1",
-      "source": "arxiv",
-      "relevance": 9.4
-    },
-    {
-      "title": "HEMO: Harness Self-Evolution for Multi-Objective Combinatorial Optimization",
-      "url": "http://arxiv.org/abs/2610.40023v1",
-      "source": "arxiv",
-      "relevance": 4.4
-    },
-    {
-      "title": "VeriCUA: Verification as Agentic Exploration for Computer-Using Agents",
-      "url": "http://arxiv.org/abs/2610.40578v1",
-      "source": "arxiv",
-      "relevance": 14.4
-    },
-    {
-      "title": "Gym-Anything for Robotics: Scaling physical simulations with digital agents",
-      "url": "http://arxiv.org/abs/2610.40565v1",
-      "source": "arxiv",
-      "relevance": 10.3
-    },
-    {
-      "title": "Machine Learning-Based Detection of Mobile Money Scan Messages in Ghana: A Comparative Evaluation of Naive Bayes, Support Vector Machine, and Randon Forest Classifiers",
-      "url": "http://arxiv.org/abs/2610.40544v1",
-      "source": "arxiv",
-      "relevance": 10.3
-    },
-    {
-      "title": "Pre-Crime for Agents, at the Last Second: Probing When a Recruited Agent Gives In",
-      "url": "http://arxiv.org/abs/2610.40588v1",
-      "source": "arxiv",
-      "relevance": 6.2
-    },
-    {
       "title": "From extreme weather to agricultural consequences with agentic AI",
       "url": "http://arxiv.org/abs/2610.40641v1",
       "source": "arxiv",
@@ -102,9 +54,57 @@
       "url": "http://arxiv.org/abs/2610.42100v1",
       "source": "arxiv",
       "relevance": 3.1
+    },
+    {
+      "title": "DR Pixel: Page-Native Deep Research with Vision-Language Models",
+      "url": "http://arxiv.org/abs/2611.03097v1",
+      "source": "arxiv",
+      "relevance": 21.9
+    },
+    {
+      "title": "From Local Skills to Long-Horizon Web Tasks: Progressive Skill Exploration for LLM Web Agents",
+      "url": "http://arxiv.org/abs/2611.03116v1",
+      "source": "arxiv",
+      "relevance": 18.7
+    },
+    {
+      "title": "Towards a Trustworthy and Governable Internet of Agentics: An Architectural Perspective on Protocols, Systems, and Services",
+      "url": "http://arxiv.org/abs/2611.03066v1",
+      "source": "arxiv",
+      "relevance": 13.6
+    },
+    {
+      "title": "ComplianceAtlas: A Taxonomy-Driven Agentic AI Framework for Automated AI Act Gap Analysis and Remediation",
+      "url": "http://arxiv.org/abs/2611.03121v1",
+      "source": "arxiv",
+      "relevance": 11.4
+    },
+    {
+      "title": "Avatar Intelligence: Amplifying Human Agency Through Persistent Personal Agents",
+      "url": "http://arxiv.org/abs/2611.03092v1",
+      "source": "arxiv",
+      "relevance": 10.8
+    },
+    {
+      "title": "LUCA: A Synthetic World for Experimental Reasoning",
+      "url": "http://arxiv.org/abs/2611.03100v1",
+      "source": "arxiv",
+      "relevance": 8.7
+    },
+    {
+      "title": "CUA-Master: Scaling Computer-use Agents through Open-World Recursive Improvements",
+      "url": "http://arxiv.org/abs/2611.03126v1",
+      "source": "arxiv",
+      "relevance": 6.6
+    },
+    {
+      "title": "Bayesian Sequential Optimal Experimental Design for Single-Pixel Imaging using Reinforcement Learning",
+      "url": "http://arxiv.org/abs/2611.03042v1",
+      "source": "arxiv",
+      "relevance": 3.7
     }
   ],
   "status": "planned",
   "created_at": "2026-10-29T00:13:36-05:00",
-  "updated_at": "2026-11-02T01:22:53-05:00"
+  "updated_at": "2026-11-03T01:29:31-05:00"
 }

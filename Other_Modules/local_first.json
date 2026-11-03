@@ -8,48 +8,6 @@
   "rollback": "Reactivar ruteo híbrido.",
   "evidence": [
     {
-      "title": "VeriCUA: Verification as Agentic Exploration for Computer-Using Agents",
-      "url": "http://arxiv.org/abs/2610.40578v1",
-      "source": "arxiv",
-      "relevance": 14.4
-    },
-    {
-      "title": "Machine Learning-Based Detection of Mobile Money Scan Messages in Ghana: A Comparative Evaluation of Naive Bayes, Support Vector Machine, and Randon Forest Classifiers",
-      "url": "http://arxiv.org/abs/2610.40544v1",
-      "source": "arxiv",
-      "relevance": 10.3
-    },
-    {
-      "title": "Read, Allocate, Route: Role-Coupled Tokenization for Pixel-Space Generative Transformers",
-      "url": "http://arxiv.org/abs/2610.40647v1",
-      "source": "arxiv",
-      "relevance": 6.7
-    },
-    {
-      "title": "Multistatic ISAC with Deep Learning-Based Clutter Suppression for 5G and Beyond",
-      "url": "http://arxiv.org/abs/2610.40586v1",
-      "source": "arxiv",
-      "relevance": 6.1
-    },
-    {
-      "title": "Difficulty Calibration Across Time for Membership Inference in Diffusion Models",
-      "url": "http://arxiv.org/abs/2610.40616v1",
-      "source": "arxiv",
-      "relevance": 5.2
-    },
-    {
-      "title": "On the Fundamental Limits of Prefill-Based Decoding Length Prediction",
-      "url": "http://arxiv.org/abs/2610.40541v1",
-      "source": "arxiv",
-      "relevance": 4.7
-    },
-    {
-      "title": "Propose-Filter-Release: Scaling Noise to Typical Sensitivity via Private Filtering",
-      "url": "http://arxiv.org/abs/2610.40654v1",
-      "source": "arxiv",
-      "relevance": 3.1
-    },
-    {
       "title": "LiquidAI/LFM3-VL-2B",
       "url": "https://huggingface.co/LiquidAI/LFM3-VL-2B",
       "source": "huggingface:trending",
@@ -102,9 +60,51 @@
       "url": "https://github.com/vllm-project/vllm/releases/tag/v0.33.0rc3",
       "source": "github:vllm-project/vllm",
       "relevance": 25.0
+    },
+    {
+      "title": "From Local Skills to Long-Horizon Web Tasks: Progressive Skill Exploration for LLM Web Agents",
+      "url": "http://arxiv.org/abs/2611.03116v1",
+      "source": "arxiv",
+      "relevance": 18.7
+    },
+    {
+      "title": "DepthGraft: Structural Regularization through Hierarchical Cross-Layer KV Reconstruction",
+      "url": "http://arxiv.org/abs/2611.03142v1",
+      "source": "arxiv",
+      "relevance": 17.4
+    },
+    {
+      "title": "Multimodal Prompt Learning with Dual-Granularity Contrastive Alignment for Preoperative Prediction of Lung Adenocarcinoma Invasiveness Using 3D CT",
+      "url": "http://arxiv.org/abs/2611.03109v1",
+      "source": "arxiv",
+      "relevance": 10.3
+    },
+    {
+      "title": "Diagonal Equivalence in State Space Models: Characterization, Retrieval Rank, and Selective Extensions",
+      "url": "http://arxiv.org/abs/2611.03101v1",
+      "source": "arxiv",
+      "relevance": 8.2
+    },
+    {
+      "title": "Visual-to-Executable Procedural Reconstruction of Buildings",
+      "url": "http://arxiv.org/abs/2611.03143v1",
+      "source": "arxiv",
+      "relevance": 5.2
+    },
+    {
+      "title": "Finding Errors Is Not Enough: Selective Model Escalation for Entity-Targeted Sentiment Analysis",
+      "url": "http://arxiv.org/abs/2611.02989v1",
+      "source": "arxiv",
+      "relevance": 4.6
+    },
+    {
+      "title": "Resilient Cell-Free MIMO ISAC Under Uncertainties: An Impairment-Aware Graph Neural Network Framework",
+      "url": "http://arxiv.org/abs/2611.03054v1",
+      "source": "arxiv",
+      "relevance": 3.2
     }
   ],
   "status": "planned",
   "created_at": "2026-10-29T00:13:36-05:00",
-  "updated_at": "2026-11-02T07:27:45-05:00"
+  "updated_at": "2026-11-03T01:29:31-05:00"
 }

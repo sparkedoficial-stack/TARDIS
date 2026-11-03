@@ -8,48 +8,6 @@
   "rollback": "Conservar el índice actual.",
   "evidence": [
     {
-      "title": "Learning Calibrated Confidence for Multi-Agent Collaboration",
-      "url": "http://arxiv.org/abs/2610.39927v1",
-      "source": "arxiv",
-      "relevance": 9.4
-    },
-    {
-      "title": "Cheap Retrieval and Observation Credit Assignment from One Quantity: The Value of Information",
-      "url": "http://arxiv.org/abs/2610.40030v1",
-      "source": "arxiv",
-      "relevance": 8.3
-    },
-    {
-      "title": "From the Transformer to a Formal Semantics of Coordinated Transformations",
-      "url": "http://arxiv.org/abs/2610.39735v1",
-      "source": "arxiv",
-      "relevance": 8.2
-    },
-    {
-      "title": "Data-driven Random-feature Approximation of Koopman Generators of Nonlinear Continuous-time Systems",
-      "url": "http://arxiv.org/abs/2610.39897v1",
-      "source": "arxiv",
-      "relevance": 4.1
-    },
-    {
-      "title": "Event-SAMA: Language-Grounded Video Object Segmentation on Neuromorphic Event Streams",
-      "url": "http://arxiv.org/abs/2610.39676v1",
-      "source": "arxiv",
-      "relevance": 3.2
-    },
-    {
-      "title": "Elucidating the Design Space of LM Data Attribution",
-      "url": "http://arxiv.org/abs/2610.40655v1",
-      "source": "arxiv",
-      "relevance": 14.7
-    },
-    {
-      "title": "Machine Learning-Based Detection of Mobile Money Scan Messages in Ghana: A Comparative Evaluation of Naive Bayes, Support Vector Machine, and Randon Forest Classifiers",
-      "url": "http://arxiv.org/abs/2610.40544v1",
-      "source": "arxiv",
-      "relevance": 10.3
-    },
-    {
       "title": "An ODE-based Sampler for Discrete Diffusion Models",
       "url": "http://arxiv.org/abs/2610.40618v1",
       "source": "arxiv",
@@ -102,9 +60,51 @@
       "url": "https://github.com/vllm-project/vllm/releases/tag/v0.33.0rc3",
       "source": "github:vllm-project/vllm",
       "relevance": 25.0
+    },
+    {
+      "title": "DR Pixel: Page-Native Deep Research with Vision-Language Models",
+      "url": "http://arxiv.org/abs/2611.03097v1",
+      "source": "arxiv",
+      "relevance": 21.9
+    },
+    {
+      "title": "DepthGraft: Structural Regularization through Hierarchical Cross-Layer KV Reconstruction",
+      "url": "http://arxiv.org/abs/2611.03142v1",
+      "source": "arxiv",
+      "relevance": 17.4
+    },
+    {
+      "title": "ComplianceAtlas: A Taxonomy-Driven Agentic AI Framework for Automated AI Act Gap Analysis and Remediation",
+      "url": "http://arxiv.org/abs/2611.03121v1",
+      "source": "arxiv",
+      "relevance": 11.4
+    },
+    {
+      "title": "Diagonal Equivalence in State Space Models: Characterization, Retrieval Rank, and Selective Extensions",
+      "url": "http://arxiv.org/abs/2611.03101v1",
+      "source": "arxiv",
+      "relevance": 8.2
+    },
+    {
+      "title": "PACERec: Progressive Adaptation of LLM Item Embeddings with Collaborative Evidence for Recommendation",
+      "url": "http://arxiv.org/abs/2611.03068v1",
+      "source": "arxiv",
+      "relevance": 4.9
+    },
+    {
+      "title": "An Experimental Study of Hybrid Retrieval, NLI and Open-source LLMs for Scientific Claim Verification",
+      "url": "http://arxiv.org/abs/2611.03093v1",
+      "source": "arxiv",
+      "relevance": 4.1
+    },
+    {
+      "title": "FlowBatt: Flow Matching for Probabilistic Battery Degradation Prediction",
+      "url": "http://arxiv.org/abs/2611.03150v1",
+      "source": "arxiv",
+      "relevance": 3.6
     }
   ],
   "status": "planned",
   "created_at": "2026-10-29T00:13:36-05:00",
-  "updated_at": "2026-11-02T07:27:45-05:00"
+  "updated_at": "2026-11-03T01:29:31-05:00"
 }
