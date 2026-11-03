@@ -1,23 +1,5 @@
 [
   {
-    "id": "conj_1793473424",
-    "timestamp": "2026-10-31T14:03:44.467582",
-    "idle_duration_minutes": 31.6,
-    "title": "Resonancia Causal en la Bóveda Akáshica: Entropía Semántica vs. Latencia de Recuperación",
-    "hypothesis": "Se postula que existe una correlación inversa no lineal entre la 'entropía semántica' (medida por la dispersión de vectores en la bóveda) y la precisión de la recuperación causal en GODWORKS SYSTEM. Actualmente, el motor de investigación web opera de forma aislada respecto a la memoria profunda. La conjetura sugiere que si se implementa un mecanismo de 'pre-filtrado causal' donde la red neuronal de la bóveda akáshica predice la relevancia de las fuentes web antes de su ingesta completa, se reducirá la latencia de procesamiento en un 40% y aumentará la coherencia del output final, minimizando el ruido de datos no estructurados.",
-    "research_query": "semantic entropy optimization in vector databases for real-time web research pipelines",
-    "research_findings": "# Informe de Investigación: semantic entropy optimization in vector databases for real-time web research pipelines\n\n## Fuentes Consultadas y Respaldo Web\n- **[How to Build an Over-Engineered Retrieval System - Towards Data Science](https://news.google.com/rss/articles/CBMihgFBVV95cUxNdm5iZjZ5RWprV2dRczNDU3UtNURSeHRIRjE2OU5MZUVjRVJGcFBJMkVUMm5pX0daWjBEQm9zYUdkemI1NEFWTU8wcEhYVFl3dDV3ZlhLREhnVU1xUWVacDc5NmxxTnVBTEFqWDVMbGFjZjk5S0VIWTM0clNWekFUdnY1VVFWdw?oc=5)**: How to Build an Over-Engineered Retrieval System  Towards Data Science\n- **[Outline of machine learning (Wikipedia)](https://en.wikipedia.org/wiki/Outline_of_machine_learning)**: Meeting on Computational Intelligence Methods for Bioinformatics and Biostatistics International Semantic Web Conference Iris flower data set Island algorithm\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMihgFBVV95cUxNdm5iZjZ5RWprV2dRczNDU3UtNURSeHRIRjE2OU5MZUVjRVJGcFBJMkVUMm5pX0daWjBEQm9zYUdkemI1NEF",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMihgFBVV95cUxNdm5iZjZ5RWprV2dRczNDU3UtNURSeHRIRjE2OU5MZUVjRVJGcFBJMkVUMm5pX0daWjBEQm9zYUdkemI1NEFWTU8wcEhYVFl3dDV3ZlhLREhnVU1xUWVacDc5NmxxTnVBTEFqWDVMbGFjZjk5S0VIWTM0clNWekFUdnY1VVFWdw?oc=5",
-      "https://en.wikipedia.org/wiki/Outline_of_machine_learning"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Integrar un hook de pre-filtrado que consulte core/deep_memory_vault.py para calcular un score de relevancia causal antes de ejecutar el scraping o la API de búsqueda, descartando fuentes con baja afinidad semántica.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.68
-  },
-  {
     "id": "conj_1793475384",
     "timestamp": "2026-10-31T14:36:24.728768",
     "idle_duration_minutes": 32.7,
@@ -1658,5 +1640,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.63
+  },
+  {
+    "id": "conj_1793673281",
+    "timestamp": "2026-11-02T21:34:41.600171",
+    "idle_duration_minutes": 38.9,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching mechanism can dynamically invalidate stale results based on detected changes in source domains, reducing latency and improving answer relevance without increasing network load. The hypothesis posits that by tracking provenance metadata (timestamps, ETag, Last-Modified) and applying a lightweight Bayesian change‑point model, the engine can predict when a cached snippet is likely outdated and proactively refresh it, rather than relying on fixed TTLs or manual invalidation.",
+    "research_query": "\"causal inference\" cache invalidation web scraping Bayesian change point model",
+    "research_findings": "# Informe de Investigación: \"causal inference\" cache invalidation web scraping Bayesian change point model\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a provenance metadata store and a Bayesian change‑point predictor that triggers asynchronous cache refreshes for high‑risk URLs, plus unit tests for the new invalidation logic.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 100.1
   }
 ]
