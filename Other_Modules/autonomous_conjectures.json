@@ -1,23 +1,5 @@
 [
   {
-    "id": "conj_1793492791",
-    "timestamp": "2026-10-31T19:26:31.152027",
-    "idle_duration_minutes": 31.7,
-    "title": "Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "Integrating a causal inference layer into the web_research_engine's caching mechanism can dynamically predict the obsolescence of stored search results based on observed changes in source domains (e.g., content updates, SEO shifts). By modeling the probability that a cached entry has become stale as a function of time, domain change frequency, and query semantics, the engine can proactively invalidate or refresh entries, reducing latency while maintaining a >95% freshness rate without increasing external request volume.",
-    "research_query": "causal inference based cache invalidation web search engine freshness prediction recent papers 2023 2024",
-    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web search engine freshness prediction recent papers 2023 2024\n\n## Fuentes Consultadas y Respaldo Web\n- **[Causal inference via algebraic geometry: feasibility tests for functional causal structures with two binary observed variables (arXiv)](http://arxiv.org/abs/1506.03880v2)**: We provide a scheme for inferring causal relations from uncontrolled statistical data based on tools from computational algebraic geometry, in particular, the computation of Groebner bases. We focus on causal structures containing just two observed variables, each of which is binary. We consider the consequences of imposing different restrictions o\n- **[The Case of Transparent Cache Invalidation in Web Applications (arXiv)](http://arxiv.org/abs/2311.02384v1)**: Application-level caches are widely adopted by web applications to minimize the response time of user requests as well as to reduce the burden on the system backend, such as the datab",
-    "web_sources": [
-      "http://arxiv.org/abs/1506.03880v2",
-      "http://arxiv.org/abs/2311.02384v1"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a CausalCacheManager class that tracks metadata (timestamp, source domain change score) for each cached result and uses a lightweight Bayesian network to decide when to evict or refresh entries automatically.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 100.71
-  },
-  {
     "id": "conj_1793494690",
     "timestamp": "2026-10-31T19:58:10.134094",
     "idle_duration_minutes": 31.6,
@@ -1657,5 +1639,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 224.72
+  },
+  {
+    "id": "conj_1793692612",
+    "timestamp": "2026-11-03T02:56:52.343436",
+    "idle_duration_minutes": 32.3,
+    "title": "Causal‑Cache Hybrid for Web Research Engine",
+    "hypothesis": "Integrar un caché de resultados basado en inferencia causal dentro del módulo core/web_research_engine.py reducirá el tiempo medio de respuesta en un 30% y mejorará la coherencia de las respuestas al evitar consultas redundantes a fuentes externas, al mismo tiempo que permite al motor aprender relaciones de causa‑efecto entre consultas y resultados para priorizar búsquedas futuras.",
+    "research_query": "\"causal caching\" web search engine performance improvement\" OR \"causal inference cache\" API request deduplication",
+    "research_findings": "# Informe de Investigación: \"causal caching\" web search engine performance improvement\" OR \"causal inference cache\" API request deduplication\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Implementar una capa de caché que almacene respuestas junto con metadatos de causalidad (p. ej., etiquetas de intención y relaciones causa‑efecto) y que, antes de lanzar una nueva búsqueda, evalúe si una entrada existente satisface la intención mediante un modelo ligero de inferencia causal; además, añadir soporte async para consultas paralelas y expiración inteligente del caché.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 104.86
   }
 ]
