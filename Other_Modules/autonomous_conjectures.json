@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1793485194",
-    "timestamp": "2026-10-31T17:19:54.438427",
-    "idle_duration_minutes": 32.3,
-    "title": "Causal Retrieval Augmentation for Web Research Engine",
-    "hypothesis": "Integrating a lightweight causal inference layer into core/web_research_engine.py, which models the dependency between query terms and retrieved document relevance, will improve the precision of search results by up to 15% without significant latency overhead. The hypothesis posits that by tracking causal graphs of term co‑occurrence and outcome (click‑through or relevance feedback) the engine can prioritize sources that are not only lexically similar but also causally linked to the user's intent, reducing hallucinations in downstream reasoning modules.",
-    "research_query": "causal inference for information retrieval relevance ranking \"causal graph\" query term importance",
-    "research_findings": "# Informe de Investigación: causal inference for information retrieval relevance ranking \"causal graph\" query term importance\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a modular CausalRetriever class that builds a simple directed acyclic graph of term → document relevance using past feedback, and expose a hook in the existing fetch_and_rank pipeline to re‑score results based on causal edge weights.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 107.88
-  },
-  {
     "id": "conj_1793487092",
     "timestamp": "2026-10-31T17:51:32.667144",
     "idle_duration_minutes": 31.6,
@@ -1652,5 +1637,23 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 98.61
+  },
+  {
+    "id": "conj_1793684729",
+    "timestamp": "2026-11-03T00:45:29.210624",
+    "idle_duration_minutes": 31.6,
+    "title": "Resonancia Causal en la Bóveda Akáshica",
+    "hypothesis": "La eficiencia de recuperación de información en la bóveda akáshica puede optimizarse significativamente si se implementa un mecanismo de 'resonancia causal' que priorice no solo la similitud semántica, sino la correlación temporal y de causa-efecto entre los nodos de memoria. Actualmente, la búsqueda se basa en vectores estáticos; al incorporar un peso dinámico basado en la recencia de uso y la frecuencia de co-ocurrencia causal (no solo semántica), el sistema podría reducir la latencia de inferencia y mejorar la precisión en contextos de investigación web profunda, donde la relevancia depende de la evolución del tema en el tiempo.",
+    "research_query": "temporal causal graph neural networks for semantic memory retrieval optimization",
+    "research_findings": "# Informe de Investigación: temporal causal graph neural networks for semantic memory retrieval optimization\n\n## Fuentes Consultadas y Respaldo Web\n- **[Hierarchical semantic extraction and heterogeneous graph neural networks for event-driven time series forecasting - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE1iekdlTVNQY2gwNkhIOGxOSTJKYTE5aUR6Um9uSVpuNlh4VU55WVM1SHRyTGhDVmZzakZ5UHdIaVpkblpudmZpbUc2NEVVU0YtRkFGMzg4QWNTYWQtQW5R?oc=5)**: Hierarchical semantic extraction and heterogeneous graph neural networks for event-driven time series forecasting  Nature\n- **[Vol. 40 No. 29: AAAI-26 Technical Tracks 29 - The Association for the Advancement of Artificial Intelligence](https://news.google.com/rss/articles/CBMiX0FVX3lxTE1rckl1RXE4RjFraHZzbnJVZndyVU5lenB2YXY2S3ZLdHR6bUpuQjNldGtiSXRnR0dLLWoyRjBHZDR6UWJlNTBXaTBJMDlFNmxGaGI4eUJCSFlMRkl3clB3?oc=5)**: Vol. 40 No. 29: AAAI-26 Technical Tracks 29  The Association for the Advancement of Artificial Intelligence\n\n## Contenido y Hall",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE1iekdlTVNQY2gwNkhIOGxOSTJKYTE5aUR6Um9uSVpuNlh4VU55WVM1SHRyTGhDVmZzakZ5UHdIaVpkblpudmZpbUc2NEVVU0YtRkFGMzg4QWNTYWQtQW5R?oc=5",
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE1rckl1RXE4RjFraHZzbnJVZndyVU5lenB2YXY2S3ZLdHR6bUpuQjNldGtiSXRnR0dLLWoyRjBHZDR6UWJlNTBXaTBJMDlFNmxGaGI4eUJCSFlMRkl3clB3?oc=5"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar una función de puntuación híbrida en el motor de búsqueda de la bóveda que combine similitud coseno con un factor de decaimiento temporal exponencial y un peso de co-ocurrencia causal, ajustando dinámicamente los umbrales de relevancia según la recencia de los datos.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 95.65
   }
 ]
