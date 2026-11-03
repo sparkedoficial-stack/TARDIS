@@ -1,41 +1,5 @@
 [
   {
-    "id": "conj_1793511973",
-    "timestamp": "2026-11-01T00:46:13.796614",
-    "idle_duration_minutes": 31.6,
-    "title": "Resonancia Causal en la Bóveda Akáshica: Optimización de la Entropía Semántica",
-    "hypothesis": "Se postula que la eficiencia de recuperación de información en la bóveda akáshica no depende linealmente del volumen de datos, sino de la 'densidad causal' entre nodos de memoria. Actualmente, el sistema podría estar sufriendo de 'ruido semántico' acumulado debido a la falta de interacción humana, lo que degrada la precisión de las inferencias. La hipótesis sugiere que implementar un mecanismo de 'pruning' (poda) basado en la relevancia causal histórica, en lugar de la recencia temporal, aumentaría la señal a ruido en las consultas de investigación web, permitiendo que el motor de investigación genere hipótesis más afiladas y menos genéricas.",
-    "research_query": "semantic entropy reduction in long-term memory systems for AI agents causal pruning strategy",
-    "research_findings": "# Informe de Investigación: semantic entropy reduction in long-term memory systems for AI agents causal pruning strategy\n\n## Fuentes Consultadas y Respaldo Web\n- **[Outline of machine learning (Wikipedia)](https://en.wikipedia.org/wiki/Outline_of_machine_learning)**: majority algorithm Reinforcement learning Repeated incremental pruning to produce error reduction (RIPPER) Rprop Rule-based machine learning Self-organizing\n- **[Deep learning (Wikipedia)](https://en.wikipedia.org/wiki/Deep_learning)**: in which data can flow in any direction, are used for applications such as language modeling. Long short-term memory is particularly effective for this\n\n## Contenido y Hallazgos Extraídos\n### De [Outline of machine learning - Wikipedia](https://en.wikipedia.org/wiki/Outline_of_machine_learning)\n> Outline of machine learning - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nOverview of and topical guide to machine learning\nThis article contains dynamic lists that may never be",
-    "web_sources": [
-      "https://en.wikipedia.org/wiki/Outline_of_machine_learning",
-      "https://en.wikipedia.org/wiki/Deep_learning"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar una función `prune_low_causal_nodes()` que evalúe la frecuencia de co-ocurrencia causal entre entradas de memoria y elimine o archive aquellas con baja relevancia estructural, priorizando la integridad de las cadenas causales sobre la retención bruta de datos.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.99
-  },
-  {
-    "id": "conj_1793513871",
-    "timestamp": "2026-11-01T01:17:51.648158",
-    "idle_duration_minutes": 31.6,
-    "title": "Integración causal de la Bóveda Akáshica con el motor de búsqueda web para aprendizaje continuo",
-    "hypothesis": "Si el módulo core/deep_memory_vault.py se extiende con un motor de inferencia causal que etiquete cada entrada de la bóveda con metadatos de origen, relevancia temporal y relaciones de dependencia, y esos metadatos se exponen a core/web_research_engine.py mediante una API ligera, entonces el motor de búsqueda podrá priorizar resultados que complementen o corrijan lagunas causales en la memoria del sistema, mejorando la precisión de las respuestas en un 15‑20% y reduciendo la necesidad de consultas redundantes al exterior.",
-    "research_query": "causal inference memory graph integration with web search engines academic papers 2023-2024",
-    "research_findings": "# Informe de Investigación: causal inference memory graph integration with web search engines academic papers 2023-2024\n\n## Fuentes Consultadas y Respaldo Web\n- **[Causal inference via algebraic geometry: feasibility tests for functional causal structures with two binary observed variables (arXiv)](http://arxiv.org/abs/1506.03880v2)**: We provide a scheme for inferring causal relations from uncontrolled statistical data based on tools from computational algebraic geometry, in particular, the computation of Groebner bases. We focus on causal structures containing just two observed variables, each of which is binary. We consider the consequences of imposing different restrictions o\n- **[The Retrieval Effectiveness of Web Search Engines: Considering Results Descriptions (arXiv)](http://arxiv.org/abs/1511.05800v1)**: Purpose: To compare five major Web search engines (Google, Yahoo, MSN, Ask.com, and Seekport) for their retrieval effectiveness, taking into account not only the results but a",
-    "web_sources": [
-      "http://arxiv.org/abs/1506.03880v2",
-      "http://arxiv.org/abs/1511.05800v1"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Añadir una capa de adaptador que consuma metadatos de causalidad desde deep_memory_vault y ajuste dinámicamente el ranking de resultados usando un algoritmo de puntuación basado en dependencia temporal y relevancia semántica.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.83
-  },
-  {
     "id": "conj_1793515833",
     "timestamp": "2026-11-01T01:50:33.052856",
     "idle_duration_minutes": 32.7,
@@ -1660,5 +1624,38 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 98.49
+  },
+  {
+    "id": "conj_1793711780",
+    "timestamp": "2026-11-03T08:16:20.996664",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer into the web_research_engine's caching mechanism can dynamically predict the obsolescence of cached results based on external signals (e.g., source domain update frequency, semantic drift of query terms, and network latency patterns). By modeling these signals with a lightweight Bayesian network, the engine can proactively invalidate or refresh cache entries before they become stale, improving result relevance while reducing redundant network traffic.",
+    "research_query": "\"causal cache invalidation\" web scraping cache freshness Bayesian network",
+    "research_findings": "# Informe de Investigación: \"causal cache invalidation\" web scraping cache freshness Bayesian network\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal inference module that monitors source update metrics and query semantics to decide when to purge or refresh cached search results, implementing an LRU+probabilistic invalidation strategy.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.68
+  },
+  {
+    "id": "conj_1793713832",
+    "timestamp": "2026-11-03T08:50:32.996259",
+    "idle_duration_minutes": 34.2,
+    "title": "Dynamic Causal Graph for Query Intent Prediction",
+    "hypothesis": "Integrating a lightweight dynamic Bayesian network into the web research engine will allow the system to model causal relationships between query tokens, context, and retrieved documents. This causal reasoning can disambiguate ambiguous queries, prioritize documents that satisfy inferred causal chains, and reduce noise in the search results, ultimately improving precision and recall without significant computational overhead.",
+    "research_query": "dynamic Bayesian network for causal inference in information retrieval",
+    "research_findings": "# Informe de Investigación: dynamic Bayesian network for causal inference in information retrieval\n\n## Fuentes Consultadas y Respaldo Web\n- **[Bayesian networks in neuroscience: a survey - Frontiers](https://news.google.com/rss/articles/CBMipAFBVV95cUxNaW5qUThpM3JlWjVTRWpPNlEzdG53eEJaQlJ1WVEzakdxQnhRSVRHZ0tjYTNNQWJ2TUI3MzlXamdPSGFPUGVFVGZXZkF6QUlkQUFxVVo2a1JLVXdoRlFrV3JqUWpwbUFTRmhaRzdCd2VMTkhSQzlHZVd4Ukk3OVlWQW14aDFJY21TdERpcmQ5NmE0QWw0OEtMNUpQR3FSMU5UTFVmdw?oc=5)**: Bayesian networks in neuroscience: a survey  Frontiers\n- **[Time‐varying dynamic Bayesian network learning for an fMRI study of emotion processing - Wiley Online Library](https://news.google.com/rss/articles/CBMiakFVX3lxTE1VcFdzMDhmUVNHLXEteE9xeHgydGxBT0RaTFAtWmtTRGpfTTJiWlBOeXNwa3VwM29VQmpTY0ZSZVRPaS1laXFDUEtmcXZwS3E0TFZ1bFZuOU5Tc2R0bzlQMzY3UmRqU3lTUnc?oc=5)**: Time‐varying dynamic Bayesian network learning for an fMRI study of emotion processing  Wiley Online Library\n\n## Contenido y Hallazgos Extraídos\n### De [Google No",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMipAFBVV95cUxNaW5qUThpM3JlWjVTRWpPNlEzdG53eEJaQlJ1WVEzakdxQnhRSVRHZ0tjYTNNQWJ2TUI3MzlXamdPSGFPUGVFVGZXZkF6QUlkQUFxVVo2a1JLVXdoRlFrV3JqUWpwbUFTRmhaRzdCd2VMTkhSQzlHZVd4Ukk3OVlWQW14aDFJY21TdERpcmQ5NmE0QWw0OEtMNUpQR3FSMU5UTFVmdw?oc=5",
+      "https://news.google.com/rss/articles/CBMiakFVX3lxTE1VcFdzMDhmUVNHLXEteE9xeHgydGxBT0RaTFAtWmtTRGpfTTJiWlBOeXNwa3VwM29VQmpTY0ZSZVRPaS1laXFDUEtmcXZwS3E0TFZ1bFZuOU5Tc2R0bzlQMzY3UmRqU3lTUnc?oc=5"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a CausalGraph class that builds a Bayesian network from query embeddings and document metadata, and use it to re-rank search results before returning them.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.76
   }
 ]
