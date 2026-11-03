@@ -1,12 +1,12 @@
 {
   "schema": "tardis.savage_update/1.0",
-  "generated_at": "2026-11-02T13:36:39-05:00",
+  "generated_at": "2026-11-02T19:28:05-05:00",
   "cycle": {
     "items_collected": 59,
-    "items_fresh": 0,
+    "items_fresh": 1,
     "proposals": 0,
     "experiment_plans": 0,
-    "elapsed_s": 5.74
+    "elapsed_s": 7.32
   },
   "sources": {
     "offline": false,
@@ -14,22 +14,22 @@
       "github": {
         "ok": true,
         "count": 6,
-        "elapsed_ms": 2437.2
+        "elapsed_ms": 3022.8
       },
       "huggingface": {
         "ok": true,
         "count": 20,
-        "elapsed_ms": 462.3
+        "elapsed_ms": 865.6
       },
       "arxiv": {
         "ok": true,
         "count": 36,
-        "elapsed_ms": 897.2
+        "elapsed_ms": 902.4
       },
       "npm": {
         "ok": true,
         "count": 1,
-        "elapsed_ms": 413.6
+        "elapsed_ms": 383.1
       }
     }
   },
@@ -39,7 +39,20 @@
     "report_artifacts": 7,
     "proposals": 11
   },
-  "top_items": [],
+  "top_items": [
+    {
+      "id": "39afc104f6f00c8c",
+      "source": "huggingface:trending",
+      "category": "model",
+      "title": "FusionCow/Sulphur-3",
+      "url": "https://huggingface.co/FusionCow/Sulphur-3",
+      "published_at": "2026-11-02T05:09:09.000Z",
+      "summary": "pipeline= downloads=195 likes=252",
+      "tags": [],
+      "relevance": 0.0,
+      "targets": []
+    }
+  ],
   "proposals": [],
   "offline": false
 }
