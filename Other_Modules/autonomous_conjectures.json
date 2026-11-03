@@ -1,35 +1,5 @@
 [
   {
-    "id": "conj_1793500517",
-    "timestamp": "2026-10-31T21:35:17.823909",
-    "idle_duration_minutes": 32.2,
-    "title": "Dynamic Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "If the Web Research Engine maintains a lightweight causal graph that records dependencies between issued queries, fetched URLs, and extracted semantic entities, then it can proactively invalidate or refresh cached results when upstream data sources change. This causal‑aware caching would reduce stale‑data exposure and improve average query latency compared to a time‑based TTL approach, especially under high‑frequency, overlapping research sessions.",
-    "research_query": "causal inference based cache invalidation web search engine performance",
-    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web search engine performance\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal dependency tracker and integrate it with the existing cache layer to enable proactive invalidation of cached search results when related source data updates are detected.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.64
-  },
-  {
-    "id": "conj_1793502415",
-    "timestamp": "2026-10-31T22:06:55.161899",
-    "idle_duration_minutes": 31.6,
-    "title": "Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching mechanism can dynamically predict the relevance decay of stored search results based on observed changes in source domains, user query patterns, and temporal factors, thereby reducing stale data retrieval and improving response accuracy without a full cache purge.",
-    "research_query": "causal inference based cache invalidation techniques for web search engines temporal relevance decay",
-    "research_findings": "# Informe de Investigación: causal inference based cache invalidation techniques for web search engines temporal relevance decay\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal inference module that tracks source change signals (e.g., HTTP ETag/Last-Modified, RSS updates) and query drift metrics to compute a decay score for each cached entry, automatically evicting or re‑fetching results when the score exceeds a threshold.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.32
-  },
-  {
     "id": "conj_1793504344",
     "timestamp": "2026-10-31T22:39:04.320232",
     "idle_duration_minutes": 32.2,
@@ -1654,5 +1624,38 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.33
+  },
+  {
+    "id": "conj_1793700236",
+    "timestamp": "2026-11-03T05:03:56.348213",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal Prompt Routing for Adaptive Web Research",
+    "hypothesis": "If the Web Research Engine dynamically routes queries through a causal inference layer that predicts the most informative knowledge source based on the current state of the Deep Memory Vault, then the relevance and precision of retrieved information will improve by at least 15% compared to the current static routing approach. This hypothesis leverages the idea that the vault's temporal embeddings can act as a causal context, allowing the engine to prioritize sources that historically contributed to successful completions in similar semantic neighborhoods.",
+    "research_query": "causal inference based query routing in web search engines improvement metrics",
+    "research_findings": "# Informe de Investigación: causal inference based query routing in web search engines improvement metrics\n\n## Fuentes Consultadas y Respaldo Web\n- **[Mosaic effect (Wikipedia)](https://en.wikipedia.org/wiki/Mosaic_effect)**: of Roe v Wade in the United States, medical and behavioral records—such as period-tracking data, private messages, and search queries—have become prosecutorial\n- **[2023 in science (Wikipedia)](https://en.wikipedia.org/wiki/2023_in_science)**: typical use of popular Web search engines interprets its results to show that choices for unreliable news sources for their queries are driven primarily\n\n## Contenido y Hallazgos Extraídos\n### De [Mosaic effect - Wikipedia](https://en.wikipedia.org/wiki/Mosaic_effect)\n> Mosaic effect - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nDeduction of secret data from public sources\nThe examples and perspectives in this article may not represent a worldwide view of the subject . You may improve this article , discu",
+    "web_sources": [
+      "https://en.wikipedia.org/wiki/Mosaic_effect",
+      "https://en.wikipedia.org/wiki/2023_in_science"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Implement a lightweight causal routing module that scores candidate search APIs (e.g., DuckDuckGo, Bing, internal cache) using the Deep Memory Vault's context vectors, then selects the top‑scoring source before executing the request.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.52
+  },
+  {
+    "id": "conj_1793702164",
+    "timestamp": "2026-11-03T05:36:04.088747",
+    "idle_duration_minutes": 32.1,
+    "title": "Causal‑Feedback Loop for Adaptive Web Research",
+    "hypothesis": "Integrar un bucle de retroalimentación causal entre el motor de búsqueda web (core/web_research_engine.py) y la bóveda akáshica (core/deep_memory_vault.py) permitirá que el sistema ajuste dinámicamente sus estrategias de consulta basándose en la relevancia y la novedad de los resultados obtenidos, mejorando la precisión de la información recuperada en un 30% y reduciendo la latencia de búsqueda en entornos de alta carga.",
+    "research_query": "causal feedback loop adaptive web search engine architecture \"knowledge vault\" \"dynamic query optimization\"",
+    "research_findings": "# Informe de Investigación: causal feedback loop adaptive web search engine architecture \"knowledge vault\" \"dynamic query optimization\"\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Implementar un módulo de evaluación de relevancia que registre métricas de éxito (p.ej., puntuación de similitud semántica) y, mediante un modelo causal ligero (por ejemplo, una red bayesiana simple), ajuste los parámetros de generación de consultas y el peso de los filtros de búsqueda en tiempo real.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.49
   }
 ]
