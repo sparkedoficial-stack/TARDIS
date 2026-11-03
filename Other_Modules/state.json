@@ -6,7 +6,7 @@
   "last_video_id": "vp_20261103_015728_2e3fd2",
   "last_topic": "Quantum Simulation of the Sachdev-Ye-Kitaev Model and its Holographic Dual",
   "total_videos_analyzed": 881,
-  "running_cycle": false,
+  "running_cycle": true,
   "last_error": null,
   "auto_improvement_count": 419
 }
