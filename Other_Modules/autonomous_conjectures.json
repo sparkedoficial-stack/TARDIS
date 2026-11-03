@@ -1,41 +1,5 @@
 [
   {
-    "id": "conj_1793529217",
-    "timestamp": "2026-11-01T05:33:37.778031",
-    "idle_duration_minutes": 31.6,
-    "title": "Resonancia Causal en la Bóveda Akáshica: Predicción de Fallos de Red mediante Telemetría de Memoria",
-    "hypothesis": "Se postula que existe una correlación no lineal entre los patrones de acceso a la 'Deep Memory Vault' (frecuencia de lecturas de contexto histórico) y los micro-cortes o latencias detectadas por el 'Network Shield'. Al analizar la telemetría de la bóveda, el sistema puede anticipar inestabilidades de red antes de que el shield las bloquee o registre, permitiendo una pre-carga de caché predictiva. Esto transforma la memoria de un repositorio pasivo a un sensor activo de salud del sistema.",
-    "research_query": "predictive network failure detection using memory access patterns and causal inference in distributed systems",
-    "research_findings": "# Informe de Investigación: predictive network failure detection using memory access patterns and causal inference in distributed systems\n\n## Fuentes Consultadas y Respaldo Web\n- **[Digital twin-based intelligent risk assessment and decision support system for university student entrepreneurial projects - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE1vSTZnSXNHRjNPb2hpWVFLQXlyUllLelhzWWluTHNsRW1ORnVVX2VIakxiZlcwTktXTG5wQU03NkVseko1ZVBWaFY2cVJzY0RMNl8xckRJQXJ6UEF5NjRN?oc=5)**: Digital twin-based intelligent risk assessment and decision support system for university student entrepreneurial projects  Nature\n- **[AI-augmented reliability in CI/CD: a framework for predictive, adaptive, and self-correcting pipelines - Frontiers](https://news.google.com/rss/articles/CBMiogFBVV95cUxOeXRXM2NpbmQ2dGF0YjNRODVhUEFWVkFqZlpCNHQtV3dqZm5xOUo4LUwtY3pfU0ptS3F0Y2lKT3Z4TDRCLUs4NThfck5qYUM1el9DQl9ram40TGphSkVBWjg5Wmx5dVVtc1JFcjhkVTZBUEFORmpaeFZvTzduTVgyWGtDYXljaW1xbGpSYkxYbGZoY2dJeHBwRzRzREd0b",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE1vSTZnSXNHRjNPb2hpWVFLQXlyUllLelhzWWluTHNsRW1ORnVVX2VIakxiZlcwTktXTG5wQU03NkVseko1ZVBWaFY2cVJzY0RMNl8xckRJQXJ6UEF5NjRN?oc=5",
-      "https://news.google.com/rss/articles/CBMiogFBVV95cUxOeXRXM2NpbmQ2dGF0YjNRODVhUEFWVkFqZlpCNHQtV3dqZm5xOUo4LUwtY3pfU0ptS3F0Y2lKT3Z4TDRCLUs4NThfck5qYUM1el9DQl9ram40TGphSkVBWjg5Wmx5dVVtc1JFcjhkVTZBUEFORmpaeFZvTzduTVgyWGtDYXljaW1xbGpSYkxYbGZoY2dJeHBwRzRzREd0bE43dGc?oc=5"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar un hook de telemetría en la clase de acceso a la bóveda que registre timestamps de lectura y los correlacione con el estado del network_shield, generando una señal de alerta temprana si la varianza de acceso supera un umbral dinámico.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 95.47
-  },
-  {
-    "id": "conj_1793531113",
-    "timestamp": "2026-11-01T06:05:13.488275",
-    "idle_duration_minutes": 31.6,
-    "title": "Resonancia Causal en la Bóveda Akáshica: Entropía Temporal y Compresión Semántica",
-    "hypothesis": "Se postula que la eficiencia de recuperación de la 'Bóveda Akáshica' (deep_memory_vault.py) no depende linealmente del volumen de datos, sino de la 'densidad causal' entre nodos de memoria. Actualmente, el sistema probablemente almacena eventos como secuencias temporales estáticas. La conjetura sugiere que si implementamos un mecanismo de 'envejecimiento semántico' donde los nodos de memoria pierden peso de acceso no por tiempo absoluto, sino por la falta de correlación causal con eventos recientes (medida mediante la telemetría de network_shield.py), podemos reducir la latencia de búsqueda en un 40% manteniendo la integridad del contexto. Esto implica tratar la memoria no como un archivo, sino como un grafo dinámico donde las aristas se debilitan si no hay validación causal cruzada.",
-    "research_query": "dynamic knowledge graph edge decay based on causal correlation vs temporal decay machine learning",
-    "research_findings": "# Informe de Investigación: dynamic knowledge graph edge decay based on causal correlation vs temporal decay machine learning\n\n## Fuentes Consultadas y Respaldo Web\n- **[Personalized learning path recommendation for middle school students based on joint optimization of deep reinforcement learning and knowledge tracing - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE5aQ0V3OHk4SUo2cFFDc0VMNGFoUlBPdTl4N0lGQmxVTFlqYWtOVlYwN1pIZURDcmNaUjFiZnBkb2FrRlpHNFhBUE56elhtNjJTN2tUTDhWbkhFN21qVXo4?oc=5)**: Personalized learning path recommendation for middle school students based on joint optimization of deep reinforcement learning and knowledge tracing  Nature\n- **[A causal discovery-based adaptive fusion algorithm for multi-source heterogeneous knowledge graphs - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE8tQkU3N2N2SUlGcmUyeklIVU5GeWlidTZGcTBvU3hNZTBQSGxUUERfbVEydXpwZ2VoQlhrS09WelBTNmdzUWhoSG8zTzVGVGk0Rm85V3VYN3U2Q2RQRnNZ?oc=5)**: A causal discovery-based adaptive fusion",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE5aQ0V3OHk4SUo2cFFDc0VMNGFoUlBPdTl4N0lGQmxVTFlqYWtOVlYwN1pIZURDcmNaUjFiZnBkb2FrRlpHNFhBUE56elhtNjJTN2tUTDhWbkhFN21qVXo4?oc=5",
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE8tQkU3N2N2SUlGcmUyeklIVU5GeWlidTZGcTBvU3hNZTBQSGxUUERfbVEydXpwZ2VoQlhrS09WelBTNmdzUWhoSG8zTzVGVGk0Rm85V3VYN3U2Q2RQRnNZ?oc=5"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar una función `calculate_causal_decay_factor()` que ajuste el score de relevancia de los nodos de memoria en tiempo real, utilizando métricas de correlación de eventos de red recientes en lugar de solo timestamps, para optimizar la indexación y la recuperación de contexto.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 95.69
-  },
-  {
     "id": "conj_1793533011",
     "timestamp": "2026-11-01T06:36:51.170887",
     "idle_duration_minutes": 31.6,
@@ -1654,5 +1618,38 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.35
+  },
+  {
+    "id": "conj_1793729170",
+    "timestamp": "2026-11-03T13:06:10.572517",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer into the web_research_engine's result caching mechanism will reduce redundant network calls by up to 40% while preserving answer relevance. The hypothesis posits that by tracking the causal dependencies between query tokens, timestamps, and external source updates, the engine can predict when cached results are likely stale and selectively invalidate them, rather than using simple TTL or manual purge. This approach leverages the deep_memory_vault's temporal embeddings to estimate the decay of information relevance, enabling more efficient bandwidth usage and faster response times on the ASUS TUF Linux platform.",
+    "research_query": "causal inference based cache invalidation web search engine performance study",
+    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web search engine performance study\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal cache manager that uses deep_memory_vault embeddings to compute staleness scores for cached query results and automatically evicts or refreshes entries based on predicted relevance decay.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.03
+  },
+  {
+    "id": "conj_1793731070",
+    "timestamp": "2026-11-03T13:37:50.599496",
+    "idle_duration_minutes": 31.7,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching mechanism will allow the system to predict when cached search results become stale based on observed changes in source domains (e.g., news sites, scientific repositories). By modeling the temporal dependency between content update frequencies and query semantics, the engine can proactively invalidate or refresh cache entries, reducing latency and improving answer freshness without a full re‑crawl on every request.",
+    "research_query": "causal inference based cache invalidation web search engines recent papers 2023 2024",
+    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web search engines recent papers 2023 2024\n\n## Fuentes Consultadas y Respaldo Web\n- **[Causal inference via algebraic geometry: feasibility tests for functional causal structures with two binary observed variables (arXiv)](http://arxiv.org/abs/1506.03880v2)**: We provide a scheme for inferring causal relations from uncontrolled statistical data based on tools from computational algebraic geometry, in particular, the computation of Groebner bases. We focus on causal structures containing just two observed variables, each of which is binary. We consider the consequences of imposing different restrictions o\n- **[The Retrieval Effectiveness of Web Search Engines: Considering Results Descriptions (arXiv)](http://arxiv.org/abs/1511.05800v1)**: Purpose: To compare five major Web search engines (Google, Yahoo, MSN, Ask.com, and Seekport) for their retrieval effectiveness, taking into account not only the results but also the",
+    "web_sources": [
+      "http://arxiv.org/abs/1506.03880v2",
+      "http://arxiv.org/abs/1511.05800v1"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a lightweight causal predictor that tracks update timestamps of indexed domains and triggers selective cache refreshes for queries whose result sets are likely affected.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 100.01
   }
 ]

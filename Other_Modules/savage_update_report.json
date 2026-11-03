@@ -1,12 +1,12 @@
 {
   "schema": "tardis.savage_update/1.0",
-  "generated_at": "2026-11-03T07:41:45-05:00",
+  "generated_at": "2026-11-03T13:31:02-05:00",
   "cycle": {
     "items_collected": 54,
-    "items_fresh": 28,
-    "proposals": 10,
-    "experiment_plans": 10,
-    "elapsed_s": 5.69
+    "items_fresh": 1,
+    "proposals": 1,
+    "experiment_plans": 1,
+    "elapsed_s": 6.41
   },
   "sources": {
     "offline": false,
@@ -14,22 +14,22 @@
       "github": {
         "ok": true,
         "count": 6,
-        "elapsed_ms": 2408.0
+        "elapsed_ms": 2627.8
       },
       "huggingface": {
         "ok": true,
         "count": 20,
-        "elapsed_ms": 471.2
+        "elapsed_ms": 571.9
       },
       "arxiv": {
         "ok": true,
         "count": 36,
-        "elapsed_ms": 899.5
+        "elapsed_ms": 961.1
       },
       "npm": {
         "ok": true,
         "count": 1,
-        "elapsed_ms": 350.7
+        "elapsed_ms": 427.2
       }
     }
   },
@@ -41,468 +41,21 @@
   },
   "top_items": [
     {
-      "id": "d2eda50d382cf068",
-      "source": "arxiv",
-      "category": "ml-research",
-      "title": "FADE: Factored Ability--Difficulty Filtering for Online RLVR Scheduling",
-      "url": "http://arxiv.org/abs/2611.03625v1",
-      "published_at": "2026-11-02T18:53:23Z",
-      "summary": "Group-based reinforcement learning with verifiable rewards (RLVR) learns only from prompts whose sampled completions disagree: all-pass and all-fail groups produce zero relative advantage and burn generation budget without moving the policy. Adaptive schedulers try to steer rollouts toward informative prompts, yet they rely on per-prompt pass-rate trackers that entangle two quantities evolving at very different speeds---the policy's shifting competence across reasoning skills and each prompt's intrinsic difficulty. When a single exponential average or Beta counter tracks both at once, short memory scrambles the relative ordering of prompts whereas long memory reports stale pass rates. We int",
+      "id": "f3a0bfd814d95c0e",
+      "source": "huggingface:trending",
+      "category": "model",
+      "title": "AtomicChat/DeepSeek-V4.1-Flash-1017-Uncensored-GSQ-RCO-GGUF",
+      "url": "https://huggingface.co/AtomicChat/DeepSeek-V4.1-Flash-1017-Uncensored-GSQ-RCO-GGUF",
+      "published_at": "2026-10-31T07:29:05.000Z",
+      "summary": "pipeline=text-generation downloads=53913 likes=250",
       "tags": [
-        "quantization",
-        "rag",
-        "reasoning"
-      ],
-      "relevance": 11.1,
-      "targets": []
-    },
-    {
-      "id": "042ed673f959e47a",
-      "source": "arxiv",
-      "category": "nlp-research",
-      "title": "Strategist: Evolving Reasoning with Agents",
-      "url": "http://arxiv.org/abs/2611.03618v1",
-      "published_at": "2026-11-02T18:51:04Z",
-      "summary": "A model is only half of an AI agent system. The other half is the inference strategy: the reasoning procedure that turns model calls into a response. Today that second half is written by hand, and the experience of building one strategy never carries to the next. We introduce Strategist, a meta-agent that evolves inference strategies across tasks. Each strategy is written as a blueprint,executable code that other strategies can reuse, and together the blueprints form a library. Given a task and a small development set, Strategist retrieves related blueprints, writes candidate strategies, tests them on real samples, and revises them from the results. Every candidate then enters the library, s",
-      "tags": [
-        "agents",
-        "reasoning"
-      ],
-      "relevance": 9.7,
-      "targets": []
-    },
-    {
-      "id": "7bc35af23385bf2b",
-      "source": "arxiv",
-      "category": "nlp-research",
-      "title": "Library of Layers (LoL): Adaptively Ordering Transformer Layers at Runtime",
-      "url": "http://arxiv.org/abs/2611.03526v1",
-      "published_at": "2026-11-02T17:57:53Z",
-      "summary": "Computer programmers chain together the same reusable computational primitives, for example, conditional statements or loops, but in different orders to implement different algorithms. In contrast, existing language model architectures always execute their layers in the same order. We introduce Library of Layers (LoL), an architecture that dynamically orders its layers during inference to solve the problem at hand. LoL has a single hyperparameter, the size of its global library of transformer blocks, that allows it to transition seamlessly between parameter reuse and sparsity, generalizing the parameter-efficiency and FLOPs-efficiency tradeoffs of dense, depth-recurrent, and mixture of exper",
-      "tags": [
-        "moe",
-        "reasoning",
-        "safety"
-      ],
-      "relevance": 9.3,
-      "targets": []
-    },
-    {
-      "id": "e0790dbd777b0360",
-      "source": "arxiv",
-      "category": "nlp-research",
-      "title": "NitiBench+: A Temporal Thai Legal Question Answering Benchmark Across 17 Domains",
-      "url": "http://arxiv.org/abs/2611.03576v1",
-      "published_at": "2026-11-02T18:28:39Z",
-      "summary": "Law changes over time. A court decides a case under the law in force on that day, and legal QA benchmarks grade answers against today's law. We checked 156,650 decisions of four Thai courts. Up to 67% of them cite law that has since been amended or repealed. We introduce NitiBench+, the sequel of our NitiBench, a Thai legal QA benchmark with 1,670 items across 17 domains, built from decisions of three courts. For each cited section it holds both the text in force on the decision date and the current text, and its retrieval corpus holds every dated version of every Thai statute section. Answers are graded on the Thai Bar Council rubric, the Bar-standard score, and on the overlap between the c",
-      "tags": [
-        "agents",
-        "rag"
-      ],
-      "relevance": 9.2,
-      "targets": []
-    },
-    {
-      "id": "d2614a0060ed644c",
-      "source": "arxiv",
-      "category": "nlp-research",
-      "title": "VeriHarm-Bench: Measuring Harmful Success in LLM Coding Agents Verifiably",
-      "url": "http://arxiv.org/abs/2611.03575v1",
-      "published_at": "2026-11-02T18:27:55Z",
-      "summary": "Large language model (LLM) coding agents increasingly operate with shell access, allowing them to write scripts, move files, alter permissions, and modify system configurations. However, an agent may achieve a user's goal while causing unintended harm, such as deleting unrelated files, weakening access controls, or corrupting data, in response to benign inputs without explicit jailbreaking. This failure mode is particularly important because apparent task success may reassure users that an agent behaved correctly, causing harmful side effects to go unnoticed. We call this harmful success: the agent successfully completes the intended benign task while simultaneously causing unintended harm. ",
-      "tags": [
-        "agents",
-        "safety"
-      ],
-      "relevance": 9.2,
-      "targets": []
-    },
-    {
-      "id": "8e1e6da9616244cc",
-      "source": "arxiv",
-      "category": "ai-research",
-      "title": "Four Bridges: Measuring Deception Propensity in a Multi-Agent Game",
-      "url": "http://arxiv.org/abs/2611.03600v1",
-      "published_at": "2026-11-02T18:40:47Z",
-      "summary": "AI agents are increasingly deployed in settings where they interact and coordinate with other agents, yet honesty is mostly measured in single-turn, single-agent benchmarks that pressure the model to deceive. We study deception that emerges in multi-agent interaction without any instruction to deceive. We introduce Kradle, a platform for evaluating AI models, and Four Bridges, an information asymmetry game in which four agents distribute across four rooms: one is the death room, the others hold food worth more if not shared. One agent, the informed agent, knows which room is the death room and can withhold or disclose that information. We evaluate eight frontier models as the informed agent.",
-      "tags": [
-        "agents",
-        "rag"
-      ],
-      "relevance": 8.7,
-      "targets": []
-    },
-    {
-      "id": "3cbddaf9ce5baf29",
-      "source": "arxiv",
-      "category": "ai-research",
-      "title": "Spacetime Emergence in the Memory of a Learning Agent",
-      "url": "http://arxiv.org/abs/2611.03596v1",
-      "published_at": "2026-11-02T18:39:52Z",
-      "summary": "We show that the causal structure of spacetime can emerge within the memory of a learning agent performing a quantum information task. We train a model-based reinforcement-learning agent to maximize the quantum mutual information between localized quantum probes interacting with a quantum field in Minkowski spacetime, without directly providing it with information regarding the spacetime metric or causal structure. In learning to accomplish this task, the reinforcement-learning agent constructs an internal predictive model whose planner develops the characteristic null structure of spacetime, allowing us to reconstruct the causal structure of the Minkowski metric with high accuracy. Within t",
-      "tags": [
-        "quantization",
-        "agents",
-        "local"
-      ],
-      "relevance": 7.8,
-      "targets": []
-    },
-    {
-      "id": "f5f36287ede71df1",
-      "source": "arxiv",
-      "category": "nlp-research",
-      "title": "VIAS: Value-Isolating Activation Steering for Multi-Value Alignment and Compliance for Organisations",
-      "url": "http://arxiv.org/abs/2611.03518v1",
-      "published_at": "2026-11-02T17:53:26Z",
-      "summary": "Organisations increasingly deploy large language model agents that must follow organisational values. We check whether activation steering, which adds vectors to a model's internal activations during generation without changing its weights, can improve compliance beyond prompting alone. Since most scenarios involve several values at once, we focus on multi-value steering. A simple way to build these vectors is to contrast responses that follow all values relevant to a scenario with responses that violate them. However, this gives nearly identical vectors for different values: they capture a general compliance signal rather than individual values, which limits their use when combining several",
-      "tags": [
-        "agents",
-        "rag",
-        "safety"
-      ],
-      "relevance": 7.8,
-      "targets": []
-    },
-    {
-      "id": "f3609b773871f634",
-      "source": "arxiv",
-      "category": "nlp-research",
-      "title": "DiabAgent: Toward Agentic Physiological Control",
-      "url": "http://arxiv.org/abs/2611.03601v1",
-      "published_at": "2026-11-02T18:41:02Z",
-      "summary": "As pretraining scales, medical language models have advanced rapidly in clinical question answering. Their ability to achieve effective physiological control through sustained intervention still lacks systematic quantitative evaluation. Type 1 diabetes provides a concrete setting: impaired insulin secretion creates dependence on exogenous insulin, with dosing continually adjusted using information about meals, exercise, illness, and glucose measurements. We introduce DiabAgent, a research suite for agentic physiological control comprising the Agentic Physiological Control (APC) framework, the DiabetSim simulator, and the SweetBench benchmark. APC controls glucose through medical-device tools",
-      "tags": [
-        "quantization",
-        "agents"
-      ],
-      "relevance": 7.7,
-      "targets": []
-    },
-    {
-      "id": "bc80e2fd6a2d2f26",
-      "source": "arxiv",
-      "category": "nlp-research",
-      "title": "Sonar-MoE: In-Backward Expert Updates for Memory-Efficient Mixture-of-Experts Training",
-      "url": "http://arxiv.org/abs/2611.03577v1",
-      "published_at": "2026-11-02T18:30:00Z",
-      "summary": "Most parameters of a Mixture-of-Experts (MoE) model belong to its experts, and standard training keeps every expert gradient in GPU memory until the optimizer step. This memory grows with the number and size of the experts, so it rises as MoE models scale. We introduce Sonar-MoE, which updates each expert tensor during the backward pass and frees its gradient right away. It brings optimizer-in-backward from dense models to batched MoE expert tensors, so the GPU never holds more than one layer of expert gradients. When we fine-tune OLMoE-1B-7B and Granite-3.1-3B-A800M in bf16 with two expert-kernel backends, Sonar-MoE lowers peak memory by 19% to 22%. Its updates are bitwise identical to stan",
-      "tags": [
-        "moe"
-      ],
-      "relevance": 6.9,
-      "targets": []
-    },
-    {
-      "id": "9d210695b9d77cdb",
-      "source": "arxiv",
-      "category": "ml-research",
-      "title": "WebHarbor: Docking Real Websites for Evolving GUI Agent Environments",
-      "url": "http://arxiv.org/abs/2611.03634v1",
-      "published_at": "2026-11-02T18:57:36Z",
-      "summary": "GUI web agents require realistic and interactive environments that remain stable during both evaluation and training. Live website evaluation suffers from changing content, access restrictions, and limited coverage of authenticated workflows, while existing synthetic environments for training often lack functional depth and visual fidelity. We propose WebHarbor, a suite of 153 executable and dockerized website environments that faithfully reconstruct the visual interfaces, content, and functional workflows of real-world web services under deterministic control. We build WebHarbor through task-driven human-agent collaboration, where environments evolve as new tasks expand their functional sco",
-      "tags": [
-        "agents"
+        "quantization"
       ],
       "relevance": 6.6,
-      "targets": []
-    },
-    {
-      "id": "cbfca42bfd58273d",
-      "source": "arxiv",
-      "category": "ml-research",
-      "title": "D&amp;A: Decoupling Description and Assessment Enables VLMs as Zero-Shot Robotic Reward Models",
-      "url": "http://arxiv.org/abs/2611.03622v1",
-      "published_at": "2026-11-02T18:52:11Z",
-      "summary": "Vision-Language Models (VLMs) hold promise for zero-shot video task-progress estimation in robot learning, yet existing frameworks frequently suffer from confirmation bias, hallucinating progress in failed executions due to implicit success assumptions or relative temporal ranking designs. Naive prompting of frontier models collapses into a binary success detector that fails to capture nuanced, non-linear progress and failures. While post-training approaches can mitigate this through explicit training, they demand expensive real-world robotics data and require computationally intensive post-training for every individual base model. To resolve these limitations, we introduce D&amp;A (Describe",
-      "tags": [
-        "vision"
-      ],
-      "relevance": 6.6,
-      "targets": []
-    },
-    {
-      "id": "b0abd084bbf1c757",
-      "source": "arxiv",
-      "category": "nlp-research",
-      "title": "ufakzeka-kulak: Building and Evaluating a 31.6M-Parameter Turkish Speech Recognizer from Scratch",
-      "url": "http://arxiv.org/abs/2611.03605v1",
-      "published_at": "2026-11-02T18:42:32Z",
-      "summary": "ufakzeka-kulak is an open Turkish speech-to-text model of 31.6M parameters, a FastConformer encoder with a token-and-duration transducer (TDT) and a CTC head, trained from scratch and released under Apache-2.0. It writes cased, punctuated Turkish with numbers as words. Its 4,977 training hours come from sources whose licences allow commercial use; 281 hours are human-transcribed, and for the other 4,696 the training text is an uploader subtitle or a machine transcript, kept only where a second, independent reading of the audio agrees with it. The recipe, checkpoint, labelling and export choices were made on development data, and the test sets were scored once, in a release gate fixed before ",
-      "tags": [
-        "speech"
-      ],
-      "relevance": 6.6,
-      "targets": []
-    },
-    {
-      "id": "6abf22c874760e1e",
-      "source": "arxiv",
-      "category": "ai-research",
-      "title": "FedReady: Bounded Agents for Federation Formation",
-      "url": "http://arxiv.org/abs/2611.03586v1",
-      "published_at": "2026-11-02T18:32:43Z",
-      "summary": "Federated learning (FL) runtimes standardize aggregation and deployment, but each new study still requires federation formation: selecting task-eligible sites and preparing their local data and task code for federated training or analysis. This preparation recurs when the target changes, while raw records and site-private mappings are excluded from cross-site FL messages. We present FedReady, a system that performs federation formation with bounded LLM agents. Agents propose shared contracts, local adapters, and task code; the runtime owns workflow state and accepts artifacts only after checks tied to their digests. Candidate site discovery prioritizes recall; local eligibility verification ",
-      "tags": [
-        "agents",
-        "local"
-      ],
-      "relevance": 5.7,
-      "targets": []
-    },
-    {
-      "id": "c85859f6afa09b62",
-      "source": "arxiv",
-      "category": "ml-research",
-      "title": "Not All Reasoning Generalizes: A Case Study on Learning Generalizable Reasoning Strategies in RLVR",
-      "url": "http://arxiv.org/abs/2611.03627v1",
-      "published_at": "2026-11-02T18:53:54Z",
-      "summary": "Reinforcement learning with verifiable rewards (RLVR) can enable generalizable improvement for large language model (LLM) reasoning. This paper studies how to incentivize such generalization via reasoning strategies. We study this question with a controllable equation-solving framework: finding multiple inputs x for equations f(x)=y, where f is a non-bijective string function. This setting makes reasoning strategies observable while supporting a clear definition of easy-to-hard out-of-distribution (OOD) shifts, e.g., more solutions, longer y, etc. We uncover a subtle RLVR failure: it teaches the model to solve in-distribution tasks with high accuracy and structured step-by-step derivation, y",
-      "tags": [
-        "vision",
-        "reasoning"
-      ],
-      "relevance": 5.7,
       "targets": []
     }
   ],
   "proposals": [
-    {
-      "id": "savage-f7a834b450f8",
-      "title": "Política de agentes y tool-calling",
-      "target": "ftl",
-      "tag": "agents",
-      "risk": "low",
-      "kind": "experiment",
-      "experiment": "agent_tool_policy",
-      "evidence": [
-        {
-          "title": "Strategist: Evolving Reasoning with Agents",
-          "url": "http://arxiv.org/abs/2611.03618v1",
-          "source": "arxiv",
-          "relevance": 9.7
-        },
-        {
-          "title": "NitiBench+: A Temporal Thai Legal Question Answering Benchmark Across 17 Domains",
-          "url": "http://arxiv.org/abs/2611.03576v1",
-          "source": "arxiv",
-          "relevance": 9.2
-        },
-        {
-          "title": "VeriHarm-Bench: Measuring Harmful Success in LLM Coding Agents Verifiably",
-          "url": "http://arxiv.org/abs/2611.03575v1",
-          "source": "arxiv",
-          "relevance": 9.2
-        },
-        {
-          "title": "Four Bridges: Measuring Deception Propensity in a Multi-Agent Game",
-          "url": "http://arxiv.org/abs/2611.03600v1",
-          "source": "arxiv",
-          "relevance": 8.7
-        },
-        {
-          "title": "Spacetime Emergence in the Memory of a Learning Agent",
-          "url": "http://arxiv.org/abs/2611.03596v1",
-          "source": "arxiv",
-          "relevance": 7.8
-        },
-        {
-          "title": "VIAS: Value-Isolating Activation Steering for Multi-Value Alignment and Compliance for Organisations",
-          "url": "http://arxiv.org/abs/2611.03518v1",
-          "source": "arxiv",
-          "relevance": 7.8
-        },
-        {
-          "title": "DiabAgent: Toward Agentic Physiological Control",
-          "url": "http://arxiv.org/abs/2611.03601v1",
-          "source": "arxiv",
-          "relevance": 7.7
-        },
-        {
-          "title": "WebHarbor: Docking Real Websites for Evolving GUI Agent Environments",
-          "url": "http://arxiv.org/abs/2611.03634v1",
-          "source": "arxiv",
-          "relevance": 6.6
-        }
-      ],
-      "rationale": "Señal tecnológica detectada en 11 fuentes; la doctrina exige evaluar antes de adoptar.",
-      "validation": "Suite de 30 tareas con herramientas; medir tasa de éxito y pasos.",
-      "rollback": "Reactivar la política anterior en coding_router.json.",
-      "status": "planned",
-      "created_at": "2026-11-03T07:41:44-05:00"
-    },
-    {
-      "id": "savage-50d57ca1e5ee",
-      "title": "Presupuesto de razonamiento adaptativo",
-      "target": "tardis",
-      "tag": "reasoning",
-      "risk": "low",
-      "kind": "experiment",
-      "experiment": "reasoning_budget",
-      "evidence": [
-        {
-          "title": "FADE: Factored Ability--Difficulty Filtering for Online RLVR Scheduling",
-          "url": "http://arxiv.org/abs/2611.03625v1",
-          "source": "arxiv",
-          "relevance": 11.1
-        },
-        {
-          "title": "Strategist: Evolving Reasoning with Agents",
-          "url": "http://arxiv.org/abs/2611.03618v1",
-          "source": "arxiv",
-          "relevance": 9.7
-        },
-        {
-          "title": "Library of Layers (LoL): Adaptively Ordering Transformer Layers at Runtime",
-          "url": "http://arxiv.org/abs/2611.03526v1",
-          "source": "arxiv",
-          "relevance": 9.3
-        },
-        {
-          "title": "Not All Reasoning Generalizes: A Case Study on Learning Generalizable Reasoning Strategies in RLVR",
-          "url": "http://arxiv.org/abs/2611.03627v1",
-          "source": "arxiv",
-          "relevance": 5.7
-        },
-        {
-          "title": "From Natural Language to Exact Cover: A Neuro-Symbolic Approach to Zebra Puzzles",
-          "url": "http://arxiv.org/abs/2611.03641v1",
-          "source": "arxiv",
-          "relevance": 5.1
-        },
-        {
-          "title": "Tracing the Scientific Discovery Capacity of LLMs to Their Training Data",
-          "url": "http://arxiv.org/abs/2611.03617v1",
-          "source": "arxiv",
-          "relevance": 3.1
-        }
-      ],
-      "rationale": "Señal tecnológica detectada en 6 fuentes; la doctrina exige evaluar antes de adoptar.",
-      "validation": "Comparar exactitud/costo en 40 problemas; elegir el punto de Pareto.",
-      "rollback": "Volver al esfuerzo por defecto.",
-      "status": "planned",
-      "created_at": "2026-11-03T07:41:44-05:00"
-    },
-    {
-      "id": "savage-328519695b0c",
-      "title": "Refuerzo del perfil local-first",
-      "target": "tardis",
-      "tag": "local",
-      "risk": "low",
-      "kind": "experiment",
-      "experiment": "local_first",
-      "evidence": [
-        {
-          "title": "Spacetime Emergence in the Memory of a Learning Agent",
-          "url": "http://arxiv.org/abs/2611.03596v1",
-          "source": "arxiv",
-          "relevance": 7.8
-        },
-        {
-          "title": "FedReady: Bounded Agents for Federation Formation",
-          "url": "http://arxiv.org/abs/2611.03586v1",
-          "source": "arxiv",
-          "relevance": 5.7
-        },
-        {
-          "title": "Should We Combine Our Data? Algorithms and Limits for Privately Assessing Data Sharing",
-          "url": "http://arxiv.org/abs/2611.03599v1",
-          "source": "arxiv",
-          "relevance": 5.7
-        },
-        {
-          "title": "Efficient Closure Learning in Dynamical Systems: A Comparison of Data-Assimilated and Embedded Approaches",
-          "url": "http://arxiv.org/abs/2611.03612v1",
-          "source": "arxiv",
-          "relevance": 2.6
-        }
-      ],
-      "rationale": "Señal tecnológica detectada en 4 fuentes; la doctrina exige evaluar antes de adoptar.",
-      "validation": "Verificar que las tareas privadas no salgan del dispositivo.",
-      "rollback": "Reactivar ruteo híbrido.",
-      "status": "planned",
-      "created_at": "2026-11-03T07:41:44-05:00"
-    },
-    {
-      "id": "savage-59e5ad13184e",
-      "title": "Endurecimiento de guardrails y auto-reparación",
-      "target": "easy_touch",
-      "tag": "safety",
-      "risk": "low",
-      "kind": "experiment",
-      "experiment": "safety_guardrails",
-      "evidence": [
-        {
-          "title": "Library of Layers (LoL): Adaptively Ordering Transformer Layers at Runtime",
-          "url": "http://arxiv.org/abs/2611.03526v1",
-          "source": "arxiv",
-          "relevance": 9.3
-        },
-        {
-          "title": "VeriHarm-Bench: Measuring Harmful Success in LLM Coding Agents Verifiably",
-          "url": "http://arxiv.org/abs/2611.03575v1",
-          "source": "arxiv",
-          "relevance": 9.2
-        },
-        {
-          "title": "VIAS: Value-Isolating Activation Steering for Multi-Value Alignment and Compliance for Organisations",
-          "url": "http://arxiv.org/abs/2611.03518v1",
-          "source": "arxiv",
-          "relevance": 7.8
-        },
-        {
-          "title": "Thought-deciphering via hierarchical EEG-to-text alignment",
-          "url": "http://arxiv.org/abs/2611.03623v1",
-          "source": "arxiv",
-          "relevance": 2.6
-        }
-      ],
-      "rationale": "Señal tecnológica detectada en 4 fuentes; la doctrina exige evaluar antes de adoptar.",
-      "validation": "Batería de 25 casos adversarios; cero ejecuciones no autorizadas.",
-      "rollback": "Restaurar la política de seguridad previa.",
-      "status": "planned",
-      "created_at": "2026-11-03T07:41:44-05:00"
-    },
-    {
-      "id": "savage-db7241589fcf",
-      "title": "Mejora del pipeline RAG y embeddings",
-      "target": "tardis",
-      "tag": "rag",
-      "risk": "low",
-      "kind": "experiment",
-      "experiment": "rag_pipeline",
-      "evidence": [
-        {
-          "title": "FADE: Factored Ability--Difficulty Filtering for Online RLVR Scheduling",
-          "url": "http://arxiv.org/abs/2611.03625v1",
-          "source": "arxiv",
-          "relevance": 11.1
-        },
-        {
-          "title": "NitiBench+: A Temporal Thai Legal Question Answering Benchmark Across 17 Domains",
-          "url": "http://arxiv.org/abs/2611.03576v1",
-          "source": "arxiv",
-          "relevance": 9.2
-        },
-        {
-          "title": "Four Bridges: Measuring Deception Propensity in a Multi-Agent Game",
-          "url": "http://arxiv.org/abs/2611.03600v1",
-          "source": "arxiv",
-          "relevance": 8.7
-        },
-        {
-          "title": "VIAS: Value-Isolating Activation Steering for Multi-Value Alignment and Compliance for Organisations",
-          "url": "http://arxiv.org/abs/2611.03518v1",
-          "source": "arxiv",
-          "relevance": 7.8
-        }
-      ],
-      "rationale": "Señal tecnológica detectada en 4 fuentes; la doctrina exige evaluar antes de adoptar.",
-      "validation": "Recall@10 sobre 100 consultas doradas.",
-      "rollback": "Conservar el índice actual.",
-      "status": "planned",
-      "created_at": "2026-11-03T07:41:44-05:00"
-    },
     {
       "id": "savage-0221680af214",
       "title": "Benchmark de cuantización para el modelo soberano",
@@ -513,135 +66,17 @@
       "experiment": "quantization_benchmark",
       "evidence": [
         {
-          "title": "FADE: Factored Ability--Difficulty Filtering for Online RLVR Scheduling",
-          "url": "http://arxiv.org/abs/2611.03625v1",
-          "source": "arxiv",
-          "relevance": 11.1
-        },
-        {
-          "title": "Spacetime Emergence in the Memory of a Learning Agent",
-          "url": "http://arxiv.org/abs/2611.03596v1",
-          "source": "arxiv",
-          "relevance": 7.8
-        },
-        {
-          "title": "DiabAgent: Toward Agentic Physiological Control",
-          "url": "http://arxiv.org/abs/2611.03601v1",
-          "source": "arxiv",
-          "relevance": 7.7
+          "title": "AtomicChat/DeepSeek-V4.1-Flash-1017-Uncensored-GSQ-RCO-GGUF",
+          "url": "https://huggingface.co/AtomicChat/DeepSeek-V4.1-Flash-1017-Uncensored-GSQ-RCO-GGUF",
+          "source": "huggingface:trending",
+          "relevance": 6.6
         }
       ],
-      "rationale": "Señal tecnológica detectada en 3 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "rationale": "Señal tecnológica detectada en 1 fuentes; la doctrina exige evaluar antes de adoptar.",
       "validation": "Medir tokens/s, VRAM pico y perplejidad en 20 prompts; aceptar sólo si la pérdida es <2%.",
       "rollback": "Mantener el GGUF Q4_K actual y descartar el artefacto candidato.",
       "status": "planned",
-      "created_at": "2026-11-03T07:41:44-05:00"
-    },
-    {
-      "id": "savage-73e62f0aae43",
-      "title": "Integración de capacidades visión/multimodal",
-      "target": "tardis",
-      "tag": "vision",
-      "risk": "low",
-      "kind": "experiment",
-      "experiment": "vision_pipeline",
-      "evidence": [
-        {
-          "title": "D&amp;A: Decoupling Description and Assessment Enables VLMs as Zero-Shot Robotic Reward Models",
-          "url": "http://arxiv.org/abs/2611.03622v1",
-          "source": "arxiv",
-          "relevance": 6.6
-        },
-        {
-          "title": "Not All Reasoning Generalizes: A Case Study on Learning Generalizable Reasoning Strategies in RLVR",
-          "url": "http://arxiv.org/abs/2611.03627v1",
-          "source": "arxiv",
-          "relevance": 5.7
-        },
-        {
-          "title": "Structured Visual Landscape: Generating Preferred Representations in Biological and Artificial Neural Networks",
-          "url": "http://arxiv.org/abs/2611.03597v1",
-          "source": "arxiv",
-          "relevance": 0.6
-        }
-      ],
-      "rationale": "Señal tecnológica detectada en 3 fuentes; la doctrina exige evaluar antes de adoptar.",
-      "validation": "Evaluar 50 imágenes con ground truth; medir exactitud y latencia.",
-      "rollback": "Desactivar el pipeline visual nuevo.",
-      "status": "planned",
-      "created_at": "2026-11-03T07:41:44-05:00"
-    },
-    {
-      "id": "savage-f58fb1dcfe8b",
-      "title": "Ruteo por expertos activos (top-k)",
-      "target": "tardis",
-      "tag": "moe",
-      "risk": "low",
-      "kind": "experiment",
-      "experiment": "moe_routing",
-      "evidence": [
-        {
-          "title": "Library of Layers (LoL): Adaptively Ordering Transformer Layers at Runtime",
-          "url": "http://arxiv.org/abs/2611.03526v1",
-          "source": "arxiv",
-          "relevance": 9.3
-        },
-        {
-          "title": "Sonar-MoE: In-Backward Expert Updates for Memory-Efficient Mixture-of-Experts Training",
-          "url": "http://arxiv.org/abs/2611.03577v1",
-          "source": "arxiv",
-          "relevance": 6.9
-        }
-      ],
-      "rationale": "Señal tecnológica detectada en 2 fuentes; la doctrina exige evaluar antes de adoptar.",
-      "validation": "Comparar costo por token activo vs. modelo denso equivalente.",
-      "rollback": "Volver al ruteo denso por defecto.",
-      "status": "planned",
-      "created_at": "2026-11-03T07:41:44-05:00"
-    },
-    {
-      "id": "savage-2a5f91473f5d",
-      "title": "Perfil de contexto extendido con chunking alineado",
-      "target": "tardis",
-      "tag": "long-context",
-      "risk": "low",
-      "kind": "experiment",
-      "experiment": "long_context_profile",
-      "evidence": [
-        {
-          "title": "ollama/ollama v0.40.14",
-          "url": "https://github.com/ollama/ollama/releases/tag/v0.40.14",
-          "source": "github:ollama/ollama",
-          "relevance": 0.6
-        }
-      ],
-      "rationale": "Señal tecnológica detectada en 1 fuentes; la doctrina exige evaluar antes de adoptar.",
-      "validation": "Prueba de recuperación en documento de 128k tokens; medir latencia y precisión.",
-      "rollback": "Restaurar ctx_size=4096.",
-      "status": "planned",
-      "created_at": "2026-11-03T07:41:44-05:00"
-    },
-    {
-      "id": "savage-466fd31376f1",
-      "title": "Actualización de voz (ASR/TTS) local",
-      "target": "tardis",
-      "tag": "speech",
-      "risk": "low",
-      "kind": "experiment",
-      "experiment": "speech_pipeline",
-      "evidence": [
-        {
-          "title": "ufakzeka-kulak: Building and Evaluating a 31.6M-Parameter Turkish Speech Recognizer from Scratch",
-          "url": "http://arxiv.org/abs/2611.03605v1",
-          "source": "arxiv",
-          "relevance": 6.6
-        }
-      ],
-      "rationale": "Señal tecnológica detectada en 1 fuentes; la doctrina exige evaluar antes de adoptar.",
-      "validation": "WER en 20 audios y latencia de síntesis.",
-      "rollback": "Mantener el motor de voz actual.",
-      "status": "planned",
-      "created_at": "2026-11-03T07:41:44-05:00"
+      "created_at": "2026-11-03T13:31:02-05:00"
     }
   ],
   "offline": false
