@@ -8,30 +8,6 @@
   "rollback": "Reactivar ruteo híbrido.",
   "evidence": [
     {
-      "title": "LiquidAI/LFM3-VL-2B",
-      "url": "https://huggingface.co/LiquidAI/LFM3-VL-2B",
-      "source": "huggingface:trending",
-      "relevance": 3.2
-    },
-    {
-      "title": "DecisionRank: On-Policy Distillation for Decision-Model Rerankers",
-      "url": "http://arxiv.org/abs/2610.42128v1",
-      "source": "arxiv",
-      "relevance": 16.5
-    },
-    {
-      "title": "Hierarchical World Models with Implicit Dynamics",
-      "url": "http://arxiv.org/abs/2610.42146v1",
-      "source": "arxiv",
-      "relevance": 8.3
-    },
-    {
-      "title": "RangeSWA: Training-Free Length Extrapolation for Continuous Diffusion Language Models",
-      "url": "http://arxiv.org/abs/2610.42084v1",
-      "source": "arxiv",
-      "relevance": 6.7
-    },
-    {
       "title": "Physiological Trajectories and Observation Patterns in ICU Mortality Prediction: Transportability Under Changing Measurement Conditions",
       "url": "http://arxiv.org/abs/2610.42126v1",
       "source": "arxiv",
@@ -102,9 +78,33 @@
       "url": "http://arxiv.org/abs/2611.03054v1",
       "source": "arxiv",
       "relevance": 3.2
+    },
+    {
+      "title": "Spacetime Emergence in the Memory of a Learning Agent",
+      "url": "http://arxiv.org/abs/2611.03596v1",
+      "source": "arxiv",
+      "relevance": 7.8
+    },
+    {
+      "title": "FedReady: Bounded Agents for Federation Formation",
+      "url": "http://arxiv.org/abs/2611.03586v1",
+      "source": "arxiv",
+      "relevance": 5.7
+    },
+    {
+      "title": "Should We Combine Our Data? Algorithms and Limits for Privately Assessing Data Sharing",
+      "url": "http://arxiv.org/abs/2611.03599v1",
+      "source": "arxiv",
+      "relevance": 5.7
+    },
+    {
+      "title": "Efficient Closure Learning in Dynamical Systems: A Comparison of Data-Assimilated and Embedded Approaches",
+      "url": "http://arxiv.org/abs/2611.03612v1",
+      "source": "arxiv",
+      "relevance": 2.6
     }
   ],
   "status": "planned",
   "created_at": "2026-10-29T00:13:36-05:00",
-  "updated_at": "2026-11-03T01:29:31-05:00"
+  "updated_at": "2026-11-03T07:41:44-05:00"
 }

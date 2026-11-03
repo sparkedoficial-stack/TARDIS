@@ -54,9 +54,15 @@
       "url": "http://arxiv.org/abs/2611.03094v1",
       "source": "arxiv",
       "relevance": 5.1
+    },
+    {
+      "title": "ollama/ollama v0.40.14",
+      "url": "https://github.com/ollama/ollama/releases/tag/v0.40.14",
+      "source": "github:ollama/ollama",
+      "relevance": 0.6
     }
   ],
   "status": "planned",
   "created_at": "2026-10-29T00:13:36-05:00",
-  "updated_at": "2026-11-03T01:29:31-05:00"
+  "updated_at": "2026-11-03T07:41:44-05:00"
 }

@@ -1,33 +1,5 @@
 [
   {
-    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/deep_memory_vault.py",
-    "goal": "Implementar una función `prune_low_causal_nodes()` que evalúe la frecuencia de co-ocurrencia causal entre entradas de memoria y elimine o archive aquellas con baja relevancia estructural, priorizando la integridad de las cadenas causales sobre la retención bruta de datos.",
-    "status": "REJECTED",
-    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
-    "elapsed_seconds": 90.53,
-    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/deep_memory_vault.py.20261101_004443.bak",
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Respuesta generada demasiado corta (0 vs 33875 bytes)",
-    "timestamp": "2026-11-01T00:46:13.777919"
-  },
-  {
-    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
-    "goal": "Añadir una capa de adaptador que consuma metadatos de causalidad desde deep_memory_vault y ajuste dinámicamente el ranking de resultados usando un algoritmo de puntuación basado en dependencia temporal y relevancia semántica.",
-    "status": "REJECTED",
-    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
-    "elapsed_seconds": 91.52,
-    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/web_research_engine.py.20261101_011620.bak",
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Respuesta generada demasiado corta (0 vs 35266 bytes)",
-    "timestamp": "2026-11-01T01:17:51.634062"
-  },
-  {
     "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
     "goal": "Implementar una caché de resultados basada en vectores de embeddings (p. ej., usando SentenceTransformers) con expiración temporal y lógica de fallback a la Bóveda akáshica para reutilizar respuestas previas.",
     "status": "REJECTED",
@@ -1398,5 +1370,33 @@
     "efficiency_improvement": null,
     "error": "Respuesta generada demasiado corta (0 vs 35266 bytes)",
     "timestamp": "2026-11-03T06:39:49.752473"
+  },
+  {
+    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
+    "goal": "Add a causal cache manager that monitors source metadata (ETag, Last-Modified, sitemap change frequency) and uses a lightweight Bayesian network to decide when to purge or refresh cached pages, exposing a new `invalidate_stale_cache()` method and integrating it into the existing fetch pipeline.",
+    "status": "REJECTED",
+    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
+    "elapsed_seconds": 90.96,
+    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/web_research_engine.py.20261103_071133.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "Respuesta generada demasiado corta (0 vs 35266 bytes)",
+    "timestamp": "2026-11-03T07:13:04.467513"
+  },
+  {
+    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
+    "goal": "Add a causal cache manager that tracks update signals (e.g., HTTP Last-Modified, ETag, RSS feed timestamps) and uses a lightweight Bayesian network to decide when to purge or refresh cached search results, exposing an async `invalidate_stale_entries()` method.",
+    "status": "REJECTED",
+    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
+    "elapsed_seconds": 91.46,
+    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/web_research_engine.py.20261103_074311.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "Respuesta generada demasiado corta (0 vs 35266 bytes)",
+    "timestamp": "2026-11-03T07:44:43.031320"
   }
 ]

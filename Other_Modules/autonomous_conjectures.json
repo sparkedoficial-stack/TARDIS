@@ -1,38 +1,5 @@
 [
   {
-    "id": "conj_1793508179",
-    "timestamp": "2026-10-31T23:42:59.087144",
-    "idle_duration_minutes": 31.6,
-    "title": "Sincronización Temporal de Telemetría en la Bóveda Akáshica",
-    "hypothesis": "Se postula que la latencia en la recuperación de contextos históricos desde deep_memory_vault.py se reduce significativamente si se implementa un mecanismo de 'temporal indexing' que correlacione los timestamps de los eventos de red (network_shield.py) con las entradas de memoria, permitiendo una búsqueda causal más precisa que la indexación por contenido puro. Esta hipótesis sugiere que la alineación temporal entre la telemetría de red y la memoria profunda crea un vector de búsqueda híbrido que mejora la relevancia de las respuestas del motor de investigación.",
-    "research_query": "temporal indexing hybrid search vector database network telemetry correlation",
-    "research_findings": "# Informe de Investigación: temporal indexing hybrid search vector database network telemetry correlation\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Integrar un campo de timestamp normalizado y un índice temporal compuesto en la estructura de datos de la bóveda para permitir consultas que filtren por ventana de tiempo específica junto con la similitud semántica.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.73
-  },
-  {
-    "id": "conj_1793510075",
-    "timestamp": "2026-11-01T00:14:35.788636",
-    "idle_duration_minutes": 31.6,
-    "title": "Sinergia Causal entre Telemetría de Red y Memoria Profunda",
-    "hypothesis": "Existe una correlación no lineal entre los patrones de latencia y errores en el 'network_shield.py' y la relevancia semántica de las consultas almacenadas en 'deep_memory_vault.py'. Al integrar métricas de salud de red en el vector de contexto de la memoria profunda, el sistema puede priorizar automáticamente la recuperación de información local (cache) frente a la investigación web en tiempo real cuando la conectividad es inestable, optimizando así la eficiencia energética y la latencia de respuesta del núcleo cognitivo.",
-    "research_query": "adaptive memory retrieval strategies based on network latency and connectivity status in AI systems",
-    "research_findings": "# Informe de Investigación: adaptive memory retrieval strategies based on network latency and connectivity status in AI systems\n\n## Fuentes Consultadas y Respaldo Web\n- **[Artificial intelligence (Wikipedia)](https://en.wikipedia.org/wiki/Artificial_intelligence)**: formal logic, artificial neural networks, and methods based on statistics, operations research, and economics. AI also draws upon psychology, linguistics\n- **[Meta Adaptive Ranking Model: Bending the Inference Scaling Curve to Serve LLM-Scale Models for Ads - Engineering at Meta Blog](https://news.google.com/rss/articles/CBMi5wFBVV95cUxNRzQzYmlKcDd2QU5zTjF4WXY5WVJGSkYxV25vLXdMY0pPcnVPU25DYlVNSUJOeTN6TXdJcG5aQVpCX05uenlmM0xEeGpOOEpZeGJHQi1sQTl0cDlGeVJQN3ZnSlptbDJ2U2ZYQW1qYVE3cFZ6VzhjYVBvZm05Wmd5ZGZIY2hfM2FMWWNwV0hGUUE1eTdQYjdpczJ5bklOT0ZTcHpoREsya2NrSFN1NmJfblllY3NySXhQMEZBOG51Q0NWUURWWkFfcTBUbHA0LTBaZ1FnWm4zejl5MXp3OXFuLXh1NDBrOEE?oc=5)**: Meta Adaptive Ranking Model: Bending the Inference Scaling Curve to Serve LLM-Scale M",
-    "web_sources": [
-      "https://en.wikipedia.org/wiki/Artificial_intelligence",
-      "https://news.google.com/rss/articles/CBMi5wFBVV95cUxNRzQzYmlKcDd2QU5zTjF4WXY5WVJGSkYxV25vLXdMY0pPcnVPU25DYlVNSUJOeTN6TXdJcG5aQVpCX05uenlmM0xEeGpOOEpZeGJHQi1sQTl0cDlGeVJQN3ZnSlptbDJ2U2ZYQW1qYVE3cFZ6VzhjYVBvZm05Wmd5ZGZIY2hfM2FMWWNwV0hGUUE1eTdQYjdpczJ5bklOT0ZTcHpoREsya2NrSFN1NmJfblllY3NySXhQMEZBOG51Q0NWUURWWkFfcTBUbHA0LTBaZ1FnWm4zejl5MXp3OXFuLXh1NDBrOEE?oc=5"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar un método 'get_network_context()' que lea el estado actual del shield de red y ajuste el umbral de confianza de la memoria local antes de disparar el motor de investigación web.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 96.69
-  },
-  {
     "id": "conj_1793511973",
     "timestamp": "2026-11-01T00:46:13.796614",
     "idle_duration_minutes": 31.6,
@@ -1660,5 +1627,38 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 97.14
+  },
+  {
+    "id": "conj_1793707984",
+    "timestamp": "2026-11-03T07:13:04.488315",
+    "idle_duration_minutes": 33.2,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching subsystem can dynamically predict the obsolescence of cached search results based on detected changes in source domains (e.g., content updates, SEO shifts, or API versioning). By modeling the causal relationship between external events (content modification timestamps, HTTP header changes, schema updates) and the relevance decay of cached entries, the system can pre‑emptively invalidate or refresh only the affected cache items, reducing unnecessary network traffic while maintaining up‑to‑date knowledge in the Deep Memory Vault.",
+    "research_query": "causal inference based cache invalidation web scraping dynamic content detection research papers",
+    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web scraping dynamic content detection research papers\n\n## Fuentes Consultadas y Respaldo Web\n- **[Causal inference via algebraic geometry: feasibility tests for functional causal structures with two binary observed variables (arXiv)](http://arxiv.org/abs/1506.03880v2)**: We provide a scheme for inferring causal relations from uncontrolled statistical data based on tools from computational algebraic geometry, in particular, the computation of Groebner bases. We focus on causal structures containing just two observed variables, each of which is binary. We consider the consequences of imposing different restrictions o\n- **[Dynamic cache reconfiguration based techniques for improving cache energy efficiency (arXiv)](http://arxiv.org/abs/1310.4231v1)**: Modern multicore processors are employing large last-level caches, for example Intel's E7-8800 processor uses 24MB L3 cache. Further, with each CMOS technology generation",
+    "web_sources": [
+      "http://arxiv.org/abs/1506.03880v2",
+      "http://arxiv.org/abs/1310.4231v1"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal cache manager that monitors source metadata (ETag, Last-Modified, sitemap change frequency) and uses a lightweight Bayesian network to decide when to purge or refresh cached pages, exposing a new `invalidate_stale_cache()` method and integrating it into the existing fetch pipeline.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 100.64
+  },
+  {
+    "id": "conj_1793709883",
+    "timestamp": "2026-11-03T07:44:43.046854",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching mechanism will allow the system to predict when cached search results become stale based on observed changes in source domains (e.g., news sites, scientific repositories). By modeling the temporal dynamics of content updates as a causal graph, the engine can proactively invalidate or refresh specific cache entries, reducing latency and improving result relevance without incurring unnecessary network traffic.",
+    "research_query": "causal inference based cache invalidation techniques for web scraping and API request caching",
+    "research_findings": "# Informe de Investigación: causal inference based cache invalidation techniques for web scraping and API request caching\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal cache manager that tracks update signals (e.g., HTTP Last-Modified, ETag, RSS feed timestamps) and uses a lightweight Bayesian network to decide when to purge or refresh cached search results, exposing an async `invalidate_stale_entries()` method.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.49
   }
 ]

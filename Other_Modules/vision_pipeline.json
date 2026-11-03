@@ -8,24 +8,6 @@
   "rollback": "Desactivar el pipeline visual nuevo.",
   "evidence": [
     {
-      "title": "speridlabs/idol",
-      "url": "https://huggingface.co/speridlabs/idol",
-      "source": "huggingface:trending",
-      "relevance": 0.6
-    },
-    {
-      "title": "DecisionRank: On-Policy Distillation for Decision-Model Rerankers",
-      "url": "http://arxiv.org/abs/2610.42128v1",
-      "source": "arxiv",
-      "relevance": 16.5
-    },
-    {
-      "title": "Latent Reasoning in Continuous Space for Unified Multimodal Models",
-      "url": "http://arxiv.org/abs/2610.42149v1",
-      "source": "arxiv",
-      "relevance": 13.7
-    },
-    {
       "title": "RoboArchitect: Automating the Design of Robotic Agents with Persistent Memory",
       "url": "http://arxiv.org/abs/2610.42141v1",
       "source": "arxiv",
@@ -102,9 +84,27 @@
       "url": "http://arxiv.org/abs/2611.03042v1",
       "source": "arxiv",
       "relevance": 3.7
+    },
+    {
+      "title": "D&amp;A: Decoupling Description and Assessment Enables VLMs as Zero-Shot Robotic Reward Models",
+      "url": "http://arxiv.org/abs/2611.03622v1",
+      "source": "arxiv",
+      "relevance": 6.6
+    },
+    {
+      "title": "Not All Reasoning Generalizes: A Case Study on Learning Generalizable Reasoning Strategies in RLVR",
+      "url": "http://arxiv.org/abs/2611.03627v1",
+      "source": "arxiv",
+      "relevance": 5.7
+    },
+    {
+      "title": "Structured Visual Landscape: Generating Preferred Representations in Biological and Artificial Neural Networks",
+      "url": "http://arxiv.org/abs/2611.03597v1",
+      "source": "arxiv",
+      "relevance": 0.6
     }
   ],
   "status": "planned",
   "created_at": "2026-10-29T00:13:36-05:00",
-  "updated_at": "2026-11-03T01:29:31-05:00"
+  "updated_at": "2026-11-03T07:41:44-05:00"
 }

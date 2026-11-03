@@ -8,18 +8,6 @@
   "rollback": "Volver al ruteo denso por defecto.",
   "evidence": [
     {
-      "title": "MuonGS: Pretraining LLMs with Relaxed Weight-Norm Control",
-      "url": "http://arxiv.org/abs/2610.37647v1",
-      "source": "arxiv",
-      "relevance": 5.9
-    },
-    {
-      "title": "MuonGS: Pretraining LLMs with Relaxed Weight-Norm Control",
-      "url": "http://arxiv.org/abs/2610.37647v1",
-      "source": "arxiv",
-      "relevance": 5.9
-    },
-    {
       "title": "huggingface/transformers v5.22.0",
       "url": "https://github.com/huggingface/transformers/releases/tag/v5.22.0",
       "source": "github:huggingface/transformers",
@@ -102,9 +90,21 @@
       "url": "http://arxiv.org/abs/2611.03051v1",
       "source": "arxiv",
       "relevance": 3.7
+    },
+    {
+      "title": "Library of Layers (LoL): Adaptively Ordering Transformer Layers at Runtime",
+      "url": "http://arxiv.org/abs/2611.03526v1",
+      "source": "arxiv",
+      "relevance": 9.3
+    },
+    {
+      "title": "Sonar-MoE: In-Backward Expert Updates for Memory-Efficient Mixture-of-Experts Training",
+      "url": "http://arxiv.org/abs/2611.03577v1",
+      "source": "arxiv",
+      "relevance": 6.9
     }
   ],
   "status": "planned",
   "created_at": "2026-10-29T00:13:36-05:00",
-  "updated_at": "2026-11-03T01:29:31-05:00"
+  "updated_at": "2026-11-03T07:41:44-05:00"
 }

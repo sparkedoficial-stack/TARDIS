@@ -8,24 +8,6 @@
   "rollback": "Mantener el GGUF Q4_K actual y descartar el artefacto candidato.",
   "evidence": [
     {
-      "title": "huggingface/transformers v5.22.0",
-      "url": "https://github.com/huggingface/transformers/releases/tag/v5.22.0",
-      "source": "github:huggingface/transformers",
-      "relevance": 25.0
-    },
-    {
-      "title": "Low-Bit GDN Recurrent-State Quantization: Global Gradient-aware Allocation and Pure-Write Sliding Windows",
-      "url": "http://arxiv.org/abs/2610.39931v1",
-      "source": "arxiv",
-      "relevance": 16.8
-    },
-    {
-      "title": "KV Cache Quantization for Diffusion Language Models",
-      "url": "http://arxiv.org/abs/2610.39853v1",
-      "source": "arxiv",
-      "relevance": 13.7
-    },
-    {
       "title": "Learning Calibrated Confidence for Multi-Agent Collaboration",
       "url": "http://arxiv.org/abs/2610.39927v1",
       "source": "arxiv",
@@ -102,9 +84,27 @@
       "url": "http://arxiv.org/abs/2611.03054v1",
       "source": "arxiv",
       "relevance": 3.2
+    },
+    {
+      "title": "FADE: Factored Ability--Difficulty Filtering for Online RLVR Scheduling",
+      "url": "http://arxiv.org/abs/2611.03625v1",
+      "source": "arxiv",
+      "relevance": 11.1
+    },
+    {
+      "title": "Spacetime Emergence in the Memory of a Learning Agent",
+      "url": "http://arxiv.org/abs/2611.03596v1",
+      "source": "arxiv",
+      "relevance": 7.8
+    },
+    {
+      "title": "DiabAgent: Toward Agentic Physiological Control",
+      "url": "http://arxiv.org/abs/2611.03601v1",
+      "source": "arxiv",
+      "relevance": 7.7
     }
   ],
   "status": "planned",
   "created_at": "2026-10-29T00:13:36-05:00",
-  "updated_at": "2026-11-03T01:29:31-05:00"
+  "updated_at": "2026-11-03T07:41:44-05:00"
 }

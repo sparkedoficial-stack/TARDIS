@@ -96,9 +96,15 @@
       "url": "http://arxiv.org/abs/2611.03060v1",
       "source": "arxiv",
       "relevance": 6.1
+    },
+    {
+      "title": "ufakzeka-kulak: Building and Evaluating a 31.6M-Parameter Turkish Speech Recognizer from Scratch",
+      "url": "http://arxiv.org/abs/2611.03605v1",
+      "source": "arxiv",
+      "relevance": 6.6
     }
   ],
   "status": "planned",
   "created_at": "2026-10-29T00:13:36-05:00",
-  "updated_at": "2026-11-03T01:29:31-05:00"
+  "updated_at": "2026-11-03T07:41:44-05:00"
 }

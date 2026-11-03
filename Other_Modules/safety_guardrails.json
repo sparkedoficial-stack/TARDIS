@@ -72,9 +72,33 @@
       "url": "http://arxiv.org/abs/2611.03109v1",
       "source": "arxiv",
       "relevance": 10.3
+    },
+    {
+      "title": "Library of Layers (LoL): Adaptively Ordering Transformer Layers at Runtime",
+      "url": "http://arxiv.org/abs/2611.03526v1",
+      "source": "arxiv",
+      "relevance": 9.3
+    },
+    {
+      "title": "VeriHarm-Bench: Measuring Harmful Success in LLM Coding Agents Verifiably",
+      "url": "http://arxiv.org/abs/2611.03575v1",
+      "source": "arxiv",
+      "relevance": 9.2
+    },
+    {
+      "title": "VIAS: Value-Isolating Activation Steering for Multi-Value Alignment and Compliance for Organisations",
+      "url": "http://arxiv.org/abs/2611.03518v1",
+      "source": "arxiv",
+      "relevance": 7.8
+    },
+    {
+      "title": "Thought-deciphering via hierarchical EEG-to-text alignment",
+      "url": "http://arxiv.org/abs/2611.03623v1",
+      "source": "arxiv",
+      "relevance": 2.6
     }
   ],
   "status": "planned",
   "created_at": "2026-10-29T00:13:36-05:00",
-  "updated_at": "2026-11-03T01:29:31-05:00"
+  "updated_at": "2026-11-03T07:41:44-05:00"
 }

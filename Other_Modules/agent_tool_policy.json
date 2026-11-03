@@ -8,54 +8,6 @@
   "rollback": "Reactivar la política anterior en coding_router.json.",
   "evidence": [
     {
-      "title": "From extreme weather to agricultural consequences with agentic AI",
-      "url": "http://arxiv.org/abs/2610.40641v1",
-      "source": "arxiv",
-      "relevance": 5.6
-    },
-    {
-      "title": "Collaborative AI agents for autonomous experimental research with solid-state quantum spins",
-      "url": "http://arxiv.org/abs/2610.40589v1",
-      "source": "arxiv",
-      "relevance": 3.7
-    },
-    {
-      "title": "Subquadratic Attention with a Hierarchical Tree-Structured Indexer",
-      "url": "http://arxiv.org/abs/2610.42112v1",
-      "source": "arxiv",
-      "relevance": 23.5
-    },
-    {
-      "title": "Latent Sparse Attention: Towards Subquadratic Ultra-Long Context Attention",
-      "url": "http://arxiv.org/abs/2610.42147v1",
-      "source": "arxiv",
-      "relevance": 17.2
-    },
-    {
-      "title": "Flide: Accelerating Decision Inference with Exact State Forking",
-      "url": "http://arxiv.org/abs/2610.42148v1",
-      "source": "arxiv",
-      "relevance": 11.3
-    },
-    {
-      "title": "RoboArchitect: Automating the Design of Robotic Agents with Persistent Memory",
-      "url": "http://arxiv.org/abs/2610.42141v1",
-      "source": "arxiv",
-      "relevance": 11.0
-    },
-    {
-      "title": "Hierarchical World Models with Implicit Dynamics",
-      "url": "http://arxiv.org/abs/2610.42146v1",
-      "source": "arxiv",
-      "relevance": 8.3
-    },
-    {
-      "title": "Towards Understanding the Impact of Plasticity Loss on Reinforcement Learning in Stochastic Environments",
-      "url": "http://arxiv.org/abs/2610.42100v1",
-      "source": "arxiv",
-      "relevance": 3.1
-    },
-    {
       "title": "DR Pixel: Page-Native Deep Research with Vision-Language Models",
       "url": "http://arxiv.org/abs/2611.03097v1",
       "source": "arxiv",
@@ -102,9 +54,57 @@
       "url": "http://arxiv.org/abs/2611.03042v1",
       "source": "arxiv",
       "relevance": 3.7
+    },
+    {
+      "title": "Strategist: Evolving Reasoning with Agents",
+      "url": "http://arxiv.org/abs/2611.03618v1",
+      "source": "arxiv",
+      "relevance": 9.7
+    },
+    {
+      "title": "NitiBench+: A Temporal Thai Legal Question Answering Benchmark Across 17 Domains",
+      "url": "http://arxiv.org/abs/2611.03576v1",
+      "source": "arxiv",
+      "relevance": 9.2
+    },
+    {
+      "title": "VeriHarm-Bench: Measuring Harmful Success in LLM Coding Agents Verifiably",
+      "url": "http://arxiv.org/abs/2611.03575v1",
+      "source": "arxiv",
+      "relevance": 9.2
+    },
+    {
+      "title": "Four Bridges: Measuring Deception Propensity in a Multi-Agent Game",
+      "url": "http://arxiv.org/abs/2611.03600v1",
+      "source": "arxiv",
+      "relevance": 8.7
+    },
+    {
+      "title": "Spacetime Emergence in the Memory of a Learning Agent",
+      "url": "http://arxiv.org/abs/2611.03596v1",
+      "source": "arxiv",
+      "relevance": 7.8
+    },
+    {
+      "title": "VIAS: Value-Isolating Activation Steering for Multi-Value Alignment and Compliance for Organisations",
+      "url": "http://arxiv.org/abs/2611.03518v1",
+      "source": "arxiv",
+      "relevance": 7.8
+    },
+    {
+      "title": "DiabAgent: Toward Agentic Physiological Control",
+      "url": "http://arxiv.org/abs/2611.03601v1",
+      "source": "arxiv",
+      "relevance": 7.7
+    },
+    {
+      "title": "WebHarbor: Docking Real Websites for Evolving GUI Agent Environments",
+      "url": "http://arxiv.org/abs/2611.03634v1",
+      "source": "arxiv",
+      "relevance": 6.6
     }
   ],
   "status": "planned",
   "created_at": "2026-10-29T00:13:36-05:00",
-  "updated_at": "2026-11-03T01:29:31-05:00"
+  "updated_at": "2026-11-03T07:41:44-05:00"
 }

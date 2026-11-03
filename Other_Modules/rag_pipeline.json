@@ -8,30 +8,6 @@
   "rollback": "Conservar el índice actual.",
   "evidence": [
     {
-      "title": "An ODE-based Sampler for Discrete Diffusion Models",
-      "url": "http://arxiv.org/abs/2610.40618v1",
-      "source": "arxiv",
-      "relevance": 5.6
-    },
-    {
-      "title": "When to Assist and What to Suggest: Joint Gating and Memory-Grounded Hint Generation in One Compact Decoder",
-      "url": "http://arxiv.org/abs/2610.40611v1",
-      "source": "arxiv",
-      "relevance": 4.1
-    },
-    {
-      "title": "Probing Spatial State Representations in Visual Foundation Models",
-      "url": "http://arxiv.org/abs/2610.40636v1",
-      "source": "arxiv",
-      "relevance": 3.5
-    },
-    {
-      "title": "Subquadratic Attention with a Hierarchical Tree-Structured Indexer",
-      "url": "http://arxiv.org/abs/2610.42112v1",
-      "source": "arxiv",
-      "relevance": 23.5
-    },
-    {
       "title": "DecisionRank: On-Policy Distillation for Decision-Model Rerankers",
       "url": "http://arxiv.org/abs/2610.42128v1",
       "source": "arxiv",
@@ -102,9 +78,33 @@
       "url": "http://arxiv.org/abs/2611.03150v1",
       "source": "arxiv",
       "relevance": 3.6
+    },
+    {
+      "title": "FADE: Factored Ability--Difficulty Filtering for Online RLVR Scheduling",
+      "url": "http://arxiv.org/abs/2611.03625v1",
+      "source": "arxiv",
+      "relevance": 11.1
+    },
+    {
+      "title": "NitiBench+: A Temporal Thai Legal Question Answering Benchmark Across 17 Domains",
+      "url": "http://arxiv.org/abs/2611.03576v1",
+      "source": "arxiv",
+      "relevance": 9.2
+    },
+    {
+      "title": "Four Bridges: Measuring Deception Propensity in a Multi-Agent Game",
+      "url": "http://arxiv.org/abs/2611.03600v1",
+      "source": "arxiv",
+      "relevance": 8.7
+    },
+    {
+      "title": "VIAS: Value-Isolating Activation Steering for Multi-Value Alignment and Compliance for Organisations",
+      "url": "http://arxiv.org/abs/2611.03518v1",
+      "source": "arxiv",
+      "relevance": 7.8
     }
   ],
   "status": "planned",
   "created_at": "2026-10-29T00:13:36-05:00",
-  "updated_at": "2026-11-03T01:29:31-05:00"
+  "updated_at": "2026-11-03T07:41:44-05:00"
 }
