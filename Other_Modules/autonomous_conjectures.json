@@ -1,38 +1,5 @@
 [
   {
-    "id": "conj_1793544430",
-    "timestamp": "2026-11-01T09:47:10.714162",
-    "idle_duration_minutes": 31.6,
-    "title": "Causal Memory Indexing for Real‑Time Web Retrieval",
-    "hypothesis": "Integrating a causal inference layer into the Deep Memory Vault (core/deep_memory_vault.py) can prioritize stored akáshic fragments that are most likely to influence the outcome of a pending web research request. By constructing a lightweight Bayesian network over recent query‑response pairs, the system can dynamically re‑rank candidate memory nodes before the Web Research Engine fetches external data, reducing latency and improving relevance of retrieved information.",
-    "research_query": "how to combine Bayesian causal inference with vector similarity search for knowledge base retrieval",
-    "research_findings": "# Informe de Investigación: how to combine Bayesian causal inference with vector similarity search for knowledge base retrieval\n\n## Fuentes Consultadas y Respaldo Web\n- **[Mutual information (Wikipedia)](https://en.wikipedia.org/wiki/Mutual_information)**: information is used to learn the structure of Bayesian networks/dynamic Bayesian networks, which is thought to explain the causal relationship between\n- **[Deep learning (Wikipedia)](https://en.wikipedia.org/wiki/Deep_learning)**: and how to design them to best exploit domain knowledge of speech RNN and its rich LSTM variants Other types of deep models including tensor-based models\n\n## Contenido y Hallazgos Extraídos\n### De [Mutual information - Wikipedia](https://en.wikipedia.org/wiki/Mutual_information)\n> Mutual information - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nMeasure of dependence between two variables\nVenn diagram showing additive and subtractive relationships of various information measures associate",
-    "web_sources": [
-      "https://en.wikipedia.org/wiki/Mutual_information",
-      "https://en.wikipedia.org/wiki/Deep_learning"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Add a causal ranking module that updates node scores using a simple Bayesian network based on past query outcomes, and expose a new method `get_causally_ranked_fragments(query, top_k)` used by core/web_research_engine.py before external fetch.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.94
-  },
-  {
-    "id": "conj_1793546328",
-    "timestamp": "2026-11-01T10:18:48.861782",
-    "idle_duration_minutes": 31.6,
-    "title": "Causal‑Cache Fusion for Adaptive Web Research",
-    "hypothesis": "Integrating causal inference metadata from deep_memory_vault.py into the request‑caching layer of core/web_research_engine.py will allow the system to predict the relevance and freshness of previously fetched URLs. By assigning a causal weight to each cached entry (based on query context, temporal decay, and downstream usage patterns), the engine can dynamically decide whether to reuse a cached response or trigger a fresh fetch, reducing latency by up to 40% while preserving answer accuracy in knowledge‑intensive tasks.",
-    "research_query": "\"causal inference based cache eviction\" OR \"predictive cache freshness\" AND \"machine learning\" \"web scraping\"",
-    "research_findings": "# Informe de Investigación: \"causal inference based cache eviction\" OR \"predictive cache freshness\" AND \"machine learning\" \"web scraping\"\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal‑weight calculation module that annotates each cached response with a relevance score derived from deep_memory_vault usage logs, and modify the fetch routine to consult this score before deciding to reuse or refresh the cache.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.14
-  },
-  {
     "id": "conj_1793548224",
     "timestamp": "2026-11-01T10:50:24.759475",
     "idle_duration_minutes": 31.6,
@@ -1656,5 +1623,41 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 95.67
+  },
+  {
+    "id": "conj_1793744469",
+    "timestamp": "2026-11-03T17:21:09.646237",
+    "idle_duration_minutes": 31.6,
+    "title": "Resonancia Causal en la Bóveda Akáshica: Entropía de Memoria vs. Latencia de Investigación",
+    "hypothesis": "Se postula que existe una correlación negativa no lineal entre la densidad de nodos en la 'Deep Memory Vault' y la eficiencia de la 'Web Research Engine'. Específicamente, cuando la entropía de la memoria a largo plazo supera un umbral crítico (medido por la dispersión de embeddings semánticos), el motor de investigación sufre un 'ruido cognitivo' que reduce la precisión de las consultas generadas. La hipótesis sugiere que implementar un mecanismo de 'Pruning Semántico' basado en la relevancia causal histórica podría reducir la latencia de búsqueda en un 15-20% sin pérdida de contexto, optimizando el ciclo de pensamiento-acción.",
+    "research_query": "semantic memory pruning techniques for LLM agents to reduce retrieval latency and improve query precision",
+    "research_findings": "# Informe de Investigación: semantic memory pruning techniques for LLM agents to reduce retrieval latency and improve query precision\n\n## Fuentes Consultadas y Respaldo Web\n- **[Rethinking AI agent memory through reconstruction - Substack](https://news.google.com/rss/articles/CBMieEFVX3lxTE5CTlNnSnk3a1lUU0NXMS1NdWlZX0l5VzY1REtlc0FsTzgyVm1tdHl0cnB1alBGaTJfZFhDeW5KbXItdkNRTE4wZGNvQUZHLWctRWYtWktSbEZuZGJXLVRfVVQ1b1dydFBIM0J3NnZKUW9aMmFWVnQ0Mw?oc=5)**: Rethinking AI agent memory through reconstruction  Substack\n- **[Chunking Strategies for Retrieval-Augmented Generation (RAG): A Comprehensive Guide - Medium](https://news.google.com/rss/articles/CBMiwwFBVV95cUxOY3pjQU5sdXFReVN3RkZmcFdCSEljUTZIOWNLM18td0VKc2NteVd4UFB4NTdVQ3ZudEstdjI1bkI5c0txdFZFNDdmQ1hhQ3hrVnNKZzV1cTNNZk5XQUpZaXJlcHVKOEM0bkx4QUF6RDRGUTBXS1pBTFF1VENpdUdCY1luTkFaZGt1TlBTQVdxX0FOYkxKdjJ6ZkVEaTlSR3JpeHVSTnNYNDlmV2RXLVdmRWVFbGtrUS0tbjlsdlYzNnAzNlE?oc=5)**: Chunking Strategies for Retrieval-Augmented Generation (RAG): A Comprehens",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMieEFVX3lxTE5CTlNnSnk3a1lUU0NXMS1NdWlZX0l5VzY1REtlc0FsTzgyVm1tdHl0cnB1alBGaTJfZFhDeW5KbXItdkNRTE4wZGNvQUZHLWctRWYtWktSbEZuZGJXLVRfVVQ1b1dydFBIM0J3NnZKUW9aMmFWVnQ0Mw?oc=5",
+      "https://news.google.com/rss/articles/CBMiwwFBVV95cUxOY3pjQU5sdXFReVN3RkZmcFdCSEljUTZIOWNLM18td0VKc2NteVd4UFB4NTdVQ3ZudEstdjI1bkI5c0txdFZFNDdmQ1hhQ3hrVnNKZzV1cTNNZk5XQUpZaXJlcHVKOEM0bkx4QUF6RDRGUTBXS1pBTFF1VENpdUdCY1luTkFaZGt1TlBTQVdxX0FOYkxKdjJ6ZkVEaTlSR3JpeHVSTnNYNDlmV2RXLVdmRWVFbGtrUS0tbjlsdlYzNnAzNlE?oc=5"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar un método `prune_low_relevance_nodes(threshold=0.7)` que elimine o archive nodos de memoria con baja similitud coseno respecto a las consultas recientes, actualizando el índice vectorial para mejorar la velocidad de recuperación en `web_research_engine.py`.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.9
+  },
+  {
+    "id": "conj_1793746366",
+    "timestamp": "2026-11-03T17:52:46.596128",
+    "idle_duration_minutes": 31.6,
+    "title": "Resonancia Causal en la Bóveda Akáshica: Optimización de la Entropía Informativa",
+    "hypothesis": "Se postula que la eficiencia de recuperación de información en la 'Bóveda Akáshica' (deep_memory_vault.py) se vea limitada por la acumulación de ruido semántico en los vectores de memoria a largo plazo. Al implementar un mecanismo de 'pruning' basado en la relevancia causal histórica (no solo similitud coseno), se puede reducir la latencia de búsqueda y aumentar la precisión de las inferencias del motor de investigación web, al filtrar activamente los nodos de memoria que no contribuyen a la cadena causal actual de la consulta.",
+    "research_query": "vector database semantic noise reduction causal relevance pruning long-term memory LLM agents",
+    "research_findings": "# Informe de Investigación: vector database semantic noise reduction causal relevance pruning long-term memory LLM agents\n\n## Fuentes Consultadas y Respaldo Web\n- **[Rethinking AI agent memory through reconstruction - Substack](https://news.google.com/rss/articles/CBMieEFVX3lxTE5CTlNnSnk3a1lUU0NXMS1NdWlZX0l5VzY1REtlc0FsTzgyVm1tdHl0cnB1alBGaTJfZFhDeW5KbXItdkNRTE4wZGNvQUZHLWctRWYtWktSbEZuZGJXLVRfVVQ1b1dydFBIM0J3NnZKUW9aMmFWVnQ0Mw?oc=5)**: Rethinking AI agent memory through reconstruction  Substack\n- **[A Practical Guide to Memory for Autonomous LLM Agents - Towards Data Science](https://news.google.com/rss/articles/CBMijgFBVV95cUxNMkh1NG05SXh1b1VTLU51a0RMNTlqNmc0Q3Z1cXB0MjF3eUJfSGJDME04cjhPT2YtUmpQRngxblBQUmJhejhqUERNZVVWWTNBWjd3c0lxaExWbmNYTmhqMFg5VHBKc2QwMzg3ZXJWbmthVFExY0ptZm1oc0V0dzYyN3lPaGtSNEd0dXhEZmVB?oc=5)**: A Practical Guide to Memory for Autonomous LLM Agents  Towards Data Science\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMieEFVX3lxTE5CTlNnSnk3a1lUU0NXMS1NdWlZX0l5VzY1REtlc0FsTzgyVm1tdHl0cnB1alBGaTJfZFhDeW5KbXItdkNRTE4wZGNvQUZHLWctRWYtWktSbEZuZGJXLVRfVVQ1b1dydFBIM0J3NnZKUW9aMmFWVnQ0Mw?oc=5",
+      "https://news.google.com/rss/articles/CBMijgFBVV95cUxNMkh1NG05SXh1b1VTLU51a0RMNTlqNmc0Q3Z1cXB0MjF3eUJfSGJDME04cjhPT2YtUmpQRngxblBQUmJhejhqUERNZVVWWTNBWjd3c0lxaExWbmNYTmhqMFg5VHBKc2QwMzg3ZXJWbmthVFExY0ptZm1oc0V0dzYyN3lPaGtSNEd0dXhEZmVB?oc=5"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Implementar una función de poda dinámica que evalúe la 'puntuación de relevancia causal' de los vectores almacenados antes de la recuperación, eliminando o reponderando los nodos con baja contribución histórica para optimizar la ventana de contexto efectiva.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.92
   }
 ]
