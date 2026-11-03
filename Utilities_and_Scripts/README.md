@@ -47,10 +47,12 @@ Automatizaciones de sistema, diagnósticos de hardware, optimizadores de SO y he
 - **tardis_bliss_mac_auto.sh**: Componente de alta eficiencia.
 - **tardis_command.sh**: Componente de alta eficiencia.
 - **tardis_deploy_android17_mac.sh**: Componente de alta eficiencia.
+- **tardis_fase_b.sh**: Componente de alta eficiencia.
 - **tardis_fix_mac_bootloop.sh**: Componente de alta eficiencia.
 - **tardis_install_android17_mac_adb.sh**: Componente de alta eficiencia.
 - **tardis_patch_manifest.py**: Componente de alta eficiencia.
 - **tardis_patch_manifest_generic.py**: Componente de alta eficiencia.
+- **tardis_recover.sh**: Componente de alta eficiencia.
 - **tardis_system_snapshot.sh**: Componente de alta eficiencia.
 - **tardis_usb_injector.sh**: Componente de alta eficiencia.
 - **tardis_usb_kit.sh**: Componente de alta eficiencia.
