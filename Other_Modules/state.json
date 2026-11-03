@@ -2,11 +2,11 @@
   "enabled": true,
   "interval_minutes": 35.0,
   "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.737965,
-  "last_video_id": "vp_20261102_194835_ee0c96",
-  "last_topic": "Holographic Entanglement Entropy and the Ryu‑Takayanagi Formula in AdS/CFT",
-  "total_videos_analyzed": 874,
-  "running_cycle": true,
+  "last_run_timestamp": REDACTED_PHONE.0246756,
+  "last_video_id": "vp_20261102_203920_a391a0",
+  "last_topic": "Computación Fotónica y Circuitos Integrados de Guías de Onda",
+  "total_videos_analyzed": 875,
+  "running_cycle": false,
   "last_error": null,
   "auto_improvement_count": 419
 }
