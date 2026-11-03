@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1793494690",
-    "timestamp": "2026-10-31T19:58:10.134094",
-    "idle_duration_minutes": 31.6,
-    "title": "Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching mechanism can dynamically predict the obsolescence of stored query results based on observed changes in source domains (e.g., news sites, APIs). By modeling the temporal dependency between content updates and cached entries, the system can pre‑emptively invalidate or refresh only those entries whose underlying sources have likely changed, reducing stale data while minimizing unnecessary network traffic. This approach leverages the Deep Memory Vault's event logs to train a lightweight Bayesian network that estimates the probability of cache staleness for each URL, enabling adaptive cache policies that outperform static TTL strategies.",
-    "research_query": "causal inference based cache invalidation web scraping dynamic content Bayesian network TTL alternatives",
-    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web scraping dynamic content Bayesian network TTL alternatives\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal cache manager that uses event timestamps from deep_memory_vault to compute staleness probabilities and automatically refresh or discard cached results.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.96
-  },
-  {
     "id": "conj_1793496587",
     "timestamp": "2026-10-31T20:29:47.342307",
     "idle_duration_minutes": 31.6,
@@ -1654,5 +1639,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 104.86
+  },
+  {
+    "id": "conj_1793694510",
+    "timestamp": "2026-11-03T03:28:30.158460",
+    "idle_duration_minutes": 31.6,
+    "title": "Causal‑Feedback Loop for Adaptive Web Research Caching",
+    "hypothesis": "Integrating a causal‑feedback mechanism between the Web Research Engine and the Deep Memory Vault will allow the system to predict the relevance of future queries based on past retrieval success, enabling proactive caching of high‑probability results. This adaptive cache would reduce latency, lower network load, and improve the fidelity of the akáshic vault by reinforcing patterns that historically contributed to successful knowledge synthesis.",
+    "research_query": "adaptive caching based on causal inference for web search engines \"deep memory\" \"knowledge vault\"",
+    "research_findings": "# Informe de Investigación: adaptive caching based on causal inference for web search engines \"deep memory\" \"knowledge vault\"\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Implement a lightweight causal predictor that scores upcoming queries using recent retrieval success metrics, and extend the engine with an async pre‑fetch cache that stores top‑N predicted results for immediate reuse.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.33
   }
 ]
