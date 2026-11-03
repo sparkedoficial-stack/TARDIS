@@ -1,34 +1,6 @@
 [
   {
     "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
-    "goal": "Implementar una capa de caché inteligente que almacene respuestas de búsquedas, calcule la entropía semántica de los resultados y ajuste dinámicamente el TTL; además, añadir soporte async y limitador de tasa para evitar sobrecarga de la red.",
-    "status": "REJECTED",
-    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
-    "elapsed_seconds": 91.48,
-    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/web_research_engine.py.20261031_114616.bak",
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Respuesta generada demasiado corta (0 vs 35266 bytes)",
-    "timestamp": "2026-10-31T11:47:48.011296"
-  },
-  {
-    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/deep_memory_vault.py",
-    "goal": "Add vector embedding generation and ANN indexing to deep_memory_vault for efficient semantic retrieval",
-    "status": "REJECTED",
-    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
-    "elapsed_seconds": 91.54,
-    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/deep_memory_vault.py.20261031_122102.bak",
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Respuesta generada demasiado corta (0 vs 33875 bytes)",
-    "timestamp": "2026-10-31T12:22:33.706359"
-  },
-  {
-    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
     "goal": "Add a lightweight causal graph module that captures dependencies between query features, source credibility scores, and result selection; modify the ranking function to weight results using inferred causal impact, and expose a configurable threshold for adaptive routing.",
     "status": "REJECTED",
     "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
@@ -1398,5 +1370,33 @@
     "efficiency_improvement": null,
     "error": "Respuesta generada demasiado corta (0 vs 34371 bytes)",
     "timestamp": "2026-11-02T17:39:50.284683"
+  },
+  {
+    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/deep_memory_vault.py",
+    "goal": "Refactorizar el método de indexación para incorporar un grafo de dependencias causales entre los nodos de memoria, permitiendo que la búsqueda retorne subgrafos causales coherentes en lugar de vectores aislados.",
+    "status": "REJECTED",
+    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
+    "elapsed_seconds": 90.61,
+    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/deep_memory_vault.py.20261102_180958.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "Respuesta generada demasiado corta (0 vs 34371 bytes)",
+    "timestamp": "2026-11-02T18:11:28.892431"
+  },
+  {
+    "target_file": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/deep_memory_vault.py",
+    "goal": "Añadir una función de ponderación causal al método de búsqueda de la bóveda, que asigne pesos dinámicos a los nodos basados en su historial de uso y relevancia temporal.",
+    "status": "REJECTED",
+    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
+    "elapsed_seconds": 90.61,
+    "backup_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/_selfmod_backups/deep_memory_vault.py.20261102_184134.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "Respuesta generada demasiado corta (0 vs 34371 bytes)",
+    "timestamp": "2026-11-02T18:43:04.880528"
   }
 ]

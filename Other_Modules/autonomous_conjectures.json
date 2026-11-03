@@ -1,38 +1,5 @@
 [
   {
-    "id": "conj_1793461440",
-    "timestamp": "2026-10-31T10:44:00.441215",
-    "idle_duration_minutes": 32.7,
-    "title": "Dynamic Causal Prompt Routing for Context‑Aware Web Research",
-    "hypothesis": "If the Web Research Engine dynamically selects and re‑ranks search prompts based on causal inference from the Deep Memory Vault's recent retrieval patterns, then the relevance and precision of fetched web snippets will improve by at least 15% compared to the current static prompt set. The hypothesis rests on the idea that the system can infer latent intent chains (e.g., \"user asked about X, then Y\") and adapt the query generation pipeline in real time, leveraging the vault's temporal embeddings as a causal context graph.",
-    "research_query": "adaptive prompt generation based on causal inference for web search engines academic papers 2023 2024",
-    "research_findings": "# Informe de Investigación: adaptive prompt generation based on causal inference for web search engines academic papers 2023 2024\n\n## Fuentes Consultadas y Respaldo Web\n- **[Causal inference via algebraic geometry: feasibility tests for functional causal structures with two binary observed variables (arXiv)](http://arxiv.org/abs/1506.03880v2)**: We provide a scheme for inferring causal relations from uncontrolled statistical data based on tools from computational algebraic geometry, in particular, the computation of Groebner bases. We focus on causal structures containing just two observed variables, each of which is binary. We consider the consequences of imposing different restrictions o\n- **[The Retrieval Effectiveness of Web Search Engines: Considering Results Descriptions (arXiv)](http://arxiv.org/abs/1511.05800v1)**: Purpose: To compare five major Web search engines (Google, Yahoo, MSN, Ask.com, and Seekport) for their retrieval effectiveness, taking into account not only the res",
-    "web_sources": [
-      "http://arxiv.org/abs/1506.03880v2",
-      "http://arxiv.org/abs/1511.05800v1"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Implement a CausalPromptRouter class that consumes recent memory embeddings from deep_memory_vault, builds a lightweight directed acyclic graph of intent causality, and produces a ranked list of query templates. Integrate this router into the existing search pipeline to replace the static prompt list, adding fallback to the original prompts when causal confidence is low.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 97.84
-  },
-  {
-    "id": "conj_1793463338",
-    "timestamp": "2026-10-31T11:15:38.499641",
-    "idle_duration_minutes": 31.6,
-    "title": "Causal Cache Layer for Web Research Engine",
-    "hypothesis": "Integrating a causal-aware caching layer into core/web_research_engine.py will reduce redundant external queries by 40% while preserving the temporal relevance of retrieved data, because the engine can infer when a new request is causally dependent on previously fetched information and reuse cached results with appropriate freshness metadata.",
-    "research_query": "causal caching strategies for web search APIs \"temporal relevance\" cache invalidation based on causal dependency",
-    "research_findings": "# Informe de Investigación: causal caching strategies for web search APIs \"temporal relevance\" cache invalidation based on causal dependency\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Implement a lightweight causal cache that stores query signatures, response payloads, and timestamps; add logic to check causal dependency before issuing a new HTTP request, and provide configurable freshness thresholds.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.04
-  },
-  {
     "id": "conj_1793465268",
     "timestamp": "2026-10-31T11:47:48.025651",
     "idle_duration_minutes": 32.2,
@@ -1655,5 +1622,41 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 99.3
+  },
+  {
+    "id": "conj_1793661088",
+    "timestamp": "2026-11-02T18:11:28.909902",
+    "idle_duration_minutes": 31.6,
+    "title": "Resonancia Causal en la Bóveda Akáshica: Entropía Temporal y Compresión Semántica",
+    "hypothesis": "Se postula que la eficiencia de recuperación de información en la 'Bóveda Akáshica' (deep_memory_vault.py) no depende linealmente del volumen de datos, sino de la 'densidad causal' entre eventos. Actualmente, el sistema podría estar indexando nodos de memoria de forma aislada. La conjetura es que implementar un mecanismo de 'Compresión Semántica Causal' —donde las memorias se agrupan no por similitud textual, sino por la probabilidad de que una acción A cause el estado B— reduciría la latencia de búsqueda en un 40% y aumentaría la precisión de la inferencia del web_research_engine.py al priorizar cadenas causales completas sobre fragmentos sueltos. Esto requiere modificar la estructura de datos de la bóveda para incluir vectores de 'flujo causal' en lugar de solo embeddings de contenido.",
+    "research_query": "causal inference memory compression LLM vector database semantic search optimization",
+    "research_findings": "# Informe de Investigación: causal inference memory compression LLM vector database semantic search optimization\n\n## Fuentes Consultadas y Respaldo Web\n- **[Optimizing LLM Performance with LM Cache: Architectures, Strategies, and Real-World Applications - HackerNoon](https://news.google.com/rss/articles/CBMitwFBVV95cUxNNWx4OWN2Yms5SHZHd2lFSk1rRXpCdUxmRnpydzR6U3c5eWIxbEJDZ2JEMTB6WmdQNkFfdEtnOGRVdE00RGkxWG1lQVpQZlFZcllRTUFwbHdkZENBLVVRODkyR0wydzBpcWZlZWdZVzB4WUFwQXFUSHJlc3AyTnhBNjNQRHpJcllieXp4NWJoNUpQTzUyMW51M2kwaDd5ZnhjT0ROR2ZBX2pFR1EwMmxIdkNEcF9PNFU?oc=5)**: Optimizing LLM Performance with LM Cache: Architectures, Strategies, and Real-World Applications  HackerNoon\n- **[List of datasets for machine-learning research (Wikipedia)](https://en.wikipedia.org/wiki/List_of_datasets_for_machine-learning_research)**: Sindhwani, Vikas; Keerthi, Sathiya S. (2008). \"Optimization techniques for semi-supervised support vector machines\" (PDF). The Journal of Machine Learning\n\n## Contenido y Hallazgo",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMitwFBVV95cUxNNWx4OWN2Yms5SHZHd2lFSk1rRXpCdUxmRnpydzR6U3c5eWIxbEJDZ2JEMTB6WmdQNkFfdEtnOGRVdE00RGkxWG1lQVpQZlFZcllRTUFwbHdkZENBLVVRODkyR0wydzBpcWZlZWdZVzB4WUFwQXFUSHJlc3AyTnhBNjNQRHpJcllieXp4NWJoNUpQTzUyMW51M2kwaDd5ZnhjT0ROR2ZBX2pFR1EwMmxIdkNEcF9PNFU?oc=5",
+      "https://en.wikipedia.org/wiki/List_of_datasets_for_machine-learning_research"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Refactorizar el método de indexación para incorporar un grafo de dependencias causales entre los nodos de memoria, permitiendo que la búsqueda retorne subgrafos causales coherentes en lugar de vectores aislados.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.41
+  },
+  {
+    "id": "conj_1793662985",
+    "timestamp": "2026-11-02T18:43:05.323150",
+    "idle_duration_minutes": 31.6,
+    "title": "Resonancia Causal en la Bóveda Akáshica",
+    "hypothesis": "La eficiencia de recuperación de información en la bóveda akáshica se ve limitada por la linealidad de las consultas actuales. Se conjetura que implementar un mecanismo de 'resonancia causal' —donde las consultas no solo buscan coincidencias semánticas, sino que evalúan la probabilidad de impacto futuro de la información en el estado del sistema— reduciría la latencia de decisión en un 30% y mejoraría la precisión de la telemetría predictiva. Esto requiere modificar el motor de investigación para que priorice nodos de conocimiento con alta correlación causal histórica.",
+    "research_query": "causal inference in knowledge graph retrieval systems for predictive maintenance",
+    "research_findings": "# Informe de Investigación: causal inference in knowledge graph retrieval systems for predictive maintenance\n\n## Fuentes Consultadas y Respaldo Web\n- **[Combinatorial prediction of therapeutic perturbations using causally inspired neural networks - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTFBwaHlsM3k0cmYyYlFXeTFjc3NsbmtmUXU0VGlFWUttMGhmQ1Z4UGFDVFQ5RzZqNENGaXdxM0dhd1k5bTFyMDg4MHoxMjhobktyV0Q5cDNZcnlfLUFRODUw?oc=5)**: Combinatorial prediction of therapeutic perturbations using causally inspired neural networks  Nature\n- **[KG-EIGNN: a knowledge graph based graph neural network for fault detection in industrial systems - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE5pRmZTVnVXSkw5ZHpnamFFRHZ3RkxmWnVndFFNQVBpdWxRTlFwTTZJSlQwRXczMUFwbzFTQXlaZjlxYkthRDhIaFBDOHFhbXItSzMtcTN3dlVLVWtPWDFj?oc=5)**: KG-EIGNN: a knowledge graph based graph neural network for fault detection in industrial systems  Nature\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTFBwaHlsM3k0cmYyYlFXeTFjc3NsbmtmUXU0VGlFWUttMGhmQ1Z4UGFDVFQ5RzZqNENGaXdxM0dhd1k5bTFyMDg4MHoxMjhobktyV0Q5cDNZcnlfLUFRODUw?oc=5",
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE5pRmZTVnVXSkw5ZHpnamFFRHZ3RkxmWnVndFFNQVBpdWxRTlFwTTZJSlQwRXczMUFwbzFTQXlaZjlxYkthRDhIaFBDOHFhbXItSzMtcTN3dlVLVWtPWDFj?oc=5"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Añadir una función de ponderación causal al método de búsqueda de la bóveda, que asigne pesos dinámicos a los nodos basados en su historial de uso y relevancia temporal.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 96.37
   }
 ]
