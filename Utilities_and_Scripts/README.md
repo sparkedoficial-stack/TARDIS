@@ -43,12 +43,15 @@ Automatizaciones de sistema, diagnósticos de hardware, optimizadores de SO y he
 - **sovereign_antarctic_network.sh**: Componente de alta eficiencia.
 - **start_tardis_terminal.sh**: Componente de alta eficiencia.
 - **start_ubuntu.sh**: Componente de alta eficiencia.
+- **tardis_backup_run.sh**: Componente de alta eficiencia.
 - **tardis_bliss_mac_auto.sh**: Componente de alta eficiencia.
 - **tardis_command.sh**: Componente de alta eficiencia.
 - **tardis_deploy_android17_mac.sh**: Componente de alta eficiencia.
 - **tardis_fix_mac_bootloop.sh**: Componente de alta eficiencia.
 - **tardis_install_android17_mac_adb.sh**: Componente de alta eficiencia.
+- **tardis_system_snapshot.sh**: Componente de alta eficiencia.
 - **tardis_usb_injector.sh**: Componente de alta eficiencia.
+- **tardis_usb_kit.sh**: Componente de alta eficiencia.
 - **tardis_verify_mac_hardware.sh**: Componente de alta eficiencia.
 - **test_ai_chat.py**: Componente de alta eficiencia.
 - **test_antigravity_remote.py**: Componente de alta eficiencia.

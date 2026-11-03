@@ -70,7 +70,7 @@
       "welcome_enabled": true,
       "welcome_text": "👋 ¡Bienvenido/a {nombre} al grupo *{grupo}*! Soy TARDIS, asistente de inteligencia artificial y sistema de control temporal. Un placer tenerte aquí.",
       "created_at": "2026-09-29T09:31:52.567223",
-      "updated_at": "2026-11-03T02:22:44.053981",
+      "updated_at": "2026-11-03T12:02:49.936684",
       "members": {
         "REDACTED_PHONE": {
           "user_id": REDACTED_PHONE,
@@ -97,8 +97,8 @@
           "is_architect": false,
           "role": "creator",
           "first_seen": "2026-09-29T09:31:53.238465",
-          "last_seen": "2026-11-03T02:22:44.053981",
-          "message_count": 139
+          "last_seen": "2026-11-03T02:22:43.128997",
+          "message_count": 140
         },
         "REDACTED_PHONE": {
           "user_id": REDACTED_PHONE,
@@ -111,8 +111,8 @@
           "is_architect": true,
           "role": "creator",
           "first_seen": "2026-09-29T09:34:15.441248",
-          "last_seen": "2026-11-02T02:13:29.622887",
-          "message_count": 109
+          "last_seen": "2026-11-03T12:02:49.936684",
+          "message_count": 108
         },
         "REDACTED_PHONE": {
           "user_id": REDACTED_PHONE,
@@ -139,8 +139,8 @@
           "is_architect": false,
           "role": "member",
           "first_seen": "2026-09-29T20:28:55.117568",
-          "last_seen": "2026-11-03T02:14:29.894014",
-          "message_count": 10
+          "last_seen": "2026-11-03T02:11:59.058842",
+          "message_count": 5
         },
         "REDACTED_PHONE": {
           "user_id": REDACTED_PHONE,
@@ -214,8 +214,8 @@
       "is_bot": false,
       "is_architect": true,
       "first_seen": "2026-09-25T15:13:39.080612",
-      "last_seen": "2026-11-02T07:26:32.285334",
-      "message_count": 200
+      "last_seen": "2026-11-02T02:11:51.572192",
+      "message_count": 194
     },
     "555000111": {
       "chat_id": 555000111,
@@ -498,5 +498,5 @@
       "message_count": 2
     }
   },
-  "last_updated": "2026-11-03T02:22:44.054243"
+  "last_updated": "2026-11-03T12:02:49.940119"
 }
