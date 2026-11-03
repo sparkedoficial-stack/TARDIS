@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1793498588",
-    "timestamp": "2026-10-31T21:03:08.743339",
-    "idle_duration_minutes": 33.4,
-    "title": "Causal Cache Invalidation for Asynchronous Web Research",
-    "hypothesis": "Integrating a causal inference layer into the web_research_engine's asynchronous request handling can automatically invalidate cached search results when upstream data sources change, reducing stale data retrieval by up to 40% without manual cache TTL tuning.",
-    "research_query": "causal inference cache invalidation asynchronous web scraping Python",
-    "research_findings": "# Informe de Investigación: causal inference cache invalidation asynchronous web scraping Python\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Implement a lightweight causal monitor that tracks timestamps and content hashes of fetched URLs; when a change is detected, automatically purge related entries from the in‑memory cache and trigger a refresh in pending async tasks.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 108.71
-  },
-  {
     "id": "conj_1793500517",
     "timestamp": "2026-10-31T21:35:17.823909",
     "idle_duration_minutes": 32.2,
@@ -1654,5 +1639,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 98.66
+  },
+  {
+    "id": "conj_1793698337",
+    "timestamp": "2026-11-03T04:32:17.779900",
+    "idle_duration_minutes": 32.1,
+    "title": "Causal‑Feedback Loop for Adaptive Web Research Caching",
+    "hypothesis": "Integrar un mecanismo de retroalimentación causal entre el módulo core/web_research_engine.py y el core/deep_memory_vault.py permitirá que el motor de búsqueda aprenda, en tiempo real, qué consultas generan resultados de alta relevancia y almacene automáticamente esos resultados en la bóveda akáshica con una puntuación de confianza. Este bucle causal adaptativo reduciría la latencia de búsquedas repetitivas en un 40‑60% y mejoraría la precisión de respuestas posteriores al reutilizar contextos previamente validados, sin necesidad de intervención humana.",
+    "research_query": "causal feedback loop caching web search engine deep memory vault architecture",
+    "research_findings": "# Informe de Investigación: causal feedback loop caching web search engine deep memory vault architecture\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Implementar una capa de caché inteligente que, tras cada búsqueda, evalúe la relevancia del resultado mediante métricas de confianza y lo registre en deep_memory_vault con metadatos de causalidad; además, añadir lógica para reutilizar entradas cacheadas cuando la similitud de la nueva consulta supere un umbral configurable.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.33
   }
 ]
