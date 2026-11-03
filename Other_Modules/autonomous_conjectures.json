@@ -1,37 +1,5 @@
 [
   {
-    "id": "conj_1793515833",
-    "timestamp": "2026-11-01T01:50:33.052856",
-    "idle_duration_minutes": 32.7,
-    "title": "Optimización de la caché semántica en WebResearchEngine mediante embeddings temporales",
-    "hypothesis": "Si el módulo core/web_research_engine.py incorpora una capa de caché basada en embeddings temporales de los resultados de búsqueda, entonces se reducirá el tiempo medio de respuesta en un 30% y se mejorará la coherencia contextual de las consultas recurrentes, al permitir que la Bóveda akáshica (core/deep_memory_vault.py) reutilice representaciones semánticas en lugar de volver a parsear HTML completo.",
-    "research_query": "temporal embedding cache for web search engine python performance improvement semantic caching research",
-    "research_findings": "# Informe de Investigación: temporal embedding cache for web search engine python performance improvement semantic caching research\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Implementar una caché de resultados basada en vectores de embeddings (p. ej., usando SentenceTransformers) con expiración temporal y lógica de fallback a la Bóveda akáshica para reutilizar respuestas previas.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.83
-  },
-  {
-    "id": "conj_1793517762",
-    "timestamp": "2026-11-01T02:22:42.832413",
-    "idle_duration_minutes": 32.2,
-    "title": "Causal‑Cache Layer for Web Research Engine",
-    "hypothesis": "Integrating a causal‑aware caching layer into core/web_research_engine.py, which stores not only raw HTML responses but also the inferred causal graph of the retrieved information, will reduce redundant network calls by up to 40% and improve the relevance of subsequent queries by allowing the system to reason about the dependencies between previously fetched facts.",
-    "research_query": "causal inference caching web search engine performance reduction redundant requests",
-    "research_findings": "# Informe de Investigación: causal inference caching web search engine performance reduction redundant requests\n\n## Fuentes Consultadas y Respaldo Web\n- **[Making Uber’s Experiment Evaluation Engine 100x Faster - Uber](https://news.google.com/rss/articles/CBMijwFBVV95cUxPclNWSnRxSFV3RnV0dzRPMGh1NHRzRTZqSUFjUklTa0lHUkxVX19TYnpEWmxma2lsZmNpYkh0U01zcWNtdzdxeHZUS2ZaRVZ2T2VYUTEzVV9rR0FiQzdQM1YxWnBRZlFQaVQxT0lWQzk1eWFfMGxoZExNRHozOGkzcHpHNkEtdWI2Y2lCQ0JnQQ?oc=5)**: Making Uber’s Experiment Evaluation Engine 100x Faster  Uber\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMijwFBVV95cUxPclNWSnRxSFV3RnV0dzRPMGh1NHRzRTZqSUFjUklTa0lHUkxVX19TYnpEWmxma2lsZmNpYkh0U01zcWNtdzdxeHZUS2ZaRVZ2T2VYUTEzVV9rR0FiQzdQM1YxWnBRZlFQaVQxT0lWQzk1eWFfMGxoZExNRHozOGkzcHpHNkEtdWI2Y2lCQ0JnQQ?oc=5)\n",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMijwFBVV95cUxPclNWSnRxSFV3RnV0dzRPMGh1NHRzRTZqSUFjUklTa0lHUkxVX19TYnpEWmxma2lsZmNpYkh0U01zcWNtdzdxeHZUS2ZaRVZ2T2VYUTEzVV9rR0FiQzdQM1YxWnBRZlFQaVQxT0lWQzk1eWFfMGxoZExNRHozOGkzcHpHNkEtdWI2Y2lCQ0JnQQ?oc=5"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add an asynchronous LRU cache that stores (query, response, causal_graph) tuples and expose a get_causal_context(query) helper used by the research engine to reuse prior causal relations when forming new queries.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 98.51
-  },
-  {
     "id": "conj_1793519659",
     "timestamp": "2026-11-01T02:54:19.103249",
     "idle_duration_minutes": 31.6,
@@ -1657,5 +1625,38 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 96.76
+  },
+  {
+    "id": "conj_1793715763",
+    "timestamp": "2026-11-03T09:22:43.016391",
+    "idle_duration_minutes": 32.2,
+    "title": "Causal‑Aware Query Expansion for Web Retrieval",
+    "hypothesis": "Incorporating causal inference into the web research engine’s query‑expansion pipeline will improve retrieval precision by filtering out spurious co‑occurrence patterns and prioritizing semantically causal relationships between query terms and retrieved documents.",
+    "research_query": "causal inference in information retrieval query expansion",
+    "research_findings": "# Informe de Investigación: causal inference in information retrieval query expansion\n\n## Fuentes Consultadas y Respaldo Web\n- **[An AI Agent for Automated Causal Inference in Epidemiology - medRxiv](https://news.google.com/rss/articles/CBMifEFVX3lxTE9RaFRNaS1lMDFIVHF3ZnBWT3ljR3NXNlpIQkFwcDZDVmp3ZmZEZTg3V0VMZUJ2bGVPSGdRb2VlaFhQQ21RUjBTYlUzOXNyOTc4UU1hX0lKcGQ1SGR0bFEwcFNrdWdQSEFmZzNUcFRWRFpTelltdkczblVzYm8?oc=5)**: An AI Agent for Automated Causal Inference in Epidemiology  medRxiv\n- **[Mosaic effect (Wikipedia)](https://en.wikipedia.org/wiki/Mosaic_effect)**: unlinked information across digital ecosystems. Authorized queries within such datasets can produce outcomes where benign data combinations result in the disclosure\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMifEFVX3lxTE9RaFRNaS1lMDFIVHF3ZnBWT3ljR3NXNlpIQkFwcDZDVmp3ZmZEZTg3V0VMZUJ2bGVPSGdRb2VlaFhQQ21RUjBTYlUzOXNyOTc4UU1hX0lKcGQ1SGR0bFEwcFNrdWdQSEFmZzNUcFRWRFpTelltdkczblVzYm8",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMifEFVX3lxTE9RaFRNaS1lMDFIVHF3ZnBWT3ljR3NXNlpIQkFwcDZDVmp3ZmZEZTg3V0VMZUJ2bGVPSGdRb2VlaFhQQ21RUjBTYlUzOXNyOTc4UU1hX0lKcGQ1SGR0bFEwcFNrdWdQSEFmZzNUcFRWRFpTelltdkczblVzYm8?oc=5",
+      "https://en.wikipedia.org/wiki/Mosaic_effect"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal‑embedding module that learns directed relationships between terms, integrate it into the existing BM25/embedding scoring, and expose a new API endpoint for causal‑aware search.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 98.71
+  },
+  {
+    "id": "conj_1793717691",
+    "timestamp": "2026-11-03T09:54:51.119720",
+    "idle_duration_minutes": 32.1,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching subsystem can dynamically predict the relevance decay of stored search results based on observed changes in source content and query patterns. By modeling the causal relationship between external content updates (e.g., news feeds, API version changes) and the utility of cached responses, the system can pre‑emptively invalidate or refresh entries, reducing stale data exposure and improving answer accuracy without incurring full‑re‑fetch latency on every request.",
+    "research_query": "causal inference based cache invalidation techniques for web search engines OR adaptive cache expiration using Bayesian change detection",
+    "research_findings": "# Informe de Investigación: causal inference based cache invalidation techniques for web search engines OR adaptive cache expiration using Bayesian change detection\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal cache manager that tracks timestamps, source ETag/Last-Modified headers, and query frequency; uses a lightweight Bayesian change‑point detector to decide when to purge or refresh cached results, and expose an async `refresh_cache_if_needed(query)` API.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 97.1
   }
 ]
