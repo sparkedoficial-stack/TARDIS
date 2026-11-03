@@ -189,5 +189,23 @@
       "selftest"
     ],
     "status": "ACTIVE_SOVEREIGN"
+  },
+  "omni_tool_quantum_resonance": {
+    "name": "omni_tool_quantum_resonance",
+    "tool_id": "quantum_resonance",
+    "title": "MRC · Módulo de Resonancia Cuántica",
+    "domain": "cognitive_resonance",
+    "description": "Motor de resonancia conversacional: TIC (telemetría de impacto cognitivo sobre turnos reales), SSE (sincronización de estado emocional desde sensores atmosféricos y de presencia) y Memoria de Sueños (síntesis onírica de la bóveda akáshica). Modula tono, profundidad y longitud de cada respuesta de TARDIS.",
+    "actions": [
+      "status",
+      "tic",
+      "sse",
+      "dream",
+      "cycle",
+      "report",
+      "prompt",
+      "selftest"
+    ],
+    "status": "ACTIVE_SOVEREIGN"
   }
 }

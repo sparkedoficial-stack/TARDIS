@@ -231,6 +231,7 @@ Módulos y componentes auxiliares del sistema.
 - **qoder_change_request.py**: Componente de alta eficiencia.
 - **qoder_request_bridge.py**: Componente de alta eficiencia.
 - **quantum_m2_matrix.py**: Componente de alta eficiencia.
+- **quantum_resonance_module.py**: Componente de alta eficiencia.
 - **qwen38_image.py**: Componente de alta eficiencia.
 - **rag_pipeline.json**: Componente de alta eficiencia.
 - **rea_learning_engine.py**: Motor de ingeniería inversa multi-arquitectura y descompilación.

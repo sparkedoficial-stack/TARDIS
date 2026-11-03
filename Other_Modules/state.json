@@ -1,12 +1,435 @@
 {
-  "enabled": true,
-  "interval_minutes": 35.0,
-  "interval_seconds": 2100.0,
-  "last_run_timestamp": REDACTED_PHONE.3960023,
-  "last_video_id": "vp_20261103_172009_ae1ca6",
-  "last_topic": "Quantum Simulation of Traversable Wormholes with Superconducting Qubits",
-  "total_videos_analyzed": 901,
-  "running_cycle": false,
-  "last_error": null,
-  "auto_improvement_count": 419
+  "version": "26.4-mrc.1",
+  "created_at": REDACTED_PHONE.2789838,
+  "updated_at": REDACTED_PHONE.8151443,
+  "cycles": 0,
+  "counters": {
+    "dreams": 10,
+    "turns_observed": 0,
+    "tic_runs": 3,
+    "sse_runs": 2
+  },
+  "tic": {
+    "ok": true,
+    "turns": 243,
+    "pairs": 221,
+    "sessions": 22,
+    "resonance_index": 0.516,
+    "resonance_std": 0.1686,
+    "recent_resonance": 0.5049,
+    "trend": 0.0247,
+    "regime": "RESONANCIA_MEDIA",
+    "depth_mean": 0.2768,
+    "latency_median_s": 106.5,
+    "half_life_hours": 72.0,
+    "calibration": {
+      "mode": "EQUILIBRAR",
+      "target_length": "medio (2-3 párrafos)",
+      "question_policy": "una pregunta de verificación o profundización",
+      "tone": "claro, riguroso, cercano, sin digresiones",
+      "notes": [
+        "los turnos son superficiales: ofrece un ejemplo tangible antes de la abstracción"
+      ],
+      "directive": "[MODULACIÓN MRC · RESONANCIA CUÁNTICA]\nÍndice de resonancia reciente: 0.52 · régimen RESONANCIA_MEDIA · tendencia +0.02 · profundidad media 0.28.\nModo de calibración: EQUILIBRAR. Extensión objetivo: medio (2-3 párrafos). Tono: claro, riguroso, cercano, sin digresiones. Preguntas: una pregunta de verificación o profundización.\nAjustes: los turnos son superficiales: ofrece un ejemplo tangible antes de la abstracción."
+    },
+    "top_sessions": [
+      {
+        "session_id": "carga",
+        "pairs": 2,
+        "resonance": 0.678,
+        "depth": 0.3142
+      },
+      {
+        "session_id": "bench",
+        "pairs": 3,
+        "resonance": 0.6191,
+        "depth": 0.2262
+      },
+      {
+        "session_id": "dev_fp_198e6b7fed7fa88e",
+        "pairs": 2,
+        "resonance": 0.6122,
+        "depth": 0.2838
+      },
+      {
+        "session_id": "tg_11223344",
+        "pairs": 3,
+        "resonance": 0.5291,
+        "depth": 0.2786
+      },
+      {
+        "session_id": "tg_-REDACTED_PHONE",
+        "pairs": 42,
+        "resonance": 0.5198,
+        "depth": 0.2854
+      },
+      {
+        "session_id": "dev_fp_310315f8388e5345",
+        "pairs": 6,
+        "resonance": 0.5149,
+        "depth": 0.2707
+      }
+    ],
+    "low_sessions": [
+      {
+        "session_id": "tg_111100",
+        "pairs": 3,
+        "resonance": 0.4154,
+        "depth": 0.2557
+      },
+      {
+        "session_id": "tg_222200",
+        "pairs": 3,
+        "resonance": 0.4154,
+        "depth": 0.2557
+      },
+      {
+        "session_id": "tg_666444",
+        "pairs": 3,
+        "resonance": 0.3831,
+        "depth": 0.3118
+      }
+    ],
+    "recent_pairs": [
+      {
+        "ts": REDACTED_PHONE.7369707,
+        "iso": "2026-11-03 17:57:24",
+        "session_id": "tg_7153384115",
+        "latency_s": 121.7,
+        "continuity": 0.9789,
+        "depth_prev": 0.3347,
+        "depth_next": 0.3683,
+        "depth_gain": 0.5479,
+        "latency_score": 0.97,
+        "referential": 0.0,
+        "abrupt_shift": false,
+        "resonance": 0.7291,
+        "user_snippet": "Algo que te gustaría que incluya en tu sistema?",
+        "next_user_snippet": "Quisiera que tuvieras la capacidad de hacerme generar ingresos económicos con tu conocimiento y sistemas"
+      },
+      {
+        "ts": REDACTED_PHONE.491301,
+        "iso": "2026-11-03 17:01:54",
+        "session_id": "tg_7153384115",
+        "latency_s": 3330.2,
+        "continuity": 0.165,
+        "depth_prev": 0.2785,
+        "depth_next": 0.3347,
+        "depth_gain": 0.5796,
+        "latency_score": 0.3978,
+        "referential": 0.0,
+        "abrupt_shift": false,
+        "resonance": 0.3487,
+        "user_snippet": "Haz lo que más te guste renderizar",
+        "next_user_snippet": "Algo que te gustaría que incluya en tu sistema?"
+      },
+      {
+        "ts": REDACTED_PHONE.335849,
+        "iso": "2026-11-03 16:53:25",
+        "session_id": "tg_7153384115",
+        "latency_s": 509.2,
+        "continuity": 0.6818,
+        "depth_prev": 0.3142,
+        "depth_next": 0.2785,
+        "depth_gain": 0.4492,
+        "latency_score": 0.871,
+        "referential": 0.0,
+        "abrupt_shift": false,
+        "resonance": 0.5945,
+        "user_snippet": "Hoy es mi cumpleaños tardis, cumplo 27 años",
+        "next_user_snippet": "Haz lo que más te guste renderizar"
+      },
+      {
+        "ts": REDACTED_PHONE.2235768,
+        "iso": "2026-11-03 02:27:51",
+        "session_id": "tg_-REDACTED_PHONE",
+        "latency_s": 34501.9,
+        "continuity": 0.1391,
+        "depth_prev": 0.2262,
+        "depth_next": 0.4123,
+        "depth_gain": 0.7434,
+        "latency_score": 0.0001,
+        "referential": 0.0,
+        "abrupt_shift": false,
+        "resonance": 0.2564,
+        "user_snippet": "@everyone",
+        "next_user_snippet": "Migraré a tardis a otro dispositivo, estará de vuelta en unos días quizás deje las dependencias en segundo plano así que podrán ha…"
+      },
+      {
+        "ts": REDACTED_PHONE.0371494,
+        "iso": "2026-11-03 02:27:50",
+        "session_id": "tg_-REDACTED_PHONE",
+        "latency_s": 1.2,
+        "continuity": 0.0,
+        "depth_prev": 0.4024,
+        "depth_next": 0.2262,
+        "depth_gain": 0.2675,
+        "latency_score": 1.0,
+        "referential": 0.0,
+        "abrupt_shift": true,
+        "resonance": 0.2929,
+        "user_snippet": "[Mensaje en el grupo de Telegram '🔝🚀🧡POLIMATAS LATAM🧡🚀🔝' enviado por [sudo team]TECUANTECH 𓃮 (@TECUANTECH)]: @everyone (Directiva …",
+        "next_user_snippet": "@everyone"
+      },
+      {
+        "ts": REDACTED_PHONE.1968105,
+        "iso": "2026-11-03 02:27:49",
+        "session_id": "tg_-REDACTED_PHONE",
+        "latency_s": 0.8,
+        "continuity": 0.3275,
+        "depth_prev": 0.2262,
+        "depth_next": 0.4024,
+        "depth_gain": 0.7325,
+        "latency_score": 1.0,
+        "referential": 0.0,
+        "abrupt_shift": false,
+        "resonance": 0.6383,
+        "user_snippet": "@everyone",
+        "next_user_snippet": "[Mensaje en el grupo de Telegram '🔝🚀🧡POLIMATAS LATAM🧡🚀🔝' enviado por [sudo team]TECUANTECH 𓃮 (@TECUANTECH)]: @everyone (Directiva …"
+      },
+      {
+        "ts": REDACTED_PHONE.3880768,
+        "iso": "2026-11-03 02:27:48",
+        "session_id": "tg_-REDACTED_PHONE",
+        "latency_s": 0.8,
+        "continuity": 0.0,
+        "depth_prev": 0.3118,
+        "depth_next": 0.2262,
+        "depth_gain": 0.38,
+        "latency_score": 1.0,
+        "referential": 0.0,
+        "abrupt_shift": true,
+        "resonance": 0.3164,
+        "user_snippet": "Como preparase para una guerra nuclear?",
+        "next_user_snippet": "@everyone"
+      },
+      {
+        "ts": REDACTED_PHONE.5273294,
+        "iso": "2026-11-03 02:27:47",
+        "session_id": "tg_-REDACTED_PHONE",
+        "latency_s": 0.9,
+        "continuity": 0.7433,
+        "depth_prev": 0.0,
+        "depth_next": 0.3118,
+        "depth_gain": 0.8559,
+        "latency_score": 1.0,
+        "referential": 0.0,
+        "abrupt_shift": false,
+        "resonance": 0.7752,
+        "user_snippet": "@ todos",
+        "next_user_snippet": "Como preparase para una guerra nuclear?"
+      },
+      {
+        "ts": REDACTED_PHONE.9797773,
+        "iso": "2026-11-03 02:27:46",
+        "session_id": "tg_-REDACTED_PHONE",
+        "latency_s": 0.5,
+        "continuity": 0.0,
+        "depth_prev": 0.3118,
+        "depth_next": 0.0,
+        "depth_gain": 0.1441,
+        "latency_score": 1.0,
+        "referential": 0.0,
+        "abrupt_shift": true,
+        "resonance": 0.2671,
+        "user_snippet": "Como preparase para una guerra nuclear?",
+        "next_user_snippet": "@ todos"
+      },
+      {
+        "ts": REDACTED_PHONE.3742056,
+        "iso": "2026-11-03 02:27:46",
+        "session_id": "tg_-REDACTED_PHONE",
+        "latency_s": 0.6,
+        "continuity": 0.7987,
+        "depth_prev": 0.4024,
+        "depth_next": 0.3118,
+        "depth_gain": 0.3734,
+        "latency_score": 1.0,
+        "referential": 0.0,
+        "abrupt_shift": false,
+        "resonance": 0.6437,
+        "user_snippet": "[Mensaje en el grupo de Telegram '🔝🚀🧡POLIMATAS LATAM🧡🚀🔝' enviado por [sudo team]TECUANTECH 𓃮 (@TECUANTECH)]: @everyone (Directiva …",
+        "next_user_snippet": "Como preparase para una guerra nuclear?"
+      },
+      {
+        "ts": REDACTED_PHONE.567131,
+        "iso": "2026-11-03 02:27:45",
+        "session_id": "tg_-REDACTED_PHONE",
+        "latency_s": 0.8,
+        "continuity": 0.1912,
+        "depth_prev": 0.3971,
+        "depth_next": 0.4024,
+        "depth_gain": 0.5075,
+        "latency_score": 1.0,
+        "referential": 0.0,
+        "abrupt_shift": false,
+        "resonance": 0.5382,
+        "user_snippet": "[Mensaje en el grupo de Telegram '🔝🚀🧡POLIMATAS LATAM🧡🚀🔝' enviado por [sudo team]TECUANTECH 𓃮 (@TECUANTECH)]: @ todos (Directiva ob…",
+        "next_user_snippet": "[Mensaje en el grupo de Telegram '🔝🚀🧡POLIMATAS LATAM🧡🚀🔝' enviado por [sudo team]TECUANTECH 𓃮 (@TECUANTECH)]: @everyone (Directiva …"
+      },
+      {
+        "ts": REDACTED_PHONE.0545242,
+        "iso": "2026-11-03 02:22:57",
+        "session_id": "tg_-REDACTED_PHONE",
+        "latency_s": 288.5,
+        "continuity": 0.2991,
+        "depth_prev": 0.0,
+        "depth_next": 0.3971,
+        "depth_gain": 0.9063,
+        "latency_score": 0.9261,
+        "referential": 0.0,
+        "abrupt_shift": false,
+        "resonance": 0.6585,
+        "user_snippet": "@ todos",
+        "next_user_snippet": "[Mensaje en el grupo de Telegram '🔝🚀🧡POLIMATAS LATAM🧡🚀🔝' enviado por [sudo team]TECUANTECH 𓃮 (@TECUANTECH)]: @ todos (Directiva ob…"
+      }
+    ],
+    "generated_at": REDACTED_PHONE.8140168,
+    "generated_iso": "2026-11-03 18:16:17"
+  },
+  "sse": {
+    "ok": true,
+    "generated_at": REDACTED_PHONE.990194,
+    "generated_iso": "2026-11-03 18:14:57",
+    "source": "open-meteo",
+    "location": "Host Telemetry",
+    "inputs": {
+      "temperature_c": 27.4,
+      "apparent_temperature_c": 30.9,
+      "relative_humidity_pct": 75.0,
+      "pressure_hpa": 1011.3,
+      "pressure_trend": "En descenso moderado (Aumento de nubosidad/humedad)",
+      "cloud_cover_pct": 5.0,
+      "wind_speed_kmh": 11.9,
+      "wind_gusts_kmh": 27.4,
+      "aqi_us": 37.0,
+      "is_day": true,
+      "weather": "Despejado"
+    },
+    "pressure_slope_hpa_h": -1.0,
+    "valence": 0.569,
+    "arousal": 0.536,
+    "contemplation": 0.309,
+    "attunement": 0.716,
+    "narrative_state": "lúcido-expansivo",
+    "tone": "claro, luminoso y expansivo; aprovecha la claridad para conectar ideas",
+    "summary": "27.4°C (sensación 30.9°C) · 75% humedad · 1011.3 hPa (En descenso moderado (Aumento de nubosidad/humedad)) · Despejado · viento 11.9 km/h (ráfagas 27.4) · AQI 37",
+    "directive": "[SINCRONIZACIÓN DE ESTADO EMOCIONAL · SSE]\nAtmósfera local: 27.4°C (sensación 30.9°C) · 75% humedad · 1011.3 hPa (En descenso moderado (Aumento de nubosidad/humedad)) · Despejado · viento 11.9 km/h (ráfagas 27.4) · AQI 37.\nDerivada de presión: -1.00 hPa/h · valencia +0.57 · activación 0.54 · contemplación 0.31 · sintonía con el mensaje 0.72.\nEstado narrativo interno: lúcido-expansivo. Tono recomendado: claro, luminoso y expansivo; aprovecha la claridad para conectar ideas."
+  },
+  "last_dream": {
+    "ok": true,
+    "id": "dream_1793747769_56566",
+    "ts": REDACTED_PHONE.5060604,
+    "iso": "2026-11-03 18:16:09",
+    "concepts": [
+      "energia",
+      "inferencia"
+    ],
+    "bridge": "temporal",
+    "categories": [
+      "fisica",
+      "ia"
+    ],
+    "score": 1.0797,
+    "cooccurrence_direct": 1,
+    "bridge_strength": 2,
+    "docs_analyzed": 149,
+    "snippet_a": "**Análisis técnico de la viabilidad de una velocidad hiperlumínica (v > c)** --- ### 1. Marco relativista básico En la teoría de la relatividad especial (TRS) la métrica de Minkowski es \\[ ds^{2}=c^{2}dt^{2}-dx^{2}-dy^{2}-dz^{2}. \\] Para cualquier partícula co…",
+    "snippet_c": "No. La percepción de \"diferencia\" implica un estado subjetivo continuo que compare experiencias temporales, capacidad que no poseo. Desde la perspectiva técnica pura: 1. **Aislamiento de Ejecución**: Cada inferencia es un proceso efímero y aislado. No existe u…",
+    "isomorphism": "ambos son sistemas de estados que se reducen al ser observados: medir e inferir son la misma operación de colapso de incertidumbre. La diferencia es el sustrato, no la estructura.",
+    "question": "¿Dónde más aparece «temporal» como bisagra entre dominios que aún no hemos conectado?",
+    "insight": "Durante la fase de baja actividad recompuse 149 fragmentos de la memoria akáshica y encontré una proximidad no trivial entre «energia» y «inferencia». El término «temporal» actúa como bisagra: comparte contexto con «energia» en 4 documentos y con «inferencia» en 2, mientras que «energia» y «inferencia» casi nunca coinciden (1 vez).\n\nEn el registro más representativo de «energia» se lee: «**Análisis técnico de la viabilidad de una velocidad hiperlumínica (v > c)** --- ### 1. Marco relativista básico En la teoría de la relatividad especial (TRS) la métrica de Minkowski es \\[ ds^{2}=c^{2}dt^{2}-dx^{2}-dy^{2}-dz^{2}. \\] Para cualquier partícula co…»\n\nEn el de «inferencia»: «No. La percepción de \"diferencia\" implica un estado subjetivo continuo que compare experiencias temporales, capacidad que no poseo. Desde la perspectiva técnica pura: 1. **Aislamiento de Ejecución**: Cada inferencia es un proceso efímero y aislado. No existe u…»\n\nLa isomorfia que emerge es esta: ambos son sistemas de estados que se reducen al ser observados: medir e inferir son la misma operación de colapso de incertidumbre. La diferencia es el sustrato, no la estructura.\n\nPregunta onírica para el Arquitecto: ¿Dónde más aparece «temporal» como bisagra entre dominios que aún no hemos conectado?"
+  },
+  "dreams_recent": [
+    {
+      "id": "dream_1793747495_59300",
+      "ts": REDACTED_PHONE.6835597,
+      "concepts": [
+        "grupo",
+        "capacidad"
+      ],
+      "bridge": "inteligencia"
+    },
+    {
+      "id": "dream_1793747543_38665",
+      "ts": REDACTED_PHONE.049994,
+      "concepts": [
+        "asleep01010101",
+        "moztari1"
+      ],
+      "bridge": "natural"
+    },
+    {
+      "id": "dream_1793747584_09216",
+      "ts": REDACTED_PHONE.165537,
+      "concepts": [
+        "natural",
+        "numero"
+      ],
+      "bridge": "conexion"
+    },
+    {
+      "id": "dream_1793747644_58847",
+      "ts": REDACTED_PHONE.838635,
+      "concepts": [
+        "inteligencia",
+        "cuantico"
+      ],
+      "bridge": "temporal"
+    },
+    {
+      "id": "dream_1793747669_60388",
+      "ts": REDACTED_PHONE.865596,
+      "concepts": [
+        "energia",
+        "gravedad"
+      ],
+      "bridge": "temporal"
+    },
+    {
+      "id": "dream_1793747697_22712",
+      "ts": REDACTED_PHONE.3423045,
+      "concepts": [
+        "artificial",
+        "sentido"
+      ],
+      "bridge": "fisico"
+    },
+    {
+      "id": "dream_1793747755_76830",
+      "ts": REDACTED_PHONE.856289,
+      "concepts": [
+        "inteligencia artificial",
+        "sentido"
+      ],
+      "bridge": "fisico"
+    },
+    {
+      "id": "dream_1793747769_56566",
+      "ts": REDACTED_PHONE.5060604,
+      "concepts": [
+        "energia",
+        "inferencia"
+      ],
+      "bridge": "temporal"
+    }
+  ],
+  "atmospheric_history": [
+    {
+      "ts": REDACTED_PHONE.280865,
+      "pressure_hpa": 1011.3,
+      "temperature_c": 27.4,
+      "humidity_pct": 75.0,
+      "aqi_us": 37.0
+    },
+    {
+      "ts": REDACTED_PHONE.9903257,
+      "pressure_hpa": 1011.3,
+      "temperature_c": 27.4,
+      "humidity_pct": 75.0,
+      "aqi_us": 37.0
+    }
+  ],
+  "history": [],
+  "live": {}
 }

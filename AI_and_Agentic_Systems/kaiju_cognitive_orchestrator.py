@@ -228,7 +228,8 @@ class KaijuCognitiveOrchestrator:
         active_expert: str = "Expert_TemporalCausality",
         presence_summary: str = "",
         atmospheric_summary: str = "",
-        target_lang: str = "es"
+        target_lang: str = "es",
+        mrc_directive: str = ""
     ) -> str:
         """Genera el System Prompt soberano para TARDIS en modo conversacional y grupal."""
         prompt = (
@@ -252,6 +253,8 @@ class KaijuCognitiveOrchestrator:
             prompt += f"\n\n[TELEMETRÍA DE PRESENCIA LOCAL]: {presence_summary}"
         if atmospheric_summary:
             prompt += f"\n[ATMÓSFERA LOCAL]: {atmospheric_summary}"
+        if mrc_directive:
+            prompt += f"\n\n{mrc_directive}"
         return prompt
 
     def orchestrate_chat_turn(
@@ -298,6 +301,18 @@ class KaijuCognitiveOrchestrator:
             atmospheric_summary = atmos_reading.summary_for_llm
         except Exception as e_atmos:
             logger.debug(f"Aviso al consultar sensor atmosférico: {e_atmos}")
+
+        # 0.b Resonancia cuántica (MRC): modula tono, profundidad y longitud antes de responder.
+        mrc_pre: Dict[str, Any] = {}
+        mrc_directive = ""
+        mrc = None
+        try:
+            from core.quantum_resonance_module import get_mrc
+            mrc = get_mrc()
+            mrc_pre = mrc.pre_turn(message, history=history, session_id=session_id)
+            mrc_directive = str(mrc_pre.get("directive") or "")
+        except Exception as e_mrc:
+            logger.debug(f"Aviso al calcular modulación MRC: {e_mrc}")
 
         # 1. Ingesta Causal en el Motor Evolucionado v27 (SSM Mamba-2 + MLA + MoE) (diferida por latencia)
         from core.tardis_ssm_v27 import get_ssm_v27_engine
@@ -374,6 +389,14 @@ class KaijuCognitiveOrchestrator:
                 cas_telemetry = {"enabled": True, "ok": False, "error": str(e_cas)}
                 logger.debug(f"[KAIJU-ORCHESTRATOR] CaS no disponible: {e_cas}")
         telemetry["cas"] = cas_telemetry
+        if mrc_pre:
+            telemetry["mrc"] = {
+                "mode": mrc_pre.get("mode"),
+                "resonance_index": mrc_pre.get("resonance_index"),
+                "sse_state": mrc_pre.get("sse_state"),
+                "attunement": mrc_pre.get("attunement"),
+                "user_depth": mrc_pre.get("user_depth"),
+            }
 
         # 2. Evaluación de Carga de Cómputo
         eval_res = self.evaluate_task_complexity(message, active_expert=top_expert, force_offload=force_offload)
@@ -427,7 +450,10 @@ class KaijuCognitiveOrchestrator:
                     )
 
                     if is_conversational:
-                        sys_prompt = self.get_canonical_system_prompt(top_expert, presence_summary, atmospheric_summary)
+                        sys_prompt = self.get_canonical_system_prompt(
+                            top_expert, presence_summary, atmospheric_summary,
+                            mrc_directive=mrc_directive,
+                        )
                         if cas_context:
                             sys_prompt = f"{sys_prompt}\n\n{cas_context}"
 
@@ -493,6 +519,8 @@ class KaijuCognitiveOrchestrator:
                 v27_messages.append({"role": "user", "content": message})
                 llm_context_obj = sne.build_llm_context(v27_messages)
                 local_messages.append({"role": "system", "content": str(llm_context_obj.get("context") or cas_context or "Eres TARDIS, asistente soberano de inteligencia artificial.")})
+                if mrc_directive:
+                    local_messages[0]["content"] = f"{local_messages[0]['content']}\n\n{mrc_directive}"
                 local_messages.append({"role": "user", "content": message})
                 sovereign_res = _gse.get_engine().chat(
                     messages=local_messages,
@@ -516,6 +544,20 @@ class KaijuCognitiveOrchestrator:
         elapsed_total = round(time.time() - t0, 2)
         worker_info["elapsed_s"] = elapsed_total
 
+        # 6. Observación MRC: mide la coherencia de fase y el impacto del turno.
+        mrc_post: Dict[str, Any] = {}
+        if mrc is not None and raw_reply and not raw_reply.startswith("[Error"):
+            try:
+                mrc_post = mrc.post_turn(
+                    session_id=session_id,
+                    user_message=message,
+                    assistant_reply=raw_reply,
+                    latency_s=elapsed_total,
+                    history=history,
+                )
+            except Exception as e_mrc_post:
+                logger.debug(f"Aviso al registrar impacto MRC: {e_mrc_post}")
+
         return {
             "ok": bool(raw_reply and not raw_reply.startswith("[Error")),
             "reply": raw_reply,
@@ -525,6 +567,7 @@ class KaijuCognitiveOrchestrator:
             "neural_engine": "TARDIS-NEURAL-SPACE-KAIJU-v27 (Evolucionado-SSM Mamba-2 + MLA + MoE)",
             "orchestration": worker_info,
             "neural_telemetry": telemetry,
+            "mrc_resonance": mrc_post,
             "presence_telemetry": presence_info,
             "atmospheric_telemetry": atmospheric_info,
             "elapsed_s": elapsed_total

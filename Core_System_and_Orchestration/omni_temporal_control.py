@@ -4164,6 +4164,20 @@ def process_agentic_chat(
             "Opera en tiempo real con alta fidelidad táctica, análisis situacional y precisión técnica."
         )
 
+    # Resonancia Cuántica (MRC): modula el turno según TIC, estado emocional y deriva atmosférica.
+    _mrc = None
+    _mrc_pre: Dict[str, Any] = {}
+    _mrc_session = str(latent_session or client_id or request_id or "omni_app")
+    try:
+        from core.quantum_resonance_module import get_mrc as _get_mrc
+        _mrc = _get_mrc()
+        _mrc_pre = _mrc.pre_turn(message, history=history, session_id=_mrc_session)
+        _mrc_dir = str(_mrc_pre.get("directive") or "")
+        if _mrc_dir:
+            base_sys += f"\n\n{_mrc_dir}"
+    except Exception as _e_mrc:
+        print(f"[MRC] modulación no disponible: {_e_mrc}", flush=True)
+
     messages = [{"role": "system", "content": base_sys}]
 
     # Inyectar espectro electromagnético y ruido binario cuantizado si corresponde
@@ -4483,7 +4497,8 @@ def process_agentic_chat(
                         "model": target_model,
                         "neural_engine": "TARDIS-NEURAL-SPACE-KAIJU (MLA + SSM + MoE)",
                         "neural_telemetry": kaiju_telemetry,
-                        "orchestration": orch_res.get("orchestration", {})
+                        "orchestration": orch_res.get("orchestration", {}),
+                        "mrc_resonance": orch_res.get("mrc_resonance", {}),
                     }
                     if HAS_MEM:
                         try:
@@ -4845,6 +4860,19 @@ def process_agentic_chat(
             _voice.speak_async(reply_txt)
         except Exception:
             pass
+
+    # Resonancia Cuántica (MRC): impacto medido del turno (coherencia de fase, latencia, profundidad).
+    if _mrc is not None and not out_result.get("mrc_resonance"):
+        try:
+            out_result["mrc_resonance"] = _mrc.post_turn(
+                session_id=_mrc_session,
+                user_message=message,
+                assistant_reply=reply_txt,
+                latency_s=time.time() - t0,
+                history=history,
+            )
+        except Exception as _e_mrc_post:
+            print(f"[MRC] medición de impacto no disponible: {_e_mrc_post}", flush=True)
 
     out_result["user_emotion"] = user_emotion
     print(f"[{request_id or 'CHAT'}] Completed in {time.time()-t0:.2f}s", flush=True)
