@@ -22,6 +22,7 @@ Módulos y componentes auxiliares del sistema.
 - **INSTRUCCIONES_ACTIVACION.txt**: Componente de alta eficiencia.
 - **IPAD_INTERNET_URL.txt**: Componente de alta eficiencia.
 - **Info.plist**: Componente de alta eficiencia.
+- **MRC_REPORT.md**: Componente de alta eficiencia.
 - **MainTabView.swift**: Componente nativo iOS/SwiftUI de la aplicación móvil GIA.
 - **MonitorView.swift**: Componente nativo iOS/SwiftUI de la aplicación móvil GIA.
 - **MonitorViewModel.swift**: Componente nativo iOS/SwiftUI de la aplicación móvil GIA.

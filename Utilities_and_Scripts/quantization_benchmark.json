@@ -8,12 +8,6 @@
   "rollback": "Mantener el GGUF Q4_K actual y descartar el artefacto candidato.",
   "evidence": [
     {
-      "title": "Cheap Retrieval and Observation Credit Assignment from One Quantity: The Value of Information",
-      "url": "http://arxiv.org/abs/2610.40030v1",
-      "source": "arxiv",
-      "relevance": 8.3
-    },
-    {
       "title": "FIDE: Fiber-Informed Differentiable Experimental Design for Reference-Relative Law Dynamics",
       "url": "http://arxiv.org/abs/2610.40009v1",
       "source": "arxiv",
@@ -102,9 +96,15 @@
       "url": "https://huggingface.co/AtomicChat/DeepSeek-V4.1-Flash-1017-Uncensored-GSQ-RCO-GGUF",
       "source": "huggingface:trending",
       "relevance": 6.6
+    },
+    {
+      "title": "abenzerps/Qwen-Image-2.1-Turbo-Quantized",
+      "url": "https://huggingface.co/abenzerps/Qwen-Image-2.1-Turbo-Quantized",
+      "source": "huggingface:trending",
+      "relevance": 7.2
     }
   ],
   "status": "planned",
   "created_at": "2026-10-29T00:13:36-05:00",
-  "updated_at": "2026-11-03T13:31:02-05:00"
+  "updated_at": "2026-11-03T19:43:38-05:00"
 }

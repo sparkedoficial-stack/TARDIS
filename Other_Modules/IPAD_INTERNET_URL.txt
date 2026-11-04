@@ -1,1 +1,1 @@
-https://comm-reprint-inbox-draw.trycloudflare.com
+https://api.trycloudflare.com

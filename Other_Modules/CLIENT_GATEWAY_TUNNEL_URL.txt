@@ -1,1 +1,1 @@
-https://keys-receiver-finder-forget.trycloudflare.com
+https://api.trycloudflare.com

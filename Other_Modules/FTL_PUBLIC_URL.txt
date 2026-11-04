@@ -1,1 +1,1 @@
-https://nitrogen-extending-camera-welcome.trycloudflare.com
+https://api.trycloudflare.com

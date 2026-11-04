@@ -1,29 +1,6 @@
 {
   "schema": "tardis.savage_update/1.0",
-  "generated_at": "2026-11-03T13:31:02-05:00",
-  "proposals": [
-    {
-      "id": "savage-0221680af214",
-      "title": "Benchmark de cuantización para el modelo soberano",
-      "target": "ftl",
-      "tag": "quantization",
-      "risk": "low",
-      "kind": "experiment",
-      "experiment": "quantization_benchmark",
-      "evidence": [
-        {
-          "title": "AtomicChat/DeepSeek-V4.1-Flash-1017-Uncensored-GSQ-RCO-GGUF",
-          "url": "https://huggingface.co/AtomicChat/DeepSeek-V4.1-Flash-1017-Uncensored-GSQ-RCO-GGUF",
-          "source": "huggingface:trending",
-          "relevance": 6.6
-        }
-      ],
-      "rationale": "Señal tecnológica detectada en 1 fuentes; la doctrina exige evaluar antes de adoptar.",
-      "validation": "Medir tokens/s, VRAM pico y perplejidad en 20 prompts; aceptar sólo si la pérdida es <2%.",
-      "rollback": "Mantener el GGUF Q4_K actual y descartar el artefacto candidato.",
-      "status": "planned",
-      "created_at": "2026-11-03T13:31:02-05:00"
-    }
-  ],
-  "items_considered": 1
+  "generated_at": "2026-11-04T00:16:42-05:00",
+  "proposals": [],
+  "items_considered": 0
 }

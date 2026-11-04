@@ -1034,6 +1034,8 @@ class QuantumResonanceModule:
             # sin esto, "fomenta", "dirígete", "profundas" o "obligatoria" dominan el sueño.
             text = re.split(r"\(?\s*directiva obligatoria para tardis", text, flags=re.I)[0]
             text = re.sub(r"\bestas respondiendo a .{0,80}? en el grupo\.?", "", text, flags=re.I)
+            # Quita prefijos de comando ("/tardis_escribe ...") que ensucian los snippets.
+            text = re.sub(r"^(?:/[A-Za-z0-9_]{3,}\s+)+", "", text).strip()
             text = text.strip().strip('"').strip()
             if len(text) < 60:
                 return
@@ -1283,7 +1285,6 @@ class QuantumResonanceModule:
             return category_cache[term]
 
         max_salience = max(salience.values()) if salience else 1.0
-        max_df_value = max(df.values()) if df else 1
 
         def sal_norm(term: str) -> float:
             return salience.get(term, 0.0) / max_salience
@@ -1466,6 +1467,10 @@ class QuantumResonanceModule:
         history: Optional[Sequence[Dict[str, str]]] = None,
     ) -> Dict[str, Any]:
         """Mide el impacto inmediato del turno y actualiza el estado de resonancia."""
+        # Un timeout o un error de infraestructura no es un fallo de resonancia:
+        # medirlo contaminaría la calibración con latencias que no dependen del diálogo.
+        if not assistant_reply or assistant_reply.lstrip().startswith(("[⚠️", "[Error", "[⛔", "[MRC")):
+            return {"ok": False, "skipped": "respuesta_de_error_o_vacia"}
         pre = self._live.get(session_id) or {}
         coherence = self.phase_resonance(user_message, assistant_reply)
         reply_depth = self.depth_index(assistant_reply)
@@ -1816,8 +1821,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         payload = mrc.dream(limit=args.docs)
     elif args.command == "cycle":
         payload = mrc.cycle(dream=args.dream)
-        if not args.json and not getattr(args, "quiet", False):
-            _print_human(payload)
+        if not args.json:
+            if not getattr(args, "quiet", False):
+                _print_human(payload)
             return 0
     elif args.command == "report":
         path = mrc.write_report()

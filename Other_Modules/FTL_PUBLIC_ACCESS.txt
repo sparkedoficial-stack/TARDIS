@@ -1,1 +1,1 @@
-https://nitrogen-extending-camera-welcome.trycloudflare.com/?key=tkOg9UmgCgmhdOshfPf3vLYpHoRuqQbxCrEfpEDg064
+https://api.trycloudflare.com/?key=tkOg9UmgCgmhdOshfPf3vLYpHoRuqQbxCrEfpEDg064
