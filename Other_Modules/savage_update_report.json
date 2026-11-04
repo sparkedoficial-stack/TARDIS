@@ -1,12 +1,12 @@
 {
   "schema": "tardis.savage_update/1.0",
-  "generated_at": "2026-11-04T00:16:42-05:00",
+  "generated_at": "2026-11-04T00:21:56-05:00",
   "cycle": {
     "items_collected": 0,
     "items_fresh": 0,
     "proposals": 0,
     "experiment_plans": 0,
-    "elapsed_s": 1.84
+    "elapsed_s": 1.73
   },
   "sources": {
     "offline": false,
@@ -14,19 +14,19 @@
       "github": {
         "ok": false,
         "count": 0,
-        "elapsed_ms": 59.3,
+        "elapsed_ms": 38.0,
         "error": "sin datos: red/DNS no disponible o respuesta vacía"
       },
       "huggingface": {
         "ok": false,
         "count": 0,
-        "elapsed_ms": 1.2,
+        "elapsed_ms": 3.5,
         "error": "sin datos: red/DNS no disponible o respuesta vacía"
       },
       "arxiv": {
         "ok": false,
         "count": 0,
-        "elapsed_ms": 3.4,
+        "elapsed_ms": 6.9,
         "error": "sin datos: red/DNS no disponible o respuesta vacía"
       },
       "npm": {

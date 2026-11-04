@@ -185,10 +185,10 @@
     "throttle_kbps": null,
     "is_safe": true,
     "traffic_bytes_rx": 0,
-    "traffic_bytes_tx": 0,
-    "traffic_packets": 0,
+    "traffic_bytes_tx": 288,
+    "traffic_packets": 4,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-04T05:17:41.055592+00:00",
+    "last_seen": "2026-11-04T05:22:54.936036+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -204,7 +204,7 @@
     "interface": "enp2s0",
     "connection_medium": "Ethernet / LAN (enp2s0)",
     "network_segment": "Ethernet / LAN Principal (REDACTED_IP/24)",
-    "arp_state": "REACHABLE",
+    "arp_state": "STALE",
     "online": true,
     "rtt_ms": 8.34,
     "open_ports": [],
@@ -220,7 +220,7 @@
     "traffic_bytes_tx": 0,
     "traffic_packets": 0,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-04T05:17:41.055592+00:00",
+    "last_seen": "2026-11-04T05:22:54.936036+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -236,7 +236,7 @@
     "interface": "enp2s0",
     "connection_medium": "Ethernet / LAN (enp2s0)",
     "network_segment": "Ethernet / LAN Principal (REDACTED_IP/24)",
-    "arp_state": "REACHABLE",
+    "arp_state": "STALE",
     "online": true,
     "rtt_ms": null,
     "open_ports": [],
@@ -252,7 +252,7 @@
     "traffic_bytes_tx": 0,
     "traffic_packets": 4,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-04T05:17:41.055592+00:00",
+    "last_seen": "2026-11-04T05:22:54.936036+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -268,7 +268,7 @@
     "interface": "enp2s0",
     "connection_medium": "Ethernet / LAN (enp2s0)",
     "network_segment": "Ethernet / LAN Principal (REDACTED_IP/24)",
-    "arp_state": "REACHABLE",
+    "arp_state": "STALE",
     "online": true,
     "rtt_ms": null,
     "open_ports": [],
@@ -284,7 +284,7 @@
     "traffic_bytes_tx": 0,
     "traffic_packets": 4,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-04T05:17:41.055592+00:00",
+    "last_seen": "2026-11-04T05:22:54.936036+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -449,11 +449,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 38798340,
-    "traffic_bytes_tx": 9672865,
-    "traffic_packets": 50800,
+    "traffic_bytes_rx": 3333517,
+    "traffic_bytes_tx": 1590872,
+    "traffic_packets": 9257,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-04T05:17:41.055592+00:00",
+    "last_seen": "2026-11-04T05:22:54.936036+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -526,10 +526,10 @@
     "throttle_kbps": null,
     "is_safe": true,
     "traffic_bytes_rx": 26396,
-    "traffic_bytes_tx": 90207,
-    "traffic_packets": 1256,
+    "traffic_bytes_tx": 90583,
+    "traffic_packets": 1262,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-04T05:17:41.055592+00:00",
+    "last_seen": "2026-11-04T05:22:54.936036+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -557,11 +557,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 0,
-    "traffic_bytes_tx": 0,
-    "traffic_packets": 0,
+    "traffic_bytes_rx": 3365,
+    "traffic_bytes_tx": 1183,
+    "traffic_packets": 17,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-04T05:17:41.055592+00:00",
+    "last_seen": "2026-11-04T05:22:54.936036+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -616,8 +616,8 @@
     "port_details": [],
     "risky_ports": [],
     "mdns_services": [
-      "Whale TV\\040A19F\\041 (AirPlay Remote Video)",
-      "8433F219A19F@Whale TV\\040A19F\\041 (AirTunes Remote Audio)"
+      "8433F219A19F@Whale TV\\040A19F\\041 (AirTunes Remote Audio)",
+      "Whale TV\\040A19F\\041 (AirPlay Remote Video)"
     ],
     "wifi_metrics": {},
     "trust_level": "KNOWN",
@@ -625,10 +625,10 @@
     "throttle_kbps": null,
     "is_safe": true,
     "traffic_bytes_rx": 0,
-    "traffic_bytes_tx": 879,
-    "traffic_packets": 2,
+    "traffic_bytes_tx": 757,
+    "traffic_packets": 1,
     "first_seen": "2026-10-24T00:57:57.971367+00:00",
-    "last_seen": "2026-11-04T05:17:41.055592+00:00",
+    "last_seen": "2026-11-04T05:22:54.936036+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -1095,6 +1095,38 @@
     "traffic_packets": 110,
     "first_seen": "2026-11-04T05:17:41.055592+00:00",
     "last_seen": "2026-11-04T05:17:41.055592+00:00",
+    "ip_history": [
+      "REDACTED_IP"
+    ]
+  },
+  "96:17:32:66:09:FB": {
+    "mac": "96:17:32:66:09:FB",
+    "ip": "REDACTED_IP",
+    "ipv6_addresses": [],
+    "alias": "Dispositivo LAN (REDACTED_IP)",
+    "hostname": "Dispositivo LAN (REDACTED_IP)",
+    "vendor": "Dirección MAC Privada / Aleatoria (iOS / Android / Linux)",
+    "device_type": "Dispositivo de Red (Dirección MAC Privada / Aleatoria (iOS / Android / Linux))",
+    "interface": "veth-host-aq",
+    "connection_medium": "Virtual Bridge (veth-host-aq)",
+    "network_segment": "Namespace Virtual Antarctica (REDACTED_IP/24)",
+    "arp_state": "REACHABLE",
+    "online": true,
+    "rtt_ms": 0.08,
+    "open_ports": [],
+    "port_details": [],
+    "risky_ports": [],
+    "mdns_services": [],
+    "wifi_metrics": {},
+    "trust_level": "KNOWN",
+    "is_quarantined": false,
+    "throttle_kbps": null,
+    "is_safe": true,
+    "traffic_bytes_rx": 19928,
+    "traffic_bytes_tx": 29578,
+    "traffic_packets": 227,
+    "first_seen": "2026-11-04T05:22:54.936036+00:00",
+    "last_seen": "2026-11-04T05:22:54.936036+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
