@@ -1,7 +1,7 @@
 {
-  "timestamp": REDACTED_PHONE.1602662,
-  "cpu": 0.0,
-  "ram": 30.9,
-  "health": 100,
+  "timestamp": REDACTED_PHONE.3384368,
+  "cpu": 100.0,
+  "ram": 24.8,
+  "health": 85,
   "instructions": 1
 }

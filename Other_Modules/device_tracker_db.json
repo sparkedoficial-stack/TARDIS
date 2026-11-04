@@ -102,7 +102,7 @@
     "traffic_bytes_tx": 0,
     "traffic_packets": 0,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-03T23:21:38.234196+00:00",
+    "last_seen": "2026-11-04T05:17:41.055592+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -185,10 +185,10 @@
     "throttle_kbps": null,
     "is_safe": true,
     "traffic_bytes_rx": 0,
-    "traffic_bytes_tx": 4193,
-    "traffic_packets": 9,
+    "traffic_bytes_tx": 0,
+    "traffic_packets": 0,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-03T23:21:38.234196+00:00",
+    "last_seen": "2026-11-04T05:17:41.055592+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -216,11 +216,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 240,
+    "traffic_bytes_rx": 0,
     "traffic_bytes_tx": 0,
-    "traffic_packets": 4,
+    "traffic_packets": 0,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-03T23:21:38.234196+00:00",
+    "last_seen": "2026-11-04T05:17:41.055592+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -248,11 +248,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 540,
+    "traffic_bytes_rx": 240,
     "traffic_bytes_tx": 0,
-    "traffic_packets": 9,
+    "traffic_packets": 4,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-03T23:21:38.234196+00:00",
+    "last_seen": "2026-11-04T05:17:41.055592+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -280,11 +280,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 540,
+    "traffic_bytes_rx": 240,
     "traffic_bytes_tx": 0,
-    "traffic_packets": 9,
+    "traffic_packets": 4,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-03T23:21:38.234196+00:00",
+    "last_seen": "2026-11-04T05:17:41.055592+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -346,7 +346,7 @@
     "interface": "enp2s0",
     "connection_medium": "Ethernet / LAN (enp2s0)",
     "network_segment": "Ethernet / LAN Principal (REDACTED_IP/24)",
-    "arp_state": "STALE",
+    "arp_state": "REACHABLE",
     "online": true,
     "rtt_ms": 2.14,
     "open_ports": [
@@ -370,11 +370,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 0,
-    "traffic_bytes_tx": 0,
-    "traffic_packets": 0,
+    "traffic_bytes_rx": 1233,
+    "traffic_bytes_tx": 778,
+    "traffic_packets": 11,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-02T11:34:50.904994+00:00",
+    "last_seen": "2026-11-04T05:17:41.055592+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -386,7 +386,7 @@
       "fe80::52eb:f6ff:fee2:b850"
     ],
     "alias": "TimeMachine (ASUS TUF Gaming A15 - Ethernet Host)",
-    "hostname": "TimeMachine (ASUS TUF Gaming A15 - Ethernet Host)",
+    "hostname": "TimeMachine.local",
     "vendor": "ASUSTek COMPUTER INC.",
     "device_type": "Estación Central Soberana (Host)",
     "interface": "enp2s0",
@@ -440,17 +440,20 @@
       }
     ],
     "risky_ports": [],
-    "mdns_services": [],
+    "mdns_services": [
+      "TARDIS (AirPlay Remote Video)",
+      "50EBF6E2B850@TARDIS (AirTunes Remote Audio)"
+    ],
     "wifi_metrics": {},
     "trust_level": "AEGIS_PROTECTED",
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 0,
-    "traffic_bytes_tx": 3146,
-    "traffic_packets": 32,
+    "traffic_bytes_rx": 38798340,
+    "traffic_bytes_tx": 9672865,
+    "traffic_packets": 50800,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-04T05:16:42.456490+00:00",
+    "last_seen": "2026-11-04T05:17:41.055592+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -522,11 +525,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 0,
-    "traffic_bytes_tx": 0,
-    "traffic_packets": 0,
+    "traffic_bytes_rx": 26396,
+    "traffic_bytes_tx": 90207,
+    "traffic_packets": 1256,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-04T05:16:42.456490+00:00",
+    "last_seen": "2026-11-04T05:17:41.055592+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -542,7 +545,7 @@
     "interface": "enp2s0",
     "connection_medium": "Ethernet / LAN (enp2s0)",
     "network_segment": "Ethernet / LAN Principal (REDACTED_IP/24)",
-    "arp_state": "STALE",
+    "arp_state": "REACHABLE",
     "online": true,
     "rtt_ms": null,
     "open_ports": [],
@@ -558,7 +561,7 @@
     "traffic_bytes_tx": 0,
     "traffic_packets": 0,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-02T11:34:50.904994+00:00",
+    "last_seen": "2026-11-04T05:17:41.055592+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -599,8 +602,8 @@
     "mac": "04:4A:69:EA:31:47",
     "ip": "REDACTED_IP",
     "ipv6_addresses": [],
-    "alias": "Dispositivo LAN (REDACTED_IP)",
-    "hostname": "Dispositivo LAN (REDACTED_IP)",
+    "alias": "Android.local",
+    "hostname": "Android.local",
     "vendor": "Shenzhen Phaten Tech. LTD",
     "device_type": "Dispositivo de Red (Shenzhen Phaten Tech. LTD)",
     "interface": "enp2s0",
@@ -612,17 +615,20 @@
     "open_ports": [],
     "port_details": [],
     "risky_ports": [],
-    "mdns_services": [],
+    "mdns_services": [
+      "Whale TV\\040A19F\\041 (AirPlay Remote Video)",
+      "8433F219A19F@Whale TV\\040A19F\\041 (AirTunes Remote Audio)"
+    ],
     "wifi_metrics": {},
     "trust_level": "KNOWN",
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 84,
-    "traffic_bytes_tx": 84,
+    "traffic_bytes_rx": 0,
+    "traffic_bytes_tx": 879,
     "traffic_packets": 2,
     "first_seen": "2026-10-24T00:57:57.971367+00:00",
-    "last_seen": "2026-10-24T00:57:57.971367+00:00",
+    "last_seen": "2026-11-04T05:17:41.055592+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -1057,6 +1063,38 @@
     "traffic_packets": 79,
     "first_seen": "2026-10-30T06:37:20.686788+00:00",
     "last_seen": "2026-10-30T06:37:20.686788+00:00",
+    "ip_history": [
+      "REDACTED_IP"
+    ]
+  },
+  "C2:0C:DE:37:FD:CD": {
+    "mac": "C2:0C:DE:37:FD:CD",
+    "ip": "REDACTED_IP",
+    "ipv6_addresses": [],
+    "alias": "Dispositivo LAN (REDACTED_IP)",
+    "hostname": "Dispositivo LAN (REDACTED_IP)",
+    "vendor": "Dirección MAC Privada / Aleatoria (iOS / Android / Linux)",
+    "device_type": "Dispositivo de Red (Dirección MAC Privada / Aleatoria (iOS / Android / Linux))",
+    "interface": "veth-host-aq",
+    "connection_medium": "Virtual Bridge (veth-host-aq)",
+    "network_segment": "Namespace Virtual Antarctica (REDACTED_IP/24)",
+    "arp_state": "STALE",
+    "online": true,
+    "rtt_ms": 0.04,
+    "open_ports": [],
+    "port_details": [],
+    "risky_ports": [],
+    "mdns_services": [],
+    "wifi_metrics": {},
+    "trust_level": "KNOWN",
+    "is_quarantined": false,
+    "throttle_kbps": null,
+    "is_safe": true,
+    "traffic_bytes_rx": 9916,
+    "traffic_bytes_tx": 18305,
+    "traffic_packets": 110,
+    "first_seen": "2026-11-04T05:17:41.055592+00:00",
+    "last_seen": "2026-11-04T05:17:41.055592+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]

@@ -1,1 +1,1 @@
-https://api.trycloudflare.com
+https://turns-dialog-beam-dividend.trycloudflare.com
