@@ -33,6 +33,16 @@ import httpx
 
 logger = logging.getLogger("SovereignLocalRunner")
 
+# DIRECTIVA DEL ARQUITECTO: el trabajo puede durar indefinidamente.
+# GIA_LOCAL_TIMEOUT (segundos) fija un tope sólo si se define > 0; por defecto no hay límite.
+def _local_infer_timeout() -> Optional[float]:
+    raw = (os.environ.get("GIA_LOCAL_TIMEOUT") or "").strip()
+    try:
+        val = float(raw) if raw else 0.0
+    except ValueError:
+        val = 0.0
+    return val if val > 0 else None
+
 # Rutas estándar del sistema
 HOME_DIR = Path(os.path.expanduser("~"))
 OLLAMA_MODELS_DIR = HOME_DIR / ".ollama" / "models"
@@ -457,7 +467,7 @@ class SovereignLocalRunner:
         if not self.is_running():
             self.start()
         transport = httpx.HTTPTransport(uds=str(self.socket_path))
-        return httpx.Client(transport=transport, base_url="http://localhost", timeout=120.0)
+        return httpx.Client(transport=transport, base_url="http://localhost", timeout=_local_infer_timeout())
 
     # --------------------------------------------------------------------------
     # INFERENCIA Y CHAT SOBERANO
@@ -537,7 +547,7 @@ class SovereignLocalRunner:
         transport = httpx.HTTPTransport(uds=str(self.socket_path))
         full_reply = []
 
-        with httpx.Client(transport=transport, base_url="http://localhost", timeout=120.0) as client:
+        with httpx.Client(transport=transport, base_url="http://localhost", timeout=_local_infer_timeout()) as client:
             with client.stream("POST", "/v1/chat/completions", json=payload) as resp:
                 for line in resp.iter_lines():
                     if cancel_event and cancel_event.is_set():

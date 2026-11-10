@@ -2,21 +2,22 @@
   "agent": "TardisAutonomousErrorFixer",
   "version": "26.4",
   "status": "ACTIVE_AUTONOMOUS",
-  "total_cycles": 10579,
-  "total_errors_fixed": 5,
-  "total_functions_synthesized": 0,
+  "total_cycles": 10612,
+  "total_errors_fixed": 8,
+  "total_functions_synthesized": 1,
   "registered_fix_functions": [
     "fix_llama_server_health",
     "fix_corrupt_ollama_manifests",
     "fix_broken_symlinks_and_services",
     "fix_evolution_locks_and_sqlite",
-    "fix_codebase_ast_and_subsystems"
+    "fix_codebase_ast_and_subsystems",
+    "tool_heal_llama_server_cuda_crash"
   ],
-  "last_run_iso": "2026-11-09T22:57:06.010916",
+  "last_run_iso": "2026-11-09T23:51:48.197763",
   "last_report": {
     "ok": true,
-    "cycle": 10579,
-    "elapsed_s": 0.211,
+    "cycle": 10612,
+    "elapsed_s": 0.033,
     "llama_server": {
       "ok": true,
       "actions": []
@@ -37,8 +38,8 @@
       "ok": true,
       "applied_fixes": []
     },
-    "total_errors_fixed": 5,
-    "total_functions_synthesized": 0,
-    "timestamp_iso": "2026-11-09T22:57:06.010916"
+    "total_errors_fixed": 8,
+    "total_functions_synthesized": 1,
+    "timestamp_iso": "2026-11-09T23:51:48.197763"
   }
 }

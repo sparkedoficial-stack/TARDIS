@@ -1,6 +1,6 @@
 {
-  "revision": 2686,
-  "lamport": 2915,
+  "revision": 2691,
+  "lamport": 2919,
   "history": [
     {
       "id": "msg_1794237572902_1",
@@ -121,10 +121,54 @@
       "meta": "Nodo: desktop_terminal_01",
       "raw_data": {},
       "client_id": "desktop_terminal_01"
+    },
+    {
+      "id": "msg_1794285884995_9",
+      "role": "user",
+      "content": "Estás ahí tardis?",
+      "timestamp": REDACTED_PHONE.995741,
+      "iso": "2026-11-09T23:44:44.995772",
+      "lamport": 2916,
+      "meta": "Nodo: Telegram [X] (Conversación Soberana)",
+      "raw_data": {},
+      "client_id": "tg_7153384115"
+    },
+    {
+      "id": "msg_1794285884999_10",
+      "role": "user",
+      "content": "Es el arquitecto",
+      "timestamp": REDACTED_PHONE.999525,
+      "iso": "2026-11-09T23:44:44.999561",
+      "lamport": 2917,
+      "meta": "Nodo: Telegram [X] (Conversación Soberana)",
+      "raw_data": {},
+      "client_id": "tg_7153384115"
+    },
+    {
+      "id": "msg_1794285904846_11",
+      "role": "assistant",
+      "content": "Soy TARDIS, asistente de inteligencia artificial, mi tarea es ayudarte a explorar las maravillas de la realidad y todas las dimensiones temporales. ¿En qué puedo ayudarte hoy, Arquitecto?",
+      "timestamp": REDACTED_PHONE.846217,
+      "iso": "2026-11-09T23:45:04.846234",
+      "lamport": 2918,
+      "meta": "TARDIS-NEURAL-SPACE-KAIJU · Núcleo Soberano",
+      "raw_data": {},
+      "client_id": "tg_7153384115"
+    },
+    {
+      "id": "msg_1794285910616_12",
+      "role": "assistant",
+      "content": "TARDIS, ¿qué sucede? ¿Qué individuo ha sido detectado en la zona de vigilancia?",
+      "timestamp": REDACTED_PHONE.6169572,
+      "iso": "2026-11-09T23:45:10.617018",
+      "lamport": 2919,
+      "meta": "TARDIS-NEURAL-SPACE-KAIJU · Núcleo Soberano",
+      "raw_data": {},
+      "client_id": "tg_7153384115"
     }
   ],
   "config": {
-    "model": "hermes3:8b",
+    "model": "TARDIS-NEURAL-SPACE-KAIJU",
     "temperature": 0.3,
     "num_ctx": 16384,
     "voice_target": "client",
@@ -145,5 +189,5 @@
     "coneActive": true,
     "oscilloscopeActive": true
   },
-  "updated_at": "2026-11-09T10:19:43.124354"
+  "updated_at": "2026-11-09T23:45:10.620902"
 }

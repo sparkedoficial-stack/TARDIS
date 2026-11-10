@@ -4353,15 +4353,24 @@ iframe{border:none;width:100%;height:100%;}</style></head>
                 chat_future = loop.run_in_executor(
                     None, lambda: _omni.process_agentic_chat(**chat_kwargs)
                 )
-                res = await asyncio.wait_for(
-                    chat_future, timeout=float(os.environ.get("GIA_CHAT_TIMEOUT", "240"))
-                )
+                # DIRECTIVA DEL ARQUITECTO: el trabajo puede durar indefinidamente.
+                # GIA_CHAT_TIMEOUT=0 (o vacío) => sin límite; sólo la cancelación
+                # explícita (/api/chat/cancel) interrumpe el turno.
+                _raw_timeout = (os.environ.get("GIA_CHAT_TIMEOUT") or "").strip()
+                try:
+                    chat_timeout = float(_raw_timeout) if _raw_timeout else 0.0
+                except ValueError:
+                    chat_timeout = 0.0
+                if chat_timeout > 0:
+                    res = await asyncio.wait_for(chat_future, timeout=chat_timeout)
+                else:
+                    res = await chat_future
             except asyncio.TimeoutError:
                 cancel_event.set()
                 chat_future.cancel()
                 raise HTTPException(
                     status_code=504,
-                    detail=f"Turno excedió {os.environ.get('GIA_CHAT_TIMEOUT', '240')}s y fue cancelado.",
+                    detail=f"Turno excedió {chat_timeout:.0f}s y fue cancelado (GIA_CHAT_TIMEOUT).",
                 )
             except Exception:
                 # Fallback directo al cliente soberano

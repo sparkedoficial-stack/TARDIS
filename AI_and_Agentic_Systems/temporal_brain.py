@@ -36,6 +36,16 @@ import httpx
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("TemporalBrain")
 
+# DIRECTIVA DEL ARQUITECTO: la inferencia puede durar indefinidamente.
+# GIA_TEMPORAL_TIMEOUT (segundos) impone un tope sólo si se define > 0.
+def _temporal_infer_timeout() -> Optional[float]:
+    raw = (os.environ.get("GIA_TEMPORAL_TIMEOUT") or "").strip()
+    try:
+        val = float(raw) if raw else 0.0
+    except ValueError:
+        val = 0.0
+    return val if val > 0 else None
+
 # Rutas estándar del sistema
 WORKSPACE_DIR = Path(__file__).resolve().parent.parent
 CONFIG_FILE_PATH = WORKSPACE_DIR / "temporal_brain_config.json"
@@ -771,7 +781,7 @@ class TemporalBrain:
         for attempt in range(2):
             transport = httpx.HTTPTransport(uds=str(self.socket_path))
             try:
-                with httpx.Client(transport=transport, base_url="http://localhost", timeout=90.0) as client:
+                with httpx.Client(transport=transport, base_url="http://localhost", timeout=_temporal_infer_timeout()) as client:
                     resp = client.post("/v1/chat/completions", json=payload)
                     elapsed = round(time.time() - t0, 3)
                     if resp.status_code == 200:
@@ -879,7 +889,7 @@ class TemporalBrain:
         transport = httpx.HTTPTransport(uds=str(self.socket_path))
         full_reply = []
 
-        with httpx.Client(transport=transport, base_url="http://localhost", timeout=120.0) as client:
+        with httpx.Client(transport=transport, base_url="http://localhost", timeout=_temporal_infer_timeout()) as client:
             with client.stream("POST", "/v1/chat/completions", json=payload) as resp:
                 for line in resp.iter_lines():
                     if cancel_event and cancel_event.is_set():

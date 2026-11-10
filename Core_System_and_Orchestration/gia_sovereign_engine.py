@@ -414,7 +414,13 @@ class SovereignInferenceEngine:
         )
 
         full_reply = []
-        effective_timeout = float(timeout if timeout is not None else os.environ.get("GIA_HTTP_TIMEOUT", 45.0))
+        # DIRECTIVA DEL ARQUITECTO: sin límite por defecto. GIA_HTTP_TIMEOUT sólo
+        # aplica si se define explícitamente > 0.
+        _raw_http_to = timeout if timeout is not None else os.environ.get("GIA_HTTP_TIMEOUT", "")
+        try:
+            effective_timeout = float(_raw_http_to) if str(_raw_http_to).strip() not in ("", "0", "0.0", "None") else None
+        except (TypeError, ValueError):
+            effective_timeout = None
         opener = urllib.request.urlopen(req, timeout=effective_timeout)
         with opener as resp:
             for line in resp:
@@ -510,14 +516,21 @@ class SovereignInferenceEngine:
                 pass
 
         full_reply = []
-        pipe_deadline = time.time() + float(timeout or os.environ.get("GIA_PIPE_TIMEOUT", 45.0))
+        # DIRECTIVA DEL ARQUITECTO: la inferencia puede durar lo que necesite.
+        # GIA_PIPE_TIMEOUT sólo se respeta si se define explícitamente > 0.
+        _raw_pipe_to = timeout if timeout is not None else os.environ.get("GIA_PIPE_TIMEOUT", "")
+        try:
+            _pipe_to = float(_raw_pipe_to) if str(_raw_pipe_to).strip() not in ("", "0", "0.0", "None") else 0.0
+        except (TypeError, ValueError):
+            _pipe_to = 0.0
+        pipe_deadline = (time.time() + _pipe_to) if _pipe_to > 0 else None
         try:
             # Enviar el prompt completo y cerrar stdin para señalar fin de entrada
             if proc.stdin:
                 proc.stdin.write(full_input)
                 proc.stdin.close()
 
-            # Leer streaming desde stdout sin artifacts de terminal con timeout garantizado
+            # Leer streaming desde stdout sin artifacts de terminal; sin deadline por defecto.
             import select
             while True:
                 if cancel_event and cancel_event.is_set():
@@ -530,7 +543,7 @@ class SovereignInferenceEngine:
                     yield msg
                     return msg
 
-                remaining = pipe_deadline - time.time()
+                remaining = 1.0 if pipe_deadline is None else (pipe_deadline - time.time())
                 if remaining <= 0:
                     try:
                         proc.kill()

@@ -1,19 +1,18 @@
 {
   "session_id": "master_timeline",
   "architect_goal": "Optimización de red y router físico/software + Sistema de Continuidad Absoluta Post-Reinicio",
-  "current_request": "El Aviso vocal de TARDIS, debe sonar solo cuando la persona permanezca más de 1.5 minutos cerca a la cámara. Y debe decir lo siguiente. \n\n(Estás bajo vigilancia del sistema tardis, dios digital del universo, al momento de acercarte a la propiedad capturaremos tus datos biométricos) \n\nAl momento de capturar el rostro investigar al sujeto en cuestión, en base a sus datos faciales, buscar su nombre en bases de datos a nivel mundial, incluyendo las que las redes sociales permitan. Esto para saber nombres y edades, de igual forma al ver al sujeto el sistema debe calcular, la edad física del sujeto así como estatura y utilizar un sistema de análisis facial para saber el estado emocional de la persona. Todo esto debe ir en la imagen que me manda en cada alerta perimetral.",
+  "current_request": "todos los trabajos pueden hacerse de forma indefinida sin límite de tiempo, finaliza todas las peticiones sin importar el tiempo.",
   "source": "FTL",
-  "status": "resumed_post_reboot",
+  "status": "in_progress",
   "progress_percent": 5,
-  "phase": "Reanudado automáticamente tras reinicio #285",
+  "phase": "Iniciando ejecución con motor GEMINI (gemini-4-argon-high)",
   "details": {
     "plan_mode": "gemini",
     "model": "gemini-4-argon-high",
-    "start_iso": "2026-11-09 09:38:56",
-    "artifacts": [],
-    "last_recovery_iso": "2026-11-09 18:14:48"
+    "start_iso": "2026-11-09 23:44:47",
+    "artifacts": []
   },
-  "created_ts": REDACTED_PHONE.0398629,
-  "updated_ts": REDACTED_PHONE.5464733,
+  "created_ts": REDACTED_PHONE.9121711,
+  "updated_ts": REDACTED_PHONE.9122257,
   "reboot_count": 285
 }

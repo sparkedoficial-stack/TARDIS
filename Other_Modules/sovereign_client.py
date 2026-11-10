@@ -91,7 +91,14 @@ class SovereignClient:
                 headers={"Content-Type": "application/json", "User-Agent": "GODWORKS-Sovereign-Client/26.4"}
             )
             try:
-                with urllib.request.urlopen(req, timeout=120) as resp:
+                # DIRECTIVA DEL ARQUITECTO: sin límite de tiempo por defecto.
+                # GIA_INFER_TIMEOUT (segundos) puede fijar un tope explícito; 0/vacío = espera indefinida.
+                _raw_infer_to = (os.environ.get("GIA_INFER_TIMEOUT") or "").strip()
+                try:
+                    _infer_to = float(_raw_infer_to) if _raw_infer_to else 0.0
+                except ValueError:
+                    _infer_to = 0.0
+                with urllib.request.urlopen(req, timeout=(_infer_to if _infer_to > 0 else None)) as resp:
                     for line in resp:
                         if cancel_event and cancel_event.is_set():
                             msg = "\n[⛔ Inferencia cancelada y proceso cortado por el usuario]"
