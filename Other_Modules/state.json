@@ -2,9 +2,9 @@
   "ok": true,
   "service": "tardis-tapo-c310-voice",
   "state": "wake",
-  "updated_at": REDACTED_PHONE.0322793,
-  "updated_iso": "2026-11-09T22:56:40-0500",
-  "uptime_sec": 16909.9,
+  "updated_at": REDACTED_PHONE.7638834,
+  "updated_iso": "2026-11-09T22:57:24-0500",
+  "uptime_sec": 16954.6,
   "camera": {
     "host": "REDACTED_IP",
     "alias": "GOD-EYE",
@@ -14,7 +14,7 @@
     "stream_connected": true,
     "codec": "G711ulaw",
     "source_rate": 16000,
-    "last_audio_ts": REDACTED_PHONE.9886086
+    "last_audio_ts": REDACTED_PHONE.711517
   },
   "metrics": {
     "wake_count": 0,
