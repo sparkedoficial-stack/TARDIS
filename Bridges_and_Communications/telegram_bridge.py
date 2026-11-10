@@ -2822,6 +2822,13 @@ class TelegramBridge:
                 f"• `/VideoPensante memoria` : Consulta los videos aprendidos e intereses de TARDIS\n"
                 f"• `/VideoPensante ver <id>` : Detalle y abstracción profunda de un video específico\n"
                 f"• `/VideoPensante status` : Estado, próximo ciclo autónomo y métricas\n\n"
+                f"**👁️ Inteligencia Visual, Entorno y Veredictos:**\n"
+                f"• `/veredicto` : Captura tu entorno (GOD-EYE C310), lo comprende con VLM y emite dictamen + nivel de riesgo\n"
+                f"• `/veredicto local [pregunta]` : Usa la cámara del portátil en lugar de la C310\n"
+                f"• `/veredicto <pregunta>` : Pregunta algo concreto sobre lo que te rodea\n"
+                f"• `/veredictos` : Últimos dictámenes visuales emitidos y su riesgo\n"
+                f"• `/visual` : Estado del motor de visión, VLM, OCR y bóveda\n"
+                f"• *Envía cualquier foto:* TARDIS la observa, la describe y emite veredicto automáticamente.\n\n"
                 f"**📡 Función Social (Publicación de Conclusiones y Videos descargados):**\n"
                 f"• `/Social` o `/Socializar` : Sube a TikTok el último video de /VideoPensante y su tarjeta de conclusiones\n"
                 f"• `/Social publicar <id>` : Publica un video específico de la memoria con sus conclusiones\n"
@@ -3312,12 +3319,84 @@ class TelegramBridge:
                 f"• **Videos Almacenados:** {st.get('stored_videos_count', 0)}\n"
                 f"• **Imágenes Procesadas:** {st.get('stored_images_count', 0)}\n"
                 f"• **Audios / Sonidos:** {st.get('stored_sounds_count', 0)}\n"
+                f"• **Veredictos Emitidos:** {st.get('stored_verdicts_count', 0)}\n"
+                f"• **Visión Multimodal (VLM):** {'✅ ' + str(st.get('vlm_model')) if st.get('vlm_ready') else '⚠️ Sin VLM local'}\n"
                 f"• **Aceleración Whisper:** {st.get('whisper_accel')}\n"
                 f"• **OCR Pytesseract:** {'✅ LISTO' if st.get('ocr_ready') else '❌'}\n"
                 f"• **Bóveda Permanente:** `{st.get('vault_dir')}`\n\n"
-                f"TARDIS analiza y almacena automáticamente todo video, imagen o nota visual que envíes."
+                f"TARDIS analiza y almacena automáticamente todo video, imagen o nota visual que envíes.\n"
+                f"Usa `/veredicto` para que observe tu entorno en vivo y emita un dictamen con nivel de riesgo."
             )
             self.send_message(msg_v, chat_id=chat_id, reply_to_message_id=msg_id)
+            return
+
+        if cmd in ("/veredicto", "/dictamen", "/alrededor", "/entorno", "/que_ves", "/qué_ves", "/queves"):
+            from core.visual_intelligence_engine import get_visual_intelligence_engine
+            raw_args = text[len(parts[0]):].strip()
+            camera_req = "auto"
+            question_req = raw_args
+            first_tok, _, rest_tok = raw_args.partition(" ")
+            cam_aliases = {
+                "c310": "c310", "godeye": "c310", "god-eye": "c310", "seguridad": "c310",
+                "exterior": "c310", "camara": "c310", "cámara": "c310", "tapo": "c310",
+                "local": "local", "laptop": "local", "portatil": "local", "portátil": "local",
+                "webcam": "webcam", "auto": "auto",
+            }
+            if first_tok.lower() in cam_aliases:
+                camera_req = cam_aliases[first_tok.lower()]
+                question_req = rest_tok.strip()
+
+            self.send_message(
+                f"👁️ **Capturando y dictaminando el entorno** (`{camera_req}`)...\n"
+                "Estoy observando la imagen con visión multimodal y emitiendo veredicto.",
+                chat_id=chat_id, reply_to_message_id=msg_id
+            )
+            try:
+                with ChatActionKeeper(self, chat_id, "upload_photo"):
+                    vie = get_visual_intelligence_engine()
+                    res_v = vie.analyze_surroundings(
+                        camera=camera_req,
+                        question=question_req,
+                        source="telegram",
+                        user_name=member_name,
+                    )
+                try:
+                    self.send_photo(
+                        res_v.file_path,
+                        caption=f"👁️ GOD-EYE · veredicto `{res_v.id}` · riesgo {res_v.verdict_data.get('risk_level', '?')}/10",
+                        chat_id=chat_id,
+                    )
+                except Exception:
+                    pass
+                self.send_message(res_v.full_report, chat_id=chat_id, reply_to_message_id=msg_id)
+            except Exception as e_verdict:
+                self.send_message(
+                    f"⚠️ **No pude emitir el veredicto visual:** `{e_verdict}`\n"
+                    "Verifica que la cámara esté disponible (`/c310` para GOD-EYE o `/veredicto local` para la cámara del portátil).",
+                    chat_id=chat_id, reply_to_message_id=msg_id
+                )
+            return
+
+        if cmd in ("/veredictos", "/dictamenes", "/dictámenes", "/ultimos_veredictos", "/últimos_veredictos"):
+            from core.visual_intelligence_engine import get_visual_intelligence_engine
+            vie = get_visual_intelligence_engine()
+            recs = vie.list_recent_records(limit=8)
+            recs = [r for r in recs if (r.get("verdict") or "").strip()]
+            if not recs:
+                self.send_message("⚖️ Aún no hay veredictos visuales registrados. Usa `/veredicto` para emitir el primero.", chat_id=chat_id, reply_to_message_id=msg_id)
+                return
+            lines = ["⚖️ **[TARDIS :: ÚLTIMOS VEREDICTOS VISUALES]**\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"]
+            for r in recs:
+                risk = "?"
+                try:
+                    risk = (json.loads(r.get("metadata_json") or "{}").get("verdict_data") or {}).get("risk_level", "?")
+                except Exception:
+                    pass
+                lines.append(
+                    f"• `{r.get('id')}` · {str(r.get('created_at', ''))[:16].replace('T', ' ')} · riesgo {risk}/10\n"
+                    f"  {(r.get('verdict') or '')[:260]}...\n"
+                )
+            self.send_message("\n".join(lines), chat_id=chat_id, reply_to_message_id=msg_id)
             return
 
         if cmd in ("/videos", "/videos_guardados", "/boveda_videos"):

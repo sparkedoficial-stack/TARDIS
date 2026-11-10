@@ -38,6 +38,10 @@ OLLAMA_URL = _raw_ollama if _raw_ollama.startswith(("http://", "https://")) else
 
 # Modelos multimodales conocidos ordenados por preferencia
 VLM_CANDIDATE_MODELS = [
+    "qwen3-vl:2b-instruct",
+    "qwen3-vl:2b",
+    "qwen3-vl:4b-instruct",
+    "qwen3-vl:4b",
     "qwen2.5-vl:7b",
     "qwen2.5-vl:latest",
     "minicpm-v:latest",

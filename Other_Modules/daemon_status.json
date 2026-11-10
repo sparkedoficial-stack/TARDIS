@@ -1,24 +1,24 @@
 {
   "daemon": "tardis-visual-intelligence",
   "running": true,
-  "pid": 3564965,
-  "uptime_sec": 132413.4,
-  "last_heartbeat": "2026-11-03T13:48:42.139871",
+  "pid": 437328,
+  "uptime_sec": 27286.7,
+  "last_heartbeat": "2026-11-10T07:41:06.324652",
   "items_processed": 0,
   "last_processed_id": "",
-  "memory_rss_mb": 1579.36,
+  "memory_rss_mb": 422.55,
   "engine_status": {
     "status": "online",
     "engine": "VisualIntelligenceEngine v26.4",
     "orchestrator": "TARDIS-NEURAL-SPACE-KAIJU",
     "whisper_accel": "Groq LPU (whisper-large-v3-turbo)",
-    "ocr_ready": true,
+    "ocr_ready": false,
     "haar_cascades_ready": false,
-    "stored_videos_count": 899,
-    "stored_images_count": 0,
+    "stored_videos_count": 912,
+    "stored_images_count": 1,
     "stored_sounds_count": 0,
-    "vault_dir": "/home/timemachine/Escritorio/GODWORKS SYSTEM/vault/videos/telegram",
-    "spool_dir": "/home/timemachine/Escritorio/GODWORKS SYSTEM/vault/visual_intelligence/spool",
-    "db_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/data/visual_intelligence/visual_memory.db"
+    "vault_dir": "/home/m11/Escritorio/GODWORKS SYSTEM/vault/videos/telegram",
+    "spool_dir": "/home/m11/Escritorio/GODWORKS SYSTEM/vault/visual_intelligence/spool",
+    "db_path": "/home/m11/Escritorio/GODWORKS SYSTEM/data/visual_intelligence/visual_memory.db"
   }
 }

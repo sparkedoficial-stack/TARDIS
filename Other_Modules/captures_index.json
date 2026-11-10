@@ -1,5 +1,81 @@
 [
   {
+    "id": "capture_1794289298_LAN_tapo_c310_god_eye.jpg",
+    "timestamp": REDACTED_PHONE.9629867,
+    "iso_time": "2026-11-10T00:41:38-0500",
+    "terminal_id": "tapo_c310_god_eye",
+    "terminal_name": "GOD-EYE · Tapo C310 (REDACTED_IP)",
+    "origin": "LAN",
+    "client_ip": "REDACTED_IP",
+    "country": "LAN",
+    "resolution": "2304x1296 -> 1280x720",
+    "filename": "capture_1794289298_LAN_tapo_c310_god_eye.jpg",
+    "file_path": "/home/m11/Escritorio/GODWORKS SYSTEM/data/terminal_captures/capture_1794289298_LAN_tapo_c310_god_eye.jpg",
+    "size_bytes": 107782,
+    "biometrics": {
+      "persons_detected": 0,
+      "max_confidence": 0.0,
+      "mood_state": "Perímetro Despejado"
+    }
+  },
+  {
+    "id": "capture_1794287800_LAN_tapo_c310_god_eye.jpg",
+    "timestamp": REDACTED_PHONE.53198,
+    "iso_time": "2026-11-10T00:16:40-0500",
+    "terminal_id": "tapo_c310_god_eye",
+    "terminal_name": "GOD-EYE · Tapo C310 (REDACTED_IP)",
+    "origin": "LAN",
+    "client_ip": "REDACTED_IP",
+    "country": "LAN",
+    "resolution": "2304x1296 -> 1280x720",
+    "filename": "capture_1794287800_LAN_tapo_c310_god_eye.jpg",
+    "file_path": "/home/m11/Escritorio/GODWORKS SYSTEM/data/terminal_captures/capture_1794287800_LAN_tapo_c310_god_eye.jpg",
+    "size_bytes": 108100,
+    "biometrics": {
+      "persons_detected": 0,
+      "max_confidence": 0.0,
+      "mood_state": "Perímetro Despejado"
+    }
+  },
+  {
+    "id": "capture_1794287526_LAN_tapo_c310_god_eye.jpg",
+    "timestamp": REDACTED_PHONE.8786201,
+    "iso_time": "2026-11-10T00:12:06-0500",
+    "terminal_id": "tapo_c310_god_eye",
+    "terminal_name": "GOD-EYE · Tapo C310 (REDACTED_IP)",
+    "origin": "LAN",
+    "client_ip": "REDACTED_IP",
+    "country": "LAN",
+    "resolution": "2304x1296 -> 1280x720",
+    "filename": "capture_1794287526_LAN_tapo_c310_god_eye.jpg",
+    "file_path": "/home/m11/Escritorio/GODWORKS SYSTEM/data/terminal_captures/capture_1794287526_LAN_tapo_c310_god_eye.jpg",
+    "size_bytes": 108455,
+    "biometrics": {
+      "persons_detected": 0,
+      "max_confidence": 0.0,
+      "mood_state": "Perímetro Despejado"
+    }
+  },
+  {
+    "id": "capture_1794287344_LAN_tapo_c310_god_eye.jpg",
+    "timestamp": REDACTED_PHONE.657526,
+    "iso_time": "2026-11-10T00:09:04-0500",
+    "terminal_id": "tapo_c310_god_eye",
+    "terminal_name": "GOD-EYE · Tapo C310 (REDACTED_IP)",
+    "origin": "LAN",
+    "client_ip": "REDACTED_IP",
+    "country": "LAN",
+    "resolution": "2304x1296 -> 1280x720",
+    "filename": "capture_1794287344_LAN_tapo_c310_god_eye.jpg",
+    "file_path": "/home/m11/Escritorio/GODWORKS SYSTEM/data/terminal_captures/capture_1794287344_LAN_tapo_c310_god_eye.jpg",
+    "size_bytes": 108093,
+    "biometrics": {
+      "persons_detected": 0,
+      "max_confidence": 0.0,
+      "mood_state": "Perímetro Despejado"
+    }
+  },
+  {
     "id": "capture_1794285888_LAN_tapo_c310_god_eye.jpg",
     "timestamp": REDACTED_PHONE.8006735,
     "iso_time": "2026-11-09T23:44:48-0500",

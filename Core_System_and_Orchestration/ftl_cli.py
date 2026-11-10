@@ -427,7 +427,14 @@ def dispatch_unified_command(cmd_name: str, args_list: list[str] = None) -> bool
         task_str = " ".join(args)
         console.print(f"[bold cyan]🛸 [TARDIS INFINITE CODE] Fusión Cuádruple para: '{task_str}'...[/bold cyan]")
         from tardis_bridge import tardis_bridge
-        res = tardis_bridge._request_api("/api/tardis/infinite_code/execute", method="POST", data={"task": task_str, "background": False}, timeout=600)
+        # DIRECTIVA DEL ARQUITECTO: sin límite por defecto; FTL_INFINITE_TIMEOUT
+        # sólo aplica si se define explícitamente > 0.
+        _inf_raw = (os.environ.get("FTL_INFINITE_TIMEOUT") or "").strip()
+        try:
+            _inf_to = float(_inf_raw) if _inf_raw not in ("", "0", "0.0") else None
+        except ValueError:
+            _inf_to = None
+        res = tardis_bridge._request_api("/api/tardis/infinite_code/execute", method="POST", data={"task": task_str, "background": False}, timeout=_inf_to)
         if res.get("ok"):
             console.print(f"\n[bold green]✔ Síntesis completada en {res.get('elapsed_seconds', 0)}s:[/bold green]")
             console.print(res.get("summary", ""))

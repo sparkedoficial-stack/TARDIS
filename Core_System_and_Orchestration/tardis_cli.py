@@ -290,7 +290,14 @@ def cmd_infinite(task_str: str):
     print(f"  • Gemini Flash High (Scout) + Gemini Pro High (Arquitectura) + Claude Sonnet (Síntesis) + Claude Opus (Apex)")
     print(f"  • Acelerador Externo: Chinese Cloud API (300+ tok/s) | Respaldo: Núcleo Soberano Kaiju\n")
     print(f"{C_GOLD}Tarea:{C_RESET} {task_str}")
-    res = api_request("/api/tardis/infinite_code/execute", method="POST", payload={"task": task_str, "background": False}, timeout=600)
+    # DIRECTIVA DEL ARQUITECTO: sin límite por defecto; FTL_INFINITE_TIMEOUT
+    # sólo aplica si se define explícitamente > 0.
+    _inf_raw = (_os.environ.get("FTL_INFINITE_TIMEOUT") or "").strip()
+    try:
+        _inf_to = float(_inf_raw) if _inf_raw not in ("", "0", "0.0") else None
+    except ValueError:
+        _inf_to = None
+    res = api_request("/api/tardis/infinite_code/execute", method="POST", payload={"task": task_str, "background": False}, timeout=_inf_to)
     if res.get("ok"):
         print(f"\n{C_GREEN}✔ Síntesis completada con éxito en {res.get('elapsed_seconds', 0)}s:{C_RESET}")
         print(res.get("summary", ""))

@@ -550,6 +550,16 @@ class CaptureConnectedPayload(BaseModel):
     country: Optional[str] = None
 
 
+class VisualIntelligenceAnalyzePayload(BaseModel):
+    """Payload de análisis cognitivo multimodal (visión + audio + conclusiones) para /api/visual_intelligence/analyze."""
+    path: Optional[str] = None
+    file_path: Optional[str] = None
+    type: Optional[str] = "video"
+    media_type: Optional[str] = None
+    caption: Optional[str] = None
+    prompt: Optional[str] = None
+
+
 # ==============================================================================
 # FÁBRICA DE LA APLICACIÓN FASTAPI
 # ==============================================================================
@@ -853,6 +863,55 @@ def create_app() -> FastAPI:
             return get_mesh().split_and_distribute_task(task, timeout_sec=timeout_val)
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
+
+    # --------------------------------------------------------------------------
+    # RUTAS DE INTELIGENCIA VISUAL TARDIS (Video, Imagen, Sonido & Conclusiones)
+    # --------------------------------------------------------------------------
+    # Consumibles canónicos del motor VisualIntelligenceEngine (TARDIS-NEURAL-SPACE-KAIJU):
+    #   GET  /api/visual_intelligence/status   -> Salud y telemetría del motor.
+    #   GET  /api/visual_intelligence/videos   -> Bóveda de medios comprendidos (resúmenes + conclusiones).
+    #   GET  /api/visual_intelligence/video/{record_id} -> Registro analítico completo de un medio.
+    #   POST /api/visual_intelligence/analyze  -> Análisis cognitivo multimodal (visión + audio + conclusiones).
+
+    @app.get("/api/visual_intelligence/status")
+    async def visual_intelligence_status():
+        """Estado del motor soberano de Inteligencia Visual (percepción multimodal + conclusiones)."""
+        from core.visual_intelligence_engine import get_visual_intelligence_engine
+        return get_visual_intelligence_engine().get_status()
+
+    @app.get("/api/visual_intelligence/videos")
+    async def visual_intelligence_videos(limit: Optional[int] = PAGINATION_DEFAULT_LIMIT):
+        """Bóveda de medios comprendidos por la Inteligencia Visual (videos con keyframe/OCR/audio)."""
+        from core.visual_intelligence_engine import get_visual_intelligence_engine
+        lim, _off = sanitize_pagination(limit=limit)
+        return {"ok": True, "videos": get_visual_intelligence_engine().list_stored_videos(limit=lim)}
+
+    @app.get("/api/visual_intelligence/video/{record_id}")
+    async def visual_intelligence_video_record(record_id: str):
+        """Registro analítico completo de un medio (video / imagen / audio) ya comprendido."""
+        from core.visual_intelligence_engine import get_visual_intelligence_engine
+        rec = get_visual_intelligence_engine().get_record(record_id)
+        if not rec:
+            return JSONResponse(status_code=404, content={"ok": False, "error": f"Registro {record_id} no encontrado"})
+        return {"ok": True, "record": rec}
+
+    @app.post("/api/visual_intelligence/analyze")
+    async def visual_intelligence_analyze(payload: VisualIntelligenceAnalyzePayload):
+        """Análisis cognitivo completo (visión + audio + síntesis de conclusiones con KAIJU) sobre un medio."""
+        from core.visual_intelligence_engine import get_visual_intelligence_engine
+        vie = get_visual_intelligence_engine()
+        media_path = payload.path or payload.file_path
+        if not media_path or not Path(media_path).exists():
+            return JSONResponse(status_code=400, content={"ok": False, "error": f"Archivo no encontrado: {media_path}"})
+        media_type = payload.media_type or payload.type or "video"
+        caption = payload.caption or payload.prompt or ""
+        if media_type == "image":
+            res = vie.process_image(media_path, source="api", user_name="API Client", caption=caption)
+        elif media_type == "sound":
+            res = vie.process_sound(media_path, source="api", user_name="API Client", caption=caption)
+        else:
+            res = vie.process_video(media_path, source="api", user_name="API Client", caption=caption)
+        return {"ok": True, "result": res.to_dict()}
 
     # --------------------------------------------------------------------------
     # RUTAS ESTÁTICAS Y CONTROL PANEL
@@ -4313,6 +4372,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
             return StreamingResponse(sse_generator(), media_type="text/event-stream")
 
         # Inferencia síncrona completa
+        chat_timeout = 0.0
         try:
             emo_dict = None
             if req.affective_state:

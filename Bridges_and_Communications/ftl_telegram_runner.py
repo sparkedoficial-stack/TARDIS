@@ -7,7 +7,7 @@ Claude Code / Antigravity en modo autónomo.
 
   - Un solo trabajo activo a la vez (FTL modifica archivos del host).
   - Se ejecuta en segundo plano: el polling de Telegram nunca se bloquea.
-  - Aviso periódico de avance, timeout duro y cancelación (/ftl cancelar).
+  - Aviso periódico de avance, cancelación manual y límite opcional por entorno.
   - Registro completo en ~/.ftl/telegram_jobs/<id>.log.
 """
 
@@ -29,7 +29,12 @@ from typing import Any, Callable, Dict, List, Optional
 FTL_CLI = Path.home() / ".ftl" / "ftl_cli.py"
 JOBS_DIR = Path.home() / ".ftl" / "telegram_jobs"
 DEFAULT_CWD = Path.home()
-DEFAULT_TIMEOUT_SEC = 45 * 60
+# DIRECTIVA DEL ARQUITECTO: sin límite de tiempo por defecto. FTL_JOB_TIMEOUT_SEC
+# sólo impone un tope si se define explícitamente > 0 (p. ej. 21600 = 6 h).
+try:
+    DEFAULT_TIMEOUT_SEC = int(float(os.environ.get("FTL_JOB_TIMEOUT_SEC", "0") or 0))
+except ValueError:
+    DEFAULT_TIMEOUT_SEC = 0
 HEARTBEAT_SEC = 180
 TELEGRAM_CHUNK = 3500
 MAX_RESULT_CHUNKS = 3
@@ -396,7 +401,7 @@ class FTLTelegramRunner:
                     nonlocal timed_out
                     next_beat = time.time() + self.heartbeat_sec
                     while job.process.poll() is None:
-                        if job.elapsed > self.timeout_sec:
+                        if self.timeout_sec and self.timeout_sec > 0 and job.elapsed > self.timeout_sec:
                             timed_out = True
                             self._kill(job.process)
                             return
