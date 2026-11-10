@@ -23,6 +23,9 @@ import time
 from datetime import datetime
 from pathlib import Path
 
+import cv2
+import numpy as np
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 if str(BASE_DIR) not in sys.path:
     sys.path.insert(0, str(BASE_DIR))
@@ -59,6 +62,20 @@ class VisualIntelligenceDaemon:
         self.engine = get_visual_intelligence_engine()
         self._setup_signals()
 
+        # Vigilancia periódica del entorno con veredicto (0 desactiva)
+        try:
+            self.surroundings_interval = float(os.environ.get("TARDIS_SURROUNDINGS_INTERVAL", "900") or 900)
+        except Exception:
+            self.surroundings_interval = 900.0
+        self.last_surroundings_check = 0.0
+        self.last_surroundings_sig = None
+        self.surroundings_checks = 0
+        self.surroundings_verdicts = 0
+        self.last_surroundings_verdict_id = ""
+        self.last_surroundings_risk = None
+        self.last_surroundings_verdict = ""
+        self.last_surroundings_error = ""
+
     def _setup_signals(self):
         for sig in (signal.SIGTERM, signal.SIGINT):
             try:
@@ -69,6 +86,67 @@ class VisualIntelligenceDaemon:
     def _handle_exit(self, signum, frame):
         logger.info(f"🛑 [VisualDaemon] Señal de terminación recibida ({signum}). Apagado limpio...")
         self.running = False
+
+    def _frame_signature(self, frame_path: Path):
+        """Firma perceptual simple del fotograma para detectar cambios de escena."""
+        try:
+            img = cv2.imread(str(frame_path), cv2.IMREAD_GRAYSCALE)
+            if img is None:
+                return None
+            small = cv2.resize(img, (16, 16), interpolation=cv2.INTER_AREA).astype(np.float32)
+            return small
+        except Exception:
+            return None
+
+    def check_surroundings_verdict(self):
+        """
+        Captura el último fotograma de GOD-EYE C310 y emite un veredicto cuando
+        la escena cambia de forma significativa. Sin spam: solo persiste en bóveda.
+        """
+        if self.surroundings_interval <= 0:
+            return
+        now = time.time()
+        if now - self.last_surroundings_check < self.surroundings_interval:
+            return
+        self.last_surroundings_check = now
+
+        try:
+            from core.tapo_c310_sentinel import DETECTIONS_DIR
+            latest = DETECTIONS_DIR / "latest_frame.jpg"
+            if not latest.is_file():
+                return
+            age = now - latest.stat().st_mtime
+            if age > 180:
+                self.last_surroundings_error = f"fotograma C310 obsoleto ({age:.0f}s)"
+                return
+
+            sig = self._frame_signature(latest)
+            if sig is None:
+                return
+            if self.last_surroundings_sig is not None:
+                delta = float(np.mean(np.abs(sig - self.last_surroundings_sig)))
+                if delta < 3.0:
+                    self.last_surroundings_error = f"escena sin cambios relevantes (delta={delta:.1f})"
+                    return
+            self.last_surroundings_sig = sig
+
+            logger.info("👁️ [VisualDaemon] Escena C310 cambiada; emitiendo veredicto soberano...")
+            res = self.engine.analyze_surroundings(
+                camera="c310",
+                question="",
+                source="daemon",
+                user_name="Vigilancia Autónoma",
+            )
+            self.surroundings_checks += 1
+            self.surroundings_verdicts += 1
+            self.last_surroundings_verdict_id = res.id
+            self.last_surroundings_risk = res.verdict_data.get("risk_level")
+            self.last_surroundings_verdict = (res.verdict or "")[:1200]
+            self.last_surroundings_error = ""
+            logger.info(f"⚖️ [VisualDaemon] Veredicto {res.id} · riesgo={self.last_surroundings_risk}/10")
+        except Exception as e:
+            self.last_surroundings_error = str(e)[:400]
+            logger.warning(f"Aviso en veredicto periódico del entorno: {e}")
 
     def update_telemetry(self):
         """Escribe latido y telemetría de salud periódicamente."""
@@ -88,7 +166,21 @@ class VisualIntelligenceDaemon:
             "items_processed": self.processed_count,
             "last_processed_id": self.last_item_id,
             "memory_rss_mb": round(mem, 2),
-            "engine_status": st
+            "engine_status": st,
+            "surroundings": {
+                "interval_sec": self.surroundings_interval,
+                "checks": self.surroundings_checks,
+                "verdicts": self.surroundings_verdicts,
+                "last_verdict_id": self.last_surroundings_verdict_id,
+                "last_risk_level": self.last_surroundings_risk,
+                "last_verdict": self.last_surroundings_verdict,
+                "last_error": self.last_surroundings_error,
+                "last_check_ts": self.last_surroundings_check,
+            },
+            "vlm": {
+                "ready": bool(st.get("vlm_ready")),
+                "model": st.get("vlm_model"),
+            }
         }
 
         try:
@@ -104,6 +196,9 @@ class VisualIntelligenceDaemon:
                     "active": True,
                     "pid": os.getpid(),
                     "videos_stored": st.get("stored_videos_count", 0),
+                    "verdicts": st.get("stored_verdicts_count", 0),
+                    "vlm_model": st.get("vlm_model"),
+                    "last_risk_level": self.last_surroundings_risk,
                     "last_ping": time.time()
                 }
                 SYNC_STATE_FILE.write_text(json.dumps(g_state, indent=2, ensure_ascii=False), encoding="utf-8")
@@ -159,6 +254,7 @@ class VisualIntelligenceDaemon:
         while self.running:
             try:
                 self.check_spool_directory()
+                self.check_surroundings_verdict()
 
                 now = time.time()
                 if now - last_telemetry >= 10.0:

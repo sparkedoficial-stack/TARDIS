@@ -613,6 +613,51 @@ class ToolRegistry:
             handler=_capture_cam
         ))
 
+        def _visual_verdict(args: dict):
+            from core.visual_intelligence_engine import get_visual_intelligence_engine
+            res = get_visual_intelligence_engine().analyze_surroundings(
+                camera=str(args.get("camera", "auto") or "auto"),
+                question=str(args.get("question", "") or ""),
+                source="agent_tool",
+                user_name="Arquitecto",
+            )
+            return {
+                "ok": True,
+                "id": res.id,
+                "verdict": res.verdict,
+                "risk_level": res.verdict_data.get("risk_level"),
+                "risk_label": res.verdict_data.get("risk_label"),
+                "vision_engine": res.vision_engine,
+                "image_path": res.file_path,
+                "report": res.full_report,
+            }
+
+        self.register(ToolDefinition(
+            name="visual_verdict_about_surroundings",
+            category="VISION_CCTV",
+            description="Captura el entorno en vivo (GOD-EYE C310, cámara local o webcam), lo comprende con visión multimodal real y emite un veredicto soberano con nivel de riesgo 0-10 y recomendaciones.",
+            parameters={
+                "camera": {"type": "string", "description": "Fuente: auto, c310, local o webcam"},
+                "question": {"type": "string", "description": "Pregunta o foco opcional sobre lo que se desea dictaminar"},
+            },
+            handler=_visual_verdict
+        ))
+
+        def _last_verdict(args: dict):
+            from core.visual_intelligence_engine import get_visual_intelligence_engine
+            rec = get_visual_intelligence_engine().get_last_verdict()
+            if not rec:
+                return {"ok": False, "error": "No hay veredictos visuales registrados aún."}
+            return {"ok": True, "record": rec}
+
+        self.register(ToolDefinition(
+            name="get_last_visual_verdict",
+            category="VISION_CCTV",
+            description="Consulta el último veredicto visual emitido por TARDIS con su nivel de riesgo y metadatos.",
+            parameters={},
+            handler=_last_verdict
+        ))
+
         def _stream_c310_tg(args: dict):
             from core.telegram_bridge import get_telegram_bridge
             dur = float(args.get("duration_sec", 6.0) or 6.0)

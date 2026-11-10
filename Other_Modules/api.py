@@ -560,6 +560,13 @@ class VisualIntelligenceAnalyzePayload(BaseModel):
     prompt: Optional[str] = None
 
 
+class VisualVerdictPayload(BaseModel):
+    """Payload para capturar el entorno y emitir un veredicto visual soberano."""
+    camera: Optional[str] = "auto"
+    question: Optional[str] = None
+    prompt: Optional[str] = None
+
+
 # ==============================================================================
 # FÁBRICA DE LA APLICACIÓN FASTAPI
 # ==============================================================================
@@ -912,6 +919,46 @@ def create_app() -> FastAPI:
         else:
             res = vie.process_video(media_path, source="api", user_name="API Client", caption=caption)
         return {"ok": True, "result": res.to_dict()}
+
+    @app.post("/api/visual_intelligence/verdict")
+    async def visual_intelligence_verdict(payload: VisualVerdictPayload):
+        """Captura el entorno en vivo y emite un veredicto visual con nivel de riesgo."""
+        from core.visual_intelligence_engine import get_visual_intelligence_engine
+        try:
+            res = get_visual_intelligence_engine().analyze_surroundings(
+                camera=payload.camera or "auto",
+                question=payload.question or payload.prompt or "",
+                source="api",
+                user_name="API Client",
+            )
+            return {
+                "ok": True,
+                "id": res.id,
+                "verdict": res.verdict,
+                "verdict_data": res.verdict_data,
+                "vision_engine": res.vision_engine,
+                "image_path": res.file_path,
+                "report": res.full_report,
+                "result": res.to_dict(),
+            }
+        except Exception as e:
+            return JSONResponse(status_code=503, content={"ok": False, "error": str(e)})
+
+    @app.get("/api/visual_intelligence/verdict/last")
+    async def visual_intelligence_last_verdict():
+        """Último veredicto visual emitido por TARDIS."""
+        from core.visual_intelligence_engine import get_visual_intelligence_engine
+        rec = get_visual_intelligence_engine().get_last_verdict()
+        if not rec:
+            return JSONResponse(status_code=404, content={"ok": False, "error": "Sin veredictos registrados"})
+        return {"ok": True, "record": rec}
+
+    @app.get("/api/visual_intelligence/records")
+    async def visual_intelligence_records(media_type: Optional[str] = None, limit: Optional[int] = PAGINATION_DEFAULT_LIMIT):
+        """Registros visuales recientes (videos, imágenes, sonidos y veredictos)."""
+        from core.visual_intelligence_engine import get_visual_intelligence_engine
+        lim, _off = sanitize_pagination(limit=limit)
+        return {"ok": True, "records": get_visual_intelligence_engine().list_recent_records(media_type=media_type, limit=lim)}
 
     # --------------------------------------------------------------------------
     # RUTAS ESTÁTICAS Y CONTROL PANEL

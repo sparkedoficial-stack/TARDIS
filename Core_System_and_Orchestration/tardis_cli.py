@@ -405,7 +405,9 @@ def cmd_visual(sub: str, extra: list):
         print(f"  {C_CYAN}  Motor:{C_RESET}              {st.get('engine')}")
         print(f"  {C_CYAN}  Orquestador:{C_RESET}        {st.get('orchestrator')}")
         print(f"  {C_CYAN}  Whisper LPU:{C_RESET}        {st.get('whisper_accel')}")
+        print(f"  {C_CYAN}  Visión VLM:{C_RESET}         {('Listo · ' + str(st.get('vlm_model'))) if st.get('vlm_ready') else 'No disponible'}")
         print(f"  {C_CYAN}  OCR Pytesseract:{C_RESET}    {'Listo' if st.get('ocr_ready') else 'No disponible'}")
+        print(f"  {C_CYAN}  Veredictos:{C_RESET}         {st.get('stored_verdicts_count', 0)}")
         print(f"  {C_CYAN}  Videos en Bóveda:{C_RESET}   {st.get('stored_videos_count')}")
         print(f"  {C_CYAN}  Imágenes en Bóveda:{C_RESET} {st.get('stored_images_count')}")
         print(f"  {C_CYAN}  Bóveda Videos:{C_RESET}      {st.get('vault_dir')}")
@@ -417,6 +419,20 @@ def cmd_visual(sub: str, extra: list):
             print(f"  {C_GREEN}🎬 [{v.get('id')}]{C_RESET} {v.get('duration')}s ({v.get('width')}x{v.get('height')})")
             print(f"     {C_DIM}Remitente: {v.get('user_name')} | {v.get('created_at')[:16]}{C_RESET}")
             print(f"     {C_YELLOW}Resumen:{C_RESET} {v.get('summary', '')[:120]}...\n")
+
+    elif sub in ("veredicto", "verdict", "alrededor", "entorno", "dictamen"):
+        camera = "auto"
+        question = " ".join(extra).strip() if extra else ""
+        if extra and extra[0].lower() in ("c310", "godeye", "local", "webcam", "auto"):
+            camera = extra[0].lower()
+            question = " ".join(extra[1:]).strip()
+        print(f"{C_CYAN}👁️ Capturando entorno ({camera}) y emitiendo veredicto soberano...{C_RESET}")
+        try:
+            res_v = vie.analyze_surroundings(camera=camera, question=question, source="cli", user_name="CLI User")
+            print(f"\n{res_v.full_report}\n")
+            print(f"{C_DIM}Imagen: {res_v.file_path}{C_RESET}")
+        except Exception as e_v:
+            print(f"{C_RED}❌ No se pudo emitir el veredicto: {e_v}{C_RESET}")
 
     elif sub in ("analyze", "analizar", "ver"):
         if not extra:
