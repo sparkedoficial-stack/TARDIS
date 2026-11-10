@@ -24,12 +24,28 @@ class TestKaijuCognitiveOrchestrator(unittest.TestCase):
         self.assertEqual(res["recommended_worker"], "local_os")
 
     def test_evaluate_heavy_code_task(self):
-        """Verifica que tareas de código complejo se clasifiquen como cómputo acelerado."""
+        """Verifica inferencia 100% local por defecto y opt-in explícito para cómputo externo."""
+        import os
         prompt = "Desarrolla un algoritmo en Python para calcular la transformada rápida de Fourier con optimización SIMD"
-        res = self.orchestrator.evaluate_task_complexity(prompt, active_expert="Expert_LogicCode")
-        self.assertTrue(res["is_heavy"])
-        self.assertEqual(res["target_domain"], "ACCELERATED_COGNITION")
-        self.assertEqual(res["recommended_worker"], "cloud_high_speed")
+        old_val = os.environ.pop("TARDIS_ALLOW_CLOUD_OFFLOAD", None)
+        try:
+            res_local = self.orchestrator.evaluate_task_complexity(prompt, active_expert="Expert_LogicCode")
+            self.assertFalse(res_local["is_heavy"])
+            self.assertTrue(res_local["local_sovereign"])
+            self.assertEqual(res_local["recommended_worker"], "temporal_brain_local")
+
+            os.environ["TARDIS_ALLOW_CLOUD_OFFLOAD"] = "1"
+            res_accel = self.orchestrator.evaluate_task_complexity(
+                prompt, active_expert="Expert_LogicCode", force_offload=True
+            )
+            self.assertTrue(res_accel["is_heavy"])
+            self.assertEqual(res_accel["target_domain"], "ACCELERATED_COGNITION")
+            self.assertEqual(res_accel["recommended_worker"], "cloud_high_speed")
+        finally:
+            if old_val is None:
+                os.environ.pop("TARDIS_ALLOW_CLOUD_OFFLOAD", None)
+            else:
+                os.environ["TARDIS_ALLOW_CLOUD_OFFLOAD"] = old_val
 
     def test_compile_to_inter_ai_ir(self):
         """Verifica que la representación intermedia (IR) sea formal, estructurada y sin redundancias."""

@@ -64,8 +64,11 @@ def social_env(tmp_path, monkeypatch):
 
     engine = tse.TardisSocialEngine.__new__(tse.TardisSocialEngine)
     engine.cfg = tse.load_social_config()
+    engine.cfg["tiktok"]["min_gap_sec"] = 0
+    engine.cfg["x"]["min_gap_sec"] = 0
     engine._renderer = None
     engine._last_publish_ts = 0.0
+    engine._last_x_publish_ts = 0.0
 
     class ReadyStub:
         def __init__(self, cfg):
@@ -228,3 +231,72 @@ def test_social_title_for_handles_markdown(item_type, expected_title_prefix):
     title = tse.social_title_for(detail, item_type)
     assert expected_title_prefix in title or expected_title_prefix in title
     assert "**" not in title and "`" not in title
+
+
+def test_x_video_publish_and_dedup(social_env, monkeypatch):
+    engine, _, tmp_path = social_env
+    engine.cfg["enabled"] = True
+    engine.cfg["x"]["enabled"] = True
+
+    rec = FakeRecord(id="vp_x_test_0001")
+    rec.file_path = str(tmp_path / "x_vid.mp4")
+    Path(rec.file_path).write_bytes(b"3" * 4096)
+
+    published_x = []
+
+    class XStub:
+        def is_ready(self):
+            return True
+
+        def publish_video_reflection(self, snapshot, dry_run=False):
+            published_x.append(snapshot["id"])
+            return {
+                "publish_id": "https://x.com/AsleepAstronaut/status/123456",
+                "tweet_url": "https://x.com/AsleepAstronaut/status/123456",
+                "account": "Asleep_astronaut | @AsleepAstronaut",
+                "text": "🤖 [TARDIS · IA Externa Local] Reflexión de prueba #TARDIS",
+                "thread_text": "🤖 [TARDIS · IA Externa Local] Conclusión extendida.",
+                "thread_attached": True,
+                "video_path": snapshot["file_path"],
+                "transcoded": False,
+                "duration_sec": 21.0,
+                "mode": "X_CDP_VIDEO",
+            }
+
+    monkeypatch.setattr(engine, "_x_client", lambda: XStub())
+
+    rep1 = engine.publish_record(rec, item="video", platform="x")
+    assert rep1["x_results"]["x_video"]["status"] == "published"
+    assert rep1["x_results"]["x_video"]["tweet_url"].endswith("/123456")
+    assert len(published_x) == 1
+
+    rep2 = engine.publish_record(rec, item="video", platform="x")
+    assert rep2["x_results"]["x_video"]["status"] == "skipped"
+    assert len(published_x) == 1
+
+
+def test_x_reflection_synthesis_and_aegis():
+    from core.tardis_browser import get_tardis_browser
+    b = get_tardis_browser()
+    rec = FakeRecord().__dict__
+    syn = b.synthesize_video_x_reflection(rec, use_local_llm=False)
+    assert syn["ok"] is True
+    assert syn["primary_chars"] <= 275
+    assert syn["thread_chars"] <= 275
+    assert "TARDIS" in syn["primary_post"]
+
+    bad = dict(rec)
+    bad["abstraction_conclusions"] = "Nota privada sobre Annya May Carrillo."
+    with pytest.raises(ValueError):
+        b.synthesize_video_x_reflection(bad, use_local_llm=False)
+
+
+def test_kaiju_orchestrator_enforces_local_inference(monkeypatch):
+    monkeypatch.delenv("TARDIS_ALLOW_CLOUD_OFFLOAD", raising=False)
+    from core.kaiju_cognitive_orchestrator import get_kaiju_cognitive_orchestrator
+    orch = get_kaiju_cognitive_orchestrator()
+    ev = orch.evaluate_task_complexity("Explícame cómo funciona el entrelazamiento cuántico", force_offload=False)
+    assert ev["is_heavy"] is False
+    assert ev["use_accelerator"] is False
+    assert ev["local_sovereign"] is True
+    assert ev["recommended_worker"] == "temporal_brain_local"

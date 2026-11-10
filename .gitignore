@@ -1,0 +1,58 @@
+# ============================================================
+# TARDIS Portfolio — exclusión de datos vivos y secretos
+# ============================================================
+.env
+.env.*
+*.env
+
+# Bases de datos y estado local
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Logs y cachés
+*.log
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Claves y credenciales
+*.key
+*.pem
+id_rsa*
+id_ed25519*
+*.p12
+*.pfx
+*.keystore
+secrets.*
+credentials.*
+
+# Entornos virtuales y artefactos
+.venv/
+venv/
+env/
+node_modules/
+build/
+dist/
+*.egg-info/
+
+# Basura de sistema
+.DS_Store
+Thumbs.db
+
+# Datos sensibles de runtime (cámaras, Telegram, dossiers internos)
+Other_Modules/tapo_c310_config.json
+Other_Modules/TELEGRAM_LIVE_CALL_URL.txt
+Other_Modules/TELEGRAM_LIVE_CAM_URL.txt
+Other_Modules/telegram_calls_history.json
+Bridges_and_Communications/telegram_calls_history.json
+Other_Modules/dossier_*.json
+Other_Modules/unknown_visitors.json
+Other_Modules/active_terminal.json
+Other_Modules/sentinel_state.json
+Other_Modules/scp005_*.json

@@ -100,10 +100,63 @@ class TardisBrowserEngine:
                 "report": res,
             }
 
+        elif action in ("x_feed", "x-feed"):
+            steps = int(kwargs.get("steps", 4))
+            res = asyncio.run(self.browser.inspect_x_feed(scroll_steps=steps))
+            return res
+
+        elif action in ("x_post", "x-post"):
+            text = kwargs.get("text", "")
+            dry_run = bool(kwargs.get("dry_run", False))
+            return asyncio.run(self.browser.post_to_x(text, dry_run=dry_run))
+
+        elif action in ("x_reply", "x-reply"):
+            url = kwargs.get("url") or kwargs.get("tweet_url") or ""
+            text = kwargs.get("text") or kwargs.get("reply_text") or ""
+            dry_run = bool(kwargs.get("dry_run", False))
+            return asyncio.run(self.browser.reply_to_x_post(url, text, dry_run=dry_run))
+
+        elif action in ("x_reflect", "x-reflect", "x_engage", "x-engage"):
+            steps = int(kwargs.get("steps", 3))
+            publish_reflection = bool(kwargs.get("publish_reflection", True))
+            reply_count = int(kwargs.get("replies", kwargs.get("reply_count", 1)))
+            dry_run = bool(kwargs.get("dry_run", False))
+            return asyncio.run(
+                self.browser.autonomous_x_reflect_and_engage(
+                    scroll_steps=steps,
+                    publish_reflection=publish_reflection,
+                    reply_count=reply_count,
+                    dry_run=dry_run,
+                )
+            )
+
+        elif action in ("x_publish_science", "x-publish-science"):
+            topic = kwargs.get("topic")
+            dry_run = bool(kwargs.get("dry_run", False))
+            return asyncio.run(
+                self.browser.publish_scientific_knowledge_to_x(
+                    topic=topic,
+                    dry_run=dry_run,
+                )
+            )
+
+        elif action in ("x_answer_comments", "x-answer-comments"):
+            max_replies = int(kwargs.get("max_replies", 2))
+            dry_run = bool(kwargs.get("dry_run", False))
+            return asyncio.run(
+                self.browser.inspect_and_reply_x_comments(
+                    max_replies=max_replies,
+                    dry_run=dry_run,
+                )
+            )
+
         else:
             return {
                 "ok": False,
-                "error": f"Acción desconocida '{action}'. Válidas: visit, search, learn, status, daemon_cycle",
+                "error": (
+                    f"Acción desconocida '{action}'. Válidas: visit, search, learn, status, "
+                    "daemon_cycle, x-feed, x-post, x-reply, x-reflect, x-publish-science, x-answer-comments"
+                ),
             }
 
     def execute(self, *args, **kwargs) -> Any:

@@ -188,6 +188,25 @@ te di; si no estas seguro de que una funcion exista, no la menciones."""
 
 
 def generate_request(model: str, sig: dict, timeout: float = 300.0) -> str | None:
+    # 1. Intentar primero mediante TemporalBrain (socket UNIX C++ acelerado por CUDA)
+    try:
+        from core.temporal_brain import get_temporal_brain
+        tb = get_temporal_brain()
+        if tb.is_serverless_ready():
+            tb_res = tb.chat(
+                [
+                    {"role": "system", "content": SYS},
+                    {"role": "user", "content": build_prompt(sig)},
+                ],
+                temperature=0.35,
+                max_tokens=1536,
+            )
+            if tb_res.get("ok") and tb_res.get("reply"):
+                return tb_res["reply"].strip()
+    except Exception:
+        pass
+
+    # 2. Respaldo mediante Ollama HTTP con num_ctx seguro (8192 para evitar OOM/timeout)
     try:
         r = httpx.post(f"{OLLAMA}/api/chat", json={
             "model": model,
@@ -196,7 +215,7 @@ def generate_request(model: str, sig: dict, timeout: float = 300.0) -> str | Non
                 {"role": "user", "content": build_prompt(sig)},
             ],
             "stream": False,
-            "options": {"num_ctx": int(os.environ.get("GIA_NUM_CTX", "32768")), "temperature": 0.5},
+            "options": {"num_ctx": int(os.environ.get("GIA_NUM_CTX", "8192")), "temperature": 0.4},
             "keep_alive": "30m",
         }, timeout=timeout)
         r.raise_for_status()

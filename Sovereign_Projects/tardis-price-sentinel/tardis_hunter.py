@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/home/timemachine/.venv-tardis/bin/python3
 """
 TARDIS Syntropic Price Sentinel & Deal Oracle - Sovereign CLI
 Commands: scan, glitches, search, coupons, stack, watch, monitor, serve, status

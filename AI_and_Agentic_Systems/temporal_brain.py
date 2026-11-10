@@ -74,14 +74,15 @@ class TemporalBrainConfig:
                 "system_name": "Temporal Brain",
                 "model": "TARDIS-NEURAL-SPACE-KAIJU",
                 "socket_path": str(DEFAULT_SOCKET_PATH),
-                "ctx_size": 8192,
-                "gpu_layers": 20,
+                "ctx_size": 16384,
+                "gpu_layers": 18,
                 "cache_type_k": "q8_0",
                 "cache_type_v": "q8_0",
-                "threads": 16,
-                "temperature": 0.3,
-                "max_tokens": 2048,
-                "auto_offload_cuda": true,
+                "threads": 8,
+                "threads_batch": 16,
+                "temperature": 0.25,
+                "max_tokens": 4096,
+                "auto_offload_cuda": True,
                 "hooks": {
                     "enable_pre_hooks": True,
                     "enable_post_hooks": True,
@@ -212,15 +213,16 @@ class TemporalBrain:
         self.config = TemporalBrainConfig(config_path)
         self.socket_path = Path(self.config.get("socket_path", str(DEFAULT_SOCKET_PATH)))
         self.model_name = self.config.get("model", "TARDIS-NEURAL-SPACE-KAIJU")
-        self.ctx_size = self.config.get("ctx_size", 8192)
-        self.gpu_layers = self.config.get("gpu_layers", 20)
+        self.ctx_size = self.config.get("ctx_size", 16384)
+        self.gpu_layers = self.config.get("gpu_layers", 18)
         self.cache_type_k = self.config.get("cache_type_k", "q8_0")
         self.cache_type_v = self.config.get("cache_type_v", "q8_0")
-        self.threads = self.config.get("threads", 16)
+        self.threads = self.config.get("threads", 8)
 
         self._process: Optional[subprocess.Popen] = None
         self._proc_lock = threading.Lock()
         self._model_info: Optional[Dict[str, Any]] = None
+        self._adopted_server: bool = False
 
         # Registro de funciones personalizadas
         self.functions = TemporalBrainFunctionRegistry()
@@ -375,10 +377,35 @@ class TemporalBrain:
     # CICLO DE VIDA DEL SERVICIO SERVERLESS (SOCKET UNIX)
     # --------------------------------------------------------------------------
 
+    def _is_daemon_process_alive(self) -> bool:
+        """Verifica en /proc si existe un proceso llama-server escuchando en self.socket_path."""
+        target_sock = str(self.socket_path)
+        try:
+            for pid_dir in Path("/proc").iterdir():
+                if not pid_dir.name.isdigit():
+                    continue
+                try:
+                    cmdline = (pid_dir / "cmdline").read_bytes().decode("utf-8", errors="ignore")
+                    if "llama-server" in cmdline and target_sock in cmdline:
+                        status_file = pid_dir / "status"
+                        if status_file.exists() and "State:\tZ" in status_file.read_text(encoding="utf-8", errors="ignore"):
+                            continue
+                        return True
+                except Exception:
+                    continue
+        except Exception:
+            pass
+        return False
+
     def is_running(self) -> bool:
-        if not self._process or self._process.poll() is not None:
+        if not self.socket_path.exists():
             return False
-        return self.socket_path.exists()
+        if self._process and self._process.poll() is None:
+            return True
+        if self._is_daemon_process_alive():
+            self._adopted_server = True
+            return True
+        return False
 
     def _server_n_ctx(self) -> int:
         """Contexto REAL del servidor (cacheado 60 s). La config de la app puede diferir."""
@@ -440,7 +467,7 @@ class TemporalBrain:
         )
         return out, max_new
 
-    def _probe_socket(self, timeout: float = 1.5) -> bool:
+    def _probe_socket(self, timeout: float = 5.0) -> bool:
         """True si hay un llama-server vivo respondiendo en el socket (sea de quien sea)."""
         if not self.socket_path.exists():
             return False
@@ -449,7 +476,8 @@ class TemporalBrain:
             with httpx.Client(transport=transport, base_url="http://localhost", timeout=timeout) as client:
                 return client.get("/health").status_code == 200
         except Exception:
-            return False
+            # Si el servidor está ocupado procesando prefill pesado, verificar en /proc antes de declararlo muerto
+            return self._is_daemon_process_alive()
 
     def is_serverless_ready(self, model_name: Optional[str] = None) -> bool:
         """Verifica disponibilidad del binario C++ y del modelo GGUF sin iniciar el proceso."""
@@ -491,7 +519,8 @@ class TemporalBrain:
             # Varios procesos (supervisor.py, omni_temporal_control, CLIs) usan este
             # motor. Si otro ya levanto el servidor, se adopta: borrar su socket lo
             # dejaria huerfano y un segundo llama-server no cabe en la VRAM.
-            if self._probe_socket():
+            if self._probe_socket(timeout=5.0):
+                self._adopted_server = True
                 logger.info(f"🔗 [TemporalBrain] Servidor existente adoptado en {self.socket_path}")
                 return True
 
@@ -500,16 +529,44 @@ class TemporalBrain:
             try:
                 fcntl.flock(lock_fh, fcntl.LOCK_EX)
                 # Revalidar tras obtener el lock: otro proceso pudo arrancarlo mientras esperabamos
-                if self._probe_socket(timeout=3.0):
+                if self._probe_socket(timeout=5.0):
+                    self._adopted_server = True
                     logger.info(f"🔗 [TemporalBrain] Servidor levantado por otro proceso, adoptado")
                     return True
+
+                # Intentar primero activar el servicio systemd dedicado si está instalado
+                if self.socket_path == DEFAULT_SOCKET_PATH:
+                    try:
+                        res = subprocess.run(
+                            ["systemctl", "--user", "start", "tardis-temporal-brain.service"],
+                            stdin=subprocess.DEVNULL,
+                            stdout=subprocess.DEVNULL,
+                            stderr=subprocess.DEVNULL,
+                            timeout=5.0,
+                        )
+                        if res.returncode == 0:
+                            t_wait = time.time()
+                            while time.time() - t_wait < wait_ready:
+                                if self._probe_socket(timeout=2.0):
+                                    self._adopted_server = True
+                                    logger.info(f"✅ [TemporalBrain] Servicio systemd tardis-temporal-brain.service activo en {self.socket_path}")
+                                    return True
+                                time.sleep(0.2)
+                    except Exception:
+                        pass
+
                 return self._start_locked(wait_ready)
             finally:
                 fcntl.flock(lock_fh, fcntl.LOCK_UN)
                 lock_fh.close()
 
-    def _start_locked(self, wait_ready: float) -> bool:
-        """Arranque real. Requiere el lock entre procesos."""
+    def _start_locked(self, wait_ready: float, gpu_layers_override: Optional[int] = None) -> bool:
+        """Arranque real con protección anti-colisión VRAM y fallback automático CUDA -> CPU."""
+        # Si ya hay un proceso vivo escuchando en este socket, adoptarlo en vez de duplicar
+        if self._is_daemon_process_alive() and self.socket_path.exists():
+            self._adopted_server = True
+            return True
+
         info = self._resolve_model()
         gguf_path = info["gguf_path"]
         llama_server_bin = TEMPORAL_BRAIN_LIB_DIR / "llama-server"
@@ -526,6 +583,9 @@ class TemporalBrain:
 
         env, cuda_backend = self._get_cuda_environment()
         ctx = info.get("params", {}).get("num_ctx", self.ctx_size)
+        ngl = self.gpu_layers if gpu_layers_override is None else gpu_layers_override
+
+        load_mode = self.config.get("load_mode", "mmap+mlock" if self.config.get("mlock", False) else "auto")
 
         cmd = [
             str(llama_server_bin),
@@ -535,27 +595,31 @@ class TemporalBrain:
             "--ctx-size", str(ctx),
             "--cache-type-k", str(self.cache_type_k),
             "--cache-type-v", str(self.cache_type_v),
-            "--n-gpu-layers", str(self.gpu_layers),
-            # Generacion: un hilo por nucleo fisico. Con 16 (SMT) en un CPU cargado,
-            # la barrera de sincronizacion de llama.cpp colapsaba a ~1 tok/s.
+            "--n-gpu-layers", str(ngl),
             "--threads", str(self.threads),
-            # Prefill (lotes grandes) si aprovecha todos los hilos logicos
-            "--threads-batch", str(self.config.get("threads_batch", os.cpu_count() or self.threads)),
-            # mlock requiere subir RLIMIT_MEMLOCK (root); desactivado por defecto
-            *(["--mlock"] if self.config.get("mlock", False) else []),
+            "--threads-batch", str(self.config.get("threads_batch", 16)),
+            "--load-mode", str(load_mode),
             "--batch-size", "2048",
             "--ubatch-size", "512",
             "--flash-attn", "on",
-            # Un solo slot: con -np auto (4) el cache KV se reparte y un pedido
-            # largo fallaba con "Context size has been exceeded" pese a caber.
-            "--parallel", "1",
+            "--parallel", str(self.config.get("parallel", 2)),
+            "--cont-batching",
+            "--prio", "2",
+            "--prio-batch", "2",
+            "--cache-idle-slots",
+            "--temp", str(self.config.get("temperature", 0.25)),
+            "--top-k", str(self.config.get("top_k", 40)),
+            "--top-p", str(self.config.get("top_p", 0.92)),
+            "--min-p", str(self.config.get("min_p", 0.05)),
+            "--repeat-penalty", str(self.config.get("repeat_penalty", 1.08)),
+            "--dry-multiplier", str(self.config.get("dry_multiplier", 0.8)),
             "--no-webui",
             "--offline",
             "--log-disable",
         ]
 
-        logger.info(f"🧠 [TemporalBrain] Iniciando motor en socket UNIX privado: {self.socket_path}")
-        if cuda_backend:
+        logger.info(f"🧠 [TemporalBrain] Iniciando motor en socket UNIX privado: {self.socket_path} (ngl={ngl}, threads={self.threads})")
+        if cuda_backend and ngl > 0:
             logger.info(f"⚡ [TemporalBrain] Aceleración CUDA activada ({cuda_backend})")
 
         log_dir = Path(__file__).resolve().parent.parent / "data" / "logs"
@@ -576,7 +640,7 @@ class TemporalBrain:
             if self.socket_path.exists():
                 try:
                     transport = httpx.HTTPTransport(uds=str(self.socket_path))
-                    with httpx.Client(transport=transport, base_url="http://localhost", timeout=1.5) as client:
+                    with httpx.Client(transport=transport, base_url="http://localhost", timeout=2.0) as client:
                         r = client.get("/health")
                         if r.status_code == 200:
                             logger.info(f"✅ [TemporalBrain] Motor listo y modelo cargado ({time.time() - t0:.2f}s) en {self.socket_path}")
@@ -584,15 +648,29 @@ class TemporalBrain:
                 except Exception:
                     pass
             if self._process.poll() is not None:
-                logger.error(f"❌ [TemporalBrain] Fallo al iniciar (código {self._process.returncode})")
+                rc = self._process.returncode
+                logger.error(f"❌ [TemporalBrain] Fallo al iniciar con ngl={ngl} (código {rc})")
+                # Fallback gradual de capas GPU ante saturación de VRAM (evita bloqueo por SIGABRT/CUDA OOM)
+                if ngl > 10:
+                    logger.warning("⚠️ [TemporalBrain] Reintentando con --n-gpu-layers 10 por presión de VRAM...")
+                    return self._start_locked(wait_ready, gpu_layers_override=10)
+                elif ngl > 0:
+                    logger.warning("⚠️ [TemporalBrain] Reintentando en modo CPU puro (--n-gpu-layers 0)...")
+                    return self._start_locked(wait_ready, gpu_layers_override=0)
                 return False
             time.sleep(0.15)
 
         logger.warning(f"⚠️ [TemporalBrain] Tiempo de espera agotado en {self.socket_path}")
         return False
 
-    def stop(self):
-        """Detiene el ejecutor y remueve el socket UNIX privado."""
+    def stop(self, force: bool = False):
+        """
+        Detiene el ejecutor sólo si force=True.
+        Por diseño soberano 24/7, los scripts efímeros que salen vía atexit NO deben
+        matar el demonio compartido en /tmp/temporal_brain.sock.
+        """
+        if not force:
+            return
         with self._proc_lock:
             if self._process:
                 try:
@@ -605,14 +683,32 @@ class TemporalBrain:
                         pass
                 self._process = None
 
-                # Solo el proceso que lanzo el servidor libera el socket: stop() corre
-                # via atexit en cualquier proceso que instancie el motor.
                 if self.socket_path.exists():
                     try:
                         self.socket_path.unlink()
                     except Exception:
                         pass
                 logger.info("🛑 [TemporalBrain] Motor detenido y socket liberado.")
+
+    def generate(
+        self,
+        prompt: str,
+        system_prompt: Optional[str] = None,
+        max_tokens: int = 1024,
+        temperature: Optional[float] = None,
+    ) -> Dict[str, Any]:
+        """Método de generación directa compatible con EasyTouchEngine y agentes autónomos."""
+        msgs: List[Dict[str, str]] = []
+        sys_p = system_prompt or self.config.get("system_prompt")
+        if sys_p:
+            msgs.append({"role": "system", "content": str(sys_p)})
+        msgs.append({"role": "user", "content": str(prompt)})
+        res = self.chat(msgs, temperature=temperature, max_tokens=max_tokens)
+        if "text" not in res:
+            res["text"] = res.get("reply", "")
+        if "response" not in res:
+            res["response"] = res.get("reply", "")
+        return res
 
     # --------------------------------------------------------------------------
     # PIPELINE DE INFERENCIA SOBERANA (CHAT & STREAM)
@@ -630,12 +726,16 @@ class TemporalBrain:
         t0 = time.time()
         options = {
             "temperature": float(temperature if temperature is not None else self.config.get("temperature", 0.3)),
-            "max_tokens": int(max_tokens if max_tokens is not None else self.config.get("max_tokens", 2048)),
+            "max_tokens": int(max_tokens if max_tokens is not None else self.config.get("max_tokens", 1024)),
             "num_ctx": num_ctx,
         }
 
-        # 1. Pipeline Pre-Inferencia: Adaptadores y Hooks
+        # 1. Pipeline Pre-Inferencia: Adaptadores y Hooks + System Prompt Soberano por defecto
         current_msgs = list(messages)
+        if not any(m.get("role") == "system" for m in current_msgs):
+            default_sys = self.config.get("system_prompt")
+            if default_sys:
+                current_msgs.insert(0, {"role": "system", "content": str(default_sys)})
         for adapter in self._adapters.values():
             if adapter.enabled:
                 try:
@@ -666,35 +766,50 @@ class TemporalBrain:
             "stream": False,
         }
 
-        # 3. Llamada al socket UNIX privado
-        transport = httpx.HTTPTransport(uds=str(self.socket_path))
+        # 3. Llamada al socket UNIX privado (con auto-recuperación si el socket fue recreado o está en warmup)
         raw_result: Dict[str, Any] = {}
-        try:
-            with httpx.Client(transport=transport, base_url="http://localhost", timeout=90.0) as client:
-                resp = client.post("/v1/chat/completions", json=payload)
-                elapsed = round(time.time() - t0, 3)
-                if resp.status_code == 200:
-                    data = resp.json()
-                    choices = data.get("choices", [])
-                    reply = choices[0].get("message", {}).get("content", "") if choices else ""
-                    usage = data.get("usage", {})
-                    raw_result = {
-                        "ok": True,
-                        "reply": reply.strip(),
-                        "usage": usage,
-                        "elapsed": elapsed,
-                        "tokens_per_sec": round(usage.get("completion_tokens", 0) / max(elapsed, 0.001), 1),
-                        "engine": "temporal_brain",
-                        "socket": str(self.socket_path),
-                    }
-                else:
-                    raw_result = {
-                        "ok": False,
-                        "reply": f"Error del motor Temporal Brain (HTTP {resp.status_code}): {resp.text}",
-                        "elapsed": elapsed,
-                    }
-        except Exception as e:
-            raw_result = {"ok": False, "reply": f"Error en socket IPC: {e}", "elapsed": round(time.time() - t0, 3)}
+        for attempt in range(2):
+            transport = httpx.HTTPTransport(uds=str(self.socket_path))
+            try:
+                with httpx.Client(transport=transport, base_url="http://localhost", timeout=90.0) as client:
+                    resp = client.post("/v1/chat/completions", json=payload)
+                    elapsed = round(time.time() - t0, 3)
+                    if resp.status_code == 200:
+                        data = resp.json()
+                        choices = data.get("choices", [])
+                        reply = choices[0].get("message", {}).get("content", "") if choices else ""
+                        usage = data.get("usage", {})
+                        raw_result = {
+                            "ok": True,
+                            "reply": reply.strip(),
+                            "usage": usage,
+                            "elapsed": elapsed,
+                            "tokens_per_sec": round(usage.get("completion_tokens", 0) / max(elapsed, 0.001), 1),
+                            "engine": "temporal_brain",
+                            "socket": str(self.socket_path),
+                        }
+                        break
+                    elif resp.status_code == 503 and attempt == 0:
+                        # Servidor aún cargando modelo en warmup
+                        time.sleep(2.0)
+                        continue
+                    else:
+                        raw_result = {
+                            "ok": False,
+                            "reply": f"Error del motor Temporal Brain (HTTP {resp.status_code}): {resp.text}",
+                            "elapsed": elapsed,
+                        }
+                        break
+            except Exception as e:
+                if attempt == 0:
+                    self._adopted_server = False
+                    self._process = None
+                    if not self._probe_socket(timeout=2.0):
+                        self.start(wait_ready=20.0)
+                    else:
+                        time.sleep(1.0)
+                    continue
+                raw_result = {"ok": False, "reply": f"Error en socket IPC: {e}", "elapsed": round(time.time() - t0, 3)}
 
         # 4. Pipeline Post-Inferencia: Hooks y Adaptadores
         if self.config.get("hooks", {}).get("enable_post_hooks", True):
@@ -724,12 +839,16 @@ class TemporalBrain:
         """Generador streaming que aplica adaptadores y filtros de tokens en tiempo real."""
         options = {
             "temperature": float(temperature if temperature is not None else self.config.get("temperature", 0.3)),
-            "max_tokens": int(max_tokens if max_tokens is not None else self.config.get("max_tokens", 2048)),
+            "max_tokens": int(max_tokens if max_tokens is not None else self.config.get("max_tokens", 1024)),
             "num_ctx": num_ctx,
         }
 
-        # 1. Pipeline Pre-Inferencia
+        # 1. Pipeline Pre-Inferencia + System Prompt Soberano por defecto
         current_msgs = list(messages)
+        if not any(m.get("role") == "system" for m in current_msgs):
+            default_sys = self.config.get("system_prompt")
+            if default_sys:
+                current_msgs.insert(0, {"role": "system", "content": str(default_sys)})
         for adapter in self._adapters.values():
             if adapter.enabled:
                 try:

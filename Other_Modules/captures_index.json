@@ -1,5 +1,62 @@
 [
   {
+    "id": "capture_1794266099_LAN_tapo_c310_god_eye.jpg",
+    "timestamp": REDACTED_PHONE.005697,
+    "iso_time": "2026-11-09T18:14:59-0500",
+    "terminal_id": "tapo_c310_god_eye",
+    "terminal_name": "GOD-EYE · Tapo C310 (REDACTED_IP)",
+    "origin": "LAN",
+    "client_ip": "REDACTED_IP",
+    "country": "LAN",
+    "resolution": "2304x1296 -> 1280x720",
+    "filename": "capture_1794266099_LAN_tapo_c310_god_eye.jpg",
+    "file_path": "/home/m11/Escritorio/GODWORKS SYSTEM/data/terminal_captures/capture_1794266099_LAN_tapo_c310_god_eye.jpg",
+    "size_bytes": 275764,
+    "biometrics": {
+      "persons_detected": 0,
+      "max_confidence": 0.0,
+      "mood_state": "Perímetro Despejado"
+    }
+  },
+  {
+    "id": "capture_1794181822_LAN_tapo_c310_god_eye.jpg",
+    "timestamp": REDACTED_PHONE.1452508,
+    "iso_time": "2026-11-08T18:50:22-0500",
+    "terminal_id": "tapo_c310_god_eye",
+    "terminal_name": "GOD-EYE · Tapo C310 (REDACTED_IP)",
+    "origin": "LAN",
+    "client_ip": "REDACTED_IP",
+    "country": "LAN",
+    "resolution": "2304x1296 -> 1280x720",
+    "filename": "capture_1794181822_LAN_tapo_c310_god_eye.jpg",
+    "file_path": "/home/m11/Escritorio/GODWORKS SYSTEM/data/terminal_captures/capture_1794181822_LAN_tapo_c310_god_eye.jpg",
+    "size_bytes": 109432,
+    "biometrics": {
+      "persons_detected": 0,
+      "max_confidence": 0.0,
+      "mood_state": "Perímetro Despejado"
+    }
+  },
+  {
+    "id": "capture_1794119156_LAN_tapo_c310_god_eye.jpg",
+    "timestamp": REDACTED_PHONE.6563601,
+    "iso_time": "2026-11-08T01:25:56-0500",
+    "terminal_id": "tapo_c310_god_eye",
+    "terminal_name": "GOD-EYE · Tapo C310 (REDACTED_IP)",
+    "origin": "LAN",
+    "client_ip": "REDACTED_IP",
+    "country": "LAN",
+    "resolution": "2304x1296 -> 1280x720",
+    "filename": "capture_1794119156_LAN_tapo_c310_god_eye.jpg",
+    "file_path": "/home/m11/Escritorio/GODWORKS SYSTEM/data/terminal_captures/capture_1794119156_LAN_tapo_c310_god_eye.jpg",
+    "size_bytes": 120171,
+    "biometrics": {
+      "persons_detected": 0,
+      "max_confidence": 0.0,
+      "mood_state": "Perímetro Despejado"
+    }
+  },
+  {
     "id": "capture_1793612579_HOST_test_airgap_cctv_camera_01.jpg",
     "timestamp": REDACTED_PHONE.7818198,
     "iso_time": "2026-11-02T04:42:59-0500",

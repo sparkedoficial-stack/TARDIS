@@ -257,6 +257,36 @@ def synthesize_to_bytes(text: str, voice: Optional[str] = None) -> Optional[byte
         except Exception:
             pass
 
+    # Respaldo CLI de edge-tts si el paquete no estaba importado en el intérprete actual
+    edge_bin = shutil.which("edge-tts") or str(
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), ".venv-linux", "bin", "edge-tts")
+    )
+    if edge_bin and os.path.exists(edge_bin) and not target_voice.startswith("SAPI5:"):
+        tmp_mp3 = None
+        try:
+            rate_pct = int((_RATE - 1.0) * 100)
+            rate_str = f"+{rate_pct}%" if rate_pct >= 0 else f"{rate_pct}%"
+            fd, tmp_mp3 = tempfile.mkstemp(suffix=".mp3", prefix="gia_edge_")
+            os.close(fd)
+            proc = subprocess.run(
+                [edge_bin, "--voice", target_voice, f"--rate={rate_str}", f"--pitch={_PITCH}", "--text", text, "--write-media", tmp_mp3],
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                timeout=45,
+            )
+            if proc.returncode == 0 and os.path.exists(tmp_mp3) and os.path.getsize(tmp_mp3) > 0:
+                with open(tmp_mp3, "rb") as fh:
+                    return fh.read()
+        except Exception:
+            pass
+        finally:
+            if tmp_mp3 and os.path.exists(tmp_mp3):
+                try:
+                    os.remove(tmp_mp3)
+                except Exception:
+                    pass
+
     # Método Secundario: pyttsx3 (SAPI5 local)
     if HAS_PYTTSX3:
         with _lock:

@@ -275,8 +275,9 @@ class EasyTouchEngine:
                     if on_progress:
                         on_progress("⚡ Easy Touch: Invocando Temporal Brain local serverless...")
                     b_res = brain.generate(prompt=message, max_tokens=1024)
-                    if b_res.get("ok") and b_res.get("text"):
-                        healed_reply = b_res["text"].strip()
+                    reply_candidate = b_res.get("text") or b_res.get("reply") or ""
+                    if b_res.get("ok") and reply_candidate:
+                        healed_reply = reply_candidate.strip()
                         healed_provider = "TemporalBrain-Serverless"
                         healed_model = "TARDIS-Local-Core"
                         actions_taken.append("Inferencia resuelta localmente con Temporal Brain")

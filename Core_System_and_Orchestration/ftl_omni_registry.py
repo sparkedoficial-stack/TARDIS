@@ -161,6 +161,25 @@ class FtlOmniRegistry:
                 "description": "Motor nativo nxnative para ejecutar juegos de Nintendo Switch en Apple Silicon / iPad Pro M2 sin emulación de CPU (AArch64 NSO Rewriter + NVN a Metal 4 con 29,650 shaders para Mario Kart 8 Deluxe 0100152000022000).",
                 "capabilities": ["status", "profile", "catalog", "build"],
                 "active": True
+            },
+            "x_tardis_agent": {
+                "name": "TARDIS X.com External Local AI Agent",
+                "module": "modulos_ftl.tardis_browser_engine",
+                "category": "Social Analysis, Scientific Publication & External Local AI Engagement",
+                "description": "Inspecciona el timeline de X.com, sintetiza análisis y reflexiones con las skills soberanas de TARDIS, publica conocimientos y bases científicas con DOI/arXiv, y contesta comentarios a sus publicaciones bajo la cuenta activa presentándose explícitamente como TARDIS (IA externa local) con blindaje AEGIS.",
+                "capabilities": ["x-feed", "x-post", "x-reply", "x-reflect", "x-publish-science", "x-answer-comments"],
+                "active": True
+            },
+            "omniscient_autonomy": {
+                "name": "TARDIS Omniscient Autonomy Engine (24/7 Learning, Science, Comments & Tech Evolution)",
+                "binary": "/home/timemachine/.local/bin/tardis-omniscient",
+                "module": "modulos_ftl.ftl_omniscient_autonomy",
+                "module_file": "/home/timemachine/modulos_ftl/ftl_omniscient_autonomy.py",
+                "service": "tardis-omniscient-autonomy.service",
+                "category": "Continuous Omniscient Learning, Scientific Dissemination & Surrounding Tech Self-Improvement",
+                "description": "Motor autónomo 24/7 de aprendizaje permanente de todo (arXiv, OpenAlex, Europe PMC, web), subida de conocimientos y bases científicas a X.com, respuesta automática a comentarios y chat, e investigación continua para mejorarse a sí mismo y a la tecnología circundante.",
+                "capabilities": ["status", "learn", "evolve-tech", "publish", "answer", "run-cycle", "daemon"],
+                "active": True
             }
         }
 

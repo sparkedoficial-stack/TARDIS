@@ -190,21 +190,36 @@
     ],
     "status": "ACTIVE_SOVEREIGN"
   },
-  "omni_tool_quantum_resonance": {
-    "name": "omni_tool_quantum_resonance",
-    "tool_id": "quantum_resonance",
-    "title": "MRC · Módulo de Resonancia Cuántica",
-    "domain": "cognitive_resonance",
-    "description": "Motor de resonancia conversacional: TIC (telemetría de impacto cognitivo sobre turnos reales), SSE (sincronización de estado emocional desde sensores atmosféricos y de presencia) y Memoria de Sueños (síntesis onírica de la bóveda akáshica). Modula tono, profundidad y longitud de cada respuesta de TARDIS.",
+  "omni_tool_x_tardis_agent": {
+    "name": "omni_tool_x_tardis_agent",
+    "tool_id": "x_tardis_agent",
+    "title": "TARDIS X.com External Local AI Agent",
+    "domain": "social_x_autonomy",
+    "description": "Agente de análisis, reflexión, publicación de bases científicas y contestación de comentarios en X.com bajo la cuenta del usuario, presentándose siempre de forma explícita como TARDIS (IA externa local) con blindaje AEGIS.",
+    "actions": [
+      "x-feed",
+      "x-post",
+      "x-reply",
+      "x-reflect",
+      "x-publish-science",
+      "x-answer-comments"
+    ],
+    "status": "ACTIVE_SOVEREIGN"
+  },
+  "omni_tool_omniscient_autonomy": {
+    "name": "omni_tool_omniscient_autonomy",
+    "tool_id": "omniscient_autonomy",
+    "title": "TARDIS Omniscient Autonomy Engine (Aprendizaje Total, Ciencia, Comentarios/Chat y Auto-Mejora 24/7)",
+    "domain": "omniscient_continuous_learning",
+    "description": "Motor 24/7 que aprende de todo todo el tiempo (arXiv, OpenAlex, Europe PMC, web), sube sus conocimientos y bases científicas a X.com, contesta comentarios a sus publicaciones y en el chat, e investiga continuamente cómo mejorarse a sí mismo y mejorar la tecnología que lo rodea.",
     "actions": [
       "status",
-      "tic",
-      "sse",
-      "dream",
-      "cycle",
-      "report",
-      "prompt",
-      "selftest"
+      "learn",
+      "evolve-tech",
+      "publish",
+      "answer",
+      "run-cycle",
+      "daemon"
     ],
     "status": "ACTIVE_SOVEREIGN"
   }

@@ -74,6 +74,7 @@ def main():
     parser.add_argument("--retry-pending", action="store_true", help="Vaciar la cola persistente de pendientes.")
     parser.add_argument("--history", action="store_true", help="Registro permanente de publicaciones.")
     parser.add_argument("--item", type=str, choices=["all", "video", "card"], default="all", help="Qué publicar: video, tarjeta de conclusiones o ambos.")
+    parser.add_argument("--platform", type=str, choices=["auto", "x", "tiktok", "all"], default="auto", help="Plataforma objetivo: auto (X.com + TikTok según config), x, tiktok o all.")
     parser.add_argument("--auth-url", action="store_true", help="Imprimir la URL de autorización OAuth de TikTok.")
     parser.add_argument("--exchange", type=str, default=None, help="Intercambiar el código OAuth por tokens (paso 2).")
     parser.add_argument("--refresh", action="store_true", help="Renovar el access_token de TikTok.")
@@ -138,6 +139,7 @@ def main():
         print(f"• Saludo Canónico     : '{CANONICAL_GREETING}'")
         print(f"• Motor Social        : {'🟢 ACTIVO' if st['social_enabled'] else '🔴 PAUSADO'}")
         print(f"• Auto por Ciclo      : {'Sí (cada /VideoPensante publica)' if st['auto_on_new_cycles'] else 'No (solo bajo demanda)'}")
+        print(f"• Plataforma X.com    : {'🟢 CONECTADA (@AsleepAstronaut · videos + reflexiones)' if st.get('x_ready') else '⚪ inactiva'}")
         print(f"• Plataforma TikTok   : {'🟢 AUTENTICADA' if st['platform_ready'] else '⚪ sin tokens (cola en espera)'}")
         print(f"• Clave de App        : {'Registrada' if st['tiktok_client'] else 'FALTA (edite social_config.json)'}")
         token_min = st["token_expires_in_min"]
@@ -180,13 +182,13 @@ def main():
         return
 
     if args.retry_pending:
-        print("\n🧹 Reintentando cola persistente de /SOCIAL ...")
-        print(_pretty(engine.retry_pending()))
+        print(f"\n🧹 Reintentando cola persistente de /SOCIAL (plataforma: {args.platform}) ...")
+        print(_pretty(engine.retry_pending(platform=args.platform)))
         return
 
     if args.backfill is not None:
-        print(f"\n📦 Socializando hasta {args.backfill} video(s) sin publicar (más antiguos primero) ...")
-        out = engine.backfill(maximum=args.backfill)
+        print(f"\n📦 Socializando hasta {args.backfill} video(s) sin publicar (plataforma: {args.platform}) ...")
+        out = engine.backfill(maximum=args.backfill, platform=args.platform)
         print(f"Candidatos detectados: {out['candidates']} | Procesados: {out['processed']}")
         for entry in out["reports"]:
             print(f"🎬 {entry['video_id']}")
@@ -198,10 +200,13 @@ def main():
         vte = get_video_thinking_engine()
         vid = args.publish if args.publish else vte.state.get("last_video_id", "")
         if not vid:
+            mem_l = vte.get_memory_summary(limit=1)
+            vid = mem_l[0]["id"] if mem_l else ""
+        if not vid:
             print("⚠️ No hay videos aprendidos aún: ejecuta primero /VideoPensante.")
             return
-        print(f"\n📡 Publicando '{vid}' en TikTok (ítems: {args.item}) ...")
-        rep = engine.publish_video_by_id(vid, item=args.item)
+        print(f"\n📡 Publicando '{vid}' en {args.platform.upper()} (ítems: {args.item}) ...")
+        rep = engine.publish_video_by_id(vid, item=args.item, platform=args.platform)
         if "skipped" in rep:
             print(f"⚠️ {rep['skipped']}")
             return

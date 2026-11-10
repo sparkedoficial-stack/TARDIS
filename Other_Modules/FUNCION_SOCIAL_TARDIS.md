@@ -20,7 +20,8 @@ publica automáticamente junto con **sus conclusiones cognitivas**, en dos pieza
 
 | Componente | Ruta | Función |
 |---|---|---|
-| Motor social | `core/tardis_social_engine.py` | Composición de leyenda, seguridad AEGIS, cola, publicación |
+| Motor social | `core/tardis_social_engine.py` | Composición de leyenda, seguridad AEGIS, cola, publicación en X.com y TikTok |
+| Cliente X.com | `XContentClient` + `TardisBrowser.post_video_to_x` | Subida de MP4 descargado + reflexiones en hilo vía Chromium CDP (`@AsleepAstronaut`) |
 | Cliente TikTok | `TikTokContentClient` (en el mismo módulo) | OAuth 2.0 + Content Posting API v2 (FILE_UPLOAD/PULL_FROM_URL) |
 | Renderizador de tarjeta | `ConclusionsCardRenderer` (PIL + ffmpeg) | 5 diapositivas → MP4 H.264+AAC 720×1280 (`vault/videos/social_cards/`) |
 | CLI soberano | `tardis_social.py` (raíz) | Estado, publicación, backfill, OAuth, histórico |

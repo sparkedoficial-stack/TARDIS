@@ -27,7 +27,7 @@ class TestPIISanitization:
     """Pruebas del Pilar 7: Seguridad, Soberanía y Sanitización de PII."""
 
     def test_sanitize_bearer_token(self):
-        raw = "Authorization: Bearer Imznu9ZNtdbFl2ebIGSzpYqe7A3OS4Y5"
+        raw = "Authorization: Bearer REDACTED"
         clean = agent_safety.sanitize_pii(raw)
         assert "Imznu9ZNtdbFl2ebIGSzpYqe7A3OS4Y5" not in clean
         assert "Bearer [REDACTED_TOKEN]" in clean
@@ -53,7 +53,7 @@ class TestPIISanitization:
         assert "[REDACTED_CC]" in clean
 
     def test_sanitize_private_key(self):
-        raw = "-----BEGIN RSA PRIVATE KEY-----\nMIIEowIBAAKCAQEA0m...\n-----END RSA PRIVATE KEY-----"
+        raw = "REDACTED_PRIVATE_KEY"
         clean = agent_safety.sanitize_pii(raw)
         assert "MIIEowIBAAKCAQEA0m" not in clean
         assert "[REDACTED_PRIVATE_KEY]" in clean

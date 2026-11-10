@@ -41,7 +41,7 @@ OLLAMA_BLOBS_DIR = OLLAMA_MODELS_DIR / "blobs"
 OLLAMA_LIB_DIR = HOME_DIR / ".local" / "lib" / "ollama"
 TEMPORAL_BRAIN_LIB_DIR = HOME_DIR / ".local" / "lib" / "temporal_brain"
 SOVEREIGN_MODELS_DIR = Path(__file__).resolve().parent.parent / "data" / "models"
-DEFAULT_SOCKET_PATH = Path("/tmp/tardis_sovereign_runner.sock")
+DEFAULT_SOCKET_PATH = Path("/tmp/temporal_brain.sock")
 
 
 # ==============================================================================
@@ -184,9 +184,9 @@ class SovereignLocalRunner:
         self,
         model_name: str = "TARDIS-NEURAL-SPACE-KAIJU",
         socket_path: Optional[Path] = None,
-        ctx_size: int = 8192,
-        gpu_layers: int = 20,
-        threads: int = 16,
+        ctx_size: int = 16384,
+        gpu_layers: int = 18,
+        threads: int = 8,
         cache_type_k: str = "q8_0",
         cache_type_v: str = "q8_0",
     ):
@@ -290,11 +290,44 @@ class SovereignLocalRunner:
         env["LD_LIBRARY_PATH"] = f"{lib_dir}:{env.get('LD_LIBRARY_PATH', '')}".strip(":")
         return env, None
 
+    def _is_daemon_process_alive(self) -> bool:
+        """Verifica en /proc si existe un proceso llama-server escuchando en self.socket_path."""
+        target_sock = str(self.socket_path)
+        try:
+            for pid_dir in Path("/proc").iterdir():
+                if not pid_dir.name.isdigit():
+                    continue
+                try:
+                    cmdline = (pid_dir / "cmdline").read_bytes().decode("utf-8", errors="ignore")
+                    if "llama-server" in cmdline and target_sock in cmdline:
+                        status_file = pid_dir / "status"
+                        if status_file.exists() and "State:\tZ" in status_file.read_text(encoding="utf-8", errors="ignore"):
+                            continue
+                        return True
+                except Exception:
+                    continue
+        except Exception:
+            pass
+        return False
+
     def start(self, wait_ready: float = 30.0) -> bool:
-        """Inicia el ejecutor local C++ vinculado al socket UNIX sin puertos de red."""
+        """Inicia o adopta el ejecutor local C++ vinculado al socket UNIX sin puertos de red."""
         with self._proc_lock:
             if self.is_running():
                 return True
+
+            if self._check_socket_health():
+                logger.info(f"🔗 [SovereignLocalRunner] Adoptando servidor activo en {self.socket_path}")
+                return True
+
+            # Delegar arranque seguro a TemporalBrain (evita colisión de VRAM en RTX 3050)
+            try:
+                from core.temporal_brain import get_temporal_brain
+                brain = get_temporal_brain()
+                if brain.socket_path == self.socket_path and brain.start(wait_ready=wait_ready):
+                    return True
+            except Exception as e:
+                logger.debug(f"Fallback a arranque directo en SovereignLocalRunner: {e}")
 
             info = self._resolve_model()
             gguf_path = info["gguf_path"]
@@ -305,8 +338,7 @@ class SovereignLocalRunner:
             if not llama_server_bin.exists():
                 raise FileNotFoundError(f"Binario llama-server no encontrado en: {llama_server_bin}")
 
-            # Limpiar socket previo si existe
-            if self.socket_path.exists():
+            if self.socket_path.exists() and not self._is_daemon_process_alive():
                 try:
                     self.socket_path.unlink()
                 except Exception:
@@ -325,9 +357,13 @@ class SovereignLocalRunner:
                 "--cache-type-v", str(self.cache_type_v),
                 "--n-gpu-layers", str(self.gpu_layers),
                 "--threads", str(self.threads),
+                "--threads-batch", "16",
+                "--load-mode", "mmap+mlock",
                 "--batch-size", "2048",
                 "--ubatch-size", "512",
                 "--flash-attn", "on",
+                "--parallel", "1",
+                "--cache-idle-slots",
                 "--no-webui",
                 "--offline",
                 "--log-disable",
@@ -352,7 +388,6 @@ class SovereignLocalRunner:
             while time.time() - t0 < wait_ready:
                 if self.socket_path.exists():
                     try:
-                        # Verificar salud a través del socket
                         if self._check_socket_health():
                             logger.info(f"✅ [SovereignLocalRunner] Ejecutor listo ({time.time() - t0:.2f}s) en {self.socket_path}")
                             return True
@@ -368,19 +403,23 @@ class SovereignLocalRunner:
 
     def _check_socket_health(self) -> bool:
         """Comprueba si el socket UNIX responde al endpoint /health."""
+        if not self.socket_path.exists():
+            return False
         try:
             transport = httpx.HTTPTransport(uds=str(self.socket_path))
-            with httpx.Client(transport=transport, base_url="http://localhost", timeout=1.5) as client:
+            with httpx.Client(transport=transport, base_url="http://localhost", timeout=5.0) as client:
                 r = client.get("/health")
                 return r.status_code == 200
         except Exception:
-            return False
+            return self._is_daemon_process_alive()
 
     def is_running(self) -> bool:
         """Indica si el ejecutor local está activo y el socket está vivo."""
-        if not self._process or self._process.poll() is not None:
+        if not self.socket_path.exists():
             return False
-        return self.socket_path.exists()
+        if self._process and self._process.poll() is None:
+            return True
+        return self._is_daemon_process_alive()
 
     def is_serverless_ready(self, model_name: Optional[str] = None) -> bool:
         """Comprueba si el binario local y el modelo GGUF están listos para ejecución serverless."""
@@ -522,8 +561,10 @@ class SovereignLocalRunner:
 
         return "".join(full_reply)
 
-    def stop(self):
-        """Detiene el ejecutor local y limpia el socket UNIX."""
+    def stop(self, force: bool = False):
+        """Detiene el ejecutor local sólo si force=True (preserva el demonio compartido en atexit)."""
+        if not force:
+            return
         with self._proc_lock:
             if self._process:
                 try:
@@ -536,12 +577,12 @@ class SovereignLocalRunner:
                         pass
                 self._process = None
 
-            if self.socket_path.exists():
-                try:
-                    self.socket_path.unlink()
-                except Exception:
-                    pass
-            logger.info("🛑 [SovereignLocalRunner] Ejecutor directo detenido y socket liberado.")
+                if self.socket_path.exists():
+                    try:
+                        self.socket_path.unlink()
+                    except Exception:
+                        pass
+                logger.info("🛑 [SovereignLocalRunner] Ejecutor directo detenido y socket liberado.")
 
 
 # Función de acceso global

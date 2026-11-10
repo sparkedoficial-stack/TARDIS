@@ -134,6 +134,7 @@ class TelegramBridge:
         self.last_error: Optional[str] = None
         self.messages_processed = 0
         self.active_calls: Set[int | str] = set()
+        self.active_c310_live_feeds: Dict[int | str, threading.Event] = {}
         self.conversations_started: Set[int | str] = set()
         self.chat_histories: Dict[int | str, List[Dict[str, Any]]] = {}
         self.voice_mode_always: bool = bool(self.config.get("voice_mode_always", False))
@@ -147,8 +148,10 @@ class TelegramBridge:
         self.animation_height: int = int(self.config.get("animation_height", 2160))
         self.animation_hdr_enabled: bool = bool(self.config.get("animation_hdr_enabled", True))
 
-        # Iniciar si hay token configurado
-        if self.config.get("enabled") and self.config.get("bot_token"):
+        self._polling_lock_fh = None
+        # Iniciar long-polling únicamente si está permitido en este proceso (evita 409 Conflict entre demonios satélite)
+        poll_allowed = os.environ.get("TARDIS_TELEGRAM_POLL", "1").strip().lower() not in ("0", "false", "no", "off")
+        if poll_allowed and self.config.get("enabled") and self.config.get("bot_token"):
             self.start()
 
     def has_active_conversation(self, chat_id: Optional[int | str] = None) -> bool:
@@ -314,6 +317,21 @@ class TelegramBridge:
         if self.running and self.worker_thread and self.worker_thread.is_alive():
             return True
 
+        # Cerrojo exclusivo IPC: garantiza que un único proceso del sistema ejecute getUpdates
+        # (evita colisión HTTP 409 cuando scripts CLI o demonios satélite importan TelegramBridge para enviar mensajes)
+        if os.environ.get("TARDIS_TELEGRAM_POLL", "1").strip().lower() in ("0", "false", "no", "off"):
+            return False
+        try:
+            import fcntl
+            lock_fh = open("/tmp/tardis_telegram_polling.lock", "w")
+            fcntl.flock(lock_fh.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+            lock_fh.write(f"{os.getpid()}\n")
+            lock_fh.flush()
+            self._polling_lock_fh = lock_fh
+        except (BlockingIOError, OSError):
+            logger.info("TelegramBridge operando en modo emisor (otro demonio soberano ya mantiene getUpdates activo).")
+            return False
+
         # Validar token con getMe
         try:
             url = f"https://api.telegram.org/bot{token}/getMe"
@@ -455,7 +473,8 @@ class TelegramBridge:
         photo: bytes | io.BytesIO | str | Path,
         caption: Optional[str] = None,
         chat_id: Optional[int | str] = None,
-        reply_to_message_id: Optional[int] = None
+        reply_to_message_id: Optional[int] = None,
+        reply_markup: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         token = self.config.get("bot_token", "").strip()
         if not token:
@@ -472,12 +491,14 @@ class TelegramBridge:
         self._print_outgoing_response(target_chat, "📸 IMAGEN / CAPTURA", caption or "Imagen enviada")
 
         url = f"https://api.telegram.org/bot{token}/sendPhoto"
-        data = {"chat_id": target_chat}
+        data: Dict[str, Any] = {"chat_id": target_chat}
         if caption:
             data["caption"] = caption
             data["parse_mode"] = "Markdown"
         if reply_to_message_id:
             data["reply_to_message_id"] = reply_to_message_id
+        if reply_markup:
+            data["reply_markup"] = json.dumps(reply_markup) if isinstance(reply_markup, dict) else reply_markup
 
         try:
             files = {}
@@ -488,14 +509,341 @@ class TelegramBridge:
                 else:
                     return {"ok": False, "error": f"Archivo no encontrado: {photo}"}
             elif isinstance(photo, bytes):
-                files["photo"] = ("screenshot.png", photo, "image/png")
+                is_jpg = photo[:2] == b"\xff\xd8"
+                files["photo"] = (
+                    "snapshot.jpg" if is_jpg else "screenshot.png",
+                    photo,
+                    "image/jpeg" if is_jpg else "image/png",
+                )
             elif isinstance(photo, io.BytesIO):
-                files["photo"] = ("image.png", photo.getvalue(), "image/png")
+                raw_val = photo.getvalue()
+                is_jpg = raw_val[:2] == b"\xff\xd8"
+                files["photo"] = (
+                    "image.jpg" if is_jpg else "image.png",
+                    raw_val,
+                    "image/jpeg" if is_jpg else "image/png",
+                )
 
             resp = requests.post(url, data=data, files=files, timeout=20.0)
-            return resp.json()
+            res_json = resp.json()
+            if not res_json.get("ok") and caption and "parse_mode" in data:
+                data.pop("parse_mode", None)
+                if isinstance(photo, (str, Path)):
+                    files["photo"] = open(Path(photo), "rb")
+                resp_fb = requests.post(url, data=data, files=files, timeout=20.0)
+                res_json = resp_fb.json()
+            return res_json
         except Exception as e:
             return {"ok": False, "error": str(e)}
+
+    def edit_message_media_photo(
+        self,
+        chat_id: int | str,
+        message_id: int,
+        photo_bytes: bytes,
+        caption: Optional[str] = None,
+        reply_markup: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """Actualiza en tiempo real un mensaje existente en Telegram con un nuevo fotograma (monitor en vivo en chat)."""
+        token = self.config.get("bot_token", "").strip()
+        if not token:
+            return {"ok": False, "error": "No bot token"}
+        url = f"https://api.telegram.org/bot{token}/editMessageMedia"
+        media_obj: Dict[str, Any] = {
+            "type": "photo",
+            "media": "attach://photo",
+        }
+        if caption:
+            media_obj["caption"] = caption[:1020]
+            media_obj["parse_mode"] = "Markdown"
+        data: Dict[str, Any] = {
+            "chat_id": str(chat_id),
+            "message_id": int(message_id),
+            "media": json.dumps(media_obj, ensure_ascii=False),
+        }
+        if reply_markup:
+            data["reply_markup"] = json.dumps(reply_markup) if isinstance(reply_markup, dict) else reply_markup
+        files = {"photo": (f"live_{int(time.time()*1000)}.jpg", photo_bytes, "image/jpeg")}
+        try:
+            resp = requests.post(url, data=data, files=files, timeout=12.0)
+            return resp.json()
+        except Exception as exc:
+            return {"ok": False, "error": str(exc)}
+
+    def _build_c310_live_reply_markup(
+        self,
+        chat_id: int | str,
+        live_feed_active: bool = False,
+    ) -> Dict[str, Any]:
+        """Construye la botonera táctica para controlar la cámara Tapo C310 en vivo desde Telegram."""
+        is_private_chat = not str(chat_id).startswith("-")
+        live_cam_url = ""
+        try:
+            from core.telegram_live_call_server import build_live_camera_url
+            live_cam_url = build_live_camera_url(chat_id=chat_id, user_name="Arquitecto")
+        except Exception:
+            live_cam_url = ""
+
+        rows: List[List[Dict[str, Any]]] = []
+        if live_cam_url:
+            if is_private_chat:
+                rows.append(
+                    [
+                        {
+                            "text": "📡 Abrir Monitor en Vivo (Tiempo Real)",
+                            "web_app": {"url": live_cam_url},
+                        }
+                    ]
+                )
+            else:
+                rows.append(
+                    [
+                        {
+                            "text": "📡 Abrir Monitor en Vivo (Tiempo Real)",
+                            "url": live_cam_url,
+                        }
+                    ]
+                )
+
+        rows.append(
+            [
+                {"text": "🎬 Clip en Vivo (6s)", "callback_data": "c310_live_clip"},
+                {"text": "🎬 Clip en Vivo (12s)", "callback_data": "c310_live_clip_12"},
+            ]
+        )
+        if live_feed_active:
+            rows.append(
+                [
+                    {
+                        "text": "⏹️ Detener Monitor en Chat",
+                        "callback_data": "c310_chat_live_stop",
+                    }
+                ]
+            )
+        else:
+            rows.append(
+                [
+                    {
+                        "text": "🔴 Monitor Continuo en Chat (60s)",
+                        "callback_data": "c310_chat_live_start",
+                    }
+                ]
+            )
+        rows.append(
+            [
+                {"text": "📸 Captura 2K QHD", "callback_data": "c310_snapshot"},
+                {"text": "🔊 Alerta por Bocina", "callback_data": "c310_speak_alert"},
+            ]
+        )
+        return {"inline_keyboard": rows}
+
+    def send_c310_live_video(
+        self,
+        chat_id: Optional[int | str] = None,
+        duration_sec: float = 6.0,
+        reply_to_message_id: Optional[int] = None,
+        start_chat_monitor: bool = False,
+    ) -> Dict[str, Any]:
+        """
+        Captura y transmite en tiempo real un flujo de video MP4 H.264 con HUD táctico TARDIS
+        y telemetría YOLOv8s directamente desde la cámara de seguridad TP-Link Tapo C310 (REDACTED_IP)
+        hacia la terminal de Telegram, junto con controles interactivos y acceso a la Mini App en vivo.
+        """
+        target_chat = chat_id or self.config.get("admin_chat_id") or REDACTED_PHONE
+        duration_sec = max(3.0, min(20.0, float(duration_sec)))
+
+        from core.tapo_c310_sentinel import (
+            get_c310_live_hud_jpeg_sync,
+            record_c310_live_clip_sync,
+        )
+
+        markup = self._build_c310_live_reply_markup(target_chat, live_feed_active=start_chat_monitor)
+
+        with ChatActionKeeper(self, target_chat, "upload_video"):
+            clip_res = record_c310_live_clip_sync(
+                duration_sec=duration_sec,
+                fps=12,
+                width=1280,
+                hud=True,
+            )
+
+            if clip_res.get("ok") and clip_res.get("path"):
+                mp4_path = Path(clip_res["path"])
+                if mp4_path.is_file():
+                    ts_now = time.strftime("%Y-%m-%d %H:%M:%S")
+                    caption = (
+                        f"🔴 **[TRANSMISIÓN DE VIDEO EN VIVO · GOD-EYE C310]**\n"
+                        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                        f"• **Cámara:** `GOD-EYE (TP-Link Tapo C310 @ REDACTED_IP)`\n"
+                        f"• **Flujo Nativo:** `2304×1296 (2K QHD)` → Stream `{clip_res.get('width', 1280)}×{clip_res.get('height', 720)}` @ `{clip_res.get('fps', 12)} FPS`\n"
+                        f"• **Duración / Cuadros:** `{clip_res.get('duration_sec', duration_sec)}s` (`{clip_res.get('frames', 0)} fotogramas en vivo`)\n"
+                        f"• **Individuos en escena (YOLOv8s):** `{clip_res.get('persons_detected', 0)}`\n"
+                        f"• **Hora local:** `{ts_now}`\n\n"
+                        f"💡 *Pulsa* **«📡 Abrir Monitor en Vivo»** *para ver el stream continuo en tiempo real y hablar por la bocina, o* **«🔴 Monitor Continuo en Chat»** *para actualizar el visor aquí mismo.*"
+                    )
+                    res_vid = self.send_video(
+                        mp4_path,
+                        caption=caption,
+                        chat_id=target_chat,
+                        reply_to_message_id=reply_to_message_id,
+                        duration=int(round(float(clip_res.get("duration_sec", duration_sec)))),
+                        width=int(clip_res.get("width", 1280)),
+                        height=int(clip_res.get("height", 720)),
+                        supports_streaming=True,
+                        reply_markup=markup,
+                    )
+                    if start_chat_monitor:
+                        self.start_c310_chat_live_feed(chat_id=target_chat, duration_sec=60.0)
+                    return {
+                        "ok": bool(res_vid.get("ok")),
+                        "mode": "live_video_mp4",
+                        "clip": clip_res,
+                        "telegram": res_vid,
+                    }
+
+            # Fallback inmediato con fotograma en vivo + monitor en chat si el clip falló
+            jpg_bytes, meta = get_c310_live_hud_jpeg_sync(width=1280, hud=True)
+            if jpg_bytes:
+                metrics = meta.get("metrics", {})
+                caption_fb = (
+                    f"🔴 **[SEÑAL EN VIVO · GOD-EYE C310 (`REDACTED_IP`)]**\n"
+                    f"• **Individuos en escena:** `{metrics.get('current_persons', 0)}`\n"
+                    f"• **Estado:** `ACTIVO 24/7`"
+                )
+                res_ph = self.send_photo(
+                    jpg_bytes,
+                    caption=caption_fb,
+                    chat_id=target_chat,
+                    reply_to_message_id=reply_to_message_id,
+                    reply_markup=markup,
+                )
+                return {"ok": bool(res_ph.get("ok")), "mode": "live_snapshot_fallback", "telegram": res_ph}
+
+            return {"ok": False, "error": clip_res.get("error", "No se pudo transmitir video en vivo de C310")}
+
+    def stop_c310_chat_live_feed(self, chat_id: Optional[int | str] = None) -> Dict[str, Any]:
+        target_chat = chat_id or self.config.get("admin_chat_id") or REDACTED_PHONE
+        key = str(target_chat)
+        ev = self.active_c310_live_feeds.pop(key, None)
+        if ev is not None:
+            ev.set()
+            return {"ok": True, "stopped": True, "chat_id": target_chat}
+        return {"ok": True, "stopped": False, "chat_id": target_chat}
+
+    def start_c310_chat_live_feed(
+        self,
+        chat_id: Optional[int | str] = None,
+        duration_sec: float = 60.0,
+        interval_sec: float = 1.8,
+    ) -> Dict[str, Any]:
+        """
+        Inicia un monitor en vivo dentro del propio chat de Telegram que actualiza el fotograma
+        de la cámara Tapo C310 cada ~1.8s in-place (`editMessageMedia`) durante `duration_sec`.
+        """
+        target_chat = chat_id or self.config.get("admin_chat_id") or REDACTED_PHONE
+        key = str(target_chat)
+
+        # Detener cualquier bucle previo en este chat
+        prev_ev = self.active_c310_live_feeds.pop(key, None)
+        if prev_ev is not None:
+            prev_ev.set()
+
+        stop_ev = threading.Event()
+        self.active_c310_live_feeds[key] = stop_ev
+
+        from core.tapo_c310_sentinel import get_c310_live_hud_jpeg_sync
+
+        jpg0, meta0 = get_c310_live_hud_jpeg_sync(width=1280, hud=True)
+        if not jpg0:
+            self.active_c310_live_feeds.pop(key, None)
+            return {"ok": False, "error": "No hay fotograma en vivo disponible en C310"}
+
+        metrics0 = meta0.get("metrics", {})
+        ts0 = time.strftime("%Y-%m-%d %H:%M:%S")
+        init_caption = (
+            f"🔴 **[MONITOR EN VIVO EN CHAT · GOD-EYE C310]**\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            f"• **Estado:** `TRANSMITIENDO EN TIEMPO REAL` (Restan `{int(duration_sec)}s`)\n"
+            f"• **Cámara:** `TP-Link Tapo C310 @ REDACTED_IP`\n"
+            f"• **Individuos en escena (YOLOv8s):** `{metrics0.get('current_persons', 0)}`\n"
+            f"• **Hora del fotograma:** `{ts0}`"
+        )
+        active_markup = self._build_c310_live_reply_markup(target_chat, live_feed_active=True)
+        init_res = self.send_photo(
+            jpg0,
+            caption=init_caption,
+            chat_id=target_chat,
+            reply_markup=active_markup,
+        )
+        msg_obj = (init_res or {}).get("result") or {}
+        message_id = msg_obj.get("message_id")
+        if not message_id:
+            self.active_c310_live_feeds.pop(key, None)
+            return {"ok": False, "error": f"No se pudo crear mensaje de monitor: {init_res}"}
+
+        def _live_updater_loop() -> None:
+            t_start = time.time()
+            frame_idx = 1
+            try:
+                while not stop_ev.is_set():
+                    elapsed = time.time() - t_start
+                    rem = duration_sec - elapsed
+                    if rem <= 0:
+                        break
+                    stop_ev.wait(timeout=max(1.2, float(interval_sec)))
+                    if stop_ev.is_set():
+                        break
+                    jpg_n, meta_n = get_c310_live_hud_jpeg_sync(width=1280, hud=True)
+                    if not jpg_n:
+                        continue
+                    frame_idx += 1
+                    metrics_n = meta_n.get("metrics", {})
+                    ts_n = time.strftime("%Y-%m-%d %H:%M:%S")
+                    cap_n = (
+                        f"🔴 **[MONITOR EN VIVO EN CHAT · CUADRO #{frame_idx}]**\n"
+                        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                        f"• **Estado:** `EN VIVO` (Restan `{max(0, int(duration_sec - (time.time() - t_start)))}s`)\n"
+                        f"• **Cámara:** `GOD-EYE · Tapo C310 @ REDACTED_IP`\n"
+                        f"• **Individuos en escena (YOLOv8s):** `{metrics_n.get('current_persons', 0)}`\n"
+                        f"• **Inferencia IA:** `{metrics_n.get('last_inference_ms', 0)} ms`\n"
+                        f"• **Hora del fotograma:** `{ts_n}`"
+                    )
+                    self.edit_message_media_photo(
+                        chat_id=target_chat,
+                        message_id=message_id,
+                        photo_bytes=jpg_n,
+                        caption=cap_n,
+                        reply_markup=active_markup,
+                    )
+            finally:
+                if self.active_c310_live_feeds.get(key) is stop_ev:
+                    self.active_c310_live_feeds.pop(key, None)
+                jpg_end, meta_end = get_c310_live_hud_jpeg_sync(width=1280, hud=True)
+                if jpg_end:
+                    metrics_end = meta_end.get("metrics", {})
+                    ts_end = time.strftime("%Y-%m-%d %H:%M:%S")
+                    cap_end = (
+                        f"📹 **[MONITOR EN CHAT FINALIZADO · {frame_idx} CUADROS SERVIDOS]**\n"
+                        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                        f"• **Cámara:** `GOD-EYE · Tapo C310 @ REDACTED_IP`\n"
+                        f"• **Individuos en escena:** `{metrics_end.get('current_persons', 0)}`\n"
+                        f"• **Última actualización:** `{ts_end}`\n"
+                        f"💡 *Pulsa* **«🔴 Monitor Continuo en Chat»** *o* **«📡 Abrir Monitor en Vivo»** *para continuar.*"
+                    )
+                    self.edit_message_media_photo(
+                        chat_id=target_chat,
+                        message_id=message_id,
+                        photo_bytes=jpg_end,
+                        caption=cap_end,
+                        reply_markup=self._build_c310_live_reply_markup(target_chat, live_feed_active=False),
+                    )
+
+        threading.Thread(
+            target=_live_updater_loop,
+            daemon=True,
+            name=f"C310LiveChatMonitor-{target_chat}",
+        ).start()
+        return {"ok": True, "chat_id": target_chat, "message_id": message_id, "duration_sec": duration_sec}
 
     def send_document(
         self,
@@ -1044,7 +1392,23 @@ class TelegramBridge:
             return False
 
     def transcribe_audio(self, audio_bytes: bytes, lang: str = "es-MX") -> Optional[str]:
-        """Transcribe bytes de voz a texto usando SpeechRecognition con Google STT."""
+        """Transcribe bytes de voz a texto priorizando faster-whisper local con respaldo Google STT."""
+        if not audio_bytes:
+            return None
+
+        # 1. Motor primario soberano: faster-whisper local (baja latencia, sin dependencia externa)
+        try:
+            if not hasattr(self, "_local_stt") or self._local_stt is None:
+                from core.tardis_voice_local import LocalSpeechToText
+                self._local_stt = LocalSpeechToText(model_size="base", cpu_threads=6)
+            short_lang = (lang.split("-")[0] if lang else "es").lower()
+            txt_local, _ = self._local_stt.transcribe_bytes(audio_bytes, suffix=".ogg", language=short_lang)
+            if txt_local and txt_local.strip():
+                return txt_local.strip()
+        except Exception as e_lw:
+            logger.warning(f"Respaldo desde faster-whisper local en transcribe_audio: {e_lw}")
+
+        # 2. Respaldo secundario: SpeechRecognition (Google STT)
         wav_bytes = self.convert_to_wav(audio_bytes)
         if not wav_bytes:
             return None
@@ -1055,17 +1419,15 @@ class TelegramBridge:
             with sr.AudioFile(io.BytesIO(wav_bytes)) as source:
                 audio_data = recognizer.record(source)
 
-            # Intento primario con idioma configurado
             try:
                 text = recognizer.recognize_google(audio_data, language=lang)
                 if text and text.strip():
                     return text.strip()
             except sr.UnknownValueError:
                 pass
-            except sr.RequestError as re:
-                logger.warning(f"Google STT request error ({lang}): {re}")
+            except sr.RequestError as re_err:
+                logger.warning(f"Google STT request error ({lang}): {re_err}")
 
-            # Intento secundario con español genérico
             try:
                 text = recognizer.recognize_google(audio_data, language="es-ES")
                 if text and text.strip():
@@ -1482,63 +1844,66 @@ class TelegramBridge:
         return self.send_reply_with_voice(text, chat_id=target_chat, reply_to_message_id=reply_to_message_id)
 
     def start_call(self, chat_id: int | str, user_name: str = "Usuario", initial_speech: Optional[str] = None) -> Dict[str, Any]:
-        """Inicia una llamada interactiva con el usuario de Telegram."""
+        """Inicia una llamada interactiva en vivo (Mini App Full-Duplex + modo voz en chat) con el usuario de Telegram."""
         cid = int(chat_id) if str(chat_id).lstrip("-").isdigit() else chat_id
         self.active_calls.add(cid)
+        is_private_chat = not str(chat_id).startswith("-")
 
         # Si el usuario es el administrador conocido
         if user_name in ("Usuario", None, ""):
             if str(cid) == str(self.config.get("admin_chat_id")) or str(cid) == "REDACTED_PHONE":
-                user_name = "Arquitecto (X)"
+                user_name = "Arquitecto"
 
-        auth_url = ""
+        live_call_url = ""
         try:
-            from omni_temporal_control import BRIDGE
-            auth_url = BRIDGE.get_status().get("auth_url", "")
-        except Exception:
-            pass
+            from core.telegram_live_call_server import build_live_call_url
+            live_call_url = build_live_call_url(chat_id=chat_id, user_name=user_name)
+        except Exception as e_url:
+            logger.warning(f"Aviso generando URL de llamada en vivo: {e_url}")
 
         greeting_text = initial_speech or (
-            f"Hola {user_name}, he conectado la llamada soberana contigo por Telegram. "
-            "Te estoy escuchando en tiempo real. Envíame tus notas de voz o instrucciones "
-            "y te responderé con mi voz en cada turno. ¿Qué directiva tienes para mí?"
+            f"Hola {user_name}, he abierto la línea de llamada contigo en Telegram. "
+            "Toca el botón Abrir Llamada en Vivo para hablar manos libres en tiempo real, "
+            "o envíame notas de voz aquí mismo y te contestaré hablándote en cada turno."
         )
 
         call_banner = (
             "📞 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-            "🔴 **[LLAMADA ENTRANTE DE GIA · CANAL SOBERANO]**\n"
+            "🟢 **[LLAMADA ENTRANTE DE GIA · TARDIS EN LÍNEA]**\n"
             "━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
             f"👤 **Interlocutor:** {user_name} (ID: `{chat_id}`)\n"
-            "🎙️ **Estado:** Conexión de voz activa 24/7.\n"
-            "🗣️ **Voz de GIA:** Cortana Neural (Microsoft Dalia)\n"
-            f"⚡ **Cerebro:** {self.active_model_label} [Soberano]\n\n"
-            "💬 *Puedes hablarme presionando el micrófono y enviando una nota de voz. GIA te responderá por voz a cada turno.*\n"
-            "*(Para finalizar la llamada en cualquier momento, envía `/colgar` o presiona el botón inferior)*"
+            "🎙️ **Modalidad 1 (Manos Libres en Vivo):** Pulsa **«📞 Abrir Llamada en Vivo»** abajo para conversar en tiempo real sin presionar botones.\n"
+            "🗣️ **Modalidad 2 (Notas de Voz):** Envía notas de voz en este chat y TARDIS te responderá con voz en cada turno.\n"
+            f"⚡ **Voz Neural:** `{self.config.get('cortana_voice', 'es-MX-DaliaNeural')}` · **Motor:** `{self.active_model_label}`"
         )
-        if auth_url:
-            call_banner += f"\n\n🌐 **Sala Web de Audio en Vivo:**\n{auth_url}"
 
-        # Botones interactivos nativos
         inline_buttons = []
-        if auth_url:
-            inline_buttons.append([{"text": "🎙️ Atender en Sala Web (Audio Full-Duplex)", "url": auth_url}])
+        if live_call_url:
+            if is_private_chat:
+                inline_buttons.append([{"text": "📞 Abrir Llamada en Vivo (Manos Libres)", "web_app": {"url": live_call_url}}])
+            else:
+                inline_buttons.append([{"text": "📞 Unirse a Llamada en Vivo (Manos Libres)", "url": live_call_url}])
         inline_buttons.append([{"text": "🔴 Colgar Llamada", "callback_data": "end_call"}])
         call_markup = {"inline_keyboard": inline_buttons}
 
         self.send_message(call_banner, chat_id=chat_id, reply_markup=call_markup)
 
-        # Enviar locución hablada inicial (como video si video_mode_always, o como nota de voz)
-        if self.video_mode_always:
-            self.send_reply_with_video(greeting_text, chat_id=chat_id)
-        else:
-            with ChatActionKeeper(self, chat_id, "record_voice"):
-                ogg = self.synthesize_speech(greeting_text)
-                if ogg:
-                    self.send_voice(ogg, caption=f"🎙️ {greeting_text}", chat_id=chat_id, reply_markup=call_markup)
-                else:
-                    self.send_message(f"🗣️ {greeting_text}", chat_id=chat_id, reply_markup=call_markup)
+        # Enviar saludo hablado inmediato como nota de voz Opus nativa
+        with ChatActionKeeper(self, chat_id, "record_voice"):
+            ogg = self.synthesize_speech(greeting_text)
+            if ogg:
+                self.send_voice(ogg, caption=f"🎙️ {greeting_text}", chat_id=chat_id)
+            else:
+                self.send_message(f"🗣️ {greeting_text}", chat_id=chat_id)
 
-        return {"ok": True, "call_active": True, "chat_id": chat_id, "user_name": user_name, "speech": greeting_text}
+        return {
+            "ok": True,
+            "call_active": True,
+            "chat_id": chat_id,
+            "user_name": user_name,
+            "live_call_url": live_call_url,
+            "speech": greeting_text,
+        }
 
     def end_call(self, chat_id: int | str) -> Dict[str, Any]:
         """Finaliza la llamada activa en Telegram."""
@@ -1714,6 +2079,95 @@ class TelegramBridge:
                         requests.post(f"https://api.telegram.org/bot{token}/answerCallbackQuery", json={"callback_query_id": cb_id, "text": "Conectando llamada..."}, timeout=5.0)
                     except Exception:
                         pass
+            elif cb_data in ("c310_live_clip", "c310_live_clip_12"):
+                dur_clip = 12.0 if cb_data == "c310_live_clip_12" else 6.0
+                if token and cb_id:
+                    try:
+                        requests.post(
+                            f"https://api.telegram.org/bot{token}/answerCallbackQuery",
+                            json={"callback_query_id": cb_id, "text": f"🎬 Grabando clip en vivo ({int(dur_clip)}s) de GOD-EYE C310..."},
+                            timeout=5.0,
+                        )
+                    except Exception:
+                        pass
+                threading.Thread(
+                    target=self.send_c310_live_video,
+                    kwargs={"chat_id": cb_chat_id, "duration_sec": dur_clip},
+                    daemon=True,
+                ).start()
+            elif cb_data == "c310_chat_live_start":
+                if token and cb_id:
+                    try:
+                        requests.post(
+                            f"https://api.telegram.org/bot{token}/answerCallbackQuery",
+                            json={"callback_query_id": cb_id, "text": "🔴 Iniciando monitor en vivo en este chat (60s)..."},
+                            timeout=5.0,
+                        )
+                    except Exception:
+                        pass
+                threading.Thread(
+                    target=self.start_c310_chat_live_feed,
+                    kwargs={"chat_id": cb_chat_id, "duration_sec": 60.0},
+                    daemon=True,
+                ).start()
+            elif cb_data == "c310_chat_live_stop":
+                self.stop_c310_chat_live_feed(chat_id=cb_chat_id)
+                if token and cb_id:
+                    try:
+                        requests.post(
+                            f"https://api.telegram.org/bot{token}/answerCallbackQuery",
+                            json={"callback_query_id": cb_id, "text": "⏹️ Monitor en vivo detenido."},
+                            timeout=5.0,
+                        )
+                    except Exception:
+                        pass
+            elif cb_data == "c310_snapshot":
+                if token and cb_id:
+                    try:
+                        requests.post(
+                            f"https://api.telegram.org/bot{token}/answerCallbackQuery",
+                            json={"callback_query_id": cb_id, "text": "📸 Capturando fotograma 2K QHD en vivo..."},
+                            timeout=5.0,
+                        )
+                    except Exception:
+                        pass
+                def _send_cb_snap(target_cid=cb_chat_id):
+                    from core.tapo_c310_sentinel import get_c310_live_hud_jpeg_sync
+                    jpg, meta = get_c310_live_hud_jpeg_sync(width=2304, hud=True, quality=92)
+                    if jpg:
+                        metrics = meta.get("metrics", {})
+                        ts_s = time.strftime("%Y-%m-%d %H:%M:%S")
+                        self.send_photo(
+                            jpg,
+                            caption=(
+                                f"📸 *[CAPTURA 2K QHD EN VIVO · GOD-EYE C310]*\n"
+                                f"• *Individuos en escena:* `{metrics.get('current_persons', 0)}`\n"
+                                f"• *Hora:* `{ts_s}`"
+                            ),
+                            chat_id=target_cid,
+                            reply_markup=self._build_c310_live_reply_markup(target_cid),
+                        )
+                threading.Thread(target=_send_cb_snap, daemon=True).start()
+            elif cb_data == "c310_speak_alert":
+                if token and cb_id:
+                    try:
+                        requests.post(
+                            f"https://api.telegram.org/bot{token}/answerCallbackQuery",
+                            json={"callback_query_id": cb_id, "text": "🔊 Emitiendo aviso vocal TARDIS en cámara C310..."},
+                            timeout=5.0,
+                        )
+                    except Exception:
+                        pass
+                def _send_cb_speak(target_cid=cb_chat_id):
+                    from core.tapo_c310_speaker import speak_on_c310_sync
+                    res_spk = speak_on_c310_sync(text=None)
+                    if res_spk.get("ok"):
+                        self.send_message(
+                            f"🔊 *Altavoz GOD-EYE (`{res_spk.get('host')}`)* reprodujo ({res_spk.get('audio_duration_sec')}s):\n"
+                            f"_«{res_spk.get('text')}»_",
+                            chat_id=target_cid,
+                        )
+                threading.Thread(target=_send_cb_speak, daemon=True).start()
             return
 
         msg = update.get("message")
@@ -2039,7 +2493,11 @@ class TelegramBridge:
 
         # Detección de intenciones de llamada en lenguaje natural
         text_lower = text.lower()
-        if any(phrase in text_lower for phrase in ("hazme una llamada", "inicia una llamada", "iniciar llamada", "llámame", "llamame", "haz una llamada")):
+        if any(phrase in text_lower for phrase in (
+            "hazme una llamada", "inicia una llamada", "iniciar llamada",
+            "llámame", "llamame", "haz una llamada", "hacer una llamada",
+            "llamada en vivo", "hablar por llamada", "quiero llamarte",
+        )):
             self.start_call(chat_id, user_name=user_name)
             return
 
@@ -2170,6 +2628,12 @@ class TelegramBridge:
                     reply_to_message_id=msg_id
                 )
                 return
+
+        # Enrutar "/video pensante ..." y "/video abstracto ..." directamente al motor /VideoPensante
+        if cmd == "/video" and arg_str.strip().lower().startswith(("pensante", "abstracto", "pensando")):
+            parts_vp = arg_str.strip().split(maxsplit=1)
+            cmd = "/videopensante"
+            arg_str = parts_vp[1].strip() if len(parts_vp) > 1 else ""
 
         if cmd in ("/video", "/video_modo", "/videonota"):
             arg_l = arg_str.lower()
@@ -3020,13 +3484,45 @@ class TelegramBridge:
                     f"📡 **[TARDIS · FUNCIÓN SOCIAL :: ESTADO]**\n"
                     f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
                     f"• **Motor Social:** {'🟢 ACTIVO' if st.get('social_enabled') else '🔴 PAUSADO'}\n"
-                    f"• **Auto por Ciclo:** {'Sí — cada /VideoPensante publica' if st.get('auto_on_new_cycles') else 'No — solo bajo demanda'}\n"
+                    f"• **Auto por Ciclo:** {'Sí — cada /VideoPensante publica en X.com' if st.get('auto_on_new_cycles') else 'No — solo bajo demanda'}\n"
+                    f"• **X.com (`@AsleepAstronaut`):** {'🟢 Conectado y listo (videos + reflexiones)' if st.get('x_ready') else '🔴 Inactivo'}\n"
                     f"• **TikTok:** {'🟢 Autenticado' if st.get('platform_ready') else '⚪ Sin tokens (cola en espera)'}\n"
                     f"• **Privacidad:** `{st.get('privacy_level')}`\n"
                     f"• **Log por Estado:** `{st.get('log_counts')}`\n\n"
-                    f"Subcomandos: `pendientes` · `retry` · `backfill [N]` · `publicar <id>` · `tarjeta <id>` · `historial`"
+                    f"Subcomandos: `x <id|ultimo>` · `publicar <id>` · `pendientes` · `retry` · `backfill [N]` · `tarjeta <id>` · `historial`"
                 )
                 self.send_message(msg_st, chat_id=chat_id, reply_to_message_id=msg_id)
+                return
+
+            if sub.lower().startswith("x ") or sub.lower() == "x":
+                parts_x = sub.split(maxsplit=1)
+                vid = parts_x[1].strip() if len(parts_x) > 1 else "ultimo"
+                if vid.lower() in ("ultimo", "último", "latest", ""):
+                    from core.tardis_video_thinking_engine import get_video_thinking_engine
+                    vte_x = get_video_thinking_engine()
+                    vid = vte_x.state.get("last_video_id", "")
+                    if not vid:
+                        mem_x = vte_x.get_memory_summary(limit=1)
+                        vid = mem_x[0]["id"] if mem_x else ""
+                if not vid:
+                    self.send_message("⚠️ No hay videos registrados aún en `/VideoPensante`.", chat_id=chat_id, reply_to_message_id=msg_id)
+                    return
+                self.send_message(f"📡 Subiendo video `{vid}` + reflexiones de TARDIS en línea a **X.com**…", chat_id=chat_id, reply_to_message_id=msg_id)
+
+                def _run_x_pub_async():
+                    try:
+                        rep = se.publish_video_by_id(vid, item="video", platform="x")
+                        if "skipped" in rep:
+                            self.send_message(f"⚠️ {rep['skipped']}", chat_id=chat_id)
+                            return
+                        rx = (rep.get("x_results") or rep.get("results") or {}).get("x_video") or {}
+                        mark = "✅" if rx.get("status") == "published" else ("↺" if rx.get("status") == "skipped" else "❌")
+                        detail_txt = rx.get("tweet_url") or rx.get("publish_id") or rx.get("reason") or rx.get("error") or rx.get("status")
+                        self.send_message(f"📡 **[SOCIAL X.COM :: `{vid}`]**\n• {mark} Estado: `{rx.get('status')}`\n• Detalle: {detail_txt}", chat_id=chat_id)
+                    except Exception as e_xp:
+                        self.send_message(f"⚠️ Error publicando en X.com: {e_xp}", chat_id=chat_id)
+
+                threading.Thread(target=_run_x_pub_async, daemon=True, name="SocialXPublishThread").start()
                 return
 
             if sub.lower() in ("pendientes", "cola", "pending"):
@@ -3179,6 +3675,143 @@ class TelegramBridge:
                 self.send_message("⚠️ No fue posible capturar la pantalla en este momento.", chat_id=chat_id)
             return
 
+        if cmd in ("/voz_c310", "/hablar_c310", "/hablar_camara", "/hablar_cámara"):
+            msg_to_say = text[len(parts[0]):].strip()
+            try:
+                from core.tapo_c310_speaker import speak_on_c310_sync
+                res_spk = speak_on_c310_sync(text=msg_to_say if msg_to_say else None)
+                if res_spk.get("ok"):
+                    self.send_message(
+                        f"🔊 *Altavoz C310 (`{res_spk.get('host')}`)* reprodujo ({res_spk.get('audio_duration_sec')}s):\n"
+                        f"_«{res_spk.get('text')}»_",
+                        chat_id=chat_id,
+                    )
+                else:
+                    self.send_message(
+                        f"⚠️ Fallo emitiendo voz en C310: `{res_spk.get('error') or res_spk}`",
+                        chat_id=chat_id,
+                    )
+            except Exception as e_spk:
+                self.send_message(f"⚠️ Error de altavoz C310: {e_spk}", chat_id=chat_id)
+            return
+
+        if cmd in (
+            "/camara_vivo",
+            "/cámara_vivo",
+            "/c310_vivo",
+            "/vivo",
+            "/en_vivo",
+            "/stream_camara",
+            "/stream_cámara",
+            "/transmitir_camara",
+            "/transmitir_cámara",
+            "/cctv_vivo",
+            "/video_camara",
+            "/video_cámara",
+        ):
+            sub_v = text[len(parts[0]):].strip().lower()
+            if sub_v in ("stop", "detener", "parar", "off"):
+                self.stop_c310_chat_live_feed(chat_id=chat_id)
+                self.send_message("⏹️ Monitor en vivo en chat detenido.", chat_id=chat_id, reply_to_message_id=msg_id)
+                return
+            if sub_v in ("monitor", "continuo", "chat"):
+                self.start_c310_chat_live_feed(chat_id=chat_id, duration_sec=60.0)
+                return
+            dur_req = 6.0
+            for tok_w in sub_v.split():
+                if tok_w.rstrip("s").isdigit():
+                    dur_req = max(3.0, min(20.0, float(tok_w.rstrip("s"))))
+                    break
+            threading.Thread(
+                target=self.send_c310_live_video,
+                kwargs={"chat_id": chat_id, "duration_sec": dur_req, "reply_to_message_id": msg_id},
+                daemon=True,
+                name="C310LiveVideoCmd",
+            ).start()
+            return
+
+        if cmd in ("/c310", "/godeye", "/camara", "/cámara", "/cctv"):
+            sub_args = text[len(parts[0]):].strip()
+            sub_low = sub_args.lower()
+            if sub_low.startswith(("hablar ", "decir ", "voz ")) or sub_low in ("hablar", "voz", "alerta"):
+                spoken_arg = sub_args.split(None, 1)[1].strip() if " " in sub_args else ""
+                try:
+                    from core.tapo_c310_speaker import speak_on_c310_sync
+                    res_spk = speak_on_c310_sync(text=spoken_arg if spoken_arg else None)
+                    if res_spk.get("ok"):
+                        self.send_message(
+                            f"🔊 *Altavoz GOD-EYE (`{res_spk.get('host')}`)* reprodujo ({res_spk.get('audio_duration_sec')}s):\n"
+                            f"_«{res_spk.get('text')}»_",
+                            chat_id=chat_id,
+                        )
+                    else:
+                        self.send_message(
+                            f"⚠️ Fallo emitiendo voz en C310: `{res_spk.get('error') or res_spk}`",
+                            chat_id=chat_id,
+                        )
+                except Exception as e_spk:
+                    self.send_message(f"⚠️ Error de altavoz C310: {e_spk}", chat_id=chat_id)
+                return
+            if sub_low in ("stop", "detener", "parar"):
+                self.stop_c310_chat_live_feed(chat_id=chat_id)
+                self.send_message("⏹️ Monitor en vivo en chat detenido.", chat_id=chat_id, reply_to_message_id=msg_id)
+                return
+            if sub_low in ("monitor", "continuo"):
+                self.start_c310_chat_live_feed(chat_id=chat_id, duration_sec=60.0)
+                return
+            if (
+                sub_low in ("vivo", "en vivo", "video", "stream", "transmitir", "transmision", "transmisión", "clip")
+                or sub_low.startswith(("vivo ", "en vivo ", "video ", "stream ", "transmitir ", "clip "))
+            ):
+                dur_c = 6.0
+                for tok_w in sub_low.split():
+                    if tok_w.rstrip("s").isdigit():
+                        dur_c = max(3.0, min(20.0, float(tok_w.rstrip("s"))))
+                        break
+                threading.Thread(
+                    target=self.send_c310_live_video,
+                    kwargs={"chat_id": chat_id, "duration_sec": dur_c, "reply_to_message_id": msg_id},
+                    daemon=True,
+                    name="C310LiveSubCmd",
+                ).start()
+                return
+            try:
+                from core.tapo_c310_sentinel import (
+                    DETECTIONS_DIR,
+                    TapoC310Sentinel,
+                    get_c310_live_hud_jpeg_sync,
+                )
+                hud_bytes, meta = get_c310_live_hud_jpeg_sync(width=2304, hud=True, quality=92)
+                markup_c310 = self._build_c310_live_reply_markup(chat_id)
+                if hud_bytes:
+                    metrics = meta.get("metrics", {})
+                    caption = (
+                        f"📹 *GOD-EYE · TP-Link Tapo C310 (`REDACTED_IP`)*\n"
+                        f"• *Estado Centinela:* `ACTIVO 24/7 (Voz + Visión + Stream en Vivo)`\n"
+                        f"• *Individuos en escena:* `{metrics.get('current_persons', 0)}`\n"
+                        f"• *Alertas / Avisos vocales:* `{metrics.get('total_alerts_sent', 0)}` / `{metrics.get('total_voice_warnings_spoken', 0)}`"
+                    )
+                    self.send_photo(hud_bytes, caption=caption, chat_id=chat_id, reply_markup=markup_c310)
+                else:
+                    import asyncio as _aio
+                    snap = _aio.run(TapoC310Sentinel().capture_single_snapshot(send_telegram=False))
+                    if snap.get("ok") and snap.get("path"):
+                        self.send_photo(
+                            Path(snap["path"]),
+                            caption=(
+                                f"📹 *GOD-EYE · TP-Link Tapo C310 (`REDACTED_IP`)*\n"
+                                f"• *Resolución:* `{snap.get('resolution')}`\n"
+                                f"• *Individuos detectados:* `{snap.get('persons_detected', 0)}`"
+                            ),
+                            chat_id=chat_id,
+                            reply_markup=markup_c310,
+                        )
+                    else:
+                        self.send_message(f"⚠️ No se pudo obtener imagen de C310: {snap.get('error')}", chat_id=chat_id)
+            except Exception as e_cam:
+                self.send_message(f"⚠️ Error consultando cámara C310: {e_cam}", chat_id=chat_id)
+            return
+
         if cmd in ("/lock", "/bloquear"):
             from core.hardware_controller import get_hardware_controller
             hw = get_hardware_controller()
@@ -3273,9 +3906,14 @@ class TelegramBridge:
         if cmd in ("/ftl",):
 
             # Petición de creación/mejora de código para FTL. Se conserva el texto
-            # original (saltos de línea incluidos) tras el comando.
+            # original (saltos de línea incluidos) tras el comando y el mensaje citado si aplica.
             from core.ftl_telegram_runner import get_ftl_runner
             ftl_args = text[len(parts[0]):].strip()
+            replied = msg.get("reply_to_message") if isinstance(msg, dict) else None
+            if isinstance(replied, dict) and ftl_args:
+                quoted_txt = (replied.get("text") or replied.get("caption") or "").strip()
+                if quoted_txt and ftl_args.lower() not in ("cancelar", "cancel", "stop", "detener", "models", "modelos", "help", "ayuda"):
+                    ftl_args = f"{ftl_args}\n\n[MENSAJE CITADO EN TELEGRAM]:\n{quoted_txt[:3500]}"
             runner = get_ftl_runner(
                 lambda body, target, reply_to: self.send_message(
                     body, chat_id=target, parse_mode="HTML", reply_to_message_id=reply_to
@@ -3285,15 +3923,137 @@ class TelegramBridge:
             return
 
         if cmd in ("/agy", "/antigravity"):
-            from core.os_controller import get_os_controller
-            os_c = get_os_controller()
-            if arg_str in ("start", "open", "iniciar", "abrir"):
-                res = os_c.launch_antigravity()
-                self.send_message(f"🪐 Antigravity lanzado en pantalla (PID: {res.get('status', {}).get('pids')}).", chat_id=chat_id)
+            from core.antigravity_remote_controller import get_remote_controller
+            ctrl = get_remote_controller()
+            raw_agy_args = text[len(parts[0]):].strip()
+            low_arg = raw_agy_args.lower()
+
+            if not raw_agy_args or low_arg in ("status", "estado", "info"):
+                res = ctrl.get_gui_status()
+                st_lbl = "🟢 EN EJECUCIÓN" if res.get("running") else "🟢 TERMINAL CLI ACTIVA"
+                self.send_message(
+                    f"🪐 <b>Google Antigravity · Puente Terminal Soberano</b>\n"
+                    f"• Estado: {st_lbl} (PIDs GUI: {res.get('pids')})\n"
+                    f"• Sesión de Terminal Conectada: <code>{res.get('target_conversation_id')}</code>\n"
+                    f"• Uso directo: escribe <code>/agy &lt;tu petición&gt;</code> para actualizar, mejorar, cambiar o crear código/sistemas directamente en esta terminal.",
+                    chat_id=chat_id,
+                    parse_mode="HTML",
+                    reply_to_message_id=msg_id,
+                )
+            elif low_arg in ("start", "open", "iniciar", "abrir", "gui"):
+                res = ctrl.open_conversation_in_gui()
+                self.send_message(
+                    f"🪐 Antigravity sincronizado y abierto en sesión <code>{res.get('conversation_id')}</code>.",
+                    chat_id=chat_id,
+                    parse_mode="HTML",
+                    reply_to_message_id=msg_id,
+                )
+            elif low_arg in ("sync", "sincronizar"):
+                res = ctrl.sync_session()
+                self.send_message(
+                    f"🔄 Sesión <code>{res.get('conversation_id')}</code> sincronizada (DB: {res.get('db_synced')}, Symlinks: {res.get('symlinks_ok')}).",
+                    chat_id=chat_id,
+                    parse_mode="HTML",
+                    reply_to_message_id=msg_id,
+                )
             else:
-                res = os_c.get_antigravity_status()
-                st_lbl = "🟢 EN EJECUCIÓN" if res.get("running") else "🔴 DETENIDO"
-                self.send_message(f"🪐 Google Antigravity: {st_lbl} (PIDs: {res.get('pids')})", chat_id=chat_id)
+                # Ejecutar petición directamente en Antigravity (Modo AGY autónomo conectado a esta terminal)
+                from core.ftl_telegram_runner import get_ftl_runner
+                ctrl.sync_session()
+                runner = get_ftl_runner(
+                    lambda body, target, reply_to: self.send_message(
+                        body, chat_id=target, parse_mode="HTML", reply_to_message_id=reply_to
+                    )
+                )
+                if low_arg in ("cancelar", "cancel", "stop", "detener", "models", "modelos", "help", "ayuda"):
+                    runner.handle(chat_id, raw_agy_args, msg_id)
+                else:
+                    effective_args = raw_agy_args
+                    replied = msg.get("reply_to_message") if isinstance(msg, dict) else None
+                    if isinstance(replied, dict):
+                        quoted_txt = (replied.get("text") or replied.get("caption") or "").strip()
+                        if quoted_txt:
+                            effective_args = f"{raw_agy_args}\n\n[MENSAJE CITADO EN TELEGRAM]:\n{quoted_txt[:3500]}"
+                    if effective_args.startswith("-m ") or effective_args.startswith("--mode "):
+                        runner.handle(chat_id, effective_args, msg_id)
+                    else:
+                        runner.handle(chat_id, f"-m agy {effective_args}", msg_id)
+            return
+
+        if cmd in ("/scp",):
+            from core.scp_conceptual_suite import get_scp_suite, DEFAULT_UNIVERSE_CODE
+            suite = get_scp_suite()
+            scp_raw = text[len(parts[0]):].strip()
+            scp_parts = scp_raw.split(maxsplit=1)
+            sub_c = scp_parts[0].lower() if scp_parts else "status"
+            sub_val = scp_parts[1].strip() if len(scp_parts) > 1 else ""
+
+            if sub_c in ("status", "estado", "info"):
+                st = suite.get_status()
+                self.send_message(
+                    f"🗂️ *Suite Computacional SCP*\n"
+                    f"• Ramas DAG: `{st['total_branches']}` | Eventos: `{st['total_events']}`\n"
+                    f"• Artefactos creados: `{st['generated_creations_count']}`\n"
+                    f"• Subcomandos: `/scp demo`, `/scp biblioteca <texto>`, `/scp tiempo <ancla>`, "
+                    f"`/scp universo <pos 0-23> <digito>`, `/scp verdad <ruta|texto>`, `/scp crear <nombre>`",
+                    chat_id=chat_id,
+                    reply_to_message_id=msg_id,
+                )
+            elif sub_c == "demo":
+                res_d = suite.run_full_demonstration()
+                self.send_message(
+                    f"✅ *Demostración SCP Ejecutada*\n"
+                    f"• *SCP-001 (Biblioteca):* `{res_d['scp_001_library']['short_address']}` (Roundtrip: `{res_d['scp_001_library']['exact_roundtrip_verified']}`)\n"
+                    f"• *SCP-002 (Tiempo):* Rama `{res_d['scp_002_time_machine']['new_branch_id']}`\n"
+                    f"• *SCP-003 (Universo):* Divergencia `{res_d['scp_003_universe_code']['divergence']['hamming_spacetime_divergence']:.2%}`\n"
+                    f"• *SCP-004 (Verdad):* SHA-256 `{res_d['scp_004_truth_camera']['verification_report']['sha256'][:16]}...`\n"
+                    f"• *SCP-005 (Creación):* `{res_d['scp_005_creation_engine']['creation_id']}`",
+                    chat_id=chat_id,
+                    reply_to_message_id=msg_id,
+                )
+            elif sub_c in ("biblioteca", "locate"):
+                loc = suite.library.locate_text(sub_val or "biblioteca determinista")
+                self.send_message(
+                    f"📚 *SCP-001 · Biblioteca Biyectiva*\n• Coordenada: `{loc['short_address']}`\n• Dirección completa:\n`{loc['address']}`",
+                    chat_id=chat_id,
+                    reply_to_message_id=msg_id,
+                )
+            elif sub_c in ("tiempo", "jump"):
+                jmp = suite.time_machine.jump_and_branch(sub_val or "2286", "Consulta desde Telegram")
+                self.send_message(
+                    f"⏳ *SCP-002 · Máquina del Tiempo*\n• Nueva rama: `{jmp['new_branch_id']}`\n• Padre: `{jmp['parent_branch_id']}`\n• Profundidad DAG: `{jmp['lineage_depth']}`",
+                    chat_id=chat_id,
+                    reply_to_message_id=msg_id,
+                )
+            elif sub_c in ("universo", "mutate"):
+                u_args = sub_val.split()
+                pos = int(u_args[0]) if len(u_args) >= 1 and u_args[0].isdigit() else 2
+                dig = u_args[1] if len(u_args) >= 2 else "9"
+                mut = suite.universe.mutate_single_digit(DEFAULT_UNIVERSE_CODE, pos, dig)
+                div = mut["divergence"]
+                self.send_message(
+                    f"🌌 *SCP-003 · Código del Universo*\n• Rama: `{mut['branch_id']}`\n• Mutación pos[{pos}]: `{div['old_digit']} -> {div['new_digit']}`\n"
+                    f"• Divergencia espacio-temporal: `{div['hamming_spacetime_divergence']:.2%}`\n• Fase: `{div['phase_transition']}`",
+                    chat_id=chat_id,
+                    reply_to_message_id=msg_id,
+                )
+            elif sub_c in ("verdad", "inspect"):
+                ins = suite.truth_camera.inspect(sub_val or __file__)
+                rep = ins["verification_report"]
+                self.send_message(
+                    f"🔍 *SCP-004 · Cámara de la Verdad*\n• Rama: `{ins['branch_id']}`\n• MIME: `{rep['detected_mime']}` | `{rep['size_bytes']} B`\n"
+                    f"• Entropía: `{rep['shannon_entropy_bits_per_byte']} bits/B` (`{rep['entropy_profile']}`)\n• SHA-256: `{rep['sha256'][:24]}...`",
+                    chat_id=chat_id,
+                    reply_to_message_id=msg_id,
+                )
+            elif sub_c in ("crear", "create"):
+                cre = suite.creator.create(sub_val or "Artefacto Procedural", "artifact")
+                self.send_message(
+                    f"🛠️ *SCP-005 · Máquina de la Creación*\n• ID: `{cre['creation_id']}` | Rama: `{cre['branch_id']}`\n"
+                    f"• Plano JSON: `{cre['files']['json_blueprint']}`\n• Geometría SVG: `{cre['files']['svg_geometry']}`",
+                    chat_id=chat_id,
+                    reply_to_message_id=msg_id,
+                )
             return
 
         if cmd in ("/vol", "/volumen"):
@@ -4210,6 +4970,56 @@ class TelegramBridge:
                                 self.send_message(f"⚠️ No se pudo entregar a {dest_name}.", chat_id=chat_id, reply_to_message_id=msg_id)
                         return
 
+            # 2.32 Detección Proactiva de Transmisión de Video en Vivo de la Cámara de Seguridad (GOD-EYE C310)
+            mentions_cam = any(
+                k in text_lower_intent
+                for k in (
+                    "camara",
+                    "cámara",
+                    "c310",
+                    "tapo",
+                    "godeye",
+                    "god-eye",
+                    "cctv",
+                    "seguridad",
+                )
+            )
+            mentions_live_or_video = any(
+                k in text_lower_intent
+                for k in (
+                    "en vivo",
+                    "video en vivo",
+                    "transmit",
+                    "stream",
+                    "tiempo real",
+                    "directo",
+                    "muéstrame",
+                    "muestrame",
+                    "ver la c",
+                    "que ve la c",
+                    "qué ve la c",
+                    "que esta viendo",
+                    "qué está viendo",
+                    "video de la c",
+                    "clip de la c",
+                )
+            )
+            if mentions_cam and mentions_live_or_video:
+                dur_nl = 6.0
+                m_sec = re.search(r"(\d{1,2})\s*(?:seg|segundos|s\b)", text_lower_intent)
+                if m_sec:
+                    dur_nl = max(3.0, min(20.0, float(m_sec.group(1))))
+                want_chat_monitor = any(
+                    k in text_lower_intent for k in ("monitor continuo", "continuo en el chat", "actualizar en el chat")
+                )
+                self.send_c310_live_video(
+                    chat_id=chat_id,
+                    duration_sec=dur_nl,
+                    reply_to_message_id=msg_id,
+                    start_chat_monitor=want_chat_monitor,
+                )
+                return
+
             # 2.35 Detección Proactiva de Videos Pixel Art Procedural (/vp)
             has_pixel_video_intent = any(ph in text_lower_intent for ph in (
                 "video pixel art", "video pixelart", "pixel art video", "pixelart video",
@@ -4444,28 +5254,58 @@ class TelegramBridge:
                     if m.get("role") in ("user", "assistant") and m.get("content")
                 ]
 
-                # Invocación acelerada mediante KaijuCognitiveOrchestrator con historial conversacional
+                # Invocación 100% LOCAL mediante KaijuCognitiveOrchestrator + TemporalBrain con historial conversacional
                 hermes_reply = ""
                 try:
                     from core.kaiju_cognitive_orchestrator import get_kaiju_cognitive_orchestrator
                     k_orch = get_kaiju_cognitive_orchestrator()
-                    k_res = k_orch.process_turn(user_input=model_user_input, session_id=tg_client_id, history=chat_hist[-12:])
-                    if k_res and k_res.get("response"):
-                        hermes_reply = k_res["response"].strip()
+                    k_res = k_orch.process_turn(
+                        user_input=model_user_input,
+                        session_id=tg_client_id,
+                        history=chat_hist[-8:],
+                        force_offload=False
+                    )
+                    cand = (k_res.get("response") or k_res.get("reply") or "").strip() if k_res else ""
+                    if cand and not cand.startswith("[⚠️ Tiempo límite") and not cand.startswith("[Error"):
+                        hermes_reply = cand
                 except Exception as e_k:
                     logger.warning(f"Fallback desde KaijuCognitiveOrchestrator: {e_k}")
 
                 if not hermes_reply:
                     resp_chat = process_agentic_chat(
                         message=model_user_input,
-                        history=chat_hist[-12:],
+                        history=chat_hist[-8:],
                         model=os.environ.get("GIA_MODEL", "TARDIS-NEURAL-SPACE-KAIJU"),
-                        num_ctx=int(os.environ.get("GIA_NUM_CTX", "32768")),
+                        num_ctx=int(os.environ.get("GIA_NUM_CTX", "8192")),
                         use_web=True,
-                        is_local_request=False,
+                        is_local_request=True,
                         client_id=tg_client_id
                     )
-                    hermes_reply = resp_chat.get("reply", "Respuesta recibida.").strip()
+                    cand2 = (resp_chat.get("reply") or "").strip()
+                    if cand2 and not cand2.startswith("[⚠️ Tiempo límite") and not cand2.startswith("[Error"):
+                        hermes_reply = cand2
+
+                # Garantía soberana final: llamada directa al socket IPC local TemporalBrain si aún no hubo respuesta
+                if not hermes_reply:
+                    try:
+                        from core.temporal_brain import get_temporal_brain
+                        tb_direct = get_temporal_brain()
+                        tb_direct_res = tb_direct.chat(
+                            messages=[{"role": "user", "content": model_user_input}],
+                            temperature=0.3,
+                            max_tokens=512
+                        )
+                        if tb_direct_res.get("ok") and tb_direct_res.get("reply"):
+                            hermes_reply = tb_direct_res["reply"].strip()
+                    except Exception as e_tbd:
+                        logger.error(f"Error en respaldo directo TemporalBrain: {e_tbd}")
+
+                if not hermes_reply:
+                    hermes_reply = (
+                        "Un placer, soy TARDIS asistente de inteligencia artificial, mi tarea es ayudarte a explorar "
+                        "las maravillas de la realidad y todas las dimensiones temporales. Mi núcleo de inferencia local "
+                        "acaba de sincronizar tu mensaje; indícame de nuevo tu consulta para desarrollarla a fondo."
+                    )
 
                 # Garantizar que en grupos se dirija al miembro por su nombre sin duplicaciones
                 if is_group and member_name and member_name != "Usuario":
@@ -4498,33 +5338,23 @@ class TelegramBridge:
                 # 1. Enviar de inmediato el texto completo (<1s latencia en grupo)
                 self.send_message(hermes_reply, chat_id=chat_id, reply_to_message_id=msg_id)
 
-                # 2. Despacho multimedia asíncrono para no bloquear el bucle de polling
-                if self.video_mode_always:
-                    def _async_video_dispatch(reply_text: str, cid: Any, mid: Optional[int]):
-                        try:
-                            self.send_reply_with_video(reply_text, chat_id=cid, reply_to_message_id=mid)
-                        except Exception as e_vid:
-                            logger.warning(f"Aviso en despacho asíncrono de video: {e_vid}")
-
-                    threading.Thread(
-                        target=_async_video_dispatch,
-                        args=(hermes_reply, chat_id, msg_id),
-                        daemon=True,
-                        name=f"VideoDispatch_{chat_id}"
-                    ).start()
-                else:
-                    def _async_voice_dispatch(reply_text: str, cid: Any, mid: Optional[int]):
-                        try:
-                            self.send_reply_with_voice(reply_text, chat_id=cid, reply_to_message_id=mid)
-                        except Exception as e_vce:
-                            logger.warning(f"Aviso en despacho asíncrono de voz: {e_vce}")
-
-                    threading.Thread(
-                        target=_async_voice_dispatch,
-                        args=(hermes_reply, chat_id, msg_id),
-                        daemon=True,
-                        name=f"VoiceDispatch_{chat_id}"
-                    ).start()
+                # 2. Despacho multimedia en el propio hilo TGWorker-{up_id} (no bloquea el bucle de polling)
+                # Si hay llamada activa, mensaje de voz entrante o voz forzada, priorizar nota de voz Opus inmediata sin duplicar texto.
+                if is_call_active:
+                    try:
+                        self.send_voice_from_text(
+                            hermes_reply,
+                            chat_id=chat_id,
+                            reply_to_message_id=msg_id,
+                            also_send_text=False,
+                        )
+                    except Exception as e_vce:
+                        logger.warning(f"Aviso en despacho de voz en llamada: {e_vce}")
+                elif self.video_mode_always:
+                    try:
+                        self.send_reply_with_video(hermes_reply, chat_id=chat_id, reply_to_message_id=msg_id)
+                    except Exception as e_vid:
+                        logger.warning(f"Aviso en despacho de video: {e_vid}")
 
         except Exception as e:
             logger.error(f"Error procesando mensaje en Telegram: {e}")

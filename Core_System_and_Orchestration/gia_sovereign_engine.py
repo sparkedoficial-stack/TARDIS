@@ -339,6 +339,12 @@ class SovereignInferenceEngine:
             while True:
                 time.sleep(300)  # Cada 5 minutos
                 try:
+                    # Si TemporalBrain (/tmp/temporal_brain.sock) está activo, mantener vivo únicamente
+                    # el socket IPC CUDA sin despertar un segundo llama-server en CPU vía Ollama (11434).
+                    if _TEMPORAL_BRAIN_ACTIVE:
+                        tb = get_temporal_brain()
+                        if tb.is_running():
+                            continue
                     ep = self.find_working_endpoint()
                     if ep:
                         target = self.resolve_model(self.default_model)
@@ -346,7 +352,7 @@ class SovereignInferenceEngine:
                             "model": target,
                             "messages": [{"role": "user", "content": "ping"}],
                             "stream": False,
-                            "keep_alive": "24h",
+                            "keep_alive": "15m",
                             "options": {"num_predict": 1}
                         }
                         req = urllib.request.Request(
@@ -621,19 +627,27 @@ class SovereignInferenceEngine:
 
         # 0. TIER 0: Temporal Brain (Socket UNIX IPC, Zero Daemon / Serverless)
         if _TEMPORAL_BRAIN_ACTIVE or _LOCAL_RUNNER_ACTIVE:
-            try:
-                local_runner = get_temporal_brain() if _TEMPORAL_BRAIN_ACTIVE else get_sovereign_local_runner()
-                if local_runner.is_serverless_ready(target_model):
-                    self.last_channel_used = "temporal_brain"
-                    yield from local_runner.chat_stream(
-                        unified_msgs,
-                        temperature=temperature,
-                        num_ctx=num_ctx,
-                        cancel_event=cancel_event
-                    )
-                    return
-            except Exception:
-                pass
+            local_runner = get_temporal_brain() if _TEMPORAL_BRAIN_ACTIVE else get_sovereign_local_runner()
+            for _tb_attempt in range(2):
+                try:
+                    if local_runner.is_serverless_ready(target_model):
+                        self.last_channel_used = "temporal_brain"
+                        yielded_any = False
+                        for tok in local_runner.chat_stream(
+                            unified_msgs,
+                            temperature=temperature,
+                            num_ctx=num_ctx,
+                            cancel_event=cancel_event
+                        ):
+                            yielded_any = True
+                            yield tok
+                        if yielded_any:
+                            return
+                except Exception as _tb_err:
+                    if _tb_attempt == 0:
+                        time.sleep(0.8)
+                        continue
+                    logger.warning(f"Aviso en TemporalBrain IPC ({_tb_err}); evaluando respaldo local.")
 
         # 0.5. TIER 0.5: Motor Colibri MoE Ultrarrápido y Soberano (solo si el servidor Colibri está vivo en puerto 8765)
         if _COLIBRI_ACTIVE:

@@ -33,5 +33,12 @@
     "privacy_level": "PUBLIC_TO_EVERYONE",
     "caption_max_chars": 1800,
     "min_gap_sec": 90
+  },
+  "x": {
+    "enabled": true,
+    "publish_downloaded_video": true,
+    "publish_reflection_thread": true,
+    "max_video_duration_sec": 138,
+    "min_gap_sec": 45
   }
 }

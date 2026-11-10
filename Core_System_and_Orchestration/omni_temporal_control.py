@@ -2282,23 +2282,46 @@ def process_hardware_chat_intent(msg: str, is_local_request: bool = False) -> Op
             }
 
         if slash_cmd in ("/agy", "/antigravity"):
+            from core.antigravity_remote_controller import get_remote_controller
+            ctrl = get_remote_controller()
+            raw_agy_prompt = (arg_str or "").strip()
             sub = args[0].lower() if args else "status"
-            if sub in ("status", "estado", "info"):
-                res = HARDWARE.dispatch_action("antigravity_status") if HARDWARE else {}
-                st_label = "🟢 EN EJECUCIÓN" if res.get("running") else "🔴 DETENIDO"
+            if not raw_agy_prompt or sub in ("status", "estado", "info"):
+                res = ctrl.get_gui_status()
+                st_label = "🟢 EN EJECUCIÓN" if res.get("running") else "🟢 TERMINAL CLI ACTIVA"
                 pids_txt = f" (PIDs: {res.get('pids')})" if res.get("pids") else ""
                 fb = (
-                    f"🪐 [GOOGLE ANTIGRAVITY SOBERANO]\n"
-                    f"• Estado: {st_label}{pids_txt}\n"
-                    f"• Ejecutable: `{res.get('snap_binary')}`\n"
-                    f"• Auto-arranque al encender la computadora: ACTIVO (autostart .desktop + linger)\n"
-                    f"• Acceso inalámbrico a la terminal: 24/7 disponible mediante chat (`/sh <cmd>`) o API"
+                    f"🪐 **[GOOGLE ANTIGRAVITY · TERMINAL SOBERANA CONECTADA]**\n"
+                    f"• **Estado:** {st_label}{pids_txt}\n"
+                    f"• **Sesión Activa Vinculada:** `{res.get('target_conversation_id')}`\n"
+                    f"• **Sincronización DB/Brain:** `{'ACTIVA' if res.get('summaries_in_gui_db') else 'LISTA'}`\n"
+                    f"• **Ejecución Directa:** Escribe `/agy <petición>` para actualizar, mejorar, cambiar o crear código y subsistemas directamente desde TARDIS hacia esta terminal Antigravity."
                 )
                 return {"action": "antigravity_status", "executed": True, "direct_return": True, "system_feedback": fb, "raw": res}
-            elif sub in ("start", "open", "abrir", "iniciar", "run"):
-                res = HARDWARE.dispatch_action("antigravity_launch") if HARDWARE else {}
-                fb = f"🪐 [GOOGLE ANTIGRAVITY]: Lanzamiento solicitado en pantalla del sistema (Workspace: GODWORKS SYSTEM)."
-                return {"action": "antigravity_launch", "executed": res.get("ok", False), "direct_return": True, "system_feedback": fb, "raw": res}
+            elif sub in ("start", "open", "abrir", "iniciar", "gui") and len(args) == 1:
+                res = ctrl.open_conversation_in_gui()
+                fb = f"🪐 **[GOOGLE ANTIGRAVITY]**: Ventana sincronizada y abierta en la sesión `{res.get('conversation_id')}`."
+                return {"action": "antigravity_launch", "executed": res.get("ok", True), "direct_return": True, "system_feedback": fb, "raw": res}
+            elif sub in ("sync", "sincronizar") and len(args) == 1:
+                res = ctrl.sync_session()
+                fb = f"🔄 **[GOOGLE ANTIGRAVITY]**: Sesión `{res.get('conversation_id')}` sincronizada con éxito."
+                return {"action": "antigravity_sync", "executed": True, "direct_return": True, "system_feedback": fb, "raw": res}
+            else:
+                exec_res = ctrl.execute_agy_task(raw_agy_prompt, source="omni_cockpit_slash_agy")
+                reply_body = exec_res.get("reply") or exec_res.get("error") or "Tarea procesada."
+                fb = (
+                    f"🪐 **[ANTIGRAVITY TERMINAL · EJECUCIÓN SOBERANA (`/agy`)]**\n"
+                    f"• **Sesión:** `{exec_res.get('conversation_id')}` | **Tiempo:** `{exec_res.get('elapsed', 0)}s`\n"
+                    f"━━━━━━━━━━━━━━━━━━━━━━\n"
+                    f"{reply_body}"
+                )
+                return {
+                    "action": "antigravity_execute",
+                    "executed": exec_res.get("ok", True),
+                    "direct_return": True,
+                    "system_feedback": fb,
+                    "raw": exec_res,
+                }
 
         if slash_cmd in ("/ftl_local", "/ftl-local", "/ftllocal", "/ftllocal"):
             # [TAREA ARQUITECTO :: /FTL-LOCAL] ACCESO LOCAL SOBERANO A FTL (RED LOCAL)
@@ -4164,20 +4187,6 @@ def process_agentic_chat(
             "Opera en tiempo real con alta fidelidad táctica, análisis situacional y precisión técnica."
         )
 
-    # Resonancia Cuántica (MRC): modula el turno según TIC, estado emocional y deriva atmosférica.
-    _mrc = None
-    _mrc_pre: Dict[str, Any] = {}
-    _mrc_session = str(latent_session or client_id or request_id or "omni_app")
-    try:
-        from core.quantum_resonance_module import get_mrc as _get_mrc
-        _mrc = _get_mrc()
-        _mrc_pre = _mrc.pre_turn(message, history=history, session_id=_mrc_session)
-        _mrc_dir = str(_mrc_pre.get("directive") or "")
-        if _mrc_dir:
-            base_sys += f"\n\n{_mrc_dir}"
-    except Exception as _e_mrc:
-        print(f"[MRC] modulación no disponible: {_e_mrc}", flush=True)
-
     messages = [{"role": "system", "content": base_sys}]
 
     # Inyectar espectro electromagnético y ruido binario cuantizado si corresponde
@@ -4463,7 +4472,11 @@ def process_agentic_chat(
 
     out_result = None
     pref = (CFG.get("prefer") or "").lower()
-    force_cloud = pref in ("cloud", "chinese", "deepseek", "siliconflow", "zhipu", "qwen", "groq", "groq_deepseek")
+    # Mandato Soberano del Arquitecto: todas las peticiones y preguntas de chat se responden
+    # SIEMPRE con inferencia local soberana (TARDIS-NEURAL-SPACE-KAIJU / TemporalBrain),
+    # salvo que TARDIS_ALLOW_CLOUD_OFFLOAD=1 esté expresamente habilitado en entorno.
+    allow_cloud = os.environ.get("TARDIS_ALLOW_CLOUD_OFFLOAD", "0").lower() in ("1", "true", "yes")
+    force_cloud = bool(allow_cloud and not is_local_request and pref in ("cloud", "chinese", "deepseek", "siliconflow", "zhipu", "qwen", "groq", "groq_deepseek"))
 
     print(f"[{request_id or 'CHAT'}] Pre-checks finished ({time.time()-t0:.2f}s). Starting TARDIS-NEURAL-SPACE-KAIJU sovereign inference...", flush=True)
 
@@ -4497,8 +4510,7 @@ def process_agentic_chat(
                         "model": target_model,
                         "neural_engine": "TARDIS-NEURAL-SPACE-KAIJU (MLA + SSM + MoE)",
                         "neural_telemetry": kaiju_telemetry,
-                        "orchestration": orch_res.get("orchestration", {}),
-                        "mrc_resonance": orch_res.get("mrc_resonance", {}),
+                        "orchestration": orch_res.get("orchestration", {})
                     }
                     if HAS_MEM:
                         try:
@@ -4587,8 +4599,8 @@ def process_agentic_chat(
             except Exception as err:
                 print(f"[{request_id or 'CHAT'}] Aviso en TARDIS-NEURAL-SPACE-KAIJU: {err}. Evaluando rutas de contingencia...", flush=True)
 
-    # 2. Rutas de Contingencia / Fallback (solo si TARDIS-NEURAL-SPACE-KAIJU no respondió o si se forzó cloud explícitamente)
-    if not out_result and HAS_ECCA and CFG.get("prefer") not in (None, "local", ""):
+    # 2. Rutas de Contingencia / Fallback (solo si TARDIS_ALLOW_CLOUD_OFFLOAD=1 y se forzó cloud explícitamente)
+    if not out_result and allow_cloud and HAS_ECCA and CFG.get("prefer") not in (None, "local", ""):
         try:
             sys_text = "\n\n".join(m["content"] for m in messages if m.get("role") == "system")
             conv = [m for m in messages if m.get("role") in ("user", "assistant")]
@@ -4614,13 +4626,39 @@ def process_agentic_chat(
         except Exception:
             pass
 
-    # 2.5. Contingencia Cloud API (Groq / DeepSeek / Qwen)
+    # 2.5. Contingencia Local Directa vía TemporalBrain (100% Inferencia Local Soberana)
     if not out_result:
+        try:
+            from core.temporal_brain import get_temporal_brain
+            tb = get_temporal_brain()
+            tb_res = tb.chat(messages, temperature=float(temperature), max_tokens=900)
+            if tb_res.get("ok") and tb_res.get("reply"):
+                reply_tb = tb_res["reply"].strip()
+                if HAS_MEM:
+                    try:
+                        _mem.log("app", "assistant", reply_tb, session_id="omni_app", meta={"provider": "temporal_brain"})
+                    except Exception:
+                        pass
+                out_result = {
+                    "ok": True,
+                    "reply": reply_tb,
+                    "web_sources": web_used,
+                    "provider": "temporal_brain",
+                    "model": target_model,
+                    "node": "temporal_brain_ipc",
+                    "neural_engine": "TARDIS-NEURAL-SPACE-KAIJU (MLA + SSM + MoE)",
+                    "neural_telemetry": kaiju_telemetry,
+                }
+        except Exception:
+            pass
+
+    # 2.6. Contingencia Cloud API (SOLO si TARDIS_ALLOW_CLOUD_OFFLOAD=1 está expresamente activo)
+    if not out_result and allow_cloud:
         try:
             from core.chinese_cloud_api import get_chinese_cloud_api
             chn_api = get_chinese_cloud_api()
             chn_st = chn_api.get_status()
-            should_use_cloud_api = chn_st.get("enabled", False) and chn_st.get("has_key", False) and (force_cloud or not out_result)
+            should_use_cloud_api = chn_st.get("enabled", False) and chn_st.get("has_key", False) and force_cloud
             if should_use_cloud_api:
                 print(f"[{request_id or 'CHAT'}] Contingencia Cloud API: delegando a ({chn_st.get('active_provider')} - {chn_st.get('active_model')})...", flush=True)
                 chn_res = chn_api.chat_completion(messages)
@@ -4860,19 +4898,6 @@ def process_agentic_chat(
             _voice.speak_async(reply_txt)
         except Exception:
             pass
-
-    # Resonancia Cuántica (MRC): impacto medido del turno (coherencia de fase, latencia, profundidad).
-    if _mrc is not None and not out_result.get("mrc_resonance"):
-        try:
-            out_result["mrc_resonance"] = _mrc.post_turn(
-                session_id=_mrc_session,
-                user_message=message,
-                assistant_reply=reply_txt,
-                latency_s=time.time() - t0,
-                history=history,
-            )
-        except Exception as _e_mrc_post:
-            print(f"[MRC] medición de impacto no disponible: {_e_mrc_post}", flush=True)
 
     out_result["user_emotion"] = user_emotion
     print(f"[{request_id or 'CHAT'}] Completed in {time.time()-t0:.2f}s", flush=True)

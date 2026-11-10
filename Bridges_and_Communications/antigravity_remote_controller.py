@@ -30,7 +30,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 # Rutas estándar de Antigravity
-CURRENT_CONVERSATION_ID = "2425f3ac-4fb8-427e-9232-388ebcc90c19"
+CURRENT_CONVERSATION_ID = "2bb8cf84-048a-4fc3-b979-04b2bf2304ba"
 DEFAULT_WORKSPACE = "/home/timemachine"
 ALT_WORKSPACE = "/home/timemachine/Escritorio/GODWORKS SYSTEM"
 
@@ -40,19 +40,63 @@ APP_STORAGE_FILE = HOME / ".config" / "Antigravity" / "app_storage.json"
 
 CLI_DIR = HOME / ".gemini" / "antigravity-cli"
 GUI_DIR = HOME / ".gemini" / "antigravity"
+BRIDGE_DIR = Path(__file__).resolve().parent.parent / "data" / "antigravity_bridge"
+ACTIVE_TERMINAL_FILE = BRIDGE_DIR / "active_terminal.json"
+TERMINAL_REQUESTS_LOG = BRIDGE_DIR / "terminal_requests.jsonl"
+LIVE_DIALOGUE_LOG = BRIDGE_DIR / "live_dialogue.jsonl"
 
 CLI_SUMMARIES_DB = CLI_DIR / "conversation_summaries.db"
 GUI_SUMMARIES_DB = GUI_DIR / "conversation_summaries.db"
 
 SNAP_BINARY = "/snap/bin/antigravity"
 SAFE_LAUNCHER = HOME / ".local" / "bin" / "start_antigravity_safe.sh"
+AGY_CLI_BIN = HOME / ".local" / "bin" / "agy"
+
+
+def resolve_active_conversation_id(default_cid: str = CURRENT_CONVERSATION_ID) -> str:
+    """Resuelve dinámicamente el ID de la sesión de terminal Antigravity activa."""
+    if ACTIVE_TERMINAL_FILE.is_file():
+        try:
+            data = json.loads(ACTIVE_TERMINAL_FILE.read_text(encoding="utf-8"))
+            cid = data.get("conversation_id")
+            if cid and (CLI_DIR / "conversations" / f"{cid}.db").is_file():
+                return cid
+        except Exception:
+            pass
+    if (CLI_DIR / "conversations" / f"{default_cid}.db").is_file():
+        return default_cid
+    conv_dir = CLI_DIR / "conversations"
+    if conv_dir.is_dir():
+        dbs = sorted(conv_dir.glob("*.db"), key=lambda p: p.stat().st_mtime, reverse=True)
+        if dbs:
+            return dbs[0].stem
+    return default_cid
 
 
 class AntigravityRemoteController:
     """Controlador y puente remoto de la aplicación Antigravity GUI."""
 
-    def __init__(self, target_conversation_id: str = CURRENT_CONVERSATION_ID):
-        self.target_conversation_id = target_conversation_id
+    def __init__(self, target_conversation_id: Optional[str] = None):
+        self.target_conversation_id = target_conversation_id or resolve_active_conversation_id()
+        self._register_active_terminal()
+
+    def _register_active_terminal(self) -> None:
+        """Persiste el vínculo entre esta terminal Antigravity y el sistema TARDIS."""
+        try:
+            BRIDGE_DIR.mkdir(parents=True, exist_ok=True)
+            payload = {
+                "conversation_id": self.target_conversation_id,
+                "workspace": DEFAULT_WORKSPACE,
+                "alt_workspace": ALT_WORKSPACE,
+                "agy_bin": str(AGY_CLI_BIN),
+                "brain_dir": str(CLI_DIR / "brain" / self.target_conversation_id),
+                "transcript_jsonl": str(CLI_DIR / "brain" / self.target_conversation_id / ".system_generated" / "logs" / "transcript.jsonl"),
+                "updated_at": datetime.datetime.now().isoformat(),
+                "status": "CONNECTED_ACTIVE",
+            }
+            ACTIVE_TERMINAL_FILE.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+        except Exception:
+            pass
 
     def get_devtools_info(self) -> Optional[Dict[str, Any]]:
         """Lee el puerto activo y la ruta expuesta por Electron en DevToolsActivePort."""
@@ -447,6 +491,139 @@ class AntigravityRemoteController:
         except Exception as e:
             return {"ok": False, "error": str(e)}
 
+    def execute_agy_task(
+        self,
+        prompt: str,
+        cwd: Optional[str] = None,
+        timeout: int = 900,
+        sync_gui: bool = True,
+        source: str = "tardis_slash_agy",
+    ) -> Dict[str, Any]:
+        """
+        Ejecuta una petición directa (/agy <petición>) desde TARDIS (Web Cockpit, Telegram,
+        FTL o Agentes Autónomos) hacia Antigravity CLI en Modo Ultra Autónomo, sincronizando
+        el estado con la sesión activa de esta terminal (2bb8cf84-048a-4fc3-b979-04b2bf2304ba).
+        """
+        clean_prompt = (prompt or "").strip()
+        if not clean_prompt:
+            return {"ok": False, "error": "Petición vacía para /agy."}
+
+        work_dir = cwd or ALT_WORKSPACE
+        if not os.path.isdir(work_dir):
+            work_dir = DEFAULT_WORKSPACE
+
+        t0 = time.time()
+        BRIDGE_DIR.mkdir(parents=True, exist_ok=True)
+        req_id = f"agy_{int(t0 * 1000)}"
+
+        # 1. Registrar petición entrante en el puente con la terminal activa
+        req_entry = {
+            "request_id": req_id,
+            "conversation_id": self.target_conversation_id,
+            "source": source,
+            "cwd": work_dir,
+            "prompt": clean_prompt,
+            "timestamp": t0,
+            "iso": datetime.datetime.now().isoformat(),
+            "status": "STARTED",
+        }
+        try:
+            with open(TERMINAL_REQUESTS_LOG, "a", encoding="utf-8") as f:
+                f.write(json.dumps(req_entry, ensure_ascii=False) + "\n")
+            with open(LIVE_DIALOGUE_LOG, "a", encoding="utf-8") as f:
+                f.write(json.dumps({"ts": t0, "role": "user", "source": source, "content": f"/agy {clean_prompt}"}, ensure_ascii=False) + "\n")
+        except Exception:
+            pass
+
+        # 2. Ejecutar mediante agy CLI en Modo Ultra (--effort high --dangerously-skip-permissions)
+        env = os.environ.copy()
+        env["PATH"] = f"{HOME / '.local' / 'bin'}:{HOME / '.opencode' / 'bin'}:/usr/local/bin:/usr/bin:/bin:{env.get('PATH', '')}"
+        env["AGY_MODE"] = "ultra"
+        env["AGY_VERBOSITY"] = "high"
+        env["AGY_KERNEL_LEVEL"] = "1"
+        env["FTL_AUTONOMOUS"] = "1"
+        env["PYTHONUNBUFFERED"] = "1"
+
+        agy_bin = str(AGY_CLI_BIN) if AGY_CLI_BIN.is_file() else "/home/timemachine/.local/bin/agy"
+        cmd = [agy_bin, "--mode", "auto", "--effort", "high", "--dangerously-skip-permissions", "-p", clean_prompt]
+
+        try:
+            proc = subprocess.run(
+                cmd,
+                cwd=work_dir,
+                env=env,
+                stdin=subprocess.DEVNULL,
+                capture_output=True,
+                text=True,
+                timeout=timeout,
+                start_new_session=True,
+            )
+            elapsed = round(time.time() - t0, 2)
+            stdout_clean = (proc.stdout or "").strip()
+            stderr_clean = (proc.stderr or "").strip()
+            reply = stdout_clean if stdout_clean else stderr_clean
+            ok = proc.returncode == 0 and bool(reply)
+
+            # Si agy-real devolvió error de cuota/red, fallback automático a FTL / TemporalBrain
+            if not ok:
+                try:
+                    from core.temporal_brain import get_temporal_brain
+                    tb_res = get_temporal_brain().chat(
+                        [{"role": "user", "content": f"[TAREA /AGY EN TERMINAL SOBERANA]: {clean_prompt}"}],
+                        max_tokens=2048,
+                    )
+                    if tb_res.get("ok") and tb_res.get("reply"):
+                        reply = f"{tb_res['reply']}\n\n[⚡ Resuelto con respaldo de Núcleo Soberano Temporal Brain]"
+                        ok = True
+                except Exception:
+                    pass
+
+            if sync_gui:
+                try:
+                    self.sync_session(self.target_conversation_id)
+                except Exception:
+                    pass
+
+            try:
+                with open(LIVE_DIALOGUE_LOG, "a", encoding="utf-8") as f:
+                    f.write(json.dumps({
+                        "ts": time.time(),
+                        "role": "assistant",
+                        "source": "antigravity_terminal",
+                        "conversation_id": self.target_conversation_id,
+                        "request_id": req_id,
+                        "elapsed": elapsed,
+                        "content": reply[:8000],
+                    }, ensure_ascii=False) + "\n")
+            except Exception:
+                pass
+
+            return {
+                "ok": ok,
+                "request_id": req_id,
+                "conversation_id": self.target_conversation_id,
+                "cwd": work_dir,
+                "returncode": proc.returncode,
+                "elapsed": elapsed,
+                "reply": reply,
+            }
+        except subprocess.TimeoutExpired:
+            return {
+                "ok": False,
+                "request_id": req_id,
+                "conversation_id": self.target_conversation_id,
+                "error": f"Timeout ({timeout}s) ejecutando petición en Antigravity.",
+                "elapsed": round(time.time() - t0, 2),
+            }
+        except Exception as e:
+            return {
+                "ok": False,
+                "request_id": req_id,
+                "conversation_id": self.target_conversation_id,
+                "error": str(e),
+                "elapsed": round(time.time() - t0, 2),
+            }
+
 
 _GLOBAL_CONTROLLER: Optional[AntigravityRemoteController] = None
 
@@ -477,5 +654,13 @@ if __name__ == "__main__":
             sys.exit(1)
         text = " ".join(sys.argv[2:])
         print(json.dumps(ctrl.inject_prompt_in_gui(text), indent=2))
+    elif cmd in ("exec", "run", "task"):
+        if len(sys.argv) < 3:
+            print("Uso: python -m core.antigravity_remote_controller exec <petición>")
+            sys.exit(1)
+        text = " ".join(sys.argv[2:])
+        print(json.dumps(ctrl.execute_agy_task(text, source="cli_direct"), indent=2, ensure_ascii=False))
     else:
-        print("Comandos disponibles: status | sync [cid] | open [cid] | prompt <texto>")
+        # Si se pasa texto directo, ejecutar como tarea Antigravity
+        text = " ".join(sys.argv[1:])
+        print(json.dumps(ctrl.execute_agy_task(text, source="cli_direct"), indent=2, ensure_ascii=False))

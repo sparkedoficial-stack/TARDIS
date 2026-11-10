@@ -440,20 +440,26 @@ def dispatch_unified_command(cmd_name: str, args_list: list[str] = None) -> bool
         console.print("[bold yellow]Modo cambiado a: DUAL-AUDIT (Auditoría Cruzada Soberana)[/bold yellow]")
         return True
 
-    elif cmd in ("gemini", "agy"):
+    elif cmd in ("gemini", "agy", "antigravity"):
         ui.mode = "gemini"
         if args:
-            arg = args[0]
-            try:
-                registry.validate_model_override(arg, "google")
-                cfg = load_config()
-                cfg["google_model_override"] = arg
-                save_config(cfg)
-                console.print(f"[bold cyan]Modo fijado a GEMINI con modelo validado: {arg}[/bold cyan]")
-            except ValueError as err:
-                console.print(f"[bold red]{str(err)}[/bold red]")
+            if len(args) == 1:
+                arg = args[0]
+                try:
+                    registry.validate_model_override(arg, "google")
+                    cfg = load_config()
+                    cfg["google_model_override"] = arg
+                    save_config(cfg)
+                    console.print(f"[bold cyan]Modo fijado a GEMINI/AGY con modelo validado: {arg}[/bold cyan]")
+                    return True
+                except ValueError:
+                    pass
+            # Petición directa escrita tras /agy <petición> -> ejecutar directamente en Antigravity
+            direct_prompt = " ".join(args).strip()
+            console.print(f"[bold cyan]🪐 Ejecutando petición directa en Antigravity (/agy):[/bold cyan] {direct_prompt}")
+            engine.process_turn(direct_prompt, mode="gemini")
         else:
-            console.print("[bold cyan]Modo fijado a: GEMINI (Motor Google Frontier en High Effort)[/bold cyan]")
+            console.print("[bold cyan]Modo fijado a: AGY / GEMINI (Motor Antigravity Conectado a TARDIS)[/bold cyan]")
         return True
 
     elif cmd == "claude":

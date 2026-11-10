@@ -12,9 +12,9 @@ export AGY_KERNEL_LEVEL="1"
 export KERNEL_OPERATIONS="1"
 export FTL_AUTONOMOUS="1"
 
-REAL_AGY="/home/timemachine/.local/bin/agy"
+REAL_AGY="/home/timemachine/.local/bin/agy-real"
 if [[ ! -x "$REAL_AGY" ]]; then
-    REAL_AGY="/home/timemachine/.local/bin/agy-real"
+    REAL_AGY="/home/timemachine/.local/bin/agy"
 fi
 
 if [[ ! -x "$REAL_AGY" ]]; then

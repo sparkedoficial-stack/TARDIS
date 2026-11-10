@@ -88,11 +88,14 @@ Automatizaciones de sistema, diagnósticos de hardware, optimizadores de SO y he
 - **test_rf_3d_tomography.py**: Componente de alta eficiencia.
 - **test_rf_surveillance_proximity.py**: Componente de alta eficiencia.
 - **test_scientific_research_engine.py**: Componente de alta eficiencia.
+- **test_scp_conceptual_suite.py**: Componente de alta eficiencia.
 - **test_screen_unlock_uinput.py**: Componente de alta eficiencia.
 - **test_sovereign_autoprovision.py**: Componente de alta eficiencia.
+- **test_tapo_c310_sentinel.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
 - **test_tardis_animations.py**: Componente de alta eficiencia.
 - **test_tardis_audio_enforcement.py**: Procesamiento de señal de audio y síntesis vocal biométrica.
 - **test_tardis_bridge.py**: Componente de alta eficiencia.
+- **test_tardis_dwell_vigilance.py**: Componente de alta eficiencia.
 - **test_tardis_dynamic_function_engine.py**: Componente de alta eficiencia.
 - **test_tardis_identity_no_version.py**: Componente de alta eficiencia.
 - **test_tardis_social.py**: Componente de alta eficiencia.

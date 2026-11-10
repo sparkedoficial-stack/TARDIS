@@ -125,15 +125,21 @@ class TardisOmniToolBridge:
                 "description": "Función soberana /SOCIAL integrada con /VideoPensante: compone la leyenda con conclusiones y hashtags, genera la tarjeta MP4 vertical 720x1280 de conclusiones cognitivas y publica en TikTok (OAuth oficial, Content Posting API v2) el video descargado a la bóveda y sus abstracciones. Cola persistente cuando no hay credenciales y filtro Constante AEGIS contra información privada.",
                 "actions": ["status", "history", "retry", "latest", "publish", "card", "backfill", "auth-url", "exchange", "refresh", "enable", "disable"]
             },
-            "quantum_resonance": {
-                "name": "MRC · Módulo de Resonancia Cuántica",
-                "binary": str(PROJECT_ROOT / "bin" / "mrc"),
-                "module": "core.quantum_resonance_module",
-                "module_file": str(PROJECT_ROOT / "core" / "quantum_resonance_module.py"),
-                "dispatch": "cli",
-                "domain": "cognitive_resonance",
-                "description": "Motor de resonancia conversacional: TIC (telemetría de impacto cognitivo sobre turnos reales), SSE (sincronización de estado emocional desde sensores atmosféricos y de presencia) y Memoria de Sueños (síntesis onírica de la bóveda akáshica). Modula tono, profundidad y longitud de cada respuesta de TARDIS.",
-                "actions": ["status", "tic", "sse", "dream", "cycle", "report", "prompt", "selftest"]
+            "x_tardis_agent": {
+                "name": "TARDIS X.com External Local AI Agent",
+                "module": "modulos_ftl.tardis_browser_engine",
+                "domain": "social_x_autonomy",
+                "description": "Agente de análisis, reflexión, publicación de bases científicas y contestación de comentarios en X.com bajo la cuenta del usuario, presentándose siempre de forma explícita como TARDIS (IA externa local) con blindaje AEGIS.",
+                "actions": ["x-feed", "x-post", "x-reply", "x-reflect", "x-publish-science", "x-answer-comments"]
+            },
+            "omniscient_autonomy": {
+                "name": "TARDIS Omniscient Autonomy Engine (Aprendizaje Total, Ciencia, Comentarios/Chat y Auto-Mejora 24/7)",
+                "binary": str(HOME_DIR / ".local" / "bin" / "tardis-omniscient"),
+                "module": "modulos_ftl.ftl_omniscient_autonomy",
+                "module_file": "/home/timemachine/modulos_ftl/ftl_omniscient_autonomy.py",
+                "domain": "omniscient_continuous_learning",
+                "description": "Motor 24/7 que aprende de todo todo el tiempo (arXiv, OpenAlex, Europe PMC, web), sube sus conocimientos y bases científicas a X.com, contesta comentarios a sus publicaciones y en el chat, e investiga continuamente cómo mejorarse a sí mismo y mejorar la tecnología que lo rodea.",
+                "actions": ["status", "learn", "evolve-tech", "publish", "answer", "run-cycle", "daemon"]
             }
         }
         self._register_in_dynamic_registry()

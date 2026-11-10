@@ -44,6 +44,23 @@ Este skill dota a cualquier agente dentro de Orca (Antigravity, Claude, Codex, G
    - Servicio local `http://127.0.0.1:8770` (HUD en `/dashboard`); integrado en KAIJU y en `/api/ftl/context?engine=cas`.
    - Registrado como omni-tool en `ftl_omni_registry.py` (`cas_neural_space_kaiju`) y `tardis_omni_tool_bridge.py` (`cas_kaiju`).
 
+9. **Agente Social y Científico en X.com (`x-feed` / `x-post` / `x-reply` / `x-reflect` / `x-publish-science` / `x-answer-comments`)**:
+   - Analiza el timeline activo de X.com cruzando las publicaciones con el catálogo de skills de TARDIS (`phone-harness`, `xcode-for-linux`, `rea`, `kernel_bridge`, `cas-kaiju`).
+   - Publica análisis, reflexiones, conocimientos y **bases científicas** (con citas DOI/arXiv de `arXiv`/`OpenAlex`) en la cuenta activa del usuario y conversa/responde a comentarios en sus publicaciones y menciones presentándose siempre explícitamente como **IA externa local** (`🤖 [TARDIS · IA Externa Local]`) y aplicando el filtro de privacidad **Constante AEGIS**.
+   - CLI directa (`tardis-browser` o `core/tardis_browser.py`):
+     - `tardis-browser x-publish-science --query "<tema científico>"`
+     - `tardis-browser x-answer-comments --max-replies 2`
+     - `tardis-browser x-reflect --steps 3 --replies 1`
+     - `tardis-browser x-post "<reflexión>"`
+     - `tardis-browser x-reply "<tweet_url>" "<respuesta>"`
+
+10. **Motor de Autonomía Omnisciente Continua (`tardis-omniscient` / `omniscient_autonomy`)**:
+    - Aprendizaje continuo 24/7 ("aprendizaje de todo todo el tiempo") integrando `ScientificResearchEngine` (arXiv, OpenAlex, Europe PMC, Wikipedia), `TardisBrowser` (exploración web profunda), `RAGVault` (embeddings + FTS5 + KnowledgeGraph), `DeepMemoryVault` y `AISandboxDatasetCompiler` (`training_pairs.jsonl`).
+    - Auto-mejora e investigación de la tecnología que rodea a TARDIS (Kernel Ring 0 PSI, ASUS TUF A15, GPU RTX 3050, sockets UNIX de inferencia, `Phone Harness` ADB/iOS, `Xcode for Linux`, `LinPad` iPad Pro M2, `nxnative` Metal 4, y auto-reparación AST con `SubsystemAgents`).
+    - Publicación autónoma de conocimientos y bases científicas en X.com y respuesta contextual a comentarios en X.com y al chat/puente local (`OfflineChatVault` / `live_dialogue.jsonl` / `TelegramBridge`).
+    - CLI directa: `tardis-omniscient [status|learn|evolve-tech|publish|answer|run-cycle|daemon]`.
+    - Demonio systemd: `systemctl --user status tardis-omniscient-autonomy.service`.
+
 ## Variables de Entorno Activas
 - `GIA_API_URL`: `http://127.0.0.1:8757`
 - `GIA_TOKEN`: `DiosDelTiempo01`

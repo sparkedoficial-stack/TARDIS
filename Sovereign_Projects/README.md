@@ -89,6 +89,14 @@ Proyectos satélite y sistemas autónomos completos (TARDIS Price Sentinel, AirP
 - **gia_ios_app/Package.swift**: Componente nativo iOS/SwiftUI de la aplicación móvil GIA.
 - **tardis-price-sentinel/config.json**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
 - **tardis-price-sentinel/core/__init__.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **tardis-price-sentinel/core/__pycache__/__init__.cpython-314.pyc**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **tardis-price-sentinel/core/__pycache__/banking.cpython-314.pyc**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **tardis-price-sentinel/core/__pycache__/cart_resolver.cpython-314.pyc**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **tardis-price-sentinel/core/__pycache__/detector.cpython-314.pyc**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **tardis-price-sentinel/core/__pycache__/models.cpython-314.pyc**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **tardis-price-sentinel/core/__pycache__/notifier.cpython-314.pyc**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **tardis-price-sentinel/core/__pycache__/storage.cpython-314.pyc**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **tardis-price-sentinel/core/__pycache__/validity.cpython-314.pyc**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
 - **tardis-price-sentinel/core/banking.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
 - **tardis-price-sentinel/core/cart_resolver.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
 - **tardis-price-sentinel/core/detector.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
@@ -96,14 +104,23 @@ Proyectos satélite y sistemas autónomos completos (TARDIS Price Sentinel, AirP
 - **tardis-price-sentinel/core/notifier.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
 - **tardis-price-sentinel/core/storage.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
 - **tardis-price-sentinel/core/validity.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **tardis-price-sentinel/deals.db**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
 - **tardis-price-sentinel/launch_gui.sh**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
 - **tardis-price-sentinel/scrapers/__init__.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **tardis-price-sentinel/scrapers/__pycache__/__init__.cpython-314.pyc**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **tardis-price-sentinel/scrapers/__pycache__/aggregator.cpython-314.pyc**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **tardis-price-sentinel/scrapers/__pycache__/base.cpython-314.pyc**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **tardis-price-sentinel/scrapers/__pycache__/liquidaciones.cpython-314.pyc**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **tardis-price-sentinel/scrapers/__pycache__/mercadolibre.cpython-314.pyc**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **tardis-price-sentinel/scrapers/__pycache__/promodescuentos.cpython-314.pyc**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
 - **tardis-price-sentinel/scrapers/aggregator.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
 - **tardis-price-sentinel/scrapers/base.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
 - **tardis-price-sentinel/scrapers/liquidaciones.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
 - **tardis-price-sentinel/scrapers/mercadolibre.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
 - **tardis-price-sentinel/scrapers/promodescuentos.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
 - **tardis-price-sentinel/sentinel/__init__.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **tardis-price-sentinel/sentinel/__pycache__/__init__.cpython-314.pyc**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **tardis-price-sentinel/sentinel/__pycache__/daemon.cpython-314.pyc**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
 - **tardis-price-sentinel/sentinel/daemon.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
 - **tardis-price-sentinel/tardis_deals_gui.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
 - **tardis-price-sentinel/tardis_hunter.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
@@ -112,6 +129,8 @@ Proyectos satélite y sistemas autónomos completos (TARDIS Price Sentinel, AirP
 - **tardis-price-sentinel/tests/test_storage.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
 - **tardis-price-sentinel/tests/test_validity.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
 - **tardis-price-sentinel/web/__init__.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **tardis-price-sentinel/web/__pycache__/__init__.cpython-314.pyc**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **tardis-price-sentinel/web/__pycache__/app.cpython-314.pyc**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
 - **tardis-price-sentinel/web/app.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
 - **tardis-price-sentinel/web/static/app.js**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
 - **tardis-price-sentinel/web/static/index.html**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.

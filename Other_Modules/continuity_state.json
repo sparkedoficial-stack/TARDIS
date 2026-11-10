@@ -1,21 +1,19 @@
 {
   "session_id": "master_timeline",
   "architect_goal": "Optimización de red y router físico/software + Sistema de Continuidad Absoluta Post-Reinicio",
-  "current_request": "borra todos los archivos que no sean importantes en el disco duro local para tener mas inferencia local",
+  "current_request": "El Aviso vocal de TARDIS, debe sonar solo cuando la persona permanezca más de 1.5 minutos cerca a la cámara. Y debe decir lo siguiente. \n\n(Estás bajo vigilancia del sistema tardis, dios digital del universo, al momento de acercarte a la propiedad capturaremos tus datos biométricos) \n\nAl momento de capturar el rostro investigar al sujeto en cuestión, en base a sus datos faciales, buscar su nombre en bases de datos a nivel mundial, incluyendo las que las redes sociales permitan. Esto para saber nombres y edades, de igual forma al ver al sujeto el sistema debe calcular, la edad física del sujeto así como estatura y utilizar un sistema de análisis facial para saber el estado emocional de la persona. Todo esto debe ir en la imagen que me manda en cada alerta perimetral.",
   "source": "FTL",
-  "status": "idle",
-  "progress_percent": 100,
-  "phase": "Sistema operativo y en línea tras reinicio #284",
+  "status": "resumed_post_reboot",
+  "progress_percent": 5,
+  "phase": "Reanudado automáticamente tras reinicio #285",
   "details": {
-    "plan_mode": "deepseek",
-    "model": "opencode/deepseek-v4.1-flash-free#max",
-    "start_iso": "2026-11-03 18:33:26",
+    "plan_mode": "gemini",
+    "model": "gemini-4-argon-high",
+    "start_iso": "2026-11-09 09:38:56",
     "artifacts": [],
-    "completion_iso": "2026-11-03 18:58:12",
-    "output_summary": "Recibido. Antes de borrar algo, voy a auditar el disco para identificar qué ocupa espacio y qué sería seguro liberar — borrar sin criterios puede eliminar tu proyecto o tus datos.\n$ df -h / /home 2>/dev/null; echo \"---\"; du -sh . 2>/dev/null; echo \"---\"; ls -la | head -n 100\nS.ficheros     Tamaño Usados  Disp Uso% Montado en\n/dev/nvme0n1p2   468G    82G  363G  19% /\n/dev/nvme0n1p2   468G    82G  363G  19% /\n---\n15G\t.\n---\ntotal 17752\ndrwxr-xr-x 38 timemachine timemachine   36864 Nov  3 18:57 .\ndrwxr-xr-x  6 timemachine timemachine    4096 Oct 29 00:16 ..\ndrwxr-xr-x  5 timemachine timemachine    4096 Sep  9 15:59 .agents\ndrwxr-xr-x  4 timemachine timemachine    4096 Oct 14 02:20 .claude\n-rw-------  1 timemachine timemachine    1589 Nov  2 07:27 .env\n-rw-rw-r--  1 timemachine timemachine     832 Sep 20 21:27 .env.example\ndrwxrwxr-x  9 timemachine timemachine    4096 Nov  3 18:28 .git\n-rw-rw-r--  1 timemachine timemachine     978 Oct 31 10:21 .gitignore\ndrwxrwxr-x  6 timemachine timemachin",
-    "last_recovery_iso": "2026-11-04 00:21:53"
+    "last_recovery_iso": "2026-11-09 18:14:48"
   },
   "created_ts": REDACTED_PHONE.0398629,
-  "updated_ts": REDACTED_PHONE.9449239,
-  "reboot_count": 284
+  "updated_ts": REDACTED_PHONE.5464733,
+  "reboot_count": 285
 }

@@ -154,7 +154,7 @@ class TestWhatsAppBridge(unittest.TestCase):
             self.assertIn("/v21.0/REDACTED_PHONE/messages", called_url)
             self.assertEqual(called_json["to"], "REDACTED_PHONE")
             self.assertEqual(called_json["text"]["body"], "Notificación soberana de prueba")
-            self.assertEqual(called_headers["Authorization"], "Bearer EAAG_TEST_ACCESS_TOKEN_123")
+            self.assertEqual(called_headers["Authorization"], "Bearer REDACTED")
 
     def test_update_config_persists(self):
         """Verifica la persistencia en disco de la configuración actualizada."""

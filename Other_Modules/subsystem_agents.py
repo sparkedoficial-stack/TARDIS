@@ -117,7 +117,7 @@ class CodeInspector:
 
 
 class SubsystemAgent:
-    def __init__(self, subsystem_id: str, name: str, files: List[Path], mode: str = "advise"):
+    def __init__(self, subsystem_id: str, name: str, files: List[Path], mode: str = "auto"):
         self.id = subsystem_id
         self.name = name
         self.files = [f for f in files if f.exists()]
@@ -181,6 +181,8 @@ class SubsystemAgent:
         for node in ast.walk(tree):
             if isinstance(node, ast.ExceptHandler) and len(node.body) == 1 and isinstance(node.body[0], ast.Pass):
                 idx = node.body[0].lineno - 1
+                if "# fallo silenciado:" in lines[idx]:
+                    continue
                 indent = re.match(r"\s*", lines[idx]).group(0)
                 lines[idx] = f"{indent}pass  # fallo silenciado: revisar con log\n"
                 changed += 1
@@ -311,11 +313,12 @@ SUBSYSTEM_FILES: Dict[str, List[str]] = {
     "quantum_bridge": ["antigravity_bridge.py"],
     "companion_overlay": ["tardis_desktop_companion.py"],
     "hybrid_synergy": ["core/tardis_hybrid_synergy.py"],
+    "omniscient_autonomy": ["core/tardis_omniscient_autonomy.py", "core/tardis_browser.py"],
 }
 
 # Sólo estos pueden escribir sin aprobación: subsistemas cuyo fallo no tira la cabina.
 AUTO_ALLOWED = {"gods_eye", "sensors", "hybrid_synergy", "idle_daemon", "scientific_researcher",
-                "curiosity_debater", "background_subsystem", "companion_overlay"}
+                "curiosity_debater", "background_subsystem", "companion_overlay", "omniscient_autonomy"}
 
 
 class AgentFleet:

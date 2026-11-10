@@ -317,7 +317,7 @@ class TardisVideoThinkingEngine:
                 '  "search_queries": ["<query_en_ingles_1>", "<query_en_ingles_2>"]\n'
                 "}"
             )
-            res = orch.orchestrate_chat_turn(message=prompt, session_id="tardis_video_curiosity", force_offload=True)
+            res = orch.orchestrate_chat_turn(message=prompt, session_id="tardis_video_curiosity", force_offload=False)
             txt = res.get("response", "").strip()
             # Extraer bloque JSON
             match = re.search(r"\{.*\}", txt, re.DOTALL)
@@ -381,13 +381,9 @@ class TardisVideoThinkingEngine:
                     search_res = ydl.extract_info(f"ytsearch8:{q}", download=False)
                     entries = search_res.get("entries", []) or []
 
-                    # Filtrar por duración: preferir videos entre 30 y 360 segundos (<= 6 minutos)
-                    candidates = []
-                    for e in entries:
-                        dur = e.get("duration") or 0
-                        # Permitir videos si tienen duración razonable
-                        if 20 <= dur <= 420:
-                            candidates.append(e)
+                    # Filtrar por duración: priorizar videos íntegros compatibles con X.com (20s-138s), luego <= 420s
+                    x_optimal = [e for e in entries if 20 <= (e.get("duration") or 0) <= 138]
+                    candidates = x_optimal or [e for e in entries if 20 <= (e.get("duration") or 0) <= 420]
 
                     if candidates:
                         selected_entry = candidates[0]
@@ -614,7 +610,7 @@ class TardisVideoThinkingEngine:
                 '  "next_questions": ["<pregunta abierta 1>", "<pregunta abierta 2>"]\n'
                 "}"
             )
-            res = orch.orchestrate_chat_turn(message=prompt, session_id="video_abstraction_synth", force_offload=True)
+            res = orch.orchestrate_chat_turn(message=prompt, session_id="video_abstraction_synth", force_offload=False)
             txt = res.get("response", "").strip()
             match = re.search(r"\{.*\}", txt, re.DOTALL)
             if match:
@@ -763,18 +759,19 @@ class TardisVideoThinkingEngine:
             logger.warning(f"Aviso despachando a Telegram: {e_tg}")
             results["error"] = str(e_tg)
 
-        # 3. Función /SOCIAL: publica el video descargado y sus conclusiones en las redes
+        # 3. Función /SOCIAL: publica el video descargado y sus reflexiones/conclusiones en X.com y TikTok
         try:
             from core.tardis_social_engine import get_social_engine
             se = get_social_engine()
             if se.cfg.get("enabled") and se.cfg.get("auto_on_new_cycles", True):
-                rep_social = se.publish_record(rec, item="all")
+                rep_social = se.publish_record(rec, item="all", platform="auto")
                 for social_item, res_s in rep_social.get("results", {}).items():
                     status = res_s.get("status", "")
+                    plat_tag = "x" if social_item == "x_video" else "tiktok"
                     if status == "published":
-                        rec.dispatched_chats.append(f"social:tiktok:{res_s.get('publish_id')}")
+                        rec.dispatched_chats.append(f"social:{plat_tag}:{res_s.get('publish_id')}")
                     elif status == "pending":
-                        rec.dispatched_chats.append(f"social:tiktok-pending:{social_item}")
+                        rec.dispatched_chats.append(f"social:{plat_tag}-pending:{social_item}")
                 # Persistir los destinos sociales en la memoria de abstracción
                 with sqlite3.connect(str(self.db_path)) as conn:
                     conn.execute(
@@ -783,6 +780,27 @@ class TardisVideoThinkingEngine:
                     )
                     conn.commit()
                 results["social"] = {k: v.get("status") for k, v in rep_social.get("results", {}).items()}
+                x_res = (rep_social.get("x_results") or {}).get("x_video") or {}
+                if x_res.get("status") == "published":
+                    results["x_published"] = True
+                    results["x_tweet_url"] = x_res.get("tweet_url", "")
+                    try:
+                        from core.telegram_bridge import get_telegram_bridge
+                        tb_x = get_telegram_bridge()
+                        x_link_line = f"\n🔗 Enlace en línea: {x_res['tweet_url']}" if x_res.get("tweet_url") else ""
+                        tb_x.send_message(
+                            text=(
+                                f"📡 [VIDEO PENSANTE → X.COM PUBLICADO]\n"
+                                f"• Video: {rec.id} (\"{rec.title[:70]}\")\n"
+                                f"• Cuenta: {x_res.get('account') or '@AsleepAstronaut'}\n"
+                                f"• Reflexión: {x_res.get('text', '')}"
+                                f"{x_link_line}"
+                            ),
+                            chat_id=tb_x.config.get("admin_chat_id", ARCHITECT_CHAT_ID),
+                            parse_mode="",
+                        )
+                    except Exception as e_x_tg:
+                        logger.warning(f"Aviso notificando publicación X.com a Telegram: {e_x_tg}")
         except Exception as e_social:
             logger.warning(f"Aviso despachando a Social: {e_social}")
             results["social_error"] = str(e_social)

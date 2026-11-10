@@ -347,6 +347,10 @@ def _render_segment(args: Dict[str, Any]) -> Dict[str, Any]:
     f0, n = args["frame_start"], args["frame_count"]
     out_path = args["out_path"]
 
+    try:
+        os.nice(15)
+    except Exception:
+        pass
     renderer = get_character_3d_renderer(args["quality"])
     hud = HudRenderer(w, h, args["title"]) if args["hud"] else None
     lines = args["lines"]
@@ -415,7 +419,7 @@ def render_video_4k(
     total_frames = max(1, int(round(duration * fps)))
 
     if workers is None:
-        workers = max(1, min(10, (os.cpu_count() or 4) - 2))
+        workers = max(1, min(4, (os.cpu_count() or 4) // 4))
     workers = max(1, min(workers, total_frames))
 
     # Presupuesto de tasa de bits para respetar el limite de subida

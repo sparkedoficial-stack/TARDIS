@@ -97,6 +97,13 @@ DEFAULT_SOCIAL_CONFIG: Dict[str, Any] = {
         "caption_max_chars": 1800,
         "min_gap_sec": 90,                 # Pausa mínima entre publicaciones consecutivas
     },
+    "x": {
+        "enabled": False,                  # Activo en social_config.json para publicar en X.com (@AsleepAstronaut)
+        "publish_downloaded_video": True,  # Sube el MP4 descargado en /VideoPensante
+        "publish_reflection_thread": True, # Añade segundo post de hilo con conclusiones y fuente
+        "max_video_duration_sec": 138,     # Límite estándar X.com (<= 140s)
+        "min_gap_sec": 45,                 # Pausa mínima entre publicaciones consecutivas en X.com
+    },
 }
 
 
@@ -912,6 +919,90 @@ def _db_update(log_id: int, **fields) -> None:
 
 
 # =============================================================================
+# CLIENTE AUTÓNOMO X.COM (SUBIDA DE VIDEOS DESCARGADOS + REFLEXIONES EN LÍNEA)
+# =============================================================================
+class XContentClient:
+    """
+    Cliente soberano de publicación de videos y reflexiones de /VideoPensante en X.com
+    mediante sesión local de Chromium CDP y síntesis cognitiva local (TemporalBrain).
+    """
+
+    def __init__(self, x_cfg: Dict[str, Any]):
+        self.cfg = x_cfg or {}
+
+    def is_ready(self) -> bool:
+        if not self.cfg.get("enabled", False):
+            return False
+        cookies_db = Path(os.path.expanduser("~/.config/chromium/Default/Cookies"))
+        return cookies_db.exists()
+
+    def publish_video_reflection(self, snapshot: Dict[str, Any], dry_run: bool = False) -> Dict[str, Any]:
+        import asyncio
+        from core.tardis_browser import get_tardis_browser
+
+        file_path = Path(snapshot.get("file_path") or "")
+        if not file_path.exists() or file_path.stat().st_size < 1024:
+            raise SocialPublishError(f"Archivo de video ausente en la bóveda: {file_path}")
+
+        browser = get_tardis_browser()
+        try:
+            refl = browser.synthesize_video_x_reflection(snapshot, use_local_llm=True)
+        except ValueError as e_aegis:
+            raise SocialPublishError(f"CONSTANTE-AEGIS: {e_aegis}") from e_aegis
+
+        primary_text = refl["primary_post"]
+        thread_text = refl["thread_post"] if self.cfg.get("publish_reflection_thread", True) else None
+        vid_id = str(snapshot.get("id") or "")
+
+        def _run_coro():
+            return asyncio.run(
+                browser.post_video_to_x(
+                    video_path=file_path,
+                    text=primary_text,
+                    reflection_thread_text=thread_text,
+                    video_id=vid_id,
+                    dry_run=dry_run,
+                )
+            )
+
+        try:
+            asyncio.get_running_loop()
+            holder: Dict[str, Any] = {}
+
+            def _t():
+                try:
+                    holder["res"] = _run_coro()
+                except Exception as exc:
+                    holder["err"] = exc
+
+            th = threading.Thread(target=_t, daemon=True)
+            th.start()
+            th.join(timeout=210)
+            if "err" in holder:
+                raise holder["err"]
+            res = holder.get("res") or {"ok": False, "error": "Timeout publicando video en X.com"}
+        except RuntimeError:
+            res = _run_coro()
+
+        if not res.get("ok"):
+            raise SocialPublishError(f"X.com rechazó o falló la subida de video: {res.get('error', 'desconocido')}")
+
+        pub_id = res.get("tweet_url") or f"x_{vid_id or int(time.time())}"
+        return {
+            "publish_id": pub_id,
+            "tweet_url": res.get("tweet_url", ""),
+            "account": res.get("account", ""),
+            "text": res.get("text", primary_text),
+            "thread_text": res.get("thread_text", ""),
+            "thread_attached": bool(res.get("thread_attached")),
+            "video_path": res.get("video_path", str(file_path)),
+            "transcoded": bool(res.get("transcoded")),
+            "duration_sec": res.get("duration_sec", 0.0),
+            "mode": "X_CDP_VIDEO",
+        }
+
+
+# =============================================================================
 # MOTOR SOCIAL SOBERANO
 # =============================================================================
 class TardisSocialEngine:
@@ -935,12 +1026,18 @@ class TardisSocialEngine:
         self.cfg = load_social_config()
         self._renderer: Optional[ConclusionsCardRenderer] = None
         self._last_publish_ts: float = 0.0
+        self._last_x_publish_ts: float = 0.0
 
     # -------------------------------- plataforma --------------------------------
     def _tiktok(self) -> TikTokContentClient:
         return TikTokContentClient(self.cfg["tiktok"])
 
+    def _x_client(self) -> XContentClient:
+        return XContentClient(self.cfg.get("x", {}))
+
     def is_platform_ready(self, platform: str = "tiktok") -> bool:
+        if platform == "x":
+            return self._x_client().is_ready()
         tk = self.cfg.get("tiktok", {})
         return platform == "tiktok" and bool(tk.get("enabled") and tk.get("access_token"))
 
@@ -971,22 +1068,23 @@ class TardisSocialEngine:
         return self.renderer.render(_RecordView(detail), out_path)
 
     # --------------------------- ciclo de publicación ---------------------------
-    def publish_record(self, rec: Any, item: str = "all") -> Dict[str, Any]:
+    def publish_record(self, rec: Any, item: str = "all", platform: str = "auto") -> Dict[str, Any]:
         """
         Publica (video de bóveda y/o tarjeta de conclusiones) con deduplicación
-        estricta. item: 'all' | 'video' | 'card'.
+        estricta en X.com y/o TikTok. item: 'all' | 'video' | 'card'.
+        platform: 'auto' | 'x' | 'tiktok' | 'all'.
         """
         vid_id = getattr(rec, "id", "")
         snapshot = self._record_to_snapshot(rec)
-        return self._publish_snapshot(vid_id, snapshot, item)
+        return self._publish_snapshot(vid_id, snapshot, item, platform=platform)
 
-    def publish_video_by_id(self, vid_id: str, item: str = "all") -> Dict[str, Any]:
+    def publish_video_by_id(self, vid_id: str, item: str = "all", platform: str = "auto") -> Dict[str, Any]:
         """Publica por ID desde la memoria de abstracción de /VideoPensante."""
         from core.tardis_video_thinking_engine import get_video_thinking_engine
         detail = get_video_thinking_engine().get_video_detail(vid_id)
         if not detail:
             return {"skipped": f"ID {vid_id} no está en la memoria de abstracción."}
-        return self._publish_snapshot(detail.get("id", vid_id), detail, item)
+        return self._publish_snapshot(detail.get("id", vid_id), detail, item, platform=platform)
 
     def _record_to_snapshot(self, rec: Any) -> Dict[str, Any]:
         """Aplana un VideoThoughtRecord a dict compatible con render/caption/publish."""
@@ -1009,9 +1107,85 @@ class TardisSocialEngine:
             "curiosity_rationale": getattr(rec, "curiosity_rationale", ""),
         }
 
-    def _publish_snapshot(self, vid_id: str, s: Dict[str, Any], item: str = "all") -> Dict[str, Any]:
-        report: Dict[str, Any] = {"video_id": vid_id, "platform": "tiktok", "results": {}}
+    def _publish_snapshot(self, vid_id: str, s: Dict[str, Any], item: str = "all", platform: str = "auto") -> Dict[str, Any]:
+        report: Dict[str, Any] = {"video_id": vid_id, "platform": platform, "results": {}, "x_results": {}}
         caption = compose_caption(_RecordView(s), self.cfg)
+
+        run_tiktok = platform in ("auto", "all", "tiktok")
+        run_x = (platform in ("x", "all")) or (
+            platform == "auto" and bool(self.cfg.get("x", {}).get("enabled", False))
+        )
+
+        # -------------------- BLOQUE 1: X.COM (Video Descargado + Reflexión en Línea) --------------------
+        if run_x and item in ("all", "video") and self.cfg.get("x", {}).get("publish_downloaded_video", True):
+            if self._already_published(vid_id, "video", platform="x"):
+                x_rep = {"status": "skipped", "reason": "Ya publicado en X.com (deduplicación)"}
+            else:
+                try:
+                    self._validate_publication(caption, str(s.get("title", "")))
+                except SocialPublishError as e_aegis:
+                    _db_insert({
+                        "video_id": vid_id, "platform": "x", "item_type": "video", "status": "refused",
+                        "caption": caption[:1200], "error": str(e_aegis),
+                    })
+                    logger.error(f"🛡️ {e_aegis} (X.com · video: {vid_id})")
+                    x_rep = {"status": "refused", "error": str(e_aegis)}
+                else:
+                    if not self.is_platform_ready("x"):
+                        if not self._pending_row(vid_id, "video", platform="x"):
+                            _db_insert({
+                                "video_id": vid_id, "platform": "x", "item_type": "video", "status": "pending",
+                                "caption": caption[:1200], "attempts": 1,
+                                "last_attempt_at": datetime.datetime.now().isoformat(),
+                            })
+                        x_rep = {"status": "pending", "reason": "Sesión X.com no activa o función X pausada"}
+                    else:
+                        self._throttle_x()
+                        try:
+                            res_x = self._x_client().publish_video_reflection(s)
+                            ready_vp = Path(res_x.get("video_path") or s.get("file_path") or "")
+                            f_sz = ready_vp.stat().st_size if ready_vp.exists() else 0
+                            _db_insert({
+                                "video_id": vid_id, "platform": "x", "item_type": "video", "status": "published",
+                                "publish_id": res_x["publish_id"], "caption": res_x["text"][:1200],
+                                "file_path": str(ready_vp), "file_size_bytes": f_sz,
+                                "attempts": 1, "last_attempt_at": datetime.datetime.now().isoformat(),
+                            })
+                            self._last_x_publish_ts = time.time()
+                            logger.info(f"📡 /Social publicado → X.com[video+reflexión] {vid_id} ({res_x['publish_id']})")
+                            x_rep = {
+                                "status": "published",
+                                "publish_id": res_x["publish_id"],
+                                "tweet_url": res_x.get("tweet_url", ""),
+                                "account": res_x.get("account", ""),
+                                "text": res_x.get("text", ""),
+                                "thread_attached": res_x.get("thread_attached", False),
+                                "mode": res_x["mode"],
+                            }
+                        except SocialPublishError as e_x:
+                            status_lbl = "refused" if "CONSTANTE-AEGIS" in str(e_x) else "pending"
+                            _db_insert({
+                                "video_id": vid_id, "platform": "x", "item_type": "video", "status": status_lbl,
+                                "caption": caption[:1200], "file_path": str(s.get("file_path") or ""),
+                                "attempts": 1, "last_attempt_at": datetime.datetime.now().isoformat(),
+                                "error": str(e_x)[:900],
+                            })
+                            x_rep = {"status": "refused" if status_lbl == "refused" else "requeued", "error": str(e_x)}
+                            logger.error(f"❌ Publicación X.com ({vid_id}) {status_lbl}: {str(e_x)[:200]}")
+                        except Exception as e_xx:
+                            _db_insert({
+                                "video_id": vid_id, "platform": "x", "item_type": "video", "status": "pending",
+                                "attempts": 1, "last_attempt_at": datetime.datetime.now().isoformat(),
+                                "error": str(e_xx)[:900],
+                            })
+                            x_rep = {"status": "requeued", "error": str(e_xx)}
+                            logger.warning(f"Aviso en publicación X.com ({vid_id}): {e_xx}")
+
+            report["x_results"]["x_video"] = x_rep
+            report["results"]["x_video"] = x_rep
+
+        if not run_tiktok:
+            return report
 
         plan: List[Tuple[str, Optional[Path]]] = []
         if item in ("all", "video") and self.cfg.get("publish_downloaded_video", True):
@@ -1105,18 +1279,45 @@ class TardisSocialEngine:
 
     def _throttle(self):
         gap = float(self.cfg.get("tiktok", {}).get("min_gap_sec", 90))
-        elapsed = time.time() - self._last_publish_ts
-        if self._last_publish_ts > 0 and elapsed < gap:
+        last_ts = getattr(self, "_last_publish_ts", 0.0)
+        elapsed = time.time() - last_ts
+        if last_ts > 0 and elapsed < gap:
             time.sleep(min(gap - elapsed, 120))
         self._last_publish_ts = time.time()
 
+    def _throttle_x(self):
+        gap = float(self.cfg.get("x", {}).get("min_gap_sec", 45))
+        last_x_ts = getattr(self, "_last_x_publish_ts", 0.0)
+        elapsed = time.time() - last_x_ts
+        if last_x_ts > 0 and elapsed < gap:
+            time.sleep(min(gap - elapsed, 90))
+        self._last_x_publish_ts = time.time()
+
     # ------------------------------ cola pendiente ------------------------------
-    def retry_pending(self, max_items: Optional[int] = None) -> Dict[str, Any]:
-        """Reintenta la cola persistente (nada se pierde mientras exista credencial)."""
+    def retry_pending(self, max_items: Optional[int] = None, platform: str = "auto") -> Dict[str, Any]:
+        """Reintenta la cola persistente para X.com y/o TikTok."""
         limit = int(max_items or self.cfg.get("max_backlog_per_run", 3))
-        if not self.is_platform_ready():
+        tk_ready = self.is_platform_ready("tiktok")
+        x_ready = self.is_platform_ready("x")
+        if platform == "x" and not x_ready:
+            return {"skipped": "Sesión X.com no lista o desactivada."}
+        if platform == "tiktok" and not tk_ready:
             return {"skipped": "Motor social no listo (autenticación TikTok pendiente)."}
-        rows = _db_query("SELECT * FROM publish_log WHERE status = 'pending' ORDER BY id ASC LIMIT ?", (limit,))
+        if platform == "auto" and not tk_ready and not x_ready:
+            return {"skipped": "Motor social no listo (X.com y TikTok pendientes)."}
+
+        if platform == "x":
+            rows = _db_query("SELECT * FROM publish_log WHERE status = 'pending' AND platform = 'x' ORDER BY id ASC LIMIT ?", (limit,))
+        elif platform == "tiktok":
+            rows = _db_query("SELECT * FROM publish_log WHERE status = 'pending' AND platform = 'tiktok' ORDER BY id ASC LIMIT ?", (limit,))
+        else:
+            ready_plats = [p for p, ok in (("x", x_ready), ("tiktok", tk_ready)) if ok]
+            placeholders = ",".join("?" for _ in ready_plats)
+            rows = _db_query(
+                f"SELECT * FROM publish_log WHERE status = 'pending' AND platform IN ({placeholders}) ORDER BY id ASC LIMIT ?",
+                (*ready_plats, limit),
+            )
+
         report: Dict[str, Any] = {"candidates": len(rows), "published": [], "failed": 0}
         if not rows:
             report["info"] = "La cola pendiente está vacía (nada por reintentar)."
@@ -1127,6 +1328,7 @@ class TardisSocialEngine:
 
         for row in rows:
             vid_id, item = row["video_id"], row["item_type"]
+            row_plat = row.get("platform") or "tiktok"
             detail = engine.get_video_detail(vid_id)
             if not detail:
                 _db_update(row["id"], status="failed", error="Video ausente en la memoria de abstracción.",
@@ -1139,6 +1341,24 @@ class TardisSocialEngine:
             except SocialPublishError as e:
                 _db_update(row["id"], status="refused", error=str(e),
                            last_attempt_at=datetime.datetime.now().isoformat())
+                continue
+
+            if row_plat == "x":
+                self._throttle_x()
+                try:
+                    res_x = self._x_client().publish_video_reflection(detail)
+                    vp = Path(res_x.get("video_path") or detail.get("file_path") or "")
+                    _db_update(row["id"], status="published", publish_id=res_x["publish_id"],
+                               file_path=str(vp), file_size_bytes=vp.stat().st_size if vp.exists() else 0,
+                               attempts=int(row.get("attempts", 0)) + 1,
+                               last_attempt_at=datetime.datetime.now().isoformat(), error="")
+                    report["published"].append({"video_id": vid_id, "platform": "x", "item": item, "publish_id": res_x["publish_id"]})
+                except Exception as e_rx:
+                    _db_update(row.get("id"), status="pending",
+                               attempts=int(row.get("attempts", 0)) + 1,
+                               last_attempt_at=datetime.datetime.now().isoformat(),
+                               error=str(e_rx)[:900])
+                    report["failed"] += 1
                 continue
 
             if item == "video":
@@ -1174,7 +1394,7 @@ class TardisSocialEngine:
         return report
 
     # --------------------------------- backfill ---------------------------------
-    def backfill(self, maximum: Optional[int] = None) -> Dict[str, Any]:
+    def backfill(self, maximum: Optional[int] = None, platform: str = "auto") -> Dict[str, Any]:
         """
         Publica en orden cronológico ancestro→reciente todos los videos de la
         memoria de /VideoPensante que aún no se hayan socializado.
@@ -1183,16 +1403,26 @@ class TardisSocialEngine:
         engine = get_video_thinking_engine()
         memories = engine.get_memory_summary(limit=10000)          # más recientes primero
         all_ids = [m["id"] for m in reversed(memories)]             # orden cronológico
+
+        target_plat = platform
+        if target_plat == "auto":
+            target_plat = "x" if (self.is_platform_ready("x") and not self.is_platform_ready("tiktok")) else "tiktok"
+
         handled = {r["video_id"] for r in _db_query(
-            "SELECT DISTINCT video_id FROM publish_log WHERE status IN ('published','refused')")}
-        pending_ids = {r["video_id"] for r in _db_query("SELECT DISTINCT video_id FROM publish_log WHERE status = 'pending'")}
+            "SELECT DISTINCT video_id FROM publish_log WHERE platform = ? AND status IN ('published','refused')",
+            (target_plat,),
+        )}
+        pending_ids = {r["video_id"] for r in _db_query(
+            "SELECT DISTINCT video_id FROM publish_log WHERE platform = ? AND status = 'pending'",
+            (target_plat,),
+        )}
         candidates = [vid for vid in all_ids if vid not in handled and vid not in pending_ids]
 
         limit = int(maximum or self.cfg.get("max_backlog_per_run", 3))
         to_process = candidates[:limit]
-        out = {"candidates": len(candidates), "processed": 0, "reports": []}
+        out = {"candidates": len(candidates), "processed": 0, "platform": target_plat, "reports": []}
         for vid_id in to_process:
-            rep = self.publish_video_by_id(vid_id, item="all")
+            rep = self.publish_video_by_id(vid_id, item="all", platform=platform)
             out["reports"].append({"video_id": vid_id, "report": rep})
             out["processed"] += 1
         return out
@@ -1206,8 +1436,13 @@ class TardisSocialEngine:
 
     def get_status(self) -> Dict[str, Any]:
         tk = self.cfg.get("tiktok", {})
+        xcfg = self.cfg.get("x", {})
         with sqlite3.connect(str(DB_PATH)) as conn:
             counts = {s: c for s, c in conn.execute("SELECT status, COUNT(*) FROM publish_log GROUP BY status").fetchall()}
+            plat_counts = {
+                f"{p}:{s}": c
+                for p, s, c in conn.execute("SELECT platform, status, COUNT(*) FROM publish_log GROUP BY platform, status").fetchall()
+            }
         exp = int(tk.get("token_expires_at", 0) or 0)
         return {
             "canonical_greeting": CANONICAL_GREETING,
@@ -1215,7 +1450,9 @@ class TardisSocialEngine:
             "auto_on_new_cycles": self.cfg.get("auto_on_new_cycles", True),
             "publish_downloaded_video": self.cfg.get("publish_downloaded_video", True),
             "publish_conclusions_card": self.cfg.get("publish_conclusions_card", True),
-            "platform_ready": self.is_platform_ready(),
+            "platform_ready": self.is_platform_ready("tiktok"),
+            "x_enabled": bool(xcfg.get("enabled", False)),
+            "x_ready": self.is_platform_ready("x"),
             "tiktok_client": bool(tk.get("client_key")),
             "token_expires_in_min": (max(0, exp - int(time.time())) // 60) if exp else -1,
             "privacy_level": tk.get("privacy_level", "PUBLIC_TO_EVERYONE"),
@@ -1223,6 +1460,7 @@ class TardisSocialEngine:
             "cards_dir": str(CARDS_DIR),
             "db_path": str(DB_PATH),
             "log_counts": counts,
+            "log_counts_by_platform": plat_counts,
         }
 
     def set_enabled(self, value: bool, auto_on_cycles: Optional[bool] = None) -> None:

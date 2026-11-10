@@ -1,39 +1,35 @@
 {
   "schema": "tardis.savage_update/1.0",
-  "generated_at": "2026-11-04T00:21:56-05:00",
+  "generated_at": "2026-11-03T13:31:02-05:00",
   "cycle": {
-    "items_collected": 0,
-    "items_fresh": 0,
-    "proposals": 0,
-    "experiment_plans": 0,
-    "elapsed_s": 1.73
+    "items_collected": 54,
+    "items_fresh": 1,
+    "proposals": 1,
+    "experiment_plans": 1,
+    "elapsed_s": 6.41
   },
   "sources": {
     "offline": false,
     "sources": {
       "github": {
-        "ok": false,
-        "count": 0,
-        "elapsed_ms": 38.0,
-        "error": "sin datos: red/DNS no disponible o respuesta vacía"
+        "ok": true,
+        "count": 6,
+        "elapsed_ms": 2627.8
       },
       "huggingface": {
-        "ok": false,
-        "count": 0,
-        "elapsed_ms": 3.5,
-        "error": "sin datos: red/DNS no disponible o respuesta vacía"
+        "ok": true,
+        "count": 20,
+        "elapsed_ms": 571.9
       },
       "arxiv": {
-        "ok": false,
-        "count": 0,
-        "elapsed_ms": 6.9,
-        "error": "sin datos: red/DNS no disponible o respuesta vacía"
+        "ok": true,
+        "count": 36,
+        "elapsed_ms": 961.1
       },
       "npm": {
-        "ok": false,
-        "count": 0,
-        "elapsed_ms": 1.1,
-        "error": "sin datos: red/DNS no disponible o respuesta vacía"
+        "ok": true,
+        "count": 1,
+        "elapsed_ms": 427.2
       }
     }
   },
@@ -43,7 +39,45 @@
     "report_artifacts": 7,
     "proposals": 11
   },
-  "top_items": [],
-  "proposals": [],
+  "top_items": [
+    {
+      "id": "f3a0bfd814d95c0e",
+      "source": "huggingface:trending",
+      "category": "model",
+      "title": "AtomicChat/DeepSeek-V4.1-Flash-1017-Uncensored-GSQ-RCO-GGUF",
+      "url": "https://huggingface.co/AtomicChat/DeepSeek-V4.1-Flash-1017-Uncensored-GSQ-RCO-GGUF",
+      "published_at": "2026-10-31T07:29:05.000Z",
+      "summary": "pipeline=text-generation downloads=53913 likes=250",
+      "tags": [
+        "quantization"
+      ],
+      "relevance": 6.6,
+      "targets": []
+    }
+  ],
+  "proposals": [
+    {
+      "id": "savage-0221680af214",
+      "title": "Benchmark de cuantización para el modelo soberano",
+      "target": "ftl",
+      "tag": "quantization",
+      "risk": "low",
+      "kind": "experiment",
+      "experiment": "quantization_benchmark",
+      "evidence": [
+        {
+          "title": "AtomicChat/DeepSeek-V4.1-Flash-1017-Uncensored-GSQ-RCO-GGUF",
+          "url": "https://huggingface.co/AtomicChat/DeepSeek-V4.1-Flash-1017-Uncensored-GSQ-RCO-GGUF",
+          "source": "huggingface:trending",
+          "relevance": 6.6
+        }
+      ],
+      "rationale": "Señal tecnológica detectada en 1 fuentes; la doctrina exige evaluar antes de adoptar.",
+      "validation": "Medir tokens/s, VRAM pico y perplejidad en 20 prompts; aceptar sólo si la pérdida es <2%.",
+      "rollback": "Mantener el GGUF Q4_K actual y descartar el artefacto candidato.",
+      "status": "planned",
+      "created_at": "2026-11-03T13:31:02-05:00"
+    }
+  ],
   "offline": false
 }

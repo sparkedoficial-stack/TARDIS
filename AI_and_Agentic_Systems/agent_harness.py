@@ -613,6 +613,29 @@ class ToolRegistry:
             handler=_capture_cam
         ))
 
+        def _stream_c310_tg(args: dict):
+            from core.telegram_bridge import get_telegram_bridge
+            dur = float(args.get("duration_sec", 6.0) or 6.0)
+            chat_id = args.get("chat_id")
+            monitor = bool(args.get("start_chat_monitor", False))
+            return get_telegram_bridge().send_c310_live_video(
+                chat_id=chat_id,
+                duration_sec=dur,
+                start_chat_monitor=monitor,
+            )
+
+        self.register(ToolDefinition(
+            name="stream_security_camera_live_telegram",
+            category="VISION_CCTV",
+            description="Transmite video en vivo de la cámara de seguridad TP-Link Tapo C310 (GOD-EYE @ REDACTED_IP) directamente a la terminal de Telegram del Arquitecto, adjuntando clip MP4 en tiempo real con HUD YOLOv8s y acceso al Monitor en Vivo.",
+            parameters={
+                "duration_sec": {"type": "number", "description": "Duración del clip en vivo en segundos (3 a 20)"},
+                "chat_id": {"type": "string", "description": "ID del chat de Telegram (opcional, por defecto Arquitecto)"},
+                "start_chat_monitor": {"type": "boolean", "description": "True para iniciar también el visor auto-actualizable en el chat"}
+            },
+            handler=_stream_c310_tg
+        ))
+
         def _list_indiv(args: dict):
             from core.individual_tracker import get_individual_tracker
             tracker = get_individual_tracker()

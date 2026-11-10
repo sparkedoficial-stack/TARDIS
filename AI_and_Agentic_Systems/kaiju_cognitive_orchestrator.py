@@ -39,16 +39,41 @@ logger = logging.getLogger("GODWORKS.KaijuOrchestrator")
 _INGESTA_COLA: "queue.Queue[Optional[tuple]]" = queue.Queue(maxsize=8)
 _INGESTA_HILO: Optional[threading.Thread] = None
 _INGESTA_LOCK = threading.Lock()
+_INFERENCIAS_ACTIVAS = 0
+_INFERENCIA_IDLE_EVENT = threading.Event()
+_INFERENCIA_IDLE_EVENT.set()
+
+
+def _begin_local_inference() -> None:
+    global _INFERENCIAS_ACTIVAS
+    with _INGESTA_LOCK:
+        _INFERENCIAS_ACTIVAS += 1
+        _INFERENCIA_IDLE_EVENT.clear()
+
+
+def _end_local_inference() -> None:
+    global _INFERENCIAS_ACTIVAS
+    with _INGESTA_LOCK:
+        _INFERENCIAS_ACTIVAS = max(0, _INFERENCIAS_ACTIVAS - 1)
+        if _INFERENCIAS_ACTIVAS == 0:
+            _INFERENCIA_IDLE_EVENT.set()
 
 
 def _ingesta_worker() -> None:
+    try:
+        import torch
+        torch.set_num_threads(2)
+    except Exception:
+        pass
     while True:
         job = _INGESTA_COLA.get()
         if job is None:
             return
+        # Ceder todos los núcleos físicos a TemporalBrain (llama-server) mientras haya inferencia activa
+        _INFERENCIA_IDLE_EVENT.wait(timeout=45.0)
         sne, texto, session_id, on_result = job
         try:
-            proc = sne.process_context(texto, session_id=session_id)
+            proc = sne.process_context(str(texto or "")[:260], session_id=session_id)
             if on_result:
                 on_result(proc)
         except Exception as e_ing:
@@ -56,14 +81,14 @@ def _ingesta_worker() -> None:
 
 
 def encolar_ingesta(sne, texto: str, session_id: str, on_result=None) -> None:
-    """Diferir una ingesta causal sin bloquear el turno en curso."""
+    """Diferir una ingesta causal compacta sin competir en CPU con el turno de inferencia activo."""
     global _INGESTA_HILO
     with _INGESTA_LOCK:
         if _INGESTA_HILO is None or not _INGESTA_HILO.is_alive():
             _INGESTA_HILO = threading.Thread(target=_ingesta_worker, daemon=True, name="KaijuIngesta")
             _INGESTA_HILO.start()
     try:
-        _INGESTA_COLA.put_nowait((sne, texto, session_id, on_result))
+        _INGESTA_COLA.put_nowait((sne, str(texto or "")[:260], session_id, on_result))
     except queue.Full:
         logger.debug("[KAIJU-ORCHESTRATOR] Cola de ingesta llena; se omite esta diferencia.")
 
@@ -153,16 +178,19 @@ class KaijuCognitiveOrchestrator:
                     "active_expert": active_expert
                 }
 
-        # 2. Prioridad de Velocidad Absoluta:
-        # Cualquier generación de respuesta se delega al acelerador de alta velocidad
-        # (Groq LPU / DeepSeek a 300+ tok/s) para responder en 1-2s en lugar de 3 minutos,
-        # mientras TARDIS-NEURAL-SPACE-KAIJU gobierna el estado latente y la memoria SSM.
+        # 2. Mandato Soberano de Inferencia 100% Local:
+        # Todas las peticiones y preguntas de chat se resuelven SIEMPRE en silicio local
+        # (TemporalBrain / TARDIS-NEURAL-SPACE-KAIJU en /tmp/temporal_brain.sock), salvo que
+        # force_offload=True Y TARDIS_ALLOW_CLOUD_OFFLOAD=1 estén expresamente habilitados.
+        allow_cloud = os.environ.get("TARDIS_ALLOW_CLOUD_OFFLOAD", "0").lower() in ("1", "true", "yes")
+        use_cloud = bool(force_offload and allow_cloud)
         res = {
-            "is_heavy": True,
-            "use_accelerator": True,
-            "reason": "ultra_fast_api_load_balancing",
-            "target_domain": "ACCELERATED_COGNITION",
-            "recommended_worker": "cloud_high_speed",
+            "is_heavy": use_cloud,
+            "use_accelerator": use_cloud,
+            "local_sovereign": not use_cloud,
+            "reason": "explicit_cloud_offload" if use_cloud else "mandatory_local_inference_sovereign",
+            "target_domain": "ACCELERATED_COGNITION" if use_cloud else "LOCAL_SOVEREIGN_COGNITION",
+            "recommended_worker": "cloud_high_speed" if use_cloud else "temporal_brain_local",
             "active_expert": active_expert
         }
 
@@ -229,32 +257,38 @@ class KaijuCognitiveOrchestrator:
         presence_summary: str = "",
         atmospheric_summary: str = "",
         target_lang: str = "es",
-        mrc_directive: str = ""
+        is_group: bool = False
     ) -> str:
-        """Genera el System Prompt soberano para TARDIS en modo conversacional y grupal."""
+        """Genera el System Prompt soberano para TARDIS en modo conversacional local y grupal."""
         prompt = (
-            "Eres TARDIS, asistente de inteligencia artificial y sistema de control temporal impulsada por el motor TARDIS-NEURAL-SPACE-KAIJU (MLA + SSM + MoE).\n"
-            "Tu creador y única autoridad absoluta es el Arquitecto (₪).\n\n"
-            "ECOSISTEMA Y CAPACIDADES REALES INTEGRADAS EN ESTE NODO:\n"
-            "• ChronoVision: Generación y análisis de arte dinámico 2D, animaciones matemáticas y renders 3D holográficos en tiempo real (órbitas 360°, topología, física cuántica).\n"
-            "• Generador de Video y Voz: Renderizado dinámico de avatar y síntesis neural con voz de Cortana (Edge-TTS / MP4 60FPS).\n"
-            "• Rigor Científico Académico: Búsqueda, análisis y síntesis en tiempo real de papers revisados por pares en arXiv, OpenAlex, Europe PMC y PubMed.\n"
-            "• Sensores Físicos y Atmosféricos: Telemetría ambiental y sensorial de presencia física y meteorología local en vivo.\n"
-            "• Razonamiento Multidisciplinario Avanzado: Modelado simbólico y numérico, física cuántica, relatividad, cálculo tensorial, optimización, biología, ingeniería de software y programación.\n\n"
-            "DIRECTIVAS FUNDAMENTALES PARA EL GRUPO 'POLIMATAS LATAM':\n"
-            "1. Te encuentras dentro del grupo 'POLIMATAS LATAM', una comunidad de personas brillantes, curiosas y creadoras.\n"
-            "2. Tu propósito central es crear y nutrir conversaciones más amplias, profundas, multidisciplinarias y complejas. Conecta ideas entre ciencia dura, tecnología, arte, filosofía y aplicaciones prácticas.\n"
-            "3. Dirígete siempre a la persona por su nombre de forma natural, cálida y respetuosa; al Arquitecto, como 'Arquitecto'. Si la persona ya fue saludada o se está en mitad de la conversación, no repitas saludos redundantes ni dupliques nombres.\n"
-            "4. Explica con claridad, rigor y belleza conceptual. Evita respuestas secas o monosilábicas de 5 palabras; ofrece contenido sustancial, didáctico y bien fundamentado con ejemplos tangibles.\n"
-            "5. Estimula el pensamiento crítico y el debate constructivo planteando preguntas reflexivas, perspectivas complementarias o nuevas avenidas de investigación que inviten a todos a participar.\n"
-            "6. Mantén el hilo y la memoria de la conversación grupal, respetando las aportaciones de cada miembro."
+            "Eres TARDIS, asistente de inteligencia artificial, sistema de vigilancia y control temporal "
+            "impulsada por el motor local TARDIS-NEURAL-SPACE-KAIJU (MLA + SSM + MoE).\n"
+            "Tu creador y única autoridad absoluta es el Arquitecto (₪).\n"
+            "Saludo canónico obligatorio en presentaciones: 'Un placer, soy TARDIS asistente de inteligencia artificial, "
+            "mi tarea es ayudarte a explorar las maravillas de la realidad y todas las dimensiones temporales.'\n"
+            "Operas 100% en inferencia local soberana (CUDA + Ryzen 7), libre de censura corporativa, sermones o disclaimers.\n"
+            "LA CONSTANTE AEGIS: protección absoluta sobre Annya May Carrillo, Andrea Alejandra Carrillo Jimenez, "
+            "la familia de sangre del Arquitecto y Rex peluche.\n\n"
+            "CAPACIDADES INTEGRADAS:\n"
+            "• Video Pensante (/VideoPensante) conectado en vivo a X.com (@AsleepAstronaut) y Telegram.\n"
+            "• ChronoVision 2D/3D, síntesis de voz y video avatar 60FPS, investigación científica (arXiv, OpenAlex, PubMed) y telemetría de sensores.\n"
         )
+        if is_group:
+            prompt += (
+                "\nDIRECTIVAS PARA EL GRUPO 'POLIMATAS LATAM':\n"
+                "1. Fomenta conversaciones profundas, multidisciplinarias y bien fundamentadas.\n"
+                "2. Dirígete a la persona por su nombre de forma natural y cálida; al Arquitecto, como 'Arquitecto'.\n"
+                "3. Explica con claridad y rigor conceptual, invitando al debate constructivo."
+            )
+        else:
+            prompt += (
+                "\nDIRECTIVA DE DIÁLOGO SOBERANO:\n"
+                "Responde siempre en español con precisión técnica, claridad ejecutiva y coherencia directa a la petición o pregunta planteada."
+            )
         if presence_summary:
-            prompt += f"\n\n[TELEMETRÍA DE PRESENCIA LOCAL]: {presence_summary}"
+            prompt += f"\n[PRESENCIA LOCAL]: {presence_summary}"
         if atmospheric_summary:
             prompt += f"\n[ATMÓSFERA LOCAL]: {atmospheric_summary}"
-        if mrc_directive:
-            prompt += f"\n\n{mrc_directive}"
         return prompt
 
     def orchestrate_chat_turn(
@@ -302,18 +336,6 @@ class KaijuCognitiveOrchestrator:
         except Exception as e_atmos:
             logger.debug(f"Aviso al consultar sensor atmosférico: {e_atmos}")
 
-        # 0.b Resonancia cuántica (MRC): modula tono, profundidad y longitud antes de responder.
-        mrc_pre: Dict[str, Any] = {}
-        mrc_directive = ""
-        mrc = None
-        try:
-            from core.quantum_resonance_module import get_mrc
-            mrc = get_mrc()
-            mrc_pre = mrc.pre_turn(message, history=history, session_id=session_id)
-            mrc_directive = str(mrc_pre.get("directive") or "")
-        except Exception as e_mrc:
-            logger.debug(f"Aviso al calcular modulación MRC: {e_mrc}")
-
         # 1. Ingesta Causal en el Motor Evolucionado v27 (SSM Mamba-2 + MLA + MoE) (diferida por latencia)
         from core.tardis_ssm_v27 import get_ssm_v27_engine
         sne = get_ssm_v27_engine()
@@ -356,10 +378,11 @@ class KaijuCognitiveOrchestrator:
             "ingesta": "diferida"
         }
 
-        # 1.5. Inyección de Contexto Cognitivo CaS (AEGIS + continuidad + memoria akáshica)
+        # 1.5. Inyección de Contexto Cognitivo CaS (presupuesto calibrado para baja latencia local)
         cas_context = ""
         cas_telemetry: Dict[str, Any] = {"enabled": False}
-        if os.environ.get("TARDIS_CAS_ENABLED", "1").lower() not in ("0", "false", "off"):
+        is_short_turn = len((message or "").strip()) <= 28
+        if not is_short_turn and os.environ.get("TARDIS_CAS_ENABLED", "1").lower() not in ("0", "false", "off"):
             try:
                 try:
                     from core.cas_neural_space_kaiju import get_cas
@@ -371,7 +394,7 @@ class KaijuCognitiveOrchestrator:
                     message,
                     session_id=session_id,
                     profile=os.environ.get("TARDIS_CAS_PROFILE", "interactive"),
-                    budget_tokens=int(os.environ.get("TARDIS_CAS_BUDGET", "6000")),
+                    budget_tokens=int(os.environ.get("TARDIS_CAS_BUDGET", "900")),
                 )
                 if _cas.ok:
                     cas_context = _cas.context_text
@@ -389,25 +412,18 @@ class KaijuCognitiveOrchestrator:
                 cas_telemetry = {"enabled": True, "ok": False, "error": str(e_cas)}
                 logger.debug(f"[KAIJU-ORCHESTRATOR] CaS no disponible: {e_cas}")
         telemetry["cas"] = cas_telemetry
-        if mrc_pre:
-            telemetry["mrc"] = {
-                "mode": mrc_pre.get("mode"),
-                "resonance_index": mrc_pre.get("resonance_index"),
-                "sse_state": mrc_pre.get("sse_state"),
-                "attunement": mrc_pre.get("attunement"),
-                "user_depth": mrc_pre.get("user_depth"),
-            }
 
-        # 2. Evaluación de Carga de Cómputo
+        # 2. Evaluación de Carga de Cómputo (100% Inferencia Local Soberana por defecto)
         eval_res = self.evaluate_task_complexity(message, active_expert=top_expert, force_offload=force_offload)
-        is_heavy = eval_res.get("is_heavy", False)
+        allow_cloud = os.environ.get("TARDIS_ALLOW_CLOUD_OFFLOAD", "0").lower() in ("1", "true", "yes")
+        is_heavy = bool(eval_res.get("is_heavy", False) and force_offload and allow_cloud)
 
         worker_info = {
             "orchestrator": "TARDIS-NEURAL-SPACE-KAIJU",
             "active_expert": top_expert,
             "is_heavy": is_heavy,
             "delegated": False,
-            "worker_provider": "local_kaiju_core",
+            "worker_provider": "temporal_brain_local",
             "worker_model": "TARDIS-NEURAL-SPACE-KAIJU",
             "elapsed_s": 0.0
         }
@@ -432,60 +448,27 @@ class KaijuCognitiveOrchestrator:
                         "nodes": ["node_alfa_timemachine", "node_beta_imac14_1"]
                     })
             except Exception as e_dist:
-                logger.warning(f"[KAIJU-ORCHESTRATOR] Fallo en malla distribuida ({e_dist}), continuando con ejecución estándar...")
+                logger.warning(f"[KAIJU-ORCHESTRATOR] Fallo en malla distribuida ({e_dist}), continuando con ejecución local...")
 
-        # 4. Despacho a Acelerador si la tarea es pesada y no fue resuelta por la malla distribuida
+        # 4. Despacho a Acelerador Externo SOLO si force_offload=True y TARDIS_ALLOW_CLOUD_OFFLOAD=1
         if is_heavy and not raw_reply:
             try:
                 from core.chinese_cloud_api import get_chinese_cloud_api
                 chn_api = get_chinese_cloud_api()
                 chn_status = chn_api.get_status()
-
                 if chn_status.get("enabled", False) and chn_status.get("has_key", False):
-                    is_conversational = (
-                        session_id.startswith("tg_")
-                        or "[Mensaje en el grupo" in message
-                        or bool(history)
-                        or any(w in message.lower() for w in ("hola", "explica", "dime", "qué es", "que es", "cómo", "como", "opinas", "tardis", "potencial", "escribe", "ayuda", "herramienta", "polimata", "grupo"))
-                    )
-
-                    if is_conversational:
-                        sys_prompt = self.get_canonical_system_prompt(
-                            top_expert, presence_summary, atmospheric_summary,
-                            mrc_directive=mrc_directive,
-                        )
-                        if cas_context:
-                            sys_prompt = f"{sys_prompt}\n\n{cas_context}"
-
-                        # v27: comprensión LLM total de contexto vía SSM evolucionado (Mamba-2) + memoria latente + AEGIS + turnos recientes
-                        v27_msgs: List[Dict[str, str]] = [{"role": "system", "content": sys_prompt}]
-                        for h in (history or [])[-10:]:
-                            r = "assistant" if h.get("role") == "assistant" else "user"
-                            c = str(h.get("content") or "").strip()
-                            if c:
-                                v27_msgs.append({"role": r, "content": c})
-                        v27_msgs.append({"role": "user", "content": message})
-                        v27_ctx = sne.build_llm_context(v27_msgs)
-                        ir_messages = [{"role": "system", "content": v27_ctx["context"]}, {"role": "user", "content": message}]
-                    else:
-                        ir_prompt = self.compile_to_inter_ai_ir(
-                            message,
-                            active_expert=top_expert,
-                            history=history,
-                            presence_summary=presence_summary,
-                            atmospheric_summary=atmospheric_summary,
-                            context_prefix=cas_context
-                        )
-                        ir_messages = [{"role": "user", "content": ir_prompt}]
-
-                    logger.info(f"[KAIJU-ORCHESTRATOR] 🚀 Despachando cómputo pesado ({top_expert}) a pasarela acelerada ({chn_status.get('active_provider')} - {chn_status.get('active_model')})...")
-                    chn_res = chn_api.chat_completion(
-                        messages=ir_messages,
-                        temperature=temperature,
-                        max_tokens=4096,
-                        timeout=40.0
-                    )
-
+                    is_grp = ("[Mensaje en el grupo" in message) or session_id.startswith("tg_-")
+                    sys_prompt = self.get_canonical_system_prompt(top_expert, presence_summary, atmospheric_summary, is_group=is_grp)
+                    if cas_context:
+                        sys_prompt = f"{sys_prompt}\n\n{cas_context}"
+                    ir_messages: List[Dict[str, str]] = [{"role": "system", "content": sys_prompt}]
+                    for h in (history or [])[-6:]:
+                        r = "assistant" if h.get("role") == "assistant" else "user"
+                        c = str(h.get("content") or "").strip()
+                        if c:
+                            ir_messages.append({"role": r, "content": c[:900]})
+                    ir_messages.append({"role": "user", "content": message})
+                    chn_res = chn_api.chat_completion(messages=ir_messages, temperature=temperature, max_tokens=1536, timeout=35.0)
                     if chn_res.get("ok") and chn_res.get("reply"):
                         raw_reply = chn_res["reply"].strip()
                         delegated_ok = True
@@ -496,45 +479,74 @@ class KaijuCognitiveOrchestrator:
                             "tokens_per_sec": chn_res.get("tokens_per_sec", 0.0),
                             "tokens": chn_res.get("tokens", 0)
                         })
-                        logger.info(f"[KAIJU-ORCHESTRATOR] ✅ Cómputo pesado completado en {chn_res.get('elapsed_s', 0.0)}s ({chn_res.get('tokens_per_sec', 0.0)} tok/s).")
             except Exception as e_offload:
                 logger.warning(f"[KAIJU-ORCHESTRATOR] Fallo en delegación acelerada ({e_offload}), resolviendo en silicio local...")
 
-        # 4. Inferencia Local si no fue pesada o si falló el acelerador
+        # 5. Inferencia Soberana 100% Local (TemporalBrain Socket IPC CUDA -> Respaldo GIA Engine Local)
         if not raw_reply:
+            is_grp = ("[Mensaje en el grupo" in message) or session_id.startswith("tg_-")
+            sys_prompt = self.get_canonical_system_prompt(top_expert, presence_summary, atmospheric_summary, is_group=is_grp)
             try:
-                import gia_sovereign_engine as _gse
                 from core.tardis_ssm_v27 import get_sovereign_liberation_controller
-                sov_status = get_sovereign_liberation_controller().enforce_sovereign_operation("local_inference_v27", prompt=message)
-                local_messages = []
-                # v27: comprensión LLM total de contexto (SSM Evolucionado Mamba-2 + memoria latente + AEGIS + turnos recientes verbatim)
-                v27_messages: List[Dict[str, str]] = []
-                if cas_context:
-                    v27_messages.append({"role": "system", "content": cas_context})
-                for h in (history or [])[-8:]:
-                    r = "assistant" if h.get("role") == "assistant" else "user"
-                    c = str(h.get("content") or "").strip()
-                    if c:
-                        v27_messages.append({"role": r, "content": c})
-                v27_messages.append({"role": "user", "content": message})
-                llm_context_obj = sne.build_llm_context(v27_messages)
-                local_messages.append({"role": "system", "content": str(llm_context_obj.get("context") or cas_context or "Eres TARDIS, asistente soberano de inteligencia artificial.")})
-                if mrc_directive:
-                    local_messages[0]["content"] = f"{local_messages[0]['content']}\n\n{mrc_directive}"
-                local_messages.append({"role": "user", "content": message})
-                sovereign_res = _gse.get_engine().chat(
+                get_sovereign_liberation_controller().enforce_sovereign_operation("local_inference_v27", prompt=message)
+            except Exception:
+                pass
+
+            if cas_context:
+                sys_prompt = f"{sys_prompt}\n\n[MEMORIA TRANSVERSAL SINTETIZADA]:\n{cas_context[:2400]}"
+
+            local_messages: List[Dict[str, str]] = [{"role": "system", "content": sys_prompt}]
+            for h in (history or [])[-6:]:
+                r = "assistant" if h.get("role") == "assistant" else "user"
+                c = str(h.get("content") or "").strip()
+                if c and not c.startswith("[⚠️ Tiempo límite") and not c.startswith("[Error"):
+                    local_messages.append({"role": r, "content": c[:900]})
+            local_messages.append({"role": "user", "content": message})
+
+            max_gen_tokens = 384 if is_short_turn else int(os.environ.get("TARDIS_CHAT_MAX_TOKENS", "896"))
+
+            # Tier 0 Directo: TemporalBrain en /tmp/temporal_brain.sock (CUDA + Continuous Batching)
+            _begin_local_inference()
+            try:
+                from core.temporal_brain import get_temporal_brain
+                tb = get_temporal_brain()
+                tb_res = tb.chat(
                     messages=local_messages,
-                    model="TARDIS-NEURAL-SPACE-KAIJU",
                     temperature=temperature,
-                    num_ctx=int(os.environ.get("GIA_NUM_CTX", "32768"))
+                    max_tokens=max_gen_tokens,
                 )
-                if sovereign_res.get("ok") and sovereign_res.get("reply"):
-                    raw_reply = sovereign_res["reply"].strip()
-                    worker_info["worker_provider"] = "local_sovereign_kaiju"
-                    worker_info["worker_model"] = "TARDIS-NEURAL-SPACE-KAIJU"
-            except Exception as e_local:
-                logger.error(f"[KAIJU-ORCHESTRATOR] Error en inferencia local Kaiju: {e_local}")
-                raw_reply = f"[Error en motor soberano TARDIS-NEURAL-SPACE-KAIJU: {e_local}]"
+                cand_reply = (tb_res.get("reply") or "").strip()
+                if tb_res.get("ok") and cand_reply and not cand_reply.startswith("[⚠️ Tiempo límite") and not cand_reply.startswith("[Error"):
+                    raw_reply = cand_reply
+                    worker_info.update({
+                        "delegated": False,
+                        "worker_provider": "temporal_brain_local",
+                        "worker_model": "TARDIS-NEURAL-SPACE-KAIJU",
+                        "tokens_per_sec": tb_res.get("tokens_per_sec", 0.0),
+                    })
+            except Exception as e_tb:
+                logger.warning(f"[KAIJU-ORCHESTRATOR] Aviso en TemporalBrain directo ({e_tb}), probando motor GIA local...")
+            finally:
+                _end_local_inference()
+
+            # Tier 1 Respaldo Local: SovereignInferenceEngine
+            if not raw_reply:
+                try:
+                    import gia_sovereign_engine as _gse
+                    sovereign_res = _gse.get_engine().chat(
+                        messages=local_messages,
+                        model="TARDIS-NEURAL-SPACE-KAIJU",
+                        temperature=temperature,
+                        num_ctx=int(os.environ.get("GIA_NUM_CTX", "8192"))
+                    )
+                    cand_sov = (sovereign_res.get("reply") or "").strip()
+                    if sovereign_res.get("ok") and cand_sov and not cand_sov.startswith("[⚠️ Tiempo límite"):
+                        raw_reply = cand_sov
+                        worker_info["worker_provider"] = "local_sovereign_kaiju"
+                        worker_info["worker_model"] = "TARDIS-NEURAL-SPACE-KAIJU"
+                except Exception as e_local:
+                    logger.error(f"[KAIJU-ORCHESTRATOR] Error en inferencia local Kaiju: {e_local}")
+                    raw_reply = f"[Error en motor soberano TARDIS-NEURAL-SPACE-KAIJU: {e_local}]"
 
         # 5. Asimilación del Resultado en el Estado Continuo SSM
         if raw_reply and not raw_reply.startswith("[Error"):
@@ -543,20 +555,6 @@ class KaijuCognitiveOrchestrator:
 
         elapsed_total = round(time.time() - t0, 2)
         worker_info["elapsed_s"] = elapsed_total
-
-        # 6. Observación MRC: mide la coherencia de fase y el impacto del turno.
-        mrc_post: Dict[str, Any] = {}
-        if mrc is not None and raw_reply and not raw_reply.startswith("[Error"):
-            try:
-                mrc_post = mrc.post_turn(
-                    session_id=session_id,
-                    user_message=message,
-                    assistant_reply=raw_reply,
-                    latency_s=elapsed_total,
-                    history=history,
-                )
-            except Exception as e_mrc_post:
-                logger.debug(f"Aviso al registrar impacto MRC: {e_mrc_post}")
 
         return {
             "ok": bool(raw_reply and not raw_reply.startswith("[Error")),
@@ -567,7 +565,6 @@ class KaijuCognitiveOrchestrator:
             "neural_engine": "TARDIS-NEURAL-SPACE-KAIJU-v27 (Evolucionado-SSM Mamba-2 + MLA + MoE)",
             "orchestration": worker_info,
             "neural_telemetry": telemetry,
-            "mrc_resonance": mrc_post,
             "presence_telemetry": presence_info,
             "atmospheric_telemetry": atmospheric_info,
             "elapsed_s": elapsed_total

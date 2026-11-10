@@ -46,6 +46,9 @@ DEFAULT_PORT = 7690
 PORTAL_UPSTREAM = os.environ.get("FTL_PORTAL_UPSTREAM", "http://127.0.0.1:8765")
 TERMINAL_UPSTREAM = os.environ.get("FTL_TERMINAL_UPSTREAM", "http://127.0.0.1:7681")
 TERMINAL_PREFIX = "/terminal"
+TG_CALL_UPSTREAM = os.environ.get("FTL_TG_CALL_UPSTREAM", "http://127.0.0.1:8796")
+TG_CALL_PREFIX = "/tg-call"
+TG_CAM_PREFIX = "/tg-cam"
 COOKIE_NAME = "ftl_gateway"
 SESSION_TTL = 60 * 60 * 24 * 30  # 30 días
 
@@ -199,6 +202,13 @@ def _login_page(error: str = "") -> str:
 def _upstream_for(request: web.Request) -> Tuple[str, str]:
     """Devuelve (base_upstream, path_upstream)."""
     path = request.path
+    if (
+        path == TG_CALL_PREFIX
+        or path.startswith(TG_CALL_PREFIX + "/")
+        or path == TG_CAM_PREFIX
+        or path.startswith(TG_CAM_PREFIX + "/")
+    ):
+        return TG_CALL_UPSTREAM.rstrip("/"), path
     if path == TERM_PREFIX or path.startswith(TERM_PREFIX + "/"):
         # ttyd está configurado con --base-path /terminal: se conserva el prefijo.
         return TERMINAL, path
@@ -433,6 +443,18 @@ async def gateway(request: web.Request) -> web.StreamResponse:
         return await auth_get(request)
 
     session = request.app["client"]
+
+    # Mini App de Llamadas en Vivo (/tg-call) y Cámara en Vivo (/tg-cam) de Telegram:
+    # validación HMAC + Telegram initData en su propio upstream.
+    if (
+        request.path == TG_CALL_PREFIX
+        or request.path.startswith(TG_CALL_PREFIX + "/")
+        or request.path == TG_CAM_PREFIX
+        or request.path.startswith(TG_CAM_PREFIX + "/")
+    ):
+        if is_ws:
+            return await _proxy_ws(request, session, install_cookie=False)
+        return await _proxy_http(request, session)
 
     if is_ws:
         # Los upgrades websocket NO toleran redirecciones: aquí se autentica

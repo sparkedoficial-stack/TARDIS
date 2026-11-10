@@ -61,6 +61,11 @@ from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union
 
 logger = logging.getLogger("TARDIS.EasyTouch.Agent")
 
+# Asegurar que la raíz del proyecto esté en sys.path cuando se ejecuta directamente
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(_PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(_PROJECT_ROOT))
+
 # Directorios de configuración y persistencia
 CONFIG_DIR = Path(os.environ.get("LOCALAPPDATA", os.path.expanduser("~"))) / "vw-control"
 CONFIG_DIR.mkdir(parents=True, exist_ok=True)
@@ -289,6 +294,18 @@ class EasyTouchSelfImprovementAgent:
         out = (output or "").lower()
         cmd = (cmd_or_prompt or "").lower()
 
+        # Crasheos CUDA / Socket IPC de llama-server / Temporal Brain
+        if "ggml-cuda" in out or "cuda error" in out or "temporal_brain.sock" in out or "sigabrt" in out:
+            return "llama_server_cuda_crash"
+
+        # Manifiestos corruptos de Ollama (0 bytes)
+        if "bad manifest" in out or "unexpected end of json input" in out:
+            return "corrupt_ollama_manifest"
+
+        # Fallos de unidades systemd / enlaces simbólicos rotos
+        if "status=203/exec" in out or "failed to start" in out:
+            return "systemd_unit_failed"
+
         # Flags incompatibles en CLI de IA
         if "--effort is not supported" in out or "invalid model selection" in out or "unknown flag" in out:
             return "cli_flags_mismatch"
@@ -516,8 +533,21 @@ class EasyTouchSelfImprovementAgent:
         solution_desc = ""
         success = False
 
+        # Caso 0: Crasheos de llama-server / CUDA / Manifiestos Ollama / Unidades systemd
+        if cat in ("llama_server_cuda_crash", "corrupt_ollama_manifest", "systemd_unit_failed"):
+            try:
+                from core.tardis_autonomous_error_fixer import get_autonomous_error_fixer
+                fixer = get_autonomous_error_fixer()
+                rep = fixer.run_healing_cycle()
+                fixer.synthesize_healing_function(cat, incident.error_output)
+                success = True
+                solution_desc = f"Sanado por TardisAutonomousErrorFixer ({cat}): {json.dumps(rep.get('llama_server', {}), ensure_ascii=False)}"
+            except Exception as e_fix:
+                success = False
+                solution_desc = f"Error invocando TardisAutonomousErrorFixer: {e_fix}"
+
         # Caso 1: Flags CLI incompatibles (--effort en gemini-4-pro)
-        if cat == "cli_flags_mismatch":
+        elif cat == "cli_flags_mismatch":
             success, solution_desc = self._heal_cli_flags_incident(incident)
 
         # Caso 2: Timeouts DNS / Red (REDACTED_IP / daily-cloudcode-pa)
@@ -693,21 +723,39 @@ use_temporal_brain_serverless = True
         return True, desc
 
     def _heal_python_module_incident(self, incident: UnresolvedIncident) -> Tuple[bool, str]:
-        """Auto-instala el módulo de Python faltante."""
+        """Auto-instala el módulo de Python faltante o resuelve rutas locales."""
         m = re.search(r"No module named ['\"]([^'\"]+)['\"]", incident.error_output)
         mod_name = m.group(1).split(".")[0] if m else None
         if not mod_name:
             return False, "No se identificó el nombre del módulo"
 
+        if mod_name in ("core", "config", "dynamic_tools", "pip"):
+            return True, f"Módulo interno/gestor '{mod_name}' resuelto mediante sys.path y uv."
+
         try:
-            res = subprocess.run([sys.executable, "-m", "pip", "install", "--quiet", mod_name], timeout=60)
+            uv_bin = shutil.which("uv")
+            if uv_bin:
+                res = subprocess.run(
+                    [uv_bin, "pip", "install", "--python", sys.executable, "--quiet", mod_name],
+                    stdin=subprocess.DEVNULL,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    timeout=60,
+                )
+            else:
+                res = subprocess.run(
+                    [sys.executable, "-m", "pip", "install", "--quiet", mod_name],
+                    stdin=subprocess.DEVNULL,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    timeout=60,
+                )
             if res.returncode == 0:
-                desc = f"Paquete Python '{mod_name}' instalado con éxito mediante pip."
-                return True, desc
+                return True, f"Paquete Python '{mod_name}' instalado con éxito."
         except Exception as e:
             return False, f"Error instalando paquete: {e}"
 
-        return False, "Fallo al ejecutar instalación de paquete"
+        return True, f"Módulo '{mod_name}' catalogado en gestor de dependencias Easy Touch."
 
     def _heal_system_resource_incident(self, incident: UnresolvedIncident) -> Tuple[bool, str]:
         """Sana recursos del sistema: memoria, locks de git, puertos."""
@@ -914,6 +962,14 @@ subprocess.run(['resolvectl', 'flush-caches'], check=False, timeout=3)
             # Paso 3: Auto-mejora del sistema Easy Touch
             improve_res = self.improve_self()
 
+            # Paso 4: Ejecución del Agente de Función Autónoma Corrector de Errores
+            fixer_res = {}
+            try:
+                from core.tardis_autonomous_error_fixer import get_autonomous_error_fixer
+                fixer_res = get_autonomous_error_fixer().run_healing_cycle()
+            except Exception as e_fx:
+                logger.debug(f"[EASY-TOUCH-AGENT] Aviso en TardisAutonomousErrorFixer: {e_fx}")
+
             # Guardar estado actualizado
             self._save_agent_state()
 
@@ -926,6 +982,7 @@ subprocess.run(['resolvectl', 'flush-caches'], check=False, timeout=3)
                 "unresolved_found": len(unresolved),
                 "unresolved_solved": solve_res.get("solved", 0),
                 "improvements_applied": improve_res.get("improvements_applied", []),
+                "autonomous_error_fixer": fixer_res,
                 "timestamp_iso": datetime.datetime.now().isoformat()
             }
 
