@@ -1478,6 +1478,73 @@ HELP_CATALOG = (
 )
 
 
+# ---------------------------------------------------------------------------
+# Puente hacia la consola nativa TARDIS Desktop (:8798)
+# ---------------------------------------------------------------------------
+_NATIVE_CAMERA_OPEN = re.compile(
+    r"\b(abre|abrir|activa|activar|enciende|encender|prende|prender|muestra|mostrar|enfoca|enfocar|pon)\b"
+    r".{0,48}\b(c[aá]mara|webcam|god[ -]?eye|c310|tapo)\b",
+    re.IGNORECASE,
+)
+_NATIVE_CAMERA_OPEN_REVERSE = re.compile(
+    r"\b(c[aá]mara|webcam)\b.{0,40}\b(abre|abrir|activa|activar|enciende|encender|prende|prender|muestra|mostrar|enfoca|enfocar)\b",
+    re.IGNORECASE,
+)
+_NATIVE_CAMERA_CLOSE = re.compile(
+    r"\b(cierra|cerrar|apaga|apagar|desactiva|desactivar|oculta|ocultar|det[eé]n|detener)\b"
+    r".{0,48}\b(c[aá]mara|webcam|god[ -]?eye|c310|tapo)\b",
+    re.IGNORECASE,
+)
+_NATIVE_CAMERA_CLOSE_REVERSE = re.compile(
+    r"\b(c[aá]mara|webcam)\b.{0,40}\b(cierra|cerrar|apaga|apagar|desactiva|desactivar|oculta|ocultar|det[eé]n|detener)\b",
+    re.IGNORECASE,
+)
+
+
+def _native_camera_source(msg_l: str) -> str:
+    """Resuelve qué cámara pidió el Arquitecto a partir del texto."""
+    if re.search(r"\b(webcam|local|laptop|port[aá]til|integrada|usb)\b", msg_l):
+        return "local"
+    if re.search(r"\b(c310|god[ -]?eye|tapo|seguridad|exterior|vigilancia|jard[ií]n|garaje)\b", msg_l):
+        return "c310"
+    return "auto"
+
+
+def _dispatch_native_camera(action: str, source: str = "auto") -> Dict[str, Any]:
+    """
+    Ordena a la consola nativa TARDIS Desktop abrir o cerrar una cámara.
+
+    Se usan dos vías complementarias: el canal de sincronización (por si la
+    app está en otra sesión y sondea /api/sync) y un POST directo al puente
+    local :8798 para que la reacción sea inmediata. Ambas son loopback.
+    """
+    result: Dict[str, Any] = {"ok": False, "action": action, "source": source}
+    try:
+        result["sync"] = SYNC_HUB.dispatch_client_command(
+            action, {"source": source}, target_client_id="tardis-native"
+        )
+    except Exception as exc:
+        result["sync_error"] = str(exc)
+
+    try:
+        import urllib.request
+
+        endpoint = "open" if action == "open_camera" else "close"
+        payload = json.dumps({"source": source}).encode("utf-8")
+        request = urllib.request.Request(
+            f"http://127.0.0.1:8798/camera/{endpoint}",
+            data=payload,
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with urllib.request.urlopen(request, timeout=1.8) as response:
+            result["native"] = json.loads(response.read().decode("utf-8") or "{}")
+        result["ok"] = bool(result["native"].get("ok"))
+    except Exception as exc:
+        result["native_error"] = str(exc)
+    return result
+
+
 def process_hardware_chat_intent(msg: str, is_local_request: bool = False) -> Optional[Dict[str, Any]]:
     """
     Sovereign Chat Dispatcher & Physical/System/UI Action Engine.
@@ -1496,6 +1563,63 @@ def process_hardware_chat_intent(msg: str, is_local_request: bool = False) -> Op
 
     msg_raw = msg.strip()
     msg_l = msg_raw.lower()
+
+    # =========================================================================
+    # BLOQUE 0-A: CÁMARA DE LA CONSOLA NATIVA (TARDIS Desktop, puerto 8798)
+    # =========================================================================
+    if is_local_request:
+        camera_source = _native_camera_source(msg_l)
+        camera_action = ""
+
+        if msg_l.startswith(("/camera", "/camara", "/cámara", "/webcam", "/cam")):
+            parts = msg_raw.replace("/", " ").split()
+            tail = " ".join(parts[1:]).strip().lower()
+            if tail in ("off", "close", "cerrar", "cierra", "apagar", "apaga", "stop"):
+                camera_action = "close_camera"
+            elif tail in ("local", "webcam", "integrada", "laptop"):
+                camera_source = "local"
+                camera_action = "open_camera"
+            elif tail in ("c310", "god-eye", "godeye", "tapo", "seguridad"):
+                camera_source = "c310"
+                camera_action = "open_camera"
+            elif tail in ("", "on", "open", "abrir", "abre", "auto", "ver", "mostrar"):
+                camera_action = "open_camera"
+        elif (_NATIVE_CAMERA_CLOSE.search(msg_l) or _NATIVE_CAMERA_CLOSE_REVERSE.search(msg_l)):
+            camera_action = "close_camera"
+        elif (_NATIVE_CAMERA_OPEN.search(msg_l) or _NATIVE_CAMERA_OPEN_REVERSE.search(msg_l)):
+            camera_action = "open_camera"
+
+        if camera_action:
+            res = _dispatch_native_camera(camera_action, camera_source)
+            if camera_action == "open_camera":
+                label = ("la GOD-EYE Tapo C310" if camera_source == "c310"
+                         else "la webcam local" if camera_source == "local"
+                         else "la cámara disponible")
+                if res.get("ok"):
+                    feedback = (
+                        f"👁️ [CÁMARA NATIVA]: {label.capitalize()} ya está activa en la consola "
+                        "TARDIS de escritorio. Puedes ver la señal en vivo en el panel derecho."
+                    )
+                else:
+                    feedback = (
+                        f"👁️ [CÁMARA NATIVA]: Envié la orden para abrir {label}, pero la consola "
+                        f"nativa no confirmó la apertura ({res.get('native_error', 'sin respuesta')}). "
+                        "Abre TARDIS Desktop y vuelve a intentarlo."
+                    )
+            else:
+                feedback = (
+                    "🌑 [CÁMARA NATIVA]: Cámara desactivada en la consola TARDIS de escritorio."
+                    if res.get("ok") else
+                    "🌑 [CÁMARA NATIVA]: Orden de cierre enviada; la consola nativa no respondió."
+                )
+            return {
+                "action": camera_action,
+                "executed": res.get("ok", False),
+                "direct_return": True,
+                "ui_action": {"command": camera_action, "params": {"source": camera_source}},
+                "system_feedback": feedback,
+                "raw": res,
+            }
 
     # --- TAB MAPPER PARA NAVEGACIÓN DE PESTAÑAS EN SIDEBAR ---
     tab_map = {
@@ -7414,6 +7538,45 @@ iframe{{border:none;width:100%;height:100%;}}</style></head>
                 self.send_json(res, status=200 if res.get("ok") else 400)
             except Exception as e_qpost:
                 self.send_json({"ok": False, "error": str(e_qpost)}, status=500)
+            return
+
+        # 0.9 Análisis de cámara en vivo solicitado por la consola nativa
+        if url_path in ("/api/camera/analyze", "/api/visual_intelligence/analyze"):
+            if not self._is_local_request():
+                self.send_json({
+                    "ok": False,
+                    "error": "El análisis de cámara en vivo solo está disponible desde el nodo local físico.",
+                }, status=403)
+                return
+            camera = str(body.get("camera") or "auto").strip().lower()
+            question = str(body.get("question") or "").strip()
+            try:
+                from core.visual_intelligence_engine import get_visual_intelligence_engine
+
+                engine = get_visual_intelligence_engine()
+                result = engine.analyze_surroundings(
+                    camera=camera,
+                    question=question,
+                    source="native_desktop",
+                    user_name="Arquitecto",
+                )
+                data = result.to_dict()
+                reply = (result.verdict or result.summary or result.conclusions
+                         or result.visual_description or "").strip()
+                if not reply:
+                    reply = "La cámara fue analizada, pero el motor visual no emitió un veredicto textual."
+                self.send_json({
+                    "ok": True,
+                    "reply": reply,
+                    "camera": (result.metadata or {}).get("camera", camera),
+                    "risk_level": (result.verdict_data or {}).get("risk_level"),
+                    "risk_label": (result.verdict_data or {}).get("risk_label"),
+                    "vision_engine": result.vision_engine,
+                    "record_id": result.id,
+                    "analysis": data,
+                })
+            except Exception as exc:
+                self.send_json({"ok": False, "error": str(exc)}, status=500)
             return
 
         # 1. Chat Agéntico & Inferencia Sincronizada Multi-Cliente (Local & Clientes)

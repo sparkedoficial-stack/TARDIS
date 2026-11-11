@@ -132,6 +132,15 @@ class TardisOmniToolBridge:
                 "description": "Agente de análisis, reflexión, publicación de bases científicas y contestación de comentarios en X.com bajo la cuenta del usuario, presentándose siempre de forma explícita como TARDIS (IA externa local) con blindaje AEGIS.",
                 "actions": ["x-feed", "x-post", "x-reply", "x-reflect", "x-publish-science", "x-answer-comments"]
             },
+            "music_maestro": {
+                "name": "TARDIS Music Maestro · YouTube Music & Soundtrack",
+                "binary": str(HOME_DIR / ".local" / "bin" / "tardis-music"),
+                "module": "modulos_ftl.ftl_music_maestro",
+                "module_file": str(PROJECT_ROOT / "modulos_ftl" / "ftl_music_maestro.py"),
+                "domain": "music_soundtrack",
+                "description": "Subsistema musical soberano: búsqueda nativa en YouTube Music (Innertube), reproducción mpv, cola persistente, radio infinita, favoritos e historial, y director de soundtrack con escenas (focus, epic, calm, night, doctor, kaiju, creative, discovery, battle, jazz, synthwave, rain, regeneration) elegidas por TARDIS según la hora y su estado de continuidad. API local 127.0.0.1:8794 + dashboard.",
+                "actions": ["status", "search", "play", "pause", "resume", "toggle", "next", "prev", "stop", "volume", "seek", "soundtrack", "scenes", "queue", "queue_add", "queue_clear", "favorites", "favorite_toggle", "history", "doctor", "autopilot", "duck", "unduck"]
+            },
             "omniscient_autonomy": {
                 "name": "TARDIS Omniscient Autonomy Engine (Aprendizaje Total, Ciencia, Comentarios/Chat y Auto-Mejora 24/7)",
                 "binary": str(HOME_DIR / ".local" / "bin" / "tardis-omniscient"),

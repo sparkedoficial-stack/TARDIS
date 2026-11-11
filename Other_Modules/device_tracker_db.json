@@ -102,7 +102,7 @@
     "traffic_bytes_tx": 0,
     "traffic_packets": 0,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-10T05:41:50.600167+00:00",
+    "last_seen": "2026-11-11T06:57:56.825041+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -188,7 +188,7 @@
     "traffic_bytes_tx": 0,
     "traffic_packets": 0,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-10T05:41:50.600167+00:00",
+    "last_seen": "2026-11-11T06:57:56.825041+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -252,7 +252,7 @@
     "traffic_bytes_tx": 0,
     "traffic_packets": 0,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-10T05:41:50.600167+00:00",
+    "last_seen": "2026-11-11T02:47:43.375309+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -446,11 +446,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": REDACTED_PHONE,
-    "traffic_bytes_tx": 534391508,
-    "traffic_packets": 7481593,
+    "traffic_bytes_rx": 0,
+    "traffic_bytes_tx": 0,
+    "traffic_packets": 0,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-10T05:41:50.600167+00:00",
+    "last_seen": "2026-11-11T17:10:10.457463+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -522,11 +522,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 340884241,
-    "traffic_bytes_tx": 655919,
-    "traffic_packets": 277309,
+    "traffic_bytes_rx": 16783599,
+    "traffic_bytes_tx": 809201,
+    "traffic_packets": 24442,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-10T05:41:50.600167+00:00",
+    "last_seen": "2026-11-11T17:10:10.457463+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -599,30 +599,33 @@
     "mac": "04:4A:69:EA:31:47",
     "ip": "REDACTED_IP",
     "ipv6_addresses": [],
-    "alias": "Dispositivo LAN (REDACTED_IP)",
-    "hostname": "Dispositivo LAN (REDACTED_IP)",
+    "alias": "Android.local",
+    "hostname": "Android.local",
     "vendor": "Shenzhen Phaten Tech. LTD",
-    "device_type": "Dispositivo de Red (Shenzhen Phaten Tech. LTD)",
-    "interface": "enp2s0",
-    "connection_medium": "Ethernet / LAN (enp2s0)",
-    "network_segment": "Ethernet / LAN Principal (REDACTED_IP/24)",
-    "arp_state": "REACHABLE",
+    "device_type": "Cliente Wi-Fi Hotspot (REDACTED_IP/24)",
+    "interface": "wlp3s0",
+    "connection_medium": "Wi-Fi (wlp3s0)",
+    "network_segment": "Wi-Fi Soberana TimeMachine (REDACTED_IP/24)",
+    "arp_state": "STALE",
     "online": true,
     "rtt_ms": 1.52,
     "open_ports": [],
     "port_details": [],
     "risky_ports": [],
-    "mdns_services": [],
+    "mdns_services": [
+      "Whale TV\\040A19F\\041 (AirPlay Remote Video)",
+      "8433F219A19F@Whale TV\\040A19F\\041 (AirTunes Remote Audio)"
+    ],
     "wifi_metrics": {},
     "trust_level": "KNOWN",
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 84,
-    "traffic_bytes_tx": 84,
-    "traffic_packets": 2,
+    "traffic_bytes_rx": 0,
+    "traffic_bytes_tx": 0,
+    "traffic_packets": 0,
     "first_seen": "2026-10-24T00:57:57.971367+00:00",
-    "last_seen": "2026-10-24T00:57:57.971367+00:00",
+    "last_seen": "2026-11-11T02:47:43.375309+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -1089,6 +1092,38 @@
     "traffic_packets": 0,
     "first_seen": "2026-11-08T23:50:25.602707+00:00",
     "last_seen": "2026-11-08T23:50:25.602707+00:00",
+    "ip_history": [
+      "REDACTED_IP"
+    ]
+  },
+  "00:09:0F:09:04:12": {
+    "mac": "00:09:0F:09:04:12",
+    "ip": "REDACTED_IP",
+    "ipv6_addresses": [],
+    "alias": "Cliente Wi-Fi TimeMachine (REDACTED_IP)",
+    "hostname": "Cliente Wi-Fi TimeMachine (REDACTED_IP)",
+    "vendor": "Fortinet, Inc.",
+    "device_type": "Cliente Wi-Fi Hotspot (REDACTED_IP/24)",
+    "interface": "wlp3s0",
+    "connection_medium": "Wi-Fi (wlp3s0)",
+    "network_segment": "Wi-Fi Soberana TimeMachine (REDACTED_IP/24)",
+    "arp_state": "REACHABLE",
+    "online": true,
+    "rtt_ms": 5.68,
+    "open_ports": [],
+    "port_details": [],
+    "risky_ports": [],
+    "mdns_services": [],
+    "wifi_metrics": {},
+    "trust_level": "KNOWN",
+    "is_quarantined": false,
+    "throttle_kbps": null,
+    "is_safe": true,
+    "traffic_bytes_rx": 0,
+    "traffic_bytes_tx": 0,
+    "traffic_packets": 0,
+    "first_seen": "2026-11-11T14:43:22.254413+00:00",
+    "last_seen": "2026-11-11T17:10:10.457463+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]

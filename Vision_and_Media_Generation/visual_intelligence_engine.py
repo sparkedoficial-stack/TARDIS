@@ -288,6 +288,46 @@ class VisualIntelligenceEngine:
                 pass
         return "REDACTED_GROQ"
 
+    def _groq_text_call(self, prompt: str, max_tokens: int = 1600) -> str:
+        """Síntesis de texto rápida en Groq LPU (solo texto; las imágenes nunca salen del equipo)."""
+        key = self._get_groq_key()
+        if not key:
+            return ""
+        models = [os.environ.get("TARDIS_VISUAL_TEXT_MODEL", "qwen/qwen3.8-27b").strip(),
+                  "openai/gpt-oss-120b", "qwen/qwen3.8-27b"]
+        for model in dict.fromkeys([m for m in models if m]):
+            try:
+                r = requests.post(
+                    "https://api.groq.com/openai/v1/chat/completions",
+                    headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
+                    json={
+                        "model": model,
+                        "messages": [
+                            {
+                                "role": "system",
+                                "content": (
+                                    "Eres TARDIS, sistema soberano de inteligencia artificial y control temporal. "
+                                    "Responde en español, con rigor, claridad y sin inventar datos."
+                                ),
+                            },
+                            {"role": "user", "content": prompt},
+                        ],
+                        "temperature": 0.25,
+                        "max_tokens": max_tokens,
+                    },
+                    timeout=45,
+                )
+                if r.status_code == 200:
+                    text = (r.json().get("choices", [{}])[0].get("message", {}).get("content") or "").strip()
+                    if text:
+                        return text
+                elif r.status_code in (400, 404):
+                    continue
+            except Exception as e:
+                logger.debug(f"Groq texto no disponible ({model}): {e}")
+                continue
+        return ""
+
     # --------------------------------------------------------------------------
     # PERCEPCIÓN VISUAL MULTIMODAL REAL (VLM LOCAL / NUBE SOBERANA)
     # --------------------------------------------------------------------------
@@ -338,7 +378,9 @@ class VisualIntelligenceEngine:
             pass
         return base64.b64encode(raw).decode("utf-8")
 
-    def _ollama_vision_call(self, b64_img: str, prompt: str, model: str) -> Dict[str, Any]:
+    def _ollama_vision_call(self, b64_img: str, prompt: str, model: str, *,
+                            max_tokens: int = 300, num_ctx: int = 4096,
+                            timeout: float = 240.0) -> Dict[str, Any]:
         """Inferencia multimodal local en Ollama (privacidad soberana total)."""
         try:
             payload = {
@@ -347,14 +389,19 @@ class VisualIntelligenceEngine:
                 "images": [b64_img],
                 "stream": False,
                 "think": False,
-                "keep_alive": "10m",
+                "keep_alive": "30m",
                 "options": {
                     "temperature": 0.15,
-                    "num_ctx": 8192,
-                    "num_predict": 900,
+                    "num_ctx": num_ctx,
+                    "num_predict": max_tokens,
+                    "top_k": 20,
+                    "top_p": 0.9,
+                    "repeat_penalty": 1.18,
+                    "repeat_last_n": 256,
+                    "presence_penalty": 0.5,
                 },
             }
-            r = requests.post(f"{OLLAMA_URL}/api/generate", json=payload, timeout=240)
+            r = requests.post(f"{OLLAMA_URL}/api/generate", json=payload, timeout=timeout)
             if r.status_code == 200:
                 body = r.json()
                 text = (body.get("response") or "").strip()
@@ -362,11 +409,44 @@ class VisualIntelligenceEngine:
                     # Algunos modelos de razonamiento vuelcan todo en 'thinking'
                     text = (body.get("thinking") or "").strip()
                 if text:
-                    return {"ok": True, "engine": f"Ollama VLM ({model})", "model": model, "analysis": text}
+                    return {"ok": True, "engine": f"Ollama VLM ({model})", "model": model,
+                            "analysis": self._sanitize_vlm_text(text)}
             return {"ok": False, "engine": f"Ollama VLM ({model})", "model": model,
                     "error": f"HTTP {r.status_code}: {r.text[:200]}"}
         except Exception as e:
             return {"ok": False, "engine": f"Ollama VLM ({model})", "model": model, "error": str(e)}
+
+    @staticmethod
+    def _sanitize_vlm_text(text: str, max_words: int = 220) -> str:
+        """
+        Neutraliza los bucles de repetición típicos de los VLM pequeños (p. ej. una frase
+        repetida 40 veces) y acota la longitud para que la síntesis cognitiva no se contamine.
+        """
+        if not text:
+            return ""
+        t = str(text)
+        # 1) Colapsa elementos idénticos consecutivos en listas ("frase, frase, frase...")
+        t = re.sub(r'((?:[^,;\n]{3,60})(?:,\s*|\s*;\s*))(?:\1){2,}', r'\1', t, flags=re.IGNORECASE)
+        # 2) Colapsa oraciones idénticas consecutivas
+        t = re.sub(r'((?:[^.;\n]{5,120})[.;]\s*)(?:\1){2,}', r'\1', t, flags=re.IGNORECASE)
+        # 3) Colapsa líneas idénticas consecutivas
+        clean_lines: List[str] = []
+        prev_key = None
+        for ln in t.splitlines():
+            key = re.sub(r'\s+', ' ', ln.strip().lower())
+            if key and key == prev_key:
+                continue
+            clean_lines.append(ln.rstrip())
+            prev_key = key
+        t = "\n".join(clean_lines).strip()
+        t = re.sub(r'(,\s*){4,}', ', ', t)
+        # 4) Recorta al máximo de palabras respetando el cierre de frase
+        words = t.split()
+        if len(words) > max_words:
+            cut = " ".join(words[:max_words])
+            idx = max(cut.rfind('.'), cut.rfind('\n'), cut.rfind(';'))
+            t = cut[:idx + 1] if idx > len(cut) * 0.6 else cut
+        return t.strip()
 
     def _gemini_vision_call(self, b64_img: str, prompt: str) -> Dict[str, Any]:
         """Inferencia multimodal en Gemini (fallback en nube si se configura API key)."""
@@ -396,7 +476,8 @@ class VisualIntelligenceEngine:
                 parts = (r.json().get("candidates", [{}])[0].get("content", {}).get("parts", []) or [])
                 text = "\n".join(str(p.get("text", "")) for p in parts).strip()
                 if text:
-                    return {"ok": True, "engine": f"Gemini VLM ({model})", "model": model, "analysis": text}
+                    return {"ok": True, "engine": f"Gemini VLM ({model})", "model": model,
+                            "analysis": self._sanitize_vlm_text(text)}
             return {"ok": False, "engine": f"Gemini VLM ({model})", "error": f"HTTP {r.status_code}: {r.text[:200]}"}
         except Exception as e:
             return {"ok": False, "engine": f"Gemini VLM ({model})", "error": str(e)}
@@ -426,7 +507,8 @@ class VisualIntelligenceEngine:
             if r.status_code == 200:
                 text = (r.json().get("choices", [{}])[0].get("message", {}).get("content") or "").strip()
                 if text:
-                    return {"ok": True, "engine": f"OpenAI-compatible VLM ({model})", "model": model, "analysis": text}
+                    return {"ok": True, "engine": f"OpenAI-compatible VLM ({model})", "model": model,
+                            "analysis": self._sanitize_vlm_text(text)}
             return {"ok": False, "engine": f"OpenAI-compatible VLM ({model})", "error": f"HTTP {r.status_code}: {r.text[:200]}"}
         except Exception as e:
             return {"ok": False, "engine": f"OpenAI-compatible VLM ({model})", "error": str(e)}
@@ -441,10 +523,17 @@ class VisualIntelligenceEngine:
         Describe una imagen con un modelo de visión multimodal real.
         Orden: VLM local (Ollama) -> Gemini -> endpoint OpenAI-compatible -> sin VLM.
         """
-        b64_img = self._prepare_image_b64(image_source)
+        # El VLM local corre en CPU: imagen moderada + respuesta acotada para latencia baja.
+        b64_local = self._prepare_image_b64(image_source, max_side=1024)
+        b64_img = self._prepare_image_b64(image_source, max_side=1600)
         full_prompt = (prompt or VLM_PERCEPTION_PROMPT).strip()
         if context:
             full_prompt += f"\n\nPREGUNTA O DIRECTIVA DEL ARQUITECTO: {context.strip()}"
+        local_prompt = (
+            full_prompt
+            + "\n\nRESTRICCIÓN DE LATENCIA: responde en texto plano con un máximo de 120 palabras, "
+            "sin repetir la pregunta ni explicar tu proceso."
+        )
 
         provider = (os.environ.get("VLM_PROVIDER") or "auto").strip().lower()
         attempts: List[Dict[str, Any]] = []
@@ -452,7 +541,7 @@ class VisualIntelligenceEngine:
         if provider in ("auto", "ollama", "local"):
             model = self._discover_vlm_model()
             if model:
-                res = self._ollama_vision_call(b64_img, full_prompt, model)
+                res = self._ollama_vision_call(b64_local, local_prompt, model)
                 attempts.append(res)
                 if res.get("ok"):
                     return res
@@ -780,7 +869,17 @@ class VisualIntelligenceEngine:
 
         full_prompt = "\n".join(prompt_lines)
 
-        # 1. Intentar con KaijuCognitiveOrchestrator (Groq LPU ultra-rápido)
+        # 1. Síntesis rápida en Groq LPU (solo texto: privacidad de la imagen intacta)
+        try:
+            t_groq = time.time()
+            raw_groq = self._groq_text_call(full_prompt)
+            if raw_groq:
+                logger.info(f"⚡ [VisualIntelligence] Síntesis de veredicto vía Groq LPU en {time.time()-t_groq:.1f}s")
+                return self._parse_structured_ai_response(raw_groq)
+        except Exception as e_groq:
+            logger.warning(f"Aviso síntesis Groq en inteligencia visual: {e_groq}")
+
+        # 2. Intentar con KaijuCognitiveOrchestrator (Groq LPU ultra-rápido)
         try:
             from core.kaiju_cognitive_orchestrator import get_kaiju_cognitive_orchestrator
             orch = get_kaiju_cognitive_orchestrator()
@@ -795,7 +894,7 @@ class VisualIntelligenceEngine:
         except Exception as e_orch:
             logger.warning(f"Aviso orquestador cognitivo en síntesis visual: {e_orch}")
 
-        # 2. Fallback a inferencia local soberana
+        # 3. Fallback a inferencia local soberana
         try:
             import gia_sovereign_engine as _gse
             eng = _gse.get_engine()
@@ -806,7 +905,7 @@ class VisualIntelligenceEngine:
         except Exception as e_local:
             logger.warning(f"Aviso inferencia local en síntesis visual: {e_local}")
 
-        # 3. Fallback determinista
+        # 4. Fallback determinista
         return {
             "summary": f"Video de {tech_meta.get('duration', 0)}s ({tech_meta.get('width',0)}x{tech_meta.get('height',0)}).",
             "visual_description": vlm_description[:1200] if vlm_description else f"Se observaron {len(visual_timeline)} secuencias temporales con tonalidades {visual_timeline[0].get('dominant_hex') if visual_timeline else 'neutras'}.",
@@ -865,19 +964,37 @@ class VisualIntelligenceEngine:
         """Extrae el nivel de riesgo 0-10 declarado por el modelo o el veredicto."""
         if not text:
             return None
+        # 1. Formato explícito "N/10" cerca de la palabra riesgo
         patterns = (
-            r"nivel\s+de\s+riesgo[^\d]{0,24}(\d{1,2})\s*(?:/\s*10)?",
-            r"riesgo\s*(?:general|actual|observado)?[^\d]{0,20}(\d{1,2})\s*/\s*10",
-            r"riesgo[^\d]{0,16}(\d{1,2})\s*(?:/|de)\s*10",
+            r"riesgo[^.\n]{0,120}?(\d{1,2})\s*(?:/\s*10|de\s*10)",
+            r"(\d{1,2})\s*/\s*10[^.\n]{0,60}riesgo",
+            r"nivel\s+de\s+riesgo[^\d]{0,80}(\d{1,2})",
         )
         for pat in patterns:
-            m = re.search(pat, text, re.IGNORECASE)
+            m = re.search(pat, text, re.IGNORECASE | re.DOTALL)
             if m:
                 try:
-                    val = int(m.group(1))
-                    return max(0, min(10, val))
+                    return max(0, min(10, int(m.group(1))))
                 except Exception:
                     continue
+        # 2. Cualquier "N/10" explícito en el veredicto
+        m = re.search(r"\b(\d{1,2})\s*/\s*10\b", text)
+        if m:
+            try:
+                return max(0, min(10, int(m.group(1))))
+            except Exception:
+                pass
+        # 3. Escala cualitativa en español
+        low = text.lower()
+        qualitative = (
+            (("inminente", "crítico", "critico", "muy alto", "peligro grave"), 9),
+            (("riesgo alto", "alto riesgo", "peligroso"), 7),
+            (("riesgo medio", "moderado", "riesgo moderado"), 5),
+            (("riesgo bajo", "bajo riesgo", "seguro", "tranquilo", "sin riesgo", "sin peligro", "no hay riesgo", "ningún riesgo", "ningun riesgo", "riesgo nulo"), 1),
+        )
+        for tokens, level in qualitative:
+            if any(tok in low for tok in tokens):
+                return level
         return None
 
     @staticmethod

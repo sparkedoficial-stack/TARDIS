@@ -1,24 +1,52 @@
 {
   "daemon": "tardis-visual-intelligence",
   "running": true,
-  "pid": 437328,
-  "uptime_sec": 27370.7,
-  "last_heartbeat": "2026-11-10T07:42:30.355183",
+  "pid": 1121,
+  "uptime_sec": 372.8,
+  "last_heartbeat": "2026-11-11T12:15:23.249638",
   "items_processed": 0,
   "last_processed_id": "",
-  "memory_rss_mb": 421.23,
+  "memory_rss_mb": 197.24,
   "engine_status": {
     "status": "online",
-    "engine": "VisualIntelligenceEngine v26.4",
+    "engine": "VisualIntelligenceEngine v26.5 (VLM + Veredictos)",
     "orchestrator": "TARDIS-NEURAL-SPACE-KAIJU",
     "whisper_accel": "Groq LPU (whisper-large-v3-turbo)",
     "ocr_ready": false,
     "haar_cascades_ready": false,
-    "stored_videos_count": 912,
-    "stored_images_count": 1,
+    "vlm_ready": true,
+    "vlm_model": "qwen3-vl:2b-instruct",
+    "vlm_provider": "auto",
+    "vlm_error": "",
+    "verdict_engine": "VLM + Kaiju + veredicto estructurado",
+    "stored_videos_count": 943,
+    "stored_images_count": 50,
     "stored_sounds_count": 0,
+    "stored_verdicts_count": 52,
+    "last_verdict": {
+      "id": "vid_20261111_121119_7b3e7b",
+      "created_at": "2026-11-11T12:11:29.842668",
+      "source": "video_pensante",
+      "verdict": "Dictamen:\nEl medio es un recurso educativo de alta calidad, diseñado para introducir al público general en las limitaciones epistemológicas de la física cuántica. No contiene datos nuevos ni investigaciones originales, pero ofrece una base conceptual sólida para comprender por qué la Teoría de Cuerdas y la Gravedad Cuántica son necesarias: porque la realidad a escala subatómica no es \"visible\" en el sentido clásico.\n\nHechos Observados:\n1.  El video explica que la luz visible no puede resolver la estructura de las partículas elementales.\n2.  Se afirma que aumentar la energía de la luz para mejo",
+      "risk_level": null
+    },
+    "surroundings_interval_sec": 900,
     "vault_dir": "/home/m11/Escritorio/GODWORKS SYSTEM/vault/videos/telegram",
     "spool_dir": "/home/m11/Escritorio/GODWORKS SYSTEM/vault/visual_intelligence/spool",
     "db_path": "/home/m11/Escritorio/GODWORKS SYSTEM/data/visual_intelligence/visual_memory.db"
+  },
+  "surroundings": {
+    "interval_sec": 900.0,
+    "checks": 0,
+    "verdicts": 0,
+    "last_verdict_id": "",
+    "last_risk_level": null,
+    "last_verdict": "",
+    "last_error": "fotograma C310 obsoleto (35754s)",
+    "last_check_ts": REDACTED_PHONE.09779
+  },
+  "vlm": {
+    "ready": true,
+    "model": "qwen3-vl:2b-instruct"
   }
 }

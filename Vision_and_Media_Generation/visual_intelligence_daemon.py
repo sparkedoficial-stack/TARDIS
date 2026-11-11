@@ -75,6 +75,29 @@ class VisualIntelligenceDaemon:
         self.last_surroundings_risk = None
         self.last_surroundings_verdict = ""
         self.last_surroundings_error = ""
+        self._bootstrap_surroundings_state()
+
+    def _bootstrap_surroundings_state(self):
+        """
+        Evita re-emitir un veredicto duplicado al reiniciar el demonio: hereda la cadencia
+        del último veredicto persistido y la firma perceptual del fotograma más reciente.
+        """
+        try:
+            last = self.engine.get_last_verdict() or {}
+            created = str((last.get("record") or last).get("created_at") or "").strip()
+            if created:
+                ts = datetime.fromisoformat(created.replace("Z", "")).timestamp()
+                self.last_surroundings_check = ts
+                logger.info(f"♻️ [VisualDaemon] Cadencia heredada del último veredicto ({created[:19]}).")
+        except Exception as e:
+            logger.debug(f"No se pudo heredar cadencia de veredictos: {e}")
+        try:
+            from core.tapo_c310_sentinel import DETECTIONS_DIR
+            latest = DETECTIONS_DIR / "latest_frame.jpg"
+            if latest.is_file():
+                self.last_surroundings_sig = self._frame_signature(latest)
+        except Exception:
+            pass
 
     def _setup_signals(self):
         for sig in (signal.SIGTERM, signal.SIGINT):

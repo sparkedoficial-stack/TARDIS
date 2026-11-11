@@ -944,6 +944,88 @@ def create_app() -> FastAPI:
         except Exception as e:
             return JSONResponse(status_code=503, content={"ok": False, "error": str(e)})
 
+    @app.post("/api/camera/analyze")
+    async def camera_analyze(payload: VisualVerdictPayload, request: Request):
+        """Análisis en vivo solicitado por la consola nativa TARDIS Desktop.
+
+        Captura la cámara pedida (c310/local/auto), la comprende con el motor
+        visual y devuelve un texto listo para mostrar y pronunciar.
+        """
+        has_proxy = bool(
+            request.headers.get("cf-connecting-ip")
+            or request.headers.get("x-forwarded-for")
+            or request.headers.get("x-real-ip")
+        )
+        is_local = (not has_proxy) and (
+            request.client.host in ("127.0.0.1", "localhost", "::1", "testclient")
+            if request.client else False
+        )
+        if not is_local:
+            return JSONResponse(
+                status_code=403,
+                content={
+                    "ok": False,
+                    "error": "El análisis de cámara en vivo solo está disponible desde el nodo local físico.",
+                },
+            )
+
+        from core.visual_intelligence_engine import get_visual_intelligence_engine
+
+        camera = (payload.camera or "auto").strip().lower()
+        question = (payload.question or payload.prompt or "").strip()
+
+        def _run():
+            engine = get_visual_intelligence_engine()
+            # Vía rápida: una sola pasada del VLM local, sin la síntesis
+            # cognitiva completa (que en CPU puede tardar varios minutos).
+            image_path, label, meta = engine.capture_surroundings_image(camera=camera)
+            if not image_path:
+                raise RuntimeError(
+                    f"No se pudo obtener imagen de la cámara ({camera}): "
+                    f"{meta.get('error', 'sin detalle')}"
+                )
+            model = engine._discover_vlm_model()
+            if not model:
+                raise RuntimeError("No hay un modelo de visión local disponible en Ollama.")
+            b64_img = engine._prepare_image_b64(image_path, max_side=1024)
+            prompt = (
+                "Eres TARDIS observando una cámara en vivo. Describe en español, en dos o tres "
+                "frases claras, lo que se ve: personas, vehículos, animales, objetos y entorno. "
+                "Indica si detectas alguna situación de riesgo; si no, dilo. No inventes nada."
+            )
+            if question:
+                prompt += f"\n\nPregunta del Arquitecto: {question}"
+            vlm = engine._ollama_vision_call(
+                b64_img, prompt, model,
+                max_tokens=130, num_ctx=2048, timeout=250.0,
+            )
+            if not vlm.get("ok"):
+                raise RuntimeError(vlm.get("error") or "El modelo de visión no respondió.")
+            text = (vlm.get("analysis") or "").strip()
+            risk = engine._parse_risk_level(text)
+            return {
+                "ok": True,
+                "reply": text,
+                "camera": meta.get("camera", label),
+                "risk_level": risk,
+                "risk_label": (
+                    "sin_cuantificar" if risk is None else
+                    "seguro" if risk <= 2 else
+                    "vigilancia" if risk <= 5 else
+                    "alto" if risk <= 7 else
+                    "crítico"
+                ),
+                "vision_engine": vlm.get("engine", f"Ollama VLM ({model})"),
+                "image_path": str(image_path),
+                "capture": meta.get("capture"),
+            }
+
+        try:
+            loop = asyncio.get_running_loop()
+            return await loop.run_in_executor(None, _run)
+        except Exception as e:
+            return JSONResponse(status_code=503, content={"ok": False, "error": str(e)})
+
     @app.get("/api/visual_intelligence/verdict/last")
     async def visual_intelligence_last_verdict():
         """Último veredicto visual emitido por TARDIS."""

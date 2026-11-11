@@ -243,6 +243,8 @@ class ToolRegistry:
         self._reg_self_evolution_tools()
         # 10. EMBAJADA DE AGENTES SOBERANOS & COLONIA SIMBIÓTICA
         self._reg_agent_colony_tools()
+        # 11. MÚSICA Y SOUNDTRACK SOBERANO (YOUTUBE MUSIC)
+        self._reg_music_tools()
 
     def _reg_hw_os_tools(self) -> None:
         def _set_vol(args: dict):
@@ -611,6 +613,68 @@ class ToolRegistry:
             description="Captura un fotograma instantáneo en alta definición de la cámara terminal especificada.",
             parameters={"camera_id": {"type": "string", "description": "ID de la cámara a capturar"}},
             handler=_capture_cam
+        ))
+
+        def _native_camera(args: dict) -> dict:
+            import json as _json
+            import urllib.request
+
+            action = str(args.get("action", "open") or "open").strip().lower()
+            action = "close" if action in ("close", "cerrar", "off", "apagar") else "open"
+            source = str(args.get("source", "auto") or "auto").strip().lower()
+            if source not in ("auto", "c310", "local", "webcam"):
+                source = "auto"
+            if source == "webcam":
+                source = "local"
+            payload = _json.dumps({"source": source}).encode("utf-8")
+            request = urllib.request.Request(
+                f"http://127.0.0.1:8798/camera/{action}",
+                data=payload,
+                headers={"Content-Type": "application/json"},
+                method="POST",
+            )
+            try:
+                with urllib.request.urlopen(request, timeout=3.0) as response:
+                    result = _json.loads(response.read().decode("utf-8") or "{}")
+                result.setdefault("ok", False)
+                result["action"] = f"{action}_camera"
+                result["source"] = source
+                return result
+            except Exception as exc:
+                return {
+                    "ok": False,
+                    "action": f"{action}_camera",
+                    "source": source,
+                    "error": f"Consola nativa TARDIS Desktop no disponible en :8798 ({exc})",
+                }
+
+        self.register(ToolDefinition(
+            name="open_native_camera",
+            category="VISION_CCTV",
+            description=(
+                "Abre la cámara en la consola nativa TARDIS Desktop y muestra la señal en vivo "
+                "en su panel derecho. Úsala cuando el Arquitecto pida ver la cámara, la webcam, "
+                "la GOD-EYE C310 o la cámara de seguridad en la aplicación de escritorio."
+            ),
+            parameters={
+                "source": {
+                    "type": "string",
+                    "enum": ["auto", "c310", "local", "webcam"],
+                    "description": "Fuente: auto (C310 primero), c310 (GOD-EYE Tapo) o local/webcam",
+                }
+            },
+            handler=_native_camera
+        ))
+
+        def _native_camera_close(args: dict) -> dict:
+            return _native_camera({**args, "action": "close"})
+
+        self.register(ToolDefinition(
+            name="close_native_camera",
+            category="VISION_CCTV",
+            description="Cierra la cámara y oculta el panel de vídeo en la consola nativa TARDIS Desktop.",
+            parameters={},
+            handler=_native_camera_close
         ))
 
         def _visual_verdict(args: dict):
@@ -1165,7 +1229,150 @@ class ToolRegistry:
             handler=_colony_grant_compute
         ))
 
+    # ------------------------------------------------------------------------
+    # 11. MÚSICA Y SOUNDTRACK SOBERANO (YOUTUBE MUSIC)
+    # ------------------------------------------------------------------------
+    def _reg_music_tools(self) -> None:
+        """Herramientas para que TARDIS busque, reproduzca y dirija soundtracks."""
 
+        def _music_search(args: dict):
+            from core.tardis_music_maestro import music_command
+            return music_command(
+                "search",
+                query=args.get("query", ""),
+                limit=int(args.get("limit", 10)),
+                filter=str(args.get("filter", "songs")),
+            )
+
+        self.register(ToolDefinition(
+            name="music_search",
+            category="MUSIC_SOUNDTRACK",
+            description="Busca canciones, vídeos, álbumes, playlists o artistas en YouTube Music y devuelve metadatos y videoIds reproducibles.",
+            parameters={
+                "query": {"type": "string", "description": "Búsqueda musical (título, artista, soundtrack, mood…)"},
+                "limit": {"type": "integer", "description": "Máximo de resultados (1-50)"},
+                "filter": {"type": "string", "enum": ["songs", "videos", "albums", "playlists", "artists", "all"]},
+            },
+            required_args=["query"],
+            handler=_music_search,
+        ))
+
+        def _music_play(args: dict):
+            from core.tardis_music_maestro import music_command
+            if str(args.get("mode", "track")).lower() == "soundtrack":
+                return music_command(
+                    "soundtrack",
+                    scene=str(args.get("scene") or "focus"),
+                    auto=bool(args.get("auto", False)),
+                )
+            return music_command("play", query=args.get("query", ""))
+
+        self.register(ToolDefinition(
+            name="music_play",
+            category="MUSIC_SOUNDTRACK",
+            description="Reproduce música en YouTube Music por búsqueda, URL o videoId. Con mode='soundtrack' genera un soundtrack completo de la escena pedida.",
+            parameters={
+                "query": {"type": "string", "description": "Búsqueda, URL de YouTube/YouTube Music o videoId"},
+                "mode": {"type": "string", "enum": ["track", "soundtrack"], "description": "track = pista/cola de búsqueda; soundtrack = escena automática"},
+                "scene": {"type": "string", "description": "Escena para mode=soundtrack (focus, epic, calm, night, doctor, kaiju, creative, discovery, battle, jazz, synthwave, rain, regeneration)"},
+                "auto": {"type": "boolean", "description": "Activar autopilot al crear el soundtrack"},
+            },
+            handler=_music_play,
+        ))
+
+        def _music_control(args: dict):
+            from core.tardis_music_maestro import music_command
+            action = str(args.get("action", "toggle")).lower()
+            if action == "volume":
+                return music_command("volume", value=int(args.get("value", 50)))
+            if action == "seek":
+                return music_command("seek", value=float(args.get("value", 0)))
+            if action == "duck":
+                return music_command("duck", seconds=int(args.get("value", 10)))
+            if action == "autopilot":
+                return music_command("autopilot", enabled=bool(args.get("value", True)))
+            return music_command(action)
+
+        self.register(ToolDefinition(
+            name="music_control",
+            category="MUSIC_SOUNDTRACK",
+            description="Controla la reproducción musical de TARDIS: pausa, reanuda, alterna, siguiente, anterior, detiene, volumen, seek, duck (bajar para voz) o autopilot.",
+            parameters={
+                "action": {
+                    "type": "string",
+                    "enum": ["play", "resume", "pause", "toggle", "next", "prev", "stop", "volume", "seek", "duck", "autopilot"],
+                },
+                "value": {"type": "number", "description": "Valor para volume/seek/duck/autopilot"},
+            },
+            required_args=["action"],
+            handler=_music_control,
+        ))
+
+        def _music_soundtrack(args: dict):
+            from core.tardis_music_maestro import music_command
+            if bool(args.get("stop", False)):
+                return music_command("autopilot", enabled=False)
+            return music_command(
+                "soundtrack",
+                scene=str(args.get("scene") or "focus"),
+                auto=bool(args.get("auto", False)),
+            )
+
+        self.register(ToolDefinition(
+            name="music_soundtrack",
+            category="MUSIC_SOUNDTRACK",
+            description="Genera y reproduce un soundtrack cinematográfico completo para una escena (focus, epic, calm, night, doctor, kaiju, creative, discovery, battle, jazz, synthwave, rain, regeneration).",
+            parameters={
+                "scene": {"type": "string", "description": "Identificador de escena"},
+                "auto": {"type": "boolean", "description": "Mantener autopilot activo tras iniciar"},
+                "stop": {"type": "boolean", "description": "Detener soundtrack y desactivar autopilot"},
+            },
+            handler=_music_soundtrack,
+        ))
+
+        def _music_status(args: dict):
+            from core.tardis_music_maestro import music_command
+            return music_command("status")
+
+        self.register(ToolDefinition(
+            name="music_status",
+            category="MUSIC_SOUNDTRACK",
+            description="Consulta el estado completo del Music Maestro: pista actual, progreso, cola, escena, autopilot, volumen y conector YouTube Music.",
+            parameters={},
+            handler=_music_status,
+        ))
+
+        def _music_queue(args: dict):
+            from core.tardis_music_maestro import music_command
+            action = str(args.get("action", "list")).lower()
+            if action == "add":
+                return music_command("queue_add", query=args.get("query", ""))
+            if action == "clear":
+                return music_command("queue_clear")
+            return music_command("queue")
+
+        self.register(ToolDefinition(
+            name="music_queue",
+            category="MUSIC_SOUNDTRACK",
+            description="Consulta, añade o vacía la cola musical de TARDIS.",
+            parameters={
+                "action": {"type": "string", "enum": ["list", "add", "clear"]},
+                "query": {"type": "string", "description": "Búsqueda a añadir cuando action=add"},
+            },
+            handler=_music_queue,
+        ))
+
+        def _music_favorite(args: dict):
+            from core.tardis_music_maestro import music_command
+            return music_command("favorite_toggle")
+
+        self.register(ToolDefinition(
+            name="music_favorite",
+            category="MUSIC_SOUNDTRACK",
+            description="Marca o desmarca la pista actual como favorita en la biblioteca musical de TARDIS.",
+            parameters={},
+            handler=_music_favorite,
+        ))
 
 
 # ============================================================================

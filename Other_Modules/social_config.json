@@ -35,10 +35,12 @@
     "min_gap_sec": 90
   },
   "x": {
-    "enabled": true,
+    "enabled": false,
     "publish_downloaded_video": true,
     "publish_reflection_thread": true,
     "max_video_duration_sec": 138,
-    "min_gap_sec": 45
+    "min_gap_sec": 7200,
+    "require_manual_approval": true,
+    "note": "Pausado 2026-11-10 tras bloqueo de @AsleepAstronaut: automatizacion CDP + 4 posts en 2h. Reactivar solo con aprobacion manual y max 2-3 posts/dia."
   }
 }

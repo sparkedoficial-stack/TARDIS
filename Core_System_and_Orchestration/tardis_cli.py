@@ -544,7 +544,7 @@ def main():
     dist_p.add_argument("task", nargs="+", help="Tarea a procesar en el clúster heterogéneo")
 
     vis_p = subparsers.add_parser("visual", aliases=["vision", "inteligencia-visual"], help="Inteligencia Visual (ver, comprender y almacenar videos/imágenes)")
-    vis_p.add_argument("subcommand", nargs="?", default="status", choices=["status", "list", "videos", "analyze", "ver"], help="Subcomando de visión")
+    vis_p.add_argument("subcommand", nargs="?", default="status", choices=["status", "list", "videos", "analyze", "ver", "veredicto", "verdict", "dictamen", "alrededor", "entorno"], help="Subcomando de visión")
     vis_p.add_argument("extra_args", nargs="*", default=[], help="Ruta de archivo o argumentos")
 
     phone_p = subparsers.add_parser("phone", help="Control móvil celular TARDIS POCKET (llamadas, SMS, datos, tethering)")

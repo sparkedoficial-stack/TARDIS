@@ -1,6 +1,6 @@
 {
-  "revision": 2693,
-  "lamport": 2919,
+  "revision": 2715,
+  "lamport": 2929,
   "history": [],
   "config": {
     "model": "TARDIS-NEURAL-SPACE-KAIJU",
@@ -24,11 +24,14 @@
     "coneActive": true,
     "oscilloscopeActive": true
   },
-  "updated_at": "2026-11-10T03:15:39.988757",
+  "updated_at": "2026-11-11T09:42:30.184126",
   "visual_intelligence": {
     "active": true,
-    "pid": 437328,
-    "videos_stored": 912,
-    "last_ping": REDACTED_PHONE.3516166
+    "pid": 1121,
+    "videos_stored": 943,
+    "verdicts": 52,
+    "vlm_model": "qwen3-vl:2b-instruct",
+    "last_risk_level": null,
+    "last_ping": REDACTED_PHONE.250286
   }
 }

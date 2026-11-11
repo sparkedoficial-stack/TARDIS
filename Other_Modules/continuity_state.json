@@ -3,16 +3,17 @@
   "architect_goal": "Optimización de red y router físico/software + Sistema de Continuidad Absoluta Post-Reinicio",
   "current_request": "actualiza el sistema de inteligencia visual, para que TARDIS, pueda comprender imágenes y darme veredictos, acerca de las cosas que tengo a mi alrededor\n\n[MENSAJE CITADO EN TELEGRAM]:\nSabes por qué nos bloquearon nuestra cuenta de X?",
   "source": "FTL",
-  "status": "in_progress",
+  "status": "idle",
   "progress_percent": 5,
-  "phase": "Iniciando ejecución con motor GEMINI (gemini-4-argon-high)",
+  "phase": "Sistema operativo y en línea tras reinicio #290",
   "details": {
     "plan_mode": "gemini",
     "model": "gemini-4-argon-high",
     "start_iso": "2026-11-10 07:28:30",
-    "artifacts": []
+    "artifacts": [],
+    "last_recovery_iso": "2026-11-11 12:09:09"
   },
-  "created_ts": REDACTED_PHONE.0836022,
-  "updated_ts": REDACTED_PHONE.0836473,
-  "reboot_count": 285
+  "created_ts": REDACTED_PHONE.0398629,
+  "updated_ts": REDACTED_PHONE.222987,
+  "reboot_count": 290
 }

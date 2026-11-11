@@ -30,6 +30,7 @@ Cockpits de control en tiempo real, portales soberanos y tableros de visualizaci
 - **sovereign_portal.html**: Interfaz interactiva de monitoreo en tiempo real.
 - **system_optimizer_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
 - **tardis_calculadora_voz.html**: Interfaz interactiva de monitoreo en tiempo real.
+- **tardis_music_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
 - **temporal_canvas.jsx**: Componente de alta eficiencia.
 - **video_studio_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
 - **vw_vault_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
