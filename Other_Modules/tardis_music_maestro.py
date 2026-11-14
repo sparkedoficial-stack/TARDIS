@@ -37,6 +37,7 @@ import os
 import random
 import re
 import shutil
+import signal
 import socket
 import subprocess
 import sys
@@ -181,7 +182,7 @@ SCENES: Dict[str, Dict[str, Any]] = {
         "keywords": ["doctor", "tardis", "who", "regeneración", "regeneracion", "viaje"],
         "queries": [
             "Doctor Who Murray Gold",
-            "I Am The Doctor",
+            "I Am The Doctor Murray Gold",
             "The Shepherd's Boy Doctor Who",
             "Doctor Who theme",
             "Clara's Theme",
@@ -395,6 +396,24 @@ def _fmt_seconds(seconds: Optional[float]) -> str:
         return "0:00"
     seconds = int(seconds)
     return f"{seconds // 60}:{seconds % 60:02d}"
+
+
+def _clean_media_title(raw: Any, current: Optional["Track"]) -> str:
+    """Normaliza el `media-title` de mpv: yt-dlp expone la URL del stream, no la pista."""
+    text = str(raw or "").strip()
+    looks_like_url = (
+        text.lower().startswith(("http://", "https://"))
+        or "googlevideo.com" in text
+        or "&sig=" in text
+        or "&dur=" in text
+    )
+    if not text or looks_like_url:
+        if current is not None:
+            artist = (current.artist or "").strip()
+            title = (current.title or "").strip()
+            return f"{title} — {artist}" if artist and artist.lower() not in title.lower() else title
+        return ""
+    return text
 
 
 def _extract_video_id(value: str) -> Optional[str]:
@@ -902,7 +921,16 @@ class MpvController:
         self.last_error = ""
 
     def is_alive(self) -> bool:
-        return self._proc is not None and self._proc.poll() is None
+        if self._proc is not None and self._proc.poll() is None:
+            return True
+        # Puede existir un mpv soberano de otro proceso (daemon) usando el mismo socket.
+        return self.ping(timeout=0.6)
+
+    def ping(self, timeout: float = 1.0) -> bool:
+        if not self.socket_path.exists():
+            return False
+        res = self._command("get_property", "idle-active", timeout=timeout)
+        return bool(isinstance(res, dict) and res.get("error") in (None, "success"))
 
     def _command(self, *args: Any, timeout: float = 4.0) -> Optional[Dict[str, Any]]:
         if not self.socket_path.exists():
@@ -1042,10 +1070,11 @@ class MpvController:
         self.set_property("pause", False)
 
     def quit(self) -> None:
-        try:
-            self._command("quit", timeout=2)
-        except Exception:
-            pass
+        if self._proc is not None and self._proc.poll() is None:
+            try:
+                self._command("quit", timeout=2)
+            except Exception:
+                pass
         if self._proc and self._proc.poll() is None:
             try:
                 self._proc.terminate()
@@ -1055,6 +1084,7 @@ class MpvController:
                     self._proc.kill()
                 except Exception:
                     pass
+        self._proc = None
         if self._log_fh:
             try:
                 self._log_fh.close()
@@ -1125,11 +1155,18 @@ class TardisMusicMaestro:
         self._duck_until = 0.0
         self._duck_prev_volume: Optional[int] = None
         self.favorites = _read_json(FAVORITES_FILE, {})
-        self._monitor_thread = threading.Thread(
-            target=self._monitor_loop, name="MusicMaestroMonitor", daemon=True
-        )
-        self._monitor_thread.start()
+        self.daemon_mode = False
+        self._monitor_started = False
         logger.info("TARDIS Music Maestro inicializado (cola=%d)", len(self.state.get("queue", [])))
+
+    def start_monitor(self) -> None:
+        """Activa el bucle de fondo (solo el daemon soberano lo hace)."""
+        if self._monitor_started:
+            return
+        self._monitor_started = True
+        threading.Thread(
+            target=self._monitor_loop, name="MusicMaestroMonitor", daemon=True
+        ).start()
 
     # ------------------------- estado -------------------------
     def _load_state(self) -> Dict[str, Any]:
@@ -1203,7 +1240,8 @@ class TardisMusicMaestro:
             volume = int(self.state.get("volume", 45))
         if self.mpv.is_alive():
             return True
-        ok = self.mpv.start(volume=volume)
+        audio_device = (os.environ.get("TARDIS_MUSIC_AUDIO_DEVICE") or "").strip() or None
+        ok = self.mpv.start(volume=volume, audio_device=audio_device)
         if not ok:
             self._set_error(self.mpv.last_error or "mpv no disponible")
         return ok
@@ -1466,17 +1504,23 @@ class TardisMusicMaestro:
 
         # Estado de continuidad de TARDIS: adapta la escena al contexto real.
         cont = _read_json(BASE_DIR / "data" / "continuity_state.json", {})
-        blob = " ".join(
-            str(cont.get(k, "")) for k in ("status", "phase", "current_request", "architect_goal")
-        ).lower()
-        if any(word in blob for word in ("error", "fallo", "blocked", "bloqueado", "critical")):
+        phase_blob = " ".join(str(cont.get(k, "")) for k in ("status", "phase")).lower()
+        request_blob = str(cont.get("current_request", "")).lower()
+        goal_blob = str(cont.get("architect_goal", "")).lower()
+        if any(word in phase_blob for word in ("error", "fallo", "blocked", "bloqueado", "critical")):
             return "calm"
-        if any(word in blob for word in ("reboot", "reinicio", "regener", "surviv")):
-            return "doctor"
-        if any(word in blob for word in ("visual", "imagen", "veredicto")):
+        if any(word in request_blob for word in ("visual", "imagen", "veredicto", "cámara", "camara")):
             return "discovery"
-        if any(word in blob for word in ("social", "publica", "x.com", "tiktok")):
+        if any(word in request_blob for word in ("social", "publica", "x.com", "tiktok")):
             return "epic"
+        if any(word in request_blob for word in ("música", "musica", "soundtrack", "playlist")):
+            return "focus"
+        if any(word in request_blob for word in ("regener", "reinicio", "reboot", "renacer")):
+            return "doctor"
+        if any(word in request_blob for word in ("calma", "descanso", "reparación", "reparacion")):
+            return "calm"
+        if not request_blob and any(word in goal_blob for word in ("regener", "reinicio")):
+            return "doctor"
 
         hour = datetime.now().hour
         if 5 <= hour < 8:
@@ -1505,32 +1549,62 @@ class TardisMusicMaestro:
             )
         return out
 
+    @staticmethod
+    def _score_track(track: Track, seed: str) -> float:
+        """Puntúa la relevancia de una pista respecto a la semilla de búsqueda."""
+        stop = {
+            "the", "and", "for", "with", "from", "music", "musica", "música",
+            "soundtrack", "banda", "sonora", "original", "motion", "picture",
+            "del", "los", "las", "una", "uno", "que", "por", "para",
+        }
+        tokens = [
+            w for w in re.findall(r"[a-z0-9áéíóúñü]+", seed.lower())
+            if len(w) > 2 and w not in stop
+        ]
+        blob = f"{track.title} {track.artist} {track.album}".lower()
+        score = 0.0
+        for token in tokens:
+            if token in blob:
+                score += 2.0
+            if track.artist and token in track.artist.lower():
+                score += 2.5
+        for bad in ("karaoke", "8-bit", "chiptune", "cover", "remix", "slowed", "nightcore", "reverb"):
+            if bad in blob and bad not in seed.lower():
+                score -= 3.0
+        if track.duration_seconds and track.duration_seconds < 60:
+            score -= 1.5
+        return score
+
     def _build_soundtrack_queue(self, scene: str, size: int = 15) -> List[Track]:
         cfg = SCENES.get(scene) or SCENES["focus"]
         seeds = list(cfg["queries"])
         random.shuffle(seeds)
-        tracks: List[Track] = []
+        candidates: List[Tuple[float, Track]] = []
         seen: set = set()
 
         for seed in seeds:
-            if len(tracks) >= size:
+            if len(candidates) >= size * 2:
                 break
-            results = self.client.search(seed, limit=8, filter="songs")
+            results = self.client.search(seed, limit=10, filter="songs")
             if not results:
-                results = [t for t in self.client.search(seed, limit=8, filter="all") if t.video_id]
-            random.shuffle(results)
-            take = 0
+                results = [t for t in self.client.search(seed, limit=10, filter="all") if t.video_id]
+            results = sorted(
+                results, key=lambda t: self._score_track(t, seed), reverse=True
+            )
+            taken = 0
             for track in results:
                 if track.video_id in seen:
                     continue
                 seen.add(track.video_id)
                 track.scene = scene
                 track.source = track.source or f"scene:{scene}"
-                tracks.append(track)
-                take += 1
-                if take >= 3 or len(tracks) >= size:
+                candidates.append((self._score_track(track, seed), track))
+                taken += 1
+                if taken >= 3:
                     break
-        return tracks[:size]
+
+        candidates.sort(key=lambda item: item[0], reverse=True)
+        return [track for _score, track in candidates[:size]]
 
     def start_soundtrack(self, scene: Optional[str] = None, auto: bool = False) -> Dict[str, Any]:
         scene = (scene or self.state.get("scene") or self.scene_for_context()).lower()
@@ -1663,6 +1737,7 @@ class TardisMusicMaestro:
         current_dict = current.to_dict() if current else None
         duration = mpv_status.get("duration") or (current.duration_seconds if current else 0)
         tpos = mpv_status.get("time_pos") or 0
+        media_title = _clean_media_title(mpv_status.get("media_title", ""), current)
         return {
             "status": "ok",
             "engine": "TARDIS Music Maestro v1.0",
@@ -1680,7 +1755,7 @@ class TardisMusicMaestro:
                 "progress": round((tpos / duration) * 100, 1) if duration else 0.0,
                 "volume": state.get("volume", 45),
                 "mpv_volume": mpv_status.get("volume"),
-                "media_title": mpv_status.get("media_title", ""),
+                "media_title": media_title,
                 "socket": str(self.socket_path),
             },
             "current": current_dict,
@@ -1778,7 +1853,8 @@ class TardisMusicMaestro:
             user_paused = bool(self.state.get("user_paused", False))
             scene = str(self.state.get("scene", "focus"))
         if (
-            autopilot
+            self.daemon_mode
+            and autopilot
             and not user_paused
             and not self._soundtrack_busy
             and _now() >= self._suppress_autopilot_until
@@ -2068,6 +2144,8 @@ class MusicAPIHandler(BaseHTTPRequestHandler):
 
 def serve(host: str = "127.0.0.1", port: int = DEFAULT_PORT, autopilot: Optional[bool] = None) -> None:
     engine = TardisMusicMaestro.get_instance()
+    engine.daemon_mode = True
+    engine.start_monitor()
     if autopilot is not None:
         with engine._lock:
             engine.state["autopilot"] = bool(autopilot)
@@ -2079,6 +2157,13 @@ def serve(host: str = "127.0.0.1", port: int = DEFAULT_PORT, autopilot: Optional
     ThreadingHTTPServer.allow_reuse_address = True
     server = ThreadingHTTPServer((host, port), MusicAPIHandler)
     server.daemon_threads = True
+
+    def _graceful_exit(signum, _frame):
+        logger.info("Señal %s recibida; cerrando Music Maestro…", signum)
+        raise KeyboardInterrupt
+
+    signal.signal(signal.SIGTERM, _graceful_exit)
+    signal.signal(signal.SIGINT, _graceful_exit)
     logger.info("TARDIS Music Maestro API en http://%s:%d · dashboard en /", host, port)
     try:
         server.serve_forever(poll_interval=0.5)
@@ -2096,10 +2181,10 @@ def api_call(
     method: str,
     path: str,
     payload: Optional[Dict[str, Any]] = None,
-    base: str = API_BASE,
+    base: Optional[str] = None,
     timeout: float = 60.0,
 ) -> Optional[Dict[str, Any]]:
-    url = base.rstrip("/") + path
+    url = (base or API_BASE).rstrip("/") + path
     data = None
     headers = {"Accept": "application/json", "User-Agent": USER_AGENT}
     token = os.environ.get("TARDIS_MUSIC_TOKEN", "").strip()
@@ -2116,7 +2201,7 @@ def api_call(
         return None
 
 
-def api_available(base: str = API_BASE) -> bool:
+def api_available(base: Optional[str] = None) -> bool:
     return bool(api_call("GET", "/api/health", base=base, timeout=1.2))
 
 
@@ -2134,6 +2219,11 @@ def music_command(action: str, **kwargs: Any) -> Dict[str, Any]:
         query = str(kwargs.get("query") or kwargs.get("q") or "")
         limit = int(kwargs.get("limit") or 20)
         filter_ = str(kwargs.get("filter") or "songs")
+        if api_available():
+            qs = urllib.parse.urlencode({"q": query, "limit": limit, "filter": filter_})
+            res = api_call("GET", f"/api/search?{qs}", timeout=60)
+            if res:
+                return res
         return TardisMusicMaestro.get_instance().search(query, limit=limit, filter=filter_)
 
     if action in ("play", "play_query"):
@@ -2178,7 +2268,7 @@ def music_command(action: str, **kwargs: Any) -> Dict[str, Any]:
                 return res
         return TardisMusicMaestro.get_instance().start_soundtrack(scene, auto=auto)
 
-    if action in ("autopilot", "set_autopilot"):
+    if action == "autopilot" or action == "set_autopilot":
         enabled = bool(kwargs.get("enabled", kwargs.get("value", True)))
         if api_available():
             res = api_call("POST", "/api/autopilot", {"enabled": enabled})
@@ -2190,7 +2280,36 @@ def music_command(action: str, **kwargs: Any) -> Dict[str, Any]:
         eng._save_state()
         return {"status": "ok", "autopilot": enabled}
 
+    if action in ("repeat", "shuffle", "autoplay_radio"):
+        value = kwargs.get("value")
+        if api_available():
+            res = api_call("POST", "/api/control", {"action": action, "value": value})
+            if res:
+                return res
+        eng = TardisMusicMaestro.get_instance()
+        with eng._lock:
+            if action == "repeat":
+                mode = str(value or "off").lower()
+                if mode not in ("off", "one", "all"):
+                    return {"status": "error", "error": "repeat debe ser off|one|all"}
+                eng.state["repeat"] = mode
+            else:
+                eng.state[action] = bool(value) if value is not None else not eng.state.get(action)
+        eng._save_state()
+        return {"status": "ok", action: eng.state.get(action)}
+
+    if action in ("soundtrack_stop", "stop_soundtrack"):
+        if api_available():
+            res = api_call("POST", "/api/soundtrack", {"stop": True})
+            if res:
+                return res
+        return TardisMusicMaestro.get_instance().stop_soundtrack()
+
     if action == "scenes":
+        if api_available():
+            res = api_call("GET", "/api/scenes", timeout=5)
+            if res:
+                return res
         return {"status": "ok", "scenes": TardisMusicMaestro.get_instance().scene_info()}
 
     if action in ("queue", "queue_list"):
@@ -2335,16 +2454,6 @@ def _cmd_soundtrack(args: argparse.Namespace) -> int:
         print(f"Escena desconocida '{args.scene}'. Disponibles: {', '.join(SCENES)}")
         return 2
     data = music_command("soundtrack", scene=args.scene, auto=args.auto)
-    if args.scene:
-        # Persiste la escena elegida para el autopilot.
-        if api_available():
-            api_call("POST", "/api/autopilot", {"enabled": bool(args.auto)})
-        else:
-            eng = TardisMusicMaestro.get_instance()
-            with eng._lock:
-                eng.state["scene"] = args.scene
-                eng.state["autopilot"] = bool(args.auto)
-            eng._save_state()
     _print_json(data)
     return 0 if isinstance(data, dict) and data.get("status") in ("ok", "building") else 1
 
@@ -2496,17 +2605,25 @@ def main(argv: Optional[List[str]] = None) -> int:
         build_parser().print_help()
         return 0
 
+    if args.command in ("pause", "resume", "toggle", "next", "prev", "stop"):
+        _print_json(music_command(args.command))
+        return 0
+    if args.command == "volume":
+        _print_json(music_command("volume", value=args.value))
+        return 0
+    if args.command == "duck":
+        data = api_call(
+            "POST",
+            "/api/control",
+            {"action": "duck", "seconds": args.seconds, "value": args.volume},
+        ) if api_available() else music_command("duck", seconds=args.seconds)
+        _print_json(data)
+        return 0
+
     handlers = {
         "status": _cmd_status,
         "search": _cmd_search,
         "play": _cmd_play,
-        "pause": _cmd_control,
-        "resume": _cmd_control,
-        "toggle": _cmd_control,
-        "next": _cmd_control,
-        "prev": _cmd_control,
-        "stop": _cmd_control,
-        "volume": lambda a: (music_command("volume", value=a.value), print(json.dumps(music_command("volume", value=a.value), ensure_ascii=False, indent=2)), 0)[2],
         "soundtrack": _cmd_soundtrack,
         "scenes": _cmd_scenes,
         "queue": _cmd_queue,
@@ -2514,20 +2631,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         "history": _cmd_history,
         "doctor": _cmd_doctor,
         "serve": _cmd_serve,
-        "duck": lambda a: (print(json.dumps(music_command("duck", seconds=a.seconds), ensure_ascii=False, indent=2)), 0)[1],
     }
-    if args.command == "volume":
-        data = music_command("volume", value=args.value)
-        _print_json(data)
-        return 0
-    if args.command == "duck":
-        data = api_call("POST", "/api/control", {"action": "duck", "seconds": args.seconds, "value": args.volume}) if api_available() else music_command("duck", seconds=args.seconds)
-        _print_json(data)
-        return 0
-    if args.command in ("pause", "resume", "toggle", "next", "prev", "stop"):
-        data = music_command(args.command)
-        _print_json(data)
-        return 0
     handler = handlers.get(args.command)
     if not handler:
         print(f"Comando '{args.command}' no implementado.")

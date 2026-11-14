@@ -567,6 +567,32 @@ class VisualVerdictPayload(BaseModel):
     prompt: Optional[str] = None
 
 
+class MusicPlayPayload(BaseModel):
+    """Payload para reproducir música por búsqueda, URL o videoId."""
+    query: Optional[str] = None
+    video_id: Optional[str] = None
+    filter: Optional[str] = "songs"
+
+
+class MusicControlPayload(BaseModel):
+    """Payload de control del reproductor musical de TARDIS."""
+    action: str
+    value: Optional[float] = None
+    seconds: Optional[int] = None
+
+
+class MusicSoundtrackPayload(BaseModel):
+    """Payload del director de soundtrack de TARDIS."""
+    scene: Optional[str] = None
+    auto: Optional[bool] = False
+    stop: Optional[bool] = False
+
+
+class MusicAutopilotPayload(BaseModel):
+    """Payload para activar/desactivar el autopilot de soundtrack."""
+    enabled: bool = True
+
+
 # ==============================================================================
 # FÁBRICA DE LA APLICACIÓN FASTAPI
 # ==============================================================================
@@ -1041,6 +1067,98 @@ def create_app() -> FastAPI:
         from core.visual_intelligence_engine import get_visual_intelligence_engine
         lim, _off = sanitize_pagination(limit=limit)
         return {"ok": True, "records": get_visual_intelligence_engine().list_recent_records(media_type=media_type, limit=lim)}
+
+    # --------------------------------------------------------------------------
+    # RUTAS DEL SUBSISTEMA MUSICAL SOBERANO (TARDIS MUSIC MAESTRO)
+    # --------------------------------------------------------------------------
+    # Proxy hacia el daemon `tardis-music-maestro.service` (127.0.0.1:8794).
+    # Si el daemon no está activo, `music_command` cae al motor local.
+
+    @app.get("/api/music/status")
+    def music_status():
+        """Estado completo del reproductor musical, cola, escena y conector YouTube Music."""
+        from core.tardis_music_maestro import music_command
+        return music_command("status")
+
+    @app.get("/api/music/search")
+    def music_search(q: str, limit: int = 20, filter: str = "songs"):
+        """Busca canciones, vídeos, álbumes, playlists o artistas en YouTube Music."""
+        from core.tardis_music_maestro import music_command
+        return music_command("search", query=q, limit=limit, filter=filter)
+
+    @app.post("/api/music/play")
+    def music_play(payload: MusicPlayPayload):
+        """Reproduce una búsqueda, URL o videoId de YouTube Music."""
+        from core.tardis_music_maestro import music_command
+        target = (payload.video_id or payload.query or "").strip()
+        if not target:
+            return JSONResponse(status_code=400, content={"ok": False, "error": "Falta 'query' o 'video_id'"})
+        return music_command("play", query=target)
+
+    @app.post("/api/music/control")
+    def music_control(payload: MusicControlPayload):
+        """Controla el reproductor: pause, resume, toggle, next, prev, stop, volume, seek, duck, repeat, shuffle…"""
+        from core.tardis_music_maestro import music_command
+        action = (payload.action or "").lower()
+        if action == "volume":
+            return music_command("volume", value=int(payload.value if payload.value is not None else 50))
+        if action == "seek":
+            return music_command("seek", value=float(payload.value or 0))
+        if action == "duck":
+            return music_command("duck", seconds=int(payload.seconds or payload.value or 10))
+        if action in ("repeat", "shuffle", "autoplay_radio"):
+            return music_command(action, value=payload.value)
+        return music_command(action)
+
+    @app.post("/api/music/soundtrack")
+    def music_soundtrack(payload: MusicSoundtrackPayload):
+        """Construye un soundtrack para una escena o detiene el director automático."""
+        from core.tardis_music_maestro import music_command
+        if payload.stop:
+            return music_command("soundtrack_stop")
+        return music_command("soundtrack", scene=payload.scene, auto=bool(payload.auto))
+
+    @app.post("/api/music/autopilot")
+    def music_autopilot(payload: MusicAutopilotPayload):
+        """Activa o desactiva el autopilot de soundtrack de TARDIS."""
+        from core.tardis_music_maestro import music_command
+        return music_command("autopilot", enabled=bool(payload.enabled))
+
+    @app.get("/api/music/scenes")
+    def music_scenes():
+        """Escenas de soundtrack disponibles y escena contextual actual."""
+        from core.tardis_music_maestro import music_command
+        return music_command("scenes")
+
+    @app.get("/api/music/queue")
+    def music_queue():
+        """Cola musical actual y próximas pistas."""
+        from core.tardis_music_maestro import music_command
+        return music_command("queue")
+
+    @app.get("/api/music/favorites")
+    def music_favorites():
+        """Biblioteca de favoritos musicales de TARDIS."""
+        from core.tardis_music_maestro import music_command
+        return music_command("favorites")
+
+    @app.post("/api/music/favorites")
+    def music_favorite_toggle():
+        """Marca o desmarca la pista actual como favorita."""
+        from core.tardis_music_maestro import music_command
+        return music_command("favorite_toggle")
+
+    @app.get("/api/music/history")
+    def music_history(limit: int = 30):
+        """Historial reciente de reproducción musical."""
+        from core.tardis_music_maestro import music_command
+        return music_command("history", limit=limit)
+
+    @app.get("/api/music/doctor")
+    def music_doctor():
+        """Diagnóstico del subsistema musical (yt-dlp, mpv, red, YouTube Music)."""
+        from core.tardis_music_maestro import music_command
+        return music_command("doctor")
 
     # --------------------------------------------------------------------------
     # RUTAS ESTÁTICAS Y CONTROL PANEL

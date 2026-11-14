@@ -1235,9 +1235,17 @@ class ToolRegistry:
     def _reg_music_tools(self) -> None:
         """Herramientas para que TARDIS busque, reproduzca y dirija soundtracks."""
 
+        def _music_call(action: str, **kwargs):
+            from core.tardis_music_maestro import music_command
+            res = music_command(action, **kwargs)
+            if isinstance(res, dict):
+                res.setdefault("ok", res.get("status") in ("ok", "building", "degraded"))
+                return res
+            return {"ok": True, "result": res}
+
         def _music_search(args: dict):
             from core.tardis_music_maestro import music_command
-            return music_command(
+            return _music_call(
                 "search",
                 query=args.get("query", ""),
                 limit=int(args.get("limit", 10)),
@@ -1260,12 +1268,12 @@ class ToolRegistry:
         def _music_play(args: dict):
             from core.tardis_music_maestro import music_command
             if str(args.get("mode", "track")).lower() == "soundtrack":
-                return music_command(
+                return _music_call(
                     "soundtrack",
                     scene=str(args.get("scene") or "focus"),
                     auto=bool(args.get("auto", False)),
                 )
-            return music_command("play", query=args.get("query", ""))
+            return _music_call("play", query=args.get("query", ""))
 
         self.register(ToolDefinition(
             name="music_play",
@@ -1284,14 +1292,14 @@ class ToolRegistry:
             from core.tardis_music_maestro import music_command
             action = str(args.get("action", "toggle")).lower()
             if action == "volume":
-                return music_command("volume", value=int(args.get("value", 50)))
+                return _music_call("volume", value=int(args.get("value", 50)))
             if action == "seek":
-                return music_command("seek", value=float(args.get("value", 0)))
+                return _music_call("seek", value=float(args.get("value", 0)))
             if action == "duck":
-                return music_command("duck", seconds=int(args.get("value", 10)))
+                return _music_call("duck", seconds=int(args.get("value", 10)))
             if action == "autopilot":
-                return music_command("autopilot", enabled=bool(args.get("value", True)))
-            return music_command(action)
+                return _music_call("autopilot", enabled=bool(args.get("value", True)))
+            return _music_call(action)
 
         self.register(ToolDefinition(
             name="music_control",
@@ -1311,8 +1319,8 @@ class ToolRegistry:
         def _music_soundtrack(args: dict):
             from core.tardis_music_maestro import music_command
             if bool(args.get("stop", False)):
-                return music_command("autopilot", enabled=False)
-            return music_command(
+                return _music_call("autopilot", enabled=False)
+            return _music_call(
                 "soundtrack",
                 scene=str(args.get("scene") or "focus"),
                 auto=bool(args.get("auto", False)),
@@ -1332,7 +1340,7 @@ class ToolRegistry:
 
         def _music_status(args: dict):
             from core.tardis_music_maestro import music_command
-            return music_command("status")
+            return _music_call("status")
 
         self.register(ToolDefinition(
             name="music_status",
@@ -1346,10 +1354,10 @@ class ToolRegistry:
             from core.tardis_music_maestro import music_command
             action = str(args.get("action", "list")).lower()
             if action == "add":
-                return music_command("queue_add", query=args.get("query", ""))
+                return _music_call("queue_add", query=args.get("query", ""))
             if action == "clear":
-                return music_command("queue_clear")
-            return music_command("queue")
+                return _music_call("queue_clear")
+            return _music_call("queue")
 
         self.register(ToolDefinition(
             name="music_queue",
@@ -1364,7 +1372,7 @@ class ToolRegistry:
 
         def _music_favorite(args: dict):
             from core.tardis_music_maestro import music_command
-            return music_command("favorite_toggle")
+            return _music_call("favorite_toggle")
 
         self.register(ToolDefinition(
             name="music_favorite",

@@ -1,5 +1,5 @@
 {
-  "revision": 2715,
+  "revision": 2725,
   "lamport": 2929,
   "history": [],
   "config": {
@@ -14,24 +14,27 @@
     "webSearchActive": true
   },
   "causal": {
-    "psi": 0.892,
-    "sintropy": 0.965,
-    "phi_adv": 0.78,
-    "o_qco": 0.84,
-    "s_geom": 1.57,
-    "q_topo": 3,
-    "bifurcation": "CAMINO_DE_AGUA_SINTROPICO",
-    "coneActive": true,
-    "oscilloscopeActive": true
+    "psi": 1,
+    "sintropy": 1,
+    "phi_adv": 1,
+    "o_qco": 1,
+    "s_geom": 3.1416,
+    "q_topo": 8,
+    "bifurcation": "CUENCA_CAOTICA",
+    "coneActive": false,
+    "oscilloscopeActive": true,
+    "active_clients": 2,
+    "lamport": 2929,
+    "web_search": true
   },
-  "updated_at": "2026-11-11T09:42:30.184126",
+  "updated_at": "2026-11-13T23:06:19.366336",
   "visual_intelligence": {
     "active": true,
-    "pid": 1121,
-    "videos_stored": 943,
-    "verdicts": 52,
+    "pid": 1157,
+    "videos_stored": 955,
+    "verdicts": 105,
     "vlm_model": "qwen3-vl:2b-instruct",
-    "last_risk_level": null,
-    "last_ping": REDACTED_PHONE.250286
+    "last_risk_level": 0,
+    "last_ping": REDACTED_PHONE.739042
   }
 }

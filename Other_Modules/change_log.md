@@ -23,6 +23,8 @@
 | 11 | Tue Nov 10 2026 | Creación | docs/INTELIGENCIA_VISUAL_VEREDICTOS.md | Documentación de arquitectura, capas, variables y rendimiento del sistema de veredictos | ✓ Completo |
 | 12 | Tue Nov 10 2026 | Modificación | social_config.json | Publicación automática en X pausada tras bloqueo de @AsleepAstronaut (automatización CDP + 4 posts en 2 h) | ✓ Completo |
 | 13 | Tue Nov 10 2026 | Modificación | ~/.config/systemd/user/ollama.service.d/10-priority.conf | Prioridad `nice -5` para el motor VLM y liberación de modelos ociosos de Ollama | ✓ Completo |
+| 14 | Wed Nov 11 2026 | Creación | core/tardis_music_maestro.py · assets/tardis_music_dashboard.html · docs/TARDIS_MUSIC_MAESTRO.md | Subsistema TARDIS Music Maestro: búsqueda/radio sobre Innertube WEB_REMIX de YouTube Music, reproducción vía yt-dlp + mpv/PipeWire con IPC, cola persistente, 13 escenas de soundtrack con autopiloto contextual, ducking, favoritos e historial, API HTTP en 127.0.0.1:8794, dashboard y CLI `tardis-music` | ✓ Completo |
+| 15 | Wed Nov 11 2026 | Modificación | core/agent_harness.py · core/tardis_omni_tool_bridge.py · server/api.py · modulos_ftl/ftl_music_maestro.py · bin/tardis-music · ~/.config/systemd/user/tardis-music-maestro.service | Integración del Music Maestro: 7 tools de agente, puente omni, 11 rutas `/api/music/*` en FastAPI, wrapper FTL, CLI y servicio systemd de usuario con `--autopilot` | ✓ Completo |
 
 ---
-*Última actualización: Tue Nov 10 2026*
+*Última actualización: Wed Nov 11 2026*

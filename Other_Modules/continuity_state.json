@@ -5,15 +5,15 @@
   "source": "FTL",
   "status": "idle",
   "progress_percent": 5,
-  "phase": "Sistema operativo y en línea tras reinicio #290",
+  "phase": "Sistema operativo y en línea tras reinicio #291",
   "details": {
     "plan_mode": "gemini",
     "model": "gemini-4-argon-high",
     "start_iso": "2026-11-10 07:28:30",
     "artifacts": [],
-    "last_recovery_iso": "2026-11-11 12:09:09"
+    "last_recovery_iso": "2026-11-12 23:06:06"
   },
   "created_ts": REDACTED_PHONE.0398629,
-  "updated_ts": REDACTED_PHONE.222987,
-  "reboot_count": 290
+  "updated_ts": REDACTED_PHONE.2947607,
+  "reboot_count": 291
 }

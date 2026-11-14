@@ -36,6 +36,7 @@ Módulos y componentes auxiliares del sistema.
 - **SensorsView.swift**: Componente nativo iOS/SwiftUI de la aplicación móvil GIA.
 - **SettingsView.swift**: Componente nativo iOS/SwiftUI de la aplicación móvil GIA.
 - **TARDIS-NEURAL-SPACE-KAIJU-v27.SPEC.md**: Componente de alta eficiencia.
+- **TARDIS_MUSIC_MAESTRO.md**: Componente de alta eficiencia.
 - **TELEGRAM_LIVE_CALL_URL.txt**: Componente de alta eficiencia.
 - **TELEGRAM_LIVE_CAM_URL.txt**: Componente de alta eficiencia.
 - **Tardis-Master-Hub.desktop**: Componente de alta eficiencia.
@@ -184,6 +185,70 @@ Módulos y componentes auxiliares del sistema.
 - **dossier_20261110_195029_612.json**: Componente de alta eficiencia.
 - **dossier_20261110_195052_462.json**: Componente de alta eficiencia.
 - **dossier_20261110_195118_330.json**: Componente de alta eficiencia.
+- **dossier_20261113_074106_657.json**: Componente de alta eficiencia.
+- **dossier_20261113_074936_283.json**: Componente de alta eficiencia.
+- **dossier_20261113_093929_879.json**: Componente de alta eficiencia.
+- **dossier_20261113_100338_986.json**: Componente de alta eficiencia.
+- **dossier_20261113_103146_756.json**: Componente de alta eficiencia.
+- **dossier_20261113_105259_423.json**: Componente de alta eficiencia.
+- **dossier_20261113_105330_262.json**: Componente de alta eficiencia.
+- **dossier_20261113_105400_536.json**: Componente de alta eficiencia.
+- **dossier_20261113_105449_586.json**: Componente de alta eficiencia.
+- **dossier_20261113_105506_440.json**: Componente de alta eficiencia.
+- **dossier_20261113_105520_380.json**: Componente de alta eficiencia.
+- **dossier_20261113_105544_965.json**: Componente de alta eficiencia.
+- **dossier_20261113_105554_917.json**: Componente de alta eficiencia.
+- **dossier_20261113_105634_149.json**: Componente de alta eficiencia.
+- **dossier_20261113_105946_790.json**: Componente de alta eficiencia.
+- **dossier_20261113_110017_275.json**: Componente de alta eficiencia.
+- **dossier_20261113_110057_372.json**: Componente de alta eficiencia.
+- **dossier_20261113_110142_963.json**: Componente de alta eficiencia.
+- **dossier_20261113_110230_168.json**: Componente de alta eficiencia.
+- **dossier_20261113_110253_385.json**: Componente de alta eficiencia.
+- **dossier_20261113_110524_499.json**: Componente de alta eficiencia.
+- **dossier_20261113_110543_224.json**: Componente de alta eficiencia.
+- **dossier_20261113_110631_647.json**: Componente de alta eficiencia.
+- **dossier_20261113_110710_194.json**: Componente de alta eficiencia.
+- **dossier_20261113_110740_725.json**: Componente de alta eficiencia.
+- **dossier_20261113_110829_387.json**: Componente de alta eficiencia.
+- **dossier_20261113_110859_537.json**: Componente de alta eficiencia.
+- **dossier_20261113_110942_675.json**: Componente de alta eficiencia.
+- **dossier_20261113_110959_675.json**: Componente de alta eficiencia.
+- **dossier_20261113_111058_003.json**: Componente de alta eficiencia.
+- **dossier_20261113_111251_362.json**: Componente de alta eficiencia.
+- **dossier_20261113_111355_223.json**: Componente de alta eficiencia.
+- **dossier_20261113_111427_418.json**: Componente de alta eficiencia.
+- **dossier_20261113_111500_315.json**: Componente de alta eficiencia.
+- **dossier_20261113_112413_713.json**: Componente de alta eficiencia.
+- **dossier_20261113_114011_313.json**: Componente de alta eficiencia.
+- **dossier_20261113_114112_170.json**: Componente de alta eficiencia.
+- **dossier_20261113_114142_381.json**: Componente de alta eficiencia.
+- **dossier_20261113_115241_553.json**: Componente de alta eficiencia.
+- **dossier_20261113_120724_952.json**: Componente de alta eficiencia.
+- **dossier_20261113_141630_545.json**: Componente de alta eficiencia.
+- **dossier_20261113_144319_186.json**: Componente de alta eficiencia.
+- **dossier_20261113_144608_608.json**: Componente de alta eficiencia.
+- **dossier_20261113_150340_060.json**: Componente de alta eficiencia.
+- **dossier_20261113_154734_483.json**: Componente de alta eficiencia.
+- **dossier_20261113_164128_492.json**: Componente de alta eficiencia.
+- **dossier_20261113_165651_718.json**: Componente de alta eficiencia.
+- **dossier_20261113_185119_777.json**: Componente de alta eficiencia.
+- **dossier_20261113_185138_254.json**: Componente de alta eficiencia.
+- **dossier_20261113_185207_847.json**: Componente de alta eficiencia.
+- **dossier_20261113_185229_030.json**: Componente de alta eficiencia.
+- **dossier_20261113_185259_695.json**: Componente de alta eficiencia.
+- **dossier_20261113_191543_521.json**: Componente de alta eficiencia.
+- **dossier_20261113_194812_503.json**: Componente de alta eficiencia.
+- **dossier_20261113_194826_172.json**: Componente de alta eficiencia.
+- **dossier_20261113_194856_547.json**: Componente de alta eficiencia.
+- **dossier_20261113_194902_677.json**: Componente de alta eficiencia.
+- **dossier_20261113_194933_407.json**: Componente de alta eficiencia.
+- **dossier_20261113_195003_444.json**: Componente de alta eficiencia.
+- **dossier_20261113_195111_721.json**: Componente de alta eficiencia.
+- **dossier_20261113_195142_376.json**: Componente de alta eficiencia.
+- **dossier_20261113_195201_162.json**: Componente de alta eficiencia.
+- **dossier_20261113_195231_558.json**: Componente de alta eficiencia.
+- **dossier_20261113_195302_396.json**: Componente de alta eficiencia.
 - **dynamic_tools_registry.json**: Directorio y puente soberano de interoperabilidad omni-herramientas.
 - **ecca_v3_core.py**: Núcleo de orquestación y control temporal/espacial.
 - **engine_state.json**: Componente de alta eficiencia.
@@ -192,6 +257,7 @@ Módulos y componentes auxiliares del sistema.
 - **evidence-workflows.md**: Componente de alta eficiencia.
 - **explorador_cuantico.py**: Componente de alta eficiencia.
 - **family_registry.py**: Directorio y puente soberano de interoperabilidad omni-herramientas.
+- **favorites.json**: Componente de alta eficiencia.
 - **fix_ftl.py**: Motor de aceleración FTL y computación adaptativa.
 - **free_models.py**: Componente de alta eficiencia.
 - **ftl_backlog.json**: Motor de aceleración FTL y computación adaptativa.

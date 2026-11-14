@@ -150,23 +150,49 @@ class TardisAutonomousErrorFixer:
         self.register_fix_function("fix_codebase_ast_and_subsystems", self.fix_codebase_ast_and_subsystems)
 
     def _probe_unix_socket(self, sock_path: Path, timeout: float = 4.0) -> bool:
+        """True si el motor está vivo.
+
+        Un 503 «Loading model» significa que llama-server está cargando: el
+        proceso vive y reiniciarlo solo alarga la espera indefinidamente. Solo
+        se considera caído cuando el socket no responde Y no queda ningún
+        proceso ligado a él.
+        """
         if not sock_path.exists():
-            return False
+            return self._process_alive_for_socket(sock_path)
         try:
             transport = httpx.HTTPTransport(uds=str(sock_path))
             with httpx.Client(transport=transport, base_url="http://localhost", timeout=timeout) as client:
-                return client.get("/health").status_code == 200
+                client.get("/health")
+                # Cualquier respuesta HTTP (200 listo, 503 cargando) = vivo.
+                return True
         except Exception:
-            # Comprobar si el proceso llama-server sigue activo en /proc procesando un lote
-            try:
-                for p in Path("/proc").iterdir():
-                    if p.name.isdigit():
-                        cmd = (p / "cmdline").read_bytes().decode("utf-8", errors="ignore")
-                        if "llama-server" in cmd and str(sock_path) in cmd:
-                            return True
-            except Exception:
-                pass
+            return self._process_alive_for_socket(sock_path)
+
+    @staticmethod
+    def _process_alive_for_socket(sock_path: Path) -> bool:
+        """Busca un llama-server vivo cuyo cmdline use este socket.
+
+        Cada PID se inspecciona por separado: si un proceso efímero desaparece
+        a mitad del barrido, la búsqueda continúa en lugar de abortarse.
+        """
+        try:
+            entries = list(Path("/proc").iterdir())
+        except Exception:
             return False
+        for p in entries:
+            if not p.name.isdigit():
+                continue
+            try:
+                cmd = (p / "cmdline").read_bytes().decode("utf-8", errors="ignore")
+                if "llama-server" not in cmd or str(sock_path) not in cmd:
+                    continue
+                status = (p / "status").read_text(encoding="utf-8", errors="ignore")
+                if "\nState:\tZ" in status:
+                    continue
+                return True
+            except Exception:
+                continue
+        return False
 
     def fix_llama_server_health(self, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """Verifica y repara los demonios llama-server (TemporalBrain y EmbedBrain) evitando colisiones CUDA."""
