@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "created_at": "2026-10-15T02:04:29.176374",
   "last_periodic_sync": "2026-11-16T23:08:18.757633",
-  "last_immediate_sync": "2026-11-11T12:15:20.176694",
-  "last_commit_hash": "fe9b0613",
-  "sync_count": 1450,
-  "immediate_sync_count": 1447,
+  "last_immediate_sync": "2026-11-17T16:03:50.469113",
+  "last_commit_hash": "0f602b32",
+  "sync_count": 1451,
+  "immediate_sync_count": 1448,
   "periodic_sync_count": 3,
   "last_known_mtimes": {
     "skill:godworks-system-suite/SKILL.md": REDACTED_PHONE.5482113,
@@ -176,10 +176,10 @@
     "core:tardis_omniscient_autonomy.py": REDACTED_PHONE.777364,
     "core:tardis_browser.py": REDACTED_PHONE.6937025,
     "core:telegram_live_call_server.py": REDACTED_PHONE.0802147,
-    "core:tapo_c310_sentinel.py": REDACTED_PHONE.8028598,
+    "core:tapo_c310_sentinel.py": REDACTED_PHONE.1348884,
     "core:tapo_c310_speaker.py": REDACTED_PHONE.9989753,
     "core:scp_conceptual_suite.py": REDACTED_PHONE.0840197,
-    "core:tapo_c310_voice_channel.py": REDACTED_PHONE.7480347,
+    "core:tapo_c310_voice_channel.py": REDACTED_PHONE.2977672,
     "core:tardis_voice_channel_c310.py": REDACTED_PHONE.870554,
     "core:sensor_orchestrator.py": REDACTED_PHONE.3520608,
     "core:curiosity_debate_manager.py": REDACTED_PHONE.6333776,
@@ -298,6 +298,16 @@
     "sat:gia_ios:GIA/Views/Theme.swift": REDACTED_PHONE.0
   },
   "history": [
+    {
+      "timestamp": "2026-11-17T16:03:50.469113",
+      "trigger": "immediate_milestone",
+      "commit_hash": "0f602b32",
+      "score": 50,
+      "reasons": [
+        "Evoluci\u00f3n en subsistema core TARDIS: tapo_c310_sentinel.py",
+        "Evoluci\u00f3n en subsistema core TARDIS: tapo_c310_voice_channel.py"
+      ]
+    },
     {
       "timestamp": "2026-11-13T23:06:43.031306",
       "trigger": "periodic_24h",
@@ -843,18 +853,6 @@
       "timestamp": "2026-11-02T00:45:51.839924",
       "trigger": "immediate_milestone",
       "commit_hash": "1aa822d2",
-      "score": 100,
-      "reasons": [
-        "Evoluci\u00f3n en subsistema core TARDIS: sensor_orchestrator.py",
-        "Evoluci\u00f3n en subsistema core TARDIS: curiosity_debate_manager.py",
-        "Evoluci\u00f3n en subsistema core TARDIS: scientific_research_engine.py",
-        "Evoluci\u00f3n en subsistema core TARDIS: background_thought_engine.py"
-      ]
-    },
-    {
-      "timestamp": "2026-11-02T00:30:43.874345",
-      "trigger": "immediate_milestone",
-      "commit_hash": "7dc8d95b",
       "score": 100,
       "reasons": [
         "Evoluci\u00f3n en subsistema core TARDIS: sensor_orchestrator.py",

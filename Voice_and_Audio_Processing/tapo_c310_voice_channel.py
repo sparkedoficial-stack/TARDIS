@@ -746,6 +746,9 @@ class TapoC310VoiceChannel:
         self.interview_settle_sec = max(
             0.0, float(self.config.get("visitor_interview_settle_sec", 1.6))
         )
+        self.interview_min_rms = max(
+            20.0, float(self.config.get("visitor_interview_min_rms", 55.0))
+        )
         self.interview_retries = max(
             0, int(self.config.get("visitor_interview_retries", 1))
         )
@@ -943,7 +946,8 @@ class TapoC310VoiceChannel:
         if duration < 0.35 or len(pcm) < int(0.35 * SAMPLE_RATE * 2):
             return
         rms = pcm_rms(pcm)
-        if rms < self.min_rms:
+        min_rms = self.interview_min_rms if self.state == "visitor" else self.min_rms
+        if rms < min_rms:
             logger.debug(f"Final ignorado por RMS bajo ({rms:.1f}): {clean!r}")
             return
 
@@ -1034,7 +1038,8 @@ class TapoC310VoiceChannel:
         if len(pcm) < int(0.30 * SAMPLE_RATE * 2):
             return ""
         rms = pcm_rms(pcm)
-        if rms < self.min_rms:
+        min_rms = self.interview_min_rms if self.state == "visitor" else self.min_rms
+        if rms < min_rms:
             return ""
         loop = asyncio.get_running_loop()
         started = time.perf_counter()
@@ -1248,10 +1253,7 @@ class TapoC310VoiceChannel:
                         break
                     attempt += 1
                     retries_used += 1
-                    if field == "reason":
-                        await self._speak(f"{self.interview_retry} {question}".strip())
-                    else:
-                        await self._speak(self.interview_retry)
+                    await self._speak(f"{self.interview_retry} {question}".strip())
                     await self._settle_before_listening()
 
             record["retries_used"] = retries_used
