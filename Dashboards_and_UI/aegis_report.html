@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<title>AEGIS-Ω · Panel de Blindaje</title>
+<style>
+  :root {
+    --bg:#05070d; --panel:#0a0f1a; --panel2:#0d1524; --line:#1e2a3d;
+    --text:#e2e8f0; --muted:#7c8ba1; --gold:#d4af37; --cyan:#22d3ee;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:
+      radial-gradient(1200px 600px at 85% -10%, #0e2a3a 0%, transparent 60%),
+      radial-gradient(900px 500px at 5% 110%, #1a1406 0%, transparent 55%),
+      var(--bg);
+    color:var(--text); font-family:"Segoe UI",system-ui,-apple-system,sans-serif; }
+  .wrap { max-width:1280px; margin:0 auto; padding:36px 24px 80px; }
+  header { display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:20px;
+    border-bottom:1px solid var(--line); padding-bottom:22px; margin-bottom:26px; }
+  .brand { display:flex; align-items:center; gap:16px; }
+  .sigil { width:58px; height:58px; border:1px solid var(--gold); border-radius:50%;
+    display:grid; place-items:center; color:var(--gold); font-weight:700; letter-spacing:1px;
+    box-shadow:0 0 28px rgba(212,175,55,.25), inset 0 0 18px rgba(212,175,55,.12); }
+  h1 { margin:0; font-size:27px; letter-spacing:3px; font-weight:600; }
+  h1 span { color:var(--gold); }
+  .sub { color:var(--muted); font-size:12px; letter-spacing:2px; text-transform:uppercase; margin-top:5px; }
+  .meta { text-align:right; font-size:12px; color:var(--muted); line-height:1.9; }
+  .meta b { color:var(--text); font-weight:500; }
+  .grid { display:grid; grid-template-columns:280px 1fr; gap:22px; align-items:start; }
+  @media (max-width:900px) { .grid { grid-template-columns:1fr; } .meta { text-align:left; } }
+  .panel { background:linear-gradient(180deg,var(--panel2),var(--panel)); border:1px solid var(--line);
+    border-radius:14px; padding:20px; }
+  .gauge { width:200px; height:200px; margin:6px auto 16px; border-radius:50%;
+    background:conic-gradient(#4ade80 316.8deg, #131c2c 0deg);
+    display:grid; place-items:center; position:relative; }
+  .gauge::after { content:""; position:absolute; inset:13px; border-radius:50%; background:#080d16; }
+  .gauge .val { position:relative; z-index:2; text-align:center; }
+  .gauge .num { font-size:52px; font-weight:700; color:#4ade80; line-height:1; }
+  .gauge .lbl { font-size:10px; letter-spacing:3px; color:var(--muted); margin-top:6px; }
+  .chips { display:flex; flex-wrap:wrap; gap:7px; justify-content:center; margin-top:6px; }
+  .chip { font-size:10px; letter-spacing:1px; border:1px solid var(--line); border-radius:999px;
+    padding:4px 9px; color:var(--text); text-transform:uppercase; }
+  .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:22px; }
+  @media (max-width:900px) { .stats { grid-template-columns:repeat(2,1fr); } }
+  .stat { background:var(--panel); border:1px solid var(--line); border-radius:11px; padding:14px 16px; }
+  .stat-label { font-size:10px; letter-spacing:1.6px; color:var(--muted); text-transform:uppercase; }
+  .stat-value { font-size:19px; margin-top:6px; font-weight:600; }
+  h2 { font-size:12px; letter-spacing:3px; text-transform:uppercase; color:var(--gold);
+    margin:0 0 14px; font-weight:600; }
+  h2::after { content:""; display:block; width:34px; height:1px; background:var(--gold); margin-top:8px; opacity:.7; }
+  table { width:100%; border-collapse:collapse; font-size:12.5px; }
+  th { text-align:left; color:var(--muted); font-size:10px; letter-spacing:1.4px; text-transform:uppercase;
+    font-weight:500; padding:8px 10px; border-bottom:1px solid var(--line); }
+  td { padding:10px; border-bottom:1px solid rgba(30,42,61,.55); vertical-align:top; }
+  tr:hover td { background:rgba(34,211,238,.03); }
+  .code { font-family:"JetBrains Mono","Fira Code",monospace; font-size:11.5px; color:var(--cyan); }
+  .path { font-family:monospace; font-size:11px; color:#cbd5e1; word-break:break-all; }
+  .muted { color:var(--muted); font-size:11.5px; }
+  .badge { display:inline-block; font-size:9.5px; letter-spacing:1.3px; text-transform:uppercase;
+    border:1px solid var(--line); border-radius:5px; padding:3px 7px; white-space:nowrap; }
+  .badge.ok { color:#4ade80; border-color:#4ade80; }
+  .dot { display:inline-block; width:8px; height:8px; border-radius:50%; }
+  .dot.ok { background:#4ade80; box-shadow:0 0 8px #4ade80; }
+  .dot.bad { background:#f43f5e; box-shadow:0 0 8px #f43f5e; }
+  .two { display:grid; grid-template-columns:1fr 1fr; gap:22px; }
+  @media (max-width:900px) { .two { grid-template-columns:1fr; } }
+  .kv { display:flex; justify-content:space-between; gap:14px; padding:7px 0; border-bottom:1px dashed rgba(30,42,61,.6); font-size:12px; }
+  .kv span:first-child { color:var(--muted); }
+  .kv span:last-child { font-family:monospace; color:var(--cyan); text-align:right; word-break:break-all; }
+  footer { margin-top:34px; padding-top:18px; border-top:1px solid var(--line); color:var(--muted);
+    font-size:10.5px; letter-spacing:1.6px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; }
+  .seal { color:var(--gold); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="sigil">Ω</div>
+      <div>
+        <h1>AEGIS<span>-Ω</span></h1>
+        <div class="sub">Sistema de Blindaje Militar de Información · GODWORKS v26.4</div>
+      </div>
+    </div>
+    <div class="meta">
+      <div>GENERADO <b>2026-11-17 10:25:34</b></div>
+      <div>RAÍZ <b>/home/m11/Escritorio/GODWORKS SYSTEM</b></div>
+      <div>HUELLA MAESTRA <b>—</b></div>
+      <div>LEDGER <b>ÍNTEGRO</b> · 45 eventos</div>
+    </div>
+  </header>
+
+  <div class="stats"><div class='stat'><div class='stat-label'>Archivos auditados</div><div class='stat-value'>5,307</div></div><div class='stat'><div class='stat-label'>Hallazgos</div><div class='stat-value'>25</div></div><div class='stat'><div class='stat-label'>Sellados</div><div class='stat-value'>0</div></div><div class='stat'><div class='stat-label'>Ledger</div><div class='stat-value'>45 eventos</div></div><div class='stat'><div class='stat-label'>LUKS</div><div class='stat-value'>SÍ</div></div><div class='stat'><div class='stat-label'>Firewall</div><div class='stat-value'>ACTIVO</div></div><div class='stat'><div class='stat-label'>Auditd</div><div class='stat-value'>ACTIVO</div></div><div class='stat'><div class='stat-label'>Secure Boot</div><div class='stat-value'>NO</div></div></div>
+
+  <div class="grid">
+    <div>
+      <div class="panel">
+        <div class="gauge"><div class="val"><div class="num">88</div><div class="lbl">POSTURA</div></div></div>
+        <div class="chips"><span class='chip' style='border-color:#f43f5e'>CRÍTICO: 0</span><span class='chip' style='border-color:#fb923c'>ALTO: 0</span><span class='chip' style='border-color:#fbbf24'>MEDIO: 0</span><span class='chip' style='border-color:#38bdf8'>BAJO: 23</span><span class='chip' style='border-color:#94a3b8'>INFO: 2</span></div>
+      </div>
+      <div class="panel" style="margin-top:22px">
+        <h2>Custodia</h2>
+        <div class="kv"><span>Clave maestra</span><span>—</span></div>
+        <div class="kv"><span>Passphrase</span><span>NO</span></div>
+        <div class="kv"><span>Kit recuperación</span><span>NO</span></div>
+        <div class="kv"><span>Archivos sellados</span><span>0</span></div>
+        <div class="kv"><span>Objetos en bóveda</span><span>0</span></div>
+        <div class="kv"><span>Ancla ledger</span><span>OK</span></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Hallazgos priorizados</h2>
+      <table>
+        <thead><tr><th>Severidad</th><th>Código</th><th>Hallazgo</th><th>Ruta</th><th>Remediación</th></tr></thead>
+        <tbody><tr><td><span class="badge" style="color:#38bdf8;border-color:#38bdf8">bajo</span></td><td class='code'>SECRETO_EN_CONTENIDO</td><td><strong>Credencial/dato en custodia: Correo electrónico</strong><div class='muted'>línea 6: spar…om (24 ch)</div></td><td class='path'>client_gateway_secrets.json</td><td class='muted'>Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600</td></tr>
+<tr><td><span class="badge" style="color:#38bdf8;border-color:#38bdf8">bajo</span></td><td class='code'>SECRETO_EN_CONTENIDO</td><td><strong>Credencial/dato en custodia: Correo electrónico</strong><div class='muted'>línea 11: migu…om (23 ch)</div></td><td class='path'>client_gateway_secrets.json</td><td class='muted'>Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600</td></tr>
+<tr><td><span class="badge" style="color:#38bdf8;border-color:#38bdf8">bajo</span></td><td class='code'>SECRETO_EN_CONTENIDO</td><td><strong>Credencial/dato en custodia: Posible número de tarjeta</strong><div class='muted'>línea 23: 0650…52 (16 ch)</div></td><td class='path'>data/experiments/causal_prompt_chaining_seed42.json</td><td class='muted'>Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600</td></tr>
+<tr><td><span class="badge" style="color:#38bdf8;border-color:#38bdf8">bajo</span></td><td class='code'>SECRETO_EN_CONTENIDO</td><td><strong>Credencial/dato en custodia: Correo electrónico</strong><div class='muted'>línea 346: deep….0 (27 ch)</div></td><td class='path'>data/ftl_backlog.json</td><td class='muted'>Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600</td></tr>
+<tr><td><span class="badge" style="color:#38bdf8;border-color:#38bdf8">bajo</span></td><td class='code'>SECRETO_EN_CONTENIDO</td><td><strong>Credencial/dato en custodia: Correo electrónico</strong><div class='muted'>línea 1620: spar…om (24 ch)</div></td><td class='path'>data/ftl_backlog.json</td><td class='muted'>Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600</td></tr>
+<tr><td><span class="badge" style="color:#38bdf8;border-color:#38bdf8">bajo</span></td><td class='code'>SECRETO_EN_CONTENIDO</td><td><strong>Credencial/dato en custodia: Correo electrónico (recurrente)</strong><div class='muted'>4 ocurrencias entre las líneas 346 y 2739</div></td><td class='path'>data/ftl_backlog.json</td><td class='muted'>Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600</td></tr>
+<tr><td><span class="badge" style="color:#38bdf8;border-color:#38bdf8">bajo</span></td><td class='code'>SECRETO_EN_CONTENIDO</td><td><strong>Credencial/dato en custodia: Teléfono / WhatsApp</strong><div class='muted'>línea 5: +529…88 (13 ch)</div></td><td class='path'>data/sms_history.json</td><td class='muted'>Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600</td></tr>
+<tr><td><span class="badge" style="color:#38bdf8;border-color:#38bdf8">bajo</span></td><td class='code'>SECRETO_EN_CONTENIDO</td><td><strong>Credencial/dato en custodia: Teléfono / WhatsApp</strong><div class='muted'>línea 28: +529…88 (13 ch)</div></td><td class='path'>data/sms_history.json</td><td class='muted'>Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600</td></tr>
+<tr><td><span class="badge" style="color:#38bdf8;border-color:#38bdf8">bajo</span></td><td class='code'>SECRETO_EN_CONTENIDO</td><td><strong>Credencial/dato en custodia: Teléfono / WhatsApp (recurrente)</strong><div class='muted'>11 ocurrencias entre las líneas 5 y 137</div></td><td class='path'>data/sms_history.json</td><td class='muted'>Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600</td></tr>
+<tr><td><span class="badge" style="color:#38bdf8;border-color:#38bdf8">bajo</span></td><td class='code'>SECRETO_EN_CONTENIDO</td><td><strong>Credencial/dato en custodia: Teléfono / WhatsApp</strong><div class='muted'>línea 295: 7412…82 (10 ch)</div></td><td class='path'>data/telegram_group_members.json</td><td class='muted'>Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600</td></tr>
+<tr><td><span class="badge" style="color:#38bdf8;border-color:#38bdf8">bajo</span></td><td class='code'>SECRETO_EN_CONTENIDO</td><td><strong>Credencial/dato en custodia: Teléfono / WhatsApp</strong><div class='muted'>línea 296: 7412…82 (10 ch)</div></td><td class='path'>data/telegram_group_members.json</td><td class='muted'>Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600</td></tr>
+<tr><td><span class="badge" style="color:#38bdf8;border-color:#38bdf8">bajo</span></td><td class='code'>SECRETO_EN_CONTENIDO</td><td><strong>Credencial/dato en custodia: Teléfono / WhatsApp</strong><div class='muted'>línea 6: +529…67 (13 ch)</div></td><td class='path'>data/telephony/calls_history.json</td><td class='muted'>Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600</td></tr>
+<tr><td><span class="badge" style="color:#38bdf8;border-color:#38bdf8">bajo</span></td><td class='code'>SECRETO_EN_CONTENIDO</td><td><strong>Credencial/dato en custodia: Teléfono / WhatsApp</strong><div class='muted'>línea 11: +529…67 (13 ch)</div></td><td class='path'>data/telephony/calls_history.json</td><td class='muted'>Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600</td></tr>
+<tr><td><span class="badge" style="color:#38bdf8;border-color:#38bdf8">bajo</span></td><td class='code'>SECRETO_EN_CONTENIDO</td><td><strong>Credencial/dato en custodia: Teléfono / WhatsApp (recurrente)</strong><div class='muted'>6 ocurrencias entre las líneas 6 y 51</div></td><td class='path'>data/telephony/calls_history.json</td><td class='muted'>Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600</td></tr>
+<tr><td><span class="badge" style="color:#38bdf8;border-color:#38bdf8">bajo</span></td><td class='code'>SECRETO_EN_CONTENIDO</td><td><strong>Credencial/dato en custodia: Teléfono / WhatsApp</strong><div class='muted'>línea 425: 1793…76 (10 ch)</div></td><td class='path'>data/terminal_captures/captures_index.json</td><td class='muted'>Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600</td></tr>
+<tr><td><span class="badge" style="color:#38bdf8;border-color:#38bdf8">bajo</span></td><td class='code'>SECRETO_EN_CONTENIDO</td><td><strong>Credencial/dato en custodia: Teléfono / WhatsApp</strong><div class='muted'>línea 434: 1793…76 (10 ch)</div></td><td class='path'>data/terminal_captures/captures_index.json</td><td class='muted'>Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600</td></tr>
+<tr><td><span class="badge" style="color:#38bdf8;border-color:#38bdf8">bajo</span></td><td class='code'>SECRETO_EN_CONTENIDO</td><td><strong>Credencial/dato en custodia: Teléfono / WhatsApp (recurrente)</strong><div class='muted'>39 ocurrencias entre las líneas 425 y 2503</div></td><td class='path'>data/terminal_captures/captures_index.json</td><td class='muted'>Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600</td></tr>
+<tr><td><span class="badge" style="color:#38bdf8;border-color:#38bdf8">bajo</span></td><td class='code'>SECRETO_EN_CONTENIDO</td><td><strong>Posible fuga: Correo electrónico</strong><div class='muted'>línea 65: deep….0 (27 ch)</div></td><td class='path'>docs/FTL_BACKLOG.md</td><td class='muted'>Minimizar el dato, restringir permisos o cifrar el archivo</td></tr>
+<tr><td><span class="badge" style="color:#38bdf8;border-color:#38bdf8">bajo</span></td><td class='code'>SECRETO_EN_CONTENIDO</td><td><strong>Credencial/dato en custodia: Correo electrónico</strong><div class='muted'>línea 8: migu…om (23 ch)</div></td><td class='path'>tapo_c310_config.json</td><td class='muted'>Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600</td></tr>
+<tr><td><span class="badge" style="color:#38bdf8;border-color:#38bdf8">bajo</span></td><td class='code'>SECRETO_EN_CONTENIDO</td><td><strong>Credencial/dato en custodia: Telegram Bot Token</strong><div class='muted'>línea 3: 8889…co (46 ch)</div></td><td class='path'>telegram_config.json</td><td class='muted'>Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600</td></tr>
+<tr><td><span class="badge" style="color:#38bdf8;border-color:#38bdf8">bajo</span></td><td class='code'>SECRETO_EN_CONTENIDO</td><td><strong>Credencial/dato en custodia: Teléfono / WhatsApp</strong><div class='muted'>línea 31: +529…88 (13 ch)</div></td><td class='path'>telegram_config.json</td><td class='muted'>Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600</td></tr>
+<tr><td><span class="badge" style="color:#38bdf8;border-color:#38bdf8">bajo</span></td><td class='code'>SECRETO_EN_CONTENIDO</td><td><strong>Credencial/dato en custodia: Teléfono / WhatsApp</strong><div class='muted'>línea 11: +529…88 (13 ch)</div></td><td class='path'>whatsapp_config.json</td><td class='muted'>Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600</td></tr>
+<tr><td><span class="badge" style="color:#94a3b8;border-color:#94a3b8">info</span></td><td class='code'>SERVICIO_LAN_AUTENTICADO</td><td><strong>Servicio expuesto con autenticación, restringido a LAN</strong><div class='muted'>GIA · firewall sólo permite redes privadas</div></td><td class='path'>0.0.0.0:8757/tcp</td><td class='muted'>Mantener el token rotado y el firewall al día</td></tr>
+<tr><td><span class="badge" style="color:#38bdf8;border-color:#38bdf8">bajo</span></td><td class='code'>SECURE_BOOT_OFF</td><td><strong>Secure Boot desactivado</strong><div class='muted'>la cadena de arranque no está verificada por firmware</div></td><td class='path'>UEFI</td><td class='muted'>Activar Secure Boot y firmar el cargador con sbctl</td></tr>
+<tr><td><span class="badge" style="color:#94a3b8;border-color:#94a3b8">info</span></td><td class='code'>APPARMOR_PENDING</td><td><strong>AppArmor configurado · pendiente de reinicio</strong><div class='muted'>apparmor=1 security=apparmor ya está en la línea de comandos; el LSM se activará en el próximo arranque</div></td><td class='path'>kernel</td><td class='muted'>Reiniciar el equipo para cargar el módulo de confinamiento</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="two" style="margin-top:22px">
+    <div class="panel">
+      <h2>Línea base del kernel</h2>
+      <table>
+        <thead><tr><th>Parámetro</th><th>Actual</th><th>Deseado</th><th>Estado</th><th>Perfil</th></tr></thead>
+        <tbody><tr><td class='code'>fs.protected_fifos</td><td class='code'>2</td><td class='code'>2</td><td><span class="dot ok"></span></td><td class='muted'>safe</td></tr>
+<tr><td class='code'>fs.protected_hardlinks</td><td class='code'>1</td><td class='code'>1</td><td><span class="dot ok"></span></td><td class='muted'>safe</td></tr>
+<tr><td class='code'>fs.protected_regular</td><td class='code'>2</td><td class='code'>2</td><td><span class="dot ok"></span></td><td class='muted'>safe</td></tr>
+<tr><td class='code'>fs.protected_symlinks</td><td class='code'>1</td><td class='code'>1</td><td><span class="dot ok"></span></td><td class='muted'>safe</td></tr>
+<tr><td class='code'>fs.suid_dumpable</td><td class='code'>0</td><td class='code'>0</td><td><span class="dot ok"></span></td><td class='muted'>safe</td></tr>
+<tr><td class='code'>kernel.dmesg_restrict</td><td class='code'>1</td><td class='code'>1</td><td><span class="dot ok"></span></td><td class='muted'>safe</td></tr>
+<tr><td class='code'>kernel.kexec_load_disabled</td><td class='code'>1</td><td class='code'>1</td><td><span class="dot ok"></span></td><td class='muted'>moderate</td></tr>
+<tr><td class='code'>kernel.kptr_restrict</td><td class='code'>1</td><td class='code'>1</td><td><span class="dot ok"></span></td><td class='muted'>safe</td></tr>
+<tr><td class='code'>kernel.perf_event_paranoid</td><td class='code'>3</td><td class='code'>3</td><td><span class="dot ok"></span></td><td class='muted'>aggressive</td></tr>
+<tr><td class='code'>kernel.randomize_va_space</td><td class='code'>2</td><td class='code'>2</td><td><span class="dot ok"></span></td><td class='muted'>safe</td></tr>
+<tr><td class='code'>kernel.unprivileged_bpf_disabled</td><td class='code'>1</td><td class='code'>1</td><td><span class="dot ok"></span></td><td class='muted'>aggressive</td></tr>
+<tr><td class='code'>kernel.yama.ptrace_scope</td><td class='code'>1</td><td class='code'>1</td><td><span class="dot ok"></span></td><td class='muted'>safe</td></tr>
+<tr><td class='code'>net.core.bpf_jit_harden</td><td class='code'>2</td><td class='code'>2</td><td><span class="dot ok"></span></td><td class='muted'>moderate</td></tr>
+<tr><td class='code'>net.ipv4.conf.all.accept_redirects</td><td class='code'>0</td><td class='code'>0</td><td><span class="dot ok"></span></td><td class='muted'>safe</td></tr>
+<tr><td class='code'>net.ipv4.conf.all.accept_source_route</td><td class='code'>0</td><td class='code'>0</td><td><span class="dot ok"></span></td><td class='muted'>safe</td></tr>
+<tr><td class='code'>net.ipv4.conf.all.log_martians</td><td class='code'>1</td><td class='code'>1</td><td><span class="dot ok"></span></td><td class='muted'>safe</td></tr>
+<tr><td class='code'>net.ipv4.conf.all.rp_filter</td><td class='code'>1</td><td class='code'>1</td><td><span class="dot ok"></span></td><td class='muted'>safe</td></tr>
+<tr><td class='code'>net.ipv4.conf.all.secure_redirects</td><td class='code'>0</td><td class='code'>0</td><td><span class="dot ok"></span></td><td class='muted'>safe</td></tr>
+<tr><td class='code'>net.ipv4.conf.all.send_redirects</td><td class='code'>0</td><td class='code'>0</td><td><span class="dot ok"></span></td><td class='muted'>safe</td></tr>
+<tr><td class='code'>net.ipv4.conf.default.accept_redirects</td><td class='code'>0</td><td class='code'>0</td><td><span class="dot ok"></span></td><td class='muted'>safe</td></tr>
+<tr><td class='code'>net.ipv4.conf.default.rp_filter</td><td class='code'>1</td><td class='code'>1</td><td><span class="dot ok"></span></td><td class='muted'>safe</td></tr>
+<tr><td class='code'>net.ipv4.icmp_echo_ignore_broadcasts</td><td class='code'>1</td><td class='code'>1</td><td><span class="dot ok"></span></td><td class='muted'>safe</td></tr>
+<tr><td class='code'>net.ipv4.icmp_ignore_bogus_error_responses</td><td class='code'>1</td><td class='code'>1</td><td><span class="dot ok"></span></td><td class='muted'>safe</td></tr>
+<tr><td class='code'>net.ipv4.tcp_syncookies</td><td class='code'>1</td><td class='code'>1</td><td><span class="dot ok"></span></td><td class='muted'>safe</td></tr>
+<tr><td class='code'>net.ipv6.conf.all.accept_redirects</td><td class='code'>0</td><td class='code'>0</td><td><span class="dot ok"></span></td><td class='muted'>safe</td></tr>
+<tr><td class='code'>net.ipv6.conf.all.accept_source_route</td><td class='code'>0</td><td class='code'>0</td><td><span class="dot ok"></span></td><td class='muted'>safe</td></tr>
+<tr><td class='code'>vm.mmap_min_addr</td><td class='code'>65536</td><td class='code'>65536</td><td><span class="dot ok"></span></td><td class='muted'>safe</td></tr></tbody>
+      </table>
+    </div>
+    <div class="panel">
+      <h2>Superficie de red</h2>
+      <div class="kv"><span>Firewall</span><span>ufw · ACTIVO</span></div>
+      <div class="kv"><span>Raíz cifrada</span><span>SÍ</span></div>
+      <div class="kv"><span>Volúmenes LUKS</span><span>root</span></div>
+      <div class="kv"><span>Swap</span><span>/swap/swapfile file
+/dev/zram0     partition</span></div>
+      <table style="margin-top:14px">
+        <thead><tr><th>Socket</th><th>Proto</th><th>Alcance</th><th>Proceso</th></tr></thead>
+        <tbody><tr><td class='code'>REDACTED_IP:53</td><td class='code'>udp</td><td><span class="badge ok">LOCAL</span></td><td class='muted'></td></tr>
+<tr><td class='code'>REDACTED_IP:53</td><td class='code'>udp</td><td><span class="badge ok">LOCAL</span></td><td class='muted'></td></tr>
+<tr><td class='code'>REDACTED_IP%lo:53</td><td class='code'>udp</td><td><span class="badge ok">LOCAL</span></td><td class='muted'></td></tr>
+<tr><td class='code'>0.0.0.0:5353</td><td class='code'>udp</td><td><span class="badge" style="color:#f43f5e;border-color:#f43f5e">EXPUESTO</span></td><td class='muted'>users:((&quot;adb&quot;,pid=1605,fd=12))</td></tr>
+<tr><td class='code'>0.0.0.0:5353</td><td class='code'>udp</td><td><span class="badge" style="color:#f43f5e;border-color:#f43f5e">EXPUESTO</span></td><td class='muted'>users:((&quot;adb&quot;,pid=1605,fd=4))</td></tr>
+<tr><td class='code'>REDACTED_IP:5353</td><td class='code'>udp</td><td><span class="badge ok">LOCAL</span></td><td class='muted'>users:((&quot;chrome&quot;,pid=18570,fd=46))</td></tr>
+<tr><td class='code'>REDACTED_IP:5353</td><td class='code'>udp</td><td><span class="badge ok">LOCAL</span></td><td class='muted'>users:((&quot;chrome&quot;,pid=18570,fd=45))</td></tr>
+<tr><td class='code'>0.0.0.0:5353</td><td class='code'>udp</td><td><span class="badge" style="color:#f43f5e;border-color:#f43f5e">EXPUESTO</span></td><td class='muted'></td></tr>
+<tr><td class='code'>127.0.0.1:38488</td><td class='code'>udp</td><td><span class="badge ok">LOCAL</span></td><td class='muted'>users:((&quot;adb&quot;,pid=1605,fd=7))</td></tr>
+<tr><td class='code'>*:50493</td><td class='code'>udp</td><td><span class="badge" style="color:#f43f5e;border-color:#f43f5e">EXPUESTO</span></td><td class='muted'>users:((&quot;cloudflared&quot;,pid=2412370,fd=4))</td></tr>
+<tr><td class='code'>[::]:5353</td><td class='code'>udp</td><td><span class="badge" style="color:#f43f5e;border-color:#f43f5e">EXPUESTO</span></td><td class='muted'></td></tr>
+<tr><td class='code'>127.0.0.1:631</td><td class='code'>tcp</td><td><span class="badge ok">LOCAL</span></td><td class='muted'></td></tr>
+<tr><td class='code'>127.0.0.1:49374</td><td class='code'>tcp</td><td><span class="badge ok">LOCAL</span></td><td class='muted'>users:((&quot;opencode.exe&quot;,pid=87408,fd=8))</td></tr>
+<tr><td class='code'>127.0.0.1:20241</td><td class='code'>tcp</td><td><span class="badge ok">LOCAL</span></td><td class='muted'>users:((&quot;cloudflared&quot;,pid=2412370,fd=11))</td></tr>
+<tr><td class='code'>127.0.0.1:20242</td><td class='code'>tcp</td><td><span class="badge ok">LOCAL</span></td><td class='muted'>users:((&quot;cloudflared&quot;,pid=3468,fd=8))</td></tr>
+<tr><td class='code'>REDACTED_IP:53</td><td class='code'>tcp</td><td><span class="badge ok">LOCAL</span></td><td class='muted'></td></tr>
+<tr><td class='code'>0.0.0.0:8765</td><td class='code'>tcp</td><td><span class="badge" style="color:#f43f5e;border-color:#f43f5e">EXPUESTO</span></td><td class='muted'>users:((&quot;python3&quot;,pid=1289,fd=6))</td></tr>
+<tr><td class='code'>0.0.0.0:8757</td><td class='code'>tcp</td><td><span class="badge" style="color:#f43f5e;border-color:#f43f5e">EXPUESTO</span></td><td class='muted'>users:((&quot;python3&quot;,pid=2365724,fd=7))</td></tr>
+<tr><td class='code'>127.0.0.1:5037</td><td class='code'>tcp</td><td><span class="badge ok">LOCAL</span></td><td class='muted'>users:((&quot;adb&quot;,pid=1605,fd=11))</td></tr>
+<tr><td class='code'>REDACTED_IP%lo:53</td><td class='code'>tcp</td><td><span class="badge ok">LOCAL</span></td><td class='muted'></td></tr>
+<tr><td class='code'>127.0.0.1:8790</td><td class='code'>tcp</td><td><span class="badge ok">LOCAL</span></td><td class='muted'>users:((&quot;python3&quot;,pid=1136,fd=6))</td></tr>
+<tr><td class='code'>127.0.0.1:8787</td><td class='code'>tcp</td><td><span class="badge ok">LOCAL</span></td><td class='muted'>users:((&quot;tardis-hunter&quot;,pid=1132,fd=30))</td></tr>
+<tr><td class='code'>127.0.0.1:8797</td><td class='code'>tcp</td><td><span class="badge ok">LOCAL</span></td><td class='muted'>users:((&quot;python3&quot;,pid=1153,fd=9))</td></tr>
+<tr><td class='code'>127.0.0.1:8796</td><td class='code'>tcp</td><td><span class="badge ok">LOCAL</span></td><td class='muted'>users:((&quot;python3&quot;,pid=1305,fd=8))</td></tr>
+<tr><td class='code'>127.0.0.1:8798</td><td class='code'>tcp</td><td><span class="badge ok">LOCAL</span></td><td class='muted'>users:((&quot;tardis-desktop&quot;,pid=1030859,fd=26))</td></tr>
+<tr><td class='code'>127.0.0.1:8794</td><td class='code'>tcp</td><td><span class="badge ok">LOCAL</span></td><td class='muted'>users:((&quot;python3&quot;,pid=1272,fd=3))</td></tr>
+<tr><td class='code'>127.0.0.1:9226</td><td class='code'>tcp</td><td><span class="badge ok">LOCAL</span></td><td class='muted'>users:((&quot;chrome&quot;,pid=18494,fd=73))</td></tr>
+<tr><td class='code'>REDACTED_IP:53</td><td class='code'>tcp</td><td><span class="badge ok">LOCAL</span></td><td class='muted'></td></tr>
+<tr><td class='code'>127.0.0.1:44017</td><td class='code'>tcp</td><td><span class="badge ok">LOCAL</span></td><td class='muted'>users:((&quot;claude&quot;,pid=76503,fd=10))</td></tr>
+<tr><td class='code'>127.0.0.1:43893</td><td class='code'>tcp</td><td><span class="badge ok">LOCAL</span></td><td class='muted'>users:((&quot;llama-server&quot;,pid=1168523,fd=3))</td></tr>
+<tr><td class='code'>0.0.0.0:7690</td><td class='code'>tcp</td><td><span class="badge" style="color:#f43f5e;border-color:#f43f5e">EXPUESTO</span></td><td class='muted'>users:((&quot;python3&quot;,pid=1297,fd=6))</td></tr>
+<tr><td class='code'>0.0.0.0:7681</td><td class='code'>tcp</td><td><span class="badge" style="color:#f43f5e;border-color:#f43f5e">EXPUESTO</span></td><td class='muted'>users:((&quot;ttyd&quot;,pid=1124,fd=13))</td></tr>
+<tr><td class='code'>127.0.0.1:11434</td><td class='code'>tcp</td><td><span class="badge ok">LOCAL</span></td><td class='muted'>users:((&quot;ollama&quot;,pid=1126,fd=4))</td></tr>
+<tr><td class='code'>127.0.0.1:45891</td><td class='code'>tcp</td><td><span class="badge ok">LOCAL</span></td><td class='muted'>users:((&quot;llama-server&quot;,pid=353617,fd=3))</td></tr>
+<tr><td class='code'>[::1]:631</td><td class='code'>tcp</td><td><span class="badge ok">LOCAL</span></td><td class='muted'></td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer>
+    <span class="seal">AEGIS-Ω · LA CONSTANTE AEGIS</span>
+    <span>Documento generado localmente · sin telemetría · clasificación C4</span>
+  </footer>
+</div>
+</body>
+</html>

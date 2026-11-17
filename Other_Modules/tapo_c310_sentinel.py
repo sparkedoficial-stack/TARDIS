@@ -59,6 +59,10 @@ LIVE_CLIPS_DIR = DETECTIONS_DIR / "live_clips"
 SENTINEL_HUB_HOST = os.environ.get("TARDIS_C310_HUB_HOST", "127.0.0.1")
 SENTINEL_HUB_PORT = int(os.environ.get("TARDIS_C310_HUB_PORT", "8797"))
 VOICE_CHANNEL_FLAG = BASE_DIR / "data" / "tapo_c310_voice_channel" / "session_active.json"
+VOICE_CHANNEL_DIR = BASE_DIR / "data" / "tapo_c310_voice_channel"
+VOICE_CHANNEL_STATE = VOICE_CHANNEL_DIR / "state.json"
+VOICE_INTERVIEW_REQUEST = VOICE_CHANNEL_DIR / "interview_request.json"
+VOICE_VISITOR_LOG = VOICE_CHANNEL_DIR / "visitor_interviews.jsonl"
 DEFAULT_DWELL_TRIGGER_SEC = 90.0
 DEFAULT_VOICE_ALERT_MESSAGE = DEFAULT_WARNING_MESSAGE
 
@@ -755,6 +759,41 @@ class TapoC310Sentinel:
         self.dwell_trigger_sec: float = float(
             self.config.get("dwell_trigger_sec", DEFAULT_DWELL_TRIGGER_SEC)
         )
+        # Directiva Arquitecto (2026-11-17): tras detectar humanos, notificar de inmediato y
+        # 15 s después entrevistar al visitante (nombre + motivo de visita) por la C310.
+        self.visitor_interview_enabled: bool = bool(
+            self.config.get("visitor_interview_enabled", True)
+        )
+        self.visitor_interview_delay_sec: float = max(
+            0.0, float(self.config.get("visitor_interview_delay_sec", 15.0))
+        )
+        self.visitor_interview_require_presence: bool = bool(
+            self.config.get("visitor_interview_require_presence", True)
+        )
+        self.visitor_interview_presence_window_sec: float = max(
+            1.0, float(self.config.get("visitor_interview_presence_window_sec", 6.0))
+        )
+        self.visitor_interview_cooldown_sec: float = max(
+            30.0, float(self.config.get("visitor_interview_cooldown_sec", 600.0))
+        )
+        self.visitor_interview_speaker_fallback: bool = bool(
+            self.config.get("visitor_interview_speaker_fallback", True)
+        )
+        self.visitor_interview_greeting: str = str(
+            self.config.get(
+                "visitor_interview_greeting",
+                "Hola, bienvenido a la propiedad. Soy TARDIS.",
+            )
+        ).strip()
+        self.visitor_interview_question_name: str = str(
+            self.config.get("visitor_interview_question_name", "¿Cuál es su nombre?")
+        ).strip()
+        self.visitor_interview_question_reason: str = str(
+            self.config.get(
+                "visitor_interview_question_reason",
+                "Gracias. ¿Cuál es el motivo de su visita?",
+            )
+        ).strip()
         self._face_intel_engine: Optional[Any] = None
 
         self._stop_event = asyncio.Event()
@@ -779,6 +818,12 @@ class TapoC310Sentinel:
         self.last_voice_warning_ts: float = 0.0
         self.last_spoken_message: str = ""
         self._voice_task: Optional[asyncio.Task] = None
+        self.total_visitor_interviews_requested: int = 0
+        self.total_visitor_interviews_received: int = 0
+        self.last_visitor_interview: Dict[str, Any] = {}
+        self._interviewed_tracks: Dict[int, float] = {}
+        self._interview_tasks: set[asyncio.Task] = set()
+        self._visitor_log_pos: Optional[int] = None
         self.last_alert_ts: float = 0.0
         self.last_alert_person_count: int = 0
         self.last_person_seen_ts: float = 0.0
@@ -895,6 +940,9 @@ class TapoC310Sentinel:
                 "total_alerts_sent": self.total_alerts_sent,
                 "total_voice_warnings_spoken": self.total_voice_warnings_spoken,
                 "total_new_visitors_detected": self.reid_tracker.total_new_visitors,
+                "total_visitor_interviews_requested": self.total_visitor_interviews_requested,
+                "total_visitor_interviews_received": self.total_visitor_interviews_received,
+                "last_visitor_interview": self.last_visitor_interview,
                 "last_voice_warning_ts": self.last_voice_warning_ts,
                 "last_spoken_message": self.last_spoken_message,
                 "last_inference_ms": round(last_latency_ms, 2),
@@ -1109,6 +1157,266 @@ class TapoC310Sentinel:
         except Exception as exc:
             logger.warning(f"Excepción emitiendo voz en {self.host}: {exc}")
             return {"ok": False, "error": str(exc)}
+
+    def _voice_channel_alive(self) -> bool:
+        """True si el canal de voz (micrófono/bocina C310) está conectado y fresco (<30 s)."""
+        try:
+            data = self._load_json(VOICE_CHANNEL_STATE)
+            updated = float(data.get("updated_at") or 0.0)
+            audio = data.get("audio") or {}
+            return (time.time() - updated) < 30.0 and bool(audio.get("stream_connected"))
+        except Exception:
+            return False
+
+    def _build_single_interview_prompt(self) -> str:
+        """Pregunta combinada para el fallback por bocina (sin canal de escucha disponible)."""
+        parts = [
+            self.visitor_interview_greeting,
+            self.visitor_interview_question_name,
+            self.visitor_interview_question_reason,
+        ]
+        return " ".join(p for p in parts if p).strip()
+
+    def _prune_interviewed_tracks(self, now: float) -> None:
+        cooldown = self.visitor_interview_cooldown_sec
+        for tid, ts in list(self._interviewed_tracks.items()):
+            if (now - ts) > cooldown:
+                self._interviewed_tracks.pop(tid, None)
+
+    def _schedule_visitor_interview(self, new_visitor_ids: List[int]) -> None:
+        """Agenda la entrevista de visitantes 15 s después de la detección (una por individuo nuevo)."""
+        if not self.visitor_interview_enabled or not new_visitor_ids:
+            return
+        now = time.time()
+        self._prune_interviewed_tracks(now)
+        fresh: List[int] = []
+        for raw_id in new_visitor_ids:
+            try:
+                tid = int(raw_id)
+            except (TypeError, ValueError):
+                continue
+            last = self._interviewed_tracks.get(tid)
+            if last is not None and (now - last) < self.visitor_interview_cooldown_sec:
+                continue
+            self._interviewed_tracks[tid] = now
+            fresh.append(tid)
+        if not fresh:
+            return
+        task = asyncio.create_task(self._run_visitor_interview_request(fresh))
+        self._interview_tasks.add(task)
+        task.add_done_callback(self._interview_tasks.discard)
+        logger.info(
+            f"[ENTREVISTA C310] Programada en {self.visitor_interview_delay_sec:.0f}s "
+            f"para individuo(s) {fresh}."
+        )
+
+    async def _run_visitor_interview_request(self, track_ids: List[int]) -> None:
+        """Espera el retardo soberano, confirma permanencia y solicita la entrevista al canal de voz."""
+        try:
+            await asyncio.sleep(self.visitor_interview_delay_sec)
+            if self._stop_event.is_set():
+                return
+            now = time.time()
+            if self.visitor_interview_require_presence:
+                seen_age = now - self.last_person_seen_ts if self.last_person_seen_ts else 1e9
+                if seen_age > self.visitor_interview_presence_window_sec:
+                    logger.info(
+                        f"[ENTREVISTA C310] Omitida para {track_ids}: el visitante ya no está "
+                        f"en el perímetro ({seen_age:.1f}s sin detección)."
+                    )
+                    return
+            if self._voice_channel_is_active():
+                logger.info(
+                    f"[ENTREVISTA C310] Omitida para {track_ids}: canal de voz ocupado."
+                )
+                return
+
+            snapshot_path = ""
+            latest_alert = DETECTIONS_DIR / "latest_detection.jpg"
+            if latest_alert.is_file() and (now - latest_alert.stat().st_mtime) < 180.0:
+                snapshot_path = str(latest_alert)
+
+            if self._voice_channel_alive():
+                VOICE_CHANNEL_DIR.mkdir(parents=True, exist_ok=True)
+                payload = {
+                    "schema": "tardis.visitor_interview_request.v1",
+                    "request_id": f"vi_{int(now * 1000)}_{'_'.join(map(str, track_ids))}",
+                    "created_at": now,
+                    "created_iso": time.strftime("%Y-%m-%dT%H:%M:%S%z", time.localtime(now)),
+                    "camera_host": self.host,
+                    "camera_alias": self.device_alias,
+                    "track_ids": track_ids,
+                    "person_count": len(self._latest_detections),
+                    "snapshot_path": snapshot_path,
+                    "alert_ts": self.last_alert_ts,
+                }
+                self._atomic_write_json(VOICE_INTERVIEW_REQUEST, payload)
+                self.total_visitor_interviews_requested += 1
+                logger.info(
+                    f"[ENTREVISTA C310] Solicitud emitida al canal de voz para {track_ids} "
+                    f"(nombre + motivo de visita)."
+                )
+                return
+
+            if (
+                self.visitor_interview_speaker_fallback
+                and self.config.get("speaker_enabled", True)
+            ):
+                prompt = self._build_single_interview_prompt()
+                res = await self._announce_new_person_voice(track_ids, custom_text=prompt)
+                self.total_visitor_interviews_requested += 1
+                logger.info(
+                    f"[ENTREVISTA C310] Canal de voz inactivo; pregunta emitida por bocina "
+                    f"(fallback): ok={res.get('ok')}."
+                )
+            else:
+                logger.warning(
+                    "[ENTREVISTA C310] Canal de voz inactivo y fallback por bocina deshabilitado."
+                )
+        except asyncio.CancelledError:
+            raise
+        except Exception as exc:
+            logger.warning(f"[ENTREVISTA C310] Error programando la entrevista: {exc}")
+
+    async def _send_telegram_text(
+        self, client: httpx.AsyncClient, text: str
+    ) -> Dict[str, Any]:
+        if not self.config.get("telegram_notify_enabled", True):
+            return {"ok": False, "skipped": True}
+        tg_cfg = self._load_json(TELEGRAM_CONFIG_PATH) or self.tg_config
+        token = str(tg_cfg.get("bot_token", "")).strip()
+        chat_id = tg_cfg.get("admin_chat_id")
+        if not chat_id and tg_cfg.get("allowed_chats"):
+            chat_id = tg_cfg["allowed_chats"][0]
+        if not token or not chat_id:
+            return {"ok": False, "error": "Credenciales de Telegram no configuradas"}
+
+        url = f"https://api.telegram.org/bot{token}/sendMessage"
+        data = {
+            "chat_id": str(chat_id),
+            "text": text,
+            "parse_mode": "Markdown",
+            "disable_web_page_preview": "true",
+        }
+        try:
+            resp = await client.post(url, data=data, timeout=20.0)
+            res_json = resp.json()
+            if res_json.get("ok"):
+                return res_json
+            data.pop("parse_mode", None)
+            resp_fb = await client.post(url, data=data, timeout=20.0)
+            return resp_fb.json()
+        except Exception as exc:
+            logger.warning(f"Fallo enviando texto a Telegram: {exc}")
+            return {"ok": False, "error": str(exc)}
+
+    async def _notify_visitor_interview(
+        self, client: httpx.AsyncClient, record: Dict[str, Any]
+    ) -> None:
+        answers = record.get("answers") or {}
+        name = str(answers.get("name") or "").strip() or "SIN RESPUESTA"
+        reason = str(answers.get("reason") or "").strip() or "SIN RESPUESTA"
+        status = str(record.get("status") or "no_answer")
+        ts_human = str(record.get("finished_iso") or record.get("iso") or "")
+        caption = "\n".join(
+            [
+                "🎙️ *[ENTREVISTA DE VISITANTE · GOD-EYE C310]*",
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+                f"• *Nombre:* `{name}`",
+                f"• *Motivo de visita:* `{reason}`",
+                f"• *Estado:* `{status}`",
+                f"• *Personas:* `{record.get('person_count') or len(record.get('track_ids') or [])}`",
+                f"• *Cámara:* `{self.device_alias} (Tapo {self.device_model})` · `{self.host}`",
+                f"• *Hora:* `{ts_human}`",
+            ]
+        )
+        snapshot = Path(str(record.get("snapshot_path") or ""))
+        tg_res: Dict[str, Any] = {"ok": False}
+        if snapshot.is_file():
+            try:
+                jpeg = snapshot.read_bytes()
+                tg_res = await self._send_telegram_photo(client, jpeg, caption)
+            except Exception as exc:
+                logger.debug(f"No se pudo adjuntar la foto de la entrevista: {exc}")
+        if not tg_res.get("ok"):
+            tg_res = await self._send_telegram_text(client, caption)
+
+        self.total_visitor_interviews_received += 1
+        self.last_visitor_interview = {
+            "interview_id": record.get("interview_id", ""),
+            "name": name,
+            "reason": reason,
+            "status": status,
+            "finished_iso": ts_human,
+            "telegram_ok": bool(tg_res.get("ok")),
+        }
+        if record.get("snapshot_path"):
+            self._send_desktop_notification(
+                f"🎙️ ENTREVISTA VISITANTE · {self.device_alias}",
+                f"Nombre: {name} · Motivo: {reason}",
+                snapshot,
+            )
+        logger.info(
+            f"[ENTREVISTA C310] Resultado recibido: nombre={name!r} motivo={reason!r} "
+            f"TelegramOK={tg_res.get('ok')}."
+        )
+
+    async def _forward_interview_results(self, client: httpx.AsyncClient) -> None:
+        """Reenvía al Arquitecto (Telegram) las entrevistas completadas por el canal de voz."""
+        path = VOICE_VISITOR_LOG
+        if not path.is_file():
+            return
+        size = path.stat().st_size
+        if self._visitor_log_pos is None:
+            self._visitor_log_pos = size
+            return
+        if size <= self._visitor_log_pos:
+            if size < self._visitor_log_pos:
+                self._visitor_log_pos = size
+            return
+        with open(path, "rb") as fh:
+            fh.seek(self._visitor_log_pos)
+            chunk = fh.read()
+        if not chunk:
+            return
+        if not chunk.endswith(b"\n"):
+            cut = chunk.rfind(b"\n")
+            if cut < 0:
+                return
+            chunk = chunk[: cut + 1]
+        self._visitor_log_pos += len(chunk)
+        for raw_line in chunk.splitlines():
+            line = raw_line.strip()
+            if not line:
+                continue
+            try:
+                record = json.loads(line.decode("utf-8"))
+            except Exception:
+                continue
+            if not isinstance(record, dict):
+                continue
+            if str(record.get("schema", "")) != "tardis.visitor_interview.v1":
+                continue
+            try:
+                await self._notify_visitor_interview(client, record)
+            except Exception as exc:
+                logger.warning(f"No se pudo notificar la entrevista de visitante: {exc}")
+
+    async def _forward_interview_results_loop(self) -> None:
+        """Vigila el registro de entrevistas y lo despacha a Telegram aunque el stream se reconecte."""
+        try:
+            async with httpx.AsyncClient() as client:
+                while not self._stop_event.is_set():
+                    try:
+                        await self._forward_interview_results(client)
+                    except Exception as exc:
+                        logger.debug(f"Vigilancia de entrevistas: {exc}")
+                    try:
+                        await asyncio.wait_for(self._stop_event.wait(), timeout=4.0)
+                    except asyncio.TimeoutError:
+                        pass
+        except asyncio.CancelledError:
+            raise
 
     async def _dispatch_person_alert(
         self,
@@ -1603,6 +1911,9 @@ class TapoC310Sentinel:
                 "total_alerts_sent": self.total_alerts_sent,
                 "total_voice_warnings_spoken": self.total_voice_warnings_spoken,
                 "total_new_visitors_detected": self.reid_tracker.total_new_visitors,
+                "total_visitor_interviews_requested": self.total_visitor_interviews_requested,
+                "total_visitor_interviews_received": self.total_visitor_interviews_received,
+                "last_visitor_interview": self.last_visitor_interview,
                 "last_inference_ms": round(self._latest_inference_ms, 2),
                 "current_persons": len(self._latest_detections),
                 "presence_latched": self.presence_latched,
@@ -1938,12 +2249,16 @@ class TapoC310Sentinel:
                 if len(candidate_shots) > (confirm_needed + extra_best_frames + 2):
                     candidate_shots.pop(0)
 
-                self.reid_tracker.update_and_check_new(
+                new_visitor_ids_now = self.reid_tracker.update_and_check_new(
                     bgr_frame,
                     detections,
                     now,
                     confirmed=(self.consecutive_positive >= confirm_needed),
                 )
+                if new_visitor_ids_now:
+                    # Directiva 2026-11-17: el visitante nuevo se entrevista 15 s después
+                    # (nombre + motivo) reutilizando el micrófono y la bocina de la C310.
+                    self._schedule_visitor_interview(new_visitor_ids_now)
 
                 # Directiva Arquitecto (TARDIS-NEURAL-SPACE-KAIJU) · Aviso Vocal Dwell-Gated:
                 # El aviso SOLO debe sonar cuando la persona permanezca más de 1.5 minutos
@@ -2071,6 +2386,7 @@ class TapoC310Sentinel:
         backoff = 2.0
         startup_sent = not send_startup_photo
 
+        forward_task = asyncio.create_task(self._forward_interview_results_loop())
         try:
             async with httpx.AsyncClient() as http_client:
                 while not self._stop_event.is_set():
@@ -2198,6 +2514,14 @@ class TapoC310Sentinel:
                             pass
                         backoff = min(20.0, backoff * 1.7)
         finally:
+            forward_task.cancel()
+            try:
+                await forward_task
+            except (asyncio.CancelledError, Exception):
+                pass
+            for task in list(self._interview_tasks):
+                task.cancel()
+            self._interview_tasks.clear()
             await self._stop_hub_server()
 
     async def capture_single_snapshot(self, send_telegram: bool = False) -> Dict[str, Any]:

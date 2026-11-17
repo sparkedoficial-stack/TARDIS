@@ -7,6 +7,7 @@ Cockpits de control en tiempo real, portales soberanos y tableros de visualizaci
 - **TARDIS_TERMINAL_APP.html**: Interfaz interactiva de monitoreo en tiempo real.
 - **adaptation_sys_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
 - **advanced_telemetry_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
+- **aegis_report.html**: Interfaz interactiva de monitoreo en tiempo real.
 - **airplay_monitor_dashboard.html**: Módulo de transmisión y monitoreo de streaming de video/audio AirPlay.
 - **background_subsystem.html**: Interfaz interactiva de monitoreo en tiempo real.
 - **benchmark_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.

@@ -61,6 +61,8 @@ STATE_DIR = BASE_DIR / "data" / "tapo_c310_voice_channel"
 STATE_FILE = STATE_DIR / "state.json"
 EVENTS_FILE = STATE_DIR / "events.jsonl"
 SESSION_FLAG_FILE = STATE_DIR / "session_active.json"
+INTERVIEW_REQUEST_FILE = STATE_DIR / "interview_request.json"
+VISITOR_LOG_FILE = STATE_DIR / "visitor_interviews.jsonl"
 CAPTURE_TEST_DIR = STATE_DIR / "captures"
 TTS_CACHE_DIR = BASE_DIR / "data" / "tapo_c310_detections" / "tts_cache"
 
@@ -710,6 +712,46 @@ class TapoC310VoiceChannel:
         self.max_utterance_sec = float(
             self.config.get("voice_channel_max_utterance_sec", 15)
         )
+        self.interview_enabled = bool(self.config.get("visitor_interview_enabled", True))
+        self.interview_greeting = str(
+            self.config.get(
+                "visitor_interview_greeting",
+                "Hola, bienvenido a la propiedad. Soy TARDIS.",
+            )
+        ).strip()
+        self.interview_question_name = str(
+            self.config.get("visitor_interview_question_name", "¿Cuál es su nombre?")
+        ).strip()
+        self.interview_question_reason = str(
+            self.config.get(
+                "visitor_interview_question_reason",
+                "Gracias. ¿Cuál es el motivo de su visita?",
+            )
+        ).strip()
+        self.interview_closing = str(
+            self.config.get(
+                "visitor_interview_closing",
+                "Gracias. TARDIS ha registrado su visita. Puede continuar.",
+            )
+        ).strip()
+        self.interview_retry = str(
+            self.config.get(
+                "visitor_interview_retry",
+                "No alcancé a escucharlo. ¿Puede repetirlo, por favor?",
+            )
+        ).strip()
+        self.interview_listen_sec = max(
+            4.0, float(self.config.get("visitor_interview_listen_sec", 18.0))
+        )
+        self.interview_settle_sec = max(
+            0.0, float(self.config.get("visitor_interview_settle_sec", 1.6))
+        )
+        self.interview_retries = max(
+            0, int(self.config.get("visitor_interview_retries", 1))
+        )
+        self.interview_max_request_age_sec = max(
+            10.0, float(self.config.get("visitor_interview_max_request_age_sec", 120.0))
+        )
         self.brain = TemporalBrainClient(
             socket_path=Path(
                 str(self.config.get("voice_channel_llm_socket", str(TEMPORAL_BRAIN_SOCK)))
@@ -747,6 +789,12 @@ class TapoC310VoiceChannel:
         self.reply_count = 0
         self.last_activity_ts = 0.0
         self.last_greeting_ts = 0.0
+        self.total_visitor_interviews = 0
+        self.last_visitor_interview: Dict[str, Any] = {}
+        self._interview_task: Optional[asyncio.Task] = None
+        self._interview_record: Optional[Dict[str, Any]] = None
+        self._interview_field: Optional[str] = None
+        self._interview_answer_future: Optional[asyncio.Future] = None
 
         self._ring = PcmRing(max_seconds=30.0)
         self._history: List[Dict[str, str]] = []
@@ -789,6 +837,7 @@ class TapoC310VoiceChannel:
                 "wake_count": self.wake_count,
                 "command_count": self.command_count,
                 "reply_count": self.reply_count,
+                "total_visitor_interviews": self.total_visitor_interviews,
                 "last_transcript": self.last_transcript,
                 "last_reply": self.last_reply,
                 "last_stt_ms": round(self.last_stt_ms, 1),
@@ -796,6 +845,12 @@ class TapoC310VoiceChannel:
                 "last_tts_ms": round(self.last_tts_ms, 1),
                 "last_backend": self.last_backend,
                 "last_activity_ts": self.last_activity_ts,
+            },
+            "visitor_interview": {
+                "enabled": self.interview_enabled,
+                "active": self._interview_record is not None,
+                "field": self._interview_field,
+                "last": self.last_visitor_interview,
             },
             "last_error": self.last_error,
         }
@@ -899,8 +954,11 @@ class TapoC310VoiceChannel:
 
     async def _process_utterance(self, pcm: bytes, vosk_text: str) -> None:
         try:
-            wake = self.matcher.find(vosk_text)
             state = self.state
+            if state == "visitor" and self._interview_field:
+                await self._handle_visitor_answer(pcm, vosk_text)
+                return
+            wake = self.matcher.find(vosk_text)
             if wake is not None:
                 remainder = self.matcher.strip(vosk_text, wake)
                 logger.info(f"✨ Wake word detectada: {wake.phrase!r} · resto={remainder!r}")
@@ -1030,6 +1088,225 @@ class TapoC310VoiceChannel:
         self._set_state("command")
         self._command_deadline = time.time() + self.command_timeout
         self._write_session_flag(self._command_deadline + 5)
+
+    # -- entrevista automática de visitantes (C310) ------------------------
+
+    def _interview_is_active(self) -> bool:
+        return self._interview_task is not None and not self._interview_task.done()
+
+    async def _settle_before_listening(self) -> None:
+        """Espera el drenaje del búfer de la cámara para no transcribir el eco del altavoz."""
+        if self.interview_settle_sec > 0:
+            await asyncio.sleep(self.interview_settle_sec)
+        self._reset_audio_pipeline()
+
+    async def _listen_visitor_answer(self, field: str) -> Tuple[str, str]:
+        """Espera una respuesta del visitante por el micrófono C310 y la transcribe (Whisper/Vosk)."""
+        loop = asyncio.get_running_loop()
+        future: asyncio.Future = loop.create_future()
+        self._interview_field = field
+        self._interview_answer_future = future
+        self._reset_audio_pipeline()
+        try:
+            payload = await asyncio.wait_for(future, timeout=self.interview_listen_sec)
+        except asyncio.TimeoutError:
+            logger.info(
+                f"⏳ [ENTREVISTA C310] Sin respuesta para '{field}' en "
+                f"{self.interview_listen_sec:.0f}s."
+            )
+            return "", ""
+        finally:
+            self._interview_field = None
+            self._interview_answer_future = None
+        if not payload:
+            return "", ""
+        return str(payload.get("text", "")), str(payload.get("source", ""))
+
+    async def _handle_visitor_answer(self, pcm: bytes, vosk_text: str) -> None:
+        future = self._interview_answer_future
+        field = self._interview_field
+        if not field or future is None or future.done():
+            return
+        transcript = await self._transcribe(pcm)
+        source = "whisper"
+        if not transcript:
+            transcript = self._clean_transcript(vosk_text)
+            source = "vosk"
+        if not transcript:
+            return
+        self.last_transcript = transcript
+        self.last_activity_ts = time.time()
+        logger.info(f"🎙️  [ENTREVISTA C310 · {field}] {transcript!r} ({source})")
+        future.set_result({"text": transcript, "source": source})
+
+    def _write_visitor_interview_record(self, record: Dict[str, Any]) -> None:
+        try:
+            VISITOR_LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
+            with open(VISITOR_LOG_FILE, "a", encoding="utf-8") as fh:
+                fh.write(json.dumps(record, ensure_ascii=False) + "\n")
+        except Exception as exc:
+            logger.warning(f"No se pudo persistir la entrevista de visitante: {exc}")
+
+        answers = record.get("answers", {}) or {}
+        compact = {
+            "interview_id": record.get("interview_id", ""),
+            "started_at": record.get("started_at"),
+            "finished_at": record.get("finished_at"),
+            "iso": record.get("finished_iso", record.get("started_iso", "")),
+            "camera_host": (record.get("camera") or {}).get("host", self.host),
+            "camera_alias": (record.get("camera") or {}).get("alias", self.device_alias),
+            "track_ids": record.get("track_ids", []),
+            "snapshot_path": record.get("snapshot_path", ""),
+            "name": answers.get("name", ""),
+            "reason": answers.get("reason", ""),
+            "answered": bool(record.get("answered", False)),
+            "status": record.get("status", ""),
+            "duration_sec": record.get("duration_sec"),
+        }
+        self.last_visitor_interview = compact
+        self.total_visitor_interviews += 1
+        self._write_event(
+            {
+                "ts": time.time(),
+                "iso": _now_iso(),
+                "type": "visitor_interview",
+                **compact,
+            }
+        )
+        logger.info(
+            f"🗂️  [ENTREVISTA C310] Registrada ({compact['status']}) · "
+            f"nombre={compact['name']!r} · motivo={compact['reason']!r}"
+        )
+
+    async def _run_visitor_interview(self, request: Dict[str, Any]) -> None:
+        """Ejecuta la entrevista: saludo -> nombre -> motivo -> cierre, por la bocina y el micrófono C310."""
+        if self._stopping:
+            return
+        started = time.time()
+        answers: Dict[str, str] = {"name": "", "reason": ""}
+        sources: Dict[str, str] = {}
+        retries_used = 0
+        record: Dict[str, Any] = {
+            "schema": "tardis.visitor_interview.v1",
+            "interview_id": str(
+                request.get("request_id") or f"vi_{int(started * 1000)}"
+            ),
+            "started_at": started,
+            "started_iso": _now_iso(),
+            "camera": {
+                "host": self.host,
+                "alias": self.device_alias,
+                "model": f"Tapo {self.device_model}",
+            },
+            "track_ids": list(request.get("track_ids") or []),
+            "person_count": request.get("person_count"),
+            "snapshot_path": str(request.get("snapshot_path") or ""),
+            "alert_ts": request.get("alert_ts"),
+            "questions": {
+                "name": self.interview_question_name,
+                "reason": self.interview_question_reason,
+            },
+            "answers": answers,
+            "answer_sources": sources,
+            "retries_used": 0,
+            "answered": False,
+            "status": "in_progress",
+        }
+        self._interview_record = record
+        self.last_activity_ts = started
+        # Bloquear los avisos disuasorios del centinela mientras TARDIS entrevista.
+        self._write_session_flag(started + 240.0)
+        self._set_state("visitor", force=True)
+        self._write_state(force=True)
+        logger.info(
+            f"🎬 [ENTREVISTA C310] Iniciando entrevista a visitante(s) "
+            f"{record['track_ids']} · solicitud={record['interview_id']}"
+        )
+        try:
+            await self._speak(
+                f"{self.interview_greeting} {self.interview_question_name}".strip()
+            )
+            await self._settle_before_listening()
+
+            for field, question in (
+                ("name", self.interview_question_name),
+                ("reason", self.interview_question_reason),
+            ):
+                if field == "reason":
+                    await self._speak(question)
+                    await self._settle_before_listening()
+                answer = ""
+                source = ""
+                attempt = 0
+                while True:
+                    answer, source = await self._listen_visitor_answer(field)
+                    if answer:
+                        answers[field] = answer
+                        sources[field] = source
+                        break
+                    if attempt >= self.interview_retries:
+                        break
+                    attempt += 1
+                    retries_used += 1
+                    if field == "reason":
+                        await self._speak(f"{self.interview_retry} {question}".strip())
+                    else:
+                        await self._speak(self.interview_retry)
+                    await self._settle_before_listening()
+
+            record["retries_used"] = retries_used
+            record["answered"] = bool(answers["name"] or answers["reason"])
+            record["status"] = "completed" if record["answered"] else "no_answer"
+            closing = self.interview_closing
+            if answers["name"]:
+                closing = f"{closing} Gracias, {answers['name']}."
+            await self._speak(closing)
+        except asyncio.CancelledError:
+            record["status"] = "cancelled"
+            raise
+        except Exception as exc:
+            record["status"] = "error"
+            record["error"] = str(exc)
+            logger.exception(f"Fallo en la entrevista de visitante C310: {exc}")
+        finally:
+            finished = time.time()
+            record["finished_at"] = finished
+            record["finished_iso"] = _now_iso()
+            record["duration_sec"] = round(finished - started, 2)
+            self._interview_record = None
+            self._interview_field = None
+            self._interview_answer_future = None
+            if record["status"] == "in_progress":
+                record["status"] = "completed" if record["answered"] else "no_answer"
+            self._write_visitor_interview_record(record)
+            self._write_session_flag(0)
+            self._set_state("wake", force=True)
+            self._reset_audio_pipeline()
+            self._write_state(force=True)
+
+    def _maybe_accept_interview_request(self) -> None:
+        """Reclama atómicamente una solicitud de entrevista emitida por el Centinela."""
+        if not self.interview_enabled or self.state != "wake" or self._speaking:
+            return
+        if self._interview_is_active():
+            return
+        try:
+            if not INTERVIEW_REQUEST_FILE.is_file():
+                return
+            raw = INTERVIEW_REQUEST_FILE.read_text(encoding="utf-8")
+            INTERVIEW_REQUEST_FILE.unlink(missing_ok=True)
+            request = json.loads(raw)
+            if not isinstance(request, dict):
+                return
+            age = time.time() - float(request.get("created_at") or 0.0)
+            if age > self.interview_max_request_age_sec:
+                logger.info(
+                    f"⌛ [ENTREVISTA C310] Solicitud descartada por antigüedad ({age:.1f}s)."
+                )
+                return
+            self._interview_task = asyncio.create_task(self._run_visitor_interview(request))
+        except Exception as exc:
+            logger.warning(f"No se pudo procesar la solicitud de entrevista C310: {exc}")
 
     async def _process_command(self, text: str) -> None:
         clean = re.sub(r"\s+", " ", (text or "").strip())
@@ -1254,6 +1531,10 @@ class TapoC310VoiceChannel:
                 self._history.clear()
                 self._write_session_flag(0)
 
+            # Entrevista automática solicitada por el Centinela (detección humana + 15 s).
+            if self.interview_enabled and self.state == "wake":
+                self._maybe_accept_interview_request()
+
             # Forzar cierre de una utterance anormalmente larga.
             if (
                 self._utt_start_offset is not None
@@ -1319,6 +1600,12 @@ class TapoC310VoiceChannel:
         self._stopping = True
         self._stop_event.set()
         self._write_session_flag(0)
+        if self._interview_task is not None and not self._interview_task.done():
+            self._interview_task.cancel()
+            try:
+                await self._interview_task
+            except (asyncio.CancelledError, Exception):
+                pass
         if self._audio_stream is not None:
             self._audio_stream.stop()
         for task in self._tasks:

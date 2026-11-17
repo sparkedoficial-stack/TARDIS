@@ -1651,8 +1651,8 @@
     },
     {
       "id": 53,
-      "title": "Este es mi token añade mi repositorio local de tardis REDACTED_GH_TOKEN",
-      "prompt": "Este es mi token añade mi repositorio local de tardis REDACTED_GH_TOKEN",
+      "title": "Este es mi token añade mi repositorio local de tardis [AEGIS-REDACTED]",
+      "prompt": "Este es mi token añade mi repositorio local de tardis [AEGIS-REDACTED]",
       "status_db": "completed",
       "source": "FTL",
       "model": "gemini-4-pro",

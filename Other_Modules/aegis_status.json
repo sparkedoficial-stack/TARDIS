@@ -1,0 +1,756 @@
+{
+  "generated": REDACTED_PHONE.5131083,
+  "version": "1.0.0",
+  "root": "/home/m11/Escritorio/GODWORKS SYSTEM",
+  "score": 88,
+  "counts": {
+    "crítico": 0,
+    "alto": 0,
+    "medio": 0,
+    "bajo": 23,
+    "info": 2
+  },
+  "policy": {
+    "root": "/home/m11/Escritorio/GODWORKS SYSTEM",
+    "scanned_files": 5307,
+    "scanned_dirs": 229,
+    "duration_s": 5.061,
+    "score": 89,
+    "counts": {
+      "crítico": 0,
+      "alto": 0,
+      "medio": 0,
+      "bajo": 22,
+      "info": 0
+    },
+    "level_counts": {
+      "C0": 6,
+      "C1": 640,
+      "C2": 4639,
+      "C3": 11,
+      "C4": 11
+    },
+    "findings": [
+      {
+        "code": "SECRETO_EN_CONTENIDO",
+        "severity": "bajo",
+        "severity_value": 1,
+        "title": "Credencial/dato en custodia: Correo electrónico",
+        "path": "client_gateway_secrets.json",
+        "detail": "línea 6: spar…om (24 ch)",
+        "remediation": "Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600",
+        "auto": false,
+        "fixed": false
+      },
+      {
+        "code": "SECRETO_EN_CONTENIDO",
+        "severity": "bajo",
+        "severity_value": 1,
+        "title": "Credencial/dato en custodia: Correo electrónico",
+        "path": "client_gateway_secrets.json",
+        "detail": "línea 11: migu…om (23 ch)",
+        "remediation": "Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600",
+        "auto": false,
+        "fixed": false
+      },
+      {
+        "code": "SECRETO_EN_CONTENIDO",
+        "severity": "bajo",
+        "severity_value": 1,
+        "title": "Credencial/dato en custodia: Posible número de tarjeta",
+        "path": "data/experiments/causal_prompt_chaining_seed42.json",
+        "detail": "línea 23: 0650…52 (16 ch)",
+        "remediation": "Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600",
+        "auto": false,
+        "fixed": false
+      },
+      {
+        "code": "SECRETO_EN_CONTENIDO",
+        "severity": "bajo",
+        "severity_value": 1,
+        "title": "Credencial/dato en custodia: Correo electrónico",
+        "path": "data/ftl_backlog.json",
+        "detail": "línea 346: deep….0 (27 ch)",
+        "remediation": "Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600",
+        "auto": false,
+        "fixed": false
+      },
+      {
+        "code": "SECRETO_EN_CONTENIDO",
+        "severity": "bajo",
+        "severity_value": 1,
+        "title": "Credencial/dato en custodia: Correo electrónico",
+        "path": "data/ftl_backlog.json",
+        "detail": "línea 1620: spar…om (24 ch)",
+        "remediation": "Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600",
+        "auto": false,
+        "fixed": false
+      },
+      {
+        "code": "SECRETO_EN_CONTENIDO",
+        "severity": "bajo",
+        "severity_value": 1,
+        "title": "Credencial/dato en custodia: Correo electrónico (recurrente)",
+        "path": "data/ftl_backlog.json",
+        "detail": "4 ocurrencias entre las líneas 346 y 2739",
+        "remediation": "Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600",
+        "auto": false,
+        "fixed": false
+      },
+      {
+        "code": "SECRETO_EN_CONTENIDO",
+        "severity": "bajo",
+        "severity_value": 1,
+        "title": "Credencial/dato en custodia: Teléfono / WhatsApp",
+        "path": "data/sms_history.json",
+        "detail": "línea 5: +529…88 (13 ch)",
+        "remediation": "Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600",
+        "auto": false,
+        "fixed": false
+      },
+      {
+        "code": "SECRETO_EN_CONTENIDO",
+        "severity": "bajo",
+        "severity_value": 1,
+        "title": "Credencial/dato en custodia: Teléfono / WhatsApp",
+        "path": "data/sms_history.json",
+        "detail": "línea 28: +529…88 (13 ch)",
+        "remediation": "Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600",
+        "auto": false,
+        "fixed": false
+      },
+      {
+        "code": "SECRETO_EN_CONTENIDO",
+        "severity": "bajo",
+        "severity_value": 1,
+        "title": "Credencial/dato en custodia: Teléfono / WhatsApp (recurrente)",
+        "path": "data/sms_history.json",
+        "detail": "11 ocurrencias entre las líneas 5 y 137",
+        "remediation": "Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600",
+        "auto": false,
+        "fixed": false
+      },
+      {
+        "code": "SECRETO_EN_CONTENIDO",
+        "severity": "bajo",
+        "severity_value": 1,
+        "title": "Credencial/dato en custodia: Teléfono / WhatsApp",
+        "path": "data/telegram_group_members.json",
+        "detail": "línea 295: 7412…82 (10 ch)",
+        "remediation": "Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600",
+        "auto": false,
+        "fixed": false
+      },
+      {
+        "code": "SECRETO_EN_CONTENIDO",
+        "severity": "bajo",
+        "severity_value": 1,
+        "title": "Credencial/dato en custodia: Teléfono / WhatsApp",
+        "path": "data/telegram_group_members.json",
+        "detail": "línea 296: 7412…82 (10 ch)",
+        "remediation": "Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600",
+        "auto": false,
+        "fixed": false
+      },
+      {
+        "code": "SECRETO_EN_CONTENIDO",
+        "severity": "bajo",
+        "severity_value": 1,
+        "title": "Credencial/dato en custodia: Teléfono / WhatsApp",
+        "path": "data/telephony/calls_history.json",
+        "detail": "línea 6: +529…67 (13 ch)",
+        "remediation": "Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600",
+        "auto": false,
+        "fixed": false
+      },
+      {
+        "code": "SECRETO_EN_CONTENIDO",
+        "severity": "bajo",
+        "severity_value": 1,
+        "title": "Credencial/dato en custodia: Teléfono / WhatsApp",
+        "path": "data/telephony/calls_history.json",
+        "detail": "línea 11: +529…67 (13 ch)",
+        "remediation": "Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600",
+        "auto": false,
+        "fixed": false
+      },
+      {
+        "code": "SECRETO_EN_CONTENIDO",
+        "severity": "bajo",
+        "severity_value": 1,
+        "title": "Credencial/dato en custodia: Teléfono / WhatsApp (recurrente)",
+        "path": "data/telephony/calls_history.json",
+        "detail": "6 ocurrencias entre las líneas 6 y 51",
+        "remediation": "Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600",
+        "auto": false,
+        "fixed": false
+      },
+      {
+        "code": "SECRETO_EN_CONTENIDO",
+        "severity": "bajo",
+        "severity_value": 1,
+        "title": "Credencial/dato en custodia: Teléfono / WhatsApp",
+        "path": "data/terminal_captures/captures_index.json",
+        "detail": "línea 425: 1793…76 (10 ch)",
+        "remediation": "Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600",
+        "auto": false,
+        "fixed": false
+      },
+      {
+        "code": "SECRETO_EN_CONTENIDO",
+        "severity": "bajo",
+        "severity_value": 1,
+        "title": "Credencial/dato en custodia: Teléfono / WhatsApp",
+        "path": "data/terminal_captures/captures_index.json",
+        "detail": "línea 434: 1793…76 (10 ch)",
+        "remediation": "Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600",
+        "auto": false,
+        "fixed": false
+      },
+      {
+        "code": "SECRETO_EN_CONTENIDO",
+        "severity": "bajo",
+        "severity_value": 1,
+        "title": "Credencial/dato en custodia: Teléfono / WhatsApp (recurrente)",
+        "path": "data/terminal_captures/captures_index.json",
+        "detail": "39 ocurrencias entre las líneas 425 y 2503",
+        "remediation": "Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600",
+        "auto": false,
+        "fixed": false
+      },
+      {
+        "code": "SECRETO_EN_CONTENIDO",
+        "severity": "bajo",
+        "severity_value": 1,
+        "title": "Posible fuga: Correo electrónico",
+        "path": "docs/FTL_BACKLOG.md",
+        "detail": "línea 65: deep….0 (27 ch)",
+        "remediation": "Minimizar el dato, restringir permisos o cifrar el archivo",
+        "auto": false,
+        "fixed": false
+      },
+      {
+        "code": "SECRETO_EN_CONTENIDO",
+        "severity": "bajo",
+        "severity_value": 1,
+        "title": "Credencial/dato en custodia: Correo electrónico",
+        "path": "tapo_c310_config.json",
+        "detail": "línea 8: migu…om (23 ch)",
+        "remediation": "Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600",
+        "auto": false,
+        "fixed": false
+      },
+      {
+        "code": "SECRETO_EN_CONTENIDO",
+        "severity": "bajo",
+        "severity_value": 1,
+        "title": "Credencial/dato en custodia: Telegram Bot Token",
+        "path": "telegram_config.json",
+        "detail": "línea 3: 8889…co (46 ch)",
+        "remediation": "Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600",
+        "auto": false,
+        "fixed": false
+      },
+      {
+        "code": "SECRETO_EN_CONTENIDO",
+        "severity": "bajo",
+        "severity_value": 1,
+        "title": "Credencial/dato en custodia: Teléfono / WhatsApp",
+        "path": "telegram_config.json",
+        "detail": "línea 31: +529…88 (13 ch)",
+        "remediation": "Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600",
+        "auto": false,
+        "fixed": false
+      },
+      {
+        "code": "SECRETO_EN_CONTENIDO",
+        "severity": "bajo",
+        "severity_value": 1,
+        "title": "Credencial/dato en custodia: Teléfono / WhatsApp",
+        "path": "whatsapp_config.json",
+        "detail": "línea 11: +529…88 (13 ch)",
+        "remediation": "Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600",
+        "auto": false,
+        "fixed": false
+      }
+    ]
+  },
+  "hardening": {
+    "findings": [
+      {
+        "code": "SERVICIO_LAN_AUTENTICADO",
+        "severity": "info",
+        "severity_value": 0,
+        "title": "Servicio expuesto con autenticación, restringido a LAN",
+        "path": "0.0.0.0:8757/tcp",
+        "detail": "GIA · firewall sólo permite redes privadas",
+        "remediation": "Mantener el token rotado y el firewall al día",
+        "auto": false,
+        "fixed": false
+      },
+      {
+        "code": "SECURE_BOOT_OFF",
+        "severity": "bajo",
+        "severity_value": 1,
+        "title": "Secure Boot desactivado",
+        "path": "UEFI",
+        "detail": "la cadena de arranque no está verificada por firmware",
+        "remediation": "Activar Secure Boot y firmar el cargador con sbctl",
+        "auto": false,
+        "fixed": false
+      },
+      {
+        "code": "APPARMOR_PENDING",
+        "severity": "info",
+        "severity_value": 0,
+        "title": "AppArmor configurado · pendiente de reinicio",
+        "path": "kernel",
+        "detail": "apparmor=1 security=apparmor ya está en la línea de comandos; el LSM se activará en el próximo arranque",
+        "remediation": "Reiniciar el equipo para cargar el módulo de confinamiento",
+        "auto": false,
+        "fixed": false
+      }
+    ],
+    "applied": [],
+    "failed": [],
+    "sysctl": {
+      "kernel.kptr_restrict": {
+        "current": "1",
+        "desired": "1",
+        "profile": "safe",
+        "ok": true
+      },
+      "kernel.dmesg_restrict": {
+        "current": "1",
+        "desired": "1",
+        "profile": "safe",
+        "ok": true
+      },
+      "kernel.yama.ptrace_scope": {
+        "current": "1",
+        "desired": "1",
+        "profile": "safe",
+        "ok": true
+      },
+      "kernel.randomize_va_space": {
+        "current": "2",
+        "desired": "2",
+        "profile": "safe",
+        "ok": true
+      },
+      "kernel.kexec_load_disabled": {
+        "current": "1",
+        "desired": "1",
+        "profile": "moderate",
+        "ok": true
+      },
+      "vm.mmap_min_addr": {
+        "current": "65536",
+        "desired": "65536",
+        "profile": "safe",
+        "ok": true
+      },
+      "fs.protected_hardlinks": {
+        "current": "1",
+        "desired": "1",
+        "profile": "safe",
+        "ok": true
+      },
+      "fs.protected_symlinks": {
+        "current": "1",
+        "desired": "1",
+        "profile": "safe",
+        "ok": true
+      },
+      "fs.protected_fifos": {
+        "current": "2",
+        "desired": "2",
+        "profile": "safe",
+        "ok": true
+      },
+      "fs.protected_regular": {
+        "current": "2",
+        "desired": "2",
+        "profile": "safe",
+        "ok": true
+      },
+      "fs.suid_dumpable": {
+        "current": "0",
+        "desired": "0",
+        "profile": "safe",
+        "ok": true
+      },
+      "net.ipv4.tcp_syncookies": {
+        "current": "1",
+        "desired": "1",
+        "profile": "safe",
+        "ok": true
+      },
+      "net.ipv4.conf.all.rp_filter": {
+        "current": "1",
+        "desired": "1",
+        "profile": "safe",
+        "ok": true
+      },
+      "net.ipv4.conf.default.rp_filter": {
+        "current": "1",
+        "desired": "1",
+        "profile": "safe",
+        "ok": true
+      },
+      "net.ipv4.conf.all.accept_redirects": {
+        "current": "0",
+        "desired": "0",
+        "profile": "safe",
+        "ok": true
+      },
+      "net.ipv4.conf.default.accept_redirects": {
+        "current": "0",
+        "desired": "0",
+        "profile": "safe",
+        "ok": true
+      },
+      "net.ipv4.conf.all.secure_redirects": {
+        "current": "0",
+        "desired": "0",
+        "profile": "safe",
+        "ok": true
+      },
+      "net.ipv4.conf.all.send_redirects": {
+        "current": "0",
+        "desired": "0",
+        "profile": "safe",
+        "ok": true
+      },
+      "net.ipv4.conf.all.accept_source_route": {
+        "current": "0",
+        "desired": "0",
+        "profile": "safe",
+        "ok": true
+      },
+      "net.ipv4.conf.all.log_martians": {
+        "current": "1",
+        "desired": "1",
+        "profile": "safe",
+        "ok": true
+      },
+      "net.ipv4.icmp_echo_ignore_broadcasts": {
+        "current": "1",
+        "desired": "1",
+        "profile": "safe",
+        "ok": true
+      },
+      "net.ipv4.icmp_ignore_bogus_error_responses": {
+        "current": "1",
+        "desired": "1",
+        "profile": "safe",
+        "ok": true
+      },
+      "net.ipv6.conf.all.accept_redirects": {
+        "current": "0",
+        "desired": "0",
+        "profile": "safe",
+        "ok": true
+      },
+      "net.ipv6.conf.all.accept_source_route": {
+        "current": "0",
+        "desired": "0",
+        "profile": "safe",
+        "ok": true
+      },
+      "kernel.unprivileged_bpf_disabled": {
+        "current": "1",
+        "desired": "1",
+        "profile": "aggressive",
+        "ok": true
+      },
+      "kernel.perf_event_paranoid": {
+        "current": "3",
+        "desired": "3",
+        "profile": "aggressive",
+        "ok": true
+      },
+      "net.core.bpf_jit_harden": {
+        "current": "2",
+        "desired": "2",
+        "profile": "moderate",
+        "ok": true
+      }
+    },
+    "firewall": {
+      "backend": "ufw",
+      "active": true,
+      "verified": true,
+      "rules": [],
+      "raw": "Status: active\nLogging: on (low)\nDefault: deny (incoming), allow (outgoing), deny (routed)\nNew profiles: skip\n\nTo                         Action      From\n--                         ------      ----\n172.17.0.1 53/udp          ALLOW IN    REDACTED_IP/12              # allow-docker-dns\n172.17.0.1 53/udp          ALLOW IN    REDACTED_IP/16             # allow-docker-dns\n53317/tcp                  ALLOW IN    REDACTED_IP/16             # AEGIS LocalSend LAN\n53317/udp                  ALLOW IN    REDACTED_IP/16             # AEGIS LocalSend LAN\n53317/tcp                  ALLOW IN    REDACTED_IP/8                 # AEGIS LocalSend LAN\n53317/udp                  ALLOW IN    REDACTED_IP/8                 # AEGIS LocalSend LAN\n8757/tcp                   ALLOW IN    REDACTED_IP/16             # AEGIS GIA LAN\n8757/tcp                   ALLOW IN    REDACTED_IP/8                 # AEGIS GIA LAN"
+    },
+    "listeners": [
+      {
+        "proto": "udp",
+        "address": "REDACTED_IP",
+        "port": 53,
+        "process": "",
+        "exposed": false
+      },
+      {
+        "proto": "udp",
+        "address": "REDACTED_IP",
+        "port": 53,
+        "process": "",
+        "exposed": false
+      },
+      {
+        "proto": "udp",
+        "address": "REDACTED_IP%lo",
+        "port": 53,
+        "process": "",
+        "exposed": false
+      },
+      {
+        "proto": "udp",
+        "address": "0.0.0.0",
+        "port": 5353,
+        "process": "users:((\"adb\",pid=1605,fd=12))",
+        "exposed": true
+      },
+      {
+        "proto": "udp",
+        "address": "0.0.0.0",
+        "port": 5353,
+        "process": "users:((\"adb\",pid=1605,fd=4))",
+        "exposed": true
+      },
+      {
+        "proto": "udp",
+        "address": "REDACTED_IP",
+        "port": 5353,
+        "process": "users:((\"chrome\",pid=18570,fd=46))",
+        "exposed": false
+      },
+      {
+        "proto": "udp",
+        "address": "REDACTED_IP",
+        "port": 5353,
+        "process": "users:((\"chrome\",pid=18570,fd=45))",
+        "exposed": false
+      },
+      {
+        "proto": "udp",
+        "address": "0.0.0.0",
+        "port": 5353,
+        "process": "",
+        "exposed": true
+      },
+      {
+        "proto": "udp",
+        "address": "127.0.0.1",
+        "port": 38488,
+        "process": "users:((\"adb\",pid=1605,fd=7))",
+        "exposed": false
+      },
+      {
+        "proto": "udp",
+        "address": "*",
+        "port": 50493,
+        "process": "users:((\"cloudflared\",pid=2412370,fd=4))",
+        "exposed": true
+      },
+      {
+        "proto": "udp",
+        "address": "[::]",
+        "port": 5353,
+        "process": "",
+        "exposed": true
+      },
+      {
+        "proto": "tcp",
+        "address": "127.0.0.1",
+        "port": 631,
+        "process": "",
+        "exposed": false
+      },
+      {
+        "proto": "tcp",
+        "address": "127.0.0.1",
+        "port": 49374,
+        "process": "users:((\"opencode.exe\",pid=87408,fd=8))",
+        "exposed": false
+      },
+      {
+        "proto": "tcp",
+        "address": "127.0.0.1",
+        "port": 20241,
+        "process": "users:((\"cloudflared\",pid=2412370,fd=11))",
+        "exposed": false
+      },
+      {
+        "proto": "tcp",
+        "address": "127.0.0.1",
+        "port": 20242,
+        "process": "users:((\"cloudflared\",pid=3468,fd=8))",
+        "exposed": false
+      },
+      {
+        "proto": "tcp",
+        "address": "REDACTED_IP",
+        "port": 53,
+        "process": "",
+        "exposed": false
+      },
+      {
+        "proto": "tcp",
+        "address": "0.0.0.0",
+        "port": 8765,
+        "process": "users:((\"python3\",pid=1289,fd=6))",
+        "exposed": true
+      },
+      {
+        "proto": "tcp",
+        "address": "0.0.0.0",
+        "port": 8757,
+        "process": "users:((\"python3\",pid=2365724,fd=7))",
+        "exposed": true
+      },
+      {
+        "proto": "tcp",
+        "address": "127.0.0.1",
+        "port": 5037,
+        "process": "users:((\"adb\",pid=1605,fd=11))",
+        "exposed": false
+      },
+      {
+        "proto": "tcp",
+        "address": "REDACTED_IP%lo",
+        "port": 53,
+        "process": "",
+        "exposed": false
+      },
+      {
+        "proto": "tcp",
+        "address": "127.0.0.1",
+        "port": 8790,
+        "process": "users:((\"python3\",pid=1136,fd=6))",
+        "exposed": false
+      },
+      {
+        "proto": "tcp",
+        "address": "127.0.0.1",
+        "port": 8787,
+        "process": "users:((\"tardis-hunter\",pid=1132,fd=30))",
+        "exposed": false
+      },
+      {
+        "proto": "tcp",
+        "address": "127.0.0.1",
+        "port": 8797,
+        "process": "users:((\"python3\",pid=1153,fd=9))",
+        "exposed": false
+      },
+      {
+        "proto": "tcp",
+        "address": "127.0.0.1",
+        "port": 8796,
+        "process": "users:((\"python3\",pid=1305,fd=8))",
+        "exposed": false
+      },
+      {
+        "proto": "tcp",
+        "address": "127.0.0.1",
+        "port": 8798,
+        "process": "users:((\"tardis-desktop\",pid=1030859,fd=26))",
+        "exposed": false
+      },
+      {
+        "proto": "tcp",
+        "address": "127.0.0.1",
+        "port": 8794,
+        "process": "users:((\"python3\",pid=1272,fd=3))",
+        "exposed": false
+      },
+      {
+        "proto": "tcp",
+        "address": "127.0.0.1",
+        "port": 9226,
+        "process": "users:((\"chrome\",pid=18494,fd=73))",
+        "exposed": false
+      },
+      {
+        "proto": "tcp",
+        "address": "REDACTED_IP",
+        "port": 53,
+        "process": "",
+        "exposed": false
+      },
+      {
+        "proto": "tcp",
+        "address": "127.0.0.1",
+        "port": 44017,
+        "process": "users:((\"claude\",pid=76503,fd=10))",
+        "exposed": false
+      },
+      {
+        "proto": "tcp",
+        "address": "127.0.0.1",
+        "port": 43893,
+        "process": "users:((\"llama-server\",pid=1168523,fd=3))",
+        "exposed": false
+      },
+      {
+        "proto": "tcp",
+        "address": "0.0.0.0",
+        "port": 7690,
+        "process": "users:((\"python3\",pid=1297,fd=6))",
+        "exposed": true
+      },
+      {
+        "proto": "tcp",
+        "address": "0.0.0.0",
+        "port": 7681,
+        "process": "users:((\"ttyd\",pid=1124,fd=13))",
+        "exposed": true
+      },
+      {
+        "proto": "tcp",
+        "address": "127.0.0.1",
+        "port": 11434,
+        "process": "users:((\"ollama\",pid=1126,fd=4))",
+        "exposed": false
+      },
+      {
+        "proto": "tcp",
+        "address": "127.0.0.1",
+        "port": 45891,
+        "process": "users:((\"llama-server\",pid=353617,fd=3))",
+        "exposed": false
+      },
+      {
+        "proto": "tcp",
+        "address": "[::1]",
+        "port": 631,
+        "process": "",
+        "exposed": false
+      }
+    ],
+    "luks": {
+      "crypt_devices": [
+        "root"
+      ],
+      "root_encrypted": true,
+      "swap": "/swap/swapfile file\n/dev/zram0     partition"
+    },
+    "secure_boot": false,
+    "apparmor": false,
+    "apparmor_pending": true,
+    "auditd_active": true
+  },
+  "key_fingerprint": "C7CB9188F99591F07EC62B7DB75FBB8A",
+  "ledger": {
+    "ok": true,
+    "entries": 45,
+    "head": "REDACTED_TOKEN",
+    "broken_at": null,
+    "reason": "",
+    "anchor_ok": true,
+    "last_ts": REDACTED_PHONE.477918
+  }
+}

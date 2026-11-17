@@ -57,6 +57,7 @@ Automatizaciones de sistema, diagnósticos de hardware, optimizadores de SO y he
 - **tardis_usb_injector.sh**: Componente de alta eficiencia.
 - **tardis_usb_kit.sh**: Componente de alta eficiencia.
 - **tardis_verify_mac_hardware.sh**: Componente de alta eficiencia.
+- **test_aegis.py**: Componente de alta eficiencia.
 - **test_ai_chat.py**: Componente de alta eficiencia.
 - **test_antigravity_remote.py**: Componente de alta eficiencia.
 - **test_api.py**: Componente de alta eficiencia.

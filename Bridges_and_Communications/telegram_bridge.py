@@ -149,10 +149,16 @@ class TelegramBridge:
         self.animation_hdr_enabled: bool = bool(self.config.get("animation_hdr_enabled", True))
 
         self._polling_lock_fh = None
+        self._lifecycle_lock = threading.RLock()
+        self._watchdog_thread: Optional[threading.Thread] = None
         # Iniciar long-polling únicamente si está permitido en este proceso (evita 409 Conflict entre demonios satélite)
         poll_allowed = os.environ.get("TARDIS_TELEGRAM_POLL", "1").strip().lower() not in ("0", "false", "no", "off")
         if poll_allowed and self.config.get("enabled") and self.config.get("bot_token"):
             self.start()
+            # Si este proceso es el dueño del lock pero getMe falló (p. ej. DNS aún
+            # no disponible al arrancar), el watchdog reintenta hasta lograrlo.
+            if self._polling_lock_fh is not None:
+                self._ensure_watchdog()
 
     def has_active_conversation(self, chat_id: Optional[int | str] = None) -> bool:
         """Devuelve True si ya se ha iniciado una conversación por Telegram (para suprimir avisos de sistema activo)."""
@@ -309,57 +315,115 @@ class TelegramBridge:
     # --------------------------------------------------------------------------
 
     def start(self) -> bool:
-        token = self.config.get("bot_token", "").strip()
-        if not token:
-            self.last_error = "No hay bot_token configurado."
-            return False
-
-        if self.running and self.worker_thread and self.worker_thread.is_alive():
-            return True
-
-        # Cerrojo exclusivo IPC: garantiza que un único proceso del sistema ejecute getUpdates
-        # (evita colisión HTTP 409 cuando scripts CLI o demonios satélite importan TelegramBridge para enviar mensajes)
-        if os.environ.get("TARDIS_TELEGRAM_POLL", "1").strip().lower() in ("0", "false", "no", "off"):
-            return False
-        try:
-            import fcntl
-            lock_fh = open("/tmp/tardis_telegram_polling.lock", "w")
-            fcntl.flock(lock_fh.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
-            lock_fh.write(f"{os.getpid()}\n")
-            lock_fh.flush()
-            self._polling_lock_fh = lock_fh
-        except (BlockingIOError, OSError):
-            logger.info("TelegramBridge operando en modo emisor (otro demonio soberano ya mantiene getUpdates activo).")
-            return False
-
-        # Validar token con getMe
-        try:
-            url = f"https://api.telegram.org/bot{token}/getMe"
-            resp = requests.get(url, timeout=10.0).json()
-            if not resp.get("ok"):
-                self.last_error = f"Token inválido: {resp.get('description', 'Error getMe')}"
+        with self._lifecycle_lock:
+            token = self.config.get("bot_token", "").strip()
+            if not token:
+                self.last_error = "No hay bot_token configurado."
                 return False
 
-            self.bot_info = resp.get("result", {})
-            self.config["bot_username"] = self.bot_info.get("username", "")
-            self.config["bot_name"] = self.bot_info.get("first_name", "GODWORKS Bot")
-            self.save_config()
-            self.last_error = None
-        except Exception as e:
-            self.last_error = f"Error conectando a Telegram: {e}"
-            return False
+            if self.running and self.worker_thread and self.worker_thread.is_alive():
+                return True
 
-        self.running = True
-        self.worker_thread = threading.Thread(target=self._polling_loop, daemon=True, name="TelegramPollingWorker")
-        self.worker_thread.start()
-        logger.info(f"TelegramBridge iniciado con @{self.config.get('bot_username')}")
-        return True
+            # Cerrojo exclusivo IPC: garantiza que un único proceso del sistema ejecute getUpdates
+            # (evita colisión HTTP 409 cuando scripts CLI o demonios satélite importan TelegramBridge para enviar mensajes)
+            if os.environ.get("TARDIS_TELEGRAM_POLL", "1").strip().lower() in ("0", "false", "no", "off"):
+                return False
+            if self._polling_lock_fh is None:
+                try:
+                    import fcntl
+                    lock_fh = open("/tmp/tardis_telegram_polling.lock", "w")
+                    fcntl.flock(lock_fh.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+                    lock_fh.write(f"{os.getpid()}\n")
+                    lock_fh.flush()
+                    self._polling_lock_fh = lock_fh
+                except (BlockingIOError, OSError):
+                    logger.info("TelegramBridge operando en modo emisor (otro demonio soberano ya mantiene getUpdates activo).")
+                    return False
+
+            # Validar token con getMe. Si falla (DNS al arrancar, red caída, token
+            # inválido) se conserva el lock y el watchdog reintenta: liberarlo aquí
+            # dejaba el polling muerto para siempre sin que nadie lo reclamara.
+            try:
+                url = f"https://api.telegram.org/bot{token}/getMe"
+                resp = requests.get(url, timeout=10.0).json()
+                if not resp.get("ok"):
+                    self.last_error = f"Token inválido: {resp.get('description', 'Error getMe')}"
+                    self._ensure_watchdog()
+                    return False
+
+                self.bot_info = resp.get("result", {})
+                self.config["bot_username"] = self.bot_info.get("username", "")
+                self.config["bot_name"] = self.bot_info.get("first_name", "GODWORKS Bot")
+                self.save_config()
+                self.last_error = None
+            except Exception as e:
+                self.last_error = f"Error conectando a Telegram: {e}"
+                self._ensure_watchdog()
+                return False
+
+            self.running = True
+            self.worker_thread = threading.Thread(target=self._polling_loop, daemon=True, name="TelegramPollingWorker")
+            self.worker_thread.start()
+            self._ensure_watchdog()
+            logger.info(f"TelegramBridge iniciado con @{self.config.get('bot_username')}")
+            return True
 
     def stop(self):
-        self.running = False
-        if self.worker_thread:
-            # Esperar retorno seguro sin bloquear indefinidamente
+        with self._lifecycle_lock:
+            self.running = False
+            worker = self.worker_thread
             self.worker_thread = None
+            if worker and worker.is_alive() and worker is not threading.current_thread():
+                # Esperar a que el long-poll (máx. 20 s) retorne sin bloquear indefinidamente.
+                worker.join(timeout=3.0)
+            self._release_polling_lock()
+
+    def _release_polling_lock(self) -> None:
+        """Libera el cerrojo de getUpdates para que otro proceso (o el watchdog) pueda reclamarlo."""
+        fh = self._polling_lock_fh
+        self._polling_lock_fh = None
+        if not fh:
+            return
+        try:
+            import fcntl
+            fcntl.flock(fh.fileno(), fcntl.LOCK_UN)
+        except Exception:
+            pass
+        try:
+            fh.close()
+        except Exception:
+            pass
+
+    def _ensure_watchdog(self) -> None:
+        """Arranca (una sola vez) el vigilante que reanuda el polling si muere o no pudo iniciar."""
+        with self._lifecycle_lock:
+            if self._watchdog_thread and self._watchdog_thread.is_alive():
+                return
+            self._watchdog_thread = threading.Thread(
+                target=self._watchdog_loop, daemon=True, name="TelegramWatchdog"
+            )
+            self._watchdog_thread.start()
+
+    def _watchdog_loop(self) -> None:
+        """Reintenta start() cada 45 s mientras este proceso sea el dueño del lock.
+
+        Cubre dos fallos reales: getMe fallando al arrancar (DNS aún no listo,
+        como ocurrió el 12-nov) y la muerte inesperada del hilo de polling.
+        """
+        while True:
+            time.sleep(45)
+            try:
+                if not self.config.get("enabled") or not self.config.get("bot_token"):
+                    continue
+                if self.running and self.worker_thread and self.worker_thread.is_alive():
+                    continue
+                if self._polling_lock_fh is None:
+                    # Modo emisor: otro proceso es el dueño del polling; no interferir.
+                    return
+                logger.info("TelegramBridge watchdog: reactivando el polling de Telegram.")
+                self.start()
+            except Exception as e:  # noqa: BLE001
+                logger.warning(f"TelegramBridge watchdog: {e}")
 
     # --------------------------------------------------------------------------
     # VISUALIZACIÓN EN TERMINAL LOCAL & COMUNICACIÓN DE SALIDA (SEND API)
