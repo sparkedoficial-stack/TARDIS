@@ -41,7 +41,7 @@ import subprocess
 import sys
 import threading
 import time
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass, field, fields
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Tuple
@@ -91,6 +91,9 @@ class TardisDynamicFunctionEngine:
     def __init__(self):
         self._tools: Dict[str, Callable[[dict], dict]] = {}
         self._registry: Dict[str, DynamicFunctionRecord] = {}
+        # Entradas ajenas al dataclass (p. ej. omni_tool_*) que comparten archivo
+        # de registro y deben preservarse intactas al guardar.
+        self._foreign_registry_entries: Dict[str, Dict[str, Any]] = {}
         self._active_jobs: Dict[str, Dict[str, Any]] = {}
         self._jobs_lock = threading.Lock()
         self._load_registry()
@@ -105,20 +108,84 @@ class TardisDynamicFunctionEngine:
             return cls._instance
 
     def _load_registry(self) -> None:
-        """Carga el registro persistente de funciones sintetizadas."""
-        if REGISTRY_FILE.exists():
+        """Carga el registro persistente de funciones sintetizadas.
+
+        El archivo `data/dynamic_tools_registry.json` es compartido con otros
+        subsistemas (Omni-Tool Bridge). Las entradas que no corresponden a
+        `DynamicFunctionRecord` se preservan aparte y se excluyen de la
+        hidratación para que una sola entrada heterogénea no invalide todo el
+        registro (auto-sanación tolerante a fallos).
+        """
+        if not REGISTRY_FILE.exists():
+            return
+
+        try:
+            data = json.loads(REGISTRY_FILE.read_text(encoding="utf-8"))
+        except Exception as e:
+            logger.warning(f"Aviso leyendo registry de dynamic tools: {e}")
+            return
+
+        if not isinstance(data, dict):
+            logger.warning("Aviso: el registry de dynamic tools no contiene un objeto JSON válido.")
+            return
+
+        valid_fields = {f.name for f in fields(DynamicFunctionRecord)}
+        cargadas = 0
+        preservadas = 0
+
+        for name, item in data.items():
+            if not isinstance(item, dict):
+                continue
+            if item.get("tool_id") or str(item.get("status", "")).startswith("ACTIVE_SOVEREIGN"):
+                self._foreign_registry_entries[name] = item
+                preservadas += 1
+                continue
+
+            payload = {k: v for k, v in item.items() if k in valid_fields}
+            payload.setdefault("name", name)
+            payload.setdefault("goal", "")
+            payload.setdefault("file_path", str(DYNAMIC_TOOLS_DIR / f"{name}.py"))
+            payload.setdefault("created_at", datetime.now().isoformat())
+
             try:
-                data = json.loads(REGISTRY_FILE.read_text(encoding="utf-8"))
-                for name, item in data.items():
-                    self._registry[name] = DynamicFunctionRecord(**item)
+                self._registry[name] = DynamicFunctionRecord(**payload)
+                cargadas += 1
             except Exception as e:
-                logger.warning(f"Aviso leyendo registry de dynamic tools: {e}")
+                logger.warning(f"Aviso hidratando registro `{name}`: {e}")
+                self._foreign_registry_entries[name] = item
+
+        logger.info(
+            f"📚 [DYNAMIC-FUNCS] Registry cargado: {cargadas} función(es) dinámica(s), "
+            f"{preservadas} entrada(s) de otros subsistemas preservada(s)."
+        )
 
     def _save_registry(self) -> None:
-        """Guarda el registro estructurado a disco."""
+        """Guarda el registro estructurado a disco de forma atómica y sin pérdidas.
+
+        Se fusiona con el contenido actual del archivo para no destruir las
+        entradas de otros subsistemas (Omni-Tool Bridge, etc.).
+        """
         try:
-            dumpable = {k: v.to_dict() for k, v in self._registry.items()}
-            REGISTRY_FILE.write_text(json.dumps(dumpable, indent=2, ensure_ascii=False), encoding="utf-8")
+            merged: Dict[str, Dict[str, Any]] = {}
+
+            if REGISTRY_FILE.exists():
+                try:
+                    existente = json.loads(REGISTRY_FILE.read_text(encoding="utf-8"))
+                    if isinstance(existente, dict):
+                        for clave, item in existente.items():
+                            if not isinstance(item, dict):
+                                continue
+                            if item.get("tool_id") or str(item.get("status", "")).startswith("ACTIVE_SOVEREIGN"):
+                                merged[clave] = item
+                except Exception as e:
+                    logger.warning(f"Aviso releyendo registry antes de guardar: {e}")
+
+            merged.update(self._foreign_registry_entries)
+            merged.update({k: v.to_dict() for k, v in self._registry.items()})
+
+            tmp_path = REGISTRY_FILE.with_suffix(".json.tmp")
+            tmp_path.write_text(json.dumps(merged, indent=2, ensure_ascii=False), encoding="utf-8")
+            os.replace(tmp_path, REGISTRY_FILE)
         except Exception as e:
             logger.error(f"Error guardando dynamic tools registry: {e}")
 

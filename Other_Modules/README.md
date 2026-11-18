@@ -95,6 +95,7 @@ Módulos y componentes auxiliares del sistema.
 - **continuity_state.json**: Componente de alta eficiencia.
 - **contributing.md**: Componente de alta eficiencia.
 - **convert_fp8_to_int4.py**: Componente de alta eficiencia.
+- **crear_una_funcin_5237.py**: Motor de ingeniería inversa multi-arquitectura y descompilación.
 - **crypto.py**: Componente de alta eficiencia.
 - **curiosity_debate_manager.py**: Componente de alta eficiencia.
 - **curiosity_debate_state.json**: Componente de alta eficiencia.
