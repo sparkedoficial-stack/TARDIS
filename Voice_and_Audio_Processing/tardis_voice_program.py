@@ -44,6 +44,9 @@ import logging
 import os
 import queue
 import re
+import shutil
+import subprocess
+import sys
 import threading
 import time
 import unicodedata
@@ -62,6 +65,8 @@ EVENT_LOG = DATA_DIR / "voice_program_commands.jsonl"
 MAX_GOAL_CHARS = 4000
 FTL_BUSY_WAIT_SEC = float(os.environ.get("TARDIS_VOICE_PROGRAM_FTL_WAIT_SEC", "300"))
 DYNAMIC_JOB_WAIT_SEC = float(os.environ.get("TARDIS_VOICE_PROGRAM_DYNAMIC_WAIT_SEC", "900"))
+FTL_AUTOFUNC_TIMEOUT_SEC = float(os.environ.get("TARDIS_VOICE_PROGRAM_AUTOFUNC_TIMEOUT_SEC", "1200"))
+_ANSI_RE = re.compile(r"\x1b\[[0-9;?]*[A-Za-z]")
 
 # Palabras que pueden preceder al comando sin romper la detección.
 # Incluye vocativos, restos habituales de la wake word y muletillas de habla.
