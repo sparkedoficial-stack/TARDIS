@@ -272,5 +272,61 @@
     "last_called": "2026-11-18T15:56:44.163465",
     "last_error": null,
     "research_summary": "Suma entera determinista con coerción controlada, alias de parámetros, extracción desde texto y autoverificación interna (11/11 casos)."
+  },
+  "que_cuente_las_5729": {
+    "name": "que_cuente_las_5729",
+    "goal": "contar las palabras de un texto",
+    "file_path": "/home/m11/Escritorio/GODWORKS SYSTEM/dynamic_tools/que_cuente_las_5729.py",
+    "created_at": "2026-11-18T16:05:27",
+    "version": 1,
+    "status": "ACTIVE",
+    "description": "Cuenta palabras y entrega frecuencias, ranking top-N, palabras únicas, oraciones, párrafos y métricas de lectura con filtros de stopwords.",
+    "parameters_schema": {
+      "texto": {
+        "type": "string"
+      },
+      "archivo": {
+        "type": "string"
+      },
+      "top": {
+        "type": "integer",
+        "default": 10
+      },
+      "quitar_stopwords": {
+        "type": "boolean",
+        "default": false
+      },
+      "case_sensitive": {
+        "type": "boolean",
+        "default": false
+      },
+      "normalizar_acentos": {
+        "type": "boolean",
+        "default": false
+      },
+      "idioma": {
+        "type": "string",
+        "enum": [
+          "auto",
+          "es",
+          "en"
+        ]
+      },
+      "min_longitud": {
+        "type": "integer",
+        "default": 1
+      },
+      "incluir_posiciones": {
+        "type": "boolean",
+        "default": false
+      },
+      "palabra": {
+        "type": "string"
+      }
+    },
+    "times_called": 1,
+    "last_called": "2026-11-18T16:05:27.184671",
+    "last_error": null,
+    "research_summary": "Implementación estándar de tokenización Unicode + Counter con filtros y métricas lingüísticas."
   }
 }

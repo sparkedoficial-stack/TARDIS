@@ -39,17 +39,22 @@ USO:
 
 from __future__ import annotations
 
+import contextlib
 import json
 import logging
 import os
 import queue
 import re
-import shutil
 import subprocess
 import sys
 import threading
 import time
 import unicodedata
+
+try:  # Serialización global entre procesos (Linux)
+    import fcntl
+except Exception:  # noqa: BLE001
+    fcntl = None  # type: ignore[assignment]
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
@@ -61,12 +66,56 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = PROJECT_ROOT / "data"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 EVENT_LOG = DATA_DIR / "voice_program_commands.jsonl"
+FTL_LOCK_PATH = DATA_DIR / "ftl_voice_program.lock"
 
 MAX_GOAL_CHARS = 4000
 FTL_BUSY_WAIT_SEC = float(os.environ.get("TARDIS_VOICE_PROGRAM_FTL_WAIT_SEC", "300"))
 DYNAMIC_JOB_WAIT_SEC = float(os.environ.get("TARDIS_VOICE_PROGRAM_DYNAMIC_WAIT_SEC", "900"))
 FTL_AUTOFUNC_TIMEOUT_SEC = float(os.environ.get("TARDIS_VOICE_PROGRAM_AUTOFUNC_TIMEOUT_SEC", "1200"))
+FTL_LOCK_WAIT_SEC = float(os.environ.get("TARDIS_VOICE_PROGRAM_LOCK_WAIT_SEC", "1800"))
 _ANSI_RE = re.compile(r"\x1b\[[0-9;?]*[A-Za-z]")
+
+
+@contextlib.contextmanager
+def ftl_serialization_lock(wait_sec: float = FTL_LOCK_WAIT_SEC, on_wait=None):
+    """
+    Candado exclusivo entre procesos para que FTL nunca reciba dos órdenes de
+    voz simultáneas (C310, servicio TARDIS, Telegram, etc. son procesos
+    distintos). Si el candado no está disponible se continúa sin bloquear.
+    """
+    if fcntl is None:
+        yield True
+        return
+
+    handle = None
+    acquired = False
+    try:
+        handle = FTL_LOCK_PATH.open("a+", encoding="utf-8")
+        deadline = time.time() + max(0.0, wait_sec)
+        notified = False
+        while True:
+            try:
+                fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+                acquired = True
+                break
+            except (BlockingIOError, OSError):
+                if time.time() >= deadline:
+                    break
+                if not notified and on_wait is not None:
+                    try:
+                        on_wait()
+                    except Exception:  # noqa: BLE001
+                        pass
+                    notified = True
+                time.sleep(1.0)
+        yield acquired
+    finally:
+        if handle is not None:
+            try:
+                if acquired:
+                    fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+            finally:
+                handle.close()
 
 # Palabras que pueden preceder al comando sin romper la detección.
 # Incluye vocativos, restos habituales de la wake word y muletillas de habla.
@@ -88,6 +137,9 @@ _NOT_COMMANDS = {
     "programacion", "programando", "programar", "programaron", "programaba",
     "programita", "programon",
 }
+
+# Cortesías que pueden seguir al comando («programa, por favor, ...»).
+_COURTESY = {"porfa", "porfavor", "please"}
 
 # Artículos y sustantivos de relleno tras el comando («programa UNA FUNCIÓN que...»).
 _ARTICLES = {"la", "una", "un", "el", "los", "las", "mi", "nueva", "nuevo"}
@@ -128,6 +180,12 @@ def _edit_distance(a: str, b: str, max_dist: int = 1) -> int:
     return previous[-1]
 
 
+_COURTESY_EDGE_RE = re.compile(
+    r"^(?:por\s+favor|porfa|porfavor|please)[\s,]+|[\s,]+(?:por\s+favor|porfa|porfavor|please)$",
+    re.IGNORECASE,
+)
+
+
 def _clean_goal(raw_tokens: list[str]) -> str:
     goal = " ".join(raw_tokens).strip()
     goal = goal.strip(_EDGE_PUNCT)
@@ -135,6 +193,11 @@ def _clean_goal(raw_tokens: list[str]) -> str:
     # Quita comillas envolventes que a veces añade el STT.
     if len(goal) >= 2 and goal[0] == goal[-1] and goal[0] in "\"'“”":
         goal = goal[1:-1].strip()
+    # Cortesías al inicio o al final que no forman parte de la orden.
+    previous = None
+    while goal and goal != previous:
+        previous = goal
+        goal = _COURTESY_EDGE_RE.sub("", goal).strip(_EDGE_PUNCT)
     return goal[:MAX_GOAL_CHARS]
 
 
@@ -203,6 +266,16 @@ def parse_program_command(text: str) -> Optional[ProgramCommand]:
 
     # «programa me ...» / «programame ...»: el pronombre no forma parte del objetivo.
     if cursor < len(norm_tokens) and norm_tokens[cursor] == "me":
+        cursor += 1
+
+    # «programa, por favor, ...»: la cortesía no forma parte del objetivo.
+    if (
+        cursor + 1 < len(norm_tokens)
+        and norm_tokens[cursor] == "por"
+        and norm_tokens[cursor + 1] == "favor"
+    ):
+        cursor += 2
+    elif cursor < len(norm_tokens) and norm_tokens[cursor] in _COURTESY:
         cursor += 1
 
     # Consume relleno: «programa una nueva función de...» -> «de...».
@@ -348,7 +421,7 @@ class VoiceProgramRouter:
         pending = self._queue.qsize()
         reply = (
             f"A la orden, Arquitecto. FTL ya está creando la función: {_short_goal(command.goal)}. "
-            "Te aviso en cuanto quede validada e integrada."
+            "Quedará validada e integrada en unos minutos."
         )
         if pending > 1:
             reply = (
@@ -518,7 +591,29 @@ class VoiceProgramRouter:
                     "source": job.source,
                 }
             )
-            res = self._run_ftl(job)
+
+            def _on_ftl_wait() -> None:
+                logger.info(
+                    "⏳ [VOICE-PROGRAM] Otro proceso está usando FTL; %s espera su turno.",
+                    job.job_id,
+                )
+                self._log_event(
+                    {
+                        "event": "ftl_waiting",
+                        "job_id": job.job_id,
+                        "goal": job.goal,
+                        "channel": job.channel,
+                    }
+                )
+
+            with ftl_serialization_lock(on_wait=_on_ftl_wait) as lock_acquired:
+                if not lock_acquired:
+                    logger.warning(
+                        "⚠️ [VOICE-PROGRAM] Candado FTL no disponible tras %.0fs; "
+                        "se intenta la síntesis de todos modos (%s).",
+                        FTL_LOCK_WAIT_SEC, job.job_id,
+                    )
+                res = self._run_ftl(job)
             ok = bool(res.get("ok"))
             job.result = res
             job.status = "completed" if ok else "failed"
@@ -547,17 +642,158 @@ class VoiceProgramRouter:
             self._finish_job(job)
 
     def _run_ftl(self, job: ProgramJob) -> Dict[str, Any]:
+        """
+        Ruta principal: FTL `--autofunc` (síntesis canónica de herramienta).
+        Respaldo 1: ingeniero FTL sobre el codebase.
+        Respaldo 2 (en _process_job): motor dinámico de TARDIS.
+        """
+        autofunc = self._run_ftl_autofunc(job)
+        if autofunc.get("ok"):
+            return autofunc
+
+        logger.warning(
+            "⚠️ [VOICE-PROGRAM] FTL --autofunc no completó %s: %s. Probando ingeniero FTL.",
+            job.job_id, autofunc.get("error"),
+        )
+        engineer_res = self._run_ftl_engineer(job)
+        if engineer_res.get("ok"):
+            engineer_res["autofunc"] = autofunc
+            return engineer_res
+
+        return {
+            **engineer_res,
+            "autofunc": autofunc,
+            "error": (
+                f"autofunc: {autofunc.get('error') or 'sin resultado'} · "
+                f"engineer: {engineer_res.get('error') or 'sin resultado'}"
+            ),
+        }
+
+    @staticmethod
+    def _ftl_cli_path() -> Optional[Path]:
+        """Localiza el CLI de FTL usado por el sistema."""
+        candidates = [
+            Path.home() / ".ftl" / "ftl_cli.py",
+            Path("/home/m11/.ftl/ftl_cli.py"),
+            Path("/home/timemachine/.ftl/ftl_cli.py"),
+        ]
+        for candidate in candidates:
+            try:
+                if candidate.is_file():
+                    return candidate
+            except OSError:
+                continue
+        return None
+
+    def _run_ftl_autofunc(self, job: ProgramJob) -> Dict[str, Any]:
+        """Crea la función con el autoprogramador nativo de FTL (`--autofunc`)."""
+        ftl_cli = self._ftl_cli_path()
+        if not ftl_cli:
+            return {"ok": False, "error": "No se encontró ~/.ftl/ftl_cli.py"}
+
+        cmd = [sys.executable, str(ftl_cli), "--autofunc", job.goal]
+        env = os.environ.copy()
+        env.update(
+            {
+                "PYTHONUNBUFFERED": "1",
+                "TERM": "dumb",
+                "NO_COLOR": "1",
+                "FORCE_COLOR": "0",
+                "COLUMNS": "120",
+                "CLAUDE_CODE_SKIP_PERMISSIONS": "1",
+            }
+        )
+        started = time.time()
+        try:
+            proc = subprocess.run(
+                cmd,
+                cwd=str(PROJECT_ROOT),
+                env=env,
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                timeout=FTL_AUTOFUNC_TIMEOUT_SEC,
+            )
+            raw = proc.stdout or ""
+            returncode = proc.returncode
+        except subprocess.TimeoutExpired as exc:
+            raw = (exc.stdout or "") if isinstance(exc.stdout, str) else ""
+            cleaned = self._clean_ftl_output(raw)
+            return {
+                "ok": False,
+                "engine": "FTL-autofunc",
+                "error": f"Tiempo límite excedido ({FTL_AUTOFUNC_TIMEOUT_SEC:.0f}s)",
+                "output_preview": cleaned[-2000:],
+            }
+        except Exception as exc:  # noqa: BLE001
+            return {"ok": False, "engine": "FTL-autofunc", "error": str(exc)}
+
+        cleaned = self._clean_ftl_output(raw)
+        low = cleaned.lower()
+        failed = "error sintetizando herramienta" in low
+        succeeded = (
+            "herramienta dinámica sintetizada con éxito" in low
+            or ("dinámica sintetizada" in low and "módulo:" in low)
+        )
+        module_match = re.search(r"Módulo:\s*([^\s(]+)", cleaned)
+        file_match = re.search(r"Archivo:\s*(\S+)", cleaned)
+        module_name = module_match.group(1).strip() if module_match else ""
+        file_path = file_match.group(1).strip() if file_match else ""
+
+        result = {
+            "ok": bool(succeeded and not failed),
+            "engine": "FTL-autofunc",
+            "returncode": returncode,
+            "duration_sec": round(time.time() - started, 2),
+            "module_name": module_name,
+            "file_path": file_path,
+            "files_changed": [file_path] if file_path else [],
+            "output_preview": cleaned[-3000:],
+        }
+        if not result["ok"]:
+            result["error"] = (
+                "FTL no confirmó la síntesis de la herramienta"
+                if not failed
+                else "El autoprogramador FTL reportó un error"
+            )
+        return result
+
+    @staticmethod
+    def _clean_ftl_output(raw: str) -> str:
+        text = _ANSI_RE.sub("", raw or "")
+        text = text.replace("\r", "\n")
+        text = re.sub(r"\n{3,}", "\n\n", text)
+        # Elimina barras de progreso huérfanas manteniendo los mensajes útiles.
+        lines = []
+        for line in text.splitlines():
+            stripped = line.strip()
+            if not stripped:
+                continue
+            if stripped.startswith(("⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏")):
+                continue
+            lines.append(stripped)
+        return "\n".join(lines)
+
+    def _run_ftl_engineer(self, job: ProgramJob) -> Dict[str, Any]:
+        """Respaldo: ingeniero FTL que modifica el codebase del proyecto."""
         from core.tardis_ftl_engineer import get_ftl_engineer
 
         engineer = get_ftl_engineer()
         if not engineer.is_ftl_available():
-            return {"ok": False, "error": "FTL no disponible en el sistema"}
+            return {"ok": False, "engine": "FTL-engineer", "error": "FTL no disponible en el sistema"}
 
         if not self._wait_ftl_free(FTL_BUSY_WAIT_SEC):
-            return {"ok": False, "error": "FTL permaneció ocupado; se usa el respaldo dinámico"}
+            return {
+                "ok": False,
+                "engine": "FTL-engineer",
+                "error": "FTL permaneció ocupado; se usa el respaldo dinámico",
+            }
 
         prompt = self._build_ftl_prompt(job)
-        return engineer.execute_software_creation(
+        res = engineer.execute_software_creation(
             prompt=prompt,
             mode="auto",
             background=False,
@@ -569,6 +805,8 @@ class VoiceProgramRouter:
                 "job_id": job.job_id,
             },
         )
+        res.setdefault("engine", "FTL-engineer")
+        return res
 
     def _run_dynamic_fallback(self, job: ProgramJob) -> None:
         """Crea la función con el motor dinámico si FTL no puede hacerlo."""

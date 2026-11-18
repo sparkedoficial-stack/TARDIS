@@ -1014,6 +1014,10 @@ class TapoC310VoiceChannel:
                 cmd = self._strip_wake_from_text(transcript)
                 if cmd:
                     command = cmd
+            # Si Whisper degradó el «programa» que Vosk sí entendió, se conserva
+            # la transcripción de Vosk para no perder la orden de FTL.
+            if is_program_command(remainder) and not is_program_command(command):
+                command = remainder
             if not command and len(remainder.split()) >= 2:
                 command = remainder
 
@@ -1029,6 +1033,10 @@ class TapoC310VoiceChannel:
                 transcript = vosk_text
             else:
                 return
+        # El comando «programa» ya fue confirmado por Vosk: si Whisper lo
+        # transcribe de forma distinta, se usa el texto de Vosk.
+        if is_program_command(vosk_text) and not is_program_command(transcript):
+            transcript = vosk_text
         if self.matcher.find(transcript):
             cmd = self._strip_wake_from_text(transcript)
             if cmd:

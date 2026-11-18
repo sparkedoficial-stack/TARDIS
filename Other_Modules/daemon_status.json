@@ -2,11 +2,11 @@
   "daemon": "tardis-visual-intelligence",
   "running": true,
   "pid": 1157,
-  "uptime_sec": 492815.8,
-  "last_heartbeat": "2026-11-18T15:59:43.329584",
+  "uptime_sec": 493187.9,
+  "last_heartbeat": "2026-11-18T16:05:55.496488",
   "items_processed": 0,
   "last_processed_id": "",
-  "memory_rss_mb": 332.58,
+  "memory_rss_mb": 332.95,
   "engine_status": {
     "status": "online",
     "engine": "VisualIntelligenceEngine v26.5 (VLM + Veredictos)",
@@ -20,15 +20,15 @@
     "vlm_error": "",
     "verdict_engine": "VLM + Kaiju + veredicto estructurado",
     "stored_videos_count": 1009,
-    "stored_images_count": 318,
+    "stored_images_count": 319,
     "stored_sounds_count": 0,
-    "stored_verdicts_count": 386,
+    "stored_verdicts_count": 387,
     "last_verdict": {
-      "id": "vid_20261118_153819_3b913e",
-      "created_at": "2026-11-18T15:50:38.194697",
-      "source": "video_pensante",
-      "verdict": "*   Hechos Observados:\n    *   El video dura ~4 minutos.\n    *   El tema central es la relatividad del tiempo y el universo bloque.\n    *   La progresión visual va de lo difuso a lo nítido (diagramas) y vuelve a lo difuso (metáforas).\n    *   El audio es una narración educativa en español.\n\n*   Inferencias:\n    *   El video es probablemente de un canal de",
-      "risk_level": null
+      "id": "img_20261118_160037_37aba9",
+      "created_at": "2026-11-18T16:04:41.634994",
+      "source": "daemon",
+      "verdict": "*   Estado General del Entorno: Desconocido / No observable. La imagen no proporciona evidencia de un entorno físico.\n*   Nivel de Riesgo Objetivo: N/A (No Aplicable) o 0 (por defecto de seguridad).\n    *   *Nota:* No se puede asignar un riesgo real porque no hay datos. Sin embargo, al no haber evidencia de amenaza, el riesgo *perceptible* es nulo.\n*   Hechos Observados:\n    *   Imagen de 1920x1080.\n    *   Color uniforme `#88938d`.\n    *   Sin audio.\n    *   Sin movimiento.\n*   Inferencias:\n    *   Posible fallo técnico en la fuente de la imagen (sensor, transmisión o software).\n    *   Posib",
+      "risk_level": 0
     },
     "surroundings_interval_sec": 900,
     "vault_dir": "/home/m11/Escritorio/GODWORKS SYSTEM/vault/videos/telegram",
@@ -37,13 +37,13 @@
   },
   "surroundings": {
     "interval_sec": 900.0,
-    "checks": 268,
-    "verdicts": 268,
-    "last_verdict_id": "img_20261118_154535_3ec862",
+    "checks": 269,
+    "verdicts": 269,
+    "last_verdict_id": "img_20261118_160037_37aba9",
     "last_risk_level": 0,
-    "last_verdict": "*   Estado General del Entorno: Desconocido / No Aplicable. No se observa entorno físico.\n*   Nivel de Riesgo Objetivo: 0/10 (Seguro).\n    *   *Justificación:* No hay amenazas visibles, peligros físicos ni anomalías de seguridad. El riesgo es nulo porque no hay contexto de peligro.\n*   Hechos Observados:\n    *   Imagen estática de color `#878f83`.\n    *   Ausencia total de audio.\n    *   Resolución 1920x1080.\n*   Inferencias:\n    *   El dispositivo de captura está activo pero no está registrando una escena válida.\n    *   Puede haber una obstrucción física (lente tapado) o un fallo de software.\n*   Recomendación Concreta:\n    1.  Verificar la fuente: Revisa si la cámara está conectada, encendida y si el lente está limpio y sin obstrucciones.\n    2.  Reiniciar el flujo de datos: Si se trata de una transmisión en vivo, reinicia la sesión de captura.\n    3.  No actuar sobre suposiciones: No asumas que estás en un lugar específico hasta que se reciba una imagen con contenido visual válido.\n\nDictamen Final: El Arquitecto se encuentra en un estado de ceguera sensorial técnica. No hay riesgo, pero tampoco hay información. Restablece la conexión visual para proceder con el análisis real.",
+    "last_verdict": "*   Estado General del Entorno: Desconocido / No observable. La imagen no proporciona evidencia de un entorno físico.\n*   Nivel de Riesgo Objetivo: N/A (No Aplicable) o 0 (por defecto de seguridad).\n    *   *Nota:* No se puede asignar un riesgo real porque no hay datos. Sin embargo, al no haber evidencia de amenaza, el riesgo *perceptible* es nulo.\n*   Hechos Observados:\n    *   Imagen de 1920x1080.\n    *   Color uniforme `#88938d`.\n    *   Sin audio.\n    *   Sin movimiento.\n*   Inferencias:\n    *   Posible fallo técnico en la fuente de la imagen (sensor, transmisión o software).\n    *   Posible imagen de prueba o error de carga.\n*   Dudas:\n    *   ¿Por qué se envió una imagen vacía?\n    *   ¿Existe un problema con la cámara o el dispositivo del Arquitecto?\n*   Recomendación Concreta:\n    1.  Verificar la fuente de la imagen: Asegúrate de que la cámara o la aplicación que genera la imagen esté funcionando correctamente.\n    2.  Reenviar el medio: Si esperabas ver tu entorno, recaptura la imagen o el video.\n    3.  No actuar sobre suposiciones: No tomes decisiones de seguridad basadas en esta imagen, ya que no contiene información real.\n\nDictamen Final: El medio recibido es técnicam",
     "last_error": "",
-    "last_check_ts": REDACTED_PHONE.5775898
+    "last_check_ts": REDACTED_PHONE.3629358
   },
   "vlm": {
     "ready": true,
