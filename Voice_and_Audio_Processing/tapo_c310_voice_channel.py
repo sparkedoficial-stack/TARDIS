@@ -55,6 +55,10 @@ from core.tardis_voice_local import (
     for_speech,
     split_sentences,
 )
+from core.tardis_voice_program import (
+    get_voice_program_router,
+    is_program_command,
+)
 
 DEFAULT_CONFIG_PATH = BASE_DIR / "tapo_c310_config.json"
 STATE_DIR = BASE_DIR / "data" / "tapo_c310_voice_channel"
@@ -967,6 +971,12 @@ class TapoC310VoiceChannel:
                 remainder = self.matcher.strip(vosk_text, wake)
                 logger.info(f"✨ Wake word detectada: {wake.phrase!r} · resto={remainder!r}")
                 await self._handle_wake(remainder, pcm, vosk_text)
+            elif is_program_command(vosk_text):
+                # DIRECTIVA SOBERANA: «programa» funciona en cualquier micrófono.
+                # En la C310 se acepta incluso sin la wake word para que el comando
+                # llegue a FTL desde el micrófono ambiental de la cámara.
+                logger.info("🧬 [PROGRAMA] Comando detectado sin wake word; abriendo canal FTL.")
+                await self._handle_command_audio(pcm, vosk_text)
             elif state in ("command", "followup"):
                 await self._handle_command_audio(pcm, vosk_text)
             else:
@@ -1318,6 +1328,25 @@ class TapoC310VoiceChannel:
         self.last_activity_ts = time.time()
         self._set_state("thinking")
 
+        # COMANDO DE VOZ SOBERANO «PROGRAMA»: el micrófono de la cámara C310
+        # también puede ordenar a FTL la creación de una función.
+        try:
+            voice_program = get_voice_program_router().handle(
+                clean,
+                channel="tapo_c310_mic",
+                source=f"{self.device_alias} ({self.host}) · micrófono ambiental",
+            )
+        except Exception as exc_vp:
+            logger.warning(f"Aviso en comando de voz «programa» de C310: {exc_vp}")
+            voice_program = None
+        if voice_program:
+            await self._local_response(
+                clean,
+                str(voice_program.get("reply") or ""),
+                backend="FTL · voice_program",
+            )
+            return
+
         local = await self._try_local_intent(clean)
         if local is not None:
             return
@@ -1370,11 +1399,11 @@ class TapoC310VoiceChannel:
         self._write_state(force=True)
 
     async def _local_response(
-        self, user_text: str, speech: str, followup: bool = True
+        self, user_text: str, speech: str, followup: bool = True, backend: str = "local"
     ) -> None:
-        """Respuesta local (sin LLM): hora, identidad, silencio, despedida."""
+        """Respuesta local (sin LLM): hora, identidad, silencio, despedida o FTL."""
         self.last_reply = speech
-        self.last_backend = "local"
+        self.last_backend = backend
         self._set_state("speaking")
         tts_started = time.perf_counter()
         await self._speak(speech)
@@ -1388,7 +1417,7 @@ class TapoC310VoiceChannel:
                 "transcript": user_text,
                 "reply": speech,
                 "speech": speech,
-                "backend": "local",
+                "backend": backend,
                 "stt_ms": round(self.last_stt_ms, 1),
                 "llm_ms": 0.0,
                 "tts_ms": round(self.last_tts_ms, 1),

@@ -1,36 +1,58 @@
 {
-  "generated": REDACTED_PHONE.5131083,
+  "generated": REDACTED_PHONE.435162,
   "version": "1.0.0",
   "root": "/home/m11/Escritorio/GODWORKS SYSTEM",
-  "score": 88,
+  "score": 84,
   "counts": {
     "crítico": 0,
     "alto": 0,
-    "medio": 0,
-    "bajo": 23,
+    "medio": 2,
+    "bajo": 21,
     "info": 2
   },
   "policy": {
     "root": "/home/m11/Escritorio/GODWORKS SYSTEM",
-    "scanned_files": 5307,
-    "scanned_dirs": 229,
-    "duration_s": 5.061,
-    "score": 89,
+    "scanned_files": 5440,
+    "scanned_dirs": 236,
+    "duration_s": 5.335,
+    "score": 84,
     "counts": {
       "crítico": 0,
       "alto": 0,
-      "medio": 0,
-      "bajo": 22,
+      "medio": 2,
+      "bajo": 20,
       "info": 0
     },
     "level_counts": {
       "C0": 6,
-      "C1": 640,
-      "C2": 4639,
+      "C1": 651,
+      "C2": 4761,
       "C3": 11,
       "C4": 11
     },
     "findings": [
+      {
+        "code": "SECRETO_EN_CONTENIDO",
+        "severity": "medio",
+        "severity_value": 2,
+        "title": "Posible fuga: Teléfono / WhatsApp",
+        "path": "data/telegram_group_members.json",
+        "detail": "línea 295: 7412…82 (10 ch)",
+        "remediation": "Minimizar el dato, restringir permisos o cifrar el archivo",
+        "auto": false,
+        "fixed": false
+      },
+      {
+        "code": "SECRETO_EN_CONTENIDO",
+        "severity": "medio",
+        "severity_value": 2,
+        "title": "Posible fuga: Teléfono / WhatsApp",
+        "path": "data/telegram_group_members.json",
+        "detail": "línea 296: 7412…82 (10 ch)",
+        "remediation": "Minimizar el dato, restringir permisos o cifrar el archivo",
+        "auto": false,
+        "fixed": false
+      },
       {
         "code": "SECRETO_EN_CONTENIDO",
         "severity": "bajo",
@@ -135,28 +157,6 @@
         "severity": "bajo",
         "severity_value": 1,
         "title": "Credencial/dato en custodia: Teléfono / WhatsApp",
-        "path": "data/telegram_group_members.json",
-        "detail": "línea 295: 7412…82 (10 ch)",
-        "remediation": "Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600",
-        "auto": false,
-        "fixed": false
-      },
-      {
-        "code": "SECRETO_EN_CONTENIDO",
-        "severity": "bajo",
-        "severity_value": 1,
-        "title": "Credencial/dato en custodia: Teléfono / WhatsApp",
-        "path": "data/telegram_group_members.json",
-        "detail": "línea 296: 7412…82 (10 ch)",
-        "remediation": "Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600",
-        "auto": false,
-        "fixed": false
-      },
-      {
-        "code": "SECRETO_EN_CONTENIDO",
-        "severity": "bajo",
-        "severity_value": 1,
-        "title": "Credencial/dato en custodia: Teléfono / WhatsApp",
         "path": "data/telephony/calls_history.json",
         "detail": "línea 6: +529…67 (13 ch)",
         "remediation": "Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600",
@@ -191,7 +191,7 @@
         "severity_value": 1,
         "title": "Credencial/dato en custodia: Teléfono / WhatsApp",
         "path": "data/terminal_captures/captures_index.json",
-        "detail": "línea 425: 1793…76 (10 ch)",
+        "detail": "línea 83: 1794…15 (10 ch)",
         "remediation": "Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600",
         "auto": false,
         "fixed": false
@@ -202,7 +202,7 @@
         "severity_value": 1,
         "title": "Credencial/dato en custodia: Teléfono / WhatsApp",
         "path": "data/terminal_captures/captures_index.json",
-        "detail": "línea 434: 1793…76 (10 ch)",
+        "detail": "línea 92: 1794…15 (10 ch)",
         "remediation": "Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600",
         "auto": false,
         "fixed": false
@@ -213,7 +213,7 @@
         "severity_value": 1,
         "title": "Credencial/dato en custodia: Teléfono / WhatsApp (recurrente)",
         "path": "data/terminal_captures/captures_index.json",
-        "detail": "39 ocurrencias entre las líneas 425 y 2503",
+        "detail": "42 ocurrencias entre las líneas 83 y 2601",
         "remediation": "Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600",
         "auto": false,
         "fixed": false
@@ -550,16 +550,16 @@
       },
       {
         "proto": "udp",
-        "address": "*",
-        "port": 50493,
-        "process": "users:((\"cloudflared\",pid=2412370,fd=4))",
+        "address": "[::]",
+        "port": 5353,
+        "process": "",
         "exposed": true
       },
       {
         "proto": "udp",
-        "address": "[::]",
-        "port": 5353,
-        "process": "",
+        "address": "*",
+        "port": 46296,
+        "process": "users:((\"cloudflared\",pid=2739668,fd=13))",
         "exposed": true
       },
       {
@@ -580,7 +580,7 @@
         "proto": "tcp",
         "address": "127.0.0.1",
         "port": 20241,
-        "process": "users:((\"cloudflared\",pid=2412370,fd=11))",
+        "process": "users:((\"cloudflared\",pid=2739668,fd=11))",
         "exposed": false
       },
       {
@@ -643,7 +643,7 @@
         "proto": "tcp",
         "address": "127.0.0.1",
         "port": 8797,
-        "process": "users:((\"python3\",pid=1153,fd=9))",
+        "process": "users:((\"python3\",pid=2133039,fd=9))",
         "exposed": false
       },
       {
@@ -670,6 +670,20 @@
       {
         "proto": "tcp",
         "address": "127.0.0.1",
+        "port": 41729,
+        "process": "users:((\"agy\",pid=2630996,fd=12))",
+        "exposed": false
+      },
+      {
+        "proto": "tcp",
+        "address": "127.0.0.1",
+        "port": 42931,
+        "process": "users:((\"agy\",pid=2630996,fd=14))",
+        "exposed": false
+      },
+      {
+        "proto": "tcp",
+        "address": "127.0.0.1",
         "port": 9226,
         "process": "users:((\"chrome\",pid=18494,fd=73))",
         "exposed": false
@@ -686,13 +700,6 @@
         "address": "127.0.0.1",
         "port": 44017,
         "process": "users:((\"claude\",pid=76503,fd=10))",
-        "exposed": false
-      },
-      {
-        "proto": "tcp",
-        "address": "127.0.0.1",
-        "port": 43893,
-        "process": "users:((\"llama-server\",pid=1168523,fd=3))",
         "exposed": false
       },
       {
@@ -746,11 +753,11 @@
   "key_fingerprint": "C7CB9188F99591F07EC62B7DB75FBB8A",
   "ledger": {
     "ok": true,
-    "entries": 45,
+    "entries": 46,
     "head": "REDACTED_TOKEN",
     "broken_at": null,
     "reason": "",
     "anchor_ok": true,
-    "last_ts": REDACTED_PHONE.477918
+    "last_ts": REDACTED_PHONE.516389
   }
 }

@@ -770,8 +770,10 @@ class TapoC310Sentinel:
         self.visitor_interview_require_presence: bool = bool(
             self.config.get("visitor_interview_require_presence", True)
         )
+        # Debe ser >= visitor_interview_delay_sec + margen: la comprobación se hace
+        # DESPUÉS de dormir los 15 s, así que una ventana de 6 s descartaba la entrevista.
         self.visitor_interview_presence_window_sec: float = max(
-            1.0, float(self.config.get("visitor_interview_presence_window_sec", 6.0))
+            1.0, float(self.config.get("visitor_interview_presence_window_sec", 25.0))
         )
         self.visitor_interview_cooldown_sec: float = max(
             30.0, float(self.config.get("visitor_interview_cooldown_sec", 600.0))
@@ -1217,8 +1219,8 @@ class TapoC310Sentinel:
             if self._stop_event.is_set():
                 return
             now = time.time()
-            if self.visitor_interview_require_presence:
-                seen_age = now - self.last_person_seen_ts if self.last_person_seen_ts else 1e9
+            if self.visitor_interview_require_presence and self.last_person_seen_ts:
+                seen_age = now - self.last_person_seen_ts
                 if seen_age > self.visitor_interview_presence_window_sec:
                     logger.info(
                         f"[ENTREVISTA C310] Omitida para {track_ids}: el visitante ya no está "
@@ -2256,8 +2258,11 @@ class TapoC310Sentinel:
                     confirmed=(self.consecutive_positive >= confirm_needed),
                 )
                 if new_visitor_ids_now:
-                    # Directiva 2026-11-17: el visitante nuevo se entrevista 15 s después
-                    # (nombre + motivo) reutilizando el micrófono y la bocina de la C310.
+                    # Directiva 2026-11-17: aviso INMEDIATO con foto al detectar un humano
+                    # nuevo, y entrevista 15 s después (nombre + motivo) por bocina/micrófono.
+                    # Sin este extend el alert perimetral nunca se despachaba para visitantes
+                    # nuevos: pending_new_ids sólo recibía los tracks del aviso dwell (90 s).
+                    pending_new_ids.extend(new_visitor_ids_now)
                     self._schedule_visitor_interview(new_visitor_ids_now)
 
                 # Directiva Arquitecto (TARDIS-NEURAL-SPACE-KAIJU) · Aviso Vocal Dwell-Gated:
@@ -2291,6 +2296,10 @@ class TapoC310Sentinel:
                         )
 
                 should_evaluate_trigger = False
+                # Un visitante nuevo siempre habilita el despacho del alerta, incluso si el
+                # frame que lo confirmó no coincide exactamente con confirm_needed.
+                if new_visitor_ids_now:
+                    should_evaluate_trigger = True
                 if self.consecutive_positive == confirm_needed:
                     if extra_best_frames > 0:
                         collecting_extra = extra_best_frames

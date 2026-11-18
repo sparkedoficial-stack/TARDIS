@@ -18,6 +18,7 @@ Interfaces biométricas de voz, síntesis de audio autónoma, retroalimentación
 - **tardis_voice_channel_c310.sh**: Procesamiento de señal de audio y síntesis vocal biométrica.
 - **tardis_voice_feedback.py**: Procesamiento de señal de audio y síntesis vocal biométrica.
 - **tardis_voice_local.py**: Procesamiento de señal de audio y síntesis vocal biométrica.
+- **tardis_voice_program.py**: Procesamiento de señal de audio y síntesis vocal biométrica.
 - **tardis_voice_terminal.py**: Procesamiento de señal de audio y síntesis vocal biométrica.
 - **test_recurring_voice.py**: Procesamiento de señal de audio y síntesis vocal biométrica.
 - **voice.py**: Procesamiento de señal de audio y síntesis vocal biométrica.

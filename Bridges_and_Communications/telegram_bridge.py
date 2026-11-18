@@ -5006,6 +5006,55 @@ class TelegramBridge:
             if chat_id not in self.chat_histories:
                 self.chat_histories[chat_id] = []
 
+            # COMANDO DE VOZ SOBERANO «PROGRAMA»: se aplica a cualquier micrófono
+            # de Telegram (llamada en vivo o nota de voz) y despacha la creación
+            # de la función al ingeniero FTL en segundo plano.
+            if is_call_active:
+                try:
+                    from core.tardis_voice_program import get_voice_program_router
+
+                    vprog = get_voice_program_router().handle(
+                        text,
+                        channel="telegram_voice_note" if is_voice_message else "telegram_active_call",
+                        source=f"{member_name} · micrófono de Telegram",
+                        chat_id=chat_id,
+                    )
+                except Exception as e_vprog:
+                    logger.warning(f"Aviso en comando de voz «programa»: {e_vprog}")
+                    vprog = None
+
+                if vprog:
+                    vprog_reply = str(vprog.get("reply") or "").strip()
+                    if vprog_reply:
+                        self.chat_histories[chat_id].append({"role": "user", "content": text})
+                        self.chat_histories[chat_id].append({"role": "assistant", "content": vprog_reply})
+                        SYNC_HUB.add_chat_turn(
+                            "assistant",
+                            vprog_reply,
+                            meta=f"{self.active_model_label} · Comando de voz FTL",
+                            client_id=tg_client_id,
+                        )
+                        self.send_reply_with_voice(
+                            vprog_reply,
+                            chat_id=chat_id,
+                            reply_to_message_id=msg_id,
+                        )
+                        try:
+                            from core.offline_chat_vault import get_offline_chat_vault
+
+                            get_offline_chat_vault().record_turn(
+                                user_message=text,
+                                assistant_reply=vprog_reply,
+                                session_id=tg_client_id,
+                                client_id=tg_client_id,
+                                model="FTL Voice Programmer",
+                                direction="present",
+                                hardware_action="voice_program_ftl",
+                            )
+                        except Exception:
+                            pass
+                    return
+
             if hw_res and hw_res.get("executed") and hw_res.get("direct_return"):
                 fb = hw_res.get("system_feedback", "Acción ejecutada.")
                 if self.video_mode_always:

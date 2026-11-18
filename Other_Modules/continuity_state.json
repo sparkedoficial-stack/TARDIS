@@ -1,7 +1,7 @@
 {
   "session_id": "master_timeline",
   "architect_goal": "Optimización de red y router físico/software + Sistema de Continuidad Absoluta Post-Reinicio",
-  "current_request": "la tapo REDACTED_IP debe avisar cuando detecte humanos y luego de 15 segundos preguntar sus nombres y cuál es la razón de su visita",
+  "current_request": "En las llamadas o contactos de voz, al decir el comando programa, tardis creara la función con FTL sin importar en que micrófono sea",
   "source": "FTL",
   "status": "in_progress",
   "progress_percent": 5,
@@ -9,10 +9,10 @@
   "details": {
     "plan_mode": "deepseek",
     "model": "opencode/deepseek-v4.1-flash-free#max",
-    "start_iso": "2026-11-17 16:00:36",
+    "start_iso": "2026-11-18 15:46:07",
     "artifacts": []
   },
-  "created_ts": REDACTED_PHONE.9047732,
-  "updated_ts": REDACTED_PHONE.9048278,
+  "created_ts": REDACTED_PHONE.4872527,
+  "updated_ts": REDACTED_PHONE.4873064,
   "reboot_count": 291
 }

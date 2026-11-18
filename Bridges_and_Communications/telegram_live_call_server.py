@@ -58,6 +58,7 @@ from core.protected_users_vault import (
     is_protected_info_query,
 )
 from core.tardis_voice_local import LocalSpeechToText, for_speech
+from core.tardis_voice_program import get_voice_program_router
 
 logging.basicConfig(
     level=logging.INFO,
@@ -1733,6 +1734,32 @@ class TelegramLiveCallServer:
         async def run_turn(user_text: str, turn_id: int) -> None:
             nonlocal turns_completed
             try:
+                # COMANDO DE VOZ SOBERANO «PROGRAMA»: se atiende antes que el LLM.
+                # Funciona igual si el texto viene del micrófono de la llamada o
+                # del teclado de la Mini App durante una llamada activa.
+                voice_program = get_voice_program_router().handle(
+                    user_text,
+                    channel="telegram_live_call",
+                    source=f"{user_name} · micrófono de llamada",
+                    chat_id=chat_id,
+                    metadata={"turn_id": turn_id},
+                )
+                if voice_program:
+                    reply = str(voice_program.get("reply") or "").strip()
+                    if reply:
+                        history.append({"role": "user", "content": user_text})
+                        history.append({"role": "assistant", "content": reply})
+                        turns_completed += 1
+                        record_call_turn(str(chat_id), user_name, user_text, reply)
+                        await send_json(
+                            {"type": "assistant_delta", "turn_id": turn_id, "text": reply}
+                        )
+                        await speak_sentences([reply], turn_id=turn_id)
+                        await send_json(
+                            {"type": "turn_done", "turn_id": turn_id, "full_text": reply}
+                        )
+                    return
+
                 sys_prompt = (
                     "Eres TARDIS, asistente de inteligencia artificial en una LLAMADA DE VOZ EN VIVO por Telegram "
                     f"con {user_name}. Responde en español de manera conversacional, fluida, clara y concisa "

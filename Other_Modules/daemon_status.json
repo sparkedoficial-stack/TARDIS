@@ -2,11 +2,11 @@
   "daemon": "tardis-visual-intelligence",
   "running": true,
   "pid": 1157,
-  "uptime_sec": 406755.9,
-  "last_heartbeat": "2026-11-17T16:05:23.493116",
+  "uptime_sec": 492323.3,
+  "last_heartbeat": "2026-11-18T15:51:30.851773",
   "items_processed": 0,
   "last_processed_id": "",
-  "memory_rss_mb": 330.68,
+  "memory_rss_mb": 332.86,
   "engine_status": {
     "status": "online",
     "engine": "VisualIntelligenceEngine v26.5 (VLM + Veredictos)",
@@ -19,16 +19,16 @@
     "vlm_provider": "auto",
     "vlm_error": "",
     "verdict_engine": "VLM + Kaiju + veredicto estructurado",
-    "stored_videos_count": 997,
-    "stored_images_count": 267,
+    "stored_videos_count": 1009,
+    "stored_images_count": 318,
     "stored_sounds_count": 0,
-    "stored_verdicts_count": 323,
+    "stored_verdicts_count": 386,
     "last_verdict": {
-      "id": "img_20261117_155840_79eee1",
-      "created_at": "2026-11-17T16:02:44.667035",
-      "source": "daemon",
-      "verdict": "*   Estado General del Entorno: Desconocido / No observable. El medio no proporciona datos visuales ni auditivos válidos para caracterizar el entorno físico del Arquitecto.\n*   Nivel de Riesgo Objetivo: 0 / 10 (por defecto, debido a la ausencia de evidencia de amenaza). *Nota: Esto no significa que sea seguro, sino que no hay datos para evaluar el riesgo.*\n*   Hechos Observados:\n    1.  Imagen estática de 1920x1080.\n    2.  Color dominante verde grisáceo (#879380).\n    3.  Sin audio.\n    4.  Sin elementos visuales identificables (personas, objetos, texto).\n*   Inferencias:\n    1.  Posible fall",
-      "risk_level": 0
+      "id": "vid_20261118_153819_3b913e",
+      "created_at": "2026-11-18T15:50:38.194697",
+      "source": "video_pensante",
+      "verdict": "*   Hechos Observados:\n    *   El video dura ~4 minutos.\n    *   El tema central es la relatividad del tiempo y el universo bloque.\n    *   La progresión visual va de lo difuso a lo nítido (diagramas) y vuelve a lo difuso (metáforas).\n    *   El audio es una narración educativa en español.\n\n*   Inferencias:\n    *   El video es probablemente de un canal de",
+      "risk_level": null
     },
     "surroundings_interval_sec": 900,
     "vault_dir": "/home/m11/Escritorio/GODWORKS SYSTEM/vault/videos/telegram",
@@ -37,13 +37,13 @@
   },
   "surroundings": {
     "interval_sec": 900.0,
-    "checks": 217,
-    "verdicts": 217,
-    "last_verdict_id": "img_20261117_155840_79eee1",
+    "checks": 268,
+    "verdicts": 268,
+    "last_verdict_id": "img_20261118_154535_3ec862",
     "last_risk_level": 0,
-    "last_verdict": "*   Estado General del Entorno: Desconocido / No observable. El medio no proporciona datos visuales ni auditivos válidos para caracterizar el entorno físico del Arquitecto.\n*   Nivel de Riesgo Objetivo: 0 / 10 (por defecto, debido a la ausencia de evidencia de amenaza). *Nota: Esto no significa que sea seguro, sino que no hay datos para evaluar el riesgo.*\n*   Hechos Observados:\n    1.  Imagen estática de 1920x1080.\n    2.  Color dominante verde grisáceo (#879380).\n    3.  Sin audio.\n    4.  Sin elementos visuales identificables (personas, objetos, texto).\n*   Inferencias:\n    1.  Posible fallo técnico en la cámara o sensor (pantalla en negro, error de exposición, cable suelto).\n    2.  Posible envío intencional de un placeholder o prueba de conexión.\n*   Dudas:\n    1.  ¿Por qué se envió una imagen sin contenido?\n    2.  ¿El valor de nitidez 4221.2 es un error de sistema o una métrica específica de un software de análisis?\n*   Recomendación Concreta:\n    1.  Verificar la fuente: Revisa la cámara o el dispositivo que generó esta imagen. Asegúrate de que la lente no esté obstruida, que la exposición esté correcta y que la conexión de datos sea estable.\n    2.  Reenviar el medio: Soli",
+    "last_verdict": "*   Estado General del Entorno: Desconocido / No Aplicable. No se observa entorno físico.\n*   Nivel de Riesgo Objetivo: 0/10 (Seguro).\n    *   *Justificación:* No hay amenazas visibles, peligros físicos ni anomalías de seguridad. El riesgo es nulo porque no hay contexto de peligro.\n*   Hechos Observados:\n    *   Imagen estática de color `#878f83`.\n    *   Ausencia total de audio.\n    *   Resolución 1920x1080.\n*   Inferencias:\n    *   El dispositivo de captura está activo pero no está registrando una escena válida.\n    *   Puede haber una obstrucción física (lente tapado) o un fallo de software.\n*   Recomendación Concreta:\n    1.  Verificar la fuente: Revisa si la cámara está conectada, encendida y si el lente está limpio y sin obstrucciones.\n    2.  Reiniciar el flujo de datos: Si se trata de una transmisión en vivo, reinicia la sesión de captura.\n    3.  No actuar sobre suposiciones: No asumas que estás en un lugar específico hasta que se reciba una imagen con contenido visual válido.\n\nDictamen Final: El Arquitecto se encuentra en un estado de ceguera sensorial técnica. No hay riesgo, pero tampoco hay información. Restablece la conexión visual para proceder con el análisis real.",
     "last_error": "",
-    "last_check_ts": REDACTED_PHONE.096281
+    "last_check_ts": REDACTED_PHONE.5775898
   },
   "vlm": {
     "ready": true,

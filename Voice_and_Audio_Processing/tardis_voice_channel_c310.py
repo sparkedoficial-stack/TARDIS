@@ -43,6 +43,7 @@ if str(BASE_DIR) not in sys.path:
     sys.path.insert(0, str(BASE_DIR))
 
 from core.tapo_c310_speaker import TapoC310Speaker  # noqa: E402
+from core.tardis_voice_program import get_voice_program_router  # noqa: E402
 
 # -----------------------------------------------------------------------------
 # Rutas y configuración
@@ -419,6 +420,35 @@ class TardisVoiceChannelC310:
         if not transcript:
             return
         log(f"[USUARIO] {transcript}")
+
+        # COMANDO DE VOZ SOBERANO «PROGRAMA»: también desde el micrófono C310
+        # de este canal permanente; la orden se despacha a FTL en segundo plano.
+        try:
+            voice_program = get_voice_program_router().handle(
+                transcript,
+                channel="c310_voice_channel",
+                source="Tapo C310 · micrófono de cámara",
+            )
+        except Exception as exc_vp:
+            log(f"[PROGRAMA] Aviso en enrutador de voz: {exc_vp}")
+            voice_program = None
+
+        if voice_program:
+            reply = str(voice_program.get("reply") or "").strip()
+            if not reply:
+                return
+            reply = cap_reply(
+                reply,
+                int(self.cfg["max_reply_chars"]),
+                int(self.cfg["max_reply_sentences"]),
+            )
+            log(f"[TARDIS/FTL] {reply}")
+            self._speak_via_camera(reply)
+            self.active_until = time.time() + self.followup_sec
+            self.last_speech_ts = time.time()
+            self._reset_recognizer()
+            return
+
         reply = self.mind.llm_reply(transcript, self.llm_timeout)
         if reply == "__CLOSE_CHANNEL__":
             self._close_channel()
