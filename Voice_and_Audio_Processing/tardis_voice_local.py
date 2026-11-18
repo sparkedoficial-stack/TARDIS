@@ -251,7 +251,24 @@ class VoiceConversation:
 
     def handle_text(self, text: str, play: bool = True, turn: Optional[VoiceTurn] = None) -> VoiceTurn:
         turn = turn or VoiceTurn(transcript=text, reply="")
-        turn.reply, turn.llm_seconds = self.chat.ask(text)
+
+        # COMANDO DE VOZ SOBERANO «PROGRAMA»: conversación de voz local.
+        try:
+            from core.tardis_voice_program import get_voice_program_router
+
+            voice_program = get_voice_program_router().handle(
+                text,
+                channel="local_voice_conversation",
+                source="micrófono local (VoiceConversation)",
+            )
+        except Exception:
+            voice_program = None
+
+        if voice_program:
+            turn.reply = str(voice_program.get("reply") or "").strip()
+            turn.llm_seconds = 0.0
+        else:
+            turn.reply, turn.llm_seconds = self.chat.ask(text)
         if not turn.reply:
             return turn
 

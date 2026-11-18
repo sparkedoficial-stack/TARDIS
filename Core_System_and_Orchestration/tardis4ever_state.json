@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "created_at": "2026-10-15T02:04:29.176374",
   "last_periodic_sync": "2026-11-17T23:08:47.666818",
-  "last_immediate_sync": "2026-11-17T16:05:12.983386",
-  "last_commit_hash": "8e9daa84",
-  "sync_count": 1452,
-  "immediate_sync_count": 1449,
+  "last_immediate_sync": "2026-11-18T15:51:19.533016",
+  "last_commit_hash": "8a9ecdc7",
+  "sync_count": 1453,
+  "immediate_sync_count": 1450,
   "periodic_sync_count": 3,
   "last_known_mtimes": {
     "skill:godworks-system-suite/SKILL.md": REDACTED_PHONE.5482113,
@@ -157,7 +157,7 @@
     "core:tardis_ssm_v27.py": REDACTED_PHONE.33,
     "core:tardis_telephony_controller.py": REDACTED_PHONE.17,
     "core:tardis_video_thinking_engine.py": REDACTED_PHONE.9311833,
-    "core:tardis_voice_local.py": REDACTED_PHONE.54,
+    "core:tardis_voice_local.py": REDACTED_PHONE.0449529,
     "core:tardis_vp_engine.py": REDACTED_PHONE.16,
     "core:task_manager.py": REDACTED_PHONE.75,
     "core:telegram_bridge.py": REDACTED_PHONE.789126,
@@ -180,7 +180,7 @@
     "core:tapo_c310_speaker.py": REDACTED_PHONE.9989753,
     "core:scp_conceptual_suite.py": REDACTED_PHONE.0840197,
     "core:tapo_c310_voice_channel.py": REDACTED_PHONE.731042,
-    "core:tardis_voice_channel_c310.py": REDACTED_PHONE.870554,
+    "core:tardis_voice_channel_c310.py": REDACTED_PHONE.2469997,
     "core:sensor_orchestrator.py": REDACTED_PHONE.3520608,
     "core:curiosity_debate_manager.py": REDACTED_PHONE.6333776,
     "core:scientific_research_engine.py": REDACTED_PHONE.737738,
@@ -300,6 +300,18 @@
     "sat:gia_ios:GIA/Views/Theme.swift": REDACTED_PHONE.0
   },
   "history": [
+    {
+      "timestamp": "2026-11-18T15:51:19.533016",
+      "trigger": "immediate_milestone",
+      "commit_hash": "8a9ecdc7",
+      "score": 110,
+      "reasons": [
+        "Evoluci\u00f3n en subsistema core TARDIS: telegram_bridge.py",
+        "Evoluci\u00f3n en subsistema core TARDIS: telegram_live_call_server.py",
+        "Evoluci\u00f3n en subsistema core TARDIS: tapo_c310_voice_channel.py",
+        "Nuevo subsistema core TARDIS: tardis_voice_program.py"
+      ]
+    },
     {
       "timestamp": "2026-11-17T16:05:12.983386",
       "trigger": "immediate_milestone",
@@ -841,18 +853,6 @@
       "timestamp": "2026-11-02T01:15:32.128884",
       "trigger": "immediate_milestone",
       "commit_hash": "32517799",
-      "score": 100,
-      "reasons": [
-        "Evoluci\u00f3n en subsistema core TARDIS: sensor_orchestrator.py",
-        "Evoluci\u00f3n en subsistema core TARDIS: curiosity_debate_manager.py",
-        "Evoluci\u00f3n en subsistema core TARDIS: scientific_research_engine.py",
-        "Evoluci\u00f3n en subsistema core TARDIS: background_thought_engine.py"
-      ]
-    },
-    {
-      "timestamp": "2026-11-02T01:02:15.424672",
-      "trigger": "immediate_milestone",
-      "commit_hash": "baca22e6",
       "score": 100,
       "reasons": [
         "Evoluci\u00f3n en subsistema core TARDIS: sensor_orchestrator.py",

@@ -267,6 +267,26 @@ def main() -> int:
     def handle(msg: str):
         nonlocal use_web
         t0 = time.time()
+
+        # COMANDO DE VOZ SOBERANO «PROGRAMA»: micrófono del asistente de terminal.
+        try:
+            from core.tardis_voice_program import get_voice_program_router
+
+            voice_program = get_voice_program_router().handle(
+                msg,
+                channel="terminal_local_mic",
+                source="micrófono local (speech_recognition)",
+            )
+            if voice_program:
+                reply = str(voice_program.get("reply") or "").strip()
+                print(f"\n{C_AI}TARDIS > {C_END}{reply}")
+                print(f"{C_DIM}   (FTL · {time.time()-t0:.1f}s){C_END}\n")
+                if use_voice:
+                    _voice.speak(reply)
+                return
+        except Exception as e_vp:
+            print(f"{C_WARN}Aviso en comando de voz «programa»: {e_vp}{C_END}")
+
         print(f"{C_DIM}   abstrayendo intención...{C_END}")
         abs_ = abstract_message(client, args.model, msg)
         tag = "internet" if abs_.get("requiere_internet") else "local"

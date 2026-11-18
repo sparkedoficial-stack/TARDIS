@@ -336,6 +336,20 @@ class TardisMind:
         """Analiza la frase del usuario y decide la respuesta o acción."""
         t_clean = text.lower().strip()
 
+        # COMANDO DE VOZ SOBERANO «PROGRAMA»: micrófono local activado por chasquido.
+        try:
+            from core.tardis_voice_program import get_voice_program_router
+
+            voice_program = get_voice_program_router().handle(
+                text,
+                channel="local_snap_mic",
+                source="micrófono local (sounddevice / chasquido)",
+            )
+            if voice_program:
+                return str(voice_program.get("reply") or "").strip() or "A la orden, Arquitecto."
+        except Exception:
+            pass
+
         # 1. Identidad Canónica Obligatoria
         if any(k in t_clean for k in ["quién eres", "quien eres", "cuál es tu tarea", "cual es tu tarea", "tu función", "preséntate", "presentate", "identifícate"]):
             return GREETING_CANONICO

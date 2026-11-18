@@ -4083,6 +4083,40 @@ def process_agentic_chat(
                 "elapsed_s": elapsed,
             }
         }
+
+    # COMANDO DE VOZ SOBERANO «PROGRAMA»: se atiende antes que el LLM para que
+    # cualquier micrófono conectado por la API de voz despache la creación de la
+    # función al ingeniero FTL, sin importar el dispositivo de entrada.
+    if use_voice and not is_client_mode:
+        try:
+            from core.tardis_voice_program import get_voice_program_router
+
+            voice_program = get_voice_program_router().handle(
+                message,
+                channel="api_voice",
+                source=client_id or "cliente de voz",
+            )
+        except Exception:
+            voice_program = None
+        if voice_program:
+            reply = str(voice_program.get("reply") or "").strip()
+            try:
+                if HAS_VOICE:
+                    _voice.speak_async(reply)
+            except Exception:
+                pass
+            return {
+                "ok": True,
+                "reply": reply,
+                "provider": "FTL · Voice Programmer",
+                "action": "voice_program_ftl",
+                "voice_program": voice_program,
+                "transmission": {
+                    "provider": "FTL Engineer",
+                    "model": "ftl_cli",
+                    "elapsed_s": round(time.time() - t0, 3),
+                },
+            }
     try:
         from core.idle_evolution_daemon import get_idle_evolution_daemon
         get_idle_evolution_daemon().record_user_activity()
