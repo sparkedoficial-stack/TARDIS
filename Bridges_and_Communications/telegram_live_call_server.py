@@ -476,6 +476,43 @@ async def stream_llm_for_call(
             yield reply
 
 
+def load_recent_call_history(chat_id: str, limit: int = 8) -> List[Dict[str, str]]:
+    """Recupera turnos previos desde OfflineChatVault para continuidad infinita."""
+    try:
+        from core.offline_chat_vault import get_offline_chat_vault
+
+        cid = f"tg_call_{chat_id}"
+        rows = get_offline_chat_vault().get_recent(limit=limit, client_id=cid, is_local=False)
+        out: List[Dict[str, str]] = []
+        for r in rows:
+            u = str(r.get("user_message") or "").strip()
+            # Limpia el prefijo de canal para mostrar/inyectar diálogo limpio
+            u_clean = re.sub(r"^\[Llamada Telegram · [^\]]+\]:\s*", "", u).strip()
+            a = str(r.get("assistant_reply") or "").strip()
+            if u_clean:
+                out.append({"role": "user", "content": u_clean})
+            if a:
+                out.append({"role": "assistant", "content": a})
+        return out
+    except Exception:
+        return []
+
+
+def get_call_vault_context(user_text: str, is_admin_caller: bool) -> str:
+    """Obtiene contexto semántico relevante desde OfflineChatVault."""
+    try:
+        from core.offline_chat_vault import get_offline_chat_vault
+
+        return get_offline_chat_vault().get_context_for_prompt(
+            query=user_text,
+            k_relevant=3,
+            n_recent=2,
+            is_local=is_admin_caller,
+        ) or ""
+    except Exception:
+        return ""
+
+
 def record_call_turn(chat_id: str, user_name: str, user_text: str, assistant_text: str) -> None:
     """Registra cada turno de la llamada en OfflineChatVault para memoria continua."""
     try:
@@ -694,7 +731,7 @@ def render_call_webapp_html(initial_ct: str, default_voice: str = DEFAULT_VOICE)
     font-weight: 700; cursor: pointer;
   }}
   .controls {{
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding-top: 10px;
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; padding-top: 10px;
   }}
   .ctrl-btn {{
     display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -783,9 +820,13 @@ def render_call_webapp_html(initial_ct: str, default_voice: str = DEFAULT_VOICE)
         <span class="ico">🗣️</span>
         <span id="vadLbl">Auto VAD</span>
       </button>
+      <button class="ctrl-btn active" id="bargeBtn" type="button" title="Interrumpir a TARDIS automáticamente al hablar">
+        <span class="ico">⚡</span>
+        <span id="bargeLbl">Barge-In</span>
+      </button>
       <button class="ctrl-btn" id="interruptBtn" type="button">
         <span class="ico">✋</span>
-        <span>Interrumpir</span>
+        <span>Parar</span>
       </button>
       <button class="ctrl-btn hangup" id="hangupBtn" type="button">
         <span class="ico">📵</span>
@@ -821,6 +862,8 @@ def render_call_webapp_html(initial_ct: str, default_voice: str = DEFAULT_VOICE)
   const muteLbl = document.getElementById("muteLbl");
   const vadBtn = document.getElementById("vadBtn");
   const vadLbl = document.getElementById("vadLbl");
+  const bargeBtn = document.getElementById("bargeBtn");
+  const bargeLbl = document.getElementById("bargeLbl");
   const interruptBtn = document.getElementById("interruptBtn");
   const hangupBtn = document.getElementById("hangupBtn");
   const voiceSelect = document.getElementById("voiceSelect");
@@ -836,6 +879,8 @@ def render_call_webapp_html(initial_ct: str, default_voice: str = DEFAULT_VOICE)
   let recMime = "";
   let isMuted = false;
   let autoVad = true;
+  let voiceBargeIn = true;
+  let bargeStreak = 0;
   let isSpeaking = false;
   let isAiSpeaking = false;
   let isThinking = false;
@@ -848,6 +893,8 @@ def render_call_webapp_html(initial_ct: str, default_voice: str = DEFAULT_VOICE)
   let timerInterval = null;
   let vadRaf = null;
   let closedIntentionally = false;
+  let wakeLock = null;
+  let hasGreetedOnce = false;
 
   // Cola de reproducción continua usando elemento Audio desbloqueado (compatible con iOS WKWebView)
   const player = new Audio();
@@ -1035,6 +1082,23 @@ def render_call_webapp_html(initial_ct: str, default_voice: str = DEFAULT_VOICE)
       }}
       const threshold = Math.max(0.017, noiseFloor * 2.6);
 
+      // Voice Barge-In: si TARDIS está hablando y el usuario habla sostenido por encima del umbral de eco
+      if (autoVad && voiceBargeIn && isAiSpeaking && !isMuted && !isSpeaking) {{
+        const bargeThresh = Math.max(0.055, threshold * 2.4);
+        if (rms > bargeThresh) {{
+          bargeStreak += 1;
+          if (bargeStreak >= 14) {{
+            bargeStreak = 0;
+            sendInterrupt();
+            beginUtteranceCapture();
+          }}
+        }} else {{
+          bargeStreak = Math.max(0, bargeStreak - 1);
+        }}
+      }} else {{
+        bargeStreak = 0;
+      }}
+
       if (autoVad && !isMuted && !isAiSpeaking && !isThinking) {{
         if (!isSpeaking) {{
           if (rms > threshold) {{
@@ -1057,30 +1121,40 @@ def render_call_webapp_html(initial_ct: str, default_voice: str = DEFAULT_VOICE)
 
   function connectWebSocket() {{
     const proto = window.location.protocol === "https:" ? "wss:" : "ws:";
-    const wsUrl = `${{proto}}//${{window.location.host}}/tg-call/ws?ct=${{encodeURIComponent(callToken)}}`;
+    const wsPath = window.location.pathname.startsWith("/voz") ? "/voz/ws" : "/tg-call/ws";
+    const wsUrl = `${{proto}}//${{window.location.host}}${{wsPath}}?ct=${{encodeURIComponent(callToken)}}`;
     ws = new WebSocket(wsUrl);
     ws.binaryType = "arraybuffer";
 
     let expectingAudioMeta = null;
 
     ws.onopen = () => {{
-      connText.textContent = "EN LLAMADA";
+      isThinking = false;
+      connText.textContent = "EN LLAMADA ∞";
       connDot.style.background = "#00e699";
       ws.send(JSON.stringify({{
         type: "hello",
         ct: callToken,
         init_data: (tg && tg.initData) ? tg.initData : "",
-        voice: voiceSelect.value
+        voice: voiceSelect.value,
+        reconnect: hasGreetedOnce
       }}));
+      hasGreetedOnce = true;
     }};
 
     ws.onmessage = (ev) => {{
       if (typeof ev.data === "string") {{
         let msg = {{}};
         try {{ msg = JSON.parse(ev.data); }} catch (_) {{ return; }}
-        if (msg.type === "call_ready") {{
+        if (msg.type === "history_sync" && Array.isArray(msg.turns) && transcriptBox.children.length === 0) {{
+          for (const t of msg.turns) {{
+            if (t.role === "user") appendUserLine(t.content);
+            else if (t.role === "assistant") {{ updateAiLine(t.content, true); currentAiElem = null; }}
+          }}
+        }} else if (msg.type === "call_ready") {{
           currentAiElem = null;
-          setState("idle", `Conectado con ${{msg.user_name || "TARDIS"}} · Escuchando`);
+          isThinking = false;
+          setState("idle", `Conectado con ${{msg.user_name || "TARDIS"}} · Escucha Infinita`);
         }} else if (msg.type === "transcript") {{
           if (msg.text) {{
             appendUserLine(msg.text);
@@ -1116,10 +1190,21 @@ def render_call_webapp_html(initial_ct: str, default_voice: str = DEFAULT_VOICE)
 
     ws.onclose = () => {{
       if (closedIntentionally) return;
+      isThinking = false;
+      isSpeaking = false;
       connText.textContent = "RECONECTANDO…";
       connDot.style.background = "#ffb020";
-      setTimeout(connectWebSocket, 1800);
+      setTimeout(connectWebSocket, 1500);
     }};
+  }}
+
+  async function requestWakeLock() {{
+    try {{
+      if ("wakeLock" in navigator && !wakeLock) {{
+        wakeLock = await navigator.wakeLock.request("screen");
+        wakeLock.addEventListener("release", () => {{ wakeLock = null; }});
+      }}
+    }} catch (_) {{}}
   }}
 
   async function startCall() {{

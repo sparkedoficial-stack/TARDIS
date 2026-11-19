@@ -53,11 +53,11 @@
   "updated_at": "2026-11-18T16:08:09.483271",
   "visual_intelligence": {
     "active": true,
-    "pid": 1157,
+    "pid": 1385,
     "videos_stored": 1010,
-    "verdicts": 397,
+    "verdicts": 401,
     "vlm_model": "qwen3-vl:2b-instruct",
-    "last_risk_level": 0,
-    "last_ping": REDACTED_PHONE.913721
+    "last_risk_level": null,
+    "last_ping": REDACTED_PHONE.8019843
   }
 }

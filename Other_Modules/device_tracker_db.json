@@ -71,10 +71,10 @@
     "hostname": "Nodo TP-Link Smart / Extensor de Red",
     "vendor": "TP-Link Systems Inc.",
     "device_type": "Infraestructura de Red TP-Link",
-    "interface": "enp2s0",
-    "connection_medium": "Ethernet / LAN (enp2s0)",
-    "network_segment": "Ethernet / LAN Principal (REDACTED_IP/24)",
-    "arp_state": "REACHABLE",
+    "interface": "wlp3s0",
+    "connection_medium": "Wi-Fi (wlp3s0)",
+    "network_segment": "Wi-Fi Soberana TimeMachine (REDACTED_IP/24)",
+    "arp_state": "STALE",
     "online": true,
     "rtt_ms": 2.16,
     "open_ports": [
@@ -98,11 +98,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 203068,
-    "traffic_bytes_tx": 9547075,
-    "traffic_packets": 8114,
+    "traffic_bytes_rx": 426493,
+    "traffic_bytes_tx": 18619596,
+    "traffic_packets": 18742,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-18T21:11:58.797615+00:00",
+    "last_seen": "2026-11-19T02:37:43.713010+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -184,11 +184,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 0,
-    "traffic_bytes_tx": 0,
-    "traffic_packets": 0,
+    "traffic_bytes_rx": 99,
+    "traffic_bytes_tx": 288,
+    "traffic_packets": 5,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-18T21:11:58.797615+00:00",
+    "last_seen": "2026-11-19T02:37:43.713010+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -446,11 +446,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": REDACTED_PHONE,
-    "traffic_bytes_tx": REDACTED_PHONE,
-    "traffic_packets": 180027665,
+    "traffic_bytes_rx": 151720546,
+    "traffic_bytes_tx": 6588435,
+    "traffic_packets": 148915,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-18T21:11:58.797615+00:00",
+    "last_seen": "2026-11-19T02:37:43.713010+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -522,11 +522,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": REDACTED_PHONE,
-    "traffic_bytes_tx": 4327026,
-    "traffic_packets": 3060408,
+    "traffic_bytes_rx": 44756,
+    "traffic_bytes_tx": 9603,
+    "traffic_packets": 264,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-18T21:11:58.797615+00:00",
+    "last_seen": "2026-11-19T02:37:43.713010+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]

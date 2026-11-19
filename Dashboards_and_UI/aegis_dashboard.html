@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TARDIS · AEGIS-Ω & CyberEvolve 12h</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #04070d;
+            --bg-surface: rgba(11, 18, 30, 0.88);
+            --bg-card: rgba(16, 26, 44, 0.78);
+            --border-glass: rgba(0, 212, 200, 0.22);
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --primary: #00d4c8;
+            --accent-green: #10b981;
+            --accent-gold: #f59e0b;
+            --accent-red: #ef4444;
+            --accent-purple: #a855f7;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-dim: #64748b;
+            --font-sans: 'Outfit', system-ui, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: var(--bg-base);
+            background-image:
+                radial-gradient(circle at 12% 10%, rgba(16, 185, 129, 0.10) 0%, transparent 42%),
+                radial-gradient(circle at 88% 12%, rgba(0, 212, 200, 0.10) 0%, transparent 45%),
+                radial-gradient(circle at 50% 92%, rgba(168, 85, 247, 0.07) 0%, transparent 48%);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            min-height: 100vh;
+            padding: 18px 22px 48px;
+        }
+        .shell { max-width: 1460px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+        header {
+            background: var(--bg-surface);
+            backdrop-filter: blur(18px);
+            border: 1px solid var(--border-glass);
+            border-radius: 16px;
+            padding: 14px 20px;
+            display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap;
+        }
+        .brand { display: flex; align-items: center; gap: 14px; }
+        .badge-icon {
+            width: 46px; height: 46px; border-radius: 12px;
+            background: linear-gradient(135deg, rgba(16,185,129,0.22), rgba(0,212,200,0.22));
+            border: 1px solid var(--accent-green);
+            box-shadow: 0 0 20px rgba(16,185,129,0.32);
+            display: grid; place-items: center; font-size: 22px;
+        }
+        .brand h1 { font-size: 18px; font-weight: 800; letter-spacing: 0.6px; }
+        .brand p { font-size: 11px; color: var(--primary); font-family: var(--font-mono); margin-top: 2px; }
+        .actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+        .btn {
+            background: rgba(0, 212, 200, 0.12);
+            border: 1px solid rgba(0, 212, 200, 0.45);
+            color: var(--primary);
+            padding: 8px 14px; border-radius: 9px;
+            font-size: 12px; font-weight: 600; font-family: var(--font-sans);
+            cursor: pointer; transition: 0.18s ease; text-decoration: none;
+            display: inline-flex; align-items: center; gap: 6px;
+        }
+        .btn:hover { background: var(--primary); color: #04070d; box-shadow: 0 0 18px rgba(0,212,200,0.35); }
+        .btn.green { background: rgba(16,185,129,0.14); border-color: rgba(16,185,129,0.5); color: var(--accent-green); }
+        .btn.green:hover { background: var(--accent-green); color: #04070d; }
+        .btn.purple { background: rgba(168,85,247,0.14); border-color: rgba(168,85,247,0.5); color: var(--accent-purple); }
+        .btn.purple:hover { background: var(--accent-purple); color: #fff; }
+        .btn.ghost { background: rgba(255,255,255,0.04); border-color: var(--border-subtle); color: var(--text-muted); }
+        .btn.ghost:hover { background: rgba(255,255,255,0.12); color: #fff; }
+
+        .kpi-strip {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }
+        .kpi {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 14px;
+            padding: 14px 16px;
+            display: flex; flex-direction: column; gap: 4px;
+        }
+        .kpi .lbl { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); font-family: var(--font-mono); }
+        .kpi .val { font-size: 24px; font-weight: 800; font-family: var(--font-mono); }
+        .kpi .sub { font-size: 11px; color: var(--text-muted); }
+
+        .grid-2 { display: grid; grid-template-columns: 1.15fr 1fr; gap: 18px; }
+        @media (max-width: 1020px) { .grid-2 { grid-template-columns: 1fr; } }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: 16px;
+            padding: 18px 20px;
+            display: flex; flex-direction: column; gap: 14px;
+            backdrop-filter: blur(14px);
+        }
+        .card-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .card-head h2 { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; letter-spacing: 0.4px; }
+        .pill {
+            font-size: 10px; font-family: var(--font-mono); font-weight: 600;
+            padding: 4px 9px; border-radius: 999px;
+            border: 1px solid var(--border-subtle); color: var(--primary);
+            background: rgba(0,212,200,0.08);
+        }
+        .pill.green { color: var(--accent-green); border-color: rgba(16,185,129,0.4); background: rgba(16,185,129,0.1); }
+        .pill.gold { color: var(--accent-gold); border-color: rgba(245,158,11,0.4); background: rgba(245,158,11,0.1); }
+        .pill.red { color: var(--accent-red); border-color: rgba(239,68,68,0.4); background: rgba(239,68,68,0.1); }
+
+        .class-bars { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+        .class-box {
+            background: rgba(0,0,0,0.32); border: 1px solid var(--border-subtle);
+            border-radius: 10px; padding: 10px 8px; text-align: center;
+        }
+        .class-box .lvl { font-family: var(--font-mono); font-size: 11px; color: var(--primary); font-weight: 700; }
+        .class-box .num { font-family: var(--font-mono); font-size: 18px; font-weight: 800; margin-top: 3px; }
+        .class-box .desc { font-size: 9px; color: var(--text-dim); margin-top: 2px; }
+
+        .weights-list { display: flex; flex-direction: column; gap: 7px; max-height: 240px; overflow-y: auto; }
+        .w-row { display: grid; grid-template-columns: 180px 1fr 44px; align-items: center; gap: 10px; font-family: var(--font-mono); font-size: 11px; }
+        .w-bar { height: 7px; background: rgba(255,255,255,0.06); border-radius: 99px; overflow: hidden; }
+        .w-bar > i { display: block; height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent-purple)); border-radius: 99px; }
+
+        .spark-wrap {
+            background: rgba(0,0,0,0.3); border: 1px solid var(--border-subtle);
+            border-radius: 12px; padding: 12px;
+        }
+        canvas.spark { width: 100%; height: 76px; display: block; }
+
+        .table-wrap { max-height: 300px; overflow-y: auto; border: 1px solid var(--border-subtle); border-radius: 10px; }
+        table { width: 100%; border-collapse: collapse; font-size: 11.5px; font-family: var(--font-mono); }
+        th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        th { position: sticky; top: 0; background: #0a1220; color: var(--text-dim); font-size: 10px; text-transform: uppercase; }
+        .sev-crit { color: var(--accent-red); font-weight: 700; }
+        .sev-alto { color: #fb923c; font-weight: 700; }
+        .sev-medio { color: var(--accent-gold); font-weight: 600; }
+        .sev-bajo { color: var(--primary); }
+
+        pre.report-box {
+            background: rgba(0,0,0,0.38); border: 1px solid var(--border-subtle);
+            border-radius: 10px; padding: 12px; max-height: 240px; overflow: auto;
+            font-family: var(--font-mono); font-size: 11px; color: #cbd5e1; white-space: pre-wrap;
+        }
+
+        #toast {
+            position: fixed; bottom: 20px; right: 20px; z-index: 999;
+            background: rgba(11, 18, 30, 0.96); border: 1px solid var(--primary);
+            color: var(--primary); padding: 10px 16px; border-radius: 10px;
+            font-family: var(--font-mono); font-size: 12px; display: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.55);
+        }
+    </style>
+</head>
+<body>
+<div class="shell">
+    <header>
+        <div class="brand">
+            <div class="badge-icon">🔐</div>
+            <div>
+                <h1>AEGIS-Ω & CYBER-EVOLVE 12H</h1>
+                <p>BLINDAJE MILITAR AES-256-GCM · LEDGER BLAKE2b+HMAC · AUDITORÍA RECURSIVA AUTÓNOMA</p>
+            </div>
+        </div>
+        <div class="actions">
+            <button class="btn green" onclick="runAegisVerify()">✓ Verificar Ledger</button>
+            <button class="btn" onclick="runAegisAudit()">⚡ Auditar AEGIS-Ω</button>
+            <button class="btn purple" onclick="runCyberCycle()">🧬 Ciclo CyberEvolve</button>
+            <a class="btn ghost" href="/aegis/report" target="_blank">📄 Informe HTML Completo ↗</a>
+            <a class="btn ghost" href="/shield">🛡️ Escudo LAN</a>
+            <a class="btn ghost" href="/hub">🎛️ Hub</a>
+        </div>
+    </header>
+
+    <div class="kpi-strip">
+        <div class="kpi">
+            <span class="lbl">Postura AEGIS-Ω</span>
+            <span class="val" id="kpi-aegis-score" style="color:var(--accent-green)">-- / 100</span>
+            <span class="sub" id="kpi-aegis-files">Escaneando perímetro...</span>
+        </div>
+        <div class="kpi">
+            <span class="lbl">CyberEvolve Score</span>
+            <span class="val" id="kpi-cyber-score" style="color:var(--primary)">-- / 100</span>
+            <span class="sub" id="kpi-cyber-gen">Generación -- · Mejor --</span>
+        </div>
+        <div class="kpi">
+            <span class="lbl">Remediaciones Verificadas</span>
+            <span class="val" id="kpi-cyber-rem" style="color:var(--accent-purple)">--</span>
+            <span class="sub" id="kpi-cyber-last">Último ciclo: --</span>
+        </div>
+        <div class="kpi">
+            <span class="lbl">Hallazgos Críticos / Altos</span>
+            <span class="val" id="kpi-aegis-crit" style="color:var(--accent-gold)">0 / 0</span>
+            <span class="sub" id="kpi-aegis-med">Medios: -- · Bajos: --</span>
+        </div>
+        <div class="kpi">
+            <span class="lbl">Cadena de Custodia</span>
+            <span class="val" id="kpi-ledger-state" style="color:var(--accent-green); font-size:18px;">VERIFICANDO</span>
+            <span class="sub" id="kpi-ledger-detail">BLAKE2b + HMAC-SHA256</span>
+        </div>
+    </div>
+
+    <div class="grid-2">
+        <!-- AEGIS-Ω -->
+        <section class="card">
+            <div class="card-head">
+                <h2>🔐 Clasificación C0–C4 & Hallazgos AEGIS-Ω</h2>
+                <span class="pill green" id="aegis-version">AEGIS v1.0.0</span>
+            </div>
+
+            <div class="class-bars">
+                <div class="class-box"><div class="lvl">C0</div><div class="num" id="lvl-c0">0</div><div class="desc">Público</div></div>
+                <div class="class-box"><div class="lvl">C1</div><div class="num" id="lvl-c1">0</div><div class="desc">Interno</div></div>
+                <div class="class-box"><div class="lvl">C2</div><div class="num" id="lvl-c2">0</div><div class="desc">Sensible</div></div>
+                <div class="class-box"><div class="lvl">C3</div><div class="num" id="lvl-c3" style="color:var(--accent-gold)">0</div><div class="desc">Restringido</div></div>
+                <div class="class-box"><div class="lvl">C4</div><div class="num" id="lvl-c4" style="color:var(--accent-red)">0</div><div class="desc">Secreto</div></div>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Severidad</th><th>Código</th><th>Objetivo</th><th>Detalle</th></tr>
+                    </thead>
+                    <tbody id="aegis-findings-body">
+                        <tr><td colspan="4" style="color:var(--text-dim);">Cargando hallazgos de AEGIS-Ω...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- CYBER-EVOLVE -->
+        <section class="card">
+            <div class="card-head">
+                <h2>🧬 CyberEvolve 12h · Evolución Recursiva</h2>
+                <span class="pill" id="cyber-gen-pill">GEN --</span>
+            </div>
+
+            <div class="spark-wrap">
+                <div style="display:flex; justify-content:space-between; font-size:10px; font-family:var(--font-mono); color:var(--text-dim); margin-bottom:6px;">
+                    <span>HISTORIAL DE PUNTUACIÓN RECURSIVA</span>
+                    <span id="spark-range">Últimas generaciones</span>
+                </div>
+                <canvas id="score-spark" class="spark" width="520" height="76"></canvas>
+            </div>
+
+            <div>
+                <div style="font-size:11px; font-family:var(--font-mono); color:var(--text-dim); margin-bottom:8px;">PESOS HEURÍSTICOS ADAPTATIVOS</div>
+                <div class="weights-list" id="rule-weights-list"></div>
+            </div>
+        </section>
+    </div>
+
+    <div class="grid-2">
+        <section class="card">
+            <div class="card-head">
+                <h2>📜 Ledger Generacional CyberEvolve</h2>
+                <button class="btn ghost" style="padding:5px 10px; font-size:11px;" onclick="loadAll()">↻ Actualizar</button>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Gen</th><th>Fecha</th><th>Score</th><th>Hallazgos</th><th>Remediados</th></tr>
+                    </thead>
+                    <tbody id="cyber-ledger-body">
+                        <tr><td colspan="5" style="color:var(--text-dim);">Cargando ledger...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="card">
+            <div class="card-head">
+                <h2>📋 Último Reporte Continuo (cyber_recursive_report.md)</h2>
+                <span class="pill green">Auto-actualizado</span>
+            </div>
+            <pre class="report-box" id="cyber-report-md">Cargando reporte...</pre>
+        </section>
+    </div>
+</div>
+<div id="toast"></div>
+
+<script>
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let toastTimer;
+function showToast(msg) {
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.style.display = "block";
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { t.style.display = "none"; }, 3600);
+}
+
+function drawSparkline(scores) {
+    const c = document.getElementById("score-spark");
+    if (!c) return;
+    const ctx = c.getContext("2d");
+    const w = c.width = c.parentElement.clientWidth - 24;
+    const h = c.height = 76;
+    ctx.clearRect(0, 0, w, h);
+    if (!scores || scores.length < 2) {
+        ctx.fillStyle = "#64748b";
+        ctx.font = "11px JetBrains Mono";
+        ctx.fillText("Sin suficientes puntos de historial aún.", 10, 40);
+        return;
+    }
+    const min = Math.min(...scores, 50);
+    const max = 100;
+    const step = w / (scores.length - 1);
+
+    ctx.beginPath();
+    scores.forEach((v, i) => {
+        const x = i * step;
+        const y = h - 8 - ((v - min) / Math.max(1, max - min)) * (h - 18);
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    ctx.strokeStyle = "#00d4c8";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.lineTo(w, h);
+    ctx.lineTo(0, h);
+    ctx.closePath();
+    const grad = ctx.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0, "rgba(0, 212, 200, 0.30)");
+    grad.addColorStop(1, "rgba(0, 212, 200, 0.0)");
+    ctx.fillStyle = grad;
+    ctx.fill();
+}
+
+async function loadAegis() {
+    try {
+        const res = await fetch("/api/aegis/status");
+        if (!res.ok) return;
+        const d = await res.json();
+        const score = d.score ?? "--";
+        document.getElementById("kpi-aegis-score").textContent = `${score} / 100`;
+        document.getElementById("kpi-aegis-files").textContent = `${(d.scanned_files || 0).toLocaleString()} archivos · ${d.scanned_dirs || 0} dirs`;
+        document.getElementById("aegis-version").textContent = `AEGIS v${d.version || "1.0.0"}`;
+
+        const c = d.counts || {};
+        document.getElementById("kpi-aegis-crit").textContent = `${c["crítico"] || 0} / ${c["alto"] || 0}`;
+        document.getElementById("kpi-aegis-med").textContent = `Medios: ${c["medio"] || 0} · Bajos: ${c["bajo"] || 0}`;
+
+        const lvls = d.level_counts || {};
+        ["C0","C1","C2","C3","C4"].forEach(l => {
+            const el = document.getElementById("lvl-" + l.toLowerCase());
+            if (el) el.textContent = (lvls[l] || 0).toLocaleString();
+        });
+
+        const per = d.perimeter || {};
+        const lState = document.getElementById("kpi-ledger-state");
+        const lDet = document.getElementById("kpi-ledger-detail");
+        if (per.initialized || per.key_exists || per.ledger_entries !== undefined) {
+            lState.textContent = "SELLADO";
+            lState.style.color = "var(--accent-green)";
+            lDet.textContent = `Entradas: ${per.ledger_entries ?? "--"} · Bóveda: ${per.vault_count ?? "--"}`;
+        } else {
+            lState.textContent = "ACTIVO";
+            lDet.textContent = "Perímetro ~/.aegis operativo";
+        }
+
+        const tbody = document.getElementById("aegis-findings-body");
+        const findings = d.findings || [];
+        if (!findings.length) {
+            tbody.innerHTML = '<tr><td colspan="4" style="color:var(--accent-green);">Sin hallazgos abiertos en la última auditoría.</td></tr>';
+        } else {
+            tbody.innerHTML = findings.map(f => {
+                const sev = String(f.severity || "info").toLowerCase();
+                const cls = sev.includes("cr") ? "sev-crit" : sev === "alto" ? "sev-alto" : sev === "medio" ? "sev-medio" : "sev-bajo";
+                const tgt = String(f.path || f.target || "-").replace(/^\/home\/[^/]+\//, "~/");
+                return `<tr>
+                    <td class="${cls}">${esc(sev.toUpperCase())}</td>
+                    <td>${esc(f.code || f.rule || "-")}</td>
+                    <td title="${esc(f.path || "")}">${esc(tgt.slice(0, 42))}</td>
+                    <td>${esc(f.message || f.detail || "-")}</td>
+                </tr>`;
+            }).join("");
+        }
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+async function loadCyberRecursive() {
+    try {
+        const res = await fetch("/api/cyber_recursive/status?limit=20");
+        if (!res.ok) return;
+        const d = await res.json();
+        document.getElementById("kpi-cyber-score").textContent = `${d.security_score ?? "--"} / 100`;
+        document.getElementById("kpi-cyber-gen").textContent = `Generación ${d.generation ?? 0} · Mejor ${d.best_score ?? 0}`;
+        document.getElementById("kpi-cyber-rem").textContent = d.total_remediations ?? 0;
+        document.getElementById("kpi-cyber-last").textContent = `Último: ${(d.last_run_iso || "--").replace("T", " ").slice(0, 19)}`;
+        document.getElementById("cyber-gen-pill").textContent = `GEN #${d.generation ?? 0}`;
+
+        const scores = d.recent_scores || [];
+        document.getElementById("spark-range").textContent = `${scores.length} ciclos recientes`;
+        drawSparkline(scores);
+
+        const wList = document.getElementById("rule-weights-list");
+        const weights = Object.entries(d.rule_weights || {}).sort((a, b) => b[1] - a[1]);
+        wList.innerHTML = weights.map(([k, v]) => {
+            const pct = Math.min(100, Math.round((Number(v) / 3.0) * 100));
+            return `<div class="w-row">
+                <span style="color:var(--text-muted); overflow:hidden; text-overflow:ellipsis;">${esc(k)}</span>
+                <div class="w-bar"><i style="width:${pct}%"></i></div>
+                <span style="text-align:right; color:var(--primary);">${Number(v).toFixed(2)}</span>
+            </div>`;
+        }).join("");
+
+        const tbody = document.getElementById("cyber-ledger-body");
+        const rows = d.recent_ledger || [];
+        if (!rows.length) {
+            tbody.innerHTML = '<tr><td colspan="5" style="color:var(--text-dim);">Sin registros en ledger.</td></tr>';
+        } else {
+            tbody.innerHTML = rows.map(r => `<tr>
+                <td>#${esc(r.generation ?? "-")}</td>
+                <td>${esc((r.iso || r.timestamp_iso || "-").replace("T", " ").slice(0, 19))}</td>
+                <td style="color:var(--accent-green); font-weight:700;">${esc(r.score ?? r.security_score ?? "-")}</td>
+                <td>${esc(r.findings_count ?? (r.findings ? r.findings.length : "-"))}</td>
+                <td style="color:var(--accent-purple);">${esc(r.remediated ?? 0)}</td>
+            </tr>`).join("");
+        }
+
+        document.getElementById("cyber-report-md").textContent = d.report_md || "Sin reporte markdown disponible.";
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+async function runAegisAudit() {
+    showToast("⚡ Ejecutando auditoría completa AEGIS-Ω...");
+    try {
+        const res = await fetch("/api/aegis/audit", { method: "POST" });
+        const d = await res.json();
+        showToast(d.ok ? "✔ Auditoría AEGIS-Ω completada" : `✖ Error: ${d.error}`);
+        loadAegis();
+    } catch (e) { showToast("✖ Error de red en auditoría AEGIS"); }
+}
+
+async function runAegisVerify() {
+    showToast("✓ Verificando cadena criptográfica BLAKE2b + HMAC-SHA256...");
+    try {
+        const res = await fetch("/api/aegis/verify", { method: "POST" });
+        const d = await res.json();
+        const ok = d.ok && d.verification && (d.verification.ok !== false);
+        showToast(ok ? "✔ Ledger AEGIS-Ω íntegro y verificado" : "⚠ Alerta en verificación de ledger");
+        loadAegis();
+    } catch (e) { showToast("✖ Error verificando ledger"); }
+}
+
+async function runCyberCycle() {
+    showToast("🧬 Ejecutando ciclo CyberEvolve (Observe → Harden → Verify → Evolve)...");
+    try {
+        const res = await fetch("/api/cyber_recursive/run", { method: "POST" });
+        const d = await res.json();
+        showToast(d.ok ? "✔ Ciclo CyberEvolve completado" : `✖ Error: ${d.error}`);
+        loadCyberRecursive();
+    } catch (e) { showToast("✖ Error lanzando ciclo CyberEvolve"); }
+}
+
+function loadAll() {
+    loadAegis();
+    loadCyberRecursive();
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+    loadAll();
+    setInterval(loadAll, 20000);
+});
+</script>
+</body>
+</html>

@@ -1,12 +1,12 @@
 {
   "daemon": "tardis-visual-intelligence",
   "running": true,
-  "pid": 1157,
-  "uptime_sec": 504685.4,
-  "last_heartbeat": "2026-11-18T19:17:32.922136",
+  "pid": 1385,
+  "uptime_sec": 361.4,
+  "last_heartbeat": "2026-11-18T21:42:45.801580",
   "items_processed": 0,
   "last_processed_id": "",
-  "memory_rss_mb": 302.49,
+  "memory_rss_mb": 194.96,
   "engine_status": {
     "status": "online",
     "engine": "VisualIntelligenceEngine v26.5 (VLM + Veredictos)",
@@ -20,14 +20,14 @@
     "vlm_error": "",
     "verdict_engine": "VLM + Kaiju + veredicto estructurado",
     "stored_videos_count": 1010,
-    "stored_images_count": 328,
+    "stored_images_count": 332,
     "stored_sounds_count": 0,
-    "stored_verdicts_count": 397,
+    "stored_verdicts_count": 401,
     "last_verdict": {
-      "id": "img_20261118_184549_496f19",
-      "created_at": "2026-11-18T18:49:52.820775",
+      "id": "img_20261118_211604_48767a",
+      "created_at": "2026-11-18T21:20:07.908006",
       "source": "daemon",
-      "verdict": "Estado general del entorno: Indeterminado (no hay datos suficientes para describirlo).  \n- Nivel de riesgo objetivo: 0 – 10 → 0 (no se detecta ningún riesgo porque no se ha observado nada que lo indique).  \n- Recomendación concreta: Proporciona una descripción más detallada de la imagen o, si es posible, envía el archivo visual para que pueda analizarlo directamente. Con información visual completa podré identificar objetos, posibles peligros y ofrecerte un veredicto preciso y útil.",
+      "verdict": "| Ítem | Valor |\n|------|-------|\n| Estado general del entorno | Indeterminado – No se pueden confirmar ni condiciones seguras ni peligrosas. |\n| Nivel de riesgo objetivo (0‑10) | 2 – Valor bajo, pero asignado por incertidumbre más que por evidencia de peligro. |\n| Recomendación concreta | 1. Obtener una visualización clara de la imagen (preferiblemente con descripción textual o captura de pantalla). <br>2. Si la escena contiene equipos eléctricos, maquinaria o áreas industriales, inspeccionar visualmente por señales de sobrecalentamiento, fugas o cables expuestos. <br>3. En caso de que la ima",
       "risk_level": 0
     },
     "surroundings_interval_sec": 900,
@@ -37,13 +37,13 @@
   },
   "surroundings": {
     "interval_sec": 900.0,
-    "checks": 278,
-    "verdicts": 278,
-    "last_verdict_id": "img_20261118_184549_496f19",
-    "last_risk_level": 0,
-    "last_verdict": "Estado general del entorno: Indeterminado (no hay datos suficientes para describirlo).  \n- Nivel de riesgo objetivo: 0 – 10 → 0 (no se detecta ningún riesgo porque no se ha observado nada que lo indique).  \n- Recomendación concreta: Proporciona una descripción más detallada de la imagen o, si es posible, envía el archivo visual para que pueda analizarlo directamente. Con información visual completa podré identificar objetos, posibles peligros y ofrecerte un veredicto preciso y útil.",
-    "last_error": "escena sin cambios relevantes (delta=0.9)",
-    "last_check_ts": REDACTED_PHONE.8064656
+    "checks": 0,
+    "verdicts": 0,
+    "last_verdict_id": "",
+    "last_risk_level": null,
+    "last_verdict": "",
+    "last_error": "escena sin cambios relevantes (delta=0.0)",
+    "last_check_ts": REDACTED_PHONE.1477373
   },
   "vlm": {
     "ready": true,

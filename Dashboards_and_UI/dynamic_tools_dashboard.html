@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TARDIS · Voz «Programa», Herramientas Dinámicas & Continuidad</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #04070d;
+            --bg-surface: rgba(11, 18, 30, 0.88);
+            --bg-card: rgba(16, 26, 44, 0.78);
+            --border-glass: rgba(0, 212, 200, 0.22);
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --primary: #00d4c8;
+            --accent-green: #10b981;
+            --accent-gold: #f59e0b;
+            --accent-purple: #a855f7;
+            --accent-red: #ef4444;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-dim: #64748b;
+            --font-sans: 'Outfit', system-ui, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: var(--bg-base);
+            background-image:
+                radial-gradient(circle at 15% 10%, rgba(168, 85, 247, 0.11) 0%, transparent 45%),
+                radial-gradient(circle at 85% 90%, rgba(0, 212, 200, 0.10) 0%, transparent 45%);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            min-height: 100vh;
+            padding: 18px 22px 48px;
+        }
+        .shell { max-width: 1460px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+        header {
+            background: var(--bg-surface); backdrop-filter: blur(18px);
+            border: 1px solid var(--border-glass); border-radius: 16px;
+            padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap;
+        }
+        .brand { display: flex; align-items: center; gap: 14px; }
+        .badge-icon {
+            width: 46px; height: 46px; border-radius: 12px;
+            background: linear-gradient(135deg, rgba(168,85,247,0.24), rgba(0,212,200,0.22));
+            border: 1px solid var(--accent-purple);
+            box-shadow: 0 0 20px rgba(168,85,247,0.35);
+            display: grid; place-items: center; font-size: 22px;
+        }
+        .brand h1 { font-size: 18px; font-weight: 800; }
+        .brand p { font-size: 11px; color: var(--primary); font-family: var(--font-mono); margin-top: 2px; }
+        .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .btn {
+            background: rgba(0, 212, 200, 0.12); border: 1px solid rgba(0, 212, 200, 0.45);
+            color: var(--primary); padding: 8px 14px; border-radius: 9px;
+            font-size: 12px; font-weight: 600; font-family: var(--font-sans);
+            cursor: pointer; transition: 0.18s ease; text-decoration: none;
+            display: inline-flex; align-items: center; gap: 6px;
+        }
+        .btn:hover { background: var(--primary); color: #04070d; }
+        .btn.purple { background: rgba(168,85,247,0.16); border-color: rgba(168,85,247,0.55); color: #d8b4fe; }
+        .btn.purple:hover { background: var(--accent-purple); color: #fff; }
+        .btn.ghost { background: rgba(255,255,255,0.04); border-color: var(--border-subtle); color: var(--text-muted); }
+        .btn.ghost:hover { background: rgba(255,255,255,0.12); color: #fff; }
+
+        .kpi-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+        .kpi {
+            background: var(--bg-card); border: 1px solid var(--border-subtle);
+            border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px;
+        }
+        .kpi .lbl { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); font-family: var(--font-mono); }
+        .kpi .val { font-size: 23px; font-weight: 800; font-family: var(--font-mono); }
+        .kpi .sub { font-size: 11px; color: var(--text-muted); }
+
+        .dispatch-bar {
+            background: var(--bg-card); border: 1px solid rgba(168,85,247,0.45);
+            border-radius: 14px; padding: 14px 16px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+        }
+        .dispatch-bar input {
+            flex: 1; min-width: 240px; background: rgba(0,0,0,0.42);
+            border: 1px solid var(--border-subtle); border-radius: 9px;
+            padding: 10px 14px; color: #fff; font-family: var(--font-mono); font-size: 13px; outline: none;
+        }
+        .dispatch-bar input:focus { border-color: var(--accent-purple); }
+
+        .grid-2 { display: grid; grid-template-columns: 1.1fr 1fr; gap: 18px; }
+        @media (max-width: 1020px) { .grid-2 { grid-template-columns: 1fr; } }
+
+        .card {
+            background: var(--bg-card); border: 1px solid var(--border-glass);
+            border-radius: 16px; padding: 18px 20px; display: flex; flex-direction: column; gap: 12px;
+        }
+        .card-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .card-head h2 { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .pill {
+            font-size: 10px; font-family: var(--font-mono); padding: 4px 9px; border-radius: 999px;
+            border: 1px solid rgba(0,212,200,0.4); color: var(--primary); background: rgba(0,212,200,0.08);
+        }
+
+        .progress-track { height: 10px; border-radius: 99px; background: rgba(255,255,255,0.08); overflow: hidden; }
+        .progress-track > i { display: block; height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent-green)); transition: width 0.35s ease; }
+
+        .table-wrap { max-height: 330px; overflow-y: auto; border: 1px solid var(--border-subtle); border-radius: 10px; }
+        table { width: 100%; border-collapse: collapse; font-size: 11.5px; font-family: var(--font-mono); }
+        th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        th { position: sticky; top: 0; background: #0a1220; color: var(--text-dim); font-size: 10px; text-transform: uppercase; }
+        .tag-dyn { color: var(--accent-purple); font-weight: 700; }
+        .tag-ftl { color: var(--primary); font-weight: 700; }
+        .tag-ok { color: var(--accent-green); font-weight: 700; }
+
+        .goal-box {
+            background: rgba(0,0,0,0.34); border: 1px solid var(--border-subtle);
+            border-radius: 10px; padding: 12px; font-size: 12px; line-height: 1.5; color: #cbd5e1;
+        }
+        #toast {
+            position: fixed; bottom: 20px; right: 20px; z-index: 999;
+            background: rgba(11, 18, 30, 0.96); border: 1px solid var(--accent-purple);
+            color: #e9d5ff; padding: 10px 16px; border-radius: 10px;
+            font-family: var(--font-mono); font-size: 12px; display: none;
+        }
+    </style>
+</head>
+<body>
+<div class="shell">
+    <header>
+        <div class="brand">
+            <div class="badge-icon">🎙️</div>
+            <div>
+                <h1>VOZ «PROGRAMA», HERRAMIENTAS DINÁMICAS & CONTINUIDAD</h1>
+                <p>ENRUTADOR MULTI-MICRÓFONO FTL · SÍNTESIS AUTÓNOMA PYTHON · RESILIENCIA POST-REINICIO · EASY TOUCH</p>
+            </div>
+        </div>
+        <div class="actions">
+            <button class="btn purple" onclick="startDictation()">🎙️ Dictar «Programa...»</button>
+            <button class="btn" onclick="loadAll()">↻ Actualizar</button>
+            <a class="btn ghost" href="/adaptation_sys">🧠 Adaptación</a>
+            <a class="btn ghost" href="/hub">🎛️ Hub</a>
+        </div>
+    </header>
+
+    <div class="dispatch-bar">
+        <span style="font-family:var(--font-mono); font-size:12px; color:#d8b4fe; font-weight:700;">programa</span>
+        <input id="goal-input" type="text" placeholder="Describe la función o módulo Python que TARDIS/FTL debe sintetizar..." onkeydown="if(event.key==='Enter') dispatchGoal();">
+        <button class="btn purple" onclick="dispatchGoal()">⚡ Sintetizar con FTL</button>
+    </div>
+
+    <div class="kpi-strip">
+        <div class="kpi">
+            <span class="lbl">Herramientas Reales Activas</span>
+            <span class="val" id="kpi-tools" style="color:var(--accent-purple)">0</span>
+            <span class="sub">dynamic_tools/ + modulos_ftl/</span>
+        </div>
+        <div class="kpi">
+            <span class="lbl">Reinicios Físicos Sobrevividos</span>
+            <span class="val" id="kpi-reboots" style="color:var(--primary)">0</span>
+            <span class="sub" id="kpi-cont-phase">Matriz de Continuidad</span>
+        </div>
+        <div class="kpi">
+            <span class="lbl">Easy Touch Auto-Sanación</span>
+            <span class="val" id="kpi-et-rate" style="color:var(--accent-green)">--%</span>
+            <span class="sub" id="kpi-et-heals">Ciclos: -- · Sanados: --</span>
+        </div>
+        <div class="kpi">
+            <span class="lbl">Cola Voz «Programa»</span>
+            <span class="val" id="kpi-vprog-q" style="color:var(--accent-gold)">0</span>
+            <span class="sub" id="kpi-vprog-state">Multi-micrófono listo</span>
+        </div>
+    </div>
+
+    <div class="grid-2">
+        <section class="card">
+            <div class="card-head">
+                <h2>🧩 Catálogo de Módulos Dinámicos & FTL</h2>
+                <input id="tool-filter" type="text" placeholder="Filtrar módulo..." oninput="renderTools()" style="background:rgba(0,0,0,0.4); border:1px solid var(--border-subtle); border-radius:7px; padding:5px 10px; color:#fff; font-family:var(--font-mono); font-size:11px;">
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Módulo</th><th>Origen</th><th>Tamaño</th><th>Actualizado</th></tr>
+                    </thead>
+                    <tbody id="tools-body">
+                        <tr><td colspan="4" style="color:var(--text-dim);">Cargando herramientas...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="card">
+            <div class="card-head">
+                <h2>⏳ Matriz de Continuidad & Easy Touch</h2>
+                <span class="pill" id="cont-status-pill">ONLINE</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:11px; font-family:var(--font-mono); color:var(--text-muted);">
+                <span>PROGRESO DE SESIÓN MAESTRA</span>
+                <b id="cont-pct-label" style="color:var(--accent-green);">0%</b>
+            </div>
+            <div class="progress-track"><i id="cont-bar" style="width:0%"></i></div>
+
+            <div class="goal-box">
+                <div style="font-size:10px; font-family:var(--font-mono); color:var(--primary); margin-bottom:4px;">OBJETIVO MAESTRO DEL ARQUITECTO</div>
+                <div id="cont-goal">--</div>
+            </div>
+
+            <div class="goal-box">
+                <div style="font-size:10px; font-family:var(--font-mono); color:var(--accent-green); margin-bottom:4px;">EASY TOUCH · AGENTE DE AUTO-MEJORA AUTÓNOMA</div>
+                <div id="et-summary" style="font-family:var(--font-mono); font-size:11px;">Cargando telemetría Easy Touch...</div>
+            </div>
+        </section>
+    </div>
+
+    <section class="card">
+        <div class="card-head">
+            <h2>📜 Registro de Órdenes Voz «Programa» (Multi-Micrófono)</h2>
+            <span class="pill">data/voice_program_commands.jsonl</span>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr><th>Fecha</th><th>Evento</th><th>Canal / Fuente</th><th>Meta / Comando</th><th>Motor</th></tr>
+                </thead>
+                <tbody id="events-body">
+                    <tr><td colspan="5" style="color:var(--text-dim);">Cargando eventos...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+<div id="toast"></div>
+
+<script>
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let cachedTools = [];
+let toastTimer;
+function showToast(msg) {
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.style.display = "block";
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { t.style.display = "none"; }, 3600);
+}
+
+function renderTools() {
+    const q = (document.getElementById("tool-filter").value || "").toLowerCase().trim();
+    const list = q ? cachedTools.filter(t => t.name.toLowerCase().includes(q) || t.source.toLowerCase().includes(q)) : cachedTools;
+    const tbody = document.getElementById("tools-body");
+    if (!list.length) {
+        tbody.innerHTML = '<tr><td colspan="4" style="color:var(--text-dim);">Sin módulos coincidentes.</td></tr>';
+        return;
+    }
+    tbody.innerHTML = list.map(t => {
+        const dt = t.mtime ? new Date(t.mtime * 1000).toLocaleString() : "-";
+        const cls = t.source === "dynamic_tools" ? "tag-dyn" : "tag-ftl";
+        return `<tr>
+            <td style="color:#fff; font-weight:600;">${esc(t.name)}</td>
+            <td class="${cls}">${esc(t.source)}</td>
+            <td>${esc(t.size_kb)} KB</td>
+            <td style="color:var(--text-dim);">${esc(dt)}</td>
+        </tr>`;
+    }).join("");
+}
+
+async function loadVoiceProgram() {
+    try {
+        const res = await fetch("/api/voice_program/status?limit=30");
+        if (!res.ok) return;
+        const d = await res.json();
+        cachedTools = d.tools || [];
+        document.getElementById("kpi-tools").textContent = d.tools_count ?? cachedTools.length;
+        renderTools();
+
+        const r = d.router || {};
+        document.getElementById("kpi-vprog-q").textContent = r.queued ?? r.pending ?? 0;
+        document.getElementById("kpi-vprog-state").textContent = r.active_job ? `En curso: ${r.active_job.job_id || "FTL"}` : "Enrutador libre · Multi-micrófono";
+
+        const evts = d.recent_events || [];
+        const tbody = document.getElementById("events-body");
+        if (!evts.length) {
+            tbody.innerHTML = '<tr><td colspan="5" style="color:var(--text-dim);">Sin órdenes recientes.</td></tr>';
+        } else {
+            tbody.innerHTML = evts.map(e => `<tr>
+                <td>${esc((e.iso || "-").replace("T", " "))}</td>
+                <td class="${e.event === 'finished' ? 'tag-ok' : 'tag-dyn'}">${esc(e.event || "-")}</td>
+                <td>${esc(e.channel || "-")} · ${esc(e.source || "-")}</td>
+                <td>${esc(e.goal || e.raw || "-")}</td>
+                <td>${esc(e.engine || e.status || "-")}</td>
+            </tr>`).join("");
+        }
+    } catch (e) { console.error(e); }
+}
+
+async function loadContinuity() {
+    try {
+        const res = await fetch("/api/continuity/status");
+        if (!res.ok) return;
+        const d = await res.json();
+        document.getElementById("kpi-reboots").textContent = d.reboot_count ?? 0;
+        document.getElementById("kpi-cont-phase").textContent = d.phase || "Operativo";
+        document.getElementById("cont-status-pill").textContent = String(d.status || "ONLINE").toUpperCase();
+        const pct = Math.max(0, Math.min(100, Number(d.progress_percent ?? 0)));
+        document.getElementById("cont-pct-label").textContent = `${pct}%`;
+        document.getElementById("cont-bar").style.width = `${pct}%`;
+        document.getElementById("cont-goal").textContent = d.architect_goal || "Operación Autónoma Soberana GODWORKS & TARDIS";
+
+        const et = d.easy_touch || {};
+        const eta = d.easy_touch_agent || {};
+        document.getElementById("kpi-et-rate").textContent = et.success_rate !== undefined ? `${Number(et.success_rate).toFixed(1)}%` : "--%";
+        document.getElementById("kpi-et-heals").textContent = `Ciclos: ${(eta.total_cycles || 0).toLocaleString()} · Sanados: ${et.total_healed || 0}/${et.total_intercepted || 0}`;
+        document.getElementById("et-summary").textContent =
+            `Agente: ${eta.autonomous_running ? "ACTIVO 24/7" : "STANDBY"} · Ciclos: ${(eta.total_cycles || 0).toLocaleString()} · ` +
+            `Sanación retroactiva: ${eta.total_retroactively_healed || 0}/${eta.total_unresolved_found || 0} · ` +
+            `Healers dinámicos: ${eta.dynamic_healers_count || 0} · Último ciclo: ${(eta.last_cycle_iso || "-").replace("T"," ").slice(0,19)}`;
+    } catch (e) { console.error(e); }
+}
+
+async function dispatchGoal() {
+    const inp = document.getElementById("goal-input");
+    const goal = inp.value.trim();
+    if (!goal) return;
+    showToast(`🎙️ Despachando «programa ${goal}» hacia FTL...`);
+    try {
+        const res = await fetch("/api/voice_program/dispatch", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ goal, channel: "web_dynamic_tools", source: "cockpit_arquitecto" })
+        });
+        const d = await res.json();
+        if (d.ok) {
+            showToast("✔ Orden «programa» encolada en FTL");
+            inp.value = "";
+            loadVoiceProgram();
+        } else {
+            showToast(`✖ ${d.error || "No se pudo despachar la orden"}`);
+        }
+    } catch (e) { showToast("✖ Error despachando orden"); }
+}
+
+function startDictation() {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) { showToast("Reconocimiento de voz no disponible en este navegador"); return; }
+    const rec = new SR();
+    rec.lang = "es-ES";
+    rec.onstart = () => showToast("🎙️ Escuchando orden «programa ...»");
+    rec.onresult = (ev) => {
+        const txt = ev.results[0][0].transcript.trim();
+        document.getElementById("goal-input").value = txt.replace(/^programa\s*/i, "");
+        dispatchGoal();
+    };
+    rec.start();
+}
+
+function loadAll() {
+    loadVoiceProgram();
+    loadContinuity();
+}
+window.addEventListener("DOMContentLoaded", () => {
+    loadAll();
+    setInterval(loadAll, 15000);
+});
+</script>
+</body>
+</html>

@@ -407,6 +407,14 @@
         <div class="stat-row"><span>Altitud:</span><span id="stat-alt">--</span></div>
         <div class="stat-row"><span>Batería Voltaje:</span><span id="stat-volt">--</span></div>
       </div>
+
+      <div class="telemetry-card">
+        <h3>🔐 Subsistemas Soberanos</h3>
+        <div class="stat-row"><span>AEGIS-Ω:</span><span id="stat-aegis">-- / 100</span></div>
+        <div class="stat-row"><span>CyberEvolve:</span><span id="stat-cyber">GEN --</span></div>
+        <div class="stat-row"><span>Reinicios:</span><span id="stat-reboots">--</span></div>
+        <div class="stat-row"><span>Music Maestro:</span><span id="stat-music">Standby</span></div>
+      </div>
     </aside>
 
     <!-- CHAT INTERACTIVO PERMANENTE -->
@@ -421,8 +429,17 @@
         </div>
       </div>
 
+      <div style="display:flex; gap:6px; padding:6px 10px 0; overflow-x:auto; background:rgba(4,11,24,0.85); border-top:1px solid rgba(0,212,200,0.14); flex-shrink:0;">
+        <button class="badge link-central" style="cursor:pointer; white-space:nowrap;" onclick="quickPocketCmd('estado aegis y ciberseguridad')">🔐 AEGIS</button>
+        <button class="badge link-tunnel" style="cursor:pointer; white-space:nowrap;" onclick="quickPocketCmd('veredicto visual actual')">👁️ Veredicto</button>
+        <button class="badge link-central" style="cursor:pointer; white-space:nowrap;" onclick="quickPocketCmd('pon música soundtrack')">🎵 Música</button>
+        <button class="badge link-fallback" style="cursor:pointer; white-space:nowrap;" onclick="prefillProgram()">🧩 Programa...</button>
+        <button class="badge" style="cursor:pointer; white-space:nowrap; color:var(--primary);" onclick="openHubRoute('/hub')">🎛️ Hub</button>
+      </div>
+
       <div id="input-bar">
-        <input type="text" id="chat-input" placeholder="Comando soberano o consulta..." autocomplete="off">
+        <button class="action-btn" id="btn-voice" title="Dictado / Voz «programa»" onclick="startPocketVoice()" style="background:rgba(0,212,200,0.14); color:var(--primary); border:1px solid var(--panel-border);">🎙️</button>
+        <input type="text" id="chat-input" placeholder="Comando soberano, «programa ...» o consulta..." autocomplete="off">
         <button class="action-btn" id="btn-send" title="Enviar">➤</button>
       </div>
     </main>
@@ -833,6 +850,60 @@
     });
 
     loadHistory();
+
+    function quickPocketCmd(cmd) {
+      chatInput.value = cmd;
+      handleSend();
+    }
+
+    function prefillProgram() {
+      chatInput.value = "programa ";
+      chatInput.focus();
+    }
+
+    function openHubRoute(path) {
+      const base = activeBaseUrl || window.location.origin;
+      window.open(base + path, "_blank");
+    }
+
+    async function pollPocketSubsystems() {
+      const base = activeBaseUrl || (window.location.origin.startsWith("http") ? window.location.origin : "");
+      if (!base) return;
+      try {
+        const a = await fetch(`${base}/api/aegis/status`, { signal: AbortSignal.timeout(2500) });
+        if (a.ok) {
+          const d = await a.json();
+          const el = document.getElementById("stat-aegis");
+          if (el) el.textContent = `${d.score ?? '--'} / 100`;
+        }
+      } catch (e) {}
+      try {
+        const c = await fetch(`${base}/api/cyber_recursive/status?limit=1`, { signal: AbortSignal.timeout(2500) });
+        if (c.ok) {
+          const d = await c.json();
+          const el = document.getElementById("stat-cyber");
+          if (el) el.textContent = `GEN ${d.generation ?? 0} (${d.security_score ?? '--'})`;
+        }
+      } catch (e) {}
+      try {
+        const ct = await fetch(`${base}/api/continuity/status`, { signal: AbortSignal.timeout(2500) });
+        if (ct.ok) {
+          const d = await ct.json();
+          const el = document.getElementById("stat-reboots");
+          if (el) el.textContent = `${d.reboot_count ?? 0}`;
+        }
+      } catch (e) {}
+      try {
+        const m = await fetch(`${base}/api/music/status`, { signal: AbortSignal.timeout(2500) });
+        if (m.ok) {
+          const d = await m.json();
+          const el = document.getElementById("stat-music");
+          if (el) el.textContent = d.playback?.playing ? (d.current?.title || "Playing").slice(0, 14) : "Standby";
+        }
+      } catch (e) {}
+    }
+    setTimeout(pollPocketSubsystems, 2000);
+    setInterval(pollPocketSubsystems, 25000);
   
     function startPocketVoice() {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;

@@ -491,6 +491,71 @@
                 <button class="btn-action" style="padding:4px 8px; font-size:11px;" onclick="purgeCache()">🧹 Purgar Caché</button>
             </div>
         </div>
+
+        <!-- 5. AEGIS-Ω BLINDAJE MILITAR DE LA INFORMACIÓN -->
+        <div class="panel-card" style="border-color:rgba(16,185,129,0.45);">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <span>🔐 AEGIS-Ω · Blindaje Militar (AES-256-GCM)</span>
+                    <span class="badge-secure" id="aegis-badge">VERIFICANDO</span>
+                </div>
+                <a class="btn-action" style="padding:4px 10px; font-size:11px; text-decoration:none;" href="/aegis">Abrir Consola AEGIS ↗</a>
+            </div>
+            <div class="metrics-grid">
+                <div class="metric-cell">
+                    <span class="lbl">Postura AEGIS</span>
+                    <span class="val" id="val-aegis-score" style="color:var(--accent-green)">-- / 100</span>
+                </div>
+                <div class="metric-cell">
+                    <span class="lbl">Archivos Auditados</span>
+                    <span class="val" id="val-aegis-files">--</span>
+                </div>
+                <div class="metric-cell">
+                    <span class="lbl">Secretos C3 / C4</span>
+                    <span class="val" id="val-aegis-c34" style="color:var(--accent-gold)">-- / --</span>
+                </div>
+                <div class="metric-cell">
+                    <span class="lbl">Críticos / Altos</span>
+                    <span class="val" id="val-aegis-crit">-- / --</span>
+                </div>
+            </div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <button class="btn-action" style="padding:5px 10px; font-size:11px;" onclick="triggerAegisVerify()">✓ Verificar Ledger</button>
+                <button class="btn-action" style="padding:5px 10px; font-size:11px;" onclick="triggerAegisAudit()">⚡ Auditar AEGIS-Ω</button>
+            </div>
+        </div>
+
+        <!-- 6. CYBER-EVOLVE 12H (AUDITORÍA RECURSIVA AUTÓNOMA) -->
+        <div class="panel-card" style="border-color:rgba(168,85,247,0.45);">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <span>🧬 CyberEvolve 12h · Auditoría Recursiva</span>
+                    <span class="badge-secure" id="cyber-gen-badge" style="color:var(--accent-purple); border-color:rgba(168,85,247,0.4);">GEN --</span>
+                </div>
+                <button class="btn-action" style="padding:4px 10px; font-size:11px;" onclick="triggerCyberEvolve()">⚡ Ejecutar Ciclo</button>
+            </div>
+            <div class="metrics-grid">
+                <div class="metric-cell">
+                    <span class="lbl">Score Recursivo</span>
+                    <span class="val" id="val-cyber-score" style="color:var(--primary)">-- / 100</span>
+                </div>
+                <div class="metric-cell">
+                    <span class="lbl">Mejor Score</span>
+                    <span class="val" id="val-cyber-best" style="color:var(--accent-green)">--</span>
+                </div>
+                <div class="metric-cell">
+                    <span class="lbl">Remediaciones</span>
+                    <span class="val" id="val-cyber-rem" style="color:var(--accent-purple)">--</span>
+                </div>
+                <div class="metric-cell">
+                    <span class="lbl">Última Ejecución</span>
+                    <span class="val" id="val-cyber-last" style="font-size:11px;">--</span>
+                </div>
+            </div>
+            <p style="font-size:11px; color:var(--text-muted); line-height:1.4;">
+                Bucle autónomo Observe → Harden → Verify → Evolve que endurece sysctl, permisos de secretos, puertos wildcard y AST Python cada 12 horas.
+            </p>
+        </div>
     </div>
 
     <div id="toast"></div>
@@ -644,13 +709,90 @@
             const domain = input.value.trim();
             if (!domain) return;
             showToast(`Añadiendo ${domain} al DNS Sinkhole...`);
-            input.value = '';
-            setTimeout(() => { showToast(`Dominio ${domain} bloqueado.`); }, 600);
+            fetch('/api/shield/toggle', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ target: 'custom_block', domain })
+            }).then(() => {
+                input.value = '';
+                showToast(`Dominio ${domain} enviado al escudo.`);
+                fetchShieldData();
+            }).catch(() => showToast(`No se pudo bloquear ${domain}`));
+        }
+
+        function loadSockets() {
+            showToast("Actualizando auditoría de sockets...");
+            fetchShieldData();
+        }
+
+        function loadSentinelEvents() {
+            showToast("Actualizando registro de eventos...");
+            fetchShieldData();
+        }
+
+        async function fetchAegisAndCyber() {
+            try {
+                const aRes = await fetch('/api/aegis/status');
+                if (aRes.ok) {
+                    const a = await aRes.json();
+                    document.getElementById('val-aegis-score').textContent = `${a.score ?? '--'} / 100`;
+                    document.getElementById('val-aegis-files').textContent = (a.scanned_files || 0).toLocaleString();
+                    const lvls = a.level_counts || {};
+                    document.getElementById('val-aegis-c34').textContent = `${lvls.C3 ?? 0} / ${lvls.C4 ?? 0}`;
+                    const cnt = a.counts || {};
+                    document.getElementById('val-aegis-crit').textContent = `${cnt['crítico'] ?? 0} / ${cnt['alto'] ?? 0}`;
+                    document.getElementById('aegis-badge').textContent = a.score >= 80 ? 'BLINDADO' : 'ATENCIÓN';
+                }
+            } catch (e) {}
+
+            try {
+                const cRes = await fetch('/api/cyber_recursive/status?limit=5');
+                if (cRes.ok) {
+                    const c = await cRes.json();
+                    document.getElementById('val-cyber-score').textContent = `${c.security_score ?? '--'} / 100`;
+                    document.getElementById('val-cyber-best').textContent = `${c.best_score ?? '--'} / 100`;
+                    document.getElementById('val-cyber-rem').textContent = c.total_remediations ?? 0;
+                    document.getElementById('val-cyber-last').textContent = (c.last_run_iso || '--').replace('T', ' ').slice(5, 19);
+                    document.getElementById('cyber-gen-badge').textContent = `GEN #${c.generation ?? 0}`;
+                }
+            } catch (e) {}
+        }
+
+        async function triggerAegisVerify() {
+            showToast("Verificando cadena de custodia AEGIS-Ω...");
+            try {
+                const r = await fetch('/api/aegis/verify', { method: 'POST' });
+                const d = await r.json();
+                showToast(d.ok ? "✔ Ledger AEGIS-Ω íntegro" : "⚠ Error verificando ledger");
+                fetchAegisAndCyber();
+            } catch (e) { showToast("Error verificando AEGIS-Ω"); }
+        }
+
+        async function triggerAegisAudit() {
+            showToast("Ejecutando auditoría completa AEGIS-Ω...");
+            try {
+                const r = await fetch('/api/aegis/audit', { method: 'POST' });
+                const d = await r.json();
+                showToast(d.ok ? "✔ Auditoría AEGIS-Ω finalizada" : "✖ Fallo en auditoría");
+                fetchAegisAndCyber();
+            } catch (e) { showToast("Error en auditoría AEGIS-Ω"); }
+        }
+
+        async function triggerCyberEvolve() {
+            showToast("Disparando ciclo recursivo CyberEvolve...");
+            try {
+                const r = await fetch('/api/cyber_recursive/run', { method: 'POST' });
+                const d = await r.json();
+                showToast(d.ok ? "✔ Ciclo CyberEvolve completado" : "✖ Error en CyberEvolve");
+                fetchAegisAndCyber();
+            } catch (e) { showToast("Error en CyberEvolve"); }
         }
 
         window.addEventListener('DOMContentLoaded', () => {
             fetchShieldData();
+            fetchAegisAndCyber();
             setInterval(fetchShieldData, 8000);
+            setInterval(fetchAegisAndCyber, 15000);
         });
     </script>
 </body>

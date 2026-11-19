@@ -765,41 +765,41 @@
 
                     <div class="hud-bottom-bar">
                         <div>
-                            <span style="color:var(--text-dim)">UPLINK: </span>
-                            <b style="color:var(--primary)" id="hud-sat-id">LEO-01 MIL-SPEC</b>
+                            <span style="color:var(--text-dim)">CÁMARA: </span>
+                            <b style="color:var(--primary)" id="hud-sat-id">TAPO C310 · REDACTED_IP</b>
                         </div>
                         <div style="text-align:right;">
-                            <span style="color:var(--text-dim)">RESOLUCIÓN: </span>
-                            <b id="hud-resolution">1920x1080 FHD @ 60 FPS</b>
+                            <span style="color:var(--text-dim)">DETECTOR: </span>
+                            <b id="hud-resolution">YOLOv8s 2K QHD + Qwen3-VL</b>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- INTERCEPTACIÓN DE AUDIO Y ESPECTROGRAMA -->
+            <!-- CANAL DE VOZ BIDIRECCIONAL TAPO C310 & ESTADO DE AUDIO -->
             <div class="audio-spectrogram-container">
                 <div class="audio-header">
-                    <span style="color:var(--tactical-red); font-weight:700;">🎙️ INTERCEPTACIÓN DE AUDIO GSM / SATCOM</span>
-                    <span id="audio-freq-label">PORTADORA: 94.2 Hz · DECIBELIOS: 64 dB</span>
+                    <span style="color:var(--primary); font-weight:700;">🎙️ CANAL DE VOZ BIDIRECCIONAL · TAPO C310 (GOD-EYE)</span>
+                    <span id="audio-freq-label">STREAM: VERIFICANDO · G711ulaw 16 kHz</span>
                 </div>
                 <canvas id="spectrogram-canvas" class="spectrogram-canvas" height="60"></canvas>
                 <div class="audio-transcript-box" id="audio-transcript-text">
-                    "No importa lo que esté bajo el capó... Lo único que importa es quién está detrás del volante. Mantengan los radios cifrados."
+                    Sincronizando canal de voz Tapo C310 (REDACTED_IP)...
                 </div>
             </div>
         </section>
 
-        <!-- RIGHT COLUMN: RADAR Y DOSSIER -->
+        <!-- RIGHT COLUMN: RADAR, VEREDICTOS VLM Y TAPO C310 -->
         <section class="right-column-panel">
 
-            <!-- RADAR DE TRIANGULACIÓN ORBITAL -->
+            <!-- RADAR DE PERÍMETRO LOCAL -->
             <div class="radar-card">
                 <div class="panel-top" style="border:none; padding:0;">
                     <div class="panel-title">
                         <span>📡</span>
-                        <h3>Triangulación Geoespacial 360°</h3>
+                        <h3>Perímetro Local · Ancla TARDIS</h3>
                     </div>
-                    <span style="font-size:10px; font-family:var(--font-mono); color:var(--primary);">Pings Satelitales Activos</span>
+                    <span style="font-size:10px; font-family:var(--font-mono); color:var(--primary);" id="c310-state-badge">C310 SENTINEL</span>
                 </div>
 
                 <div class="radar-canvas-container">
@@ -809,24 +809,39 @@
                 <div class="radar-telemetry-strip">
                     <div class="radar-tele-cell">
                         <span>Latitud</span>
-                        <b id="tele-lat">34.0522° N</b>
+                        <b id="tele-lat">20.6274° N</b>
                     </div>
                     <div class="radar-tele-cell">
                         <span>Longitud</span>
-                        <b id="tele-lon">-118.2437° W</b>
+                        <b id="tele-lon">-87.0799° W</b>
                     </div>
                     <div class="radar-tele-cell">
-                        <span>Precisión</span>
-                        <b id="tele-radius">&lt; 1.4 m</b>
+                        <span>Entrevistas / Detec.</span>
+                        <b id="tele-radius">0 / 0</b>
                     </div>
                 </div>
             </div>
 
-            <!-- Dossier de objetivos retirado: no hay reconocimiento de personas en el motor real. -->
-            <div class="dossier-card" style="padding:18px; color:var(--text-dim); font-family:var(--font-mono); font-size:12px;">
-                Sin dossier: el motor sólo registra eventos de movimiento por cámara. No identifica personas.
+            <!-- VEREDICTO VISUAL MULTIMODAL (Qwen3-VL · Riesgo 0-10) -->
+            <div class="dossier-card" style="padding:16px; display:flex; flex-direction:column; gap:10px;">
+                <div class="panel-top" style="border:none; padding:0;">
+                    <div class="panel-title">
+                        <span>🧠</span>
+                        <h3>Inteligencia Visual VLM (Veredicto)</h3>
+                    </div>
+                    <button class="btn-action" style="padding:5px 10px; font-size:11px;" onclick="triggerVlmVerdict()">⚡ Veredicto Ahora</button>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; font-family:var(--font-mono); font-size:11px; background:rgba(0,0,0,0.35); padding:8px 10px; border-radius:8px; border:1px solid var(--border-subtle);">
+                    <span>RIESGO ESCENA: <b id="vlm-risk-score" style="color:var(--accent-green);">-- / 10</b></span>
+                    <span id="vlm-model-name" style="color:var(--primary);">qwen3-vl:2b-instruct</span>
+                </div>
+                <div id="vlm-verdict-text" style="font-size:12px; color:#e2e8f0; line-height:1.45; background:rgba(0,0,0,0.28); padding:10px; border-radius:8px; max-height:130px; overflow-y:auto;">
+                    Consultando último veredicto visual estructurado...
+                </div>
+                <div id="vlm-meta-line" style="font-size:10px; font-family:var(--font-mono); color:var(--text-dim);">
+                    Última evaluación: --
+                </div>
             </div>
->
 
         </section>
 
@@ -849,7 +864,7 @@
 
     <!-- JAVASCRIPT LOGIC & VISUALIZERS -->
     <script>
-        let currentFeedId = "cam_la_downtown";
+        let currentFeedId = "tapo_c310";
         let isTracking = true;
         let radarAngle = 0;
         let audioSamples = [];
@@ -1076,7 +1091,81 @@
 
         function refreshDashboard() {
             fetchSystemStatus();
+            fetchVisualIntelligence();
+            fetchTapoSentinel();
             changeCameraFeed(currentFeedId);
+        }
+
+        async function fetchVisualIntelligence() {
+            try {
+                const res = await fetch('/api/visual_intelligence/verdict/last');
+                if (res.ok) {
+                    const d = await res.json();
+                    const v = d.verdict || d.record || d;
+                    const risk = v.risk_score ?? v.riesgo ?? v.risk ?? null;
+                    const riskEl = document.getElementById('vlm-risk-score');
+                    if (riskEl && risk !== null) {
+                        riskEl.textContent = `${risk} / 10`;
+                        riskEl.style.color = risk >= 7 ? 'var(--tactical-red)' : (risk >= 4 ? 'var(--accent-gold)' : 'var(--accent-green)');
+                    }
+                    const txt = v.summary || v.verdict_text || v.resumen || v.analysis || v.description || (d.ok === false ? 'Sin veredictos previos registrados aún.' : JSON.stringify(v).slice(0, 260));
+                    const vEl = document.getElementById('vlm-verdict-text');
+                    if (vEl) vEl.textContent = txt;
+                    const mEl = document.getElementById('vlm-meta-line');
+                    if (mEl) mEl.textContent = `Fuente: ${v.source || 'c310/local'} · Fecha: ${v.timestamp_iso || v.iso || 'reciente'}`;
+                }
+            } catch (e) {}
+        }
+
+        async function triggerVlmVerdict() {
+            const vEl = document.getElementById('vlm-verdict-text');
+            if (vEl) vEl.textContent = "Analizando escena en vivo con Qwen3-VL...";
+            try {
+                const res = await fetch('/api/visual_intelligence/verdict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ source: 'auto' })
+                });
+                if (res.ok) {
+                    await fetchVisualIntelligence();
+                } else if (vEl) {
+                    vEl.textContent = `Motor VLM respondió HTTP ${res.status}.`;
+                }
+            } catch (e) {
+                if (vEl) vEl.textContent = "Error consultando el motor de Inteligencia Visual.";
+            }
+        }
+
+        async function fetchTapoSentinel() {
+            try {
+                const res = await fetch('/api/tapo/status');
+                if (!res.ok) return;
+                const d = await res.json();
+                const vc = d.voice_channel || {};
+                const audio = vc.audio || {};
+                const metrics = vc.metrics || {};
+                const connected = !!d.stream_connected;
+
+                const freqEl = document.getElementById('audio-freq-label');
+                if (freqEl) {
+                    freqEl.textContent = `STREAM: ${connected ? 'EN LÍNEA' : 'ESPERA'} · ${audio.codec || 'G711ulaw'} ${(audio.source_rate || 16000) / 1000} kHz · STT ${metrics.last_stt_ms ?? 0} ms`;
+                }
+                const trEl = document.getElementById('audio-transcript-text');
+                if (trEl) {
+                    const lastTr = metrics.last_transcript ? `Última transcripción C310: «${metrics.last_transcript}»` : 'Canal de voz Tapo C310 en vigilancia pasiva.';
+                    const uptimeMin = vc.uptime_sec ? Math.round(vc.uptime_sec / 60) : 0;
+                    trEl.textContent = `${lastTr} · Estado: ${(vc.state || 'idle').toUpperCase()} · Uptime: ${uptimeMin} min · Entrevistas: ${metrics.total_visitor_interviews ?? 0}`;
+                }
+                const radEl = document.getElementById('tele-radius');
+                if (radEl) {
+                    radEl.textContent = `${metrics.total_visitor_interviews ?? 0} / ${d.detections_count ?? 0}`;
+                }
+                const badgeEl = document.getElementById('c310-state-badge');
+                if (badgeEl) {
+                    badgeEl.textContent = connected ? 'C310 ONLINE · REDACTED_IP' : 'C310 STANDBY';
+                    badgeEl.style.color = connected ? 'var(--accent-green)' : 'var(--accent-gold)';
+                }
+            } catch (e) {}
         }
 
         // Reloj y bucles periódicos
@@ -1092,9 +1181,13 @@
         }, 4000);
 
         setInterval(fetchSystemStatus, 8000);
+        setInterval(fetchTapoSentinel, 10000);
+        setInterval(fetchVisualIntelligence, 20000);
 
         window.addEventListener('DOMContentLoaded', () => {
             fetchSystemStatus();
+            fetchTapoSentinel();
+            fetchVisualIntelligence();
         });
     </script>
 </body>

@@ -322,7 +322,19 @@ def main(argv: Optional[List[str]] = None) -> int:
                         help="Frases máximo sintetizadas por turno (voz corta; 0 = todas)")
     parser.add_argument("--no-play", action="store_true", help="Generar audio sin reproducirlo")
     parser.add_argument("--warmup", action="store_true", help="Precargar el modelo y salir")
-    args = parser.parse_args(argv)
+    parser.add_argument("--infinite", action="store_true", help="Iniciar chat de voz infinito full-duplex (micrófono continuo)")
+    args, unknown = parser.parse_known_args(argv)
+
+    if args.infinite:
+        from core.tardis_infinite_voice import main as infinite_main
+
+        inf_args = ["--voice", args.voice]
+        if args.no_play:
+            inf_args.append("--no-play")
+        inf_args.extend(unknown)
+        return infinite_main(inf_args)
+    if unknown:
+        parser.error(f"argumentos no reconocidos: {' '.join(unknown)}")
 
     conversation = VoiceConversation(tts=TextToSpeech(voice=args.voice), max_sentences=args.max_sentences)
     if args.warmup:

@@ -1,33 +1,5 @@
 [
   {
-    "target_file": "/home/m11/Escritorio/GODWORKS SYSTEM/core/deep_memory_vault.py",
-    "goal": "Implement a time‑decay factor in the vector similarity scoring function and add an async background job that re‑indexes embeddings nightly, allowing the vault to automatically demote stale entries without manual pruning.",
-    "status": "REJECTED",
-    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
-    "elapsed_seconds": 2569.71,
-    "backup_path": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/deep_memory_vault.py.20261113_122143.bak",
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Respuesta generada demasiado corta (2536 vs 34371 bytes)",
-    "timestamp": "2026-11-13T13:04:32.773535"
-  },
-  {
-    "target_file": "/home/m11/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
-    "goal": "Add a causal‑feedback module that logs retrieval outcomes, updates a lightweight Bayesian model, and uses its predictions to adjust an LRU‑plus‑score cache (evict low‑score items, pre‑fetch high‑score URLs).",
-    "status": "REJECTED",
-    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
-    "elapsed_seconds": 3103.37,
-    "backup_path": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/web_research_engine.py.20261113_133542.bak",
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Respuesta generada demasiado corta (2614 vs 35266 bytes)",
-    "timestamp": "2026-11-13T14:27:25.403162"
-  },
-  {
     "target_file": "/home/m11/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
     "goal": "Implementar una capa de predicción causal que marque entradas de caché como 'stale' antes de su expiración basada en métricas de cambio de contenido y relaciones de palabras‑clave, y añadir lógica de refresco automático en la función de obtención de resultados.",
     "status": "REJECTED",
@@ -1398,5 +1370,33 @@
     "efficiency_improvement": null,
     "error": "Respuesta generada demasiado corta (2611 vs 35266 bytes)",
     "timestamp": "2026-11-18T18:27:07.824405"
+  },
+  {
+    "target_file": "/home/m11/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
+    "goal": "Add a causal inference module that monitors relevance scores from deep_memory_vault, computes a simple Bayesian stopping rule, and adjusts the number of iterative search rounds; also expose a configuration flag to enable/disable this adaptive behavior.",
+    "status": "REJECTED",
+    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
+    "elapsed_seconds": 3652.53,
+    "backup_path": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/web_research_engine.py.20261118_185713.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "Respuesta generada demasiado corta (2523 vs 35266 bytes)",
+    "timestamp": "2026-11-18T19:58:06.474521"
+  },
+  {
+    "target_file": "/home/m11/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
+    "goal": "Add a causal‑aware caching decorator that stores query signatures, provenance metadata, and invalidates entries when deep_memory_vault records an update to any referenced knowledge node.",
+    "status": "REJECTED",
+    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
+    "elapsed_seconds": 2396.5,
+    "backup_path": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/web_research_engine.py.20261118_202813.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "Respuesta generada demasiado corta (2398 vs 35266 bytes)",
+    "timestamp": "2026-11-18T21:08:10.053366"
   }
 ]

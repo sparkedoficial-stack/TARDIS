@@ -1,41 +1,5 @@
 [
   {
-    "id": "conj_1794593072",
-    "timestamp": "2026-11-13T13:04:32.796915",
-    "idle_duration_minutes": 73.4,
-    "title": "Temporal Decay Vector Store for Causal Memory Retrieval",
-    "hypothesis": "Integrating a temporally‑weighted vector store into core/deep_memory_vault.py, where embeddings of past web‑research results decay in relevance over time, will enable the system to prioritize more recent causal evidence while still retaining long‑term patterns. This should improve the precision of hypothesis‑driven searches and reduce noise from outdated information, leading to faster convergence on optimal code refinements.",
-    "research_query": "temporal decay vector embeddings long‑term memory retrieval neural networks",
-    "research_findings": "# Informe de Investigación: temporal decay vector embeddings long‑term memory retrieval neural networks\n\n## Fuentes Consultadas y Respaldo Web\n- **[Enhancing memory retrieval in generative agents through LLM-trained cross attention networks - Frontiers](https://news.google.com/rss/articles/CBMikgFBVV95cUxQMFVHbldIUHJKT0hrVG1VMEZxNzk0b0R4OXNITkxsVFMxMXp4bllWQzNJRkxkSi1DZmNpLVdneFc4akE0VkxwTlZUcnZfTlpMYXZXeEJNekpoVk5ZWTlkQjkxX1pzMFpOZTFRSnFzNXcwa19QMGc0dlR0OHV4MHZ3a05GMkt3ZGFuUDBOS2xnRmJmUQ?oc=5)**: Enhancing memory retrieval in generative agents through LLM-trained cross attention networks  Frontiers\n- **[Hippocampo-neocortical interaction as compressive retrieval-augmented generation - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTFA4djRtNEdjRzlPc19pNWRzSHYxdHdzamwtWWdQeUhBRlNvZlBoR0lxOURDdDN1NDV2TVFPR3EwdHRrVjBsc1dKVXpQLVlZQnJOUDBaRlUwMGtoRm1zenJJ?oc=5)**: Hippocampo-neocortical interaction as compressive retrieval-augmented generation  Nature\n\n## Contenido y Hallazgos Ext",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMikgFBVV95cUxQMFVHbldIUHJKT0hrVG1VMEZxNzk0b0R4OXNITkxsVFMxMXp4bllWQzNJRkxkSi1DZmNpLVdneFc4akE0VkxwTlZUcnZfTlpMYXZXeEJNekpoVk5ZWTlkQjkxX1pzMFpOZTFRSnFzNXcwa19QMGc0dlR0OHV4MHZ3a05GMkt3ZGFuUDBOS2xnRmJmUQ?oc=5",
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTFA4djRtNEdjRzlPc19pNWRzSHYxdHdzamwtWWdQeUhBRlNvZlBoR0lxOURDdDN1NDV2TVFPR3EwdHRrVjBsc1dKVXpQLVlZQnJOUDBaRlUwMGtoRm1zenJJ?oc=5"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implement a time‑decay factor in the vector similarity scoring function and add an async background job that re‑indexes embeddings nightly, allowing the vault to automatically demote stale entries without manual pruning.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 2575.56
-  },
-  {
-    "id": "conj_1794598045",
-    "timestamp": "2026-11-13T14:27:25.419283",
-    "idle_duration_minutes": 82.9,
-    "title": "Causal‑Feedback Loop for Adaptive Web Research Caching",
-    "hypothesis": "Integrating a causal‑feedback mechanism between the Web Research Engine and the Deep Memory Vault will allow the system to predict the relevance of future queries based on past retrieval success, dynamically adjusting cache eviction policies and pre‑fetching strategies. This should reduce latency by ~30% and improve answer accuracy by prioritizing sources that historically contributed to high‑confidence responses.",
-    "research_query": "adaptive caching strategies based on causal inference for web search engines academic papers 2022-2024",
-    "research_findings": "# Informe de Investigación: adaptive caching strategies based on causal inference for web search engines academic papers 2022-2024\n\n## Fuentes Consultadas y Respaldo Web\n- **[Causal inference via algebraic geometry: feasibility tests for functional causal structures with two binary observed variables (arXiv)](http://arxiv.org/abs/1506.03880v2)**: We provide a scheme for inferring causal relations from uncontrolled statistical data based on tools from computational algebraic geometry, in particular, the computation of Groebner bases. We focus on causal structures containing just two observed variables, each of which is binary. We consider the consequences of imposing different restrictions o\n- **[The Retrieval Effectiveness of Web Search Engines: Considering Results Descriptions (arXiv)](http://arxiv.org/abs/1511.05800v1)**: Purpose: To compare five major Web search engines (Google, Yahoo, MSN, Ask.com, and Seekport) for their retrieval effectiveness, taking into account not only the re",
-    "web_sources": [
-      "http://arxiv.org/abs/1506.03880v2",
-      "http://arxiv.org/abs/1511.05800v1"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal‑feedback module that logs retrieval outcomes, updates a lightweight Bayesian model, and uses its predictions to adjust an LRU‑plus‑score cache (evict low‑score items, pre‑fetch high‑score URLs).",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 3110.07
-  },
-  {
     "id": "conj_1794602337",
     "timestamp": "2026-11-13T15:38:57.518154",
     "idle_duration_minutes": 71.5,
@@ -1612,5 +1576,37 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 2852.99
+  },
+  {
+    "id": "conj_1795049886",
+    "timestamp": "2026-11-18T19:58:06.490643",
+    "idle_duration_minutes": 91.0,
+    "title": "Causal Prompt Chaining for Adaptive Web Research",
+    "hypothesis": "Integrating a lightweight causal inference layer into the Web Research Engine (core/web_research_engine.py) can dynamically adjust the depth and breadth of search queries based on real‑time feedback from the Deep Memory Vault. By modeling the relationship between query formulation, retrieved document relevance, and subsequent memory embeddings, the system can predict diminishing returns and automatically truncate or expand the search chain, leading to a measurable reduction in latency (≈20‑30%) while preserving or improving answer quality.",
+    "research_query": "causal inference for adaptive web search query expansion latency reduction",
+    "research_findings": "# Informe de Investigación: causal inference for adaptive web search query expansion latency reduction\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal inference module that monitors relevance scores from deep_memory_vault, computes a simple Bayesian stopping rule, and adjusts the number of iterative search rounds; also expose a configuration flag to enable/disable this adaptive behavior.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 3658.61
+  },
+  {
+    "id": "conj_1795054090",
+    "timestamp": "2026-11-18T21:08:10.086315",
+    "idle_duration_minutes": 70.1,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrating a causal‑aware cache invalidation layer into core/web_research_engine.py will reduce redundant external queries by up to 40% while preserving result freshness. The hypothesis rests on the idea that the Deep Memory Vault can record the provenance and timestamp of each fetched document; when a new query shares a causal sub‑graph (e.g., same entities, similar semantic vectors) with a cached entry, the engine can reuse the cached result unless a downstream knowledge update in deep_memory_vault signals a change. This leverages the system's existing causal tracing mechanisms to make caching decisions that are more intelligent than simple TTL or LRU policies.",
+    "research_query": "causal cache invalidation techniques for semantic web search engines OR causal-aware caching in AI systems",
+    "research_findings": "# Informe de Investigación: causal cache invalidation techniques for semantic web search engines OR causal-aware caching in AI systems\n\n## Fuentes Consultadas y Respaldo Web\n- **[Optimizing LLM Performance with LM Cache: Architectures, Strategies, and Real-World Applications - HackerNoon](https://news.google.com/rss/articles/CBMitwFBVV95cUxNNWx4OWN2Yms5SHZHd2lFSk1rRXpCdUxmRnpydzR6U3c5eWIxbEJDZ2JEMTB6WmdQNkFfdEtnOGRVdE00RGkxWG1lQVpQZlFZcllRTUFwbHdkZENBLVVRODkyR0wydzBpcWZlZWdZVzB4WUFwQXFUSHJlc3AyTnhBNjNQRHpJcllieXp4NWJoNUpQTzUyMW51M2kwaDd5ZnhjT0ROR2ZBX2pFR1EwMmxIdkNEcF9PNFU?oc=5)**: Optimizing LLM Performance with LM Cache: Architectures, Strategies, and Real-World Applications  HackerNoon\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMitwFBVV95cUxNNWx4OWN2Yms5SHZHd2lFSk1rRXpCdUxmRnpydzR6U3c5eWIxbEJDZ2JEMTB6WmdQNkFfdEtnOGRVdE00RGkxWG1lQVpQZlFZcllRTUFwbHdkZENBLVVRODkyR0wydzBpcWZlZWdZVzB4WUFwQXFUSHJlc3AyTnhBNjNQRHpJcllieXp4NWJoNUpQTzUyM",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMitwFBVV95cUxNNWx4OWN2Yms5SHZHd2lFSk1rRXpCdUxmRnpydzR6U3c5eWIxbEJDZ2JEMTB6WmdQNkFfdEtnOGRVdE00RGkxWG1lQVpQZlFZcllRTUFwbHdkZENBLVVRODkyR0wydzBpcWZlZWdZVzB4WUFwQXFUSHJlc3AyTnhBNjNQRHpJcllieXp4NWJoNUpQTzUyMW51M2kwaDd5ZnhjT0ROR2ZBX2pFR1EwMmxIdkNEcF9PNFU?oc=5"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a causal‑aware caching decorator that stores query signatures, provenance metadata, and invalidates entries when deep_memory_vault records an update to any referenced knowledge node.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 2403.57
   }
 ]

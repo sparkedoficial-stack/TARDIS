@@ -385,8 +385,11 @@
     toastTimer = setTimeout(() => el.classList.remove("show"), 3200);
   };
 
+  const API_BASE = (location.pathname.startsWith("/music") || location.pathname.includes("tardis_music_dashboard") || location.port === "8757") ? "/api/music" : "/api";
+  const resolveApi = (path) => path.startsWith("/api/") ? API_BASE + path.slice(4) : path;
+
   async function api(path, opts = {}) {
-    const res = await fetch(path, {
+    const res = await fetch(resolveApi(path), {
       headers: { "Content-Type": "application/json" },
       ...opts,
     });
@@ -454,7 +457,7 @@
       wrap.querySelectorAll(".scene").forEach(b => b.classList.toggle("active", b.dataset.id === active));
       return;
     }
-    fetch("/api/scenes").then(r => r.json()).then(data => {
+    api("/api/scenes").then(data => {
       wrap.innerHTML = "";
       (data.scenes || []).forEach(s => {
         const b = document.createElement("button");

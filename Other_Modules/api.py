@@ -1161,6 +1161,300 @@ def create_app() -> FastAPI:
         return music_command("doctor")
 
     # --------------------------------------------------------------------------
+    # RUTAS DE SUBSISTEMAS SOBERANOS RECIENTES (AEGIS-Ω, CYBER-EVOLVE, TAPO C310,
+    # VOZ «PROGRAMA» / HERRAMIENTAS DINÁMICAS & MATRIZ DE CONTINUIDAD)
+    # --------------------------------------------------------------------------
+
+    @app.get("/api/aegis/status")
+    async def api_aegis_status():
+        """Estado y última auditoría de AEGIS-Ω (Blindaje Militar de la Información)."""
+        status_path = settings.base_dir / "reports" / "aegis" / "aegis_status.json"
+        report_path = settings.base_dir / "reports" / "aegis" / "aegis_report.html"
+        result: Dict[str, Any] = {
+            "ok": True,
+            "report_available": report_path.exists(),
+            "report_url": "/aegis/report",
+        }
+        if status_path.exists():
+            try:
+                raw = json.loads(status_path.read_text(encoding="utf-8"))
+                result["audit"] = raw
+                result["score"] = raw.get("score")
+                result["counts"] = raw.get("counts", {})
+                result["version"] = raw.get("version", "1.0.0")
+                result["generated"] = raw.get("generated")
+                policy = raw.get("policy", {})
+                result["scanned_files"] = policy.get("scanned_files", 0)
+                result["scanned_dirs"] = policy.get("scanned_dirs", 0)
+                result["level_counts"] = policy.get("level_counts", {})
+                result["findings"] = (policy.get("findings") or [])[:40]
+            except Exception as e:
+                result["audit_error"] = str(e)
+        try:
+            from core.aegis.engine import get_engine
+            loop = asyncio.get_event_loop()
+            eng_status = await loop.run_in_executor(None, lambda: get_engine().status())
+            result["perimeter"] = eng_status
+        except Exception as e:
+            result["perimeter_error"] = str(e)
+        return result
+
+    @app.post("/api/aegis/audit")
+    async def api_aegis_audit():
+        """Ejecuta una auditoría completa de AEGIS-Ω y regenera informes JSON/HTML."""
+        try:
+            from core.aegis.engine import get_engine
+            loop = asyncio.get_event_loop()
+            data = await loop.run_in_executor(None, lambda: get_engine().audit())
+            return {"ok": True, "audit": data}
+        except Exception as e:
+            return JSONResponse(status_code=500, content={"ok": False, "error": str(e)})
+
+    @app.post("/api/aegis/verify")
+    async def api_aegis_verify(deep: bool = False):
+        """Verifica la cadena de custodia BLAKE2b + HMAC-SHA256 y contenedores AGS1."""
+        try:
+            from core.aegis.engine import get_engine
+            loop = asyncio.get_event_loop()
+            data = await loop.run_in_executor(None, lambda: get_engine().verify(deep=deep))
+            return {"ok": True, "verification": data}
+        except Exception as e:
+            return JSONResponse(status_code=500, content={"ok": False, "error": str(e)})
+
+    @app.get("/api/cyber_recursive/status")
+    async def api_cyber_recursive_status(limit: int = 20):
+        """Telemetría generacional del Agente Recursivo de Ciberseguridad (CyberEvolve 12h)."""
+        vault_dir = Path(os.environ.get("LOCALAPPDATA", str(Path.home()))) / "vw-control"
+        state_path = vault_dir / "cyber_recursive_state.json"
+        ledger_path = vault_dir / "cyber_recursive_ledger.jsonl"
+        report_path = vault_dir / "cyber_recursive_report.md"
+        state_data: Dict[str, Any] = {}
+        if state_path.exists():
+            try:
+                state_data = json.loads(state_path.read_text(encoding="utf-8"))
+            except Exception as e:
+                state_data = {"error": str(e)}
+        recent_ledger: List[Dict[str, Any]] = []
+        if ledger_path.exists():
+            try:
+                lines = ledger_path.read_text(encoding="utf-8", errors="ignore").splitlines()
+                for line in lines[-max(1, min(limit, 100)):]:
+                    if line.strip():
+                        recent_ledger.append(json.loads(line))
+            except Exception:
+                pass
+        report_md = ""
+        if report_path.exists():
+            try:
+                report_md = report_path.read_text(encoding="utf-8", errors="ignore")[:8000]
+            except Exception:
+                pass
+        return {
+            "ok": True,
+            "state": state_data,
+            "generation": state_data.get("generation", 0),
+            "security_score": state_data.get("security_score", 0),
+            "best_score": state_data.get("best_score", 0),
+            "total_remediations": state_data.get("total_remediations", 0),
+            "last_run_iso": state_data.get("last_run_iso", ""),
+            "rule_weights": state_data.get("rule_weights", {}),
+            "recent_scores": state_data.get("recent_scores", []),
+            "recent_ledger": list(reversed(recent_ledger)),
+            "report_md": report_md,
+        }
+
+    @app.post("/api/cyber_recursive/run")
+    async def api_cyber_recursive_run():
+        """Dispara un ciclo inmediato Observe -> Harden -> Verify -> Evolve."""
+        try:
+            from core.cyber_recursive_agent import CyberRecursiveAgent
+            loop = asyncio.get_event_loop()
+            res = await loop.run_in_executor(None, lambda: CyberRecursiveAgent().run_cycle())
+            return {"ok": True, "cycle": res}
+        except Exception as e:
+            return JSONResponse(status_code=500, content={"ok": False, "error": str(e)})
+
+    @app.get("/api/tapo/status")
+    async def api_tapo_status():
+        """Estado en vivo del Centinela Tapo C310 (REDACTED_IP), canal de voz y detecciones."""
+        cfg_path = settings.base_dir / "tapo_c310_config.json"
+        voice_state_path = settings.base_dir / "data" / "tapo_c310_voice_channel" / "state.json"
+        interviews_path = settings.base_dir / "data" / "tapo_c310_voice_channel" / "visitor_interviews.jsonl"
+        detections_dir = settings.base_dir / "data" / "tapo_c310_detections"
+
+        camera_cfg: Dict[str, Any] = {}
+        if cfg_path.exists():
+            try:
+                raw_cfg = json.loads(cfg_path.read_text(encoding="utf-8"))
+                camera_cfg = {
+                    k: v for k, v in raw_cfg.items()
+                    if not any(s in k.lower() for s in ("pass", "secret", "token", "key"))
+                }
+            except Exception:
+                pass
+
+        voice_state: Dict[str, Any] = {}
+        if voice_state_path.exists():
+            try:
+                voice_state = json.loads(voice_state_path.read_text(encoding="utf-8"))
+            except Exception:
+                pass
+
+        interviews: List[Dict[str, Any]] = []
+        if interviews_path.exists():
+            try:
+                lines = interviews_path.read_text(encoding="utf-8", errors="ignore").splitlines()
+                for line in lines[-12:]:
+                    if line.strip():
+                        interviews.append(json.loads(line))
+            except Exception:
+                pass
+
+        recent_detections: List[Dict[str, Any]] = []
+        if detections_dir.exists():
+            try:
+                imgs = sorted(
+                    [p for p in detections_dir.iterdir() if p.is_file() and p.suffix.lower() in (".jpg", ".jpeg", ".png")],
+                    key=lambda p: p.stat().st_mtime,
+                    reverse=True,
+                )[:12]
+                for p in imgs:
+                    st = p.stat()
+                    recent_detections.append({
+                        "file": p.name,
+                        "size_kb": round(st.st_size / 1024.0, 1),
+                        "mtime": st.st_mtime,
+                    })
+            except Exception:
+                pass
+
+        return {
+            "ok": True,
+            "camera": camera_cfg,
+            "voice_channel": voice_state,
+            "stream_connected": bool((voice_state.get("audio") or {}).get("stream_connected", False)),
+            "recent_interviews": list(reversed(interviews)),
+            "recent_detections": recent_detections,
+            "detections_count": len(recent_detections),
+        }
+
+    @app.get("/api/voice_program/status")
+    async def api_voice_program_status(limit: int = 25):
+        """Estado del enrutador multi-micrófono «programa» y catálogo de herramientas dinámicas."""
+        events_path = settings.base_dir / "data" / "voice_program_commands.jsonl"
+        dyn_dir = settings.base_dir / "dynamic_tools"
+        ftl_dir = Path.home() / "modulos_ftl"
+
+        router_state: Dict[str, Any] = {}
+        try:
+            from core.tardis_voice_program import get_voice_program_router
+            router_state = get_voice_program_router().status()
+        except Exception as e:
+            router_state = {"error": str(e)}
+
+        events: List[Dict[str, Any]] = []
+        if events_path.exists():
+            try:
+                lines = events_path.read_text(encoding="utf-8", errors="ignore").splitlines()
+                for line in lines[-max(1, min(limit, 100)):]:
+                    if line.strip():
+                        events.append(json.loads(line))
+            except Exception:
+                pass
+
+        tools: List[Dict[str, Any]] = []
+        for source_label, folder in (("dynamic_tools", dyn_dir), ("modulos_ftl", ftl_dir)):
+            if not folder.exists():
+                continue
+            for py_file in sorted(folder.glob("*.py"), key=lambda p: p.stat().st_mtime, reverse=True):
+                if py_file.stem.startswith("__"):
+                    continue
+                try:
+                    txt = py_file.read_text(encoding="utf-8", errors="ignore")
+                    if '"status": "active_wisdom"' in txt:
+                        continue
+                    st = py_file.stat()
+                    tools.append({
+                        "name": py_file.stem,
+                        "file": py_file.name,
+                        "source": source_label,
+                        "size_kb": round(st.st_size / 1024.0, 1),
+                        "mtime": st.st_mtime,
+                    })
+                except OSError:
+                    continue
+
+        return {
+            "ok": True,
+            "router": router_state,
+            "recent_events": list(reversed(events)),
+            "tools": tools,
+            "tools_count": len(tools),
+        }
+
+    @app.post("/api/voice_program/dispatch")
+    async def api_voice_program_dispatch(payload: Dict[str, Any]):
+        """Despacha una orden «programa <meta>» al enrutador FTL / motor dinámico."""
+        raw = str(payload.get("command") or payload.get("goal") or "").strip()
+        if not raw:
+            return JSONResponse(status_code=400, content={"ok": False, "error": "Falta 'command' o 'goal'"})
+        if not raw.lower().startswith("programa"):
+            raw = f"programa {raw}"
+        try:
+            from core.tardis_voice_program import get_voice_program_router
+            res = get_voice_program_router().handle(
+                raw,
+                channel=str(payload.get("channel") or "web_interface"),
+                source=str(payload.get("source") or "cockpit_arquitecto"),
+            )
+            return {"ok": bool(res), "result": res}
+        except Exception as e:
+            return JSONResponse(status_code=500, content={"ok": False, "error": str(e)})
+
+    @app.get("/api/continuity/status")
+    async def api_continuity_status():
+        """Estado de la Matriz de Continuidad Post-Reinicio y Auto-Sanación Easy Touch."""
+        cont_path = settings.base_dir / "data" / "continuity_state.json"
+        if not cont_path.exists():
+            cont_path = Path.home() / ".tardis" / "continuity_state.json"
+        vault_dir = Path(os.environ.get("LOCALAPPDATA", str(Path.home()))) / "vw-control"
+        et_path = vault_dir / "easy_touch_state.json"
+        et_agent_path = vault_dir / "easy_touch_agent_state.json"
+
+        continuity: Dict[str, Any] = {}
+        if cont_path.exists():
+            try:
+                continuity = json.loads(cont_path.read_text(encoding="utf-8"))
+            except Exception:
+                pass
+
+        easy_touch: Dict[str, Any] = {}
+        if et_path.exists():
+            try:
+                easy_touch = json.loads(et_path.read_text(encoding="utf-8"))
+            except Exception:
+                pass
+
+        easy_touch_agent: Dict[str, Any] = {}
+        if et_agent_path.exists():
+            try:
+                easy_touch_agent = json.loads(et_agent_path.read_text(encoding="utf-8"))
+            except Exception:
+                pass
+
+        return {
+            "ok": True,
+            "continuity": continuity,
+            "reboot_count": continuity.get("reboot_count", 0),
+            "progress_percent": continuity.get("progress_percent", 0),
+            "phase": continuity.get("phase", ""),
+            "status": continuity.get("status", "idle"),
+            "architect_goal": continuity.get("architect_goal", ""),
+            "easy_touch": easy_touch,
+            "easy_touch_agent": easy_touch_agent,
+        }
+
+    # --------------------------------------------------------------------------
     # RUTAS ESTÁTICAS Y CONTROL PANEL
     # --------------------------------------------------------------------------
 
@@ -1516,6 +1810,55 @@ iframe{border:none;width:100%;height:100%;}</style></head>
 iframe{border:none;width:100%;height:100%;}</style></head>
 <body><iframe src="http://127.0.0.1:8765/"></iframe></body></html>"""
         return HTMLResponse(content=html)
+
+    @app.get("/music", response_class=HTMLResponse)
+    @app.get("/music/", response_class=HTMLResponse)
+    @app.get("/tardis_music_dashboard.html", response_class=HTMLResponse)
+    async def serve_music_dashboard():
+        path = settings.base_dir / "assets" / "tardis_music_dashboard.html"
+        if path.exists():
+            return FileResponse(path, media_type="text/html")
+        return HTMLResponse("<h2>Error: No se encontró tardis_music_dashboard.html</h2>", status_code=404)
+
+    @app.get("/aegis", response_class=HTMLResponse)
+    @app.get("/aegis/", response_class=HTMLResponse)
+    @app.get("/aegis_dashboard.html", response_class=HTMLResponse)
+    @app.get("/cyber_recursive", response_class=HTMLResponse)
+    async def serve_aegis_dashboard():
+        path = settings.base_dir / "aegis_dashboard.html"
+        if path.exists():
+            return FileResponse(path, media_type="text/html")
+        rep = settings.base_dir / "reports" / "aegis" / "aegis_report.html"
+        if rep.exists():
+            return FileResponse(rep, media_type="text/html")
+        return HTMLResponse("<h2>Error: No se encontró aegis_dashboard.html</h2>", status_code=404)
+
+    @app.get("/aegis/report", response_class=HTMLResponse)
+    @app.get("/aegis_report.html", response_class=HTMLResponse)
+    async def serve_aegis_report():
+        rep = settings.base_dir / "reports" / "aegis" / "aegis_report.html"
+        if rep.exists():
+            return FileResponse(rep, media_type="text/html")
+        return HTMLResponse("<h2>Error: No se encontró reports/aegis/aegis_report.html</h2>", status_code=404)
+
+    @app.get("/dynamic_tools", response_class=HTMLResponse)
+    @app.get("/dynamic_tools/", response_class=HTMLResponse)
+    @app.get("/voice_program", response_class=HTMLResponse)
+    @app.get("/continuity", response_class=HTMLResponse)
+    @app.get("/dynamic_tools_dashboard.html", response_class=HTMLResponse)
+    async def serve_dynamic_tools_dashboard():
+        path = settings.base_dir / "dynamic_tools_dashboard.html"
+        if path.exists():
+            return FileResponse(path, media_type="text/html")
+        return HTMLResponse("<h2>Error: No se encontró dynamic_tools_dashboard.html</h2>", status_code=404)
+
+    @app.get("/cas", response_class=HTMLResponse)
+    @app.get("/cas_dashboard.html", response_class=HTMLResponse)
+    async def serve_cas_dashboard():
+        path = settings.base_dir / "assets" / "cas_dashboard.html"
+        if path.exists():
+            return FileResponse(path, media_type="text/html")
+        return HTMLResponse("<h2>Error: No se encontró cas_dashboard.html</h2>", status_code=404)
 
     @app.get("/tardis-master-hub-icon.png")
     async def serve_master_hub_icon():
@@ -5902,17 +6245,102 @@ iframe{border:none;width:100%;height:100%;}</style></head>
                 "desc": "Fusión holística de TARDIS-KAIJU, Gemini Frontier, Claude Reasoning, LPU y 8 capas de ingeniería.",
                 "route": "/api/synergy/status",
                 "is_background": True
+            },
+            {
+                "id": "music_maestro",
+                "name": "TARDIS Music Maestro (Soundtrack & YouTube Music)",
+                "icon": "🎵",
+                "category": "Audio & Soundtrack",
+                "status": "online",
+                "port": 8794,
+                "systemd_service": "tardis-music-maestro",
+                "cmd": "tardis-music",
+                "desc": "Reproductor soberano YouTube Music (yt-dlp + mpv/PipeWire), 13 escenas contextuales, autopiloto y radio.",
+                "route": "/music",
+                "is_background": True
+            },
+            {
+                "id": "visual_intelligence",
+                "name": "Inteligencia Visual VLM & Veredictos Estructurados",
+                "icon": "🧠",
+                "category": "Visión Multimodal",
+                "status": "online",
+                "cmd": "tardis visual veredicto",
+                "desc": "Inferencia multimodal real (qwen3-vl:2b-instruct) con riesgo 0-10, vigilancia periódica y veredictos.",
+                "route": "/gods_eye",
+                "is_background": True
+            },
+            {
+                "id": "aegis_shield",
+                "name": "AEGIS-Ω · Blindaje Militar de la Información",
+                "icon": "🔐",
+                "category": "Ciberdefensa Militar",
+                "status": "online",
+                "cmd": "aegis audit",
+                "desc": "Cifrado AES-256-GCM (AGS1), ledger BLAKE2b+HMAC-SHA256, clasificación C0-C4 y endurecimiento.",
+                "route": "/aegis",
+                "is_background": True
+            },
+            {
+                "id": "cyber_recursive",
+                "name": "CyberEvolve 12h · Auditoría Recursiva Autónoma",
+                "icon": "🛡️",
+                "category": "Ciberdefensa Militar",
+                "status": "online",
+                "cmd": ":cyber-evolve",
+                "desc": "Ciclo Observe → Harden → Verify → Evolve cada 12h sobre red, kernel sysctl, secretos y AST.",
+                "route": "/aegis",
+                "is_background": True
+            },
+            {
+                "id": "tapo_c310_sentinel",
+                "name": "Centinela Tapo C310 (YOLOv8s 2K + Voz Bidireccional)",
+                "icon": "📹",
+                "category": "Vigilancia Perimetral",
+                "status": "online",
+                "port": 8797,
+                "cmd": ":c310",
+                "desc": "Detección humana 2K QHD (REDACTED_IP), alerta 15s, entrevistas a visitantes y Telegram Live.",
+                "route": "/gods_eye",
+                "is_background": True
+            },
+            {
+                "id": "voice_program",
+                "name": "Voz «Programa» & Síntesis Dinámica FTL",
+                "icon": "🎙️",
+                "category": "Auto-Programación",
+                "status": "online",
+                "cmd": "programa <meta>",
+                "desc": "Enrutador multi-micrófono que sintetiza, valida e integra módulos Python autónomos con FTL.",
+                "route": "/dynamic_tools",
+                "is_background": True
+            },
+            {
+                "id": "continuity_matrix",
+                "name": "Matriz de Continuidad & Easy Touch Auto-Sanación",
+                "icon": "⏳",
+                "category": "Resiliencia Soberana",
+                "status": "online",
+                "cmd": ":continuity",
+                "desc": "Persistencia indestructible post-reinicio y auto-cicatrización preventiva 24/7.",
+                "route": "/dynamic_tools",
+                "is_background": True
             }
         ]
 
-        mod_dir = Path("/home/timemachine/modulos_ftl")
+        mod_dirs = [
+            ("dynamic_tools", settings.base_dir / "dynamic_tools"),
+            ("modulos_ftl", Path.home() / "modulos_ftl"),
+        ]
         stubs = 0
-        if mod_dir.exists():
-            # El generador dejó 5.000 copias del mismo stub ("active_wisdom") y el catálogo
-            # las publicaba como subsistemas online. Sólo se listan módulos con lógica real.
+        seen_dyn = set()
+        for src_label, mod_dir in mod_dirs:
+            if not mod_dir.exists():
+                continue
+            # El generador dejó copias del stub ("active_wisdom"). Sólo se listan módulos con lógica real.
             for py_file in sorted(mod_dir.glob("*.py")):
                 mod_name = py_file.stem
-                if mod_name.startswith("__"):
+                if mod_name.startswith("__") or mod_name in seen_dyn:
                     continue
                 try:
                     if '"status": "active_wisdom"' in py_file.read_text(encoding="utf-8", errors="ignore"):
@@ -5920,6 +6348,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
                         continue
                 except OSError:
                     continue
+                seen_dyn.add(mod_name)
                 base_funcs.append({
                     "id": f"dyn_{mod_name}",
                     "name": f"Módulo Dinámico: {mod_name}",
@@ -5927,8 +6356,8 @@ iframe{border:none;width:100%;height:100%;}</style></head>
                     "category": "Módulo Autoprogramado",
                     "status": "online",
                     "cmd": f":run-tool {mod_name}",
-                    "desc": f"Módulo autogenerado y compilado dinámicamente en modulos_ftl/{py_file.name}.",
-                    "route": "/adaptation_sys",
+                    "desc": f"Módulo autogenerado y compilado dinámicamente en {src_label}/{py_file.name}.",
+                    "route": "/dynamic_tools",
                     "is_background": True
                 })
 

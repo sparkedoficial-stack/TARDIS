@@ -703,20 +703,20 @@
 
         <div class="header-telemetry">
             <div class="tele-chip highlight">
-                <span>RAM:</span>
-                <b>32 GB (28 GB mlock)</b>
+                <span>CPU / RAM:</span>
+                <b id="val-cpu-ram">16 Hilos · 32 GB</b>
+            </div>
+            <div class="tele-chip active-green">
+                <span>AEGIS-Ω:</span>
+                <b id="val-aegis-hdr">-- / 100</b>
             </div>
             <div class="tele-chip">
-                <span>Contexto:</span>
-                <b style="color:var(--primary)">32,768 (32K)</b>
+                <span>CyberEvolve:</span>
+                <b id="val-cyber-hdr" style="color:var(--primary)">GEN --</b>
             </div>
             <div class="tele-chip">
-                <span>CPU:</span>
-                <b>16 Hilos</b>
-            </div>
-            <div class="tele-chip">
-                <span>GPU:</span>
-                <b>RTX 3050 4GB</b>
+                <span>Continuidad:</span>
+                <b id="val-reboots-hdr" style="color:var(--accent-gold)">-- reinicios</b>
             </div>
             <div class="tele-chip active-green" id="tele-presence">
                 <span>Presencia:</span>
@@ -817,10 +817,31 @@
                     </div>
                     <span class="subsystem-badge" style="color:var(--primary); border-color:var(--border-glass);">Overlay</span>
                 </button>
+                <button class="subsystem-item" onclick="selectSubsystem('music_maestro', '/music', '🎵 TARDIS Music Maestro · Soundtrack & YouTube Music')">
+                    <div class="item-icon-text">
+                        <span class="item-icon">🎵</span>
+                        <span>Music Maestro (Soundtrack)</span>
+                    </div>
+                    <span class="subsystem-badge" style="color:var(--accent-gold); border-color:rgba(245,158,11,0.4);">:8794</span>
+                </button>
+                <button class="subsystem-item" onclick="selectSubsystem('voice_program', '/dynamic_tools', '🎙️ Voz «Programa», Herramientas Dinámicas & Continuidad')">
+                    <div class="item-icon-text">
+                        <span class="item-icon">🎙️</span>
+                        <span>Voz «Programa» & Tools</span>
+                    </div>
+                    <span class="subsystem-badge" style="color:var(--accent-purple); border-color:rgba(168,85,247,0.4);">FTL Synth</span>
+                </button>
             </div>
 
             <div class="nav-section-title">Sensores & Ciberdefensa</div>
             <div class="subsystem-list">
+                <button class="subsystem-item" onclick="selectSubsystem('aegis_shield', '/aegis', '🔐 AEGIS-Ω Blindaje Militar & CyberEvolve 12h')">
+                    <div class="item-icon-text">
+                        <span class="item-icon">🔐</span>
+                        <span>AEGIS-Ω & CyberEvolve 12h</span>
+                    </div>
+                    <span class="subsystem-badge" style="color:var(--accent-green); border-color:rgba(16,185,129,0.45);">AES-256</span>
+                </button>
                 <button class="subsystem-item" onclick="selectSubsystem('sensors', '/sensors', '📡 Fusión Sensorial & Radar RF')">
                     <div class="item-icon-text">
                         <span class="item-icon">📡</span>
@@ -943,13 +964,6 @@
                         <span>Monitor AirPlay</span>
                     </div>
                     <span class="subsystem-badge">:36121</span>
-                </button>
-                <button class="subsystem-item" onclick="selectSubsystem('vw_vault', '/vw_vault', '🚗 Telemetría Vehicular & Bóveda')">
-                    <div class="item-icon-text">
-                        <span class="item-icon">🚗</span>
-                        <span>Bóveda Vehicular VW</span>
-                    </div>
-                    <span class="subsystem-badge">OBD/Vault</span>
                 </button>
                 <button class="subsystem-item" onclick="selectSubsystem('idle_daemon', '/idle_daemon', '⚙️ Demonio Evolución Pasiva')">
                     <div class="item-icon-text">
@@ -1977,6 +1991,154 @@
                     </div>
                 </div>
 
+                <!-- 27. TARDIS Music Maestro -->
+                <div class="matrix-card" style="border-color:rgba(245,158,11,0.45);">
+                    <div class="card-top">
+                        <div class="card-label">
+                            <div class="card-label-icon" style="color:var(--accent-gold); background:rgba(245,158,11,0.16);">🎵</div>
+                            <div class="card-title">
+                                <h3>TARDIS Music Maestro</h3>
+                                <span>/music · :8794 · YouTube Music</span>
+                            </div>
+                        </div>
+                        <div class="status-dot" style="background:var(--accent-gold);"></div>
+                    </div>
+                    <div class="card-body-metrics">
+                        <div class="metric-cell">
+                            <span class="metric-label">Reproducción</span>
+                            <span class="metric-value" id="card-music-state">En espera</span>
+                        </div>
+                        <div class="metric-cell">
+                            <span class="metric-label">Escena Activa</span>
+                            <span class="metric-value" id="card-music-scene">13 Escenas</span>
+                        </div>
+                        <div class="metric-cell">
+                            <span class="metric-label">Autopilot</span>
+                            <span class="metric-value" id="card-music-auto">Contextual</span>
+                        </div>
+                        <div class="metric-cell">
+                            <span class="metric-label">Cola / Vol</span>
+                            <span class="metric-value" id="card-music-vol">--</span>
+                        </div>
+                    </div>
+                    <p class="card-desc">Director musical soberano sobre Innertube WEB_REMIX + yt-dlp + mpv/PipeWire con 13 soundtracks contextuales, ducking y radio infinita.</p>
+                    <div class="card-actions">
+                        <button class="btn-launch" onclick="embedSubsystem('/music', 'TARDIS Music Maestro')">Abrir Reproductor</button>
+                        <button class="btn-external" onclick="window.open('/music', '_blank')">↗</button>
+                    </div>
+                </div>
+
+                <!-- 28. AEGIS-Ω & CyberEvolve 12h -->
+                <div class="matrix-card" style="border-color:rgba(16,185,129,0.5);">
+                    <div class="card-top">
+                        <div class="card-label">
+                            <div class="card-label-icon" style="color:var(--accent-green); background:rgba(16,185,129,0.16);">🔐</div>
+                            <div class="card-title">
+                                <h3>AEGIS-Ω & CyberEvolve 12h</h3>
+                                <span>/aegis · Blindaje Militar</span>
+                            </div>
+                        </div>
+                        <div class="status-dot" style="background:var(--accent-green);"></div>
+                    </div>
+                    <div class="card-body-metrics">
+                        <div class="metric-cell">
+                            <span class="metric-label">Postura AEGIS</span>
+                            <span class="metric-value" id="card-aegis-score" style="color:var(--accent-green);">-- / 100</span>
+                        </div>
+                        <div class="metric-cell">
+                            <span class="metric-label">CyberEvolve</span>
+                            <span class="metric-value" id="card-cyber-score" style="color:var(--primary);">-- / 100</span>
+                        </div>
+                        <div class="metric-cell">
+                            <span class="metric-label">Generación</span>
+                            <span class="metric-value" id="card-cyber-gen">GEN --</span>
+                        </div>
+                        <div class="metric-cell">
+                            <span class="metric-label">Remediaciones</span>
+                            <span class="metric-value" id="card-cyber-rem">--</span>
+                        </div>
+                    </div>
+                    <p class="card-desc">Cifrado AES-256-GCM (AGS1), ledger BLAKE2b+HMAC-SHA256, clasificación C0–C4 y auditoría recursiva autónoma de vulnerabilidades cada 12h.</p>
+                    <div class="card-actions">
+                        <button class="btn-launch" onclick="embedSubsystem('/aegis', 'AEGIS-Ω & CyberEvolve 12h')">Abrir Consola AEGIS</button>
+                        <button class="btn-external" onclick="window.open('/aegis', '_blank')">↗</button>
+                    </div>
+                </div>
+
+                <!-- 29. Inteligencia Visual VLM & Tapo C310 -->
+                <div class="matrix-card" style="border-color:rgba(0,212,200,0.45);">
+                    <div class="card-top">
+                        <div class="card-label">
+                            <div class="card-label-icon" style="color:var(--primary); background:rgba(0,212,200,0.16);">🧠</div>
+                            <div class="card-title">
+                                <h3>Visión VLM & Tapo C310</h3>
+                                <span>/gods_eye · Qwen3-VL + YOLOv8s</span>
+                            </div>
+                        </div>
+                        <div class="status-dot" style="background:var(--primary);"></div>
+                    </div>
+                    <div class="card-body-metrics">
+                        <div class="metric-cell">
+                            <span class="metric-label">Canal C310</span>
+                            <span class="metric-value" id="card-c310-stream">Verificando</span>
+                        </div>
+                        <div class="metric-cell">
+                            <span class="metric-label">Riesgo VLM</span>
+                            <span class="metric-value" id="card-vlm-risk">-- / 10</span>
+                        </div>
+                        <div class="metric-cell">
+                            <span class="metric-label">Entrevistas</span>
+                            <span class="metric-value" id="card-c310-int">0</span>
+                        </div>
+                        <div class="metric-cell">
+                            <span class="metric-label">Detecciones</span>
+                            <span class="metric-value" id="card-c310-det">0</span>
+                        </div>
+                    </div>
+                    <p class="card-desc">Veredictos visuales multimodales con Qwen3-VL (riesgo 0–10) fusionados con el centinela humano 2K Tapo C310 (REDACTED_IP) y voz bidireccional.</p>
+                    <div class="card-actions">
+                        <button class="btn-launch" onclick="embedSubsystem('/gods_eye', 'Visión VLM & Tapo C310')">Abrir Vigilancia</button>
+                        <button class="btn-external" onclick="window.open('/gods_eye', '_blank')">↗</button>
+                    </div>
+                </div>
+
+                <!-- 30. Voz «Programa», Herramientas Dinámicas & Continuidad -->
+                <div class="matrix-card" style="border-color:rgba(168,85,247,0.5);">
+                    <div class="card-top">
+                        <div class="card-label">
+                            <div class="card-label-icon" style="color:var(--accent-purple); background:rgba(168,85,247,0.16);">🎙️</div>
+                            <div class="card-title">
+                                <h3>Voz «Programa» & Continuidad</h3>
+                                <span>/dynamic_tools · FTL + Easy Touch</span>
+                            </div>
+                        </div>
+                        <div class="status-dot" style="background:var(--accent-purple);"></div>
+                    </div>
+                    <div class="card-body-metrics">
+                        <div class="metric-cell">
+                            <span class="metric-label">Módulos Reales</span>
+                            <span class="metric-value" id="card-vprog-tools">--</span>
+                        </div>
+                        <div class="metric-cell">
+                            <span class="metric-label">Reinicios Sobrev.</span>
+                            <span class="metric-value" id="card-cont-reboots">--</span>
+                        </div>
+                        <div class="metric-cell">
+                            <span class="metric-label">Easy Touch</span>
+                            <span class="metric-value" id="card-et-rate" style="color:var(--accent-green);">--%</span>
+                        </div>
+                        <div class="metric-cell">
+                            <span class="metric-label">Progreso Sesión</span>
+                            <span class="metric-value" id="card-cont-pct">--%</span>
+                        </div>
+                    </div>
+                    <p class="card-desc">Síntesis autónoma de funciones Python por voz multi-micrófono («programa ...») con FTL, continuidad indestructible y auto-sanación 24/7.</p>
+                    <div class="card-actions">
+                        <button class="btn-launch" onclick="embedSubsystem('/dynamic_tools', 'Voz Programa & Continuidad')">Abrir Consola FTL</button>
+                        <button class="btn-external" onclick="window.open('/dynamic_tools', '_blank')">↗</button>
+                    </div>
+                </div>
+
                 <!-- CATÁLOGO DINÁMICO DE TODAS LAS FUNCIONES Y SUBSISTEMAS EN SEGUNDO PLANO -->
                 <div class="catalog-container" id="functions-catalog-section">
                     <div class="catalog-header">
@@ -2141,13 +2303,119 @@
                 const gRes = await fetch('/api/gods_eye/status');
                 if (gRes.ok) {
                     const gData = await gRes.json();
-                    if (gData.orbital_satellites_linked) {
+                    if (gData.cameras_online !== undefined) {
                         const satEl = document.getElementById('card-godseye-sats');
-                        if (satEl) satEl.textContent = Number(gData.orbital_satellites_linked).toLocaleString() + " LEO";
+                        if (satEl) satEl.textContent = `${gData.cameras_online} Online`;
                     }
-                    if (gData.hijacked_cameras_online) {
+                    if (gData.cameras_total !== undefined) {
                         const camEl = document.getElementById('card-godseye-cams');
-                        if (camEl) camEl.textContent = (gData.hijacked_cameras_online / 1000000).toFixed(2) + "M Tapped";
+                        if (camEl) camEl.textContent = `${gData.cameras_total} Reg.`;
+                    }
+                }
+            } catch (e) {}
+
+            try {
+                const oRes = await fetch('/api/os/status');
+                if (oRes.ok) {
+                    const o = await oRes.json();
+                    const el = document.getElementById('val-cpu-ram');
+                    if (el && o.cpu_percent !== undefined && o.ram_percent !== undefined) {
+                        el.textContent = `CPU ${Math.round(o.cpu_percent)}% · RAM ${Math.round(o.ram_percent)}%`;
+                    }
+                }
+            } catch (e) {}
+
+            try {
+                const aRes = await fetch('/api/aegis/status');
+                if (aRes.ok) {
+                    const a = await aRes.json();
+                    const sc = `${a.score ?? '--'} / 100`;
+                    const hEl = document.getElementById('val-aegis-hdr');
+                    if (hEl) hEl.textContent = sc;
+                    const cEl = document.getElementById('card-aegis-score');
+                    if (cEl) cEl.textContent = sc;
+                }
+            } catch (e) {}
+
+            try {
+                const cRes = await fetch('/api/cyber_recursive/status?limit=3');
+                if (cRes.ok) {
+                    const c = await cRes.json();
+                    const hEl = document.getElementById('val-cyber-hdr');
+                    if (hEl) hEl.textContent = `GEN ${c.generation ?? 0} (${c.security_score ?? '--'})`;
+                    const sEl = document.getElementById('card-cyber-score');
+                    if (sEl) sEl.textContent = `${c.security_score ?? '--'} / 100`;
+                    const gEl = document.getElementById('card-cyber-gen');
+                    if (gEl) gEl.textContent = `GEN #${c.generation ?? 0}`;
+                    const rEl = document.getElementById('card-cyber-rem');
+                    if (rEl) rEl.textContent = `${c.total_remediations ?? 0} Fixes`;
+                }
+            } catch (e) {}
+
+            try {
+                const mRes = await fetch('/api/music/status');
+                if (mRes.ok) {
+                    const m = await mRes.json();
+                    const pb = m.playback || {};
+                    const q = m.queue || {};
+                    const stEl = document.getElementById('card-music-state');
+                    if (stEl) stEl.textContent = pb.playing ? (m.current?.title || 'Reproduciendo').slice(0, 20) : (pb.mpv_alive ? 'En espera' : 'Detenido');
+                    const scEl = document.getElementById('card-music-scene');
+                    if (scEl) scEl.textContent = m.scene_name || m.scene || '13 Escenas';
+                    const auEl = document.getElementById('card-music-auto');
+                    if (auEl) auEl.textContent = q.autopilot ? 'ACTIVO' : 'Manual';
+                    const vEl = document.getElementById('card-music-vol');
+                    if (vEl) vEl.textContent = `${q.length || 0}p · ${pb.volume ?? 45}%`;
+                }
+            } catch (e) {}
+
+            try {
+                const tRes = await fetch('/api/tapo/status');
+                if (tRes.ok) {
+                    const t = await tRes.json();
+                    const sEl = document.getElementById('card-c310-stream');
+                    if (sEl) sEl.textContent = t.stream_connected ? 'ONLINE 2K' : 'Standby';
+                    const iEl = document.getElementById('card-c310-int');
+                    if (iEl) iEl.textContent = `${t.voice_channel?.metrics?.total_visitor_interviews ?? 0}`;
+                    const dEl = document.getElementById('card-c310-det');
+                    if (dEl) dEl.textContent = `${t.detections_count ?? 0}`;
+                }
+            } catch (e) {}
+
+            try {
+                const vRes = await fetch('/api/visual_intelligence/verdict/last');
+                if (vRes.ok) {
+                    const v = await vRes.json();
+                    const rec = v.verdict || v.record || v;
+                    const risk = rec.risk_score ?? rec.riesgo ?? rec.risk;
+                    const rEl = document.getElementById('card-vlm-risk');
+                    if (rEl && risk !== undefined) rEl.textContent = `${risk} / 10`;
+                }
+            } catch (e) {}
+
+            try {
+                const vpRes = await fetch('/api/voice_program/status?limit=3');
+                if (vpRes.ok) {
+                    const vp = await vpRes.json();
+                    const tEl = document.getElementById('card-vprog-tools');
+                    if (tEl) tEl.textContent = `${vp.tools_count ?? 0} Módulos`;
+                }
+            } catch (e) {}
+
+            try {
+                const ctRes = await fetch('/api/continuity/status');
+                if (ctRes.ok) {
+                    const ct = await ctRes.json();
+                    const rb = ct.reboot_count ?? 0;
+                    const hEl = document.getElementById('val-reboots-hdr');
+                    if (hEl) hEl.textContent = `${rb} reinicios`;
+                    const cEl = document.getElementById('card-cont-reboots');
+                    if (cEl) cEl.textContent = `${rb}`;
+                    const pEl = document.getElementById('card-cont-pct');
+                    if (pEl) pEl.textContent = `${ct.progress_percent ?? 0}%`;
+                    const etEl = document.getElementById('card-et-rate');
+                    if (etEl && ct.easy_touch?.success_rate !== undefined) {
+                        etEl.textContent = `${Number(ct.easy_touch.success_rate).toFixed(1)}%`;
                     }
                 }
             } catch (e) {}
@@ -2282,7 +2550,14 @@
                 {id: "background_subsystem", name: "Subsistema Adaptativo en Segundo Plano", icon: "🔄", status: "online", systemd_service: "TARDIS Async Core", cmd: ":subsystem", desc: "Orquestador de hilos persistentes, telemetría adaptativa y daemons desacoplados.", route: "/subsystem", is_background: true},
                 {id: "quantum_bridge", name: "GIA · Puente Cuántico & Clientes Remotos", icon: "🌐", status: "online", systemd_service: "Cloudflare WAN Bridge", cmd: ":bridge", desc: "Gestión de túneles Cloudflare, endpoints WAN y sincronización remota de clientes.", route: "/bridge", is_background: true},
                 {id: "companion_overlay", name: "Asistente Flotante Soberano (Companion)", icon: "🛸", status: "online", systemd_service: "Desktop Overlay", cmd: ":companion", desc: "Overlay translúcido flotante para control ágil sobre el escritorio Linux.", route: "/companion", is_background: false},
-                {id: "hybrid_synergy", name: "Matriz de Sinergia Híbrida de Modelos e Ingenierías", icon: "🧬", status: "online", systemd_service: "TARDIS Córtex", cmd: ":synergy", desc: "Fusión holística de TARDIS-KAIJU, Gemini Frontier, Claude Reasoning, LPU y 8 capas de ingeniería.", route: "/api/synergy/status", is_background: true}
+                {id: "hybrid_synergy", name: "Matriz de Sinergia Híbrida de Modelos e Ingenierías", icon: "🧬", status: "online", systemd_service: "TARDIS Córtex", cmd: ":synergy", desc: "Fusión holística de TARDIS-KAIJU, Gemini Frontier, Claude Reasoning, LPU y 8 capas de ingeniería.", route: "/api/synergy/status", is_background: true},
+                {id: "music_maestro", name: "TARDIS Music Maestro (YouTube Music)", icon: "🎵", status: "online", port: 8794, systemd_service: "tardis-music-maestro", cmd: "tardis-music", desc: "Reproductor soberano yt-dlp + mpv/PipeWire con 13 escenas y autopiloto.", route: "/music", is_background: true},
+                {id: "visual_intelligence", name: "Inteligencia Visual VLM & Veredictos", icon: "🧠", status: "online", systemd_service: "Qwen3-VL", cmd: "tardis visual veredicto", desc: "Veredictos multimodales estructurados con riesgo 0-10 sobre cámaras reales.", route: "/gods_eye", is_background: true},
+                {id: "aegis_shield", name: "AEGIS-Ω · Blindaje Militar", icon: "🔐", status: "online", systemd_service: "AEGIS-Ω", cmd: "aegis audit", desc: "Cifrado AES-256-GCM, ledger BLAKE2b+HMAC-SHA256 y clasificación C0-C4.", route: "/aegis", is_background: true},
+                {id: "cyber_recursive", name: "CyberEvolve 12h · Auditoría Recursiva", icon: "🛡️", status: "online", systemd_service: "CyberEvolve", cmd: ":cyber-evolve", desc: "Bucle Observe → Harden → Verify → Evolve cada 12 horas.", route: "/aegis", is_background: true},
+                {id: "tapo_c310_sentinel", name: "Centinela Tapo C310 (YOLOv8s 2K)", icon: "📹", status: "online", port: 8797, systemd_service: "Tapo C310", cmd: ":c310", desc: "Detección humana 2K (REDACTED_IP), alerta 15s y voz bidireccional.", route: "/gods_eye", is_background: true},
+                {id: "voice_program", name: "Voz «Programa» & Síntesis Dinámica FTL", icon: "🎙️", status: "online", systemd_service: "FTL Synth", cmd: "programa <meta>", desc: "Creación autónoma de funciones Python desde cualquier micrófono.", route: "/dynamic_tools", is_background: true},
+                {id: "continuity_matrix", name: "Matriz de Continuidad & Easy Touch", icon: "⏳", status: "online", systemd_service: "Continuity", cmd: ":continuity", desc: "Persistencia post-reinicio y auto-sanación preventiva 24/7.", route: "/dynamic_tools", is_background: true}
             ];
             renderCatalog(allCatalogFunctions);
         }
