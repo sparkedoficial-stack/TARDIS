@@ -1,34 +1,6 @@
 [
   {
     "target_file": "/home/m11/Escritorio/GODWORKS SYSTEM/core/deep_memory_vault.py",
-    "goal": "Implementar una capa de índice causal (DAG) que registre relaciones de dependencia entre memorias y resultados de búsquedas, y exponer una API get_causal_context(query) que el motor de investigación web pueda usar para filtrar y ordenar resultados según su impacto causal en el estado actual del sistema.",
-    "status": "REJECTED",
-    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
-    "elapsed_seconds": 3362.36,
-    "backup_path": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/deep_memory_vault.py.20261113_094108.bak",
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Respuesta generada demasiado corta (2528 vs 34371 bytes)",
-    "timestamp": "2026-11-13T10:37:10.876549"
-  },
-  {
-    "target_file": "/home/m11/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
-    "goal": "Add a new class `ContextualReRanker` that consumes the current memory context from deep_memory_vault and applies a causal attention score to each retrieved snippet before returning results, with unit tests and minimal performance impact.",
-    "status": "REJECTED",
-    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
-    "elapsed_seconds": 2625.61,
-    "backup_path": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/web_research_engine.py.20261113_110720.bak",
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Respuesta generada demasiado corta (2641 vs 35266 bytes)",
-    "timestamp": "2026-11-13T11:51:05.740674"
-  },
-  {
-    "target_file": "/home/m11/Escritorio/GODWORKS SYSTEM/core/deep_memory_vault.py",
     "goal": "Implement a time‑decay factor in the vector similarity scoring function and add an async background job that re‑indexes embeddings nightly, allowing the vault to automatically demote stale entries without manual pruning.",
     "status": "REJECTED",
     "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
@@ -1398,5 +1370,33 @@
     "efficiency_improvement": null,
     "error": "Respuesta generada demasiado corta (2777 vs 35266 bytes)",
     "timestamp": "2026-11-18T15:11:59.519559"
+  },
+  {
+    "target_file": "/home/m11/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
+    "goal": "Implement a sharding layer that splits incoming queries, dispatches them to async worker functions (fetch, summarize, verify), and recombines results with provenance metadata for the deep_memory_vault.",
+    "status": "REJECTED",
+    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
+    "elapsed_seconds": 1657.73,
+    "backup_path": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/web_research_engine.py.20261118_164157.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "Respuesta generada demasiado corta (2810 vs 35266 bytes)",
+    "timestamp": "2026-11-18T17:09:34.792817"
+  },
+  {
+    "target_file": "/home/m11/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
+    "goal": "Add a dependency‑tracking module that records, for each cached result, the IDs and timestamps of Deep Memory Vault entries used during its generation, and implement a routine that scans for vault updates and selectively evicts only the affected cache entries.",
+    "status": "REJECTED",
+    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
+    "elapsed_seconds": 2846.58,
+    "backup_path": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/web_research_engine.py.20261118_173941.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "Respuesta generada demasiado corta (2611 vs 35266 bytes)",
+    "timestamp": "2026-11-18T18:27:07.824405"
   }
 ]

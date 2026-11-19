@@ -19,8 +19,9 @@ ARQUITECTURA:
      FTL (~/.ftl/ftl_cli.py), que crea, valida e integra la función Python.
   4. RESILIENCIA: si FTL está ocupado o no disponible, el motor de funciones
      dinámicas de TARDIS sintetiza la función como respaldo, sin perder la orden.
-  5. COLA ÚNICA: todos los micrófonos comparten una cola serial para que FTL nunca
-     reciba dos trabajos simultáneos desde el subsistema de voz.
+  5. COLA ÚNICA: todos los micrófonos comparten una cola serial y un candado
+     `flock` entre procesos (C310, API, Telegram) para que FTL nunca reciba dos
+     trabajos simultáneos desde el subsistema de voz.
   6. TRAZABILIDAD: cada orden y su resultado se registran en
      `data/voice_program_commands.jsonl`, en la Bóveda de Memoria y en SYNC_HUB.
 
@@ -50,15 +51,15 @@ import sys
 import threading
 import time
 import unicodedata
+from dataclasses import dataclass, field
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, Optional
 
 try:  # Serialización global entre procesos (Linux)
     import fcntl
 except Exception:  # noqa: BLE001
     fcntl = None  # type: ignore[assignment]
-from dataclasses import dataclass, field
-from datetime import datetime
-from pathlib import Path
-from typing import Any, Dict, Optional
 
 logger = logging.getLogger("TARDIS.VoiceProgram")
 
@@ -90,7 +91,12 @@ def ftl_serialization_lock(wait_sec: float = FTL_LOCK_WAIT_SEC, on_wait=None):
     handle = None
     acquired = False
     try:
-        handle = FTL_LOCK_PATH.open("a+", encoding="utf-8")
+        try:
+            handle = FTL_LOCK_PATH.open("a+", encoding="utf-8")
+        except OSError as exc:
+            logger.debug("Candado FTL no disponible (%s); se continúa sin él.", exc)
+            yield True
+            return
         deadline = time.time() + max(0.0, wait_sec)
         notified = False
         while True:
@@ -116,6 +122,7 @@ def ftl_serialization_lock(wait_sec: float = FTL_LOCK_WAIT_SEC, on_wait=None):
                     fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
             finally:
                 handle.close()
+
 
 # Palabras que pueden preceder al comando sin romper la detección.
 # Incluye vocativos, restos habituales de la wake word y muletillas de habla.

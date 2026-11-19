@@ -64,6 +64,13 @@ PROBES: Dict[str, Dict[str, Optional[str]]] = {
     "quantum_bridge": {"http": "/api/bridge/status", "unit": "tardis-ipad-bridge"},
     "companion_overlay": {"http": "/companion", "unit": None},
     "hybrid_synergy": {"http": "/api/synergy/status", "unit": None},
+    "music_maestro": {"http": "/api/music/status", "unit": "tardis-music-maestro"},
+    "visual_intelligence": {"http": "/api/visual_intelligence/status", "unit": None},
+    "aegis_shield": {"http": "/api/aegis/status", "unit": None},
+    "cyber_recursive": {"http": "/api/cyber_recursive/status", "unit": None},
+    "tapo_c310_sentinel": {"http": "/api/tapo/status", "unit": None},
+    "voice_program": {"http": "/api/voice_program/status", "unit": None},
+    "continuity_matrix": {"http": "/api/continuity/status", "unit": None},
 }
 
 _cache: Dict[str, Any] = {"ts": 0.0, "data": None}

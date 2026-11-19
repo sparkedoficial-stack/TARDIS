@@ -3,39 +3,17 @@
   "interval_seconds": 5400.0,
   "target_chat_id": -REDACTED_PHONE,
   "target_thread_id": 453,
-  "last_run_timestamp": REDACTED_PHONE.6100323,
-  "last_run_iso": "2026-11-18T15:21:38.610043",
-  "total_dispatches": 674,
-  "curator_index": 3,
+  "last_run_timestamp": REDACTED_PHONE.7846181,
+  "last_run_iso": "2026-11-18T18:22:01.784626",
+  "total_dispatches": 676,
+  "curator_index": 5,
   "dispatched_topic_ids": [
     "holographic_brain_neurophysics",
-    "fermi_paradox_great_filter"
+    "fermi_paradox_great_filter",
+    "godel_incompleteness_ai_limits",
+    "neural_decoding_mind_reading_bci"
   ],
   "history": [
-    {
-      "dispatch_id": 575,
-      "timestamp": REDACTED_PHONE.4536455,
-      "iso": "2026-11-10T16:53:10.453665",
-      "topic_id": "ssm_mamba_vs_transformer",
-      "topic_title": "State Space Models (Mamba) vs Transformers: El Límite de la Complejidad Cuadrática O(N²)",
-      "pdf_path": "/home/m11/Escritorio/GODWORKS SYSTEM/reports/polimatas_debates/Dossier_Debate_20261110_165308_ssm_mamba_vs_transformer.pdf",
-      "chat_id": -REDACTED_PHONE,
-      "thread_id": 453,
-      "text_sent": true,
-      "doc_sent": true
-    },
-    {
-      "dispatch_id": 576,
-      "timestamp": REDACTED_PHONE.686233,
-      "iso": "2026-11-10T18:23:53.686238",
-      "topic_id": "quantum_spacetime_er_epr",
-      "topic_title": "Entrelazamiento Cuántico, No-Localidad y Espacio-Tiempo Emergente (ER=EPR)",
-      "pdf_path": "/home/m11/Escritorio/GODWORKS SYSTEM/reports/polimatas_debates/Dossier_Debate_20261110_182351_quantum_spacetime_er_epr.pdf",
-      "chat_id": -REDACTED_PHONE,
-      "thread_id": 453,
-      "text_sent": true,
-      "doc_sent": true
-    },
     {
       "dispatch_id": 577,
       "timestamp": REDACTED_PHONE.5859177,
@@ -1207,6 +1185,30 @@
       "topic_id": "fermi_paradox_great_filter",
       "topic_title": "La Paradoja de Fermi y el Gran Filtro: ¿Estamos Solos, Fuimos Primeros o Estamos Aislados?",
       "pdf_path": "/home/m11/Escritorio/GODWORKS SYSTEM/reports/polimatas_debates/Dossier_Debate_20261118_152136_fermi_paradox_great_filter.pdf",
+      "chat_id": -REDACTED_PHONE,
+      "thread_id": 453,
+      "text_sent": true,
+      "doc_sent": true
+    },
+    {
+      "dispatch_id": 675,
+      "timestamp": REDACTED_PHONE.430234,
+      "iso": "2026-11-18T16:51:47.430239",
+      "topic_id": "godel_incompleteness_ai_limits",
+      "topic_title": "Los Teoremas de Incompletitud de Gödel y los Límites Epistemológicos de la Computación",
+      "pdf_path": "/home/m11/Escritorio/GODWORKS SYSTEM/reports/polimatas_debates/Dossier_Debate_20261118_165140_godel_incompleteness_ai_limits.pdf",
+      "chat_id": -REDACTED_PHONE,
+      "thread_id": 453,
+      "text_sent": true,
+      "doc_sent": true
+    },
+    {
+      "dispatch_id": 676,
+      "timestamp": REDACTED_PHONE.7846181,
+      "iso": "2026-11-18T18:22:01.784626",
+      "topic_id": "neural_decoding_mind_reading_bci",
+      "topic_title": "Decodificación Neural Directa y Reconstrucción Semántica: ¿El Fin de la Privacidad Mental?",
+      "pdf_path": "/home/m11/Escritorio/GODWORKS SYSTEM/reports/polimatas_debates/Dossier_Debate_20261118_182149_neural_decoding_mind_reading_b.pdf",
       "chat_id": -REDACTED_PHONE,
       "thread_id": 453,
       "text_sent": true,

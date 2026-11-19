@@ -1,41 +1,5 @@
 [
   {
-    "id": "conj_1794584230",
-    "timestamp": "2026-11-13T10:37:10.896676",
-    "idle_duration_minutes": 86.7,
-    "title": "Causal Memory Indexing for Real‑Time Web Research",
-    "hypothesis": "Integrar un índice causal basado en grafos temporales dentro de deep_memory_vault.py permitirá que el motor de búsqueda web (web_research_engine.py) priorice fuentes que influyan directamente en la cadena de decisiones del sistema, reduciendo la latencia de recuperación de información relevante en un 30% y mejorando la coherencia de respuestas en contextos de razonamiento multi‑paso.",
-    "research_query": "graph causal memory indexing for real-time web retrieval systems performance improvement",
-    "research_findings": "# Informe de Investigación: graph causal memory indexing for real-time web retrieval systems performance improvement\n\n## Fuentes Consultadas y Respaldo Web\n- **[From Data to Decisions: How Knowledge Graphs Are Becoming the Brain of the Modern Enterprise - Medium](https://news.google.com/rss/articles/CBMi0gFBVV95cUxPVjh5NnNZNnFfZ3UzMEx3U0pqajNDQ19TV0JjRGN5WGhleWxVLW5WMkptR2J6VHpldllqekM2bzJSUFBYWHlwSW1ySUZoZG9fOFZRVGY4NEt6ZVE5YkQ4b0VlRWl1T0Jtd1hlSzNrOGRuTzY1ajU4b1lUY3hVMDBpWUxiZWo5X1VBNDMyQjFMVlFPMU14bm9kUlZCMWVLMTBTRUI0ZTBQRDdpVmJxVlRuZFQwYzNPNGpReVdEMUg3dHVhNWhvQUd6LTdvMWMtZHBSQXc?oc=5)**: From Data to Decisions: How Knowledge Graphs Are Becoming the Brain of the Modern Enterprise  Medium\n- **[Artificial intelligence (Wikipedia)](https://en.wikipedia.org/wiki/Artificial_intelligence)**: (1998). Formal knowledge representations are used in content-based indexing and retrieval, scene interpretation, clinical decision support, knowledge discovery\n\n## Contenido y Hallazgos Extraídos\n### D",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMi0gFBVV95cUxPVjh5NnNZNnFfZ3UzMEx3U0pqajNDQ19TV0JjRGN5WGhleWxVLW5WMkptR2J6VHpldllqekM2bzJSUFBYWHlwSW1ySUZoZG9fOFZRVGY4NEt6ZVE5YkQ4b0VlRWl1T0Jtd1hlSzNrOGRuTzY1ajU4b1lUY3hVMDBpWUxiZWo5X1VBNDMyQjFMVlFPMU14bm9kUlZCMWVLMTBTRUI0ZTBQRDdpVmJxVlRuZFQwYzNPNGpReVdEMUg3dHVhNWhvQUd6LTdvMWMtZHBSQXc?oc=5",
-      "https://en.wikipedia.org/wiki/Artificial_intelligence"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Implementar una capa de índice causal (DAG) que registre relaciones de dependencia entre memorias y resultados de búsquedas, y exponer una API get_causal_context(query) que el motor de investigación web pueda usar para filtrar y ordenar resultados según su impacto causal en el estado actual del sistema.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 3369.7
-  },
-  {
-    "id": "conj_1794588665",
-    "timestamp": "2026-11-13T11:51:05.797174",
-    "idle_duration_minutes": 73.9,
-    "title": "Dynamic Contextual Weighting for Web Research Retrieval",
-    "hypothesis": "Integrating a causal attention mechanism that dynamically re‑weights retrieved web snippets based on their temporal relevance and semantic distance to the active Akashic vault context will improve the precision of the WebResearchEngine by at least 15% on benchmark query sets. The hypothesis posits that the current static ranking ignores the evolving internal state of deep_memory_vault, and that a lightweight, on‑the‑fly weighting layer can bridge this gap without significant latency overhead.",
-    "research_query": "dynamic contextual weighting web search engine causal attention temporal relevance research paper",
-    "research_findings": "# Informe de Investigación: dynamic contextual weighting web search engine causal attention temporal relevance research paper\n\n## Fuentes Consultadas y Respaldo Web\n- **[A Case-Driven Multi-Agent Framework for E-Commerce Search Relevance (arXiv)](http://arxiv.org/abs/2605.05991v1)**: Relevance is a foundation of user experience in e-commerce search. We view relevance optimization as a closed-loop ecosystem involving multiple human roles: users who provide feedback, product managers who define standards, annotators who label data, algorithm engineers who optimize models, and evaluators who assess performance. Because improving r\n- **[The Retrieval Effectiveness of Web Search Engines: Considering Results Descriptions (arXiv)](http://arxiv.org/abs/1511.05800v1)**: Purpose: To compare five major Web search engines (Google, Yahoo, MSN, Ask.com, and Seekport) for their retrieval effectiveness, taking into account not only the results but also the results descriptions.   Design/Methodology/Ap",
-    "web_sources": [
-      "http://arxiv.org/abs/2605.05991v1",
-      "http://arxiv.org/abs/1511.05800v1"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a new class `ContextualReRanker` that consumes the current memory context from deep_memory_vault and applies a causal attention score to each retrieved snippet before returning results, with unit tests and minimal performance impact.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 2634.89
-  },
-  {
     "id": "conj_1794593072",
     "timestamp": "2026-11-13T13:04:32.796915",
     "idle_duration_minutes": 73.4,
@@ -1618,5 +1582,35 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 2542.02
+  },
+  {
+    "id": "conj_1795039774",
+    "timestamp": "2026-11-18T17:09:34.815377",
+    "idle_duration_minutes": 57.7,
+    "title": "Dynamic Contextual Prompt Sharding for Real‑Time Web Research",
+    "hypothesis": "If the web_research_engine module partitions the user's query into semantically coherent shards and processes each shard concurrently through specialized micro‑agents (e.g., fact‑checking, summarization, source ranking), then the overall latency and factual accuracy of the generated answer will improve by at least 30% compared to the current monolithic request pipeline, while preserving the integrity of the akáshic vault's causal memory trace.",
+    "research_query": "\"dynamic prompt sharding\" web research engine latency improvement concurrent micro‑agents",
+    "research_findings": "# Informe de Investigación: \"dynamic prompt sharding\" web research engine latency improvement concurrent micro‑agents\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Implement a sharding layer that splits incoming queries, dispatches them to async worker functions (fetch, summarize, verify), and recombines results with provenance metadata for the deep_memory_vault.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 1663.43
+  },
+  {
+    "id": "conj_1795044427",
+    "timestamp": "2026-11-18T18:27:07.857336",
+    "idle_duration_minutes": 77.6,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "If the Web Research Engine maintains a causal graph of query‑result dependencies, it can automatically invalidate cached pages when upstream knowledge in the Deep Memory Vault changes, reducing stale information propagation and improving answer freshness without a full cache purge. The hypothesis posits that integrating a lightweight causal inference layer that tracks which cached documents contributed to which higher‑level summaries will allow selective invalidation based on versioned updates in the akáshic vault.",
+    "research_query": "\"causal cache invalidation\" web crawler OR search engine \"knowledge graph\" incremental update",
+    "research_findings": "# Informe de Investigación: \"causal cache invalidation\" web crawler OR search engine \"knowledge graph\" incremental update\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a dependency‑tracking module that records, for each cached result, the IDs and timestamps of Deep Memory Vault entries used during its generation, and implement a routine that scans for vault updates and selectively evicts only the affected cache entries.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 2852.99
   }
 ]

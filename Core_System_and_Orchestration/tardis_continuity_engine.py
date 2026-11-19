@@ -31,13 +31,15 @@ logger = logging.getLogger("godworks.continuity")
 TARDIS_HOME = Path(os.path.expanduser("~/.tardis"))
 TARDIS_HOME.mkdir(parents=True, exist_ok=True)
 
-GODWORKS_DATA = Path("/home/timemachine/Escritorio/GODWORKS SYSTEM/data")
+GODWORKS_DATA = Path(__file__).resolve().parent.parent / "data"
 GODWORKS_DATA.mkdir(parents=True, exist_ok=True)
 
 FTL_DIR = Path(os.path.expanduser("~/.ftl"))
 FTL_DIR.mkdir(parents=True, exist_ok=True)
 
-DESKTOP_PATH = Path("/home/timemachine/Escritorio")
+DESKTOP_PATH = Path.home() / "Escritorio"
+if not DESKTOP_PATH.exists():
+    DESKTOP_PATH = Path.home() / "Desktop"
 
 DB_PATH = TARDIS_HOME / "continuity_vault.db"
 STATE_JSON_TARDIS = TARDIS_HOME / "continuity_state.json"
