@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1794602337",
-    "timestamp": "2026-11-13T15:38:57.518154",
-    "idle_duration_minutes": 71.5,
-    "title": "Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "Integrar un modelo de inferencia causal que prediga la relevancia futura de los resultados de búsqueda permitirá invalidar proactivamente los ítems en caché del módulo core/web_research_engine.py, reduciendo la latencia de consultas y mejorando la frescura de la información sin incrementar la carga de red. La hipótesis sostiene que, al observar patrones temporales y de dependencia entre palabras‑clave y fuentes, el sistema puede estimar la probabilidad de que un documento almacenado se vuelva obsoleto y refrescarlo anticipadamente, optimizando el trade‑off entre coste de I/O y precisión de la respuesta.",
-    "research_query": "causal cache invalidation techniques for web search engines predictive freshness model",
-    "research_findings": "# Informe de Investigación: causal cache invalidation techniques for web search engines predictive freshness model\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Implementar una capa de predicción causal que marque entradas de caché como 'stale' antes de su expiración basada en métricas de cambio de contenido y relaciones de palabras‑clave, y añadir lógica de refresco automático en la función de obtención de resultados.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 2492.08
-  },
-  {
     "id": "conj_1794606736",
     "timestamp": "2026-11-13T16:52:16.520323",
     "idle_duration_minutes": 73.3,
@@ -1608,5 +1593,20 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 2403.57
+  },
+  {
+    "id": "conj_1795061716",
+    "timestamp": "2026-11-18T23:15:16.988916",
+    "idle_duration_minutes": 97.5,
+    "title": "Causal Cache Invalidation for Web Research Engine",
+    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching mechanism will allow the system to predict when cached search results become stale based on observed changes in source domains (e.g., news sites, API version updates). By modeling the temporal dependencies between query patterns and source update frequencies, the engine can proactively invalidate or refresh specific cache entries, reducing latency and improving result relevance without incurring full re‑fetches for every request.",
+    "research_query": "causal inference based cache invalidation web search engine recent research 2023 2024",
+    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web search engine recent research 2023 2024\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a lightweight causal predictor that tracks source update timestamps and query frequency, and use it to decide cache TTL dynamically instead of a fixed expiration time.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 3981.3
   }
 ]

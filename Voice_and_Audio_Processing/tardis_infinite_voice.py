@@ -277,7 +277,7 @@ class SpeechSegmenter:
             self.silence_frames += 1
 
         if self.silence_frames >= self._hold_frames or len(self.speech_frames) >= self._max_frames:
-            frames = self.speech_frames
+            frames = list(self.speech_frames)
             self.reset_utterance()
             if len(frames) >= self._min_frames:
                 return {"utterance": b"".join(frames), "barge_in": False, "rms": rms}

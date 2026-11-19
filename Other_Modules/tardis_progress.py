@@ -114,7 +114,7 @@ class TimeEstimator:
         prompt: str,
         complexity: int = 2,
         mode: str = "gemini",
-        model: str = "gemini-4-argon-high",
+        model: str = "gemini-4-neon-high",
         context_scope: str = "compact"
     ) -> float:
         """
@@ -173,7 +173,7 @@ class TemporalProgressBar:
         prompt: str,
         estimated_duration: float,
         engine_label: str = "GEMINI",
-        model_name: str = "gemini-4-argon-high",
+        model_name: str = "gemini-4-neon-high",
         complexity_label: str = "Level 2: Standard Implementation",
         console: Optional[Console] = None
     ):
@@ -373,7 +373,7 @@ def run_command_with_progress(
     prompt: str,
     estimated_duration: float,
     engine_label: str = "GEMINI",
-    model_name: str = "gemini-4-argon-high",
+    model_name: str = "gemini-4-neon-high",
     complexity_label: str = "Level 2: Standard Implementation",
     prefix: str = "",
     on_line: Optional[Callable[[str], None]] = None,

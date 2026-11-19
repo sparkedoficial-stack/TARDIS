@@ -1,30 +1,7 @@
 {
-  "revision": 2743,
-  "lamport": 2940,
-  "history": [
-    {
-      "id": "msg_1795036088143_1",
-      "role": "system",
-      "content": "⚡ [FTL] PLAN COGNITIVO (DEEPSEEK): [MANDATO SOBERANO TARDIS/FTL :: SÍNTESIS DE HERRAMIENTA DINÁMICA]\nDiseña e imple (RC:0, 358.3s)",
-      "timestamp": REDACTED_PHONE.143363,
-      "iso": "2026-11-18T16:08:08.143378",
-      "lamport": 2939,
-      "meta": "FTL · DEEPSEEK",
-      "raw_data": {},
-      "client_id": "ftl_sovereign"
-    },
-    {
-      "id": "msg_1795036089483_2",
-      "role": "assistant",
-      "content": "🧬 [VOZ · PROGRAMA] COMPLETED · FTL\n• Orden: que cuente las palabras de un texto\n• Canal: api_voice (verificacion_arquitecto)\n• Job: vprog_20261118_160206_001",
-      "timestamp": REDACTED_PHONE.4831824,
-      "iso": "2026-11-18T16:08:09.483206",
-      "lamport": 2940,
-      "meta": "TARDIS Voice Program · api_voice",
-      "raw_data": {},
-      "client_id": "voice_program_api_voice"
-    }
-  ],
+  "revision": 2746,
+  "lamport": 2941,
+  "history": [],
   "config": {
     "model": "TARDIS-NEURAL-SPACE-KAIJU",
     "temperature": 0.3,
@@ -50,14 +27,14 @@
     "lamport": 2929,
     "web_search": true
   },
-  "updated_at": "2026-11-18T16:08:09.483271",
+  "updated_at": "2026-11-18T23:06:53.478318",
   "visual_intelligence": {
     "active": true,
     "pid": 1385,
-    "videos_stored": 1010,
-    "verdicts": 401,
+    "videos_stored": 1011,
+    "verdicts": 405,
     "vlm_model": "qwen3-vl:2b-instruct",
-    "last_risk_level": null,
-    "last_ping": REDACTED_PHONE.8019843
+    "last_risk_level": 0,
+    "last_ping": REDACTED_PHONE.4031913
   }
 }

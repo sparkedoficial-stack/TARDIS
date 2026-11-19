@@ -20,7 +20,7 @@ import psutil
 import qrcode
 import httpx
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 import uvicorn
 
 # Include ~/.ftl in Python path
@@ -141,6 +141,13 @@ def generate_qr_base64(url: str) -> str:
     img.save(buf, format="PNG")
     return "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode()
 
+
+
+@app.get("/voz")
+async def redirect_voz(request: Request):
+    """Redirige al servidor de Chat de Voz Infinito (:8796/voz) conservando el host."""
+    host = (request.headers.get("host") or "127.0.0.1:8765").split(":")[0]
+    return RedirectResponse(url=f"http://{host}:8796/voz")
 
 
 @app.post("/api/voice_command")
@@ -903,6 +910,7 @@ async def portal_index(request: Request):
             <button class="btn" onclick="startVoiceRecognition()" style="border-color: var(--neon-magenta); color: var(--neon-magenta);" title="Control por Voz FTL">🎤 Hablar</button>
             <button class="btn btn-gold" onclick="openQrModal()">📱 Código QR</button>
             <button class="btn" onclick="toggleCompactMode()" title="Maximizar espacio de terminal en iPad y tablets">📱 Maximizar</button>
+            <a href="/voz" target="_blank" class="btn" style="border-color: var(--neon-cyan); color: var(--neon-cyan);" title="TARDIS Chat de Voz Infinito Full-Duplex">∞ Voz Infinita</a>
             <a href="/chat" target="_blank" class="btn" style="border-color: var(--neon-purple, #bd93f9); color: #bd93f9;" title="FTL Quantum Chat persistente con animación de cuásar">◉ Quantum Chat</a>
             <a href="#" onclick="window.open(termUrl, '_blank'); return false;" class="btn" title="Abrir terminal nativa en pestaña separada">↗ Nativo :7681</a>
             <button class="btn" onclick="toggleFullscreen()" title="Pantalla Completa">⛶ Pantalla</button>

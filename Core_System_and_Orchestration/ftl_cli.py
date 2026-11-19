@@ -108,7 +108,7 @@ UNIFIED_COMMAND_KEYWORDS = {
     "orchestrate", "orquestar", "orquesta", "agent-policy", "politica-agentes",
     "agent-history", "historial-agentes", "agent-kill", "kill-switch", "agent-probe",
     "web", "lan", "portal", "voice",
-    "voz", "speak", "habla", "decir", "easytouch", "et", "et-agent", "et-evolve", "et-solve", "auto", "kaiju", "rails",
+    "voz", "voz-infinita", "infinite-voice", "voice-infinite", "speak", "habla", "decir", "easytouch", "et", "et-agent", "et-evolve", "et-solve", "auto", "kaiju", "rails",
     "savageupdate", "savage-update", "savage", "rea-learn", "rea", "reaprendizaje",
     "kaiju-rails", "synth", "audit", "gemini", "agy", "claude", "claude-cli",
     "agy-cli", "antigravity", "ide", "gui", "clear", "ton618", "mascot", "mascota", "quasar", "reload",
@@ -375,6 +375,11 @@ def dispatch_unified_command(cmd_name: str, args_list: list[str] = None) -> bool
         console.print(f"  • IP de la estación: {primary_ip}")
         console.print(f"  • Cobertura: Toda la LAN / Misma red Wi-Fi")
         console.print(f"  • Código QR disponible con :ftl-local qr")
+        return True
+
+    elif cmd in ("voz-infinita", "infinite-voice", "voice-infinite"):
+        console.print("[bold cyan]🌀 Iniciando TARDIS · Chat de Voz Infinito Full-Duplex...[/bold cyan]")
+        subprocess.run(["/home/m11/.local/bin/tardis-voz-infinita"] + args)
         return True
 
     elif cmd in ("voice", "voice-snap", "snap", "voz"):

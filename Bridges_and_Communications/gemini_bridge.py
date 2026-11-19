@@ -56,6 +56,20 @@ except Exception:
 
 # Modelos soportados (ordenados por peso / capacidad de razonamiento)
 GEMINI_MODELS = {
+    "gemini-4-neon-high": {
+        "name": "Gemini 4 Neon (High) (Flagship Apex / Máxima Potencia y Velocidad)",
+        "context_window": 2000000,
+        "is_heavy": True,
+        "supports_thinking": True,
+        "supports_grounding": True
+    },
+    "gemini-4-neon-xhigh": {
+        "name": "Gemini 4 Neon (XHigh) (Máximo Razonamiento / Latencia Extendida)",
+        "context_window": 2000000,
+        "is_heavy": True,
+        "supports_thinking": True,
+        "supports_grounding": True
+    },
     "gemini-4-argon-high": {
         "name": "Gemini 4 Argon (High) (Apex Frontier / Ultra Deep Reasoning)",
         "context_window": 2000000,
@@ -128,7 +142,7 @@ GEMINI_MODELS = {
     }
 }
 
-DEFAULT_HEAVY_MODEL = "gemini-4-argon-high"
+DEFAULT_HEAVY_MODEL = "gemini-4-neon-high"
 TIMEOUT_HEAVY_SECONDS = 120.0  # Umbral de escalado a 2 minutos
 
 

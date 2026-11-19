@@ -133,7 +133,7 @@ def initialize_sovereign_master_hub() -> MasterHub:
 
     # Integración con la Matriz de Sinergia Híbrida de Modelos e Ingenierías
     try:
-        sys_path = "/home/timemachine/Escritorio/GODWORKS SYSTEM"
+        sys_path = "/home/m11/Escritorio/GODWORKS SYSTEM"
         if sys_path not in sys.path:
             sys.path.insert(0, sys_path)
         from core.tardis_hybrid_synergy import get_tardis_hybrid_synergy

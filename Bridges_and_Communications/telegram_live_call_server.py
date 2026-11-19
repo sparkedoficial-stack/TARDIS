@@ -1251,6 +1251,7 @@ def render_call_webapp_html(initial_ct: str, default_voice: str = DEFAULT_VOICE)
       callTimer.textContent = `${{m}}:${{s}}`;
     }}, 1000);
 
+    requestWakeLock();
     startVadLoop();
     connectWebSocket();
   }}
@@ -1299,6 +1300,15 @@ def render_call_webapp_html(initial_ct: str, default_voice: str = DEFAULT_VOICE)
     vadLbl.textContent = autoVad ? "Auto VAD" : "Manual";
     setState("idle", autoVad ? "Escuchando en vivo…" : "Toca el orbe para hablar");
   }});
+
+  if (bargeBtn) {{
+    bargeBtn.addEventListener("click", () => {{
+      haptic("light");
+      voiceBargeIn = !voiceBargeIn;
+      bargeBtn.classList.toggle("active", voiceBargeIn);
+      bargeLbl.textContent = voiceBargeIn ? "Barge-In" : "Sin Eco";
+    }});
+  }}
 
   interruptBtn.addEventListener("click", sendInterrupt);
 
@@ -1762,12 +1772,20 @@ class TelegramLiveCallServer:
             }
         )
 
+    def _is_trusted_local_or_gateway(self, request: web.Request) -> bool:
+        if request.headers.get("X-FTL-Gateway") == "1":
+            return True
+        remote = (request.remote or "").strip()
+        return remote in ("127.0.0.1", "::1", "localhost")
+
     async def handle_call_page(self, request: web.Request) -> web.Response:
         ct = request.query.get("ct", "")
         # Permitir cargar la página si trae un token firmado válido o si se abre como WebApp de Telegram
         # (la validación estricta ocurre también en el handshake WebSocket con initData).
         if ct and not verify_call_token(ct):
             return web.Response(status=403, text="Enlace de llamada inválido o expirado.")
+        if not ct and request.path.startswith("/voz") and self._is_trusted_local_or_gateway(request):
+            ct = sign_call_token(chat_id=ARCHITECT_TELEGRAM_ID, user_name="Arquitecto")
         cfg = load_telegram_config()
         pref_voice = str(cfg.get("cortana_voice", DEFAULT_VOICE))
         html_doc = render_call_webapp_html(initial_ct=ct, default_voice=pref_voice)
@@ -1846,12 +1864,15 @@ class TelegramLiveCallServer:
                     return
 
                 sys_prompt = (
-                    "Eres TARDIS, asistente de inteligencia artificial en una LLAMADA DE VOZ EN VIVO por Telegram "
+                    "Eres TARDIS, asistente de inteligencia artificial en un CHAT DE VOZ INFINITO EN VIVO "
                     f"con {user_name}. Responde en español de manera conversacional, fluida, clara y concisa "
                     "(idealmente de 1 a 4 oraciones, sin tablas markdown ni bloques de código largos, listo para ser hablado en voz alta)."
                 )
+                vault_ctx = get_call_vault_context(user_text, is_admin_caller=is_admin_caller)
+                if vault_ctx:
+                    sys_prompt += "\n\n[MEMORIA CONTINUA]:\n" + vault_ctx[:1600]
                 msgs: List[Dict[str, str]] = [{"role": "system", "content": sys_prompt}]
-                msgs.extend(history[-10:])
+                msgs.extend(history[-14:])
                 msgs.append({"role": "user", "content": user_text})
 
                 tts_queue: asyncio.Queue[Optional[Tuple[int, str, asyncio.Task]]] = asyncio.Queue()
@@ -1967,10 +1988,9 @@ class TelegramLiveCallServer:
                             voice_id = str(data["voice"])
                         self.active_sessions[session_id].update({"chat_id": chat_id, "user_name": user_name})
 
-                        greeting = (
-                            f"Hola {user_name}, línea de voz conectada. "
-                            "Te escucho en vivo, dime qué necesitas."
-                        )
+                        if not history:
+                            history.extend(load_recent_call_history(str(chat_id), limit=6))
+
                         await send_json(
                             {
                                 "type": "call_ready",
@@ -1979,8 +1999,16 @@ class TelegramLiveCallServer:
                                 "voice": voice_id,
                             }
                         )
-                        await send_json({"type": "assistant_delta", "turn_id": 0, "text": greeting})
-                        current_turn_task = asyncio.create_task(speak_sentences([greeting], turn_id=0))
+                        if history and not data.get("reconnect"):
+                            await send_json({"type": "history_sync", "turns": history[-6:]})
+
+                        if not data.get("reconnect"):
+                            greeting = (
+                                f"Hola {user_name}, línea de voz infinita conectada. "
+                                "Te escucho en vivo, dime qué necesitas."
+                            )
+                            await send_json({"type": "assistant_delta", "turn_id": 0, "text": greeting})
+                            current_turn_task = asyncio.create_task(speak_sentences([greeting], turn_id=0))
 
                     elif mtype == "audio_meta":
                         pending_audio_turn_id = int(data.get("turn_id") or (turns_completed + 1))
@@ -2414,6 +2442,9 @@ def create_app() -> web.Application:
     app.router.add_get("/tg-call", srv.handle_call_page)
     app.router.add_get("/tg-call/", srv.handle_call_page)
     app.router.add_get("/tg-call/ws", srv.handle_ws)
+    app.router.add_get("/voz", srv.handle_call_page)
+    app.router.add_get("/voz/", srv.handle_call_page)
+    app.router.add_get("/voz/ws", srv.handle_ws)
     app.router.add_get("/tg-cam", srv.handle_cam_page)
     app.router.add_get("/tg-cam/", srv.handle_cam_page)
     app.router.add_get("/tg-cam/ws", srv.handle_cam_ws)

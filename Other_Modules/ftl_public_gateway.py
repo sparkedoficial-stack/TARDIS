@@ -207,6 +207,8 @@ def _upstream_for(request: web.Request) -> Tuple[str, str]:
         or path.startswith(TG_CALL_PREFIX + "/")
         or path == TG_CAM_PREFIX
         or path.startswith(TG_CAM_PREFIX + "/")
+        or path == "/voz"
+        or path.startswith("/voz/")
     ):
         return TG_CALL_UPSTREAM.rstrip("/"), path
     if path == TERM_PREFIX or path.startswith(TERM_PREFIX + "/"):
