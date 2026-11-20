@@ -278,8 +278,10 @@ async def _proxy_http(request: web.Request, session: ClientSession) -> web.Strea
         return response
 
     await response.prepare(request)
+    is_sse = "text/event-stream" in (upstream.headers.get("Content-Type") or "").lower()
+    stream_iter = upstream.content.iter_any() if is_sse else upstream.content.iter_chunked(16384)
     try:
-        async for chunk in upstream.content.iter_chunked(16384):
+        async for chunk in stream_iter:
             if chunk:
                 await response.write(chunk)
     except (ConnectionResetError, asyncio.CancelledError):

@@ -30,11 +30,11 @@
   "updated_at": "2026-11-19T23:06:54.252018",
   "visual_intelligence": {
     "active": true,
-    "pid": 1385,
-    "videos_stored": 1022,
-    "verdicts": 460,
+    "pid": 1460,
+    "videos_stored": 1023,
+    "verdicts": 462,
     "vlm_model": "qwen3-vl:2b-instruct",
-    "last_risk_level": 0,
-    "last_ping": REDACTED_PHONE.0591123
+    "last_risk_level": null,
+    "last_ping": REDACTED_PHONE.448595
   }
 }

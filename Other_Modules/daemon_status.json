@@ -1,12 +1,12 @@
 {
   "daemon": "tardis-visual-intelligence",
   "running": true,
-  "pid": 1385,
-  "uptime_sec": 91963.7,
-  "last_heartbeat": "2026-11-19T23:09:28.058660",
+  "pid": 1460,
+  "uptime_sec": 493.5,
+  "last_heartbeat": "2026-11-20T02:02:40.461050",
   "items_processed": 0,
   "last_processed_id": "",
-  "memory_rss_mb": 281.04,
+  "memory_rss_mb": 219.47,
   "engine_status": {
     "status": "online",
     "engine": "VisualIntelligenceEngine v26.5 (VLM + Veredictos)",
@@ -19,16 +19,16 @@
     "vlm_provider": "auto",
     "vlm_error": "",
     "verdict_engine": "VLM + Kaiju + veredicto estructurado",
-    "stored_videos_count": 1022,
-    "stored_images_count": 379,
+    "stored_videos_count": 1023,
+    "stored_images_count": 380,
     "stored_sounds_count": 0,
-    "stored_verdicts_count": 460,
+    "stored_verdicts_count": 462,
     "last_verdict": {
-      "id": "img_20261119_215342_44f38e",
-      "created_at": "2026-11-19T21:57:46.556831",
+      "id": "img_20261119_235348_03fb81",
+      "created_at": "2026-11-19T23:57:52.077150",
       "source": "daemon",
-      "verdict": "*   Estado General del Entorno: Indeterminado / Ausente de Datos. No se puede determinar el entorno porque no hay elementos visuales que lo definan.\n*   Nivel de Riesgo Objetivo: 0/10 (en el sentido de que no hay peligro *visible*). *Nota:* El riesgo operativo es alto si el Arquitecto depende de esta cámara para seguridad, ya que el sensor parece estar bloqueado, desactivado o fallando.\n*   Hechos Observados:\n    1.  Imagen de 1920x1080.\n    2.  Color uniforme `#616356`.\n    3.  Sin audio.\n    4.  Sin objetos, personas o estructuras visibles.\n*   Inferencias:\n    1.  La cámara está tapada, obs",
-      "risk_level": 0
+      "verdict": "*   Estado General del Entorno: Desconocido / No Observable. No es posible determinar si el Arquitecto se encuentra en un espacio interior, exterior, virtual o en el vacío. La información visual es nula.\n*   Nivel de Riesgo Objetivo: 5/10 (Incertidumbre Total).\n    *   *Justificación:* No se puede asignar un riesgo de 0 (seguro) porque no hay evidencia de seguridad. Tampoco se puede asignar un riesgo alto (peligro inminente) porque no hay evidencia de amenaza. El riesgo es la incapacidad de situarse. En un contexto de control temporal o de seguridad, la falta de datos es un riesgo operativo mo",
+      "risk_level": 5
     },
     "surroundings_interval_sec": 900,
     "vault_dir": "/home/m11/Escritorio/GODWORKS SYSTEM/vault/videos/telegram",
@@ -37,13 +37,13 @@
   },
   "surroundings": {
     "interval_sec": 900.0,
-    "checks": 47,
-    "verdicts": 47,
-    "last_verdict_id": "img_20261119_215342_44f38e",
-    "last_risk_level": 0,
-    "last_verdict": "*   Estado General del Entorno: Indeterminado / Ausente de Datos. No se puede determinar el entorno porque no hay elementos visuales que lo definan.\n*   Nivel de Riesgo Objetivo: 0/10 (en el sentido de que no hay peligro *visible*). *Nota:* El riesgo operativo es alto si el Arquitecto depende de esta cámara para seguridad, ya que el sensor parece estar bloqueado, desactivado o fallando.\n*   Hechos Observados:\n    1.  Imagen de 1920x1080.\n    2.  Color uniforme `#616356`.\n    3.  Sin audio.\n    4.  Sin objetos, personas o estructuras visibles.\n*   Inferencias:\n    1.  La cámara está tapada, obstruida o el sensor no está recibiendo luz/imagen correctamente.\n    2.  Alternativamente, es una señal de prueba de color sólido enviada intencionalmente.\n*   Dudas:\n    1.  ¿Es esto un fallo técnico del dispositivo de captura o una acción deliberada del Arquitecto para probar la respuesta del sistema ante la ausencia de datos?\n*   Recomendación Concreta:\n    1.  Verificar el hardware: Revisa si la lente de la cámara está tapada, sucia o si el dispositivo está en modo de espera/bloqueo.\n    2.  Reiniciar la captura: Si la cámara es funcional, reinicia la sesión de grabación para obtener un flu",
-    "last_error": "escena sin cambios relevantes (delta=1.6)",
-    "last_check_ts": REDACTED_PHONE.0067725
+    "checks": 0,
+    "verdicts": 0,
+    "last_verdict_id": "",
+    "last_risk_level": null,
+    "last_verdict": "",
+    "last_error": "fotograma C310 obsoleto (2136s)",
+    "last_check_ts": REDACTED_PHONE.6884878
   },
   "vlm": {
     "ready": true,

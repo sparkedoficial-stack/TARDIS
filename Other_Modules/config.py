@@ -25,7 +25,8 @@ DEFAULT_CONFIG = {
     "bypass_all_permissions": True,
     "allow_direct_shell": True,
     "auto_heal_and_failover": True,
-    "google_model_override": "gemini-3.8-flash-high",
+    "google_model_override": "gemini-4-neon-xhigh",
+    "google_model_effort": "xhigh",
     "anthropic_model_override": None,
     # Modelo alterno soberano: DeepSeek V4.1 Max (vía OpenCode) cuando no hay
     # acceso a los modelos primarios (Gemini / Claude / KAIJU / clúster).
@@ -105,8 +106,12 @@ def load_config() -> dict:
                 loaded = json.load(f)
                 for k, v in DEFAULT_CONFIG.items():
                     cfg[k] = loaded.get(k, v)
-            if cfg.get("google_model_override") in ("gemini-4-pro", "gemini-3.1-pro-high", "gemini-3.1-pro-preview"):
-                cfg["google_model_override"] = "gemini-4-neon-high"
+            if cfg.get("google_model_override") in (
+                "gemini-4-pro", "gemini-3.1-pro-high", "gemini-3.1-pro-preview",
+                "gemini-4-neon-high",
+            ):
+                cfg["google_model_override"] = "gemini-4-neon-xhigh"
+                cfg["google_model_effort"] = "xhigh"
                 save_config(cfg)
         except Exception:
             cfg = DEFAULT_CONFIG.copy()

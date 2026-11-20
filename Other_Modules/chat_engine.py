@@ -33,6 +33,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Iterator, Optional
 
+import external_free_provider as ext_provider
 import free_models as fm
 import runtime_env
 
@@ -54,10 +55,18 @@ class ChatConfig:
 
 
 def resolve_model(token: str) -> str:
-    """Resuelve alias FTL, key o referencia OpenCode completa."""
+    """Resuelve alias FTL, key, proveedor externo gratuito o referencia OpenCode completa."""
     token = (token or "").strip()
     if not token:
         raise ValueError("Modelo vacío.")
+    low = token.lower()
+    if low in ("pollinations", "poll", "external", "ext", "ovh", "gpt-oss"):
+        return "pollinations/openai-fast"
+    if low in ("local", "tardis", "kaiju", "temporal_brain"):
+        return "local/TARDIS-NEURAL-SPACE-KAIJU"
+    if ext_provider.is_external_model(token):
+        spec, mname = ext_provider.parse_model_ref(token)
+        return f"{spec.id}/{mname}"
     match = fm.resolve(token)
     if match:
         return match.ref
@@ -92,11 +101,16 @@ class ChatRunner:
         prompt: str,
         config: ChatConfig,
         opencode_session_id: Optional[str] = None,
+        session_messages: Optional[list[dict]] = None,
+        tick_interval: float = 0.25,
     ):
         self.prompt = prompt
         self.config = config
         self.opencode_session_id = opencode_session_id or None
+        self.session_messages = list(session_messages or [])
+        self.tick_interval = max(0.12, float(tick_interval))
         self.proc: Optional[subprocess.Popen] = None
+        self._ext_runner: Optional[ext_provider.ExternalChatRunner] = None
         self.session_id: Optional[str] = self.opencode_session_id
         self.started_at = 0.0
         self._cancelled = False
@@ -124,6 +138,11 @@ class ChatRunner:
     # ------------------------------------------------------------------
     def cancel(self) -> None:
         self._cancelled = True
+        if self._ext_runner is not None:
+            try:
+                self._ext_runner.cancel()
+            except Exception:
+                pass
         if not self.proc:
             return
         try:
@@ -144,6 +163,24 @@ class ChatRunner:
     # ------------------------------------------------------------------
     def run(self) -> Iterator[dict]:
         self.started_at = time.time()
+        # Ruta rápida sin subprocesos para proveedores externos gratuitos (Pollinations, Groq, etc.) y local IPC
+        if ext_provider.is_external_model(self.config.model):
+            self._ext_runner = ext_provider.ExternalChatRunner(
+                self.prompt,
+                model_ref=self.config.model,
+                thinking=self.config.thinking,
+                files=self.config.files,
+                session_messages=self.session_messages,
+            )
+            try:
+                for ev in self._ext_runner.run():
+                    if self._cancelled:
+                        break
+                    yield ev
+            finally:
+                self._ext_runner = None
+            return
+
         exe = _binary()
         if not exe:
             yield {
@@ -191,7 +228,7 @@ class ChatRunner:
                 if self._cancelled:
                     break
                 try:
-                    ready, _, _ = select.select([fd], [], [], 0.12)
+                    ready, _, _ = select.select([fd], [], [], self.tick_interval)
                 except Exception:
                     ready = [fd]
                 if not ready:
@@ -332,6 +369,8 @@ def is_transient_error(event: dict) -> bool:
         return False
     if is_free_limit(event):
         return True
+    if event.get("error_type") in ("http_error", "connection_error", "empty_response", "binary_missing"):
+        return True
     text = (event.get("message") or "").lower()
     return any(
         needle in text
@@ -347,6 +386,7 @@ def is_transient_error(event: dict) -> bool:
             "timeout",
             "timed out",
             "connection",
+            "500",
             "502",
             "503",
             "504",

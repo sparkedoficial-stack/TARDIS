@@ -5041,66 +5041,82 @@ iframe{border:none;width:100%;height:100%;}</style></head>
                         messages.insert(0, {"role": "system", "content": sys_prompt})
                 except Exception:
                     pass
-                res = client.chat(
-                    messages=messages,
-                    model=target_model,
-                    temperature=temperature,
-                    num_ctx=num_ctx,
-                    cancel_event=cancel_event
+                loop = asyncio.get_event_loop()
+                res = await loop.run_in_executor(
+                    None,
+                    lambda: client.chat(
+                        messages=messages,
+                        model=target_model,
+                        temperature=temperature,
+                        num_ctx=num_ctx,
+                        cancel_event=cancel_event
+                    ),
                 )
                 res["request_id"] = request_id
 
-            if res and isinstance(res, dict) and res.get("ok"):
+            # Post-procesamiento asíncrono en segundo plano (evita bloquear la respuesta
+            # HTTP con capturas de pantalla, SQLite y extracción de preguntas)
+            def _post_chat_bookkeeping(
+                _res=res, _msg=msg, _target_model=target_model, _client_id=client_id,
+                _request_id=request_id, _direction=req.direction or "present",
+                _dialectic_role=req.dialectic_role or "mediator", _emo_dict=emo_dict
+            ):
+                if _res and isinstance(_res, dict) and _res.get("ok"):
+                    try:
+                        from core.offline_chat_vault import get_offline_chat_vault
+                        final_rep = _res.get("reply") or _res.get("response") or ""
+                        get_offline_chat_vault().record_turn(
+                            prompt=_msg,
+                            reply=final_rep,
+                            provider=_res.get("provider", "GIA Sovereign API"),
+                            model=_target_model,
+                            client_id=_client_id,
+                            request_id=_request_id,
+                            direction=_direction,
+                            dialectic_role=_dialectic_role,
+                            user_emotion=_emo_dict
+                        )
+                    except Exception:
+                        pass
+
+                    try:
+                        from core.interaction_logger import get_interaction_logger
+                        from core.individual_tracker import get_individual_tracker
+                        presence = get_individual_tracker().get_latest_presence()
+                        indivs = presence.get("individuals", [])
+                        p_indiv = indivs[0] if indivs else {"id": "usuario", "name": "Usuario", "role": "Interlocutor"}
+                        reply_snip = (_res.get("reply") or _res.get("response") or "")[:150]
+                        get_interaction_logger().record_interaction(
+                            interaction_type="chat_conversacion",
+                            title=f"Chat: {p_indiv.get('name', 'Usuario')}",
+                            details=f"Consulta: \"{_msg[:140]}\" → Respuesta: \"{reply_snip}...\"",
+                            individual=p_indiv,
+                            photo_b64=p_indiv.get("thumbnail_b64"),
+                            capture_system_screenshot=True if not p_indiv.get("thumbnail_b64") else False,
+                            extra_meta={"model": _target_model, "client_id": _client_id}
+                        )
+                    except Exception:
+                        pass
+
                 try:
-                    from core.offline_chat_vault import get_offline_chat_vault
-                    final_rep = res.get("reply") or res.get("response") or ""
-                    get_offline_chat_vault().record_turn(
-                        prompt=msg,
-                        reply=final_rep,
-                        provider=res.get("provider", "GIA Sovereign API"),
-                        model=target_model,
-                        client_id=client_id,
-                        request_id=request_id,
-                        direction=req.direction or "present",
-                        dialectic_role=req.dialectic_role or "mediator",
-                        user_emotion=emo_dict
-                    )
+                    from core.background_thought_engine import get_background_thought_engine
+                    bg_engine = get_background_thought_engine()
+                    for q in bg_engine.extract_questions(_msg):
+                        bg_engine.enqueue_question(
+                            question=q,
+                            source="chat_auto",
+                            session_id=_client_id,
+                            meta={"request_id": _request_id, "model": _target_model}
+                        )
                 except Exception:
                     pass
 
-                # Registrar interacción fotográfica con día, hora y foto del sistema/cámara
-                try:
-                    from core.interaction_logger import get_interaction_logger
-                    from core.individual_tracker import get_individual_tracker
-                    presence = get_individual_tracker().get_latest_presence()
-                    indivs = presence.get("individuals", [])
-                    p_indiv = indivs[0] if indivs else {"id": "usuario", "name": "Usuario", "role": "Interlocutor"}
-                    reply_snip = (res.get("reply") or res.get("response") or "")[:150]
-                    get_interaction_logger().record_interaction(
-                        interaction_type="chat_conversacion",
-                        title=f"Chat: {p_indiv.get('name', 'Usuario')}",
-                        details=f"Consulta: \"{msg[:140]}\" → Respuesta: \"{reply_snip}...\"",
-                        individual=p_indiv,
-                        photo_b64=p_indiv.get("thumbnail_b64"),
-                        capture_system_screenshot=True if not p_indiv.get("thumbnail_b64") else False,
-                        extra_meta={"model": target_model, "client_id": client_id}
-                    )
-                except Exception:
-                    pass
-
-            # Directiva Soberana: Una vez respondido el usuario, se expande la complejidad en segundo plano
-            try:
-                from core.background_thought_engine import get_background_thought_engine
-                bg_engine = get_background_thought_engine()
-                for q in bg_engine.extract_questions(msg):
-                    bg_engine.enqueue_question(
-                        question=q,
-                        source="chat_auto",
-                        session_id=client_id,
-                        meta={"request_id": request_id, "model": target_model}
-                    )
-            except Exception:
-                pass
+            import threading as _threading
+            _threading.Thread(
+                target=_post_chat_bookkeeping,
+                daemon=True,
+                name=f"chat-post-{request_id[-6:]}",
+            ).start()
 
             return res
         finally:
@@ -5122,23 +5138,28 @@ iframe{border:none;width:100%;height:100%;}</style></head>
             import omni_temporal_control as _omni
             # Si se solicita new_conversation o clean_context, asegurar que el historial empiece limpio
             history_to_pass = [] if req.new_conversation or req.clean_context else req.history
-            res = _omni.process_agentic_chat(
-                message=msg,
-                history=history_to_pass,
-                use_web=bool(req.use_web),
-                use_retro=False,
-                direction="present",
-                model=target_model,
-                temperature=temperature,
-                num_ctx=num_ctx,
-                attachments=req.attachments or [],
-                use_voice=False,
-                request_id=request_id,
-                language=req.language,
-                pedagogical_level=req.pedagogical_level,
-                dialectic_role=req.dialectic_role,
-                is_local_request=False,
-                is_client_mode=True,
+            loop = asyncio.get_event_loop()
+            res = await loop.run_in_executor(
+                None,
+                lambda: _omni.process_agentic_chat(
+                    message=msg,
+                    history=history_to_pass,
+                    use_web=bool(req.use_web),
+                    use_retro=False,
+                    direction="present",
+                    model=target_model,
+                    temperature=temperature,
+                    num_ctx=num_ctx,
+                    attachments=req.attachments or [],
+                    use_voice=False,
+                    request_id=request_id,
+                    language=req.language,
+                    pedagogical_level=req.pedagogical_level,
+                    dialectic_role=req.dialectic_role,
+                    is_local_request=False,
+                    is_client_mode=True,
+                    client_id=client_id,
+                ),
             )
             return JSONResponse(res)
         except Exception as e:

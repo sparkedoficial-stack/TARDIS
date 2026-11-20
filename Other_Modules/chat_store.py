@@ -24,10 +24,14 @@ from __future__ import annotations
 
 import json
 import os
+import threading
 import time
 import uuid
 from pathlib import Path
 from typing import Optional
+
+_STORE_LOCK = threading.RLock()
+_INDEX_CACHE: dict = {"mtime": -1.0, "data": None}
 
 CHAT_DIR = Path.home() / ".config" / "ftl" / "chat"
 SESSIONS_DIR = CHAT_DIR / "sessions"
@@ -52,8 +56,8 @@ def ensure_dirs() -> None:
 
 def _atomic_json(path: Path, data) -> None:
     ensure_dirs()
-    tmp = path.with_suffix(path.suffix + ".tmp")
-    tmp.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+    tmp = path.with_suffix(path.suffix + f".{os.getpid()}.{threading.get_ident()}.tmp")
+    tmp.write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     os.chmod(tmp, 0o600)
     tmp.replace(path)
 
@@ -75,20 +79,32 @@ def _default_index() -> dict:
 
 
 def load_index() -> dict:
-    try:
-        raw = json.loads(INDEX_FILE.read_text(encoding="utf-8"))
-        if isinstance(raw, dict):
-            raw.setdefault("version", INDEX_VERSION)
-            raw.setdefault("last_session", None)
-            raw.setdefault("sessions", [])
-            return raw
-    except Exception:
-        pass
-    return _default_index()
+    with _STORE_LOCK:
+        try:
+            st = INDEX_FILE.stat()
+            if _INDEX_CACHE["data"] is not None and _INDEX_CACHE["mtime"] == st.st_mtime:
+                return json.loads(json.dumps(_INDEX_CACHE["data"]))
+            raw = json.loads(INDEX_FILE.read_text(encoding="utf-8"))
+            if isinstance(raw, dict):
+                raw.setdefault("version", INDEX_VERSION)
+                raw.setdefault("last_session", None)
+                raw.setdefault("sessions", [])
+                _INDEX_CACHE["mtime"] = st.st_mtime
+                _INDEX_CACHE["data"] = raw
+                return json.loads(json.dumps(raw))
+        except Exception:
+            pass
+        return _default_index()
 
 
 def save_index(index: dict) -> None:
-    _atomic_json(INDEX_FILE, index)
+    with _STORE_LOCK:
+        _atomic_json(INDEX_FILE, index)
+        try:
+            _INDEX_CACHE["mtime"] = INDEX_FILE.stat().st_mtime
+            _INDEX_CACHE["data"] = json.loads(json.dumps(index))
+        except Exception:
+            _INDEX_CACHE["mtime"] = -1.0
 
 
 def _index_entry(session: dict) -> dict:
@@ -160,9 +176,10 @@ def new_session(
 
 
 def save_session(session: dict) -> None:
-    session["updated_at"] = now_iso()
-    _atomic_json(_session_path(session["id"]), session)
-    _upsert_index(session)
+    with _STORE_LOCK:
+        session["updated_at"] = now_iso()
+        _atomic_json(_session_path(session["id"]), session)
+        _upsert_index(session)
 
 
 def load_session(session_id: str) -> Optional[dict]:
@@ -203,22 +220,23 @@ def list_sessions() -> list[dict]:
 
 
 def delete_session(session_id: str) -> bool:
-    session = load_session(session_id)
-    if not session:
-        return False
-    try:
-        _session_path(session["id"]).unlink(missing_ok=True)
-    except Exception:
-        pass
-    index = load_index()
-    index["sessions"] = [s for s in index.get("sessions", []) if s.get("id") != session["id"]]
-    if index.get("last_session") == session["id"]:
-        remaining = sorted(
-            index["sessions"], key=lambda s: s.get("updated_at") or "", reverse=True
-        )
-        index["last_session"] = remaining[0]["id"] if remaining else None
-    save_index(index)
-    return True
+    with _STORE_LOCK:
+        session = load_session(session_id)
+        if not session:
+            return False
+        try:
+            _session_path(session["id"]).unlink(missing_ok=True)
+        except Exception:
+            pass
+        index = load_index()
+        index["sessions"] = [s for s in index.get("sessions", []) if s.get("id") != session["id"]]
+        if index.get("last_session") == session["id"]:
+            remaining = sorted(
+                index["sessions"], key=lambda s: s.get("updated_at") or "", reverse=True
+            )
+            index["last_session"] = remaining[0]["id"] if remaining else None
+        save_index(index)
+        return True
 
 
 # ---------------------------------------------------------------------------
@@ -232,6 +250,7 @@ def add_message(
     model: Optional[str] = None,
     tools: Optional[list[dict]] = None,
     meta: Optional[dict] = None,
+    persist: bool = True,
 ) -> dict:
     message = {
         "id": "msg_" + uuid.uuid4().hex[:10],
@@ -249,7 +268,8 @@ def add_message(
     )
     if is_first_user and (not session.get("title") or session["title"] == "Nueva conversación"):
         session["title"] = _short(content, 58) or "Nueva conversación"
-    save_session(session)
+    if persist:
+        save_session(session)
     return message
 
 

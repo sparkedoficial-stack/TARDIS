@@ -25,7 +25,7 @@ class ModelProfile:
     display_name: str
     provider: str  # "google" or "anthropic"
     tier: str  # "flash-high", "pro-high", "sonnet-thinking", "opus-thinking"
-    effort_level: str  # "high", "max"
+    effort_level: str  # "high", "xhigh", "max"
     context_window: int  # tokens
     cost_factor: float  # Relative cost scale
     abstraction_score: float  # 1.0 - 10.0
@@ -39,7 +39,7 @@ class ModelRegistry:
         self.models: Dict[str, ModelProfile] = {}
         self.flagships: Dict[str, str] = {
             "google_flash_high": "gemini-3.8-flash-high",
-            "google_pro_high": "gemini-4-neon-high",
+            "google_pro_high": "gemini-4-neon-xhigh",
             "anthropic_sonnet": "sonnet",
             "anthropic_opus": "opus",
             "tardis_kaiju": "TARDIS-NEURAL-SPACE-KAIJU",
@@ -198,12 +198,13 @@ class ModelRegistry:
             else:
                 return None
 
+            effort_level = "xhigh" if "xhigh" in mid else "high"
             return ModelProfile(
                 model_id=model_id,
                 display_name=f"{display_name} [MAX EFFORT]",
                 provider="google",
                 tier=tier,
-                effort_level="high",
+                effort_level=effort_level,
                 context_window=ctx,
                 cost_factor=cost,
                 abstraction_score=round(abs_score, 1),
@@ -286,14 +287,14 @@ class ModelRegistry:
         ]
 
     def discover_from_frontier(self) -> List[ModelProfile]:
-        """Sovereign Apex Frontier Models: Gemini 4 Neon (High) & Emerging Checkpoints."""
+        """Sovereign Apex Frontier Models: Gemini 4 Neon (XHigh) & Emerging Checkpoints."""
         return [
             ModelProfile(
-                model_id="gemini-4-neon-high",
-                display_name="Gemini 4 Neon (High) [MAX EFFORT]",
+                model_id="gemini-4-neon-xhigh",
+                display_name="Gemini 4 Neon (XHigh) [MAX EFFORT]",
                 provider="google",
                 tier="pro-high",
-                effort_level="high",
+                effort_level="xhigh",
                 context_window=2_000_000,
                 cost_factor=1.2,
                 abstraction_score=10.0,
@@ -386,7 +387,14 @@ class ModelRegistry:
         # Select highest version Google Pro High
         pros = [m for m in all_models.values() if m.provider == "google" and m.tier == "pro-high"]
         if pros:
-            pros.sort(key=lambda m: float(re.search(r'(\d+(?:\.\d+)?)', m.model_id).group(1)) if re.search(r'(\d+(?:\.\d+)?)', m.model_id) else 0.0, reverse=True)
+            pros.sort(
+                key=lambda m: (
+                    float(re.search(r'(\d+(?:\.\d+)?)', m.model_id).group(1))
+                    if re.search(r'(\d+(?:\.\d+)?)', m.model_id) else 0.0,
+                    2 if (m.effort_level or "").lower() in ("xhigh", "max") else 1,
+                ),
+                reverse=True,
+            )
             self.flagships["google_pro_high"] = pros[0].model_id
             pros[0].is_flagship = True
             pros[0].is_latest = True
@@ -437,7 +445,7 @@ class ModelRegistry:
         if not self.is_frontier_max_power(model_id, model_id):
             raise ValueError(
                 f"RECHAZADO: El modelo '{model_id}' no cumple la Directiva Soberana de Máxima Potencia.\n"
-                f"FTL solo acepta modelos de frontera con máximo razonamiento (High / Thinking / Opus / Sonnet)."
+                f"FTL solo acepta modelos de frontera con máximo razonamiento (High / XHigh / Thinking / Opus / Sonnet)."
             )
         return True
 
@@ -448,7 +456,7 @@ class ModelRegistry:
             self.validate_model_override(override, "google")
             return override
         if tier == "pro":
-            return self.flagships.get("google_pro_high", "gemini-4-neon-high")
+            return self.flagships.get("google_pro_high", "gemini-4-neon-xhigh")
         return self.flagships.get("google_flash_high", "gemini-3.8-flash-high")
 
     def get_anthropic_model(self, tier: str = "sonnet") -> str:

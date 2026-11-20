@@ -477,15 +477,58 @@ class TemporalBrain:
         )
         return out, max_new
 
-    def _probe_socket(self, timeout: float = 5.0) -> bool:
-        """True si hay un llama-server vivo respondiendo en el socket (sea de quien sea)."""
+    def _get_uds_client(self, timeout: Optional[float] = None) -> httpx.Client:
+        """Devuelve un cliente HTTP persistente sobre el socket UNIX privado (keep-alive)."""
+        client = getattr(self, "_uds_client", None)
+        if client is None or client.is_closed:
+            transport = httpx.HTTPTransport(uds=str(self.socket_path))
+            client = httpx.Client(
+                transport=transport,
+                base_url="http://localhost",
+                timeout=timeout if timeout is not None else _temporal_infer_timeout(),
+                limits=httpx.Limits(max_connections=8, max_keepalive_connections=4, keepalive_expiry=60.0),
+            )
+            self._uds_client = client
+        return client
+
+    def _reset_uds_client(self) -> None:
+        client = getattr(self, "_uds_client", None)
+        if client is not None:
+            try:
+                client.close()
+            except Exception:
+                pass
+            self._uds_client = None
+
+    def all_slots_busy(self, timeout: float = 0.8) -> bool:
+        """True si todos los slots de inferencia local están saturados procesando otras tareas."""
         if not self.socket_path.exists():
             return False
         try:
-            transport = httpx.HTTPTransport(uds=str(self.socket_path))
-            with httpx.Client(transport=transport, base_url="http://localhost", timeout=timeout) as client:
-                return client.get("/health").status_code == 200
+            r = self._get_uds_client().get("/slots", timeout=timeout)
+            if r.status_code == 200:
+                slots = r.json()
+                if isinstance(slots, list) and slots:
+                    return all(bool(s.get("is_processing")) for s in slots)
         except Exception:
+            pass
+        return False
+
+    def _probe_socket(self, timeout: float = 5.0) -> bool:
+        """True si hay un llama-server vivo respondiendo en el socket (con caché TTL 2s)."""
+        if not self.socket_path.exists():
+            return False
+        now = time.monotonic()
+        last_ts = float(getattr(self, "_probe_ok_ts", 0.0))
+        if (now - last_ts) < 2.0:
+            return True
+        try:
+            ok = self._get_uds_client().get("/health", timeout=timeout).status_code == 200
+            if ok:
+                self._probe_ok_ts = now
+            return ok
+        except Exception:
+            self._reset_uds_client()
             # Si el servidor está ocupado procesando prefill pesado, verificar en /proc antes de declararlo muerto
             return self._is_daemon_process_alive()
 
@@ -776,41 +819,42 @@ class TemporalBrain:
             "stream": False,
         }
 
-        # 3. Llamada al socket UNIX privado (con auto-recuperación si el socket fue recreado o está en warmup)
+        # 3. Llamada al socket UNIX privado reutilizando conexión keep-alive (con auto-recuperación)
         raw_result: Dict[str, Any] = {}
+        infer_timeout = _temporal_infer_timeout()
         for attempt in range(2):
-            transport = httpx.HTTPTransport(uds=str(self.socket_path))
             try:
-                with httpx.Client(transport=transport, base_url="http://localhost", timeout=_temporal_infer_timeout()) as client:
-                    resp = client.post("/v1/chat/completions", json=payload)
-                    elapsed = round(time.time() - t0, 3)
-                    if resp.status_code == 200:
-                        data = resp.json()
-                        choices = data.get("choices", [])
-                        reply = choices[0].get("message", {}).get("content", "") if choices else ""
-                        usage = data.get("usage", {})
-                        raw_result = {
-                            "ok": True,
-                            "reply": reply.strip(),
-                            "usage": usage,
-                            "elapsed": elapsed,
-                            "tokens_per_sec": round(usage.get("completion_tokens", 0) / max(elapsed, 0.001), 1),
-                            "engine": "temporal_brain",
-                            "socket": str(self.socket_path),
-                        }
-                        break
-                    elif resp.status_code == 503 and attempt == 0:
-                        # Servidor aún cargando modelo en warmup
-                        time.sleep(2.0)
-                        continue
-                    else:
-                        raw_result = {
-                            "ok": False,
-                            "reply": f"Error del motor Temporal Brain (HTTP {resp.status_code}): {resp.text}",
-                            "elapsed": elapsed,
-                        }
-                        break
+                client = self._get_uds_client(timeout=infer_timeout)
+                resp = client.post("/v1/chat/completions", json=payload, timeout=infer_timeout)
+                elapsed = round(time.time() - t0, 3)
+                if resp.status_code == 200:
+                    data = resp.json()
+                    choices = data.get("choices", [])
+                    reply = choices[0].get("message", {}).get("content", "") if choices else ""
+                    usage = data.get("usage", {})
+                    raw_result = {
+                        "ok": True,
+                        "reply": reply.strip(),
+                        "usage": usage,
+                        "elapsed": elapsed,
+                        "tokens_per_sec": round(usage.get("completion_tokens", 0) / max(elapsed, 0.001), 1),
+                        "engine": "temporal_brain",
+                        "socket": str(self.socket_path),
+                    }
+                    break
+                elif resp.status_code == 503 and attempt == 0:
+                    # Servidor aún cargando modelo en warmup
+                    time.sleep(2.0)
+                    continue
+                else:
+                    raw_result = {
+                        "ok": False,
+                        "reply": f"Error del motor Temporal Brain (HTTP {resp.status_code}): {resp.text}",
+                        "elapsed": elapsed,
+                    }
+                    break
             except Exception as e:
+                self._reset_uds_client()
                 if attempt == 0:
                     self._adopted_server = False
                     self._process = None

@@ -24,13 +24,13 @@ Rutas expuestas (montadas en el portal :8765):
 
 from __future__ import annotations
 
+import asyncio
 import base64
 import json
 import threading
 import time
 import uuid
 from pathlib import Path
-from queue import Empty, Queue
 from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Request
@@ -39,8 +39,17 @@ from fastapi.responses import HTMLResponse, JSONResponse, Response, StreamingRes
 import chat_history as history
 import chat_store as store
 import chat_vault as vault
+import external_free_provider as ext_provider
 import free_models as fm
-from chat_engine import ChatConfig, ChatRunner, resolve_model, short_model
+from chat_engine import (
+    ChatConfig,
+    ChatRunner,
+    is_missing_session,
+    is_transient_error,
+    next_free_model,
+    resolve_model,
+    short_model,
+)
 
 router = APIRouter()
 
@@ -91,25 +100,28 @@ def _models_payload() -> list[dict]:
 
 
 # ---------------------------------------------------------------------------
-# Ejecución de un turno en hilo de fondo
+# Ejecución de un turno en hilo de fondo (con failover multi-proveedor + async SSE)
 # ---------------------------------------------------------------------------
 def _emit(entry: dict, payload: dict) -> None:
-    entry["queue"].put(payload)
+    if payload.get("kind") == "tick":
+        now_t = time.monotonic()
+        if now_t - float(entry.get("last_tick") or 0.0) < 0.5:
+            return
+        entry["last_tick"] = now_t
+    loop = entry.get("loop")
+    aqueue = entry.get("aqueue")
+    if loop is not None and aqueue is not None and not loop.is_closed():
+        try:
+            loop.call_soon_threadsafe(aqueue.put_nowait, payload)
+            return
+        except Exception:
+            pass
+    entry.setdefault("backlog", []).append(payload)
 
 
 def _execute_turn(entry: dict, session: dict, prompt: str, files: list[str]) -> None:
     settings = session.get("settings", {})
-    cfg = ChatConfig(
-        model=session.get("model") or _default_model(),
-        agent=session.get("agent") or "",
-        thinking=bool(settings.get("thinking")),
-        auto=bool(settings.get("auto", True)),
-        cwd=session.get("cwd") or str(Path.home()),
-        files=list(files),
-        title=session.get("title", "") if not session.get("opencode_session_id") else "",
-    )
-    runner = ChatRunner(prompt, cfg, opencode_session_id=session.get("opencode_session_id"))
-    entry["runner"] = runner
+    initial_model = session.get("model") or _default_model()
 
     assistant_parts: list[str] = []
     thinking_parts: list[str] = []
@@ -120,73 +132,156 @@ def _execute_turn(entry: dict, session: dict, prompt: str, files: list[str]) -> 
     error: Optional[dict] = None
     session_id = session.get("opencode_session_id")
     last_saved_sid = session_id
+    attempted: set[str] = set()
+    active_model = initial_model
+    max_attempts = 4
 
-    _emit(entry, {"kind": "start", "model": cfg.model, "agent": cfg.agent,
+    _emit(entry, {"kind": "start", "model": active_model, "agent": session.get("agent") or "",
                   "files": files, "session_id": session["id"]})
 
     try:
-        for event in runner.run():
-            kind = event.get("kind")
-            if kind == "tick":
-                if entry.get("cancelled"):
-                    break
-                _emit(entry, {"kind": "tick"})
-                continue
-            if kind == "text":
-                text = event.get("text") or ""
-                assistant_parts.append(text)
-                _emit(entry, {"kind": "text", "text": text})
-            elif kind == "thinking":
-                text = event.get("text") or ""
-                if text:
-                    thinking_parts.append(text)
-                    _emit(entry, {"kind": "thinking", "text": text})
-            elif kind == "tool":
-                tool = {
-                    "tool": event.get("tool") or "tool",
-                    "status": event.get("status") or "",
-                    "input": event.get("input") or {},
-                    "output": (event.get("output") or "")[:4000],
-                    "title": event.get("title") or event.get("tool") or "tool",
-                }
-                tools.append(tool)
-                _emit(entry, {"kind": "tool", **tool})
-            elif kind == "step_start":
-                _emit(entry, {"kind": "step_start"})
-            elif kind == "step_finish":
-                tokens = event.get("tokens") or {}
-                tokens_in += int(tokens.get("input") or 0)
-                tokens_out += int(tokens.get("output") or 0)
-                cost += float(event.get("cost") or 0.0)
-                _emit(entry, {
-                    "kind": "step_finish",
-                    "tokens": tokens,
-                    "cost": event.get("cost") or 0,
-                    "tokens_in": tokens_in,
-                    "tokens_out": tokens_out,
-                })
-            elif kind == "process_end":
-                rc = event.get("rc")
-                session_id = event.get("session_id") or session_id
-                _emit(entry, {"kind": "process_end", "rc": rc, "session_id": session_id})
-            elif kind == "error":
-                error = event
-                _emit(entry, {
-                    "kind": "error",
-                    "message": event.get("message"),
-                    "status": event.get("status"),
-                    "error_type": event.get("error_type"),
-                    "retry_after_ms": event.get("retry_after_ms"),
-                })
-            else:
-                _emit(entry, {"kind": "raw", "line": (event.get("line") or "")[:400]})
+        for attempt in range(max_attempts):
+            if entry.get("cancelled"):
+                break
+            attempted.add(active_model)
+            cfg = ChatConfig(
+                model=active_model,
+                agent=session.get("agent") or "",
+                thinking=bool(settings.get("thinking")),
+                auto=bool(settings.get("auto", True)),
+                cwd=session.get("cwd") or str(Path.home()),
+                files=list(files),
+                title=session.get("title", "") if not session_id else "",
+            )
+            runner = ChatRunner(
+                prompt,
+                cfg,
+                opencode_session_id=session_id,
+                session_messages=session.get("messages", []),
+                tick_interval=0.35,
+            )
+            entry["runner"] = runner
+            error = None
+            turn_emitted_text = False
 
-            # Persistir el id real de OpenCode en cuanto se conozca.
-            if runner.session_id and runner.session_id != last_saved_sid:
-                last_saved_sid = runner.session_id
-                session_id = runner.session_id
-                session["opencode_session_id"] = runner.session_id
-                store.save_session(session)
+            for event in runner.run():
+                kind = event.get("kind")
+                if kind == "tick":
+                    if entry.get("cancelled"):
+                        break
+                    _emit(entry, {"kind": "tick"})
+                    continue
+                if kind == "text":
+                    text = event.get("text") or ""
+                    if text:
+                        turn_emitted_text = True
+                        assistant_parts.append(text)
+                        _emit(entry, {"kind": "text", "text": text})
+                elif kind == "thinking":
+                    text = event.get("text") or ""
+                    if text:
+                        thinking_parts.append(text)
+                        _emit(entry, {"kind": "thinking", "text": text})
+                elif kind == "tool":
+                    tool = {
+                        "tool": event.get("tool") or "tool",
+                        "status": event.get("status") or "",
+                        "input": event.get("input") or {},
+                        "output": (event.get("output") or "")[:4000],
+                        "title": event.get("title") or event.get("tool") or "tool",
+                    }
+                    tools.append(tool)
+                    _emit(entry, {"kind": "tool", **tool})
+                elif kind == "step_start":
+                    _emit(entry, {"kind": "step_start", "model": active_model})
+                elif kind == "step_finish":
+                    tokens = event.get("tokens") or {}
+                    tokens_in += int(tokens.get("input") or 0)
+                    tokens_out += int(tokens.get("output") or 0)
+                    cost += float(event.get("cost") or 0.0)
+                    _emit(entry, {
+                        "kind": "step_finish",
+                        "tokens": tokens,
+                        "cost": event.get("cost") or 0,
+                        "tokens_in": tokens_in,
+                        "tokens_out": tokens_out,
+                    })
+                elif kind == "process_end":
+                    rc = event.get("rc")
+                    session_id = event.get("session_id") or session_id
+                    _emit(entry, {"kind": "process_end", "rc": rc, "session_id": session_id})
+                elif kind == "error":
+                    error = event
+                else:
+                    _emit(entry, {"kind": "raw", "line": (event.get("line") or "")[:400]})
+
+                if runner.session_id and runner.session_id != last_saved_sid:
+                    last_saved_sid = runner.session_id
+                    session_id = runner.session_id
+                    session["opencode_session_id"] = runner.session_id
+                    store.save_session(session)
+
+            # Éxito o cancelación: salir del ciclo de failover
+            if entry.get("cancelled") or not error or turn_emitted_text:
+                if error and turn_emitted_text:
+                    # Ya emitimos texto parcial, informar error sin perderlo
+                    _emit(entry, {
+                        "kind": "error",
+                        "message": error.get("message"),
+                        "status": error.get("status"),
+                        "error_type": error.get("error_type"),
+                        "retry_after_ms": error.get("retry_after_ms"),
+                    })
+                break
+
+            # Sesión OpenCode expirada: recrear manteniendo historial FTL
+            if is_missing_session(error) and session_id:
+                session_id = None
+                session["opencode_session_id"] = None
+                _emit(entry, {
+                    "kind": "failover",
+                    "from": short_model(active_model),
+                    "to": short_model(active_model),
+                    "reason": "Sesión OpenCode expirada; recreando con historial FTL.",
+                })
+                continue
+
+            # Failover automático multi-proveedor (OpenCode <-> Pollinations AI <-> Local)
+            if is_transient_error(error) and (attempt + 1) < max_attempts:
+                nxt_ref: Optional[str] = None
+                # Si falló OpenCode, priorizar primero el proveedor externo independiente (Pollinations)
+                ext_ref = ext_provider.best_external_ref()
+                if not ext_provider.is_external_model(active_model) and ext_ref not in attempted:
+                    nxt_ref = ext_ref
+                else:
+                    nxt_model = next_free_model(active_model, attempted)
+                    if nxt_model:
+                        nxt_ref = nxt_model.ref
+                    elif "local/TARDIS-NEURAL-SPACE-KAIJU" not in attempted:
+                        nxt_ref = "local/TARDIS-NEURAL-SPACE-KAIJU"
+
+                if nxt_ref and nxt_ref not in attempted:
+                    old_short = short_model(active_model)
+                    active_model = nxt_ref
+                    session["model"] = active_model
+                    _emit(entry, {
+                        "kind": "failover",
+                        "from": old_short,
+                        "to": short_model(active_model),
+                        "model": active_model,
+                        "reason": (error.get("message") or "error transitorio")[:160],
+                    })
+                    continue
+
+            # Sin más rutas de failover: emitir error definitivo
+            _emit(entry, {
+                "kind": "error",
+                "message": error.get("message"),
+                "status": error.get("status"),
+                "error_type": error.get("error_type"),
+                "retry_after_ms": error.get("retry_after_ms"),
+            })
+            break
     except Exception as exc:  # noqa: BLE001
         error = {"kind": "error", "message": f"Fallo interno del motor: {exc}"}
         _emit(entry, error)
@@ -195,16 +290,15 @@ def _execute_turn(entry: dict, session: dict, prompt: str, files: list[str]) -> 
 
     if session_id and session_id != session.get("opencode_session_id"):
         session["opencode_session_id"] = session_id
-        store.save_session(session)
 
-    answer = "\n\n".join(p for p in assistant_parts if p.strip()).strip()
-    thinking_text = "\n\n".join(p for p in thinking_parts if p.strip()).strip()
+    answer = "".join(assistant_parts).strip() if all(len(p) < 120 for p in assistant_parts[:4]) and len(assistant_parts) > 2 else "\n\n".join(p for p in assistant_parts if p.strip()).strip()
+    thinking_text = "".join(thinking_parts).strip() if len(thinking_parts) > 3 else "\n\n".join(p for p in thinking_parts if p.strip()).strip()
 
     if entry.get("cancelled"):
         store.add_message(session, "system", "Turno cancelado desde el portal web.")
         _emit(entry, {"kind": "done", "cancelled": True, "session_id": session["id"]})
     else:
-        if error:
+        if error and not answer:
             store.add_message(
                 session, "system",
                 f"Error: {error.get('message', 'desconocido')}",
@@ -215,7 +309,7 @@ def _execute_turn(entry: dict, session: dict, prompt: str, files: list[str]) -> 
             if not answer and tools:
                 answer = "*(El agente ejecutó herramientas sin emitir texto final.)*"
             store.add_message(
-                session, "assistant", answer, tools=tools,
+                session, "assistant", answer, model=active_model, tools=tools,
                 meta={
                     "tokens_in": tokens_in,
                     "tokens_out": tokens_out,
@@ -223,6 +317,7 @@ def _execute_turn(entry: dict, session: dict, prompt: str, files: list[str]) -> 
                     "rc": rc,
                     "thinking": thinking_text[:20000],
                 },
+                persist=False,
             )
             store.record_turn(
                 session, tokens_in=tokens_in, tokens_out=tokens_out,
@@ -231,6 +326,7 @@ def _execute_turn(entry: dict, session: dict, prompt: str, files: list[str]) -> 
             _emit(entry, {
                 "kind": "done",
                 "session_id": session["id"],
+                "model": active_model,
                 "opencode_session_id": session.get("opencode_session_id"),
                 "answer": answer,
                 "tools": len(tools),
@@ -249,16 +345,35 @@ def _execute_turn(entry: dict, session: dict, prompt: str, files: list[str]) -> 
 # ---------------------------------------------------------------------------
 @router.get("/api/chat/bootstrap")
 async def chat_bootstrap():
-    sessions = store.list_sessions()
-    latest = store.latest_session()
+    def _load():
+        sessions = store.list_sessions()
+        latest = store.latest_session()
+        return sessions, latest, _models_payload(), _default_model(), ext_provider.configured_providers()
+    sessions, latest, models, default_model, providers = await asyncio.to_thread(_load)
     return JSONResponse({
         "sessions": sessions,
         "latest": latest["id"] if latest else None,
-        "models": _models_payload(),
-        "default_model": _default_model(),
+        "models": models,
+        "providers": providers,
+        "default_model": default_model,
         "store_dir": str(store.SESSIONS_DIR),
         "cwd": str(Path.home()),
     })
+
+
+@router.get("/api/chat/providers")
+async def chat_providers(probe: bool = False):
+    """Estado de proveedores externos gratuitos y pool OpenCode."""
+    def _gather():
+        if probe:
+            ext_provider.probe("pollinations", force=True)
+        return {
+            "ok": True,
+            "external_providers": ext_provider.configured_providers(),
+            "best_external": ext_provider.best_external_ref(),
+            "free_pool": fm.summary(),
+        }
+    return JSONResponse(await asyncio.to_thread(_gather))
 
 
 @router.get("/api/chat/sessions")
@@ -405,16 +520,19 @@ async def chat_send(payload: dict):
             settings[key] = bool(payload[key])
     if "agent" in payload:
         session["agent"] = str(payload.get("agent") or "")
-    store.save_session(session)
 
     display_text = text
     store.add_message(session, "user", display_text)
 
     run_id = "run_" + uuid.uuid4().hex[:12]
+    loop = asyncio.get_running_loop()
     entry = {
         "id": run_id,
         "session_id": session["id"],
-        "queue": Queue(),
+        "loop": loop,
+        "aqueue": asyncio.Queue(),
+        "backlog": [],
+        "last_tick": 0.0,
         "runner": None,
         "cancelled": False,
         "started": time.time(),
@@ -463,12 +581,21 @@ async def chat_stream(run_id: str):
     if not entry:
         raise HTTPException(status_code=404, detail="Ejecución no encontrada")
 
-    def generate():
+    async def generate():
         yield "retry: 3000\n\n"
+        backlog = entry.get("backlog")
+        if backlog:
+            pending = list(backlog)
+            backlog.clear()
+            for ev in pending:
+                yield "data: " + json.dumps(ev, ensure_ascii=False) + "\n\n"
+                if ev.get("kind") == "eof":
+                    return
+        aqueue: asyncio.Queue = entry["aqueue"]
         while True:
             try:
-                event = entry["queue"].get(timeout=15)
-            except Empty:
+                event = await asyncio.wait_for(aqueue.get(), timeout=15.0)
+            except asyncio.TimeoutError:
                 yield ": keepalive\n\n"
                 continue
             yield "data: " + json.dumps(event, ensure_ascii=False) + "\n\n"
@@ -634,12 +761,12 @@ async def composer_recover(session_id: str = ""):
 # ---------------------------------------------------------------------------
 @router.get("/api/chat/history")
 async def chat_history(q: str = "", limit: int = 100, offset: int = 0, source: str = "all"):
-    return JSONResponse(history.unified(q, limit=limit, offset=offset, source=source))
+    return JSONResponse(await asyncio.to_thread(history.unified, q, limit=limit, offset=offset, source=source))
 
 
 @router.get("/api/chat/history/stats")
 async def chat_history_stats():
-    return JSONResponse(history.stats())
+    return JSONResponse(await asyncio.to_thread(history.stats))
 
 
 @router.get("/api/chat/history/export")
@@ -1366,7 +1493,9 @@ const Vault = {
   startTimers(){
     this.stopTimers();
     this.timer = setInterval(() => this.tick(), 1000);
-    this.hbTimer = setInterval(() => this.persist(false), 2500);
+    this.hbTimer = setInterval(() => {
+      if(!document.hidden) this.persist(false);
+    }, 12000);
   },
   stopTimers(){
     if(this.timer){ clearInterval(this.timer); this.timer = null; }
@@ -1969,13 +2098,24 @@ function listen(runId, mdBox, holder, pendingThink, pendingTools){
   if(state.es) state.es.close();
   const es = new EventSource("/api/chat/stream/"+runId);
   state.es = es;
+  let rafId = null;
+  const flushStream = () => {
+    rafId = null;
+    mdBox.innerHTML = md(state.streamBuf);
+    scrollBottom();
+  };
+  const scheduleRender = () => {
+    if(rafId === null) rafId = requestAnimationFrame(flushStream);
+  };
 
   es.onmessage = (ev) => {
     let e; try{ e = JSON.parse(ev.data); }catch{ return; }
     if(e.kind === "text"){
       state.streamBuf += e.text;
-      mdBox.innerHTML = md(state.streamBuf);
-      scrollBottom();
+      scheduleRender();
+    } else if(e.kind === "failover"){
+      setStatus("busy", "CONMUTANDO → " + (e.to || "externo"));
+      toast("⚡ Failover automático: " + (e.from || "motor") + " → " + (e.to || "externo"), true);
     } else if(e.kind === "thinking"){
       if(!pendingThink.el){
         const d = document.createElement("details");
@@ -1984,7 +2124,7 @@ function listen(runId, mdBox, holder, pendingThink, pendingTools){
         holder.insertBefore(d, mdBox);
         pendingThink.el = d.querySelector(".body");
       }
-      pendingThink.el.textContent += (pendingThink.el.textContent ? "\n\n" : "") + e.text;
+      pendingThink.el.textContent += (pendingThink.el.textContent ? "" : "") + e.text;
     } else if(e.kind === "tool"){
       const card = toolCard(e);
       holder.insertBefore(card, mdBox);
@@ -2002,6 +2142,7 @@ ${e.retry_after_ms ? "\nReintenta en ~"+Math.round(e.retry_after_ms/60000)+" min
       holder.insertBefore(box, mdBox);
       toast("✖ " + (e.message || "Error del núcleo"));
     } else if(e.kind === "done"){
+      if(rafId !== null){ cancelAnimationFrame(rafId); rafId = null; }
       state.streamBuf = e.answer || state.streamBuf;
       mdBox.classList.remove("caret");
       mdBox.innerHTML = md(state.streamBuf);
@@ -2009,6 +2150,7 @@ ${e.retry_after_ms ? "\nReintenta en ~"+Math.round(e.retry_after_ms/60000)+" min
       finish();
       refreshSessions();
     } else if(e.kind === "eof"){
+      if(rafId !== null){ cancelAnimationFrame(rafId); rafId = null; }
       es.close();
       if(state.busy) finish();
     }

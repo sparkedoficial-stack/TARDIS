@@ -107,7 +107,7 @@ class TardisInfiniteCodeEngine:
         self.history: List[Dict[str, Any]] = []
         self.active_flagships = {
             "m1_flash": "gemini-3.8-flash-high",
-            "m2_pro": "gemini-4-neon-high",
+            "m2_pro": "gemini-4-neon-xhigh",
             "m3_sonnet": "sonnet",
             "m4_opus": "opus",
             "external_cloud": "groq_deepseek",
@@ -128,7 +128,7 @@ class TardisInfiniteCodeEngine:
                 cls._instance = cls()
             return cls._instance
 
-    def _call_agy(self, prompt: str, model: str, effort: str = "high", timeout: float = 300.0) -> Tuple[int, str]:
+    def _call_agy(self, prompt: str, model: str, effort: str = "xhigh", timeout: float = 300.0) -> Tuple[int, str]:
         """Ejecuta inferencia mediante Antigravity / Gemini CLI en modo bypass."""
         full_prompt = f"{SOVEREIGN_INVARIANT}{prompt}"
         cmd = [
@@ -398,7 +398,7 @@ class TardisInfiniteCodeEngine:
             f"--- ANDAMIAJE DE FASE 1 ---\n{out1[:8000]}\n---------------------------\n"
             f"Entrega especificaciones rigurosas de implementación."
         )
-        rc2, out2 = self._call_agy(p2_prompt, self.active_flagships["m2_pro"], effort="high", timeout=240.0)
+        rc2, out2 = self._call_agy(p2_prompt, self.active_flagships["m2_pro"], effort="xhigh", timeout=240.0)
         p2_model = self.active_flagships["m2_pro"]
         p2_status = "OK"
 
@@ -440,7 +440,7 @@ class TardisInfiniteCodeEngine:
         if rc3 != 0:
             _notify("⚠ Fase 3: Failover a Gemini Pro High...")
             self.stats["failovers_recovered"] += 1
-            rc3, out3 = self._call_agy(p3_prompt, self.active_flagships["m2_pro"], effort="high", timeout=300.0)
+            rc3, out3 = self._call_agy(p3_prompt, self.active_flagships["m2_pro"], effort="xhigh", timeout=300.0)
             p3_model = self.active_flagships["m2_pro"]
             p3_status = "FAILOVER" if rc3 == 0 else "FAILED"
 
@@ -473,7 +473,7 @@ class TardisInfiniteCodeEngine:
         if rc4 != 0:
             _notify("⚠ Fase 4: Failover a Gemini Pro High...")
             self.stats["failovers_recovered"] += 1
-            rc4, out4 = self._call_agy(p4_prompt, self.active_flagships["m2_pro"], effort="high", timeout=300.0)
+            rc4, out4 = self._call_agy(p4_prompt, self.active_flagships["m2_pro"], effort="xhigh", timeout=300.0)
             p4_model = self.active_flagships["m2_pro"]
             p4_status = "FAILOVER" if rc4 == 0 else "FAILED"
 

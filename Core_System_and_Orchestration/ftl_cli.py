@@ -552,7 +552,7 @@ def dispatch_unified_command(cmd_name: str, args_list: list[str] = None) -> bool
         return True
 
     elif cmd == "agy-cli":
-        console.print("[bold cyan]Abriendo sesión nativa de Antigravity CLI en modo bypass y high effort...[/bold cyan]")
+        console.print("[bold cyan]Abriendo sesión nativa de Antigravity CLI en modo bypass y xhigh effort...[/bold cyan]")
         executor.launch_interactive_agy()
         console.print("[bold cyan]Regresando a la Shell de TARDIS · FTL Soberano.[/bold cyan]")
         return True

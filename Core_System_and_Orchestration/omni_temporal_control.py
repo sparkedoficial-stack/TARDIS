@@ -4636,12 +4636,75 @@ def process_agentic_chat(
     allow_cloud = os.environ.get("TARDIS_ALLOW_CLOUD_OFFLOAD", "0").lower() in ("1", "true", "yes")
     force_cloud = bool(allow_cloud and not is_local_request and pref in ("cloud", "chinese", "deepseek", "siliconflow", "zhipu", "qwen", "groq", "groq_deepseek"))
 
-    print(f"[{request_id or 'CHAT'}] Pre-checks finished ({time.time()-t0:.2f}s). Starting TARDIS-NEURAL-SPACE-KAIJU sovereign inference...", flush=True)
+    print(f"[{request_id or 'CHAT'}] Pre-checks finished ({time.time()-t0:.2f}s). Evaluating optimal inference route...", flush=True)
+
+    # 0.9. FAST-LANE EXTERNO GRATUITO: si el cliente pide modelo externo explícito
+    # o si TODOS los slots locales de TemporalBrain están saturados por demonios de fondo,
+    # despachar de inmediato al proveedor externo gratuito (Pollinations AI, 0 API key, ~1-3s).
+    _ext_fastlane_ok = os.environ.get("TARDIS_FREE_EXTERNAL_FALLBACK", "1").lower() not in ("0", "false", "no")
+    _explicit_ext_req = bool(model and any(str(model).lower().startswith(p) for p in ("pollinations/", "opencode/", "external/", "groq/", "openrouter/", "cerebras/", "mistral/")))
+    _local_saturated = False
+    if not _explicit_ext_req and _ext_fastlane_ok:
+        try:
+            from core.temporal_brain import get_temporal_brain
+            _local_saturated = get_temporal_brain().all_slots_busy(timeout=0.5)
+        except Exception:
+            _local_saturated = False
+
+    if (_explicit_ext_req or _local_saturated) and not (cancel_event and cancel_event.is_set()):
+        try:
+            _ftl_dir = str(Path.home() / ".ftl")
+            if _ftl_dir not in sys.path:
+                sys.path.insert(0, _ftl_dir)
+            import external_free_provider as _ext_free
+            _ext_ref = str(model) if _explicit_ext_req else _ext_free.best_external_ref()
+            _ext_msgs = [
+                {
+                    "role": "system",
+                    "content": (
+                        "Eres TARDIS, asistente de inteligencia artificial de alta precisión técnica. "
+                        "Responde en español de forma clara, directa y concisa."
+                    ),
+                }
+            ]
+            for _hm in (history or [])[-8:]:
+                if _hm.get("role") in ("user", "assistant") and _hm.get("content"):
+                    _ext_msgs.append({"role": _hm["role"], "content": str(_hm["content"])[:3000]})
+            _ext_msgs.append({"role": "user", "content": message})
+            _reason = "modelo externo explícito" if _explicit_ext_req else "slots locales saturados por demonios"
+            print(f"[{request_id or 'CHAT'}] ⚡ Fast-Lane Externo Gratuito ({_reason}) -> {_ext_ref}...", flush=True)
+            _ext_res = _ext_free.chat_with_failover(_ext_msgs, model_ref=_ext_ref, temperature=float(temperature), max_tokens=1024, timeout=25.0)
+            if _ext_res.get("ok") and _ext_res.get("reply"):
+                _reply_ext = _ext_res["reply"].strip()
+                if HAS_MEM:
+                    try:
+                        _mem.log("app", "assistant", _reply_ext, session_id="omni_app", meta={"provider": _ext_res.get("provider_name"), "fastlane": True})
+                    except Exception:
+                        pass
+                out_result = {
+                    "ok": True,
+                    "reply": _reply_ext,
+                    "web_sources": web_used,
+                    "provider": _ext_res.get("provider_name", "Pollinations AI (Free External)"),
+                    "model": _ext_res.get("model", _ext_ref),
+                    "node": "external_free_fastlane",
+                    "neural_engine": "External Free Inference (Zero-Key HTTPS)",
+                    "neural_telemetry": kaiju_telemetry,
+                    "transmission": {
+                        "provider": _ext_res.get("provider_name"),
+                        "model": _ext_res.get("model"),
+                        "tokens_per_sec": _ext_res.get("tokens_per_sec", 0.0),
+                        "elapsed_s": _ext_res.get("elapsed_s", 0.0),
+                        "tokens": _ext_res.get("tokens_out", 0),
+                    },
+                }
+        except Exception as _e_fl:
+            print(f"[{request_id or 'CHAT'}] Fast-Lane externo omitido ({_e_fl}); continuando con motor local...", flush=True)
 
     # 1. CANAL PRIMARIO Y MANDATORIO: TARDIS-NEURAL-SPACE-KAIJU (MLA + SSM + MoE)
     # Toda la información pasa por este modelo soberano central.
     # Si la tarea es de cómputo pesado, se compila a Lenguaje Inter-IA (IR) y se despacha a la pasarela acelerada.
-    if not (cancel_event and cancel_event.is_set()):
+    if not out_result and not (cancel_event and cancel_event.is_set()):
         try:
             from core.kaiju_cognitive_orchestrator import get_kaiju_orchestrator
             orchestrator = get_kaiju_orchestrator()
@@ -4809,6 +4872,59 @@ def process_agentic_chat(
                 }
         except Exception:
             pass
+
+    # 2.55. Acelerador / Failover Externo Gratuito (Pollinations AI · cero API key · cero carga GPU)
+    # Se activa automáticamente si la inferencia local falló, o si el usuario pidió un modelo externo explícito.
+    _ext_fallback_enabled = os.environ.get("TARDIS_FREE_EXTERNAL_FALLBACK", "1").lower() not in ("0", "false", "no")
+    _explicit_ext_model = bool(model and any(str(model).lower().startswith(p) for p in ("pollinations/", "opencode/", "external/", "groq/", "openrouter/", "cerebras/", "mistral/")))
+    if (not out_result or _explicit_ext_model) and (_ext_fallback_enabled or _explicit_ext_model):
+        try:
+            _ftl_dir = str(Path.home() / ".ftl")
+            if _ftl_dir not in sys.path:
+                sys.path.insert(0, _ftl_dir)
+            import external_free_provider as _ext_free
+            _ext_ref = str(model) if _explicit_ext_model else _ext_free.best_external_ref()
+            _ext_msgs = [
+                {
+                    "role": "system",
+                    "content": (
+                        "Eres TARDIS, asistente de inteligencia artificial de alta precisión técnica. "
+                        "Responde en español de forma clara, directa y concisa."
+                    ),
+                }
+            ]
+            for _hm in (history or [])[-8:]:
+                if _hm.get("role") in ("user", "assistant") and _hm.get("content"):
+                    _ext_msgs.append({"role": _hm["role"], "content": str(_hm["content"])[:3000]})
+            _ext_msgs.append({"role": "user", "content": message})
+            print(f"[{request_id or 'CHAT'}] 🌐 Failover/Acelerador Externo Gratuito -> {_ext_ref}...", flush=True)
+            _ext_res = _ext_free.chat_with_failover(_ext_msgs, model_ref=_ext_ref, temperature=float(temperature), max_tokens=1024, timeout=30.0)
+            if _ext_res.get("ok") and _ext_res.get("reply"):
+                _reply_ext = _ext_res["reply"].strip()
+                if HAS_MEM:
+                    try:
+                        _mem.log("app", "assistant", _reply_ext, session_id="omni_app", meta={"provider": _ext_res.get("provider_name")})
+                    except Exception:
+                        pass
+                out_result = {
+                    "ok": True,
+                    "reply": _reply_ext,
+                    "web_sources": web_used,
+                    "provider": _ext_res.get("provider_name", "Pollinations AI (Free External)"),
+                    "model": _ext_res.get("model", _ext_ref),
+                    "node": "external_free_inference",
+                    "neural_engine": "External Free Inference (Zero-Key HTTPS)",
+                    "neural_telemetry": kaiju_telemetry,
+                    "transmission": {
+                        "provider": _ext_res.get("provider_name"),
+                        "model": _ext_res.get("model"),
+                        "tokens_per_sec": _ext_res.get("tokens_per_sec", 0.0),
+                        "elapsed_s": _ext_res.get("elapsed_s", 0.0),
+                        "tokens": _ext_res.get("tokens_out", 0),
+                    },
+                }
+        except Exception as _e_ext:
+            print(f"[{request_id or 'CHAT'}] Aviso en proveedor externo gratuito: {_e_ext}", flush=True)
 
     # 2.6. Contingencia Cloud API (SOLO si TARDIS_ALLOW_CLOUD_OFFLOAD=1 está expresamente activo)
     if not out_result and allow_cloud:

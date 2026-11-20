@@ -16,7 +16,9 @@ import json
 import os
 import re
 import subprocess
+import threading
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Callable, Iterable, Optional
@@ -68,13 +70,23 @@ CATALOG: tuple[FreeModel, ...] = (
         notes="Alterno soberano primario. Razonamiento profundo y código.",
     ),
     FreeModel(
+        key="pollinations",
+        model_id="pollinations/openai-fast",
+        name="Pollinations AI · GPT-OSS 20B (Externo Gratis)",
+        variant="",
+        roles=("rápido", "externo", "razonamiento", "general", "failover"),
+        priority=15,
+        notes="Proveedor externo gratuito directo por HTTPS SSE (cero API key, independiente de OpenCode y sin carga GPU local).",
+    ),
+    FreeModel(
         key="glm",
         model_id="opencode/glm-5.3-flash-free",
         name="GLM-5.3 Flash Max",
         variant="max",
         roles=("razonamiento", "contexto-largo", "multilingüe", "general"),
-        priority=20,
-        notes="Excelente en contexto largo y redacción técnica; latencia alta en frío.",
+        priority=95,
+        enabled_default=False,
+        notes="Deshabilitado: retirado del catálogo activo de `opencode models`.",
     ),
     FreeModel(
         key="flint",
@@ -147,6 +159,8 @@ BY_KEY = {m.key: m for m in CATALOG}
 BY_ID = {m.model_id: m for m in CATALOG}
 ALIASES = {
     "deepseek": "deepseek", "v4.1": "deepseek", "alterno": "deepseek",
+    "pollinations": "pollinations", "poll": "pollinations", "external": "pollinations",
+    "ext": "pollinations", "ovh": "pollinations", "gpt-oss": "pollinations",
     "glm": "glm", "glm5": "glm", "zhipu": "glm",
     "flint": "flint", "flint40b": "flint",
     "nemotron-vl": "nemotron-vl", "vl": "nemotron-vl", "vision": "nemotron-vl",
@@ -294,26 +308,42 @@ def aliases() -> dict[str, str]:
 # ---------------------------------------------------------------------------
 # Estado persistente
 # ---------------------------------------------------------------------------
+_STATE_LOCK = threading.RLock()
+_STATE_CACHE: dict = {"mtime": -1.0, "data": None}
+
+
 def _load_state() -> dict:
-    try:
-        raw = json.loads(STATE_FILE.read_text(encoding="utf-8"))
-        if isinstance(raw, dict):
-            raw.setdefault("models", {})
-            return raw
-    except Exception:
-        pass
-    return {"models": {}, "updated_at": None}
+    with _STATE_LOCK:
+        try:
+            st = STATE_FILE.stat()
+            if _STATE_CACHE["data"] is not None and _STATE_CACHE["mtime"] == st.st_mtime:
+                return _STATE_CACHE["data"]
+            raw = json.loads(STATE_FILE.read_text(encoding="utf-8"))
+            if isinstance(raw, dict):
+                raw.setdefault("models", {})
+                _STATE_CACHE["mtime"] = st.st_mtime
+                _STATE_CACHE["data"] = raw
+                return raw
+        except Exception:
+            pass
+        return {"models": {}, "updated_at": None}
 
 
 def _save_state(state: dict) -> None:
-    try:
-        CONFIG_DIR.mkdir(parents=True, exist_ok=True)
-        state["updated_at"] = time.strftime("%Y-%m-%dT%H:%M:%S%z")
-        tmp = STATE_FILE.with_suffix(".tmp")
-        tmp.write_text(json.dumps(state, indent=2, ensure_ascii=False), encoding="utf-8")
-        tmp.replace(STATE_FILE)
-    except Exception:
-        pass
+    with _STATE_LOCK:
+        try:
+            CONFIG_DIR.mkdir(parents=True, exist_ok=True)
+            state["updated_at"] = time.strftime("%Y-%m-%dT%H:%M:%S%z")
+            tmp = STATE_FILE.with_suffix(".tmp")
+            tmp.write_text(json.dumps(state, indent=2, ensure_ascii=False), encoding="utf-8")
+            tmp.replace(STATE_FILE)
+            try:
+                _STATE_CACHE["mtime"] = STATE_FILE.stat().st_mtime
+                _STATE_CACHE["data"] = state
+            except Exception:
+                _STATE_CACHE["mtime"] = -1.0
+        except Exception:
+            pass
 
 
 def _bin() -> Optional[str]:
@@ -404,14 +434,40 @@ def available_models() -> list[FreeModel]:
 # ---------------------------------------------------------------------------
 # Sonda de disponibilidad real
 # ---------------------------------------------------------------------------
-def probe(model: FreeModel, timeout: int = 150) -> dict:
+def probe(model: FreeModel, timeout: int = 35) -> dict:
     t0 = time.time()
     state = _load_state()
-    entry = state.setdefault("models", {}).setdefault(model.key, {})
+    entry = dict(state.get("models", {}).get(model.key, {}))
 
-    if entry.get("enabled") is False:
+    if entry.get("enabled") is False or not model.enabled_default:
         entry.update({"available": False, "checked_at": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
                       "checked_epoch": time.time(), "error": "deshabilitado por el operador"})
+        state.setdefault("models", {})[model.key] = entry
+        _save_state(state)
+        return entry
+
+    # Sonda directa HTTP para proveedores externos gratuitos (Pollinations, Groq, etc.)
+    if not model.model_id.startswith("opencode/"):
+        try:
+            import external_free_provider as extp
+            provider_id = model.model_id.split("/", 1)[0]
+            res = extp.probe(provider_id, force=True)
+            entry.update({
+                "available": bool(res.get("available")),
+                "rc": 0 if res.get("available") else 1,
+                "latency_s": res.get("latency_s") if res.get("latency_s") is not None else round(time.time() - t0, 2),
+                "checked_at": res.get("checked_at") or time.strftime("%Y-%m-%dT%H:%M:%S%z"),
+                "checked_epoch": res.get("checked_epoch") or time.time(),
+                "error": res.get("error", ""),
+            })
+        except Exception as exc:
+            entry.update({
+                "available": False, "rc": -1, "latency_s": round(time.time() - t0, 2),
+                "checked_at": time.strftime("%Y-%m-%dT%H:%M:%S%z"), "checked_epoch": time.time(),
+                "error": str(exc)[:300],
+            })
+        state = _load_state()
+        state.setdefault("models", {})[model.key] = entry
         _save_state(state)
         return entry
 
@@ -419,6 +475,8 @@ def probe(model: FreeModel, timeout: int = 150) -> dict:
     if not exe:
         entry.update({"available": False, "error": "binario 'opencode' no encontrado (PATH soberano agotado)",
                       "checked_at": time.strftime("%Y-%m-%dT%H:%M:%S%z"), "checked_epoch": time.time()})
+        state = _load_state()
+        state.setdefault("models", {})[model.key] = entry
         _save_state(state)
         return entry
 
@@ -450,13 +508,16 @@ def probe(model: FreeModel, timeout: int = 150) -> dict:
             "checked_at": time.strftime("%Y-%m-%dT%H:%M:%S%z"), "checked_epoch": time.time(),
             "error": str(exc)[:300],
         })
+    state = _load_state()
+    state.setdefault("models", {})[model.key] = entry
     _save_state(state)
     return entry
 
 
 def refresh(force: bool = False, ttl: int = PROBE_TTL,
-            on_progress: Optional[Callable[[str], None]] = None) -> list[dict]:
-    """Sondea todos los modelos cuyo estado esté vencido (secuencial, conservador)."""
+            on_progress: Optional[Callable[[str], None]] = None,
+            max_workers: int = 4) -> list[dict]:
+    """Sondea en paralelo todos los modelos cuyo estado esté vencido."""
     # 1. Refrescar el catálogo real del proveedor (todos los gratuitos).
     try:
         if on_progress:
@@ -465,18 +526,32 @@ def refresh(force: bool = False, ttl: int = PROBE_TTL,
     except Exception:
         pass
 
-    results = []
+    results: list[dict] = []
+    pending: list[FreeModel] = []
     now = time.time()
     for model in all_models():
         st = model_state(model.key)
         fresh = (now - float(st.get("checked_epoch", 0))) < ttl
         if not force and fresh and "available" in st:
             results.append({"key": model.key, "skipped": True, **st})
-            continue
-        if on_progress:
-            on_progress(f"🔎 Sondeando {model.name} ({model.ref})…")
-        rec = probe(model)
-        results.append({"key": model.key, **rec})
+        elif not model.enabled_default or st.get("enabled") is False:
+            results.append({"key": model.key, "skipped": True, "available": False, **st})
+        else:
+            pending.append(model)
+
+    if pending:
+        with ThreadPoolExecutor(max_workers=max(1, min(max_workers, len(pending)))) as pool:
+            fut_map = {pool.submit(probe, m): m for m in pending}
+            for fut in as_completed(fut_map):
+                m = fut_map[fut]
+                try:
+                    rec = fut.result()
+                except Exception as exc:
+                    rec = {"available": False, "error": str(exc)[:200]}
+                if on_progress:
+                    ok_mark = "✓" if rec.get("available") else "✗"
+                    on_progress(f"{ok_mark} {m.name} ({m.ref}) · {rec.get('latency_s', '?')}s")
+                results.append({"key": m.key, **rec})
     return results
 
 

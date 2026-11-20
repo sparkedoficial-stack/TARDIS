@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Dict, Any, Optional
 
 class AntigravityClient:
-    def __init__(self, model: str = "gemini-4-neon-high", effort: str = "high"):
+    def __init__(self, model: str = "gemini-4-neon-xhigh", effort: str = "xhigh"):
         self.model = model
         self.effort = effort
         self.agy_bin = Path("/home/timemachine/.local/bin/agy")

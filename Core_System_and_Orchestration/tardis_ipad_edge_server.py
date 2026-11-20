@@ -1688,7 +1688,7 @@ def get_client_html() -> str:
                     </div>
                     <div style="display:flex;align-items:center;gap:10px;">
                         <span style="color:#10b981;">● JIT ARM64 ✓</span>
-                        <span style="color:#00f5d4;">FTL: gemini-4-neon-high</span>
+                        <span style="color:#00f5d4;">FTL: gemini-4-neon-xhigh</span>
                     </div>
                 </div>
 

@@ -21,7 +21,7 @@ class RoutingPlan:
     mode: str  # "gemini", "claude", "dual_synth", "dual_audit", "kaiju"
     primary_engine: str  # "agy", "claude", "kaiju"
     primary_model: str
-    primary_effort: str = "high"
+    primary_effort: str = "xhigh"
     secondary_engine: Optional[str] = None
     secondary_model: Optional[str] = None
     secondary_effort: Optional[str] = None
@@ -197,11 +197,11 @@ class CognitiveRouter:
                 mode="gemini",
                 primary_engine="agy",
                 primary_model=selected_model,
-                primary_effort="high",
+                primary_effort="xhigh" if "neon" in selected_model else "high",
                 complexity_level=complexity,
                 complexity_label=label,
                 context_scope=context_scope,
-                rationale=f"Pinned to Google Frontier Engine ({selected_model}) with High Reasoning Effort.",
+                rationale=f"Pinned to Google Frontier Engine ({selected_model}) with {'XHigh' if 'neon' in selected_model else 'High'} Reasoning Effort.",
                 estimated_savings="92% vs Opus" if "flash" in selected_model else "85% vs Opus"
             )
 
@@ -322,11 +322,11 @@ class CognitiveRouter:
                     mode="kaiju",
                     primary_engine="kaiju",
                     primary_model=google_pro_high,
-                    primary_effort="high",
+                    primary_effort="xhigh",
                     complexity_level=complexity,
                     complexity_label=f"{label} [TARDIS-KAIJU Orquestación]",
                     context_scope=context_scope,
-                    rationale=f"Gobernado por TARDIS-NEURAL-SPACE-KAIJU: Inferencia Causal Cuántica profunda con {google_pro_high} en High Effort.",
+                    rationale=f"Gobernado por TARDIS-NEURAL-SPACE-KAIJU: Inferencia Causal Cuántica profunda con {google_pro_high} en XHigh Effort.",
                     estimated_savings="85% vs Solo Opus"
                 )
             else:
@@ -436,11 +436,11 @@ class CognitiveRouter:
                 mode="gemini",
                 primary_engine="agy",
                 primary_model=google_pro_high,
-                primary_effort="high",
+                primary_effort="xhigh",
                 complexity_level=3,
                 complexity_label=label,
                 context_scope=context_scope,
-                rationale="Intermediate architecture/refactor. Gemini Pro High Effort gives deep multi-step frontier reasoning.",
+                rationale="Intermediate architecture/refactor. Gemini Pro XHigh Effort gives deep multi-step frontier reasoning.",
                 estimated_savings="85% vs Solo Opus"
             )
         elif complexity == 4:

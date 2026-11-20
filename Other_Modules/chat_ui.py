@@ -440,6 +440,8 @@ class ChatTUI:
             text,
             cfg,
             opencode_session_id=self.session.get("opencode_session_id"),
+            session_messages=self.session.get("messages", []),
+            tick_interval=0.20,
         )
         self._runner = runner
         status = QuasarStatus(cfg.model, self.session.get("id", ""), self.console)
@@ -542,14 +544,14 @@ class ChatTUI:
             return False
 
         # Renderizar razonamiento, herramientas y respuesta final
-        thinking_text = "\n\n".join(p for p in thinking_parts if p.strip()).strip()
+        thinking_text = self._join_parts(thinking_parts)
         for tool in tools:
             self.console.print(self.render_tool(tool))
             self.console.print()
         if thinking_text:
             self.console.print(self.render_thinking(thinking_text))
             self.console.print()
-        answer = "\n\n".join(part for part in assistant_parts if part.strip()).strip()
+        answer = self._join_parts(assistant_parts)
         if answer:
             self.console.print(self.render_assistant(answer))
         elif tools:
@@ -596,19 +598,40 @@ class ChatTUI:
         return rc == 0 or bool(answer) or bool(tools)
 
     @staticmethod
+    def _join_parts(parts: list) -> str:
+        """Une deltas de streaming sin saltos extra y bloques completos con doble salto."""
+        out: list[str] = []
+        for item in parts:
+            if isinstance(item, tuple):
+                txt, is_delta = item
+            else:
+                txt, is_delta = str(item), False
+            if not txt:
+                continue
+            if is_delta or not out:
+                out.append(txt)
+            else:
+                if out[-1].endswith("\n\n"):
+                    out.append(txt)
+                else:
+                    out.append("\n\n" + txt)
+        return "".join(out).strip()
+
+    @staticmethod
     def _collect(
         event: dict,
         collected: list[dict],
-        assistant_parts: list[str],
+        assistant_parts: list,
         tools: list[dict],
-        thinking_parts: Optional[list[str]] = None,
+        thinking_parts: Optional[list] = None,
     ) -> None:
         collected.append(event)
         kind = event.get("kind")
+        is_delta = bool(event.get("delta"))
         if kind == "text":
             text = event.get("text") or ""
             if text:
-                assistant_parts.append(text)
+                assistant_parts.append((text, is_delta))
         elif kind == "tool":
             tool = {
                 "tool": event.get("tool", "tool"),
@@ -620,7 +643,7 @@ class ChatTUI:
             tools.append(tool)
         elif kind == "thinking" and event.get("text"):
             if thinking_parts is not None:
-                thinking_parts.append(event["text"])
+                thinking_parts.append((event["text"], is_delta))
 
     # ------------------------------------------------------------------
     # Comandos

@@ -13,6 +13,7 @@ import base64
 import io
 import subprocess
 import asyncio
+from functools import lru_cache
 from pathlib import Path
 from typing import Dict, Any, List
 
@@ -66,19 +67,32 @@ def get_primary_lan_ip() -> str:
             return item["ip"]
     return "127.0.0.1"
 
+_TELEM_CACHE: Dict[str, Any] = {
+    "gpu": {"ts": 0.0, "val": None},
+    "tardis": {"ts": 0.0, "val": None},
+    "imac": {"ts": 0.0, "val": None},
+    "status": {"ts": 0.0, "val": None},
+}
+
+
 def get_gpu_info() -> Dict[str, Any]:
-    """Queries NVIDIA GPU metrics via nvidia-smi if available."""
+    """Queries NVIDIA GPU metrics via nvidia-smi with 3s TTL cache."""
+    now = time.monotonic()
+    cached = _TELEM_CACHE["gpu"]
+    if cached["val"] is not None and (now - cached["ts"]) < 3.0:
+        return cached["val"]
+    val = {"available": False, "name": "N/A", "total_mb": 0, "used_mb": 0, "temp_c": 0}
     try:
         cmd = [
             "nvidia-smi",
             "--query-gpu=name,memory.total,memory.used,temperature.gpu",
             "--format=csv,noheader,nounits"
         ]
-        out = subprocess.check_output(cmd, stderr=subprocess.DEVNULL, timeout=2).decode().strip()
+        out = subprocess.check_output(cmd, stderr=subprocess.DEVNULL, timeout=1.5).decode().strip()
         if out:
             parts = [p.strip() for p in out.split(",")]
             if len(parts) >= 4:
-                return {
+                val = {
                     "available": True,
                     "name": parts[0],
                     "total_mb": int(parts[1]),
@@ -87,34 +101,52 @@ def get_gpu_info() -> Dict[str, Any]:
                 }
     except Exception:
         pass
-    return {"available": False, "name": "N/A", "total_mb": 0, "used_mb": 0, "temp_c": 0}
+    cached["ts"] = now
+    cached["val"] = val
+    return val
 
 def get_tardis_status() -> Dict[str, Any]:
-    """Checks TARDIS Daemon status."""
+    """Checks TARDIS Daemon status with 3s TTL cache."""
+    now = time.monotonic()
+    cached = _TELEM_CACHE["tardis"]
+    if cached["val"] is not None and (now - cached["ts"]) < 3.0:
+        return cached["val"]
+    val: Dict[str, Any] = {"online": False, "details": {"mode": "standby"}}
     try:
         import urllib.request
         req = urllib.request.Request("http://127.0.0.1:8757/health", headers={"User-Agent": "FTL-Web"})
-        with urllib.request.urlopen(req, timeout=1.5) as resp:
+        with urllib.request.urlopen(req, timeout=1.0) as resp:
             if resp.status == 200:
                 data = json.loads(resp.read().decode())
-                return {"online": True, "details": data}
+                val = {"online": True, "details": data}
     except Exception:
         pass
-    return {"online": False, "details": {"mode": "standby"}}
+    cached["ts"] = now
+    cached["val"] = val
+    return val
 
 def get_imac_cluster_status() -> Dict[str, Any]:
-    """Queries iMac 14,1 Ollama & cluster node status."""
+    """Queries iMac 14,1 Ollama status with adaptive TTL (30s negative cache when offline)."""
+    now = time.monotonic()
+    cached = _TELEM_CACHE["imac"]
+    if cached["val"] is not None:
+        ttl = 10.0 if cached["val"].get("online") else 30.0
+        if (now - cached["ts"]) < ttl:
+            return cached["val"]
+    val: Dict[str, Any] = {"online": False, "ip": "REDACTED_IP", "models": []}
     try:
         import urllib.request
         req = urllib.request.Request("http://REDACTED_IP:11434/api/tags", headers={"User-Agent": "FTL-Web"})
-        with urllib.request.urlopen(req, timeout=1.2) as resp:
+        with urllib.request.urlopen(req, timeout=0.6) as resp:
             if resp.status == 200:
                 tags = json.loads(resp.read().decode())
                 models = [m.get("name") for m in tags.get("models", [])]
-                return {"online": True, "ip": "REDACTED_IP", "models": models}
+                val = {"online": True, "ip": "REDACTED_IP", "models": models}
     except Exception:
         pass
-    return {"online": False, "ip": "REDACTED_IP", "models": []}
+    cached["ts"] = now
+    cached["val"] = val
+    return val
 
 def get_ftl_stats() -> Dict[str, Any]:
     """Loads FTL stats ledger."""
@@ -131,8 +163,9 @@ def get_ftl_stats() -> Dict[str, Any]:
         "failovers_recovered": 0
     }
 
+@lru_cache(maxsize=32)
 def generate_qr_base64(url: str) -> str:
-    """Generates a base64 encoded PNG for a given URL."""
+    """Generates and caches a base64 encoded PNG for a given URL."""
     qr = qrcode.QRCode(box_size=5, border=2)
     qr.add_data(url)
     qr.make(fit=True)
@@ -205,16 +238,24 @@ async def api_voice_command(request: Request):
 
 @app.get("/api/status")
 async def api_status():
-    """Returns real-time telemetry of system and FTL."""
+    """Returns real-time telemetry of system and FTL (non-blocking, concurrent, TTL-cached)."""
+    now = time.monotonic()
+    cached = _TELEM_CACHE["status"]
+    if cached["val"] is not None and (now - cached["ts"]) < 2.0:
+        return JSONResponse(cached["val"])
+
+    gpu, tardis, imac, ftl, ips = await asyncio.gather(
+        asyncio.to_thread(get_gpu_info),
+        asyncio.to_thread(get_tardis_status),
+        asyncio.to_thread(get_imac_cluster_status),
+        asyncio.to_thread(get_ftl_stats),
+        asyncio.to_thread(get_network_ips),
+    )
     mem = psutil.virtual_memory()
     disk = psutil.disk_usage("/")
-    gpu = get_gpu_info()
-    tardis = get_tardis_status()
-    imac = get_imac_cluster_status()
-    ftl = get_ftl_stats()
-    ips = get_network_ips()
+    primary_ip = next((i["ip"] for i in ips if i["ip"].startswith("192.168.")), ips[0]["ip"] if ips else "127.0.0.1")
 
-    return JSONResponse({
+    payload = {
         "timestamp": time.time(),
         "hostname": socket.gethostname(),
         "cpu_percent": psutil.cpu_percent(interval=None),
@@ -233,8 +274,11 @@ async def api_status():
         "imac_cluster": imac,
         "ftl": ftl,
         "ips": ips,
-        "primary_ip": get_primary_lan_ip()
-    })
+        "primary_ip": primary_ip,
+    }
+    cached["ts"] = now
+    cached["val"] = payload
+    return JSONResponse(payload)
 
 
 # --- SaveMode · Remote Edge Delegation -------------------------------------
@@ -290,7 +334,7 @@ async def api_savemode_audit(limit: int = 50):
 
 
 # --- REA Learning Engine & /SavageUpdate -----------------------------------
-GODWORKS_DIR = Path("/home/timemachine/Escritorio/GODWORKS SYSTEM")
+GODWORKS_DIR = Path.home() / "Escritorio" / "GODWORKS SYSTEM"
 REA_DATA = GODWORKS_DIR / "data" / "rea"
 
 
@@ -384,8 +428,11 @@ async def api_qr(url: str = None):
 async def api_get_brightness():
     """Returns real-time dual-node brightness telemetry."""
     try:
-        res = subprocess.run(["/usr/local/bin/tardis-brightness", "--json"],
-                             stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=3.0)
+        res = await asyncio.to_thread(
+            subprocess.run,
+            ["/usr/local/bin/tardis-brightness", "--json"],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=3.0,
+        )
         if res.returncode == 0 and res.stdout.strip():
             return JSONResponse(json.loads(res.stdout.strip()))
     except Exception as e:
@@ -400,8 +447,11 @@ async def api_set_brightness(request: Request):
         body = await request.json()
         val = str(body.get("value", 80))
         target = str(body.get("target", "all"))
-        res = subprocess.run(["/usr/local/bin/tardis-brightness", val, target],
-                             stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=6.0)
+        res = await asyncio.to_thread(
+            subprocess.run,
+            ["/usr/local/bin/tardis-brightness", val, target],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=6.0,
+        )
         return JSONResponse({"status": "ok", "target": target, "value": val, "output": res.stdout.strip()})
     except Exception as e:
         return JSONResponse({"status": "error", "error": str(e)}, status_code=500)
@@ -1253,7 +1303,7 @@ async def portal_index(request: Request):
             }} catch (e) {{}}
         }}
 
-        setInterval(updateTelemetry, 4000);
+        setInterval(() => {{ if (!document.hidden) updateTelemetry(); }}, 4000);
         updateTelemetry();
     </script>
 </body>

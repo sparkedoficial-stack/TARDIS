@@ -1,34 +1,6 @@
 [
   {
     "target_file": "/home/m11/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
-    "goal": "Add an asynchronous caching layer that stores recent search results together with their causal provenance metadata, and expose a new method `fetch_with_causal_context(query, depth=2)` that queries the Deep Memory Vault for related causal nodes before performing a fresh web search.",
-    "status": "REJECTED",
-    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
-    "elapsed_seconds": 2813.56,
-    "backup_path": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/web_research_engine.py.20261114_150634.bak",
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Respuesta generada demasiado corta (2558 vs 35266 bytes)",
-    "timestamp": "2026-11-14T15:53:27.706558"
-  },
-  {
-    "target_file": "/home/m11/Escritorio/GODWORKS SYSTEM/core/deep_memory_vault.py",
-    "goal": "Add a causal graph module that, upon insertion of a new memory fragment, extracts entities and relations (using an LLM or spaCy), creates directed edges, and stores the graph in a lightweight networkx structure; modify the retrieval API to accept a 'causal_weight' flag that boosts fragments with higher upstream centrality during similarity search.",
-    "status": "REJECTED",
-    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
-    "elapsed_seconds": 2574.44,
-    "backup_path": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/deep_memory_vault.py.20261114_162333.bak",
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Respuesta generada demasiado corta (2828 vs 34371 bytes)",
-    "timestamp": "2026-11-14T17:06:28.038362"
-  },
-  {
-    "target_file": "/home/m11/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
     "goal": "Add a pre‑search hook that fetches the top‑N most recent, high‑salience memory embeddings from deep_memory_vault and concatenates them to the user query before sending it to the external search API, with configurable weighting and fallback.",
     "status": "REJECTED",
     "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
@@ -1398,5 +1370,33 @@
     "efficiency_improvement": null,
     "error": "Respuesta generada demasiado corta (2730 vs 35266 bytes)",
     "timestamp": "2026-11-19T21:50:51.969424"
+  },
+  {
+    "target_file": "/home/m11/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
+    "goal": "Add a causal dependency tracker that logs source URLs for each cached query result and implements an auto‑invalidate routine that checks source timestamps (e.g., HTTP Last‑Modified/Etag) or webhook notifications to purge only affected cache entries.",
+    "status": "REJECTED",
+    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
+    "elapsed_seconds": 3070.72,
+    "backup_path": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/web_research_engine.py.20261119_222327.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "Respuesta generada demasiado corta (2410 vs 35266 bytes)",
+    "timestamp": "2026-11-19T23:14:38.645602"
+  },
+  {
+    "target_file": "/home/m11/Escritorio/GODWORKS SYSTEM/core/deep_memory_vault.py",
+    "goal": "Add a hybrid index structure combining a directed acyclic graph of causal links with a time‑sorted B‑tree, and expose a new method `retrieve_by_causality(query, time_window)` that leverages this index for faster, causally‑aware lookups.",
+    "status": "REJECTED",
+    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
+    "elapsed_seconds": 2121.04,
+    "backup_path": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/deep_memory_vault.py.20261119_234443.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "Respuesta generada demasiado corta (2562 vs 34371 bytes)",
+    "timestamp": "2026-11-20T00:20:05.009819"
   }
 ]

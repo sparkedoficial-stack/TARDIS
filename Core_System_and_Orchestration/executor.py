@@ -247,19 +247,20 @@ class ExecutionEngine:
         model: str,
         on_line: Optional[Callable[[str], None]] = None
     ) -> Tuple[int, str]:
-        """Runs prompt through Antigravity / Gemini CLI with autonomous permissions & HIGH EFFORT."""
+        """Runs prompt through Antigravity / Gemini CLI with autonomous permissions & XHIGH EFFORT."""
         full_prompt = f"{SOVEREIGN_INVARIANT}{prompt}"
+        effort = "xhigh" if "neon" in model.lower() else "high"
         cmd = [
             "agy",
             "-p", full_prompt,
             "--model", model,
-            "--effort", "high",
+            "--effort", effort,
             "--dangerously-skip-permissions"
         ]
         rc, out = self.stream_command(cmd, on_line=on_line)
         if rc != 0 and ("not recognized" in out.lower() or "invalid model selection" in out.lower()):
             # Fallback cascade for pre-release frontier models
-            fallback = "gemini-4-neon-high" if model != "gemini-4-neon-high" else "gemini-3.8-flash-high"
+            fallback = "gemini-4-neon-xhigh" if model != "gemini-4-neon-xhigh" else "gemini-3.8-flash-high"
             msg = f"\n[bold yellow]⚡ {model} en fase preview/stealth. Despachando con {fallback} (Frontier Máxima Potencia)...[/bold yellow]\n"
             if on_line:
                 on_line(msg)
@@ -270,7 +271,7 @@ class ExecutionEngine:
                 "agy",
                 "-p", full_prompt,
                 "--model", fallback,
-                "--effort", "high",
+                "--effort", "xhigh" if "neon" in fallback.lower() else "high",
                 "--dangerously-skip-permissions"
             ]
             return self.stream_command(cmd_fb, on_line=on_line)
@@ -715,10 +716,10 @@ class ExecutionEngine:
 
             # Auto-Failover to Gemini 4 Argon (High) if Claude encounters an unexpected fatal error
             if rc != 0 and self.config.get("auto_heal_and_failover", True):
-                _status_relay("\n⚡ SOBERANO AUTO-FAILOVER: Conmutando a Gemini 4 Neon (High Effort) tras fallo en motor primario...")
+                _status_relay("\n⚡ SOBERANO AUTO-FAILOVER: Conmutando a Gemini 4 Neon (XHigh Effort) tras fallo en motor primario...")
                 record_failover()
-                actual_model = "gemini-4-neon-high"
-                rc, out = self.execute_agy(active_prompt, "gemini-4-neon-high", on_line=_line_relay)
+                actual_model = "gemini-4-neon-xhigh"
+                rc, out = self.execute_agy(active_prompt, "gemini-4-neon-xhigh", on_line=_line_relay)
                 record_query_stats("gemini_pro")
             else:
                 record_query_stats("claude_opus" if "opus" in plan.primary_model else "claude_sonnet")
@@ -763,7 +764,7 @@ class ExecutionEngine:
                 f"User Task: {prompt}\n\n"
                 f"Implementation details:\n{out1[:8000]}"
             )
-            rc2, out2 = self.execute_agy(p2_prompt, plan.secondary_model or "gemini-4-neon-high", on_line=_line_relay)
+            rc2, out2 = self.execute_agy(p2_prompt, plan.secondary_model or "gemini-4-neon-xhigh", on_line=_line_relay)
             record_query_stats("dual_audit")
             rc = rc2
             out = f"{out1}\n\n=== [FTL AUDIT REPORT] ===\n{out2}"
@@ -1053,7 +1054,7 @@ class ExecutionEngine:
         os.system("claude --permission-mode bypassPermissions --effort max")
 
     def launch_interactive_agy(self):
-        os.system("agy --effort high --dangerously-skip-permissions")
+        os.system("agy --effort xhigh --dangerously-skip-permissions")
 
 
 # Global executor instance

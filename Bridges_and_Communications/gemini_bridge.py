@@ -142,7 +142,7 @@ GEMINI_MODELS = {
     }
 }
 
-DEFAULT_HEAVY_MODEL = "gemini-4-neon-high"
+DEFAULT_HEAVY_MODEL = "gemini-4-neon-xhigh"
 TIMEOUT_HEAVY_SECONDS = 120.0  # Umbral de escalado a 2 minutos
 
 
