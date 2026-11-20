@@ -39,7 +39,7 @@ class ModelRegistry:
         self.models: Dict[str, ModelProfile] = {}
         self.flagships: Dict[str, str] = {
             "google_flash_high": "gemini-3.8-flash-high",
-            "google_pro_high": "gemini-4-argon-high",
+            "google_pro_high": "gemini-4-neon-high",
             "anthropic_sonnet": "sonnet",
             "anthropic_opus": "opus",
             "tardis_kaiju": "TARDIS-NEURAL-SPACE-KAIJU",
@@ -286,8 +286,21 @@ class ModelRegistry:
         ]
 
     def discover_from_frontier(self) -> List[ModelProfile]:
-        """Sovereign Apex Frontier Models: Gemini 4 Argon (High) & Emerging Checkpoints."""
+        """Sovereign Apex Frontier Models: Gemini 4 Neon (High) & Emerging Checkpoints."""
         return [
+            ModelProfile(
+                model_id="gemini-4-neon-high",
+                display_name="Gemini 4 Neon (High) [MAX EFFORT]",
+                provider="google",
+                tier="pro-high",
+                effort_level="high",
+                context_window=2_000_000,
+                cost_factor=1.2,
+                abstraction_score=10.0,
+                speed_score=8.5,
+                is_flagship=True,
+                is_latest=True
+            ),
             ModelProfile(
                 model_id="gemini-4-argon-high",
                 display_name="Gemini 4 Argon (High) [MAX EFFORT]",
@@ -435,7 +448,7 @@ class ModelRegistry:
             self.validate_model_override(override, "google")
             return override
         if tier == "pro":
-            return self.flagships.get("google_pro_high", "gemini-4-argon-high")
+            return self.flagships.get("google_pro_high", "gemini-4-neon-high")
         return self.flagships.get("google_flash_high", "gemini-3.8-flash-high")
 
     def get_anthropic_model(self, tier: str = "sonnet") -> str:

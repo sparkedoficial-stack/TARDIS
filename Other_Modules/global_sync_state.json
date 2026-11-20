@@ -1,5 +1,5 @@
 {
-  "revision": 2746,
+  "revision": 2747,
   "lamport": 2941,
   "history": [],
   "config": {
@@ -27,14 +27,14 @@
     "lamport": 2929,
     "web_search": true
   },
-  "updated_at": "2026-11-18T23:06:53.478318",
+  "updated_at": "2026-11-19T23:06:54.252018",
   "visual_intelligence": {
     "active": true,
     "pid": 1385,
-    "videos_stored": 1011,
-    "verdicts": 405,
+    "videos_stored": 1022,
+    "verdicts": 460,
     "vlm_model": "qwen3-vl:2b-instruct",
     "last_risk_level": 0,
-    "last_ping": REDACTED_PHONE.4031913
+    "last_ping": REDACTED_PHONE.0591123
   }
 }

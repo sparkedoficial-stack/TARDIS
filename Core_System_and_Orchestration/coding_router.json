@@ -25,7 +25,7 @@
     "context": {
       "label": "Auditoria de repo completo, logs gigantes, RAG transversal, diff de 100k lineas",
       "candidates": [
-        { "engine": "agy", "model": "gemini-4-argon-high", "effort": "high" },
+        { "engine": "agy", "model": "gemini-4-neon-high", "effort": "high" },
         { "engine": "opencode", "model": "opencode/big-pickle" },
         { "engine": "opencode", "model": "opencode/deepseek-v4.1-flash-free#max" }
       ]
@@ -50,7 +50,7 @@
       "label": "UI, capturas, DOM, OCR, depuracion visual de apps",
       "candidates": [
         { "engine": "opencode", "model": "opencode/nemotron-3.5-super-vl-free" },
-        { "engine": "agy", "model": "gemini-4-argon-high", "effort": "high" },
+        { "engine": "agy", "model": "gemini-4-neon-high", "effort": "high" },
         { "engine": "opencode", "model": "opencode/deepseek-v4.1-flash-free#max" }
       ]
     },
