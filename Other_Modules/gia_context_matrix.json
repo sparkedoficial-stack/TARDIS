@@ -72,7 +72,7 @@
     "security_and_privacy_hardening": "Soberanía local absoluta: Cero fugas de telemetría a nubes corporativas no autorizadas, sanitización activa de credenciales y trazabilidad criptográfica."
   },
   "sovereign_subsystems_context": {
-    "native_desktop_gui": "Aplicación de escritorio 100% nativa en Linux (GTK4 + Libadwaita) ejecutable desde 'gia-native' o '/home/timemachine/Escritorio/GIA_SISTEMA_NATIVO.desktop', sin requerir navegador web.",
+    "native_desktop_gui": "Aplicación de escritorio 100% nativa en Linux (GTK4 + Libadwaita) ejecutable desde 'gia-native' o '/home/m11/Escritorio/GIA_SISTEMA_NATIVO.desktop', sin requerir navegador web.",
     "offline_chat_vault": "Bóveda persistente SQLite FTS5 ('data/offline_chats.db') y visor autónomo HTML accesible con doble clic en el Escritorio ('HISTORIAL_CHATS_OFFLINE.html') incluso con el equipo apagado o fuera de línea.",
     "sovereign_wifi_timemachine": "Punto de acceso Wi-Fi 6 'TimeMachine' (wlp3s0, REDACTED_IP/24, DHCP dnsmasq, NAT) supervisado 24/7 por 'godworks-hotspot.service'.",
     "network_traffic_auditor": "Centinela NetworkShield que clasifica flujos de tráfico en INTERNET, LAN, INTRUSION y asigna organizaciones causales (Apple, Cloudflare, Telegram, Google, Meta).",

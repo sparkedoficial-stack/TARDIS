@@ -51,7 +51,7 @@ if not logger.handlers:
     logger.setLevel(logging.INFO)
 
 # Rutas Canónicas
-PROJECT_ROOT = Path("/home/timemachine/Escritorio/GODWORKS SYSTEM").resolve()
+PROJECT_ROOT = Path("/home/m11/Escritorio/GODWORKS SYSTEM").resolve()
 SHARED_NFS_MOUNT = Path("/mnt/imac_compute")
 IMAC_JOBS_DIR = SHARED_NFS_MOUNT / "_cluster_jobs"
 IMAC_VAULT_REPLICA = SHARED_NFS_MOUNT / "tardis_vault_replica"
@@ -827,7 +827,7 @@ print(json.dumps(res))
         target_dir = IMAC_VAULT_REPLICA / subpath_name
         target_dir.mkdir(parents=True, exist_ok=True)
 
-        source_vault = Path("/home/timemachine/vw-control/deep_memory_vault")
+        source_vault = Path("/home/m11/vw-control/deep_memory_vault")
         if not source_vault.exists():
             return {"ok": False, "error": f"Bóveda fuente {source_vault} no encontrada."}
 

@@ -58,7 +58,7 @@ VOSK_MODEL = Path(os.path.expanduser(
 ))
 if not VOSK_MODEL.exists():
     for _cand in (Path("/home/m11/.local/share/tardis-voice/models/vosk-model-small-es-0.42"),
-                  Path("/home/timemachine/.local/share/tardis-voice/models/vosk-model-small-es-0.42")):
+                  Path("/home/m11/.local/share/tardis-voice/models/vosk-model-small-es-0.42")):
         if _cand.exists():
             VOSK_MODEL = _cand
             break

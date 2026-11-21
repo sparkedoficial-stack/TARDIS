@@ -4107,7 +4107,7 @@ class TelegramBridge:
             te_args = text[len(parts[0]):].strip()
             try:
                 import sys
-                te_path = "/home/timemachine/TimeEmergency"
+                te_path = "/home/m11/TimeEmergency"
                 if te_path not in sys.path:
                     sys.path.append(te_path)
                 from engine import TimeEmergencyEngine

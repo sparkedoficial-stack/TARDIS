@@ -74,7 +74,7 @@ class TardisConversationAnalyzer:
 
     def __init__(self, db_path: Optional[str] = None):
         if db_path is None:
-            default_p = Path("/home/timemachine/Escritorio/GODWORKS SYSTEM/data/offline_chats.db")
+            default_p = Path("/home/m11/Escritorio/GODWORKS SYSTEM/data/offline_chats.db")
             if default_p.exists():
                 self.db_path = str(default_p)
             else:

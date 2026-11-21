@@ -99,7 +99,7 @@ def test_desktop_launcher_and_scripts():
     assert launcher_sh.exists()
     assert os.access(launcher_sh, os.X_OK), "launch_tardis.sh debe tener permisos de ejecución"
 
-    desktop_file = Path("/home/timemachine/Escritorio/Tardis.desktop")
+    desktop_file = Path("/home/m11/Escritorio/Tardis.desktop")
     assert desktop_file.exists()
     assert os.access(desktop_file, os.X_OK), "El archivo Tardis.desktop debe tener permisos de ejecución"
 
@@ -110,9 +110,9 @@ def test_desktop_launcher_and_scripts():
     assert "Name=Tardis" in content
 
     # Verificar que los archivos obsoletos fueron eliminados
-    assert not Path("/home/timemachine/Escritorio/GIA_SISTEMA_NATIVO.desktop").exists()
-    assert not Path("/home/timemachine/Escritorio/gia_direct.desktop").exists()
-    assert not Path("/home/timemachine/Escritorio/godworks.desktop").exists()
+    assert not Path("/home/m11/Escritorio/GIA_SISTEMA_NATIVO.desktop").exists()
+    assert not Path("/home/m11/Escritorio/gia_direct.desktop").exists()
+    assert not Path("/home/m11/Escritorio/godworks.desktop").exists()
 
     # Verificar existencia del icono maestro
     assert (PROJECT_DIR / "tardis-icon.png").exists()

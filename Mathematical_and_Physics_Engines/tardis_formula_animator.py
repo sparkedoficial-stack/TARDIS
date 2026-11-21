@@ -31,10 +31,10 @@ from matplotlib.gridspec import GridSpec
 import numpy as np
 
 
-OUTPUT_DIR = Path("/home/timemachine/Vídeos")
+OUTPUT_DIR = Path("/home/m11/Vídeos")
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-ARTIFACT_DIR = Path("/home/timemachine/.gemini/antigravity-cli/brain/a19179f7-acae-4158-a6cb-0b7dccc5cc35")
+ARTIFACT_DIR = Path("/home/m11/.gemini/antigravity-cli/brain/a19179f7-acae-4158-a6cb-0b7dccc5cc35")
 ARTIFACT_DIR.mkdir(parents=True, exist_ok=True)
 
 

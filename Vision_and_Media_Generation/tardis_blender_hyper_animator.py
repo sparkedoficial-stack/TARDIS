@@ -37,7 +37,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import cv2
 import numpy as np
 
-OUTPUT_DIR = Path("/home/timemachine/Vídeos")
+OUTPUT_DIR = Path("/home/m11/Vídeos")
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 

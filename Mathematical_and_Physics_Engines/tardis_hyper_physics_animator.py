@@ -57,7 +57,7 @@ from PIL import Image
 logger = logging.getLogger("TardisHyperPhysicsAnimator")
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-OUTPUT_DIR = Path("/home/timemachine/Vídeos")
+OUTPUT_DIR = Path("/home/m11/Vídeos")
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 

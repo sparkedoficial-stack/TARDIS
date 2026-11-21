@@ -4,7 +4,7 @@
 # ==============================================================================
 set -e
 
-SCRIPT_DIR="/home/timemachine/Escritorio/GODWORKS SYSTEM"
+SCRIPT_DIR="/home/m11/Escritorio/GODWORKS SYSTEM"
 cd "$SCRIPT_DIR"
 
 if [ -f "$SCRIPT_DIR/.env" ]; then
@@ -30,8 +30,8 @@ fi
 # Si no está en ejecución, arrancar Suite en segundo plano y abrir navegador
 notify-send "GODWORKS SYSTEM v26.4" "Iniciando Suite Soberana y abriendo Dashboard..." -i godworks 2>/dev/null || true
 
-nohup "$SCRIPT_DIR/.venv-linux/bin/python3" "$SCRIPT_DIR/omni_temporal_control.py" --port 8757 --no-window > /home/timemachine/vw-control/omni.log 2>&1 &
-nohup "$SCRIPT_DIR/.venv-linux/bin/python3" "$SCRIPT_DIR/supervisor.py" > /home/timemachine/vw-control/supervisor_stdout.log 2>&1 &
+nohup "$SCRIPT_DIR/.venv-linux/bin/python3" "$SCRIPT_DIR/omni_temporal_control.py" --port 8757 --no-window > /home/m11/vw-control/omni.log 2>&1 &
+nohup "$SCRIPT_DIR/.venv-linux/bin/python3" "$SCRIPT_DIR/supervisor.py" > /home/m11/vw-control/supervisor_stdout.log 2>&1 &
 
 # Esperar brevemente a que levante el puerto
 for i in {1..10}; do

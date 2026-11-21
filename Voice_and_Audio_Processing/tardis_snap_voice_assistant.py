@@ -41,9 +41,9 @@ import numpy as np
 GIA_TOKEN = __import__("os").environ.get("GIA_AUTH_TOKEN", "")
 
 # Rutas del ecosistema TARDIS
-BASE_DIR = "/home/timemachine/Escritorio/GODWORKS SYSTEM"
-SOUNDS_DIR = "/home/timemachine/.tardis/sounds"
-CONFIG_PATH = "/home/timemachine/.tardis/voice_config.json"
+BASE_DIR = "/home/m11/Escritorio/GODWORKS SYSTEM"
+SOUNDS_DIR = "/home/m11/.tardis/sounds"
+CONFIG_PATH = "/home/m11/.tardis/voice_config.json"
 API_URL = "http://127.0.0.1:8757"
 API_TOKEN = f'{GIA_TOKEN}'
 

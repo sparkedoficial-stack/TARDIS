@@ -947,10 +947,19 @@ class Render3DEngine:
         else:
             filter_str = f"fps=fps={fps}"
 
+        import tempfile
+
+        try:
+            cpu_threads = str(max(1, min(8, len(os.sched_getaffinity(0)))))
+        except Exception:
+            cpu_threads = str(max(1, min(8, os.cpu_count() or 4)))
+
         if hdr:
             # 4K HDR10 / HLG BT.2020 10-bit NVENC Hardware Encoder
+            nvenc_codec = "hevc_nvenc"
+            nvenc_pix = "p010le"
             cmd_nvenc = [
-                "ffmpeg", "-y",
+                "ffmpeg", "-y", "-loglevel", "error",
                 "-f", "rawvideo",
                 "-vcodec", "rawvideo",
                 "-s", f"{width}x{height}",
@@ -975,7 +984,7 @@ class Render3DEngine:
             ]
             # Respaldo CPU multihilo libx265 10-bit
             cmd_cpu = [
-                "ffmpeg", "-y",
+                "ffmpeg", "-y", "-loglevel", "error",
                 "-f", "rawvideo",
                 "-vcodec", "rawvideo",
                 "-s", f"{width}x{height}",
@@ -992,13 +1001,15 @@ class Render3DEngine:
                 "-colorspace", "bt2020nc",
                 "-bsf:v", "hevc_metadata=colour_primaries=9:transfer_characteristics=18:matrix_coefficients=9",
                 "-tag:v", "hvc1",
-                "-threads", "16",
+                "-threads", cpu_threads,
                 "-movflags", "+faststart",
                 str(out_file)
             ]
         else:
+            nvenc_codec = "h264_nvenc"
+            nvenc_pix = "yuv420p"
             cmd_nvenc = [
-                "ffmpeg", "-y",
+                "ffmpeg", "-y", "-loglevel", "error",
                 "-f", "rawvideo",
                 "-vcodec", "rawvideo",
                 "-s", f"{width}x{height}",
@@ -1015,7 +1026,7 @@ class Render3DEngine:
                 str(out_file)
             ]
             cmd_cpu = [
-                "ffmpeg", "-y",
+                "ffmpeg", "-y", "-loglevel", "error",
                 "-f", "rawvideo",
                 "-vcodec", "rawvideo",
                 "-s", f"{width}x{height}",
@@ -1024,29 +1035,23 @@ class Render3DEngine:
                 "-i", "-",
                 "-vf", filter_str,
                 "-c:v", "libx264",
-                "-preset", "veryfast",
+                "-preset", "ultrafast" if (width * height) >= (2560 * 1440) else "veryfast",
                 "-crf", "22",
                 "-pix_fmt", "yuv420p",
-                "-threads", "16",
+                "-threads", cpu_threads,
                 "-movflags", "+faststart",
                 str(out_file)
             ]
 
-        proc = None
-        try:
-            proc = subprocess.Popen(cmd_nvenc, stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
-        except Exception:
-            proc = subprocess.Popen(cmd_cpu, stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
-
         base_pitch = pitch_deg if pitch_deg is not None else 22.0
-        try:
+
+        def _iter_mesh_frames():
             for f_idx in range(total_frames):
                 progress = f_idx / total_frames
                 phase = progress * 2.0 * math.pi
                 yaw_deg = (progress * camera_orbit_yaw) % 360.0
                 curr_pitch_deg = base_pitch + 8.0 * math.sin(phase)
 
-                # Generar variante dinámica según el tipo de modelo
                 curr_mesh = mesh
                 if mesh.name in ("bohr_atom", "atom"):
                     curr_mesh = self.create_bohr_atom(phase=progress)
@@ -1066,31 +1071,81 @@ class Render3DEngine:
                     style=style,
                     show_hud=show_hud
                 )
-                raw_rgb = img.convert("RGB").tobytes()
-                proc.stdin.write(raw_rgb)
+                yield img.convert("RGB").tobytes()
 
-            proc.stdin.close()
-            proc.wait(timeout=30.0)
-        except Exception as e:
-            if proc and proc.stdin:
+        def _probe_nvenc() -> bool:
+            try:
+                p_res = subprocess.run(
+                    [
+                        "ffmpeg", "-y", "-loglevel", "error",
+                        "-f", "lavfi", "-i", f"color=c=black:s={width}x{height}:d=0.04",
+                        "-frames:v", "1",
+                        "-c:v", nvenc_codec, "-preset", "p4", "-pix_fmt", nvenc_pix,
+                        "-f", "null", "-",
+                    ],
+                    stdin=subprocess.DEVNULL,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.PIPE,
+                    timeout=8.0,
+                )
+                return p_res.returncode == 0
+            except Exception:
+                return False
+
+        def _encode_3d(cmd: List[str]) -> Tuple[bool, str]:
+            err_file = tempfile.TemporaryFile(mode="w+b")
+            proc = None
+            try:
+                proc = subprocess.Popen(
+                    cmd,
+                    stdin=subprocess.PIPE,
+                    stdout=subprocess.DEVNULL,
+                    stderr=err_file,
+                )
+                assert proc.stdin is not None
+                for raw_rgb in _iter_mesh_frames():
+                    proc.stdin.write(raw_rgb)
+                proc.stdin.close()
+                rc = proc.wait(timeout=180.0)
+                err_file.seek(0)
+                err_msg = err_file.read(4096).decode("utf-8", errors="replace").strip()
+                return (rc == 0 and out_file.exists() and out_file.stat().st_size > 0), (err_msg or f"rc={rc}")
+            except Exception as exc:
+                if proc is not None:
+                    try:
+                        if proc.stdin:
+                            proc.stdin.close()
+                    except Exception:
+                        pass
+                    try:
+                        if proc.poll() is None:
+                            proc.kill()
+                        proc.wait(timeout=5.0)
+                    except Exception:
+                        pass
+                err_file.seek(0)
+                err_msg = err_file.read(4096).decode("utf-8", errors="replace").strip()
+                return False, (err_msg or str(exc))
+            finally:
                 try:
-                    proc.stdin.close()
+                    err_file.close()
                 except Exception:
                     pass
-            if return_bytes:
-                return b""
-            return {"ok": False, "error": f"Fallo durante el renderizado 3D: {e}"}
-        finally:
-            if proc and proc.stderr:
-                try:
-                    proc.stderr.close()
-                except Exception:
-                    pass
 
-        if not out_file.exists() or out_file.stat().st_size == 0:
+        encoded_ok = False
+        last_err = ""
+        if _probe_nvenc():
+            encoded_ok, last_err = _encode_3d(cmd_nvenc)
+            if not encoded_ok and out_file.exists():
+                out_file.unlink(missing_ok=True)
+
+        if not encoded_ok:
+            encoded_ok, last_err = _encode_3d(cmd_cpu)
+
+        if not encoded_ok or not out_file.exists() or out_file.stat().st_size == 0:
             if return_bytes:
                 return b""
-            return {"ok": False, "error": f"El archivo de animación 3D no se generó correctamente ({out_file})."}
+            return {"ok": False, "error": f"Fallo durante el renderizado 3D ({out_file}): {last_err}"}
 
         # MANDATO SOBERANO: Garantizar que todo video contenga audio/frecuencia/sonido
         try:

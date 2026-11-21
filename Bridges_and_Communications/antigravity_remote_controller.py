@@ -31,8 +31,8 @@ from typing import Any, Dict, List, Optional
 
 # Rutas estándar de Antigravity
 CURRENT_CONVERSATION_ID = "2bb8cf84-048a-4fc3-b979-04b2bf2304ba"
-DEFAULT_WORKSPACE = "/home/timemachine"
-ALT_WORKSPACE = "/home/timemachine/Escritorio/GODWORKS SYSTEM"
+DEFAULT_WORKSPACE = "/home/m11"
+ALT_WORKSPACE = "/home/m11/Escritorio/GODWORKS SYSTEM"
 
 HOME = Path(os.path.expanduser("~"))
 DEVTOOLS_PORT_FILE = HOME / ".config" / "Antigravity" / "DevToolsActivePort"

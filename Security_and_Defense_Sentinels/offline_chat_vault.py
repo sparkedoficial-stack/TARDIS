@@ -31,7 +31,7 @@ DATA_DIR = BASE_DIR / "data"
 DB_PATH = DATA_DIR / "offline_chats.db"
 JSON_PATH = DATA_DIR / "offline_chats.json"
 HTML_VIEWER_PATH = BASE_DIR / "offline_chat_vault.html"
-DESKTOP_DIR = Path("/home/timemachine/Escritorio")
+DESKTOP_DIR = Path("/home/m11/Escritorio")
 DESKTOP_VIEWER_PATH = DESKTOP_DIR / "HISTORIAL_CHATS_OFFLINE.html"
 
 

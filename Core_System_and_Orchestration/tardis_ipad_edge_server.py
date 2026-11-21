@@ -31,7 +31,7 @@ from aiohttp import web
 
 # Configuración de Rutas y Módulos
 BASE_DIR = Path(__file__).resolve().parent.parent
-FTL_PATH = Path("/home/timemachine")
+FTL_PATH = Path("/home/m11")
 if str(BASE_DIR) not in sys.path:
     sys.path.insert(0, str(BASE_DIR))
 if str(FTL_PATH) not in sys.path:
@@ -242,8 +242,8 @@ async def download_ipa_handler(request: web.Request) -> web.Response:
         )
     return web.Response(text="IPA no encontrado", status=404)
 
-LINPAD_IPA_PATH = Path("/home/timemachine/LinPad/build/LinPad-1.6.0-TARDIS-M2.ipa")
-LINPAD_ICON_PNG = Path("/home/timemachine/LinPad/build/unpacked/Payload/iSH ARM64.app/REDACTED_EMAIL")
+LINPAD_IPA_PATH = Path("/home/m11/LinPad/build/LinPad-1.6.0-TARDIS-M2.ipa")
+LINPAD_ICON_PNG = Path("/home/m11/LinPad/build/unpacked/Payload/iSH ARM64.app/REDACTED_EMAIL")
 
 async def download_linpad_ipa_handler(request: web.Request) -> web.Response:
     if LINPAD_IPA_PATH.exists():
@@ -323,7 +323,7 @@ async def api_linpad_exec_handler(request: web.Request) -> web.Response:
         return web.json_response({"ok": False, "error": "JSON malformado"}, status=400)
     cmd = body.get("command", "linpad-fetch --pipe").strip()
     env = os.environ.copy()
-    env["PATH"] = f"/usr/local/bin:/home/timemachine/.local/bin:/home/timemachine/Escritorio/GODWORKS SYSTEM/bin:{env.get('PATH', '')}"
+    env["PATH"] = f"/usr/local/bin:/home/m11/.local/bin:/home/m11/Escritorio/GODWORKS SYSTEM/bin:{env.get('PATH', '')}"
     start_t = time.time()
     try:
         res = subprocess.run(
@@ -332,7 +332,7 @@ async def api_linpad_exec_handler(request: web.Request) -> web.Response:
             capture_output=True,
             text=True,
             timeout=30,
-            cwd="/home/timemachine/LinPad",
+            cwd="/home/m11/LinPad",
             env=env
         )
         return web.json_response({
@@ -453,7 +453,7 @@ async def api_ipad_screenshot_handler(request: web.Request) -> web.Response:
 LOCAL_WORKSPACE = BASE_DIR
 PROJECTS_DIR = BASE_DIR / "projects"
 PROJECTS_DIR.mkdir(parents=True, exist_ok=True)
-FTL_DIR = Path("/home/timemachine/modulos_ftl")
+FTL_DIR = Path("/home/m11/modulos_ftl")
 
 async def api_fs_tree_handler(request: web.Request) -> web.Response:
     items = []
@@ -627,8 +627,8 @@ async def api_terminal_exec_handler(request: web.Request) -> web.Response:
 
     start_t = time.time()
     env = os.environ.copy()
-    bin_dir = "/home/timemachine/Escritorio/GODWORKS SYSTEM/bin"
-    local_bin = "/home/timemachine/.local/bin"
+    bin_dir = "/home/m11/Escritorio/GODWORKS SYSTEM/bin"
+    local_bin = "/home/m11/.local/bin"
     env["PATH"] = f"{bin_dir}:{local_bin}:{env.get('PATH', '')}"
     env["AGY_MODE"] = "ultra"
     env["AGY_MODEL"] = "claude-opus-5-5-high"
@@ -1829,7 +1829,7 @@ def get_client_html() -> str:
                         <span class="chat-chip" onclick="quickTermCmd('uname -a')">uname -a</span>
                         <span class="chat-chip" onclick="quickTermCmd('git status -s')">git status</span>
                         <span class="chat-chip" onclick="quickTermCmd('df -h')">df -h</span>
-                        <span class="chat-chip" onclick="quickTermCmd('ls -la /home/timemachine/Escritorio/GODWORKS\\ SYSTEM/bin')">ls bin/agy</span>
+                        <span class="chat-chip" onclick="quickTermCmd('ls -la /home/m11/Escritorio/GODWORKS\\ SYSTEM/bin')">ls bin/agy</span>
                     </div>
                 </div>
 
@@ -2971,9 +2971,9 @@ async def _edge_auth_middleware(request: web.Request, handler):
     return await handler(request)
 
 
-NXNATIVE_IPA_PATH = Path("/home/timemachine/nxnative/build/MarioKart8Deluxe.ipa")
-NXNATIVE_ICON_PNG = Path("/home/timemachine/nxnative/build/mk8d_icon_512.png")
-NXNATIVE_FONT_TTF = Path("/home/timemachine/nxnative/build/DmIOS.app/dm/font/nintendo_ext.ttf")
+NXNATIVE_IPA_PATH = Path("/home/m11/nxnative/build/MarioKart8Deluxe.ipa")
+NXNATIVE_ICON_PNG = Path("/home/m11/nxnative/build/mk8d_icon_512.png")
+NXNATIVE_FONT_TTF = Path("/home/m11/nxnative/build/DmIOS.app/dm/font/nintendo_ext.ttf")
 
 
 async def nxnative_ui_handler(request: web.Request) -> web.Response:

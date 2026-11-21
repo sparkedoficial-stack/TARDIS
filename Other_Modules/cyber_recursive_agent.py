@@ -301,12 +301,12 @@ class CyberRecursiveAgent:
                         autofixable=True,
                     ))
                 txt = unit.read_text(encoding="utf-8", errors="ignore")
-                if "/home/timemachine" in txt:
+                if "/home/m11" in txt:
                     findings.append(CyberFinding(
                         rule="systemd_stale_or_writable",
                         severity="medium",
                         target=str(unit),
-                        detail="Contiene ruta obsoleta /home/timemachine",
+                        detail="Contiene ruta obsoleta /home/m11",
                     ))
             except OSError:
                 continue

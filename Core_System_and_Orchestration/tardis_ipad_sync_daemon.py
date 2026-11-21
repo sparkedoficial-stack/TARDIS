@@ -21,8 +21,8 @@ from pathlib import Path
 from typing import Dict, Any, List, Optional
 
 # Añadir modulos_ftl y core al path
-sys.path.insert(0, "/home/timemachine")
-sys.path.insert(0, "/home/timemachine/Escritorio/GODWORKS SYSTEM")
+sys.path.insert(0, "/home/m11")
+sys.path.insert(0, "/home/m11/Escritorio/GODWORKS SYSTEM")
 
 logging.basicConfig(
     level=logging.INFO,
@@ -30,11 +30,11 @@ logging.basicConfig(
 )
 logger = logging.getLogger("TARDIS.IpadSync")
 
-LOCAL_WORKSPACE = Path("/home/timemachine/Escritorio/GODWORKS SYSTEM")
-FTL_WORKSPACE = Path("/home/timemachine/modulos_ftl")
+LOCAL_WORKSPACE = Path("/home/m11/Escritorio/GODWORKS SYSTEM")
+FTL_WORKSPACE = Path("/home/m11/modulos_ftl")
 IPAD_AFC_ROOT = "/TARDIS_WORKSPACE"
 
-SYNC_STATE_FILE = Path("/home/timemachine/.tardis_ipad_sync_state.json")
+SYNC_STATE_FILE = Path("/home/m11/.tardis_ipad_sync_state.json")
 
 def calculate_sha256(filepath: Path) -> str:
     h = hashlib.sha256()

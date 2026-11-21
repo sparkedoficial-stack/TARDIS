@@ -687,7 +687,7 @@ class VoiceProgramRouter:
         candidates = [
             Path.home() / ".ftl" / "ftl_cli.py",
             Path("/home/m11/.ftl/ftl_cli.py"),
-            Path("/home/timemachine/.ftl/ftl_cli.py"),
+            Path("/home/m11/.ftl/ftl_cli.py"),
         ]
         for candidate in candidates:
             try:

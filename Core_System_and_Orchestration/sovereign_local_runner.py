@@ -7,7 +7,7 @@ Este módulo implementa el ejecutor local directo de modelos GGUF, realizando in
 inversa a la arquitectura interna de Ollama para:
 1. Inspeccionar y resolver modelos desde el almacén de blobs y manifiestos OCI de Ollama.
 2. Ejecutar inferencia de forma directa y nativa utilizando el backend C++ de llama.cpp
-   (/home/timemachine/.local/lib/ollama/llama-server + libggml-cuda.so) comunicándose
+   (/home/m11/.local/lib/ollama/llama-server + libggml-cuda.so) comunicándose
    estrictamente a través de un socket UNIX local privado (IPC), SIN exponer puertos TCP
    ni requerir que 'ollama serve' esté activo.
 3. Proveer streaming en tiempo real, cancelación instantánea de turnos y métricas de velocidad.

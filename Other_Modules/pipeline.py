@@ -11,7 +11,7 @@ Flujo Completo de Generación:
   4. Modelado 3D Procedural (Mallas OBJ / Blender) con topología no lineal.
   5. Bucle de Evaluación Neuronal Perceptual (TARDISVisualEvaluator).
   6. Síntesis Cinemática MiniMax H3 (Flow Matching ODE con audio estéreo nativo a 32 kHz).
-  7. Exportación del Video Final a /home/timemachine/Vídeos acelerado por NVENC.
+  7. Exportación del Video Final a /home/m11/Vídeos acelerado por NVENC.
 """
 
 from __future__ import annotations
@@ -44,7 +44,7 @@ from core.tardis_h3_video_engine import FastH3Pipeline, MiniMaxH3Config, render_
 logging.basicConfig(level=logging.INFO, format='[TARDIS V-ENGINE] %(asctime)s - %(message)s')
 logger = logging.getLogger("VCommandPipeline")
 
-OUTPUT_VIDEOS_DIR = Path("/home/timemachine/Vídeos")
+OUTPUT_VIDEOS_DIR = Path("/home/m11/Vídeos")
 OUTPUT_VIDEOS_DIR.mkdir(parents=True, exist_ok=True)
 
 

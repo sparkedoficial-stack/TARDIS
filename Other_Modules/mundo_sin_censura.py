@@ -22,7 +22,7 @@ import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
-PROJECT_ROOT = Path("/home/timemachine/Escritorio/GODWORKS SYSTEM").resolve()
+PROJECT_ROOT = Path("/home/m11/Escritorio/GODWORKS SYSTEM").resolve()
 DATA_DIR = PROJECT_ROOT / "data"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 CONFIG_DIR = Path(os.environ.get("LOCALAPPDATA", os.path.expanduser("~"))) / "vw-control"
@@ -96,7 +96,7 @@ class MundoSinCensuraAgent:
         # Ollama
         try:
             out = subprocess.run(
-                ["/home/timemachine/.local/bin/ollama", "list"],
+                ["/home/m11/.local/bin/ollama", "list"],
                 capture_output=True, text=True, timeout=30,
             )
             lines = [ln for ln in out.stdout.splitlines() if ln.strip()]
@@ -202,13 +202,13 @@ class MundoSinCensuraAgent:
         # 3. Ollama model (create if missing)
         try:
             out = subprocess.run(
-                ["/home/timemachine/.local/bin/ollama", "list"],
+                ["/home/m11/.local/bin/ollama", "list"],
                 capture_output=True, text=True, timeout=30,
             )
             if "mundo-sin-censura" not in out.stdout:
                 if MODELFILERES.exists():
                     subprocess.run(
-                        ["/home/timemachine/.local/bin/ollama", "create", "mundo-sin-censura", "-f", str(MODELFILERES)],
+                        ["/home/m11/.local/bin/ollama", "create", "mundo-sin-censura", "-f", str(MODELFILERES)],
                         capture_output=True, text=True, timeout=300,
                     )
             results["targets"].append("ollama:mundo-sin-censura")

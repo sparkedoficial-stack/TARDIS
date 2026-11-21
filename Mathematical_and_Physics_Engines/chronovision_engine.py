@@ -1282,6 +1282,41 @@ class ChronoVideoSynthesizer:
         self.output_dir = output_dir or (DATA_DIR / "videos")
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
+    @staticmethod
+    def _probe_nvenc_available(width: int, height: int, codec: str = "h264_nvenc") -> bool:
+        """
+        Verifica con una prueba rápida de 1 fotograma si NVENC dispone de VRAM y sesión
+        libre para la resolución solicitada, evitando BrokenPipeError en tiempo de escritura.
+        """
+        try:
+            probe_cmd = [
+                "ffmpeg", "-y", "-loglevel", "error",
+                "-f", "lavfi", "-i", f"color=c=black:s={width}x{height}:d=0.04",
+                "-frames:v", "1",
+                "-c:v", codec,
+                "-preset", "p4",
+                "-pix_fmt", "yuv420p",
+                "-f", "null", "-",
+            ]
+            res = subprocess.run(
+                probe_cmd,
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.PIPE,
+                timeout=8.0,
+            )
+            if res.returncode != 0:
+                err_txt = (res.stderr or b"").decode("utf-8", errors="replace").strip()
+                logger.info(
+                    f"[ChronoVisionEngine] Sonda {codec} {width}x{height} no disponible "
+                    f"(rc={res.returncode}): {err_txt[:180]}. Usando CPU libx264."
+                )
+                return False
+            return True
+        except Exception as e_probe:
+            logger.info(f"[ChronoVisionEngine] Sonda {codec} falló ({e_probe}); usando CPU libx264.")
+            return False
+
     def render_dynamic_video(
         self,
         video_type: str = "lorenz_orbit",
@@ -1291,15 +1326,21 @@ class ChronoVideoSynthesizer:
         height: int = 2160
     ) -> ChronoVisionResult:
         try:
-            total_frames = int(duration_sec * fps)
+            import tempfile
+
+            total_frames = max(1, int(duration_sec * fps))
             video_type = video_type.lower()
             timestamp = int(time.time())
             out_file = self.output_dir / f"chronovideo_{video_type}_{timestamp}.mp4"
 
-            # 1. Configurar comando FFmpeg con aceleración por hardware NVENC
-            # Si NVENC no responde, fallback suave a libx264
+            try:
+                cpu_threads = str(max(1, min(8, len(os.sched_getaffinity(0)))))
+            except Exception:
+                cpu_threads = str(max(1, min(8, os.cpu_count() or 4)))
+
+            # 1. Configurar comandos FFmpeg (NVENC por hardware + respaldo CPU libx264 anti-OOM)
             cmd_nvenc = [
-                "ffmpeg", "-y",
+                "ffmpeg", "-y", "-loglevel", "error",
                 "-f", "rawvideo",
                 "-vcodec", "rawvideo",
                 "-s", f"{width}x{height}",
@@ -1315,8 +1356,9 @@ class ChronoVideoSynthesizer:
                 str(out_file)
             ]
 
+            cpu_preset = "ultrafast" if (width * height) >= (2560 * 1440) else "veryfast"
             cmd_cpu = [
-                "ffmpeg", "-y",
+                "ffmpeg", "-y", "-loglevel", "error",
                 "-f", "rawvideo",
                 "-vcodec", "rawvideo",
                 "-s", f"{width}x{height}",
@@ -1324,10 +1366,10 @@ class ChronoVideoSynthesizer:
                 "-r", str(fps),
                 "-i", "-",
                 "-c:v", "libx264",
-                "-preset", "veryfast",
+                "-preset", cpu_preset,
                 "-crf", "22",
                 "-pix_fmt", "yuv420p",
-                "-threads", "16",  # Usar los 16 hilos del Ryzen 7 4800H
+                "-threads", cpu_threads,
                 "-movflags", "+faststart",
                 str(out_file)
             ]
@@ -1404,437 +1446,502 @@ class ChronoVideoSynthesizer:
                 except Exception as e_h3:
                     logger.warning(f"Error en síntesis MiniMax H3 ({e_h3}), continuando con pipeline estándar...")
 
-            # Intentar iniciar proceso NVENC para síntesis 2D
-            proc = None
-            try:
-                proc = subprocess.Popen(cmd_nvenc, stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
-            except Exception as e_nv:
-                logger.warning(f"NVENC falló al iniciar ({e_nv}). Usando multihilo CPU libx264...")
-                proc = subprocess.Popen(cmd_cpu, stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
-
+            # Construir generador de fotogramas reutilizable para tolerar fallback NVENC -> CPU sin BrokenPipeError
             if "fractal" in video_type or "mandelbrot" in video_type:
                 title = "Evolución Fractal Temporal (Zoom en el Valle de los Caballitos de Mar)"
                 desc = "Viaje hiperdimensional a través del continuo fractal de Mandelbrot."
-                # Preparar datos base
-                cx, cy = -0.743643887037158704752191506114774, 0.131825904205311970493132056385139
-                for f_idx in range(total_frames):
-                    progress = f_idx / total_frames
-                    zoom = 1.0 * (1.12 ** (progress * 50))  # Zoom exponencial continuo
-                    span_x = 3.0 / zoom
-                    span_y = 2.0 / zoom
-                    xmin, xmax = cx - span_x / 2, cx + span_x / 2
-                    ymin, ymax = cy - span_y / 2, cy + span_y / 2
 
-                    fw, fh = width // 2, height // 2
-                    r1 = np.linspace(xmin, xmax, fw)
-                    r2 = np.linspace(ymin, ymax, fh)
-                    X, Y = np.meshgrid(r1, r2)
-                    C = X + 1j * Y
-                    Z = np.zeros_like(C)
-                    out = np.zeros(Z.shape, dtype=float)
-                    mask = np.ones(Z.shape, dtype=bool)
+                def _iter_frames():
+                    cx, cy = -0.743643887037158704752191506114774, 0.131825904205311970493132056385139
+                    for f_idx in range(total_frames):
+                        progress = f_idx / total_frames
+                        zoom = 1.0 * (1.12 ** (progress * 50))  # Zoom exponencial continuo
+                        span_x = 3.0 / zoom
+                        span_y = 2.0 / zoom
+                        xmin, xmax = cx - span_x / 2, cx + span_x / 2
+                        ymin, ymax = cy - span_y / 2, cy + span_y / 2
 
-                    for it in range(80):
-                        if not mask.any():
-                            break
-                        Z[mask] = Z[mask]**2 + C[mask]
-                        escaped = np.abs(Z) > 4.0
-                        out[escaped & mask] = it
-                        mask &= ~escaped
+                        fw, fh = width // 2, height // 2
+                        r1 = np.linspace(xmin, xmax, fw)
+                        r2 = np.linspace(ymin, ymax, fh)
+                        X, Y = np.meshgrid(r1, r2)
+                        C = X + 1j * Y
+                        Z = np.zeros_like(C)
+                        out = np.zeros(Z.shape, dtype=float)
+                        mask = np.ones(Z.shape, dtype=bool)
 
-                    out_norm = np.uint8(255 * (out / 80.0))
-                    color_frame = cv2.applyColorMap(out_norm, cv2.COLORMAP_TWILIGHT_SHIFTED)
-                    final_frame = cv2.resize(color_frame, (width, height), interpolation=cv2.INTER_CUBIC)
+                        for it in range(80):
+                            if not mask.any():
+                                break
+                            Z[mask] = Z[mask]**2 + C[mask]
+                            escaped = np.abs(Z) > 4.0
+                            out[escaped & mask] = it
+                            mask &= ~escaped
 
-                    cv2.putText(final_frame, f"TARDIS CHRONOVISION · ZOOM: {zoom:.1e}x", (40, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.85, (0, 243, 255), 2)
-                    cv2.putText(final_frame, f"FRAME: {f_idx+1}/{total_frames} · {fps} FPS NVENC", (40, height - 40), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (255, 215, 0), 1)
-                    proc.stdin.write(final_frame.tobytes())
+                        out_norm = np.uint8(255 * (out / 80.0))
+                        color_frame = cv2.applyColorMap(out_norm, cv2.COLORMAP_TWILIGHT_SHIFTED)
+                        final_frame = cv2.resize(color_frame, (width, height), interpolation=cv2.INTER_CUBIC)
+
+                        cv2.putText(final_frame, f"TARDIS CHRONOVISION · ZOOM: {zoom:.1e}x", (40, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.85, (0, 243, 255), 2)
+                        cv2.putText(final_frame, f"FRAME: {f_idx+1}/{total_frames} · {fps} FPS", (40, height - 40), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (255, 215, 0), 1)
+                        yield final_frame.tobytes()
 
             elif any(k in video_type for k in ("galaxia", "galaxy", "cosmos", "universo", "nebulosa")):
                 title = "Vórtice Espiral Galáctico (Dinámica Orbital 2D)"
                 desc = "Rotación diferencial de estrellas y gas interestelar alrededor del núcleo supermasivo."
-                np.random.seed(42)
-                n_stars = 1200
-                radii = np.random.uniform(20, min(width, height) * 0.44, n_stars)
-                base_angles = np.random.uniform(0, 2 * math.pi, n_stars)
-                speeds = 2.5 / (np.sqrt(radii / 40.0) + 1.0)
-                arm_offsets = np.random.choice([0, math.pi], n_stars) + np.random.normal(0, 0.35, n_stars)
-                colors = []
-                for r in radii:
-                    if r < 80:
-                        colors.append((255, 240, 200))
-                    elif r < 200:
-                        colors.append((255, 230, 0))
-                    else:
-                        colors.append((255, 180, 50))
 
-                cx, cy = width // 2, height // 2
-                for f_idx in range(total_frames):
-                    progress = f_idx / total_frames
-                    frame = np.full((height, width, 3), (8, 12, 20), dtype=np.uint8)
+                def _iter_frames():
+                    np.random.seed(42)
+                    n_stars = 1200
+                    radii = np.random.uniform(20, min(width, height) * 0.44, n_stars)
+                    base_angles = np.random.uniform(0, 2 * math.pi, n_stars)
+                    speeds = 2.5 / (np.sqrt(radii / 40.0) + 1.0)
+                    arm_offsets = np.random.choice([0, math.pi], n_stars) + np.random.normal(0, 0.35, n_stars)
+                    colors = []
+                    for r in radii:
+                        if r < 80:
+                            colors.append((255, 240, 200))
+                        elif r < 200:
+                            colors.append((255, 230, 0))
+                        else:
+                            colors.append((255, 180, 50))
 
-                    # Núcleo galáctico pulsante
-                    pulse = 1.0 + 0.1 * math.sin(progress * 4 * math.pi)
-                    cv2.circle(frame, (cx, cy), int(35 * pulse), (0, 180, 255), -1)
-                    cv2.circle(frame, (cx, cy), int(18 * pulse), (200, 245, 255), -1)
+                    cx, cy = width // 2, height // 2
+                    for f_idx in range(total_frames):
+                        progress = f_idx / total_frames
+                        frame = np.full((height, width, 3), (8, 12, 20), dtype=np.uint8)
 
-                    # Estrellas en rotación kepleriana y espiral
-                    for i in range(n_stars):
-                        theta = base_angles[i] + speeds[i] * progress * 2 * math.pi + arm_offsets[i]
-                        r = radii[i]
-                        px = int(cx + r * math.cos(theta))
-                        py = int(cy + r * math.sin(theta) * 0.65)
-                        if 0 <= px < width and 0 <= py < height:
-                            cv2.circle(frame, (px, py), 1 if r > 100 else 2, colors[i], -1)
+                        # Núcleo galáctico pulsante
+                        pulse = 1.0 + 0.1 * math.sin(progress * 4 * math.pi)
+                        cv2.circle(frame, (cx, cy), int(35 * pulse), (0, 180, 255), -1)
+                        cv2.circle(frame, (cx, cy), int(18 * pulse), (200, 245, 255), -1)
 
-                    cv2.putText(frame, "TARDIS CHRONOVISION · ROTACIÓN GALÁCTICA 2D", (40, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.85, (0, 243, 255), 2)
-                    cv2.putText(frame, f"VELOCIDAD ORBITAL DIFERENCIAL · FRAME {f_idx+1}/{total_frames}", (40, height - 40), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (255, 215, 0), 1)
-                    proc.stdin.write(frame.tobytes())
+                        # Estrellas en rotación kepleriana y espiral
+                        for i in range(n_stars):
+                            theta = base_angles[i] + speeds[i] * progress * 2 * math.pi + arm_offsets[i]
+                            r = radii[i]
+                            px = int(cx + r * math.cos(theta))
+                            py = int(cy + r * math.sin(theta) * 0.65)
+                            if 0 <= px < width and 0 <= py < height:
+                                cv2.circle(frame, (px, py), 1 if r > 100 else 2, colors[i], -1)
+
+                        cv2.putText(frame, "TARDIS CHRONOVISION · ROTACIÓN GALÁCTICA 2D", (40, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.85, (0, 243, 255), 2)
+                        cv2.putText(frame, f"VELOCIDAD ORBITAL DIFERENCIAL · FRAME {f_idx+1}/{total_frames}", (40, height - 40), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (255, 215, 0), 1)
+                        yield frame.tobytes()
 
             elif any(k in video_type for k in ("reloj", "clock", "tiempo", "cronos", "tardis_clock", "temporal")):
                 title = "Reloj Temporal de Gallifrey & La Línea Cero"
                 desc = "Sincronización cinemática de diales temporales concéntricos y barrido cronométrico."
-                cx, cy = width // 2, height // 2
-                r_outer = int(min(width, height) * 0.40)
-                r_mid = int(r_outer * 0.72)
-                r_inner = int(r_outer * 0.42)
 
-                for f_idx in range(total_frames):
-                    progress = f_idx / total_frames
-                    frame = np.full((height, width, 3), (10, 14, 24), dtype=np.uint8)
+                def _iter_frames():
+                    cx, cy = width // 2, height // 2
+                    r_outer = int(min(width, height) * 0.40)
+                    r_mid = int(r_outer * 0.72)
+                    r_inner = int(r_outer * 0.42)
 
-                    cv2.circle(frame, (cx, cy), r_outer, (0, 212, 200), 2)
-                    cv2.circle(frame, (cx, cy), r_mid, (0, 160, 220), 1)
-                    cv2.circle(frame, (cx, cy), r_inner, (232, 182, 74), 2)
+                    for f_idx in range(total_frames):
+                        progress = f_idx / total_frames
+                        frame = np.full((height, width, 3), (10, 14, 24), dtype=np.uint8)
 
-                    for s in range(60):
-                        ang = s * (2 * math.pi / 60)
-                        l = 14 if s % 5 == 0 else 6
-                        p1 = (int(cx + (r_outer - l) * math.cos(ang)), int(cy + (r_outer - l) * math.sin(ang)))
-                        p2 = (int(cx + r_outer * math.cos(ang)), int(cy + r_outer * math.sin(ang)))
-                        cv2.line(frame, p1, p2, (0, 243, 255) if s % 5 == 0 else (0, 140, 160), 2 if s % 5 == 0 else 1)
+                        cv2.circle(frame, (cx, cy), r_outer, (0, 212, 200), 2)
+                        cv2.circle(frame, (cx, cy), r_mid, (0, 160, 220), 1)
+                        cv2.circle(frame, (cx, cy), r_inner, (232, 182, 74), 2)
 
-                    mid_ang = -progress * 2 * math.pi * 0.5
-                    for g in range(12):
-                        gang = mid_ang + g * (2 * math.pi / 12)
-                        gx = int(cx + r_mid * math.cos(gang))
-                        gy = int(cy + r_mid * math.sin(gang))
-                        cv2.circle(frame, (gx, gy), 9, (232, 182, 74), 1)
+                        for s in range(60):
+                            ang = s * (2 * math.pi / 60)
+                            l = 14 if s % 5 == 0 else 6
+                            p1 = (int(cx + (r_outer - l) * math.cos(ang)), int(cy + (r_outer - l) * math.sin(ang)))
+                            p2 = (int(cx + r_outer * math.cos(ang)), int(cy + r_outer * math.sin(ang)))
+                            cv2.line(frame, p1, p2, (0, 243, 255) if s % 5 == 0 else (0, 140, 160), 2 if s % 5 == 0 else 1)
 
-                    pulse_r = int((progress * r_inner * 1.5) % r_inner)
-                    cv2.circle(frame, (cx, cy), max(2, pulse_r), (0, 243, 255), 1)
+                        mid_ang = -progress * 2 * math.pi * 0.5
+                        for g in range(12):
+                            gang = mid_ang + g * (2 * math.pi / 12)
+                            gx = int(cx + r_mid * math.cos(gang))
+                            gy = int(cy + r_mid * math.sin(gang))
+                            cv2.circle(frame, (gx, gy), 9, (232, 182, 74), 1)
 
-                    h_ang = -math.pi / 2 + progress * (2 * math.pi / 12) + math.pi / 6
-                    hx = int(cx + (r_outer * 0.45) * math.cos(h_ang))
-                    hy = int(cy + (r_outer * 0.45) * math.sin(h_ang))
-                    cv2.line(frame, (cx, cy), (hx, hy), (232, 182, 74), 4)
+                        pulse_r = int((progress * r_inner * 1.5) % r_inner)
+                        cv2.circle(frame, (cx, cy), max(2, pulse_r), (0, 243, 255), 1)
 
-                    m_ang = -math.pi / 2 + progress * (2 * math.pi)
-                    mx = int(cx + (r_outer * 0.70) * math.cos(m_ang))
-                    my = int(cy + (r_outer * 0.70) * math.sin(m_ang))
-                    cv2.line(frame, (cx, cy), (mx, my), (0, 212, 200), 3)
+                        h_ang = -math.pi / 2 + progress * (2 * math.pi / 12) + math.pi / 6
+                        hx = int(cx + (r_outer * 0.45) * math.cos(h_ang))
+                        hy = int(cy + (r_outer * 0.45) * math.sin(h_ang))
+                        cv2.line(frame, (cx, cy), (hx, hy), (232, 182, 74), 4)
 
-                    s_ang = -math.pi / 2 + progress * (2 * math.pi * 3)
-                    sx = int(cx + (r_outer * 0.88) * math.cos(s_ang))
-                    sy = int(cy + (r_outer * 0.88) * math.sin(s_ang))
-                    cv2.line(frame, (cx, cy), (sx, sy), (0, 243, 255), 2)
-                    cv2.circle(frame, (cx, cy), 6, (0, 243, 255), -1)
+                        m_ang = -math.pi / 2 + progress * (2 * math.pi)
+                        mx = int(cx + (r_outer * 0.70) * math.cos(m_ang))
+                        my = int(cy + (r_outer * 0.70) * math.sin(m_ang))
+                        cv2.line(frame, (cx, cy), (mx, my), (0, 212, 200), 3)
 
-                    cv2.putText(frame, "RELOJ TEMPORAL TARDIS · SINCRONIZACIÓN LÍNEA CERO", (40, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 243, 255), 2)
-                    cv2.putText(frame, f"COHERENCIA: 99.98% · BARRIDO CONTINUO {fps} FPS", (40, height - 40), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (255, 215, 0), 1)
-                    proc.stdin.write(frame.tobytes())
+                        s_ang = -math.pi / 2 + progress * (2 * math.pi * 3)
+                        sx = int(cx + (r_outer * 0.88) * math.cos(s_ang))
+                        sy = int(cy + (r_outer * 0.88) * math.sin(s_ang))
+                        cv2.line(frame, (cx, cy), (sx, sy), (0, 243, 255), 2)
+                        cv2.circle(frame, (cx, cy), 6, (0, 243, 255), -1)
+
+                        cv2.putText(frame, "RELOJ TEMPORAL TARDIS · SINCRONIZACIÓN LÍNEA CERO", (40, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 243, 255), 2)
+                        cv2.putText(frame, f"COHERENCIA: 99.98% · BARRIDO CONTINUO {fps} FPS", (40, height - 40), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (255, 215, 0), 1)
+                        yield frame.tobytes()
 
             elif any(k in video_type for k in ("metatron", "flor", "vida", "geometria", "geometría", "sacred", "espiral")):
                 title = "Geometría Sagrada Dinámica (Flor de la Vida & Matriz de Metatrón)"
                 desc = "Pulsación armónica de proporciones áureas y resonancia de nodos sagrados."
-                cx, cy = width // 2, height // 2
-                base_r = int(min(width, height) * 0.16)
 
-                for f_idx in range(total_frames):
-                    progress = f_idx / total_frames
-                    frame = np.full((height, width, 3), (6, 8, 16), dtype=np.uint8)
+                def _iter_frames():
+                    cx, cy = width // 2, height // 2
+                    base_r = int(min(width, height) * 0.16)
 
-                    breath = 1.0 + 0.12 * math.sin(progress * 2 * math.pi)
-                    cur_r = int(base_r * breath)
-                    rot_ang = progress * 2 * math.pi * 0.25
+                    for f_idx in range(total_frames):
+                        progress = f_idx / total_frames
+                        frame = np.full((height, width, 3), (6, 8, 16), dtype=np.uint8)
 
-                    cv2.circle(frame, (cx, cy), cur_r, (0, 243, 255), 2)
+                        breath = 1.0 + 0.12 * math.sin(progress * 2 * math.pi)
+                        cur_r = int(base_r * breath)
+                        rot_ang = progress * 2 * math.pi * 0.25
 
-                    centers = [(cx, cy)]
-                    for i in range(6):
-                        ang = rot_ang + i * (math.pi / 3)
-                        px = int(cx + cur_r * math.cos(ang))
-                        py = int(cy + cur_r * math.sin(ang))
-                        centers.append((px, py))
-                        cv2.circle(frame, (px, py), cur_r, (0, 212, 200), 2)
+                        cv2.circle(frame, (cx, cy), cur_r, (0, 243, 255), 2)
 
-                    for i in range(6):
-                        ang = rot_ang + i * (math.pi / 3) + math.pi / 6
-                        px = int(cx + cur_r * math.sqrt(3) * math.cos(ang))
-                        py = int(cy + cur_r * math.sqrt(3) * math.sin(ang))
-                        centers.append((px, py))
-                        cv2.circle(frame, (px, py), cur_r, (232, 182, 74), 1)
+                        centers = [(cx, cy)]
+                        for i in range(6):
+                            ang = rot_ang + i * (math.pi / 3)
+                            px = int(cx + cur_r * math.cos(ang))
+                            py = int(cy + cur_r * math.sin(ang))
+                            centers.append((px, py))
+                            cv2.circle(frame, (px, py), cur_r, (0, 212, 200), 2)
 
-                    n_nodes = len(centers)
-                    for a in range(n_nodes):
-                        for b in range(a + 1, n_nodes):
-                            p1, p2 = centers[a], centers[b]
-                            dist = math.hypot(p1[0] - p2[0], p1[1] - p2[1])
-                            if dist < cur_r * 2.2:
-                                cv2.line(frame, p1, p2, (255, 230, 100), 1)
+                        for i in range(6):
+                            ang = rot_ang + i * (math.pi / 3) + math.pi / 6
+                            px = int(cx + cur_r * math.sqrt(3) * math.cos(ang))
+                            py = int(cy + cur_r * math.sqrt(3) * math.sin(ang))
+                            centers.append((px, py))
+                            cv2.circle(frame, (px, py), cur_r, (232, 182, 74), 1)
 
-                    for pt in centers:
-                        cv2.circle(frame, pt, 4, (0, 243, 255), -1)
+                        n_nodes = len(centers)
+                        for a in range(n_nodes):
+                            for b in range(a + 1, n_nodes):
+                                p1, p2 = centers[a], centers[b]
+                                dist = math.hypot(p1[0] - p2[0], p1[1] - p2[1])
+                                if dist < cur_r * 2.2:
+                                    cv2.line(frame, p1, p2, (255, 230, 100), 1)
 
-                    cv2.putText(frame, "GEOMETRÍA SAGRADA · ARMONÍA ÁUREA EN PULSACIÓN", (40, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 243, 255), 2)
-                    cv2.putText(frame, f"RESONANCIA SINTRÓPICA Φ = 1.618 · {fps} FPS", (40, height - 40), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (255, 215, 0), 1)
-                    proc.stdin.write(frame.tobytes())
+                        for pt in centers:
+                            cv2.circle(frame, pt, 4, (0, 243, 255), -1)
+
+                        cv2.putText(frame, "GEOMETRÍA SAGRADA · ARMONÍA ÁUREA EN PULSACIÓN", (40, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 243, 255), 2)
+                        cv2.putText(frame, f"RESONANCIA SINTRÓPICA Φ = 1.618 · {fps} FPS", (40, height - 40), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (255, 215, 0), 1)
+                        yield frame.tobytes()
 
             elif any(k in video_type for k in ("mandala", "zen", "meditacion", "meditación")):
                 title = "Mandala Cósmico Interdimensional (Rotación y Respiración)"
                 desc = "Evolución armónica de simetrías polares concéntricas con gradiente dinámico."
-                cx, cy = width // 2, height // 2
-                max_r = int(min(width, height) * 0.42)
 
-                for f_idx in range(total_frames):
-                    progress = f_idx / total_frames
-                    frame = np.full((height, width, 3), (8, 6, 14), dtype=np.uint8)
+                def _iter_frames():
+                    cx, cy = width // 2, height // 2
+                    max_r = int(min(width, height) * 0.42)
 
-                    breath = 1.0 + 0.08 * math.sin(progress * 2 * math.pi)
+                    for f_idx in range(total_frames):
+                        progress = f_idx / total_frames
+                        frame = np.full((height, width, 3), (8, 6, 14), dtype=np.uint8)
 
-                    layers = [
-                        (8, 0.28, 1.0, (0, 243, 255)),
-                        (12, 0.50, -0.6, (232, 182, 74)),
-                        (16, 0.75, 0.4, (200, 100, 255)),
-                        (24, 0.98, -0.2, (0, 212, 200))
-                    ]
+                        breath = 1.0 + 0.08 * math.sin(progress * 2 * math.pi)
 
-                    for petals, r_ratio, speed, color in layers:
-                        r_curr = max_r * r_ratio * breath
-                        ang_offset = progress * 2 * math.pi * speed
-                        pts = []
-                        for step in range(petals * 16):
-                            theta = ang_offset + (step / (petals * 16)) * 2 * math.pi
-                            r_pet = r_curr * (1.0 + 0.22 * math.cos(petals * theta))
-                            px = int(cx + r_pet * math.cos(theta))
-                            py = int(cy + r_pet * math.sin(theta))
-                            pts.append([px, py])
+                        layers = [
+                            (8, 0.28, 1.0, (0, 243, 255)),
+                            (12, 0.50, -0.6, (232, 182, 74)),
+                            (16, 0.75, 0.4, (200, 100, 255)),
+                            (24, 0.98, -0.2, (0, 212, 200))
+                        ]
 
-                        pts_arr = np.array(pts, np.int32)
-                        cv2.polylines(frame, [pts_arr], True, color, 2)
+                        for petals, r_ratio, speed, color in layers:
+                            r_curr = max_r * r_ratio * breath
+                            ang_offset = progress * 2 * math.pi * speed
+                            pts = []
+                            for step in range(petals * 16):
+                                theta = ang_offset + (step / (petals * 16)) * 2 * math.pi
+                                r_pet = r_curr * (1.0 + 0.22 * math.cos(petals * theta))
+                                px = int(cx + r_pet * math.cos(theta))
+                                py = int(cy + r_pet * math.sin(theta))
+                                pts.append([px, py])
 
-                    cv2.circle(frame, (cx, cy), int(max_r * 0.12 * breath), (255, 230, 100), -1)
+                            pts_arr = np.array(pts, np.int32)
+                            cv2.polylines(frame, [pts_arr], True, color, 2)
 
-                    cv2.putText(frame, "MANDALA CÓSMICO · RESPIRACIÓN Y CONTRA-ROTACIÓN", (40, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 243, 255), 2)
-                    cv2.putText(frame, f"SIMETRÍAS POLARES 8/12/16/24 · FRAME {f_idx+1}/{total_frames}", (40, height - 40), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (255, 215, 0), 1)
-                    proc.stdin.write(frame.tobytes())
+                        cv2.circle(frame, (cx, cy), int(max_r * 0.12 * breath), (255, 230, 100), -1)
+
+                        cv2.putText(frame, "MANDALA CÓSMICO · RESPIRACIÓN Y CONTRA-ROTACIÓN", (40, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 243, 255), 2)
+                        cv2.putText(frame, f"SIMETRÍAS POLARES 8/12/16/24 · FRAME {f_idx+1}/{total_frames}", (40, height - 40), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (255, 215, 0), 1)
+                        yield frame.tobytes()
 
             elif any(k in video_type for k in ("synthwave", "paisaje", "landscape", "mundo", "retro")):
                 title = "Horizonte Cuántico Retro-Synthwave (Perspectiva Infinita)"
                 desc = "Plano de perspectiva infinito en avance vectorial con sol pulsante y montañas neon."
-                cx = width // 2
-                horizon_y = int(height * 0.52)
 
-                for f_idx in range(total_frames):
-                    progress = f_idx / total_frames
-                    frame = np.full((height, width, 3), (18, 8, 22), dtype=np.uint8)
+                def _iter_frames():
+                    cx = width // 2
+                    horizon_y = int(height * 0.52)
 
-                    np.random.seed(99)
-                    for _ in range(80):
-                        sx = np.random.randint(0, width)
-                        sy = np.random.randint(0, horizon_y - 20)
-                        cv2.circle(frame, (sx, sy), 1, (255, 255, 255), -1)
+                    for f_idx in range(total_frames):
+                        progress = f_idx / total_frames
+                        frame = np.full((height, width, 3), (18, 8, 22), dtype=np.uint8)
 
-                    sun_r = int(min(width, height) * 0.18)
-                    sun_cy = horizon_y - int(sun_r * 0.4)
-                    for sr in range(sun_r, 0, -2):
-                        col = (int(0 + (sr/sun_r)*50), int(120 + (sr/sun_r)*100), int(255 - (sr/sun_r)*50))
-                        cv2.circle(frame, (cx, sun_cy), sr, col, -1)
+                        np.random.seed(99)
+                        for _ in range(80):
+                            sx = np.random.randint(0, width)
+                            sy = np.random.randint(0, horizon_y - 20)
+                            cv2.circle(frame, (sx, sy), 1, (255, 255, 255), -1)
 
-                    scan_offset = (progress * 24) % 18
-                    for sy in range(sun_cy - sun_r, sun_cy + sun_r, 14):
-                        cur_sy = int(sy + scan_offset)
-                        if sun_cy - sun_r < cur_sy < horizon_y:
-                            cv2.line(frame, (cx - sun_r, cur_sy), (cx + sun_r, cur_sy), (18, 8, 22), 3)
+                        sun_r = int(min(width, height) * 0.18)
+                        sun_cy = horizon_y - int(sun_r * 0.4)
+                        for sr in range(sun_r, 0, -2):
+                            col = (int(0 + (sr/sun_r)*50), int(120 + (sr/sun_r)*100), int(255 - (sr/sun_r)*50))
+                            cv2.circle(frame, (cx, sun_cy), sr, col, -1)
 
-                    mountains = [
-                        [0, horizon_y], [int(width * 0.15), horizon_y - 70], [int(width * 0.32), horizon_y - 25],
-                        [int(width * 0.50), horizon_y - 95], [int(width * 0.68), horizon_y - 40], [int(width * 0.85), horizon_y - 80],
-                        [width, horizon_y]
-                    ]
-                    cv2.polylines(frame, [np.array(mountains, np.int32)], False, (220, 50, 180), 2)
+                        scan_offset = (progress * 24) % 18
+                        for sy in range(sun_cy - sun_r, sun_cy + sun_r, 14):
+                            cur_sy = int(sy + scan_offset)
+                            if sun_cy - sun_r < cur_sy < horizon_y:
+                                cv2.line(frame, (cx - sun_r, cur_sy), (cx + sun_r, cur_sy), (18, 8, 22), 3)
 
-                    n_rad = 18
-                    for r_i in range(n_rad + 1):
-                        x_bot = int(width * (r_i / n_rad))
-                        cv2.line(frame, (cx, horizon_y), (x_bot, height), (0, 212, 200), 1)
+                        mountains = [
+                            [0, horizon_y], [int(width * 0.15), horizon_y - 70], [int(width * 0.32), horizon_y - 25],
+                            [int(width * 0.50), horizon_y - 95], [int(width * 0.68), horizon_y - 40], [int(width * 0.85), horizon_y - 80],
+                            [width, horizon_y]
+                        ]
+                        cv2.polylines(frame, [np.array(mountains, np.int32)], False, (220, 50, 180), 2)
 
-                    n_horiz = 14
-                    for h_i in range(n_horiz):
-                        p_line = ((h_i + progress * 2.0) % n_horiz) / n_horiz
-                        y_line = int(horizon_y + (height - horizon_y) * (p_line ** 2.2))
-                        if horizon_y < y_line < height:
-                            cv2.line(frame, (0, y_line), (width, y_line), (0, 243, 255), 2 if p_line > 0.6 else 1)
+                        n_rad = 18
+                        for r_i in range(n_rad + 1):
+                            x_bot = int(width * (r_i / n_rad))
+                            cv2.line(frame, (cx, horizon_y), (x_bot, height), (0, 212, 200), 1)
 
-                    cv2.putText(frame, "HORIZONTE CUÁNTICO · TARDIS SYNTHWAVE PERSPECTIVE", (40, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 243, 255), 2)
-                    cv2.putText(frame, f"VELOCIDAD VECTORIAL C · REJILLA EN BUCLE {fps} FPS", (40, height - 40), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (255, 215, 0), 1)
-                    proc.stdin.write(frame.tobytes())
+                        n_horiz = 14
+                        for h_i in range(n_horiz):
+                            p_line = ((h_i + progress * 2.0) % n_horiz) / n_horiz
+                            y_line = int(horizon_y + (height - horizon_y) * (p_line ** 2.2))
+                            if horizon_y < y_line < height:
+                                cv2.line(frame, (0, y_line), (width, y_line), (0, 243, 255), 2 if p_line > 0.6 else 1)
+
+                        cv2.putText(frame, "HORIZONTE CUÁNTICO · TARDIS SYNTHWAVE PERSPECTIVE", (40, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 243, 255), 2)
+                        cv2.putText(frame, f"VELOCIDAD VECTORIAL C · REJILLA EN BUCLE {fps} FPS", (40, height - 40), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (255, 215, 0), 1)
+                        yield frame.tobytes()
 
             elif any(k in video_type for k in ("arbol", "árbol", "tree", "fractal_tree", "bosque")):
                 title = "Crecimiento del Árbol Fractal Cósmico"
                 desc = "Ramificación procedural iterativa en tiempo real con oscilación orgánica armónica."
-                cx = width // 2
-                base_y = height - 60
 
-                for f_idx in range(total_frames):
-                    progress = f_idx / total_frames
-                    frame = np.full((height, width, 3), (10, 12, 20), dtype=np.uint8)
+                def _iter_frames():
+                    cx = width // 2
+                    base_y = height - 60
 
-                    max_depth = min(7, int(2 + progress * 5.5))
-                    growth = min(1.0, progress * 1.25)
-                    wind = 0.08 * math.sin(progress * 2 * math.pi)
+                    for f_idx in range(total_frames):
+                        progress = f_idx / total_frames
+                        frame = np.full((height, width, 3), (10, 12, 20), dtype=np.uint8)
 
-                    def draw_branch(x1, y1, length, angle, depth):
-                        if depth <= 0 or length < 4:
-                            cv2.circle(frame, (int(x1), int(y1)), 3, (0, 243, 255), -1)
-                            return
-                        x2 = x1 + length * math.sin(angle)
-                        y2 = y1 - length * math.cos(angle)
-                        thickness = max(1, int(depth * 1.4))
-                        col = (232, 182, 74) if depth > 4 else (0, 212, 200)
-                        cv2.line(frame, (int(x1), int(y1)), (int(x2), int(y2)), col, thickness)
+                        max_depth = min(7, int(2 + progress * 5.5))
+                        growth = min(1.0, progress * 1.25)
+                        wind = 0.08 * math.sin(progress * 2 * math.pi)
 
-                        spread = 0.42 + wind
-                        next_len = length * 0.72
-                        draw_branch(x2, y2, next_len, angle - spread, depth - 1)
-                        draw_branch(x2, y2, next_len, angle + spread, depth - 1)
+                        def draw_branch(x1, y1, length, angle, depth):
+                            if depth <= 0 or length < 4:
+                                cv2.circle(frame, (int(x1), int(y1)), 3, (0, 243, 255), -1)
+                                return
+                            x2 = x1 + length * math.sin(angle)
+                            y2 = y1 - length * math.cos(angle)
+                            thickness = max(1, int(depth * 1.4))
+                            col = (232, 182, 74) if depth > 4 else (0, 212, 200)
+                            cv2.line(frame, (int(x1), int(y1)), (int(x2), int(y2)), col, thickness)
 
-                    trunk_len = (height * 0.28) * growth
-                    draw_branch(cx, base_y, trunk_len, 0.0 + wind * 0.5, max_depth)
+                            spread = 0.42 + wind
+                            next_len = length * 0.72
+                            draw_branch(x2, y2, next_len, angle - spread, depth - 1)
+                            draw_branch(x2, y2, next_len, angle + spread, depth - 1)
 
-                    cv2.putText(frame, "ÁRBOL FRACTAL CÓSMICO · RAMIFICACIÓN PROCEDURAL", (40, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 243, 255), 2)
-                    cv2.putText(frame, f"NIVEL DE RECURSIÓN: {max_depth} · BIOLOGÍA CUÁNTICA", (40, height - 40), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (255, 215, 0), 1)
-                    proc.stdin.write(frame.tobytes())
+                        trunk_len = (height * 0.28) * growth
+                        draw_branch(cx, base_y, trunk_len, 0.0 + wind * 0.5, max_depth)
+
+                        cv2.putText(frame, "ÁRBOL FRACTAL CÓSMICO · RAMIFICACIÓN PROCEDURAL", (40, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 243, 255), 2)
+                        cv2.putText(frame, f"NIVEL DE RECURSIÓN: {max_depth} · BIOLOGÍA CUÁNTICA", (40, height - 40), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (255, 215, 0), 1)
+                        yield frame.tobytes()
 
             elif any(k in video_type for k in ("criatura", "animal", "fenix", "fénix", "ave", "creature", "mariposa")):
                 title = "Criatura Celestial Fénix (Aleteo y Estela Estelar)"
                 desc = "Dinámica de aleteo luminiscente con dispersión de estelas de polvo estelar."
-                cx, cy = width // 2, height // 2
 
-                for f_idx in range(total_frames):
-                    progress = f_idx / total_frames
-                    frame = np.full((height, width, 3), (12, 8, 20), dtype=np.uint8)
+                def _iter_frames():
+                    cx, cy = width // 2, height // 2
 
-                    flap_ang = math.sin(progress * 4 * math.pi)
-                    wing_span = width * 0.38
-                    wing_y_dip = int(flap_ang * 60)
+                    for f_idx in range(total_frames):
+                        progress = f_idx / total_frames
+                        frame = np.full((height, width, 3), (12, 8, 20), dtype=np.uint8)
 
-                    cv2.ellipse(frame, (cx, cy), (16, 45), 0, 0, 360, (255, 240, 200), -1)
-                    cv2.circle(frame, (cx, cy - 40), 12, (0, 243, 255), -1)
+                        flap_ang = math.sin(progress * 4 * math.pi)
+                        wing_span = width * 0.38
+                        wing_y_dip = int(flap_ang * 60)
 
-                    n_feathers = 10
-                    for side in (-1, 1):
-                        for f in range(n_feathers):
-                            t_f = f / n_feathers
-                            wx = int(cx + side * (wing_span * t_f))
-                            wy = int(cy - 20 - (math.sin(t_f * math.pi) * 80) + wing_y_dip * t_f)
-                            cv2.line(frame, (cx, cy - 10), (wx, wy), (0, 212, 200), 2)
-                            cv2.circle(frame, (wx, wy), 4, (232, 182, 74), -1)
+                        cv2.ellipse(frame, (cx, cy), (16, 45), 0, 0, 360, (255, 240, 200), -1)
+                        cv2.circle(frame, (cx, cy - 40), 12, (0, 243, 255), -1)
 
-                    np.random.seed(int(progress * 100))
-                    for _ in range(30):
-                        px = cx + np.random.randint(-120, 120)
-                        py = cy + np.random.randint(10, 180)
-                        cv2.circle(frame, (px, py), 2, (255, 200, 100), -1)
+                        n_feathers = 10
+                        for side in (-1, 1):
+                            for f in range(n_feathers):
+                                t_f = f / n_feathers
+                                wx = int(cx + side * (wing_span * t_f))
+                                wy = int(cy - 20 - (math.sin(t_f * math.pi) * 80) + wing_y_dip * t_f)
+                                cv2.line(frame, (cx, cy - 10), (wx, wy), (0, 212, 200), 2)
+                                cv2.circle(frame, (wx, wy), 4, (232, 182, 74), -1)
 
-                    cv2.putText(frame, "CRIATURA CELESTIAL · FÉNIX DE POLVO ESTELAR", (40, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 243, 255), 2)
-                    cv2.putText(frame, f"CINEMÁTICA DE VUELO ARMÓNICA · LÍNEA CERO", (40, height - 40), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (255, 215, 0), 1)
-                    proc.stdin.write(frame.tobytes())
+                        np.random.seed(int(progress * 100))
+                        for _ in range(30):
+                            px = cx + np.random.randint(-120, 120)
+                            py = cy + np.random.randint(10, 180)
+                            cv2.circle(frame, (px, py), 2, (255, 200, 100), -1)
+
+                        cv2.putText(frame, "CRIATURA CELESTIAL · FÉNIX DE POLVO ESTELAR", (40, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 243, 255), 2)
+                        cv2.putText(frame, "CINEMÁTICA DE VUELO ARMÓNICA · LÍNEA CERO", (40, height - 40), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (255, 215, 0), 1)
+                        yield frame.tobytes()
 
             elif "quantum" in video_type or "onda" in video_type:
                 title = "Dinámica de la Función de Onda Cuántica y Colapso Causal"
                 desc = "Propagación e interferencia de paquetes de onda en el espacio de Hilbert."
-                x = np.linspace(-10, 10, width)
-                for f_idx in range(total_frames):
-                    t = f_idx * 0.08
-                    psi_1 = np.exp(-(x - 2 + t * 0.5)**2 / 2.0) * np.cos(4 * x - 3 * t)
-                    psi_2 = np.exp(-(x + 2 - t * 0.5)**2 / 2.0) * np.cos(4 * x + 3 * t)
-                    psi_tot = psi_1 + psi_2
-                    prob = psi_tot**2
 
-                    frame = np.full((height, width, 3), 15, dtype=np.uint8)
-                    pts = []
-                    cy = height // 2
-                    for px in range(width):
-                        py = int(cy - prob[px] * (height * 0.35))
-                        pts.append([px, py])
+                def _iter_frames():
+                    x = np.linspace(-10, 10, width)
+                    for f_idx in range(total_frames):
+                        t = f_idx * 0.08
+                        psi_1 = np.exp(-(x - 2 + t * 0.5)**2 / 2.0) * np.cos(4 * x - 3 * t)
+                        psi_2 = np.exp(-(x + 2 - t * 0.5)**2 / 2.0) * np.cos(4 * x + 3 * t)
+                        psi_tot = psi_1 + psi_2
+                        prob = psi_tot**2
 
-                    pts = np.array(pts, np.int32)
-                    cv2.polylines(frame, [pts], False, (255, 243, 0), 3)
+                        frame = np.full((height, width, 3), 15, dtype=np.uint8)
+                        pts = []
+                        cy = height // 2
+                        for px in range(width):
+                            py = int(cy - prob[px] * (height * 0.35))
+                            pts.append([px, py])
 
-                    overlay = frame.copy()
-                    cv2.fillPoly(overlay, [np.vstack([pts, [[width-1, cy], [0, cy]]])], (255, 200, 0))
-                    cv2.addWeighted(overlay, 0.25, frame, 0.75, 0, frame)
+                        pts = np.array(pts, np.int32)
+                        cv2.polylines(frame, [pts], False, (255, 243, 0), 3)
 
-                    cv2.putText(frame, f"ψ(x,t) INTERFERENCIA CUÁNTICA · t = {t:.2f}s", (40, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 243, 255), 2)
-                    proc.stdin.write(frame.tobytes())
+                        overlay = frame.copy()
+                        cv2.fillPoly(overlay, [np.vstack([pts, [[width-1, cy], [0, cy]]])], (255, 200, 0))
+                        cv2.addWeighted(overlay, 0.25, frame, 0.75, 0, frame)
+
+                        cv2.putText(frame, f"ψ(x,t) INTERFERENCIA CUÁNTICA · t = {t:.2f}s", (40, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 243, 255), 2)
+                        yield frame.tobytes()
 
             else:
                 # Lorenz 3D Orbit Evolution
                 title = "Órbita 3D del Atractor de Lorenz (Trayectoria Temporal Continua)"
                 desc = "Rotación de cámara y evolución en vivo de las ecuaciones caóticas de Lorenz."
-                def lorenz(state, t, s=10.0, r=28.0, b=8.0/3.0):
-                    x, y, z = state
-                    return [s * (y - x), x * (r - z) - y, x * y - b * z]
 
-                t_steps = np.linspace(0, 40, total_frames * 40)
-                traj = odeint(lorenz, [1.0, 1.0, 1.0], t_steps)
+                def _iter_frames():
+                    def lorenz(state, t, s=10.0, r=28.0, b=8.0/3.0):
+                        x, y, z = state
+                        return [s * (y - x), x * (r - z) - y, x * y - b * z]
 
-                for f_idx in range(total_frames):
-                    curr_len = (f_idx + 1) * 40
-                    sub_traj = traj[:curr_len]
-                    angle = (f_idx / total_frames) * 2 * math.pi
+                    t_steps = np.linspace(0, 40, total_frames * 40)
+                    traj = odeint(lorenz, [1.0, 1.0, 1.0], t_steps)
 
-                    rot_mat = np.array([
-                        [math.cos(angle), -math.sin(angle), 0],
-                        [math.sin(angle) * 0.5, math.cos(angle) * 0.5, -0.866],
-                        [math.sin(angle) * 0.866, math.cos(angle) * 0.866, 0.5]
-                    ])
+                    for f_idx in range(total_frames):
+                        curr_len = (f_idx + 1) * 40
+                        sub_traj = traj[:curr_len]
+                        angle = (f_idx / total_frames) * 2 * math.pi
 
-                    rot_pts = sub_traj @ rot_mat.T
-                    frame = np.full((height, width, 3), (12, 16, 24), dtype=np.uint8)
+                        rot_mat = np.array([
+                            [math.cos(angle), -math.sin(angle), 0],
+                            [math.sin(angle) * 0.5, math.cos(angle) * 0.5, -0.866],
+                            [math.sin(angle) * 0.866, math.cos(angle) * 0.866, 0.5]
+                        ])
 
-                    cx, cy = width // 2, height // 2
-                    scale = 13.0
+                        rot_pts = sub_traj @ rot_mat.T
+                        frame = np.full((height, width, 3), (12, 16, 24), dtype=np.uint8)
 
-                    coords_2d = []
-                    for pt in rot_pts[::3]:
-                        px = int(cx + pt[0] * scale)
-                        py = int(cy - pt[1] * scale + pt[2] * scale * 0.4)
-                        if 0 <= px < width and 0 <= py < height:
-                            coords_2d.append([px, py])
+                        cx, cy = width // 2, height // 2
+                        scale = 13.0
 
-                    if len(coords_2d) > 2:
-                        pts_arr = np.array(coords_2d, np.int32)
-                        cv2.polylines(frame, [pts_arr], False, (255, 243, 0), 2)
-                        hx, hy = coords_2d[-1]
-                        cv2.circle(frame, (hx, hy), 6, (0, 255, 255), -1)
+                        coords_2d = []
+                        for pt in rot_pts[::3]:
+                            px = int(cx + pt[0] * scale)
+                            py = int(cy - pt[1] * scale + pt[2] * scale * 0.4)
+                            if 0 <= px < width and 0 <= py < height:
+                                coords_2d.append([px, py])
 
-                    cv2.putText(frame, f"ATRACTOR DE LORENZ 3D · {fps} FPS NVENC", (40, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.85, (0, 243, 255), 2)
-                    cv2.putText(frame, f"ÁNGULO DE OBSERVACIÓN: {math.degrees(angle):.1f}° · LÍNEA CERO", (40, height - 40), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (255, 215, 0), 1)
+                        if len(coords_2d) > 2:
+                            pts_arr = np.array(coords_2d, np.int32)
+                            cv2.polylines(frame, [pts_arr], False, (255, 243, 0), 2)
+                            hx, hy = coords_2d[-1]
+                            cv2.circle(frame, (hx, hy), 6, (0, 255, 255), -1)
 
-                    proc.stdin.write(frame.tobytes())
+                        cv2.putText(frame, f"ATRACTOR DE LORENZ 3D · {fps} FPS", (40, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.85, (0, 243, 255), 2)
+                        cv2.putText(frame, f"ÁNGULO DE OBSERVACIÓN: {math.degrees(angle):.1f}° · LÍNEA CERO", (40, height - 40), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (255, 215, 0), 1)
 
-            proc.stdin.close()
-            proc.wait(timeout=30.0)
-            if proc.stderr:
+                        yield frame.tobytes()
+
+            def _encode_pipe(cmd: List[str]) -> Tuple[bool, str]:
+                err_file = tempfile.TemporaryFile(mode="w+b")
+                proc = None
                 try:
-                    proc.stderr.close()
-                except Exception:
-                    pass
+                    proc = subprocess.Popen(
+                        cmd,
+                        stdin=subprocess.PIPE,
+                        stdout=subprocess.DEVNULL,
+                        stderr=err_file,
+                    )
+                    assert proc.stdin is not None
+                    for raw_frame in _iter_frames():
+                        proc.stdin.write(raw_frame)
+                    proc.stdin.close()
+                    rc = proc.wait(timeout=180.0)
+                    err_file.seek(0)
+                    err_msg = err_file.read(4096).decode("utf-8", errors="replace").strip()
+                    ok_out = (rc == 0 and out_file.exists() and out_file.stat().st_size > 0)
+                    return ok_out, err_msg or f"ffmpeg rc={rc}"
+                except (BrokenPipeError, OSError, subprocess.TimeoutExpired) as pipe_exc:
+                    if proc is not None:
+                        try:
+                            if proc.stdin:
+                                proc.stdin.close()
+                        except Exception:
+                            pass
+                        try:
+                            if proc.poll() is None:
+                                proc.kill()
+                            proc.wait(timeout=5.0)
+                        except Exception:
+                            pass
+                    err_file.seek(0)
+                    err_msg = err_file.read(4096).decode("utf-8", errors="replace").strip()
+                    return False, err_msg or str(pipe_exc)
+                finally:
+                    try:
+                        err_file.close()
+                    except Exception:
+                        pass
 
-            if not out_file.exists() or out_file.stat().st_size == 0:
-                raise RuntimeError("El archivo de video generado está vacío o falló la codificación.")
+            # Selección proactiva + fallback automático NVENC -> CPU libx264 ante OOM/Broken pipe
+            use_nvenc = self._probe_nvenc_available(width, height, "h264_nvenc")
+            encoder_label = "NVIDIA NVENC por Tubería Directa"
+            encoded_ok = False
+            last_err = ""
+
+            if use_nvenc:
+                encoded_ok, last_err = _encode_pipe(cmd_nvenc)
+                if not encoded_ok:
+                    logger.warning(
+                        f"NVENC falló durante la codificación ({last_err[:200]}). "
+                        f"Reintentando automáticamente con CPU libx264..."
+                    )
+                    if out_file.exists():
+                        out_file.unlink(missing_ok=True)
+
+            if not encoded_ok:
+                encoder_label = f"CPU libx264 ({cpu_preset}, fallback anti-OOM VRAM)"
+                encoded_ok, last_err = _encode_pipe(cmd_cpu)
+
+            if not encoded_ok or not out_file.exists() or out_file.stat().st_size == 0:
+                raise RuntimeError(f"El archivo de video generado está vacío o falló la codificación: {last_err}")
 
             # MANDATO SOBERANO: Garantizar que todo video contenga audio/frecuencia/sonido
             try:
@@ -1854,7 +1961,7 @@ class ChronoVideoSynthesizer:
                 f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
                 f"• **Fenómeno:** {title}\n"
                 f"• **Formato:** MP4 H.264 ({width}x{height} @ {fps} FPS Render · Transmitido a 60 FPS por Telegram)\n"
-                f"• **Codificador:** NVIDIA NVENC por Tubería Directa\n"
+                f"• **Codificador:** {encoder_label}\n"
                 f"• **Consumo de VRAM:** `< 180 MB` (100% Inmune a Colapso de Memoria)\n"
                 f"• **Síntesis Temporal:** {desc}"
             )

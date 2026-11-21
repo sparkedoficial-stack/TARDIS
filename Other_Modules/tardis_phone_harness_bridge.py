@@ -48,7 +48,7 @@ class TardisPhoneHarnessBridge:
         self._cache_devices()
 
     def _ensure_path(self):
-        local_bin = "/home/timemachine/.local/bin"
+        local_bin = "/home/m11/.local/bin"
         if local_bin not in os.environ.get("PATH", ""):
             os.environ["PATH"] = f"{local_bin}:{os.environ.get('PATH', '')}"
 

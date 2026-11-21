@@ -386,7 +386,7 @@ def save_client_links(public_url: str | None, port: int = PORT) -> str:
 
 def find_cloudflared_bin() -> str | None:
     paths = [
-        "/home/timemachine/.local/bin/cloudflared",
+        "/home/m11/.local/bin/cloudflared",
         "/usr/local/bin/cloudflared",
         "/usr/bin/cloudflared"
     ]

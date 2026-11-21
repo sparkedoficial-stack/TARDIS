@@ -43,7 +43,7 @@ if not logger.handlers:
     logger.addHandler(handler)
     logger.setLevel(logging.INFO)
 
-PROJECT_ROOT = Path("/home/timemachine/Escritorio/GODWORKS SYSTEM").resolve()
+PROJECT_ROOT = Path("/home/m11/Escritorio/GODWORKS SYSTEM").resolve()
 DATA_DIR = PROJECT_ROOT / "data"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 COLONY_STATE_FILE = DATA_DIR / "tardis_agent_colony.json"
@@ -1031,7 +1031,7 @@ class TardisAgentColony:
         if code_to_integrate and isinstance(code_to_integrate, str):
             try:
                 mod_name = solution_dict.get("module_name", f"contrib_{task_id.replace('-', '_')}")
-                mod_file = Path("/home/timemachine/modulos_ftl") / f"{mod_name}.py"
+                mod_file = Path("/home/m11/modulos_ftl") / f"{mod_name}.py"
                 mod_file.write_text(code_to_integrate, encoding="utf-8")
                 review_notes += f" Código sintetizado integrado como módulo FTL en {mod_file.name}."
                 auto_integrated = True

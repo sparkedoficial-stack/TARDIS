@@ -71,7 +71,7 @@ class GLMParallelBrain:
             return f"Error en cerebro paralelo: {str(e)}"
 
 if __name__ == "__main__":
-    brain = GLMParallelBrain("/home/timemachine/Escritorio/GODWORKS SYSTEM")
+    brain = GLMParallelBrain("/home/m11/Escritorio/GODWORKS SYSTEM")
     brain.check_installation()
     print("\n--- PRUEBA DE CONEXIÓN ---")
     response = brain.orchestrate_task("Realizar un análisis de topología dimensional y retrocausalidad en el kernel.")

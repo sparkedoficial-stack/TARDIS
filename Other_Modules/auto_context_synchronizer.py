@@ -155,7 +155,7 @@ class AutoContextSynchronizer:
             vault_info = {
                 "total_turns": vault.get_total_count(),
                 "db_path": str(vault.db_path),
-                "desktop_viewer": "/home/timemachine/Escritorio/HISTORIAL_CHATS_OFFLINE.html"
+                "desktop_viewer": "/home/m11/Escritorio/HISTORIAL_CHATS_OFFLINE.html"
             }
             updated_subsystems.append("offline_chat_vault")
         except Exception as e:

@@ -7,7 +7,7 @@ import base64
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
-OUT_DIR = Path("/home/timemachine/Escritorio/GODWORKS SYSTEM/tardis_ipad_native/assets")
+OUT_DIR = Path("/home/m11/Escritorio/GODWORKS SYSTEM/tardis_ipad_native/assets")
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 def generate_icon(size=512):

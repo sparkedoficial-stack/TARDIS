@@ -8,7 +8,7 @@
 
 set -e
 
-APP_DIR="/home/timemachine/Escritorio/GODWORKS SYSTEM"
+APP_DIR="/home/m11/Escritorio/GODWORKS SYSTEM"
 cd "$APP_DIR"
 
 SERVER_URL="http://127.0.0.1:8757"

@@ -153,9 +153,9 @@ def _append_jsonl(path: Path, record: Dict[str, Any]) -> None:
 
 def _resolve_agy_bin(prefer_real: bool = False) -> str:
     candidates = (
-        [HOME / ".local" / "bin" / "agy-real", Path("/home/timemachine/.local/bin/agy-real")]
+        [HOME / ".local" / "bin" / "agy-real", Path("/home/m11/.local/bin/agy-real")]
         if prefer_real
-        else [HOME / ".local" / "bin" / "agy", Path("/home/timemachine/.local/bin/agy")]
+        else [HOME / ".local" / "bin" / "agy", Path("/home/m11/.local/bin/agy")]
     )
     for cand in candidates:
         if cand.is_file() and os.access(cand, os.X_OK):

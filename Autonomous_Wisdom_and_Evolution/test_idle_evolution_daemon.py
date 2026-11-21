@@ -50,6 +50,43 @@ def test_conjecture_formulation_mock():
         assert "research_query" in data
 
 
+def test_conjecture_json_parser_resilient_edge_cases():
+    # 1. JSON truncado al límite de tokens (Unterminated string)
+    truncated = (
+        '```json\n'
+        '{\n'
+        '  "title": "Compresión Adaptativa de Contexto Causal",\n'
+        '  "hypothesis": "Segmentar la memoria por entropía reduce latencia en 40%.",\n'
+        '  "research_query": "adaptive context compression llm latency",\n'
+        '  "target_file": "core/deep_memory_vault.py",\n'
+        '  "code_improvement_goal": "Implementar compactación incremental de embeddings sin terminar'
+    )
+    parsed_trunc = IdleEvolutionDaemon._parse_conjecture_json(truncated)
+    assert parsed_trunc is not None
+    assert parsed_trunc["title"] == "Compresión Adaptativa de Contexto Causal"
+    assert "entropía" in parsed_trunc["hypothesis"]
+    assert parsed_trunc["target_file"] == "core/deep_memory_vault.py"
+
+    # 2. Bloque <think>, saltos de línea literales dentro de strings y coma final
+    noisy = (
+        '<think>Razonando paso a paso...</think>\n'
+        'Aquí tienes el JSON:\n'
+        '{\n'
+        '  "title": "Telemetría Kernel PSI Predictiva",\n'
+        '  "hypothesis": "Línea uno.\nLínea dos con control\tchar.",\n'
+        '  "research_query": "linux psi memory stall prediction",\n'
+        '  "target_file": null,\n'
+        '  "code_improvement_goal": null,\n'
+        '}\n'
+        'Espero que sirva.'
+    )
+    parsed_noisy = IdleEvolutionDaemon._parse_conjecture_json(noisy)
+    assert parsed_noisy is not None
+    assert parsed_noisy["title"] == "Telemetría Kernel PSI Predictiva"
+    assert "Línea dos" in parsed_noisy["hypothesis"]
+    assert parsed_noisy["target_file"] is None
+
+
 def test_execute_evolution_cycle_mock():
     daemon = IdleEvolutionDaemon()
     mock_conjecture = {

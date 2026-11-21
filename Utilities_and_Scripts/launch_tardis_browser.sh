@@ -4,7 +4,7 @@
 # ==============================================================================
 set -e
 
-SCRIPT_DIR="/home/timemachine/Escritorio/GODWORKS SYSTEM"
+SCRIPT_DIR="/home/m11/Escritorio/GODWORKS SYSTEM"
 cd "$SCRIPT_DIR"
 
 case "${1:-}" in

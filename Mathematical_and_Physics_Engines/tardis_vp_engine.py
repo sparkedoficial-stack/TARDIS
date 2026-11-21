@@ -55,7 +55,7 @@ import numpy as np
 from PIL import Image
 
 # Importar rutas base de GODWORKS
-TARDIS_ROOT = Path("/home/timemachine/Escritorio/GODWORKS SYSTEM")
+TARDIS_ROOT = Path("/home/m11/Escritorio/GODWORKS SYSTEM")
 if str(TARDIS_ROOT) not in sys.path:
     sys.path.insert(0, str(TARDIS_ROOT))
 
@@ -76,7 +76,7 @@ except Exception:
 logging.basicConfig(level=logging.INFO, format='[TARDIS VP-NANO-BANANA] %(asctime)s - %(message)s')
 logger = logging.getLogger("TardisVPEngine")
 
-OUTPUT_VIDEOS_DIR = Path("/home/timemachine/Vídeos")
+OUTPUT_VIDEOS_DIR = Path("/home/m11/Vídeos")
 OUTPUT_VIDEOS_DIR.mkdir(parents=True, exist_ok=True)
 
 

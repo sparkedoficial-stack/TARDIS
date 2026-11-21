@@ -112,7 +112,7 @@ class TardisOmniToolBridge:
                 "name": "CaS · Cognitive & Context as a Service",
                 "binary": str(HOME_DIR / ".local" / "bin" / "cas-kaiju"),
                 "module": "modulos_ftl.ftl_cas_kaiju",
-                "module_file": "/home/timemachine/modulos_ftl/ftl_cas_kaiju.py",
+                "module_file": "/home/m11/modulos_ftl/ftl_cas_kaiju.py",
                 "domain": "cognitive_context",
                 "description": "Capa CaS sobre TARDIS-NEURAL-SPACE-KAIJU: recuperación multi-fuente con ranking BM25 + recencia + confianza, deduplicación SimHash, compresión extractiva sintrópica, presupuesto de tokens con citas y ancla inviolable La Constante AEGIS. Servicio local 127.0.0.1:8770 con HUD en /dashboard.",
                 "actions": ["context", "compress", "serve", "telemetry", "sources", "aegis", "selftest"]
@@ -145,7 +145,7 @@ class TardisOmniToolBridge:
                 "name": "TARDIS Omniscient Autonomy Engine (Aprendizaje Total, Ciencia, Comentarios/Chat y Auto-Mejora 24/7)",
                 "binary": str(HOME_DIR / ".local" / "bin" / "tardis-omniscient"),
                 "module": "modulos_ftl.ftl_omniscient_autonomy",
-                "module_file": "/home/timemachine/modulos_ftl/ftl_omniscient_autonomy.py",
+                "module_file": "/home/m11/modulos_ftl/ftl_omniscient_autonomy.py",
                 "domain": "omniscient_continuous_learning",
                 "description": "Motor 24/7 que aprende de todo todo el tiempo (arXiv, OpenAlex, Europe PMC, web), sube sus conocimientos y bases científicas a X.com, contesta comentarios a sus publicaciones y en el chat, e investiga continuamente cómo mejorarse a sí mismo y mejorar la tecnología que lo rodea.",
                 "actions": ["status", "learn", "evolve-tech", "publish", "answer", "run-cycle", "daemon"]
@@ -178,7 +178,7 @@ class TardisOmniToolBridge:
         return cls._instance
 
     def _ensure_paths(self):
-        ftl_path = "/home/timemachine"
+        ftl_path = "/home/m11"
         if ftl_path not in sys.path:
             sys.path.insert(0, ftl_path)
 
@@ -218,7 +218,7 @@ class TardisOmniToolBridge:
             if bin_path and os.path.exists(bin_path) and os.access(bin_path, os.X_OK):
                 available = True
             elif "module" in info:
-                mod_file = Path("/home/timemachine") / f"{info['module'].replace('.', '/')}.py"
+                mod_file = Path("/home/m11") / f"{info['module'].replace('.', '/')}.py"
                 available = mod_file.exists()
 
             status_report[k] = {

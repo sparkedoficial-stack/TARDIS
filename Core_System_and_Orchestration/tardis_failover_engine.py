@@ -57,7 +57,7 @@ HEARTBEAT_TIMEOUT = float(os.environ.get("HEARTBEAT_TIMEOUT", "2.0"))
 FAILOVER_THRESHOLD = int(os.environ.get("FAILOVER_THRESHOLD", "3"))
 
 # Rutas Canónicas
-CENTRAL_ROOT = Path("/home/timemachine/Escritorio/GODWORKS SYSTEM")
+CENTRAL_ROOT = Path("/home/m11/Escritorio/GODWORKS SYSTEM")
 IMAC_STORAGE_BASE = Path("/opt/imac-cluster-storage")
 LOCAL_STORAGE_MOUNT = Path("/mnt/imac_compute")
 
@@ -449,9 +449,9 @@ class TARDISFailoverOrchestrator:
         sync_ok = False
         try:
             # Sincronizar journal y completed jobs a través de SSH hacia Central
-            target_report_dir = f"/home/timemachine/Escritorio/GODWORKS\\ SYSTEM/reports/failover_backlogs"
+            target_report_dir = f"/home/m11/Escritorio/GODWORKS\\ SYSTEM/reports/failover_backlogs"
             subprocess.run(
-                f"ssh timemachine@{CENTRAL_IP} 'mkdir -p {target_report_dir}'",
+                f"ssh m11@{CENTRAL_IP} 'mkdir -p {target_report_dir}'",
                 shell=True, capture_output=True, timeout=10
             )
             # Copiar archivos

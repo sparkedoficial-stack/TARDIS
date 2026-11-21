@@ -177,7 +177,7 @@ class AntigravityMessageRequest(BaseModel):
     instruction: Optional[Dict[str, Any]] = None
 class AntigravityRemoteOpenRequest(BaseModel):
     conversation_id: Optional[str] = "2425f3ac-4fb8-427e-9232-388ebcc90c19"
-    workspace: Optional[str] = "/home/timemachine"
+    workspace: Optional[str] = "/home/m11"
 
 class AntigravityRemoteSyncRequest(BaseModel):
     conversation_id: Optional[str] = "2425f3ac-4fb8-427e-9232-388ebcc90c19"
@@ -3093,7 +3093,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
     async def post_antigravity_ide_launch_endpoint(req: Optional[AntigravityRemoteOpenRequest] = None):
         from core.antigravity_remote_controller import get_remote_controller
         cid = req.conversation_id if req else "2425f3ac-4fb8-427e-9232-388ebcc90c19"
-        ws = req.workspace if req else "/home/timemachine"
+        ws = req.workspace if req else "/home/m11"
         return get_remote_controller().open_conversation_in_gui(cid, ws)
 
     @app.get("/api/antigravity/remote/status")
@@ -3105,7 +3105,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
     async def post_antigravity_remote_open_endpoint(req: Optional[AntigravityRemoteOpenRequest] = None):
         from core.antigravity_remote_controller import get_remote_controller
         cid = req.conversation_id if req else "2425f3ac-4fb8-427e-9232-388ebcc90c19"
-        ws = req.workspace if req else "/home/timemachine"
+        ws = req.workspace if req else "/home/m11"
         return get_remote_controller().open_conversation_in_gui(cid, ws)
 
     @app.post("/api/antigravity/remote/sync")
@@ -6667,7 +6667,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
 
         elif fn_id.startswith("dyn_"):
             mod_name = fn_id[4:]
-            mod_file = Path(f"/home/timemachine/modulos_ftl/{mod_name}.py")
+            mod_file = Path(f"/home/m11/modulos_ftl/{mod_name}.py")
             if mod_file.exists():
                 def _run_dyn():
                     subprocess.run([sys.executable, str(mod_file)])
@@ -6707,7 +6707,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
     @app.get("/api/video/gallery")
     async def api_video_gallery():
         videos = []
-        v_dirs = [Path("/home/timemachine/Vídeos"), settings.base_dir / "videos", settings.base_dir / "data" / "chronovision" / "videos"]
+        v_dirs = [Path("/home/m11/Vídeos"), settings.base_dir / "videos", settings.base_dir / "data" / "chronovision" / "videos"]
         for vd in v_dirs:
             if vd.exists():
                 for f in sorted(vd.glob("*.mp4"), key=os.path.getmtime, reverse=True)[:15]:
@@ -6835,7 +6835,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
     # 7. Sistema de Adaptación Tecnológica
     @app.get("/api/adaptation/modules")
     async def api_adaptation_modules():
-        mod_dir = Path("/home/timemachine/modulos_ftl")
+        mod_dir = Path("/home/m11/modulos_ftl")
         mods = []
         if mod_dir.exists():
             for f in mod_dir.glob("*.py"):
@@ -6850,7 +6850,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
 
     @app.get("/api/adaptation/module_code")
     async def api_adaptation_module_code(name: str):
-        path = Path(f"/home/timemachine/modulos_ftl/{name}.py")
+        path = Path(f"/home/m11/modulos_ftl/{name}.py")
         if path.exists():
             return {"ok": True, "name": name, "code": path.read_text(encoding="utf-8", errors="ignore")}
         return {"ok": False, "error": "Módulo no encontrado"}
@@ -6860,7 +6860,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
         name = payload.get("module_name", "").strip()
         code = payload.get("code", "")
         if name and code:
-            path = Path(f"/home/timemachine/modulos_ftl/{name}.py")
+            path = Path(f"/home/m11/modulos_ftl/{name}.py")
             path.write_text(code, encoding="utf-8")
             return {"ok": True, "message": f"Módulo {name}.py guardado exitosamente"}
         raise HTTPException(status_code=400, detail="Nombre y código requeridos")
@@ -6868,7 +6868,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
     @app.post("/api/adaptation/run_module")
     async def api_adaptation_run_module(payload: Dict[str, Any]):
         name = payload.get("module_name", "").strip()
-        path = Path(f"/home/timemachine/modulos_ftl/{name}.py")
+        path = Path(f"/home/m11/modulos_ftl/{name}.py")
         if path.exists():
             import subprocess, sys
             res = subprocess.run([sys.executable, str(path)], capture_output=True, text=True, timeout=10)
@@ -6879,7 +6879,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
     async def api_adaptation_synthesize_module(payload: Dict[str, Any]):
         prompt = payload.get("prompt", "herramienta_analisis")
         clean_name = "".join(c if c.isalnum() else "_" for c in prompt.lower())[:30].strip("_")
-        mod_file = Path(f"/home/timemachine/modulos_ftl/{clean_name}.py")
+        mod_file = Path(f"/home/m11/modulos_ftl/{clean_name}.py")
         code = f'''#!/usr/bin/env python3
 """
 Módulo FTL Sintetizado Autónomamente: {clean_name}

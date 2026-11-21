@@ -37,7 +37,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 
 logger = logging.getLogger("TARDIS_FTL_ENGINEER")
 
-PROJECT_DIR = Path("/home/timemachine/Escritorio/GODWORKS SYSTEM").resolve()
+PROJECT_DIR = Path("/home/m11/Escritorio/GODWORKS SYSTEM").resolve()
 FTL_CLI = Path.home() / ".ftl" / "ftl_cli.py"
 FTL_BIN = Path.home() / ".local" / "bin" / "ftl"
 QUEUE_DIR = Path.home() / "vw-control" / "improvement_queue"
@@ -516,7 +516,7 @@ class TardisFtlEngineer:
 
         prompt = (
             f"TAREA DE AUTO-MEJORA AUTÓNOMA DEL SISTEMA TARDIS:\n"
-            f"Implementa completamente en el codebase (/home/timemachine/Escritorio/GODWORKS SYSTEM) "
+            f"Implementa completamente en el codebase (/home/m11/Escritorio/GODWORKS SYSTEM) "
             f"la siguiente propuesta de mejora técnica:\n\n"
             f"--- PROPUESTA: {title} ---\n"
             f"{content}\n"

@@ -18,9 +18,9 @@ class AntigravityClient:
         self.effort = effort or (
             "xhigh" if ("neon" in model.lower() or "xhigh" in model.lower()) else "high"
         )
-        self.agy_bin = Path("/home/timemachine/.local/bin/agy")
+        self.agy_bin = Path("/home/m11/.local/bin/agy")
         if not self.agy_bin.exists():
-            self.agy_bin = Path("/home/timemachine/Escritorio/GODWORKS SYSTEM/bin/agy")
+            self.agy_bin = Path("/home/m11/Escritorio/GODWORKS SYSTEM/bin/agy")
 
     def run_prompt(self, prompt: str, timeout: int = 180) -> Dict[str, Any]:
         """Ejecuta un prompt no interactivo en AGY Ultra Mode."""
@@ -47,7 +47,7 @@ class AntigravityClient:
                 text=True,
                 timeout=timeout,
                 env=env,
-                cwd="/home/timemachine/Escritorio/GODWORKS SYSTEM"
+                cwd="/home/m11/Escritorio/GODWORKS SYSTEM"
             )
             return {
                 "ok": res.returncode == 0,

@@ -6,7 +6,7 @@ import argparse, json, math, random, re, shutil, subprocess
 from pathlib import Path
 from typing import Any
 
-BASE = Path("/home/timemachine/Escritorio/GODWORKS SYSTEM")
+BASE = Path("/home/m11/Escritorio/GODWORKS SYSTEM")
 INDEX = BASE / "index.html"
 W, H = 1920, 1080
 FPS = 144          # refresco real del panel (143.91 Hz)

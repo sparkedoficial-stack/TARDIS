@@ -947,12 +947,12 @@ class NativeGiaWindow(Adw.ApplicationWindow):
         self._load_vault_turns(q)
 
     def _open_desktop_vault(self):
-        desk_path = Path("/home/timemachine/Escritorio/HISTORIAL_CHATS_OFFLINE.html")
+        desk_path = Path("/home/m11/Escritorio/HISTORIAL_CHATS_OFFLINE.html")
         if desk_path.exists():
             subprocess.Popen(["xdg-open", str(desk_path)])
 
     def _export_vault_markdown(self):
-        out_path = Path("/home/timemachine/Escritorio") / f"godworks_chats_{int(time.time())}.md"
+        out_path = Path("/home/m11/Escritorio") / f"godworks_chats_{int(time.time())}.md"
         turns = self.vault.get_recent(limit=2000)
         md = "# Historial Soberano de Chats - GODWORKS SYSTEM v26.4\n\n"
         for t in turns:
@@ -963,7 +963,7 @@ class NativeGiaWindow(Adw.ApplicationWindow):
         self.badge_status.set_text("✓ Markdown Exportado al Escritorio")
 
     def _export_vault_json(self):
-        out_path = Path("/home/timemachine/Escritorio") / f"godworks_chats_backup_{int(time.time())}.json"
+        out_path = Path("/home/m11/Escritorio") / f"godworks_chats_backup_{int(time.time())}.json"
         turns = self.vault.get_recent(limit=2000)
         out_path.write_text(json.dumps(turns, ensure_ascii=False, indent=2), encoding="utf-8")
         self.badge_status.set_text("✓ JSON Exportado al Escritorio")

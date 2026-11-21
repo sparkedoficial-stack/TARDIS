@@ -788,7 +788,7 @@ class EasyTouchEngine:
             subprocess.run(["sync"], check=False, timeout=5)
             # Purga a nivel kernel vía Ring 0 / FTL Kernel Bridge
             try:
-                sys_ftl = "/home/timemachine"
+                sys_ftl = "/home/m11"
                 if sys_ftl not in sys.path:
                     sys.path.insert(0, sys_ftl)
                 from modulos_ftl.ftl_kernel_bridge import get_kernel_bridge
@@ -804,7 +804,7 @@ class EasyTouchEngine:
     def auto_heal_kernel_hardware(self) -> bool:
         """Asegura acceso a nivel kernel para todos los subsistemas y dispositivos uinput/uhid/hidraw."""
         try:
-            sys_ftl = "/home/timemachine"
+            sys_ftl = "/home/m11"
             if sys_ftl not in sys.path:
                 sys.path.insert(0, sys_ftl)
             from modulos_ftl.ftl_kernel_bridge import get_kernel_bridge

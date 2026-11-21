@@ -7,7 +7,7 @@ Ejecutable directamente desde el IDE Soberano en el iPad Pro M2.
 import json
 import sys
 
-sys.path.insert(0, "/home/timemachine")
+sys.path.insert(0, "/home/m11")
 from modulos_ftl.ftl_linpad import FtlLinpad
 
 

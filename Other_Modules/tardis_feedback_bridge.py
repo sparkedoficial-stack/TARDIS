@@ -36,7 +36,7 @@ import urllib.request
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-BASE = Path("/home/timemachine/Escritorio/GODWORKS SYSTEM")
+BASE = Path("/home/m11/Escritorio/GODWORKS SYSTEM")
 API = os.environ.get("TARDIS_API", "http://127.0.0.1:8757")
 OUT_DIR = Path(os.environ.get("TARDIS_FEEDBACK_DIR", Path.home() / ".local/share/tardis-qoder/feedback"))
 STATE = OUT_DIR / "state.json"

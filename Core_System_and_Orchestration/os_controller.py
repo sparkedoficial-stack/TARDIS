@@ -733,12 +733,12 @@ class OSController:
             "language_server_active": has_lang_server,
             "snap_binary": "/snap/bin/antigravity",
             "autostart_configured": os.path.exists(os.path.expanduser("~/.config/autostart/antigravity.desktop")),
-            "workspace": "/home/timemachine/Escritorio/GODWORKS SYSTEM"
+            "workspace": "/home/m11/Escritorio/GODWORKS SYSTEM"
         }
 
     def launch_antigravity(self, workspace: Optional[str] = None) -> Dict[str, Any]:
         """Lanza o activa Google Antigravity en el entorno gráfico con el espacio de trabajo configurado."""
-        ws = workspace or "/home/timemachine/Escritorio/GODWORKS SYSTEM"
+        ws = workspace or "/home/m11/Escritorio/GODWORKS SYSTEM"
         safe_script = os.path.expanduser("~/.local/bin/start_antigravity_safe.sh")
 
         try:

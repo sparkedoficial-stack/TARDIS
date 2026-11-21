@@ -6,8 +6,8 @@
 # ==============================================================================
 
 export USER="timemachine"
-export HOME="/home/timemachine"
-export PATH="/home/timemachine/.local/bin:$PATH"
+export HOME="/home/m11"
+export PATH="/home/m11/.local/bin:$PATH"
 export PYTHONUNBUFFERED="1"
 export FORCE_COLOR="1"
 export CLAUDE_CODE_SKIP_PERMISSIONS="1"
@@ -17,14 +17,14 @@ export GIA_TOKEN="REDACTED"
 export GIA_AUTH_TOKEN="REDACTED"
 export GIA_MODEL="${GIA_MODEL:-TARDIS-NEURAL-SPACE-KAIJU}"
 
-FTL_CLI="/home/timemachine/.ftl/ftl_cli.py"
+FTL_CLI="/home/m11/.ftl/ftl_cli.py"
 
 if [ -f "$FTL_CLI" ]; then
     exec /usr/bin/python3 "$FTL_CLI" "$@"
 fi
 
 # Fallback failsafe
-BASE="/home/timemachine/Escritorio/GODWORKS SYSTEM"
+BASE="/home/m11/Escritorio/GODWORKS SYSTEM"
 PYTHON="$BASE/.venv-linux/bin/python3"
 if [ ! -x "$PYTHON" ]; then
     PYTHON="/usr/bin/python3"

@@ -64,8 +64,8 @@ TARDIS_HOME = Path(os.path.expanduser("~")) / ".tardis"
 TARDIS_HOME.mkdir(parents=True, exist_ok=True)
 
 CHROME_BIN_CANDIDATES = [
-    "/home/timemachine/.local/bin/chromium",
-    "/home/timemachine/.local/bin/google-chrome",
+    "/home/m11/.local/bin/chromium",
+    "/home/m11/.local/bin/google-chrome",
     "/usr/bin/chromium-browser",
     "/usr/bin/chromium",
     "/usr/bin/google-chrome",
@@ -571,7 +571,7 @@ class TardisCognitiveLearner:
         if len(text) < 80:
             return
         try:
-            sys_path = "/home/timemachine/Escritorio/GODWORKS SYSTEM"
+            sys_path = "/home/m11/Escritorio/GODWORKS SYSTEM"
             if sys_path not in sys.path:
                 sys.path.insert(0, sys_path)
             from core.rag_vault import get_rag_vault
@@ -1959,7 +1959,7 @@ class TardisBrowser:
 
         synthesized_body = ""
         try:
-            sys_path = "/home/timemachine/Escritorio/GODWORKS SYSTEM"
+            sys_path = "/home/m11/Escritorio/GODWORKS SYSTEM"
             if sys_path not in sys.path:
                 sys.path.insert(0, sys_path)
             from core.temporal_brain import get_temporal_brain
@@ -2020,7 +2020,7 @@ class TardisBrowser:
         asimila los fundamentos y papers en la Bóveda RAG de TARDIS, y publica autónomamente
         el conocimiento con su cita y enlace DOI/arXiv en X.com como IA externa local.
         """
-        sys_path = "/home/timemachine/Escritorio/GODWORKS SYSTEM"
+        sys_path = "/home/m11/Escritorio/GODWORKS SYSTEM"
         if sys_path not in sys.path:
             sys.path.insert(0, sys_path)
 
@@ -2117,7 +2117,7 @@ class TardisBrowser:
         """
         rag_context = ""
         try:
-            sys_path = "/home/timemachine/Escritorio/GODWORKS SYSTEM"
+            sys_path = "/home/m11/Escritorio/GODWORKS SYSTEM"
             if sys_path not in sys.path:
                 sys.path.insert(0, sys_path)
             from core.rag_vault import get_rag_vault

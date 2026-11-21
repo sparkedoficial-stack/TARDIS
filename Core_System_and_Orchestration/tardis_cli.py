@@ -130,11 +130,11 @@ def cmd_reactivate():
 
 def cmd_analyze():
     print(f"{C_CYAN}🧠 Analizando estructura conversacional y causal con TARDIS...{C_RESET}")
-    subprocess.run([sys.executable, "/home/timemachine/Escritorio/GODWORKS SYSTEM/tardis_conversation_analyzer.py"])
+    subprocess.run([sys.executable, "/home/m11/Escritorio/GODWORKS SYSTEM/tardis_conversation_analyzer.py"])
 
 def cmd_animate():
     print(f"{C_CYAN}🎬 Sintetizando videos animados de todas las fórmulas con TARDIS ChronoVision...{C_RESET}")
-    subprocess.run([sys.executable, "/home/timemachine/Escritorio/GODWORKS SYSTEM/tardis_formula_animator.py"])
+    subprocess.run([sys.executable, "/home/m11/Escritorio/GODWORKS SYSTEM/tardis_formula_animator.py"])
 
 def cmd_vp(prompt: str, duration: float = 5.0):
     print(f"{C_CYAN}{C_BOLD}🎨 [CHRONOVISION PIXEL ART 1080P60 · COMANDO /vp]{C_RESET}")
@@ -248,7 +248,7 @@ def interactive_repl():
             elif line in ("/screen", "screen"):
                 cmd_explain_screen()
             elif line in ("/companion", "companion"):
-                subprocess.Popen(["/home/timemachine/Escritorio/GODWORKS SYSTEM/launch_tardis_companion.sh"])
+                subprocess.Popen(["/home/m11/Escritorio/GODWORKS SYSTEM/launch_tardis_companion.sh"])
                 print(f"{C_GREEN}✓ Asistente flotante lanzado.{C_RESET}")
             else:
                 cmd_chat(line)
@@ -578,9 +578,9 @@ def main():
     elif args.command in ("synergy", "sinergia", "hibrido"):
         cmd_synergy(" ".join(args.prompt))
     elif args.command in ("voice-snap", "snap", "asistente-voz"):
-        subprocess.run(["/home/timemachine/.local/bin/tardis-voice"] + sys.argv[2:])
+        subprocess.run(["/home/m11/.local/bin/tardis-voice"] + sys.argv[2:])
     elif args.command in ("mesh", "cluster"):
-        subprocess.run(["/home/timemachine/.local/bin/tardis-mesh"])
+        subprocess.run(["/home/m11/.local/bin/tardis-mesh"])
     elif args.command in ("distribute", "distribuir", "repartir"):
         cmd_distribute(" ".join(args.task))
     elif args.command == "infinite":
@@ -604,7 +604,7 @@ def main():
     elif args.command == "explain-screen":
         cmd_explain_screen()
     elif args.command == "companion":
-        subprocess.Popen(["/home/timemachine/Escritorio/GODWORKS SYSTEM/launch_tardis_companion.sh"])
+        subprocess.Popen(["/home/m11/Escritorio/GODWORKS SYSTEM/launch_tardis_companion.sh"])
         print(f"{C_GREEN}✓ Asistente flotante lanzado.{C_RESET}")
     elif args.command == "phone":
         cmd_phone(args.subcommand, args.extra_args)

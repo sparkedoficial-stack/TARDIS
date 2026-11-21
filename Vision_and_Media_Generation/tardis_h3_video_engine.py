@@ -61,7 +61,7 @@ if not logger.handlers:
 logger.setLevel(logging.INFO)
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-OUTPUT_DIR = Path("/home/timemachine/Vídeos")
+OUTPUT_DIR = Path("/home/m11/Vídeos")
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 H3_CACHE_DIR = BASE_DIR / "data" / "h3_cache"
 H3_CACHE_DIR.mkdir(parents=True, exist_ok=True)

@@ -38,7 +38,7 @@ from pathlib import Path
 from typing import Dict, Any, List, Tuple, Optional
 
 # Configuración de Logging Autónomo
-LOG_DIR = Path("/home/timemachine/.ftl/logs")
+LOG_DIR = Path("/home/m11/.ftl/logs")
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 LOG_FILE = LOG_DIR / "tardis4ever.log"
 
@@ -53,7 +53,7 @@ logging.basicConfig(
 logger = logging.getLogger("Tardis4Ever")
 
 # Rutas Fundamentales del Sistema
-HOME_DIR = Path("/home/timemachine")
+HOME_DIR = Path("/home/m11")
 GODWORKS_DIR = HOME_DIR / "Escritorio/GODWORKS SYSTEM"
 MODULOS_FTL_DIR = HOME_DIR / "modulos_ftl"
 SKILLS_DIR = HOME_DIR / ".agents/skills"

@@ -1725,7 +1725,7 @@ def process_hardware_chat_intent(msg: str, is_local_request: bool = False) -> Op
 
         if slash_cmd in ("/shot", "/screenshot", "/captura"):
             res = HARDWARE.dispatch_action("screenshot") if HARDWARE else {}
-            p = res.get("path", "/home/timemachine/Escritorio/screenshot_reciente.png")
+            p = res.get("path", "/home/m11/Escritorio/screenshot_reciente.png")
             return {
                 "action": "screenshot",
                 "executed": res.get("ok", True),
@@ -2927,7 +2927,7 @@ def process_hardware_chat_intent(msg: str, is_local_request: bool = False) -> Op
                 f"• **Base de Datos Local:** `data/offline_chats.db`\n"
                 f"• **Visor Autónomo Fuera de Línea (Aún con la PC apagada):**\n"
                 f"  └─ Abre directamente con doble clic en tu escritorio:\n"
-                f"     `file:///home/timemachine/Escritorio/HISTORIAL_CHATS_OFFLINE.html`\n"
+                f"     `file:///home/m11/Escritorio/HISTORIAL_CHATS_OFFLINE.html`\n"
                 f"• **Acceso Web / Móvil:** `/offline_chat_vault.html`\n"
                 f"• **Integración Cognitiva RAG:** Activa; el sistema visita esta bóveda antes de formular respuestas."
             )
@@ -3178,7 +3178,7 @@ def process_hardware_chat_intent(msg: str, is_local_request: bool = False) -> Op
     # 1.5 Captura de Pantalla
     if any(k in msg_l for k in ["captura de pantalla", "toma una captura", "tomar captura", "toma un screenshot", "tomar screenshot", "pantallazo", "toma pantallazo", "screenshot de la pantalla"]):
         res = HARDWARE.dispatch_action("screenshot") if HARDWARE else {}
-        p = res.get("path", "/home/timemachine/Escritorio/screenshot_reciente.png")
+        p = res.get("path", "/home/m11/Escritorio/screenshot_reciente.png")
         return {"action": "screenshot", "executed": res.get("ok", True), "direct_return": True, "system_feedback": f"📸 [CAPTURA DE PANTALLA]: Captura tomada con éxito ({res.get('bytes_len', 0)} bytes). Guardada en: `{p}`.", "raw": res}
 
     # 1.6 Inhibidor de Suspensión (Awake 24/7)
@@ -3754,7 +3754,7 @@ def process_hardware_chat_intent(msg: str, is_local_request: bool = False) -> Op
         fb = (
             f"🪐 [GOOGLE ANTIGRAVITY SOBERANO]\n"
             f"• Lanzando Antigravity IDE en la pantalla principal...\n"
-            f"• Workspace: `/home/timemachine/Escritorio/GODWORKS SYSTEM`\n"
+            f"• Workspace: `/home/m11/Escritorio/GODWORKS SYSTEM`\n"
             f"• Auto-arranque en inicio de sistema: CONFIGURADO\n"
             f"• Conectividad inalámbrica a terminal: 24/7 disponible."
         )
@@ -4075,7 +4075,7 @@ def process_hardware_chat_intent(msg: str, is_local_request: bool = False) -> Op
             f"• **Base de Datos Local:** `data/offline_chats.db`\n"
             f"• **Visor Autónomo Fuera de Línea (Aún con el servidor apagado):**\n"
             f"  └─ Haz doble clic en el archivo creado en tu Escritorio:\n"
-            f"     `file:///home/timemachine/Escritorio/HISTORIAL_CHATS_OFFLINE.html`\n"
+            f"     `file:///home/m11/Escritorio/HISTORIAL_CHATS_OFFLINE.html`\n"
             f"• **Acceso Web / Móvil:** `/offline_chat_vault.html`\n"
             f"• **Integración Cognitiva:** Activa; {CFG.get('model', os.environ.get('GIA_MODEL', 'huihui_ai/llama3.1-8b-instruct-abliterated'))} consulta este archivo antes de formular cada respuesta."
         )
@@ -5768,7 +5768,7 @@ def get_functions_catalog_payload() -> Dict[str, Any]:
         }
     ]
 
-    mod_dir = Path("/home/timemachine/modulos_ftl")
+    mod_dir = Path("/home/m11/modulos_ftl")
     stubs_ocultos = 0
     if mod_dir.exists():
         # Mismo filtro que server/api.py: no publicar los stubs "active_wisdom" del generador.
@@ -7273,7 +7273,7 @@ iframe{{border:none;width:100%;height:100%;}}</style></head>
 
         # Consultas de Ofertas y Sentinel de Precios
         elif url_path in ("/api/price_sentinel/deals", "/api/deals"):
-            db_path = Path("/home/timemachine/tardis-price-sentinel/deals.db")
+            db_path = Path("/home/m11/tardis-price-sentinel/deals.db")
             q = query_params.get("q", [""])[0].strip()
             limit = int(query_params.get("limit", ["25"])[0])
             deals = []
@@ -7309,7 +7309,7 @@ iframe{{border:none;width:100%;height:100%;}}</style></head>
 
         # Estado de Bóveda Vehicular VW
         elif url_path in ("/api/vw/status", "/api/vault/vw"):
-            vault_dir = Path("/home/timemachine/vw-control")
+            vault_dir = Path("/home/m11/vw-control")
             status_data = {
                 "ok": True,
                 "exists": vault_dir.exists(),

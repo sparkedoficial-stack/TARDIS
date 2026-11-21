@@ -499,7 +499,7 @@ class HardwareController:
         elif action in ("screenshot", "capture_screenshot", "take_screenshot"):
             try:
                 raw_bytes, data_uri = self.os_ctrl.capture_screenshot()
-                out_path = "/home/timemachine/Escritorio/screenshot_reciente.png"
+                out_path = "/home/m11/Escritorio/screenshot_reciente.png"
                 try:
                     with open(out_path, "wb") as f:
                         f.write(raw_bytes)

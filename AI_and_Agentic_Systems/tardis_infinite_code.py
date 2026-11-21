@@ -42,7 +42,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 logger = logging.getLogger("TARDIS_INFINITE_CODE")
 
-PROJECT_DIR = Path("/home/timemachine/Escritorio/GODWORKS SYSTEM").resolve()
+PROJECT_DIR = Path("/home/m11/Escritorio/GODWORKS SYSTEM").resolve()
 BACKUP_DIR = PROJECT_DIR / "_selfmod_backups"
 BACKUP_DIR.mkdir(parents=True, exist_ok=True)
 LOGS_DIR = Path.home() / "vw-control" / "infinite_code_logs"

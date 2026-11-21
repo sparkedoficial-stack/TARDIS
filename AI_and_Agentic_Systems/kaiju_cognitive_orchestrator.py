@@ -388,7 +388,7 @@ class KaijuCognitiveOrchestrator:
                     from core.cas_neural_space_kaiju import get_cas
                 except ImportError:
                     import sys as _sys
-                    _sys.path.insert(0, "/home/timemachine/Escritorio/GODWORKS SYSTEM")
+                    _sys.path.insert(0, "/home/m11/Escritorio/GODWORKS SYSTEM")
                     from core.cas_neural_space_kaiju import get_cas
                 _cas = get_cas().build_context(
                     message,

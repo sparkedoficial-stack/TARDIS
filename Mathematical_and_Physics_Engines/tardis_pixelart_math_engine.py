@@ -41,7 +41,7 @@ import numpy as np
 from PIL import Image
 
 # Importar sintetizador de audio TARDIS si está disponible
-TARDIS_ROOT = Path("/home/timemachine/Escritorio/GODWORKS SYSTEM")
+TARDIS_ROOT = Path("/home/m11/Escritorio/GODWORKS SYSTEM")
 if str(TARDIS_ROOT) not in sys.path:
     sys.path.insert(0, str(TARDIS_ROOT))
 
@@ -51,13 +51,13 @@ try:
 except Exception:
     AUDIO_SYNTH_AVAILABLE = False
 
-OUTPUT_VIDEOS_DIR = Path("/home/timemachine/Vídeos")
+OUTPUT_VIDEOS_DIR = Path("/home/m11/Vídeos")
 OUTPUT_VIDEOS_DIR.mkdir(parents=True, exist_ok=True)
 
 GODWORKS_VIDEOS_DIR = TARDIS_ROOT / "videos"
 GODWORKS_VIDEOS_DIR.mkdir(parents=True, exist_ok=True)
 
-ARTIFACT_DIR = Path("/home/timemachine/.gemini/antigravity-cli/brain/c25983f5-e102-4aa5-a88b-f6faf31a7dcf")
+ARTIFACT_DIR = Path("/home/m11/.gemini/antigravity-cli/brain/c25983f5-e102-4aa5-a88b-f6faf31a7dcf")
 ARTIFACT_DIR.mkdir(parents=True, exist_ok=True)
 
 

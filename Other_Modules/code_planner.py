@@ -11,7 +11,7 @@ import re
 from pathlib import Path
 from typing import Any, Dict, List
 
-BASE = Path("/home/timemachine/Escritorio/GODWORKS SYSTEM")
+BASE = Path("/home/m11/Escritorio/GODWORKS SYSTEM")
 
 SYSTEM = (
     "Planificador de cambios de código. Responde SOLO con una línea, sin explicaciones:\n"
