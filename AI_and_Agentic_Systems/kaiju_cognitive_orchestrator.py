@@ -59,6 +59,16 @@ def _end_local_inference() -> None:
             _INFERENCIA_IDLE_EVENT.set()
 
 
+def _is_call_priority_active() -> bool:
+    """Consulta el gestor compartido cross-process de llamadas de Telegram."""
+    try:
+        from core.telegram_call_priority import is_call_priority_active
+
+        return bool(is_call_priority_active())
+    except Exception:
+        return False
+
+
 def _ingesta_worker() -> None:
     try:
         import torch
@@ -69,8 +79,13 @@ def _ingesta_worker() -> None:
         job = _INGESTA_COLA.get()
         if job is None:
             return
-        # Ceder todos los núcleos físicos a TemporalBrain (llama-server) mientras haya inferencia activa
+        # Ceder todos los núcleos físicos a TemporalBrain (llama-server) mientras haya inferencia
+        # o una llamada prioritaria de Telegram activa.
         _INFERENCIA_IDLE_EVENT.wait(timeout=45.0)
+        waited = 0.0
+        while _is_call_priority_active() and waited < 20.0:
+            time.sleep(0.5)
+            waited += 0.5
         sne, texto, session_id, on_result = job
         try:
             proc = sne.process_context(str(texto or "")[:260], session_id=session_id)
@@ -298,7 +313,8 @@ class KaijuCognitiveOrchestrator:
         session_id: str = "omni_app",
         temperature: float = 0.3,
         user_emotion: Optional[Dict[str, Any]] = None,
-        force_offload: bool = False
+        force_offload: bool = False,
+        call_priority: bool = False,
     ) -> Dict[str, Any]:
         """
         Orquesta el turno completo:
@@ -311,6 +327,7 @@ class KaijuCognitiveOrchestrator:
         """
         t0 = time.time()
         history = history or []
+        is_call_prio = bool(call_priority) or _is_call_priority_active()
 
         # 0. Capturar telemetría sensorial de presencia física y sensor atmosférico local
         presence_info = None
@@ -390,11 +407,16 @@ class KaijuCognitiveOrchestrator:
                     import sys as _sys
                     _sys.path.insert(0, "/home/m11/Escritorio/GODWORKS SYSTEM")
                     from core.cas_neural_space_kaiju import get_cas
+                _cas_budget = (
+                    int(os.environ.get("TARDIS_CALL_CAS_BUDGET", "400"))
+                    if is_call_prio
+                    else int(os.environ.get("TARDIS_CAS_BUDGET", "900"))
+                )
                 _cas = get_cas().build_context(
                     message,
                     session_id=session_id,
                     profile=os.environ.get("TARDIS_CAS_PROFILE", "interactive"),
-                    budget_tokens=int(os.environ.get("TARDIS_CAS_BUDGET", "900")),
+                    budget_tokens=_cas_budget,
                 )
                 if _cas.ok:
                     cas_context = _cas.context_text
@@ -422,6 +444,7 @@ class KaijuCognitiveOrchestrator:
             "orchestrator": "TARDIS-NEURAL-SPACE-KAIJU",
             "active_expert": top_expert,
             "is_heavy": is_heavy,
+            "call_priority": is_call_prio,
             "delegated": False,
             "worker_provider": "temporal_brain_local",
             "worker_model": "TARDIS-NEURAL-SPACE-KAIJU",
@@ -432,7 +455,8 @@ class KaijuCognitiveOrchestrator:
         delegated_ok = False
 
         # 3. Despacho a Malla Distribuida Multi-Sistema (Alfa TUF A15 + Beta iMac 14,1) si corresponde
-        if eval_res.get("is_distributed"):
+        # En llamada prioritaria de Telegram, ir directo al socket local salvo offload forzado.
+        if eval_res.get("is_distributed") and (not is_call_prio or force_offload):
             logger.info("[KAIJU-ORCHESTRATOR] 🌐 Activando Malla Distribuida TARDIS: Despachando a Alfa (Ryzen 7) y Beta (iMac 14,1)...")
             try:
                 from core.tardis_distributed_mesh import get_mesh
@@ -504,6 +528,9 @@ class KaijuCognitiveOrchestrator:
             local_messages.append({"role": "user", "content": message})
 
             max_gen_tokens = 384 if is_short_turn else int(os.environ.get("TARDIS_CHAT_MAX_TOKENS", "896"))
+            if is_call_prio:
+                call_tok_cap = int(os.environ.get("TARDIS_CALL_MAX_TOKENS", "384"))
+                max_gen_tokens = min(max_gen_tokens, call_tok_cap)
 
             # Tier 0 Directo: TemporalBrain en /tmp/temporal_brain.sock (CUDA + Continuous Batching)
             _begin_local_inference()

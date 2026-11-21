@@ -268,3 +268,177 @@ def test_boost_process_for_call_restaura_nice_al_colgar(monkeypatch):
 
     release_call_priority("test:call")
     assert fake.nice() == 0
+
+
+def test_boost_process_for_call_degrada_ionice_rt_a_be0(monkeypatch):
+    import psutil
+
+    class _NoRtProc(_FakePsutilProcess):
+        def ionice(self, kind=None, value=0):
+            if kind == getattr(psutil, "IOPRIO_CLASS_RT", -1):
+                raise PermissionError("CAP_SYS_ADMIN required")
+            super().ionice(kind, value)
+
+    fake = _NoRtProc(616161)
+    monkeypatch.setattr(psutil, "Process", lambda p=None: fake if p == 616161 else _FakePsutilProcess(p))
+    activate_call_priority("test:call")
+    res = boost_process_for_call(SimpleNamespace(pid=616161))
+    assert res["ok"] is True
+    assert fake.ionice_calls == [(psutil.IOPRIO_CLASS_BE, 0)]
+
+
+def test_cross_process_state_file_respeta_ttl_largo_y_pid_vivo(monkeypatch):
+    """Un proceso distinto (ej. tardis.service) debe ver llamadas activas escritas por tardis-telegram-call."""
+    now = time.time()
+    remote_pid = os.getpid() + 999999
+    monkeypatch.setattr(tcp, "_pid_is_alive", lambda pid: pid == remote_pid)
+    # Simula un estado escrito hace 300s (>120s) pero con TTL todavía vigente (+1500s).
+    tcp.STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
+    tcp.STATE_FILE.write_text(
+        json.dumps(
+            {
+                "ok": True,
+                "active": True,
+                "priority_mode": "telegram_call",
+                "owner_pid": remote_pid,
+                "timestamp": now - 300.0,
+                "holders": [{"source": "live_call:call_1", "chat_id": "REDACTED_PHONE", "expires_at": now + 1500.0}],
+                "holder_count": 1,
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    assert is_call_priority_active() is True
+    st = get_call_priority_status()
+    assert st["active"] is True
+    assert st.get("cross_process_active") is True
+
+    # Si el proceso remoto murió, ya no debe reportarse activo.
+    monkeypatch.setattr(tcp, "_pid_is_alive", lambda pid: False)
+    assert is_call_priority_active() is False
+
+
+def test_ftl_public_gateway_se_refuerza_y_no_se_deprioriza(monkeypatch):
+    import psutil
+
+    gw = _FakePsutilProcess(7001)
+    gw._nice = 5
+    omni_bg = _FakePsutilProcess(7002)
+    omni_bg._nice = 0
+    desk = _FakePsutilProcess(7003)
+    desk._nice = -8
+    by_pid = {7001: gw, 7002: omni_bg, 7003: desk}
+    monkeypatch.setattr(psutil, "Process", lambda p=None: by_pid.get(p, _FakePsutilProcess(p)))
+
+    procs = [
+        _FakeProcInfo(7001, "python3", ["python3", "ftl_public_gateway.py"]),
+        _FakeProcInfo(7002, "python3", ["python3", "tardis-omniscient-autonomy"]),
+        _FakeProcInfo(7003, "tardis-desktop", ["/usr/bin/tardis-desktop"]),
+    ]
+    monkeypatch.setattr(tcp, "iter_system_processes", lambda: procs)
+
+    activate_call_priority("test:call")
+
+    assert gw.nice() == tcp.DEFAULT_NICE
+    assert omni_bg.nice() == tcp.DEFAULT_DEPRIORITIZE_NICE
+    assert desk.nice() == -8
+
+    release_call_priority("test:call")
+    assert gw.nice() == 5
+    assert omni_bg.nice() == 0
+    assert desk.nice() == -8
+
+
+def test_os_optimizer_prioritize_y_restore_son_idempotentes_y_degradan_ionice(monkeypatch):
+    import psutil
+    from core.os_optimizer import OSOptimizer
+
+    class _NoRtSelf(_FakePsutilProcess):
+        def ionice(self, kind=None, value=0):
+            if kind == getattr(psutil, "IOPRIO_CLASS_RT", -1):
+                raise PermissionError("CAP_SYS_ADMIN required")
+            super().ionice(kind, value)
+
+    fake = _NoRtSelf(os.getpid())
+    state_nice = {"v": 0}
+    monkeypatch.setattr(os, "getpriority", lambda *a: state_nice["v"])
+    monkeypatch.setattr(os, "setpriority", lambda which, who, val: state_nice.__setitem__("v", val))
+    monkeypatch.setattr(psutil, "Process", lambda p=None: fake)
+
+    opt = OSOptimizer()
+    r1 = opt.prioritize_for_telegram_call()
+    r2 = opt.prioritize_for_telegram_call()
+    assert r1["ok"] is True
+    assert r2["ok"] is True
+    assert state_nice["v"] == -10
+    assert fake.nice() == -10
+    assert r1["ionice"] == "best-effort (priority 0)"
+
+    rr = opt.restore_normal_priority()
+    assert rr["ok"] is True
+    assert state_nice["v"] == 0
+    assert fake.nice() == 0
+
+
+def test_idle_daemon_detecta_prioridad_cross_process(monkeypatch):
+    from core.idle_evolution_daemon import IdleEvolutionDaemon
+
+    daemon = IdleEvolutionDaemon()
+    assert daemon.is_suspended_for_call() is False
+
+    now = time.time()
+    remote_pid = os.getpid() + 888888
+    monkeypatch.setattr(tcp, "_pid_is_alive", lambda pid: pid == remote_pid)
+    tcp.STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
+    tcp.STATE_FILE.write_text(
+        json.dumps(
+            {
+                "ok": True,
+                "active": True,
+                "owner_pid": remote_pid,
+                "timestamp": now,
+                "holders": [{"source": "live_call:ws_9", "chat_id": "REDACTED_PHONE", "expires_at": now + 600}],
+                "holder_count": 1,
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    assert daemon.is_suspended_for_call() is True
+    assert daemon.execute_evolution_cycle(force=False) is None
+
+
+def test_live_call_ws_activa_y_libera_prioridad_en_hello_y_hangup(monkeypatch):
+    import asyncio
+    from aiohttp.test_utils import TestClient, TestServer
+    import core.telegram_live_call_server as lcs
+
+    async def _noop_synth(self, text, voice=lcs.DEFAULT_VOICE):
+        return b""
+
+    monkeypatch.setattr(lcs.RealtimeVoiceEngine, "synthesize_mp3", _noop_synth)
+    monkeypatch.setattr(lcs, "load_recent_call_history", lambda *a, **k: [])
+    monkeypatch.setattr(lcs, "append_call_history_log", lambda *a, **k: None)
+
+    async def _notify_noop(*a, **k):
+        return None
+
+    monkeypatch.setattr(lcs, "notify_telegram_call_ended", _notify_noop)
+    token = lcs.sign_call_token(chat_id=lcs.ARCHITECT_TELEGRAM_ID, user_name="Arquitecto")
+
+    async def _run():
+        async with TestClient(TestServer(lcs.create_app())) as client:
+            assert is_call_priority_active() is False
+            async with client.ws_connect(f"/tg-call/ws?ct={token}") as ws:
+                await ws.send_json({"type": "hello", "ct": token, "reconnect": True})
+                msg = await ws.receive_json(timeout=5)
+                assert msg["type"] == "call_ready"
+                assert msg["priority_active"] is True
+                assert is_call_priority_active() is True
+
+                await ws.send_json({"type": "hangup", "duration_sec": 3.5})
+            # Al cerrar el WS la prioridad debe quedar liberada
+            assert is_call_priority_active() is False
+
+    asyncio.run(_run())

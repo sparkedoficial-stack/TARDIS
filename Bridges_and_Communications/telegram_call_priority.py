@@ -498,6 +498,7 @@ class TelegramCallPriorityManager:
         src = str(source or "unknown")
         ttl = float(ttl_sec if ttl_sec is not None else DEFAULT_TTL_SEC)
         with self._lock:
+            was_active = self._active
             self._prune_expired_locked()
             self._holders[src] = {
                 "chat_id": str(chat_id) if chat_id is not None else None,
@@ -506,6 +507,9 @@ class TelegramCallPriorityManager:
             }
             self._transition_locked(True)
             state = self.get_status()
+            became_active = (not was_active) and self._active
+        if became_active:
+            _trigger_cpuset_sync_async()
         logger.info(f"⚡ [CALL-PRIORITY] Activado por {src} (chat={chat_id}, holders={state['holder_count']})")
         return state
 
@@ -532,19 +536,26 @@ class TelegramCallPriorityManager:
         """Libera la referencia de una llamada; restaura prioridad al llegar a cero."""
         src = str(source or "unknown")
         with self._lock:
+            was_active = self._active
             self._holders.pop(src, None)
             self._prune_expired_locked()
             self._transition_locked(bool(self._holders))
             state = self.get_status()
+            became_inactive = was_active and (not self._active)
+        if became_inactive:
+            _trigger_cpuset_sync_async()
         logger.info(f"🔽 [CALL-PRIORITY] Liberado {src} (holders={state['holder_count']})")
         return state
 
     def clear(self) -> Dict[str, Any]:
         """Liberación forzada (uso en pruebas, apagado o recuperación)."""
         with self._lock:
+            was_active = self._active
             self._holders.clear()
             self._transition_locked(False)
             state = self.get_status()
+        if was_active:
+            _trigger_cpuset_sync_async()
         return state
 
     # ---------------------------------------------------- prioridad de proceso
@@ -572,15 +583,30 @@ class TelegramCallPriorityManager:
                 p = psutil.Process(pid)
                 current = int(p.nice())
                 self._boosted_procs[pid] = current
-                if current <= DEFAULT_NICE:
-                    continue
-                p.nice(DEFAULT_NICE)
+                if current > DEFAULT_NICE:
+                    p.nice(DEFAULT_NICE)
+                    threads_fn = getattr(p, "threads", None)
+                    if callable(threads_fn):
+                        for th in threads_fn():
+                            tid = getattr(th, "id", None)
+                            if isinstance(tid, int) and tid > 0 and tid != pid:
+                                try:
+                                    os.setpriority(os.PRIO_PROCESS, tid, DEFAULT_NICE)
+                                except Exception:
+                                    pass
                 try:
-                    if hasattr(psutil, "IOPRIO_CLASS_BE"):
+                    if hasattr(p, "ionice") and hasattr(psutil, "IOPRIO_CLASS_BE"):
+                        try:
+                            prev_io = p.ionice()
+                            if prev_io is not None and hasattr(prev_io, "ioclass"):
+                                self._boosted_ionice[pid] = (int(prev_io.ioclass), int(prev_io.value))
+                        except Exception:
+                            pass
                         p.ionice(psutil.IOPRIO_CLASS_BE, value=0)
                 except Exception:
                     pass
-                boosted[pid] = current
+                if current > DEFAULT_NICE:
+                    boosted[pid] = current
             except Exception:  # noqa: BLE001
                 continue
         return boosted
@@ -677,17 +703,52 @@ class TelegramCallPriorityManager:
         except Exception as exc:  # noqa: BLE001
             logger.debug(f"Aviso ajustando gobernador CPU: {exc}")
 
+        # 7. Refuerzo cgroup v2 en caliente (--runtime) en systemd --user sin reiniciar servicios
+        if _systemd_boost_enabled():
+            def _apply_systemd_weights_bg() -> None:
+                try:
+                    saved_crit = _set_systemd_unit_weights(SYSTEMD_CRITICAL_UNITS, cpu_weight=5000, io_weight=5000)
+                    saved_bg = _set_systemd_unit_weights(SYSTEMD_YIELD_UNITS, cpu_weight=5, io_weight=5)
+                    with self._lock:
+                        if self._active:
+                            self._saved_systemd_weights.update(saved_crit)
+                            self._saved_systemd_weights.update(saved_bg)
+                        else:
+                            _restore_systemd_unit_weights({**saved_crit, **saved_bg})
+                except Exception as exc:  # noqa: BLE001
+                    logger.debug(f"Aviso ajustando CPUWeight/IOWeight systemd: {exc}")
+
+            threading.Thread(
+                target=_apply_systemd_weights_bg,
+                name="CallPrioritySystemdBoost",
+                daemon=True,
+            ).start()
+
     def _restore(self) -> None:
+        # 0. Restaurar cgroup v2 CPUWeight/IOWeight en systemd --user
+        saved_weights = dict(self._saved_systemd_weights)
+        self._saved_systemd_weights.clear()
+        if saved_weights and _systemd_boost_enabled():
+            threading.Thread(
+                target=_restore_systemd_unit_weights,
+                args=(saved_weights,),
+                name="CallPrioritySystemdRestore",
+                daemon=True,
+            ).start()
+
         # 1. Restaurar el nice original de los hijos de inferencia
         for pid, nice_value in list(self._child_nice.items()):
             _safe_set_nice(pid, nice_value)
         self._child_nice.clear()
         self._boosted_pids.clear()
 
-        # 2. Restaurar procesos del sistema reforzados
+        # 2. Restaurar procesos del sistema reforzados (nice + ionice)
         for pid, nice_value in list(self._boosted_procs.items()):
             _safe_set_nice(pid, nice_value)
         self._boosted_procs.clear()
+        for pid, (ioclass, ioval) in list(self._boosted_ionice.items()):
+            _safe_set_ionice(pid, ioclass, ioval)
+        self._boosted_ionice.clear()
 
         # 3. Restaurar demonios de fondo depriorizados
         for pid, nice_value in list(self._deprioritized_procs.items()):
@@ -773,13 +834,18 @@ class TelegramCallPriorityManager:
             self._child_nice.setdefault(pid, int(p.nice()))
             if p.nice() > DEFAULT_NICE:
                 p.nice(DEFAULT_NICE)
-            try:
-                if hasattr(psutil, "IOPRIO_CLASS_RT"):
+            ionice_ok = False
+            if hasattr(psutil, "IOPRIO_CLASS_RT"):
+                try:
                     p.ionice(psutil.IOPRIO_CLASS_RT, value=4)
-                elif hasattr(psutil, "IOPRIO_CLASS_BE"):
+                    ionice_ok = True
+                except Exception:
+                    ionice_ok = False
+            if not ionice_ok and hasattr(psutil, "IOPRIO_CLASS_BE"):
+                try:
                     p.ionice(psutil.IOPRIO_CLASS_BE, value=0)
-            except Exception:
-                pass
+                except Exception:
+                    pass
             result["ok"] = True
             result["nice"] = p.nice()
         except Exception as exc:  # noqa: BLE001

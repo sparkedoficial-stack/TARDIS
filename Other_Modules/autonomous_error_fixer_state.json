@@ -2,8 +2,8 @@
   "agent": "TardisAutonomousErrorFixer",
   "version": "26.4",
   "status": "ACTIVE_AUTONOMOUS",
-  "total_cycles": 36708,
-  "total_errors_fixed": 1727,
+  "total_cycles": 35883,
+  "total_errors_fixed": 916,
   "total_functions_synthesized": 1,
   "registered_fix_functions": [
     "fix_llama_server_health",
@@ -12,11 +12,11 @@
     "fix_evolution_locks_and_sqlite",
     "fix_codebase_ast_and_subsystems"
   ],
-  "last_run_iso": "2026-11-21T15:30:43.829142",
+  "last_run_iso": "2026-11-21T15:32:17.049676",
   "last_report": {
     "ok": true,
-    "cycle": 36708,
-    "elapsed_s": 0.069,
+    "cycle": 35883,
+    "elapsed_s": 0.15,
     "llama_server": {
       "ok": true,
       "actions": []
@@ -39,8 +39,8 @@
       "ok": true,
       "applied_fixes": []
     },
-    "total_errors_fixed": 1727,
+    "total_errors_fixed": 916,
     "total_functions_synthesized": 1,
-    "timestamp_iso": "2026-11-21T15:30:43.829142"
+    "timestamp_iso": "2026-11-21T15:32:17.049676"
   }
 }
