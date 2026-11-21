@@ -1398,6 +1398,9 @@ class TardisAgyController:
         self._emit_event("daemon_started", pid=os.getpid(), interval=interval)
         logger.info("tardis-agy-autopilot activo (PID=%d, interval=%.1fs)", os.getpid(), interval)
 
+        last_terminal_sweep = 0.0
+        terminal_sweep_interval = max(60.0, float(os.environ.get("TARDIS_CONTINUATOR_SWEEP_SEC", "180")))
+
         try:
             while not self._stop_daemon.is_set():
                 self._state["daemon_pid"] = os.getpid()
@@ -1420,6 +1423,23 @@ class TardisAgyController:
                     if processed is not None:
                         # Continuar inmediatamente si quedan más tareas en cola
                         continue
+
+                    # Barrido autónomo multi-terminal (AGY · FTL · OpenCode) cuando la cola está libre
+                    now_ts = time.time()
+                    if (now_ts - last_terminal_sweep) >= terminal_sweep_interval:
+                        last_terminal_sweep = now_ts
+                        try:
+                            from core.ftl_terminal_continuator import get_ftl_terminal_continuator
+                            sw = get_ftl_terminal_continuator().sweep_and_enqueue(max_items=2)
+                            if sw.get("dispatched", 0) > 0:
+                                logger.info(
+                                    "Barrido multi-terminal despachó %d continuaciones (reconciliadas=%d).",
+                                    sw.get("dispatched", 0),
+                                    sw.get("initial_reconciled", 0),
+                                )
+                                continue
+                        except Exception as exc_sw:
+                            logger.debug("Aviso en barrido multi-terminal: %s", exc_sw)
 
                 self._stop_daemon.wait(max(2.0, float(interval)))
         finally:

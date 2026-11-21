@@ -115,7 +115,8 @@ UNIFIED_COMMAND_KEYWORDS = {
     "recargar", "help", "exit", "quit", "q", "config", "sh", "bash",
     "colony", "colonia", "embajada", "peers", "agentes",
     "imac", "cluster", "router", "modem", "v", "vp",
-    "ftl-local", "local"  # NUEVO: Comando de acceso por red local
+    "ftl-local", "local",  # NUEVO: Comando de acceso por red local
+    "continue", "continue-all", "continuar", "scan-terminals"
 }
 
 
@@ -395,6 +396,17 @@ def dispatch_unified_command(cmd_name: str, args_list: list[str] = None) -> bool
                 console.print(f"  [bold green]✔ {r}[/bold green]")
         else:
             console.print("  [bold green]✔ Todos los permisos, bypasses y configuraciones se encuentran en estado óptimo.[/bold green]")
+        return True
+
+    elif cmd in ("continue", "continue-all", "continuar", "scan-terminals"):
+        cont_bin = Path.home() / ".local" / "bin" / "ftl-continue"
+        if not cont_bin.is_file():
+            console.print("[bold red]✖ ftl-continue no encontrado en ~/.local/bin.[/bold red]")
+            return True
+        subcmd = "scan" if cmd == "scan-terminals" else (args[0] if args and args[0] in ("status", "verify", "scan", "reconcile", "run", "continue-agy", "continue-opencode", "continue-ftl", "sweep", "pause", "resume") else "run")
+        extra = args[1:] if (args and args[0] == subcmd) else args
+        console.print(f"[bold cyan]⚡ FTL Multi-Terminal Continuator → {subcmd} {' '.join(extra)}[/bold cyan]")
+        subprocess.run([str(cont_bin), subcmd] + extra)
         return True
 
     elif cmd == "auto":
@@ -1219,6 +1231,8 @@ def main():
     parser.add_argument("--et-agent", action="store_true", help="Display Easy Touch Self-Improvement Agent status and metrics")
     parser.add_argument("--et-evolve", action="store_true", help="Run self-improvement cycle on Easy Touch system")
     parser.add_argument("--et-solve", action="store_true", help="Trigger autonomous resolution of all pending unhealed incidents")
+    parser.add_argument("--continue-all", action="store_true", help="Autonomously continue stalled/failed processes across agy, FTL, and opencode")
+    parser.add_argument("--scan-terminals", action="store_true", help="Scan agy, FTL, and opencode terminals for stalled/failed sessions")
 
     args = parser.parse_args()
 
@@ -1266,6 +1280,14 @@ def main():
 
     if args.et_solve:
         dispatch_unified_command("et-solve", [])
+        sys.exit(0)
+
+    if args.scan_terminals:
+        dispatch_unified_command("scan-terminals", [])
+        sys.exit(0)
+
+    if args.continue_all:
+        dispatch_unified_command("continue-all", [])
         sys.exit(0)
 
     if args.kaiju or args.rails:

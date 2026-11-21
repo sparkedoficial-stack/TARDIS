@@ -1160,7 +1160,8 @@ class TapoC310VoiceChannel:
         self.last_transcript = transcript
         self.last_activity_ts = time.time()
         logger.info(f"🎙️  [ENTREVISTA C310 · {field}] {transcript!r} ({source})")
-        future.set_result({"text": transcript, "source": source})
+        if not future.done():
+            future.set_result({"text": transcript, "source": source})
 
     def _write_visitor_interview_record(self, record: Dict[str, Any]) -> None:
         try:

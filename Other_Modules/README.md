@@ -715,6 +715,16 @@ Módulos y componentes auxiliares del sistema.
 - **dossier_20261120_213512_384.json**: Componente de alta eficiencia.
 - **dossier_20261120_213547_446.json**: Componente de alta eficiencia.
 - **dossier_20261120_213604_259.json**: Componente de alta eficiencia.
+- **dossier_20261120_220256_009.json**: Componente de alta eficiencia.
+- **dossier_20261120_220326_220.json**: Componente de alta eficiencia.
+- **dossier_20261120_220357_010.json**: Componente de alta eficiencia.
+- **dossier_20261120_220424_972.json**: Componente de alta eficiencia.
+- **dossier_20261120_220642_721.json**: Componente de alta eficiencia.
+- **dossier_20261120_220647_448.json**: Componente de alta eficiencia.
+- **dossier_20261120_220700_986.json**: Componente de alta eficiencia.
+- **dossier_20261120_220730_323.json**: Componente de alta eficiencia.
+- **dossier_20261120_220800_673.json**: Componente de alta eficiencia.
+- **dossier_20261120_220818_386.json**: Componente de alta eficiencia.
 - **dynamic_tools_registry.json**: Directorio y puente soberano de interoperabilidad omni-herramientas.
 - **ecca_v3_core.py**: Núcleo de orquestación y control temporal/espacial.
 - **engine.py**: Componente de alta eficiencia.
@@ -737,6 +747,7 @@ Módulos y componentes auxiliares del sistema.
 - **ftl_nxnative.py**: Motor de aceleración FTL y computación adaptativa.
 - **ftl_omniscient_autonomy.py**: Directorio y puente soberano de interoperabilidad omni-herramientas.
 - **ftl_public_gateway.py**: Motor de aceleración FTL y computación adaptativa.
+- **ftl_terminal_continuator.py**: Motor de aceleración FTL y computación adaptativa.
 - **ftl_update_guard.py**: Motor de aceleración FTL y computación adaptativa.
 - **gemini_privacy_vault.py**: Centinela de seguridad, blindaje perimetral o bóveda segura.
 - **geon_retrocausal_mechanics.json**: Componente de alta eficiencia.

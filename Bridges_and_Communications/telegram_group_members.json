@@ -70,7 +70,7 @@
       "welcome_enabled": true,
       "welcome_text": "👋 ¡Bienvenido/a {nombre} al grupo *{grupo}*! Soy TARDIS, asistente de inteligencia artificial y sistema de control temporal. Un placer tenerte aquí.",
       "created_at": "2026-09-29T09:31:52.567223",
-      "updated_at": "2026-11-20T20:37:48.195000",
+      "updated_at": "2026-11-20T22:17:19.876851",
       "members": {
         "REDACTED_PHONE": {
           "user_id": REDACTED_PHONE,
@@ -102,17 +102,17 @@
         },
         "REDACTED_PHONE": {
           "user_id": REDACTED_PHONE,
-          "first_name": "Arquitecto",
+          "first_name": "X",
           "last_name": "",
-          "full_name": "Arquitecto",
-          "display_name": "Arquitecto",
+          "full_name": "X",
+          "display_name": "X",
           "username": "asleep01010101",
           "is_bot": false,
           "is_architect": true,
           "role": "creator",
           "first_seen": "2026-09-29T09:34:15.441248",
-          "last_seen": "2026-11-20T20:37:48.195000",
-          "message_count": 120
+          "last_seen": "2026-11-20T22:17:19.876851",
+          "message_count": 121
         },
         "REDACTED_PHONE": {
           "user_id": REDACTED_PHONE,
@@ -214,8 +214,8 @@
       "is_bot": false,
       "is_architect": true,
       "first_seen": "2026-09-25T15:13:39.080612",
-      "last_seen": "2026-11-20T21:44:34.634705",
-      "message_count": 293
+      "last_seen": "2026-11-20T22:19:54.120963",
+      "message_count": 295
     },
     "555000111": {
       "chat_id": 555000111,
@@ -498,5 +498,5 @@
       "message_count": 2
     }
   },
-  "last_updated": "2026-11-20T21:44:34.635605"
+  "last_updated": "2026-11-20T22:19:54.121144"
 }

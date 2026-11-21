@@ -489,6 +489,34 @@ class TardisContinuityEngine:
                 output_snippet=output_summary[:200]
             )
 
+    def reconcile_request(
+        self,
+        request_id: int,
+        status: str = "completed",
+        summary: str = "",
+        files_changed: Optional[List[str]] = None,
+    ) -> bool:
+        """Actualiza por ID exacto el estado de una petición previa en `request_log`."""
+        try:
+            with self._connect() as con:
+                cur = con.execute(
+                    """
+                    UPDATE request_log
+                    SET status = ?, progress_summary = ?, artifacts_json = ?
+                    WHERE id = ?
+                    """,
+                    (
+                        status,
+                        (summary or f"Estado reconciliado: {status}")[:500],
+                        json.dumps(files_changed or [], ensure_ascii=False),
+                        int(request_id),
+                    ),
+                )
+                return cur.rowcount > 0
+        except Exception as e:
+            logger.debug(f"[CONTINUITY] Error reconciliando request_id={request_id}: {e}")
+            return False
+
     def get_transversal_continuity_context(self, max_chars: int = 1400) -> str:
         """
         Genera el bloque inyectable para el RAG transversal de FTL / TARDIS / Antigravity,

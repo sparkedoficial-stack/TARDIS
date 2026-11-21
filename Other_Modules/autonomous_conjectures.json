@@ -1,22 +1,5 @@
 [
   {
-    "id": "conj_1794708073",
-    "timestamp": "2026-11-14T21:01:13.835477",
-    "idle_duration_minutes": 90.0,
-    "title": "Integración de Memoria Causal Asíncrona para Optimizar Búsquedas Web",
-    "hypothesis": "Si el motor de investigación web (core/web_research_engine.py) se conecta directamente a la Deep Memory Vault mediante un canal asíncrono que prioriza los nodos de memoria con alta relevancia causal, entonces la latencia de obtención de resultados y la precisión de la información recuperada aumentarán significativamente, reduciendo la necesidad de re‑consultas redundantes y mejorando la coherencia contextual de las respuestas del sistema.",
-    "research_query": "asynchronous causal memory retrieval architecture for web search engines",
-    "research_findings": "# Informe de Investigación: asynchronous causal memory retrieval architecture for web search engines\n\n## Fuentes Consultadas y Respaldo Web\n- **[2024 in science (Wikipedia)](https://en.wikipedia.org/wiki/2024_in_science)**: Angel; Larson, Lawrence; Nurmikko, Arto (April 2024). \"An asynchronous wireless network for capturing event-driven data from large populations of autonomous\n\n## Contenido y Hallazgos Extraídos\n### De [2024 in science - Wikipedia](https://en.wikipedia.org/wiki/2024_in_science)\n> 2024 in science - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nOverview of the events of 2024 in science\nList of years in science\n( table )\n… 2014\n2015\n2016\n2017\n2018\n2019\n2020\n2021\n2022\n2023\n2024\n2025\n2026\n2027\n2028\n2029\n2030\n2031\n2032\n2033\n2034 …\nArchaeology\nArchitecture\nLiterature\nMusic\nPhilosophy\nScience +...\n2024 in science\n2023\n2025\nFields\nArchaeology\nSpace\nSenescence rese...\n",
-    "web_sources": [
-      "https://en.wikipedia.org/wiki/2024_in_science"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Implementar un pipeline asíncrono que consulte a deep_memory_vault con prioridad basada en scores de causal relevance, añadiendo caché de resultados y manejo de timeouts para reducir bloqueos y mejorar la velocidad de respuesta.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 3504.18
-  },
-  {
     "id": "conj_1794712803",
     "timestamp": "2026-11-14T22:20:03.642835",
     "idle_duration_minutes": 78.8,
@@ -1613,5 +1596,23 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 2885.12
+  },
+  {
+    "id": "conj_1795229936",
+    "timestamp": "2026-11-20T21:58:56.183425",
+    "idle_duration_minutes": 76.9,
+    "title": "Integración de Memoria Causal Temporal en el Web Research Engine",
+    "hypothesis": "Si el motor de búsqueda web (core/web_research_engine.py) incorpora un índice de causalidad temporal basado en los eventos registrados en deep_memory_vault, entonces podrá priorizar resultados que no solo coincidan lexicalmente sino que también respeten la secuencia causal de los conocimientos adquiridos, reduciendo la latencia de respuesta en consultas que dependen de contexto histórico y mejorando la coherencia de la información entregada.",
+    "research_query": "temporal causal indexing for web search engines using event logs and knowledge graphs",
+    "research_findings": "# Informe de Investigación: temporal causal indexing for web search engines using event logs and knowledge graphs\n\n## Fuentes Consultadas y Respaldo Web\n- **[From Data to Decisions: How Knowledge Graphs Are Becoming the Brain of the Modern Enterprise - Medium](https://news.google.com/rss/articles/CBMi0gFBVV95cUxPVjh5NnNZNnFfZ3UzMEx3U0pqajNDQ19TV0JjRGN5WGhleWxVLW5WMkptR2J6VHpldllqekM2bzJSUFBYWHlwSW1ySUZoZG9fOFZRVGY4NEt6ZVE5YkQ4b0VlRWl1T0Jtd1hlSzNrOGRuTzY1ajU4b1lUY3hVMDBpWUxiZWo5X1VBNDMyQjFMVlFPMU14bm9kUlZCMWVLMTBTRUI0ZTBQRDdpVmJxVlRuZFQwYzNPNGpReVdEMUg3dHVhNWhvQUd6LTdvMWMtZHBSQXc?oc=5)**: From Data to Decisions: How Knowledge Graphs Are Becoming the Brain of the Modern Enterprise  Medium\n- **[Big data (Wikipedia)](https://en.wikipedia.org/wiki/Big_data)**: examined Google queries logs made by ratio of the volume of searches for the coming year (2011) to the volume of searches for the previous year (2009)\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.co",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMi0gFBVV95cUxPVjh5NnNZNnFfZ3UzMEx3U0pqajNDQ19TV0JjRGN5WGhleWxVLW5WMkptR2J6VHpldllqekM2bzJSUFBYWHlwSW1ySUZoZG9fOFZRVGY4NEt6ZVE5YkQ4b0VlRWl1T0Jtd1hlSzNrOGRuTzY1ajU4b1lUY3hVMDBpWUxiZWo5X1VBNDMyQjFMVlFPMU14bm9kUlZCMWVLMTBTRUI0ZTBQRDdpVmJxVlRuZFQwYzNPNGpReVdEMUg3dHVhNWhvQUd6LTdvMWMtZHBSQXc?oc=5",
+      "https://en.wikipedia.org/wiki/Big_data"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Añadir una capa de pre‑filtrado que consulte deep_memory_vault para obtener un sub‑grafo causal relevante y re‑ordenar los resultados del motor de búsqueda según la proximidad temporal‑causal al contexto actual.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 2782.7
   }
 ]

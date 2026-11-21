@@ -2,11 +2,11 @@
   "daemon": "tardis-visual-intelligence",
   "running": true,
   "pid": 1460,
-  "uptime_sec": 71473.4,
-  "last_heartbeat": "2026-11-20T21:45:40.328828",
+  "uptime_sec": 74322.8,
+  "last_heartbeat": "2026-11-20T22:33:09.763948",
   "items_processed": 0,
   "last_processed_id": "",
-  "memory_rss_mb": 309.53,
+  "memory_rss_mb": 312.32,
   "engine_status": {
     "status": "online",
     "engine": "VisualIntelligenceEngine v26.5 (VLM + Veredictos)",
@@ -20,15 +20,15 @@
     "vlm_error": "",
     "verdict_engine": "VLM + Kaiju + veredicto estructurado",
     "stored_videos_count": 1025,
-    "stored_images_count": 386,
+    "stored_images_count": 389,
     "stored_sounds_count": 0,
-    "stored_verdicts_count": 470,
+    "stored_verdicts_count": 473,
     "last_verdict": {
-      "id": "img_20261120_213045_3847f3",
-      "created_at": "2026-11-20T21:34:49.324212",
+      "id": "img_20261120_221550_060267",
+      "created_at": "2026-11-20T22:19:55.066802",
       "source": "daemon",
-      "verdict": "| Elemento | Valor | Comentario |\n|----------|-------|------------|\n| Estado general del entorno | Indeterminado (solo se conoce el tono de color) | No se puede afirmar si el entorno es seguro, hostil o neutro. |\n| Nivel de riesgo objetivo (0‑10) | 2 | Dado que no hay evidencia de peligro inmediato y la imagen muestra un color neutro sin anomalías visibles, el riesgo percibido es bajo, pero la falta de información eleva ligeramente la incertidumbre. |\n| Recomendación concreta | Obtener datos visuales adicionales (una captura de pantalla clara o una descripción del contenido de la imagen) antes",
-      "risk_level": 0
+      "verdict": "*   Estado General del Entorno: Desconocido / No Visible. No es posible determinar la ubicación, la presencia de otros seres vivos ni las condiciones físicas del entorno.\n*   Nivel de Riesgo Objetivo: 5/10 (Incertidumbre Media).\n    *   *Justificación:* No hay riesgo *visible* (0/10), pero la incapacidad total de percibir el entorno genera un riesgo por desconocimiento (5/10). No puedo descartar amenazas porque no puedo verlas.\n*   Hechos Observados:\n    *   Imagen uniforme de color `#697469`.\n    *   Sin audio.\n    *   Sin movimiento.\n*   Inferencias:\n    *   El sensor de visión está bloquead",
+      "risk_level": 5
     },
     "surroundings_interval_sec": 900,
     "vault_dir": "/home/m11/Escritorio/GODWORKS SYSTEM/vault/videos/telegram",
@@ -37,13 +37,13 @@
   },
   "surroundings": {
     "interval_sec": 900.0,
-    "checks": 6,
-    "verdicts": 6,
-    "last_verdict_id": "img_20261120_213045_3847f3",
-    "last_risk_level": 0,
-    "last_verdict": "| Elemento | Valor | Comentario |\n|----------|-------|------------|\n| Estado general del entorno | Indeterminado (solo se conoce el tono de color) | No se puede afirmar si el entorno es seguro, hostil o neutro. |\n| Nivel de riesgo objetivo (0‑10) | 2 | Dado que no hay evidencia de peligro inmediato y la imagen muestra un color neutro sin anomalías visibles, el riesgo percibido es bajo, pero la falta de información eleva ligeramente la incertidumbre. |\n| Recomendación concreta | Obtener datos visuales adicionales (una captura de pantalla clara o una descripción del contenido de la imagen) antes de tomar decisiones operativas. Mientras tanto, mantenga una vigilancia pasiva y evite manipular objetos desconocidos en el área. | Sin información concreta, cualquier acción específica sería especulativa. |\n\nResumen del veredicto:  \n- Hechos observados: Resolución, color dominante `#69695b`, alta nitidez, ausencia de audio.  \n- Inferencias: Posible entorno interior con iluminación tenue (hipótesis).  \n- Dudas: No se conoce la naturaleza exacta del espacio ni la presencia de riesgos.  \n\nAcción recomendada: Solicite una visualización más detallada (foto con mayor contraste, descripción textual",
-    "last_error": "",
-    "last_check_ts": REDACTED_PHONE.023822
+    "checks": 9,
+    "verdicts": 9,
+    "last_verdict_id": "img_20261120_221550_060267",
+    "last_risk_level": 5,
+    "last_verdict": "*   Estado General del Entorno: Desconocido / No Visible. No es posible determinar la ubicación, la presencia de otros seres vivos ni las condiciones físicas del entorno.\n*   Nivel de Riesgo Objetivo: 5/10 (Incertidumbre Media).\n    *   *Justificación:* No hay riesgo *visible* (0/10), pero la incapacidad total de percibir el entorno genera un riesgo por desconocimiento (5/10). No puedo descartar amenazas porque no puedo verlas.\n*   Hechos Observados:\n    *   Imagen uniforme de color `#697469`.\n    *   Sin audio.\n    *   Sin movimiento.\n*   Inferencias:\n    *   El sensor de visión está bloqueado o desactivado.\n    *   El Arquitecto no está proporcionando datos visuales útiles.\n*   Dudas:\n    *   ¿Está la cámara tapada?\n    *   ¿Hay un fallo técnico en la transmisión de video?\n    *   ¿El Arquitecto se encuentra en un entorno de baja visibilidad intencional?\n\nRECOMENDACIÓN CONCRETA:\nVerifica inmediatamente el estado de tu sensor óptico o cámara.\n1.  Si estás usando un dispositivo con cámara, asegúrate de que no esté tapada.\n2.  Si este es un feed de seguridad, revisa la conexión del sensor.\n3.  Hasta que no se restablezca la visión, no asumas seguridad. Mantén la cautela y, si es pos",
+    "last_error": "escena sin cambios relevantes (delta=1.1)",
+    "last_check_ts": REDACTED_PHONE.595833
   },
   "vlm": {
     "ready": true,
