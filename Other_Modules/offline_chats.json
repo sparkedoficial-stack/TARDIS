@@ -1,12 +1,12 @@
 {
   "version": "v26.4",
-  "updated_at": "2026-11-21T13:50:10.646190",
+  "updated_at": "2026-11-21T13:55:10.762184",
   "total_turns": 2,
   "turns": [
     {
       "id": 1,
-      "ts": REDACTED_PHONE.6414592,
-      "iso": "2026-11-21 13:50:10",
+      "ts": REDACTED_PHONE.7580326,
+      "iso": "2026-11-21 13:55:10",
       "session_id": "omni_app",
       "client_id": "user_1",
       "user_message": "Consulta Alfa de Usuario 1",
@@ -24,8 +24,8 @@
     },
     {
       "id": 2,
-      "ts": REDACTED_PHONE.6449904,
-      "iso": "2026-11-21 13:50:10",
+      "ts": REDACTED_PHONE.7609358,
+      "iso": "2026-11-21 13:55:10",
       "session_id": "omni_app",
       "client_id": "user_2",
       "user_message": "Consulta Beta de Usuario 2",

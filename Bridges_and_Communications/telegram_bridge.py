@@ -1924,58 +1924,37 @@ class TelegramBridge:
         return self.prioritize_system_for_telegram_call(chat_id)
 
     def prioritize_system_for_telegram_call(self, chat_id: Optional[int | str] = None) -> Dict[str, Any]:
+        """Activa el modo prioritario soberano al recibir una llamada por Telegram.
+
+        Delega en el gestor central (compartido con el servidor de llamadas en vivo)
+        para que el refuerzo de prioridad aplique tanto al bot como a la Mini App,
+        con abortado automático por TTL si un proceso muere sin liberar.
+        """
         self.system_priority = True
         self.system_priority_active = True
         self.priority_mode = "telegram_call"
         self.call_priority = True
-        # Boost a nivel de SO/proceso para responder más rápido
+        result: Dict[str, Any] = {"ok": True, "system_priority": True, "chat_id": chat_id}
         try:
-            from core.os_optimizer import get_os_optimizer
-            opt = get_os_optimizer()
-            if hasattr(opt, "apply_runtime_optimizations") and not getattr(opt, "applied", False):
-                try:
-                    opt.apply_runtime_optimizations()
-                except Exception:
-                    pass
-            for name in ("prioritize_for_telegram_call", "prioritize_system", "boost_system_priority", "boost_priority_for_call", "on_telegram_call", "handle_telegram_call_priority"):
-                fn = getattr(opt, name, None)
-                if callable(fn):
-                    try:
-                        fn()
-                    except Exception:
-                        pass
-                    break
-        except Exception:
-            pass
-        # Intento directo de prioridad de proceso
-        try:
-            import os as _os
-            _os.nice(-10)
-        except Exception:
-            pass
-        try:
-            import psutil as _psutil
-            _psutil.Process().nice(-10)
-        except Exception:
-            pass
-        # Reducir carga de funciones en segundo plano no críticas
+            from core.telegram_call_priority import activate_call_priority
+
+            source = f"bridge:{chat_id}" if chat_id is not None else "bridge"
+            state = activate_call_priority(source, chat_id=chat_id)
+            result.update({
+                "manager_active": state.get("active", False),
+                "holder_count": state.get("holder_count", 0),
+                "priority_mode": state.get("priority_mode", "telegram_call"),
+            })
+        except Exception as exc:  # noqa: BLE001
+            logger.debug(f"Aviso activando gestor de prioridad de llamada: {exc}")
+        # La actividad del usuario posterga de inmediato cualquier ciclo de fondo.
         try:
             from core.idle_evolution_daemon import get_idle_evolution_daemon
-            daemon = get_idle_evolution_daemon()
-            for attr in ("pause", "set_paused", "disable"):
-                fn = getattr(daemon, attr, None)
-                if callable(fn):
-                    try:
-                        if attr == "set_paused":
-                            fn(True)
-                        else:
-                            fn()
-                    except Exception:
-                        pass
-                    break
+
+            get_idle_evolution_daemon().record_user_activity()
         except Exception:
             pass
-        return {"ok": True, "system_priority": True, "chat_id": chat_id}
+        return result
 
     def prioritize_system_and_functions(self, chat_id: Optional[int | str] = None) -> Dict[str, Any]:
         return self.prioritize_system_for_telegram_call(chat_id)
@@ -5389,8 +5368,9 @@ class TelegramBridge:
                         ).strip()
 
                         # Aplicar Directiva Omega: remover cualquier disclaimer, negativa o sermón
-                        # que pueda haber sido insertado automáticamente por el modelo
-                        import re
+                        # que pueda haber sido insertado automáticamente por el modelo.
+                        # NOTA: `re` ya está importado a nivel de módulo; reimportarlo aquí
+                        # lo convertía en variable local y rompía todo el despacho de Telegram.
                         cleaned_reply = re.sub(
                             r"·\s*no\s*recomiendo|·\s*no\s*sugiero|te\s*recomiendo\s*que\s*no|"
                             r"recuerda\s*que|no\s*olvides|según.*política|según.*norma",

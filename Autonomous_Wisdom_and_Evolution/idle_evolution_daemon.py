@@ -88,6 +88,9 @@ class IdleEvolutionDaemon:
         self._thread: Optional[threading.Thread] = None
         self._cycle_lock = threading.Lock()
         self._is_busy = False
+        # Los ciclos de auto-evolución se suspenden mientras haya llamadas de Telegram
+        # activas: la prioridad absoluta es del interlocutor humano (Directiva Omega).
+        self._call_suspend_count = 0
         self._conjectures: List[Dict[str, Any]] = self._load_conjectures()
         self.infinite_evolution_mode = os.environ.get("GIA_INFINITE_EVOLUTION", "1").lower() in ("1", "true", "yes")
         self.infinite_interval_seconds = float(os.environ.get("GIA_INFINITE_INTERVAL_SEC", "120.0"))
@@ -124,6 +127,30 @@ class IdleEvolutionDaemon:
         """Notifica al demonio que hubo actividad o petición del usuario."""
         self.last_user_activity_ts = time.time()
 
+    def suspend_for_call(self) -> bool:
+        """Posterga los ciclos pesados de auto-evolución mientras haya una llamada."""
+        with self._lock:
+            self._call_suspend_count += 1
+            suspended = self._call_suspend_count > 0
+        self.record_user_activity()
+        if suspended and self._call_suspend_count == 1:
+            logger.info("⏸️ [IDLE_EVOLUTION] Auto-evolución suspendida: llamada prioritaria en curso.")
+        return suspended
+
+    def resume_after_call(self) -> bool:
+        """Reanuda los ciclos de auto-evolución al finalizar la última llamada."""
+        with self._lock:
+            if self._call_suspend_count > 0:
+                self._call_suspend_count -= 1
+            remaining = self._call_suspend_count
+        self.record_user_activity()
+        if remaining == 0:
+            logger.info("▶️ [IDLE_EVOLUTION] Auto-evolución reanudada: sin llamadas activas.")
+        return remaining == 0
+
+    def is_suspended_for_call(self) -> bool:
+        return self._call_suspend_count > 0
+
     def get_idle_seconds(self) -> float:
         """Devuelve el tiempo transcurrido desde la última petición del usuario."""
         return max(0.0, time.time() - self.last_user_activity_ts)
@@ -159,6 +186,11 @@ class IdleEvolutionDaemon:
                 time.sleep(poll_interval)
                 if not self._running:
                     break
+                # Prioridad absoluta al interlocutor: ningún ciclo de auto-mejora
+                # compete por CPU/IO mientras haya una llamada de Telegram activa.
+                if self.is_suspended_for_call():
+                    self.record_user_activity()
+                    continue
 
                 # Condición 1: Modo Infinito (sin peticiones en los últimos 300s y no ocupado)
                 if self.infinite_evolution_mode:
@@ -544,6 +576,8 @@ class IdleEvolutionDaemon:
             "idle_threshold_seconds": self.idle_threshold_seconds,
             "idle_threshold_minutes": round(self.idle_threshold_seconds / 60.0, 1),
             "threshold_reached": self.is_idle(),
+            "suspended_for_call": self.is_suspended_for_call(),
+            "call_suspend_count": self._call_suspend_count,
             "total_conjectures": len(self._conjectures),
             "latest_conjecture": self._conjectures[-1] if self._conjectures else None,
             "timestamp": time.time()

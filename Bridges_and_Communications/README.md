@@ -16,6 +16,7 @@ Pasarelas de comunicación omnicanal (WhatsApp, Telegram, SMS, túneles seguros 
 - **start_client_gateway.sh**: Componente de alta eficiencia.
 - **start_tunnel.py**: Componente de alta eficiencia.
 - **telegram_bridge.py**: Componente de alta eficiencia.
+- **telegram_call_priority.py**: Componente de alta eficiencia.
 - **telegram_calls_history.json**: Componente de alta eficiencia.
 - **telegram_config.json**: Componente de alta eficiencia.
 - **telegram_group_manager.py**: Componente de alta eficiencia.
