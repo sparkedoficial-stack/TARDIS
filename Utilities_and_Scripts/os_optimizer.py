@@ -105,33 +105,44 @@ class OSOptimizer:
     def prioritize_for_telegram_call(self) -> Dict[str, Any]:
         """Aplica prioridad alta al proceso TARDIS para responder más rápido en llamadas de Telegram."""
         results: Dict[str, Any] = {}
+        target_nice = int(os.environ.get("TARDIS_CALL_PRIORITY_NICE", "-10"))
+        try:
+            current_nice = os.getpriority(os.PRIO_PROCESS, 0)
+            if current_nice > target_nice:
+                os.setpriority(os.PRIO_PROCESS, 0, target_nice)
+            results["os_nice"] = os.getpriority(os.PRIO_PROCESS, 0)
+        except Exception as e:  # noqa: BLE001
+            results["os_nice"] = f"warning: {e}"
         try:
             proc = psutil.Process()
             try:
-                proc.nice(-10 if hasattr(proc, "nice") else 0)
+                if hasattr(proc, "nice") and proc.nice() > target_nice:
+                    proc.nice(target_nice)
                 results["cpu_nice"] = getattr(proc, "nice", lambda: 0)()
             except Exception as e:  # noqa: BLE001
                 results["cpu_nice"] = f"warning: {e}"
-            try:
-                if hasattr(psutil, "IOPRIO_CLASS_RT"):
+            # Intentar Realtime I/O; si no hay CAP_SYS_ADMIN, degradar limpiamente a Best-Effort prio 0
+            ionice_applied = False
+            if hasattr(psutil, "IOPRIO_CLASS_RT"):
+                try:
                     proc.ionice(psutil.IOPRIO_CLASS_RT, value=4)
-                    results["ionice"] = "realtime"
-                elif hasattr(psutil, "IOPRIO_CLASS_BE"):
+                    results["ionice"] = "realtime (priority 4)"
+                    ionice_applied = True
+                except Exception:
+                    ionice_applied = False
+            if not ionice_applied and hasattr(psutil, "IOPRIO_CLASS_BE"):
+                try:
                     proc.ionice(psutil.IOPRIO_CLASS_BE, value=0)
                     results["ionice"] = "best-effort (priority 0)"
-                else:
-                    results["ionice"] = "not_supported"
-            except Exception as e:  # noqa: BLE001
-                results["ionice"] = f"warning: {e}"
+                    ionice_applied = True
+                except Exception as e:  # noqa: BLE001
+                    results["ionice"] = f"warning: {e}"
+            elif not ionice_applied:
+                results["ionice"] = "not_supported"
             results["ok"] = True
         except Exception as e:  # noqa: BLE001
             results["ok"] = False
             results["error"] = str(e)
-        try:
-            os.nice(-10)
-            results["os_nice"] = "applied"
-        except Exception as e:  # noqa: BLE001
-            results["os_nice"] = f"warning: {e}"
         return results
 
     def prioritize_system(self) -> Dict[str, Any]:
@@ -149,9 +160,16 @@ class OSOptimizer:
     def restore_normal_priority(self) -> Dict[str, Any]:
         results: Dict[str, Any] = {}
         try:
+            if os.getpriority(os.PRIO_PROCESS, 0) < 0:
+                os.setpriority(os.PRIO_PROCESS, 0, 0)
+            results["os_nice"] = os.getpriority(os.PRIO_PROCESS, 0)
+        except Exception as e:  # noqa: BLE001
+            results["os_nice"] = f"warning: {e}"
+        try:
             proc = psutil.Process()
             try:
-                proc.nice(0)
+                if hasattr(proc, "nice") and proc.nice() < 0:
+                    proc.nice(0)
                 results["cpu_nice"] = getattr(proc, "nice", lambda: 0)()
             except Exception as e:  # noqa: BLE001
                 results["cpu_nice"] = f"warning: {e}"
@@ -167,11 +185,6 @@ class OSOptimizer:
         except Exception as e:  # noqa: BLE001
             results["ok"] = False
             results["error"] = str(e)
-        try:
-            os.nice(0)
-            results["os_nice"] = "applied"
-        except Exception as e:  # noqa: BLE001
-            results["os_nice"] = f"warning: {e}"
         return results
 
     def tune_sqlite_connection(self, conn: sqlite3.Connection) -> None:

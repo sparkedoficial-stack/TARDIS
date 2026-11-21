@@ -751,6 +751,11 @@ Módulos y componentes auxiliares del sistema.
 - **dossier_20261121_121618_836.json**: Componente de alta eficiencia.
 - **dossier_20261121_130129_405.json**: Componente de alta eficiencia.
 - **dossier_20261121_135824_849.json**: Componente de alta eficiencia.
+- **dossier_20261121_141625_233.json**: Componente de alta eficiencia.
+- **dossier_20261121_145717_895.json**: Componente de alta eficiencia.
+- **dossier_20261121_150717_365.json**: Componente de alta eficiencia.
+- **dossier_20261121_151931_754.json**: Componente de alta eficiencia.
+- **dossier_20261121_152530_757.json**: Componente de alta eficiencia.
 - **dynamic_tools_registry.json**: Directorio y puente soberano de interoperabilidad omni-herramientas.
 - **ecca_v3_core.py**: Núcleo de orquestación y control temporal/espacial.
 - **engine.py**: Componente de alta eficiencia.

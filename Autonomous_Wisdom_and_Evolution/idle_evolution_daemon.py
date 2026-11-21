@@ -149,7 +149,14 @@ class IdleEvolutionDaemon:
         return remaining == 0
 
     def is_suspended_for_call(self) -> bool:
-        return self._call_suspend_count > 0
+        if self._call_suspend_count > 0:
+            return True
+        try:
+            from core.telegram_call_priority import is_call_priority_active
+
+            return bool(is_call_priority_active())
+        except Exception:
+            return False
 
     def get_idle_seconds(self) -> float:
         """Devuelve el tiempo transcurrido desde la última petición del usuario."""
@@ -243,6 +250,9 @@ class IdleEvolutionDaemon:
 
     def execute_evolution_cycle(self, force: bool = False) -> Optional[AutonomousConjecture]:
         """Ejecuta un ciclo completo: Conjetura -> Investigación Web -> Auto-Programación -> Bóveda Akáshica."""
+        if not force and self.is_suspended_for_call():
+            logger.info("[IDLE_EVOLUTION] Ciclo postergado: llamada prioritaria de Telegram activa.")
+            return None
         if not self._cycle_lock.acquire(blocking=False):
             logger.info("[IDLE_EVOLUTION] Ciclo ya en ejecución, saltando.")
             return None

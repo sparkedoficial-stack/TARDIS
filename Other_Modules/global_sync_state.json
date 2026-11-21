@@ -1,50 +1,39 @@
 {
-  "revision": 2828,
-  "lamport": 2984,
+  "revision": 2775,
+  "lamport": 2961,
   "history": [
     {
-      "id": "msg_1795287311139_1",
+      "id": "msg_1795271769043_1",
       "role": "user",
-      "content": "Pregunta de Alice",
-      "timestamp": REDACTED_PHONE.139041,
-      "iso": "2026-11-21T13:55:11.139049",
-      "lamport": 2981,
-      "meta": "",
+      "content": "Ya tienes conexión?",
+      "timestamp": REDACTED_PHONE.0432353,
+      "iso": "2026-11-21T09:36:09.043247",
+      "lamport": 2959,
+      "meta": "Nodo: Telegram [X] (Conversación Soberana)",
       "raw_data": {},
-      "client_id": "client_alice"
+      "client_id": "tg_7153384115"
     },
     {
-      "id": "msg_1795287311139_2",
+      "id": "msg_1795274397291_2",
       "role": "assistant",
-      "content": "Respuesta para Alice",
-      "timestamp": REDACTED_PHONE.1394536,
-      "iso": "2026-11-21T13:55:11.139463",
-      "lamport": 2982,
-      "meta": "",
+      "content": "Sí, tengo conexión estable. Un placer, soy TARDIS asistente de inteligencia artificial, mi tarea es ayudarte a explorar las maravillas de la realidad y todas las dimensiones temporales. ¿En qué puedo ayudarte hoy?",
+      "timestamp": REDACTED_PHONE.2912447,
+      "iso": "2026-11-21T10:19:57.291254",
+      "lamport": 2960,
+      "meta": "TARDIS-NEURAL-SPACE-KAIJU · Núcleo Soberano",
       "raw_data": {},
-      "client_id": "client_alice"
+      "client_id": "tg_7153384115"
     },
     {
-      "id": "msg_1795287311139_3",
-      "role": "user",
-      "content": "Pregunta de Bob",
-      "timestamp": REDACTED_PHONE.1397085,
-      "iso": "2026-11-21T13:55:11.139713",
-      "lamport": 2983,
-      "meta": "",
+      "id": "msg_1795289289185_3",
+      "role": "system",
+      "content": "⚡ [FTL] PLAN COGNITIVO (DEEPSEEK): TARDIS al recibir llamadas por telegrama le dará prioridad al sistema y sus func (RC:0, 2684.2s)",
+      "timestamp": REDACTED_PHONE.185938,
+      "iso": "2026-11-21T14:28:09.185953",
+      "lamport": 2961,
+      "meta": "FTL · DEEPSEEK",
       "raw_data": {},
-      "client_id": "client_bob"
-    },
-    {
-      "id": "msg_1795287311139_4",
-      "role": "assistant",
-      "content": "Respuesta para Bob",
-      "timestamp": REDACTED_PHONE.139914,
-      "iso": "2026-11-21T13:55:11.139918",
-      "lamport": 2984,
-      "meta": "",
-      "raw_data": {},
-      "client_id": "client_bob"
+      "client_id": "ftl_sovereign"
     }
   ],
   "config": {
@@ -72,14 +61,14 @@
     "lamport": 2958,
     "web_search": true
   },
-  "updated_at": "2026-11-21T13:55:11.139925",
+  "updated_at": "2026-11-21T14:28:09.185982",
   "visual_intelligence": {
     "active": true,
     "pid": 1426,
     "videos_stored": 1029,
-    "verdicts": 502,
+    "verdicts": 507,
     "vlm_model": "qwen3-vl:2b-instruct",
     "last_risk_level": 0,
-    "last_ping": REDACTED_PHONE.5753167
+    "last_ping": REDACTED_PHONE.3829849
   }
 }

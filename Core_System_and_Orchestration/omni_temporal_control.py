@@ -4121,21 +4121,23 @@ def process_agentic_chat(
     t0 = time.time()
     # -------------------------------------------------------------------------
     # MODO LLAMADA PRIORITARIA: los flags llegan desde TelegramBridge y se
-    # complementan con el gestor compartido (la Mini App de voz corre en otro
-    # proceso). Aquí se convierten en efectos reales de latencia:
+    # complementan SIEMPRE con el gestor compartido cross-process (la Mini App
+    # de voz corre en tardis-telegram-call.service). Aquí se convierten en
+    # efectos reales de latencia:
     #   · refuerzo de prioridad del proceso de inferencia hijo (ollama run),
     #   · ventana de contexto acotada (primer token más rápido),
-    #   · omisión de búsqueda web pesada en respuestas conversacionales de voz.
+    #   · omisión de búsqueda web pesada y retrospección en turnos de voz.
     # -------------------------------------------------------------------------
     call_priority_active = bool(priority or system_priority or telegram_call_priority)
-    if call_priority_active:
-        try:
-            from core.telegram_call_priority import (
-                boost_process_for_call as _boost_call_proc,
-                is_call_priority_active as _is_call_priority_active,
-            )
+    try:
+        from core.telegram_call_priority import (
+            boost_process_for_call as _boost_call_proc,
+            is_call_priority_active as _is_call_priority_active,
+        )
 
-            call_priority_active = bool(_is_call_priority_active()) or call_priority_active
+        if not call_priority_active:
+            call_priority_active = bool(_is_call_priority_active())
+        if call_priority_active:
             _previous_spawn_hook = on_process_spawned
 
             def _call_spawn_hook(proc, _hook=_previous_spawn_hook):
@@ -4155,8 +4157,10 @@ def process_agentic_chat(
                 num_ctx = _call_max_ctx
             if str(os.environ.get("TARDIS_CALL_SKIP_WEB", "1")).lower() in ("1", "true", "yes"):
                 use_web = False
-        except Exception:
-            pass
+            if str(os.environ.get("TARDIS_CALL_SKIP_RETRO", "1")).lower() in ("1", "true", "yes"):
+                use_retro = False
+    except Exception:
+        pass
     if is_client_mode:
         is_local_request = False
     # REGLA SOBERANA 1: Bóveda Ultra Secreta de Usuarios Protegidos

@@ -61,6 +61,10 @@ def _isolated_manager(monkeypatch, tmp_path):
     monkeypatch.setattr(idle.IdleEvolutionDaemon, "suspend_for_call", lambda self: True, raising=False)
     monkeypatch.setattr(idle.IdleEvolutionDaemon, "resume_after_call", lambda self: True, raising=False)
 
+    # Aislar el refuerzo trans-proceso y el gobernador CPU (evita efectos reales en pruebas).
+    monkeypatch.setattr(tcp, "iter_system_processes", lambda: [])
+    monkeypatch.setattr(tcp, "_set_cpu_governor", lambda value: "powersave")
+
     manager = TelegramCallPriorityManager()
     monkeypatch.setattr(TelegramCallPriorityManager, "_instance", manager)
     manager.clear()
@@ -173,3 +177,94 @@ def test_health_del_servidor_expone_prioridad():
             assert (await resp.json())["active"] is False
 
     asyncio.run(_check())
+
+
+class _FakeProcInfo:
+    """Proceso ficticio con `.info` como devuelve psutil.process_iter."""
+
+    def __init__(self, pid: int, name: str, cmdline: list[str]):
+        self.info = {"pid": pid, "name": name, "cmdline": cmdline, "nice": 0}
+
+
+def _patch_process_nice(monkeypatch, pid: int, nice: int) -> _FakePsutilProcess:
+    """Hace que psutil.Process(pid) devuelva siempre el mismo fake con nice sembrado."""
+    import psutil
+
+    fake = _FakePsutilProcess(pid)
+    fake._nice = nice
+    monkeypatch.setattr(
+        psutil,
+        "Process",
+        lambda p=None: fake if p == pid else _FakePsutilProcess(p),
+    )
+    return fake
+
+
+def test_boost_transproceso_refuerza_inferencia_y_restaura(monkeypatch):
+    fake = _patch_process_nice(monkeypatch, 878736, 10)
+    procs = [
+        _FakeProcInfo(
+            878736,
+            "llama-server",
+            ["/home/m11/.local/lib/ollama/llama-server", "--model", "TARDIS-NEURAL-SPACE-KAIJU"],
+        )
+    ]
+    monkeypatch.setattr(tcp, "iter_system_processes", lambda: procs)
+    monkeypatch.setattr(tcp, "_set_cpu_governor", lambda value: "powersave")
+
+    activate_call_priority("test:call", chat_id=1)
+
+    assert fake.nice() == tcp.DEFAULT_NICE
+    state = get_call_priority_status()
+    assert state["boosted_processes"] == 1
+    assert 878736 in state["boosted_system_pids"]
+
+    release_call_priority("test:call")
+    assert fake.nice() == 10
+    assert get_call_priority_status()["boosted_processes"] == 0
+
+
+def test_deprioriza_demonios_de_fondo_y_restaura(monkeypatch):
+    fake = _patch_process_nice(monkeypatch, 4242, 0)
+    procs = [
+        _FakeProcInfo(
+            4242,
+            "python3",
+            ["python3", "/home/m11/.local/bin/tardis-music-maestro"],
+        )
+    ]
+    monkeypatch.setattr(tcp, "iter_system_processes", lambda: procs)
+    monkeypatch.setattr(tcp, "_set_cpu_governor", lambda value: "powersave")
+
+    activate_call_priority("test:call")
+
+    assert fake.nice() == tcp.DEFAULT_DEPRIORITIZE_NICE
+    assert get_call_priority_status()["deprioritized_processes"] == 1
+
+    release_call_priority("test:call")
+    assert fake.nice() == 0
+    assert get_call_priority_status()["deprioritized_processes"] == 0
+
+
+def test_gobernador_performance_se_restaura_al_colgar(monkeypatch):
+    writes: list[str] = []
+    monkeypatch.setattr(tcp, "iter_system_processes", lambda: [])
+    monkeypatch.setattr(tcp, "_set_cpu_governor", lambda value: writes.append(value) or "powersave")
+
+    activate_call_priority("test:call")
+    assert "performance" in writes
+
+    release_call_priority("test:call")
+    assert "powersave" in writes
+
+
+def test_boost_process_for_call_restaura_nice_al_colgar(monkeypatch):
+    fake = _patch_process_nice(monkeypatch, 515151, 0)
+    activate_call_priority("test:call")
+    proc = SimpleNamespace(pid=515151)
+
+    boost_process_for_call(proc)
+    assert fake.nice() == tcp.DEFAULT_NICE
+
+    release_call_priority("test:call")
+    assert fake.nice() == 0

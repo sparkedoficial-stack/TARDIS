@@ -1,21 +1,22 @@
 {
   "ok": true,
-  "active": true,
-  "system_priority": true,
-  "system_priority_active": true,
-  "call_priority": true,
-  "priority_mode": "telegram_call",
-  "holders": [
-    {
-      "source": "bridge:777333",
-      "chat_id": "777333",
-      "expires_at": REDACTED_PHONE.862059
-    }
-  ],
-  "holder_count": 1,
+  "active": false,
+  "system_priority": false,
+  "system_priority_active": false,
+  "call_priority": false,
+  "priority_mode": "normal",
+  "holders": [],
+  "holder_count": 0,
   "generation": 1,
-  "active_since": REDACTED_PHONE.8620625,
+  "active_since": null,
   "boosted_pids": [],
+  "boosted_processes": 0,
+  "boosted_system_pids": [],
+  "deprioritized_processes": 0,
+  "deprioritized_pids": [],
+  "cpu_governor": "powersave",
+  "cpu_governor_forced": false,
   "state_file": "/home/m11/Escritorio/GODWORKS SYSTEM/data/telephony/telegram_call_priority.json",
-  "timestamp": REDACTED_PHONE.956551
+  "owner_pid": 1613970,
+  "timestamp": REDACTED_PHONE.732325
 }
