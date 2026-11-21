@@ -51,6 +51,11 @@ BOOST_TARGET_PATTERNS: tuple[str, ...] = (
     "telegram_live_call_server.py",
     "telegram_bridge.py",
     "server/api.py",
+    "ftl_public_gateway",
+    "cloudflared",
+    "tardis-embed-brain",
+    "embed_brain",
+    "cas_neural_space_kaiju",
     "tardis_cli.py",
     "tardis_app.py",
     "tardis_master_app.py",
@@ -62,23 +67,49 @@ BOOST_TARGET_PATTERNS: tuple[str, ...] = (
 )
 
 # Demonios de fondo no críticos: se bajan a DEFAULT_DEPRIORITIZE_NICE durante la llamada.
+# NOTA: NO se depriorizan `ftl_public_gateway` (proxy del WebSocket /tg-call/ws),
+# `tardis-desktop` (cabina interactiva en CCD 0) ni `tardis-thermal-guard` (seguridad térmica).
 DEPRIORITIZE_PATTERNS: tuple[str, ...] = (
     "tardis-music-maestro",
     "tardis-easy-touch",
     "tardis-browser-autonomous",
+    "tardis-omniscient-autonomy",
+    "tardis_omniscient",
+    "tardis-video-pensante",
+    "tardis_video_pensante",
     "tardis-curiosity-debater",
     "tardis-cyber-evolve",
     "tardis-hub-agents",
     "tardis-feedback",
     "tardis-antispy-guard",
+    "tardis-tapo-c310-sentinel",
+    "tardis_visual_intelligence",
+    "chrome-testing",
     "tardis-hunter",
     "tardis4ever_agent",
     "singularity_engine",
-    "tardis-cpuset",
-    "tardis-thermal-guard",
     "ftl_web_server",
-    "ftl_public_gateway",
-    "tardis-desktop",
+)
+
+# Unidades systemd --user críticas para la latencia de llamadas de Telegram.
+SYSTEMD_CRITICAL_UNITS: tuple[str, ...] = (
+    "tardis-telegram-call.service",
+    "tardis.service",
+    "tardis-temporal-brain.service",
+    "tardis-embed-brain.service",
+    "ollama.service",
+    "ftl-public-gateway.service",
+)
+
+# Unidades systemd --user de fondo que ceden CPUWeight/IOWeight durante la llamada.
+SYSTEMD_YIELD_UNITS: tuple[str, ...] = (
+    "tardis-browser-autonomous.service",
+    "tardis-omniscient-autonomy.service",
+    "tardis-hub-agents.service",
+    "tardis-cyber-evolve.service",
+    "tardis-curiosity-debater.service",
+    "tardis-video-pensante.service",
+    "tardis-music-maestro.service",
 )
 
 
@@ -156,13 +187,152 @@ def _set_cpu_governor(value: str) -> Optional[str]:
 
 
 def _safe_set_nice(pid: int, value: int) -> None:
-    """Restaura/mejora el nice de un PID de forma best-effort (nunca lanza)."""
+    """Restaura/mejora el nice de un PID y sus hilos de trabajo (best-effort, nunca lanza)."""
     try:
         import psutil
 
-        psutil.Process(pid).nice(value)
+        p = psutil.Process(pid)
+        p.nice(value)
+        threads_fn = getattr(p, "threads", None)
+        if callable(threads_fn):
+            for th in threads_fn():
+                tid = getattr(th, "id", None)
+                if isinstance(tid, int) and tid > 0 and tid != pid:
+                    try:
+                        os.setpriority(os.PRIO_PROCESS, tid, value)
+                    except Exception:
+                        pass
     except Exception:
         pass
+
+
+def _safe_set_ionice(pid: int, ioclass: int, value: int = 0) -> None:
+    """Restaura/mejora ionice de un PID de forma best-effort (nunca lanza)."""
+    try:
+        import psutil
+
+        psutil.Process(pid).ionice(ioclass, value=value)
+    except Exception:
+        pass
+
+
+def _pid_is_alive(pid: Any) -> bool:
+    """Comprueba si un PID remoto sigue vivo (True si no es verificable)."""
+    if not isinstance(pid, int) or pid <= 0:
+        return True
+    try:
+        os.kill(pid, 0)
+        return True
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+    except Exception:
+        return True
+
+
+def _systemd_boost_enabled() -> bool:
+    if os.environ.get("PYTEST_CURRENT_TEST"):
+        return False
+    return str(os.environ.get("TARDIS_CALL_SYSTEMD_BOOST", "1")).lower() not in ("0", "false", "no")
+
+
+def _trigger_cpuset_sync_async() -> None:
+    """Dispara tardis-cpuset en segundo plano desacoplado para ajustar cpuset v2 sin esperar el ciclo de 15s."""
+    if not _systemd_boost_enabled():
+        return
+    cpuset_bin = Path("/usr/local/bin/tardis-cpuset")
+    if not cpuset_bin.is_file():
+        return
+    try:
+        subprocess.Popen(
+            ["sudo", "-n", str(cpuset_bin)],
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            start_new_session=True,
+        )
+    except Exception as exc:  # noqa: BLE001
+        logger.debug(f"Aviso sincronizando tardis-cpuset: {exc}")
+
+
+def _set_systemd_unit_weights(units: Iterable[str], cpu_weight: int, io_weight: int) -> Dict[str, Dict[str, str]]:
+    """Ajusta CPUWeight/IOWeight en caliente (--runtime) en systemd --user sin reiniciar servicios."""
+    saved: Dict[str, Dict[str, str]] = {}
+    if not _systemd_boost_enabled():
+        return saved
+    for unit in units:
+        try:
+            probe = subprocess.run(
+                ["systemctl", "--user", "show", "-p", "ActiveState,CPUWeight,IOWeight", unit],
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.DEVNULL,
+                text=True,
+                timeout=2.0,
+                check=False,
+            )
+            if probe.returncode != 0:
+                continue
+            props: Dict[str, str] = {}
+            for line in (probe.stdout or "").splitlines():
+                if "=" in line:
+                    k, v = line.split("=", 1)
+                    props[k.strip()] = v.strip()
+            if props.get("ActiveState") != "active":
+                continue
+            saved[unit] = {
+                "CPUWeight": props.get("CPUWeight", "100"),
+                "IOWeight": props.get("IOWeight", "100"),
+            }
+            subprocess.run(
+                [
+                    "systemctl",
+                    "--user",
+                    "set-property",
+                    "--runtime",
+                    unit,
+                    f"CPUWeight={int(cpu_weight)}",
+                    f"IOWeight={int(io_weight)}",
+                ],
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                timeout=2.0,
+                check=False,
+            )
+        except Exception:
+            continue
+    return saved
+
+
+def _restore_systemd_unit_weights(saved: Dict[str, Dict[str, str]]) -> None:
+    """Restaura CPUWeight/IOWeight en caliente a sus valores previos a la llamada."""
+    if not saved or not _systemd_boost_enabled():
+        return
+    for unit, props in list(saved.items()):
+        try:
+            args = ["systemctl", "--user", "set-property", "--runtime", unit]
+            cw = str(props.get("CPUWeight") or "").strip()
+            iw = str(props.get("IOWeight") or "").strip()
+            if cw.isdigit():
+                args.append(f"CPUWeight={cw}")
+            else:
+                args.append("CPUWeight=100")
+            if iw.isdigit():
+                args.append(f"IOWeight={iw}")
+            else:
+                args.append("IOWeight=100")
+            subprocess.run(
+                args,
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                timeout=2.0,
+                check=False,
+            )
+        except Exception:
+            continue
 
 
 class TelegramCallPriorityManager:
@@ -183,8 +353,12 @@ class TelegramCallPriorityManager:
         self._child_nice: Dict[int, int] = {}
         # nice original de procesos del sistema reforzados trans-proceso
         self._boosted_procs: Dict[int, int] = {}
+        # ionice original de procesos reforzados trans-proceso: {pid: (ioclass, value)}
+        self._boosted_ionice: Dict[int, tuple[int, int]] = {}
         # nice original de demonios de fondo depriorizados
         self._deprioritized_procs: Dict[int, int] = {}
+        # propiedades cgroup v2 originales en systemd --user
+        self._saved_systemd_weights: Dict[str, Dict[str, str]] = {}
         self._saved_governor: Optional[str] = None
         self._governor_changed = False
 
@@ -232,11 +406,17 @@ class TelegramCallPriorityManager:
             if not isinstance(raw, dict) or not raw.get("active"):
                 return False
             # Si el archivo lo escribió este mismo proceso, el estado local es autoritativo.
-            if raw.get("owner_pid") == os.getpid():
+            owner_pid = raw.get("owner_pid")
+            if owner_pid == os.getpid():
                 return False
+            if owner_pid is not None and not _pid_is_alive(owner_pid):
+                return False
+            now = self._now()
+            holders = raw.get("holders")
+            if isinstance(holders, list) and holders:
+                return any(float(h.get("expires_at") or 0) > now for h in holders if isinstance(h, dict))
             ts = float(raw.get("timestamp") or 0)
-            # Solo confiar en estado reciente para evitar falsos positivos por crash.
-            return (self._now() - ts) <= max(30.0, min(DEFAULT_TTL_SEC, 120.0))
+            return (now - ts) <= max(30.0, DEFAULT_TTL_SEC)
         except Exception:
             return False
 
@@ -300,7 +480,7 @@ class TelegramCallPriorityManager:
     def _write_state(self, state: Dict[str, Any]) -> None:
         try:
             STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
-            tmp = STATE_FILE.with_suffix(".tmp")
+            tmp = STATE_FILE.with_name(f".{STATE_FILE.name}.{os.getpid()}.tmp")
             tmp.write_text(json.dumps(state, indent=2, ensure_ascii=False), encoding="utf-8")
             tmp.replace(STATE_FILE)
         except Exception as exc:  # noqa: BLE001

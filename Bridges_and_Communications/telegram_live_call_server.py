@@ -419,6 +419,22 @@ def _extract_ready_sentence(buffer: str, is_first: bool) -> Tuple[Optional[str],
     return None, buffer
 
 
+_TEMPORAL_UDS_CLIENT: Optional[httpx.AsyncClient] = None
+
+
+def _get_temporal_uds_client() -> httpx.AsyncClient:
+    """Reutiliza un cliente HTTP keep-alive sobre `/tmp/temporal_brain.sock` para evitar handshakes por turno."""
+    global _TEMPORAL_UDS_CLIENT
+    if _TEMPORAL_UDS_CLIENT is None or _TEMPORAL_UDS_CLIENT.is_closed:
+        transport = httpx.AsyncHTTPTransport(uds=str(TEMPORAL_BRAIN_SOCK))
+        _TEMPORAL_UDS_CLIENT = httpx.AsyncClient(
+            transport=transport,
+            base_url="http://localhost",
+            timeout=httpx.Timeout(connect=3.0, read=35.0, write=10.0, pool=5.0),
+        )
+    return _TEMPORAL_UDS_CLIENT
+
+
 async def stream_llm_for_call(
     messages: List[Dict[str, str]],
     user_text: str,
@@ -448,47 +464,45 @@ async def stream_llm_for_call(
 
     if TEMPORAL_BRAIN_SOCK.exists():
         try:
-            transport = httpx.AsyncHTTPTransport(uds=str(TEMPORAL_BRAIN_SOCK))
-            async with httpx.AsyncClient(transport=transport, base_url="http://localhost", timeout=30.0 if call_priority else 45.0) as client:
-                payload = {
-                    "messages": call_messages,
-                    "stream": True,
-                    "max_tokens": max_tokens,
-                    "temperature": temperature,
-                    "priority": bool(call_priority),
-                    "telegram_call_priority": bool(call_priority),
-                }
-                async with client.stream("POST", "/v1/chat/completions", json=payload) as resp:
-                    if resp.status_code == 200:
-                        in_think = False
-                        emitted_any = False
-                        async for line in resp.aiter_lines():
-                            if not line or not line.startswith("data: "):
+            client = _get_temporal_uds_client()
+            payload = {
+                "messages": call_messages,
+                "stream": True,
+                "cache_prompt": True,
+                "max_tokens": max_tokens,
+                "temperature": temperature,
+            }
+            async with client.stream("POST", "/v1/chat/completions", json=payload) as resp:
+                if resp.status_code == 200:
+                    in_think = False
+                    emitted_any = False
+                    async for line in resp.aiter_lines():
+                        if not line or not line.startswith("data: "):
+                            continue
+                        raw_data = line[6:].strip()
+                        if raw_data == "[DONE]":
+                            break
+                        try:
+                            obj = json.loads(raw_data)
+                        except Exception:
+                            continue
+                        delta = ((obj.get("choices") or [{}])[0].get("delta") or {}).get("content") or ""
+                        if not delta:
+                            continue
+                        if "<think>" in delta:
+                            in_think = True
+                            delta = delta.split("<think>", 1)[0]
+                        if in_think:
+                            if "</think>" in delta:
+                                in_think = False
+                                delta = delta.split("</think>", 1)[1]
+                            else:
                                 continue
-                            raw_data = line[6:].strip()
-                            if raw_data == "[DONE]":
-                                break
-                            try:
-                                obj = json.loads(raw_data)
-                            except Exception:
-                                continue
-                            delta = ((obj.get("choices") or [{}])[0].get("delta") or {}).get("content") or ""
-                            if not delta:
-                                continue
-                            if "<think>" in delta:
-                                in_think = True
-                                delta = delta.split("<think>", 1)[0]
-                            if in_think:
-                                if "</think>" in delta:
-                                    in_think = False
-                                    delta = delta.split("</think>", 1)[1]
-                                else:
-                                    continue
-                            if delta:
-                                emitted_any = True
-                                yield delta
-                        if emitted_any:
-                            return
+                        if delta:
+                            emitted_any = True
+                            yield delta
+                    if emitted_any:
+                        return
         except asyncio.CancelledError:
             raise
         except Exception as exc:
@@ -502,6 +516,8 @@ async def stream_llm_for_call(
             json={
                 "message": user_text,
                 "client_id": client_id,
+                "use_web": not call_priority,
+                "use_retro": not call_priority,
                 "priority": bool(call_priority),
                 "system_priority": bool(call_priority),
                 "telegram_call_priority": bool(call_priority),
@@ -1932,7 +1948,14 @@ class TelegramLiveCallServer:
                     f"con {user_name}. Responde en español de manera conversacional, fluida, clara y concisa "
                     "(idealmente de 1 a 4 oraciones, sin tablas markdown ni bloques de código largos, listo para ser hablado en voz alta)."
                 )
-                vault_ctx = get_call_vault_context(user_text, is_admin_caller=is_admin_caller)
+                loop = asyncio.get_running_loop()
+                try:
+                    vault_ctx = await asyncio.wait_for(
+                        loop.run_in_executor(None, get_call_vault_context, user_text, is_admin_caller),
+                        timeout=1.5,
+                    )
+                except Exception:
+                    vault_ctx = ""
                 if vault_ctx:
                     sys_prompt += "\n\n[MEMORIA CONTINUA]:\n" + vault_ctx[:1600]
                 msgs: List[Dict[str, str]] = [{"role": "system", "content": sys_prompt}]
@@ -1995,7 +2018,7 @@ class TelegramLiveCallServer:
                     history.append({"role": "user", "content": user_text})
                     history.append({"role": "assistant", "content": clean_reply})
                     turns_completed += 1
-                    record_call_turn(str(chat_id), user_name, user_text, clean_reply)
+                    loop.run_in_executor(None, record_call_turn, str(chat_id), user_name, user_text, clean_reply)
 
                 await send_json({"type": "turn_done", "turn_id": turn_id, "full_text": clean_reply})
             except asyncio.CancelledError:
@@ -2070,6 +2093,7 @@ class TelegramLiveCallServer:
                                 "chat_id": chat_id,
                                 "user_name": user_name,
                                 "voice": voice_id,
+                                "priority_active": priority_registered,
                             }
                         )
                         if history and not data.get("reconnect"):
