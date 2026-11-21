@@ -426,41 +426,60 @@ class TardisVideoThinkingEngine:
             "noplaylist": True,
         }
 
+        _IGNORED_SUFFIXES = {".part", ".ytdl", ".tmp", ".json", ".webp", ".jpg", ".jpeg", ".png", ".vtt", ".srt"}
         download_success = False
         try:
             with yt_dlp.YoutubeDL(ydl_download_opts) as ydl:
                 ydl.download([video_url])
-                # Buscar archivo resultante
+                # Buscar archivo resultante (ignorando descargas parciales .part/.ytdl)
                 if target_mp4.exists() and target_mp4.stat().st_size > 1000:
                     download_success = True
                 else:
-                    # Checar si quedó con otra extensión
-                    for match_file in VAULT_DIR.glob(f"{vid_id}.*"):
-                        if match_file.stat().st_size > 1000:
-                            if match_file.suffix != ".mp4":
-                                # Transcodificar a MP4 con ffmpeg
+                    for match_file in sorted(VAULT_DIR.glob(f"{vid_id}.*")):
+                        if match_file.suffix.lower() in _IGNORED_SUFFIXES or match_file.name.endswith(".part"):
+                            continue
+                        if match_file.is_file() and match_file.stat().st_size > 1000:
+                            if match_file.suffix.lower() != ".mp4":
                                 self._transcode_to_mp4(match_file, target_mp4)
                             else:
                                 match_file.replace(target_mp4)
-                            download_success = True
-                            break
+                            if target_mp4.exists() and target_mp4.stat().st_size > 1000:
+                                download_success = True
+                                break
         except Exception as e_dl:
             logger.warning(f"Aviso en descarga de yt-dlp: {e_dl}")
             self.log_self_improvement("yt_dlp_format_fallback", f"Error en descarga: {e_dl}. Intentando con formato simple...")
 
-        # Si falló, intentar descarga en formato simple
+        # Limpiar archivos parciales huérfanos (.part/.ytdl) antes de reintento
         if not download_success:
+            for stale in VAULT_DIR.glob(f"{vid_id}.*"):
+                if stale.suffix.lower() in {".part", ".ytdl", ".tmp"} or ".part" in stale.name:
+                    stale.unlink(missing_ok=True)
             try:
                 simple_opts = {
-                    "format": "best[height<=480]/best",
-                    "outtmpl": str(target_mp4),
+                    "format": "bestvideo[height<=480]+bestaudio/best[height<=480]/bestvideo+bestaudio/best",
+                    "outtmpl": str(target_mp4.with_suffix(".%(ext)s")),
+                    "merge_output_format": "mp4",
                     "quiet": True,
                     "no_warnings": True,
+                    "noplaylist": True,
                 }
                 with yt_dlp.YoutubeDL(simple_opts) as ydl:
                     ydl.download([video_url])
                 if target_mp4.exists() and target_mp4.stat().st_size > 1000:
                     download_success = True
+                else:
+                    for match_file in sorted(VAULT_DIR.glob(f"{vid_id}.*")):
+                        if match_file.suffix.lower() in _IGNORED_SUFFIXES or match_file.name.endswith(".part"):
+                            continue
+                        if match_file.is_file() and match_file.stat().st_size > 1000:
+                            if match_file.suffix.lower() != ".mp4":
+                                self._transcode_to_mp4(match_file, target_mp4)
+                            else:
+                                match_file.replace(target_mp4)
+                            if target_mp4.exists() and target_mp4.stat().st_size > 1000:
+                                download_success = True
+                                break
             except Exception as e_simple:
                 logger.error(f"Error crítico en descarga simple: {e_simple}")
 
@@ -485,11 +504,11 @@ class TardisVideoThinkingEngine:
         """Transcodifica un video a MP4 estándar H.264 / AAC."""
         cmd = [
             "ffmpeg", "-y", "-i", str(src),
-            "-c:v", "libx264", "-preset", "fast", "-crf", "24",
+            "-c:v", "libx264", "-preset", "veryfast", "-crf", "24",
             "-c:a", "aac", "-b:a", "128k",
             str(dest)
         ]
-        subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=60)
+        subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=120)
         if src != dest and src.exists():
             src.unlink(missing_ok=True)
 
@@ -612,10 +631,17 @@ class TardisVideoThinkingEngine:
             )
             res = orch.orchestrate_chat_turn(message=prompt, session_id="video_abstraction_synth", force_offload=False)
             txt = res.get("response", "").strip()
+            txt = re.sub(r"<think>.*?</think>", "", txt, flags=re.DOTALL | re.IGNORECASE).strip()
             match = re.search(r"\{.*\}", txt, re.DOTALL)
             if match:
-                data = json.loads(match.group(0))
-                if data.get("conclusions"):
+                raw_json = match.group(0)
+                try:
+                    data = json.loads(raw_json, strict=False)
+                except json.JSONDecodeError:
+                    sanitized = re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f]", " ", raw_json)
+                    sanitized = re.sub(r",\s*([}\]])", r"\1", sanitized)
+                    data = json.loads(sanitized, strict=False)
+                if isinstance(data, dict) and data.get("conclusions"):
                     return data
         except Exception as e:
             logger.warning(f"Aviso en síntesis profunda KAIJU: {e}")

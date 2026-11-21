@@ -332,7 +332,6 @@ def dispatch_unified_command(cmd_name: str, args_list: list[str] = None) -> bool
             return True
         
         # Verificar si los servicios web FTL están activos, si no, iniciarlos
-        import subprocess
         term_active = False
         portal_active = False
         try:

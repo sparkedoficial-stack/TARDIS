@@ -128,10 +128,19 @@ class YoloV8PersonDetector:
         self.min_box_w = int(min_box_w)
         self.min_box_h = int(min_box_h)
 
+        try:
+            allowed_cpus = max(1, len(os.sched_getaffinity(0)))
+        except Exception:
+            allowed_cpus = max(1, os.cpu_count() or 4)
+
         sess_opts = ort.SessionOptions()
-        sess_opts.intra_op_num_threads = max(1, int(intra_threads))
+        sess_opts.intra_op_num_threads = max(1, min(int(intra_threads), allowed_cpus))
         sess_opts.inter_op_num_threads = 1
         sess_opts.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
+        try:
+            sess_opts.add_session_config_entry("session.intra_op.allow_spinning", "0")
+        except Exception:
+            pass
 
         available = ort.get_available_providers()
         providers = (

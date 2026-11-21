@@ -422,6 +422,26 @@ class FaceIntelEngine:
                 try:
                     import onnxruntime as ort
 
+                    try:
+                        allowed_cpus = max(1, len(os.sched_getaffinity(0)))
+                    except Exception:
+                        allowed_cpus = max(1, os.cpu_count() or 2)
+
+                    sess_opts = ort.SessionOptions()
+                    # Especificar hilos explícitamente evita que ONNX Runtime llame a
+                    # pthread_setaffinity_np() sobre CPUs fuera del cpuset cgroup (ej. 8-15).
+                    sess_opts.intra_op_num_threads = min(2, allowed_cpus)
+                    sess_opts.inter_op_num_threads = 1
+                    sess_opts.graph_optimization_level = (
+                        ort.GraphOptimizationLevel.ORT_ENABLE_ALL
+                    )
+                    try:
+                        sess_opts.add_session_config_entry(
+                            "session.intra_op.allow_spinning", "0"
+                        )
+                    except Exception:
+                        pass
+
                     providers = ["CPUExecutionProvider"]
                     available = ort.get_available_providers()
                     if "CUDAExecutionProvider" in available:
@@ -429,12 +449,16 @@ class FaceIntelEngine:
 
                     if self.age_model_path.is_file():
                         self._age_session = ort.InferenceSession(
-                            str(self.age_model_path), providers=providers
+                            str(self.age_model_path),
+                            sess_options=sess_opts,
+                            providers=providers,
                         )
                         self._age_input = self._age_session.get_inputs()[0].name
                     if self.emotion_model_path.is_file():
                         self._emotion_session = ort.InferenceSession(
-                            str(self.emotion_model_path), providers=providers
+                            str(self.emotion_model_path),
+                            sess_options=sess_opts,
+                            providers=providers,
                         )
                         self._emotion_input = self._emotion_session.get_inputs()[0].name
                 except Exception as exc_models:

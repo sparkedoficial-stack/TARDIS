@@ -1098,9 +1098,16 @@ class TelegramBridge:
                     str(out_path)
                 ]
 
-            proc = subprocess.run(cmd_nvenc, capture_output=True, timeout=25.0)
-            if proc.returncode != 0 or not out_path.exists() or out_path.stat().st_size == 0:
-                proc = subprocess.run(cmd_cpu, capture_output=True, timeout=25.0)
+            proc = None
+            try:
+                proc = subprocess.run(cmd_nvenc, capture_output=True, timeout=60.0)
+            except subprocess.TimeoutExpired:
+                logger.warning("⚠️ [TELEGRAM_FPS_CONVERTER] Timeout en NVENC (60s); usando fallback CPU...")
+                proc = None
+            if proc is None or proc.returncode != 0 or not out_path.exists() or out_path.stat().st_size == 0:
+                if out_path.exists():
+                    out_path.unlink(missing_ok=True)
+                proc = subprocess.run(cmd_cpu, capture_output=True, timeout=90.0)
 
             if out_path.exists() and out_path.stat().st_size > 0:
                 converted_bytes = out_path.read_bytes()

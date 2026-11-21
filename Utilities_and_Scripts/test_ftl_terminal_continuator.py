@@ -109,6 +109,20 @@ def test_scan_agy_and_opencode_and_reconcile_isolated(tmp_path, monkeypatch):
         "INSERT INTO session_message VALUES (?,?,?,?)",
         ("m3", "ses_ok_1", t_old_ms, json.dumps({"text": "Permite recibir capturas en Telegram"})),
     )
+    # Sesión fallida superada por ses_ok_1 (debe filtrarse como superseded)
+    conn.execute(
+        "INSERT INTO session_v2 VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+        ("ses_failed_superseded", "Capturas Telegram fallo previo", str(tmp_path), '{"id":"glm-5.3-flash-free","providerID":"opencode"}',
+         "failed", t_old_ms - 5000, t_old_ms - 4000, t_old_ms - 5000, t_old_ms - 4000, None, 0),
+    )
+    conn.execute(
+        "INSERT INTO session_message VALUES (?,?,?,?)",
+        ("m4", "ses_failed_superseded", t_old_ms - 5000, json.dumps({"text": "Permite recibir capturas en Telegram"})),
+    )
+    conn.execute(
+        "INSERT INTO session_message VALUES (?,?,?,?)",
+        ("m5", "ses_failed_superseded", t_old_ms - 4000, json.dumps({"outcome": "failed", "error": {"type": "provider.no-route"}})),
+    )
     conn.commit()
     conn.close()
 

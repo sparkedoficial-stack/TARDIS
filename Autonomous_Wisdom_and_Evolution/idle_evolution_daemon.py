@@ -310,6 +310,152 @@ class IdleEvolutionDaemon:
             self._is_busy = False
             self._cycle_lock.release()
 
+    @staticmethod
+    def _parse_conjecture_json(raw_reply: str) -> Optional[Dict[str, Any]]:
+        """
+        Extrae y parsea de forma resiliente el objeto JSON de una conjetura generada por LLM.
+        Tolera bloques <think>, cercas markdown sin cerrar, saltos de línea sin escapar,
+        comas finales y respuestas truncadas al límite de tokens.
+        """
+        if not raw_reply or not isinstance(raw_reply, str):
+            return None
+
+        text = raw_reply.strip()
+        # 1. Eliminar bloques de razonamiento interno (<think>...</think>) si existen
+        text = re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL | re.IGNORECASE).strip()
+
+        # 2. Extraer contenido dentro de cercas markdown (cerradas o abiertas por truncado)
+        if "```" in text:
+            m = re.search(r"```(?:json)?\s*\n(.*?)\n?```", text, re.DOTALL | re.IGNORECASE)
+            if m:
+                text = m.group(1).strip()
+            else:
+                text = re.sub(r"^```[a-zA-Z0-9_-]*\s*\n?", "", text)
+                text = re.sub(r"\n?```\s*$", "", text).strip()
+
+        # 3. Recortar desde la primera llave de apertura '{'
+        start_idx = text.find("{")
+        if start_idx == -1:
+            return None
+        candidate = text[start_idx:]
+        end_idx = candidate.rfind("}")
+        sliced = candidate[: end_idx + 1] if end_idx != -1 else candidate
+
+        def _escape_newlines_in_strings(src: str) -> str:
+            out: List[str] = []
+            in_str = False
+            escaped = False
+            for ch in src:
+                if in_str:
+                    if escaped:
+                        out.append(ch)
+                        escaped = False
+                    elif ch == "\\":
+                        out.append(ch)
+                        escaped = True
+                    elif ch == '"':
+                        out.append(ch)
+                        in_str = False
+                    elif ch == "\n":
+                        out.append("\\n")
+                    elif ch == "\r":
+                        out.append("\\r")
+                    elif ch == "\t":
+                        out.append("\\t")
+                    elif ord(ch) < 0x20:
+                        out.append(" ")
+                    else:
+                        out.append(ch)
+                else:
+                    if ch == '"':
+                        in_str = True
+                    out.append(ch)
+            return "".join(out)
+
+        def _try_load(src: str) -> Optional[Dict[str, Any]]:
+            for attempt in (
+                src,
+                re.sub(r",\s*([}\]])", r"\1", src),
+                re.sub(r",\s*([}\]])", r"\1", _escape_newlines_in_strings(src)),
+            ):
+                try:
+                    parsed = json.loads(attempt, strict=False)
+                    if isinstance(parsed, dict):
+                        return parsed
+                except Exception:
+                    continue
+            return None
+
+        parsed = _try_load(sliced)
+        if parsed is None:
+            # 4. Reparación estructural para JSON truncado (ej. Unterminated string)
+            repaired = _escape_newlines_in_strings(candidate).rstrip()
+            # Determinar si quedó dentro de una cadena abierta
+            in_str = False
+            escaped = False
+            open_braces = 0
+            open_brackets = 0
+            for ch in repaired:
+                if in_str:
+                    if escaped:
+                        escaped = False
+                    elif ch == "\\":
+                        escaped = True
+                    elif ch == '"':
+                        in_str = False
+                else:
+                    if ch == '"':
+                        in_str = True
+                    elif ch == "{":
+                        open_braces += 1
+                    elif ch == "}":
+                        open_braces = max(0, open_braces - 1)
+                    elif ch == "[":
+                        open_brackets += 1
+                    elif ch == "]":
+                        open_brackets = max(0, open_brackets - 1)
+
+            if in_str:
+                if repaired.endswith("\\"):
+                    repaired = repaired[:-1]
+                repaired += '"'
+            repaired = re.sub(r",\s*$", "", repaired)
+            # Si quedó una clave colgando tipo `"target_file":` sin valor
+            repaired = re.sub(r',?\s*"[^"]+"\s*:\s*$', "", repaired)
+            repaired += "]" * open_brackets + "}" * open_braces
+            parsed = _try_load(repaired)
+
+        if parsed is None:
+            # 5. Último recurso: extracción de campos clave por regex sobre salida parcial
+            fields: Dict[str, Any] = {}
+            for key in ("title", "hypothesis", "research_query", "target_file", "code_improvement_goal"):
+                m_null = re.search(rf'"{key}"\s*:\s*null\b', candidate, re.IGNORECASE)
+                if m_null:
+                    fields[key] = None
+                    continue
+                m_str = re.search(
+                    rf'"{key}"\s*:\s*"((?:\\.|[^"\\])*)"?',
+                    candidate,
+                    re.DOTALL,
+                )
+                if m_str:
+                    val = m_str.group(1).replace("\\n", "\n").replace('\\"', '"').strip()
+                    if val:
+                        fields[key] = val
+            if fields.get("title") and fields.get("hypothesis"):
+                parsed = fields
+
+        if not isinstance(parsed, dict):
+            return None
+        title = str(parsed.get("title") or "").strip()
+        hypothesis = str(parsed.get("hypothesis") or "").strip()
+        if not title or not hypothesis:
+            return None
+
+        if not parsed.get("research_query"):
+            parsed["research_query"] = title[:120]
+        return parsed
+
     def _formulate_conjecture(self) -> Optional[Dict[str, Any]]:
         """Solicita al modelo LLM generar una conjetura original e hipótesis de auto-mejora."""
         try:
@@ -325,10 +471,11 @@ class IdleEvolutionDaemon:
                 "1. Generar una conjetura o hipótesis original técnica, epistemológica o de optimización.\n"
                 "2. Formular una consulta concreta de investigación web para contrastarla.\n"
                 "3. Plantear una mejora o refinamiento de código factible en el repositorio.\n\n"
-                "Responde estrictamente en formato JSON válido con esta estructura:\n"
+                "Responde ÚNICAMENTE con un objeto JSON válido, compacto, en una sola respuesta sin texto adicional ni bloques markdown, "
+                "manteniendo cada campo conciso (<= 2 frases) con esta estructura exacta:\n"
                 "{\n"
                 '  "title": "Título corto y potente de la conjetura",\n'
-                '  "hypothesis": "Descripción desarrollada de la hipótesis o conjetura",\n'
+                '  "hypothesis": "Descripción concisa (máx 2 frases) de la hipótesis o conjetura",\n'
                 '  "research_query": "Consulta de búsqueda web en inglés o español",\n'
                 '  "target_file": "ruta_relativa/archivo.py (o null si solo es conceptual)",\n'
                 '  "code_improvement_goal": "Descripción breve de la mejora de código (o null)"\n'
@@ -338,7 +485,7 @@ class IdleEvolutionDaemon:
             user_prompt = (
                 f"Estado actual: Sistema operativo ASUS TUF Linux x86_64.\n"
                 f"Bóveda akáshica activa. Módulos clave: core/web_research_engine.py, "
-                f"core/deep_memory_vault.py, core/network_shield.py, core/web_research_engine.py.\n"
+                f"core/deep_memory_vault.py, core/network_shield.py, core/chronovision_engine.py.\n"
                 f"Formula tu conjetura original y propuesta de auto-mejora ahora:"
             )
 
@@ -347,7 +494,7 @@ class IdleEvolutionDaemon:
                 res = cloud_api.chat_completion([
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt}
-                ], max_tokens=350, timeout=25.0)
+                ], max_tokens=1024, timeout=30.0)
                 if res.get("ok") and res.get("reply"):
                     raw_reply = res["reply"].strip()
 
@@ -361,8 +508,8 @@ class IdleEvolutionDaemon:
                             {"role": "system", "content": system_prompt},
                             {"role": "user", "content": user_prompt}
                         ],
-                        temperature=0.5,
-                        max_tokens=350
+                        temperature=0.45,
+                        max_tokens=1024
                     )
                     if res_tb.get("ok") and res_tb.get("reply"):
                         raw_reply = res_tb["reply"].strip()
@@ -372,16 +519,14 @@ class IdleEvolutionDaemon:
             if not raw_reply:
                 return None
 
-            # Limpiar bloques markdown si el modelo los colocó
-            if "```" in raw_reply:
-                m = re.search(r"```(?:json)?\s*\n(.*?)\n```", raw_reply, re.DOTALL)
-                if m:
-                    raw_reply = m.group(1).strip()
-                else:
-                    raw_reply = re.sub(r"^```[a-zA-Z]*\n", "", raw_reply)
-                    raw_reply = re.sub(r"\n```$", "", raw_reply).strip()
-
-            return json.loads(raw_reply)
+            parsed = self._parse_conjecture_json(raw_reply)
+            if parsed is None:
+                logger.warning(
+                    "Error formulando conjetura: JSON irrecuperable (len=%d, preview=%r)",
+                    len(raw_reply),
+                    raw_reply[:160],
+                )
+            return parsed
 
         except Exception as e:
             logger.warning(f"Error formulando conjetura: {e}")
