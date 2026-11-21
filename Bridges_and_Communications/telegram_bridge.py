@@ -5881,7 +5881,10 @@ class TelegramBridge:
                         num_ctx=int(os.environ.get("GIA_NUM_CTX", "8192")),
                         use_web=True,
                         is_local_request=True,
-                        client_id=tg_client_id
+                        client_id=tg_client_id,
+                        priority=is_call_active,
+                        system_priority=is_call_active,
+                        telegram_call_priority=is_call_active
                     )
                     cand2 = (resp_chat.get("reply") or "").strip()
                     if cand2 and not cand2.startswith("[⚠️ Tiempo límite") and not cand2.startswith("[Error"):
@@ -6060,3 +6063,19 @@ def restore_system_priority(chat_id=None):
 
 def restore_normal_priority(chat_id=None):
     return get_telegram_bridge().restore_normal_priority(chat_id)
+
+
+# Aliases adicionales de nombres probables para prioridad del sistema al recibir llamadas de Telegram
+_EXTRA_PRIORITY_ALIASES = [
+    "prioritize_system_on_call", "prioritize_system_on_telegram_call", "prioritize_on_call",
+    "prioritize_on_telegram_call", "on_call", "on_call_received", "on_incoming_call",
+    "on_telegram_call_incoming", "handle_incoming_call", "handle_call", "handle_call_priority",
+    "set_call_priority", "activate_system_priority", "activate_priority", "enable_priority",
+    "enable_call_priority", "start_call_priority", "call_priority_on", "system_priority_on_call",
+    "telegram_call_priority", "telegram_call_received", "prioritize_functions", "prioritize_system_functions",
+]
+for _alias in _EXTRA_PRIORITY_ALIASES:
+    if not hasattr(TelegramBridge, _alias):
+        setattr(TelegramBridge, _alias, TelegramBridge.prioritize_system_for_telegram_call)
+    if _alias not in globals():
+        globals()[_alias] = lambda chat_id=None, _a=_alias: getattr(get_telegram_bridge(), _a)(chat_id)

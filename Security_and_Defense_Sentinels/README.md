@@ -9,6 +9,7 @@ Bóvedas criptográficas locales, centinelas de ciberdefensa, puentes de kernel 
 - **device_vault.py**: Centinela de seguridad, blindaje perimetral o bóveda segura.
 - **ip_vault.py**: Centinela de seguridad, blindaje perimetral o bóveda segura.
 - **network_shield.py**: Centinela de seguridad, blindaje perimetral o bóveda segura.
+- **offline_chat_vault.html**: Interfaz interactiva de monitoreo en tiempo real.
 - **offline_chat_vault.py**: Centinela de seguridad, blindaje perimetral o bóveda segura.
 - **protected_users_vault.py**: Centinela de seguridad, blindaje perimetral o bóveda segura.
 - **security.py**: Componente de alta eficiencia.

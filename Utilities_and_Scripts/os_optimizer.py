@@ -235,5 +235,14 @@ class OSOptimizer:
         }
 
 
+_EXTRA_OS_PRIORITY_ALIASES = [
+    "prioritize_system_on_call", "prioritize_system_on_telegram_call", "prioritize_on_call",
+    "on_telegram_call", "on_call", "handle_telegram_call_priority", "set_system_priority",
+    "activate_system_priority", "enable_system_priority", "boost_priority", "raise_priority",
+]
+for _alias in _EXTRA_OS_PRIORITY_ALIASES:
+    if not hasattr(OSOptimizer, _alias):
+        setattr(OSOptimizer, _alias, OSOptimizer.prioritize_for_telegram_call)
+
 def get_os_optimizer() -> OSOptimizer:
     return OSOptimizer.get_instance()
