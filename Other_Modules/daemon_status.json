@@ -2,11 +2,11 @@
   "daemon": "tardis-visual-intelligence",
   "running": true,
   "pid": 1460,
-  "uptime_sec": 67383.1,
-  "last_heartbeat": "2026-11-20T20:37:30.107886",
+  "uptime_sec": 71365.3,
+  "last_heartbeat": "2026-11-20T21:43:52.221383",
   "items_processed": 0,
   "last_processed_id": "",
-  "memory_rss_mb": 299.23,
+  "memory_rss_mb": 309.53,
   "engine_status": {
     "status": "online",
     "engine": "VisualIntelligenceEngine v26.5 (VLM + Veredictos)",
@@ -20,15 +20,15 @@
     "vlm_error": "",
     "verdict_engine": "VLM + Kaiju + veredicto estructurado",
     "stored_videos_count": 1025,
-    "stored_images_count": 383,
+    "stored_images_count": 386,
     "stored_sounds_count": 0,
-    "stored_verdicts_count": 467,
+    "stored_verdicts_count": 470,
     "last_verdict": {
-      "id": "img_20261120_045440_cdc130",
-      "created_at": "2026-11-20T04:58:43.494080",
+      "id": "img_20261120_213045_3847f3",
+      "created_at": "2026-11-20T21:34:49.324212",
       "source": "daemon",
-      "verdict": "*   Estado General del Entorno: INDETERMINADO / DATOS INSUFICIENTES. No es posible describir el entorno físico real del Arquitecto con esta entrada.\n*   Nivel de Riesgo Objetivo: N/A (No Aplicable) o 5/10 (Riesgo por Incertidumbre).\n    *   *Nota:* No asigno un 0 porque no puedo confirmar la seguridad. No asigno un 10 porque no veo peligro. Asigno un riesgo moderado por la pérdida de situational awareness (conciencia situacional). Si el Arquitecto cree que está siendo monitoreado y no lo es, eso en sí mismo es un riesgo operativo.\n*   Hechos Observados:\n    1.  Imagen de 1920x1080.\n    2.  Col",
-      "risk_level": 5
+      "verdict": "| Elemento | Valor | Comentario |\n|----------|-------|------------|\n| Estado general del entorno | Indeterminado (solo se conoce el tono de color) | No se puede afirmar si el entorno es seguro, hostil o neutro. |\n| Nivel de riesgo objetivo (0‑10) | 2 | Dado que no hay evidencia de peligro inmediato y la imagen muestra un color neutro sin anomalías visibles, el riesgo percibido es bajo, pero la falta de información eleva ligeramente la incertidumbre. |\n| Recomendación concreta | Obtener datos visuales adicionales (una captura de pantalla clara o una descripción del contenido de la imagen) antes",
+      "risk_level": 0
     },
     "surroundings_interval_sec": 900,
     "vault_dir": "/home/m11/Escritorio/GODWORKS SYSTEM/vault/videos/telegram",
@@ -37,13 +37,13 @@
   },
   "surroundings": {
     "interval_sec": 900.0,
-    "checks": 3,
-    "verdicts": 3,
-    "last_verdict_id": "img_20261120_045440_cdc130",
-    "last_risk_level": 5,
-    "last_verdict": "*   Estado General del Entorno: INDETERMINADO / DATOS INSUFICIENTES. No es posible describir el entorno físico real del Arquitecto con esta entrada.\n*   Nivel de Riesgo Objetivo: N/A (No Aplicable) o 5/10 (Riesgo por Incertidumbre).\n    *   *Nota:* No asigno un 0 porque no puedo confirmar la seguridad. No asigno un 10 porque no veo peligro. Asigno un riesgo moderado por la pérdida de situational awareness (conciencia situacional). Si el Arquitecto cree que está siendo monitoreado y no lo es, eso en sí mismo es un riesgo operativo.\n*   Hechos Observados:\n    1.  Imagen de 1920x1080.\n    2.  Color uniforme `#4a4a4a`.\n    3.  Sin audio.\n    4.  Sin objetos visibles.\n*   Inferencias:\n    1.  Fallo técnico en la captura o transmisión de la imagen.\n    2.  Posible obstrucción física del sensor de origen.\n*   Dudas:\n    1.  ¿Está la cámara activa?\n    2.  ¿Es esta la imagen correcta que el Arquitecto intentó enviar?\n*   Recomendación Concreta:\n    1.  Verificar la conexión de la cámara/sensor: Asegúrate de que el dispositivo de captura esté encendido, conectado y no obstruido.\n    2.  Reenviar la imagen: Captura una nueva imagen con iluminación adecuada y contenido visible para permitir u",
-    "last_error": "fotograma C310 obsoleto (55320s)",
-    "last_check_ts": REDACTED_PHONE.9662943
+    "checks": 6,
+    "verdicts": 6,
+    "last_verdict_id": "img_20261120_213045_3847f3",
+    "last_risk_level": 0,
+    "last_verdict": "| Elemento | Valor | Comentario |\n|----------|-------|------------|\n| Estado general del entorno | Indeterminado (solo se conoce el tono de color) | No se puede afirmar si el entorno es seguro, hostil o neutro. |\n| Nivel de riesgo objetivo (0‑10) | 2 | Dado que no hay evidencia de peligro inmediato y la imagen muestra un color neutro sin anomalías visibles, el riesgo percibido es bajo, pero la falta de información eleva ligeramente la incertidumbre. |\n| Recomendación concreta | Obtener datos visuales adicionales (una captura de pantalla clara o una descripción del contenido de la imagen) antes de tomar decisiones operativas. Mientras tanto, mantenga una vigilancia pasiva y evite manipular objetos desconocidos en el área. | Sin información concreta, cualquier acción específica sería especulativa. |\n\nResumen del veredicto:  \n- Hechos observados: Resolución, color dominante `#69695b`, alta nitidez, ausencia de audio.  \n- Inferencias: Posible entorno interior con iluminación tenue (hipótesis).  \n- Dudas: No se conoce la naturaleza exacta del espacio ni la presencia de riesgos.  \n\nAcción recomendada: Solicite una visualización más detallada (foto con mayor contraste, descripción textual",
+    "last_error": "",
+    "last_check_ts": REDACTED_PHONE.023822
   },
   "vlm": {
     "ready": true,

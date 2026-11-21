@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "created_at": "2026-10-15T02:04:29.176374",
   "last_periodic_sync": "2026-11-19T23:09:16.946878",
-  "last_immediate_sync": "2026-11-20T20:35:52.199967",
-  "last_commit_hash": "740fec02",
-  "sync_count": 1463,
-  "immediate_sync_count": 1459,
+  "last_immediate_sync": "2026-11-20T20:37:15.921220",
+  "last_commit_hash": "c6756b43",
+  "sync_count": 1464,
+  "immediate_sync_count": 1460,
   "periodic_sync_count": 4,
   "last_known_mtimes": {
     "skill:godworks-system-suite/SKILL.md": REDACTED_PHONE.5482113,
@@ -28,6 +28,7 @@
     "skill:reverse-engineer-anything/references/runtime-observation.md": REDACTED_PHONE.093177,
     "skill:tardis4ever/SKILL.md": REDACTED_PHONE.05,
     "skill:xcode-for-linux/SKILL.md": REDACTED_PHONE.47,
+    "skill:tardis-agy-control/SKILL.md": REDACTED_PHONE.1985836,
     "xcode:codesign": REDACTED_PHONE.0727055,
     "xcode:lipo": REDACTED_PHONE.0727503,
     "xcode:otool": REDACTED_PHONE.0727503,
@@ -66,6 +67,7 @@
     "ftl:telemetria_avanzada.py": REDACTED_PHONE.83,
     "ftl:ftl_omniscient_autonomy.py": REDACTED_PHONE.7011807,
     "ftl:que_cuente_las_5729.py": REDACTED_PHONE.9453878,
+    "ftl:ftl_agy_terminal.py": REDACTED_PHONE.726778,
     "core:__init__.py": REDACTED_PHONE.79,
     "core:agent_harness.py": REDACTED_PHONE.272061,
     "core:ai_improvement_sandbox.py": REDACTED_PHONE.8,
@@ -161,7 +163,7 @@
     "core:tardis_voice_local.py": REDACTED_PHONE.108373,
     "core:tardis_vp_engine.py": REDACTED_PHONE.16,
     "core:task_manager.py": REDACTED_PHONE.75,
-    "core:telegram_bridge.py": REDACTED_PHONE.129265,
+    "core:telegram_bridge.py": REDACTED_PHONE.3539793,
     "core:telegram_group_manager.py": REDACTED_PHONE.7,
     "core:temporal_brain.py": REDACTED_PHONE.4753544,
     "core:terminal_camera_hub.py": REDACTED_PHONE.17,
@@ -192,7 +194,8 @@
     "core:tardis_voice_program.py": REDACTED_PHONE.5704854,
     "core:tardis_infinite_voice.py": REDACTED_PHONE.283502,
     "core:screen_capture.py": REDACTED_PHONE.3468363,
-    "core:program_progress.py": REDACTED_PHONE.0342016,
+    "core:program_progress.py": REDACTED_PHONE.109309,
+    "core:tardis_agy_controller.py": REDACTED_PHONE.9079373,
     "directive:AGENTS.md": REDACTED_PHONE.8623235,
     "directive:GEMINI.md": REDACTED_PHONE.8793235,
     "registry:dynamic_tools": REDACTED_PHONE.1854076,
@@ -304,6 +307,18 @@
     "sat:gia_ios:GIA/Views/Theme.swift": REDACTED_PHONE.0
   },
   "history": [
+    {
+      "timestamp": "2026-11-20T20:37:15.921220",
+      "trigger": "immediate_milestone",
+      "commit_hash": "c6756b43",
+      "score": 100,
+      "reasons": [
+        "Evoluci\u00f3n en subsistema core TARDIS: protected_users_vault.py",
+        "Evoluci\u00f3n en subsistema core TARDIS: tardis_ftl_engineer.py",
+        "Evoluci\u00f3n en subsistema core TARDIS: telegram_bridge.py",
+        "Evoluci\u00f3n en subsistema core TARDIS: program_progress.py"
+      ]
+    },
     {
       "timestamp": "2026-11-20T20:35:52.199967",
       "trigger": "immediate_milestone",
@@ -833,17 +848,6 @@
       "timestamp": "2026-11-02T03:31:33.331195",
       "trigger": "immediate_milestone",
       "commit_hash": "852afad0",
-      "score": 75,
-      "reasons": [
-        "Evoluci\u00f3n en subsistema core TARDIS: curiosity_debate_manager.py",
-        "Evoluci\u00f3n en subsistema core TARDIS: scientific_research_engine.py",
-        "Evoluci\u00f3n en subsistema core TARDIS: background_thought_engine.py"
-      ]
-    },
-    {
-      "timestamp": "2026-11-02T03:16:06.649408",
-      "trigger": "immediate_milestone",
-      "commit_hash": "c426d8a3",
       "score": 75,
       "reasons": [
         "Evoluci\u00f3n en subsistema core TARDIS: curiosity_debate_manager.py",

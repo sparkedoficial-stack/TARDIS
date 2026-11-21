@@ -1,18 +1,18 @@
 {
   "session_id": "master_timeline",
   "architect_goal": "Optimización de red y router físico/software + Sistema de Continuidad Absoluta Post-Reinicio",
-  "current_request": "analiza el chat de telegram y permíteme recibir capturas de pantallas de los avances en programas creados",
+  "current_request": "permite a TARDIS tomar control total de la terminal agy de mi dispositivo, para que el propio sistema pueda continuar de forma autónoma sin requerir autorización o permisos",
   "source": "FTL",
   "status": "in_progress",
   "progress_percent": 5,
-  "phase": "Iniciando ejecución con motor DEEPSEEK (opencode/deepseek-v4.1-flash-free#max)",
+  "phase": "Iniciando ejecución con motor GEMINI (gemini-4-neon-xhigh)",
   "details": {
-    "plan_mode": "deepseek",
-    "model": "opencode/deepseek-v4.1-flash-free#max",
-    "start_iso": "2026-11-20 20:31:00",
+    "plan_mode": "gemini",
+    "model": "gemini-4-neon-xhigh",
+    "start_iso": "2026-11-20 21:30:31",
     "artifacts": []
   },
-  "created_ts": REDACTED_PHONE.665295,
-  "updated_ts": REDACTED_PHONE.665335,
+  "created_ts": REDACTED_PHONE.9558134,
+  "updated_ts": REDACTED_PHONE.9558547,
   "reboot_count": 293
 }

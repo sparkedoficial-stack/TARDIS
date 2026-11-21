@@ -474,9 +474,8 @@ class ProgramProgressNotifier:
         if not captured:
             return
         raw, meta = captured
-        digest = hashlib.sha256(raw).hexdigest()
-        if digest == session.last_hash and session.last_sent_at and (time.time() - session.last_sent_at) < 45:
-            return
+        # La captura final se envía siempre: cierra visualmente el trabajo y
+        # confirma al Arquitecto el estado real del escritorio/programa.
         caption = self._caption(session, meta, final=True, ok=ok, summary=summary)
         self._send_photo(session.chat_id, raw, caption)
 
@@ -519,8 +518,9 @@ class ProgramProgressNotifier:
         ]
         for item in state["active"]:
             lines.append(
-                f"  – {item['job_id']} · {item['kind']} · {_fmt_elapsed(item['elapsed_sec'])} · "
-                f"{item['shots']} capturas · {_clean_caption(item['goal'], 80)}"
+                f"  – {_clean_caption(item['job_id'], 80)} · {_clean_caption(item['kind'], 40)} · "
+                f"{_fmt_elapsed(item['elapsed_sec'])} · {item['shots']} capturas · "
+                f"{_clean_caption(item['goal'], 80)}"
             )
             if item["last_line"]:
                 lines.append(f"     Fase: {_clean_caption(item['last_line'], 120)}")

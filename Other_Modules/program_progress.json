@@ -1,7 +1,7 @@
 {
   "enabled": true,
-  "interval_sec": 30,
+  "interval_sec": 90,
   "initial_delay_sec": 20,
   "max_shots": 24,
-  "updated_at": "2026-11-20T20:37:08"
+  "updated_at": "2026-11-20T20:41:54"
 }

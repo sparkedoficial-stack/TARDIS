@@ -83,6 +83,7 @@ Automatizaciones de sistema, diagnósticos de hardware, optimizadores de SO y he
 - **test_mission_scouting.py**: Componente de alta eficiencia.
 - **test_native_gui.py**: Componente de alta eficiencia.
 - **test_permanent_qr_bridge.py**: Componente de alta eficiencia.
+- **test_program_progress.py**: Componente de alta eficiencia.
 - **test_progress.py**: Componente de alta eficiencia.
 - **test_recursion_guard.py**: Componente de alta eficiencia.
 - **test_remote_reboot.py**: Componente de alta eficiencia.
@@ -90,6 +91,7 @@ Automatizaciones de sistema, diagnósticos de hardware, optimizadores de SO y he
 - **test_rf_surveillance_proximity.py**: Componente de alta eficiencia.
 - **test_scientific_research_engine.py**: Componente de alta eficiencia.
 - **test_scp_conceptual_suite.py**: Componente de alta eficiencia.
+- **test_screen_capture.py**: Componente de alta eficiencia.
 - **test_screen_unlock_uinput.py**: Componente de alta eficiencia.
 - **test_sovereign_autoprovision.py**: Componente de alta eficiencia.
 - **test_tapo_c310_sentinel.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.

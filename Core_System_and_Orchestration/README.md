@@ -16,6 +16,7 @@ Núcleo de orquestación temporal, bucles de control soberano FTL y sincronizaci
 - **easy_touch_engine.py**: Sistema de auto-corrección preventiva y cicatrización en segundo plano.
 - **ecca_orchestrator.py**: Núcleo de orquestación y control temporal/espacial.
 - **executor.py**: Componente de alta eficiencia.
+- **ftl_agy_terminal.py**: Motor de aceleración FTL y computación adaptativa.
 - **ftl_cli.py**: Motor de aceleración FTL y computación adaptativa.
 - **ftl_git_sync.py**: Motor de aceleración FTL y computación adaptativa.
 - **ftl_kernel_bridge.py**: Puente de control a nivel de Kernel (Ring 0 / Root Scope).
@@ -43,6 +44,7 @@ Núcleo de orquestación temporal, bucles de control soberano FTL y sincronizaci
 - **supervisor_thermal_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
 - **tardis4ever_agent.py**: Agente soberano de sincronización continua 24h y publicación inmediata de hitos.
 - **tardis4ever_state.json**: Agente soberano de sincronización continua 24h y publicación inmediata de hitos.
+- **tardis_agy_controller.py**: Componente de alta eficiencia.
 - **tardis_app.py**: Componente de alta eficiencia.
 - **tardis_browser_engine.py**: Componente de alta eficiencia.
 - **tardis_cli.py**: Componente de alta eficiencia.

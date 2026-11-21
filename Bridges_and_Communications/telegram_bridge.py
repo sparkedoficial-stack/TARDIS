@@ -5207,7 +5207,6 @@ class TelegramBridge:
             # Se mantiene el diálogo limpio y enfocado exclusivamente en la respuesta.
 
             # 2.3 Intenciones de Envío en Lenguaje Natural a Personas o Grupos ("manda un mensaje a X", "mándale un dibujo a X")
-            import re
             text_strip = text.strip()
             text_lower_intent = text.lower()
 

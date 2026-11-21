@@ -89,6 +89,36 @@ class TestRunner(unittest.TestCase):
             self.assertIsNone(runner.current)
 
 
+class TestProgressWiring(unittest.TestCase):
+    def test_ftl_job_opens_and_closes_visual_progress(self):
+        from unittest.mock import MagicMock
+
+        with tempfile.TemporaryDirectory() as d:
+            fake_cli = Path(d) / "fake_ftl.py"
+            fake_cli.write_text(
+                "print('Archivo: dynamic_tools/programa_prueba.py')\n"
+                "print('Herramienta sintetizada con éxito')\n"
+            )
+            progress = MagicMock()
+            sent = []
+            runner = FTLTelegramRunner(lambda body, chat, reply: sent.append(body), ftl_cli=fake_cli)
+            with patch("core.program_progress.get_program_progress", return_value=progress), \
+                 patch.object(ftr, "JOBS_DIR", Path(d) / "jobs"):
+                runner.handle(ARCHITECT_TELEGRAM_ID, f"-d {d} crea una función de prueba", None)
+                for _ in range(200):
+                    if progress.finish_job.called:
+                        break
+                    time.sleep(0.05)
+
+            progress.start_job.assert_called_once()
+            kwargs = progress.start_job.call_args.kwargs
+            self.assertEqual(kwargs["chat_id"], ARCHITECT_TELEGRAM_ID)
+            self.assertIn("función de prueba", kwargs["goal"])
+            progress.note_output.assert_called()
+            progress.finish_job.assert_called_once()
+            self.assertTrue(progress.finish_job.call_args.kwargs["ok"])
+
+
 class TestBridgeIntegration(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
