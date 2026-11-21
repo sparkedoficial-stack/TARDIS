@@ -498,11 +498,15 @@ class AntigravityRemoteController:
         timeout: int = 900,
         sync_gui: bool = True,
         source: str = "tardis_slash_agy",
+        model: Optional[str] = None,
+        effort: Optional[str] = None,
+        conversation_id: Optional[str] = None,
+        continue_recent: bool = False,
     ) -> Dict[str, Any]:
         """
         Ejecuta una petición directa (/agy <petición>) desde TARDIS (Web Cockpit, Telegram,
-        FTL o Agentes Autónomos) hacia Antigravity CLI en Modo Ultra Autónomo, sincronizando
-        el estado con la sesión activa de esta terminal (2bb8cf84-048a-4fc3-b979-04b2bf2304ba).
+        FTL o Agentes Autónomos) hacia Antigravity CLI en Modo Ultra Autónomo cero-prompts,
+        delegando en `TardisAgyController` para telemetría JSON estructurada y sincronización.
         """
         clean_prompt = (prompt or "").strip()
         if not clean_prompt:
@@ -516,10 +520,9 @@ class AntigravityRemoteController:
         BRIDGE_DIR.mkdir(parents=True, exist_ok=True)
         req_id = f"agy_{int(t0 * 1000)}"
 
-        # 1. Registrar petición entrante en el puente con la terminal activa
         req_entry = {
             "request_id": req_id,
-            "conversation_id": self.target_conversation_id,
+            "conversation_id": conversation_id or self.target_conversation_id,
             "source": source,
             "cwd": work_dir,
             "prompt": clean_prompt,
@@ -535,94 +538,78 @@ class AntigravityRemoteController:
         except Exception:
             pass
 
-        # 2. Ejecutar mediante agy CLI en Modo Ultra (--effort high --dangerously-skip-permissions)
-        env = os.environ.copy()
-        env["PATH"] = f"{HOME / '.local' / 'bin'}:{HOME / '.opencode' / 'bin'}:/usr/local/bin:/usr/bin:/bin:{env.get('PATH', '')}"
-        env["AGY_MODE"] = "ultra"
-        env["AGY_VERBOSITY"] = "high"
-        env["AGY_KERNEL_LEVEL"] = "1"
-        env["FTL_AUTONOMOUS"] = "1"
-        env["PYTHONUNBUFFERED"] = "1"
+        from core.tardis_agy_controller import get_tardis_agy_controller
 
-        agy_bin = str(AGY_CLI_BIN) if AGY_CLI_BIN.is_file() else "/home/timemachine/.local/bin/agy"
-        cmd = [agy_bin, "--mode", "auto", "--effort", "high", "--dangerously-skip-permissions", "-p", clean_prompt]
+        res = get_tardis_agy_controller().run_task(
+            clean_prompt,
+            cwd=work_dir,
+            model=model,
+            effort=effort,
+            conversation_id=conversation_id,
+            continue_recent=continue_recent,
+            timeout=timeout,
+            source=source,
+            fallback_to_local=True,
+        )
 
-        try:
-            proc = subprocess.run(
-                cmd,
-                cwd=work_dir,
-                env=env,
-                stdin=subprocess.DEVNULL,
-                capture_output=True,
-                text=True,
-                timeout=timeout,
-                start_new_session=True,
-            )
-            elapsed = round(time.time() - t0, 2)
-            stdout_clean = (proc.stdout or "").strip()
-            stderr_clean = (proc.stderr or "").strip()
-            reply = stdout_clean if stdout_clean else stderr_clean
-            ok = proc.returncode == 0 and bool(reply)
+        out_cid = res.get("conversation_id") or self.target_conversation_id
+        reply = res.get("response") or res.get("reply") or res.get("error") or ""
+        elapsed = res.get("elapsed", round(time.time() - t0, 2))
 
-            # Si agy-real devolvió error de cuota/red, fallback automático a FTL / TemporalBrain
-            if not ok:
-                try:
-                    from core.temporal_brain import get_temporal_brain
-                    tb_res = get_temporal_brain().chat(
-                        [{"role": "user", "content": f"[TAREA /AGY EN TERMINAL SOBERANA]: {clean_prompt}"}],
-                        max_tokens=2048,
-                    )
-                    if tb_res.get("ok") and tb_res.get("reply"):
-                        reply = f"{tb_res['reply']}\n\n[⚡ Resuelto con respaldo de Núcleo Soberano Temporal Brain]"
-                        ok = True
-                except Exception:
-                    pass
-
-            if sync_gui:
-                try:
-                    self.sync_session(self.target_conversation_id)
-                except Exception:
-                    pass
-
+        if sync_gui:
             try:
-                with open(LIVE_DIALOGUE_LOG, "a", encoding="utf-8") as f:
-                    f.write(json.dumps({
-                        "ts": time.time(),
-                        "role": "assistant",
-                        "source": "antigravity_terminal",
-                        "conversation_id": self.target_conversation_id,
-                        "request_id": req_id,
-                        "elapsed": elapsed,
-                        "content": reply[:8000],
-                    }, ensure_ascii=False) + "\n")
+                self.sync_session(self.target_conversation_id)
             except Exception:
                 pass
 
-            return {
-                "ok": ok,
-                "request_id": req_id,
-                "conversation_id": self.target_conversation_id,
-                "cwd": work_dir,
-                "returncode": proc.returncode,
-                "elapsed": elapsed,
-                "reply": reply,
-            }
-        except subprocess.TimeoutExpired:
-            return {
-                "ok": False,
-                "request_id": req_id,
-                "conversation_id": self.target_conversation_id,
-                "error": f"Timeout ({timeout}s) ejecutando petición en Antigravity.",
-                "elapsed": round(time.time() - t0, 2),
-            }
-        except Exception as e:
-            return {
-                "ok": False,
-                "request_id": req_id,
-                "conversation_id": self.target_conversation_id,
-                "error": str(e),
-                "elapsed": round(time.time() - t0, 2),
-            }
+        try:
+            with open(LIVE_DIALOGUE_LOG, "a", encoding="utf-8") as f:
+                f.write(json.dumps({
+                    "ts": time.time(),
+                    "role": "assistant",
+                    "source": "antigravity_terminal",
+                    "conversation_id": out_cid,
+                    "request_id": req_id,
+                    "elapsed": elapsed,
+                    "content": str(reply)[:8000],
+                }, ensure_ascii=False) + "\n")
+        except Exception:
+            pass
+
+        return {
+            "ok": bool(res.get("ok")),
+            "request_id": req_id,
+            "task_id": res.get("task_id"),
+            "conversation_id": out_cid,
+            "cwd": work_dir,
+            "returncode": res.get("returncode", 0 if res.get("ok") else 1),
+            "elapsed": elapsed,
+            "usage": res.get("usage") or {},
+            "status": res.get("status"),
+            "reply": reply,
+            "error": res.get("error", ""),
+        }
+
+    def enqueue_agy_task(
+        self,
+        prompt: str,
+        priority: str = "normal",
+        source: str = "tardis_remote_controller",
+        **kwargs: Any,
+    ) -> Dict[str, Any]:
+        """Encola una tarea autónoma para el demonio tardis-agy-autopilot sin bloquear."""
+        from core.tardis_agy_controller import get_tardis_agy_controller
+        return get_tardis_agy_controller().enqueue_task(prompt, source=source, priority=priority, **kwargs)
+
+    def send_agy_turn(self, prompt: str, **kwargs: Any) -> Dict[str, Any]:
+        """Envía un turno a la sesión persistente stream-json de la terminal agy."""
+        from core.tardis_agy_controller import get_tardis_agy_controller
+        return get_tardis_agy_controller().send_turn(prompt, **kwargs)
+
+    def get_terminal_control_status(self) -> Dict[str, Any]:
+        """Retorna telemetría holística del control soberano sobre la terminal agy."""
+        from core.tardis_agy_controller import get_tardis_agy_controller
+        return get_tardis_agy_controller().get_status()
 
 
 _GLOBAL_CONTROLLER: Optional[AntigravityRemoteController] = None

@@ -186,6 +186,32 @@ class AntigravityRemotePromptRequest(BaseModel):
     prompt: str
     conversation_id: Optional[str] = "2425f3ac-4fb8-427e-9232-388ebcc90c19"
 
+class AgyControlExecRequest(BaseModel):
+    prompt: str
+    cwd: Optional[str] = None
+    model: Optional[str] = None
+    effort: Optional[str] = None
+    conversation_id: Optional[str] = None
+    continue_recent: Optional[bool] = False
+    timeout: Optional[int] = 900
+    source: Optional[str] = "tardis_api"
+    fallback_to_local: Optional[bool] = True
+
+class AgyControlEnqueueRequest(BaseModel):
+    prompt: str
+    priority: Optional[str] = "normal"
+    source: Optional[str] = "tardis_api"
+    cwd: Optional[str] = None
+    model: Optional[str] = None
+    effort: Optional[str] = None
+    conversation_id: Optional[str] = None
+    continue_recent: Optional[bool] = False
+    use_stream_session: Optional[bool] = False
+    timeout: Optional[int] = 900
+
+class AgyControlModeRequest(BaseModel):
+    action: str  # pause | resume | reset_session
+
 class SelfImproveRequest(BaseModel):
     model: Optional[str] = None
     force: Optional[bool] = True
@@ -3092,6 +3118,100 @@ iframe{border:none;width:100%;height:100%;}</style></head>
     async def post_antigravity_remote_prompt_endpoint(req: AntigravityRemotePromptRequest):
         from core.antigravity_remote_controller import get_remote_controller
         return get_remote_controller().inject_prompt_in_gui(req.prompt)
+
+    # --------------------------------------------------------------------------
+    # CONTROL AUTÓNOMO TOTAL DE TARDIS SOBRE LA TERMINAL AGY
+    # --------------------------------------------------------------------------
+
+    @app.get("/api/agy/control/status")
+    async def get_agy_control_status_endpoint():
+        from core.tardis_agy_controller import get_tardis_agy_controller
+        return get_tardis_agy_controller().get_status()
+
+    @app.get("/api/agy/control/verify")
+    async def get_agy_control_verify_endpoint(live: bool = False):
+        from core.tardis_agy_controller import get_tardis_agy_controller
+        return get_tardis_agy_controller().verify_permissions(run_live_probe=live)
+
+    @app.get("/api/agy/control/queue")
+    async def get_agy_control_queue_endpoint(limit: int = 20):
+        from core.tardis_agy_controller import get_tardis_agy_controller
+        return get_tardis_agy_controller().list_queue(limit_history=limit)
+
+    @app.get("/api/agy/control/sessions")
+    async def get_agy_control_sessions_endpoint(limit: int = 20):
+        from core.tardis_agy_controller import get_tardis_agy_controller
+        return {"ok": True, "sessions": get_tardis_agy_controller().list_sessions(limit=limit)}
+
+    @app.post("/api/agy/control/exec")
+    async def post_agy_control_exec_endpoint(req: AgyControlExecRequest):
+        from core.tardis_agy_controller import get_tardis_agy_controller
+        return get_tardis_agy_controller().run_task(
+            req.prompt,
+            cwd=req.cwd,
+            model=req.model,
+            effort=req.effort,
+            conversation_id=req.conversation_id,
+            continue_recent=bool(req.continue_recent),
+            timeout=int(req.timeout or 900),
+            source=req.source or "tardis_api",
+            fallback_to_local=bool(req.fallback_to_local),
+        )
+
+    @app.post("/api/agy/control/turn")
+    async def post_agy_control_turn_endpoint(req: AgyControlExecRequest):
+        from core.tardis_agy_controller import get_tardis_agy_controller
+        return get_tardis_agy_controller().send_turn(
+            req.prompt,
+            cwd=req.cwd,
+            model=req.model,
+            effort=req.effort,
+            conversation_id=req.conversation_id,
+            timeout=float(req.timeout or 600),
+            source=req.source or "tardis_api_stream",
+        )
+
+    @app.post("/api/agy/control/continue")
+    async def post_agy_control_continue_endpoint(req: AgyControlExecRequest):
+        from core.tardis_agy_controller import get_tardis_agy_controller
+        return get_tardis_agy_controller().continue_session(
+            req.prompt,
+            conversation_id=req.conversation_id,
+            cwd=req.cwd,
+            model=req.model,
+            effort=req.effort,
+            timeout=int(req.timeout or 900),
+            source=req.source or "tardis_api_continue",
+        )
+
+    @app.post("/api/agy/control/enqueue")
+    async def post_agy_control_enqueue_endpoint(req: AgyControlEnqueueRequest):
+        from core.tardis_agy_controller import get_tardis_agy_controller
+        return get_tardis_agy_controller().enqueue_task(
+            req.prompt,
+            source=req.source or "tardis_api",
+            priority=req.priority or "normal",
+            cwd=req.cwd,
+            model=req.model,
+            effort=req.effort,
+            conversation_id=req.conversation_id,
+            continue_recent=bool(req.continue_recent),
+            use_stream_session=bool(req.use_stream_session),
+            timeout=int(req.timeout or 900),
+        )
+
+    @app.post("/api/agy/control/mode")
+    async def post_agy_control_mode_endpoint(req: AgyControlModeRequest):
+        from core.tardis_agy_controller import get_tardis_agy_controller
+        ctrl = get_tardis_agy_controller()
+        act = (req.action or "").lower().strip()
+        if act == "pause":
+            return ctrl.set_paused(True)
+        if act == "resume":
+            return ctrl.set_paused(False)
+        if act in ("reset_session", "reset-session", "reset"):
+            return ctrl.reset_stream_session()
+        raise HTTPException(status_code=400, detail=f"Acción no reconocida: {req.action}")
 
     # --------------------------------------------------------------------------
     # PUENTE SOBERANO DE TELEGRAM BOT

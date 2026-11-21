@@ -149,6 +149,15 @@ class TardisOmniToolBridge:
                 "domain": "omniscient_continuous_learning",
                 "description": "Motor 24/7 que aprende de todo todo el tiempo (arXiv, OpenAlex, Europe PMC, web), sube sus conocimientos y bases científicas a X.com, contesta comentarios a sus publicaciones y en el chat, e investiga continuamente cómo mejorarse a sí mismo y mejorar la tecnología que lo rodea.",
                 "actions": ["status", "learn", "evolve-tech", "publish", "answer", "run-cycle", "daemon"]
+            },
+            "agy_terminal": {
+                "name": "TARDIS Sovereign AGY Terminal Controller (Control Autónomo Total de la Terminal AGY)",
+                "binary": str(HOME_DIR / ".local" / "bin" / "tardis-agy"),
+                "module": "modulos_ftl.ftl_agy_terminal",
+                "module_file": str(HOME_DIR / "modulos_ftl" / "ftl_agy_terminal.py"),
+                "domain": "autonomous_agy_terminal",
+                "description": "Control autónomo total de TARDIS sobre la terminal Antigravity CLI (agy) sin prompts ni autorizaciones: sesiones stream-json persistentes, ejecución headless estructurada, continuación de conversaciones y cola autopilot 24/7.",
+                "actions": ["status", "verify-permissions", "run", "turn", "continue", "enqueue", "queue", "sessions", "transcript", "pause", "resume", "reset-session"]
             }
         }
         self._register_in_dynamic_registry()

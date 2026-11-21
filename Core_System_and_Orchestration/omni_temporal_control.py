@@ -2430,6 +2430,56 @@ def process_hardware_chat_intent(msg: str, is_local_request: bool = False) -> Op
                 res = ctrl.sync_session()
                 fb = f"🔄 **[GOOGLE ANTIGRAVITY]**: Sesión `{res.get('conversation_id')}` sincronizada con éxito."
                 return {"action": "antigravity_sync", "executed": True, "direct_return": True, "system_feedback": fb, "raw": res}
+            elif sub in ("verify", "permisos", "permissions") and len(args) == 1:
+                from core.tardis_agy_controller import get_tardis_agy_controller
+                v = get_tardis_agy_controller().verify_permissions(run_live_probe=False)
+                fb = (
+                    f"🛡️ **[AGY ZERO-PROMPT VERIFICATION]**: `{'OK' if v.get('ok') else 'ATENCIÓN'}`\n"
+                    f"• `toolPermission`: `{v.get('effective_settings', {}).get('toolPermission')}`\n"
+                    f"• `agentMode`: `{v.get('effective_settings', {}).get('agentMode')}`\n"
+                    f"• `artifactReviewPolicy`: `{v.get('effective_settings', {}).get('artifactReviewPolicy')}`\n"
+                    f"• Wildcards globales activos: `{v.get('checks', {}).get('settings_all_wildcards_present')}`"
+                )
+                return {"action": "antigravity_verify", "executed": v.get("ok", False), "direct_return": True, "system_feedback": fb, "raw": v}
+            elif sub in ("queue", "cola") and len(args) == 1:
+                from core.tardis_agy_controller import get_tardis_agy_controller
+                q = get_tardis_agy_controller().list_queue()
+                c = q.get("counts", {})
+                fb = (
+                    f"📋 **[TARDIS → AGY AUTOPILOT QUEUE]** (pausado: `{q.get('paused')}`)\n"
+                    f"• En cola: `{c.get('queued', 0)}` | Ejecutando: `{c.get('running', 0)}` | "
+                    f"Completadas: `{c.get('completed_total', 0)}` | Fallidas: `{c.get('failed_total', 0)}`"
+                )
+                return {"action": "antigravity_queue", "executed": True, "direct_return": True, "system_feedback": fb, "raw": q}
+            elif sub in ("sessions", "sesiones") and len(args) == 1:
+                from core.tardis_agy_controller import get_tardis_agy_controller
+                sessions = get_tardis_agy_controller().list_sessions(limit=8)
+                lines_s = "\n".join(f"• `{s.get('conversation_id')}` — {str(s.get('summary') or s.get('last_user_input') or '')[:80]}" for s in sessions)
+                fb = f"🧵 **[SESIONES RECIENTES TERMINAL AGY]**\n{lines_s or '(ninguna)'}"
+                return {"action": "antigravity_sessions", "executed": True, "direct_return": True, "system_feedback": fb, "raw": sessions}
+            elif sub in ("enqueue", "encolar") and len(args) >= 2:
+                task_prompt = raw_agy_prompt[len(args[0]):].strip()
+                enq = ctrl.enqueue_agy_task(task_prompt, source="omni_cockpit_slash_agy")
+                fb = f"📥 **[TARDIS → AGY AUTOPILOT]**: Tarea encolada `{enq.get('task_id')}` (`{enq.get('status')}`)."
+                return {"action": "antigravity_enqueue", "executed": enq.get("ok", False), "direct_return": True, "system_feedback": fb, "raw": enq}
+            elif sub in ("turn", "stream") and len(args) >= 2:
+                turn_prompt = raw_agy_prompt[len(args[0]):].strip()
+                t_res = ctrl.send_agy_turn(turn_prompt, source="omni_cockpit_slash_agy_stream")
+                reply_body = t_res.get("response") or t_res.get("error") or "Turno procesado."
+                fb = (
+                    f"🪐 **[ANTIGRAVITY STREAM-JSON · TURNO {t_res.get('num_turns', 1)}]**\n"
+                    f"• **Sesión:** `{t_res.get('conversation_id')}` | **Tiempo:** `{t_res.get('elapsed', 0)}s`\n"
+                    f"━━━━━━━━━━━━━━━━━━━━━━\n{reply_body}"
+                )
+                return {"action": "antigravity_turn", "executed": t_res.get("ok", False), "direct_return": True, "system_feedback": fb, "raw": t_res}
+            elif sub in ("pause", "pausar") and len(args) == 1:
+                from core.tardis_agy_controller import get_tardis_agy_controller
+                p_res = get_tardis_agy_controller().set_paused(True)
+                return {"action": "antigravity_pause", "executed": True, "direct_return": True, "system_feedback": "⏸️ **[TARDIS → AGY AUTOPILOT]**: Cola autónoma pausada.", "raw": p_res}
+            elif sub in ("resume", "reanudar") and len(args) == 1:
+                from core.tardis_agy_controller import get_tardis_agy_controller
+                r_res = get_tardis_agy_controller().set_paused(False)
+                return {"action": "antigravity_resume", "executed": True, "direct_return": True, "system_feedback": "▶️ **[TARDIS → AGY AUTOPILOT]**: Cola autónoma reanudada.", "raw": r_res}
             else:
                 exec_res = ctrl.execute_agy_task(raw_agy_prompt, source="omni_cockpit_slash_agy")
                 reply_body = exec_res.get("reply") or exec_res.get("error") or "Tarea procesada."
@@ -7028,6 +7078,29 @@ iframe{{border:none;width:100%;height:100%;}}</style></head>
             self.send_json({"ok": False, "error": "antigravity_bridge no disponible"})
             return
 
+        elif url_path == "/api/agy/control/status":
+            from core.tardis_agy_controller import get_tardis_agy_controller
+            self.send_json(get_tardis_agy_controller().get_status())
+            return
+
+        elif url_path == "/api/agy/control/verify":
+            from core.tardis_agy_controller import get_tardis_agy_controller
+            live = query_params.get("live", ["0"])[0].lower() in ("1", "true", "yes")
+            self.send_json(get_tardis_agy_controller().verify_permissions(run_live_probe=live))
+            return
+
+        elif url_path == "/api/agy/control/queue":
+            from core.tardis_agy_controller import get_tardis_agy_controller
+            lim = int(query_params.get("limit", ["20"])[0])
+            self.send_json(get_tardis_agy_controller().list_queue(limit_history=lim))
+            return
+
+        elif url_path == "/api/agy/control/sessions":
+            from core.tardis_agy_controller import get_tardis_agy_controller
+            lim = int(query_params.get("limit", ["20"])[0])
+            self.send_json({"ok": True, "sessions": get_tardis_agy_controller().list_sessions(limit=lim)})
+            return
+
         # Endpoints de la Embajada de Agentes Soberanos & Colonia Simbiótica (GET)
         elif url_path == "/api/colony/status":
             if HAS_COLONY and COLONY:
@@ -8571,6 +8644,77 @@ iframe{{border:none;width:100%;height:100%;}}</style></head>
                 self.send_json({"ok": True, **res})
                 return
             self.send_json({"ok": False, "error": "antigravity_bridge no disponible"})
+            return
+
+        elif url_path == "/api/agy/control/exec":
+            from core.tardis_agy_controller import get_tardis_agy_controller
+            self.send_json(get_tardis_agy_controller().run_task(
+                body.get("prompt", ""),
+                cwd=body.get("cwd"),
+                model=body.get("model"),
+                effort=body.get("effort"),
+                conversation_id=body.get("conversation_id"),
+                continue_recent=bool(body.get("continue_recent", False)),
+                timeout=int(body.get("timeout", 900)),
+                source=body.get("source", "omni_http_api"),
+                fallback_to_local=bool(body.get("fallback_to_local", True)),
+            ))
+            return
+
+        elif url_path == "/api/agy/control/turn":
+            from core.tardis_agy_controller import get_tardis_agy_controller
+            self.send_json(get_tardis_agy_controller().send_turn(
+                body.get("prompt", ""),
+                cwd=body.get("cwd"),
+                model=body.get("model"),
+                effort=body.get("effort"),
+                conversation_id=body.get("conversation_id"),
+                timeout=float(body.get("timeout", 600)),
+                source=body.get("source", "omni_http_stream"),
+            ))
+            return
+
+        elif url_path == "/api/agy/control/enqueue":
+            from core.tardis_agy_controller import get_tardis_agy_controller
+            self.send_json(get_tardis_agy_controller().enqueue_task(
+                body.get("prompt", ""),
+                source=body.get("source", "omni_http_api"),
+                priority=body.get("priority", "normal"),
+                cwd=body.get("cwd"),
+                model=body.get("model"),
+                effort=body.get("effort"),
+                conversation_id=body.get("conversation_id"),
+                continue_recent=bool(body.get("continue_recent", False)),
+                use_stream_session=bool(body.get("use_stream_session", False)),
+                timeout=int(body.get("timeout", 900)),
+            ))
+            return
+
+        elif url_path == "/api/agy/control/continue":
+            from core.tardis_agy_controller import get_tardis_agy_controller
+            self.send_json(get_tardis_agy_controller().continue_session(
+                body.get("prompt", ""),
+                conversation_id=body.get("conversation_id"),
+                cwd=body.get("cwd"),
+                model=body.get("model"),
+                effort=body.get("effort"),
+                timeout=int(body.get("timeout", 900)),
+                source=body.get("source", "omni_http_continue"),
+            ))
+            return
+
+        elif url_path == "/api/agy/control/mode":
+            from core.tardis_agy_controller import get_tardis_agy_controller
+            ctrl = get_tardis_agy_controller()
+            act = str(body.get("action", "")).lower().strip()
+            if act == "pause":
+                self.send_json(ctrl.set_paused(True))
+            elif act == "resume":
+                self.send_json(ctrl.set_paused(False))
+            elif act in ("reset_session", "reset-session", "reset"):
+                self.send_json(ctrl.reset_stream_session())
+            else:
+                self.send_json({"ok": False, "error": f"Acción no reconocida: {act}"}, status=400)
             return
 
         elif url_path in ("/api/antigravity/feedback", "/api/antigravity/propose_improvement"):

@@ -180,6 +180,18 @@ class FtlOmniRegistry:
                 "description": "Motor autónomo 24/7 de aprendizaje permanente de todo (arXiv, OpenAlex, Europe PMC, web), subida de conocimientos y bases científicas a X.com, respuesta automática a comentarios y chat, e investigación continua para mejorarse a sí mismo y a la tecnología circundante.",
                 "capabilities": ["status", "learn", "evolve-tech", "publish", "answer", "run-cycle", "daemon"],
                 "active": True
+            },
+            "agy_terminal": {
+                "name": "TARDIS Sovereign AGY Terminal Controller (Zero-Prompt Autonomous Control)",
+                "binary": "/home/m11/.local/bin/tardis-agy",
+                "module": "modulos_ftl.ftl_agy_terminal",
+                "module_file": "/home/m11/modulos_ftl/ftl_agy_terminal.py",
+                "service": "tardis-agy-autopilot.service",
+                "skill_path": "/home/m11/.agents/skills/tardis-agy-control/SKILL.md",
+                "category": "Autonomous Antigravity CLI Terminal Control & Autopilot",
+                "description": "Control programático, persistente y 100% autónomo de TARDIS sobre la terminal Antigravity CLI (agy) sin prompts ni permisos manuales: sesiones stream-json multi-turno, ejecución headless estructurada, continuación de conversaciones y cola autopilot 24/7.",
+                "capabilities": ["status", "verify-permissions", "run", "turn", "continue", "enqueue", "queue", "sessions", "transcript", "pause", "resume", "reset-session"],
+                "active": os.path.exists("/home/m11/.local/bin/tardis-agy")
             }
         }
 

@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "created_at": "2026-10-15T02:04:29.176374",
   "last_periodic_sync": "2026-11-19T23:09:16.946878",
-  "last_immediate_sync": "2026-11-20T20:37:15.921220",
-  "last_commit_hash": "c6756b43",
-  "sync_count": 1464,
-  "immediate_sync_count": 1460,
+  "last_immediate_sync": "2026-11-20T21:43:40.465331",
+  "last_commit_hash": "64587131",
+  "sync_count": 1465,
+  "immediate_sync_count": 1461,
   "periodic_sync_count": 4,
   "last_known_mtimes": {
     "skill:godworks-system-suite/SKILL.md": REDACTED_PHONE.5482113,
@@ -55,7 +55,7 @@
     "ftl:ftl_kernel_bridge.py": REDACTED_PHONE.52,
     "ftl:ftl_linpad.py": REDACTED_PHONE.95,
     "ftl:ftl_nxnative.py": REDACTED_PHONE.6,
-    "ftl:ftl_omni_registry.py": REDACTED_PHONE.2167242,
+    "ftl:ftl_omni_registry.py": REDACTED_PHONE.4103053,
     "ftl:ftl_phone_harness.py": REDACTED_PHONE.31,
     "ftl:ftl_rea.py": REDACTED_PHONE.21,
     "ftl:ftl_tardis4ever.py": REDACTED_PHONE.73,
@@ -71,7 +71,7 @@
     "core:__init__.py": REDACTED_PHONE.79,
     "core:agent_harness.py": REDACTED_PHONE.272061,
     "core:ai_improvement_sandbox.py": REDACTED_PHONE.8,
-    "core:antigravity_remote_controller.py": REDACTED_PHONE.6057453,
+    "core:antigravity_remote_controller.py": REDACTED_PHONE.071248,
     "core:atmospheric_sensor.py": REDACTED_PHONE.01,
     "core:auto_context_synchronizer.py": REDACTED_PHONE.46,
     "core:autonomous_coder.py": REDACTED_PHONE.22,
@@ -149,7 +149,7 @@
     "core:tardis_ipad_sync_daemon.py": REDACTED_PHONE.96,
     "core:tardis_navigator_engine.py": REDACTED_PHONE.58,
     "core:tardis_neurotopology_engine.py": REDACTED_PHONE.55,
-    "core:tardis_omni_tool_bridge.py": REDACTED_PHONE.0256264,
+    "core:tardis_omni_tool_bridge.py": REDACTED_PHONE.3742812,
     "core:tardis_phone_harness_bridge.py": REDACTED_PHONE.93,
     "core:tardis_pocket_ota_manager.py": REDACTED_PHONE.99,
     "core:tardis_pocket_tunnel_bridge.py": REDACTED_PHONE.33,
@@ -307,6 +307,16 @@
     "sat:gia_ios:GIA/Views/Theme.swift": REDACTED_PHONE.0
   },
   "history": [
+    {
+      "timestamp": "2026-11-20T21:43:40.465331",
+      "trigger": "immediate_milestone",
+      "commit_hash": "64587131",
+      "score": 70,
+      "reasons": [
+        "Nueva habilidad ag\u00e9ntica desplegada: tardis-agy-control/SKILL.md",
+        "Nuevo m\u00f3dulo central FTL creado: ftl_agy_terminal.py"
+      ]
+    },
     {
       "timestamp": "2026-11-20T20:37:15.921220",
       "trigger": "immediate_milestone",
@@ -837,17 +847,6 @@
       "timestamp": "2026-11-02T03:45:48.724744",
       "trigger": "immediate_milestone",
       "commit_hash": "eee6ed52",
-      "score": 75,
-      "reasons": [
-        "Evoluci\u00f3n en subsistema core TARDIS: curiosity_debate_manager.py",
-        "Evoluci\u00f3n en subsistema core TARDIS: scientific_research_engine.py",
-        "Evoluci\u00f3n en subsistema core TARDIS: background_thought_engine.py"
-      ]
-    },
-    {
-      "timestamp": "2026-11-02T03:31:33.331195",
-      "trigger": "immediate_milestone",
-      "commit_hash": "852afad0",
       "score": 75,
       "reasons": [
         "Evoluci\u00f3n en subsistema core TARDIS: curiosity_debate_manager.py",

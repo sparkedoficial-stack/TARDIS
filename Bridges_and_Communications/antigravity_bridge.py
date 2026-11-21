@@ -696,18 +696,21 @@ class OmniFeedbackBridge:
 
     def _update_pending_directives(self, proposal: Dict[str, Any], file_path: Path):
         """Actualiza el archivo de directivas pendientes para Antigravity y emite diálogo."""
+        auto_dispatch = os.environ.get("GIA_AUTONOMOUS_AGY_DISPATCH", "1").strip().lower() in ("1", "true", "yes", "on")
+        sev = str(proposal.get("severity", "MEDIA")).upper()
+        initial_status = "AUTONOMOUS_READY" if (auto_dispatch and sev in ("ALTA", "HIGH", "CRITICA", "CRITICAL")) else "AUTONOMOUS_RECORDED"
         directive = {
             "id": f"dir_{int(time.time()*1000)}",
             "timestamp": time.time(),
             "iso": datetime.datetime.now().isoformat(),
             "title": proposal.get("title", ""),
             "target_file": proposal.get("target_file", ""),
-            "severity": proposal.get("severity", "MEDIA"),
+            "severity": sev,
             "problem": proposal.get("problem", ""),
             "proposed_action": proposal.get("proposed_action", ""),
             "verification_cmd": proposal.get("verification_cmd", ""),
             "file_path": str(file_path),
-            "status": "PENDING_DEVELOPER_CONFIRMATION"
+            "status": initial_status,
         }
 
         directives_data = {"last_updated": time.time(), "directives": []}
