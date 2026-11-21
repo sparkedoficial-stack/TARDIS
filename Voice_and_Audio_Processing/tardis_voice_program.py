@@ -537,6 +537,7 @@ class VoiceProgramRouter:
                     job.status = "running"
                     job.started_at = time.time()
                 logger.info("🧬 [VOICE-PROGRAM] Ejecutando %s con FTL...", job.job_id)
+                self._start_progress(job)
                 self._process_job(job)
             except Exception as exc:  # noqa: BLE001
                 logger.exception("Fallo no controlado en worker de voz: %s", exc)
@@ -599,11 +600,14 @@ class VoiceProgramRouter:
                 }
             )
 
+            self._note_progress(job, "FTL recibió la orden; iniciando autoprogramación soberana")
+
             def _on_ftl_wait() -> None:
                 logger.info(
                     "⏳ [VOICE-PROGRAM] Otro proceso está usando FTL; %s espera su turno.",
                     job.job_id,
                 )
+                self._note_progress(job, "FTL ocupado; la orden espera turno en la cola")
                 self._log_event(
                     {
                         "event": "ftl_waiting",
@@ -662,6 +666,7 @@ class VoiceProgramRouter:
             "⚠️ [VOICE-PROGRAM] FTL --autofunc no completó %s: %s. Probando ingeniero FTL.",
             job.job_id, autofunc.get("error"),
         )
+        self._note_progress(job, "Autofunc no completó; activando ingeniero FTL sobre el codebase")
         engineer_res = self._run_ftl_engineer(job)
         if engineer_res.get("ok"):
             engineer_res["autofunc"] = autofunc
@@ -810,6 +815,8 @@ class VoiceProgramRouter:
                 "source": job.source,
                 "voice_goal": job.goal,
                 "job_id": job.job_id,
+                "chat_id": job.chat_id,
+                "progress_job_id": job.job_id,
             },
         )
         res.setdefault("engine", "FTL-engineer")
@@ -818,6 +825,7 @@ class VoiceProgramRouter:
     def _run_dynamic_fallback(self, job: ProgramJob) -> None:
         """Crea la función con el motor dinámico si FTL no puede hacerlo."""
         logger.warning("🧬 [VOICE-PROGRAM] Respaldo dinámico para %s", job.job_id)
+        self._note_progress(job, "Respaldo: motor dinámico de TARDIS sintetizando la función")
         job.engine = "TARDIS-dynamic-fallback"
         from core.tardis_dynamic_function_engine import get_dynamic_function_engine
 
@@ -904,6 +912,7 @@ class VoiceProgramRouter:
 
         self._record_in_vault(job)
         self._sync_hub(job)
+        self._finish_progress(job)
         self._notify_telegram(job)
 
     def _record_in_vault(self, job: ProgramJob) -> None:
@@ -939,6 +948,55 @@ class VoiceProgramRouter:
             )
         except Exception as exc:  # noqa: BLE001
             logger.debug("SYNC_HUB no disponible para orden de voz: %s", exc)
+
+    # -- Progreso visual del programa -------------------------------------
+
+    @staticmethod
+    def _progress_notifier():
+        try:
+            from core.program_progress import get_program_progress
+
+            return get_program_progress()
+        except Exception:  # noqa: BLE001
+            return None
+
+    def _start_progress(self, job: ProgramJob) -> None:
+        progress = self._progress_notifier()
+        if progress is None or job.chat_id is None:
+            return
+        try:
+            progress.start_job(
+                job_id=job.job_id,
+                chat_id=job.chat_id,
+                goal=job.goal,
+                kind="VOZ → FTL",
+                cwd=str(PROJECT_ROOT),
+            )
+        except Exception as exc:  # noqa: BLE001
+            logger.debug("No se pudo abrir el canal visual de %s: %s", job.job_id, exc)
+
+    def _note_progress(self, job: ProgramJob, line: str) -> None:
+        progress = self._progress_notifier()
+        if progress is None:
+            return
+        try:
+            progress.note_output(job.job_id, line)
+        except Exception:  # noqa: BLE001
+            pass
+
+    def _finish_progress(self, job: ProgramJob) -> None:
+        progress = self._progress_notifier()
+        if progress is None:
+            return
+        try:
+            progress.finish_job(
+                job.job_id,
+                ok=(job.status == "completed"),
+                summary=(job.error or "Función validada e integrada"),
+                files=(job.result or {}).get("files_changed") or [],
+            )
+        except Exception as exc:  # noqa: BLE001
+            logger.debug("No se pudo cerrar el canal visual de %s: %s", job.job_id, exc)
 
     def _notify_telegram(self, job: ProgramJob) -> None:
         """Avisa por Telegram si la orden llegó desde un chat de Telegram."""

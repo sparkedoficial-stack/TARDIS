@@ -1,10 +1,11 @@
 """
-gemini_bridge.py - Puente de Alto Rendimiento con Google Gemini Heavy (Gemini 2.5 Pro).
-=======================================================================================
+gemini_bridge.py - Puente de Alto Rendimiento con Google Gemini Heavy (Gemini 4 Neon XHigh).
+==========================================================================================
 
 Capacidades principales:
-  1. Acceso al modelo más actual y pesado de Google: `gemini-2.5-pro` (o alternativas
-     configurables: `gemini-2.0-pro-exp-02-05`, `gemini-1.5-pro`, `gemini-2.5-flash`).
+  1. Acceso al modelo flagship de frontera de Google: `gemini-4-neon-xhigh` (máximo
+     razonamiento, effort `xhigh`; alternativas configurables: `gemini-4-neon-high`,
+     `gemini-3.8-flash-high`, `gemini-2.5-pro`).
   2. Integración nativa con la memoria e historial de conversaciones (`gia_memory.py`):
      recupera turnos recientes y turnos semánticamente relevantes vía SQLite FTS5.
   3. Bóveda Cifrada de Privacidad (`gemini_privacy_vault.py`):

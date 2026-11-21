@@ -245,13 +245,18 @@ class TardisFtlEngineer:
         job_id = f"ftl_eng_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{os.getpid()}"
         log_file = LOGS_DIR / f"{job_id}.log"
 
+        meta_data = dict(meta or {})
+        progress_job_id = str(meta_data.get("progress_job_id") or job_id)
+        meta_data["_progress_job_id"] = progress_job_id
+        meta_data["_progress_owned"] = not bool(meta_data.get("progress_job_id"))
+
         job = FtlEngineerJob(
             job_id=job_id,
             prompt=prompt,
             mode=mode,
             cwd=target_cwd,
             log_path=log_file,
-            meta=meta or {},
+            meta=meta_data,
         )
 
         with self._lock:
@@ -262,6 +267,8 @@ class TardisFtlEngineer:
                     "active_job_id": self.current_job.job_id,
                 }
             self.current_job = job
+
+        self._start_progress(job)
 
         if background:
             thread = threading.Thread(
@@ -337,6 +344,7 @@ class TardisFtlEngineer:
                     full_output.append(line)
                     lf.write(line)
                     lf.flush()
+                    self._note_progress(job, line)
                     if len(job.output_tail) > 30:
                         job.output_tail.pop(0)
                     job.output_tail.append(line.rstrip())
@@ -391,6 +399,8 @@ class TardisFtlEngineer:
                 self.total_jobs_run += 1
                 self.last_completed_job = result_summary
                 self.current_job = None
+
+            self._finish_progress(job, result_summary)
 
         return result_summary
 

@@ -276,7 +276,7 @@ class FTLInterface:
         branch = self.get_git_branch()
         cwd_name = Path.cwd().name or str(Path.cwd())
 
-        g_model = registry.get_google_model("flash")
+        g_model = registry.get_google_model("pro")
         c_model = registry.get_anthropic_model("sonnet")
 
         mode_colors = {
@@ -320,8 +320,9 @@ class FTLInterface:
             f"Mascota Oficial: [bold cyan]TON 618[/bold cyan] ([bold gold1]66B M☉ Quásar[/bold gold1])"
         )
 
+        g_effort = "XHIGH" if "xhigh" in g_model.lower() else "HIGH"
         table.add_row(
-            f"Google Frontier: [cyan]{g_model} [bold red](HIGH)[/bold red][/cyan]  |  Anthropic Frontier: [magenta]{c_model} [bold red](MAX)[/bold red][/magenta]",
+            f"Google Frontier: [cyan]{g_model} [bold red]({g_effort})[/bold red][/cyan]  |  Anthropic Frontier: [magenta]{c_model} [bold red](MAX)[/bold red][/magenta]",
             f"Parámetros: [cyan]{q_ctx // 1024}K Ctx | Temp {q_temp} | 28GB Mlock[/cyan]"
         )
 

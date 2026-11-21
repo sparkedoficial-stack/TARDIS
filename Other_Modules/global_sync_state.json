@@ -1,7 +1,74 @@
 {
-  "revision": 2747,
-  "lamport": 2941,
-  "history": [],
+  "revision": 2754,
+  "lamport": 2947,
+  "history": [
+    {
+      "id": "msg_1795158339742_1",
+      "role": "system",
+      "content": "⚡ [FTL] PLAN COGNITIVO (TEST): Verificación de puente FTL-TARDIS (RC:0, 0.5s)",
+      "timestamp": REDACTED_PHONE.7429411,
+      "iso": "2026-11-20T02:05:39.742956",
+      "lamport": 2942,
+      "meta": "FTL · TEST",
+      "raw_data": {},
+      "client_id": "ftl_sovereign"
+    },
+    {
+      "id": "msg_1795158506307_2",
+      "role": "system",
+      "content": "⚡ [FTL] PLAN COGNITIVO (TEST): Verificación de puente FTL-TARDIS (RC:0, 0.5s)",
+      "timestamp": REDACTED_PHONE.3070936,
+      "iso": "2026-11-20T02:08:26.307113",
+      "lamport": 2943,
+      "meta": "FTL · TEST",
+      "raw_data": {},
+      "client_id": "ftl_sovereign"
+    },
+    {
+      "id": "msg_1795158698592_3",
+      "role": "system",
+      "content": "⚡ [FTL] PLAN COGNITIVO (TEST): Verificación de puente FTL-TARDIS (RC:0, 0.5s)",
+      "timestamp": REDACTED_PHONE.5922315,
+      "iso": "2026-11-20T02:11:38.592246",
+      "lamport": 2944,
+      "meta": "FTL · TEST",
+      "raw_data": {},
+      "client_id": "ftl_sovereign"
+    },
+    {
+      "id": "msg_1795167521931_4",
+      "role": "user",
+      "content": "Tardis, predice eventos de grados de abstracción de información que llegará a la humanidad.",
+      "timestamp": REDACTED_PHONE.9315946,
+      "iso": "2026-11-20T04:38:41.931603",
+      "lamport": 2945,
+      "meta": "Nodo: Telegram [Reysek] (Conversación Soberana)",
+      "raw_data": {},
+      "client_id": "tg_-REDACTED_PHONE"
+    },
+    {
+      "id": "msg_1795224655630_5",
+      "role": "user",
+      "content": "Descríbete como un SCP",
+      "timestamp": REDACTED_PHONE.6300633,
+      "iso": "2026-11-20T20:30:55.630071",
+      "lamport": 2946,
+      "meta": "Nodo: Telegram [X] (Conversación Soberana)",
+      "raw_data": {},
+      "client_id": "tg_7153384115"
+    },
+    {
+      "id": "msg_1795224695989_6",
+      "role": "user",
+      "content": "Tardis si te cansas puedes descansar.",
+      "timestamp": REDACTED_PHONE.9898462,
+      "iso": "2026-11-20T20:31:35.989856",
+      "lamport": 2947,
+      "meta": "Nodo: Telegram [Reysek] (Conversación Soberana)",
+      "raw_data": {},
+      "client_id": "tg_-REDACTED_PHONE"
+    }
+  ],
   "config": {
     "model": "TARDIS-NEURAL-SPACE-KAIJU",
     "temperature": 0.3,
@@ -27,14 +94,14 @@
     "lamport": 2929,
     "web_search": true
   },
-  "updated_at": "2026-11-19T23:06:54.252018",
+  "updated_at": "2026-11-20T20:31:35.989868",
   "visual_intelligence": {
     "active": true,
     "pid": 1460,
-    "videos_stored": 1023,
-    "verdicts": 462,
+    "videos_stored": 1025,
+    "verdicts": 467,
     "vlm_model": "qwen3-vl:2b-instruct",
-    "last_risk_level": null,
-    "last_ping": REDACTED_PHONE.448595
+    "last_risk_level": 5,
+    "last_ping": REDACTED_PHONE.0184903
   }
 }

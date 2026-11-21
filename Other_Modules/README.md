@@ -694,6 +694,7 @@ Módulos y componentes auxiliares del sistema.
 - **dossier_20261119_235920_603.json**: Componente de alta eficiencia.
 - **dossier_20261120_010353_818.json**: Componente de alta eficiencia.
 - **dossier_20261120_010817_263.json**: Componente de alta eficiencia.
+- **dossier_20261120_203454_518.json**: Componente de alta eficiencia.
 - **dynamic_tools_registry.json**: Directorio y puente soberano de interoperabilidad omni-herramientas.
 - **ecca_v3_core.py**: Núcleo de orquestación y control temporal/espacial.
 - **engine.py**: Componente de alta eficiencia.
@@ -841,6 +842,7 @@ Módulos y componentes auxiliares del sistema.
 - **pocket_telemetry.json**: Componente de alta eficiencia.
 - **policy.py**: Componente de alta eficiencia.
 - **precision_policy.json**: Componente de alta eficiencia.
+- **program_progress.py**: Componente de alta eficiencia.
 - **progress.py**: Componente de alta eficiencia.
 - **proposals.json**: Componente de alta eficiencia.
 - **qoder_change_request.py**: Componente de alta eficiencia.
@@ -871,8 +873,10 @@ Módulos y componentes auxiliares del sistema.
 - **scientific_research_engine.py**: Componente de alta eficiencia.
 - **scp005_91c803851d26.json**: Componente de alta eficiencia.
 - **scp_conceptual_suite.py**: Componente de alta eficiencia.
+- **screen_capture.py**: Componente de alta eficiencia.
 - **self_updater.py**: Componente de alta eficiencia.
 - **sentinel_state.json**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **session_active.json**: Componente de alta eficiencia.
 - **skills_rag_ingest.json**: Especificación agéntica de capacidades soberanas para agentes autónomos.
 - **sms_config.json**: Componente de alta eficiencia.
 - **sms_history.json**: Componente de alta eficiencia.

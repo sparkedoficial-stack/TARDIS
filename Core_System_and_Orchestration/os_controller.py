@@ -428,7 +428,35 @@ class OSController:
         """
         Captura la pantalla completa o una región rectangular.
         Retorna: (raw_bytes, data_uri)
+
+        Orden de resolución: capturador soberano (grim/Wayland, luego mss,
+        ImageMagick o scrot) y, como último recurso, el camino mss histórico.
         """
+        try:
+            from core.screen_capture import capture as _sovereign_capture
+        except Exception:
+            try:
+                from screen_capture import capture as _sovereign_capture
+            except Exception:
+                _sovereign_capture = None
+
+        if _sovereign_capture is not None:
+            try:
+                fmt_req = "jpeg" if str(format).lower() in ("jpg", "jpeg") else "png"
+                raw_bytes, _meta = _sovereign_capture(
+                    fmt=fmt_req,
+                    max_width=max_width,
+                    quality=quality,
+                    region=region,
+                )
+                mime = "image/jpeg" if fmt_req == "jpeg" else "image/png"
+                b64 = base64.b64encode(raw_bytes).decode("utf-8")
+                return raw_bytes, f"data:{mime};base64,{b64}"
+            except Exception:
+                # Si el capturador soberano falla (p. ej. sesión bloqueada),
+                # se intenta el camino clásico X11 antes de rendirse.
+                pass
+
         if not HAS_MSS or not HAS_PIL:
             raise RuntimeError("Dependencias de captura (mss, Pillow) no disponibles.")
 

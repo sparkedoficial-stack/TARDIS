@@ -136,6 +136,16 @@ USAGE = (
 )
 
 
+def _progress_notifier():
+    """Canal visual de avances; nunca rompe el trabajo si no está disponible."""
+    try:
+        from core.program_progress import get_program_progress
+
+        return get_program_progress()
+    except Exception:  # noqa: BLE001
+        return None
+
+
 def strip_ansi(text: str) -> str:
     return _ANSI_RE.sub("", text or "")
 
@@ -291,6 +301,18 @@ class FTLTelegramRunner:
             "Te aviso al terminar. <code>/ftl estado</code> · <code>/ftl cancelar</code>",
             chat_id, msg_id,
         )
+        progress = _progress_notifier()
+        if progress is not None:
+            try:
+                progress.start_job(
+                    job_id=job.job_id,
+                    chat_id=job.chat_id,
+                    goal=req.prompt,
+                    kind="FTL",
+                    cwd=str(req.cwd),
+                )
+            except Exception:  # noqa: BLE001
+                pass
         threading.Thread(target=self._run, args=(job, msg_id), name=f"ftl-job-{job_id}", daemon=True).start()
         return job
 
@@ -412,11 +434,17 @@ class FTLTelegramRunner:
 
                 threading.Thread(target=_watchdog, daemon=True).start()
 
+                progress = _progress_notifier()
                 for raw in job.process.stdout:
                     line = strip_ansi(raw)
                     job.output.append(line)
                     if len(job.output) > 5000:
                         del job.output[:1000]
+                    if progress is not None:
+                        try:
+                            progress.note_output(job.job_id, line)
+                        except Exception:  # noqa: BLE001
+                            pass
                     log.write(line)
                     log.flush()
                 rc = job.process.wait()
@@ -438,6 +466,17 @@ class FTLTelegramRunner:
         else:
             header = f"❌ <b>FTL terminó con errores</b> (código {rc}) en {mins}."
         self._send(f"{header}\n📄 Registro completo: <code>{html.escape(str(job.log_path))}</code>", job.chat_id, msg_id)
+
+        progress = _progress_notifier()
+        if progress is not None:
+            try:
+                progress.finish_job(
+                    job.job_id,
+                    ok=(rc == 0 and not job.cancelled and not timed_out),
+                    summary=header,
+                )
+            except Exception:  # noqa: BLE001
+                pass
 
         # El registro conserva todo; a Telegram solo va la respuesta útil
         output = "".join(l for l in job.output if not is_ui_noise(l)).strip()

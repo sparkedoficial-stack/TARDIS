@@ -49,6 +49,7 @@ class TimeEstimator:
     ENGINE_BASELINES: Dict[str, Dict[int, float]] = {
         "gemini_flash": {1: 14.0, 2: 24.0, 3: 45.0, 4: 75.0, 5: 110.0},
         "gemini_pro":   {1: 22.0, 2: 38.0, 3: 65.0, 4: 110.0, 5: 160.0},
+        "gemini_xhigh": {1: 32.0, 2: 58.0, 3: 100.0, 4: 170.0, 5: 245.0},
         "claude_sonnet":{1: 26.0, 2: 46.0, 3: 78.0, 4: 130.0, 5: 190.0},
         "claude_opus":  {1: 45.0, 2: 80.0, 3: 145.0, 4: 225.0, 5: 320.0},
         "dual_synth":   {1: 35.0, 2: 60.0, 3: 105.0, 4: 180.0, 5: 280.0},
@@ -65,7 +66,9 @@ class TimeEstimator:
             return "dual_audit"
         if mode == "claude" or "claude" in model or "sonnet" in model or "opus" in model:
             return "claude_opus" if "opus" in model.lower() else "claude_sonnet"
-        if "pro" in model.lower() or "argon" in model.lower():
+        if "xhigh" in model.lower():
+            return "gemini_xhigh"
+        if "pro" in model.lower() or "argon" in model.lower() or "neon" in model.lower():
             return "gemini_pro"
         return "gemini_flash"
 
@@ -114,7 +117,7 @@ class TimeEstimator:
         prompt: str,
         complexity: int = 2,
         mode: str = "gemini",
-        model: str = "gemini-4-neon-high",
+        model: str = "gemini-4-neon-xhigh",
         context_scope: str = "compact"
     ) -> float:
         """
@@ -173,7 +176,7 @@ class TemporalProgressBar:
         prompt: str,
         estimated_duration: float,
         engine_label: str = "GEMINI",
-        model_name: str = "gemini-4-neon-high",
+        model_name: str = "gemini-4-neon-xhigh",
         complexity_label: str = "Level 2: Standard Implementation",
         console: Optional[Console] = None
     ):
@@ -373,7 +376,7 @@ def run_command_with_progress(
     prompt: str,
     estimated_duration: float,
     engine_label: str = "GEMINI",
-    model_name: str = "gemini-4-neon-high",
+    model_name: str = "gemini-4-neon-xhigh",
     complexity_label: str = "Level 2: Standard Implementation",
     prefix: str = "",
     on_line: Optional[Callable[[str], None]] = None,

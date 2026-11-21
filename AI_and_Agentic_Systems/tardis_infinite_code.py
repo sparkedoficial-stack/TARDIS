@@ -6,8 +6,8 @@ GODWORKS SYSTEM v26.4 · Suite Soberana TARDIS / FTL
 Mezcla sinérgica de los 4 modelos de frontera presentes en el sistema:
   1. Google Gemini Flash High (gemini-3.8-flash-high):
      - Rol: Scout hiper-rápido, absorción masiva de contexto (1M+ tokens), esqueletos y scaffolding.
-  2. Google Gemini Pro High (gemini-3.1-pro-high):
-     - Rol: Arquitectura cognitiva profunda, lógica de concurrencia y razonamiento de sistemas complejos.
+  2. Google Gemini 4 Neon XHigh (gemini-4-neon-xhigh):
+     - Rol: Arquitectura cognitiva profunda, lógica de concurrencia y razonamiento de sistemas complejos (effort xhigh).
   3. Anthropic Claude Sonnet Thinking (sonnet):
      - Rol: Síntesis de software de precisión, tipado estricto, refactorización robusta e implementación concreta.
   4. Anthropic Claude Opus Max Thinking (opus):
@@ -128,8 +128,9 @@ class TardisInfiniteCodeEngine:
                 cls._instance = cls()
             return cls._instance
 
-    def _call_agy(self, prompt: str, model: str, effort: str = "xhigh", timeout: float = 300.0) -> Tuple[int, str]:
+    def _call_agy(self, prompt: str, model: str, effort: str = "", timeout: float = 300.0) -> Tuple[int, str]:
         """Ejecuta inferencia mediante Antigravity / Gemini CLI en modo bypass."""
+        effort = effort or ("xhigh" if "neon" in model.lower() else "high")
         full_prompt = f"{SOVEREIGN_INVARIANT}{prompt}"
         cmd = [
             "agy",

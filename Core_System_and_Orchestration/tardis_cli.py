@@ -287,7 +287,7 @@ def cmd_voice(subcmd: str = "status", arg: str = None):
 
 def cmd_infinite(task_str: str):
     print(f"{C_CYAN}{C_BOLD}🛸 [TARDIS INFINITE CODE] Fusión Cuádruple de Frontera:{C_RESET}")
-    print(f"  • Gemini Flash High (Scout) + Gemini Pro High (Arquitectura) + Claude Sonnet (Síntesis) + Claude Opus (Apex)")
+    print(f"  • Gemini Flash High (Scout) + Gemini Pro XHigh (Arquitectura) + Claude Sonnet (Síntesis) + Claude Opus (Apex)")
     print(f"  • Acelerador Externo: Chinese Cloud API (300+ tok/s) | Respaldo: Núcleo Soberano Kaiju\n")
     print(f"{C_GOLD}Tarea:{C_RESET} {task_str}")
     # DIRECTIVA DEL ARQUITECTO: sin límite por defecto; FTL_INFINITE_TIMEOUT

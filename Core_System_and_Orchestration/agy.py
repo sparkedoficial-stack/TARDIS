@@ -13,9 +13,11 @@ from pathlib import Path
 from typing import Dict, Any, Optional
 
 class AntigravityClient:
-    def __init__(self, model: str = "gemini-4-neon-xhigh", effort: str = "xhigh"):
+    def __init__(self, model: str = "gemini-4-neon-xhigh", effort: str = ""):
         self.model = model
-        self.effort = effort
+        self.effort = effort or (
+            "xhigh" if ("neon" in model.lower() or "xhigh" in model.lower()) else "high"
+        )
         self.agy_bin = Path("/home/timemachine/.local/bin/agy")
         if not self.agy_bin.exists():
             self.agy_bin = Path("/home/timemachine/Escritorio/GODWORKS SYSTEM/bin/agy")
