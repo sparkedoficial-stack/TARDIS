@@ -3,18 +3,19 @@
   "architect_goal": "Optimización de red y router físico/software + Sistema de Continuidad Absoluta Post-Reinicio",
   "current_request": "utilizando el sistema bypass de FTL, continúa todo los procesos en mis terminales agy, FTL, o opencode, de esta forma los programas harán todo desde inicio a final de forma completamente autónoma",
   "source": "FTL",
-  "status": "completed",
+  "status": "idle",
   "progress_percent": 100,
-  "phase": "Completado exitosamente",
+  "phase": "Sistema operativo y en línea tras reinicio #295",
   "details": {
     "plan_mode": "gemini",
     "model": "gemini-4-neon-xhigh",
     "start_iso": "2026-11-20 22:19:57",
     "artifacts": [],
     "completion_iso": "2026-11-20 22:37:59",
-    "output_summary": "Se ha auditado el estado real de las terminales **`agy`**, **`FTL`** y **`opencode`**, se han corregido las causas raíz que detenían las sesiones interactivas y en segundo plano, se ha desplegado el **Motor Unificado FTL de Continuación Autónoma Multi-Terminal (`ftl-continue` + barrido 24/7 en `tardis-agy-autopilot.service`)** usando exclusivamente los contratos oficiales de cada CLI, y se han reanudado/reconciliado los procesos pendientes detectados.\n\n---\n\n## 1. Diagnóstico de Causa Raíz (Por qué se detenían los procesos en `agy`, `FTL` y `opencode`)\n\n1. **Precedencia de `PATH` en terminales interactivas (`foot` / `bash`):**\n   - `/usr/share/omarchy/default/bash/envs` añadía `~/.local/bin` al **final** de `PATH`, detrás de `/home/m11/.local/share/mise/installs/antigravity-cli/latest` y `/home/m11/.local/share/mise/installs/opencode/latest/node_modules/.bin`, y [`.bashrc`](file:///home/m11/.bashrc) no cargaba [`.bash_aliases`](file:///home/m11/.bash_aliases).\n   - Como consecuencia, al"
+    "output_summary": "Se ha auditado el estado real de las terminales **`agy`**, **`FTL`** y **`opencode`**, se han corregido las causas raíz que detenían las sesiones interactivas y en segundo plano, se ha desplegado el **Motor Unificado FTL de Continuación Autónoma Multi-Terminal (`ftl-continue` + barrido 24/7 en `tardis-agy-autopilot.service`)** usando exclusivamente los contratos oficiales de cada CLI, y se han reanudado/reconciliado los procesos pendientes detectados.\n\n---\n\n## 1. Diagnóstico de Causa Raíz (Por qué se detenían los procesos en `agy`, `FTL` y `opencode`)\n\n1. **Precedencia de `PATH` en terminales interactivas (`foot` / `bash`):**\n   - `/usr/share/omarchy/default/bash/envs` añadía `~/.local/bin` al **final** de `PATH`, detrás de `/home/m11/.local/share/mise/installs/antigravity-cli/latest` y `/home/m11/.local/share/mise/installs/opencode/latest/node_modules/.bin`, y [`.bashrc`](file:///home/m11/.bashrc) no cargaba [`.bash_aliases`](file:///home/m11/.bash_aliases).\n   - Como consecuencia, al",
+    "last_recovery_iso": "2026-11-21 01:26:07"
   },
-  "created_ts": REDACTED_PHONE.968055,
-  "updated_ts": REDACTED_PHONE.587202,
-  "reboot_count": 293
+  "created_ts": REDACTED_PHONE.0398629,
+  "updated_ts": REDACTED_PHONE.2473967,
+  "reboot_count": 295
 }

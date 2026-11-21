@@ -1,12 +1,12 @@
 {
   "daemon": "tardis-visual-intelligence",
   "running": true,
-  "pid": 1460,
-  "uptime_sec": 79273.6,
-  "last_heartbeat": "2026-11-20T23:55:40.587406",
+  "pid": 1426,
+  "uptime_sec": 33808.8,
+  "last_heartbeat": "2026-11-21T10:49:38.043142",
   "items_processed": 0,
   "last_processed_id": "",
-  "memory_rss_mb": 325.09,
+  "memory_rss_mb": 316.17,
   "engine_status": {
     "status": "online",
     "engine": "VisualIntelligenceEngine v26.5 (VLM + Veredictos)",
@@ -19,16 +19,16 @@
     "vlm_provider": "auto",
     "vlm_error": "",
     "verdict_engine": "VLM + Kaiju + veredicto estructurado",
-    "stored_videos_count": 1026,
-    "stored_images_count": 393,
+    "stored_videos_count": 1028,
+    "stored_images_count": 401,
     "stored_sounds_count": 0,
-    "stored_verdicts_count": 478,
+    "stored_verdicts_count": 488,
     "last_verdict": {
-      "id": "img_20261120_234558_5c53c7",
-      "created_at": "2026-11-20T23:50:02.203888",
-      "source": "daemon",
-      "verdict": "*   Estado General del Entorno: Indeterminado / Vacío Visual. No hay elementos observables que permitan caracterizar el espacio físico.\n*   Nivel de Riesgo Objetivo: 0/10.\n    *   *Justificación:* No se detectan amenazas, objetos peligrosos, personas hostiles ni anomalías físicas. El riesgo es nulo porque no hay información de peligro. Sin embargo, la *utilidad* de la información es también nula.\n*   Hechos Observados:\n    *   Imagen gris uniforme (#474747).\n    *   Sin audio.\n    *   Sin objetos ni sujetos.\n*   Inferencias:\n    *   La cámara no está capturando la realidad circundante correcta",
-      "risk_level": 0
+      "id": "vid_20261121_103213_c99d41",
+      "created_at": "2026-11-21T10:44:30.520961",
+      "source": "video_pensante",
+      "verdict": "Dictamen:\nEl medio es una presentación académ",
+      "risk_level": null
     },
     "surroundings_interval_sec": 900,
     "vault_dir": "/home/m11/Escritorio/GODWORKS SYSTEM/vault/videos/telegram",
@@ -37,13 +37,13 @@
   },
   "surroundings": {
     "interval_sec": 900.0,
-    "checks": 13,
-    "verdicts": 13,
-    "last_verdict_id": "img_20261120_234558_5c53c7",
+    "checks": 6,
+    "verdicts": 6,
+    "last_verdict_id": "img_20261121_102030_24b179",
     "last_risk_level": 0,
-    "last_verdict": "*   Estado General del Entorno: Indeterminado / Vacío Visual. No hay elementos observables que permitan caracterizar el espacio físico.\n*   Nivel de Riesgo Objetivo: 0/10.\n    *   *Justificación:* No se detectan amenazas, objetos peligrosos, personas hostiles ni anomalías físicas. El riesgo es nulo porque no hay información de peligro. Sin embargo, la *utilidad* de la información es también nula.\n*   Hechos Observados:\n    *   Imagen gris uniforme (#474747).\n    *   Sin audio.\n    *   Sin objetos ni sujetos.\n*   Inferencias:\n    *   La cámara no está capturando la realidad circundante correctamente.\n    *   Es probable que el sensor esté obstruido o mal calibrado.\n*   Dudas:\n    *   ¿Está la cámara funcionando?\n    *   ¿Dónde se encuentra el Arquitecto?\n    *   ¿Es esto una prueba de sistema o un fallo real?\n\nRecomendación Concreta:\n1.  Verificar la cámara: Asegúrate de que la lente no esté tapada, sucia o bloqueada.\n2.  Reencuadrar: Apunta la cámara hacia un área con iluminación y objetos definidos para obtener una lectura válida del entorno.\n3.  Reenviar datos: Una vez corregida la obstrucción o el encuadre, proporciona una nueva captura para que pueda realizar un análisis real d",
-    "last_error": "",
-    "last_check_ts": REDACTED_PHONE.4726448
+    "last_verdict": "*   Hechos Observados:\n    *   Imagen estática de 1920x1080.\n    *   Color dominante: Verde grisáceo (#8c9382).\n    *   Sin audio.\n    *   Sin objetos, personas o estructuras identificables.\n    *   Textura granulada/ruidosa.\n\n*   Inferencias:\n    *   El entorno inmediato no ofrece información útil para la navegación o la seguridad.\n    *   La cámara o sensor pudo haber estado tapado, enfocado en una superficie uniforme, o experimentando un fallo de exposición/ruido.\n\n*   Dudas:\n    *   ¿Es esta una imagen deliberada o un error de captura?\n    *   ¿Qué representa la superficie verde grisácea? (Pared, suelo, cielo nublado, pantalla apagada?)\n\n*   Estado General del Entorno: Desconocido / Indeterminado. No se puede caracterizar el entorno debido a la falta de elementos visuales definitorios.\n\n*   Nivel de Riesgo Objetivo: 0/10\n    *   *Justificación:* No se observan amenazas físicas, peligros inminentes ni anomalías peligrosas. La ausencia de información no equivale a peligro, pero sí a falta de datos.\n\n*   Recomendación Concreta:\n    *   Verificar el sensor/cámara: Asegúrate de que la lente no esté obstruida, sucia o tapada.\n    *   Recapturar la escena: Toma una nueva imagen o vide",
+    "last_error": "escena sin cambios relevantes (delta=2.9)",
+    "last_check_ts": REDACTED_PHONE.805219
   },
   "vlm": {
     "ready": true,

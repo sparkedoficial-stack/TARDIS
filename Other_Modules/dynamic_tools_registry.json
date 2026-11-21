@@ -347,7 +347,30 @@
       "transcript",
       "pause",
       "resume",
-      "reset-session"
+      "reset-session",
+      "scan-terminals",
+      "continue-all"
+    ],
+    "status": "ACTIVE_SOVEREIGN"
+  },
+  "omni_tool_terminal_continuator": {
+    "name": "omni_tool_terminal_continuator",
+    "tool_id": "terminal_continuator",
+    "title": "FTL Unified Multi-Terminal Autonomous Continuator (AGY · FTL · OpenCode)",
+    "domain": "multi_terminal_autonomous_continuation",
+    "description": "Escanea, reconcilia y continúa autónomamente de principio a fin procesos pausados, fallidos o interrumpidos en agy, FTL y opencode usando el sistema autónomo y de failover de FTL.",
+    "actions": [
+      "status",
+      "verify",
+      "scan",
+      "reconcile",
+      "run",
+      "continue-agy",
+      "continue-opencode",
+      "continue-ftl",
+      "sweep",
+      "pause",
+      "resume"
     ],
     "status": "ACTIVE_SOVEREIGN"
   }

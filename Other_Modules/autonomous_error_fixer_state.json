@@ -2,8 +2,8 @@
   "agent": "TardisAutonomousErrorFixer",
   "version": "26.4",
   "status": "ACTIVE_AUTONOMOUS",
-  "total_cycles": 34848,
-  "total_errors_fixed": 33,
+  "total_cycles": 36148,
+  "total_errors_fixed": 1168,
   "total_functions_synthesized": 1,
   "registered_fix_functions": [
     "fix_llama_server_health",
@@ -12,11 +12,11 @@
     "fix_evolution_locks_and_sqlite",
     "fix_codebase_ast_and_subsystems"
   ],
-  "last_run_iso": "2026-11-20T23:55:31.344640",
+  "last_run_iso": "2026-11-21T10:49:33.472221",
   "last_report": {
     "ok": true,
-    "cycle": 34848,
-    "elapsed_s": 0.053,
+    "cycle": 36148,
+    "elapsed_s": 0.057,
     "llama_server": {
       "ok": true,
       "actions": []
@@ -27,7 +27,9 @@
     },
     "systemd_and_symlinks": {
       "ok": true,
-      "actions": []
+      "actions": [
+        "Unidad systemd --user recuperada: antigravity-cli-daemon.service"
+      ]
     },
     "locks": {
       "ok": true,
@@ -37,8 +39,8 @@
       "ok": true,
       "applied_fixes": []
     },
-    "total_errors_fixed": 33,
+    "total_errors_fixed": 1168,
     "total_functions_synthesized": 1,
-    "timestamp_iso": "2026-11-20T23:55:31.344640"
+    "timestamp_iso": "2026-11-21T10:49:33.472221"
   }
 }

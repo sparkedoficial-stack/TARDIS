@@ -691,31 +691,50 @@ class TardisBrowser:
 
         if not target_links:
             # Fallback robusto mediante API oficial de búsqueda de Wikipedia (es -> en)
-            # Evita construir URLs 404 con una sola palabra cuando DuckDuckGo devuelve 202.
-            for wiki_lang in ("es", "en"):
-                try:
-                    wiki_api = (
-                        f"https://{wiki_lang}.wikipedia.org/w/api.php"
-                        f"?action=query&list=search&srsearch={urllib.parse.quote(query)}"
-                        f"&format=json&srlimit=3&utf8=1"
-                    )
-                    async with httpx.AsyncClient(
-                        timeout=12.0,
-                        follow_redirects=True,
-                        headers={"User-Agent": "TARDIS-Browser/26.4 (AutonomousResearch; local)"},
-                    ) as client:
-                        resp = await client.get(wiki_api)
-                        if resp.status_code == 200:
-                            hits = (resp.json().get("query") or {}).get("search") or []
-                            for hit in hits[:2]:
-                                title = str(hit.get("title") or "").strip()
-                                if title:
-                                    slug = urllib.parse.quote(title.replace(" ", "_"))
-                                    target_links.append(f"https://{wiki_lang}.wikipedia.org/wiki/{slug}")
+            # Si la frase completa no da coincidencias (p. ej. jerga muy específica),
+            # reintenta con las palabras clave principales para garantizar artículos HTTP 200 reales.
+            stop_words = {
+                "de", "la", "el", "los", "las", "un", "una", "y", "o", "en", "con", "por", "para",
+                "sobre", "del", "al", "se", "que", "su", "sus", "the", "of", "and", "in", "for",
+                "to", "with", "on", "a", "an", "by", "from", "técnicas", "tecnicas", "modelos",
+            }
+            tokens = [t for t in re.findall(r"[A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9\-]{4,}", query) if t.lower() not in stop_words]
+            search_candidates = [query.strip()]
+            if len(tokens) >= 2:
+                search_candidates.append(" ".join(tokens[:3]))
+                search_candidates.append(" ".join(tokens[-2:]))
+            if tokens:
+                search_candidates.append(max(tokens, key=len))
+
+            async with httpx.AsyncClient(
+                timeout=12.0,
+                follow_redirects=True,
+                headers={"User-Agent": "TARDIS-Browser/26.4 (AutonomousResearch; local)"},
+            ) as client:
+                for cand in search_candidates:
                     if target_links:
                         break
-                except Exception as e_wiki:
-                    logger.debug(f"Fallback Wikipedia API ({wiki_lang}) omitido: {e_wiki}")
+                    for wiki_lang in ("es", "en"):
+                        try:
+                            wiki_api = (
+                                f"https://{wiki_lang}.wikipedia.org/w/api.php"
+                                f"?action=query&list=search&srsearch={urllib.parse.quote(cand)}"
+                                f"&format=json&srlimit=3&utf8=1"
+                            )
+                            resp = await client.get(wiki_api)
+                            if resp.status_code == 200:
+                                hits = (resp.json().get("query") or {}).get("search") or []
+                                for hit in hits[:2]:
+                                    title = str(hit.get("title") or "").strip()
+                                    if title:
+                                        slug = urllib.parse.quote(title.replace(" ", "_"))
+                                        url_hit = f"https://{wiki_lang}.wikipedia.org/wiki/{slug}"
+                                        if url_hit not in target_links:
+                                            target_links.append(url_hit)
+                            if target_links:
+                                break
+                        except Exception as e_wiki:
+                            logger.debug(f"Fallback Wikipedia API ({wiki_lang}) omitido: {e_wiki}")
 
         if not target_links:
             safe_topic = urllib.parse.quote(query.strip().replace(" ", "_"))

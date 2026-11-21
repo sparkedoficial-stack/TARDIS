@@ -34,7 +34,21 @@ DATA_DIR.mkdir(parents=True, exist_ok=True)
 TELEMETRY_LOG = DATA_DIR / "pocket_telemetry.json"
 COMMAND_QUEUE_FILE = DATA_DIR / "command_queue.json"
 AUTHORIZED_SERIAL = "ZY222ZXWPP"
-SOVEREIGN_KEY = f'{GIA_TOKEN}'
+
+
+def _resolve_sovereign_key() -> str:
+    tok = (os.environ.get("GIA_AUTH_TOKEN") or os.environ.get("GIA_TOKEN") or "").strip()
+    if tok:
+        return tok
+    try:
+        from core.security import get_authorized_tokens
+        tokens = get_authorized_tokens()
+        return next(iter(tokens), "") if tokens else ""
+    except Exception:
+        return ""
+
+
+SOVEREIGN_KEY = _resolve_sovereign_key()
 
 
 def get_local_lan_ip() -> str:

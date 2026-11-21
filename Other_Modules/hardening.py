@@ -706,8 +706,7 @@ class SystemHardening:
         aegis_home = Path(os.environ.get("AEGIS_HOME", str(self.home / ".aegis"))).resolve()
         rules = [
             "# AEGIS-Ω · reglas de auditoría soberanas",
-            "-b 8192",
-            "-f 1",
+            "-D",
             "",
             "# Custodia criptográfica AEGIS",
             f"-w {aegis_home} -p wa -k aegis_custody",
@@ -729,7 +728,7 @@ class SystemHardening:
             "-a always,exit -F arch=b64 -S execve -F euid=0 -k aegis_root_exec",
             "",
             "# Montajes y desmontajes",
-            "-a always,exit -F arch=b64 -S mount -S umount2 -F auid>=1000 -F auid!=REDACTED_PHONE -k aegis_mount",
+            "-a always,exit -F arch=b64 -S mount -S umount2 -F auid>=1000 -F auid!=unset -k aegis_mount",
             "",
             "# Módulos del kernel",
             "-a always,exit -F arch=b64 -S init_module -S finit_module -S delete_module -k aegis_module",

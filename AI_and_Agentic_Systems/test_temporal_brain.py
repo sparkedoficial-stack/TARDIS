@@ -116,7 +116,11 @@ class TestTemporalBrain(unittest.TestCase):
             "usage": {"completion_tokens": 10}
         }
         mock_client.post.return_value = mock_resp
+        # Soporta ambos patrones de `core.temporal_brain`: cliente persistente
+        # (`_get_uds_client` -> httpx.Client(...) directo) y `with httpx.Client(...)`.
+        mock_client_cls.return_value = mock_client
         mock_client_cls.return_value.__enter__.return_value = mock_client
+        mock_client.is_closed = False
 
         brain = TemporalBrain(config_path=self.config_path)
 
@@ -151,7 +155,10 @@ class TestTemporalBrain(unittest.TestCase):
             "usage": {"completion_tokens": 5}
         }
         mock_client.post.return_value = mock_resp
+        # Soporta cliente persistente (`_get_uds_client`) y `with httpx.Client(...)`.
+        mock_client_cls.return_value = mock_client
         mock_client_cls.return_value.__enter__.return_value = mock_client
+        mock_client.is_closed = False
 
         brain = TemporalBrain(config_path=self.config_path)
         adapter = CustomTestAdapter()
