@@ -61,7 +61,9 @@ from core.tardis_voice_local import LocalSpeechToText, for_speech
 from core.tardis_voice_program import get_voice_program_router
 from core.telegram_call_priority import (
     activate_call_priority,
+    boost_process_for_call,
     get_call_priority_status,
+    is_call_priority_active,
     release_call_priority,
     touch_call_priority,
 )
@@ -304,31 +306,41 @@ class RealtimeVoiceEngine:
         tmp_audio = shm_dir / f"tardis_tgcall_{os.getpid()}_{time.time_ns()}.bin"
         try:
             tmp_audio.write_bytes(audio_bytes)
-            proc = subprocess.run(
-                [
-                    "ffmpeg",
-                    "-nostdin",
-                    "-loglevel",
-                    "error",
-                    "-i",
-                    str(tmp_audio),
-                    "-ar",
-                    "16000",
-                    "-ac",
-                    "1",
-                    "-f",
-                    "s16le",
-                    "pipe:1",
-                ],
-                capture_output=True,
-                timeout=15,
-            )
+            cmd = [
+                "ffmpeg",
+                "-nostdin",
+                "-loglevel",
+                "error",
+                "-i",
+                str(tmp_audio),
+                "-ar",
+                "16000",
+                "-ac",
+                "1",
+                "-f",
+                "s16le",
+                "pipe:1",
+            ]
+            # Durante llamadas prioritarias, ffmpeg se ejecuta con prioridad reforzada
+            # para reducir la latencia de transcripción al primer token de respuesta.
+            proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            if is_call_priority_active():
+                try:
+                    boost_process_for_call(proc)
+                except Exception:
+                    pass
+            try:
+                stdout, _stderr = proc.communicate(timeout=15)
+            except subprocess.TimeoutExpired:
+                proc.kill()
+                proc.communicate(timeout=2)
+                return "", 0.0
         finally:
             tmp_audio.unlink(missing_ok=True)
-        if proc.returncode != 0 or not proc.stdout:
+        if proc.returncode != 0 or not stdout:
             return "", 0.0
 
-        pcm = np.frombuffer(proc.stdout, dtype=np.int16).astype(np.float32) / 32768.0
+        pcm = np.frombuffer(stdout, dtype=np.int16).astype(np.float32) / 32768.0
         # Ignorar fragmentos menores a ~0.28s o con energía casi nula
         if pcm.size < 4500:
             return "", 0.0
@@ -422,15 +434,29 @@ async def stream_llm_for_call(
         yield get_protected_denial_response()
         return
 
+    call_priority = is_call_priority_active()
+    # En llamada activa: menos tokens y contexto más corto = primer audio más rápido.
+    max_tokens = 220 if call_priority else 380
+    temperature = 0.32 if call_priority else 0.38
+    call_messages = messages
+    if call_priority and len(messages) > 10:
+        # Preserva system prompt (si existe) + ventana reciente de diálogo.
+        if messages and messages[0].get("role") == "system":
+            call_messages = [messages[0]] + messages[-8:]
+        else:
+            call_messages = messages[-8:]
+
     if TEMPORAL_BRAIN_SOCK.exists():
         try:
             transport = httpx.AsyncHTTPTransport(uds=str(TEMPORAL_BRAIN_SOCK))
-            async with httpx.AsyncClient(transport=transport, base_url="http://localhost", timeout=45.0) as client:
+            async with httpx.AsyncClient(transport=transport, base_url="http://localhost", timeout=30.0 if call_priority else 45.0) as client:
                 payload = {
-                    "messages": messages,
+                    "messages": call_messages,
                     "stream": True,
-                    "max_tokens": 380,
-                    "temperature": 0.38,
+                    "max_tokens": max_tokens,
+                    "temperature": temperature,
+                    "priority": bool(call_priority),
+                    "telegram_call_priority": bool(call_priority),
                 }
                 async with client.stream("POST", "/v1/chat/completions", json=payload) as resp:
                     if resp.status_code == 200:
@@ -470,10 +496,16 @@ async def stream_llm_for_call(
 
     # Respaldo HTTP local `/api/chat`
     tok = get_gia_token()
-    async with httpx.AsyncClient(timeout=60.0) as client:
+    async with httpx.AsyncClient(timeout=35.0 if call_priority else 60.0) as client:
         r = await client.post(
             f"{TARDIS_CHAT_URL}?key={tok}",
-            json={"message": user_text, "client_id": client_id},
+            json={
+                "message": user_text,
+                "client_id": client_id,
+                "priority": bool(call_priority),
+                "system_priority": bool(call_priority),
+                "telegram_call_priority": bool(call_priority),
+            },
         )
         data = r.json()
         reply = (data.get("response") or data.get("reply") or data.get("message") or "").strip()
@@ -1824,6 +1856,14 @@ class TelegramLiveCallServer:
         is_admin_caller = bool((auth_info or {}).get("is_admin", False))
         voice_id = str(load_telegram_config().get("cortana_voice", DEFAULT_VOICE))
 
+        # Prioridad temprana: si la conexión ya trae token válido, activar antes del hello.
+        if auth_info:
+            try:
+                activate_call_priority(priority_source, chat_id=chat_id)
+                priority_registered = True
+            except Exception as exc:
+                logger.debug(f"Aviso activando prioridad temprana en WS: {exc}")
+
         history: List[Dict[str, str]] = []
         current_turn_task: Optional[asyncio.Task] = None
         pending_audio_turn_id = 0
@@ -1854,6 +1894,13 @@ class TelegramLiveCallServer:
         async def run_turn(user_text: str, turn_id: int) -> None:
             nonlocal turns_completed
             try:
+                # Renovar el TTL de la llamada: las conversaciones largas no deben
+                # perder el modo prioritario por un timeout de seguridad.
+                if priority_registered:
+                    try:
+                        touch_call_priority(priority_source, chat_id=chat_id)
+                    except Exception:
+                        pass
                 # COMANDO DE VOZ SOBERANO «PROGRAMA»: se atiende antes que el LLM.
                 # Funciona igual si el texto viene del micrófono de la llamada o
                 # del teclado de la Mini App durante una llamada activa.
@@ -2005,6 +2052,15 @@ class TelegramLiveCallServer:
                             voice_id = str(data["voice"])
                         self.active_sessions[session_id].update({"chat_id": chat_id, "user_name": user_name})
 
+                        # Prioridad soberana del sistema y sus funciones desde el
+                        # primer instante de la llamada en vivo (Mini App), no sólo
+                        # cuando se usa el bot /llamar.
+                        try:
+                            activate_call_priority(priority_source, chat_id=chat_id)
+                            priority_registered = True
+                        except Exception as exc:
+                            logger.debug(f"Aviso activando prioridad en llamada en vivo: {exc}")
+
                         if not history:
                             history.extend(load_recent_call_history(str(chat_id), limit=6))
 
@@ -2047,6 +2103,12 @@ class TelegramLiveCallServer:
 
                     elif mtype == "hangup":
                         hangup_reported = True
+                        if priority_registered:
+                            try:
+                                release_call_priority(priority_source)
+                                priority_registered = False
+                            except Exception as exc:
+                                logger.debug(f"Aviso liberando prioridad al colgar: {exc}")
                         await cancel_active_turn()
                         dur = float(data.get("duration_sec") or (time.time() - started_ts))
                         append_call_history_log(
@@ -2075,6 +2137,11 @@ class TelegramLiveCallServer:
         finally:
             await cancel_active_turn()
             self.active_sessions.pop(session_id, None)
+            if priority_registered:
+                try:
+                    release_call_priority(priority_source)
+                except Exception as exc:
+                    logger.debug(f"Aviso liberando prioridad al cerrar llamada: {exc}")
             if not hangup_reported and turns_completed > 0:
                 dur = time.time() - started_ts
                 append_call_history_log(
@@ -2456,6 +2523,7 @@ def create_app() -> web.Application:
     app["server"] = srv
     app.router.add_get("/health", srv.handle_health)
     app.router.add_get("/tg-call/health", srv.handle_health)
+    app.router.add_get("/tg-call/priority", srv.handle_priority_status)
     app.router.add_get("/tg-call", srv.handle_call_page)
     app.router.add_get("/tg-call/", srv.handle_call_page)
     app.router.add_get("/tg-call/ws", srv.handle_ws)

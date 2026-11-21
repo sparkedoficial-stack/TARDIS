@@ -2,11 +2,11 @@
   "daemon": "tardis-visual-intelligence",
   "running": true,
   "pid": 1426,
-  "uptime_sec": 45111.1,
-  "last_heartbeat": "2026-11-21T13:58:00.390983",
+  "uptime_sec": 46152.3,
+  "last_heartbeat": "2026-11-21T14:15:21.574921",
   "items_processed": 0,
   "last_processed_id": "",
-  "memory_rss_mb": 320.3,
+  "memory_rss_mb": 320.27,
   "engine_status": {
     "status": "online",
     "engine": "VisualIntelligenceEngine v26.5 (VLM + Veredictos)",
@@ -20,14 +20,14 @@
     "vlm_error": "",
     "verdict_engine": "VLM + Kaiju + veredicto estructurado",
     "stored_videos_count": 1029,
-    "stored_images_count": 413,
+    "stored_images_count": 414,
     "stored_sounds_count": 0,
-    "stored_verdicts_count": 501,
+    "stored_verdicts_count": 502,
     "last_verdict": {
-      "id": "img_20261121_135050_cb20c6",
-      "created_at": "2026-11-21T13:54:58.493221",
+      "id": "img_20261121_140552_8f36ed",
+      "created_at": "2026-11-21T14:09:55.917589",
       "source": "daemon",
-      "verdict": "*   Estado General del Entorno: Indeterminado / Vacío Visual. El entorno no es perceptible. No hay objetos, sujetos ni características geográficas identificables.\n*   Nivel de Riesgo Objetivo: 0/10 (por falta de evidencia de amenaza). *Nota: Esto no significa que sea seguro, sino que no hay datos para calcular un riesgo. El riesgo es \"desconocido\", pero al no haber estímulos hostiles visibles, se clasifica como ausencia de riesgo detectable.*\n*   Hechos Observados:\n    *   Imagen estática de 1920x1080.\n    *   Color uniforme `#848f7d`.\n    *   Sin audio.\n    *   Sin objetos ni sujetos.\n*   Inf",
+      "verdict": "*   Estado General del Entorno: Indeterminado / Vacío de Datos. No se observa ningún entorno físico.\n*   Hechos Observados:\n    1.  Imagen estática de 1920x1080.\n    2.  Color uniforme `#818778` en todo el cuadro.\n    3.  Ausencia total de audio.\n    4.  Ausencia total de objetos o sujetos reconocibles.\n*   Inferencias:\n    1.  La cámara o el sensor de captura no está apuntando a una escena válida, o está obstruido.\n    2.  Puede tratarse de un error de software en la transmisión del medio.\n    3.  No hay evidencia de actividad humana o natural.\n*   Dudas:\n    1.  ¿Es esta imagen intencional (",
       "risk_level": 0
     },
     "surroundings_interval_sec": 900,
@@ -37,13 +37,13 @@
   },
   "surroundings": {
     "interval_sec": 900.0,
-    "checks": 18,
-    "verdicts": 18,
-    "last_verdict_id": "img_20261121_135050_cb20c6",
+    "checks": 19,
+    "verdicts": 19,
+    "last_verdict_id": "img_20261121_140552_8f36ed",
     "last_risk_level": 0,
-    "last_verdict": "*   Estado General del Entorno: Indeterminado / Vacío Visual. El entorno no es perceptible. No hay objetos, sujetos ni características geográficas identificables.\n*   Nivel de Riesgo Objetivo: 0/10 (por falta de evidencia de amenaza). *Nota: Esto no significa que sea seguro, sino que no hay datos para calcular un riesgo. El riesgo es \"desconocido\", pero al no haber estímulos hostiles visibles, se clasifica como ausencia de riesgo detectable.*\n*   Hechos Observados:\n    *   Imagen estática de 1920x1080.\n    *   Color uniforme `#848f7d`.\n    *   Sin audio.\n    *   Sin objetos ni sujetos.\n*   Inferencias:\n    *   El dispositivo de captura pudo haber fallado o estar obstruido.\n    *   El medio enviado podría ser un error técnico.\n*   Dudas:\n    *   ¿Es esta imagen intencional o un fallo de sistema?\n    *   ¿Dónde se encuentra realmente el Arquitecto?\n*   Recomendación Concreta:\n    1.  Verificar el dispositivo de captura: Asegúrate de que la cámara no esté tapada, sucia o dañada.\n    2.  Reenviar el medio: Si la intención era mostrar un entorno real, proporciona una nueva imagen o video con contenido visual claro.\n    3.  Confirmar ubicación: Si no puedes enviar una imagen, describe ve",
+    "last_verdict": "*   Estado General del Entorno: Indeterminado / Vacío de Datos. No se observa ningún entorno físico.\n*   Hechos Observados:\n    1.  Imagen estática de 1920x1080.\n    2.  Color uniforme `#818778` en todo el cuadro.\n    3.  Ausencia total de audio.\n    4.  Ausencia total de objetos o sujetos reconocibles.\n*   Inferencias:\n    1.  La cámara o el sensor de captura no está apuntando a una escena válida, o está obstruido.\n    2.  Puede tratarse de un error de software en la transmisión del medio.\n    3.  No hay evidencia de actividad humana o natural.\n*   Dudas:\n    1.  ¿Es esta imagen intencional (ej. una prueba de color) o un fallo técnico?\n    2.  ¿Dónde se encuentra realmente el Arquitecto? (Imposible de saber con esta entrada).\n*   Nivel de Riesgo Objetivo: 0/10\n    *   *Justificación:* No hay peligro inminente porque no hay entorno observable. El riesgo es de indeterminación, no de amenaza física.\n*   Recomendación Concreta:\n    1.  Verificar la fuente de datos: Revisa la cámara o el dispositivo que generó esta imagen. Es probable que esté desactivada, tapada o con un fallo de conexión.\n    2.  Reenviar la entrada: Proporciona una nueva imagen o video que contenga información visua",
     "last_error": "",
-    "last_check_ts": REDACTED_PHONE.5967631
+    "last_check_ts": REDACTED_PHONE.952332
   },
   "vlm": {
     "ready": true,

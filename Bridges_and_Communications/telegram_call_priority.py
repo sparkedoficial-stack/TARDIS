@@ -86,23 +86,41 @@ class TelegramCallPriorityManager:
             self._active_since = None
             self._restore()
 
+    def _file_state_active(self) -> bool:
+        """Fallback cross-process: detecta llamadas activas escritas por otro proceso."""
+        try:
+            if not STATE_FILE.exists():
+                return False
+            raw = json.loads(STATE_FILE.read_text(encoding="utf-8"))
+            if not isinstance(raw, dict) or not raw.get("active"):
+                return False
+            ts = float(raw.get("timestamp") or 0)
+            # Solo confiar en estado reciente para evitar falsos positivos por crash.
+            return (self._now() - ts) <= max(30.0, min(DEFAULT_TTL_SEC, 120.0))
+        except Exception:
+            return False
+
     def is_active(self) -> bool:
         with self._lock:
             self._prune_expired_locked()
             self._transition_locked(bool(self._holders))
-            return bool(self._holders)
+            if self._holders:
+                return True
+        # Fuera del lock: lectura cross-process best-effort.
+        return self._file_state_active()
 
     def get_status(self) -> Dict[str, Any]:
         with self._lock:
             self._prune_expired_locked()
             self._transition_locked(bool(self._holders))
+            local_active = bool(self._holders)
             state = {
                 "ok": True,
-                "active": bool(self._holders),
-                "system_priority": bool(self._holders),
-                "system_priority_active": bool(self._holders),
-                "call_priority": bool(self._holders),
-                "priority_mode": "telegram_call" if self._holders else "normal",
+                "active": local_active,
+                "system_priority": local_active,
+                "system_priority_active": local_active,
+                "call_priority": local_active,
+                "priority_mode": "telegram_call" if local_active else "normal",
                 "holders": [
                     {"source": src, "chat_id": info.get("chat_id"), "expires_at": info.get("expires_at")}
                     for src, info in self._holders.items()
@@ -114,6 +132,21 @@ class TelegramCallPriorityManager:
                 "state_file": str(STATE_FILE),
                 "timestamp": self._now(),
             }
+        if local_active:
+            self._write_state(state)
+            return state
+
+        # Sin holders locales: no pisar el estado de otro proceso si sigue activo.
+        if self._file_state_active():
+            try:
+                raw = json.loads(STATE_FILE.read_text(encoding="utf-8"))
+                if isinstance(raw, dict):
+                    raw["ok"] = True
+                    raw["cross_process_active"] = True
+                    raw["local_holder_count"] = 0
+                    return raw
+            except Exception:
+                pass
         self._write_state(state)
         return state
 
@@ -142,7 +175,7 @@ class TelegramCallPriorityManager:
             self._holders[src] = {
                 "chat_id": str(chat_id) if chat_id is not None else None,
                 "registered_at": self._now(),
-                "expires_at": self._now() + max(1.0, ttl),
+                "expires_at": self._now() + max(0.001, ttl),
             }
             self._transition_locked(True)
             state = self.get_status()
@@ -162,7 +195,7 @@ class TelegramCallPriorityManager:
             info = self._holders.get(src)
             if not info:
                 return self.activate(src, chat_id=chat_id, ttl_sec=ttl)
-            info["expires_at"] = self._now() + max(1.0, ttl)
+            info["expires_at"] = self._now() + max(0.001, ttl)
             if chat_id is not None:
                 info["chat_id"] = str(chat_id)
             state = self.get_status()

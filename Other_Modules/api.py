@@ -116,6 +116,9 @@ class ChatRequest(BaseModel):
     client_mode: Optional[bool] = False
     new_conversation: Optional[bool] = False
     clean_context: Optional[bool] = False
+    priority: Optional[bool] = False
+    system_priority: Optional[bool] = False
+    telegram_call_priority: Optional[bool] = False
     key: Optional[str] = None
     token: Optional[str] = None
 
@@ -3228,6 +3231,46 @@ iframe{border:none;width:100%;height:100%;}</style></head>
         is_local = (not has_proxy) and (request.client.host in ("127.0.0.1", "localhost", "::1") if request.client else False)
         return get_telegram_bridge().get_status(is_local=is_local)
 
+    @app.get("/api/telegram/call_priority")
+    async def get_telegram_call_priority_endpoint():
+        """Estado del modo prioritario activado por llamadas de Telegram."""
+        from core.telegram_call_priority import get_call_priority_status
+
+        return get_call_priority_status()
+
+    @app.post("/api/telegram/call_priority")
+    async def post_telegram_call_priority_endpoint(request: Request):
+        """Activación/liberación manual del modo prioritario (sólo interfaz local)."""
+        has_proxy = bool(
+            request.headers.get("cf-connecting-ip")
+            or request.headers.get("x-forwarded-for")
+            or request.headers.get("x-real-ip")
+        )
+        is_local = (not has_proxy) and (request.client.host in ("127.0.0.1", "localhost", "::1") if request.client else False)
+        if not is_local:
+            raise HTTPException(
+                status_code=403,
+                detail="⛔ [ACCESO DENEGADO]: El control de prioridad está reservado a la interfaz física local.",
+            )
+        from core.telegram_call_priority import (
+            activate_call_priority,
+            get_call_priority_status,
+            release_call_priority,
+        )
+
+        try:
+            body = await request.json()
+        except Exception:
+            body = {}
+        action = str(body.get("action", "status")).lower()
+        source = str(body.get("source") or "manual")
+        chat_id = body.get("chat_id")
+        if action in ("activate", "on", "enable", "start"):
+            return activate_call_priority(source, chat_id=chat_id)
+        if action in ("release", "off", "disable", "stop", "restore"):
+            return release_call_priority(source)
+        return get_call_priority_status()
+
     @app.post("/api/telegram/config")
     async def post_telegram_config_endpoint(req: TelegramConfigRequest, request: Request):
         has_proxy = bool(
@@ -5116,6 +5159,9 @@ iframe{border:none;width:100%;height:100%;}</style></head>
                     is_local_request=is_local,
                     is_client_mode=bool(req.client_mode),
                     client_id=client_id,
+                    priority=bool(req.priority),
+                    system_priority=bool(req.system_priority),
+                    telegram_call_priority=bool(req.telegram_call_priority),
                 )
                 loop = asyncio.get_event_loop()
                 # process_agentic_chat es síncrono (sensores, RAG e inferencia). En el
@@ -5279,6 +5325,9 @@ iframe{border:none;width:100%;height:100%;}</style></head>
                     is_local_request=False,
                     is_client_mode=True,
                     client_id=client_id,
+                    priority=bool(req.priority),
+                    system_priority=bool(req.system_priority),
+                    telegram_call_priority=bool(req.telegram_call_priority),
                 ),
             )
             return JSONResponse(res)

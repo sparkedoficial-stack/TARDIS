@@ -750,6 +750,7 @@ Módulos y componentes auxiliares del sistema.
 - **dossier_20261121_121132_175.json**: Componente de alta eficiencia.
 - **dossier_20261121_121618_836.json**: Componente de alta eficiencia.
 - **dossier_20261121_130129_405.json**: Componente de alta eficiencia.
+- **dossier_20261121_135824_849.json**: Componente de alta eficiencia.
 - **dynamic_tools_registry.json**: Directorio y puente soberano de interoperabilidad omni-herramientas.
 - **ecca_v3_core.py**: Núcleo de orquestación y control temporal/espacial.
 - **engine.py**: Componente de alta eficiencia.
@@ -885,7 +886,6 @@ Módulos y componentes auxiliares del sistema.
 - **network_traffic_controller.py**: Componente de alta eficiencia.
 - **nodes_telemetry.json**: Componente de alta eficiencia.
 - **nxnative_mk8d_ipad_ui.py**: Componente de alta eficiencia.
-- **offline_chats.json**: Componente de alta eficiencia.
 - **offline_pocket_vault.json**: Centinela de seguridad, blindaje perimetral o bóveda segura.
 - **openai_server.py**: Componente de alta eficiencia.
 - **orca.yaml**: Componente de alta eficiencia.

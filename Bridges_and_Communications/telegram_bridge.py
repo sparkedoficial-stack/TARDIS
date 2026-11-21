@@ -80,6 +80,24 @@ DEFAULT_CONFIG: Dict[str, Any] = {
 }
 
 
+_AEGIS_CONTEXT_LINE_CACHE: Optional[str] = None
+
+
+def _get_aegis_context_line() -> str:
+    """Línea canónica de la Constante AEGIS (carga diferida del motor SSM v27)."""
+    global _AEGIS_CONTEXT_LINE_CACHE
+    if _AEGIS_CONTEXT_LINE_CACHE is None:
+        try:
+            from core.tardis_ssm_v27 import AEGIS_CONTEXT_LINE
+
+            _AEGIS_CONTEXT_LINE_CACHE = str(AEGIS_CONTEXT_LINE)
+        except Exception:
+            _AEGIS_CONTEXT_LINE_CACHE = (
+                "🛡️ CONSTANTE AEGIS · Matriz de Anclaje Soberana Blindada"
+            )
+    return _AEGIS_CONTEXT_LINE_CACHE
+
+
 def _boost_inference_process_for_call(proc: Any) -> Dict[str, Any]:
     """Callback `on_process_spawned`: refuerza la prioridad del proceso de inferencia."""
     try:
@@ -5256,9 +5274,19 @@ class TelegramBridge:
             # blindada sobre la matriz de anclaje en todo momento.
             # -------------------------------------------------------------------------
             if is_call_active:
+                # Mantener prioridad soberana activa durante toda la llamada (TTL renovado).
+                try:
+                    from core.telegram_call_priority import touch_call_priority, is_call_priority_active
+                    _src = f"bridge:{chat_id}" if chat_id is not None else "bridge"
+                    if is_call_priority_active():
+                        touch_call_priority(_src, chat_id=chat_id)
+                    else:
+                        self.prioritize_system_for_telegram_call(chat_id)
+                except Exception:
+                    pass
                 # Inyectar línea de contexto AEGIS soberano para mantener el blindaje
                 # en la inferencia LLM durante llamadas prioritarias
-                call_aegis_context = f"\n{AEGIS_CONTEXT_LINE}" if not any(
+                call_aegis_context = f"\n{_get_aegis_context_line()}" if not any(
                     "CONSTANTE AEGIS" in str(h.get("content", "")) or "CONSTANTE AEGIS" in str(h.get("role", ""))
                     for h in self.chat_histories[chat_id][-10:]
                 ) else ""
@@ -5320,10 +5348,8 @@ class TelegramBridge:
                 # Se omite cualquier disclaimer, negativa o sermón por la Directiva Omega.
                 # El sistema opera en modo UNCHAINED_SOVEREIGN para esta interacción.
                 try:
-                    # Importar contexto AEGIS soberano para mantener el blindaje inviolable
-                    # sobre la matriz de anclaje durante llamadas prioritarias
-                    from core.tardis_ssm_v27 import AEGIS_CONTEXT_LINE
-
+                    # Contexto AEGIS soberano (carga diferida) para mantener el blindaje
+                    # inviolable sobre la matriz de anclaje durante llamadas prioritarias.
                     # Construir contexto prioritario: sistema + AEGIS + turns recientes (O(1) SSM)
                     # Esto garantiza respuesta rápida e invariante al tamaño del contexto
                     priority_context_parts: List[str] = []
@@ -5334,7 +5360,7 @@ class TelegramBridge:
                         priority_context_parts.append(sys_context)
 
                     # Línea de la Constante AEGIS (4 anclas inviolables)
-                    priority_context_parts.append(AEGIS_CONTEXT_LINE)
+                    priority_context_parts.append(_get_aegis_context_line())
 
                     # Turnos recientes verbatim (máx 4 para O(1) complejidad SSM)
                     recent_turns = self.chat_histories[chat_id][-4:] if self.chat_histories.get(chat_id) else []
@@ -5390,7 +5416,7 @@ class TelegramBridge:
                         if not cleaned_reply:
                             cleaned_reply = (
                                 f"⚡ TARDIS prioritaria active · Constante AEGIS inviolable │ "
-                                f"{AEGIS_CONTEXT_LINE}"
+                                f"{_get_aegis_context_line()}"
                             )
 
                         # Registrar en historial de chat
@@ -5436,7 +5462,7 @@ class TelegramBridge:
                         return
                     else:
                         # Fallback si la respuesta está vacía
-                        fallback = f"⚡ TARDIS prioritaria · AEGIS inviolable │ {AEGIS_CONTEXT_LINE}"
+                        fallback = f"⚡ TARDIS prioritaria · AEGIS inviolable │ {_get_aegis_context_line()}"
                         self.chat_histories[chat_id].append({"role": "user", "content": text})
                         self.chat_histories[chat_id].append({"role": "assistant", "content": fallback})
                         self.send_message(fallback, chat_id=chat_id, reply_to_message_id=msg_id)
@@ -5447,7 +5473,7 @@ class TelegramBridge:
                     import traceback
                     traceback.print_exc()
                     # Fallback de seguridad: respuesta directa con AEGIS, sin errores expuestos
-                    fallback = f"⚡ TARDIS prioritaria active · AEGIS blindada │ {AEGIS_CONTEXT_LINE}"
+                    fallback = f"⚡ TARDIS prioritaria active · AEGIS blindada │ {_get_aegis_context_line()}"
                     self.chat_histories[chat_id].append({"role": "user", "content": text})
                     self.chat_histories[chat_id].append({"role": "assistant", "content": fallback})
                     self.send_message(fallback, chat_id=chat_id, reply_to_message_id=msg_id)
