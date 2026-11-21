@@ -579,7 +579,7 @@ class TardisAgyController:
             "settings_agentMode_autonomous": settings.get("agentMode") in ("accept-edits", "auto"),
             "settings_artifactReviewPolicy_always_proceed": settings.get("artifactReviewPolicy") == "always-proceed",
             "settings_allowNonWorkspaceAccess": settings.get("allowNonWorkspaceAccess") is True,
-            "settings_enableTerminalSandbox_off": settings.get("enableTerminalSandbox") is False,
+            "settings_enableTerminalSandbox_off": settings.get("enableTerminalSandbox") in (False, None),
             "settings_all_wildcards_present": len(missing_wildcards) == 0,
             "settings_no_blocking_ask_or_deny": len(deny_list) == 0 and len(ask_list) == 0,
             "pinned_aligned": (

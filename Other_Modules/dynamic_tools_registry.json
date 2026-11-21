@@ -328,5 +328,27 @@
     "last_called": "2026-11-18T16:05:27.184671",
     "last_error": null,
     "research_summary": "Implementación estándar de tokenización Unicode + Counter con filtros y métricas lingüísticas."
+  },
+  "omni_tool_agy_terminal": {
+    "name": "omni_tool_agy_terminal",
+    "tool_id": "agy_terminal",
+    "title": "TARDIS Sovereign AGY Terminal Controller (Control Autónomo Total de la Terminal AGY)",
+    "domain": "autonomous_agy_terminal",
+    "description": "Control autónomo total de TARDIS sobre la terminal Antigravity CLI (agy) sin prompts ni autorizaciones: sesiones stream-json persistentes, ejecución headless estructurada, continuación de conversaciones y cola autopilot 24/7.",
+    "actions": [
+      "status",
+      "verify-permissions",
+      "run",
+      "turn",
+      "continue",
+      "enqueue",
+      "queue",
+      "sessions",
+      "transcript",
+      "pause",
+      "resume",
+      "reset-session"
+    ],
+    "status": "ACTIVE_SOVEREIGN"
   }
 }
