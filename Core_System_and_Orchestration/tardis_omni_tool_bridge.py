@@ -157,7 +157,16 @@ class TardisOmniToolBridge:
                 "module_file": str(HOME_DIR / "modulos_ftl" / "ftl_agy_terminal.py"),
                 "domain": "autonomous_agy_terminal",
                 "description": "Control autónomo total de TARDIS sobre la terminal Antigravity CLI (agy) sin prompts ni autorizaciones: sesiones stream-json persistentes, ejecución headless estructurada, continuación de conversaciones y cola autopilot 24/7.",
-                "actions": ["status", "verify-permissions", "run", "turn", "continue", "enqueue", "queue", "sessions", "transcript", "pause", "resume", "reset-session"]
+                "actions": ["status", "verify-permissions", "run", "turn", "continue", "enqueue", "queue", "sessions", "transcript", "pause", "resume", "reset-session", "scan-terminals", "continue-all"]
+            },
+            "terminal_continuator": {
+                "name": "FTL Unified Multi-Terminal Autonomous Continuator (AGY · FTL · OpenCode)",
+                "binary": str(HOME_DIR / ".local" / "bin" / "ftl-continue"),
+                "module": "modulos_ftl.ftl_terminal_continuator",
+                "module_file": str(HOME_DIR / "modulos_ftl" / "ftl_terminal_continuator.py"),
+                "domain": "multi_terminal_autonomous_continuation",
+                "description": "Escanea, reconcilia y continúa autónomamente de principio a fin procesos pausados, fallidos o interrumpidos en agy, FTL y opencode usando el sistema autónomo y de failover de FTL.",
+                "actions": ["status", "verify", "scan", "reconcile", "run", "continue-agy", "continue-opencode", "continue-ftl", "sweep", "pause", "resume"]
             }
         }
         self._register_in_dynamic_registry()

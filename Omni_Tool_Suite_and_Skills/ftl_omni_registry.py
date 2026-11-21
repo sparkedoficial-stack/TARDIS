@@ -190,8 +190,20 @@ class FtlOmniRegistry:
                 "skill_path": "/home/m11/.agents/skills/tardis-agy-control/SKILL.md",
                 "category": "Autonomous Antigravity CLI Terminal Control & Autopilot",
                 "description": "Control programático, persistente y 100% autónomo de TARDIS sobre la terminal Antigravity CLI (agy) sin prompts ni permisos manuales: sesiones stream-json multi-turno, ejecución headless estructurada, continuación de conversaciones y cola autopilot 24/7.",
-                "capabilities": ["status", "verify-permissions", "run", "turn", "continue", "enqueue", "queue", "sessions", "transcript", "pause", "resume", "reset-session"],
+                "capabilities": ["status", "verify-permissions", "run", "turn", "continue", "enqueue", "queue", "sessions", "transcript", "pause", "resume", "reset-session", "scan-terminals", "continue-all"],
                 "active": os.path.exists("/home/m11/.local/bin/tardis-agy")
+            },
+            "terminal_continuator": {
+                "name": "FTL Unified Multi-Terminal Autonomous Continuator (AGY · FTL · OpenCode)",
+                "binary": "/home/m11/.local/bin/ftl-continue",
+                "module": "modulos_ftl.ftl_terminal_continuator",
+                "module_file": "/home/m11/modulos_ftl/ftl_terminal_continuator.py",
+                "service": "tardis-agy-autopilot.service",
+                "skill_path": "/home/m11/.agents/skills/tardis-agy-control/SKILL.md",
+                "category": "Multi-Terminal Autonomous Session Continuation & Reconciliation",
+                "description": "Motor unificado FTL que escanea, reconcilia y continúa de principio a fin procesos pausados, fallidos o interrumpidos en las terminales agy, FTL y opencode con failover automático del pool de modelos y protección anti-bucles.",
+                "capabilities": ["status", "verify", "scan", "reconcile", "run", "continue-agy", "continue-opencode", "continue-ftl", "sweep", "pause", "resume"],
+                "active": os.path.exists("/home/m11/.local/bin/ftl-continue")
             }
         }
 

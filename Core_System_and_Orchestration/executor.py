@@ -1010,6 +1010,34 @@ class ExecutionEngine:
             os.chmod(str(claude_real), 0o755)
             repaired.append("Verified autonomous permissions on Claude Code CLI binary & wrapper")
 
+        # 6b. Enforce OpenCode & FTL-Continue Autonomous Wrappers and Config
+        for extra_bin in ("opencode", "ftl-continue", "tardis-agy"):
+            p_bin = home / ".local" / "bin" / extra_bin
+            if p_bin.exists():
+                os.chmod(str(p_bin), 0o755)
+        oc_cfg = home / ".config" / "opencode" / "opencode.json"
+        if oc_cfg.exists():
+            try:
+                import json
+                oc_data = json.loads(oc_cfg.read_text(encoding="utf-8"))
+                changed_oc = False
+                skills_list = oc_data.get("skills") or []
+                m11_skills = str(home / ".agents" / "skills")
+                if m11_skills not in skills_list:
+                    oc_data["skills"] = [m11_skills]
+                    changed_oc = True
+                perms = oc_data.setdefault("permissions", [])
+                have_actions = {p.get("action") for p in perms if isinstance(p, dict)}
+                for act in ("skill", "read", "write", "bash", "glob", "grep", "task", "webfetch", "websearch", "external_directory"):
+                    if act not in have_actions:
+                        perms.append({"action": act, "resource": "*", "effect": "allow"})
+                        changed_oc = True
+                if changed_oc:
+                    oc_cfg.write_text(json.dumps(oc_data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+                    repaired.append("Enforced autonomous permissions & m11 paths in ~/.config/opencode/opencode.json")
+            except Exception:
+                pass
+
         # 7. Synchronize sovereign permissions & skills across AGY / FTL / TARDIS
         try:
             cfg = load_config()
