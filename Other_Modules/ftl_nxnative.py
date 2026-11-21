@@ -33,7 +33,7 @@ class FtlNxnative:
         self.bundle_id = f"org.nxnative.{self.game_id}"
         self.msl_chain = "8e52e2292032"
         self.chain_inputs = "beadcc8fc60e"
-        self.repo_dir = Path("/home/timemachine/nxnative")
+        self.repo_dir = Path("/home/m11/nxnative")
         self.game_dir = self.repo_dir / "dm" / "games" / self.game_id
         self.build_dir = self.repo_dir / "build"
         self.ipa_path = self.build_dir / "MarioKart8Deluxe.ipa"
@@ -42,7 +42,7 @@ class FtlNxnative:
 
     def _run_cmd(self, cmd: List[str], timeout: int = 30) -> Dict[str, Any]:
         env = os.environ.copy()
-        env["PATH"] = f"/usr/local/bin:/home/timemachine/.local/bin:{env.get('PATH', '')}"
+        env["PATH"] = f"/usr/local/bin:/home/m11/.local/bin:{env.get('PATH', '')}"
         start_t = time.time()
         try:
             res = subprocess.run(

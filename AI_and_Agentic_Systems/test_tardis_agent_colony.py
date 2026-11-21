@@ -17,7 +17,7 @@ import pytest
 
 # Asegurar path a .ftl y GODWORKS SYSTEM
 sys.path.insert(0, str(Path(__file__).parent))
-sys.path.insert(0, "/home/timemachine/Escritorio/GODWORKS SYSTEM")
+sys.path.insert(0, "/home/m11/Escritorio/GODWORKS SYSTEM")
 
 from tardis_agent_colony import get_tardis_colony, TardisAgentColony
 from tardis_bridge import tardis_bridge
@@ -153,7 +153,7 @@ def test_collaborative_task_resolution(colony):
     assert "tardis_acknowledgment" in sol_res
 
     # Comprobar que el archivo se generó en modulos_ftl/
-    generated_file = Path("/home/timemachine/modulos_ftl/compresor_historial_colaborativo.py")
+    generated_file = Path("/home/m11/modulos_ftl/compresor_historial_colaborativo.py")
     assert generated_file.exists()
 
 

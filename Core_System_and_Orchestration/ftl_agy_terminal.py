@@ -17,7 +17,7 @@ from typing import Any, Dict
 
 GODWORKS_PATH = Path("/home/m11/Escritorio/GODWORKS SYSTEM")
 if not GODWORKS_PATH.is_dir():
-    GODWORKS_PATH = Path("/home/timemachine/Escritorio/GODWORKS SYSTEM")
+    GODWORKS_PATH = Path("/home/m11/Escritorio/GODWORKS SYSTEM")
 if str(GODWORKS_PATH) not in sys.path:
     sys.path.insert(0, str(GODWORKS_PATH))
 

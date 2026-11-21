@@ -51,19 +51,19 @@ class FtlOmniRegistry:
         return {
             "phone_harness": {
                 "name": "Phone Harness",
-                "binary": "/home/timemachine/.local/bin/phone-harness",
+                "binary": "/home/m11/.local/bin/phone-harness",
                 "module": "modulos_ftl.ftl_phone_harness",
-                "skill_path": "/home/timemachine/.agents/skills/phone-harness/SKILL.md",
+                "skill_path": "/home/m11/.agents/skills/phone-harness/SKILL.md",
                 "category": "Mobile Automation & Hardware Perception",
                 "description": "Control bidireccional de teléfonos: Android vía ADB, personal iPhone vía Mirroring/USB, y Cloud Phones. Lectura por OCR/Accessibility tree, pulsaciones, gestos, swipes y tecleo.",
                 "capabilities": ["ensure_device", "screen", "screenshot", "tap", "tap_text", "type_text", "open_app", "swipe", "scroll", "home", "back", "doctor"],
-                "active": shutil.which("phone-harness") is not None or os.path.exists("/home/timemachine/.local/bin/phone-harness")
+                "active": shutil.which("phone-harness") is not None or os.path.exists("/home/m11/.local/bin/phone-harness")
             },
             "xcode_linux": {
                 "name": "Xcode for Linux",
                 "binary": "/usr/local/bin/xcode-linux",
                 "module": "modulos_ftl.ftl_xcode_linux",
-                "skill_path": "/home/timemachine/.agents/skills/xcode-for-linux/SKILL.md",
+                "skill_path": "/home/m11/.agents/skills/xcode-for-linux/SKILL.md",
                 "toolchain_root": "/opt/xcode-linux",
                 "category": "Apple iOS Development & Deployment",
                 "description": "Toolchain completo para iOS/iPadOS en Linux: compilador Clang arm64, LLD, inspección Mach-O, firmado zsign, puente REA, transferencia AFC y despliegue por usbmuxd.",
@@ -74,7 +74,7 @@ class FtlOmniRegistry:
                 "name": "Reverse Engineer Anything (REA)",
                 "binary": "/usr/local/bin/rea",
                 "module": "modulos_ftl.ftl_rea",
-                "skill_path": "/home/timemachine/.agents/skills/rea/SKILL.md",
+                "skill_path": "/home/m11/.agents/skills/rea/SKILL.md",
                 "category": "Binary Analysis & Decompilation",
                 "description": "Suite de ingeniería inversa para binarios nativos (Mach-O, ELF, PE), aplicaciones móviles (APK, IPA), arquitecturas JavaScript/Electron y firmwares embebidos.",
                 "capabilities": ["providers", "inspect_apk", "inspect_ipa", "inspect_js", "decompile", "disassemble", "search", "inventory"],
@@ -93,7 +93,7 @@ class FtlOmniRegistry:
             "git_sync": {
                 "name": "FTL Git Sync",
                 "module": "modulos_ftl.ftl_git_sync",
-                "portfolio_dir": "/home/timemachine/TARDIS_Portfolio",
+                "portfolio_dir": "/home/m11/TARDIS_Portfolio",
                 "category": "Continuous Integration & Deployment",
                 "description": "Compilador del portafolio soberano TARDIS, sanitizador de secretos y llaves de API, generador de commits estructurados y sincronización con GitHub (sparkedoficial-stack/TARDIS.git).",
                 "capabilities": ["sync", "push", "status", "log", "build_only"],
@@ -101,8 +101,8 @@ class FtlOmniRegistry:
             },
             "easy_touch": {
                 "name": "Easy Touch Engine",
-                "engine_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/easy_touch_engine.py",
-                "ledger": "/home/timemachine/vw-control/easy_touch_ledger.jsonl",
+                "engine_path": "/home/m11/Escritorio/GODWORKS SYSTEM/core/easy_touch_engine.py",
+                "ledger": "/home/m11/vw-control/easy_touch_ledger.jsonl",
                 "category": "Autonomous Self-Healing & Preventive Maintenance",
                 "description": "Motor de auto-reparación preventiva en segundo plano. Intercepta excepciones, sanea dependencias pip, permisos de archivo, bloqueos git, conflictos de puertos y auto-cicatrización de hardware uinput.",
                 "capabilities": ["intercept_chat", "intercept_execution", "auto_heal_memory", "auto_heal_kernel_hardware", "auto_install_package", "auto_fix_permissions"],
@@ -110,7 +110,7 @@ class FtlOmniRegistry:
             },
             "tardis_hybrid_synergy": {
                 "name": "TARDIS Hybrid Synergy Matrix",
-                "path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/core/tardis_hybrid_synergy.py",
+                "path": "/home/m11/Escritorio/GODWORKS SYSTEM/core/tardis_hybrid_synergy.py",
                 "category": "Cognitive Multi-Model & Paradigm Orchestration",
                 "description": "Matriz unificada que evalúa la combinación óptima de modelos de lenguaje (KAIJU, Gemini, Claude, DeepSeek, Qwen) y capas de ingeniería (ECCA, SSM, FTS5, Radar, ChronoVision).",
                 "capabilities": ["evaluate", "matrix", "get_models", "get_layers"],
@@ -118,24 +118,24 @@ class FtlOmniRegistry:
             },
             "cas_neural_space_kaiju": {
                 "name": "CaS · Cognitive & Context as a Service",
-                "binary": "/home/timemachine/.local/bin/cas-kaiju",
+                "binary": "/home/m11/.local/bin/cas-kaiju",
                 "module": "modulos_ftl.ftl_cas_kaiju",
-                "module_file": "/home/timemachine/modulos_ftl/ftl_cas_kaiju.py",
+                "module_file": "/home/m11/modulos_ftl/ftl_cas_kaiju.py",
                 "service": "cas-kaiju.service",
                 "endpoint": "http://127.0.0.1:8770",
                 "dashboard": "http://127.0.0.1:8770/dashboard",
-                "docs": "/home/timemachine/Escritorio/GODWORKS SYSTEM/docs/CAS_NEURAL_SPACE_KAIJU.md",
+                "docs": "/home/m11/Escritorio/GODWORKS SYSTEM/docs/CAS_NEURAL_SPACE_KAIJU.md",
                 "category": "Cognitive Context Fabric & Retrieval Augmentation",
                 "description": "Capa CaS (Cognitive & Context as a Service) sobre TARDIS-NEURAL-SPACE-KAIJU: recuperación multi-fuente (bóveda profunda, continuidad, rails AEGIS, telemetría /proc, estado latente), ranking BM25 + recencia + confianza, deduplicación SimHash, compresión extractiva sintrópica y presupuesto de tokens con citas. Ancla inviolable La Constante AEGIS.",
                 "capabilities": ["context", "compress", "serve", "telemetry", "sources", "aegis", "selftest"],
-                "active": os.path.exists("/home/timemachine/.local/bin/cas-kaiju")
+                "active": os.path.exists("/home/m11/.local/bin/cas-kaiju")
             },
             "tardis4ever": {
                 "name": "Tardis4Ever Sovereign Agent",
                 "binary": "/usr/local/bin/tardis4ever",
                 "module": "modulos_ftl.ftl_tardis4ever",
                 "service": "tardis4ever.service",
-                "skill_path": "/home/timemachine/.agents/skills/tardis4ever/SKILL.md",
+                "skill_path": "/home/m11/.agents/skills/tardis4ever/SKILL.md",
                 "category": "Continuous Integration, Milestone Watcher & Automated Publication",
                 "description": "Agente soberano de sincronización continua: rutina de 24h automática y publicación inmediata en GitHub ante hitos importantes o llamativos con blindaje total de privacidad.",
                 "capabilities": ["status", "check", "sync", "daemon", "daemon_status"],
@@ -143,10 +143,10 @@ class FtlOmniRegistry:
             },
             "linpad": {
                 "name": "LinPad 1.6.0-TARDIS-M2 (Linux Desktop on iPad Pro M2)",
-                "binary": "/home/timemachine/.local/bin/linpad-ctl",
+                "binary": "/home/m11/.local/bin/linpad-ctl",
                 "module": "modulos_ftl.ftl_linpad",
-                "repo_path": "/home/timemachine/LinPad",
-                "ipa_path": "/home/timemachine/LinPad/build/LinPad-1.6.0-TARDIS-M2.ipa",
+                "repo_path": "/home/m11/LinPad",
+                "ipa_path": "/home/m11/LinPad/build/LinPad-1.6.0-TARDIS-M2.ipa",
                 "category": "Apple iPadOS Linux Desktop & Wayland Compositor Bridge",
                 "description": "Entorno de escritorio Linux completo para iPad Pro M2 (Sway + Waybar + Wofi + Foot + Chromium + LibreOffice + GIMP + TARDIS/FTL/AGY Bridge) sobre motor nativo iSH ARM64 + Wayland Bridge ishwl y aceleración Metal/Venus.",
                 "capabilities": ["status", "fetch", "catalog", "themes", "benchmark", "tests"],
@@ -155,8 +155,8 @@ class FtlOmniRegistry:
             "nxnative": {
                 "name": "nxnative · Mario Kart 8 Deluxe (0100152000022000) for iPad Pro M2",
                 "module": "modulos_ftl.ftl_nxnative",
-                "repo_path": "/home/timemachine/nxnative",
-                "ipa_path": "/home/timemachine/nxnative/build/MarioKart8Deluxe.ipa",
+                "repo_path": "/home/m11/nxnative",
+                "ipa_path": "/home/m11/nxnative/build/MarioKart8Deluxe.ipa",
                 "category": "Nintendo Switch AArch64 Native Runner & NVN->Metal 4 Engine",
                 "description": "Motor nativo nxnative para ejecutar juegos de Nintendo Switch en Apple Silicon / iPad Pro M2 sin emulación de CPU (AArch64 NSO Rewriter + NVN a Metal 4 con 29,650 shaders para Mario Kart 8 Deluxe 0100152000022000).",
                 "capabilities": ["status", "profile", "catalog", "build"],
@@ -172,9 +172,9 @@ class FtlOmniRegistry:
             },
             "omniscient_autonomy": {
                 "name": "TARDIS Omniscient Autonomy Engine (24/7 Learning, Science, Comments & Tech Evolution)",
-                "binary": "/home/timemachine/.local/bin/tardis-omniscient",
+                "binary": "/home/m11/.local/bin/tardis-omniscient",
                 "module": "modulos_ftl.ftl_omniscient_autonomy",
-                "module_file": "/home/timemachine/modulos_ftl/ftl_omniscient_autonomy.py",
+                "module_file": "/home/m11/modulos_ftl/ftl_omniscient_autonomy.py",
                 "service": "tardis-omniscient-autonomy.service",
                 "category": "Continuous Omniscient Learning, Scientific Dissemination & Surrounding Tech Self-Improvement",
                 "description": "Motor autónomo 24/7 de aprendizaje permanente de todo (arXiv, OpenAlex, Europe PMC, web), subida de conocimientos y bases científicas a X.com, respuesta automática a comentarios y chat, e investigación continua para mejorarse a sí mismo y a la tecnología circundante.",
@@ -258,7 +258,7 @@ class FtlOmniRegistry:
             elif "module" in tool:
                 try:
                     mod_name = tool["module"].split(".")[-1]
-                    fpath = Path("/home/timemachine/modulos_ftl") / f"{mod_name}.py"
+                    fpath = Path("/home/m11/modulos_ftl") / f"{mod_name}.py"
                     check["module_exists"] = fpath.exists()
                     check["available"] = fpath.exists()
                 except Exception:
@@ -318,7 +318,7 @@ class FtlOmniRegistry:
                     spec.loader.exec_module(mod)
                 else:
                     mod_name = tool["module"].split(".")[-1]
-                    sys_path = "/home/timemachine"
+                    sys_path = "/home/m11"
                     if sys_path not in sys.path:
                         sys.path.insert(0, sys_path)
                     mod = importlib.import_module(f"modulos_ftl.{mod_name}")

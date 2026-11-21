@@ -594,7 +594,7 @@ class TardisBridge:
         # 2. Resilient Direct Fallback: GODWORKS SYSTEM voice module
         try:
             import sys
-            gw_dir = Path("/home/timemachine/Escritorio/GODWORKS SYSTEM")
+            gw_dir = Path("/home/m11/Escritorio/GODWORKS SYSTEM")
             if str(gw_dir) not in sys.path:
                 sys.path.insert(0, str(gw_dir))
             import voice as _gw_voice
@@ -788,7 +788,7 @@ class TardisBridge:
             return self._request_api("/api/antigravity/remote/prompt", method="POST", data={"prompt": extra, "conversation_id": cid})
         else:
             target_id = action if len(action) > 10 else cid
-            return self._request_api("/api/antigravity/remote/open", method="POST", data={"conversation_id": target_id, "workspace": "/home/timemachine"})
+            return self._request_api("/api/antigravity/remote/open", method="POST", data={"conversation_id": target_id, "workspace": "/home/m11"})
 
     # =========================================================================
     # COLONIA DE AGENTES SOBERANOS Y EMBAJADA SIMBIÓTICA (PEER-TO-PEER)

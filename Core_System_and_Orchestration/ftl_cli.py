@@ -507,7 +507,7 @@ def dispatch_unified_command(cmd_name: str, args_list: list[str] = None) -> bool
         return True
 
     elif cmd in ("router", "modem"):
-        subprocess.run(["/home/timemachine/.local/bin/tardis-router"] + args)
+        subprocess.run(["/home/m11/.local/bin/tardis-router"] + args)
         return True
 
     elif cmd == "models":
@@ -607,7 +607,7 @@ def dispatch_unified_command(cmd_name: str, args_list: list[str] = None) -> bool
         return True
 
     elif cmd in ("savageupdate", "savage-update", "savage", "rea-learn", "rea", "reaprendizaje"):
-        project = Path("/home/timemachine/Escritorio/GODWORKS SYSTEM")
+        project = Path("/home/m11/Escritorio/GODWORKS SYSTEM")
         module = "modulos_ftl.savage_update" if cmd.startswith("savage") else "modulos_ftl.rea_learning_engine"
         sub_args = args if args else ["status"]
         label = "/SavageUpdate" if cmd.startswith("savage") else "REA Learning"
@@ -836,7 +836,7 @@ def dispatch_unified_command(cmd_name: str, args_list: list[str] = None) -> bool
 
     elif cmd == "companion":
         subprocess.Popen(
-            ["/home/timemachine/Escritorio/GODWORKS SYSTEM/launch_tardis_companion.sh"],
+            ["/home/m11/Escritorio/GODWORKS SYSTEM/launch_tardis_companion.sh"],
             stdin=subprocess.DEVNULL,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
@@ -847,12 +847,12 @@ def dispatch_unified_command(cmd_name: str, args_list: list[str] = None) -> bool
 
     elif cmd == "analyze":
         console.print("[bold cyan]🧠 Analizando estructura causal de la conversación...[/bold cyan]")
-        subprocess.run([sys.executable, "/home/timemachine/Escritorio/GODWORKS SYSTEM/tardis_conversation_analyzer.py"])
+        subprocess.run([sys.executable, "/home/m11/Escritorio/GODWORKS SYSTEM/tardis_conversation_analyzer.py"])
         return True
 
     elif cmd == "animate":
         console.print("[bold cyan]🎬 Sintetizando animaciones de fórmulas con ChronoVision...[/bold cyan]")
-        subprocess.run([sys.executable, "/home/timemachine/Escritorio/GODWORKS SYSTEM/tardis_formula_animator.py"])
+        subprocess.run([sys.executable, "/home/m11/Escritorio/GODWORKS SYSTEM/tardis_formula_animator.py"])
         return True
 
     elif cmd == "v":
@@ -861,7 +861,7 @@ def dispatch_unified_command(cmd_name: str, args_list: list[str] = None) -> bool
         console.print(f"  • Cuestionamiento / Teoría: [bold yellow]{prompt_str}[/bold yellow]")
         console.print(f"  • Motor: Procedural GPU Core (Nano Banana Blueprint · NVENC 60 FPS)")
         try:
-            sys.path.insert(0, "/home/timemachine/Escritorio/GODWORKS SYSTEM")
+            sys.path.insert(0, "/home/m11/Escritorio/GODWORKS SYSTEM")
             from core.tardis_hyper_physics_animator import TardisHyperPhysicsAnimator
             animator = TardisHyperPhysicsAnimator.get_instance()
             q = f"{prompt_str} --fast" if "--fast" not in prompt_str and "--procedural" not in prompt_str and "--blender" not in prompt_str else prompt_str
@@ -895,7 +895,7 @@ def dispatch_unified_command(cmd_name: str, args_list: list[str] = None) -> bool
         console.print(f"  • Arquitectura: Procedural Nano Banana Blueprint [Sujeto + Acción + Contexto + Estilo]")
         console.print(f"  • Resolución:   1080P Full HD (1920x1080) | Tasa: 60 FPS Nativos")
         try:
-            sys.path.insert(0, "/home/timemachine/Escritorio/GODWORKS SYSTEM")
+            sys.path.insert(0, "/home/m11/Escritorio/GODWORKS SYSTEM")
             from core.tardis_vp_engine import generate_vp_pixelart_video
             res = generate_vp_pixelart_video(prompt_str, duration_sec=5.0)
             console.print(f"\n[bold green]✔ Síntesis Procedural Pixel Art 1080P60 Completada:[/bold green]")

@@ -48,7 +48,7 @@ logging.basicConfig(
 logger = logging.getLogger("singularity_engine")
 
 # Asegurar path para ECCA v3.0 core
-sys.path.insert(0, "/home/timemachine")
+sys.path.insert(0, "/home/m11")
 try:
     from ecca_v3_core import ECCAv3Core, TelemetryState, RetrocausalResult
     ECCA_AVAILABLE = True
@@ -57,7 +57,7 @@ except ImportError:
     logger.warning("ECCA v3.0 no disponible de forma nativa. Operando en modo adaptativo.")
 
 # Rutas de estado y telemetría de kernel
-STATE_JSON_PATH = Path("/home/timemachine/.ftl/singularity_engine_state.json")
+STATE_JSON_PATH = Path("/home/m11/.ftl/singularity_engine_state.json")
 TMP_KERNEL_PATH = Path("/tmp/singularity_engine_kernel.json")
 
 

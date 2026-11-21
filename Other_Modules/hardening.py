@@ -703,7 +703,7 @@ class SystemHardening:
         return self._install_file(target, content, mode)
 
     def _audit_rules_content(self) -> str:
-        aegis_home = Path(os.environ.get("AEGIS_HOME", str(self.home / ".aegis")))
+        aegis_home = Path(os.environ.get("AEGIS_HOME", str(self.home / ".aegis"))).resolve()
         rules = [
             "# AEGIS-Ω · reglas de auditoría soberanas",
             "-b 8192",

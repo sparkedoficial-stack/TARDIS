@@ -11,7 +11,7 @@ desde el Master Hub FTL y las interfaces soberanas.
 import sys
 from pathlib import Path
 
-BASE_DIR = Path("/home/timemachine/Escritorio/GODWORKS SYSTEM").resolve()
+BASE_DIR = Path("/home/m11/Escritorio/GODWORKS SYSTEM").resolve()
 if str(BASE_DIR) not in sys.path:
     sys.path.insert(0, str(BASE_DIR))
 

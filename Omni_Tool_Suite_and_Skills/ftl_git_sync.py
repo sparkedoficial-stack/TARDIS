@@ -29,8 +29,8 @@ from typing import Dict, Any, Optional, List
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger("FTL.GitSync")
 
-PORTFOLIO_DIR = Path("/home/timemachine/TARDIS_Portfolio")
-BUILD_SCRIPT = Path("/home/timemachine/build_portfolio.py")
+PORTFOLIO_DIR = Path("/home/m11/TARDIS_Portfolio")
+BUILD_SCRIPT = Path("/home/m11/build_portfolio.py")
 
 
 class FtlGitSync:

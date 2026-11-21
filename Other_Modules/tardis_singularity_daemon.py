@@ -21,15 +21,15 @@ import logging
 from datetime import datetime
 
 # Rutas y configuración
-GAME_DIR = "/home/timemachine/.local/share/Steam/steamapps/common/Cell to Singularity"
+GAME_DIR = "/home/m11/.local/share/Steam/steamapps/common/Cell to Singularity"
 EXE_PATH = os.path.join(GAME_DIR, "CellToSingularity.exe")
-PROTON_PATH = "/home/timemachine/.local/share/Steam/steamapps/common/Proton - Experimental/proton"
-COMPAT_DATA = "/home/timemachine/.local/share/Steam/steamapps/compatdata/977400"
-STEAM_CLIENT = "/home/timemachine/.local/share/Steam"
-STEAM_LIBS = "/home/timemachine/.local/share/Steam/steamapps"
+PROTON_PATH = "/home/m11/.local/share/Steam/steamapps/common/Proton - Experimental/proton"
+COMPAT_DATA = "/home/m11/.local/share/Steam/steamapps/compatdata/977400"
+STEAM_CLIENT = "/home/m11/.local/share/Steam"
+STEAM_LIBS = "/home/m11/.local/share/Steam/steamapps"
 
-LOG_FILE = "/home/timemachine/.ftl/tardis_singularity_daemon.log"
-PID_FILE = "/home/timemachine/.ftl/tardis_singularity.pid"
+LOG_FILE = "/home/m11/.ftl/tardis_singularity_daemon.log"
+PID_FILE = "/home/m11/.ftl/tardis_singularity.pid"
 
 logging.basicConfig(
     filename=LOG_FILE,

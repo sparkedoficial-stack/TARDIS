@@ -21,11 +21,11 @@ import json
 from datetime import datetime
 from tardis_evolutionary_codex import get_lore_for_node, EVOLUTIONARY_LORE
 
-SAVE_DIR = "/home/timemachine/.local/share/Steam/steamapps/compatdata/977400/pfx/drive_c/users/steamuser/AppData/LocalLow/Computer Lunch/Cell to Singularity"
+SAVE_DIR = "/home/m11/.local/share/Steam/steamapps/compatdata/977400/pfx/drive_c/users/steamuser/AppData/LocalLow/Computer Lunch/Cell to Singularity"
 SAVE_PATH = os.path.join(SAVE_DIR, "savedGames.gd")
-BACKUP_DIR = "/home/timemachine/.ftl/cell_backups"
-STATE_JSON = "/home/timemachine/.ftl/tardis_singularity_state.json"
-REPORT_MD = "/home/timemachine/Escritorio/TARDIS_SINGULARITY_DISCOVERIES.md"
+BACKUP_DIR = "/home/m11/.ftl/cell_backups"
+STATE_JSON = "/home/m11/.ftl/tardis_singularity_state.json"
+REPORT_MD = "/home/m11/Escritorio/TARDIS_SINGULARITY_DISCOVERIES.md"
 
 # Nodos evolutivos ordenados cronológicamente por ramas principales
 CHRONOLOGICAL_EVOLUTION_TREE = [

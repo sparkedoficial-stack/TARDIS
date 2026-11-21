@@ -16,7 +16,7 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 
 # Asegurar path de core
-GODWORKS_PATH = Path("/home/timemachine/Escritorio/GODWORKS SYSTEM")
+GODWORKS_PATH = Path("/home/m11/Escritorio/GODWORKS SYSTEM")
 if str(GODWORKS_PATH) not in sys.path:
     sys.path.insert(0, str(GODWORKS_PATH))
 

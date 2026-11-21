@@ -690,8 +690,35 @@ class TardisBrowser:
                 break
 
         if not target_links:
-            # Fallback a Wikipedia con búsqueda semántica o directa
-            safe_topic = urllib.parse.quote(query.split()[0].replace(' ', '_'))
+            # Fallback robusto mediante API oficial de búsqueda de Wikipedia (es -> en)
+            # Evita construir URLs 404 con una sola palabra cuando DuckDuckGo devuelve 202.
+            for wiki_lang in ("es", "en"):
+                try:
+                    wiki_api = (
+                        f"https://{wiki_lang}.wikipedia.org/w/api.php"
+                        f"?action=query&list=search&srsearch={urllib.parse.quote(query)}"
+                        f"&format=json&srlimit=3&utf8=1"
+                    )
+                    async with httpx.AsyncClient(
+                        timeout=12.0,
+                        follow_redirects=True,
+                        headers={"User-Agent": "TARDIS-Browser/26.4 (AutonomousResearch; local)"},
+                    ) as client:
+                        resp = await client.get(wiki_api)
+                        if resp.status_code == 200:
+                            hits = (resp.json().get("query") or {}).get("search") or []
+                            for hit in hits[:2]:
+                                title = str(hit.get("title") or "").strip()
+                                if title:
+                                    slug = urllib.parse.quote(title.replace(" ", "_"))
+                                    target_links.append(f"https://{wiki_lang}.wikipedia.org/wiki/{slug}")
+                    if target_links:
+                        break
+                except Exception as e_wiki:
+                    logger.debug(f"Fallback Wikipedia API ({wiki_lang}) omitido: {e_wiki}")
+
+        if not target_links:
+            safe_topic = urllib.parse.quote(query.strip().replace(" ", "_"))
             target_links = [f"https://es.wikipedia.org/wiki/{safe_topic}"]
 
         visited = []

@@ -34,8 +34,8 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 logger = logging.getLogger("TARDIS_FTL_AUTOPROGRAMMER")
 
 BASE_DIR = Path(__file__).resolve().parent
-PROJECT_ROOT = Path("/home/timemachine/Escritorio/GODWORKS SYSTEM").resolve()
-MODULOS_DIR = Path("/home/timemachine/modulos_ftl").resolve()
+PROJECT_ROOT = Path("/home/m11/Escritorio/GODWORKS SYSTEM").resolve()
+MODULOS_DIR = Path("/home/m11/modulos_ftl").resolve()
 BACKUP_DIR = PROJECT_ROOT / "_selfmod_backups"
 LOG_FILE = PROJECT_ROOT / "data" / "self_evolution_log.json"
 

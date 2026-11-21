@@ -4,7 +4,7 @@ import sys
 import shutil
 from pathlib import Path
 
-sys.path.insert(0, "/home/timemachine/.ftl")
+sys.path.insert(0, "/home/m11/.ftl")
 
 from tardis_autoprogrammer import (
     MasterHub,

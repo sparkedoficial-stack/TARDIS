@@ -8,7 +8,7 @@ import json
 import sys
 from pathlib import Path
 
-GODWORKS_ROOT = "/home/timemachine/Escritorio/GODWORKS SYSTEM"
+GODWORKS_ROOT = "/home/m11/Escritorio/GODWORKS SYSTEM"
 if GODWORKS_ROOT not in sys.path:
     sys.path.insert(0, GODWORKS_ROOT)
 

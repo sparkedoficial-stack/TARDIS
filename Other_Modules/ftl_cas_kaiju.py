@@ -24,7 +24,7 @@ import time
 from pathlib import Path
 from typing import Any, Dict
 
-GODWORKS_ROOT = Path("/home/timemachine/Escritorio/GODWORKS SYSTEM")
+GODWORKS_ROOT = Path("/home/m11/Escritorio/GODWORKS SYSTEM")
 if str(GODWORKS_ROOT) not in sys.path:
     sys.path.insert(0, str(GODWORKS_ROOT))
 

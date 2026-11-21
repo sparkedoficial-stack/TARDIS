@@ -806,7 +806,7 @@ class ExecutionEngine:
             _status_relay("[TARDIS INFINITE CODE :: Fusión Cuádruple de Frontera & Acelerador Externo]")
             _status_relay("🛸 Fase 1: Gemini Flash High | Fase 2: Gemini Pro High | Fase 3: Claude Sonnet | Fase 4: Claude Opus")
             try:
-                sys.path.insert(0, "/home/timemachine/Escritorio/GODWORKS SYSTEM")
+                sys.path.insert(0, "/home/m11/Escritorio/GODWORKS SYSTEM")
                 from core.tardis_infinite_code import get_infinite_code_engine
                 eng = get_infinite_code_engine()
                 res = eng.execute_infinite_synthesis(
@@ -972,7 +972,7 @@ class ExecutionEngine:
         ftl_bin = home / ".local" / "bin" / "FTL"
         if ftl_bin.exists():
             os.chmod(str(ftl_bin), 0o755)
-            repaired.append("Verified 0755 execution permission on /home/timemachine/.local/bin/FTL")
+            repaired.append("Verified 0755 execution permission on /home/m11/.local/bin/FTL")
 
         # 4. Enforce Antigravity (AGY) Autonomous Sovereign Wrapper
         agy_wrapper = home / ".local" / "bin" / "agy"

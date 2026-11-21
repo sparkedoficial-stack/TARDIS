@@ -27,7 +27,7 @@ class FtlLinpad:
     def __init__(self) -> None:
         self.name = "linpad"
         self.version = "1.6.0-TARDIS-M2"
-        self.repo_dir = Path("/home/timemachine/LinPad")
+        self.repo_dir = Path("/home/m11/LinPad")
         self.build_dir = self.repo_dir / "build-linux"
         self.wl_bridge_dir = self.repo_dir / "wl-bridge"
         self.ipa_path = self.repo_dir / "build" / "LinPad-1.6.0-TARDIS-M2.ipa"
@@ -48,7 +48,7 @@ class FtlLinpad:
 
     def _run_cmd(self, cmd: List[str], timeout: int = 30) -> Dict[str, Any]:
         env = os.environ.copy()
-        env["PATH"] = f"/usr/local/bin:/home/timemachine/.local/bin:{env.get('PATH', '')}"
+        env["PATH"] = f"/usr/local/bin:/home/m11/.local/bin:{env.get('PATH', '')}"
         start_t = time.time()
         try:
             res = subprocess.run(

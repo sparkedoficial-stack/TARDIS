@@ -416,8 +416,14 @@ class TardisVideoThinkingEngine:
         logger.info(f"📥 [Descarga de Video TARDIS] Enlace: {video_url} | Título: '{title}'...")
 
         # Opciones de descarga de yt-dlp con límite de peso de 45MB para Telegram
+        # Preferir H.264 (avc1) y evitar AV1 (av01) para prevenir errores de decodificación en OpenCV/FFmpeg
         ydl_download_opts = {
-            "format": "bestvideo[height<=720][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best[height<=720]/best",
+            "format": (
+                "bestvideo[height<=720][vcodec^=avc1][ext=mp4]+bestaudio[ext=m4a]/"
+                "bestvideo[height<=720][vcodec!^=av01][ext=mp4]+bestaudio[ext=m4a]/"
+                "best[height<=720][vcodec!^=av01][ext=mp4]/"
+                "best[ext=mp4]/best[height<=720]/best"
+            ),
             "outtmpl": str(target_mp4.with_suffix(".%(ext)s")),
             "merge_output_format": "mp4",
             "quiet": True,
@@ -457,7 +463,12 @@ class TardisVideoThinkingEngine:
                     stale.unlink(missing_ok=True)
             try:
                 simple_opts = {
-                    "format": "bestvideo[height<=480]+bestaudio/best[height<=480]/bestvideo+bestaudio/best",
+                    "format": (
+                        "bestvideo[height<=480][vcodec^=avc1]+bestaudio/"
+                        "bestvideo[height<=480][vcodec!^=av01]+bestaudio/"
+                        "best[height<=480][vcodec!^=av01]/"
+                        "best[height<=480]/bestvideo+bestaudio/best"
+                    ),
                     "outtmpl": str(target_mp4.with_suffix(".%(ext)s")),
                     "merge_output_format": "mp4",
                     "quiet": True,
@@ -513,23 +524,41 @@ class TardisVideoThinkingEngine:
             src.unlink(missing_ok=True)
 
     def _ensure_telegram_video_compatibility(self, video_path: Path):
-        """Asegura que el video sea compatible con Telegram (reproducción fluida y audio presente)."""
+        """Asegura que el video sea compatible con Telegram y OpenCV (H.264 yuv420p, audio AAC, < 48MB)."""
+        needs_transcode = False
+        try:
+            probe = subprocess.run(
+                [
+                    "ffprobe", "-v", "error", "-select_streams", "v:0",
+                    "-show_entries", "stream=codec_name", "-of", "default=noprint_wrappers=1:nokey=1",
+                    str(video_path),
+                ],
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=15,
+            )
+            vcodec = (probe.stdout or "").strip().lower()
+            if vcodec and vcodec not in ("h264", "hevc"):
+                logger.info(f"🔄 Codec '{vcodec}' incompatible con OpenCV/Telegram. Transcodificando a H.264...")
+                needs_transcode = True
+        except Exception:
+            pass
+
         # Verificar tamaño
         size_mb = video_path.stat().st_size / (1024 * 1024)
-        if size_mb > 48.0:
-            logger.info(f"⚡ Video pesa {size_mb:.1f} MB (> 48MB). Comprimiendo para Telegram...")
+        if size_mb > 48.0 or needs_transcode:
+            logger.info(f"⚡ Normalizando video ({size_mb:.1f} MB, transcode={needs_transcode}) a H.264...")
             tmp_comp = video_path.with_name(f"{video_path.stem}_comp.mp4")
             cmd = [
                 "ffmpeg", "-y", "-i", str(video_path),
-                "-vf", "scale=-2:480",
-                "-c:v", "libx264", "-preset", "fast", "-crf", "28",
+                "-vf", "scale=-2:480" if size_mb > 48.0 else "scale=trunc(iw/2)*2:trunc(ih/2)*2",
+                "-c:v", "libx264", "-pix_fmt", "yuv420p", "-preset", "veryfast", "-crf", "26" if size_mb > 48.0 else "23",
                 "-c:a", "aac", "-b:a", "96k",
+                "-movflags", "+faststart",
                 str(tmp_comp)
             ]
-            subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=120)
+            subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=180)
             if tmp_comp.exists() and tmp_comp.stat().st_size > 1000:
                 tmp_comp.replace(video_path)
-                self.log_self_improvement("video_compressed", f"Comprimido a {video_path.stat().st_size/(1024*1024):.1f} MB")
+                self.log_self_improvement("video_normalized", f"Normalizado H.264 ({video_path.stat().st_size/(1024*1024):.1f} MB)")
 
     # -------------------------------------------------------------------------
     # ANÁLISIS CON INTELIGENCIA VISUAL & SÍNTESIS DE ABSTRACCIÓN

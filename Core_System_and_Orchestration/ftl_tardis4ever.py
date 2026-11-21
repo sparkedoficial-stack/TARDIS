@@ -21,7 +21,7 @@ from pathlib import Path
 from typing import Dict, Any
 
 # Añadir core al path para importar el agente
-CORE_DIR = Path("/home/timemachine/Escritorio/GODWORKS SYSTEM/core")
+CORE_DIR = Path("/home/m11/Escritorio/GODWORKS SYSTEM/core")
 if str(CORE_DIR) not in sys.path:
     sys.path.insert(0, str(CORE_DIR))
 

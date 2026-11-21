@@ -1,20 +1,20 @@
 {
-  "generated": REDACTED_PHONE.435162,
+  "generated": REDACTED_PHONE.3279552,
   "version": "1.0.0",
   "root": "/home/m11/Escritorio/GODWORKS SYSTEM",
-  "score": 84,
+  "score": 70,
   "counts": {
     "crítico": 0,
     "alto": 0,
-    "medio": 2,
-    "bajo": 21,
-    "info": 2
+    "medio": 6,
+    "bajo": 23,
+    "info": 1
   },
   "policy": {
     "root": "/home/m11/Escritorio/GODWORKS SYSTEM",
-    "scanned_files": 5440,
-    "scanned_dirs": 236,
-    "duration_s": 5.335,
+    "scanned_files": 5913,
+    "scanned_dirs": 263,
+    "duration_s": 6.544,
     "score": 84,
     "counts": {
       "crítico": 0,
@@ -25,9 +25,9 @@
     },
     "level_counts": {
       "C0": 6,
-      "C1": 651,
-      "C2": 4761,
-      "C3": 11,
+      "C1": 691,
+      "C2": 5192,
+      "C3": 13,
       "C4": 11
     },
     "findings": [
@@ -191,7 +191,7 @@
         "severity_value": 1,
         "title": "Credencial/dato en custodia: Teléfono / WhatsApp",
         "path": "data/terminal_captures/captures_index.json",
-        "detail": "línea 83: 1794…15 (10 ch)",
+        "detail": "línea 273: 1794…15 (10 ch)",
         "remediation": "Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600",
         "auto": false,
         "fixed": false
@@ -202,7 +202,7 @@
         "severity_value": 1,
         "title": "Credencial/dato en custodia: Teléfono / WhatsApp",
         "path": "data/terminal_captures/captures_index.json",
-        "detail": "línea 92: 1794…15 (10 ch)",
+        "detail": "línea 282: 1794…15 (10 ch)",
         "remediation": "Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600",
         "auto": false,
         "fixed": false
@@ -213,7 +213,7 @@
         "severity_value": 1,
         "title": "Credencial/dato en custodia: Teléfono / WhatsApp (recurrente)",
         "path": "data/terminal_captures/captures_index.json",
-        "detail": "42 ocurrencias entre las líneas 83 y 2601",
+        "detail": "42 ocurrencias entre las líneas 273 y 2791",
         "remediation": "Rotar la credencial si estuvo expuesta y mantenerla cifrada 0600",
         "auto": false,
         "fixed": false
@@ -278,6 +278,72 @@
   "hardening": {
     "findings": [
       {
+        "code": "SYSCTL_DEBIL",
+        "severity": "medio",
+        "severity_value": 2,
+        "title": "Parámetro de kernel sin endurecer",
+        "path": "/proc/sys/kernel/kptr_restrict",
+        "detail": "actual=0 deseado=1",
+        "remediation": "sysctl -w kernel.kptr_restrict=1",
+        "auto": true,
+        "fixed": false
+      },
+      {
+        "code": "SYSCTL_DEBIL",
+        "severity": "medio",
+        "severity_value": 2,
+        "title": "Parámetro de kernel sin endurecer",
+        "path": "/proc/sys/kernel/dmesg_restrict",
+        "detail": "actual=0 deseado=1",
+        "remediation": "sysctl -w kernel.dmesg_restrict=1",
+        "auto": true,
+        "fixed": false
+      },
+      {
+        "code": "SYSCTL_DEBIL",
+        "severity": "medio",
+        "severity_value": 2,
+        "title": "Parámetro de kernel sin endurecer",
+        "path": "/proc/sys/kernel/yama/ptrace_scope",
+        "detail": "actual=0 deseado=1",
+        "remediation": "sysctl -w kernel.yama.ptrace_scope=1",
+        "auto": true,
+        "fixed": false
+      },
+      {
+        "code": "SYSCTL_DEBIL",
+        "severity": "medio",
+        "severity_value": 2,
+        "title": "Parámetro de kernel sin endurecer",
+        "path": "/proc/sys/net/ipv4/conf/all/log_martians",
+        "detail": "actual=0 deseado=1",
+        "remediation": "sysctl -w net.ipv4.conf.all.log_martians=1",
+        "auto": true,
+        "fixed": false
+      },
+      {
+        "code": "SYSCTL_DEBIL",
+        "severity": "bajo",
+        "severity_value": 1,
+        "title": "Parámetro de kernel sin endurecer",
+        "path": "/proc/sys/kernel/unprivileged_bpf_disabled",
+        "detail": "actual=0 deseado=1",
+        "remediation": "sysctl -w kernel.unprivileged_bpf_disabled=1",
+        "auto": true,
+        "fixed": false
+      },
+      {
+        "code": "SYSCTL_DEBIL",
+        "severity": "bajo",
+        "severity_value": 1,
+        "title": "Parámetro de kernel sin endurecer",
+        "path": "/proc/sys/kernel/perf_event_paranoid",
+        "detail": "actual=-1 deseado=3",
+        "remediation": "sysctl -w kernel.perf_event_paranoid=3",
+        "auto": true,
+        "fixed": false
+      },
+      {
         "code": "SERVICIO_LAN_AUTENTICADO",
         "severity": "info",
         "severity_value": 0,
@@ -298,39 +364,28 @@
         "remediation": "Activar Secure Boot y firmar el cargador con sbctl",
         "auto": false,
         "fixed": false
-      },
-      {
-        "code": "APPARMOR_PENDING",
-        "severity": "info",
-        "severity_value": 0,
-        "title": "AppArmor configurado · pendiente de reinicio",
-        "path": "kernel",
-        "detail": "apparmor=1 security=apparmor ya está en la línea de comandos; el LSM se activará en el próximo arranque",
-        "remediation": "Reiniciar el equipo para cargar el módulo de confinamiento",
-        "auto": false,
-        "fixed": false
       }
     ],
     "applied": [],
     "failed": [],
     "sysctl": {
       "kernel.kptr_restrict": {
-        "current": "1",
+        "current": "0",
         "desired": "1",
         "profile": "safe",
-        "ok": true
+        "ok": false
       },
       "kernel.dmesg_restrict": {
-        "current": "1",
+        "current": "0",
         "desired": "1",
         "profile": "safe",
-        "ok": true
+        "ok": false
       },
       "kernel.yama.ptrace_scope": {
-        "current": "1",
+        "current": "0",
         "desired": "1",
         "profile": "safe",
-        "ok": true
+        "ok": false
       },
       "kernel.randomize_va_space": {
         "current": "2",
@@ -429,10 +484,10 @@
         "ok": true
       },
       "net.ipv4.conf.all.log_martians": {
-        "current": "1",
+        "current": "0",
         "desired": "1",
         "profile": "safe",
-        "ok": true
+        "ok": false
       },
       "net.ipv4.icmp_echo_ignore_broadcasts": {
         "current": "1",
@@ -459,16 +514,16 @@
         "ok": true
       },
       "kernel.unprivileged_bpf_disabled": {
-        "current": "1",
+        "current": "0",
         "desired": "1",
         "profile": "aggressive",
-        "ok": true
+        "ok": false
       },
       "kernel.perf_event_paranoid": {
-        "current": "3",
+        "current": "-1",
         "desired": "3",
         "profile": "aggressive",
-        "ok": true
+        "ok": false
       },
       "net.core.bpf_jit_harden": {
         "current": "2",
@@ -510,29 +565,15 @@
         "proto": "udp",
         "address": "0.0.0.0",
         "port": 5353,
-        "process": "users:((\"adb\",pid=1605,fd=12))",
+        "process": "users:((\"adb\",pid=2079,fd=10))",
         "exposed": true
       },
       {
         "proto": "udp",
         "address": "0.0.0.0",
         "port": 5353,
-        "process": "users:((\"adb\",pid=1605,fd=4))",
+        "process": "users:((\"adb\",pid=2079,fd=4))",
         "exposed": true
-      },
-      {
-        "proto": "udp",
-        "address": "REDACTED_IP",
-        "port": 5353,
-        "process": "users:((\"chrome\",pid=18570,fd=46))",
-        "exposed": false
-      },
-      {
-        "proto": "udp",
-        "address": "REDACTED_IP",
-        "port": 5353,
-        "process": "users:((\"chrome\",pid=18570,fd=45))",
-        "exposed": false
       },
       {
         "proto": "udp",
@@ -544,8 +585,8 @@
       {
         "proto": "udp",
         "address": "127.0.0.1",
-        "port": 38488,
-        "process": "users:((\"adb\",pid=1605,fd=7))",
+        "port": 42304,
+        "process": "users:((\"adb\",pid=2079,fd=7))",
         "exposed": false
       },
       {
@@ -556,66 +597,45 @@
         "exposed": true
       },
       {
-        "proto": "udp",
-        "address": "*",
-        "port": 46296,
-        "process": "users:((\"cloudflared\",pid=2739668,fd=13))",
-        "exposed": true
-      },
-      {
         "proto": "tcp",
         "address": "127.0.0.1",
-        "port": 631,
-        "process": "",
+        "port": 40567,
+        "process": "users:((\"llama-server\",pid=87319,fd=3))",
         "exposed": false
       },
       {
         "proto": "tcp",
         "address": "127.0.0.1",
-        "port": 49374,
-        "process": "users:((\"opencode.exe\",pid=87408,fd=8))",
+        "port": 7681,
+        "process": "users:((\"ttyd\",pid=1403,fd=13))",
         "exposed": false
       },
       {
         "proto": "tcp",
         "address": "127.0.0.1",
-        "port": 20241,
-        "process": "users:((\"cloudflared\",pid=2739668,fd=11))",
+        "port": 39239,
+        "process": "users:((\"agy-real\",pid=832126,fd=15))",
         "exposed": false
       },
       {
         "proto": "tcp",
         "address": "127.0.0.1",
-        "port": 20242,
-        "process": "users:((\"cloudflared\",pid=3468,fd=8))",
+        "port": 39251,
+        "process": "users:((\"agy-real\",pid=832126,fd=13))",
         "exposed": false
       },
       {
         "proto": "tcp",
-        "address": "REDACTED_IP",
-        "port": 53,
-        "process": "",
+        "address": "127.0.0.1",
+        "port": 38529,
+        "process": "users:((\"llama-server\",pid=1077306,fd=3))",
         "exposed": false
-      },
-      {
-        "proto": "tcp",
-        "address": "0.0.0.0",
-        "port": 8765,
-        "process": "users:((\"python3\",pid=1289,fd=6))",
-        "exposed": true
-      },
-      {
-        "proto": "tcp",
-        "address": "0.0.0.0",
-        "port": 8757,
-        "process": "users:((\"python3\",pid=2365724,fd=7))",
-        "exposed": true
       },
       {
         "proto": "tcp",
         "address": "127.0.0.1",
         "port": 5037,
-        "process": "users:((\"adb\",pid=1605,fd=11))",
+        "process": "users:((\"adb\",pid=2079,fd=13))",
         "exposed": false
       },
       {
@@ -627,65 +647,86 @@
       },
       {
         "proto": "tcp",
+        "address": "0.0.0.0",
+        "port": 8757,
+        "process": "users:((\"python3\",pid=593650,fd=6))",
+        "exposed": true
+      },
+      {
+        "proto": "tcp",
+        "address": "0.0.0.0",
+        "port": 8765,
+        "process": "users:((\"python3\",pid=1604,fd=6))",
+        "exposed": true
+      },
+      {
+        "proto": "tcp",
         "address": "127.0.0.1",
-        "port": 8790,
-        "process": "users:((\"python3\",pid=1136,fd=6))",
+        "port": 20241,
+        "process": "users:((\"cloudflared\",pid=3401,fd=11))",
         "exposed": false
       },
       {
         "proto": "tcp",
         "address": "127.0.0.1",
-        "port": 8787,
-        "process": "users:((\"tardis-hunter\",pid=1132,fd=30))",
+        "port": 20242,
+        "process": "users:((\"cloudflared\",pid=4518,fd=8))",
         "exposed": false
       },
       {
         "proto": "tcp",
         "address": "127.0.0.1",
-        "port": 8797,
-        "process": "users:((\"python3\",pid=2133039,fd=9))",
+        "port": 49374,
+        "process": "users:((\"opencode\",pid=8948,fd=8))",
         "exposed": false
       },
       {
         "proto": "tcp",
         "address": "127.0.0.1",
-        "port": 8796,
-        "process": "users:((\"python3\",pid=1305,fd=8))",
+        "port": 631,
+        "process": "",
+        "exposed": false
+      },
+      {
+        "proto": "tcp",
+        "address": "REDACTED_IP",
+        "port": 53,
+        "process": "",
+        "exposed": false
+      },
+      {
+        "proto": "tcp",
+        "address": "0.0.0.0",
+        "port": 7690,
+        "process": "users:((\"python3\",pid=1606,fd=6))",
+        "exposed": true
+      },
+      {
+        "proto": "tcp",
+        "address": "127.0.0.1",
+        "port": 11434,
+        "process": "users:((\"ollama\",pid=1413,fd=4))",
         "exposed": false
       },
       {
         "proto": "tcp",
         "address": "127.0.0.1",
-        "port": 8798,
-        "process": "users:((\"tardis-desktop\",pid=1030859,fd=26))",
+        "port": 43443,
+        "process": "users:((\"agy\",pid=550922,fd=13))",
         "exposed": false
       },
       {
         "proto": "tcp",
         "address": "127.0.0.1",
-        "port": 8794,
-        "process": "users:((\"python3\",pid=1272,fd=3))",
-        "exposed": false
-      },
-      {
-        "proto": "tcp",
-        "address": "127.0.0.1",
-        "port": 41729,
-        "process": "users:((\"agy\",pid=2630996,fd=12))",
-        "exposed": false
-      },
-      {
-        "proto": "tcp",
-        "address": "127.0.0.1",
-        "port": 42931,
-        "process": "users:((\"agy\",pid=2630996,fd=14))",
+        "port": 42219,
+        "process": "users:((\"agy\",pid=550922,fd=11))",
         "exposed": false
       },
       {
         "proto": "tcp",
         "address": "127.0.0.1",
         "port": 9226,
-        "process": "users:((\"chrome\",pid=18494,fd=73))",
+        "process": "users:((\"chrome\",pid=25701,fd=74))",
         "exposed": false
       },
       {
@@ -698,36 +739,43 @@
       {
         "proto": "tcp",
         "address": "127.0.0.1",
-        "port": 44017,
-        "process": "users:((\"claude\",pid=76503,fd=10))",
-        "exposed": false
-      },
-      {
-        "proto": "tcp",
-        "address": "0.0.0.0",
-        "port": 7690,
-        "process": "users:((\"python3\",pid=1297,fd=6))",
-        "exposed": true
-      },
-      {
-        "proto": "tcp",
-        "address": "0.0.0.0",
-        "port": 7681,
-        "process": "users:((\"ttyd\",pid=1124,fd=13))",
-        "exposed": true
-      },
-      {
-        "proto": "tcp",
-        "address": "127.0.0.1",
-        "port": 11434,
-        "process": "users:((\"ollama\",pid=1126,fd=4))",
+        "port": 8796,
+        "process": "users:((\"python3\",pid=1610,fd=7))",
         "exposed": false
       },
       {
         "proto": "tcp",
         "address": "127.0.0.1",
-        "port": 45891,
-        "process": "users:((\"llama-server\",pid=353617,fd=3))",
+        "port": 8797,
+        "process": "users:((\"python3\",pid=1453,fd=9))",
+        "exposed": false
+      },
+      {
+        "proto": "tcp",
+        "address": "127.0.0.1",
+        "port": 8798,
+        "process": "users:((\"tardis-desktop\",pid=1185370,fd=26))",
+        "exposed": false
+      },
+      {
+        "proto": "tcp",
+        "address": "127.0.0.1",
+        "port": 8794,
+        "process": "users:((\"python3\",pid=1475,fd=3))",
+        "exposed": false
+      },
+      {
+        "proto": "tcp",
+        "address": "127.0.0.1",
+        "port": 8790,
+        "process": "users:((\"python3\",pid=1428,fd=6))",
+        "exposed": false
+      },
+      {
+        "proto": "tcp",
+        "address": "127.0.0.1",
+        "port": 8787,
+        "process": "users:((\"tardis-hunter\",pid=1409,fd=7))",
         "exposed": false
       },
       {
@@ -746,18 +794,18 @@
       "swap": "/swap/swapfile file\n/dev/zram0     partition"
     },
     "secure_boot": false,
-    "apparmor": false,
-    "apparmor_pending": true,
+    "apparmor": true,
+    "apparmor_pending": false,
     "auditd_active": true
   },
   "key_fingerprint": "C7CB9188F99591F07EC62B7DB75FBB8A",
   "ledger": {
     "ok": true,
-    "entries": 46,
+    "entries": 48,
     "head": "REDACTED_TOKEN",
     "broken_at": null,
     "reason": "",
     "anchor_ok": true,
-    "last_ts": REDACTED_PHONE.516389
+    "last_ts": REDACTED_PHONE.582901
   }
 }

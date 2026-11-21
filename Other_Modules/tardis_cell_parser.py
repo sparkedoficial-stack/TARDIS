@@ -66,7 +66,7 @@ def parse_cell_save(filepath):
     return game_state
 
 if __name__ == "__main__":
-    save_path = "/home/timemachine/.local/share/Steam/steamapps/compatdata/977400/pfx/drive_c/users/steamuser/AppData/LocalLow/Computer Lunch/Cell to Singularity/savedGames.gd"
+    save_path = "/home/m11/.local/share/Steam/steamapps/compatdata/977400/pfx/drive_c/users/steamuser/AppData/LocalLow/Computer Lunch/Cell to Singularity/savedGames.gd"
     st = parse_cell_save(save_path)
     print(f"Total resolved items: {len(st)}")
     

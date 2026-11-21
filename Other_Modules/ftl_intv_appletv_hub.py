@@ -49,7 +49,7 @@ EUREKA_HTTPS_PORT = 8443
 LISTEN_HOST = "0.0.0.0"
 LISTEN_PORT = int(os.environ.get("APPLETV_HUB_PORT", "8788"))
 
-CERT_DIR = Path("/home/timemachine/.android")
+CERT_DIR = Path("/home/m11/.android")
 CERT_FILE = str(CERT_DIR / "intv_appletv_cert.pem")
 KEY_FILE = str(CERT_DIR / "intv_appletv_key.pem")
 

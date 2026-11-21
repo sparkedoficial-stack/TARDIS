@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1794712803",
-    "timestamp": "2026-11-14T22:20:03.642835",
-    "idle_duration_minutes": 78.8,
-    "title": "Causal Memory Indexing for Real‑Time Web Research",
-    "hypothesis": "Integrating a causal graph layer into the Deep Memory Vault (core/deep_memory_vault.py) will allow the system to automatically infer dependencies between stored akáshic entries and newly retrieved web data, improving relevance ranking and reducing redundant queries. By propagating confidence scores through the graph, the Web Research Engine can prioritize sources that are causally linked to high‑impact memory nodes, leading to faster convergence on accurate answers.",
-    "research_query": "\"causal graph indexing\" \"knowledge base\" \"real-time web retrieval\" performance improvement",
-    "research_findings": "# Informe de Investigación: \"causal graph indexing\" \"knowledge base\" \"real-time web retrieval\" performance improvement\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Add a lightweight causal graph module that stores nodes for each memory entry with edges representing inferred causal relationships; expose an API (add_causal_edge, get_causal_context) and modify the retrieval pipeline in core/web_research_engine.py to weight results based on causal proximity to the current query context.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 2898.68
-  },
-  {
     "id": "conj_1794716991",
     "timestamp": "2026-11-14T23:29:51.231315",
     "idle_duration_minutes": 69.8,
@@ -1614,5 +1599,22 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 2782.7
+  },
+  {
+    "id": "conj_1795232986",
+    "timestamp": "2026-11-20T22:49:46.225650",
+    "idle_duration_minutes": 0.0,
+    "title": "Teoría Causal de Adaptabilidad Continua",
+    "hypothesis": "Los bucles OODA enriquecidos con memoria akáshica aceleran la convergencia autónoma.",
+    "research_query": "autonomous agents self-improvement machine learning",
+    "research_findings": "Síntesis sintrópica de investigación autónoma.",
+    "web_sources": [
+      "https://example.org/study"
+    ],
+    "code_target": null,
+    "code_goal": null,
+    "evolution_status": "NOT_APPLICABLE",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 0.0
   }
 ]
