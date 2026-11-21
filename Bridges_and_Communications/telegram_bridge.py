@@ -80,6 +80,17 @@ DEFAULT_CONFIG: Dict[str, Any] = {
 }
 
 
+def _boost_inference_process_for_call(proc: Any) -> Dict[str, Any]:
+    """Callback `on_process_spawned`: refuerza la prioridad del proceso de inferencia."""
+    try:
+        from core.telegram_call_priority import boost_process_for_call
+
+        return boost_process_for_call(proc)
+    except Exception as exc:  # noqa: BLE001
+        logger.debug(f"Aviso reforzando proceso de inferencia en llamada: {exc}")
+        return {"ok": False, "error": str(exc)}
+
+
 class ChatActionKeeper:
     """Mantiene el indicador de acción (ej: 'record_voice') activo en Telegram periódicamente mientras se procesa."""
 
@@ -1975,24 +1986,20 @@ class TelegramBridge:
         self.system_priority_active = False
         self.priority_mode = "normal"
         self.call_priority = False
+        result: Dict[str, Any] = {"ok": True, "system_priority": False, "chat_id": chat_id}
         try:
-            from core.os_optimizer import get_os_optimizer
-            opt = get_os_optimizer()
-            if hasattr(opt, "restore_normal_priority"):
-                opt.restore_normal_priority()
-        except Exception:
-            pass
-        try:
-            import os as _os
-            _os.nice(0)
-        except Exception:
-            pass
-        try:
-            import psutil as _psutil
-            _psutil.Process().nice(0)
-        except Exception:
-            pass
-        return {"ok": True, "system_priority": False, "chat_id": chat_id}
+            from core.telegram_call_priority import release_call_priority
+
+            source = f"bridge:{chat_id}" if chat_id is not None else "bridge"
+            state = release_call_priority(source)
+            result.update({
+                "manager_active": state.get("active", False),
+                "holder_count": state.get("holder_count", 0),
+                "priority_mode": state.get("priority_mode", "normal"),
+            })
+        except Exception as exc:  # noqa: BLE001
+            logger.debug(f"Aviso liberando gestor de prioridad de llamada: {exc}")
+        return result
 
     def on_telegram_call(self, chat_id: Optional[int | str] = None) -> Dict[str, Any]:
         return self.prioritize_system_for_telegram_call(chat_id)
@@ -5864,7 +5871,11 @@ class TelegramBridge:
                         client_id=tg_client_id,
                         priority=is_call_active,
                         system_priority=is_call_active,
-                        telegram_call_priority=is_call_active
+                        telegram_call_priority=is_call_active,
+                        on_process_spawned=(
+                            (lambda proc: _boost_inference_process_for_call(proc))
+                            if is_call_active else None
+                        ),
                     )
                     cand2 = (resp_chat.get("reply") or "").strip()
                     if cand2 and not cand2.startswith("[⚠️ Tiempo límite") and not cand2.startswith("[Error"):

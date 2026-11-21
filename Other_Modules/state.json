@@ -80,45 +80,6 @@
       "added_ts": 0.0
     },
     {
-      "video_id": "gSEwAhR3yAc",
-      "title": "Mama, I Had a Dream",
-      "artist": "Jóhann Jóhannsson y BJNilsen",
-      "album": "I Am Here",
-      "duration": "2:00",
-      "duration_seconds": 120,
-      "thumbnail": "https://yt3.googleusercontent.com/SQ0itM7Px0Rv-PdUktYWJJD71D4FyaNvIHdP1dKiJLTABOooUde9tcBDNduI0A90rwLriKxGyujl45mJ=w120-h120-l90-rj",
-      "kind": "song",
-      "scene": "creative",
-      "source": "scene:creative",
-      "added_ts": 0.0
-    },
-    {
-      "video_id": "D6uwPL3oXeI",
-      "title": "The Border",
-      "artist": "Jóhann Jóhannsson",
-      "album": "Sicario (Original Motion Picture Soundtrack)",
-      "duration": "2:59",
-      "duration_seconds": 179,
-      "thumbnail": "https://yt3.googleusercontent.com/7jxXEL2BhelbaUxoXB1_R_fyEYLZMfwejmXdjyIK-Z6l9r5CpJvTCr_uj5_PdIvPVMJwvSAgnLpkqKDD=w120-h120-l90-rj",
-      "kind": "song",
-      "scene": "creative",
-      "source": "scene:creative",
-      "added_ts": 0.0
-    },
-    {
-      "video_id": "ahTPa-0kvGM",
-      "title": "Þynnkudagur (From „Dís“ Soundtrack)",
-      "artist": "Jóhann Jóhannsson",
-      "album": "Dís (Original Soundtrack)",
-      "duration": "3:26",
-      "duration_seconds": 206,
-      "thumbnail": "https://yt3.googleusercontent.com/uZ_t1aIbc0voCOMByh0uMMEJa4I800PquBwv-bRlgPZReH9R2B1pt65EA5c_IppxTBgBykPT7wR9QiPV=w120-h120-l90-rj",
-      "kind": "song",
-      "scene": "creative",
-      "source": "scene:creative",
-      "added_ts": 0.0
-    },
-    {
       "video_id": "2a57-ukSnIU",
       "title": "Fading Glow",
       "artist": "Jon Hopkins",
@@ -184,6 +145,45 @@
       "added_ts": 0.0
     },
     {
+      "video_id": "gSEwAhR3yAc",
+      "title": "Mama, I Had a Dream",
+      "artist": "Jóhann Jóhannsson y BJNilsen",
+      "album": "I Am Here",
+      "duration": "2:00",
+      "duration_seconds": 120,
+      "thumbnail": "https://yt3.googleusercontent.com/SQ0itM7Px0Rv-PdUktYWJJD71D4FyaNvIHdP1dKiJLTABOooUde9tcBDNduI0A90rwLriKxGyujl45mJ=w120-h120-l90-rj",
+      "kind": "song",
+      "scene": "creative",
+      "source": "scene:creative",
+      "added_ts": 0.0
+    },
+    {
+      "video_id": "D6uwPL3oXeI",
+      "title": "The Border",
+      "artist": "Jóhann Jóhannsson",
+      "album": "Sicario (Original Motion Picture Soundtrack)",
+      "duration": "2:59",
+      "duration_seconds": 179,
+      "thumbnail": "https://yt3.googleusercontent.com/7jxXEL2BhelbaUxoXB1_R_fyEYLZMfwejmXdjyIK-Z6l9r5CpJvTCr_uj5_PdIvPVMJwvSAgnLpkqKDD=w120-h120-l90-rj",
+      "kind": "song",
+      "scene": "creative",
+      "source": "scene:creative",
+      "added_ts": 0.0
+    },
+    {
+      "video_id": "ahTPa-0kvGM",
+      "title": "Þynnkudagur (From „Dís“ Soundtrack)",
+      "artist": "Jóhann Jóhannsson",
+      "album": "Dís (Original Soundtrack)",
+      "duration": "3:26",
+      "duration_seconds": 206,
+      "thumbnail": "https://yt3.googleusercontent.com/uZ_t1aIbc0voCOMByh0uMMEJa4I800PquBwv-bRlgPZReH9R2B1pt65EA5c_IppxTBgBykPT7wR9QiPV=w120-h120-l90-rj",
+      "kind": "song",
+      "scene": "creative",
+      "source": "scene:creative",
+      "added_ts": 0.0
+    },
+    {
       "video_id": "V2GcYhvy0_I",
       "title": "tron legacy",
       "artist": "Cinematic",
@@ -207,5 +207,5 @@
   "last_scene": "creative",
   "user_paused": false,
   "created_ts": 0.0,
-  "updated_ts": REDACTED_PHONE.051366
+  "updated_ts": REDACTED_PHONE.505979
 }

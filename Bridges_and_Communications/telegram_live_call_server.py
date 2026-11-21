@@ -59,6 +59,12 @@ from core.protected_users_vault import (
 )
 from core.tardis_voice_local import LocalSpeechToText, for_speech
 from core.tardis_voice_program import get_voice_program_router
+from core.telegram_call_priority import (
+    activate_call_priority,
+    get_call_priority_status,
+    release_call_priority,
+    touch_call_priority,
+)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -1761,6 +1767,7 @@ class TelegramLiveCallServer:
 
     async def handle_health(self, request: web.Request) -> web.Response:
         pub_url = build_live_call_url(chat_id="menu")
+        priority = get_call_priority_status()
         return web.json_response(
             {
                 "ok": True,
@@ -1769,8 +1776,16 @@ class TelegramLiveCallServer:
                 "active_calls": len(self.active_sessions),
                 "public_call_url": pub_url,
                 "temporal_brain_socket": TEMPORAL_BRAIN_SOCK.exists(),
+                "system_priority_active": priority.get("active", False),
+                "call_priority": priority.get("active", False),
+                "priority_mode": priority.get("priority_mode", "normal"),
+                "priority_holders": priority.get("holder_count", 0),
             }
         )
+
+    async def handle_priority_status(self, request: web.Request) -> web.Response:
+        """Expone el estado del modo prioritario para supervisión local."""
+        return web.json_response(get_call_priority_status())
 
     def _is_trusted_local_or_gateway(self, request: web.Request) -> bool:
         if request.headers.get("X-FTL-Gateway") == "1":
@@ -1801,6 +1816,8 @@ class TelegramLiveCallServer:
 
         query_ct = request.query.get("ct", "")
         session_id = f"call_{int(time.time() * 1000)}_{id(ws) & 0xFFFF:04x}"
+        priority_source = f"live_call:{session_id}"
+        priority_registered = False
         auth_info: Optional[Dict[str, Any]] = verify_call_token(query_ct) and self._authenticate_request(query_ct, "")
         user_name = (auth_info or {}).get("user_name", "Usuario")
         chat_id = (auth_info or {}).get("chat_id", "anon")

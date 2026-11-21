@@ -4119,6 +4119,44 @@ def process_agentic_chat(
     telegram_call_priority: bool = False,
 ) -> dict:
     t0 = time.time()
+    # -------------------------------------------------------------------------
+    # MODO LLAMADA PRIORITARIA: los flags llegan desde TelegramBridge y se
+    # complementan con el gestor compartido (la Mini App de voz corre en otro
+    # proceso). Aquí se convierten en efectos reales de latencia:
+    #   · refuerzo de prioridad del proceso de inferencia hijo (ollama run),
+    #   · ventana de contexto acotada (primer token más rápido),
+    #   · omisión de búsqueda web pesada en respuestas conversacionales de voz.
+    # -------------------------------------------------------------------------
+    call_priority_active = bool(priority or system_priority or telegram_call_priority)
+    if call_priority_active:
+        try:
+            from core.telegram_call_priority import (
+                boost_process_for_call as _boost_call_proc,
+                is_call_priority_active as _is_call_priority_active,
+            )
+
+            call_priority_active = bool(_is_call_priority_active()) or call_priority_active
+            _previous_spawn_hook = on_process_spawned
+
+            def _call_spawn_hook(proc, _hook=_previous_spawn_hook):
+                try:
+                    _boost_call_proc(proc)
+                except Exception:
+                    pass
+                if _hook is not None:
+                    try:
+                        _hook(proc)
+                    except Exception:
+                        pass
+
+            on_process_spawned = _call_spawn_hook
+            _call_max_ctx = int(os.environ.get("TARDIS_CALL_MAX_CTX", "4096") or 0)
+            if _call_max_ctx > 0 and int(num_ctx or 0) > _call_max_ctx:
+                num_ctx = _call_max_ctx
+            if str(os.environ.get("TARDIS_CALL_SKIP_WEB", "1")).lower() in ("1", "true", "yes"):
+                use_web = False
+        except Exception:
+            pass
     if is_client_mode:
         is_local_request = False
     # REGLA SOBERANA 1: Bóveda Ultra Secreta de Usuarios Protegidos
