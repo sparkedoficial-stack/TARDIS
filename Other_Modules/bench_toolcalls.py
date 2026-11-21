@@ -7,6 +7,7 @@ Para cada tarea: pide al 7b que actue, parsea la respuesta y mide
 Compara condicion FULL (35 tools) contra SUBSET (tool_selector).
 """
 import json
+import os
 import sys
 import time
 import httpx

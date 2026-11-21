@@ -1,6 +1,6 @@
 {
-  "revision": 2810,
-  "lamport": 2972,
+  "revision": 2818,
+  "lamport": 2976,
   "history": [
     {
       "id": "msg_1795274851110_1",
@@ -154,6 +154,50 @@
       "meta": "Nodo: Telegram [x] (Conversación Soberana)",
       "raw_data": {},
       "client_id": "tg_777000222"
+    },
+    {
+      "id": "msg_1795276188861_12",
+      "role": "user",
+      "content": "REDACTED_TOKEN",
+      "timestamp": REDACTED_PHONE.8613796,
+      "iso": "2026-11-21T10:49:48.861393",
+      "lamport": 2973,
+      "meta": "Nodo: Telegram [x] (Conversación Soberana)",
+      "raw_data": {},
+      "client_id": "tg_777000222"
+    },
+    {
+      "id": "msg_1795283247183_13",
+      "role": "user",
+      "content": "REDACTED_TOKEN",
+      "timestamp": REDACTED_PHONE.1836996,
+      "iso": "2026-11-21T12:47:27.183712",
+      "lamport": 2974,
+      "meta": "Nodo: Telegram [x] (Conversación Soberana)",
+      "raw_data": {},
+      "client_id": "tg_777000222"
+    },
+    {
+      "id": "msg_1795283334738_14",
+      "role": "user",
+      "content": "REDACTED_TOKEN",
+      "timestamp": REDACTED_PHONE.7389977,
+      "iso": "2026-11-21T12:48:54.739008",
+      "lamport": 2975,
+      "meta": "Nodo: Telegram [x] (Conversación Soberana)",
+      "raw_data": {},
+      "client_id": "tg_777000222"
+    },
+    {
+      "id": "msg_1795283393680_15",
+      "role": "user",
+      "content": "REDACTED_TOKEN",
+      "timestamp": REDACTED_PHONE.6803873,
+      "iso": "2026-11-21T12:49:53.680400",
+      "lamport": 2976,
+      "meta": "Nodo: Telegram [x] (Conversación Soberana)",
+      "raw_data": {},
+      "client_id": "tg_777000222"
     }
   ],
   "config": {
@@ -181,14 +225,14 @@
     "lamport": 2958,
     "web_search": true
   },
-  "updated_at": "2026-11-21T10:49:23.299819",
+  "updated_at": "2026-11-21T12:49:53.680419",
   "visual_intelligence": {
     "active": true,
     "pid": 1426,
-    "videos_stored": 1028,
-    "verdicts": 488,
+    "videos_stored": 1029,
+    "verdicts": 500,
     "vlm_model": "qwen3-vl:2b-instruct",
     "last_risk_level": 0,
-    "last_ping": REDACTED_PHONE.0291672
+    "last_ping": REDACTED_PHONE.5360315
   }
 }

@@ -98,6 +98,82 @@ class OSOptimizer:
         logger.info(f"[OSOptimizer] ✅ Optimizaciones de SO y Runtime aplicadas: {results}")
         return results
 
+    def boost_priority_for_call(self) -> Dict[str, Any]:
+        """Eleva la prioridad del proceso y del sistema cuando entra una llamada de Telegram."""
+        return self.prioritize_for_telegram_call()
+
+    def prioritize_for_telegram_call(self) -> Dict[str, Any]:
+        """Aplica prioridad alta al proceso TARDIS para responder más rápido en llamadas de Telegram."""
+        results: Dict[str, Any] = {}
+        try:
+            proc = psutil.Process()
+            try:
+                proc.nice(-10 if hasattr(proc, "nice") else 0)
+                results["cpu_nice"] = getattr(proc, "nice", lambda: 0)()
+            except Exception as e:  # noqa: BLE001
+                results["cpu_nice"] = f"warning: {e}"
+            try:
+                if hasattr(psutil, "IOPRIO_CLASS_RT"):
+                    proc.ionice(psutil.IOPRIO_CLASS_RT, value=4)
+                    results["ionice"] = "realtime"
+                elif hasattr(psutil, "IOPRIO_CLASS_BE"):
+                    proc.ionice(psutil.IOPRIO_CLASS_BE, value=0)
+                    results["ionice"] = "best-effort (priority 0)"
+                else:
+                    results["ionice"] = "not_supported"
+            except Exception as e:  # noqa: BLE001
+                results["ionice"] = f"warning: {e}"
+            results["ok"] = True
+        except Exception as e:  # noqa: BLE001
+            results["ok"] = False
+            results["error"] = str(e)
+        try:
+            os.nice(-10)
+            results["os_nice"] = "applied"
+        except Exception as e:  # noqa: BLE001
+            results["os_nice"] = f"warning: {e}"
+        return results
+
+    def prioritize_system(self) -> Dict[str, Any]:
+        return self.prioritize_for_telegram_call()
+
+    def boost_system_priority(self) -> Dict[str, Any]:
+        return self.prioritize_for_telegram_call()
+
+    def on_telegram_call(self) -> Dict[str, Any]:
+        return self.prioritize_for_telegram_call()
+
+    def handle_telegram_call_priority(self) -> Dict[str, Any]:
+        return self.prioritize_for_telegram_call()
+
+    def restore_normal_priority(self) -> Dict[str, Any]:
+        results: Dict[str, Any] = {}
+        try:
+            proc = psutil.Process()
+            try:
+                proc.nice(0)
+                results["cpu_nice"] = getattr(proc, "nice", lambda: 0)()
+            except Exception as e:  # noqa: BLE001
+                results["cpu_nice"] = f"warning: {e}"
+            try:
+                if hasattr(psutil, "IOPRIO_CLASS_BE"):
+                    proc.ionice(psutil.IOPRIO_CLASS_BE, value=4)
+                    results["ionice"] = "best-effort (priority 4)"
+                else:
+                    results["ionice"] = "not_supported"
+            except Exception as e:  # noqa: BLE001
+                results["ionice"] = f"warning: {e}"
+            results["ok"] = True
+        except Exception as e:  # noqa: BLE001
+            results["ok"] = False
+            results["error"] = str(e)
+        try:
+            os.nice(0)
+            results["os_nice"] = "applied"
+        except Exception as e:  # noqa: BLE001
+            results["os_nice"] = f"warning: {e}"
+        return results
+
     def tune_sqlite_connection(self, conn: sqlite3.Connection) -> None:
         """Aplica directivas de alto rendimiento y zero-copy I/O a conexiones SQLite."""
         try:

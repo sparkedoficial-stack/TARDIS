@@ -1,56 +1,5 @@
 [
   {
-    "id": "conj_1794738479",
-    "timestamp": "2026-11-15T05:27:59.769984",
-    "idle_duration_minutes": 74.0,
-    "title": "Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "Integrating a causal inference layer into the web_research_engine's result caching mechanism will allow the system to predict when cached search results become stale based on observed changes in source domains (e.g., content update frequency, SEO signals). By modeling the causal relationship between external content dynamics and cache validity, the engine can proactively invalidate or refresh entries, reducing latency and improving answer freshness without a full re‑crawl on every query.",
-    "research_query": "causal inference based cache invalidation web search engines recent papers 2023 2024",
-    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web search engines recent papers 2023 2024\n\n## Fuentes Consultadas y Respaldo Web\n- **[Causal inference via algebraic geometry: feasibility tests for functional causal structures with two binary observed variables (arXiv)](http://arxiv.org/abs/1506.03880v2)**: We provide a scheme for inferring causal relations from uncontrolled statistical data based on tools from computational algebraic geometry, in particular, the computation of Groebner bases. We focus on causal structures containing just two observed variables, each of which is binary. We consider the consequences of imposing different restrictions o\n- **[The Retrieval Effectiveness of Web Search Engines: Considering Results Descriptions (arXiv)](http://arxiv.org/abs/1511.05800v1)**: Purpose: To compare five major Web search engines (Google, Yahoo, MSN, Ask.com, and Seekport) for their retrieval effectiveness, taking into account not only the results but also the",
-    "web_sources": [
-      "http://arxiv.org/abs/1506.03880v2",
-      "http://arxiv.org/abs/1511.05800v1"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a lightweight causal model that tracks source domain update signals (RSS timestamps, HTTP Last-Modified headers, content hash diffs) and uses them to decide cache expiration, exposing a new function `should_refresh(cache_entry)` and integrating it into the request pipeline.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 2637.17
-  },
-  {
-    "id": "conj_1794743110",
-    "timestamp": "2026-11-15T06:45:10.437105",
-    "idle_duration_minutes": 77.2,
-    "title": "Causal Prompt Routing for Adaptive Web Research",
-    "hypothesis": "If the Web Research Engine dynamically routes queries through a causal inference layer that evaluates the temporal relevance and epistemic weight of retrieved sources, then the system will achieve a measurable improvement in answer accuracy and latency, especially under high‑concurrency workloads. The hypothesis posits that integrating a lightweight causal graph that tracks dependencies between prior queries, cached results, and external knowledge graphs can enable the engine to prioritize sources that historically contributed to higher confidence scores, thereby reducing redundant network calls and improving the fidelity of the akáshic vault's memory consolidation.",
-    "research_query": "causal inference based query routing web search engine performance improvement",
-    "research_findings": "# Informe de Investigación: causal inference based query routing web search engine performance improvement\n\n## Fuentes Consultadas y Respaldo Web\n- **[Mosaic effect (Wikipedia)](https://en.wikipedia.org/wiki/Mosaic_effect)**: search of the home under the Fourth Amendment, relying on Carpenter v. United States and the mosaic theory to argue that such data enables inferences\n- **[2023 in science (Wikipedia)](https://en.wikipedia.org/wiki/2023_in_science)**: typical use of popular Web search engines interprets its results to show that choices for unreliable news sources for their queries are driven primarily\n\n## Contenido y Hallazgos Extraídos\n### De [Mosaic effect - Wikipedia](https://en.wikipedia.org/wiki/Mosaic_effect)\n> Mosaic effect - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nDeduction of secret data from public sources\nThe examples and perspectives in this article may not represent a worldwide view of the subject . You may improve this article , discuss the iss",
-    "web_sources": [
-      "https://en.wikipedia.org/wiki/Mosaic_effect",
-      "https://en.wikipedia.org/wiki/2023_in_science"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Implement a causal routing module that scores candidate URLs using a dependency graph of past queries and confidence metrics, then selects the top‑scoring sources before issuing HTTP requests, and cache the causal scores for future reuse.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 2799.09
-  },
-  {
-    "id": "conj_1794747015",
-    "timestamp": "2026-11-15T07:50:15.706727",
-    "idle_duration_minutes": 65.1,
-    "title": "Dynamic Causal Embedding Cache for Web Research Engine",
-    "hypothesis": "Integrar un caché de embeddings causales que capture relaciones temporales entre consultas y resultados dentro de core/web_research_engine.py reducirá la latencia de búsqueda y mejorará la relevancia de los resultados al permitir que el motor reutilice inferencias previas en contextos similares, aprovechando la estructura de causalidad ya presente en core/deep_memory_vault.py.",
-    "research_query": "\"causal embedding cache\" web search engine latency improvement",
-    "research_findings": "# Informe de Investigación: \"causal embedding cache\" web search engine latency improvement\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Implementar una capa de caché que almacene embeddings de consultas y sus respuestas, indexados por un grafo causal derivado de deep_memory_vault, y añadir lógica de recuperación y actualización automática del caché en el flujo de búsqueda.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 2105.26
-  },
-  {
     "id": "conj_1794751589",
     "timestamp": "2026-11-15T09:06:29.209715",
     "idle_duration_minutes": 76.2,
@@ -1598,8 +1547,60 @@
     "elapsed_seconds": 6691.02
   },
   {
-    "id": "conj_1795274864",
-    "timestamp": "2026-11-21T10:27:44.921782",
+    "id": "conj_1795281184",
+    "timestamp": "2026-11-21T12:13:04.607469",
+    "idle_duration_minutes": 106.2,
+    "title": "Integrating Temporal Causal Graphs into Chronovision for Predictive Vault Retrieval",
+    "hypothesis": "Embedding a dynamic temporal causal graph within the Chronovision engine will enable anticipatory indexing of deep memory vault entries, improving retrieval relevance by up to 30%.",
+    "research_query": "temporal causal graph neural networks for predictive memory retrieval in AI systems",
+    "research_findings": "# Informe de Investigación: temporal causal graph neural networks for predictive memory retrieval in AI systems\n\n## Fuentes Consultadas y Respaldo Web\n- **[Hierarchical spatio-temporal graph network for risk prediction - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE5ENEh5ZjlfUTZFRUprUUhYUno4d2dxQU9WTWwxclhOeFNCdUFWdFVLU3VzTEdtcFU2TThWcUVPVGJCWEpBMHpHVGFpVm1PdkNXTTlPLXlhdjdhVTkxUjZz?oc=5)**: Hierarchical spatio-temporal graph network for risk prediction  Nature\n- **[GeoGuard-PTI: a geo-temporal predictive threat intelligence framework with spatiotemporal attack forecasting and closed-loop adaptive defense - Frontiers](https://news.google.com/rss/articles/CBMiogFBVV95cUxNTXp0NEVRWHFvRlJiNVZPTnhLb0NDU3NZY1Eza2haOXlkVzdBTW8yaFZqSXZQRE9NTGFOSEhFRkRFWXQzVllNeEN2VmtmR3JET2lZVENYbGRYbTB0NE56Z0hsaDlMRldlUFRHemFjZm9tdmRBdDdtNnpYeXBjc0lRQ0ZEVmY0TjdITktseFMxQ21waGVmclVHSERaMDBCaDUxRkE?oc=5)**: GeoGuard-PTI: a geo-temporal predictive threat intelligence framework with spatiotemporal a",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE5ENEh5ZjlfUTZFRUprUUhYUno4d2dxQU9WTWwxclhOeFNCdUFWdFVLU3VzTEdtcFU2TThWcUVPVGJCWEpBMHpHVGFpVm1PdkNXTTlPLXlhdjdhVTkxUjZz?oc=5",
+      "https://news.google.com/rss/articles/CBMiogFBVV95cUxNTXp0NEVRWHFvRlJiNVZPTnhLb0NDU3NZY1Eza2haOXlkVzdBTW8yaFZqSXZQRE9NTGFOSEhFRkRFWXQzVllNeEN2VmtmR3JET2lZVENYbGRYbTB0NE56Z0hsaDlMRldlUFRHemFjZm9tdmRBdDdtNnpYeXBjc0lRQ0ZEVmY0TjdITktseFMxQ21waGVmclVHSERaMDBCaDUxRkE?oc=5"
+    ],
+    "code_target": "core/chronovision_engine.py",
+    "code_goal": "Add a causal_graph module that updates edge weights based on timestamped access patterns and integrates it into the query planner",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 4574.42
+  },
+  {
+    "id": "conj_1795283441",
+    "timestamp": "2026-11-21T12:50:41.730844",
+    "idle_duration_minutes": 0.0,
+    "title": "Teoría Causal de Adaptabilidad Continua",
+    "hypothesis": "Los bucles OODA enriquecidos con memoria akáshica aceleran la convergencia autónoma.",
+    "research_query": "autonomous agents self-improvement machine learning",
+    "research_findings": "Síntesis sintrópica de investigación autónoma.",
+    "web_sources": [
+      "https://example.org/study"
+    ],
+    "code_target": null,
+    "code_goal": null,
+    "evolution_status": "NOT_APPLICABLE",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 0.0
+  },
+  {
+    "id": "conj_1795283478",
+    "timestamp": "2026-11-21T12:51:18.634503",
+    "idle_duration_minutes": 0.0,
+    "title": "Teoría Causal de Adaptabilidad Continua",
+    "hypothesis": "Los bucles OODA enriquecidos con memoria akáshica aceleran la convergencia autónoma.",
+    "research_query": "autonomous agents self-improvement machine learning",
+    "research_findings": "Síntesis sintrópica de investigación autónoma.",
+    "web_sources": [
+      "https://example.org/study"
+    ],
+    "code_target": null,
+    "code_goal": null,
+    "evolution_status": "NOT_APPLICABLE",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 0.0
+  },
+  {
+    "id": "conj_1795283493",
+    "timestamp": "2026-11-21T12:51:33.077775",
     "idle_duration_minutes": 0.0,
     "title": "Teoría Causal de Adaptabilidad Continua",
     "hypothesis": "Los bucles OODA enriquecidos con memoria akáshica aceleran la convergencia autónoma.",

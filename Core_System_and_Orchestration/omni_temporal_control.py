@@ -4114,6 +4114,9 @@ def process_agentic_chat(
     is_local_request: bool = False,
     is_client_mode: bool = False,
     client_id: Optional[str] = None,
+    priority: bool = False,
+    system_priority: bool = False,
+    telegram_call_priority: bool = False,
 ) -> dict:
     t0 = time.time()
     if is_client_mode:

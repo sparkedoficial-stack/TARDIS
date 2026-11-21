@@ -745,6 +745,11 @@ Módulos y componentes auxiliares del sistema.
 - **dossier_20261121_090520_127.json**: Componente de alta eficiencia.
 - **dossier_20261121_090948_601.json**: Componente de alta eficiencia.
 - **dossier_20261121_092301_602.json**: Componente de alta eficiencia.
+- **dossier_20261121_112414_496.json**: Componente de alta eficiencia.
+- **dossier_20261121_115443_078.json**: Componente de alta eficiencia.
+- **dossier_20261121_121132_175.json**: Componente de alta eficiencia.
+- **dossier_20261121_121618_836.json**: Componente de alta eficiencia.
+- **dossier_20261121_130129_405.json**: Componente de alta eficiencia.
 - **dynamic_tools_registry.json**: Directorio y puente soberano de interoperabilidad omni-herramientas.
 - **ecca_v3_core.py**: Núcleo de orquestación y control temporal/espacial.
 - **engine.py**: Componente de alta eficiencia.
@@ -936,6 +941,7 @@ Módulos y componentes auxiliares del sistema.
 - **speech_pipeline.json**: Componente de alta eficiencia.
 - **state.json**: Componente de alta eficiencia.
 - **subsystem_agents.py**: Modelo lógico y comportamiento autónomo distribuido.
+- **summary_final_soberano.md**: Componente de alta eficiencia.
 - **sw.js**: Componente de alta eficiencia.
 - **syntropic_thermodynamics_solitons.json**: Componente de alta eficiencia.
 - **syntropic_thermodynamics_solitons_forum_post.md**: Componente de alta eficiencia.

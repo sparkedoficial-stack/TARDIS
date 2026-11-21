@@ -206,16 +206,16 @@
     "REDACTED_PHONE": {
       "chat_id": REDACTED_PHONE,
       "user_id": REDACTED_PHONE,
-      "first_name": "Arq",
+      "first_name": "X",
       "last_name": "",
-      "full_name": "Arq",
-      "display_name": "Arq",
+      "full_name": "X",
+      "display_name": "X",
       "username": "asleep01010101",
       "is_bot": false,
       "is_architect": true,
       "first_seen": "2026-09-25T15:13:39.080612",
-      "last_seen": "2026-11-21T10:27:36.534701",
-      "message_count": 302
+      "last_seen": "2026-11-21T13:43:17.755597",
+      "message_count": 299
     },
     "555000111": {
       "chat_id": 555000111,
@@ -228,8 +228,8 @@
       "is_bot": false,
       "is_architect": false,
       "first_seen": "2026-09-26T00:11:24.696485",
-      "last_seen": "2026-11-21T10:27:36.545520",
-      "message_count": 33
+      "last_seen": "2026-11-20T20:42:29.342588",
+      "message_count": 29
     },
     "123456": {
       "chat_id": 123456,
@@ -242,8 +242,8 @@
       "is_bot": false,
       "is_architect": false,
       "first_seen": "2026-09-26T00:11:26.038020",
-      "last_seen": "2026-11-21T10:27:44.863142",
-      "message_count": 10
+      "last_seen": "2026-11-09T10:20:47.251633",
+      "message_count": 6
     },
     "REDACTED_PHONE": {
       "chat_id": REDACTED_PHONE,
@@ -270,8 +270,8 @@
       "is_bot": false,
       "is_architect": false,
       "first_seen": "2026-09-26T10:55:34.975451",
-      "last_seen": "2026-11-21T10:49:22.543069",
-      "message_count": 6
+      "last_seen": "2026-11-15T21:46:40.552591",
+      "message_count": 3
     },
     "REDACTED_PHONE": {
       "chat_id": REDACTED_PHONE,
@@ -498,5 +498,5 @@
       "message_count": 2
     }
   },
-  "last_updated": "2026-11-21T10:49:22.543116"
+  "last_updated": "2026-11-21T13:43:17.755710"
 }

@@ -1,20 +1,6 @@
 [
   {
     "target_file": "/home/m11/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
-    "goal": "Añadir una capa de gestión de grafos causales que capture relaciones entre conceptos extraídos de los resultados de búsqueda y que influya en el ranking de resultados mediante un algoritmo de puntuación causal.",
-    "status": "REJECTED",
-    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
-    "elapsed_seconds": 2799.93,
-    "backup_path": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/web_research_engine.py.20261115_022026.bak",
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Respuesta generada demasiado corta (2702 vs 35266 bytes)",
-    "timestamp": "2026-11-15T03:07:06.618943"
-  },
-  {
-    "target_file": "/home/m11/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
     "goal": "Add an async, provenance‑based caching decorator to the fetch_page function, store cache entries with a causal metadata JSON (query, url, timestamp, entity hashes), and implement an invalidation policy that checks temporal drift and entity changes before re‑using cached content.",
     "status": "REJECTED",
     "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
@@ -1398,5 +1384,19 @@
     "efficiency_improvement": null,
     "error": "Respuesta generada demasiado corta (2524 vs 34371 bytes)",
     "timestamp": "2026-11-21T10:26:50.094507"
+  },
+  {
+    "target_file": "/home/m11/Escritorio/GODWORKS SYSTEM/core/chronovision_engine.py",
+    "goal": "Add a causal_graph module that updates edge weights based on timestamped access patterns and integrates it into the query planner",
+    "status": "REJECTED",
+    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
+    "elapsed_seconds": 4568.99,
+    "backup_path": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/chronovision_engine.py.20261121_105655.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "Respuesta generada demasiado corta (2529 vs 126156 bytes)",
+    "timestamp": "2026-11-21T12:13:04.591818"
   }
 ]

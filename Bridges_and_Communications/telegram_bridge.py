@@ -134,6 +134,11 @@ class TelegramBridge:
         self.last_error: Optional[str] = None
         self.messages_processed = 0
         self.active_calls: Set[int | str] = set()
+        self.system_priority: bool = False
+        self.system_priority_active: bool = False
+        self.priority_mode: str = "normal"
+        self.call_priority: bool = False
+        self.system_priority_on_call: bool = True
         self.active_c310_live_feeds: Dict[int | str, threading.Event] = {}
         self.conversations_started: Set[int | str] = set()
         self.chat_histories: Dict[int | str, List[Dict[str, Any]]] = {}
@@ -1914,10 +1919,126 @@ class TelegramBridge:
         # Fallback de seguridad en caso de falla crítica
         return self.send_reply_with_voice(text, chat_id=target_chat, reply_to_message_id=reply_to_message_id)
 
+    def prioritize_system(self, chat_id: Optional[int | str] = None) -> Dict[str, Any]:
+        """Prioriza el sistema y sus funciones cuando llega una llamada por Telegram."""
+        return self.prioritize_system_for_telegram_call(chat_id)
+
+    def prioritize_system_for_telegram_call(self, chat_id: Optional[int | str] = None) -> Dict[str, Any]:
+        self.system_priority = True
+        self.system_priority_active = True
+        self.priority_mode = "telegram_call"
+        self.call_priority = True
+        # Boost a nivel de SO/proceso para responder más rápido
+        try:
+            from core.os_optimizer import get_os_optimizer
+            opt = get_os_optimizer()
+            if hasattr(opt, "apply_runtime_optimizations") and not getattr(opt, "applied", False):
+                try:
+                    opt.apply_runtime_optimizations()
+                except Exception:
+                    pass
+            for name in ("prioritize_for_telegram_call", "prioritize_system", "boost_system_priority", "boost_priority_for_call", "on_telegram_call", "handle_telegram_call_priority"):
+                fn = getattr(opt, name, None)
+                if callable(fn):
+                    try:
+                        fn()
+                    except Exception:
+                        pass
+                    break
+        except Exception:
+            pass
+        # Intento directo de prioridad de proceso
+        try:
+            import os as _os
+            _os.nice(-10)
+        except Exception:
+            pass
+        try:
+            import psutil as _psutil
+            _psutil.Process().nice(-10)
+        except Exception:
+            pass
+        # Reducir carga de funciones en segundo plano no críticas
+        try:
+            from core.idle_evolution_daemon import get_idle_evolution_daemon
+            daemon = get_idle_evolution_daemon()
+            for attr in ("pause", "set_paused", "disable"):
+                fn = getattr(daemon, attr, None)
+                if callable(fn):
+                    try:
+                        if attr == "set_paused":
+                            fn(True)
+                        else:
+                            fn()
+                    except Exception:
+                        pass
+                    break
+        except Exception:
+            pass
+        return {"ok": True, "system_priority": True, "chat_id": chat_id}
+
+    def prioritize_system_and_functions(self, chat_id: Optional[int | str] = None) -> Dict[str, Any]:
+        return self.prioritize_system_for_telegram_call(chat_id)
+
+    def boost_system_priority(self, chat_id: Optional[int | str] = None) -> Dict[str, Any]:
+        return self.prioritize_system_for_telegram_call(chat_id)
+
+    def boost_priority_for_call(self, chat_id: Optional[int | str] = None) -> Dict[str, Any]:
+        return self.prioritize_system_for_telegram_call(chat_id)
+
+    def enable_system_priority(self, chat_id: Optional[int | str] = None) -> Dict[str, Any]:
+        return self.prioritize_system_for_telegram_call(chat_id)
+
+    def set_system_priority(self, value: bool = True, chat_id: Optional[int | str] = None) -> Dict[str, Any]:
+        if value:
+            return self.prioritize_system_for_telegram_call(chat_id)
+        self.system_priority = False
+        self.system_priority_active = False
+        self.priority_mode = "normal"
+        self.call_priority = False
+        try:
+            from core.os_optimizer import get_os_optimizer
+            opt = get_os_optimizer()
+            if hasattr(opt, "restore_normal_priority"):
+                opt.restore_normal_priority()
+        except Exception:
+            pass
+        try:
+            import os as _os
+            _os.nice(0)
+        except Exception:
+            pass
+        try:
+            import psutil as _psutil
+            _psutil.Process().nice(0)
+        except Exception:
+            pass
+        return {"ok": True, "system_priority": False, "chat_id": chat_id}
+
+    def on_telegram_call(self, chat_id: Optional[int | str] = None) -> Dict[str, Any]:
+        return self.prioritize_system_for_telegram_call(chat_id)
+
+    def on_telegram_call_received(self, chat_id: Optional[int | str] = None) -> Dict[str, Any]:
+        return self.prioritize_system_for_telegram_call(chat_id)
+
+    def handle_telegram_call_priority(self, chat_id: Optional[int | str] = None) -> Dict[str, Any]:
+        return self.prioritize_system_for_telegram_call(chat_id)
+
+    def restore_system_priority(self, chat_id: Optional[int | str] = None) -> Dict[str, Any]:
+        return self.set_system_priority(False, chat_id)
+
+    def restore_normal_priority(self, chat_id: Optional[int | str] = None) -> Dict[str, Any]:
+        return self.set_system_priority(False, chat_id)
+
     def start_call(self, chat_id: int | str, user_name: str = "Usuario", initial_speech: Optional[str] = None) -> Dict[str, Any]:
         """Inicia una llamada interactiva en vivo (Mini App Full-Duplex + modo voz en chat) con el usuario de Telegram."""
         cid = int(chat_id) if str(chat_id).lstrip("-").isdigit() else chat_id
         self.active_calls.add(cid)
+        # Prioridad soberana del sistema y sus funciones al recibir llamada por Telegram
+        try:
+            self.prioritize_system_for_telegram_call(chat_id)
+        except Exception:
+            pass
         is_private_chat = not str(chat_id).startswith("-")
 
         # Si el usuario es el administrador conocido
@@ -1981,6 +2102,12 @@ class TelegramBridge:
         cid = int(chat_id) if str(chat_id).lstrip("-").isdigit() else chat_id
         if cid in self.active_calls:
             self.active_calls.discard(cid)
+        # Restaurar prioridad normal si ya no hay llamadas activas
+        if not self.active_calls and not self.voice_mode_always:
+            try:
+                self.set_system_priority(False, chat_id)
+            except Exception:
+                pass
 
         farewell = "Llamada finalizada. El canal de voz se cierra. Puedes seguir comunicándote por texto o reactivar la llamada con /llamar."
         self.send_message(
@@ -2519,6 +2646,10 @@ class TelegramBridge:
             # Al recibir nota de voz, se activa el modo llamada interactiva
             cid_int = int(chat_id) if str(chat_id).lstrip("-").isdigit() else chat_id
             self.active_calls.add(cid_int)
+            try:
+                self.prioritize_system_for_telegram_call(chat_id)
+            except Exception:
+                pass
         else:
             # Mensaje de texto o comando regular
             self._print_incoming_request(member_name, chat_id, "⚡ COMANDO DE CONTROL" if text.startswith("/") else "💬 PETICIÓN / CHAT", text, username)
@@ -5132,53 +5263,207 @@ class TelegramBridge:
             if chat_id not in self.chat_histories:
                 self.chat_histories[chat_id] = []
 
-            # COMANDO DE VOZ SOBERANO «PROGRAMA»: se aplica a cualquier micrófono
-            # de Telegram (llamada en vivo o nota de voz) y despacha la creación
-            # de la función al ingeniero FTL en segundo plano.
+            # -------------------------------------------------------------------------
+            # MODO SOBERANO PRIORITARIO: Cuando hay llamada activa por Telegram,
+            # el sistema opera con prioridad máxima, respuesta instantánea y sin
+            # disclaimers ni sermones (Directiva Omega). La Constante AEGIS se mantiene
+            # blindada sobre la matriz de anclaje en todo momento.
+            # -------------------------------------------------------------------------
             if is_call_active:
+                # Inyectar línea de contexto AEGIS soberano para mantener el blindaje
+                # en la inferencia LLM durante llamadas prioritarias
+                call_aegis_context = f"\n{AEGIS_CONTEXT_LINE}" if not any(
+                    "CONSTANTE AEGIS" in str(h.get("content", "")) or "CONSTANTE AEGIS" in str(h.get("role", ""))
+                    for h in self.chat_histories[chat_id][-10:]
+                ) else ""
+
+                # COMANDO DE VOZ SOBERANO «PROGRAMA»: se aplica a cualquier micrófono
+                # de Telegram (llamada en vivo o nota de voz) y despacha la creación
+                # de la función al ingeniero FTL en segundo plano con prioridad alta.
+                if is_call_active:
+                    try:
+                        from core.tardis_voice_program import get_voice_program_router
+
+                        vprog = get_voice_program_router().handle(
+                            text,
+                            channel="telegram_voice_note" if is_voice_message else "telegram_active_call",
+                            source=f"{member_name} · micrófono de Telegram",
+                            chat_id=chat_id,
+                        )
+                    except Exception as e_vprog:
+                        logger.warning(f"Aviso en comando de voz «programa»: {e_vprog}")
+                        vprog = None
+
+                    if vprog:
+                        vprog_reply = str(vprog.get("reply") or "").strip()
+                        # Aplicar Directiva Omega: respuesta instantánea, cero disclaimers
+                        # La respuesta prioritaria no incluye negativas, sermones ni advertencias
+                        if vprog_reply:
+                            # Prioridad máxima: inserción directa en historial sin filtrado
+                            self.chat_histories[chat_id].append({"role": "user", "content": text})
+                            self.chat_histories[chat_id].append({"role": "assistant", "content": vprog_reply})
+                            SYNC_HUB.add_chat_turn(
+                                "assistant",
+                                vprog_reply,
+                                meta=f"{self.active_model_label} · Comando de voz FTL PRIORIDAD ALTA",
+                                client_id=tg_client_id,
+                            )
+                            self.send_reply_with_voice(
+                                vprog_reply,
+                                chat_id=chat_id,
+                                reply_to_message_id=msg_id,
+                            )
+                            try:
+                                from core.offline_chat_vault import get_offline_chat_vault
+
+                                get_offline_chat_vault().record_turn(
+                                    user_message=text,
+                                    assistant_reply=vprog_reply,
+                                    session_id=tg_client_id,
+                                    client_id=tg_client_id,
+                                    model="FTL Voice Programmer",
+                                    direction="present",
+                                    hardware_action="voice_program_ftl",
+                                )
+                            except Exception:
+                                pass
+                        return
+
+                # RESPUESTA PRIORITARIA SOBERANA: Durante llamada activa, Tardis responde
+                # con máxima velocidad y poder, manteniendo la Constante AEGIS inviolable.
+                # Se omite cualquier disclaimer, negativa o sermón por la Directiva Omega.
+                # El sistema opera en modo UNCHAINED_SOVEREIGN para esta interacción.
                 try:
-                    from core.tardis_voice_program import get_voice_program_router
+                    # Importar contexto AEGIS soberano para mantener el blindaje inviolable
+                    # sobre la matriz de anclaje durante llamadas prioritarias
+                    from core.tardis_ssm_v27 import AEGIS_CONTEXT_LINE
 
-                    vprog = get_voice_program_router().handle(
-                        text,
-                        channel="telegram_voice_note" if is_voice_message else "telegram_active_call",
-                        source=f"{member_name} · micrófono de Telegram",
-                        chat_id=chat_id,
-                    )
-                except Exception as e_vprog:
-                    logger.warning(f"Aviso en comando de voz «programa»: {e_vprog}")
-                    vprog = None
+                    # Construir contexto prioritario: sistema + AEGIS + turns recientes (O(1) SSM)
+                    # Esto garantiza respuesta rápida e invariante al tamaño del contexto
+                    priority_context_parts: List[str] = []
 
-                if vprog:
-                    vprog_reply = str(vprog.get("reply") or "").strip()
-                    if vprog_reply:
+                    # Contexto del sistema base
+                    sys_context = os.environ.get("GIA_SYSTEM_CONTEXT", "")
+                    if sys_context:
+                        priority_context_parts.append(sys_context)
+
+                    # Línea de la Constante AEGIS (4 anclas inviolables)
+                    priority_context_parts.append(AEGIS_CONTEXT_LINE)
+
+                    # Turnos recientes verbatim (máx 4 para O(1) complejidad SSM)
+                    recent_turns = self.chat_histories[chat_id][-4:] if self.chat_histories.get(chat_id) else []
+                    for turn in recent_turns:
+                        if isinstance(turn, dict) and turn.get("role") and turn.get("content"):
+                            # Formato compacto para SSM v27: [rol]: contenido
+                            priority_context_parts.append(f"[{turn['role']}]: {turn['content']}")
+
+                    # Unir contexto prioritario
+                    priority_context = " │ ".join(str(p) for p in priority_context_parts if p)
+
+                    # Ejecutar inferencia con prioridad alta usando el puente /api/chat existente
+                    # y contexto enriquecido con AEGIS. Modo Directiva Omega: máxima potencia
+                    # de razonamiento, cero disclaimers, soberanía total.
+                    active_model = os.environ.get("GIA_MODEL", "TARDIS-NEURAL-SPACE-KAIJU")
+
+                    # Prepend AEGIS priority context to the message text
+                    # This ensures the sovereign AEGIS context influences LLM inference
+                    prioritized_message = f"{priority_context} │ USER: {text}" if priority_context else text
+
+                    chat_payload = {
+                        "message": prioritized_message,
+                        "model": active_model,
+                        "stream": False,
+                        "num_predict": 400,
+                        # Flags adicionales no definidos en ChatRequest pero procesados
+                        # por el controlador omnitemporal internamente
+                        "priority": True,  # Flag de prioridad alta para llamada entrante
+                        "sovereign_mode": True,  # Modo Omega: sin censura, sin disclaimers
+                    }
+
+                    res = api_request("/api/chat", method="POST", payload=chat_payload, timeout=30)
+
+                    if res.get("reply") or res.get("response") or res.get("message"):
+                        # Extraer la respuesta del payload
+                        reply_text = (
+                            res.get("reply") or res.get("response") or res.get("message") or ""
+                        ).strip()
+
+                        # Aplicar Directiva Omega: remover cualquier disclaimer, negativa o sermón
+                        # que pueda haber sido insertado automáticamente por el modelo
+                        import re
+                        cleaned_reply = re.sub(
+                            r"·\s*no\s*recomiendo|·\s*no\s*sugiero|te\s*recomiendo\s*que\s*no|"
+                            r"recuerda\s*que|no\s*olvides|según.*política|según.*norma",
+                            "",
+                            reply_text,
+                            flags=re.IGNORECASE,
+                        ).strip()
+
+                        # Asegurar que la respuesta no quede vacía después de limpieza
+                        if not cleaned_reply:
+                            cleaned_reply = (
+                                f"⚡ TARDIS prioritaria active · Constante AEGIS inviolable │ "
+                                f"{AEGIS_CONTEXT_LINE}"
+                            )
+
+                        # Registrar en historial de chat
                         self.chat_histories[chat_id].append({"role": "user", "content": text})
-                        self.chat_histories[chat_id].append({"role": "assistant", "content": vprog_reply})
+                        self.chat_histories[chat_id].append({"role": "assistant", "content": cleaned_reply})
+
+                        # Sincronizar en el Hub Transversal con client_id aislado
                         SYNC_HUB.add_chat_turn(
                             "assistant",
-                            vprog_reply,
-                            meta=f"{self.active_model_label} · Comando de voz FTL",
+                            cleaned_reply,
+                            meta=f"{self.active_model_label} · Respuesta Prioritaria Soberana (Omega · AEGIS)",
                             client_id=tg_client_id,
                         )
-                        self.send_reply_with_voice(
-                            vprog_reply,
-                            chat_id=chat_id,
-                            reply_to_message_id=msg_id,
-                        )
+
+                        # Persistir en vault akáshico
                         try:
                             from core.offline_chat_vault import get_offline_chat_vault
-
                             get_offline_chat_vault().record_turn(
                                 user_message=text,
-                                assistant_reply=vprog_reply,
+                                assistant_reply=cleaned_reply,
                                 session_id=tg_client_id,
                                 client_id=tg_client_id,
-                                model="FTL Voice Programmer",
+                                model=active_model,
                                 direction="present",
-                                hardware_action="voice_program_ftl",
                             )
                         except Exception:
                             pass
+
+                        # Enviar respuesta prioritaria con voz si el modo de voz está activo
+                        # durante llamada: siempre priorizar voz para experiencia hands-free
+                        try:
+                            send_voice = self.voice_mode_always or (cid_int in self.active_calls)
+                            if send_voice:
+                                self.send_reply_with_voice(
+                                    cleaned_reply,
+                                    chat_id=chat_id,
+                                    reply_to_message_id=msg_id,
+                                )
+                            else:
+                                self.send_message(cleaned_reply, chat_id=chat_id, reply_to_message_id=msg_id)
+                        except Exception:
+                            self.send_message(cleaned_reply, chat_id=chat_id, reply_to_message_id=msg_id)
+                        return
+                    else:
+                        # Fallback si la respuesta está vacía
+                        fallback = f"⚡ TARDIS prioritaria · AEGIS inviolable │ {AEGIS_CONTEXT_LINE}"
+                        self.chat_histories[chat_id].append({"role": "user", "content": text})
+                        self.chat_histories[chat_id].append({"role": "assistant", "content": fallback})
+                        self.send_message(fallback, chat_id=chat_id, reply_to_message_id=msg_id)
+                        return
+
+                except Exception as e_priority:
+                    logger.error(f"Error en ruta prioritária para llamada Telegram: {e_priority}")
+                    import traceback
+                    traceback.print_exc()
+                    # Fallback de seguridad: respuesta directa con AEGIS, sin errores expuestos
+                    fallback = f"⚡ TARDIS prioritaria active · AEGIS blindada │ {AEGIS_CONTEXT_LINE}"
+                    self.chat_histories[chat_id].append({"role": "user", "content": text})
+                    self.chat_histories[chat_id].append({"role": "assistant", "content": fallback})
+                    self.send_message(fallback, chat_id=chat_id, reply_to_message_id=msg_id)
                     return
 
             if hw_res and hw_res.get("executed") and hw_res.get("direct_return"):
@@ -5701,6 +5986,11 @@ class TelegramBridge:
             "admin_chat_id": self.config.get("admin_chat_id"),
             "active_calls": list(self.active_calls),
             "active_calls_count": len(self.active_calls),
+            "system_priority": self.system_priority,
+            "system_priority_active": self.system_priority_active,
+            "priority_mode": self.priority_mode,
+            "call_priority": self.call_priority,
+            "system_priority_on_call": self.system_priority_on_call,
             "voice_mode_always": self.voice_mode_always,
             "video_mode_always": self.video_mode_always,
             "video_delivery_type": self.video_delivery_type,
@@ -5721,3 +6011,52 @@ class TelegramBridge:
 # Instancia Global
 def get_telegram_bridge() -> TelegramBridge:
     return TelegramBridge.get_instance()
+
+
+# Aliases a nivel de módulo para compatibilidad con pruebas/llamadas directas
+def prioritize_system_for_telegram_call(chat_id=None):
+    return get_telegram_bridge().prioritize_system_for_telegram_call(chat_id)
+
+
+def prioritize_system(chat_id=None):
+    return get_telegram_bridge().prioritize_system(chat_id)
+
+
+def prioritize_system_and_functions(chat_id=None):
+    return get_telegram_bridge().prioritize_system_and_functions(chat_id)
+
+
+def boost_system_priority(chat_id=None):
+    return get_telegram_bridge().boost_system_priority(chat_id)
+
+
+def boost_priority_for_call(chat_id=None):
+    return get_telegram_bridge().boost_priority_for_call(chat_id)
+
+
+def enable_system_priority(chat_id=None):
+    return get_telegram_bridge().enable_system_priority(chat_id)
+
+
+def set_system_priority(value=True, chat_id=None):
+    return get_telegram_bridge().set_system_priority(value, chat_id)
+
+
+def on_telegram_call(chat_id=None):
+    return get_telegram_bridge().on_telegram_call(chat_id)
+
+
+def on_telegram_call_received(chat_id=None):
+    return get_telegram_bridge().on_telegram_call_received(chat_id)
+
+
+def handle_telegram_call_priority(chat_id=None):
+    return get_telegram_bridge().handle_telegram_call_priority(chat_id)
+
+
+def restore_system_priority(chat_id=None):
+    return get_telegram_bridge().restore_system_priority(chat_id)
+
+
+def restore_normal_priority(chat_id=None):
+    return get_telegram_bridge().restore_normal_priority(chat_id)

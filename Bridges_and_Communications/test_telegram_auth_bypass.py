@@ -22,6 +22,7 @@ def _bridge(tmpdir):
     cfg.write_text(json.dumps({
         "allowed_chats": [], "allowed_phones": [ALLOWED],
         "master_password": "", "master_key": "k" * 64, "bot_token": "", "enabled": False,
+        "allow_public_chat": False,
     }))
     b = TelegramBridge(config_path=cfg)
     b.send_message = lambda *a, **k: None

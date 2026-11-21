@@ -3,6 +3,7 @@ tests/test_whatsapp_bridge.py - Pruebas unitarias completas para el Puente Sober
 """
 import unittest
 import json
+import os
 import tempfile
 from pathlib import Path
 from unittest.mock import MagicMock, patch

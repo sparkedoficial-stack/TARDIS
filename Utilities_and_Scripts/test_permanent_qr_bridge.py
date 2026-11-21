@@ -1,5 +1,6 @@
 import unittest
 import json
+import os
 import tempfile
 from pathlib import Path
 from unittest.mock import patch, MagicMock
@@ -59,23 +60,19 @@ class TestPermanentQRBridge(unittest.TestCase):
             self.assertIn(os.environ.get("GIA_AUTH_TOKEN", ""), status["auth_url"])
 
     def test_sync_permanent_portal_dispatches_http(self):
-        """Verifica que al activarse el túnel, la URL se publica en el portal permanente ntfy."""
+        """Verifica que _sync_permanent_portal NO publica tokens en ntfy.sh público y notifica por Telegram privado."""
         supervisor = BridgeSupervisor(port=8757, token=os.environ.get("GIA_AUTH_TOKEN", ""))
         supervisor.permanent_portal_url = "https://ntfy.sh/godworks_sovereign_timemachine_portal"
-        
-        test_auth_url = "https://test-reboot-tunnel.trycloudflare.com/?key=%s" % os.environ.get("GIA_AUTH_TOKEN", "") + ""
-        with patch("omni_temporal_control.requests.post") as mock_post:
+
+        test_auth_url = "https://test-reboot-tunnel.trycloudflare.com/?key=%s" % os.environ.get("GIA_AUTH_TOKEN", "")
+        mock_tg = MagicMock()
+        with patch("omni_temporal_control.requests.post") as mock_post, \
+             patch("omni_temporal_control.HAS_TELEGRAM", True), \
+             patch("omni_temporal_control.TELEGRAM", mock_tg):
             supervisor._sync_permanent_portal(test_auth_url)
-            
-            self.assertTrue(mock_post.called)
-            # El primer llamado es la publicación al portal permanente ntfy
-            ntfy_call = mock_post.call_args_list[0]
-            called_url = ntfy_call[0][0]
-            called_headers = ntfy_call[1]["headers"]
-            
-            self.assertEqual(called_url, "https://ntfy.sh/godworks_sovereign_timemachine_portal")
-            self.assertEqual(called_headers["Click"], test_auth_url)
-            self.assertIn(test_auth_url, called_headers["Actions"])
+
+            self.assertFalse(mock_post.called)
+            mock_tg.notify_system_boot.assert_called_once_with(test_auth_url, supervisor.local_url)
 
 
 if __name__ == "__main__":

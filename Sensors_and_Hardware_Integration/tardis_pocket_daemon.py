@@ -253,7 +253,10 @@ class OmniRouteResolver:
         if not base_url:
             return
         try:
-            req = urllib.request.Request(f"{base_url.rstrip('/')}/api/pocket/endpoints")
+            req = urllib.request.Request(
+                f"{base_url.rstrip('/')}/api/pocket/endpoints?key={SOVEREIGN_KEY}",
+                headers={"X-API-Key": SOVEREIGN_KEY},
+            )
             with urllib.request.urlopen(req, timeout=2.5) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
                 routes = data.get("routes", {})

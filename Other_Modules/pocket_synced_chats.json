@@ -218,5 +218,23 @@
     "meta": {
       "test": true
     }
+  },
+  {
+    "id": "turn_test_1795283441772",
+    "user_message": "¿Cuál es la velocidad de propagación del taquión?",
+    "assistant_reply": "Los taquiones operan en velocidades superlumínicas v > c con masa en reposo imaginaria m² < 0.",
+    "timestamp": REDACTED_PHONE.7729983,
+    "meta": {
+      "test": true
+    }
+  },
+  {
+    "id": "turn_test_1795283478275",
+    "user_message": "¿Cuál es la velocidad de propagación del taquión?",
+    "assistant_reply": "Los taquiones operan en velocidades superlumínicas v > c con masa en reposo imaginaria m² < 0.",
+    "timestamp": REDACTED_PHONE.2755656,
+    "meta": {
+      "test": true
+    }
   }
 ]

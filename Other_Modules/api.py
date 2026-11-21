@@ -663,7 +663,7 @@ def create_app() -> FastAPI:
             "/safety", "/safety/", "/safety_dashboard.html", "/kaiju-safety", "/kaiju_safety", "/rieles", "/kaiju_safety_dashboard.html",
             "/tardis-master-hub-icon.png",
         )
-        is_public = path in public_routes or path.startswith("/icon-") or path.startswith("/api/pocket")
+        is_public = path in public_routes or path.startswith("/icon-")
 
         # Motor de misiones desactivado (recolectaba datos de contacto de terceros)
         if path.startswith("/api/missions"):
@@ -679,7 +679,7 @@ def create_app() -> FastAPI:
         # Una petición reenviada por un proxy/túnel llega desde 127.0.0.1 pero no es
         # local: sin esta comprobación, un túnel dejaba toda la API abierta sin token.
         proxied = any(h in headers for h in ("cf-connecting-ip", "x-forwarded-for", "x-real-ip", "forwarded"))
-        is_loopback = (client_host in ("127.0.0.1", "localhost", "::1", "testclient") or client_host.startswith("192.168.") or client_host.startswith("10.")) and not proxied
+        is_loopback = client_host in ("127.0.0.1", "localhost", "::1", "testclient") and not proxied
         if not is_public and not authorized:
             if not is_loopback:
                 return JSONResponse(

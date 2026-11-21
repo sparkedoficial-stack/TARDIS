@@ -3,6 +3,7 @@ tests/test_mission_scouting.py - Pruebas Unitarias para el Motor de Misiones y P
 GODWORKS SYSTEM v26.4
 """
 
+import os
 import pytest
 from starlette.testclient import TestClient
 from server.api import app

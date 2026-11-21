@@ -1,19 +1,19 @@
 {
-  "timestamp": REDACTED_PHONE.3055992,
-  "iso": "2026-11-21T10:27:07.306665",
+  "timestamp": REDACTED_PHONE.9022105,
+  "iso": "2026-11-21T12:58:46.904646",
   "health_score": 100,
   "status": "HEALTHY",
-  "cycle": 0,
+  "cycle": 53,
   "metrics": {
-    "cpu_percent": 51.3,
-    "ram_percent": 80.2,
+    "cpu_percent": 51.2,
+    "ram_percent": 80.8,
     "recent_errors": 0,
     "recent_blocks": 0
   },
   "subsystems": {
     "ollama_online": true,
     "rf_radar_active": true,
-    "radar_variance": 0.125,
+    "radar_variance": 0.019,
     "ios_bridge": true,
     "geon_engine": true,
     "memory_fts": true,

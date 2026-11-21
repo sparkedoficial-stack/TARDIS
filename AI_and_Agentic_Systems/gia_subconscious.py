@@ -42,6 +42,7 @@ MEMORY_DIR = CONFIG_DIR / "subconscious_insights"
 MEMORY_DIR.mkdir(parents=True, exist_ok=True)
 
 _raw_ollama = os.environ.get("OLLAMA_HOST", "http://127.0.0.1:11434").strip()
+OLLAMA_URL = _raw_ollama.rstrip("/") if _raw_ollama.startswith(("http://", "https://")) else f"http://{_raw_ollama.rstrip('/')}"
 try:
     import gia_sovereign_engine as _gse
     DEFAULT_MODEL = _gse.get_engine().resolve_model()
