@@ -2922,7 +2922,10 @@ class TelegramBridge:
                 f"• `/link` o `/qr` : Enlace web activo y código QR\n"
                 f"• `/sh <cmd>` : Ejecutar comando en la terminal Linux\n"
                 f"• `/status` : Telemetría completa (CPU, 18GB RAM, GPU, batería, Wi-Fi)\n"
-                f"• `/shot` : Tomar captura de pantalla y enviarla aquí\n"
+                f"• `/shot [ventana <título|clase>]` : Captura de pantalla completa o de una ventana concreta\n"
+                f"• `/ventanas` : Lista ventanas abiertas para capturarlas por nombre\n"
+                f"• `/avances [on|off]` : Capturas automáticas del avance de los programas creados por FTL/por voz\n"
+                f"• `/avances intervalo <30-900>` · `/avances ventana <título>` : Ajuste y captura de una ventana\n"
                 f"• `/lock` / `/unlock` : Bloquear / Desbloquear pantalla (clave 0)\n"
                 f"• `/vol <0-100>` : Ajustar volumen de la laptop\n"
                 f"• `/mute` / `/unmute` : Silenciar o activar audio\n"
@@ -3808,14 +3811,130 @@ class TelegramBridge:
             return
 
         if cmd in ("/shot", "/screenshot", "/captura"):
-            from core.os_controller import get_os_controller
-            os_c = get_os_controller()
-            res = os_c.capture_screenshot()
-            raw_bytes = res.get("raw_bytes")
-            if raw_bytes:
-                self.send_photo(raw_bytes, caption="📸 Captura de pantalla actual del sistema", chat_id=chat_id)
-            else:
-                self.send_message("⚠️ No fue posible capturar la pantalla en este momento.", chat_id=chat_id)
+            from core.screen_capture import capture
+
+            window_term = None
+            lowered_shot = arg_str.strip().lower()
+            if lowered_shot.startswith(("ventana ", "window ")):
+                window_term = arg_str.split(maxsplit=1)[1].strip()
+            try:
+                raw_bytes, meta = capture(
+                    fmt="jpeg", max_width=1600, quality=82, window=window_term
+                )
+                win_title = ((meta or {}).get("window") or {}).get("title", "")
+                clean_title = re.sub(r"[*_`\[\]]", "", win_title).strip()
+                caption = "📸 Captura de pantalla actual del sistema"
+                if clean_title:
+                    caption += f"\n🪟 Ventana: {clean_title}"
+                caption += f"\n🖥️ {meta.get('width', 0)}×{meta.get('height', 0)} · {meta.get('method', '?')}"
+                self.send_photo(raw_bytes, caption=caption, chat_id=chat_id, reply_to_message_id=msg_id)
+            except Exception as exc_shot:
+                self.send_message(
+                    "⚠️ No fue posible capturar la pantalla en este momento.\n"
+                    f"• Detalle: `{str(exc_shot)[:300]}`\n"
+                    "• Usa `/ventanas` para listar ventanas disponibles.",
+                    chat_id=chat_id,
+                    reply_to_message_id=msg_id,
+                )
+            return
+
+        if cmd in ("/ventanas", "/windows", "/lista_ventanas"):
+            from core.screen_capture import list_windows
+
+            windows = list_windows()
+            if not windows:
+                self.send_message(
+                    "🪟 No hay ventanas visibles detectables (Hyprland no responde o escritorio vacío).",
+                    chat_id=chat_id,
+                    reply_to_message_id=msg_id,
+                )
+                return
+            lines = [f"🪟 **VENTANAS VISIBLES ({len(windows)})**", "━━━━━━━━━━━━━━━━━━━━━━"]
+            for index, window in enumerate(windows[:20], 1):
+                title = re.sub(r"[*_`\[\]]", "", window.get("title") or "(sin título)").strip()
+                klass = re.sub(r"[*_`\[\]]", "", window.get("class") or "?").strip()
+                width, height = window.get("size") or [0, 0]
+                lines.append(f"{index}. **{title}**\n    `{klass}` · {width}×{height}")
+            lines.append("")
+            lines.append("Captura una: `/shot ventana <título o clase>`")
+            self.send_message("\n".join(lines), chat_id=chat_id, reply_to_message_id=msg_id)
+            return
+
+        if cmd in ("/avances", "/progreso", "/capturas", "/avance"):
+            from core.program_progress import get_program_progress
+            from core.screen_capture import capture
+
+            progress = get_program_progress()
+            sub = arg_str.strip()
+            low = sub.lower()
+
+            if low in ("on", "activar", "activo", "si", "sí", "1", "start"):
+                progress.configure(enabled=True)
+                self.send_message(
+                    "🧬 **CANAL DE AVANCES VISUALES ACTIVADO**\n"
+                    f"• Intervalo: {progress.interval_sec} s\n"
+                    "• Recibirás capturas automáticas del escritorio y de la ventana del "
+                    "programa en creación, sólo en esta terminal privada.\n"
+                    "• Pausa: `/avances off` · Ajuste: `/avances intervalo 120`",
+                    chat_id=chat_id,
+                    reply_to_message_id=msg_id,
+                )
+                return
+
+            if low in ("off", "pausar", "pausa", "desactivar", "no", "0", "stop"):
+                stopped = progress.cancel_all()
+                progress.configure(enabled=False)
+                self.send_message(
+                    f"⏸️ **CANAL DE AVANCES EN PAUSA** ({stopped} sesiones detenidas)\n"
+                    "Reanuda con `/avances on`.",
+                    chat_id=chat_id,
+                    reply_to_message_id=msg_id,
+                )
+                return
+
+            if low.startswith(("intervalo ", "cada ", "interval ")):
+                match_interval = re.search(r"\d+", sub)
+                if not match_interval:
+                    self.send_message(
+                        "⚠️ Indica los segundos: `/avances intervalo 120` (mínimo 30, máximo 900).",
+                        chat_id=chat_id,
+                        reply_to_message_id=msg_id,
+                    )
+                    return
+                seconds = int(match_interval.group(0))
+                progress.configure(interval_sec=seconds)
+                self.send_message(
+                    f"⏱️ Intervalo de capturas ajustado a **{progress.interval_sec} s**.",
+                    chat_id=chat_id,
+                    reply_to_message_id=msg_id,
+                )
+                return
+
+            window_term = None
+            if low.startswith(("ventana ", "window ")):
+                window_term = sub.split(maxsplit=1)[1].strip()
+
+            try:
+                raw_bytes, meta = capture(
+                    fmt="jpeg", max_width=1600, quality=82, window=window_term
+                )
+                win_title = ((meta or {}).get("window") or {}).get("title", "")
+                clean_title = re.sub(r"[*_`\[\]]", "", win_title).strip()
+                caption = "🧬 AVANCE ACTUAL DEL SISTEMA"
+                if clean_title:
+                    caption += f"\n🪟 {clean_title}"
+                caption += (
+                    f"\n🖥️ {meta.get('width', 0)}×{meta.get('height', 0)}"
+                    f" · {meta.get('method', '?')} · {datetime.datetime.now().strftime('%H:%M:%S')}"
+                )
+                self.send_photo(raw_bytes, caption=caption, chat_id=chat_id, reply_to_message_id=msg_id)
+            except Exception as exc_adv:
+                self.send_message(
+                    f"⚠️ No fue posible tomar la captura de avance: `{str(exc_adv)[:300]}`",
+                    chat_id=chat_id,
+                    reply_to_message_id=msg_id,
+                )
+            self.send_message(progress.active_summary(), chat_id=chat_id)
             return
 
         if cmd in ("/voz_c310", "/hablar_c310", "/hablar_camara", "/hablar_cámara"):

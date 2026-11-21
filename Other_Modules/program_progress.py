@@ -61,7 +61,7 @@ MAX_CONCURRENT_SESSIONS = 4
 
 _ANSI_RE = re.compile(r"\x1b\[[0-?]*[ -/]*[@-~]")
 _PATH_RE = re.compile(
-    r"(?<![\w/.-])((?:dynamic_tools|core|scripts|tools|modules|app|src|tests)/"
+    r"((?:dynamic_tools|core|scripts|tools|modules|app|src|tests)/"
     r"[\w./-]+\.(?:py|js|ts|tsx|jsx|html|css|sh|json|md|toml|yaml|yml))"
 )
 _LABEL_PATH_RE = re.compile(
@@ -82,11 +82,23 @@ def _is_architect(chat_id: Any) -> bool:
         return str(chat_id).strip() == str(ARCHITECT_TELEGRAM_ID)
 
 
+def _sanitize_text(text: Any, limit: int = 220) -> str:
+    """Limpieza interna sin escapes: se usa para estado y fases."""
+    value = _ANSI_RE.sub("", str(text or ""))
+    value = value.replace("`", "'")
+    value = re.sub(r"\s+", " ", value).strip()
+    if len(value) > limit:
+        value = value[: limit - 1].rstrip() + "…"
+    return value
+
+
 def _clean_caption(text: Any, limit: int = 220) -> str:
-    """Elimina caracteres que rompen el parse_mode Markdown de Telegram."""
+    """Neutraliza caracteres que rompen el parse_mode Markdown de Telegram."""
     value = str(text or "")
     value = _ANSI_RE.sub("", value)
-    value = value.replace("`", "'").replace("*", "").replace("_", " ").replace("[", "(").replace("]", ")")
+    value = value.replace("\\", "\\\\")
+    value = value.replace("`", "'").replace("*", "\\*").replace("_", "\\_")
+    value = value.replace("[", "(").replace("]", ")")
     value = re.sub(r"\s+", " ", value).strip()
     if len(value) > limit:
         value = value[: limit - 1].rstrip() + "…"
@@ -110,7 +122,7 @@ def _is_noise(line: str) -> bool:
         return True
     if stripped.startswith(("Warning: Input is not a terminal", "Rendering…")):
         return True
-    if set(stripped) <= {"-", "=", " ", ".", "·", "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏", "|", "/", "\\"}:
+    if set(stripped) <= set("-= .·|/\\⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"):
         return True
     return False
 
@@ -228,6 +240,15 @@ class ProgramProgressNotifier:
         """Las capturas automáticas sólo van al chat privado del Arquitecto."""
         return self.enabled and _is_architect(chat_id)
 
+    def cancel_all(self) -> int:
+        """Detiene todas las sesiones activas (al pausar el canal)."""
+        with self._lock:
+            sessions = list(self._sessions.values())
+            self._sessions.clear()
+        for session in sessions:
+            session.stop_event.set()
+        return len(sessions)
+
     # -- Ciclo de vida de una sesión --------------------------------------
 
     def start_job(
@@ -281,7 +302,7 @@ class ProgramProgressNotifier:
         if not clean:
             return
         with self._lock:
-            session.last_line = _clean_caption(clean, 200)
+            session.last_line = _sanitize_text(clean, 200)
             for match in _PATH_RE.findall(clean):
                 session.files.add(match)
             for match in _LABEL_PATH_RE.findall(clean):
@@ -366,6 +387,10 @@ class ProgramProgressNotifier:
             score = sum(1 for token in tokens if token in haystack)
             if score > best_score:
                 best, best_score = window, score
+        if tokens and best_score <= 0:
+            # Ninguna ventana nueva coincide con la orden: se captura la
+            # pantalla completa para no confundir al Arquitecto.
+            return None
         if best is None and new_windows:
             best = new_windows[-1]
         return best

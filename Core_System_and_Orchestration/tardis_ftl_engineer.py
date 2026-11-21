@@ -224,6 +224,66 @@ class TardisFtlEngineer:
         except Exception as e:
             logger.warning(f"No se pudo registrar en DeepMemoryVault: {e}")
 
+    # -- Canal visual de avances (Telegram del Arquitecto) ----------------
+
+    @staticmethod
+    def _progress_notifier():
+        try:
+            from core.program_progress import get_program_progress
+
+            return get_program_progress()
+        except Exception:  # noqa: BLE001
+            return None
+
+    def _start_progress(self, job: FtlEngineerJob) -> None:
+        if not job.meta.get("_progress_owned"):
+            return
+        chat_id = job.meta.get("chat_id")
+        if chat_id is None:
+            return
+        progress = self._progress_notifier()
+        if progress is None:
+            return
+        try:
+            progress.start_job(
+                job_id=str(job.meta.get("_progress_job_id") or job.job_id),
+                chat_id=chat_id,
+                goal=job.prompt,
+                kind="FTL-ENGINEER",
+                cwd=str(job.cwd),
+            )
+        except Exception as exc:  # noqa: BLE001
+            logger.debug("Canal visual no disponible para %s: %s", job.job_id, exc)
+
+    def _note_progress(self, job: FtlEngineerJob, line: str) -> None:
+        progress = self._progress_notifier()
+        if progress is None:
+            return
+        try:
+            progress.note_output(
+                str(job.meta.get("_progress_job_id") or job.job_id),
+                line,
+            )
+        except Exception:  # noqa: BLE001
+            pass
+
+    def _finish_progress(self, job: FtlEngineerJob, result: Dict[str, Any]) -> None:
+        if not job.meta.get("_progress_owned"):
+            return
+        progress = self._progress_notifier()
+        if progress is None:
+            return
+        try:
+            ok = bool(result.get("ok"))
+            progress.finish_job(
+                str(job.meta.get("_progress_job_id") or job.job_id),
+                ok=ok,
+                summary=("Programa creado y validado" if ok else (job.error or "Trabajo con incidencias")),
+                files=result.get("files_changed") or [],
+            )
+        except Exception as exc:  # noqa: BLE001
+            logger.debug("Cierre del canal visual falló para %s: %s", job.job_id, exc)
+
     def execute_software_creation(
         self,
         prompt: str,

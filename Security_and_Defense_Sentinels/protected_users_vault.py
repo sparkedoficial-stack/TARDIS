@@ -40,6 +40,8 @@ ADMIN_RESERVED_COMMANDS: Set[str] = {
     "/reboot", "/reiniciar",
     "/lock", "/bloquear", "/unlock", "/desbloquear",
     "/shot", "/screenshot", "/captura",
+    "/avances", "/progreso", "/capturas", "/avance",
+    "/ventanas", "/windows", "/lista_ventanas",
     "/vol", "/volumen", "/mute", "/silencio", "/silenciar", "/unmute", "/desilenciar", "/kbd", "/teclado",
     "/say", "/habla", "/voz",
     "/rotar", "/limpiar_tokens", "/vaciar_tokens", "/liberar_tokens", "/rotar_contexto",
