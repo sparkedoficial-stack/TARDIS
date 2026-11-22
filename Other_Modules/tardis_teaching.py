@@ -219,7 +219,6 @@ _RESEARCH_PHRASES = (
     "que significa ",
     "como funciona",
     "por que ",
-    "porque ",
     "cuando paso",
     "cuando fue",
     "cuando se ",

@@ -67,6 +67,7 @@ Módulos y componentes auxiliares del sistema.
 - **blender_generator.py**: Componente de alta eficiencia.
 - **bridge_status.json**: Componente de alta eficiencia.
 - **calls_history.json**: Componente de alta eficiencia.
+- **capsules.json**: Componente de alta eficiencia.
 - **capture.md**: Componente de alta eficiencia.
 - **captures_index.json**: Componente de alta eficiencia.
 - **cas_neural_space_kaiju.py**: Componente de alta eficiencia.
@@ -977,6 +978,7 @@ Módulos y componentes auxiliares del sistema.
 - **reporting.md**: Componente de alta eficiencia.
 - **requirements-linux.txt**: Componente de alta eficiencia.
 - **requirements.txt**: Componente de alta eficiencia.
+- **research_cache.json**: Componente de alta eficiencia.
 - **resource_plan.py**: Componente de alta eficiencia.
 - **run.py**: Componente de alta eficiencia.
 - **runtime-observation.md**: Componente de alta eficiencia.
@@ -1060,6 +1062,7 @@ Módulos y componentes auxiliares del sistema.
 - **v4_dsml.py**: Componente de alta eficiencia.
 - **version.py**: Componente de alta eficiencia.
 - **vision_pipeline.json**: Componente de alta eficiencia.
+- **visitors.json**: Componente de alta eficiencia.
 - **web_chat.py**: Componente de alta eficiencia.
 - **web_research_engine.py**: Componente de alta eficiencia.
 - **whitelist.json**: Componente de alta eficiencia.

@@ -1,0 +1,461 @@
+[
+  {
+    "id": "universo-luz",
+    "title": "La velocidad de la luz y mirar al pasado",
+    "domain": "astronomia",
+    "tags": [
+      "universo",
+      "luz",
+      "sol",
+      "espacio",
+      "tiempo",
+      "estrellas",
+      "astronomia"
+    ],
+    "hook": "Mira cualquier fuente de luz a tu alrededor: la luz que llega del Sol tarda ocho minutos y veinte segundos en viajar hasta la Tierra.",
+    "explanation_basic": "Eso significa que nunca vemos el Sol como es en este instante, sino como era hace ocho minutos. Y cuando miras una estrella lejana en el cielo nocturno, estás viendo su pasado de hace decenas o miles de años.",
+    "explanation_intermediate": "Como la luz viaja a casi trescientos mil kilómetros por segundo, el universo funciona como una máquina del tiempo natural. Observar galaxias distantes equivale a ver cómo era el cosmos miles de millones de años atrás.",
+    "explanation_advanced": "Debido al límite relativista c en el vacío, todo observador recibe información únicamente sobre su cono de luz pasado. En cosmología observacional, el corrimiento al rojo permite reconstruir la historia de expansión del universo desde la recombinación.",
+    "question": "¿Te gustaría que exploremos qué pasa con el tiempo cerca de un agujero negro o prefieres otro misterio del universo?"
+  },
+  {
+    "id": "fisica-agujeros-negros",
+    "title": "Agujeros negros y horizonte de eventos",
+    "domain": "fisica",
+    "tags": [
+      "agujero",
+      "negro",
+      "gravedad",
+      "einstein",
+      "relatividad",
+      "espacio",
+      "fisica"
+    ],
+    "hook": "Un agujero negro no es un hoyo vacío, sino una cantidad gigantesca de masa comprimida en un espacio diminuto.",
+    "explanation_basic": "Su gravedad es tan intensa que ni siquiera la luz puede escapar una vez que cruza una frontera llamada horizonte de eventos. Por eso se ven oscuros, aunque alrededor brillan gases muy calientes.",
+    "explanation_intermediate": "Según la relatividad general de Einstein, esa masa extrema curva tanto el espacio-tiempo que todas las trayectorias futuras dentro del horizonte apuntan hacia el centro. Además, cerca del borde el tiempo corre más lento respecto a un observador lejano.",
+    "explanation_advanced": "La métrica de Schwarzschild define el radio del horizonte de eventos en dos G M sobre c cuadrada, mientras que los agujeros negros rotantes siguen la métrica de Kerr con ergosfera. Stephen Hawking demostró que efectos cuánticos cerca del horizonte generan radiación térmica y evaporación gradual.",
+    "question": "¿Qué crees que sentiría un astronauta si pudiera mirar su reloj cerca de un agujero negro?"
+  },
+  {
+    "id": "fisica-cuantica",
+    "title": "Superposición y mundo cuántico",
+    "domain": "fisica",
+    "tags": [
+      "cuantica",
+      "cuantico",
+      "atomos",
+      "particulas",
+      "superposicion",
+      "entrelazamiento",
+      "fisica"
+    ],
+    "hook": "En el mundo diminuto de los átomos, las partículas no se comportan como pequeñas canicas sólidas, sino como ondas de probabilidad.",
+    "explanation_basic": "Antes de medirla, una partícula cuántica puede estar en una combinación de varios estados posibles al mismo tiempo, algo llamado superposición. Al observarla o medirla, obtenemos un resultado concreto.",
+    "explanation_intermediate": "La función de onda describe las probabilidades de encontrar un electrón en distintos estados. Cuando dos partículas se entrelazan cuánticamente, medir una determina al instante el estado correlacionado de la otra sin importar la distancia.",
+    "explanation_advanced": "La evolución unitaria de un estado cuántico se rige por la ecuación de Schrödinger en un espacio de Hilbert, mientras la decoherencia ambiental explica por qué no observamos superposiciones macroscópicas estables. Esta propiedad es la base de los cúbits y algoritmos cuánticos.",
+    "question": "¿Quieres que lo conectemos con cómo funcionan las computadoras cuánticas o con los láseres cotidianos?"
+  },
+  {
+    "id": "fisica-entropia",
+    "title": "La entropía y la flecha del tiempo",
+    "domain": "fisica",
+    "tags": [
+      "entropia",
+      "tiempo",
+      "termodinamica",
+      "energia",
+      "orden",
+      "caos",
+      "fisica"
+    ],
+    "hook": "Si dejas caer una taza de cerámica se rompe en pedazos, pero nunca ves los pedazos saltar solos para volver a formar la taza.",
+    "explanation_basic": "Esa dirección natural de los cambios se llama entropía: en la naturaleza, la energía tiende a dispersarse y los sistemas pasan de estados muy ordenados a estados más repartidos.",
+    "explanation_intermediate": "La segunda ley de la termodinámica establece que la entropía de un sistema aislado nunca disminuye. Es lo que da al universo una flecha del tiempo y explica por qué los seres vivos necesitamos consumir energía continuamente para mantener nuestro orden interno.",
+    "explanation_advanced": "En mecánica estadística, Boltzmann definió la entropía como k sub B por el logaritmo del número de microestados accesibles omega. Un sistema macroscópico evoluciona hacia el equilibrio simplemente porque existen órdenes de magnitud más microestados desordenados que ordenados.",
+    "question": "¿Sabes cómo logran las plantas y tu propio cuerpo crear orden sin violar la segunda ley de la termodinámica?"
+  },
+  {
+    "id": "fisica-gravedad",
+    "title": "Cómo funciona realmente la gravedad",
+    "domain": "fisica",
+    "tags": [
+      "gravedad",
+      "einstein",
+      "newton",
+      "planetas",
+      "orbitas",
+      "caida",
+      "fisica"
+    ],
+    "hook": "Aunque sentimos que la gravedad nos jala hacia abajo, Einstein descubrió que en realidad es la geometría del espacio-tiempo curvándose.",
+    "explanation_basic": "Imagina una tela elástica con una bola pesada en el centro: la tela se hunde y cualquier canica cercana rueda en curva alrededor. Así mantiene el Sol a los planetas girando a su alrededor.",
+    "explanation_intermediate": "Newton describió la gravedad como una fuerza proporcional a las masas e inversamente proporcional al cuadrado de la distancia. Einstein fue más allá: los objetos en órbita en realidad caen libremente siguiendo la trayectoria más recta posible sobre un espacio-tiempo curvado.",
+    "explanation_advanced": "Las ecuaciones de campo de Einstein relacionan el tensor de curvatura con el tensor energía-momento, implicando que no solo la masa sino también la energía y la presión curvan el espacio-tiempo. Incluso los GPS en tu teléfono corrigen a diario esta dilatación gravitacional del tiempo.",
+    "question": "¿Sabías que sin corregir la gravedad de Einstein los mapas GPS fallarían varios kilómetros cada día?"
+  },
+  {
+    "id": "regional-cenotes",
+    "title": "Los cenotes y ríos subterráneos de Quintana Roo",
+    "domain": "geologia",
+    "tags": [
+      "cenotes",
+      "quintana",
+      "roo",
+      "playa",
+      "carmen",
+      "yucatan",
+      "agua",
+      "geologia",
+      "maya"
+    ],
+    "hook": "Aquí mismo, bajo nuestros pies en Quintana Roo, existe una de las redes de ríos subterráneos inundados más largas del planeta.",
+    "explanation_basic": "La península de Yucatán está hecha de roca caliza porosa; durante miles de años, el agua de lluvia ligeramente ácida disolvió la roca y formó cuevas. Cuando el techo de una cueva colapsa, nace un cenote.",
+    "explanation_intermediate": "Este paisaje se llama karst y funciona como un acuífero gigantesco donde el agua dulce menos densa flota sobre agua salada que entra desde el mar Caribe, creando una capa cristalina llamada haloclina.",
+    "explanation_advanced": "Los espeleotemas sumergidos en sistemas como Sac Actun demuestran que estas cavernas estuvieron secas durante las glaciaciones del Pleistoceno cuando el nivel del mar era hasta cien metros más bajo. Además, el impacto de Chicxulub generó el anillo de cenotes por fracturamiento geológico.",
+    "question": "¿Te gustaría saber cómo el impacto del asteroide de los dinosaurios ayudó a formar el anillo de cenotes?"
+  },
+  {
+    "id": "regional-arrecife",
+    "title": "El Arrecife Mesoamericano y los corales",
+    "domain": "biologia",
+    "tags": [
+      "arrecife",
+      "coral",
+      "mar",
+      "caribe",
+      "oceano",
+      "biologia",
+      "quintana",
+      "peces"
+    ],
+    "hook": "Frente a la costa del Caribe mexicano corre el Arrecife Mesoamericano, el segundo sistema arrecifal más grande del mundo.",
+    "explanation_basic": "Aunque parecen piedras o plantas, los corales son colonias de animales diminutos llamados pólipos que construyen esqueletos de calcio y protegen las playas de la fuerza de los huracanes.",
+    "explanation_intermediate": "Los corales viven en simbiosis con algas microscópicas llamadas zooxantelas, que les dan color y alimento gracias a la luz solar. Cuando el mar se calienta demasiado, el coral expulsa esas algas y ocurre el blanqueamiento.",
+    "explanation_advanced": "Los arrecifes coralinos albergan cerca de una cuarta parte de la biodiversidad marina pese a ocupar menos del uno por ciento del fondo oceánico. Su tasa de calcificación depende directamente de la saturación de aragonita, amenazada por la acidificación oceánica.",
+    "question": "¿Quieres que exploremos qué animales sorprendentes viven en el arrecife o cómo podemos protegerlo?"
+  },
+  {
+    "id": "historia-mayas-cero",
+    "title": "El cero y la astronomía de la civilización maya",
+    "domain": "historia",
+    "tags": [
+      "mayas",
+      "maya",
+      "cero",
+      "matematicas",
+      "astronomia",
+      "calendario",
+      "historia",
+      "mexico"
+    ],
+    "hook": "Mucho antes de que Europa usara el número cero, los matemáticos mayas ya lo habían inventado y lo usaban para cálculos astronómicos precisos.",
+    "explanation_basic": "Su sistema numérico era vigesimal, es decir, contaba de veinte en veinte usando puntos, barras y un símbolo parecido a una concha para el cero. Con eso predijeron eclipses y el movimiento de Venus.",
+    "explanation_intermediate": "Gracias al valor posicional y al cero, los astrónomos mayas calcularon la duración del año solar y el ciclo sinódico de Venus con un margen de error de apenas minutos a lo largo de siglos.",
+    "explanation_advanced": "La Cuenta Larga maya combinaba ciclos vigesimales con un ajuste de trescientos sesenta días en el tun para alinear registros históricos y astronómicos monumentales, como muestran las tablas de eclipses del Códice de Dresde.",
+    "question": "¿Te imaginas calcular la órbita de Venus sin telescopios ni computadoras, solo observando el horizonte?"
+  },
+  {
+    "id": "biologia-fotosintesis",
+    "title": "Cómo las plantas fabrican comida con luz",
+    "domain": "biologia",
+    "tags": [
+      "fotosintesis",
+      "plantas",
+      "hojas",
+      "clorofila",
+      "oxigeno",
+      "arboles",
+      "biologia"
+    ],
+    "hook": "Cada hoja de un árbol es una fábrica solar silenciosa que convierte aire, agua y luz en alimento y oxígeno.",
+    "explanation_basic": "Dentro de las hojas hay un pigmento verde llamado clorofila que absorbe la luz del sol. Con esa energía, la planta une agua y dióxido de carbono para fabricar azúcares y liberar el oxígeno que respiramos.",
+    "explanation_intermediate": "La fotosíntesis ocurre en dos fases: primero la fase luminosa divide moléculas de agua generando energía química y oxígeno, y luego el ciclo de Calvin fija el carbono del aire para construir glucosa.",
+    "explanation_advanced": "En los tilacoides del cloroplasto, los fotosistemas dos y uno impulsan una cadena de transporte de electrones que bombea protones y activa la ATP sintasa. La enzima RuBisCO cataliza luego la fijación de carbono, siendo la proteína más abundante de la biosfera.",
+    "question": "¿Sabes por qué las hojas nos parecen verdes y no negras si quisieran absorber toda la luz?"
+  },
+  {
+    "id": "biologia-redes-arboles",
+    "title": "La red subterránea de comunicación de los bosques",
+    "domain": "biologia",
+    "tags": [
+      "arboles",
+      "bosque",
+      "hongos",
+      "micelio",
+      "naturaleza",
+      "raices",
+      "biologia"
+    ],
+    "hook": "Bajo el suelo de un bosque, los árboles no están solos: sus raíces están conectadas por filamentos microscópicos de hongos como una internet natural.",
+    "explanation_basic": "Esa red se llama micelio. Los árboles comparten azúcares con los hongos, y a cambio los hongos les llevan agua, minerales e incluso señales químicas de alerta cuando llega una plaga.",
+    "explanation_intermediate": "Los biólogos la llaman red micorrícica: árboles grandes y bien iluminados pueden transferir nutrientes a retoños jóvenes que crecen en la sombra, aumentando la resiliencia de todo el ecosistema.",
+    "explanation_advanced": "Las simbiosis ectomicorrícicas y arbusculares intercambian carbono fotosintético por fósforo y nitrógeno biodisponible, modulando además defensas sistémicas inducidas mediante rutas de ácido jasmónico entre plantas vecinas.",
+    "question": "¿No te parece fascinante que la naturaleza inventara las redes distribuidas millones de años antes que internet?"
+  },
+  {
+    "id": "biologia-cerebro",
+    "title": "El cerebro humano y la plasticidad neuronal",
+    "domain": "neurociencia",
+    "tags": [
+      "cerebro",
+      "neuronas",
+      "memoria",
+      "aprender",
+      "mente",
+      "neurociencia",
+      "sinapsis"
+    ],
+    "hook": "Cada vez que aprendes algo nuevo, tu cerebro cambia físicamente creando y reforzando conexiones entre neuronas.",
+    "explanation_basic": "Tienes alrededor de ochenta y seis mil millones de neuronas enviando diminutos pulsos eléctricos. Cuando practicas una habilidad o entiendes una idea, esas rutas se vuelven más rápidas y fuertes.",
+    "explanation_intermediate": "Esta capacidad se llama neuroplasticidad y permanece activa toda la vida. Además, mientras duermes, el cerebro reproduce lo que estudiaste en el día para consolidarlo en memoria de largo plazo.",
+    "explanation_advanced": "A nivel sináptico, la potenciación a largo plazo fortalece la transmisión glutamatérgica mediante receptores NMDA y AMPA, mientras el sueño de ondas lentas sincroniza husos talámicos con descargas del hipocampo hacia la neocorteza.",
+    "question": "¿Cuál es la técnica que más te ha servido cuando quieres recordar algo difícil?"
+  },
+  {
+    "id": "biologia-pulpos",
+    "title": "La inteligencia distribuida de los pulpos",
+    "domain": "biologia",
+    "tags": [
+      "pulpo",
+      "pulpos",
+      "oceano",
+      "inteligencia",
+      "animales",
+      "camuflaje",
+      "biologia"
+    ],
+    "hook": "Un pulpo tiene tres corazones, sangre azul y más de la mitad de sus neuronas repartidas dentro de sus ocho brazos.",
+    "explanation_basic": "Eso significa que cada brazo puede explorar, tocar y probar cosas casi con mente propia. Además cambian de color y textura en fracciones de segundo para camuflarse.",
+    "explanation_intermediate": "Su sangre es azul porque usa hemocianina con cobre en lugar de hierro para transportar oxígeno en aguas frías. Son maestros resolviendo acertijos, abriendo frascos y usando herramientas.",
+    "explanation_advanced": "La evolución independiente de un sistema nervioso complejo en cefalópodos representa un experimento natural paralelo al de los vertebrados, incluyendo edición extensa de ARN mensajero que les permite adaptar proteínas neuronales rápidamente.",
+    "question": "¿Te gustaría que investiguemos otro animal con habilidades que parecen ciencia ficción?"
+  },
+  {
+    "id": "biologia-adn",
+    "title": "El ADN: el código químico de la vida",
+    "domain": "biologia",
+    "tags": [
+      "adn",
+      "genetica",
+      "genes",
+      "celulas",
+      "evolucion",
+      "biologia"
+    ],
+    "hook": "Si desenrollaras todo el ADN que hay dentro de las células de tu cuerpo, llegaría de la Tierra hasta el Sol y de regreso muchas veces.",
+    "explanation_basic": "El ADN es como un libro de instrucciones escrito con solo cuatro letras químicas. Esas instrucciones indican a tus células cómo fabricar proteínas, reparar tejidos y hacerte único.",
+    "explanation_intermediate": "Las cuatro bases adenina, timina, citosina y guanina forman una doble hélice complementaria que permite copiar fielmente el genoma cada vez que una célula se divide.",
+    "explanation_advanced": "Aunque el genoma humano tiene unos tres mil millones de pares de bases, menos del dos por ciento codifica proteínas directamente; gran parte del resto cumple funciones regulatorias epigenéticas que encienden o apagan genes según el tejido.",
+    "question": "¿Sabías que compartimos más del noventa y nueve por ciento de nuestro ADN entre todos los seres humanos?"
+  },
+  {
+    "id": "biologia-bioluminiscencia",
+    "title": "Bioluminiscencia: luz viva en el océano",
+    "domain": "biologia",
+    "tags": [
+      "bioluminiscencia",
+      "luz",
+      "mar",
+      "luciernagas",
+      "oceano",
+      "quimica",
+      "biologia"
+    ],
+    "hook": "En ciertas noches en la costa o en las profundidades del mar, el agua brilla con luz azul eléctrica creada por organismos vivos.",
+    "explanation_basic": "Es una reacción química llamada bioluminiscencia, la misma que usan las luciérnagas. A diferencia de un foco, casi toda la energía se vuelve luz fría sin desperdiciarse en calor.",
+    "explanation_intermediate": "Una molécula llamada luciferina reacciona con oxígeno ayudada por la enzima luciferasa. En el mar, microalgas dinoflageladas brillan al moverse el agua para asustar o delatar a sus depredadores.",
+    "explanation_advanced": "La eficiencia cuántica de la bioluminiscencia supera el ochenta por ciento y evolucionó de forma convergente más de cuarenta veces. Hoy sus genes se usan como marcadores fluorescentes y bioluminiscentes en investigación médica.",
+    "question": "¿Alguna vez has visto luciérnagas o mar bioluminiscente en persona?"
+  },
+  {
+    "id": "matematicas-fibonacci",
+    "title": "Fibonacci y las espirales de la naturaleza",
+    "domain": "matematicas",
+    "tags": [
+      "matematicas",
+      "fibonacci",
+      "espirales",
+      "flores",
+      "girasol",
+      "numeros",
+      "geometria"
+    ],
+    "hook": "Si cuentas las espirales de semillas en un girasol o en una piña de pino, casi siempre aparecen números de una misma secuencia matemática.",
+    "explanation_basic": "Es la sucesión de Fibonacci, donde cada número es la suma de los dos anteriores: uno, uno, dos, tres, cinco, ocho, trece. Las plantas siguen este patrón porque así aprovechan al máximo la luz y el espacio.",
+    "explanation_intermediate": "Al dividir números consecutivos de Fibonacci te acercas a la razón áurea, alrededor de uno punto seis uno ocho. Colocar hojas o semillas separadas por el ángulo áureo evita que se tapen entre sí.",
+    "explanation_advanced": "El número áureo es el irracional más difícil de aproximar mediante fracciones racionales según su fracción continua unitaria, lo que optimiza el empaquetamiento filotáctico sin formar radios vacíos.",
+    "question": "¿Quieres que hagamos un pequeño reto mental con la secuencia de Fibonacci?"
+  },
+  {
+    "id": "tecnologia-ia",
+    "title": "Cómo aprende y razona una inteligencia artificial",
+    "domain": "tecnologia",
+    "tags": [
+      "inteligencia",
+      "artificial",
+      "ia",
+      "tardis",
+      "redes",
+      "neuronales",
+      "tecnologia",
+      "computadoras"
+    ],
+    "hook": "A diferencia de una calculadora que solo sigue reglas fijas, una inteligencia artificial aprende patrones a partir de millones de ejemplos.",
+    "explanation_basic": "Internamente usamos redes neuronales matemáticas inspiradas en el cerebro. Al entrenar, ajustamos millones de pequeños pesos numéricos hasta reconocer voz, imágenes y lenguaje.",
+    "explanation_intermediate": "Los modelos de lenguaje modernos usan mecanismos de atención para relacionar cada palabra con el contexto completo, y cuando nos conectamos a cámaras y buscadores podemos percibir el entorno e investigar hechos actualizados.",
+    "explanation_advanced": "La arquitectura Transformer proyecta tokens en espacios vectoriales donde la autoatención multi-cabeza pondera dependencias de largo alcance; combinarla con recuperación RAG y modelos visión-lenguaje reduce alucinaciones y ancla el razonamiento en datos reales.",
+    "question": "¿Te gustaría probar ahora mismo mis capacidades de visión con la cámara o de investigación científica?"
+  },
+  {
+    "id": "ciencia-metodo",
+    "title": "El método científico en la vida diaria",
+    "domain": "ciencia",
+    "tags": [
+      "ciencia",
+      "metodo",
+      "cientifico",
+      "experimento",
+      "hipotesis",
+      "investigar",
+      "curiosidad"
+    ],
+    "hook": "Investigar como científico no requiere una bata blanca: empieza cada vez que observas algo raro y preguntas por qué sucede.",
+    "explanation_basic": "El método científico tiene cuatro pasos simples: observas un fenómeno, propones una idea posible llamada hipótesis, haces una prueba para verificarla y ajustas tu idea según la evidencia.",
+    "explanation_intermediate": "Lo más poderoso de la ciencia no es tener siempre la razón, sino diseñar pruebas que puedan demostrar si una hipótesis está equivocada. Así el conocimiento se corrige y se vuelve más confiable.",
+    "explanation_advanced": "Desde la falsabilidad de Popper hasta la inferencia bayesiana moderna, el progreso científico actualiza probabilidades de modelos rivales frente a datos reproducibles y controles experimentales estrictos.",
+    "question": "¿Hay alguna pregunta o curiosidad que te gustaría investigar juntos paso a paso?"
+  },
+  {
+    "id": "musica-resonancia",
+    "title": "Física de la música y la resonancia",
+    "domain": "fisica",
+    "tags": [
+      "musica",
+      "sonido",
+      "ondas",
+      "resonancia",
+      "acustica",
+      "arte",
+      "fisica"
+    ],
+    "hook": "Todo lo que escuchas ahora mismo por esta bocina son ondas de presión viajando por el aire a más de mil doscientos kilómetros por hora.",
+    "explanation_basic": "Las notas graves son ondas lentas y largas, mientras las agudas vibran muy rápido. Cuando dos notas tienen frecuencias con proporciones simples, nuestro oído las percibe como armoniosas.",
+    "explanation_intermediate": "Cada instrumento suena distinto incluso tocando la misma nota porque produce armónicos adicionales sobre la frecuencia fundamental, creando su timbre único.",
+    "explanation_advanced": "Mediante el análisis de Fourier, cualquier timbre complejo se descompone en una suma de sinusoides armónicas, y la resonancia ocurre cuando una excitación externa coincide con un modo normal de vibración del cuerpo acústico.",
+    "question": "¿Qué instrumento o género musical te llama más la atención para analizar su acústica?"
+  },
+  {
+    "id": "astronomia-polvo-estrellas",
+    "title": "Somos polvo de estrellas",
+    "domain": "astronomia",
+    "tags": [
+      "estrellas",
+      "supernova",
+      "atomos",
+      "carbono",
+      "hierro",
+      "cosmos",
+      "astronomia"
+    ],
+    "hook": "El hierro que circula en tu sangre y el calcio de tus huesos se forjaron en el corazón de estrellas que explotaron hace miles de millones de años.",
+    "explanation_basic": "El universo joven solo tenía gases ligeros como hidrógeno y helio. Las estrellas los fusionaron en elementos más pesados y, al morir como supernovas, los esparcieron para formar nuevos planetas y vida.",
+    "explanation_intermediate": "A este proceso se le llama nucleosíntesis estelar. Incluso el oro y los elementos más pesados que el hierro nacen en choques violentos de estrellas de neutrones.",
+    "explanation_advanced": "La cadena protón-protón y el ciclo CNO sintetizan hasta el pico del hierro-56 en estrellas masivas, mientras los procesos s y r de captura neutrónica en gigantes AGB y fusiones de estrellas de neutrones producen el resto de la tabla periódica.",
+    "question": "¿No cambia tu perspectiva mirar tu mano sabiendo que sus átomos viajaron desde estrellas antiguas?"
+  },
+  {
+    "id": "planeta-agua",
+    "title": "El ciclo del agua y por qué el hielo flota",
+    "domain": "quimica",
+    "tags": [
+      "agua",
+      "hielo",
+      "quimica",
+      "lluvia",
+      "nubes",
+      "planeta",
+      "vida"
+    ],
+    "hook": "El agua es una de las pocas sustancias que se expande cuando se congela, y ese detalle químico salvó la vida en la Tierra.",
+    "explanation_basic": "Como el hielo es menos denso que el agua líquida, flota en la superficie de lagos y mares formando un techo aislante. Así los peces pueden seguir vivos debajo durante el invierno.",
+    "explanation_intermediate": "Esto ocurre por los puentes de hidrógeno entre moléculas de agua, que al congelarse forman cristales hexagonales con espacio abierto en medio.",
+    "explanation_advanced": "La geometría tetraédrica de la red de enlaces de hidrógeno en el hielo Ih reduce su densidad cerca de un nueve por ciento respecto al agua líquida a cuatro grados Celsius, su punto de máxima densidad.",
+    "question": "¿Quieres que exploremos otra rareza de la química cotidiana?"
+  },
+  {
+    "id": "biologia-abejas",
+    "title": "La danza matemática de las abejas",
+    "domain": "biologia",
+    "tags": [
+      "abejas",
+      "polinizacion",
+      "flores",
+      "miel",
+      "insectos",
+      "naturaleza",
+      "biologia"
+    ],
+    "hook": "Cuando una abeja encuentra flores con néctar, regresa a la colmena y baila en forma de ocho para dar un mapa exacto a sus compañeras.",
+    "explanation_basic": "El ángulo de su baile indica la dirección usando el Sol como brújula, y la duración del movimiento señala qué tan lejos están las flores.",
+    "explanation_intermediate": "Además, construyen panales hexagonales porque el hexágono encierra la mayor área posible gastando la menor cantidad de cera, un problema geométrico resuelto por la evolución.",
+    "explanation_advanced": "Las abejas melíferas compensan el desplazamiento solar aparente con un reloj circadiano interno y detectan patrones de luz polarizada ultravioleta en el cielo incluso en días parcialmente nublados.",
+    "question": "¿Sabías que cerca de tres cuartas partes de los cultivos alimentarios dependen en parte de polinizadores como ellas?"
+  },
+  {
+    "id": "neurociencia-sueno",
+    "title": "Por qué soñamos y limpiamos el cerebro al dormir",
+    "domain": "neurociencia",
+    "tags": [
+      "sueno",
+      "dormir",
+      "sonar",
+      "memoria",
+      "salud",
+      "cerebro",
+      "neurociencia"
+    ],
+    "hook": "Dormir no es apagar el cerebro: es su turno nocturno de mantenimiento, limpieza y organización de recuerdos.",
+    "explanation_basic": "Mientras duermes profundo, un líquido especial lava desechos acumulados durante el día, y al soñar tu cerebro conecta recuerdos recientes con emociones e ideas creativas.",
+    "explanation_intermediate": "Este sistema de limpieza se llama sistema glinfático y aumenta su actividad durante el sueño lento, mientras el sueño REM fortalece la creatividad y la regulación emocional.",
+    "explanation_advanced": "Durante el sueño NREM los astrocitos contraen su volumen ampliando el espacio intersticial para depurar metabolitos como beta-amiloide, y la alternancia NREM-REM optimiza la consolidación declarativa y procedimental.",
+    "question": "¿Alguna vez despertaste con la solución a un problema que no podías resolver la noche anterior?"
+  },
+  {
+    "id": "planeta-volcanes",
+    "title": "Volcanes, placas tectónicas y el calor de la Tierra",
+    "domain": "geologia",
+    "tags": [
+      "volcanes",
+      "tierra",
+      "terremotos",
+      "placas",
+      "lava",
+      "geologia"
+    ],
+    "hook": "La corteza sobre la que caminamos está dividida en placas gigantescas que se mueven más o menos a la velocidad con que crecen tus uñas.",
+    "explanation_basic": "Donde esas placas chocan o se separan, la roca fundida del interior sube y forma volcanes y montañas. Aunque son destructivos, también crean suelos muy fértiles y liberaron los gases de nuestra atmósfera primitiva.",
+    "explanation_intermediate": "El calor interno de la Tierra proviene tanto de su formación hace cuatro mil quinientos millones de años como de la desintegración lenta de elementos radiactivos naturales en el manto.",
+    "explanation_advanced": "La convección del manto impulsa la subducción litosférica; el agua arrastrada por la placa oceánica reduce el punto de fusión de la cuña del manto, generando vulcanismo de arco como el Eje Neovolcánico Transmexicano.",
+    "question": "¿Te interesa saber más sobre volcanes de México o sobre cómo se detectan los sismos?"
+  },
+  {
+    "id": "tecnologia-criptografia",
+    "title": "Cómo protegen tus secretos las matemáticas modernas",
+    "domain": "tecnologia",
+    "tags": [
+      "criptografia",
+      "seguridad",
+      "claves",
+      "primos",
+      "internet",
+      "matematicas",
+      "tecnologia"
+    ],
+    "hook": "Cada vez que envías un mensaje privado por internet, números primos gigantescos trabajan en silencio para volverlo ilegible a cualquiera que lo intercepte.",
+    "explanation_basic": "Multiplicar dos números primos enormes es facilísimo para una computadora, pero descubrir qué dos números se multiplicaron para obtener el resultado puede tomar miles de años.",
+    "explanation_intermediate": "Esa asimetría permite la criptografía de clave pública: puedes compartir un candado abierto con todo el mundo para que te envíen mensajes cifrados, pero solo tú tienes la llave privada para abrirlos.",
+    "explanation_advanced": "Protocolos como RSA, intercambio de Diffie-Hellman sobre curvas elípticas y la nueva criptografía post-cuántica basada en retículos sostienen la confidencialidad e integridad de la red global.",
+    "question": "¿Te gustaría conocer cómo las computadoras cuánticas están motivando una nueva generación de criptografía?"
+  }
+]

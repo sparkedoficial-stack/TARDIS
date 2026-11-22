@@ -1,0 +1,40 @@
+{
+  "bdd8b15966e80fc0": {
+    "ts": REDACTED_PHONE.6595695,
+    "iso": "2026-11-22T01:27:54-0500",
+    "query": "fusion nuclear",
+    "summary": "En física nuclear, la fusión nuclear es una reacción nuclear en la que varios núcleos atómicos se unen y forman un núcleo más pesado. Estas reacciones son, en general, exotérmicas cuando ocurre entre átomos más ligeros que el hierro y endotérmicas si son más pesados. Esta energía absorbida o cedida durante la reacción se debe al efecto conocido como defecto de masa. Las reacciones de fusión, mediadas por la interacción nuclear fuerte, ocurren cuando los átomos ligeros que van a fusionarse disponen de la suficiente energía como para vencer a las fuerzas electromagnéticas que los repelen. Estas condiciones solo se dan a gran temperatura, cuando la materia que forman estos átomos está en estado de plasma. La fusión nuclear es, por tanto, el proceso inverso de la fisión nuclear, reacción nuclear en la que un átomo pesado da lugar a dos átomos más ligeros. tardis_browser: Hallazgo FTL sobre 'Fusión Nuclear por Confinamiento Magnético: Avances en Tokamaks y Stellarators': Client Challenge A required part of this site couldn’t load Aurora y Frontier: fusión exascale finalista Gordon Bell - El Ecosistema Startup: Aurora y Frontier: fusión exascale finalista Gordon Bell  El Ecosistema Start",
+    "sources": [
+      {
+        "title": "Fusión nuclear (Wikipedia ES)",
+        "url": "https://es.wikipedia.org/wiki/Fusi%C3%B3n_nuclear",
+        "snippet": "En física nuclear, la fusión nuclear es una reacción nuclear en la que varios núcleos atómicos se unen y forman un núcleo más pesado. Estas reacciones son, en general, exotérmicas cuando ocurre entre átomos más ligeros que el hierro y endotérmicas si son más pesados. Esta energía absorbida o cedida durante la reacción se debe al efecto conocido como defecto ",
+        "engine": "wikipedia_es"
+      },
+      {
+        "title": "tardis_browser",
+        "url": "local://rag_vault",
+        "snippet": "Hallazgo FTL sobre 'Fusión Nuclear por Confinamiento Magnético: Avances en Tokamaks y Stellarators': Client Challenge A required part of this site couldn’t load",
+        "engine": "rag_vault"
+      },
+      {
+        "title": "Aurora y Frontier: fusión exascale finalista Gordon Bell - El Ecosistema Startup",
+        "url": "https://news.google.com/rss/articles/CBMijwFBVV95cUxORUZJYVZoMWQwVkxKeW9IcDZiX1B4aXRzNzNoYUs5U3pKLW1YR1dSWHRuNDVrUTN6eGlCdWJ6T2FDZlZGaWtveUN3dTVsdUQ1UmM1ZWxXREJITnQxNzdtMjVGSTJWSWcwRVhLaFBUaU9pSlo0ekc1YVRnRTIzTURDYWtaZWRWRG1VNUUyVHFwVQ?oc=5",
+        "snippet": "Aurora y Frontier: fusión exascale finalista Gordon Bell  El Ecosistema Startup",
+        "engine": "google_news"
+      },
+      {
+        "title": "Granada, en la carrera por la energía de fusión - EL PAÍS",
+        "url": "https://news.google.com/rss/articles/CBMingFBVV95cUxQRnd6dnVaQ3BNYnh6bExwRkhNT3NlWDU0LXdaTVp6QlpzV3FuVllkTmVCaVAtaGpFXzVFUTZKejIxTGtIZFVxR3YzT2RDSTl5ZjlKZWNJeVhNUDhZUmdrV0VEbUZMVUxmUFNyOFJNR3FnMS1iaDhKVFRvcW9ETXdaVWtpTnN5Q2xBei1INWYzb0wtcFJGeTMyczhlU0ZBUdIBsgFBVV95cUxORkdOaGw4SUVXT1JqZHhEbnotbnRXNGhLWkREV2NXSW43UWxleEU1SmFjV1hXWDlIUWtRS18yOGxSdGJXeWhmeERfT3BZZ0hRZl9Ga2hLMVJtWWhtX1RkX1ZkSDNzQjVpSFZELXFPMWJtMk9UWWFCSnM1emtRTlI5elVJbEhWemlvMW82aTAwV0h6U1ZxUlVHTVFFdktwb1VVRFVLWlhoMFZuQ1BjUkU3dFR3?oc=5",
+        "snippet": "Granada, en la carrera por la energía de fusión  EL PAÍS",
+        "engine": "google_news"
+      },
+      {
+        "title": "“Estamos más cerca que nunca”: qué falta para producir la “energía perfecta” que será clave para desarrollar la IA, según un científico del MIT - La Nación",
+        "url": "https://news.google.com/rss/articles/CBMi3AFBVV95cUxOQzRZMEJDbUo5RmlBNDNicHprZ1kyTklIUVNLTnFmVFl3ZVlld1FmYnRLOHd6N3JpMTlFUU15N3psODRNQWJsal9pSjhBelgxd0pfekpvS1ExY29lUEI0eWZuakduZTJzSWV1Q0NIZ3JGT0JnUzNFUTJibG5CcndjSV9EeGdEYVFGUGFSXzBYTmlNaE8tWHpENHlEMXBpeUZad3RPbU5VNFJzRm9pNFZ3V01DbVZDNmN0N1huX3BCd1RuWk1rcGJEWXJIUDY1bXFOWnY4d1B4NW9jX0Rl?oc=5",
+        "snippet": "“Estamos más cerca que nunca”: qué falta para producir la “energía perfecta” que será clave para desarrollar la IA, según un científico del MIT  La Nación",
+        "engine": "google_news"
+      }
+    ]
+  }
+}

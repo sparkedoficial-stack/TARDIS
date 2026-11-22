@@ -2011,32 +2011,8 @@ class ConversationDirector:
             result = await self._handle_pedagogical_adjustment(clean, adj)
             return self._finalize_turn(clean, result)
 
-        # 5. Investigación Visual por cámara C310 (sola o combinada con investigación web!)
-        wants_vision = self.vision_enabled and is_vision_intent(clean)
-        wants_research = self.research_enabled and is_research_intent(clean)
-        if wants_vision:
-            result = await self._handle_vision_turn(
-                clean,
-                also_research=wants_research,
-                speak_preface_cb=speak_preface_cb,
-                frame_jpeg=frame_jpeg,
-            )
-            return self._finalize_turn(clean, result)
-
-        # 6. Petición explícita de otro tema / sorpresa / cápsula didáctica
-        if any(h in norm for h in _NEXT_TOPIC_HINTS) or (
-            is_curiosity_intent(clean) and not wants_research
-        ):
-            result = await self._handle_teaching_turn(clean, force_next=any(h in norm for h in _NEXT_TOPIC_HINTS))
-            return self._finalize_turn(clean, result)
-
-        # 7. Investigación documental / científica / web en vivo
-        if wants_research:
-            result = await self._handle_research_turn(clean, speak_preface_cb=speak_preface_cb)
-            return self._finalize_turn(clean, result)
-
-        # 8. Respuesta afirmativa / seguimiento de cápsula o quiz pendiente
-        if self.quiz_pending:
+        # 5. Respuesta a pregunta socrática / quiz pendiente (antes de investigación genérica)
+        if self.quiz_pending and not is_vision_intent(clean):
             self.quiz_pending = False
             result = await self._handle_llm_dialogue(
                 clean,
@@ -2049,6 +2025,31 @@ class ConversationDirector:
             )
             return self._finalize_turn(clean, result)
 
+        # 6. Investigación Visual por cámara C310 (sola o combinada con investigación web!)
+        wants_vision = self.vision_enabled and is_vision_intent(clean)
+        wants_research = self.research_enabled and is_research_intent(clean)
+        if wants_vision:
+            result = await self._handle_vision_turn(
+                clean,
+                also_research=wants_research,
+                speak_preface_cb=speak_preface_cb,
+                frame_jpeg=frame_jpeg,
+            )
+            return self._finalize_turn(clean, result)
+
+        # 7. Petición explícita de otro tema / sorpresa / cápsula didáctica
+        if any(h in norm for h in _NEXT_TOPIC_HINTS) or (
+            is_curiosity_intent(clean) and not wants_research
+        ):
+            result = await self._handle_teaching_turn(clean, force_next=any(h in norm for h in _NEXT_TOPIC_HINTS))
+            return self._finalize_turn(clean, result)
+
+        # 8. Investigación documental / científica / web en vivo
+        if wants_research:
+            result = await self._handle_research_turn(clean, speak_preface_cb=speak_preface_cb)
+            return self._finalize_turn(clean, result)
+
+        # 9. Respuesta afirmativa / seguimiento de cápsula o agradecimientos
         if len(words) <= 3 and (words & _AFFIRM_TOKENS) and self.active_capsule_id:
             result = await self._handle_llm_dialogue(
                 clean,

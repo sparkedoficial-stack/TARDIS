@@ -62,7 +62,23 @@ from core.tardis_voice_program import (
 )
 from core.tardis_teaching import (
     build_teaching_prompt,
+    is_curiosity_intent,
+    is_research_intent,
     is_teaching_intent,
+    is_vision_intent,
+)
+from core.tardis_c310_conversation import (
+    CameraVisionInvestigator,
+    CapsuleLibrary,
+    ConversationDirector,
+    ConversationMemory,
+    EnergyVad,
+    InteractiveResearchEngine,
+    InteractiveWakeMatcher,
+    VOICE_OLLAMA_DEFAULT_MODEL,
+    VOICE_OLLAMA_DEFAULT_URL,
+    VoiceBrain,
+    clean_spoken_spanish,
 )
 
 DEFAULT_CONFIG_PATH = BASE_DIR / "tapo_c310_config.json"
@@ -577,11 +593,15 @@ class TemporalBrainClient:
         model: str = "TARDIS-NEURAL-SPACE-KAIJU",
         max_tokens: int = 220,
         temperature: float = 0.45,
+        fast_ollama_url: str = VOICE_OLLAMA_DEFAULT_URL,
+        fast_model: str = VOICE_OLLAMA_DEFAULT_MODEL,
     ) -> None:
         self.socket_path = Path(socket_path)
         self.model = model
         self.max_tokens = int(max_tokens)
         self.temperature = float(temperature)
+        self.fast_ollama_url = str(fast_ollama_url or "").rstrip("/")
+        self.fast_model = str(fast_model or VOICE_OLLAMA_DEFAULT_MODEL)
         self._unix_client: Optional[httpx.AsyncClient] = None
         self._http_client: Optional[httpx.AsyncClient] = None
         if self.socket_path.exists():
@@ -590,23 +610,26 @@ class TemporalBrainClient:
                 self._unix_client = httpx.AsyncClient(
                     transport=transport,
                     base_url="http://localhost",
-                    timeout=httpx.Timeout(45.0, connect=5.0),
+                    timeout=httpx.Timeout(14.0, connect=2.5),
                 )
             except Exception as exc:
                 logger.warning(f"No se pudo preparar TemporalBrain UNIX: {exc}")
-        self._http_client = httpx.AsyncClient(timeout=httpx.Timeout(45.0, connect=5.0))
+        self._http_client = httpx.AsyncClient(timeout=httpx.Timeout(30.0, connect=3.0))
+
+    @staticmethod
+    def _encode_image_b64(image: Optional[Any]) -> str:
+        if image is None:
+            return ""
+        if isinstance(image, (bytes, bytearray, memoryview)):
+            return base64.b64encode(bytes(image)).decode("utf-8")
+        return str(image).split(",", 1)[-1].strip()
 
     @staticmethod
     def _content_with_image(text: str, image: Optional[Any]) -> Any:
         content = str(text or "")
-        if image is None:
+        b64 = TemporalBrainClient._encode_image_b64(image)
+        if not b64:
             return content
-        if isinstance(image, (bytes, bytearray, memoryview)):
-            b64 = base64.b64encode(bytes(image)).decode("utf-8")
-        else:
-            b64 = str(image).split(",", 1)[-1].strip()
-            if not b64:
-                return content
         return [
             {"type": "text", "text": content},
             {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b64}"}},
@@ -624,6 +647,22 @@ class TemporalBrainClient:
         prepared[-1] = last
         return prepared
 
+    @staticmethod
+    def _text_only_messages(messages: List[Dict[str, Any]]) -> List[Dict[str, str]]:
+        out: List[Dict[str, str]] = []
+        for m in messages or []:
+            content = m.get("content")
+            if isinstance(content, list):
+                txt = " ".join(
+                    str(p.get("text") or "")
+                    for p in content
+                    if isinstance(p, dict) and p.get("type") == "text"
+                ).strip()
+            else:
+                txt = str(content or "")
+            out.append({"role": str(m.get("role") or "user"), "content": txt})
+        return out
+
     async def close(self) -> None:
         for client in (self._unix_client, self._http_client):
             if client is not None:
@@ -637,7 +676,11 @@ class TemporalBrainClient:
         try:
             content = data["choices"][0]["message"]["content"]
         except Exception:
-            content = data.get("response") or data.get("reply") or data.get("message") or ""
+            msg = data.get("message")
+            if isinstance(msg, dict):
+                content = msg.get("content") or ""
+            else:
+                content = data.get("response") or data.get("reply") or msg or ""
         text = str(content or "")
         text = re.sub(r"<think>.*?</think>", " ", text, flags=re.DOTALL | re.IGNORECASE)
         if "<think>" in text.lower():
@@ -655,26 +698,60 @@ class TemporalBrainClient:
         max_tokens: Optional[int] = None,
     ) -> Tuple[str, float, str]:
         """
-        Chat multimodal del cerebro TARDIS para la conversación didáctica en vivo.
-
-        - `images`: fotogramas de cámara (investigación visual GOD-EYE). Acepta bytes
-          JPEG o strings base64/data-URL; se adjuntan al último mensaje del usuario.
-        - `pedagogical_level` / `dialectic_role` / `language`: contexto pedagógico y
-          dialectal para la respuesta del docente.
-        - `max_tokens`: techo de generación (modo enseñanza usa un valor superior).
+        Chat de baja latencia + visión multimodal real para la conversación en vivo:
+          1. Carril dedicado GPU Ollama (`fast_ollama_url`, p.ej. :11435 con `qwen3-vl:2b-instruct`).
+             Soporta tanto texto rápido como imágenes nativas (`images: [b64]`).
+          2. TemporalBrain UNIX (`/tmp/temporal_brain.sock`, estrictamente solo texto).
+          3. Ollama principal (`OLLAMA_URL`).
+          4. Respaldo `/api/chat`.
         """
-        prepared_messages = self._attach_images(messages, images)
-        payload = {
-            "messages": prepared_messages,
-            "stream": False,
-            "max_tokens": int(max_tokens) if max_tokens is not None else self.max_tokens,
-            "temperature": self.temperature,
-        }
+        text_messages = self._text_only_messages(messages)
+        tokens = int(max_tokens) if max_tokens is not None else self.max_tokens
         started = time.perf_counter()
 
-        if self._unix_client is not None:
+        # 1. Carril rápido GPU Ollama (soporta texto y visión nativa con qwen3-vl)
+        if self.fast_ollama_url:
+            fast_msgs = [dict(m) for m in text_messages]
+            if images and fast_msgs:
+                b64_list = [b for b in (self._encode_image_b64(img) for img in images) if b]
+                if b64_list:
+                    fast_msgs[-1]["images"] = b64_list[:1]
             try:
-                resp = await self._unix_client.post("/v1/chat/completions", json=payload)
+                resp = await self._http_client.post(
+                    f"{self.fast_ollama_url}/api/chat",
+                    json={
+                        "model": self.fast_model,
+                        "messages": fast_msgs,
+                        "stream": False,
+                        "keep_alive": -1,
+                        "options": {
+                            "num_predict": tokens,
+                            "temperature": self.temperature,
+                            "num_ctx": 3072,
+                        },
+                    },
+                    timeout=35.0 if images else 18.0,
+                )
+                if resp.status_code == 200:
+                    text = self._parse_response(resp.json())
+                    if text:
+                        return text, time.perf_counter() - started, f"voice_gpu:{self.fast_model}"
+            except Exception as exc:
+                logger.debug(f"Carril GPU voz no disponible ({self.fast_ollama_url}): {exc}")
+
+        # 2. TemporalBrain UNIX (solo texto: nunca enviar image_url a un GGUF sin mmproj)
+        if self._unix_client is not None and not images:
+            try:
+                resp = await self._unix_client.post(
+                    "/v1/chat/completions",
+                    json={
+                        "messages": text_messages,
+                        "stream": False,
+                        "max_tokens": tokens,
+                        "temperature": self.temperature,
+                    },
+                    timeout=14.0,
+                )
                 if resp.status_code == 200:
                     text = self._parse_response(resp.json())
                     if text:
@@ -682,14 +759,41 @@ class TemporalBrainClient:
             except Exception as exc:
                 logger.debug(f"TemporalBrain UNIX no disponible: {exc}")
 
-        ollama_payload = dict(payload)
-        ollama_payload["model"] = self.model
-        for model in (self.model, f"{self.model}:latest"):
+        # 3. Ollama principal (:11434)
+        candidate_models = (
+            (self.fast_model, self.model)
+            if images
+            else (self.fast_model, self.model, f"{self.model}:latest")
+        )
+        for model in candidate_models:
             try:
-                ollama_payload["model"] = model
-                resp = await self._http_client.post(
-                    f"{OLLAMA_URL}/v1/chat/completions", json=ollama_payload
-                )
+                if images:
+                    ol_msgs = [dict(m) for m in text_messages]
+                    b64_list = [b for b in (self._encode_image_b64(img) for img in images) if b]
+                    if b64_list and ol_msgs:
+                        ol_msgs[-1]["images"] = b64_list[:1]
+                    resp = await self._http_client.post(
+                        f"{OLLAMA_URL}/api/chat",
+                        json={
+                            "model": model,
+                            "messages": ol_msgs,
+                            "stream": False,
+                            "options": {"num_predict": tokens, "temperature": self.temperature},
+                        },
+                        timeout=35.0,
+                    )
+                else:
+                    resp = await self._http_client.post(
+                        f"{OLLAMA_URL}/v1/chat/completions",
+                        json={
+                            "model": model,
+                            "messages": text_messages,
+                            "stream": False,
+                            "max_tokens": tokens,
+                            "temperature": self.temperature,
+                        },
+                        timeout=20.0,
+                    )
                 if resp.status_code == 200:
                     text = self._parse_response(resp.json())
                     if text:
@@ -697,6 +801,7 @@ class TemporalBrainClient:
             except Exception as exc:
                 logger.debug(f"Ollama no disponible ({model}): {exc}")
 
+        # 4. Respaldo núcleo /api/chat
         try:
             token = GIA_TOKEN_FILE.read_text(encoding="utf-8").strip()
         except Exception:
@@ -705,18 +810,15 @@ class TemporalBrainClient:
             resp = await self._http_client.post(
                 f"{TARDIS_CHAT_URL}?key={token}",
                 json={
-                    "message": str(messages[-1].get("content") or ""),
+                    "message": str(text_messages[-1].get("content") or "") if text_messages else "",
                     "client_id": "tapo_c310_voice_channel",
-                    "history": [
-                        {"role": m.get("role") or "user", "content": str(m.get("content") or "")}
-                        for m in (messages or [])[-9:-1]
-                    ],
+                    "history": text_messages[-9:-1],
                     "pedagogical_level": pedagogical_level,
                     "dialectic_role": dialectic_role,
                     "language": language,
                     "direction": direction,
                 },
-                timeout=60.0,
+                timeout=40.0,
             )
             if resp.status_code == 200:
                 text = self._parse_response(resp.json())
@@ -834,6 +936,29 @@ class TapoC310VoiceChannel:
         )
         self.visitor_context: Dict[str, Any] = {}
         self.last_camera_frame_jpeg: Optional[bytes] = None
+        # Motor conversacional interactivo (enseñanza, visión C310, investigación y aprendizaje)
+        self.conversation_enabled: bool = bool(self.config.get("conversation_enabled", True))
+        self.conversation_handoff_after_interview: bool = bool(
+            self.config.get("conversation_handoff_after_interview", True)
+        )
+        self.conversation_idle_exit_sec: float = max(
+            15.0, float(self.config.get("conversation_idle_exit_sec", 55.0))
+        )
+        self.conversation_max_turns: int = max(
+            4, int(self.config.get("conversation_max_turns", 24))
+        )
+        self.conversation_learning_queue_enabled: bool = bool(
+            self.config.get("conversation_learning_queue_enabled", True)
+        )
+        self.fast_llm_url: str = str(
+            self.config.get("voice_channel_fast_llm_url", VOICE_OLLAMA_DEFAULT_URL)
+        ).strip()
+        self.fast_llm_model: str = str(
+            self.config.get("voice_channel_fast_llm_model", VOICE_OLLAMA_DEFAULT_MODEL)
+        ).strip()
+        self.vision_max_side: int = int(
+            self.config.get("voice_channel_vision_max_side", 448) or 448
+        )
         self.brain = TemporalBrainClient(
             socket_path=Path(
                 str(self.config.get("voice_channel_llm_socket", str(TEMPORAL_BRAIN_SOCK)))
@@ -841,11 +966,54 @@ class TapoC310VoiceChannel:
             model=str(
                 self.config.get("voice_channel_llm_model", "TARDIS-NEURAL-SPACE-KAIJU")
             ),
-            max_tokens=int(self.config.get("voice_channel_llm_max_tokens", 220)),
+            max_tokens=int(self.config.get("voice_channel_llm_max_tokens", 240)),
             temperature=float(
                 self.config.get("voice_channel_llm_temperature", 0.45)
             ),
+            fast_ollama_url=self.fast_llm_url,
+            fast_model=self.fast_llm_model,
         )
+        self.conv_memory = ConversationMemory()
+        self.conv_capsules = CapsuleLibrary()
+        self.conv_research = InteractiveResearchEngine()
+        self.conv_vision = CameraVisionInvestigator(
+            vlm_model=self.fast_llm_model,
+            max_side=self.vision_max_side,
+        )
+        self.conv_brain = VoiceBrain(
+            fast_ollama_url=self.fast_llm_url,
+            fast_model=self.fast_llm_model,
+            socket_path=Path(
+                str(self.config.get("voice_channel_llm_socket", str(TEMPORAL_BRAIN_SOCK)))
+            ),
+            fallback_model=str(
+                self.config.get("voice_channel_llm_model", "TARDIS-NEURAL-SPACE-KAIJU")
+            ),
+            max_tokens=int(self.config.get("voice_channel_teaching_llm_max_tokens", 300)),
+            temperature=float(self.config.get("voice_channel_llm_temperature", 0.45)),
+        )
+        self.director = ConversationDirector(
+            brain=self.conv_brain,
+            vision=self.conv_vision,
+            research=self.conv_research,
+            memory=self.conv_memory,
+            capsules=self.conv_capsules,
+            default_level=str(self.config.get("pedagogical_level", "intermedio")),
+            default_language=str(self.config.get("language", "es")),
+            research_enabled=bool(self.config.get("conversation_research_enabled", True)),
+            vision_enabled=bool(self.config.get("conversation_vision_enabled", True)),
+            max_reply_sentences=self.teaching_max_reply_sentences,
+            max_reply_chars=self.teaching_max_reply_chars,
+        )
+        self.interactive_matcher = InteractiveWakeMatcher()
+        self.vad = EnergyVad(
+            sample_rate=SAMPLE_RATE,
+            frame_bytes=FRAME_BYTES,
+            min_rms=min(self.min_rms, self.interview_min_rms),
+        )
+        self._conversation_last_activity: float = 0.0
+        self._conversation_turns: int = 0
+        self._last_learning_queue_ts: float = 0.0
         self.speaker = TapoC310Speaker(config_path=self.config_path)
         self.stt = LocalSpeechToText(
             model_size=self.whisper_model, cpu_threads=self.whisper_threads
@@ -939,6 +1107,7 @@ class TapoC310VoiceChannel:
                 "active": bool(self.teaching_mode),
                 "topic": self.teaching_topic,
             },
+            "conversation": self.director.status_summary() if hasattr(self, "director") else {},
             "last_error": self.last_error,
         }
 
@@ -1010,9 +1179,36 @@ class TapoC310VoiceChannel:
             self._last_partial_ts = now
         else:
             if final:
+                self.vad.reset()
                 self._on_final(final, now)
+                return
             elif self._utt_start_offset is None:
                 self._last_silence_offset = self._ring.total_bytes
+
+        # Respaldo adaptativo EnergyVad en sesiones interactivas activas:
+        # si un visitante habla con términos científicos/técnicos que Vosk no segmenta,
+        # el VAD dispara la transcripción directa en faster-whisper.
+        if self.state in ("conversation", "visitor", "followup", "command"):
+            vad_pcm = self.vad.push(frame)
+            if vad_pcm is not None and not self._processing:
+                self._on_vad_utterance(vad_pcm, now)
+
+    def _on_vad_utterance(self, pcm: bytes, now: float) -> None:
+        duration = len(pcm) / (SAMPLE_RATE * 2)
+        if duration < 0.45:
+            return
+        rms = pcm_rms(pcm)
+        min_rms = self.interview_min_rms if self.state in ("visitor", "conversation") else self.min_rms
+        if rms < min_rms:
+            return
+        vosk_hint = self.vosk.force_final()
+        self._utt_start_offset = None
+        self._last_silence_offset = self._ring.total_bytes
+        self._last_partial_ts = 0.0
+        logger.info(f"🎙️  [VAD {duration:.2f}s RMS={rms:.0f}] hint={vosk_hint!r}")
+        self.last_activity_ts = now
+        self._processing = True
+        self._tasks.append(asyncio.create_task(self._process_utterance(pcm, vosk_hint)))
 
     def _on_final(self, text: str, now: float) -> None:
         start = self._utt_start_offset
@@ -1030,7 +1226,7 @@ class TapoC310VoiceChannel:
         if duration < 0.35 or len(pcm) < int(0.35 * SAMPLE_RATE * 2):
             return
         rms = pcm_rms(pcm)
-        min_rms = self.interview_min_rms if self.state == "visitor" else self.min_rms
+        min_rms = self.interview_min_rms if self.state in ("visitor", "conversation") else self.min_rms
         if rms < min_rms:
             logger.debug(f"Final ignorado por RMS bajo ({rms:.1f}): {clean!r}")
             return
@@ -1046,6 +1242,9 @@ class TapoC310VoiceChannel:
             if state == "visitor" and self._interview_field:
                 await self._handle_visitor_answer(pcm, vosk_text)
                 return
+            if state == "conversation" and self.conversation_enabled:
+                await self._handle_conversation_audio(pcm, vosk_text)
+                return
             wake = self.matcher.find(vosk_text)
             if wake is not None:
                 remainder = self.matcher.strip(vosk_text, wake)
@@ -1057,6 +1256,15 @@ class TapoC310VoiceChannel:
                 # llegue a FTL desde el micrófono ambiental de la cámara.
                 logger.info("🧬 [PROGRAMA] Comando detectado sin wake word; abriendo canal FTL.")
                 await self._handle_command_audio(pcm, vosk_text)
+            elif self.conversation_enabled and state == "wake":
+                iwake = self.interactive_matcher.find(vosk_text)
+                if iwake is not None:
+                    logger.info(
+                        f"🎓 [WAKE INTERACTIVO] {iwake.kind} ({iwake.phrase!r}) · resto={iwake.remainder!r}"
+                    )
+                    await self._handle_interactive_wake(iwake, pcm, vosk_text)
+                else:
+                    logger.debug(f"Utterance ignorada en estado {state}: {vosk_text!r}")
             elif state in ("command", "followup"):
                 await self._handle_command_audio(pcm, vosk_text)
             else:
@@ -1073,6 +1281,8 @@ class TapoC310VoiceChannel:
 
     def _reset_audio_pipeline(self) -> None:
         self.vosk.reset()
+        if hasattr(self, "vad"):
+            self.vad.reset()
         self._ring.clear()
         self._utt_start_offset = None
         self._last_silence_offset = 0
@@ -1214,17 +1424,165 @@ class TapoC310VoiceChannel:
         logger.info(f"🧑‍🏫 [ENSEÑANZA] Modo enseñanza cerrado ({reason}).")
 
     def _capture_camera_frame(self) -> Optional[bytes]:
-        """Captura un fotograma en vivo GOD-EYE para investigación visual durante la enseñanza."""
+        """Captura un fotograma RAW limpio GOD-EYE (sin HUD) para investigación visual."""
         try:
             from core.tapo_c310_sentinel import get_c310_live_hud_jpeg_sync
 
-            data, _meta = get_c310_live_hud_jpeg_sync()
+            data, _meta = get_c310_live_hud_jpeg_sync(
+                width=self.vision_max_side, hud=False, quality=80
+            )
             if data:
                 self.last_camera_frame_jpeg = data
             return data
         except Exception as exc:
             logger.debug(f"No se pudo capturar fotograma GOD-EYE para investigación: {exc}")
             return None
+
+    async def _start_interactive_conversation(
+        self,
+        *,
+        trigger: str = "visitor",
+        visitor_name: str = "",
+        reason: str = "",
+        initial_question: str = "",
+        speak_greeting: bool = True,
+    ) -> None:
+        """Abre una sesión interactiva completa (enseñanza, visión e investigación) con el visitante."""
+        self._conversation_turns = 0
+        self._conversation_last_activity = time.time()
+        greeting = self.director.start_session(
+            trigger=trigger,
+            visitor_name=visitor_name or str(self.visitor_context.get("name") or ""),
+            reason=reason or str(self.visitor_context.get("reason") or ""),
+            context=self.visitor_context,
+        )
+        self._set_state("conversation", force=True)
+        self._write_session_flag(time.time() + self.conversation_idle_exit_sec + 20.0)
+        if initial_question:
+            await self._run_conversation_turn(initial_question)
+            return
+        if speak_greeting and greeting:
+            await self._speak(greeting)
+            self._conversation_last_activity = time.time()
+            self._write_session_flag(time.time() + self.conversation_idle_exit_sec + 20.0)
+        self._write_state(force=True)
+
+    async def _handle_interactive_wake(
+        self, iwake: Any, pcm: bytes, vosk_text: str
+    ) -> None:
+        """Atiende saludos naturales («Hola TARDIS...») y órdenes directas de visitantes."""
+        self.wake_count += 1
+        transcript = await self._transcribe(pcm)
+        effective = transcript or vosk_text
+        if is_program_command(vosk_text) and not is_program_command(effective):
+            effective = vosk_text
+        # Si es comando «programa» de FTL, enrutar por el flujo estándar
+        if is_program_command(effective):
+            await self._process_command(effective)
+            return
+        parsed = self.interactive_matcher.find(effective)
+        remainder = parsed.remainder if parsed else iwake.remainder
+        await self._start_interactive_conversation(
+            trigger="interactive_wake",
+            initial_question=remainder if len(remainder.split()) >= 2 else "",
+            speak_greeting=not (len(remainder.split()) >= 2),
+        )
+
+    async def _handle_conversation_audio(self, pcm: bytes, vosk_text: str) -> None:
+        """Transcribe una intervención en sesión interactiva y ejecuta el turno del director."""
+        transcript = await self._transcribe(pcm)
+        if not transcript:
+            transcript = self._clean_transcript(vosk_text)
+        if not transcript:
+            return
+        if is_program_command(vosk_text) and not is_program_command(transcript):
+            transcript = vosk_text
+        if is_program_command(transcript):
+            await self._process_command(transcript)
+            return
+        await self._run_conversation_turn(transcript)
+
+    async def _run_conversation_turn(self, text: str) -> None:
+        """Ejecuta un turno con ConversationDirector (pedagogía, visión C310 e investigación web)."""
+        clean = re.sub(r"\s+", " ", (text or "").strip())
+        if not clean:
+            return
+        self.last_transcript = clean
+        self.last_activity_ts = time.time()
+        self._conversation_last_activity = self.last_activity_ts
+        self._set_state("thinking")
+
+        async def _speak_preface(phrase: str) -> None:
+            if phrase:
+                await self._speak(phrase)
+
+        turn = await self.director.handle_turn(clean, speak_preface_cb=_speak_preface)
+        self.teaching_mode = turn.mode in ("teaching", "research", "vision")
+        self.teaching_topic = turn.topic or self.director.current_topic
+        self.last_llm_ms = turn.llm_ms
+        self.last_backend = turn.backend
+        self.last_reply = turn.reply
+
+        if turn.reply:
+            speech = self._prepare_speech(turn.reply)
+            self._set_state("speaking")
+            tts_started = time.perf_counter()
+            await self._speak(speech)
+            self.last_tts_ms = (time.perf_counter() - tts_started) * 1000.0
+            self.command_count += 1
+            self.reply_count += 1
+            self._conversation_turns += 1
+            self._write_event(
+                {
+                    "ts": time.time(),
+                    "iso": _now_iso(),
+                    "type": "interactive_conversation",
+                    "session_id": self.director.session_id,
+                    "visitor": self.director.visitor_name,
+                    "transcript": clean,
+                    "reply": turn.reply,
+                    "speech": speech,
+                    "intent": turn.intent,
+                    "mode": turn.mode,
+                    "topic": turn.topic,
+                    "used_vision": turn.used_vision,
+                    "used_research": turn.used_research,
+                    "backend": turn.backend,
+                    "stt_ms": round(self.last_stt_ms, 1),
+                    "llm_ms": round(self.last_llm_ms, 1),
+                    "tts_ms": round(self.last_tts_ms, 1),
+                    "teaching": bool(self.teaching_mode),
+                }
+            )
+            logger.info(
+                f"🎓 [C310/{turn.mode}/{turn.intent}/{turn.backend} {turn.llm_ms:.0f}ms] {turn.reply}"
+            )
+
+        if turn.end_session or self._conversation_turns >= self.conversation_max_turns:
+            if not turn.end_session:
+                farewell = self.director.end_session(reason="max_turns")
+                if farewell:
+                    await self._speak(farewell)
+            self._exit_teaching("fin_conversacion")
+            self._set_state("wake", force=True)
+            self._write_session_flag(0)
+        else:
+            self._conversation_last_activity = time.time()
+            self._set_state("conversation", force=True)
+            self._write_session_flag(time.time() + self.conversation_idle_exit_sec + 20.0)
+        self._write_state(force=True)
+
+    async def _end_interactive_conversation(self, reason: str = "idle") -> None:
+        if self.state != "conversation" and not self.director.active:
+            return
+        farewell = self.director.end_session(reason=reason)
+        if farewell and not self._stopping:
+            await self._speak(farewell)
+        self._exit_teaching(reason)
+        self._set_state("wake", force=True)
+        self._write_session_flag(0)
+        self._reset_audio_pipeline()
+        self._write_state(force=True)
 
     # -- entrevista automática de visitantes (C310) ------------------------
 
@@ -1392,10 +1750,16 @@ class TapoC310VoiceChannel:
             record["retries_used"] = retries_used
             record["answered"] = bool(answers["name"] or answers["reason"])
             record["status"] = "completed" if record["answered"] else "no_answer"
-            closing = self.interview_closing
-            if answers["name"]:
-                closing = f"{closing} Gracias, {answers['name']}."
-            await self._speak(closing)
+            handoff_ready = (
+                self.conversation_enabled
+                and self.conversation_handoff_after_interview
+                and record["answered"]
+            )
+            if not handoff_ready:
+                closing = self.interview_closing
+                if answers["name"]:
+                    closing = f"{closing} Gracias, {answers['name']}."
+                await self._speak(closing)
         except asyncio.CancelledError:
             record["status"] = "cancelled"
             raise
@@ -1422,10 +1786,39 @@ class TapoC310VoiceChannel:
                 "interview_id": record.get("interview_id") or "",
                 "status": record.get("status") or "",
             }
-            self._write_session_flag(0)
-            self._set_state("wake", force=True)
-            self._reset_audio_pipeline()
-            self._write_state(force=True)
+            handoff_now = (
+                not self._stopping
+                and record["status"] == "completed"
+                and self.conversation_enabled
+                and self.conversation_handoff_after_interview
+            )
+            if handoff_now:
+                # Si el visitante ya hizo una pregunta o pidió aprender/investigar al
+                # responder el motivo, responderla de inmediato dentro de la conversación!
+                reason_txt = str(answers.get("reason") or "")
+                direct_q = (
+                    reason_txt
+                    if (
+                        is_teaching_intent(reason_txt)
+                        or is_curiosity_intent(reason_txt)
+                        or is_research_intent(reason_txt)
+                        or is_vision_intent(reason_txt)
+                    )
+                    else ""
+                )
+                await self._start_interactive_conversation(
+                    trigger="interview_handoff",
+                    visitor_name=str(answers.get("name") or ""),
+                    reason=reason_txt,
+                    initial_question=direct_q,
+                    speak_greeting=not bool(direct_q),
+                )
+                self._reset_audio_pipeline()
+            else:
+                self._write_session_flag(0)
+                self._set_state("wake", force=True)
+                self._reset_audio_pipeline()
+                self._write_state(force=True)
 
     def _maybe_accept_interview_request(self) -> None:
         """Reclama atómicamente una solicitud de entrevista emitida por el Centinela."""
@@ -1486,6 +1879,25 @@ class TapoC310VoiceChannel:
         local = await self._try_local_intent(clean)
         if local is not None:
             return
+
+        # Si el usuario pide enseñar, aprender, investigar o usar la visión de la cámara
+        # (o si ya está en modo enseñanza), delegar al motor interactivo completo.
+        if self.conversation_enabled and (
+            self.teaching_mode
+            or is_curiosity_intent(clean)
+            or is_research_intent(clean)
+            or is_vision_intent(clean)
+        ):
+            if not self.director.active:
+                self.director.start_session(
+                    trigger="command_upgrade",
+                    visitor_name=str(self.visitor_context.get("name") or ""),
+                    reason=str(self.visitor_context.get("reason") or ""),
+                    context=self.visitor_context,
+                )
+            await self._run_conversation_turn(clean)
+            return
+
         messages: List[Dict[str, Any]] = [
             {"role": "system", "content": self._system_prompt()},
             *self._history[-8:],
@@ -1664,6 +2076,7 @@ class TapoC310VoiceChannel:
         body = _MD_LINK.sub(r"\1", body)
         body = _MD_EMPHASIS.sub(" ", body)
         body = _NON_SPEECH.sub(" ", body)
+        body = clean_spoken_spanish(body, max_sentences=0, max_chars=0)
         body = re.sub(r"\s+", " ", body).strip()
 
         sentences = split_sentences(body)
@@ -1714,7 +2127,11 @@ class TapoC310VoiceChannel:
             if self._processing or self._speaking:
                 continue
 
-            if self.state == "followup" and now >= self._followup_until:
+            if self.state == "conversation":
+                if (now - self._conversation_last_activity) >= self.conversation_idle_exit_sec:
+                    logger.info("Ventana de conversación interactiva cerrada por silencio.")
+                    await self._end_interactive_conversation(reason="idle")
+            elif self.state == "followup" and now >= self._followup_until:
                 self._set_state("wake")
                 self._history.clear()
                 self._exit_teaching("ventana_seguimiento_cerrada")
@@ -1729,6 +2146,21 @@ class TapoC310VoiceChannel:
             # Entrevista automática solicitada por el Centinela (detección humana + 15 s).
             if self.interview_enabled and self.state == "wake":
                 self._maybe_accept_interview_request()
+
+            # Aprendizaje autónomo en segundo plano: investigar preguntas pendientes cada 5 min
+            if (
+                self.conversation_enabled
+                and self.conversation_learning_queue_enabled
+                and self.state == "wake"
+                and (now - self._last_learning_queue_ts) > 300.0
+            ):
+                self._last_learning_queue_ts = now
+                try:
+                    learned = await self.director.process_learning_queue(max_items=2)
+                    if learned:
+                        logger.info(f"📚 [APRENDIZAJE C310] {learned} tema(s) pendientes investigados y almacenados.")
+                except Exception as exc:
+                    logger.debug(f"Error en cola autónoma de aprendizaje: {exc}")
 
             # Forzar cierre de una utterance anormalmente larga.
             if (
@@ -1810,7 +2242,11 @@ class TapoC310VoiceChannel:
                 await task
             except (asyncio.CancelledError, Exception):
                 pass
+        if hasattr(self, "director") and self.director.active:
+            self.director.end_session(reason="shutdown")
         await self.brain.close()
+        if hasattr(self, "conv_brain"):
+            await self.conv_brain.close()
         self._set_state("stopped", force=True)
         logger.info("Canal de voz detenido.")
 
@@ -2009,6 +2445,46 @@ def _test_speaker(config_path: Path, text: str) -> int:
     return 0 if res.get("ok") else 1
 
 
+def _test_conversation(config_path: Path, text: str, speak: bool = False) -> int:
+    channel = TapoC310VoiceChannel(config_path=config_path)
+
+    async def _run() -> int:
+        try:
+            channel.director.start_session(trigger="cli_test", visitor_name="Visitante")
+            turn = await channel.director.handle_turn(text)
+            spoken_res: Dict[str, Any] = {}
+            if speak and turn.reply:
+                spoken_res = await channel.speaker.speak(text=turn.reply)
+            channel.director.end_session(reason="cli_test")
+            print(
+                json.dumps(
+                    {
+                        "ok": bool(turn.reply),
+                        "text": text,
+                        "intent": turn.intent,
+                        "mode": turn.mode,
+                        "topic": turn.topic,
+                        "backend": turn.backend,
+                        "used_vision": turn.used_vision,
+                        "used_research": turn.used_research,
+                        "visual_description": turn.visual_description,
+                        "sources": turn.sources,
+                        "llm_ms": turn.llm_ms,
+                        "reply": turn.reply,
+                        "speaker": spoken_res,
+                    },
+                    indent=2,
+                    ensure_ascii=False,
+                )
+            )
+            return 0 if turn.reply else 1
+        finally:
+            await channel.brain.close()
+            await channel.conv_brain.close()
+
+    return asyncio.run(_run())
+
+
 def _status() -> int:
     state = _load_json(STATE_FILE)
     if not state:
@@ -2029,10 +2505,14 @@ def main(argv: Optional[List[str]] = None) -> int:
     parser.add_argument("--test-mic", type=float, metavar="SEG", help="Capturar micrófono N segundos")
     parser.add_argument("--test-speaker", type=str, metavar="TEXTO", help="Hablar por la bocina C310")
     parser.add_argument("--wake-test", type=str, metavar="TEXTO", help="Probar el detector de wake word")
+    parser.add_argument("--test-conversation", type=str, metavar="TEXTO", help="Probar un turno interactivo (enseñanza/visión/investigación)")
+    parser.add_argument("--speak-reply", action="store_true", help="Con --test-conversation, emitir respuesta por la bocina C310")
     args = parser.parse_args(argv)
 
     if args.status:
         return _status()
+    if args.test_conversation:
+        return _test_conversation(args.config, args.test_conversation, speak=bool(args.speak_reply))
     if args.wake_test:
         matcher = WakePhraseMatcher()
         found = matcher.find(args.wake_test)

@@ -1357,6 +1357,37 @@ def create_app() -> FastAPI:
             except Exception:
                 pass
 
+        conv_dir = settings.base_dir / "data" / "tapo_c310_conversation"
+        conv_sessions: List[Dict[str, Any]] = []
+        sessions_file = conv_dir / "sessions.jsonl"
+        if sessions_file.exists():
+            try:
+                lines = sessions_file.read_text(encoding="utf-8", errors="ignore").splitlines()
+                for line in lines[-10:]:
+                    if line.strip():
+                        conv_sessions.append(json.loads(line))
+            except Exception:
+                pass
+
+        research_notes: List[Dict[str, Any]] = []
+        notes_file = conv_dir / "research_notes.jsonl"
+        if notes_file.exists():
+            try:
+                lines = notes_file.read_text(encoding="utf-8", errors="ignore").splitlines()
+                for line in lines[-10:]:
+                    if line.strip():
+                        research_notes.append(json.loads(line))
+            except Exception:
+                pass
+
+        known_visitors: Dict[str, Any] = {}
+        visitors_file = conv_dir / "visitors.json"
+        if visitors_file.exists():
+            try:
+                known_visitors = json.loads(visitors_file.read_text(encoding="utf-8"))
+            except Exception:
+                pass
+
         return {
             "ok": True,
             "camera": camera_cfg,
@@ -1365,7 +1396,88 @@ def create_app() -> FastAPI:
             "recent_interviews": list(reversed(interviews)),
             "recent_detections": recent_detections,
             "detections_count": len(recent_detections),
+            "interactive_conversation": voice_state.get("conversation", {}),
+            "known_visitors_count": len(known_visitors) if isinstance(known_visitors, dict) else 0,
+            "recent_sessions": list(reversed(conv_sessions)),
+            "recent_research_notes": list(reversed(research_notes)),
         }
+
+    @app.post("/api/tapo/converse")
+    async def api_tapo_converse(payload: Dict[str, Any]):
+        """
+        Turno interactivo de enseñanza, visión o investigación sobre la Tapo C310 (REDACTED_IP).
+        Parámetros JSON:
+          - text (str): consulta o intervención del visitante / Arquitecto.
+          - visitor_name (str, opcional): nombre del interlocutor.
+          - speak (bool, default False): emitir la respuesta por la bocina física de la C310.
+          - vision (bool, default False): forzar captura e inspección visual en vivo de la C310.
+          - level (str, opcional): principiante | basico | intermedio | avanzado.
+        """
+        text = str((payload or {}).get("text") or (payload or {}).get("message") or "").strip()
+        if not text:
+            raise HTTPException(status_code=400, detail="Campo 'text' requerido.")
+        visitor_name = str((payload or {}).get("visitor_name") or "").strip()
+        speak_flag = bool((payload or {}).get("speak", False))
+        force_vision = bool((payload or {}).get("vision", False))
+        level = str((payload or {}).get("level") or "intermedio").strip().lower()
+
+        from core.tardis_c310_conversation import (
+            CameraVisionInvestigator,
+            ConversationDirector,
+            VoiceBrain,
+        )
+
+        cfg_path = settings.base_dir / "tapo_c310_config.json"
+        cfg: Dict[str, Any] = {}
+        if cfg_path.exists():
+            try:
+                cfg = json.loads(cfg_path.read_text(encoding="utf-8"))
+            except Exception:
+                pass
+
+        brain = VoiceBrain(
+            fast_ollama_url=str(cfg.get("voice_channel_fast_llm_url", "http://127.0.0.1:11435")),
+            fast_model=str(cfg.get("voice_channel_fast_llm_model", "qwen3-vl:2b-instruct")),
+            fallback_model=str(cfg.get("voice_channel_llm_model", "TARDIS-NEURAL-SPACE-KAIJU")),
+        )
+        vision = CameraVisionInvestigator(
+            vlm_model=str(cfg.get("voice_channel_fast_llm_model", "qwen3-vl:2b-instruct")),
+            max_side=int(cfg.get("voice_channel_vision_max_side", 448) or 448),
+        )
+        director = ConversationDirector(
+            brain=brain,
+            vision=vision,
+            default_level=level,
+            research_enabled=bool(cfg.get("conversation_research_enabled", True)),
+            vision_enabled=bool(cfg.get("conversation_vision_enabled", True)),
+        )
+        try:
+            director.start_session(trigger="api", visitor_name=visitor_name)
+            query = f"Mira la cámara y responde: {text}" if force_vision else text
+            turn = await director.handle_turn(query)
+            speaker_res: Dict[str, Any] = {}
+            if speak_flag and turn.reply:
+                from core.tapo_c310_speaker import TapoC310Speaker
+
+                spk = TapoC310Speaker(config_path=cfg_path)
+                speaker_res = await spk.speak(text=turn.reply)
+            director.end_session(reason="api_single_turn")
+            return {
+                "ok": True,
+                "reply": turn.reply,
+                "intent": turn.intent,
+                "mode": turn.mode,
+                "topic": turn.topic,
+                "backend": turn.backend,
+                "used_vision": turn.used_vision,
+                "used_research": turn.used_research,
+                "visual_description": turn.visual_description,
+                "sources": turn.sources,
+                "llm_ms": turn.llm_ms,
+                "speaker": speaker_res,
+            }
+        finally:
+            await brain.close()
 
     @app.get("/api/voice_program/status")
     async def api_voice_program_status(limit: int = 25):
