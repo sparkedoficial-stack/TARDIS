@@ -40,11 +40,12 @@ from typing import Any, Dict, Optional
 # doctrina/doctrinar. Se aplican como prefijo sobre tokens normalizados.
 _TEACH_PREFIXES = ("ensen", "explic", "instru", "doctr")
 
-# Muletillas/artículos que no aportan al tema de la enseñanza.
+# Muletillas/artículos/vocativos que no aportan al tema de la enseñanza.
 _POLITENESS_TOKENS = {
     "por", "favor", "porfa", "porfavor", "please",
     "la", "el", "los", "las", "una", "un", "unos", "unas",
     "mi", "mis", "tu", "sus", "muy", "mias",
+    "tardis", "tardes", "tarde", "tardiz", "tar", "dis",
 }
 
 # Nivel pedagógico canónico y prompt docente por nivel.
