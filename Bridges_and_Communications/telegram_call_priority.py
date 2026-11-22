@@ -71,18 +71,24 @@ BOOST_TARGET_PATTERNS: tuple[str, ...] = (
 # `tardis-desktop` (cabina interactiva en CCD 0) ni `tardis-thermal-guard` (seguridad térmica).
 DEPRIORITIZE_PATTERNS: tuple[str, ...] = (
     "tardis-music-maestro",
+    "tardis_music_maestro.py",
     "tardis-easy-touch",
     "tardis-browser-autonomous",
+    "tardis_browser.py",
     "tardis-omniscient-autonomy",
     "tardis_omniscient",
     "tardis-video-pensante",
     "tardis_video_pensante",
     "tardis-curiosity-debater",
+    "tardis_curiosity_debater.py",
     "tardis-cyber-evolve",
+    "cyber_recursive_agent.py",
     "tardis-hub-agents",
+    "data/auto_agents.py",
     "tardis-feedback",
     "tardis-antispy-guard",
     "tardis-tapo-c310-sentinel",
+    "tapo_c310_sentinel.py",
     "tardis_visual_intelligence",
     "chrome-testing",
     "tardis-hunter",
@@ -211,7 +217,14 @@ def _safe_set_ionice(pid: int, ioclass: int, value: int = 0) -> None:
     try:
         import psutil
 
-        psutil.Process(pid).ionice(ioclass, value=value)
+        p = psutil.Process(pid)
+        if ioclass in (
+            getattr(psutil, "IOPRIO_CLASS_NONE", 0),
+            getattr(psutil, "IOPRIO_CLASS_IDLE", 3),
+        ):
+            p.ionice(ioclass)
+        else:
+            p.ionice(ioclass, value=value)
     except Exception:
         pass
 

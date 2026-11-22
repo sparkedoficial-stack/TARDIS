@@ -7,7 +7,7 @@
   "priority_mode": "normal",
   "holders": [],
   "holder_count": 0,
-  "generation": 1,
+  "generation": 0,
   "active_since": null,
   "boosted_pids": [],
   "boosted_processes": 0,
@@ -17,6 +17,6 @@
   "cpu_governor": "powersave",
   "cpu_governor_forced": false,
   "state_file": "/home/m11/Escritorio/GODWORKS SYSTEM/data/telephony/telegram_call_priority.json",
-  "owner_pid": 1613970,
-  "timestamp": REDACTED_PHONE.732325
+  "owner_pid": 1786147,
+  "timestamp": REDACTED_PHONE.8139968
 }

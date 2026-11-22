@@ -206,16 +206,16 @@
     "REDACTED_PHONE": {
       "chat_id": REDACTED_PHONE,
       "user_id": REDACTED_PHONE,
-      "first_name": "Usuario",
+      "first_name": "X",
       "last_name": "",
-      "full_name": "Usuario",
-      "display_name": "Usuario",
+      "full_name": "X",
+      "display_name": "X",
       "username": "asleep01010101",
       "is_bot": false,
       "is_architect": true,
       "first_seen": "2026-09-25T15:13:39.080612",
-      "last_seen": "2026-11-21T14:16:12.292490",
-      "message_count": 324
+      "last_seen": "2026-11-22T00:02:30.686457",
+      "message_count": 326
     },
     "555000111": {
       "chat_id": 555000111,
@@ -228,8 +228,8 @@
       "is_bot": false,
       "is_architect": false,
       "first_seen": "2026-09-26T00:11:24.696485",
-      "last_seen": "2026-11-21T14:12:23.346079",
-      "message_count": 69
+      "last_seen": "2026-11-21T15:33:10.187997",
+      "message_count": 95
     },
     "123456": {
       "chat_id": 123456,
@@ -270,8 +270,8 @@
       "is_bot": false,
       "is_architect": false,
       "first_seen": "2026-09-26T10:55:34.975451",
-      "last_seen": "2026-11-21T14:12:23.322011",
-      "message_count": 9
+      "last_seen": "2026-11-21T15:33:10.172998",
+      "message_count": 13
     },
     "REDACTED_PHONE": {
       "chat_id": REDACTED_PHONE,
@@ -340,8 +340,8 @@
       "is_bot": false,
       "is_architect": false,
       "first_seen": "2026-10-29T10:59:35.799366",
-      "last_seen": "2026-11-21T14:16:11.144570",
-      "message_count": 16
+      "last_seen": "2026-11-21T15:33:13.574401",
+      "message_count": 17
     },
     "111100": {
       "chat_id": 111100,
@@ -354,8 +354,8 @@
       "is_bot": false,
       "is_architect": false,
       "first_seen": "2026-10-29T10:59:36.002696",
-      "last_seen": "2026-11-21T14:16:11.322165",
-      "message_count": 14
+      "last_seen": "2026-11-21T15:33:13.889605",
+      "message_count": 15
     },
     "222200": {
       "chat_id": 222200,
@@ -368,8 +368,8 @@
       "is_bot": false,
       "is_architect": false,
       "first_seen": "2026-10-29T10:59:36.155870",
-      "last_seen": "2026-11-21T14:16:11.599589",
-      "message_count": 14
+      "last_seen": "2026-11-21T15:33:14.052280",
+      "message_count": 15
     },
     "77777": {
       "chat_id": 77777,
@@ -396,8 +396,8 @@
       "is_bot": false,
       "is_architect": false,
       "first_seen": "2026-10-29T10:59:36.414727",
-      "last_seen": "2026-11-21T14:16:11.936032",
-      "message_count": 16
+      "last_seen": "2026-11-21T15:33:14.222356",
+      "message_count": 17
     },
     "54321": {
       "chat_id": 54321,
@@ -424,8 +424,8 @@
       "is_bot": false,
       "is_architect": false,
       "first_seen": "2026-10-29T10:59:36.452345",
-      "last_seen": "2026-11-21T14:16:11.963751",
-      "message_count": 14
+      "last_seen": "2026-11-21T15:33:14.225007",
+      "message_count": 15
     },
     "777333": {
       "chat_id": 777333,
@@ -438,8 +438,8 @@
       "is_bot": false,
       "is_architect": false,
       "first_seen": "2026-10-29T10:59:36.617989",
-      "last_seen": "2026-11-21T14:16:12.204920",
-      "message_count": 15
+      "last_seen": "2026-11-21T15:33:14.397026",
+      "message_count": 16
     },
     "888222": {
       "chat_id": 888222,
@@ -452,8 +452,8 @@
       "is_bot": false,
       "is_architect": false,
       "first_seen": "2026-10-29T10:59:36.831564",
-      "last_seen": "2026-11-21T14:16:12.289587",
-      "message_count": 14
+      "last_seen": "2026-11-21T15:33:14.574910",
+      "message_count": 15
     },
     "999111": {
       "chat_id": 999111,
@@ -466,8 +466,8 @@
       "is_bot": false,
       "is_architect": false,
       "first_seen": "2026-10-29T10:59:41.000002",
-      "last_seen": "2026-11-21T14:12:09.955749",
-      "message_count": 13
+      "last_seen": "2026-11-21T15:33:14.624793",
+      "message_count": 15
     },
     "11223344": {
       "chat_id": 11223344,
@@ -498,5 +498,5 @@
       "message_count": 2
     }
   },
-  "last_updated": "2026-11-21T14:16:12.292549"
+  "last_updated": "2026-11-22T00:02:30.686749"
 }

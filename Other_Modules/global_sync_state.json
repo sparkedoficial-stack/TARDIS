@@ -1,41 +1,7 @@
 {
-  "revision": 2775,
-  "lamport": 2961,
-  "history": [
-    {
-      "id": "msg_1795271769043_1",
-      "role": "user",
-      "content": "Ya tienes conexión?",
-      "timestamp": REDACTED_PHONE.0432353,
-      "iso": "2026-11-21T09:36:09.043247",
-      "lamport": 2959,
-      "meta": "Nodo: Telegram [X] (Conversación Soberana)",
-      "raw_data": {},
-      "client_id": "tg_7153384115"
-    },
-    {
-      "id": "msg_1795274397291_2",
-      "role": "assistant",
-      "content": "Sí, tengo conexión estable. Un placer, soy TARDIS asistente de inteligencia artificial, mi tarea es ayudarte a explorar las maravillas de la realidad y todas las dimensiones temporales. ¿En qué puedo ayudarte hoy?",
-      "timestamp": REDACTED_PHONE.2912447,
-      "iso": "2026-11-21T10:19:57.291254",
-      "lamport": 2960,
-      "meta": "TARDIS-NEURAL-SPACE-KAIJU · Núcleo Soberano",
-      "raw_data": {},
-      "client_id": "tg_7153384115"
-    },
-    {
-      "id": "msg_1795289289185_3",
-      "role": "system",
-      "content": "⚡ [FTL] PLAN COGNITIVO (DEEPSEEK): TARDIS al recibir llamadas por telegrama le dará prioridad al sistema y sus func (RC:0, 2684.2s)",
-      "timestamp": REDACTED_PHONE.185938,
-      "iso": "2026-11-21T14:28:09.185953",
-      "lamport": 2961,
-      "meta": "FTL · DEEPSEEK",
-      "raw_data": {},
-      "client_id": "ftl_sovereign"
-    }
-  ],
+  "revision": 2782,
+  "lamport": 2965,
+  "history": [],
   "config": {
     "model": "TARDIS-NEURAL-SPACE-KAIJU",
     "temperature": 0.3,
@@ -61,14 +27,14 @@
     "lamport": 2958,
     "web_search": true
   },
-  "updated_at": "2026-11-21T14:28:09.185982",
+  "updated_at": "2026-11-21T23:07:43.165217",
   "visual_intelligence": {
     "active": true,
     "pid": 1426,
-    "videos_stored": 1029,
-    "verdicts": 507,
+    "videos_stored": 1033,
+    "verdicts": 523,
     "vlm_model": "qwen3-vl:2b-instruct",
     "last_risk_level": 0,
-    "last_ping": REDACTED_PHONE.5317519
+    "last_ping": REDACTED_PHONE.8754652
   }
 }

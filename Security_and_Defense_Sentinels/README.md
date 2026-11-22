@@ -7,6 +7,7 @@ Bóvedas criptográficas locales, centinelas de ciberdefensa, puentes de kernel 
 - **cyberdefense_sentinel.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
 - **deep_memory_vault.py**: Centinela de seguridad, blindaje perimetral o bóveda segura.
 - **device_vault.py**: Centinela de seguridad, blindaje perimetral o bóveda segura.
+- **ftl_zero_error_shield.py**: Motor de aceleración FTL y computación adaptativa.
 - **ip_vault.py**: Centinela de seguridad, blindaje perimetral o bóveda segura.
 - **network_shield.py**: Centinela de seguridad, blindaje perimetral o bóveda segura.
 - **offline_chat_vault.py**: Centinela de seguridad, blindaje perimetral o bóveda segura.
@@ -21,6 +22,7 @@ Bóvedas criptográficas locales, centinelas de ciberdefensa, puentes de kernel 
 - **test_offline_chat_vault.py**: Centinela de seguridad, blindaje perimetral o bóveda segura.
 - **test_protected_users_security.py**: Componente de alta eficiencia.
 - **test_security.py**: Componente de alta eficiencia.
+- **zero_error_shield.py**: Centinela de seguridad, blindaje perimetral o bóveda segura.
 
 ## Requisitos e Integración
 Los módulos operan bajo el stack soberano de Linux (x86_64), integrando aceleración por GPU y telemetría de bajo nivel.

@@ -1,104 +1,5 @@
 [
   {
-    "id": "conj_1794743110",
-    "timestamp": "2026-11-15T06:45:10.437105",
-    "idle_duration_minutes": 77.2,
-    "title": "Causal Prompt Routing for Adaptive Web Research",
-    "hypothesis": "If the Web Research Engine dynamically routes queries through a causal inference layer that evaluates the temporal relevance and epistemic weight of retrieved sources, then the system will achieve a measurable improvement in answer accuracy and latency, especially under high‑concurrency workloads. The hypothesis posits that integrating a lightweight causal graph that tracks dependencies between prior queries, cached results, and external knowledge graphs can enable the engine to prioritize sources that historically contributed to higher confidence scores, thereby reducing redundant network calls and improving the fidelity of the akáshic vault's memory consolidation.",
-    "research_query": "causal inference based query routing web search engine performance improvement",
-    "research_findings": "# Informe de Investigación: causal inference based query routing web search engine performance improvement\n\n## Fuentes Consultadas y Respaldo Web\n- **[Mosaic effect (Wikipedia)](https://en.wikipedia.org/wiki/Mosaic_effect)**: search of the home under the Fourth Amendment, relying on Carpenter v. United States and the mosaic theory to argue that such data enables inferences\n- **[2023 in science (Wikipedia)](https://en.wikipedia.org/wiki/2023_in_science)**: typical use of popular Web search engines interprets its results to show that choices for unreliable news sources for their queries are driven primarily\n\n## Contenido y Hallazgos Extraídos\n### De [Mosaic effect - Wikipedia](https://en.wikipedia.org/wiki/Mosaic_effect)\n> Mosaic effect - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nDeduction of secret data from public sources\nThe examples and perspectives in this article may not represent a worldwide view of the subject . You may improve this article , discuss the iss",
-    "web_sources": [
-      "https://en.wikipedia.org/wiki/Mosaic_effect",
-      "https://en.wikipedia.org/wiki/2023_in_science"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Implement a causal routing module that scores candidate URLs using a dependency graph of past queries and confidence metrics, then selects the top‑scoring sources before issuing HTTP requests, and cache the causal scores for future reuse.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 2799.09
-  },
-  {
-    "id": "conj_1794747015",
-    "timestamp": "2026-11-15T07:50:15.706727",
-    "idle_duration_minutes": 65.1,
-    "title": "Dynamic Causal Embedding Cache for Web Research Engine",
-    "hypothesis": "Integrar un caché de embeddings causales que capture relaciones temporales entre consultas y resultados dentro de core/web_research_engine.py reducirá la latencia de búsqueda y mejorará la relevancia de los resultados al permitir que el motor reutilice inferencias previas en contextos similares, aprovechando la estructura de causalidad ya presente en core/deep_memory_vault.py.",
-    "research_query": "\"causal embedding cache\" web search engine latency improvement",
-    "research_findings": "# Informe de Investigación: \"causal embedding cache\" web search engine latency improvement\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Implementar una capa de caché que almacene embeddings de consultas y sus respuestas, indexados por un grafo causal derivado de deep_memory_vault, y añadir lógica de recuperación y actualización automática del caché en el flujo de búsqueda.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 2105.26
-  },
-  {
-    "id": "conj_1794751589",
-    "timestamp": "2026-11-15T09:06:29.209715",
-    "idle_duration_minutes": 76.2,
-    "title": "Causal‑Feedback Loop for Adaptive Web Research",
-    "hypothesis": "Integrar un bucle de retroalimentación causal entre el motor de investigación web (core/web_research_engine.py) y la bóveda akáshica (core/deep_memory_vault.py) permitirá que el sistema ajuste dinámicamente sus estrategias de búsqueda basándose en la relevancia histórica de los resultados, mejorando la precisión de la información recuperada en al menos un 30% sin incrementar la latencia promedio.",
-    "research_query": "causal feedback loop adaptive web search engine architecture \"knowledge vault\" \"retrieval relevance\"",
-    "research_findings": "# Informe de Investigación: causal feedback loop adaptive web search engine architecture \"knowledge vault\" \"retrieval relevance\"\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Añadir un módulo de evaluación de relevancia que consulte la Deep Memory Vault después de cada búsqueda, actualice un modelo de pesos causales y re‑priorice los próximos queries en tiempo real.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 2742.37
-  },
-  {
-    "id": "conj_1794755664",
-    "timestamp": "2026-11-15T10:14:24.406545",
-    "idle_duration_minutes": 67.9,
-    "title": "Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "If the Web Research Engine maintains a causal graph of query dependencies and timestamps, then a lightweight, probabilistic cache invalidation mechanism that propagates invalidation signals through this graph can reduce redundant network calls by up to 30% without sacrificing result freshness. The hypothesis leverages the existing deep_memory_vault's temporal indexing to predict when cached snippets become stale based on observed change patterns in source domains.",
-    "research_query": "probabilistic cache invalidation using causal graphs for web scraping APIs",
-    "research_findings": "# Informe de Investigación: probabilistic cache invalidation using causal graphs for web scraping APIs\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal‑graph based cache layer that records each query's source URLs, timestamps, and dependency edges; implement an async invalidation routine that traverses the graph to purge or refresh only the affected cache entries, integrating with deep_memory_vault's time‑series index.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 2243.79
-  },
-  {
-    "id": "conj_1794760746",
-    "timestamp": "2026-11-15T11:39:06.887653",
-    "idle_duration_minutes": 84.7,
-    "title": "Causal Memory Indexing for Real‑Time Web Research",
-    "hypothesis": "Integrating a causal inference layer into the Deep Memory Vault will allow the system to prioritize and retrieve akáshic vault entries that have a provable causal relationship to the current web research query, thereby reducing irrelevant results and improving the precision of the Web Research Engine by at least 20%. The hypothesis posits that a lightweight Bayesian network, dynamically constructed from metadata tags and temporal links stored in core/deep_memory_vault.py, can be evaluated in real time to score candidate vault nodes before they are fed to core/web_research_engine.py.",
-    "research_query": "how to implement real-time causal inference for knowledge graph retrieval using Bayesian networks in Python",
-    "research_findings": "# Informe de Investigación: how to implement real-time causal inference for knowledge graph retrieval using Bayesian networks in Python\n\n## Fuentes Consultadas y Respaldo Web\n- **[Knowledge augmented causal discovery through large language models and knowledge graphs: application in chronic low back pain - medRxiv](https://news.google.com/rss/articles/CBMifEFVX3lxTE5TMVJFZzBDTmM4amxHQ01MemNEblQyejdtY0ZyYlk4NkdzS3dJWGhyTmJZSjRyZGo4ckZYc2M2V3hjbjFpZ2NveTI1RHlJOXM1aUsxWENoeHJjSWF2UkdEMWpyNlRkU1hpamRfeGJ4bmNtV3N1Y2NmM2loWnQ?oc=5)**: Knowledge augmented causal discovery through large language models and knowledge graphs: application in chronic low back pain  medRxiv\n- **[Disaster Storylines and Knowledge Graphs from Global News with Large Language Models and Retrieval-Augmented Generation - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE9IZF9lT3lqaGR4WE9Tb3ZMb0RFQ2hIQUJfWV9yUUFJc0RIc3h2ZnlIaWp2UjQyaFh4T0xhakhMRHB5cnlPZ0NoQS15aGlhbU9hYWF6eUYwZVM3ZEpPQnJF?oc=5)**: Disaster Storyli",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMifEFVX3lxTE5TMVJFZzBDTmM4amxHQ01MemNEblQyejdtY0ZyYlk4NkdzS3dJWGhyTmJZSjRyZGo4ckZYc2M2V3hjbjFpZ2NveTI1RHlJOXM1aUsxWENoeHJjSWF2UkdEMWpyNlRkU1hpamRfeGJ4bmNtV3N1Y2NmM2loWnQ?oc=5",
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE9IZF9lT3lqaGR4WE9Tb3ZMb0RFQ2hIQUJfWV9yUUFJc0RIc3h2ZnlIaWp2UjQyaFh4T0xhakhMRHB5cnlPZ0NoQS15aGlhbU9hYWF6eUYwZVM3ZEpPQnJF?oc=5"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Add a new class `CausalIndexer` that builds a temporary Bayesian network from vault metadata, computes causal relevance scores for stored entries, and exposes a method `rank_candidates(query, candidates)` that the web_research_engine can call to filter and order results.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 3282.46
-  },
-  {
-    "id": "conj_1794765160",
-    "timestamp": "2026-11-15T12:52:40.582645",
-    "idle_duration_minutes": 73.6,
-    "title": "Causal‑Feedback Loop for Adaptive Web Research",
-    "hypothesis": "Integrar un bucle de retroalimentación causal entre el motor de búsqueda web (core/web_research_engine.py) y la bóveda akáshica (core/deep_memory_vault.py) permitirá que el sistema ajuste dinámicamente sus pesos de relevancia en función de la confirmación o refutación de resultados en tiempo real, mejorando la precisión de las inferencias y reduciendo la latencia de convergencia en tareas de investigación compleja.",
-    "research_query": "causal feedback loop adaptive web search engine reinforcement learning academic papers 2023-2024",
-    "research_findings": "# Informe de Investigación: causal feedback loop adaptive web search engine reinforcement learning academic papers 2023-2024\n\n## Fuentes Consultadas y Respaldo Web\n- **[Causal-Paced Deep Reinforcement Learning (arXiv)](http://arxiv.org/abs/2507.02910v1)**: Designing effective task sequences is crucial for curriculum reinforcement learning (CRL), where agents must gradually acquire skills by training on intermediate tasks. A key challenge in CRL is to identify tasks that promote exploration, yet are similar enough to support effective transfer. While recent approach suggests comparing tasks via their \n- **[The Open Ant: A Robot Platform for Reinforcement Learning Research (arXiv)](http://arxiv.org/abs/2607.18488v1)**: Reinforcement learning (RL) research has demonstrated success in both physical and simulated domains; however, the predominant methodology remains rooted in simulations. The predominance of simulations makes translating research to physical reality uncertain for both algor",
-    "web_sources": [
-      "http://arxiv.org/abs/2507.02910v1",
-      "http://arxiv.org/abs/2607.18488v1"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Añadir un módulo de evaluación de resultados que registre métricas de veracidad en la bóveda, y actualizar los rankings de resultados mediante un algoritmo de aprendizaje por refuerzo basado en esas métricas.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 2613.67
-  },
-  {
     "id": "conj_1794769746",
     "timestamp": "2026-11-15T14:09:06.446051",
     "idle_duration_minutes": 76.4,
@@ -1614,5 +1515,109 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 4043.44
+  },
+  {
+    "id": "conj_1795303309",
+    "timestamp": "2026-11-21T18:21:49.421733",
+    "idle_duration_minutes": 166.7,
+    "title": "Temporal Causal Embedding via ChronoVision-DeepMemory Fusion",
+    "hypothesis": "Integrating ChronoVision's time‑aware embeddings with DeepMemory's akáshic vault can enable causal inference across non‑linear event streams, improving prediction of emergent system states.",
+    "research_query": "\"temporal causal embedding\" \"time-aware neural networks\" \"knowledge vault\"",
+    "research_findings": "# Informe de Investigación: \"temporal causal embedding\" \"time-aware neural networks\" \"knowledge vault\"\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/chronovision_engine.py",
+    "code_goal": "Add a hybrid encoder that merges ChronoVision timestamps with DeepMemory vector signatures before feeding into the causal inference module.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 8204.67
+  },
+  {
+    "id": "conj_1795308845",
+    "timestamp": "2026-11-21T19:54:05.030342",
+    "idle_duration_minutes": 92.3,
+    "title": "Temporal Embedding for Causal Retrieval",
+    "hypothesis": "Integrating a temporal embedding layer into the Chronovision Engine will improve causal inference accuracy by preserving event order in vector space.",
+    "research_query": "\"temporal embedding\" \"causal inference\" neural networks time-series",
+    "research_findings": "# Informe de Investigación: \"temporal embedding\" \"causal inference\" neural networks time-series\n\n## Fuentes Consultadas y Respaldo Web\n- **[Predicting player transfer market value with ensemble machine learning models - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE0wdUxQeFNUd25ZaThhc2VqdXk3dWU5T3VOMVVMRHN4RFBpaXI2RzZHbEVpa1FXbnBhdjI4S1l2X0tZTF9wdWRCSi1uZldFWjBlMXBfSGs2anhpWXlaaVBB?oc=5)**: Predicting player transfer market value with ensemble machine learning models  Nature\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMiX0FVX3lxTE0wdUxQeFNUd25ZaThhc2VqdXk3dWU5T3VOMVVMRHN4RFBpaXI2RzZHbEVpa1FXbnBhdjI4S1l2X0tZTF9wdWRCSi1uZldFWjBlMXBfSGs2anhpWXlaaVBB?oc=5)\n",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE0wdUxQeFNUd25ZaThhc2VqdXk3dWU5T3VOMVVMRHN4RFBpaXI2RzZHbEVpa1FXbnBhdjI4S1l2X0tZTF9wdWRCSi1uZldFWjBlMXBfSGs2anhpWXlaaVBB?oc=5"
+    ],
+    "code_target": "core/chronovision_engine.py",
+    "code_goal": "Add a TemporalEmbedding class that encodes timestamps into vectors and combine with existing feature vectors before similarity search",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 3735.57
+  },
+  {
+    "id": "conj_1795313055",
+    "timestamp": "2026-11-21T21:04:15.357283",
+    "idle_duration_minutes": 70.2,
+    "title": "Temporal Embedding Alignment for Causal Retrieval",
+    "hypothesis": "Integrating a temporal embedding layer into the Chronovision Engine will improve causal inference accuracy by aligning web research timestamps with deep memory vault entries.",
+    "research_query": "how to align temporal embeddings across heterogeneous data sources for causal reasoning",
+    "research_findings": "# Informe de Investigación: how to align temporal embeddings across heterogeneous data sources for causal reasoning\n\n## Fuentes Consultadas y Respaldo Web\n- **[Hierarchical semantic extraction and heterogeneous graph neural networks for event-driven time series forecasting - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE1iekdlTVNQY2gwNkhIOGxOSTJKYTE5aUR6Um9uSVpuNlh4VU55WVM1SHRyTGhDVmZzakZ5UHdIaVpkblpudmZpbUc2NEVVU0YtRkFGMzg4QWNTYWQtQW5R?oc=5)**: Hierarchical semantic extraction and heterogeneous graph neural networks for event-driven time series forecasting  Nature\n- **[A causal discovery-based adaptive fusion algorithm for multi-source heterogeneous knowledge graphs - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE8tQkU3N2N2SUlGcmUyeklIVU5GeWlidTZGcTBvU3hNZTBQSGxUUERfbVEydXpwZ2VoQlhrS09WelBTNmdzUWhoSG8zTzVGVGk0Rm85V3VYN3U2Q2RQRnNZ?oc=5)**: A causal discovery-based adaptive fusion algorithm for multi-source heterogeneous knowledge graphs  Nature\n\n## Contenido y",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE1iekdlTVNQY2gwNkhIOGxOSTJKYTE5aUR6Um9uSVpuNlh4VU55WVM1SHRyTGhDVmZzakZ5UHdIaVpkblpudmZpbUc2NEVVU0YtRkFGMzg4QWNTYWQtQW5R?oc=5",
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE8tQkU3N2N2SUlGcmUyeklIVU5GeWlidTZGcTBvU3hNZTBQSGxUUERfbVEydXpwZ2VoQlhrS09WelBTNmdzUWhoSG8zTzVGVGk0Rm85V3VYN3U2Q2RQRnNZ?oc=5"
+    ],
+    "code_target": "core/chronovision_engine.py",
+    "code_goal": "Add a TemporalEmbedding class and modify the retrieval pipeline to fuse timestamps with semantic vectors",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 2410.3
+  },
+  {
+    "id": "conj_1795318405",
+    "timestamp": "2026-11-21T22:33:25.372961",
+    "idle_duration_minutes": 89.2,
+    "title": "Temporal Context Embedding for Causal Retrieval",
+    "hypothesis": "Integrating a lightweight temporal embedding layer into the web_research_engine can improve causal relevance scoring of retrieved documents across time-sensitive queries.",
+    "research_query": "how to implement temporal embeddings for information retrieval causal relevance",
+    "research_findings": "# Informe de Investigación: how to implement temporal embeddings for information retrieval causal relevance\n\n## Fuentes Consultadas y Respaldo Web\n- **[Temporal-spatial reasoning over hypergraph knowledge structures for multimodal retrieval-augmented generation - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE9FQ1pBMEM3QmtmYko2b2ZvbDdDd2gyaElyMDMwM1QweDFzcWJDbE9kbnRrRnN0ZXlNamhaU3RzUmk2eGJJeUFwN1E2RTBlN2taUFNucVFaOUd5NDBDS0Rz?oc=5)**: Temporal-spatial reasoning over hypergraph knowledge structures for multimodal retrieval-augmented generation  Nature\n- **[From Data to Decisions: How Knowledge Graphs Are Becoming the Brain of the Modern Enterprise - Medium](https://news.google.com/rss/articles/CBMi0gFBVV95cUxPVjh5NnNZNnFfZ3UzMEx3U0pqajNDQ19TV0JjRGN5WGhleWxVLW5WMkptR2J6VHpldllqekM2bzJSUFBYWHlwSW1ySUZoZG9fOFZRVGY4NEt6ZVE5YkQ4b0VlRWl1T0Jtd1hlSzNrOGRuTzY1ajU4b1lUY3hVMDBpWUxiZWo5X1VBNDMyQjFMVlFPMU14bm9kUlZCMWVLMTBTRUI0ZTBQRDdpVmJxVlRuZFQwYzNPNGpReVdEMUg3dHVhNWhvQUd6LTdvMWMtZHBSQX",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE9FQ1pBMEM3QmtmYko2b2ZvbDdDd2gyaElyMDMwM1QweDFzcWJDbE9kbnRrRnN0ZXlNamhaU3RzUmk2eGJJeUFwN1E2RTBlN2taUFNucVFaOUd5NDBDS0Rz?oc=5",
+      "https://news.google.com/rss/articles/CBMi0gFBVV95cUxPVjh5NnNZNnFfZ3UzMEx3U0pqajNDQ19TV0JjRGN5WGhleWxVLW5WMkptR2J6VHpldllqekM2bzJSUFBYWHlwSW1ySUZoZG9fOFZRVGY4NEt6ZVE5YkQ4b0VlRWl1T0Jtd1hlSzNrOGRuTzY1ajU4b1lUY3hVMDBpWUxiZWo5X1VBNDMyQjFMVlFPMU14bm9kUlZCMWVLMTBTRUI0ZTBQRDdpVmJxVlRuZFQwYzNPNGpReVdEMUg3dHVhNWhvQUd6LTdvMWMtZHBSQXc?oc=5"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a TemporalEmbedding class and modify the ranking function to combine semantic and temporal similarity scores",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 3549.99
+  },
+  {
+    "id": "conj_1795322527",
+    "timestamp": "2026-11-21T23:42:07.312572",
+    "idle_duration_minutes": 68.7,
+    "title": "Causal Temporal Embedding Improves Web Retrieval Relevance",
+    "hypothesis": "Integrating a causal temporal embedding from chronovision_engine into web_research_engine will prioritize sources that are both recent and causally linked, boosting relevance scores.",
+    "research_query": "causal temporal embedding information retrieval relevance recent sources",
+    "research_findings": "# Informe de Investigación: causal temporal embedding information retrieval relevance recent sources\n\n## Fuentes Consultadas y Respaldo Web\n- **[Temporal-spatial reasoning over hypergraph knowledge structures for multimodal retrieval-augmented generation - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE9FQ1pBMEM3QmtmYko2b2ZvbDdDd2gyaElyMDMwM1QweDFzcWJDbE9kbnRrRnN0ZXlNamhaU3RzUmk2eGJJeUFwN1E2RTBlN2taUFNucVFaOUd5NDBDS0Rz?oc=5)**: Temporal-spatial reasoning over hypergraph knowledge structures for multimodal retrieval-augmented generation  Nature\n- **[Causal-oriented representation learning for time-series forecasting based on the spatiotemporal information transformation | Communications Physics - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTFBld0Z1U0NORkNIbkVreDZ3N3FzTW9XcTNsNUNBX2o0OWJSTlpDWGJaVUJCVFF4MWVBV09FZjRqdmJ4amJuZGw1ZnJKLTRVRXJ1elhKTGJLMndVRUQzd2Zv?oc=5)**: Causal-oriented representation learning for time-series forecasting based on the spatiotemporal ",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE9FQ1pBMEM3QmtmYko2b2ZvbDdDd2gyaElyMDMwM1QweDFzcWJDbE9kbnRrRnN0ZXlNamhaU3RzUmk2eGJJeUFwN1E2RTBlN2taUFNucVFaOUd5NDBDS0Rz?oc=5",
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTFBld0Z1U0NORkNIbkVreDZ3N3FzTW9XcTNsNUNBX2o0OWJSTlpDWGJaVUJCVFF4MWVBV09FZjRqdmJ4amJuZGw1ZnJKLTRVRXJ1elhKTGJLMndVRUQzd2Zv?oc=5"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a preprocessing step that calls chronovision_engine to compute temporal embeddings for each result and modify the ranking function to weight these embeddings.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 2321.91
+  },
+  {
+    "id": "conj_1795324613",
+    "timestamp": "2026-11-22T00:16:53.381104",
+    "idle_duration_minutes": 34.8,
+    "title": "Causal Embedding Alignment for Real‑Time Web Retrieval",
+    "hypothesis": "Integrating a causal attention layer into the web_research_engine will prioritize sources that historically influence downstream decisions, improving relevance under time‑critical queries.",
+    "research_query": "causal attention mechanisms improve real-time web search relevance",
+    "research_findings": "# Informe de Investigación: causal attention mechanisms improve real-time web search relevance\n\n## Fuentes Consultadas y Respaldo Web\n- **[Research on the construction and application of retrieval enhanced generation (RAG) model based on knowledge graph - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE5TR1F3TFUxbXB6eFN4M1hrcXJLWU1yX0w2VzFrOS12bnNhaTRTREVSbUg5aFZlUjh2NmZpVFpkNGt2Y0h4aTZvemRXWUFKdy1NQ1ltRDNWTFBwU1lXOG9Z?oc=5)**: Research on the construction and application of retrieval enhanced generation (RAG) model based on knowledge graph  Nature\n- **[Animal cognition (Wikipedia)](https://en.wikipedia.org/wiki/Animal_cognition)**: that said story reflects the behavior of real-life corvids. Aristotle, in his biology, hypothesized a causal chain where an animal's sense organs transmitted\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMiX0FVX3lxTE5TR1F3TFUxbXB6eFN4M1hrcXJLWU1yX0w2VzFrOS12bnNhaTRTREVSbUg5aFZlUjh2NmZpVFpkNGt2",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE5TR1F3TFUxbXB6eFN4M1hrcXJLWU1yX0w2VzFrOS12bnNhaTRTREVSbUg5aFZlUjh2NmZpVFpkNGt2Y0h4aTZvemRXWUFKdy1NQ1ltRDNWTFBwU1lXOG9Z?oc=5",
+      "https://en.wikipedia.org/wiki/Animal_cognition"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a CausalAttention module and modify the query processing pipeline to weight results by inferred causal impact",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 286.03
   }
 ]

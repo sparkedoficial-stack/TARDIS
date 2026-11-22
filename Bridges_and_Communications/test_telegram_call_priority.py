@@ -9,7 +9,11 @@ from types import SimpleNamespace
 
 import pytest
 
+import core.os_optimizer as _osopt_mod
 import core.telegram_call_priority as tcp
+
+_ORIG_OSOPT_PRIORITIZE = _osopt_mod.OSOptimizer.prioritize_for_telegram_call
+_ORIG_OSOPT_RESTORE = _osopt_mod.OSOptimizer.restore_normal_priority
 from core.telegram_call_priority import (
     TelegramCallPriorityManager,
     activate_call_priority,
@@ -366,6 +370,8 @@ def test_os_optimizer_prioritize_y_restore_son_idempotentes_y_degradan_ionice(mo
     monkeypatch.setattr(os, "setpriority", lambda which, who, val: state_nice.__setitem__("v", val))
     monkeypatch.setattr(psutil, "Process", lambda p=None: fake)
 
+    monkeypatch.setattr(_osopt_mod.OSOptimizer, "prioritize_for_telegram_call", _ORIG_OSOPT_PRIORITIZE)
+    monkeypatch.setattr(_osopt_mod.OSOptimizer, "restore_normal_priority", _ORIG_OSOPT_RESTORE)
     opt = OSOptimizer()
     r1 = opt.prioritize_for_telegram_call()
     r2 = opt.prioritize_for_telegram_call()
