@@ -312,21 +312,63 @@ class TardisMind:
         return None
 
     @classmethod
-    def llm_reply(cls, text: str, timeout: float) -> str:
+    def llm_reply(
+        cls,
+        text: str,
+        timeout: float,
+        teaching: bool = False,
+        context: Optional[Dict[str, Any]] = None,
+        pedagogical_level: Optional[str] = None,
+        dialectic_role: Optional[str] = None,
+        language: Optional[str] = None,
+        history: Optional[List[Dict[str, str]]] = None,
+    ) -> str:
         local = cls.local_reply(text)
         if local is not None:
             if local == "__CLOSE_CHANNEL__":
                 return "__CLOSE_CHANNEL__"
             return local
         token = cls._token()
-        prompt = (
-            f"El Arquitecto te habla por el canal de voz de la cámara C310 (GOD-EYE @ REDACTED_IP): \"{text}\". "
-            "Responde de forma natural, breve (1 o 2 frases claras para ser escuchadas por bocina), "
-            "sin listas, sin markdown, en español de México. Sé directo y útil."
-        )
+        if teaching:
+            # MODO ENSEÑANZA: docente TARDIS con pedagogía, contexto del visitante y tema.
+            topic = teaching_topic(text)
+            visitor_ctx = context or {}
+            interlocutor_name = str(visitor_ctx.get("name") or visitor_ctx.get("interlocutor_name") or "")
+            teaching_prompt = build_teaching_prompt(
+                interlocutor_name=interlocutor_name,
+                context=visitor_ctx,
+                pedagogical_level=pedagogical_level,
+                dialectic_role=dialectic_role,
+                language=language,
+            )
+            prompt = (
+                f"[MODO ENSEÑANZA TARDIS] {teaching_prompt} "
+                f"El interlocutor ({interlocutor_name or 'visitante'}) te solicita: \"{text}\""
+                + (f" (tema: {topic})" if topic else "")
+            )
+            max_reply_chars = 900
+            max_reply_sentences = 6
+            num_predict = 320
+        else:
+            prompt = (
+                f"El Arquitecto te habla por el canal de voz de la cámara C310 (GOD-EYE @ REDACTED_IP): \"{text}\". "
+                "Responde de forma natural, breve (1 o 2 frases claras para ser escuchadas por bocina), "
+                "sin listas, sin markdown, en español de México. Sé directo y útil."
+            )
+            max_reply_chars = 420
+            max_reply_sentences = 3
+            num_predict = 160
         payload = json.dumps({
-            "message": prompt, "client_id": "tardis-voice-c310",
-            "stream": False, "num_predict": 160,
+            "message": prompt,
+            "client_id": "tardis-voice-c310",
+            "history": history or [],
+            "stream": False,
+            "num_predict": num_predict,
+            "pedagogical_level": pedagogical_level,
+            "dialectic_role": dialectic_role,
+            "language": language,
+            "direction": "present",
+            "use_voice": True,
         }).encode("utf-8")
         url = f"{TARDIS_CHAT_URL}?key={token}"
         req = urllib.request.Request(url, data=payload,
@@ -337,7 +379,7 @@ class TardisMind:
                 data = json.loads(resp.read().decode("utf-8"))
                 reply = data.get("reply") or data.get("response") or ""
                 if reply.strip():
-                    return cap_reply(reply, 420, 3)
+                    return cap_reply(reply, max_reply_chars, max_reply_sentences)
         except Exception as e:
             log(f"[LLM] núcleo no respondió: {e}")
         return "Entendido, Arquitecto. Tu consulta está siendo procesada por el núcleo TARDIS. Repítela si lo deseas."
@@ -364,6 +406,19 @@ class TardisVoiceChannelC310:
         self.speaker = SpeakerBox(CONFIG_PATH)
         self.mic = MicCapture()
         self.mind = TardisMind()
+
+        # MODO ENSEÑANZA (conversación interactiva con visitante · GOD-EYE C310).
+        self.teaching_enabled: bool = bool(self.config.get("voice_channel_teaching_enabled", True))
+        self.teaching_mode: bool = False
+        self.teaching_topic: str = ""
+        self.teaching_max_reply_sentences: int = int(
+            self.config.get("voice_channel_teaching_max_reply_sentences", 6) or 6
+        )
+        self.teaching_max_reply_chars: int = int(
+            self.config.get("voice_channel_teaching_max_reply_chars", 900) or 900
+        )
+        self.history: List[Dict[str, str]] = []
+        self.visitor_context: Dict[str, Any] = {}
 
         self.running = False
         self.state = "IDLE"  # IDLE | ACTIVE
@@ -408,6 +463,10 @@ class TardisVoiceChannelC310:
         log(f"[CANAL] ABIERTO - despertar detectado: '{self.wake}' (cerrado automático en {self.followup_sec}s)")
         self._speak_via_camera(GREETING_CORTO)
         self._reset_recognizer()
+        # Nueva sesión conversacional: se limpia la memoria y el modo enseñanza.
+        self.history = []
+        self.teaching_mode = False
+        self.teaching_topic = ""
 
     def _close_channel(self) -> None:
         self.state = "IDLE"
@@ -416,11 +475,20 @@ class TardisVoiceChannelC310:
         log("[CANAL] CERRADO - retorno a espera de despertar")
         self._speak_via_camera(FRASE_CIERRE)
         self._reset_recognizer()
+        self.teaching_mode = False
+        self.teaching_topic = ""
 
     def _handle_turn(self, transcript: str) -> None:
         if not transcript:
             return
         log(f"[USUARIO] {transcript}")
+
+        # MODO ENSEÑANZA: órdenes didácticas («enséname sobre X», «explícame...») activan
+        # la conversación docente de TARDIS con el interlocutor (Arquitecto o visitante).
+        if self.teaching_enabled and is_teaching_intent(transcript):
+            self.teaching_mode = True
+            self.teaching_topic = teaching_topic(transcript)
+            log(f"[ENSEÑANZA] Interlocutor ({self.visitor_context.get('name') or 'visitante'}) pide enseñar: {self.teaching_topic}")
 
         # COMANDO DE VOZ SOBERANO «PROGRAMA»: también desde el micrófono C310
         # de este canal permanente; la orden se despacha a FTL en segundo plano.
@@ -450,17 +518,37 @@ class TardisVoiceChannelC310:
             self._reset_recognizer()
             return
 
-        reply = self.mind.llm_reply(transcript, self.llm_timeout)
+        teaching = self.teaching_mode
+        reply = self.mind.llm_reply(
+            transcript,
+            self.llm_timeout,
+            teaching=teaching,
+            context=self.visitor_context,
+            pedagogical_level=self.cfg.get("pedagogical_level"),
+            dialectic_role=self.cfg.get("dialectic_role"),
+            language=self.cfg.get("language"),
+            history=self.history,
+        )
         if reply == "__CLOSE_CHANNEL__":
+            self.teaching_mode = False
+            self.teaching_topic = ""
             self._close_channel()
             return
-        reply = cap_reply(reply, int(self.cfg["max_reply_chars"]), int(self.cfg["max_reply_sentences"]))
+        reply = cap_reply(
+            reply,
+            int(self.teaching_max_reply_chars if teaching else self.cfg["max_reply_chars"]),
+            int(self.teaching_max_reply_sentences if teaching else self.cfg["max_reply_sentences"]),
+        )
         log(f"[TARDIS] {reply}")
         self._speak_via_camera(reply)
         # Extender ventana de diálogo tras cada respuesta
         self.active_until = time.time() + self.followup_sec
         self.last_speech_ts = time.time()
         self._reset_recognizer()
+        # Memoria conversacional del canal (contexto para interacción compleja).
+        self.history.append({"role": "user", "content": transcript})
+        self.history.append({"role": "assistant", "content": reply})
+        self.history = self.history[-10:]
 
     def run(self) -> int:
         self.running = True

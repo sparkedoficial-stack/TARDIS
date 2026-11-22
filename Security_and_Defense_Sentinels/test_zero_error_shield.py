@@ -39,11 +39,13 @@ from core.tardis_omni_tool_bridge import get_omni_bridge
 
 
 def _load_notify_send_shim():
+    import importlib.machinery
     path = Path("/home/m11/.local/bin/notify-send-shield")
-    spec = importlib.util.spec_from_file_location("notify_send_shield_mod", str(path))
+    loader = importlib.machinery.SourceFileLoader("notify_send_shield_mod", str(path))
+    spec = importlib.util.spec_from_loader("notify_send_shield_mod", loader)
     assert spec and spec.loader
     mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
+    loader.exec_module(mod)
     return mod
 
 

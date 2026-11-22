@@ -2062,9 +2062,12 @@ class ZeroErrorShield:
         ipc_out = ""
         if shutil.which("omarchy-shell"):
             try:
+                shell_env = dict(os.environ)
+                shell_env.setdefault("OMARCHY_PATH", "/usr/share/omarchy")
                 res = subprocess.run(
                     ["omarchy-shell", "notifications", "purgeErrors"],
                     stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=5,
+                    env=shell_env,
                 )
                 ipc_out = (res.stdout or res.stderr or "").strip()
             except Exception:
