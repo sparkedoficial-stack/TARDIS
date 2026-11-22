@@ -32,8 +32,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 VIDEOS_DIR = BASE_DIR / "data" / "telegram_videos"
 ICON_PATH = BASE_DIR / "godworks-icon.png"
 
-FONT_BOLD_PATH = "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf"
-FONT_REGULAR_PATH = "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf"
+FONT_BOLD_PATH = "/usr/share/fonts/noto/NotoSans-Bold.ttf"
+FONT_REGULAR_PATH = "/usr/share/fonts/noto/NotoSans-Regular.ttf"
 
 
 class SpeakingVideoGenerator:
@@ -71,12 +71,20 @@ class SpeakingVideoGenerator:
 
     def _load_font(self, font_path: str, size: int) -> ImageFont.ImageFont:
         try:
-            if os.path.exists(font_path):
+            if font_path and os.path.exists(font_path):
                 return ImageFont.truetype(font_path, size)
         except Exception:
             pass
         try:
-            return ImageFont.load_default()
+            from core.tardis_telemetry_snapshot import resolve_font_path
+            kind = "sans_bold" if "Bold" in str(font_path) else "sans"
+            resolved = resolve_font_path(kind)
+            if resolved:
+                return ImageFont.truetype(resolved, size)
+        except Exception:
+            pass
+        try:
+            return ImageFont.load_default(size=size)
         except Exception:
             return ImageFont.load_default()
 
@@ -85,7 +93,7 @@ class SpeakingVideoGenerator:
         text: str,
         width: int = 480,
         height: int = 480,
-        title: str = "GIA · NODO SOBERANO"
+        title: str = "TARDIS · NODO SOBERANO"
     ) -> Image.Image:
         """Crea una capa transparente con HUD, título y subtítulos formateados."""
         overlay = Image.new("RGBA", (width, height), (0, 0, 0, 0))
@@ -140,7 +148,7 @@ class SpeakingVideoGenerator:
 
         draw.text(
             (sub_box_x0 + 12, cur_y + 2),
-            "TARDIS v26.4 · Inferencia y Síntesis Soberana",
+            "TARDIS · Inferencia y Síntesis Soberana",
             font=font_sub,
             fill=(160, 174, 192, 190)
         )
@@ -472,7 +480,9 @@ class SpeakingVideoGenerator:
         width: int = 3840,
         height: int = 2160,
         fps: int = 60,
-        mode: str = "uhd"
+        mode: str = "uhd",
+        telemetry: Optional[Dict[str, Any]] = None,
+        manifest: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
         Genera el videomensaje del personaje 3D de TARDIS vocalizando el texto.
@@ -569,15 +579,19 @@ class SpeakingVideoGenerator:
             actual_duration = self.get_audio_duration(temp_audio)
             duration = actual_duration if actual_duration > 0.5 else duration
 
-            # 2. Render 3D del personaje y codificacion en paralelo
+            # 2. Captura de telemetría viva de TARDIS + Render 3D con gráficos en paralelo
+            from core.tardis_telemetry_snapshot import collect_tardis_snapshot
             from core.video_pipeline_4k import render_video_4k
 
+            snap = telemetry if isinstance(telemetry, dict) else collect_tardis_snapshot()
+            eff_manifest = manifest if isinstance(manifest, dict) else snap.get("visual_manifest")
+
             if mode == "note":
-                # Las videonotas se recortan en circulo: sin HUD y encuadre cerrado
+                # Las videonotas se recortan en circulo: sin HUD lateral y encuadre cerrado
                 width, height = 1024, 1024
-                hud, char_scale, center, bloom = False, 1.10, (0.5, 0.46), 0.50
+                hud, char_scale, center, bloom = False, 1.02, (0.5, 0.46), 0.48
             else:
-                hud, char_scale, center, bloom = True, 0.86, (0.5, 0.40), 0.55
+                hud, char_scale, center, bloom = True, 0.78, (0.5, 0.42), 0.52
 
             with self._render_lock:
                 r = render_video_4k(
@@ -593,6 +607,8 @@ class SpeakingVideoGenerator:
                     char_scale=char_scale,
                     center=center,
                     bloom=bloom,
+                    telemetry=snap,
+                    manifest=eff_manifest,
                 )
 
             if not r.get("ok"):
@@ -625,6 +641,8 @@ class SpeakingVideoGenerator:
                 "workers": r.get("workers"),
                 "over_limit": r.get("over_limit", False),
                 "mode": mode,
+                "audio_reactive": r.get("audio_reactive", False),
+                "telemetry_summary": r.get("telemetry_summary", {}),
             }
 
         except Exception as e:

@@ -1928,15 +1928,28 @@ class TelegramBridge:
                             return {"ok": True, "type": "video_note", "result": res_send}
                         logger.warning(f"sendVideoNote falló ({res_send}), reintentando como sendVideo...")
 
-                    # Enviar como video regular MP4 con subtítulo
-                    res_txt = f"{v_res.get('width')}x{v_res.get('height')} · {v_res.get('fps')} FPS"
-                    vid_cap = caption or f"🎬 **GIA** · {res_txt}\n\n{text}"
+                    # Enviar como video regular MP4 con subtítulo y telemetría viva de TARDIS
+                    v_w = int(v_res.get("width") or 3840)
+                    v_h = int(v_res.get("height") or 2160)
+                    v_fps = int(v_res.get("fps") or 60)
+                    res_txt = f"{v_w}x{v_h} · {v_fps} FPS"
+                    telem_tag = ""
+                    try:
+                        from core.tardis_telemetry_snapshot import format_caption_telemetry
+                        telem_tag = format_caption_telemetry(v_res.get("telemetry_summary"))
+                    except Exception:
+                        telem_tag = ""
+                    header_meta = f"{res_txt} · {telem_tag}" if telem_tag else res_txt
+                    vid_cap = caption or f"🎬 **TARDIS** · {header_meta}\n\n{text}"
                     res_send = self.send_video(
                         v_res["video_bytes"],
                         caption=vid_cap,
                         chat_id=target_chat,
                         reply_to_message_id=reply_to_message_id,
-                        duration=dur
+                        duration=dur,
+                        width=v_w,
+                        height=v_h,
+                        supports_streaming=True,
                     )
                     return {"ok": True, "type": "video", "result": res_send}
 

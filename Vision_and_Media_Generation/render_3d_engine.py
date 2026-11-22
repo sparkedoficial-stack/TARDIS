@@ -801,6 +801,9 @@ class Render3DEngine:
             font_body = None
             font_small = None
             for p_bold in [
+                "/usr/share/fonts/TTF/JetBrainsMonoNerdFont-Bold.ttf",
+                "/usr/share/fonts/noto/NotoSans-Bold.ttf",
+                "/usr/share/fonts/liberation/LiberationSans-Bold.ttf",
                 "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
                 "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
                 "/usr/share/fonts/truetype/freefont/FreeSansBold.ttf"
@@ -813,6 +816,9 @@ class Render3DEngine:
                         pass
 
             for p_reg in [
+                "/usr/share/fonts/TTF/JetBrainsMonoNerdFont-Regular.ttf",
+                "/usr/share/fonts/noto/NotoSans-Regular.ttf",
+                "/usr/share/fonts/liberation/LiberationSans-Regular.ttf",
                 "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
                 "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
                 "/usr/share/fonts/truetype/freefont/FreeSans.ttf"
@@ -851,8 +857,16 @@ class Render3DEngine:
             if mesh.formula:
                 draw.text((x_text, y_formula), f"Fórmula: {mesh.formula}", fill=(240, 195, 85, 240), font=font_body)
 
-            # Pie de imagen
-            draw.text((x_text, y_footer), f"TARDIS · Sistema de Vigilancia y Control Temporal · Inferencia 3D Render Engine · {width}x{height} HD", fill=(0, 212, 200, 180), font=font_small)
+            # Pie de imagen con telemetría viva de TARDIS en caché
+            telem_suffix = ""
+            try:
+                from core.tardis_telemetry_snapshot import collect_tardis_snapshot, format_caption_telemetry, summarize_snapshot
+                _t_str = format_caption_telemetry(summarize_snapshot(collect_tardis_snapshot(use_cache_sec=8.0)))
+                if _t_str:
+                    telem_suffix = f" · {_t_str}"
+            except Exception:
+                telem_suffix = ""
+            draw.text((x_text, y_footer), f"TARDIS · Sistema de Vigilancia y Control Temporal · {width}x{height} HD{telem_suffix}", fill=(0, 212, 200, 185), font=font_small)
             angle_str = f"Ángulo: P:{pitch_deg:.0f}° Y:{yaw_deg:.0f}°"
             angle_x = max(x_text + int(300 * ui_scale), width - int(240 * ui_scale))
             draw.text((angle_x, y_footer), angle_str, fill=(160, 190, 210, 190), font=font_small)

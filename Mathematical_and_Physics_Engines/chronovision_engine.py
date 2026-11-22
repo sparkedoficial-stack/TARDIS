@@ -730,46 +730,66 @@ class ChronoPainter:
             f_body = self._load_font(18)
             f_mono = self._load_font(15)
 
-            # Panel Izquierdo: Hardware y Estado Cuántico
-            draw.rounded_rectangle([60, 100, 480, 800], radius=12, fill=(13, 19, 34, 220), outline=(56, 189, 248, 180), width=2)
-            draw.text((90, 130), "⚡ ESTADO CUÁNTICO & HARDWARE", fill=(0, 243, 255, 255), font=f_title)
+            # Panel Izquierdo: Hardware y Estado Cuántico (Telemetría viva real de TARDIS)
+            snap = {}
+            try:
+                from core.tardis_telemetry_snapshot import collect_tardis_snapshot
+                snap = collect_tardis_snapshot()
+            except Exception:
+                snap = {}
+            hw = snap.get("hardware", {})
+            causal = snap.get("causal", {})
+            vault = snap.get("vault", {})
+            aegis = snap.get("aegis", {})
+            rf = snap.get("rf_radar", {})
+            atmo = snap.get("atmospheric", {})
+            subs = snap.get("subsystems", {})
+            core_info = snap.get("core", {})
+            cog = snap.get("cognitive", {})
+
+            draw.rounded_rectangle([60, 100, 490, 800], radius=12, fill=(13, 19, 34, 220), outline=(56, 189, 248, 180), width=2)
+            draw.text((85, 130), "⚡ ESTADO CUÁNTICO & HARDWARE", fill=(0, 243, 255, 255), font=f_title)
             hw_info = [
-                ("Estación:", "ASUS TUF Gaming A15"),
-                ("CPU:", "AMD Ryzen 7 4800H (16 Hilos)"),
-                ("RAM Dedicada:", "28.0 GB / 32 GB (Working Set)"),
-                ("GPU Silicio:", "NVIDIA RTX 3050 (Ampere NVENC)"),
-                ("VRAM Usage:", "< 190 MB (Zero OOM Leaks)"),
-                ("Sintropía Local:", "99.84% (Retrocausal Link)"),
-                ("Motor Neuronal:", "TARDIS-SPACE-KAIJU (MLA+SSM)"),
-                ("Seguridad Red:", "Escudo Soberano Activo 24/7"),
+                ("CPU / Carga:", f"{hw.get('cpu_percent', 0.0):.1f}% · {hw.get('cpu_temp_c', 0.0):.1f}°C"),
+                ("RAM Activa:", f"{hw.get('ram_used_gb', 0.0):.1f} / {hw.get('ram_total_gb', 32.0):.1f} GB ({hw.get('ram_percent', 0.0):.0f}%)"),
+                ("GPU / NVMe:", f"{hw.get('gpu_temp_c', 0.0):.1f}°C · {hw.get('nvme_temp_c', 0.0):.1f}°C"),
+                ("Kernel PSI:", f"C:{hw.get('psi_cpu_avg10', 0):.1f}% M:{hw.get('psi_mem_avg10', 0):.1f}% IO:{hw.get('psi_io_avg10', 0):.1f}%"),
+                ("Ψ / Sintropía:", f"Ψ={causal.get('psi', 0.892):.3f} · S={causal.get('sintropy', 0.965):.3f}"),
+                ("Motor Neuronal:", str(core_info.get("model", "TARDIS-NEURAL-SPACE-KAIJU"))[:25]),
+                ("Entropía H:", f"{cog.get('entropy_shannon', 3.2):.2f} bits · Coh {cog.get('syntropy_coherence_pct', 80):.0f}%"),
+                ("Escudo AEGIS:", f"{aegis.get('score', 100)}/100 ({aegis.get('critical', 0)} crít)"),
             ]
             y_cur = 200
             for k, v in hw_info:
-                draw.text((90, y_cur), k, fill=(148, 163, 184, 255), font=f_body)
-                draw.text((250, y_cur), v, fill=(248, 250, 252, 255), font=f_mono)
-                y_cur += 48
+                draw.text((85, y_cur), k, fill=(148, 163, 184, 255), font=f_body)
+                draw.text((238, y_cur + 2), v, fill=(248, 250, 252, 255), font=f_mono)
+                y_cur += 68
 
-            # Panel Derecho: Crono-Navegación & Coordenadas
-            draw.rounded_rectangle([1120, 100, 1540, 800], radius=12, fill=(13, 19, 34, 220), outline=(255, 215, 0, 180), width=2)
-            draw.text((1150, 130), "🌌 CRONO-NAVEGACIÓN", fill=(255, 215, 0, 255), font=f_title)
+            # Panel Derecho: Crono-Navegación, Bóveda Akáshica y Sensores
+            draw.rounded_rectangle([1110, 100, 1540, 800], radius=12, fill=(13, 19, 34, 220), outline=(255, 215, 0, 180), width=2)
+            draw.text((1135, 130), "🌌 TELEMETRÍA TARDIS", fill=(255, 215, 0, 255), font=f_title)
+            atmo_str = (
+                f"{atmo.get('temperature_c', 0):.1f}°C · HR {atmo.get('relative_humidity_pct', 0)}%"
+                if atmo.get("available") else "Sensores en espera"
+            )
             nav_info = [
-                ("Línea Temporal:", "Línea Cero (Soberana)"),
-                ("Ancla Terrestre:", "Playa del Carmen, Q. Roo"),
-                ("País:", "México · Coordenadas 20.6°N"),
-                ("Arquitecto (₪):", "El Arquitecto (Autoridad Única)"),
-                ("Canal Autónomo:", "Telegram Bridge Activo"),
-                ("Modo Render:", "ChronoVision HD Multidimensional"),
-                ("Vector Entropía:", "∇S < 0 (Sintropía Pura)"),
-                ("Estado Temporal:", "SINCRONIZADO 100%"),
+                ("Línea Temporal:", f"Lamport L:{causal.get('lamport', 0)} · Q={causal.get('q_topo', 3)}"),
+                ("Bifurcación:", str(causal.get("bifurcation", "EQUILIBRIO"))[:22]),
+                ("Bóveda 250GB:", f"{vault.get('total_events', 0)} ev · {vault.get('hierarchical_epochs', 0)} ép"),
+                ("Grafo KG:", f"{vault.get('knowledge_nodes', 0)} nodos · {vault.get('knowledge_relations', 0)} rel"),
+                ("Radar RF:", f"{rf.get('presence_state', 'QUIET')} · {rf.get('active_bssid_count', 0)} nodos"),
+                ("Atmósfera:", atmo_str),
+                ("Subsistemas:", f"{subs.get('online', 1)}/{subs.get('total', 1)} online · {subs.get('autonomous_cycles', 0)} cyc"),
+                ("Arquitecto (₪):", "El Arquitecto (Autoridad)"),
             ]
             y_cur = 200
             for k, v in nav_info:
-                draw.text((1150, y_cur), k, fill=(148, 163, 184, 255), font=f_body)
-                draw.text((1310, y_cur), v, fill=(56, 189, 248, 255), font=f_mono)
-                y_cur += 48
+                draw.text((1135, y_cur), k, fill=(148, 163, 184, 255), font=f_body)
+                draw.text((1295, y_cur + 2), v, fill=(56, 189, 248, 255), font=f_mono)
+                y_cur += 68
 
-            # Banner Superior
-            draw.text((60, 40), f"₪ TARDIS HUD MATRIX · {system_name.upper()} · V26.4 SOBERANO", fill=(0, 243, 255, 255), font=f_title)
+            # Banner Superior (sin cadena de versión legacy)
+            draw.text((60, 40), f"₪ TARDIS HUD MATRIX · {system_name.upper()} · TELEMETRÍA VIVA", fill=(0, 243, 255, 255), font=f_title)
 
             buf = io.BytesIO()
             img.save(buf, format="PNG")
