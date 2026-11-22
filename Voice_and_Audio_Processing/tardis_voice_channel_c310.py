@@ -32,7 +32,7 @@ import time
 import urllib.error
 import urllib.request
 from pathlib import Path
-from typing import Optional
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 
@@ -44,6 +44,7 @@ if str(BASE_DIR) not in sys.path:
 
 from core.tapo_c310_speaker import TapoC310Speaker  # noqa: E402
 from core.tardis_voice_program import get_voice_program_router  # noqa: E402
+from core.tardis_teaching import build_teaching_prompt, is_teaching_intent, teaching_topic  # noqa: E402
 
 # -----------------------------------------------------------------------------
 # Rutas y configuración

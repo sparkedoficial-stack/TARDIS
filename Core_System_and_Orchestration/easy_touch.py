@@ -1045,6 +1045,19 @@ class EasyTouchEngine:
         }
         if hasattr(self, "agent") and self.agent:
             st["agent"] = self.agent.get_status()
+        try:
+            shield_state_path = CONFIG_DIR / "zero_error_shield_state.json"
+            if shield_state_path.exists():
+                ss = json.loads(shield_state_path.read_text(encoding="utf-8"))
+                st["zero_error_shield"] = {
+                    "mode": ss.get("mode"),
+                    "daemon_running": ss.get("daemon_running"),
+                    "suppressed_before_display": (ss.get("metrics") or {}).get("total_suppressed_before_display", 0),
+                    "preemptive_detections": (ss.get("metrics") or {}).get("total_preemptive_detections", 0),
+                    "total_repaired": (ss.get("metrics") or {}).get("total_repaired", 0),
+                }
+        except Exception:
+            pass
         return st
 
 

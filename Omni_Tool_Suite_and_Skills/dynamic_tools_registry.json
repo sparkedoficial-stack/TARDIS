@@ -373,5 +373,25 @@
       "resume"
     ],
     "status": "ACTIVE_SOVEREIGN"
+  },
+  "omni_tool_zero_error_shield": {
+    "name": "omni_tool_zero_error_shield",
+    "tool_id": "zero_error_shield",
+    "title": "FTL × Easy Touch Zero-Error Preemptive Shield",
+    "domain": "zero_error_preemptive_shield",
+    "description": "Intercepta toda notificación de error antes de aparecer en pantalla (Omarchy Shell + notify-send shim) y repara proactivamente cualquier fallo del sistema (Kernel Ring 0, Systemd, Coredump, Journald, DNS, Disco, Audio, Permisos, Locks, LLMs) vía FTL y Easy Touch.",
+    "actions": [
+      "status",
+      "precheck",
+      "heal",
+      "intercept",
+      "classify",
+      "history",
+      "rules",
+      "mode",
+      "purge",
+      "daemon_status"
+    ],
+    "status": "ACTIVE_SOVEREIGN"
   }
 }
