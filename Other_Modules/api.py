@@ -7219,6 +7219,84 @@ if __name__ == "__main__":
         from core.gods_eye_realtime import get_gods_eye_realtime
         return {"ok": False, "error": "seguimiento de personas eliminado: el motor sólo sigue movimiento dentro de cada cámara"}
 
+    # ── TARDIS Visual Self-Expression Manifest & 1–500 Hz Adaptive GPU Bridge ──
+    @app.get("/api/visual/manifest")
+    async def api_visual_manifest_get():
+        try:
+            from core.tardis_visual_manifest import get_visual_manifest, compute_layer_mask
+            mf = get_visual_manifest()
+            return {"ok": True, "manifest": mf, "layer_mask": compute_layer_mask(mf.get("layers", {}))}
+        except Exception as e:
+            return JSONResponse(status_code=500, content={"ok": False, "error": str(e)})
+
+    @app.post("/api/visual/manifest")
+    async def api_visual_manifest_post(payload: Optional[Dict[str, Any]] = None):
+        try:
+            from core.tardis_visual_manifest import update_visual_manifest, compute_layer_mask
+            patch = payload if isinstance(payload, dict) else {}
+            mf = await asyncio.to_thread(update_visual_manifest, patch)
+            def _notify_desktop(data: Dict[str, Any]) -> None:
+                try:
+                    import urllib.request as _ur
+                    req = _ur.Request(
+                        "http://127.0.0.1:8798/visual",
+                        data=json.dumps(data).encode("utf-8"),
+                        headers={"Content-Type": "application/json"},
+                        method="POST",
+                    )
+                    with _ur.urlopen(req, timeout=0.6):
+                        pass
+                except Exception:
+                    pass
+            await asyncio.to_thread(_notify_desktop, mf)
+            return {"ok": True, "manifest": mf, "layer_mask": compute_layer_mask(mf.get("layers", {}))}
+        except Exception as e:
+            return JSONResponse(status_code=500, content={"ok": False, "error": str(e)})
+
+    @app.post("/api/visual/self_express")
+    async def api_visual_self_express(payload: Optional[Dict[str, Any]] = None):
+        try:
+            from core.tardis_visual_manifest import self_express_from_telemetry, compute_layer_mask
+            body = payload if isinstance(payload, dict) else {}
+            telemetry = body.get("telemetry") if isinstance(body.get("telemetry"), dict) else {}
+            context = str(body.get("context") or body.get("prompt_context") or "")
+            use_llm = bool(body.get("use_llm", False))
+            if "cpu_percent" not in telemetry:
+                try:
+                    import psutil as _ps
+                    telemetry["cpu_percent"] = float(_ps.cpu_percent(interval=None))
+                except Exception:
+                    pass
+            llm_cb = None
+            if use_llm:
+                def _ask_tardis_llm(prompt: str) -> str:
+                    try:
+                        import urllib.request as _ur
+                        req = _ur.Request(
+                            "http://127.0.0.1:8757/api/chat",
+                            data=json.dumps({"message": prompt, "stream": False}).encode("utf-8"),
+                            headers={
+                                "Content-Type": "application/json",
+                                "X-GIA-Key": os.environ.get("GIA_TOKEN", ""),
+                            },
+                            method="POST",
+                        )
+                        with _ur.urlopen(req, timeout=18.0) as resp:
+                            res = json.loads(resp.read().decode("utf-8", errors="ignore"))
+                            return str(res.get("reply") or res.get("response") or "")
+                    except Exception:
+                        return ""
+                llm_cb = _ask_tardis_llm
+            mf = await asyncio.to_thread(
+                self_express_from_telemetry,
+                telemetry,
+                context,
+                llm_cb,
+            )
+            return {"ok": True, "manifest": mf, "layer_mask": compute_layer_mask(mf.get("layers", {}))}
+        except Exception as e:
+            return JSONResponse(status_code=500, content={"ok": False, "error": str(e)})
+
     return app
 
 app = create_app()

@@ -7520,6 +7520,20 @@ iframe{{border:none;width:100%;height:100%;}}</style></head>
                 self.send_json({"ok": False, "error": "Motor 3D no inicializado"}, status=503)
             return
 
+        # Endpoints Manifiesto Visual GPU 1-500Hz & Auto-Expresión TARDIS (GET)
+        elif url_path == "/api/visual/manifest":
+            try:
+                from core.tardis_visual_manifest import get_visual_manifest, compute_layer_mask
+                mf = get_visual_manifest()
+                self.send_json({
+                    "ok": True,
+                    "manifest": mf,
+                    "layer_mask": compute_layer_mask(mf.get("layers", {})),
+                })
+            except Exception as e_vis:
+                self.send_json({"ok": False, "error": str(e_vis)}, status=500)
+            return
+
         # Endpoints Ojo de Dios (God's Eye) - GET
         elif url_path == "/api/gods_eye/status":
             try:
@@ -8108,6 +8122,62 @@ iframe{{border:none;width:100%;height:100%;}}</style></head>
             )
             SYNC_HUB.touch_client(client_id)
             self.send_json({"ok": True, "node": node_data})
+            return
+
+        # 2.0 Manifiesto Visual GPU 1-500Hz & Auto-Expresión Viva de TARDIS (POST)
+        elif url_path == "/api/visual/manifest":
+            try:
+                from core.tardis_visual_manifest import update_visual_manifest, compute_layer_mask
+                mf = update_visual_manifest(body if isinstance(body, dict) else {})
+                self.send_json({
+                    "ok": True,
+                    "manifest": mf,
+                    "layer_mask": compute_layer_mask(mf.get("layers", {})),
+                })
+            except Exception as e_vis_post:
+                self.send_json({"ok": False, "error": str(e_vis_post)}, status=500)
+            return
+
+        elif url_path == "/api/visual/self_express":
+            try:
+                from core.tardis_visual_manifest import self_express_from_telemetry, compute_layer_mask
+                import psutil as _ps_vis
+                causal_now = SYNC_HUB.causal if hasattr(SYNC_HUB, "causal") else {}
+                aegis_score = 100.0
+                try:
+                    if HAS_SHIELD and SHIELD:
+                        aegis_score = float(SHIELD.get_status().get("score", 100.0))
+                except Exception:
+                    pass
+                telemetry = {
+                    "psi": float(causal_now.get("psi", 0.892)),
+                    "sintropy": float(causal_now.get("sintropy", 0.965)),
+                    "cpu_percent": float(_ps_vis.cpu_percent(interval=None)),
+                    "aegis_score": aegis_score,
+                    "entropy": 3.2,
+                    "music_playing": False,
+                }
+                use_llm = bool(body.get("use_llm", True))
+                prompt_ctx = str(body.get("context", "") or "")
+                llm_fn = None
+                if use_llm and hasattr(engine, "chat"):
+                    def _llm_cb(q_text):
+                        try:
+                            res = engine.chat(q_text, temperature=0.65, use_web=False)
+                            if isinstance(res, dict):
+                                return res.get("reply") or res.get("response") or ""
+                            return str(res or "")
+                        except Exception:
+                            return ""
+                    llm_fn = _llm_cb
+                mf = self_express_from_telemetry(telemetry=telemetry, prompt_context=prompt_ctx, llm_callback=llm_fn)
+                self.send_json({
+                    "ok": True,
+                    "manifest": mf,
+                    "layer_mask": compute_layer_mask(mf.get("layers", {})),
+                })
+            except Exception as e_vis_exp:
+                self.send_json({"ok": False, "error": str(e_vis_exp)}, status=500)
             return
 
         # 2. Control del Puente de Internet

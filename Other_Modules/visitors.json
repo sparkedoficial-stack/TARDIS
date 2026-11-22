@@ -2,11 +2,11 @@
   "visitante": {
     "key": "visitante",
     "name": "Visitante",
-    "visit_count": 4,
+    "visit_count": 6,
     "first_seen": REDACTED_PHONE.3224897,
     "first_seen_iso": "2026-11-22T01:27:52-0500",
-    "last_seen": REDACTED_PHONE.0133054,
-    "last_seen_iso": "2026-11-22T01:31:55-0500",
+    "last_seen": REDACTED_PHONE.0433142,
+    "last_seen_iso": "2026-11-22T01:33:18-0500",
     "pedagogical_level": "intermedio",
     "interests": [
       "geologia",

@@ -1,41 +1,78 @@
 """
 core/character_3d_renderer.py - Motor de Render 3D del Personaje TARDIS
 =======================================================================
-GODWORKS SYSTEM v26.4
-
 Rasterizador 3D por software (NumPy + OpenCV) que genera el avatar soberano
-de TARDIS como geometria tridimensional real:
+de TARDIS impulsado por su Manifiesto Visual Vivo y telemetría en tiempo real:
 
-  * Mallas procedurales (icoesfera, toroide, cilindro, casquete esferico).
-  * Pipeline modelo -> mundo -> vista -> proyeccion en perspectiva.
-  * Descarte de caras traseras + ordenamiento por profundidad (painter).
-  * Sombreado Blinn-Phong: luz clave, relleno, contraluz y emision.
-  * Post-proceso: bloom, vineteado, aberracion cromatica y grano.
-
-Disenado para 3840x2160 @ 60 FPS. El rasterizado usa cv2.fillConvexPoly
-(C++) por triangulo, con transformaciones e iluminacion vectorizadas.
+  * Paleta y capas dinámicas desde ~/.config/TARDIS/visual_manifest.json.
+  * Entidades 3D soberanas de TARDIS:
+      - Avatar Triangular GEÓN (chasis biselado, cristal abisal, ojo cibernético
+        con mirada viva, párpado, mandíbula articulada y 7 barras vocales).
+      - Centro de Tiempo Cristalino 3D (timeCore iridiscente cobalto).
+      - Campo Octaédrico Temporal-Espacial 3D (octahedronField verde neón).
+      - Escudo Geodésico AEGIS-Ω 3D (aegisShield hexagonal reactivo al score).
+      - Rueda de Memoria Akáshica 3D (astrolabio dorado + giroscopio interior).
+      - Arco Térmico de Kernel 3D (thermalAura crio-azul -> carmesí según °C).
+      - Solitones Topológicos 3D (solitons acoplados a Q_topo) y enjambre orbital.
+  * Fondo procedural 1/4-res vectorizado (nebulosa planetaria entrópica, nube de
+    pensamiento latente, cono retrocausal Ψ, pulsos sintrópicos y ondas armónicas).
+  * Pipeline modelo -> mundo -> vista -> proyección en perspectiva + Blinn-Phong
+    vectorizado + post-proceso uint8 (bloom saturante) optimizado para 4K @ 60 FPS.
 """
 
 from __future__ import annotations
 
+import json
 import math
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple
 
 import cv2
 import numpy as np
 
 # --------------------------------------------------------------------------
-# Paleta soberana (identica a la plataforma local)
+# Paleta soberana por defecto (respaldo si no hay visual_manifest)
 # --------------------------------------------------------------------------
 COL_TEAL = np.array([0, 212, 200], dtype=np.float32)
 COL_GOLD = np.array([232, 182, 74], dtype=np.float32)
 COL_AMBER = np.array([245, 158, 11], dtype=np.float32)
+COL_TIME_CORE = np.array([37, 99, 235], dtype=np.float32)
+COL_FIELD = np.array([0, 255, 136], dtype=np.float32)
+COL_AEGIS = np.array([96, 165, 250], dtype=np.float32)
+COL_THOUGHT = np.array([168, 85, 247], dtype=np.float32)
 COL_HULL = np.array([46, 74, 96], dtype=np.float32)
 COL_HULL_DARK = np.array([24, 44, 60], dtype=np.float32)
 COL_GLASS = np.array([10, 48, 62], dtype=np.float32)
-COL_BG_TOP = np.array([2, 6, 12], dtype=np.float32)
-COL_BG_BOT = np.array([1, 3, 7], dtype=np.float32)
+COL_BG_TOP = np.array([4, 9, 17], dtype=np.float32)
+COL_BG_BOT = np.array([2, 5, 11], dtype=np.float32)
+
+
+def _hex_to_vec(value: Any, fallback: np.ndarray) -> np.ndarray:
+    if isinstance(value, str):
+        s = value.strip().lstrip("#")
+        if len(s) == 6:
+            try:
+                return np.array(
+                    [int(s[0:2], 16), int(s[2:4], 16), int(s[4:6], 16)],
+                    dtype=np.float32,
+                )
+            except ValueError:
+                pass
+    return fallback.copy()
+
+
+def _thermal_color(norm: float) -> np.ndarray:
+    """Gradiente térmico del kernel: crio-azul -> cian -> ámbar -> carmesí."""
+    n = max(0.0, min(1.0, float(norm)))
+    c_cold = np.array([46, 158, 255], dtype=np.float32)
+    c_mid = np.array([0, 224, 194], dtype=np.float32)
+    c_warm = np.array([245, 173, 41], dtype=np.float32)
+    c_hot = np.array([255, 51, 92], dtype=np.float32)
+    if n < 0.4:
+        return c_cold + (c_mid - c_cold) * (n / 0.4)
+    if n < 0.75:
+        return c_mid + (c_warm - c_mid) * ((n - 0.4) / 0.35)
+    return c_warm + (c_hot - c_warm) * ((n - 0.75) / 0.25)
 
 
 @dataclass
@@ -366,18 +403,97 @@ def transform_points(mat: np.ndarray, pts: np.ndarray) -> np.ndarray:
 # Motor de render del personaje
 # --------------------------------------------------------------------------
 class Character3DRenderer:
-    """Avatar 3D Soberano de TARDIS: Personaje Triangular idéntico al nodo local."""
+    """Avatar 3D Soberano de TARDIS: GEÓN + Manifiesto Visual + Telemetría Viva."""
 
     _instance: Optional["Character3DRenderer"] = None
+    _instance_sig: str = ""
 
     @classmethod
-    def get_instance(cls, quality: str = "high") -> "Character3DRenderer":
-        if cls._instance is None or cls._instance.quality != quality:
-            cls._instance = cls(quality=quality)
+    def get_instance(
+        cls,
+        quality: str = "high",
+        manifest: Optional[Dict[str, Any]] = None,
+        telemetry: Optional[Dict[str, Any]] = None,
+    ) -> "Character3DRenderer":
+        sig = json.dumps(
+            {
+                "q": quality,
+                "p": (manifest or {}).get("palette", {}),
+                "l": (manifest or {}).get("layers", {}),
+                "e": (manifest or {}).get("energy_intensity", 1.0),
+                "ae": (telemetry or {}).get("aegis", {}).get("score", 100),
+                "tp": round(float((telemetry or {}).get("hardware", {}).get("cpu_temp_c", 55.0)), 0),
+                "qt": int((telemetry or {}).get("causal", {}).get("q_topo", 3)),
+            },
+            sort_keys=True,
+        )
+        if cls._instance is None or cls._instance_sig != sig:
+            cls._instance = cls(quality=quality, manifest=manifest, telemetry=telemetry)
+            cls._instance_sig = sig
         return cls._instance
 
-    def __init__(self, quality: str = "high"):
+    def __init__(
+        self,
+        quality: str = "high",
+        manifest: Optional[Dict[str, Any]] = None,
+        telemetry: Optional[Dict[str, Any]] = None,
+    ):
         self.quality = quality
+        self.manifest = manifest or (telemetry.get("visual_manifest") if isinstance(telemetry, dict) else None) or {}
+        self.telemetry = telemetry or {}
+
+        # Paleta viva desde visual_manifest.json
+        pal = self.manifest.get("palette") if isinstance(self.manifest.get("palette"), dict) else {}
+        self.col_primary = _hex_to_vec(pal.get("primary"), COL_TEAL)
+        self.col_secondary = _hex_to_vec(pal.get("secondary"), COL_GOLD)
+        self.col_time_core = _hex_to_vec(pal.get("time_core"), COL_TIME_CORE)
+        self.col_field = _hex_to_vec(pal.get("field"), COL_FIELD)
+        self.col_aegis_base = _hex_to_vec(pal.get("aegis"), COL_AEGIS)
+        self.col_thought = _hex_to_vec(pal.get("thought"), COL_THOUGHT)
+        self.energy_intensity = max(0.55, min(1.65, float(self.manifest.get("energy_intensity", 1.15))))
+
+        raw_layers = self.manifest.get("layers") if isinstance(self.manifest.get("layers"), dict) else {}
+        self.layers: Dict[str, bool] = {
+            "timeCore": bool(raw_layers.get("timeCore", True)),
+            "octahedronField": bool(raw_layers.get("octahedronField", True)),
+            "fluxCurves": bool(raw_layers.get("fluxCurves", True)),
+            "latentCloud": bool(raw_layers.get("latentCloud", True)),
+            "akashicWheel": bool(raw_layers.get("akashicWheel", True)),
+            "syntropicPulse": bool(raw_layers.get("syntropicPulse", True)),
+            "tokenFlow": bool(raw_layers.get("tokenFlow", True)),
+            "aegisShield": bool(raw_layers.get("aegisShield", True)),
+            "musicWaves": bool(raw_layers.get("musicWaves", True)),
+            "thermalAura": bool(raw_layers.get("thermalAura", True)),
+            "nebulaDust": bool(raw_layers.get("nebulaDust", True)),
+            "retrocausalCone": bool(raw_layers.get("retrocausalCone", True)),
+            "oscilloscope": bool(raw_layers.get("oscilloscope", True)),
+            "solitons": bool(raw_layers.get("solitons", True)),
+        }
+
+        # Parámetros físicos/causales extraídos de telemetría viva de TARDIS
+        causal = self.telemetry.get("causal", {}) if isinstance(self.telemetry.get("causal"), dict) else {}
+        cog = self.telemetry.get("cognitive", {}) if isinstance(self.telemetry.get("cognitive"), dict) else {}
+        hw = self.telemetry.get("hardware", {}) if isinstance(self.telemetry.get("hardware"), dict) else {}
+        aegis = self.telemetry.get("aegis", {}) if isinstance(self.telemetry.get("aegis"), dict) else {}
+        music = self.telemetry.get("music", {}) if isinstance(self.telemetry.get("music"), dict) else {}
+
+        self.psi = max(0.15, min(1.5, float(causal.get("psi", 0.892))))
+        self.sintropy = max(0.15, min(1.5, float(causal.get("sintropy", 0.965))))
+        self.phi_adv = max(0.15, min(1.5, float(causal.get("phi_adv", 0.780))))
+        self.o_qco = max(0.15, min(1.5, float(causal.get("o_qco", 0.840))))
+        self.s_geom = float(causal.get("s_geom", 1.5708))
+        self.q_topo = max(2, min(6, int(causal.get("q_topo", 3))))
+        self.entropy_norm = max(0.0, min(1.0, float(cog.get("entropy_shannon", 3.2)) / 6.0))
+        self.cpu_load = max(0.0, min(1.0, float(hw.get("cpu_percent", 25.0)) / 100.0))
+        temp_c = float(hw.get("cpu_temp_c") or hw.get("gpu_temp_c") or (42.0 + self.cpu_load * 42.0))
+        self.thermal_norm = max(0.05, min(1.0, (temp_c - 35.0) / 55.0))
+        self.aegis_norm = max(0.0, min(1.0, float(aegis.get("score", 100.0)) / 100.0))
+        self.music_playing = bool(music.get("playing", False))
+
+        # Color AEGIS dinámico: azul plateado nominal, carmesí en alerta (<80)
+        alert_mix = max(0.0, min(1.0, (self.aegis_norm - 0.60) / 0.30))
+        self.col_aegis = np.array([255, 51, 102], dtype=np.float32) * (1.0 - alert_mix) + self.col_aegis_base * alert_mix
+
         # Densidad de malla segun calidad
         sub = {"low": 1, "medium": 2, "high": 3, "ultra": 4}.get(quality, 2)
         self.subdiv = sub
@@ -389,8 +505,8 @@ class Character3DRenderer:
         self.light_fill = _normalize_rows(np.array([[0.75, 0.15, 0.55]], dtype=np.float32))[0]
         self.light_back = _normalize_rows(np.array([[0.1, -0.35, -0.92]], dtype=np.float32))[0]
         self.key_color = np.array([1.0, 0.97, 0.92], dtype=np.float32)
-        self.fill_color = np.array([0.30, 0.68, 0.80], dtype=np.float32)
-        self.back_color = np.array([0.95, 0.72, 0.30], dtype=np.float32)
+        self.fill_color = np.clip(self.col_primary / 255.0 * 0.95 + 0.12, 0.0, 1.0)
+        self.back_color = np.clip(self.col_secondary / 255.0 * 0.95 + 0.08, 0.0, 1.0)
 
     # ---------------------------------------------------------------- malla
     def _build_character(self) -> None:
@@ -399,10 +515,14 @@ class Character3DRenderer:
 
         mat_hull = Material(COL_HULL, specular=0.85, shininess=64.0, rim=0.85, metallic=0.72)
         mat_hull_dark = Material(COL_HULL_DARK, specular=0.60, shininess=45.0, rim=0.6, metallic=0.65)
-        mat_glass = Material(COL_GLASS, specular=1.0, shininess=180.0, emissive=0.15, rim=1.0, metallic=0.9)
-        mat_teal_glow = Material(COL_TEAL, specular=0.6, shininess=48.0, emissive=0.88, rim=0.4)
-        mat_gold = Material(COL_GOLD, specular=0.95, shininess=110.0, emissive=0.30, rim=0.75, metallic=0.85)
+        mat_glass = Material(COL_GLASS, specular=1.0, shininess=180.0, emissive=0.18, rim=1.0, metallic=0.9)
+        mat_primary_glow = Material(self.col_primary, specular=0.65, shininess=48.0, emissive=0.88, rim=0.45)
+        mat_gold = Material(self.col_secondary, specular=0.95, shininess=110.0, emissive=0.34, rim=0.75, metallic=0.85)
         mat_amber = Material(COL_AMBER, specular=0.8, shininess=90.0, emissive=0.95, rim=0.3)
+        mat_time_core = Material(self.col_time_core, specular=1.0, shininess=140.0, emissive=0.68, rim=0.95, metallic=0.80)
+        mat_field_glow = Material(self.col_field, specular=0.75, shininess=72.0, emissive=0.82, rim=0.60)
+        mat_aegis_glow = Material(self.col_aegis, specular=0.90, shininess=96.0, emissive=0.58, rim=0.85, metallic=0.70)
+        mat_thought_glow = Material(self.col_thought, specular=0.70, shininess=64.0, emissive=0.65, rim=0.50)
         mat_white_spark = Material(np.array([255, 255, 255], dtype=np.float32), specular=1.0, shininess=120.0, emissive=1.0)
         mat_pupil_black = Material(np.array([1, 3, 6], dtype=np.float32), specular=0.1, shininess=10.0, emissive=0.0)
 
@@ -415,6 +535,31 @@ class Character3DRenderer:
         p_mid_bot = np.array([0.0, -H * (1.0 / 3.0), 0.0], dtype=np.float32)
         p_mid_left = np.array([-side * 0.25, H * (1.0 / 6.0), 0.0], dtype=np.float32)
         p_mid_right = np.array([side * 0.25, H * (1.0 / 6.0), 0.0], dtype=np.float32)
+
+        # 0A. Centro de Tiempo Cristalino 3D (timeCore — esfera facetada iridiscente tras el casco)
+        if self.layers.get("timeCore", True):
+            v, f = icosphere(1, 0.72)
+            P.append(Part("time_core", v, f, mat_time_core, dynamic=True))
+
+        # 0B. Campo Octaédrico Temporal-Espacial 3D (octahedronField — 12 aristas luminosas)
+        if self.layers.get("octahedronField", True):
+            oct_r = 1.72
+            ov = [
+                np.array([0.0, oct_r, 0.0], dtype=np.float32),
+                np.array([0.0, -oct_r, 0.0], dtype=np.float32),
+                np.array([oct_r, 0.0, 0.0], dtype=np.float32),
+                np.array([-oct_r, 0.0, 0.0], dtype=np.float32),
+                np.array([0.0, 0.0, oct_r], dtype=np.float32),
+                np.array([0.0, 0.0, -oct_r], dtype=np.float32),
+            ]
+            oct_edges = [
+                (0, 2), (0, 3), (0, 4), (0, 5),
+                (1, 2), (1, 3), (1, 4), (1, 5),
+                (2, 4), (4, 3), (3, 5), (5, 2),
+            ]
+            for idx, (a, b) in enumerate(oct_edges):
+                v, f = cylinder_between(ov[a], ov[b], radius=0.014, segments=6)
+                P.append(Part(f"oct_edge_{idx}", v, f, mat_field_glow, dynamic=True))
 
         # 1. Chasis triangular biselado y placa frontal (idéntico al nodo local)
         (v_c, f_c), (v_p, f_p) = build_beveled_triangle_hull(side=side)
@@ -429,7 +574,7 @@ class Character3DRenderer:
 
         for idx, (p1, p2) in enumerate(((p_a_e, p_l_e), (p_l_e, p_r_e), (p_r_e, p_a_e))):
             v, f = cylinder_between(p1, p2, radius=0.034, segments=12)
-            P.append(Part(f"border_neon_{idx}", v, f, mat_teal_glow))
+            P.append(Part(f"border_neon_{idx}", v, f, mat_primary_glow))
 
         # 3. Enrejado interno: Triángulo fractal invertido sagrado (dorado)
         z_lattice = 0.19
@@ -441,67 +586,60 @@ class Character3DRenderer:
             v, f = cylinder_between(p1, p2, radius=0.022, segments=10)
             P.append(Part(f"inverted_tri_{idx}", v, f, mat_gold))
 
-        # 4. Enrejado interno: Puntales centroidales radiantes (teal glow)
+        # 4. Enrejado interno: Puntales centroidales radiantes
         p_center_l = np.array([0.0, 0.0, z_lattice - 0.01], dtype=np.float32)
         for idx, target in enumerate((p_a_e * 0.92, p_l_e * 0.92, p_r_e * 0.92, p_mb_l, p_ml_l, p_mr_l)):
             v, f = cylinder_between(p_center_l, target, radius=0.015, segments=8)
-            P.append(Part(f"centroid_strut_{idx}", v, f, mat_teal_glow))
+            P.append(Part(f"centroid_strut_{idx}", v, f, mat_primary_glow))
 
         # 5. Nodos condensadores cuánticos en los 3 vértices
         for idx, pt in enumerate((p_apex, p_left, p_right)):
-            v, f = icosphere(s, 0.11)
+            v, f = icosphere(max(1, s - 1), 0.11)
             v = v + pt + np.array([0, 0, z_edge])
             P.append(Part(f"node_gold_{idx}", v, f, mat_gold))
 
-            v, f = icosphere(s, 0.055)
+            v, f = icosphere(max(1, s - 1), 0.055)
             v = v + pt + np.array([0, 0, z_edge + 0.07])
             P.append(Part(f"node_core_{idx}", v, f, mat_amber, dynamic=True))
 
-            v, f = torus(R=0.15, r=0.018, seg_u=32, seg_v=8)
+            v, f = torus(R=0.15, r=0.018, seg_u=28, seg_v=8)
             v = v + pt + np.array([0, 0, z_edge])
-            P.append(Part(f"node_ring_{idx}", v, f, mat_teal_glow, dynamic=True))
+            P.append(Part(f"node_ring_{idx}", v, f, mat_primary_glow, dynamic=True))
 
-        # 6. El Ojo Cibernético Soberano (almendrado, iris cuántico y reflejos)
+        # 6. El Ojo Cibernético Soberano (almendrado, iris cuántico, mirada viva y reflejos)
         eye_y = 0.05
         eye_z = 0.21
 
-        # Marco / Bisel almendrado del ojo
-        v, f = torus(R=0.34, r=0.024, seg_u=48, seg_v=8)
+        v, f = torus(R=0.34, r=0.024, seg_u=44, seg_v=8)
         v = v * np.array([1.28, 0.58, 1.0], dtype=np.float32) + np.array([0, eye_y, eye_z], dtype=np.float32)
         P.append(Part("eye_socket", v, f, mat_gold))
 
-        # Esclera oscura abisal
-        v, f = icosphere(s, 0.30)
+        v, f = icosphere(max(1, s - 1), 0.30)
         v = v * np.array([1.22, 0.54, 0.22], dtype=np.float32) + np.array([0, eye_y, eye_z - 0.03], dtype=np.float32)
         P.append(Part("sclera", v, f, mat_hull_dark))
 
-        # Iris central
-        v, f = icosphere(s, 0.15)
+        v, f = icosphere(max(1, s - 1), 0.15)
         v = v * np.array([1.0, 1.0, 0.35], dtype=np.float32) + np.array([0, eye_y, eye_z + 0.02], dtype=np.float32)
         P.append(Part("iris_core", v, f, mat_amber, dynamic=True))
 
-        # Anillos orbitales del iris
         for idx, (rr, tt) in enumerate(((0.21, 0.015), (0.27, 0.012))):
-            v, f = torus(R=rr, r=tt, seg_u=40, seg_v=8)
+            v, f = torus(R=rr, r=tt, seg_u=36, seg_v=8)
             v = v + np.array([0, eye_y, eye_z + 0.015], dtype=np.float32)
-            P.append(Part(f"iris_ring_{idx}", v, f, mat_gold if idx == 0 else mat_teal_glow, dynamic=True))
+            P.append(Part(f"iris_ring_{idx}", v, f, mat_gold if idx == 0 else mat_primary_glow, dynamic=True))
 
-        # Pupila negra pura en primer plano
-        v, f = icosphere(s, 0.065)
+        v, f = icosphere(max(1, s - 1), 0.065)
         v = v * np.array([1.0, 1.0, 0.25], dtype=np.float32) + np.array([0, eye_y, eye_z + 0.065], dtype=np.float32)
         P.append(Part("pupil", v, f, mat_pupil_black, dynamic=True))
 
-        # Destellos / Brillo especular 3D de mirada viva (specular glints)
         v, f = icosphere(1, 0.018)
         v = v + np.array([-0.045, eye_y + 0.045, eye_z + 0.075], dtype=np.float32)
-        P.append(Part("specular_1", v, f, mat_white_spark))
+        P.append(Part("specular_1", v, f, mat_white_spark, dynamic=True))
 
         v, f = icosphere(1, 0.010)
         v = v + np.array([0.038, eye_y - 0.032, eye_z + 0.075], dtype=np.float32)
-        P.append(Part("specular_2", v, f, mat_white_spark))
+        P.append(Part("specular_2", v, f, mat_white_spark, dynamic=True))
 
-        # Párpado superior (dinámico con blink)
-        v, f = icosphere(s, 0.32)
+        v, f = icosphere(max(1, s - 1), 0.32)
         v = v * np.array([1.30, 0.38, 0.12], dtype=np.float32) + np.array([0, eye_y + 0.16, eye_z + 0.05], dtype=np.float32)
         P.append(Part("eyelid", v, f, mat_hull, dynamic=True))
 
@@ -509,63 +647,100 @@ class Character3DRenderer:
         mouth_y = -0.32
         mouth_z = 0.20
 
-        # Cavidad bucal oscura
         v, f = icosphere(max(1, s - 1), 0.28)
         v = v * np.array([1.15, 0.22, 0.18], dtype=np.float32) + np.array([0, mouth_y, mouth_z - 0.02], dtype=np.float32)
         P.append(Part("mouth_cavity", v, f, Material(np.array([2, 6, 12], dtype=np.float32), specular=0.1, shininess=10.0)))
 
-        # Labio / Mandíbula articulada inferior
-        v, f = torus(R=0.28, r=0.020, seg_u=36, seg_v=8)
+        v, f = torus(R=0.28, r=0.020, seg_u=32, seg_v=8)
         v = v * np.array([1.15, 0.40, 0.8], dtype=np.float32) + np.array([0, mouth_y, mouth_z + 0.01], dtype=np.float32)
         P.append(Part("jaw", v, f, mat_gold, dynamic=True))
 
-        # Nodos terminales en comisuras
         for side_x, name in ((-0.32, "comm_l"), (0.32, "comm_r")):
             v, f = icosphere(1, 0.032)
             v = v + np.array([side_x, mouth_y, mouth_z + 0.02], dtype=np.float32)
-            P.append(Part(name, v, f, mat_teal_glow))
+            P.append(Part(name, v, f, mat_primary_glow))
 
-        # 7 Barras vocales del ecualizador neural
         for i in range(7):
             bx = (i - 3) * 0.076
-            v, f = cylinder(radius=0.014, height=0.14, segments=10)
+            v, f = cylinder(radius=0.014, height=0.14, segments=8)
             v = v + np.array([bx, mouth_y, mouth_z], dtype=np.float32)
-            P.append(Part(f"vocal_bar_{i}", v, f, mat_teal_glow, dynamic=True))
+            P.append(Part(f"vocal_bar_{i}", v, f, mat_primary_glow, dynamic=True))
 
-        # 8. Astrolabio Cuántico: Anillo Rúnico Exterior y Giroscopio Interior
-        v, f = torus(R=1.86, r=0.026, seg_u=80, seg_v=8)
-        P.append(Part("astrolabe_outer", v, f, mat_gold, dynamic=True))
+        # 8. Rueda de Memoria Akáshica: Astrolabio Exterior, 12 Muescas y Giroscopio Interior
+        if self.layers.get("akashicWheel", True):
+            v, f = torus(R=1.86, r=0.026, seg_u=72, seg_v=8)
+            P.append(Part("astrolabe_outer", v, f, mat_gold, dynamic=True))
 
-        # 12 Muescas rúnicas en el astrolabio exterior
-        for n in range(12):
-            ang = (n / 12.0) * math.pi * 2
-            nx = math.cos(ang) * 1.86
-            ny = math.sin(ang) * 1.86
-            v, f = cylinder(radius=0.016, height=0.08, segments=8)
-            v = transform_points(mat_rot_z(ang), v) + np.array([nx, ny, 0.0], dtype=np.float32)
-            col_m = mat_gold if n % 3 == 0 else mat_teal_glow
-            P.append(Part(f"astrolabe_notch_{n}", v, f, col_m, dynamic=True))
+            for n in range(12):
+                ang = (n / 12.0) * math.pi * 2
+                nx = math.cos(ang) * 1.86
+                ny = math.sin(ang) * 1.86
+                v, f = cylinder(radius=0.016, height=0.09, segments=6)
+                v = transform_points(mat_rot_z(ang), v) + np.array([nx, ny, 0.0], dtype=np.float32)
+                col_m = mat_gold if n % 3 == 0 else mat_primary_glow
+                P.append(Part(f"astrolabe_notch_{n}", v, f, col_m, dynamic=True))
 
-        v, f = torus(R=1.56, r=0.018, seg_u=72, seg_v=8)
-        P.append(Part("astrolabe_inner", v, f, mat_teal_glow, dynamic=True))
+            v, f = torus(R=1.56, r=0.018, seg_u=64, seg_v=8)
+            P.append(Part("astrolabe_inner", v, f, mat_primary_glow, dynamic=True))
 
-        # 9. Enjambre Orbital de Partículas Cuánticas (8 partículas en 3D)
+        # 9. Escudo Geodésico AEGIS-Ω (anillo hexagonal exterior + 6 nodos blindados)
+        if self.layers.get("aegisShield", True):
+            v, f = torus(R=2.12, r=0.015, seg_u=64, seg_v=6)
+            P.append(Part("aegis_ring", v, f, mat_aegis_glow, dynamic=True))
+            for hi in range(6):
+                ang = (hi / 6.0) * math.pi * 2 + math.pi / 6.0
+                hx, hy = math.cos(ang) * 2.12, math.sin(ang) * 2.12
+                v, f = icosphere(1, 0.052)
+                v = v + np.array([hx, hy, 0.0], dtype=np.float32)
+                P.append(Part(f"aegis_hex_{hi}", v, f, mat_aegis_glow, dynamic=True))
+
+        # 10. Arco Térmico de Kernel 3D (thermalAura — 10 segmentos en el hemisferio inferior)
+        if self.layers.get("thermalAura", True):
+            n_segs = 10
+            lit_segs = max(1, int(round(self.thermal_norm * n_segs)))
+            t_col = _thermal_color(self.thermal_norm)
+            mat_therm_on = Material(t_col, specular=0.8, shininess=80.0, emissive=0.88, rim=0.4)
+            mat_therm_off = Material(np.array([28, 52, 68], dtype=np.float32), specular=0.3, shininess=24.0, emissive=0.12)
+            r_arc = 2.28
+            span = math.radians(76.0)
+            a_start = -math.pi * 0.5 - span * 0.5
+            step = span / n_segs
+            for si in range(n_segs):
+                a1 = a_start + si * step + 0.012
+                a2 = a_start + (si + 1) * step - 0.012
+                p1 = np.array([math.cos(a1) * r_arc, math.sin(a1) * r_arc, 0.02], dtype=np.float32)
+                p2 = np.array([math.cos(a2) * r_arc, math.sin(a2) * r_arc, 0.02], dtype=np.float32)
+                v, f = cylinder_between(p1, p2, radius=0.022 if si < lit_segs else 0.012, segments=6)
+                P.append(Part(f"thermal_seg_{si}", v, f, mat_therm_on if si < lit_segs else mat_therm_off, dynamic=True))
+
+        # 11. Solitones Topológicos 3D (solitons — anillos inclinados según Q_topo)
+        if self.layers.get("solitons", True):
+            sol_count = min(3, max(1, self.q_topo // 2))
+            for si in range(sol_count):
+                sr = 1.24 + si * 0.16
+                v, f = torus(R=sr, r=0.010, seg_u=44, seg_v=6)
+                mat_s = mat_thought_glow if si % 2 == 1 else mat_primary_glow
+                P.append(Part(f"soliton_{si}", v, f, mat_s, dynamic=True))
+
+        # 12. Enjambre Orbital de Partículas Cuánticas (8 partículas en 3D)
         for p in range(8):
             v, f = icosphere(1, 0.038)
-            mat_p = mat_teal_glow if p % 2 == 0 else mat_gold
+            mat_p = mat_primary_glow if p % 2 == 0 else (mat_field_glow if p % 4 == 1 else mat_gold)
             P.append(Part(f"orbit_particle_{p}", v, f, mat_p, dynamic=True))
 
-        # Indices por nombre para animacion
         self.index = {p.name: i for i, p in enumerate(self.parts)}
 
     # ----------------------------------------------------------- animacion
     def _animate(self, t: float, st: Dict[str, float]) -> Dict[str, np.ndarray]:
-        """Calcula la matriz de modelo por pieza segun el estado vocal."""
+        """Calcula la matriz de modelo por pieza segun el estado vocal y telemetría TARDIS."""
         mouth = float(st.get("mouth_open", 0.0))
         m_wide = float(st.get("mouth_width", 1.0))
         blink = float(st.get("blink", 0.0))
         pulse = float(st.get("vocal_pulse", 0.0))
         energy = float(st.get("energy", 0.0))
+        gaze_x = float(st.get("gaze_x", math.sin(t * 0.65) * 0.35))
+        gaze_y = float(st.get("gaze_y", math.sin(t * 0.92 + 1.1) * 0.18))
+        bands = st.get("audio_bands")
 
         side = 2.4
         H = side * (math.sqrt(3.0) / 2.0)
@@ -574,136 +749,315 @@ class Character3DRenderer:
         p_right = np.array([side * 0.5, -H * (1.0 / 3.0), 0.16], dtype=np.float32)
         vertex_pts = [p_apex, p_left, p_right]
 
-        bob = math.sin(t * 1.6) * 0.05
-        sway = math.sin(t * 0.8) * 0.02
-        nod = math.sin(t * 1.2) * 0.02 + mouth * 0.02
-        breath = 1.0 + math.sin(t * 2.4) * 0.012
+        bob = math.sin(t * 1.6) * 0.048
+        sway = math.sin(t * 0.8) * 0.028
+        nod = math.sin(t * 1.2) * 0.022 + mouth * 0.022
+        breath = 1.0 + math.sin(t * 2.4) * 0.012 + energy * 0.010
 
-        base_m = (mat_translate(0.0, bob, 0.0)
-                  @ mat_rot_y(sway)
-                  @ mat_rot_x(nod)
-                  @ mat_scale(breath))
+        base_m = (
+            mat_translate(0.0, bob, 0.0)
+            @ mat_rot_y(sway)
+            @ mat_rot_x(nod)
+            @ mat_scale(breath)
+        )
 
         out: Dict[str, np.ndarray] = {}
         for p in self.parts:
             out[p.name] = base_m
 
-        # Mandíbula / Labio articulado (se abre con la fonética)
+        # Centro de Tiempo Cristalino 3D (rotación continua + pulsación radial)
+        if "time_core" in self.index:
+            tc_scale = 1.0 + 0.07 * math.sin(t * 1.2 + self.s_geom) + 0.06 * energy
+            out["time_core"] = (
+                mat_translate(0.0, bob, -0.58)
+                @ mat_rot_y(t * 0.55)
+                @ mat_rot_x(t * 0.32 + 0.35)
+                @ mat_rot_z(t * 0.20)
+                @ mat_scale(tc_scale)
+            )
+
+        # Campo Octaédrico 3D rotando alrededor de GEÓN
+        oct_pulse = 1.0 + 0.045 * math.sin(t * 0.9) + 0.05 * energy
+        oct_m = (
+            mat_translate(0.0, bob, -0.25)
+            @ mat_rot_x(0.42 + math.sin(t * 0.35) * 0.22)
+            @ mat_rot_y(t * (0.34 + 0.18 * self.psi))
+            @ mat_rot_z(math.cos(t * 0.24) * 0.16)
+            @ mat_scale(oct_pulse)
+        )
+        for idx in range(12):
+            k = f"oct_edge_{idx}"
+            if k in self.index:
+                out[k] = oct_m
+
+        # Mandíbula / Labio articulado (se abre con la fonética y RMS real)
         jaw_rot = mat_rot_x(math.radians(24.0) * mouth)
         jaw_drop = mat_translate(0.0, -0.14 * mouth, 0.0)
         jaw_scale = mat_scale(0.95 + 0.12 * m_wide, 1.0, 1.0)
-        out["jaw"] = base_m @ mat_translate(0.0, -0.32, 0.20) @ jaw_rot @ jaw_drop @ mat_translate(0.0, 0.32, -0.20) @ jaw_scale
+        out["jaw"] = (
+            base_m
+            @ mat_translate(0.0, -0.32, 0.20)
+            @ jaw_rot
+            @ jaw_drop
+            @ mat_translate(0.0, 0.32, -0.20)
+            @ jaw_scale
+        )
 
         # Párpado con parpadeo procedural
-        out["eyelid"] = (base_m @ mat_translate(0.0, 0.05, 0.21)
-                         @ mat_scale(1.0, max(1e-3, blink), 1.0)
-                         @ mat_translate(0.0, -0.05, -0.21))
+        out["eyelid"] = (
+            base_m
+            @ mat_translate(0.0, 0.05, 0.21)
+            @ mat_scale(1.0, max(1e-3, blink), 1.0)
+            @ mat_translate(0.0, -0.05, -0.21)
+        )
 
-        # Iris central y micro-dilatación
+        # Mirada viva (gaze tracking suave dentro de la cuenca del ojo)
+        gx_off = max(-0.075, min(0.075, gaze_x * 0.08))
+        gy_off = max(-0.032, min(0.032, gaze_y * 0.036))
+        gaze_m = mat_translate(gx_off, gy_off, 0.0)
+
         iris_s = 1.0 + 0.18 * pulse + 0.06 * math.sin(t * 5.0)
-        out["iris_core"] = (base_m @ mat_translate(0.0, 0.05, 0.23)
-                            @ mat_scale(iris_s, iris_s, 1.0)
-                            @ mat_translate(0.0, -0.05, -0.23))
+        out["iris_core"] = (
+            base_m
+            @ gaze_m
+            @ mat_translate(0.0, 0.05, 0.23)
+            @ mat_scale(iris_s, iris_s, 1.0)
+            @ mat_translate(0.0, -0.05, -0.23)
+        )
 
         for idx in range(2):
             k = f"iris_ring_{idx}"
             rs = 1.0 + 0.12 * pulse
-            spin = mat_rot_z(t * (0.8 if idx == 0 else -1.2))
-            out[k] = (base_m @ mat_translate(0.0, 0.05, 0.22)
-                      @ spin @ mat_scale(rs, rs, 1.0)
-                      @ mat_translate(0.0, -0.05, -0.22))
+            spin = mat_rot_z(t * (0.85 if idx == 0 else -1.35))
+            out[k] = (
+                base_m
+                @ gaze_m
+                @ mat_translate(0.0, 0.05, 0.22)
+                @ spin
+                @ mat_scale(rs, rs, 1.0)
+                @ mat_translate(0.0, -0.05, -0.22)
+            )
 
-        # Pupila reactiva al habla
-        pupil_s = 1.0 + 0.32 * pulse
-        out["pupil"] = (base_m @ mat_translate(0.0, 0.05, 0.275)
-                        @ mat_scale(pupil_s, pupil_s, 1.0)
-                        @ mat_translate(0.0, -0.05, -0.275))
+        pupil_s = 1.0 + 0.30 * pulse + 0.10 * energy
+        out["pupil"] = (
+            base_m
+            @ gaze_m
+            @ mat_translate(0.0, 0.05, 0.275)
+            @ mat_scale(pupil_s, pupil_s, 1.0)
+            @ mat_translate(0.0, -0.05, -0.275)
+        )
+        out["specular_1"] = base_m @ gaze_m
+        out["specular_2"] = base_m @ gaze_m
 
-        # Nodos de los 3 vértices (anillos pulsando en su centro)
+        # Nodos de los 3 vértices
         for idx, pt in enumerate(vertex_pts):
             k = f"node_ring_{idx}"
             ring_pulse = 1.0 + 0.22 * math.sin(t * 6.0 + idx) * max(0.4, pulse + energy)
-            out[k] = (base_m @ mat_translate(pt[0], pt[1], pt[2])
-                      @ mat_scale(ring_pulse, ring_pulse, 1.0)
-                      @ mat_translate(-pt[0], -pt[1], -pt[2]))
+            out[k] = (
+                base_m
+                @ mat_translate(pt[0], pt[1], pt[2])
+                @ mat_scale(ring_pulse, ring_pulse, 1.0)
+                @ mat_translate(-pt[0], -pt[1], -pt[2])
+            )
 
-        # 7 Barras vocales reactivas palabra a palabra
+        # 7 Barras vocales reactivas a las bandas reales de audio + fonética
         for i in range(7):
             k = f"vocal_bar_{i}"
             phase = t * 12.0 + i * 0.85
-            amp = (0.2 + 0.8 * abs(math.sin(phase))) * max(0.08, mouth)
-            h = 0.35 + 2.8 * amp
+            if bands is not None and len(bands) >= 7:
+                b_val = float(bands[i])
+                amp = max(0.08, 0.45 * mouth + 0.75 * b_val)
+            else:
+                amp = (0.2 + 0.8 * abs(math.sin(phase))) * max(0.08, mouth)
+            h_scale = 0.35 + 2.85 * min(1.25, amp)
             bx = (i - 3) * 0.076
-            out[k] = (base_m @ mat_translate(bx, -0.32, 0.20)
-                      @ mat_scale(1.0, h, 1.0)
-                      @ mat_translate(-bx, 0.32, -0.20))
+            out[k] = (
+                base_m
+                @ mat_translate(bx, -0.32, 0.20)
+                @ mat_scale(1.0, h_scale, 1.0)
+                @ mat_translate(-bx, 0.32, -0.20)
+            )
 
-        # Astrolabio exterior giratorio con 12 muescas
-        ast_spin = mat_rot_z(t * 0.26)
-        out["astrolabe_outer"] = base_m @ ast_spin
-        for n in range(12):
-            out[f"astrolabe_notch_{n}"] = base_m @ ast_spin
+        # Rueda Akáshica exterior + 12 muescas + giroscopio interior
+        ak_speed = 0.26 + 0.18 * self.cpu_load + 0.12 * energy
+        ast_spin = mat_rot_z(t * ak_speed)
+        if "astrolabe_outer" in self.index:
+            out["astrolabe_outer"] = base_m @ ast_spin
+            for n in range(12):
+                out[f"astrolabe_notch_{n}"] = base_m @ ast_spin
+            gyro_spin = mat_rot_x(math.radians(16.0)) @ mat_rot_z(-t * (0.52 + 0.2 * self.sintropy))
+            out["astrolabe_inner"] = base_m @ gyro_spin
 
-        # Astrolabio interior en contragiro inclinado
-        gyro_spin = mat_rot_x(math.radians(16.0)) @ mat_rot_z(-t * 0.52)
-        out["astrolabe_inner"] = base_m @ gyro_spin
+        # Escudo geodésico AEGIS-Ω
+        if "aegis_ring" in self.index:
+            aegis_pulse = 1.0 + (0.025 if self.aegis_norm < 0.85 else 0.010) * math.sin(t * (6.0 if self.aegis_norm < 0.85 else 1.4))
+            aegis_m = base_m @ mat_rot_z(-t * 0.14) @ mat_scale(aegis_pulse)
+            out["aegis_ring"] = aegis_m
+            for hi in range(6):
+                out[f"aegis_hex_{hi}"] = aegis_m
+
+        # Arco térmico de kernel
+        therm_vib = 1.0 + (0.018 * math.sin(t * 20.0) if self.thermal_norm > 0.78 else 0.0)
+        therm_m = mat_translate(0.0, bob * 0.6, 0.0) @ mat_scale(therm_vib)
+        for si in range(10):
+            k = f"thermal_seg_{si}"
+            if k in self.index:
+                out[k] = therm_m
+
+        # Solitones topológicos 3D
+        for si in range(3):
+            k = f"soliton_{si}"
+            if k in self.index:
+                direction = 1.0 if si % 2 == 0 else -1.0
+                out[k] = (
+                    mat_translate(0.0, bob, -0.35)
+                    @ mat_rot_x(math.radians(58.0 + si * 14.0))
+                    @ mat_rot_y(t * 0.45 * direction + si * 0.9)
+                    @ mat_rot_z(t * 0.30 * direction)
+                )
 
         # 8 Partículas orbitales cuánticas en 3D
         for p in range(8):
             p_ang = (p / 8.0) * math.pi * 2 + t * 0.85 * (1 if p % 2 == 0 else -0.7)
-            rx = 1.95 + (p % 3) * 0.12
-            ry = 1.30 + (p % 2) * 0.10
+            rx = 1.98 + (p % 3) * 0.12
+            ry = 1.32 + (p % 2) * 0.10
             px = math.cos(p_ang) * rx
             py = math.sin(p_ang) * ry
-            pz = math.sin(p_ang * 2.0 + p) * 0.40
+            pz = math.sin(p_ang * 2.0 + p) * 0.42
             out[f"orbit_particle_{p}"] = base_m @ mat_translate(px, py, pz)
 
         return out
 
     # ------------------------------------------------------------ fondo
-    def _bg_cache(self, w: int, h: int) -> Dict[str, np.ndarray]:
-        """Buffers estaticos del fondo (degradado, halo, mapa radial) cacheados por resolucion."""
-        key = (w, h)
+    def _bg_cache(self, w: int, h: int, center: Tuple[float, float]) -> Dict[str, Any]:
+        """Buffers estaticos del fondo (degradado, rejilla, mapa radial, cono) cacheados."""
+        key = (w, h, round(center[0], 3), round(center[1], 3))
         if getattr(self, "_bgc_key", None) == key:
             return self._bgc
-        # Base a resolucion completa: degradado vertical
-        grad = np.linspace(0.0, 1.0, h, dtype=np.float32)[:, None, None]
-        base = (COL_BG_TOP[None, None, :] * (1.0 - grad) + COL_BG_BOT[None, None, :] * grad)
-        base = np.repeat(base, w, axis=1)
-        # El vineteado es estatico: se hornea aqui una sola vez en vez de aplicarse
-        # a cada cuadro completo (ahorra una pasada de 25 MB por cuadro).
-        yv, xv = np.mgrid[0:h, 0:w].astype(np.float32)
-        rv = np.sqrt(((xv - w * 0.5) / (w * 0.62)) ** 2 + ((yv - h * 0.5) / (h * 0.62)) ** 2)
-        vig = np.clip(1.0 - 0.34 * np.clip(rv - 0.35, 0.0, None) ** 1.7, 0.25, 1.0)
-        base = base * vig[:, :, None]
-        base = np.clip(base, 0, 255).astype(np.uint8)   # el lienzo vive en uint8
 
-        # Capas suaves a 1/4 de resolucion (son degradados: el reescalado es imperceptible)
-        sw, sh = max(8, w // 4), max(8, h // 4)
+        grad = np.linspace(0.0, 1.0, h, dtype=np.float32)[:, None, None]
+        base = COL_BG_TOP[None, None, :] * (1.0 - grad) + COL_BG_BOT[None, None, :] * grad
+        base = np.repeat(base, w, axis=1)
+
+        # Rejilla espacial de coordenadas temporales (sutil)
+        grid_step = max(24, int(round(h / 18.0)))
+        grid_tint = self.col_primary * 0.045
+        base[::grid_step, :, :] += grid_tint
+        base[:, ::grid_step, :] += grid_tint
+
+        # Viñeteado horneado una sola vez (modulado por entropía real)
+        yv, xv = np.mgrid[0:h, 0:w].astype(np.float32)
+        rv = np.sqrt(((xv - w * center[0]) / (w * 0.62)) ** 2 + ((yv - h * center[1]) / (h * 0.62)) ** 2)
+        vig_strength = 0.30 + 0.16 * self.entropy_norm
+        vig = np.clip(1.0 - vig_strength * np.clip(rv - 0.34, 0.0, None) ** 1.7, 0.22, 1.0)
+        base = np.clip(base * vig[:, :, None], 0, 255).astype(np.uint8)
+
+        # Mapas suaves a 1/4 de resolución (960x540 en 4K -> vectorizado ultrarrápido)
+        sw, sh = max(16, w // 4), max(16, h // 4)
         yy, xx = np.mgrid[0:sh, 0:sw].astype(np.float32)
-        r = np.sqrt(((xx - sw * 0.5) / (sw * 0.42)) ** 2 + ((yy - sh * 0.46) / (sh * 0.52)) ** 2)
-        halo = np.clip(1.0 - r, 0.0, 1.0) ** 2.2
+        cx_s, cy_s = sw * center[0], sh * center[1]
+        dx = (xx - cx_s) / max(1.0, min(sw, sh) * 0.46)
+        dy = (yy - cy_s) / max(1.0, min(sw, sh) * 0.46)
+        r = np.sqrt(dx * dx + dy * dy)
+        ang = np.arctan2(dy, dx)
+        halo = np.clip(1.0 - r * 0.85, 0.0, 1.0) ** 2.1
+
+        # Máscara precalculada del Cono Retrocausal ECCA (emerge desde el ancla inferior)
+        apex_x, apex_y = sw * center[0], sh * 0.86
+        rx_c = xx - apex_x
+        up_y = apex_y - yy
+        r_cone = np.sqrt(rx_c * rx_c + up_y * up_y)
+        cone_reach = sh * (0.44 + 0.24 * min(1.2, self.phi_adv))
+        cone_half_ang = 0.26 + 0.22 * min(1.2, self.o_qco)
+        cone_ang = np.arctan2(rx_c, np.maximum(up_y, 1e-3))
+        in_cone = (
+            np.clip((cone_half_ang + 0.05 - np.abs(cone_ang)) / 0.08, 0.0, 1.0)
+            * np.clip((cone_reach - r_cone) / max(1.0, cone_reach * 0.85), 0.0, 1.0)
+            * np.clip(up_y / 14.0, 0.0, 1.0)
+        ).astype(np.float32)
 
         self._bgc_key = key
-        self._bgc = {"base": base, "r_small": r, "halo_small": halo, "sw": sw, "sh": sh}
+        self._bgc = {
+            "base": base,
+            "r": r,
+            "ang": ang,
+            "dx": dx,
+            "dy": dy,
+            "halo": halo,
+            "in_cone": in_cone,
+            "cone_ang": cone_ang,
+            "sw": sw,
+            "sh": sh,
+        }
         return self._bgc
 
-    def _render_background(self, w: int, h: int, t: float, energy: float) -> np.ndarray:
-        """Fondo: degradado vertical + halo radial reactivo + ondas acusticas."""
-        c = self._bg_cache(w, h)
-        r = c["r_small"]
+    def _render_background(
+        self,
+        w: int,
+        h: int,
+        t: float,
+        energy: float,
+        center: Tuple[float, float] = (0.5, 0.42),
+    ) -> np.ndarray:
+        """
+        Fondo procedural TARDIS (1/4 res vectorizado -> 4K):
+        Nebulosa planetaria + Nube de pensamiento latente + Cono retrocausal Ψ
+        + Pulsos sintrópicos + Ondas armónicas musicales/vocales.
+        """
+        c = self._bg_cache(w, h, center)
+        r = c["r"]
+        ang = c["ang"]
+        inten = self.energy_intensity
 
-        glow_amt = 0.16 + 0.10 * energy + 0.02 * math.sin(t * 1.7)
-        glow = c["halo_small"] * glow_amt
+        # Acumulador RGB float32 en 1/4 res (960x540x3 ~ 6 MB, ultrarrápido en L3)
+        acc = np.zeros((c["sh"], c["sw"], 3), dtype=np.float32)
 
-        # Anillos concentricos de onda acustica (calculados en baja resolucion)
-        for k in range(3):
-            phase = (t * 0.42 + k / 3.0) % 1.0
-            rad = 0.30 + phase * 0.95
-            band = np.exp(-((r - rad) ** 2) / 0.0016)
-            glow += band * (0.13 * (1.0 - phase) * (0.4 + energy))
+        # 1. Nube volumétrica de pensamiento latente + halo radial base
+        glow_amt = (0.16 + 0.12 * energy + 0.03 * math.sin(t * 1.7)) * inten
+        acc += (c["halo"] * glow_amt)[:, :, None] * self.col_primary[None, None, :]
 
-        layer = np.clip(glow[:, :, None] * COL_TEAL[None, None, :], 0, 255).astype(np.uint8)
+        if self.layers.get("nebulaDust", True):
+            neb_mask = np.clip(1.0 - r * 0.52, 0.0, 1.0) ** 1.6
+            swirl = 0.5 + 0.5 * np.sin(ang * 3.0 - r * 3.4 + t * 0.35) * np.cos(r * 2.1 - t * 0.22)
+            neb_col = (
+                self.col_time_core * 0.55 + self.col_thought * 0.45
+            ) * (0.14 + 0.14 * (1.0 - self.entropy_norm * 0.35))
+            acc += (neb_mask * swirl * inten)[:, :, None] * neb_col[None, None, :]
+
+        if self.layers.get("latentCloud", True):
+            cloud_r = 0.72 - 0.14 * self.cpu_load
+            cloud = np.exp(-((r / max(0.25, cloud_r)) ** 2) * 1.8) * (
+                0.55 + 0.45 * np.sin(c["dx"] * 3.2 + t * 0.6) * np.cos(c["dy"] * 3.2 - t * 0.45)
+            )
+            cloud_c = self.col_time_core * 0.5 + self.col_thought * 0.5
+            acc += (cloud * (0.16 + 0.16 * self.cpu_load + 0.12 * energy) * inten)[:, :, None] * cloud_c[None, None, :]
+
+        # 2. Cono Retrocausal ECCA (modulado por Ψ)
+        if self.layers.get("retrocausalCone", True):
+            in_cone = c["in_cone"]
+            rays = 0.55 + 0.45 * np.cos(c["cone_ang"] * 18.0 + math.sin(self.s_geom + t) * 1.4)
+            cone_gain = (0.10 + 0.08 * self.psi) * inten
+            acc += (in_cone * rays * cone_gain)[:, :, None] * self.col_primary[None, None, :]
+
+        # 3. Pulsos Sintrópicos concéntricos Ψ (campo verde neón -> primario)
+        if self.layers.get("syntropicPulse", True):
+            p_freq = 0.28 + 0.18 * self.psi
+            for k in range(3):
+                phase = (t * p_freq + k / 3.0) % 1.0
+                rad = 0.36 + phase * 1.05
+                band = np.exp(-((r - rad) ** 2) / 0.0022)
+                mix_c = self.col_field * (1.0 - phase) + self.col_primary * phase
+                acc += (band * (0.14 * (1.0 - phase) * (0.45 + energy) * inten))[:, :, None] * mix_c[None, None, :]
+
+        # 4. Ondas Armónicas Musicales / Vocales (musicWaves)
+        if self.layers.get("musicWaves", True) and (self.music_playing or energy > 0.18):
+            m_amp = 0.72 if self.music_playing else min(0.65, energy * 0.85)
+            harm_r = 0.82 + 0.045 * m_amp * np.sin(ang * 7.0 + t * 3.2)
+            harm_band = np.exp(-((r - harm_r) ** 2) / 0.0014)
+            wave_col = self.col_secondary * 0.55 + self.col_primary * 0.45
+            acc += (harm_band * 0.18 * m_amp * inten)[:, :, None] * wave_col[None, None, :]
+
+        layer = np.clip(acc, 0, 255).astype(np.uint8)
 
         buf = getattr(self, "_frame_buf", None)
         if buf is None or buf.shape[:2] != (h, w) or buf.dtype != np.uint8:
@@ -724,8 +1078,8 @@ class Character3DRenderer:
 
         for ldir, lcol, inten in (
             (self.light_key, self.key_color, 1.0),
-            (self.light_fill, self.fill_color, 0.42),
-            (self.light_back, self.back_color, 0.30),
+            (self.light_fill, self.fill_color, 0.45),
+            (self.light_back, self.back_color, 0.34),
         ):
             ndl = np.clip(normals @ ldir, 0.0, 1.0)[:, None]
             col = col + diff_albedo * lcol[None, :] * ndl * inten
@@ -738,7 +1092,7 @@ class Character3DRenderer:
         # Contraluz (fresnel aproximado)
         ndv = np.clip(np.sum(normals * view, axis=1), 0.0, 1.0)[:, None]
         fres = (1.0 - ndv) ** 3.0
-        col = col + COL_TEAL[None, :] / 255.0 * fres * mat.rim * 0.55
+        col = col + self.col_primary[None, :] / 255.0 * fres * mat.rim * 0.55
 
         # Emision
         if mat.emissive > 0.0:
@@ -754,22 +1108,24 @@ class Character3DRenderer:
         height: int = 2160,
         state: Optional[Dict[str, float]] = None,
         char_scale: float = 1.0,
-        center: Tuple[float, float] = (0.5, 0.47),
+        center: Tuple[float, float] = (0.5, 0.44),
     ) -> np.ndarray:
-        """Renderiza un cuadro RGB uint8 (H,W,3) del personaje animado."""
+        """Renderiza un cuadro RGB uint8 (H,W,3) del personaje animado y entidades TARDIS."""
         st = state or {}
         energy = float(st.get("energy", 0.0))
-        emis_boost = 1.0 + 0.55 * float(st.get("vocal_pulse", 0.0))
+        emis_boost = (0.95 + 0.15 * self.energy_intensity) * (1.0 + 0.45 * float(st.get("vocal_pulse", 0.0)))
 
-        canvas = self._render_background(width, height, t, energy)
+        canvas = self._render_background(width, height, t, energy, center=center)
 
         mats = self._animate(t, st)
 
         # Camara: el personaje se mira desde el frente, ligeramente elevado
-        cam_dist = 6.05
-        view = (mat_translate(0.0, -0.10, cam_dist)
-                @ mat_rot_x(math.radians(-4.0))
-                @ mat_rot_y(math.pi))   # la cara (+Z del modelo) queda frente a la camara
+        cam_dist = 6.25
+        view = (
+            mat_translate(0.0, -0.08, cam_dist)
+            @ mat_rot_x(math.radians(-4.0))
+            @ mat_rot_y(math.pi)
+        )
 
         f_len = 3.05 * char_scale
         base_dim = min(width, height)
@@ -793,7 +1149,6 @@ class Character3DRenderer:
             nrm = nrm / nl
             cen = (v0 + v1 + v2) / 3.0
 
-            # Descarte de caras traseras y de las que quedan tras la camara
             facing = np.sum(nrm * (-cen), axis=1) > 0.0
             in_front = np.all(tri[:, :, 2] > 0.35, axis=1)
             keep = facing & in_front
@@ -804,15 +1159,15 @@ class Character3DRenderer:
             nrm_k = nrm[keep]
             cen_k = cen[keep]
 
-            # Proyeccion en perspectiva
             z = tri_k[:, :, 2]
             sx = cx + (tri_k[:, :, 0] * f_len / z) * base_dim * 0.5
             sy = cy - (tri_k[:, :, 1] * f_len / z) * base_dim * 0.5
             pts = np.stack([sx, sy], axis=2)
 
-            # Descarte de triangulos fuera de pantalla
-            vis = ((pts[:, :, 0].max(axis=1) >= 0) & (pts[:, :, 0].min(axis=1) < width) &
-                   (pts[:, :, 1].max(axis=1) >= 0) & (pts[:, :, 1].min(axis=1) < height))
+            vis = (
+                (pts[:, :, 0].max(axis=1) >= 0) & (pts[:, :, 0].min(axis=1) < width)
+                & (pts[:, :, 1].max(axis=1) >= 0) & (pts[:, :, 1].min(axis=1) < height)
+            )
             if not np.any(vis):
                 continue
 
@@ -836,7 +1191,7 @@ class Character3DRenderer:
                 cv2.fillConvexPoly(
                     surf, allp[i],
                     (int(c[0]), int(c[1]), int(c[2])),
-                    lineType=cv2.LINE_AA
+                    lineType=cv2.LINE_AA,
                 )
             canvas = surf
 
@@ -860,7 +1215,6 @@ class Character3DRenderer:
         return m
 
     _u8_cache: Dict[Tuple[int, int], np.ndarray] = {}
-
     _bloom_cache: Dict[Tuple[int, int], np.ndarray] = {}
 
     @classmethod
@@ -885,15 +1239,11 @@ class Character3DRenderer:
     def post_process(cls, img: np.ndarray, bloom: float = 0.55, vignette: float = 0.0,
                      grain: float = 0.0, chroma: float = 0.0, seed: int = 0) -> np.ndarray:
         """
-        Bloom + vineteado + grano sobre uint8.
-
-        Trabajar en uint8 en lugar de float32 reduce a la cuarta parte el trafico
-        de memoria: a 3840x2160 cada buffer float pesa 99 MB y el post-proceso
-        estaba dominado por el ancho de banda, no por el calculo.
+        Bloom + vineteado + grano sobre uint8 (optimizado para 3840x2160 @ 60 FPS).
         """
         h, w = img.shape[:2]
         if img.dtype == np.uint8:
-            out = img                      # el rasterizador ya entrega uint8: sin copia
+            out = img
         else:
             out = cls._u8_buf(w, h)
             cv2.convertScaleAbs(img, dst=out)
@@ -901,14 +1251,14 @@ class Character3DRenderer:
         if bloom > 0.0:
             sw, sh = max(8, w // 8), max(8, h // 8)
             small = cv2.resize(out, (sw, sh), interpolation=cv2.INTER_AREA).astype(np.float32)
-            np.subtract(small, 150.0, out=small)
+            np.subtract(small, 148.0, out=small)
             np.clip(small, 0.0, None, out=small)
             cv2.GaussianBlur(small, (0, 0), sigmaX=max(1.5, sw / 26.0), dst=small)
             np.multiply(small, bloom, out=small)
             np.clip(small, 0.0, 255.0, out=small)
             bl = cls._bloom_buf(w, h)
             cv2.resize(small.astype(np.uint8), (w, h), interpolation=cv2.INTER_LINEAR, dst=bl)
-            cv2.add(out, bl, dst=out)          # suma saturante: bloom sin desbordes
+            cv2.add(out, bl, dst=out)
 
         if vignette > 0.0:
             cv2.multiply(out, cls._vignette_u8(w, h, vignette), dst=out, scale=1.0 / 255.0)
@@ -923,5 +1273,9 @@ class Character3DRenderer:
         return out
 
 
-def get_character_3d_renderer(quality: str = "high") -> Character3DRenderer:
-    return Character3DRenderer.get_instance(quality=quality)
+def get_character_3d_renderer(
+    quality: str = "high",
+    manifest: Optional[Dict[str, Any]] = None,
+    telemetry: Optional[Dict[str, Any]] = None,
+) -> Character3DRenderer:
+    return Character3DRenderer.get_instance(quality=quality, manifest=manifest, telemetry=telemetry)

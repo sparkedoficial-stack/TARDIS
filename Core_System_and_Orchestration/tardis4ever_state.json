@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "created_at": "2026-10-15T02:04:29.176374",
   "last_periodic_sync": "2026-11-21T23:10:04.025501",
-  "last_immediate_sync": "2026-11-22T01:31:00.234251",
-  "last_commit_hash": "89db3a2a",
-  "sync_count": 1493,
-  "immediate_sync_count": 1489,
+  "last_immediate_sync": "2026-11-22T01:32:18.090132",
+  "last_commit_hash": "7017ebe5",
+  "sync_count": 1494,
+  "immediate_sync_count": 1490,
   "periodic_sync_count": 4,
   "last_known_mtimes": {
     "skill:godworks-system-suite/SKILL.md": REDACTED_PHONE.5482113,
@@ -83,7 +83,7 @@
     "core:button_orchestrator.py": REDACTED_PHONE.47,
     "core:cas_neural_space_kaiju.py": REDACTED_PHONE.15,
     "core:causal_prompt_graph.py": REDACTED_PHONE.29,
-    "core:character_3d_renderer.py": REDACTED_PHONE.78,
+    "core:character_3d_renderer.py": REDACTED_PHONE.28997,
     "core:chinese_cloud_api.py": REDACTED_PHONE.97,
     "core:chronovision_engine.py": REDACTED_PHONE.487576,
     "core:code_planner.py": REDACTED_PHONE.1532557,
@@ -170,7 +170,7 @@
     "core:terminal_camera_hub.py": REDACTED_PHONE.17,
     "core:thought_noise_engine.py": REDACTED_PHONE.27,
     "core:traffic_monitor.py": REDACTED_PHONE.25,
-    "core:video_pipeline_4k.py": REDACTED_PHONE.7046015,
+    "core:video_pipeline_4k.py": REDACTED_PHONE.062962,
     "core:visual_intelligence_daemon.py": REDACTED_PHONE.7825332,
     "core:visual_intelligence_engine.py": REDACTED_PHONE.2810607,
     "core:wa_group_manager.py": REDACTED_PHONE.92,
@@ -203,6 +203,8 @@
     "core:zero_error_shield.py": REDACTED_PHONE.1171875,
     "core:tardis_teaching.py": REDACTED_PHONE.9147882,
     "core:tardis_c310_conversation.py": REDACTED_PHONE.5205064,
+    "core:tardis_visual_manifest.py": REDACTED_PHONE.0758216,
+    "core:tardis_telemetry_snapshot.py": REDACTED_PHONE.457978,
     "directive:AGENTS.md": REDACTED_PHONE.8623235,
     "directive:GEMINI.md": REDACTED_PHONE.8793235,
     "registry:dynamic_tools": REDACTED_PHONE.1339633,
@@ -314,6 +316,16 @@
     "sat:gia_ios:GIA/Views/Theme.swift": REDACTED_PHONE.0
   },
   "history": [
+    {
+      "timestamp": "2026-11-22T01:32:18.090132",
+      "trigger": "immediate_milestone",
+      "commit_hash": "7017ebe5",
+      "score": 50,
+      "reasons": [
+        "Evoluci\u00f3n en subsistema core TARDIS: tapo_c310_voice_channel.py",
+        "Evoluci\u00f3n en subsistema core TARDIS: tardis_c310_conversation.py"
+      ]
+    },
     {
       "timestamp": "2026-11-22T01:31:00.234251",
       "trigger": "immediate_milestone",
@@ -831,15 +843,6 @@
         "Nuevo componente del toolchain Xcode Linux: otool",
         "Nuevo componente del toolchain Xcode Linux: plutil",
         "Nuevo componente del toolchain Xcode Linux: xcode-linux"
-      ]
-    },
-    {
-      "timestamp": "2026-11-09T22:56:30.471189",
-      "trigger": "manual_override",
-      "commit_hash": "c2c98309",
-      "score": 100,
-      "reasons": [
-        "Sincronizaci\u00f3n manual forzada"
       ]
     }
   ]

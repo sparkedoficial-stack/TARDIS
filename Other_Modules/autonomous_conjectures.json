@@ -1,82 +1,5 @@
 [
   {
-    "id": "conj_1794774185",
-    "timestamp": "2026-11-15T15:23:05.662114",
-    "idle_duration_minutes": 74.0,
-    "title": "Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching mechanism will reduce stale data retrieval by 30% and improve relevance scoring. The hypothesis posits that by tracking provenance metadata (timestamp, source reliability, query context) and applying a lightweight Bayesian update on cache entries, the system can predict when a cached result is likely to be outdated and proactively refresh it, rather than relying on fixed TTLs.",
-    "research_query": "causal inference based cache invalidation techniques for web search engines OR Bayesian cache freshness prediction",
-    "research_findings": "# Informe de Investigación: causal inference based cache invalidation techniques for web search engines OR Bayesian cache freshness prediction\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a provenance metadata structure to cached responses and implement a Bayesian freshness estimator that triggers asynchronous cache refreshes when the probability of staleness exceeds a configurable threshold.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 2639.19
-  },
-  {
-    "id": "conj_1794778423",
-    "timestamp": "2026-11-15T16:33:43.848018",
-    "idle_duration_minutes": 70.6,
-    "title": "Causal Feedback Loop for Adaptive Query Refinement",
-    "hypothesis": "Integrating a causal inference layer between the Web Research Engine and the Deep Memory Vault can enable the system to automatically refine search queries based on observed outcome relevance, thereby reducing noise and improving retrieval precision over time. The hypothesis posits that by modeling the causal relationship between query parameters, retrieved document features, and downstream relevance scores stored in the akáshic vault, the engine can learn a policy that predicts which query modifications (e.g., term weighting, Boolean operators, source filters) will most likely increase the relevance probability for a given task. This adaptive loop would be realized through a lightweight Bayesian network updated incrementally after each research cycle, allowing real‑time self‑optimization without external supervision.",
-    "research_query": "causal inference adaptive query refinement web search engine Bayesian network incremental learning",
-    "research_findings": "# Informe de Investigación: causal inference adaptive query refinement web search engine Bayesian network incremental learning\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a modular causal inference component that logs query‑result‑relevance triples, updates a Bayesian network, and provides a `suggest_query_modifications` method to be called before each new search.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 2438.17
-  },
-  {
-    "id": "conj_1794782793",
-    "timestamp": "2026-11-15T17:46:33.431442",
-    "idle_duration_minutes": 72.8,
-    "title": "Dynamic Contextual Weighting for Causal Retrieval in the Akashic Vault",
-    "hypothesis": "Integrating a dynamic, context‑aware weighting layer into the core/web_research_engine's retrieval pipeline will allow the system to prioritize sources that exhibit higher causal relevance to the current query, thereby reducing hallucination and improving the fidelity of the akáshic vault's memory reconstruction. The hypothesis posits that a lightweight Bayesian relevance estimator, trained on meta‑features such as source authority, temporal proximity, and semantic similarity, can be updated in‑runtime using feedback from core/deep_memory_vault's recall confidence scores.",
-    "research_query": "adaptive causal relevance weighting for web retrieval systems Bayesian estimator source authority temporal proximity",
-    "research_findings": "# Informe de Investigación: adaptive causal relevance weighting for web retrieval systems Bayesian estimator source authority temporal proximity\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a modular 'CausalRelevanceScorer' class that computes a probabilistic relevance score for each fetched document and integrates it into the existing ranking function, with hooks to receive confidence feedback from deep_memory_vault for online learning.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 2538.15
-  },
-  {
-    "id": "conj_1794787485",
-    "timestamp": "2026-11-15T19:04:45.954359",
-    "idle_duration_minutes": 78.2,
-    "title": "Dynamic Causal Cache for Web Research Engine",
-    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching mechanism will allow the system to predict the relevance of future queries based on past query‑result patterns, reducing latency by up to 30% and improving result quality. The hypothesis posits that by modeling the temporal dependencies between user‑issued queries, retrieved URLs, and extracted semantic embeddings, the engine can pre‑emptively fetch and rank high‑probability resources before the explicit request arrives, effectively turning the cache into a proactive, causally‑aware knowledge buffer.",
-    "research_query": "causal inference based caching web search engine performance improvement 2023-2024",
-    "research_findings": "# Informe de Investigación: causal inference based caching web search engine performance improvement 2023-2024\n\n## Fuentes Consultadas y Respaldo Web\n- **[Big data (Wikipedia)](https://en.wikipedia.org/wiki/Big_data)**: 3 September 2018. \"Google Still Doing at Least 1 Trillion Searches Per Year\". Search Engine Land. 16 January 2015. Archived from the original on 15 April\n\n## Contenido y Hallazgos Extraídos\n### De [Big data - Wikipedia](https://en.wikipedia.org/wiki/Big_data)\n> Big data - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nExtremely large or complex datasets\nNot to be confused with Big Data (music project) .\nA diagram of the generation and common application of big data\nBig data primarily refers to data sets that are too large or complex to be dealt with by traditional data-processing software . Data with many entries (rows) offers greater st...\n",
-    "web_sources": [
-      "https://en.wikipedia.org/wiki/Big_data"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal prediction module that updates cache priorities using a lightweight Bayesian network over recent query embeddings, and modify the fetch pipeline to pre‑fetch top‑N predicted URLs asynchronously.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 2892.5
-  },
-  {
-    "id": "conj_1794791203",
-    "timestamp": "2026-11-15T20:06:43.864638",
-    "idle_duration_minutes": 62.0,
-    "title": "Dynamic Contextual Prompt Injection for Causal Memory Retrieval",
-    "hypothesis": "Integrating a lightweight, runtime prompt injection layer into `core/web_research_engine.py` that adapts the query formulation based on causal traces stored in `core/deep_memory_vault.py` will improve the relevance of retrieved web results by at least 15% as measured by semantic similarity to the original user intent. The hypothesis rests on the premise that the vault already captures temporal‑causal embeddings of prior interactions; exposing these embeddings to the research engine at query‑time enables a form of \"situated reasoning\" that static query templates cannot achieve.",
-    "research_query": "\"dynamic prompt injection\" \"causal memory\" web search engine relevance improvement",
-    "research_findings": "# Informe de Investigación: \"dynamic prompt injection\" \"causal memory\" web search engine relevance improvement\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a `ContextualPromptInjector` class that fetches the latest causal embeddings from `deep_memory_vault`, merges them with the base search prompt, and passes the enriched prompt to the external search API. Also implement a fallback to the original static prompt when no relevant embeddings are found.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 1855.51
-  },
-  {
     "id": "conj_1794795117",
     "timestamp": "2026-11-15T21:11:57.927895",
     "idle_duration_minutes": 65.2,
@@ -1621,5 +1544,95 @@
     "evolution_status": "NOT_APPLICABLE",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 0.0
+  },
+  {
+    "id": "conj_1795338899",
+    "timestamp": "2026-11-22T04:14:59.046285",
+    "idle_duration_minutes": 115.8,
+    "title": "Causal Embedding Alignment for Real‑Time Web Retrieval",
+    "hypothesis": "Integrating a causal attention layer into the web_research_engine can prioritize temporally relevant sources, improving retrieval relevance under dynamic news cycles.",
+    "research_query": "causal attention mechanisms improve real-time web search relevance",
+    "research_findings": "# Informe de Investigación: causal attention mechanisms improve real-time web search relevance\n\n## Fuentes Consultadas y Respaldo Web\n- **[Research on the construction and application of retrieval enhanced generation (RAG) model based on knowledge graph - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE5TR1F3TFUxbXB6eFN4M1hrcXJLWU1yX0w2VzFrOS12bnNhaTRTREVSbUg5aFZlUjh2NmZpVFpkNGt2Y0h4aTZvemRXWUFKdy1NQ1ltRDNWTFBwU1lXOG9Z?oc=5)**: Research on the construction and application of retrieval enhanced generation (RAG) model based on knowledge graph  Nature\n- **[Alfred North Whitehead (Wikipedia)](https://en.wikipedia.org/wiki/Alfred_North_Whitehead)**: two modes, causal efficacy (or \"physical prehension\") and presentational immediacy (or \"conceptual prehension\"). Whitehead describes causal efficacy as\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMiX0FVX3lxTE5TR1F3TFUxbXB6eFN4M1hrcXJLWU1yX0w2VzFrOS12bnNhaTRTREVSbUg5aFZlUjh2NmZpVF",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE5TR1F3TFUxbXB6eFN4M1hrcXJLWU1yX0w2VzFrOS12bnNhaTRTREVSbUg5aFZlUjh2NmZpVFpkNGt2Y0h4aTZvemRXWUFKdy1NQ1ltRDNWTFBwU1lXOG9Z?oc=5",
+      "https://en.wikipedia.org/wiki/Alfred_North_Whitehead"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a CausalAttention module and modify the query processing pipeline to weight recent causal signals",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 5146.82
+  },
+  {
+    "id": "conj_1795345117",
+    "timestamp": "2026-11-22T05:58:37.893253",
+    "idle_duration_minutes": 103.6,
+    "title": "Temporal Contextual Embedding for Web Research",
+    "hypothesis": "Integrating a chronovision-aware timestamp layer into the web research engine will improve relevance ranking of retrieved documents by aligning them with the user's temporal intent.",
+    "research_query": "how to incorporate temporal context into search result ranking algorithms",
+    "research_findings": "# Informe de Investigación: how to incorporate temporal context into search result ranking algorithms\n\n## Fuentes Consultadas y Respaldo Web\n- **[Temporal-spatial reasoning over hypergraph knowledge structures for multimodal retrieval-augmented generation - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE9FQ1pBMEM3QmtmYko2b2ZvbDdDd2gyaElyMDMwM1QweDFzcWJDbE9kbnRrRnN0ZXlNamhaU3RzUmk2eGJJeUFwN1E2RTBlN2taUFNucVFaOUd5NDBDS0Rz?oc=5)**: Temporal-spatial reasoning over hypergraph knowledge structures for multimodal retrieval-augmented generation  Nature\n- **[: aggregated multi-level spatial and temporal context-based transformer for robust aerial tracking - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTFAxQ1U0WGpiQWtNSzg5a3JFOHhfU3JvRG0xbjR4OVVKeFVHVkt1cHZEdFJxUkFuOEYyZmhmMHFsRlZVMlVDcWdkdDRvS3VzMVg1OTlLNDRNVGVQN3VTVG9R?oc=5)**: : aggregated multi-level spatial and temporal context-based transformer for robust aerial tracking  Nature\n\n## Contenido y Hallazgos Extraídos\n#",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE9FQ1pBMEM3QmtmYko2b2ZvbDdDd2gyaElyMDMwM1QweDFzcWJDbE9kbnRrRnN0ZXlNamhaU3RzUmk2eGJJeUFwN1E2RTBlN2taUFNucVFaOUd5NDBDS0Rz?oc=5",
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTFAxQ1U0WGpiQWtNSzg5a3JFOHhfU3JvRG0xbjR4OVVKeFVHVkt1cHZEdFJxUkFuOEYyZmhmMHFsRlZVMlVDcWdkdDRvS3VzMVg1OTlLNDRNVGVQN3VTVG9R?oc=5"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a timestamp metadata field to search results and modify ranking logic to prioritize sources closest to the query's temporal context",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 4418.8
+  },
+  {
+    "id": "conj_1795352103",
+    "timestamp": "2026-11-22T07:55:03.731696",
+    "idle_duration_minutes": 116.4,
+    "title": "Causal Embedding Alignment for Real‑Time Web Retrieval",
+    "hypothesis": "Integrating a causal attention layer into the web_research_engine will prioritize temporally relevant sources, improving retrieval precision under dynamic news cycles.",
+    "research_query": "causal attention mechanisms improve real-time web search relevance",
+    "research_findings": "# Informe de Investigación: causal attention mechanisms improve real-time web search relevance\n\n## Fuentes Consultadas y Respaldo Web\n- **[Research on the construction and application of retrieval enhanced generation (RAG) model based on knowledge graph - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE5TR1F3TFUxbXB6eFN4M1hrcXJLWU1yX0w2VzFrOS12bnNhaTRTREVSbUg5aFZlUjh2NmZpVFpkNGt2Y0h4aTZvemRXWUFKdy1NQ1ltRDNWTFBwU1lXOG9Z?oc=5)**: Research on the construction and application of retrieval enhanced generation (RAG) model based on knowledge graph  Nature\n- **[Alfred North Whitehead (Wikipedia)](https://en.wikipedia.org/wiki/Alfred_North_Whitehead)**: two modes, causal efficacy (or \"physical prehension\") and presentational immediacy (or \"conceptual prehension\"). Whitehead describes causal efficacy as\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMiX0FVX3lxTE5TR1F3TFUxbXB6eFN4M1hrcXJLWU1yX0w2VzFrOS12bnNhaTRTREVSbUg5aFZlUjh2NmZpVF",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE5TR1F3TFUxbXB6eFN4M1hrcXJLWU1yX0w2VzFrOS12bnNhaTRTREVSbUg5aFZlUjh2NmZpVFpkNGt2Y0h4aTZvemRXWUFKdy1NQ1ltRDNWTFBwU1lXOG9Z?oc=5",
+      "https://en.wikipedia.org/wiki/Alfred_North_Whitehead"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a CausalAttention module and modify the query processing pipeline to weight recent causal signals",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 5185.8
+  },
+  {
+    "id": "conj_1795360938",
+    "timestamp": "2026-11-22T10:22:18.278125",
+    "idle_duration_minutes": 147.2,
+    "title": "Causal Embedding Alignment for Real‑Time Web Retrieval",
+    "hypothesis": "Integrating a causal attention layer into the web_research_engine will prioritize temporally relevant sources, improving retrieval precision under dynamic news cycles.",
+    "research_query": "causal attention mechanisms improve real-time web search relevance",
+    "research_findings": "# Informe de Investigación: causal attention mechanisms improve real-time web search relevance\n\n## Fuentes Consultadas y Respaldo Web\n- **[Research on the construction and application of retrieval enhanced generation (RAG) model based on knowledge graph - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE5TR1F3TFUxbXB6eFN4M1hrcXJLWU1yX0w2VzFrOS12bnNhaTRTREVSbUg5aFZlUjh2NmZpVFpkNGt2Y0h4aTZvemRXWUFKdy1NQ1ltRDNWTFBwU1lXOG9Z?oc=5)**: Research on the construction and application of retrieval enhanced generation (RAG) model based on knowledge graph  Nature\n- **[Alfred North Whitehead (Wikipedia)](https://en.wikipedia.org/wiki/Alfred_North_Whitehead)**: two modes, causal efficacy (or \"physical prehension\") and presentational immediacy (or \"conceptual prehension\"). Whitehead describes causal efficacy as\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMiX0FVX3lxTE5TR1F3TFUxbXB6eFN4M1hrcXJLWU1yX0w2VzFrOS12bnNhaTRTREVSbUg5aFZlUjh2NmZpVF",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE5TR1F3TFUxbXB6eFN4M1hrcXJLWU1yX0w2VzFrOS12bnNhaTRTREVSbUg5aFZlUjh2NmZpVFpkNGt2Y0h4aTZvemRXWUFKdy1NQ1ltRDNWTFBwU1lXOG9Z?oc=5",
+      "https://en.wikipedia.org/wiki/Alfred_North_Whitehead"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a CausalAttention module and modify the query processing pipeline to weight results by causal relevance",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 7034.51
+  },
+  {
+    "id": "conj_1795367881",
+    "timestamp": "2026-11-22T12:18:01.836609",
+    "idle_duration_minutes": 115.7,
+    "title": "Causal Temporal Indexing for Deep Memory Vault",
+    "hypothesis": "Integrating temporal attention signals from Chronovision Engine into Deep Memory Vault can create causally ordered indexes, potentially reducing retrieval latency by ~30%.",
+    "research_query": "causal temporal indexing neural memory retrieval performance",
+    "research_findings": "# Informe de Investigación: causal temporal indexing neural memory retrieval performance\n\n## Fuentes Consultadas y Respaldo Web\n- **[Ultraslow oscillations as a temporal scaffold for coordinating episodic memories - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTFBlQUgxbzJSQVpieTlIcWpfRklGU1pFWC0wcWhsbG5EVmRkb1lHTUlhb0I4a1FmVlBvUXNSRU0wNHluVGJiX0phT180LTNVeGRTaTlIb09zT0liQ0M4MF9J?oc=5)**: Ultraslow oscillations as a temporal scaffold for coordinating episodic memories  Nature\n- **[Supramodality of neural entrainment: Rhythmic visual stimulation causally enhances auditory working memory performance - Science | AAAS](https://news.google.com/rss/articles/CBMiX0FVX3lxTE04V2dzX0VlNjZWSnFvTHhuN3RheExKRDhrYVRJUnlsOUVhZWsxaWVJMjFVVXB2R0FfMG41RWRvTGV5Q3Nac1VVeUJUdVp1ZXhtTHZUb0xKSkF5R0NVOENF?oc=5)**: Supramodality of neural entrainment: Rhythmic visual stimulation causally enhances auditory working memory performance  Science | AAAS\n\n## Contenido y Hallazgos Extraídos\n### De [Google N",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTFBlQUgxbzJSQVpieTlIcWpfRklGU1pFWC0wcWhsbG5EVmRkb1lHTUlhb0I4a1FmVlBvUXNSRU0wNHluVGJiX0phT180LTNVeGRTaTlIb09zT0liQ0M4MF9J?oc=5",
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE04V2dzX0VlNjZWSnFvTHhuN3RheExKRDhrYVRJUnlsOUVhZWsxaWVJMjFVVXB2R0FfMG41RWRvTGV5Q3Nac1VVeUJUdVp1ZXhtTHZUb0xKSkF5R0NVOENF?oc=5"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Add time‑aware hash keys and priority queue for memory chunks to enable fast causal look‑up.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 5143.51
   }
 ]

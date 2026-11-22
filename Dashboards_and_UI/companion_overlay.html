@@ -1171,17 +1171,27 @@
         targetCtx.restore();
     }
 
-    // Render loop principal
+    // Render loop principal adaptativo GPU (1 Hz – 500 Hz sin cortes ni dependencia de tasa)
+    if (canvas && canvas.style) {
+        canvas.style.willChange = 'transform';
+        canvas.style.transform = 'translateZ(0)';
+    }
+    let lastRenderMs = performance.now();
     function render(now) {
         requestAnimationFrame(render);
-        const dt = 0.016;
+        const rawDt = (now - lastRenderMs) / 1000;
+        lastRenderMs = now;
+        const dt = (!Number.isFinite(rawDt) || rawDt <= 0 || rawDt > 1.5)
+            ? (1 / 60)
+            : Math.max(0.0005, Math.min(1.25, rawDt));
 
-        eyeLookX += (targetEyeX - eyeLookX) * 0.12;
-        eyeLookY += (targetEyeY - eyeLookY) * 0.12;
+        const gazeAlpha = 1 - Math.exp(-7.6 * dt);
+        eyeLookX += (targetEyeX - eyeLookX) * gazeAlpha;
+        eyeLookY += (targetEyeY - eyeLookY) * gazeAlpha;
 
         if (now > nextBlink) {
             isBlinking = true;
-            blinkVal += dt * 7;
+            blinkVal += dt * 7.0;
             if (blinkVal >= 1) {
                 blinkVal = 0;
                 isBlinking = false;
@@ -1189,12 +1199,11 @@
             }
         }
 
-        // Interpolación biomecánica vocal palabra a palabra
+        // Interpolación biomecánica vocal palabra a palabra (exacta 1 Hz – 500 Hz)
         const nowMs = performance.now();
         if (vocalState.isSpeaking) {
             const elapsedSinceWord = nowMs - vocalState.lastWordTime;
             if (elapsedSinceWord > vocalState.wordDurationEst) {
-                // Micro-pausa natural entre palabras para respirar y articular como humano
                 vocalState.targetMouthOpen = 0.05;
                 vocalState.targetMouthWidth = 1.0;
             }
@@ -1203,12 +1212,12 @@
             vocalState.targetMouthWidth = 1.0;
         }
 
-        vocalState.mouthOpen += (vocalState.targetMouthOpen - vocalState.mouthOpen) * Math.min(1, dt * 26);
-        vocalState.mouthWidth += (vocalState.targetMouthWidth - vocalState.mouthWidth) * Math.min(1, dt * 18);
-        vocalState.smileRatio += (vocalState.targetSmileRatio - vocalState.smileRatio) * Math.min(1, dt * 10);
-        vocalState.vocalPulse *= 0.86;
-        vocalState.pupilPulse *= 0.88;
-        vocalState.browLift *= 0.90;
+        vocalState.mouthOpen += (vocalState.targetMouthOpen - vocalState.mouthOpen) * (1 - Math.exp(-26.0 * dt));
+        vocalState.mouthWidth += (vocalState.targetMouthWidth - vocalState.mouthWidth) * (1 - Math.exp(-18.0 * dt));
+        vocalState.smileRatio += (vocalState.targetSmileRatio - vocalState.smileRatio) * (1 - Math.exp(-10.0 * dt));
+        vocalState.vocalPulse *= Math.pow(0.86, dt * 60.0);
+        vocalState.pupilPulse *= Math.pow(0.88, dt * 60.0);
+        vocalState.browLift *= Math.pow(0.90, dt * 60.0);
 
         const W = canvas.width;
         const H = canvas.height;
