@@ -191,7 +191,10 @@ def _read_local_hw_fallback() -> Dict[str, Any]:
     }
     try:
         import psutil
-        hw["cpu_percent"] = round(float(psutil.cpu_percent(interval=None)), 1)
+        cpu_now = float(psutil.cpu_percent(interval=None))
+        if cpu_now <= 0.0:
+            cpu_now = float(psutil.cpu_percent(interval=0.05))
+        hw["cpu_percent"] = round(cpu_now, 1)
         vm = psutil.virtual_memory()
         hw["ram_percent"] = round(float(vm.percent), 1)
         hw["ram_total_gb"] = round(vm.total / (1024 ** 3), 2)
@@ -353,6 +356,7 @@ def default_snapshot() -> Dict[str, Any]:
             "total": 1,
             "autonomous_cycles": 0,
             "autonomous_running": False,
+            "video_pensante_total": 0,
         },
     }
 
@@ -387,15 +391,145 @@ def _extract_temps(hw_resp: Dict[str, Any]) -> Tuple[float, float, float]:
     return cpu_t, gpu_t, nvme_t
 
 
+def _apply_local_fallbacks(snap: Dict[str, Any]) -> None:
+    """
+    Completa cualquier métrica que no llegó por HTTP leyendo directamente archivos
+    locales y módulos ligeros (<50 ms total), garantizando telemetría viva real
+    incluso si un endpoint del servidor HTTP estuvo ocupado o fuera de línea.
+    """
+    # 1. Video Pensante (disco, <1 ms)
+    try:
+        vp_file = BASE_DIR / "data" / "video_pensante" / "state.json"
+        if vp_file.is_file():
+            vp = json.loads(vp_file.read_text(encoding="utf-8"))
+            if isinstance(vp, dict):
+                snap["subsystems"]["video_pensante_total"] = int(vp.get("total_videos_analyzed", 0) or 0)
+    except Exception:
+        pass
+
+    # 2. Lamport desde global_sync_state.json (<1 ms)
+    if int(snap["causal"].get("lamport", 0) or 0) <= 0:
+        try:
+            gs_file = BASE_DIR / "global_sync_state.json"
+            if gs_file.is_file():
+                gs = json.loads(gs_file.read_text(encoding="utf-8"))
+                if isinstance(gs, dict) and gs.get("lamport"):
+                    snap["causal"]["lamport"] = int(gs["lamport"])
+        except Exception:
+            pass
+
+    # 3. Bóveda Akáshica 250GB directa (<10 ms)
+    if int(snap["vault"].get("total_events", 0) or 0) <= 0:
+        try:
+            from core.deep_memory_vault import get_deep_memory_vault
+            v = get_deep_memory_vault().get_vault_telemetry()
+            if isinstance(v, dict) and v.get("total_events"):
+                snap["vault"].update({
+                    "total_events": int(v.get("total_events", 0) or 0),
+                    "compressed_events": int(v.get("compressed_events", 0) or 0),
+                    "knowledge_nodes": int(v.get("knowledge_nodes", 0) or 0),
+                    "knowledge_relations": int(v.get("knowledge_relations", 0) or 0),
+                    "hierarchical_epochs": int(v.get("hierarchical_epochs", 0) or 0),
+                    "background_contemplations": int(v.get("background_contemplations", 0) or 0),
+                    "complexity_level": int(v.get("complexity_level", 0) or 0),
+                    "vault_size_mb": round(float(v.get("vault_size_mb", 0.0) or 0.0), 2),
+                    "max_capacity_gb": round(float(v.get("max_capacity_gb", 250.0) or 250.0), 1),
+                })
+        except Exception:
+            pass
+
+    # 4. AEGIS-Ω local (<6 ms)
+    if int(snap["aegis"].get("scanned_files", 0) or 0) <= 0 and snap["aegis"].get("score") == 100:
+        try:
+            from core.aegis.engine import get_engine as _get_aegis
+            ae_st = _get_aegis().status()
+            if isinstance(ae_st, dict):
+                aud = ae_st.get("last_audit") if isinstance(ae_st.get("last_audit"), dict) else {}
+                if "score" in aud:
+                    snap["aegis"]["score"] = int(round(float(aud["score"])))
+                cnts = aud.get("counts") if isinstance(aud.get("counts"), dict) else {}
+                if cnts:
+                    snap["aegis"]["critical"] = int(cnts.get("crítico", cnts.get("critical", 0)) or 0)
+                    snap["aegis"]["high"] = int(cnts.get("alto", cnts.get("high", 0)) or 0)
+                    snap["aegis"]["medium"] = int(cnts.get("medio", cnts.get("medium", 0)) or 0)
+                    snap["aegis"]["low"] = int(cnts.get("bajo", cnts.get("low", 0)) or 0)
+        except Exception:
+            pass
+
+    # 5. Radar RF directo (<25 ms)
+    if not snap["rf_radar"].get("active"):
+        try:
+            import rf_presence_radar as _rfr
+            rf = _rfr.get_radar_diagnostic()
+            if isinstance(rf, dict) and rf.get("active"):
+                snap["rf_radar"]["active"] = True
+                snap["rf_radar"]["presence_state"] = _sanitize_text(rf.get("presence_state", "QUIET"), 20).upper()
+                snap["rf_radar"]["confidence"] = round(float(rf.get("confidence", 0.85) or 0.0), 2)
+                snap["rf_radar"]["active_bssid_count"] = int(rf.get("active_bssid_count", 0) or 0)
+                snap["rf_radar"]["shannon_entropy"] = round(float(rf.get("shannon_entropy", 0.5) or 0.0), 3)
+                snap["rf_radar"]["total_rf_energy_uw"] = round(float(rf.get("total_rf_energy_uw", 0.0) or 0.0), 4)
+                snap["rf_radar"]["mean_variance"] = round(float(rf.get("mean_variance", 0.0) or 0.0), 3)
+        except Exception:
+            pass
+
+    # 6. Atmósfera local sanitizada desde caché en disco (<1 ms, sin coordenadas)
+    if not snap["atmospheric"].get("available"):
+        try:
+            at_file = BASE_DIR / "data" / "atmospheric_telemetry.json"
+            if at_file.is_file():
+                atm = json.loads(at_file.read_text(encoding="utf-8"))
+                if isinstance(atm, dict) and "temperature_c" in atm:
+                    snap["atmospheric"]["available"] = True
+                    snap["atmospheric"]["temperature_c"] = round(float(atm.get("temperature_c", 0.0)), 1)
+                    snap["atmospheric"]["apparent_temperature_c"] = round(float(atm.get("apparent_temperature_c", atm.get("temperature_c", 0.0))), 1)
+                    snap["atmospheric"]["relative_humidity_pct"] = int(round(float(atm.get("relative_humidity_pct", 0))))
+                    snap["atmospheric"]["surface_pressure_hpa"] = round(float(atm.get("surface_pressure_hpa", 1013.0)), 1)
+                    snap["atmospheric"]["wind_speed_kmh"] = round(float(atm.get("wind_speed_kmh", 0.0)), 1)
+                    snap["atmospheric"]["cloud_cover_pct"] = int(round(float(atm.get("cloud_cover_pct", 0))))
+                    snap["atmospheric"]["weather_description"] = _sanitize_text(atm.get("weather_description", "Despejado"), 40)
+        except Exception:
+            pass
+
+    # 7. Subsistemas systemd del usuario (<10 ms) si el hub HTTP no respondió
+    if int(snap["subsystems"].get("total", 1) or 1) <= 1:
+        try:
+            import subprocess
+            res = subprocess.run(
+                [
+                    "systemctl", "--user", "list-units", "--type=service", "--all",
+                    "--no-legend", "--plain", "tardis*", "ollama*", "client-gateway*",
+                ],
+                capture_output=True, text=True, timeout=1.0,
+            )
+            if res.returncode == 0 and res.stdout.strip():
+                on = deg = off = 0
+                for line in res.stdout.splitlines():
+                    parts = line.split()
+                    if len(parts) < 4:
+                        continue
+                    active_s, sub_s = parts[2], parts[3]
+                    if active_s == "active" and sub_s == "running":
+                        on += 1
+                    elif active_s in ("activating", "reloading"):
+                        deg += 1
+                    else:
+                        off += 1
+                tot = on + deg + off
+                if tot > 0:
+                    snap["subsystems"].update({"online": on, "degraded": deg, "offline": off, "total": tot})
+        except Exception:
+            pass
+
+
 def collect_tardis_snapshot(
     api_base: Optional[str] = None,
-    timeout: float = 0.65,
+    timeout: float = 1.8,
     use_cache_sec: float = 2.0,
     fetch_http: bool = True,
 ) -> Dict[str, Any]:
     """
     Recolecta una instantánea completa y fresca de la información viva de TARDIS.
-    Combina manifiesto visual, endpoints locales del nodo :8757 y telemetría directa de kernel.
+    Combina manifiesto visual, endpoints locales del nodo :8757 y respaldos locales directos.
     """
     global _CACHE_TS, _CACHE_DATA
     now = time.time()
@@ -443,20 +577,28 @@ def collect_tardis_snapshot(
 
     fetched: Dict[str, Optional[Dict[str, Any]]] = {}
     if fetch_http:
+        ex = concurrent.futures.ThreadPoolExecutor(max_workers=len(endpoints))
+        fut_map = {
+            ex.submit(_http_get_json, url, token, timeout): key
+            for key, url in endpoints.items()
+        }
         try:
-            with concurrent.futures.ThreadPoolExecutor(max_workers=8) as ex:
-                fut_map = {
-                    ex.submit(_http_get_json, url, token, timeout): key
-                    for key, url in endpoints.items()
-                }
-                for fut in concurrent.futures.as_completed(fut_map, timeout=max(0.9, timeout * 2.2)):
-                    k = fut_map[fut]
+            for fut in concurrent.futures.as_completed(fut_map, timeout=max(2.2, timeout * 1.4)):
+                k = fut_map[fut]
+                try:
+                    fetched[k] = fut.result()
+                except Exception:
+                    fetched[k] = None
+        except Exception:
+            # Conservar los resultados ya completados sin bloquear por futuros pendientes
+            for fut, k in fut_map.items():
+                if k not in fetched and fut.done():
                     try:
                         fetched[k] = fut.result()
                     except Exception:
                         fetched[k] = None
-        except Exception:
-            pass
+        finally:
+            ex.shutdown(wait=False, cancel_futures=True)
 
     live_hits = sum(1 for v in fetched.values() if isinstance(v, dict))
     snap["live_api"] = live_hits > 0
@@ -613,6 +755,9 @@ def collect_tardis_snapshot(
     if isinstance(aut, dict):
         snap["subsystems"]["autonomous_cycles"] = int(aut.get("cycle_count", aut.get("cycles_completed", 0)) or 0)
         snap["subsystems"]["autonomous_running"] = bool(aut.get("running", False))
+
+    # Respaldo local directo para cualquier métrica ausente (<50 ms)
+    _apply_local_fallbacks(snap)
 
     # Sanitizar campos del manifiesto visual
     vm = snap["visual_manifest"]

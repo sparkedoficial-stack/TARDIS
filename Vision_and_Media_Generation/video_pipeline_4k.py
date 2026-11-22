@@ -37,6 +37,10 @@ import cv2
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
+BASE_DIR = Path(__file__).resolve().parent.parent
+if str(BASE_DIR) not in sys.path:
+    sys.path.insert(0, str(BASE_DIR))
+
 from core.tardis_telemetry_snapshot import (
     collect_tardis_snapshot,
     hex_to_rgb,
@@ -46,7 +50,6 @@ from core.tardis_telemetry_snapshot import (
 
 logger = logging.getLogger("VideoPipeline4K")
 
-BASE_DIR = Path(__file__).resolve().parent.parent
 TELEGRAM_MAX_BYTES = 48 * 1024 * 1024     # margen seguro bajo el límite de 50 MB del bot
 
 
@@ -471,7 +474,7 @@ class HudRenderer:
             ent_h = float(cog.get("entropy_shannon", 3.2))
             coh_pct = float(cog.get("syntropy_coherence_pct", 80.0))
 
-            cy_l2 = self._draw_card(d, lx0, l2_y0, lx1, l2_y1, secondary, "ℵ₀ · BÓVEDA AKÁSHICA & KAIJU", f"{v_mb:.1f} MB")
+            cy_l2 = self._draw_card(d, lx0, l2_y0, lx1, l2_y1, secondary, "∞ · BÓVEDA AKÁSHICA & KAIJU", f"{v_mb:.1f} MB")
             bar_specs = [
                 ("EVENTOS", self._fmt_num(ev_n), min(1.0, math.log10(max(10, ev_n + 10)) / 5.0), primary),
                 ("ÉPOCAS", self._fmt_num(ep_n), min(1.0, math.log10(max(10, ep_n + 10)) / 4.5), secondary),
@@ -510,7 +513,7 @@ class HudRenderer:
             act_l = int(vm.get("active_layers_count", 14))
             tot_l = int(vm.get("total_layers_count", 14))
             en_int = float(vm.get("energy_intensity", 1.0))
-            cy_l3 = self._draw_card(d, lx0, l3_y0, lx1, l3_y1, field_c, "✦ AUTO-EXPRESIÓN VISUAL TARDIS", f"{act_l}/{tot_l} CAPAS")
+            cy_l3 = self._draw_card(d, lx0, l3_y0, lx1, l3_y1, field_c, "◆ AUTO-EXPRESIÓN VISUAL TARDIS", f"{act_l}/{tot_l} CAPAS")
 
             vm_title = str(vm.get("title", "Centro de Tiempo · Octaedro · Rueda Akáshica"))
             for i_t, t_ln in enumerate(textwrap.wrap(vm_title, width=42)[:2]):
@@ -602,14 +605,14 @@ class HudRenderer:
             rf_ent = float(rf.get("shannon_entropy", 0.5))
             rf_pwr = float(rf.get("total_rf_energy_uw", 0.0))
 
-            cy_r2 = self._draw_card(d, rx0, r2_y0, rx1, r2_y1, aegis_c, "📡 RADAR RF & ENTORNO SENSORIAL", rf_state)
+            cy_r2 = self._draw_card(d, rx0, r2_y0, rx1, r2_y1, aegis_c, "◎ RADAR RF & ENTORNO SENSORIAL", rf_state)
             # Rejilla polar del radar RF (mitad izquierda de R2)
             rf_cx = rx0 + int(184 * k)
             rf_cy = cy_r2 + int(162 * k)
             rf_r = int(134 * k)
             for frac in (0.33, 0.66, 1.0):
                 rr = int(rf_r * frac)
-                d.ellipse([rf_cx - rr, rf_cy - rr, rf_cx + rr, rf_cy + rr], outline=aegis_c + (95 if frac < 1 else 160), width=max(1, int(2 * k)))
+                d.ellipse([rf_cx - rr, rf_cy - rr, rf_cx + rr, rf_cy + rr], outline=aegis_c + (95 if frac < 1 else 160,), width=max(1, int(2 * k)))
             d.line([(rf_cx - rf_r, rf_cy), (rf_cx + rf_r, rf_cy)], fill=aegis_c + (75,), width=1)
             d.line([(rf_cx, rf_cy - rf_r), (rf_cx, rf_cy + rf_r)], fill=aegis_c + (75,), width=1)
 
@@ -662,9 +665,11 @@ class HudRenderer:
                 font=f_sm,
                 fill=(212, 236, 244, 240),
             )
+            vp_tot = int(subs.get("video_pensante_total", 0) or 0)
+            vp_tag = f"VIDEO PENSANTE: {self._fmt_num(vp_tot)} · X.COM" if vp_tot > 0 else "VIDEO PENSANTE · X.COM"
             d.text(
                 (rx0 + int(24 * k), sb_y1 + int(48 * k)),
-                f"AUTONOMÍA 24/7: {self._fmt_num(a_cyc)} ciclos  ·  VIDEO PENSANTE · X.COM",
+                f"AUTONOMÍA 24/7: {self._fmt_num(a_cyc)} ciclos  ·  {vp_tag}",
                 font=f_xs,
                 fill=(154, 198, 214, 230),
             )
@@ -674,7 +679,7 @@ class HudRenderer:
             d.line([(rx0 + int(24 * k), mu_y - int(8 * k)), (rx1 - int(24 * k), mu_y - int(8 * k))], fill=secondary + (85,), width=1)
             if music.get("playing") and music.get("media_title"):
                 tr = str(music.get("media_title"))[:44]
-                d.text((rx0 + int(24 * k), mu_y + int(4 * k)), f"♪ {tr}", font=self._font("mono_bold", 22 * k), fill=secondary + (255,))
+                d.text((rx0 + int(24 * k), mu_y + int(4 * k)), f"▶ {tr}", font=self._font("mono_bold", 22 * k), fill=secondary + (255,))
                 d.text(
                     (rx0 + int(24 * k), mu_y + int(36 * k)),
                     f"MUSIC MAESTRO · {music.get('time_pos_text', '0:00')}/{music.get('duration_text', '0:00')} ({music.get('progress', 0):.0f}%) · VOL {music.get('volume', 70)}%",
@@ -682,7 +687,7 @@ class HudRenderer:
                     fill=(178, 214, 226, 230),
                 )
             else:
-                d.text((rx0 + int(24 * k), mu_y + int(4 * k)), "♪ SÍNTESIS VOCAL NEURAL EN TIEMPO REAL", font=self._font("mono_bold", 22 * k), fill=primary + (255,))
+                d.text((rx0 + int(24 * k), mu_y + int(4 * k)), "▶ SÍNTESIS VOCAL NEURAL EN TIEMPO REAL", font=self._font("mono_bold", 22 * k), fill=primary + (255,))
                 d.text((rx0 + int(24 * k), mu_y + int(36 * k)), "CANAL SOBERANO TELEGRAM · AUDIO SINCRONIZADO 60 FPS", font=f_xs, fill=(168, 206, 220, 225))
 
             # Caja del vúmetro de audio vivo en R3
