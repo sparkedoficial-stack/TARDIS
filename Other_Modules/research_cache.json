@@ -36,5 +36,43 @@
         "engine": "google_news"
       }
     ]
+  },
+  "1f3c02f62b45d994": {
+    "ts": REDACTED_PHONE.1565762,
+    "iso": "2026-11-22T01:31:56-0500",
+    "query": "energia solar",
+    "summary": "La energía solar es una energía renovable, obtenida a partir del aprovechamiento de la radiación electromagnética procedente del Sol.\nLa radiación solar que alcanza la Tierra ha sido aprovechada por el ser humano desde la antigüedad, mediante diferentes tecnologías que han ido evolucionando. Hoy en día, el calor y la luz del Sol pueden aprovecharse por medio de diversos captadores como células fotoeléctricas. tardis_browser: ¿Podremos cartografiar el conectoma humano completo? | Noticias de la Ciencia y la Tecnología (Amazings® / NCYT®) Hemeroteca Publicidad Viernes, 16 de Octubre de 2026 Actualizada Viernes, 16 de Octubre de 2026 a las 18:31:42 horas Portada Ciencia Ciencia Ficción Energía Solar Tecnología Medio Ambien Estanques de escorrentía pluvial en Florida se transforman en parques solares flotantes - LancasterOnline: Estanques de escorrentía pluvial en Florida se transforman en parques solares flotantes  LancasterOnline República Dominicana redobla la apuesta y lanza nueva licitación de 900 MW renovables con baterías - Energía Estratégica: República Dominicana redobla la apuesta y lanza nueva licitación de 900 MW renovables con baterías  Energía Estratégica",
+    "sources": [
+      {
+        "title": "Energía solar (Wikipedia ES)",
+        "url": "https://es.wikipedia.org/wiki/Energ%C3%ADa_solar",
+        "snippet": "La energía solar es una energía renovable, obtenida a partir del aprovechamiento de la radiación electromagnética procedente del Sol.\nLa radiación solar que alcanza la Tierra ha sido aprovechada por el ser humano desde la antigüedad, mediante diferentes tecnologías que han ido evolucionando. Hoy en día, el calor y la luz del Sol pueden aprovecharse por medio",
+        "engine": "wikipedia_es"
+      },
+      {
+        "title": "tardis_browser",
+        "url": "https://noticiasdelaciencia.com/art/57124/podremos-cartografiar-el-conectoma-humano-completo",
+        "snippet": "¿Podremos cartografiar el conectoma humano completo? | Noticias de la Ciencia y la Tecnología (Amazings® / NCYT®) Hemeroteca Publicidad Viernes, 16 de Octubre de 2026 Actualizada Viernes, 16 de Octubre de 2026 a las 18:31:42 horas Portada Ciencia Ciencia Ficción Energía Solar Tecnología Medio Ambien",
+        "engine": "rag_vault"
+      },
+      {
+        "title": "Estanques de escorrentía pluvial en Florida se transforman en parques solares flotantes - LancasterOnline",
+        "url": "https://news.google.com/rss/articles/CBMiiAJBVV95cUxNWEdKNXp3WmZqb180RkxHQTBSazNlcmRkYmFXT1hrZWdPSThhSlI3c21TN3NWREFuMWxVYnVUX1VQVzJuM3QybVEzNW9wQWNqY2xrenFmUWlRaFNjWG9Oa0d6ZGlGb2FzMTNuclljVF9ud0VBczRiOUZZMmRrSW9DSDlSZU1RblpLWU0tc3VIbTduczJjMXZjbGNEMlk4SF9GbXFKWF9QUmlPejdNdl9iTlEzNTFfdmlHX2lkcjJyYS1BckRXR3pPQS0wVm01ZnJHV3ZlV1BseHlSQnloNHNNa3lTcTI0dC1RTzM4eXB2QzZBMzRiNmNPZnZhb3NXeFRDeEY5S2M5NjY?oc=5",
+        "snippet": "Estanques de escorrentía pluvial en Florida se transforman en parques solares flotantes  LancasterOnline",
+        "engine": "google_news"
+      },
+      {
+        "title": "República Dominicana redobla la apuesta y lanza nueva licitación de 900 MW renovables con baterías - Energía Estratégica",
+        "url": "https://news.google.com/rss/articles/CBMi2gFBVV95cUxNZjNiY0ZWYUpqbVFianJBb3NsaU9fTk1XeFI5Mm5MaW1JQi1VSElJLXY0Y3ZELU4yOVVoXzdkOXJNQ2ZKSkZmSDVnMmtrcldCSWFhYV85VUN2Z3ZlLVlCZmVlQ28xVEU5UDljbXRHQ1pHT1RIOUZGYk56Y3hPT0N2Qy1Pb0tZZGlDUEp4RjdHdmZkVjZMaS14dUhOdkMwYUVjSHk0Wk1wV2dGdnc1Z19IUi1wallFdXBSOUlHOWI4WjVRaWU0WTE3NC1wZi1LX0hTVkxuN3ZuamRJQQ?oc=5",
+        "snippet": "República Dominicana redobla la apuesta y lanza nueva licitación de 900 MW renovables con baterías  Energía Estratégica",
+        "engine": "google_news"
+      },
+      {
+        "title": "Resistencia contra el proyecto de energía solar en Arzoxlî en el día 30 - ANF | Articles",
+        "url": "https://news.google.com/rss/articles/CBMi2gFBVV95cUxPVEh2UmE4dUpGdTN1dHRpem5SMUo3b3M5Ti1odzB1Y3d2WWp3YnZ6eUNmNTFsWG1fT1lNa1VWUEJ0VFUzUzlVMlBEUm1LTEZDNzdWaUlyYVZYaDZHLUNDblFERU5EZXhDeWhYbUUzUFpybDZWQ0d6VFVHYS1NRl9JQ1MzVVU1dmFnbzc1MFRjdmdOWWQ0WElycmJCWjFfR1NRVDN3VlB3dnFabVJGNVAtTkEtWGdRNkdCWl9VTHVWc3ZtNjZDbmhKNDVENjdqQm5CWjQ3VUs0THc1UQ?oc=5",
+        "snippet": "Resistencia contra el proyecto de energía solar en Arzoxlî en el día 30  ANF | Articles",
+        "engine": "google_news"
+      }
+    ]
   }
 }
