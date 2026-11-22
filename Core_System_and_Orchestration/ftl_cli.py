@@ -607,6 +607,22 @@ def dispatch_unified_command(cmd_name: str, args_list: list[str] = None) -> bool
         return True
 
     elif cmd in ("shield", "zero-error", "escudo", "et-shield"):
+        sub = args[0].lower() if args else "status"
+        extra = args[1:] if len(args) > 1 else []
+        try:
+            proc = subprocess.run(
+                ["/home/m11/.local/bin/zero-error-shield", sub, *extra],
+                stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30,
+            )
+            if proc.stdout.strip():
+                console.print(proc.stdout.strip())
+            if proc.returncode != 0 and proc.stderr.strip():
+                console.print(f"[red]✖ {proc.stderr.strip()[:600]}[/red]")
+        except Exception as exc:
+            console.print(f"[red]✖ Error ejecutando zero-error-shield: {exc}[/red]")
+        return True
+
+    elif cmd in ("shield", "zero-error", "escudo", "et-shield"):
         sub = args[0] if args else "status"
         rest = args[1:] if len(args) > 1 else []
         shield_bin = Path.home() / ".local" / "bin" / "zero-error-shield"

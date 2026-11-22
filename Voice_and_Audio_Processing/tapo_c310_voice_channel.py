@@ -27,6 +27,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import audioop
+import base64
 import json
 import logging
 import os
@@ -595,6 +596,34 @@ class TemporalBrainClient:
                 logger.warning(f"No se pudo preparar TemporalBrain UNIX: {exc}")
         self._http_client = httpx.AsyncClient(timeout=httpx.Timeout(45.0, connect=5.0))
 
+    @staticmethod
+    def _content_with_image(text: str, image: Optional[Any]) -> Any:
+        content = str(text or "")
+        if image is None:
+            return content
+        if isinstance(image, (bytes, bytearray, memoryview)):
+            b64 = base64.b64encode(bytes(image)).decode("utf-8")
+        else:
+            b64 = str(image).split(",", 1)[-1].strip()
+            if not b64:
+                return content
+        return [
+            {"type": "text", "text": content},
+            {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b64}"}},
+        ]
+
+    def _attach_images(
+        self, messages: List[Dict[str, Any]], images: Optional[List[Any]] = None
+    ) -> List[Dict[str, Any]]:
+        """Adjunta el fotograma de cámara al último mensaje del usuario (formato multimodal)."""
+        prepared = [dict(m) for m in (messages or [])]
+        if not images or not prepared:
+            return prepared
+        last = dict(prepared[-1])
+        last["content"] = self._content_with_image(last.get("content") or "", images[0])
+        prepared[-1] = last
+        return prepared
+
     async def close(self) -> None:
         for client in (self._unix_client, self._http_client):
             if client is not None:
@@ -615,11 +644,30 @@ class TemporalBrainClient:
             text = re.split(r"<think>", text, flags=re.IGNORECASE)[0]
         return text.strip()
 
-    async def chat(self, messages: List[Dict[str, str]]) -> Tuple[str, float, str]:
+    async def chat(
+        self,
+        messages: List[Dict[str, Any]],
+        images: Optional[List[Any]] = None,
+        pedagogical_level: Optional[str] = None,
+        dialectic_role: Optional[str] = None,
+        language: Optional[str] = None,
+        direction: Optional[str] = "present",
+        max_tokens: Optional[int] = None,
+    ) -> Tuple[str, float, str]:
+        """
+        Chat multimodal del cerebro TARDIS para la conversación didáctica en vivo.
+
+        - `images`: fotogramas de cámara (investigación visual GOD-EYE). Acepta bytes
+          JPEG o strings base64/data-URL; se adjuntan al último mensaje del usuario.
+        - `pedagogical_level` / `dialectic_role` / `language`: contexto pedagógico y
+          dialectal para la respuesta del docente.
+        - `max_tokens`: techo de generación (modo enseñanza usa un valor superior).
+        """
+        prepared_messages = self._attach_images(messages, images)
         payload = {
-            "messages": messages,
+            "messages": prepared_messages,
             "stream": False,
-            "max_tokens": self.max_tokens,
+            "max_tokens": int(max_tokens) if max_tokens is not None else self.max_tokens,
             "temperature": self.temperature,
         }
         started = time.perf_counter()
@@ -657,8 +705,16 @@ class TemporalBrainClient:
             resp = await self._http_client.post(
                 f"{TARDIS_CHAT_URL}?key={token}",
                 json={
-                    "message": messages[-1]["content"],
+                    "message": str(messages[-1].get("content") or ""),
                     "client_id": "tapo_c310_voice_channel",
+                    "history": [
+                        {"role": m.get("role") or "user", "content": str(m.get("content") or "")}
+                        for m in (messages or [])[-9:-1]
+                    ],
+                    "pedagogical_level": pedagogical_level,
+                    "dialectic_role": dialectic_role,
+                    "language": language,
+                    "direction": direction,
                 },
                 timeout=60.0,
             )
@@ -1358,6 +1414,14 @@ class TapoC310VoiceChannel:
             if record["status"] == "in_progress":
                 record["status"] = "completed" if record["answered"] else "no_answer"
             self._write_visitor_interview_record(record)
+            # Contexto conversacional de enseñanza para el visitante (nombre + motivo).
+            self.visitor_context = {
+                "name": str(answers.get("name") or ""),
+                "reason": str(answers.get("reason") or ""),
+                "track_ids": list(record.get("track_ids") or []),
+                "interview_id": record.get("interview_id") or "",
+                "status": record.get("status") or "",
+            }
             self._write_session_flag(0)
             self._set_state("wake", force=True)
             self._reset_audio_pipeline()
@@ -1395,6 +1459,11 @@ class TapoC310VoiceChannel:
         self.last_activity_ts = time.time()
         self._set_state("thinking")
 
+        # MODO ENSEÑANZA: cualquier orden didáctica («enséname», «explícame»...) activa
+        # la conversación docente de TARDIS con el interlocutor (Arquitecto o visitante).
+        if self.teaching_enabled and is_teaching_intent(clean):
+            self._enter_teaching(clean, context=self.visitor_context)
+
         # COMANDO DE VOZ SOBERANO «PROGRAMA»: el micrófono de la cámara C310
         # también puede ordenar a FTL la creación de una función.
         try:
@@ -1417,13 +1486,23 @@ class TapoC310VoiceChannel:
         local = await self._try_local_intent(clean)
         if local is not None:
             return
-        messages: List[Dict[str, str]] = [
+        messages: List[Dict[str, Any]] = [
             {"role": "system", "content": self._system_prompt()},
             *self._history[-8:],
             {"role": "user", "content": clean},
         ]
+        # Investigación visual en vivo: en modo enseñanza se adjunta el fotograma
+        # GOD-EYE para que TARDIS pueda analizar lo que el visitante señala.
+        frame_jpeg = self._capture_camera_frame() if self.teaching_mode else None
         started = time.perf_counter()
-        reply, llm_sec, backend = await self.brain.chat(messages)
+        reply, llm_sec, backend = await self.brain.chat(
+            messages,
+            images=[frame_jpeg] if frame_jpeg else None,
+            pedagogical_level=self.config.get("pedagogical_level"),
+            dialectic_role=self.config.get("dialectic_role"),
+            language=self.config.get("language"),
+            max_tokens=self.teaching_llm_max_tokens if self.teaching_mode else None,
+        )
         self.last_llm_ms = llm_sec * 1000.0
         self.last_backend = backend
         if not reply:
@@ -1460,6 +1539,7 @@ class TapoC310VoiceChannel:
                 "stt_ms": round(self.last_stt_ms, 1),
                 "llm_ms": round(self.last_llm_ms, 1),
                 "tts_ms": round(self.last_tts_ms, 1),
+                "teaching": bool(self.teaching_mode),
             }
         )
         logger.info(f"🤖 [TARDIS/{backend} {self.last_llm_ms:.0f}ms] {reply}")
@@ -1637,11 +1717,13 @@ class TapoC310VoiceChannel:
             if self.state == "followup" and now >= self._followup_until:
                 self._set_state("wake")
                 self._history.clear()
+                self._exit_teaching("ventana_seguimiento_cerrada")
                 self._write_session_flag(0)
                 logger.info("Ventana de seguimiento cerrada; vuelvo a la wake word.")
             elif self.state == "command" and now >= self._command_deadline:
                 self._set_state("wake")
                 self._history.clear()
+                self._exit_teaching("ventana_comando_cerrada")
                 self._write_session_flag(0)
 
             # Entrevista automática solicitada por el Centinela (detección humana + 15 s).

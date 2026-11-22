@@ -86,8 +86,11 @@ class EasyTouchEngine:
         try:
             from core.easy_touch_agent import get_easy_touch_agent
             self.agent = get_easy_touch_agent()
-            self.agent.start_autonomous_agent(interval_seconds=60.0)
-            logger.info("[EASY-TOUCH] Agente autónomo de auto-mejora enlazado y activo en segundo plano.")
+            if os.environ.get("EASY_TOUCH_NO_BACKGROUND_AGENT") != "1":
+                self.agent.start_autonomous_agent(interval_seconds=60.0)
+                logger.info("[EASY-TOUCH] Agente autónomo de auto-mejora enlazado y activo en segundo plano.")
+            else:
+                logger.debug("[EASY-TOUCH] Agente enlazado en modo bajo demanda (EASY_TOUCH_NO_BACKGROUND_AGENT=1).")
         except Exception as e:
             logger.debug(f"[EASY-TOUCH] Nota: Agente de auto-mejora se inicializará bajo demanda: {e}")
 

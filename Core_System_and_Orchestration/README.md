@@ -71,6 +71,7 @@ Núcleo de orquestación temporal, bucles de control soberano FTL y sincronizaci
 - **test_task_manager.py**: Componente de alta eficiencia.
 - **test_ton618.py**: Componente de alta eficiencia.
 - **ton618.py**: Componente de alta eficiencia.
+- **zero_error_shield.py**: Centinela de seguridad, blindaje perimetral o bóveda segura.
 
 ## Requisitos e Integración
 Los módulos operan bajo el stack soberano de Linux (x86_64), integrando aceleración por GPU y telemetría de bajo nivel.
