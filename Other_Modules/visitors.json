@@ -2,11 +2,11 @@
   "visitante": {
     "key": "visitante",
     "name": "Visitante",
-    "visit_count": 2,
+    "visit_count": 3,
     "first_seen": REDACTED_PHONE.3224897,
     "first_seen_iso": "2026-11-22T01:27:52-0500",
-    "last_seen": REDACTED_PHONE.5992186,
-    "last_seen_iso": "2026-11-22T01:27:53-0500",
+    "last_seen": REDACTED_PHONE.9519918,
+    "last_seen_iso": "2026-11-22T01:29:33-0500",
     "pedagogical_level": "intermedio",
     "interests": [
       "geologia",
@@ -18,6 +18,27 @@
     ],
     "seen_capsules": [
       "regional-cenotes"
+    ],
+    "known_facts": [],
+    "last_reason": ""
+  },
+  "arquitecto": {
+    "key": "arquitecto",
+    "name": "Arquitecto",
+    "visit_count": 1,
+    "first_seen": REDACTED_PHONE.556517,
+    "first_seen_iso": "2026-11-22T01:28:19-0500",
+    "last_seen": REDACTED_PHONE.5602963,
+    "last_seen_iso": "2026-11-22T01:28:19-0500",
+    "pedagogical_level": "intermedio",
+    "interests": [
+      "biologia"
+    ],
+    "topics_studied": [
+      "La inteligencia distribuida de los pulpos"
+    ],
+    "seen_capsules": [
+      "biologia-pulpos"
     ],
     "known_facts": [],
     "last_reason": ""

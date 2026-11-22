@@ -728,6 +728,7 @@ class TemporalBrainClient:
                             "num_predict": tokens,
                             "temperature": self.temperature,
                             "num_ctx": 3072,
+                            "num_gpu": 22,
                         },
                     },
                     timeout=35.0 if images else 18.0,
@@ -2213,6 +2214,12 @@ class TapoC310VoiceChannel:
         )
         self._tasks.append(asyncio.create_task(self._audio_stream.run()))
         self._tasks.append(asyncio.create_task(self._watchdog()))
+        if self.conversation_enabled and hasattr(self, "conv_brain"):
+            async def _warmup_voice_gpu() -> None:
+                ok = await self.conv_brain.warmup()
+                if ok:
+                    logger.info(f"Carril GPU conversacional precalentado ({self.fast_llm_model} @ {self.fast_llm_url}).")
+            self._tasks.append(asyncio.create_task(_warmup_voice_gpu()))
         self._set_state("wake", force=True)
         self._write_state(force=True)
 

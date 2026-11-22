@@ -131,6 +131,8 @@ CANONICAL_GREETING = (
 )
 
 _RE_THINK = re.compile(r"<think>.*?</think>", flags=re.DOTALL | re.IGNORECASE)
+_RE_HTML_TAG = re.compile(r"</?[a-zA-Z][^>]*>?")
+_RE_TABLE_RULE = re.compile(r"-{3,}")
 _RE_MD_CODE = re.compile(r"```.*?```", flags=re.DOTALL)
 _RE_MD_LINK = re.compile(r"\[([^\]]*)\]\([^)]*\)")
 _RE_URL = re.compile(r"https?://\S+")
@@ -190,6 +192,8 @@ def clean_spoken_spanish(
     if "<think>" in body.lower():
         body = re.split(r"<think>", body, flags=re.IGNORECASE)[0]
     body = _RE_MD_CODE.sub(" ", body)
+    body = _RE_HTML_TAG.sub(" ", body)
+    body = _RE_TABLE_RULE.sub(" ", body)
     body = _RE_MD_LINK.sub(r"\1", body)
     body = _RE_URL.sub(" ", body)
     body = _RE_MD_CHARS.sub(" ", body)
@@ -913,9 +917,10 @@ class CameraVisionInvestigator:
             "stream": False,
             "keep_alive": -1,
             "options": {
-                "num_predict": 130,
+                "num_predict": 110,
                 "temperature": 0.25,
                 "num_ctx": 3072,
+                "num_gpu": 22,
             },
         }
 
@@ -1263,10 +1268,11 @@ class VoiceBrain:
         fast_model: str = VOICE_OLLAMA_DEFAULT_MODEL,
         socket_path: Path = TEMPORAL_BRAIN_SOCK,
         fallback_model: str = "TARDIS-NEURAL-SPACE-KAIJU",
-        max_tokens: int = 240,
+        max_tokens: int = 160,
         temperature: float = 0.5,
-        fast_timeout_sec: float = 20.0,
-        temporal_timeout_sec: float = 12.0,
+        fast_timeout_sec: float = 28.0,
+        temporal_timeout_sec: float = 10.0,
+        fast_num_gpu: int = 22,
     ) -> None:
         self.fast_ollama_url = str(fast_ollama_url or VOICE_OLLAMA_DEFAULT_URL).rstrip("/")
         self.fast_model = str(fast_model or VOICE_OLLAMA_DEFAULT_MODEL)
@@ -1276,6 +1282,7 @@ class VoiceBrain:
         self.temperature = float(temperature)
         self.fast_timeout_sec = float(fast_timeout_sec)
         self.temporal_timeout_sec = float(temporal_timeout_sec)
+        self.fast_num_gpu = int(fast_num_gpu)
 
         self._http_client = httpx.AsyncClient(
             timeout=httpx.Timeout(max(self.fast_timeout_sec, 30.0), connect=3.0)
@@ -1299,6 +1306,30 @@ class VoiceBrain:
                     await cl.aclose()
                 except Exception:
                     pass
+
+    async def warmup(self) -> bool:
+        """Precalienta qwen3-vl:2b-instruct en el carril GPU dedicado (:11435)."""
+        if not self.fast_ollama_url:
+            return False
+        try:
+            resp = await self._http_client.post(
+                f"{self.fast_ollama_url}/api/chat",
+                json={
+                    "model": self.fast_model,
+                    "messages": [{"role": "user", "content": "ok"}],
+                    "stream": False,
+                    "keep_alive": -1,
+                    "options": {
+                        "num_predict": 4,
+                        "num_ctx": 3072,
+                        "num_gpu": self.fast_num_gpu,
+                    },
+                },
+                timeout=35.0,
+            )
+            return resp.status_code == 200
+        except Exception:
+            return False
 
     @staticmethod
     def _strip_text_messages(messages: List[Dict[str, Any]]) -> List[Dict[str, str]]:
@@ -1362,6 +1393,7 @@ class VoiceBrain:
                             "num_predict": tokens,
                             "temperature": temp,
                             "num_ctx": 3072,
+                            "num_gpu": self.fast_num_gpu,
                         },
                     },
                     timeout=self.fast_timeout_sec,
@@ -1934,14 +1966,15 @@ class ConversationDirector:
             "Cierra con una pregunta breve o invitación que estimule la curiosidad cuando sea natural.",
         ]
         if self.visitor_profile.get("topics_studied"):
-            prev = ", ".join(self.visitor_profile["topics_studied"][-4:])
-            extras.append(f"Temas que el visitante ya ha explorado antes: {prev}.")
-        if self.last_visual_context:
-            extras.append(f"Última observación visual de la cámara C310: {self.last_visual_context}")
-        if self.last_research_context:
-            extras.append(f"Evidencia investigada recientemente: {self.last_research_context[:700]}")
+            prev = ", ".join(self.visitor_profile["topics_studied"][-3:])
+            extras.append(f"Temas previos del visitante: {prev}.")
         if extra_context:
             extras.append(extra_context)
+        else:
+            if self.last_visual_context:
+                extras.append(f"Última observación visual C310: {self.last_visual_context[:260]}")
+            if self.last_research_context:
+                extras.append(f"Evidencia investigada reciente: {self.last_research_context[:420]}")
         return " ".join(extras)
 
     async def handle_turn(
@@ -2334,9 +2367,9 @@ class ConversationDirector:
                 clean,
                 intent="research",
                 extra_context=(
-                    f"Acabas de investigar '{query}' en fuentes verificadas: {finding.summary[:800]}. "
-                    "Sintetiza los hallazgos clave en español hablado, enseña con claridad "
-                    "y ofrece profundizar o investigar un aspecto relacionado."
+                    f"Evidencia verificada sobre '{query}': {finding.summary[:480]}. "
+                    "Sintetiza los hallazgos clave en 3 frases habladas claras en español "
+                    "y cierra con una pregunta para seguir explorando."
                 ),
                 role_override="researcher",
             )
@@ -2388,7 +2421,7 @@ class ConversationDirector:
         ]
         reply, secs, backend = await self.brain.chat(
             messages,
-            max_tokens=260 if self.mode in ("teaching", "research") else 190,
+            max_tokens=165 if self.mode in ("teaching", "research") else 135,
             pedagogical_level=self.pedagogical_level,
             dialectic_role=role_override or self.dialectic_role,
             language=self.default_language,
