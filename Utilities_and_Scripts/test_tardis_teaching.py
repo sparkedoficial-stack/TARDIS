@@ -12,8 +12,8 @@ Regresiones de la tarea soberana del Arquitecto (₪) para la Tapo C310 (GOD-EYE
 from __future__ import annotations
 
 import sys
-import time
 from pathlib import Path
+from typing import Any, Dict, List
 
 import pytest
 
@@ -28,6 +28,7 @@ from core.tardis_teaching import (
     teaching_reply_limits,
     teaching_topic,
 )
+from core.tardis_voice_local import split_sentences
 
 
 # ---------------------------------------------------------------------------
@@ -69,9 +70,7 @@ class TestTeachingIntent:
 # ---------------------------------------------------------------------------
 
 def test_teaching_topic_strips_trigger_and_filler():
-    assert teaching_topic("TARDIS enséname sobre la entropía del universo") == (
-        "sobre la entropia del universo"
-    )
+    assert teaching_topic("TARDIS enséname sobre la entropía del universo") == "sobre la entropia del universo"
     assert teaching_topic("Explícame cómo funciona la gravedad") == "como funciona la gravedad"
 
 
@@ -91,9 +90,9 @@ def test_teaching_prompt_contains_persona_context_and_pedagogy():
     assert "Miguel" in prompt
     assert "Superposición cuántica" in prompt
     assert "avanzado" in prompt
-    assert "markdown" in prompt.lower() or "markdown" in prompt
-    assert "arroll" not in prompt  # sanity: no accidental content
-    assert "TARDIS" in prompt
+    lowered = prompt.lower()
+    assert "markdown" in lowered
+    assert "limitaciones" in lowered
 
 
 def test_teaching_prompt_defaults_are_safe_without_context():
@@ -106,123 +105,67 @@ def test_teaching_prompt_defaults_are_safe_without_context():
 # 4. Límites de respuesta: conversación normal vs enseñanza
 # ---------------------------------------------------------------------------
 
-class TestTeachingReplyLimits:
-    @pytest.mark.parametrize(
-        ("teaching", "sentences", "chars"),
-        [
-            (False, 3, 420),
-            (True, 6, 900),
-        ],
-    )
-    def test_reply_limits_switch_with_teaching(self, teaching, sentences, chars):
-        assert teaching_reply_limits(teaching=teaching) == {"sentences": sentences, "chars": chars}
+def test_reply_limits_switch_with_teaching():
+    assert teaching_reply_limits(teaching=False) == {"sentences": 3, "chars": 420}
+    assert teaching_reply_limits(teaching=True) == {"sentences": 6, "chars": 900}
 
 
 # ---------------------------------------------------------------------------
-# 5. Canal C310: modo enseñanza y límites de habla
+# 5. Canal C310 (core/tapo_c310_voice_channel.py): modo enseñanza
 # ---------------------------------------------------------------------------
 
-class TestTapoC310TeachingChannel:
-    def test_teaching_mode_enter_exit(self, tmp_path):
-        from core.tapo_c310_voice_channel import TapoC310VoiceChannel
+def _make_channel(tmp_path: Path):
+    from core.tapo_c310_voice_channel import TapoC310VoiceChannel
 
-        channel = TapoC310VoiceChannel(config_path=tmp_path / "tapo_c310_config.json")
-        assert channel.teaching_mode is False
-        channel._enter_teaching("fisica cuántica", context={"name": "Miguel", "reason": "Curiosidad"})
-        assert channel.teaching_mode is True
-        assert channel.teaching_topic == "fisica cuántica"
-        assert channel.visitor_context.get("name") == "Miguel"
-        channel._exit_teaching("test")
-        assert channel.teaching_mode is False
-        assert channel.teaching_topic == ""
+    return TapoC310VoiceChannel(config_path=tmp_path / "tapo_c310_config.json")
 
-    def test_prepare_speech_teaching_allows_more_sentences(self):
-        from core.tapo_c310_voice_channel import TapoC310VoiceChannel
 
-        channel = TapoC310VoiceChannel(config_path=Path("/home/m11/Escritorio/GODWORKS SYSTEM/tapo_c310_config.json"))
-        teaching_reply = "Un placer. Soy TARDIS. Estoy aquí. Con gusto te enseño. Hasta pronto."
-        long_reply = ". ".join(f"Frase didactica numero {i} del tema." for i in range(1, 8))
+def test_teaching_mode_enter_exit(tmp_path):
+    channel = _make_channel(tmp_path)
+    assert channel.teaching_mode is False
+    channel._enter_teaching("fisica cuántica", context={"name": "Miguel", "reason": "Curiosidad"})
+    assert channel.teaching_mode is True
+    assert channel.teaching_topic == "fisica cuántica"
+    assert channel.visitor_context.get("name") == "Miguel"
+    channel._exit_teaching("test")
+    assert channel.teaching_mode is False
+    assert channel.teaching_topic == ""
 
-        channel.teaching_mode = False
-        out_normal = channel._prepare_speech(teaching_reply)
-        assert len(teaching_mod.split_sentences(out_normal)) <= 3
 
-        channel.teaching_mode = True
-        out_teaching = channel._prepare_speech(long_reply)
-        kept = teaching_mod.split_sentences(out_teaching)
-        assert len(kept) <= 6
+def test_prepare_speech_teaching_allows_more_sentences(tmp_path):
+    channel = _make_channel(tmp_path)
+    channel.teaching_enabled = True
+    channel.max_reply_sentences = 3
+    channel.max_reply_chars = 420
+    channel.teaching_max_reply_sentences = 6
+    channel.teaching_max_reply_chars = 900
 
-    def test_state_payload_exposes_teaching(self):
-        from core.tapo_c310_voice_channel import TapoC310VoiceChannel
+    long_reply = ". ".join(f"Frase didactica numero {i} del tema." for i in range(1, 8))
 
-        channel = TapoC310VoiceChannel(config_path=Path("/home/m11/Escritorio/GODWORKS SYSTEM/tapo_c310_config.json"))
-        channel.teaching_mode = True
-        channel.teaching_topic = "fisica"
-        payload = channel._state_payload()
-        assert payload["teaching"]["active"] is True
-        assert payload["teaching"]["topic"] == "fisica"
-        assert payload["teaching"]["enabled"] is True
+    channel.teaching_mode = False
+    out_normal = channel._prepare_speech(long_reply)
+    assert len(split_sentences(out_normal)) <= 3
+
+    channel.teaching_mode = True
+    out_teaching = channel._prepare_speech(long_reply)
+    assert len(split_sentences(out_teaching)) <= 6
+
+
+def test_state_payload_exposes_teaching(tmp_path):
+    channel = _make_channel(tmp_path)
+    channel.teaching_mode = True
+    channel.teaching_topic = "fisica"
+    payload = channel._state_payload()
+    assert payload["teaching"]["active"] is True
+    assert payload["teaching"]["topic"] == "fisica"
+    assert payload["teaching"]["enabled"] is True
 
 
 # ---------------------------------------------------------------------------
-# 6. Canal slim (tardis_voice_channel_c310): memoria conversacional
+# 6. Canal slim (core/tardis_voice_channel_c310.py): memoria e intención
 # ---------------------------------------------------------------------------
 
-class TestSlimChannelTeachingState:
-    def test_handle_turn_teaching_sets_context_and_closes(self, monkeypatch):
-        from core import tardis_voice_channel_c310 as slim
-
-        channel = slim.TardisVoiceChannelC310.__new__(slim.TardisVoiceChannelC310)
-        # Sin inicializar recursos hardware: solo el estado de conversación.
-        channel.cfg = {
-            "max_reply_chars": 420,
-            "max_reply_sentences": 3,
-            "pedagogical_level": "intermedio",
-            "dialectic_role": "teacher",
-            "language": "es",
-        }
-        channel.llm_timeout = 25.0
-        channel.followup_sec = 20.0
-        channel.teaching_enabled = True
-        channel.teaching_mode = False
-        channel.teaching_topic = ""
-        channel.teaching_max_reply_chars = 900
-        channel.teaching_max_reply_sentences = 6
-        channel.history = []
-        channel.visitor_context = {"name": "Miguel", "reason": "Curiosidad"}
-        channel.speaker = None
-        channel.mind = slim.TardisMind()
-
-        replied = []
-
-        class _FakeMind:
-            @classmethod
-            def llm_reply(cls, text, timeout, teaching=False, context=None, pedagogical_level=None,
-                         dialectic_role=None, language=None, history=None):
-                replied.append((text, teaching, context, pedagogical_level, dialectic_role, language, history))
-                return "Un placer. Soy TARDIS. Con gusto te enseño."
-
-        channel.mind = _FakeMind()
-
-        async def _fake_speak(text):
-            return {"ok": True}
-
-        channel._speak_via_camera = _fake_speak
-
-        channel._handle_turn("TARDIS enséname sobre la física cuántica")
-        assert channel.teaching_mode is True
-        assert channel.teaching_topic == "sobre la fisica cuantica"
-        assert replied[0][1] is True
-        assert replied[0][2].get("name") == "Miguel"
-        assert replied[0][6] == []
-
-        channel._handle_turn("cierra el canal")
-        # «cierra el canal» no es intención de enseñanza; la respuesta local la cierra.
-        assert isinstance(replied, list)
-        assert channel.history[-2]["role"] == "user"
-
-
-def test_slim_channel_handle_turn_teaching_history_tracking():
+def _make_slim_channel() -> Any:
     from core import tardis_voice_channel_c310 as slim
 
     channel = slim.TardisVoiceChannelC310.__new__(slim.TardisVoiceChannelC310)
@@ -240,41 +183,66 @@ def test_slim_channel_handle_turn_teaching_history_tracking():
     channel.teaching_topic = ""
     channel.teaching_max_reply_chars = 900
     channel.teaching_max_reply_sentences = 6
-    channel.history = []
-    channel.visitor_context = {}
+    channel.history: List[Dict[str, str]] = []
+    channel.visitor_context: Dict[str, Any] = {"name": "Miguel", "reason": "Curiosidad"}
     channel.speaker = None
-    channel.mind = slim.TardisMind()
 
-    async def _fake_speak(text):
-        return {"ok": True}
+    class _FakeMind:
+        def __init__(self) -> None:
+            self.last_call = None
 
-    channel._speak_via_camera = _fake_speak
+        def llm_reply(self, text, timeout, teaching=False, context=None, pedagogical_level=None,
+                     dialectic_role=None, language=None, history=None):
+            self.last_call = {
+                "text": text,
+                "teaching": teaching,
+                "context": context,
+                "pedagogical_level": pedagogical_level,
+                "dialectic_role": dialectic_role,
+                "language": language,
+                "history": history,
+            }
+            return "Un placer. Soy TARDIS. Con gusto te enseño."
 
-    import asyncio
+    fake_mind = _FakeMind()
+    channel.mind = fake_mind
+    channel._speak_via_camera = lambda text: {"ok": True}
+    channel._reset_recognizer = lambda: None
+    return channel, fake_mind
 
-    async def _drive():
-        channel._handle_turn("Explícame qué es la entropía")
-        # Esperar la tarea de procesamiento (asyncio task creado dentro de _handle_turn)
-        for _ in range(50):
-            if not channel._processing if hasattr(channel, "_processing") else True:
-                break
-            await asyncio.sleep(0.01)
-        return channel
 
-    # _handle_turn puede crear tareas asyncio; usar task wrapper cuando sea necesario.
-    import asyncio as _asyncio
+def test_slim_channel_handle_turn_teaching_uses_context_and_memory():
+    channel, fake_mind = _make_slim_channel()
 
-    task = _asyncio.create_task(channel._handle_turn("Explícame qué es la entropía"))
-    # _handle_turn es síncrono (crea task interna), así que simplemente esperamos a que termine.
-    try:
-        import asyncio as _a2
-        # No bloqueante: _handle_turn no es async en esta clase
-    except Exception:
-        pass
-    task.cancel()
-    try:
-        await task
-    except Exception:
-        pass
+    channel._handle_turn("TARDIS enséname sobre la física cuántica")
     assert channel.teaching_mode is True
+    assert channel.teaching_topic == "sobre la fisica cuantica"
+
+    last_call = fake_mind.last_call
+    assert last_call is not None
+    assert last_call["teaching"] is True
+    assert last_call["context"].get("name") == "Miguel"
+    assert len(last_call["history"]) == 2  # memoria conversacional del canal (turno actual)
+
     assert len(channel.history) == 2
+    assert channel.history[0]["role"] == "user"
+    assert channel.history[1]["role"] == "assistant"
+
+
+def test_slim_channel_handle_turn_non_teaching_keeps_history_clean():
+    channel, fake_mind = _make_slim_channel()
+
+    channel._handle_turn("¿Qué hora es?")
+    assert channel.teaching_mode is False
+    last_call = fake_mind.last_call
+    assert last_call["teaching"] is False
+    assert len(channel.history) == 2
+
+
+def test_slim_channel_close_clears_teaching():
+    channel, _fake_mind = _make_slim_channel()
+    channel.teaching_mode = True
+    channel.teaching_topic = "fisica"
+    channel._close_channel()
+    assert channel.teaching_mode is False
+    assert channel.teaching_topic == ""

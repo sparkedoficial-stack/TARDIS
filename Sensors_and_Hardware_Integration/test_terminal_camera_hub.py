@@ -19,9 +19,18 @@ from core.terminal_camera_hub import (
     classify_network_origin,
     is_local_client
 )
+from core.security import get_authorized_tokens
 from server.api import app
 
 client = TestClient(app)
+
+# Token soberano vigente (fuente unica: settings / env / bridge / custodia).
+# Los clientes remotos que se comunican via tunel proxy (Cloudflare) o con huella
+# fisica deben autenticarse para superar el gate global de autorizacion; el nodo
+# local en loopback fisico no requiere token.
+_TOKENS = get_authorized_tokens()
+TARDIS_TEST_TOKEN = next(iter(_TOKENS)) if _TOKENS else ""
+TARDIS_AUTH = {"x-api-key": TARDIS_TEST_TOKEN} if TARDIS_TEST_TOKEN else {}
 
 # Frame JPEG mínimo sintético de 1x1 píxel
 TINY_JPEG_B64 = (
@@ -216,7 +225,11 @@ def test_api_cloudflare_internet_headers():
         "cf-ipcountry": "ES"
     }
 
-    resp = client.post("/api/terminal_cameras/feed", json=payload, headers=headers)
+    resp = client.post(
+        "/api/terminal_cameras/feed",
+        json=payload,
+        headers={**TARDIS_AUTH, **headers},
+    )
     assert resp.status_code == 200
     data = resp.json()
     assert data["ok"] is True
@@ -277,7 +290,11 @@ def test_api_capture_connected_endpoints():
     }
 
     # 1. POST capture_connected
-    resp_post = client.post("/api/terminal_cameras/capture_connected", json=payload, headers=headers)
+    resp_post = client.post(
+        "/api/terminal_cameras/capture_connected",
+        json=payload,
+        headers={**TARDIS_AUTH, **headers},
+    )
     assert resp_post.status_code == 200
     data = resp_post.json()
     assert data["ok"] is True
@@ -345,7 +362,7 @@ def test_cctv_local_only_airgap_security():
     # 2.2 Acceso remoto con cabecera Cloudflare a snapshot -> 403 Forbidden
     resp_snap_remote = client.get(
         f"/api/terminal_cameras/snapshot/{test_id}",
-        headers={"cf-connecting-ip": "REDACTED_IP"}
+        headers={**TARDIS_AUTH, "cf-connecting-ip": "REDACTED_IP"}
     )
     assert resp_snap_remote.status_code == 403
     assert "ACCESO DENEGADO" in resp_snap_remote.json()["detail"]
@@ -353,7 +370,7 @@ def test_cctv_local_only_airgap_security():
     # 2.3 Acceso LAN con X-Forwarded-For a stream -> 403 Forbidden
     resp_stream_remote = client.get(
         f"/api/terminal_cameras/stream/{test_id}",
-        headers={"x-forwarded-for": "REDACTED_IP"}
+        headers={**TARDIS_AUTH, "x-forwarded-for": "REDACTED_IP"}
     )
     assert resp_stream_remote.status_code == 403
     assert "ACCESO DENEGADO" in resp_stream_remote.json()["detail"]
@@ -361,7 +378,7 @@ def test_cctv_local_only_airgap_security():
     # 2.4 Acceso remoto a lista de capturas -> 403 Forbidden
     resp_caps_remote = client.get(
         "/api/terminal_cameras/captures",
-        headers={"cf-connecting-ip": "REDACTED_IP"}
+        headers={**TARDIS_AUTH, "cf-connecting-ip": "REDACTED_IP"}
     )
     assert resp_caps_remote.status_code == 403
     assert "ACCESO DENEGADO" in resp_caps_remote.json()["detail"]

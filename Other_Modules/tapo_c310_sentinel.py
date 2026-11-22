@@ -2195,7 +2195,24 @@ class TapoC310Sentinel:
         loop = asyncio.get_running_loop()
 
         while not self._stop_event.is_set():
-            await self._new_frame_event.wait()
+            # Esperar por un nuevo frame O hasta que se solicite detención, cancelando
+            # siempre la tarea pendiente para evitar fugas de memoria/waiters por fotograma.
+            frame_wait = asyncio.create_task(self._new_frame_event.wait())
+            stop_wait = asyncio.create_task(self._stop_event.wait())
+            try:
+                await asyncio.wait(
+                    (frame_wait, stop_wait),
+                    return_when=asyncio.FIRST_COMPLETED,
+                )
+            finally:
+                for fut in (frame_wait, stop_wait):
+                    if not fut.done():
+                        fut.cancel()
+                await asyncio.gather(frame_wait, stop_wait, return_exceptions=True)
+
+            if self._stop_event.is_set():
+                break
+
             self._new_frame_event.clear()
 
             if self._frame_seq == last_analyzed_seq or not self._latest_jpeg:

@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1794769746",
-    "timestamp": "2026-11-15T14:09:06.446051",
-    "idle_duration_minutes": 76.4,
-    "title": "Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching mechanism can dynamically predict the relevance decay of stored search results based on observed changes in source domains (e.g., content updates, SEO shifts). By modeling the causal relationship between external events (content revision timestamps, domain authority fluctuations) and result relevance, the engine can proactively invalidate or reprioritize cached entries, reducing stale data retrieval and improving answer accuracy without a full re‑query on every request.",
-    "research_query": "causal inference based cache invalidation web search engine recent studies 2023 2024",
-    "research_findings": "# Informe de Investigación: causal inference based cache invalidation web search engine recent studies 2023 2024\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal relevance predictor that monitors source metadata and triggers selective cache invalidation, exposing a new function `invalidate_stale_cache(entry_id)` and integrating it into the request pipeline.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 2723.54
-  },
-  {
     "id": "conj_1794774185",
     "timestamp": "2026-11-15T15:23:05.662114",
     "idle_duration_minutes": 74.0,
@@ -1619,5 +1604,22 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 286.03
+  },
+  {
+    "id": "conj_1795327575",
+    "timestamp": "2026-11-22T01:06:15.421999",
+    "idle_duration_minutes": 0.0,
+    "title": "Teoría Causal de Adaptabilidad Continua",
+    "hypothesis": "Los bucles OODA enriquecidos con memoria akáshica aceleran la convergencia autónoma.",
+    "research_query": "autonomous agents self-improvement machine learning",
+    "research_findings": "Síntesis sintrópica de investigación autónoma.",
+    "web_sources": [
+      "https://example.org/study"
+    ],
+    "code_target": null,
+    "code_goal": null,
+    "evolution_status": "NOT_APPLICABLE",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 0.0
   }
 ]

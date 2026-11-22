@@ -164,7 +164,8 @@ def build_teaching_prompt(
     topic = str(visitor_ctx.get("topic") or visitor_ctx.get("teaching_topic") or "").strip()
 
     parts = [
-        _TEACHING_PERSONA_CORE,
+        TEACHING_PERSONA_CORE,
+        f"Nivel pedagógico: {level}.",
         _PEDAGOGY_PROMPTS[level],
         f"Contexto del interlocutor: {name or 'interlocutor no identificado'}.",
     ]
@@ -205,3 +206,192 @@ def teaching_reply_limits(teaching: bool = True) -> Dict[str, int]:
     if teaching:
         return {"sentences": 6, "chars": 900}
     return {"sentences": 3, "chars": 420}
+
+
+# ---------------------------------------------------------------------------
+# Extensiones de intención interactiva: investigación, visión y pedagogía adaptativa
+# ---------------------------------------------------------------------------
+
+_RESEARCH_PREFIXES = ("investig", "averigu", "busc", "indag", "document")
+_RESEARCH_PHRASES = (
+    "que es ",
+    "que son ",
+    "que significa ",
+    "como funciona",
+    "por que ",
+    "porque ",
+    "cuando paso",
+    "cuando fue",
+    "cuando se ",
+    "quien invento",
+    "quien descubrio",
+    "quien fue ",
+    "donde queda",
+    "donde esta ",
+    "que dice la ciencia",
+    "ultimas noticias",
+    "noticias sobre",
+    "noticias de",
+    "datos sobre",
+    "informacion sobre",
+    "informacion de",
+    "cuentame sobre",
+    "hablame de",
+    "hablame sobre",
+    "quiero saber",
+    "quiero investigar",
+    "ayudame a investigar",
+    "podemos investigar",
+)
+
+_VISION_PHRASES = (
+    "que ves",
+    "que observas",
+    "que miras",
+    "mira esto",
+    "mira aqui",
+    "mira lo que",
+    "observa esto",
+    "observa la",
+    "observa el",
+    "analiza esto",
+    "analiza lo que",
+    "que es esto",
+    "que tengo en la mano",
+    "que hay aqui",
+    "que hay frente",
+    "que hay delante",
+    "en la camara",
+    "por la camara",
+    "con la camara",
+    "lee esto",
+    "puedes leer",
+    "puedes ver",
+    "describe lo que ves",
+    "describe la escena",
+    "identifica esto",
+    "te muestro",
+)
+
+_CURIOSITY_PHRASES = (
+    "quiero aprender",
+    "aprender algo",
+    "algo interesante",
+    "dato curioso",
+    "curiosidad",
+    "sorprendeme",
+    "dame una clase",
+    "dame un tema",
+    "otro tema",
+    "otra cosa",
+    "cuentame algo",
+    "que me puedes ensenar",
+)
+
+_SIMPLER_HINTS = (
+    "mas facil",
+    "mas sencillo",
+    "mas simple",
+    "no entendi",
+    "no comprendi",
+    "como para nino",
+    "con palabras simples",
+    "despacio",
+)
+
+_DEEPER_HINTS = (
+    "mas profundo",
+    "profundiza",
+    "mas avanzado",
+    "mas tecnico",
+    "mas detalle",
+    "a fondo",
+    "nivel universitario",
+    "matematicamente",
+)
+
+_EXAMPLE_HINTS = (
+    "dame un ejemplo",
+    "ponme un ejemplo",
+    "otro ejemplo",
+    "analogia",
+    "como seria",
+)
+
+_QUIZ_HINTS = (
+    "hazme una pregunta",
+    "evaluame",
+    "ponme a prueba",
+    "hazme un quiz",
+    "examen",
+    "preguntame algo",
+)
+
+
+def is_research_intent(text: str) -> bool:
+    """True si la frase pide investigar, buscar, averiguar o consultar un tema."""
+    norm = normalize_teaching_text(text)
+    if not norm:
+        return False
+    tokens = norm.split()
+    if any(tok.startswith(pref) for tok in tokens for pref in _RESEARCH_PREFIXES):
+        return True
+    padded = f"{norm} "
+    return any(phrase in padded for phrase in _RESEARCH_PHRASES)
+
+
+def is_vision_intent(text: str) -> bool:
+    """True si el interlocutor pide observar, leer o analizar algo mediante la cámara C310."""
+    norm = normalize_teaching_text(text)
+    if not norm:
+        return False
+    return any(phrase in norm for phrase in _VISION_PHRASES)
+
+
+def is_curiosity_intent(text: str) -> bool:
+    """True si el interlocutor pide aprender algo nuevo, una curiosidad o una clase."""
+    if is_teaching_intent(text):
+        return True
+    norm = normalize_teaching_text(text)
+    if not norm:
+        return False
+    return any(phrase in norm for phrase in _CURIOSITY_PHRASES)
+
+
+def detect_pedagogical_adjustment(text: str) -> Optional[str]:
+    """
+    Detecta ajustes pedagógicos durante la clase interactiva:
+    'simpler' | 'deeper' | 'example' | 'quiz' | None.
+    """
+    norm = normalize_teaching_text(text)
+    if not norm:
+        return None
+    if any(h in norm for h in _QUIZ_HINTS):
+        return "quiz"
+    if any(h in norm for h in _EXAMPLE_HINTS):
+        return "example"
+    if any(h in norm for h in _SIMPLER_HINTS):
+        return "simpler"
+    if any(h in norm for h in _DEEPER_HINTS):
+        return "deeper"
+    return None
+
+
+def extract_research_query(text: str) -> str:
+    """Extrae el núcleo temático limpio para consulta web/Wikipedia/arXiv/RAG."""
+    norm = normalize_teaching_text(text)
+    if not norm:
+        return ""
+    patterns = (
+        r"\b(oye|hola|tardis|por favor|porfa|puedes|podrias|quiero que|ayudame a|podemos)\b",
+        r"\b(investiga|investigar|investigame|busca|buscar|buscame|averigua|averiguar|explica|explicame|ensename|ensenar|cuentame|hablame|dime)\b",
+        r"\b(informacion|datos|noticias|ultimas noticias|que dice la ciencia)\b",
+        r"^(sobre|acerca de|de|del|la|el|los|las|que es|que son|que significa|como funciona|como funcionan|por que|quien fue|quien descubrio|quien invento)\s+",
+    )
+    cleaned = norm
+    for pat in patterns:
+        cleaned = re.sub(pat, " ", cleaned).strip()
+        cleaned = re.sub(r"\s+", " ", cleaned)
+    cleaned = re.sub(r"^(sobre|acerca de|de|del|el|la|los|las|un|una)\s+", "", cleaned).strip()
+    return cleaned or norm
+

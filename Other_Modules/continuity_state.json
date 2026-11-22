@@ -1,18 +1,18 @@
 {
   "session_id": "master_timeline",
   "architect_goal": "Optimización de red y router físico/software + Sistema de Continuidad Absoluta Post-Reinicio",
-  "current_request": "TARDIS conectada a la Tapo C310 REDACTED_IP\nDebe poder conversar de forma interactiva, con el visitante, la idea es que tardis, le enseñe cosas a las personas y puedan tener interacción conversacional más compleja al punto de poder aprender y poder investigar mediante el uso de esta cámara",
+  "current_request": "continua con esta petición\n\n[MENSAJE CITADO EN TELEGRAM]:\n⚙️ Trabajo 20261122-000241 en curso · 66 min 16 s\n• Petición: TARDIS conectada a la Tapo C310 REDACTED_IP\nDebe poder conversar de forma interactiva, con el visitante, la idea es que tardis, le enseñe cosas a las personas y puedan tener interacción conversacion\n• Última salida: Let me run just the relevant test files:",
   "source": "FTL",
   "status": "in_progress",
   "progress_percent": 5,
-  "phase": "Iniciando ejecución con motor DEEPSEEK (opencode/deepseek-v4.1-flash-free#max)",
+  "phase": "Iniciando ejecución con motor KAIJU (gemini-4-neon-xhigh)",
   "details": {
-    "plan_mode": "deepseek",
-    "model": "opencode/deepseek-v4.1-flash-free#max",
-    "start_iso": "2026-11-22 00:02:43",
+    "plan_mode": "kaiju",
+    "model": "gemini-4-neon-xhigh",
+    "start_iso": "2026-11-22 01:10:31",
     "artifacts": []
   },
-  "created_ts": REDACTED_PHONE.9616034,
-  "updated_ts": REDACTED_PHONE.9616544,
-  "reboot_count": 295
+  "created_ts": REDACTED_PHONE.1742766,
+  "updated_ts": REDACTED_PHONE.1743171,
+  "reboot_count": 296
 }

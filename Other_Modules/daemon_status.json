@@ -1,12 +1,12 @@
 {
   "daemon": "tardis-visual-intelligence",
   "running": true,
-  "pid": 1426,
-  "uptime_sec": 84165.5,
-  "last_heartbeat": "2026-11-22T00:48:54.809173",
+  "pid": 1396,
+  "uptime_sec": 734.7,
+  "last_heartbeat": "2026-11-22T01:22:33.150089",
   "items_processed": 0,
   "last_processed_id": "",
-  "memory_rss_mb": 308.83,
+  "memory_rss_mb": 263.91,
   "engine_status": {
     "status": "online",
     "engine": "VisualIntelligenceEngine v26.5 (VLM + Veredictos)",
@@ -37,13 +37,13 @@
   },
   "surroundings": {
     "interval_sec": 900.0,
-    "checks": 36,
-    "verdicts": 36,
-    "last_verdict_id": "img_20261121_235135_883005",
-    "last_risk_level": 0,
-    "last_verdict": "*   Estado General del Entorno: Indeterminado / Vacío Visual. No hay entorno observable. La imagen no contiene información sobre la ubicación, las condiciones físicas ni la presencia de entidades.\n*   Nivel de Riesgo Objetivo: 0/10.\n    *   *Justificación:* No se observan amenazas, peligros, anomalías físicas ni elementos hostiles. El riesgo es nulo porque no hay nada que analizar en términos de seguridad física.\n*   Hechos Observados:\n    1.  Imagen estática de 1920x1080.\n    2.  Color uniforme `#484848`.\n    3.  Sin audio.\n    4.  Sin objetos ni sujetos visibles.\n*   Inferencias:\n    1.  La cámara o el sensor pudo estar tapado, desenfocado extremadamente o apuntando a una superficie lisa y uniforme.\n    2.  Es probable que se trate de un error técnico en la transmisión o captura del medio.\n    3.  No es posible determinar la ubicación real del Arquitecto.\n*   Dudas:\n    1.  ¿Es esta imagen un fallo de sistema o una captura intencional de un fondo neutro?\n    2.  ¿Existe un entorno real detrás de esta imagen que no está siendo capturado correctamente?\n*   Recomendación Concreta:\n    1.  Verificar el sensor: Asegúrate de que la cámara no esté obstruida, sucia o desenfocada.\n    2. ",
-    "last_error": "escena sin cambios relevantes (delta=1.3)",
-    "last_check_ts": REDACTED_PHONE.6928985
+    "checks": 0,
+    "verdicts": 0,
+    "last_verdict_id": "",
+    "last_risk_level": null,
+    "last_verdict": "",
+    "last_error": "escena sin cambios relevantes (delta=0.0)",
+    "last_check_ts": REDACTED_PHONE.2305274
   },
   "vlm": {
     "ready": true,

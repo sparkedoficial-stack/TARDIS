@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "created_at": "2026-10-15T02:04:29.176374",
   "last_periodic_sync": "2026-11-21T23:10:04.025501",
-  "last_immediate_sync": "2026-11-22T00:47:10.814847",
-  "last_commit_hash": "9b91c904",
-  "sync_count": 1489,
-  "immediate_sync_count": 1485,
+  "last_immediate_sync": "2026-11-22T00:48:36.544360",
+  "last_commit_hash": "6e00e577",
+  "sync_count": 1490,
+  "immediate_sync_count": 1486,
   "periodic_sync_count": 4,
   "last_known_mtimes": {
     "skill:godworks-system-suite/SKILL.md": REDACTED_PHONE.5482113,
@@ -180,7 +180,7 @@
     "core:tardis_omniscient_autonomy.py": REDACTED_PHONE.777364,
     "core:tardis_browser.py": REDACTED_PHONE.0739267,
     "core:telegram_live_call_server.py": REDACTED_PHONE.648394,
-    "core:tapo_c310_sentinel.py": REDACTED_PHONE.678138,
+    "core:tapo_c310_sentinel.py": REDACTED_PHONE.9717102,
     "core:tapo_c310_speaker.py": REDACTED_PHONE.9989753,
     "core:scp_conceptual_suite.py": REDACTED_PHONE.0840197,
     "core:tapo_c310_voice_channel.py": REDACTED_PHONE.980658,
@@ -201,7 +201,8 @@
     "core:telegram_bridge.py": REDACTED_PHONE.410721,
     "core:telegram_call_priority.py": REDACTED_PHONE.7192752,
     "core:zero_error_shield.py": REDACTED_PHONE.1171875,
-    "core:tardis_teaching.py": REDACTED_PHONE.3999896,
+    "core:tardis_teaching.py": REDACTED_PHONE.125688,
+    "core:tardis_c310_conversation.py": REDACTED_PHONE.304666,
     "directive:AGENTS.md": REDACTED_PHONE.8623235,
     "directive:GEMINI.md": REDACTED_PHONE.8793235,
     "registry:dynamic_tools": REDACTED_PHONE.1339633,
@@ -313,6 +314,17 @@
     "sat:gia_ios:GIA/Views/Theme.swift": REDACTED_PHONE.0
   },
   "history": [
+    {
+      "timestamp": "2026-11-22T00:48:36.544360",
+      "trigger": "immediate_milestone",
+      "commit_hash": "6e00e577",
+      "score": 80,
+      "reasons": [
+        "Evoluci\u00f3n en subsistema core TARDIS: tardis_voice_channel_c310.py",
+        "Evoluci\u00f3n en subsistema core TARDIS: tardis_teaching.py",
+        "Actualizaci\u00f3n en el registro din\u00e1mico de herramientas omnipotentes"
+      ]
+    },
     {
       "timestamp": "2026-11-22T00:47:10.814847",
       "trigger": "immediate_milestone",
@@ -825,17 +837,6 @@
       "timestamp": "2026-11-03T04:24:25.110378",
       "trigger": "immediate_milestone",
       "commit_hash": "8634e5f7",
-      "score": 75,
-      "reasons": [
-        "Evoluci\u00f3n en subsistema core TARDIS: curiosity_debate_manager.py",
-        "Evoluci\u00f3n en subsistema core TARDIS: scientific_research_engine.py",
-        "Evoluci\u00f3n en subsistema core TARDIS: background_thought_engine.py"
-      ]
-    },
-    {
-      "timestamp": "2026-11-03T04:09:13.280325",
-      "trigger": "immediate_milestone",
-      "commit_hash": "7651cbf6",
       "score": 75,
       "reasons": [
         "Evoluci\u00f3n en subsistema core TARDIS: curiosity_debate_manager.py",
