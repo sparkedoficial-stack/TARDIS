@@ -538,7 +538,7 @@ class Character3DRenderer:
 
         # 0A. Centro de Tiempo Cristalino 3D (timeCore — esfera facetada iridiscente tras el casco)
         if self.layers.get("timeCore", True):
-            v, f = icosphere(1, 0.72)
+            v, f = icosphere(2, 0.56)
             P.append(Part("time_core", v, f, mat_time_core, dynamic=True))
 
         # 0B. Campo Octaédrico Temporal-Espacial 3D (octahedronField — 12 aristas luminosas)
@@ -765,11 +765,11 @@ class Character3DRenderer:
         for p in self.parts:
             out[p.name] = base_m
 
-        # Centro de Tiempo Cristalino 3D (rotación continua + pulsación radial)
+        # Centro de Tiempo Cristalino 3D (rotación continua + pulsación radial tras el casco)
         if "time_core" in self.index:
             tc_scale = 1.0 + 0.07 * math.sin(t * 1.2 + self.s_geom) + 0.06 * energy
             out["time_core"] = (
-                mat_translate(0.0, bob, -0.58)
+                mat_translate(0.0, bob, -0.92)
                 @ mat_rot_y(t * 0.55)
                 @ mat_rot_x(t * 0.32 + 0.35)
                 @ mat_rot_z(t * 0.20)

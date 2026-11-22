@@ -727,6 +727,7 @@ class ChronoPainter:
 
             # Paneles de telemetría laterales
             f_title = self._load_font(28, bold=True)
+            f_panel = self._load_font(22, bold=True)
             f_body = self._load_font(18)
             f_mono = self._load_font(15)
 
@@ -748,7 +749,7 @@ class ChronoPainter:
             cog = snap.get("cognitive", {})
 
             draw.rounded_rectangle([60, 100, 490, 800], radius=12, fill=(13, 19, 34, 220), outline=(56, 189, 248, 180), width=2)
-            draw.text((85, 130), "ESTADO CUÁNTICO & HARDWARE", fill=(0, 243, 255, 255), font=f_title)
+            draw.text((85, 130), "ESTADO CUÁNTICO & HARDWARE", fill=(0, 243, 255, 255), font=f_panel)
             hw_info = [
                 ("CPU / Carga:", f"{hw.get('cpu_percent', 0.0):.1f}% · {hw.get('cpu_temp_c', 0.0):.1f}°C"),
                 ("RAM Activa:", f"{hw.get('ram_used_gb', 0.0):.1f} / {hw.get('ram_total_gb', 32.0):.1f} GB ({hw.get('ram_percent', 0.0):.0f}%)"),
@@ -767,7 +768,7 @@ class ChronoPainter:
 
             # Panel Derecho: Crono-Navegación, Bóveda Akáshica y Sensores
             draw.rounded_rectangle([1110, 100, 1540, 800], radius=12, fill=(13, 19, 34, 220), outline=(255, 215, 0, 180), width=2)
-            draw.text((1135, 130), "TELEMETRÍA VIVA TARDIS", fill=(255, 215, 0, 255), font=f_title)
+            draw.text((1135, 130), "TELEMETRÍA VIVA TARDIS", fill=(255, 215, 0, 255), font=f_panel)
             atmo_str = (
                 f"{atmo.get('temperature_c', 0):.1f}°C · HR {atmo.get('relative_humidity_pct', 0)}%"
                 if atmo.get("available") else "Sensores en espera"

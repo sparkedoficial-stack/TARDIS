@@ -521,7 +521,10 @@ class HudRenderer:
 
             vm_stmt = str(vm.get("statement", ""))
             st_y = cy_l3 + int(68 * k)
-            for i_s, s_ln in enumerate(textwrap.wrap(vm_stmt, width=54)[:3]):
+            wrapped_stmt = textwrap.wrap(vm_stmt, width=54)
+            if len(wrapped_stmt) > 3:
+                wrapped_stmt = wrapped_stmt[:2] + [wrapped_stmt[2][:50].rstrip(" ,.;:y") + "…"]
+            for i_s, s_ln in enumerate(wrapped_stmt[:3]):
                 d.text((lx0 + int(24 * k), st_y + i_s * int(29 * k)), s_ln, font=f_body, fill=(172, 200, 214, 232))
 
             # Muestras de paleta viva del manifiesto
@@ -1214,8 +1217,8 @@ def render_video_4k(
     title: str = "TARDIS · MENSAJE SOBERANO",
     quality: str = "high",
     hud: bool = True,
-    char_scale: float = 0.78,
-    center: Tuple[float, float] = (0.5, 0.42),
+    char_scale: float = 0.70,
+    center: Tuple[float, float] = (0.5, 0.44),
     bloom: float = 0.52,
     workers: Optional[int] = None,
     max_bytes: int = TELEGRAM_MAX_BYTES,

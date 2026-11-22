@@ -591,7 +591,7 @@ class SpeakingVideoGenerator:
                 width, height = 1024, 1024
                 hud, char_scale, center, bloom = False, 1.02, (0.5, 0.46), 0.48
             else:
-                hud, char_scale, center, bloom = True, 0.78, (0.5, 0.42), 0.52
+                hud, char_scale, center, bloom = True, 0.70, (0.5, 0.44), 0.52
 
             with self._render_lock:
                 r = render_video_4k(
