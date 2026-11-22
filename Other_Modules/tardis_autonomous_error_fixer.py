@@ -310,6 +310,21 @@ class TardisAutonomousErrorFixer:
                         continue
                     unit = parts[0]
                     if unit.endswith(".service"):
+                        # Respetar RestartPreventExitStatus (ej. exit=3 en servicios que requieren login interactivo)
+                        prop = subprocess.run(
+                            ["systemctl", "--user", "show", unit, "-p", "ExecMainStatus,RestartPreventExitStatus"],
+                            stdin=subprocess.DEVNULL,
+                            capture_output=True,
+                            text=True,
+                            timeout=4,
+                        )
+                        p_map = {}
+                        for pl in (prop.stdout or "").splitlines():
+                            if "=" in pl:
+                                pk, pv = pl.split("=", 1)
+                                p_map[pk.strip()] = pv.strip()
+                        ex_st = p_map.get("ExecMainStatus", "")
+                        prev_st = p_map.get("RestartPreventExitStatus", "").split()
                         subprocess.run(
                             ["systemctl", "--user", "reset-failed", unit],
                             stdin=subprocess.DEVNULL,
@@ -317,6 +332,9 @@ class TardisAutonomousErrorFixer:
                             stderr=subprocess.DEVNULL,
                             timeout=5,
                         )
+                        if (ex_st and ex_st in prev_st) or unit == "antigravity-cli-daemon.service":
+                            actions.append(f"Unidad systemd --user estabilizada sin bucle (reset-failed, exit={ex_st}): {unit}")
+                            continue
                         subprocess.run(
                             ["systemctl", "--user", "restart", unit],
                             stdin=subprocess.DEVNULL,

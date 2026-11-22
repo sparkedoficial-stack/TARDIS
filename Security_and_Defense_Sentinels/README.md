@@ -22,6 +22,7 @@ Bóvedas criptográficas locales, centinelas de ciberdefensa, puentes de kernel 
 - **test_offline_chat_vault.py**: Centinela de seguridad, blindaje perimetral o bóveda segura.
 - **test_protected_users_security.py**: Componente de alta eficiencia.
 - **test_security.py**: Componente de alta eficiencia.
+- **test_zero_error_shield.py**: Centinela de seguridad, blindaje perimetral o bóveda segura.
 - **zero_error_shield.py**: Centinela de seguridad, blindaje perimetral o bóveda segura.
 
 ## Requisitos e Integración

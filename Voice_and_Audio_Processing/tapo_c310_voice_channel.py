@@ -59,6 +59,10 @@ from core.tardis_voice_program import (
     get_voice_program_router,
     is_program_command,
 )
+from core.tardis_teaching import (
+    build_teaching_prompt,
+    is_teaching_intent,
+)
 
 DEFAULT_CONFIG_PATH = BASE_DIR / "tapo_c310_config.json"
 STATE_DIR = BASE_DIR / "data" / "tapo_c310_voice_channel"
@@ -759,6 +763,21 @@ class TapoC310VoiceChannel:
         self.interview_max_request_age_sec = max(
             10.0, float(self.config.get("visitor_interview_max_request_age_sec", 120.0))
         )
+        # MODO ENSEÑANZA (conversación interactiva con el visitante · GOD-EYE C310).
+        self.teaching_enabled: bool = bool(self.config.get("voice_channel_teaching_enabled", True))
+        self.teaching_mode: bool = False
+        self.teaching_topic: str = ""
+        self.teaching_max_reply_sentences: int = int(
+            self.config.get("voice_channel_teaching_max_reply_sentences", 6) or 6
+        )
+        self.teaching_max_reply_chars: int = int(
+            self.config.get("voice_channel_teaching_max_reply_chars", 900) or 900
+        )
+        self.teaching_llm_max_tokens: int = int(
+            self.config.get("voice_channel_teaching_llm_max_tokens", 320) or 320
+        )
+        self.visitor_context: Dict[str, Any] = {}
+        self.last_camera_frame_jpeg: Optional[bytes] = None
         self.brain = TemporalBrainClient(
             socket_path=Path(
                 str(self.config.get("voice_channel_llm_socket", str(TEMPORAL_BRAIN_SOCK)))
@@ -858,6 +877,11 @@ class TapoC310VoiceChannel:
                 "active": self._interview_record is not None,
                 "field": self._interview_field,
                 "last": self.last_visitor_interview,
+            },
+            "teaching": {
+                "enabled": bool(self.teaching_enabled),
+                "active": bool(self.teaching_mode),
+                "topic": self.teaching_topic,
             },
             "last_error": self.last_error,
         }

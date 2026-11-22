@@ -167,6 +167,15 @@ class TardisOmniToolBridge:
                 "domain": "multi_terminal_autonomous_continuation",
                 "description": "Escanea, reconcilia y continúa autónomamente de principio a fin procesos pausados, fallidos o interrumpidos en agy, FTL y opencode usando el sistema autónomo y de failover de FTL.",
                 "actions": ["status", "verify", "scan", "reconcile", "run", "continue-agy", "continue-opencode", "continue-ftl", "sweep", "pause", "resume"]
+            },
+            "zero_error_shield": {
+                "name": "FTL × Easy Touch Zero-Error Preemptive Shield",
+                "binary": str(HOME_DIR / ".local" / "bin" / "zero-error-shield"),
+                "module": "modulos_ftl.ftl_zero_error_shield",
+                "module_file": str(HOME_DIR / "modulos_ftl" / "ftl_zero_error_shield.py"),
+                "domain": "zero_error_preemptive_shield",
+                "description": "Intercepta toda notificación de error antes de aparecer en pantalla (Omarchy Shell + notify-send shim) y repara proactivamente cualquier fallo del sistema (Kernel Ring 0, Systemd, Coredump, Journald, DNS, Disco, Audio, Permisos, Locks, LLMs) vía FTL y Easy Touch.",
+                "actions": ["status", "precheck", "heal", "intercept", "classify", "history", "rules", "mode", "purge", "daemon_status"]
             }
         }
         self._register_in_dynamic_registry()

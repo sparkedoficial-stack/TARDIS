@@ -806,6 +806,10 @@ Módulos y componentes auxiliares del sistema.
 - **dossier_20261121_233816_892.json**: Componente de alta eficiencia.
 - **dossier_20261121_234751_459.json**: Componente de alta eficiencia.
 - **dossier_20261122_003926_487.json**: Componente de alta eficiencia.
+- **dossier_20261122_003956_493.json**: Componente de alta eficiencia.
+- **dossier_20261122_004011_816.json**: Componente de alta eficiencia.
+- **dossier_20261122_004041_914.json**: Componente de alta eficiencia.
+- **dossier_20261122_004112_223.json**: Componente de alta eficiencia.
 - **dynamic_tools_registry.json**: Directorio y puente soberano de interoperabilidad omni-herramientas.
 - **ecca_v3_core.py**: Núcleo de orquestación y control temporal/espacial.
 - **engine.py**: Componente de alta eficiencia.
@@ -1035,6 +1039,7 @@ Módulos y componentes auxiliares del sistema.
 - **tardis_social_engine.py**: Componente de alta eficiencia.
 - **tardis_ssm_v27.py**: Componente de alta eficiencia.
 - **tardis_system_repair.py**: Componente de alta eficiencia.
+- **tardis_teaching.py**: Componente de alta eficiencia.
 - **tardis_telephony_controller.py**: Componente de alta eficiencia.
 - **tardis_terminal_config.json**: Componente de alta eficiencia.
 - **telemetria_avanzada.py**: Componente de alta eficiencia.

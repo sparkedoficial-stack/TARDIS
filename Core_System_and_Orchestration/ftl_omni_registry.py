@@ -204,6 +204,18 @@ class FtlOmniRegistry:
                 "description": "Motor unificado FTL que escanea, reconcilia y continúa de principio a fin procesos pausados, fallidos o interrumpidos en las terminales agy, FTL y opencode con failover automático del pool de modelos y protección anti-bucles.",
                 "capabilities": ["status", "verify", "scan", "reconcile", "run", "continue-agy", "continue-opencode", "continue-ftl", "sweep", "pause", "resume"],
                 "active": os.path.exists("/home/m11/.local/bin/ftl-continue")
+            },
+            "zero_error_shield": {
+                "name": "FTL × Easy Touch Zero-Error Preemptive Shield",
+                "binary": "/home/m11/.local/bin/zero-error-shield",
+                "module": "modulos_ftl.ftl_zero_error_shield",
+                "module_file": "/home/m11/modulos_ftl/ftl_zero_error_shield.py",
+                "service": "tardis-zero-error-shield.service",
+                "endpoint": "http://127.0.0.1:8799",
+                "category": "Pre-Notification Interception & Preemptive Auto-Healing (Ring 0 + Easy Touch)",
+                "description": "Intercepta TODA notificación de error de todo tipo de sistema ANTES de que aparezca en pantalla (0 ms en Omarchy Shell `m11.notifications` + shim CLI `/usr/local/bin/notify-send`) y repara proactivamente anomalías de Kernel PSI, Systemd, Coredump, Journald, Red/DNS, Audio, Disco, Permisos, Locks y LLMs vía FTL + Easy Touch antes de que el sistema dispare el error.",
+                "capabilities": ["status", "precheck", "heal", "intercept", "classify", "history", "rules", "mode", "purge", "daemon_status"],
+                "active": os.path.exists("/home/m11/.local/bin/zero-error-shield")
             }
         }
 

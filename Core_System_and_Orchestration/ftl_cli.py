@@ -108,7 +108,7 @@ UNIFIED_COMMAND_KEYWORDS = {
     "orchestrate", "orquestar", "orquesta", "agent-policy", "politica-agentes",
     "agent-history", "historial-agentes", "agent-kill", "kill-switch", "agent-probe",
     "web", "lan", "portal", "voice",
-    "voz", "voz-infinita", "infinite-voice", "voice-infinite", "speak", "habla", "decir", "easytouch", "et", "et-agent", "et-evolve", "et-solve", "auto", "kaiju", "rails",
+    "voz", "voz-infinita", "infinite-voice", "voice-infinite", "speak", "habla", "decir", "easytouch", "et", "et-agent", "et-evolve", "et-solve", "shield", "zero-error", "escudo", "et-shield", "auto", "kaiju", "rails",
     "savageupdate", "savage-update", "savage", "rea-learn", "rea", "reaprendizaje",
     "kaiju-rails", "synth", "audit", "gemini", "agy", "claude", "claude-cli",
     "agy-cli", "antigravity", "ide", "gui", "clear", "ton618", "mascot", "mascota", "quasar", "reload",
@@ -604,6 +604,21 @@ def dispatch_unified_command(cmd_name: str, args_list: list[str] = None) -> bool
 
     elif cmd in ("easytouch", "et"):
         ui.print_easytouch()
+        return True
+
+    elif cmd in ("shield", "zero-error", "escudo", "et-shield"):
+        sub = args[0] if args else "status"
+        rest = args[1:] if len(args) > 1 else []
+        shield_bin = Path.home() / ".local" / "bin" / "zero-error-shield"
+        if shield_bin.is_file():
+            console.print(f"[bold cyan]🛡️ FTL × Easy Touch Zero-Error Shield ({sub})...[/bold cyan]")
+            proc = subprocess.run([str(shield_bin), sub] + rest, capture_output=True, text=True)
+            if proc.stdout.strip():
+                console.print(proc.stdout.strip())
+            if proc.returncode != 0 and proc.stderr.strip():
+                console.print(f"[red]{proc.stderr.strip()}[/red]")
+        else:
+            console.print("[red]zero-error-shield CLI no encontrada en ~/.local/bin.[/red]")
         return True
 
     elif cmd in ("savageupdate", "savage-update", "savage", "rea-learn", "rea", "reaprendizaje"):

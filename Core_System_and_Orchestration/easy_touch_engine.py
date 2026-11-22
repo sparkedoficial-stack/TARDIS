@@ -966,20 +966,66 @@ class EasyTouchEngine:
             return False
 
     def auto_heal_system_packages(self, binary_name: str) -> bool:
-        """Intenta proveer o instalar utilidades del sistema ausentes."""
-        pkg_map = {
+        """Intenta proveer o instalar utilidades del sistema ausentes (Arch/Omarchy pacman o apt-get)."""
+        arch_pkg_map = {
+            "fuser": "psmisc",
+            "dig": "bind",
+            "nslookup": "bind",
+            "curl": "curl",
+            "jq": "jq",
+            "rg": "ripgrep",
+            "lsof": "lsof",
+        }
+        deb_pkg_map = {
             "fuser": "psmisc",
             "dig": "dnsutils",
             "nslookup": "dnsutils",
             "curl": "curl",
-            "jq": "jq"
+            "jq": "jq",
         }
-        pkg = pkg_map.get(binary_name, binary_name)
         try:
-            res = subprocess.run(["sudo", "apt-get", "install", "-y", "--quiet", pkg], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=30)
+            if shutil.which("pacman"):
+                pkg = arch_pkg_map.get(binary_name, binary_name)
+                res = subprocess.run(
+                    ["sudo", "-n", "pacman", "-S", "--noconfirm", "--needed", pkg],
+                    stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=45,
+                )
+                return res.returncode == 0
+            pkg = deb_pkg_map.get(binary_name, binary_name)
+            res = subprocess.run(
+                ["sudo", "-n", "apt-get", "install", "-y", "--quiet", pkg],
+                stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=30,
+            )
             return res.returncode == 0
         except Exception:
             return False
+
+    def intercept_system_notification(
+        self,
+        summary: str,
+        body: str = "",
+        app: str = "system",
+        urgency: int = 2,
+        category: str = "auto",
+        suppressed_before_display: bool = True,
+    ) -> Dict[str, Any]:
+        """Puente directo hacia FTL × Easy Touch Zero-Error Preemptive Shield."""
+        try:
+            from core.zero_error_shield import get_zero_error_shield
+            return get_zero_error_shield().handle_event(
+                {
+                    "summary": summary,
+                    "body": body,
+                    "app": app,
+                    "urgency": urgency,
+                    "category": category,
+                },
+                source="easy_touch_engine",
+                suppressed_before_display=suppressed_before_display,
+                async_repair=False,
+            )
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
 
     def get_status(self) -> Dict[str, Any]:
         """Devuelve el estado operativo y métricas de Easy Touch."""
