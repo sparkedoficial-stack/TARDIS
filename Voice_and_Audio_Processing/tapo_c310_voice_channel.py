@@ -1029,6 +1029,7 @@ class TapoC310VoiceChannel:
     ) -> None:
         self.wake_count += 1
         self._history.clear()
+        self._exit_teaching("nueva_sesion")
         self._last_activity_ts = time.time()
 
         command = ""
@@ -1135,6 +1136,39 @@ class TapoC310VoiceChannel:
         self._set_state("command")
         self._command_deadline = time.time() + self.command_timeout
         self._write_session_flag(self._command_deadline + 5)
+
+    # -- modo enseñanza / conversación interactiva (C310) -------------------
+
+    def _enter_teaching(self, topic: str = "", context: Optional[Dict[str, Any]] = None) -> None:
+        """Activa el modo enseñanza: conversación didáctica con el interlocutor."""
+        self.teaching_mode = True
+        self.teaching_topic = str(topic or "").strip()
+        if context:
+            self.visitor_context = dict(context)
+        logger.info(
+            f"🧑‍🏫 [ENSEÑANZA] TARDIS entró en modo enseñanza (tema: {self.teaching_topic or 'general'})"
+        )
+
+    def _exit_teaching(self, reason: str = "") -> None:
+        """Cierra el modo enseñanza al final de la sesión conversacional."""
+        if not self.teaching_mode and not self.teaching_topic:
+            return
+        self.teaching_mode = False
+        self.teaching_topic = ""
+        logger.info(f"🧑‍🏫 [ENSEÑANZA] Modo enseñanza cerrado ({reason}).")
+
+    def _capture_camera_frame(self) -> Optional[bytes]:
+        """Captura un fotograma en vivo GOD-EYE para investigación visual durante la enseñanza."""
+        try:
+            from core.tapo_c310_sentinel import get_c310_live_hud_jpeg_sync
+
+            data, _meta = get_c310_live_hud_jpeg_sync()
+            if data:
+                self.last_camera_frame_jpeg = data
+            return data
+        except Exception as exc:
+            logger.debug(f"No se pudo capturar fotograma GOD-EYE para investigación: {exc}")
+            return None
 
     # -- entrevista automática de visitantes (C310) ------------------------
 
@@ -1470,6 +1504,7 @@ class TapoC310VoiceChannel:
         else:
             self._set_state("wake")
             self._history.clear()
+            self._exit_teaching("canal_cerrado")
             self._write_session_flag(0)
         self._write_state(force=True)
 
@@ -1517,7 +1552,17 @@ class TapoC310VoiceChannel:
 
         return None
 
-    def _system_prompt(self) -> str:
+    def _system_prompt(self, teaching: Optional[bool] = None) -> str:
+        active_teaching = bool(self.teaching_mode) if teaching is None else bool(teaching)
+        if active_teaching:
+            # MODO ENSEÑANZA: docente TARDIS con contexto del visitante y pedagogía.
+            return build_teaching_prompt(
+                interlocutor_name=str(self.visitor_context.get("name") or ""),
+                context=self.visitor_context,
+                pedagogical_level=self.config.get("pedagogical_level"),
+                dialectic_role=self.config.get("dialectic_role"),
+                language=self.config.get("language"),
+            )
         return (
             "Eres TARDIS, la inteligencia artificial soberana del Arquitecto (₪), "
             "hablando en vivo por el micrófono y la bocina de la cámara Tapo C310 "
@@ -1542,12 +1587,16 @@ class TapoC310VoiceChannel:
         body = re.sub(r"\s+", " ", body).strip()
 
         sentences = split_sentences(body)
+        reply_sentences = (
+            self.teaching_max_reply_sentences if self.teaching_mode else self.max_reply_sentences
+        )
         if sentences:
-            body = " ".join(sentences[: max(1, self.max_reply_sentences)]).strip()
-        if len(body) > self.max_reply_chars:
-            cut = body[: self.max_reply_chars]
+            body = " ".join(sentences[: max(1, reply_sentences)]).strip()
+        reply_chars = self.teaching_max_reply_chars if self.teaching_mode else self.max_reply_chars
+        if len(body) > reply_chars:
+            cut = body[:reply_chars]
             pos = max(cut.rfind("."), cut.rfind("!"), cut.rfind("?"), cut.rfind(","))
-            if pos > int(self.max_reply_chars * 0.55):
+            if pos > int(reply_chars * 0.55):
                 cut = cut[: pos + 1]
             body = cut.strip()
         if body and body[-1] not in ".!?…":

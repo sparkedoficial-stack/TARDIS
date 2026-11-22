@@ -174,6 +174,8 @@ DEFAULT_RULES: Dict[str, Any] = {
         r"\b(authentication\s+failed|auth\s+error|certificate\s+error|ssl\s+error|tls\s+handshake\s+failed)\b",
         r"\b(broken\s+pipe|i/o\s+error|input/output\s+error|bad\s+file\s+descriptor|too\s+many\s+open\s+files|inotify\s+limit)\b",
         r"(?:^|\b)(error|fall[oó]|falla|exception|excepci[oó]n|crash|crashe[oó]|abort[oó]|aborted|failed|failure|no\s+se\s+pudo|unable\s+to|cannot\s+start|could\s+not\s+start)\s*[:!\-]",
+        r"(?:^|\b)(error\s+(?:al|en|de|durante|in|while|during|loading|starting|saving|connecting|reading|writing|opening|mounting|updating|installing)|fall[oó]\s+(?:al|en|el|la|los|las)|no\s+se\s+pudo\s+\w+|unable\s+to\s+\w+|failed\s+to\s+\w+|cannot\s+(?:start|connect|open|read|write|mount|load|find|access|allocate)|could\s+not\s+(?:start|connect|open|read|write|mount|load|find|access))",
+        r"\b(exit\s+code\s+[1-9]\d*|exited\s+with\s+(?:status|code)\s+[1-9]\d*|terminated\s+unexpectedly|stopped\s+unexpectedly|se\s+detuvo\s+inesperadamente|se\s+cerr[oó]\s+inesperadamente|ha\s+dejado\s+de\s+funcionar|has\s+stopped\s+working|not\s+responding|no\s+responde)\b",
         r"\b(error\s+cr[ií]tico|error\s+del\s+sistema|system\s+error|application\s+error|internal\s+error|fatal|panic)\b",
         r"\b(502\s+bad\s+gateway|503\s+service\s+unavailable|504\s+gateway\s+timeout|http\s+5\d\d)\b",
     ],
@@ -1628,6 +1630,45 @@ class ZeroErrorShield:
         except Exception:
             pass
 
+        # 9. Vigilancia proactiva de tardis-desktop.service y manifiestos Ollama corruptos
+        try:
+            if self._unit_state("tardis-desktop.service", "user") == "failed":
+                r = self.handle_event(
+                    {
+                        "summary": "Pre-error: tardis-desktop.service en estado failed",
+                        "category": "tardis_desktop_crash",
+                        "app": "tardis-desktop",
+                        "binary": "tardis-desktop",
+                    },
+                    source="preemptive_infra",
+                    suppressed_before_display=True,
+                )
+                findings.append({"check": "tardis_desktop", "result": r})
+        except Exception:
+            pass
+
+        # 10. Vigilancia temprana del ringbuffer del kernel (OOM-killer / Xid GPU / ENOSPC)
+        try:
+            if kb:
+                dmesg_tail = kb.read_dmesg(lines=25)
+                recent_blob = "\n".join(dmesg_tail)
+                if re.search(r"Out of memory: Killed process|oom-killer", recent_blob, re.IGNORECASE):
+                    sig = hashlib.sha1(dmesg_tail[-1].encode("utf-8", errors="ignore")).hexdigest()[:12]
+                    if not self._should_dedupe(f"dmesg_oom|{sig}", custom_cooldown=120.0):
+                        r = self.handle_event(
+                            {
+                                "summary": "Pre-error Kernel dmesg: actividad OOM-killer detectada",
+                                "body": dmesg_tail[-1][:300],
+                                "app": "kernel-dmesg",
+                                "category": "oom_memory_pressure",
+                            },
+                            source="preemptive_kernel",
+                            suppressed_before_display=True,
+                        )
+                        findings.append({"check": "dmesg_oom", "result": r})
+        except Exception:
+            pass
+
         self._save_state()
         return {
             "ok": True,
@@ -1893,6 +1934,8 @@ class ZeroErrorShield:
             )
         if action == "precheck":
             return self.run_preemptive_check()
+        if action in ("purge", "purge_errors"):
+            return self.purge_stale_error_notifications()
         if action == "history":
             return {"ok": True, "events": self.get_history(int(req.get("limit", 30)))}
         if action == "mode":
@@ -2033,6 +2076,8 @@ class ZeroErrorShield:
     def start_daemon(self) -> None:
         if self._running:
             return
+        # Evitar duplicar el hilo periódico de EasyTouchAgent (ya corre en tardis-easy-touch.service)
+        os.environ.setdefault("EASY_TOUCH_NO_BACKGROUND_AGENT", "1")
         self._running = True
         self._started_ts = time.time()
         self._stop_event.clear()

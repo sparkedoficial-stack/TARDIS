@@ -1048,6 +1048,7 @@ Módulos y componentes auxiliares del sistema.
 - **theming.md**: Componente de alta eficiencia.
 - **tool_escribe_m_dulo_python.py**: Componente de alta eficiencia.
 - **tool_heal_llama_server_cuda_crash.py**: Componente de alta eficiencia.
+- **tool_heal_systemd_unit_failed.py**: Componente de alta eficiencia.
 - **tool_selector.py**: Componente de alta eficiencia.
 - **traffic_control_policy.json**: Componente de alta eficiencia.
 - **tunnel_config.json**: Componente de alta eficiencia.
