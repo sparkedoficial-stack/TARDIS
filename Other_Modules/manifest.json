@@ -1,31 +1,26 @@
 {
-  "run_id": "canary_20261124_104225_749d56",
-  "iso": "2026-11-24T10:42:25-05:00",
+  "run_id": "canary_20261124_131034_fbb807",
+  "iso": "2026-11-24T13:10:34-05:00",
   "files": [
     {
       "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/tardis_memory_compactor.py",
       "relative": "core/tardis_memory_compactor.py",
-      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261124_104225_749d56/core__tardis_memory_compactor.py"
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261124_131034_fbb807/core__tardis_memory_compactor.py"
     },
     {
-      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/tardis_event_bus.py",
-      "relative": "core/tardis_event_bus.py",
-      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261124_104225_749d56/core__tardis_event_bus.py"
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/subsystem_agents.py",
+      "relative": "core/subsystem_agents.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261124_131034_fbb807/core__subsystem_agents.py"
     },
     {
-      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/hub_health.py",
-      "relative": "core/hub_health.py",
-      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261124_104225_749d56/core__hub_health.py"
-    },
-    {
-      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/server/api.py",
-      "relative": "server/api.py",
-      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261124_104225_749d56/server__api.py"
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/gods_eye_realtime.py",
+      "relative": "core/gods_eye_realtime.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261124_131034_fbb807/core__gods_eye_realtime.py"
     },
     {
       "source": "/home/m11/Escritorio/GODWORKS SYSTEM/tests/test_sovereign_alternate_systems.py",
       "relative": "tests/test_sovereign_alternate_systems.py",
-      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261124_104225_749d56/tests__test_sovereign_alternate_systems.py"
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261124_131034_fbb807/tests__test_sovereign_alternate_systems.py"
     }
   ]
 }

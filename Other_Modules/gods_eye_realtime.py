@@ -80,6 +80,9 @@ class GodsEyeRealtime:
     # ------------------------------------------------------------------ DB
     def _conn(self) -> sqlite3.Connection:
         con = sqlite3.connect(self.db_file, timeout=10.0)
+        con.execute("PRAGMA journal_mode=WAL")
+        con.execute("PRAGMA synchronous=NORMAL")
+        con.execute("PRAGMA busy_timeout=10000")
         con.row_factory = sqlite3.Row
         return con
 

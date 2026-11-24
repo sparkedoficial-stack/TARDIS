@@ -1576,3 +1576,110 @@ def test_memory_compactor_rag_simhash_kg_dedup_offline_and_deep_memory(tmp_path:
     con_o = sqlite3.connect(str(oc_db))
     assert con_o.execute("SELECT COUNT(*) FROM offline_chat_turns").fetchone()[0] == 2
     con_o.close()
+
+
+def test_memory_compactor_telemetry_ttl_rollups_and_wal_migration(tmp_path: Path):
+    import sqlite3
+    import time as _time
+    from core.tardis_memory_compactor import TardisMemoryCompactor
+
+    now = _time.time()
+    old_20d = now - (20 * 86400.0)
+    old_10d = now - (10 * 86400.0)
+    fresh_1d = now - (1 * 86400.0)
+
+    # 1) Crear subsystem_agents.db en journal_mode=delete con filas expiradas (>14d) y frescas (<=14d)
+    sa_db = tmp_path / "subsystem_agents_test.db"
+    con = sqlite3.connect(str(sa_db))
+    con.execute("PRAGMA journal_mode=DELETE")
+    con.execute(
+        "CREATE TABLE cycles (id INTEGER PRIMARY KEY AUTOINCREMENT, ts REAL, subsystem TEXT, health TEXT, findings INTEGER, findings_json TEXT, applied_json TEXT, proposals_json TEXT)"
+    )
+    con.executemany(
+        "INSERT INTO cycles (ts,subsystem,health,findings,findings_json,applied_json,proposals_json) VALUES (?,?,?,?,?,?,?)",
+        [
+            (old_20d, "chat", "online", 2, "{}", "[]", "[]"),
+            (old_20d + 60, "chat", "degraded", 5, "{}", "[]", "[]"),
+            (old_10d, "chat", "online", 1, "{}", "[]", "[]"),
+            (fresh_1d, "shield", "online", 0, "{}", "[]", "[]"),
+        ],
+    )
+    con.commit()
+    con.close()
+
+    # 2) Crear gods_eye.db en journal_mode=delete con detecciones (>7d y <=7d) y eventos (>14d y <=14d)
+    ge_db = tmp_path / "gods_eye_test.db"
+    con = sqlite3.connect(str(ge_db))
+    con.execute("PRAGMA journal_mode=DELETE")
+    con.executescript(
+        """
+        CREATE TABLE detections (id INTEGER PRIMARY KEY AUTOINCREMENT, ts REAL, terminal_id TEXT, cell TEXT, motion REAL, objects INTEGER, centroid_x REAL, centroid_y REAL, histogram TEXT);
+        CREATE TABLE events (id INTEGER PRIMARY KEY AUTOINCREMENT, ts REAL, kind TEXT, terminal_id TEXT, zone TEXT, detail TEXT, confidence REAL);
+        """
+    )
+    con.executemany(
+        "INSERT INTO detections (ts,terminal_id,cell,motion,objects,centroid_x,centroid_y,histogram) VALUES (?,?,?,?,?,?,?,?)",
+        [
+            (old_10d, "cam1", "c1", 0.25, 1, 0.5, 0.5, "[0.1]"),
+            (old_10d + 30, "cam1", "c2", 0.75, 2, 0.4, 0.6, "[0.2]"),
+            (fresh_1d, "cam1", "c1", 0.10, 0, 0.5, 0.5, "[0.0]"),
+        ],
+    )
+    con.executemany(
+        "INSERT INTO events (ts,kind,terminal_id,zone,detail,confidence) VALUES (?,?,?,?,?,?)",
+        [
+            (old_20d, "motion", "cam1", "z1", "d1", 0.8),
+            (fresh_1d, "person", "cam1", "z1", "d2", 0.95),
+        ],
+    )
+    con.commit()
+    con.close()
+
+    comp = TardisMemoryCompactor(db_path=tmp_path / "comp_ttl.db")
+
+    # Dry-run NO muta journal_mode ni filas
+    dry = comp.run_compaction(
+        targets=("subsystem_agents", "gods_eye"),
+        dry_run=True,
+        subsystem_agents_db=sa_db,
+        gods_eye_db=ge_db,
+    )
+    assert dry["ok"] is True
+    assert dry["targets"]["subsystem_agents"]["expired_rows_pruned"] == 2
+    assert dry["targets"]["gods_eye"]["detections_pruned"] == 2
+    assert dry["targets"]["gods_eye"]["events_pruned"] == 1
+
+    # Ejecución real: migra a WAL, consolida rollups diarios y poda solo lo expirado
+    real = comp.run_compaction(
+        targets=("subsystem_agents", "gods_eye"),
+        dry_run=False,
+        force=True,
+        subsystem_agents_db=sa_db,
+        gods_eye_db=ge_db,
+    )
+    assert real["ok"] is True
+    assert real["targets"]["subsystem_agents"]["journal_mode_before"] == "delete"
+    assert real["targets"]["subsystem_agents"]["journal_mode_after"] == "wal"
+    assert real["targets"]["subsystem_agents"]["expired_rows_pruned"] == 2
+    assert real["targets"]["subsystem_agents"]["rollup_groups_saved"] == 1
+
+    assert real["targets"]["gods_eye"]["journal_mode_before"] == "delete"
+    assert real["targets"]["gods_eye"]["journal_mode_after"] == "wal"
+    assert real["targets"]["gods_eye"]["detections_pruned"] == 2
+    assert real["targets"]["gods_eye"]["events_pruned"] == 1
+
+    # Validar integridad de datos frescos + rollups acumulados
+    con_sa = sqlite3.connect(str(sa_db))
+    assert con_sa.execute("SELECT COUNT(*) FROM cycles").fetchone()[0] == 2
+    r_sa = con_sa.execute("SELECT cycles_count, ok_count, degraded_count, total_findings FROM cycles_daily_rollup").fetchone()
+    assert r_sa == (2, 1, 1, 7)
+    con_sa.close()
+
+    con_ge = sqlite3.connect(str(ge_db))
+    assert con_ge.execute("SELECT COUNT(*) FROM detections").fetchone()[0] == 1
+    assert con_ge.execute("SELECT COUNT(*) FROM events").fetchone()[0] == 1
+    r_det = con_ge.execute("SELECT detections_count, max_motion, total_objects FROM detections_daily_rollup").fetchone()
+    assert r_det[0] == 2 and abs(float(r_det[1]) - 0.75) < 1e-6 and r_det[2] == 3
+    r_evt = con_ge.execute("SELECT events_count, kind FROM events_daily_rollup").fetchone()
+    assert r_evt == (1, "motion")
+    con_ge.close()

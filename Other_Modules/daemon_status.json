@@ -2,11 +2,11 @@
   "daemon": "tardis-visual-intelligence",
   "running": true,
   "pid": 1384253,
-  "uptime_sec": 52188.1,
-  "last_heartbeat": "2026-11-24T10:41:45.093633",
+  "uptime_sec": 61149.9,
+  "last_heartbeat": "2026-11-24T13:11:06.962380",
   "items_processed": 0,
   "last_processed_id": "",
-  "memory_rss_mb": 329.5,
+  "memory_rss_mb": 325.75,
   "engine_status": {
     "status": "online",
     "engine": "VisualIntelligenceEngine v26.5 (VLM + Veredictos)",
@@ -20,15 +20,15 @@
     "vlm_error": "",
     "verdict_engine": "VLM + Kaiju + veredicto estructurado",
     "stored_videos_count": 1057,
-    "stored_images_count": 515,
+    "stored_images_count": 519,
     "stored_sounds_count": 0,
-    "stored_verdicts_count": 631,
+    "stored_verdicts_count": 635,
     "last_verdict": {
-      "id": "img_20261124_101153_918698",
-      "created_at": "2026-11-24T10:12:30.936382",
+      "id": "img_20261124_121204_55dcfa",
+      "created_at": "2026-11-24T12:12:50.318126",
       "source": "daemon",
-      "verdict": "*   Estado General del Entorno: Estable y Estático. Área exterior, diurna, sin actividad biológica o mecánica observable.\n*   Nivel de Riesgo Objetivo: 2/10\n    *   *Justificación:* El riesgo es bajo. No hay amenazas inminentes, personas en peligro ni estructuras inestables evidentes. El riesgo residual proviene de la incertidumbre sobre los objetos pequeños (placa metálica, objeto oscuro) y el estado del suelo (manchas/humedad), que podrían representar un riesgo menor de tropiezo o deslizamiento si se camina por la zona. No hay riesgo de seguridad crítica.\n*   Recomendación Concreta:\n    1.  ",
-      "risk_level": 2
+      "verdict": "*   Estado General del Entorno: Seguro y Estable.\n    *   *Hechos Observados:* Área exterior, luz diurna, sin personas, sin vehículos visibles, infraestructura intacta.\n    *   *Inferencias:* Es un momento de baja actividad. El entorno es predecible y no hostil.\n    *   *Dudas:* No se puede confirmar la seguridad de las áreas fuera del encuadre (ej. si hay tráfico intenso en la calle adyacente).\n\n*   Nivel de Riesgo Objetivo: 3/10\n    *   *Justificación:* El riesgo es bajo. Un 0 sería un entorno controlado estéril. Un 3 refleja la incertidumbre inherente a estar en un área pública/semi-pública",
+      "risk_level": 3
     },
     "surroundings_interval_sec": 900,
     "vault_dir": "/home/m11/Escritorio/GODWORKS SYSTEM/vault/videos/telegram",
@@ -37,13 +37,13 @@
   },
   "surroundings": {
     "interval_sec": 900.0,
-    "checks": 19,
-    "verdicts": 19,
-    "last_verdict_id": "img_20261124_101153_918698",
-    "last_risk_level": 2,
-    "last_verdict": "*   Estado General del Entorno: Estable y Estático. Área exterior, diurna, sin actividad biológica o mecánica observable.\n*   Nivel de Riesgo Objetivo: 2/10\n    *   *Justificación:* El riesgo es bajo. No hay amenazas inminentes, personas en peligro ni estructuras inestables evidentes. El riesgo residual proviene de la incertidumbre sobre los objetos pequeños (placa metálica, objeto oscuro) y el estado del suelo (manchas/humedad), que podrían representar un riesgo menor de tropiezo o deslizamiento si se camina por la zona. No hay riesgo de seguridad crítica.\n*   Recomendación Concreta:\n    1.  Verificar la placa metálica: Si es accesible, inspeccionar visualmente si es un dispositivo activo (cámaras, sensores, cajas de fusibles) o simplemente una tapa de registro.\n    2.  Evaluar el suelo: Prestar atención a las manchas oscuras cerca de los bordillos; podrían ser superficies resbaladizas.\n    3.  Continuar la exploración: El entorno es seguro para el tránsito peatonal. No se detectan anomalías temporales ni espaciales.\n\nNota Final: El entorno es seguro. La \"nitidez\" anómala reportada por el sistema de visión es un dato técnico a revisar en el hardware del sensor, pero no afecta la s",
-    "last_error": "escena sin cambios relevantes (delta=2.7)",
-    "last_check_ts": REDACTED_PHONE.1921415
+    "checks": 23,
+    "verdicts": 23,
+    "last_verdict_id": "img_20261124_121204_55dcfa",
+    "last_risk_level": 3,
+    "last_verdict": "*   Estado General del Entorno: Seguro y Estable.\n    *   *Hechos Observados:* Área exterior, luz diurna, sin personas, sin vehículos visibles, infraestructura intacta.\n    *   *Inferencias:* Es un momento de baja actividad. El entorno es predecible y no hostil.\n    *   *Dudas:* No se puede confirmar la seguridad de las áreas fuera del encuadre (ej. si hay tráfico intenso en la calle adyacente).\n\n*   Nivel de Riesgo Objetivo: 3/10\n    *   *Justificación:* El riesgo es bajo. Un 0 sería un entorno controlado estéril. Un 3 refleja la incertidumbre inherente a estar en un área pública/semi-pública con acceso a una calle, donde podrían surgir riesgos externos (tráfico, personas no visibles) aunque no estén presentes en el instante de la captura. No hay peligro inminente.\n\n*   Recomendación Concreta:\n    1.  Mantener la posición: No hay necesidad de evasión.\n    2.  Ampliar el campo de visión: Si el objetivo es seguridad, se recomienda capturar ángulos adicionales que incluyan la calle completa para evaluar el flujo de tráfico y la presencia de otros individuos.\n    3.  Verificar metadatos: Confirmar la ubicación GPS para contextualizar el entorno (zona residencial, comercial, etc.) y aj",
+    "last_error": "escena sin cambios relevantes (delta=2.2)",
+    "last_check_ts": REDACTED_PHONE.450383
   },
   "vlm": {
     "ready": true,

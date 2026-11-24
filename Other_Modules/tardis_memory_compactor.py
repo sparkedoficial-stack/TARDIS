@@ -67,12 +67,18 @@ DEFAULT_COMPACTOR_DB = DATA_DIR / "memory_compactor.db"
 DEFAULT_RAG_DB = DATA_DIR / "rag_vault.db"
 DEFAULT_KG_DB = DATA_DIR / "knowledge_graph.db"
 DEFAULT_OFFLINE_CHAT_DB = DATA_DIR / "offline_chats.db"
+DEFAULT_SUBSYSTEM_AGENTS_DB = DATA_DIR / "subsystem_agents.db"
+DEFAULT_GODS_EYE_DB = DATA_DIR / "gods_eye.db"
 DEFAULT_DEEP_MEMORY_DB = (
     Path(os.environ.get("LOCALAPPDATA", os.path.expanduser("~")))
     / "vw-control"
     / "deep_memory_vault"
     / "vault_master.db"
 )
+
+DEFAULT_SUBSYSTEM_RETENTION_DAYS = float(os.environ.get("TARDIS_SUBSYSTEM_RETENTION_DAYS", "14"))
+DEFAULT_GODS_EYE_DETECTIONS_RETENTION_DAYS = float(os.environ.get("TARDIS_GODS_EYE_DETECTIONS_RETENTION_DAYS", "7"))
+DEFAULT_GODS_EYE_EVENTS_RETENTION_DAYS = float(os.environ.get("TARDIS_GODS_EYE_EVENTS_RETENTION_DAYS", "14"))
 
 AUX_WAL_DBS: Tuple[Path, ...] = (
     DATA_DIR / "sovereign_event_bus.db",
@@ -83,7 +89,7 @@ AUX_WAL_DBS: Tuple[Path, ...] = (
     DATA_DIR / "canary_verifications.db",
 )
 
-ALL_TARGETS: Tuple[str, ...] = ("rag", "kg", "deep_memory", "offline_chats", "wal")
+ALL_TARGETS: Tuple[str, ...] = ("rag", "kg", "deep_memory", "offline_chats", "subsystem_agents", "gods_eye", "wal")
 
 logger = logging.getLogger("TARDIS.MemoryCompactor")
 
@@ -746,7 +752,314 @@ class TardisMemoryCompactor:
             "elapsed_ms": round((time.perf_counter() - t0) * 1000.0, 2),
         }
 
-    # ------------------------------------------------------------------ 5. Auxiliary WAL checkpoint
+    # ------------------------------------------------------------------ 5. Telemetry TTL + WAL (subsystem_agents & gods_eye)
+    def compact_subsystem_agents(
+        self,
+        db_path: Path = DEFAULT_SUBSYSTEM_AGENTS_DB,
+        *,
+        dry_run: bool = False,
+        retention_days: float = DEFAULT_SUBSYSTEM_RETENTION_DAYS,
+    ) -> Dict[str, Any]:
+        """
+        Retención TTL para `subsystem_agents.db`:
+          - Consolida ciclos antiguos (> retention_days) en `cycles_daily_rollup` (sin pérdida estadística).
+          - Poda el JSON crudo expirado, migra `journal_mode=delete -> WAL`, crea `idx_cycles_ts` y hace VACUUM.
+        """
+        t0 = time.perf_counter()
+        p = Path(db_path)
+        if not p.is_file():
+            return {"ok": True, "skipped": True, "reason": "db_not_found", "path": str(p)}
+
+        bytes_before = _db_total_bytes(p)
+        cutoff = time.time() - max(1.0, float(retention_days)) * 86400.0
+        con = sqlite3.connect(str(p), timeout=20.0)
+        con.execute("PRAGMA busy_timeout=15000")
+        try:
+            jm_before = str(con.execute("PRAGMA journal_mode").fetchone()[0]).lower()
+            total_rows = int(con.execute("SELECT COUNT(*) FROM cycles").fetchone()[0])
+            expired_rows = int(con.execute("SELECT COUNT(*) FROM cycles WHERE ts < ?", (cutoff,)).fetchone()[0])
+
+            rollup_groups = 0
+            pruned = 0
+            jm_after = jm_before
+            maint: Dict[str, Any] = {}
+
+            if not dry_run:
+                con.execute("PRAGMA journal_mode=WAL")
+                con.execute("PRAGMA synchronous=NORMAL")
+                con.execute("CREATE INDEX IF NOT EXISTS idx_cycles_ts ON cycles(ts)")
+                con.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS cycles_daily_rollup (
+                        day TEXT NOT NULL,
+                        subsystem TEXT NOT NULL,
+                        cycles_count INTEGER NOT NULL DEFAULT 0,
+                        ok_count INTEGER NOT NULL DEFAULT 0,
+                        degraded_count INTEGER NOT NULL DEFAULT 0,
+                        total_findings INTEGER NOT NULL DEFAULT 0,
+                        first_ts REAL NOT NULL,
+                        last_ts REAL NOT NULL,
+                        updated_iso TEXT NOT NULL,
+                        UNIQUE(day, subsystem)
+                    )
+                    """
+                )
+                if expired_rows > 0:
+                    agg_rows = con.execute(
+                        """
+                        SELECT date(ts, 'unixepoch', 'localtime') AS day,
+                               COALESCE(subsystem, 'unknown') AS subsystem,
+                               COUNT(*) AS cnt,
+                               SUM(CASE WHEN lower(COALESCE(health, '')) IN ('online', 'ok', 'healthy') THEN 1 ELSE 0 END) AS ok_cnt,
+                               SUM(CASE WHEN lower(COALESCE(health, '')) NOT IN ('online', 'ok', 'healthy') THEN 1 ELSE 0 END) AS deg_cnt,
+                               COALESCE(SUM(COALESCE(findings, 0)), 0) AS tot_find,
+                               MIN(ts) AS f_ts,
+                               MAX(ts) AS l_ts
+                        FROM cycles
+                        WHERE ts < ?
+                        GROUP BY day, subsystem
+                        """,
+                        (cutoff,),
+                    ).fetchall()
+                    now_iso = _now_iso()
+                    for day, sub, cnt, ok_c, deg_c, tot_f, f_ts, l_ts in agg_rows:
+                        con.execute(
+                            """
+                            INSERT INTO cycles_daily_rollup (
+                                day, subsystem, cycles_count, ok_count, degraded_count,
+                                total_findings, first_ts, last_ts, updated_iso
+                            )
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                            ON CONFLICT(day, subsystem) DO UPDATE SET
+                                cycles_count = cycles_daily_rollup.cycles_count + excluded.cycles_count,
+                                ok_count = cycles_daily_rollup.ok_count + excluded.ok_count,
+                                degraded_count = cycles_daily_rollup.degraded_count + excluded.degraded_count,
+                                total_findings = cycles_daily_rollup.total_findings + excluded.total_findings,
+                                first_ts = MIN(cycles_daily_rollup.first_ts, excluded.first_ts),
+                                last_ts = MAX(cycles_daily_rollup.last_ts, excluded.last_ts),
+                                updated_iso = excluded.updated_iso
+                            """,
+                            (str(day or "unknown"), str(sub), int(cnt), int(ok_c or 0), int(deg_c or 0), int(tot_f or 0), float(f_ts), float(l_ts), now_iso),
+                        )
+                        rollup_groups += 1
+                    cur = con.execute("DELETE FROM cycles WHERE ts < ?", (cutoff,))
+                    pruned = max(0, int(cur.rowcount or 0))
+                con.commit()
+                maint = _safe_sqlite_maintain(con, do_vacuum=(pruned > 0 or jm_before != "wal"))
+                jm_after = str(con.execute("PRAGMA journal_mode").fetchone()[0]).lower()
+            else:
+                pruned = expired_rows
+        finally:
+            con.close()
+
+        bytes_after = _db_total_bytes(p)
+        return {
+            "ok": True,
+            "target": "subsystem_agents",
+            "path": str(p),
+            "dry_run": dry_run,
+            "retention_days": retention_days,
+            "journal_mode_before": jm_before,
+            "journal_mode_after": jm_after,
+            "rows_scanned": total_rows,
+            "duplicates_pruned": pruned,
+            "expired_rows_pruned": pruned,
+            "rollup_groups_saved": rollup_groups,
+            "bytes_before": bytes_before,
+            "bytes_after": bytes_after,
+            "bytes_reclaimed": max(0, bytes_before - bytes_after),
+            "maintenance": maint,
+            "elapsed_ms": round((time.perf_counter() - t0) * 1000.0, 2),
+        }
+
+    def compact_gods_eye(
+        self,
+        db_path: Path = DEFAULT_GODS_EYE_DB,
+        *,
+        dry_run: bool = False,
+        detections_retention_days: float = DEFAULT_GODS_EYE_DETECTIONS_RETENTION_DAYS,
+        events_retention_days: float = DEFAULT_GODS_EYE_EVENTS_RETENTION_DAYS,
+    ) -> Dict[str, Any]:
+        """
+        Retención TTL y migración WAL para `gods_eye.db`:
+          - Consolida `detections` antiguas (> detections_retention_days) en `detections_daily_rollup`
+            y `events` antiguos (> events_retention_days) en `events_daily_rollup`.
+          - Migra `journal_mode=delete -> WAL` y ejecuta VACUUM + ANALYZE.
+        """
+        t0 = time.perf_counter()
+        p = Path(db_path)
+        if not p.is_file():
+            return {"ok": True, "skipped": True, "reason": "db_not_found", "path": str(p)}
+
+        bytes_before = _db_total_bytes(p)
+        now = time.time()
+        det_cutoff = now - max(1.0, float(detections_retention_days)) * 86400.0
+        evt_cutoff = now - max(1.0, float(events_retention_days)) * 86400.0
+
+        con = sqlite3.connect(str(p), timeout=20.0)
+        con.execute("PRAGMA busy_timeout=15000")
+        try:
+            jm_before = str(con.execute("PRAGMA journal_mode").fetchone()[0]).lower()
+            det_total = int(con.execute("SELECT COUNT(*) FROM detections").fetchone()[0])
+            evt_total = int(con.execute("SELECT COUNT(*) FROM events").fetchone()[0])
+            det_expired = int(con.execute("SELECT COUNT(*) FROM detections WHERE ts < ?", (det_cutoff,)).fetchone()[0])
+            evt_expired = int(con.execute("SELECT COUNT(*) FROM events WHERE ts < ?", (evt_cutoff,)).fetchone()[0])
+
+            det_pruned = 0
+            evt_pruned = 0
+            det_rollups = 0
+            evt_rollups = 0
+            jm_after = jm_before
+            maint: Dict[str, Any] = {}
+
+            if not dry_run:
+                con.execute("PRAGMA journal_mode=WAL")
+                con.execute("PRAGMA synchronous=NORMAL")
+                con.execute("CREATE INDEX IF NOT EXISTS idx_det_ts ON detections(ts)")
+                con.execute("CREATE INDEX IF NOT EXISTS idx_evt_ts ON events(ts)")
+                con.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS detections_daily_rollup (
+                        day TEXT NOT NULL,
+                        terminal_id TEXT NOT NULL,
+                        detections_count INTEGER NOT NULL DEFAULT 0,
+                        sum_motion REAL NOT NULL DEFAULT 0.0,
+                        max_motion REAL NOT NULL DEFAULT 0.0,
+                        total_objects INTEGER NOT NULL DEFAULT 0,
+                        first_ts REAL NOT NULL,
+                        last_ts REAL NOT NULL,
+                        updated_iso TEXT NOT NULL,
+                        UNIQUE(day, terminal_id)
+                    )
+                    """
+                )
+                con.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS events_daily_rollup (
+                        day TEXT NOT NULL,
+                        terminal_id TEXT NOT NULL,
+                        kind TEXT NOT NULL,
+                        events_count INTEGER NOT NULL DEFAULT 0,
+                        sum_confidence REAL NOT NULL DEFAULT 0.0,
+                        first_ts REAL NOT NULL,
+                        last_ts REAL NOT NULL,
+                        updated_iso TEXT NOT NULL,
+                        UNIQUE(day, terminal_id, kind)
+                    )
+                    """
+                )
+                now_iso = _now_iso()
+                if det_expired > 0:
+                    d_aggs = con.execute(
+                        """
+                        SELECT date(ts, 'unixepoch', 'localtime') AS day,
+                               COALESCE(terminal_id, 'unknown') AS tid,
+                               COUNT(*) AS cnt,
+                               COALESCE(SUM(COALESCE(motion, 0.0)), 0.0) AS s_mot,
+                               COALESCE(MAX(COALESCE(motion, 0.0)), 0.0) AS m_mot,
+                               COALESCE(SUM(COALESCE(objects, 0)), 0) AS tot_obj,
+                               MIN(ts) AS f_ts,
+                               MAX(ts) AS l_ts
+                        FROM detections
+                        WHERE ts < ?
+                        GROUP BY day, tid
+                        """,
+                        (det_cutoff,),
+                    ).fetchall()
+                    for day, tid, cnt, s_mot, m_mot, tot_obj, f_ts, l_ts in d_aggs:
+                        con.execute(
+                            """
+                            INSERT INTO detections_daily_rollup (
+                                day, terminal_id, detections_count, sum_motion, max_motion,
+                                total_objects, first_ts, last_ts, updated_iso
+                            )
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                            ON CONFLICT(day, terminal_id) DO UPDATE SET
+                                detections_count = detections_daily_rollup.detections_count + excluded.detections_count,
+                                sum_motion = detections_daily_rollup.sum_motion + excluded.sum_motion,
+                                max_motion = MAX(detections_daily_rollup.max_motion, excluded.max_motion),
+                                total_objects = detections_daily_rollup.total_objects + excluded.total_objects,
+                                first_ts = MIN(detections_daily_rollup.first_ts, excluded.first_ts),
+                                last_ts = MAX(detections_daily_rollup.last_ts, excluded.last_ts),
+                                updated_iso = excluded.updated_iso
+                            """,
+                            (str(day or "unknown"), str(tid), int(cnt), float(s_mot), float(m_mot), int(tot_obj), float(f_ts), float(l_ts), now_iso),
+                        )
+                        det_rollups += 1
+                    cur_d = con.execute("DELETE FROM detections WHERE ts < ?", (det_cutoff,))
+                    det_pruned = max(0, int(cur_d.rowcount or 0))
+
+                if evt_expired > 0:
+                    e_aggs = con.execute(
+                        """
+                        SELECT date(ts, 'unixepoch', 'localtime') AS day,
+                               COALESCE(terminal_id, 'unknown') AS tid,
+                               COALESCE(kind, 'event') AS kind,
+                               COUNT(*) AS cnt,
+                               COALESCE(SUM(COALESCE(confidence, 0.0)), 0.0) AS s_conf,
+                               MIN(ts) AS f_ts,
+                               MAX(ts) AS l_ts
+                        FROM events
+                        WHERE ts < ?
+                        GROUP BY day, tid, kind
+                        """,
+                        (evt_cutoff,),
+                    ).fetchall()
+                    for day, tid, kind, cnt, s_conf, f_ts, l_ts in e_aggs:
+                        con.execute(
+                            """
+                            INSERT INTO events_daily_rollup (
+                                day, terminal_id, kind, events_count, sum_confidence,
+                                first_ts, last_ts, updated_iso
+                            )
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                            ON CONFLICT(day, terminal_id, kind) DO UPDATE SET
+                                events_count = events_daily_rollup.events_count + excluded.events_count,
+                                sum_confidence = events_daily_rollup.sum_confidence + excluded.sum_confidence,
+                                first_ts = MIN(events_daily_rollup.first_ts, excluded.first_ts),
+                                last_ts = MAX(events_daily_rollup.last_ts, excluded.last_ts),
+                                updated_iso = excluded.updated_iso
+                            """,
+                            (str(day or "unknown"), str(tid), str(kind), int(cnt), float(s_conf), float(f_ts), float(l_ts), now_iso),
+                        )
+                        evt_rollups += 1
+                    cur_e = con.execute("DELETE FROM events WHERE ts < ?", (evt_cutoff,))
+                    evt_pruned = max(0, int(cur_e.rowcount or 0))
+
+                con.commit()
+                maint = _safe_sqlite_maintain(con, do_vacuum=((det_pruned + evt_pruned) > 0 or jm_before != "wal"))
+                jm_after = str(con.execute("PRAGMA journal_mode").fetchone()[0]).lower()
+            else:
+                det_pruned = det_expired
+                evt_pruned = evt_expired
+        finally:
+            con.close()
+
+        bytes_after = _db_total_bytes(p)
+        total_pruned = det_pruned + evt_pruned
+        return {
+            "ok": True,
+            "target": "gods_eye",
+            "path": str(p),
+            "dry_run": dry_run,
+            "detections_retention_days": detections_retention_days,
+            "events_retention_days": events_retention_days,
+            "journal_mode_before": jm_before,
+            "journal_mode_after": jm_after,
+            "detections_scanned": det_total,
+            "events_scanned": evt_total,
+            "detections_pruned": det_pruned,
+            "events_pruned": evt_pruned,
+            "duplicates_pruned": total_pruned,
+            "rollup_groups_saved": det_rollups + evt_rollups,
+            "bytes_before": bytes_before,
+            "bytes_after": bytes_after,
+            "bytes_reclaimed": max(0, bytes_before - bytes_after),
+            "maintenance": maint,
+            "elapsed_ms": round((time.perf_counter() - t0) * 1000.0, 2),
+        }
+
+    # ------------------------------------------------------------------ 6. Auxiliary WAL checkpoint
     def checkpoint_auxiliary_dbs(
         self,
         db_paths: Sequence[Path] = AUX_WAL_DBS,
@@ -802,6 +1115,8 @@ class TardisMemoryCompactor:
         kg_db: Path = DEFAULT_KG_DB,
         deep_memory_db: Path = DEFAULT_DEEP_MEMORY_DB,
         offline_chat_db: Path = DEFAULT_OFFLINE_CHAT_DB,
+        subsystem_agents_db: Path = DEFAULT_SUBSYSTEM_AGENTS_DB,
+        gods_eye_db: Path = DEFAULT_GODS_EYE_DB,
         aux_dbs: Sequence[Path] = AUX_WAL_DBS,
         persist: bool = True,
     ) -> Dict[str, Any]:
@@ -848,6 +1163,10 @@ class TardisMemoryCompactor:
                 results["deep_memory"] = self.compact_deep_memory(deep_memory_db, dry_run=dry_run)
             elif tgt == "offline_chats":
                 results["offline_chats"] = self.compact_offline_chats(offline_chat_db, dry_run=dry_run)
+            elif tgt == "subsystem_agents":
+                results["subsystem_agents"] = self.compact_subsystem_agents(subsystem_agents_db, dry_run=dry_run)
+            elif tgt == "gods_eye":
+                results["gods_eye"] = self.compact_gods_eye(gods_eye_db, dry_run=dry_run)
             elif tgt == "wal":
                 results["wal"] = self.checkpoint_auxiliary_dbs(aux_dbs, dry_run=dry_run)
 
@@ -970,6 +1289,8 @@ class TardisMemoryCompactor:
             "knowledge_graph": round(_db_total_bytes(DEFAULT_KG_DB) / (1024.0 * 1024.0), 2),
             "deep_memory": round(_db_total_bytes(DEFAULT_DEEP_MEMORY_DB) / (1024.0 * 1024.0), 2),
             "offline_chats": round(_db_total_bytes(DEFAULT_OFFLINE_CHAT_DB) / (1024.0 * 1024.0), 2),
+            "subsystem_agents": round(_db_total_bytes(DEFAULT_SUBSYSTEM_AGENTS_DB) / (1024.0 * 1024.0), 2),
+            "gods_eye": round(_db_total_bytes(DEFAULT_GODS_EYE_DB) / (1024.0 * 1024.0), 2),
         }
         return {
             "ok": True,
@@ -1000,7 +1321,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     sub.add_parser("status", help="Estado del compactador y tamaño actual de las bóvedas")
     sub.add_parser("audit", help="Ejecutar auditoría dry-run segura sin modificar ninguna bóveda")
     p_run = sub.add_parser("run", help="Ejecutar compactación y deduplicación en bóvedas SQLite")
-    p_run.add_argument("--targets", default="", help="Lista separada por comas: rag,kg,deep_memory,offline_chats,wal")
+    p_run.add_argument("--targets", default="", help="Lista separada por comas: rag,kg,deep_memory,offline_chats,subsystem_agents,gods_eye,wal")
     p_run.add_argument("--dry-run", action="store_true")
     p_run.add_argument("--force", action="store_true", help="Ignorar diferimiento Ring 0 en RED")
     p_hist = sub.add_parser("history", help="Histórico de ejecuciones de compactación")

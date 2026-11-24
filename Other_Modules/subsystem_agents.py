@@ -279,10 +279,14 @@ def _persist_cycle(summary: Dict[str, Any]) -> None:
     try:
         STATE_DB.parent.mkdir(parents=True, exist_ok=True)
         with sqlite3.connect(STATE_DB, timeout=10) as con:
+            con.execute("PRAGMA journal_mode=WAL")
+            con.execute("PRAGMA synchronous=NORMAL")
+            con.execute("PRAGMA busy_timeout=10000")
             con.execute("""CREATE TABLE IF NOT EXISTS cycles (
                 id INTEGER PRIMARY KEY AUTOINCREMENT, ts REAL, subsystem TEXT,
                 health TEXT, findings INTEGER, findings_json TEXT, applied_json TEXT,
                 proposals_json TEXT)""")
+            con.execute("CREATE INDEX IF NOT EXISTS idx_cycles_ts ON cycles(ts)")
             con.execute("INSERT INTO cycles (ts,subsystem,health,findings,findings_json,applied_json,proposals_json) VALUES (?,?,?,?,?,?,?)",
                         (summary["ts"], summary["agent"], summary.get("health"), summary["findings"],
                          json.dumps(summary["by_rule"]), json.dumps(summary["applied"]),

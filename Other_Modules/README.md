@@ -97,7 +97,9 @@ Módulos y componentes auxiliares del sistema.
 - **contributing.md**: Componente de alta eficiencia.
 - **convert_fp8_to_int4.py**: Componente de alta eficiencia.
 - **core__embed_isotropy.py**: Núcleo de orquestación y control temporal/espacial.
+- **core__gods_eye_realtime.py**: Motor de ingeniería inversa multi-arquitectura y descompilación.
 - **core__hub_health.py**: Núcleo de orquestación y control temporal/espacial.
+- **core__subsystem_agents.py**: Núcleo de orquestación y control temporal/espacial.
 - **core__tapo_c310_sentinel.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
 - **core__tardis_c310_conversation.py**: Núcleo de orquestación y control temporal/espacial.
 - **core__tardis_canary_verifier.py**: Núcleo de orquestación y control temporal/espacial.
@@ -1039,6 +1041,16 @@ Módulos y componentes auxiliares del sistema.
 - **dossier_20261124_094834_489.json**: Componente de alta eficiencia.
 - **dossier_20261124_103417_846.json**: Componente de alta eficiencia.
 - **dossier_20261124_103852_370.json**: Componente de alta eficiencia.
+- **dossier_20261124_110009_448.json**: Componente de alta eficiencia.
+- **dossier_20261124_112457_976.json**: Componente de alta eficiencia.
+- **dossier_20261124_113500_514.json**: Componente de alta eficiencia.
+- **dossier_20261124_113825_358.json**: Componente de alta eficiencia.
+- **dossier_20261124_114600_067.json**: Componente de alta eficiencia.
+- **dossier_20261124_114906_635.json**: Componente de alta eficiencia.
+- **dossier_20261124_121105_441.json**: Componente de alta eficiencia.
+- **dossier_20261124_121637_131.json**: Componente de alta eficiencia.
+- **dossier_20261124_122805_051.json**: Componente de alta eficiencia.
+- **dossier_20261124_130357_849.json**: Componente de alta eficiencia.
 - **dynamic_tools_registry.json**: Directorio y puente soberano de interoperabilidad omni-herramientas.
 - **ecca_v3_core.py**: Núcleo de orquestación y control temporal/espacial.
 - **embed_isotropy.py**: Componente de alta eficiencia.
