@@ -218,10 +218,33 @@ class TardisAgyCoevolutionEngine:
     def __init__(self, db_path: Path = COEVOL_DB):
         self.db_path = Path(db_path)
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
+        self._is_isolated_instance = self.db_path.resolve() != COEVOL_DB.resolve()
+        self._channel_dir = (self.db_path.parent / "coevolution_channel") if self._is_isolated_instance else CHANNEL_DIR
+        self._channel_dir.mkdir(parents=True, exist_ok=True)
         self._lock = threading.Lock()
         self._stop_event = threading.Event()
         self._init_schema()
         self._state = self._load_state()
+
+    def _write_channel_file(self, src_name: str, content: str) -> Path:
+        if self._is_isolated_instance:
+            target = self._channel_dir / src_name
+            _atomic_write_text(target, content)
+            return target
+        _mirror_file(src_name, content)
+        return CHANNEL_DIR / src_name
+
+    def _append_channel_jsonl(self, name: str, record: Dict[str, Any]) -> None:
+        if self._is_isolated_instance:
+            line = json.dumps(record, ensure_ascii=False) + "\n"
+            try:
+                self._channel_dir.mkdir(parents=True, exist_ok=True)
+                with (self._channel_dir / name).open("a", encoding="utf-8") as fh:
+                    fh.write(line)
+            except Exception:
+                pass
+            return
+        _append_jsonl_mirrored(name, record)
 
     def _connect(self) -> sqlite3.Connection:
         conn = sqlite3.connect(str(self.db_path), timeout=10.0)
@@ -312,9 +335,10 @@ class TardisAgyCoevolutionEngine:
             "daemon_heartbeat_iso": "",
             "updated_at": _now_iso(),
         }
-        if STATE_FILE.is_file():
+        state_path = (self._channel_dir / "state.json") if self._is_isolated_instance else STATE_FILE
+        if state_path.is_file():
             try:
-                loaded = json.loads(STATE_FILE.read_text(encoding="utf-8"))
+                loaded = json.loads(state_path.read_text(encoding="utf-8"))
                 if isinstance(loaded, dict):
                     default.update(loaded)
             except Exception:
@@ -323,7 +347,7 @@ class TardisAgyCoevolutionEngine:
 
     def _save_state(self) -> None:
         self._state["updated_at"] = _now_iso()
-        _mirror_file("state.json", json.dumps(self._state, indent=2, ensure_ascii=False) + "\n")
+        self._write_channel_file("state.json", json.dumps(self._state, indent=2, ensure_ascii=False) + "\n")
 
     def _reset_daily_budget_if_needed(self) -> None:
         today = time.strftime("%Y-%m-%d")
@@ -471,19 +495,20 @@ class TardisAgyCoevolutionEngine:
                     json.dumps(rec["meta"], ensure_ascii=False),
                 ),
             )
-        _append_jsonl_mirrored("dialogue.jsonl", rec)
+        self._append_channel_jsonl("dialogue.jsonl", rec)
 
-        # Espejar en OmniFeedbackBridge para visibilidad en el Web Cockpit / HUD
-        try:
-            import antigravity_bridge
-            antigravity_bridge.get_bridge().post_dialogue_message(
-                sender=sender,
-                text=f"[{direction} · {mode}] {content[:1200]}",
-                role="assistant" if direction == "AGY->TARDIS" else "system",
-                category="TARDIS_AGY_COEVOLUTION",
-            )
-        except Exception:
-            pass
+        # Espejar en OmniFeedbackBridge para visibilidad en el Web Cockpit / HUD (omitir en instancias aisladas de test)
+        if not self._is_isolated_instance:
+            try:
+                import antigravity_bridge
+                antigravity_bridge.get_bridge().post_dialogue_message(
+                    sender=sender,
+                    text=f"[{direction} · {mode}] {content[:1200]}",
+                    role="assistant" if direction == "AGY->TARDIS" else "system",
+                    category="TARDIS_AGY_COEVOLUTION",
+                )
+            except Exception:
+                pass
         return rec
 
     def capture_kpi_baseline(self) -> Dict[str, Any]:
@@ -576,28 +601,95 @@ class TardisAgyCoevolutionEngine:
         except Exception as exc:
             logger.debug("runtime hub_health scan note: %s", exc)
 
-        # 3. Consumir regresiones del Sovereign Event Bus
+        # 3. Consumir regresiones y recuperaciones simétricas del Sovereign Event Bus
         try:
             from core.tardis_event_bus import get_event_bus
             evs = get_event_bus().consume(
                 "tardis_agy_coevolution",
-                topics=("health.regression", "sentinel.anomaly", "evolution.rollback"),
-                limit=20,
+                topics=("health.regression", "health.recovered", "sentinel.anomaly", "evolution.rollback"),
+                limit=40,
                 advance=True,
             )
+
+            def _bus_recovery_key(ev_item: Dict[str, Any]) -> str:
+                pl = ev_item.get("payload") or {}
+                src = str(ev_item.get("source") or "")
+                sub = str(pl.get("subsystem") or "").strip()
+                if sub:
+                    return f"{src}|sub|{sub}"
+                k = str(pl.get("kind") or "").strip()
+                if k in ("salud_baja", "salud_recuperada"):
+                    return f"{src}|health_score"
+                return f"{src}|{k or pl.get('anomaly', '')}"
+
+            # Mapear último timestamp/id de recuperación por clave en este lote
+            recovered_latest_id: Dict[str, int] = {}
             for ev in evs:
+                if ev.get("topic") == "health.recovered":
+                    rk = _bus_recovery_key(ev)
+                    recovered_latest_id[rk] = max(recovered_latest_id.get(rk, 0), int(ev.get("id") or 0))
+
+            # Auto-cerrar propuestas pendientes que ya recibieron health.recovered
+            if recovered_latest_id:
+                now_rec = time.time()
+                iso_rec = _now_iso()
+                with self._connect() as conn:
+                    pending_regs = conn.execute(
+                        "SELECT proposal_id, evidence_json FROM proposals WHERE status = 'pending' AND category = 'regression'"
+                    ).fetchall()
+                    for prow in pending_regs:
+                        try:
+                            ev_prev = json.loads(prow["evidence_json"] or "{}")
+                        except Exception:
+                            ev_prev = {}
+                        if ev_prev.get("topic") == "health.regression":
+                            rk_prev = _bus_recovery_key(ev_prev)
+                            if rk_prev in recovered_latest_id and recovered_latest_id[rk_prev] > int(ev_prev.get("id") or 0):
+                                conn.execute(
+                                    """
+                                    UPDATE proposals
+                                    SET status = 'reviewed',
+                                        agy_response = 'Auto-resuelto: evento simétrico health.recovered confirmado en SovereignEventBus.',
+                                        updated_ts = ?,
+                                        updated_iso = ?
+                                    WHERE proposal_id = ?
+                                    """,
+                                    (now_rec, iso_rec, prow["proposal_id"]),
+                                )
+
+            for ev in evs:
+                if ev.get("topic") == "health.recovered":
+                    continue
                 payload = ev.get("payload") or {}
+                # Filtrar artefactos sintéticos de pruebas unitarias
+                restored_files = payload.get("restored_files") or []
+                if ev.get("topic") == "evolution.rollback" and restored_files == ["sample_mod.py"]:
+                    continue
+                # Si una regresión ya fue superada por un health.recovered posterior en este lote, omitir alerta obsoleta
+                if ev.get("topic") == "health.regression":
+                    rk = _bus_recovery_key(ev)
+                    if recovered_latest_id.get(rk, 0) > int(ev.get("id") or 0):
+                        continue
+
                 title = f"Resolver evento crítico {ev['topic']} desde {ev['source']}"
+                target_key = (
+                    payload.get("subsystem")
+                    or payload.get("run_id")
+                    or payload.get("anomaly")
+                    or payload.get("kind")
+                    or ""
+                )
+                sev_raw = str(ev.get("severity") or "MEDIUM").upper()
                 found.append(self.upsert_proposal(
                     lens="runtime",
                     category="regression",
-                    severity="HIGH" if ev.get("severity") in ("HIGH", "CRITICAL") else "MEDIUM",
-                    roi_score=91,
+                    severity="HIGH" if sev_raw in ("HIGH", "CRITICAL") else "MEDIUM",
+                    roi_score=91 if sev_raw in ("HIGH", "CRITICAL") else 82,
                     title=title,
                     problem=json.dumps(payload, ensure_ascii=False)[:1000],
                     proposed_solution="Investigar causa raíz en el subsistema afectado, corregir el fallo de forma estructural y verificar con `tardis-canary verify`.",
                     evidence=ev,
-                    fingerprint_seed=f"bus|{ev['topic']}|{ev['source']}|{payload.get('subsystem', payload.get('run_id', ''))}",
+                    fingerprint_seed=f"bus|{ev['topic']}|{ev['source']}|{target_key}",
                 ))
         except Exception as exc:
             logger.debug("runtime bus scan note: %s", exc)

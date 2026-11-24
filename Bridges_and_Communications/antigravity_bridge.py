@@ -107,8 +107,42 @@ class OmniFeedbackBridge:
         self.last_improvement_ts: float = 0.0
         self.last_proposal: Optional[Dict[str, Any]] = None
         self.improvement_interval: float = 900.0  # ciclo autónomo cada 15 min
+
+        # Muestreo propio de CPU (/proc/stat) + EMA + histéresis para evitar
+        # falsas caídas 100->85 causadas por lecturas instantáneas/carreras en psutil.cpu_percent(None)
+        self._prev_cpu_totals: Optional[Tuple[int, int]] = None
+        self._cpu_ema: Optional[float] = None
+        self._high_cpu_streak: int = 0
+        self._high_ram_streak: int = 0
         
         self._load_initial_dialogue()
+
+    def _sample_cpu_percent(self) -> float:
+        """Lee uso global de CPU con delta propio sobre /proc/stat (aislado de otros callers de psutil)."""
+        try:
+            proc_stat = Path("/proc/stat")
+            if proc_stat.is_file():
+                first = proc_stat.read_text(encoding="utf-8", errors="ignore").splitlines()[0]
+                parts = first.split()
+                if parts and parts[0] == "cpu" and len(parts) >= 5:
+                    vals = [int(x) for x in parts[1:] if x.isdigit()]
+                    idle = vals[3] + (vals[4] if len(vals) > 4 else 0)
+                    total = sum(vals)
+                    prev = self._prev_cpu_totals
+                    self._prev_cpu_totals = (total, idle)
+                    if prev is not None:
+                        dt_total = total - prev[0]
+                        dt_idle = idle - prev[1]
+                        if dt_total > 0:
+                            busy = max(0.0, min(100.0, (1.0 - (dt_idle / float(dt_total))) * 100.0))
+                            return round(busy, 1)
+        except Exception:
+            pass
+        try:
+            import psutil
+            return round(float(psutil.cpu_percent(interval=None)), 1)
+        except Exception:
+            return 0.0
 
     def _load_initial_dialogue(self):
         """Carga mensajes recientes del historial persistente si existe."""
@@ -207,13 +241,17 @@ class OmniFeedbackBridge:
         t_now = time.time()
         self.last_check_ts = t_now
         
-        # 1. Recolección de telemetría de hardware
-        cpu_pct = 0.0
+        # 1. Recolección de telemetría de hardware (CPU con delta propio sobre /proc/stat + EMA)
+        cpu_pct = self._sample_cpu_percent()
+        if self._cpu_ema is None:
+            self._cpu_ema = cpu_pct
+        else:
+            self._cpu_ema = round((0.4 * cpu_pct) + (0.6 * self._cpu_ema), 1)
+
         ram_pct = 0.0
         try:
             import psutil
-            cpu_pct = psutil.cpu_percent(interval=None)
-            ram_pct = psutil.virtual_memory().percent
+            ram_pct = round(float(psutil.virtual_memory().percent), 1)
         except Exception:
             pass
 
@@ -274,18 +312,22 @@ class OmniFeedbackBridge:
                 })
 
         # Regla B: Telemetría Ring 0 del ResourceGovernor (CPU PSI, RAM, Swap, Modelos duplicados)
+        gov_level = "UNKNOWN"
+        gov_cpu_psi_60 = 0.0
         try:
             from core.tardis_resource_governor import get_resource_governor
             gov = get_resource_governor().read_fast_snapshot(max_age_s=60.0)
-            if gov.get("level") in ("ORANGE", "RED"):
-                needs.append(f"Presión Ring 0 {gov.get('level')}: {'; '.join((gov.get('reasons') or [])[:2])}")
+            gov_level = str(gov.get("level") or "UNKNOWN")
+            gov_cpu_psi_60 = float(((gov.get("cpu") or {}).get("psi") or {}).get("some_avg60", 0.0))
+            if gov_level in ("ORANGE", "RED"):
+                needs.append(f"Presión Ring 0 {gov_level}: {'; '.join((gov.get('reasons') or [])[:2])}")
                 instructions.append({
-                    "id": f"inst_resource_pressure_{gov.get('level', 'high').lower()}",
-                    "severity": "HIGH" if gov.get("level") == "RED" else "MEDIUM",
+                    "id": f"inst_resource_pressure_{gov_level.lower()}",
+                    "severity": "HIGH" if gov_level == "RED" else "MEDIUM",
                     "component": "Resource Governor Ring 0",
                     "target_file": "core/tardis_resource_governor.py",
-                    "instruction": f"Estabilizar presión {gov.get('level')} ({'; '.join((gov.get('reasons') or [])[:2])}) ejecutando reclamación de modelos duplicados y throttling.",
-                    "rationale": f"CPU PSI60={(gov.get('cpu') or {}).get('psi', {}).get('some_avg60', 0)}%, RAM libre={(gov.get('memory') or {}).get('available_mb', 0)} MB.",
+                    "instruction": f"Estabilizar presión {gov_level} ({'; '.join((gov.get('reasons') or [])[:2])}) ejecutando reclamación de modelos duplicados y throttling.",
+                    "rationale": f"CPU PSI60={gov_cpu_psi_60}%, RAM libre={(gov.get('memory') or {}).get('available_mb', 0)} MB.",
                     "actionable_cmd": "tardis-governor reclaim"
                 })
         except Exception:
@@ -316,18 +358,44 @@ class OmniFeedbackBridge:
                 "actionable_cmd": "python -c 'import geon_causal_engine; print(geon_causal_engine.get_geon_engine().full_system_diagnostic())'"
             })
 
-        # Cálculo de Puntaje de Salud Global (0 - 100%)
+        # Cálculo de Puntaje de Salud Global (0 - 100%) con histéresis y trazabilidad de penalizaciones
+        self._high_cpu_streak = (self._high_cpu_streak + 1) if cpu_pct > 85.0 else 0
+        self._high_ram_streak = (self._high_ram_streak + 1) if ram_pct > 85.0 else 0
+
         health_score = 100
+        penalties: List[Dict[str, Any]] = []
         if not subsystems_health.get("ollama_online", False):
             health_score -= 20
-        if cpu_pct > 85.0:
+            penalties.append({"factor": "inference_offline", "points": -20, "detail": "Temporal Brain / Ollama no disponible"})
+
+        cpu_sustained = (
+            (self._cpu_ema is not None and self._cpu_ema > 85.0 and self._high_cpu_streak >= 2)
+            or (self._high_cpu_streak >= 2)
+            or (cpu_pct > 95.0 and gov_cpu_psi_60 >= 50.0)
+        )
+        if cpu_sustained:
             health_score -= 15
-        if ram_pct > 85.0:
+            penalties.append({
+                "factor": "cpu_sustained",
+                "points": -15,
+                "detail": f"CPU sostenida {cpu_pct:.1f}% (EMA {self._cpu_ema:.1f}%, racha={self._high_cpu_streak}, PSI60={gov_cpu_psi_60:.1f}%)",
+            })
+
+        ram_sustained = (ram_pct > 85.0 and self._high_ram_streak >= 2) or (ram_pct > 92.0)
+        if ram_sustained:
             health_score -= 15
+            penalties.append({
+                "factor": "ram_sustained",
+                "points": -15,
+                "detail": f"RAM sostenida {ram_pct:.1f}% (racha={self._high_ram_streak})",
+            })
+
         if recent_blocks > 3:
             health_score -= 10
+            penalties.append({"factor": "safety_blocks", "points": -10, "detail": f"{recent_blocks} bloqueos recientes"})
         if recent_errors > 3:
             health_score -= 10
+            penalties.append({"factor": "recent_errors", "points": -10, "detail": f"{recent_errors} errores recientes en gia.log"})
         health_score = max(20, health_score)
 
         self.active_instructions = instructions
@@ -340,10 +408,16 @@ class OmniFeedbackBridge:
             "cycle": self.cycle_count,
             "metrics": {
                 "cpu_percent": cpu_pct,
+                "cpu_ema": self._cpu_ema,
+                "high_cpu_streak": self._high_cpu_streak,
                 "ram_percent": ram_pct,
+                "high_ram_streak": self._high_ram_streak,
+                "governor_level": gov_level,
+                "cpu_psi_60": gov_cpu_psi_60,
                 "recent_errors": recent_errors,
                 "recent_blocks": recent_blocks,
             },
+            "penalties": penalties,
             "subsystems": subsystems_health,
             "needs": needs,
             "instructions": instructions,
@@ -869,6 +943,10 @@ class OmniFeedbackBridge:
             "bridge_running": self.running,
             "health_score": self.last_assessment.get("health_score", 100),
             "status": self.last_assessment.get("status", "HEALTHY"),
+            "metrics": self.last_assessment.get("metrics", {}),
+            "needs": self.last_assessment.get("needs", []),
+            "penalties": self.last_assessment.get("penalties", []),
+            "subsystems": self.last_assessment.get("subsystems", {}),
             "last_check_ts": self.last_check_ts,
             "last_check_iso": datetime.datetime.fromtimestamp(self.last_check_ts).isoformat() if self.last_check_ts else "",
             "active_instructions": self.active_instructions,

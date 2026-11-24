@@ -1,6 +1,32 @@
 {
-  "last_updated": REDACTED_PHONE.686485,
+  "last_updated": REDACTED_PHONE.2573533,
   "directives": [
+    {
+      "id": "dir_1795486609257",
+      "timestamp": REDACTED_PHONE.257104,
+      "iso": "2026-11-23T21:16:49.257107",
+      "title": "Validación de Coherencia Causal Sintrópica y Cobertura de Tests",
+      "target_file": "geon_causal_engine.py",
+      "severity": "BAJA",
+      "problem": "Sistema en estado NOMINAL (Salud: 100%). Se recomienda verificar invariantes de Lamport y matrices causales.",
+      "proposed_action": "Asegurar sincronización de matrices de transición de estado sintrópicas y validar consistencia temporal.",
+      "verification_cmd": ".venv-linux/bin/pytest tests/test_cognitive_adaptability.py -v",
+      "file_path": "/home/m11/vw-control/improvement_queue/improvement_20261123_211649_validacion_de_coherencia_causal_sintropi.md",
+      "status": "AUTONOMOUS_RECORDED"
+    },
+    {
+      "id": "dir_1795486609175",
+      "timestamp": REDACTED_PHONE.1751962,
+      "iso": "2026-11-23T21:16:49.175199",
+      "title": "Validación de Coherencia Causal Sintrópica y Cobertura de Tests",
+      "target_file": "geon_causal_engine.py",
+      "severity": "BAJA",
+      "problem": "Sistema en estado NOMINAL (Salud: 100%). Se recomienda verificar invariantes de Lamport y matrices causales.",
+      "proposed_action": "Asegurar sincronización de matrices de transición de estado sintrópicas y validar consistencia temporal.",
+      "verification_cmd": ".venv-linux/bin/pytest tests/test_cognitive_adaptability.py -v",
+      "file_path": "/home/m11/vw-control/improvement_queue/improvement_20261123_211649_validacion_de_coherencia_causal_sintropi.md",
+      "status": "AUTONOMOUS_RECORDED"
+    },
     {
       "id": "dir_1795483626686",
       "timestamp": REDACTED_PHONE.6862512,
@@ -12,7 +38,9 @@
       "proposed_action": "Estabilizar presión ORANGE (CPU PSI avg60 elevado (62.8%); Temperatura GPU cálida (72°C)) ejecutando reclamación de modelos duplicados y throttling.",
       "verification_cmd": "tardis-governor reclaim",
       "file_path": "/home/m11/vw-control/improvement_queue/improvement_20261123_202706_optimizacion_autonoma_de_resource_govern.md",
-      "status": "AUTONOMOUS_READY"
+      "status": "AUTONOMOUS_QUEUED",
+      "agy_task_id": "agyq_20261123_210412_354fbe",
+      "dispatched_at": "2026-11-23T21:04:12-05:00"
     },
     {
       "id": "dir_1793611418598",
@@ -234,45 +262,19 @@
       "verification_cmd": ".venv-linux/bin/pytest tests/test_cognitive_adaptability.py -v",
       "file_path": "/home/timemachine/vw-control/improvement_queue/improvement_20260917_082613_validacion_de_coherencia_causal_sintropi.md",
       "status": "PENDING_DEVELOPER_CONFIRMATION"
-    },
-    {
-      "id": "dir_1789214421555",
-      "timestamp": REDACTED_PHONE.5554628,
-      "iso": "2026-09-12T07:00:21.555464",
-      "title": "Optimización de Concurrencia y Paginación de Telemetría",
-      "target_file": "server/api.py",
-      "severity": "MEDIA",
-      "problem": "Carga de recursos elevada (RAM: 15.1%, CPU: 77.0%).",
-      "proposed_action": "Introducir paginación obligatoria en endpoints de auditoría y limitar búferes en memoria.",
-      "verification_cmd": ".venv-linux/bin/pytest tests/test_api.py -v",
-      "file_path": "/home/timemachine/vw-control/improvement_queue/improvement_20260912_070021_optimizacion_de_concurrencia_y_paginacio.md",
-      "status": "PENDING_DEVELOPER_CONFIRMATION"
-    },
-    {
-      "id": "dir_1789009520190",
-      "timestamp": REDACTED_PHONE.1907861,
-      "iso": "2026-09-09T22:05:20.190788",
-      "title": "Validación de Coherencia Causal Sintrópica y Cobertura de Tests",
-      "target_file": "geon_causal_engine.py",
-      "severity": "BAJA",
-      "problem": "Sistema en estado NOMINAL (Salud: 100%). Se recomienda verificar invariantes de Lamport y matrices causales.",
-      "proposed_action": "Asegurar sincronización de matrices de transición de estado sintrópicas y validar consistencia temporal.",
-      "verification_cmd": ".venv-linux/bin/pytest tests/test_cognitive_adaptability.py -v",
-      "file_path": "/home/timemachine/vw-control/improvement_queue/improvement_20260909_220520_validacion_de_coherencia_causal_sintropi.md",
-      "status": "PENDING_DEVELOPER_CONFIRMATION"
     }
   ],
   "active_directive": {
-    "id": "dir_1795483626686",
-    "timestamp": REDACTED_PHONE.6862512,
-    "iso": "2026-11-23T20:27:06.686254",
-    "title": "Optimización Autónoma de Resource Governor Ring 0",
-    "target_file": "core/tardis_resource_governor.py",
-    "severity": "MEDIUM",
-    "problem": "CPU PSI60=62.76%, RAM libre=9389.8 MB.",
-    "proposed_action": "Estabilizar presión ORANGE (CPU PSI avg60 elevado (62.8%); Temperatura GPU cálida (72°C)) ejecutando reclamación de modelos duplicados y throttling.",
-    "verification_cmd": "tardis-governor reclaim",
-    "file_path": "/home/m11/vw-control/improvement_queue/improvement_20261123_202706_optimizacion_autonoma_de_resource_govern.md",
-    "status": "AUTONOMOUS_READY"
+    "id": "dir_1795486609257",
+    "timestamp": REDACTED_PHONE.257104,
+    "iso": "2026-11-23T21:16:49.257107",
+    "title": "Validación de Coherencia Causal Sintrópica y Cobertura de Tests",
+    "target_file": "geon_causal_engine.py",
+    "severity": "BAJA",
+    "problem": "Sistema en estado NOMINAL (Salud: 100%). Se recomienda verificar invariantes de Lamport y matrices causales.",
+    "proposed_action": "Asegurar sincronización de matrices de transición de estado sintrópicas y validar consistencia temporal.",
+    "verification_cmd": ".venv-linux/bin/pytest tests/test_cognitive_adaptability.py -v",
+    "file_path": "/home/m11/vw-control/improvement_queue/improvement_20261123_211649_validacion_de_coherencia_causal_sintropi.md",
+    "status": "AUTONOMOUS_RECORDED"
   }
 }

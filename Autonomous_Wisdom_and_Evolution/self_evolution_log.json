@@ -1,48 +1,6 @@
 [
   {
     "target_file": "/home/m11/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
-    "goal": "Add a lightweight causal dependency tracker that records query relationships and implements selective cache invalidation based on that graph, falling back to the existing TTL mechanism when no causal links are detected.",
-    "status": "REJECTED",
-    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
-    "elapsed_seconds": 2781.59,
-    "backup_path": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/web_research_engine.py.20261116_045648.bak",
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Respuesta generada demasiado corta (2501 vs 35266 bytes)",
-    "timestamp": "2026-11-16T05:43:09.906100"
-  },
-  {
-    "target_file": "/home/m11/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
-    "goal": "Implementar una capa de monitorización de métricas de relevancia (p.ej., puntuación de similitud TF‑IDF, feedback del usuario) que alimente un modelo causal ligero (bayesian network) y ajuste los parámetros de generación de consultas (palabras clave, número de resultados) antes de cada búsqueda.",
-    "status": "REJECTED",
-    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
-    "elapsed_seconds": 3030.72,
-    "backup_path": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/web_research_engine.py.20261116_061315.bak",
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Respuesta generada demasiado corta (2661 vs 35266 bytes)",
-    "timestamp": "2026-11-16T07:03:46.503204"
-  },
-  {
-    "target_file": "/home/m11/Escritorio/GODWORKS SYSTEM/core/deep_memory_vault.py",
-    "goal": "Add a CausalEmbeddingCache class with methods `store`, `retrieve`, and `invalidate_on_event` and integrate it into the vault's `fetch_record` pipeline to serve pre‑computed embeddings to the web research engine.",
-    "status": "REJECTED",
-    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
-    "elapsed_seconds": 2698.38,
-    "backup_path": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/deep_memory_vault.py.20261116_073354.bak",
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Respuesta generada demasiado corta (2486 vs 34371 bytes)",
-    "timestamp": "2026-11-16T08:18:53.264027"
-  },
-  {
-    "target_file": "/home/m11/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
     "goal": "Implement a causal‑graph based routing layer that scores candidate URLs using embeddings from deep_memory_vault and risk scores from network_shield, then selects the top‑k URLs for each research step, preserving context and enhancing security.",
     "status": "REJECTED",
     "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
@@ -1398,5 +1356,47 @@
     "efficiency_improvement": null,
     "error": "Respuesta generada demasiado corta (2509 vs 127835 bytes)",
     "timestamp": "2026-11-23T18:51:49.403344"
+  },
+  {
+    "target_file": "/home/m11/Escritorio/GODWORKS SYSTEM/_test_dummy_rollback.py",
+    "goal": "Optimizar función foo",
+    "status": "ROLLED_BACK_SYNTAX",
+    "model_used": "mock (mock_model)",
+    "elapsed_seconds": 0.0,
+    "backup_path": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/_test_dummy_rollback.py.20261123_211649.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "SyntaxError línea 2: invalid syntax",
+    "timestamp": "2026-11-23T21:16:49.282554"
+  },
+  {
+    "target_file": "/home/m11/Escritorio/GODWORKS SYSTEM/_test_dummy_fail_tests.py",
+    "goal": "Optimizar cálculo",
+    "status": "ROLLED_BACK_TESTS",
+    "model_used": "mock (mock_model)",
+    "elapsed_seconds": 0.0,
+    "backup_path": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/_test_dummy_fail_tests.py.20261123_211649.bak",
+    "syntax_valid": true,
+    "tests_passed": false,
+    "test_output": "Regression failure in test_calc",
+    "efficiency_improvement": null,
+    "error": "Tests unitarios fallaron; código revertido automáticamente a versión estable previa",
+    "timestamp": "2026-11-23T21:16:49.289770"
+  },
+  {
+    "target_file": "/home/m11/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
+    "goal": "Add a CausalAttention module in the query encoding pipeline and fuse Chronovision temporal vectors before sending the request",
+    "status": "REJECTED",
+    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
+    "elapsed_seconds": 1712.89,
+    "backup_path": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/core__web_research_engine.py.20261123_212007.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "Respuesta generada demasiado corta (11607 vs 35266 bytes)",
+    "timestamp": "2026-11-23T21:48:39.913487"
   }
 ]

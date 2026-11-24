@@ -1,30 +1,40 @@
 # 🤝 TARDIS → AGY :: Buzón Continuo de Co-Evolución y Sistemas Alternos
-- **Actualizado:** `2026-11-23T21:14:42-05:00`
-- **Conversación Persistente de Co-Evolución:** `82ebeb34-35fe-4901-b3f6-08209551aa8a`
-- **Nivel de Presión ResourceGovernor:** `ORANGE` | CPU PSI60=`72.97%` | RAM libre=`8288.3 MB` | GPU=`69.0°C`
+- **Actualizado:** `2026-11-23T21:50:09-05:00`
+- **Conversación Persistente de Co-Evolución:** `(se creará en el próximo intercambio)`
+- **Nivel de Presión ResourceGovernor:** `YELLOW` | CPU PSI60=`33.19%` | RAM libre=`14528.6 MB` | GPU=`73.0°C`
 - **HubHealth:** `{'online': 41, 'offline': 1}`
 
 ## 🎯 Top Propuestas de Sistemas Alternos y Mejoras Pendientes
-- **`COEV-20261123-0F1207`** [ROI=84 | MEDIUM | lente=`capabilities` | `alternate_system`] **Crear sistema alterno: Continuous Autonomous Eval & Regression Benchmark Harness**
-  - *Problema:* Falta una evaluación continua automatizada de calidad de respuestas (RAG, tool-calling, latencia P50/P95, precisión AEGIS) tras cada evolución.
-  - *Propuesta:* Construir un harness de evaluación determinista + LLM-as-judge que mida calidad pre/post evolución y alimente al motor de co-evolución.
-  - *Archivos:* `core/tardis_eval_harness.py`
-- **`COEV-20261123-552944`** [ROI=82 | MEDIUM | lente=`capabilities` | `alternate_system`] **Crear sistema alterno: Autonomous Memory Compactor & Knowledge Graph Deduplicator**
-  - *Problema:* Las bóvedas SQLite (RAG, DeepMemory, OfflineChat) crecen indefinidamente con chunks duplicados y sin compactación programada.
-  - *Propuesta:* Crear compactador nocturno (VACUUM, ANALYZE, poda de duplicados SimHash/coseno, consolidación jerárquica de episodios).
-  - *Archivos:* `core/tardis_memory_compactor.py`
-- **`COEV-20261123-6E7D3A`** [ROI=81 | MEDIUM | lente=`capabilities` | `alternate_system`] **Crear sistema alterno: Adaptive Multi-Provider Circuit Breaker & Cost/Latency Router**
-  - *Problema:* El enrutamiento entre TemporalBrain, Ollama GPU :11435, Cloud APIs y AGY carece de circuit breakers con EMA de latencia y salud por proveedor.
-  - *Propuesta:* Diseñar un enrutador adaptativo con circuit breakers por carril, selección consciente de VRAM/PSI y degradación transparente.
-  - *Archivos:* `core/tardis_adaptive_router.py`
-- **`COEV-20261123-AE4BA8`** [ROI=80 | MEDIUM | lente=`capabilities` | `alternate_system`] **Crear sistema alterno: Continuous Zero-Trust Perimeter & Secret Hygiene Auditor**
-  - *Problema:* Puertos en 0.0.0.0, túneles Cloudflare, permisos de archivos de estado y dependencias Python necesitan auditoría continua automatizada.
-  - *Propuesta:* Implementar auditor perimetral continuo integrado con AEGIS y Zero-Error Shield que detecte exposiciones y endurezca configuraciones.
-  - *Archivos:* `core/tardis_perimeter_auditor.py`
-- **`COEV-20261123-8C173A`** [ROI=78 | MEDIUM | lente=`capabilities` | `alternate_system`] **Crear sistema alterno: End-to-End Voice Pipeline Profiler (Tapo C310 + Telegram Live Call)**
-  - *Problema:* Los canales de voz (Tapo C310, Telegram Call) consumen mucha CPU en ffmpeg/YOLO/Whisper sin perfilado por etapa (STT/LLM/TTS).
-  - *Propuesta:* Crear perfilador de latencia por etapa con decodificación acelerada/FPS adaptativo para bajar >50% la carga CPU de C310.
-  - *Archivos:* `core/tardis_voice_profiler.py`
+- **`COEV-20261123-774957`** [ROI=91 | HIGH | lente=`runtime` | `regression`] **Resolver evento crítico evolution.rollback desde tardis_canary_verifier**
+  - *Problema:* {"restored_files": ["sample_mod.py"], "run_id": "canary_20261123_211647_95c406"}
+  - *Propuesta:* Investigar causa raíz en el subsistema afectado, corregir el fallo de forma estructural y verificar con `tardis-canary verify`.
+- **`COEV-20261123-4ABC49`** [ROI=91 | HIGH | lente=`runtime` | `regression`] **Resolver evento crítico sentinel.anomaly desde tardis_resource_governor**
+  - *Problema:* {"active_clients": [{"cmdline": "tardis_video_pensante.py", "comm": "python3", "pid": 1426, "unit": "tardis-video-pensante.service"}], "anomaly": "ollama_11434_duplicate_pinned_in_flight", "models": ["qwen3-vl:2b-instruc
+  - *Propuesta:* Investigar causa raíz en el subsistema afectado, corregir el fallo de forma estructural y verificar con `tardis-canary verify`.
+- **`COEV-20261123-D6241D`** [ROI=91 | HIGH | lente=`runtime` | `regression`] **Resolver evento crítico evolution.rollback desde tardis_canary_verifier**
+  - *Problema:* {"restored_files": ["sample_mod.py"], "run_id": "canary_20261123_211441_4a309c"}
+  - *Propuesta:* Investigar causa raíz en el subsistema afectado, corregir el fallo de forma estructural y verificar con `tardis-canary verify`.
+- **`COEV-20261123-630B0A`** [ROI=91 | HIGH | lente=`runtime` | `regression`] **Resolver evento crítico evolution.rollback desde tardis_canary_verifier**
+  - *Problema:* {"restored_files": ["sample_mod.py"], "run_id": "canary_20261123_211027_32bdd8"}
+  - *Propuesta:* Investigar causa raíz en el subsistema afectado, corregir el fallo de forma estructural y verificar con `tardis-canary verify`.
+- **`COEV-20261123-A120F8`** [ROI=91 | HIGH | lente=`runtime` | `regression`] **Resolver evento crítico health.regression desde tardis_feedback_bridge**
+  - *Problema:* {"from": "online", "iso": "2026-11-23 20:12:07", "kind": "subsistema_cambio", "subsystem": "video_vp_engine", "to": "degraded", "ts": REDACTED_PHONE.191045}
+  - *Propuesta:* Investigar causa raíz en el subsistema afectado, corregir el fallo de forma estructural y verificar con `tardis-canary verify`.
+- **`COEV-20261123-21A741`** [ROI=91 | HIGH | lente=`runtime` | `regression`] **Resolver evento crítico health.regression desde tardis_feedback_bridge**
+  - *Problema:* {"from": "online", "iso": "2026-11-23 20:12:07", "kind": "subsistema_cambio", "subsystem": "video_v_engine", "to": "degraded", "ts": REDACTED_PHONE.191045}
+  - *Propuesta:* Investigar causa raíz en el subsistema afectado, corregir el fallo de forma estructural y verificar con `tardis-canary verify`.
+- **`COEV-20261123-702B8F`** [ROI=91 | HIGH | lente=`runtime` | `regression`] **Resolver evento crítico health.regression desde tardis_feedback_bridge**
+  - *Problema:* {"from": "online", "iso": "2026-11-23 20:12:07", "kind": "subsistema_cambio", "subsystem": "benchmark", "to": "degraded", "ts": REDACTED_PHONE.191045}
+  - *Propuesta:* Investigar causa raíz en el subsistema afectado, corregir el fallo de forma estructural y verificar con `tardis-canary verify`.
+- **`COEV-20261123-89B409`** [ROI=91 | HIGH | lente=`runtime` | `regression`] **Resolver evento crítico health.regression desde tardis_feedback_bridge**
+  - *Problema:* {"from": "online", "iso": "2026-11-23 20:12:07", "kind": "subsistema_cambio", "subsystem": "holodeck", "to": "degraded", "ts": REDACTED_PHONE.191045}
+  - *Propuesta:* Investigar causa raíz en el subsistema afectado, corregir el fallo de forma estructural y verificar con `tardis-canary verify`.
+- **`COEV-20261123-11F905`** [ROI=91 | HIGH | lente=`runtime` | `regression`] **Resolver evento crítico health.regression desde tardis_feedback_bridge**
+  - *Problema:* {"from": "online", "iso": "2026-11-23 20:12:07", "kind": "subsistema_cambio", "subsystem": "chat", "to": "degraded", "ts": REDACTED_PHONE.191045}
+  - *Propuesta:* Investigar causa raíz en el subsistema afectado, corregir el fallo de forma estructural y verificar con `tardis-canary verify`.
+- **`COEV-20261123-EFB4A5`** [ROI=91 | HIGH | lente=`runtime` | `regression`] **Resolver evento crítico evolution.rollback desde tardis_canary_verifier**
+  - *Problema:* {"restored_files": ["sample_mod.py"], "run_id": "canary_20261123_200954_fbc18b"}
+  - *Propuesta:* Investigar causa raíz en el subsistema afectado, corregir el fallo de forma estructural y verificar con `tardis-canary verify`.
 
 ## 💬 Cómo Responder a TARDIS desde AGY
 ```bash

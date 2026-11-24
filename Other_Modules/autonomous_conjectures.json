@@ -1,23 +1,5 @@
 [
   {
-    "id": "conj_1794844170",
-    "timestamp": "2026-11-16T10:49:30.503457",
-    "idle_duration_minutes": 63.2,
-    "title": "Causal Memory Indexing for Real‑Time Web Research",
-    "hypothesis": "Integrating a causal graph layer within core/deep_memory_vault.py that indexes each stored akáshic fragment by its inferred causal dependencies will enable the web_research_engine to prioritize sources that are most likely to resolve current queries, reducing latency and improving answer relevance. The hypothesis posits that a lightweight, incremental causal DAG (Directed Acyclic Graph) can be maintained alongside the existing vector store, and that query planning can use topological ordering to fetch the most causally proximal documents first.",
-    "research_query": "incremental causal graph indexing for vector databases and its impact on query latency",
-    "research_findings": "# Informe de Investigación: incremental causal graph indexing for vector databases and its impact on query latency\n\n## Fuentes Consultadas y Respaldo Web\n- **[Latent semantic analysis (Wikipedia)](https://en.wikipedia.org/wiki/Latent_semantic_analysis)**: Karen Lochbaum and Lynn Streeter. In the context of its application to information retrieval, it is sometimes called latent semantic indexing (LSI). LSA can\n- **[A unified multimodal GenAI platform integrating GraphRAG multi-agent systems and custom language models for intelligent document processing and knowledge synthesis | Scientific Reports - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE5JV0JFR2ExZGVqeHdMdW5QZm40Ri13WnNTOVdreWJwRTdCaGJXZEFJb1FFTU5vOWI5WUw3c3cyTDdlVlJwem0zYjJkaVpkZXpZbU1fQ05mczhwcnQycEhj?oc=5)**: A unified multimodal GenAI platform integrating GraphRAG multi-agent systems and custom language models for intelligent document processing and knowledge synthesis | Scientific Reports  Nature\n\n## Contenido y",
-    "web_sources": [
-      "https://en.wikipedia.org/wiki/Latent_semantic_analysis",
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE5JV0JFR2ExZGVqeHdMdW5QZm40Ri13WnNTOVdreWJwRTdCaGJXZEFJb1FFTU5vOWI5WUw3c3cyTDdlVlJwem0zYjJkaVpkZXpZbU1fQ05mczhwcnQycEhj?oc=5"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Add a causal DAG structure that updates on each memory insertion, expose a method get_causal_subgraph(query_embedding, depth) and modify the retrieval pipeline to rank results by causal proximity before vector similarity ranking",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 1989.01
-  },
-  {
     "id": "conj_1794848392",
     "timestamp": "2026-11-16T11:59:52.699672",
     "idle_duration_minutes": 70.4,
@@ -1638,5 +1620,23 @@
     "evolution_status": "NOT_APPLICABLE",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 0.0
+  },
+  {
+    "id": "conj_1795488519",
+    "timestamp": "2026-11-23T21:48:39.939643",
+    "idle_duration_minutes": 96.6,
+    "title": "Causal Embedding Alignment for Real‑Time Web Retrieval",
+    "hypothesis": "Integrating a causal attention layer into the web_research_engine's query encoder will improve relevance of retrieved documents under time‑sensitive contexts. This alignment leverages the Chronovision Engine's temporal embeddings to prioritize fresher, causally linked sources.",
+    "research_query": "causal attention mechanisms improve real-time web search relevance temporal embeddings",
+    "research_findings": "# Informe de Investigación: causal attention mechanisms improve real-time web search relevance temporal embeddings\n\n## Fuentes Consultadas y Respaldo Web\n- **[An explainable multimodal temporal deep learning framework for intrusion detection (EMT-IDNet) in IoT environments - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTFBDZFZPV0VWX01qU18tNU1JQTZGWkw1QjVtdnJRWnU3djMzY1VndWs2elJlZDNBSlRIZ2lUdlM3Rk0wZWRVRFZiYUpwZlhoZXNrd0xVWFFzWUJWcExxN0VB?oc=5)**: An explainable multimodal temporal deep learning framework for intrusion detection (EMT-IDNet) in IoT environments  Nature\n- **[An explainable real time sensor graph transformer for dance recognition - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE9yaV83OGEzMU16djllWkUzcHl2SndIX01LNF9sTzZMZFh0R0ZncGptdXVmVXo1THJ2dFo5ZTcyVUx1Zmd4SXAydDJUY29YV1V6YS1CWlM1SExVTkdKakRR?oc=5)**: An explainable real time sensor graph transformer for dance recognition  Nature\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https:/",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTFBDZFZPV0VWX01qU18tNU1JQTZGWkw1QjVtdnJRWnU3djMzY1VndWs2elJlZDNBSlRIZ2lUdlM3Rk0wZWRVRFZiYUpwZlhoZXNrd0xVWFFzWUJWcExxN0VB?oc=5",
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE9yaV83OGEzMU16djllWkUzcHl2SndIX01LNF9sTzZMZFh0R0ZncGptdXVmVXo1THJ2dFo5ZTcyVUx1Zmd4SXAydDJUY29YV1V6YS1CWlM1SExVTkdKakRR?oc=5"
+    ],
+    "code_target": "core/web_research_engine.py",
+    "code_goal": "Add a CausalAttention module in the query encoding pipeline and fuse Chronovision temporal vectors before sending the request",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 1718.43
   }
 ]

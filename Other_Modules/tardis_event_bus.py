@@ -23,6 +23,7 @@ import hashlib
 import json
 import os
 import sqlite3
+import tempfile
 import threading
 import time
 import uuid
@@ -33,6 +34,13 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = PROJECT_ROOT / "data"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 DEFAULT_BUS_DB = DATA_DIR / "sovereign_event_bus.db"
+
+
+def _is_pytest_isolated() -> bool:
+    """Evita que pruebas pytest contaminen data/sovereign_event_bus.db de producción."""
+    return bool(os.environ.get("PYTEST_CURRENT_TEST")) and str(
+        os.environ.get("TARDIS_EVENT_BUS_LIVE_TEST", "0")
+    ).strip().lower() not in ("1", "true", "yes")
 
 CANONICAL_TOPICS = (
     "telemetry.pressure",
@@ -59,6 +67,7 @@ class SovereignEventBus:
     """Bus de eventos pub/sub persistente basado en SQLite WAL con cursores durables."""
 
     _instance: Optional["SovereignEventBus"] = None
+    _test_instance: Optional["SovereignEventBus"] = None
     _init_lock = threading.Lock()
 
     @classmethod
@@ -66,6 +75,11 @@ class SovereignEventBus:
         if db_path is not None:
             return cls(db_path=db_path)
         with cls._init_lock:
+            if _is_pytest_isolated():
+                if cls._test_instance is None:
+                    test_db = Path(tempfile.gettempdir()) / f"tardis_pytest_event_bus_{os.getpid()}.db"
+                    cls._test_instance = cls(db_path=test_db)
+                return cls._test_instance
             if cls._instance is None:
                 cls._instance = cls(db_path=DEFAULT_BUS_DB)
             return cls._instance

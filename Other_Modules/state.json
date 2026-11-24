@@ -2,6 +2,19 @@
   "version": 2,
   "queue": [
     {
+      "video_id": "xY-QgeCgoV0",
+      "title": "Victory (Live)",
+      "artist": "Two Steps From Hell y Thomas Bergersen",
+      "album": "Live - An Epic Music Experience",
+      "duration": "5:26",
+      "duration_seconds": 326,
+      "thumbnail": "https://yt3.googleusercontent.com/FvrNmAkDn_o7rFJupKcGFn6L-Dce16yaETTdJRDfE7ArulmPLUE9LbzLP4C3FWt2jpcQBjQ6ADRHXFXz=w120-h120-l90-rj",
+      "kind": "song",
+      "scene": "epic",
+      "source": "scene:epic",
+      "added_ts": 0.0
+    },
+    {
       "video_id": "fwvuh5DXQ-g",
       "title": "Unleashed (Uncompressed Mix)",
       "artist": "Thomas Bergersen y Two Steps from Hell",
@@ -22,19 +35,6 @@
       "duration": "8:54",
       "duration_seconds": 534,
       "thumbnail": "https://yt3.googleusercontent.com/C_SRlRmOKWGvRXwkDNJyxAeXNy-YBUme8FfVDb0WNymC6YTFi3wH5TE_4dmTicmH3NFtCsDvR0H5RpcxuA=w120-h120-l90-rj",
-      "kind": "song",
-      "scene": "epic",
-      "source": "scene:epic",
-      "added_ts": 0.0
-    },
-    {
-      "video_id": "Ji9EAX44rzE",
-      "title": "Sariel",
-      "artist": "Two Steps from Hell y Nick Phoenix",
-      "album": "Battlecry",
-      "duration": "2:50",
-      "duration_seconds": 170,
-      "thumbnail": "https://yt3.googleusercontent.com/FGELG2di6kWLFP8-ZW-AG02-lGW3rnfwnjYxpxattTsODGs9hM-Am6ROasmbLGdtfikrplghPH-WbS9-=w120-h120-l90-rj",
       "kind": "song",
       "scene": "epic",
       "source": "scene:epic",
@@ -93,13 +93,13 @@
       "added_ts": 0.0
     },
     {
-      "video_id": "v77nPLsg5rE",
-      "title": "Away with your Fairies (Humanity Version)",
+      "video_id": "YAXXo218ZuQ",
+      "title": "Cassandra",
       "artist": "Thomas Bergersen",
-      "album": "Humanity - Chapter V",
-      "duration": "5:08",
-      "duration_seconds": 308,
-      "thumbnail": "https://yt3.googleusercontent.com/X_yEo_Dad4eXDce47Z9Kr8gIKi3YU1miuNc_HmcwgwNgUm4lYu0oODOFoDduvLqKo0HOKUWp93AJGbXI=w120-h120-l90-rj",
+      "album": "Sun",
+      "duration": "3:09",
+      "duration_seconds": 189,
+      "thumbnail": "https://yt3.googleusercontent.com/wNvVG34kBexY5vH955o-szmyll3E2CI4rf-O0wHiZZRbEIf2TMu9rzQA1vI7ze_vi6wiyqaQmzB56LhH=w120-h120-l90-rj",
       "kind": "song",
       "scene": "epic",
       "source": "scene:epic",
@@ -197,7 +197,7 @@
       "added_ts": 0.0
     }
   ],
-  "index": 1,
+  "index": 0,
   "volume": 44,
   "repeat": "off",
   "shuffle": false,
@@ -207,5 +207,5 @@
   "last_scene": "epic",
   "user_paused": false,
   "created_ts": 0.0,
-  "updated_ts": REDACTED_PHONE.9688022
+  "updated_ts": REDACTED_PHONE.1074495
 }

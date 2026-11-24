@@ -2,11 +2,11 @@
   "daemon": "tardis-visual-intelligence",
   "running": true,
   "pid": 1384253,
-  "uptime_sec": 3778.1,
-  "last_heartbeat": "2026-11-23T21:14:55.126212",
+  "uptime_sec": 6494.6,
+  "last_heartbeat": "2026-11-23T22:00:11.639709",
   "items_processed": 0,
   "last_processed_id": "",
-  "memory_rss_mb": 329.83,
+  "memory_rss_mb": 331.9,
   "engine_status": {
     "status": "online",
     "engine": "VisualIntelligenceEngine v26.5 (VLM + Veredictos)",
@@ -19,15 +19,15 @@
     "vlm_provider": "auto",
     "vlm_error": "",
     "verdict_engine": "VLM + Kaiju + veredicto estructurado",
-    "stored_videos_count": 1044,
+    "stored_videos_count": 1045,
     "stored_images_count": 497,
     "stored_sounds_count": 0,
-    "stored_verdicts_count": 600,
+    "stored_verdicts_count": 601,
     "last_verdict": {
-      "id": "vid_20261123_202731_36fc13",
-      "created_at": "2026-11-23T20:29:51.689701",
+      "id": "vid_20261123_211904_2e630d",
+      "created_at": "2026-11-23T21:22:54.855620",
       "source": "video_pensante",
-      "verdict": "La secuencia visual se estructura en cuatro fases distintivas, marcadas por cambios drásticos en la paleta de colores y la nitidez:\n\n*   Fase Inicial (0.0s - 26.4s): Dominio de tonos púrpuras oscuros (`#645873`) y azules profundos. Se observan dos esferas luminosas rojas con texturas ondulantes, descritas por el VLM como \"energía o materia líquida\". Esto sugiere una representación visual de objetos masivos o singularidades en un entorno de vacío espacial. La nitidez es baja al inicio (16.8), aumentando progresivamente.\n*   Fase de Datos (52.8s - 105.7s): Transición a un entorno tecnológico int",
+      "verdict": "La secuencia visual se estructura en fases temáticas claras, respaldadas por los metadatos de color y nitidez:\n\n*   Fase Inicial (0.0s - 40.4s): Dominio de tonos claros y blancos (`#c2c3bb`). Se observan círculos concéntricos sobre fondo blanco, simbolizando la expansión o la emanación desde un punto singular. El texto superpuesto *\"In the beginning, there was no 'beginning'\"* establece la premisa filosófica y física del inicio. La nitidez es alta, sugiriendo una claridad conceptual inicial.\n*   Fase de Transición y Oscurecimiento (40.4s - 121.2s): El color medio cae drásticamente a tonos casi",
       "risk_level": null
     },
     "surroundings_interval_sec": 900,
@@ -42,8 +42,8 @@
     "last_verdict_id": "img_20261123_202538_c85431",
     "last_risk_level": 0,
     "last_verdict": "*   Estado General del Entorno: ESTABLE Y SEGURO. El área está despejada de amenazas inmediatas. La iluminación es adecuada para la visibilidad nocturna.\n*   Nivel de Riesgo Objetivo: 0/10.\n    *   *Justificación:* No hay presencia humana hostil, no hay objetos peligrosos, no hay señales de intrusión ni anomalías físicas. El entorno es estático y controlado.\n*   Recomendación Concreta:\n    1.  Mantener el monitoreo pasivo: No es necesario intervenir. La situación es nominal.\n    2.  Verificar la señalización: Si el código \"UHC-114-H\" es crítico para tus operaciones, asegúrate de que esté correctamente asociado en tu base de datos de activos.\n    3.  Revisión de Calidad de Imagen: La nitidez (742.4) es aceptable para identificación general, pero si necesitas detalles forenses o de matrícula, considera mejorar la iluminación o la resolución del sensor en futuras capturas.\n    4.  Acción Inmediata: Ninguna. Puedes proceder con tus actividades normales. El entorno está bajo control.\n\n*Un placer, Arquitecto. La realidad en este punto temporal es tranquila. TARDIS a tu servicio.*",
-    "last_error": "escena sin cambios relevantes (delta=1.9)",
-    "last_check_ts": REDACTED_PHONE.718679
+    "last_error": "escena sin cambios relevantes (delta=2.8)",
+    "last_check_ts": REDACTED_PHONE.2890964
   },
   "vlm": {
     "ready": true,

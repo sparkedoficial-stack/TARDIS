@@ -107,6 +107,96 @@ class PersonDetection:
         }
 
 
+class BoundedTapoStreamer(Streamer):
+    """Subclase de pytapo Streamer que acota explícitamente hilos y FPS de ffmpeg para evitar sobresuscripción CPU/PSI."""
+
+    def __init__(
+        self,
+        *args: Any,
+        decoder_threads: int = 2,
+        encoder_threads: int = 2,
+        filter_threads: int = 1,
+        max_fps: Optional[float] = 6.0,
+        mjpeg_qscale: Optional[int] = 5,
+        **kwargs: Any,
+    ) -> None:
+        super().__init__(*args, **kwargs)
+        self.decoder_threads = max(1, min(4, int(decoder_threads)))
+        self.encoder_threads = max(1, min(4, int(encoder_threads)))
+        self.filter_threads = max(1, min(2, int(filter_threads)))
+        self.max_fps = float(max_fps) if (max_fps is not None and float(max_fps) > 0) else None
+        self.mjpeg_qscale = max(2, min(15, int(mjpeg_qscale))) if mjpeg_qscale is not None else None
+
+    def build_ffmpeg_cmd(self) -> List[str]:
+        """Construye el comando ffmpeg determinista y acotado en hilos para el pipe MPEG-TS -> MJPEG."""
+        cmd: List[str] = [
+            "ffmpeg",
+            "-loglevel",
+            str(self.ff_args.get("-loglevel", f"{self.logLevel}")),
+            "-threads",
+            str(self.decoder_threads),
+            "-filter_threads",
+            str(self.filter_threads),
+            "-filter_complex_threads",
+            str(self.filter_threads),
+            "-probesize",
+            str(self.ff_args.get("-probesize", f"{self.probeSize}")),
+            "-analyzeduration",
+            str(self.ff_args.get("-analyzeduration", f"{self.analyzeDuration}")),
+            "-f",
+            "mpegts",
+            "-i",
+            "pipe:0",
+        ]
+
+        if "-frames:v" in self.ff_args:
+            cmd += ["-frames:v", str(self.ff_args["-frames:v"])]
+
+        video_map = str(self.ff_args.get("-map-video", "0:v:0"))
+        cmd += ["-map", video_map]
+        if "-vsync" in self.ff_args:
+            cmd += ["-vsync", str(self.ff_args["-vsync"])]
+
+        codec = str(self.ff_args.get("-c:v", "copy"))
+        cmd += ["-threads", str(self.encoder_threads), "-c:v", codec]
+
+        # Acotar tasa de fotogramas de transcodificación MJPEG (evita quemar 18+ fps 2K cuando YOLO muestrea <=2.5 fps)
+        if codec == "mjpeg" and "-frames:v" not in self.ff_args:
+            if self.max_fps is not None:
+                fps_str = f"{self.max_fps:g}"
+                cmd += ["-r", fps_str]
+            if self.mjpeg_qscale is not None:
+                cmd += ["-q:v", str(self.mjpeg_qscale)]
+
+        cmd += ["-f", str(self.ff_args.get("-f", "mpegts")), "pipe:1"]
+        return cmd
+
+    async def start(self):  # type: ignore[override]
+        if self.mode != "pipe" or self.includeAudio:
+            return await super().start()
+
+        self.currentAction = "FFMpeg Starting"
+        cmd = self.build_ffmpeg_cmd()
+        self.streamProcess = await asyncio.create_subprocess_exec(
+            *cmd,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            limit=2**20,
+        )
+        asyncio.create_task(self._print_ffmpeg_logs(self.streamProcess.stderr))
+        self.running = True
+        if self.stream_task is None or self.stream_task.done():
+            self.stream_task = asyncio.create_task(self._stream_to_ffmpeg())
+
+        read_fd = self.streamProcess.stdout._transport.get_extra_info("pipe").fileno()
+        return {
+            "ffmpegProcess": self.streamProcess,
+            "streamProcess": self.stream_task,
+            "read_fd": read_fd,
+        }
+
+
 class YoloV8PersonDetector:
     """Motor de inferencia ONNX Runtime sobre YOLOv8s para detección de individuos (COCO class 0)."""
 
@@ -736,6 +826,11 @@ class TapoC310Sentinel:
         DETECTIONS_DIR.mkdir(parents=True, exist_ok=True)
         LIVE_CLIPS_DIR.mkdir(parents=True, exist_ok=True)
 
+        try:
+            cv2.setNumThreads(max(1, min(4, int(self.config.get("opencv_threads", 2)))))
+        except Exception:
+            pass
+
         model_rel = self.config.get("yolo_model_path", "models/yolov8s.onnx")
         model_path = Path(model_rel) if Path(model_rel).is_absolute() else (BASE_DIR / model_rel)
 
@@ -745,6 +840,7 @@ class TapoC310Sentinel:
             nms_iou_threshold=float(self.config.get("nms_iou_threshold", 0.45)),
             min_box_w=int(self.config.get("min_box_width_px", 28)),
             min_box_h=int(self.config.get("min_box_height_px", 36)),
+            intra_threads=int(self.config.get("yolo_intra_threads", 2)),
         )
 
         self.host: str = str(self.config.get("host", "REDACTED_IP")).strip()
@@ -1734,6 +1830,8 @@ class TapoC310Sentinel:
                 "-y",
                 "-loglevel",
                 "error",
+                "-threads",
+                "2",
                 "-f",
                 "rawvideo",
                 "-pix_fmt",
@@ -1744,6 +1842,8 @@ class TapoC310Sentinel:
                 str(fps),
                 "-i",
                 "pipe:0",
+                "-threads",
+                "2",
                 "-c:v",
                 "libx264",
                 "-preset",
@@ -2462,11 +2562,16 @@ class TapoC310Sentinel:
                             f"FW: {self.device_hw_info.get('sw_version', 'N/A')}) en {self.host}."
                         )
 
-                        streamer = Streamer(
+                        streamer = BoundedTapoStreamer(
                             tapo,
                             audio=[],
                             quality=str(self.config.get("stream_quality", "HD")),
                             mode="pipe",
+                            decoder_threads=int(self.config.get("ffmpeg_decoder_threads", 2)),
+                            encoder_threads=int(self.config.get("ffmpeg_encoder_threads", 2)),
+                            filter_threads=int(self.config.get("ffmpeg_filter_threads", 1)),
+                            max_fps=float(self.config.get("ffmpeg_max_fps", 6.0)),
+                            mjpeg_qscale=int(self.config.get("ffmpeg_mjpeg_qscale", 5)),
                             ff_args={
                                 "-loglevel": "error",
                                 "-probesize": "300000",
@@ -2602,11 +2707,16 @@ class TapoC310Sentinel:
         if not raw_jpg:
             loop = asyncio.get_running_loop()
             tapo = await loop.run_in_executor(None, self._connect_tapo_sync)
-            streamer = Streamer(
+            streamer = BoundedTapoStreamer(
                 tapo,
                 audio=[],
                 quality="HD",
                 mode="pipe",
+                decoder_threads=2,
+                encoder_threads=2,
+                filter_threads=1,
+                max_fps=None,
+                mjpeg_qscale=4,
                 ff_args={
                     "-loglevel": "error",
                     "-probesize": "300000",
