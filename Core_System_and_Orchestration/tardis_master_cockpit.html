@@ -831,6 +831,13 @@
                     </div>
                     <span class="subsystem-badge" style="color:var(--accent-purple); border-color:rgba(168,85,247,0.4);">FTL Synth</span>
                 </button>
+                <button class="subsystem-item" onclick="window.open('/videollamada', '_blank')">
+                    <div class="item-icon-text">
+                        <span class="item-icon">📹</span>
+                        <span>Videollamada HD en Vivo</span>
+                    </div>
+                    <span class="subsystem-badge" style="color:var(--accent-green); border-color:rgba(16,185,129,0.45);">:8796</span>
+                </button>
             </div>
 
             <div class="nav-section-title">Sensores & Ciberdefensa</div>
@@ -2557,6 +2564,7 @@
                 {id: "cyber_recursive", name: "CyberEvolve 12h · Auditoría Recursiva", icon: "🛡️", status: "online", systemd_service: "CyberEvolve", cmd: ":cyber-evolve", desc: "Bucle Observe → Harden → Verify → Evolve cada 12 horas.", route: "/aegis", is_background: true},
                 {id: "tapo_c310_sentinel", name: "Centinela Tapo C310 (YOLOv8s 2K)", icon: "📹", status: "online", port: 8797, systemd_service: "Tapo C310", cmd: ":c310", desc: "Detección humana 2K (REDACTED_IP), alerta 15s y voz bidireccional.", route: "/gods_eye", is_background: true},
                 {id: "voice_program", name: "Voz «Programa» & Síntesis Dinámica FTL", icon: "🎙️", status: "online", systemd_service: "FTL Synth", cmd: "programa <meta>", desc: "Creación autónoma de funciones Python desde cualquier micrófono.", route: "/dynamic_tools", is_background: true},
+                {id: "live_videocall", name: "Videollamadas HD en Vivo (Voz + Visión Qwen3-VL)", icon: "📹", status: "online", port: 8796, systemd_service: "tardis-telegram-call", cmd: "/videollamada", desc: "Videollamada bidireccional full-duplex con cámara, avatar holográfico 60 FPS y GOD-EYE C310.", route: "/videollamada", is_background: false},
                 {id: "continuity_matrix", name: "Matriz de Continuidad & Easy Touch", icon: "⏳", status: "online", systemd_service: "Continuity", cmd: ":continuity", desc: "Persistencia post-reinicio y auto-sanación preventiva 24/7.", route: "/dynamic_tools", is_background: true}
             ];
             renderCatalog(allCatalogFunctions);

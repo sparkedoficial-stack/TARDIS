@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "created_at": "2026-10-15T02:04:29.176374",
   "last_periodic_sync": "2026-11-24T07:58:40.506597",
-  "last_immediate_sync": "2026-11-24T13:10:40.385742",
-  "last_commit_hash": "24f2fe13",
-  "sync_count": 1520,
-  "immediate_sync_count": 1516,
+  "last_immediate_sync": "2026-11-24T13:44:29.288916",
+  "last_commit_hash": "0aa928ac",
+  "sync_count": 1521,
+  "immediate_sync_count": 1517,
   "periodic_sync_count": 4,
   "last_known_mtimes": {
     "skill:godworks-system-suite/SKILL.md": REDACTED_PHONE.5482113,
@@ -75,7 +75,7 @@
     "ftl:ftl_coevolution.py": REDACTED_PHONE.2014828,
     "ftl:ftl_mundo_sin_censura.py": REDACTED_PHONE.9991748,
     "core:__init__.py": REDACTED_PHONE.79,
-    "core:agent_harness.py": REDACTED_PHONE.272061,
+    "core:agent_harness.py": REDACTED_PHONE.1647367,
     "core:ai_improvement_sandbox.py": REDACTED_PHONE.8,
     "core:antigravity_remote_controller.py": REDACTED_PHONE.5086322,
     "core:atmospheric_sensor.py": REDACTED_PHONE.01,
@@ -181,7 +181,7 @@
     "core:whatsapp_bridge.py": REDACTED_PHONE.4992917,
     "core:tardis_autonomous_error_fixer.py": REDACTED_PHONE.5734348,
     "core:tardis_browser.py": REDACTED_PHONE.0739267,
-    "core:telegram_live_call_server.py": REDACTED_PHONE.648394,
+    "core:telegram_live_call_server.py": REDACTED_PHONE.4142165,
     "core:tapo_c310_sentinel.py": REDACTED_PHONE.2517147,
     "core:tapo_c310_speaker.py": REDACTED_PHONE.9989753,
     "core:scp_conceptual_suite.py": REDACTED_PHONE.0840197,
@@ -200,7 +200,7 @@
     "core:program_progress.py": REDACTED_PHONE.109309,
     "core:tardis_agy_controller.py": REDACTED_PHONE.9267936,
     "core:ftl_terminal_continuator.py": REDACTED_PHONE.0615375,
-    "core:telegram_bridge.py": REDACTED_PHONE.3880558,
+    "core:telegram_bridge.py": REDACTED_PHONE.4377587,
     "core:telegram_call_priority.py": REDACTED_PHONE.3077147,
     "core:zero_error_shield.py": REDACTED_PHONE.1171875,
     "core:tardis_teaching.py": REDACTED_PHONE.9147882,
@@ -331,6 +331,16 @@
     "sat:gia_ios:GIA/Views/Theme.swift": REDACTED_PHONE.0
   },
   "history": [
+    {
+      "timestamp": "2026-11-24T13:44:29.288916",
+      "trigger": "immediate_milestone",
+      "commit_hash": "0aa928ac",
+      "score": 60,
+      "reasons": [
+        "Evoluci\u00f3n en subsistema core TARDIS: telegram_call_priority.py",
+        "Nuevo subsistema core TARDIS: videocall_webapp_ui.py"
+      ]
+    },
     {
       "timestamp": "2026-11-24T13:10:40.385742",
       "trigger": "immediate_milestone",
@@ -869,17 +879,6 @@
         "Evoluci\u00f3n en subsistema core TARDIS: chronovision_engine.py",
         "Evoluci\u00f3n en subsistema core TARDIS: code_planner.py",
         "Evoluci\u00f3n en subsistema core TARDIS: easy_touch_engine.py"
-      ]
-    },
-    {
-      "timestamp": "2026-11-20T22:46:06.295493",
-      "trigger": "immediate_milestone",
-      "commit_hash": "c450ce46",
-      "score": 75,
-      "reasons": [
-        "Evoluci\u00f3n en subsistema core TARDIS: idle_evolution_daemon.py",
-        "Evoluci\u00f3n en subsistema core TARDIS: tardis_video_thinking_engine.py",
-        "Evoluci\u00f3n en subsistema core TARDIS: telegram_bridge.py"
       ]
     }
   ]

@@ -67,6 +67,12 @@ from core.telegram_call_priority import (
     release_call_priority,
     touch_call_priority,
 )
+from core.videocall_vision_engine import (
+    SceneMemory,
+    get_videocall_vision_engine,
+    is_visual_question,
+)
+from core.videocall_webapp_ui import render_live_call_and_video_html
 
 logging.basicConfig(
     level=logging.INFO,
@@ -77,6 +83,7 @@ logger = logging.getLogger("TelegramLiveCall")
 CONFIG_FILE = BASE_DIR / "telegram_config.json"
 FTL_PUBLIC_URL_FILE = BASE_DIR / "FTL_PUBLIC_URL.txt"
 LIVE_CALL_URL_FILE = BASE_DIR / "TELEGRAM_LIVE_CALL_URL.txt"
+LIVE_VIDEOCALL_URL_FILE = BASE_DIR / "TELEGRAM_LIVE_VIDEOCALL_URL.txt"
 CALLS_LOG_FILE = BASE_DIR / "data" / "telephony" / "telegram_calls_history.json"
 TEMPORAL_BRAIN_SOCK = Path(os.environ.get("TEMPORAL_BRAIN_SOCKET", "/tmp/temporal_brain.sock"))
 TARDIS_CHAT_URL = os.environ.get("TARDIS_CHAT_URL", "http://127.0.0.1:8757/api/chat")
@@ -258,6 +265,15 @@ def build_live_call_url(chat_id: int | str = "menu", user_name: str = "") -> str
         return ""
     ct = sign_call_token(chat_id=chat_id, user_name=user_name)
     return f"{base}/tg-call?{urlencode({'ct': ct})}"
+
+
+def build_live_videocall_url(chat_id: int | str = "menu", user_name: str = "") -> str:
+    """Construye el enlace HTTPS autenticado hacia la sala de videollamada en vivo de TARDIS."""
+    base = get_public_tunnel_base()
+    if not base:
+        return ""
+    ct = sign_call_token(chat_id=chat_id, user_name=user_name)
+    return f"{base}/tg-call/video?{urlencode({'ct': ct})}"
 
 
 def build_live_camera_url(chat_id: int | str = "menu", user_name: str = "") -> str:
@@ -603,9 +619,16 @@ def append_call_history_log(entry: Dict[str, Any]) -> None:
         logger.warning(f"Error guardando historial de llamadas Telegram: {exc}")
 
 
-async def notify_telegram_call_ended(chat_id: str, duration_sec: float, turns: int) -> None:
-    """Envía un resumen breve al chat de Telegram cuando concluye una llamada con diálogo."""
-    if not str(chat_id).lstrip("-").isdigit() or turns <= 0:
+async def notify_telegram_call_ended(
+    chat_id: str,
+    duration_sec: float,
+    turns: int,
+    mode: str = "voice",
+    frames_received: int = 0,
+    vision_analyses: int = 0,
+) -> None:
+    """Envía un resumen breve al chat de Telegram cuando concluye una llamada o videollamada."""
+    if not str(chat_id).lstrip("-").isdigit() or (turns <= 0 and frames_received <= 0):
         return
     tok = get_bot_token()
     if not tok:
@@ -614,20 +637,35 @@ async def notify_telegram_call_ended(chat_id: str, duration_sec: float, turns: i
     secs = int(duration_sec % 60)
     dur_str = f"{mins}m {secs:02d}s" if mins else f"{secs}s"
     call_url = build_live_call_url(chat_id=chat_id)
+    video_url = build_live_videocall_url(chat_id=chat_id)
     is_private = not str(chat_id).startswith("-")
+    is_video = str(mode).lower() == "video" or frames_received > 0
 
     buttons = []
+    if video_url:
+        if is_private:
+            buttons.append([{"text": "📹 Nueva Videollamada HD", "web_app": {"url": video_url}}])
+        else:
+            buttons.append([{"text": "📹 Nueva Videollamada HD", "url": video_url}])
     if call_url:
         if is_private:
-            buttons.append([{"text": "📞 Volver a Llamar", "web_app": {"url": call_url}}])
+            buttons.append([{"text": "📞 Volver a Llamar (Voz)", "web_app": {"url": call_url}}])
         else:
-            buttons.append([{"text": "📞 Volver a Llamar", "url": call_url}])
+            buttons.append([{"text": "📞 Volver a Llamar (Voz)", "url": call_url}])
 
-    text = (
-        "📵 *Llamada con TARDIS finalizada*\n"
-        f"• *Duración:* `{dur_str}`\n"
-        f"• *Intercambios de voz:* `{turns}`"
-    )
+    if is_video:
+        text = (
+            "📹 *Videollamada con TARDIS finalizada*\n"
+            f"• *Duración:* `{dur_str}`\n"
+            f"• *Intercambios de voz:* `{turns}`\n"
+            f"• *Fotogramas recibidos:* `{frames_received}` · *Análisis visuales VLM:* `{vision_analyses}`"
+        )
+    else:
+        text = (
+            "📵 *Llamada con TARDIS finalizada*\n"
+            f"• *Duración:* `{dur_str}`\n"
+            f"• *Intercambios de voz:* `{turns}`"
+        )
     payload: Dict[str, Any] = {
         "chat_id": int(chat_id),
         "text": text,
@@ -647,777 +685,21 @@ async def notify_telegram_call_ended(chat_id: str, duration_sec: float, turns: i
 
 
 # ==============================================================================
-# INTERFAZ MINI APP DE LLAMADA EN VIVO (HTML5 + TELEGRAM WEBAPP + WEBAUDIO VAD)
+# INTERFAZ MINI APP DE LLAMADA Y VIDEOLLAMADA EN VIVO
 # ==============================================================================
 
 
-def render_call_webapp_html(initial_ct: str, default_voice: str = DEFAULT_VOICE) -> str:
-    voices_options = "\n".join(
-        f'<option value="{v["id"]}" {"selected" if v["id"] == default_voice else ""}>{v["label"]}</option>'
-        for v in AVAILABLE_VOICES
+def render_call_webapp_html(
+    initial_ct: str,
+    default_voice: str = DEFAULT_VOICE,
+    initial_mode: str = "voice",
+) -> str:
+    return render_live_call_and_video_html(
+        initial_ct=initial_ct,
+        default_voice=default_voice,
+        available_voices=AVAILABLE_VOICES,
+        initial_mode=initial_mode,
     )
-    return f"""<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>TARDIS · Llamada en Vivo</title>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<style>
-  :root {{
-    color-scheme: dark;
-    --bg0: #04070f;
-    --bg1: #0b1628;
-    --cyan: #00f0ff;
-    --emerald: #00e699;
-    --amber: #ffb020;
-    --red: #ff3b5c;
-    --text: #eef6ff;
-    --muted: #8aa0bc;
-  }}
-  * {{ box-sizing: border-box; -webkit-tap-highlight-color: transparent; }}
-  html, body {{
-    margin: 0; padding: 0; height: 100%; overflow: hidden;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, sans-serif;
-    background: radial-gradient(circle at 50% 22%, #13294b 0%, var(--bg1) 42%, var(--bg0) 100%);
-    color: var(--text);
-    user-select: none;
-  }}
-  .call-shell {{
-    display: flex; flex-direction: column; justify-content: space-between;
-    height: 100%; max-width: 520px; margin: 0 auto;
-    padding: max(16px, env(safe-area-inset-top)) 18px max(20px, env(safe-area-inset-bottom));
-  }}
-  .top-bar {{
-    display: flex; align-items: center; justify-content: space-between; gap: 10px;
-  }}
-  .badge {{
-    display: inline-flex; align-items: center; gap: 7px;
-    padding: 6px 12px; border-radius: 999px;
-    background: rgba(0, 240, 255, 0.1); border: 1px solid rgba(0, 240, 255, 0.28);
-    font-size: 0.76rem; font-weight: 600; letter-spacing: 0.04em; color: var(--cyan);
-  }}
-  .dot {{
-    width: 8px; height: 8px; border-radius: 50%; background: var(--emerald);
-    box-shadow: 0 0 10px var(--emerald);
-  }}
-  .timer {{
-    font-variant-numeric: tabular-nums; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 0.95rem; color: var(--muted); font-weight: 600;
-  }}
-  .voice-select {{
-    background: rgba(15, 25, 42, 0.85); color: var(--text);
-    border: 1px solid rgba(138, 160, 188, 0.28); border-radius: 10px;
-    padding: 5px 8px; font-size: 0.74rem; outline: none; max-width: 170px;
-  }}
-  .center-stage {{
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    text-align: center; flex: 1; min-height: 0; gap: 14px;
-  }}
-  .caller-title {{
-    margin: 0; font-size: 1.5rem; font-weight: 800; letter-spacing: 0.06em;
-    background: linear-gradient(135deg, #ffffff, #8be9ff);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  }}
-  .state-label {{
-    font-size: 0.9rem; color: var(--cyan); font-weight: 600; min-height: 1.3em;
-    transition: color 0.2s ease;
-  }}
-  .orb-wrap {{
-    position: relative; width: 176px; height: 176px;
-    display: grid; place-items: center; margin: 6px 0; cursor: pointer;
-  }}
-  .orb-ring {{
-    position: absolute; inset: 0; border-radius: 50%;
-    border: 2px solid rgba(0, 240, 255, 0.35);
-    box-shadow: 0 0 40px rgba(0, 240, 255, 0.18), inset 0 0 30px rgba(0, 240, 255, 0.12);
-    transition: transform 0.08s linear, border-color 0.2s ease, box-shadow 0.2s ease;
-  }}
-  .orb-core {{
-    width: 126px; height: 126px; border-radius: 50%;
-    background: radial-gradient(circle at 35% 30%, #48f5ff 0%, #0077b6 52%, #061a38 100%);
-    box-shadow: 0 0 45px rgba(0, 240, 255, 0.42);
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    font-size: 2.1rem; transition: transform 0.1s ease, background 0.25s ease;
-  }}
-  .orb-hint {{
-    font-size: 0.65rem; letter-spacing: 0.05em; text-transform: uppercase;
-    color: rgba(255,255,255,0.88); margin-top: 4px; font-weight: 700;
-  }}
-  body[data-state="user_speaking"] .orb-ring {{
-    border-color: var(--emerald);
-    box-shadow: 0 0 55px rgba(0, 230, 153, 0.45), inset 0 0 35px rgba(0, 230, 153, 0.25);
-  }}
-  body[data-state="user_speaking"] .state-label {{ color: var(--emerald); }}
-  body[data-state="thinking"] .orb-ring {{
-    border-color: var(--amber);
-    animation: spinPulse 1.3s infinite ease-in-out;
-  }}
-  body[data-state="thinking"] .state-label {{ color: var(--amber); }}
-  body[data-state="ai_speaking"] .orb-ring {{
-    border-color: #a855f7;
-    box-shadow: 0 0 60px rgba(168, 85, 247, 0.5), inset 0 0 35px rgba(0, 240, 255, 0.28);
-  }}
-  @keyframes spinPulse {{
-    0%, 100% {{ transform: scale(1.0); opacity: 0.85; }}
-    50% {{ transform: scale(1.1); opacity: 1; }}
-  }}
-  .transcript-box {{
-    width: 100%; max-height: 150px; min-height: 82px; overflow-y: auto;
-    padding: 12px 14px; border-radius: 16px; text-align: left;
-    background: rgba(8, 15, 28, 0.76); border: 1px solid rgba(138, 160, 188, 0.18);
-    backdrop-filter: blur(10px); font-size: 0.86rem; line-height: 1.45;
-    user-select: text;
-  }}
-  .turn-you {{ color: #7ef7c4; margin-bottom: 6px; }}
-  .turn-ai {{ color: #e8f3ff; }}
-  .quick-row {{
-    display: flex; gap: 8px; width: 100%; margin-top: 6px;
-  }}
-  .quick-input {{
-    flex: 1; padding: 10px 13px; border-radius: 12px;
-    border: 1px solid rgba(138, 160, 188, 0.25); background: rgba(8, 15, 28, 0.85);
-    color: var(--text); font-size: 0.86rem; outline: none;
-  }}
-  .quick-send {{
-    padding: 0 14px; border-radius: 12px; border: 0;
-    background: rgba(0, 240, 255, 0.18); color: var(--cyan);
-    font-weight: 700; cursor: pointer;
-  }}
-  .controls {{
-    display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; padding-top: 10px;
-  }}
-  .ctrl-btn {{
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 5px; padding: 12px 6px; border-radius: 18px; border: 1px solid rgba(255,255,255,0.12);
-    background: rgba(16, 28, 48, 0.82); color: var(--text); cursor: pointer;
-    font-size: 0.72rem; font-weight: 600; transition: transform 0.1s ease, background 0.2s;
-  }}
-  .ctrl-btn:active {{ transform: scale(0.95); }}
-  .ctrl-btn .ico {{ font-size: 1.35rem; }}
-  .ctrl-btn.active {{
-    background: rgba(0, 240, 255, 0.2); border-color: var(--cyan); color: var(--cyan);
-  }}
-  .ctrl-btn.muted {{
-    background: rgba(255, 176, 32, 0.22); border-color: var(--amber); color: var(--amber);
-  }}
-  .ctrl-btn.hangup {{
-    background: linear-gradient(135deg, #ff3b5c, #d91b42);
-    border-color: rgba(255, 90, 115, 0.6); color: #fff;
-    box-shadow: 0 6px 22px rgba(255, 59, 92, 0.38);
-  }}
-  .start-overlay {{
-    position: fixed; inset: 0; z-index: 20;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 18px; padding: 28px; text-align: center;
-    background: radial-gradient(circle at 50% 30%, rgba(16, 40, 72, 0.96), rgba(4, 7, 15, 0.99));
-  }}
-  .start-overlay.hidden {{ display: none; }}
-  .answer-btn {{
-    padding: 16px 34px; border-radius: 999px; border: 0;
-    background: linear-gradient(135deg, #00e699, #00b8d4);
-    color: #031512; font-size: 1.08rem; font-weight: 800; letter-spacing: 0.04em;
-    box-shadow: 0 0 38px rgba(0, 230, 153, 0.45); cursor: pointer;
-  }}
-</style>
-</head>
-<body data-state="idle">
-  <div class="start-overlay" id="startOverlay">
-    <div style="font-size:3.3rem">📞</div>
-    <h2 style="margin:0;font-size:1.45rem;letter-spacing:0.05em">T.A.R.D.I.S · Canal de Voz</h2>
-    <p style="margin:0;color:var(--muted);max-width:320px;font-size:0.9rem;line-height:1.5">
-      Llamada bidireccional manos libres en tiempo real con detección automática de voz y síntesis neural Cortana.
-    </p>
-    <button class="answer-btn" id="answerBtn">🎙️ INICIAR LLAMADA EN VIVO</button>
-  </div>
-
-  <div class="call-shell">
-    <div class="top-bar">
-      <div class="badge"><span class="dot" id="connDot"></span><span id="connText">EN LÍNEA</span></div>
-      <div class="timer" id="callTimer">00:00</div>
-      <select class="voice-select" id="voiceSelect" title="Voz de TARDIS">
-        {voices_options}
-      </select>
-    </div>
-
-    <div class="center-stage">
-      <div>
-        <h1 class="caller-title">T.A.R.D.I.S</h1>
-        <div class="state-label" id="stateLabel">Listo para conectar</div>
-      </div>
-
-      <div class="orb-wrap" id="orbBtn" title="Toca para enviar lo dicho o interrumpir">
-        <div class="orb-ring" id="orbRing"></div>
-        <div class="orb-core" id="orbCore">
-          <span id="orbEmoji">🎙️</span>
-          <span class="orb-hint" id="orbHint">MANOS LIBRES</span>
-        </div>
-      </div>
-
-      <div style="width:100%">
-        <div class="transcript-box" id="transcriptBox">
-          <div class="turn-ai" id="aiCaption">Toca «Iniciar llamada en vivo» para activar micrófono y altavoz.</div>
-        </div>
-        <form class="quick-row" id="quickForm">
-          <input class="quick-input" id="quickInput" type="text" placeholder="O escribe aquí durante la llamada…" autocomplete="off">
-          <button class="quick-send" type="submit">Enviar</button>
-        </form>
-      </div>
-    </div>
-
-    <div class="controls">
-      <button class="ctrl-btn" id="muteBtn" type="button">
-        <span class="ico" id="muteIco">🎙️</span>
-        <span id="muteLbl">Mic Activo</span>
-      </button>
-      <button class="ctrl-btn active" id="vadBtn" type="button">
-        <span class="ico">🗣️</span>
-        <span id="vadLbl">Auto VAD</span>
-      </button>
-      <button class="ctrl-btn active" id="bargeBtn" type="button" title="Interrumpir a TARDIS automáticamente al hablar">
-        <span class="ico">⚡</span>
-        <span id="bargeLbl">Barge-In</span>
-      </button>
-      <button class="ctrl-btn" id="interruptBtn" type="button">
-        <span class="ico">✋</span>
-        <span>Parar</span>
-      </button>
-      <button class="ctrl-btn hangup" id="hangupBtn" type="button">
-        <span class="ico">📵</span>
-        <span>Colgar</span>
-      </button>
-    </div>
-  </div>
-
-<script>
-(() => {{
-  const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-  if (tg) {{
-    try {{ tg.ready(); tg.expand(); }} catch (_) {{}}
-  }}
-
-  const INITIAL_CT = {json.dumps(initial_ct)};
-  const urlParams = new URLSearchParams(window.location.search);
-  const callToken = urlParams.get("ct") || INITIAL_CT;
-
-  const startOverlay = document.getElementById("startOverlay");
-  const answerBtn = document.getElementById("answerBtn");
-  const stateLabel = document.getElementById("stateLabel");
-  const connText = document.getElementById("connText");
-  const connDot = document.getElementById("connDot");
-  const callTimer = document.getElementById("callTimer");
-  const orbBtn = document.getElementById("orbBtn");
-  const orbRing = document.getElementById("orbRing");
-  const orbEmoji = document.getElementById("orbEmoji");
-  const orbHint = document.getElementById("orbHint");
-  const transcriptBox = document.getElementById("transcriptBox");
-  const muteBtn = document.getElementById("muteBtn");
-  const muteIco = document.getElementById("muteIco");
-  const muteLbl = document.getElementById("muteLbl");
-  const vadBtn = document.getElementById("vadBtn");
-  const vadLbl = document.getElementById("vadLbl");
-  const bargeBtn = document.getElementById("bargeBtn");
-  const bargeLbl = document.getElementById("bargeLbl");
-  const interruptBtn = document.getElementById("interruptBtn");
-  const hangupBtn = document.getElementById("hangupBtn");
-  const voiceSelect = document.getElementById("voiceSelect");
-  const quickForm = document.getElementById("quickForm");
-  const quickInput = document.getElementById("quickInput");
-
-  let ws = null;
-  let audioCtx = null;
-  let micStream = null;
-  let analyser = null;
-  let mediaRecorder = null;
-  let recChunks = [];
-  let recMime = "";
-  let isMuted = false;
-  let autoVad = true;
-  let voiceBargeIn = true;
-  let bargeStreak = 0;
-  let isSpeaking = false;
-  let isAiSpeaking = false;
-  let isThinking = false;
-  let speechStartAt = 0;
-  let lastVoiceAt = 0;
-  let noiseFloor = 0.012;
-  let turnSeq = 0;
-  let activeTurnId = 0;
-  let callStartedAt = 0;
-  let timerInterval = null;
-  let vadRaf = null;
-  let closedIntentionally = false;
-  let wakeLock = null;
-  let hasGreetedOnce = false;
-
-  // Cola de reproducción continua usando elemento Audio desbloqueado (compatible con iOS WKWebView)
-  const player = new Audio();
-  player.playsInline = true;
-  const audioQueue = [];
-  let playingChunk = false;
-  let currentAiElem = null;
-
-  function haptic(kind = "light") {{
-    try {{
-      if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred(kind);
-    }} catch (_) {{}}
-  }}
-
-  function setState(mode, label) {{
-    document.body.dataset.state = mode;
-    if (label) stateLabel.textContent = label;
-    if (mode === "user_speaking") {{
-      orbEmoji.textContent = "🟢";
-      orbHint.textContent = "TOCA PARA ENVIAR";
-    }} else if (mode === "thinking") {{
-      orbEmoji.textContent = "🧠";
-      orbHint.textContent = "PROCESANDO";
-    }} else if (mode === "ai_speaking") {{
-      orbEmoji.textContent = "🔊";
-      orbHint.textContent = "TOCA · INTERRUMPIR";
-    }} else {{
-      orbEmoji.textContent = isMuted ? "🔇" : "🎙️";
-      orbHint.textContent = autoVad ? "ESCUCHANDO" : "TOCA PARA HABLAR";
-    }}
-  }}
-
-  function appendUserLine(text) {{
-    const div = document.createElement("div");
-    div.className = "turn-you";
-    div.textContent = "🗣️ Tú: " + text;
-    transcriptBox.appendChild(div);
-    currentAiElem = null;
-    transcriptBox.scrollTop = transcriptBox.scrollHeight;
-  }}
-
-  function updateAiLine(delta, replace = false) {{
-    if (!currentAiElem) {{
-      currentAiElem = document.createElement("div");
-      currentAiElem.className = "turn-ai";
-      currentAiElem.textContent = "🤖 TARDIS: ";
-      transcriptBox.appendChild(currentAiElem);
-    }}
-    if (replace) {{
-      currentAiElem.textContent = "🤖 TARDIS: " + delta;
-    }} else {{
-      currentAiElem.textContent += delta;
-    }}
-    transcriptBox.scrollTop = transcriptBox.scrollHeight;
-  }}
-
-  function stopPlaybackQueue() {{
-    while (audioQueue.length) {{
-      const u = audioQueue.shift();
-      try {{ URL.revokeObjectURL(u); }} catch (_) {{}}
-    }}
-    try {{
-      player.pause();
-      player.removeAttribute("src");
-    }} catch (_) {{}}
-    playingChunk = false;
-    isAiSpeaking = false;
-    if (!isThinking && !isSpeaking) {{
-      setState("idle", isMuted ? "Micrófono en silencio" : "Escuchando en vivo…");
-    }}
-  }}
-
-  function playNextChunk() {{
-    if (playingChunk || audioQueue.length === 0) {{
-      if (!playingChunk && audioQueue.length === 0) {{
-        isAiSpeaking = false;
-        if (!isThinking) {{
-          setState("idle", isMuted ? "Micrófono en silencio" : "Escuchando en vivo…");
-        }}
-      }}
-      return;
-    }}
-    playingChunk = true;
-    isAiSpeaking = true;
-    setState("ai_speaking", "TARDIS hablando…");
-    const blobUrl = audioQueue.shift();
-    player.src = blobUrl;
-    player.onended = () => {{
-      try {{ URL.revokeObjectURL(blobUrl); }} catch (_) {{}}
-      playingChunk = false;
-      playNextChunk();
-    }};
-    player.onerror = () => {{
-      try {{ URL.revokeObjectURL(blobUrl); }} catch (_) {{}}
-      playingChunk = false;
-      playNextChunk();
-    }};
-    player.play().catch(() => {{
-      playingChunk = false;
-      playNextChunk();
-    }});
-  }}
-
-  function pickSupportedMime() {{
-    if (!window.MediaRecorder) return "";
-    const candidates = [
-      "audio/webm;codecs=opus",
-      "audio/webm",
-      "audio/ogg;codecs=opus",
-      "audio/mp4"
-    ];
-    for (const c of candidates) {{
-      try {{
-        if (MediaRecorder.isTypeSupported(c)) return c;
-      }} catch (_) {{}}
-    }}
-    return "";
-  }}
-
-  function beginUtteranceCapture() {{
-    if (!micStream || isMuted || isSpeaking) return;
-    recChunks = [];
-    try {{
-      mediaRecorder = recMime ? new MediaRecorder(micStream, {{ mimeType: recMime }}) : new MediaRecorder(micStream);
-    }} catch (e) {{
-      mediaRecorder = new MediaRecorder(micStream);
-    }}
-    mediaRecorder.ondataavailable = (ev) => {{
-      if (ev.data && ev.data.size > 0) recChunks.push(ev.data);
-    }};
-    mediaRecorder.onstop = async () => {{
-      const chunks = recChunks;
-      recChunks = [];
-      if (!chunks.length) return;
-      const blob = new Blob(chunks, {{ type: mediaRecorder.mimeType || recMime || "audio/webm" }});
-      if (blob.size < 600 || !ws || ws.readyState !== WebSocket.OPEN) return;
-      turnSeq += 1;
-      activeTurnId = turnSeq;
-      isThinking = true;
-      setState("thinking", "Transcribiendo y pensando…");
-      ws.send(JSON.stringify({{ type: "audio_meta", mime: blob.type, turn_id: activeTurnId }}));
-      const buf = await blob.arrayBuffer();
-      ws.send(buf);
-    }};
-    mediaRecorder.start(120);
-    isSpeaking = true;
-    speechStartAt = performance.now();
-    lastVoiceAt = speechStartAt;
-    setState("user_speaking", "Te escucho…");
-  }}
-
-  function finishUtteranceCapture(discard = false) {{
-    if (!isSpeaking) return;
-    isSpeaking = false;
-    if (!mediaRecorder) return;
-    if (discard) {{
-      mediaRecorder.ondataavailable = null;
-      mediaRecorder.onstop = null;
-    }}
-    try {{
-      if (mediaRecorder.state !== "inactive") mediaRecorder.stop();
-    }} catch (_) {{}}
-  }}
-
-  function startVadLoop() {{
-    if (!analyser) return;
-    const data = new Float32Array(analyser.fftSize);
-    const SILENCE_HOLD_MS = 820;
-    const MIN_SPEECH_MS = 320;
-    const MAX_UTTERANCE_MS = 22000;
-
-    const tick = () => {{
-      analyser.getFloatTimeDomainData(data);
-      let sum = 0;
-      for (let i = 0; i < data.length; i++) sum += data[i] * data[i];
-      const rms = Math.sqrt(sum / data.length);
-
-      // Animación reactiva del orbe
-      const scale = Math.min(1.26, 1 + rms * (isAiSpeaking ? 1.5 : 3.2));
-      orbRing.style.transform = `scale(${{scale.toFixed(3)}})`;
-
-      const now = performance.now();
-      if (!isSpeaking && !isAiSpeaking && !isMuted) {{
-        noiseFloor = noiseFloor * 0.985 + Math.min(rms, 0.04) * 0.015;
-      }}
-      const threshold = Math.max(0.017, noiseFloor * 2.6);
-
-      // Voice Barge-In: si TARDIS está hablando y el usuario habla sostenido por encima del umbral de eco
-      if (autoVad && voiceBargeIn && isAiSpeaking && !isMuted && !isSpeaking) {{
-        const bargeThresh = Math.max(0.055, threshold * 2.4);
-        if (rms > bargeThresh) {{
-          bargeStreak += 1;
-          if (bargeStreak >= 14) {{
-            bargeStreak = 0;
-            sendInterrupt();
-            beginUtteranceCapture();
-          }}
-        }} else {{
-          bargeStreak = Math.max(0, bargeStreak - 1);
-        }}
-      }} else {{
-        bargeStreak = 0;
-      }}
-
-      if (autoVad && !isMuted && !isAiSpeaking && !isThinking) {{
-        if (!isSpeaking) {{
-          if (rms > threshold) {{
-            beginUtteranceCapture();
-          }}
-        }} else {{
-          if (rms > threshold * 0.82) {{
-            lastVoiceAt = now;
-          }}
-          if ((now - lastVoiceAt > SILENCE_HOLD_MS && now - speechStartAt > MIN_SPEECH_MS) ||
-              (now - speechStartAt > MAX_UTTERANCE_MS)) {{
-            finishUtteranceCapture(false);
-          }}
-        }}
-      }}
-      vadRaf = requestAnimationFrame(tick);
-    }};
-    vadRaf = requestAnimationFrame(tick);
-  }}
-
-  function connectWebSocket() {{
-    const proto = window.location.protocol === "https:" ? "wss:" : "ws:";
-    const wsPath = window.location.pathname.startsWith("/voz") ? "/voz/ws" : "/tg-call/ws";
-    const wsUrl = `${{proto}}//${{window.location.host}}${{wsPath}}?ct=${{encodeURIComponent(callToken)}}`;
-    ws = new WebSocket(wsUrl);
-    ws.binaryType = "arraybuffer";
-
-    let expectingAudioMeta = null;
-
-    ws.onopen = () => {{
-      isThinking = false;
-      connText.textContent = "EN LLAMADA ∞";
-      connDot.style.background = "#00e699";
-      ws.send(JSON.stringify({{
-        type: "hello",
-        ct: callToken,
-        init_data: (tg && tg.initData) ? tg.initData : "",
-        voice: voiceSelect.value,
-        reconnect: hasGreetedOnce
-      }}));
-      hasGreetedOnce = true;
-    }};
-
-    ws.onmessage = (ev) => {{
-      if (typeof ev.data === "string") {{
-        let msg = {{}};
-        try {{ msg = JSON.parse(ev.data); }} catch (_) {{ return; }}
-        if (msg.type === "history_sync" && Array.isArray(msg.turns) && transcriptBox.children.length === 0) {{
-          for (const t of msg.turns) {{
-            if (t.role === "user") appendUserLine(t.content);
-            else if (t.role === "assistant") {{ updateAiLine(t.content, true); currentAiElem = null; }}
-          }}
-        }} else if (msg.type === "call_ready") {{
-          currentAiElem = null;
-          isThinking = false;
-          setState("idle", `Conectado con ${{msg.user_name || "TARDIS"}} · Escucha Infinita`);
-        }} else if (msg.type === "transcript") {{
-          if (msg.text) {{
-            appendUserLine(msg.text);
-            setState("thinking", "TARDIS respondiendo…");
-          }} else {{
-            isThinking = false;
-            setState("idle", "Escuchando en vivo…");
-          }}
-        }} else if (msg.type === "assistant_delta") {{
-          updateAiLine(msg.text || "", false);
-        }} else if (msg.type === "tts_chunk") {{
-          expectingAudioMeta = msg;
-        }} else if (msg.type === "turn_done") {{
-          isThinking = false;
-          if (!playingChunk && audioQueue.length === 0) {{
-            setState("idle", isMuted ? "Micrófono en silencio" : "Escuchando en vivo…");
-          }}
-        }} else if (msg.type === "error") {{
-          isThinking = false;
-          setState("idle", msg.message || "Aviso en canal de voz");
-        }}
-      }} else if (ev.data instanceof ArrayBuffer) {{
-        if (expectingAudioMeta) {{
-          expectingAudioMeta = null;
-        }}
-        const blob = new Blob([ev.data], {{ type: "audio/mpeg" }});
-        const url = URL.createObjectURL(blob);
-        audioQueue.push(url);
-        isThinking = false;
-        playNextChunk();
-      }}
-    }};
-
-    ws.onclose = () => {{
-      if (closedIntentionally) return;
-      isThinking = false;
-      isSpeaking = false;
-      connText.textContent = "RECONECTANDO…";
-      connDot.style.background = "#ffb020";
-      setTimeout(connectWebSocket, 1500);
-    }};
-  }}
-
-  async function requestWakeLock() {{
-    try {{
-      if ("wakeLock" in navigator && !wakeLock) {{
-        wakeLock = await navigator.wakeLock.request("screen");
-        wakeLock.addEventListener("release", () => {{ wakeLock = null; }});
-      }}
-    }} catch (_) {{}}
-  }}
-
-  async function startCall() {{
-    haptic("medium");
-    answerBtn.disabled = true;
-    answerBtn.textContent = "Conectando micrófono…";
-
-    // Desbloquear reproducción de audio en iOS/Android
-    try {{
-      player.src = "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA";
-      await player.play().catch(() => {{}});
-    }} catch (_) {{}}
-
-    try {{
-      micStream = await navigator.mediaDevices.getUserMedia({{
-        audio: {{
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true,
-          channelCount: 1
-        }}
-      }});
-    }} catch (err) {{
-      answerBtn.disabled = false;
-      answerBtn.textContent = "🎙️ REINTENTAR PERMISO DE MICRÓFONO";
-      alert("Permite el acceso al micrófono en Telegram para hablar en vivo con TARDIS: " + err.message);
-      return;
-    }}
-
-    recMime = pickSupportedMime();
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const src = audioCtx.createMediaStreamSource(micStream);
-    analyser = audioCtx.createAnalyser();
-    analyser.fftSize = 1024;
-    src.connect(analyser);
-
-    startOverlay.classList.add("hidden");
-    transcriptBox.innerHTML = "";
-    callStartedAt = Date.now();
-    timerInterval = setInterval(() => {{
-      const sec = Math.floor((Date.now() - callStartedAt) / 1000);
-      const m = String(Math.floor(sec / 60)).padStart(2, "0");
-      const s = String(sec % 60).padStart(2, "0");
-      callTimer.textContent = `${{m}}:${{s}}`;
-    }}, 1000);
-
-    requestWakeLock();
-    startVadLoop();
-    connectWebSocket();
-  }}
-
-  function sendInterrupt() {{
-    haptic("light");
-    stopPlaybackQueue();
-    isThinking = false;
-    if (ws && ws.readyState === WebSocket.OPEN) {{
-      ws.send(JSON.stringify({{ type: "interrupt" }}));
-    }}
-    setState("idle", "Escuchando en vivo…");
-  }}
-
-  answerBtn.addEventListener("click", startCall);
-
-  orbBtn.addEventListener("click", () => {{
-    haptic("light");
-    if (isAiSpeaking || isThinking) {{
-      sendInterrupt();
-      return;
-    }}
-    if (isSpeaking) {{
-      finishUtteranceCapture(false);
-    }} else if (!isMuted) {{
-      beginUtteranceCapture();
-    }}
-  }});
-
-  muteBtn.addEventListener("click", () => {{
-    haptic("light");
-    isMuted = !isMuted;
-    if (isMuted) finishUtteranceCapture(true);
-    if (micStream) micStream.getAudioTracks().forEach(t => t.enabled = !isMuted);
-    muteBtn.classList.toggle("muted", isMuted);
-    muteIco.textContent = isMuted ? "🔇" : "🎙️";
-    muteLbl.textContent = isMuted ? "Silenciado" : "Mic Activo";
-    setState("idle", isMuted ? "Micrófono en silencio" : "Escuchando en vivo…");
-  }});
-
-  vadBtn.addEventListener("click", () => {{
-    haptic("light");
-    autoVad = !autoVad;
-    if (!autoVad && isSpeaking) finishUtteranceCapture(false);
-    vadBtn.classList.toggle("active", autoVad);
-    vadLbl.textContent = autoVad ? "Auto VAD" : "Manual";
-    setState("idle", autoVad ? "Escuchando en vivo…" : "Toca el orbe para hablar");
-  }});
-
-  if (bargeBtn) {{
-    bargeBtn.addEventListener("click", () => {{
-      haptic("light");
-      voiceBargeIn = !voiceBargeIn;
-      bargeBtn.classList.toggle("active", voiceBargeIn);
-      bargeLbl.textContent = voiceBargeIn ? "Barge-In" : "Sin Eco";
-    }});
-  }}
-
-  interruptBtn.addEventListener("click", sendInterrupt);
-
-  voiceSelect.addEventListener("change", () => {{
-    if (ws && ws.readyState === WebSocket.OPEN) {{
-      ws.send(JSON.stringify({{ type: "set_voice", voice: voiceSelect.value }}));
-    }}
-  }});
-
-  quickForm.addEventListener("submit", (ev) => {{
-    ev.preventDefault();
-    const txt = quickInput.value.trim();
-    if (!txt || !ws || ws.readyState !== WebSocket.OPEN) return;
-    quickInput.value = "";
-    stopPlaybackQueue();
-    appendUserLine(txt);
-    turnSeq += 1;
-    activeTurnId = turnSeq;
-    isThinking = true;
-    setState("thinking", "TARDIS respondiendo…");
-    ws.send(JSON.stringify({{ type: "text_turn", text: txt, turn_id: activeTurnId }}));
-  }});
-
-  hangupBtn.addEventListener("click", () => {{
-    haptic("heavy");
-    closedIntentionally = true;
-    stopPlaybackQueue();
-    finishUtteranceCapture(true);
-    if (vadRaf) cancelAnimationFrame(vadRaf);
-    if (timerInterval) clearInterval(timerInterval);
-    const durSec = callStartedAt ? Math.round((Date.now() - callStartedAt) / 1000) : 0;
-    try {{
-      if (ws && ws.readyState === WebSocket.OPEN) {{
-        ws.send(JSON.stringify({{ type: "hangup", duration_sec: durSec }}));
-        ws.close();
-      }}
-    }} catch (_) {{}}
-    try {{
-      if (micStream) micStream.getTracks().forEach(t => t.stop());
-    }} catch (_) {{}}
-    setState("idle", "Llamada finalizada");
-    connText.textContent = "FINALIZADA";
-    connDot.style.background = "#ff3b5c";
-    if (tg) {{
-      setTimeout(() => {{ try {{ tg.close(); }} catch (_) {{}} }}, 350);
-    }} else {{
-      startOverlay.classList.remove("hidden");
-      answerBtn.disabled = false;
-      answerBtn.textContent = "🎙️ VOLVER A LLAMAR";
-    }}
-  }});
-}})();
-</script>
-</body>
-</html>"""
 
 
 def render_camera_webapp_html(initial_ct: str = "") -> str:
@@ -1770,6 +1052,7 @@ def render_camera_webapp_html(initial_ct: str = "") -> str:
 class TelegramLiveCallServer:
     def __init__(self):
         self.engine = RealtimeVoiceEngine()
+        self.vision = get_videocall_vision_engine()
         self.active_sessions: Dict[str, Dict[str, Any]] = {}
         self.last_synced_tunnel_url: str = ""
         self._watcher_task: Optional[asyncio.Task] = None
@@ -1815,14 +1098,23 @@ class TelegramLiveCallServer:
 
     async def handle_health(self, request: web.Request) -> web.Response:
         pub_url = build_live_call_url(chat_id="menu")
+        pub_video_url = build_live_videocall_url(chat_id="menu")
         priority = get_call_priority_status()
+        active_video = sum(
+            1 for s in self.active_sessions.values()
+            if s.get("mode") == "video" or s.get("video_enabled")
+        )
         return web.json_response(
             {
                 "ok": True,
                 "service": "tardis-telegram-live-call",
                 "stt_ready": self.engine.stt_ready,
+                "video_call_ready": True,
+                "vlm_model": self.vision.vlm_model,
                 "active_calls": len(self.active_sessions),
+                "active_video_calls": active_video,
                 "public_call_url": pub_url,
+                "public_videocall_url": pub_video_url,
                 "temporal_brain_socket": TEMPORAL_BRAIN_SOCK.exists(),
                 "system_priority_active": priority.get("active", False),
                 "call_priority": priority.get("active", False),
@@ -1847,16 +1139,121 @@ class TelegramLiveCallServer:
         # (la validación estricta ocurre también en el handshake WebSocket con initData).
         if ct and not verify_call_token(ct):
             return web.Response(status=403, text="Enlace de llamada inválido o expirado.")
-        if not ct and request.path.startswith("/voz") and self._is_trusted_local_or_gateway(request):
+        path = request.path or ""
+        is_video_route = (
+            path.startswith(("/tg-call/video", "/tg-videocall", "/videollamada"))
+            or request.query.get("mode", "").strip().lower() == "video"
+        )
+        if not ct and path.startswith(("/voz", "/videollamada")) and self._is_trusted_local_or_gateway(request):
             ct = sign_call_token(chat_id=ARCHITECT_TELEGRAM_ID, user_name="Arquitecto")
         cfg = load_telegram_config()
         pref_voice = str(cfg.get("cortana_voice", DEFAULT_VOICE))
-        html_doc = render_call_webapp_html(initial_ct=ct, default_voice=pref_voice)
+        html_doc = render_call_webapp_html(
+            initial_ct=ct,
+            default_voice=pref_voice,
+            initial_mode="video" if is_video_route else "voice",
+        )
         return web.Response(
             text=html_doc,
             content_type="text/html",
             headers={"Cache-Control": "no-store"},
         )
+
+    async def handle_remote_feed_snapshot(self, request: web.Request) -> web.Response:
+        """Entrega un fotograma JPEG en vivo de GOD-EYE C310 o de la pantalla del host (solo Arquitecto)."""
+        ct = request.query.get("ct", "")
+        init_data = request.headers.get("X-Telegram-Init-Data", "") or request.query.get("init_data", "")
+        auth = self._authenticate_request(ct, init_data)
+        if not auth:
+            return web.Response(status=403, text="No autorizado")
+        source = (request.query.get("source", "c310") or "c310").strip().lower()
+        if source in ("screen", "host", "host_screen"):
+            if not auth.get("is_admin"):
+                return web.Response(status=403, text="Pantalla del host reservada exclusivamente al Arquitecto.")
+            raw = await self.vision.capture_host_screen_bytes(max_width=1280, quality=72)
+            if not raw:
+                return web.Response(status=503, text="Pantalla bloqueada o captura no disponible.")
+            return web.Response(
+                body=raw,
+                content_type="image/jpeg",
+                headers={"Cache-Control": "no-store"},
+            )
+        raw = await self.vision.fetch_c310_frame_bytes(width=960, quality=74, hud=True)
+        if not raw:
+            return web.Response(status=502, text="Cámara GOD-EYE C310 no disponible.")
+        return web.Response(
+            body=raw,
+            content_type="image/jpeg",
+            headers={"Cache-Control": "no-store"},
+        )
+
+    async def handle_analyze_frame_http(self, request: web.Request) -> web.Response:
+        """Endpoint HTTP de respaldo para analizar un fotograma de videollamada con Qwen3-VL."""
+        try:
+            body = await request.json()
+        except Exception:
+            body = {}
+        ct = body.get("ct") or request.query.get("ct", "")
+        init_data = body.get("init_data") or request.headers.get("X-Telegram-Init-Data", "")
+        if not self._authenticate_request(ct, init_data):
+            return web.json_response({"ok": False, "error": "No autorizado"}, status=403)
+        b64_str = str(body.get("jpeg_b64") or "").strip()
+        if not b64_str:
+            return web.json_response({"ok": False, "error": "Falta jpeg_b64"}, status=400)
+        try:
+            raw = base64.b64decode(b64_str)
+        except Exception:
+            return web.json_response({"ok": False, "error": "Base64 inválido"}, status=400)
+        prompt = str(body.get("prompt") or "").strip()
+        source = str(body.get("source") or "camera").strip()
+        res = await self.vision.analyze_frame_vlm(raw, question=prompt, source=source)
+        return web.json_response(res)
+
+    async def _dispatch_videocall_snapshot_to_telegram(
+        self,
+        chat_id: str,
+        frame_bytes: bytes,
+        description: str = "",
+        source: str = "camera",
+    ) -> Dict[str, Any]:
+        tok = get_bot_token()
+        if not tok or not frame_bytes:
+            return {"ok": False, "error": "Bot o fotograma no disponible"}
+        target_chat = chat_id if chat_id and str(chat_id) not in ("menu", "anon") else str(ARCHITECT_TELEGRAM_ID)
+        ts_now = time.strftime("%Y-%m-%d %H:%M:%S")
+        src_lbl = {
+            "camera": "Cámara en Videollamada",
+            "screen": "Pantalla Compartida",
+            "c310": "GOD-EYE C310",
+            "host_screen": "Pantalla Host TARDIS",
+        }.get(source, source)
+        caption = (
+            f"📸 *[CAPTURA DE VIDEOLLAMADA · TARDIS]*\n"
+            f"• *Fuente:* `{src_lbl}`\n"
+            f"• *Hora:* `{ts_now}`"
+        )
+        if description:
+            caption += f"\n• *Percepción Visual:* {description[:600]}"
+        try:
+            form = aiohttp.FormData()
+            form.add_field("chat_id", str(target_chat))
+            form.add_field("caption", caption)
+            form.add_field("parse_mode", "Markdown")
+            form.add_field(
+                "photo",
+                frame_bytes,
+                filename=f"tardis_videocall_{int(time.time())}.jpg",
+                content_type="image/jpeg",
+            )
+            async with aiohttp.ClientSession() as sess:
+                async with sess.post(
+                    f"https://api.telegram.org/bot{tok}/sendPhoto",
+                    data=form,
+                    timeout=aiohttp.ClientTimeout(total=20),
+                ) as tg_r:
+                    return await tg_r.json()
+        except Exception as exc:
+            return {"ok": False, "error": str(exc)}
 
     async def handle_ws(self, request: web.Request) -> web.WebSocketResponse:
         ws = web.WebSocketResponse(heartbeat=25, max_msg_size=16 * 1024 * 1024)
@@ -1882,9 +1279,17 @@ class TelegramLiveCallServer:
 
         history: List[Dict[str, str]] = []
         current_turn_task: Optional[asyncio.Task] = None
+        bg_vlm_task: Optional[asyncio.Task] = None
+        remote_feed_task: Optional[asyncio.Task] = None
         pending_audio_turn_id = 0
         started_ts = time.time()
         turns_completed = 0
+        call_mode = "video" if (request.path or "").startswith(("/tg-videocall", "/videollamada")) else "voice"
+        video_enabled = False
+        remote_feed = "avatar"
+        scene = SceneMemory()
+        last_bg_vlm_started = 0.0
+        latest_remote_frame: Optional[bytes] = None
 
         async def cancel_active_turn() -> None:
             nonlocal current_turn_task
@@ -1896,6 +1301,26 @@ class TelegramLiveCallServer:
                     pass
             current_turn_task = None
 
+        async def cancel_bg_vlm() -> None:
+            nonlocal bg_vlm_task
+            if bg_vlm_task and not bg_vlm_task.done():
+                bg_vlm_task.cancel()
+                try:
+                    await bg_vlm_task
+                except (asyncio.CancelledError, Exception):
+                    pass
+            bg_vlm_task = None
+
+        async def stop_remote_feed() -> None:
+            nonlocal remote_feed_task
+            if remote_feed_task and not remote_feed_task.done():
+                remote_feed_task.cancel()
+                try:
+                    await remote_feed_task
+                except (asyncio.CancelledError, Exception):
+                    pass
+            remote_feed_task = None
+
         async def send_json(payload: Dict[str, Any]) -> None:
             if not ws.closed:
                 await ws.send_str(json.dumps(payload, ensure_ascii=False))
@@ -1906,6 +1331,80 @@ class TelegramLiveCallServer:
                 if mp3 and not ws.closed:
                     await send_json({"type": "tts_chunk", "turn_id": turn_id, "seq": seq, "text": s})
                     await ws.send_bytes(mp3)
+
+        async def run_vlm_background(
+            frame_bytes: bytes,
+            source: str,
+            prompt: str = "",
+            explicit: bool = False,
+            speak_after: bool = False,
+            turn_id: int = 0,
+        ) -> None:
+            nonlocal turns_completed
+            try:
+                if explicit or speak_after:
+                    await send_json({"type": "vision_scanning", "active": True})
+                res = await self.vision.analyze_frame_vlm(frame_bytes, question=prompt, source=source)
+                if res.get("ok"):
+                    desc = str(res.get("description") or "").strip()
+                    elapsed_ms = int(res.get("elapsed_ms") or 0)
+                    scene.record_vlm_observation(desc, source=source, elapsed_ms=elapsed_ms)
+                    await send_json(
+                        {
+                            "type": "vision_update",
+                            "description": desc,
+                            "source": source,
+                            "model": res.get("model", self.vision.vlm_model),
+                            "elapsed_ms": elapsed_ms,
+                            "explicit": explicit,
+                        }
+                    )
+                    if speak_after and desc:
+                        history.append({"role": "user", "content": prompt or "¿Qué ves en mi cámara?"})
+                        history.append({"role": "assistant", "content": desc})
+                        turns_completed += 1
+                        loop = asyncio.get_running_loop()
+                        loop.run_in_executor(
+                            None, record_call_turn, str(chat_id), user_name, prompt or "[Inspección visual]", desc
+                        )
+                        await send_json({"type": "assistant_delta", "turn_id": turn_id, "text": desc})
+                        await speak_sentences([desc], turn_id=turn_id)
+                        await send_json({"type": "turn_done", "turn_id": turn_id, "full_text": desc})
+                elif explicit or speak_after:
+                    err_txt = str(res.get("error") or "No pude analizar la imagen en este momento.")
+                    await send_json({"type": "vision_scanning", "active": False})
+                    await send_json({"type": "error", "message": err_txt})
+            except asyncio.CancelledError:
+                raise
+            except Exception as exc:
+                logger.debug(f"Aviso en análisis visual de videollamada: {exc}")
+                await send_json({"type": "vision_scanning", "active": False})
+
+        async def _remote_feed_loop(feed_name: str) -> None:
+            nonlocal latest_remote_frame
+            interval = 0.16 if feed_name == "c310" else 0.65
+            try:
+                while not ws.closed:
+                    raw: Optional[bytes] = None
+                    if feed_name == "c310":
+                        raw = await self.vision.fetch_c310_frame_bytes(width=960, quality=72, hud=True)
+                    elif feed_name == "screen" and is_admin_caller:
+                        raw = await self.vision.capture_host_screen_bytes(max_width=1280, quality=70)
+                    if raw and not ws.closed:
+                        latest_remote_frame = raw
+                        await send_json(
+                            {
+                                "type": "remote_frame",
+                                "source": feed_name,
+                                "jpeg_b64": base64.b64encode(raw).decode("ascii"),
+                                "ts": round(time.time(), 3),
+                            }
+                        )
+                    await asyncio.sleep(interval)
+            except asyncio.CancelledError:
+                raise
+            except Exception as exc:
+                logger.debug(f"Loop remote_feed ({feed_name}) detenido: {exc}")
 
         async def run_turn(user_text: str, turn_id: int) -> None:
             nonlocal turns_completed
@@ -1923,9 +1422,9 @@ class TelegramLiveCallServer:
                 voice_program = get_voice_program_router().handle(
                     user_text,
                     channel="telegram_live_call",
-                    source=f"{user_name} · micrófono de llamada",
+                    source=f"{user_name} · micrófono de {'videollamada' if call_mode == 'video' else 'llamada'}",
                     chat_id=chat_id,
-                    metadata={"turn_id": turn_id},
+                    metadata={"turn_id": turn_id, "mode": call_mode},
                 )
                 if voice_program:
                     reply = str(voice_program.get("reply") or "").strip()
@@ -1943,11 +1442,63 @@ class TelegramLiveCallServer:
                         )
                     return
 
-                sys_prompt = (
-                    "Eres TARDIS, asistente de inteligencia artificial en un CHAT DE VOZ INFINITO EN VIVO "
-                    f"con {user_name}. Responde en español de manera conversacional, fluida, clara y concisa "
-                    "(idealmente de 1 a 4 oraciones, sin tablas markdown ni bloques de código largos, listo para ser hablado en voz alta)."
-                )
+                # Si el usuario hace una pregunta visual durante la videollamada, garantizar percepción fresca
+                if is_visual_question(user_text):
+                    target_bytes: Optional[bytes] = None
+                    target_src = scene.latest_source
+                    if video_enabled and scene.latest_frame_bytes:
+                        target_bytes = scene.latest_frame_bytes
+                        target_src = scene.latest_source
+                    elif remote_feed == "c310":
+                        target_bytes = latest_remote_frame or await self.vision.fetch_c310_frame_bytes(width=640, quality=72)
+                        target_src = "c310"
+                    elif remote_feed == "screen" and is_admin_caller:
+                        target_bytes = latest_remote_frame or await self.vision.capture_host_screen_bytes(max_width=960, quality=72)
+                        target_src = "host_screen"
+                    elif scene.latest_frame_bytes:
+                        target_bytes = scene.latest_frame_bytes
+                        target_src = scene.latest_source
+
+                    if target_bytes and (scene.needs_fresh_vlm(max_age_sec=8.0) or target_src != scene.latest_vlm_source):
+                        await send_json({"type": "vision_scanning", "active": True})
+                        vlm_res = await self.vision.analyze_frame_vlm(
+                            target_bytes, question=user_text, source=target_src
+                        )
+                        await send_json({"type": "vision_scanning", "active": False})
+                        if vlm_res.get("ok"):
+                            desc = str(vlm_res.get("description") or "").strip()
+                            scene.record_vlm_observation(
+                                desc,
+                                source=target_src,
+                                elapsed_ms=int(vlm_res.get("elapsed_ms") or 0),
+                            )
+                            await send_json(
+                                {
+                                    "type": "vision_update",
+                                    "description": desc,
+                                    "source": target_src,
+                                    "model": vlm_res.get("model", self.vision.vlm_model),
+                                    "elapsed_ms": int(vlm_res.get("elapsed_ms") or 0),
+                                    "explicit": True,
+                                }
+                            )
+
+                if call_mode == "video" or video_enabled:
+                    sys_prompt = (
+                        "Eres TARDIS, asistente de inteligencia artificial en una VIDEOLLAMADA EN VIVO "
+                        f"full-duplex con {user_name}. Puedes ver a {user_name} y su entorno en tiempo real "
+                        "mediante la percepción visual adjunta. Responde en español de manera cálida, natural, "
+                        "clara y concisa (1 a 4 oraciones, sin tablas markdown ni bloques largos, listo para ser hablado)."
+                    )
+                    vis_ctx = scene.build_prompt_context()
+                    if vis_ctx:
+                        sys_prompt += "\n\n" + vis_ctx
+                else:
+                    sys_prompt = (
+                        "Eres TARDIS, asistente de inteligencia artificial en un CHAT DE VOZ INFINITO EN VIVO "
+                        f"con {user_name}. Responde en español de manera conversacional, fluida, clara y concisa "
+                        "(idealmente de 1 a 4 oraciones, sin tablas markdown ni bloques de código largos, listo para ser hablado en voz alta)."
+                    )
                 loop = asyncio.get_running_loop()
                 try:
                     vault_ctx = await asyncio.wait_for(
@@ -2048,7 +1599,12 @@ class TelegramLiveCallServer:
                 logger.error(f"Error procesando audio de llamada: {exc}")
                 await send_json({"type": "error", "message": "No pude procesar ese fragmento de voz."})
 
-        self.active_sessions[session_id] = {"chat_id": chat_id, "started_at": started_ts}
+        self.active_sessions[session_id] = {
+            "chat_id": chat_id,
+            "started_at": started_ts,
+            "mode": call_mode,
+            "video_enabled": video_enabled,
+        }
         hangup_reported = False
         try:
             async for msg in ws:
@@ -2073,11 +1629,23 @@ class TelegramLiveCallServer:
                         is_admin_caller = verified["is_admin"]
                         if data.get("voice"):
                             voice_id = str(data["voice"])
-                        self.active_sessions[session_id].update({"chat_id": chat_id, "user_name": user_name})
+                        if str(data.get("mode") or "").lower() == "video" or bool(data.get("video_enabled")):
+                            call_mode = "video"
+                        video_enabled = bool(data.get("video_enabled", False))
+                        req_feed = str(data.get("remote_feed") or "avatar").lower()
+                        if req_feed in ("avatar", "c310", "screen"):
+                            remote_feed = req_feed if (req_feed != "screen" or is_admin_caller) else "avatar"
+                        self.active_sessions[session_id].update(
+                            {
+                                "chat_id": chat_id,
+                                "user_name": user_name,
+                                "mode": call_mode,
+                                "video_enabled": video_enabled,
+                            }
+                        )
 
                         # Prioridad soberana del sistema y sus funciones desde el
-                        # primer instante de la llamada en vivo (Mini App), no sólo
-                        # cuando se usa el bot /llamar.
+                        # primer instante de la llamada/videollamada en vivo.
                         try:
                             activate_call_priority(priority_source, chat_id=chat_id)
                             priority_registered = True
@@ -2093,19 +1661,185 @@ class TelegramLiveCallServer:
                                 "chat_id": chat_id,
                                 "user_name": user_name,
                                 "voice": voice_id,
+                                "mode": call_mode,
+                                "video_supported": True,
+                                "video_enabled": video_enabled,
+                                "vlm_model": self.vision.vlm_model,
+                                "can_view_host_screen": bool(is_admin_caller),
                                 "priority_active": priority_registered,
                             }
                         )
+                        if remote_feed in ("c310", "screen"):
+                            await stop_remote_feed()
+                            remote_feed_task = asyncio.create_task(_remote_feed_loop(remote_feed))
+
                         if history and not data.get("reconnect"):
                             await send_json({"type": "history_sync", "turns": history[-6:]})
 
                         if not data.get("reconnect"):
-                            greeting = (
-                                f"Hola {user_name}, línea de voz infinita conectada. "
-                                "Te escucho en vivo, dime qué necesitas."
-                            )
+                            if call_mode == "video":
+                                greeting = (
+                                    f"Hola {user_name}, videollamada en vivo conectada. "
+                                    "Te veo y te escucho en tiempo real, dime qué necesitas."
+                                )
+                            else:
+                                greeting = (
+                                    f"Hola {user_name}, línea de voz infinita conectada. "
+                                    "Te escucho en vivo, dime qué necesitas."
+                                )
                             await send_json({"type": "assistant_delta", "turn_id": 0, "text": greeting})
                             current_turn_task = asyncio.create_task(speak_sentences([greeting], turn_id=0))
+
+                    elif mtype == "video_state":
+                        video_enabled = bool(data.get("enabled", False))
+                        if video_enabled:
+                            call_mode = "video"
+                        self.active_sessions[session_id].update(
+                            {"mode": call_mode, "video_enabled": video_enabled}
+                        )
+                        if priority_registered:
+                            try:
+                                touch_call_priority(priority_source, chat_id=chat_id)
+                            except Exception:
+                                pass
+
+                    elif mtype == "video_frame":
+                        if not auth_info and chat_id == "anon":
+                            continue
+                        b64_str = str(data.get("jpeg_b64") or "")
+                        if not b64_str or len(b64_str) > 4 * 1024 * 1024:
+                            continue
+                        try:
+                            frame_bytes = base64.b64decode(b64_str)
+                        except Exception:
+                            continue
+                        src_name = str(data.get("source") or "camera").strip().lower()
+                        if src_name not in ("camera", "screen"):
+                            src_name = "camera"
+                        video_enabled = True
+                        call_mode = "video"
+                        self.active_sessions[session_id].update({"mode": "video", "video_enabled": True})
+
+                        loop = asyncio.get_running_loop()
+                        tel = await loop.run_in_executor(
+                            None, self.vision.inspect_frame_fast, frame_bytes, scene, src_name
+                        )
+                        await send_json({"type": "vision_telemetry", **tel.to_dict()})
+
+                        analyze_now = bool(data.get("analyze_now", False))
+                        prompt_txt = str(data.get("prompt") or "").strip()
+                        now_ts = time.time()
+                        should_bg_vlm = (
+                            (scene.vlm_analyses == 0 and (now_ts - last_bg_vlm_started) >= 2.0)
+                            or (scene.significant_motion_since_vlm and (now_ts - last_bg_vlm_started) >= 9.0)
+                            or ((now_ts - last_bg_vlm_started) >= 18.0)
+                        )
+                        if analyze_now and prompt_txt:
+                            await cancel_active_turn()
+                            await cancel_bg_vlm()
+                            last_bg_vlm_started = now_ts
+                            tid = turns_completed + 1
+                            current_turn_task = asyncio.create_task(
+                                run_vlm_background(
+                                    frame_bytes,
+                                    source=src_name,
+                                    prompt=prompt_txt,
+                                    explicit=True,
+                                    speak_after=True,
+                                    turn_id=tid,
+                                )
+                            )
+                        elif (analyze_now or should_bg_vlm) and (bg_vlm_task is None or bg_vlm_task.done()):
+                            last_bg_vlm_started = now_ts
+                            bg_vlm_task = asyncio.create_task(
+                                run_vlm_background(
+                                    frame_bytes,
+                                    source=src_name,
+                                    prompt=prompt_txt,
+                                    explicit=analyze_now,
+                                    speak_after=False,
+                                )
+                            )
+
+                    elif mtype == "analyze_vision":
+                        if not auth_info and chat_id == "anon":
+                            continue
+                        req_src = str(data.get("source") or "user").strip().lower()
+                        prompt_txt = str(data.get("prompt") or "Describe en voz alta lo que ves ahora mismo.").strip()
+                        speak_flag = bool(data.get("speak", True))
+                        target_bytes: Optional[bytes] = None
+                        resolved_src = scene.latest_source
+                        if req_src == "c310":
+                            target_bytes = latest_remote_frame or await self.vision.fetch_c310_frame_bytes(width=640, quality=75)
+                            resolved_src = "c310"
+                        elif req_src in ("screen", "host_screen") and is_admin_caller:
+                            target_bytes = latest_remote_frame or await self.vision.capture_host_screen_bytes(max_width=1024, quality=75)
+                            resolved_src = "host_screen"
+                        else:
+                            target_bytes = scene.latest_frame_bytes
+                            resolved_src = scene.latest_source
+                        if not target_bytes:
+                            await send_json({"type": "vision_scanning", "active": False})
+                            await send_json({"type": "error", "message": "Enciende la cámara o elige GOD-EYE para analizar video."})
+                        else:
+                            await cancel_active_turn()
+                            await cancel_bg_vlm()
+                            last_bg_vlm_started = time.time()
+                            tid = turns_completed + 1
+                            current_turn_task = asyncio.create_task(
+                                run_vlm_background(
+                                    target_bytes,
+                                    source=resolved_src,
+                                    prompt=prompt_txt,
+                                    explicit=True,
+                                    speak_after=speak_flag,
+                                    turn_id=tid,
+                                )
+                            )
+
+                    elif mtype == "set_remote_feed":
+                        req_feed = str(data.get("feed") or "avatar").strip().lower()
+                        if req_feed == "screen" and not is_admin_caller:
+                            await send_json({"type": "error", "message": "Pantalla del host reservada al Arquitecto."})
+                            continue
+                        if req_feed not in ("avatar", "c310", "screen"):
+                            req_feed = "avatar"
+                        remote_feed = req_feed
+                        await stop_remote_feed()
+                        if remote_feed in ("c310", "screen"):
+                            call_mode = "video"
+                            self.active_sessions[session_id]["mode"] = "video"
+                            remote_feed_task = asyncio.create_task(_remote_feed_loop(remote_feed))
+
+                    elif mtype == "send_snapshot_to_chat":
+                        if not auth_info and chat_id == "anon":
+                            continue
+                        req_src = str(data.get("source") or "user").strip().lower()
+                        snap_bytes: Optional[bytes] = None
+                        snap_src = scene.latest_source
+                        if req_src == "c310":
+                            snap_bytes = latest_remote_frame or await self.vision.fetch_c310_frame_bytes(width=1280, quality=84)
+                            snap_src = "c310"
+                        elif req_src in ("screen", "host_screen") and is_admin_caller:
+                            snap_bytes = latest_remote_frame or await self.vision.capture_host_screen_bytes(max_width=1440, quality=82)
+                            snap_src = "host_screen"
+                        else:
+                            snap_bytes = scene.latest_frame_bytes
+                            snap_src = scene.latest_source
+                        if not snap_bytes:
+                            await send_json({"type": "snapshot_sent", "ok": False, "error": "Sin fotograma activo"})
+                        else:
+                            self.vision.save_snapshot(snap_bytes, str(chat_id), source=snap_src)
+                            tg_res = await self._dispatch_videocall_snapshot_to_telegram(
+                                str(chat_id), snap_bytes, description=scene.latest_description, source=snap_src
+                            )
+                            await send_json(
+                                {
+                                    "type": "snapshot_sent",
+                                    "ok": bool(tg_res.get("ok")),
+                                    "error": str(tg_res.get("error") or tg_res.get("description") or ""),
+                                }
+                            )
 
                     elif mtype == "audio_meta":
                         pending_audio_turn_id = int(data.get("turn_id") or (turns_completed + 1))
@@ -2127,6 +1861,8 @@ class TelegramLiveCallServer:
 
                     elif mtype == "hangup":
                         hangup_reported = True
+                        if str(data.get("mode") or "").lower() == "video":
+                            call_mode = "video"
                         if priority_registered:
                             try:
                                 release_call_priority(priority_source)
@@ -2134,6 +1870,8 @@ class TelegramLiveCallServer:
                             except Exception as exc:
                                 logger.debug(f"Aviso liberando prioridad al colgar: {exc}")
                         await cancel_active_turn()
+                        await cancel_bg_vlm()
+                        await stop_remote_feed()
                         dur = float(data.get("duration_sec") or (time.time() - started_ts))
                         append_call_history_log(
                             {
@@ -2143,10 +1881,22 @@ class TelegramLiveCallServer:
                                 "user_name": user_name,
                                 "duration_sec": round(dur, 1),
                                 "turns": turns_completed,
-                                "channel": "telegram_live_webapp",
+                                "mode": call_mode,
+                                "frames_received": scene.frames_received,
+                                "vision_analyses": scene.vlm_analyses,
+                                "channel": "telegram_live_videocall" if call_mode == "video" else "telegram_live_webapp",
                             }
                         )
-                        asyncio.create_task(notify_telegram_call_ended(str(chat_id), dur, turns_completed))
+                        asyncio.create_task(
+                            notify_telegram_call_ended(
+                                str(chat_id),
+                                dur,
+                                turns_completed,
+                                mode=call_mode,
+                                frames_received=scene.frames_received,
+                                vision_analyses=scene.vlm_analyses,
+                            )
+                        )
                         break
 
                 elif msg.type == WSMsgType.BINARY:
@@ -2160,13 +1910,15 @@ class TelegramLiveCallServer:
                     break
         finally:
             await cancel_active_turn()
+            await cancel_bg_vlm()
+            await stop_remote_feed()
             self.active_sessions.pop(session_id, None)
             if priority_registered:
                 try:
                     release_call_priority(priority_source)
                 except Exception as exc:
                     logger.debug(f"Aviso liberando prioridad al cerrar llamada: {exc}")
-            if not hangup_reported and turns_completed > 0:
+            if not hangup_reported and (turns_completed > 0 or scene.frames_received > 0):
                 dur = time.time() - started_ts
                 append_call_history_log(
                     {
@@ -2176,15 +1928,27 @@ class TelegramLiveCallServer:
                         "user_name": user_name,
                         "duration_sec": round(dur, 1),
                         "turns": turns_completed,
-                        "channel": "telegram_live_webapp",
+                        "mode": call_mode,
+                        "frames_received": scene.frames_received,
+                        "vision_analyses": scene.vlm_analyses,
+                        "channel": "telegram_live_videocall" if call_mode == "video" else "telegram_live_webapp",
                     }
                 )
-                asyncio.create_task(notify_telegram_call_ended(str(chat_id), dur, turns_completed))
+                asyncio.create_task(
+                    notify_telegram_call_ended(
+                        str(chat_id),
+                        dur,
+                        turns_completed,
+                        mode=call_mode,
+                        frames_received=scene.frames_received,
+                        vision_analyses=scene.vlm_analyses,
+                    )
+                )
         return ws
 
     async def sync_telegram_menu_button(self) -> None:
         """
-        Vigila `FTL_PUBLIC_URL.txt` y actualiza automáticamente el botón `📞 Llamar`
+        Vigila `FTL_PUBLIC_URL.txt` y actualiza automáticamente el botón `📞 Llamar / Video`
         en Telegram (`setChatMenuButton`) cada vez que cambia el túnel Cloudflare.
         """
         while True:
@@ -2194,6 +1958,9 @@ class TelegramLiveCallServer:
                 if base and tok and base != self.last_synced_tunnel_url:
                     menu_url = build_live_call_url(chat_id="menu")
                     LIVE_CALL_URL_FILE.write_text(menu_url + "\n", encoding="utf-8")
+                    videocall_url = build_live_videocall_url(chat_id="menu")
+                    if videocall_url:
+                        LIVE_VIDEOCALL_URL_FILE.write_text(videocall_url + "\n", encoding="utf-8")
                     cam_url = build_live_camera_url(chat_id=ARCHITECT_TELEGRAM_ID, user_name="Arquitecto")
                     if cam_url:
                         LIVE_CAM_URL_FILE.write_text(cam_url + "\n", encoding="utf-8")
@@ -2203,8 +1970,8 @@ class TelegramLiveCallServer:
                             json={
                                 "menu_button": {
                                     "type": "web_app",
-                                    "text": "📞 Llamar",
-                                    "web_app": {"url": menu_url},
+                                    "text": "📹 Videollamar",
+                                    "web_app": {"url": videocall_url or menu_url},
                                 }
                             },
                             timeout=aiohttp.ClientTimeout(total=10),
@@ -2212,7 +1979,9 @@ class TelegramLiveCallServer:
                         res_json = await resp.json()
                         if res_json.get("ok"):
                             self.last_synced_tunnel_url = base
-                            logger.info(f"📲 Botón '📞 Llamar' sincronizado en Telegram -> {base}/tg-call")
+                            logger.info(
+                                f"📲 Botón '📹 Videollamar' sincronizado en Telegram -> {base}/tg-call/video"
+                            )
                         else:
                             logger.warning(f"Aviso setChatMenuButton: {res_json}")
             except asyncio.CancelledError:
@@ -2550,7 +2319,17 @@ def create_app() -> web.Application:
     app.router.add_get("/tg-call/priority", srv.handle_priority_status)
     app.router.add_get("/tg-call", srv.handle_call_page)
     app.router.add_get("/tg-call/", srv.handle_call_page)
+    app.router.add_get("/tg-call/video", srv.handle_call_page)
+    app.router.add_get("/tg-call/video/", srv.handle_call_page)
     app.router.add_get("/tg-call/ws", srv.handle_ws)
+    app.router.add_get("/tg-call/remote-feed.jpg", srv.handle_remote_feed_snapshot)
+    app.router.add_post("/tg-call/analyze-frame", srv.handle_analyze_frame_http)
+    app.router.add_get("/tg-videocall", srv.handle_call_page)
+    app.router.add_get("/tg-videocall/", srv.handle_call_page)
+    app.router.add_get("/tg-videocall/ws", srv.handle_ws)
+    app.router.add_get("/videollamada", srv.handle_call_page)
+    app.router.add_get("/videollamada/", srv.handle_call_page)
+    app.router.add_get("/videollamada/ws", srv.handle_ws)
     app.router.add_get("/voz", srv.handle_call_page)
     app.router.add_get("/voz/", srv.handle_call_page)
     app.router.add_get("/voz/ws", srv.handle_ws)

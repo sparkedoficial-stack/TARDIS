@@ -3912,6 +3912,42 @@ iframe{border:none;width:100%;height:100%;}</style></head>
         speech = (req.speech or req.message) if req else None
         return tb.make_call(chat_id=chat_id, initial_speech=speech)
 
+    @app.post("/api/telegram/videocall")
+    @app.post("/api/videocall/start")
+    async def post_telegram_videocall_endpoint(req: Optional[TelegramCallRequest] = None):
+        from core.telegram_bridge import get_telegram_bridge
+        tb = get_telegram_bridge()
+        chat_id = req.chat_id if req else None
+        speech = (req.speech or req.message) if req else None
+        return tb.make_video_call(chat_id=chat_id, initial_speech=speech)
+
+    @app.get("/api/videocall/status")
+    async def get_videocall_status_endpoint():
+        from core.telegram_live_call_server import build_live_call_url, build_live_videocall_url
+        live_health: Dict[str, Any] = {}
+        try:
+            import httpx as _httpx
+            async with _httpx.AsyncClient(timeout=2.5) as _cli:
+                r = await _cli.get("http://127.0.0.1:8796/tg-call/health")
+                if r.status_code == 200:
+                    live_health = r.json()
+        except Exception as exc:
+            live_health = {"ok": False, "error": str(exc)}
+        return {
+            "ok": True,
+            "video_call_ready": bool(live_health.get("video_call_ready", live_health.get("ok"))),
+            "local_url": "http://127.0.0.1:8796/videollamada",
+            "public_videocall_url": live_health.get("public_videocall_url") or build_live_videocall_url(chat_id="menu"),
+            "public_call_url": live_health.get("public_call_url") or build_live_call_url(chat_id="menu"),
+            "live_server": live_health,
+        }
+
+    @app.get("/videollamada")
+    async def redirect_videollamada_endpoint(request: Request):
+        from fastapi.responses import RedirectResponse
+        host = (request.headers.get("host") or "127.0.0.1:8757").split(":")[0]
+        return RedirectResponse(url=f"http://{host}:8796/videollamada")
+
     @app.post("/api/telegram/end_call")
     @app.post("/api/telegram/hangup")
     async def post_telegram_end_call_endpoint(req: Optional[TelegramCallRequest] = None):

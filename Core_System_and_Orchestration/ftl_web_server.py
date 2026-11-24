@@ -183,6 +183,13 @@ async def redirect_voz(request: Request):
     return RedirectResponse(url=f"http://{host}:8796/voz")
 
 
+@app.get("/videollamada")
+async def redirect_videollamada(request: Request):
+    """Redirige al servidor de Videollamadas en Vivo de TARDIS (:8796/videollamada) conservando el host."""
+    host = (request.headers.get("host") or "127.0.0.1:8765").split(":")[0]
+    return RedirectResponse(url=f"http://{host}:8796/videollamada")
+
+
 @app.post("/api/voice_command")
 async def api_voice_command(request: Request):
     try:
@@ -961,6 +968,7 @@ async def portal_index(request: Request):
             <button class="btn btn-gold" onclick="openQrModal()">📱 Código QR</button>
             <button class="btn" onclick="toggleCompactMode()" title="Maximizar espacio de terminal en iPad y tablets">📱 Maximizar</button>
             <a href="/voz" target="_blank" class="btn" style="border-color: var(--neon-cyan); color: var(--neon-cyan);" title="TARDIS Chat de Voz Infinito Full-Duplex">∞ Voz Infinita</a>
+            <a href="/videollamada" target="_blank" class="btn" style="border-color: #00e699; color: #00e699;" title="TARDIS Videollamada HD Bidireccional con Visión Qwen3-VL y Avatar 60 FPS">📹 Videollamada</a>
             <a href="/chat" target="_blank" class="btn" style="border-color: var(--neon-purple, #bd93f9); color: #bd93f9;" title="FTL Quantum Chat persistente con animación de cuásar">◉ Quantum Chat</a>
             <a href="#" onclick="window.open(termUrl, '_blank'); return false;" class="btn" title="Abrir terminal nativa en pestaña separada">↗ Nativo :7681</a>
             <button class="btn" onclick="toggleFullscreen()" title="Pantalla Completa">⛶ Pantalla</button>

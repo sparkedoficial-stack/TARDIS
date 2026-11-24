@@ -163,6 +163,7 @@ class TelegramBridge:
         self.last_error: Optional[str] = None
         self.messages_processed = 0
         self.active_calls: Set[int | str] = set()
+        self.active_video_calls: Set[int | str] = set()
         self.system_priority: bool = False
         self.system_priority_active: bool = False
         self.priority_mode: str = "normal"
@@ -2092,9 +2093,11 @@ class TelegramBridge:
                 user_name = "Arquitecto"
 
         live_call_url = ""
+        live_videocall_url = ""
         try:
-            from core.telegram_live_call_server import build_live_call_url
+            from core.telegram_live_call_server import build_live_call_url, build_live_videocall_url
             live_call_url = build_live_call_url(chat_id=chat_id, user_name=user_name)
+            live_videocall_url = build_live_videocall_url(chat_id=chat_id, user_name=user_name)
         except Exception as e_url:
             logger.warning(f"Aviso generando URL de llamada en vivo: {e_url}")
 
@@ -2110,6 +2113,7 @@ class TelegramBridge:
             "━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
             f"👤 **Interlocutor:** {user_name} (ID: `{chat_id}`)\n"
             "🎙️ **Modalidad 1 (Manos Libres en Vivo):** Pulsa **«📞 Abrir Llamada en Vivo»** abajo para conversar en tiempo real sin presionar botones.\n"
+            "📹 **Modalidad Video HD:** Pulsa **«📹 Abrir Videollamada en Vivo»** para activar cámara bidireccional y visión Qwen3-VL.\n"
             "🗣️ **Modalidad 2 (Notas de Voz):** Envía notas de voz en este chat y TARDIS te responderá con voz en cada turno.\n"
             f"⚡ **Voz Neural:** `{self.config.get('cortana_voice', 'es-MX-DaliaNeural')}` · **Motor:** `{self.active_model_label}`"
         )
@@ -2120,6 +2124,11 @@ class TelegramBridge:
                 inline_buttons.append([{"text": "📞 Abrir Llamada en Vivo (Manos Libres)", "web_app": {"url": live_call_url}}])
             else:
                 inline_buttons.append([{"text": "📞 Unirse a Llamada en Vivo (Manos Libres)", "url": live_call_url}])
+        if live_videocall_url:
+            if is_private_chat:
+                inline_buttons.append([{"text": "📹 Abrir Videollamada en Vivo (HD)", "web_app": {"url": live_videocall_url}}])
+            else:
+                inline_buttons.append([{"text": "📹 Unirse a Videollamada en Vivo (HD)", "url": live_videocall_url}])
         inline_buttons.append([{"text": "🔴 Colgar Llamada", "callback_data": "end_call"}])
         call_markup = {"inline_keyboard": inline_buttons}
 
@@ -2139,34 +2148,140 @@ class TelegramBridge:
             "chat_id": chat_id,
             "user_name": user_name,
             "live_call_url": live_call_url,
+            "live_videocall_url": live_videocall_url,
             "speech": greeting_text,
         }
 
-    def end_call(self, chat_id: int | str) -> Dict[str, Any]:
-        """Finaliza la llamada activa en Telegram."""
+    def start_video_call(
+        self,
+        chat_id: int | str,
+        user_name: str = "Usuario",
+        initial_speech: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Inicia una videollamada bidireccional en vivo (cámara + visión VLM + avatar 60 FPS + voz full-duplex)."""
         cid = int(chat_id) if str(chat_id).lstrip("-").isdigit() else chat_id
+        self.active_calls.add(cid)
+        self.active_video_calls.add(cid)
+        try:
+            self.prioritize_system_for_telegram_call(chat_id)
+        except Exception:
+            pass
+        is_private_chat = not str(chat_id).startswith("-")
+
+        if user_name in ("Usuario", None, ""):
+            if str(cid) == str(self.config.get("admin_chat_id")) or str(cid) == "REDACTED_PHONE":
+                user_name = "Arquitecto"
+
+        live_videocall_url = ""
+        live_call_url = ""
+        try:
+            from core.telegram_live_call_server import build_live_call_url, build_live_videocall_url
+            live_videocall_url = build_live_videocall_url(chat_id=chat_id, user_name=user_name)
+            live_call_url = build_live_call_url(chat_id=chat_id, user_name=user_name)
+        except Exception as e_url:
+            logger.warning(f"Aviso generando URL de videollamada en vivo: {e_url}")
+
+        greeting_text = initial_speech or (
+            f"Un placer, {user_name}. He abierto una videollamada en vivo contigo. "
+            "Toca Abrir Videollamada en Vivo para encender tu cámara y conversar cara a cara en tiempo real."
+        )
+
+        video_banner = (
+            "📹 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            "🟢 **[VIDEOLLAMADA ENTRANTE DE TARDIS · CANAL HD EN VIVO]**\n"
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            f"👤 **Interlocutor:** {user_name} (ID: `{chat_id}`)\n"
+            "👁️ **Visión Bidireccional:** Cámara frontal/trasera y compartir pantalla con análisis en vivo `Qwen3-VL`.\n"
+            "🌌 **Presencia TARDIS:** Avatar holográfico reactivo a 60 FPS + cambio a GOD-EYE C310 o Pantalla Host.\n"
+            "🎙️ **Audio Full-Duplex:** Manos libres (Auto VAD) + interrupción instantánea (Barge-In) + Prioridad Soberana.\n"
+            f"⚡ **Voz Neural:** `{self.config.get('cortana_voice', 'es-MX-DaliaNeural')}` · **Motor:** `{self.active_model_label}`"
+        )
+
+        inline_buttons = []
+        if live_videocall_url:
+            if is_private_chat:
+                inline_buttons.append([{"text": "📹 Abrir Videollamada en Vivo (HD)", "web_app": {"url": live_videocall_url}}])
+            else:
+                inline_buttons.append([{"text": "📹 Unirse a Videollamada en Vivo (HD)", "url": live_videocall_url}])
+        if live_call_url:
+            if is_private_chat:
+                inline_buttons.append([{"text": "📞 Abrir Solo Voz (Manos Libres)", "web_app": {"url": live_call_url}}])
+            else:
+                inline_buttons.append([{"text": "📞 Unirse Solo Voz", "url": live_call_url}])
+        inline_buttons.append([{"text": "🔴 Colgar Videollamada", "callback_data": "end_call"}])
+        call_markup = {"inline_keyboard": inline_buttons}
+
+        self.send_message(video_banner, chat_id=chat_id, reply_markup=call_markup)
+
+        with ChatActionKeeper(self, chat_id, "record_voice"):
+            ogg = self.synthesize_speech(greeting_text)
+            if ogg:
+                self.send_voice(ogg, caption=f"📹 {greeting_text}", chat_id=chat_id)
+            else:
+                self.send_message(f"📹 {greeting_text}", chat_id=chat_id)
+
+        return {
+            "ok": True,
+            "call_active": True,
+            "video_call_active": True,
+            "mode": "video",
+            "chat_id": chat_id,
+            "user_name": user_name,
+            "live_videocall_url": live_videocall_url,
+            "live_call_url": live_call_url,
+            "speech": greeting_text,
+        }
+
+    def make_video_call(
+        self,
+        chat_id: Optional[int | str] = None,
+        initial_speech: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Realiza una videollamada proactiva hacia el usuario autorizado."""
+        target_chat = chat_id or self.config.get("admin_chat_id")
+        if not target_chat and self.config.get("allowed_chats"):
+            target_chat = self.config["allowed_chats"][0]
+        if not target_chat:
+            return {"ok": False, "error": "No hay chat_id destino disponible"}
+        u_name = (
+            "Arquitecto"
+            if str(target_chat) in (str(self.config.get("admin_chat_id")), "REDACTED_PHONE")
+            else "Usuario"
+        )
+        return self.start_video_call(target_chat, user_name=u_name, initial_speech=initial_speech)
+
+    def end_call(self, chat_id: int | str) -> Dict[str, Any]:
+        """Finaliza la llamada o videollamada activa en Telegram."""
+        cid = int(chat_id) if str(chat_id).lstrip("-").isdigit() else chat_id
+        was_video = cid in self.active_video_calls
         if cid in self.active_calls:
             self.active_calls.discard(cid)
+        if cid in self.active_video_calls:
+            self.active_video_calls.discard(cid)
         # Restaurar prioridad normal si ya no hay llamadas activas
-        if not self.active_calls and not self.voice_mode_always:
+        if not self.active_calls and not self.active_video_calls and not self.voice_mode_always:
             try:
                 self.set_system_priority(False, chat_id)
             except Exception:
                 pass
 
-        farewell = "Llamada finalizada. El canal de voz se cierra. Puedes seguir comunicándote por texto o reactivar la llamada con /llamar."
+        farewell = (
+            "Videollamada finalizada. El canal de video y voz se cierra. Puedes reactivarla cuando gustes con /videollamada."
+            if was_video
+            else "Llamada finalizada. El canal de voz se cierra. Puedes seguir comunicándote por texto o reactivar la llamada con /llamar."
+        )
         self.send_message(
             "📵 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
             "🔴 **[LLAMADA FINALIZADA · CANAL CERRADO]**\n"
             "━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-            "✅ Sesión de diálogo por voz concluida.\n"
-            "💬 Para volver a llamar en cualquier momento, envía `/llamar` o `/call`.",
+            f"✅ Sesión de {'videollamada' if was_video else 'diálogo por voz'} concluida.\n"
+            "💬 Para volver a conectar, envía `/videollamada` o `/llamar`.",
             chat_id=chat_id
         )
         ogg = self.synthesize_speech(farewell)
         if ogg:
             self.send_voice(ogg, caption=f"🎙️ {farewell}", chat_id=chat_id)
-        return {"ok": True, "call_active": False, "chat_id": chat_id}
+        return {"ok": True, "call_active": False, "video_call_active": False, "chat_id": chat_id}
 
     def make_call(self, chat_id: Optional[int | str] = None, initial_speech: Optional[str] = None) -> Dict[str, Any]:
         """Realiza una llamada proactiva hacia el usuario autorizado."""
@@ -2320,6 +2435,13 @@ class TelegramBridge:
                 if token and cb_id:
                     try:
                         requests.post(f"https://api.telegram.org/bot{token}/answerCallbackQuery", json={"callback_query_id": cb_id, "text": "Conectando llamada..."}, timeout=5.0)
+                    except Exception:
+                        pass
+            elif cb_data in ("start_video_call", "video_call", "videollamada"):
+                self.start_video_call(cb_chat_id)
+                if token and cb_id:
+                    try:
+                        requests.post(f"https://api.telegram.org/bot{token}/answerCallbackQuery", json={"callback_query_id": cb_id, "text": "📹 Conectando videollamada HD..."}, timeout=5.0)
                     except Exception:
                         pass
             elif cb_data in ("c310_live_clip", "c310_live_clip_12"):
@@ -2738,8 +2860,18 @@ class TelegramBridge:
                 self.send_message(f"⚠️ Error consultando grupo: {e_ginfo}", chat_id=chat_id, reply_to_message_id=msg_id)
             return
 
-        # Detección de intenciones de llamada en lenguaje natural
+        # Detección de intenciones de videollamada y llamada en lenguaje natural
         text_lower = text.lower()
+        if any(phrase in text_lower for phrase in (
+            "hazme una videollamada", "inicia una videollamada", "iniciar videollamada",
+            "haz una videollamada", "hacer una videollamada", "videollamada en vivo",
+            "quiero una videollamada", "quiero hacer una videollamada", "llámame por video",
+            "llamame por video", "llamada con video", "llamada por video",
+            "abre videollamada", "abrir videollamada", "conectar videollamada",
+        )):
+            self.start_video_call(chat_id, user_name=user_name)
+            return
+
         if any(phrase in text_lower for phrase in (
             "hazme una llamada", "inicia una llamada", "iniciar llamada",
             "llámame", "llamame", "haz una llamada", "hacer una llamada",
@@ -2748,11 +2880,27 @@ class TelegramBridge:
             self.start_call(chat_id, user_name=user_name)
             return
 
-        if any(phrase in text_lower for phrase in ("cuelga la llamada", "colgar llamada", "termina la llamada", "terminar llamada", "cuelga")):
+        if any(phrase in text_lower for phrase in (
+            "cuelga la llamada", "colgar llamada", "termina la llamada", "terminar llamada",
+            "cuelga la videollamada", "colgar videollamada", "termina la videollamada", "cuelga",
+        )):
             cid_int = int(chat_id) if str(chat_id).lstrip("-").isdigit() else chat_id
-            if cid_int in self.active_calls:
+            if cid_int in self.active_calls or cid_int in self.active_video_calls:
                 self.end_call(chat_id)
                 return
+
+        if cmd in ("/videollamada", "/videocall", "/video_llamada", "/vcall", "/vc", "/llamar_video"):
+            vc_parts = arg_str.split(maxsplit=1)
+            target = chat_id
+            custom_speech = None
+            if vc_parts:
+                if vc_parts[0].isdigit() or vc_parts[0].startswith("-"):
+                    target = vc_parts[0]
+                    custom_speech = vc_parts[1] if len(vc_parts) > 1 else None
+                else:
+                    custom_speech = arg_str
+            self.start_video_call(target, user_name=user_name, initial_speech=custom_speech)
+            return
 
         if cmd in ("/llamar", "/call", "/llamada", "/iniciar_llamada", "/marcar"):
             parts = arg_str.split(maxsplit=1)
@@ -3095,9 +3243,10 @@ class TelegramBridge:
                 f"• `/video_gen <tema>` : Genera un video dinámico MP4 acelerado por hardware NVENC\n"
                 f"• `/inspiracion` o `/tardis_dibuja` : TARDIS medita y crea autónomamente arte o animaciones libres para ti\n"
                 f"• *Lenguaje Natural:* Escribe libremente \"/v kerr\", \"/v calabi-yau\", \"TARDIS genera una animación\", \"muestra en 3d el átomo\", etc.\n\n"
-                f"**📞 Diálogo y Llamadas por Voz:**\n"
+                f"**📞 Diálogo, Llamadas y Videollamadas en Vivo:**\n"
+                f"• `/videollamada` o `/videocall` : Iniciar videollamada HD bidireccional en vivo con visión Qwen3-VL y avatar 60 FPS\n"
                 f"• `/llamar` o `/call` : Iniciar llamada interactiva por voz con GIA\n"
-                f"• `/colgar` o `/endcall` : Finalizar llamada de voz activa\n"
+                f"• `/colgar` o `/endcall` : Finalizar llamada o videollamada activa\n"
                 f"• `/voz_modo <on|off>` : Activar/desactivar respuesta por voz en todos los turnos\n"
                 f"• `/voz_recurrente <on|off|ahora|intervalo|modo>` : Envío periódico recurrente de notas de voz a Telegram\n"
                 f"• *Notas de Voz:* Envía cualquier nota de voz y GIA te responderá por video o voz hablada.\n\n"

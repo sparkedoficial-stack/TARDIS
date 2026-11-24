@@ -48,6 +48,7 @@ TERMINAL_UPSTREAM = os.environ.get("FTL_TERMINAL_UPSTREAM", "http://127.0.0.1:76
 TERMINAL_PREFIX = "/terminal"
 TG_CALL_UPSTREAM = os.environ.get("FTL_TG_CALL_UPSTREAM", "http://127.0.0.1:8796")
 TG_CALL_PREFIX = "/tg-call"
+TG_VIDEOCALL_PREFIX = "/tg-videocall"
 TG_CAM_PREFIX = "/tg-cam"
 COOKIE_NAME = "ftl_gateway"
 SESSION_TTL = 60 * 60 * 24 * 30  # 30 días
@@ -205,10 +206,14 @@ def _upstream_for(request: web.Request) -> Tuple[str, str]:
     if (
         path == TG_CALL_PREFIX
         or path.startswith(TG_CALL_PREFIX + "/")
+        or path == TG_VIDEOCALL_PREFIX
+        or path.startswith(TG_VIDEOCALL_PREFIX + "/")
         or path == TG_CAM_PREFIX
         or path.startswith(TG_CAM_PREFIX + "/")
         or path == "/voz"
         or path.startswith("/voz/")
+        or path == "/videollamada"
+        or path.startswith("/videollamada/")
     ):
         return TG_CALL_UPSTREAM.rstrip("/"), path
     if path == TERM_PREFIX or path.startswith(TERM_PREFIX + "/"):
@@ -448,11 +453,13 @@ async def gateway(request: web.Request) -> web.StreamResponse:
 
     session = request.app["client"]
 
-    # Mini App de Llamadas en Vivo (/tg-call) y Cámara en Vivo (/tg-cam) de Telegram:
+    # Mini App de Llamadas (/tg-call), Videollamadas (/tg-videocall) y Cámara (/tg-cam) de Telegram:
     # validación HMAC + Telegram initData en su propio upstream.
     if (
         request.path == TG_CALL_PREFIX
         or request.path.startswith(TG_CALL_PREFIX + "/")
+        or request.path == TG_VIDEOCALL_PREFIX
+        or request.path.startswith(TG_VIDEOCALL_PREFIX + "/")
         or request.path == TG_CAM_PREFIX
         or request.path.startswith(TG_CAM_PREFIX + "/")
     ):

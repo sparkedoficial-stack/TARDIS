@@ -707,6 +707,45 @@ class ToolRegistry:
             handler=_visual_verdict
         ))
 
+        def _start_telegram_videocall(args: dict):
+            from core.telegram_bridge import get_telegram_bridge
+            tb = get_telegram_bridge()
+            chat_id = args.get("chat_id")
+            speech = args.get("speech") or args.get("initial_speech")
+            return tb.make_video_call(chat_id=chat_id, initial_speech=speech)
+
+        self.register(ToolDefinition(
+            name="start_telegram_videocall",
+            category="VISION_CCTV",
+            description=(
+                "Inicia una videollamada HD bidireccional en vivo con el Arquitecto o un chat autorizado "
+                "de Telegram (cámara frontal/trasera, visión Qwen3-VL, avatar holográfico 60 FPS y voz full-duplex)."
+            ),
+            parameters={
+                "chat_id": {"type": "string", "description": "ID del chat de Telegram (opcional, por defecto el Arquitecto)"},
+                "speech": {"type": "string", "description": "Saludo inicial opcional hablado al iniciar la videollamada"},
+            },
+            handler=_start_telegram_videocall
+        ))
+
+        def _start_telegram_call(args: dict):
+            from core.telegram_bridge import get_telegram_bridge
+            tb = get_telegram_bridge()
+            chat_id = args.get("chat_id")
+            speech = args.get("speech") or args.get("initial_speech")
+            return tb.make_call(chat_id=chat_id, initial_speech=speech)
+
+        self.register(ToolDefinition(
+            name="start_telegram_call",
+            category="VISION_CCTV",
+            description="Inicia una llamada de voz en vivo full-duplex por Telegram con el Arquitecto o un chat autorizado.",
+            parameters={
+                "chat_id": {"type": "string", "description": "ID del chat de Telegram (opcional, por defecto el Arquitecto)"},
+                "speech": {"type": "string", "description": "Saludo inicial opcional hablado al abrir la llamada"},
+            },
+            handler=_start_telegram_call
+        ))
+
         def _last_verdict(args: dict):
             from core.visual_intelligence_engine import get_visual_intelligence_engine
             rec = get_visual_intelligence_engine().get_last_verdict()
