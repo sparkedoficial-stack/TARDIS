@@ -35,8 +35,11 @@ CAPTURES_DIR.mkdir(parents=True, exist_ok=True)
 
 _raw_gpu_ollama = os.environ.get("TARDIS_VLM_GPU_URL", "http://127.0.0.1:11435").strip()
 OLLAMA_GPU_URL = _raw_gpu_ollama if _raw_gpu_ollama.startswith(("http://", "https://")) else f"http://{_raw_gpu_ollama}"
-_raw_ollama = os.environ.get("OLLAMA_HOST", "http://127.0.0.1:11434").strip()
+_raw_gpu_ollama = os.environ.get("OLLAMA_VLM_GPU_HOST", "http://127.0.0.1:11435").strip().rstrip("/")
+OLLAMA_GPU_URL = _raw_gpu_ollama if _raw_gpu_ollama.startswith(("http://", "https://")) else f"http://{_raw_gpu_ollama}"
+_raw_ollama = os.environ.get("OLLAMA_HOST", "http://127.0.0.1:11434").strip().rstrip("/")
 OLLAMA_URL = _raw_ollama if _raw_ollama.startswith(("http://", "https://")) else f"http://{_raw_ollama}"
+OLLAMA_VLM_ENDPOINTS = tuple(dict.fromkeys([OLLAMA_GPU_URL, OLLAMA_URL]))
 
 
 def _active_vlm_endpoint() -> str:

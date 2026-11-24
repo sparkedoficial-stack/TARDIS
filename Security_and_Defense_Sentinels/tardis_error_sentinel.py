@@ -235,6 +235,24 @@ class TardisErrorSentinel:
         except Exception as e:
             self.log(f"Error despachando mensaje al puente de diálogo: {e}", "ERROR")
 
+        # Publicar también en el Sovereign Event Bus para correlación causal con Co-Evolución AGY
+        try:
+            from core.sovereign_event_bus import get_event_bus
+            get_event_bus().publish(
+                topic="anomaly.sentinel",
+                source="tardis_error_sentinel",
+                severity="INFO" if success else "HIGH",
+                payload={
+                    "error_type": error_type,
+                    "detail": detail[:400],
+                    "repair_action": repair_action,
+                    "repaired": success,
+                },
+                dedup_window_s=600.0,
+            )
+        except Exception:
+            pass
+
         # Publicar en el Sovereign Event Bus para reacción inmediata del motor TARDIS <-> AGY
         if not success:
             try:
