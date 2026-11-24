@@ -33,8 +33,22 @@ CONFIG_DIR = Path(os.environ.get("LOCALAPPDATA", os.path.expanduser("~"))) / "vw
 CAPTURES_DIR = CONFIG_DIR / "captures"
 CAPTURES_DIR.mkdir(parents=True, exist_ok=True)
 
+_raw_gpu_ollama = os.environ.get("TARDIS_VLM_GPU_URL", "http://127.0.0.1:11435").strip()
+OLLAMA_GPU_URL = _raw_gpu_ollama if _raw_gpu_ollama.startswith(("http://", "https://")) else f"http://{_raw_gpu_ollama}"
 _raw_ollama = os.environ.get("OLLAMA_HOST", "http://127.0.0.1:11434").strip()
 OLLAMA_URL = _raw_ollama if _raw_ollama.startswith(("http://", "https://")) else f"http://{_raw_ollama}"
+
+
+def _active_vlm_endpoint() -> str:
+    """Prefiere el carril GPU dedicado (:11435) antes del fallback CPU (:11434)."""
+    for ep in (OLLAMA_GPU_URL, OLLAMA_URL):
+        try:
+            r = httpx.get(f"{ep}/api/tags", timeout=1.5)
+            if r.status_code == 200:
+                return ep
+        except Exception:
+            continue
+    return OLLAMA_URL
 
 # Modelos multimodales conocidos ordenados por preferencia
 VLM_CANDIDATE_MODELS = [
@@ -84,7 +98,8 @@ def _encode_image_b64(img_path_or_bytes: Path | str | bytes) -> str:
 def detect_available_vlm_model() -> Optional[str]:
     """Descubre qué modelo de visión multimodal está instalado en Ollama."""
     try:
-        r = httpx.get(f"{OLLAMA_URL}/api/tags", timeout=4.0)
+        ep = _active_vlm_endpoint()
+        r = httpx.get(f"{ep}/api/tags", timeout=4.0)
         if r.status_code != 200:
             return None
         models = [m.get("name", "") for m in r.json().get("models", [])]
@@ -120,17 +135,19 @@ def inspect_image(
     # Si tenemos un modelo VLM en Ollama, realizamos inferencia multimodal
     if vlm_model:
         try:
+            ep = _active_vlm_endpoint()
             payload = {
                 "model": vlm_model,
                 "prompt": prompt,
                 "images": [b64_img],
                 "stream": False,
+                "keep_alive": -1 if ep == OLLAMA_GPU_URL else "5m",
                 "options": {
                     "temperature": 0.2,
                     "num_ctx": 4096
                 }
             }
-            r = httpx.post(f"{OLLAMA_URL}/api/generate", json=payload, timeout=timeout_s)
+            r = httpx.post(f"{ep}/api/generate", json=payload, timeout=timeout_s)
             if r.status_code == 200:
                 resp_text = r.json().get("response", "").strip()
                 return {

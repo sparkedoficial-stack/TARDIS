@@ -570,7 +570,7 @@ class TardisOmniscientAutonomyEngine:
         except Exception as e:
             logger.debug(f"Aviso persistiendo dossier tecnológico: {e}")
 
-        # Publicar en el puente de diálogo vivo con Antigravity
+        # Publicar en el puente de diálogo vivo con Antigravity y registrar en Co-Evolución AGY
         try:
             from antigravity_bridge import OmniFeedbackBridge
             OmniFeedbackBridge().post_dialogue_message(
@@ -585,6 +585,22 @@ class TardisOmniscientAutonomyEngine:
             )
         except Exception:
             pass  # fallo silenciado: revisar con log
+
+        try:
+            from core.tardis_agy_coevolution import get_coevolution_engine
+            get_coevolution_engine().upsert_proposal(
+                lens="frontier",
+                category=dossier.target_scope,
+                severity="MEDIUM",
+                roi_score=74,
+                title=f"[Omniscient] {dossier.frontier_title[:140]}",
+                problem=f"Oportunidad de mejora detectada en {frontier['subsystem_focus']} respaldada por {len(dossier.scientific_evidence)} paper(s).",
+                proposed_solution=dossier.optimization_blueprint[:1500],
+                evidence={"dossier_id": dossier.id, "papers": dossier.scientific_evidence[:3]},
+                fingerprint_seed=f"omniscient|{frontier['title']}",
+            )
+        except Exception:
+            pass
 
         self.state["tech_dossiers_generated"] = int(self.state.get("tech_dossiers_generated", 0)) + 1
         self._save_state()
@@ -727,7 +743,9 @@ class TardisOmniscientAutonomyEngine:
         answered_map = chat_ledger.setdefault("answered_ids", {})
         chat_replies_sent: List[Dict[str, Any]] = []
 
-        dialogue_path = BASE_DIR / ".agents" / "antigravity_bridge" / "live_dialogue.jsonl"
+        canonical_dialogue = Path(os.environ.get("LOCALAPPDATA", str(Path.home()))) / "vw-control" / "antigravity_bridge" / "live_dialogue.jsonl"
+        ws_dialogue = BASE_DIR / ".agents" / "antigravity_bridge" / "live_dialogue.jsonl"
+        dialogue_path = canonical_dialogue if canonical_dialogue.exists() else ws_dialogue
         if dialogue_path.exists():
             try:
                 lines = dialogue_path.read_text(encoding="utf-8", errors="ignore").splitlines()[-30:]
@@ -884,6 +902,21 @@ class TardisOmniscientAutonomyEngine:
             f"(Ciclo cognitivo/comentarios: {cycle_interval_seconds}s | Publicación X: {x_publish_interval_seconds}s)"
         )
         while self.running:
+            sleep_mult = 1.0
+            try:
+                from core.tardis_resource_governor import get_resource_governor
+                adm = get_resource_governor().admit("heavy_learning")
+                sleep_mult = float(adm.get("recommended_sleep_multiplier", 1.0))
+                if not adm.get("allowed", True):
+                    logger.info(
+                        "⏸️ [OMNISCIENT] Ciclo diferido por ResourceGovernor (nivel=%s: %s)",
+                        adm.get("level"),
+                        "; ".join((adm.get("reasons") or [])[:2]),
+                    )
+                    await asyncio.sleep(max(60.0, cycle_interval_seconds * min(3.0, sleep_mult)))
+                    continue
+            except Exception:
+                pass
             try:
                 res = await self.run_full_omniscient_cycle(
                     publish_to_x=True,
@@ -897,7 +930,7 @@ class TardisOmniscientAutonomyEngine:
             except Exception as e:
                 logger.error(f"Error en ciclo omnisciente: {e}", exc_info=True)
 
-            await asyncio.sleep(max(30.0, cycle_interval_seconds))
+            await asyncio.sleep(max(30.0, cycle_interval_seconds * min(3.0, sleep_mult)))
 
 
 def get_omniscient_autonomy_engine() -> TardisOmniscientAutonomyEngine:

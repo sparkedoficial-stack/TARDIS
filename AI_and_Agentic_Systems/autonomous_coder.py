@@ -120,8 +120,11 @@ class AutonomousCoder:
         if not Path(file_path).exists():
             return None
         ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-        rel_name = file_path.name
-        backup_dst = BACKUP_DIR / f"{rel_name}.{ts}.bak"
+        try:
+            rel_encoded = file_path.resolve().relative_to(PROJECT_ROOT.resolve()).as_posix().replace("/", "__")
+        except ValueError:
+            rel_encoded = file_path.name
+        backup_dst = BACKUP_DIR / f"{rel_encoded}.{ts}.bak"
         shutil.copy2(file_path, backup_dst)
         return backup_dst
 
@@ -237,19 +240,22 @@ class AutonomousCoder:
                 "Genera el código completo optimizado:"
             )
 
-            # Intentar API Cloud si tiene clave configurada
+            # Intentar API Cloud si tiene clave configurada y el archivo cabe sin truncar
+            max_toks = 4096
             if st.get("enabled") and st.get("has_key"):
                 target_model = model_override or st.get("active_model", "qwen/qwen3.8-27b")
-                # Groq free tier OTPM es 1000 tokens/minuto acumulado; 600 garantiza margen seguro
-                max_toks = 600 if "groq" in st.get("active_provider", "") else 4096
-                api_resp = cloud_api.chat_completion([
-                    {"role": "system", "content": system_instruction},
-                    {"role": "user", "content": user_prompt},
-                ], model=target_model, max_tokens=max_toks, timeout=45.0)
+                is_groq = "groq" in str(st.get("active_provider", "")).lower()
+                # Solo usar Groq cuando el archivo es compacto; archivos extensos van a TemporalBrain/4096
+                if not is_groq or len(original_code) <= 3200:
+                    max_toks = 2048 if is_groq else 4096
+                    api_resp = cloud_api.chat_completion([
+                        {"role": "system", "content": system_instruction},
+                        {"role": "user", "content": user_prompt},
+                    ], model=target_model, max_tokens=max_toks, timeout=45.0)
 
-                if api_resp.get("ok") and api_resp.get("reply"):
-                    new_code = api_resp["reply"].strip()
-                    model_used = f"{api_resp.get('provider')} ({api_resp.get('model')})"
+                    if api_resp.get("ok") and api_resp.get("reply"):
+                        new_code = api_resp["reply"].strip()
+                        model_used = f"{api_resp.get('provider')} ({api_resp.get('model')})"
 
             # Inferencia mediante Temporal Brain soberano si la API externa no devolvió código
             if not new_code:
@@ -264,7 +270,7 @@ class AutonomousCoder:
                             {"role": "user", "content": user_prompt}
                         ],
                         temperature=0.2,
-                        max_tokens=max_toks or 2048
+                        max_tokens=max(2048, max_toks)
                     )
                     if res_tb.get("ok") and res_tb.get("reply"):
                         new_code = res_tb["reply"].strip()
@@ -399,9 +405,12 @@ class AutonomousCoder:
         if not b.is_file():
             return {"ok": False, "error": f"Respaldo no existe: {backup_path}"}
 
-        # Extraer nombre original: <archivo>.<timestamp>.bak
-        orig_name = b.name.rsplit(".", 2)[0]
-        dst = PROJECT_ROOT / orig_name
+        # Extraer ruta relativa original: <ruta__codificada>.<timestamp>.bak
+        orig_encoded = b.name.rsplit(".", 2)[0]
+        orig_rel = orig_encoded.replace("__", "/")
+        dst = PROJECT_ROOT / orig_rel
+        if not dst.parent.exists():
+            dst = PROJECT_ROOT / Path(orig_rel).name
         try:
             shutil.copy2(b, dst)
             return {

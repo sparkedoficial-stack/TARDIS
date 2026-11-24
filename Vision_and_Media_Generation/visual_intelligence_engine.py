@@ -354,7 +354,8 @@ class VisualIntelligenceEngine:
             return self._vlm_model_cache
         model: Optional[str] = None
         try:
-            r = requests.get(f"{OLLAMA_URL}/api/tags", timeout=4.0)
+            target_url = _resolve_vlm_ollama_url()
+            r = requests.get(f"{target_url}/api/tags", timeout=4.0)
             if r.status_code == 200:
                 names = [str(m.get("name", "")) for m in r.json().get("models", [])]
                 for pref in VLM_MODEL_PREFERENCES:
@@ -396,15 +397,17 @@ class VisualIntelligenceEngine:
     def _ollama_vision_call(self, b64_img: str, prompt: str, model: str, *,
                             max_tokens: int = 300, num_ctx: int = 4096,
                             timeout: float = 240.0) -> Dict[str, Any]:
-        """Inferencia multimodal local en Ollama (privacidad soberana total)."""
+        """Inferencia multimodal local en Ollama (prefiere carril GPU :11435 antes que CPU :11434)."""
         try:
+            target_url = _resolve_vlm_ollama_url()
+            keep_alive = -1 if target_url == OLLAMA_GPU_LANE_URL else "5m"
             payload = {
                 "model": model,
                 "prompt": prompt,
                 "images": [b64_img],
                 "stream": False,
                 "think": False,
-                "keep_alive": "30m",
+                "keep_alive": keep_alive,
                 "options": {
                     "temperature": 0.15,
                     "num_ctx": num_ctx,
@@ -416,7 +419,7 @@ class VisualIntelligenceEngine:
                     "presence_penalty": 0.5,
                 },
             }
-            r = requests.post(f"{OLLAMA_URL}/api/generate", json=payload, timeout=timeout)
+            r = requests.post(f"{target_url}/api/generate", json=payload, timeout=timeout)
             if r.status_code == 200:
                 body = r.json()
                 text = (body.get("response") or "").strip()

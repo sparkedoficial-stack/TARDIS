@@ -394,15 +394,15 @@ class SovereignInferenceEngine:
             "model": model,
             "messages": messages,
             "stream": True,
-            "keep_alive": -1,
+            "keep_alive": os.environ.get("GIA_OLLAMA_FALLBACK_KEEP_ALIVE", "10m"),
             "options": {
                 "temperature": float(temperature or 0.3),
                 "num_ctx": int(num_ctx or os.environ.get("GIA_NUM_CTX", 4096)),
                 "num_predict": int(os.environ.get("GIA_NUM_PREDICT", 512)),
-                "num_thread": int(os.environ.get("GIA_NUM_THREADS", 12)),
+                "num_thread": int(os.environ.get("GIA_NUM_THREADS", 8)),
                 "repeat_penalty": 1.15,
                 "use_mmap": True,
-                "use_mlock": True,
+                "use_mlock": False,
                 "num_batch": int(os.environ.get("GIA_NUM_BATCH", 512))
             }
         }

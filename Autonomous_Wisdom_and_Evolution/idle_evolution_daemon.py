@@ -199,6 +199,15 @@ class IdleEvolutionDaemon:
                     self.record_user_activity()
                     continue
 
+                # Respetar el ResourceGovernor (evita saturar CPU PSI / RAM / Swap durante cargas altas)
+                try:
+                    from core.tardis_resource_governor import can_run_background_task
+                    if not can_run_background_task("idle_evolution"):
+                        time.sleep(60.0)
+                        continue
+                except Exception:
+                    pass
+
                 # Condición 1: Modo Infinito (sin peticiones en los últimos 300s y no ocupado)
                 if self.infinite_evolution_mode:
                     user_idle_s = self.get_idle_seconds()

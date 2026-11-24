@@ -199,11 +199,22 @@ class SubsystemAgent:
             return f"ABORTADO {desc}: el parche no compila ({e.msg})"
         tmp = path.with_suffix(path.suffix + ".agenttmp")
         tmp.write_text(new_src, encoding="utf-8")
-        backup = path.with_suffix(path.suffix + f".bak.{time.strftime('%Y%m%d%H%M%S')}")
+        # Guardar backups fuera de core/ con rotación acotada (máx 5 por archivo)
+        bkp_dir = PROJECT_ROOT / "_selfmod_backups" / "subsystem_agents"
+        bkp_dir.mkdir(parents=True, exist_ok=True)
+        try:
+            rel_key = path.resolve().relative_to(PROJECT_ROOT.resolve()).as_posix().replace("/", "__")
+        except ValueError:
+            rel_key = path.name
+        backup = bkp_dir / f"{rel_key}.bak.{time.strftime('%Y%m%d%H%M%S')}"
         shutil.copy2(path, backup)
+        # Rotar backups antiguos de este mismo archivo
+        old_bkps = sorted(bkp_dir.glob(f"{rel_key}.bak.*"), key=lambda x: x.stat().st_mtime, reverse=True)
+        for stale in old_bkps[5:]:
+            stale.unlink(missing_ok=True)
         tmp.replace(path)
         self.writes_today += 1
-        return f"APLICADO {desc} en {path.name} (respaldo {backup.name})"
+        return f"APLICADO {desc} en {path.name} (respaldo _selfmod_backups/subsystem_agents/{backup.name})"
 
     def cycle(self, force: bool = False) -> Dict[str, Any]:
         now = time.time()
