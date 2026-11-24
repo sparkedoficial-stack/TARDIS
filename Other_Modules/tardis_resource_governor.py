@@ -1499,8 +1499,19 @@ class TardisResourceGovernor:
                         next_pp_applied = ""
                     else:
                         errors.append(f"powerprofilesctl restore {power_profile_baseline} failed")
+                elif power_profile_applied == "power-saver" and cur_cpu_c < 82.0 and cur_gpu_c < 76.0:
+                    if dry_run:
+                        power_profile_action = "would_step_back_to_balanced"
+                    elif _set_power_profile("balanced"):
+                        power_profile_action = "stepped_back_to_balanced"
+                        next_pp_applied = "balanced"
+                        if power_profile_baseline == "balanced":
+                            next_pp_base = ""
+                            next_pp_applied = ""
+                    else:
+                        errors.append("powerprofilesctl step-back balanced failed")
                 else:
-                    power_profile_action = "kept_balanced_thermal_headroom"
+                    power_profile_action = f"kept_{power_profile_applied or 'balanced'}_thermal_headroom"
 
             if not dry_run:
                 self._save_throttle_state(

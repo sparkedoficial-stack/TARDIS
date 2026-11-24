@@ -5,6 +5,7 @@ Motores de física hiperdimensional, ecuaciones sintrópicas, cálculo causal y 
 ## Subsistemas y Componentes Principales:
 
 - **chronovision_engine.py**: Componente de alta eficiencia.
+- **core__tardis_hyper_physics_animator.py**: Núcleo de orquestación y control temporal/espacial.
 - **ecca_fft_engine.py**: Componente de alta eficiencia.
 - **geon_causal_engine.py**: Componente de alta eficiencia.
 - **physics_dissemination_config.json**: Motor de cálculo simbólico y simulación física.

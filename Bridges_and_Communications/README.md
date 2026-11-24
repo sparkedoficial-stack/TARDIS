@@ -8,6 +8,7 @@ Pasarelas de comunicación omnicanal (WhatsApp, Telegram, SMS, túneles seguros 
 - **antigravity_remote_controller.py**: Componente de alta eficiencia.
 - **chinese_cloud_api.py**: Componente de alta eficiencia.
 - **client_gateway.py**: Componente de alta eficiencia.
+- **core__telegram_bridge.py**: Núcleo de orquestación y control temporal/espacial.
 - **ftl_telegram_runner.py**: Motor de aceleración FTL y computación adaptativa.
 - **gemini_bridge.py**: Componente de alta eficiencia.
 - **share_client_link.py**: Componente de alta eficiencia.

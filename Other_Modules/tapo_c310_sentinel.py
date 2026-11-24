@@ -210,6 +210,73 @@ class BoundedTapoStreamer(Streamer):
         }
 
 
+class StaticSceneMotionGate:
+    """
+    Pre-filtro de movimiento ultra-ligero (<1 ms sobre miniatura 160x90 en escala de grises)
+    para evitar ejecutar inferencia FP32 YOLOv8s sobre fotogramas estáticos sin presencia.
+    Siempre permite paso inmediato ante: primer fotograma, presencia activa, cambio de escena
+    o vencimiento del latido obligatorio (`heartbeat_sec`).
+    """
+
+    def __init__(
+        self,
+        *,
+        enabled: bool = True,
+        mean_threshold: float = 2.2,
+        area_threshold: float = 0.008,
+        pixel_delta: int = 14,
+        heartbeat_sec: float = 4.0,
+    ) -> None:
+        self.enabled = bool(enabled)
+        self.mean_threshold = max(0.3, float(mean_threshold))
+        self.area_threshold = max(0.001, float(area_threshold))
+        self.pixel_delta = max(4, int(pixel_delta))
+        self.heartbeat_sec = max(1.0, float(heartbeat_sec))
+        self._prev_thumb: Optional[np.ndarray] = None
+        self._last_yolo_ts: float = 0.0
+
+    def should_run_yolo(
+        self,
+        bgr_frame: np.ndarray,
+        *,
+        now: Optional[float] = None,
+        presence_active: bool = False,
+    ) -> Tuple[bool, str, float]:
+        ts = time.monotonic() if now is None else float(now)
+        gray = cv2.cvtColor(bgr_frame, cv2.COLOR_BGR2GRAY)
+        thumb = cv2.resize(gray, (160, 90), interpolation=cv2.INTER_AREA)
+
+        if not self.enabled:
+            self._prev_thumb = thumb
+            self._last_yolo_ts = ts
+            return True, "disabled", 0.0
+
+        if presence_active:
+            self._prev_thumb = thumb
+            self._last_yolo_ts = ts
+            return True, "presence_active", 0.0
+
+        if self._prev_thumb is None:
+            self._prev_thumb = thumb
+            self._last_yolo_ts = ts
+            return True, "first_frame", 0.0
+
+        diff = cv2.absdiff(thumb, self._prev_thumb)
+        mean_diff = float(np.mean(diff))
+        changed_ratio = float(np.count_nonzero(diff >= self.pixel_delta)) / float(diff.size)
+        self._prev_thumb = thumb
+
+        if mean_diff >= self.mean_threshold or changed_ratio >= self.area_threshold:
+            self._last_yolo_ts = ts
+            return True, "motion", mean_diff
+
+        if (ts - self._last_yolo_ts) >= self.heartbeat_sec:
+            self._last_yolo_ts = ts
+            return True, "heartbeat", mean_diff
+
+        return False, "static_skip", mean_diff
+
+
 class YoloV8PersonDetector:
     """Motor de inferencia ONNX Runtime sobre YOLOv8s para detección de individuos (COCO class 0)."""
 
@@ -855,6 +922,14 @@ class TapoC310Sentinel:
             min_box_h=int(self.config.get("min_box_height_px", 36)),
             intra_threads=int(self.config.get("yolo_intra_threads", 2)),
         )
+        self.motion_gate = StaticSceneMotionGate(
+            enabled=bool(self.config.get("motion_gate_enabled", True)),
+            mean_threshold=float(self.config.get("motion_gate_mean_threshold", 2.2)),
+            area_threshold=float(self.config.get("motion_gate_area_threshold", 0.008)),
+            pixel_delta=int(self.config.get("motion_gate_pixel_delta", 14)),
+            heartbeat_sec=float(self.config.get("motion_gate_heartbeat_sec", 4.0)),
+        )
+        self.total_frames_motion_skipped: int = 0
 
         self.host: str = str(self.config.get("host", "REDACTED_IP")).strip()
         self.device_alias: str = str(self.config.get("device_alias", "GOD-EYE"))
@@ -1057,6 +1132,7 @@ class TapoC310Sentinel:
                 "stream_connected": self.stream_connected,
                 "total_frames_decoded": self.total_frames_decoded,
                 "total_frames_analyzed": self.total_frames_analyzed,
+                "total_frames_motion_skipped": self.total_frames_motion_skipped,
                 "total_alerts_sent": self.total_alerts_sent,
                 "total_voice_warnings_spoken": self.total_voice_warnings_spoken,
                 "total_new_visitors_detected": self.reid_tracker.total_new_visitors,
@@ -2032,6 +2108,7 @@ class TapoC310Sentinel:
             "metrics": {
                 "total_frames_decoded": self.total_frames_decoded,
                 "total_frames_analyzed": self.total_frames_analyzed,
+                "total_frames_motion_skipped": self.total_frames_motion_skipped,
                 "total_alerts_sent": self.total_alerts_sent,
                 "total_voice_warnings_spoken": self.total_voice_warnings_spoken,
                 "total_new_visitors_detected": self.reid_tracker.total_new_visitors,
@@ -2335,25 +2412,36 @@ class TapoC310Sentinel:
             raw_jpg = self._latest_jpeg
             last_analyzed_seq = self._frame_seq
 
-            # Decodificación + YOLOv8s en threadpool para no bloquear el lector asíncrono del socket :8800
-            def _decode_and_detect(jpg_data: bytes):
+            # Decodificación + pre-filtro de movimiento + YOLOv8s en threadpool para evitar
+            # quemar CPU/PSI en escenas nocturnas completamente estáticas sin presencia humana.
+            presence_active_now = bool(self._latest_detections or self.presence_latched or self.consecutive_positive > 0)
+
+            def _decode_and_detect(jpg_data: bytes, presence_active: bool):
                 arr = np.frombuffer(jpg_data, dtype=np.uint8)
                 bgr = cv2.imdecode(arr, cv2.IMREAD_COLOR)
                 if bgr is None:
-                    return None, [], 0.0
+                    return None, [], 0.0, True
+                run_yolo, _reason, _delta = self.motion_gate.should_run_yolo(
+                    bgr, presence_active=presence_active
+                )
+                if not run_yolo:
+                    return bgr, [], 0.0, True
                 dets, ms = self.detector.detect(bgr)
-                return bgr, dets, ms
+                return bgr, dets, ms, False
 
-            bgr_frame, detections, latency_ms = await loop.run_in_executor(
-                None, _decode_and_detect, raw_jpg
+            bgr_frame, detections, latency_ms, was_skipped = await loop.run_in_executor(
+                None, _decode_and_detect, raw_jpg, presence_active_now
             )
             if bgr_frame is None:
                 continue
 
-            self.total_frames_analyzed += 1
+            if was_skipped:
+                self.total_frames_motion_skipped += 1
+            else:
+                self.total_frames_analyzed += 1
+                self._latest_inference_ms = latency_ms
             self._latest_bgr_shape = bgr_frame.shape[:2]
             self._latest_detections = detections
-            self._latest_inference_ms = latency_ms
             now = time.time()
 
             # Persistir latest_frame.jpg y latest_hud_frame.jpg atómicamente cada ~2s para consultas instantáneas (/c310)
@@ -2583,7 +2671,7 @@ class TapoC310Sentinel:
                             decoder_threads=int(self.config.get("ffmpeg_decoder_threads", 2)),
                             encoder_threads=int(self.config.get("ffmpeg_encoder_threads", 2)),
                             filter_threads=int(self.config.get("ffmpeg_filter_threads", 1)),
-                            max_fps=float(self.config.get("ffmpeg_max_fps", 6.0)),
+                            max_fps=float(self.config.get("ffmpeg_max_fps", 4.0)),
                             mjpeg_qscale=int(self.config.get("ffmpeg_mjpeg_qscale", 5)),
                             ff_args={
                                 "-loglevel": "error",

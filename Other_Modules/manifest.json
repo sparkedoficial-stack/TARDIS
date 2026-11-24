@@ -1,16 +1,41 @@
 {
-  "run_id": "canary_20261123_222809_f09ee0",
-  "iso": "2026-11-23T22:28:09-05:00",
+  "run_id": "canary_20261124_001430_c412aa",
+  "iso": "2026-11-24T00:14:30-05:00",
   "files": [
     {
-      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/tardis_resource_governor.py",
-      "relative": "core/tardis_resource_governor.py",
-      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261123_222809_f09ee0/core__tardis_resource_governor.py"
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/telegram_bridge.py",
+      "relative": "core/telegram_bridge.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261124_001430_c412aa/core__telegram_bridge.py"
+    },
+    {
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/tardis_video_thinking_engine.py",
+      "relative": "core/tardis_video_thinking_engine.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261124_001430_c412aa/core__tardis_video_thinking_engine.py"
+    },
+    {
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/visual_intelligence_engine.py",
+      "relative": "core/visual_intelligence_engine.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261124_001430_c412aa/core__visual_intelligence_engine.py"
+    },
+    {
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/tardis_hyper_physics_animator.py",
+      "relative": "core/tardis_hyper_physics_animator.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261124_001430_c412aa/core__tardis_hyper_physics_animator.py"
     },
     {
       "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/tapo_c310_sentinel.py",
       "relative": "core/tapo_c310_sentinel.py",
-      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261123_222809_f09ee0/core__tapo_c310_sentinel.py"
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261124_001430_c412aa/core__tapo_c310_sentinel.py"
+    },
+    {
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/tardis_resource_governor.py",
+      "relative": "core/tardis_resource_governor.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261124_001430_c412aa/core__tardis_resource_governor.py"
+    },
+    {
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/tests/test_sovereign_alternate_systems.py",
+      "relative": "tests/test_sovereign_alternate_systems.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261124_001430_c412aa/tests__test_sovereign_alternate_systems.py"
     }
   ]
 }

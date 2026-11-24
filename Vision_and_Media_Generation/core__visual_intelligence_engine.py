@@ -657,10 +657,12 @@ class VisualIntelligenceEngine:
     # --------------------------------------------------------------------------
 
     def extract_audio_from_video(self, video_path: Path, output_wav_path: Path) -> bool:
-        """Extrae la pista de audio del video a formato WAV 16kHz mono."""
+        """Extrae la pista de audio del video a formato WAV 16kHz mono con hilos acotados."""
         try:
             cmd = [
-                "ffmpeg", "-y", "-i", str(video_path),
+                "ffmpeg", "-y",
+                "-threads", "2", "-filter_threads", "1",
+                "-i", str(video_path),
                 "-vn", "-acodec", "pcm_s16le", "-ar", "16000", "-ac", "1",
                 str(output_wav_path)
             ]

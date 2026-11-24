@@ -1,17 +1,17 @@
 {
-  "timestamp": REDACTED_PHONE.1708593,
-  "iso": "2026-11-24T00:13:33.172284",
+  "timestamp": REDACTED_PHONE.22556,
+  "iso": "2026-11-24T00:15:13.229294",
   "health_score": 100,
   "status": "HEALTHY",
-  "cycle": 106,
+  "cycle": 110,
   "metrics": {
-    "cpu_percent": 12.5,
-    "cpu_ema": 15.3,
+    "cpu_percent": 31.7,
+    "cpu_ema": 23.5,
     "high_cpu_streak": 0,
-    "ram_percent": 62.3,
+    "ram_percent": 64.7,
     "high_ram_streak": 0,
-    "governor_level": "ORANGE",
-    "cpu_psi_60": 5.81,
+    "governor_level": "RED",
+    "cpu_psi_60": 7.02,
     "recent_errors": 0,
     "recent_blocks": 0
   },
@@ -27,16 +27,16 @@
     "temporal_brain_online": true
   },
   "needs": [
-    "Presión Ring 0 ORANGE: Temperatura CPU elevada (83°C)"
+    "Presión Ring 0 RED: Llamada prioritaria de Telegram activa; Temperatura CPU cálida (81°C)"
   ],
   "instructions": [
     {
-      "id": "inst_resource_pressure_orange",
-      "severity": "MEDIUM",
+      "id": "inst_resource_pressure_red",
+      "severity": "HIGH",
       "component": "Resource Governor Ring 0",
       "target_file": "core/tardis_resource_governor.py",
-      "instruction": "Estabilizar presión ORANGE (Temperatura CPU elevada (83°C)) ejecutando reclamación de modelos duplicados y throttling.",
-      "rationale": "CPU PSI60=5.81%, RAM libre=11850.8 MB.",
+      "instruction": "Estabilizar presión RED (Llamada prioritaria de Telegram activa; Temperatura CPU cálida (81°C)) ejecutando reclamación de modelos duplicados y throttling.",
+      "rationale": "CPU PSI60=7.02%, RAM libre=11075.4 MB.",
       "actionable_cmd": "tardis-governor reclaim"
     }
   ],

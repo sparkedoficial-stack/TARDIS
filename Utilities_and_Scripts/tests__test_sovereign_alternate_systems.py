@@ -292,6 +292,216 @@ def test_resource_governor_cpulist_and_quota_helpers():
     assert trg._extract_cli_int_flag("llama-server -t 4 -tb=8", ("--threads", "-t")) == 4
 
 
+def test_resource_governor_orange_cpu_thermal_and_psi_mitigation_with_power_profile(tmp_path: Path, monkeypatch):
+    from unittest.mock import MagicMock
+    from core import tardis_resource_governor as trg
+
+    gov = trg.TardisResourceGovernor(
+        db_path=tmp_path / "gov_thermal_psi.db",
+        throttle_state_file=tmp_path / "throttle_thermal_psi.json",
+    )
+    monkeypatch.setattr(trg, "_systemd_control_enabled", lambda: True)
+    monkeypatch.setattr(trg, "_power_profile_control_enabled", lambda: True)
+
+    current_pp = {"profile": "performance"}
+    monkeypatch.setattr(trg, "_get_power_profile", lambda: current_pp["profile"])
+
+    def _fake_set_pp(prof: str) -> bool:
+        current_pp["profile"] = prof
+        return True
+
+    monkeypatch.setattr(trg, "_set_power_profile", _fake_set_pp)
+
+    live_props = {
+        "tardis-video-pensante.service": {
+            "ActiveState": "active",
+            "CPUWeight": "25",
+            "IOWeight": "100",
+            "CPUQuotaPerSecUSec": "infinity",
+        },
+        "tardis-tapo-c310-sentinel.service": {
+            "ActiveState": "active",
+            "CPUWeight": "25",
+            "IOWeight": "100",
+            "CPUQuotaPerSecUSec": "infinity",
+        },
+        "tardis-temporal-brain.service": {
+            "ActiveState": "active",
+            "CPUWeight": "40",
+            "IOWeight": "100",
+            "CPUQuotaPerSecUSec": "infinity",
+        },
+    }
+    monkeypatch.setattr(trg, "_query_systemd_unit_props", lambda u: live_props.get(u))
+
+    def _fake_apply(unit, *, cpu_weight=None, io_weight=None, cpu_quota=None):
+        if unit in live_props:
+            if cpu_weight is not None:
+                live_props[unit]["CPUWeight"] = str(cpu_weight)
+            if io_weight is not None:
+                live_props[unit]["IOWeight"] = str(io_weight)
+            if cpu_quota is not None:
+                live_props[unit]["CPUQuotaPerSecUSec"] = cpu_quota or "infinity"
+        return True
+
+    monkeypatch.setattr(trg, "_apply_systemd_unit_props", _fake_apply)
+
+    # Simular escenario exacto: ORANGE (CPU PSI60=32.39%, CPU=83°C, RAM=12681.5 MB) + modelo CPU-only en :11434
+    fake_resp = MagicMock()
+    fake_resp.__enter__.return_value = fake_resp
+    fake_resp.__exit__.return_value = False
+    fake_resp.read.return_value = b"{}"
+    monkeypatch.setattr(trg.urllib.request, "urlopen", lambda req, timeout=12.0: fake_resp)
+    monkeypatch.setattr(trg.time, "sleep", lambda _s: None)
+    monkeypatch.setattr(trg, "_query_ollama_ps", lambda port: [])
+
+    orange_cpu_snap = {
+        "ok": True,
+        "level": "ORANGE",
+        "call_priority_active": False,
+        "cpu": {"cores": 16, "load1": 11.81, "psi": {"some_avg60": 32.39}, "temp_c": 83.0, "power_profile": "performance"},
+        "gpu": {"available": True, "temp_c": 75.0},
+        "memory": {"available_mb": 12681.5, "swap_used_mb": 1767.0},
+        "inference_lanes": {
+            "duplicate_models": [],
+            "ollama_11434": [{"name": "llama3.2:3b", "size_mb": 2048.0, "size_vram_mb": 0.0}],
+        },
+        "oversubscribed_units": [],
+    }
+    monkeypatch.setattr(gov, "collect_snapshot", lambda persist=False: orange_cpu_snap)
+
+    # 1. Reclaim debe descargar modelo CPU-only en :11434, aplicar throttling cgroup + cambiar perfil a balanced
+    rec1 = gov.reclaim_resources(dry_run=False, prune_backups=False)
+    assert rec1["ok"] is True
+    assert len(rec1["models_evicted"]) == 1
+    assert rec1["models_evicted"][0]["action"] == "unloaded"
+    assert rec1["models_evicted"][0]["reason"] == "cpu_psi_or_thermal_pressure_eviction"
+    assert rec1["throttling"]["action"] == "throttled"
+    assert rec1["throttling"]["power_profile_action"] == "switched_to_balanced"
+    assert rec1["cpu_temp_before_c"] == 83.0
+    assert current_pp["profile"] == "balanced"
+    assert "tardis-temporal-brain.service" in gov.get_throttle_status()["units"]
+
+    # 2. Drift vivo: si tardis-tapo-c310-sentinel se reinicia y pierde su CPUQuota, apply_throttling debe re-aplicar
+    live_props["tardis-tapo-c310-sentinel.service"]["CPUQuotaPerSecUSec"] = "infinity"
+    th_drift = gov.apply_throttling(orange_cpu_snap, dry_run=False)
+    sentinel_entry = next(u for u in th_drift["applied_units"] if u["unit"] == "tardis-tapo-c310-sentinel.service")
+    assert sentinel_entry["action"] == "throttled"
+    assert live_props["tardis-tapo-c310-sentinel.service"]["CPUQuotaPerSecUSec"] == "150%"
+
+    # 3. De-escalación parcial: ORANGE solo por RAM baja (térmica y PSI ya normales) libera TemporalBrain del plan
+    orange_ram_only_snap = {
+        "ok": True,
+        "level": "ORANGE",
+        "call_priority_active": False,
+        "cpu": {"cores": 16, "load1": 3.0, "psi": {"some_avg60": 12.0}, "temp_c": 68.0, "power_profile": "balanced"},
+        "gpu": {"available": True, "temp_c": 60.0},
+        "memory": {"available_mb": 2900.0, "swap_used_mb": 1767.0},
+        "inference_lanes": {"duplicate_models": [], "ollama_11434": []},
+        "oversubscribed_units": [],
+    }
+    th_deesc = gov.apply_throttling(orange_ram_only_snap, dry_run=False)
+    tb_entry = next(u for u in th_deesc["applied_units"] if u["unit"] == "tardis-temporal-brain.service")
+    assert tb_entry["action"] == "released_from_plan"
+    assert live_props["tardis-temporal-brain.service"]["CPUWeight"] == "40"
+    assert live_props["tardis-temporal-brain.service"]["CPUQuotaPerSecUSec"] == "infinity"
+    assert "tardis-temporal-brain.service" not in gov.get_throttle_status()["units"]
+
+    # 4. Recuperación Schmitt-trigger en YELLOW seguro (77.5°C, PSI60=8.5%): libera cgroups pero conserva balanced
+    safe_yellow_snap = {
+        "ok": True,
+        "level": "YELLOW",
+        "call_priority_active": False,
+        "cpu": {"cores": 16, "load1": 3.4, "psi": {"some_avg60": 8.5}, "temp_c": 77.5, "power_profile": "balanced"},
+        "gpu": {"available": True, "temp_c": 70.0},
+        "memory": {"available_mb": 13100.0, "swap_used_mb": 1767.0},
+        "inference_lanes": {"duplicate_models": [], "ollama_11434": []},
+        "oversubscribed_units": [],
+    }
+    monkeypatch.setattr(gov, "collect_snapshot", lambda persist=False: safe_yellow_snap)
+    rec_yellow = gov.reclaim_resources(dry_run=False, prune_backups=False)
+    assert rec_yellow["throttling"]["action"] == "restored"
+    assert rec_yellow["throttling"]["power_profile_action"] == "kept_balanced_thermal_headroom"
+    assert gov.get_throttle_status()["active"] is False
+    assert gov.get_throttle_status()["power_profile_mitigated"] is True
+    assert current_pp["profile"] == "balanced"
+
+    # 5. Enfriamiento completo (GREEN 68°C / GPU 62°C): restaura perfil energético 'performance'
+    cool_green_snap = {
+        "ok": True,
+        "level": "GREEN",
+        "call_priority_active": False,
+        "cpu": {"cores": 16, "load1": 2.1, "psi": {"some_avg60": 4.0}, "temp_c": 68.0, "power_profile": "balanced"},
+        "gpu": {"available": True, "temp_c": 62.0},
+        "memory": {"available_mb": 13500.0, "swap_used_mb": 1767.0},
+        "inference_lanes": {"duplicate_models": [], "ollama_11434": []},
+        "oversubscribed_units": [],
+    }
+    monkeypatch.setattr(gov, "collect_snapshot", lambda persist=False: cool_green_snap)
+    rec_cool = gov.reclaim_resources(dry_run=False, prune_backups=False)
+    assert rec_cool["throttling"]["power_profile_action"] == "restored_performance"
+    assert current_pp["profile"] == "performance"
+    assert gov.get_throttle_status()["power_profile_mitigated"] is False
+
+
+def test_resource_governor_combined_yellow_trigger_and_transient_spike_filter(tmp_path: Path):
+    import sqlite3
+    from core import tardis_resource_governor as trg
+
+    # Trigger proactivo YELLOW con CPU caliente + PSI moderado-alto
+    yellow_stress = {
+        "level": "YELLOW",
+        "call_priority_active": False,
+        "cpu": {"cores": 16, "load1": 8.0, "psi": {"some_avg60": 32.4}, "temp_c": 78.5},
+        "gpu": {"available": True, "temp_c": 70.0},
+        "memory": {"available_mb": 12681.5, "swap_used_mb": 1767.0},
+    }
+    assert trg._resolve_throttle_target_level(yellow_stress) == "ORANGE"
+    assert trg._is_in_safe_recovery_band(yellow_stress) is False
+
+    # YELLOW tranquilo (Tctl ~77.5°C, PSI60=9.5%): no dispara throttling y SÍ habilita banda de recuperación
+    yellow_calm = {
+        "level": "YELLOW",
+        "call_priority_active": False,
+        "cpu": {"cores": 16, "load1": 3.5, "psi": {"some_avg60": 9.5}, "temp_c": 77.5},
+        "gpu": {"available": True, "temp_c": 70.0},
+        "memory": {"available_mb": 13100.0, "swap_used_mb": 1767.0},
+    }
+    assert trg._resolve_throttle_target_level(yellow_calm) is None
+    assert trg._is_in_safe_recovery_band(yellow_calm) is True
+
+    # Filtro de micro-picos Ryzen Tctl (83°C con PSI 5.1% vs 83°C con PSI 32.4%)
+    spike_only = {
+        "level": "ORANGE",
+        "call_priority_active": False,
+        "cpu": {"cores": 16, "load1": 3.35, "psi": {"some_avg60": 5.13}, "temp_c": 83.0},
+        "gpu": {"available": True, "temp_c": 69.0},
+        "memory": {"available_mb": 13096.5, "swap_used_mb": 1767.0},
+    }
+    real_orange = {
+        "level": "ORANGE",
+        "call_priority_active": False,
+        "cpu": {"cores": 16, "load1": 11.81, "psi": {"some_avg60": 32.39}, "temp_c": 83.0},
+        "gpu": {"available": True, "temp_c": 75.0},
+        "memory": {"available_mb": 12681.5, "swap_used_mb": 1767.0},
+    }
+    assert trg._is_pure_transient_cpu_thermal_spike(spike_only) is True
+    assert trg._is_pure_transient_cpu_thermal_spike(real_orange) is False
+
+    # Verificar migración de esquema SQLite para columna cpu_temp_c
+    legacy_db = tmp_path / "legacy_gov.db"
+    with sqlite3.connect(str(legacy_db)) as conn:
+        conn.execute(
+            "CREATE TABLE snapshots (id INTEGER PRIMARY KEY AUTOINCREMENT, ts REAL, iso TEXT, level TEXT, cpu_psi_60 REAL, mem_avail_mb REAL, swap_used_mb REAL, load1 REAL, gpu_temp_c REAL, vram_used_mb REAL, duplicate_models_count INTEGER, reasons_json TEXT)"
+        )
+    gov = trg.TardisResourceGovernor(db_path=legacy_db, throttle_state_file=tmp_path / "th.json")
+    snap = gov.collect_snapshot(persist=False)
+    gov._persist_db(snap)
+    hist = gov.history(limit=5)
+    assert len(hist) == 1
+    assert "cpu_temp_c" in hist[0]
+
+
 def test_canary_verifier_static_snapshot_and_rollback(tmp_path: Path):
     from core.tardis_canary_verifier import CANARY_BACKUP_ROOT, TardisCanaryVerifier
 
@@ -610,3 +820,130 @@ def test_coevolution_hub_health_mass_outage_guard_and_auto_reconcile(tmp_path: P
     assert not any(p["category"] == "reliability" for p in eng.list_proposals(status="pending", limit=20))
     updated = eng.get_proposal(rel_pend[0]["proposal_id"])
     assert updated is not None and updated["status"] == "reviewed"
+
+
+def test_telegram_fps_transcode_skips_upsampling_caps_threads_and_caches(monkeypatch):
+    import subprocess as sp
+    from core import telegram_bridge as tb_mod
+
+    bridge = object.__new__(tb_mod.TelegramBridge)
+    bridge._fps_transcode_cache = {}
+    calls = []
+    fake_mp4 = b"\x00\x00\x00\x18ftypmp42" + (b"0" * 2048)
+
+    def _fake_run_30fps(cmd, **kwargs):
+        calls.append(list(cmd))
+        res = sp.CompletedProcess(cmd, 0, stdout="r_frame_rate=30/1\navg_frame_rate=30/1\npix_fmt=yuv420p\n", stderr="")
+        return res
+
+    monkeypatch.setattr(tb_mod.subprocess, "run", _fake_run_30fps)
+    out30 = bridge.transcode_to_telegram_fps(fake_mp4, target_fps=60)
+    assert out30 == fake_mp4
+    # Solo debe llamar a ffprobe; NUNCA debe invocar ffmpeg para upsamplear 30 FPS -> 60 FPS
+    assert len(calls) == 1 and calls[0][0] == "ffprobe"
+
+    # Ahora probar downsampling legítimo 120 FPS -> 60 FPS: debe acotar hilos (<=4, sin -threads 16) y cachear
+    calls.clear()
+    fake_120_mp4 = b"\x00\x00\x00\x18ftypmp42" + (b"1" * 2048)
+
+    def _fake_run_120fps(cmd, **kwargs):
+        calls.append(list(cmd))
+        if cmd[0] == "ffprobe":
+            return sp.CompletedProcess(cmd, 0, stdout="r_frame_rate=120/1\npix_fmt=yuv420p\n", stderr="")
+        out_file = Path(cmd[-1])
+        out_file.write_bytes(b"\x00\x00\x00\x18ftypmp42CONVERTED")
+        return sp.CompletedProcess(cmd, 0, stdout=b"", stderr=b"")
+
+    monkeypatch.setattr(tb_mod.subprocess, "run", _fake_run_120fps)
+    out1 = bridge.transcode_to_telegram_fps(fake_120_mp4, target_fps=60)
+    assert out1 == b"\x00\x00\x00\x18ftypmp42CONVERTED"
+    ff_calls = [c for c in calls if c[0] == "ffmpeg"]
+    assert len(ff_calls) == 1
+    assert "-filter_threads" in ff_calls[0] and "-filter_complex_threads" in ff_calls[0]
+    assert "-threads" in ff_calls[0]
+    for idx, tok in enumerate(ff_calls[0]):
+        if tok == "-threads":
+            assert int(ff_calls[0][idx + 1]) <= 4
+
+    # 2ª llamada con los mismos bytes (ej. 2º chat de Telegram) debe servirse desde caché sin ejecutar ffprobe/ffmpeg
+    calls.clear()
+    out2 = bridge.transcode_to_telegram_fps(fake_120_mp4, target_fps=60)
+    assert out2 == out1
+    assert calls == []
+
+
+def test_tapo_static_scene_motion_gate_skips_static_and_triggers_on_motion_or_heartbeat():
+    import numpy as np
+    from core.tapo_c310_sentinel import StaticSceneMotionGate
+
+    gate = StaticSceneMotionGate(enabled=True, mean_threshold=2.2, area_threshold=0.008, pixel_delta=14, heartbeat_sec=4.0)
+    static_frame = np.full((360, 640, 3), 40, dtype=np.uint8)
+
+    run0, r0, _ = gate.should_run_yolo(static_frame, now=100.0, presence_active=False)
+    assert run0 is True and r0 == "first_frame"
+
+    # Fotograma idéntico 0.5s después -> omitir YOLOv8s redundante
+    run1, r1, _ = gate.should_run_yolo(static_frame, now=100.5, presence_active=False)
+    assert run1 is False and r1 == "static_skip"
+
+    # Fotograma con movimiento localizado (silueta humana entrando) -> disparo inmediato
+    moving = static_frame.copy()
+    moving[100:260, 260:340] = 190
+    run2, r2, _ = gate.should_run_yolo(moving, now=101.0, presence_active=False)
+    assert run2 is True and r2 == "motion"
+
+    # Presencia activa siempre ejecuta YOLOv8s incluso sin movimiento
+    run3, r3, _ = gate.should_run_yolo(moving, now=101.5, presence_active=True)
+    assert run3 is True and r3 == "presence_active"
+
+    # Sin movimiento por >= heartbeat_sec -> ejecuta verificación obligatoria
+    run4, r4, _ = gate.should_run_yolo(moving, now=106.0, presence_active=False)
+    assert run4 is True and r4 == "heartbeat"
+
+
+def test_resource_governor_two_stage_thermal_power_saver_escalation_and_recovery(tmp_path: Path, monkeypatch):
+    from core import tardis_resource_governor as trg
+
+    gov = trg.TardisResourceGovernor(
+        db_path=tmp_path / "gov_pp2.db",
+        throttle_state_file=tmp_path / "throttle_pp2.json",
+    )
+    monkeypatch.setattr(trg, "_systemd_control_enabled", lambda: True)
+    monkeypatch.setattr(trg, "_power_profile_control_enabled", lambda: True)
+    monkeypatch.setattr(trg, "_query_systemd_unit_props", lambda u: None)
+
+    pp_state = {"profile": "balanced"}
+    monkeypatch.setattr(trg, "_get_power_profile", lambda: pp_state["profile"])
+
+    def _fake_set_pp(prof: str) -> bool:
+        pp_state["profile"] = prof
+        return True
+
+    monkeypatch.setattr(trg, "_set_power_profile", _fake_set_pp)
+
+    hot_snap = {
+        "ok": True,
+        "level": "ORANGE",
+        "call_priority_active": False,
+        "cpu": {"cores": 16, "load1": 4.3, "psi": {"some_avg60": 38.2}, "temp_c": 85.5},
+        "gpu": {"available": True, "temp_c": 76.0},
+        "memory": {"available_mb": 12000.0, "swap_used_mb": 1900.0},
+    }
+    res_hot = gov.apply_throttling(hot_snap, dry_run=False)
+    assert res_hot["ok"] is True
+    assert res_hot["power_profile_action"] == "switched_to_power-saver"
+    assert pp_state["profile"] == "power-saver"
+
+    # Al enfriarse por debajo de 82°C CPU y 76°C GPU en banda YELLOW, retrocede de power-saver -> balanced
+    warm_snap = {
+        "ok": True,
+        "level": "YELLOW",
+        "call_priority_active": False,
+        "cpu": {"cores": 16, "load1": 2.5, "psi": {"some_avg60": 10.0}, "temp_c": 77.0},
+        "gpu": {"available": True, "temp_c": 71.0},
+        "memory": {"available_mb": 12500.0, "swap_used_mb": 1900.0},
+    }
+    rel = gov.release_throttling(dry_run=False, snap=warm_snap)
+    assert rel["ok"] is True
+    assert rel["power_profile_action"] == "stepped_back_to_balanced"
+    assert pp_state["profile"] == "balanced"
