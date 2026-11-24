@@ -31,6 +31,7 @@ Toolchains soberanos (Xcode para Linux, Phone Harness, REA), registro omni-herra
 - **skills/reverse-engineer-anything/references/native-and-artifacts.md**: Especificación agéntica de capacidades soberanas para agentes autónomos.
 - **skills/reverse-engineer-anything/references/runtime-observation.md**: Especificación agéntica de capacidades soberanas para agentes autónomos.
 - **skills/tardis-agy-control/SKILL.md**: Especificación agéntica de capacidades soberanas para agentes autónomos.
+- **skills/tardis-coevolution/SKILL.md**: Especificación agéntica de capacidades soberanas para agentes autónomos.
 - **skills/tardis4ever/SKILL.md**: Agente soberano de sincronización continua 24h y publicación inmediata de hitos.
 - **skills/xcode-for-linux/SKILL.md**: Toolchain soberano de compilación, análisis Mach-O y despliegue iOS para Linux.
 - **tardis4ever_agent.py**: Agente soberano de sincronización continua 24h y publicación inmediata de hitos.

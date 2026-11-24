@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "created_at": "2026-10-15T02:04:29.176374",
   "last_periodic_sync": "2026-11-23T07:58:22.076451",
-  "last_immediate_sync": "2026-11-23T19:51:45.158539",
-  "last_commit_hash": "d527a17a",
-  "sync_count": 1501,
-  "immediate_sync_count": 1497,
+  "last_immediate_sync": "2026-11-23T19:53:12.607071",
+  "last_commit_hash": "cf601ac8",
+  "sync_count": 1502,
+  "immediate_sync_count": 1498,
   "periodic_sync_count": 4,
   "last_known_mtimes": {
     "skill:godworks-system-suite/SKILL.md": REDACTED_PHONE.5482113,
@@ -29,6 +29,7 @@
     "skill:tardis4ever/SKILL.md": REDACTED_PHONE.05,
     "skill:xcode-for-linux/SKILL.md": REDACTED_PHONE.47,
     "skill:tardis-agy-control/SKILL.md": REDACTED_PHONE.8166964,
+    "skill:tardis-coevolution/SKILL.md": REDACTED_PHONE.3014128,
     "xcode:codesign": REDACTED_PHONE.0727055,
     "xcode:lipo": REDACTED_PHONE.0727503,
     "xcode:otool": REDACTED_PHONE.0727503,
@@ -70,6 +71,8 @@
     "ftl:ftl_agy_terminal.py": REDACTED_PHONE.8981767,
     "ftl:ftl_terminal_continuator.py": REDACTED_PHONE.9329808,
     "ftl:ftl_zero_error_shield.py": REDACTED_PHONE.5277624,
+    "ftl:ftl_resource_governor.py": REDACTED_PHONE.7264915,
+    "ftl:ftl_coevolution.py": REDACTED_PHONE.2014828,
     "core:__init__.py": REDACTED_PHONE.79,
     "core:agent_harness.py": REDACTED_PHONE.272061,
     "core:ai_improvement_sandbox.py": REDACTED_PHONE.8,
@@ -208,7 +211,10 @@
     "core:tardis_event_bus.py": REDACTED_PHONE.1486945,
     "core:tardis_resource_governor.py": REDACTED_PHONE.4086869,
     "core:tardis_canary_verifier.py": REDACTED_PHONE.6796792,
-    "core:tardis_agy_coevolution.py": REDACTED_PHONE.5776691,
+    "core:tardis_agy_coevolution.py": REDACTED_PHONE.4463458,
+    "core:sovereign_resource_governor.py": REDACTED_PHONE.982365,
+    "core:sovereign_event_bus.py": REDACTED_PHONE.5483594,
+    "core:canary_verifier.py": REDACTED_PHONE.2633536,
     "directive:AGENTS.md": REDACTED_PHONE.8623235,
     "directive:GEMINI.md": REDACTED_PHONE.8793235,
     "registry:dynamic_tools": REDACTED_PHONE.1339633,
@@ -320,6 +326,18 @@
     "sat:gia_ios:GIA/Views/Theme.swift": REDACTED_PHONE.0
   },
   "history": [
+    {
+      "timestamp": "2026-11-23T19:53:12.607071",
+      "trigger": "immediate_milestone",
+      "commit_hash": "cf601ac8",
+      "score": 95,
+      "reasons": [
+        "Actualizaci\u00f3n cr\u00edtica en m\u00f3dulo FTL: ftl_omni_registry.py",
+        "Evoluci\u00f3n en subsistema core TARDIS: tardis_feedback_bridge.py",
+        "Evoluci\u00f3n en subsistema core TARDIS: tardis_omni_tool_bridge.py",
+        "Evoluci\u00f3n en subsistema core TARDIS: tardis_agy_controller.py"
+      ]
+    },
     {
       "timestamp": "2026-11-23T19:51:45.158539",
       "trigger": "immediate_milestone",
@@ -847,16 +865,6 @@
         "Evoluci\u00f3n en subsistema core TARDIS: telegram_live_call_server.py",
         "Evoluci\u00f3n en subsistema core TARDIS: tapo_c310_voice_channel.py",
         "Nuevo subsistema core TARDIS: tardis_voice_program.py"
-      ]
-    },
-    {
-      "timestamp": "2026-11-17T16:05:12.983386",
-      "trigger": "immediate_milestone",
-      "commit_hash": "8e9daa84",
-      "score": 50,
-      "reasons": [
-        "Evoluci\u00f3n en subsistema core TARDIS: tapo_c310_sentinel.py",
-        "Evoluci\u00f3n en subsistema core TARDIS: tapo_c310_voice_channel.py"
       ]
     }
   ]

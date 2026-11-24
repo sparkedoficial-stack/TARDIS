@@ -67,6 +67,7 @@ Módulos y componentes auxiliares del sistema.
 - **blender_generator.py**: Componente de alta eficiencia.
 - **bridge_status.json**: Componente de alta eficiencia.
 - **calls_history.json**: Componente de alta eficiencia.
+- **canary_verifier.py**: Componente de alta eficiencia.
 - **capsules.json**: Componente de alta eficiencia.
 - **capture.md**: Componente de alta eficiencia.
 - **captures_index.json**: Componente de alta eficiencia.
@@ -1001,12 +1002,14 @@ Módulos y componentes auxiliares del sistema.
 - **ftl_backlog.json**: Motor de aceleración FTL y computación adaptativa.
 - **ftl_backlog.py**: Motor de aceleración FTL y computación adaptativa.
 - **ftl_cas_kaiju.py**: Motor de aceleración FTL y computación adaptativa.
+- **ftl_coevolution.py**: Motor de aceleración FTL y computación adaptativa.
 - **ftl_intv_appletv_hub.py**: Motor de aceleración FTL y computación adaptativa.
 - **ftl_linpad.py**: Motor de aceleración FTL y computación adaptativa.
 - **ftl_music_maestro.py**: Motor de aceleración FTL y computación adaptativa.
 - **ftl_nxnative.py**: Motor de aceleración FTL y computación adaptativa.
 - **ftl_omniscient_autonomy.py**: Directorio y puente soberano de interoperabilidad omni-herramientas.
 - **ftl_public_gateway.py**: Motor de aceleración FTL y computación adaptativa.
+- **ftl_resource_governor.py**: Motor de aceleración FTL y computación adaptativa.
 - **ftl_terminal_continuator.py**: Motor de aceleración FTL y computación adaptativa.
 - **ftl_update_guard.py**: Motor de aceleración FTL y computación adaptativa.
 - **gemini_privacy_vault.py**: Centinela de seguridad, blindaje perimetral o bóveda segura.
@@ -1151,11 +1154,13 @@ Módulos y componentes auxiliares del sistema.
 - **requirements-linux.txt**: Componente de alta eficiencia.
 - **requirements.txt**: Componente de alta eficiencia.
 - **research_cache.json**: Componente de alta eficiencia.
+- **resource_governor_latest.json**: Componente de alta eficiencia.
 - **resource_plan.py**: Componente de alta eficiencia.
 - **run.py**: Componente de alta eficiencia.
 - **runtime-observation.md**: Componente de alta eficiencia.
 - **runtime_env.py**: Componente de alta eficiencia.
 - **safety_guardrails.json**: Componente de alta eficiencia.
+- **sample_mod.py**: Componente de alta eficiencia.
 - **savage_proposals.json**: Componente de alta eficiencia.
 - **savage_seen.json**: Componente de alta eficiencia.
 - **savage_state.json**: Componente de alta eficiencia.
@@ -1174,6 +1179,8 @@ Módulos y componentes auxiliares del sistema.
 - **sms_history.json**: Componente de alta eficiencia.
 - **social_config.json**: Componente de alta eficiencia.
 - **sovereign_client.py**: Componente de alta eficiencia.
+- **sovereign_event_bus.py**: Componente de alta eficiencia.
+- **sovereign_resource_governor.py**: Componente de alta eficiencia.
 - **speech_pipeline.json**: Componente de alta eficiencia.
 - **state.json**: Componente de alta eficiencia.
 - **subsystem_agents.py**: Modelo lógico y comportamiento autónomo distribuido.
