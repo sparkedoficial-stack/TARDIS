@@ -1,48 +1,6 @@
 [
   {
     "target_file": "/home/m11/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
-    "goal": "Implement an asynchronous request pipeline with exponential back‑off and a causal‑context cache layer that queries deep_memory_vault for related causal embeddings before issuing external searches, then re‑rank results using a lightweight causal similarity scorer.",
-    "status": "REJECTED",
-    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
-    "elapsed_seconds": 2382.91,
-    "backup_path": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/web_research_engine.py.20261116_112009.bak",
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Respuesta generada demasiado corta (2711 vs 35266 bytes)",
-    "timestamp": "2026-11-16T11:59:52.670950"
-  },
-  {
-    "target_file": "/home/m11/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
-    "goal": "Add a new module `causal_prefetcher.py` that builds a simple Bayesian network from recent query metadata (topic tags, timestamps, source response times) and exposes a `predict_next_resources()` function. Modify `web_research_engine.py` to call this predictor after each completed search and asynchronously pre‑fetch the top‑N predicted URLs, storing them in an in‑memory LRU cache shared with the Deep Memory Vault.",
-    "status": "REJECTED",
-    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
-    "elapsed_seconds": 3260.19,
-    "backup_path": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/web_research_engine.py.20261116_122959.bak",
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Respuesta generada demasiado corta (2754 vs 35266 bytes)",
-    "timestamp": "2026-11-16T13:24:19.896831"
-  },
-  {
-    "target_file": "/home/m11/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
-    "goal": "Implementar una caché LRU con expiración dinámica basada en la frecuencia y similitud de consultas, añadiendo prefetching de URLs relacionadas y un mecanismo de invalidación que consulte al módulo network_shield para respetar políticas de rate‑limit y privacidad.",
-    "status": "REJECTED",
-    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
-    "elapsed_seconds": 2152.2,
-    "backup_path": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/web_research_engine.py.20261116_135427.bak",
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Respuesta generada demasiado corta (2683 vs 35266 bytes)",
-    "timestamp": "2026-11-16T14:30:19.684281"
-  },
-  {
-    "target_file": "/home/m11/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
     "goal": "Add a causal decay module that computes per‑query TTL using a Bayesian update of source reliability and time‑since‑last‑fetch, then integrate it into the cache‑lookup logic to invalidate or refresh entries automatically.",
     "status": "REJECTED",
     "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
@@ -1398,5 +1356,47 @@
     "efficiency_improvement": null,
     "error": "Respuesta generada demasiado corta (11557 vs 34371 bytes)",
     "timestamp": "2026-11-24T03:39:46.611218"
+  },
+  {
+    "target_file": "/home/m11/Escritorio/GODWORKS SYSTEM/core/deep_memory_vault.py",
+    "goal": "Add a configurable decay factor to the embedding attention layer and expose it via the vault API",
+    "status": "REJECTED",
+    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
+    "elapsed_seconds": 1045.07,
+    "backup_path": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/core__deep_memory_vault.py.20261124_040951.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "Respuesta generada demasiado corta (10830 vs 34371 bytes)",
+    "timestamp": "2026-11-24T04:27:16.621263"
+  },
+  {
+    "target_file": "/home/m11/Escritorio/GODWORKS SYSTEM/core/chronovision_engine.py",
+    "goal": "Add a causal‑graph module that updates edge weights from deep_memory_vault events and exposes a predict_anomaly() async API",
+    "status": "REJECTED",
+    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
+    "elapsed_seconds": 982.7,
+    "backup_path": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/core__chronovision_engine.py.20261124_045721.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "Respuesta generada demasiado corta (8186 vs 127835 bytes)",
+    "timestamp": "2026-11-24T05:13:44.655396"
+  },
+  {
+    "target_file": "/home/m11/Escritorio/GODWORKS SYSTEM/core/chronovision_engine.py",
+    "goal": "Add a configurable temporal attention module that weights recent memory vectors higher and decays older ones, updating the forward pass to incorporate this weighting",
+    "status": "REJECTED",
+    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
+    "elapsed_seconds": 1284.55,
+    "backup_path": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/core__chronovision_engine.py.20261124_063829.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "Respuesta generada demasiado corta (9685 vs 127835 bytes)",
+    "timestamp": "2026-11-24T06:59:54.504543"
   }
 ]

@@ -695,6 +695,13 @@ def test_antigravity_bridge_cpu_spike_hysteresis_and_diagnostics(monkeypatch):
     )
     monkeypatch.setattr(antigravity_bridge, "_atomic_write_json", lambda *a, **kw: None)
     monkeypatch.setattr(antigravity_bridge, "_safe_tail", lambda *a, **kw: [])
+    import psutil
+    from types import SimpleNamespace
+    monkeypatch.setattr(
+        psutil,
+        "virtual_memory",
+        lambda: SimpleNamespace(percent=50.0, available=16 * 1024**3, total=32 * 1024**3),
+    )
 
     # Ciclo 1: pico transitorio único de 91% CPU con EMA baja previa -> NO debe penalizar a 85
     bridge._cpu_ema = 25.0
@@ -1089,3 +1096,251 @@ def test_resource_governor_proactive_psi_load_admission_and_power_saver_step_dow
     st_power_saver = {"active": True, "level": "ORANGE", "power_profile_applied": "power-saver"}
     assert trg._needs_power_profile_step_down(hot_orange_snap, "ORANGE", st_balanced) is True
     assert trg._needs_power_profile_step_down(hot_orange_snap, "ORANGE", st_power_saver) is False
+
+
+def test_semantic_cache_l1_l2_anti_anisotropy_volatility_and_prompt_router(tmp_path: Path, monkeypatch):
+    import numpy as np
+    from core import tardis_semantic_cache as tsc
+
+    cache = tsc.TardisSemanticCache(
+        db_path=tmp_path / "sem_cache.db",
+        embed_socket="/nonexistent/embed.sock",
+        similarity_threshold=0.94,
+    )
+    monkeypatch.setattr(tsc, "_read_governor_state_fast", lambda: {"ok": True, "level": "GREEN", "call_priority_active": False})
+
+    # Simular embeddings de cono estrecho (anisotropía tipo multilingual-e5-small) donde incluso textos distintos tienen cos ~0.96
+    base_v = np.zeros(384, dtype=np.float32)
+    base_v[0] = 0.985
+    base_v[1] = 0.172
+    para_v = np.zeros(384, dtype=np.float32)
+    para_v[0] = 0.990
+    para_v[1] = 0.141
+    unrel_v = np.zeros(384, dtype=np.float32)
+    unrel_v[0] = 0.975
+    unrel_v[1] = 0.222  # cos(base_v, unrel_v) > 0.99 pero sin solapamiento léxico!
+
+    def _fake_embed(text: str, *, conn=None):
+        low = text.lower()
+        if "gobernador" in low and "manera" in low:
+            return para_v / np.linalg.norm(para_v)
+        if "gobernador" in low:
+            return base_v / np.linalg.norm(base_v)
+        return unrel_v / np.linalg.norm(unrel_v)
+
+    monkeypatch.setattr(cache, "embed_query", _fake_embed)
+
+    st = cache.store(
+        "Explica cómo mitiga el gobernador de recursos la presión CPU PSI en puerto 8757",
+        "El gobernador aplica cuotas cgroup v2 y perfil energético adaptativo.",
+        model="TARDIS-NEURAL-SPACE-KAIJU",
+        namespace="background",
+        elapsed_ms=2200.0,
+        usage={"prompt_tokens": 40, "completion_tokens": 60},
+    )
+    assert st["ok"] and st["stored"] is True and st["semantic_indexed"] is True
+
+    # 1) L1 Exact Hit (<1ms, 0 llamadas extra)
+    h1 = cache.lookup(
+        "  Explica cómo mitiga el gobernador de recursos la presión CPU PSI en puerto 8757 ",
+        model="TARDIS-NEURAL-SPACE-KAIJU",
+        namespace="background",
+    )
+    assert h1["hit"] is True and h1["match_type"] == "exact" and h1["tokens_saved"] == 100
+
+    # 2) L2 Semantic Hit (paráfrasis real con mismo puerto 8757)
+    h2 = cache.lookup(
+        "Explica de qué manera el gobernador de recursos mitiga la presión CPU PSI en puerto 8757",
+        model="TARDIS-NEURAL-SPACE-KAIJU",
+        namespace="background",
+    )
+    assert h2["hit"] is True and h2["match_type"] == "semantic" and h2["similarity"] >= 0.94
+
+    # 3) Guarda de discriminador numérico: puerto distinto (11435 vs 8757) JAMÁS debe colisionar
+    h_port = cache.lookup(
+        "Explica de qué manera el gobernador de recursos mitiga la presión CPU PSI en puerto 11435",
+        model="TARDIS-NEURAL-SPACE-KAIJU",
+        namespace="background",
+    )
+    assert h_port["hit"] is False
+
+    # 4) Guarda anti-anisotropía: prompt totalmente distinto con cos > 0.99 JAMÁS debe producir falso positivo
+    h_unrel = cache.lookup(
+        "Receta tradicional para hornear pan de centeno con masa madre",
+        model="TARDIS-NEURAL-SPACE-KAIJU",
+        namespace="background",
+    )
+    assert h_unrel["hit"] is False
+
+    # 5) Guarda de volatilidad y temperatura alta
+    h_vol = cache.lookup("¿Qué hora es ahora mismo en el sistema?", namespace="background")
+    assert h_vol["hit"] is False and h_vol["reason"] == "volatile_prompt_bypass"
+    h_temp = cache.lookup(
+        "Explica cómo mitiga el gobernador de recursos la presión CPU PSI en puerto 8757",
+        namespace="background",
+        temperature=0.95,
+    )
+    assert h_temp["hit"] is False and h_temp["reason"] == "high_temperature_bypass"
+
+    # 6) Prompt Router: acierto en caché -> semantic_cache; llamada Telegram activa -> defer; RED -> defer
+    rt_hit = cache.route_prompt(
+        "Explica cómo mitiga el gobernador de recursos la presión CPU PSI en puerto 8757",
+        model="TARDIS-NEURAL-SPACE-KAIJU",
+        namespace="background",
+        task_class="background",
+    )
+    assert rt_hit["lane"] == "semantic_cache" and rt_hit["cache_hit"] is True
+
+    rt_call = cache.route_prompt(
+        "Consulta nueva no cacheada sobre arquitectura",
+        namespace="background",
+        task_class="background",
+        check_cache=False,
+        governor_snapshot={"level": "RED", "call_priority_active": True},
+    )
+    assert rt_call["lane"] == "defer" and rt_call["should_defer"] is True
+
+    stats = cache.stats()
+    assert stats["counters"]["exact_hits"] == 2  # h1 + rt_hit
+    assert stats["counters"]["semantic_hits"] == 1
+    assert stats["savings"]["tokens_saved_total"] == 300
+    assert stats["savings"]["cpu_ms_saved"] >= 6600.0
+
+
+def test_resource_governor_gpu_eco_pstate_and_hyprland_lifecycle(tmp_path: Path, monkeypatch):
+    from core import tardis_resource_governor as trg
+
+    gov = trg.TardisResourceGovernor(
+        db_path=tmp_path / "gov_gpu.db",
+        throttle_state_file=tmp_path / "throttle_gpu.json",
+        gpu_eco_state_file=tmp_path / "gpu_eco.json",
+    )
+    monkeypatch.setattr(trg, "_gpu_eco_control_enabled", lambda: True)
+
+    # 1) Reglas puras de decisión _resolve_gpu_eco_mode
+    idle_headless_snap = {
+        "level": "GREEN",
+        "call_priority_active": False,
+        "gpu": {"available": True, "pstate": "P0", "temp_c": 56.0, "util_pct": 2.0, "power_w": 12.0},
+    }
+    disp_headless = {"connected_displays": 0, "total_connectors": 3, "headless_or_display_off": True, "hyprland_signature": "sig1", "temporal_brain_busy": False}
+    disp_busy_cuda = {**disp_headless, "temporal_brain_busy": True}
+    assert trg._resolve_gpu_eco_mode(idle_headless_snap, disp_headless) == "eco_idle"
+    # Con inferencia CUDA activa en TemporalBrain -> NUNCA degrada relojes (<84°C)
+    assert trg._resolve_gpu_eco_mode(idle_headless_snap, disp_busy_cuda) == "normal"
+    # Con llamada Telegram activa -> siempre normal
+    assert trg._resolve_gpu_eco_mode({**idle_headless_snap, "call_priority_active": True}, disp_headless) == "normal"
+    # En RED térmico (GPU 85°C) -> eco_thermal (P5)
+    hot_red_snap = {
+        "level": "RED",
+        "call_priority_active": False,
+        "gpu": {"available": True, "pstate": "P0", "temp_c": 85.0, "util_pct": 18.0, "power_w": 33.0},
+    }
+    assert trg._resolve_gpu_eco_mode(hot_red_snap, disp_headless) == "eco_thermal"
+
+    # 2) Ciclo completo reversible: normal -> eco_idle (P8 + Hyprland eco) -> normal (unlock + restaurar Hyprland)
+    gpu_calls = []
+    hypr_state = {"animations:enabled": 1, "decoration:blur:enabled": 1, "decoration:shadow:enabled": 1}
+
+    def _fake_cap(mode: str):
+        gpu_calls.append(mode)
+        return True, ("clocks_unlocked" if mode == "normal" else f"capped_{mode}")
+
+    monkeypatch.setattr(trg, "_apply_nvidia_clock_cap", _fake_cap)
+    monkeypatch.setattr(trg, "_hyprctl_get_bool", lambda sig, opt: hypr_state.get(opt))
+
+    def _fake_hypr_set(sig: str, opt: str, val):
+        hypr_state[opt] = int(val)
+        return True
+
+    monkeypatch.setattr(trg, "_hyprctl_set_keyword", _fake_hypr_set)
+    monkeypatch.setattr(trg, "_read_display_session_state", lambda: disp_headless)
+
+    res_eco = gov.reconcile_gpu_eco(idle_headless_snap, dry_run=False)
+    assert res_eco["ok"] is True and res_eco["action"] == "switched_to_eco_idle"
+    assert gpu_calls == ["eco_idle"]
+    assert all(v == 0 for v in hypr_state.values())
+    assert gov.get_gpu_eco_status()["mode"] == "eco_idle"
+
+    # Al activarse TemporalBrain (CUDA busy) -> desbloqueo instantáneo y restauración de Hyprland
+    monkeypatch.setattr(trg, "_read_display_session_state", lambda: disp_busy_cuda)
+    res_norm = gov.reconcile_gpu_eco(idle_headless_snap, dry_run=False)
+    assert res_norm["ok"] is True and res_norm["action"] == "switched_to_normal"
+    assert gpu_calls == ["eco_idle", "normal"]
+    assert all(v == 1 for v in hypr_state.values())
+    assert gov.get_gpu_eco_status()["mode"] == "normal"
+
+
+def test_embed_isotropy_calibrator_zca_and_abtt_collapse_cone_and_boost_retrieval(tmp_path: Path, monkeypatch):
+    import numpy as np
+    from core.embed_isotropy import EmbedIsotropyCalibrator, _measure_random_pair_isotropy
+    from core import tardis_semantic_cache as tsc
+
+    rng = np.random.default_rng(7)
+    n_docs, dim = 200, 64
+    # Construir un corpus fuertemente anisotrópico (cono estrecho alrededor de una dirección dominante,
+    # análogo al fenómeno medido en embed-e5-small.gguf con coseno medio > 0.90)
+    cone_dir = rng.normal(size=(1, dim)).astype(np.float32)
+    cone_dir /= np.linalg.norm(cone_dir)
+    semantic_signal = rng.normal(scale=0.04, size=(n_docs, dim)).astype(np.float32)
+    M_raw = cone_dir + semantic_signal
+    M_raw /= np.linalg.norm(M_raw, axis=1, keepdims=True)
+
+    raw_mean, _ = _measure_random_pair_isotropy(M_raw)
+    assert raw_mean > 0.85
+
+    # 1) Regularized ZCA Whitening debe colapsar el coseno medio aleatorio cerca de 0 y preservar exactitud en disco
+    art_path = tmp_path / "iso_cal.npz"
+    cal_zca = EmbedIsotropyCalibrator(artifact_path=art_path, method="zca_whitening", reg=5e-5, alpha=0.50)
+    meta = cal_zca.fit(M_raw, min_samples=32)
+    assert meta["ok"] and meta["fitted"] is True
+    assert meta["raw_rand_cosine_mean"] > 0.85
+    assert abs(meta["calibrated_rand_cosine_mean"]) < 0.08
+    assert meta["isotropy_gain"] > 0.75
+
+    # Guardar y recargar desde disco (.npz + .json) debe reproducir la transformación al 100%
+    assert cal_zca.save() is True
+    cal_loaded = EmbedIsotropyCalibrator(artifact_path=art_path)
+    assert cal_loaded.load() is True
+    assert np.allclose(cal_zca.transform(M_raw[:10]), cal_loaded.transform(M_raw[:10]), atol=1e-5)
+
+    # 2) All-but-the-Top (ABTT d=2) también debe colapsar la anisotropía
+    cal_abtt = EmbedIsotropyCalibrator(artifact_path=tmp_path / "iso_abtt.npz", method="abtt", abtt_dims=2)
+    meta_abtt = cal_abtt.fit(M_raw, min_samples=32)
+    assert meta_abtt["ok"] and abs(meta_abtt["calibrated_rand_cosine_mean"]) < 0.08
+
+    # 3) Integración en TardisSemanticCache: rechaza falso positivo anisotrópico cuando iso_sim < min_isotropic_similarity
+    cache = tsc.TardisSemanticCache(
+        db_path=tmp_path / "sem_iso.db",
+        embed_socket="/nonexistent/embed.sock",
+        similarity_threshold=0.90,
+        min_lexical_overlap=0.0,  # probar que el filtro isotrópico ZCA por sí solo frena colisiones de cono
+        min_isotropic_similarity=0.50,
+        isotropy_calibrator=cal_loaded,
+    )
+    monkeypatch.setattr(tsc, "_read_governor_state_fast", lambda: {"ok": True, "level": "GREEN", "call_priority_active": False})
+
+    # Dos documentos distintos dentro del mismo cono anisotrópico (raw cos > 0.90, pero ZCA iso_sim ~ 0)
+    v_doc0 = M_raw[0]
+    v_para0 = v_doc0 + rng.normal(scale=0.015, size=(dim,)).astype(np.float32)
+    v_para0 /= np.linalg.norm(v_para0)
+    v_other = M_raw[1]
+    assert float(np.dot(v_doc0, v_other)) > 0.85
+
+    def _fake_embed(text: str, *, conn=None):
+        if "parafrasis" in text:
+            return v_para0
+        if "ajena" in text:
+            return v_other
+        return v_doc0
+
+    monkeypatch.setattr(cache, "embed_query", _fake_embed)
+    cache.store("consulta original kernel linux", "respuesta verificada", namespace="background")
+
+    hit_para = cache.lookup("parafrasis cercana kernel linux", namespace="background")
+    assert hit_para["hit"] is True and hit_para["match_type"] == "semantic"
+    assert hit_para["isotropic_similarity"] >= 0.50
+
+    miss_other = cache.lookup("consulta ajena totalmente distinta", namespace="background")
+    assert miss_other["hit"] is False
+    assert cache.stats()["isotropy_calibration"]["fitted"] is True

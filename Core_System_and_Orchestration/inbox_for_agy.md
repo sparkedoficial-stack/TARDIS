@@ -1,18 +1,17 @@
 # 🤝 TARDIS → AGY :: Buzón Continuo de Co-Evolución y Sistemas Alternos
-- **Actualizado:** `2026-11-24T03:48:47-05:00`
+- **Actualizado:** `2026-11-24T07:09:02-05:00`
 - **Conversación Persistente de Co-Evolución:** `fc5a3155-f4f8-43d9-a342-e26667807b5a`
-- **Nivel de Presión ResourceGovernor:** `GREEN` | CPU PSI60=`0.25%` | RAM libre=`6012.2 MB` | GPU=`56.0°C`
+- **Nivel de Presión ResourceGovernor:** `ORANGE` | CPU PSI60=`1.59%` | RAM libre=`3368.6 MB` | GPU=`51.0°C`
 - **HubHealth:** `{'online': 41, 'offline': 1}`
 
 ## 🎯 Top Propuestas de Sistemas Alternos y Mejoras Pendientes
-- **`COEV-20261124-485990`** [ROI=85 | MEDIUM | lente=`runtime` | `alternate_system`] **Gobernador Adaptativo de P-State GPU y FPS de Escritorio en Reposo (Hyprland + tardis-desktop RTX 3050)**
-  - *Problema:* La auditoría Ring 0 (nvidia-smi pmon) muestra que Hyprland (PID compositor) y tardis-desktop mantienen la RTX 3050 en P0 (1927 MHz, 31-33.6 W, 45-57% SM) incluso de madrugada en reposo, inyectando >30 W continuos al heat
-  - *Propuesta:* Implementar un modo eco adaptativo guiado por ResourceGovernor/inactividad de sesión que reduzca FPS de animaciones/shaders de tardis-desktop y quickshell (ej. 60/144Hz -> 15-24Hz en reposo o nivel ORANGE/RED) y habilite Hyprland VFR/dpms para bajar la RTX 305
-  - *Archivos:* `core/tardis_resource_governor.py`
 - **`COEV-20261123-CD8DB5`** [ROI=84 | MEDIUM | lente=`capabilities` | `alternate_system`] **Crear sistema alterno: Continuous Autonomous Eval & Regression Benchmark Harness**
   - *Problema:* Falta una evaluación continua automatizada de calidad de respuestas (RAG, tool-calling, latencia P50/P95, precisión AEGIS) tras cada evolución.
   - *Propuesta:* Construir un harness de evaluación determinista + LLM-as-judge que mida calidad pre/post evolución y alimente al motor de co-evolución.
   - *Archivos:* `core/tardis_eval_harness.py`
+- **`COEV-20261124-A84F0C`** [ROI=82 | MEDIUM | lente=`runtime` | `regression`] **Resolver evento crítico health.regression desde tardis_feedback_bridge**
+  - *Problema:* {"confirmed": true, "diagnostics": {"governor": {"cpu_psi_60": 0.0, "cpu_temp_c": 67.4, "gpu_temp_c": 59.0, "level": "YELLOW", "load1": 3.64, "mem_avail_mb": 4352.3, "reasons": ["RAM disponible moderada (4352 MB)"]}, "me
+  - *Propuesta:* Investigar causa raíz en el subsistema afectado, corregir el fallo de forma estructural y verificar con `tardis-canary verify`.
 - **`COEV-20261123-D35687`** [ROI=82 | MEDIUM | lente=`capabilities` | `alternate_system`] **Crear sistema alterno: Autonomous Memory Compactor & Knowledge Graph Deduplicator**
   - *Problema:* Las bóvedas SQLite (RAG, DeepMemory, OfflineChat) crecen indefinidamente con chunks duplicados y sin compactación programada.
   - *Propuesta:* Crear compactador nocturno (VACUUM, ANALYZE, poda de duplicados SimHash/coseno, consolidación jerárquica de episodios).
@@ -25,16 +24,16 @@
   - *Problema:* Puertos en 0.0.0.0, túneles Cloudflare, permisos de archivos de estado y dependencias Python necesitan auditoría continua automatizada.
   - *Propuesta:* Implementar auditor perimetral continuo integrado con AEGIS y Zero-Error Shield que detecte exposiciones y endurezca configuraciones.
   - *Archivos:* `core/tardis_perimeter_auditor.py`
-- **`COEV-20261123-926459`** [ROI=78 | MEDIUM | lente=`capabilities` | `alternate_system`] **Crear sistema alterno: End-to-End Voice Pipeline Profiler (Tapo C310 + Telegram Live Call)**
-  - *Problema:* Los canales de voz (Tapo C310, Telegram Call) consumen mucha CPU en ffmpeg/YOLO/Whisper sin perfilado por etapa (STT/LLM/TTS).
-  - *Propuesta:* Crear perfilador de latencia por etapa con decodificación acelerada/FPS adaptativo para bajar >50% la carga CPU de C310.
-  - *Archivos:* `core/tardis_voice_profiler.py`
 - **`COEV-20261123-ADB934`** [ROI=78 | MEDIUM | lente=`codebase` | `quality`] **Ampliar cobertura pytest en 30 módulos críticos de core/**
   - *Problema:* Módulos extensos (>800 LOC) sin suite unitaria dedicada: core/character_3d_renderer.py (1282 LOC), core/chronovision_engine.py (2442 LOC), core/curiosity_debate_manager.py (884 LOC), core/easy_touch_agent.py (1149 LOC), 
   - *Propuesta:* Generar tests unitarios aislados (mocks de red/hardware) en `tests/` para prevenir regresiones durante la auto-evolución.
   - *Archivos:* `core/character_3d_renderer.py, core/chronovision_engine.py, core/curiosity_debate_manager.py, core/easy_touch_agent.py`
+- **`COEV-20261123-926459`** [ROI=78 | MEDIUM | lente=`capabilities` | `alternate_system`] **Crear sistema alterno: End-to-End Voice Pipeline Profiler (Tapo C310 + Telegram Live Call)**
+  - *Problema:* Los canales de voz (Tapo C310, Telegram Call) consumen mucha CPU en ffmpeg/YOLO/Whisper sin perfilado por etapa (STT/LLM/TTS).
+  - *Propuesta:* Crear perfilador de latencia por etapa con decodificación acelerada/FPS adaptativo para bajar >50% la carga CPU de C310.
+  - *Archivos:* `core/tardis_voice_profiler.py`
 - **`COEV-20261123-7251BC`** [ROI=77 | MEDIUM | lente=`memory` | `storage`] **Compactar y optimizar índices SQLite (138.5 MB)**
-  - *Problema:* Bases SQLite extensas detectadas: [{'db': '/home/m11/Escritorio/GODWORKS SYSTEM/data/subsystem_agents.db', 'size_mb': 140.2}]
+  - *Problema:* Bases SQLite extensas detectadas: [{'db': '/home/m11/Escritorio/GODWORKS SYSTEM/data/subsystem_agents.db', 'size_mb': 141.4}]
   - *Propuesta:* Implementar compactación incremental (WAL checkpoint, ANALYZE, deduplicación de chunks) sin bloquear lecturas.
   - *Archivos:* `core/rag_vault.py, core/deep_memory_vault.py`
 - **`COEV-20261123-93393A`** [ROI=76 | MEDIUM | lente=`codebase` | `architecture`] **Modularizar módulos monolíticos de alta complejidad (core/telegram_bridge.py: 5989 LOC)**

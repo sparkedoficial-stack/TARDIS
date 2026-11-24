@@ -3361,6 +3361,19 @@ iframe{border:none;width:100%;height:100%;}</style></head>
         from core.tardis_resource_governor import get_resource_governor
         return {"ok": True, "history": get_resource_governor().history(limit=limit)}
 
+    @app.post("/api/governor/gpu_eco")
+    async def post_governor_gpu_eco_endpoint(payload: Optional[Dict[str, Any]] = None):
+        from core.tardis_resource_governor import get_resource_governor
+        body = payload or {}
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(
+            None,
+            lambda: get_resource_governor().reconcile_gpu_eco(
+                dry_run=bool(body.get("dry_run", False)),
+                force_mode=body.get("mode"),
+            ),
+        )
+
     @app.get("/api/bus/stats")
     async def get_bus_stats_endpoint():
         from core.tardis_event_bus import get_event_bus

@@ -1,21 +1,27 @@
 {
-  "timestamp": REDACTED_PHONE.2217522,
-  "iso": "2026-11-24T03:55:38.223830",
-  "health_score": 100,
+  "timestamp": REDACTED_PHONE.9728765,
+  "iso": "2026-11-24T07:14:13.974641",
+  "health_score": 85,
   "status": "HEALTHY",
-  "cycle": 436,
+  "cycle": 208,
   "metrics": {
-    "cpu_percent": 10.9,
-    "cpu_ema": 13.2,
+    "cpu_percent": 12.3,
+    "cpu_ema": 11.9,
     "high_cpu_streak": 0,
-    "ram_percent": 82.9,
-    "high_ram_streak": 0,
-    "governor_level": "YELLOW",
-    "cpu_psi_60": 0.21,
+    "ram_percent": 90.7,
+    "high_ram_streak": 209,
+    "governor_level": "ORANGE",
+    "cpu_psi_60": 1.3,
     "recent_errors": 0,
     "recent_blocks": 0
   },
-  "penalties": [],
+  "penalties": [
+    {
+      "factor": "ram_sustained",
+      "points": -15,
+      "detail": "RAM sostenida 90.7% (racha=209)"
+    }
+  ],
   "subsystems": {
     "ollama_online": true,
     "rf_radar_active": true,
@@ -26,16 +32,18 @@
     "sensors": true,
     "temporal_brain_online": true
   },
-  "needs": [],
+  "needs": [
+    "Presión Ring 0 ORANGE: RAM disponible baja (2923 MB)"
+  ],
   "instructions": [
     {
-      "id": "inst_nominal_coherence",
-      "severity": "INFO",
-      "component": "Núcleo Causal Sintrópico",
-      "target_file": "geon_causal_engine.py",
-      "instruction": "El sistema opera en estado NOMINAL con acoplamiento sintrópico Ψ=0.892. Se recomienda sincronizar periódicamente el reloj causal de Lamport y verificar enlaces LAN.",
-      "rationale": "Estabilidad completa de subsistemas.",
-      "actionable_cmd": "python -c 'import geon_causal_engine; print(geon_causal_engine.get_geon_engine().full_system_diagnostic())'"
+      "id": "inst_resource_pressure_orange",
+      "severity": "MEDIUM",
+      "component": "Resource Governor Ring 0",
+      "target_file": "core/tardis_resource_governor.py",
+      "instruction": "Estabilizar presión ORANGE (RAM disponible baja (2923 MB)) ejecutando reclamación de modelos duplicados y throttling.",
+      "rationale": "CPU PSI60=1.3%, RAM libre=2923.2 MB.",
+      "actionable_cmd": "tardis-governor reclaim"
     }
   ],
   "instruction_count": 1

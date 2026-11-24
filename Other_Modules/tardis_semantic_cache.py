@@ -40,6 +40,7 @@ import sys
 import tempfile
 import threading
 import time
+import unicodedata
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
@@ -60,9 +61,25 @@ MAX_EMBED_CHARS = 1200  # ~300-340 tokens, seguro bajo --ctx-size 512 de embed-e
 
 DEFAULT_SIMILARITY_THRESHOLD = float(os.environ.get("TARDIS_SEMANTIC_CACHE_THRESHOLD", "0.94"))
 RED_BACKGROUND_SIMILARITY_THRESHOLD = 0.92
+DEFAULT_MIN_LEXICAL_OVERLAP = float(os.environ.get("TARDIS_SEMANTIC_CACHE_MIN_LEXICAL", "0.40"))
+DEFAULT_MIN_ISOTROPIC_SIMILARITY = float(os.environ.get("TARDIS_SEMANTIC_CACHE_MIN_ISOTROPIC", "0.48"))
 DEFAULT_MAX_ENTRIES = int(os.environ.get("TARDIS_SEMANTIC_CACHE_MAX_ENTRIES", "4000"))
 DEFAULT_MAX_TEMP = float(os.environ.get("TARDIS_SEMANTIC_CACHE_MAX_TEMP", "0.75"))
 MAX_ADAPTIVE_TTL_S = 14400.0  # 4 horas máximo
+
+_LEXICAL_STOPWORDS: frozenset[str] = frozenset(
+    {
+        # Español
+        "de", "la", "el", "en", "y", "a", "los", "las", "del", "un", "una", "unos", "unas",
+        "por", "con", "para", "que", "se", "su", "sus", "al", "lo", "como", "es", "son",
+        "esta", "este", "estos", "estas", "fue", "ser", "hay", "mas", "pero", "sin", "sobre",
+        "entre", "cuando", "donde", "cual", "cuales", "quien", "manera", "forma", "hace",
+        "hacer", "puede", "pueden", "todo", "toda", "todos", "todas", "uno", "dos",
+        # Inglés
+        "the", "of", "in", "to", "and", "is", "are", "for", "on", "with", "that", "this",
+        "from", "how", "what", "when", "where", "which", "does", "can", "explain", "about",
+    }
+)
 
 NAMESPACE_BASE_TTL_S: Dict[str, float] = {
     "background": 1800.0,
@@ -167,6 +184,60 @@ def _is_error_reply(reply: str) -> bool:
     if len(low) < 4:
         return True
     return any(low.startswith(pref) for pref in _ERROR_REPLY_PREFIXES)
+
+
+def _fold_ascii_lower(text: str) -> str:
+    return (
+        unicodedata.normalize("NFKD", (text or "").lower())
+        .encode("ascii", "ignore")
+        .decode("ascii")
+    )
+
+
+def _content_tokens(text: str) -> frozenset[str]:
+    folded = _fold_ascii_lower(text)
+    toks = {w for w in re.findall(r"[a-z0-9_]{3,}", folded) if w not in _LEXICAL_STOPWORDS}
+    if not toks:
+        toks = set(re.findall(r"[a-z0-9_]{2,}", folded))
+    return frozenset(toks)
+
+
+def _extract_discriminators(text: str) -> frozenset[str]:
+    """Extrae números, puertos, versiones o códigos alfanuméricos que no deben diferir en un hit."""
+    folded = _fold_ascii_lower(text)
+    return frozenset(re.findall(r"\b(?:[a-z]+[-_]\d+[a-z0-9_-]*|\d+(?:\.\d+)*)\b", folded))
+
+
+def _lexical_semantic_overlap(query: str, candidate: str) -> Tuple[float, bool]:
+    """
+    Guarda anti-anisotropía para embeddings de cono estrecho (ej. multilingual-e5-small):
+      - Verifica integridad de discriminadores numéricos/códigos (p. ej. puerto 11434 vs 11435).
+      - Calcula max(containment de tokens de contenido, Jaccard de 4-gramas de caracteres).
+    Retorna `(lexical_score, discriminators_compatible)`.
+    """
+    q_disc = _extract_discriminators(query)
+    c_disc = _extract_discriminators(candidate)
+    if (q_disc or c_disc) and q_disc != c_disc:
+        return 0.0, False
+
+    q_toks = _content_tokens(query)
+    c_toks = _content_tokens(candidate)
+    if not q_toks or not c_toks:
+        return 0.0, True
+
+    inter = len(q_toks & c_toks)
+    containment = inter / float(max(1, min(len(q_toks), len(c_toks))))
+
+    q_clean = re.sub(r"[^a-z0-9 ]+", "", _fold_ascii_lower(query))
+    c_clean = re.sub(r"[^a-z0-9 ]+", "", _fold_ascii_lower(candidate))
+    if len(q_clean) >= 4 and len(c_clean) >= 4:
+        q_ng = {q_clean[i : i + 4] for i in range(len(q_clean) - 3)}
+        c_ng = {c_clean[i : i + 4] for i in range(len(c_clean) - 3)}
+        ng_jac = len(q_ng & c_ng) / float(max(1, len(q_ng | c_ng)))
+    else:
+        ng_jac = 0.0
+
+    return round(max(containment, ng_jac), 4), True
 
 
 def _extract_prompt_parts(
@@ -308,22 +379,38 @@ class TardisSemanticCache:
         embed_socket: str = DEFAULT_EMBED_SOCKET,
         *,
         similarity_threshold: float = DEFAULT_SIMILARITY_THRESHOLD,
+        min_lexical_overlap: float = DEFAULT_MIN_LEXICAL_OVERLAP,
+        min_isotropic_similarity: float = DEFAULT_MIN_ISOTROPIC_SIMILARITY,
         max_entries: int = DEFAULT_MAX_ENTRIES,
         embed_timeout_s: float = 2.0,
+        isotropy_calibrator: Optional[Any] = None,
     ):
         self.db_path = Path(db_path)
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self.embed_socket = str(embed_socket)
         self.similarity_threshold = float(similarity_threshold)
+        self.min_lexical_overlap = float(min_lexical_overlap)
+        self.min_isotropic_similarity = float(min_isotropic_similarity)
         self.max_entries = max(50, int(max_entries))
         self.embed_timeout_s = float(embed_timeout_s)
         self._is_isolated = self.db_path.resolve() != DEFAULT_CACHE_DB.resolve()
         self._lock = threading.RLock()
         self._uds_client: Optional[httpx.Client] = None
+        self._calibrator: Optional[Any] = isotropy_calibrator
+        if self._calibrator is None and not self._is_isolated:
+            try:
+                from core.embed_isotropy import EmbedIsotropyCalibrator, is_isotropy_enabled
+
+                if is_isotropy_enabled():
+                    cal = EmbedIsotropyCalibrator()
+                    cal.load()
+                    self._calibrator = cal
+            except Exception:
+                self._calibrator = None
         # Caché matricial en RAM por partición (namespace, model_family, system_hash, context_hash)
         # Sincronizada automáticamente con el watermark de SQLite WAL entre procesos.
         self._index_watermark: Tuple[int, int, float] = (0, 0, 0.0)
-        self._partitions: Dict[Tuple[str, str, str, str], Tuple[List[int], np.ndarray]] = {}
+        self._partitions: Dict[Tuple[str, str, str, str], Tuple[List[int], List[str], np.ndarray]] = {}
         self._init_schema()
 
     def _connect(self) -> sqlite3.Connection:
@@ -345,6 +432,7 @@ class TardisSemanticCache:
                     system_hash TEXT NOT NULL DEFAULT '',
                     context_hash TEXT NOT NULL DEFAULT '',
                     prompt_preview TEXT NOT NULL,
+                    prompt_text TEXT NOT NULL DEFAULT '',
                     reply TEXT NOT NULL,
                     embedding BLOB,
                     embed_dim INTEGER NOT NULL DEFAULT 0,
@@ -384,7 +472,16 @@ class TardisSemanticCache:
                 """
             )
 
-    def _record_metrics(self, **deltas: Union[int, float]) -> None:
+            cols = {r["name"] for r in conn.execute("PRAGMA table_info(semantic_entries)").fetchall()}
+            if "prompt_text" not in cols:
+                conn.execute("ALTER TABLE semantic_entries ADD COLUMN prompt_text TEXT NOT NULL DEFAULT ''")
+
+    def _record_metrics(
+        self,
+        *,
+        conn: Optional[sqlite3.Connection] = None,
+        **deltas: Union[int, float],
+    ) -> None:
         if not deltas:
             return
         allowed = {
@@ -412,9 +509,13 @@ class TardisSemanticCache:
             return
         sets.append("updated_iso = ?")
         vals.append(_now_iso())
+        sql = f"UPDATE cache_metrics SET {', '.join(sets)} WHERE id = 1"
         try:
-            with self._connect() as conn:
-                conn.execute(f"UPDATE cache_metrics SET {', '.join(sets)} WHERE id = 1", vals)
+            if conn is not None:
+                conn.execute(sql, vals)
+            else:
+                with self._connect() as own_conn:
+                    own_conn.execute(sql, vals)
         except Exception:
             pass
 
@@ -448,14 +549,19 @@ class TardisSemanticCache:
             self._reset_uds_client()
             return False
 
-    def embed_query(self, text: str) -> Optional[np.ndarray]:
+    def embed_query(
+        self,
+        text: str,
+        *,
+        conn: Optional[sqlite3.Connection] = None,
+    ) -> Optional[np.ndarray]:
         """Vectoriza un texto con EmbedBrain (/tmp/embed_brain.sock) y retorna float32 L2-normalizado."""
         clean = _normalize_text(text)
         if not clean:
             return None
         sock = Path(self.embed_socket)
         if not sock.exists():
-            self._record_metrics(embed_errors=1)
+            self._record_metrics(conn=conn, embed_errors=1)
             return None
 
         t0 = time.perf_counter()
@@ -466,24 +572,24 @@ class TardisSemanticCache:
                 resp = client.post("/v1/embeddings", json=payload, timeout=self.embed_timeout_s)
             elapsed_ms = (time.perf_counter() - t0) * 1000.0
             if resp.status_code != 200:
-                self._record_metrics(embed_calls=1, embed_errors=1, embed_latency_ms_sum=elapsed_ms)
+                self._record_metrics(conn=conn, embed_calls=1, embed_errors=1, embed_latency_ms_sum=elapsed_ms)
                 return None
             data = resp.json().get("data") or []
             if not data or not data[0].get("embedding"):
-                self._record_metrics(embed_calls=1, embed_errors=1, embed_latency_ms_sum=elapsed_ms)
+                self._record_metrics(conn=conn, embed_calls=1, embed_errors=1, embed_latency_ms_sum=elapsed_ms)
                 return None
             vec = np.asarray(data[0]["embedding"], dtype=np.float32)
             norm = float(np.linalg.norm(vec))
             if norm <= 1e-8 or not np.isfinite(norm):
-                self._record_metrics(embed_calls=1, embed_errors=1, embed_latency_ms_sum=elapsed_ms)
+                self._record_metrics(conn=conn, embed_calls=1, embed_errors=1, embed_latency_ms_sum=elapsed_ms)
                 return None
-            self._record_metrics(embed_calls=1, embed_latency_ms_sum=elapsed_ms)
+            self._record_metrics(conn=conn, embed_calls=1, embed_latency_ms_sum=elapsed_ms)
             return vec / norm
         except Exception as exc:
             elapsed_ms = (time.perf_counter() - t0) * 1000.0
             logger.debug("[SemanticCache] Fallo al vectorizar en %s: %s", self.embed_socket, exc)
             self._reset_uds_client()
-            self._record_metrics(embed_calls=1, embed_errors=1, embed_latency_ms_sum=elapsed_ms)
+            self._record_metrics(conn=conn, embed_calls=1, embed_errors=1, embed_latency_ms_sum=elapsed_ms)
             return None
 
     # ------------------------------------------------------------------ índice matricial
@@ -499,11 +605,14 @@ class TardisSemanticCache:
             return
 
         rows = conn.execute(
-            "SELECT id, namespace, model_family, system_hash, context_hash, embedding, embed_dim "
+            "SELECT id, namespace, model_family, system_hash, context_hash, "
+            "       CASE WHEN prompt_text != '' THEN prompt_text ELSE prompt_preview END AS p_txt, "
+            "       embedding, embed_dim "
             "FROM semantic_entries WHERE embedding IS NOT NULL AND expires_ts > ?",
             (now,),
         ).fetchall()
         grouped_ids: Dict[Tuple[str, str, str, str], List[int]] = {}
+        grouped_txts: Dict[Tuple[str, str, str, str], List[str]] = {}
         grouped_vecs: Dict[Tuple[str, str, str, str], List[np.ndarray]] = {}
         for r in rows:
             blob = r["embedding"]
@@ -520,11 +629,12 @@ class TardisSemanticCache:
                 str(r["context_hash"]),
             )
             grouped_ids.setdefault(key, []).append(int(r["id"]))
+            grouped_txts.setdefault(key, []).append(str(r["p_txt"] or ""))
             grouped_vecs.setdefault(key, []).append(vec)
 
-        new_parts: Dict[Tuple[str, str, str, str], Tuple[List[int], np.ndarray]] = {}
+        new_parts: Dict[Tuple[str, str, str, str], Tuple[List[int], List[str], np.ndarray]] = {}
         for k, vecs in grouped_vecs.items():
-            new_parts[k] = (grouped_ids[k], np.vstack(vecs))
+            new_parts[k] = (grouped_ids[k], grouped_txts[k], np.vstack(vecs))
 
         self._partitions = new_parts
         self._index_watermark = wm
@@ -563,13 +673,15 @@ class TardisSemanticCache:
         namespace: str = "default",
         temperature: float = 0.3,
         threshold: Optional[float] = None,
+        min_lexical_overlap: Optional[float] = None,
         allow_volatile: bool = False,
         max_temperature: float = DEFAULT_MAX_TEMP,
         precomputed_embedding: Optional[np.ndarray] = None,
     ) -> Dict[str, Any]:
         """
-        Busca en L1 (hash exacto) y L2 (similitud coseno >= 0.94 sobre EmbedBrain).
-        Retorna `{hit, match_type, similarity, reply, entry_id, tokens_saved, cpu_ms_saved, ...}`.
+        Busca en L1 (hash exacto) y L2 (similitud coseno >= 0.94 sobre EmbedBrain + guarda
+        híbrida léxico-entidad anti-anisotropía).
+        Retorna `{hit, match_type, similarity, lexical_score, reply, entry_id, tokens_saved, cpu_ms_saved, ...}`.
         """
         t0 = time.perf_counter()
         if not is_cache_enabled():
@@ -599,6 +711,7 @@ class TardisSemanticCache:
         now = time.time()
         gov_lvl = str(_read_governor_state_fast().get("level") or "GREEN").upper()
         eff_threshold = self._effective_threshold(ns, threshold, gov_lvl)
+        eff_min_lex = float(self.min_lexical_overlap if min_lexical_overlap is None else min_lexical_overlap)
 
         with self._lock:
             with self._connect() as conn:
@@ -608,50 +721,94 @@ class TardisSemanticCache:
                     (exact_key, now),
                 ).fetchone()
                 if row is not None:
-                    hit_payload = self._finalize_hit(
+                    return self._finalize_hit(
                         conn,
                         row,
                         now=now,
                         match_type="exact",
                         similarity=1.0,
+                        lexical_score=1.0,
                         governor_level=gov_lvl,
                         t0=t0,
                     )
-                    return hit_payload
 
-                # 2. Nivel L2: similitud semántica coseno vía EmbedBrain
+                # 2. Nivel L2: similitud semántica coseno vía EmbedBrain + verificación híbrida anti-anisotropía
                 self._sync_vector_index(conn, now)
                 part_key = (ns, model_fam, sys_hash, ctx_hash)
                 partition = self._partitions.get(part_key)
 
                 if partition is not None:
-                    ids, mat = partition
-                    q_vec = precomputed_embedding if precomputed_embedding is not None else self.embed_query(query_text)
+                    ids, cand_texts, mat = partition
+                    q_vec = (
+                        precomputed_embedding
+                        if precomputed_embedding is not None
+                        else self.embed_query(query_text, conn=conn)
+                    )
                     if q_vec is not None and q_vec.shape[0] == mat.shape[1]:
                         q_norm = float(np.linalg.norm(q_vec))
                         if q_norm > 1e-8:
                             q_unit = (q_vec.astype(np.float32) / q_norm)
                             sims = mat @ q_unit
-                            best_idx = int(np.argmax(sims))
-                            best_sim = float(sims[best_idx])
-                            if best_sim >= eff_threshold:
-                                best_id = ids[best_idx]
-                                sem_row = conn.execute(
-                                    "SELECT * FROM semantic_entries WHERE id = ? AND expires_ts > ?",
-                                    (best_id, now),
-                                ).fetchone()
-                                if sem_row is not None:
-                                    return self._finalize_hit(
-                                        conn,
-                                        sem_row,
-                                        now=now,
-                                        match_type="semantic",
-                                        similarity=round(best_sim, 5),
-                                        governor_level=gov_lvl,
-                                        t0=t0,
-                                    )
+                            cand_indices = np.where(sims >= eff_threshold)[0]
+                            if cand_indices.size > 0:
+                                top_order = cand_indices[np.argsort(sims[cand_indices])[::-1][:8]]
+                                # Recarga ligera del calibrador isotrópico compartido (si se actualizó en disco)
+                                cal = self._calibrator
+                                if cal is not None and not self._is_isolated:
+                                    try:
+                                        cal.load(only_if_newer=True)
+                                    except Exception:
+                                        pass
+                                use_iso = bool(
+                                    cal is not None
+                                    and getattr(cal, "fitted", False)
+                                    and precomputed_embedding is None
+                                    and getattr(cal, "_dim", 0) == mat.shape[1]
+                                )
+                                q_iso = cal.transform(q_unit) if use_iso else None
+                                best_choice: Optional[Tuple[float, float, float, float, int]] = None
+                                for idx_i in top_order:
+                                    idx = int(idx_i)
+                                    cos_sim = float(sims[idx])
+                                    lex_score, disc_ok = _lexical_semantic_overlap(query_text, cand_texts[idx])
+                                    if not disc_ok:
+                                        continue
+                                    if eff_min_lex > 0.0 and lex_score < eff_min_lex:
+                                        continue
+                                    iso_sim = cos_sim
+                                    if use_iso and q_iso is not None:
+                                        c_iso = cal.transform(mat[idx])
+                                        iso_sim = float(np.dot(c_iso, q_iso))
+                                        if self.min_isotropic_similarity > 0.0 and iso_sim < self.min_isotropic_similarity:
+                                            continue
+                                        combined = 0.45 * iso_sim + 0.25 * cos_sim + 0.30 * lex_score
+                                    else:
+                                        combined = 0.70 * cos_sim + 0.30 * lex_score
+                                    if best_choice is None or combined > best_choice[0]:
+                                        best_choice = (combined, cos_sim, iso_sim, lex_score, ids[idx])
 
-        self._record_metrics(total_lookups=1, misses=1)
+                                if best_choice is not None:
+                                    _, best_sim, best_iso, best_lex, best_id = best_choice
+                                    sem_row = conn.execute(
+                                        "SELECT * FROM semantic_entries WHERE id = ? AND expires_ts > ?",
+                                        (best_id, now),
+                                    ).fetchone()
+                                    if sem_row is not None:
+                                        hit_res = self._finalize_hit(
+                                            conn,
+                                            sem_row,
+                                            now=now,
+                                            match_type="semantic",
+                                            similarity=round(best_sim, 5),
+                                            lexical_score=best_lex,
+                                            governor_level=gov_lvl,
+                                            t0=t0,
+                                        )
+                                        hit_res["isotropic_similarity"] = round(best_iso, 5)
+                                        return hit_res
+
+                self._record_metrics(conn=conn, total_lookups=1, misses=1)
+
         return {
             "ok": True,
             "hit": False,
@@ -672,6 +829,7 @@ class TardisSemanticCache:
         now: float,
         match_type: str,
         similarity: float,
+        lexical_score: float,
         governor_level: str,
         t0: float,
     ) -> Dict[str, Any]:
@@ -694,6 +852,7 @@ class TardisSemanticCache:
             est_cpu_ms = round((c_tok / 18.0) * 1000.0 + 150.0, 1)
 
         self._record_metrics(
+            conn=conn,
             total_lookups=1,
             exact_hits=1 if match_type == "exact" else 0,
             semantic_hits=1 if match_type == "semantic" else 0,
@@ -706,6 +865,7 @@ class TardisSemanticCache:
             "hit": True,
             "match_type": match_type,
             "similarity": similarity,
+            "lexical_score": lexical_score,
             "entry_id": int(row["id"]),
             "reply": str(row["reply"]),
             "namespace": str(row["namespace"]),
@@ -788,12 +948,13 @@ class TardisSemanticCache:
                     """
                     INSERT INTO semantic_entries (
                         exact_key, namespace, model_family, system_hash, context_hash,
-                        prompt_preview, reply, embedding, embed_dim,
+                        prompt_preview, prompt_text, reply, embedding, embed_dim,
                         prompt_tokens, completion_tokens, origin_elapsed_ms,
                         base_ttl_s, created_ts, last_hit_ts, expires_ts, hits, metadata_json
                     )
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?)
                     ON CONFLICT(exact_key) DO UPDATE SET
+                        prompt_text = excluded.prompt_text,
                         reply = excluded.reply,
                         embedding = COALESCE(excluded.embedding, semantic_entries.embedding),
                         embed_dim = CASE WHEN excluded.embed_dim > 0 THEN excluded.embed_dim ELSE semantic_entries.embed_dim END,
@@ -812,6 +973,7 @@ class TardisSemanticCache:
                         sys_hash,
                         ctx_hash,
                         query_text[:300],
+                        query_text[:MAX_EMBED_CHARS],
                         reply.strip(),
                         emb_blob,
                         emb_dim,
@@ -826,10 +988,10 @@ class TardisSemanticCache:
                     ),
                 )
                 evicted = self._enforce_capacity_locked(conn, now)
+                self._record_metrics(conn=conn, stores=1, evictions=evicted)
                 # Invalidar watermark local para reflejar el nuevo vector inmediatamente
                 self._index_watermark = (0, 0, 0.0)
 
-        self._record_metrics(stores=1, evictions=evicted)
         return {
             "ok": True,
             "stored": True,
@@ -927,6 +1089,8 @@ class TardisSemanticCache:
             "embed_socket": self.embed_socket,
             "embed_brain_alive": self.is_embed_brain_alive(),
             "similarity_threshold": self.similarity_threshold,
+            "min_isotropic_similarity": self.min_isotropic_similarity,
+            "isotropy_calibration": self._calibrator.summary() if self._calibrator is not None else {"fitted": False},
             "max_entries": self.max_entries,
             "active_entries": active_cnt,
             "semantic_indexed_entries": indexed_cnt,
@@ -1190,7 +1354,17 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         return 0
     if args.cmd == "benchmark":
         with tempfile.TemporaryDirectory(prefix="tardis_semcache_bench_") as td:
-            bench = TardisSemanticCache(db_path=Path(td) / "bench.db")
+            bench_cal = None
+            try:
+                from core.embed_isotropy import EmbedIsotropyCalibrator, is_isotropy_enabled
+
+                if is_isotropy_enabled():
+                    c = EmbedIsotropyCalibrator()
+                    if c.load():
+                        bench_cal = c
+            except Exception:
+                bench_cal = None
+            bench = TardisSemanticCache(db_path=Path(td) / "bench.db", isotropy_calibrator=bench_cal)
             t_s = time.perf_counter()
             st = bench.store(
                 "Explica cómo mitiga el gobernador de recursos la presión CPU PSI en Linux",

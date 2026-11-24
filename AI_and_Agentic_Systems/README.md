@@ -14,6 +14,7 @@ Sistemas agénticos autónomos, enjambres cognitivos MoE, autorreflexión y evol
 - **colibri_bridge.py**: Componente de alta eficiencia.
 - **colibri_optimizer.py**: Componente de alta eficiencia.
 - **colibri_profile.json**: Componente de alta eficiencia.
+- **core__temporal_brain.py**: Núcleo de orquestación y control temporal/espacial.
 - **daily_context_rotator.py**: Componente de alta eficiencia.
 - **deep_search.py**: Componente de alta eficiencia.
 - **emotional_presence_agent.py**: Modelo lógico y comportamiento autónomo distribuido.

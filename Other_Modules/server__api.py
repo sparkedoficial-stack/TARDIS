@@ -3361,6 +3361,19 @@ iframe{border:none;width:100%;height:100%;}</style></head>
         from core.tardis_resource_governor import get_resource_governor
         return {"ok": True, "history": get_resource_governor().history(limit=limit)}
 
+    @app.post("/api/governor/gpu_eco")
+    async def post_governor_gpu_eco_endpoint(payload: Optional[Dict[str, Any]] = None):
+        from core.tardis_resource_governor import get_resource_governor
+        body = payload or {}
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(
+            None,
+            lambda: get_resource_governor().reconcile_gpu_eco(
+                dry_run=bool(body.get("dry_run", False)),
+                force_mode=body.get("mode"),
+            ),
+        )
+
     @app.get("/api/bus/stats")
     async def get_bus_stats_endpoint():
         from core.tardis_event_bus import get_event_bus
@@ -3402,6 +3415,61 @@ iframe{border:none;width:100%;height:100%;}</style></head>
                 check_live_api=bool(payload.get("check_live_api", False)),
                 create_snapshot=bool(payload.get("create_snapshot", False)),
             ),
+        )
+
+    @app.get("/api/cache/stats")
+    async def get_semantic_cache_stats_endpoint():
+        from core.tardis_semantic_cache import get_semantic_cache
+        return get_semantic_cache().stats()
+
+    @app.post("/api/cache/lookup")
+    async def post_semantic_cache_lookup_endpoint(payload: Dict[str, Any]):
+        from core.tardis_semantic_cache import get_semantic_cache
+        prompt = payload.get("messages") or payload.get("prompt")
+        if not prompt:
+            raise HTTPException(status_code=400, detail="Se requiere 'prompt' o 'messages'.")
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(
+            None,
+            lambda: get_semantic_cache().lookup(
+                prompt,
+                model=payload.get("model"),
+                system_prompt=payload.get("system_prompt"),
+                namespace=str(payload.get("namespace") or "default"),
+                temperature=float(payload.get("temperature", 0.3)),
+                threshold=float(payload["threshold"]) if payload.get("threshold") is not None else None,
+                allow_volatile=bool(payload.get("allow_volatile", False)),
+            ),
+        )
+
+    @app.post("/api/cache/route")
+    async def post_semantic_cache_route_endpoint(payload: Dict[str, Any]):
+        from core.tardis_semantic_cache import get_semantic_cache
+        prompt = payload.get("messages") or payload.get("prompt")
+        if not prompt:
+            raise HTTPException(status_code=400, detail="Se requiere 'prompt' o 'messages'.")
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(
+            None,
+            lambda: get_semantic_cache().route_prompt(
+                prompt,
+                model=payload.get("model"),
+                system_prompt=payload.get("system_prompt"),
+                namespace=str(payload.get("namespace") or "background"),
+                task_class=str(payload.get("task_class") or "background"),
+                temperature=float(payload.get("temperature", 0.3)),
+                max_tokens=int(payload.get("max_tokens", 512)),
+                check_cache=bool(payload.get("check_cache", True)),
+            ),
+        )
+
+    @app.post("/api/cache/prune")
+    async def post_semantic_cache_prune_endpoint(payload: Optional[Dict[str, Any]] = None):
+        from core.tardis_semantic_cache import get_semantic_cache
+        body = payload or {}
+        return get_semantic_cache().prune(
+            namespace=body.get("namespace"),
+            clear_all=bool(body.get("clear_all", False)),
         )
 
     @app.get("/api/coevolution/status")
@@ -3472,6 +3540,237 @@ iframe{border:none;width:100%;height:100%;}</style></head>
                 allow_dispatch=bool(body.get("dispatch", True)),
                 force_dispatch=bool(body.get("force_dispatch", False)),
             ),
+        )
+
+    # --------------------------------------------------------------------------
+    # MODELO SOBERANO LOCAL: UN MUNDO SIN CENSURA (DUAL-LANE)
+    # --------------------------------------------------------------------------
+
+    @app.get("/api/mundo_sin_censura/status")
+    async def get_mundo_sin_censura_status_endpoint():
+        from core.mundo_sin_censura import get_mundo_sin_censura
+        return get_mundo_sin_censura().get_status()
+
+    @app.get("/api/mundo_sin_censura/analyze")
+    async def get_mundo_sin_censura_analyze_endpoint():
+        from core.mundo_sin_censura import get_mundo_sin_censura
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, lambda: get_mundo_sin_censura().analyze_systems())
+
+    @app.post("/api/mundo_sin_censura/ensure")
+    async def post_mundo_sin_censura_ensure_endpoint(payload: Optional[Dict[str, Any]] = None):
+        from core.mundo_sin_censura import get_mundo_sin_censura
+        body = payload or {}
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(
+            None,
+            lambda: get_mundo_sin_censura().ensure_model_ready(rebuild=bool(body.get("rebuild", False))),
+        )
+
+    @app.post("/api/mundo_sin_censura/chat")
+    async def post_mundo_sin_censura_chat_endpoint(payload: Dict[str, Any]):
+        from core.mundo_sin_censura import get_mundo_sin_censura
+        messages = payload.get("messages")
+        if not messages:
+            prompt_txt = str(payload.get("message") or payload.get("prompt") or "").strip()
+            if not prompt_txt:
+                raise HTTPException(status_code=400, detail="Se requiere 'messages', 'message' o 'prompt'.")
+            history = payload.get("history") or []
+            messages = [
+                {"role": str(m.get("role", "user")), "content": str(m.get("content", ""))}
+                for m in history
+                if isinstance(m, dict)
+            ]
+            messages.append({"role": "user", "content": prompt_txt})
+        lane = str(payload.get("lane") or "auto")
+        temperature = float(payload.get("temperature", 0.25))
+        max_tokens = int(payload.get("max_tokens", 1024))
+        num_ctx = int(payload.get("num_ctx", 8192))
+        use_rag = bool(payload.get("use_rag", False))
+        timeout = float(payload.get("timeout", 120.0))
+        extra_system = payload.get("extra_system")
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(
+            None,
+            lambda: get_mundo_sin_censura().chat(
+                messages,
+                lane=lane,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                num_ctx=num_ctx,
+                use_rag=use_rag,
+                timeout=timeout,
+                extra_system=extra_system,
+            ),
+        )
+
+    @app.post("/api/mundo_sin_censura/benchmark")
+    async def post_mundo_sin_censura_benchmark_endpoint(payload: Optional[Dict[str, Any]] = None):
+        from core.mundo_sin_censura import get_mundo_sin_censura
+        body = payload or {}
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(
+            None,
+            lambda: get_mundo_sin_censura().benchmark(
+                lane=str(body.get("lane") or "auto"),
+                max_tokens=int(body.get("max_tokens", 96)),
+                prompt=body.get("prompt"),
+                timeout=float(body.get("timeout", 120.0)),
+            ),
+        )
+
+    # --------------------------------------------------------------------------
+    # CHAT EXCLUSIVO DE "UN MUNDO SIN CENSURA" (BLOQUEADO A UN SOLO MODELO)
+    # --------------------------------------------------------------------------
+
+    @app.get("/mundo-sin-censura", response_class=HTMLResponse)
+    @app.get("/mundo-sin-censura/", response_class=HTMLResponse)
+    @app.get("/mundo-sin-censura-chat", response_class=HTMLResponse)
+    @app.get("/chat/mundo-sin-censura", response_class=HTMLResponse)
+    async def serve_mundo_sin_censura_chat_ui():
+        ui_path = PROJECT_ROOT / "web" / "mundo_sin_censura_chat.html"
+        if ui_path.is_file():
+            return FileResponse(
+                ui_path,
+                media_type="text/html",
+                headers={"Cache-Control": "no-cache, no-store, must-revalidate"},
+            )
+        return HTMLResponse("<h2>Error: No se encontró web/mundo_sin_censura_chat.html</h2>", status_code=404)
+
+    @app.get("/api/mundo_sin_censura/sessions")
+    async def list_mundo_chat_sessions_endpoint(limit: int = 100):
+        from core.mundo_sin_censura_chat import get_mundo_chat_store, MODEL_LOCK
+        sessions = get_mundo_chat_store().list_sessions(limit=limit)
+        return {"ok": True, "model": MODEL_LOCK, "count": len(sessions), "sessions": sessions}
+
+    @app.post("/api/mundo_sin_censura/sessions")
+    async def create_mundo_chat_session_endpoint(payload: Optional[Dict[str, Any]] = None):
+        from core.mundo_sin_censura_chat import get_mundo_chat_store, enforce_model_lock, ModelLockError
+        body = payload or {}
+        try:
+            enforce_model_lock(body.get("model"))
+        except ModelLockError as e:
+            raise HTTPException(status_code=403, detail=str(e))
+        sess = get_mundo_chat_store().create_session(
+            title=body.get("title"),
+            lane=str(body.get("lane") or "auto"),
+            temperature=float(body.get("temperature", 0.25)),
+            max_tokens=int(body.get("max_tokens", 1024)),
+            use_rag=bool(body.get("use_rag", False)),
+        )
+        return {"ok": True, "session": sess}
+
+    @app.get("/api/mundo_sin_censura/sessions/{session_id}")
+    async def get_mundo_chat_session_endpoint(session_id: str):
+        from core.mundo_sin_censura_chat import get_mundo_chat_store
+        sess = get_mundo_chat_store().get_session(session_id, include_messages=True)
+        if not sess:
+            raise HTTPException(status_code=404, detail=f"Sesión no encontrada: {session_id}")
+        return {"ok": True, "session": sess}
+
+    @app.patch("/api/mundo_sin_censura/sessions/{session_id}")
+    async def update_mundo_chat_session_endpoint(session_id: str, payload: Dict[str, Any]):
+        from core.mundo_sin_censura_chat import get_mundo_chat_store, enforce_model_lock, ModelLockError
+        try:
+            enforce_model_lock(payload.get("model"))
+        except ModelLockError as e:
+            raise HTTPException(status_code=403, detail=str(e))
+        sess = get_mundo_chat_store().update_session(
+            session_id,
+            title=payload.get("title"),
+            lane=payload.get("lane"),
+            temperature=payload.get("temperature"),
+            max_tokens=payload.get("max_tokens"),
+            use_rag=payload.get("use_rag"),
+        )
+        if not sess:
+            raise HTTPException(status_code=404, detail=f"Sesión no encontrada: {session_id}")
+        return {"ok": True, "session": sess}
+
+    @app.delete("/api/mundo_sin_censura/sessions/{session_id}")
+    async def delete_mundo_chat_session_endpoint(session_id: str):
+        from core.mundo_sin_censura_chat import get_mundo_chat_store
+        deleted = get_mundo_chat_store().delete_session(session_id)
+        if not deleted:
+            raise HTTPException(status_code=404, detail=f"Sesión no encontrada: {session_id}")
+        return {"ok": True, "deleted": session_id}
+
+    @app.post("/api/mundo_sin_censura/sessions/{session_id}/clear")
+    async def clear_mundo_chat_session_endpoint(session_id: str):
+        from core.mundo_sin_censura_chat import get_mundo_chat_store
+        sess = get_mundo_chat_store().clear_session(session_id)
+        if not sess:
+            raise HTTPException(status_code=404, detail=f"Sesión no encontrada: {session_id}")
+        return {"ok": True, "session": sess}
+
+    @app.get("/api/mundo_sin_censura/sessions/{session_id}/export")
+    async def export_mundo_chat_session_endpoint(session_id: str, fmt: str = "markdown"):
+        from core.mundo_sin_censura_chat import get_mundo_chat_store
+        exp = get_mundo_chat_store().export_session(session_id, fmt=fmt)
+        if not exp:
+            raise HTTPException(status_code=404, detail=f"Sesión no encontrada: {session_id}")
+        return exp
+
+    @app.post("/api/mundo_sin_censura/chat/cancel")
+    async def cancel_mundo_chat_stream_endpoint(payload: Dict[str, Any]):
+        from core.mundo_sin_censura_chat import get_mundo_chat_store
+        rid = str(payload.get("request_id") or "").strip()
+        if not rid:
+            raise HTTPException(status_code=400, detail="Se requiere 'request_id'.")
+        return {"ok": True, "cancelled": get_mundo_chat_store().cancel_stream(rid), "request_id": rid}
+
+    @app.post("/api/mundo_sin_censura/chat/stream")
+    async def stream_mundo_chat_endpoint(payload: Dict[str, Any]):
+        from core.mundo_sin_censura_chat import get_mundo_chat_store, enforce_model_lock, ModelLockError
+        import threading as _threading
+
+        try:
+            enforce_model_lock(payload.get("model"))
+        except ModelLockError as e:
+            raise HTTPException(status_code=403, detail=str(e))
+
+        prompt_txt = str(payload.get("message") or payload.get("prompt") or "").strip()
+        if not prompt_txt:
+            raise HTTPException(status_code=400, detail="Se requiere 'message' o 'prompt'.")
+
+        store = get_mundo_chat_store()
+        loop = asyncio.get_event_loop()
+        queue: asyncio.Queue[Optional[Dict[str, Any]]] = asyncio.Queue()
+
+        def _worker():
+            try:
+                for ev in store.stream_turn(
+                    session_id=payload.get("session_id"),
+                    message=prompt_txt,
+                    model=payload.get("model"),
+                    lane=payload.get("lane"),
+                    temperature=payload.get("temperature"),
+                    max_tokens=payload.get("max_tokens"),
+                    num_ctx=int(payload.get("num_ctx", 8192)),
+                    use_rag=payload.get("use_rag"),
+                    timeout=float(payload.get("timeout", 180.0)),
+                    request_id=payload.get("request_id"),
+                ):
+                    loop.call_soon_threadsafe(queue.put_nowait, ev)
+            except Exception as exc:
+                loop.call_soon_threadsafe(queue.put_nowait, {"type": "error", "error": str(exc)})
+            finally:
+                loop.call_soon_threadsafe(queue.put_nowait, None)
+
+        _threading.Thread(target=_worker, daemon=True).start()
+
+        async def _sse_gen():
+            while True:
+                ev = await queue.get()
+                if ev is None:
+                    break
+                yield f"data: {json.dumps(ev, ensure_ascii=False)}\n\n"
+            yield "data: [DONE]\n\n"
+
+        return StreamingResponse(
+            _sse_gen(),
+            media_type="text/event-stream",
+            headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
         )
 
     # --------------------------------------------------------------------------
@@ -5388,6 +5687,42 @@ iframe{border:none;width:100%;height:100%;}</style></head>
         # Inferencia síncrona completa
         chat_timeout = 0.0
         try:
+            # Enrutamiento nativo directo cuando el cliente solicita explícitamente `mundo-sin-censura`
+            from core.mundo_sin_censura import get_mundo_sin_censura, is_mundo_sin_censura_model
+            if req.model and is_mundo_sin_censura_model(req.model):
+                history = req.history or []
+                msc_messages = [
+                    {"role": str(m.get("role", "user")), "content": str(m.get("content", ""))}
+                    for m in history
+                    if isinstance(m, dict)
+                ]
+                msc_messages.append({"role": "user", "content": msg})
+                loop = asyncio.get_event_loop()
+                msc_res = await loop.run_in_executor(
+                    None,
+                    lambda: get_mundo_sin_censura().chat(
+                        msc_messages,
+                        lane="auto",
+                        temperature=float(temperature),
+                        max_tokens=1024,
+                        num_ctx=int(num_ctx),
+                        use_rag=bool(req.use_retro),
+                        cancel_event=cancel_event,
+                    ),
+                )
+                return {
+                    "ok": bool(msc_res.get("ok")),
+                    "reply": msc_res.get("reply", ""),
+                    "model": msc_res.get("model", "mundo-sin-censura"),
+                    "provider": msc_res.get("provider", "mundo_sin_censura"),
+                    "lane": msc_res.get("lane"),
+                    "elapsed": msc_res.get("elapsed"),
+                    "usage": msc_res.get("usage", {}),
+                    "tokens_per_sec": msc_res.get("tokens_per_sec"),
+                    "request_id": request_id,
+                    "client_id": client_id,
+                }
+
             emo_dict = None
             if req.affective_state:
                 if hasattr(req.affective_state, "model_dump"):

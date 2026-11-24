@@ -6,6 +6,7 @@ Pipelines de procesamiento y generación de video 4K, avatares 3D interactivos y
 
 - **character_3d_renderer.py**: Componente de alta eficiencia.
 - **core__tardis_video_thinking_engine.py**: Núcleo de orquestación y control temporal/espacial.
+- **core__video_pipeline_4k.py**: Núcleo de orquestación y control temporal/espacial.
 - **core__visual_intelligence_engine.py**: Núcleo de orquestación y control temporal/espacial.
 - **render_3d_engine.py**: Componente de alta eficiencia.
 - **speaking_video_generator.py**: Componente de alta eficiencia.

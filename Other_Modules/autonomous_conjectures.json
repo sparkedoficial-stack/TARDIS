@@ -1,55 +1,5 @@
 [
   {
-    "id": "conj_1794857419",
-    "timestamp": "2026-11-16T14:30:19.708396",
-    "idle_duration_minutes": 66.0,
-    "title": "Optimización de la latencia de búsqueda mediante caché adaptativa basada en patrones de consulta",
-    "hypothesis": "Si el motor de investigación web (core/web_research_engine.py) incorpora una capa de caché adaptativa que prioriza y prefetches resultados según patrones temporales y semánticos de consultas, entonces la latencia promedio de búsqueda disminuirá en al menos un 30% sin comprometer la frescura de la información, al tiempo que se reducirá la carga de red y el consumo de recursos del módulo network_shield.",
-    "research_query": "adaptive query caching web search engine latency reduction pattern analysis recent 2023-2024",
-    "research_findings": "# Informe de Investigación: adaptive query caching web search engine latency reduction pattern analysis recent 2023-2024\n\n## Fuentes Consultadas y Respaldo Web\n- **[Big data (Wikipedia)](https://en.wikipedia.org/wiki/Big_data)**: rate. Big data analysis challenges include capturing data, data storage, data analysis, search, sharing, transfer, visualization, querying, updating, information\n\n## Contenido y Hallazgos Extraídos\n### De [Big data - Wikipedia](https://en.wikipedia.org/wiki/Big_data)\n> Big data - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nExtremely large or complex datasets\nNot to be confused with Big Data (music project) .\nA diagram of the generation and common application of big data\nBig data primarily refers to data sets that are too large or complex to be dealt with by traditional data-processing software . Data with many entries (rows) offers greater st...\n",
-    "web_sources": [
-      "https://en.wikipedia.org/wiki/Big_data"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Implementar una caché LRU con expiración dinámica basada en la frecuencia y similitud de consultas, añadiendo prefetching de URLs relacionadas y un mecanismo de invalidación que consulte al módulo network_shield para respetar políticas de rate‑limit y privacidad.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 2159.77
-  },
-  {
-    "id": "conj_1794861652",
-    "timestamp": "2026-11-16T15:40:52.309556",
-    "idle_duration_minutes": 70.5,
-    "title": "Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "Integrating a causal inference layer that predicts the relevance decay of cached web research results based on temporal patterns and source reliability will reduce stale data retrieval by at least 30% and improve answer accuracy in the akáshic vault. The hypothesis posits that a lightweight Bayesian decay model, applied during cache lookup in `core/web_research_engine.py`, can dynamically adjust TTL (time‑to‑live) per query context rather than using static expiration times.",
-    "research_query": "dynamic cache expiration based on causal relevance decay Bayesian model web search engine",
-    "research_findings": "# Informe de Investigación: dynamic cache expiration based on causal relevance decay Bayesian model web search engine\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal decay module that computes per‑query TTL using a Bayesian update of source reliability and time‑since‑last‑fetch, then integrate it into the cache‑lookup logic to invalidate or refresh entries automatically.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 2401.1
-  },
-  {
-    "id": "conj_1794865549",
-    "timestamp": "2026-11-16T16:45:49.571531",
-    "idle_duration_minutes": 65.0,
-    "title": "Causal‑Feedback Loop for Adaptive Web Research",
-    "hypothesis": "Integrating a causal inference layer between the Web Research Engine and the Deep Memory Vault will enable the system to automatically adjust its query formulation based on observed relevance feedback, reducing redundant searches by at least 30% and improving answer precision. The hypothesis posits that a lightweight Bayesian network can model the causal relationship between query parameters, retrieved document features, and downstream answer quality, allowing the engine to iteratively refine future queries in real time.",
-    "research_query": "\"causal inference for adaptive web search\" OR \"feedback loop web retrieval Bayesian network\"",
-    "research_findings": "# Informe de Investigación: \"causal inference for adaptive web search\" OR \"feedback loop web retrieval Bayesian network\"\n\n## Fuentes Consultadas y Respaldo Web\n- **[UEFA (Wikipedia)](https://es.wikipedia.org/wiki/UEFA)**: 2026 muestra a las siguientes selecciones masculinas como las diez mejores de la UEFA.​ La clasificación mundial de la FIFA del 16 de junio de 2026 muestra\n- **[Wayback Machine (Wikipedia)](https://es.wikipedia.org/wiki/Wayback_Machine)**: desde el original el February 20, 2026. Consultado el February 18, 2026.  Deck, Andrew; Tameez, Hanaa' (January 28, 2026). «News publishers limit Internet\n\n## Contenido y Hallazgos Extraídos\n### De [UEFA - Wikipedia, la enciclopedia libre](https://es.wikipedia.org/wiki/UEFA)\n> UEFA - Wikipedia, la enciclopedia libre\nIr al contenido\nDe Wikipedia, la enciclopedia libre\n{{bandera|tamaño=15px|Hungría}} Sándor Csányi <br />{{bandera|tamaño=15px|España}} [[Luis Rubiales]] <br />{{bandera|tamaño=15px|Portugal}} Fernando Gomes <br />{{bande",
-    "web_sources": [
-      "https://es.wikipedia.org/wiki/UEFA",
-      "https://es.wikipedia.org/wiki/Wayback_Machine"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a new module `causal_feedback.py` that defines a simple Bayesian network (using pgmpy or a custom implementation) and modify `WebResearchEngine.search()` to log relevance signals from `deep_memory_vault` and update the network before the next query, enabling dynamic query parameter tuning.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 2097.25
-  },
-  {
     "id": "conj_1794870078",
     "timestamp": "2026-11-16T18:01:18.204284",
     "idle_duration_minutes": 75.5,
@@ -1638,5 +1588,56 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 2029.42
+  },
+  {
+    "id": "conj_1795512436",
+    "timestamp": "2026-11-24T04:27:16.636684",
+    "idle_duration_minutes": 47.5,
+    "title": "Temporal Contextual Embedding for Akashic Vault Retrieval",
+    "hypothesis": "Integrating a time-decayed attention mechanism into deep_memory_vault will prioritize recent causal links while preserving long‑term akashic patterns, improving retrieval relevance.",
+    "research_query": "time decay attention mechanism for long‑term memory retrieval neural networks",
+    "research_findings": "# Informe de Investigación: time decay attention mechanism for long‑term memory retrieval neural networks\n\n## Fuentes Consultadas y Respaldo Web\n- **[Titans + MIRAS: Helping AI have long-term memory - Google Research](https://news.google.com/rss/articles/CBMigAFBVV95cUxQT09kQldONHlTQlJsNmJTTzRRRWowZVBpaWN0YVJkSkJ5NUtGYmlhcF9tRzg4aEJTQXJZZU51czlFN2xoOUpmMGx6QzY4WU9FZTR2SWl3WXhLRmtmVFRsSjVxUnhHd2N2TTVKek1tTmprdW01VnVpZGY0U3JOZXNuOQ?oc=5)**: Titans + MIRAS: Helping AI have long-term memory  Google Research\n- **[Focusing attention in working and long-term memory through dissociable mechanisms - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE9lcnhBY2podDM3MnpEbG0tMzBEMjhhdThCZ0N6WFlyd0REX2lLUUo0Wm9FYjhrY1JDaE1TLWNZTnA4TW1KQ2wxNXZDMURwZldFbnRacHdhU2FHM2Rlc0JV?oc=5)**: Focusing attention in working and long-term memory through dissociable mechanisms  Nature\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMigAFBVV95cUxQT09kQldONHl",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMigAFBVV95cUxQT09kQldONHlTQlJsNmJTTzRRRWowZVBpaWN0YVJkSkJ5NUtGYmlhcF9tRzg4aEJTQXJZZU51czlFN2xoOUpmMGx6QzY4WU9FZTR2SWl3WXhLRmtmVFRsSjVxUnhHd2N2TTVKek1tTmprdW01VnVpZGY0U3JOZXNuOQ?oc=5",
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE9lcnhBY2podDM3MnpEbG0tMzBEMjhhdThCZ0N6WFlyd0REX2lLUUo0Wm9FYjhrY1JDaE1TLWNZTnA4TW1KQ2wxNXZDMURwZldFbnRacHdhU2FHM2Rlc0JV?oc=5"
+    ],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Add a configurable decay factor to the embedding attention layer and expose it via the vault API",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 1049.96
+  },
+  {
+    "id": "conj_1795515224",
+    "timestamp": "2026-11-24T05:13:44.667908",
+    "idle_duration_minutes": 46.5,
+    "title": "Integrating Temporal Causal Graphs into Chronovision for Predictive Telemetry",
+    "hypothesis": "Embedding a dynamic temporal causal graph within the Chronovision engine will enable real‑time prediction of system anomalies before they manifest, improving proactive resilience.",
+    "research_query": "how to implement temporal causal graphs for real-time anomaly prediction in distributed systems",
+    "research_findings": "# Informe de Investigación: how to implement temporal causal graphs for real-time anomaly prediction in distributed systems\n\n## Fuentes Consultadas y Respaldo Web\n- **[Federated learning with continual update for privacy-preserving clinical event prediction across distributed hospitals using MCN-GNN | Scientific Reports - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE5FS2VsNUg1RDZoUjdRb3JpQmZQTy1EalRKMEZ2Um9VbXBITEZHaG1wZ05SNGZEV0RTdTNzSXo5cEFYQ0p1OVJWdXowWTBwTnF1Z0dfTzFkbDVQSl8tTXlr?oc=5)**: Federated learning with continual update for privacy-preserving clinical event prediction across distributed hospitals using MCN-GNN | Scientific Reports  Nature\n- **[Interpretable sentiment-aware transformer-based model for individual log anomaly detection in distributed systems using word-level explanations - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTFB3LU05VEE1bG13OWQtQ19hWGg1RFBFM1lXU3duZlYtbzN0ZnJHX050UnE5cktZRnJBSVVXTGV6NFdRajdLZDE3M0tCRlhlMTNYOGVZejlPWHFHbXp1YmF",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE5FS2VsNUg1RDZoUjdRb3JpQmZQTy1EalRKMEZ2Um9VbXBITEZHaG1wZ05SNGZEV0RTdTNzSXo5cEFYQ0p1OVJWdXowWTBwTnF1Z0dfTzFkbDVQSl8tTXlr?oc=5",
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTFB3LU05VEE1bG13OWQtQ19hWGg1RFBFM1lXU3duZlYtbzN0ZnJHX050UnE5cktZRnJBSVVXTGV6NFdRajdLZDE3M0tCRlhlMTNYOGVZejlPWHFHbXp1YmFN?oc=5"
+    ],
+    "code_target": "core/chronovision_engine.py",
+    "code_goal": "Add a causal‑graph module that updates edge weights from deep_memory_vault events and exposes a predict_anomaly() async API",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 987.99
+  },
+  {
+    "id": "conj_1795521594",
+    "timestamp": "2026-11-24T06:59:54.517345",
+    "idle_duration_minutes": 72.0,
+    "title": "Temporal Contextual Embedding Enhances Causal Reasoning in Chronovision Engine",
+    "hypothesis": "Integrating a sliding temporal attention window over memory embeddings will improve the engine's ability to infer causal chains across disparate events.",
+    "research_query": "\"temporal attention window\" causal inference neural networks sliding window memory embeddings",
+    "research_findings": "# Informe de Investigación: \"temporal attention window\" causal inference neural networks sliding window memory embeddings\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/chronovision_engine.py",
+    "code_goal": "Add a configurable temporal attention module that weights recent memory vectors higher and decays older ones, updating the forward pass to incorporate this weighting",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 1290.68
   }
 ]

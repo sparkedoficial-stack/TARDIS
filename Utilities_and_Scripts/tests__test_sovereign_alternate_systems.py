@@ -695,6 +695,13 @@ def test_antigravity_bridge_cpu_spike_hysteresis_and_diagnostics(monkeypatch):
     )
     monkeypatch.setattr(antigravity_bridge, "_atomic_write_json", lambda *a, **kw: None)
     monkeypatch.setattr(antigravity_bridge, "_safe_tail", lambda *a, **kw: [])
+    import psutil
+    from types import SimpleNamespace
+    monkeypatch.setattr(
+        psutil,
+        "virtual_memory",
+        lambda: SimpleNamespace(percent=50.0, available=16 * 1024**3, total=32 * 1024**3),
+    )
 
     # Ciclo 1: pico transitorio único de 91% CPU con EMA baja previa -> NO debe penalizar a 85
     bridge._cpu_ema = 25.0
@@ -947,3 +954,318 @@ def test_resource_governor_two_stage_thermal_power_saver_escalation_and_recovery
     assert rel["ok"] is True
     assert rel["power_profile_action"] == "stepped_back_to_balanced"
     assert pp_state["profile"] == "balanced"
+
+
+def test_video_pipeline_4k_budget_and_encoder_thread_caps(monkeypatch):
+    from core import tardis_resource_governor as trg
+    from core import video_pipeline_4k as vp4k
+
+    fake_snap = {"level": "GREEN", "cpu": {"psi": {"some_avg60": 5.0}}}
+
+    class _FakeGov:
+        def read_fast_snapshot(self, max_age_s: float = 60.0):
+            return fake_snap
+
+    monkeypatch.setattr(trg, "get_resource_governor", lambda: _FakeGov())
+    monkeypatch.setattr(vp4k.os, "sched_getaffinity", lambda _pid: set(range(8, 16)), raising=False)
+
+    # GREEN en cpuset de 8 CPUs -> máximo 2 workers, 1 hilo OpenCV y 1 hilo FFmpeg por worker
+    w_g, cv_g, ff_g, lvl_g = vp4k._resolve_render_budget(None, 1800)
+    assert (w_g, cv_g, ff_g, lvl_g) == (2, 1, 1, "GREEN")
+
+    # YELLOW con PSI60 >= 35% -> contrae proactivamente a 1 worker para evitar contención CCD1
+    fake_snap["level"] = "YELLOW"
+    fake_snap["cpu"]["psi"]["some_avg60"] = 39.4
+    w_y, cv_y, ff_y, lvl_y = vp4k._resolve_render_budget(None, 1800)
+    assert w_y == 1 and cv_y <= 2 and ff_y == 2 and lvl_y == "YELLOW"
+
+    # RED -> fuerza 1 worker y 1 hilo FFmpeg incluso si el invocador pidió 4 workers
+    fake_snap["level"] = "RED"
+    fake_snap["cpu"]["psi"]["some_avg60"] = 75.5
+    w_r, cv_r, ff_r, lvl_r = vp4k._resolve_render_budget(4, 1800)
+    assert w_r == 1 and ff_r == 1 and lvl_r == "RED"
+
+    # Todos los perfiles de codificación (VAAPI, NVENC, libx264) deben acotar -threads <= 4
+    for enc_args in (
+        vp4k._video_encoder_args(12000, False, threads=2, vaapi_device="/dev/dri/renderD128"),
+        vp4k._video_encoder_args(12000, True, threads=2, vaapi_device=None),
+        vp4k._video_encoder_args(12000, False, threads=8, vaapi_device=None),
+    ):
+        assert "-threads" in enc_args
+        t_val = int(enc_args[enc_args.index("-threads") + 1])
+        assert 1 <= t_val <= 4
+
+
+def test_resource_governor_observes_tardis_service_and_aggregate_oversubscription(tmp_path: Path, monkeypatch):
+    from core import tardis_resource_governor as trg
+
+    # tardis.service debe observarse para PSI/sobresuscripción pero permanecer estrictamente protegida contra throttling
+    assert "tardis.service" in trg.OBSERVED_ONLY_UNITS
+    assert "tardis.service" in trg.ALL_INSPECTED_UNITS
+    assert "tardis.service" in trg.PROTECTED_UNITS
+    assert "tardis.service" not in trg.BACKGROUND_THROTTLE_UNITS
+    assert "tardis.service" not in trg.SENTINEL_THROTTLE_UNITS
+    assert "tardis.service" not in trg.INFERENCE_MANAGED_UNITS
+
+    # Simular un cgroup tardis.service con cpuset 8-15 (8 CPUs) y 4 workers con 3 hilos 'R' cada uno (12 > 8)
+    app_slice = tmp_path / "app.slice"
+    cg = app_slice / "tardis.service"
+    cg.mkdir(parents=True)
+    (cg / "cpuset.cpus.effective").write_text("8-15\n", encoding="utf-8")
+    (cg / "cpu.max").write_text("max 100000\n", encoding="utf-8")
+    (cg / "cpu.weight").write_text("100\n", encoding="utf-8")
+    (cg / "cpu.pressure").write_text(
+        "some avg10=48.50 avg60=42.10 avg300=18.00 total=1000\nfull avg10=1.20 avg60=0.80 avg300=0.30 total=100\n",
+        encoding="utf-8",
+    )
+    fake_pids = [91001, 91002, 91003, 91004]
+    (cg / "cgroup.procs").write_text("\n".join(str(p) for p in fake_pids) + "\n", encoding="utf-8")
+
+    orig_read_bytes = Path.read_bytes
+    orig_read_text = Path.read_text
+
+    def _fake_read_bytes(self: Path):
+        s = str(self)
+        if s.startswith("/proc/9100") and s.endswith("/cmdline"):
+            return b"python3\x00core/video_pipeline_4k.py\x00--job\x00job.json"
+        return orig_read_bytes(self)
+
+    def _fake_read_text(self: Path, *args, **kwargs):
+        s = str(self)
+        if s.startswith("/proc/9100") and s.endswith("/comm"):
+            return "python3\n"
+        return orig_read_text(self, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "read_bytes", _fake_read_bytes)
+    monkeypatch.setattr(Path, "read_text", _fake_read_text)
+    monkeypatch.setattr(trg, "_count_runnable_threads", lambda pid: 3 if pid in fake_pids else 0)
+
+    pressure_rows, oversub = trg._inspect_cgroup_units(units=("tardis.service",), cgroup_app_slice=app_slice)
+    assert len(pressure_rows) == 1
+    assert pressure_rows[0]["unit"] == "tardis.service"
+    assert pressure_rows[0]["pids_count"] == 4
+    assert pressure_rows[0]["psi_some_avg60"] == 42.10
+
+    assert len(oversub) == 1
+    assert oversub[0]["unit"] == "tardis.service"
+    assert oversub[0]["runnable_threads"] == 12
+    assert oversub[0]["active_pids"] == 4
+    assert oversub[0]["oversubscription_ratio"] == 1.5
+
+
+def test_resource_governor_proactive_psi_load_admission_and_power_saver_step_down(tmp_path: Path, monkeypatch):
+    from core import tardis_resource_governor as trg
+
+    gov = trg.TardisResourceGovernor(
+        db_path=tmp_path / "gov_proactive.db",
+        throttle_state_file=tmp_path / "throttle_proactive.json",
+    )
+
+    # 1) YELLOW con load1=19.36 y PSI60=39.4% -> debe cerrar heavy_learning/idle_evolution y activar trigger ORANGE
+    monkeypatch.setattr(trg, "_read_meminfo_mb", lambda: {"total_mb": 32000.0, "available_mb": 8500.0, "used_mb": 23500.0, "used_pct": 73.4, "swap_total_mb": 32000.0, "swap_used_mb": 3200.0})
+    monkeypatch.setattr(trg, "_parse_psi_file", lambda _p: {"some_avg10": 42.0, "some_avg60": 39.4, "some_avg300": 20.0, "full_avg10": 0.0, "full_avg60": 0.0})
+    monkeypatch.setattr(trg, "_read_cpu_thermal", lambda: {"temp_c": 75.0, "source": "k10temp", "fan_rpm": {}})
+    monkeypatch.setattr(trg, "_read_cpu_power_profile", lambda: {"power_profile": "balanced", "scaling_driver": "amd-pstate-epp", "scaling_governor": "powersave", "epp": "balance_performance", "boost": True})
+    monkeypatch.setattr(trg, "_read_gpu", lambda: {"available": True, "temp_c": 71.0, "util_pct": 10.0, "vram_used_mb": 3500.0, "vram_free_mb": 4500.0, "vram_total_mb": 8000.0, "vram_used_pct": 43.8})
+    monkeypatch.setattr(trg, "_inspect_cgroup_units", lambda *a, **kw: ([], []))
+    monkeypatch.setattr(trg, "_query_ollama_ps", lambda _p: [])
+    monkeypatch.setattr(trg, "_is_call_active", lambda: False)
+    monkeypatch.setattr(trg, "_read_loadavg", lambda: (19.36, 12.5, 8.0))
+    monkeypatch.setattr(trg.os, "cpu_count", lambda: 16)
+
+    snap_yellow = gov.collect_snapshot(persist=False)
+    assert snap_yellow["level"] == "YELLOW"
+    assert snap_yellow["admission"]["heavy_learning"] is False
+    assert snap_yellow["admission"]["idle_evolution"] is False
+    assert trg._resolve_throttle_target_level(snap_yellow) == "ORANGE"
+
+    # 2) PSI60=46.0% + load1=20.80 (>= 1.25 * 16) -> escalación proactiva directa a ORANGE antes de llegar a RED
+    monkeypatch.setattr(trg, "_parse_psi_file", lambda _p: {"some_avg10": 50.0, "some_avg60": 46.0, "some_avg300": 25.0, "full_avg10": 0.0, "full_avg60": 0.0})
+    monkeypatch.setattr(trg, "_read_loadavg", lambda: (20.80, 14.0, 9.0))
+    snap_orange = gov.collect_snapshot(persist=False)
+    assert snap_orange["level"] == "ORANGE"
+    assert any("Contención combinada CPU PSI/Load" in r for r in snap_orange["reasons"])
+
+    # 3) _needs_power_profile_step_down: cuando ya está ORANGE+balanced y GPU sube a 79°C -> debe pedir step-down a power-saver
+    hot_orange_snap = {
+        "level": "ORANGE",
+        "cpu": {"cores": 16, "load1": 6.0, "psi": {"some_avg60": 40.0}, "temp_c": 83.0, "power_profile": "balanced"},
+        "gpu": {"available": True, "temp_c": 79.0},
+    }
+    st_balanced = {"active": True, "level": "ORANGE", "power_profile_applied": "balanced"}
+    st_power_saver = {"active": True, "level": "ORANGE", "power_profile_applied": "power-saver"}
+    assert trg._needs_power_profile_step_down(hot_orange_snap, "ORANGE", st_balanced) is True
+    assert trg._needs_power_profile_step_down(hot_orange_snap, "ORANGE", st_power_saver) is False
+
+
+def test_semantic_cache_l1_l2_anti_anisotropy_volatility_and_prompt_router(tmp_path: Path, monkeypatch):
+    import numpy as np
+    from core import tardis_semantic_cache as tsc
+
+    cache = tsc.TardisSemanticCache(
+        db_path=tmp_path / "sem_cache.db",
+        embed_socket="/nonexistent/embed.sock",
+        similarity_threshold=0.94,
+    )
+    monkeypatch.setattr(tsc, "_read_governor_state_fast", lambda: {"ok": True, "level": "GREEN", "call_priority_active": False})
+
+    # Simular embeddings de cono estrecho (anisotropía tipo multilingual-e5-small) donde incluso textos distintos tienen cos ~0.96
+    base_v = np.zeros(384, dtype=np.float32)
+    base_v[0] = 0.985
+    base_v[1] = 0.172
+    para_v = np.zeros(384, dtype=np.float32)
+    para_v[0] = 0.990
+    para_v[1] = 0.141
+    unrel_v = np.zeros(384, dtype=np.float32)
+    unrel_v[0] = 0.975
+    unrel_v[1] = 0.222  # cos(base_v, unrel_v) > 0.99 pero sin solapamiento léxico!
+
+    def _fake_embed(text: str, *, conn=None):
+        low = text.lower()
+        if "gobernador" in low and "manera" in low:
+            return para_v / np.linalg.norm(para_v)
+        if "gobernador" in low:
+            return base_v / np.linalg.norm(base_v)
+        return unrel_v / np.linalg.norm(unrel_v)
+
+    monkeypatch.setattr(cache, "embed_query", _fake_embed)
+
+    st = cache.store(
+        "Explica cómo mitiga el gobernador de recursos la presión CPU PSI en puerto 8757",
+        "El gobernador aplica cuotas cgroup v2 y perfil energético adaptativo.",
+        model="TARDIS-NEURAL-SPACE-KAIJU",
+        namespace="background",
+        elapsed_ms=2200.0,
+        usage={"prompt_tokens": 40, "completion_tokens": 60},
+    )
+    assert st["ok"] and st["stored"] is True and st["semantic_indexed"] is True
+
+    # 1) L1 Exact Hit (<1ms, 0 llamadas extra)
+    h1 = cache.lookup(
+        "  Explica cómo mitiga el gobernador de recursos la presión CPU PSI en puerto 8757 ",
+        model="TARDIS-NEURAL-SPACE-KAIJU",
+        namespace="background",
+    )
+    assert h1["hit"] is True and h1["match_type"] == "exact" and h1["tokens_saved"] == 100
+
+    # 2) L2 Semantic Hit (paráfrasis real con mismo puerto 8757)
+    h2 = cache.lookup(
+        "Explica de qué manera el gobernador de recursos mitiga la presión CPU PSI en puerto 8757",
+        model="TARDIS-NEURAL-SPACE-KAIJU",
+        namespace="background",
+    )
+    assert h2["hit"] is True and h2["match_type"] == "semantic" and h2["similarity"] >= 0.94
+
+    # 3) Guarda de discriminador numérico: puerto distinto (11435 vs 8757) JAMÁS debe colisionar
+    h_port = cache.lookup(
+        "Explica de qué manera el gobernador de recursos mitiga la presión CPU PSI en puerto 11435",
+        model="TARDIS-NEURAL-SPACE-KAIJU",
+        namespace="background",
+    )
+    assert h_port["hit"] is False
+
+    # 4) Guarda anti-anisotropía: prompt totalmente distinto con cos > 0.99 JAMÁS debe producir falso positivo
+    h_unrel = cache.lookup(
+        "Receta tradicional para hornear pan de centeno con masa madre",
+        model="TARDIS-NEURAL-SPACE-KAIJU",
+        namespace="background",
+    )
+    assert h_unrel["hit"] is False
+
+    # 5) Guarda de volatilidad y temperatura alta
+    h_vol = cache.lookup("¿Qué hora es ahora mismo en el sistema?", namespace="background")
+    assert h_vol["hit"] is False and h_vol["reason"] == "volatile_prompt_bypass"
+    h_temp = cache.lookup(
+        "Explica cómo mitiga el gobernador de recursos la presión CPU PSI en puerto 8757",
+        namespace="background",
+        temperature=0.95,
+    )
+    assert h_temp["hit"] is False and h_temp["reason"] == "high_temperature_bypass"
+
+    # 6) Prompt Router: acierto en caché -> semantic_cache; llamada Telegram activa -> defer; RED -> defer
+    rt_hit = cache.route_prompt(
+        "Explica cómo mitiga el gobernador de recursos la presión CPU PSI en puerto 8757",
+        model="TARDIS-NEURAL-SPACE-KAIJU",
+        namespace="background",
+        task_class="background",
+    )
+    assert rt_hit["lane"] == "semantic_cache" and rt_hit["cache_hit"] is True
+
+    rt_call = cache.route_prompt(
+        "Consulta nueva no cacheada sobre arquitectura",
+        namespace="background",
+        task_class="background",
+        check_cache=False,
+        governor_snapshot={"level": "RED", "call_priority_active": True},
+    )
+    assert rt_call["lane"] == "defer" and rt_call["should_defer"] is True
+
+    stats = cache.stats()
+    assert stats["counters"]["exact_hits"] == 2  # h1 + rt_hit
+    assert stats["counters"]["semantic_hits"] == 1
+    assert stats["savings"]["tokens_saved_total"] == 300
+    assert stats["savings"]["cpu_ms_saved"] >= 6600.0
+
+
+def test_resource_governor_gpu_eco_pstate_and_hyprland_lifecycle(tmp_path: Path, monkeypatch):
+    from core import tardis_resource_governor as trg
+
+    gov = trg.TardisResourceGovernor(
+        db_path=tmp_path / "gov_gpu.db",
+        throttle_state_file=tmp_path / "throttle_gpu.json",
+        gpu_eco_state_file=tmp_path / "gpu_eco.json",
+    )
+    monkeypatch.setattr(trg, "_gpu_eco_control_enabled", lambda: True)
+
+    # 1) Reglas puras de decisión _resolve_gpu_eco_mode
+    idle_headless_snap = {
+        "level": "GREEN",
+        "call_priority_active": False,
+        "gpu": {"available": True, "pstate": "P0", "temp_c": 56.0, "util_pct": 2.0, "power_w": 12.0},
+    }
+    disp_headless = {"connected_displays": 0, "total_connectors": 3, "headless_or_display_off": True, "hyprland_signature": "sig1", "temporal_brain_busy": False}
+    disp_busy_cuda = {**disp_headless, "temporal_brain_busy": True}
+    assert trg._resolve_gpu_eco_mode(idle_headless_snap, disp_headless) == "eco_idle"
+    # Con inferencia CUDA activa en TemporalBrain -> NUNCA degrada relojes (<84°C)
+    assert trg._resolve_gpu_eco_mode(idle_headless_snap, disp_busy_cuda) == "normal"
+    # Con llamada Telegram activa -> siempre normal
+    assert trg._resolve_gpu_eco_mode({**idle_headless_snap, "call_priority_active": True}, disp_headless) == "normal"
+    # En RED térmico (GPU 85°C) -> eco_thermal (P5)
+    hot_red_snap = {
+        "level": "RED",
+        "call_priority_active": False,
+        "gpu": {"available": True, "pstate": "P0", "temp_c": 85.0, "util_pct": 18.0, "power_w": 33.0},
+    }
+    assert trg._resolve_gpu_eco_mode(hot_red_snap, disp_headless) == "eco_thermal"
+
+    # 2) Ciclo completo reversible: normal -> eco_idle (P8 + Hyprland eco) -> normal (unlock + restaurar Hyprland)
+    gpu_calls = []
+    hypr_state = {"animations:enabled": 1, "decoration:blur:enabled": 1, "decoration:shadow:enabled": 1}
+
+    def _fake_cap(mode: str):
+        gpu_calls.append(mode)
+        return True, ("clocks_unlocked" if mode == "normal" else f"capped_{mode}")
+
+    monkeypatch.setattr(trg, "_apply_nvidia_clock_cap", _fake_cap)
+    monkeypatch.setattr(trg, "_hyprctl_get_bool", lambda sig, opt: hypr_state.get(opt))
+
+    def _fake_hypr_set(sig: str, opt: str, val):
+        hypr_state[opt] = int(val)
+        return True
+
+    monkeypatch.setattr(trg, "_hyprctl_set_keyword", _fake_hypr_set)
+    monkeypatch.setattr(trg, "_read_display_session_state", lambda: disp_headless)
+
+    res_eco = gov.reconcile_gpu_eco(idle_headless_snap, dry_run=False)
+    assert res_eco["ok"] is True and res_eco["action"] == "switched_to_eco_idle"
+    assert gpu_calls == ["eco_idle"]
+    assert all(v == 0 for v in hypr_state.values())
+    assert gov.get_gpu_eco_status()["mode"] == "eco_idle"
+
+    # Al activarse TemporalBrain (CUDA busy) -> desbloqueo instantáneo y restauración de Hyprland
+    monkeypatch.setattr(trg, "_read_display_session_state", lambda: disp_busy_cuda)
+    res_norm = gov.reconcile_gpu_eco(idle_headless_snap, dry_run=False)
+    assert res_norm["ok"] is True and res_norm["action"] == "switched_to_normal"
+    assert gpu_calls == ["eco_idle", "normal"]
+    assert all(v == 1 for v in hypr_state.values())
+    assert gov.get_gpu_eco_status()["mode"] == "normal"

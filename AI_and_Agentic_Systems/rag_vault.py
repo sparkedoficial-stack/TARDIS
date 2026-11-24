@@ -73,9 +73,11 @@ class RAGVault:
     def __init__(self) -> None:
         self.db_path = DB_PATH
         self.embed_socket = EMBED_SOCKET
-        self._mat: Optional[np.ndarray] = None       # matriz (N, dim) cacheada
+        self._mat: Optional[np.ndarray] = None       # matriz cruda (N, dim) cacheada
+        self._mat_calibrated: Optional[np.ndarray] = None  # matriz calibrada isotrópicamente (ZCA/ABTT)
         self._ids: List[int] = []                     # chunk_id por fila de la matriz
         self._mat_dirty = True
+        self._calibrator: Any = None
         self.kg = get_knowledge_graph()
         self._init_db()
 
@@ -400,6 +402,42 @@ class RAGVault:
             con.close()
 
     # ----------------------------------------------------------- matriz densa
+    def _ensure_isotropy_calibrator(self) -> None:
+        """Ajusta o recarga calibración isotrópica ZCA Whitening sobre la matriz densa en RAM."""
+        if self._mat is None or self._mat.shape[0] == 0:
+            self._mat_calibrated = self._mat
+            return
+        try:
+            from core.embed_isotropy import (
+                DEFAULT_CALIBRATION_NPZ,
+                EmbedIsotropyCalibrator,
+                is_isotropy_enabled,
+            )
+
+            if not is_isotropy_enabled():
+                self._mat_calibrated = self._mat
+                return
+
+            is_prod_db = Path(self.db_path).resolve() == DB_PATH.resolve()
+            if self._calibrator is None:
+                self._calibrator = EmbedIsotropyCalibrator(artifact_path=DEFAULT_CALIBRATION_NPZ)
+                if is_prod_db:
+                    self._calibrator.load()
+
+            n_vecs = int(self._mat.shape[0])
+            if self._calibrator.needs_refit(n_vecs):
+                meta = self._calibrator.fit(self._mat)
+                if meta.get("fitted") and is_prod_db and not os.environ.get("PYTEST_CURRENT_TEST"):
+                    self._calibrator.save()
+
+            if self._calibrator.fitted:
+                self._mat_calibrated = self._calibrator.transform(self._mat)
+            else:
+                self._mat_calibrated = self._mat
+        except Exception as exc:
+            logger.debug("[RAGVault] Fallback a matriz densa cruda (isotropía no disponible: %s)", exc)
+            self._mat_calibrated = self._mat
+
     def _load_matrix(self) -> None:
         con = self._connect()
         try:
@@ -410,10 +448,12 @@ class RAGVault:
             con.close()
         if not rows:
             self._mat = np.zeros((0, EMBED_DIM), dtype=np.float32)
+            self._mat_calibrated = self._mat
             self._ids = []
         else:
             self._ids = [r[0] for r in rows]
             self._mat = np.frombuffer(b"".join(r[1] for r in rows), dtype=np.float32).reshape(len(rows), EMBED_DIM)
+            self._ensure_isotropy_calibrator()
         self._mat_dirty = False
 
     # --------------------------------------------------------------- busqueda
@@ -423,7 +463,11 @@ class RAGVault:
         if self._mat is None or self._mat.shape[0] == 0:
             return []
         qv = self.embed([query], kind="query")[0]
-        sims = self._mat @ qv                     # coseno (todo normalizado)
+        if self._calibrator is not None and getattr(self._calibrator, "fitted", False) and self._mat_calibrated is not None:
+            qv_cal = self._calibrator.transform(qv)
+            sims = self._mat_calibrated @ qv_cal      # coseno isotrópico ZCA (alta separación)
+        else:
+            sims = self._mat @ qv                     # coseno crudo de respaldo
         top = np.argsort(-sims)[:k]
         return [(self._ids[i], float(sims[i])) for i in top]
 
@@ -763,6 +807,7 @@ class RAGVault:
         finally:
             con.close()
         kg_stats = self.kg.stats()
+        iso_stats = self._calibrator.summary() if self._calibrator is not None else {"fitted": False}
         return {
             "chunks": n_chunks,
             "terms": n_terms,
@@ -771,6 +816,7 @@ class RAGVault:
             "by_source": by_src,
             "embed_online": self.embed_available(),
             "dim": EMBED_DIM,
+            "isotropy_calibration": iso_stats,
             "knowledge_graph": kg_stats,
         }
 

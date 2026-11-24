@@ -62,6 +62,7 @@ GOVERNOR_DB = DATA_DIR / "resource_governor.db"
 RUNTIME_DIR = Path(os.environ.get("XDG_RUNTIME_DIR", f"/run/user/{os.getuid()}"))
 TMPFS_SNAPSHOT = RUNTIME_DIR / "tardis_governor.json"
 THROTTLE_STATE_FILE = RUNTIME_DIR / "tardis_governor_throttle.json"
+GPU_ECO_STATE_FILE = RUNTIME_DIR / "tardis_governor_gpu_eco.json"
 DISK_SNAPSHOT = DATA_DIR / "resource_governor_latest.json"
 LOCK_FILE = DATA_DIR / "resource_governor.lock"
 BACKUP_ARCHIVE_DIR = PROJECT_ROOT / "_selfmod_backups" / "legacy_archive"
@@ -522,7 +523,7 @@ def _read_gpu() -> Dict[str, Any]:
         res = subprocess.run(
             [
                 "nvidia-smi",
-                "--query-gpu=name,temperature.gpu,utilization.gpu,memory.used,memory.free,memory.total",
+                "--query-gpu=name,temperature.gpu,utilization.gpu,memory.used,memory.free,memory.total,pstate,power.draw,clocks.gr,clocks.mem",
                 "--format=csv,noheader,nounits",
             ],
             stdin=subprocess.DEVNULL,
@@ -535,6 +536,15 @@ def _read_gpu() -> Dict[str, Any]:
             if len(cols) >= 6:
                 v_used = float(cols[3])
                 v_tot = float(cols[5])
+
+                def _opt_float(idx: int) -> float:
+                    if idx < len(cols):
+                        try:
+                            return float(cols[idx])
+                        except ValueError:
+                            return 0.0
+                    return 0.0
+
                 return {
                     "available": True,
                     "name": cols[0],
@@ -544,6 +554,10 @@ def _read_gpu() -> Dict[str, Any]:
                     "vram_free_mb": float(cols[4]),
                     "vram_total_mb": v_tot,
                     "vram_used_pct": round((v_used / v_tot) * 100.0, 1) if v_tot > 0 else 0.0,
+                    "pstate": cols[6] if len(cols) > 6 else "",
+                    "power_w": round(_opt_float(7), 2),
+                    "clock_gr_mhz": int(round(_opt_float(8))),
+                    "clock_mem_mhz": int(round(_opt_float(9))),
                 }
     except Exception:
         pass
@@ -555,7 +569,245 @@ def _read_gpu() -> Dict[str, Any]:
         "vram_free_mb": 0.0,
         "vram_total_mb": 0.0,
         "vram_used_pct": 0.0,
+        "pstate": "",
+        "power_w": 0.0,
+        "clock_gr_mhz": 0,
+        "clock_mem_mhz": 0,
     }
+
+
+# Perfiles Ring 0 de relojes NVIDIA RTX 3050 para mitigación P0 -> P5/P8 en reposo o presión térmica.
+GPU_ECO_PROFILES: Dict[str, Dict[str, Any]] = {
+    "eco_idle": {"gr_min": 210, "gr_max": 420, "mem_min": 405, "mem_max": 405, "target_pstate": "P8", "hypr_eco": True},
+    "eco_thermal": {"gr_min": 210, "gr_max": 600, "mem_min": 405, "mem_max": 810, "target_pstate": "P5", "hypr_eco": True},
+}
+
+HYPR_ECO_OPTIONS: Tuple[str, ...] = (
+    "animations:enabled",
+    "decoration:blur:enabled",
+    "decoration:shadow:enabled",
+)
+
+
+def _gpu_eco_control_enabled() -> bool:
+    """Desactiva mutaciones reales de GPU/Hyprland durante pytest salvo habilitación explícita."""
+    if os.environ.get("PYTEST_CURRENT_TEST") and str(os.environ.get("TARDIS_GOVERNOR_GPU_ECO_TEST", "0")) != "1":
+        return False
+    return str(os.environ.get("TARDIS_GOVERNOR_GPU_ECO_CONTROL", "1")).lower() not in ("0", "false", "no")
+
+
+def _probe_temporal_brain_busy(sock_path: Path = Path("/tmp/temporal_brain.sock"), timeout: float = 0.5) -> bool:
+    """Consulta /slots de TemporalBrain por socket UNIX (<1ms) para saber si hay inferencia CUDA activa."""
+    if not sock_path.exists():
+        return False
+    try:
+        import socket as _sock
+
+        with _sock.socket(_sock.AF_UNIX, _sock.SOCK_STREAM) as s:
+            s.settimeout(timeout)
+            s.connect(str(sock_path))
+            s.sendall(b"GET /slots HTTP/1.0\r\nHost: localhost\r\n\r\n")
+            chunks: List[bytes] = []
+            while True:
+                buf = s.recv(4096)
+                if not buf:
+                    break
+                chunks.append(buf)
+        raw = b"".join(chunks).decode("utf-8", errors="ignore")
+        body = raw.split("\r\n\r\n", 1)[-1].strip()
+        if body.startswith("["):
+            slots = json.loads(body)
+            return any(bool(sl.get("is_processing")) for sl in slots if isinstance(sl, dict))
+    except Exception:
+        pass
+    return False
+
+
+def _read_display_session_state() -> Dict[str, Any]:
+    """Inspecciona conectores DRM físicos, firma Hyprland y actividad CUDA de TemporalBrain (<2 ms)."""
+    connected = 0
+    total_connectors = 0
+    try:
+        drm_root = Path("/sys/class/drm")
+        if drm_root.is_dir():
+            for st_file in drm_root.glob("card*-*/status"):
+                total_connectors += 1
+                try:
+                    if st_file.read_text(encoding="utf-8", errors="ignore").strip().lower() == "connected":
+                        connected += 1
+                except Exception:
+                    continue
+    except Exception:
+        pass
+
+    hypr_sig = os.environ.get("HYPRLAND_INSTANCE_SIGNATURE", "").strip()
+    if not hypr_sig:
+        hypr_dir = RUNTIME_DIR / "hypr"
+        if hypr_dir.is_dir():
+            try:
+                dirs = sorted(
+                    (p for p in hypr_dir.iterdir() if p.is_dir()),
+                    key=lambda p: p.stat().st_mtime,
+                    reverse=True,
+                )
+                if dirs:
+                    hypr_sig = dirs[0].name
+            except Exception:
+                pass
+
+    tb_busy = _probe_temporal_brain_busy()
+    return {
+        "connected_displays": connected,
+        "total_connectors": total_connectors,
+        "headless_or_display_off": (total_connectors > 0 and connected == 0),
+        "hyprland_signature": hypr_sig,
+        "temporal_brain_busy": tb_busy,
+    }
+
+
+def _resolve_gpu_eco_mode(snap: Dict[str, Any], display_state: Dict[str, Any]) -> str:
+    """
+    Decide de forma determinista el modo eco GPU/Escritorio:
+      - 'normal': llamada prioritaria, inferencia CUDA activa, o usuario interactivo con holgura térmica.
+      - 'eco_idle': reposo/pantalla apagada (P8 ~6-9W) o GPU estancada en P0 caliente sin carga CUDA.
+      - 'eco_thermal': presión térmica severa RED o GPU >= 82°C (P5 ~9-12W).
+    """
+    if bool(snap.get("call_priority_active", False)):
+        return "normal"
+    gpu = snap.get("gpu") or {}
+    if not gpu.get("available"):
+        return "normal"
+
+    lvl = str(snap.get("level") or "GREEN").upper()
+    gpu_temp = float(gpu.get("temp_c", 0.0))
+    gpu_util = float(gpu.get("util_pct", 0.0))
+    gpu_power = float(gpu.get("power_w", 0.0))
+    gpu_pstate = str(gpu.get("pstate") or "").upper()
+    tb_busy = bool(display_state.get("temporal_brain_busy", False))
+    headless = bool(display_state.get("headless_or_display_off", False))
+
+    # Nunca degradar inferencia CUDA activa salvo emergencia térmica real (>= 84°C)
+    if tb_busy and gpu_temp < 84.0:
+        return "normal"
+
+    if lvl == "RED" or gpu_temp >= 82.0:
+        return "eco_thermal"
+
+    if gpu_util >= 25.0:
+        return "normal"
+
+    # Pantalla desconectada/tapa cerrada o presión ORANGE sin carga CUDA -> P8 eco_idle
+    if headless and gpu_util < 15.0:
+        return "eco_idle"
+    if lvl == "ORANGE" and gpu_util < 15.0:
+        return "eco_idle"
+    if gpu_pstate == "P0" and gpu_util < 10.0 and gpu_power >= 11.0 and gpu_temp >= 68.0:
+        return "eco_idle"
+    return "normal"
+
+
+def _apply_nvidia_clock_cap(mode: str) -> Tuple[bool, str]:
+    """Aplica o libera topes reversibles de relojes GPU/VRAM vía `sudo -n nvidia-smi`."""
+    if not shutil.which("nvidia-smi"):
+        return False, "nvidia_smi_missing"
+    try:
+        if mode == "normal":
+            r1 = subprocess.run(
+                ["sudo", "-n", "nvidia-smi", "-rgc"],
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.PIPE,
+                text=True,
+                timeout=4.0,
+                check=False,
+            )
+            r2 = subprocess.run(
+                ["sudo", "-n", "nvidia-smi", "-rmc"],
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.PIPE,
+                text=True,
+                timeout=4.0,
+                check=False,
+            )
+            ok = (r1.returncode == 0 and r2.returncode == 0)
+            return ok, ("clocks_unlocked" if ok else f"unlock_err:{(r1.stderr or r2.stderr).strip()[:120]}")
+
+        spec = GPU_ECO_PROFILES.get(mode)
+        if not spec:
+            return False, f"unknown_mode:{mode}"
+        r1 = subprocess.run(
+            ["sudo", "-n", "nvidia-smi", "-lgc", f"{spec['gr_min']},{spec['gr_max']}"],
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.PIPE,
+            text=True,
+            timeout=4.0,
+            check=False,
+        )
+        r2 = subprocess.run(
+            ["sudo", "-n", "nvidia-smi", "-lmc", f"{spec['mem_min']},{spec['mem_max']}"],
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.PIPE,
+            text=True,
+            timeout=4.0,
+            check=False,
+        )
+        ok = (r1.returncode == 0 and r2.returncode == 0)
+        return ok, (f"capped_{spec['target_pstate']}" if ok else f"cap_err:{(r1.stderr or r2.stderr).strip()[:120]}")
+    except Exception as exc:
+        return False, f"nvidia_exc:{exc}"
+
+
+def _hyprctl_get_bool(sig: str, option: str) -> Optional[int]:
+    if not sig or not shutil.which("hyprctl"):
+        return None
+    env = os.environ.copy()
+    env["HYPRLAND_INSTANCE_SIGNATURE"] = sig
+    try:
+        res = subprocess.run(
+            ["hyprctl", "getoption", option],
+            env=env,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            text=True,
+            timeout=2.0,
+            check=False,
+        )
+        if res.returncode != 0:
+            return None
+        for ln in (res.stdout or "").splitlines():
+            low = ln.strip().lower()
+            if low.startswith("bool:"):
+                return 1 if "true" in low else 0
+            if low.startswith("int:"):
+                val = low.split(":", 1)[1].strip()
+                return 1 if val not in ("0", "") else 0
+    except Exception:
+        pass
+    return None
+
+
+def _hyprctl_set_keyword(sig: str, option: str, value: Union[int, str]) -> bool:
+    if not sig or not shutil.which("hyprctl"):
+        return False
+    env = os.environ.copy()
+    env["HYPRLAND_INSTANCE_SIGNATURE"] = sig
+    try:
+        res = subprocess.run(
+            ["hyprctl", "keyword", option, str(value)],
+            env=env,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            timeout=2.0,
+            check=False,
+        )
+        return res.returncode == 0
+    except Exception:
+        return False
 
 
 def _extract_cli_int_flag(cmdline: str, flags: Tuple[str, ...]) -> int:
@@ -950,7 +1202,12 @@ class TardisResourceGovernor:
                 cls._instance = cls(db_path=GOVERNOR_DB)
             return cls._instance
 
-    def __init__(self, db_path: Path = GOVERNOR_DB, throttle_state_file: Optional[Path] = None):
+    def __init__(
+        self,
+        db_path: Path = GOVERNOR_DB,
+        throttle_state_file: Optional[Path] = None,
+        gpu_eco_state_file: Optional[Path] = None,
+    ):
         self.db_path = Path(db_path)
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         if throttle_state_file is not None:
@@ -959,6 +1216,12 @@ class TardisResourceGovernor:
             self.throttle_state_file = THROTTLE_STATE_FILE
         else:
             self.throttle_state_file = self.db_path.parent / "tardis_governor_throttle.json"
+        if gpu_eco_state_file is not None:
+            self.gpu_eco_state_file = Path(gpu_eco_state_file)
+        elif self.db_path.resolve() == GOVERNOR_DB.resolve():
+            self.gpu_eco_state_file = GPU_ECO_STATE_FILE
+        else:
+            self.gpu_eco_state_file = self.db_path.parent / "tardis_governor_gpu_eco.json"
         self._lock = threading.Lock()
         self._last_level: Optional[str] = None
         self._green_streak: int = 0
@@ -1200,6 +1463,7 @@ class TardisResourceGovernor:
             "cgroup_pressure": cgroup_pressure[:8],
             "oversubscribed_units": oversubscribed_units,
             "throttling": self.get_throttle_status(),
+            "gpu_eco": self.get_gpu_eco_status(),
             "admission": admission,
         }
 
@@ -1509,6 +1773,167 @@ class TardisResourceGovernor:
             "applied_units": applied_units,
             "power_profile_action": power_profile_action,
             "errors": errors,
+            "iso": _now_iso(),
+        }
+
+    def _load_gpu_eco_state(self) -> Dict[str, Any]:
+        default_state: Dict[str, Any] = {
+            "active": False,
+            "mode": "normal",
+            "hypr_baselines": {},
+            "hypr_eco_active": False,
+            "last_action": "unchanged",
+            "updated_iso": "",
+        }
+        try:
+            if self.gpu_eco_state_file.is_file():
+                raw = json.loads(self.gpu_eco_state_file.read_text(encoding="utf-8"))
+                if isinstance(raw, dict):
+                    default_state.update(raw)
+        except Exception:
+            pass
+        return default_state
+
+    def _save_gpu_eco_state(self, state: Dict[str, Any]) -> None:
+        _atomic_write_json(self.gpu_eco_state_file, state)
+
+    def get_gpu_eco_status(self) -> Dict[str, Any]:
+        st = self._load_gpu_eco_state()
+        return {
+            "active": bool(st.get("active")),
+            "mode": str(st.get("mode") or "normal"),
+            "hypr_eco_active": bool(st.get("hypr_eco_active")),
+            "last_action": str(st.get("last_action") or "unchanged"),
+            "updated_iso": str(st.get("updated_iso") or ""),
+        }
+
+    def reconcile_gpu_eco(
+        self,
+        snap: Optional[Dict[str, Any]] = None,
+        *,
+        dry_run: bool = False,
+        force_mode: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """
+        Gobernador Adaptativo Ring 0 de P-State GPU (RTX 3050) y Modo Eco de Escritorio (Hyprland):
+          - En reposo/pantalla apagada o presión ORANGE/RED sin inferencia CUDA: fija relojes GPU/VRAM
+            a P8 (420/405 MHz, <10 W) o P5 (600/810 MHz) y desactiva animaciones/blur/sombras Hyprland.
+          - Ante inferencia CUDA activa en TemporalBrain, llamada Telegram o uso interactivo nominal:
+            desbloquea relojes instantáneamente (-rgc/-rmc) y restaura opciones Hyprland originales.
+        """
+        current_snap = snap if isinstance(snap, dict) else self.collect_snapshot(persist=False)
+        display_state = _read_display_session_state()
+
+        if force_mode is not None:
+            fm = str(force_mode).strip().lower()
+            target_mode = fm if fm in ("normal", "eco_idle", "eco_thermal") else "normal"
+        else:
+            target_mode = _resolve_gpu_eco_mode(current_snap, display_state)
+
+        if not _gpu_eco_control_enabled():
+            return {
+                "ok": True,
+                "action": "skipped",
+                "skipped_reason": "gpu_eco_control_disabled",
+                "target_mode": target_mode,
+                "display_state": display_state,
+                "dry_run": dry_run,
+                "iso": _now_iso(),
+            }
+
+        with self._lock:
+            st = self._load_gpu_eco_state()
+            prev_mode = str(st.get("mode") or "normal")
+            hypr_baselines: Dict[str, int] = dict(st.get("hypr_baselines") or {})
+            hypr_eco_active = bool(st.get("hypr_eco_active"))
+            sig = str(display_state.get("hyprland_signature") or "")
+
+            if target_mode == prev_mode and not dry_run:
+                # Si está en eco_idle pero nvidia-smi reporta P0 de nuevo (drift externo), reaplicar tope
+                live_ps = str((current_snap.get("gpu") or {}).get("pstate") or "").upper()
+                if target_mode == "normal" or live_ps in ("P5", "P8"):
+                    return {
+                        "ok": True,
+                        "action": "maintained",
+                        "mode": target_mode,
+                        "previous_mode": prev_mode,
+                        "display_state": display_state,
+                        "dry_run": False,
+                        "iso": _now_iso(),
+                    }
+
+            if dry_run:
+                return {
+                    "ok": True,
+                    "action": f"would_switch_to_{target_mode}",
+                    "mode": target_mode,
+                    "previous_mode": prev_mode,
+                    "display_state": display_state,
+                    "dry_run": True,
+                    "iso": _now_iso(),
+                }
+
+            ok_gpu, gpu_detail = _apply_nvidia_clock_cap(target_mode)
+            hypr_changes: List[str] = []
+            if target_mode != "normal":
+                if sig and not hypr_eco_active:
+                    for opt in HYPR_ECO_OPTIONS:
+                        cur_val = _hyprctl_get_bool(sig, opt)
+                        if cur_val is not None and opt not in hypr_baselines:
+                            hypr_baselines[opt] = cur_val
+                        if cur_val != 0 and _hyprctl_set_keyword(sig, opt, 0):
+                            hypr_changes.append(f"{opt}=0")
+                    hypr_eco_active = True
+            else:
+                if sig and hypr_eco_active:
+                    for opt, base_val in list(hypr_baselines.items()):
+                        if _hyprctl_set_keyword(sig, opt, base_val):
+                            hypr_changes.append(f"{opt}={base_val}")
+                    hypr_baselines = {}
+                    hypr_eco_active = False
+
+            new_state = {
+                "active": (target_mode != "normal") and ok_gpu,
+                "mode": target_mode if ok_gpu else prev_mode,
+                "hypr_baselines": hypr_baselines,
+                "hypr_eco_active": hypr_eco_active,
+                "last_action": gpu_detail,
+                "updated_iso": _now_iso(),
+            }
+            self._save_gpu_eco_state(new_state)
+
+        if ok_gpu and target_mode != prev_mode:
+            try:
+                from core.tardis_event_bus import get_event_bus
+
+                get_event_bus().publish(
+                    "governor.gpu_eco",
+                    "tardis_resource_governor",
+                    {
+                        "from_mode": prev_mode,
+                        "to_mode": target_mode,
+                        "gpu_detail": gpu_detail,
+                        "hypr_changes": hypr_changes,
+                        "connected_displays": display_state.get("connected_displays", 0),
+                        "gpu_temp_c": (current_snap.get("gpu") or {}).get("temp_c", 0.0),
+                        "gpu_power_w": (current_snap.get("gpu") or {}).get("power_w", 0.0),
+                    },
+                    severity="INFO",
+                    dedup_key=f"gpu_eco|{target_mode}",
+                    dedup_window_s=60.0,
+                )
+            except Exception:
+                pass
+
+        return {
+            "ok": ok_gpu,
+            "action": f"switched_to_{target_mode}" if ok_gpu else "gpu_eco_error",
+            "mode": target_mode if ok_gpu else prev_mode,
+            "previous_mode": prev_mode,
+            "gpu_detail": gpu_detail,
+            "hypr_changes": hypr_changes,
+            "display_state": display_state,
+            "dry_run": False,
             "iso": _now_iso(),
         }
 
@@ -2043,6 +2468,22 @@ class TardisResourceGovernor:
                 else:
                     self._thermal_orange_streak = 0
 
+                # Reconciliar Gobernador Adaptativo de P-State GPU y Modo Eco de Escritorio (Hyprland + RTX 3050)
+                try:
+                    ge = self.reconcile_gpu_eco(snap, dry_run=False)
+                    if str(ge.get("action") or "").startswith("switched_to_"):
+                        logger.info(
+                            "GPU Eco Governor conmutado (%s -> %s, detalle=%s, hypr=%s, GPU=%.0f°C/%.1fW)",
+                            ge.get("previous_mode", "normal"),
+                            ge.get("mode", "normal"),
+                            ge.get("gpu_detail", ""),
+                            ge.get("hypr_changes") or [],
+                            snap["gpu"].get("temp_c", 0.0),
+                            snap["gpu"].get("power_w", 0.0),
+                        )
+                except Exception as exc_ge:
+                    logger.debug("Aviso en reconcile_gpu_eco: %s", exc_ge)
+
                 has_dups = bool(snap["inference_lanes"]["duplicate_models"])
                 deferred_cooldown_ok = (now - last_deferred_reclaim) >= 60.0
                 if (has_dups and deferred_cooldown_ok) or (now - last_reclaim) >= reclaim_interval:
@@ -2132,6 +2573,9 @@ def main() -> int:
     p_rel = sub.add_parser("release", help="Restaura límites cgroup v2 originales tras estabilización")
     p_rel.add_argument("--dry-run", action="store_true")
     p_rel.add_argument("--restore-power-profile", action="store_true", help="Forzar restauración inmediata del perfil energético base")
+    p_ge = sub.add_parser("gpu-eco", help="Reconcilia o fija el modo eco P-State GPU (RTX 3050) y Hyprland")
+    p_ge.add_argument("--mode", choices=["normal", "eco_idle", "eco_thermal"], default=None)
+    p_ge.add_argument("--dry-run", action="store_true")
     p_hist = sub.add_parser("history", help="Histórico de telemetría de presión")
     p_hist.add_argument("--limit", type=int, default=20)
     p_d = sub.add_parser("daemon", help="Ejecuta el gobernador en bucle systemd 24/7")
@@ -2173,6 +2617,15 @@ def main() -> int:
                     dry_run=args.dry_run,
                     force_restore_power_profile=bool(getattr(args, "restore_power_profile", False)),
                 ),
+                indent=2,
+                ensure_ascii=False,
+            )
+        )
+        return 0
+    if args.cmd == "gpu-eco":
+        print(
+            json.dumps(
+                gov.reconcile_gpu_eco(dry_run=args.dry_run, force_mode=args.mode),
                 indent=2,
                 ensure_ascii=False,
             )

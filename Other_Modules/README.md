@@ -96,12 +96,14 @@ Módulos y componentes auxiliares del sistema.
 - **continuity_state.json**: Componente de alta eficiencia.
 - **contributing.md**: Componente de alta eficiencia.
 - **convert_fp8_to_int4.py**: Componente de alta eficiencia.
+- **core__hub_health.py**: Núcleo de orquestación y control temporal/espacial.
 - **core__tapo_c310_sentinel.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
 - **core__tardis_c310_conversation.py**: Núcleo de orquestación y control temporal/espacial.
 - **core__tardis_canary_verifier.py**: Núcleo de orquestación y control temporal/espacial.
 - **core__tardis_event_bus.py**: Núcleo de orquestación y control temporal/espacial.
 - **core__tardis_feedback_bridge.py**: Núcleo de orquestación y control temporal/espacial.
 - **core__tardis_resource_governor.py**: Núcleo de orquestación y control temporal/espacial.
+- **core__tardis_semantic_cache.py**: Núcleo de orquestación y control temporal/espacial.
 - **crear_una_funcin_5237.py**: Motor de ingeniería inversa multi-arquitectura y descompilación.
 - **crypto.py**: Componente de alta eficiencia.
 - **curiosity_debate_manager.py**: Componente de alta eficiencia.
@@ -1015,8 +1017,11 @@ Módulos y componentes auxiliares del sistema.
 - **dossier_20261124_012919_393.json**: Componente de alta eficiencia.
 - **dossier_20261124_012949_830.json**: Componente de alta eficiencia.
 - **dossier_20261124_023435_662.json**: Componente de alta eficiencia.
+- **dossier_20261124_070517_570.json**: Componente de alta eficiencia.
 - **dynamic_tools_registry.json**: Directorio y puente soberano de interoperabilidad omni-herramientas.
 - **ecca_v3_core.py**: Núcleo de orquestación y control temporal/espacial.
+- **embed_isotropy.py**: Componente de alta eficiencia.
+- **embed_isotropy_calibration.json**: Componente de alta eficiencia.
 - **engine.py**: Componente de alta eficiencia.
 - **engine_state.json**: Componente de alta eficiencia.
 - **eval_glm.py**: Componente de alta eficiencia.

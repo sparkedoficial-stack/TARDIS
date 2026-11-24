@@ -1,0 +1,20 @@
+{
+  "ok": true,
+  "fitted": true,
+  "schema": "tardis.embed_isotropy.v1",
+  "method": "zca_whitening",
+  "dim": 384,
+  "sample_count": 23765,
+  "reg": 5e-05,
+  "alpha": 0.5,
+  "abtt_dims": 3,
+  "top5_variance_ratio": 0.2943,
+  "median_eigval": 7.69e-05,
+  "raw_rand_cosine_mean": 0.9209,
+  "raw_rand_cosine_p95": 0.9517,
+  "calibrated_rand_cosine_mean": -0.0023,
+  "calibrated_rand_cosine_p95": 0.0798,
+  "isotropy_gain": 0.9232,
+  "fit_ms": 1543.05,
+  "updated_iso": "2026-11-24T07:13:57-05:00"
+}
