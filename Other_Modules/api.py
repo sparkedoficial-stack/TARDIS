@@ -3472,6 +3472,37 @@ iframe{border:none;width:100%;height:100%;}</style></head>
             clear_all=bool(body.get("clear_all", False)),
         )
 
+    @app.get("/api/eval/status")
+    async def get_eval_status_endpoint():
+        from core.tardis_eval_harness import get_eval_harness
+        return get_eval_harness().status()
+
+    @app.get("/api/eval/history")
+    async def get_eval_history_endpoint(limit: int = 20):
+        from core.tardis_eval_harness import get_eval_harness
+        return {"ok": True, "history": get_eval_harness().history(limit=limit)}
+
+    @app.get("/api/eval/compare")
+    async def get_eval_compare_endpoint(baseline_id: Optional[str] = None, candidate_id: Optional[str] = None):
+        from core.tardis_eval_harness import get_eval_harness
+        return get_eval_harness().compare_runs(baseline_id, candidate_id)
+
+    @app.post("/api/eval/run")
+    async def post_eval_run_endpoint(payload: Optional[Dict[str, Any]] = None):
+        from core.tardis_eval_harness import get_eval_harness
+        body = payload or {}
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(
+            None,
+            lambda: get_eval_harness().run_eval(
+                suites=body.get("suites"),
+                include_llm_judge=bool(body.get("include_llm_judge", False)),
+                tag=str(body.get("tag") or "api"),
+                canary_run_id=str(body.get("canary_run_id") or ""),
+                persist=bool(body.get("persist", True)),
+            ),
+        )
+
     @app.get("/api/coevolution/status")
     async def get_coevolution_status_endpoint():
         from core.tardis_agy_coevolution import get_coevolution_engine

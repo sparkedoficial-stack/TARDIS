@@ -1269,3 +1269,78 @@ def test_resource_governor_gpu_eco_pstate_and_hyprland_lifecycle(tmp_path: Path,
     assert gpu_calls == ["eco_idle", "normal"]
     assert all(v == 1 for v in hypr_state.values())
     assert gov.get_gpu_eco_status()["mode"] == "normal"
+
+
+def test_embed_isotropy_calibrator_zca_and_abtt_collapse_cone_and_boost_retrieval(tmp_path: Path, monkeypatch):
+    import numpy as np
+    from core.embed_isotropy import EmbedIsotropyCalibrator, _measure_random_pair_isotropy
+    from core import tardis_semantic_cache as tsc
+
+    rng = np.random.default_rng(7)
+    n_docs, dim = 200, 64
+    # Construir un corpus fuertemente anisotrópico (cono estrecho alrededor de una dirección dominante,
+    # análogo al fenómeno medido en embed-e5-small.gguf con coseno medio > 0.90)
+    cone_dir = rng.normal(size=(1, dim)).astype(np.float32)
+    cone_dir /= np.linalg.norm(cone_dir)
+    semantic_signal = rng.normal(scale=0.04, size=(n_docs, dim)).astype(np.float32)
+    M_raw = cone_dir + semantic_signal
+    M_raw /= np.linalg.norm(M_raw, axis=1, keepdims=True)
+
+    raw_mean, _ = _measure_random_pair_isotropy(M_raw)
+    assert raw_mean > 0.85
+
+    # 1) Regularized ZCA Whitening debe colapsar el coseno medio aleatorio cerca de 0 y preservar exactitud en disco
+    art_path = tmp_path / "iso_cal.npz"
+    cal_zca = EmbedIsotropyCalibrator(artifact_path=art_path, method="zca_whitening", reg=5e-5, alpha=0.50)
+    meta = cal_zca.fit(M_raw, min_samples=32)
+    assert meta["ok"] and meta["fitted"] is True
+    assert meta["raw_rand_cosine_mean"] > 0.85
+    assert abs(meta["calibrated_rand_cosine_mean"]) < 0.08
+    assert meta["isotropy_gain"] > 0.75
+
+    # Guardar y recargar desde disco (.npz + .json) debe reproducir la transformación al 100%
+    assert cal_zca.save() is True
+    cal_loaded = EmbedIsotropyCalibrator(artifact_path=art_path)
+    assert cal_loaded.load() is True
+    assert np.allclose(cal_zca.transform(M_raw[:10]), cal_loaded.transform(M_raw[:10]), atol=1e-5)
+
+    # 2) All-but-the-Top (ABTT d=2) también debe colapsar la anisotropía
+    cal_abtt = EmbedIsotropyCalibrator(artifact_path=tmp_path / "iso_abtt.npz", method="abtt", abtt_dims=2)
+    meta_abtt = cal_abtt.fit(M_raw, min_samples=32)
+    assert meta_abtt["ok"] and abs(meta_abtt["calibrated_rand_cosine_mean"]) < 0.08
+
+    # 3) Integración en TardisSemanticCache: rechaza falso positivo anisotrópico cuando iso_sim < min_isotropic_similarity
+    cache = tsc.TardisSemanticCache(
+        db_path=tmp_path / "sem_iso.db",
+        embed_socket="/nonexistent/embed.sock",
+        similarity_threshold=0.90,
+        min_lexical_overlap=0.0,  # probar que el filtro isotrópico ZCA por sí solo frena colisiones de cono
+        min_isotropic_similarity=0.50,
+        isotropy_calibrator=cal_loaded,
+    )
+    monkeypatch.setattr(tsc, "_read_governor_state_fast", lambda: {"ok": True, "level": "GREEN", "call_priority_active": False})
+
+    # Dos documentos distintos dentro del mismo cono anisotrópico (raw cos > 0.90, pero ZCA iso_sim ~ 0)
+    v_doc0 = M_raw[0]
+    v_para0 = v_doc0 + rng.normal(scale=0.015, size=(dim,)).astype(np.float32)
+    v_para0 /= np.linalg.norm(v_para0)
+    v_other = M_raw[1]
+    assert float(np.dot(v_doc0, v_other)) > 0.85
+
+    def _fake_embed(text: str, *, conn=None):
+        if "parafrasis" in text:
+            return v_para0
+        if "ajena" in text:
+            return v_other
+        return v_doc0
+
+    monkeypatch.setattr(cache, "embed_query", _fake_embed)
+    cache.store("consulta original kernel linux", "respuesta verificada", namespace="background")
+
+    hit_para = cache.lookup("parafrasis cercana kernel linux", namespace="background")
+    assert hit_para["hit"] is True and hit_para["match_type"] == "semantic"
+    assert hit_para["isotropic_similarity"] >= 0.50
+
+    miss_other = cache.lookup("consulta ajena totalmente distinta", namespace="background")
+    assert miss_other["hit"] is False
+    assert cache.stats()["isotropy_calibration"]["fitted"] is True

@@ -75,6 +75,7 @@ PROBES: Dict[str, Dict[str, Optional[str]]] = {
     "event_bus": {"http": "/api/bus/stats", "unit": None},
     "canary_verifier": {"http": "/api/canary/history", "unit": None},
     "semantic_cache": {"http": "/api/cache/stats", "unit": None},
+    "eval_harness": {"http": "/api/eval/status", "unit": None},
     "agy_coevolution": {"http": "/api/coevolution/status", "unit": "tardis-agy-coevolution"},
     "mundo_sin_censura": {"http": "/api/mundo_sin_censura/status", "unit": None},
 }

@@ -62,6 +62,7 @@ MAX_EMBED_CHARS = 1200  # ~300-340 tokens, seguro bajo --ctx-size 512 de embed-e
 DEFAULT_SIMILARITY_THRESHOLD = float(os.environ.get("TARDIS_SEMANTIC_CACHE_THRESHOLD", "0.94"))
 RED_BACKGROUND_SIMILARITY_THRESHOLD = 0.92
 DEFAULT_MIN_LEXICAL_OVERLAP = float(os.environ.get("TARDIS_SEMANTIC_CACHE_MIN_LEXICAL", "0.40"))
+DEFAULT_MIN_ISOTROPIC_SIMILARITY = float(os.environ.get("TARDIS_SEMANTIC_CACHE_MIN_ISOTROPIC", "0.48"))
 DEFAULT_MAX_ENTRIES = int(os.environ.get("TARDIS_SEMANTIC_CACHE_MAX_ENTRIES", "4000"))
 DEFAULT_MAX_TEMP = float(os.environ.get("TARDIS_SEMANTIC_CACHE_MAX_TEMP", "0.75"))
 MAX_ADAPTIVE_TTL_S = 14400.0  # 4 horas máximo
@@ -379,19 +380,33 @@ class TardisSemanticCache:
         *,
         similarity_threshold: float = DEFAULT_SIMILARITY_THRESHOLD,
         min_lexical_overlap: float = DEFAULT_MIN_LEXICAL_OVERLAP,
+        min_isotropic_similarity: float = DEFAULT_MIN_ISOTROPIC_SIMILARITY,
         max_entries: int = DEFAULT_MAX_ENTRIES,
         embed_timeout_s: float = 2.0,
+        isotropy_calibrator: Optional[Any] = None,
     ):
         self.db_path = Path(db_path)
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self.embed_socket = str(embed_socket)
         self.similarity_threshold = float(similarity_threshold)
         self.min_lexical_overlap = float(min_lexical_overlap)
+        self.min_isotropic_similarity = float(min_isotropic_similarity)
         self.max_entries = max(50, int(max_entries))
         self.embed_timeout_s = float(embed_timeout_s)
         self._is_isolated = self.db_path.resolve() != DEFAULT_CACHE_DB.resolve()
         self._lock = threading.RLock()
         self._uds_client: Optional[httpx.Client] = None
+        self._calibrator: Optional[Any] = isotropy_calibrator
+        if self._calibrator is None and not self._is_isolated:
+            try:
+                from core.embed_isotropy import EmbedIsotropyCalibrator, is_isotropy_enabled
+
+                if is_isotropy_enabled():
+                    cal = EmbedIsotropyCalibrator()
+                    cal.load()
+                    self._calibrator = cal
+            except Exception:
+                self._calibrator = None
         # Caché matricial en RAM por partición (namespace, model_family, system_hash, context_hash)
         # Sincronizada automáticamente con el watermark de SQLite WAL entre procesos.
         self._index_watermark: Tuple[int, int, float] = (0, 0, 0.0)
@@ -737,7 +752,21 @@ class TardisSemanticCache:
                             cand_indices = np.where(sims >= eff_threshold)[0]
                             if cand_indices.size > 0:
                                 top_order = cand_indices[np.argsort(sims[cand_indices])[::-1][:8]]
-                                best_choice: Optional[Tuple[float, float, float, int]] = None
+                                # Recarga ligera del calibrador isotrópico compartido (si se actualizó en disco)
+                                cal = self._calibrator
+                                if cal is not None and not self._is_isolated:
+                                    try:
+                                        cal.load(only_if_newer=True)
+                                    except Exception:
+                                        pass
+                                use_iso = bool(
+                                    cal is not None
+                                    and getattr(cal, "fitted", False)
+                                    and precomputed_embedding is None
+                                    and getattr(cal, "_dim", 0) == mat.shape[1]
+                                )
+                                q_iso = cal.transform(q_unit) if use_iso else None
+                                best_choice: Optional[Tuple[float, float, float, float, int]] = None
                                 for idx_i in top_order:
                                     idx = int(idx_i)
                                     cos_sim = float(sims[idx])
@@ -746,18 +775,26 @@ class TardisSemanticCache:
                                         continue
                                     if eff_min_lex > 0.0 and lex_score < eff_min_lex:
                                         continue
-                                    combined = 0.70 * cos_sim + 0.30 * lex_score
+                                    iso_sim = cos_sim
+                                    if use_iso and q_iso is not None:
+                                        c_iso = cal.transform(mat[idx])
+                                        iso_sim = float(np.dot(c_iso, q_iso))
+                                        if self.min_isotropic_similarity > 0.0 and iso_sim < self.min_isotropic_similarity:
+                                            continue
+                                        combined = 0.45 * iso_sim + 0.25 * cos_sim + 0.30 * lex_score
+                                    else:
+                                        combined = 0.70 * cos_sim + 0.30 * lex_score
                                     if best_choice is None or combined > best_choice[0]:
-                                        best_choice = (combined, cos_sim, lex_score, ids[idx])
+                                        best_choice = (combined, cos_sim, iso_sim, lex_score, ids[idx])
 
                                 if best_choice is not None:
-                                    _, best_sim, best_lex, best_id = best_choice
+                                    _, best_sim, best_iso, best_lex, best_id = best_choice
                                     sem_row = conn.execute(
                                         "SELECT * FROM semantic_entries WHERE id = ? AND expires_ts > ?",
                                         (best_id, now),
                                     ).fetchone()
                                     if sem_row is not None:
-                                        return self._finalize_hit(
+                                        hit_res = self._finalize_hit(
                                             conn,
                                             sem_row,
                                             now=now,
@@ -767,6 +804,8 @@ class TardisSemanticCache:
                                             governor_level=gov_lvl,
                                             t0=t0,
                                         )
+                                        hit_res["isotropic_similarity"] = round(best_iso, 5)
+                                        return hit_res
 
                 self._record_metrics(conn=conn, total_lookups=1, misses=1)
 
@@ -1050,6 +1089,8 @@ class TardisSemanticCache:
             "embed_socket": self.embed_socket,
             "embed_brain_alive": self.is_embed_brain_alive(),
             "similarity_threshold": self.similarity_threshold,
+            "min_isotropic_similarity": self.min_isotropic_similarity,
+            "isotropy_calibration": self._calibrator.summary() if self._calibrator is not None else {"fitted": False},
             "max_entries": self.max_entries,
             "active_entries": active_cnt,
             "semantic_indexed_entries": indexed_cnt,
@@ -1313,7 +1354,17 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         return 0
     if args.cmd == "benchmark":
         with tempfile.TemporaryDirectory(prefix="tardis_semcache_bench_") as td:
-            bench = TardisSemanticCache(db_path=Path(td) / "bench.db")
+            bench_cal = None
+            try:
+                from core.embed_isotropy import EmbedIsotropyCalibrator, is_isotropy_enabled
+
+                if is_isotropy_enabled():
+                    c = EmbedIsotropyCalibrator()
+                    if c.load():
+                        bench_cal = c
+            except Exception:
+                bench_cal = None
+            bench = TardisSemanticCache(db_path=Path(td) / "bench.db", isotropy_calibrator=bench_cal)
             t_s = time.perf_counter()
             st = bench.store(
                 "Explica cómo mitiga el gobernador de recursos la presión CPU PSI en Linux",

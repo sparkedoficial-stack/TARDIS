@@ -1,30 +1,7 @@
 {
-  "revision": 2846,
+  "revision": 2848,
   "lamport": 2998,
-  "history": [
-    {
-      "id": "msg_1795501798112_1",
-      "role": "user",
-      "content": "Tardis, sube estos documentos a mi tiktok",
-      "timestamp": REDACTED_PHONE.1127253,
-      "iso": "2026-11-24T01:29:58.112741",
-      "lamport": 2997,
-      "meta": "Nodo: Telegram [Reysek] (Conversación Soberana)",
-      "raw_data": {},
-      "client_id": "tg_-REDACTED_PHONE"
-    },
-    {
-      "id": "msg_1795502184586_2",
-      "role": "assistant",
-      "content": "Reysek, un placer verte en el grupo de POLIMATAS LATAM. ¿Podrías proporcionarme más detalles sobre los documentos que deseas subir a TikTok? ¿Cuál es el propósito principal de compartirlos y qué tipo de contenido esperas crear con ellos?\n\nAdemás, ¿te gustaría que los documentes se publiquen como una serie de videos o en forma de un solo post? Quiero asegurarme de que la presentación sea clara y atractiva para tu audiencia en TikTok.\n\n¿Puedo asistirte en alguna otra manera para hacer que el proceso sea más eficiente y creativo?",
-      "timestamp": REDACTED_PHONE.5869741,
-      "iso": "2026-11-24T01:36:24.587010",
-      "lamport": 2998,
-      "meta": "TARDIS-NEURAL-SPACE-KAIJU · Núcleo Soberano",
-      "raw_data": {},
-      "client_id": "tg_-REDACTED_PHONE"
-    }
-  ],
+  "history": [],
   "config": {
     "model": "TARDIS-NEURAL-SPACE-KAIJU",
     "temperature": 0.3,
@@ -50,14 +27,14 @@
     "lamport": 2958,
     "web_search": true
   },
-  "updated_at": "2026-11-24T01:36:24.587037",
+  "updated_at": "2026-11-24T07:58:06.225400",
   "visual_intelligence": {
     "active": true,
     "pid": 1384253,
     "videos_stored": 1057,
-    "verdicts": 624,
+    "verdicts": 628,
     "vlm_model": "qwen3-vl:2b-instruct",
-    "last_risk_level": 2,
-    "last_ping": REDACTED_PHONE.0874584
+    "last_risk_level": 3,
+    "last_ping": REDACTED_PHONE.42389
   }
 }

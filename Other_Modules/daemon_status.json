@@ -2,11 +2,11 @@
   "daemon": "tardis-visual-intelligence",
   "running": true,
   "pid": 1384253,
-  "uptime_sec": 39753.1,
-  "last_heartbeat": "2026-11-24T07:14:30.095133",
+  "uptime_sec": 45721.4,
+  "last_heartbeat": "2026-11-24T08:53:58.431604",
   "items_processed": 0,
   "last_processed_id": "",
-  "memory_rss_mb": 306.09,
+  "memory_rss_mb": 301.47,
   "engine_status": {
     "status": "online",
     "engine": "VisualIntelligenceEngine v26.5 (VLM + Veredictos)",
@@ -20,15 +20,15 @@
     "vlm_error": "",
     "verdict_engine": "VLM + Kaiju + veredicto estructurado",
     "stored_videos_count": 1057,
-    "stored_images_count": 508,
+    "stored_images_count": 512,
     "stored_sounds_count": 0,
-    "stored_verdicts_count": 624,
+    "stored_verdicts_count": 628,
     "last_verdict": {
-      "id": "img_20261124_071135_d2e8ee",
-      "created_at": "2026-11-24T07:12:17.557391",
+      "id": "img_20261124_081142_7d0ef9",
+      "created_at": "2026-11-24T08:12:19.725671",
       "source": "daemon",
-      "verdict": "*   Estado General del Entorno: Seguro y Estable. Exterior diurno, iluminado, sin actividad humana visible y sin riesgos estructurales aparentes.\n*   Nivel de Riesgo Objetivo: 2/10\n    *   *Justificación:* El riesgo es mínimo. La puntuación no es 0/10 únicamente por la presencia de elementos no identificados (objeto blanco, zona desordenada) que podrían representar un obstáculo menor o una confusión visual, pero no una amenaza.\n*   Hechos Observados:\n    1.  Vehículo estacionado junto a sendero.\n    2.  Césped verde y sendero pavimentado.\n    3.  Luz diurna clara.\n    4.  Ausencia de audio.\n* ",
-      "risk_level": 2
+      "verdict": "Estado General del Entorno:\nEstable, exterior, diurno, sin actividad humana o animal visible.\n\nNivel de Riesgo Objetivo:\n3/10 (Bajo)\n\n*   Hechos Observados:\n    1.  Superficie mixta (césped/hormigón) con bordillos.\n    2.  Dos cajas metálicas, una abierta, en el borde derecho.\n    3.  Ausencia total de sujetos o amenazas visibles.\n    4.  Iluminación natural adecuada (mañana).\n\n*   Inferencias:\n    1.  El riesgo principal es mecánico/accidental: posible tropiezo con los bordillos o las cajas, especialmente si el suelo está húmedo (aunque no se ve humedad explícita, es común en césped matutino)",
+      "risk_level": 3
     },
     "surroundings_interval_sec": 900,
     "vault_dir": "/home/m11/Escritorio/GODWORKS SYSTEM/vault/videos/telegram",
@@ -37,13 +37,13 @@
   },
   "surroundings": {
     "interval_sec": 900.0,
-    "checks": 12,
-    "verdicts": 12,
-    "last_verdict_id": "img_20261124_071135_d2e8ee",
-    "last_risk_level": 2,
-    "last_verdict": "*   Estado General del Entorno: Seguro y Estable. Exterior diurno, iluminado, sin actividad humana visible y sin riesgos estructurales aparentes.\n*   Nivel de Riesgo Objetivo: 2/10\n    *   *Justificación:* El riesgo es mínimo. La puntuación no es 0/10 únicamente por la presencia de elementos no identificados (objeto blanco, zona desordenada) que podrían representar un obstáculo menor o una confusión visual, pero no una amenaza.\n*   Hechos Observados:\n    1.  Vehículo estacionado junto a sendero.\n    2.  Césped verde y sendero pavimentado.\n    3.  Luz diurna clara.\n    4.  Ausencia de audio.\n*   Inferencias:\n    1.  El área está bajo control o es de uso público tranquilo.\n    2.  No hay actividad criminal o de emergencia en curso.\n*   Dudas:\n    1.  Naturaleza exacta del \"objeto blanco\" y la \"zona desordenada\" (¿residuo? ¿herramienta? ¿deco?).\n*   Recomendación Concreta:\n    *   Proceder con precaución visual. Antes de interactuar con el entorno o moverse, el Arquitecto debe identificar visualmente el objeto blanco y la zona desordenada para descartar que sean obstáculos peligrosos (cables, vidrio, herramientas afiladas) o indicios de una actividad reciente no visible en el fotogram",
-    "last_error": "",
-    "last_check_ts": REDACTED_PHONE.7821624
+    "checks": 16,
+    "verdicts": 16,
+    "last_verdict_id": "img_20261124_081142_7d0ef9",
+    "last_risk_level": 3,
+    "last_verdict": "Estado General del Entorno:\nEstable, exterior, diurno, sin actividad humana o animal visible.\n\nNivel de Riesgo Objetivo:\n3/10 (Bajo)\n\n*   Hechos Observados:\n    1.  Superficie mixta (césped/hormigón) con bordillos.\n    2.  Dos cajas metálicas, una abierta, en el borde derecho.\n    3.  Ausencia total de sujetos o amenazas visibles.\n    4.  Iluminación natural adecuada (mañana).\n\n*   Inferencias:\n    1.  El riesgo principal es mecánico/accidental: posible tropiezo con los bordillos o las cajas, especialmente si el suelo está húmedo (aunque no se ve humedad explícita, es común en césped matutino).\n    2.  La caja abierta representa un punto de atención, pero no una amenaza inmediata.\n\n*   Dudas:\n    1.  Contenido exacto de la caja abierta (no visible con detalle suficiente para clasificarlo como peligroso).\n    2.  Motivo de la apertura de la caja (abandono, mantenimiento, error).\n\nRecomendación Concreta:\nProceder con precaución estándar al caminar cerca del borde derecho. Evitar pisar directamente sobre las cajas metálicas o los bordillos irregulares para prevenir resbalones o tropiezos. Si la caja abierta es de tu propiedad o responsabilidad, se recomienda verificar su contenido y c",
+    "last_error": "escena sin cambios relevantes (delta=2.2)",
+    "last_check_ts": REDACTED_PHONE.7640939
   },
   "vlm": {
     "ready": true,

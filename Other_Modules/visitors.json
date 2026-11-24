@@ -363,5 +363,20 @@
     "seen_capsules": [],
     "known_facts": [],
     "last_reason": ""
+  },
+  "cerda": {
+    "key": "cerda",
+    "name": "cerda",
+    "visit_count": 1,
+    "first_seen": REDACTED_PHONE.09147,
+    "first_seen_iso": "2026-11-24T07:52:51-0500",
+    "last_seen": REDACTED_PHONE.09147,
+    "last_seen_iso": "2026-11-24T07:52:51-0500",
+    "pedagogical_level": "intermedio",
+    "interests": [],
+    "topics_studied": [],
+    "seen_capsules": [],
+    "known_facts": [],
+    "last_reason": "que tengo en la mano."
   }
 }

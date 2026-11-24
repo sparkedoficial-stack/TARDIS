@@ -98,11 +98,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 59243140,
+    "traffic_bytes_rx": 90758121,
     "traffic_bytes_tx": REDACTED_PHONE,
-    "traffic_packets": 2479951,
+    "traffic_packets": 3914041,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-24T10:48:08.348103+00:00",
+    "last_seen": "2026-11-24T12:15:08.219545+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -150,7 +150,7 @@
     "interface": "wlp3s0",
     "connection_medium": "Wi-Fi (wlp3s0)",
     "network_segment": "Wi-Fi Soberana TimeMachine (REDACTED_IP/24)",
-    "arp_state": "STALE",
+    "arp_state": "REACHABLE",
     "online": true,
     "rtt_ms": 0.5,
     "open_ports": [
@@ -185,10 +185,10 @@
     "throttle_kbps": null,
     "is_safe": true,
     "traffic_bytes_rx": 0,
-    "traffic_bytes_tx": 288,
-    "traffic_packets": 4,
+    "traffic_bytes_tx": 576,
+    "traffic_packets": 8,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-24T10:48:08.348103+00:00",
+    "last_seen": "2026-11-24T12:15:08.219545+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -448,9 +448,9 @@
     "is_safe": true,
     "traffic_bytes_rx": REDACTED_PHONE,
     "traffic_bytes_tx": REDACTED_PHONE,
-    "traffic_packets": 34645676,
+    "traffic_packets": 36624136,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-24T10:48:08.348103+00:00",
+    "last_seen": "2026-11-24T12:15:08.219545+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -522,11 +522,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 5080014,
-    "traffic_bytes_tx": 116541,
-    "traffic_packets": 14902,
+    "traffic_bytes_rx": 6723878,
+    "traffic_bytes_tx": 141189,
+    "traffic_packets": 19427,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-24T10:48:08.348103+00:00",
+    "last_seen": "2026-11-24T12:15:08.219545+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]

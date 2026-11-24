@@ -96,6 +96,7 @@ Módulos y componentes auxiliares del sistema.
 - **continuity_state.json**: Componente de alta eficiencia.
 - **contributing.md**: Componente de alta eficiencia.
 - **convert_fp8_to_int4.py**: Componente de alta eficiencia.
+- **core__embed_isotropy.py**: Núcleo de orquestación y control temporal/espacial.
 - **core__hub_health.py**: Núcleo de orquestación y control temporal/espacial.
 - **core__tapo_c310_sentinel.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
 - **core__tardis_c310_conversation.py**: Núcleo de orquestación y control temporal/espacial.
@@ -1018,6 +1019,18 @@ Módulos y componentes auxiliares del sistema.
 - **dossier_20261124_012949_830.json**: Componente de alta eficiencia.
 - **dossier_20261124_023435_662.json**: Componente de alta eficiencia.
 - **dossier_20261124_070517_570.json**: Componente de alta eficiencia.
+- **dossier_20261124_072728_019.json**: Componente de alta eficiencia.
+- **dossier_20261124_073040_986.json**: Componente de alta eficiencia.
+- **dossier_20261124_073456_225.json**: Componente de alta eficiencia.
+- **dossier_20261124_074136_741.json**: Componente de alta eficiencia.
+- **dossier_20261124_075209_369.json**: Componente de alta eficiencia.
+- **dossier_20261124_075228_219.json**: Componente de alta eficiencia.
+- **dossier_20261124_075247_047.json**: Componente de alta eficiencia.
+- **dossier_20261124_075249_968.json**: Componente de alta eficiencia.
+- **dossier_20261124_075431_653.json**: Componente de alta eficiencia.
+- **dossier_20261124_080526_141.json**: Componente de alta eficiencia.
+- **dossier_20261124_080639_879.json**: Componente de alta eficiencia.
+- **dossier_20261124_084739_519.json**: Componente de alta eficiencia.
 - **dynamic_tools_registry.json**: Directorio y puente soberano de interoperabilidad omni-herramientas.
 - **ecca_v3_core.py**: Núcleo de orquestación y control temporal/espacial.
 - **embed_isotropy.py**: Componente de alta eficiencia.
@@ -1243,6 +1256,7 @@ Módulos y componentes auxiliares del sistema.
 - **tardis_conversation_analyzer.py**: Componente de alta eficiencia.
 - **tardis_desktop_companion.py**: Componente de alta eficiencia.
 - **tardis_dynamic_function_engine.py**: Componente de alta eficiencia.
+- **tardis_eval_harness.py**: Componente de alta eficiencia.
 - **tardis_event_bus.py**: Componente de alta eficiencia.
 - **tardis_evolutionary_codex.py**: Componente de alta eficiencia.
 - **tardis_face_intel.py**: Componente de alta eficiencia.

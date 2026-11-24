@@ -1,41 +1,26 @@
 {
-  "run_id": "canary_20261124_054720_678c24",
-  "iso": "2026-11-24T05:47:20-05:00",
+  "run_id": "canary_20261124_071438_65b722",
+  "iso": "2026-11-24T07:14:38-05:00",
   "files": [
     {
-      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/tardis_resource_governor.py",
-      "relative": "core/tardis_resource_governor.py",
-      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261124_054720_678c24/core__tardis_resource_governor.py"
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/embed_isotropy.py",
+      "relative": "core/embed_isotropy.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261124_071438_65b722/core__embed_isotropy.py"
+    },
+    {
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/rag_vault.py",
+      "relative": "core/rag_vault.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261124_071438_65b722/core__rag_vault.py"
     },
     {
       "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/tardis_semantic_cache.py",
       "relative": "core/tardis_semantic_cache.py",
-      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261124_054720_678c24/core__tardis_semantic_cache.py"
-    },
-    {
-      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/temporal_brain.py",
-      "relative": "core/temporal_brain.py",
-      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261124_054720_678c24/core__temporal_brain.py"
-    },
-    {
-      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/video_pipeline_4k.py",
-      "relative": "core/video_pipeline_4k.py",
-      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261124_054720_678c24/core__video_pipeline_4k.py"
-    },
-    {
-      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/hub_health.py",
-      "relative": "core/hub_health.py",
-      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261124_054720_678c24/core__hub_health.py"
-    },
-    {
-      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/server/api.py",
-      "relative": "server/api.py",
-      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261124_054720_678c24/server__api.py"
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261124_071438_65b722/core__tardis_semantic_cache.py"
     },
     {
       "source": "/home/m11/Escritorio/GODWORKS SYSTEM/tests/test_sovereign_alternate_systems.py",
       "relative": "tests/test_sovereign_alternate_systems.py",
-      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261124_054720_678c24/tests__test_sovereign_alternate_systems.py"
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261124_071438_65b722/tests__test_sovereign_alternate_systems.py"
     }
   ]
 }

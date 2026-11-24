@@ -654,7 +654,7 @@ class TardisAgyCoevolutionEngine:
             from core.tardis_event_bus import get_event_bus
             evs = get_event_bus().consume(
                 "tardis_agy_coevolution",
-                topics=("health.regression", "health.recovered", "sentinel.anomaly", "evolution.rollback"),
+                topics=("health.regression", "health.recovered", "sentinel.anomaly", "evolution.rollback", "eval.regression"),
                 limit=40,
                 advance=True,
             )
