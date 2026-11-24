@@ -177,7 +177,7 @@ def _effort_for_model(model: str, explicit_effort: Optional[str] = None) -> str:
     return "high"
 
 
-def _build_autonomous_env() -> Dict[str, str]:
+def _build_autonomous_env(extra: Optional[Dict[str, str]] = None) -> Dict[str, str]:
     env = os.environ.copy()
     local_bin = str(HOME / ".local" / "bin")
     opencode_bin = str(HOME / ".opencode" / "bin")
@@ -189,6 +189,8 @@ def _build_autonomous_env() -> Dict[str, str]:
     env["FTL_AUTONOMOUS"] = "1"
     env["TARDIS_AGY_AUTONOMOUS"] = "1"
     env["PYTHONUNBUFFERED"] = "1"
+    if extra:
+        env.update(extra)
     return env
 
 
@@ -730,10 +732,11 @@ class TardisAgyController:
         self._emit_event("task_started", task_id=task_id, source=source, model=target_model, cwd=work_dir)
 
         try:
+            extra_env = {"TARDIS_COEVOLUTION_NESTED": "1"} if "coevolution" in str(source or "").lower() else None
             proc = subprocess.run(
                 cmd,
                 cwd=work_dir,
-                env=_build_autonomous_env(),
+                env=_build_autonomous_env(extra_env),
                 stdin=subprocess.DEVNULL,
                 capture_output=True,
                 text=True,
@@ -1283,6 +1286,32 @@ class TardisAgyController:
                 role="assistant",
                 category="AGY_AUTONOMOUS_EXECUTION",
             )
+        except Exception:
+            pass
+
+        # Cerrar ciclo bidireccional con TardisAgyCoevolutionEngine si proviene del motor de co-evolución
+        try:
+            meta = record.get("meta") or {}
+            src = str(record.get("source") or "")
+            if meta.get("proposal_id") or "coevolution" in src.lower():
+                if str(PROJECT_ROOT) not in sys.path:
+                    sys.path.insert(0, str(PROJECT_ROOT))
+                from core.tardis_agy_coevolution import get_coevolution_engine
+                coev = get_coevolution_engine()
+                out_cid = str(result.get("conversation_id") or "").strip()
+                if out_cid:
+                    coev._state["coevolution_conversation_id"] = out_cid
+                    coev._save_state()
+                reply_text = str(result.get("response") or result.get("error") or "").strip()
+                if reply_text:
+                    coev.record_agy_reply(
+                        reply_text,
+                        proposal_id=meta.get("proposal_id") or None,
+                        status="reviewed" if result.get("ok") else "failed",
+                        conversation_id=out_cid or None,
+                        sender="Antigravity-AGY-Autopilot",
+                        meta={"task_id": record.get("task_id"), "elapsed": result.get("elapsed")},
+                    )
         except Exception:
             pass
 

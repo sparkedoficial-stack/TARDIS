@@ -3329,6 +3329,152 @@ iframe{border:none;width:100%;height:100%;}</style></head>
         raise HTTPException(status_code=400, detail=f"Acción no reconocida: {req.action}")
 
     # --------------------------------------------------------------------------
+    # SISTEMAS ALTERNOS SOBERANOS: GOVERNOR · EVENT BUS · CANARY · CO-EVOLUTION
+    # --------------------------------------------------------------------------
+
+    @app.get("/api/governor/status")
+    async def get_governor_status_endpoint(fresh: bool = False):
+        from core.tardis_resource_governor import get_resource_governor
+        gov = get_resource_governor()
+        return gov.collect_snapshot(persist=True) if fresh else gov.read_fast_snapshot()
+
+    @app.get("/api/governor/admit")
+    async def get_governor_admit_endpoint(task_class: str = "heavy_learning"):
+        from core.tardis_resource_governor import get_resource_governor
+        return get_resource_governor().admit(task_class)
+
+    @app.post("/api/governor/reclaim")
+    async def post_governor_reclaim_endpoint(payload: Optional[Dict[str, Any]] = None):
+        from core.tardis_resource_governor import get_resource_governor
+        body = payload or {}
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(
+            None,
+            lambda: get_resource_governor().reclaim_resources(
+                dry_run=bool(body.get("dry_run", False)),
+                prune_backups=bool(body.get("prune_backups", True)),
+            ),
+        )
+
+    @app.get("/api/governor/history")
+    async def get_governor_history_endpoint(limit: int = 30):
+        from core.tardis_resource_governor import get_resource_governor
+        return {"ok": True, "history": get_resource_governor().history(limit=limit)}
+
+    @app.get("/api/bus/stats")
+    async def get_bus_stats_endpoint():
+        from core.tardis_event_bus import get_event_bus
+        return get_event_bus().stats()
+
+    @app.get("/api/bus/events")
+    async def get_bus_events_endpoint(topic: Optional[str] = None, severity: Optional[str] = None, limit: int = 40):
+        from core.tardis_event_bus import get_event_bus
+        return {"ok": True, "events": get_event_bus().query(topic=topic, severity=severity, limit=limit)}
+
+    @app.post("/api/bus/publish")
+    async def post_bus_publish_endpoint(payload: Dict[str, Any]):
+        from core.tardis_event_bus import get_event_bus
+        return get_event_bus().publish(
+            str(payload.get("topic") or "system.manual"),
+            str(payload.get("source") or "api"),
+            payload.get("payload") if isinstance(payload.get("payload"), dict) else {"message": payload.get("message", "")},
+            severity=str(payload.get("severity") or "INFO"),
+            dedup_window_s=float(payload.get("dedup_window_s", 0.0)),
+        )
+
+    @app.get("/api/canary/history")
+    async def get_canary_history_endpoint(limit: int = 20):
+        from core.tardis_canary_verifier import get_canary_verifier
+        return {"ok": True, "history": get_canary_verifier().history(limit=limit)}
+
+    @app.post("/api/canary/verify")
+    async def post_canary_verify_endpoint(payload: Dict[str, Any]):
+        from core.tardis_canary_verifier import get_canary_verifier
+        files = payload.get("files") or []
+        if not files:
+            raise HTTPException(status_code=400, detail="Se requiere lista 'files'.")
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(
+            None,
+            lambda: get_canary_verifier().verify_files(
+                files,
+                run_tests=bool(payload.get("run_tests", True)),
+                check_live_api=bool(payload.get("check_live_api", False)),
+                create_snapshot=bool(payload.get("create_snapshot", False)),
+            ),
+        )
+
+    @app.get("/api/coevolution/status")
+    async def get_coevolution_status_endpoint():
+        from core.tardis_agy_coevolution import get_coevolution_engine
+        return get_coevolution_engine().get_status()
+
+    @app.get("/api/coevolution/proposals")
+    async def get_coevolution_proposals_endpoint(status: str = "all", limit: int = 25):
+        from core.tardis_agy_coevolution import get_coevolution_engine
+        return {"ok": True, "proposals": get_coevolution_engine().list_proposals(status=status, limit=limit)}
+
+    @app.get("/api/coevolution/dialogue")
+    async def get_coevolution_dialogue_endpoint(limit: int = 30):
+        from core.tardis_agy_coevolution import get_coevolution_engine
+        return {"ok": True, "dialogue": get_coevolution_engine().get_dialogue(limit=limit)}
+
+    @app.post("/api/coevolution/scan")
+    async def post_coevolution_scan_endpoint(payload: Optional[Dict[str, Any]] = None):
+        from core.tardis_agy_coevolution import get_coevolution_engine
+        lens = str((payload or {}).get("lens") or "all")
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, lambda: get_coevolution_engine().scan(lens=lens))
+
+    @app.post("/api/coevolution/ask_agy")
+    async def post_coevolution_ask_agy_endpoint(payload: Dict[str, Any]):
+        from core.tardis_agy_coevolution import get_coevolution_engine
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(
+            None,
+            lambda: get_coevolution_engine().communicate_with_agy(
+                prompt=payload.get("prompt"),
+                proposal_id=payload.get("proposal_id"),
+                mode=str(payload.get("mode") or "coevolution"),
+                sync=bool(payload.get("sync", False)),
+                use_stream=bool(payload.get("use_stream", False)),
+                model=payload.get("model"),
+                effort=payload.get("effort"),
+                timeout=int(payload.get("timeout", 600)),
+                force=bool(payload.get("force", False)),
+            ),
+        )
+
+    @app.post("/api/coevolution/reply_from_agy")
+    async def post_coevolution_reply_from_agy_endpoint(payload: Dict[str, Any]):
+        from core.tardis_agy_coevolution import get_coevolution_engine
+        msg = str(payload.get("message") or payload.get("text") or "").strip()
+        if not msg:
+            raise HTTPException(status_code=400, detail="Mensaje vacío.")
+        return get_coevolution_engine().record_agy_reply(
+            msg,
+            proposal_id=payload.get("proposal_id"),
+            status=str(payload.get("status") or "reviewed"),
+            conversation_id=payload.get("conversation_id"),
+            sender=str(payload.get("sender") or "Antigravity-AI"),
+            verification_run_id=str(payload.get("verification_run_id") or ""),
+        )
+
+    @app.post("/api/coevolution/cycle")
+    async def post_coevolution_cycle_endpoint(payload: Optional[Dict[str, Any]] = None):
+        from core.tardis_agy_coevolution import get_coevolution_engine
+        body = payload or {}
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(
+            None,
+            lambda: get_coevolution_engine().run_cycle(
+                lens=str(body.get("lens") or "auto"),
+                allow_dispatch=bool(body.get("dispatch", True)),
+                force_dispatch=bool(body.get("force_dispatch", False)),
+            ),
+        )
+
+    # --------------------------------------------------------------------------
     # PUENTE SOBERANO DE TELEGRAM BOT
     # --------------------------------------------------------------------------
 

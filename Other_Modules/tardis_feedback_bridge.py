@@ -163,8 +163,8 @@ def cycle() -> Dict[str, Any]:
         # Escalar regresiones reales al Sovereign Event Bus (consumido por TARDIS <-> AGY Co-Evolution)
         if ev.get("kind") in ("subsistema_cambio", "subsistema_ausente", "salud_baja"):
             try:
-                if str(BASE) not in os.sys.path:
-                    os.sys.path.insert(0, str(BASE))
+                if str(BASE) not in sys.path:
+                    sys.path.insert(0, str(BASE))
                 from core.tardis_event_bus import get_event_bus
                 to_st = str(ev.get("to") or "")
                 is_bad = ev.get("kind") in ("subsistema_ausente", "salud_baja") or to_st in ("degraded", "offline")

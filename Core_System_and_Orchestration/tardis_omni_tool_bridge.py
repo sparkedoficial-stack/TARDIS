@@ -176,6 +176,38 @@ class TardisOmniToolBridge:
                 "domain": "zero_error_preemptive_shield",
                 "description": "Intercepta toda notificación de error antes de aparecer en pantalla (Omarchy Shell + notify-send shim) y repara proactivamente cualquier fallo del sistema (Kernel Ring 0, Systemd, Coredump, Journald, DNS, Disco, Audio, Permisos, Locks, LLMs) vía FTL y Easy Touch.",
                 "actions": ["status", "precheck", "heal", "intercept", "classify", "history", "rules", "mode", "purge", "daemon_status"]
+            },
+            "resource_governor": {
+                "name": "TARDIS Sovereign Resource Governor & Inference Arbiter (Ring 0)",
+                "binary": str(HOME_DIR / ".local" / "bin" / "tardis-governor"),
+                "module": "modulos_ftl.ftl_resource_governor",
+                "module_file": str(HOME_DIR / "modulos_ftl" / "ftl_resource_governor.py"),
+                "domain": "resource_arbitration_ring0",
+                "description": "Árbitro Ring 0 de CPU PSI, RAM, Swap, VRAM RTX 3050 y carriles LLM (:11434/:11435/TemporalBrain): control de admisión (GREEN/YELLOW/ORANGE/RED) y evicción automática de modelos duplicados y backups obsoletos.",
+                "actions": ["status", "admit", "reclaim", "history", "daemon"]
+            },
+            "event_bus": {
+                "name": "TARDIS Sovereign Nervous System (Unified SQLite WAL Event Bus)",
+                "binary": str(HOME_DIR / ".local" / "bin" / "tardis-bus"),
+                "domain": "sovereign_event_bus",
+                "description": "Bus pub/sub persistente SQLite WAL con deduplicación SHA-256 y cursores durables que conecta los 37+ demonios de TARDIS, Zero-Error Shield, Resource Governor y AGY Co-Evolution.",
+                "actions": ["stats", "topics", "tail", "publish", "unread"]
+            },
+            "canary_verifier": {
+                "name": "TARDIS Sovereign Canary & Quality Gate",
+                "binary": str(HOME_DIR / ".local" / "bin" / "tardis-canary"),
+                "domain": "autonomous_quality_gate",
+                "description": "Puerta de verificación multi-etapa (AST, py_compile, guardias de secretos/mlockall/timeouts, pytest dirigido y sonda API) con snapshots y rollback atómico.",
+                "actions": ["verify", "rollback", "history"]
+            },
+            "agy_coevolution": {
+                "name": "TARDIS <-> AGY Continuous Co-Evolution & Autonomous System Discovery Engine",
+                "binary": str(HOME_DIR / ".local" / "bin" / "tardis-coevolution"),
+                "module": "modulos_ftl.ftl_coevolution",
+                "module_file": str(HOME_DIR / "modulos_ftl" / "ftl_coevolution.py"),
+                "domain": "continuous_agy_coevolution",
+                "description": "Canal bidireccional continuo 24/7 entre TARDIS y Antigravity (AGY) con 6 lentes de auto-búsqueda de sistemas alternos y mejoras, conversación persistente, guardrails anti-recursión/presupuesto y verificación canaria.",
+                "actions": ["status", "scan", "proposals", "propose", "dialogue", "ask-agy", "reply-tardis", "run-cycle", "daemon"]
             }
         }
         self._register_in_dynamic_registry()

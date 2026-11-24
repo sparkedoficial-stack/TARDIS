@@ -216,6 +216,49 @@ class FtlOmniRegistry:
                 "description": "Intercepta TODA notificación de error de todo tipo de sistema ANTES de que aparezca en pantalla (0 ms en Omarchy Shell `m11.notifications` + shim CLI `/usr/local/bin/notify-send`) y repara proactivamente anomalías de Kernel PSI, Systemd, Coredump, Journald, Red/DNS, Audio, Disco, Permisos, Locks y LLMs vía FTL + Easy Touch antes de que el sistema dispare el error.",
                 "capabilities": ["status", "precheck", "heal", "intercept", "classify", "history", "rules", "mode", "purge", "daemon_status"],
                 "active": os.path.exists("/home/m11/.local/bin/zero-error-shield")
+            },
+            "resource_governor": {
+                "name": "TARDIS Sovereign Resource Governor & Inference Arbiter (Ring 0)",
+                "binary": "/home/m11/.local/bin/tardis-governor",
+                "module": "modulos_ftl.ftl_resource_governor",
+                "module_file": "/home/m11/modulos_ftl/ftl_resource_governor.py",
+                "service": "tardis-resource-governor.service",
+                "endpoint": "http://127.0.0.1:8757/api/governor/status",
+                "category": "Ring 0 Resource Governance, Thermal/PSI Backpressure & LLM Lane Arbitration",
+                "description": "Supervisa CPU PSI, RAM, Swap, VRAM RTX 3050 y carriles LLM (:11434/:11435/TemporalBrain), aplica control de admisión (GREEN/YELLOW/ORANGE/RED) y evicta automáticamente modelos duplicados y backups obsoletos.",
+                "capabilities": ["status", "admit", "reclaim", "history", "daemon"],
+                "active": os.path.exists("/home/m11/.local/bin/tardis-governor")
+            },
+            "event_bus": {
+                "name": "TARDIS Sovereign Nervous System (Unified SQLite WAL Event Bus)",
+                "binary": "/home/m11/.local/bin/tardis-bus",
+                "endpoint": "http://127.0.0.1:8757/api/bus/stats",
+                "category": "Unified Inter-Daemon Pub/Sub & Causal Telemetry Backbone",
+                "description": "Bus de eventos SQLite WAL con deduplicación SHA-256 y cursores durables que interconecta todos los demonios de TARDIS con el canal de Co-Evolución AGY.",
+                "capabilities": ["stats", "topics", "tail", "publish", "unread"],
+                "active": os.path.exists("/home/m11/.local/bin/tardis-bus")
+            },
+            "canary_verifier": {
+                "name": "TARDIS Sovereign Canary & Quality Gate",
+                "binary": "/home/m11/.local/bin/tardis-canary",
+                "endpoint": "http://127.0.0.1:8757/api/canary/history",
+                "category": "Autonomous Change Verification, Regression Gate & Atomic Rollback",
+                "description": "Verificador canario multi-etapa (AST, py_compile, seguridad, pytest dirigido, sonda API) con snapshots atómicos y rollback determinista.",
+                "capabilities": ["verify", "rollback", "history"],
+                "active": os.path.exists("/home/m11/.local/bin/tardis-canary")
+            },
+            "agy_coevolution": {
+                "name": "TARDIS <-> AGY Continuous Co-Evolution & Autonomous System Discovery Engine",
+                "binary": "/home/m11/.local/bin/tardis-coevolution",
+                "module": "modulos_ftl.ftl_coevolution",
+                "module_file": "/home/m11/modulos_ftl/ftl_coevolution.py",
+                "service": "tardis-agy-coevolution.service",
+                "skill_path": "/home/m11/.agents/skills/tardis-coevolution/SKILL.md",
+                "endpoint": "http://127.0.0.1:8757/api/coevolution/status",
+                "category": "Continuous Bidirectional TARDIS <-> AGY Co-Evolution & Alternate System Discovery",
+                "description": "Canal autónomo bidireccional 24/7 entre TARDIS y Antigravity (AGY) con 6 lentes de auto-búsqueda de sistemas alternos y mejoras, conversación persistente, buzón vivo en hooks, guardrails de presupuesto/presión y puerta canaria.",
+                "capabilities": ["status", "scan", "proposals", "propose", "dialogue", "ask-agy", "reply-tardis", "run-cycle", "daemon"],
+                "active": os.path.exists("/home/m11/.local/bin/tardis-coevolution")
             }
         }
 
