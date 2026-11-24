@@ -98,11 +98,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 205978949,
-    "traffic_bytes_tx": REDACTED_PHONE,
-    "traffic_packets": 9790839,
+    "traffic_bytes_rx": 10439449,
+    "traffic_bytes_tx": 548756384,
+    "traffic_packets": 542365,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-24T15:43:22.620199+00:00",
+    "last_seen": "2026-11-24T18:11:46.706974+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -185,10 +185,10 @@
     "throttle_kbps": null,
     "is_safe": true,
     "traffic_bytes_rx": 0,
-    "traffic_bytes_tx": 0,
-    "traffic_packets": 0,
+    "traffic_bytes_tx": 144,
+    "traffic_packets": 2,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-24T15:43:22.620199+00:00",
+    "last_seen": "2026-11-24T18:11:46.706974+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -233,9 +233,9 @@
     "hostname": "Smart TV LG webOS (Recámara / Secundaria)",
     "vendor": "LG Innotek",
     "device_type": "Smart TV / Multimedia",
-    "interface": "enp2s0",
-    "connection_medium": "Ethernet / LAN (enp2s0)",
-    "network_segment": "Ethernet / LAN Principal (REDACTED_IP/24)",
+    "interface": "wlp3s0",
+    "connection_medium": "Wi-Fi (wlp3s0)",
+    "network_segment": "Wi-Fi Soberana TimeMachine (REDACTED_IP/24)",
     "arp_state": "STALE",
     "online": true,
     "rtt_ms": null,
@@ -249,10 +249,10 @@
     "throttle_kbps": null,
     "is_safe": true,
     "traffic_bytes_rx": 0,
-    "traffic_bytes_tx": 1060,
-    "traffic_packets": 6,
+    "traffic_bytes_tx": 0,
+    "traffic_packets": 0,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-24T05:17:17.636112+00:00",
+    "last_seen": "2026-11-24T18:11:46.706974+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -448,9 +448,9 @@
     "is_safe": true,
     "traffic_bytes_rx": REDACTED_PHONE,
     "traffic_bytes_tx": REDACTED_PHONE,
-    "traffic_packets": 43678687,
+    "traffic_packets": 48685690,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-24T15:43:22.620199+00:00",
+    "last_seen": "2026-11-24T18:11:46.706974+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -522,11 +522,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 10582619,
-    "traffic_bytes_tx": 198934,
-    "traffic_packets": 29695,
+    "traffic_bytes_rx": 13912366,
+    "traffic_bytes_tx": 245643,
+    "traffic_packets": 39243,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-24T15:43:22.620199+00:00",
+    "last_seen": "2026-11-24T18:11:46.706974+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]

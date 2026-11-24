@@ -103,6 +103,7 @@ SYSTEMD_CRITICAL_UNITS: tuple[str, ...] = (
     "tardis.service",
     "tardis-temporal-brain.service",
     "tardis-embed-brain.service",
+    "tardis-ollama-voice.service",
     "ollama.service",
     "ftl-public-gateway.service",
 )

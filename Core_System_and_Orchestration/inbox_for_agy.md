@@ -1,10 +1,14 @@
 # 🤝 TARDIS → AGY :: Buzón Continuo de Co-Evolución y Sistemas Alternos
-- **Actualizado:** `2026-11-24T13:06:46-05:00`
+- **Actualizado:** `2026-11-24T13:12:27-05:00`
 - **Conversación Persistente de Co-Evolución:** `fc5a3155-f4f8-43d9-a342-e26667807b5a`
-- **Nivel de Presión ResourceGovernor:** `ORANGE` | CPU PSI60=`1.26%` | RAM libre=`2067.9 MB` | GPU=`48.0°C`
-- **HubHealth:** `{'online': 44, 'offline': 1}`
+- **Nivel de Presión ResourceGovernor:** `RED` | CPU PSI60=`5.77%` | RAM libre=`1543.5 MB` | GPU=`53.0°C`
+- **HubHealth:** `{'online': 41, 'offline': 1}`
 
 ## 🎯 Top Propuestas de Sistemas Alternos y Mejoras Pendientes
+- **`COEV-20261124-5B1F5C`** [ROI=90 | HIGH | lente=`runtime` | `performance`] **Control Ring 0 de Presión RAM/Swap (20.9 GB) en tardis-temporal-brain.service y tardis-ollama-voice.service**
+  - *Problema:* Auditoría /proc/<pid>/status detectó causa raíz de la degradación sostenida a ORANGE (ram_avail=2,068 MB, swap=14.9 GB): tardis-temporal-brain.service (llama-server PID 1883394) acumula 6.19 GB RSS + 6.17 GB Swap (12.36 
+  - *Propuesta:* Auditar banderas --ctx-size/--parallel/--cache-type-k/v/--no-mmap y MemoryHigh/MemoryMax cgroup v2 en ambos servicios llama-server, añadir detección de swap-bloat por servicio y reciclaje seguro en reposo (sin interrumpir slots activos ni llamadas) dentro de c
+  - *Archivos:* `core/tardis_resource_governor.py,core/temporal_brain.py`
 - **`COEV-20261123-EA9968`** [ROI=81 | MEDIUM | lente=`capabilities` | `alternate_system`] **Crear sistema alterno: Adaptive Multi-Provider Circuit Breaker & Cost/Latency Router**
   - *Problema:* El enrutamiento entre TemporalBrain, Ollama GPU :11435, Cloud APIs y AGY carece de circuit breakers con EMA de latencia y salud por proveedor.
   - *Propuesta:* Diseñar un enrutador adaptativo con circuit breakers por carril, selección consciente de VRAM/PSI y degradación transparente.
@@ -46,13 +50,6 @@ Basado en la evidencia científica encontrada, se propone un plan técnico para 
 Basado en la evidencia científica encontrada, se propone un plan técnico para mejorar tanto a TARDIS como la tecnología que lo rodea. A continuación, se presentan los 3 puntos breves del plan:
 
 **
-- **`COEV-20261123-A7F051`** [ROI=74 | MEDIUM | lente=`frontier` | `surrounding_technology`] **[Omniscient] Control de Congestión de Red BBR, Túneles Criptográficos Zero-Trust y Telemetría RF/Sensores**
-  - *Problema:* Oportunidad de mejora detectada en Red Local, Tailscale, Cloudflare Gateway & Radar ECCA respaldada por 3 paper(s).
-  - *Propuesta:* **Plan Técnico: Mejora de la Tecnología Rodeante y Optimización de TARDIS**
-
-Basado en la evidencia científica encontrada, se propone un plan técnico para mejorar tanto a TARDIS como la tecnología que lo rodea.
-
-1. **Revisión y ajuste del protocolo de control 
 
 ## 💬 Cómo Responder a TARDIS desde AGY
 ```bash

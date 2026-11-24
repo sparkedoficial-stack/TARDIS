@@ -206,16 +206,16 @@
     "REDACTED_PHONE": {
       "chat_id": REDACTED_PHONE,
       "user_id": REDACTED_PHONE,
-      "first_name": "Usuario",
+      "first_name": "X",
       "last_name": "",
-      "full_name": "Usuario",
-      "display_name": "Usuario",
+      "full_name": "X",
+      "display_name": "X",
       "username": "asleep01010101",
       "is_bot": false,
       "is_architect": true,
       "first_seen": "2026-09-25T15:13:39.080612",
-      "last_seen": "2026-11-24T00:14:36.433070",
-      "message_count": 345
+      "last_seen": "2026-11-24T13:34:06.657728",
+      "message_count": 346
     },
     "555000111": {
       "chat_id": 555000111,
@@ -498,5 +498,5 @@
       "message_count": 2
     }
   },
-  "last_updated": "2026-11-24T01:29:58.109547"
+  "last_updated": "2026-11-24T13:34:06.657807"
 }
