@@ -111,8 +111,13 @@ INFERENCE_MANAGED_UNITS: Tuple[str, ...] = (
     "tardis-ollama-voice.service",
 )
 
+# Unidades protegidas observadas en modo solo-lectura (telemetría PSI/sobresuscripción, jamás throttling).
+OBSERVED_ONLY_UNITS: Tuple[str, ...] = (
+    "tardis.service",
+)
+
 ALL_INSPECTED_UNITS: Tuple[str, ...] = (
-    INFERENCE_MANAGED_UNITS + SENTINEL_THROTTLE_UNITS + BACKGROUND_THROTTLE_UNITS
+    OBSERVED_ONLY_UNITS + INFERENCE_MANAGED_UNITS + SENTINEL_THROTTLE_UNITS + BACKGROUND_THROTTLE_UNITS
 )
 
 # Perfiles deterministas de throttling cgroup v2 en caliente (--runtime) por nivel de presión.
@@ -360,11 +365,18 @@ def _resolve_throttle_target_level(
     lvl = str(snap.get("level") or "GREEN").upper()
     if lvl in THROTTLE_PROFILES:
         return lvl
-    cpu_psi_60 = float(((snap.get("cpu") or {}).get("psi") or {}).get("some_avg60", 0.0))
-    cpu_temp_c = float((snap.get("cpu") or {}).get("temp_c", 0.0))
+    cpu = snap.get("cpu") or {}
+    cpu_psi_60 = float((cpu.get("psi") or {}).get("some_avg60", 0.0))
+    cpu_temp_c = float(cpu.get("temp_c", 0.0))
     gpu_temp_c = float((snap.get("gpu") or {}).get("temp_c", 0.0))
-    # Trigger proactivo en YELLOW ante estrés combinado térmico (GPU o CPU) + CPU PSI sostenido
-    if (gpu_temp_c >= 72.0 and cpu_psi_60 >= 40.0) or (cpu_temp_c >= 78.0 and cpu_psi_60 >= 30.0):
+    load1 = float(cpu.get("load1", 0.0))
+    ncpus = max(1, int(cpu.get("cores") or os.cpu_count() or 16))
+    # Trigger proactivo en YELLOW ante estrés combinado térmico (GPU/CPU) o contención severa PSI+Load
+    if (
+        (gpu_temp_c >= 72.0 and cpu_psi_60 >= 40.0)
+        or (cpu_temp_c >= 78.0 and cpu_psi_60 >= 30.0)
+        or (load1 >= ncpus * 1.1 and cpu_psi_60 >= 35.0)
+    ):
         return "ORANGE"
     return None
 
@@ -381,6 +393,31 @@ def _is_thermal_or_heavy_psi(snap: Dict[str, Any], target_level: str) -> bool:
         or cpu_psi_60 >= 60.0
         or (cpu_temp_c >= 78.0 and cpu_psi_60 >= 30.0)
     )
+
+
+def _needs_power_profile_step_down(
+    snap: Dict[str, Any],
+    target_level: str,
+    throttle_st: Dict[str, Any],
+) -> bool:
+    """
+    Detecta si el perfil energético Ring 0 debe bajar un escalón adicional
+    (ej. performance -> balanced o balanced -> power-saver) aunque el nivel de throttling
+    (p. ej. ORANGE) ya estuviera activo.
+    """
+    if not _is_thermal_or_heavy_psi(snap, target_level):
+        return False
+    cpu_temp_c = float((snap.get("cpu") or {}).get("temp_c", 0.0))
+    gpu_temp_c = float((snap.get("gpu") or {}).get("temp_c", 0.0))
+    severe_thermal = target_level == "RED" or cpu_temp_c >= 85.0 or gpu_temp_c >= 78.0
+    desired_pp = "power-saver" if severe_thermal else "balanced"
+    applied_pp = str(throttle_st.get("power_profile_applied") or "").strip().lower()
+    live_pp = str((snap.get("cpu") or {}).get("power_profile") or "").strip().lower()
+    pp_rank = {"power-saver": 0, "balanced": 1, "performance": 2}
+    cur_pp = applied_pp or live_pp
+    if cur_pp in pp_rank and pp_rank[cur_pp] > pp_rank[desired_pp]:
+        return True
+    return severe_thermal and applied_pp != "power-saver" and live_pp != "power-saver"
 
 
 def _is_pure_transient_cpu_thermal_spike(snap: Dict[str, Any]) -> bool:
@@ -603,6 +640,16 @@ def _inspect_cgroup_units(
             cpu_weight = int(cpu_weight_raw) if cpu_weight_raw.isdigit() else 100
             psi = _parse_psi_file(cg / "cpu.pressure")
 
+            # Auditar sobresuscripción de hilos (individual y agregada multi-proceso) en el cgroup
+            procs_file = cg / "cgroup.procs"
+            pids: List[int] = []
+            if procs_file.is_file():
+                pids = [
+                    int(line.strip())
+                    for line in procs_file.read_text(encoding="utf-8", errors="ignore").splitlines()
+                    if line.strip().isdigit()
+                ]
+
             pressure_rows.append(
                 {
                     "unit": unit,
@@ -610,21 +657,23 @@ def _inspect_cgroup_units(
                     "effective_cpus": eff_cpus,
                     "cpu_max": cpu_max,
                     "cpu_weight": cpu_weight,
+                    "pids_count": len(pids),
                     "psi_some_avg10": psi["some_avg10"],
                     "psi_some_avg60": psi["some_avg60"],
                     "psi_full_avg60": psi["full_avg60"],
                 }
             )
 
-            # Auditar sobresuscripción de hilos en procesos residentes del cgroup
-            procs_file = cg / "cgroup.procs"
-            if procs_file.is_file() and eff_cpus > 0:
-                pids = [
-                    int(line.strip())
-                    for line in procs_file.read_text(encoding="utf-8", errors="ignore").splitlines()
-                    if line.strip().isdigit()
-                ]
-                for pid in pids[:8]:
+            if pids and eff_cpus > 0:
+                check_runnable = psi["some_avg60"] >= 15.0 or psi["some_avg10"] >= 25.0
+                total_runnable = 0
+                active_pids = 0
+                unit_flagged_single = False
+                top_runnable_pid = 0
+                top_runnable_comm = ""
+                top_runnable_count = 0
+
+                for pid in pids[:16]:
                     try:
                         cmdline = (
                             Path(f"/proc/{pid}/cmdline")
@@ -643,8 +692,16 @@ def _inspect_cgroup_units(
                     cfg_threads = _extract_cli_int_flag(cmdline, ("--threads", "-t"))
                     cfg_batch = _extract_cli_int_flag(cmdline, ("--threads-batch", "-tb"))
                     max_cfg = max(cfg_threads, cfg_batch)
-                    runnable = _count_runnable_threads(pid) if (psi["some_avg60"] >= 15.0 or max_cfg > eff_cpus) else 0
+                    runnable = _count_runnable_threads(pid) if (check_runnable or max_cfg > eff_cpus) else 0
+                    total_runnable += runnable
+                    if runnable > 0:
+                        active_pids += 1
+                        if runnable > top_runnable_count:
+                            top_runnable_count = runnable
+                            top_runnable_pid = pid
+                            top_runnable_comm = comm
                     if max_cfg > eff_cpus or runnable > eff_cpus:
+                        unit_flagged_single = True
                         peak = max(max_cfg, runnable)
                         ratio = round(peak / float(eff_cpus), 2)
                         rec_gen = max(2, eff_cpus // 2)
@@ -662,6 +719,33 @@ def _inspect_cgroup_units(
                                 "recommendation": f"Alinear --threads <= {rec_gen} y --threads-batch <= {eff_cpus} con --poll 0 para cpuset {cpuset_raw or 'all'}",
                             }
                         )
+
+                if not unit_flagged_single and total_runnable > eff_cpus:
+                    ratio = round(total_runnable / float(eff_cpus), 2)
+                    rec_gen = max(2, eff_cpus // 2)
+                    agg_comm = (
+                        f"{top_runnable_comm or 'multi-proc'} (+{active_pids - 1} procs)"
+                        if active_pids > 1
+                        else (top_runnable_comm or "cgroup")
+                    )
+                    oversubscribed.append(
+                        {
+                            "unit": unit,
+                            "pid": top_runnable_pid or pids[0],
+                            "comm": agg_comm,
+                            "effective_cpus": eff_cpus,
+                            "cpuset_cpus": cpuset_raw or "all",
+                            "configured_threads": 0,
+                            "configured_threads_batch": 0,
+                            "runnable_threads": total_runnable,
+                            "active_pids": active_pids,
+                            "oversubscription_ratio": ratio,
+                            "recommendation": (
+                                f"Acotar concurrencia agregada del cgroup ({total_runnable} hilos R en {active_pids} procesos) "
+                                f"a <= {eff_cpus} hilos para cpuset {cpuset_raw or 'all'} (workers/threads <= {rec_gen})"
+                            ),
+                        }
+                    )
         except Exception:
             continue
 
@@ -1045,6 +1129,12 @@ class TardisResourceGovernor:
         elif load1 >= ncpus * 0.9:
             _escalate("YELLOW", f"Loadavg1 alto ({load1:.2f} en {ncpus} hilos)")
 
+        if cpu_psi["some_avg60"] >= 45.0 and load1 >= ncpus * 1.25:
+            _escalate(
+                "ORANGE",
+                f"Contención combinada CPU PSI/Load (PSI60={cpu_psi['some_avg60']:.1f}%, load1={load1:.2f}/{ncpus})",
+            )
+
         if duplicate_models:
             wasted_mb = sum(d["size_mb"] for d in duplicate_models)
             reasons.append(f"{len(duplicate_models)} modelo(s) duplicado(s) en Ollama :11434 ({wasted_mb:.0f} MB)")
@@ -1066,8 +1156,8 @@ class TardisResourceGovernor:
             "interactive": True,
             "critical_repair": True,
             "agy_discovery": (not call_active) and (level in ("GREEN", "YELLOW", "ORANGE")) and mem["available_mb"] >= 2000,
-            "heavy_learning": (not call_active) and (level in ("GREEN", "YELLOW")),
-            "idle_evolution": (not call_active) and (level in ("GREEN", "YELLOW")) and cpu_psi["some_avg60"] < 45.0,
+            "heavy_learning": (not call_active) and (level in ("GREEN", "YELLOW")) and cpu_psi["some_avg60"] < 35.0 and load1 < ncpus * 1.1,
+            "idle_evolution": (not call_active) and (level in ("GREEN", "YELLOW")) and cpu_psi["some_avg60"] < 30.0 and load1 < ncpus * 0.9,
             "video_render": (not call_active) and (level == "GREEN") and gpu.get("temp_c", 0.0) < 74.0,
             "recommended_sleep_multiplier": sleep_mult,
             "recommended_yolo_interval_mult": yolo_mult,
@@ -1899,16 +1989,20 @@ class TardisResourceGovernor:
                     self._green_streak = 0
                     self._safe_yellow_streak += 1
                     self._thermal_orange_streak = 0
-                    if throttle_st.get("active") and self._safe_yellow_streak >= RECOVERY_SAFE_YELLOW_STREAK:
+                    needs_yellow_release = bool(
+                        throttle_st.get("active") or throttle_st.get("power_profile_applied") == "power-saver"
+                    )
+                    if needs_yellow_release and self._safe_yellow_streak >= RECOVERY_SAFE_YELLOW_STREAK:
                         rel = self.release_throttling(dry_run=False, snap=snap)
-                        if rel.get("restored_units"):
+                        pp_act = str(rel.get("power_profile_action", "unchanged"))
+                        if rel.get("restored_units") or pp_act.startswith(("restored_", "stepped_back_")):
                             logger.info(
                                 "Presión enfriada en banda segura YELLOW (%d ciclos, CPU=%.1f°C, PSI60=%.1f%%): throttling cgroup liberado en %d unidad(es) (perfil=%s)",
                                 self._safe_yellow_streak,
                                 snap["cpu"].get("temp_c", 0.0),
                                 snap["cpu"]["psi"]["some_avg60"],
-                                len(rel["restored_units"]),
-                                rel.get("power_profile_action", "unchanged"),
+                                len(rel.get("restored_units") or []),
+                                pp_act,
                             )
                 else:
                     self._green_streak = 0
@@ -1923,21 +2017,27 @@ class TardisResourceGovernor:
                     else:
                         self._thermal_orange_streak = 0
                         should_engage = True
-                    if should_engage and ((not throttle_st.get("active")) or throttle_st.get("level") != target_lvl):
+                    needs_pp_step = _needs_power_profile_step_down(snap, target_lvl, throttle_st)
+                    if should_engage and (
+                        (not throttle_st.get("active"))
+                        or throttle_st.get("level") != target_lvl
+                        or needs_pp_step
+                    ):
                         th = self.apply_throttling(snap, dry_run=False)
                         changed = [
                             u["unit"]
                             for u in (th.get("applied_units") or [])
                             if u.get("action") in ("throttled", "released_from_plan")
                         ]
-                        if changed or th.get("power_profile_action") == "switched_to_balanced":
+                        pp_act = str(th.get("power_profile_action") or "unchanged")
+                        if changed or pp_act.startswith("switched_to_"):
                             logger.info(
                                 "Throttling Ring 0 aplicado (nivel=%s, CPU PSI60=%.1f%%, CPU=%.1f°C, GPU=%.0f°C, perfil=%s): unidades=%s",
                                 target_lvl,
                                 snap["cpu"]["psi"]["some_avg60"],
                                 snap["cpu"].get("temp_c", 0.0),
                                 snap["gpu"].get("temp_c", 0.0),
-                                th.get("power_profile_action", "unchanged"),
+                                pp_act,
                                 changed,
                             )
                 else:

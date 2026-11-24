@@ -1,17 +1,17 @@
 {
-  "timestamp": REDACTED_PHONE.22556,
-  "iso": "2026-11-24T00:15:13.229294",
+  "timestamp": REDACTED_PHONE.2217522,
+  "iso": "2026-11-24T03:55:38.223830",
   "health_score": 100,
   "status": "HEALTHY",
-  "cycle": 110,
+  "cycle": 436,
   "metrics": {
-    "cpu_percent": 31.7,
-    "cpu_ema": 23.5,
+    "cpu_percent": 10.9,
+    "cpu_ema": 13.2,
     "high_cpu_streak": 0,
-    "ram_percent": 64.7,
+    "ram_percent": 82.9,
     "high_ram_streak": 0,
-    "governor_level": "RED",
-    "cpu_psi_60": 7.02,
+    "governor_level": "YELLOW",
+    "cpu_psi_60": 0.21,
     "recent_errors": 0,
     "recent_blocks": 0
   },
@@ -26,18 +26,16 @@
     "sensors": true,
     "temporal_brain_online": true
   },
-  "needs": [
-    "Presión Ring 0 RED: Llamada prioritaria de Telegram activa; Temperatura CPU cálida (81°C)"
-  ],
+  "needs": [],
   "instructions": [
     {
-      "id": "inst_resource_pressure_red",
-      "severity": "HIGH",
-      "component": "Resource Governor Ring 0",
-      "target_file": "core/tardis_resource_governor.py",
-      "instruction": "Estabilizar presión RED (Llamada prioritaria de Telegram activa; Temperatura CPU cálida (81°C)) ejecutando reclamación de modelos duplicados y throttling.",
-      "rationale": "CPU PSI60=7.02%, RAM libre=11075.4 MB.",
-      "actionable_cmd": "tardis-governor reclaim"
+      "id": "inst_nominal_coherence",
+      "severity": "INFO",
+      "component": "Núcleo Causal Sintrópico",
+      "target_file": "geon_causal_engine.py",
+      "instruction": "El sistema opera en estado NOMINAL con acoplamiento sintrópico Ψ=0.892. Se recomienda sincronizar periódicamente el reloj causal de Lamport y verificar enlaces LAN.",
+      "rationale": "Estabilidad completa de subsistemas.",
+      "actionable_cmd": "python -c 'import geon_causal_engine; print(geon_causal_engine.get_geon_engine().full_system_diagnostic())'"
     }
   ],
   "instruction_count": 1

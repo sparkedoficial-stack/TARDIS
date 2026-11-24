@@ -1012,6 +1012,9 @@ Módulos y componentes auxiliares del sistema.
 - **dossier_20261123_235229_310.json**: Componente de alta eficiencia.
 - **dossier_20261123_235235_841.json**: Componente de alta eficiencia.
 - **dossier_20261123_235307_158.json**: Componente de alta eficiencia.
+- **dossier_20261124_012919_393.json**: Componente de alta eficiencia.
+- **dossier_20261124_012949_830.json**: Componente de alta eficiencia.
+- **dossier_20261124_023435_662.json**: Componente de alta eficiencia.
 - **dynamic_tools_registry.json**: Directorio y puente soberano de interoperabilidad omni-herramientas.
 - **ecca_v3_core.py**: Núcleo de orquestación y control temporal/espacial.
 - **engine.py**: Componente de alta eficiencia.
@@ -1149,6 +1152,7 @@ Módulos y componentes auxiliares del sistema.
 - **models.py**: Componente de alta eficiencia.
 - **moe_routing.json**: Componente de alta eficiencia.
 - **mundo_sin_censura.py**: Componente de alta eficiencia.
+- **mundo_sin_censura_chat.py**: Componente de alta eficiencia.
 - **mundo_sin_censura_state.json**: Componente de alta eficiencia.
 - **native-and-artifacts.md**: Componente de alta eficiencia.
 - **network_traffic_controller.py**: Componente de alta eficiencia.
@@ -1248,6 +1252,7 @@ Módulos y componentes auxiliares del sistema.
 - **tardis_rea_bridge.py**: Motor de ingeniería inversa multi-arquitectura y descompilación.
 - **tardis_resource_governor.py**: Componente de alta eficiencia.
 - **tardis_safety_app.py**: Componente de alta eficiencia.
+- **tardis_semantic_cache.py**: Componente de alta eficiencia.
 - **tardis_singularity_daemon.py**: Motor de aceleración FTL y computación adaptativa.
 - **tardis_singularity_state.json**: Motor de aceleración FTL y computación adaptativa.
 - **tardis_skill_registry.py**: Directorio y puente soberano de interoperabilidad omni-herramientas.

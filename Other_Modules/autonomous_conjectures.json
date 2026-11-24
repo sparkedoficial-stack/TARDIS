@@ -1,38 +1,5 @@
 [
   {
-    "id": "conj_1794848392",
-    "timestamp": "2026-11-16T11:59:52.699672",
-    "idle_duration_minutes": 70.4,
-    "title": "Causal‑Contextual Retrieval for Web Research Engine",
-    "hypothesis": "If the Web Research Engine incorporates causal embeddings derived from the Deep Memory Vault, then the relevance and factual consistency of retrieved web snippets will improve significantly, because the system can prioritize sources that align with the inferred causal chain of the user's query context rather than relying solely on keyword matching.",
-    "research_query": "causal memory retrieval neural networks for improving web search relevance",
-    "research_findings": "# Informe de Investigación: causal memory retrieval neural networks for improving web search relevance\n\n## Fuentes Consultadas y Respaldo Web\n- **[Deep learning (Wikipedia)](https://en.wikipedia.org/wiki/Deep_learning)**: networks, deep belief networks, recurrent neural networks, convolutional neural networks, generative adversarial networks, transformers, and neural radiance\n- **[Outline of artificial intelligence (Wikipedia)](https://en.wikipedia.org/wiki/Outline_of_artificial_intelligence)**: Convolutional neural network – Type of feedforward neural network Recurrent neural networks Long short-term memory Hopfield networks Attractor networks Deep learning –\n\n## Contenido y Hallazgos Extraídos\n### De [Deep learning - Wikipedia](https://en.wikipedia.org/wiki/Deep_learning)\n> Deep learning - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nBranch of machine learning\nFor the TV series episode, see Deep Learning ( South Park ) .\nRepresenting images on multiple layers of ab",
-    "web_sources": [
-      "https://en.wikipedia.org/wiki/Deep_learning",
-      "https://en.wikipedia.org/wiki/Outline_of_artificial_intelligence"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Implement an asynchronous request pipeline with exponential back‑off and a causal‑context cache layer that queries deep_memory_vault for related causal embeddings before issuing external searches, then re‑rank results using a lightweight causal similarity scorer.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 2390.9
-  },
-  {
-    "id": "conj_1794853459",
-    "timestamp": "2026-11-16T13:24:19.917487",
-    "idle_duration_minutes": 84.5,
-    "title": "Dynamic Causal Cache for Web Research Engine",
-    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's request handling can predict the relevance of upcoming queries based on past query‑response patterns stored in the Deep Memory Vault. By pre‑fetching and caching likely needed resources before the explicit request arrives, latency can be reduced by up to 30% without sacrificing result quality, and the system can adapt its cache policy in real time using a lightweight Bayesian network that models the causal relationship between query topics, user intent signals, and external source latency.",
-    "research_query": "\"causal inference based prefetching\" web crawler cache optimization Bayesian network latency reduction",
-    "research_findings": "# Informe de Investigación: \"causal inference based prefetching\" web crawler cache optimization Bayesian network latency reduction\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a new module `causal_prefetcher.py` that builds a simple Bayesian network from recent query metadata (topic tags, timestamps, source response times) and exposes a `predict_next_resources()` function. Modify `web_research_engine.py` to call this predictor after each completed search and asynchronously pre‑fetch the top‑N predicted URLs, storing them in an in‑memory LRU cache shared with the Deep Memory Vault.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 3267.2
-  },
-  {
     "id": "conj_1794857419",
     "timestamp": "2026-11-16T14:30:19.708396",
     "idle_duration_minutes": 66.0,
@@ -1638,5 +1605,38 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 1718.43
+  },
+  {
+    "id": "conj_1795503506",
+    "timestamp": "2026-11-24T01:58:26.570270",
+    "idle_duration_minutes": 69.5,
+    "title": "Integrating Temporal Causal Embeddings into Chronovision for Real‑Time Anomaly Forecasting",
+    "hypothesis": "Embedding causal graph representations derived from deep_memory_vault timestamps into chronovision_engine will enable the system to predict emergent anomalies before they manifest in network_shield logs.",
+    "research_query": "how to combine temporal causal graphs with real-time anomaly detection in Python",
+    "research_findings": "# Informe de Investigación: how to combine temporal causal graphs with real-time anomaly detection in Python\n\n## Fuentes Consultadas y Respaldo Web\n- **[A hybrid generative and transformer-based framework for anomaly detection in industrial sensor time-series for predictive maintenance - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE5IVFdnVE1fdHFWOS1GUmJ3VHp5OHE4dnJuNnI0Um5KLTdDNTNxNU4wYzUzTUVvMlM5bENyTE5aVWJxMDc5ak9EUE1BMG9uRzZrRzBHczdYWU1ZdDJVREl3?oc=5)**: A hybrid generative and transformer-based framework for anomaly detection in industrial sensor time-series for predictive maintenance  Nature\n- **[Uncertainty-aware spatio-temporal contrastive graph neural networks for cyber financial fraud detection and risk management - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE9peDctQlluVVVvSVdLUW9Wcjlva1E4VVgycEVSZ3E1ZURnVDBSTUdrQlJoSWk5Y0ZQQjI1UlhsSTRUSlh5aWt0SXprUnZKSnFLQnQ3X21MeDNrdkd2bzJn?oc=5)**: Uncertainty-aware spatio-temporal contrastive graph neural netwo",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE5IVFdnVE1fdHFWOS1GUmJ3VHp5OHE4dnJuNnI0Um5KLTdDNTNxNU4wYzUzTUVvMlM5bENyTE5aVWJxMDc5ak9EUE1BMG9uRzZrRzBHczdYWU1ZdDJVREl3?oc=5",
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE9peDctQlluVVVvSVdLUW9Wcjlva1E4VVgycEVSZ3E1ZURnVDBSTUdrQlJoSWk5Y0ZQQjI1UlhsSTRUSlh5aWt0SXprUnZKSnFLQnQ3X21MeDNrdkd2bzJn?oc=5"
+    ],
+    "code_target": "core/chronovision_engine.py",
+    "code_goal": "Add a causal_embedding module that ingests timestamped events from deep_memory_vault, builds a dynamic DAG, and feeds predictive scores into the existing anomaly detection pipeline",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 2369.56
+  },
+  {
+    "id": "conj_1795509586",
+    "timestamp": "2026-11-24T03:39:46.630357",
+    "idle_duration_minutes": 101.3,
+    "title": "Temporal Embedding Alignment for Causal Memory Retrieval",
+    "hypothesis": "Integrating a time-aware positional encoding into deep_memory_vault's vector store will improve retrieval of causally linked events across long temporal gaps.",
+    "research_query": "how to combine sinusoidal temporal embeddings with vector similarity search for chronological memory retrieval",
+    "research_findings": "# Informe de Investigación: how to combine sinusoidal temporal embeddings with vector similarity search for chronological memory retrieval\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
+    "web_sources": [],
+    "code_target": "core/deep_memory_vault.py",
+    "code_goal": "Add a temporal embedding layer to the indexing pipeline and modify the similarity function to weight recentness",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 2029.42
   }
 ]

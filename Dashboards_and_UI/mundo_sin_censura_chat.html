@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Un Mundo Sin Censura · Chat Exclusivo</title>
+<style>
+  :root {
+    --bg-0: #070a0d;
+    --bg-1: #0d1218;
+    --bg-2: #131b24;
+    --bg-3: #1a2430;
+    --border: rgba(148, 163, 184, 0.14);
+    --border-strong: rgba(16, 185, 129, 0.38);
+    --text-0: #f1f5f9;
+    --text-1: #cbd5e1;
+    --text-2: #7c8ea3;
+    --accent: #10b981;
+    --accent-soft: rgba(16, 185, 129, 0.14);
+    --accent-glow: rgba(16, 185, 129, 0.25);
+    --amber: #f59e0b;
+    --amber-soft: rgba(245, 158, 11, 0.14);
+    --danger: #ef4444;
+    --danger-soft: rgba(239, 68, 68, 0.14);
+    --radius: 14px;
+    --mono: "JetBrains Mono", "Fira Code", ui-monospace, SFMono-Regular, Menlo, monospace;
+    --sans: "Inter", "Cantarell", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; background: var(--bg-0); color: var(--text-0); font-family: var(--sans); overflow: hidden; }
+
+  body {
+    background-image:
+      radial-gradient(ellipse 80% 50% at 65% -15%, rgba(16, 185, 129, 0.09), transparent 70%),
+      radial-gradient(ellipse 60% 40% at 15% 110%, rgba(245, 158, 11, 0.06), transparent 65%);
+  }
+
+  .app {
+    display: grid;
+    grid-template-columns: 290px 1fr;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    background: var(--bg-1);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .brand {
+    padding: 18px 16px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .brand-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .brand-orb {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #10b981, #047857);
+    box-shadow: 0 0 18px var(--accent-glow);
+    display: grid;
+    place-items: center;
+    font-family: var(--mono);
+    font-weight: 800;
+    font-size: 14px;
+    color: #03150e;
+    flex-shrink: 0;
+  }
+
+  .brand-title {
+    font-size: 14.5px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    line-height: 1.2;
+  }
+
+  .brand-sub {
+    font-size: 11px;
+    color: var(--accent);
+    font-family: var(--mono);
+    margin-top: 2px;
+  }
+
+  .lock-chip {
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 7px 10px;
+    border-radius: 9px;
+    background: var(--accent-soft);
+    border: 1px solid var(--border-strong);
+    font-family: var(--mono);
+    font-size: 11px;
+    color: #a7f3d0;
+  }
+
+  .btn-new {
+    margin: 12px 14px 8px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border-strong);
+    background: linear-gradient(180deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.1));
+    color: var(--text-0);
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.15s ease;
+  }
+  .btn-new:hover { background: rgba(16, 185, 129, 0.28); transform: translateY(-1px); }
+
+  .search-box {
+    margin: 4px 14px 10px;
+  }
+  .search-box input {
+    width: 100%;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 10px;
+    color: var(--text-0);
+    font-size: 12px;
+    outline: none;
+  }
+  .search-box input:focus { border-color: var(--border-strong); }
+
+  .session-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 4px 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .session-item {
+    padding: 10px 11px;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    transition: background 0.12s ease, border-color 0.12s ease;
+  }
+  .session-item:hover { background: var(--bg-2); }
+  .session-item.active {
+    background: var(--bg-3);
+    border-color: var(--border-strong);
+  }
+  .session-meta { min-width: 0; flex: 1; }
+  .session-title {
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--text-0);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .session-sub {
+    font-size: 10.5px;
+    color: var(--text-2);
+    font-family: var(--mono);
+    margin-top: 2px;
+  }
+  .session-actions {
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.12s;
+  }
+  .session-item:hover .session-actions,
+  .session-item.active .session-actions { opacity: 1; }
+
+  .icon-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-2);
+    cursor: pointer;
+    padding: 4px 5px;
+    border-radius: 6px;
+    font-size: 12px;
+    line-height: 1;
+  }
+  .icon-btn:hover { background: rgba(255,255,255,0.08); color: var(--text-0); }
+  .icon-btn.danger:hover { background: var(--danger-soft); color: var(--danger); }
+
+  /* Controls drawer at bottom of sidebar */
+  .controls {
+    border-top: 1px solid var(--border);
+    padding: 12px 14px;
+    background: rgba(7, 10, 13, 0.45);
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    font-size: 11.5px;
+  }
+
+  .ctrl-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .ctrl-row label { color: var(--text-2); font-weight: 500; }
+  .ctrl-row select, .ctrl-row input[type="number"] {
+    background: var(--bg-2);
+    color: var(--text-0);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 4px 7px;
+    font-size: 11.5px;
+    font-family: var(--mono);
+    outline: none;
+  }
+  .ctrl-row input[type="range"] { width: 112px; accent-color: var(--accent); }
+  .ctrl-val { font-family: var(--mono); color: var(--accent); min-width: 32px; text-align: right; }
+
+  .toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    color: var(--text-1);
+  }
+  .toggle input { accent-color: var(--accent); cursor: pointer; }
+
+  /* Main Chat Area */
+  .main {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    height: 100vh;
+  }
+
+  .topbar {
+    height: 58px;
+    padding: 0 20px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(13, 18, 24, 0.78);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+
+  .topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .mobile-menu-btn {
+    display: none;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    color: var(--text-0);
+    border-radius: 8px;
+    padding: 6px 9px;
+    cursor: pointer;
+  }
+
+  .chat-title {
+    font-size: 14.5px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .pills {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 9px;
+    border-radius: 999px;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    border: 1px solid var(--border);
+    background: var(--bg-2);
+    color: var(--text-1);
+    white-space: nowrap;
+  }
+  .pill.ok { border-color: var(--border-strong); background: var(--accent-soft); color: #a7f3d0; }
+  .pill.warn { border-color: rgba(245, 158, 11, 0.4); background: var(--amber-soft); color: #fde68a; }
+  .pill.err { border-color: rgba(239, 68, 68, 0.4); background: var(--danger-soft); color: #fecaca; }
+
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; display: inline-block; }
+
+  .top-btn {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    color: var(--text-1);
+    padding: 5px 9px;
+    border-radius: 8px;
+    font-size: 11.5px;
+    cursor: pointer;
+  }
+  .top-btn:hover { border-color: var(--border-strong); color: var(--text-0); }
+
+  /* Messages Stream */
+  .messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 20px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    scroll-behavior: smooth;
+  }
+
+  .messages-inner {
+    width: 100%;
+    max-width: 880px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .empty-state {
+    margin: auto;
+    max-width: 580px;
+    text-align: center;
+    padding: 40px 24px;
+    border: 1px dashed var(--border);
+    border-radius: 18px;
+    background: rgba(13, 18, 24, 0.55);
+  }
+  .empty-badge {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: #a7f3d0;
+    background: var(--accent-soft);
+    border: 1px solid var(--border-strong);
+    margin-bottom: 14px;
+  }
+  .empty-state h1 { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+  .empty-state p { color: var(--text-2); font-size: 13.5px; line-height: 1.55; margin-bottom: 18px; }
+  .quick-prompts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .qp {
+    text-align: left;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    color: var(--text-1);
+    font-size: 12px;
+    cursor: pointer;
+    line-height: 1.35;
+    transition: all 0.14s ease;
+  }
+  .qp:hover { border-color: var(--border-strong); background: var(--bg-3); color: var(--text-0); }
+
+  .msg {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-width: 100%;
+  }
+  .msg.user { align-items: flex-end; }
+  .msg.assistant { align-items: flex-start; }
+
+  .msg-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-family: var(--mono);
+    color: var(--text-2);
+    padding: 0 4px;
+  }
+  .msg-head .role-user { color: var(--amber); font-weight: 600; }
+  .msg-head .role-ai { color: var(--accent); font-weight: 600; }
+
+  .bubble {
+    padding: 13px 16px;
+    border-radius: var(--radius);
+    font-size: 14px;
+    line-height: 1.62;
+    max-width: 92%;
+    overflow-wrap: anywhere;
+  }
+  .msg.user .bubble {
+    background: linear-gradient(180deg, #1b2633, #151e29);
+    border: 1px solid rgba(245, 158, 11, 0.25);
+    color: var(--text-0);
+    white-space: pre-wrap;
+  }
+  .msg.assistant .bubble {
+    background: var(--bg-1);
+    border: 1px solid var(--border);
+    color: var(--text-0);
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* Markdown elements inside assistant bubble */
+  .bubble p { margin-bottom: 10px; }
+  .bubble p:last-child { margin-bottom: 0; }
+  .bubble h1, .bubble h2, .bubble h3 { margin: 12px 0 6px; font-weight: 700; color: #e2e8f0; }
+  .bubble h1 { font-size: 17px; }
+  .bubble h2 { font-size: 15.5px; }
+  .bubble h3 { font-size: 14.5px; color: #a7f3d0; }
+  .bubble ul, .bubble ol { margin: 6px 0 10px 20px; }
+  .bubble li { margin-bottom: 4px; }
+  .bubble blockquote {
+    border-left: 3px solid var(--accent);
+    padding: 4px 12px;
+    color: var(--text-1);
+    background: rgba(16, 185, 129, 0.06);
+    border-radius: 0 8px 8px 0;
+    margin: 8px 0;
+  }
+  .bubble code {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    background: rgba(148, 163, 184, 0.14);
+    padding: 1px 5px;
+    border-radius: 5px;
+    color: #a7f3d0;
+  }
+  .code-wrap {
+    margin: 10px 0;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: #06090c;
+  }
+  .code-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px 10px;
+    background: #10161e;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-2);
+  }
+  .copy-code-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-1);
+    border-radius: 6px;
+    padding: 2px 7px;
+    font-size: 10.5px;
+    cursor: pointer;
+    font-family: var(--mono);
+  }
+  .copy-code-btn:hover { border-color: var(--border-strong); color: #a7f3d0; }
+  .code-wrap pre {
+    padding: 12px;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: #e2e8f0;
+  }
+  .code-wrap pre code { background: none; padding: 0; color: inherit; }
+
+  .cursor {
+    display: inline-block;
+    width: 8px;
+    height: 15px;
+    background: var(--accent);
+    vertical-align: middle;
+    margin-left: 3px;
+    animation: blink 0.9s infinite;
+  }
+  @keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0.15; } }
+
+  .msg-footer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 4px;
+  }
+  .mini-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--text-2);
+    font-size: 11px;
+    font-family: var(--mono);
+    padding: 2px 7px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .mini-btn:hover { border-color: var(--border); color: var(--text-0); background: var(--bg-2); }
+
+  /* Composer */
+  .composer-area {
+    padding: 12px 20px 16px;
+    border-top: 1px solid var(--border);
+    background: rgba(7, 10, 13, 0.88);
+    backdrop-filter: blur(10px);
+    flex-shrink: 0;
+  }
+
+  .composer-box {
+    max-width: 880px;
+    margin: 0 auto;
+    background: var(--bg-1);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: border-color 0.15s;
+  }
+  .composer-box:focus-within { border-color: var(--border-strong); box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.08); }
+
+  .composer-box textarea {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text-0);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.5;
+    resize: none;
+    min-height: 44px;
+    max-height: 190px;
+  }
+
+  .composer-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .composer-hint {
+    font-size: 11px;
+    color: var(--text-2);
+    font-family: var(--mono);
+  }
+
+  .send-btn {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #03150e;
+    border: none;
+    border-radius: 9px;
+    padding: 8px 16px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: transform 0.12s, filter 0.12s;
+  }
+  .send-btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
+  .send-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .stop-btn {
+    background: var(--danger-soft);
+    color: #fecaca;
+    border: 1px solid rgba(239, 68, 68, 0.45);
+    border-radius: 9px;
+    padding: 8px 15px;
+    font-weight: 700;
+    font-size: 12.5px;
+    cursor: pointer;
+    display: none;
+  }
+  .stop-btn.visible { display: inline-flex; align-items: center; gap: 6px; }
+
+  @media (max-width: 860px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar {
+      position: fixed;
+      inset: 0 auto 0 0;
+      width: 290px;
+      z-index: 40;
+      transform: translateX(-100%);
+      transition: transform 0.2s ease;
+    }
+    .sidebar.open { transform: translateX(0); box-shadow: 0 0 40px rgba(0,0,0,0.7); }
+    .mobile-menu-btn { display: inline-block; }
+    .quick-prompts { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-row">
+        <div class="brand-orb">MSC</div>
+        <div>
+          <div class="brand-title">Un Mundo Sin Censura</div>
+          <div class="brand-sub">SOVEREIGN EXCLUSIVE CHAT</div>
+        </div>
+      </div>
+      <div class="lock-chip" title="Este chat está bloqueado a nivel de API exclusivamente al modelo mundo-sin-censura">
+        <span>🔒 mundo-sin-censura</span>
+        <span id="shaBadge">8B Q4</span>
+      </div>
+    </div>
+
+    <button class="btn-new" id="btnNewSession">+ Nueva conversación</button>
+
+    <div class="search-box">
+      <input type="text" id="sessionSearch" placeholder="Filtrar conversaciones..." />
+    </div>
+
+    <div class="session-list" id="sessionList"></div>
+
+    <div class="controls">
+      <div class="ctrl-row">
+        <label for="laneSelect">Carril</label>
+        <select id="laneSelect">
+          <option value="auto">auto (CUDA → Ollama)</option>
+          <option value="temporal_brain">temporal_brain (CUDA)</option>
+          <option value="ollama">ollama (CPU :11434)</option>
+        </select>
+      </div>
+      <div class="ctrl-row">
+        <label for="tempRange">Temperatura</label>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <input type="range" id="tempRange" min="0" max="1.2" step="0.05" value="0.25" />
+          <span class="ctrl-val" id="tempVal">0.25</span>
+        </div>
+      </div>
+      <div class="ctrl-row">
+        <label for="maxTokensInput">Máx. tokens</label>
+        <input type="number" id="maxTokensInput" min="64" max="4096" step="64" value="1024" style="width:86px;" />
+      </div>
+      <div class="ctrl-row">
+        <label class="toggle">
+          <input type="checkbox" id="ragToggle" />
+          <span>RAG TARDIS (más lento)</span>
+        </label>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="mobile-menu-btn" id="btnMenu">☰</button>
+        <div class="chat-title" id="chatTitle">Un Mundo Sin Censura</div>
+      </div>
+      <div class="pills">
+        <span class="pill ok" id="statusPill"><span class="dot"></span><span id="statusText">Conectando...</span></span>
+        <span class="pill" id="aegisPill">AEGIS: --</span>
+        <button class="top-btn" id="btnExport" title="Exportar conversación a Markdown">Exportar .md</button>
+        <button class="top-btn" id="btnClear" title="Vaciar mensajes de esta conversación">Limpiar</button>
+      </div>
+    </header>
+
+    <section class="messages" id="messagesScroll">
+      <div class="messages-inner" id="messagesInner"></div>
+    </section>
+
+    <footer class="composer-area">
+      <div class="composer-box">
+        <textarea id="promptInput" rows="1" placeholder="Escribe tu mensaje exclusivo para mundo-sin-censura... (Enter envía · Shift+Enter salto de línea)"></textarea>
+        <div class="composer-bar">
+          <div class="composer-hint" id="composerHint">Modelo bloqueado: mundo-sin-censura · Ctrl+K nueva sesión · Esc detener</div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <button class="stop-btn" id="btnStop">■ Detener</button>
+            <button class="send-btn" id="btnSend">Enviar ↵</button>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </main>
+</div>
+
+<script>
+(() => {
+  const LOCKED_MODEL = "mundo-sin-censura";
+
+  const state = {
+    sessions: [],
+    currentSessionId: null,
+    messages: [],
+    streaming: false,
+    activeRequestId: null,
+    abortController: null,
+    timerHandle: null,
+    streamStartMs: 0,
+    filter: "",
+  };
+
+  const $ = (id) => document.getElementById(id);
+  const elSidebar = $("sidebar");
+  const elSessionList = $("sessionList");
+  const elSessionSearch = $("sessionSearch");
+  const elMessagesScroll = $("messagesScroll");
+  const elMessagesInner = $("messagesInner");
+  const elChatTitle = $("chatTitle");
+  const elPrompt = $("promptInput");
+  const elBtnSend = $("btnSend");
+  const elBtnStop = $("btnStop");
+  const elHint = $("composerHint");
+  const elLane = $("laneSelect");
+  const elTemp = $("tempRange");
+  const elTempVal = $("tempVal");
+  const elMaxTok = $("maxTokensInput");
+  const elRag = $("ragToggle");
+  const elStatusPill = $("statusPill");
+  const elStatusText = $("statusText");
+  const elAegisPill = $("aegisPill");
+  const elShaBadge = $("shaBadge");
+
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function renderMarkdown(raw) {
+    if (!raw) return "";
+    const codeBlocks = [];
+    let text = String(raw).replace(/```([a-zA-Z0-9_+-]*)\n?([\s\S]*?)```/g, (_, lang, code) => {
+      const idx = codeBlocks.length;
+      const safeLang = escHtml(lang || "text");
+      const safeCode = escHtml(code.replace(/\n$/, ""));
+      codeBlocks.push(
+        `<div class="code-wrap"><div class="code-bar"><span>${safeLang}</span>` +
+        `<button class="copy-code-btn" data-code-idx="${idx}">Copiar</button></div>` +
+        `<pre><code>${safeCode}</code></pre></div>`
+      );
+      return `@@CODEBLOCK_${idx}@@`;
+    });
+
+    text = escHtml(text);
+    text = text.replace(/^### (.+)$/gm, "<h3>$1</h3>");
+    text = text.replace(/^## (.+)$/gm, "<h2>$1</h2>");
+    text = text.replace(/^# (.+)$/gm, "<h1>$1</h1>");
+    text = text.replace(/^&gt; (.+)$/gm, "<blockquote>$1</blockquote>");
+    text = text.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+    text = text.replace(/`([^`\n]+)`/g, "<code>$1</code>");
+    text = text.replace(/^\s*[-*•]\s+(.+)$/gm, "<li>$1</li>");
+    text = text.replace(/(<li>[\s\S]*?<\/li>)/g, "<ul>$1</ul>");
+    text = text.replace(/<\/ul>\s*<ul>/g, "");
+
+    const parts = text.split(/\n{2,}/).map((blk) => {
+      const t = blk.trim();
+      if (!t) return "";
+      if (/^<(h[1-3]|ul|ol|blockquote|div)/.test(t) || /^@@CODEBLOCK_\d+@@$/.test(t)) {
+        return t;
+      }
+      return `<p>${t.replace(/\n/g, "<br>")}</p>`;
+    });
+
+    let html = parts.join("");
+    codeBlocks.forEach((cb, i) => {
+      html = html.replace(`@@CODEBLOCK_${i}@@`, cb);
+    });
+    return html;
+  }
+
+  function bindCodeCopyButtons(container) {
+    container.querySelectorAll(".copy-code-btn").forEach((btn) => {
+      if (btn.dataset.bound) return;
+      btn.dataset.bound = "1";
+      btn.addEventListener("click", () => {
+        const pre = btn.closest(".code-wrap")?.querySelector("pre");
+        if (!pre) return;
+        navigator.clipboard?.writeText(pre.textContent || "").then(() => {
+          btn.textContent = "Copiado ✓";
+          setTimeout(() => { btn.textContent = "Copiar"; }, 1400);
+        });
+      });
+    });
+  }
+
+  async function api(path, opts = {}) {
+    const res = await fetch(path, {
+      headers: { "Content-Type": "application/json", ...(opts.headers || {}) },
+      ...opts,
+    });
+    if (!res.ok) {
+      const txt = await res.text();
+      throw new Error(`HTTP ${res.status}: ${txt}`);
+    }
+    return res.json();
+  }
+
+  async function refreshStatus() {
+    try {
+      const st = await api("/api/mundo_sin_censura/status");
+      const lane = st.active_lane || "offline";
+      const ok = Boolean(st.ok);
+      elStatusPill.className = "pill " + (ok ? "ok" : "err");
+      elStatusText.textContent = ok
+        ? `${lane === "temporal_brain" ? "CUDA · temporal_brain" : "CPU · ollama"}`
+        : "Offline";
+      const sha = st.weights?.sha256_short || "8B";
+      elShaBadge.textContent = st.weights?.sha256_match ? `SHA ${sha.slice(0, 8)} ✓` : sha.slice(0, 8);
+      elAegisPill.className = "pill " + (st.aegis_active ? "ok" : "warn");
+      elAegisPill.textContent = st.aegis_active ? "AEGIS: ACTIVO" : "AEGIS: REVISAR";
+    } catch (e) {
+      elStatusPill.className = "pill err";
+      elStatusText.textContent = "API desconectada";
+    }
+  }
+
+  function renderSessions() {
+    const q = state.filter.toLowerCase();
+    const list = state.sessions.filter((s) =>
+      !q || (s.title || "").toLowerCase().includes(q) || (s.last_preview || "").toLowerCase().includes(q)
+    );
+    elSessionList.innerHTML = "";
+    if (!list.length) {
+      elSessionList.innerHTML = `<div style="padding:16px 10px;color:var(--text-2);font-size:12px;text-align:center;">Sin conversaciones aún</div>`;
+      return;
+    }
+    for (const s of list) {
+      const div = document.createElement("div");
+      div.className = "session-item" + (s.id === state.currentSessionId ? " active" : "");
+      div.innerHTML = `
+        <div class="session-meta">
+          <div class="session-title">${escHtml(s.title || "Nueva conversación")}</div>
+          <div class="session-sub">${s.message_count || 0} msgs · ${escHtml(s.lane || "auto")}</div>
+        </div>
+        <div class="session-actions">
+          <button class="icon-btn" data-act="rename" title="Renombrar">✎</button>
+          <button class="icon-btn danger" data-act="delete" title="Eliminar">✕</button>
+        </div>
+      `;
+      div.addEventListener("click", (e) => {
+        const btn = e.target.closest("button[data-act]");
+        if (btn) {
+          e.stopPropagation();
+          if (btn.dataset.act === "rename") renameSession(s);
+          if (btn.dataset.act === "delete") deleteSession(s.id);
+          return;
+        }
+        selectSession(s.id);
+        elSidebar.classList.remove("open");
+      });
+      elSessionList.appendChild(div);
+    }
+  }
+
+  function renderMessages() {
+    elMessagesInner.innerHTML = "";
+    if (!state.messages.length) {
+      elMessagesInner.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-badge">🔒 CANAL EXCLUSIVO · MODELO BLOQUEADO: mundo-sin-censura</div>
+          <h1>Un Mundo Sin Censura</h1>
+          <p>Interacción directa y exclusiva con tus pesos locales Llama 3.1 8B Q4_K_M abliterados, acelerados por CUDA en TemporalBrain con respaldo automático en Ollama y sesiones persistentes aisladas.</p>
+          <div class="quick-prompts">
+            <button class="qp" data-p="Preséntate con tu saludo canónico y confirma tu arquitectura dual-lane actual.">Preséntate y confirma estado dual-lane</button>
+            <button class="qp" data-p="Explícame desde primeros principios cómo funciona la cuantización Q4_K_M y el KV-cache q8_0.">Cuantización Q4_K_M y KV-cache q8_0</button>
+            <button class="qp" data-p="Escribe un script en Python limpio y tipado para monitorear CPU PSI y memoria en /proc/pressure.">Monitor Ring-0 de /proc/pressure en Python</button>
+            <button class="qp" data-p="Compara arquitecturas Transformer, Mamba/SSM y MoE en latencia y memoria.">Comparativa Transformer vs Mamba/SSM vs MoE</button>
+          </div>
+        </div>
+      `;
+      elMessagesInner.querySelectorAll(".qp").forEach((b) => {
+        b.addEventListener("click", () => {
+          elPrompt.value = b.dataset.p;
+          sendMessage();
+        });
+      });
+      return;
+    }
+
+    state.messages.forEach((m, idx) => {
+      const node = buildMessageNode(m, idx);
+      elMessagesInner.appendChild(node);
+    });
+    bindCodeCopyButtons(elMessagesInner);
+    scrollToBottom();
+  }
+
+  function buildMessageNode(m, idx) {
+    const wrap = document.createElement("div");
+    wrap.className = `msg ${m.role}`;
+    if (m._streamId) wrap.dataset.streamId = m._streamId;
+
+    const head = document.createElement("div");
+    head.className = "msg-head";
+    if (m.role === "user") {
+      head.innerHTML = `<span class="role-user">TÚ</span>`;
+    } else {
+      const metaBits = [];
+      if (m.lane) metaBits.push(m.lane);
+      if (m.elapsed_s != null) metaBits.push(`${m.elapsed_s}s`);
+      if (m.cancelled) metaBits.push("cancelado");
+      head.innerHTML = `<span class="role-ai">mundo-sin-censura</span>` +
+        (metaBits.length ? `<span>· ${escHtml(metaBits.join(" · "))}</span>` : "");
+    }
+
+    const bubble = document.createElement("div");
+    bubble.className = "bubble";
+    if (m.role === "user") {
+      bubble.textContent = m.content || "";
+    } else {
+      bubble.innerHTML = renderMarkdown(m.content || "") + (m._streaming ? `<span class="cursor"></span>` : "");
+    }
+
+    wrap.appendChild(head);
+    wrap.appendChild(bubble);
+
+    if (m.role === "assistant" && !m._streaming) {
+      const foot = document.createElement("div");
+      foot.className = "msg-footer";
+      const btnCopy = document.createElement("button");
+      btnCopy.className = "mini-btn";
+      btnCopy.textContent = "Copiar";
+      btnCopy.addEventListener("click", () => {
+        navigator.clipboard?.writeText(m.content || "").then(() => {
+          btnCopy.textContent = "Copiado ✓";
+          setTimeout(() => { btnCopy.textContent = "Copiar"; }, 1300);
+        });
+      });
+      foot.appendChild(btnCopy);
+
+      if (idx === state.messages.length - 1) {
+        const btnRetry = document.createElement("button");
+        btnRetry.className = "mini-btn";
+        btnRetry.textContent = "↻ Regenerar";
+        btnRetry.addEventListener("click", () => regenerateLast());
+        foot.appendChild(btnRetry);
+      }
+      wrap.appendChild(foot);
+    }
+    return wrap;
+  }
+
+  function scrollToBottom() {
+    elMessagesScroll.scrollTop = elMessagesScroll.scrollHeight;
+  }
+
+  async function loadSessions(selectFirst = false) {
+    const data = await api("/api/mundo_sin_censura/sessions");
+    state.sessions = data.sessions || [];
+    if (selectFirst) {
+      if (state.sessions.length) {
+        await selectSession(state.sessions[0].id);
+      } else {
+        await createNewSession();
+        return;
+      }
+    }
+    renderSessions();
+  }
+
+  async function selectSession(sid) {
+    if (state.streaming) return;
+    const data = await api(`/api/mundo_sin_censura/sessions/${encodeURIComponent(sid)}`);
+    const s = data.session;
+    state.currentSessionId = s.id;
+    state.messages = s.messages || [];
+    elChatTitle.textContent = s.title || "Un Mundo Sin Censura";
+    elLane.value = s.lane || "auto";
+    elTemp.value = s.temperature ?? 0.25;
+    elTempVal.textContent = Number(elTemp.value).toFixed(2);
+    elMaxTok.value = s.max_tokens ?? 1024;
+    elRag.checked = Boolean(s.use_rag);
+    renderSessions();
+    renderMessages();
+  }
+
+  async function createNewSession() {
+    if (state.streaming) return;
+    const data = await api("/api/mundo_sin_censura/sessions", {
+      method: "POST",
+      body: JSON.stringify({
+        lane: elLane.value,
+        temperature: parseFloat(elTemp.value),
+        max_tokens: parseInt(elMaxTok.value, 10) || 1024,
+        use_rag: elRag.checked,
+      }),
+    });
+    const s = data.session;
+    state.currentSessionId = s.id;
+    state.messages = [];
+    elChatTitle.textContent = s.title;
+    await loadSessions(false);
+    renderMessages();
+    elPrompt.focus();
+  }
+
+  async function renameSession(sess) {
+    const next = prompt("Nuevo nombre para la conversación:", sess.title || "");
+    if (!next || !next.trim()) return;
+    await api(`/api/mundo_sin_censura/sessions/${encodeURIComponent(sess.id)}`, {
+      method: "PATCH",
+      body: JSON.stringify({ title: next.trim() }),
+    });
+    if (state.currentSessionId === sess.id) {
+      elChatTitle.textContent = next.trim();
+    }
+    await loadSessions(false);
+  }
+
+  async function deleteSession(sid) {
+    if (state.streaming) return;
+    await api(`/api/mundo_sin_censura/sessions/${encodeURIComponent(sid)}`, { method: "DELETE" });
+    if (state.currentSessionId === sid) {
+      state.currentSessionId = null;
+      state.messages = [];
+    }
+    await loadSessions(true);
+  }
+
+  async function clearCurrentSession() {
+    if (!state.currentSessionId || state.streaming) return;
+    await api(`/api/mundo_sin_censura/sessions/${encodeURIComponent(state.currentSessionId)}/clear`, { method: "POST" });
+    state.messages = [];
+    renderMessages();
+    await loadSessions(false);
+  }
+
+  async function exportCurrentSession() {
+    if (!state.currentSessionId) return;
+    const data = await api(`/api/mundo_sin_censura/sessions/${encodeURIComponent(state.currentSessionId)}/export?fmt=markdown`);
+    const blob = new Blob([data.content || ""], { type: "text/markdown;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = data.filename || "mundo_sin_censura.md";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function setStreamingUi(active) {
+    state.streaming = active;
+    elBtnSend.disabled = active;
+    elBtnStop.classList.toggle("visible", active);
+    if (active) {
+      state.streamStartMs = performance.now();
+      clearInterval(state.timerHandle);
+      state.timerHandle = setInterval(() => {
+        const secs = ((performance.now() - state.streamStartMs) / 1000).toFixed(1);
+        elHint.textContent = `Generando con ${LOCKED_MODEL}... ${secs}s · Esc o Detener para cancelar`;
+      }, 200);
+    } else {
+      clearInterval(state.timerHandle);
+      elHint.textContent = `Modelo bloqueado: ${LOCKED_MODEL} · Ctrl+K nueva sesión · Esc detener`;
+    }
+  }
+
+  async function stopStream() {
+    if (!state.streaming) return;
+    if (state.activeRequestId) {
+      fetch("/api/mundo_sin_censura/chat/cancel", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ request_id: state.activeRequestId }),
+      }).catch(() => {});
+    }
+    if (state.abortController) {
+      state.abortController.abort();
+    }
+  }
+
+  function regenerateLast() {
+    if (state.streaming) return;
+    for (let i = state.messages.length - 1; i >= 0; i--) {
+      if (state.messages[i].role === "user") {
+        elPrompt.value = state.messages[i].content;
+        sendMessage();
+        return;
+      }
+    }
+  }
+
+  async function sendMessage() {
+    const text = elPrompt.value.trim();
+    if (!text || state.streaming) return;
+
+    elPrompt.value = "";
+    autoResize();
+
+    state.messages.push({ role: "user", content: text });
+    const streamObj = {
+      role: "assistant",
+      content: "",
+      lane: elLane.value,
+      _streaming: true,
+      _streamId: "live_" + Date.now(),
+    };
+    state.messages.push(streamObj);
+    renderMessages();
+
+    const liveBubble = elMessagesInner.querySelector(`[data-stream-id="${streamObj._streamId}"] .bubble`);
+    setStreamingUi(true);
+    state.abortController = new AbortController();
+
+    try {
+      const resp = await fetch("/api/mundo_sin_censura/chat/stream", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        signal: state.abortController.signal,
+        body: JSON.stringify({
+          session_id: state.currentSessionId,
+          message: text,
+          model: LOCKED_MODEL,
+          lane: elLane.value,
+          temperature: parseFloat(elTemp.value),
+          max_tokens: parseInt(elMaxTok.value, 10) || 1024,
+          use_rag: elRag.checked,
+        }),
+      });
+
+      if (!resp.ok) {
+        const errTxt = await resp.text();
+        throw new Error(`HTTP ${resp.status}: ${errTxt}`);
+      }
+
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+      let buf = "";
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buf += decoder.decode(value, { stream: true });
+        const lines = buf.split("\n");
+        buf = lines.pop() || "";
+
+        for (const rawLine of lines) {
+          const line = rawLine.trim();
+          if (!line.startsWith("data:")) continue;
+          const payload = line.slice(5).trim();
+          if (!payload || payload === "[DONE]") continue;
+          let ev;
+          try { ev = JSON.parse(payload); } catch { continue; }
+
+          if (ev.type === "meta") {
+            state.currentSessionId = ev.session_id;
+            state.activeRequestId = ev.request_id;
+            streamObj.lane = ev.lane || streamObj.lane;
+            if (ev.title) elChatTitle.textContent = ev.title;
+          } else if (ev.type === "token") {
+            streamObj.content += ev.delta || "";
+            if (liveBubble) {
+              liveBubble.innerHTML = renderMarkdown(streamObj.content) + `<span class="cursor"></span>`;
+              scrollToBottom();
+            }
+          } else if (ev.type === "error") {
+            streamObj.content += `\n\n> ⚠️ ${ev.error || "Error"}`;
+          } else if (ev.type === "done") {
+            streamObj.elapsed_s = ev.elapsed_s;
+            streamObj.lane = ev.lane || streamObj.lane;
+            streamObj.cancelled = Boolean(ev.cancelled);
+          }
+        }
+      }
+    } catch (e) {
+      if (e.name !== "AbortError") {
+        streamObj.content = streamObj.content || `⚠️ Error de comunicación: ${e.message}`;
+      } else {
+        streamObj.cancelled = true;
+      }
+    } finally {
+      streamObj._streaming = false;
+      state.activeRequestId = null;
+      state.abortController = null;
+      setStreamingUi(false);
+      renderMessages();
+      await loadSessions(false);
+    }
+  }
+
+  function autoResize() {
+    elPrompt.style.height = "auto";
+    elPrompt.style.height = Math.min(elPrompt.scrollHeight, 190) + "px";
+  }
+
+  elPrompt.addEventListener("input", autoResize);
+  elPrompt.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && state.streaming) stopStream();
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+      e.preventDefault();
+      createNewSession();
+    }
+  });
+
+  elBtnSend.addEventListener("click", sendMessage);
+  elBtnStop.addEventListener("click", stopStream);
+  $("btnNewSession").addEventListener("click", createNewSession);
+  $("btnClear").addEventListener("click", clearCurrentSession);
+  $("btnExport").addEventListener("click", exportCurrentSession);
+  $("btnMenu").addEventListener("click", () => elSidebar.classList.toggle("open"));
+  elSessionSearch.addEventListener("input", () => { state.filter = elSessionSearch.value; renderSessions(); });
+  elTemp.addEventListener("input", () => { elTempVal.textContent = Number(elTemp.value).toFixed(2); });
+
+  refreshStatus();
+  setInterval(refreshStatus, 15000);
+  loadSessions(true);
+  elPrompt.focus();
+})();
+</script>
+</body>
+</html>

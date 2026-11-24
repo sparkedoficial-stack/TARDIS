@@ -331,11 +331,11 @@
   "muchas gracias": {
     "key": "muchas gracias",
     "name": "¡Muchas gracias!",
-    "visit_count": 1,
+    "visit_count": 2,
     "first_seen": REDACTED_PHONE.2629154,
     "first_seen_iso": "2026-11-23T23:51:18-0500",
-    "last_seen": REDACTED_PHONE.4160693,
-    "last_seen_iso": "2026-11-23T23:52:30-0500",
+    "last_seen": REDACTED_PHONE.4483223,
+    "last_seen_iso": "2026-11-24T01:29:29-0500",
     "pedagogical_level": "intermedio",
     "interests": [
       "mano",
@@ -348,5 +348,20 @@
     "seen_capsules": [],
     "known_facts": [],
     "last_reason": "de estar bien."
+  },
+  "claro": {
+    "key": "claro",
+    "name": "claro",
+    "visit_count": 1,
+    "first_seen": REDACTED_PHONE.990262,
+    "first_seen_iso": "2026-11-24T02:36:39-0500",
+    "last_seen": REDACTED_PHONE.990262,
+    "last_seen_iso": "2026-11-24T02:36:39-0500",
+    "pedagogical_level": "intermedio",
+    "interests": [],
+    "topics_studied": [],
+    "seen_capsules": [],
+    "known_facts": [],
+    "last_reason": ""
   }
 }

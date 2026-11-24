@@ -1,34 +1,6 @@
 [
   {
     "target_file": "/home/m11/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
-    "goal": "Implement a causal‑graph based routing layer that scores candidate URLs using embeddings from deep_memory_vault and risk scores from network_shield, then selects the top‑k URLs for each research step, preserving context and enhancing security.",
-    "status": "REJECTED",
-    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
-    "elapsed_seconds": 3439.73,
-    "backup_path": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/web_research_engine.py.20261116_084901.bak",
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Respuesta generada demasiado corta (2552 vs 35266 bytes)",
-    "timestamp": "2026-11-16T09:46:21.442372"
-  },
-  {
-    "target_file": "/home/m11/Escritorio/GODWORKS SYSTEM/core/deep_memory_vault.py",
-    "goal": "Add a causal DAG structure that updates on each memory insertion, expose a method get_causal_subgraph(query_embedding, depth) and modify the retrieval pipeline to rank results by causal proximity before vector similarity ranking",
-    "status": "REJECTED",
-    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
-    "elapsed_seconds": 1980.3,
-    "backup_path": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/deep_memory_vault.py.20261116_101630.bak",
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Respuesta generada demasiado corta (2513 vs 34371 bytes)",
-    "timestamp": "2026-11-16T10:49:30.487515"
-  },
-  {
-    "target_file": "/home/m11/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
     "goal": "Implement an asynchronous request pipeline with exponential back‑off and a causal‑context cache layer that queries deep_memory_vault for related causal embeddings before issuing external searches, then re‑rank results using a lightweight causal similarity scorer.",
     "status": "REJECTED",
     "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
@@ -1398,5 +1370,33 @@
     "efficiency_improvement": null,
     "error": "Respuesta generada demasiado corta (11607 vs 35266 bytes)",
     "timestamp": "2026-11-23T21:48:39.913487"
+  },
+  {
+    "target_file": "/home/m11/Escritorio/GODWORKS SYSTEM/core/chronovision_engine.py",
+    "goal": "Add a causal_embedding module that ingests timestamped events from deep_memory_vault, builds a dynamic DAG, and feeds predictive scores into the existing anomaly detection pipeline",
+    "status": "REJECTED",
+    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
+    "elapsed_seconds": 2363.0,
+    "backup_path": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/core__chronovision_engine.py.20261124_011903.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "Respuesta generada demasiado corta (11130 vs 127835 bytes)",
+    "timestamp": "2026-11-24T01:58:26.530468"
+  },
+  {
+    "target_file": "/home/m11/Escritorio/GODWORKS SYSTEM/core/deep_memory_vault.py",
+    "goal": "Add a temporal embedding layer to the indexing pipeline and modify the similarity function to weight recentness",
+    "status": "REJECTED",
+    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
+    "elapsed_seconds": 2023.48,
+    "backup_path": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/core__deep_memory_vault.py.20261124_030603.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "Respuesta generada demasiado corta (11557 vs 34371 bytes)",
+    "timestamp": "2026-11-24T03:39:46.611218"
   }
 ]

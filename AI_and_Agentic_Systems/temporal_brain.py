@@ -775,6 +775,10 @@ class TemporalBrain:
         system_prompt: Optional[str] = None,
         max_tokens: int = 1024,
         temperature: Optional[float] = None,
+        *,
+        use_cache: Optional[bool] = None,
+        cache_namespace: str = "background",
+        cache_ttl_s: Optional[float] = None,
     ) -> Dict[str, Any]:
         """Método de generación directa compatible con EasyTouchEngine y agentes autónomos."""
         msgs: List[Dict[str, str]] = []
@@ -782,7 +786,14 @@ class TemporalBrain:
         if sys_p:
             msgs.append({"role": "system", "content": str(sys_p)})
         msgs.append({"role": "user", "content": str(prompt)})
-        res = self.chat(msgs, temperature=temperature, max_tokens=max_tokens)
+        res = self.chat(
+            msgs,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            use_cache=use_cache,
+            cache_namespace=cache_namespace,
+            cache_ttl_s=cache_ttl_s,
+        )
         if "text" not in res:
             res["text"] = res.get("reply", "")
         if "response" not in res:
@@ -810,21 +821,76 @@ class TemporalBrain:
         min_p: Optional[float] = None,
         repeat_penalty: Optional[float] = None,
         stop: Optional[List[str]] = None,
+        use_cache: Optional[bool] = None,
+        cache_namespace: str = "default",
+        cache_ttl_s: Optional[float] = None,
     ) -> Dict[str, Any]:
-        """Ejecuta inferencia síncrona pasando por adaptadores y hooks personalizados."""
+        """Ejecuta inferencia síncrona pasando por caché semántica, adaptadores y hooks personalizados."""
         t0 = time.time()
         options: Dict[str, Any] = {
             "temperature": float(temperature if temperature is not None else self.config.get("temperature", 0.3)),
             "max_tokens": int(max_tokens if max_tokens is not None else self.config.get("max_tokens", 1024)),
             "num_ctx": num_ctx,
         }
+        effective_model = model_alias or self.model_name
 
-        # 1. Pipeline Pre-Inferencia: Adaptadores y Hooks + System Prompt Soberano por defecto
+        # 1. Pipeline Pre-Inferencia: System Prompt Soberano + Caché Semántica L1/L2 (EmbedBrain)
         current_msgs = [dict(m) for m in messages]
         if not any(m.get("role") == "system" for m in current_msgs):
             default_sys = self.config.get("system_prompt")
             if default_sys:
                 current_msgs.insert(0, {"role": "system", "content": str(default_sys)})
+
+        cache_enabled = (use_cache is not False) and (cancel_event is None)
+        cache_key_msgs = [dict(m) for m in current_msgs]
+        if cache_enabled:
+            try:
+                from core.tardis_semantic_cache import get_semantic_cache
+
+                cache_hit = get_semantic_cache().lookup(
+                    cache_key_msgs,
+                    model=effective_model,
+                    namespace=cache_namespace,
+                    temperature=options["temperature"],
+                )
+                if cache_hit.get("hit"):
+                    cached_result: Dict[str, Any] = {
+                        "ok": True,
+                        "reply": str(cache_hit.get("reply") or ""),
+                        "model": effective_model,
+                        "usage": {
+                            "prompt_tokens": int(cache_hit.get("prompt_tokens_saved", 0)),
+                            "completion_tokens": int(cache_hit.get("completion_tokens_saved", 0)),
+                            "total_tokens": int(cache_hit.get("tokens_saved", 0)),
+                            "cached": True,
+                        },
+                        "elapsed": round(time.time() - t0, 4),
+                        "tokens_per_sec": 0.0,
+                        "engine": "semantic_cache",
+                        "cache_hit": True,
+                        "cache_match_type": str(cache_hit.get("match_type") or "semantic"),
+                        "cache_similarity": float(cache_hit.get("similarity", 1.0)),
+                        "tokens_saved": int(cache_hit.get("tokens_saved", 0)),
+                        "cpu_ms_saved": float(cache_hit.get("cpu_ms_saved", 0.0)),
+                        "socket": str(self.socket_path),
+                    }
+                    if not bypass_post_hooks:
+                        if self.config.get("hooks", {}).get("enable_post_hooks", True):
+                            for hook in self._post_hooks:
+                                try:
+                                    cached_result = hook(cached_result)
+                                except Exception as e:
+                                    logger.error(f"Error en post_hook: {e}")
+                        for adapter in self._adapters.values():
+                            if adapter.enabled:
+                                try:
+                                    cached_result = adapter.post_inference(cached_result)
+                                except Exception as e:
+                                    logger.error(f"Error en post_inference del adaptador '{adapter.name}': {e}")
+                    return cached_result
+            except Exception as exc_cache:
+                logger.debug(f"[TemporalBrain] Aviso en lookup de SemanticCache: {exc_cache}")
+
         if not bypass_pre_hooks:
             for adapter in self._adapters.values():
                 if adapter.enabled:
@@ -940,6 +1006,24 @@ class TemporalBrain:
                         raw_result = adapter.post_inference(raw_result)
                     except Exception as e:
                         logger.error(f"Error en post_inference del adaptador '{adapter.name}': {e}")
+
+        # 5. Almacenar respuesta válida en la Caché Semántica L1/L2 (EmbedBrain + SQLite WAL)
+        if cache_enabled and raw_result.get("ok") and raw_result.get("reply"):
+            try:
+                from core.tardis_semantic_cache import get_semantic_cache
+
+                get_semantic_cache().store(
+                    cache_key_msgs,
+                    str(raw_result.get("reply") or ""),
+                    model=effective_model,
+                    namespace=cache_namespace,
+                    temperature=options["temperature"],
+                    ttl_s=cache_ttl_s,
+                    usage=raw_result.get("usage") if isinstance(raw_result.get("usage"), dict) else None,
+                    elapsed_ms=float(raw_result.get("elapsed", 0.0)) * 1000.0,
+                )
+            except Exception as exc_store:
+                logger.debug(f"[TemporalBrain] Aviso al almacenar en SemanticCache: {exc_store}")
 
         return raw_result
 

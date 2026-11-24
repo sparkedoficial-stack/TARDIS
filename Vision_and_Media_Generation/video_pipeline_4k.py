@@ -33,6 +33,18 @@ import textwrap
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+# Limitar pools OpenMP/OpenBLAS/MKL/OpenCV antes de importar numpy y cv2:
+# evita que múltiples workers 4K creen 22+ hilos cada uno sobre el cpuset CCD1 (8-15).
+for _env_k, _env_v in (
+    ("OMP_NUM_THREADS", "2"),
+    ("OPENBLAS_NUM_THREADS", "2"),
+    ("MKL_NUM_THREADS", "2"),
+    ("NUMEXPR_NUM_THREADS", "2"),
+    ("OPENCV_NUM_THREADS", "2"),
+    ("OMP_WAIT_POLICY", "PASSIVE"),
+):
+    os.environ.setdefault(_env_k, _env_v)
+
 import cv2
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
@@ -71,6 +83,7 @@ def extract_audio_features(
     try:
         cmd = [
             "ffmpeg", "-hide_banner", "-loglevel", "error",
+            "-threads", "2", "-filter_threads", "1",
             "-i", str(audio_path),
             "-ac", "1", "-ar", str(sr),
             "-f", "s16le", "-",
@@ -1113,11 +1126,57 @@ def _vaapi_device(width: int, height: int) -> Optional[str]:
     return found
 
 
+def _resolve_render_budget(
+    requested_workers: Optional[int],
+    total_frames: int,
+) -> Tuple[int, int, int, str]:
+    """
+    Calcula (workers, cv_threads_per_worker, ffmpeg_threads_per_worker, governor_level)
+    respetando el cpuset efectivo (`os.sched_getaffinity`) y la presión Ring 0 del
+    ResourceGovernor para evitar tormentas de 100+ hilos y PSI crítico (Nivel RED).
+    """
+    try:
+        allowed_cpus = max(1, len(os.sched_getaffinity(0)))
+    except Exception:
+        allowed_cpus = max(1, os.cpu_count() or 4)
+
+    gov_level = "GREEN"
+    cpu_psi_60 = 0.0
+    try:
+        from core.tardis_resource_governor import get_resource_governor
+
+        snap = get_resource_governor().read_fast_snapshot(max_age_s=60.0)
+        gov_level = str(snap.get("level") or "GREEN").upper()
+        cpu_psi_60 = float(((snap.get("cpu") or {}).get("psi") or {}).get("some_avg60", 0.0))
+    except Exception:
+        pass
+
+    if requested_workers is not None:
+        max_w = max(1, int(requested_workers))
+    elif gov_level in ("ORANGE", "RED") or cpu_psi_60 >= 35.0:
+        max_w = 1
+    elif gov_level == "YELLOW":
+        max_w = max(1, min(2, allowed_cpus // 4))
+    else:
+        max_w = max(1, min(2, allowed_cpus // 4))
+
+    # Incluso si se solicitó explícitamente >1 worker, bajo presión RED limitar a 1 para proteger Ring 0
+    if gov_level == "RED":
+        max_w = 1
+
+    workers = max(1, min(max_w, max(1, int(total_frames))))
+    cv_threads = 1 if workers > 1 else max(1, min(2, allowed_cpus // 4 or 1))
+    ff_threads = 1 if (workers > 1 or gov_level == "RED") else 2
+    return workers, cv_threads, ff_threads, gov_level
+
+
 def _video_encoder_args(bitrate_kbps: int, use_nvenc: bool, threads: int = 2,
                         vaapi_device: Optional[str] = None) -> List[str]:
     maxrate = int(bitrate_kbps * 1.35)
+    t_str = str(max(1, min(4, int(threads))))
     if vaapi_device:
         return [
+            "-threads", t_str,
             "-vf", "format=nv12,hwupload",
             "-c:v", "h264_vaapi", "-profile:v", "high",
             "-b:v", f"{bitrate_kbps}k", "-maxrate", f"{maxrate}k",
@@ -1125,6 +1184,7 @@ def _video_encoder_args(bitrate_kbps: int, use_nvenc: bool, threads: int = 2,
         ]
     if use_nvenc:
         return [
+            "-threads", t_str,
             "-c:v", "h264_nvenc", "-preset", "p5", "-tune", "hq",
             "-rc", "vbr", "-cq", "23",
             "-b:v", f"{bitrate_kbps}k", "-maxrate", f"{maxrate}k",
@@ -1135,7 +1195,7 @@ def _video_encoder_args(bitrate_kbps: int, use_nvenc: bool, threads: int = 2,
         "-c:v", "libx264", "-preset", "veryfast", "-crf", "20",
         "-maxrate", f"{maxrate}k", "-bufsize", f"{maxrate * 2}k",
         "-profile:v", "high", "-pix_fmt", "yuv420p", "-g", "120",
-        "-threads", str(threads),
+        "-threads", t_str,
     ]
 
 
@@ -1154,7 +1214,13 @@ def _render_segment(args: Dict[str, Any]) -> Dict[str, Any]:
     manifest = args.get("manifest") or (telemetry.get("visual_manifest") if isinstance(telemetry, dict) else None)
     seg_env = args.get("audio_env")
     seg_bands = args.get("audio_bands")
+    cv_threads = max(1, min(2, int(args.get("cv_threads", 1))))
+    ff_threads = max(1, min(4, int(args.get("ff_threads", 2))))
 
+    try:
+        cv2.setNumThreads(cv_threads)
+    except Exception:
+        pass
     try:
         os.nice(15)
     except Exception:
@@ -1166,7 +1232,12 @@ def _render_segment(args: Dict[str, Any]) -> Dict[str, Any]:
     duration = args["duration"]
 
     cmd = (
-        ["ffmpeg", "-y", "-loglevel", "error"]
+        [
+            "ffmpeg", "-y", "-loglevel", "error",
+            "-threads", str(ff_threads),
+            "-filter_threads", "1",
+            "-filter_complex_threads", "1",
+        ]
         + list(args.get("pre_input", []))
         + ["-f", "rawvideo", "-vcodec", "rawvideo",
            "-s", f"{w}x{h}", "-pix_fmt", "rgb24", "-r", str(fps), "-i", "-"]
@@ -1243,9 +1314,7 @@ def render_video_4k(
     # Extraer envolvente RMS y espectro FFT real del audio una sola vez (~20 ms)
     audio_env, audio_bands = extract_audio_features(audio_path, total_frames, fps)
 
-    if workers is None:
-        workers = max(1, min(4, (os.cpu_count() or 4) // 4))
-    workers = max(1, min(workers, total_frames))
+    workers, cv_threads, ff_threads, _gov_lvl = _resolve_render_budget(workers, total_frames)
 
     audio_kbps = 192
     budget_kbps = int((max_bytes * 8 / 1000.0) / max(1.0, duration)) - audio_kbps
@@ -1256,13 +1325,13 @@ def render_video_4k(
     use_nvenc = (vaapi is None) and (workers == 1) and _nvenc_available(width, height)
     enc_args = _video_encoder_args(
         bitrate_kbps, use_nvenc,
-        threads=max(1, 16 // max(1, workers)),
+        threads=ff_threads,
         vaapi_device=vaapi,
     )
     pre_input = ["-vaapi_device", vaapi] if vaapi else []
     if vaapi:
         bitrate_kbps = min(bitrate_kbps, 16000)
-        enc_args = _video_encoder_args(bitrate_kbps, False, vaapi_device=vaapi)
+        enc_args = _video_encoder_args(bitrate_kbps, False, threads=ff_threads, vaapi_device=vaapi)
     encoder_name = "h264_vaapi" if vaapi else ("h264_nvenc" if use_nvenc else "libx264")
 
     lines = HudRenderer.build_lines(word_timings) if hud else []
@@ -1296,12 +1365,23 @@ def render_video_4k(
                 "manifest": eff_manifest,
                 "audio_env": audio_env[f0:f0 + n] if audio_env is not None else None,
                 "audio_bands": audio_bands[f0:f0 + n] if audio_bands is not None else None,
+                "cv_threads": cv_threads,
+                "ff_threads": ff_threads,
                 "enc_args": enc_args,
                 "pre_input": pre_input,
                 "out_path": str(tmpdir / f"seg_{s:03d}.mp4"),
             })
 
         py = sys.executable or "python3"
+        worker_env = os.environ.copy()
+        worker_env.update({
+            "OMP_NUM_THREADS": str(cv_threads),
+            "OPENBLAS_NUM_THREADS": str(cv_threads),
+            "MKL_NUM_THREADS": str(cv_threads),
+            "NUMEXPR_NUM_THREADS": str(cv_threads),
+            "OPENCV_NUM_THREADS": str(cv_threads),
+            "OMP_WAIT_POLICY": "PASSIVE",
+        })
         procs = []
         for j in jobs:
             jf = tmpdir / f"job_{j['seg']:03d}.json"
@@ -1309,6 +1389,7 @@ def render_video_4k(
             procs.append((j, jf, subprocess.Popen(
                 [py, str(Path(__file__).resolve()), "--job", str(jf)],
                 cwd=str(BASE_DIR),
+                env=worker_env,
                 stdout=subprocess.PIPE, stderr=subprocess.PIPE,
             )))
 
@@ -1335,6 +1416,7 @@ def render_video_4k(
 
         mux = [
             "ffmpeg", "-y", "-loglevel", "error",
+            "-threads", "2", "-filter_threads", "1",
             "-f", "concat", "-safe", "0", "-i", str(listfile),
             "-i", audio_path,
             "-c:v", "copy", "-c:a", "aac", "-b:a", f"{audio_kbps}k",
