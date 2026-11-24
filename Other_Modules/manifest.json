@@ -1,11 +1,11 @@
 {
-  "run_id": "canary_20261123_195444_bf1384",
-  "iso": "2026-11-23T19:54:44-05:00",
+  "run_id": "canary_20261123_200207_0a9abc",
+  "iso": "2026-11-23T20:02:07-05:00",
   "files": [
     {
-      "source": "/tmp/pytest-of-m11/pytest-0/test_canary_verifier_static_sn0/sample_mod.py",
+      "source": "/tmp/pytest-of-m11/pytest-1/test_canary_verifier_static_sn0/sample_mod.py",
       "relative": "sample_mod.py",
-      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261123_195444_bf1384/sample_mod.py"
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261123_200207_0a9abc/sample_mod.py"
     }
   ]
 }

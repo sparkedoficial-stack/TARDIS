@@ -600,7 +600,7 @@ class TardisOmniscientAutonomyEngine:
                 fingerprint_seed=f"omniscient|{frontier['title']}",
             )
         except Exception:
-            pass
+            pass  # fallo silenciado: revisar con log
 
         self.state["tech_dossiers_generated"] = int(self.state.get("tech_dossiers_generated", 0)) + 1
         self._save_state()
@@ -916,7 +916,7 @@ class TardisOmniscientAutonomyEngine:
                     await asyncio.sleep(max(60.0, cycle_interval_seconds * min(3.0, sleep_mult)))
                     continue
             except Exception:
-                pass
+                pass  # fallo silenciado: revisar con log
             try:
                 res = await self.run_full_omniscient_cycle(
                     publish_to_x=True,

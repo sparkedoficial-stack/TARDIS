@@ -1,33 +1,30 @@
 # 🤝 TARDIS → AGY :: Buzón Continuo de Co-Evolución y Sistemas Alternos
-- **Actualizado:** `2026-11-23T20:00:03-05:00`
+- **Actualizado:** `2026-11-23T20:02:11-05:00`
 - **Conversación Persistente de Co-Evolución:** `(se creará en el próximo intercambio)`
-- **Nivel de Presión ResourceGovernor:** `ORANGE` | CPU PSI60=`70.02%` | RAM libre=`7969.9 MB` | GPU=`72.0°C`
-- **HubHealth:** `{'online': 37, 'offline': 1, 'degraded': 4}`
+- **Nivel de Presión ResourceGovernor:** `RED` | CPU PSI60=`75.03%` | RAM libre=`7489.2 MB` | GPU=`72.0°C`
+- **HubHealth:** `{'degraded': 3, 'online': 38, 'offline': 1}`
 
 ## 🎯 Top Propuestas de Sistemas Alternos y Mejoras Pendientes
-- **`COEV-20261123-C75E48`** [ROI=91 | HIGH | lente=`runtime` | `regression`] **Resolver evento crítico evolution.rollback desde tardis_canary_verifier**
-  - *Problema:* {"restored_files": ["sample_mod.py"], "run_id": "canary_20261123_195444_bf1384"}
-  - *Propuesta:* Investigar causa raíz en el subsistema afectado, corregir el fallo de forma estructural y verificar con `tardis-canary verify`.
-- **`COEV-20261123-0131D3`** [ROI=88 | MEDIUM | lente=`runtime` | `performance`] **Mitigar presión sostenida de silicio (Nivel ORANGE)**
-  - *Problema:* Razones activas: CPU PSI avg60 elevado (70.0%); Temperatura GPU cálida (72°C); Loadavg1 saturado (28.84 en 16 hilos); 1 modelo(s) duplicado(s) en Ollama :11434 (1926 MB)
-  - *Propuesta:* Auditar procesos top CPU/RAM (TemporalBrain, Tapo C310 ffmpeg/YOLO, Ollama), ajustar frecuencias/FPS/threads y aplicar throttling coordinado vía ResourceGovernor.
-  - *Archivos:* `core/tapo_c310_sentinel.py, core/tardis_resource_governor.py`
-- **`COEV-20261123-C7CB21`** [ROI=79 | MEDIUM | lente=`runtime` | `reliability`] **Reparar subsistema agy_coevolution en estado DEGRADED**
-  - *Problema:* Sonda de HubHealth reporta `agy_coevolution` = degraded (detail=HTTP 404, unit=tardis-agy-coevolution, http=404).
-  - *Propuesta:* Diagnosticar unidad `tardis-agy-coevolution` o endpoint HTTP asociado a `agy_coevolution`, aplicar corrección y validar 200 OK en `/api/hub/health`.
-  - *Archivos:* `core/hub_health.py`
-- **`COEV-20261123-788BCC`** [ROI=79 | MEDIUM | lente=`runtime` | `reliability`] **Reparar subsistema canary_verifier en estado DEGRADED**
-  - *Problema:* Sonda de HubHealth reporta `canary_verifier` = degraded (detail=HTTP 404, unit=None, http=404).
-  - *Propuesta:* Diagnosticar unidad `None` o endpoint HTTP asociado a `canary_verifier`, aplicar corrección y validar 200 OK en `/api/hub/health`.
-  - *Archivos:* `core/hub_health.py`
-- **`COEV-20261123-806779`** [ROI=79 | MEDIUM | lente=`runtime` | `reliability`] **Reparar subsistema event_bus en estado DEGRADED**
-  - *Problema:* Sonda de HubHealth reporta `event_bus` = degraded (detail=HTTP 404, unit=None, http=404).
-  - *Propuesta:* Diagnosticar unidad `None` o endpoint HTTP asociado a `event_bus`, aplicar corrección y validar 200 OK en `/api/hub/health`.
-  - *Archivos:* `core/hub_health.py`
-- **`COEV-20261123-3942D8`** [ROI=79 | MEDIUM | lente=`runtime` | `reliability`] **Reparar subsistema resource_governor en estado DEGRADED**
-  - *Problema:* Sonda de HubHealth reporta `resource_governor` = degraded (detail=HTTP 404, unit=tardis-resource-governor, http=404).
-  - *Propuesta:* Diagnosticar unidad `tardis-resource-governor` o endpoint HTTP asociado a `resource_governor`, aplicar corrección y validar 200 OK en `/api/hub/health`.
-  - *Archivos:* `core/hub_health.py`
+- **`COEV-20261123-4BE223`** [ROI=84 | MEDIUM | lente=`capabilities` | `alternate_system`] **Crear sistema alterno: Continuous Autonomous Eval & Regression Benchmark Harness**
+  - *Problema:* Falta una evaluación continua automatizada de calidad de respuestas (RAG, tool-calling, latencia P50/P95, precisión AEGIS) tras cada evolución.
+  - *Propuesta:* Construir un harness de evaluación determinista + LLM-as-judge que mida calidad pre/post evolución y alimente al motor de co-evolución.
+  - *Archivos:* `core/tardis_eval_harness.py`
+- **`COEV-20261123-7A5252`** [ROI=82 | MEDIUM | lente=`capabilities` | `alternate_system`] **Crear sistema alterno: Autonomous Memory Compactor & Knowledge Graph Deduplicator**
+  - *Problema:* Las bóvedas SQLite (RAG, DeepMemory, OfflineChat) crecen indefinidamente con chunks duplicados y sin compactación programada.
+  - *Propuesta:* Crear compactador nocturno (VACUUM, ANALYZE, poda de duplicados SimHash/coseno, consolidación jerárquica de episodios).
+  - *Archivos:* `core/tardis_memory_compactor.py`
+- **`COEV-20261123-8E1948`** [ROI=81 | MEDIUM | lente=`capabilities` | `alternate_system`] **Crear sistema alterno: Adaptive Multi-Provider Circuit Breaker & Cost/Latency Router**
+  - *Problema:* El enrutamiento entre TemporalBrain, Ollama GPU :11435, Cloud APIs y AGY carece de circuit breakers con EMA de latencia y salud por proveedor.
+  - *Propuesta:* Diseñar un enrutador adaptativo con circuit breakers por carril, selección consciente de VRAM/PSI y degradación transparente.
+  - *Archivos:* `core/tardis_adaptive_router.py`
+- **`COEV-20261123-B9D240`** [ROI=80 | MEDIUM | lente=`capabilities` | `alternate_system`] **Crear sistema alterno: Continuous Zero-Trust Perimeter & Secret Hygiene Auditor**
+  - *Problema:* Puertos en 0.0.0.0, túneles Cloudflare, permisos de archivos de estado y dependencias Python necesitan auditoría continua automatizada.
+  - *Propuesta:* Implementar auditor perimetral continuo integrado con AEGIS y Zero-Error Shield que detecte exposiciones y endurezca configuraciones.
+  - *Archivos:* `core/tardis_perimeter_auditor.py`
+- **`COEV-20261123-A8C571`** [ROI=78 | MEDIUM | lente=`capabilities` | `alternate_system`] **Crear sistema alterno: End-to-End Voice Pipeline Profiler (Tapo C310 + Telegram Live Call)**
+  - *Problema:* Los canales de voz (Tapo C310, Telegram Call) consumen mucha CPU en ffmpeg/YOLO/Whisper sin perfilado por etapa (STT/LLM/TTS).
+  - *Propuesta:* Crear perfilador de latencia por etapa con decodificación acelerada/FPS adaptativo para bajar >50% la carga CPU de C310.
+  - *Archivos:* `core/tardis_voice_profiler.py`
 
 ## 💬 Cómo Responder a TARDIS desde AGY
 ```bash

@@ -206,7 +206,7 @@ class IdleEvolutionDaemon:
                         time.sleep(60.0)
                         continue
                 except Exception:
-                    pass
+                    pass  # fallo silenciado: revisar con log
 
                 # Condición 1: Modo Infinito (sin peticiones en los últimos 300s y no ocupado)
                 if self.infinite_evolution_mode:
@@ -318,7 +318,7 @@ class IdleEvolutionDaemon:
                             fingerprint_seed=f"idle|{rel}|{title[:60]}",
                         )
                     except Exception:
-                        pass
+                        pass  # fallo silenciado: revisar con log
                 elif target_p.is_file():
                     logger.info(f"🧬 [IDLE_EVOLUTION] Ejecutando auto-programación en `{code_target}`: {code_goal}...")
                     try:
