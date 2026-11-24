@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "created_at": "2026-10-15T02:04:29.176374",
   "last_periodic_sync": "2026-11-24T07:58:40.506597",
-  "last_immediate_sync": "2026-11-24T07:14:15.571474",
-  "last_commit_hash": "5f57b1f0",
-  "sync_count": 1517,
-  "immediate_sync_count": 1513,
+  "last_immediate_sync": "2026-11-24T08:53:41.832753",
+  "last_commit_hash": "5816617f",
+  "sync_count": 1518,
+  "immediate_sync_count": 1514,
   "periodic_sync_count": 4,
   "last_known_mtimes": {
     "skill:godworks-system-suite/SKILL.md": REDACTED_PHONE.5482113,
@@ -104,7 +104,7 @@
     "core:hardware_autoprovision.py": REDACTED_PHONE.39,
     "core:hardware_controller.py": REDACTED_PHONE.1767893,
     "core:hotspot_watchdog.py": REDACTED_PHONE.91,
-    "core:hub_health.py": REDACTED_PHONE.8638499,
+    "core:hub_health.py": REDACTED_PHONE.169772,
     "core:individual_tracker.py": REDACTED_PHONE.38,
     "core:inter_ai_protocol.py": REDACTED_PHONE.43,
     "core:interaction_logger.py": REDACTED_PHONE.42,
@@ -207,7 +207,7 @@
     "core:tardis_c310_conversation.py": REDACTED_PHONE.512329,
     "core:tardis_visual_manifest.py": REDACTED_PHONE.0758216,
     "core:tardis_telemetry_snapshot.py": REDACTED_PHONE.4984183,
-    "core:tardis_event_bus.py": REDACTED_PHONE.0778637,
+    "core:tardis_event_bus.py": REDACTED_PHONE.3867786,
     "core:tardis_resource_governor.py": REDACTED_PHONE.183467,
     "core:tardis_canary_verifier.py": REDACTED_PHONE.6677413,
     "core:tardis_agy_coevolution.py": REDACTED_PHONE.638858,
@@ -216,7 +216,8 @@
     "core:mundo_sin_censura_chat.py": REDACTED_PHONE.1064444,
     "core:tardis_semantic_cache.py": REDACTED_PHONE.7406988,
     "core:embed_isotropy.py": REDACTED_PHONE.6129508,
-    "core:tardis_eval_harness.py": REDACTED_PHONE.377881,
+    "core:tardis_eval_harness.py": REDACTED_PHONE.0774143,
+    "core:tardis_memory_compactor.py": REDACTED_PHONE.1478617,
     "directive:AGENTS.md": REDACTED_PHONE.8623235,
     "directive:GEMINI.md": REDACTED_PHONE.8793235,
     "registry:dynamic_tools": REDACTED_PHONE.0256226,
@@ -328,6 +329,18 @@
     "sat:gia_ios:GIA/Views/Theme.swift": REDACTED_PHONE.0
   },
   "history": [
+    {
+      "timestamp": "2026-11-24T08:53:41.832753",
+      "trigger": "immediate_milestone",
+      "commit_hash": "5816617f",
+      "score": 110,
+      "reasons": [
+        "Evoluci\u00f3n en subsistema core TARDIS: hub_health.py",
+        "Evoluci\u00f3n en subsistema core TARDIS: tardis_event_bus.py",
+        "Evoluci\u00f3n en subsistema core TARDIS: tardis_agy_coevolution.py",
+        "Nuevo subsistema core TARDIS: tardis_eval_harness.py"
+      ]
+    },
     {
       "timestamp": "2026-11-24T07:14:15.571474",
       "trigger": "immediate_milestone",
@@ -866,16 +879,6 @@
         "Evoluci\u00f3n en subsistema core TARDIS: tardis_continuity_engine.py",
         "Evoluci\u00f3n en subsistema core TARDIS: tardis_omni_tool_bridge.py",
         "Evoluci\u00f3n en subsistema core TARDIS: tardis_agy_controller.py"
-      ]
-    },
-    {
-      "timestamp": "2026-11-20T22:32:54.178945",
-      "trigger": "immediate_milestone",
-      "commit_hash": "89dbffb5",
-      "score": 65,
-      "reasons": [
-        "Nuevo m\u00f3dulo central FTL creado: ftl_terminal_continuator.py",
-        "Nuevo subsistema core TARDIS: ftl_terminal_continuator.py"
       ]
     }
   ]

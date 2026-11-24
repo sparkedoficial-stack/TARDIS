@@ -255,18 +255,24 @@ def _eval_tool_calling_suite() -> Dict[str, Any]:
         reg.register(
             ToolDefinition(
                 name="eval_sum",
-                description="Suma determinista de dos enteros para benchmark.",
-                parameters={"a": "int", "b": "int"},
-                handler=lambda a=0, b=0: {"sum": int(a) + int(b)},
                 category="eval",
-                safe=True,
+                description="Suma determinista de dos enteros para benchmark.",
+                parameters={"a": {"type": "integer"}, "b": {"type": "integer"}},
+                handler=lambda args: {"ok": True, "sum": int(args.get("a", 0)) + int(args.get("b", 0))},
+                required_args=["a", "b"],
+                is_safe=True,
             )
         )
         tc0 = time.perf_counter()
         r_ok = reg.execute("eval_sum", {"a": 17, "b": 25})
         latencies.append((time.perf_counter() - tc0) * 1000.0)
-        ok_sum = bool(r_ok.get("ok") and (r_ok.get("result") or {}).get("sum") == 42)
+        ok_sum = bool(r_ok.get("ok") and r_ok.get("sum") == 42)
         checks.append({"check": "agent_harness_execute_valid", "ok": ok_sum})
+
+        tc0 = time.perf_counter()
+        r_missing = reg.execute("eval_sum", {"a": 17})
+        latencies.append((time.perf_counter() - tc0) * 1000.0)
+        checks.append({"check": "agent_harness_missing_arg_rejected", "ok": not bool(r_missing.get("ok"))})
 
         tc0 = time.perf_counter()
         r_unk = reg.execute("nonexistent_eval_tool_xyz", {})

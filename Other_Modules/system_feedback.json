@@ -1,17 +1,17 @@
 {
-  "timestamp": REDACTED_PHONE.341488,
-  "iso": "2026-11-24T08:53:31.345203",
+  "timestamp": REDACTED_PHONE.2801008,
+  "iso": "2026-11-24T10:41:59.281450",
   "health_score": 85,
   "status": "HEALTHY",
-  "cycle": 237,
+  "cycle": 254,
   "metrics": {
-    "cpu_percent": 7.7,
-    "cpu_ema": 7.2,
+    "cpu_percent": 8.5,
+    "cpu_ema": 7.9,
     "high_cpu_streak": 0,
-    "ram_percent": 92.7,
-    "high_ram_streak": 237,
+    "ram_percent": 93.6,
+    "high_ram_streak": 254,
     "governor_level": "ORANGE",
-    "cpu_psi_60": 1.46,
+    "cpu_psi_60": 2.53,
     "recent_errors": 0,
     "recent_blocks": 0
   },
@@ -19,7 +19,7 @@
     {
       "factor": "ram_sustained",
       "points": -15,
-      "detail": "RAM sostenida 92.7% (racha=237)"
+      "detail": "RAM sostenida 93.6% (racha=254)"
     }
   ],
   "subsystems": {
@@ -33,7 +33,7 @@
     "temporal_brain_online": true
   },
   "needs": [
-    "Presión Ring 0 ORANGE: RAM disponible baja (2477 MB); Uso de swap alto (10.5 GB)"
+    "Presión Ring 0 ORANGE: RAM disponible baja (2173 MB); Uso de swap alto (13.0 GB)"
   ],
   "instructions": [
     {
@@ -41,8 +41,8 @@
       "severity": "MEDIUM",
       "component": "Resource Governor Ring 0",
       "target_file": "core/tardis_resource_governor.py",
-      "instruction": "Estabilizar presión ORANGE (RAM disponible baja (2477 MB); Uso de swap alto (10.5 GB)) ejecutando reclamación de modelos duplicados y throttling.",
-      "rationale": "CPU PSI60=1.46%, RAM libre=2476.6 MB.",
+      "instruction": "Estabilizar presión ORANGE (RAM disponible baja (2173 MB); Uso de swap alto (13.0 GB)) ejecutando reclamación de modelos duplicados y throttling.",
+      "rationale": "CPU PSI60=2.53%, RAM libre=2173.0 MB.",
       "actionable_cmd": "tardis-governor reclaim"
     }
   ],

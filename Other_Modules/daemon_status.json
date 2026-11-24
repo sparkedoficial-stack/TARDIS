@@ -2,11 +2,11 @@
   "daemon": "tardis-visual-intelligence",
   "running": true,
   "pid": 1384253,
-  "uptime_sec": 45721.4,
-  "last_heartbeat": "2026-11-24T08:53:58.431604",
+  "uptime_sec": 52188.1,
+  "last_heartbeat": "2026-11-24T10:41:45.093633",
   "items_processed": 0,
   "last_processed_id": "",
-  "memory_rss_mb": 301.47,
+  "memory_rss_mb": 329.5,
   "engine_status": {
     "status": "online",
     "engine": "VisualIntelligenceEngine v26.5 (VLM + Veredictos)",
@@ -20,15 +20,15 @@
     "vlm_error": "",
     "verdict_engine": "VLM + Kaiju + veredicto estructurado",
     "stored_videos_count": 1057,
-    "stored_images_count": 512,
+    "stored_images_count": 515,
     "stored_sounds_count": 0,
-    "stored_verdicts_count": 628,
+    "stored_verdicts_count": 631,
     "last_verdict": {
-      "id": "img_20261124_081142_7d0ef9",
-      "created_at": "2026-11-24T08:12:19.725671",
+      "id": "img_20261124_101153_918698",
+      "created_at": "2026-11-24T10:12:30.936382",
       "source": "daemon",
-      "verdict": "Estado General del Entorno:\nEstable, exterior, diurno, sin actividad humana o animal visible.\n\nNivel de Riesgo Objetivo:\n3/10 (Bajo)\n\n*   Hechos Observados:\n    1.  Superficie mixta (césped/hormigón) con bordillos.\n    2.  Dos cajas metálicas, una abierta, en el borde derecho.\n    3.  Ausencia total de sujetos o amenazas visibles.\n    4.  Iluminación natural adecuada (mañana).\n\n*   Inferencias:\n    1.  El riesgo principal es mecánico/accidental: posible tropiezo con los bordillos o las cajas, especialmente si el suelo está húmedo (aunque no se ve humedad explícita, es común en césped matutino)",
-      "risk_level": 3
+      "verdict": "*   Estado General del Entorno: Estable y Estático. Área exterior, diurna, sin actividad biológica o mecánica observable.\n*   Nivel de Riesgo Objetivo: 2/10\n    *   *Justificación:* El riesgo es bajo. No hay amenazas inminentes, personas en peligro ni estructuras inestables evidentes. El riesgo residual proviene de la incertidumbre sobre los objetos pequeños (placa metálica, objeto oscuro) y el estado del suelo (manchas/humedad), que podrían representar un riesgo menor de tropiezo o deslizamiento si se camina por la zona. No hay riesgo de seguridad crítica.\n*   Recomendación Concreta:\n    1.  ",
+      "risk_level": 2
     },
     "surroundings_interval_sec": 900,
     "vault_dir": "/home/m11/Escritorio/GODWORKS SYSTEM/vault/videos/telegram",
@@ -37,13 +37,13 @@
   },
   "surroundings": {
     "interval_sec": 900.0,
-    "checks": 16,
-    "verdicts": 16,
-    "last_verdict_id": "img_20261124_081142_7d0ef9",
-    "last_risk_level": 3,
-    "last_verdict": "Estado General del Entorno:\nEstable, exterior, diurno, sin actividad humana o animal visible.\n\nNivel de Riesgo Objetivo:\n3/10 (Bajo)\n\n*   Hechos Observados:\n    1.  Superficie mixta (césped/hormigón) con bordillos.\n    2.  Dos cajas metálicas, una abierta, en el borde derecho.\n    3.  Ausencia total de sujetos o amenazas visibles.\n    4.  Iluminación natural adecuada (mañana).\n\n*   Inferencias:\n    1.  El riesgo principal es mecánico/accidental: posible tropiezo con los bordillos o las cajas, especialmente si el suelo está húmedo (aunque no se ve humedad explícita, es común en césped matutino).\n    2.  La caja abierta representa un punto de atención, pero no una amenaza inmediata.\n\n*   Dudas:\n    1.  Contenido exacto de la caja abierta (no visible con detalle suficiente para clasificarlo como peligroso).\n    2.  Motivo de la apertura de la caja (abandono, mantenimiento, error).\n\nRecomendación Concreta:\nProceder con precaución estándar al caminar cerca del borde derecho. Evitar pisar directamente sobre las cajas metálicas o los bordillos irregulares para prevenir resbalones o tropiezos. Si la caja abierta es de tu propiedad o responsabilidad, se recomienda verificar su contenido y c",
-    "last_error": "escena sin cambios relevantes (delta=2.2)",
-    "last_check_ts": REDACTED_PHONE.7640939
+    "checks": 19,
+    "verdicts": 19,
+    "last_verdict_id": "img_20261124_101153_918698",
+    "last_risk_level": 2,
+    "last_verdict": "*   Estado General del Entorno: Estable y Estático. Área exterior, diurna, sin actividad biológica o mecánica observable.\n*   Nivel de Riesgo Objetivo: 2/10\n    *   *Justificación:* El riesgo es bajo. No hay amenazas inminentes, personas en peligro ni estructuras inestables evidentes. El riesgo residual proviene de la incertidumbre sobre los objetos pequeños (placa metálica, objeto oscuro) y el estado del suelo (manchas/humedad), que podrían representar un riesgo menor de tropiezo o deslizamiento si se camina por la zona. No hay riesgo de seguridad crítica.\n*   Recomendación Concreta:\n    1.  Verificar la placa metálica: Si es accesible, inspeccionar visualmente si es un dispositivo activo (cámaras, sensores, cajas de fusibles) o simplemente una tapa de registro.\n    2.  Evaluar el suelo: Prestar atención a las manchas oscuras cerca de los bordillos; podrían ser superficies resbaladizas.\n    3.  Continuar la exploración: El entorno es seguro para el tránsito peatonal. No se detectan anomalías temporales ni espaciales.\n\nNota Final: El entorno es seguro. La \"nitidez\" anómala reportada por el sistema de visión es un dato técnico a revisar en el hardware del sensor, pero no afecta la s",
+    "last_error": "escena sin cambios relevantes (delta=2.7)",
+    "last_check_ts": REDACTED_PHONE.1921415
   },
   "vlm": {
     "ready": true,

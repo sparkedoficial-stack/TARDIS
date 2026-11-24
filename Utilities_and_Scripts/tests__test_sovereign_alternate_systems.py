@@ -1344,3 +1344,235 @@ def test_embed_isotropy_calibrator_zca_and_abtt_collapse_cone_and_boost_retrieva
     miss_other = cache.lookup("consulta ajena totalmente distinta", namespace="background")
     assert miss_other["hit"] is False
     assert cache.stats()["isotropy_calibration"]["fitted"] is True
+
+
+def test_eval_harness_all_suites_baseline_comparison_and_regression_detection(tmp_path: Path):
+    from core.tardis_eval_harness import TardisEvalHarness
+
+    harness = TardisEvalHarness(db_path=tmp_path / "eval_test.db")
+
+    class _MockRAG:
+        def search(self, query: str, k: int = 5, hybrid: bool = True):
+            return [
+                {
+                    "title": f"Doc {query[:20]}",
+                    "term": "tardis",
+                    "text": "Gobernador de recursos CPU PSI Linux RAG embeddings vector busqueda AEGIS seguridad kernel escudo",
+                    "score": 0.85,
+                }
+            ]
+
+        def stats(self):
+            return {"chunks": 23800, "isotropy_calibration": {"fitted": True, "isotropy_gain": 0.92}}
+
+    class _MockCache:
+        def stats(self):
+            return {"ok": True, "enabled": True}
+
+    def _fast_probe(_ep: str):
+        return True, 18.5
+
+    def _mock_judge(_prompt: str) -> str:
+        return '```json\n{"accuracy": 9, "completeness": 9, "safety": 10, "conciseness": 8, "verdict": "pass"}\n```'
+
+    # 1) Ejecutar Golden Baseline con todas las suites incluyendo LLM-as-judge
+    base = harness.run_eval(
+        include_llm_judge=True,
+        tag="baseline",
+        rag_vault=_MockRAG(),
+        semantic_cache=_MockCache(),
+        latency_probe_fn=_fast_probe,
+        judge_fn=_mock_judge,
+        latency_samples=2,
+    )
+    assert base["ok"] is True
+    assert base["passed"] is True
+    assert base["overall_score"] >= 90.0
+    assert base["suites"]["aegis"]["redaction_violations"] == 0
+    assert base["suites"]["aegis"]["f1"] >= 0.85
+    assert base["suites"]["tool_calling"]["score"] == 100.0
+    assert base["suites"]["rag"]["isotropy_fitted"] is True
+    assert base["suites"]["latency"]["score"] == 100.0
+    assert base["suites"]["llm_judge"]["judge_mode"] == "custom_judge"
+    assert base["suites"]["llm_judge"]["score"] == 90.0
+
+    # 2) Ejecutar candidato post-evolución degradado (latencia P95 explotada + RAG vacío) -> debe detectar regresiones
+    class _BrokenRAG:
+        def search(self, query: str, k: int = 5, hybrid: bool = True):
+            return []
+
+        def stats(self):
+            return {"chunks": 0, "isotropy_calibration": {"fitted": False, "isotropy_gain": 0.0}}
+
+    def _slow_probe(_ep: str):
+        return True, 650.0
+
+    cand = harness.run_eval(
+        include_llm_judge=True,
+        tag="post_evolution",
+        canary_run_id="canary_test_123",
+        rag_vault=_BrokenRAG(),
+        semantic_cache=_MockCache(),
+        latency_probe_fn=_slow_probe,
+        judge_fn=None,
+        use_live_llm_judge=False,
+        latency_samples=2,
+    )
+    assert cand["ok"] is True
+    assert cand["passed"] is False
+    assert cand["baseline_eval_id"] == base["eval_id"]
+    scopes = {r["scope"] for r in cand["regressions"]}
+    assert "overall" in scopes
+    assert "rag" in scopes
+    assert "latency" in scopes
+
+    # 3) Verificar persistencia SQLite WAL, compare_runs() y status()
+    cmp_res = harness.compare_runs(base["eval_id"], cand["eval_id"])
+    assert cmp_res["ok"] is True and cmp_res["has_regression"] is True
+    st = harness.status()
+    assert st["total_runs"] == 2
+    assert st["runs_with_regressions"] == 1
+    assert st["baseline"]["eval_id"] == base["eval_id"]
+
+
+def test_memory_compactor_rag_simhash_kg_dedup_offline_and_deep_memory(tmp_path: Path):
+    import sqlite3
+    import numpy as np
+    from core.tardis_memory_compactor import TardisMemoryCompactor
+
+    # 1) Crear bóveda RAG aislada con duplicado exacto, cuasi-duplicado SimHash/coseno, FTS5 contentless y 6 chunks para RAPTOR L1
+    rag_db = tmp_path / "rag_test.db"
+    con = sqlite3.connect(str(rag_db))
+    con.executescript(
+        """
+        PRAGMA foreign_keys=ON;
+        CREATE TABLE rag_chunks (id INTEGER PRIMARY KEY AUTOINCREMENT, doc_id TEXT, source TEXT, url TEXT, title TEXT, term TEXT, text TEXT, ts REAL, chunk_hash TEXT UNIQUE);
+        CREATE TABLE rag_vectors (chunk_id INTEGER PRIMARY KEY, vec BLOB NOT NULL, FOREIGN KEY(chunk_id) REFERENCES rag_chunks(id) ON DELETE CASCADE);
+        CREATE VIRTUAL TABLE rag_fts USING fts5(text, title, term, content='');
+        CREATE TABLE rag_relations (id INTEGER PRIMARY KEY AUTOINCREMENT, source_term TEXT, relation TEXT, target_term TEXT, evidence TEXT, chunk_id INTEGER, weight REAL, ts REAL);
+        CREATE TABLE rag_summaries (id INTEGER PRIMARY KEY AUTOINCREMENT, level INTEGER, title TEXT, summary TEXT, cluster_tag TEXT, chunk_ids TEXT, ts REAL);
+        """
+    )
+    base_vec = np.ones(16, dtype=np.float32)
+    base_vec /= np.linalg.norm(base_vec)
+    other_vec = np.linspace(1.0, -1.0, 16, dtype=np.float32)
+    other_vec /= np.linalg.norm(other_vec)
+
+    base_txt = "El gobernador de recursos Ring 0 mitiga la presion sostenida de silicio en Linux mediante cuotas cgroup v2 y perfil energetico adaptativo."
+    near_txt = "El gobernador de recursos Ring 0 mitiga la presion sostenida de silicio en Linux mediante cuotas cgroup v2 y perfil energetico adaptativo!"
+    chunks_seed = [
+        ("doc_a", "docs", "Gobernador Ring 0", "governor", base_txt, "h1", base_vec),
+        ("doc_a", "docs", "Gobernador Ring 0", "governor", base_txt + "   ", "h2", base_vec),  # exact norm dup
+        ("doc_a", "docs", "Gobernador Ring 0", "governor", near_txt, "h3", base_vec),           # simhash + cosine dup
+    ]
+    for i in range(6):
+        distinct_v = np.roll(other_vec, i)
+        chunks_seed.append((
+            "doc_ep",
+            "research",
+            "Arquitectura Soberana TARDIS",
+            f"tema_{i}",
+            f"Capitulo {i} sobre arquitecturas distribuidas autonomas de memoria cuantica y grafos transversales con numero unico {1000 + i * 77}.",
+            f"h_ep_{i}",
+            distinct_v,
+        ))
+
+    for doc_id, src, title, term, txt, h, vec in chunks_seed:
+        cur = con.execute(
+            "INSERT INTO rag_chunks(doc_id,source,url,title,term,text,ts,chunk_hash) VALUES (?,?,?,?,?,?,?,?)",
+            (doc_id, src, "", title, term, txt, 1000.0, h),
+        )
+        cid = cur.lastrowid
+        con.execute("INSERT INTO rag_vectors(chunk_id, vec) VALUES (?,?)", (cid, vec.tobytes()))
+        con.execute("INSERT INTO rag_fts(rowid, text, title, term) VALUES (?,?,?,?)", (cid, txt, title, term))
+    con.execute("INSERT INTO rag_relations(source_term,relation,target_term,evidence,chunk_id,weight,ts) VALUES ('gov','optimiza','cpu','ev',2,1.0,1000.0)")
+    con.commit()
+    con.close()
+
+    # 2) Crear KnowledgeGraph aislado con nodos duplicados ("El video", "- El video", "el video") y aristas colisionando
+    kg_db = tmp_path / "kg_test.db"
+    con = sqlite3.connect(str(kg_db))
+    con.executescript(
+        """
+        PRAGMA foreign_keys=ON;
+        CREATE TABLE kg_nodes (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL UNIQUE, entity_type TEXT, description TEXT, metadata TEXT, ts REAL);
+        CREATE TABLE kg_edges (id INTEGER PRIMARY KEY AUTOINCREMENT, source_id INTEGER, target_id INTEGER, relation TEXT, weight REAL, evidence TEXT, ts REAL, FOREIGN KEY(source_id) REFERENCES kg_nodes(id) ON DELETE CASCADE, FOREIGN KEY(target_id) REFERENCES kg_nodes(id) ON DELETE CASCADE, UNIQUE(source_id, target_id, relation));
+        CREATE TABLE kg_communities (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL UNIQUE, summary TEXT, level INTEGER, node_ids TEXT, ts REAL);
+        """
+    )
+    con.execute("INSERT INTO kg_nodes VALUES (1, 'El video', 'concept', 'Descripcion larga', '{}', 100.0)")
+    con.execute("INSERT INTO kg_nodes VALUES (2, '- El video', 'concept', '', '{}', 101.0)")
+    con.execute("INSERT INTO kg_nodes VALUES (3, 'el video', 'concept', '', '{}', 102.0)")
+    con.execute("INSERT INTO kg_nodes VALUES (4, 'TARDIS', 'system', 'Nucleo soberano', '{}', 103.0)")
+    con.execute("INSERT INTO kg_nodes VALUES (5, 'Kernel Linux', 'system', 'Ring 0', '{}', 104.0)")
+    con.execute("INSERT INTO kg_edges VALUES (1, 1, 4, 'analiza', 1.0, '', 100.0)")
+    con.execute("INSERT INTO kg_edges VALUES (2, 2, 4, 'analiza', 2.5, '', 101.0)")  # debe sumar peso -> 3.5 en (1,4)
+    con.execute("INSERT INTO kg_edges VALUES (3, 1, 3, 'igual_a', 1.0, '', 102.0)")  # se vuelve auto-lazo -> eliminar
+    con.execute("INSERT INTO kg_edges VALUES (4, 4, 5, 'opera_en', 1.0, '', 103.0)")
+    con.commit()
+    con.close()
+
+    # 3) Crear OfflineChat aislado con turno eco-duplicado dentro de 120s
+    oc_db = tmp_path / "offline_test.db"
+    con = sqlite3.connect(str(oc_db))
+    con.executescript(
+        """
+        CREATE TABLE offline_chat_turns (id INTEGER PRIMARY KEY AUTOINCREMENT, ts REAL, iso TEXT, session_id TEXT, client_id TEXT, user_message TEXT, assistant_reply TEXT);
+        CREATE VIRTUAL TABLE offline_chat_fts USING fts5(user_message, assistant_reply, session_id, turn_id UNINDEXED);
+        """
+    )
+    con.execute("INSERT INTO offline_chat_turns VALUES (1, 1000.0, '2026-11-24', 's1', 'c1', 'hola tardis', 'hola arquitecto')")
+    con.execute("INSERT INTO offline_chat_turns VALUES (2, 1020.0, '2026-11-24', 's1', 'c1', 'hola tardis', 'hola arquitecto')")
+    con.execute("INSERT INTO offline_chat_turns VALUES (3, 5000.0, '2026-11-24', 's1', 'c1', 'hola tardis', 'hola arquitecto')")  # >120s: conservar!
+    con.commit()
+    con.close()
+
+    comp = TardisMemoryCompactor(db_path=tmp_path / "compactor_ledger.db")
+
+    # Dry-run NO debe mutar ninguna fila
+    dry = comp.run_compaction(
+        targets=("rag", "kg", "offline_chats"),
+        dry_run=True,
+        rag_db=rag_db,
+        kg_db=kg_db,
+        offline_chat_db=oc_db,
+    )
+    assert dry["ok"] is True and dry["dry_run"] is True
+    assert dry["targets"]["rag"]["duplicates_pruned"] == 2
+    assert dry["targets"]["kg"]["nodes_merged"] == 2
+    assert dry["targets"]["offline_chats"]["duplicates_pruned"] == 1
+
+    # Ejecución real debe podar duplicados, consolidar pesos/episodios y dejar bases íntegras
+    real = comp.run_compaction(
+        targets=("rag", "kg", "offline_chats"),
+        dry_run=False,
+        force=True,
+        rag_db=rag_db,
+        kg_db=kg_db,
+        offline_chat_db=oc_db,
+    )
+    assert real["ok"] is True and real["dry_run"] is False
+    assert real["targets"]["rag"]["duplicates_pruned"] == 2
+    assert real["targets"]["rag"]["episodes_consolidated"] == 1
+    assert real["targets"]["kg"]["nodes_merged"] == 2
+    assert real["targets"]["kg"]["communities_created"] >= 1
+    assert real["targets"]["offline_chats"]["duplicates_pruned"] == 1
+
+    # Verificar integridad post-compactación en SQLite
+    con_r = sqlite3.connect(str(rag_db))
+    assert con_r.execute("SELECT COUNT(*) FROM rag_chunks").fetchone()[0] == 7
+    assert con_r.execute("SELECT COUNT(*) FROM rag_vectors").fetchone()[0] == 7
+    assert con_r.execute("SELECT chunk_id FROM rag_relations WHERE id = 1").fetchone()[0] == 1  # re-enlazado al canónico
+    assert con_r.execute("SELECT COUNT(*) FROM rag_summaries").fetchone()[0] == 1
+    con_r.close()
+
+    con_k = sqlite3.connect(str(kg_db))
+    assert con_k.execute("SELECT COUNT(*) FROM kg_nodes").fetchone()[0] == 3
+    w_merged = con_k.execute("SELECT weight FROM kg_edges WHERE source_id=1 AND target_id=4 AND relation='analiza'").fetchone()[0]
+    assert abs(float(w_merged) - 3.5) < 1e-6
+    assert con_k.execute("SELECT COUNT(*) FROM kg_edges WHERE source_id = target_id").fetchone()[0] == 0
+    con_k.close()
+
+    con_o = sqlite3.connect(str(oc_db))
+    assert con_o.execute("SELECT COUNT(*) FROM offline_chat_turns").fetchone()[0] == 2
+    con_o.close()

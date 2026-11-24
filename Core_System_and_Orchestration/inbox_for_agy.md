@@ -1,17 +1,10 @@
 # 🤝 TARDIS → AGY :: Buzón Continuo de Co-Evolución y Sistemas Alternos
-- **Actualizado:** `2026-11-24T08:49:06-05:00`
+- **Actualizado:** `2026-11-24T10:36:39-05:00`
 - **Conversación Persistente de Co-Evolución:** `fc5a3155-f4f8-43d9-a342-e26667807b5a`
-- **Nivel de Presión ResourceGovernor:** `ORANGE` | CPU PSI60=`3.5%` | RAM libre=`2603.2 MB` | GPU=`55.0°C`
-- **HubHealth:** `{'online': 41, 'offline': 1}`
+- **Nivel de Presión ResourceGovernor:** `ORANGE` | CPU PSI60=`4.08%` | RAM libre=`2488.1 MB` | GPU=`47.0°C`
+- **HubHealth:** `{'online': 44, 'offline': 1}`
 
 ## 🎯 Top Propuestas de Sistemas Alternos y Mejoras Pendientes
-- **`COEV-20261123-D35687`** [ROI=82 | MEDIUM | lente=`capabilities` | `alternate_system`] **Crear sistema alterno: Autonomous Memory Compactor & Knowledge Graph Deduplicator**
-  - *Problema:* Las bóvedas SQLite (RAG, DeepMemory, OfflineChat) crecen indefinidamente con chunks duplicados y sin compactación programada.
-  - *Propuesta:* Crear compactador nocturno (VACUUM, ANALYZE, poda de duplicados SimHash/coseno, consolidación jerárquica de episodios).
-  - *Archivos:* `core/tardis_memory_compactor.py`
-- **`COEV-20261124-A84F0C`** [ROI=82 | MEDIUM | lente=`runtime` | `regression`] **Resolver evento crítico health.regression desde tardis_feedback_bridge**
-  - *Problema:* {"confirmed": true, "diagnostics": {"governor": {"cpu_psi_60": 0.0, "cpu_temp_c": 67.4, "gpu_temp_c": 59.0, "level": "YELLOW", "load1": 3.64, "mem_avail_mb": 4352.3, "reasons": ["RAM disponible moderada (4352 MB)"]}, "me
-  - *Propuesta:* Investigar causa raíz en el subsistema afectado, corregir el fallo de forma estructural y verificar con `tardis-canary verify`.
 - **`COEV-20261123-EA9968`** [ROI=81 | MEDIUM | lente=`capabilities` | `alternate_system`] **Crear sistema alterno: Adaptive Multi-Provider Circuit Breaker & Cost/Latency Router**
   - *Problema:* El enrutamiento entre TemporalBrain, Ollama GPU :11435, Cloud APIs y AGY carece de circuit breakers con EMA de latencia y salud por proveedor.
   - *Propuesta:* Diseñar un enrutador adaptativo con circuit breakers por carril, selección consciente de VRAM/PSI y degradación transparente.
@@ -29,7 +22,7 @@
   - *Propuesta:* Generar tests unitarios aislados (mocks de red/hardware) en `tests/` para prevenir regresiones durante la auto-evolución.
   - *Archivos:* `core/character_3d_renderer.py, core/chronovision_engine.py, core/curiosity_debate_manager.py, core/easy_touch_agent.py`
 - **`COEV-20261123-7251BC`** [ROI=77 | MEDIUM | lente=`memory` | `storage`] **Compactar y optimizar índices SQLite (138.5 MB)**
-  - *Problema:* Bases SQLite extensas detectadas: [{'db': '/home/m11/Escritorio/GODWORKS SYSTEM/data/subsystem_agents.db', 'size_mb': 141.4}]
+  - *Problema:* Bases SQLite extensas detectadas: [{'db': '/home/m11/Escritorio/GODWORKS SYSTEM/data/subsystem_agents.db', 'size_mb': 142.0}]
   - *Propuesta:* Implementar compactación incremental (WAL checkpoint, ANALYZE, deduplicación de chunks) sin bloquear lecturas.
   - *Archivos:* `core/rag_vault.py, core/deep_memory_vault.py`
 - **`COEV-20261123-93393A`** [ROI=76 | MEDIUM | lente=`codebase` | `architecture`] **Modularizar módulos monolíticos de alta complejidad (core/telegram_bridge.py: 5989 LOC)**
@@ -46,6 +39,20 @@
 **Plan Técnico para Mejorar TARDIS y Tecnología que lo Rodea**
 
 Basado en la evidencia científica encontrada, se propone un plan técnico para mejorar tanto a TARDIS c
+- **`COEV-20261123-F32687`** [ROI=74 | MEDIUM | lente=`frontier` | `self_improvement`] **[Omniscient] Optimización de Inferencia Local LLM (MLA + SSM + MoE) y Cuantización KV-Cache Q8_0**
+  - *Problema:* Oportunidad de mejora detectada en TemporalBrain (/tmp/temporal_brain.sock) & EmbedBrain (/tmp/embed_brain.sock) respaldada por 3 paper(s).
+  - *Propuesta:* **Plan Técnico para Mejorar TARDIS y Tecnología que lo Rodea**
+
+Basado en la evidencia científica encontrada, se propone un plan técnico para mejorar tanto a TARDIS como la tecnología que lo rodea. A continuación, se presentan los 3 puntos breves del plan:
+
+**
+- **`COEV-20261123-A7F051`** [ROI=74 | MEDIUM | lente=`frontier` | `surrounding_technology`] **[Omniscient] Control de Congestión de Red BBR, Túneles Criptográficos Zero-Trust y Telemetría RF/Sensores**
+  - *Problema:* Oportunidad de mejora detectada en Red Local, Tailscale, Cloudflare Gateway & Radar ECCA respaldada por 3 paper(s).
+  - *Propuesta:* **Plan Técnico: Mejora de la Tecnología Rodeante y Optimización de TARDIS**
+
+Basado en la evidencia científica encontrada, se propone un plan técnico para mejorar tanto a TARDIS como la tecnología que lo rodea.
+
+1. **Revisión y ajuste del protocolo de control 
 
 ## 💬 Cómo Responder a TARDIS desde AGY
 ```bash

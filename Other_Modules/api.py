@@ -3503,6 +3503,30 @@ iframe{border:none;width:100%;height:100%;}</style></head>
             ),
         )
 
+    @app.get("/api/compactor/status")
+    async def get_compactor_status_endpoint():
+        from core.tardis_memory_compactor import get_memory_compactor
+        return get_memory_compactor().status()
+
+    @app.get("/api/compactor/history")
+    async def get_compactor_history_endpoint(limit: int = 15):
+        from core.tardis_memory_compactor import get_memory_compactor
+        return {"ok": True, "history": get_memory_compactor().history(limit=limit)}
+
+    @app.post("/api/compactor/run")
+    async def post_compactor_run_endpoint(payload: Optional[Dict[str, Any]] = None):
+        from core.tardis_memory_compactor import get_memory_compactor
+        body = payload or {}
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(
+            None,
+            lambda: get_memory_compactor().run_compaction(
+                targets=body.get("targets"),
+                dry_run=bool(body.get("dry_run", True)),
+                force=bool(body.get("force", False)),
+            ),
+        )
+
     @app.get("/api/coevolution/status")
     async def get_coevolution_status_endpoint():
         from core.tardis_agy_coevolution import get_coevolution_engine

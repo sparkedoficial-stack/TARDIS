@@ -57,6 +57,7 @@ CANONICAL_TOPICS = (
     "evolution.rollback",
     "eval.completed",
     "eval.regression",
+    "memory.compacted",
     "governor.reclaim",
 )
 
