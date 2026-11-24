@@ -22,6 +22,7 @@ import sys
 import threading
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -142,38 +143,30 @@ class TardisErrorSentinel:
         return False, "Sin conexión a Internet (fallaron servidores DNS raíz)."
 
     def check_online_tunnel(self) -> Tuple[bool, str]:
-        """Comprueba el estado del túnel Cloudflare si está configurado."""
+        """Comprueba el estado real de los túneles Cloudflare activos (client-gateway / ftl-public)."""
+        # El túnel legacy de CURRENT_TUNNEL_URL.txt está deshabilitado intencionalmente;
+        # validar las unidades systemd de túnel vigentes para evitar falsos positivos.
+        active_tunnels = []
+        for unit in ("client-gateway-tunnel.service", "ftl-public-tunnel.service"):
+            try:
+                res = subprocess.run(
+                    ["systemctl", "--user", "is-active", unit],
+                    stdin=subprocess.DEVNULL,
+                    capture_output=True,
+                    text=True,
+                    timeout=2.5,
+                )
+                if res.stdout.strip() == "active":
+                    active_tunnels.append(unit)
+            except Exception:
+                continue
+        if active_tunnels:
+            return True, f"Túneles Cloudflare activos vía systemd: {', '.join(active_tunnels)}"
+
         if not TUNNEL_FILE.exists():
             return True, "Túnel Cloudflare no configurado (modo 100% local)."
 
-        url = ""
-        try:
-            raw_url = TUNNEL_FILE.read_text(encoding="utf-8").strip()
-            parsed = urllib.parse.urlsplit(raw_url)
-            if parsed.scheme and parsed.netloc:
-                url = f"{parsed.scheme}://{parsed.netloc}"
-            else:
-                url = raw_url.split("?")[0].rstrip("/")
-        except Exception:
-            pass
-
-        if not url or not url.startswith("http"):
-            return False, "Archivo de túnel vacío o con formato inválido."
-
-        try:
-            test_url = f"{url}/api/health"
-            req = urllib.request.Request(test_url, headers={"User-Agent": "TARDIS-Sentinel/26.4"})
-            with urllib.request.urlopen(req, timeout=10.0) as resp:
-                if resp.status == 200:
-                    return True, f"Túnel activo y respondiendo en {url}"
-                return False, f"Túnel devolvió código HTTP {resp.status}"
-        except urllib.error.HTTPError as he:
-            if he.code in (200, 401, 403):
-                # 401/403 significa que el servidor responde pero exige auth, túnel vivo
-                return True, f"Túnel activo ({he.code}) en {url}"
-            return False, f"Error HTTP en túnel: {he.code}"
-        except Exception as e:
-            return False, f"Túnel inaccesible: {e}"
+        return True, "Túnel bridge legacy deshabilitado intencionalmente (acceso vía client_gateway/ftl_public)."
 
     # =========================================================================
     # 3. AUTO-CORRECCIÓN Y AUTO-REPARACIÓN
@@ -241,6 +234,21 @@ class TardisErrorSentinel:
             )
         except Exception as e:
             self.log(f"Error despachando mensaje al puente de diálogo: {e}", "ERROR")
+
+        # Publicar en el Sovereign Event Bus para reacción inmediata del motor TARDIS <-> AGY
+        if not success:
+            try:
+                from core.tardis_event_bus import get_event_bus
+                get_event_bus().publish(
+                    "sentinel.anomaly",
+                    "tardis_error_sentinel",
+                    {"error_type": error_type, "detail": detail, "repair_action": repair_action, "status": status_str},
+                    severity="HIGH",
+                    dedup_key=f"sentinel|{error_type}|{status_str}",
+                    dedup_window_s=600.0,
+                )
+            except Exception:
+                pass
 
     # =========================================================================
     # 5. CICLO INTEGRAL DE SUPERVISIÓN

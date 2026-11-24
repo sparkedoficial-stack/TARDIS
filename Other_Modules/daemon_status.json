@@ -1,12 +1,12 @@
 {
   "daemon": "tardis-visual-intelligence",
   "running": true,
-  "pid": 1396,
-  "uptime_sec": 43251.8,
-  "last_heartbeat": "2026-11-22T13:11:10.207022",
+  "pid": 1434,
+  "uptime_sec": 79746.1,
+  "last_heartbeat": "2026-11-23T19:49:06.927304",
   "items_processed": 0,
   "last_processed_id": "",
-  "memory_rss_mb": 298.64,
+  "memory_rss_mb": 324.48,
   "engine_status": {
     "status": "online",
     "engine": "VisualIntelligenceEngine v26.5 (VLM + Veredictos)",
@@ -19,16 +19,16 @@
     "vlm_provider": "auto",
     "vlm_error": "",
     "verdict_engine": "VLM + Kaiju + veredicto estructurado",
-    "stored_videos_count": 1037,
-    "stored_images_count": 455,
+    "stored_videos_count": 1042,
+    "stored_images_count": 496,
     "stored_sounds_count": 0,
-    "stored_verdicts_count": 551,
+    "stored_verdicts_count": 597,
     "last_verdict": {
-      "id": "img_20261122_125615_9d8488",
-      "created_at": "2026-11-22T13:00:19.783865",
+      "id": "img_20261123_192856_d224da",
+      "created_at": "2026-11-23T19:33:00.571009",
       "source": "daemon",
-      "verdict": "*   Estado General del Entorno: Desconocido / No Determinable. No hay datos visuales válidos para caracterizar el entorno físico del Arquitecto.\n*   Hechos Observados:\n    *   Color dominante: Gris-verdoso (#86907e).\n    *   Audio: Silencio.\n    *   Movimiento: Ninguno.\n    *   Contenido semántico: Nulo.\n*   Inferencias:\n    *   Es altamente probable que haya ocurrido un fallo técnico en la captura o transmisión de la imagen.\n    *   No se puede afirmar que el entorno sea seguro o peligroso, ya que no se ve nada.\n*   Dudas:\n    *   La causa exacta de la ausencia de contenido visual (error de h",
-      "risk_level": 5
+      "verdict": "*   Estado General del Entorno: Desconocido / No Observable. No hay evidencia visual de un entorno físico.\n*   Nivel de Riesgo Objetivo: N/A (No Aplicable) o 0 (si se asume que la ausencia de imagen implica que el sensor está inactivo o protegido, pero no se puede confirmar seguridad). *Nota: No se puede asignar un riesgo de 10 por falta de evidencia de peligro, ni de 0 por falta de evidencia de seguridad. Se clasifica como \"Sin Datos\".*\n*   Hechos Observados:\n    1.  Imagen de 1920x1080.\n    2.  Color uniforme `#535353`.\n    3.  Silencio total en la pista de audio.\n    4.  Ausencia total de o",
+      "risk_level": 0
     },
     "surroundings_interval_sec": 900,
     "vault_dir": "/home/m11/Escritorio/GODWORKS SYSTEM/vault/videos/telegram",
@@ -37,13 +37,13 @@
   },
   "surroundings": {
     "interval_sec": 900.0,
-    "checks": 24,
-    "verdicts": 24,
-    "last_verdict_id": "img_20261122_125615_9d8488",
-    "last_risk_level": 5,
-    "last_verdict": "*   Estado General del Entorno: Desconocido / No Determinable. No hay datos visuales válidos para caracterizar el entorno físico del Arquitecto.\n*   Hechos Observados:\n    *   Color dominante: Gris-verdoso (#86907e).\n    *   Audio: Silencio.\n    *   Movimiento: Ninguno.\n    *   Contenido semántico: Nulo.\n*   Inferencias:\n    *   Es altamente probable que haya ocurrido un fallo técnico en la captura o transmisión de la imagen.\n    *   No se puede afirmar que el entorno sea seguro o peligroso, ya que no se ve nada.\n*   Dudas:\n    *   La causa exacta de la ausencia de contenido visual (error de hardware, software, o transmisión).\n*   Nivel de Riesgo Objetivo: 5/10 (Indeterminado por falta de datos).\n    *   *Nota:* No se asigna un 0 (seguro) porque no se puede verificar la ausencia de amenazas. No se asigna un 10 (peligro) porque no hay evidencia de amenaza. El riesgo es la incertidumbre total debido a la falla del sensor.\n*   Recomendación Concreta:\n    1.  Verificar la conexión y el sensor: Revisa que la cámara o el dispositivo de captura esté funcionando correctamente y que la imagen se haya transmitido íntegramente.\n    2.  Reintentar la captura: Toma una nueva imagen o video con ",
-    "last_error": "",
-    "last_check_ts": REDACTED_PHONE.7608745
+    "checks": 17,
+    "verdicts": 17,
+    "last_verdict_id": "img_20261123_192856_d224da",
+    "last_risk_level": 0,
+    "last_verdict": "*   Estado General del Entorno: Desconocido / No Observable. No hay evidencia visual de un entorno físico.\n*   Nivel de Riesgo Objetivo: N/A (No Aplicable) o 0 (si se asume que la ausencia de imagen implica que el sensor está inactivo o protegido, pero no se puede confirmar seguridad). *Nota: No se puede asignar un riesgo de 10 por falta de evidencia de peligro, ni de 0 por falta de evidencia de seguridad. Se clasifica como \"Sin Datos\".*\n*   Hechos Observados:\n    1.  Imagen de 1920x1080.\n    2.  Color uniforme `#535353`.\n    3.  Silencio total en la pista de audio.\n    4.  Ausencia total de objetos o sujetos.\n*   Inferencias:\n    1.  El dispositivo de captura está tapado, desactivado o experimentando un fallo de transmisión.\n    2.  O bien, el Arquitecto se encuentra en una cámara anecoica o en un espacio de vacío visual extremo (altamente improbable sin más contexto).\n*   Dudas:\n    1.  ¿Es esta una prueba de sistema o un error de carga del medio?\n    2.  ¿Hay un fallo en la interfaz de usuario que impide la visualización correcta de la imagen real?\n\nRecomendación Concreta:\nVerifica la conexión de la cámara o el sensor de entrada. Asegúrate de que el dispositivo no esté tapado y ",
+    "last_error": "escena sin cambios relevantes (delta=2.9)",
+    "last_check_ts": REDACTED_PHONE.422253
   },
   "vlm": {
     "ready": true,

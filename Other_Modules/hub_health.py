@@ -38,7 +38,7 @@ PROBES: Dict[str, Dict[str, Optional[str]]] = {
     "client": {"http": "/client", "unit": "client-gateway"},
     "boveda": {"http": "/api/vault/status", "unit": None},
     "price_sentinel": {"http": "http://127.0.0.1:8787/", "unit": "tardis-price-sentinel"},
-    "terminal_pty": {"http": "http://127.0.0.1:7681/", "unit": "ftl-web-terminal"},
+    "terminal_pty": {"http": "http://127.0.0.1:7681/terminal/", "unit": "ftl-web-terminal"},
     "ftl_portal": {"http": "http://127.0.0.1:8765/", "unit": "ftl-web-portal"},
     "sensors": {"http": "/api/sensors/presence_status", "unit": None},
     "holodeck": {"http": "/holodeck", "unit": None},
@@ -57,11 +57,11 @@ PROBES: Dict[str, Dict[str, Optional[str]]] = {
     "adaptation_sys": {"http": "/api/adaptation/modules", "unit": None},
     "quantum_explorer": {"http": "/api/autonomous/status", "unit": None},
     "advanced_telemetry": {"http": "/api/telemetry", "unit": None},
-    "embeddings_srv": {"http": "/embeddings", "unit": "tardis-embeddings"},
+    "embeddings_srv": {"http": "/embeddings", "unit": "tardis-embed-brain"},
     "supervisor_thermal": {"http": "/supervisor", "unit": "tardis-supervisor"},
     "system_optimizer": {"http": "/api/system/capabilities", "unit": None},
     "background_subsystem": {"http": "/api/autonomous/status", "unit": None},
-    "quantum_bridge": {"http": "/api/bridge/status", "unit": "tardis-ipad-bridge"},
+    "quantum_bridge": {"http": "/api/bridge/status", "unit": "tardis"},
     "companion_overlay": {"http": "/companion", "unit": None},
     "hybrid_synergy": {"http": "/api/synergy/status", "unit": None},
     "music_maestro": {"http": "/api/music/status", "unit": "tardis-music-maestro"},
@@ -71,6 +71,10 @@ PROBES: Dict[str, Dict[str, Optional[str]]] = {
     "tapo_c310_sentinel": {"http": "/api/tapo/status", "unit": None},
     "voice_program": {"http": "/api/voice_program/status", "unit": None},
     "continuity_matrix": {"http": "/api/continuity/status", "unit": None},
+    "resource_governor": {"http": "/api/governor/status", "unit": "tardis-resource-governor"},
+    "event_bus": {"http": "/api/bus/stats", "unit": None},
+    "canary_verifier": {"http": "/api/canary/history", "unit": None},
+    "agy_coevolution": {"http": "/api/coevolution/status", "unit": "tardis-agy-coevolution"},
 }
 
 _cache: Dict[str, Any] = {"ts": 0.0, "data": None}

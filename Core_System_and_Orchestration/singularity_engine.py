@@ -114,37 +114,15 @@ class SingularityEngine:
         except Exception as e:
             status["cpu_affinity"] = f"warning: {e}"
 
-        # 3. Prioridad de proceso (nice)
+        # 3. Prioridad de proceso (nice): mantener prioridad moderada para no competir con inferencia LLM/voz
         try:
-            current_nice = os.nice(0)
-            target_nice = -10
-            delta = target_nice - current_nice
-            if delta < 0:
-                try:
-                    new_nice = os.nice(delta)
-                    status["nice"] = new_nice
-                except PermissionError:
-                    # Si no tiene privilegios de superusuario para -10, mantener el máximo posible
-                    status["nice"] = current_nice
-            else:
-                status["nice"] = current_nice
+            status["nice"] = os.nice(0)
         except Exception as e:
             status["nice"] = f"warning: {e}"
 
-        # 4. Bloqueo de memoria RAM física a nivel kernel (mlockall)
-        try:
-            libc = ctypes.CDLL("libc.so.6", use_errno=True)
-            # MCL_CURRENT = 1, MCL_FUTURE = 2
-            MCL_CURRENT = 1
-            MCL_FUTURE = 2
-            res = libc.mlockall(MCL_CURRENT | MCL_FUTURE)
-            if res == 0:
-                status["mlockall"] = "active"
-            else:
-                errno = ctypes.get_errno()
-                status["mlockall"] = f"errno_{errno}_fallback_normal"
-        except Exception as e:
-            status["mlockall"] = f"skipped: {e}"
+        # 4. Política de memoria del Resource Governor: NO bloquear RAM con mlockall en demonios Python
+        #    (evita secuestrar >600 MB de RAM física no paginable frente a TemporalBrain/Ollama)
+        status["mlockall"] = "disabled_by_governor_policy"
 
         # 5. Ajustes de latencia en Garbage Collector y malloc
         try:

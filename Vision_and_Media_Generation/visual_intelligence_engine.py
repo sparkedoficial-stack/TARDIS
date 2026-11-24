@@ -98,9 +98,24 @@ HAAR_BODY = OPENCV_DATA_DIR / "haarcascade_upperbody.xml"
 # PERCEPCIÓN VISUAL MULTIMODAL (VLM) + VEREDICTOS SOBERANOS
 # ------------------------------------------------------------------------------
 
+OLLAMA_GPU_LANE_URL = os.environ.get("TARDIS_VLM_GPU_URL", "http://127.0.0.1:11435").strip()
 OLLAMA_URL = os.environ.get("OLLAMA_HOST", "http://127.0.0.1:11434").strip()
 if not OLLAMA_URL.startswith(("http://", "https://")):
     OLLAMA_URL = f"http://{OLLAMA_URL}"
+if not OLLAMA_GPU_LANE_URL.startswith(("http://", "https://")):
+    OLLAMA_GPU_LANE_URL = f"http://{OLLAMA_GPU_LANE_URL}"
+
+
+def _resolve_vlm_ollama_url() -> str:
+    """Prefiere el carril GPU dedicado (:11435) donde qwen3-vl ya reside en VRAM, evitando carga duplicada en CPU (:11434)."""
+    for candidate in (OLLAMA_GPU_LANE_URL, OLLAMA_URL):
+        try:
+            r = requests.get(f"{candidate}/api/tags", timeout=1.5)
+            if r.status_code == 200:
+                return candidate
+        except Exception:
+            continue
+    return OLLAMA_URL
 
 # Modelos multimodales locales ordenados por preferencia (Qwen3-VL > Qwen2.5-VL > MiniCPM > Llama Vision > LLaVA)
 VLM_MODEL_PREFERENCES = (

@@ -44,6 +44,7 @@ Núcleo de orquestación temporal, bucles de control soberano FTL y sincronizaci
 - **supervisor_thermal_dashboard.html**: Interfaz interactiva de monitoreo en tiempo real.
 - **tardis4ever_agent.py**: Agente soberano de sincronización continua 24h y publicación inmediata de hitos.
 - **tardis4ever_state.json**: Agente soberano de sincronización continua 24h y publicación inmediata de hitos.
+- **tardis_agy_coevolution.py**: Componente de alta eficiencia.
 - **tardis_agy_controller.py**: Componente de alta eficiencia.
 - **tardis_app.py**: Componente de alta eficiencia.
 - **tardis_browser_engine.py**: Componente de alta eficiencia.
