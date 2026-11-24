@@ -378,5 +378,41 @@
     "seen_capsules": [],
     "known_facts": [],
     "last_reason": "que tengo en la mano."
+  },
+  "ahora": {
+    "key": "ahora",
+    "name": "ahora",
+    "visit_count": 1,
+    "first_seen": REDACTED_PHONE.67581,
+    "first_seen_iso": "2026-11-24T15:53:58-0500",
+    "last_seen": REDACTED_PHONE.67581,
+    "last_seen_iso": "2026-11-24T15:53:58-0500",
+    "pedagogical_level": "intermedio",
+    "interests": [],
+    "topics_studied": [],
+    "seen_capsules": [],
+    "known_facts": [],
+    "last_reason": ""
+  },
+  "argentina": {
+    "key": "argentina",
+    "name": "argentina",
+    "visit_count": 1,
+    "first_seen": REDACTED_PHONE.6211588,
+    "first_seen_iso": "2026-11-24T17:00:49-0500",
+    "last_seen": REDACTED_PHONE.1659727,
+    "last_seen_iso": "2026-11-24T17:02:53-0500",
+    "pedagogical_level": "intermedio",
+    "interests": [
+      "astronomia"
+    ],
+    "topics_studied": [
+      "La velocidad de la luz y mirar al pasado"
+    ],
+    "seen_capsules": [
+      "universo-luz"
+    ],
+    "known_facts": [],
+    "last_reason": "los"
   }
 }

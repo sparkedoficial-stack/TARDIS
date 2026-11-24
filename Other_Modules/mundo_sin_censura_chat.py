@@ -96,6 +96,7 @@ class MundoSinCensuraChatStore:
                         temperature REAL NOT NULL DEFAULT 0.25,
                         max_tokens INTEGER NOT NULL DEFAULT 1024,
                         use_rag INTEGER NOT NULL DEFAULT 0,
+                        hardware_control INTEGER NOT NULL DEFAULT 1,
                         created_at REAL NOT NULL,
                         updated_at REAL NOT NULL
                     );
@@ -120,6 +121,10 @@ class MundoSinCensuraChatStore:
                         ON sessions(updated_at DESC);
                     """
                 )
+                # Migración retrocompatible para bases SQLite existentes sin columna hardware_control
+                cols = {r[1] for r in conn.execute("PRAGMA table_info(sessions)").fetchall()}
+                if "hardware_control" not in cols:
+                    conn.execute("ALTER TABLE sessions ADD COLUMN hardware_control INTEGER NOT NULL DEFAULT 1")
 
     # ------------------------------------------------------------------
     # Control de cancelación de streams en vuelo
@@ -154,6 +159,7 @@ class MundoSinCensuraChatStore:
         temperature: float = 0.25,
         max_tokens: int = 1024,
         use_rag: bool = False,
+        hardware_control: bool = True,
     ) -> Dict[str, Any]:
         sid = f"msc_{uuid.uuid4().hex[:12]}"
         now = time.time()
@@ -162,15 +168,16 @@ class MundoSinCensuraChatStore:
         temp = max(0.0, min(1.5, float(temperature)))
         mtok = max(64, min(4096, int(max_tokens)))
         rag_flag = 1 if use_rag else 0
+        hw_flag = 1 if hardware_control else 0
 
         with self._db_lock:
             with self._connect() as conn:
                 conn.execute(
                     """
-                    INSERT INTO sessions (id, title, model, lane, temperature, max_tokens, use_rag, created_at, updated_at)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    INSERT INTO sessions (id, title, model, lane, temperature, max_tokens, use_rag, hardware_control, created_at, updated_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
-                    (sid, clean_title, MODEL_LOCK, clean_lane, temp, mtok, rag_flag, now, now),
+                    (sid, clean_title, MODEL_LOCK, clean_lane, temp, mtok, rag_flag, hw_flag, now, now),
                 )
         return self.get_session(sid)  # type: ignore[return-value]
 
@@ -197,6 +204,7 @@ class MundoSinCensuraChatStore:
         for r in rows:
             d = dict(r)
             d["use_rag"] = bool(d.get("use_rag"))
+            d["hardware_control"] = bool(d.get("hardware_control", 1))
             d["last_preview"] = str(d.get("last_preview") or "")[:120]
             out.append(d)
         return out
@@ -209,6 +217,7 @@ class MundoSinCensuraChatStore:
                     return None
                 sess = dict(row)
                 sess["use_rag"] = bool(sess.get("use_rag"))
+                sess["hardware_control"] = bool(sess.get("hardware_control", 1))
                 sess["model"] = MODEL_LOCK
                 if include_messages:
                     mrows = conn.execute(
@@ -233,6 +242,7 @@ class MundoSinCensuraChatStore:
         temperature: Optional[float] = None,
         max_tokens: Optional[int] = None,
         use_rag: Optional[bool] = None,
+        hardware_control: Optional[bool] = None,
     ) -> Optional[Dict[str, Any]]:
         sess = self.get_session(session_id, include_messages=False)
         if not sess:
@@ -242,16 +252,17 @@ class MundoSinCensuraChatStore:
         new_temp = sess["temperature"] if temperature is None else max(0.0, min(1.5, float(temperature)))
         new_mtok = sess["max_tokens"] if max_tokens is None else max(64, min(4096, int(max_tokens)))
         new_rag = int(sess["use_rag"]) if use_rag is None else (1 if use_rag else 0)
+        new_hw = int(sess.get("hardware_control", True)) if hardware_control is None else (1 if hardware_control else 0)
         now = time.time()
         with self._db_lock:
             with self._connect() as conn:
                 conn.execute(
                     """
                     UPDATE sessions
-                       SET title = ?, lane = ?, temperature = ?, max_tokens = ?, use_rag = ?, updated_at = ?
+                       SET title = ?, lane = ?, temperature = ?, max_tokens = ?, use_rag = ?, hardware_control = ?, updated_at = ?
                      WHERE id = ?
                     """,
-                    (new_title, new_lane, new_temp, new_mtok, new_rag, now, session_id),
+                    (new_title, new_lane, new_temp, new_mtok, new_rag, new_hw, now, session_id),
                 )
         return self.get_session(session_id)
 
@@ -377,10 +388,13 @@ class MundoSinCensuraChatStore:
         max_tokens: Optional[int] = None,
         num_ctx: int = 8192,
         use_rag: Optional[bool] = None,
+        hardware_control: Optional[bool] = None,
+        is_local_request: bool = True,
         timeout: float = 180.0,
         request_id: Optional[str] = None,
     ) -> Generator[Dict[str, Any], None, None]:
-        """Ejecuta un turno de chat streaming persistiendo usuario y asistente en SQLite."""
+        """Ejecuta un turno de chat streaming persistiendo usuario y asistente en SQLite,
+        con soporte nativo de control absoluto de hardware (`/hw` y directivas `[[HW_ACTION:...]]`)."""
         enforce_model_lock(model)
         prompt = (message or "").strip()
         if not prompt:
@@ -394,6 +408,7 @@ class MundoSinCensuraChatStore:
                 temperature=0.25 if temperature is None else float(temperature),
                 max_tokens=1024 if max_tokens is None else int(max_tokens),
                 use_rag=bool(use_rag) if use_rag is not None else False,
+                hardware_control=True if hardware_control is None else bool(hardware_control),
             )
             session_id = sess["id"]
         else:
@@ -405,6 +420,7 @@ class MundoSinCensuraChatStore:
         eff_temp = max(0.0, min(1.5, float(temperature if temperature is not None else sess["temperature"])))
         eff_mtok = max(64, min(4096, int(max_tokens if max_tokens is not None else sess["max_tokens"])))
         eff_rag = bool(use_rag if use_rag is not None else sess["use_rag"])
+        eff_hw = bool(hardware_control if hardware_control is not None else sess.get("hardware_control", True))
 
         self.update_session(
             sess["id"],
@@ -412,6 +428,7 @@ class MundoSinCensuraChatStore:
             temperature=eff_temp,
             max_tokens=eff_mtok,
             use_rag=eff_rag,
+            hardware_control=eff_hw,
         )
 
         # Guardar turno del usuario antes de inferir
@@ -419,11 +436,104 @@ class MundoSinCensuraChatStore:
         history = self._recent_history(sess["id"], max_turns=24)
 
         rid, cancel_ev = self.register_stream(request_id)
+
+        # 1. Comando directo `/hw <accion> [params]` (latencia cero, ejecución física inmediata)
+        try:
+            from core.mundo_sin_censura_hardware import (
+                build_hardware_system_context,
+                format_hardware_result_markdown,
+                get_mundo_hardware_controller,
+                parse_hardware_actions,
+                parse_slash_hw_command,
+            )
+            hw_ctrl = get_mundo_hardware_controller()
+        except Exception:
+            hw_ctrl = None
+            build_hardware_system_context = None  # type: ignore[assignment]
+            format_hardware_result_markdown = None  # type: ignore[assignment]
+            parse_hardware_actions = None  # type: ignore[assignment]
+            parse_slash_hw_command = None  # type: ignore[assignment]
+
+        slash_hw = parse_slash_hw_command(prompt) if (parse_slash_hw_command and eff_hw) else None
+        if slash_hw is not None and hw_ctrl is not None:
+            hw_act, hw_params = slash_hw
+            t0 = time.time()
+            yield {
+                "type": "meta",
+                "session_id": sess["id"],
+                "title": sess["title"],
+                "request_id": rid,
+                "user_message_id": user_msg["id"],
+                "model": MODEL_LOCK,
+                "lane": "hardware_ring0",
+                "requested_lane": eff_lane,
+                "use_rag": eff_rag,
+                "hardware_control": eff_hw,
+            }
+            yield {
+                "type": "hardware_action",
+                "action": hw_act,
+                "params": hw_params,
+                "session_id": sess["id"],
+                "request_id": rid,
+            }
+            hw_res = hw_ctrl.execute_action(
+                hw_act,
+                hw_params,
+                is_local_request=is_local_request,
+                source="mundo_chat_direct_hw",
+            )
+            yield {
+                "type": "hardware_result",
+                "action": hw_act,
+                "params": hw_params,
+                "result": hw_res,
+                "ok": bool(hw_res.get("ok")),
+                "session_id": sess["id"],
+                "request_id": rid,
+            }
+            md_txt = format_hardware_result_markdown(hw_act, hw_res).strip()  # type: ignore[misc]
+            yield {
+                "type": "token",
+                "delta": md_txt,
+                "session_id": sess["id"],
+                "request_id": rid,
+            }
+            self.unregister_stream(rid)
+            elapsed = round(time.time() - t0, 3)
+            saved = self.add_message(
+                sess["id"],
+                "assistant",
+                md_txt,
+                lane="hardware_ring0",
+                elapsed_s=elapsed,
+                approx_tokens=max(1, len(md_txt.split())),
+                cancelled=False,
+            )
+            yield {
+                "type": "done",
+                "session_id": sess["id"],
+                "title": sess["title"],
+                "request_id": rid,
+                "message_id": saved["id"],
+                "model": MODEL_LOCK,
+                "lane": "hardware_ring0",
+                "elapsed_s": elapsed,
+                "approx_tokens": max(1, len(md_txt.split())),
+                "cancelled": False,
+                "ok": bool(hw_res.get("ok")),
+                "hardware_actions": [{"action": hw_act, "ok": bool(hw_res.get("ok"))}],
+            }
+            return
+
         agent = get_mundo_sin_censura()
         effective_lane = eff_lane
         if eff_lane == "auto":
             tb_ready = agent.inspect_temporal_brain(timeout=0.8).get("ready")
             effective_lane = "temporal_brain" if tb_ready else "ollama"
+
+        hw_armed = bool(eff_hw and hw_ctrl is not None and hw_ctrl.is_armed() and hw_ctrl._state.get("agentic_hw_in_chat", True))
+        extra_sys = build_hardware_system_context(include_snapshot=True) if (hw_armed and build_hardware_system_context) else None
 
         yield {
             "type": "meta",
@@ -435,22 +545,26 @@ class MundoSinCensuraChatStore:
             "lane": effective_lane,
             "requested_lane": eff_lane,
             "use_rag": eff_rag,
+            "hardware_control": hw_armed,
         }
 
         t0 = time.time()
         chunks: List[str] = []
         error_text: Optional[str] = None
+        executed_hw: List[Dict[str, Any]] = []
         try:
-            for tok in agent.chat_stream(
-                history,
-                lane=eff_lane,
-                temperature=eff_temp,
-                max_tokens=eff_mtok,
-                num_ctx=num_ctx,
-                use_rag=eff_rag,
-                timeout=timeout,
-                cancel_event=cancel_ev,
-            ):
+            stream_kwargs: Dict[str, Any] = {
+                "lane": eff_lane,
+                "temperature": eff_temp,
+                "max_tokens": eff_mtok,
+                "num_ctx": num_ctx,
+                "use_rag": eff_rag,
+                "timeout": timeout,
+                "cancel_event": cancel_ev,
+            }
+            if extra_sys:
+                stream_kwargs["extra_system"] = extra_sys
+            for tok in agent.chat_stream(history, **stream_kwargs):
                 if not tok:
                     continue
                 chunks.append(tok)
@@ -460,6 +574,45 @@ class MundoSinCensuraChatStore:
                     "session_id": sess["id"],
                     "request_id": rid,
                 }
+
+            # 2. Ejecución agéntica de directivas [[HW_ACTION:{...}]] emitidas por mundo-sin-censura
+            if hw_armed and hw_ctrl is not None and parse_hardware_actions and not cancel_ev.is_set():
+                raw_reply = "".join(chunks)
+                hw_cmds = parse_hardware_actions(raw_reply)[:6]
+                for item in hw_cmds:
+                    act = item["action"]
+                    act_params = item.get("params") or {}
+                    yield {
+                        "type": "hardware_action",
+                        "action": act,
+                        "params": act_params,
+                        "session_id": sess["id"],
+                        "request_id": rid,
+                    }
+                    hw_res = hw_ctrl.execute_action(
+                        act,
+                        act_params,
+                        is_local_request=is_local_request,
+                        source="mundo_chat_agentic",
+                    )
+                    executed_hw.append({"action": act, "ok": bool(hw_res.get("ok")), "result": hw_res})
+                    yield {
+                        "type": "hardware_result",
+                        "action": act,
+                        "params": act_params,
+                        "result": hw_res,
+                        "ok": bool(hw_res.get("ok")),
+                        "session_id": sess["id"],
+                        "request_id": rid,
+                    }
+                    md_piece = format_hardware_result_markdown(act, hw_res)  # type: ignore[misc]
+                    chunks.append(md_piece)
+                    yield {
+                        "type": "token",
+                        "delta": md_piece,
+                        "session_id": sess["id"],
+                        "request_id": rid,
+                    }
         except Exception as e:
             error_text = f"[Error de inferencia]: {e}"
             chunks.append(error_text)
@@ -499,6 +652,7 @@ class MundoSinCensuraChatStore:
             "approx_tokens": approx_tokens,
             "cancelled": cancelled,
             "ok": bool(full_reply and not error_text),
+            "hardware_actions": [{"action": x["action"], "ok": x["ok"]} for x in executed_hw],
         }
 
 
@@ -557,6 +711,7 @@ def run_terminal_chat(
     cur_temp = float(temperature)
     cur_mtok = int(max_tokens)
     cur_rag = bool(use_rag)
+    cur_hw = bool(sess.get("hardware_control", True))
     active_rid: Dict[str, Optional[str]] = {"id": None}
 
     def _on_sigint(_sig, _frame):
@@ -592,7 +747,7 @@ def run_terminal_chat(
             if not user_in:
                 continue
 
-            if user_in.startswith("/"):
+            if user_in.startswith("/") and not user_in.startswith("/hw ") and user_in != "/hw":
                 parts = user_in.split(maxsplit=1)
                 cmd = parts[0].lower()
                 arg = parts[1].strip() if len(parts) > 1 else ""
@@ -611,6 +766,8 @@ def run_terminal_chat(
                         "  /temp <0.0-1.5>              Ajustar temperatura\n"
                         "  /max <64-4096>               Ajustar max_tokens\n"
                         "  /rag <on|off>                Activar/desactivar RAG TARDIS\n"
+                        "  /hwmode <on|off>             Activar/desactivar control absoluto de hardware\n"
+                        "  /hw <accion> [params]        Ejecutar acción física/Ring-0 inmediata\n"
                         "  /status                      Ver estado del modelo y carriles\n"
                         "  /exit                        Salir del chat\n"
                     )
@@ -679,6 +836,10 @@ def run_terminal_chat(
                     cur_rag = arg.lower() in ("on", "1", "true", "si", "sí")
                     store.update_session(sess["id"], use_rag=cur_rag)
                     print(f"{_C_EMERALD}✓ RAG TARDIS:{_C_RESET} {'ON' if cur_rag else 'OFF'}\n")
+                elif cmd == "/hwmode":
+                    cur_hw = arg.lower() in ("on", "1", "true", "si", "sí")
+                    store.update_session(sess["id"], hardware_control=cur_hw)
+                    print(f"{_C_EMERALD}✓ Control Absoluto Hardware Ring-0:{_C_RESET} {'ON' if cur_hw else 'OFF'}\n")
                 elif cmd == "/status":
                     print(json.dumps(agent.get_status(), indent=2, ensure_ascii=False))
                     print()
@@ -694,6 +855,8 @@ def run_terminal_chat(
                 temperature=cur_temp,
                 max_tokens=cur_mtok,
                 use_rag=cur_rag,
+                hardware_control=cur_hw,
+                is_local_request=True,
             ):
                 etype = ev.get("type")
                 if etype == "meta":

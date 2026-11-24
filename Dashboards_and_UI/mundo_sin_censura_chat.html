@@ -671,6 +671,12 @@
           <span>RAG TARDIS (más lento)</span>
         </label>
       </div>
+      <div class="ctrl-row">
+        <label class="toggle" title="Concede autoridad física y Ring-0 al modelo mientras el sistema esté activo">
+          <input type="checkbox" id="hwToggle" checked />
+          <span style="color:#a7f3d0;">⚡ Control Absoluto Hardware</span>
+        </label>
+      </div>
     </div>
   </aside>
 
@@ -682,11 +688,35 @@
       </div>
       <div class="pills">
         <span class="pill ok" id="statusPill"><span class="dot"></span><span id="statusText">Conectando...</span></span>
+        <span class="pill ok" id="hwPill" style="cursor:pointer;" title="Abrir/cerrar panel de control absoluto de hardware Ring-0"><span class="dot"></span><span id="hwText">HW RING-0: --</span></span>
         <span class="pill" id="aegisPill">AEGIS: --</span>
+        <button class="top-btn" id="btnHwPanel" title="Panel de Control Absoluto de Hardware">⚡ Hardware</button>
         <button class="top-btn" id="btnExport" title="Exportar conversación a Markdown">Exportar .md</button>
         <button class="top-btn" id="btnClear" title="Vaciar mensajes de esta conversación">Limpiar</button>
       </div>
     </header>
+
+    <section id="hwDrawer" style="display:none;border-bottom:1px solid var(--border);background:rgba(10,16,23,0.96);padding:10px 18px;font-family:var(--mono);font-size:11px;">
+      <div style="max-width:880px;margin:0 auto;display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+          <span style="color:#a7f3d0;font-weight:700;">⚡ CONTROL ABSOLUTO DE HARDWARE (RING-0 · EN EJECUCIÓN)</span>
+          <span id="hwTelemetryLine" style="color:var(--text-1);">Cargando telemetría...</span>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;">
+          <button class="top-btn" data-hw="set_cpu_governor" data-val="performance">CPU Perf</button>
+          <button class="top-btn" data-hw="set_cpu_governor" data-val="powersave">CPU Eco</button>
+          <button class="top-btn" data-hw="set_thermal_policy" data-val="turbo">ASUS Turbo</button>
+          <button class="top-btn" data-hw="set_thermal_policy" data-val="balanced">ASUS Bal</button>
+          <button class="top-btn" data-hw="set_thermal_policy" data-val="silent">ASUS Silent</button>
+          <button class="top-btn" data-hw="set_keyboard_brightness" data-val="3">KBD Max</button>
+          <button class="top-btn" data-hw="set_keyboard_brightness" data-val="0">KBD Off</button>
+          <button class="top-btn" data-hw="toggle_mute" data-val="">Mute</button>
+          <button class="top-btn" data-hw="drop_caches" data-val="">Purgar Cachés</button>
+          <button class="top-btn" data-hw="screenshot" data-val="">Captura</button>
+          <button class="top-btn" id="btnHwRefresh">↻ Telemetría</button>
+        </div>
+      </div>
+    </section>
 
     <section class="messages" id="messagesScroll">
       <div class="messages-inner" id="messagesInner"></div>
@@ -739,8 +769,13 @@
   const elTempVal = $("tempVal");
   const elMaxTok = $("maxTokensInput");
   const elRag = $("ragToggle");
+  const elHwToggle = $("hwToggle");
   const elStatusPill = $("statusPill");
   const elStatusText = $("statusText");
+  const elHwPill = $("hwPill");
+  const elHwText = $("hwText");
+  const elHwDrawer = $("hwDrawer");
+  const elHwTelemetryLine = $("hwTelemetryLine");
   const elAegisPill = $("aegisPill");
   const elShaBadge = $("shaBadge");
 
@@ -834,9 +869,47 @@
       elShaBadge.textContent = st.weights?.sha256_match ? `SHA ${sha.slice(0, 8)} ✓` : sha.slice(0, 8);
       elAegisPill.className = "pill " + (st.aegis_active ? "ok" : "warn");
       elAegisPill.textContent = st.aegis_active ? "AEGIS: ACTIVO" : "AEGIS: REVISAR";
+      const hwArmed = Boolean(st.hardware_control?.armed);
+      elHwPill.className = "pill " + (hwArmed ? "ok" : "warn");
+      elHwText.textContent = hwArmed ? "HW RING-0: ACTIVO" : "HW RING-0: PAUSA";
     } catch (e) {
       elStatusPill.className = "pill err";
       elStatusText.textContent = "API desconectada";
+    }
+  }
+
+  async function refreshHardwareTelemetry() {
+    try {
+      const hw = await api("/api/mundo_sin_censura/hardware/status");
+      const cpu = hw.cpu || {};
+      const mem = hw.memory || {};
+      const gpu = hw.gpu || {};
+      const asus = hw.asus_platform || {};
+      const vol = hw.audio || {};
+      const gpuTxt = gpu.available ? `GPU ${gpu.temperature_c}°C (${gpu.vram_used_mb}/${gpu.vram_total_mb}MB)` : "GPU n/a";
+      elHwTelemetryLine.textContent =
+        `CPU ${cpu.percent ?? "--"}% (${cpu.governor || "--"}) · RAM ${mem.percent ?? "--"}% · ${gpuTxt} · ` +
+        `ASUS ${asus.thermal_policy_label || "--"} · Vol ${vol.percent ?? "--"}%`;
+    } catch (e) {
+      elHwTelemetryLine.textContent = "Sin telemetría de hardware";
+    }
+  }
+
+  async function runQuickHardware(action, val) {
+    const params = {};
+    if (action === "set_cpu_governor") params.governor = val;
+    else if (action === "set_thermal_policy") params.policy = val;
+    else if (action === "set_keyboard_brightness") params.level = Number(val);
+    try {
+      elHwTelemetryLine.textContent = `Ejecutando ${action}...`;
+      const res = await api("/api/mundo_sin_censura/hardware/action", {
+        method: "POST",
+        body: JSON.stringify({ action, params, source: "mundo_web_drawer" }),
+      });
+      await refreshHardwareTelemetry();
+      elHint.textContent = `⚡ ${action}: ${res.ok ? "OK" : (res.error || "ERROR")}`;
+    } catch (e) {
+      elHwTelemetryLine.textContent = `Error ${action}: ${e.message}`;
     }
   }
 
@@ -996,6 +1069,7 @@
     elTempVal.textContent = Number(elTemp.value).toFixed(2);
     elMaxTok.value = s.max_tokens ?? 1024;
     elRag.checked = Boolean(s.use_rag);
+    elHwToggle.checked = s.hardware_control !== false;
     renderSessions();
     renderMessages();
   }
@@ -1009,6 +1083,7 @@
         temperature: parseFloat(elTemp.value),
         max_tokens: parseInt(elMaxTok.value, 10) || 1024,
         use_rag: elRag.checked,
+        hardware_control: elHwToggle.checked,
       }),
     });
     const s = data.session;
@@ -1140,6 +1215,7 @@
           temperature: parseFloat(elTemp.value),
           max_tokens: parseInt(elMaxTok.value, 10) || 1024,
           use_rag: elRag.checked,
+          hardware_control: elHwToggle.checked,
         }),
       });
 
@@ -1229,6 +1305,24 @@
   $("btnClear").addEventListener("click", clearCurrentSession);
   $("btnExport").addEventListener("click", exportCurrentSession);
   $("btnMenu").addEventListener("click", () => elSidebar.classList.toggle("open"));
+  const toggleHwDrawer = () => {
+    const open = elHwDrawer.style.display === "none";
+    elHwDrawer.style.display = open ? "block" : "none";
+    if (open) refreshHardwareTelemetry();
+  };
+  $("btnHwPanel").addEventListener("click", toggleHwDrawer);
+  elHwPill.addEventListener("click", toggleHwDrawer);
+  $("btnHwRefresh").addEventListener("click", refreshHardwareTelemetry);
+  elHwDrawer.querySelectorAll("button[data-hw]").forEach((b) => {
+    b.addEventListener("click", () => runQuickHardware(b.dataset.hw, b.dataset.val || ""));
+  });
+  elHwToggle.addEventListener("change", async () => {
+    await api("/api/mundo_sin_censura/hardware/mode", {
+      method: "POST",
+      body: JSON.stringify({ enabled: elHwToggle.checked, agentic_hw_in_chat: elHwToggle.checked }),
+    }).catch(() => {});
+    refreshStatus();
+  });
   elSessionSearch.addEventListener("input", () => { state.filter = elSessionSearch.value; renderSessions(); });
   elTemp.addEventListener("input", () => { elTempVal.textContent = Number(elTemp.value).toFixed(2); });
 

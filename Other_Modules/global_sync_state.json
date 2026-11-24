@@ -1,7 +1,19 @@
 {
-  "revision": 2848,
-  "lamport": 2998,
-  "history": [],
+  "revision": 2850,
+  "lamport": 2999,
+  "history": [
+    {
+      "id": "msg_1795546497428_1",
+      "role": "system",
+      "content": "⚡ [FTL] PLAN COGNITIVO (GEMINI): permite a TARDIS hacer video llamadas (RC:0, 1238.8s)",
+      "timestamp": REDACTED_PHONE.428924,
+      "iso": "2026-11-24T13:54:57.428938",
+      "lamport": 2999,
+      "meta": "FTL · GEMINI",
+      "raw_data": {},
+      "client_id": "ftl_sovereign"
+    }
+  ],
   "config": {
     "model": "TARDIS-NEURAL-SPACE-KAIJU",
     "temperature": 0.3,
@@ -27,14 +39,14 @@
     "lamport": 2958,
     "web_search": true
   },
-  "updated_at": "2026-11-24T07:58:06.225400",
+  "updated_at": "2026-11-24T13:54:57.428966",
   "visual_intelligence": {
     "active": true,
     "pid": 1384253,
     "videos_stored": 1057,
-    "verdicts": 638,
+    "verdicts": 655,
     "vlm_model": "qwen3-vl:2b-instruct",
-    "last_risk_level": 3,
-    "last_ping": REDACTED_PHONE.3185499
+    "last_risk_level": 1,
+    "last_ping": REDACTED_PHONE.4577262
   }
 }

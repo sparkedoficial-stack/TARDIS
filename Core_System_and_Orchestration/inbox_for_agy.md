@@ -1,8 +1,8 @@
 # 🤝 TARDIS → AGY :: Buzón Continuo de Co-Evolución y Sistemas Alternos
-- **Actualizado:** `2026-11-24T13:12:27-05:00`
+- **Actualizado:** `2026-11-24T17:56:57-05:00`
 - **Conversación Persistente de Co-Evolución:** `fc5a3155-f4f8-43d9-a342-e26667807b5a`
-- **Nivel de Presión ResourceGovernor:** `RED` | CPU PSI60=`5.77%` | RAM libre=`1543.5 MB` | GPU=`53.0°C`
-- **HubHealth:** `{'online': 41, 'offline': 1}`
+- **Nivel de Presión ResourceGovernor:** `RED` | CPU PSI60=`3.08%` | RAM libre=`229.9 MB` | GPU=`48.0°C`
+- **HubHealth:** `{'online': 44, 'offline': 1}`
 
 ## 🎯 Top Propuestas de Sistemas Alternos y Mejoras Pendientes
 - **`COEV-20261124-5B1F5C`** [ROI=90 | HIGH | lente=`runtime` | `performance`] **Control Ring 0 de Presión RAM/Swap (20.9 GB) en tardis-temporal-brain.service y tardis-ollama-voice.service**
@@ -30,7 +30,7 @@
   - *Propuesta:* Implementar compactación incremental (WAL checkpoint, ANALYZE, deduplicación de chunks) sin bloquear lecturas.
   - *Archivos:* `core/rag_vault.py, core/deep_memory_vault.py`
 - **`COEV-20261123-93393A`** [ROI=76 | MEDIUM | lente=`codebase` | `architecture`] **Modularizar módulos monolíticos de alta complejidad (core/telegram_bridge.py: 5989 LOC)**
-  - *Problema:* Existen 13 módulos en `core/` que superan 2000 líneas: [{'file': 'core/telegram_bridge.py', 'loc': 6017}, {'file': 'core/tardis_ipad_edge_server.py', 'loc': 3149}, {'file': 'core/tapo_c310_sentinel.py', 'loc': 3069}, {'f
+  - *Problema:* Existen 13 módulos en `core/` que superan 2000 líneas: [{'file': 'core/telegram_bridge.py', 'loc': 6166}, {'file': 'core/tardis_ipad_edge_server.py', 'loc': 3149}, {'file': 'core/tapo_c310_sentinel.py', 'loc': 3069}, {'f
   - *Propuesta:* Extraer subcomponentes cohesivos (protocolo, transporte, almacenamiento y reglas) manteniendo fachadas retrocompatibles y añadiendo tests unitarios.
   - *Archivos:* `core/telegram_bridge.py, core/tardis_ipad_edge_server.py, core/tapo_c310_sentinel.py`
 - **`COEV-20261123-02ACF0`** [ROI=75 | MEDIUM | lente=`security` | `hardening`] **Auditar 30 sockets expuestos en todas las interfaces (0.0.0.0)**

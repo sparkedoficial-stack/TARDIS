@@ -61,8 +61,32 @@ class FtlMundoSinCensura:
                 prompt=kwargs.get("prompt"),
                 timeout=float(kwargs.get("timeout", 120.0)),
             )
+        if act in ("hardware-status", "hw-status", "hardware"):
+            from core.mundo_sin_censura_hardware import get_mundo_hardware_controller
+            return get_mundo_hardware_controller().get_full_hardware_telemetry()
+        if act in ("hardware-capabilities", "hw-capabilities"):
+            from core.mundo_sin_censura_hardware import get_mundo_hardware_controller
+            return get_mundo_hardware_controller().get_capabilities()
+        if act in ("hardware-action", "hw-action", "hw"):
+            from core.mundo_sin_censura_hardware import get_mundo_hardware_controller
+            hw_act = str(kwargs.get("hw_action") or kwargs.get("target_action") or "hardware_status")
+            hw_params = kwargs.get("params") if isinstance(kwargs.get("params"), dict) else {}
+            return get_mundo_hardware_controller().execute_action(
+                hw_act, hw_params, is_local_request=True, source="ftl_mundo_sin_censura"
+            )
+        if act in ("hardware-mode", "hw-mode"):
+            from core.mundo_sin_censura_hardware import get_mundo_hardware_controller
+            return get_mundo_hardware_controller().set_mode(
+                enabled=kwargs.get("enabled"),
+                ring0_enabled=kwargs.get("ring0_enabled"),
+                agentic_hw_in_chat=kwargs.get("agentic_hw_in_chat"),
+            )
         return {
             "ok": False,
             "error": f"Acción no reconocida: '{action}'",
-            "available_actions": ["status", "analyze", "verify", "ensure", "sync-ftl", "abliterate", "chat", "benchmark"],
+            "available_actions": [
+                "status", "analyze", "verify", "ensure", "sync-ftl", "abliterate",
+                "chat", "benchmark", "hardware-status", "hardware-capabilities",
+                "hardware-action", "hardware-mode",
+            ],
         }

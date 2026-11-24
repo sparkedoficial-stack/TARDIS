@@ -727,6 +727,12 @@ def create_app() -> FastAPI:
         except Exception:
             pass
 
+        try:
+            from core.mundo_sin_censura_hardware import get_mundo_hardware_controller
+            get_mundo_hardware_controller().ensure_runtime_armed()
+        except Exception:
+            pass
+
     # --------------------------------------------------------------------------
     # RUTAS SDR RADAR
     # --------------------------------------------------------------------------
@@ -3712,6 +3718,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
             temperature=float(body.get("temperature", 0.25)),
             max_tokens=int(body.get("max_tokens", 1024)),
             use_rag=bool(body.get("use_rag", False)),
+            hardware_control=bool(body.get("hardware_control", True)),
         )
         return {"ok": True, "session": sess}
 
@@ -3737,6 +3744,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
             temperature=payload.get("temperature"),
             max_tokens=payload.get("max_tokens"),
             use_rag=payload.get("use_rag"),
+            hardware_control=payload.get("hardware_control"),
         )
         if not sess:
             raise HTTPException(status_code=404, detail=f"Sesión no encontrada: {session_id}")
@@ -3775,7 +3783,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
         return {"ok": True, "cancelled": get_mundo_chat_store().cancel_stream(rid), "request_id": rid}
 
     @app.post("/api/mundo_sin_censura/chat/stream")
-    async def stream_mundo_chat_endpoint(payload: Dict[str, Any]):
+    async def stream_mundo_chat_endpoint(payload: Dict[str, Any], request: Request):
         from core.mundo_sin_censura_chat import get_mundo_chat_store, enforce_model_lock, ModelLockError
         import threading as _threading
 
@@ -3787,6 +3795,11 @@ iframe{border:none;width:100%;height:100%;}</style></head>
         prompt_txt = str(payload.get("message") or payload.get("prompt") or "").strip()
         if not prompt_txt:
             raise HTTPException(status_code=400, detail="Se requiere 'message' o 'prompt'.")
+
+        has_proxy = any(h in request.headers for h in ("cf-connecting-ip", "x-forwarded-for", "x-real-ip", "forwarded"))
+        client_host = request.client.host if request.client else ""
+        is_local = (not has_proxy) and (client_host in ("127.0.0.1", "localhost", "::1", "testclient"))
+        is_sovereign = is_local or is_request_authorized(dict(request.headers), dict(request.query_params), client_ip=client_host)
 
         store = get_mundo_chat_store()
         loop = asyncio.get_event_loop()
@@ -3803,6 +3816,8 @@ iframe{border:none;width:100%;height:100%;}</style></head>
                     max_tokens=payload.get("max_tokens"),
                     num_ctx=int(payload.get("num_ctx", 8192)),
                     use_rag=payload.get("use_rag"),
+                    hardware_control=payload.get("hardware_control"),
+                    is_local_request=is_sovereign,
                     timeout=float(payload.get("timeout", 180.0)),
                     request_id=payload.get("request_id"),
                 ):
@@ -3826,6 +3841,66 @@ iframe{border:none;width:100%;height:100%;}</style></head>
             _sse_gen(),
             media_type="text/event-stream",
             headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+        )
+
+    # --------------------------------------------------------------------------
+    # CONTROL ABSOLUTO DE HARDWARE PARA "UN MUNDO SIN CENSURA" (RING-0 RUNTIME)
+    # --------------------------------------------------------------------------
+
+    def _is_mundo_hw_authorized(request: Request) -> bool:
+        has_proxy = any(h in request.headers for h in ("cf-connecting-ip", "x-forwarded-for", "x-real-ip", "forwarded"))
+        client_host = request.client.host if request.client else ""
+        is_local = (not has_proxy) and (client_host in ("127.0.0.1", "localhost", "::1", "testclient"))
+        if is_local:
+            return True
+        return is_request_authorized(dict(request.headers), dict(request.query_params), client_ip=client_host)
+
+    @app.get("/api/mundo_sin_censura/hardware/status")
+    async def get_mundo_hw_status_endpoint():
+        from core.mundo_sin_censura_hardware import get_mundo_hardware_controller
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, lambda: get_mundo_hardware_controller().get_full_hardware_telemetry())
+
+    @app.get("/api/mundo_sin_censura/hardware/capabilities")
+    async def get_mundo_hw_capabilities_endpoint():
+        from core.mundo_sin_censura_hardware import get_mundo_hardware_controller
+        return get_mundo_hardware_controller().get_capabilities()
+
+    @app.get("/api/mundo_sin_censura/hardware/audit")
+    async def get_mundo_hw_audit_endpoint(limit: int = 50):
+        from core.mundo_sin_censura_hardware import get_mundo_hardware_controller
+        entries = get_mundo_hardware_controller().get_audit_log(limit=limit)
+        return {"ok": True, "count": len(entries), "entries": entries}
+
+    @app.post("/api/mundo_sin_censura/hardware/mode")
+    async def post_mundo_hw_mode_endpoint(payload: Dict[str, Any], request: Request):
+        from core.mundo_sin_censura_hardware import get_mundo_hardware_controller
+        if not _is_mundo_hw_authorized(request):
+            raise HTTPException(status_code=403, detail="Control de hardware reservado al host local o sesión soberana.")
+        return get_mundo_hardware_controller().set_mode(
+            enabled=payload.get("enabled"),
+            ring0_enabled=payload.get("ring0_enabled"),
+            agentic_hw_in_chat=payload.get("agentic_hw_in_chat"),
+            auto_arm_on_startup=payload.get("auto_arm_on_startup"),
+        )
+
+    @app.post("/api/mundo_sin_censura/hardware/action")
+    async def post_mundo_hw_action_endpoint(payload: Dict[str, Any], request: Request):
+        from core.mundo_sin_censura_hardware import get_mundo_hardware_controller
+        act = str(payload.get("action") or "").strip()
+        if not act:
+            raise HTTPException(status_code=400, detail="Se requiere 'action'.")
+        params = payload.get("params") if isinstance(payload.get("params"), dict) else {}
+        is_allowed = _is_mundo_hw_authorized(request)
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(
+            None,
+            lambda: get_mundo_hardware_controller().execute_action(
+                act,
+                params,
+                is_local_request=is_allowed,
+                source=str(payload.get("source") or "mundo_api"),
+            ),
         )
 
     # --------------------------------------------------------------------------

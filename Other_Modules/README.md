@@ -40,6 +40,7 @@ Módulos y componentes auxiliares del sistema.
 - **TARDIS_MUSIC_MAESTRO.md**: Componente de alta eficiencia.
 - **TELEGRAM_LIVE_CALL_URL.txt**: Componente de alta eficiencia.
 - **TELEGRAM_LIVE_CAM_URL.txt**: Componente de alta eficiencia.
+- **TELEGRAM_LIVE_VIDEOCALL_URL.txt**: Componente de alta eficiencia.
 - **Tardis-Master-Hub.desktop**: Componente de alta eficiencia.
 - **Tardis-Safety-Rails.desktop**: Componente de alta eficiencia.
 - **Theme.swift**: Componente nativo iOS/SwiftUI de la aplicación móvil GIA.
@@ -1053,6 +1054,15 @@ Módulos y componentes auxiliares del sistema.
 - **dossier_20261124_130357_849.json**: Componente de alta eficiencia.
 - **dossier_20261124_132600_448.json**: Componente de alta eficiencia.
 - **dossier_20261124_134315_341.json**: Componente de alta eficiencia.
+- **dossier_20261124_135359_521.json**: Componente de alta eficiencia.
+- **dossier_20261124_140057_521.json**: Componente de alta eficiencia.
+- **dossier_20261124_144705_955.json**: Componente de alta eficiencia.
+- **dossier_20261124_145931_850.json**: Componente de alta eficiencia.
+- **dossier_20261124_150159_640.json**: Componente de alta eficiencia.
+- **dossier_20261124_151148_647.json**: Componente de alta eficiencia.
+- **dossier_20261124_155200_351.json**: Componente de alta eficiencia.
+- **dossier_20261124_170003_537.json**: Componente de alta eficiencia.
+- **dossier_20261124_173828_435.json**: Componente de alta eficiencia.
 - **dynamic_tools_registry.json**: Directorio y puente soberano de interoperabilidad omni-herramientas.
 - **ecca_v3_core.py**: Núcleo de orquestación y control temporal/espacial.
 - **embed_isotropy.py**: Componente de alta eficiencia.
@@ -1193,6 +1203,7 @@ Módulos y componentes auxiliares del sistema.
 - **moe_routing.json**: Componente de alta eficiencia.
 - **mundo_sin_censura.py**: Componente de alta eficiencia.
 - **mundo_sin_censura_chat.py**: Componente de alta eficiencia.
+- **mundo_sin_censura_hardware.py**: Componente de alta eficiencia.
 - **mundo_sin_censura_state.json**: Componente de alta eficiencia.
 - **native-and-artifacts.md**: Componente de alta eficiencia.
 - **network_traffic_controller.py**: Componente de alta eficiencia.

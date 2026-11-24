@@ -2,11 +2,11 @@
   "daemon": "tardis-visual-intelligence",
   "running": true,
   "pid": 1384253,
-  "uptime_sec": 63468.4,
-  "last_heartbeat": "2026-11-24T13:49:45.394347",
+  "uptime_sec": 80393.5,
+  "last_heartbeat": "2026-11-24T18:31:50.563263",
   "items_processed": 0,
   "last_processed_id": "",
-  "memory_rss_mb": 296.6,
+  "memory_rss_mb": 281.12,
   "engine_status": {
     "status": "online",
     "engine": "VisualIntelligenceEngine v26.5 (VLM + Veredictos)",
@@ -20,15 +20,15 @@
     "vlm_error": "",
     "verdict_engine": "VLM + Kaiju + veredicto estructurado",
     "stored_videos_count": 1057,
-    "stored_images_count": 522,
+    "stored_images_count": 539,
     "stored_sounds_count": 0,
-    "stored_verdicts_count": 638,
+    "stored_verdicts_count": 655,
     "last_verdict": {
-      "id": "img_20261124_134214_91cd45",
-      "created_at": "2026-11-24T13:42:53.893433",
+      "id": "img_20261124_182733_538986",
+      "created_at": "2026-11-24T18:28:23.358331",
       "source": "daemon",
-      "verdict": "*   Estado General del Entorno: ESTABLE / SEGURO. Entorno exterior diurno, bien iluminado, sin actividad anómala.\n*   Nivel de Riesgo Objetivo: 3/10.\n    *   *Justificación:* El riesgo es bajo pero no nulo debido a la presencia de objetos metálicos sueltos o estructuras irregulares en el borde del sendero, que podrían representar un riesgo de tropiezo o corte menor si se manipulan sin cuidado. La vegetación desordenada puede ocultar pequeños obstáculos.\n*   Hechos Observados:\n    1.  Superficie de césped y hormigón.\n    2.  Dos objetos metálicos pequeños en el borde derecho.\n    3.  Iluminació",
-      "risk_level": 3
+      "verdict": "*   Estado General del Entorno: SEGURO / ESTABLE.\n    *   *Hechos Observados:* Camioneta estacionada, cables de carga conectados, iluminación artificial adecuada, ausencia de personas, ausencia de daños visibles.\n    *   *Inferencias:* El vehículo está siendo cargado o mantenido en reposo con energía. La zona está iluminada, lo que disuade actividades ilícitas y permite la visibilidad.\n    *   *Dudas:* No se puede confirmar si el propietario está presente fuera del encuadre.\n\n*   Nivel de Riesgo Objetivo: 1/10\n    *   *Justificación:* El riesgo es mínimo. El único elemento de precaución es la ",
+      "risk_level": 1
     },
     "surroundings_interval_sec": 900,
     "vault_dir": "/home/m11/Escritorio/GODWORKS SYSTEM/vault/videos/telegram",
@@ -37,13 +37,13 @@
   },
   "surroundings": {
     "interval_sec": 900.0,
-    "checks": 26,
-    "verdicts": 26,
-    "last_verdict_id": "img_20261124_134214_91cd45",
-    "last_risk_level": 3,
-    "last_verdict": "*   Estado General del Entorno: ESTABLE / SEGURO. Entorno exterior diurno, bien iluminado, sin actividad anómala.\n*   Nivel de Riesgo Objetivo: 3/10.\n    *   *Justificación:* El riesgo es bajo pero no nulo debido a la presencia de objetos metálicos sueltos o estructuras irregulares en el borde del sendero, que podrían representar un riesgo de tropiezo o corte menor si se manipulan sin cuidado. La vegetación desordenada puede ocultar pequeños obstáculos.\n*   Hechos Observados:\n    1.  Superficie de césped y hormigón.\n    2.  Dos objetos metálicos pequeños en el borde derecho.\n    3.  Iluminación natural diurna.\n    4.  Ausencia de audio.\n*   Inferencias:\n    1.  Los objetos metálicos podrían ser restos de una estructura o herramientas olvidadas.\n    2.  La zona no está frecuentada activamente en este instante.\n*   Dudas:\n    1.  Naturaleza exacta de los objetos metálicos (¿son peligrosos? ¿son simplemente basura?).\n    2.  Si hay más obstáculos ocultos bajo la vegetación desordenada.\n*   Recomendación Concreta:\n    *   Proceder con precaución al caminar: Mantener la atención en el borde derecho del sendero para evitar tropiezos con los objetos metálicos o la vegetación irregular.\n  ",
+    "checks": 43,
+    "verdicts": 43,
+    "last_verdict_id": "img_20261124_182733_538986",
+    "last_risk_level": 1,
+    "last_verdict": "*   Estado General del Entorno: SEGURO / ESTABLE.\n    *   *Hechos Observados:* Camioneta estacionada, cables de carga conectados, iluminación artificial adecuada, ausencia de personas, ausencia de daños visibles.\n    *   *Inferencias:* El vehículo está siendo cargado o mantenido en reposo con energía. La zona está iluminada, lo que disuade actividades ilícitas y permite la visibilidad.\n    *   *Dudas:* No se puede confirmar si el propietario está presente fuera del encuadre.\n\n*   Nivel de Riesgo Objetivo: 1/10\n    *   *Justificación:* El riesgo es mínimo. El único elemento de precaución es la presencia de cables eléctricos expuestos, que podrían representar un riesgo de tropiezo o daño si son manipulados incorrectamente, pero no constituyen una amenaza inminente en un entorno estático. No hay peligro inminente, violencia ni anomalías críticas.\n\n*   Recomendación Concreta:\n    1.  Mantener la vigilancia pasiva: No se requiere intervención inmediata.\n    2.  Precaución con la infraestructura eléctrica: Si el Arquitecto se acerca al vehículo, evitar pisar o tirar de los cables de carga para no dañar la conexión o provocar un cortocircuito.\n    3.  Verificación de estado: Si es posible",
     "last_error": "",
-    "last_check_ts": REDACTED_PHONE.2579963
+    "last_check_ts": REDACTED_PHONE.4358473
   },
   "vlm": {
     "ready": true,

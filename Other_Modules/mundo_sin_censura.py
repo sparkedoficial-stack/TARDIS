@@ -1514,6 +1514,22 @@ class MundoSinCensuraAgent:
         )
         operational = bool(gguf.get("exists") and active_lane != "offline" and safety.get("host_safety_intact"))
 
+        hw_info: Dict[str, Any] = {"armed": False, "sovereignty_level": "UNAVAILABLE"}
+        try:
+            from core.mundo_sin_censura_hardware import get_mundo_hardware_controller
+            hwc = get_mundo_hardware_controller()
+            hw_info = {
+                "armed": hwc.is_armed(),
+                "system_running": hwc.is_system_running(),
+                "ring0_enabled": bool(hwc._state.get("ring0_enabled", True)),
+                "agentic_hw_in_chat": bool(hwc._state.get("agentic_hw_in_chat", True)),
+                "sovereignty_level": hwc._state.get("sovereignty_level", "ABSOLUTE_RING_0_RUNTIME"),
+                "actions_executed": int(hwc._state.get("actions_executed", 0)),
+                "last_action": hwc._state.get("last_action"),
+            }
+        except Exception:
+            pass
+
         return {
             "ok": operational,
             "name": "Mundo-Sin-Censura",
@@ -1522,6 +1538,7 @@ class MundoSinCensuraAgent:
             "version": self.VERSION,
             "operational": operational,
             "active_lane": active_lane,
+            "hardware_control": hw_info,
             "lanes": {
                 "temporal_brain": {
                     "ready": bool(tb.get("ready")),

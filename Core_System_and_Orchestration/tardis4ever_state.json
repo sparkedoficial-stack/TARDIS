@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "created_at": "2026-10-15T02:04:29.176374",
   "last_periodic_sync": "2026-11-24T07:58:40.506597",
-  "last_immediate_sync": "2026-11-24T13:44:29.288916",
-  "last_commit_hash": "0aa928ac",
-  "sync_count": 1521,
-  "immediate_sync_count": 1517,
+  "last_immediate_sync": "2026-11-24T13:49:16.730030",
+  "last_commit_hash": "d5ae41c3",
+  "sync_count": 1522,
+  "immediate_sync_count": 1518,
   "periodic_sync_count": 4,
   "last_known_mtimes": {
     "skill:godworks-system-suite/SKILL.md": REDACTED_PHONE.5482113,
@@ -73,7 +73,7 @@
     "ftl:ftl_zero_error_shield.py": REDACTED_PHONE.5277624,
     "ftl:ftl_resource_governor.py": REDACTED_PHONE.7264915,
     "ftl:ftl_coevolution.py": REDACTED_PHONE.2014828,
-    "ftl:ftl_mundo_sin_censura.py": REDACTED_PHONE.9991748,
+    "ftl:ftl_mundo_sin_censura.py": REDACTED_PHONE.9382133,
     "core:__init__.py": REDACTED_PHONE.79,
     "core:agent_harness.py": REDACTED_PHONE.1647367,
     "core:ai_improvement_sandbox.py": REDACTED_PHONE.8,
@@ -113,7 +113,7 @@
     "core:kaiju_safety_rails.py": REDACTED_PHONE.18,
     "core:knowledge_graph.py": REDACTED_PHONE.85,
     "core:mission_scouting_engine.py": REDACTED_PHONE.23,
-    "core:mundo_sin_censura.py": REDACTED_PHONE.1006544,
+    "core:mundo_sin_censura.py": REDACTED_PHONE.440254,
     "core:network_controller.py": REDACTED_PHONE.65,
     "core:network_shield.py": REDACTED_PHONE.56,
     "core:network_traffic_controller.py": REDACTED_PHONE.99,
@@ -213,13 +213,14 @@
     "core:tardis_agy_coevolution.py": REDACTED_PHONE.638858,
     "core:idle_evolution_daemon.py": REDACTED_PHONE.4674423,
     "core:tardis_omniscient_autonomy.py": REDACTED_PHONE.568241,
-    "core:mundo_sin_censura_chat.py": REDACTED_PHONE.1064444,
+    "core:mundo_sin_censura_chat.py": REDACTED_PHONE.460223,
     "core:tardis_semantic_cache.py": REDACTED_PHONE.7406988,
     "core:embed_isotropy.py": REDACTED_PHONE.6129508,
     "core:tardis_eval_harness.py": REDACTED_PHONE.0774143,
     "core:tardis_memory_compactor.py": REDACTED_PHONE.3705473,
-    "core:videocall_vision_engine.py": REDACTED_PHONE.416879,
+    "core:videocall_vision_engine.py": REDACTED_PHONE.9071455,
     "core:videocall_webapp_ui.py": REDACTED_PHONE.3347282,
+    "core:mundo_sin_censura_hardware.py": REDACTED_PHONE.9136124,
     "directive:AGENTS.md": REDACTED_PHONE.8623235,
     "directive:GEMINI.md": REDACTED_PHONE.8793235,
     "registry:dynamic_tools": REDACTED_PHONE.0256226,
@@ -331,6 +332,16 @@
     "sat:gia_ios:GIA/Views/Theme.swift": REDACTED_PHONE.0
   },
   "history": [
+    {
+      "timestamp": "2026-11-24T13:49:16.730030",
+      "trigger": "immediate_milestone",
+      "commit_hash": "d5ae41c3",
+      "score": 50,
+      "reasons": [
+        "Evoluci\u00f3n en subsistema core TARDIS: agent_harness.py",
+        "Evoluci\u00f3n en subsistema core TARDIS: telegram_bridge.py"
+      ]
+    },
     {
       "timestamp": "2026-11-24T13:44:29.288916",
       "trigger": "immediate_milestone",
@@ -866,19 +877,6 @@
       "reasons": [
         "Evoluci\u00f3n en subsistema core TARDIS: tardis_video_thinking_engine.py",
         "Evoluci\u00f3n en subsistema core TARDIS: tardis_browser.py"
-      ]
-    },
-    {
-      "timestamp": "2026-11-20T22:48:33.306902",
-      "trigger": "immediate_milestone",
-      "commit_hash": "326a9897",
-      "score": 825,
-      "reasons": [
-        "Evoluci\u00f3n en subsistema core TARDIS: antigravity_remote_controller.py",
-        "Evoluci\u00f3n en subsistema core TARDIS: auto_context_synchronizer.py",
-        "Evoluci\u00f3n en subsistema core TARDIS: chronovision_engine.py",
-        "Evoluci\u00f3n en subsistema core TARDIS: code_planner.py",
-        "Evoluci\u00f3n en subsistema core TARDIS: easy_touch_engine.py"
       ]
     }
   ]

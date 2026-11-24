@@ -370,15 +370,16 @@ class VideoCallVisionEngine:
 
         if question.strip():
             prompt = (
-                f"Eres TARDIS observando {src_desc}. Responde en español, en 1 a 3 frases claras, "
-                f"directas y fieles a lo que ves (sin inventar). Pregunta del usuario: {question.strip()}"
+                f"Observa literalmente esta imagen ({src_desc}) y responde en español en 1 a 3 frases claras y objetivas. "
+                f"Describe solo lo que es realmente visible; si no hay personas u objetos mencionados, dilo sin inventar. "
+                f"Pregunta: {question.strip()}"
             )
             max_predict = 95
         else:
             prompt = (
-                f"Eres TARDIS observando {src_desc}. Describe en español en 1 o 2 frases breves y objetivas "
-                "qué ves ahora: persona(s), expresión/postura, objetos en mano o escritorio, texto legible y entorno. "
-                "No inventes nada."
+                "Describe literalmente en 1 o 2 frases breves en español solo lo que aparece en esta imagen "
+                "(personas únicamente si realmente hay alguna visible, objetos, formas, colores, texto legible o entorno). "
+                "No supongas ni inventes elementos que no se vean."
             )
             max_predict = 75
 
