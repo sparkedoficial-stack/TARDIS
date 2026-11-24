@@ -99,16 +99,9 @@ HAAR_BODY = OPENCV_DATA_DIR / "haarcascade_upperbody.xml"
 # ------------------------------------------------------------------------------
 
 OLLAMA_GPU_LANE_URL = os.environ.get("TARDIS_VLM_GPU_URL", "http://127.0.0.1:11435").strip()
-# Carril GPU dedicado (:11435 donde qwen3-vl reside en VRAM) primero, respaldo CPU (:11434)
-OLLAMA_GPU_URL = os.environ.get("OLLAMA_VLM_GPU_HOST", "http://127.0.0.1:11435").strip().rstrip("/")
-if not OLLAMA_GPU_URL.startswith(("http://", "https://")):
-    OLLAMA_GPU_URL = f"http://{OLLAMA_GPU_URL}"
-
-OLLAMA_URL = os.environ.get("OLLAMA_HOST", "http://127.0.0.1:11434").strip().rstrip("/")
+OLLAMA_URL = os.environ.get("OLLAMA_HOST", "http://127.0.0.1:11434").strip()
 if not OLLAMA_URL.startswith(("http://", "https://")):
     OLLAMA_URL = f"http://{OLLAMA_URL}"
-
-OLLAMA_VLM_ENDPOINTS = tuple(dict.fromkeys([OLLAMA_GPU_URL, OLLAMA_URL]))
 if not OLLAMA_GPU_LANE_URL.startswith(("http://", "https://")):
     OLLAMA_GPU_LANE_URL = f"http://{OLLAMA_GPU_LANE_URL}"
 

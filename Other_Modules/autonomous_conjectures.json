@@ -1,23 +1,5 @@
 [
   {
-    "id": "conj_1794835133",
-    "timestamp": "2026-11-16T08:18:53.292065",
-    "idle_duration_minutes": 75.1,
-    "title": "Causal Embedding Cache for Akashic Vault Retrieval",
-    "hypothesis": "Integrating a causal embedding cache layer between `deep_memory_vault` and `web_research_engine` will allow the system to pre‑compute and store context‑aware vector representations of frequently accessed akáshic records. By indexing these embeddings with a lightweight, time‑decayed priority queue, the retrieval latency can be reduced by up to 40 % while preserving the causal consistency guarantees of the vault. The cache would be invalidated automatically when upstream causal events (e.g., new knowledge insertions) modify the underlying graph, ensuring that stale embeddings never influence downstream web‑research queries.",
-    "research_query": "causal embedding cache design for knowledge graphs latency reduction",
-    "research_findings": "# Informe de Investigación: causal embedding cache design for knowledge graphs latency reduction\n\n## Fuentes Consultadas y Respaldo Web\n- **[Transformer (deep learning) (Wikipedia)](https://en.wikipedia.org/wiki/Transformer_%28deep_learning%29)**: is no need for causal masking. A decoder consists of an embedding layer, followed by multiple decoder layers, followed by an un-embedding layer. Each\n- **[Outline of machine learning (Wikipedia)](https://en.wikipedia.org/wiki/Outline_of_machine_learning)**: decision graphs, etc.) Nearest Neighbor Algorithm Analogical modeling Probably approximately correct learning (PAC) learning Ripple down rules, a knowledge acquisition\n\n## Contenido y Hallazgos Extraídos\n### De [Transformer (deep learning) - Wikipedia](https://en.wikipedia.org/wiki/Transformer_%28deep_learning%29)\n> Transformer (deep learning) - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nAlgorithm for modelling sequential data\nThis article has multiple issues. Please h",
-    "web_sources": [
-      "https://en.wikipedia.org/wiki/Transformer_%28deep_learning%29",
-      "https://en.wikipedia.org/wiki/Outline_of_machine_learning"
-    ],
-    "code_target": "core/deep_memory_vault.py",
-    "code_goal": "Add a CausalEmbeddingCache class with methods `store`, `retrieve`, and `invalidate_on_event` and integrate it into the vault's `fetch_record` pipeline to serve pre‑computed embeddings to the web research engine.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 2706.75
-  },
-  {
     "id": "conj_1794840381",
     "timestamp": "2026-11-16T09:46:21.471535",
     "idle_duration_minutes": 87.5,
@@ -1637,5 +1619,22 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 4655.96
+  },
+  {
+    "id": "conj_1795481846",
+    "timestamp": "2026-11-23T19:57:26.885674",
+    "idle_duration_minutes": 0.0,
+    "title": "Teoría Causal de Adaptabilidad Continua",
+    "hypothesis": "Los bucles OODA enriquecidos con memoria akáshica aceleran la convergencia autónoma.",
+    "research_query": "autonomous agents self-improvement machine learning",
+    "research_findings": "Síntesis sintrópica de investigación autónoma.",
+    "web_sources": [
+      "https://example.org/study"
+    ],
+    "code_target": null,
+    "code_goal": null,
+    "evolution_status": "NOT_APPLICABLE",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 0.0
   }
 ]

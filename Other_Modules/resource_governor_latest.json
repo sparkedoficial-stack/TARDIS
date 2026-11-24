@@ -1,42 +1,40 @@
 {
   "ok": true,
-  "ts": REDACTED_PHONE.8754113,
-  "iso": "2026-11-23T19:54:44-05:00",
+  "ts": REDACTED_PHONE.6500037,
+  "iso": "2026-11-23T19:57:28-05:00",
   "level": "ORANGE",
   "reasons": [
-    "RAM disponible baja (2626 MB)",
-    "CPU PSI avg60 elevado (67.2%)",
-    "Uso de swap alto (12.7 GB)",
-    "Loadavg1 alto (24.34 en 16 hilos)",
-    "2 modelo(s) duplicado(s) en Ollama :11434 (5928 MB)"
+    "CPU PSI avg60 elevado (65.5%)",
+    "Temperatura GPU cálida (72°C)",
+    "Loadavg1 saturado (26.63 en 16 hilos)"
   ],
   "call_priority_active": false,
   "cpu": {
     "cores": 16,
-    "load1": 24.34,
-    "load5": 25.02,
-    "load15": 25.93,
+    "load1": 26.63,
+    "load5": 25.38,
+    "load15": 25.9,
     "psi": {
-      "some_avg10": 64.62,
-      "some_avg60": 67.17,
-      "some_avg300": 68.3,
+      "some_avg10": 62.84,
+      "some_avg60": 65.47,
+      "some_avg300": 66.12,
       "full_avg10": 0.0,
       "full_avg60": 0.0
     }
   },
   "memory": {
     "total_mb": 31495.2,
-    "available_mb": 2626.0,
-    "used_mb": 28869.2,
-    "used_pct": 91.7,
+    "available_mb": 9095.3,
+    "used_mb": 22399.9,
+    "used_pct": 71.1,
     "swap_total_mb": 62994.8,
-    "swap_used_mb": 13051.9,
+    "swap_used_mb": 9036.9,
     "psi": {
-      "some_avg10": 0.04,
-      "some_avg60": 0.07,
+      "some_avg10": 0.0,
+      "some_avg60": 0.02,
       "some_avg300": 0.02,
-      "full_avg10": 0.04,
-      "full_avg60": 0.07
+      "full_avg10": 0.0,
+      "full_avg60": 0.02
     }
   },
   "io": {
@@ -51,7 +49,7 @@
   "gpu": {
     "available": true,
     "name": "NVIDIA GeForce RTX 3050 Laptop GPU",
-    "temp_c": 71.0,
+    "temp_c": 72.0,
     "util_pct": 47.0,
     "vram_used_mb": 3585.0,
     "vram_free_mb": 237.0,
@@ -61,20 +59,7 @@
   "inference_lanes": {
     "temporal_brain_sock": true,
     "embed_brain_sock": true,
-    "ollama_11434": [
-      {
-        "name": "TARDIS-NEURAL-SPACE-KAIJU:latest",
-        "size_mb": 4228.6,
-        "size_vram_mb": 0.0,
-        "expires_at": "2319-03-05T08:22:32.47414494-05:00"
-      },
-      {
-        "name": "qwen3-vl:2b-instruct",
-        "size_mb": 1699.5,
-        "size_vram_mb": 0.0,
-        "expires_at": "2026-11-23T20:03:33.61181847-05:00"
-      }
-    ],
+    "ollama_11434": [],
     "ollama_11435_gpu_voice": [
       {
         "name": "qwen3-vl:2b-instruct",
@@ -83,20 +68,7 @@
         "expires_at": "2319-03-05T18:54:35.614099281-05:00"
       }
     ],
-    "duplicate_models": [
-      {
-        "port": 11434,
-        "model": "TARDIS-NEURAL-SPACE-KAIJU:latest",
-        "size_mb": 4228.6,
-        "reason": "duplicado_con_temporal_brain"
-      },
-      {
-        "port": 11434,
-        "model": "qwen3-vl:2b-instruct",
-        "size_mb": 1699.5,
-        "reason": "duplicado_cpu_con_gpu_lane_11435"
-      }
-    ]
+    "duplicate_models": []
   },
   "admission": {
     "interactive": true,
