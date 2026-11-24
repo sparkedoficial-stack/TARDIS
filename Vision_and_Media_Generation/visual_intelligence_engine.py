@@ -301,7 +301,7 @@ class VisualIntelligenceEngine:
                     return k
             except Exception:
                 pass
-        return "REDACTED_GROQ"
+        return ""
 
     def _groq_text_call(self, prompt: str, max_tokens: int = 1600) -> str:
         """Síntesis de texto rápida en Groq LPU (solo texto; las imágenes nunca salen del equipo)."""

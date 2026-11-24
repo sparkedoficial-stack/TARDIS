@@ -31,6 +31,7 @@ Núcleo de orquestación temporal, bucles de control soberano FTL y sincronizaci
 - **gia_sovereign_bridge.py**: Componente de alta eficiencia.
 - **gia_sovereign_engine.py**: Componente de alta eficiencia.
 - **hardware_controller.py**: Componente de alta eficiencia.
+- **inbox_for_agy.md**: Componente de alta eficiencia.
 - **launch_tardis_master_hub.sh**: Componente de alta eficiencia.
 - **network_controller.py**: Componente de alta eficiencia.
 - **omni_temporal_control.py**: Directorio y puente soberano de interoperabilidad omni-herramientas.

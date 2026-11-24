@@ -53,8 +53,8 @@ SAFE_LAUNCHER = HOME / ".local" / "bin" / "start_antigravity_safe.sh"
 AGY_CLI_BIN = HOME / ".local" / "bin" / "agy"
 
 
-def resolve_active_conversation_id(default_cid: str = CURRENT_CONVERSATION_ID) -> str:
-    """Resuelve dinámicamente el ID de la sesión de terminal Antigravity activa (hooks en vivo -> active_terminal -> DB más reciente)."""
+def resolve_live_hook_conversation_id() -> Optional[str]:
+    """Lee el conversation_id más reciente reportado por los hooks oficiales de agy en tiempo real."""
     live_sessions_file = Path(os.environ.get("LOCALAPPDATA", str(HOME))) / "vw-control" / "agy_terminal_control" / "live_sessions.json"
     if live_sessions_file.is_file():
         try:
@@ -64,6 +64,11 @@ def resolve_active_conversation_id(default_cid: str = CURRENT_CONVERSATION_ID) -
                 return lcid
         except Exception:
             pass
+    return None
+
+
+def resolve_active_conversation_id(default_cid: str = CURRENT_CONVERSATION_ID) -> str:
+    """Resuelve dinámicamente el ID de la sesión de terminal Antigravity activa."""
     if ACTIVE_TERMINAL_FILE.is_file():
         try:
             data = json.loads(ACTIVE_TERMINAL_FILE.read_text(encoding="utf-8"))
@@ -74,6 +79,9 @@ def resolve_active_conversation_id(default_cid: str = CURRENT_CONVERSATION_ID) -
             pass
     if (CLI_DIR / "conversations" / f"{default_cid}.db").is_file():
         return default_cid
+    live_cid = resolve_live_hook_conversation_id()
+    if live_cid:
+        return live_cid
     conv_dir = CLI_DIR / "conversations"
     if conv_dir.is_dir():
         dbs = sorted(conv_dir.glob("*.db"), key=lambda p: p.stat().st_mtime, reverse=True)
