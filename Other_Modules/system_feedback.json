@@ -1,15 +1,21 @@
 {
-  "timestamp": REDACTED_PHONE.5935638,
-  "iso": "2026-11-23T22:00:06.595619",
+  "timestamp": REDACTED_PHONE.2554247,
+  "iso": "2026-11-23T22:18:38.256938",
   "health_score": 100,
   "status": "HEALTHY",
-  "cycle": 260,
+  "cycle": 14,
   "metrics": {
-    "cpu_percent": 24.9,
-    "ram_percent": 56.2,
+    "cpu_percent": 19.1,
+    "cpu_ema": 21.1,
+    "high_cpu_streak": 0,
+    "ram_percent": 58.4,
+    "high_ram_streak": 0,
+    "governor_level": "YELLOW",
+    "cpu_psi_60": 10.87,
     "recent_errors": 0,
     "recent_blocks": 0
   },
+  "penalties": [],
   "subsystems": {
     "ollama_online": true,
     "rf_radar_active": true,

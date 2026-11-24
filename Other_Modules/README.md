@@ -98,6 +98,9 @@ Módulos y componentes auxiliares del sistema.
 - **convert_fp8_to_int4.py**: Componente de alta eficiencia.
 - **core__tapo_c310_sentinel.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
 - **core__tardis_c310_conversation.py**: Núcleo de orquestación y control temporal/espacial.
+- **core__tardis_canary_verifier.py**: Núcleo de orquestación y control temporal/espacial.
+- **core__tardis_event_bus.py**: Núcleo de orquestación y control temporal/espacial.
+- **core__tardis_feedback_bridge.py**: Núcleo de orquestación y control temporal/espacial.
 - **core__tardis_resource_governor.py**: Núcleo de orquestación y control temporal/espacial.
 - **crear_una_funcin_5237.py**: Motor de ingeniería inversa multi-arquitectura y descompilación.
 - **crypto.py**: Componente de alta eficiencia.
@@ -1107,6 +1110,7 @@ Módulos y componentes auxiliares del sistema.
 - **improvement_20261102_042338_optimizacion_de_concurrencia_y_paginacio.md**: Componente de alta eficiencia.
 - **improvement_20261123_202706_optimizacion_autonoma_de_resource_govern.md**: Componente de alta eficiencia.
 - **improvement_20261123_211649_validacion_de_coherencia_causal_sintropi.md**: Componente de alta eficiencia.
+- **improvement_20261123_221134_optimizacion_autonoma_de_resource_govern.md**: Componente de alta eficiencia.
 - **inference_efficiency.json**: Componente de alta eficiencia.
 - **interaction_logger.py**: Componente de alta eficiencia.
 - **ios_bridge.py**: Componente de alta eficiencia.
@@ -1169,7 +1173,6 @@ Módulos y componentes auxiliares del sistema.
 - **runtime-observation.md**: Componente de alta eficiencia.
 - **runtime_env.py**: Componente de alta eficiencia.
 - **safety_guardrails.json**: Componente de alta eficiencia.
-- **sample_mod.py**: Componente de alta eficiencia.
 - **savage_proposals.json**: Componente de alta eficiencia.
 - **savage_seen.json**: Componente de alta eficiencia.
 - **savage_state.json**: Componente de alta eficiencia.
@@ -1183,6 +1186,7 @@ Módulos y componentes auxiliares del sistema.
 - **screen_capture.py**: Componente de alta eficiencia.
 - **self_updater.py**: Componente de alta eficiencia.
 - **sentinel_state.json**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **server__api.py**: Componente de alta eficiencia.
 - **skills_rag_ingest.json**: Especificación agéntica de capacidades soberanas para agentes autónomos.
 - **sms_config.json**: Componente de alta eficiencia.
 - **sms_history.json**: Componente de alta eficiencia.

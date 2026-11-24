@@ -75,9 +75,17 @@ class TardisCanaryVerifier:
                 cls._instance = cls(db_path=CANARY_DB)
             return cls._instance
 
-    def __init__(self, db_path: Path = CANARY_DB):
+    def __init__(self, db_path: Path = CANARY_DB, backup_root: Optional[Path] = None):
         self.db_path = Path(db_path)
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
+        self._is_isolated = self.db_path.resolve() != CANARY_DB.resolve()
+        if backup_root is not None:
+            self.backup_root = Path(backup_root)
+        elif self._is_isolated:
+            self.backup_root = self.db_path.parent / "canary_backups"
+        else:
+            self.backup_root = CANARY_BACKUP_ROOT
+        self.backup_root.mkdir(parents=True, exist_ok=True)
         self._init_schema()
 
     def _connect(self) -> sqlite3.Connection:
@@ -116,7 +124,7 @@ class TardisCanaryVerifier:
     def snapshot_files(self, files: Sequence[str | Path], run_id: Optional[str] = None) -> Dict[str, Any]:
         """Crea un respaldo atómico de los archivos indicados para rollback inmediato."""
         rid = run_id or f"canary_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:6]}"
-        snap_dir = CANARY_BACKUP_ROOT / rid
+        snap_dir = self.backup_root / rid
         snap_dir.mkdir(parents=True, exist_ok=True)
         manifest: List[Dict[str, str]] = []
 
@@ -141,7 +149,7 @@ class TardisCanaryVerifier:
 
     def rollback(self, run_id: str) -> Dict[str, Any]:
         """Restaura exactamente los archivos capturados en un snapshot canario."""
-        snap_dir = CANARY_BACKUP_ROOT / run_id
+        snap_dir = self.backup_root / run_id
         manifest_file = snap_dir / "manifest.json"
         if not manifest_file.is_file():
             return {"ok": False, "error": f"Snapshot canario '{run_id}' no encontrado."}
@@ -154,17 +162,18 @@ class TardisCanaryVerifier:
                 dst.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(bkp, dst)
                 restored.append(entry["relative"])
-        try:
-            from core.tardis_event_bus import get_event_bus
-            get_event_bus().publish(
-                "evolution.rollback",
-                "tardis_canary_verifier",
-                {"run_id": run_id, "restored_files": restored},
-                severity="HIGH",
-                dedup_window_s=30.0,
-            )
-        except Exception:
-            pass
+        if not self._is_isolated:
+            try:
+                from core.tardis_event_bus import get_event_bus
+                get_event_bus().publish(
+                    "evolution.rollback",
+                    "tardis_canary_verifier",
+                    {"run_id": run_id, "restored_files": restored},
+                    severity="HIGH",
+                    dedup_window_s=30.0,
+                )
+            except Exception:
+                pass
         return {"ok": True, "run_id": run_id, "restored_files": restored, "iso": _now_iso()}
 
     def _static_check(self, paths: List[Path]) -> Dict[str, Any]:
@@ -332,17 +341,18 @@ class TardisCanaryVerifier:
                 ),
             )
 
-        try:
-            from core.tardis_event_bus import get_event_bus
-            get_event_bus().publish(
-                "evolution.verified",
-                "tardis_canary_verifier",
-                {"run_id": run_id, "passed": passed, "files": [p.name for p in paths], "high_issues": static_res["high_issues"]},
-                severity="INFO" if passed else "HIGH",
-                dedup_window_s=15.0,
-            )
-        except Exception:
-            pass
+        if not self._is_isolated:
+            try:
+                from core.tardis_event_bus import get_event_bus
+                get_event_bus().publish(
+                    "evolution.verified",
+                    "tardis_canary_verifier",
+                    {"run_id": run_id, "passed": passed, "files": [p.name for p in paths], "high_issues": static_res["high_issues"]},
+                    severity="INFO" if passed else "HIGH",
+                    dedup_window_s=15.0,
+                )
+            except Exception:
+                pass
         return report
 
     def history(self, limit: int = 20) -> List[Dict[str, Any]]:

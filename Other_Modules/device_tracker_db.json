@@ -98,11 +98,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 24587391,
+    "traffic_bytes_rx": 23132272,
     "traffic_bytes_tx": REDACTED_PHONE,
-    "traffic_packets": 1249915,
+    "traffic_packets": 1239040,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-24T01:12:03.044017+00:00",
+    "last_seen": "2026-11-24T03:13:16.415414+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -188,7 +188,7 @@
     "traffic_bytes_tx": 72,
     "traffic_packets": 1,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-24T01:12:03.044017+00:00",
+    "last_seen": "2026-11-24T03:13:16.415414+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -230,7 +230,7 @@
     "ip": "REDACTED_IP",
     "ipv6_addresses": [],
     "alias": "Smart TV LG webOS (Recámara / Secundaria)",
-    "hostname": "LGwebOSTV-5eU4-1.local",
+    "hostname": "Smart TV LG webOS (Recámara / Secundaria)",
     "vendor": "LG Innotek",
     "device_type": "Smart TV / Multimedia",
     "interface": "enp2s0",
@@ -242,21 +242,17 @@
     "open_ports": [],
     "port_details": [],
     "risky_ports": [],
-    "mdns_services": [
-      "0_0 (_display._tcp)",
-      "0_0 (_ghp._tcp)",
-      "0_0 (AirPlay Remote Video)"
-    ],
+    "mdns_services": [],
     "wifi_metrics": {},
     "trust_level": "KNOWN",
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
     "traffic_bytes_rx": 0,
-    "traffic_bytes_tx": 617,
-    "traffic_packets": 2,
+    "traffic_bytes_tx": 800,
+    "traffic_packets": 4,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-24T01:12:03.044017+00:00",
+    "last_seen": "2026-11-24T03:13:16.415414+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -452,9 +448,9 @@
     "is_safe": true,
     "traffic_bytes_rx": REDACTED_PHONE,
     "traffic_bytes_tx": REDACTED_PHONE,
-    "traffic_packets": 21821626,
+    "traffic_packets": 24965647,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-24T01:12:03.044017+00:00",
+    "last_seen": "2026-11-24T03:13:16.415414+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -530,7 +526,7 @@
     "traffic_bytes_tx": 0,
     "traffic_packets": 0,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-24T01:12:03.044017+00:00",
+    "last_seen": "2026-11-24T03:13:16.415414+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]

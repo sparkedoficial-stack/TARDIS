@@ -579,25 +579,73 @@ class TardisAgyCoevolutionEngine:
         except Exception as exc:
             logger.debug("runtime governor scan note: %s", exc)
 
-        # 2. Hub Health degradados / offline
+        # 2. Hub Health degradados / offline (con guarda contra reinicio/arranque de tardis.service y auto-cierre al recuperar)
         try:
             from core.hub_health import hub_health
             hh = hub_health(force=True)
-            for sid, info in (hh.get("subsystems") or {}).items():
-                st = info.get("status")
-                if st in ("degraded", "offline") and sid != "airplay_monitor":
-                    found.append(self.upsert_proposal(
-                        lens="runtime",
-                        category="reliability",
-                        severity="HIGH" if st == "offline" else "MEDIUM",
-                        roi_score=87 if st == "offline" else 79,
-                        title=f"Reparar subsistema {sid} en estado {st.upper()}",
-                        problem=f"Sonda de HubHealth reporta `{sid}` = {st} (detail={info.get('detail')}, unit={info.get('unit')}, http={info.get('http')}).",
-                        proposed_solution=f"Diagnosticar unidad `{info.get('unit')}` o endpoint HTTP asociado a `{sid}`, aplicar corrección y validar 200 OK en `/api/hub/health`.",
-                        target_files=["core/hub_health.py"],
-                        evidence=info,
-                        fingerprint_seed=f"runtime|hub_health|{sid}|{st}",
-                    ))
+            subs_map = hh.get("subsystems") or {}
+            total_subs = len(subs_map)
+            offline_subs = [
+                sid for sid, info in subs_map.items()
+                if sid != "airplay_monitor" and info.get("status") == "offline"
+            ]
+            online_subs = {
+                sid for sid, info in subs_map.items()
+                if info.get("status") == "online"
+            }
+
+            # Auto-reconciliar propuestas pendientes de subsistemas que ya volvieron a ONLINE
+            if online_subs:
+                now_ok = time.time()
+                iso_ok = _now_iso()
+                with self._connect() as conn:
+                    pend_rel = conn.execute(
+                        "SELECT proposal_id, evidence_json FROM proposals WHERE status = 'pending' AND category = 'reliability' AND lens = 'runtime'"
+                    ).fetchall()
+                    for prow in pend_rel:
+                        try:
+                            ev_rel = json.loads(prow["evidence_json"] or "{}")
+                        except Exception:
+                            ev_rel = {}
+                        sid_prev = str(ev_rel.get("id") or "")
+                        if sid_prev and sid_prev in online_subs:
+                            conn.execute(
+                                """
+                                UPDATE proposals
+                                SET status = 'reviewed',
+                                    agy_response = 'Auto-reconciliado: subsistema confirmado ONLINE por hub_health.',
+                                    updated_ts = ?,
+                                    updated_iso = ?
+                                WHERE proposal_id = ?
+                                """,
+                                (now_ok, iso_ok, prow["proposal_id"]),
+                            )
+
+            # Si >=40% de los subsistemas aparecen offline simultáneamente, tardis.service está reiniciando:
+            # evitar tormenta de 38 propuestas falsas individuales.
+            is_mass_restart = total_subs >= 5 and len(offline_subs) >= max(5, int(total_subs * 0.4))
+            if is_mass_restart:
+                logger.info(
+                    "Omitiendo creación individual de propuestas HubHealth: %d/%d subsistemas offline (posible reinicio de tardis.service).",
+                    len(offline_subs),
+                    total_subs,
+                )
+            else:
+                for sid, info in subs_map.items():
+                    st = info.get("status")
+                    if st in ("degraded", "offline") and sid != "airplay_monitor":
+                        found.append(self.upsert_proposal(
+                            lens="runtime",
+                            category="reliability",
+                            severity="HIGH" if st == "offline" else "MEDIUM",
+                            roi_score=87 if st == "offline" else 79,
+                            title=f"Reparar subsistema {sid} en estado {st.upper()}",
+                            problem=f"Sonda de HubHealth reporta `{sid}` = {st} (detail={info.get('detail')}, unit={info.get('unit')}, http={info.get('http')}).",
+                            proposed_solution=f"Diagnosticar unidad `{info.get('unit')}` o endpoint HTTP asociado a `{sid}`, aplicar corrección y validar 200 OK en `/api/hub/health`.",
+                            target_files=["core/hub_health.py"],
+                            evidence=info,
+                            fingerprint_seed=f"runtime|hub_health|{sid}|{st}",
+                        ))
         except Exception as exc:
             logger.debug("runtime hub_health scan note: %s", exc)
 
@@ -999,8 +1047,7 @@ class TardisAgyCoevolutionEngine:
             "```",
             "",
         ])
-        _mirror_file("inbox_for_agy.md", "\n".join(lines))
-        return INBOX_MD_FILE
+        return self._write_channel_file("inbox_for_agy.md", "\n".join(lines))
 
     # =========================================================================
     # COMUNICACIÓN BIDIRECCIONAL ACTIVA CON AGY
@@ -1264,18 +1311,19 @@ class TardisAgyCoevolutionEngine:
         except Exception:
             pass
 
-        # Ingestar en DeepMemoryVault para aprendizaje acumulativo de TARDIS
-        try:
-            from core.deep_memory_vault import get_deep_memory_vault
-            get_deep_memory_vault().record_contemplation(
-                question=f"[CO-EVOLUCIÓN TARDIS <-> AGY] Propuesta {proposal_id or 'abierta'} ({status})",
-                answer=clean_msg[:4000],
-                source="tardis_agy_coevolution",
-                status="COMPLETED",
-                complexity_score=2.9,
-            )
-        except Exception:
-            pass
+        # Ingestar en DeepMemoryVault para aprendizaje acumulativo de TARDIS (omitir en instancias aisladas de test)
+        if not self._is_isolated_instance:
+            try:
+                from core.deep_memory_vault import get_deep_memory_vault
+                get_deep_memory_vault().record_contemplation(
+                    question=f"[CO-EVOLUCIÓN TARDIS <-> AGY] Propuesta {proposal_id or 'abierta'} ({status})",
+                    answer=clean_msg[:4000],
+                    source="tardis_agy_coevolution",
+                    status="COMPLETED",
+                    complexity_score=2.9,
+                )
+            except Exception:
+                pass
 
         self.write_agy_inbox_digest()
         return {"ok": True, "message": dlg, "proposal_id": proposal_id, "status": status}
@@ -1416,6 +1464,20 @@ class TardisAgyCoevolutionEngine:
             scan_interval,
             dispatch_interval,
         )
+
+        # Esperar brevemente a que tardis.service (:8757/health) esté listo tras reinicios simultáneos
+        try:
+            import urllib.request as _ureq
+            deadline = time.time() + 25.0
+            while not self._stop_event.is_set() and time.time() < deadline:
+                try:
+                    with _ureq.urlopen("http://127.0.0.1:8757/health", timeout=2.0) as _resp:
+                        if _resp.status == 200:
+                            break
+                except Exception:
+                    self._stop_event.wait(2.0)
+        except Exception:
+            pass
 
         try:
             while not self._stop_event.is_set():

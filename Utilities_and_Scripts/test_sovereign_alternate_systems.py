@@ -293,14 +293,16 @@ def test_resource_governor_cpulist_and_quota_helpers():
 
 
 def test_canary_verifier_static_snapshot_and_rollback(tmp_path: Path):
-    from core.tardis_canary_verifier import TardisCanaryVerifier
+    from core.tardis_canary_verifier import CANARY_BACKUP_ROOT, TardisCanaryVerifier
 
     verifier = TardisCanaryVerifier(db_path=tmp_path / "canary.db")
+    assert verifier.backup_root.resolve() != CANARY_BACKUP_ROOT.resolve()
     sample = tmp_path / "sample_mod.py"
     sample.write_text("def add(a: int, b: int) -> int:\n    return a + b\n", encoding="utf-8")
 
     res_ok = verifier.verify_files([sample], run_tests=False, check_live_api=False, create_snapshot=True)
     assert res_ok["ok"] is True
+    assert str(tmp_path) in str(res_ok["backup_dir"])
     run_id = res_ok["run_id"]
 
     # Introducir error de sintaxis y verificar que falla la puerta canaria
@@ -309,7 +311,7 @@ def test_canary_verifier_static_snapshot_and_rollback(tmp_path: Path):
     assert res_bad["ok"] is False
     assert res_bad["static"]["high_issues"] >= 1
 
-    # Rollback atómico debe restaurar el código válido
+    # Rollback atómico debe restaurar el código válido sin contaminar _selfmod_backups/canary
     rb = verifier.rollback(run_id)
     assert rb["ok"] is True
     assert "return a + b" in sample.read_text(encoding="utf-8")
@@ -366,3 +368,245 @@ def test_error_sentinel_imports_and_tunnel_check():
     ok, msg = s.check_online_tunnel()
     assert ok is True
     assert isinstance(msg, str) and len(msg) > 0
+
+
+def test_feedback_bridge_health_hysteresis_recovery_and_partial_hub_guard():
+    from core import tardis_feedback_bridge as tfb
+
+    base_subs = {f"sub_{i}": "online" for i in range(10)}
+    prev = {
+        "ts": 1000.0,
+        "iso": "2026-11-23 21:21:00",
+        "subsystems": dict(base_subs),
+        "self_improve": {"score": 100, "status": "HEALTHY", "metrics": {}, "needs": [], "penalties": []},
+        "governor": {"level": "YELLOW", "cpu_psi_60": 33.1},
+        "inbox": {"pending": []},
+        "health_tracker": {"low_streak": 0, "regression_active": False, "baseline_score": 100, "last_score": 100},
+    }
+
+    # 1. Caída leve transitoria (100 -> 85, sigue HEALTHY): no dispara salud_baja en el 1er ciclo
+    cur1 = {
+        "ts": 1060.0,
+        "iso": "2026-11-23 21:22:10",
+        "subsystems": dict(base_subs),
+        "self_improve": {
+            "score": 85,
+            "status": "HEALTHY",
+            "metrics": {"cpu_percent": 88.2, "cpu_ema": 62.0},
+            "needs": [],
+            "penalties": [{"factor": "cpu_sustained", "points": -15}],
+        },
+        "governor": {"level": "ORANGE", "cpu_psi_60": 28.4},
+        "inbox": {"pending": []},
+    }
+    ev1 = tfb.diff(prev, cur1)
+    assert not any(e["kind"] == "salud_baja" for e in ev1)
+    assert any(e["kind"] == "salud_fluctuacion" and e["confirmed"] is False for e in ev1)
+    assert cur1["health_tracker"]["low_streak"] == 1
+    assert cur1["health_tracker"]["regression_active"] is False
+
+    # 2. Persistencia en 2º ciclo (sigue en 85): confirma salud_baja MEDIUM con contexto diagnóstico
+    cur2 = {
+        "ts": 1120.0,
+        "iso": "2026-11-23 21:23:10",
+        "subsystems": dict(base_subs),
+        "self_improve": dict(cur1["self_improve"]),
+        "governor": dict(cur1["governor"]),
+        "inbox": {"pending": []},
+    }
+    ev2 = tfb.diff(cur1, cur2)
+    baja = [e for e in ev2 if e["kind"] == "salud_baja"]
+    assert len(baja) == 1
+    assert baja[0]["severity"] == "MEDIUM"
+    assert baja[0]["confirmed"] is True
+    assert baja[0]["diagnostics"]["governor"]["level"] == "ORANGE"
+    assert cur2["health_tracker"]["regression_active"] is True
+
+    # 3. Recuperación simétrica (85 -> 100): emite salud_recuperada
+    cur3 = {
+        "ts": 1180.0,
+        "iso": "2026-11-23 21:24:10",
+        "subsystems": dict(base_subs),
+        "self_improve": {"score": 100, "status": "HEALTHY", "metrics": {"cpu_percent": 18.0}, "needs": [], "penalties": []},
+        "governor": {"level": "GREEN", "cpu_psi_60": 8.0},
+        "inbox": {"pending": []},
+    }
+    ev3 = tfb.diff(cur2, cur3)
+    rec = [e for e in ev3 if e["kind"] == "salud_recuperada"]
+    assert len(rec) == 1
+    assert rec[0]["from"] == 85 and rec[0]["to"] == 100
+    assert cur3["health_tracker"]["regression_active"] is False
+    assert cur3["health_tracker"]["low_streak"] == 0
+
+    # 4. Caída severa (<80 / DEGRADED): escala inmediatamente con severity HIGH
+    cur_sev = {
+        "ts": 1240.0,
+        "iso": "2026-11-23 21:25:10",
+        "subsystems": dict(base_subs),
+        "self_improve": {"score": 70, "status": "DEGRADED", "metrics": {}, "needs": ["Temporal Brain offline"], "penalties": []},
+        "governor": {"level": "RED", "cpu_psi_60": 82.0},
+        "inbox": {"pending": []},
+    }
+    ev_sev = tfb.diff(cur3, cur_sev)
+    baja_sev = [e for e in ev_sev if e["kind"] == "salud_baja"]
+    assert len(baja_sev) == 1 and baja_sev[0]["severity"] == "HIGH"
+
+    # 5. Guard contra snapshot parcial de /api/hub/health (evita tormenta de subsistema_ausente)
+    cur_partial = {
+        "ts": 1300.0,
+        "iso": "2026-11-23 21:26:10",
+        "subsystems": {"sub_0": "online", "sub_1": "online"},
+        "self_improve": dict(cur3["self_improve"]),
+        "governor": {},
+        "inbox": {"pending": []},
+    }
+    ev_partial = tfb.diff(cur3, cur_partial)
+    assert not any(e["kind"] == "subsistema_ausente" for e in ev_partial)
+    assert any(e["kind"] == "hub_snapshot_partial" for e in ev_partial)
+
+
+def test_antigravity_bridge_cpu_spike_hysteresis_and_diagnostics(monkeypatch):
+    import antigravity_bridge
+
+    bridge = antigravity_bridge.OmniFeedbackBridge()
+    monkeypatch.setattr(
+        bridge,
+        "_probe_subsystems",
+        lambda: {
+            "ollama_online": True,
+            "temporal_brain_online": True,
+            "rf_radar_active": False,
+            "radar_variance": 0.1,
+            "ios_bridge": True,
+            "geon_engine": True,
+            "memory_fts": True,
+            "sensors": True,
+        },
+    )
+    monkeypatch.setattr(antigravity_bridge, "_atomic_write_json", lambda *a, **kw: None)
+    monkeypatch.setattr(antigravity_bridge, "_safe_tail", lambda *a, **kw: [])
+
+    # Ciclo 1: pico transitorio único de 91% CPU con EMA baja previa -> NO debe penalizar a 85
+    bridge._cpu_ema = 25.0
+    monkeypatch.setattr(bridge, "_sample_cpu_percent", lambda: 91.0)
+    a1 = bridge.assess_system_needs()
+    assert a1["health_score"] == 100
+    assert a1["metrics"]["high_cpu_streak"] == 1
+    assert a1["penalties"] == []
+
+    # Ciclo 2: CPU sigue >85% en 2º ciclo consecutivo -> penalización sostenida -15 con trazabilidad
+    monkeypatch.setattr(bridge, "_sample_cpu_percent", lambda: 92.0)
+    a2 = bridge.assess_system_needs()
+    assert a2["health_score"] == 85
+    assert a2["metrics"]["high_cpu_streak"] == 2
+    assert any(p["factor"] == "cpu_sustained" and p["points"] == -15 for p in a2["penalties"])
+
+    st = bridge.get_status()
+    assert "metrics" in st and "penalties" in st and "needs" in st
+    assert st["metrics"]["high_cpu_streak"] == 2
+
+
+def test_event_bus_pytest_isolation_and_coevolution_recovery_correlation(tmp_path: Path, monkeypatch):
+    from core import tardis_event_bus as teb
+    from core.tardis_agy_coevolution import TardisAgyCoevolutionEngine
+
+    # 1. get_event_bus() bajo pytest NO debe abrir data/sovereign_event_bus.db de producción
+    bus_default = teb.get_event_bus()
+    assert bus_default.db_path.resolve() != teb.DEFAULT_BUS_DB.resolve()
+
+    # 2. Co-evolución debe correlacionar health.recovered para omitir regresiones transitorias ya recuperadas
+    iso_bus = teb.SovereignEventBus(db_path=tmp_path / "iso_bus.db")
+    monkeypatch.setattr(teb, "get_event_bus", lambda db_path=None: iso_bus)
+
+    iso_bus.publish(
+        "health.regression",
+        "tardis_feedback_bridge",
+        {"kind": "salud_baja", "from": 100, "to": 85},
+        severity="HIGH",
+        dedup_window_s=0.0,
+    )
+    iso_bus.publish(
+        "health.recovered",
+        "tardis_feedback_bridge",
+        {"kind": "salud_recuperada", "from": 85, "to": 100},
+        severity="INFO",
+        dedup_window_s=0.0,
+    )
+    # También filtrar artefacto sintético sample_mod.py
+    iso_bus.publish(
+        "evolution.rollback",
+        "tardis_canary_verifier",
+        {"run_id": "canary_test", "restored_files": ["sample_mod.py"]},
+        severity="HIGH",
+        dedup_window_s=0.0,
+    )
+
+    eng = TardisAgyCoevolutionEngine(db_path=tmp_path / "coev_corr.db")
+    monkeypatch.setattr("core.hub_health.hub_health", lambda force=False: {"counts": {"online": 41}, "subsystems": {}})
+    found = eng._scan_runtime_lens()
+    pending = eng.list_proposals(status="pending", limit=20)
+    assert not any(p["category"] == "regression" for p in pending)
+    assert isinstance(found, list)
+
+
+def test_tapo_bounded_streamer_ffmpeg_cmd_caps_threads_and_fps():
+    from core.tapo_c310_sentinel import BoundedTapoStreamer
+
+    streamer = BoundedTapoStreamer(
+        tapo=None,
+        audio=[],
+        quality="HD",
+        mode="pipe",
+        decoder_threads=2,
+        encoder_threads=2,
+        filter_threads=1,
+        max_fps=6.0,
+        mjpeg_qscale=5,
+        ff_args={
+            "-loglevel": "error",
+            "-probesize": "300000",
+            "-analyzeduration": "300000",
+            "-c:v": "mjpeg",
+            "-f": "image2pipe",
+        },
+    )
+    cmd = streamer.build_ffmpeg_cmd()
+    # Verificar límites explícitos de hilos de decodificación, filtros y codificación + FPS acotado
+    assert cmd[0] == "ffmpeg"
+    assert cmd.count("-threads") == 2
+    in_idx = cmd.index("-i")
+    assert cmd.index("-threads") < in_idx
+    assert "-filter_threads" in cmd and cmd[cmd.index("-filter_threads") + 1] == "1"
+    assert "-filter_complex_threads" in cmd and cmd[cmd.index("-filter_complex_threads") + 1] == "1"
+    assert "-r" in cmd and cmd[cmd.index("-r") + 1] == "6"
+    assert "-q:v" in cmd and cmd[cmd.index("-q:v") + 1] == "5"
+
+
+def test_coevolution_hub_health_mass_outage_guard_and_auto_reconcile(tmp_path: Path, monkeypatch):
+    from core import tardis_event_bus as teb
+    from core.tardis_agy_coevolution import TardisAgyCoevolutionEngine
+
+    iso_bus = teb.SovereignEventBus(db_path=tmp_path / "iso_bus_hub.db")
+    monkeypatch.setattr(teb, "get_event_bus", lambda db_path=None: iso_bus)
+    eng = TardisAgyCoevolutionEngine(db_path=tmp_path / "coev_hub.db")
+
+    # 1. Simular reinicio masivo de tardis.service (8/10 subsistemas offline): NO debe spammear propuestas individuales
+    mass_offline = {f"sub_{i}": {"id": f"sub_{i}", "status": "offline" if i < 8 else "online"} for i in range(10)}
+    monkeypatch.setattr("core.hub_health.hub_health", lambda force=False: {"counts": {"offline": 8, "online": 2}, "subsystems": mass_offline})
+    eng._scan_runtime_lens()
+    assert not any(p["category"] == "reliability" for p in eng.list_proposals(status="pending", limit=20))
+
+    # 2. Fallo real de 1 solo subsistema -> crea propuesta reliability pendiente
+    one_offline = {f"sub_{i}": {"id": f"sub_{i}", "status": "offline" if i == 0 else "online"} for i in range(10)}
+    monkeypatch.setattr("core.hub_health.hub_health", lambda force=False: {"counts": {"offline": 1, "online": 9}, "subsystems": one_offline})
+    eng._scan_runtime_lens()
+    rel_pend = [p for p in eng.list_proposals(status="pending", limit=20) if p["category"] == "reliability"]
+    assert len(rel_pend) == 1 and "sub_0" in rel_pend[0]["title"]
+
+    # 3. Al recuperarse sub_0 -> online, el siguiente scan auto-reconcilia la propuesta a reviewed
+    all_online = {f"sub_{i}": {"id": f"sub_{i}", "status": "online"} for i in range(10)}
+    monkeypatch.setattr("core.hub_health.hub_health", lambda force=False: {"counts": {"online": 10}, "subsystems": all_online})
+    eng._scan_runtime_lens()
+    assert not any(p["category"] == "reliability" for p in eng.list_proposals(status="pending", limit=20))
+    updated = eng.get_proposal(rel_pend[0]["proposal_id"])
+    assert updated is not None and updated["status"] == "reviewed"
