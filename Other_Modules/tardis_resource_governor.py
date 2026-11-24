@@ -131,8 +131,20 @@ THROTTLE_PROFILES: Dict[str, Dict[str, Dict[str, Any]]] = {
     },
 }
 
-# Histéresis para liberación automática de throttling en el demonio (muestras GREEN consecutivas).
+# Histéresis para liberación automática de throttling en el demonio (Schmitt trigger):
+# - GREEN: liberación rápida tras 2 muestras consecutivas.
+# - YELLOW en banda segura de enfriamiento (PSI60<20%, CPU<79°C, GPU<74°C, RAM>=6GB):
+#   liberación tras 3 muestras consecutivas para evitar bloqueo indefinido cuando Tctl ~77°C.
 RECOVERY_GREEN_STREAK = 2
+RECOVERY_SAFE_YELLOW_STREAK = 3
+# Confirmación de picos térmicos puros de CPU (82-85.9°C con PSI/carga bajos) antes de
+# aplicar throttling global en el demonio (evita falsas alarmas por micro-ráfagas Ryzen).
+THERMAL_SPIKE_CONFIRM_STREAK = 2
+# Margen térmico mínimo para restaurar automáticamente el perfil energético 'performance'.
+POWER_PROFILE_RESTORE_MAX_CPU_C = 72.0
+POWER_PROFILE_RESTORE_MAX_GPU_C = 68.0
+# Antigüedad máxima (días) para conservar archivos .bak* sueltos en raíz/core antes de archivarlos.
+STALE_BACKUP_ARCHIVE_DAYS = 7.0
 
 
 def _now_iso() -> str:
@@ -247,6 +259,189 @@ def _read_cpu_thermal() -> Dict[str, Any]:
         cpu_source = "acpitz"
 
     return {"temp_c": cpu_temp_c, "source": cpu_source, "fan_rpm": fans}
+
+
+def _read_cpu_power_profile() -> Dict[str, Any]:
+    """Lee telemetría Ring 0 de cpufreq/amd-pstate-epp/boost y platform_profile vía sysfs (<0.1ms)."""
+    def _read_txt(p: Path) -> str:
+        try:
+            return p.read_text(encoding="utf-8", errors="ignore").strip()
+        except Exception:
+            return ""
+
+    cpufreq_dir = Path("/sys/devices/system/cpu/cpu0/cpufreq")
+    driver = _read_txt(cpufreq_dir / "scaling_driver")
+    governor = _read_txt(cpufreq_dir / "scaling_governor")
+    epp = _read_txt(cpufreq_dir / "energy_performance_preference")
+    boost_raw = _read_txt(Path("/sys/devices/system/cpu/cpufreq/boost"))
+    boost_enabled: Optional[bool] = (
+        boost_raw == "1" if boost_raw in ("0", "1") else None
+    )
+    platform_profile = _read_txt(Path("/sys/firmware/acpi/platform_profile")).lower()
+    if platform_profile == "quiet":
+        power_profile = "power-saver"
+    elif platform_profile in ("balanced", "performance"):
+        power_profile = platform_profile
+    elif governor == "performance":
+        power_profile = "performance"
+    elif governor == "powersave":
+        power_profile = "balanced"
+    else:
+        power_profile = ""
+
+    return {
+        "power_profile": power_profile,
+        "platform_profile": platform_profile,
+        "scaling_driver": driver,
+        "scaling_governor": governor,
+        "epp": epp,
+        "boost": boost_enabled,
+    }
+
+
+def _power_profile_control_enabled() -> bool:
+    """Desactiva cambios reales de powerprofilesctl durante pytest salvo habilitación explícita."""
+    if os.environ.get("PYTEST_CURRENT_TEST") and str(os.environ.get("TARDIS_GOVERNOR_POWER_PROFILE_TEST", "0")) != "1":
+        return False
+    return str(os.environ.get("TARDIS_GOVERNOR_POWER_PROFILE_CONTROL", "1")).lower() not in ("0", "false", "no")
+
+
+def _get_power_profile() -> str:
+    """Obtiene el perfil energético activo vía powerprofilesctl (con fallback a sysfs)."""
+    exe = shutil.which("powerprofilesctl")
+    if exe:
+        try:
+            res = subprocess.run(
+                [exe, "get"],
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.DEVNULL,
+                text=True,
+                timeout=2.0,
+                check=False,
+            )
+            if res.returncode == 0 and res.stdout.strip():
+                return res.stdout.strip().lower()
+        except Exception:
+            pass
+    return str(_read_cpu_power_profile().get("power_profile") or "")
+
+
+def _set_power_profile(profile: str) -> bool:
+    """Conmuta el perfil energético del kernel (amd-pstate-epp + platform_profile) vía powerprofilesctl."""
+    prof = (profile or "").strip().lower()
+    if prof not in ("performance", "balanced", "power-saver"):
+        return False
+    exe = shutil.which("powerprofilesctl")
+    if not exe:
+        return False
+    try:
+        res = subprocess.run(
+            [exe, "set", prof],
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            timeout=3.0,
+            check=False,
+        )
+        return res.returncode == 0
+    except Exception:
+        return False
+
+
+def _resolve_throttle_target_level(
+    snap: Dict[str, Any],
+    force_level: Optional[str] = None,
+) -> Optional[str]:
+    """Determina el nivel objetivo de throttling ('ORANGE'|'RED'|None) combinando nivel, PSI y térmicas."""
+    if force_level:
+        forced = str(force_level).strip().upper()
+        return forced if forced in THROTTLE_PROFILES else None
+    lvl = str(snap.get("level") or "GREEN").upper()
+    if lvl in THROTTLE_PROFILES:
+        return lvl
+    cpu_psi_60 = float(((snap.get("cpu") or {}).get("psi") or {}).get("some_avg60", 0.0))
+    cpu_temp_c = float((snap.get("cpu") or {}).get("temp_c", 0.0))
+    gpu_temp_c = float((snap.get("gpu") or {}).get("temp_c", 0.0))
+    # Trigger proactivo en YELLOW ante estrés combinado térmico (GPU o CPU) + CPU PSI sostenido
+    if (gpu_temp_c >= 72.0 and cpu_psi_60 >= 40.0) or (cpu_temp_c >= 78.0 and cpu_psi_60 >= 30.0):
+        return "ORANGE"
+    return None
+
+
+def _is_thermal_or_heavy_psi(snap: Dict[str, Any], target_level: str) -> bool:
+    """Indica si existe presión térmica CPU/GPU o contención PSI suficiente para aliviar inferencia y perfil energético."""
+    cpu_psi_60 = float(((snap.get("cpu") or {}).get("psi") or {}).get("some_avg60", 0.0))
+    cpu_temp_c = float((snap.get("cpu") or {}).get("temp_c", 0.0))
+    gpu_temp_c = float((snap.get("gpu") or {}).get("temp_c", 0.0))
+    return (
+        target_level == "RED"
+        or gpu_temp_c >= 78.0
+        or cpu_temp_c >= 82.0
+        or cpu_psi_60 >= 60.0
+        or (cpu_temp_c >= 78.0 and cpu_psi_60 >= 30.0)
+    )
+
+
+def _is_pure_transient_cpu_thermal_spike(snap: Dict[str, Any]) -> bool:
+    """
+    Detecta un pico térmico moderado aislado de CPU (82.0-85.9°C) sin contención PSI,
+    GPU, RAM, swap ni loadavg, típico de micro-ráfagas Ryzen Tctl.
+    """
+    if bool(snap.get("call_priority_active", False)):
+        return False
+    if str(snap.get("level") or "GREEN").upper() != "ORANGE":
+        return False
+    cpu = snap.get("cpu") or {}
+    mem = snap.get("memory") or {}
+    gpu = snap.get("gpu") or {}
+    cpu_temp_c = float(cpu.get("temp_c", 0.0))
+    cpu_psi_60 = float((cpu.get("psi") or {}).get("some_avg60", 0.0))
+    load1 = float(cpu.get("load1", 0.0))
+    ncpus = max(1, int(cpu.get("cores") or os.cpu_count() or 16))
+    gpu_temp_c = float(gpu.get("temp_c", 0.0))
+    mem_avail = float(mem.get("available_mb", 99999.0))
+    swap_used = float(mem.get("swap_used_mb", 0.0))
+    return (
+        82.0 <= cpu_temp_c < 86.0
+        and cpu_psi_60 < 25.0
+        and gpu_temp_c < 75.0
+        and mem_avail >= 6000.0
+        and swap_used < 10240.0
+        and load1 < ncpus * 0.9
+    )
+
+
+def _is_in_safe_recovery_band(snap: Dict[str, Any]) -> bool:
+    """
+    Evalúa la banda muerta de recuperación (Schmitt trigger) para liberar throttling
+    de forma segura: GREEN siempre, o YELLOW con holgura clara en PSI, CPU/GPU temp, RAM y load.
+    """
+    if bool(snap.get("call_priority_active", False)):
+        return False
+    lvl = str(snap.get("level") or "GREEN").upper()
+    if lvl == "GREEN":
+        return True
+    if lvl != "YELLOW":
+        return False
+    cpu = snap.get("cpu") or {}
+    mem = snap.get("memory") or {}
+    gpu = snap.get("gpu") or {}
+    cpu_psi_60 = float((cpu.get("psi") or {}).get("some_avg60", 0.0))
+    cpu_temp_c = float(cpu.get("temp_c", 0.0))
+    gpu_temp_c = float(gpu.get("temp_c", 0.0))
+    mem_avail = float(mem.get("available_mb", 99999.0))
+    swap_used = float(mem.get("swap_used_mb", 0.0))
+    load1 = float(cpu.get("load1", 0.0))
+    ncpus = max(1, int(cpu.get("cores") or os.cpu_count() or 16))
+    return (
+        cpu_psi_60 < 20.0
+        and cpu_temp_c < 79.0
+        and gpu_temp_c < 74.0
+        and mem_avail >= 6000.0
+        and swap_used < 10240.0
+        and load1 < ncpus * 0.9
+    )
 
 
 def _read_meminfo_mb() -> Dict[str, float]:
@@ -683,6 +878,8 @@ class TardisResourceGovernor:
         self._lock = threading.Lock()
         self._last_level: Optional[str] = None
         self._green_streak: int = 0
+        self._safe_yellow_streak: int = 0
+        self._thermal_orange_streak: int = 0
         self._stop_event = threading.Event()
         self._init_schema()
 
@@ -703,6 +900,7 @@ class TardisResourceGovernor:
                     iso TEXT NOT NULL,
                     level TEXT NOT NULL,
                     cpu_psi_60 REAL,
+                    cpu_temp_c REAL DEFAULT 0.0,
                     mem_avail_mb REAL,
                     swap_used_mb REAL,
                     load1 REAL,
@@ -714,6 +912,9 @@ class TardisResourceGovernor:
                 CREATE INDEX IF NOT EXISTS idx_gov_ts ON snapshots(ts);
                 """
             )
+            cols = {row["name"] for row in conn.execute("PRAGMA table_info(snapshots)").fetchall()}
+            if "cpu_temp_c" not in cols:
+                conn.execute("ALTER TABLE snapshots ADD COLUMN cpu_temp_c REAL DEFAULT 0.0")
 
     def _load_throttle_state(self) -> Dict[str, Any]:
         default_state: Dict[str, Any] = {
@@ -722,6 +923,8 @@ class TardisResourceGovernor:
             "updated_iso": "",
             "baselines": {},
             "applied": {},
+            "power_profile_baseline": "",
+            "power_profile_applied": "",
         }
         try:
             if self.throttle_state_file.is_file():
@@ -743,6 +946,8 @@ class TardisResourceGovernor:
             "level": str(st.get("level") or "NONE"),
             "throttled_units_count": len(applied),
             "units": sorted(applied.keys()),
+            "power_profile_mitigated": bool(st.get("power_profile_applied")),
+            "power_profile_applied": str(st.get("power_profile_applied") or ""),
             "updated_iso": str(st.get("updated_iso") or ""),
         }
 
@@ -752,6 +957,7 @@ class TardisResourceGovernor:
         mem_psi = _parse_psi_file(Path("/proc/pressure/memory"))
         io_psi = _parse_psi_file(Path("/proc/pressure/io"))
         cpu_thermal = _read_cpu_thermal()
+        cpu_power = _read_cpu_power_profile()
         mem = _read_meminfo_mb()
         load1, load5, load15 = _read_loadavg()
         gpu = _read_gpu()
@@ -885,6 +1091,11 @@ class TardisResourceGovernor:
                 "temp_c": cpu_temp_c,
                 "thermal_source": cpu_thermal.get("source", ""),
                 "fan_rpm": cpu_thermal.get("fan_rpm", {}),
+                "power_profile": cpu_power.get("power_profile", ""),
+                "scaling_driver": cpu_power.get("scaling_driver", ""),
+                "scaling_governor": cpu_power.get("scaling_governor", ""),
+                "epp": cpu_power.get("epp", ""),
+                "boost": cpu_power.get("boost"),
             },
             "memory": {**mem, "psi": mem_psi},
             "io": {"psi": io_psi},
@@ -916,14 +1127,15 @@ class TardisResourceGovernor:
                 conn.execute(
                     """
                     INSERT INTO snapshots
-                        (ts, iso, level, cpu_psi_60, mem_avail_mb, swap_used_mb, load1, gpu_temp_c, vram_used_mb, duplicate_models_count, reasons_json)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        (ts, iso, level, cpu_psi_60, cpu_temp_c, mem_avail_mb, swap_used_mb, load1, gpu_temp_c, vram_used_mb, duplicate_models_count, reasons_json)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     (
                         snap["ts"],
                         snap["iso"],
                         snap["level"],
                         snap["cpu"]["psi"]["some_avg60"],
+                        float(snap["cpu"].get("temp_c", 0.0)),
                         snap["memory"]["available_mb"],
                         snap["memory"]["swap_used_mb"],
                         snap["cpu"]["load1"],

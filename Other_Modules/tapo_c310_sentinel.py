@@ -29,6 +29,19 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+# Limitar pools OpenBLAS/OpenMP/MKL antes de importar numpy/cv2/onnxruntime:
+# evita que librerías nativas creen 16 hilos sobre el cpuset CCD1 (8-15) generando
+# sobresuscripción de hilos y presión CPU PSI en Ring 0.
+for _env_k, _env_v in (
+    ("OMP_NUM_THREADS", "2"),
+    ("OPENBLAS_NUM_THREADS", "2"),
+    ("MKL_NUM_THREADS", "2"),
+    ("NUMEXPR_NUM_THREADS", "2"),
+    ("VECLIB_MAXIMUM_THREADS", "2"),
+    ("OMP_WAIT_POLICY", "PASSIVE"),
+):
+    os.environ.setdefault(_env_k, _env_v)
+
 from aiohttp import WSMsgType, web
 import cv2
 import httpx

@@ -1,44 +1,44 @@
 {
   "ok": true,
-  "ts": REDACTED_PHONE.412132,
-  "iso": "2026-11-23T22:18:27-05:00",
+  "ts": REDACTED_PHONE.075416,
+  "iso": "2026-11-23T22:25:09-05:00",
   "level": "YELLOW",
   "reasons": [
-    "Temperatura CPU cálida (77°C)"
+    "Temperatura CPU cálida (80°C)"
   ],
   "call_priority_active": false,
   "cpu": {
     "cores": 16,
-    "load1": 4.28,
-    "load5": 6.13,
-    "load15": 7.14,
+    "load1": 9.2,
+    "load5": 6.09,
+    "load15": 6.57,
     "psi": {
-      "some_avg10": 8.09,
-      "some_avg60": 10.87,
-      "some_avg300": 21.97,
+      "some_avg10": 33.27,
+      "some_avg60": 20.16,
+      "some_avg300": 16.16,
       "full_avg10": 0.0,
       "full_avg60": 0.0
     },
-    "temp_c": 76.9,
+    "temp_c": 80.0,
     "thermal_source": "k10temp",
     "fan_rpm": {
-      "cpu": 4400,
+      "cpu": 4300,
       "gpu": 4400
     }
   },
   "memory": {
     "total_mb": 31495.2,
-    "available_mb": 13057.9,
-    "used_mb": 18437.3,
-    "used_pct": 58.5,
+    "available_mb": 11194.1,
+    "used_mb": 20301.1,
+    "used_pct": 64.5,
     "swap_total_mb": 62994.8,
-    "swap_used_mb": 1766.8,
+    "swap_used_mb": 1766.2,
     "psi": {
-      "some_avg10": 0.0,
-      "some_avg60": 0.0,
-      "some_avg300": 0.0,
-      "full_avg10": 0.0,
-      "full_avg60": 0.0
+      "some_avg10": 1.44,
+      "some_avg60": 0.26,
+      "some_avg300": 0.05,
+      "full_avg10": 0.18,
+      "full_avg60": 0.03
     }
   },
   "io": {
@@ -53,8 +53,8 @@
   "gpu": {
     "available": true,
     "name": "NVIDIA GeForce RTX 3050 Laptop GPU",
-    "temp_c": 69.0,
-    "util_pct": 46.0,
+    "temp_c": 71.0,
+    "util_pct": 45.0,
     "vram_used_mb": 3587.0,
     "vram_free_mb": 235.0,
     "vram_total_mb": 4096.0,
@@ -81,19 +81,9 @@
       "effective_cpus": 8,
       "cpu_max": "150000 100000",
       "cpu_weight": 15,
-      "psi_some_avg10": 12.47,
-      "psi_some_avg60": 15.47,
-      "psi_full_avg60": 15.05
-    },
-    {
-      "unit": "tardis-video-pensante.service",
-      "cpuset_cpus": "8-15",
-      "effective_cpus": 8,
-      "cpu_max": "100000 100000",
-      "cpu_weight": 10,
-      "psi_some_avg10": 0.0,
-      "psi_some_avg60": 0.6,
-      "psi_full_avg60": 0.5
+      "psi_some_avg10": 18.52,
+      "psi_some_avg60": 17.25,
+      "psi_full_avg60": 16.68
     },
     {
       "unit": "tardis-omniscient-autonomy.service",
@@ -102,18 +92,8 @@
       "cpu_max": "100000 100000",
       "cpu_weight": 10,
       "psi_some_avg10": 0.0,
-      "psi_some_avg60": 0.14,
-      "psi_full_avg60": 0.13
-    },
-    {
-      "unit": "tardis-tapo-c310-voice.service",
-      "cpuset_cpus": "8-15",
-      "effective_cpus": 8,
-      "cpu_max": "150000 100000",
-      "cpu_weight": 15,
-      "psi_some_avg10": 0.0,
-      "psi_some_avg60": 0.07,
-      "psi_full_avg60": 0.07
+      "psi_some_avg60": 0.9,
+      "psi_full_avg60": 0.86
     },
     {
       "unit": "tardis-temporal-brain.service",
@@ -122,18 +102,8 @@
       "cpu_max": "450000 100000",
       "cpu_weight": 35,
       "psi_some_avg10": 0.0,
-      "psi_some_avg60": 0.04,
-      "psi_full_avg60": 0.04
-    },
-    {
-      "unit": "tardis-music-maestro.service",
-      "cpuset_cpus": "8-15",
-      "effective_cpus": 8,
-      "cpu_max": "100000 100000",
-      "cpu_weight": 10,
-      "psi_some_avg10": 0.0,
-      "psi_some_avg60": 0.03,
-      "psi_full_avg60": 0.03
+      "psi_some_avg60": 0.0,
+      "psi_full_avg60": 0.0
     },
     {
       "unit": "tardis-embed-brain.service",
@@ -151,6 +121,36 @@
       "effective_cpus": 16,
       "cpu_max": "max 100000",
       "cpu_weight": 100,
+      "psi_some_avg10": 0.0,
+      "psi_some_avg60": 0.0,
+      "psi_full_avg60": 0.0
+    },
+    {
+      "unit": "tardis-tapo-c310-voice.service",
+      "cpuset_cpus": "8-15",
+      "effective_cpus": 8,
+      "cpu_max": "150000 100000",
+      "cpu_weight": 15,
+      "psi_some_avg10": 0.0,
+      "psi_some_avg60": 0.0,
+      "psi_full_avg60": 0.0
+    },
+    {
+      "unit": "tardis-video-pensante.service",
+      "cpuset_cpus": "8-15",
+      "effective_cpus": 8,
+      "cpu_max": "100000 100000",
+      "cpu_weight": 10,
+      "psi_some_avg10": 0.0,
+      "psi_some_avg60": 0.0,
+      "psi_full_avg60": 0.0
+    },
+    {
+      "unit": "tardis-visual-intelligence.service",
+      "cpuset_cpus": "8-15",
+      "effective_cpus": 8,
+      "cpu_max": "100000 100000",
+      "cpu_weight": 10,
       "psi_some_avg10": 0.0,
       "psi_some_avg60": 0.0,
       "psi_full_avg60": 0.0
@@ -176,7 +176,7 @@
       "tardis-visual-intelligence.service",
       "tardis4ever.service"
     ],
-    "updated_iso": "2026-11-23T21:15:16-05:00"
+    "updated_iso": "2026-11-23T22:20:08-05:00"
   },
   "admission": {
     "interactive": true,
