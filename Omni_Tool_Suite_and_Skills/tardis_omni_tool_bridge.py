@@ -208,6 +208,15 @@ class TardisOmniToolBridge:
                 "domain": "continuous_agy_coevolution",
                 "description": "Canal bidireccional continuo 24/7 entre TARDIS y Antigravity (AGY) con 6 lentes de auto-búsqueda de sistemas alternos y mejoras, conversación persistente, guardrails anti-recursión/presupuesto y verificación canaria.",
                 "actions": ["status", "scan", "proposals", "propose", "dialogue", "ask-agy", "reply-tardis", "run-cycle", "daemon"]
+            },
+            "mundo_sin_censura": {
+                "name": "Un Mundo Sin Censura · Modelo Soberano Local Dual-Lane",
+                "binary": str(HOME_DIR / ".local" / "bin" / "mundo-sin-censura"),
+                "module": "modulos_ftl.ftl_mundo_sin_censura",
+                "module_file": str(HOME_DIR / "modulos_ftl" / "ftl_mundo_sin_censura.py"),
+                "domain": "sovereign_local_llm",
+                "description": "Controlador soberano dual-lane del modelo local `mundo-sin-censura` (Llama 3.1 8B Q4_K_M abliterado): inferencia CUDA sin duplicación vía TemporalBrain + respaldo Ollama nativo, paridad SHA-256, Modelfiles Llama 3.1 sincronizados y preservación estricta de La Constante AEGIS.",
+                "actions": ["status", "analyze", "verify", "ensure", "sync-ftl", "chat", "benchmark", "abliterate"]
             }
         }
         self._register_in_dynamic_registry()

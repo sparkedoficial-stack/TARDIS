@@ -3475,6 +3475,83 @@ iframe{border:none;width:100%;height:100%;}</style></head>
         )
 
     # --------------------------------------------------------------------------
+    # MODELO SOBERANO LOCAL: UN MUNDO SIN CENSURA (DUAL-LANE)
+    # --------------------------------------------------------------------------
+
+    @app.get("/api/mundo_sin_censura/status")
+    async def get_mundo_sin_censura_status_endpoint():
+        from core.mundo_sin_censura import get_mundo_sin_censura
+        return get_mundo_sin_censura().get_status()
+
+    @app.get("/api/mundo_sin_censura/analyze")
+    async def get_mundo_sin_censura_analyze_endpoint():
+        from core.mundo_sin_censura import get_mundo_sin_censura
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, lambda: get_mundo_sin_censura().analyze_systems())
+
+    @app.post("/api/mundo_sin_censura/ensure")
+    async def post_mundo_sin_censura_ensure_endpoint(payload: Optional[Dict[str, Any]] = None):
+        from core.mundo_sin_censura import get_mundo_sin_censura
+        body = payload or {}
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(
+            None,
+            lambda: get_mundo_sin_censura().ensure_model_ready(rebuild=bool(body.get("rebuild", False))),
+        )
+
+    @app.post("/api/mundo_sin_censura/chat")
+    async def post_mundo_sin_censura_chat_endpoint(payload: Dict[str, Any]):
+        from core.mundo_sin_censura import get_mundo_sin_censura
+        messages = payload.get("messages")
+        if not messages:
+            prompt_txt = str(payload.get("message") or payload.get("prompt") or "").strip()
+            if not prompt_txt:
+                raise HTTPException(status_code=400, detail="Se requiere 'messages', 'message' o 'prompt'.")
+            history = payload.get("history") or []
+            messages = [
+                {"role": str(m.get("role", "user")), "content": str(m.get("content", ""))}
+                for m in history
+                if isinstance(m, dict)
+            ]
+            messages.append({"role": "user", "content": prompt_txt})
+        lane = str(payload.get("lane") or "auto")
+        temperature = float(payload.get("temperature", 0.25))
+        max_tokens = int(payload.get("max_tokens", 1024))
+        num_ctx = int(payload.get("num_ctx", 8192))
+        use_rag = bool(payload.get("use_rag", False))
+        timeout = float(payload.get("timeout", 120.0))
+        extra_system = payload.get("extra_system")
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(
+            None,
+            lambda: get_mundo_sin_censura().chat(
+                messages,
+                lane=lane,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                num_ctx=num_ctx,
+                use_rag=use_rag,
+                timeout=timeout,
+                extra_system=extra_system,
+            ),
+        )
+
+    @app.post("/api/mundo_sin_censura/benchmark")
+    async def post_mundo_sin_censura_benchmark_endpoint(payload: Optional[Dict[str, Any]] = None):
+        from core.mundo_sin_censura import get_mundo_sin_censura
+        body = payload or {}
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(
+            None,
+            lambda: get_mundo_sin_censura().benchmark(
+                lane=str(body.get("lane") or "auto"),
+                max_tokens=int(body.get("max_tokens", 96)),
+                prompt=body.get("prompt"),
+                timeout=float(body.get("timeout", 120.0)),
+            ),
+        )
+
+    # --------------------------------------------------------------------------
     # PUENTE SOBERANO DE TELEGRAM BOT
     # --------------------------------------------------------------------------
 
@@ -5388,6 +5465,42 @@ iframe{border:none;width:100%;height:100%;}</style></head>
         # Inferencia síncrona completa
         chat_timeout = 0.0
         try:
+            # Enrutamiento nativo directo cuando el cliente solicita explícitamente `mundo-sin-censura`
+            from core.mundo_sin_censura import get_mundo_sin_censura, is_mundo_sin_censura_model
+            if req.model and is_mundo_sin_censura_model(req.model):
+                history = req.history or []
+                msc_messages = [
+                    {"role": str(m.get("role", "user")), "content": str(m.get("content", ""))}
+                    for m in history
+                    if isinstance(m, dict)
+                ]
+                msc_messages.append({"role": "user", "content": msg})
+                loop = asyncio.get_event_loop()
+                msc_res = await loop.run_in_executor(
+                    None,
+                    lambda: get_mundo_sin_censura().chat(
+                        msc_messages,
+                        lane="auto",
+                        temperature=float(temperature),
+                        max_tokens=1024,
+                        num_ctx=int(num_ctx),
+                        use_rag=bool(req.use_retro),
+                        cancel_event=cancel_event,
+                    ),
+                )
+                return {
+                    "ok": bool(msc_res.get("ok")),
+                    "reply": msc_res.get("reply", ""),
+                    "model": msc_res.get("model", "mundo-sin-censura"),
+                    "provider": msc_res.get("provider", "mundo_sin_censura"),
+                    "lane": msc_res.get("lane"),
+                    "elapsed": msc_res.get("elapsed"),
+                    "usage": msc_res.get("usage", {}),
+                    "tokens_per_sec": msc_res.get("tokens_per_sec"),
+                    "request_id": request_id,
+                    "client_id": client_id,
+                }
+
             emo_dict = None
             if req.affective_state:
                 if hasattr(req.affective_state, "model_dump"):

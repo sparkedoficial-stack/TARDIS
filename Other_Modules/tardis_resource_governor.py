@@ -1233,24 +1233,21 @@ class TardisResourceGovernor:
                 "iso": _now_iso(),
             }
 
-        target_level = (force_level or str(current_snap.get("level") or "GREEN")).upper()
+        target_level = _resolve_throttle_target_level(current_snap, force_level=force_level)
         cpu_psi_60 = float(((current_snap.get("cpu") or {}).get("psi") or {}).get("some_avg60", 0.0))
         cpu_temp_c = float((current_snap.get("cpu") or {}).get("temp_c", 0.0))
         gpu_temp_c = float((current_snap.get("gpu") or {}).get("temp_c", 0.0))
 
-        # Si está en YELLOW pero con combinación térmica + PSI moderado-alto, aplicar perfil ORANGE suave.
-        if target_level not in THROTTLE_PROFILES:
-            if not force_level and gpu_temp_c >= 72.0 and cpu_psi_60 >= 40.0:
-                target_level = "ORANGE"
-            else:
-                return {
-                    "ok": True,
-                    "action": "noop_within_budget",
-                    "level": target_level,
-                    "dry_run": dry_run,
-                    "applied_units": [],
-                    "iso": _now_iso(),
-                }
+        if target_level is None:
+            return {
+                "ok": True,
+                "action": "noop_within_budget",
+                "level": str(current_snap.get("level") or "GREEN").upper(),
+                "dry_run": dry_run,
+                "applied_units": [],
+                "power_profile_action": "unchanged",
+                "iso": _now_iso(),
+            }
 
         if not _systemd_control_enabled():
             return {
@@ -1260,16 +1257,12 @@ class TardisResourceGovernor:
                 "level": target_level,
                 "dry_run": dry_run,
                 "applied_units": [],
+                "power_profile_action": "skipped",
                 "iso": _now_iso(),
             }
 
         profile = THROTTLE_PROFILES[target_level]
-        thermal_or_heavy_psi = (
-            target_level == "RED"
-            or gpu_temp_c >= 78.0
-            or cpu_temp_c >= 82.0
-            or cpu_psi_60 >= 60.0
-        )
+        thermal_or_heavy_psi = _is_thermal_or_heavy_psi(current_snap, target_level)
 
         plan: List[Tuple[str, Dict[str, Any]]] = []
         for u in BACKGROUND_THROTTLE_UNITS:
@@ -1281,10 +1274,14 @@ class TardisResourceGovernor:
         if thermal_or_heavy_psi and "tardis-temporal-brain.service" not in PROTECTED_UNITS:
             plan.append(("tardis-temporal-brain.service", profile["inference_thermal"]))
 
+        plan_unit_names = {u for u, _ in plan}
+
         with self._lock:
             state = self._load_throttle_state()
             baselines: Dict[str, Dict[str, str]] = dict(state.get("baselines") or {})
             applied_map: Dict[str, Dict[str, Any]] = dict(state.get("applied") or {})
+            power_profile_baseline = str(state.get("power_profile_baseline") or "")
+            power_profile_applied = str(state.get("power_profile_applied") or "")
             applied_units: List[Dict[str, Any]] = []
             errors: List[str] = []
 
@@ -1308,8 +1305,16 @@ class TardisResourceGovernor:
                     applied_units.append({"unit": unit, "action": "would_throttle", **desired})
                     continue
 
-                # Idempotencia: omitir llamada redundante si ya tiene el mismo perfil aplicado
-                if applied_map.get(unit) == desired and state.get("level") == target_level:
+                # Idempotencia verificada contra el estado vivo en systemd (detecta drift por reinicios)
+                live_cw = str(props.get("CPUWeight") or "").strip()
+                live_iw = str(props.get("IOWeight") or "").strip()
+                live_cq = _systemd_quota_usec_to_pct(props.get("CPUQuotaPerSecUSec", "infinity"))
+                live_matches = (
+                    live_cw == str(desired["cpu_weight"])
+                    and live_iw == str(desired["io_weight"])
+                    and live_cq == desired["cpu_quota"]
+                )
+                if applied_map.get(unit) == desired and state.get("level") == target_level and live_matches:
                     applied_units.append({"unit": unit, "action": "already_throttled", **desired})
                     continue
 
@@ -1325,18 +1330,60 @@ class TardisResourceGovernor:
                 else:
                     errors.append(f"set-property {unit} failed")
 
-            if not dry_run and applied_map:
+            # De-escalación parcial: liberar unidades que salieron del plan (ej. TemporalBrain tras bajar térmica)
+            for unit in [u for u in list(applied_map.keys()) if u not in plan_unit_names]:
+                base = baselines.get(unit) or {}
+                cw_raw = str(base.get("CPUWeight") or "100").strip()
+                iw_raw = str(base.get("IOWeight") or "100").strip()
+                cw = int(cw_raw) if cw_raw.isdigit() else 100
+                iw = int(iw_raw) if iw_raw.isdigit() else 100
+                cq = str(base.get("CPUQuota") or "").strip()
+                if dry_run:
+                    applied_units.append(
+                        {"unit": unit, "action": "would_release_from_plan", "cpu_weight": cw, "io_weight": iw, "cpu_quota": cq or "infinity"}
+                    )
+                    continue
+                ok = _apply_systemd_unit_props(unit, cpu_weight=cw, io_weight=iw, cpu_quota=cq)
+                if ok:
+                    applied_map.pop(unit, None)
+                    baselines.pop(unit, None)
+                    applied_units.append(
+                        {"unit": unit, "action": "released_from_plan", "cpu_weight": cw, "io_weight": iw, "cpu_quota": cq or "infinity"}
+                    )
+                else:
+                    errors.append(f"release-from-plan {unit} failed")
+
+            # Mitigación térmica Ring 0 de perfil energético (amd-pstate-epp + platform_profile)
+            power_profile_action = "unchanged"
+            if thermal_or_heavy_psi and _power_profile_control_enabled():
+                cur_pp = _get_power_profile()
+                if cur_pp == "performance":
+                    if dry_run:
+                        power_profile_action = "would_switch_to_balanced"
+                    elif _set_power_profile("balanced"):
+                        if not power_profile_baseline:
+                            power_profile_baseline = cur_pp
+                        power_profile_applied = "balanced"
+                        power_profile_action = "switched_to_balanced"
+                    else:
+                        errors.append("powerprofilesctl set balanced failed")
+                elif cur_pp == "balanced" and power_profile_applied == "balanced":
+                    power_profile_action = "already_balanced"
+
+            if not dry_run and (applied_map or power_profile_applied):
                 new_state = {
-                    "active": True,
-                    "level": target_level,
+                    "active": bool(applied_map),
+                    "level": target_level if applied_map else "NONE",
                     "updated_iso": _now_iso(),
                     "baselines": baselines,
                     "applied": applied_map,
+                    "power_profile_baseline": power_profile_baseline,
+                    "power_profile_applied": power_profile_applied,
                 }
                 self._save_throttle_state(new_state)
 
-        changed = [u for u in applied_units if u["action"] == "throttled"]
-        if not dry_run and changed:
+        changed = [u for u in applied_units if u["action"] in ("throttled", "released_from_plan")]
+        if not dry_run and (changed or power_profile_action == "switched_to_balanced"):
             try:
                 from core.tardis_event_bus import get_event_bus
 
@@ -1348,6 +1395,7 @@ class TardisResourceGovernor:
                         "cpu_psi_60": cpu_psi_60,
                         "cpu_temp_c": cpu_temp_c,
                         "gpu_temp_c": gpu_temp_c,
+                        "power_profile_action": power_profile_action,
                         "units": [u["unit"] for u in changed],
                     },
                     severity="MEDIUM" if target_level == "ORANGE" else "HIGH",
@@ -1359,25 +1407,35 @@ class TardisResourceGovernor:
 
         return {
             "ok": len(errors) == 0,
-            "action": "would_throttle" if dry_run else ("throttled" if changed else "maintained"),
+            "action": "would_throttle" if dry_run else ("throttled" if (changed or power_profile_action == "switched_to_balanced") else "maintained"),
             "level": target_level,
             "dry_run": dry_run,
             "applied_units": applied_units,
+            "power_profile_action": power_profile_action,
             "errors": errors,
             "iso": _now_iso(),
         }
 
-    def release_throttling(self, *, dry_run: bool = False) -> Dict[str, Any]:
-        """Restaura los parámetros cgroup v2 originales (CPUWeight/IOWeight/CPUQuota) de todas las unidades."""
+    def release_throttling(
+        self,
+        *,
+        dry_run: bool = False,
+        snap: Optional[Dict[str, Any]] = None,
+        force_restore_power_profile: bool = False,
+    ) -> Dict[str, Any]:
+        """Restaura parámetros cgroup v2 originales y, con holgura térmica suficiente, el perfil energético base."""
         with self._lock:
             state = self._load_throttle_state()
             baselines: Dict[str, Dict[str, str]] = dict(state.get("baselines") or {})
-            if not baselines and not state.get("active"):
+            power_profile_baseline = str(state.get("power_profile_baseline") or "")
+            power_profile_applied = str(state.get("power_profile_applied") or "")
+            if not baselines and not state.get("active") and not power_profile_baseline:
                 return {
                     "ok": True,
                     "action": "noop_not_throttled",
                     "dry_run": dry_run,
                     "restored_units": [],
+                    "power_profile_action": "unchanged",
                     "errors": [],
                     "iso": _now_iso(),
                 }
@@ -1389,6 +1447,7 @@ class TardisResourceGovernor:
                     "skipped_reason": "systemd_control_disabled",
                     "dry_run": dry_run,
                     "restored_units": [],
+                    "power_profile_action": "skipped",
                     "errors": [],
                     "iso": _now_iso(),
                 }
@@ -1410,6 +1469,33 @@ class TardisResourceGovernor:
                 else:
                     errors.append(f"restore {unit} failed")
 
+            # Evaluar restauración segura del perfil energético base según margen térmico real
+            power_profile_action = "unchanged"
+            next_pp_base = power_profile_baseline
+            next_pp_applied = power_profile_applied
+            if power_profile_baseline and _power_profile_control_enabled():
+                if isinstance(snap, dict):
+                    cur_cpu_c = float((snap.get("cpu") or {}).get("temp_c", 0.0))
+                    cur_gpu_c = float((snap.get("gpu") or {}).get("temp_c", 0.0))
+                else:
+                    cur_cpu_c = float(_read_cpu_thermal().get("temp_c", 0.0))
+                    cur_gpu_c = 0.0
+                cool_enough = (
+                    force_restore_power_profile
+                    or (cur_cpu_c <= POWER_PROFILE_RESTORE_MAX_CPU_C and cur_gpu_c <= POWER_PROFILE_RESTORE_MAX_GPU_C)
+                )
+                if cool_enough:
+                    if dry_run:
+                        power_profile_action = f"would_restore_{power_profile_baseline}"
+                    elif _set_power_profile(power_profile_baseline):
+                        power_profile_action = f"restored_{power_profile_baseline}"
+                        next_pp_base = ""
+                        next_pp_applied = ""
+                    else:
+                        errors.append(f"powerprofilesctl restore {power_profile_baseline} failed")
+                else:
+                    power_profile_action = "kept_balanced_thermal_headroom"
+
             if not dry_run:
                 self._save_throttle_state(
                     {
@@ -1418,28 +1504,37 @@ class TardisResourceGovernor:
                         "updated_iso": _now_iso(),
                         "baselines": {},
                         "applied": {},
+                        "power_profile_baseline": next_pp_base,
+                        "power_profile_applied": next_pp_applied,
                     }
                 )
 
-        if not dry_run and restored:
+        if not dry_run and (restored or power_profile_action.startswith("restored_")):
             try:
                 from core.tardis_event_bus import get_event_bus
 
                 get_event_bus().publish(
                     "governor.throttle_released",
                     "tardis_resource_governor",
-                    {"units": [r["unit"] for r in restored]},
+                    {
+                        "units": [r["unit"] for r in restored],
+                        "power_profile_action": power_profile_action,
+                    },
                     severity="INFO",
                     dedup_window_s=60.0,
                 )
             except Exception:
                 pass
 
+        action_label = "would_restore" if dry_run else (
+            "restored" if (restored or power_profile_action.startswith("restored_")) else "kept_balanced_thermal_headroom"
+        )
         return {
             "ok": len(errors) == 0,
-            "action": "would_restore" if dry_run else "restored",
+            "action": action_label,
             "dry_run": dry_run,
             "restored_units": restored,
+            "power_profile_action": power_profile_action,
             "errors": errors,
             "iso": _now_iso(),
         }
@@ -1471,12 +1566,23 @@ class TardisResourceGovernor:
         gpu_before = snap_before.get("gpu") or {}
         level_before = str(snap_before.get("level") or "GREEN")
         mem_avail_before = float(mem_before.get("available_mb", 0.0))
+        cpu_psi60_before = float((cpu_before.get("psi") or {}).get("some_avg60", 0.0))
+        cpu_temp_before = float(cpu_before.get("temp_c", 0.0))
+        gpu_temp_before = float(gpu_before.get("temp_c", 0.0))
+        power_profile_before = str(cpu_before.get("power_profile") or "")
 
         # 1. Evict duplicate CPU models from Ollama :11434 (verificando post-evicción en /api/ps)
         candidates: List[Dict[str, Any]] = list(lanes_before.get("duplicate_models") or [])
         seen_models = {str(c.get("model") or "") for c in candidates}
-        # Bajo RAM crítica/baja en RED (<3500 MB), incluir cualquier modelo CPU-only en :11434
+        # Bajo RAM crítica en RED (<3500 MB) o estrés sostenido de CPU/térmicas en ORANGE/RED,
+        # descargar también modelos CPU-only ociosos en :11434 para liberar ciclos y memoria.
+        evict_cpu_only_reason = ""
         if level_before == "RED" and mem_avail_before < 3500.0:
+            evict_cpu_only_reason = "red_memory_pressure_cpu_eviction"
+        elif level_before in ("ORANGE", "RED") and (cpu_psi60_before >= 30.0 or cpu_temp_before >= 82.0):
+            evict_cpu_only_reason = "cpu_psi_or_thermal_pressure_eviction"
+
+        if evict_cpu_only_reason:
             for m in lanes_before.get("ollama_11434") or []:
                 mname = str(m.get("name") or "")
                 if mname and mname not in seen_models and float(m.get("size_vram_mb", 0.0)) == 0.0:
@@ -1486,7 +1592,7 @@ class TardisResourceGovernor:
                             "port": 11434,
                             "model": mname,
                             "size_mb": float(m.get("size_mb", 0.0)),
-                            "reason": "red_memory_pressure_cpu_eviction",
+                            "reason": evict_cpu_only_reason,
                         }
                     )
 
@@ -1494,7 +1600,15 @@ class TardisResourceGovernor:
         for dup in candidates:
             model_name = dup["model"]
             if dry_run:
-                evicted.append({"model": model_name, "port": 11434, "size_mb": dup.get("size_mb", 0.0), "action": "would_unload"})
+                evicted.append(
+                    {
+                        "model": model_name,
+                        "port": 11434,
+                        "size_mb": dup.get("size_mb", 0.0),
+                        "reason": dup.get("reason", ""),
+                        "action": "would_unload",
+                    }
+                )
                 continue
             try:
                 payload = json.dumps({"model": model_name, "prompt": "", "keep_alive": 0}).encode("utf-8")
@@ -1506,10 +1620,14 @@ class TardisResourceGovernor:
                 )
                 with urllib.request.urlopen(req, timeout=12.0) as r:
                     _ = r.read()
-                # Esperar brevemente y verificar empíricamente si Ollama realmente descargó el runner
+                # Verificar empíricamente (hasta 3 sondeos breves) si Ollama descargó el runner
                 # o si sigue retenido por una inferencia in-flight.
-                time.sleep(0.35)
-                still_resident = any(m.get("name") == model_name for m in _query_ollama_ps(11434))
+                still_resident = True
+                for _poll_i in range(3):
+                    time.sleep(0.35)
+                    still_resident = any(m.get("name") == model_name for m in _query_ollama_ps(11434))
+                    if not still_resident:
+                        break
                 if still_resident:
                     if not in_flight_clients:
                         in_flight_clients = _find_ollama_port_clients(11434)
@@ -1518,29 +1636,35 @@ class TardisResourceGovernor:
                             "model": model_name,
                             "port": 11434,
                             "size_mb": dup.get("size_mb", 0.0),
+                            "reason": dup.get("reason", ""),
                             "action": "unload_deferred_in_flight",
                             "active_clients": in_flight_clients,
                         }
                     )
                 else:
-                    evicted.append({"model": model_name, "port": 11434, "size_mb": dup.get("size_mb", 0.0), "action": "unloaded"})
+                    evicted.append(
+                        {
+                            "model": model_name,
+                            "port": 11434,
+                            "size_mb": dup.get("size_mb", 0.0),
+                            "reason": dup.get("reason", ""),
+                            "action": "unloaded",
+                        }
+                    )
             except Exception as exc:
                 errors.append(f"unload {model_name}: {exc}")
 
-        # 2. Reconciliación activa de throttling Ring 0 (cgroup v2 --runtime)
+        # 2. Reconciliación activa de throttling Ring 0 (cgroup v2 --runtime + perfil energético)
         throttling_result: Dict[str, Any] = {"ok": True, "action": "disabled", "applied_units": []}
         if apply_throttle:
-            cpu_psi60_before = float((cpu_before.get("psi") or {}).get("some_avg60", 0.0))
-            gpu_temp_before = float(gpu_before.get("temp_c", 0.0))
-            should_throttle = level_before in ("ORANGE", "RED") or (
-                gpu_temp_before >= 72.0 and cpu_psi60_before >= 40.0
-            )
-            if should_throttle:
+            target_lvl = _resolve_throttle_target_level(snap_before)
+            throttle_status = self.get_throttle_status()
+            if target_lvl is not None:
                 throttling_result = self.apply_throttling(snap_before, dry_run=dry_run)
                 for err in throttling_result.get("errors") or []:
                     errors.append(f"throttle: {err}")
-            elif level_before == "GREEN" and self.get_throttle_status().get("active"):
-                throttling_result = self.release_throttling(dry_run=dry_run)
+            elif (throttle_status.get("active") or throttle_status.get("power_profile_mitigated")) and _is_in_safe_recovery_band(snap_before):
+                throttling_result = self.release_throttling(dry_run=dry_run, snap=snap_before)
                 for err in throttling_result.get("errors") or []:
                     errors.append(f"release: {err}")
             else:
@@ -1550,14 +1674,17 @@ class TardisResourceGovernor:
                     "level": level_before,
                     "dry_run": dry_run,
                     "applied_units": [],
+                    "power_profile_action": "unchanged",
                 }
 
-        # 3. Podar backups `.bak.*` redundantes en GODWORKS SYSTEM raíz y core/
+        # 3. Podar/archivar backups `.bak*` redundantes o antiguos en GODWORKS SYSTEM raíz y core/
         pruned_count = 0
         pruned_bytes = 0
         archived_count = 0
         if prune_backups:
             by_origin: Dict[str, List[Path]] = {}
+            now_ts = time.time()
+            stale_cutoff = now_ts - (STALE_BACKUP_ARCHIVE_DAYS * 86400.0)
             for scan_dir in (PROJECT_ROOT, PROJECT_ROOT / "core"):
                 if not scan_dir.is_dir():
                     continue
@@ -1575,18 +1702,23 @@ class TardisResourceGovernor:
                 keep = ordered[: max(0, int(keep_backups_per_file))]
                 drop = ordered[max(0, int(keep_backups_per_file)) :]
 
-                # Mover los backups conservados fuera de core/ al archivo ordenado si hay >3 archivos
-                if len(files) > 3:
-                    for k in keep:
-                        if not dry_run:
-                            dst = BACKUP_ARCHIVE_DIR / k.name
-                            try:
-                                shutil.move(str(k), str(dst))
-                                archived_count += 1
-                            except Exception:
-                                pass
-                        else:
+                # Mover al archivo ordenado si hay >3 backups por origen o si un .bak* suelto tiene >7 días
+                for k in keep:
+                    try:
+                        should_archive = len(files) > 3 or k.stat().st_mtime < stale_cutoff
+                    except OSError:
+                        should_archive = len(files) > 3
+                    if not should_archive:
+                        continue
+                    if not dry_run:
+                        dst = BACKUP_ARCHIVE_DIR / k.name
+                        try:
+                            shutil.move(str(k), str(dst))
                             archived_count += 1
+                        except Exception:
+                            pass
+                    else:
+                        archived_count += 1
 
                 for d in drop:
                     try:
@@ -1615,10 +1747,14 @@ class TardisResourceGovernor:
             "bytes_reclaimed_disk": pruned_bytes,
             "mem_available_before_mb": mem_avail_before,
             "mem_available_after_mb": float(mem_after.get("available_mb", 0.0)),
-            "cpu_psi60_before": float((cpu_before.get("psi") or {}).get("some_avg60", 0.0)),
+            "cpu_psi60_before": cpu_psi60_before,
             "cpu_psi60_after": float((cpu_after.get("psi") or {}).get("some_avg60", 0.0)),
-            "gpu_temp_before_c": float(gpu_before.get("temp_c", 0.0)),
+            "cpu_temp_before_c": cpu_temp_before,
+            "cpu_temp_after_c": float(cpu_after.get("temp_c", 0.0)),
+            "gpu_temp_before_c": gpu_temp_before,
             "gpu_temp_after_c": float(gpu_after.get("temp_c", 0.0)),
+            "power_profile_before": power_profile_before,
+            "power_profile_after": str(cpu_after.get("power_profile") or ""),
             "level_before": level_before,
             "level_after": str(snap_after.get("level") or "GREEN"),
             "errors": errors,
@@ -1628,6 +1764,7 @@ class TardisResourceGovernor:
         if not dry_run and (
             evicted
             or pruned_count > 0
+            or archived_count > 0
             or throttling_result.get("action") in ("throttled", "restored")
             or oversubscribed_after
         ):
@@ -1636,7 +1773,7 @@ class TardisResourceGovernor:
 
                 deferred = [e for e in evicted if e.get("action") == "unload_deferred_in_flight"]
                 unloaded = [e for e in evicted if e.get("action") == "unloaded"]
-                if unloaded or pruned_count > 0 or throttling_result.get("action") in ("throttled", "restored"):
+                if unloaded or pruned_count > 0 or archived_count > 0 or throttling_result.get("action") in ("throttled", "restored"):
                     get_event_bus().publish(
                         "governor.reclaim",
                         "tardis_resource_governor",
@@ -1644,14 +1781,18 @@ class TardisResourceGovernor:
                             "models_evicted": [e["model"] for e in unloaded],
                             "models_deferred_in_flight": [e["model"] for e in deferred],
                             "throttling_action": throttling_result.get("action"),
+                            "power_profile_action": throttling_result.get("power_profile_action", "unchanged"),
                             "throttled_units": [
                                 u["unit"] for u in (throttling_result.get("applied_units") or [])
                             ],
                             "backups_pruned": pruned_count,
+                            "backups_archived": archived_count,
                             "mem_before_mb": mem_avail_before,
                             "mem_after_mb": float(mem_after.get("available_mb", 0.0)),
                             "cpu_psi60_before": result["cpu_psi60_before"],
                             "cpu_psi60_after": result["cpu_psi60_after"],
+                            "cpu_temp_before_c": result["cpu_temp_before_c"],
+                            "cpu_temp_after_c": result["cpu_temp_after_c"],
                         },
                         severity="INFO",
                         dedup_window_s=60.0,
@@ -1719,38 +1860,76 @@ class TardisResourceGovernor:
                 lvl = str(snap.get("level") or "GREEN")
                 throttle_st = self.get_throttle_status()
 
-                # Histéresis de recuperación: liberar throttling tras N muestras GREEN consecutivas
+                # Histéresis Schmitt-trigger de recuperación:
+                # - GREEN: liberar tras RECOVERY_GREEN_STREAK muestras consecutivas.
+                # - YELLOW en banda segura de enfriamiento (PSI60<20%, CPU<79°C, GPU<74°C):
+                #   liberar tras RECOVERY_SAFE_YELLOW_STREAK muestras para evitar bloqueo crónico.
+                throttle_or_pp_active = bool(throttle_st.get("active") or throttle_st.get("power_profile_mitigated"))
                 if lvl == "GREEN":
                     self._green_streak += 1
-                    if throttle_st.get("active") and self._green_streak >= RECOVERY_GREEN_STREAK:
-                        rel = self.release_throttling(dry_run=False)
+                    self._safe_yellow_streak = 0
+                    self._thermal_orange_streak = 0
+                    if throttle_or_pp_active and self._green_streak >= RECOVERY_GREEN_STREAK:
+                        rel = self.release_throttling(dry_run=False, snap=snap)
+                        if rel.get("restored_units") or str(rel.get("power_profile_action", "")).startswith("restored_"):
+                            logger.info(
+                                "Presión estabilizada en GREEN (%d ciclos): throttling liberado en %d unidad(es) (perfil=%s)",
+                                self._green_streak,
+                                len(rel.get("restored_units") or []),
+                                rel.get("power_profile_action", "unchanged"),
+                            )
+                elif _is_in_safe_recovery_band(snap):
+                    self._green_streak = 0
+                    self._safe_yellow_streak += 1
+                    self._thermal_orange_streak = 0
+                    if throttle_st.get("active") and self._safe_yellow_streak >= RECOVERY_SAFE_YELLOW_STREAK:
+                        rel = self.release_throttling(dry_run=False, snap=snap)
                         if rel.get("restored_units"):
                             logger.info(
-                                "Presión estabilizada en GREEN (%d ciclos): throttling liberado en %d unidad(es)",
-                                self._green_streak,
+                                "Presión enfriada en banda segura YELLOW (%d ciclos, CPU=%.1f°C, PSI60=%.1f%%): throttling cgroup liberado en %d unidad(es) (perfil=%s)",
+                                self._safe_yellow_streak,
+                                snap["cpu"].get("temp_c", 0.0),
+                                snap["cpu"]["psi"]["some_avg60"],
                                 len(rel["restored_units"]),
+                                rel.get("power_profile_action", "unchanged"),
                             )
                 else:
                     self._green_streak = 0
+                    self._safe_yellow_streak = 0
 
-                # Throttling inmediato al escalar a ORANGE/RED (respetando llamadas prioritarias)
-                if lvl in ("ORANGE", "RED") and not snap.get("call_priority_active", False):
-                    if (not throttle_st.get("active")) or throttle_st.get("level") != lvl:
+                # Throttling proactivo ante ORANGE/RED o estrés combinado térmico+PSI (con filtro de micro-picos Ryzen)
+                target_lvl = _resolve_throttle_target_level(snap)
+                if target_lvl is not None and not snap.get("call_priority_active", False):
+                    if _is_pure_transient_cpu_thermal_spike(snap):
+                        self._thermal_orange_streak += 1
+                        should_engage = self._thermal_orange_streak >= THERMAL_SPIKE_CONFIRM_STREAK
+                    else:
+                        self._thermal_orange_streak = 0
+                        should_engage = True
+                    if should_engage and ((not throttle_st.get("active")) or throttle_st.get("level") != target_lvl):
                         th = self.apply_throttling(snap, dry_run=False)
-                        changed = [u["unit"] for u in (th.get("applied_units") or []) if u.get("action") == "throttled"]
-                        if changed:
+                        changed = [
+                            u["unit"]
+                            for u in (th.get("applied_units") or [])
+                            if u.get("action") in ("throttled", "released_from_plan")
+                        ]
+                        if changed or th.get("power_profile_action") == "switched_to_balanced":
                             logger.info(
-                                "Throttling Ring 0 aplicado (nivel=%s, CPU PSI60=%.1f%%, GPU=%.0f°C): unidades=%s",
-                                lvl,
+                                "Throttling Ring 0 aplicado (nivel=%s, CPU PSI60=%.1f%%, CPU=%.1f°C, GPU=%.0f°C, perfil=%s): unidades=%s",
+                                target_lvl,
                                 snap["cpu"]["psi"]["some_avg60"],
+                                snap["cpu"].get("temp_c", 0.0),
                                 snap["gpu"].get("temp_c", 0.0),
+                                th.get("power_profile_action", "unchanged"),
                                 changed,
                             )
+                else:
+                    self._thermal_orange_streak = 0
 
                 has_dups = bool(snap["inference_lanes"]["duplicate_models"])
                 deferred_cooldown_ok = (now - last_deferred_reclaim) >= 60.0
                 if (has_dups and deferred_cooldown_ok) or (now - last_reclaim) >= reclaim_interval:
-                    if has_dups or lvl in ("ORANGE", "RED"):
+                    if has_dups or target_lvl is not None:
                         res = self.reclaim_resources(dry_run=False, prune_backups=True)
                         unloaded = [e["model"] for e in res["models_evicted"] if e.get("action") == "unloaded"]
                         deferred = [e for e in res["models_evicted"] if e.get("action") == "unload_deferred_in_flight"]
@@ -1762,15 +1941,17 @@ class TardisResourceGovernor:
                                 [e["model"] for e in deferred],
                                 [(c.get("pid"), c.get("unit") or c.get("comm")) for c in clients],
                             )
-                        if unloaded or res["backups_pruned"] or (res.get("throttling") or {}).get("action") == "throttled":
+                        if unloaded or res["backups_pruned"] or res.get("backups_archived") or (res.get("throttling") or {}).get("action") == "throttled":
                             logger.info(
-                                "Reclamación completada: modelos=%s backups=%d throttle=%s RAM=%.0f->%.0fMB PSI60=%.1f%%",
+                                "Reclamación completada: modelos=%s backups=%d archivados=%d throttle=%s RAM=%.0f->%.0fMB PSI60=%.1f%% CPU=%.1f°C",
                                 unloaded,
                                 res["backups_pruned"],
+                                res.get("backups_archived", 0),
                                 (res.get("throttling") or {}).get("action"),
                                 res["mem_available_before_mb"],
                                 res["mem_available_after_mb"],
                                 res["cpu_psi60_after"],
+                                res.get("cpu_temp_after_c", 0.0),
                             )
                     last_reclaim = now
                 self._stop_event.wait(max(5.0, float(interval)))
@@ -1833,6 +2014,7 @@ def main() -> int:
     p_th.add_argument("--dry-run", action="store_true")
     p_rel = sub.add_parser("release", help="Restaura límites cgroup v2 originales tras estabilización")
     p_rel.add_argument("--dry-run", action="store_true")
+    p_rel.add_argument("--restore-power-profile", action="store_true", help="Forzar restauración inmediata del perfil energético base")
     p_hist = sub.add_parser("history", help="Histórico de telemetría de presión")
     p_hist.add_argument("--limit", type=int, default=20)
     p_d = sub.add_parser("daemon", help="Ejecuta el gobernador en bucle systemd 24/7")
@@ -1868,7 +2050,16 @@ def main() -> int:
         )
         return 0
     if args.cmd == "release":
-        print(json.dumps(gov.release_throttling(dry_run=args.dry_run), indent=2, ensure_ascii=False))
+        print(
+            json.dumps(
+                gov.release_throttling(
+                    dry_run=args.dry_run,
+                    force_restore_power_profile=bool(getattr(args, "restore_power_profile", False)),
+                ),
+                indent=2,
+                ensure_ascii=False,
+            )
+        )
         return 0
     if args.cmd == "history":
         print(json.dumps({"ok": True, "history": gov.history(limit=args.limit)}, indent=2, ensure_ascii=False))

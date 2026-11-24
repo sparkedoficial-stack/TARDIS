@@ -1,17 +1,17 @@
 {
-  "timestamp": REDACTED_PHONE.5643442,
-  "iso": "2026-11-23T22:24:53.567529",
+  "timestamp": REDACTED_PHONE.5588639,
+  "iso": "2026-11-23T23:20:21.562813",
   "health_score": 100,
   "status": "HEALTHY",
-  "cycle": 29,
+  "cycle": 162,
   "metrics": {
-    "cpu_percent": 25.8,
-    "cpu_ema": 25.9,
+    "cpu_percent": 33.0,
+    "cpu_ema": 30.1,
     "high_cpu_streak": 0,
-    "ram_percent": 59.2,
+    "ram_percent": 64.6,
     "high_ram_streak": 0,
-    "governor_level": "YELLOW",
-    "cpu_psi_60": 14.68,
+    "governor_level": "RED",
+    "cpu_psi_60": 8.52,
     "recent_errors": 0,
     "recent_blocks": 0
   },
@@ -26,16 +26,18 @@
     "sensors": true,
     "temporal_brain_online": true
   },
-  "needs": [],
+  "needs": [
+    "Presión Ring 0 RED: Temperatura CPU crítica (88°C); Temperatura GPU cálida (77°C)"
+  ],
   "instructions": [
     {
-      "id": "inst_nominal_coherence",
-      "severity": "INFO",
-      "component": "Núcleo Causal Sintrópico",
-      "target_file": "geon_causal_engine.py",
-      "instruction": "El sistema opera en estado NOMINAL con acoplamiento sintrópico Ψ=0.892. Se recomienda sincronizar periódicamente el reloj causal de Lamport y verificar enlaces LAN.",
-      "rationale": "Estabilidad completa de subsistemas.",
-      "actionable_cmd": "python -c 'import geon_causal_engine; print(geon_causal_engine.get_geon_engine().full_system_diagnostic())'"
+      "id": "inst_resource_pressure_red",
+      "severity": "HIGH",
+      "component": "Resource Governor Ring 0",
+      "target_file": "core/tardis_resource_governor.py",
+      "instruction": "Estabilizar presión RED (Temperatura CPU crítica (88°C); Temperatura GPU cálida (77°C)) ejecutando reclamación de modelos duplicados y throttling.",
+      "rationale": "CPU PSI60=8.52%, RAM libre=10910.0 MB.",
+      "actionable_cmd": "tardis-governor reclaim"
     }
   ],
   "instruction_count": 1

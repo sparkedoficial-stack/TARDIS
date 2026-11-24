@@ -297,5 +297,20 @@
     "seen_capsules": [],
     "known_facts": [],
     "last_reason": ""
+  },
+  "y a la otra": {
+    "key": "y a la otra",
+    "name": "y a la otra.",
+    "visit_count": 1,
+    "first_seen": REDACTED_PHONE.8728175,
+    "first_seen_iso": "2026-11-23T22:44:11-0500",
+    "last_seen": REDACTED_PHONE.8728175,
+    "last_seen_iso": "2026-11-23T22:44:11-0500",
+    "pedagogical_level": "intermedio",
+    "interests": [],
+    "topics_studied": [],
+    "seen_capsules": [],
+    "known_facts": [],
+    "last_reason": ""
   }
 }

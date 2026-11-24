@@ -1,44 +1,50 @@
 {
   "ok": true,
-  "ts": REDACTED_PHONE.075416,
-  "iso": "2026-11-23T22:25:09-05:00",
-  "level": "YELLOW",
+  "ts": REDACTED_PHONE.7614248,
+  "iso": "2026-11-23T23:20:27-05:00",
+  "level": "ORANGE",
   "reasons": [
-    "Temperatura CPU cálida (80°C)"
+    "Temperatura CPU elevada (83°C)",
+    "Temperatura GPU cálida (76°C)"
   ],
   "call_priority_active": false,
   "cpu": {
     "cores": 16,
-    "load1": 9.2,
-    "load5": 6.09,
-    "load15": 6.57,
+    "load1": 4.56,
+    "load5": 5.47,
+    "load15": 7.04,
     "psi": {
-      "some_avg10": 33.27,
-      "some_avg60": 20.16,
-      "some_avg300": 16.16,
+      "some_avg10": 16.59,
+      "some_avg60": 9.8,
+      "some_avg300": 10.64,
       "full_avg10": 0.0,
       "full_avg60": 0.0
     },
-    "temp_c": 80.0,
+    "temp_c": 83.1,
     "thermal_source": "k10temp",
     "fan_rpm": {
-      "cpu": 4300,
-      "gpu": 4400
-    }
+      "cpu": 4100,
+      "gpu": 4100
+    },
+    "power_profile": "balanced",
+    "scaling_driver": "amd-pstate-epp",
+    "scaling_governor": "powersave",
+    "epp": "balance_performance",
+    "boost": true
   },
   "memory": {
     "total_mb": 31495.2,
-    "available_mb": 11194.1,
-    "used_mb": 20301.1,
-    "used_pct": 64.5,
+    "available_mb": 11209.5,
+    "used_mb": 20285.7,
+    "used_pct": 64.4,
     "swap_total_mb": 62994.8,
-    "swap_used_mb": 1766.2,
+    "swap_used_mb": 1773.2,
     "psi": {
-      "some_avg10": 1.44,
-      "some_avg60": 0.26,
-      "some_avg300": 0.05,
-      "full_avg10": 0.18,
-      "full_avg60": 0.03
+      "some_avg10": 0.0,
+      "some_avg60": 0.0,
+      "some_avg300": 0.0,
+      "full_avg10": 0.0,
+      "full_avg60": 0.0
     }
   },
   "io": {
@@ -53,8 +59,8 @@
   "gpu": {
     "available": true,
     "name": "NVIDIA GeForce RTX 3050 Laptop GPU",
-    "temp_c": 71.0,
-    "util_pct": 45.0,
+    "temp_c": 76.0,
+    "util_pct": 47.0,
     "vram_used_mb": 3587.0,
     "vram_free_mb": 235.0,
     "vram_total_mb": 4096.0,
@@ -69,7 +75,7 @@
         "name": "qwen3-vl:2b-instruct",
         "size_mb": 1697.4,
         "size_vram_mb": 1076.8,
-        "expires_at": "2319-03-05T21:58:45.67146168-05:00"
+        "expires_at": "2319-03-05T22:43:52.837072022-05:00"
       }
     ],
     "duplicate_models": []
@@ -81,19 +87,9 @@
       "effective_cpus": 8,
       "cpu_max": "150000 100000",
       "cpu_weight": 15,
-      "psi_some_avg10": 18.52,
-      "psi_some_avg60": 17.25,
-      "psi_full_avg60": 16.68
-    },
-    {
-      "unit": "tardis-omniscient-autonomy.service",
-      "cpuset_cpus": "8-15",
-      "effective_cpus": 8,
-      "cpu_max": "100000 100000",
-      "cpu_weight": 10,
-      "psi_some_avg10": 0.0,
-      "psi_some_avg60": 0.9,
-      "psi_full_avg60": 0.86
+      "psi_some_avg10": 22.71,
+      "psi_some_avg60": 15.29,
+      "psi_full_avg60": 14.45
     },
     {
       "unit": "tardis-temporal-brain.service",
@@ -101,29 +97,29 @@
       "effective_cpus": 8,
       "cpu_max": "450000 100000",
       "cpu_weight": 35,
-      "psi_some_avg10": 0.0,
-      "psi_some_avg60": 0.0,
-      "psi_full_avg60": 0.0
+      "psi_some_avg10": 0.83,
+      "psi_some_avg60": 0.57,
+      "psi_full_avg60": 0.19
     },
     {
-      "unit": "tardis-embed-brain.service",
+      "unit": "tardis-music-maestro.service",
       "cpuset_cpus": "8-15",
       "effective_cpus": 8,
-      "cpu_max": "max 100000",
-      "cpu_weight": 40,
-      "psi_some_avg10": 0.0,
-      "psi_some_avg60": 0.0,
-      "psi_full_avg60": 0.0
+      "cpu_max": "100000 100000",
+      "cpu_weight": 10,
+      "psi_some_avg10": 0.44,
+      "psi_some_avg60": 0.49,
+      "psi_full_avg60": 0.45
     },
     {
-      "unit": "tardis-ollama-voice.service",
-      "cpuset_cpus": "0-15",
-      "effective_cpus": 16,
-      "cpu_max": "max 100000",
-      "cpu_weight": 100,
-      "psi_some_avg10": 0.0,
-      "psi_some_avg60": 0.0,
-      "psi_full_avg60": 0.0
+      "unit": "tardis-browser-autonomous.service",
+      "cpuset_cpus": "8-15",
+      "effective_cpus": 8,
+      "cpu_max": "100000 100000",
+      "cpu_weight": 10,
+      "psi_some_avg10": 0.23,
+      "psi_some_avg60": 0.35,
+      "psi_full_avg60": 0.31
     },
     {
       "unit": "tardis-tapo-c310-voice.service",
@@ -131,29 +127,39 @@
       "effective_cpus": 8,
       "cpu_max": "150000 100000",
       "cpu_weight": 15,
-      "psi_some_avg10": 0.0,
-      "psi_some_avg60": 0.0,
-      "psi_full_avg60": 0.0
+      "psi_some_avg10": 0.51,
+      "psi_some_avg60": 0.34,
+      "psi_full_avg60": 0.34
     },
     {
-      "unit": "tardis-video-pensante.service",
+      "unit": "tardis4ever.service",
       "cpuset_cpus": "8-15",
       "effective_cpus": 8,
       "cpu_max": "100000 100000",
       "cpu_weight": 10,
-      "psi_some_avg10": 0.0,
-      "psi_some_avg60": 0.0,
-      "psi_full_avg60": 0.0
+      "psi_some_avg10": 0.3,
+      "psi_some_avg60": 0.08,
+      "psi_full_avg60": 0.08
     },
     {
-      "unit": "tardis-visual-intelligence.service",
+      "unit": "tardis-embed-brain.service",
       "cpuset_cpus": "8-15",
       "effective_cpus": 8,
-      "cpu_max": "100000 100000",
-      "cpu_weight": 10,
-      "psi_some_avg10": 0.0,
-      "psi_some_avg60": 0.0,
-      "psi_full_avg60": 0.0
+      "cpu_max": "max 100000",
+      "cpu_weight": 40,
+      "psi_some_avg10": 0.03,
+      "psi_some_avg60": 0.02,
+      "psi_full_avg60": 0.02
+    },
+    {
+      "unit": "tardis-ollama-voice.service",
+      "cpuset_cpus": "0-15",
+      "effective_cpus": 16,
+      "cpu_max": "max 100000",
+      "cpu_weight": 100,
+      "psi_some_avg10": 0.03,
+      "psi_some_avg60": 0.02,
+      "psi_full_avg60": 0.02
     }
   ],
   "oversubscribed_units": [],
@@ -176,16 +182,18 @@
       "tardis-visual-intelligence.service",
       "tardis4ever.service"
     ],
-    "updated_iso": "2026-11-23T22:20:08-05:00"
+    "power_profile_mitigated": true,
+    "power_profile_applied": "balanced",
+    "updated_iso": "2026-11-23T23:18:47-05:00"
   },
   "admission": {
     "interactive": true,
     "critical_repair": true,
     "agy_discovery": true,
-    "heavy_learning": true,
-    "idle_evolution": true,
+    "heavy_learning": false,
+    "idle_evolution": false,
     "video_render": false,
-    "recommended_sleep_multiplier": 1.5,
-    "recommended_yolo_interval_mult": 1.5
+    "recommended_sleep_multiplier": 2.5,
+    "recommended_yolo_interval_mult": 2.5
   }
 }

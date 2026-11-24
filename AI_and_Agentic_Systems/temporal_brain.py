@@ -310,6 +310,32 @@ class TemporalBrain:
 
     def _resolve_model(self) -> Dict[str, Any]:
         """Resuelve el archivo GGUF desde el almacén soberano de modelos o ruta directa."""
+        norm_name = (self.model_name or "").strip().lower()
+        # Aliases soberanos que comparten los pesos GGUF residentes de KAIJU
+        if norm_name in (
+            "mundo-sin-censura",
+            "mundo-sin-censura:latest",
+            "un-mundo-sin-censura",
+            "un_mundo_sin_censura",
+            "mundo_sin_censura",
+        ):
+            kaiju_gguf = SOVEREIGN_MODELS_DIR / "TARDIS-NEURAL-SPACE-KAIJU.gguf"
+            if kaiju_gguf.exists() and kaiju_gguf.is_file():
+                info = {
+                    "name": "mundo-sin-censura",
+                    "model_name": "mundo-sin-censura",
+                    "tag": "sovereign",
+                    "manifest_path": "",
+                    "gguf_path": str(kaiju_gguf),
+                    "template": "",
+                    "system_prompt": "",
+                    "params": {"num_ctx": self.ctx_size},
+                    "size_bytes": kaiju_gguf.stat().st_size,
+                    "size_gb": round(kaiju_gguf.stat().st_size / (1024**3), 2),
+                }
+                self._model_info = info
+                return info
+
         # 1. Buscar primero en data/models/ de Temporal Brain
         candidate_model_files = [
             SOVEREIGN_MODELS_DIR / f"{self.model_name}.gguf",
@@ -774,54 +800,81 @@ class TemporalBrain:
         max_tokens: Optional[int] = None,
         num_ctx: Optional[int] = None,
         cancel_event: Optional[threading.Event] = None,
+        *,
+        bypass_pre_hooks: bool = False,
+        bypass_post_hooks: bool = False,
+        timeout: Optional[float] = None,
+        model_alias: Optional[str] = None,
+        top_p: Optional[float] = None,
+        top_k: Optional[int] = None,
+        min_p: Optional[float] = None,
+        repeat_penalty: Optional[float] = None,
+        stop: Optional[List[str]] = None,
     ) -> Dict[str, Any]:
         """Ejecuta inferencia síncrona pasando por adaptadores y hooks personalizados."""
         t0 = time.time()
-        options = {
+        options: Dict[str, Any] = {
             "temperature": float(temperature if temperature is not None else self.config.get("temperature", 0.3)),
             "max_tokens": int(max_tokens if max_tokens is not None else self.config.get("max_tokens", 1024)),
             "num_ctx": num_ctx,
         }
 
         # 1. Pipeline Pre-Inferencia: Adaptadores y Hooks + System Prompt Soberano por defecto
-        current_msgs = list(messages)
+        current_msgs = [dict(m) for m in messages]
         if not any(m.get("role") == "system" for m in current_msgs):
             default_sys = self.config.get("system_prompt")
             if default_sys:
                 current_msgs.insert(0, {"role": "system", "content": str(default_sys)})
-        for adapter in self._adapters.values():
-            if adapter.enabled:
-                try:
-                    current_msgs, options = adapter.pre_inference(current_msgs, options)
-                except Exception as e:
-                    logger.error(f"Error en pre_inference del adaptador '{adapter.name}': {e}")
+        if not bypass_pre_hooks:
+            for adapter in self._adapters.values():
+                if adapter.enabled:
+                    try:
+                        current_msgs, options = adapter.pre_inference(current_msgs, options)
+                    except Exception as e:
+                        logger.error(f"Error en pre_inference del adaptador '{adapter.name}': {e}")
 
-        if self.config.get("hooks", {}).get("enable_pre_hooks", True):
-            for hook in self._pre_hooks:
-                try:
-                    current_msgs, options = hook(current_msgs, options)
-                except Exception as e:
-                    logger.error(f"Error en pre_hook: {e}")
+            if self.config.get("hooks", {}).get("enable_pre_hooks", True):
+                for hook in self._pre_hooks:
+                    try:
+                        current_msgs, options = hook(current_msgs, options)
+                    except Exception as e:
+                        logger.error(f"Error en pre_hook: {e}")
 
         # 2. Asegurar servicio activo
         if not self.is_running():
             ok = self.start()
             if not ok:
-                return {"ok": False, "reply": "[Error: Temporal Brain no pudo iniciar]", "elapsed": 0}
+                return {
+                    "ok": False,
+                    "reply": "[Error: Temporal Brain no pudo iniciar]",
+                    "model": model_alias or self.model_name,
+                    "elapsed": 0,
+                }
 
         current_msgs, options["max_tokens"] = self._fit_to_context(current_msgs, options["max_tokens"])
 
-        payload = {
+        payload: Dict[str, Any] = {
             "model": self.model_name,
             "messages": current_msgs,
             "temperature": options["temperature"],
             "max_tokens": options["max_tokens"],
             "stream": False,
         }
+        if top_p is not None:
+            payload["top_p"] = float(top_p)
+        if top_k is not None:
+            payload["top_k"] = int(top_k)
+        if min_p is not None:
+            payload["min_p"] = float(min_p)
+        if repeat_penalty is not None:
+            payload["repeat_penalty"] = float(repeat_penalty)
+        if stop:
+            payload["stop"] = list(stop)
 
         # 3. Llamada al socket UNIX privado reutilizando conexión keep-alive (con auto-recuperación)
         raw_result: Dict[str, Any] = {}
-        infer_timeout = _temporal_infer_timeout()
+        infer_timeout = float(timeout) if (timeout is not None and float(timeout) > 0) else _temporal_infer_timeout()
+        effective_model = model_alias or self.model_name
         for attempt in range(2):
             try:
                 client = self._get_uds_client(timeout=infer_timeout)
@@ -835,6 +888,7 @@ class TemporalBrain:
                     raw_result = {
                         "ok": True,
                         "reply": reply.strip(),
+                        "model": effective_model,
                         "usage": usage,
                         "elapsed": elapsed,
                         "tokens_per_sec": round(usage.get("completion_tokens", 0) / max(elapsed, 0.001), 1),
@@ -850,6 +904,7 @@ class TemporalBrain:
                     raw_result = {
                         "ok": False,
                         "reply": f"Error del motor Temporal Brain (HTTP {resp.status_code}): {resp.text}",
+                        "model": effective_model,
                         "elapsed": elapsed,
                     }
                     break
@@ -863,22 +918,28 @@ class TemporalBrain:
                     else:
                         time.sleep(1.0)
                     continue
-                raw_result = {"ok": False, "reply": f"Error en socket IPC: {e}", "elapsed": round(time.time() - t0, 3)}
+                raw_result = {
+                    "ok": False,
+                    "reply": f"Error en socket IPC: {e}",
+                    "model": effective_model,
+                    "elapsed": round(time.time() - t0, 3),
+                }
 
         # 4. Pipeline Post-Inferencia: Hooks y Adaptadores
-        if self.config.get("hooks", {}).get("enable_post_hooks", True):
-            for hook in self._post_hooks:
-                try:
-                    raw_result = hook(raw_result)
-                except Exception as e:
-                    logger.error(f"Error en post_hook: {e}")
+        if not bypass_post_hooks:
+            if self.config.get("hooks", {}).get("enable_post_hooks", True):
+                for hook in self._post_hooks:
+                    try:
+                        raw_result = hook(raw_result)
+                    except Exception as e:
+                        logger.error(f"Error en post_hook: {e}")
 
-        for adapter in self._adapters.values():
-            if adapter.enabled:
-                try:
-                    raw_result = adapter.post_inference(raw_result)
-                except Exception as e:
-                    logger.error(f"Error en post_inference del adaptador '{adapter.name}': {e}")
+            for adapter in self._adapters.values():
+                if adapter.enabled:
+                    try:
+                        raw_result = adapter.post_inference(raw_result)
+                    except Exception as e:
+                        logger.error(f"Error en post_inference del adaptador '{adapter.name}': {e}")
 
         return raw_result
 
@@ -889,51 +950,72 @@ class TemporalBrain:
         max_tokens: Optional[int] = None,
         num_ctx: Optional[int] = None,
         cancel_event: Optional[threading.Event] = None,
+        *,
+        bypass_pre_hooks: bool = False,
+        bypass_stream_filters: bool = False,
+        timeout: Optional[float] = None,
+        top_p: Optional[float] = None,
+        top_k: Optional[int] = None,
+        min_p: Optional[float] = None,
+        repeat_penalty: Optional[float] = None,
+        stop: Optional[List[str]] = None,
     ) -> Generator[str, None, str]:
         """Generador streaming que aplica adaptadores y filtros de tokens en tiempo real."""
-        options = {
+        options: Dict[str, Any] = {
             "temperature": float(temperature if temperature is not None else self.config.get("temperature", 0.3)),
             "max_tokens": int(max_tokens if max_tokens is not None else self.config.get("max_tokens", 1024)),
             "num_ctx": num_ctx,
         }
 
         # 1. Pipeline Pre-Inferencia + System Prompt Soberano por defecto
-        current_msgs = list(messages)
+        current_msgs = [dict(m) for m in messages]
         if not any(m.get("role") == "system" for m in current_msgs):
             default_sys = self.config.get("system_prompt")
             if default_sys:
                 current_msgs.insert(0, {"role": "system", "content": str(default_sys)})
-        for adapter in self._adapters.values():
-            if adapter.enabled:
-                try:
-                    current_msgs, options = adapter.pre_inference(current_msgs, options)
-                except Exception:
-                    pass
+        if not bypass_pre_hooks:
+            for adapter in self._adapters.values():
+                if adapter.enabled:
+                    try:
+                        current_msgs, options = adapter.pre_inference(current_msgs, options)
+                    except Exception:
+                        pass
 
-        if self.config.get("hooks", {}).get("enable_pre_hooks", True):
-            for hook in self._pre_hooks:
-                try:
-                    current_msgs, options = hook(current_msgs, options)
-                except Exception:
-                    pass
+            if self.config.get("hooks", {}).get("enable_pre_hooks", True):
+                for hook in self._pre_hooks:
+                    try:
+                        current_msgs, options = hook(current_msgs, options)
+                    except Exception:
+                        pass
 
         if not self.is_running():
             self.start()
 
         current_msgs, options["max_tokens"] = self._fit_to_context(current_msgs, options["max_tokens"])
 
-        payload = {
+        payload: Dict[str, Any] = {
             "model": self.model_name,
             "messages": current_msgs,
             "temperature": options["temperature"],
             "max_tokens": options["max_tokens"],
             "stream": True,
         }
+        if top_p is not None:
+            payload["top_p"] = float(top_p)
+        if top_k is not None:
+            payload["top_k"] = int(top_k)
+        if min_p is not None:
+            payload["min_p"] = float(min_p)
+        if repeat_penalty is not None:
+            payload["repeat_penalty"] = float(repeat_penalty)
+        if stop:
+            payload["stop"] = list(stop)
 
+        infer_timeout = float(timeout) if (timeout is not None and float(timeout) > 0) else _temporal_infer_timeout()
         transport = httpx.HTTPTransport(uds=str(self.socket_path))
         full_reply = []
 
-        with httpx.Client(transport=transport, base_url="http://localhost", timeout=_temporal_infer_timeout()) as client:
+        with httpx.Client(transport=transport, base_url="http://localhost", timeout=infer_timeout) as client:
             with client.stream("POST", "/v1/chat/completions", json=payload) as resp:
                 for line in resp.iter_lines():
                     if cancel_event and cancel_event.is_set():
@@ -952,15 +1034,16 @@ class TemporalBrain:
                             if delta:
                                 # Filtros de tokens
                                 token = delta
-                                for flt in self._stream_filters:
-                                    token = flt(token)
-                                    if token is None:
-                                        break
-                                for adapter in self._adapters.values():
-                                    if adapter.enabled and token is not None:
-                                        token = adapter.on_stream_token(token)
+                                if not bypass_stream_filters:
+                                    for flt in self._stream_filters:
+                                        token = flt(token)
                                         if token is None:
                                             break
+                                    for adapter in self._adapters.values():
+                                        if adapter.enabled and token is not None:
+                                            token = adapter.on_stream_token(token)
+                                            if token is None:
+                                                break
 
                                 if token:
                                     full_reply.append(token)

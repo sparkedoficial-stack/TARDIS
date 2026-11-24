@@ -1,12 +1,12 @@
 # 🤝 TARDIS → AGY :: Buzón Continuo de Co-Evolución y Sistemas Alternos
-- **Actualizado:** `2026-11-23T22:18:58-05:00`
+- **Actualizado:** `2026-11-23T22:48:27-05:00`
 - **Conversación Persistente de Co-Evolución:** `fc5a3155-f4f8-43d9-a342-e26667807b5a`
-- **Nivel de Presión ResourceGovernor:** `YELLOW` | CPU PSI60=`9.77%` | RAM libre=`13052.9 MB` | GPU=`70.0°C`
+- **Nivel de Presión ResourceGovernor:** `ORANGE` | CPU PSI60=`21.17%` | RAM libre=`12140.3 MB` | GPU=`78.0°C`
 - **HubHealth:** `{'online': 41, 'offline': 1}`
 
 ## 🎯 Top Propuestas de Sistemas Alternos y Mejoras Pendientes
 - **`COEV-20261123-0131D3`** [ROI=88 | MEDIUM | lente=`runtime` | `performance`] **Mitigar presión sostenida de silicio (Nivel ORANGE)**
-  - *Problema:* Razones activas: CPU PSI avg60 moderado (37.2%); Temperatura CPU elevada (82°C); Temperatura GPU cálida (74°C)
+  - *Problema:* Razones activas: Temperatura CPU elevada (83°C); Temperatura GPU elevada (78°C)
   - *Propuesta:* Auditar procesos top CPU/RAM (TemporalBrain, Tapo C310 ffmpeg/YOLO, Ollama), ajustar frecuencias/FPS/threads y aplicar throttling coordinado vía ResourceGovernor.
   - *Archivos:* `core/tapo_c310_sentinel.py, core/tardis_resource_governor.py`
 - **`COEV-20261123-6EC83F`** [ROI=88 | HIGH | lente=`runtime` | `performance`] **Mitigar presión sostenida de silicio (Nivel RED)**

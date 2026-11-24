@@ -2,19 +2,6 @@
   "version": 2,
   "queue": [
     {
-      "video_id": "xY-QgeCgoV0",
-      "title": "Victory (Live)",
-      "artist": "Two Steps From Hell y Thomas Bergersen",
-      "album": "Live - An Epic Music Experience",
-      "duration": "5:26",
-      "duration_seconds": 326,
-      "thumbnail": "https://yt3.googleusercontent.com/FvrNmAkDn_o7rFJupKcGFn6L-Dce16yaETTdJRDfE7ArulmPLUE9LbzLP4C3FWt2jpcQBjQ6ADRHXFXz=w120-h120-l90-rj",
-      "kind": "song",
-      "scene": "epic",
-      "source": "scene:epic",
-      "added_ts": 0.0
-    },
-    {
       "video_id": "fwvuh5DXQ-g",
       "title": "Unleashed (Uncompressed Mix)",
       "artist": "Thomas Bergersen y Two Steps from Hell",
@@ -35,6 +22,19 @@
       "duration": "8:54",
       "duration_seconds": 534,
       "thumbnail": "https://yt3.googleusercontent.com/C_SRlRmOKWGvRXwkDNJyxAeXNy-YBUme8FfVDb0WNymC6YTFi3wH5TE_4dmTicmH3NFtCsDvR0H5RpcxuA=w120-h120-l90-rj",
+      "kind": "song",
+      "scene": "epic",
+      "source": "scene:epic",
+      "added_ts": 0.0
+    },
+    {
+      "video_id": "Ji9EAX44rzE",
+      "title": "Sariel",
+      "artist": "Two Steps from Hell y Nick Phoenix",
+      "album": "Battlecry",
+      "duration": "2:50",
+      "duration_seconds": 170,
+      "thumbnail": "https://yt3.googleusercontent.com/FGELG2di6kWLFP8-ZW-AG02-lGW3rnfwnjYxpxattTsODGs9hM-Am6ROasmbLGdtfikrplghPH-WbS9-=w120-h120-l90-rj",
       "kind": "song",
       "scene": "epic",
       "source": "scene:epic",
@@ -67,13 +67,13 @@
       "added_ts": 0.0
     },
     {
-      "video_id": "KMrBG9AqnPU",
-      "title": "Alex On The Spot",
+      "video_id": "PPO-EsnEvwI",
+      "title": "Good To Have You Back",
       "artist": "Hans Zimmer",
-      "album": "Madagascar: Escape 2 Africa (Music From The Motion Picture)",
-      "duration": "1:59",
-      "duration_seconds": 119,
-      "thumbnail": "https://yt3.googleusercontent.com/a4SsbiasB6Ij_cI5OsIMdVs8SQoYuUIJ9nAHmDMwLaMcuHV9kNWIyR7HYtxHd9_LHnL2Uace_hjfGYg=w120-h120-l90-rj",
+      "album": "No Time To Die (Original Motion Picture Soundtrack)",
+      "duration": "1:18",
+      "duration_seconds": 78,
+      "thumbnail": "https://yt3.googleusercontent.com/Z6hN1hlLGKnTLpcYw5sgK-bB2ctmLyFibk6EF2J3t98S-IRe6GsX-cT5rlkDbaNQ1Gbqy0CtV9KT3Cn__A=w120-h120-l90-rj",
       "kind": "song",
       "scene": "epic",
       "source": "scene:epic",
@@ -93,26 +93,26 @@
       "added_ts": 0.0
     },
     {
-      "video_id": "YAXXo218ZuQ",
-      "title": "Cassandra",
+      "video_id": "pni2YKmQZKM",
+      "title": "Crystallize",
       "artist": "Thomas Bergersen",
-      "album": "Sun",
-      "duration": "3:09",
-      "duration_seconds": 189,
-      "thumbnail": "https://yt3.googleusercontent.com/wNvVG34kBexY5vH955o-szmyll3E2CI4rf-O0wHiZZRbEIf2TMu9rzQA1vI7ze_vi6wiyqaQmzB56LhH=w120-h120-l90-rj",
+      "album": "Humanity: Chapter II",
+      "duration": "5:26",
+      "duration_seconds": 326,
+      "thumbnail": "https://yt3.googleusercontent.com/LOi5zvgMbc-fKtmNobveRWsDnDjC7gyb1gWdNz8BAmEpoAgCaJYPm2oLFneujd5DcccUa_lGtprGCQ_X=w120-h120-l90-rj",
       "kind": "song",
       "scene": "epic",
       "source": "scene:epic",
       "added_ts": 0.0
     },
     {
-      "video_id": "_0NvkEjyFhI",
-      "title": "Riders",
-      "artist": "Thomas Bergersen y Two Steps From Hell",
-      "album": "Classics, Vol. 2",
-      "duration": "3:31",
-      "duration_seconds": 211,
-      "thumbnail": "https://yt3.googleusercontent.com/nY4Bku0ptQ91ytWdmurcg--Te2pNEt6KCfHb37eVrFuY9M-VVuKfxr7YyzXpqjw8pZwe4Hx1C8HhMbxw=w120-h120-l90-rj",
+      "video_id": "Bgn1ZeI0o5E",
+      "title": "Deliverance",
+      "artist": "Thomas Bergersen",
+      "album": "Seven",
+      "duration": "7:13",
+      "duration_seconds": 433,
+      "thumbnail": "https://yt3.googleusercontent.com/MdF0o5WNb8klPAxPOBrqmsszpWkSb32CJnk2W5qhJkNnhiF4yZKVFod6eKsfTSOcbW8TLmyK6QRqmSmZ=w120-h120-l90-rj",
       "kind": "song",
       "scene": "epic",
       "source": "scene:epic",
@@ -197,7 +197,7 @@
       "added_ts": 0.0
     }
   ],
-  "index": 4,
+  "index": 11,
   "volume": 44,
   "repeat": "off",
   "shuffle": false,
@@ -207,5 +207,5 @@
   "last_scene": "epic",
   "user_paused": false,
   "created_ts": 0.0,
-  "updated_ts": REDACTED_PHONE.934238
+  "updated_ts": REDACTED_PHONE.927346
 }

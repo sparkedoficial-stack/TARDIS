@@ -259,6 +259,17 @@ class FtlOmniRegistry:
                 "description": "Canal autónomo bidireccional 24/7 entre TARDIS y Antigravity (AGY) con 6 lentes de auto-búsqueda de sistemas alternos y mejoras, conversación persistente, buzón vivo en hooks, guardrails de presupuesto/presión y puerta canaria.",
                 "capabilities": ["status", "scan", "proposals", "propose", "dialogue", "ask-agy", "reply-tardis", "run-cycle", "daemon"],
                 "active": os.path.exists("/home/m11/.local/bin/tardis-coevolution")
+            },
+            "mundo_sin_censura": {
+                "name": "Un Mundo Sin Censura · Modelo Soberano Local Dual-Lane",
+                "binary": "/home/m11/.local/bin/mundo-sin-censura",
+                "module": "modulos_ftl.ftl_mundo_sin_censura",
+                "module_file": "/home/m11/modulos_ftl/ftl_mundo_sin_censura.py",
+                "endpoint": "http://127.0.0.1:8757/api/mundo_sin_censura/status",
+                "category": "Sovereign Local Open-Weights LLM & Dual-Lane Inference Controller",
+                "description": "Modelo soberano local `mundo-sin-censura` (Llama 3.1 8B Q4_K_M abliterado) con enrutamiento dual-lane (TemporalBrain CUDA cero duplicación + Ollama nativo), verificación SHA-256, Modelfiles Llama 3.1 sincronizados y blindaje inviolable de La Constante AEGIS.",
+                "capabilities": ["status", "analyze", "verify", "ensure", "sync-ftl", "chat", "benchmark", "abliterate"],
+                "active": os.path.exists("/home/m11/.local/bin/mundo-sin-censura")
             }
         }
 

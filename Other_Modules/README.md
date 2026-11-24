@@ -996,6 +996,8 @@ Módulos y componentes auxiliares del sistema.
 - **dossier_20261123_200131_765.json**: Componente de alta eficiencia.
 - **dossier_20261123_201829_460.json**: Componente de alta eficiencia.
 - **dossier_20261123_202157_011.json**: Componente de alta eficiencia.
+- **dossier_20261123_224240_749.json**: Componente de alta eficiencia.
+- **dossier_20261123_224311_396.json**: Componente de alta eficiencia.
 - **dynamic_tools_registry.json**: Directorio y puente soberano de interoperabilidad omni-herramientas.
 - **ecca_v3_core.py**: Núcleo de orquestación y control temporal/espacial.
 - **engine.py**: Componente de alta eficiencia.
@@ -1015,6 +1017,7 @@ Módulos y componentes auxiliares del sistema.
 - **ftl_coevolution.py**: Motor de aceleración FTL y computación adaptativa.
 - **ftl_intv_appletv_hub.py**: Motor de aceleración FTL y computación adaptativa.
 - **ftl_linpad.py**: Motor de aceleración FTL y computación adaptativa.
+- **ftl_mundo_sin_censura.py**: Motor de aceleración FTL y computación adaptativa.
 - **ftl_music_maestro.py**: Motor de aceleración FTL y computación adaptativa.
 - **ftl_nxnative.py**: Motor de aceleración FTL y computación adaptativa.
 - **ftl_omniscient_autonomy.py**: Directorio y puente soberano de interoperabilidad omni-herramientas.

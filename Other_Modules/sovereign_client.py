@@ -53,6 +53,24 @@ class SovereignClient:
     ) -> Generator[str, None, str]:
         """Streaming generador síncrono para consumo directo o SSE."""
         target_model = model or self.settings.model
+        try:
+            from core.mundo_sin_censura import get_mundo_sin_censura, is_mundo_sin_censura_model
+            if is_mundo_sin_censura_model(target_model):
+                msc = get_mundo_sin_censura()
+                full_msc: List[str] = []
+                for tok in msc.chat_stream(
+                    messages,
+                    lane="auto",
+                    temperature=float(temperature if temperature is not None else self.settings.temperature),
+                    num_ctx=int(num_ctx if num_ctx is not None else min(self.settings.num_ctx, 8192)),
+                    cancel_event=cancel_event,
+                ):
+                    full_msc.append(tok)
+                    yield tok
+                return "".join(full_msc)
+        except Exception:
+            pass
+
         options = self._build_options(num_ctx=num_ctx, temperature=temperature)
         payload = {
             "model": target_model,
