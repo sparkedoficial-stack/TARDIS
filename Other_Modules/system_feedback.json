@@ -1,12 +1,12 @@
 {
-  "timestamp": REDACTED_PHONE.9304695,
-  "iso": "2026-11-23T20:07:56.955424",
+  "timestamp": REDACTED_PHONE.076677,
+  "iso": "2026-11-23T21:14:39.079912",
   "health_score": 100,
   "status": "HEALTHY",
-  "cycle": 16,
+  "cycle": 151,
   "metrics": {
-    "cpu_percent": 61.8,
-    "ram_percent": 76.3,
+    "cpu_percent": 53.0,
+    "ram_percent": 73.9,
     "recent_errors": 0,
     "recent_blocks": 0
   },
@@ -21,7 +21,7 @@
     "temporal_brain_online": true
   },
   "needs": [
-    "Presión Ring 0 ORANGE: CPU PSI avg60 elevado (57.2%); Loadavg1 saturado (34.70 en 16 hilos)"
+    "Presión Ring 0 ORANGE: CPU PSI avg60 elevado (73.0%); Loadavg1 alto (23.26 en 16 hilos)"
   ],
   "instructions": [
     {
@@ -29,8 +29,8 @@
       "severity": "MEDIUM",
       "component": "Resource Governor Ring 0",
       "target_file": "core/tardis_resource_governor.py",
-      "instruction": "Estabilizar presión ORANGE (CPU PSI avg60 elevado (57.2%); Loadavg1 saturado (34.70 en 16 hilos)) ejecutando reclamación de modelos duplicados y throttling.",
-      "rationale": "CPU PSI60=57.17%, RAM libre=7742.0 MB.",
+      "instruction": "Estabilizar presión ORANGE (CPU PSI avg60 elevado (73.0%); Loadavg1 alto (23.26 en 16 hilos)) ejecutando reclamación de modelos duplicados y throttling.",
+      "rationale": "CPU PSI60=72.97%, RAM libre=8288.3 MB.",
       "actionable_cmd": "tardis-governor reclaim"
     }
   ],

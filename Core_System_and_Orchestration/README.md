@@ -66,6 +66,7 @@ Núcleo de orquestación temporal, bucles de control soberano FTL y sincronizaci
 - **task_manager.py**: Componente de alta eficiencia.
 - **test_autonomous_controller.py**: Componente de alta eficiencia.
 - **test_easy_touch_agent.py**: Sistema de auto-corrección preventiva y cicatrización en segundo plano.
+- **test_gia_sovereign_engine.py**: Componente de alta eficiencia.
 - **test_os_controller.py**: Componente de alta eficiencia.
 - **test_package_manager_and_buttons.py**: Componente de alta eficiencia.
 - **test_sovereign_local_runner.py**: Componente de alta eficiencia.

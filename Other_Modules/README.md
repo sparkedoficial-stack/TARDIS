@@ -96,6 +96,9 @@ Módulos y componentes auxiliares del sistema.
 - **continuity_state.json**: Componente de alta eficiencia.
 - **contributing.md**: Componente de alta eficiencia.
 - **convert_fp8_to_int4.py**: Componente de alta eficiencia.
+- **core__tapo_c310_sentinel.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **core__tardis_c310_conversation.py**: Núcleo de orquestación y control temporal/espacial.
+- **core__tardis_resource_governor.py**: Núcleo de orquestación y control temporal/espacial.
 - **crear_una_funcin_5237.py**: Motor de ingeniería inversa multi-arquitectura y descompilación.
 - **crypto.py**: Componente de alta eficiencia.
 - **curiosity_debate_manager.py**: Componente de alta eficiencia.
@@ -988,6 +991,8 @@ Módulos y componentes auxiliares del sistema.
 - **dossier_20261123_200123_729.json**: Componente de alta eficiencia.
 - **dossier_20261123_200127_725.json**: Componente de alta eficiencia.
 - **dossier_20261123_200131_765.json**: Componente de alta eficiencia.
+- **dossier_20261123_201829_460.json**: Componente de alta eficiencia.
+- **dossier_20261123_202157_011.json**: Componente de alta eficiencia.
 - **dynamic_tools_registry.json**: Directorio y puente soberano de interoperabilidad omni-herramientas.
 - **ecca_v3_core.py**: Núcleo de orquestación y control temporal/espacial.
 - **engine.py**: Componente de alta eficiencia.
@@ -1100,6 +1105,7 @@ Módulos y componentes auxiliares del sistema.
 - **improvement_20261102_041408_optimizacion_de_concurrencia_y_paginacio.md**: Componente de alta eficiencia.
 - **improvement_20261102_041427_validacion_de_coherencia_causal_sintropi.md**: Componente de alta eficiencia.
 - **improvement_20261102_042338_optimizacion_de_concurrencia_y_paginacio.md**: Componente de alta eficiencia.
+- **improvement_20261123_202706_optimizacion_autonoma_de_resource_govern.md**: Componente de alta eficiencia.
 - **inference_efficiency.json**: Componente de alta eficiencia.
 - **interaction_logger.py**: Componente de alta eficiencia.
 - **ios_bridge.py**: Componente de alta eficiencia.

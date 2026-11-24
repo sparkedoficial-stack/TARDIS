@@ -75,11 +75,11 @@
   "updated_at": "2026-11-23T09:03:31.712253",
   "visual_intelligence": {
     "active": true,
-    "pid": 1351741,
-    "videos_stored": 1042,
-    "verdicts": 597,
+    "pid": 1384253,
+    "videos_stored": 1044,
+    "verdicts": 600,
     "vlm_model": "qwen3-vl:2b-instruct",
-    "last_risk_level": null,
-    "last_ping": REDACTED_PHONE.9145868
+    "last_risk_level": 0,
+    "last_ping": REDACTED_PHONE.1111052
   }
 }

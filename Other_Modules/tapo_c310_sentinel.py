@@ -2391,7 +2391,28 @@ class TapoC310Sentinel:
                     self._update_state_file([], latency_ms)
 
             elapsed = time.perf_counter() - t_cycle_start
-            sleep_rem = sample_interval - elapsed
+            effective_interval = sample_interval
+            # Backoff cooperativo guiado por ResourceGovernor Ring 0 solo cuando NO hay
+            # presencia humana activa (respuesta instantánea intacta ante intrusos/visitantes).
+            if not detections and not self.presence_latched:
+                try:
+                    gov_now = time.monotonic()
+                    cached = getattr(self, "_gov_mult_cache", (0.0, 1.0))
+                    if (gov_now - cached[0]) >= 5.0:
+                        from core.tardis_resource_governor import get_pressure_sleep_multiplier
+
+                        _, mult = get_pressure_sleep_multiplier(
+                            metric="recommended_yolo_interval_mult", max_age_s=60.0
+                        )
+                        mult = max(1.0, min(3.5, float(mult)))
+                        self._gov_mult_cache = (gov_now, mult)
+                    else:
+                        mult = cached[1]
+                    effective_interval = sample_interval * mult
+                except Exception:
+                    pass
+
+            sleep_rem = effective_interval - elapsed
             if sleep_rem > 0.01:
                 try:
                     await asyncio.wait_for(self._stop_event.wait(), timeout=sleep_rem)

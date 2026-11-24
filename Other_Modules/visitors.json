@@ -282,5 +282,20 @@
     "seen_capsules": [],
     "known_facts": [],
     "last_reason": "muy"
+  },
+  "y por favor me voy a ir a la jefe": {
+    "key": "y por favor me voy a ir a la jefe",
+    "name": "y por favor, me voy a ir a la jefe.",
+    "visit_count": 1,
+    "first_seen": REDACTED_PHONE.6291468,
+    "first_seen_iso": "2026-11-23T20:20:37-0500",
+    "last_seen": REDACTED_PHONE.6291468,
+    "last_seen_iso": "2026-11-23T20:20:37-0500",
+    "pedagogical_level": "intermedio",
+    "interests": [],
+    "topics_studied": [],
+    "seen_capsules": [],
+    "known_facts": [],
+    "last_reason": ""
   }
 }

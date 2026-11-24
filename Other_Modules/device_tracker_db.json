@@ -98,11 +98,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 22149580,
+    "traffic_bytes_rx": 24587391,
     "traffic_bytes_tx": REDACTED_PHONE,
-    "traffic_packets": 1109307,
+    "traffic_packets": 1249915,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-24T01:02:08.147077+00:00",
+    "last_seen": "2026-11-24T01:12:03.044017+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -185,10 +185,10 @@
     "throttle_kbps": null,
     "is_safe": true,
     "traffic_bytes_rx": 0,
-    "traffic_bytes_tx": 360,
-    "traffic_packets": 5,
+    "traffic_bytes_tx": 72,
+    "traffic_packets": 1,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-24T01:02:08.147077+00:00",
+    "last_seen": "2026-11-24T01:12:03.044017+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -243,8 +243,8 @@
     "port_details": [],
     "risky_ports": [],
     "mdns_services": [
-      "0_0 (_ghp._tcp)",
       "0_0 (_display._tcp)",
+      "0_0 (_ghp._tcp)",
       "0_0 (AirPlay Remote Video)"
     ],
     "wifi_metrics": {},
@@ -253,10 +253,10 @@
     "throttle_kbps": null,
     "is_safe": true,
     "traffic_bytes_rx": 0,
-    "traffic_bytes_tx": 810,
+    "traffic_bytes_tx": 617,
     "traffic_packets": 2,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-24T01:02:08.147077+00:00",
+    "last_seen": "2026-11-24T01:12:03.044017+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -452,9 +452,9 @@
     "is_safe": true,
     "traffic_bytes_rx": REDACTED_PHONE,
     "traffic_bytes_tx": REDACTED_PHONE,
-    "traffic_packets": 21533672,
+    "traffic_packets": 21821626,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-24T01:02:08.147077+00:00",
+    "last_seen": "2026-11-24T01:12:03.044017+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -530,7 +530,7 @@
     "traffic_bytes_tx": 0,
     "traffic_packets": 0,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-24T01:02:08.147077+00:00",
+    "last_seen": "2026-11-24T01:12:03.044017+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]

@@ -60,15 +60,32 @@ def run_daemon_loop(engine: TardisVideoThinkingEngine):
     signal.signal(signal.SIGINT, handle_signal)
     signal.signal(signal.SIGTERM, handle_signal)
 
-    # Si nunca ha corrido o han pasado más de 35 minutos, ejecutar de inmediato
+    def _governor_allows_cycle() -> tuple[bool, float, str]:
+        try:
+            from core.tardis_resource_governor import get_resource_governor
+
+            adm = get_resource_governor().admit("heavy_learning")
+            return (
+                bool(adm.get("allowed", True)),
+                float(adm.get("recommended_sleep_multiplier", 1.0)),
+                f"{adm.get('level', 'GREEN')}: {'; '.join((adm.get('reasons') or [])[:2])}",
+            )
+        except Exception:
+            return True, 1.0, ""
+
+    # Si nunca ha corrido o han pasado más de 35 minutos, ejecutar de inmediato (respetando ResourceGovernor)
     last_t = engine.state.get("last_run_timestamp", 0.0)
     elapsed = time.time() - last_t
     if last_t == 0.0 or elapsed >= interval_sec:
-        print("⚡ [Inicio] Ejecutando ciclo inaugural inmediato...")
-        try:
-            engine.execute_cycle()
-        except Exception as e:
-            print(f"⚠️ Aviso en ciclo inicial: {e}")
+        allowed, _, reason = _governor_allows_cycle()
+        if allowed:
+            print("⚡ [Inicio] Ejecutando ciclo inaugural inmediato...")
+            try:
+                engine.execute_cycle()
+            except Exception as e:
+                print(f"⚠️ Aviso en ciclo inicial: {e}")
+        else:
+            print(f"⏸️ [Inicio] Ciclo inaugural diferido por ResourceGovernor ({reason}).")
 
     while not stop_event:
         interval_sec = engine.state.get("interval_seconds", 2100.0)
@@ -81,6 +98,19 @@ def run_daemon_loop(engine: TardisVideoThinkingEngine):
             sleep_step = min(5.0, remaining)
             time.sleep(sleep_step)
         else:
+            allowed, sleep_mult, reason = _governor_allows_cycle()
+            if not allowed:
+                defer_s = min(300.0, max(60.0, 60.0 * sleep_mult))
+                print(
+                    f"⏸️ [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] "
+                    f"Ciclo diferido {defer_s:.0f}s por ResourceGovernor ({reason})."
+                )
+                waited = 0.0
+                while waited < defer_s and not stop_event:
+                    step = min(5.0, defer_s - waited)
+                    time.sleep(step)
+                    waited += step
+                continue
             print(f"\n⏰ [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Cumplido intervalo de 35 minutos. Iniciando investigación autónoma...")
             try:
                 engine.execute_cycle()

@@ -55,6 +55,7 @@ Sistemas agénticos autónomos, enjambres cognitivos MoE, autorreflexión y evol
 - **test_temporal_brain_socket_ownership.py**: Componente de alta eficiencia.
 - **test_thought_noise_engine.py**: Componente de alta eficiencia.
 - **test_transversal_rag_vault.py**: Centinela de seguridad, blindaje perimetral o bóveda segura.
+- **test_vlm_visual_guard.py**: Componente de alta eficiencia.
 - **thought_noise_engine.py**: Componente de alta eficiencia.
 - **vlm_visual_guard.py**: Componente de alta eficiencia.
 - **youtube_learner.py**: Componente de alta eficiencia.

@@ -198,11 +198,11 @@ class SovereignInferenceEngine:
     #  SONDEO Y SALUD DEL ENLACE HTTP
     # -------------------------------------------------------------------------
 
-    def _probe_endpoint(self, endpoint: str, timeout: float = 1.2) -> bool:
+    def _probe_endpoint(self, endpoint: str, timeout: float = 1.8) -> bool:
         """Verifica de forma ultrarrápida y no bloqueante si un endpoint responde."""
-        ep = endpoint.strip().rstrip("/")
-        if not ep.startswith("http://") and not ep.startswith("https://"):
-            ep = f"http://{ep}"
+        ep = _normalize_endpoint(endpoint)
+        if not ep:
+            return False
         url = f"{ep}/api/tags"
         req = urllib.request.Request(url, headers={"User-Agent": "GIA-Sovereign-Engine/26.4"})
         try:
@@ -211,10 +211,78 @@ class SovereignInferenceEngine:
         except Exception:
             return False
 
-    def find_working_endpoint(self) -> Optional[str]:
-        """Encuentra el endpoint activo más rápido entre los candidatos."""
-        candidates = [self.preferred_endpoint] + [c for c in CANDIDATE_ENDPOINTS if c != self.preferred_endpoint]
-        for ep in candidates:
+    def _is_tcp_reachable(self, endpoint: str, timeout: float = 0.8) -> bool:
+        """Verifica si el socket TCP del endpoint está escuchando aunque atienda otra petición."""
+        ep = _normalize_endpoint(endpoint)
+        if not ep:
+            return False
+        try:
+            parsed = urllib.parse.urlparse(ep)
+            host = parsed.hostname or "127.0.0.1"
+            port = parsed.port or (443 if parsed.scheme == "https" else 80)
+            with socket.create_connection((host, port), timeout=timeout):
+                return True
+        except Exception:
+            return False
+
+    def _query_loaded_models(self, endpoint: str, timeout: float = 1.5) -> List[str]:
+        """Consulta /api/ps para detectar modelos ya residentes en VRAM/RAM sin despertarlos."""
+        ep = _normalize_endpoint(endpoint)
+        if not ep:
+            return []
+        try:
+            req = urllib.request.Request(f"{ep}/api/ps", headers={"User-Agent": "GIA-Sovereign-Engine/26.4"})
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
+                if resp.status == 200:
+                    data = json.loads(resp.read().decode("utf-8", errors="ignore"))
+                    return [str(m.get("name") or "") for m in (data.get("models") or []) if m.get("name")]
+        except Exception:
+            pass
+        return []
+
+    def find_working_endpoint(self, model: Optional[str] = None) -> Optional[str]:
+        """
+        Encuentra el endpoint activo óptimo evitando duplicar modelos en CPU Ollama (:11434):
+          - Para modelos VLM (p.ej. qwen3-vl) o modelos ya residentes en el carril GPU (:11435),
+            prioriza estrictamente OLLAMA_GPU_LANE_URL (:11435) con doble sondeo y guardia TCP.
+          - Solo usa :11434 como respaldo frío cuando :11435 no está disponible o el modelo
+            requiere el carril alternativo.
+        """
+        gpu_ep = _normalize_endpoint(OLLAMA_GPU_LANE_URL)
+        pref_ep = _normalize_endpoint(self.preferred_endpoint)
+        req_model = (model or "").strip()
+        want_gpu_lane = _is_vlm_model(req_model)
+
+        if not want_gpu_lane and req_model and gpu_ep:
+            req_base = req_model.split(":")[0].lower()
+            loaded_gpu = self._query_loaded_models(gpu_ep, timeout=1.2)
+            if any(m.split(":")[0].lower() == req_base for m in loaded_gpu):
+                want_gpu_lane = True
+
+        if want_gpu_lane and gpu_ep:
+            for _ in range(2):
+                if self._probe_endpoint(gpu_ep, timeout=2.5):
+                    self.active_endpoint = gpu_ep
+                    return gpu_ep
+                time.sleep(0.1)
+            if self._is_tcp_reachable(gpu_ep, timeout=0.8):
+                self.active_endpoint = gpu_ep
+                return gpu_ep
+
+        ordered: List[str] = []
+        # Si el usuario fijó un endpoint explícito no-11434, respetarlo primero; si no, preferir :11435 cuando aplique
+        if pref_ep and not _is_local_cpu_ollama_endpoint(pref_ep):
+            ordered.append(pref_ep)
+        if gpu_ep and gpu_ep not in ordered and (want_gpu_lane or not _is_kaiju_model(req_model)):
+            ordered.append(gpu_ep)
+        if pref_ep and pref_ep not in ordered:
+            ordered.append(pref_ep)
+        for c in CANDIDATE_ENDPOINTS:
+            nc = _normalize_endpoint(c)
+            if nc and nc not in ordered:
+                ordered.append(nc)
+
+        for ep in ordered:
             if self._probe_endpoint(ep):
                 self.active_endpoint = ep
                 return ep
@@ -285,9 +353,13 @@ class SovereignInferenceEngine:
                     if name not in models:
                         models.append(name)
 
-        # 1. Intentar por HTTP si hubiera un endpoint de respaldo activo
-        ep = self.active_endpoint or self.preferred_endpoint
-        if ep:
+        # 1. Intentar por HTTP (carril GPU :11435 primero y luego endpoint preferido) sin despertar modelos
+        seen_eps: List[str] = []
+        for raw_ep in (OLLAMA_GPU_LANE_URL, self.active_endpoint, self.preferred_endpoint):
+            ep = _normalize_endpoint(raw_ep or "")
+            if ep and ep not in seen_eps:
+                seen_eps.append(ep)
+        for ep in seen_eps:
             try:
                 url = f"{ep}/api/tags"
                 req = urllib.request.Request(url, headers={"User-Agent": "GIA-Sovereign-Engine/26.4"})
@@ -298,8 +370,9 @@ class SovereignInferenceEngine:
                             m_name = m.get("name")
                             if m_name and m_name not in models:
                                 models.append(m_name)
+                        break
             except Exception:
-                pass
+                continue
 
         # 2. Leer manifiestos existentes en disco
         if not models:
@@ -393,26 +466,30 @@ class SovereignInferenceEngine:
             while True:
                 time.sleep(300)  # Cada 5 minutos
                 try:
-                    # Si TemporalBrain (/tmp/temporal_brain.sock) está activo, mantener vivo únicamente
-                    # el socket IPC CUDA sin despertar un segundo llama-server en CPU vía Ollama (11434).
+                    # Si TemporalBrain (/tmp/temporal_brain.sock) existe o está activo, NO despertar
+                    # un segundo llama-server en CPU vía Ollama (:11434).
                     if _TEMPORAL_BRAIN_ACTIVE:
                         tb = get_temporal_brain()
-                        if tb.is_running():
+                        if tb.is_running() or Path(str(getattr(tb, "socket_path", "/tmp/temporal_brain.sock"))).exists():
                             continue
-                    ep = self.find_working_endpoint()
-                    if ep:
-                        target = self.resolve_model(self.default_model)
+                    target = self.resolve_model(self.default_model)
+                    ep = self.find_working_endpoint(model=target)
+                    # Nunca anclar duplicados de KAIJU o VLM en CPU Ollama (:11434) vía keepalive.
+                    if ep and not _is_local_cpu_ollama_endpoint(ep):
                         payload = {
                             "model": target,
                             "messages": [{"role": "user", "content": "ping"}],
                             "stream": False,
-                            "keep_alive": "15m",
-                            "options": {"num_predict": 1}
+                            "keep_alive": -1 if _is_gpu_lane_endpoint(ep) else "15m",
+                            "options": {"num_predict": 1},
                         }
+                        if _is_gpu_lane_endpoint(ep):
+                            payload["options"]["num_ctx"] = OLLAMA_GPU_LANE_NUM_CTX
+                            payload["options"]["num_gpu"] = OLLAMA_GPU_LANE_NUM_GPU
                         req = urllib.request.Request(
                             f"{ep}/api/chat",
                             data=json.dumps(payload).encode("utf-8"),
-                            headers={"Content-Type": "application/json", "User-Agent": "GIA-Keepalive"}
+                            headers={"Content-Type": "application/json", "User-Agent": "GIA-Keepalive"},
                         )
                         with urllib.request.urlopen(req, timeout=5.0) as _:
                             pass
@@ -435,30 +512,48 @@ class SovereignInferenceEngine:
         timeout: Optional[float] = None,
         cancel_event: Optional[threading.Event] = None
     ) -> Generator[str, None, str]:
-        """Streaming por HTTP con reanimación automática, diálogo comedido, soporte de cancelación y tiempo indefinido."""
-        ep = self.find_working_endpoint()
+        """Streaming por HTTP con enrutamiento GPU-lane (:11435), soporte de cancelación y anti-duplicación en :11434."""
+        ep = self.find_working_endpoint(model=model)
         if not ep:
             self.diagnose_and_heal(auto_start=True, wait_seconds=6.0)
-            ep = self.find_working_endpoint()
+            ep = self.find_working_endpoint(model=model)
 
         if not ep:
             raise ConnectionError("No se pudo establecer conexión con ningún endpoint HTTP de Ollama.")
+
+        is_gpu_lane = _is_gpu_lane_endpoint(ep)
+        is_cpu_fallback = _is_local_cpu_ollama_endpoint(ep)
+        if is_gpu_lane:
+            keep_alive: Union[int, str] = -1
+            effective_ctx = min(int(num_ctx or OLLAMA_GPU_LANE_NUM_CTX), OLLAMA_GPU_LANE_NUM_CTX)
+        elif is_cpu_fallback:
+            # Respaldo frío CPU (:11434): descargar al terminar por defecto ("0") para evitar duplicados residentes.
+            raw_ka = os.environ.get("GIA_OLLAMA_FALLBACK_KEEP_ALIVE", "0").strip()
+            keep_alive = 0 if raw_ka in ("", "0", "0s") else raw_ka
+            effective_ctx = int(num_ctx or os.environ.get("GIA_NUM_CTX", 4096))
+        else:
+            keep_alive = os.environ.get("GIA_OLLAMA_FALLBACK_KEEP_ALIVE", "10m")
+            effective_ctx = int(num_ctx or os.environ.get("GIA_NUM_CTX", 4096))
+
+        options: Dict[str, Any] = {
+            "temperature": float(temperature or 0.3),
+            "num_ctx": effective_ctx,
+            "num_predict": int(os.environ.get("GIA_NUM_PREDICT", 512)),
+            "num_thread": int(os.environ.get("GIA_NUM_THREADS", 8)),
+            "repeat_penalty": 1.15,
+            "use_mmap": True,
+            "use_mlock": False,
+            "num_batch": int(os.environ.get("GIA_NUM_BATCH", 512)),
+        }
+        if is_gpu_lane:
+            options["num_gpu"] = OLLAMA_GPU_LANE_NUM_GPU
 
         payload = {
             "model": model,
             "messages": messages,
             "stream": True,
-            "keep_alive": os.environ.get("GIA_OLLAMA_FALLBACK_KEEP_ALIVE", "10m"),
-            "options": {
-                "temperature": float(temperature or 0.3),
-                "num_ctx": int(num_ctx or os.environ.get("GIA_NUM_CTX", 4096)),
-                "num_predict": int(os.environ.get("GIA_NUM_PREDICT", 512)),
-                "num_thread": int(os.environ.get("GIA_NUM_THREADS", 8)),
-                "repeat_penalty": 1.15,
-                "use_mmap": True,
-                "use_mlock": False,
-                "num_batch": int(os.environ.get("GIA_NUM_BATCH", 512))
-            }
+            "keep_alive": keep_alive,
+            "options": options,
         }
 
         req = urllib.request.Request(
@@ -552,6 +647,9 @@ class SovereignInferenceEngine:
             full_input = f"{full_prompt}\n"
 
         creationflags = subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0
+        pipe_env = os.environ.copy()
+        if _is_vlm_model(model) and self._probe_endpoint(OLLAMA_GPU_LANE_URL, timeout=1.2):
+            pipe_env["OLLAMA_HOST"] = OLLAMA_GPU_LANE_URL
 
         proc = subprocess.Popen(
             [self.binary_path, "run", model, "--nowordwrap"],
@@ -559,6 +657,7 @@ class SovereignInferenceEngine:
             stdout=subprocess.PIPE,
             stderr=subprocess.DEVNULL,
             creationflags=creationflags,
+            env=pipe_env,
             text=True,
             bufsize=0
         )
@@ -692,8 +791,8 @@ class SovereignInferenceEngine:
             )
             return
 
-        # 0. TIER 0: Temporal Brain (Socket UNIX IPC, Zero Daemon / Serverless)
-        if _TEMPORAL_BRAIN_ACTIVE or _LOCAL_RUNNER_ACTIVE:
+        # 0. TIER 0: Temporal Brain (Socket UNIX IPC, Zero Daemon / Serverless; solo modelos no-VLM)
+        if (_TEMPORAL_BRAIN_ACTIVE or _LOCAL_RUNNER_ACTIVE) and not _is_vlm_model(target_model):
             local_runner = get_temporal_brain() if _TEMPORAL_BRAIN_ACTIVE else get_sovereign_local_runner()
             for _tb_attempt in range(2):
                 try:

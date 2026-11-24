@@ -1,35 +1,33 @@
 {
   "ok": true,
-  "ts": REDACTED_PHONE.8777614,
-  "iso": "2026-11-23T20:08:23-05:00",
+  "ts": REDACTED_PHONE.3118856,
+  "iso": "2026-11-23T21:14:54-05:00",
   "level": "ORANGE",
   "reasons": [
-    "CPU PSI avg60 elevado (63.5%)",
-    "Temperatura GPU cálida (72°C)",
-    "Loadavg1 saturado (32.95 en 16 hilos)",
-    "1 modelo(s) duplicado(s) en Ollama :11434 (1926 MB)"
+    "CPU PSI avg60 elevado (71.6%)",
+    "Loadavg1 alto (24.27 en 16 hilos)"
   ],
   "call_priority_active": false,
   "cpu": {
     "cores": 16,
-    "load1": 32.95,
-    "load5": 31.6,
-    "load15": 28.88,
+    "load1": 24.27,
+    "load5": 24.07,
+    "load15": 24.52,
     "psi": {
-      "some_avg10": 78.51,
-      "some_avg60": 63.49,
-      "some_avg300": 65.79,
+      "some_avg10": 68.91,
+      "some_avg60": 71.61,
+      "some_avg300": 72.57,
       "full_avg10": 0.0,
       "full_avg60": 0.0
     }
   },
   "memory": {
     "total_mb": 31495.2,
-    "available_mb": 7389.7,
-    "used_mb": 24105.5,
-    "used_pct": 76.5,
+    "available_mb": 8233.6,
+    "used_mb": 23261.6,
+    "used_pct": 73.9,
     "swap_total_mb": 62994.8,
-    "swap_used_mb": 8720.1,
+    "swap_used_mb": 7641.6,
     "psi": {
       "some_avg10": 0.0,
       "some_avg60": 0.0,
@@ -50,40 +48,26 @@
   "gpu": {
     "available": true,
     "name": "NVIDIA GeForce RTX 3050 Laptop GPU",
-    "temp_c": 72.0,
-    "util_pct": 45.0,
-    "vram_used_mb": 3585.0,
-    "vram_free_mb": 237.0,
+    "temp_c": 70.0,
+    "util_pct": 48.0,
+    "vram_used_mb": 3587.0,
+    "vram_free_mb": 235.0,
     "vram_total_mb": 4096.0,
-    "vram_used_pct": 87.5
+    "vram_used_pct": 87.6
   },
   "inference_lanes": {
     "temporal_brain_sock": true,
     "embed_brain_sock": true,
-    "ollama_11434": [
-      {
-        "name": "qwen3-vl:2b-instruct",
-        "size_mb": 1925.5,
-        "size_vram_mb": 0.0,
-        "expires_at": "2026-11-23T20:08:23.840868557-05:00"
-      }
-    ],
+    "ollama_11434": [],
     "ollama_11435_gpu_voice": [
       {
         "name": "qwen3-vl:2b-instruct",
         "size_mb": 1697.4,
         "size_vram_mb": 1076.8,
-        "expires_at": "2319-03-05T18:54:35.614099281-05:00"
+        "expires_at": "2319-03-05T20:17:02.115015098-05:00"
       }
     ],
-    "duplicate_models": [
-      {
-        "port": 11434,
-        "model": "qwen3-vl:2b-instruct",
-        "size_mb": 1925.5,
-        "reason": "duplicado_cpu_con_gpu_lane_11435"
-      }
-    ]
+    "duplicate_models": []
   },
   "admission": {
     "interactive": true,

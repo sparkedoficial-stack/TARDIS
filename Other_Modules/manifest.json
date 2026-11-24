@@ -1,11 +1,26 @@
 {
-  "run_id": "canary_20261123_200207_0a9abc",
-  "iso": "2026-11-23T20:02:07-05:00",
+  "run_id": "canary_20261123_211444_cbc51e",
+  "iso": "2026-11-23T21:14:44-05:00",
   "files": [
     {
-      "source": "/tmp/pytest-of-m11/pytest-1/test_canary_verifier_static_sn0/sample_mod.py",
-      "relative": "sample_mod.py",
-      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261123_200207_0a9abc/sample_mod.py"
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/tardis_resource_governor.py",
+      "relative": "core/tardis_resource_governor.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261123_211444_cbc51e/core__tardis_resource_governor.py"
+    },
+    {
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/tapo_c310_sentinel.py",
+      "relative": "core/tapo_c310_sentinel.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261123_211444_cbc51e/core__tapo_c310_sentinel.py"
+    },
+    {
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/tardis_video_pensante.py",
+      "relative": "tardis_video_pensante.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261123_211444_cbc51e/tardis_video_pensante.py"
+    },
+    {
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/temporal_brain_config.json",
+      "relative": "temporal_brain_config.json",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261123_211444_cbc51e/temporal_brain_config.json"
     }
   ]
 }
