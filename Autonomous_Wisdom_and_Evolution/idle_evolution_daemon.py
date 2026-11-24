@@ -301,8 +301,24 @@ class IdleEvolutionDaemon:
                 target_p = (PROJECT_ROOT / code_target).resolve()
                 rel = target_p.relative_to(PROJECT_ROOT.resolve()).as_posix() if target_p.is_relative_to(PROJECT_ROOT.resolve()) else None
                 if rel is None or rel in SELF_MODIFY_PROTECTED:
-                    logger.warning(f"🛡️ [IDLE_EVOLUTION] Auto-programacion bloqueada sobre archivo protegido: {code_target}")
-                    evo_status = "BLOCKED_PROTECTED_FILE"
+                    logger.warning(f"🛡️ [IDLE_EVOLUTION] Auto-programacion escalada a AGY Co-Evolution para archivo protegido: {code_target}")
+                    evo_status = "ESCALATED_TO_AGY_COEVOLUTION"
+                    try:
+                        from core.tardis_agy_coevolution import get_coevolution_engine
+                        get_coevolution_engine().upsert_proposal(
+                            lens="frontier",
+                            category="architecture",
+                            severity="MEDIUM",
+                            roi_score=78,
+                            title=f"[IdleConjecture] {title[:130]}",
+                            problem=hypothesis[:900],
+                            proposed_solution=f"Meta en archivo protegido `{code_target}`: {code_goal}",
+                            target_files=[rel or str(code_target)],
+                            evidence={"research_query": q_search, "sources": sources_list[:3]},
+                            fingerprint_seed=f"idle|{rel}|{title[:60]}",
+                        )
+                    except Exception:
+                        pass
                 elif target_p.is_file():
                     logger.info(f"🧬 [IDLE_EVOLUTION] Ejecutando auto-programación en `{code_target}`: {code_goal}...")
                     try:

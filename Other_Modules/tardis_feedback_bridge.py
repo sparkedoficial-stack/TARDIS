@@ -30,6 +30,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import sys
 import time
 import urllib.error
 import urllib.request
@@ -159,6 +160,25 @@ def cycle() -> Dict[str, Any]:
     for ev in events:
         ev.update({"ts": cur["ts"], "iso": cur["iso"]})
         _emit(ev)
+        # Escalar regresiones reales al Sovereign Event Bus (consumido por TARDIS <-> AGY Co-Evolution)
+        if ev.get("kind") in ("subsistema_cambio", "subsistema_ausente", "salud_baja"):
+            try:
+                if str(BASE) not in os.sys.path:
+                    os.sys.path.insert(0, str(BASE))
+                from core.tardis_event_bus import get_event_bus
+                to_st = str(ev.get("to") or "")
+                is_bad = ev.get("kind") in ("subsistema_ausente", "salud_baja") or to_st in ("degraded", "offline")
+                topic = "health.regression" if is_bad else "health.recovered"
+                get_event_bus().publish(
+                    topic,
+                    "tardis_feedback_bridge",
+                    ev,
+                    severity="HIGH" if is_bad else "INFO",
+                    dedup_key=f"fb|{ev.get('kind')}|{ev.get('subsystem', '')}|{to_st}",
+                    dedup_window_s=300.0,
+                )
+            except Exception:
+                pass
     cur["events_new"] = events
     _save_state(cur)
     return cur

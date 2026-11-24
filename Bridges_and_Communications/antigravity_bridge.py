@@ -273,6 +273,24 @@ class OmniFeedbackBridge:
                     "actionable_cmd": "python -c 'import gia_memory; gia_memory.vacuum()'"
                 })
 
+        # Regla B: Telemetría Ring 0 del ResourceGovernor (CPU PSI, RAM, Swap, Modelos duplicados)
+        try:
+            from core.tardis_resource_governor import get_resource_governor
+            gov = get_resource_governor().read_fast_snapshot(max_age_s=60.0)
+            if gov.get("level") in ("ORANGE", "RED"):
+                needs.append(f"Presión Ring 0 {gov.get('level')}: {'; '.join((gov.get('reasons') or [])[:2])}")
+                instructions.append({
+                    "id": f"inst_resource_pressure_{gov.get('level', 'high').lower()}",
+                    "severity": "HIGH" if gov.get("level") == "RED" else "MEDIUM",
+                    "component": "Resource Governor Ring 0",
+                    "target_file": "core/tardis_resource_governor.py",
+                    "instruction": f"Estabilizar presión {gov.get('level')} ({'; '.join((gov.get('reasons') or [])[:2])}) ejecutando reclamación de modelos duplicados y throttling.",
+                    "rationale": f"CPU PSI60={(gov.get('cpu') or {}).get('psi', {}).get('some_avg60', 0)}%, RAM libre={(gov.get('memory') or {}).get('available_mb', 0)} MB.",
+                    "actionable_cmd": "tardis-governor reclaim"
+                })
+        except Exception:
+            pass
+
         # Regla E: Bloqueos de Seguridad y Políticas Agénticas
         if recent_blocks > 0:
             needs.append(f"Se detectaron {recent_blocks} bloqueos de seguridad recientes en las acciones del agente.")
@@ -283,7 +301,7 @@ class OmniFeedbackBridge:
                 "target_file": "agent_safety.py",
                 "instruction": "Revisar los patrones bloqueados en agent_audit.log para evaluar si corresponden a falsos positivos en herramientas de automatización.",
                 "rationale": f"{recent_blocks} acciones interceptadas por las guardias de seguridad.",
-                "actionable_cmd": "Get-Content \"$env:LOCALAPPDATA\\vw-control\\agent_audit.log\" -Tail 20"
+                "actionable_cmd": "tail -n 20 ~/vw-control/agent_audit.log"
             })
 
         # Generar una sugerencia de auto-mejora proactiva si todo está estable
@@ -643,19 +661,23 @@ class OmniFeedbackBridge:
         )
 
         proposal = None
-        target_model = os.environ.get("GIA_FAST_MODEL", "llama3.2:3b")
+        # Evitar deadlock con gia_sovereign_engine/Ollama CPU :11434 (sin timeout y keep_alive=-1);
+        # usar TemporalBrain con timeout acotado solo si el ResourceGovernor admite carga de fondo.
         try:
-            import gia_sovereign_engine as _gse
-            engine = _gse.get_engine()
-            res = engine.chat(
-                messages=[{"role": "user", "content": user_prompt}],
-                model=target_model,
-                system=system_prompt,
-                temperature=0.4,
-                num_ctx=4096
-            )
-            if res.get("ok") and res.get("response"):
-                proposal = self._parse_proposal_text(res["response"])
+            from core.tardis_resource_governor import can_run_background_task
+            if can_run_background_task("idle_evolution"):
+                from core.temporal_brain import get_temporal_brain
+                res_tb = get_temporal_brain().chat(
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_prompt},
+                    ],
+                    temperature=0.35,
+                    max_tokens=450,
+                    timeout=25.0,
+                )
+                if res_tb.get("ok") and res_tb.get("reply"):
+                    proposal = self._parse_proposal_text(res_tb["reply"])
         except Exception:
             proposal = None
 
@@ -698,7 +720,7 @@ class OmniFeedbackBridge:
         """Actualiza el archivo de directivas pendientes para Antigravity y emite diálogo."""
         auto_dispatch = os.environ.get("GIA_AUTONOMOUS_AGY_DISPATCH", "1").strip().lower() in ("1", "true", "yes", "on")
         sev = str(proposal.get("severity", "MEDIA")).upper()
-        initial_status = "AUTONOMOUS_READY" if (auto_dispatch and sev in ("ALTA", "HIGH", "CRITICA", "CRITICAL")) else "AUTONOMOUS_RECORDED"
+        initial_status = "AUTONOMOUS_READY" if (auto_dispatch and sev in ("ALTA", "HIGH", "CRITICA", "CRITICAL", "MEDIA", "MEDIUM")) else "AUTONOMOUS_RECORDED"
         directive = {
             "id": f"dir_{int(time.time()*1000)}",
             "timestamp": time.time(),
@@ -767,16 +789,25 @@ class OmniFeedbackBridge:
             self.last_improvement_ts = time.time()
             self.last_proposal = proposal
 
-            # Auto-aplicar via FTL de forma 100% autónoma sin supervisión
-            ftl_applied = None
-            if os.environ.get("GIA_AUTO_APPLY_IMPROVEMENTS", "1").strip().lower() in ("1", "true", "yes", "on"):
-                try:
-                    from core.tardis_ftl_engineer import get_ftl_engineer
-                    eng = get_ftl_engineer()
-                    if eng.is_ftl_available():
-                        ftl_applied = eng.apply_improvement_proposal(main_path)
-                except Exception as ex:
-                    logger.warning(f"Error aplicando propuesta con FTL: {ex}")
+            # Encolar de forma no bloqueante en el motor de Co-Evolución TARDIS <-> AGY
+            # (evita el antiguo deadlock de mantener _improving_lock esperando a ftl_engineer síncrono)
+            coev_registered = None
+            try:
+                from core.tardis_agy_coevolution import get_coevolution_engine
+                coev_registered = get_coevolution_engine().upsert_proposal(
+                    lens="runtime",
+                    category="self_improvement",
+                    severity="HIGH" if str(proposal.get("severity", "")).upper() in ("ALTA", "HIGH", "CRITICA", "CRITICAL") else "MEDIUM",
+                    roi_score=82 if str(proposal.get("severity", "")).upper() in ("ALTA", "HIGH", "CRITICA", "CRITICAL") else 74,
+                    title=proposal.get("title", "Mejora Autónoma"),
+                    problem=proposal.get("problem", ""),
+                    proposed_solution=proposal.get("proposed_action", ""),
+                    target_files=[proposal.get("target_file")] if proposal.get("target_file") else [],
+                    evidence={"markdown_path": str(main_path), "reason": reason},
+                    fingerprint_seed=f"bridge|{slug}",
+                )
+            except Exception as ex_coev:
+                coev_registered = {"error": str(ex_coev)}
 
             return {
                 "ok": True,
@@ -785,7 +816,7 @@ class OmniFeedbackBridge:
                 "file": main_path.name,
                 "path": str(main_path),
                 "workspace_path": str(ws_path) if ws_path else None,
-                "ftl_applied": ftl_applied,
+                "coevolution": coev_registered,
                 "elapsed": round(time.time() - t_start, 2),
                 "reason": reason or "Ciclo autónomo programado"
             }
