@@ -22,10 +22,12 @@ from __future__ import annotations
 import base64
 import json
 import os
+import socket
 import subprocess
 import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
+from urllib.parse import urlparse
 
 import httpx
 
@@ -33,22 +35,49 @@ CONFIG_DIR = Path(os.environ.get("LOCALAPPDATA", os.path.expanduser("~"))) / "vw
 CAPTURES_DIR = CONFIG_DIR / "captures"
 CAPTURES_DIR.mkdir(parents=True, exist_ok=True)
 
-_raw_gpu_ollama = os.environ.get("TARDIS_VLM_GPU_URL", "http://127.0.0.1:11435").strip()
+_raw_gpu_ollama = os.environ.get("TARDIS_VLM_GPU_URL", "http://127.0.0.1:11435").strip().rstrip("/")
 OLLAMA_GPU_URL = _raw_gpu_ollama if _raw_gpu_ollama.startswith(("http://", "https://")) else f"http://{_raw_gpu_ollama}"
-_raw_ollama = os.environ.get("OLLAMA_HOST", "http://127.0.0.1:11434").strip()
+_raw_ollama = os.environ.get("OLLAMA_HOST", "http://127.0.0.1:11434").strip().rstrip("/")
 OLLAMA_URL = _raw_ollama if _raw_ollama.startswith(("http://", "https://")) else f"http://{_raw_ollama}"
+OLLAMA_GPU_NUM_CTX = int(os.environ.get("TARDIS_VLM_GPU_NUM_CTX", "3072"))
+OLLAMA_GPU_NUM_GPU = int(os.environ.get("TARDIS_VLM_GPU_NUM_GPU", "22"))
+
+
+def _is_tcp_reachable(url: str, timeout: float = 0.8) -> bool:
+    """Verifica si el socket TCP del carril GPU está escuchando aunque esté procesando otra petición."""
+    try:
+        parsed = urlparse(url)
+        host = parsed.hostname or "127.0.0.1"
+        port = parsed.port or (443 if parsed.scheme == "https" else 80)
+        with socket.create_connection((host, port), timeout=timeout):
+            return True
+    except Exception:
+        return False
 
 
 def _active_vlm_endpoint() -> str:
-    """Prefiere el carril GPU dedicado (:11435) antes del fallback CPU (:11434)."""
-    for ep in (OLLAMA_GPU_URL, OLLAMA_URL):
+    """
+    Prefiere estrictamente el carril GPU dedicado (:11435) antes del respaldo frío CPU (:11434).
+    Evita derramar a :11434 cuando :11435 está activo bajo carga.
+    """
+    for _attempt in range(2):
         try:
-            r = httpx.get(f"{ep}/api/tags", timeout=1.5)
+            r = httpx.get(f"{OLLAMA_GPU_URL}/api/tags", timeout=3.0)
             if r.status_code == 200:
-                return ep
+                return OLLAMA_GPU_URL
         except Exception:
-            continue
-    return OLLAMA_URL
+            time.sleep(0.15)
+
+    if _is_tcp_reachable(OLLAMA_GPU_URL, timeout=1.0):
+        return OLLAMA_GPU_URL
+
+    try:
+        r = httpx.get(f"{OLLAMA_URL}/api/tags", timeout=2.0)
+        if r.status_code == 200:
+            return OLLAMA_URL
+    except Exception:
+        pass
+    return OLLAMA_GPU_URL
 
 # Modelos multimodales conocidos ordenados por preferencia
 VLM_CANDIDATE_MODELS = [
@@ -136,16 +165,22 @@ def inspect_image(
     if vlm_model:
         try:
             ep = _active_vlm_endpoint()
+            is_gpu_lane = (ep.rstrip("/") == OLLAMA_GPU_URL.rstrip("/"))
+            options: Dict[str, Any] = {
+                "temperature": 0.2,
+                "num_ctx": OLLAMA_GPU_NUM_CTX,
+            }
+            if is_gpu_lane:
+                options["num_gpu"] = OLLAMA_GPU_NUM_GPU
+
             payload = {
                 "model": vlm_model,
                 "prompt": prompt,
                 "images": [b64_img],
                 "stream": False,
-                "keep_alive": -1 if ep == OLLAMA_GPU_URL else "5m",
-                "options": {
-                    "temperature": 0.2,
-                    "num_ctx": 4096
-                }
+                "think": False,
+                "keep_alive": -1 if is_gpu_lane else 0,
+                "options": options,
             }
             r = httpx.post(f"{ep}/api/generate", json=payload, timeout=timeout_s)
             if r.status_code == 200:
@@ -154,7 +189,8 @@ def inspect_image(
                     "ok": True,
                     "engine": f"vlm_ollama ({vlm_model})",
                     "analysis": resp_text,
-                    "model": vlm_model
+                    "model": vlm_model,
+                    "endpoint": ep,
                 }
         except Exception as e:
             # Fallback en caso de error de conexión con VLM

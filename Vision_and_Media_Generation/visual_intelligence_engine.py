@@ -31,6 +31,7 @@ import logging
 import os
 import re
 import shutil
+import socket
 import sqlite3
 import subprocess
 import sys
@@ -42,6 +43,7 @@ from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from urllib.parse import urlparse
 
 import cv2
 import numpy as np
@@ -98,24 +100,58 @@ HAAR_BODY = OPENCV_DATA_DIR / "haarcascade_upperbody.xml"
 # PERCEPCIÓN VISUAL MULTIMODAL (VLM) + VEREDICTOS SOBERANOS
 # ------------------------------------------------------------------------------
 
-OLLAMA_GPU_LANE_URL = os.environ.get("TARDIS_VLM_GPU_URL", "http://127.0.0.1:11435").strip()
-OLLAMA_URL = os.environ.get("OLLAMA_HOST", "http://127.0.0.1:11434").strip()
+OLLAMA_GPU_LANE_URL = os.environ.get("TARDIS_VLM_GPU_URL", "http://127.0.0.1:11435").strip().rstrip("/")
+OLLAMA_URL = os.environ.get("OLLAMA_HOST", "http://127.0.0.1:11434").strip().rstrip("/")
 if not OLLAMA_URL.startswith(("http://", "https://")):
     OLLAMA_URL = f"http://{OLLAMA_URL}"
 if not OLLAMA_GPU_LANE_URL.startswith(("http://", "https://")):
     OLLAMA_GPU_LANE_URL = f"http://{OLLAMA_GPU_LANE_URL}"
 
+# Alinear contexto y capas GPU exactamente con tardis-ollama-voice.service (:11435)
+# para evitar recargas del runner / VRAM thrash en RTX 3050 (4 GB).
+OLLAMA_GPU_LANE_NUM_CTX = int(os.environ.get("TARDIS_VLM_GPU_NUM_CTX", "3072"))
+OLLAMA_GPU_LANE_NUM_GPU = int(os.environ.get("TARDIS_VLM_GPU_NUM_GPU", "22"))
+
+
+def _is_tcp_reachable(url: str, timeout: float = 0.8) -> bool:
+    """Comprueba si el puerto TCP del carril Ollama está escuchando (incluso bajo carga alta)."""
+    try:
+        parsed = urlparse(url)
+        host = parsed.hostname or "127.0.0.1"
+        port = parsed.port or (443 if parsed.scheme == "https" else 80)
+        with socket.create_connection((host, port), timeout=timeout):
+            return True
+    except Exception:
+        return False
+
 
 def _resolve_vlm_ollama_url() -> str:
-    """Prefiere el carril GPU dedicado (:11435) donde qwen3-vl ya reside en VRAM, evitando carga duplicada en CPU (:11434)."""
-    for candidate in (OLLAMA_GPU_LANE_URL, OLLAMA_URL):
+    """
+    Prefiere estrictamente el carril GPU dedicado (:11435) donde qwen3-vl reside en VRAM,
+    evitando duplicación en CPU (:11434). Si :11435 está escuchando pero ocupado sirviendo
+    un turno de voz/visión, mantiene :11435 para encolar en GPU (OLLAMA_MAX_QUEUE=16) en lugar
+    de lanzar un segundo llama-server de ~3 GB en CPU.
+    """
+    for _attempt in range(2):
         try:
-            r = requests.get(f"{candidate}/api/tags", timeout=1.5)
+            r = requests.get(f"{OLLAMA_GPU_LANE_URL}/api/tags", timeout=3.0)
             if r.status_code == 200:
-                return candidate
+                return OLLAMA_GPU_LANE_URL
         except Exception:
-            continue
-    return OLLAMA_URL
+            time.sleep(0.15)
+
+    # Si el socket TCP de :11435 está vivo, no derramar a CPU :11434.
+    if _is_tcp_reachable(OLLAMA_GPU_LANE_URL, timeout=1.0):
+        return OLLAMA_GPU_LANE_URL
+
+    # Respaldo frío a :11434 solo si el carril GPU :11435 está realmente caído.
+    try:
+        r = requests.get(f"{OLLAMA_URL}/api/tags", timeout=2.0)
+        if r.status_code == 200:
+            return OLLAMA_URL
+    except Exception:
+        pass
+    return OLLAMA_GPU_LANE_URL
 
 # Modelos multimodales locales ordenados por preferencia (Qwen3-VL > Qwen2.5-VL > MiniCPM > Llama Vision > LLaVA)
 VLM_MODEL_PREFERENCES = (
@@ -395,12 +431,37 @@ class VisualIntelligenceEngine:
         return base64.b64encode(raw).decode("utf-8")
 
     def _ollama_vision_call(self, b64_img: str, prompt: str, model: str, *,
-                            max_tokens: int = 300, num_ctx: int = 4096,
+                            max_tokens: int = 300, num_ctx: int = OLLAMA_GPU_LANE_NUM_CTX,
                             timeout: float = 240.0) -> Dict[str, Any]:
-        """Inferencia multimodal local en Ollama (prefiere carril GPU :11435 antes que CPU :11434)."""
+        """
+        Inferencia multimodal local en Ollama.
+        - En carril GPU (:11435): alinea num_ctx=3072 y num_gpu=22 con tardis-ollama-voice.service
+          para reutilizar el modelo residente en VRAM sin recargas ni contención.
+        - En respaldo frío CPU (:11434): fuerza keep_alive=0 para descargar al instante y no dejar
+          modelos duplicados en RAM.
+        """
         try:
             target_url = _resolve_vlm_ollama_url()
-            keep_alive = -1 if target_url == OLLAMA_GPU_LANE_URL else "5m"
+            is_gpu_lane = (target_url.rstrip("/") == OLLAMA_GPU_LANE_URL.rstrip("/"))
+            keep_alive = -1 if is_gpu_lane else 0
+            effective_ctx = (
+                min(int(num_ctx or OLLAMA_GPU_LANE_NUM_CTX), OLLAMA_GPU_LANE_NUM_CTX)
+                if is_gpu_lane
+                else int(num_ctx or OLLAMA_GPU_LANE_NUM_CTX)
+            )
+            options: Dict[str, Any] = {
+                "temperature": 0.15,
+                "num_ctx": effective_ctx,
+                "num_predict": max_tokens,
+                "top_k": 20,
+                "top_p": 0.9,
+                "repeat_penalty": 1.18,
+                "repeat_last_n": 256,
+                "presence_penalty": 0.5,
+            }
+            if is_gpu_lane:
+                options["num_gpu"] = OLLAMA_GPU_LANE_NUM_GPU
+
             payload = {
                 "model": model,
                 "prompt": prompt,
@@ -408,16 +469,7 @@ class VisualIntelligenceEngine:
                 "stream": False,
                 "think": False,
                 "keep_alive": keep_alive,
-                "options": {
-                    "temperature": 0.15,
-                    "num_ctx": num_ctx,
-                    "num_predict": max_tokens,
-                    "top_k": 20,
-                    "top_p": 0.9,
-                    "repeat_penalty": 1.18,
-                    "repeat_last_n": 256,
-                    "presence_penalty": 0.5,
-                },
+                "options": options,
             }
             r = requests.post(f"{target_url}/api/generate", json=payload, timeout=timeout)
             if r.status_code == 200:
@@ -427,10 +479,20 @@ class VisualIntelligenceEngine:
                     # Algunos modelos de razonamiento vuelcan todo en 'thinking'
                     text = (body.get("thinking") or "").strip()
                 if text:
-                    return {"ok": True, "engine": f"Ollama VLM ({model})", "model": model,
-                            "analysis": self._sanitize_vlm_text(text)}
-            return {"ok": False, "engine": f"Ollama VLM ({model})", "model": model,
-                    "error": f"HTTP {r.status_code}: {r.text[:200]}"}
+                    return {
+                        "ok": True,
+                        "engine": f"Ollama VLM ({model})",
+                        "model": model,
+                        "endpoint": target_url,
+                        "analysis": self._sanitize_vlm_text(text),
+                    }
+            return {
+                "ok": False,
+                "engine": f"Ollama VLM ({model})",
+                "model": model,
+                "endpoint": target_url,
+                "error": f"HTTP {r.status_code}: {r.text[:200]}",
+            }
         except Exception as e:
             return {"ok": False, "engine": f"Ollama VLM ({model})", "model": model, "error": str(e)}
 
@@ -541,8 +603,9 @@ class VisualIntelligenceEngine:
         Describe una imagen con un modelo de visión multimodal real.
         Orden: VLM local (Ollama) -> Gemini -> endpoint OpenAI-compatible -> sin VLM.
         """
-        # El VLM local corre en CPU: imagen moderada + respuesta acotada para latencia baja.
-        b64_local = self._prepare_image_b64(image_source, max_side=1024)
+        # El VLM local corre en el carril GPU (:11435, num_ctx=3072): imagen compacta para
+        # encajar cómodamente en VRAM RTX 3050 con mínima latencia.
+        b64_local = self._prepare_image_b64(image_source, max_side=768)
         b64_img = self._prepare_image_b64(image_source, max_side=1600)
         full_prompt = (prompt or VLM_PERCEPTION_PROMPT).strip()
         if context:

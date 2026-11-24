@@ -18,6 +18,7 @@ Arquitectura de Inferencia Dual Redundante (Zero-Drop):
 from __future__ import annotations
 
 import json
+import logging
 import os
 import queue
 import re
@@ -32,6 +33,8 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 from typing import Any, Callable, Dict, Generator, List, Optional, Tuple, Union
+
+logger = logging.getLogger("TARDIS.SovereignInferenceEngine")
 
 try:
     import colibri_bridge
@@ -61,12 +64,63 @@ except Exception:
 WORKSPACE_DIR = Path(__file__).resolve().parent
 LOCALAPPDATA = Path(os.environ.get("LOCALAPPDATA", os.path.expanduser("~")))
 
+_raw_gpu_lane = os.environ.get("TARDIS_VLM_GPU_URL", "http://127.0.0.1:11435").strip().rstrip("/")
+OLLAMA_GPU_LANE_URL = (
+    _raw_gpu_lane
+    if not _raw_gpu_lane or _raw_gpu_lane.startswith(("http://", "https://"))
+    else f"http://{_raw_gpu_lane}"
+)
+OLLAMA_GPU_LANE_NUM_CTX = int(os.environ.get("TARDIS_VLM_GPU_NUM_CTX", "3072"))
+OLLAMA_GPU_LANE_NUM_GPU = int(os.environ.get("TARDIS_VLM_GPU_NUM_GPU", "22"))
+
+_VLM_MODEL_TOKENS = (
+    "qwen3-vl",
+    "qwen2.5-vl",
+    "qwen2.5vl",
+    "minicpm-v",
+    "llama3.2-vision",
+    "llava",
+    "moondream",
+    "bakllava",
+    "vision",
+)
+
 CANDIDATE_ENDPOINTS = [
+    OLLAMA_GPU_LANE_URL,
     "http://127.0.0.1:11434",
     "http://localhost:11434",
     "http://[::1]:11434",
-    "http://0.0.0.0:11434"
+    "http://0.0.0.0:11434",
 ]
+
+
+def _normalize_endpoint(endpoint: str) -> str:
+    ep = (endpoint or "").strip().rstrip("/")
+    if ep and not ep.startswith(("http://", "https://")):
+        ep = f"http://{ep}"
+    return ep
+
+
+def _is_vlm_model(model_name: Optional[str]) -> bool:
+    low = (model_name or "").strip().lower()
+    return bool(low) and any(tok in low for tok in _VLM_MODEL_TOKENS)
+
+
+def _is_kaiju_model(model_name: Optional[str]) -> bool:
+    low = (model_name or "").strip().lower()
+    return ("kaiju" in low) or ("tardis-neural" in low)
+
+
+def _is_gpu_lane_endpoint(endpoint: Optional[str]) -> bool:
+    ep = _normalize_endpoint(endpoint or "")
+    return bool(ep) and (ep == OLLAMA_GPU_LANE_URL or ep.endswith(":11435"))
+
+
+def _is_local_cpu_ollama_endpoint(endpoint: Optional[str]) -> bool:
+    ep = _normalize_endpoint(endpoint or "").lower()
+    return ep.endswith(":11434") and any(
+        h in ep for h in ("127.0.0.1", "localhost", "[::1]", "0.0.0.0")
+    )
 
 DEFAULT_MODELS_PREFERENCE = [
     "TARDIS-NEURAL-SPACE-KAIJU",

@@ -128,15 +128,16 @@ def diff(prev: Dict[str, Any], cur: Dict[str, Any]) -> List[Dict[str, Any]]:
             events.append({"kind": "peticion_pendiente", **p})
         return events
 
-    # 1. Cambios de salud por subsistema
+    # 1. Cambios de salud por subsistema (ignorar si la API está reiniciando y cur['subsystems'] viene vacío)
     old, new = prev.get("subsystems") or {}, cur["subsystems"]
-    for sid, st in new.items():
-        before = old.get(sid)
-        if before and before != st:
-            events.append({"kind": "subsistema_cambio", "subsystem": sid, "from": before, "to": st})
-    for sid in old:
-        if sid not in new:
-            events.append({"kind": "subsistema_ausente", "subsystem": sid})
+    if new:
+        for sid, st in new.items():
+            before = old.get(sid)
+            if before and before != st:
+                events.append({"kind": "subsistema_cambio", "subsystem": sid, "from": before, "to": st})
+        for sid in old:
+            if sid not in new:
+                events.append({"kind": "subsistema_ausente", "subsystem": sid})
 
     # 2. Peticiones nuevas o que cambiaron de estado
     prev_ids = {p["id"]: p["status"] for p in (prev.get("inbox", {}).get("pending") or [])}

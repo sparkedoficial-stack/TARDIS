@@ -908,24 +908,27 @@ class CameraVisionInvestigator:
             "el visitante muestra a la cámara. No inventes detalles que no se distingan, "
             "no leas placas vehiculares ni datos privados sensibles y no uses markdown ni emojis."
         )
-        payload = {
-            "model": self.vlm_model,
-            "messages": [
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": question.strip() or "¿Qué ves en esta imagen?", "images": [b64_img]},
-            ],
-            "stream": False,
-            "keep_alive": -1,
-            "options": {
+        last_err = ""
+        for base_url in self.ollama_urls:
+            is_gpu_lane = base_url.rstrip("/") == VOICE_OLLAMA_DEFAULT_URL.rstrip("/")
+            opts: Dict[str, Any] = {
                 "num_predict": 110,
                 "temperature": 0.25,
                 "num_ctx": 3072,
-                "num_gpu": 22,
-            },
-        }
-
-        last_err = ""
-        for base_url in self.ollama_urls:
+            }
+            if is_gpu_lane:
+                opts["num_gpu"] = 22
+            payload = {
+                "model": self.vlm_model,
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": question.strip() or "¿Qué ves en esta imagen?", "images": [b64_img]},
+                ],
+                "stream": False,
+                # En respaldo CPU (:11434) descargar inmediatamente (keep_alive=0) para no duplicar VRAM/RAM.
+                "keep_alive": -1 if is_gpu_lane else 0,
+                "options": opts,
+            }
             url = base_url.rstrip("/") + "/api/chat"
             try:
                 async with httpx.AsyncClient(
@@ -1425,17 +1428,20 @@ class VoiceBrain:
             except Exception as exc:
                 logger.debug(f"TemporalBrain UNIX timeout/error: {exc}")
 
-        # 3. Ollama principal (:11434)
+        # 3. Ollama principal (:11434) — respaldo frío con keep_alive=0 para evitar duplicados residentes en CPU
         for model in (self.fast_model, self.fallback_model, f"{self.fallback_model}:latest"):
             try:
                 resp = await self._http_client.post(
-                    f"{MAIN_OLLAMA_URL.rstrip('/')}/v1/chat/completions",
+                    f"{MAIN_OLLAMA_URL.rstrip('/')}/api/chat",
                     json={
                         "model": model,
                         "messages": text_messages,
                         "stream": False,
-                        "max_tokens": tokens,
-                        "temperature": temp,
+                        "keep_alive": 0,
+                        "options": {
+                            "num_predict": tokens,
+                            "temperature": temp,
+                        },
                     },
                     timeout=18.0,
                 )

@@ -760,7 +760,7 @@ class TemporalBrainClient:
             except Exception as exc:
                 logger.debug(f"TemporalBrain UNIX no disponible: {exc}")
 
-        # 3. Ollama principal (:11434)
+        # 3. Ollama principal (:11434) — respaldo frío con keep_alive=0 para no retener duplicados en CPU
         candidate_models = (
             (self.fast_model, self.model)
             if images
@@ -779,19 +779,20 @@ class TemporalBrainClient:
                             "model": model,
                             "messages": ol_msgs,
                             "stream": False,
+                            "keep_alive": 0,
                             "options": {"num_predict": tokens, "temperature": self.temperature},
                         },
                         timeout=35.0,
                     )
                 else:
                     resp = await self._http_client.post(
-                        f"{OLLAMA_URL}/v1/chat/completions",
+                        f"{OLLAMA_URL}/api/chat",
                         json={
                             "model": model,
                             "messages": text_messages,
                             "stream": False,
-                            "max_tokens": tokens,
-                            "temperature": self.temperature,
+                            "keep_alive": 0,
+                            "options": {"num_predict": tokens, "temperature": self.temperature},
                         },
                         timeout=20.0,
                     )
