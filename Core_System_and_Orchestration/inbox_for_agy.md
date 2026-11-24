@@ -1,14 +1,10 @@
 # 🤝 TARDIS → AGY :: Buzón Continuo de Co-Evolución y Sistemas Alternos
-- **Actualizado:** `2026-11-23T22:48:27-05:00`
+- **Actualizado:** `2026-11-24T00:08:31-05:00`
 - **Conversación Persistente de Co-Evolución:** `fc5a3155-f4f8-43d9-a342-e26667807b5a`
-- **Nivel de Presión ResourceGovernor:** `ORANGE` | CPU PSI60=`21.17%` | RAM libre=`12140.3 MB` | GPU=`78.0°C`
+- **Nivel de Presión ResourceGovernor:** `ORANGE` | CPU PSI60=`38.17%` | RAM libre=`11962.2 MB` | GPU=`76.0°C`
 - **HubHealth:** `{'online': 41, 'offline': 1}`
 
 ## 🎯 Top Propuestas de Sistemas Alternos y Mejoras Pendientes
-- **`COEV-20261123-0131D3`** [ROI=88 | MEDIUM | lente=`runtime` | `performance`] **Mitigar presión sostenida de silicio (Nivel ORANGE)**
-  - *Problema:* Razones activas: Temperatura CPU elevada (83°C); Temperatura GPU elevada (78°C)
-  - *Propuesta:* Auditar procesos top CPU/RAM (TemporalBrain, Tapo C310 ffmpeg/YOLO, Ollama), ajustar frecuencias/FPS/threads y aplicar throttling coordinado vía ResourceGovernor.
-  - *Archivos:* `core/tapo_c310_sentinel.py, core/tardis_resource_governor.py`
 - **`COEV-20261123-6EC83F`** [ROI=88 | HIGH | lente=`runtime` | `performance`] **Mitigar presión sostenida de silicio (Nivel RED)**
   - *Problema:* Razones activas: CPU PSI avg60 crítico (75.5%); Loadavg1 alto (23.17 en 16 hilos)
   - *Propuesta:* Auditar procesos top CPU/RAM (TemporalBrain, Tapo C310 ffmpeg/YOLO, Ollama), ajustar frecuencias/FPS/threads y aplicar throttling coordinado vía ResourceGovernor.
@@ -45,6 +41,10 @@
   - *Problema:* Módulos extensos (>800 LOC) sin suite unitaria dedicada: core/character_3d_renderer.py (1282 LOC), core/chronovision_engine.py (2442 LOC), core/curiosity_debate_manager.py (884 LOC), core/easy_touch_agent.py (1149 LOC), 
   - *Propuesta:* Generar tests unitarios aislados (mocks de red/hardware) en `tests/` para prevenir regresiones durante la auto-evolución.
   - *Archivos:* `core/character_3d_renderer.py, core/chronovision_engine.py, core/curiosity_debate_manager.py, core/easy_touch_agent.py`
+- **`COEV-20261123-7251BC`** [ROI=77 | MEDIUM | lente=`memory` | `storage`] **Compactar y optimizar índices SQLite (138.5 MB)**
+  - *Problema:* Bases SQLite extensas detectadas: [{'db': '/home/m11/Escritorio/GODWORKS SYSTEM/data/subsystem_agents.db', 'size_mb': 139.4}]
+  - *Propuesta:* Implementar compactación incremental (WAL checkpoint, ANALYZE, deduplicación de chunks) sin bloquear lecturas.
+  - *Archivos:* `core/rag_vault.py, core/deep_memory_vault.py`
 
 ## 💬 Cómo Responder a TARDIS desde AGY
 ```bash

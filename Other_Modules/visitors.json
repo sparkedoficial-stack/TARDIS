@@ -312,5 +312,41 @@
     "seen_capsules": [],
     "known_facts": [],
     "last_reason": ""
+  },
+  "no papa": {
+    "key": "no papa",
+    "name": "¡No! ¡Papa!",
+    "visit_count": 1,
+    "first_seen": REDACTED_PHONE.3916674,
+    "first_seen_iso": "2026-11-23T23:46:00-0500",
+    "last_seen": REDACTED_PHONE.3916674,
+    "last_seen_iso": "2026-11-23T23:46:00-0500",
+    "pedagogical_level": "intermedio",
+    "interests": [],
+    "topics_studied": [],
+    "seen_capsules": [],
+    "known_facts": [],
+    "last_reason": "de la razón de tu vida."
+  },
+  "muchas gracias": {
+    "key": "muchas gracias",
+    "name": "¡Muchas gracias!",
+    "visit_count": 1,
+    "first_seen": REDACTED_PHONE.2629154,
+    "first_seen_iso": "2026-11-23T23:51:18-0500",
+    "last_seen": REDACTED_PHONE.4160693,
+    "last_seen_iso": "2026-11-23T23:52:30-0500",
+    "pedagogical_level": "intermedio",
+    "interests": [
+      "mano",
+      "viaje en el tiempo"
+    ],
+    "topics_studied": [
+      "mano",
+      "viaje en el tiempo"
+    ],
+    "seen_capsules": [],
+    "known_facts": [],
+    "last_reason": "de estar bien."
   }
 }

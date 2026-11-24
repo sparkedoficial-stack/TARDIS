@@ -512,9 +512,12 @@ class TardisVideoThinkingEngine:
         return target_mp4, metadata
 
     def _transcode_to_mp4(self, src: Path, dest: Path):
-        """Transcodifica un video a MP4 estándar H.264 / AAC."""
+        """Transcodifica un video a MP4 estándar H.264 / AAC con hilos acotados para evitar sobresuscripción CPU/PSI."""
         cmd = [
-            "ffmpeg", "-y", "-i", str(src),
+            "ffmpeg", "-y",
+            "-threads", "2", "-filter_threads", "1", "-filter_complex_threads", "1",
+            "-i", str(src),
+            "-threads", "2",
             "-c:v", "libx264", "-preset", "veryfast", "-crf", "24",
             "-c:a", "aac", "-b:a", "128k",
             str(dest)
@@ -548,8 +551,11 @@ class TardisVideoThinkingEngine:
             logger.info(f"⚡ Normalizando video ({size_mb:.1f} MB, transcode={needs_transcode}) a H.264...")
             tmp_comp = video_path.with_name(f"{video_path.stem}_comp.mp4")
             cmd = [
-                "ffmpeg", "-y", "-i", str(video_path),
+                "ffmpeg", "-y",
+                "-threads", "2", "-filter_threads", "1", "-filter_complex_threads", "1",
+                "-i", str(video_path),
                 "-vf", "scale=-2:480" if size_mb > 48.0 else "scale=trunc(iw/2)*2:trunc(ih/2)*2",
+                "-threads", "2",
                 "-c:v", "libx264", "-pix_fmt", "yuv420p", "-preset", "veryfast", "-crf", "26" if size_mb > 48.0 else "23",
                 "-c:a", "aac", "-b:a", "96k",
                 "-movflags", "+faststart",

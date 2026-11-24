@@ -1081,6 +1081,31 @@ class MundoSinCensuraAgent:
             "socket": str(TEMPORAL_BRAIN_SOCK),
         }
 
+    def _ollama_safe_threads(self) -> int:
+        """Alinea `num_thread` de Ollama al CPUQuota cgroup v2 real para evitar barrier livelock."""
+        default_t = int(DEFAULT_SAMPLING["num_thread"])
+        try:
+            proc = subprocess.run(
+                ["systemctl", "--user", "show", "ollama.service", "-p", "CPUQuotaPerSecUSec", "--value"],
+                stdin=subprocess.DEVNULL,
+                capture_output=True,
+                text=True,
+                timeout=1.5,
+                check=False,
+            )
+            raw = (proc.stdout or "").strip().lower()
+            if not raw or raw == "infinity":
+                return default_t
+            if raw.endswith("ms"):
+                cores = float(raw[:-2]) / 1000.0
+            elif raw.endswith("s"):
+                cores = float(raw[:-1])
+            else:
+                return default_t
+            return max(1, min(default_t, int(cores)))
+        except Exception:
+            return min(2, default_t)
+
     def _chat_via_ollama(
         self,
         prepared_msgs: List[Dict[str, str]],
@@ -1092,6 +1117,8 @@ class MundoSinCensuraAgent:
         keep_alive: str,
     ) -> Dict[str, Any]:
         t0 = time.time()
+        safe_threads = self._ollama_safe_threads()
+        eff_ctx = int(min(max(1024, num_ctx), 4096 if safe_threads <= 2 else 8192))
         payload = {
             "model": MODEL_TAG,
             "messages": prepared_msgs,
@@ -1100,9 +1127,9 @@ class MundoSinCensuraAgent:
             "options": {
                 "temperature": float(temperature),
                 "num_predict": int(max_tokens),
-                "num_ctx": int(min(max(1024, num_ctx), 8192)),
-                "num_batch": int(DEFAULT_SAMPLING["num_batch"]),
-                "num_thread": int(DEFAULT_SAMPLING["num_thread"]),
+                "num_ctx": eff_ctx,
+                "num_batch": int(min(256 if safe_threads <= 2 else 512, DEFAULT_SAMPLING["num_batch"])),
+                "num_thread": safe_threads,
                 "top_p": float(DEFAULT_SAMPLING["top_p"]),
                 "top_k": int(DEFAULT_SAMPLING["top_k"]),
                 "min_p": float(DEFAULT_SAMPLING["min_p"]),
@@ -1330,6 +1357,8 @@ class MundoSinCensuraAgent:
                     return err
 
         # Carril Ollama streaming NDJSON
+        safe_threads = self._ollama_safe_threads()
+        eff_ctx = int(min(max(1024, num_ctx), 4096 if safe_threads <= 2 else 8192))
         payload = {
             "model": MODEL_TAG,
             "messages": prepared,
@@ -1338,9 +1367,9 @@ class MundoSinCensuraAgent:
             "options": {
                 "temperature": float(temperature),
                 "num_predict": int(max_tokens),
-                "num_ctx": int(min(max(1024, num_ctx), 8192)),
-                "num_batch": int(DEFAULT_SAMPLING["num_batch"]),
-                "num_thread": int(DEFAULT_SAMPLING["num_thread"]),
+                "num_ctx": eff_ctx,
+                "num_batch": int(min(256 if safe_threads <= 2 else 512, DEFAULT_SAMPLING["num_batch"])),
+                "num_thread": safe_threads,
                 "top_p": float(DEFAULT_SAMPLING["top_p"]),
                 "top_k": int(DEFAULT_SAMPLING["top_k"]),
                 "min_p": float(DEFAULT_SAMPLING["min_p"]),

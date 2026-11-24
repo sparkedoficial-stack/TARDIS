@@ -74,5 +74,81 @@
         "engine": "google_news"
       }
     ]
+  },
+  "abf1aa4a5e1ac3fe": {
+    "ts": REDACTED_PHONE.6866503,
+    "iso": "2026-11-23T23:51:52-0500",
+    "query": "mano",
+    "summary": "La mano, en general, es un apéndice prensil con varios dedos ubicado al final del antebrazo o miembro anterior de primates como los humanos, chimpancés, monos y lémures. En algunos otros vertebrados a menudo se denominan manos, en lugar de patas, las extremidades delanteras. tardis_browser: pina, el kinesiólogo posiciona la palma de una mano en la cara posterolateral de la pared torácica y la palma de la otra mano debe colocarse en la cara anterior del tórax, la cual debería cubrir toda el área desde las cláviculas hasta el reborde costal inferior | Se realiza una compresión sostenida Mano a Mano con DJ Glaze - Raiders.com: Mano a Mano con DJ Glaze  Raiders.com Un hombre de Tampa fue sentenciado a 12 años de prisión por robo a mano armada en una gasolinera - WFLA: Un hombre de Tampa fue sentenciado a 12 años de prisión por robo a mano armada en una gasolinera  WFLA Robo a mano armada y agresión en Roxbury termina con la detención de cuatro sospechosos - Telemundo Nueva Inglaterra: Robo a mano armada y agresión en Roxbury termina con la detención de cuatro sospechosos  Telemundo Nueva Inglaterra",
+    "sources": [
+      {
+        "title": "Mano (Wikipedia ES)",
+        "url": "https://es.wikipedia.org/wiki/Mano",
+        "snippet": "La mano, en general, es un apéndice prensil con varios dedos ubicado al final del antebrazo o miembro anterior de primates como los humanos, chimpancés, monos y lémures. En algunos otros vertebrados a menudo se denominan manos, en lugar de patas, las extremidades delanteras.",
+        "engine": "wikipedia_es"
+      },
+      {
+        "title": "tardis_browser",
+        "url": "local://rag_vault",
+        "snippet": "pina, el kinesiólogo posiciona la palma de una mano en la cara posterolateral de la pared torácica y la palma de la otra mano debe colocarse en la cara anterior del tórax, la cual debería cubrir toda el área desde las cláviculas hasta el reborde costal inferior | Se realiza una compresión sostenida ",
+        "engine": "rag_vault"
+      },
+      {
+        "title": "Mano a Mano con DJ Glaze - Raiders.com",
+        "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE5tQzF3c0hweTlwa1AzR09OdmMtWUY4enI2NUxvNzQtZUdYY2wwZVo0WDlHTEExclF0TUtiRHRIWTBNNWlZVHN5S3ZubmhlTjRKYmlPZTFESmNkZWVPUE0zeWJPRW9Ea01lWFllVlZ0S00?oc=5",
+        "snippet": "Mano a Mano con DJ Glaze  Raiders.com",
+        "engine": "google_news"
+      },
+      {
+        "title": "Un hombre de Tampa fue sentenciado a 12 años de prisión por robo a mano armada en una gasolinera - WFLA",
+        "url": "https://news.google.com/rss/articles/CBMixwFBVV95cUxPYjJSYlJnRzlUcUkycDdjYklGRTViT2JGNUc2QjJuTnFvTGFXTDJVUFIyRzVCY19jQzFIVXRobVBaa2pkU3hvMkl3S1JLalhoeUhNeng4S0oxRktUODBYOHlsZkcxUm1XT0RSUWlrMGJBcURnOGxqOXd0Z1ktR1NpOGk1NElfODBqd0E5bE8wVWxFaUppT2ZJQlYwQ1BsNnpmT1QxcERaRXlScjFQdkM2dTNFV202TXNGOHRPSVRDOVpJNlppOVBF0gHMAUFVX3lxTE00NnI3Q1M1N1g5T0hTT1BnWnR3dWwwSzJaLXpJdGZLQkFGbXYxdjgzQXktU082NGgxWUNpTzFBMlJZTWhmU1BsOGxzLWFjV0dWZEdhQmU4ZjZVM2JISXdHMW1HTVI2UEMzVUhXT0gwSkxyWmVHdkc5MGRHMWxtZ2NvVTRQSE5pdEM3ZUZ3Mm5LVFh6TzRJYXUtLWZqYnowUU5GWTV3Wkwxel8tS1B4RDdzbFp5R2V4RUNaWWlFeGQyZFhjSlNCTUN0U2thcA?oc=5",
+        "snippet": "Un hombre de Tampa fue sentenciado a 12 años de prisión por robo a mano armada en una gasolinera  WFLA",
+        "engine": "google_news"
+      },
+      {
+        "title": "Robo a mano armada y agresión en Roxbury termina con la detención de cuatro sospechosos - Telemundo Nueva Inglaterra",
+        "url": "https://news.google.com/rss/articles/CBMixgFBVV95cUxPZnVZWDlZQkNuY3NRdHdXcHdVblg0S0UwTHRDb2Y3aC1OWVIwZlZJOUlVajdNN1NqLVdEWTFmUXR0VmIzb0VFS05FVzdBRzRhb215eC13U1dPdU5Hc1VmX0xEdnRCaDJFN1ZKOGpobGQ0SWpIWmpPX1ZORG5jMWprUDJ1WmNUS2dqbURTSWFsUUNwQndiYWRIcjl2VlA3LW0tSTZiMHMxOEVxU01FeDQ0c0gzbnhHVGtXeG1XYS1HMWM0SUdtZFHSAc4BQVVfeXFMTUpuQklLQVRGWXBvMkNaR3N0RUlJdUFVWGNUWm1NUzI3TVVWOS1la2M2dEd0RlFOUVd6MkpyUnRLNG1mUXhuRE5taFd3VGx3Q1dnclVFNjlKekpyeUtjNDdpdjRISHNubHJSWlBiZHhUbE9FdTU4Z1JBMElZQkNZMlZUZml0YXBDME1yUDh4MEFzb3BhRGhGWXdxeXlXaTZDb1U1UTFjSllTeVJZSlZfUjNtT0RlNlRIdzhIM0I2VFhYdWxtMnlBOW12aDRta0E?oc=5",
+        "snippet": "Robo a mano armada y agresión en Roxbury termina con la detención de cuatro sospechosos  Telemundo Nueva Inglaterra",
+        "engine": "google_news"
+      }
+    ]
+  },
+  "e09f0ba147f2a99c": {
+    "ts": REDACTED_PHONE.377509,
+    "iso": "2026-11-23T23:52:40-0500",
+    "query": "viaje en el tiempo",
+    "summary": "El viaje a través del tiempo, también denominado viaje transtemporal, es un concepto que alude al desplazamiento hacia adelante o hacia atrás en diferentes puntos del tiempo, de forma análoga al desplazamiento en el espacio. En ciertas interpretaciones, el viaje en el tiempo también incluiría el tránsito entre distintas líneas temporales, realidades alternativas o universos paralelos. tardis_browser: tenida es la superposición de todas visual_intelligence:video: icilísimas, paradojas. La clásica. Imagina que viajarás por la curva temporal cerrada y justo al volver, al ver a tu yo más joven disparas a su propulsor para que no pueda moverse. Entonces no podría partir y hacer el viaje en el tiempo, por lo que nadie habría disparado a su propulsor, lo que le hu Viajes en el tiempo en Navidad – Descubrid Tarragona en familia - Tarragona Turisme: Viajes en el tiempo en Navidad – Descubrid Tarragona en familia  Tarragona Turisme Películas de viajes en el tiempo - NeoTeo: Películas de viajes en el tiempo  NeoTeo El planeta que hace posible los viajes en el tiempo - Yahoo: El planeta que hace posible los viajes en el tiempo  Yahoo",
+    "sources": [
+      {
+        "title": "Viaje a través del tiempo (Wikipedia ES)",
+        "url": "https://es.wikipedia.org/wiki/Viaje_a_trav%C3%A9s_del_tiempo",
+        "snippet": "El viaje a través del tiempo, también denominado viaje transtemporal, es un concepto que alude al desplazamiento hacia adelante o hacia atrás en diferentes puntos del tiempo, de forma análoga al desplazamiento en el espacio. En ciertas interpretaciones, el viaje en el tiempo también incluiría el tránsito entre distintas líneas temporales, realidades alternat",
+        "engine": "wikipedia_es"
+      },
+      {
+        "title": "tardis_browser",
+        "url": "https://es.wikipedia.org/wiki/Interfaz_Cerebro-Computadora",
+        "snippet": "tenida es la superposición de todas",
+        "engine": "rag_vault"
+      },
+      {
+        "title": "visual_intelligence:video",
+        "url": "/home/m11/Escritorio/GODWORKS SYSTEM/vault/videos/video_pensante/vp_20261110_233937_2b2fd7.mp4",
+        "snippet": "icilísimas, paradojas. La clásica. Imagina que viajarás por la curva temporal cerrada y justo al volver, al ver a tu yo más joven disparas a su propulsor para que no pueda moverse. Entonces no podría partir y hacer el viaje en el tiempo, por lo que nadie habría disparado a su propulsor, lo que le hu",
+        "engine": "rag_vault"
+      },
+      {
+        "title": "Viajes en el tiempo en Navidad – Descubrid Tarragona en familia - Tarragona Turisme",
+        "url": "https://news.google.com/rss/articles/CBMingFBVV95cUxQWmZzU1dqVGdmS19nQ2x1enVJbjR3amdub3JEcTA4OFhsYVJfRlpKT19FcEtzMlFKYmRkSlIyUkVpOEtQNWswUWdRb29lR2hoVm9DTTVfZzBEODQ4YnZjWlZDZDA5NEdqYmtQTG1fYXlYYldhbldyTHdMeDJLR0c2cWttU3BnNC1ia2hBQWZfcFB4bnZscXdCek1aME5MZw?oc=5",
+        "snippet": "Viajes en el tiempo en Navidad – Descubrid Tarragona en familia  Tarragona Turisme",
+        "engine": "google_news"
+      },
+      {
+        "title": "Películas de viajes en el tiempo - NeoTeo",
+        "url": "https://news.google.com/rss/articles/CBMiakFVX3lxTE4zSzdQdUVjX2VtYzJLQTVXRUVlTW9FUUVOeXZlUXo5ZlJMbUJBdW1nZTQ2ODdvRV90NFVHODIyRjROR3BEVmpHcEVtbWQ2Q0ROdzlyZE1iOWk2QU53eVhJMW52LWNQMTdkRmc?oc=5",
+        "snippet": "Películas de viajes en el tiempo  NeoTeo",
+        "engine": "google_news"
+      }
+    ]
   }
 }

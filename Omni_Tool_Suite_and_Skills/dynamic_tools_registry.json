@@ -455,5 +455,23 @@
       "daemon"
     ],
     "status": "ACTIVE_SOVEREIGN"
+  },
+  "omni_tool_mundo_sin_censura": {
+    "name": "omni_tool_mundo_sin_censura",
+    "tool_id": "mundo_sin_censura",
+    "title": "Un Mundo Sin Censura · Modelo Soberano Local Dual-Lane",
+    "domain": "sovereign_local_llm",
+    "description": "Controlador soberano dual-lane del modelo local `mundo-sin-censura` (Llama 3.1 8B Q4_K_M abliterado): inferencia CUDA sin duplicación vía TemporalBrain + respaldo Ollama nativo, paridad SHA-256, Modelfiles Llama 3.1 sincronizados y preservación estricta de La Constante AEGIS.",
+    "actions": [
+      "status",
+      "analyze",
+      "verify",
+      "ensure",
+      "sync-ftl",
+      "chat",
+      "benchmark",
+      "abliterate"
+    ],
+    "status": "ACTIVE_SOVEREIGN"
   }
 }

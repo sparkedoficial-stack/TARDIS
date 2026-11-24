@@ -1,0 +1,12 @@
+[
+  {
+    "question": "¿Qué es el viaje en el tiempo?",
+    "visitor": "¡Muchas gracias!",
+    "reason": "llm_timeout",
+    "queued_at": REDACTED_PHONE.453683,
+    "queued_iso": "2026-11-23T23:54:47-0500",
+    "status": "researched",
+    "completed_iso": "2026-11-23T23:56:28-0500",
+    "summary": "El viaje a través del tiempo, también denominado viaje transtemporal, es un concepto que alude al desplazamiento hacia adelante o hacia atrás en diferentes puntos del tiempo, de forma análoga al desplazamiento en el espacio. En ciertas interpretaciones, el viaje en el tiempo también incluiría el tránsito entre distintas líneas temporales, realidades alternativas o universos paralelos. tardis_brows"
+  }
+]

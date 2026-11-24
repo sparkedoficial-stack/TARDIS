@@ -1465,7 +1465,7 @@ class TardisHyperPhysicsAnimator:
                 "-preset", "fast",
                 "-crf", "18",
                 "-pix_fmt", "yuv420p",
-                "-threads", "16",
+                "-threads", str(max(1, min(4, (len(os.sched_getaffinity(0)) if hasattr(os, "sched_getaffinity") else (os.cpu_count() or 4)) // 2))),
                 "-movflags", "+faststart",
                 str(output_mp4)
             ]
@@ -1878,7 +1878,7 @@ class TardisHyperPhysicsAnimator:
                 str(output_mp4)
             ]
             cpu_cmd = [
-                "ffmpeg", "-y", "-r", str(fps),
+                "ffmpeg", "-y", "-threads", "2", "-filter_threads", "1", "-r", str(fps),
                 "-i", input_pattern,
                 "-vf", filter_str,
                 "-c:v", "libx265", "-preset", "ultrafast", "-crf", "20",
@@ -1888,13 +1888,13 @@ class TardisHyperPhysicsAnimator:
                 "-colorspace", "bt2020nc",
                 "-bsf:v", "hevc_metadata=colour_primaries=9:transfer_characteristics=18:matrix_coefficients=9",
                 "-tag:v", "hvc1",
-                "-threads", "16",
+                "-threads", str(max(1, min(4, (len(os.sched_getaffinity(0)) if hasattr(os, "sched_getaffinity") else (os.cpu_count() or 4)) // 2))),
                 "-movflags", "+faststart",
                 str(output_mp4)
             ]
         else:
             ffmpeg_mp4_cmd = [
-                "ffmpeg", "-y", "-r", str(fps),
+                "ffmpeg", "-y", "-threads", "2", "-filter_threads", "1", "-r", str(fps),
                 "-i", input_pattern,
                 "-vf", filter_str,
                 "-c:v", "h264_nvenc", "-preset", "p4", "-cq", "22",
@@ -1903,12 +1903,12 @@ class TardisHyperPhysicsAnimator:
                 str(output_mp4)
             ]
             cpu_cmd = [
-                "ffmpeg", "-y", "-r", str(fps),
+                "ffmpeg", "-y", "-threads", "2", "-filter_threads", "1", "-r", str(fps),
                 "-i", input_pattern,
                 "-vf", filter_str,
                 "-c:v", "libx264", "-preset", "veryfast", "-crf", "20",
                 "-pix_fmt", "yuv420p",
-                "-threads", "16",
+                "-threads", str(max(1, min(4, (len(os.sched_getaffinity(0)) if hasattr(os, "sched_getaffinity") else (os.cpu_count() or 4)) // 2))),
                 "-movflags", "+faststart",
                 str(output_mp4)
             ]

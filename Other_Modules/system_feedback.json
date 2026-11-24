@@ -1,17 +1,17 @@
 {
-  "timestamp": REDACTED_PHONE.5588639,
-  "iso": "2026-11-23T23:20:21.562813",
+  "timestamp": REDACTED_PHONE.1708593,
+  "iso": "2026-11-24T00:13:33.172284",
   "health_score": 100,
   "status": "HEALTHY",
-  "cycle": 162,
+  "cycle": 106,
   "metrics": {
-    "cpu_percent": 33.0,
-    "cpu_ema": 30.1,
+    "cpu_percent": 12.5,
+    "cpu_ema": 15.3,
     "high_cpu_streak": 0,
-    "ram_percent": 64.6,
+    "ram_percent": 62.3,
     "high_ram_streak": 0,
-    "governor_level": "RED",
-    "cpu_psi_60": 8.52,
+    "governor_level": "ORANGE",
+    "cpu_psi_60": 5.81,
     "recent_errors": 0,
     "recent_blocks": 0
   },
@@ -27,16 +27,16 @@
     "temporal_brain_online": true
   },
   "needs": [
-    "Presión Ring 0 RED: Temperatura CPU crítica (88°C); Temperatura GPU cálida (77°C)"
+    "Presión Ring 0 ORANGE: Temperatura CPU elevada (83°C)"
   ],
   "instructions": [
     {
-      "id": "inst_resource_pressure_red",
-      "severity": "HIGH",
+      "id": "inst_resource_pressure_orange",
+      "severity": "MEDIUM",
       "component": "Resource Governor Ring 0",
       "target_file": "core/tardis_resource_governor.py",
-      "instruction": "Estabilizar presión RED (Temperatura CPU crítica (88°C); Temperatura GPU cálida (77°C)) ejecutando reclamación de modelos duplicados y throttling.",
-      "rationale": "CPU PSI60=8.52%, RAM libre=10910.0 MB.",
+      "instruction": "Estabilizar presión ORANGE (Temperatura CPU elevada (83°C)) ejecutando reclamación de modelos duplicados y throttling.",
+      "rationale": "CPU PSI60=5.81%, RAM libre=11850.8 MB.",
       "actionable_cmd": "tardis-governor reclaim"
     }
   ],

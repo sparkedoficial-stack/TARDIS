@@ -1353,22 +1353,27 @@ class TardisResourceGovernor:
                 else:
                     errors.append(f"release-from-plan {unit} failed")
 
-            # Mitigación térmica Ring 0 de perfil energético (amd-pstate-epp + platform_profile)
+            # Mitigación térmica Ring 0 en 2 etapas (amd-pstate-epp + platform_profile):
+            # - ORANGE moderado (<85°C CPU y <78°C GPU): performance -> balanced
+            # - Presión térmica severa (RED o CPU >=85°C o GPU >=78°C): performance/balanced -> power-saver
             power_profile_action = "unchanged"
             if thermal_or_heavy_psi and _power_profile_control_enabled():
                 cur_pp = _get_power_profile()
-                if cur_pp == "performance":
+                pp_rank = {"power-saver": 0, "balanced": 1, "performance": 2}
+                severe_thermal = target_level == "RED" or cpu_temp_c >= 85.0 or gpu_temp_c >= 78.0
+                desired_pp = "power-saver" if severe_thermal else "balanced"
+                if cur_pp in pp_rank and pp_rank[cur_pp] > pp_rank[desired_pp]:
                     if dry_run:
-                        power_profile_action = "would_switch_to_balanced"
-                    elif _set_power_profile("balanced"):
+                        power_profile_action = f"would_switch_to_{desired_pp}"
+                    elif _set_power_profile(desired_pp):
                         if not power_profile_baseline:
                             power_profile_baseline = cur_pp
-                        power_profile_applied = "balanced"
-                        power_profile_action = "switched_to_balanced"
+                        power_profile_applied = desired_pp
+                        power_profile_action = f"switched_to_{desired_pp}"
                     else:
-                        errors.append("powerprofilesctl set balanced failed")
-                elif cur_pp == "balanced" and power_profile_applied == "balanced":
-                    power_profile_action = "already_balanced"
+                        errors.append(f"powerprofilesctl set {desired_pp} failed")
+                elif cur_pp == desired_pp and power_profile_applied == desired_pp:
+                    power_profile_action = f"already_{desired_pp}"
 
             if not dry_run and (applied_map or power_profile_applied):
                 new_state = {
@@ -1383,7 +1388,8 @@ class TardisResourceGovernor:
                 self._save_throttle_state(new_state)
 
         changed = [u for u in applied_units if u["action"] in ("throttled", "released_from_plan")]
-        if not dry_run and (changed or power_profile_action == "switched_to_balanced"):
+        pp_switched = power_profile_action.startswith("switched_to_")
+        if not dry_run and (changed or pp_switched):
             try:
                 from core.tardis_event_bus import get_event_bus
 
@@ -1407,7 +1413,7 @@ class TardisResourceGovernor:
 
         return {
             "ok": len(errors) == 0,
-            "action": "would_throttle" if dry_run else ("throttled" if (changed or power_profile_action == "switched_to_balanced") else "maintained"),
+            "action": "would_throttle" if dry_run else ("throttled" if (changed or pp_switched) else "maintained"),
             "level": target_level,
             "dry_run": dry_run,
             "applied_units": applied_units,

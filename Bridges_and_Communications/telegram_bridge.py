@@ -1030,6 +1030,28 @@ class TelegramBridge:
         if not (b"ftyp" in video_bytes[:64] or video_bytes.startswith(b"\x00\x00\x00")):
             return video_bytes
 
+        # Caché LRU acotada por (sha256, target_fps) para no re-codificar el mismo video al enviarlo a múltiples chats
+        import hashlib
+        cache_key = (hashlib.sha256(video_bytes).hexdigest(), int(target_fps))
+        fps_cache = getattr(self, "_fps_transcode_cache", None)
+        if isinstance(fps_cache, dict) and cache_key in fps_cache:
+            return fps_cache[cache_key]
+
+        # Calcular hilos seguros según cpuset efectivo y presión del ResourceGovernor (evita -threads 16 en cgroups acotados)
+        try:
+            allowed_cpus = max(1, len(os.sched_getaffinity(0)))
+        except Exception:
+            allowed_cpus = max(1, os.cpu_count() or 4)
+        ff_threads = max(1, min(4, allowed_cpus // 2 or 1))
+        try:
+            from core.tardis_resource_governor import get_pressure_sleep_multiplier
+            gov_lvl, _ = get_pressure_sleep_multiplier(max_age_s=60.0)
+            if gov_lvl in ("ORANGE", "RED"):
+                ff_threads = min(ff_threads, 2)
+        except Exception:
+            pass
+        ff_threads_s = str(ff_threads)
+
         in_path = None
         out_path = None
         try:
@@ -1037,7 +1059,9 @@ class TelegramBridge:
                 in_path = Path(in_f.name)
                 in_f.write(video_bytes)
 
-            # Verificar si ya está a target_fps para evitar re-codificación innecesaria
+            # Solo remuestrear a la baja cuando el master supera target_fps (ej. 120/240 FPS -> 60 FPS).
+            # Nunca hacer upsampling de videos 24/25/30/50/60 FPS: Telegram los reproduce nativamente y
+            # duplicar cuadros quema minutos de NVENC/CPU y provoca timeouts bajo CPUQuota.
             is_hdr = False
             in_fps = 0.0
             try:
@@ -1057,7 +1081,7 @@ class TelegramBridge:
                             if den and float(den) > 0:
                                 in_fps = float(num) / float(den)
                                 break
-                if in_fps > 0 and abs(in_fps - target_fps) < 0.5:
+                if in_fps > 0 and in_fps <= (target_fps + 0.5):
                     return video_bytes
             except Exception:
                 pass
@@ -1070,11 +1094,17 @@ class TelegramBridge:
             else:
                 filter_v = f"fps=fps={target_fps}"
 
+            common_in = [
+                "ffmpeg", "-y",
+                "-threads", ff_threads_s,
+                "-filter_threads", "1",
+                "-filter_complex_threads", "1",
+                "-i", str(in_path),
+                "-filter:v", filter_v,
+            ]
             if is_hdr:
-                cmd_nvenc = [
-                    "ffmpeg", "-y",
-                    "-i", str(in_path),
-                    "-filter:v", filter_v,
+                cmd_nvenc = common_in + [
+                    "-threads", ff_threads_s,
                     "-c:v", "hevc_nvenc",
                     "-preset", "p4",
                     "-cq", "22",
@@ -1090,10 +1120,7 @@ class TelegramBridge:
                     "-movflags", "+faststart",
                     str(out_path)
                 ]
-                cmd_cpu = [
-                    "ffmpeg", "-y",
-                    "-i", str(in_path),
-                    "-filter:v", filter_v,
+                cmd_cpu = common_in + [
                     "-c:v", "libx265",
                     "-preset", "ultrafast",
                     "-crf", "20",
@@ -1103,15 +1130,13 @@ class TelegramBridge:
                     "-colorspace", "bt2020nc",
                     "-bsf:v", "hevc_metadata=colour_primaries=9:transfer_characteristics=18:matrix_coefficients=9",
                     "-tag:v", "hvc1",
-                    "-threads", "16",
+                    "-threads", ff_threads_s,
                     "-movflags", "+faststart",
                     str(out_path)
                 ]
             else:
-                cmd_nvenc = [
-                    "ffmpeg", "-y",
-                    "-i", str(in_path),
-                    "-filter:v", filter_v,
+                cmd_nvenc = common_in + [
+                    "-threads", ff_threads_s,
                     "-c:v", "h264_nvenc",
                     "-preset", "p4",
                     "-cq", "22",
@@ -1119,15 +1144,12 @@ class TelegramBridge:
                     "-movflags", "+faststart",
                     str(out_path)
                 ]
-                cmd_cpu = [
-                    "ffmpeg", "-y",
-                    "-i", str(in_path),
-                    "-filter:v", filter_v,
+                cmd_cpu = common_in + [
                     "-c:v", "libx264",
                     "-preset", "veryfast",
                     "-crf", "21",
                     "-pix_fmt", "yuv420p",
-                    "-threads", "16",
+                    "-threads", ff_threads_s,
                     "-movflags", "+faststart",
                     str(out_path)
                 ]
@@ -1145,7 +1167,13 @@ class TelegramBridge:
 
             if out_path.exists() and out_path.stat().st_size > 0:
                 converted_bytes = out_path.read_bytes()
-                logger.info(f"🎞️ [TELEGRAM_FPS_CONVERTER] Video/Animación adaptada exitosamente a {target_fps} FPS para Telegram ({len(video_bytes)} -> {len(converted_bytes)} bytes, HDR={is_hdr}).")
+                if not isinstance(fps_cache, dict):
+                    fps_cache = {}
+                    self._fps_transcode_cache = fps_cache
+                if len(fps_cache) >= 4:
+                    fps_cache.pop(next(iter(fps_cache)), None)
+                fps_cache[cache_key] = converted_bytes
+                logger.info(f"🎞️ [TELEGRAM_FPS_CONVERTER] Video/Animación adaptada exitosamente a {target_fps} FPS para Telegram ({len(video_bytes)} -> {len(converted_bytes)} bytes, HDR={is_hdr}, threads={ff_threads_s}).")
                 return converted_bytes
             return video_bytes
         except Exception as e:

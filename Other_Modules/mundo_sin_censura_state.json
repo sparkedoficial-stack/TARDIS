@@ -1,15 +1,39 @@
 {
   "name": "Mundo-Sin-Censura",
-  "version": "1.0",
+  "model": "mundo-sin-censura",
+  "version": "2.0.0",
   "created_at": "2026-11-02 02:18:23",
-  "status": "abliterated",
+  "status": "operational",
   "abliterated_targets": [
     "temporal_brain_config",
     "kaiju_safety_rails",
-    "ollama:mundo-sin-censura",
-    "Modelfile.kaiju",
-    "colony_state"
+    "modelfiles_synced",
+    "colony_state",
+    "ftl_audit"
   ],
   "jailbreak_route_active": true,
-  "last_run": "2026-11-02 02:19:01"
+  "dual_lane_enabled": true,
+  "preferred_lane": "temporal_brain",
+  "fallback_lane": "ollama",
+  "weights_cache": {
+    "path": "/home/m11/Escritorio/GODWORKS SYSTEM/data/models/TARDIS-NEURAL-SPACE-KAIJU.gguf",
+    "size_bytes": REDACTED_PHONE,
+    "mtime_ns": 1793603790760000000,
+    "sha256": "REDACTED_TOKEN",
+    "verified_at": "2026-11-23 23:20:38"
+  },
+  "metrics": {
+    "total_requests": 4,
+    "successful_requests": 3,
+    "failed_requests": 1,
+    "lane_counts": {
+      "temporal_brain": 2,
+      "ollama": 2
+    },
+    "last_lane": "ollama",
+    "last_latency_s": 180.738,
+    "last_tokens_per_sec": 1.04,
+    "last_benchmark": null
+  },
+  "last_run": "2026-11-23 23:31:56"
 }
