@@ -65,7 +65,7 @@ except Exception:
     DEFAULT_MODEL = os.environ.get("GIA_MODEL", "TARDIS-NEURAL-SPACE-KAIJU")
 
 C_USER = "\033[93m"; C_AI = "\033[96m"; C_TOOL = "\033[95m"
-C_DIM = "\033[90m"; C_ERR = "\033[91m"; C_GREEN = "\033[92m"; C_END = "\033[0m"
+C_DIM = "\033[90m"; C_ERR = "\033[91m"; C_GREEN = "\033[92m"; C_WARN = "\033[93m"; C_END = "\033[0m"
 os.system("")
 
 
@@ -285,16 +285,29 @@ def main() -> int:
         except Exception as e_vp:
             print(f"{C_WARN}Aviso en comando de voz «programa»: {e_vp}{C_END}")
 
-        print(f"{C_DIM}   abstrayendo intención...{C_END}")
+        print(f"{C_DIM}   abstrayendo intención (local)...{C_END}")
         abs_ = abstract_message(client, args.model, msg)
+        norm_msg = abs_.get("texto_normalizado") or msg
         tag = "internet" if abs_.get("requiere_internet") else "local"
-        print(f"{C_DIM}   intencion={abs_.get('intencion')} tema={abs_.get('tema')} -> {tag}{C_END}")
-        history.append({"role": "user", "content": msg})
+        print(f"{C_DIM}   intencion={abs_.get('intencion')} tema={abs_.get('tema')} -> {tag} ({abs_.get('latency_ms', 0):.1f}ms){C_END}")
+        if abs_.get("respuesta_instantanea") is not None:
+            answer = str(abs_["respuesta_instantanea"])
+            print(f"\n{C_AI}TARDIS > {C_END}{answer}")
+            print(f"{C_DIM}   (instant · {time.time()-t0:.2f}s){C_END}\n")
+            if use_voice and answer:
+                _voice.speak(answer)
+            return
+        history.append({"role": "user", "content": abs_.get("consulta_resuelta") or norm_msg})
         if HAS_MEM:
-            try: _mem.log("voz", "user", msg, session_id="voz")
+            try: _mem.log("voz", "user", norm_msg, session_id="voz")
             except Exception: pass
         answer = analyze(client, args.model, history, abs_, use_web)
         history.append({"role": "assistant", "content": answer})
+        try:
+            from core.tardis_voice_engine import get_voice_abstractor
+            get_voice_abstractor().record_assistant_reply(answer)
+        except Exception:
+            pass
         if HAS_MEM:
             try: _mem.log("voz", "assistant", answer, session_id="voz")
             except Exception: pass

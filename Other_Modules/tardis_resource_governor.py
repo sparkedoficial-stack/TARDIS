@@ -77,6 +77,8 @@ PROTECTED_UNITS: frozenset[str] = frozenset(
         "pipewire-pulse.service",
         "wireplumber.service",
         "tardis-telegram-call.service",
+        "tardis-infinite-voice.service",
+        "tardis-ollama-voice.service",
         "tardis-resource-governor.service",
         "tardis-thermal-guard.service",
         "tardis-cpuset.service",
@@ -1708,13 +1710,18 @@ class TardisResourceGovernor:
                     errors.append(f"release-from-plan {unit} failed")
 
             # Mitigación térmica Ring 0 en 2 etapas (amd-pstate-epp + platform_profile):
-            # - ORANGE moderado (<85°C CPU y <78°C GPU): performance -> balanced
-            # - Presión térmica severa (RED o CPU >=85°C o GPU >=78°C): performance/balanced -> power-saver
+            # - Presión operativa/térmica moderada: performance -> balanced (evita el círculo
+            #   vicioso de 487 MHz que satura PSI CPU y paraliza la voz local).
+            # - Emergencia térmica real (CPU >=90°C o GPU >=87°C, o RED térmico): -> power-saver.
             power_profile_action = "unchanged"
             if thermal_or_heavy_psi and _power_profile_control_enabled():
                 cur_pp = _get_power_profile()
                 pp_rank = {"power-saver": 0, "balanced": 1, "performance": 2}
-                severe_thermal = target_level == "RED" or cpu_temp_c >= 85.0 or gpu_temp_c >= 78.0
+                severe_thermal = (
+                    (target_level == "RED" and (cpu_temp_c >= 88.0 or gpu_temp_c >= 86.0))
+                    or cpu_temp_c >= 90.0
+                    or gpu_temp_c >= 87.0
+                )
                 desired_pp = "power-saver" if severe_thermal else "balanced"
                 if cur_pp in pp_rank and pp_rank[cur_pp] > pp_rank[desired_pp]:
                     if dry_run:
@@ -1726,6 +1733,13 @@ class TardisResourceGovernor:
                         power_profile_action = f"switched_to_{desired_pp}"
                     else:
                         errors.append(f"powerprofilesctl set {desired_pp} failed")
+                elif cur_pp == "power-saver" and desired_pp == "balanced" and cpu_temp_c < 87.0 and gpu_temp_c < 85.0:
+                    # Escapar automáticamente del estrangulamiento a 487 MHz cuando la térmica está en rango seguro
+                    if dry_run:
+                        power_profile_action = "would_step_back_to_balanced"
+                    elif _set_power_profile("balanced"):
+                        power_profile_applied = "balanced"
+                        power_profile_action = "switched_to_balanced"
                 elif cur_pp == desired_pp and power_profile_applied == desired_pp:
                     power_profile_action = f"already_{desired_pp}"
 
@@ -2014,7 +2028,7 @@ class TardisResourceGovernor:
                         next_pp_applied = ""
                     else:
                         errors.append(f"powerprofilesctl restore {power_profile_baseline} failed")
-                elif power_profile_applied == "power-saver" and cur_cpu_c < 82.0 and cur_gpu_c < 76.0:
+                elif power_profile_applied == "power-saver" and cur_cpu_c < 87.0 and cur_gpu_c < 85.0:
                     if dry_run:
                         power_profile_action = "would_step_back_to_balanced"
                     elif _set_power_profile("balanced"):

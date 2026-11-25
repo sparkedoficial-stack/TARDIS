@@ -197,6 +197,8 @@ def resolve_voice_id(voice: Optional[str]) -> str:
     for item in AVAILABLE_VOICES:
         if item["id"].lower() == low:
             return item["id"]
+    if re.match(r"^[a-z]{2}_[A-Z]{2}-[a-z0-9_]+-(?:low|medium|high)$", raw):
+        return raw
     if re.match(r"^[a-z]{2}-[A-Z]{2}-[A-Za-z0-9]+Neural$", raw):
         return raw
     return DEFAULT_VOICE
@@ -566,10 +568,18 @@ class MundoVoiceConfig:
 
 
 class MundoSpeechSegmenter:
-    """Segmentador VAD híbrido (WebRTC VAD + piso adaptativo) con soporte Barge-In."""
+    """Segmentador VAD híbrido (Silero VAD v6 + WebRTC VAD + piso adaptativo) con soporte Barge-In."""
 
     def __init__(self, cfg: MundoVoiceConfig):
         self.cfg = cfg
+        self.silero = None
+        try:
+            from core.tardis_voice_engine import SileroVadStream
+            sv = SileroVadStream()
+            if sv.available:
+                self.silero = sv
+        except Exception:
+            self.silero = None
         self.vad = webrtcvad.Vad(cfg.vad_aggressiveness) if HAS_WEBRTCVAD else None
         self.noise_floor = 0.008
         self.in_speech = False
@@ -581,11 +591,18 @@ class MundoSpeechSegmenter:
         self._min_frames = max(1, cfg.min_speech_ms // cfg.frame_ms)
         self._max_frames = max(10, cfg.max_utterance_ms // cfg.frame_ms)
 
+    def __setattr__(self, name: str, value: Any) -> None:
+        if name == "vad" and value is None:
+            object.__setattr__(self, "silero", None)
+        object.__setattr__(self, name, value)
+
     def reset_utterance(self) -> None:
         self.in_speech = False
         self.speech_frames.clear()
         self.silence_frames = 0
         self.barge_streak = 0
+        if self.silero is not None:
+            self.silero.reset()
 
     @staticmethod
     def frame_rms(frame: bytes) -> float:
@@ -595,6 +612,10 @@ class MundoSpeechSegmenter:
         return float(np.sqrt(np.mean(pcm * pcm)))
 
     def _is_speech(self, frame: bytes, rms: float, threshold: float) -> bool:
+        if self.silero is not None:
+            prob = self.silero.speech_probability(frame)
+            p_min = 0.28 if self.in_speech else 0.45
+            return prob >= p_min and rms > max(0.0055, threshold * 0.55)
         energy_ok = rms > threshold
         if self.vad is None:
             return energy_ok

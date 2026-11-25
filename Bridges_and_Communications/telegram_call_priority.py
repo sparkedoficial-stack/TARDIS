@@ -59,6 +59,10 @@ BOOST_TARGET_PATTERNS: tuple[str, ...] = (
     "tardis_cli.py",
     "tardis_app.py",
     "tardis_master_app.py",
+    "tardis_infinite_voice",
+    "mundo_sin_censura_voice",
+    "tardis_voice_engine",
+    "tardis-talk",
     "whisper",
     "ffmpeg",
     "ffprobe",
@@ -100,6 +104,7 @@ DEPRIORITIZE_PATTERNS: tuple[str, ...] = (
 # Unidades systemd --user críticas para la latencia de llamadas de Telegram.
 SYSTEMD_CRITICAL_UNITS: tuple[str, ...] = (
     "tardis-telegram-call.service",
+    "tardis-infinite-voice.service",
     "tardis.service",
     "tardis-temporal-brain.service",
     "tardis-embed-brain.service",

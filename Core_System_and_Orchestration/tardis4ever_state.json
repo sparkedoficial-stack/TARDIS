@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "created_at": "2026-10-15T02:04:29.176374",
   "last_periodic_sync": "2026-11-24T07:58:40.506597",
-  "last_immediate_sync": "2026-11-25T00:07:11.822470",
-  "last_commit_hash": "27c623ca",
-  "sync_count": 1524,
-  "immediate_sync_count": 1520,
+  "last_immediate_sync": "2026-11-25T00:45:15.347312",
+  "last_commit_hash": "68340dbf",
+  "sync_count": 1525,
+  "immediate_sync_count": 1521,
   "periodic_sync_count": 4,
   "last_known_mtimes": {
     "skill:godworks-system-suite/SKILL.md": REDACTED_PHONE.5482113,
@@ -201,7 +201,7 @@
     "core:tardis_agy_controller.py": REDACTED_PHONE.9267936,
     "core:ftl_terminal_continuator.py": REDACTED_PHONE.0615375,
     "core:telegram_bridge.py": REDACTED_PHONE.4377587,
-    "core:telegram_call_priority.py": REDACTED_PHONE.3077147,
+    "core:telegram_call_priority.py": REDACTED_PHONE.2494042,
     "core:zero_error_shield.py": REDACTED_PHONE.1171875,
     "core:tardis_teaching.py": REDACTED_PHONE.9147882,
     "core:tardis_c310_conversation.py": REDACTED_PHONE.512329,
@@ -221,7 +221,7 @@
     "core:videocall_vision_engine.py": REDACTED_PHONE.9071455,
     "core:videocall_webapp_ui.py": REDACTED_PHONE.3347282,
     "core:mundo_sin_censura_hardware.py": REDACTED_PHONE.9136124,
-    "core:mundo_sin_censura_voice.py": REDACTED_PHONE.5182886,
+    "core:mundo_sin_censura_voice.py": REDACTED_PHONE.491417,
     "core:tardis_voice_engine.py": REDACTED_PHONE.97577,
     "directive:AGENTS.md": REDACTED_PHONE.8623235,
     "directive:GEMINI.md": REDACTED_PHONE.8793235,
@@ -334,6 +334,16 @@
     "sat:gia_ios:GIA/Views/Theme.swift": REDACTED_PHONE.0
   },
   "history": [
+    {
+      "timestamp": "2026-11-25T00:45:15.347312",
+      "trigger": "immediate_milestone",
+      "commit_hash": "68340dbf",
+      "score": 50,
+      "reasons": [
+        "Evoluci\u00f3n en subsistema core TARDIS: tardis_voice_local.py",
+        "Evoluci\u00f3n en subsistema core TARDIS: tardis_infinite_voice.py"
+      ]
+    },
     {
       "timestamp": "2026-11-25T00:07:11.822470",
       "trigger": "immediate_milestone",
@@ -866,17 +876,6 @@
       "reasons": [
         "Evoluci\u00f3n en subsistema core TARDIS: os_optimizer.py",
         "Evoluci\u00f3n en subsistema core TARDIS: telegram_bridge.py"
-      ]
-    },
-    {
-      "timestamp": "2026-11-21T10:49:25.496452",
-      "trigger": "immediate_milestone",
-      "commit_hash": "62ed9718",
-      "score": 75,
-      "reasons": [
-        "Evoluci\u00f3n en subsistema core TARDIS: tardis_pocket_tunnel_bridge.py",
-        "Evoluci\u00f3n en subsistema core TARDIS: telegram_bridge.py",
-        "Evoluci\u00f3n en subsistema core TARDIS: whatsapp_bridge.py"
       ]
     }
   ]
