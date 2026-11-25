@@ -580,6 +580,7 @@ class TardisAgyCoevolutionEngine:
             logger.debug("runtime governor scan note: %s", exc)
 
         # 2. Hub Health degradados / offline (con guarda contra reinicio/arranque de tardis.service y auto-cierre al recuperar)
+        online_subs: set = set()
         try:
             from core.hub_health import hub_health
             hh = hub_health(force=True)
@@ -594,20 +595,24 @@ class TardisAgyCoevolutionEngine:
                 if info.get("status") == "online"
             }
 
-            # Auto-reconciliar propuestas pendientes de subsistemas que ya volvieron a ONLINE
+            # Auto-reconciliar propuestas pendientes (reliability Y regression de subsistema) que ya volvieron a ONLINE
             if online_subs:
                 now_ok = time.time()
                 iso_ok = _now_iso()
                 with self._connect() as conn:
                     pend_rel = conn.execute(
-                        "SELECT proposal_id, evidence_json FROM proposals WHERE status = 'pending' AND category = 'reliability' AND lens = 'runtime'"
+                        "SELECT proposal_id, category, evidence_json FROM proposals WHERE status = 'pending' AND category IN ('reliability', 'regression') AND lens = 'runtime'"
                     ).fetchall()
                     for prow in pend_rel:
                         try:
                             ev_rel = json.loads(prow["evidence_json"] or "{}")
                         except Exception:
                             ev_rel = {}
-                        sid_prev = str(ev_rel.get("id") or "")
+                        if ev_rel.get("topic") == "health.regression":
+                            pl_prev = ev_rel.get("payload") or {}
+                            sid_prev = str(pl_prev.get("subsystem") or "")
+                        else:
+                            sid_prev = str(ev_rel.get("id") or "")
                         if sid_prev and sid_prev in online_subs:
                             conn.execute(
                                 """
@@ -650,14 +655,25 @@ class TardisAgyCoevolutionEngine:
             logger.debug("runtime hub_health scan note: %s", exc)
 
         # 3. Consumir regresiones y recuperaciones simétricas del Sovereign Event Bus
+        #    Drenar en lotes acotados (hasta 2000 eventos) para impedir que limit=40 parta una ola
+        #    de regresión+recuperación dejando eventos health.recovered huérfanos (COEV-20261125-E31804).
         try:
             from core.tardis_event_bus import get_event_bus
-            evs = get_event_bus().consume(
-                "tardis_agy_coevolution",
-                topics=("health.regression", "health.recovered", "sentinel.anomaly", "evolution.rollback", "eval.regression"),
-                limit=40,
-                advance=True,
-            )
+            bus = get_event_bus()
+            bus_topics = ("health.regression", "health.recovered", "sentinel.anomaly", "evolution.rollback", "eval.regression")
+            evs: List[Dict[str, Any]] = []
+            for _ in range(10):
+                batch = bus.consume(
+                    "tardis_agy_coevolution",
+                    topics=bus_topics,
+                    limit=200,
+                    advance=True,
+                )
+                if not batch:
+                    break
+                evs.extend(batch)
+                if len(batch) < 200:
+                    break
 
             def _bus_recovery_key(ev_item: Dict[str, Any]) -> str:
                 pl = ev_item.get("payload") or {}
@@ -713,10 +729,14 @@ class TardisAgyCoevolutionEngine:
                 restored_files = payload.get("restored_files") or []
                 if ev.get("topic") == "evolution.rollback" and restored_files == ["sample_mod.py"]:
                     continue
-                # Si una regresión ya fue superada por un health.recovered posterior en este lote, omitir alerta obsoleta
+                # Si una regresión ya fue superada por un health.recovered posterior en este lote,
+                # o si hub_health acaba de confirmar el subsistema ONLINE en vivo, omitir alerta obsoleta.
                 if ev.get("topic") == "health.regression":
                     rk = _bus_recovery_key(ev)
                     if recovered_latest_id.get(rk, 0) > int(ev.get("id") or 0):
+                        continue
+                    ev_sub = str(payload.get("subsystem") or "").strip()
+                    if ev_sub and ev_sub in online_subs:
                         continue
 
                 title = f"Resolver evento crítico {ev['topic']} desde {ev['source']}"

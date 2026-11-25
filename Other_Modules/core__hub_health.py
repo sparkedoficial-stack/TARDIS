@@ -26,9 +26,12 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Dict, Optional
 
 API = "http://127.0.0.1:8757"
-TIMEOUT = 3.0
-SLOW_MS = 2500
+TIMEOUT = 4.0
+SLOW_MS = 3000
 CACHE_TTL = 10.0
+MAX_WORKERS = 6
+TRANSIENT_RETRIES = 1
+RETRY_BACKOFF_S = 0.25
 
 # id del catálogo -> (path HTTP opcional, unidad systemd opcional).
 # Las unidades son unidades --user; None = no aplica.
@@ -121,27 +124,38 @@ def _probe_one(sid: str, spec: Dict[str, Optional[str]]) -> Dict[str, Any]:
             out["detail"] = type(e).__name__
         return out
     url = path if path.startswith("http") else API + path
-    t0 = time.perf_counter()
-    try:
-        with urllib.request.urlopen(url, timeout=TIMEOUT) as resp:
+    attempts = 1 + max(0, int(TRANSIENT_RETRIES))
+    for attempt in range(attempts):
+        t0 = time.perf_counter()
+        try:
+            with urllib.request.urlopen(url, timeout=TIMEOUT) as resp:
+                ms = round((time.perf_counter() - t0) * 1000, 1)
+                out["latency_ms"] = ms
+                out["http"] = resp.status
+                out["detail"] = ""
+                if 200 <= resp.status < 300:
+                    out["status"] = "degraded" if ms > SLOW_MS else "online"
+                else:
+                    out["status"] = "degraded"
+                    out["detail"] = f"HTTP {resp.status}"
+            break
+        except urllib.error.HTTPError as e:
             ms = round((time.perf_counter() - t0) * 1000, 1)
-            out["latency_ms"] = ms
-            out["http"] = resp.status
-            if 200 <= resp.status < 300:
-                out["status"] = "degraded" if ms > SLOW_MS else "online"
-            else:
-                out["status"] = "degraded"
-                out["detail"] = f"HTTP {resp.status}"
-    except urllib.error.HTTPError as e:
-        ms = round((time.perf_counter() - t0) * 1000, 1)
-        out.update({"latency_ms": ms, "http": e.code})
-        # 404/405 en la ruta declarada significa que el subsistema no expone nada ahí.
-        out["status"] = "degraded" if e.code < 500 else "offline"
-        out["detail"] = f"HTTP {e.code}"
-    except Exception as e:
-        out["latency_ms"] = round((time.perf_counter() - t0) * 1000, 1)
-        out["status"] = "offline"
-        out["detail"] = type(e).__name__
+            out.update({"latency_ms": ms, "http": e.code})
+            # 404/405 en la ruta declarada significa que el subsistema no expone nada ahí.
+            out["status"] = "degraded" if e.code < 500 else "offline"
+            out["detail"] = f"HTTP {e.code}"
+            break
+        except Exception as e:
+            reason = getattr(e, "reason", None)
+            is_refused = isinstance(e, ConnectionRefusedError) or isinstance(reason, ConnectionRefusedError)
+            if not is_refused and attempt + 1 < attempts:
+                time.sleep(RETRY_BACKOFF_S)
+                continue
+            out["latency_ms"] = round((time.perf_counter() - t0) * 1000, 1)
+            out["status"] = "offline"
+            out["detail"] = type(e).__name__
+            break
     if out.get("unit_active") is False and out["status"] == "online":
         # Responde por la API pero su unidad está caída: puede ser un path servido por el
         # propio API. Lo marcamos degradado para que el operador lo vea.
@@ -154,7 +168,7 @@ def hub_health(force: bool = False) -> Dict[str, Any]:
     now = time.time()
     if not force and _cache["data"] and (now - _cache["ts"]) < CACHE_TTL:
         return _cache["data"]
-    with ThreadPoolExecutor(max_workers=12) as pool:
+    with ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
         results = list(pool.map(lambda kv: _probe_one(*kv), PROBES.items()))
     by_id = {r["id"]: r for r in results}
     counts: Dict[str, int] = {}

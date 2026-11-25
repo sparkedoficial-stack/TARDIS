@@ -1829,3 +1829,132 @@ def test_ollama_cpuset_thread_governance_and_kaiju_boot_race_guard(tmp_path: Pat
     assert res_tb["ok"] is True
     assert res_tb["reply"] == "warmup-ok"
     assert len(seq) == 0
+
+
+def test_hub_health_retry_feedback_mass_flap_hysteresis_and_coevolution_full_bus_drain(tmp_path: Path, monkeypatch):
+    """Regresión COEV-20261125-E31804: retry en hub_health, supresión de ola masiva/histéresis 2 ciclos y drenaje >40 eventos."""
+    import urllib.request
+    from core import hub_health as hh
+    from core import tardis_feedback_bridge as tfb
+    from core import tardis_event_bus as teb
+    from core.tardis_agy_coevolution import TardisAgyCoevolutionEngine
+
+    # 1) hub_health._probe_one reintenta TimeoutError transitorio una vez y falla rápido en ConnectionRefusedError
+    monkeypatch.setattr(hh, "RETRY_BACKOFF_S", 0.01)
+    timeout_calls = {"n": 0}
+
+    class _OkResp:
+        status = 200
+        def __enter__(self):
+            return self
+        def __exit__(self, *a):
+            return False
+
+    def _flaky_urlopen(url, timeout=None):
+        timeout_calls["n"] += 1
+        if timeout_calls["n"] == 1:
+            raise TimeoutError("transient event-loop stall")
+        return _OkResp()
+
+    monkeypatch.setattr(urllib.request, "urlopen", _flaky_urlopen)
+    res_ok = hh._probe_one("mundo_sin_censura", {"http": "/api/mundo_sin_censura/status", "unit": None})
+    assert res_ok["status"] == "online" and res_ok["http"] == 200 and timeout_calls["n"] == 2
+
+    refused_calls = {"n": 0}
+    def _refused_urlopen(url, timeout=None):
+        refused_calls["n"] += 1
+        raise ConnectionRefusedError("port closed")
+
+    monkeypatch.setattr(urllib.request, "urlopen", _refused_urlopen)
+    res_off = hh._probe_one("dead_srv", {"http": "http://127.0.0.1:19999/", "unit": None})
+    assert res_off["status"] == "offline" and refused_calls["n"] == 1
+
+    # 2) tardis_feedback_bridge: ola masiva de 22/46 subsistemas cayendo en 1 ciclo se suprime sin emitir 22 subsistema_cambio
+    subs_all_ok = {f"sub_{i}": "online" for i in range(46)}
+    prev_state = {
+        "ts": 1000.0,
+        "iso": "2026-11-25 14:01:40",
+        "subsystems": dict(subs_all_ok),
+        "self_improve": {"score": 100, "status": "HEALTHY", "metrics": {}, "needs": [], "penalties": []},
+        "governor": {"level": "GREEN"},
+        "inbox": {"pending": []},
+    }
+    subs_wave = {f"sub_{i}": ("offline" if i >= 24 else "online") for i in range(46)}
+    cur_wave = {
+        "ts": 1060.0,
+        "iso": "2026-11-25 14:02:48",
+        "subsystems": subs_wave,
+        "self_improve": dict(prev_state["self_improve"]),
+        "governor": {"level": "YELLOW"},
+        "inbox": {"pending": []},
+    }
+    ev_wave = tfb.diff(prev_state, cur_wave)
+    assert any(e["kind"] == "hub_mass_flap_suppressed" and e["affected_count"] == 22 for e in ev_wave)
+    assert not any(e["kind"] == "subsistema_cambio" for e in ev_wave)
+
+    # Recuperación al ciclo siguiente -> cero alertas falsas
+    cur_back = {
+        "ts": 1120.0,
+        "iso": "2026-11-25 14:03:49",
+        "subsystems": dict(subs_all_ok),
+        "self_improve": dict(prev_state["self_improve"]),
+        "governor": {"level": "GREEN"},
+        "inbox": {"pending": []},
+    }
+    ev_back = tfb.diff(cur_wave, cur_back)
+    assert not any(e["kind"] == "subsistema_cambio" for e in ev_back)
+
+    # Caída individual: ciclo 1 -> subsistema_fluctuacion (no escalada); ciclo 2 -> subsistema_cambio confirmado; ciclo 3 -> recuperación simétrica
+    subs_one_down = dict(subs_all_ok)
+    subs_one_down["mundo_sin_censura"] = "offline"
+    cur_back["subsystems"]["mundo_sin_censura"] = "online"
+    cur_back["subsystem_tracker"]["confirmed_status"]["mundo_sin_censura"] = "online"
+
+    c1 = {"ts": 1180.0, "iso": "2026-11-25 14:04:50", "subsystems": dict(subs_one_down), "self_improve": dict(prev_state["self_improve"]), "governor": {}, "inbox": {"pending": []}}
+    e1 = tfb.diff(cur_back, c1)
+    assert any(e["kind"] == "subsistema_fluctuacion" and e["subsystem"] == "mundo_sin_censura" for e in e1)
+    assert not any(e["kind"] == "subsistema_cambio" for e in e1)
+
+    c2 = {"ts": 1240.0, "iso": "2026-11-25 14:05:50", "subsystems": dict(subs_one_down), "self_improve": dict(prev_state["self_improve"]), "governor": {}, "inbox": {"pending": []}}
+    e2 = tfb.diff(c1, c2)
+    assert any(e["kind"] == "subsistema_cambio" and e["subsystem"] == "mundo_sin_censura" and e["to"] == "offline" and e.get("confirmed") is True for e in e2)
+
+    subs_one_up = dict(subs_one_down)
+    subs_one_up["mundo_sin_censura"] = "online"
+    c3 = {"ts": 1300.0, "iso": "2026-11-25 14:06:50", "subsystems": subs_one_up, "self_improve": dict(prev_state["self_improve"]), "governor": {}, "inbox": {"pending": []}}
+    e3 = tfb.diff(c2, c3)
+    assert any(e["kind"] == "subsistema_cambio" and e["subsystem"] == "mundo_sin_censura" and e["from"] == "offline" and e["to"] == "online" for e in e3)
+
+    # 3) Co-evolución drena >40 eventos (22 regression + 22 recovered = 44) sin partir el lote ni crear 4 propuestas fantasma
+    iso_bus = teb.SovereignEventBus(db_path=tmp_path / "iso_bus_44.db")
+    monkeypatch.setattr(teb, "get_event_bus", lambda db_path=None: iso_bus)
+    names = [f"sub_{i}" for i in range(21)] + ["mundo_sin_censura"]
+    for name in names:
+        iso_bus.publish("health.regression", "tardis_feedback_bridge", {"kind": "subsistema_cambio", "subsystem": name, "from": "online", "to": "offline"}, severity="HIGH", dedup_window_s=0.0)
+    for name in names:
+        iso_bus.publish("health.recovered", "tardis_feedback_bridge", {"kind": "subsistema_cambio", "subsystem": name, "from": "offline", "to": "online"}, severity="INFO", dedup_window_s=0.0)
+
+    eng = TardisAgyCoevolutionEngine(db_path=tmp_path / "coev_44.db")
+    monkeypatch.setattr("core.hub_health.hub_health", lambda force=False: {"counts": {"online": 0}, "subsystems": {}})
+    eng._scan_runtime_lens()
+    assert not any(p["category"] == "regression" for p in eng.list_proposals(status="pending", limit=50))
+
+    # 4) Cross-check contra hub_health en vivo: regresión obsoleta en bus + propuesta pendiente previa se auto-reconcilian si el subsistema está ONLINE
+    iso_bus.publish("health.regression", "tardis_feedback_bridge", {"kind": "subsistema_cambio", "subsystem": "mundo_sin_censura", "from": "online", "to": "offline"}, severity="HIGH", dedup_window_s=0.0)
+    eng.upsert_proposal(
+        lens="runtime",
+        category="regression",
+        severity="HIGH",
+        roi_score=91,
+        title="Resolver evento crítico health.regression desde tardis_feedback_bridge",
+        problem='{"subsystem": "mundo_sin_censura", "to": "offline"}',
+        proposed_solution="Test",
+        evidence={"id": 9999, "topic": "health.regression", "source": "tardis_feedback_bridge", "payload": {"subsystem": "mundo_sin_censura", "to": "offline"}},
+        fingerprint_seed="test|stale|mundo_sin_censura",
+    )
+    monkeypatch.setattr(
+        "core.hub_health.hub_health",
+        lambda force=False: {"counts": {"online": 1}, "subsystems": {"mundo_sin_censura": {"id": "mundo_sin_censura", "status": "online", "http": 200}}},
+    )
+    eng._scan_runtime_lens()
+    assert not any(p["category"] == "regression" for p in eng.list_proposals(status="pending", limit=20))

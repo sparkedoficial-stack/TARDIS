@@ -661,10 +661,34 @@ class TemporalBrain:
                 pass
 
         env, cuda_backend = self._get_cuda_environment()
+        # Acotar arenas glibc para evitar fragmentación multi-GB / swap-bloat en llama-server (COEV-20261124-5B1F5C)
+        env.setdefault("MALLOC_ARENA_MAX", "2")
+        env.setdefault("MALLOC_TRIM_THRESHOLD_", "131072")
+        env.setdefault("MALLOC_MMAP_THRESHOLD_", "131072")
+
         ctx = info.get("params", {}).get("num_ctx", self.ctx_size)
         ngl = self.gpu_layers if gpu_layers_override is None else gpu_layers_override
 
-        load_mode = self.config.get("load_mode", "mmap+mlock" if self.config.get("mlock", False) else "auto")
+        env_load_mode = os.environ.get("TEMPORAL_LOAD_MODE", "").strip()
+        if env_load_mode:
+            load_mode = env_load_mode
+        else:
+            load_mode = self.config.get("load_mode", "mmap+mlock" if self.config.get("mlock", False) else "auto")
+
+        try:
+            eff_cpus = len(os.sched_getaffinity(0))
+        except Exception:
+            eff_cpus = os.cpu_count() or 8
+        raw_tb = int(self.config.get("threads_batch", min(8, max(2, eff_cpus))))
+        threads_batch = max(int(self.threads), min(raw_tb, max(2, eff_cpus)))
+
+        raw_cache_idle = os.environ.get("TEMPORAL_CACHE_IDLE_SLOTS", "").strip().lower()
+        if raw_cache_idle in ("1", "true", "yes"):
+            cache_idle_slots = True
+        elif raw_cache_idle in ("0", "false", "no"):
+            cache_idle_slots = False
+        else:
+            cache_idle_slots = bool(self.config.get("cache_idle_slots", False))
 
         cmd = [
             str(llama_server_bin),
@@ -676,16 +700,21 @@ class TemporalBrain:
             "--cache-type-v", str(self.cache_type_v),
             "--n-gpu-layers", str(ngl),
             "--threads", str(self.threads),
-            "--threads-batch", str(self.config.get("threads_batch", 16)),
+            "--threads-batch", str(threads_batch),
+            "--poll", str(self.config.get("poll", 0)),
+            "--poll-batch", str(self.config.get("poll_batch", 0)),
             "--load-mode", str(load_mode),
             "--batch-size", "2048",
             "--ubatch-size", "512",
             "--flash-attn", "on",
             "--parallel", str(self.config.get("parallel", 2)),
             "--cont-batching",
-            "--prio", "2",
-            "--prio-batch", "2",
-            "--cache-idle-slots",
+            "--prio", "0",
+            "--prio-batch", "0",
+        ]
+        if cache_idle_slots:
+            cmd.append("--cache-idle-slots")
+        cmd.extend([
             "--temp", str(self.config.get("temperature", 0.25)),
             "--top-k", str(self.config.get("top_k", 40)),
             "--top-p", str(self.config.get("top_p", 0.92)),
@@ -695,7 +724,7 @@ class TemporalBrain:
             "--no-webui",
             "--offline",
             "--log-disable",
-        ]
+        ])
 
         logger.info(f"🧠 [TemporalBrain] Iniciando motor en socket UNIX privado: {self.socket_path} (ngl={ngl}, threads={self.threads})")
         if cuda_backend and ngl > 0:

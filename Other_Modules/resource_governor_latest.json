@@ -1,7 +1,7 @@
 {
   "ok": true,
-  "ts": REDACTED_PHONE.648525,
-  "iso": "2026-11-25T15:05:53-05:00",
+  "ts": REDACTED_PHONE.156706,
+  "iso": "2026-11-25T16:51:47-05:00",
   "level": "GREEN",
   "reasons": [
     "Operación nominal con holgura de recursos"
@@ -9,21 +9,21 @@
   "call_priority_active": false,
   "cpu": {
     "cores": 16,
-    "load1": 8.01,
-    "load5": 11.88,
-    "load15": 13.91,
+    "load1": 14.17,
+    "load5": 12.9,
+    "load15": 13.23,
     "psi": {
-      "some_avg10": 9.99,
-      "some_avg60": 10.35,
-      "some_avg300": 24.17,
+      "some_avg10": 23.2,
+      "some_avg60": 23.61,
+      "some_avg300": 22.56,
       "full_avg10": 0.0,
       "full_avg60": 0.0
     },
-    "temp_c": 75.6,
+    "temp_c": 73.1,
     "thermal_source": "k10temp",
     "fan_rpm": {
       "cpu": 4400,
-      "gpu": 4400
+      "gpu": 4300
     },
     "power_profile": "performance",
     "scaling_driver": "amd-pstate-epp",
@@ -33,11 +33,11 @@
   },
   "memory": {
     "total_mb": 31495.3,
-    "available_mb": 9742.2,
-    "used_mb": 21753.1,
-    "used_pct": 69.1,
+    "available_mb": 11227.7,
+    "used_mb": 20267.6,
+    "used_pct": 64.4,
     "swap_total_mb": 62994.8,
-    "swap_used_mb": 1973.7,
+    "swap_used_mb": 663.9,
     "psi": {
       "some_avg10": 0.0,
       "some_avg60": 0.0,
@@ -48,9 +48,9 @@
   },
   "io": {
     "psi": {
-      "some_avg10": 0.0,
-      "some_avg60": 0.0,
-      "some_avg300": 0.0,
+      "some_avg10": 0.12,
+      "some_avg60": 0.12,
+      "some_avg300": 0.12,
       "full_avg10": 0.0,
       "full_avg60": 0.0
     }
@@ -58,14 +58,14 @@
   "gpu": {
     "available": true,
     "name": "NVIDIA GeForce RTX 3050 Laptop GPU",
-    "temp_c": 65.0,
-    "util_pct": 72.0,
-    "vram_used_mb": 3496.0,
-    "vram_free_mb": 327.0,
+    "temp_c": 64.0,
+    "util_pct": 41.0,
+    "vram_used_mb": 3388.0,
+    "vram_free_mb": 435.0,
     "vram_total_mb": 4096.0,
-    "vram_used_pct": 85.4,
+    "vram_used_pct": 82.7,
     "pstate": "P0",
-    "power_w": 17.69,
+    "power_w": 14.68,
     "clock_gr_mhz": 600,
     "clock_mem_mhz": 6001
   },
@@ -78,23 +78,12 @@
         "name": "qwen3-vl:2b-instruct",
         "size_mb": 1697.4,
         "size_vram_mb": 1076.8,
-        "expires_at": "2319-03-07T14:51:17.587612957-05:00"
+        "expires_at": "2319-03-07T16:38:24.883274756-05:00"
       }
     ],
     "duplicate_models": []
   },
   "cgroup_pressure": [
-    {
-      "unit": "tardis-tapo-c310-sentinel.service",
-      "cpuset_cpus": "8-15",
-      "effective_cpus": 8,
-      "cpu_max": "max 100000",
-      "cpu_weight": 25,
-      "pids_count": 2,
-      "psi_some_avg10": 10.08,
-      "psi_some_avg60": 9.04,
-      "psi_full_avg60": 4.15
-    },
     {
       "unit": "tardis-temporal-brain.service",
       "cpuset_cpus": "8-15",
@@ -102,9 +91,20 @@
       "cpu_max": "max 100000",
       "cpu_weight": 40,
       "pids_count": 1,
-      "psi_some_avg10": 1.85,
-      "psi_some_avg60": 3.09,
-      "psi_full_avg60": 2.31
+      "psi_some_avg10": 23.89,
+      "psi_some_avg60": 22.27,
+      "psi_full_avg60": 16.0
+    },
+    {
+      "unit": "tardis-tapo-c310-sentinel.service",
+      "cpuset_cpus": "8-15",
+      "effective_cpus": 8,
+      "cpu_max": "max 100000",
+      "cpu_weight": 25,
+      "pids_count": 2,
+      "psi_some_avg10": 21.05,
+      "psi_some_avg60": 20.12,
+      "psi_full_avg60": 10.76
     },
     {
       "unit": "tardis-ollama-voice.service",
@@ -113,9 +113,9 @@
       "cpu_max": "max 100000",
       "cpu_weight": 100,
       "pids_count": 2,
-      "psi_some_avg10": 0.83,
-      "psi_some_avg60": 2.62,
-      "psi_full_avg60": 1.65
+      "psi_some_avg10": 1.24,
+      "psi_some_avg60": 5.65,
+      "psi_full_avg60": 3.0
     },
     {
       "unit": "tardis-tapo-c310-voice.service",
@@ -124,9 +124,9 @@
       "cpu_max": "max 100000",
       "cpu_weight": 25,
       "pids_count": 2,
-      "psi_some_avg10": 2.52,
-      "psi_some_avg60": 2.02,
-      "psi_full_avg60": 2.02
+      "psi_some_avg10": 5.67,
+      "psi_some_avg60": 4.85,
+      "psi_full_avg60": 4.85
     },
     {
       "unit": "tardis.service",
@@ -135,20 +135,9 @@
       "cpu_max": "max 100000",
       "cpu_weight": 25,
       "pids_count": 4,
-      "psi_some_avg10": 0.91,
-      "psi_some_avg60": 1.52,
-      "psi_full_avg60": 1.17
-    },
-    {
-      "unit": "tardis-music-maestro.service",
-      "cpuset_cpus": "8-15",
-      "effective_cpus": 8,
-      "cpu_max": "max 100000",
-      "cpu_weight": 25,
-      "pids_count": 2,
-      "psi_some_avg10": 0.61,
-      "psi_some_avg60": 0.53,
-      "psi_full_avg60": 0.37
+      "psi_some_avg10": 3.01,
+      "psi_some_avg60": 3.41,
+      "psi_full_avg60": 2.98
     },
     {
       "unit": "tardis4ever.service",
@@ -157,20 +146,31 @@
       "cpu_max": "max 100000",
       "cpu_weight": 25,
       "pids_count": 2,
-      "psi_some_avg10": 1.11,
-      "psi_some_avg60": 0.29,
-      "psi_full_avg60": 0.29
+      "psi_some_avg10": 3.87,
+      "psi_some_avg60": 1.47,
+      "psi_full_avg60": 1.47
     },
     {
-      "unit": "tardis-browser-autonomous.service",
+      "unit": "tardis-embed-brain.service",
+      "cpuset_cpus": "8-15",
+      "effective_cpus": 8,
+      "cpu_max": "max 100000",
+      "cpu_weight": 40,
+      "pids_count": 1,
+      "psi_some_avg10": 0.17,
+      "psi_some_avg60": 0.65,
+      "psi_full_avg60": 0.43
+    },
+    {
+      "unit": "tardis-music-maestro.service",
       "cpuset_cpus": "8-15",
       "effective_cpus": 8,
       "cpu_max": "max 100000",
       "cpu_weight": 25,
-      "pids_count": 12,
-      "psi_some_avg10": 0.01,
-      "psi_some_avg60": 0.27,
-      "psi_full_avg60": 0.2
+      "pids_count": 2,
+      "psi_some_avg10": 0.66,
+      "psi_some_avg60": 0.63,
+      "psi_full_avg60": 0.31
     }
   ],
   "oversubscribed_units": [],
@@ -181,7 +181,7 @@
     "units": [],
     "power_profile_mitigated": false,
     "power_profile_applied": "",
-    "updated_iso": "2026-11-25T15:03:53-05:00"
+    "updated_iso": "2026-11-25T16:33:40-05:00"
   },
   "gpu_eco": {
     "active": false,

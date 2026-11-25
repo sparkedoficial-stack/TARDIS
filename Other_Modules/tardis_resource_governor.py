@@ -63,6 +63,7 @@ RUNTIME_DIR = Path(os.environ.get("XDG_RUNTIME_DIR", f"/run/user/{os.getuid()}")
 TMPFS_SNAPSHOT = RUNTIME_DIR / "tardis_governor.json"
 THROTTLE_STATE_FILE = RUNTIME_DIR / "tardis_governor_throttle.json"
 GPU_ECO_STATE_FILE = RUNTIME_DIR / "tardis_governor_gpu_eco.json"
+SWAP_RECYCLE_STATE_FILE = RUNTIME_DIR / "tardis_governor_swap_recycle.json"
 DISK_SNAPSHOT = DATA_DIR / "resource_governor_latest.json"
 LOCK_FILE = DATA_DIR / "resource_governor.lock"
 BACKUP_ARCHIVE_DIR = PROJECT_ROOT / "_selfmod_backups" / "legacy_archive"
@@ -153,6 +154,27 @@ POWER_PROFILE_RESTORE_MAX_CPU_C = 72.0
 POWER_PROFILE_RESTORE_MAX_GPU_C = 68.0
 # Antigüedad máxima (días) para conservar archivos .bak* sueltos en raíz/core antes de archivarlos.
 STALE_BACKUP_ARCHIVE_DAYS = 7.0
+
+# Umbrales Ring 0 de swap-bloat y reciclaje seguro en reposo para motores llama-server (COEV-20261124-5B1F5C).
+# Jamás interrumpe slots activos (/slots is_processing=true), clientes TCP en :11435 ni llamadas Telegram.
+SWAP_BLOAT_UNITS: Dict[str, Dict[str, Any]] = {
+    "tardis-temporal-brain.service": {
+        "swap_warn_mb": 1536.0,
+        "swap_recycle_mb": 2048.0,
+        "total_recycle_mb": 9216.0,
+        "min_uptime_s": 600.0,
+        "cooldown_s": 1800.0,
+        "idle_kind": "temporal_brain",
+    },
+    "tardis-ollama-voice.service": {
+        "swap_warn_mb": 1536.0,
+        "swap_recycle_mb": 2048.0,
+        "total_recycle_mb": 6144.0,
+        "min_uptime_s": 600.0,
+        "cooldown_s": 1800.0,
+        "idle_kind": "ollama_11435",
+    },
+}
 
 
 def _now_iso() -> str:
@@ -1007,6 +1029,241 @@ def _inspect_cgroup_units(
     return pressure_rows, oversubscribed
 
 
+def _swap_recycle_control_enabled() -> bool:
+    """True si el reciclaje seguro en reposo ante swap-bloat está habilitado (default ON)."""
+    raw = os.environ.get("TARDIS_GOVERNOR_SWAP_RECYCLE", "1").strip().lower()
+    return raw not in ("0", "false", "no", "off")
+
+
+def _parse_proc_kb(status_text: str, key: str) -> float:
+    m = re.search(rf"^{re.escape(key)}:\s*(\d+)\s*kB", status_text, flags=re.MULTILINE)
+    return round(int(m.group(1)) / 1024.0, 1) if m else 0.0
+
+
+def _read_proc_mem_status(pid: int) -> Dict[str, float]:
+    """Lee RSS/Anon/File/VmLck/VmSwap en MB desde /proc/<pid>/status (<0.1ms)."""
+    out = {"rss_mb": 0.0, "rss_anon_mb": 0.0, "rss_file_mb": 0.0, "mlock_mb": 0.0, "swap_mb": 0.0}
+    try:
+        txt = Path(f"/proc/{int(pid)}/status").read_text(encoding="utf-8", errors="ignore")
+        out["rss_mb"] = _parse_proc_kb(txt, "VmRSS")
+        out["rss_anon_mb"] = _parse_proc_kb(txt, "RssAnon")
+        out["rss_file_mb"] = _parse_proc_kb(txt, "RssFile")
+        out["mlock_mb"] = _parse_proc_kb(txt, "VmLck")
+        out["swap_mb"] = _parse_proc_kb(txt, "VmSwap")
+    except Exception:
+        pass
+    return out
+
+
+def _read_proc_uptime_s(pid: int) -> float:
+    """Devuelve segundos transcurridos desde el arranque del PID usando /proc/<pid>/stat y /proc/uptime."""
+    try:
+        up_raw = Path("/proc/uptime").read_text(encoding="utf-8", errors="ignore").split()[0]
+        sys_up = float(up_raw)
+        stat_txt = Path(f"/proc/{int(pid)}/stat").read_text(encoding="utf-8", errors="ignore")
+        rparen = stat_txt.rfind(")")
+        if rparen < 0:
+            return 0.0
+        fields = stat_txt[rparen + 2 :].split()
+        # Campo 22 en /proc/[pid]/stat -> índice 19 tras comm (campo 3 es índice 0)
+        start_ticks = int(fields[19])
+        clk_tck = os.sysconf(os.sysconf_names["SC_CLK_TCK"])
+        if clk_tck <= 0:
+            return 0.0
+        return max(0.0, round(sys_up - (start_ticks / float(clk_tck)), 1))
+    except Exception:
+        return 0.0
+
+
+def _read_cgroup_bytes_mb(path: Path) -> Optional[float]:
+    try:
+        raw = path.read_text(encoding="utf-8", errors="ignore").strip()
+        if raw.isdigit():
+            return round(int(raw) / (1024.0 * 1024.0), 1)
+    except Exception:
+        pass
+    return None
+
+
+def _inspect_service_memory_bloat(
+    unit_specs: Optional[Dict[str, Dict[str, Any]]] = None,
+    cgroup_app_slice: Optional[Path] = None,
+) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+    """
+    Audita consumo real de RAM, Swap, mlock y límites cgroup v2 (`MemoryHigh`/`MemoryMax`/`MemorySwapMax`)
+    de los servicios de inferencia `llama-server` para detectar swap-bloat (`COEV-20261124-5B1F5C`).
+    Retorna `(inference_memory_rows, bloated_units)`.
+    """
+    specs = unit_specs if unit_specs is not None else SWAP_BLOAT_UNITS
+    uid = os.getuid()
+    app_slice = cgroup_app_slice or Path(
+        f"/sys/fs/cgroup/user.slice/user-{uid}.slice/user@{uid}.service/app.slice"
+    )
+    if not app_slice.is_dir():
+        return [], []
+
+    rows: List[Dict[str, Any]] = []
+    bloated: List[Dict[str, Any]] = []
+
+    for unit, spec in specs.items():
+        cg = app_slice / unit
+        if not cg.is_dir():
+            continue
+        try:
+            procs_fp = cg / "cgroup.procs"
+            pids: List[int] = []
+            if procs_fp.is_file():
+                pids = [
+                    int(ln.strip())
+                    for ln in procs_fp.read_text(encoding="utf-8", errors="ignore").splitlines()
+                    if ln.strip().isdigit()
+                ]
+            if not pids:
+                continue
+
+            rss_mb = rss_anon_mb = rss_file_mb = mlock_mb = swap_mb = 0.0
+            max_uptime_s = 0.0
+            primary_pid = pids[0]
+            primary_total = -1.0
+            for pid in pids[:16]:
+                pm = _read_proc_mem_status(pid)
+                rss_mb += pm["rss_mb"]
+                rss_anon_mb += pm["rss_anon_mb"]
+                rss_file_mb += pm["rss_file_mb"]
+                mlock_mb += pm["mlock_mb"]
+                swap_mb += pm["swap_mb"]
+                tot_p = pm["rss_mb"] + pm["swap_mb"]
+                if tot_p > primary_total:
+                    primary_total = tot_p
+                    primary_pid = pid
+                up_p = _read_proc_uptime_s(pid)
+                if up_p > max_uptime_s:
+                    max_uptime_s = up_p
+
+            cg_curr_mb = _read_cgroup_bytes_mb(cg / "memory.current")
+            cg_swap_mb = _read_cgroup_bytes_mb(cg / "memory.swap.current")
+            if cg_swap_mb is not None and cg_swap_mb > swap_mb:
+                swap_mb = cg_swap_mb
+            mem_high = (cg / "memory.high").read_text(encoding="utf-8", errors="ignore").strip() if (cg / "memory.high").is_file() else "max"
+            mem_max = (cg / "memory.max").read_text(encoding="utf-8", errors="ignore").strip() if (cg / "memory.max").is_file() else "max"
+            swap_max = (cg / "memory.swap.max").read_text(encoding="utf-8", errors="ignore").strip() if (cg / "memory.swap.max").is_file() else "max"
+
+            total_mb = round(rss_mb + swap_mb, 1)
+            rss_mb = round(rss_mb, 1)
+            swap_mb = round(swap_mb, 1)
+
+            swap_warn = float(spec.get("swap_warn_mb", 1536.0))
+            swap_rec = float(spec.get("swap_recycle_mb", 2048.0))
+            tot_rec = float(spec.get("total_recycle_mb", 9216.0))
+
+            reasons: List[str] = []
+            if swap_mb >= swap_rec:
+                reasons.append(f"swap_bloat_critico ({swap_mb:.0f} MB >= {swap_rec:.0f} MB)")
+            elif swap_mb >= swap_warn:
+                reasons.append(f"swap_bloat_elevado ({swap_mb:.0f} MB >= {swap_warn:.0f} MB)")
+            if total_mb >= tot_rec:
+                reasons.append(f"rss_plus_swap_excedido ({total_mb:.0f} MB >= {tot_rec:.0f} MB)")
+
+            is_bloated = bool(reasons)
+            recycle_eligible = (swap_mb >= swap_rec) or (total_mb >= tot_rec)
+            row = {
+                "unit": unit,
+                "main_pid": primary_pid,
+                "pids_count": len(pids),
+                "uptime_s": round(max_uptime_s, 1),
+                "rss_mb": rss_mb,
+                "rss_anon_mb": round(rss_anon_mb, 1),
+                "rss_file_mb": round(rss_file_mb, 1),
+                "mlock_mb": round(mlock_mb, 1),
+                "swap_mb": swap_mb,
+                "total_mb": total_mb,
+                "cgroup_current_mb": cg_curr_mb,
+                "cgroup_swap_mb": cg_swap_mb,
+                "memory_high": mem_high,
+                "memory_max": mem_max,
+                "memory_swap_max": swap_max,
+                "idle_kind": str(spec.get("idle_kind") or ""),
+                "bloated": is_bloated,
+                "recycle_eligible": recycle_eligible,
+                "reasons": reasons,
+            }
+            rows.append(row)
+            if is_bloated:
+                bloated.append(row)
+        except Exception:
+            continue
+
+    rows.sort(key=lambda r: (r["swap_mb"], r["total_mb"]), reverse=True)
+    bloated.sort(key=lambda r: (r["swap_mb"], r["total_mb"]), reverse=True)
+    return rows, bloated
+
+
+def _is_service_idle_for_recycle(unit: str, idle_kind: str) -> Tuple[bool, str]:
+    """
+    Verificación fail-safe de inactividad antes de reciclar un servicio `llama-server`:
+      - Veto absoluto ante llamada Telegram prioritaria activa.
+      - `temporal_brain`: exige respuesta 200 de `/slots` en `/tmp/temporal_brain.sock` con 0 slots `is_processing`.
+      - `ollama_11435`: exige 0 clientes TCP activos en `:11435`.
+    """
+    if _is_call_active():
+        return False, "telegram_call_active"
+
+    if idle_kind == "temporal_brain":
+        sock_path = Path("/tmp/temporal_brain.sock")
+        if not sock_path.exists():
+            return False, "temporal_brain_socket_missing"
+        try:
+            with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as s:
+                s.settimeout(1.5)
+                s.connect(str(sock_path))
+                s.sendall(b"GET /slots HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n")
+                chunks: List[bytes] = []
+                while True:
+                    chunk = s.recv(4096)
+                    if not chunk:
+                        break
+                    chunks.append(chunk)
+            raw = b"".join(chunks).decode("utf-8", errors="ignore")
+            hdr, _, body = raw.partition("\r\n\r\n")
+            if "200 OK" not in hdr.splitlines()[0]:
+                return False, "temporal_brain_slots_non_200"
+            slots = json.loads(body)
+            if not isinstance(slots, list) or not slots:
+                return False, "temporal_brain_slots_empty"
+            busy = [sl.get("id") for sl in slots if bool(sl.get("is_processing"))]
+            if busy:
+                return False, f"temporal_brain_slots_busy:{busy}"
+            return True, "all_slots_idle"
+        except Exception:
+            return False, "temporal_brain_slots_unverified"
+
+    if idle_kind == "ollama_11435":
+        clients = _find_ollama_port_clients(11435)
+        if clients:
+            return False, f"ollama_11435_clients_active:{len(clients)}"
+        return True, "no_active_clients_on_11435"
+
+    return False, f"unsupported_idle_kind:{idle_kind}"
+
+
+def _restart_systemd_user_unit(unit: str, timeout: float = 20.0) -> Tuple[bool, str]:
+    """Reinicia de forma limpia una unidad systemd --user con stdin/stdout/stderr desacoplados."""
+    try:
+        res = subprocess.run(
+            ["systemctl", "--user", "restart", unit],
+            stdin=subprocess.DEVNULL,
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+            check=False,
+        )
+        if res.returncode == 0:
+            return True, "restarted"
+        return False, (res.stderr or res.stdout or f"rc={res.returncode}").strip()[:180]
+    except Exception as exc:
+        return False, f"{type(exc).__name__}: {exc}"
+
+
 def _query_ollama_ps(port: int) -> List[Dict[str, Any]]:
     try:
         req = urllib.request.Request(f"http://127.0.0.1:{port}/api/ps", headers={"Accept": "application/json"})
@@ -1209,6 +1466,7 @@ class TardisResourceGovernor:
         db_path: Path = GOVERNOR_DB,
         throttle_state_file: Optional[Path] = None,
         gpu_eco_state_file: Optional[Path] = None,
+        swap_recycle_state_file: Optional[Path] = None,
     ):
         self.db_path = Path(db_path)
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
@@ -1224,6 +1482,12 @@ class TardisResourceGovernor:
             self.gpu_eco_state_file = GPU_ECO_STATE_FILE
         else:
             self.gpu_eco_state_file = self.db_path.parent / "tardis_governor_gpu_eco.json"
+        if swap_recycle_state_file is not None:
+            self.swap_recycle_state_file = Path(swap_recycle_state_file)
+        elif self.db_path.resolve() == GOVERNOR_DB.resolve():
+            self.swap_recycle_state_file = SWAP_RECYCLE_STATE_FILE
+        else:
+            self.swap_recycle_state_file = self.db_path.parent / "tardis_governor_swap_recycle.json"
         self._lock = threading.Lock()
         self._last_level: Optional[str] = None
         self._green_streak: int = 0
@@ -1313,6 +1577,7 @@ class TardisResourceGovernor:
         ncpus = os.cpu_count() or 16
         call_active = _is_call_active()
         cgroup_pressure, oversubscribed_units = _inspect_cgroup_units()
+        inference_memory, memory_bloat_units = _inspect_service_memory_bloat()
 
         tb_active = Path("/tmp/temporal_brain.sock").exists()
         eb_active = Path("/tmp/embed_brain.sock").exists()
@@ -1415,6 +1680,12 @@ class TardisResourceGovernor:
                 f"Sobresuscripción de hilos en {top_ov['unit']} ({peak_th} hilos en {top_ov['effective_cpus']} CPUs)"
             )
 
+        if memory_bloat_units:
+            top_bl = memory_bloat_units[0]
+            reasons.append(
+                f"Swap-bloat en {top_bl['unit']} (RSS={top_bl['rss_mb']:.0f} MB, Swap={top_bl['swap_mb']:.0f} MB, Total={top_bl['total_mb']:.0f} MB)"
+            )
+
         sleep_mult = {"GREEN": 1.0, "YELLOW": 1.5, "ORANGE": 2.5, "RED": 5.0}[level]
         yolo_mult = {"GREEN": 1.0, "YELLOW": 1.5, "ORANGE": 2.5, "RED": 3.5}[level]
         admission = {
@@ -1464,8 +1735,11 @@ class TardisResourceGovernor:
             },
             "cgroup_pressure": cgroup_pressure[:8],
             "oversubscribed_units": oversubscribed_units,
+            "inference_memory": inference_memory,
+            "memory_bloat_units": memory_bloat_units,
             "throttling": self.get_throttle_status(),
             "gpu_eco": self.get_gpu_eco_status(),
+            "swap_recycle": self.get_swap_recycle_status(),
             "admission": admission,
         }
 
@@ -1951,6 +2225,203 @@ class TardisResourceGovernor:
             "iso": _now_iso(),
         }
 
+    def _load_swap_recycle_state(self) -> Dict[str, Any]:
+        try:
+            if self.swap_recycle_state_file.is_file():
+                data = json.loads(self.swap_recycle_state_file.read_text(encoding="utf-8"))
+                if isinstance(data, dict):
+                    return data
+        except Exception:
+            pass
+        return {"units": {}, "history": [], "updated_iso": ""}
+
+    def _save_swap_recycle_state(self, state: Dict[str, Any]) -> None:
+        _atomic_write_json(self.swap_recycle_state_file, state)
+
+    def get_swap_recycle_status(self) -> Dict[str, Any]:
+        st = self._load_swap_recycle_state()
+        units_map = st.get("units") if isinstance(st.get("units"), dict) else {}
+        return {
+            "enabled": _swap_recycle_control_enabled(),
+            "recycled_units": {
+                u: {
+                    "last_recycle_iso": info.get("last_recycle_iso", ""),
+                    "recycle_count": int(info.get("recycle_count", 0)),
+                    "last_swap_mb": info.get("last_swap_mb", 0.0),
+                    "last_total_mb": info.get("last_total_mb", 0.0),
+                }
+                for u, info in units_map.items()
+                if isinstance(info, dict)
+            },
+            "updated_iso": str(st.get("updated_iso") or ""),
+        }
+
+    def reconcile_swap_bloat(
+        self,
+        snap: Optional[Dict[str, Any]] = None,
+        *,
+        dry_run: bool = False,
+        force: bool = False,
+    ) -> Dict[str, Any]:
+        """
+        Detecta swap-bloat en servicios `llama-server` (`tardis-temporal-brain.service`,
+        `tardis-ollama-voice.service`) y ejecuta reciclaje seguro únicamente en reposo
+        verificado (0 slots activos, 0 clientes en :11435, sin llamada Telegram y respetando
+        uptime mínimo + cooldown) (`COEV-20261124-5B1F5C`).
+        """
+        if not force and not _swap_recycle_control_enabled():
+            return {"ok": True, "action": "disabled", "actions": [], "dry_run": dry_run, "iso": _now_iso()}
+
+        current_snap = snap if snap is not None else self.collect_snapshot(persist=False)
+        if bool(current_snap.get("call_priority_active", False)):
+            return {
+                "ok": True,
+                "action": "skipped_call_priority",
+                "actions": [],
+                "dry_run": dry_run,
+                "iso": _now_iso(),
+            }
+
+        bloated = [u for u in (current_snap.get("memory_bloat_units") or []) if u.get("recycle_eligible")]
+        if not bloated:
+            return {
+                "ok": True,
+                "action": "noop_no_swap_bloat",
+                "actions": [],
+                "inference_memory": current_snap.get("inference_memory") or [],
+                "dry_run": dry_run,
+                "iso": _now_iso(),
+            }
+
+        now = time.time()
+        actions: List[Dict[str, Any]] = []
+        errors: List[str] = []
+
+        with self._lock:
+            state = self._load_swap_recycle_state()
+            units_state: Dict[str, Dict[str, Any]] = dict(state.get("units") or {})
+            history: List[Dict[str, Any]] = list(state.get("history") or [])
+
+            for row in bloated:
+                unit = str(row.get("unit") or "")
+                spec = SWAP_BLOAT_UNITS.get(unit) or {}
+                min_up = float(spec.get("min_uptime_s", 600.0))
+                cooldown_s = float(spec.get("cooldown_s", 1800.0))
+                uptime_s = float(row.get("uptime_s", 0.0))
+                prev_info = units_state.get(unit) or {}
+                last_ts = float(prev_info.get("last_recycle_ts", 0.0))
+
+                if not force and uptime_s < min_up:
+                    actions.append({
+                        "unit": unit,
+                        "action": "deferred_min_uptime",
+                        "uptime_s": uptime_s,
+                        "min_uptime_s": min_up,
+                        "swap_mb": row.get("swap_mb", 0.0),
+                        "total_mb": row.get("total_mb", 0.0),
+                    })
+                    continue
+
+                if not force and last_ts > 0 and (now - last_ts) < cooldown_s:
+                    actions.append({
+                        "unit": unit,
+                        "action": "deferred_cooldown",
+                        "cooldown_remaining_s": round(cooldown_s - (now - last_ts), 1),
+                        "swap_mb": row.get("swap_mb", 0.0),
+                        "total_mb": row.get("total_mb", 0.0),
+                    })
+                    continue
+
+                idle_ok, idle_reason = _is_service_idle_for_recycle(unit, str(row.get("idle_kind") or spec.get("idle_kind") or ""))
+                if not idle_ok:
+                    actions.append({
+                        "unit": unit,
+                        "action": "deferred_busy",
+                        "idle_reason": idle_reason,
+                        "swap_mb": row.get("swap_mb", 0.0),
+                        "total_mb": row.get("total_mb", 0.0),
+                    })
+                    continue
+
+                if dry_run:
+                    actions.append({
+                        "unit": unit,
+                        "action": "would_recycle",
+                        "idle_reason": idle_reason,
+                        "swap_mb": row.get("swap_mb", 0.0),
+                        "total_mb": row.get("total_mb", 0.0),
+                    })
+                    continue
+
+                ok_rst, detail_rst = _restart_systemd_user_unit(unit)
+                if ok_rst:
+                    rec_entry = {
+                        "unit": unit,
+                        "action": "recycled",
+                        "idle_reason": idle_reason,
+                        "rss_before_mb": row.get("rss_mb", 0.0),
+                        "swap_before_mb": row.get("swap_mb", 0.0),
+                        "total_before_mb": row.get("total_mb", 0.0),
+                        "iso": _now_iso(),
+                    }
+                    actions.append(rec_entry)
+                    units_state[unit] = {
+                        "last_recycle_ts": now,
+                        "last_recycle_iso": rec_entry["iso"],
+                        "recycle_count": int(prev_info.get("recycle_count", 0)) + 1,
+                        "last_swap_mb": row.get("swap_mb", 0.0),
+                        "last_total_mb": row.get("total_mb", 0.0),
+                    }
+                    history.append(rec_entry)
+                else:
+                    errors.append(f"restart {unit}: {detail_rst}")
+                    actions.append({
+                        "unit": unit,
+                        "action": "recycle_error",
+                        "detail": detail_rst,
+                        "swap_mb": row.get("swap_mb", 0.0),
+                        "total_mb": row.get("total_mb", 0.0),
+                    })
+
+            if not dry_run and any(a["action"] == "recycled" for a in actions):
+                state["units"] = units_state
+                state["history"] = history[-30:]
+                state["updated_iso"] = _now_iso()
+                self._save_swap_recycle_state(state)
+
+        recycled_units = [a for a in actions if a["action"] == "recycled"]
+        if not dry_run and recycled_units:
+            try:
+                from core.tardis_event_bus import get_event_bus
+
+                get_event_bus().publish(
+                    "governor.reclaim",
+                    "tardis_resource_governor",
+                    {
+                        "kind": "swap_bloat_recycled",
+                        "recycled_units": recycled_units,
+                    },
+                    severity="INFO",
+                    dedup_key="swap_bloat_recycled|" + ",".join(sorted(a["unit"] for a in recycled_units)),
+                    dedup_window_s=300.0,
+                )
+            except Exception:
+                pass
+
+        top_action = (
+            "recycled"
+            if recycled_units
+            else (actions[0]["action"] if actions else "noop_no_swap_bloat")
+        )
+        return {
+            "ok": len(errors) == 0,
+            "action": top_action,
+            "actions": actions,
+            "errors": errors,
+            "dry_run": dry_run,
+            "iso": _now_iso(),
+        }
+
     def release_throttling(
         self,
         *,
@@ -2223,6 +2694,11 @@ class TardisResourceGovernor:
                     "power_profile_action": "unchanged",
                 }
 
+        # 2.5. Reciclaje seguro en reposo ante swap-bloat de motores llama-server (COEV-20261124-5B1F5C)
+        swap_recycle_result = self.reconcile_swap_bloat(snap_before, dry_run=dry_run)
+        for err in swap_recycle_result.get("errors") or []:
+            errors.append(f"swap_recycle: {err}")
+
         # 3. Podar/archivar backups `.bak*` redundantes o antiguos en GODWORKS SYSTEM raíz y core/
         pruned_count = 0
         pruned_bytes = 0
@@ -2287,6 +2763,7 @@ class TardisResourceGovernor:
             "dry_run": dry_run,
             "models_evicted": evicted,
             "throttling": throttling_result,
+            "swap_recycle": swap_recycle_result,
             "oversubscribed_units": oversubscribed_after,
             "backups_pruned": pruned_count,
             "backups_archived": archived_count,

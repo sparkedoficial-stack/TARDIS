@@ -17,7 +17,7 @@ import uuid
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
-from fastapi import FastAPI, Request, Response, HTTPException, status, Depends
+from fastapi import FastAPI, Request, Response, HTTPException, status, Depends, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse, FileResponse
 from pydantic import BaseModel, Field
@@ -724,6 +724,12 @@ def create_app() -> FastAPI:
         try:
             from core.background_thought_engine import get_background_thought_engine
             get_background_thought_engine().start()
+        except Exception:
+            pass
+
+        try:
+            from core.mundo_sin_censura_hardware import get_mundo_hardware_controller
+            get_mundo_hardware_controller().ensure_runtime_armed()
         except Exception:
             pass
 
@@ -3336,7 +3342,9 @@ iframe{border:none;width:100%;height:100%;}</style></head>
     async def get_governor_status_endpoint(fresh: bool = False):
         from core.tardis_resource_governor import get_resource_governor
         gov = get_resource_governor()
-        return gov.collect_snapshot(persist=True) if fresh else gov.read_fast_snapshot()
+        return await asyncio.to_thread(
+            lambda: gov.collect_snapshot(persist=True) if fresh else gov.read_fast_snapshot()
+        )
 
     @app.get("/api/governor/admit")
     async def get_governor_admit_endpoint(task_class: str = "heavy_learning"):
@@ -3377,7 +3385,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
     @app.get("/api/bus/stats")
     async def get_bus_stats_endpoint():
         from core.tardis_event_bus import get_event_bus
-        return get_event_bus().stats()
+        return await asyncio.to_thread(lambda: get_event_bus().stats())
 
     @app.get("/api/bus/events")
     async def get_bus_events_endpoint(topic: Optional[str] = None, severity: Optional[str] = None, limit: int = 40):
@@ -3398,7 +3406,8 @@ iframe{border:none;width:100%;height:100%;}</style></head>
     @app.get("/api/canary/history")
     async def get_canary_history_endpoint(limit: int = 20):
         from core.tardis_canary_verifier import get_canary_verifier
-        return {"ok": True, "history": get_canary_verifier().history(limit=limit)}
+        hist = await asyncio.to_thread(lambda: get_canary_verifier().history(limit=limit))
+        return {"ok": True, "history": hist}
 
     @app.post("/api/canary/verify")
     async def post_canary_verify_endpoint(payload: Dict[str, Any]):
@@ -3420,7 +3429,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
     @app.get("/api/cache/stats")
     async def get_semantic_cache_stats_endpoint():
         from core.tardis_semantic_cache import get_semantic_cache
-        return get_semantic_cache().stats()
+        return await asyncio.to_thread(lambda: get_semantic_cache().stats())
 
     @app.post("/api/cache/lookup")
     async def post_semantic_cache_lookup_endpoint(payload: Dict[str, Any]):
@@ -3475,7 +3484,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
     @app.get("/api/eval/status")
     async def get_eval_status_endpoint():
         from core.tardis_eval_harness import get_eval_harness
-        return get_eval_harness().status()
+        return await asyncio.to_thread(lambda: get_eval_harness().status())
 
     @app.get("/api/eval/history")
     async def get_eval_history_endpoint(limit: int = 20):
@@ -3506,7 +3515,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
     @app.get("/api/compactor/status")
     async def get_compactor_status_endpoint():
         from core.tardis_memory_compactor import get_memory_compactor
-        return get_memory_compactor().status()
+        return await asyncio.to_thread(lambda: get_memory_compactor().status())
 
     @app.get("/api/compactor/history")
     async def get_compactor_history_endpoint(limit: int = 15):
@@ -3530,7 +3539,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
     @app.get("/api/coevolution/status")
     async def get_coevolution_status_endpoint():
         from core.tardis_agy_coevolution import get_coevolution_engine
-        return get_coevolution_engine().get_status()
+        return await asyncio.to_thread(lambda: get_coevolution_engine().get_status())
 
     @app.get("/api/coevolution/proposals")
     async def get_coevolution_proposals_endpoint(status: str = "all", limit: int = 25):
@@ -3604,7 +3613,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
     @app.get("/api/mundo_sin_censura/status")
     async def get_mundo_sin_censura_status_endpoint():
         from core.mundo_sin_censura import get_mundo_sin_censura
-        return get_mundo_sin_censura().get_status()
+        return await asyncio.to_thread(lambda: get_mundo_sin_censura().get_status())
 
     @app.get("/api/mundo_sin_censura/analyze")
     async def get_mundo_sin_censura_analyze_endpoint():
@@ -3712,6 +3721,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
             temperature=float(body.get("temperature", 0.25)),
             max_tokens=int(body.get("max_tokens", 1024)),
             use_rag=bool(body.get("use_rag", False)),
+            hardware_control=bool(body.get("hardware_control", True)),
         )
         return {"ok": True, "session": sess}
 
@@ -3737,6 +3747,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
             temperature=payload.get("temperature"),
             max_tokens=payload.get("max_tokens"),
             use_rag=payload.get("use_rag"),
+            hardware_control=payload.get("hardware_control"),
         )
         if not sess:
             raise HTTPException(status_code=404, detail=f"Sesión no encontrada: {session_id}")
@@ -3775,7 +3786,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
         return {"ok": True, "cancelled": get_mundo_chat_store().cancel_stream(rid), "request_id": rid}
 
     @app.post("/api/mundo_sin_censura/chat/stream")
-    async def stream_mundo_chat_endpoint(payload: Dict[str, Any]):
+    async def stream_mundo_chat_endpoint(payload: Dict[str, Any], request: Request):
         from core.mundo_sin_censura_chat import get_mundo_chat_store, enforce_model_lock, ModelLockError
         import threading as _threading
 
@@ -3787,6 +3798,11 @@ iframe{border:none;width:100%;height:100%;}</style></head>
         prompt_txt = str(payload.get("message") or payload.get("prompt") or "").strip()
         if not prompt_txt:
             raise HTTPException(status_code=400, detail="Se requiere 'message' o 'prompt'.")
+
+        has_proxy = any(h in request.headers for h in ("cf-connecting-ip", "x-forwarded-for", "x-real-ip", "forwarded"))
+        client_host = request.client.host if request.client else ""
+        is_local = (not has_proxy) and (client_host in ("127.0.0.1", "localhost", "::1", "testclient"))
+        is_sovereign = is_local or is_request_authorized(dict(request.headers), dict(request.query_params), client_ip=client_host)
 
         store = get_mundo_chat_store()
         loop = asyncio.get_event_loop()
@@ -3803,6 +3819,10 @@ iframe{border:none;width:100%;height:100%;}</style></head>
                     max_tokens=payload.get("max_tokens"),
                     num_ctx=int(payload.get("num_ctx", 8192)),
                     use_rag=payload.get("use_rag"),
+                    hardware_control=payload.get("hardware_control"),
+                    voice_mode=bool(payload.get("voice_mode", False)),
+                    extra_system=payload.get("extra_system"),
+                    is_local_request=is_sovereign,
                     timeout=float(payload.get("timeout", 180.0)),
                     request_id=payload.get("request_id"),
                 ):
@@ -3826,6 +3846,516 @@ iframe{border:none;width:100%;height:100%;}</style></head>
             _sse_gen(),
             media_type="text/event-stream",
             headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+        )
+
+    # --------------------------------------------------------------------------
+    # CONVERSACIÓN POR VOZ CONTINUA FULL-DUPLEX PARA "UN MUNDO SIN CENSURA"
+    # --------------------------------------------------------------------------
+
+    @app.get("/api/mundo_sin_censura/voice/status")
+    async def get_mundo_voice_status_endpoint():
+        from core.mundo_sin_censura_voice import get_mundo_voice_status
+        return get_mundo_voice_status()
+
+    @app.post("/api/mundo_sin_censura/voice/warmup")
+    async def post_mundo_voice_warmup_endpoint(payload: Optional[Dict[str, Any]] = None):
+        from core.mundo_sin_censura_chat import enforce_model_lock, ModelLockError, MODEL_LOCK
+        from core.mundo_sin_censura_voice import get_mundo_stt
+        body = payload or {}
+        try:
+            enforce_model_lock(body.get("model"))
+        except ModelLockError as e:
+            raise HTTPException(status_code=403, detail=str(e))
+        loop = asyncio.get_event_loop()
+        secs = await loop.run_in_executor(None, lambda: get_mundo_stt().warmup())
+        return {"ok": True, "model": MODEL_LOCK, "warmup_seconds": round(secs, 3)}
+
+    @app.post("/api/mundo_sin_censura/voice/transcribe")
+    async def post_mundo_voice_transcribe_endpoint(payload: Dict[str, Any]):
+        from core.mundo_sin_censura_chat import enforce_model_lock, ModelLockError, MODEL_LOCK
+        from core.mundo_sin_censura_voice import get_mundo_stt
+        try:
+            enforce_model_lock(payload.get("model"))
+        except ModelLockError as e:
+            raise HTTPException(status_code=403, detail=str(e))
+        b64 = str(payload.get("audio_base64") or "").strip()
+        if not b64:
+            raise HTTPException(status_code=400, detail="Se requiere 'audio_base64'.")
+        try:
+            audio_bytes = base64.b64decode(b64)
+        except Exception:
+            raise HTTPException(status_code=400, detail="audio_base64 inválido.")
+        fmt = str(payload.get("format") or "wav")
+        lang = str(payload.get("language") or "es")
+        loop = asyncio.get_event_loop()
+        text, elapsed = await loop.run_in_executor(
+            None,
+            lambda: get_mundo_stt().transcribe_audio_bytes(
+                audio_bytes, audio_format=fmt, language=lang
+            ),
+        )
+        return {
+            "ok": True,
+            "model": MODEL_LOCK,
+            "text": text,
+            "stt_ms": int(round(elapsed * 1000)),
+        }
+
+    @app.post("/api/mundo_sin_censura/voice/tts")
+    async def post_mundo_voice_tts_endpoint(payload: Dict[str, Any]):
+        from core.mundo_sin_censura_chat import enforce_model_lock, ModelLockError
+        from core.mundo_sin_censura_voice import synthesize_tts_bytes_async
+        try:
+            enforce_model_lock(payload.get("model"))
+        except ModelLockError as e:
+            raise HTTPException(status_code=403, detail=str(e))
+        text = str(payload.get("text") or "").strip()
+        if not text:
+            raise HTTPException(status_code=400, detail="Se requiere 'text'.")
+        audio_bytes, mime = await synthesize_tts_bytes_async(
+            text,
+            voice=payload.get("voice"),
+            rate=payload.get("rate", "+8%"),
+        )
+        if not audio_bytes:
+            raise HTTPException(status_code=503, detail="No se pudo sintetizar audio TTS.")
+        return Response(
+            content=audio_bytes,
+            media_type=mime,
+            headers={"Cache-Control": "no-store"},
+        )
+
+    @app.websocket("/api/mundo_sin_censura/voice/ws")
+    async def mundo_voice_websocket_endpoint(ws: WebSocket):
+        import threading as _threading
+        from core.mundo_sin_censura_chat import (
+            get_mundo_chat_store,
+            enforce_model_lock,
+            ModelLockError,
+            MODEL_LOCK,
+            normalize_lane,
+        )
+        from core.mundo_sin_censura_voice import (
+            AVAILABLE_VOICES,
+            DEFAULT_VOICE,
+            clean_for_mundo_speech,
+            extract_ready_sentence,
+            get_mundo_stt,
+            get_mundo_voice_status,
+            normalize_speech_rate,
+            resolve_voice_id,
+            synthesize_tts_bytes_async,
+        )
+
+        await ws.accept()
+        send_lock = asyncio.Lock()
+
+        async def _send_json(obj: Dict[str, Any]) -> bool:
+            try:
+                async with send_lock:
+                    await ws.send_json(obj)
+                return True
+            except Exception:
+                return False
+
+        has_proxy = any(h in ws.headers for h in ("cf-connecting-ip", "x-forwarded-for", "x-real-ip", "forwarded"))
+        client_host = ws.client.host if ws.client else ""
+        is_local = (not has_proxy) and (client_host in ("127.0.0.1", "localhost", "::1", "testclient"))
+        is_sovereign = is_local or is_request_authorized(dict(ws.headers), dict(ws.query_params), client_ip=client_host)
+
+        cfg: Dict[str, Any] = {
+            "session_id": None,
+            "lane": "auto",
+            "temperature": 0.25,
+            "max_tokens": 512,
+            "use_rag": False,
+            "hardware_control": True,
+            "voice": DEFAULT_VOICE,
+            "rate": "+8%",
+            "language": "es",
+            "tts_enabled": True,
+        }
+
+        store = get_mundo_chat_store()
+        active_task: Optional[asyncio.Task] = None
+        active_cancel_ev: Optional[_threading.Event] = None
+        active_rid_box: Dict[str, Optional[str]] = {"id": None}
+
+        async def _cancel_active(notify: bool = False) -> None:
+            nonlocal active_task, active_cancel_ev
+            if active_cancel_ev is not None:
+                active_cancel_ev.set()
+            if active_rid_box["id"]:
+                store.cancel_stream(active_rid_box["id"])
+                active_rid_box["id"] = None
+            if active_task is not None and not active_task.done():
+                active_task.cancel()
+                try:
+                    await asyncio.wait_for(active_task, timeout=1.5)
+                except (asyncio.CancelledError, asyncio.TimeoutError, Exception):
+                    pass
+            active_task = None
+            active_cancel_ev = None
+            if notify:
+                await _send_json({"type": "interrupted"})
+                await _send_json({"type": "state", "state": "listening"})
+
+        async def _run_text_turn(user_text: str, cancel_ev: _threading.Event) -> None:
+            loop = asyncio.get_event_loop()
+            ev_q: asyncio.Queue[Optional[Dict[str, Any]]] = asyncio.Queue()
+            tts_tasks_q: asyncio.Queue[Optional[Tuple[int, str, asyncio.Task]]] = asyncio.Queue()
+            tts_enabled = bool(cfg.get("tts_enabled", True))
+            voice_id = str(cfg["voice"])
+            rate_str = str(cfg["rate"])
+            turn_session_id = cfg["session_id"]
+
+            await _send_json({"type": "state", "state": "thinking"})
+
+            def _llm_worker() -> None:
+                try:
+                    for ev in store.stream_turn(
+                        session_id=turn_session_id,
+                        message=user_text,
+                        model=MODEL_LOCK,
+                        lane=str(cfg["lane"]),
+                        temperature=float(cfg["temperature"]),
+                        max_tokens=int(cfg["max_tokens"]),
+                        use_rag=bool(cfg["use_rag"]),
+                        hardware_control=bool(cfg["hardware_control"]),
+                        voice_mode=True,
+                        is_local_request=is_sovereign,
+                        timeout=180.0,
+                    ):
+                        if ev.get("type") == "meta":
+                            active_rid_box["id"] = ev.get("request_id")
+                            if cancel_ev.is_set() and active_rid_box["id"]:
+                                store.cancel_stream(active_rid_box["id"])
+                                break
+                        loop.call_soon_threadsafe(ev_q.put_nowait, ev)
+                        if cancel_ev.is_set():
+                            if active_rid_box["id"]:
+                                store.cancel_stream(active_rid_box["id"])
+                            break
+                except Exception as exc:
+                    loop.call_soon_threadsafe(ev_q.put_nowait, {"type": "error", "error": str(exc)})
+                finally:
+                    loop.call_soon_threadsafe(ev_q.put_nowait, None)
+
+            _threading.Thread(target=_llm_worker, daemon=True).start()
+
+            async def _tts_sender() -> None:
+                first_sent = False
+                while True:
+                    item = await tts_tasks_q.get()
+                    if item is None:
+                        break
+                    seq, sent_text, task = item
+                    if cancel_ev.is_set():
+                        task.cancel()
+                        continue
+                    try:
+                        audio_bytes, mime = await task
+                    except asyncio.CancelledError:
+                        continue
+                    except Exception:
+                        continue
+                    if cancel_ev.is_set() or not audio_bytes:
+                        continue
+                    if not first_sent:
+                        first_sent = True
+                        await _send_json({"type": "state", "state": "speaking"})
+                    await _send_json({
+                        "type": "audio_chunk",
+                        "seq": seq,
+                        "text": sent_text,
+                        "mime": mime,
+                        "data": base64.b64encode(audio_bytes).decode("ascii"),
+                        "session_id": cfg["session_id"],
+                        "request_id": active_rid_box["id"],
+                    })
+
+            tts_sender_task = asyncio.create_task(_tts_sender()) if tts_enabled else None
+            pending_buf = ""
+            seq_idx = 0
+            done_event: Optional[Dict[str, Any]] = None
+
+            def _enqueue_sentence(sentence_raw: str) -> None:
+                nonlocal seq_idx
+                if not tts_enabled or cancel_ev.is_set():
+                    return
+                clean = clean_for_mundo_speech(sentence_raw)
+                if not clean:
+                    return
+                t = asyncio.create_task(
+                    synthesize_tts_bytes_async(clean, voice=voice_id, rate=rate_str)
+                )
+                tts_tasks_q.put_nowait((seq_idx, clean, t))
+                seq_idx += 1
+
+            try:
+                while True:
+                    ev = await ev_q.get()
+                    if ev is None:
+                        break
+                    if cancel_ev.is_set():
+                        break
+                    etype = ev.get("type")
+                    if etype == "meta":
+                        if ev.get("session_id"):
+                            cfg["session_id"] = ev["session_id"]
+                        await _send_json(ev)
+                    elif etype == "token":
+                        delta = str(ev.get("delta") or "")
+                        if delta:
+                            await _send_json(ev)
+                            if tts_enabled:
+                                pending_buf += delta
+                                while True:
+                                    ready, pending_buf = extract_ready_sentence(
+                                        pending_buf, is_first=(seq_idx == 0)
+                                    )
+                                    if not ready:
+                                        break
+                                    _enqueue_sentence(ready)
+                    elif etype in ("hardware_action", "hardware_result", "error"):
+                        await _send_json(ev)
+                    elif etype == "done":
+                        done_event = ev
+
+                if tts_enabled and not cancel_ev.is_set() and pending_buf.strip():
+                    _enqueue_sentence(pending_buf)
+
+                if tts_sender_task is not None:
+                    await tts_tasks_q.put(None)
+                    await tts_sender_task
+
+                if not cancel_ev.is_set():
+                    active_rid_box["id"] = None
+                    if done_event is not None:
+                        done_event["audio_chunks"] = seq_idx
+                        await _send_json(done_event)
+                    else:
+                        await _send_json({
+                            "type": "done",
+                            "session_id": cfg["session_id"],
+                            "model": MODEL_LOCK,
+                            "audio_chunks": seq_idx,
+                            "cancelled": False,
+                            "ok": True,
+                        })
+                    if seq_idx == 0:
+                        await _send_json({"type": "state", "state": "listening"})
+            except asyncio.CancelledError:
+                cancel_ev.set()
+                if active_rid_box["id"]:
+                    store.cancel_stream(active_rid_box["id"])
+                    active_rid_box["id"] = None
+                if tts_sender_task is not None and not tts_sender_task.done():
+                    tts_sender_task.cancel()
+                raise
+
+        async def _run_audio_turn(
+            audio_bytes: bytes,
+            audio_format: str,
+            language: str,
+            cancel_ev: _threading.Event,
+        ) -> None:
+            loop = asyncio.get_event_loop()
+            await _send_json({"type": "state", "state": "transcribing"})
+            try:
+                text, elapsed = await loop.run_in_executor(
+                    None,
+                    lambda: get_mundo_stt().transcribe_audio_bytes(
+                        audio_bytes,
+                        audio_format=audio_format,
+                        language=language,
+                    ),
+                )
+            except Exception as exc:
+                await _send_json({"type": "error", "error": f"Error STT local: {exc}"})
+                await _send_json({"type": "state", "state": "listening"})
+                return
+
+            if cancel_ev.is_set():
+                return
+            stt_ms = int(round(elapsed * 1000))
+            if not text:
+                await _send_json({"type": "no_speech", "stt_ms": stt_ms})
+                await _send_json({"type": "state", "state": "listening"})
+                return
+
+            await _send_json({
+                "type": "transcript",
+                "text": text,
+                "stt_ms": stt_ms,
+                "session_id": cfg["session_id"],
+            })
+            await _run_text_turn(text, cancel_ev)
+
+        await _send_json({
+            "type": "ready",
+            "model": MODEL_LOCK,
+            "voices": AVAILABLE_VOICES,
+            "default_voice": DEFAULT_VOICE,
+            "status": get_mundo_voice_status(),
+        })
+
+        try:
+            while True:
+                msg = await ws.receive()
+                mtype = msg.get("type")
+                if mtype == "websocket.disconnect":
+                    break
+
+                if msg.get("bytes") is not None:
+                    raw_audio: bytes = msg["bytes"]
+                    if not raw_audio:
+                        continue
+                    fmt = "pcm16"
+                    if raw_audio[:4] == b"RIFF" and raw_audio[8:12] == b"WAVE":
+                        fmt = "wav"
+                    elif raw_audio[:4] == b"\x1a\x45\xdf\xa3":
+                        fmt = "webm"
+                    elif raw_audio[:4] == b"OggS":
+                        fmt = "ogg"
+                    await _cancel_active(notify=False)
+                    active_cancel_ev = _threading.Event()
+                    active_task = asyncio.create_task(
+                        _run_audio_turn(raw_audio, fmt, str(cfg["language"]), active_cancel_ev)
+                    )
+                    continue
+
+                raw_txt = msg.get("text")
+                if not raw_txt:
+                    continue
+                try:
+                    data = json.loads(raw_txt)
+                except Exception:
+                    await _send_json({"type": "error", "error": "JSON inválido en canal de voz."})
+                    continue
+
+                ev_type = str(data.get("type") or "").strip().lower()
+                if ev_type == "ping":
+                    await _send_json({"type": "pong", "ts": time.time()})
+                elif ev_type == "warmup":
+                    loop = asyncio.get_event_loop()
+                    secs = await loop.run_in_executor(None, lambda: get_mundo_stt().warmup())
+                    await _send_json({"type": "warmup_done", "seconds": round(secs, 3)})
+                elif ev_type == "config":
+                    try:
+                        enforce_model_lock(data.get("model"))
+                    except ModelLockError as exc:
+                        await _send_json({"type": "error", "code": 403, "error": str(exc)})
+                        continue
+                    if "session_id" in data:
+                        cfg["session_id"] = data.get("session_id") or None
+                    if "lane" in data:
+                        cfg["lane"] = normalize_lane(data.get("lane"))
+                    if "temperature" in data and data["temperature"] is not None:
+                        cfg["temperature"] = max(0.0, min(1.5, float(data["temperature"])))
+                    if "max_tokens" in data and data["max_tokens"] is not None:
+                        cfg["max_tokens"] = max(64, min(4096, int(data["max_tokens"])))
+                    if "use_rag" in data:
+                        cfg["use_rag"] = bool(data["use_rag"])
+                    if "hardware_control" in data:
+                        cfg["hardware_control"] = bool(data["hardware_control"])
+                    if "voice" in data and data["voice"]:
+                        cfg["voice"] = resolve_voice_id(str(data["voice"]))
+                    if "rate" in data:
+                        cfg["rate"] = normalize_speech_rate(data["rate"])
+                    if "language" in data and data["language"]:
+                        cfg["language"] = str(data["language"])
+                    if "tts_enabled" in data:
+                        cfg["tts_enabled"] = bool(data["tts_enabled"])
+                    await _send_json({"type": "config_ack", "model": MODEL_LOCK, "config": dict(cfg)})
+                elif ev_type == "interrupt":
+                    await _cancel_active(notify=True)
+                elif ev_type == "audio":
+                    b64 = str(data.get("data") or "").strip()
+                    if not b64:
+                        continue
+                    try:
+                        audio_bytes = base64.b64decode(b64)
+                    except Exception:
+                        await _send_json({"type": "error", "error": "Audio base64 inválido."})
+                        continue
+                    fmt = str(data.get("format") or "wav")
+                    lang = str(data.get("language") or cfg["language"])
+                    await _cancel_active(notify=False)
+                    active_cancel_ev = _threading.Event()
+                    active_task = asyncio.create_task(
+                        _run_audio_turn(audio_bytes, fmt, lang, active_cancel_ev)
+                    )
+                elif ev_type == "text":
+                    txt = str(data.get("text") or "").strip()
+                    if not txt:
+                        continue
+                    await _cancel_active(notify=False)
+                    active_cancel_ev = _threading.Event()
+                    active_task = asyncio.create_task(_run_text_turn(txt, active_cancel_ev))
+        except WebSocketDisconnect:
+            pass
+        finally:
+            await _cancel_active(notify=False)
+
+    # --------------------------------------------------------------------------
+    # CONTROL ABSOLUTO DE HARDWARE PARA "UN MUNDO SIN CENSURA" (RING-0 RUNTIME)
+    # --------------------------------------------------------------------------
+
+    def _is_mundo_hw_authorized(request: Request) -> bool:
+        has_proxy = any(h in request.headers for h in ("cf-connecting-ip", "x-forwarded-for", "x-real-ip", "forwarded"))
+        client_host = request.client.host if request.client else ""
+        is_local = (not has_proxy) and (client_host in ("127.0.0.1", "localhost", "::1", "testclient"))
+        if is_local:
+            return True
+        return is_request_authorized(dict(request.headers), dict(request.query_params), client_ip=client_host)
+
+    @app.get("/api/mundo_sin_censura/hardware/status")
+    async def get_mundo_hw_status_endpoint():
+        from core.mundo_sin_censura_hardware import get_mundo_hardware_controller
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, lambda: get_mundo_hardware_controller().get_full_hardware_telemetry())
+
+    @app.get("/api/mundo_sin_censura/hardware/capabilities")
+    async def get_mundo_hw_capabilities_endpoint():
+        from core.mundo_sin_censura_hardware import get_mundo_hardware_controller
+        return get_mundo_hardware_controller().get_capabilities()
+
+    @app.get("/api/mundo_sin_censura/hardware/audit")
+    async def get_mundo_hw_audit_endpoint(limit: int = 50):
+        from core.mundo_sin_censura_hardware import get_mundo_hardware_controller
+        entries = get_mundo_hardware_controller().get_audit_log(limit=limit)
+        return {"ok": True, "count": len(entries), "entries": entries}
+
+    @app.post("/api/mundo_sin_censura/hardware/mode")
+    async def post_mundo_hw_mode_endpoint(payload: Dict[str, Any], request: Request):
+        from core.mundo_sin_censura_hardware import get_mundo_hardware_controller
+        if not _is_mundo_hw_authorized(request):
+            raise HTTPException(status_code=403, detail="Control de hardware reservado al host local o sesión soberana.")
+        return get_mundo_hardware_controller().set_mode(
+            enabled=payload.get("enabled"),
+            ring0_enabled=payload.get("ring0_enabled"),
+            agentic_hw_in_chat=payload.get("agentic_hw_in_chat"),
+            auto_arm_on_startup=payload.get("auto_arm_on_startup"),
+        )
+
+    @app.post("/api/mundo_sin_censura/hardware/action")
+    async def post_mundo_hw_action_endpoint(payload: Dict[str, Any], request: Request):
+        from core.mundo_sin_censura_hardware import get_mundo_hardware_controller
+        act = str(payload.get("action") or "").strip()
+        if not act:
+            raise HTTPException(status_code=400, detail="Se requiere 'action'.")
+        params = payload.get("params") if isinstance(payload.get("params"), dict) else {}
+        is_allowed = _is_mundo_hw_authorized(request)
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(
+            None,
+            lambda: get_mundo_hardware_controller().execute_action(
+                act,
+                params,
+                is_local_request=is_allowed,
+                source=str(payload.get("source") or "mundo_api"),
+            ),
         )
 
     # --------------------------------------------------------------------------
@@ -3911,6 +4441,42 @@ iframe{border:none;width:100%;height:100%;}</style></head>
         chat_id = req.chat_id if req else None
         speech = (req.speech or req.message) if req else None
         return tb.make_call(chat_id=chat_id, initial_speech=speech)
+
+    @app.post("/api/telegram/videocall")
+    @app.post("/api/videocall/start")
+    async def post_telegram_videocall_endpoint(req: Optional[TelegramCallRequest] = None):
+        from core.telegram_bridge import get_telegram_bridge
+        tb = get_telegram_bridge()
+        chat_id = req.chat_id if req else None
+        speech = (req.speech or req.message) if req else None
+        return tb.make_video_call(chat_id=chat_id, initial_speech=speech)
+
+    @app.get("/api/videocall/status")
+    async def get_videocall_status_endpoint():
+        from core.telegram_live_call_server import build_live_call_url, build_live_videocall_url
+        live_health: Dict[str, Any] = {}
+        try:
+            import httpx as _httpx
+            async with _httpx.AsyncClient(timeout=2.5) as _cli:
+                r = await _cli.get("http://127.0.0.1:8796/tg-call/health")
+                if r.status_code == 200:
+                    live_health = r.json()
+        except Exception as exc:
+            live_health = {"ok": False, "error": str(exc)}
+        return {
+            "ok": True,
+            "video_call_ready": bool(live_health.get("video_call_ready", live_health.get("ok"))),
+            "local_url": "http://127.0.0.1:8796/videollamada",
+            "public_videocall_url": live_health.get("public_videocall_url") or build_live_videocall_url(chat_id="menu"),
+            "public_call_url": live_health.get("public_call_url") or build_live_call_url(chat_id="menu"),
+            "live_server": live_health,
+        }
+
+    @app.get("/videollamada")
+    async def redirect_videollamada_endpoint(request: Request):
+        from fastapi.responses import RedirectResponse
+        host = (request.headers.get("host") or "127.0.0.1:8757").split(":")[0]
+        return RedirectResponse(url=f"http://{host}:8796/videollamada")
 
     @app.post("/api/telegram/end_call")
     @app.post("/api/telegram/hangup")
@@ -4326,7 +4892,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
             from core.cyberdefense_sentinel import get_cyberdefense_sentinel
             from dataclasses import asdict
             sentinel = get_cyberdefense_sentinel()
-            assessment = sentinel.assess_security_state()
+            assessment = await asyncio.to_thread(sentinel.assess_security_state)
             return {"ok": True, **asdict(assessment)}
         except Exception as e:
             return {"ok": False, "error": str(e)}
@@ -4607,7 +5173,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
             return {"ok": True, "stopped": True, "error": str(e)}
 
     @app.get("/api/voice/tts_audio")
-    async def get_voice_tts_audio_endpoint(text: str, voice: Optional[str] = "es-MX-DaliaNeural"):
+    async def get_voice_tts_audio_endpoint(text: str, voice: Optional[str] = "es_MX-claude-high"):
         try:
             import voice as _v
             if hasattr(_v, "synthesize_to_bytes_async"):
@@ -4615,10 +5181,543 @@ iframe{border:none;width:100%;height:100%;}</style></head>
             else:
                 audio_bytes = _v.synthesize_to_bytes(text, voice=voice)
             if audio_bytes:
-                return Response(content=audio_bytes, media_type="audio/mpeg")
-            raise HTTPException(status_code=500, detail="Error sintetizando audio con Cortana")
+                media_type = "audio/wav" if audio_bytes[:4] == b"RIFF" else "audio/mpeg"
+                return Response(content=audio_bytes, media_type=media_type)
+            raise HTTPException(status_code=500, detail="Error sintetizando audio")
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Fallo en síntesis TTS: {e}")
+
+    # --------------------------------------------------------------------------
+    # MOTOR RESIDENTE DE VOZ LOCAL FLUIDA TARDIS (STT CUDA + ABSTRACCIÓN + PIPER)
+    # --------------------------------------------------------------------------
+
+    @app.get("/api/voice/local/status")
+    async def get_local_voice_status_endpoint():
+        from core.tardis_voice_engine import get_sovereign_voice_status
+        return get_sovereign_voice_status()
+
+    @app.post("/api/voice/local/warmup")
+    async def post_local_voice_warmup_endpoint(payload: Optional[Dict[str, Any]] = None):
+        from core.tardis_voice_engine import get_sovereign_stt, get_sovereign_tts
+        body = payload or {}
+        voice = body.get("voice")
+        mode = body.get("tts_mode") or "local"
+        loop = asyncio.get_event_loop()
+        stt_s = await loop.run_in_executor(None, lambda: get_sovereign_stt().warmup())
+        tts_s = await loop.run_in_executor(None, lambda: get_sovereign_tts(mode=mode).warmup(voice=voice))
+        stt = get_sovereign_stt()
+        return {
+            "ok": True,
+            "stt_warmup_s": round(stt_s, 3),
+            "tts_warmup_s": round(tts_s, 3),
+            "stt_device": stt.active_device,
+            "stt_model": stt.model_size,
+            "tts_mode": mode,
+        }
+
+    @app.get("/api/voice/local/dictation_live")
+    async def get_local_voice_dictation_live_endpoint():
+        from core.tardis_voice_engine import get_live_dictation_tracker
+        return {"ok": True, **get_live_dictation_tracker().snapshot()}
+
+    @app.post("/api/voice/local/transcribe")
+    async def post_local_voice_transcribe_endpoint(payload: Dict[str, Any]):
+        from core.tardis_voice_engine import (
+            get_live_dictation_tracker,
+            get_sovereign_stt,
+            get_voice_abstractor,
+        )
+        audio_path = str(payload.get("audio_path") or "").strip()
+        b64 = str(payload.get("audio_base64") or "").strip()
+        fmt = str(payload.get("format") or "wav")
+        lang = str(payload.get("language") or "es")
+        dictation_mode = bool(payload.get("dictation_mode", False))
+        context_hint = str(payload.get("context_hint") or "").strip()
+        do_abstract = bool(payload.get("abstract", True))
+        is_partial = bool(payload.get("partial", False))
+        source = str(payload.get("source") or "api_local").strip() or "api_local"
+        rms = float(payload.get("rms") or 0.0)
+
+        if not audio_path and not b64:
+            raise HTTPException(status_code=400, detail="Se requiere 'audio_base64' o 'audio_path'.")
+
+        abstractor = get_voice_abstractor()
+        if not context_hint:
+            context_hint = abstractor.get_stt_context_hint()
+
+        stt = get_sovereign_stt()
+        tracker = get_live_dictation_tracker()
+        loop = asyncio.get_event_loop()
+
+        if audio_path:
+            p = Path(audio_path)
+            if not p.is_file():
+                raise HTTPException(status_code=404, detail=f"Audio no encontrado: {audio_path}")
+
+            def _run_file():
+                if is_partial:
+                    pcm = stt.decode_to_pcm16k(p.read_bytes(), suffix=p.suffix or ".wav")
+                    return stt.transcribe_pcm_partial(
+                        pcm, language=lang, context_hint=context_hint, dictation_mode=dictation_mode
+                    )
+                return stt.transcribe_file(
+                    p, language=lang, context_hint=context_hint, dictation_mode=dictation_mode
+                )
+
+            res = await loop.run_in_executor(None, _run_file)
+        else:
+            try:
+                audio_bytes = base64.b64decode(b64)
+            except Exception:
+                raise HTTPException(status_code=400, detail="audio_base64 inválido.")
+
+            def _run_bytes():
+                if fmt.strip().lower().lstrip(".") in ("pcm", "pcm16", "s16le", "raw"):
+                    pcm = audio_bytes
+                else:
+                    pcm = stt.decode_to_pcm16k(audio_bytes, suffix=f".{fmt.lstrip('.')}")
+                if is_partial:
+                    return stt.transcribe_pcm_partial(
+                        pcm, language=lang, context_hint=context_hint, dictation_mode=dictation_mode
+                    )
+                return stt.transcribe_pcm_detailed(
+                    pcm, language=lang, context_hint=context_hint, dictation_mode=dictation_mode
+                )
+
+            res = await loop.run_in_executor(None, _run_bytes)
+
+        stt_ms = int(round(res.elapsed_s * 1000))
+        if is_partial:
+            if res.text:
+                tracker.update_partial(res.text, source=source, rms=rms, stt_ms=stt_ms)
+            return {
+                "ok": True,
+                "partial": True,
+                "text": res.text,
+                "raw_text": res.raw_text,
+                "stt_ms": stt_ms,
+                "seconds": round(res.elapsed_s, 3),
+                "device": res.device,
+                "model": res.model,
+                "corrections": res.corrections,
+            }
+
+        if res.text:
+            tracker.commit_final(res.text, source=source, stt_ms=stt_ms)
+        else:
+            tracker.clear_active()
+
+        abs_dict = None
+        if do_abstract and res.text:
+            abs_obj = abstractor.abstract(res.text, allow_system_actions=False)
+            abs_dict = abs_obj.to_dict()
+
+        return {
+            "ok": True,
+            "partial": False,
+            "text": res.text,
+            "raw_text": res.raw_text,
+            "stt_ms": stt_ms,
+            "seconds": round(res.elapsed_s, 3),
+            "device": res.device,
+            "model": res.model,
+            "avg_logprob": res.avg_logprob,
+            "no_speech_prob": res.no_speech_prob,
+            "audio_metrics": res.audio_metrics,
+            "corrections": res.corrections,
+            "abstraction": abs_dict,
+        }
+
+    @app.post("/api/voice/local/transcribe_partial")
+    async def post_local_voice_transcribe_partial_endpoint(payload: Dict[str, Any]):
+        p = dict(payload)
+        p["partial"] = True
+        p["abstract"] = False
+        return await post_local_voice_transcribe_endpoint(p)
+
+    @app.post("/api/voice/local/abstract")
+    async def post_local_voice_abstract_endpoint(payload: Dict[str, Any]):
+        from core.tardis_voice_engine import get_voice_abstractor
+        text = str(payload.get("text") or "").strip()
+        if not text:
+            raise HTTPException(status_code=400, detail="Se requiere 'text'.")
+        allow_actions = bool(payload.get("allow_system_actions", False))
+        abs_obj = get_voice_abstractor().abstract(text, allow_system_actions=allow_actions)
+        out = abs_obj.to_dict()
+        out["instant_reply"] = abs_obj.instant_reply
+        out["system_guidance"] = abs_obj.system_guidance
+        return {"ok": True, **out}
+
+    @app.post("/api/voice/local/tts")
+    async def post_local_voice_tts_endpoint(payload: Dict[str, Any]):
+        from core.tardis_voice_engine import get_sovereign_tts
+        text = str(payload.get("text") or "").strip()
+        if not text:
+            raise HTTPException(status_code=400, detail="Se requiere 'text'.")
+        mode = str(payload.get("mode") or "local").strip().lower()
+        voice = payload.get("voice")
+        rate = payload.get("rate", "+6%")
+        style_hint = str(payload.get("style_hint") or "").strip()
+        include_timings = bool(payload.get("include_timings", False))
+
+        tts_eng = get_sovereign_tts(mode=mode)
+        loop = asyncio.get_event_loop()
+        seg = await loop.run_in_executor(
+            None,
+            lambda: tts_eng.synthesize_synced_segment(
+                text, voice=voice, rate=rate, mode=mode, style_hint=style_hint
+            ),
+        )
+        if seg is None or not seg.encoded_bytes:
+            raise HTTPException(status_code=503, detail="No se pudo sintetizar audio TTS local.")
+
+        if include_timings:
+            return {
+                "ok": True,
+                "audio_base64": base64.b64encode(seg.encoded_bytes).decode("ascii"),
+                "mime": seg.mime,
+                "sample_rate": seg.sample_rate,
+                "duration_ms": seg.duration_ms,
+                "prosody": seg.prosody.style,
+                "display_text": seg.display_text,
+                "spoken_text": seg.spoken_text,
+                "word_timings": [w.to_dict() for w in seg.word_timings],
+            }
+
+        return Response(
+            content=seg.encoded_bytes,
+            media_type=seg.mime,
+            headers={
+                "Cache-Control": "no-store",
+                "X-Tardis-Duration-Ms": str(seg.duration_ms),
+                "X-Tardis-Prosody": seg.prosody.style,
+            },
+        )
+
+    @app.websocket("/api/voice/local/ws")
+    async def local_voice_websocket_endpoint(ws: WebSocket):
+        """Canal WebSocket full-duplex 100% local para conversación fluida con TARDIS."""
+        import threading as _threading
+        from core.tardis_voice_engine import (
+            DEFAULT_LOCAL_VOICE,
+            VoiceAbstractionEngine,
+            extract_streaming_sentence,
+            get_sovereign_stt,
+            get_sovereign_tts,
+            get_sovereign_voice_status,
+            get_voice_llm_router,
+            prepare_text_for_speech,
+        )
+
+        await ws.accept()
+        send_lock = asyncio.Lock()
+        abstractor = VoiceAbstractionEngine()
+        history: List[Dict[str, str]] = []
+        cfg: Dict[str, Any] = {
+            "voice": DEFAULT_LOCAL_VOICE,
+            "tts_mode": "local",
+            "rate": "+6%",
+            "language": "es",
+            "lane": "auto",
+            "tts_enabled": True,
+            "dictation_mode": False,
+        }
+
+        async def _send(obj: Dict[str, Any]) -> None:
+            try:
+                async with send_lock:
+                    await ws.send_json(obj)
+            except Exception:
+                pass
+
+        active_task: Optional[asyncio.Task] = None
+        active_cancel: Optional[_threading.Event] = None
+
+        async def _cancel(notify: bool = False) -> None:
+            nonlocal active_task, active_cancel
+            if active_cancel is not None:
+                active_cancel.set()
+            if active_task is not None and not active_task.done():
+                active_task.cancel()
+                try:
+                    await asyncio.wait_for(active_task, timeout=1.5)
+                except Exception:
+                    pass
+            active_task = None
+            active_cancel = None
+            if notify:
+                await _send({"type": "interrupted"})
+                await _send({"type": "state", "state": "listening"})
+
+        async def _run_text_turn(user_text: str, cancel_ev: _threading.Event) -> None:
+            loop = asyncio.get_event_loop()
+            abs_obj = abstractor.abstract(user_text, allow_system_actions=True)
+            norm_text = abs_obj.normalized_text or user_text
+            await _send({"type": "abstraction", **abs_obj.to_dict()})
+
+            tts_eng = get_sovereign_tts(mode=str(cfg["tts_mode"]))
+
+            if abs_obj.instant_reply is not None:
+                reply_txt = abs_obj.instant_reply
+                if reply_txt:
+                    await _send({"type": "token", "delta": reply_txt})
+                    if cfg["tts_enabled"]:
+                        seg = await loop.run_in_executor(
+                            None,
+                            lambda: tts_eng.synthesize_synced_segment(
+                                reply_txt,
+                                voice=cfg["voice"],
+                                rate=cfg["rate"],
+                                mode=cfg["tts_mode"],
+                                style_hint=abs_obj.response_style,
+                            ),
+                        )
+                        if seg and seg.encoded_bytes and not cancel_ev.is_set():
+                            await _send({"type": "state", "state": "speaking"})
+                            await _send({
+                                "type": "audio_chunk",
+                                "seq": 0,
+                                "text": seg.spoken_text,
+                                "display_text": seg.display_text,
+                                "mime": seg.mime,
+                                "sample_rate": seg.sample_rate,
+                                "duration_ms": seg.duration_ms,
+                                "prosody": seg.prosody.style,
+                                "word_timings": [w.to_dict() for w in seg.word_timings],
+                                "data": base64.b64encode(seg.encoded_bytes).decode("ascii"),
+                            })
+                await _send({"type": "done", "ok": True, "lane": "instant", "reply": reply_txt})
+                await _send({"type": "state", "state": "listening"})
+                return
+
+            await _send({"type": "state", "state": "thinking"})
+            sys_prompt = (
+                "Eres TARDIS en conversación de voz local fluida en español de México. "
+                f"Responde en máximo {abs_obj.max_sentences} oraciones naturales sin Markdown ni tablas. "
+                f"[ABSTRACCIÓN]: {abs_obj.system_guidance}"
+            )
+            msgs = [{"role": "system", "content": sys_prompt}] + history[-16:] + [
+                {"role": "user", "content": abs_obj.resolved_query or norm_text}
+            ]
+
+            ev_q: asyncio.Queue[Optional[str]] = asyncio.Queue()
+            tts_q: asyncio.Queue[Optional[Tuple[int, str, asyncio.Task]]] = asyncio.Queue()
+            router = get_voice_llm_router()
+            chosen_lane_box = {"lane": str(cfg["lane"])}
+
+            def _llm_worker() -> None:
+                try:
+                    lane_used, it = router.stream_reply(
+                        msgs,
+                        user_text=norm_text,
+                        max_tokens=abs_obj.max_tokens,
+                        temperature=0.30,
+                        lane=str(cfg["lane"]),
+                        cancel_event=cancel_ev,
+                    )
+                    chosen_lane_box["lane"] = lane_used
+                    for tok in it:
+                        if cancel_ev.is_set():
+                            break
+                        loop.call_soon_threadsafe(ev_q.put_nowait, tok)
+                except Exception as exc:
+                    loop.call_soon_threadsafe(ev_q.put_nowait, f"Error local: {exc}")
+                finally:
+                    loop.call_soon_threadsafe(ev_q.put_nowait, None)
+
+            _threading.Thread(target=_llm_worker, daemon=True).start()
+
+            async def _tts_sender() -> None:
+                first_sent = False
+                while True:
+                    item = await tts_q.get()
+                    if item is None:
+                        break
+                    seq, stxt, task = item
+                    if cancel_ev.is_set():
+                        task.cancel()
+                        continue
+                    try:
+                        seg = await task
+                    except Exception:
+                        continue
+                    if cancel_ev.is_set() or seg is None or not seg.encoded_bytes:
+                        continue
+                    if not first_sent:
+                        first_sent = True
+                        await _send({"type": "state", "state": "speaking"})
+                    await _send({
+                        "type": "audio_chunk",
+                        "seq": seq,
+                        "text": seg.spoken_text,
+                        "display_text": seg.display_text,
+                        "mime": seg.mime,
+                        "sample_rate": seg.sample_rate,
+                        "duration_ms": seg.duration_ms,
+                        "prosody": seg.prosody.style,
+                        "word_timings": [w.to_dict() for w in seg.word_timings],
+                        "data": base64.b64encode(seg.encoded_bytes).decode("ascii"),
+                    })
+
+            tts_task = asyncio.create_task(_tts_sender()) if cfg["tts_enabled"] else None
+            pending_buf = ""
+            full_reply = ""
+            seq_idx = 0
+
+            def _enqueue(sraw: str) -> None:
+                nonlocal seq_idx
+                if not cfg["tts_enabled"] or cancel_ev.is_set():
+                    return
+                disp = (sraw or "").strip()
+                if not disp or not prepare_text_for_speech(disp):
+                    return
+                t = loop.run_in_executor(
+                    None,
+                    lambda d=disp: tts_eng.synthesize_synced_segment(
+                        d,
+                        voice=cfg["voice"],
+                        rate=cfg["rate"],
+                        mode=cfg["tts_mode"],
+                        style_hint=abs_obj.response_style,
+                    ),
+                )
+                tts_q.put_nowait((seq_idx, disp, t))
+                seq_idx += 1
+
+            while True:
+                tok = await ev_q.get()
+                if tok is None or cancel_ev.is_set():
+                    break
+                full_reply += tok
+                pending_buf += tok
+                await _send({"type": "token", "delta": tok})
+                if cfg["tts_enabled"]:
+                    while True:
+                        ready, pending_buf = extract_streaming_sentence(pending_buf, is_first=(seq_idx == 0))
+                        if not ready:
+                            break
+                        _enqueue(ready)
+
+            if cfg["tts_enabled"] and not cancel_ev.is_set() and pending_buf.strip():
+                _enqueue(pending_buf)
+            if tts_task is not None:
+                await tts_q.put(None)
+                await tts_task
+
+            if not cancel_ev.is_set():
+                clean_rep = full_reply.strip()
+                if clean_rep:
+                    history.append({"role": "user", "content": norm_text})
+                    history.append({"role": "assistant", "content": clean_rep})
+                    abstractor.record_assistant_reply(clean_rep)
+                await _send({
+                    "type": "done", "ok": True,
+                    "lane": chosen_lane_box["lane"],
+                    "reply": clean_rep, "audio_chunks": seq_idx,
+                })
+                await _send({"type": "state", "state": "listening"})
+
+        await _send({"type": "ready", "status": get_sovereign_voice_status()})
+
+        try:
+            while True:
+                msg = await ws.receive()
+                if msg.get("type") == "websocket.disconnect":
+                    break
+                if msg.get("bytes") is not None:
+                    raw_audio = msg["bytes"]
+                    if not raw_audio:
+                        continue
+                    fmt = "pcm16"
+                    if raw_audio[:4] == b"RIFF" and raw_audio[8:12] == b"WAVE":
+                        fmt = "wav"
+                    elif raw_audio[:4] == b"\x1a\x45\xdf\xa3":
+                        fmt = "webm"
+                    elif raw_audio[:4] == b"OggS":
+                        fmt = "ogg"
+                    await _cancel(notify=False)
+                    active_cancel = _threading.Event()
+                    cev = active_cancel
+
+                    async def _audio_job(raw_b=raw_audio, afmt=fmt, ev=cev):
+                        loop = asyncio.get_event_loop()
+                        await _send({"type": "state", "state": "transcribing"})
+                        stt = get_sovereign_stt()
+                        hint = abstractor.get_stt_context_hint()
+                        text, el = await loop.run_in_executor(
+                            None,
+                            lambda: stt.transcribe_audio_bytes(
+                                raw_b, audio_format=afmt, language=str(cfg["language"]),
+                                context_hint=hint, dictation_mode=bool(cfg["dictation_mode"]),
+                            ),
+                        )
+                        if ev.is_set():
+                            return
+                        if not text:
+                            await _send({"type": "no_speech", "stt_ms": int(round(el * 1000))})
+                            await _send({"type": "state", "state": "listening"})
+                            return
+                        await _send({"type": "transcript", "text": text, "stt_ms": int(round(el * 1000))})
+                        await _run_text_turn(text, ev)
+
+                    active_task = asyncio.create_task(_audio_job())
+                    continue
+
+                raw_txt = msg.get("text")
+                if not raw_txt:
+                    continue
+                try:
+                    data = json.loads(raw_txt)
+                except Exception:
+                    continue
+                ev_t = str(data.get("type") or "").strip().lower()
+                if ev_t == "ping":
+                    await _send({"type": "pong", "ts": time.time()})
+                elif ev_t == "interrupt":
+                    await _cancel(notify=True)
+                elif ev_t == "config":
+                    for k in ("voice", "tts_mode", "rate", "language", "lane", "tts_enabled", "dictation_mode"):
+                        if k in data and data[k] is not None:
+                            cfg[k] = data[k]
+                    abstractor.dictation_mode = bool(cfg["dictation_mode"])
+                    await _send({"type": "config_ack", "config": dict(cfg)})
+                elif ev_t == "audio_partial":
+                    b64_p = str(data.get("audio_base64") or "").strip()
+                    if b64_p:
+                        try:
+                            raw_p = base64.b64decode(b64_p)
+                            afmt_p = str(data.get("format") or "pcm16").strip().lower().lstrip(".")
+                            stt = get_sovereign_stt()
+                            hint = abstractor.get_stt_context_hint()
+                            loop = asyncio.get_event_loop()
+
+                            def _run_p():
+                                pcm = raw_p if afmt_p in ("pcm", "pcm16", "s16le", "raw") else stt.decode_to_pcm16k(raw_p, suffix=f".{afmt_p}")
+                                return stt.transcribe_pcm_partial(
+                                    pcm,
+                                    language=str(cfg["language"]),
+                                    context_hint=hint,
+                                    dictation_mode=bool(cfg["dictation_mode"]),
+                                )
+
+                            pres = await loop.run_in_executor(None, _run_p)
+                            if pres.text:
+                                from core.tardis_voice_engine import get_live_dictation_tracker
+                                p_ms = int(round(pres.elapsed_s * 1000))
+                                get_live_dictation_tracker().update_partial(pres.text, source="ws_local", stt_ms=p_ms)
+                                await _send({"type": "transcript_partial", "text": pres.text, "stt_ms": p_ms})
+                        except Exception:
+                            pass
+                elif ev_t == "text":
+                    txt = str(data.get("text") or "").strip()
+                    if txt:
+                        await _cancel(notify=False)
+                        active_cancel = _threading.Event()
+                        active_task = asyncio.create_task(_run_text_turn(txt, active_cancel))
+        except Exception:
+            pass
+        finally:
+            await _cancel(notify=False)
 
     @app.get("/api/voice/synthesize_timed")
     @app.post("/api/voice/synthesize_timed")
@@ -4644,6 +5743,185 @@ iframe{border:none;width:100%;height:100%;}</style></head>
         except Exception as e:
             return {"ok": False, "error": str(e), "word_timings": []}
 
+
+    # --------------------------------------------------------------------------
+    # NAVEGADOR SOBERANO INTEGRADO, INVESTIGACIÓN Y AUTONOMÍA LIBRE DE TARDIS
+    # --------------------------------------------------------------------------
+
+    @app.get("/api/browser/state")
+    async def get_sovereign_browser_state_endpoint():
+        from core.tardis_sovereign_browser_agent import get_sovereign_browser_hub
+        return get_sovereign_browser_hub().get_state()
+
+    @app.get("/api/browser/commands/poll")
+    async def poll_sovereign_browser_commands_endpoint(since: int = 0):
+        from core.tardis_sovereign_browser_agent import get_sovereign_browser_hub
+        return get_sovereign_browser_hub().poll_commands(since=since)
+
+    @app.post("/api/browser/report")
+    async def report_sovereign_browser_ui_endpoint(payload: Dict[str, Any]):
+        from core.tardis_sovereign_browser_agent import get_sovereign_browser_hub
+        return get_sovereign_browser_hub().report_from_ui(payload)
+
+    @app.post("/api/browser/navigate")
+    async def navigate_sovereign_browser_endpoint(payload: Dict[str, Any]):
+        from core.tardis_sovereign_browser_agent import get_sovereign_browser_hub
+        url = str(payload.get("url") or "").strip()
+        if not url:
+            raise HTTPException(status_code=400, detail="Se requiere 'url'.")
+        return get_sovereign_browser_hub().navigate(
+            url,
+            pilot=str(payload.get("pilot") or "tardis"),
+            open_ui=bool(payload.get("open_ui", True)),
+            new_tab=bool(payload.get("new_tab", False)),
+        )
+
+    @app.post("/api/browser/search")
+    async def search_sovereign_browser_endpoint(payload: Dict[str, Any]):
+        from core.tardis_sovereign_browser_agent import get_sovereign_browser_hub
+        query = str(payload.get("query") or "").strip()
+        if not query:
+            raise HTTPException(status_code=400, detail="Se requiere 'query'.")
+        return get_sovereign_browser_hub().search(
+            query,
+            engine=str(payload.get("engine") or "duckduckgo"),
+            pilot=str(payload.get("pilot") or "tardis"),
+            open_ui=bool(payload.get("open_ui", True)),
+        )
+
+    @app.post("/api/browser/action")
+    async def action_sovereign_browser_endpoint(payload: Dict[str, Any]):
+        from core.tardis_sovereign_browser_agent import get_sovereign_browser_hub
+        hub = get_sovereign_browser_hub()
+        action = str(payload.get("action") or "").strip().lower()
+        pilot = str(payload.get("pilot") or "tardis")
+        if not action:
+            raise HTTPException(status_code=400, detail="Se requiere 'action'.")
+
+        if action == "click":
+            return hub.click(
+                selector=str(payload.get("selector") or ""),
+                text=str(payload.get("text") or ""),
+                pilot=pilot,
+            )
+        if action == "type":
+            return hub.type_text(
+                selector=str(payload.get("selector") or ""),
+                text=str(payload.get("text") or ""),
+                submit=bool(payload.get("submit", True)),
+                pilot=pilot,
+            )
+        if action == "scroll":
+            return hub.scroll(
+                direction=str(payload.get("direction") or "down"),
+                amount=int(payload.get("amount") or 720),
+                pilot=pilot,
+            )
+        if action == "eval_js":
+            loop = asyncio.get_event_loop()
+            return await loop.run_in_executor(
+                None,
+                lambda: hub.eval_js(
+                    str(payload.get("script") or ""),
+                    pilot=pilot,
+                    wait_s=float(payload.get("wait_s", 2.0)),
+                ),
+            )
+        if action == "read_page":
+            loop = asyncio.get_event_loop()
+            return await loop.run_in_executor(None, hub.read_current_page)
+        if action == "take_control":
+            return hub.take_manual_control()
+        if action in ("back", "forward", "reload", "new_tab", "switch_tab", "close_tab", "open_ui", "close_ui", "extract_dom"):
+            params = {k: v for k, v in payload.items() if k not in ("action", "pilot")}
+            cmd = hub.dispatch_command(
+                action,
+                params,
+                pilot=pilot,
+                detail=str(payload.get("detail") or f"Acción navegador: {action}"),
+                open_ui=(action == "open_ui" or bool(payload.get("open_ui", False))),
+            )
+            return {"ok": True, "command": cmd}
+        raise HTTPException(status_code=400, detail=f"Acción no soportada: {action}")
+
+    @app.post("/api/browser/investigate")
+    async def investigate_sovereign_browser_endpoint(payload: Dict[str, Any]):
+        from core.tardis_sovereign_browser_agent import get_sovereign_browser_hub
+        hub = get_sovereign_browser_hub()
+        topic = str(payload.get("topic") or payload.get("query") or "").strip()
+        mode = str(payload.get("mode") or "research").strip().lower()
+        url = str(payload.get("url") or "").strip()
+        max_pages = int(payload.get("max_pages") or 3)
+        pilot = str(payload.get("pilot") or "tardis")
+        open_ui = bool(payload.get("open_ui", True))
+        use_llm = bool(payload.get("use_llm", True))
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(
+            None,
+            lambda: hub.investigate_and_conclude(
+                topic=topic,
+                mode=mode,
+                url=url,
+                max_pages=max_pages,
+                pilot=pilot,
+                open_ui=open_ui,
+                use_llm=use_llm,
+            ),
+        )
+
+    @app.post("/api/browser/conclude_current")
+    async def conclude_current_browser_page_endpoint(payload: Dict[str, Any]):
+        from core.tardis_sovereign_browser_agent import get_sovereign_browser_hub
+        hub = get_sovereign_browser_hub()
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(
+            None,
+            lambda: hub.conclude_current_page(
+                url=str(payload.get("url") or ""),
+                title=str(payload.get("title") or ""),
+                text=str(payload.get("text") or ""),
+                links=payload.get("links") if isinstance(payload.get("links"), list) else None,
+                pilot=str(payload.get("pilot") or "tardis"),
+                use_llm=bool(payload.get("use_llm", True)),
+            ),
+        )
+
+    @app.get("/api/browser/conclusions")
+    async def get_sovereign_browser_conclusions_endpoint(limit: int = 25):
+        from core.tardis_sovereign_browser_agent import get_sovereign_browser_hub
+        concs = get_sovereign_browser_hub().get_conclusions(limit=limit)
+        return {"ok": True, "count": len(concs), "conclusions": concs}
+
+    @app.get("/api/browser/actions")
+    async def get_sovereign_browser_actions_endpoint(limit: int = 40):
+        from core.tardis_sovereign_browser_agent import get_sovereign_browser_hub
+        acts = get_sovereign_browser_hub().get_actions(limit=limit)
+        return {"ok": True, "count": len(acts), "actions": acts}
+
+    @app.post("/api/browser/autonomy")
+    async def control_sovereign_browser_autonomy_endpoint(payload: Dict[str, Any]):
+        from core.tardis_sovereign_browser_agent import get_sovereign_browser_hub
+        hub = get_sovereign_browser_hub()
+        out: Dict[str, Any] = {"ok": True}
+        if "enabled" in payload or "interval_s" in payload:
+            out.update(
+                hub.set_autonomy(
+                    bool(payload.get("enabled", hub.get_state()["autonomous_enabled"])),
+                    interval_s=payload.get("interval_s"),
+                )
+            )
+        if bool(payload.get("run_now", False)):
+            hint = str(payload.get("custom_goal") or payload.get("hint") or "").strip()
+            open_ui = bool(payload.get("open_ui", True))
+            use_llm = bool(payload.get("use_llm", True))
+            loop = asyncio.get_event_loop()
+            res = await loop.run_in_executor(
+                None,
+                lambda: hub.run_free_will_session(custom_hint=hint, open_ui=open_ui, use_llm=use_llm),
+            )
+            out["session"] = res
+            out["ok"] = bool(res.get("ok", True))
+        return out
 
     # --------------------------------------------------------------------------
     # RETROALIMENTACIÓN ACTIVA, AUTO-MEJORA Y PUENTE ANTIGRAVITY
@@ -5786,6 +7064,20 @@ iframe{border:none;width:100%;height:100%;}</style></head>
                     emo_dict = req.affective_state.dict()
                 elif isinstance(req.affective_state, dict):
                     emo_dict = req.affective_state
+
+            # Control directo del Navegador Soberano Integrado desde Chat o Voz
+            if is_local:
+                try:
+                    from core.tardis_sovereign_browser_agent import try_handle_browser_chat_command
+                    loop = asyncio.get_event_loop()
+                    browser_hit = await loop.run_in_executor(None, lambda: try_handle_browser_chat_command(msg))
+                    if browser_hit is not None:
+                        browser_hit.setdefault("request_id", request_id)
+                        browser_hit.setdefault("client_id", client_id)
+                        browser_hit.setdefault("model", target_model)
+                        return browser_hit
+                except Exception as exc_b:
+                    logger.debug("Aviso en interceptor de navegador: %s", exc_b)
 
             # Si omni_temporal_control tiene el pipeline completo de sensores y RAG
             try:

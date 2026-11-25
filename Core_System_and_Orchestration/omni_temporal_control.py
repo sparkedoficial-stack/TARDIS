@@ -9857,6 +9857,7 @@ def start_http_server(port: int = PORT):
     class ThreadedHTTPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
         allow_reuse_address = True
         daemon_threads = True
+        request_queue_size = 128
 
     try:
         httpd = ThreadedHTTPServer((bind_host, chosen_port), OmniTemporalHTTPHandler)

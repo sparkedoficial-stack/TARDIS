@@ -608,10 +608,11 @@ class TardisAgyCoevolutionEngine:
                             ev_rel = json.loads(prow["evidence_json"] or "{}")
                         except Exception:
                             ev_rel = {}
-                        sid_prev = str(ev_rel.get("id") or "")
-                        if not sid_prev and ev_rel.get("topic") == "health.regression":
+                        if ev_rel.get("topic") == "health.regression":
                             pl_prev = ev_rel.get("payload") or {}
                             sid_prev = str(pl_prev.get("subsystem") or "")
+                        else:
+                            sid_prev = str(ev_rel.get("id") or "")
                         if sid_prev and sid_prev in online_subs:
                             conn.execute(
                                 """

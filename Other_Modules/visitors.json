@@ -429,5 +429,50 @@
     "seen_capsules": [],
     "known_facts": [],
     "last_reason": ""
+  },
+  "como dije": {
+    "key": "como dije",
+    "name": "como dije",
+    "visit_count": 1,
+    "first_seen": REDACTED_PHONE.0074372,
+    "first_seen_iso": "2026-11-25T15:18:22-0500",
+    "last_seen": REDACTED_PHONE.0074372,
+    "last_seen_iso": "2026-11-25T15:18:22-0500",
+    "pedagogical_level": "intermedio",
+    "interests": [],
+    "topics_studied": [],
+    "seen_capsules": [],
+    "known_facts": [],
+    "last_reason": "um"
+  },
+  "okay": {
+    "key": "okay",
+    "name": "okay",
+    "visit_count": 1,
+    "first_seen": REDACTED_PHONE.087324,
+    "first_seen_iso": "2026-11-25T15:22:53-0500",
+    "last_seen": REDACTED_PHONE.087324,
+    "last_seen_iso": "2026-11-25T15:22:53-0500",
+    "pedagogical_level": "intermedio",
+    "interests": [],
+    "topics_studied": [],
+    "seen_capsules": [],
+    "known_facts": [],
+    "last_reason": ""
+  },
+  "de que": {
+    "key": "de que",
+    "name": "de que",
+    "visit_count": 1,
+    "first_seen": REDACTED_PHONE.2774084,
+    "first_seen_iso": "2026-11-25T16:06:08-0500",
+    "last_seen": REDACTED_PHONE.2774084,
+    "last_seen_iso": "2026-11-25T16:06:08-0500",
+    "pedagogical_level": "intermedio",
+    "interests": [],
+    "topics_studied": [],
+    "seen_capsules": [],
+    "known_facts": [],
+    "last_reason": ""
   }
 }

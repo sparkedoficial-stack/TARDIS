@@ -1,8 +1,8 @@
 {
-  "current_url": "https://lite.duckduckgo.com/lite/",
-  "current_title": "TARDIS Sovereign Browser",
-  "autonomous_enabled": false,
+  "current_url": "https://duckduckgo.com/?q=Contrapuntos+y+desarrollos+recientes+relacionados+con+Contrapuntos+y+desarrollos+recientes+relacionados+con+noticias+más+importantes+de+tecnología%2C+ciencia+y+actualidad+mundial+hoy",
+  "current_title": "Cargando…",
+  "autonomous_enabled": true,
   "autonomous_interval_s": 240.0,
-  "autonomous_cycles_completed": 0,
-  "updated_at": REDACTED_PHONE.8498385
+  "autonomous_cycles_completed": 24,
+  "updated_at": REDACTED_PHONE.012057
 }

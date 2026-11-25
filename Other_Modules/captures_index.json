@@ -1,5 +1,43 @@
 [
   {
+    "id": "capture_1795637358_LAN_tapo_c310_god_eye.jpg",
+    "timestamp": REDACTED_PHONE.2945063,
+    "iso_time": "2026-11-25T15:09:18-0500",
+    "terminal_id": "tapo_c310_god_eye",
+    "terminal_name": "GOD-EYE · Tapo C310 (REDACTED_IP)",
+    "origin": "LAN",
+    "client_ip": "REDACTED_IP",
+    "country": "LAN",
+    "resolution": "2304x1296 -> 1280x720",
+    "filename": "capture_1795637358_LAN_tapo_c310_god_eye.jpg",
+    "file_path": "/home/m11/Escritorio/GODWORKS SYSTEM/data/terminal_captures/capture_1795637358_LAN_tapo_c310_god_eye.jpg",
+    "size_bytes": 301862,
+    "biometrics": {
+      "persons_detected": 0,
+      "max_confidence": 0.0,
+      "mood_state": "Perímetro Despejado"
+    }
+  },
+  {
+    "id": "capture_1795637228_LAN_tapo_c310_god_eye.jpg",
+    "timestamp": REDACTED_PHONE.361513,
+    "iso_time": "2026-11-25T15:07:08-0500",
+    "terminal_id": "tapo_c310_god_eye",
+    "terminal_name": "GOD-EYE · Tapo C310 (REDACTED_IP)",
+    "origin": "LAN",
+    "client_ip": "REDACTED_IP",
+    "country": "LAN",
+    "resolution": "2304x1296 -> 1280x720",
+    "filename": "capture_1795637228_LAN_tapo_c310_god_eye.jpg",
+    "file_path": "/home/m11/Escritorio/GODWORKS SYSTEM/data/terminal_captures/capture_1795637228_LAN_tapo_c310_god_eye.jpg",
+    "size_bytes": 301640,
+    "biometrics": {
+      "persons_detected": 0,
+      "max_confidence": 0.0,
+      "mood_state": "Perímetro Despejado"
+    }
+  },
+  {
     "id": "capture_1795636963_LAN_tapo_c310_god_eye.jpg",
     "timestamp": REDACTED_PHONE.9245028,
     "iso_time": "2026-11-25T15:02:43-0500",
@@ -3669,37 +3707,5 @@
       "faces_count": 1,
       "primary": "happy"
     }
-  },
-  {
-    "id": "capture_1789546214_INTERNET_test_user_capture_terminal_99.jpg",
-    "timestamp": REDACTED_PHONE.4598367,
-    "iso_time": "2026-09-16T03:10:14-0500",
-    "terminal_id": "test_user_capture_terminal_99",
-    "terminal_name": "iPhone 16 Pro Max",
-    "origin": "INTERNET",
-    "client_ip": "REDACTED_IP",
-    "country": "MX",
-    "resolution": "1280x720",
-    "filename": "capture_1789546214_INTERNET_test_user_capture_terminal_99.jpg",
-    "file_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/data/terminal_captures/capture_1789546214_INTERNET_test_user_capture_terminal_99.jpg",
-    "size_bytes": 134,
-    "biometrics": {
-      "primary": "focused"
-    }
-  },
-  {
-    "id": "capture_1789546213_INTERNET_test_cf_tunnel_camera.jpg",
-    "timestamp": REDACTED_PHONE.6488957,
-    "iso_time": "2026-09-16T03:10:13-0500",
-    "terminal_id": "test_cf_tunnel_camera",
-    "terminal_name": "iPhone Remoto Internet",
-    "origin": "INTERNET",
-    "client_ip": "REDACTED_IP",
-    "country": "ES",
-    "resolution": "1280x720",
-    "filename": "capture_1789546213_INTERNET_test_cf_tunnel_camera.jpg",
-    "file_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/data/terminal_captures/capture_1789546213_INTERNET_test_cf_tunnel_camera.jpg",
-    "size_bytes": 134,
-    "biometrics": {}
   }
 ]

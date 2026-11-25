@@ -68,11 +68,11 @@ USER_AGENT = (
 
 # Fuentes abiertas fiables (RSS / Atom / APIs limpias sin CAPTCHA) para noticias y exploración libre
 NEWS_RSS_FEEDS: List[Tuple[str, str]] = [
-    ("Google News ES", "https://news.google.com/rss?hl=es-419&gl=MX&ceid=MX:es-419"),
     ("BBC Mundo", "https://feeds.bbci.co.uk/mundo/rss.xml"),
     ("Hacker News", "https://hnrss.org/frontpage?count=12"),
     ("ArXiv AI", "https://export.arxiv.org/rss/cs.AI"),
     ("ScienceDaily", "https://www.sciencedaily.com/rss/top/technology.xml"),
+    ("Google News ES", "https://news.google.com/rss?hl=es-419&gl=MX&ceid=MX:es-419"),
 ]
 
 FREE_WILL_SEEDS: List[Tuple[str, str]] = [
@@ -281,19 +281,24 @@ def _parse_rss_or_xml(xml_text: str, source_url: str) -> Tuple[str, str, List[Di
 
 
 def fetch_live_news_headlines(topic: str = "", limit: int = 10) -> List[Dict[str, str]]:
-    """Recolecta titulares reales en vivo desde fuentes RSS abiertas (Google News, BBC Mundo, HN, arXiv)."""
+    """Recolecta titulares reales en vivo desde fuentes RSS abiertas (BBC Mundo, HN, arXiv, ScienceDaily, Google News)."""
     feeds: List[Tuple[str, str]] = []
     q = (topic or "").strip()
-    if q:
+    is_generic = (not q) or any(
+        k in q.lower() for k in ("noticias más importantes", "noticias de hoy", "actualidad mundial", "noticias hoy")
+    )
+    if q and not is_generic:
         enc = urllib.parse.quote_plus(q)
         feeds.append((f"Google News ({q})", f"https://news.google.com/rss/search?q={enc}&hl=es-419&gl=MX&ceid=MX:es-419"))
-        feeds.append((f"Google News EN ({q})", f"https://news.google.com/rss/search?q={enc}&hl=en-US&gl=US&ceid=US:en"))
-    feeds.extend(NEWS_RSS_FEEDS[:3])
+        feeds.extend(NEWS_RSS_FEEDS[:3])
+    else:
+        # Priorizar fuentes directas con artículos completos (BBC Mundo, Hacker News, ArXiv, ScienceDaily)
+        feeds.extend(NEWS_RSS_FEEDS[:4])
 
     out: List[Dict[str, str]] = []
     seen = set()
     headers = {"User-Agent": USER_AGENT}
-    with httpx.Client(timeout=10.0, follow_redirects=True, headers=headers) as client:
+    with httpx.Client(timeout=6.0, follow_redirects=True, headers=headers) as client:
         for label, feed_url in feeds:
             if len(out) >= limit:
                 break
@@ -303,6 +308,7 @@ def fetch_live_news_headlines(topic: str = "", limit: int = 10) -> List[Dict[str
                     continue
                 _ft, text, links = _parse_rss_or_xml(r.text, feed_url)
                 lines = [ln.lstrip("• ").strip() for ln in text.splitlines() if ln.strip()]
+                per_feed = 0
                 for idx, lk in enumerate(links):
                     u = lk["url"]
                     if u in seen:
@@ -314,7 +320,8 @@ def fetch_live_news_headlines(topic: str = "", limit: int = 10) -> List[Dict[str
                         "url": u,
                         "snippet": lines[idx] if idx < len(lines) else lk["text"],
                     })
-                    if len(out) >= limit:
+                    per_feed += 1
+                    if len(out) >= limit or (is_generic and per_feed >= 3):
                         break
             except Exception as exc:
                 logger.debug("Feed %s omitido: %s", label, exc)
@@ -410,14 +417,15 @@ def discover_web_sources(query: str, mode: str = "research", max_sources: int = 
 # 3. SÍNTESIS DE CONCLUSIONES PROPIAS DE TARDIS (LLM LOCAL + FALLBACK ROBUSTO)
 # ==============================================================================
 
-def _call_local_llm_json(system_prompt: str, user_prompt: str, max_tokens: int = 420) -> Optional[str]:
+def _call_local_llm_json(system_prompt: str, user_prompt: str, max_tokens: int = 300) -> Optional[str]:
     """
     Consulta el cerebro local de TARDIS priorizando el carril rápido GPU (:11435,
-    num_gpu=22, num_ctx=3072) o TemporalBrain UDS para síntesis epistémica.
+    num_gpu=22, num_ctx=3072, format=json) o TemporalBrain UDS para síntesis epistémica
+    con tiempos de espera acotados para mantener respuesta fluida en el navegador.
     """
     # 1. Carril GPU dedicado :11435 (alineado con num_gpu=22 / num_ctx=3072 -> cero recargas)
     try:
-        with httpx.Client(timeout=httpx.Timeout(38.0, connect=1.5)) as c:
+        with httpx.Client(timeout=httpx.Timeout(16.0, connect=1.2)) as c:
             r = c.post(
                 "http://127.0.0.1:11435/api/chat",
                 json={
@@ -426,6 +434,7 @@ def _call_local_llm_json(system_prompt: str, user_prompt: str, max_tokens: int =
                         {"role": "system", "content": system_prompt},
                         {"role": "user", "content": user_prompt},
                     ],
+                    "format": "json",
                     "stream": False,
                     "keep_alive": -1,
                     "options": {
@@ -444,12 +453,12 @@ def _call_local_llm_json(system_prompt: str, user_prompt: str, max_tokens: int =
     except Exception as exc:
         logger.debug("LLM :11435 omitido en síntesis navegador: %s", exc)
 
-    # 2. TemporalBrain UDS (/tmp/temporal_brain.sock) si tiene slot libre
+    # 2. TemporalBrain UDS (/tmp/temporal_brain.sock) solo si tiene slot libre
     sock = Path(os.environ.get("TEMPORAL_BRAIN_SOCKET", "/tmp/temporal_brain.sock"))
     if sock.exists():
         try:
             transport = httpx.HTTPTransport(uds=str(sock))
-            with httpx.Client(transport=transport, base_url="http://localhost", timeout=httpx.Timeout(30.0, connect=1.0)) as c:
+            with httpx.Client(transport=transport, base_url="http://localhost", timeout=httpx.Timeout(14.0, connect=1.0)) as c:
                 sl = c.get("/slots")
                 if sl.status_code == 200 and any(not s.get("is_processing") for s in (sl.json() or [])):
                     r = c.post(
@@ -1053,21 +1062,33 @@ class SovereignBrowserHub:
                 self.search(focus, engine=("news" if m == "news" else "duckduckgo"), pilot=pilot, open_ui=True)
 
             discovered = discover_web_sources(focus, mode=("news" if m == "news" else "research"), max_sources=max(1, min(5, int(max_pages))))
-            for idx, src in enumerate(discovered):
+            if open_ui and discovered:
+                self.navigate(discovered[0]["url"], pilot=pilot, open_ui=True)
+
+            from concurrent.futures import ThreadPoolExecutor
+
+            def _fetch_one(src: Dict[str, str]) -> Dict[str, Any]:
                 src_url = src["url"]
-                if open_ui and idx == 0:
-                    self.navigate(src_url, pilot=pilot, open_ui=True)
-                fetched = fetch_page_fast(src_url, timeout=11.0)
-                if fetched.get("ok") and len(fetched.get("text") or "") >= 120:
-                    documents.append(fetched)
-                else:
-                    # Conservar al menos titular y snippet RSS si el sitio exige JS pesado
-                    documents.append({
+                # Google News RSS wrapper URLs usan redirección JS; aprovechar snippet RSS directo
+                if "news.google.com/rss/articles/" in src_url:
+                    return {
                         "url": src_url,
                         "title": src.get("title") or src_url,
                         "text": src.get("snippet") or src.get("title") or "",
-                    })
-                if open_ui and idx == 0:
+                    }
+                fetched = fetch_page_fast(src_url, timeout=6.5)
+                if fetched.get("ok") and len(fetched.get("text") or "") >= 120:
+                    return fetched
+                return {
+                    "url": src_url,
+                    "title": src.get("title") or src_url,
+                    "text": src.get("snippet") or src.get("title") or "",
+                }
+
+            if discovered:
+                with ThreadPoolExecutor(max_workers=min(4, len(discovered))) as pool:
+                    documents.extend(list(pool.map(_fetch_one, discovered)))
+                if open_ui:
                     self.scroll("down", 620, pilot=pilot)
 
         if not documents:

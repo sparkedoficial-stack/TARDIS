@@ -1,46 +1,36 @@
 {
-  "run_id": "canary_20261125_104129_2a3601",
-  "iso": "2026-11-25T10:41:29-05:00",
+  "run_id": "canary_20261125_150614_50cf81",
+  "iso": "2026-11-25T15:06:14-05:00",
   "files": [
     {
-      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/gia_sovereign_engine.py",
-      "relative": "gia_sovereign_engine.py",
-      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261125_104129_2a3601/gia_sovereign_engine.py"
-    },
-    {
-      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/temporal_brain.py",
-      "relative": "core/temporal_brain.py",
-      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261125_104129_2a3601/core__temporal_brain.py"
-    },
-    {
-      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/config.py",
-      "relative": "core/config.py",
-      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261125_104129_2a3601/core__config.py"
-    },
-    {
-      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/engine/sovereign_client.py",
-      "relative": "engine/sovereign_client.py",
-      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261125_104129_2a3601/engine__sovereign_client.py"
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/server/api.py",
+      "relative": "server/api.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261125_150614_50cf81/server__api.py"
     },
     {
       "source": "/home/m11/Escritorio/GODWORKS SYSTEM/omni_temporal_control.py",
       "relative": "omni_temporal_control.py",
-      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261125_104129_2a3601/omni_temporal_control.py"
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261125_150614_50cf81/omni_temporal_control.py"
     },
     {
-      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/autonomous_voice.py",
-      "relative": "autonomous_voice.py",
-      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261125_104129_2a3601/autonomous_voice.py"
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/hub_health.py",
+      "relative": "core/hub_health.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261125_150614_50cf81/core__hub_health.py"
     },
     {
-      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/tests/test_config.py",
-      "relative": "tests/test_config.py",
-      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261125_104129_2a3601/tests__test_config.py"
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/tardis_feedback_bridge.py",
+      "relative": "core/tardis_feedback_bridge.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261125_150614_50cf81/core__tardis_feedback_bridge.py"
+    },
+    {
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/tardis_agy_coevolution.py",
+      "relative": "core/tardis_agy_coevolution.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261125_150614_50cf81/core__tardis_agy_coevolution.py"
     },
     {
       "source": "/home/m11/Escritorio/GODWORKS SYSTEM/tests/test_sovereign_alternate_systems.py",
       "relative": "tests/test_sovereign_alternate_systems.py",
-      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261125_104129_2a3601/tests__test_sovereign_alternate_systems.py"
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261125_150614_50cf81/tests__test_sovereign_alternate_systems.py"
     }
   ]
 }
