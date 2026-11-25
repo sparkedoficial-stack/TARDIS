@@ -128,7 +128,7 @@ class CyberdefenseSentinel:
 
     def __init__(self):
         self._lock_state = threading.Lock()
-        self._assessment_lock = threading.Lock()
+        self._assessment_lock = threading.RLock()
         self._cached_assessment: Optional[ThreatAssessment] = None
         self._cached_assessment_mono: float = 0.0
         self._assessment_cache_hits: int = 0

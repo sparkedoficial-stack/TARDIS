@@ -99,7 +99,7 @@ class NetworkShield:
         self.antispy_enabled = True
         self.last_audit_time = 0.0
         self.last_audit_results: Dict[str, Any] = {}
-        self._status_cache_lock = threading.Lock()
+        self._status_cache_lock = threading.RLock()
         self._cached_status: Optional[Dict[str, Any]] = None
         self._cached_status_mono: float = 0.0
         self._ensure_directories()

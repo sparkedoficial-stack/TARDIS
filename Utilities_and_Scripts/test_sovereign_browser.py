@@ -230,6 +230,8 @@ class TestChatIntentAndAgentHarness(unittest.TestCase):
             "browser_read_page",
             "browser_investigate_and_conclude",
             "browser_autonomous_explore",
+            "browser_query_official_apis",
+            "browser_human_gate_status",
         }
         for name in expected_browser:
             tool = reg.get_tool(name)
@@ -239,6 +241,133 @@ class TestChatIntentAndAgentHarness(unittest.TestCase):
         # Verificar no-regresión en MUSIC_SOUNDTRACK tras reubicar registro
         for music_tool in ("music_status", "music_queue", "music_favorite"):
             self.assertIsNotNone(reg.get_tool(music_tool), f"Regresión en {music_tool}")
+
+
+class TestHumanInTheLoopAndOfficialSources(unittest.TestCase):
+    def setUp(self):
+        import tempfile
+
+        self.tmpdir = tempfile.TemporaryDirectory()
+        base = Path(self.tmpdir.name)
+        self.hub = SovereignBrowserHub(
+            conclusions_file=base / "conclusions.jsonl",
+            actions_file=base / "actions.jsonl",
+            state_file=base / "state.json",
+            sources_file=base / "sources.json",
+        )
+
+    def tearDown(self):
+        self.hub.set_autonomy(False)
+        self.tmpdir.cleanup()
+
+    def test_passive_detector_catches_challenges_and_ignores_long_articles(self):
+        # 1. Cloudflare header challenge
+        hit_cf = sba.detect_human_verification_gate(
+            raw_html="<html><title>Just a moment...</title><body>Checking your browser</body></html>",
+            clean_text="Checking your browser",
+            url="https://protected.example/app",
+            title="Just a moment...",
+            status_code=403,
+            headers={"cf-mitigated": "challenge"},
+        )
+        self.assertIsNotNone(hit_cf)
+        self.assertEqual(hit_cf["kind"], "cloudflare_turnstile")
+
+        # 2. reCAPTCHA widget on short gate page
+        hit_rc = sba.detect_human_verification_gate(
+            raw_html='<div class="g-recaptcha" data-sitekey="abc"></div><script src="https://www.google.com/recaptcha/api.js"></script>',
+            clean_text="Please verify you are human to continue.",
+            url="https://protected.example/check",
+            title="Security Check",
+            status_code=200,
+        )
+        self.assertIsNotNone(hit_rc)
+        self.assertEqual(hit_rc["kind"], "recaptcha")
+
+        # 3. Long informative Wikipedia-like article discussing CAPTCHA must NOT false-positive
+        long_article = (
+            "Un CAPTCHA es una prueba de desafío-respuesta utilizada en computación para determinar "
+            "si el usuario es humano o un programa automatizado. " * 60
+        )
+        no_hit = sba.detect_human_verification_gate(
+            raw_html=f"<html><title>CAPTCHA - Wikipedia</title><body><p>{long_article}</p></body></html>",
+            clean_text=long_article,
+            url="https://es.wikipedia.org/wiki/CAPTCHA",
+            title="CAPTCHA - Wikipedia",
+            status_code=200,
+        )
+        self.assertIsNone(no_hit)
+
+    def test_human_gate_pauses_automation_and_hands_control_to_user(self):
+        res_gate = self.hub.report_human_gate(
+            url="https://gated.example/verify",
+            title="Verificación",
+            kind="cloudflare_turnstile",
+            reason="Reto Turnstile detectado",
+            source="ui_dom",
+            open_ui=False,
+        )
+        self.assertTrue(res_gate["ok"])
+        self.assertTrue(res_gate["human_gate"]["active"])
+        self.assertEqual(self.hub.get_state()["pilot"], "human_required")
+
+        # Toda automatización sobre la pestaña debe quedar estrictamente bloqueada
+        for blocked in (
+            self.hub.click(selector="button", pilot="tardis"),
+            self.hub.type_text(selector="input", text="hola", pilot="tardis"),
+            self.hub.scroll("down", 500, pilot="autonomous"),
+            self.hub.eval_js("document.title", pilot="tardis"),
+            self.hub.run_free_will_session(open_ui=False, use_llm=False),
+        ):
+            self.assertFalse(blocked["ok"])
+            self.assertTrue(blocked.get("blocked_by_human_gate"))
+
+        # Traspaso y resolución explícita por el usuario (skipped) libera el bloqueo
+        resolved = self.hub.resolve_human_gate(resolution="skipped", navigate_home=False)
+        self.assertTrue(resolved["ok"])
+        self.assertFalse(resolved["human_gate"]["active"])
+        self.assertTrue(self.hub.scroll("down", 300, pilot="tardis")["ok"])
+
+    def test_official_sources_registry_add_toggle_remove_and_persistence(self):
+        initial = self.hub.list_official_sources()
+        ids = {s["id"] for s in initial}
+        self.assertIn("api_openalex", ids)
+        self.assertIn("api_hn_algolia", ids)
+        self.assertIn("api_spaceflight_news", ids)
+        self.assertIn("api_arxiv", ids)
+        self.assertIn("rss_bbc_mundo", ids)
+
+        added = self.hub.add_official_source(
+            name="NASA Breaking News RSS",
+            url="https://www.nasa.gov/rss/dyn/breaking_news.rss",
+            kind="rss",
+            category="news",
+        )
+        self.assertTrue(added["ok"])
+        cid = added["source"]["id"]
+
+        toggled = self.hub.toggle_official_source("api_gdelt_news", False)
+        self.assertTrue(toggled["ok"])
+        self.assertFalse(toggled["enabled"])
+
+        # Recargar desde disco y comprobar persistencia
+        reloaded = SovereignBrowserHub(
+            conclusions_file=self.hub.conclusions_file,
+            actions_file=self.hub.actions_file,
+            state_file=self.hub.state_file,
+            sources_file=self.hub.sources_file,
+        )
+        reloaded_map = {s["id"]: s for s in reloaded.list_official_sources()}
+        self.assertIn(cid, reloaded_map)
+        self.assertFalse(reloaded_map["api_gdelt_news"]["enabled"])
+
+        removed = reloaded.remove_official_source(cid)
+        self.assertTrue(removed["ok"])
+        self.assertNotIn(cid, {s["id"] for s in reloaded.list_official_sources()})
+
+    def test_openalex_abstract_reconstruction(self):
+        inv = {"Inteligencia": [0], "artificial": [1], "local": [2], "eficiente": [3]}
+        self.assertEqual(sba._reconstruct_openalex_abstract(inv), "Inteligencia artificial local eficiente")
 
 
 if __name__ == "__main__":

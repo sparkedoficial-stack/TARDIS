@@ -107,7 +107,8 @@ class TestNetworkShield:
         with tempfile.TemporaryDirectory() as tmp_dir:
             cfg_path = Path(tmp_dir) / "tg_test_cfg.json"
             bridge = TelegramBridge(config_path=cfg_path)
-            chat_id = 123456
+            from core.protected_users_vault import ARCHITECT_TELEGRAM_ID
+            chat_id = ARCHITECT_TELEGRAM_ID
             bridge.authorized_chat_ids.add(chat_id)
 
             with patch.object(bridge, "send_message") as mock_msg:
