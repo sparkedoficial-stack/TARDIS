@@ -2,11 +2,11 @@
   "daemon": "tardis-visual-intelligence",
   "running": true,
   "pid": 1418,
-  "uptime_sec": 4048.5,
-  "last_heartbeat": "2026-11-25T00:54:38.392651",
+  "uptime_sec": 5826.2,
+  "last_heartbeat": "2026-11-25T01:24:16.085709",
   "items_processed": 0,
   "last_processed_id": "",
-  "memory_rss_mb": 327.59,
+  "memory_rss_mb": 325.27,
   "engine_status": {
     "status": "online",
     "engine": "VisualIntelligenceEngine v26.5 (VLM + Veredictos)",
@@ -42,8 +42,8 @@
     "last_verdict_id": "img_20261125_001715_305b6f",
     "last_risk_level": 3,
     "last_verdict": "*   Estado General del Entorno: Estable y tranquilo. Sin actividad humana. Condiciones climáticas húmedas.\n*   Nivel de Riesgo Objetivo: 3/10\n    *   *Justificación:* El riesgo no proviene de amenazas humanas o físicas inmediatas (riesgo de intrusión = 0/10), sino de la degradación potencial del vehículo por humedad, posible corrosión a largo plazo o riesgo de derrapaje si se conduce en estas condiciones (riesgo ambiental = 3/10).\n*   Hechos Observados:\n    1.  Vehículo negro estacionado.\n    2.  Suelo húmedo/mojado.\n    3.  Hora: 12:17 AM.\n    4.  Sin personas visibles.\n*   Inferencias:\n    1.  Ha llovido recientemente o está lloviendo.\n    2.  El vehículo está en un lugar seguro, pero expuesto a los elementos.\n*   Dudas:\n    1.  No se puede determinar con certeza si la humedad es de lluvia, rocío o riego, aunque la probabilidad de lluvia es alta dada la hora y la extensión.\n    2.  No se puede ver el estado interior del vehículo ni si está encendido.\n\n*   Recomendación Concreta:\n    Si el Arquitecto tiene intención de utilizar el vehículo en las próximas horas, se recomienda verificar el estado de las llantas y frenos por la posible presencia de hielo o agua estancada. Si el vehí",
-    "last_error": "escena sin cambios relevantes (delta=1.1)",
-    "last_check_ts": REDACTED_PHONE.2318964
+    "last_error": "escena sin cambios relevantes (delta=1.0)",
+    "last_check_ts": REDACTED_PHONE.6798694
   },
   "vlm": {
     "ready": true,

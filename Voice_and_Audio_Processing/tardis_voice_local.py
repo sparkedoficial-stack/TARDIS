@@ -140,6 +140,21 @@ class LocalSpeechToText:
             dictation_mode=dictation_mode,
         )
 
+    def transcribe_pcm_partial(
+        self,
+        pcm_bytes: bytes,
+        language: str = "es",
+        context_hint: str = "",
+        dictation_mode: bool = False,
+    ) -> Tuple[str, float]:
+        res = self._get_engine().transcribe_pcm_partial(
+            pcm_bytes,
+            language=language,
+            context_hint=context_hint,
+            dictation_mode=dictation_mode,
+        )
+        return res.text, res.elapsed_s
+
     def transcribe(
         self,
         audio_path: str | Path,

@@ -264,3 +264,31 @@ def test_fastapi_local_voice_endpoints_and_ws():
             assert "done" in types
             chunk = next(e for e in events if e["type"] == "audio_chunk")
             assert base64.b64decode(chunk["data"])[:4] == b"RIFF"
+
+
+def test_voice_llm_router_aligns_num_gpu_and_num_ctx():
+    router = tve.LocalVoiceLLMRouter()
+    captured = {}
+
+    def _fake_stream_ollama(base_url, model, messages, max_tokens, temperature, num_ctx, cancel_event, *, num_gpu=None):
+        captured.update({
+            "base_url": base_url,
+            "model": model,
+            "num_ctx": num_ctx,
+            "num_gpu": num_gpu,
+        })
+        yield "Respuesta rápida en GPU."
+
+    with patch.object(router, "inspect_temporal_brain_slots", return_value={"available": True, "free_slots": 1, "total_slots": 2}), \
+         patch.object(router, "inspect_voice_ollama_lane", return_value={"available": True, "model_loaded": True}), \
+         patch.object(router, "_stream_ollama", side_effect=_fake_stream_ollama):
+        lane, it = router.stream_reply(
+            [{"role": "user", "content": "hola"}],
+            user_text="hola",
+            lane="auto",
+        )
+        text = "".join(it)
+        assert lane == "voice_gpu"
+        assert text == "Respuesta rápida en GPU."
+        assert captured["num_ctx"] == tve.VOICE_OLLAMA_NUM_CTX
+        assert captured["num_gpu"] == tve.VOICE_OLLAMA_NUM_GPU

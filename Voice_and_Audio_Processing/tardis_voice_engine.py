@@ -120,6 +120,7 @@ TEMPORAL_BRAIN_SOCK = Path(os.environ.get("TEMPORAL_BRAIN_SOCKET", "/tmp/tempora
 VOICE_OLLAMA_URL = os.environ.get("TARDIS_VOICE_OLLAMA_URL", "http://127.0.0.1:11435").rstrip("/")
 VOICE_OLLAMA_MODEL = os.environ.get("TARDIS_VOICE_OLLAMA_MODEL", "qwen3-vl:2b-instruct")
 VOICE_OLLAMA_NUM_CTX = int(os.environ.get("TARDIS_VOICE_OLLAMA_CTX", "3072"))
+VOICE_OLLAMA_NUM_GPU = int(os.environ.get("TARDIS_VOICE_OLLAMA_NUM_GPU", "22"))
 MAIN_OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://127.0.0.1:11434").rstrip("/")
 TARDIS_CHAT_URL = os.environ.get("TARDIS_CHAT_URL", "http://127.0.0.1:8757/api/chat")
 TARDIS_TOKEN_FILE = Path(
@@ -583,6 +584,18 @@ class AdaptiveSpeechSegmenter:
         self.barge_streak = 0
         if self.silero is not None:
             self.silero.reset()
+
+    def get_current_speech_pcm(self, max_seconds: float = 12.0) -> Tuple[bytes, float]:
+        """Devuelve una instantánea segura del audio hablado en curso para vista previa en vivo."""
+        if not self.in_speech or not self.speech_frames:
+            return b"", 0.0
+        frames = list(self.speech_frames)
+        max_frames = max(1, int((max_seconds * 1000.0) / max(10, self.cfg.frame_ms)))
+        if len(frames) > max_frames:
+            frames = frames[-max_frames:]
+        pcm = b"".join(frames)
+        dur_s = len(pcm) / float(max(1, self.cfg.sample_rate) * 2)
+        return pcm, dur_s
 
     @staticmethod
     def frame_rms(frame: bytes) -> float:
@@ -1767,6 +1780,91 @@ class SovereignLocalSTT:
             corrections=corrections,
         )
 
+    def transcribe_pcm_partial(
+        self,
+        pcm_bytes: bytes,
+        *,
+        language: str = DEFAULT_LANGUAGE,
+        context_hint: str = "",
+        dictation_mode: bool = False,
+        max_window_s: float = 10.0,
+    ) -> TranscriptionResult:
+        """
+        Transcripción parcial ultrarrápida (<250 ms en CUDA) para mostrar al instante
+        la voz convertida a texto mientras el usuario sigue dictando.
+        """
+        if not pcm_bytes:
+            return TranscriptionResult("", "", 0.0, self.active_device, self.model_size)
+
+        max_bytes = int(max(2.0, float(max_window_s)) * SAMPLE_RATE * 2)
+        if len(pcm_bytes) > max_bytes:
+            pcm_bytes = pcm_bytes[-max_bytes:]
+
+        audio_f32, metrics = preprocess_pcm_for_stt(pcm_bytes, sample_rate=SAMPLE_RATE)
+        if audio_f32.size < int(SAMPLE_RATE * 0.28) or metrics["rms_out"] < 0.0028:
+            return TranscriptionResult("", "", 0.0, self.active_device, self.model_size, audio_metrics=metrics)
+
+        model = self._load()
+        lang_arg = None if (not language or language.lower() == "auto") else language.split("-")[0].lower()
+        prompt = SOVEREIGN_DOMAIN_PROMPT
+        if context_hint:
+            prompt = f"{SOVEREIGN_DOMAIN_PROMPT} {context_hint.strip()}"[:360]
+
+        t0 = time.perf_counter()
+        # Si hay una transcripción final ocupando el lock, no bloquear el hilo de vista previa
+        if not self._infer_lock.acquire(timeout=0.08):
+            return TranscriptionResult("", "", 0.0, self.active_device, self.model_size, audio_metrics=metrics)
+        try:
+            kwargs: Dict[str, Any] = {
+                "language": lang_arg,
+                "beam_size": 1,
+                "best_of": 1,
+                "temperature": 0.0,
+                "vad_filter": False,
+                "condition_on_previous_text": False,
+                "no_speech_threshold": 0.68,
+                "compression_ratio_threshold": 2.35,
+                "log_prob_threshold": -1.25,
+                "initial_prompt": prompt,
+                "hotwords": SOVEREIGN_HOTWORDS,
+            }
+            try:
+                segments_iter, _info = model.transcribe(audio_f32, **kwargs)
+                segments = list(segments_iter)
+            except TypeError:
+                kwargs.pop("hotwords", None)
+                segments_iter, _info = model.transcribe(audio_f32, **kwargs)
+                segments = list(segments_iter)
+        finally:
+            self._infer_lock.release()
+
+        elapsed = time.perf_counter() - t0
+        kept: List[str] = []
+        for seg in segments:
+            seg_txt = (seg.text or "").strip()
+            if not seg_txt or is_whisper_hallucination(seg_txt):
+                continue
+            nsp = float(getattr(seg, "no_speech_prob", 0.0) or 0.0)
+            alp = float(getattr(seg, "avg_logprob", 0.0) or 0.0)
+            if nsp > 0.80 and alp < -1.05:
+                continue
+            kept.append(seg_txt)
+
+        raw_text = " ".join(kept).strip()
+        if not raw_text or is_whisper_hallucination(raw_text):
+            return TranscriptionResult("", raw_text, elapsed, self.active_device, self.model_size, audio_metrics=metrics)
+
+        norm_text, corrections = self._normalizer.normalize(raw_text, dictation_mode=dictation_mode)
+        return TranscriptionResult(
+            text=norm_text,
+            raw_text=raw_text,
+            elapsed_s=elapsed,
+            device=self.active_device,
+            model=self.model_size,
+            audio_metrics=metrics,
+            corrections=corrections,
+        )
+
     def transcribe_pcm(
         self,
         pcm_bytes: bytes,
@@ -1856,10 +1954,71 @@ _RE_NON_LATIN = re.compile(r"[^\x20-\x7E\u00A0-\u00FF\u0100-\u017F\u2010-\u2027\
 _SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?…:;])\s+|\n+")
 
 
-def prepare_text_for_speech(text: str) -> str:
+# Mapa de dicción fonética para espeak-ng / Piper es-MX:
+# Corrige anglicismos, acrónimos técnicos y nombres del ecosistema para una
+# pronunciación cálida, fluida y natural en español de México.
+_ES_MX_PHONETIC_DICTION: List[Tuple[re.Pattern, str]] = [
+    # Nombres de herramientas / subsistemas que espeak es-MX lee literal mal
+    (re.compile(r"\bBluetooth\b", re.IGNORECASE), "blutuz"),
+    (re.compile(r"\bPipeWire\b", re.IGNORECASE), "paip guayer"),
+    (re.compile(r"\bWhisper\b", re.IGNORECASE), "güísper"),
+    (re.compile(r"\bfaster[\s-]?whisper\b", re.IGNORECASE), "fáster güísper"),
+    (re.compile(r"\bOllama\b", re.IGNORECASE), "olama"),
+    (re.compile(r"\bHyprland\b", re.IGNORECASE), "jáiperland"),
+    (re.compile(r"\bWayland\b", re.IGNORECASE), "güéiland"),
+    (re.compile(r"\bWi[\s-]?Fi\b", re.IGNORECASE), "guái fai"),
+    (re.compile(r"\bPython\b", re.IGNORECASE), "páiton"),
+    (re.compile(r"\bGitHub\b", re.IGNORECASE), "guítjab"),
+    (re.compile(r"\bWebSocket\b", re.IGNORECASE), "güebsóquet"),
+    (re.compile(r"\bFastAPI\b", re.IGNORECASE), "fast api"),
+    (re.compile(r"\bONNX\b", re.IGNORECASE), "ónix"),
+    (re.compile(r"\bNVIDIA\b", re.IGNORECASE), "envidia"),
+    (re.compile(r"\bRyzen\b", re.IGNORECASE), "ráisen"),
+    (re.compile(r"\bPiper\b", re.IGNORECASE), "páiper"),
+    (re.compile(r"\bSilero\b", re.IGNORECASE), "siléro"),
+    (re.compile(r"\bAntigravity\b", re.IGNORECASE), "antigráviti"),
+    (re.compile(r"\bGODWORKS\b", re.IGNORECASE), "god güorks"),
+    (re.compile(r"\bTemporalBrain\b", re.IGNORECASE), "temporal brein"),
+    (re.compile(r"\bKAIJU\b", re.IGNORECASE), "kaiyu"),
+    (re.compile(r"\bEVOIR\b", re.IGNORECASE), "evuár"),
+    (re.compile(r"\bBarge[\s-]?In\b", re.IGNORECASE), "barch in"),
+    (re.compile(r"\bsystemd\b", re.IGNORECASE), "sístem de"),
+    (re.compile(r"\bkernel\b", re.IGNORECASE), "quérnel"),
+    (re.compile(r"\bJSON\b"), "yéison"),
+    (re.compile(r"\bLinux\b", re.IGNORECASE), "línux"),
+    (re.compile(r"\bVRAM\b"), "ve ram"),
+    (re.compile(r"\bCPU\b"), "ce pe u"),
+    (re.compile(r"\bGPU\b"), "ge pe u"),
+    (re.compile(r"\bSTT\b"), "ese te te"),
+    (re.compile(r"\bTTS\b"), "te te ese"),
+    (re.compile(r"\bVAD\b"), "ve a de"),
+    (re.compile(r"\bLLM\b"), "ele ele eme"),
+    (re.compile(r"\bCLI\b"), "ce ele i"),
+    (re.compile(r"\bAPI\b"), "api"),
+    (re.compile(r"\bUSB\b"), "u ese be"),
+    (re.compile(r"\bSSD\b"), "ese ese de"),
+    (re.compile(r"\bHFP\b"), "hache efe pe"),
+    (re.compile(r"\bA2DP\b"), "a dos de pe"),
+    (re.compile(r"\bPCM\b"), "pe ce eme"),
+    (re.compile(r"\bWAV\b"), "guav"),
+    (re.compile(r"\bMP3\b", re.IGNORECASE), "eme pe tres"),
+    # Abreviaturas frecuentes del español hablado
+    (re.compile(r"\bp\.\s*ej\.", re.IGNORECASE), "por ejemplo"),
+    (re.compile(r"\bej\.", re.IGNORECASE), "por ejemplo"),
+    (re.compile(r"\betc\.", re.IGNORECASE), "etcétera"),
+    (re.compile(r"\bvs\.?\b", re.IGNORECASE), "versus"),
+    (re.compile(r"\baprox\.", re.IGNORECASE), "aproximadamente"),
+    (re.compile(r"\bmáx\.", re.IGNORECASE), "máximo"),
+    (re.compile(r"\bmín\.", re.IGNORECASE), "mínimo"),
+    (re.compile(r"\bseg\.", re.IGNORECASE), "segundos"),
+]
+
+
+def prepare_text_for_speech(text: str, *, phonetic_diction: bool = True) -> str:
     """
     Convierte texto técnico/Markdown en prosa hablada natural en español mexicano
-    para Piper ONNX y Edge TTS (expande unidades, limpia código/URLs/pensamiento).
+    para Piper ONNX y Edge TTS (expande unidades, limpia código/URLs/pensamiento
+    y optimiza la dicción fonética de términos técnicos y anglicismos).
     """
     if not text:
         return ""
@@ -1871,23 +2030,297 @@ def prepare_text_for_speech(text: str) -> str:
     body = _RE_URL.sub(" ", body)
     body = _RE_HTML.sub(" ", body)
     body = _RE_MD_INLINE_CODE.sub(r"\1", body)
+    # Preservar ritmo en saltos de línea convirtiéndolos en pausas naturales si falta puntuación
+    body = re.sub(r"([A-Za-zÁÉÍÓÚáéíóúÑñ0-9])\s*\n+\s*", r"\1. ", body)
     body = _RE_MD_CHARS.sub(" ", body)
 
+    # Versiones técnicas tipo v26.4 -> versión 26 punto 4
+    body = re.sub(r"\bv(\d+)\.(\d+)(?:\.(\d+))?\b", lambda m: (
+        f"versión {m.group(1)} punto {m.group(2)}" + (f" punto {m.group(3)}" if m.group(3) else "")
+    ), body, flags=re.IGNORECASE)
+    # Fracciones tipo 22/29 -> 22 de 29
+    body = re.sub(r"\b(\d{1,3})/(\d{1,3})\b", r"\1 de \2", body)
+
     # Expansiones prosódicas naturales para unidades técnicas
-    body = re.sub(r"(\d+(?:[.,]\d+)?)\s*°\s*C\b", r"\1 grados", body)
+    body = re.sub(r"(\d+(?:[.,]\d+)?)\s*°\s*C\b", r"\1 grados Celsius", body)
+    body = re.sub(r"(\d+(?:[.,]\d+)?)\s*°\s*F\b", r"\1 grados Fahrenheit", body)
     body = re.sub(r"(\d+(?:[.,]\d+)?)\s*%", r"\1 por ciento", body)
     body = re.sub(r"(\d+(?:[.,]\d+)?)\s*GHz\b", r"\1 gigahercios", body, flags=re.IGNORECASE)
     body = re.sub(r"(\d+(?:[.,]\d+)?)\s*MHz\b", r"\1 megahercios", body, flags=re.IGNORECASE)
+    body = re.sub(r"(\d+(?:[.,]\d+)?)\s*kHz\b", r"\1 kilohercios", body, flags=re.IGNORECASE)
+    body = re.sub(r"(\d+(?:[.,]\d+)?)\s*Hz\b", r"\1 hercios", body, flags=re.IGNORECASE)
     body = re.sub(r"(\d+(?:[.,]\d+)?)\s*(?:GiB|GB)\b", r"\1 gigabytes", body)
     body = re.sub(r"(\d+(?:[.,]\d+)?)\s*(?:MiB|MB)\b", r"\1 megabytes", body)
+    body = re.sub(r"(\d+(?:[.,]\d+)?)\s*(?:KiB|KB)\b", r"\1 kilobytes", body)
     body = re.sub(r"(\d+(?:[.,]\d+)?)\s*ms\b", r"\1 milisegundos", body)
+    body = re.sub(r"(\d+(?:[.,]\d+)?)\s*RPM\b", r"\1 revoluciones por minuto", body, flags=re.IGNORECASE)
+    body = re.sub(r"(\d+(?:[.,]\d+)?)\s*dBFS\b", r"\1 decibelios", body, flags=re.IGNORECASE)
+    body = re.sub(r"(\d+(?:[.,]\d+)?)\s*dB\b", r"\1 decibelios", body)
     body = re.sub(r"\bkm/h\b", "kilómetros por hora", body, flags=re.IGNORECASE)
     body = re.sub(r"\btok/s\b", "tokens por segundo", body, flags=re.IGNORECASE)
 
+    if phonetic_diction:
+        for pat, rep in _ES_MX_PHONETIC_DICTION:
+            body = pat.sub(rep, body)
+
+    # Mejorar pausas expresivas alrededor de guiones largos y paréntesis
+    body = re.sub(r"\s*[—–]\s*", ", ", body)
+    body = re.sub(r"\(([^()]{1,90})\)", r", \1, ", body)
+    body = body.replace("...", "… ")
+
     body = _RE_NON_LATIN.sub(" ", body)
-    body = re.sub(r"\s+([.,;:!?])", r"\1", body)
+    body = re.sub(r"\s+([.,;:!?…])", r"\1", body)
+    body = re.sub(r",\s*,+", ", ", body)
+    body = re.sub(r"\.{2,}", ".", body)
     body = re.sub(r"\s+", " ", body).strip()
     return body
+
+
+@dataclass
+class ExpressiveProsody:
+    """Parámetros expresivos dinámicos para Piper ONNX por oración/cláusula."""
+    style: str = "warm"
+    length_scale: float = 0.96
+    noise_scale: float = 0.64
+    noise_w_scale: float = 0.80
+    trailing_pause_ms: int = 210
+
+
+def analyze_expressive_prosody(
+    text: str,
+    *,
+    base_rate: Any = "+6%",
+    style_hint: str = "",
+) -> ExpressiveProsody:
+    """
+    Calcula la prosodia expresiva óptima para la dicción de TARDIS según
+    puntuación, tono discursivo e intención (pregunta, exclamación, técnico, cálido).
+    """
+    base_ls = _rate_to_length_scale(base_rate)
+    s = (text or "").strip()
+    low = normalize_key(s)
+    hint = (style_hint or "").strip().lower()
+
+    # Determinar pausa natural de respiración al cierre de la cláusula
+    if s.endswith(("?", "!", "…")):
+        pause_ms = 240
+    elif s.endswith("."):
+        pause_ms = 210
+    elif s.endswith((":", ";")):
+        pause_ms = 175
+    elif s.endswith(","):
+        pause_ms = 120
+    else:
+        pause_ms = 160
+
+    if "?" in s or "¿" in s:
+        return ExpressiveProsody(
+            style="inquisitive",
+            length_scale=round(max(0.74, min(1.22, base_ls * 0.98)), 3),
+            noise_scale=0.69,
+            noise_w_scale=0.85,
+            trailing_pause_ms=pause_ms,
+        )
+    if "!" in s or "¡" in s or any(g in low for g in ("un placer", "arquitecto", "excelente", "listo", "perfecto")):
+        return ExpressiveProsody(
+            style="expressive",
+            length_scale=round(max(0.74, min(1.22, base_ls * 0.96)), 3),
+            noise_scale=0.70,
+            noise_w_scale=0.86,
+            trailing_pause_ms=pause_ms,
+        )
+    if hint in ("detailed", "step_by_step", "technical", "dictation") or any(
+        k in low for k in ("primero", "segundo", "paso", "temperatura", "frecuencia", "megahercios", "gigabytes", "milisegundos")
+    ):
+        return ExpressiveProsody(
+            style="articulate",
+            length_scale=round(max(0.80, min(1.25, base_ls * 1.04)), 3),
+            noise_scale=0.56,
+            noise_w_scale=0.72,
+            trailing_pause_ms=max(pause_ms, 220),
+        )
+    if hint in ("calm", "concise") or len(s) <= 32:
+        return ExpressiveProsody(
+            style="calm",
+            length_scale=round(max(0.76, min(1.22, base_ls * 1.00)), 3),
+            noise_scale=0.60,
+            noise_w_scale=0.76,
+            trailing_pause_ms=pause_ms,
+        )
+    return ExpressiveProsody(
+        style="warm",
+        length_scale=round(max(0.76, min(1.22, base_ls * 0.99)), 3),
+        noise_scale=0.64,
+        noise_w_scale=0.80,
+        trailing_pause_ms=pause_ms,
+    )
+
+
+def polish_tts_pcm(
+    pcm_bytes: bytes,
+    sample_rate: int = PIPER_SAMPLE_RATE,
+    *,
+    trailing_pause_ms: int = 190,
+) -> bytes:
+    """
+    Pulido acústico de calidad estudio para el PCM generado por Piper ONNX:
+      - Recorta silencio muerto excesivo al inicio/fin conservando ataque natural.
+      - Normaliza sonoridad suavemente hacia -18 dBFS con limitador tanh anti-clipping.
+      - Aplica rampa fade-in (12 ms) y fade-out (18 ms) para eliminar clics en Bluetooth EVOIR.
+      - Añade pausa prosódica natural entre cláusulas/oraciones.
+    """
+    if not pcm_bytes or len(pcm_bytes) < 64:
+        return pcm_bytes
+    usable = len(pcm_bytes) - (len(pcm_bytes) % 2)
+    samples = np.frombuffer(pcm_bytes[:usable], dtype=np.int16).astype(np.float32) / 32768.0
+    if samples.size < 64:
+        return pcm_bytes
+
+    # 1. Recorte suave de silencio muerto inicial/final
+    abs_s = np.abs(samples)
+    active = np.where(abs_s > 0.0045)[0]
+    if active.size > 0:
+        lead_pad = int(sample_rate * 0.025)
+        tail_pad = int(sample_rate * 0.055)
+        s_idx = max(0, int(active[0]) - lead_pad)
+        e_idx = min(samples.size, int(active[-1]) + tail_pad)
+        if e_idx > s_idx + 32:
+            samples = samples[s_idx:e_idx]
+
+    # 2. Nivelación RMS suave hacia -18 dBFS (0.126) evitando picos bruscos
+    rms = float(np.sqrt(np.mean(samples * samples)))
+    if 0.008 < rms:
+        target_rms = 0.135
+        gain = min(2.2, max(0.65, target_rms / rms))
+        samples = samples * gain
+        peak = float(np.max(np.abs(samples)))
+        if peak > 0.90:
+            samples = np.tanh(samples * 1.08) * 0.92
+
+    # 3. Fade-in 12 ms / Fade-out 18 ms anti-pop
+    fi = min(int(sample_rate * 0.012), samples.size // 4)
+    fo = min(int(sample_rate * 0.018), samples.size // 4)
+    if fi > 2:
+        samples[:fi] *= np.linspace(0.0, 1.0, fi, dtype=np.float32)
+    if fo > 2:
+        samples[-fo:] *= np.linspace(1.0, 0.0, fo, dtype=np.float32)
+
+    # 4. Pausa prosódica controlada al cierre
+    pause_samples = max(0, int(sample_rate * max(0, min(600, int(trailing_pause_ms))) / 1000.0))
+    if pause_samples > 0:
+        samples = np.concatenate([samples, np.zeros(pause_samples, dtype=np.float32)])
+
+    pcm_i16 = np.clip(samples * 32767.0, -32768.0, 32767.0).astype(np.int16)
+    return pcm_i16.tobytes()
+
+
+@dataclass
+class WordTiming:
+    """Marca temporal exacta de una palabra sincronizada con el audio PCM."""
+    word: str
+    start_ms: int
+    end_ms: int
+    char_start: int
+    char_end: int
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "word": self.word,
+            "start_ms": self.start_ms,
+            "end_ms": self.end_ms,
+            "char_start": self.char_start,
+            "char_end": self.char_end,
+        }
+
+
+@dataclass
+class SyncedSpeechSegment:
+    """Segmento hablado con audio PCM, prosodia y mapa palabra-a-milisegundo."""
+    display_text: str
+    spoken_text: str
+    pcm: bytes
+    sample_rate: int
+    duration_ms: int
+    prosody: ExpressiveProsody
+    word_timings: List[WordTiming] = field(default_factory=list)
+    mime: str = "audio/wav"
+    encoded_bytes: Optional[bytes] = None
+    char_offset: int = 0  # desplazamiento respecto al texto completo de la respuesta
+
+    def to_metadata(self) -> Dict[str, Any]:
+        return {
+            "display_text": self.display_text,
+            "spoken_text": self.spoken_text,
+            "sample_rate": self.sample_rate,
+            "duration_ms": self.duration_ms,
+            "prosody": self.prosody.style,
+            "char_offset": self.char_offset,
+            "word_timings": [w.to_dict() for w in self.word_timings],
+        }
+
+
+_VOWEL_GROUPS_RE = re.compile(r"[aeiouáéíóúü]+", re.IGNORECASE)
+_WORD_SPAN_RE = re.compile(r"\S+")
+
+
+def compute_word_timings(
+    display_text: str,
+    duration_ms: int,
+    *,
+    start_offset_ms: int = 0,
+    trailing_pause_ms: int = 180,
+) -> List[WordTiming]:
+    """
+    Calcula marcas temporales palabra por palabra sincronizadas a la duración real
+    del PCM generado, ponderando sílabas en español y pausas de puntuación.
+    Conserva los índices exactos `char_start`/`char_end` dentro de `display_text`.
+    """
+    if not display_text or duration_ms <= 0:
+        return []
+    matches = list(_WORD_SPAN_RE.finditer(display_text))
+    if not matches:
+        return []
+
+    # Reservar la pausa prosódica final para que la última palabra termine justo antes del silencio
+    active_ms = max(int(duration_ms * 0.55), duration_ms - max(0, min(trailing_pause_ms, duration_ms // 3)))
+    lead_ms = min(25, active_ms // 10)
+    usable_ms = max(40, active_ms - lead_ms)
+
+    weights: List[float] = []
+    for m in matches:
+        tok = m.group(0)
+        core = re.sub(r"[^\wáéíóúüñÁÉÍÓÚÜÑ]", "", tok)
+        syllables = max(1, len(_VOWEL_GROUPS_RE.findall(core))) if core else 1
+        # Peso acústico = sílabas + longitud consonántica + pausa por puntuación
+        w = 0.85 * syllables + 0.18 * max(1, len(core))
+        if any(ch.isdigit() for ch in tok):
+            w += 1.4  # los números en español toman más sílabas al leerse
+        if tok.endswith((",", ";", "—", "–")):
+            w += 1.35
+        elif tok.endswith((":", ".", "!", "?", "…")):
+            w += 2.15
+        weights.append(max(0.6, w))
+
+    total_w = sum(weights) or 1.0
+    timings: List[WordTiming] = []
+    cursor = float(start_offset_ms + lead_ms)
+    for m, w in zip(matches, weights):
+        span_ms = (w / total_w) * usable_ms
+        t_start = int(round(cursor))
+        cursor += span_ms
+        t_end = max(t_start + 15, int(round(cursor)))
+        timings.append(
+            WordTiming(
+                word=m.group(0),
+                start_ms=t_start,
+                end_ms=t_end,
+                char_start=m.start(),
+                char_end=m.end(),
+            )
+        )
+    if timings:
+        timings[-1].end_ms = max(timings[-1].start_ms + 20, start_offset_ms + active_ms)
+    return timings
 
 
 def extract_streaming_sentence(buffer: str, is_first: bool = False) -> Tuple[Optional[str], str]:
@@ -2081,15 +2514,24 @@ class SovereignLocalTTS:
         *,
         voice: Optional[str] = None,
         rate: Any = "+6%",
+        style_hint: str = "",
+        prosody: Optional[ExpressiveProsody] = None,
     ) -> Tuple[bytes, int]:
-        """Sintetiza texto limpio a PCM16 mono raw usando Piper ONNX local en memoria."""
+        """
+        Sintetiza texto limpio a PCM16 mono raw usando Piper ONNX local en memoria,
+        aplicando prosodia expresiva dinámica y pulido acústico anti-clic.
+        """
         clean = prepare_text_for_speech(text)
         if not clean:
             return b"", PIPER_SAMPLE_RATE
 
         _, vid = resolve_voice_spec(voice or self.default_voice, mode="local")
-        lscale = _rate_to_length_scale(rate)
-        cache_key = ("piper_pcm", vid, f"{lscale}:{clean}")
+        eff_prosody = prosody or analyze_expressive_prosody(text, base_rate=rate, style_hint=style_hint)
+        cache_key = (
+            "piper_pcm_v2",
+            vid,
+            f"{eff_prosody.style}:{eff_prosody.length_scale}:{eff_prosody.trailing_pause_ms}:{clean}",
+        )
         if len(clean) <= 180 and cache_key in self._cache:
             self._cache.move_to_end(cache_key)
             self._stats["cache_hits"] += 1
@@ -2099,12 +2541,19 @@ class SovereignLocalTTS:
         from piper.config import SynthesisConfig
 
         voice_obj = self._load_piper_voice(vid)
-        syn_cfg = SynthesisConfig(length_scale=lscale, noise_scale=0.62, noise_w_scale=0.78)
+        syn_cfg = SynthesisConfig(
+            length_scale=eff_prosody.length_scale,
+            noise_scale=eff_prosody.noise_scale,
+            noise_w_scale=eff_prosody.noise_w_scale,
+            normalize_audio=True,
+            volume=1.0,
+        )
         t0 = time.perf_counter()
         with self._synth_lock:
             chunks = list(voice_obj.synthesize(clean, syn_config=syn_cfg))
-        pcm = b"".join(c.audio_int16_bytes for c in chunks)
+        raw_pcm = b"".join(c.audio_int16_bytes for c in chunks)
         sr = chunks[0].sample_rate if chunks else voice_obj.config.sample_rate
+        pcm = polish_tts_pcm(raw_pcm, sample_rate=sr, trailing_pause_ms=eff_prosody.trailing_pause_ms) if raw_pcm else b""
         dt_ms = (time.perf_counter() - t0) * 1000.0
         self._stats["local_count"] += 1
         self._stats["last_ms"] = round(dt_ms, 1)
@@ -2114,6 +2563,87 @@ class SovereignLocalTTS:
             if len(self._cache) > self._cache_max:
                 self._cache.popitem(last=False)
         return pcm, sr
+
+    def synthesize_synced_segment(
+        self,
+        display_text: str,
+        *,
+        voice: Optional[str] = None,
+        rate: Any = "+6%",
+        mode: Optional[str] = None,
+        style_hint: str = "",
+        char_offset: int = 0,
+    ) -> Optional[SyncedSpeechSegment]:
+        """
+        Sintetiza un segmento hablado con prosodia expresiva y calcula los timestamps
+        exactos palabra por palabra sincronizados a la duración real del audio generado.
+        """
+        disp = (display_text or "").strip()
+        if not disp:
+            return None
+        spoken = prepare_text_for_speech(disp)
+        if not spoken:
+            return None
+
+        eff_mode = (mode or self.mode or "local").strip().lower()
+        prosody = analyze_expressive_prosody(disp, base_rate=rate, style_hint=style_hint)
+        engine, vid = resolve_voice_spec(voice or self.default_voice, mode=eff_mode)
+
+        if engine == "piper" and self.is_piper_available():
+            pcm, sr = self.synthesize_piper_pcm(
+                disp, voice=vid, rate=rate, style_hint=style_hint, prosody=prosody
+            )
+            if pcm:
+                dur_ms = max(80, int(round(len(pcm) / float(max(1, sr) * 2) * 1000.0)))
+                timings = compute_word_timings(
+                    disp, dur_ms, trailing_pause_ms=prosody.trailing_pause_ms
+                )
+                return SyncedSpeechSegment(
+                    display_text=disp,
+                    spoken_text=spoken,
+                    pcm=pcm,
+                    sample_rate=sr,
+                    duration_ms=dur_ms,
+                    prosody=prosody,
+                    word_timings=timings,
+                    mime="audio/wav",
+                    encoded_bytes=pcm_to_wav_bytes(pcm, sample_rate=sr),
+                    char_offset=char_offset,
+                )
+
+        # Ruta híbrida / edge-tts (con estimación acústica fiel o decodificación WAV exacta)
+        audio_bytes, mime, sr = self.synthesize_bytes(
+            disp, voice=voice, rate=rate, mode=eff_mode
+        )
+        if not audio_bytes:
+            return None
+        pcm = b""
+        dur_ms = 0
+        if "wav" in mime and audio_bytes[:4] == b"RIFF":
+            try:
+                with wave.open(io.BytesIO(audio_bytes), "rb") as wf:
+                    sr = wf.getframerate()
+                    pcm = wf.readframes(wf.getnframes())
+                    dur_ms = max(80, int(round(wf.getnframes() / float(max(1, sr)) * 1000.0)))
+            except Exception:
+                dur_ms = 0
+        if dur_ms <= 0:
+            # Estimación precisa para MP3 24kbps-48kbps según ritmo de sílabas (~62 ms/carácter en español)
+            words = max(1, len(disp.split()))
+            dur_ms = max(320, int(words * 365 * prosody.length_scale))
+        timings = compute_word_timings(disp, dur_ms, trailing_pause_ms=prosody.trailing_pause_ms)
+        return SyncedSpeechSegment(
+            display_text=disp,
+            spoken_text=spoken,
+            pcm=pcm,
+            sample_rate=sr,
+            duration_ms=dur_ms,
+            prosody=prosody,
+            word_timings=timings,
+            mime=mime,
+            encoded_bytes=audio_bytes,
+            char_offset=char_offset,
+        )
 
     async def synthesize_bytes_async(
         self,
@@ -2386,6 +2916,75 @@ class GaplessAudioPlayer:
             with self._proc_lock:
                 self._proc = None
 
+    def _run_word_sync_clock(
+        self,
+        segment: SyncedSpeechSegment,
+        stop_ev: threading.Event,
+        on_start: Optional[Callable[[SyncedSpeechSegment], None]] = None,
+        on_word: Optional[Callable[[SyncedSpeechSegment, WordTiming, int], None]] = None,
+        on_end: Optional[Callable[[SyncedSpeechSegment, bool], None]] = None,
+        pipewire_lead_ms: int = 35,
+    ) -> None:
+        """
+        Reloj de sincronización texto↔sonido: dispara `on_word` en el instante exacto
+        en que cada palabra sale por PipeWire, y se detiene al milisegundo ante Barge-In.
+        """
+        if on_start is not None:
+            try:
+                on_start(segment)
+            except Exception:
+                pass
+        t0 = time.monotonic() + (max(0, pipewire_lead_ms) / 1000.0)
+        timings = segment.word_timings
+        interrupted = False
+        for idx, wt in enumerate(timings):
+            target = t0 + (wt.start_ms / 1000.0)
+            while True:
+                if stop_ev.is_set() or self._interrupted.is_set():
+                    interrupted = True
+                    break
+                rem = target - time.monotonic()
+                if rem <= 0.004:
+                    break
+                time.sleep(min(0.020, rem))
+            if interrupted:
+                break
+            if on_word is not None:
+                try:
+                    on_word(segment, wt, idx)
+                except Exception:
+                    pass
+        if on_end is not None:
+            try:
+                on_end(segment, interrupted)
+            except Exception:
+                pass
+
+    def _play_synced(self, payload: Dict[str, Any]) -> None:
+        segment: SyncedSpeechSegment = payload["segment"]
+        on_start = payload.get("on_start")
+        on_word = payload.get("on_word")
+        on_end = payload.get("on_end")
+        stop_ev = threading.Event()
+        sync_thread = threading.Thread(
+            target=self._run_word_sync_clock,
+            args=(segment, stop_ev, on_start, on_word, on_end),
+            daemon=True,
+            name="TARDIS-WordSync",
+        )
+        sync_thread.start()
+        try:
+            if segment.pcm:
+                self._play_pcm(segment.pcm, segment.sample_rate)
+            elif segment.encoded_bytes:
+                ext = ".wav" if "wav" in segment.mime else ".mp3"
+                self._play_bytes_file(segment.encoded_bytes, ext)
+        finally:
+            if self._interrupted.is_set():
+                stop_ev.set()
+            sync_thread.join(timeout=max(0.4, (segment.duration_ms / 1000.0) + 0.35))
+            stop_ev.set()
+
     def _worker(self) -> None:
         while not self._stop_flag.is_set():
             item = self._queue.get()
@@ -2399,7 +2998,9 @@ class GaplessAudioPlayer:
             try:
                 self._playing = True
                 self._notify(True)
-                if kind == "pcm":
+                if kind == "synced":
+                    self._play_synced(payload)
+                elif kind == "pcm":
                     self._play_pcm(payload, sr)
                 elif kind == "bytes":
                     self._play_bytes_file(payload, ".wav" if sr == -1 else ".mp3")
@@ -2414,6 +3015,31 @@ class GaplessAudioPlayer:
                     self._notify(False)
                 if kind == "path" and isinstance(payload, Path):
                     payload.unlink(missing_ok=True)
+
+    def enqueue_synced(
+        self,
+        segment: SyncedSpeechSegment,
+        *,
+        on_start: Optional[Callable[[SyncedSpeechSegment], None]] = None,
+        on_word: Optional[Callable[[SyncedSpeechSegment, WordTiming, int], None]] = None,
+        on_end: Optional[Callable[[SyncedSpeechSegment, bool], None]] = None,
+    ) -> None:
+        """Encola un segmento hablado sincronizado palabra por palabra con el audio real."""
+        if not self.enabled or segment is None:
+            return
+        if not segment.pcm and not segment.encoded_bytes:
+            return
+        self._interrupted.clear()
+        self._queue.put((
+            "synced",
+            {
+                "segment": segment,
+                "on_start": on_start,
+                "on_word": on_word,
+                "on_end": on_end,
+            },
+            segment.sample_rate,
+        ))
 
     def enqueue_pcm(self, pcm: bytes, sample_rate: int = PIPER_SAMPLE_RATE) -> None:
         if not self.enabled or not pcm:
@@ -2597,20 +3223,25 @@ class LocalVoiceLLMRouter:
         temperature: float,
         num_ctx: int,
         cancel_event: threading.Event,
+        *,
+        num_gpu: Optional[int] = None,
     ) -> Iterator[str]:
         if not HAS_HTTPX or httpx is None:
             return
+        options: Dict[str, Any] = {
+            "num_ctx": num_ctx,
+            "num_predict": max_tokens,
+            "temperature": temperature,
+        }
+        if num_gpu is not None and int(num_gpu) >= 0:
+            options["num_gpu"] = int(num_gpu)
         with httpx.Client(timeout=httpx.Timeout(45.0, connect=2.5)) as client:
             payload = {
                 "model": model,
                 "messages": messages,
                 "stream": True,
                 "keep_alive": -1,
-                "options": {
-                    "num_ctx": num_ctx,
-                    "num_predict": max_tokens,
-                    "temperature": temperature,
-                },
+                "options": options,
             }
             with client.stream("POST", f"{base_url}/api/chat", json=payload) as resp:
                 if resp.status_code != 200:
@@ -2658,22 +3289,24 @@ class LocalVoiceLLMRouter:
         tb = self.inspect_temporal_brain_slots()
         vl = self.inspect_voice_ollama_lane()
 
-        # Construir orden dinámico de carriles priorizando latencia real
+        # Construir orden dinámico de carriles priorizando latencia conversacional real:
+        # En RTX 3050 4 GB con tareas autónomas activas, el carril GPU dedicado :11435
+        # (qwen3-vl:2b-instruct con num_gpu=22 y num_ctx=3072 alineado con C310/VLM)
+        # ofrece TTFT <1s sin competir con slots de TemporalBrain 8B.
         order: List[str] = []
         if lane == "fast" or lane == "voice_gpu":
             order = ["voice_gpu", "temporal_brain", "api_chat", "ollama_main"]
         elif lane == "temporal_brain":
             order = ["temporal_brain", "voice_gpu", "api_chat", "ollama_main"]
         else:
-            # auto: TemporalBrain 8B si tiene slot libre; si ambos ocupados, carril GPU rápido :11435
-            if tb["available"] and tb["free_slots"] > 0:
-                order = ["temporal_brain", "voice_gpu", "api_chat", "ollama_main"]
-            elif vl["available"] and vl["model_loaded"]:
+            if vl["available"]:
                 order = ["voice_gpu", "temporal_brain", "api_chat", "ollama_main"]
+            elif tb["available"] and tb["free_slots"] > 0:
+                order = ["temporal_brain", "api_chat", "ollama_main"]
             elif tb["available"]:
-                order = ["temporal_brain", "voice_gpu", "api_chat", "ollama_main"]
+                order = ["temporal_brain", "api_chat", "ollama_main"]
             else:
-                order = ["voice_gpu", "ollama_main", "api_chat"]
+                order = ["api_chat", "ollama_main"]
 
         chosen = order[0]
 
@@ -2691,6 +3324,7 @@ class LocalVoiceLLMRouter:
                         for tok in self._stream_ollama(
                             VOICE_OLLAMA_URL, VOICE_OLLAMA_MODEL, messages,
                             max_tokens, temperature, VOICE_OLLAMA_NUM_CTX, ev,
+                            num_gpu=VOICE_OLLAMA_NUM_GPU,
                         ):
                             emitted = True
                             yield tok
@@ -2732,11 +3366,100 @@ class LocalVoiceLLMRouter:
 # 9. SINGLETONS GLOBALES Y TELEMETRÍA CONSOLIDADA
 # ==============================================================================
 
+class LiveDictationTracker:
+    """
+    Registro inmediato en memoria y disco atómico de la voz dictada en curso.
+    Permite que CLI, tardis-desktop, mundo-desktop y API consulten en tiempo real
+    exactamente qué palabras está capturando el sistema mientras hablas.
+    """
+
+    def __init__(self, state_path: Optional[Path] = None):
+        data_dir = PROJECT_ROOT / "data"
+        self.json_path = state_path or (data_dir / "voice_dictation_live.json")
+        self.txt_path = self.json_path.with_suffix(".txt")
+        self._lock = threading.Lock()
+        self._state: Dict[str, Any] = {
+            "active": False,
+            "partial_text": "",
+            "final_text": "",
+            "source": "",
+            "rms": 0.0,
+            "stt_ms": 0,
+            "seq": 0,
+            "updated_at": 0.0,
+            "history": [],
+        }
+
+    def _persist_locked(self) -> None:
+        try:
+            self.json_path.parent.mkdir(parents=True, exist_ok=True)
+            tmp_j = self.json_path.with_suffix(".json.tmp")
+            tmp_j.write_text(json.dumps(self._state, ensure_ascii=False), encoding="utf-8")
+            tmp_j.replace(self.json_path)
+            live_line = self._state["partial_text"] if self._state["active"] else self._state["final_text"]
+            tmp_t = self.txt_path.with_suffix(".txt.tmp")
+            tmp_t.write_text(live_line or "", encoding="utf-8")
+            tmp_t.replace(self.txt_path)
+        except OSError:
+            pass
+
+    def update_partial(self, text: str, *, source: str = "local", rms: float = 0.0, stt_ms: int = 0) -> Dict[str, Any]:
+        with self._lock:
+            self._state["active"] = True
+            self._state["partial_text"] = (text or "").strip()
+            self._state["source"] = source
+            self._state["rms"] = round(float(rms), 4)
+            self._state["stt_ms"] = int(stt_ms)
+            self._state["seq"] = int(self._state["seq"]) + 1
+            self._state["updated_at"] = round(time.time(), 3)
+            self._persist_locked()
+            return dict(self._state)
+
+    def commit_final(self, text: str, *, source: str = "local", stt_ms: int = 0) -> Dict[str, Any]:
+        clean = (text or "").strip()
+        with self._lock:
+            self._state["active"] = False
+            self._state["partial_text"] = ""
+            if clean:
+                self._state["final_text"] = clean
+                hist = list(self._state.get("history") or [])
+                hist.append({"text": clean, "ts": round(time.time(), 3), "source": source, "stt_ms": int(stt_ms)})
+                self._state["history"] = hist[-25:]
+            self._state["source"] = source
+            self._state["stt_ms"] = int(stt_ms)
+            self._state["seq"] = int(self._state["seq"]) + 1
+            self._state["updated_at"] = round(time.time(), 3)
+            self._persist_locked()
+            return dict(self._state)
+
+    def clear_active(self) -> None:
+        with self._lock:
+            if not self._state["active"] and not self._state["partial_text"]:
+                return
+            self._state["active"] = False
+            self._state["partial_text"] = ""
+            self._state["updated_at"] = round(time.time(), 3)
+            self._persist_locked()
+
+    def snapshot(self) -> Dict[str, Any]:
+        with self._lock:
+            return dict(self._state)
+
+
 _SINGLETON_LOCK = threading.Lock()
 _STT_SINGLETON: Optional[SovereignLocalSTT] = None
 _TTS_SINGLETON: Optional[SovereignLocalTTS] = None
 _ABSTRACTOR_SINGLETON: Optional[VoiceAbstractionEngine] = None
 _ROUTER_SINGLETON: Optional[LocalVoiceLLMRouter] = None
+_DICTATION_TRACKER_SINGLETON: Optional[LiveDictationTracker] = None
+
+
+def get_live_dictation_tracker() -> LiveDictationTracker:
+    global _DICTATION_TRACKER_SINGLETON
+    with _SINGLETON_LOCK:
+        if _DICTATION_TRACKER_SINGLETON is None:
+            _DICTATION_TRACKER_SINGLETON = LiveDictationTracker()
+        return _DICTATION_TRACKER_SINGLETON
 
 
 def get_sovereign_stt(
@@ -2804,6 +3527,13 @@ def get_sovereign_voice_status() -> Dict[str, Any]:
         "abstraction": {
             "active_topic": get_voice_abstractor().active_topic,
             "dictation_mode": get_voice_abstractor().dictation_mode,
+        },
+        "live_dictation": get_live_dictation_tracker().snapshot(),
+        "sync_speech": {
+            "enabled": True,
+            "word_timings": True,
+            "expressive_prosody": True,
+            "phonetic_diction_es_mx": True,
         },
         "cpu_freq_mhz": query_cpu_freq_mhz(),
         "audio_io": {

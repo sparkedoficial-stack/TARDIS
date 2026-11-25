@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "created_at": "2026-10-15T02:04:29.176374",
   "last_periodic_sync": "2026-11-24T07:58:40.506597",
-  "last_immediate_sync": "2026-11-25T00:48:47.901452",
-  "last_commit_hash": "b444676e",
-  "sync_count": 1526,
-  "immediate_sync_count": 1522,
+  "last_immediate_sync": "2026-11-25T00:53:54.099912",
+  "last_commit_hash": "2ab2e0cd",
+  "sync_count": 1527,
+  "immediate_sync_count": 1523,
   "periodic_sync_count": 4,
   "last_known_mtimes": {
     "skill:godworks-system-suite/SKILL.md": REDACTED_PHONE.5482113,
@@ -165,7 +165,7 @@
     "core:tardis_ssm_v27.py": REDACTED_PHONE.33,
     "core:tardis_telephony_controller.py": REDACTED_PHONE.17,
     "core:tardis_video_thinking_engine.py": REDACTED_PHONE.1650474,
-    "core:tardis_voice_local.py": REDACTED_PHONE.116588,
+    "core:tardis_voice_local.py": REDACTED_PHONE.8958015,
     "core:tardis_vp_engine.py": REDACTED_PHONE.3874192,
     "core:task_manager.py": REDACTED_PHONE.75,
     "core:telegram_group_manager.py": REDACTED_PHONE.7,
@@ -195,7 +195,7 @@
     "core:tardis_music_maestro.py": REDACTED_PHONE.096811,
     "core:cyber_recursive_agent.py": REDACTED_PHONE.1592615,
     "core:tardis_voice_program.py": REDACTED_PHONE.3771932,
-    "core:tardis_infinite_voice.py": REDACTED_PHONE.113585,
+    "core:tardis_infinite_voice.py": REDACTED_PHONE.8775141,
     "core:screen_capture.py": REDACTED_PHONE.3468363,
     "core:program_progress.py": REDACTED_PHONE.109309,
     "core:tardis_agy_controller.py": REDACTED_PHONE.9267936,
@@ -222,7 +222,7 @@
     "core:videocall_webapp_ui.py": REDACTED_PHONE.3347282,
     "core:mundo_sin_censura_hardware.py": REDACTED_PHONE.9136124,
     "core:mundo_sin_censura_voice.py": REDACTED_PHONE.491417,
-    "core:tardis_voice_engine.py": REDACTED_PHONE.4711876,
+    "core:tardis_voice_engine.py": REDACTED_PHONE.1285198,
     "directive:AGENTS.md": REDACTED_PHONE.8623235,
     "directive:GEMINI.md": REDACTED_PHONE.8793235,
     "registry:dynamic_tools": REDACTED_PHONE.0256226,
@@ -334,6 +334,16 @@
     "sat:gia_ios:GIA/Views/Theme.swift": REDACTED_PHONE.0
   },
   "history": [
+    {
+      "timestamp": "2026-11-25T00:53:54.099912",
+      "trigger": "immediate_milestone",
+      "commit_hash": "2ab2e0cd",
+      "score": 50,
+      "reasons": [
+        "Evoluci\u00f3n en subsistema core TARDIS: background_hardware_orchestrator.py",
+        "Evoluci\u00f3n en subsistema core TARDIS: tardis_voice_engine.py"
+      ]
+    },
     {
       "timestamp": "2026-11-25T00:48:47.901452",
       "trigger": "immediate_milestone",
@@ -866,16 +876,6 @@
       "reasons": [
         "Evoluci\u00f3n en subsistema core TARDIS: idle_evolution_daemon.py",
         "Nuevo subsistema core TARDIS: telegram_call_priority.py"
-      ]
-    },
-    {
-      "timestamp": "2026-11-21T13:51:11.283328",
-      "trigger": "immediate_milestone",
-      "commit_hash": "b2cd550f",
-      "score": 50,
-      "reasons": [
-        "Evoluci\u00f3n en subsistema core TARDIS: os_optimizer.py",
-        "Evoluci\u00f3n en subsistema core TARDIS: telegram_bridge.py"
       ]
     }
   ]

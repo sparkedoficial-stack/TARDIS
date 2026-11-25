@@ -58,10 +58,13 @@ from core.tardis_voice_engine import (
     SegmenterConfig,
     SovereignLocalSTT,
     SovereignLocalTTS,
+    SyncedSpeechSegment,
     UtteranceCoalescer,
     VoiceAbstraction,
     VoiceAbstractionEngine,
+    WordTiming,
     extract_streaming_sentence,
+    get_live_dictation_tracker,
     get_sovereign_stt,
     get_sovereign_tts,
     get_voice_llm_router,
@@ -141,6 +144,9 @@ class InfiniteVoiceConfig:
     use_silero: bool = True
     coalesce_incomplete: bool = True
     dictation_mode: bool = False
+    live_preview: bool = True
+    live_preview_interval_s: float = 0.38
+    sync_text_to_audio: bool = True
     enable_voice_priority: bool = True
     client_id: str = "infinite_voice_local"
     session_id: str = "infinite_voice_local"
@@ -339,6 +345,13 @@ class InfiniteVoiceChat:
         self._turn_lock = threading.Lock()
         self._cancel_event = threading.Event()
         self._active_turn_thread: Optional[threading.Thread] = None
+        self._dictation_tracker = get_live_dictation_tracker()
+        self._preview_lock = threading.Lock()
+        self._preview_busy = False
+        self._last_preview_ts = 0.0
+        self._last_preview_text = ""
+        self._preview_shown = False
+        self._stdout_lock = threading.Lock()
         self._vault = self._init_vault()
         if not self.cfg.fresh:
             self._restore_recent_history()
@@ -905,7 +918,7 @@ class InfiniteVoiceChat:
 def build_arg_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(description="TARDIS · Chat de Voz Local Fluida Full-Duplex + Dictado")
     ap.add_argument("--voice", default=DEFAULT_VOICE, help="Voz TTS (claude, ald, dalia, jorge, elvira, jenny)")
-    ap.add_argument("--tts-mode", choices=["local", "hybrid", "edge"], default=DEFAULT_TTS_MODE, help="Motor TTS: local (Piper 100% offline), hybrid o edge")
+    ap.add_argument("--tts-mode", choices=["local", "hybrid", "edge"], default=DEFAULT_TTS_MODE, help="Motor TTS: local (Piper 100%% offline), hybrid o edge")
     ap.add_argument("--rate", default="+6%", help="Velocidad de habla (ej. +6%%, +12%%)")
     ap.add_argument("--whisper-model", default=os.environ.get("TARDIS_VOICE_WHISPER_MODEL", "auto"), help="Modelo Whisper (auto, small, base)")
     ap.add_argument("--device", choices=["auto", "cuda", "cpu"], default=os.environ.get("TARDIS_STT_DEVICE", "auto"))
