@@ -5212,9 +5212,18 @@ iframe{border:none;width:100%;height:100%;}</style></head>
             "tts_mode": mode,
         }
 
+    @app.get("/api/voice/local/dictation_live")
+    async def get_local_voice_dictation_live_endpoint():
+        from core.tardis_voice_engine import get_live_dictation_tracker
+        return {"ok": True, **get_live_dictation_tracker().snapshot()}
+
     @app.post("/api/voice/local/transcribe")
     async def post_local_voice_transcribe_endpoint(payload: Dict[str, Any]):
-        from core.tardis_voice_engine import get_sovereign_stt, get_voice_abstractor
+        from core.tardis_voice_engine import (
+            get_live_dictation_tracker,
+            get_sovereign_stt,
+            get_voice_abstractor,
+        )
         audio_path = str(payload.get("audio_path") or "").strip()
         b64 = str(payload.get("audio_base64") or "").strip()
         fmt = str(payload.get("format") or "wav")
@@ -5222,6 +5231,9 @@ iframe{border:none;width:100%;height:100%;}</style></head>
         dictation_mode = bool(payload.get("dictation_mode", False))
         context_hint = str(payload.get("context_hint") or "").strip()
         do_abstract = bool(payload.get("abstract", True))
+        is_partial = bool(payload.get("partial", False))
+        source = str(payload.get("source") or "api_local").strip() or "api_local"
+        rms = float(payload.get("rms") or 0.0)
 
         if not audio_path and not b64:
             raise HTTPException(status_code=400, detail="Se requiere 'audio_base64' o 'audio_path'.")
@@ -5231,18 +5243,25 @@ iframe{border:none;width:100%;height:100%;}</style></head>
             context_hint = abstractor.get_stt_context_hint()
 
         stt = get_sovereign_stt()
+        tracker = get_live_dictation_tracker()
         loop = asyncio.get_event_loop()
 
         if audio_path:
             p = Path(audio_path)
             if not p.is_file():
                 raise HTTPException(status_code=404, detail=f"Audio no encontrado: {audio_path}")
-            res = await loop.run_in_executor(
-                None,
-                lambda: stt.transcribe_file(
+
+            def _run_file():
+                if is_partial:
+                    pcm = stt.decode_to_pcm16k(p.read_bytes(), suffix=p.suffix or ".wav")
+                    return stt.transcribe_pcm_partial(
+                        pcm, language=lang, context_hint=context_hint, dictation_mode=dictation_mode
+                    )
+                return stt.transcribe_file(
                     p, language=lang, context_hint=context_hint, dictation_mode=dictation_mode
-                ),
-            )
+                )
+
+            res = await loop.run_in_executor(None, _run_file)
         else:
             try:
                 audio_bytes = base64.b64decode(b64)
@@ -5254,11 +5273,36 @@ iframe{border:none;width:100%;height:100%;}</style></head>
                     pcm = audio_bytes
                 else:
                     pcm = stt.decode_to_pcm16k(audio_bytes, suffix=f".{fmt.lstrip('.')}")
+                if is_partial:
+                    return stt.transcribe_pcm_partial(
+                        pcm, language=lang, context_hint=context_hint, dictation_mode=dictation_mode
+                    )
                 return stt.transcribe_pcm_detailed(
                     pcm, language=lang, context_hint=context_hint, dictation_mode=dictation_mode
                 )
 
             res = await loop.run_in_executor(None, _run_bytes)
+
+        stt_ms = int(round(res.elapsed_s * 1000))
+        if is_partial:
+            if res.text:
+                tracker.update_partial(res.text, source=source, rms=rms, stt_ms=stt_ms)
+            return {
+                "ok": True,
+                "partial": True,
+                "text": res.text,
+                "raw_text": res.raw_text,
+                "stt_ms": stt_ms,
+                "seconds": round(res.elapsed_s, 3),
+                "device": res.device,
+                "model": res.model,
+                "corrections": res.corrections,
+            }
+
+        if res.text:
+            tracker.commit_final(res.text, source=source, stt_ms=stt_ms)
+        else:
+            tracker.clear_active()
 
         abs_dict = None
         if do_abstract and res.text:
@@ -5267,9 +5311,10 @@ iframe{border:none;width:100%;height:100%;}</style></head>
 
         return {
             "ok": True,
+            "partial": False,
             "text": res.text,
             "raw_text": res.raw_text,
-            "stt_ms": int(round(res.elapsed_s * 1000)),
+            "stt_ms": stt_ms,
             "seconds": round(res.elapsed_s, 3),
             "device": res.device,
             "model": res.model,
@@ -5279,6 +5324,13 @@ iframe{border:none;width:100%;height:100%;}</style></head>
             "corrections": res.corrections,
             "abstraction": abs_dict,
         }
+
+    @app.post("/api/voice/local/transcribe_partial")
+    async def post_local_voice_transcribe_partial_endpoint(payload: Dict[str, Any]):
+        p = dict(payload)
+        p["partial"] = True
+        p["abstract"] = False
+        return await post_local_voice_transcribe_endpoint(p)
 
     @app.post("/api/voice/local/abstract")
     async def post_local_voice_abstract_endpoint(payload: Dict[str, Any]):
@@ -5302,15 +5354,41 @@ iframe{border:none;width:100%;height:100%;}</style></head>
         mode = str(payload.get("mode") or "local").strip().lower()
         voice = payload.get("voice")
         rate = payload.get("rate", "+6%")
-        audio_bytes, mime, _sr = await get_sovereign_tts(mode=mode).synthesize_bytes_async(
-            text, voice=voice, rate=rate, mode=mode
+        style_hint = str(payload.get("style_hint") or "").strip()
+        include_timings = bool(payload.get("include_timings", False))
+
+        tts_eng = get_sovereign_tts(mode=mode)
+        loop = asyncio.get_event_loop()
+        seg = await loop.run_in_executor(
+            None,
+            lambda: tts_eng.synthesize_synced_segment(
+                text, voice=voice, rate=rate, mode=mode, style_hint=style_hint
+            ),
         )
-        if not audio_bytes:
+        if seg is None or not seg.encoded_bytes:
             raise HTTPException(status_code=503, detail="No se pudo sintetizar audio TTS local.")
+
+        if include_timings:
+            return {
+                "ok": True,
+                "audio_base64": base64.b64encode(seg.encoded_bytes).decode("ascii"),
+                "mime": seg.mime,
+                "sample_rate": seg.sample_rate,
+                "duration_ms": seg.duration_ms,
+                "prosody": seg.prosody.style,
+                "display_text": seg.display_text,
+                "spoken_text": seg.spoken_text,
+                "word_timings": [w.to_dict() for w in seg.word_timings],
+            }
+
         return Response(
-            content=audio_bytes,
-            media_type=mime,
-            headers={"Cache-Control": "no-store"},
+            content=seg.encoded_bytes,
+            media_type=seg.mime,
+            headers={
+                "Cache-Control": "no-store",
+                "X-Tardis-Duration-Ms": str(seg.duration_ms),
+                "X-Tardis-Prosody": seg.prosody.style,
+            },
         )
 
     @app.websocket("/api/voice/local/ws")
@@ -5381,14 +5459,29 @@ iframe{border:none;width:100%;height:100%;}</style></head>
                 if reply_txt:
                     await _send({"type": "token", "delta": reply_txt})
                     if cfg["tts_enabled"]:
-                        audio_b, mime, _sr = await tts_eng.synthesize_bytes_async(
-                            reply_txt, voice=cfg["voice"], rate=cfg["rate"], mode=cfg["tts_mode"]
+                        seg = await loop.run_in_executor(
+                            None,
+                            lambda: tts_eng.synthesize_synced_segment(
+                                reply_txt,
+                                voice=cfg["voice"],
+                                rate=cfg["rate"],
+                                mode=cfg["tts_mode"],
+                                style_hint=abs_obj.response_style,
+                            ),
                         )
-                        if audio_b and not cancel_ev.is_set():
+                        if seg and seg.encoded_bytes and not cancel_ev.is_set():
                             await _send({"type": "state", "state": "speaking"})
                             await _send({
-                                "type": "audio_chunk", "seq": 0, "text": reply_txt,
-                                "mime": mime, "data": base64.b64encode(audio_b).decode("ascii"),
+                                "type": "audio_chunk",
+                                "seq": 0,
+                                "text": seg.spoken_text,
+                                "display_text": seg.display_text,
+                                "mime": seg.mime,
+                                "sample_rate": seg.sample_rate,
+                                "duration_ms": seg.duration_ms,
+                                "prosody": seg.prosody.style,
+                                "word_timings": [w.to_dict() for w in seg.word_timings],
+                                "data": base64.b64encode(seg.encoded_bytes).decode("ascii"),
                             })
                 await _send({"type": "done", "ok": True, "lane": "instant", "reply": reply_txt})
                 await _send({"type": "state", "state": "listening"})
@@ -5442,17 +5535,25 @@ iframe{border:none;width:100%;height:100%;}</style></head>
                         task.cancel()
                         continue
                     try:
-                        ab, mime, _sr = await task
+                        seg = await task
                     except Exception:
                         continue
-                    if cancel_ev.is_set() or not ab:
+                    if cancel_ev.is_set() or seg is None or not seg.encoded_bytes:
                         continue
                     if not first_sent:
                         first_sent = True
                         await _send({"type": "state", "state": "speaking"})
                     await _send({
-                        "type": "audio_chunk", "seq": seq, "text": stxt,
-                        "mime": mime, "data": base64.b64encode(ab).decode("ascii"),
+                        "type": "audio_chunk",
+                        "seq": seq,
+                        "text": seg.spoken_text,
+                        "display_text": seg.display_text,
+                        "mime": seg.mime,
+                        "sample_rate": seg.sample_rate,
+                        "duration_ms": seg.duration_ms,
+                        "prosody": seg.prosody.style,
+                        "word_timings": [w.to_dict() for w in seg.word_timings],
+                        "data": base64.b64encode(seg.encoded_bytes).decode("ascii"),
                     })
 
             tts_task = asyncio.create_task(_tts_sender()) if cfg["tts_enabled"] else None
@@ -5464,13 +5565,20 @@ iframe{border:none;width:100%;height:100%;}</style></head>
                 nonlocal seq_idx
                 if not cfg["tts_enabled"] or cancel_ev.is_set():
                     return
-                clean = prepare_text_for_speech(sraw)
-                if not clean:
+                disp = (sraw or "").strip()
+                if not disp or not prepare_text_for_speech(disp):
                     return
-                t = asyncio.create_task(
-                    tts_eng.synthesize_bytes_async(clean, voice=cfg["voice"], rate=cfg["rate"], mode=cfg["tts_mode"])
+                t = loop.run_in_executor(
+                    None,
+                    lambda d=disp: tts_eng.synthesize_synced_segment(
+                        d,
+                        voice=cfg["voice"],
+                        rate=cfg["rate"],
+                        mode=cfg["tts_mode"],
+                        style_hint=abs_obj.response_style,
+                    ),
                 )
-                tts_q.put_nowait((seq_idx, clean, t))
+                tts_q.put_nowait((seq_idx, disp, t))
                 seq_idx += 1
 
             while True:
@@ -5570,6 +5678,33 @@ iframe{border:none;width:100%;height:100%;}</style></head>
                             cfg[k] = data[k]
                     abstractor.dictation_mode = bool(cfg["dictation_mode"])
                     await _send({"type": "config_ack", "config": dict(cfg)})
+                elif ev_t == "audio_partial":
+                    b64_p = str(data.get("audio_base64") or "").strip()
+                    if b64_p:
+                        try:
+                            raw_p = base64.b64decode(b64_p)
+                            afmt_p = str(data.get("format") or "pcm16").strip().lower().lstrip(".")
+                            stt = get_sovereign_stt()
+                            hint = abstractor.get_stt_context_hint()
+                            loop = asyncio.get_event_loop()
+
+                            def _run_p():
+                                pcm = raw_p if afmt_p in ("pcm", "pcm16", "s16le", "raw") else stt.decode_to_pcm16k(raw_p, suffix=f".{afmt_p}")
+                                return stt.transcribe_pcm_partial(
+                                    pcm,
+                                    language=str(cfg["language"]),
+                                    context_hint=hint,
+                                    dictation_mode=bool(cfg["dictation_mode"]),
+                                )
+
+                            pres = await loop.run_in_executor(None, _run_p)
+                            if pres.text:
+                                from core.tardis_voice_engine import get_live_dictation_tracker
+                                p_ms = int(round(pres.elapsed_s * 1000))
+                                get_live_dictation_tracker().update_partial(pres.text, source="ws_local", stt_ms=p_ms)
+                                await _send({"type": "transcript_partial", "text": pres.text, "stt_ms": p_ms})
+                        except Exception:
+                            pass
                 elif ev_t == "text":
                     txt = str(data.get("text") or "").strip()
                     if txt:

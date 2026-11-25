@@ -482,24 +482,110 @@ class InfiniteVoiceChat:
         self._last_lane = chosen_lane
         yield from token_iter
 
-    def _speak_sentence_direct(self, sentence: str, cancel_event: Optional[threading.Event] = None) -> bool:
-        """Sintetiza y encola audio directamente en RAM (PCM gapless para Piper, MP3 para Edge)."""
+    def _clear_live_preview_line(self) -> None:
+        if self.cfg.daemon:
+            return
+        with self._stdout_lock:
+            if self._preview_shown:
+                sys.stdout.write("\r\033[2K")
+                sys.stdout.flush()
+                self._preview_shown = False
+
+    def _render_live_preview(self, text: str, rms: float = 0.0) -> None:
+        if self.cfg.daemon or not text:
+            return
+        bars = min(6, max(1, int(rms * 42)))
+        meter = "▮" * bars + "▯" * (6 - bars)
+        display = text if len(text) <= 96 else ("…" + text[-95:])
+        with self._stdout_lock:
+            sys.stdout.write(f"\r\033[2K{C_GOLD}🎙️  [{meter}] Registrando ▸{C_RESET} {display}")
+            sys.stdout.flush()
+            self._preview_shown = True
+
+    def _maybe_schedule_live_preview(self, rms: float) -> None:
+        """Transcribe de forma asíncrona y muestra en tiempo real lo que el usuario está dictando."""
+        if not self.cfg.live_preview or self.paused or self.player.is_playing:
+            return
+        now = time.monotonic()
+        if (now - self._last_preview_ts) < self.cfg.live_preview_interval_s:
+            return
+        with self._preview_lock:
+            if self._preview_busy:
+                return
+            pcm, dur_s = self.segmenter.get_current_speech_pcm(max_seconds=10.0)
+            if not pcm or dur_s < 0.35:
+                return
+            self._preview_busy = True
+            self._last_preview_ts = now
+
+        hint = self.abstractor.get_stt_context_hint()
+        dict_mode = bool(self.abstractor.dictation_mode)
+
+        def _preview_worker() -> None:
+            try:
+                txt, el = self.stt.transcribe_pcm_partial(
+                    pcm,
+                    language=self.cfg.language,
+                    context_hint=hint,
+                    dictation_mode=dict_mode,
+                )
+                if txt and self.segmenter.in_speech and not self.player.is_playing:
+                    if txt != self._last_preview_text:
+                        self._last_preview_text = txt
+                        self._dictation_tracker.update_partial(
+                            txt,
+                            source="tardis_talk",
+                            rms=rms,
+                            stt_ms=int(round(el * 1000)),
+                        )
+                        self._render_live_preview(txt, rms=rms)
+            except Exception as exc:
+                logger.debug("Vista previa de dictado omitida: %s", exc)
+            finally:
+                with self._preview_lock:
+                    self._preview_busy = False
+
+        threading.Thread(target=_preview_worker, daemon=True, name="TARDIS-LivePreview").start()
+
+    def _speak_sentence_direct(
+        self,
+        sentence: str,
+        cancel_event: Optional[threading.Event] = None,
+        *,
+        style_hint: str = "",
+        on_start=None,
+        on_word=None,
+        on_end=None,
+    ) -> bool:
+        """
+        Sintetiza con prosodia expresiva + dicción es-MX y encola audio directamente en RAM.
+        Si se proveen callbacks (`on_word`), sincroniza el texto palabra por palabra al sonido real.
+        """
         if self.cfg.no_play:
             return False
-        clean = prepare_text_for_speech(sentence)
+        disp = (sentence or "").strip()
+        clean = prepare_text_for_speech(disp)
         if not clean or (cancel_event and cancel_event.is_set()):
             return False
-        engine, vid = resolve_voice_spec(self.tts.voice, mode=self.cfg.tts_mode)
-        if engine == "piper" and self.sovereign_tts.is_piper_available():
-            try:
-                pcm, sr = self.sovereign_tts.synthesize_piper_pcm(
-                    clean, voice=vid, rate=self.cfg.speech_rate
-                )
-                if pcm and not (cancel_event and cancel_event.is_set()):
-                    self.player.enqueue_pcm(pcm, sample_rate=sr)
-                    return True
-            except Exception as exc:
-                logger.debug("Piper directo falló (%s), usando synthesize_bytes", exc)
+
+        try:
+            seg = self.sovereign_tts.synthesize_synced_segment(
+                disp,
+                voice=self.tts.voice,
+                rate=self.cfg.speech_rate,
+                mode=self.cfg.tts_mode,
+                style_hint=style_hint,
+            )
+            if seg is not None and not (cancel_event and cancel_event.is_set()):
+                if on_start or on_word or on_end:
+                    self.player.enqueue_synced(seg, on_start=on_start, on_word=on_word, on_end=on_end)
+                elif seg.pcm:
+                    self.player.enqueue_pcm(seg.pcm, sample_rate=seg.sample_rate)
+                elif seg.encoded_bytes:
+                    self.player.enqueue_bytes(seg.encoded_bytes, mime=seg.mime)
+                return True
+        except Exception as exc:
+            logger.debug("Síntesis sincronizada falló (%s), usando fallback directo", exc)
 
         audio_bytes, mime, _sr = self.sovereign_tts.synthesize_bytes(
             clean, voice=self.tts.voice, rate=self.cfg.speech_rate, mode=self.cfg.tts_mode
@@ -509,11 +595,64 @@ class InfiniteVoiceChat:
             return True
         return False
 
-    def _speak_text(self, text: str, cancel_event: Optional[threading.Event] = None) -> None:
-        if self.cfg.no_play or not text.strip():
+    def _speak_text(
+        self,
+        text: str,
+        cancel_event: Optional[threading.Event] = None,
+        *,
+        header: Optional[str] = None,
+        style_hint: str = "",
+    ) -> None:
+        clean_disp = (text or "").strip()
+        if not clean_disp:
             return
-        if self._speak_sentence_direct(text, cancel_event=cancel_event):
+        sync_ui = (
+            not self.cfg.no_play
+            and self.cfg.sync_text_to_audio
+            and not self.cfg.daemon
+            and header is not None
+        )
+        if not sync_ui:
+            if header is not None:
+                self._log(f"{header} {clean_disp}")
+            if not self.cfg.no_play:
+                if self._speak_sentence_direct(clean_disp, cancel_event=cancel_event, style_hint=style_hint):
+                    self.player.wait_idle(cancel_event=cancel_event)
+            return
+
+        started_flag = {"ok": False}
+
+        def _on_start(_seg: SyncedSpeechSegment) -> None:
+            started_flag["ok"] = True
+            with self._stdout_lock:
+                sys.stdout.write(f"{header} ")
+                sys.stdout.flush()
+
+        def _on_word(_seg: SyncedSpeechSegment, wt: WordTiming, idx: int) -> None:
+            with self._stdout_lock:
+                sys.stdout.write((" " if idx > 0 else "") + wt.word)
+                sys.stdout.flush()
+
+        def _on_end(_seg: SyncedSpeechSegment, interrupted: bool) -> None:
+            with self._stdout_lock:
+                if interrupted:
+                    sys.stdout.write(f" {C_YELLOW}[⚡ interrumpido]{C_RESET}\n")
+                else:
+                    sys.stdout.write("\n")
+                sys.stdout.flush()
+
+        ok = self._speak_sentence_direct(
+            clean_disp,
+            cancel_event=cancel_event,
+            style_hint=style_hint,
+            on_start=_on_start,
+            on_word=_on_word,
+            on_end=_on_end,
+        )
+        if ok:
             self.player.wait_idle(cancel_event=cancel_event)
+        elif not started_flag["ok"]:
+            self._log(f"{header} {clean_disp}")
 
     def _handle_control_intent(self, text: str) -> Optional[str]:
         low = re.sub(r"[^\w\sáéíóúñü]", "", text.lower()).strip()
@@ -612,8 +751,7 @@ class InfiniteVoiceChat:
         if ctrl_reply == "__PAUSED_IGNORE__":
             return ""
         if ctrl_reply is not None:
-            self._log(f"{C_CYAN}TARDIS >{C_RESET} {ctrl_reply}")
-            self._speak_text(ctrl_reply, cancel_event=cancel_event)
+            self._speak_text(ctrl_reply, cancel_event=cancel_event, header=f"{C_CYAN}TARDIS >{C_RESET}")
             return ctrl_reply
 
         # 2. Normalización de dictado + Abstracción semántica (<15 ms)
@@ -624,10 +762,12 @@ class InfiniteVoiceChat:
 
         if abs_res.instant_reply is not None:
             if abs_res.instant_reply:
-                self._log(
-                    f"{C_CYAN}TARDIS [{abs_res.intent} · {abs_res.latency_ms:.1f}ms] >{C_RESET} {abs_res.instant_reply}"
+                self._speak_text(
+                    abs_res.instant_reply,
+                    cancel_event=cancel_event,
+                    header=f"{C_CYAN}TARDIS [{abs_res.intent} · {abs_res.latency_ms:.1f}ms] >{C_RESET}",
+                    style_hint=abs_res.response_style,
                 )
-                self._speak_text(abs_res.instant_reply, cancel_event=cancel_event)
             return abs_res.instant_reply
 
         # 3. Protección de identidad / datos sensibles
@@ -635,8 +775,7 @@ class InfiniteVoiceChat:
             from core.protected_users_vault import get_protected_denial_response, is_protected_info_query
             if is_protected_info_query(norm_text):
                 denial = get_protected_denial_response()
-                self._log(f"{C_CYAN}TARDIS >{C_RESET} {denial}")
-                self._speak_text(denial, cancel_event=cancel_event)
+                self._speak_text(denial, cancel_event=cancel_event, header=f"{C_CYAN}TARDIS >{C_RESET}")
                 return denial
         except Exception:
             pass
@@ -652,38 +791,80 @@ class InfiniteVoiceChat:
             if vp:
                 reply = str(vp.get("reply") or "").strip()
                 if reply:
-                    self._log(f"{C_CYAN}TARDIS [FTL] >{C_RESET} {reply}")
                     self.history.append({"role": "user", "content": norm_text})
                     self.history.append({"role": "assistant", "content": reply})
                     self.turn_count += 1
                     self.abstractor.record_assistant_reply(reply)
                     self._record_turn_async(norm_text, reply)
-                    self._speak_text(reply, cancel_event=cancel_event)
+                    self._speak_text(reply, cancel_event=cancel_event, header=f"{C_CYAN}TARDIS [FTL] >{C_RESET}")
                     return reply
         except Exception as exc:
             logger.debug("Aviso en voice_program_router: %s", exc)
 
-        # 5. Streaming LLM + síntesis TTS paralela por oración (gapless)
+        # 5. Streaming LLM + síntesis TTS paralela por oración sincronizada texto↔sonido
         t0 = time.perf_counter()
         self._last_lane = self.cfg.llm_lane
         sentence_q: "queue.Queue[Optional[str]]" = queue.Queue()
-        first_audio_logged = False
+        sync_ui = (not self.cfg.no_play) and self.cfg.sync_text_to_audio and (not self.cfg.daemon)
+        sync_state = {
+            "header_printed": False,
+            "words_printed": 0,
+            "interrupted": False,
+            "first_audio_s": 0.0,
+        }
+        tag_topic = f" ({abs_res.active_topic[:26]})" if abs_res.active_topic else ""
+
+        def _ensure_header() -> None:
+            if not sync_state["header_printed"]:
+                sync_state["header_printed"] = True
+                with self._stdout_lock:
+                    sys.stdout.write(f"{C_CYAN}TARDIS{tag_topic} >{C_RESET} ")
+                    sys.stdout.flush()
 
         def tts_producer() -> None:
-            nonlocal first_audio_logged
+            seg_num = 0
             while True:
                 sent = sentence_q.get()
                 if sent is None:
                     break
                 if cancel_event.is_set():
                     continue
-                ok = self._speak_sentence_direct(sent, cancel_event=cancel_event)
-                if ok and not first_audio_logged:
-                    first_audio_logged = True
-                    self._log(
-                        f"{C_DIM}   [primer audio en {time.perf_counter() - t0:.2f}s · "
-                        f"carril={self._last_lane} · intent={abs_res.intent}]{C_RESET}"
+                cur_seg = seg_num
+                seg_num += 1
+
+                if sync_ui:
+                    def _on_start(_seg: SyncedSpeechSegment, _idx: int = cur_seg) -> None:
+                        if _idx == 0:
+                            sync_state["first_audio_s"] = time.perf_counter() - t0
+                        _ensure_header()
+
+                    def _on_word(_seg: SyncedSpeechSegment, wt: WordTiming, _widx: int) -> None:
+                        with self._stdout_lock:
+                            sep = " " if sync_state["words_printed"] > 0 else ""
+                            sys.stdout.write(sep + wt.word)
+                            sys.stdout.flush()
+                            sync_state["words_printed"] += 1
+
+                    def _on_end(_seg: SyncedSpeechSegment, interrupted: bool) -> None:
+                        if interrupted:
+                            sync_state["interrupted"] = True
+
+                    self._speak_sentence_direct(
+                        sent,
+                        cancel_event=cancel_event,
+                        style_hint=abs_res.response_style,
+                        on_start=_on_start,
+                        on_word=_on_word,
+                        on_end=_on_end,
                     )
+                else:
+                    ok = self._speak_sentence_direct(
+                        sent,
+                        cancel_event=cancel_event,
+                        style_hint=abs_res.response_style,
+                    )
+                    if ok and sync_state["first_audio_s"] == 0.0:
+                        sync_state["first_audio_s"] = time.perf_counter() - t0
 
         tts_thread = threading.Thread(target=tts_producer, daemon=True)
         if not self.cfg.no_play:
@@ -693,10 +874,12 @@ class InfiniteVoiceChat:
         pending_buf = ""
         sent_idx = 0
 
-        if not self.cfg.daemon:
-            tag_topic = f" ({abs_res.active_topic[:26]})" if abs_res.active_topic else ""
-            sys.stdout.write(f"{C_CYAN}TARDIS{tag_topic} >{C_RESET} ")
-            sys.stdout.flush()
+        if not self.cfg.daemon and not sync_ui:
+            _ensure_header()
+        elif sync_ui:
+            with self._stdout_lock:
+                sys.stdout.write(f"{C_DIM}   [pensando y sincronizando voz…]{C_RESET}")
+                sys.stdout.flush()
 
         # Permitir mocks que solo acepten `(user_text, cancel_event)`
         try:
@@ -704,20 +887,27 @@ class InfiniteVoiceChat:
         except TypeError:
             stream_iter = self.stream_llm(norm_text, cancel_event)
 
+        cleared_thinking = False
         for delta in stream_iter:
             if cancel_event.is_set():
                 break
             full_reply += delta
             pending_buf += delta
-            if not self.cfg.daemon:
-                sys.stdout.write(delta)
-                sys.stdout.flush()
+            if not self.cfg.daemon and not sync_ui:
+                with self._stdout_lock:
+                    sys.stdout.write(delta)
+                    sys.stdout.flush()
 
             if not self.cfg.no_play:
                 while True:
                     ready, pending_buf = extract_ready_sentence(pending_buf, is_first=(sent_idx == 0))
                     if not ready:
                         break
+                    if sync_ui and not cleared_thinking:
+                        cleared_thinking = True
+                        with self._stdout_lock:
+                            sys.stdout.write("\r\033[2K")
+                            sys.stdout.flush()
                     sentence_q.put(ready)
                     sent_idx += 1
 
@@ -725,13 +915,31 @@ class InfiniteVoiceChat:
             if not cancel_event.is_set():
                 tail = pending_buf.strip()
                 if tail:
+                    if sync_ui and not cleared_thinking:
+                        cleared_thinking = True
+                        with self._stdout_lock:
+                            sys.stdout.write("\r\033[2K")
+                            sys.stdout.flush()
                     sentence_q.put(tail)
             sentence_q.put(None)
             tts_thread.join(timeout=60.0)
 
+        self.player.wait_idle(cancel_event=cancel_event)
+
         if not self.cfg.daemon:
-            sys.stdout.write("\n")
-            sys.stdout.flush()
+            with self._stdout_lock:
+                if sync_ui and not sync_state["header_printed"] and full_reply.strip():
+                    # Si TTS no pudo reproducir audio, mostrar texto completo como respaldo
+                    sys.stdout.write(f"\r\033[2K{C_CYAN}TARDIS{tag_topic} >{C_RESET} {full_reply.strip()}")
+                elif sync_ui and sync_state["interrupted"]:
+                    sys.stdout.write(f" {C_YELLOW}[⚡ interrumpido]{C_RESET}")
+                sys.stdout.write("\n")
+                if sync_state["first_audio_s"] > 0.0:
+                    sys.stdout.write(
+                        f"{C_DIM}   [voz sincronizada · 1er audio {sync_state['first_audio_s']:.2f}s · "
+                        f"carril={self._last_lane} · intent={abs_res.intent}]{C_RESET}\n"
+                    )
+                sys.stdout.flush()
 
         clean_reply = full_reply.strip()
         if clean_reply:
@@ -743,7 +951,6 @@ class InfiniteVoiceChat:
             self.abstractor.record_assistant_reply(clean_reply)
             self._record_turn_async(norm_text, clean_reply)
 
-        self.player.wait_idle(cancel_event=cancel_event)
         return clean_reply
 
     def _cancel_active_turn(self) -> None:
@@ -761,8 +968,14 @@ class InfiniteVoiceChat:
         def _worker() -> None:
             with self._turn_lock:
                 text, stt_s = self.transcribe_pcm(pcm_bytes)
+                self._clear_live_preview_line()
+                self._last_preview_text = ""
                 if not text or cancel_ev.is_set():
+                    self._dictation_tracker.clear_active()
                     return
+                self._dictation_tracker.commit_final(
+                    text, source="tardis_talk", stt_ms=int(round(stt_s * 1000))
+                )
                 # Coalescencia inteligente si el usuario dejó una frase inconclusa
                 if self.cfg.coalesce_incomplete and not self.abstractor.dictation_mode and not self.paused:
                     merged, waiting = self.coalescer.push(text)
@@ -874,14 +1087,13 @@ class InfiniteVoiceChat:
             return 1
 
         if self.cfg.greeting and not self.cfg.no_play:
-            self._log(f"{C_CYAN}TARDIS >{C_RESET} {CANONICAL_GREETING}")
-            self._speak_text(CANONICAL_GREETING)
+            self._speak_text(CANONICAL_GREETING, header=f"{C_CYAN}TARDIS >{C_RESET}", style_hint="expressive")
 
         self.mic.start()
         kb_thread = threading.Thread(target=self._keyboard_loop, daemon=True)
         kb_thread.start()
 
-        self._log(f"\n{C_GREEN}🎙️  [CONVERSACIÓN LOCAL ACTIVA]{C_RESET} Habla libremente (o di 'activa modo dictado').\n")
+        self._log(f"\n{C_GREEN}🎙️  [CONVERSACIÓN LOCAL ACTIVA]{C_RESET} Habla libremente (verás tu dictado en vivo y la respuesta sincronizada con la voz).\n")
 
         try:
             while self.running:
@@ -904,10 +1116,14 @@ class InfiniteVoiceChat:
                     self._log(f"\n{C_YELLOW}⚡ Barge-In detectado — escuchando al Arquitecto...{C_RESET}")
                 if res["utterance"]:
                     self._dispatch_audio_utterance(res["utterance"])
+                elif res.get("in_speech"):
+                    self._maybe_schedule_live_preview(float(res.get("rms") or 0.0))
         except KeyboardInterrupt:
             self._log(f"\n{C_YELLOW}Cerrando Chat de Voz Local TARDIS...{C_RESET}")
         finally:
             self.running = False
+            self._clear_live_preview_line()
+            self._dictation_tracker.clear_active()
             self._cancel_active_turn()
             self.mic.stop()
             self.player.shutdown()
@@ -916,7 +1132,7 @@ class InfiniteVoiceChat:
 
 
 def build_arg_parser() -> argparse.ArgumentParser:
-    ap = argparse.ArgumentParser(description="TARDIS · Chat de Voz Local Fluida Full-Duplex + Dictado")
+    ap = argparse.ArgumentParser(description="TARDIS · Chat de Voz Local Fluida Full-Duplex + Dictado en Vivo")
     ap.add_argument("--voice", default=DEFAULT_VOICE, help="Voz TTS (claude, ald, dalia, jorge, elvira, jenny)")
     ap.add_argument("--tts-mode", choices=["local", "hybrid", "edge"], default=DEFAULT_TTS_MODE, help="Motor TTS: local (Piper 100%% offline), hybrid o edge")
     ap.add_argument("--rate", default="+6%", help="Velocidad de habla (ej. +6%%, +12%%)")
@@ -926,6 +1142,8 @@ def build_arg_parser() -> argparse.ArgumentParser:
     ap.add_argument("--lang", default=os.environ.get("TARDIS_VOICE_LANG", "es"))
     ap.add_argument("--silence-ms", type=int, default=740, help="Silencio para cerrar turno en ms")
     ap.add_argument("--dictate", action="store_true", help="Iniciar directamente en modo dictado continuo")
+    ap.add_argument("--no-live-preview", action="store_true", help="Desactivar vista previa en vivo mientras dictas")
+    ap.add_argument("--no-sync-text", action="store_true", help="Mostrar texto del LLM sin sincronizarlo al audio")
     ap.add_argument("--no-barge-in", action="store_true", help="Desactivar interrupción por voz durante TTS")
     ap.add_argument("--barge-in-rms", type=float, default=0.068, help="Umbral RMS para Barge-In por voz")
     ap.add_argument("--no-greeting", action="store_true", help="Omitir saludo inicial al arrancar")
@@ -951,6 +1169,8 @@ def main(argv: Optional[List[str]] = None) -> int:
         language=args.lang,
         silence_hold_ms=args.silence_ms,
         dictation_mode=args.dictate,
+        live_preview=not args.no_live_preview,
+        sync_text_to_audio=not args.no_sync_text,
         barge_in=not args.no_barge_in,
         barge_in_rms=args.barge_in_rms,
         greeting=not args.no_greeting,
