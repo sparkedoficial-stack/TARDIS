@@ -1,90 +1,117 @@
 {
   "ok": true,
-  "ts": REDACTED_PHONE.9484344,
-  "iso": "2026-11-24T18:31:45-05:00",
+  "ts": REDACTED_PHONE.4883544,
+  "iso": "2026-11-25T00:07:44-05:00",
   "level": "RED",
   "reasons": [
-    "RAM disponible crítica (24 MB)",
-    "Uso de swap crítico (21.4 GB)"
+    "CPU PSI avg60 crítico (81.2%)",
+    "Temperatura CPU elevada (84°C)",
+    "1 modelo(s) duplicado(s) en Ollama :11434 (4229 MB)",
+    "Sobresuscripción de hilos en ollama.service (16 hilos en 8 CPUs)"
   ],
   "call_priority_active": false,
   "cpu": {
     "cores": 16,
-    "load1": 4.53,
-    "load5": 4.55,
-    "load15": 4.89,
+    "load1": 8.36,
+    "load5": 14.48,
+    "load15": 9.99,
     "psi": {
-      "some_avg10": 8.81,
-      "some_avg60": 7.75,
-      "some_avg300": 6.45,
+      "some_avg10": 86.31,
+      "some_avg60": 81.22,
+      "some_avg300": 72.49,
       "full_avg10": 0.0,
       "full_avg60": 0.0
     },
-    "temp_c": 70.1,
+    "temp_c": 84.1,
     "thermal_source": "k10temp",
     "fan_rpm": {
-      "cpu": 3800,
-      "gpu": 3800
+      "cpu": 3400,
+      "gpu": 3300
     },
-    "power_profile": "performance",
+    "power_profile": "power-saver",
     "scaling_driver": "amd-pstate-epp",
-    "scaling_governor": "performance",
-    "epp": "performance",
+    "scaling_governor": "powersave",
+    "epp": "power",
     "boost": true
   },
   "memory": {
-    "total_mb": 31495.2,
-    "available_mb": 23.7,
-    "used_mb": 31471.5,
-    "used_pct": 99.9,
+    "total_mb": 31495.3,
+    "available_mb": 12736.9,
+    "used_mb": 18758.4,
+    "used_pct": 59.6,
     "swap_total_mb": 62994.8,
-    "swap_used_mb": 21931.4,
+    "swap_used_mb": 0.0,
     "psi": {
       "some_avg10": 0.0,
-      "some_avg60": 0.04,
-      "some_avg300": 0.12,
+      "some_avg60": 0.0,
+      "some_avg300": 0.0,
       "full_avg10": 0.0,
-      "full_avg60": 0.04
+      "full_avg60": 0.0
     }
   },
   "io": {
     "psi": {
-      "some_avg10": 0.39,
-      "some_avg60": 0.28,
-      "some_avg300": 0.29,
-      "full_avg10": 0.25,
-      "full_avg60": 0.13
+      "some_avg10": 0.0,
+      "some_avg60": 0.0,
+      "some_avg300": 0.0,
+      "full_avg10": 0.0,
+      "full_avg60": 0.0
     }
   },
   "gpu": {
     "available": true,
     "name": "NVIDIA GeForce RTX 3050 Laptop GPU",
-    "temp_c": 62.0,
-    "util_pct": 46.0,
-    "vram_used_mb": 3585.0,
-    "vram_free_mb": 237.0,
+    "temp_c": 71.0,
+    "util_pct": 45.0,
+    "vram_used_mb": 3577.0,
+    "vram_free_mb": 246.0,
     "vram_total_mb": 4096.0,
-    "vram_used_pct": 87.5,
+    "vram_used_pct": 87.3,
     "pstate": "P0",
-    "power_w": 14.04,
+    "power_w": 15.45,
     "clock_gr_mhz": 600,
     "clock_mem_mhz": 6001
   },
   "inference_lanes": {
     "temporal_brain_sock": true,
     "embed_brain_sock": true,
-    "ollama_11434": [],
+    "ollama_11434": [
+      {
+        "name": "TARDIS-NEURAL-SPACE-KAIJU:latest",
+        "size_mb": 4228.6,
+        "size_vram_mb": 0.0,
+        "expires_at": "2026-11-25T00:07:42.791288233-05:00"
+      }
+    ],
     "ollama_11435_gpu_voice": [
       {
         "name": "qwen3-vl:2b-instruct",
         "size_mb": 1697.4,
         "size_vram_mb": 1076.8,
-        "expires_at": "2319-03-06T18:15:37.21799968-05:00"
+        "expires_at": "2319-03-06T23:34:41.982128663-05:00"
       }
     ],
-    "duplicate_models": []
+    "duplicate_models": [
+      {
+        "port": 11434,
+        "model": "TARDIS-NEURAL-SPACE-KAIJU:latest",
+        "size_mb": 4228.6,
+        "reason": "duplicado_con_temporal_brain"
+      }
+    ]
   },
   "cgroup_pressure": [
+    {
+      "unit": "ollama.service",
+      "cpuset_cpus": "8-15",
+      "effective_cpus": 8,
+      "cpu_max": "50000 100000",
+      "cpu_weight": 5,
+      "pids_count": 2,
+      "psi_some_avg10": 95.93,
+      "psi_some_avg60": 91.17,
+      "psi_full_avg60": 86.34
+    },
     {
       "unit": "tardis-tapo-c310-sentinel.service",
       "cpuset_cpus": "8-15",
@@ -92,9 +119,9 @@
       "cpu_max": "120000 100000",
       "cpu_weight": 10,
       "pids_count": 2,
-      "psi_some_avg10": 6.01,
-      "psi_some_avg60": 7.2,
-      "psi_full_avg60": 7.09
+      "psi_some_avg10": 3.03,
+      "psi_some_avg60": 8.02,
+      "psi_full_avg60": 5.77
     },
     {
       "unit": "tardis4ever.service",
@@ -103,9 +130,31 @@
       "cpu_max": "50000 100000",
       "cpu_weight": 5,
       "pids_count": 2,
-      "psi_some_avg10": 10.92,
-      "psi_some_avg60": 4.4,
-      "psi_full_avg60": 4.4
+      "psi_some_avg10": 9.73,
+      "psi_some_avg60": 4.07,
+      "psi_full_avg60": 4.07
+    },
+    {
+      "unit": "tardis.service",
+      "cpuset_cpus": "8-15",
+      "effective_cpus": 8,
+      "cpu_max": "max 100000",
+      "cpu_weight": 25,
+      "pids_count": 4,
+      "psi_some_avg10": 0.0,
+      "psi_some_avg60": 2.83,
+      "psi_full_avg60": 0.93
+    },
+    {
+      "unit": "tardis-temporal-brain.service",
+      "cpuset_cpus": "8-15",
+      "effective_cpus": 8,
+      "cpu_max": "350000 100000",
+      "cpu_weight": 25,
+      "pids_count": 1,
+      "psi_some_avg10": 0.0,
+      "psi_some_avg60": 1.64,
+      "psi_full_avg60": 1.52
     },
     {
       "unit": "tardis-browser-autonomous.service",
@@ -113,10 +162,21 @@
       "effective_cpus": 8,
       "cpu_max": "50000 100000",
       "cpu_weight": 5,
-      "pids_count": 12,
-      "psi_some_avg10": 0.04,
-      "psi_some_avg60": 1.14,
-      "psi_full_avg60": 1.12
+      "pids_count": 13,
+      "psi_some_avg10": 4.96,
+      "psi_some_avg60": 1.43,
+      "psi_full_avg60": 1.43
+    },
+    {
+      "unit": "tardis-tapo-c310-voice.service",
+      "cpuset_cpus": "8-15",
+      "effective_cpus": 8,
+      "cpu_max": "120000 100000",
+      "cpu_weight": 10,
+      "pids_count": 2,
+      "psi_some_avg10": 0.0,
+      "psi_some_avg60": 1.06,
+      "psi_full_avg60": 1.06
     },
     {
       "unit": "tardis-music-maestro.service",
@@ -125,56 +185,25 @@
       "cpu_max": "50000 100000",
       "cpu_weight": 5,
       "pids_count": 2,
-      "psi_some_avg10": 0.02,
-      "psi_some_avg60": 1.14,
-      "psi_full_avg60": 1.14
-    },
-    {
-      "unit": "tardis-cyber-evolve.service",
-      "cpuset_cpus": "0-15",
-      "effective_cpus": 16,
-      "cpu_max": "50000 100000",
-      "cpu_weight": 5,
-      "pids_count": 1,
       "psi_some_avg10": 0.0,
-      "psi_some_avg60": 0.06,
-      "psi_full_avg60": 0.06
-    },
-    {
-      "unit": "tardis-curiosity-debater.service",
-      "cpuset_cpus": "8-15",
-      "effective_cpus": 8,
-      "cpu_max": "50000 100000",
-      "cpu_weight": 5,
-      "pids_count": 1,
-      "psi_some_avg10": 0.0,
-      "psi_some_avg60": 0.05,
-      "psi_full_avg60": 0.05
-    },
-    {
-      "unit": "tardis.service",
-      "cpuset_cpus": "8-15",
-      "effective_cpus": 8,
-      "cpu_max": "max 100000",
-      "cpu_weight": 25,
-      "pids_count": 5,
-      "psi_some_avg10": 0.0,
-      "psi_some_avg60": 0.02,
-      "psi_full_avg60": 0.0
-    },
-    {
-      "unit": "tardis-visual-intelligence.service",
-      "cpuset_cpus": "8-15",
-      "effective_cpus": 8,
-      "cpu_max": "50000 100000",
-      "cpu_weight": 5,
-      "pids_count": 1,
-      "psi_some_avg10": 0.0,
-      "psi_some_avg60": 0.02,
-      "psi_full_avg60": 0.02
+      "psi_some_avg60": 0.72,
+      "psi_full_avg60": 0.52
     }
   ],
-  "oversubscribed_units": [],
+  "oversubscribed_units": [
+    {
+      "unit": "ollama.service",
+      "pid": 3808,
+      "comm": "llama-server",
+      "effective_cpus": 8,
+      "cpuset_cpus": "8-15",
+      "configured_threads": 16,
+      "configured_threads_batch": 0,
+      "runnable_threads": 16,
+      "oversubscription_ratio": 2.0,
+      "recommendation": "Alinear --threads <= 4 y --threads-batch <= 8 con --poll 0 para cpuset 8-15"
+    }
+  ],
   "throttling": {
     "active": true,
     "level": "RED",
@@ -196,14 +225,14 @@
     ],
     "power_profile_mitigated": true,
     "power_profile_applied": "power-saver",
-    "updated_iso": "2026-11-24T18:28:02-05:00"
+    "updated_iso": "2026-11-25T00:07:44-05:00"
   },
   "gpu_eco": {
     "active": true,
     "mode": "eco_thermal",
     "hypr_eco_active": true,
     "last_action": "capped_P5",
-    "updated_iso": "2026-11-24T18:31:25-05:00"
+    "updated_iso": "2026-11-25T00:07:42-05:00"
   },
   "admission": {
     "interactive": true,

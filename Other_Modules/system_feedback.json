@@ -1,27 +1,21 @@
 {
-  "timestamp": REDACTED_PHONE.406485,
-  "iso": "2026-11-24T18:31:46.411163",
-  "health_score": 85,
+  "timestamp": REDACTED_PHONE.780022,
+  "iso": "2026-11-25T00:07:27.782034",
+  "health_score": 100,
   "status": "HEALTHY",
-  "cycle": 664,
+  "cycle": 49,
   "metrics": {
-    "cpu_percent": 25.0,
-    "cpu_ema": 23.1,
+    "cpu_percent": 15.1,
+    "cpu_ema": 23.3,
     "high_cpu_streak": 0,
-    "ram_percent": 99.9,
-    "high_ram_streak": 664,
+    "ram_percent": 59.2,
+    "high_ram_streak": 0,
     "governor_level": "RED",
-    "cpu_psi_60": 7.75,
+    "cpu_psi_60": 79.02,
     "recent_errors": 0,
     "recent_blocks": 0
   },
-  "penalties": [
-    {
-      "factor": "ram_sustained",
-      "points": -15,
-      "detail": "RAM sostenida 99.9% (racha=664)"
-    }
-  ],
+  "penalties": [],
   "subsystems": {
     "ollama_online": true,
     "rf_radar_active": true,
@@ -33,7 +27,7 @@
     "temporal_brain_online": true
   },
   "needs": [
-    "Presión Ring 0 RED: RAM disponible crítica (24 MB); Uso de swap crítico (21.4 GB)"
+    "Presión Ring 0 RED: CPU PSI avg60 crítico (79.0%); Temperatura CPU cálida (81°C)"
   ],
   "instructions": [
     {
@@ -41,8 +35,8 @@
       "severity": "HIGH",
       "component": "Resource Governor Ring 0",
       "target_file": "core/tardis_resource_governor.py",
-      "instruction": "Estabilizar presión RED (RAM disponible crítica (24 MB); Uso de swap crítico (21.4 GB)) ejecutando reclamación de modelos duplicados y throttling.",
-      "rationale": "CPU PSI60=7.75%, RAM libre=23.7 MB.",
+      "instruction": "Estabilizar presión RED (CPU PSI avg60 crítico (79.0%); Temperatura CPU cálida (81°C)) ejecutando reclamación de modelos duplicados y throttling.",
+      "rationale": "CPU PSI60=79.02%, RAM libre=12853.7 MB.",
       "actionable_cmd": "tardis-governor reclaim"
     }
   ],

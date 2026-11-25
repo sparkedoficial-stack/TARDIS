@@ -23,17 +23,17 @@
     "verified_at": "2026-11-23 23:20:38"
   },
   "metrics": {
-    "total_requests": 10,
-    "successful_requests": 8,
+    "total_requests": 12,
+    "successful_requests": 10,
     "failed_requests": 2,
     "lane_counts": {
-      "temporal_brain": 7,
+      "temporal_brain": 9,
       "ollama": 3
     },
     "last_lane": "temporal_brain",
-    "last_latency_s": 697.224,
+    "last_latency_s": 512.997,
     "last_tokens_per_sec": 1.04,
     "last_benchmark": null
   },
-  "last_run": "2026-11-24 02:47:59"
+  "last_run": "2026-11-24 18:59:09"
 }

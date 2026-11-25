@@ -3486,7 +3486,7 @@ def process_hardware_chat_intent(msg: str, is_local_request: bool = False) -> Op
         avail = round(vm.available / (1024**3), 1)
         used = round(vm.used / (1024**3), 1)
         ram_budget = float(os.environ.get("GIA_RAM_BUDGET_GB", "18.0"))
-        threads = os.environ.get("GIA_NUM_THREADS", "12")
+        threads = os.environ.get("GIA_NUM_THREADS", "4")
         batch = os.environ.get("GIA_NUM_BATCH", "512")
         ctx = os.environ.get("GIA_NUM_CTX", "4096")
 
@@ -9889,24 +9889,38 @@ def launch_native_window(url: str):
 
 
 def warmup_and_lock_ollama_in_ram(model_name: Optional[str] = None):
-    """Precarga y bloquea el modelo local en RAM física (28 GB working set para 32 GB) y VRAM con mlock para ultra-alta velocidad."""
+    """Verifica/espera al cerebro principal TemporalBrain sin provocar carga duplicada de KAIJU en Ollama CPU :11434."""
     def _worker():
         time.sleep(0.5)
         try:
             import gia_sovereign_engine as _gse
+            # Si TemporalBrain ya gestiona el modelo soberano, esperar su readiness en socket UNIX
+            # en lugar de disparar un ping por HTTP que pueda derramar KAIJU hacia Ollama CPU :11434.
+            engine_mode = os.environ.get("GIA_ENGINE", "temporal_brain").strip().lower()
+            if engine_mode == "temporal_brain" or _gse._is_temporal_brain_active_or_warming():
+                try:
+                    from core.temporal_brain import get_temporal_brain
+                    tb = get_temporal_brain()
+                    if tb.is_running() or tb.start(wait_ready=30.0):
+                        print(f"[OMNI-LOCAL] 🧠 TemporalBrain residente verificado en {tb.socket_path} (sin duplicar Ollama CPU :11434).")
+                        return
+                except Exception as tb_exc:
+                    print(f"[OMNI-LOCAL] Aviso esperando TemporalBrain: {tb_exc}")
+                    return
+
             eng = _gse.get_engine()
             target = eng.resolve_model(model_name or CFG.get("model", os.environ.get("GIA_MODEL", "TARDIS-NEURAL-SPACE-KAIJU")))
             ram_budget = os.environ.get("GIA_RAM_BUDGET_GB", "28.0")
-            threads = os.environ.get("GIA_NUM_THREADS", "16")
-            ctx = int(os.environ.get("GIA_NUM_CTX", "32768"))
-            print(f"[OMNI-LOCAL] 🧠 Fijando modelo soberano '{target}' en {ram_budget} GB RAM física (mlock activo, {threads} hilos, KV Cache f16)...")
+            threads = str(_gse._resolve_safe_cpu_ollama_threads())
+            ctx = int(os.environ.get("GIA_NUM_CTX", "8192"))
+            print(f"[OMNI-LOCAL] 🧠 Precargando modelo '{target}' ({ram_budget} GB presupuesto, {threads} hilos gobernados)...")
             eng.chat(
                 [{"role": "user", "content": "ping"}],
                 model=target,
                 temperature=0.1,
                 num_ctx=ctx
             )
-            print(f"[OMNI-LOCAL] 🚀 Modelo '{target}' 100% residente y anclado en memoria RAM ({ram_budget} GB Working Set dedicado).")
+            print(f"[OMNI-LOCAL] 🚀 Modelo '{target}' precargado correctamente.")
         except Exception as e:
             print(f"[OMNI-LOCAL] Nota en precarga del motor: {e}")
 

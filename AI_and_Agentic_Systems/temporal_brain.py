@@ -937,11 +937,21 @@ class TemporalBrain:
         if stop:
             payload["stop"] = list(stop)
 
-        # 3. Llamada al socket UNIX privado reutilizando conexión keep-alive (con auto-recuperación)
+        # 3. Llamada al socket UNIX privado reutilizando conexión keep-alive (con auto-recuperación y espera de warmup 503)
         raw_result: Dict[str, Any] = {}
         infer_timeout = float(timeout) if (timeout is not None and float(timeout) > 0) else _temporal_infer_timeout()
         effective_model = model_alias or self.model_name
-        for attempt in range(2):
+        try:
+            warmup_budget_s = max(0.0, float(os.environ.get("TEMPORAL_BRAIN_WARMUP_WAIT_SEC", "25.0")))
+        except (TypeError, ValueError):
+            warmup_budget_s = 25.0
+        try:
+            warmup_poll_s = max(0.05, float(os.environ.get("TEMPORAL_BRAIN_WARMUP_POLL_SEC", "1.5")))
+        except (TypeError, ValueError):
+            warmup_poll_s = 1.5
+        warmup_deadline = time.monotonic() + warmup_budget_s
+        conn_retried = False
+        while True:
             try:
                 client = self._get_uds_client(timeout=infer_timeout)
                 resp = client.post("/v1/chat/completions", json=payload, timeout=infer_timeout)
@@ -962,9 +972,9 @@ class TemporalBrain:
                         "socket": str(self.socket_path),
                     }
                     break
-                elif resp.status_code == 503 and attempt == 0:
-                    # Servidor aún cargando modelo en warmup
-                    time.sleep(2.0)
+                elif resp.status_code == 503 and time.monotonic() < warmup_deadline:
+                    # Servidor aún cargando modelo GGUF en warmup de arranque
+                    time.sleep(min(warmup_poll_s, max(0.05, warmup_deadline - time.monotonic())))
                     continue
                 else:
                     raw_result = {
@@ -976,7 +986,8 @@ class TemporalBrain:
                     break
             except Exception as e:
                 self._reset_uds_client()
-                if attempt == 0:
+                if not conn_retried:
+                    conn_retried = True
                     self._adopted_server = False
                     self._process = None
                     if not self._probe_socket(timeout=2.0):
@@ -990,6 +1001,7 @@ class TemporalBrain:
                     "model": effective_model,
                     "elapsed": round(time.time() - t0, 3),
                 }
+                break
 
         # 4. Pipeline Post-Inferencia: Hooks y Adaptadores
         if not bypass_post_hooks:
@@ -1096,44 +1108,66 @@ class TemporalBrain:
             payload["stop"] = list(stop)
 
         infer_timeout = float(timeout) if (timeout is not None and float(timeout) > 0) else _temporal_infer_timeout()
+        try:
+            warmup_budget_s = max(0.0, float(os.environ.get("TEMPORAL_BRAIN_WARMUP_WAIT_SEC", "25.0")))
+        except (TypeError, ValueError):
+            warmup_budget_s = 25.0
+        try:
+            warmup_poll_s = max(0.05, float(os.environ.get("TEMPORAL_BRAIN_WARMUP_POLL_SEC", "1.5")))
+        except (TypeError, ValueError):
+            warmup_poll_s = 1.5
+        warmup_deadline = time.monotonic() + warmup_budget_s
         transport = httpx.HTTPTransport(uds=str(self.socket_path))
         full_reply = []
 
         with httpx.Client(transport=transport, base_url="http://localhost", timeout=infer_timeout) as client:
-            with client.stream("POST", "/v1/chat/completions", json=payload) as resp:
-                for line in resp.iter_lines():
-                    if cancel_event and cancel_event.is_set():
-                        msg = "\n[⛔ Inferencia cancelada y proceso cortado por el usuario]"
-                        full_reply.append(msg)
-                        yield msg
-                        return msg
-
-                    line_str = line.strip()
-                    if not line_str or line_str == "data: [DONE]":
+            while True:
+                if cancel_event and cancel_event.is_set():
+                    msg = "\n[⛔ Inferencia cancelada y proceso cortado por el usuario]"
+                    full_reply.append(msg)
+                    yield msg
+                    return msg
+                with client.stream("POST", "/v1/chat/completions", json=payload) as resp:
+                    if resp.status_code == 503 and time.monotonic() < warmup_deadline:
+                        time.sleep(min(warmup_poll_s, max(0.05, warmup_deadline - time.monotonic())))
                         continue
-                    if line_str.startswith("data: "):
-                        try:
-                            chunk = json.loads(line_str[6:])
-                            delta = chunk.get("choices", [{}])[0].get("delta", {}).get("content", "")
-                            if delta:
-                                # Filtros de tokens
-                                token = delta
-                                if not bypass_stream_filters:
-                                    for flt in self._stream_filters:
-                                        token = flt(token)
-                                        if token is None:
-                                            break
-                                    for adapter in self._adapters.values():
-                                        if adapter.enabled and token is not None:
-                                            token = adapter.on_stream_token(token)
+                    if resp.status_code != 200:
+                        body = resp.read().decode("utf-8", errors="ignore")[:240]
+                        raise RuntimeError(f"Error del motor Temporal Brain (HTTP {resp.status_code}): {body}")
+                    for line in resp.iter_lines():
+                        if cancel_event and cancel_event.is_set():
+                            msg = "\n[⛔ Inferencia cancelada y proceso cortado por el usuario]"
+                            full_reply.append(msg)
+                            yield msg
+                            return msg
+
+                        line_str = line.strip()
+                        if not line_str or line_str == "data: [DONE]":
+                            continue
+                        if line_str.startswith("data: "):
+                            try:
+                                chunk = json.loads(line_str[6:])
+                                delta = chunk.get("choices", [{}])[0].get("delta", {}).get("content", "")
+                                if delta:
+                                    # Filtros de tokens
+                                    token = delta
+                                    if not bypass_stream_filters:
+                                        for flt in self._stream_filters:
+                                            token = flt(token)
                                             if token is None:
                                                 break
+                                        for adapter in self._adapters.values():
+                                            if adapter.enabled and token is not None:
+                                                token = adapter.on_stream_token(token)
+                                                if token is None:
+                                                    break
 
-                                if token:
-                                    full_reply.append(token)
-                                    yield token
-                        except Exception:
-                            continue
+                                    if token:
+                                        full_reply.append(token)
+                                        yield token
+                            except Exception:
+                                continue
+                    break
 
         return "".join(full_reply)
 

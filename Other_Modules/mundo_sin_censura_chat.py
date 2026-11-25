@@ -389,6 +389,8 @@ class MundoSinCensuraChatStore:
         num_ctx: int = 8192,
         use_rag: Optional[bool] = None,
         hardware_control: Optional[bool] = None,
+        voice_mode: bool = False,
+        extra_system: Optional[str] = None,
         is_local_request: bool = True,
         timeout: float = 180.0,
         request_id: Optional[str] = None,
@@ -533,7 +535,17 @@ class MundoSinCensuraChatStore:
             effective_lane = "temporal_brain" if tb_ready else "ollama"
 
         hw_armed = bool(eff_hw and hw_ctrl is not None and hw_ctrl.is_armed() and hw_ctrl._state.get("agentic_hw_in_chat", True))
-        extra_sys = build_hardware_system_context(include_snapshot=True) if (hw_armed and build_hardware_system_context) else None
+        extra_parts: List[str] = []
+        if hw_armed and build_hardware_system_context:
+            hw_ctx = build_hardware_system_context(include_snapshot=True)
+            if hw_ctx:
+                extra_parts.append(hw_ctx)
+        if voice_mode:
+            from core.mundo_sin_censura_voice import VOICE_CONVERSATION_SYSTEM_HINT
+            extra_parts.append(VOICE_CONVERSATION_SYSTEM_HINT)
+        if extra_system and str(extra_system).strip():
+            extra_parts.append(str(extra_system).strip())
+        extra_sys = "\n\n".join(extra_parts) if extra_parts else None
 
         yield {
             "type": "meta",
@@ -731,7 +743,7 @@ def run_terminal_chat(
         f"{_C_DIM}| SHA-256:{_C_RESET} {sha_short} "
         f"{_C_DIM}| Web:{_C_RESET} http://127.0.0.1:8757/mundo-sin-censura"
     )
-    print(f"{_C_DIM}Sesión: {sess['id']} · Comandos: /help /new /sessions /lane /temp /max /rag /clear /status /exit{_C_RESET}\n")
+    print(f"{_C_DIM}Sesión: {sess['id']} · Comandos: /help /voice /new /sessions /lane /temp /max /rag /clear /status /exit{_C_RESET}\n")
 
     try:
         while True:
@@ -768,9 +780,30 @@ def run_terminal_chat(
                         "  /rag <on|off>                Activar/desactivar RAG TARDIS\n"
                         "  /hwmode <on|off>             Activar/desactivar control absoluto de hardware\n"
                         "  /hw <accion> [params]        Ejecutar acción física/Ring-0 inmediata\n"
+                        "  /voice [voz]                 Iniciar conversación por voz continua (full-duplex)\n"
                         "  /status                      Ver estado del modelo y carriles\n"
                         "  /exit                        Salir del chat\n"
                     )
+                elif cmd in ("/voice", "/voz"):
+                    from core.mundo_sin_censura_voice import (
+                        MundoContinuousVoiceEngine,
+                        MundoVoiceConfig,
+                        resolve_voice_id,
+                    )
+                    vcfg = MundoVoiceConfig(
+                        session_id=sess["id"],
+                        lane=cur_lane,
+                        temperature=cur_temp,
+                        max_tokens=min(cur_mtok, 512),
+                        use_rag=cur_rag,
+                        hardware_control=cur_hw,
+                        voice=resolve_voice_id(arg) if arg else resolve_voice_id(None),
+                        prefer_api=False,
+                    )
+                    vengine = MundoContinuousVoiceEngine(vcfg)
+                    vengine.run()
+                    sess = store.get_session(sess["id"]) or sess
+                    print(f"{_C_DIM}De vuelta al REPL de texto ({sess['id']}).{_C_RESET}\n")
                 elif cmd == "/new":
                     sess = store.create_session(
                         title=arg or None,
@@ -887,7 +920,26 @@ def main(argv: Optional[List[str]] = None) -> int:
     p.add_argument("--temperature", type=float, default=0.25)
     p.add_argument("--max-tokens", type=int, default=1024)
     p.add_argument("--use-rag", action="store_true")
+    p.add_argument("--voice", action="store_true", help="Iniciar directamente en modo conversación de voz continua")
+    p.add_argument("--tts-voice", type=str, default=None, help="Voz TTS para modo --voice (ej. dalia, jorge, elvira)")
+    p.add_argument("--no-barge-in", action="store_true", help="Desactivar interrupción por voz durante TTS")
     args = p.parse_args(argv)
+    if args.voice:
+        from core.mundo_sin_censura_voice import (
+            MundoContinuousVoiceEngine,
+            MundoVoiceConfig,
+            resolve_voice_id,
+        )
+        vcfg = MundoVoiceConfig(
+            session_id=args.session,
+            lane=args.lane,
+            temperature=args.temperature,
+            max_tokens=min(args.max_tokens, 512),
+            use_rag=bool(args.use_rag),
+            voice=resolve_voice_id(args.tts_voice),
+            barge_in=not args.no_barge_in,
+        )
+        return MundoContinuousVoiceEngine(vcfg).run()
     return run_terminal_chat(
         session_id=args.session,
         lane=args.lane,

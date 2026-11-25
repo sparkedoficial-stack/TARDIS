@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "created_at": "2026-10-15T02:04:29.176374",
   "last_periodic_sync": "2026-11-24T07:58:40.506597",
-  "last_immediate_sync": "2026-11-24T13:49:16.730030",
-  "last_commit_hash": "d5ae41c3",
-  "sync_count": 1522,
-  "immediate_sync_count": 1518,
+  "last_immediate_sync": "2026-11-24T18:31:18.229207",
+  "last_commit_hash": "8d95eb64",
+  "sync_count": 1523,
+  "immediate_sync_count": 1519,
   "periodic_sync_count": 4,
   "last_known_mtimes": {
     "skill:godworks-system-suite/SKILL.md": REDACTED_PHONE.5482113,
@@ -91,7 +91,7 @@
     "core:chinese_cloud_api.py": REDACTED_PHONE.97,
     "core:chronovision_engine.py": REDACTED_PHONE.3428655,
     "core:code_planner.py": REDACTED_PHONE.1532557,
-    "core:config.py": REDACTED_PHONE.99,
+    "core:config.py": REDACTED_PHONE.3162894,
     "core:cyberdefense_sentinel.py": REDACTED_PHONE.05,
     "core:daily_context_rotator.py": REDACTED_PHONE.57,
     "core:deep_memory_vault.py": REDACTED_PHONE.83,
@@ -169,7 +169,7 @@
     "core:tardis_vp_engine.py": REDACTED_PHONE.3874192,
     "core:task_manager.py": REDACTED_PHONE.75,
     "core:telegram_group_manager.py": REDACTED_PHONE.7,
-    "core:temporal_brain.py": REDACTED_PHONE.3498921,
+    "core:temporal_brain.py": REDACTED_PHONE.331705,
     "core:terminal_camera_hub.py": REDACTED_PHONE.17,
     "core:thought_noise_engine.py": REDACTED_PHONE.27,
     "core:traffic_monitor.py": REDACTED_PHONE.25,
@@ -213,7 +213,7 @@
     "core:tardis_agy_coevolution.py": REDACTED_PHONE.638858,
     "core:idle_evolution_daemon.py": REDACTED_PHONE.4674423,
     "core:tardis_omniscient_autonomy.py": REDACTED_PHONE.568241,
-    "core:mundo_sin_censura_chat.py": REDACTED_PHONE.460223,
+    "core:mundo_sin_censura_chat.py": REDACTED_PHONE.2150924,
     "core:tardis_semantic_cache.py": REDACTED_PHONE.7406988,
     "core:embed_isotropy.py": REDACTED_PHONE.6129508,
     "core:tardis_eval_harness.py": REDACTED_PHONE.0774143,
@@ -221,6 +221,7 @@
     "core:videocall_vision_engine.py": REDACTED_PHONE.9071455,
     "core:videocall_webapp_ui.py": REDACTED_PHONE.3347282,
     "core:mundo_sin_censura_hardware.py": REDACTED_PHONE.9136124,
+    "core:mundo_sin_censura_voice.py": REDACTED_PHONE.5182886,
     "directive:AGENTS.md": REDACTED_PHONE.8623235,
     "directive:GEMINI.md": REDACTED_PHONE.8793235,
     "registry:dynamic_tools": REDACTED_PHONE.0256226,
@@ -332,6 +333,17 @@
     "sat:gia_ios:GIA/Views/Theme.swift": REDACTED_PHONE.0
   },
   "history": [
+    {
+      "timestamp": "2026-11-24T18:31:18.229207",
+      "trigger": "immediate_milestone",
+      "commit_hash": "8d95eb64",
+      "score": 70,
+      "reasons": [
+        "Actualizaci\u00f3n cr\u00edtica en m\u00f3dulo FTL: ftl_mundo_sin_censura.py",
+        "Evoluci\u00f3n en subsistema core TARDIS: mundo_sin_censura.py",
+        "Evoluci\u00f3n en subsistema core TARDIS: mundo_sin_censura_chat.py"
+      ]
+    },
     {
       "timestamp": "2026-11-24T13:49:16.730030",
       "trigger": "immediate_milestone",
@@ -867,16 +879,6 @@
         "Actualizaci\u00f3n cr\u00edtica en m\u00f3dulo FTL: ftl_intv_appletv_hub.py",
         "Actualizaci\u00f3n cr\u00edtica en m\u00f3dulo FTL: ftl_linpad.py",
         "Actualizaci\u00f3n cr\u00edtica en m\u00f3dulo FTL: ftl_nxnative.py"
-      ]
-    },
-    {
-      "timestamp": "2026-11-20T23:54:00.941021",
-      "trigger": "immediate_milestone",
-      "commit_hash": "4cc77d51",
-      "score": 50,
-      "reasons": [
-        "Evoluci\u00f3n en subsistema core TARDIS: tardis_video_thinking_engine.py",
-        "Evoluci\u00f3n en subsistema core TARDIS: tardis_browser.py"
       ]
     }
   ]

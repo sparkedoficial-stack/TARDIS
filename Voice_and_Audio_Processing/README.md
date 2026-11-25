@@ -9,6 +9,7 @@ Interfaces biométricas de voz, síntesis de audio autónoma, retroalimentación
 - **apply_voice_terminal.py**: Procesamiento de señal de audio y síntesis vocal biométrica.
 - **autonomous_voice.py**: Procesamiento de señal de audio y síntesis vocal biométrica.
 - **core__tapo_c310_voice_channel.py**: Núcleo de orquestación y control temporal/espacial.
+- **mundo_sin_censura_voice.py**: Procesamiento de señal de audio y síntesis vocal biométrica.
 - **recurring_voice_manager.py**: Procesamiento de señal de audio y síntesis vocal biométrica.
 - **screen_reader.py**: Motor de ingeniería inversa multi-arquitectura y descompilación.
 - **tapo_c310_voice_channel.py**: Procesamiento de señal de audio y síntesis vocal biométrica.

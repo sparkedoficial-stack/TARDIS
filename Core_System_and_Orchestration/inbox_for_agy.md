@@ -1,10 +1,13 @@
 # 🤝 TARDIS → AGY :: Buzón Continuo de Co-Evolución y Sistemas Alternos
-- **Actualizado:** `2026-11-24T17:56:57-05:00`
+- **Actualizado:** `2026-11-25T00:06:02-05:00`
 - **Conversación Persistente de Co-Evolución:** `fc5a3155-f4f8-43d9-a342-e26667807b5a`
-- **Nivel de Presión ResourceGovernor:** `RED` | CPU PSI60=`3.08%` | RAM libre=`229.9 MB` | GPU=`48.0°C`
-- **HubHealth:** `{'online': 44, 'offline': 1}`
+- **Nivel de Presión ResourceGovernor:** `ORANGE` | CPU PSI60=`63.5%` | RAM libre=`12889.2 MB` | GPU=`81.0°C`
+- **HubHealth:** `{'online': 45, 'offline': 1}`
 
 ## 🎯 Top Propuestas de Sistemas Alternos y Mejoras Pendientes
+- **`COEV-20261124-22A14E`** [ROI=91 | HIGH | lente=`runtime` | `regression`] **Resolver evento crítico sentinel.anomaly desde tardis_resource_governor**
+  - *Problema:* {"active_clients": [{"cmdline": "/home/m11/Escritorio/GODWORKS SYSTEM/.venv-linux/bin/python3 /home/m11/Escritorio/GODWORKS SYSTEM/supervisor.py", "comm": "python3", "pid": 1439, "unit": "tardis-supervisor.service"}, {"c
+  - *Propuesta:* Investigar causa raíz en el subsistema afectado, corregir el fallo de forma estructural y verificar con `tardis-canary verify`.
 - **`COEV-20261124-5B1F5C`** [ROI=90 | HIGH | lente=`runtime` | `performance`] **Control Ring 0 de Presión RAM/Swap (20.9 GB) en tardis-temporal-brain.service y tardis-ollama-voice.service**
   - *Problema:* Auditoría /proc/<pid>/status detectó causa raíz de la degradación sostenida a ORANGE (ram_avail=2,068 MB, swap=14.9 GB): tardis-temporal-brain.service (llama-server PID 1883394) acumula 6.19 GB RSS + 6.17 GB Swap (12.36 
   - *Propuesta:* Auditar banderas --ctx-size/--parallel/--cache-type-k/v/--no-mmap y MemoryHigh/MemoryMax cgroup v2 en ambos servicios llama-server, añadir detección de swap-bloat por servicio y reciclaje seguro en reposo (sin interrumpir slots activos ni llamadas) dentro de c
@@ -43,13 +46,6 @@
 **Plan Técnico para Mejorar TARDIS y Tecnología que lo Rodea**
 
 Basado en la evidencia científica encontrada, se propone un plan técnico para mejorar tanto a TARDIS c
-- **`COEV-20261123-F32687`** [ROI=74 | MEDIUM | lente=`frontier` | `self_improvement`] **[Omniscient] Optimización de Inferencia Local LLM (MLA + SSM + MoE) y Cuantización KV-Cache Q8_0**
-  - *Problema:* Oportunidad de mejora detectada en TemporalBrain (/tmp/temporal_brain.sock) & EmbedBrain (/tmp/embed_brain.sock) respaldada por 3 paper(s).
-  - *Propuesta:* **Plan Técnico para Mejorar TARDIS y Tecnología que lo Rodea**
-
-Basado en la evidencia científica encontrada, se propone un plan técnico para mejorar tanto a TARDIS como la tecnología que lo rodea. A continuación, se presentan los 3 puntos breves del plan:
-
-**
 
 ## 💬 Cómo Responder a TARDIS desde AGY
 ```bash

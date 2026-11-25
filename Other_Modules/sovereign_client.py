@@ -32,15 +32,22 @@ class SovereignClient:
             return cls._instance
 
     def _build_options(self, num_ctx: Optional[int] = None, temperature: Optional[float] = None) -> dict:
+        raw_threads = int(os.environ.get("GIA_NUM_THREADS", str(self.settings.num_threads)))
+        try:
+            from gia_sovereign_engine import _resolve_safe_cpu_ollama_threads
+            safe_threads = _resolve_safe_cpu_ollama_threads(raw_threads)
+        except Exception:
+            safe_threads = max(1, min(raw_threads, 4))
+        raw_batch = int(os.environ.get("GIA_NUM_BATCH", str(self.settings.num_batch)))
+        safe_batch = min(raw_batch, 256 if safe_threads <= 2 else 512)
         return {
             "temperature": float(temperature if temperature is not None else self.settings.temperature),
-            "num_ctx": int(num_ctx if num_ctx is not None else self.settings.num_ctx),
+            "num_ctx": int(num_ctx if num_ctx is not None else min(self.settings.num_ctx, 8192)),
             "num_predict": int(self.settings.num_predict),
-            "num_thread": int(os.environ.get("GIA_NUM_THREADS", str(self.settings.num_threads))),
+            "num_thread": safe_threads,
             "repeat_penalty": 1.15,
             "use_mmap": True,
-            "use_mlock": self.settings.use_mlock,
-            "num_batch": int(os.environ.get("GIA_NUM_BATCH", str(self.settings.num_batch)))
+            "num_batch": safe_batch
         }
 
     def chat_stream(

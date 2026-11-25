@@ -12,7 +12,7 @@ def test_settings_load():
     assert settings.token not in ("invalid-token", "Imznu9ZNtdbFl2ebIGSzpYqe7A3OS4Y5", "0")
     assert settings.ollama_flash_attention is True
     assert settings.ram_budget_gb in (18.0, 28.0) or settings.ram_budget_gb > 0
-    assert settings.num_threads in (12, 16)
+    assert 1 <= settings.num_threads <= 8
 
 def test_settings_to_dict():
     settings = get_settings()

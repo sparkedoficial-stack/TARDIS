@@ -1,0 +1,15 @@
+{
+  "version": "1.0.0",
+  "hardware_control_enabled": true,
+  "auto_arm_on_startup": true,
+  "ring0_enabled": true,
+  "agentic_hw_in_chat": true,
+  "sovereignty_level": "ABSOLUTE_RING_0_RUNTIME",
+  "runtime_active": true,
+  "runtime_pid": 53505,
+  "armed_at": "2026-11-25 00:03:55",
+  "actions_executed": 1,
+  "actions_failed": 0,
+  "last_action": "psi",
+  "last_action_at": "2026-11-24 18:32:22"
+}

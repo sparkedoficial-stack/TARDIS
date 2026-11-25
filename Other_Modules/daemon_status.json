@@ -1,12 +1,12 @@
 {
   "daemon": "tardis-visual-intelligence",
   "running": true,
-  "pid": 1384253,
-  "uptime_sec": 80393.5,
-  "last_heartbeat": "2026-11-24T18:31:50.563263",
+  "pid": 1418,
+  "uptime_sec": 1237.5,
+  "last_heartbeat": "2026-11-25T00:07:47.387626",
   "items_processed": 0,
   "last_processed_id": "",
-  "memory_rss_mb": 281.12,
+  "memory_rss_mb": 257.65,
   "engine_status": {
     "status": "online",
     "engine": "VisualIntelligenceEngine v26.5 (VLM + Veredictos)",
@@ -20,15 +20,15 @@
     "vlm_error": "",
     "verdict_engine": "VLM + Kaiju + veredicto estructurado",
     "stored_videos_count": 1057,
-    "stored_images_count": 539,
+    "stored_images_count": 545,
     "stored_sounds_count": 0,
-    "stored_verdicts_count": 655,
+    "stored_verdicts_count": 661,
     "last_verdict": {
-      "id": "img_20261124_182733_538986",
-      "created_at": "2026-11-24T18:28:23.358331",
+      "id": "img_20261124_232308_6b8eb7",
+      "created_at": "2026-11-24T23:23:53.791275",
       "source": "daemon",
-      "verdict": "*   Estado General del Entorno: SEGURO / ESTABLE.\n    *   *Hechos Observados:* Camioneta estacionada, cables de carga conectados, iluminación artificial adecuada, ausencia de personas, ausencia de daños visibles.\n    *   *Inferencias:* El vehículo está siendo cargado o mantenido en reposo con energía. La zona está iluminada, lo que disuade actividades ilícitas y permite la visibilidad.\n    *   *Dudas:* No se puede confirmar si el propietario está presente fuera del encuadre.\n\n*   Nivel de Riesgo Objetivo: 1/10\n    *   *Justificación:* El riesgo es mínimo. El único elemento de precaución es la ",
-      "risk_level": 1
+      "verdict": "ESTADO GENERAL DEL ENTORNO:\nEstable, estático y bajo control. El área está despejada de amenazas activas.\n\nNIVEL DE RIESGO OBJETIVO:\n0/10 (Seguro)\n\nHECHOS OBSERVADOS:\n1.  Vehículo con placa DC-114-R estacionado.\n2.  Ausencia total de personas o animales.\n3.  Iluminación nocturna funcional.\n4.  Fecha y hora sincronizadas al 24/11/2026, 23:23.\n\nINFERENCIAS:\n1.  El vehículo ha estado estacionado durante un periodo de tiempo suficiente para que no haya actividad humana asociada en el momento de la captura.\n2.  El sistema de vigilancia está operativo y transmitiendo datos correctamente.\n\nRECOMENDAC",
+      "risk_level": 0
     },
     "surroundings_interval_sec": 900,
     "vault_dir": "/home/m11/Escritorio/GODWORKS SYSTEM/vault/videos/telegram",
@@ -37,13 +37,13 @@
   },
   "surroundings": {
     "interval_sec": 900.0,
-    "checks": 43,
-    "verdicts": 43,
-    "last_verdict_id": "img_20261124_182733_538986",
-    "last_risk_level": 1,
-    "last_verdict": "*   Estado General del Entorno: SEGURO / ESTABLE.\n    *   *Hechos Observados:* Camioneta estacionada, cables de carga conectados, iluminación artificial adecuada, ausencia de personas, ausencia de daños visibles.\n    *   *Inferencias:* El vehículo está siendo cargado o mantenido en reposo con energía. La zona está iluminada, lo que disuade actividades ilícitas y permite la visibilidad.\n    *   *Dudas:* No se puede confirmar si el propietario está presente fuera del encuadre.\n\n*   Nivel de Riesgo Objetivo: 1/10\n    *   *Justificación:* El riesgo es mínimo. El único elemento de precaución es la presencia de cables eléctricos expuestos, que podrían representar un riesgo de tropiezo o daño si son manipulados incorrectamente, pero no constituyen una amenaza inminente en un entorno estático. No hay peligro inminente, violencia ni anomalías críticas.\n\n*   Recomendación Concreta:\n    1.  Mantener la vigilancia pasiva: No se requiere intervención inmediata.\n    2.  Precaución con la infraestructura eléctrica: Si el Arquitecto se acerca al vehículo, evitar pisar o tirar de los cables de carga para no dañar la conexión o provocar un cortocircuito.\n    3.  Verificación de estado: Si es posible",
-    "last_error": "",
-    "last_check_ts": REDACTED_PHONE.4358473
+    "checks": 0,
+    "verdicts": 0,
+    "last_verdict_id": "",
+    "last_risk_level": null,
+    "last_verdict": "",
+    "last_error": "escena sin cambios relevantes (delta=2.6)",
+    "last_check_ts": REDACTED_PHONE.0499249
   },
   "vlm": {
     "ready": true,
