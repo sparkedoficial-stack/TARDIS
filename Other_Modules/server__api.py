@@ -942,7 +942,7 @@ def create_app() -> FastAPI:
     #   POST /api/visual_intelligence/analyze  -> Análisis cognitivo multimodal (visión + audio + conclusiones).
 
     @app.get("/api/visual_intelligence/status")
-    async def visual_intelligence_status():
+    def visual_intelligence_status():
         """Estado del motor soberano de Inteligencia Visual (percepción multimodal + conclusiones)."""
         from core.visual_intelligence_engine import get_visual_intelligence_engine
         return get_visual_intelligence_engine().get_status()
@@ -1257,7 +1257,7 @@ def create_app() -> FastAPI:
             return JSONResponse(status_code=500, content={"ok": False, "error": str(e)})
 
     @app.get("/api/cyber_recursive/status")
-    async def api_cyber_recursive_status(limit: int = 20):
+    def api_cyber_recursive_status(limit: int = 20):
         """Telemetría generacional del Agente Recursivo de Ciberseguridad (CyberEvolve 12h)."""
         vault_dir = Path(os.environ.get("LOCALAPPDATA", str(Path.home()))) / "vw-control"
         state_path = vault_dir / "cyber_recursive_state.json"
@@ -1310,7 +1310,7 @@ def create_app() -> FastAPI:
             return JSONResponse(status_code=500, content={"ok": False, "error": str(e)})
 
     @app.get("/api/tapo/status")
-    async def api_tapo_status():
+    def api_tapo_status():
         """Estado en vivo del Centinela Tapo C310 (REDACTED_IP), canal de voz y detecciones."""
         cfg_path = settings.base_dir / "tapo_c310_config.json"
         voice_state_path = settings.base_dir / "data" / "tapo_c310_voice_channel" / "state.json"
@@ -1486,7 +1486,7 @@ def create_app() -> FastAPI:
             await brain.close()
 
     @app.get("/api/voice_program/status")
-    async def api_voice_program_status(limit: int = 25):
+    def api_voice_program_status(limit: int = 25):
         """Estado del enrutador multi-micrófono «programa» y catálogo de herramientas dinámicas."""
         events_path = settings.base_dir / "data" / "voice_program_commands.jsonl"
         dyn_dir = settings.base_dir / "dynamic_tools"
@@ -1559,7 +1559,7 @@ def create_app() -> FastAPI:
             return JSONResponse(status_code=500, content={"ok": False, "error": str(e)})
 
     @app.get("/api/continuity/status")
-    async def api_continuity_status():
+    def api_continuity_status():
         """Estado de la Matriz de Continuidad Post-Reinicio y Auto-Sanación Easy Touch."""
         cont_path = settings.base_dir / "data" / "continuity_state.json"
         if not cont_path.exists():
@@ -2068,7 +2068,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
             return {"ok": False, "error": str(e)}
 
     @app.get("/api/sensors/presence_status")
-    async def get_presence_status():
+    def get_presence_status():
         try:
             from core.emotional_presence_agent import get_emotional_presence_agent
             return {"ok": True, "presence": get_emotional_presence_agent().get_status()}
@@ -2374,7 +2374,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
             return {"ok": False, "error": str(e)}
 
     @app.get("/api/telemetry")
-    async def get_telemetry():
+    def get_telemetry():
         # Sin paquetes de sensores la respuesta es explícita: antes devolvía un estado con
         # GPS de Playa del Carmen aunque ningún cliente hubiera enviado ubicación.
         try:
@@ -2556,7 +2556,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
         return {"ok": True, "history": page, **meta, "total": len(raw)}
 
     @app.get("/api/bridge/status")
-    async def get_bridge_status():
+    def get_bridge_status():
         status_file = settings.base_dir / "bridge_status.json"
         is_tunnel_alive = False
         try:
@@ -2707,7 +2707,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
 
     @app.get("/api/system/capabilities")
     @app.get("/api/os/capabilities")
-    async def get_system_capabilities_endpoint():
+    def get_system_capabilities_endpoint():
         os_ctrl = get_os_controller()
         return {"ok": True, "capabilities": os_ctrl.get_platform_capabilities()}
 
@@ -2823,7 +2823,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
     # --------------------------------------------------------------------------
 
     @app.get("/api/admin/users")
-    async def get_admin_users_endpoint(request: Request):
+    def get_admin_users_endpoint(request: Request):
         has_proxy = bool(
             request.headers.get("cf-connecting-ip") or 
             request.headers.get("x-forwarded-for") or 
@@ -4887,12 +4887,12 @@ iframe{border:none;width:100%;height:100%;}</style></head>
     # --------------------------------------------------------------------------
     @app.get("/api/cyberdefense")
     @app.get("/api/cyberdefense/status")
-    async def get_cyberdefense_status_endpoint():
+    async def get_cyberdefense_status_endpoint(fresh: bool = False):
         try:
             from core.cyberdefense_sentinel import get_cyberdefense_sentinel
             from dataclasses import asdict
             sentinel = get_cyberdefense_sentinel()
-            assessment = await asyncio.to_thread(sentinel.assess_security_state)
+            assessment = await asyncio.to_thread(lambda: sentinel.assess_security_state(force=fresh))
             return {"ok": True, **asdict(assessment)}
         except Exception as e:
             return {"ok": False, "error": str(e)}
@@ -4927,7 +4927,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
     @app.get("/api/kaiju_safety/status")
     @app.get("/api/safety/status")
     @app.get("/api/safety/rails")
-    async def get_kaiju_safety_status_endpoint():
+    def get_kaiju_safety_status_endpoint():
         try:
             from core.kaiju_safety_rails import get_kaiju_safety_rails
             return get_kaiju_safety_rails().get_rails_state()
@@ -5923,6 +5923,70 @@ iframe{border:none;width:100%;height:100%;}</style></head>
             out["ok"] = bool(res.get("ok", True))
         return out
 
+    @app.get("/api/browser/human_gate")
+    async def get_sovereign_browser_human_gate_endpoint():
+        from core.tardis_sovereign_browser_agent import get_sovereign_browser_hub
+        st = get_sovereign_browser_hub().get_state()
+        return {"ok": True, "human_gate": st["human_gate"], "pilot": st["pilot"]}
+
+    @app.post("/api/browser/human_gate/report")
+    async def report_sovereign_browser_human_gate_endpoint(payload: Dict[str, Any]):
+        from core.tardis_sovereign_browser_agent import get_sovereign_browser_hub
+        return get_sovereign_browser_hub().report_human_gate(
+            url=str(payload.get("url") or ""),
+            title=str(payload.get("title") or ""),
+            kind=str(payload.get("kind") or "human_verification_gate"),
+            reason=str(payload.get("reason") or ""),
+            source=str(payload.get("source") or "ui_dom"),
+            open_ui=bool(payload.get("open_ui", True)),
+        )
+
+    @app.post("/api/browser/human_gate/resolve")
+    async def resolve_sovereign_browser_human_gate_endpoint(payload: Dict[str, Any]):
+        from core.tardis_sovereign_browser_agent import get_sovereign_browser_hub
+        return get_sovereign_browser_hub().resolve_human_gate(
+            resolution=str(payload.get("resolution") or "manual_resolved"),
+            navigate_home=bool(payload.get("navigate_home", False)),
+        )
+
+    @app.get("/api/browser/sources")
+    async def list_sovereign_browser_sources_endpoint():
+        from core.tardis_sovereign_browser_agent import get_sovereign_browser_hub
+        srcs = get_sovereign_browser_hub().list_official_sources()
+        return {"ok": True, "count": len(srcs), "sources": srcs}
+
+    @app.post("/api/browser/sources")
+    async def manage_sovereign_browser_sources_endpoint(payload: Dict[str, Any]):
+        from core.tardis_sovereign_browser_agent import get_sovereign_browser_hub
+        hub = get_sovereign_browser_hub()
+        op = str(payload.get("op") or payload.get("action") or "add").strip().lower()
+        if op == "toggle":
+            return hub.toggle_official_source(str(payload.get("id") or payload.get("source_id") or ""), bool(payload.get("enabled", True)))
+        if op == "remove":
+            return hub.remove_official_source(str(payload.get("id") or payload.get("source_id") or ""))
+        return hub.add_official_source(
+            name=str(payload.get("name") or ""),
+            url=str(payload.get("url") or ""),
+            kind=str(payload.get("kind") or "rss"),
+            category=str(payload.get("category") or "news"),
+            description=str(payload.get("description") or ""),
+            auth_env=str(payload.get("auth_env") or ""),
+        )
+
+    @app.post("/api/browser/sources/query")
+    async def query_sovereign_browser_official_apis_endpoint(payload: Dict[str, Any]):
+        from core.tardis_sovereign_browser_agent import get_sovereign_browser_hub, query_official_apis
+        hub = get_sovereign_browser_hub()
+        q = str(payload.get("query") or "").strip()
+        mode = str(payload.get("mode") or "research").strip().lower()
+        max_results = max(1, min(10, int(payload.get("max_results") or 5)))
+        loop = asyncio.get_event_loop()
+        items = await loop.run_in_executor(
+            None,
+            lambda: query_official_apis(q, mode=mode, max_results=max_results, enabled_sources=hub.list_official_sources()),
+        )
+        return {"ok": True, "count": len(items), "query": q, "mode": mode, "results": items}
+
     # --------------------------------------------------------------------------
     # RETROALIMENTACIÓN ACTIVA, AUTO-MEJORA Y PUENTE ANTIGRAVITY
     # --------------------------------------------------------------------------
@@ -6089,7 +6153,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
 
     @app.get("/api/colony/status")
     @app.get("/api/colony")
-    async def get_colony_status_endpoint():
+    def get_colony_status_endpoint():
         try:
             from core.tardis_agent_colony import get_tardis_colony
             return get_tardis_colony().get_colony_summary()
@@ -6320,7 +6384,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
     @app.get("/api/memory/vault_status")
     @app.get("/api/memory/vault")
     @app.get("/api/vault/status")
-    async def get_memory_vault_status():
+    def get_memory_vault_status():
         try:
             from core.deep_memory_vault import get_deep_memory_vault
             vault = get_deep_memory_vault()
@@ -6825,7 +6889,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
     # --------------------------------------------------------------------------
 
     @app.get("/api/autonomous/status")
-    async def get_autonomous_status():
+    def get_autonomous_status():
         try:
             ac = get_autonomous_controller()
             return ac.get_status()
@@ -8554,7 +8618,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
     @app.get("/api/synergy/status")
     @app.get("/api/synergy")
     @app.get("/api/hybrid_synergy")
-    async def api_synergy_status():
+    def api_synergy_status():
         """Retorna la matriz holística de modelos e ingenierías activas."""
         try:
             from core.tardis_hybrid_synergy import get_tardis_hybrid_synergy
@@ -8806,7 +8870,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
 
     # 6. Demonio de Evolución Pasiva (144Hz)
     @app.get("/api/idle/status")
-    async def api_idle_status():
+    def api_idle_status():
         return {
             "ok": True,
             "status": "watching",
@@ -8826,7 +8890,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
 
     # 7. Sistema de Adaptación Tecnológica
     @app.get("/api/adaptation/modules")
-    async def api_adaptation_modules():
+    def api_adaptation_modules():
         mod_dir = Path("/home/m11/modulos_ftl")
         mods = []
         if mod_dir.exists():
@@ -8941,7 +9005,7 @@ if __name__ == "__main__":
 
     # 11. Ojo de Dios (God's Eye · Ramsey Omni-Vigilance)
     @app.get("/api/gods_eye/status")
-    async def api_gods_eye_status():
+    def api_gods_eye_status():
         # Motor real: cámaras que emiten de verdad, movimiento, eventos en SQLite.
         # El antiguo gods_eye_engine (satélites y objetivos de ficción) ya no se sirve aquí.
         try:

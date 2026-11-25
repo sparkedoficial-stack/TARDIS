@@ -1,30 +1,31 @@
 {
   "ok": true,
-  "ts": REDACTED_PHONE.5289702,
-  "iso": "2026-11-25T18:31:44-05:00",
+  "ts": REDACTED_PHONE.931638,
+  "iso": "2026-11-25T18:33:24-05:00",
   "level": "YELLOW",
   "reasons": [
-    "CPU PSI avg60 moderado (27.7%)",
-    "Loadavg1 alto (14.55 en 16 hilos)"
+    "CPU PSI avg60 moderado (39.7%)",
+    "Loadavg1 alto (18.89 en 16 hilos)",
+    "Sobresuscripción de hilos en ollama.service (10 hilos en 8 CPUs)"
   ],
   "call_priority_active": false,
   "cpu": {
     "cores": 16,
-    "load1": 14.55,
-    "load5": 17.63,
-    "load15": 15.93,
+    "load1": 18.89,
+    "load5": 17.96,
+    "load15": 16.21,
     "psi": {
-      "some_avg10": 32.39,
-      "some_avg60": 27.74,
-      "some_avg300": 36.6,
+      "some_avg10": 50.26,
+      "some_avg60": 39.68,
+      "some_avg300": 37.3,
       "full_avg10": 0.0,
       "full_avg60": 0.0
     },
-    "temp_c": 73.8,
+    "temp_c": 73.0,
     "thermal_source": "k10temp",
     "fan_rpm": {
-      "cpu": 4400,
-      "gpu": 4400
+      "cpu": 3900,
+      "gpu": 4000
     },
     "power_profile": "performance",
     "scaling_driver": "amd-pstate-epp",
@@ -34,24 +35,24 @@
   },
   "memory": {
     "total_mb": 31495.3,
-    "available_mb": 12032.4,
-    "used_mb": 19462.9,
-    "used_pct": 61.8,
+    "available_mb": 10130.4,
+    "used_mb": 21364.9,
+    "used_pct": 67.8,
     "swap_total_mb": 62994.8,
-    "swap_used_mb": 843.9,
+    "swap_used_mb": 965.5,
     "psi": {
       "some_avg10": 0.0,
-      "some_avg60": 0.0,
-      "some_avg300": 0.0,
+      "some_avg60": 0.09,
+      "some_avg300": 0.03,
       "full_avg10": 0.0,
-      "full_avg60": 0.0
+      "full_avg60": 0.08
     }
   },
   "io": {
     "psi": {
       "some_avg10": 0.0,
-      "some_avg60": 0.0,
-      "some_avg300": 0.04,
+      "some_avg60": 0.1,
+      "some_avg300": 0.06,
       "full_avg10": 0.0,
       "full_avg60": 0.0
     }
@@ -59,14 +60,14 @@
   "gpu": {
     "available": true,
     "name": "NVIDIA GeForce RTX 3050 Laptop GPU",
-    "temp_c": 64.0,
-    "util_pct": 33.0,
+    "temp_c": 66.0,
+    "util_pct": 37.0,
     "vram_used_mb": 3524.0,
     "vram_free_mb": 299.0,
     "vram_total_mb": 4096.0,
     "vram_used_pct": 86.0,
     "pstate": "P0",
-    "power_w": 13.83,
+    "power_w": 14.6,
     "clock_gr_mhz": 600,
     "clock_mem_mhz": 6001
   },
@@ -79,7 +80,7 @@
         "name": "qwen3-vl:2b-instruct",
         "size_mb": 1697.4,
         "size_vram_mb": 1076.8,
-        "expires_at": "2319-03-07T18:16:01.843092776-05:00"
+        "expires_at": "2319-03-07T18:20:17.360307405-05:00"
       }
     ],
     "duplicate_models": []
@@ -92,9 +93,9 @@
       "cpu_max": "max 100000",
       "cpu_weight": 40,
       "pids_count": 1,
-      "psi_some_avg10": 25.9,
-      "psi_some_avg60": 22.09,
-      "psi_full_avg60": 13.89
+      "psi_some_avg10": 33.49,
+      "psi_some_avg60": 31.67,
+      "psi_full_avg60": 20.44
     },
     {
       "unit": "tardis-tapo-c310-sentinel.service",
@@ -103,53 +104,9 @@
       "cpu_max": "150000 100000",
       "cpu_weight": 15,
       "pids_count": 2,
-      "psi_some_avg10": 23.81,
-      "psi_some_avg60": 18.77,
-      "psi_full_avg60": 10.52
-    },
-    {
-      "unit": "tardis-tapo-c310-voice.service",
-      "cpuset_cpus": "8-15",
-      "effective_cpus": 8,
-      "cpu_max": "150000 100000",
-      "cpu_weight": 15,
-      "pids_count": 2,
-      "psi_some_avg10": 8.11,
-      "psi_some_avg60": 8.03,
-      "psi_full_avg60": 7.31
-    },
-    {
-      "unit": "tardis.service",
-      "cpuset_cpus": "8-15",
-      "effective_cpus": 8,
-      "cpu_max": "max 100000",
-      "cpu_weight": 25,
-      "pids_count": 5,
-      "psi_some_avg10": 2.9,
-      "psi_some_avg60": 7.02,
-      "psi_full_avg60": 4.44
-    },
-    {
-      "unit": "tardis-music-maestro.service",
-      "cpuset_cpus": "8-15",
-      "effective_cpus": 8,
-      "cpu_max": "100000 100000",
-      "cpu_weight": 10,
-      "pids_count": 2,
-      "psi_some_avg10": 4.21,
-      "psi_some_avg60": 3.36,
-      "psi_full_avg60": 2.74
-    },
-    {
-      "unit": "tardis4ever.service",
-      "cpuset_cpus": "8-15",
-      "effective_cpus": 8,
-      "cpu_max": "100000 100000",
-      "cpu_weight": 10,
-      "pids_count": 2,
-      "psi_some_avg10": 8.15,
-      "psi_some_avg60": 2.94,
-      "psi_full_avg60": 2.94
+      "psi_some_avg10": 22.36,
+      "psi_some_avg60": 22.08,
+      "psi_full_avg60": 13.49
     },
     {
       "unit": "tardis-ollama-voice.service",
@@ -158,37 +115,95 @@
       "cpu_max": "max 100000",
       "cpu_weight": 100,
       "pids_count": 2,
-      "psi_some_avg10": 0.18,
-      "psi_some_avg60": 2.15,
-      "psi_full_avg60": 1.22
+      "psi_some_avg10": 4.09,
+      "psi_some_avg60": 10.7,
+      "psi_full_avg60": 6.02
     },
     {
-      "unit": "tardis-hub-agents.service",
+      "unit": "ollama.service",
       "cpuset_cpus": "8-15",
       "effective_cpus": 8,
       "cpu_max": "100000 100000",
       "cpu_weight": 10,
-      "pids_count": 1,
-      "psi_some_avg10": 0.43,
-      "psi_some_avg60": 0.51,
-      "psi_full_avg60": 0.51
+      "pids_count": 2,
+      "psi_some_avg10": 32.23,
+      "psi_some_avg60": 7.68,
+      "psi_full_avg60": 6.22
+    },
+    {
+      "unit": "tardis-tapo-c310-voice.service",
+      "cpuset_cpus": "8-15",
+      "effective_cpus": 8,
+      "cpu_max": "150000 100000",
+      "cpu_weight": 15,
+      "pids_count": 2,
+      "psi_some_avg10": 1.43,
+      "psi_some_avg60": 6.77,
+      "psi_full_avg60": 4.56
+    },
+    {
+      "unit": "tardis.service",
+      "cpuset_cpus": "8-15",
+      "effective_cpus": 8,
+      "cpu_max": "max 100000",
+      "cpu_weight": 25,
+      "pids_count": 5,
+      "psi_some_avg10": 2.29,
+      "psi_some_avg60": 3.44,
+      "psi_full_avg60": 2.65
+    },
+    {
+      "unit": "tardis4ever.service",
+      "cpuset_cpus": "8-15",
+      "effective_cpus": 8,
+      "cpu_max": "100000 100000",
+      "cpu_weight": 10,
+      "pids_count": 2,
+      "psi_some_avg10": 6.1,
+      "psi_some_avg60": 2.98,
+      "psi_full_avg60": 2.98
+    },
+    {
+      "unit": "tardis-browser-autonomous.service",
+      "cpuset_cpus": "8-15",
+      "effective_cpus": 8,
+      "cpu_max": "100000 100000",
+      "cpu_weight": 10,
+      "pids_count": 13,
+      "psi_some_avg10": 6.5,
+      "psi_some_avg60": 2.85,
+      "psi_full_avg60": 2.19
     }
   ],
-  "oversubscribed_units": [],
+  "oversubscribed_units": [
+    {
+      "unit": "ollama.service",
+      "pid": 1256911,
+      "comm": "llama-server (+1 procs)",
+      "effective_cpus": 8,
+      "cpuset_cpus": "8-15",
+      "configured_threads": 0,
+      "configured_threads_batch": 0,
+      "runnable_threads": 10,
+      "active_pids": 2,
+      "oversubscription_ratio": 1.25,
+      "recommendation": "Acotar concurrencia agregada del cgroup (10 hilos R en 2 procesos) a <= 8 hilos para cpuset 8-15 (workers/threads <= 4)"
+    }
+  ],
   "inference_memory": [
     {
       "unit": "tardis-ollama-voice.service",
       "main_pid": 748770,
       "pids_count": 2,
-      "uptime_s": 67476.2,
-      "rss_mb": 4455.3,
-      "rss_anon_mb": 4041.8,
-      "rss_file_mb": 322.3,
+      "uptime_s": 67576.6,
+      "rss_mb": 4382.3,
+      "rss_anon_mb": 4003.3,
+      "rss_file_mb": 312.0,
       "mlock_mb": 0.0,
-      "swap_mb": 165.9,
-      "total_mb": 4621.2,
-      "cgroup_current_mb": 4467.8,
-      "cgroup_swap_mb": 165.9,
+      "swap_mb": 287.6,
+      "total_mb": 4669.9,
+      "cgroup_current_mb": 4498.6,
+      "cgroup_swap_mb": 287.6,
       "memory_high": "REDACTED_PHONE",
       "memory_max": "REDACTED_PHONE",
       "memory_swap_max": "REDACTED_PHONE",
@@ -201,14 +216,14 @@
       "unit": "tardis-temporal-brain.service",
       "main_pid": 1106327,
       "pids_count": 1,
-      "uptime_s": 2674.2,
-      "rss_mb": 5296.4,
+      "uptime_s": 2774.5,
+      "rss_mb": 5296.6,
       "rss_anon_mb": 2052.4,
-      "rss_file_mb": 3172.6,
+      "rss_file_mb": 3172.9,
       "mlock_mb": 0.0,
       "swap_mb": 0.0,
-      "total_mb": 5296.4,
-      "cgroup_current_mb": 2182.0,
+      "total_mb": 5296.6,
+      "cgroup_current_mb": 2184.2,
       "cgroup_swap_mb": 0.0,
       "memory_high": "REDACTED_PHONE",
       "memory_max": "REDACTED_PHONE",
@@ -258,7 +273,7 @@
     "interactive": true,
     "critical_repair": true,
     "agy_discovery": true,
-    "heavy_learning": true,
+    "heavy_learning": false,
     "idle_evolution": false,
     "video_render": false,
     "recommended_sleep_multiplier": 1.5,

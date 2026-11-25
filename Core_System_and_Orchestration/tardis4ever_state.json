@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "created_at": "2026-10-15T02:04:29.176374",
   "last_periodic_sync": "2026-11-25T10:38:16.050955",
-  "last_immediate_sync": "2026-11-25T16:51:26.642874",
-  "last_commit_hash": "27b648ac",
-  "sync_count": 1531,
-  "immediate_sync_count": 1527,
+  "last_immediate_sync": "2026-11-25T18:31:20.790996",
+  "last_commit_hash": "706826ca",
+  "sync_count": 1532,
+  "immediate_sync_count": 1528,
   "periodic_sync_count": 4,
   "last_known_mtimes": {
     "skill:godworks-system-suite/SKILL.md": REDACTED_PHONE.5482113,
@@ -115,7 +115,7 @@
     "core:mission_scouting_engine.py": REDACTED_PHONE.23,
     "core:mundo_sin_censura.py": REDACTED_PHONE.440254,
     "core:network_controller.py": REDACTED_PHONE.65,
-    "core:network_shield.py": REDACTED_PHONE.56,
+    "core:network_shield.py": REDACTED_PHONE.7136054,
     "core:network_traffic_controller.py": REDACTED_PHONE.99,
     "core:nxnative_mk8d_ipad_ui.py": REDACTED_PHONE.32,
     "core:offline_chat_vault.py": REDACTED_PHONE.1949856,
@@ -223,7 +223,7 @@
     "core:mundo_sin_censura_hardware.py": REDACTED_PHONE.9136124,
     "core:mundo_sin_censura_voice.py": REDACTED_PHONE.1917515,
     "core:tardis_voice_engine.py": REDACTED_PHONE.5404794,
-    "core:tardis_sovereign_browser_agent.py": REDACTED_PHONE.7777262,
+    "core:tardis_sovereign_browser_agent.py": REDACTED_PHONE.3836339,
     "directive:AGENTS.md": REDACTED_PHONE.8623235,
     "directive:GEMINI.md": REDACTED_PHONE.8793235,
     "registry:dynamic_tools": REDACTED_PHONE.0256226,
@@ -335,6 +335,17 @@
     "sat:gia_ios:GIA/Views/Theme.swift": REDACTED_PHONE.0
   },
   "history": [
+    {
+      "timestamp": "2026-11-25T18:31:20.790996",
+      "trigger": "immediate_milestone",
+      "commit_hash": "706826ca",
+      "score": 75,
+      "reasons": [
+        "Evoluci\u00f3n en subsistema core TARDIS: agent_harness.py",
+        "Evoluci\u00f3n en subsistema core TARDIS: cyberdefense_sentinel.py",
+        "Evoluci\u00f3n en subsistema core TARDIS: tardis_sovereign_browser_agent.py"
+      ]
+    },
     {
       "timestamp": "2026-11-25T16:51:26.642874",
       "trigger": "immediate_milestone",
@@ -866,16 +877,6 @@
       "score": 50,
       "reasons": [
         "Evoluci\u00f3n en subsistema core TARDIS: kaiju_cognitive_orchestrator.py",
-        "Evoluci\u00f3n en subsistema core TARDIS: telegram_call_priority.py"
-      ]
-    },
-    {
-      "timestamp": "2026-11-21T15:30:56.899073",
-      "trigger": "immediate_milestone",
-      "commit_hash": "108959cf",
-      "score": 50,
-      "reasons": [
-        "Evoluci\u00f3n en subsistema core TARDIS: telegram_live_call_server.py",
         "Evoluci\u00f3n en subsistema core TARDIS: telegram_call_priority.py"
       ]
     }

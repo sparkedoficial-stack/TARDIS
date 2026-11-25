@@ -1,21 +1,26 @@
 {
-  "run_id": "canary_20261125_165255_ec15dc",
-  "iso": "2026-11-25T16:52:55-05:00",
+  "run_id": "canary_20261125_183312_da6371",
+  "iso": "2026-11-25T18:33:12-05:00",
   "files": [
     {
-      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/tardis_resource_governor.py",
-      "relative": "core/tardis_resource_governor.py",
-      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261125_165255_ec15dc/core__tardis_resource_governor.py"
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/cyberdefense_sentinel.py",
+      "relative": "core/cyberdefense_sentinel.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261125_183312_da6371/core__cyberdefense_sentinel.py"
     },
     {
-      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/temporal_brain.py",
-      "relative": "core/temporal_brain.py",
-      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261125_165255_ec15dc/core__temporal_brain.py"
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/network_shield.py",
+      "relative": "core/network_shield.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261125_183312_da6371/core__network_shield.py"
+    },
+    {
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/server/api.py",
+      "relative": "server/api.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261125_183312_da6371/server__api.py"
     },
     {
       "source": "/home/m11/Escritorio/GODWORKS SYSTEM/tests/test_sovereign_alternate_systems.py",
       "relative": "tests/test_sovereign_alternate_systems.py",
-      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261125_165255_ec15dc/tests__test_sovereign_alternate_systems.py"
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261125_183312_da6371/tests__test_sovereign_alternate_systems.py"
     }
   ]
 }

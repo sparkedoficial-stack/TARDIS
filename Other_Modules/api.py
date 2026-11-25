@@ -8618,7 +8618,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
     @app.get("/api/synergy/status")
     @app.get("/api/synergy")
     @app.get("/api/hybrid_synergy")
-    async def api_synergy_status():
+    def api_synergy_status():
         """Retorna la matriz holística de modelos e ingenierías activas."""
         try:
             from core.tardis_hybrid_synergy import get_tardis_hybrid_synergy
