@@ -440,12 +440,12 @@ class TardisSnapVoiceAssistant:
         self.voice_captured_event = threading.Event()
         self.captured_audio_data: Optional[np.ndarray] = None
 
-        # STT local: Whisper en CPU, sin subir el audio a servicios externos.
+        # STT local: Whisper CUDA/CPU int8 con DSP y normalización de dictado.
         self.local_stt = None
         if config.get("stt_engine", "local") == "local":
             try:
                 from core.tardis_voice_local import LocalSpeechToText
-                self.local_stt = LocalSpeechToText(model_size=config.get("stt_model", "base"))
+                self.local_stt = LocalSpeechToText(model_size=config.get("stt_model", "auto"))
                 threading.Thread(target=self.local_stt.warmup, daemon=True, name="STT-Warmup").start()
             except Exception as e:
                 print(f"{C_YELLOW}[STT local no disponible: {e}]{C_RESET}")
@@ -640,15 +640,27 @@ class TardisSnapVoiceAssistant:
                     time.sleep(0.1)
 
                 if self.speech_detected:
-                    # Habló en seguimiento: esperamos fin de frase
+                    # Habló en seguimiento: esperamos fin de frase y transcribimos 100% localmente
                     self.voice_captured_event.wait(timeout=12.0)
                     if self.voice_buffer and self.state != "TIMEOUT":
                         all_chunks = np.concatenate(self.voice_buffer)
                         audio_int16 = (np.clip(all_chunks, -1.0, 1.0) * 32767).astype(np.int16)
                         try:
-                            recognizer = sr.Recognizer()
-                            audio_data = sr.AudioData(audio_int16.tobytes(), 44100, 2)
-                            f_text = recognizer.recognize_google(audio_data, language=self.config.get("language", "es-MX")).strip()
+                            f_text = None
+                            if self.local_stt is not None:
+                                import wave as _wave
+                                buf = io.BytesIO()
+                                with _wave.open(buf, "wb") as wf:
+                                    wf.setnchannels(1)
+                                    wf.setsampwidth(2)
+                                    wf.setframerate(44100)
+                                    wf.writeframes(audio_int16.tobytes())
+                                f_text, _ = self.local_stt.transcribe_bytes(buf.getvalue(), language="es")
+                                f_text = (f_text or "").strip() or None
+                            elif HAS_SR and self.config.get("stt_fallback_google", False):
+                                recognizer = sr.Recognizer()
+                                audio_data = sr.AudioData(audio_int16.tobytes(), 44100, 2)
+                                f_text = recognizer.recognize_google(audio_data, language=self.config.get("language", "es-MX")).strip()
                             if f_text:
                                 if not self.daemon_mode:
                                     print(f"\n{C_BOLD}{C_GREEN}Arquitecto ₪ (seguimiento) >{C_RESET} {f_text}")

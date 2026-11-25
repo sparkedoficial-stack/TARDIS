@@ -2,11 +2,11 @@
   "daemon": "tardis-visual-intelligence",
   "running": true,
   "pid": 1418,
-  "uptime_sec": 1237.5,
-  "last_heartbeat": "2026-11-25T00:07:47.387626",
+  "uptime_sec": 3601.3,
+  "last_heartbeat": "2026-11-25T00:47:11.228334",
   "items_processed": 0,
   "last_processed_id": "",
-  "memory_rss_mb": 257.65,
+  "memory_rss_mb": 329.2,
   "engine_status": {
     "status": "online",
     "engine": "VisualIntelligenceEngine v26.5 (VLM + Veredictos)",
@@ -20,15 +20,15 @@
     "vlm_error": "",
     "verdict_engine": "VLM + Kaiju + veredicto estructurado",
     "stored_videos_count": 1057,
-    "stored_images_count": 545,
+    "stored_images_count": 546,
     "stored_sounds_count": 0,
-    "stored_verdicts_count": 661,
+    "stored_verdicts_count": 662,
     "last_verdict": {
-      "id": "img_20261124_232308_6b8eb7",
-      "created_at": "2026-11-24T23:23:53.791275",
+      "id": "img_20261125_001715_305b6f",
+      "created_at": "2026-11-25T00:21:14.036983",
       "source": "daemon",
-      "verdict": "ESTADO GENERAL DEL ENTORNO:\nEstable, estático y bajo control. El área está despejada de amenazas activas.\n\nNIVEL DE RIESGO OBJETIVO:\n0/10 (Seguro)\n\nHECHOS OBSERVADOS:\n1.  Vehículo con placa DC-114-R estacionado.\n2.  Ausencia total de personas o animales.\n3.  Iluminación nocturna funcional.\n4.  Fecha y hora sincronizadas al 24/11/2026, 23:23.\n\nINFERENCIAS:\n1.  El vehículo ha estado estacionado durante un periodo de tiempo suficiente para que no haya actividad humana asociada en el momento de la captura.\n2.  El sistema de vigilancia está operativo y transmitiendo datos correctamente.\n\nRECOMENDAC",
-      "risk_level": 0
+      "verdict": "*   Estado General del Entorno: Estable y tranquilo. Sin actividad humana. Condiciones climáticas húmedas.\n*   Nivel de Riesgo Objetivo: 3/10\n    *   *Justificación:* El riesgo no proviene de amenazas humanas o físicas inmediatas (riesgo de intrusión = 0/10), sino de la degradación potencial del vehículo por humedad, posible corrosión a largo plazo o riesgo de derrapaje si se conduce en estas condiciones (riesgo ambiental = 3/10).\n*   Hechos Observados:\n    1.  Vehículo negro estacionado.\n    2.  Suelo húmedo/mojado.\n    3.  Hora: 12:17 AM.\n    4.  Sin personas visibles.\n*   Inferencias:\n    1",
+      "risk_level": 3
     },
     "surroundings_interval_sec": 900,
     "vault_dir": "/home/m11/Escritorio/GODWORKS SYSTEM/vault/videos/telegram",
@@ -37,13 +37,13 @@
   },
   "surroundings": {
     "interval_sec": 900.0,
-    "checks": 0,
-    "verdicts": 0,
-    "last_verdict_id": "",
-    "last_risk_level": null,
-    "last_verdict": "",
-    "last_error": "escena sin cambios relevantes (delta=2.6)",
-    "last_check_ts": REDACTED_PHONE.0499249
+    "checks": 1,
+    "verdicts": 1,
+    "last_verdict_id": "img_20261125_001715_305b6f",
+    "last_risk_level": 3,
+    "last_verdict": "*   Estado General del Entorno: Estable y tranquilo. Sin actividad humana. Condiciones climáticas húmedas.\n*   Nivel de Riesgo Objetivo: 3/10\n    *   *Justificación:* El riesgo no proviene de amenazas humanas o físicas inmediatas (riesgo de intrusión = 0/10), sino de la degradación potencial del vehículo por humedad, posible corrosión a largo plazo o riesgo de derrapaje si se conduce en estas condiciones (riesgo ambiental = 3/10).\n*   Hechos Observados:\n    1.  Vehículo negro estacionado.\n    2.  Suelo húmedo/mojado.\n    3.  Hora: 12:17 AM.\n    4.  Sin personas visibles.\n*   Inferencias:\n    1.  Ha llovido recientemente o está lloviendo.\n    2.  El vehículo está en un lugar seguro, pero expuesto a los elementos.\n*   Dudas:\n    1.  No se puede determinar con certeza si la humedad es de lluvia, rocío o riego, aunque la probabilidad de lluvia es alta dada la hora y la extensión.\n    2.  No se puede ver el estado interior del vehículo ni si está encendido.\n\n*   Recomendación Concreta:\n    Si el Arquitecto tiene intención de utilizar el vehículo en las próximas horas, se recomienda verificar el estado de las llantas y frenos por la posible presencia de hielo o agua estancada. Si el vehí",
+    "last_error": "escena sin cambios relevantes (delta=0.8)",
+    "last_check_ts": REDACTED_PHONE.3586907
   },
   "vlm": {
     "ready": true,

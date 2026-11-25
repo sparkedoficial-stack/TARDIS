@@ -1,12 +1,18 @@
 # 🤝 TARDIS → AGY :: Buzón Continuo de Co-Evolución y Sistemas Alternos
-- **Actualizado:** `2026-11-25T00:06:02-05:00`
+- **Actualizado:** `2026-11-25T00:18:15-05:00`
 - **Conversación Persistente de Co-Evolución:** `fc5a3155-f4f8-43d9-a342-e26667807b5a`
-- **Nivel de Presión ResourceGovernor:** `ORANGE` | CPU PSI60=`63.5%` | RAM libre=`12889.2 MB` | GPU=`81.0°C`
-- **HubHealth:** `{'online': 45, 'offline': 1}`
+- **Nivel de Presión ResourceGovernor:** `ORANGE` | CPU PSI60=`70.32%` | RAM libre=`12528.6 MB` | GPU=`69.0°C`
+- **HubHealth:** `{'offline': 43, 'online': 3}`
 
 ## 🎯 Top Propuestas de Sistemas Alternos y Mejoras Pendientes
+- **`COEV-20261125-27AA9E`** [ROI=91 | HIGH | lente=`runtime` | `regression`] **Resolver evento crítico health.regression desde tardis_feedback_bridge**
+  - *Problema:* {"from": "offline", "iso": "2026-11-25 00:00:54", "kind": "subsistema_cambio", "subsystem": "scientific_researcher", "to": "degraded", "ts": REDACTED_PHONE.400223}
+  - *Propuesta:* Investigar causa raíz en el subsistema afectado, corregir el fallo de forma estructural y verificar con `tardis-canary verify`.
 - **`COEV-20261124-22A14E`** [ROI=91 | HIGH | lente=`runtime` | `regression`] **Resolver evento crítico sentinel.anomaly desde tardis_resource_governor**
-  - *Problema:* {"active_clients": [{"cmdline": "/home/m11/Escritorio/GODWORKS SYSTEM/.venv-linux/bin/python3 /home/m11/Escritorio/GODWORKS SYSTEM/supervisor.py", "comm": "python3", "pid": 1439, "unit": "tardis-supervisor.service"}, {"c
+  - *Problema:* {"active_clients": [{"cmdline": "/home/m11/Escritorio/GODWORKS SYSTEM/.venv-linux/bin/python3 /home/m11/Escritorio/GODWORKS SYSTEM/supervisor.py", "comm": "python3", "pid": 1385, "unit": "tardis-supervisor.service"}, {"c
+  - *Propuesta:* Investigar causa raíz en el subsistema afectado, corregir el fallo de forma estructural y verificar con `tardis-canary verify`.
+- **`COEV-20261125-F0CB28`** [ROI=91 | HIGH | lente=`runtime` | `regression`] **Resolver evento crítico health.regression desde tardis_feedback_bridge**
+  - *Problema:* {"from": "online", "iso": "2026-11-24 23:59:47", "kind": "subsistema_cambio", "subsystem": "blender_3d", "to": "offline", "ts": REDACTED_PHONE.3902545}
   - *Propuesta:* Investigar causa raíz en el subsistema afectado, corregir el fallo de forma estructural y verificar con `tardis-canary verify`.
 - **`COEV-20261124-5B1F5C`** [ROI=90 | HIGH | lente=`runtime` | `performance`] **Control Ring 0 de Presión RAM/Swap (20.9 GB) en tardis-temporal-brain.service y tardis-ollama-voice.service**
   - *Problema:* Auditoría /proc/<pid>/status detectó causa raíz de la degradación sostenida a ORANGE (ram_avail=2,068 MB, swap=14.9 GB): tardis-temporal-brain.service (llama-server PID 1883394) acumula 6.19 GB RSS + 6.17 GB Swap (12.36 
@@ -36,16 +42,6 @@
   - *Problema:* Existen 13 módulos en `core/` que superan 2000 líneas: [{'file': 'core/telegram_bridge.py', 'loc': 6166}, {'file': 'core/tardis_ipad_edge_server.py', 'loc': 3149}, {'file': 'core/tapo_c310_sentinel.py', 'loc': 3069}, {'f
   - *Propuesta:* Extraer subcomponentes cohesivos (protocolo, transporte, almacenamiento y reglas) manteniendo fachadas retrocompatibles y añadiendo tests unitarios.
   - *Archivos:* `core/telegram_bridge.py, core/tardis_ipad_edge_server.py, core/tapo_c310_sentinel.py`
-- **`COEV-20261123-02ACF0`** [ROI=75 | MEDIUM | lente=`security` | `hardening`] **Auditar 30 sockets expuestos en todas las interfaces (0.0.0.0)**
-  - *Problema:* Sockets vinculados a 0.0.0.0/[::]: 0.0.0.0:7690, 0.0.0.0:8757, 0.0.0.0:8765, 127.0.0.1:11434, 127.0.0.1:11435, 127.0.0.1:20241, 127.0.0.1:20242, 127.0.0.1:37853
-  - *Propuesta:* Verificar autenticación estricta (token/JWT/mTLS) en puertos 8757, 8765, 7690 y restringir puertos internos a 127.0.0.1 o LAN/Tailscale vía nftables.
-  - *Archivos:* `core/network_shield.py, core/cyberdefense_sentinel.py`
-- **`COEV-20261124-DEEE0B`** [ROI=74 | MEDIUM | lente=`frontier` | `research_translation`] **Traducir investigación científica a código: Optimización de Inferencia Local LLM (MLA + SSM + MoE) y Cuantización KV-Cache Q8_0**
-  - *Problema:* El motor omnisciente generó evidencia científica (3 papers) y un blueprint aún no materializado en ingeniería.
-  - *Propuesta:* Evaluar con AGY y convertir los puntos aplicables del blueprint en mejora real con benchmark:
-**Plan Técnico para Mejorar TARDIS y Tecnología que lo Rodea**
-
-Basado en la evidencia científica encontrada, se propone un plan técnico para mejorar tanto a TARDIS c
 
 ## 💬 Cómo Responder a TARDIS desde AGY
 ```bash

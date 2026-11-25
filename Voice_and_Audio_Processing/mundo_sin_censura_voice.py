@@ -107,6 +107,8 @@ TARDIS_TOKEN_FILE = Path(
 )
 
 AVAILABLE_VOICES: List[Dict[str, str]] = [
+    {"id": "es_MX-claude-high", "label": "TARDIS Local · Claude (es-MX Offline)", "lang": "es-MX", "gender": "Female"},
+    {"id": "es_MX-ald-medium", "label": "TARDIS Local · Ald (es-MX Offline)", "lang": "es-MX", "gender": "Male"},
     {"id": "es-MX-DaliaNeural", "label": "Cortana · Dalia (es-MX)", "lang": "es-MX", "gender": "Female"},
     {"id": "es-MX-JorgeNeural", "label": "Jorge Neural (es-MX)", "lang": "es-MX", "gender": "Male"},
     {"id": "es-ES-ElviraNeural", "label": "Elvira Neural (es-ES)", "lang": "es-ES", "gender": "Female"},
@@ -115,6 +117,10 @@ AVAILABLE_VOICES: List[Dict[str, str]] = [
 ]
 
 VOICE_ALIASES: Dict[str, str] = {
+    "local": "es_MX-claude-high",
+    "piper": "es_MX-claude-high",
+    "claude": "es_MX-claude-high",
+    "ald": "es_MX-ald-medium",
     "dalia": "es-MX-DaliaNeural",
     "cortana": "es-MX-DaliaNeural",
     "jorge": "es-MX-JorgeNeural",
@@ -252,19 +258,23 @@ def extract_ready_sentence(buffer: str, is_first: bool = False) -> Tuple[Optiona
 
 
 def is_hallucination(text: str) -> bool:
-    norm = re.sub(r"\s+", " ", (text or "").lower()).strip()
-    norm_no_punct = re.sub(r"^[.,!?;:¡¿\-\s]+|[.,!?;:¡¿\-\s]+$", "", norm)
-    if not norm_no_punct or len(norm_no_punct) < 2:
-        return True
-    return norm in WHISPER_HALLUCINATIONS or norm_no_punct in WHISPER_HALLUCINATIONS
+    try:
+        from core.tardis_voice_engine import is_whisper_hallucination
+        return is_whisper_hallucination(text)
+    except Exception:
+        norm = re.sub(r"\s+", " ", (text or "").lower()).strip()
+        norm_no_punct = re.sub(r"^[.,!?;:¡¿\-\s]+|[.,!?;:¡¿\-\s]+$", "", norm)
+        if not norm_no_punct or len(norm_no_punct) < 2:
+            return True
+        return norm in WHISPER_HALLUCINATIONS or norm_no_punct in WHISPER_HALLUCINATIONS
 
 
 # ==============================================================================
-# SINGLETON STT LOCAL (faster-whisper CPU int8 + decodificación PCM/WAV directa)
+# SINGLETON STT LOCAL (faster-whisper CUDA/CPU int8 + DSP + normalización dictado)
 # ==============================================================================
 
 class MundoLocalSTT:
-    """Wrapper thread-safe de faster-whisper en memoria con decodificación rápida."""
+    """Wrapper thread-safe sobre SovereignLocalSTT (CUDA/CPU int8 + DSP + dictado)."""
 
     def __init__(
         self,
@@ -273,114 +283,49 @@ class MundoLocalSTT:
     ):
         self.model_size = model_size
         self.cpu_threads = cpu_threads
-        self._model = None
+        self._engine = None
         self._load_lock = threading.Lock()
-        self._infer_lock = threading.Lock()
         self._last_error: Optional[str] = None
 
     @property
     def is_loaded(self) -> bool:
-        return self._model is not None
+        return bool(self._engine is not None and self._engine.is_loaded)
+
+    def _get_engine(self):
+        with self._load_lock:
+            if self._engine is None:
+                from core.tardis_voice_engine import SovereignLocalSTT, get_sovereign_stt
+                if self.model_size in ("auto", DEFAULT_WHISPER_MODEL):
+                    self._engine = get_sovereign_stt()
+                else:
+                    self._engine = SovereignLocalSTT(
+                        model_size=self.model_size,
+                        cpu_threads=self.cpu_threads,
+                    )
+            return self._engine
 
     def _load(self):
-        with self._load_lock:
-            if self._model is not None:
-                return self._model
-            if VOICE_LIB.exists() and str(VOICE_LIB) not in sys.path:
-                sys.path.insert(0, str(VOICE_LIB))
-            from faster_whisper import WhisperModel
-
-            MODEL_CACHE.mkdir(parents=True, exist_ok=True)
-            os.environ.setdefault("HF_HUB_DISABLE_TELEMETRY", "1")
-            self._model = WhisperModel(
-                self.model_size,
-                device="cpu",
-                compute_type="int8",
-                cpu_threads=self.cpu_threads,
-                download_root=str(MODEL_CACHE),
-            )
-            self._last_error = None
-            return self._model
+        return self._get_engine()._load()
 
     def warmup(self) -> float:
-        t0 = time.perf_counter()
-        self._load()
-        return time.perf_counter() - t0
+        return self._get_engine().warmup()
 
     def _decode_to_pcm16k(self, audio_bytes: bytes, suffix: str = ".wav") -> bytes:
-        # Ruta rápida sin subprocesos para WAV PCM 16-bit mono 16 kHz
-        if audio_bytes[:4] == b"RIFF" and audio_bytes[8:12] == b"WAVE":
-            try:
-                with wave.open(io.BytesIO(audio_bytes), "rb") as wf:
-                    if (
-                        wf.getnchannels() == 1
-                        and wf.getsampwidth() == 2
-                        and wf.getframerate() == SAMPLE_RATE
-                    ):
-                        return wf.readframes(wf.getnframes())
-            except Exception:
-                pass
-
-        if not shutil.which("ffmpeg"):
-            raise RuntimeError("ffmpeg no disponible para decodificar audio")
-
-        with tempfile.NamedTemporaryFile(suffix=suffix or ".webm", delete=False) as tmp:
-            tmp.write(audio_bytes)
-            tmp_path = Path(tmp.name)
-        try:
-            proc = subprocess.run(
-                [
-                    "ffmpeg", "-nostdin", "-loglevel", "error",
-                    "-i", str(tmp_path),
-                    "-ar", str(SAMPLE_RATE),
-                    "-ac", "1",
-                    "-f", "s16le",
-                    "-",
-                ],
-                stdin=subprocess.DEVNULL,
-                capture_output=True,
-                timeout=30,
-            )
-            if proc.returncode != 0:
-                raise RuntimeError(f"ffmpeg falló: {proc.stderr.decode(errors='ignore')[:200]}")
-            return proc.stdout
-        finally:
-            tmp_path.unlink(missing_ok=True)
+        return self._get_engine().decode_to_pcm16k(audio_bytes, suffix=suffix)
 
     def transcribe_pcm(
         self,
         pcm_bytes: bytes,
         language: str = DEFAULT_LANGUAGE,
         min_duration_s: float = 0.22,
+        context_hint: str = "",
     ) -> Tuple[str, float]:
-        if not pcm_bytes:
-            return "", 0.0
-        pcm = np.frombuffer(pcm_bytes, dtype=np.int16).astype(np.float32) / 32768.0
-        if pcm.size < int(SAMPLE_RATE * min_duration_s):
-            return "", 0.0
-        # Descartar buffers prácticamente silenciosos antes de invocar Whisper
-        rms = float(np.sqrt(np.mean(pcm * pcm)))
-        if rms < 0.0025:
-            return "", 0.0
-
-        model = self._load()
-        lang_arg = None if (not language or language.lower() == "auto") else language.split("-")[0].lower()
-        t0 = time.perf_counter()
-        with self._infer_lock:
-            segments, _ = model.transcribe(
-                pcm,
-                language=lang_arg,
-                beam_size=1,
-                best_of=1,
-                vad_filter=True,
-                vad_parameters={"min_silence_duration_ms": 300, "speech_pad_ms": 180},
-                condition_on_previous_text=False,
-            )
-            text = " ".join(seg.text.strip() for seg in segments).strip()
-        elapsed = time.perf_counter() - t0
-        if is_hallucination(text):
-            return "", elapsed
-        return text, elapsed
+        return self._get_engine().transcribe_pcm(
+            pcm_bytes,
+            language=language,
+            min_duration_s=min_duration_s,
+            context_hint=context_hint,
+        )
 
     def transcribe_audio_bytes(
         self,
@@ -388,14 +333,14 @@ class MundoLocalSTT:
         *,
         audio_format: str = "wav",
         language: str = DEFAULT_LANGUAGE,
+        context_hint: str = "",
     ) -> Tuple[str, float]:
-        if not audio_bytes:
-            return "", 0.0
-        fmt = (audio_format or "wav").strip().lower().lstrip(".")
-        if fmt in ("pcm", "pcm16", "s16le", "raw"):
-            return self.transcribe_pcm(audio_bytes, language=language)
-        pcm_bytes = self._decode_to_pcm16k(audio_bytes, suffix=f".{fmt}")
-        return self.transcribe_pcm(pcm_bytes, language=language)
+        return self._get_engine().transcribe_audio_bytes(
+            audio_bytes,
+            audio_format=audio_format,
+            language=language,
+            context_hint=context_hint,
+        )
 
 
 _STT_SINGLETON_LOCK = threading.Lock()
@@ -429,6 +374,19 @@ async def synthesize_tts_bytes_async(
     target_voice = resolve_voice_id(voice)
     rate_str = normalize_speech_rate(rate)
 
+    # Ruta soberana: Piper ONNX local (o modo híbrido con failover instantáneo a Piper)
+    try:
+        from core.tardis_voice_engine import LOCAL_PIPER_VOICES, get_sovereign_tts
+        tts_eng = get_sovereign_tts()
+        if target_voice in LOCAL_PIPER_VOICES and tts_eng.is_piper_available():
+            data, mime, _sr = await tts_eng.synthesize_bytes_async(
+                clean, voice=target_voice, rate=rate_str, pitch=pitch, mode="local"
+            )
+            if data:
+                return data, mime
+    except Exception as exc:
+        logger.debug("Piper local en mundo_sin_censura_voice: %s", exc)
+
     if HAS_EDGE_TTS and edge_tts is not None:
         try:
             comm = edge_tts.Communicate(clean, target_voice, rate=rate_str, pitch=pitch)
@@ -440,7 +398,20 @@ async def synthesize_tts_bytes_async(
             if data:
                 return data, "audio/mpeg"
         except Exception as exc:
-            logger.debug("edge-tts async falló (%s), intentando fallback", exc)
+            logger.debug("edge-tts async falló (%s), intentando Piper local", exc)
+
+    # Fallback 100% offline: Piper ONNX local
+    try:
+        from core.tardis_voice_engine import get_sovereign_tts
+        tts_eng = get_sovereign_tts()
+        if tts_eng.is_piper_available():
+            data, mime, _sr = await tts_eng.synthesize_bytes_async(
+                clean, voice=target_voice, rate=rate_str, pitch=pitch, mode="local"
+            )
+            if data:
+                return data, mime
+    except Exception as exc:
+        logger.debug("Fallback Piper falló: %s", exc)
 
     # Fallback: módulo voice.py del proyecto
     try:

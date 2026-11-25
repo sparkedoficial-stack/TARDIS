@@ -73,73 +73,71 @@ os.system("")
 #  FASE 0 - CAPTURA DE MICRÓFONO (STT)
 # =====================================================================
 
-def listen_microphone(lang: str = "es-MX") -> str | None:
-    """Escucha el micrófono del sistema y retorna el texto transcrito."""
-    if not HAS_SR:
-        print(f"{C_ERR}speech_recognition no disponible.{C_END}")
-        return None
-
-    r = sr.Recognizer()
-    r.energy_threshold = 300
-    r.dynamic_energy_threshold = True
-
+def listen_microphone(lang: str = "es") -> str | None:
+    """Escucha el micrófono localmente con PipeWire + Silero VAD v6 + Whisper local (100% offline)."""
     try:
-        with sr.Microphone() as source:
-            print(f"\n{C_GREEN}🎙️  [MICRÓFONO ACTIVO] Habla ahora... (silencio para enviar){C_END}")
-            r.adjust_for_ambient_noise(source, duration=0.6)
-            audio = r.listen(source, timeout=10.0, phrase_time_limit=15.0)
-            print(f"{C_DIM}   transcribiendo voz...{C_END}")
-            text = r.recognize_google(audio, language=lang)
-            print(f"{C_USER}Tú (voz) > {C_END}{text}")
-            return text.strip()
-    except sr.WaitTimeoutError:
-        print(f"{C_DIM}(tiempo de espera agotado sin voz detectada){C_END}")
-        return None
-    except sr.UnknownValueError:
-        print(f"{C_DIM}(no se reconoció voz inteligible){C_END}")
-        return None
-    except sr.RequestError as e:
-        print(f"{C_ERR}Error conectando servicio STT: {e}{C_END}")
-        return None
+        from core.tardis_infinite_voice import PipeWireMicStream
+        from core.tardis_voice_engine import AdaptiveSpeechSegmenter, SegmenterConfig, get_sovereign_stt
+
+        seg = AdaptiveSpeechSegmenter(SegmenterConfig(silence_hold_ms=760, max_utterance_ms=18000))
+        mic = PipeWireMicStream(sample_rate=16000, frame_bytes=960)
+        stt = get_sovereign_stt()
+        print(f"\n{C_GREEN}🎙️  [MICRÓFONO LOCAL ACTIVO · Silero VAD + Whisper] Habla ahora...{C_END}")
+        mic.start()
+        deadline = time.monotonic() + 14.0
+        pcm_utt: bytes | None = None
+        try:
+            while time.monotonic() < deadline:
+                frame = mic.read_frame()
+                if not frame:
+                    continue
+                res = seg.process_frame(frame, ai_speaking=False)
+                if res.get("in_speech"):
+                    deadline = max(deadline, time.monotonic() + 6.0)
+                if res.get("utterance"):
+                    pcm_utt = res["utterance"]
+                    break
+        finally:
+            mic.stop()
+
+        if not pcm_utt:
+            print(f"{C_DIM}(tiempo de espera agotado sin voz detectada){C_END}")
+            return None
+        print(f"{C_DIM}   transcribiendo voz localmente...{C_END}")
+        text, dt = stt.transcribe_pcm(pcm_utt, language=lang.split("-")[0])
+        if not text:
+            print(f"{C_DIM}(no se reconoció voz inteligible){C_END}")
+            return None
+        print(f"{C_USER}Tú (voz · {dt*1000:.0f}ms) > {C_END}{text}")
+        return text.strip()
     except Exception as e:
-        print(f"{C_ERR}Error de micrófono: {e}{C_END}")
+        print(f"{C_ERR}Error de micrófono local: {e}{C_END}")
         return None
 
 
 # =====================================================================
-#  FASE 1 - ABSTRACCIÓN del mensaje
+#  FASE 1 - ABSTRACCIÓN del mensaje (<15ms local, cero bloqueo LLM)
 # =====================================================================
-
-ABSTRACT_PROMPT = (
-    "Analiza el mensaje del usuario y responde SOLO con un objeto JSON "
-    "(sin texto extra) con estas claves:\n"
-    '  "intencion": breve (pregunta|orden|charla|busqueda_dato),\n'
-    '  "tema": frase corta,\n'
-    '  "entidades": [palabras clave],\n'
-    '  "requiere_internet": true/false  (true si pide datos actuales, '
-    "precios, noticias, versiones, clima, eventos recientes),\n"
-    '  "consulta_web": string con la query ideal si requiere_internet.\n'
-    "Mensaje: {msg}"
-)
-
 
 def abstract_message(client: httpx.Client, model: str, msg: str) -> dict:
-    """Pide al modelo que estructure el mensaje. Devuelve dict abstraccion."""
+    """Estructura y abstrae el mensaje en <15 ms con VoiceAbstractionEngine local."""
     try:
-        r = client.post(f"{OLLAMA}/api/chat", json={
-            "model": model,
-            "messages": [{"role": "user", "content": ABSTRACT_PROMPT.format(msg=msg)}],
-            "stream": False,
-            "format": "json",
-            "options": {"temperature": 0.1, "num_ctx": 4096},
-            "keep_alive": "30m",
-        }, timeout=300.0)
-        r.raise_for_status()
-        content = r.json().get("message", {}).get("content", "{}")
-        data = json.loads(content)
-        if not isinstance(data, dict):
-            raise ValueError("no dict")
-        return data
+        from core.tardis_voice_engine import get_voice_abstractor
+        abs_res = get_voice_abstractor().abstract(msg, allow_system_actions=True)
+        return {
+            "intencion": abs_res.intent,
+            "sub_intencion": abs_res.sub_intent,
+            "tema": abs_res.active_topic or abs_res.normalized_text[:50],
+            "entidades": abs_res.entities,
+            "requiere_internet": abs_res.needs_web,
+            "consulta_web": abs_res.web_query or abs_res.resolved_query,
+            "texto_normalizado": abs_res.normalized_text,
+            "consulta_resuelta": abs_res.resolved_query,
+            "respuesta_instantanea": abs_res.instant_reply,
+            "guia": abs_res.system_guidance,
+            "max_tokens": abs_res.max_tokens,
+            "latency_ms": abs_res.latency_ms,
+        }
     except Exception as e:   # noqa: BLE001
         low = msg.lower()
         net_kw = ("hoy", "actual", "ultima", "última", "precio", "noticia",

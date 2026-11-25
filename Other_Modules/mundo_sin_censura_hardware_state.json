@@ -6,10 +6,10 @@
   "agentic_hw_in_chat": true,
   "sovereignty_level": "ABSOLUTE_RING_0_RUNTIME",
   "runtime_active": true,
-  "runtime_pid": 53505,
-  "armed_at": "2026-11-25 00:03:55",
-  "actions_executed": 1,
+  "runtime_pid": 88060,
+  "armed_at": "2026-11-25 00:14:41",
+  "actions_executed": 2,
   "actions_failed": 0,
-  "last_action": "psi",
-  "last_action_at": "2026-11-24 18:32:22"
+  "last_action": "set_cpu_governor",
+  "last_action_at": "2026-11-25 00:14:48"
 }

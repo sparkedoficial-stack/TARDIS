@@ -45,45 +45,81 @@ try:
 except Exception:
     HAS_PYTTSX3 = False
 
-_OK = HAS_EDGE_TTS or HAS_PYTTSX3
-_ERR = "" if _OK else "Ni edge_tts ni pyttsx3 están disponibles."
+HAS_PIPER_LOCAL = False
+try:
+    from core.tardis_voice_engine import (
+        DEFAULT_LOCAL_VOICE,
+        LOCAL_PIPER_VOICES,
+        get_sovereign_tts as _get_sovereign_tts,
+        prepare_text_for_speech as _prepare_speech_text,
+    )
+    HAS_PIPER_LOCAL = _get_sovereign_tts().is_piper_available()
+except Exception:
+    LOCAL_PIPER_VOICES = {}
+    DEFAULT_LOCAL_VOICE = "es_MX-claude-high"
+    _get_sovereign_tts = None
+    _prepare_speech_text = None
 
-# Voces principales de Cortana
+_OK = HAS_PIPER_LOCAL or HAS_EDGE_TTS or HAS_PYTTSX3
+_ERR = "" if _OK else "Ni Piper local, ni edge_tts ni pyttsx3 están disponibles."
+
+# Voces principales de TARDIS (Local Piper ONNX offline + Cortana Microsoft Neural)
 CORTANA_VOICES = [
+    {
+        "id": "es_MX-claude-high",
+        "name": "TARDIS Local Neural (Piper ONNX Offline - Español México Femenina)",
+        "lang": "es-MX",
+        "gender": "Female",
+        "engine": "piper",
+        "is_default": True if (HAS_PIPER_LOCAL and os.environ.get("TARDIS_TTS_MODE", "local") == "local") else False,
+    },
+    {
+        "id": "es_MX-ald-medium",
+        "name": "TARDIS Local Neural (Piper ONNX Offline - Español México Masculina)",
+        "lang": "es-MX",
+        "gender": "Male",
+        "engine": "piper",
+        "is_default": False,
+    },
     {
         "id": "es-MX-DaliaNeural",
         "name": "Cortana (Microsoft Neural - Español México)",
         "lang": "es-MX",
         "gender": "Female",
-        "is_default": True
+        "engine": "edge-tts",
+        "is_default": False if (HAS_PIPER_LOCAL and os.environ.get("TARDIS_TTS_MODE", "local") == "local") else True,
     },
     {
         "id": "en-US-JennyNeural",
         "name": "Cortana (Microsoft Neural - English US)",
         "lang": "en-US",
         "gender": "Female",
-        "is_default": False
+        "engine": "edge-tts",
+        "is_default": False,
     },
     {
         "id": "es-ES-ElviraNeural",
         "name": "Cortana (Microsoft Neural - España)",
         "lang": "es-ES",
         "gender": "Female",
-        "is_default": False
+        "engine": "edge-tts",
+        "is_default": False,
     },
     {
         "id": "es-MX-JorgeNeural",
         "name": "Jorge (Microsoft Neural - Español)",
         "lang": "es-MX",
         "gender": "Male",
-        "is_default": False
-    }
+        "engine": "edge-tts",
+        "is_default": False,
+    },
 ]
 
 # Preferencias activas
-_PREF_VOICE = "es-MX-DaliaNeural"  # Voz oficial de Cortana en español
-_RATE = 1.05                      # Cadencia ligeramente viva y clara característica de Cortana
-_PITCH = "+2Hz"                   # Brillo tonal característico de Cortana
+_TTS_MODE = os.environ.get("TARDIS_TTS_MODE", "local" if HAS_PIPER_LOCAL else "edge").strip().lower()
+_PREF_VOICE = DEFAULT_LOCAL_VOICE if (_TTS_MODE == "local" and HAS_PIPER_LOCAL) else "es-MX-DaliaNeural"
+_RATE = 1.05                      # Cadencia ligeramente viva y clara característica de TARDIS
+_PITCH = "+2Hz"                   # Brillo tonal característico para Edge TTS
 _VOLUME = 1.0
 
 _lock = threading.Lock()
@@ -133,23 +169,32 @@ def list_voices() -> List[Dict[str, Any]]:
 
 
 def set_voice(voice_id: str) -> str:
-    """Configura la voz activa (acepta IDs o nombres como 'cortana', 'dalia', 'sabina')."""
-    global _PREF_VOICE
+    """Configura la voz activa (acepta IDs o nombres como 'local', 'claude', 'ald', 'cortana', 'dalia')."""
+    global _PREF_VOICE, _TTS_MODE
     voice_clean = (voice_id or "").strip().lower()
     if not voice_clean:
         return _PREF_VOICE
 
-    if "cortana" in voice_clean or "dalia" in voice_clean or "sabina" in voice_clean:
+    if voice_clean in ("local", "piper", "claude", "tardis", "es_mx-claude-high"):
+        _PREF_VOICE = "es_MX-claude-high"
+        _TTS_MODE = "local"
+    elif voice_clean in ("ald", "es_mx-ald-medium", "local-m"):
+        _PREF_VOICE = "es_MX-ald-medium"
+        _TTS_MODE = "local"
+    elif "cortana" in voice_clean or "dalia" in voice_clean or "sabina" in voice_clean:
         _PREF_VOICE = "es-MX-DaliaNeural"
+        _TTS_MODE = "hybrid"
     elif "jenny" in voice_clean or "english" in voice_clean or "en-us" in voice_clean:
         _PREF_VOICE = "en-US-JennyNeural"
+        _TTS_MODE = "hybrid"
     elif "elvira" in voice_clean or "españa" in voice_clean or "es-es" in voice_clean:
         _PREF_VOICE = "es-ES-ElviraNeural"
+        _TTS_MODE = "hybrid"
     else:
-        # Asignar directamente si coincide con alguna disponible
         for v in list_voices():
             if voice_clean in v["id"].lower() or voice_clean in v["name"].lower():
                 _PREF_VOICE = v["id"]
+                _TTS_MODE = "local" if v.get("engine") == "piper" else "hybrid"
                 break
     return _PREF_VOICE
 
@@ -180,26 +225,48 @@ def set_volume(vol: float) -> float:
 
 def get_config() -> Dict[str, Any]:
     """Retorna la configuración y estado actual del motor de voz."""
+    engine_label = (
+        "piper-onnx (100% Local Offline)"
+        if (HAS_PIPER_LOCAL and (_TTS_MODE == "local" or _PREF_VOICE in LOCAL_PIPER_VOICES))
+        else ("edge-tts + piper fallback" if HAS_EDGE_TTS else ("pyttsx3" if HAS_PYTTSX3 else "none"))
+    )
     return {
         "ok": _OK,
-        "engine": "edge-tts (Cortana Neural)" if HAS_EDGE_TTS else ("pyttsx3" if HAS_PYTTSX3 else "none"),
+        "engine": engine_label,
+        "tts_mode": _TTS_MODE,
+        "piper_local_available": HAS_PIPER_LOCAL,
         "pref_voice": _PREF_VOICE,
-        "cortana_active": "dalia" in _PREF_VOICE.lower() or "cortana" in _PREF_VOICE.lower(),
+        "cortana_active": "dalia" in _PREF_VOICE.lower() or "cortana" in _PREF_VOICE.lower() or "claude" in _PREF_VOICE.lower(),
         "rate": _RATE,
         "volume": _VOLUME,
-        "voices": list_voices()
+        "voices": list_voices(),
     }
 
 
 async def synthesize_to_bytes_async(text: str, voice: Optional[str] = None) -> Optional[bytes]:
-    """Sintetiza texto asíncronamente a bytes MP3 con la voz de Cortana."""
+    """Sintetiza texto asíncronamente a bytes (Piper local WAV o Edge TTS MP3 con failover local)."""
     text = (text or "").strip()
     if not text:
         return None
+    if _prepare_speech_text is not None:
+        text = _prepare_speech_text(text)
+        if not text:
+            return None
 
     target_voice = voice or _PREF_VOICE
     if target_voice.startswith("SERVER:"):
         target_voice = target_voice.replace("SERVER:", "")
+
+    if HAS_PIPER_LOCAL and _get_sovereign_tts is not None and not target_voice.startswith("SAPI5:"):
+        eff_mode = "local" if (target_voice in LOCAL_PIPER_VOICES or _TTS_MODE == "local") else "hybrid"
+        try:
+            data, _mime, _sr = await _get_sovereign_tts(mode=eff_mode).synthesize_bytes_async(
+                text, voice=target_voice, rate=_RATE, pitch=_PITCH, mode=eff_mode
+            )
+            if data:
+                return data
+        except Exception:
+            pass
 
     if HAS_EDGE_TTS and not target_voice.startswith("SAPI5:"):
         try:
@@ -218,16 +285,31 @@ async def synthesize_to_bytes_async(text: str, voice: Optional[str] = None) -> O
 
 def synthesize_to_bytes(text: str, voice: Optional[str] = None) -> Optional[bytes]:
     """
-    Sintetiza texto a bytes de audio MP3 usando la voz de Cortana.
-    Compatible con streaming web directo para navegador y móvil.
+    Sintetiza texto a bytes de audio usando Piper ONNX 100% local o Cortana Neural con failover local.
     """
     text = (text or "").strip()
     if not text:
         return None
+    if _prepare_speech_text is not None:
+        text = _prepare_speech_text(text)
+        if not text:
+            return None
 
     target_voice = voice or _PREF_VOICE
     if target_voice.startswith("SERVER:"):
         target_voice = target_voice.replace("SERVER:", "")
+
+    # Método Primario Soberano: Piper ONNX local (o modo híbrido con failover automático)
+    if HAS_PIPER_LOCAL and _get_sovereign_tts is not None and not target_voice.startswith("SAPI5:"):
+        eff_mode = "local" if (target_voice in LOCAL_PIPER_VOICES or _TTS_MODE == "local") else "hybrid"
+        try:
+            data, _mime, _sr = _get_sovereign_tts(mode=eff_mode).synthesize_bytes(
+                text, voice=target_voice, rate=_RATE, pitch=_PITCH, mode=eff_mode
+            )
+            if data:
+                return data
+        except Exception:
+            pass
 
     # Método Primario: Edge TTS (Voz de Cortana Neural)
     if HAS_EDGE_TTS and not target_voice.startswith("SAPI5:"):
@@ -381,29 +463,51 @@ def speak(text: str, wait: bool = True, voice: Optional[str] = None) -> Dict[str
         if not data:
             return
 
-        with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False, prefix="cortana_") as tf:
+        ext = ".wav" if data[:4] == b"RIFF" else ".mp3"
+        with tempfile.NamedTemporaryFile(suffix=ext, delete=False, prefix="tardis_tts_") as tf:
             tf.write(data)
             tmp_file = tf.name
 
         try:
-            # Reproducción con GStreamer (GstPulse / AutoAudioSink)
-            if shutil.which("gst-launch-1.0"):
+            if ext == ".wav" and shutil.which("pw-play"):
+                proc = subprocess.Popen(
+                    ["pw-play", tmp_file],
+                    stdin=subprocess.DEVNULL,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    start_new_session=True,
+                )
+            elif shutil.which("ffplay"):
+                proc = subprocess.Popen(
+                    ["ffplay", "-nodisp", "-autoexit", "-loglevel", "quiet", tmp_file],
+                    stdin=subprocess.DEVNULL,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    start_new_session=True,
+                )
+            elif shutil.which("gst-launch-1.0"):
                 proc = subprocess.Popen(
                     ["gst-launch-1.0", "playbin", f"uri=file://{tmp_file}", "audio-sink=autoaudiosink"],
+                    stdin=subprocess.DEVNULL,
                     stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL
+                    stderr=subprocess.DEVNULL,
+                    start_new_session=True,
                 )
             elif shutil.which("pw-play"):
                 proc = subprocess.Popen(
                     ["pw-play", tmp_file],
+                    stdin=subprocess.DEVNULL,
                     stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL
+                    stderr=subprocess.DEVNULL,
+                    start_new_session=True,
                 )
             elif shutil.which("aplay"):
                 proc = subprocess.Popen(
                     ["aplay", tmp_file],
+                    stdin=subprocess.DEVNULL,
                     stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL
+                    stderr=subprocess.DEVNULL,
+                    start_new_session=True,
                 )
             else:
                 proc = None

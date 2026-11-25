@@ -1,29 +1,28 @@
 #!/usr/bin/env python3
 """
-core/tardis_infinite_voice.py - Chat de Voz Infinito Full-Duplex para TARDIS
-=============================================================================
+core/tardis_infinite_voice.py - Chat de Voz Infinito Full-Duplex 100% Local para TARDIS
+=======================================================================================
 GODWORKS SYSTEM v26.4 · Suite Soberana TARDIS / FTL
 Arquitecto: El Arquitecto (₪)
 
-Motor conversacional de voz continuo (sin chasquidos, sin pulsaciones repetidas
-y sin límite de turnos) sobre PipeWire + faster-whisper local + TemporalBrain
-streaming + edge-tts por oración + memoria continua en OfflineChatVault.
-
-Flujo full-duplex:
-  Micrófono PipeWire (pw-record 16kHz PCM)
-    -> SpeechSegmenter (WebRTC VAD + piso de ruido adaptativo + Barge-In)
-    -> faster-whisper local en memoria (CPU int8, filtro de alucinaciones)
-    -> Enrutador soberano (`programa ...` FTL, bóveda protegida, comandos de voz)
-    -> TemporalBrain SSE (/tmp/temporal_brain.sock) con fallback :8757 / Ollama
-    -> Síntesis TTS por oración en paralelo (edge-tts Cortana Neural)
-    -> Reproducción continua (ffplay/pw-play) con interrupción instantánea (Barge-In)
+Motor conversacional de voz continuo y dictado inteligente sobre:
+  Micrófono PipeWire (`pw-record` 16 kHz PCM mono)
+    -> AdaptiveSpeechSegmenter (Silero VAD v6 neural + WebRTC VAD + piso adaptativo + Barge-In anti-eco)
+    -> DSP Acústico (HPF 85 Hz + AGC) + SovereignLocalSTT (faster-whisper CUDA/CPU int8 + hotwords)
+    -> UtteranceCoalescer (fusión fluida de frases entrecortadas / pausas reflexivas)
+    -> VoiceAbstractionEngine (<15 ms: normalización de dictado, intenciones, entidades,
+       resolución de anáforas multi-turno, modo dictado continuo, comandos instantáneos)
+    -> Enrutador soberano (`programa ...` FTL, bóveda protegida, control por voz)
+    -> LocalVoiceLLMRouter (TemporalBrain UDS si tiene slot libre, o carril GPU dedicado :11435)
+    -> SovereignLocalTTS (Piper ONNX local 100% offline con caché LRU o híbrido edge-tts async)
+    -> GaplessAudioPlayer (`pw-cat` PCM directo sin cortes entre oraciones + Barge-In <20 ms)
+    -> Prioridad de Voz Local activa (abre recursos CPU durante la conversación)
     -> Persistencia y recuperación semántica en OfflineChatVault (continuidad infinita)
 """
 from __future__ import annotations
 
 import argparse
-from collections import deque
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 import json
 import logging
 import os
@@ -35,14 +34,9 @@ import shutil
 import signal
 import subprocess
 import sys
-import tempfile
 import threading
 import time
-import urllib.error
-import urllib.request
-from typing import Any, Callable, Deque, Dict, Iterator, List, Optional, Tuple
-
-import numpy as np
+from typing import Any, Dict, Iterator, List, Optional, Tuple
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
@@ -52,6 +46,29 @@ VOICE_LIB = Path.home() / ".local" / "share" / "tardis-voice" / "lib"
 if VOICE_LIB.exists() and str(VOICE_LIB) not in sys.path:
     sys.path.insert(0, str(VOICE_LIB))
 
+from core.tardis_voice_engine import (
+    DEFAULT_EDGE_VOICE,
+    DEFAULT_LOCAL_VOICE,
+    DEFAULT_TTS_MODE,
+    VOICE_ALIASES as ENGINE_VOICE_ALIASES,
+    AdaptiveSpeechSegmenter,
+    DictationNormalizer,
+    GaplessAudioPlayer,
+    LocalVoiceLLMRouter,
+    SegmenterConfig,
+    SovereignLocalSTT,
+    SovereignLocalTTS,
+    UtteranceCoalescer,
+    VoiceAbstraction,
+    VoiceAbstractionEngine,
+    extract_streaming_sentence,
+    get_sovereign_stt,
+    get_sovereign_tts,
+    get_voice_llm_router,
+    is_whisper_hallucination,
+    prepare_text_for_speech,
+    resolve_voice_spec,
+)
 from core.tardis_voice_local import (
     DEFAULT_VOICE,
     LocalSpeechToText,
@@ -61,29 +78,14 @@ from core.tardis_voice_local import (
     for_speech,
 )
 
-try:
-    import webrtcvad  # type: ignore[import-untyped]
-    HAS_WEBRTCVAD = True
-except Exception:
-    webrtcvad = None
-    HAS_WEBRTCVAD = False
-
-try:
-    import httpx
-    HAS_HTTPX = True
-except Exception:
-    httpx = None  # type: ignore[assignment]
-    HAS_HTTPX = False
-
 logger = logging.getLogger("TARDIS.InfiniteVoice")
 
 TEMPORAL_BRAIN_SOCK = Path(os.environ.get("TEMPORAL_BRAIN_SOCKET", "/tmp/temporal_brain.sock"))
 OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://127.0.0.1:11434")
 
 CANONICAL_GREETING = (
-    "Un placer, soy TARDIS asistente de inteligencia artificial, "
-    "mi tarea es ayudarte a explorar las maravillas de la realidad "
-    "y todas las dimensiones temporales. Chat de voz infinito activo, te escucho."
+    "Un placer, soy TARDIS asistente de inteligencia artificial. "
+    "Chat de voz local activo, te escucho."
 )
 
 WHISPER_HALLUCINATIONS = {
@@ -103,16 +105,7 @@ WHISPER_HALLUCINATIONS = {
     "mbc",
 }
 
-VOICE_ALIASES = {
-    "dalia": "es-MX-DaliaNeural",
-    "cortana": "es-MX-DaliaNeural",
-    "jorge": "es-MX-JorgeNeural",
-    "elvira": "es-ES-ElviraNeural",
-    "jenny": "en-US-JennyNeural",
-}
-
-_THINK_RE = re.compile(r"<think>[\s\S]*?(?:</think>|\Z)", re.IGNORECASE)
-_SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?…:;])\s+|\n+")
+VOICE_ALIASES = dict(ENGINE_VOICE_ALIASES)
 
 C_RESET = "\033[0m"
 C_CYAN = "\033[96m"
@@ -122,24 +115,33 @@ C_RED = "\033[91m"
 C_DIM = "\033[2m"
 C_BOLD = "\033[1m"
 C_GOLD = "\033[38;5;220m"
+C_MAGENTA = "\033[95m"
 
 
 @dataclass
 class InfiniteVoiceConfig:
     voice: str = DEFAULT_VOICE
-    whisper_model: str = os.environ.get("TARDIS_VOICE_WHISPER_MODEL", "base")
+    tts_mode: str = DEFAULT_TTS_MODE  # local | hybrid | edge
+    speech_rate: str = "+6%"
+    whisper_model: str = os.environ.get("TARDIS_VOICE_WHISPER_MODEL", "auto")
+    whisper_device: str = os.environ.get("TARDIS_STT_DEVICE", "auto")
     whisper_threads: int = int(os.environ.get("TARDIS_VOICE_WHISPER_THREADS", "6"))
     language: str = os.environ.get("TARDIS_VOICE_LANG", "es")
+    llm_lane: str = os.environ.get("TARDIS_VOICE_LLM_LANE", "auto")  # auto | temporal_brain | fast
     sample_rate: int = 16000
     frame_ms: int = 30
     vad_aggressiveness: int = 2
-    silence_hold_ms: int = 850
-    min_speech_ms: int = 300
-    max_utterance_ms: int = 25000
-    pre_roll_ms: int = 300
+    silence_hold_ms: int = 740
+    min_speech_ms: int = 240
+    max_utterance_ms: int = 30000
+    pre_roll_ms: int = 360
     barge_in: bool = True
-    barge_in_rms: float = 0.075
-    barge_in_frames: int = 10
+    barge_in_rms: float = 0.068
+    barge_in_frames: int = 8
+    use_silero: bool = True
+    coalesce_incomplete: bool = True
+    dictation_mode: bool = False
+    enable_voice_priority: bool = True
     client_id: str = "infinite_voice_local"
     session_id: str = "infinite_voice_local"
     max_history_turns: int = 20
@@ -158,134 +160,51 @@ class InfiniteVoiceConfig:
 
 
 def extract_ready_sentence(buffer: str, is_first: bool = False) -> Tuple[Optional[str], str]:
-    """Extrae una oración completa lista para TTS con baja latencia en el primer fragmento."""
-    min_len = 20 if is_first else 42
-    if len(buffer) < min_len:
-        return None, buffer
-
-    match = _SENTENCE_SPLIT_RE.search(buffer)
-    if match and match.start() >= min_len:
-        sentence = buffer[: match.start() + 1].strip()
-        rest = buffer[match.end():]
-        return sentence, rest
-
-    if len(buffer) >= 90:
-        comma_idx = buffer.find(", ", 52)
-        if comma_idx != -1:
-            sentence = buffer[: comma_idx + 1].strip()
-            rest = buffer[comma_idx + 2:]
-            return sentence, rest
-
-    return None, buffer
+    """Extrae una oración completa lista para TTS con mínima latencia inicial."""
+    return extract_streaming_sentence(buffer, is_first=is_first)
 
 
 def is_hallucination(text: str) -> bool:
-    norm = re.sub(r"\s+", " ", (text or "").lower()).strip()
-    return not norm or len(norm) < 2 or norm in WHISPER_HALLUCINATIONS
+    return is_whisper_hallucination(text)
 
 
-class SpeechSegmenter:
+class SpeechSegmenter(AdaptiveSpeechSegmenter):
     """
-    Máquina de estados VAD + piso de ruido adaptativo sobre tramas PCM 16kHz s16le.
-    Separa enunciados completos del usuario y detecta Barge-In sostenido durante TTS.
+    Segmentador VAD compatible con la interfaz histórica de `tardis_infinite_voice`
+    y potenciado con Silero VAD v6 neural + paciencia adaptativa + Barge-In anti-eco.
     """
 
     def __init__(self, cfg: InfiniteVoiceConfig):
-        self.cfg = cfg
-        self.vad = webrtcvad.Vad(cfg.vad_aggressiveness) if HAS_WEBRTCVAD else None
-        self.noise_floor = 0.008
-        self.in_speech = False
-        self.speech_frames: List[bytes] = []
-        self.pre_roll: Deque[bytes] = deque(maxlen=max(1, cfg.pre_roll_ms // cfg.frame_ms))
-        self.silence_frames = 0
-        self.barge_streak = 0
-        self._hold_frames = max(1, cfg.silence_hold_ms // cfg.frame_ms)
-        self._min_frames = max(1, cfg.min_speech_ms // cfg.frame_ms)
-        self._max_frames = max(10, cfg.max_utterance_ms // cfg.frame_ms)
+        seg_cfg = SegmenterConfig(
+            sample_rate=cfg.sample_rate,
+            frame_ms=cfg.frame_ms,
+            vad_aggressiveness=cfg.vad_aggressiveness,
+            silence_hold_ms=cfg.silence_hold_ms,
+            min_speech_ms=cfg.min_speech_ms,
+            max_utterance_ms=cfg.max_utterance_ms,
+            pre_roll_ms=cfg.pre_roll_ms,
+            barge_in=cfg.barge_in,
+            barge_in_rms=cfg.barge_in_rms,
+            barge_in_frames=cfg.barge_in_frames,
+            use_silero=cfg.use_silero,
+            dictation_mode=cfg.dictation_mode,
+        )
+        super().__init__(seg_cfg)
+        self.voice_cfg = cfg
 
-    def reset_utterance(self) -> None:
-        self.in_speech = False
-        self.speech_frames.clear()
-        self.silence_frames = 0
-        self.barge_streak = 0
+    @property
+    def _vad_compat(self):
+        return self.vad
 
-    def _frame_rms(self, frame: bytes) -> float:
-        pcm = np.frombuffer(frame, dtype=np.int16).astype(np.float32) / 32768.0
-        if pcm.size == 0:
-            return 0.0
-        return float(np.sqrt(np.mean(pcm * pcm)))
-
-    def _is_speech(self, frame: bytes, rms: float, threshold: float) -> bool:
-        energy_ok = rms > threshold
-        if self.vad is None:
-            return energy_ok
-        try:
-            vad_ok = self.vad.is_speech(frame, self.cfg.sample_rate)
-        except Exception:
-            vad_ok = energy_ok
-        return vad_ok and rms > (threshold * 0.72)
-
-    def process_frame(self, frame: bytes, ai_speaking: bool = False) -> Dict[str, Any]:
-        """
-        Procesa una trama de `frame_bytes` bytes.
-        Retorna: {"utterance": Optional[bytes], "barge_in": bool, "rms": float}
-        """
-        rms = self._frame_rms(frame)
-        threshold = max(0.012, self.noise_floor * 2.5)
-
-        if ai_speaking:
-            if self.cfg.barge_in:
-                barge_thresh = max(self.cfg.barge_in_rms, self.noise_floor * 5.0)
-                vad_hit = True
-                if self.vad is not None:
-                    try:
-                        vad_hit = self.vad.is_speech(frame, self.cfg.sample_rate)
-                    except Exception:
-                        vad_hit = True
-                if rms >= barge_thresh and vad_hit:
-                    self.barge_streak += 1
-                    self.pre_roll.append(frame)
-                    if self.barge_streak >= self.cfg.barge_in_frames:
-                        self.in_speech = True
-                        self.speech_frames = list(self.pre_roll)
-                        self.silence_frames = 0
-                        self.barge_streak = 0
-                        return {"utterance": None, "barge_in": True, "rms": rms}
-                else:
-                    self.barge_streak = max(0, self.barge_streak - 1)
-                    self.pre_roll.append(frame)
-            else:
-                self.pre_roll.append(frame)
-            return {"utterance": None, "barge_in": False, "rms": rms}
-
-        self.barge_streak = 0
-        is_voice = self._is_speech(frame, rms, threshold)
-
-        if not self.in_speech:
-            self.noise_floor = 0.98 * self.noise_floor + 0.02 * min(rms, 0.035)
-            self.pre_roll.append(frame)
-            if is_voice:
-                self.in_speech = True
-                self.speech_frames = list(self.pre_roll)
-                self.silence_frames = 0
-            return {"utterance": None, "barge_in": False, "rms": rms}
-
-        self.speech_frames.append(frame)
-        if is_voice:
-            self.silence_frames = 0
-        else:
-            self.silence_frames += 1
-
-        if self.silence_frames >= self._hold_frames or len(self.speech_frames) >= self._max_frames:
-            frames = list(self.speech_frames)
-            self.reset_utterance()
-            if len(frames) >= self._min_frames:
-                return {"utterance": b"".join(frames), "barge_in": False, "rms": rms}
-        return {"utterance": None, "barge_in": False, "rms": rms}
+    def __setattr__(self, name: str, value: Any) -> None:
+        # Compatibilidad con pruebas deterministas que asignan `seg.vad = None`
+        if name == "vad" and value is None:
+            object.__setattr__(self, "silero", None)
+        object.__setattr__(self, name, value)
 
 
 class PipeWireMicStream:
-    """Captura continua 16kHz s16le mono mediante pw-record (o arecord como respaldo)."""
+    """Captura continua 16 kHz s16le mono mediante pw-record / parecord / arecord."""
 
     def __init__(self, sample_rate: int = 16000, frame_bytes: int = 960):
         self.sample_rate = sample_rate
@@ -303,6 +222,14 @@ class PipeWireMicStream:
                 "--format", "s16",
                 "-",
             ]
+        if shutil.which("parecord"):
+            return [
+                "parecord",
+                "--raw",
+                f"--rate={self.sample_rate}",
+                "--channels=1",
+                "--format=s16le",
+            ]
         if shutil.which("arecord"):
             return [
                 "arecord",
@@ -313,7 +240,7 @@ class PipeWireMicStream:
                 "-c", "1",
                 "-",
             ]
-        raise RuntimeError("No se encontró pw-record ni arecord para capturar micrófono.")
+        raise RuntimeError("No se encontró pw-record, parecord ni arecord para capturar micrófono.")
 
     def start(self) -> None:
         self._stop.clear()
@@ -321,20 +248,20 @@ class PipeWireMicStream:
 
     def _spawn(self) -> None:
         self._terminate_proc()
-        cmd = self._build_cmd()
         self._proc = subprocess.Popen(
-            cmd,
+            self._build_cmd(),
             stdin=subprocess.DEVNULL,
             stdout=subprocess.PIPE,
             stderr=subprocess.DEVNULL,
             bufsize=0,
+            start_new_session=True,
         )
 
     def _terminate_proc(self) -> None:
         if self._proc is None:
             return
         try:
-            self._proc.terminate()
+            os.killpg(os.getpgid(self._proc.pid), signal.SIGTERM)
             self._proc.wait(timeout=1.0)
         except Exception:
             try:
@@ -346,7 +273,7 @@ class PipeWireMicStream:
     def read_frame(self) -> Optional[bytes]:
         while not self._stop.is_set():
             if self._proc is None or self._proc.stdout is None or self._proc.poll() is not None:
-                time.sleep(0.25)
+                time.sleep(0.20)
                 if self._stop.is_set():
                     return None
                 try:
@@ -364,7 +291,6 @@ class PipeWireMicStream:
                 buf.extend(chunk)
             if len(buf) == self.frame_bytes:
                 return bytes(buf)
-            # Proceso terminado o corte transitorio: reiniciar automáticamente
             self._terminate_proc()
         return None
 
@@ -373,112 +299,30 @@ class PipeWireMicStream:
         self._terminate_proc()
 
 
-class StreamingAudioPlayer:
-    """Reproductor en cola con soporte de interrupción instantánea (Barge-In)."""
-
-    def __init__(self, enabled: bool = True):
-        self.enabled = enabled
-        self._queue: "queue.Queue[Optional[Path]]" = queue.Queue()
-        self._proc_lock = threading.Lock()
-        self._proc: Optional[subprocess.Popen[bytes]] = None
-        self._playing = False
-        self._last_play_end = 0.0
-        self._stop_flag = threading.Event()
-        self._thread = threading.Thread(target=self._worker, daemon=True)
-        self._thread.start()
-
-    @property
-    def is_playing(self) -> bool:
-        if self._playing or not self._queue.empty():
-            return True
-        # Pequeña ventana de guarda contra eco residual de bocinas (180ms)
-        return (time.monotonic() - self._last_play_end) < 0.18
-
-    def _player_cmd(self, audio_path: Path) -> Optional[List[str]]:
-        if shutil.which("ffplay"):
-            return ["ffplay", "-nodisp", "-autoexit", "-loglevel", "quiet", str(audio_path)]
-        if shutil.which("pw-play"):
-            return ["pw-play", str(audio_path)]
-        return None
-
-    def _worker(self) -> None:
-        while not self._stop_flag.is_set():
-            path = self._queue.get()
-            if path is None:
-                break
-            try:
-                if not self.enabled or not path.exists():
-                    continue
-                cmd = self._player_cmd(path)
-                if not cmd:
-                    continue
-                self._playing = True
-                with self._proc_lock:
-                    self._proc = subprocess.Popen(
-                        cmd,
-                        stdin=subprocess.DEVNULL,
-                        stdout=subprocess.DEVNULL,
-                        stderr=subprocess.DEVNULL,
-                    )
-                    proc = self._proc
-                proc.wait()
-            except Exception as exc:
-                logger.debug("Error reproduciendo audio: %s", exc)
-            finally:
-                with self._proc_lock:
-                    self._proc = None
-                self._playing = False
-                self._last_play_end = time.monotonic()
-                try:
-                    path.unlink(missing_ok=True)
-                except Exception:
-                    pass
+class StreamingAudioPlayer(GaplessAudioPlayer):
+    """Alias retrocompatible de `GaplessAudioPlayer` con método `enqueue(Path)`."""
 
     def enqueue(self, audio_path: Path) -> None:
-        self._queue.put(audio_path)
-
-    def interrupt(self) -> None:
-        while True:
-            try:
-                item = self._queue.get_nowait()
-                if isinstance(item, Path):
-                    item.unlink(missing_ok=True)
-            except queue.Empty:
-                break
-        with self._proc_lock:
-            if self._proc is not None and self._proc.poll() is None:
-                try:
-                    self._proc.terminate()
-                except Exception:
-                    pass
-        self._playing = False
-
-    def wait_idle(self, cancel_event: Optional[threading.Event] = None, timeout: float = 120.0) -> None:
-        deadline = time.monotonic() + timeout
-        while time.monotonic() < deadline:
-            if cancel_event and cancel_event.is_set():
-                return
-            if not self._playing and self._queue.empty():
-                return
-            time.sleep(0.05)
-
-    def shutdown(self) -> None:
-        self.interrupt()
-        self._stop_flag.set()
-        self._queue.put(None)
-        self._thread.join(timeout=1.5)
+        self.enqueue_path(audio_path)
 
 
 class InfiniteVoiceChat:
-    """Orquestador del Chat de Voz Infinito local de TARDIS."""
+    """Orquestador del Chat de Voz Infinito 100% local de TARDIS."""
 
     def __init__(self, cfg: Optional[InfiniteVoiceConfig] = None):
         self.cfg = cfg or InfiniteVoiceConfig()
         self.stt = LocalSpeechToText(
             model_size=self.cfg.whisper_model,
             cpu_threads=self.cfg.whisper_threads,
+            device=self.cfg.whisper_device,
         )
-        self.tts = TextToSpeech(voice=self.cfg.voice)
+        self.tts = TextToSpeech(voice=self.cfg.voice, mode=self.cfg.tts_mode)
+        self.sovereign_tts: SovereignLocalTTS = get_sovereign_tts(mode=self.cfg.tts_mode)
+        self.abstractor = VoiceAbstractionEngine()
+        self.abstractor.dictation_mode = bool(self.cfg.dictation_mode)
+        self.coalescer = UtteranceCoalescer(normalizer=self.abstractor.normalizer, max_wait_s=1.9)
+        self.llm_router: LocalVoiceLLMRouter = get_voice_llm_router()
+
         self.player = StreamingAudioPlayer(enabled=not self.cfg.no_play)
         self.segmenter = SpeechSegmenter(self.cfg)
         self.mic = PipeWireMicStream(
@@ -490,6 +334,7 @@ class InfiniteVoiceChat:
         self.started_at = time.time()
         self.paused = False
         self.running = False
+        self._priority_active = False
 
         self._turn_lock = threading.Lock()
         self._cancel_event = threading.Event()
@@ -525,188 +370,136 @@ class InfiniteVoiceChat:
         except Exception as exc:
             logger.debug("No se pudo restaurar historial de voz: %s", exc)
 
+    def _activate_local_voice_priority(self) -> None:
+        if not self.cfg.enable_voice_priority or self._priority_active:
+            return
+        try:
+            from core.telegram_call_priority import activate_call_priority
+            activate_call_priority(
+                source="local_voice_infinite",
+                reason="Conversación de voz local fluida TARDIS",
+            )
+            self._priority_active = True
+        except Exception as exc:
+            logger.debug("Prioridad de voz local no activada: %s", exc)
+
+    def _touch_local_voice_priority(self) -> None:
+        if not self._priority_active:
+            return
+        try:
+            from core.telegram_call_priority import touch_call_priority
+            touch_call_priority(source="local_voice_infinite")
+        except Exception:
+            pass
+
+    def _release_local_voice_priority(self) -> None:
+        if not self._priority_active:
+            return
+        try:
+            from core.telegram_call_priority import release_call_priority
+            release_call_priority(source="local_voice_infinite")
+        except Exception:
+            pass
+        self._priority_active = False
+
     def _log(self, msg: str) -> None:
         if self.cfg.daemon:
             logger.info(re.sub(r"\x1b\[[0-9;]*m", "", msg))
         else:
             print(msg, flush=True)
 
-    def _get_token(self) -> str:
-        try:
-            if TARDIS_TOKEN_FILE.exists():
-                return TARDIS_TOKEN_FILE.read_text(encoding="utf-8").strip()
-        except OSError:
-            pass
-        return os.environ.get("GIA_AUTH_TOKEN") or os.environ.get("GIA_TOKEN", "")
-
     def transcribe_pcm(self, pcm_bytes: bytes) -> Tuple[str, float]:
-        if not pcm_bytes:
-            return "", 0.0
-        pcm = np.frombuffer(pcm_bytes, dtype=np.int16).astype(np.float32) / 32768.0
-        if pcm.size < int(self.cfg.sample_rate * 0.25):
-            return "", 0.0
-        model = self.stt._load()
-        t0 = time.perf_counter()
-        segments, _ = model.transcribe(
-            pcm,
+        hint = self.abstractor.get_stt_context_hint()
+        return self.stt.transcribe_pcm(
+            pcm_bytes,
             language=self.cfg.language,
-            beam_size=1,
-            best_of=1,
-            vad_filter=True,
-            vad_parameters={"min_silence_duration_ms": 320, "speech_pad_ms": 180},
-            condition_on_previous_text=False,
+            context_hint=hint,
+            dictation_mode=self.abstractor.dictation_mode,
         )
-        text = " ".join(seg.text.strip() for seg in segments).strip()
-        elapsed = time.perf_counter() - t0
-        if is_hallucination(text):
-            return "", elapsed
-        return text, elapsed
 
-    def _build_messages(self, user_text: str) -> List[Dict[str, str]]:
+    def _build_messages(self, user_text: str, abstraction: Optional[VoiceAbstraction] = None) -> List[Dict[str, str]]:
+        max_sent = abstraction.max_sentences if abstraction else 4
+        guidance = abstraction.system_guidance if abstraction else ""
         sys_prompt = (
             "Eres TARDIS, asistente de inteligencia artificial del Arquitecto (₪) "
-            "en un CHAT DE VOZ INFINITO en vivo, continuo y manos libres. "
-            "Responde en español de forma clara, natural, cálida y conversacional "
-            "(idealmente 1 a 4 oraciones directas para escucharse por bocinas, sin tablas ni bloques de código)."
+            "en una CONVERSACIÓN DE VOZ LOCAL en vivo, fluida y manos libres. "
+            f"Responde en español de México de forma natural, clara, cálida y conversacional "
+            f"(máximo {max_sent} oraciones bien puntuadas para escucharse por bocinas, "
+            "sin tablas Markdown, sin listas largas ni bloques de código)."
         )
-        if self._vault is not None:
+        if guidance:
+            sys_prompt += f"\n[ABSTRACCIÓN DEL TURNO]: {guidance}"
+
+        if self._vault is not None and (abstraction is None or abstraction.intent not in ("greeting",)):
             try:
                 ctx = self._vault.get_context_for_prompt(
-                    query=user_text,
-                    k_relevant=4,
-                    n_recent=3,
+                    query=(abstraction.resolved_query if abstraction else user_text),
+                    k_relevant=3,
+                    n_recent=2,
                     is_local=True,
                 )
                 if ctx:
-                    sys_prompt += "\n\n[MEMORIA CONTINUA TARDIS]:\n" + ctx[:1800]
+                    sys_prompt += "\n\n[MEMORIA CONTINUA TARDIS]:\n" + ctx[:1200]
             except Exception:
                 pass
 
         msgs: List[Dict[str, str]] = [{"role": "system", "content": sys_prompt}]
         msgs.extend(self.history[-(self.cfg.max_history_turns * 2):])
-        msgs.append({"role": "user", "content": user_text})
+        final_user = (abstraction.resolved_query if abstraction and abstraction.resolved_query else user_text)
+        msgs.append({"role": "user", "content": final_user})
         return msgs
 
-    def stream_llm(self, user_text: str, cancel_event: threading.Event) -> Iterator[str]:
-        msgs = self._build_messages(user_text)
+    def stream_llm(
+        self,
+        user_text: str,
+        cancel_event: threading.Event,
+        abstraction: Optional[VoiceAbstraction] = None,
+    ) -> Iterator[str]:
+        msgs = self._build_messages(user_text, abstraction=abstraction)
+        max_tok = abstraction.max_tokens if abstraction else 260
+        chosen_lane, token_iter = self.llm_router.stream_reply(
+            msgs,
+            user_text=user_text,
+            client_id=self.cfg.client_id,
+            max_tokens=max_tok,
+            temperature=0.32,
+            lane=self.cfg.llm_lane,
+            cancel_event=cancel_event,
+        )
+        self._last_lane = chosen_lane
+        yield from token_iter
 
-        # 1. TemporalBrain UNIX Socket (máxima velocidad por streaming SSE)
-        if HAS_HTTPX and TEMPORAL_BRAIN_SOCK.exists():
+    def _speak_sentence_direct(self, sentence: str, cancel_event: Optional[threading.Event] = None) -> bool:
+        """Sintetiza y encola audio directamente en RAM (PCM gapless para Piper, MP3 para Edge)."""
+        if self.cfg.no_play:
+            return False
+        clean = prepare_text_for_speech(sentence)
+        if not clean or (cancel_event and cancel_event.is_set()):
+            return False
+        engine, vid = resolve_voice_spec(self.tts.voice, mode=self.cfg.tts_mode)
+        if engine == "piper" and self.sovereign_tts.is_piper_available():
             try:
-                transport = httpx.HTTPTransport(uds=str(TEMPORAL_BRAIN_SOCK))
-                with httpx.Client(transport=transport, base_url="http://localhost", timeout=60.0) as client:
-                    payload = {
-                        "messages": msgs,
-                        "stream": True,
-                        "max_tokens": 380,
-                        "temperature": 0.38,
-                    }
-                    with client.stream("POST", "/v1/chat/completions", json=payload) as resp:
-                        if resp.status_code == 200:
-                            in_think = False
-                            emitted = False
-                            for line in resp.iter_lines():
-                                if cancel_event.is_set():
-                                    return
-                                if not line or not line.startswith("data: "):
-                                    continue
-                                raw = line[6:].strip()
-                                if raw == "[DONE]":
-                                    break
-                                try:
-                                    obj = json.loads(raw)
-                                except Exception:
-                                    continue
-                                delta = ((obj.get("choices") or [{}])[0].get("delta") or {}).get("content") or ""
-                                if not delta:
-                                    continue
-                                if "<think>" in delta:
-                                    in_think = True
-                                    delta = delta.split("<think>", 1)[0]
-                                if in_think:
-                                    if "</think>" in delta:
-                                        in_think = False
-                                        delta = delta.split("</think>", 1)[1]
-                                    else:
-                                        continue
-                                if delta:
-                                    emitted = True
-                                    yield delta
-                            if emitted:
-                                return
+                pcm, sr = self.sovereign_tts.synthesize_piper_pcm(
+                    clean, voice=vid, rate=self.cfg.speech_rate
+                )
+                if pcm and not (cancel_event and cancel_event.is_set()):
+                    self.player.enqueue_pcm(pcm, sample_rate=sr)
+                    return True
             except Exception as exc:
-                logger.warning("Fallback desde TemporalBrain: %s", exc)
+                logger.debug("Piper directo falló (%s), usando synthesize_bytes", exc)
 
-        # 2. Servidor GIA / TARDIS local (:8757/api/chat)
-        try:
-            tok = self._get_token()
-            payload = json.dumps({"message": user_text, "client_id": self.cfg.client_id}).encode("utf-8")
-            req = urllib.request.Request(
-                f"{TARDIS_CHAT_URL}?key={tok}",
-                data=payload,
-                headers={"Content-Type": "application/json"},
-                method="POST",
-            )
-            with urllib.request.urlopen(req, timeout=90.0) as resp:
-                data = json.loads(resp.read().decode("utf-8"))
-            reply = str(data.get("response") or data.get("reply") or data.get("message") or "").strip()
-            reply = _THINK_RE.sub("", reply).strip()
-            if reply:
-                yield reply
-                return
-        except Exception as exc:
-            logger.warning("Fallback desde :8757/api/chat: %s", exc)
-
-        # 3. Ollama local directo (:11434)
-        if HAS_HTTPX:
-            try:
-                model = os.environ.get("GIA_MODEL", "TARDIS-NEURAL-SPACE-KAIJU")
-                with httpx.Client(timeout=90.0) as client:
-                    with client.stream(
-                        "POST",
-                        f"{OLLAMA_URL}/api/chat",
-                        json={"model": model, "messages": msgs, "stream": True},
-                    ) as resp:
-                        for line in resp.iter_lines():
-                            if cancel_event.is_set():
-                                return
-                            if not line:
-                                continue
-                            try:
-                                obj = json.loads(line)
-                            except Exception:
-                                continue
-                            delta = (obj.get("message") or {}).get("content") or ""
-                            if delta:
-                                yield delta
-            except Exception as exc:
-                yield f"No logré contactar con los motores locales: {exc}"
-
-    def _synthesize_to_file(self, sentence: str) -> Optional[Path]:
-        clean = for_speech(sentence)
-        if not clean:
-            return None
-        try:
-            return self.tts.synthesize(clean)
-        except Exception as exc:
-            logger.debug("edge-tts no disponible (%s), intentando respaldo local", exc)
-            try:
-                import voice as voice_mod
-                data = voice_mod.synthesize_to_bytes(clean, self.tts.voice)
-                if data:
-                    out = self.tts._target().with_suffix(".wav")
-                    out.write_bytes(data)
-                    return out
-            except Exception:
-                pass
-        return None
+        audio_bytes, mime, _sr = self.sovereign_tts.synthesize_bytes(
+            clean, voice=self.tts.voice, rate=self.cfg.speech_rate, mode=self.cfg.tts_mode
+        )
+        if audio_bytes and not (cancel_event and cancel_event.is_set()):
+            self.player.enqueue_bytes(audio_bytes, mime=mime)
+            return True
+        return False
 
     def _speak_text(self, text: str, cancel_event: Optional[threading.Event] = None) -> None:
         if self.cfg.no_play or not text.strip():
             return
-        audio_path = self._synthesize_to_file(text)
-        if audio_path:
-            self.player.enqueue(audio_path)
+        if self._speak_sentence_direct(text, cancel_event=cancel_event):
             self.player.wait_idle(cancel_event=cancel_event)
 
     def _handle_control_intent(self, text: str) -> Optional[str]:
@@ -724,22 +517,56 @@ class InfiniteVoiceChat:
 
         if low in ("borra historial", "nueva conversacion", "nueva conversación", "reinicia sesion", "reinicia sesión"):
             self.history.clear()
+            self.abstractor.active_topic = ""
             return "Memoria de esta sesión reiniciada. Seguimos conversando."
 
         if low in ("finalizar chat de voz", "cerrar chat de voz", "apagar chat de voz"):
             self.running = False
             return "Cerrando sesión de voz infinita. Hasta pronto, Arquitecto."
 
-        m_voice = re.search(r"cambia(?:r)?(?:\s+la)?\s+voz\s+a\s+(\w+)", low)
+        m_voice = re.search(r"cambia(?:r)?(?:\s+la)?\s+voz\s+a\s+([a-záéíóúñ]+)", low)
         if m_voice:
             alias = m_voice.group(1)
             new_voice = VOICE_ALIASES.get(alias)
             if new_voice:
                 self.tts.voice = new_voice
+                if new_voice.startswith("es_MX-"):
+                    self.cfg.tts_mode = "local"
+                    self.tts.mode = "local"
+                else:
+                    self.cfg.tts_mode = "hybrid"
+                    self.tts.mode = "hybrid"
                 return f"Voz cambiada a {alias}. ¿Cómo me escuchas ahora?"
-            return f"No tengo registrada la voz {alias}. Puedo usar Dalia, Jorge, Elvira o Jenny."
+            return f"No tengo registrada la voz {alias}. Puedo usar Claude, Ald, Dalia, Jorge, Elvira o Jenny."
 
         return None
+
+    def _apply_abstraction_action(self, action: Optional[Dict[str, Any]]) -> None:
+        if not action:
+            return
+        atype = action.get("type")
+        if atype == "dictation_mode":
+            enabled = bool(action.get("enabled"))
+            self.segmenter.set_dictation_mode(enabled)
+            if not enabled and action.get("text"):
+                self._log(f"\n{C_MAGENTA}📝 [DICTADO FINAL]:{C_RESET}\n{action['text']}\n")
+        elif atype == "dictation_append":
+            self._log(f"{C_MAGENTA}📝 [dictado #{action.get('buffer_size')}]:{C_RESET} {action.get('text')}")
+        elif atype == "set_tts_mode":
+            mode = str(action.get("mode") or "local")
+            self.cfg.tts_mode = mode
+            self.tts.mode = mode
+            self.sovereign_tts.mode = mode
+            if mode == "local" and not self.tts.voice.startswith("es_MX-"):
+                self.tts.voice = DEFAULT_LOCAL_VOICE
+            elif mode == "hybrid" and self.tts.voice.startswith("es_MX-"):
+                self.tts.voice = DEFAULT_EDGE_VOICE
+        elif atype == "adjust_rate":
+            delta = float(action.get("delta") or 0.0)
+            m = re.match(r"^([+-]?\d+)%$", self.cfg.speech_rate.strip())
+            cur_pct = int(m.group(1)) if m else 6
+            new_pct = max(-25, min(35, cur_pct + int(round(delta * 100))))
+            self.cfg.speech_rate = f"+{new_pct}%" if new_pct >= 0 else f"{new_pct}%"
 
     def _record_turn_async(self, user_text: str, assistant_reply: str) -> None:
         if self._vault is None or not assistant_reply.strip():
@@ -765,6 +592,9 @@ class InfiniteVoiceChat:
         if not user_text:
             return ""
 
+        self._touch_local_voice_priority()
+
+        # 1. Comandos de control de sesión (pausa, cambio de voz, reinicio, cierre)
         ctrl_reply = self._handle_control_intent(user_text)
         if ctrl_reply == "__PAUSED_IGNORE__":
             return ""
@@ -773,10 +603,24 @@ class InfiniteVoiceChat:
             self._speak_text(ctrl_reply, cancel_event=cancel_event)
             return ctrl_reply
 
-        # Protección de identidad / datos sensibles
+        # 2. Normalización de dictado + Abstracción semántica (<15 ms)
+        abs_res = self.abstractor.abstract(user_text, allow_system_actions=True)
+        norm_text = abs_res.normalized_text or user_text
+        if abs_res.action:
+            self._apply_abstraction_action(abs_res.action)
+
+        if abs_res.instant_reply is not None:
+            if abs_res.instant_reply:
+                self._log(
+                    f"{C_CYAN}TARDIS [{abs_res.intent} · {abs_res.latency_ms:.1f}ms] >{C_RESET} {abs_res.instant_reply}"
+                )
+                self._speak_text(abs_res.instant_reply, cancel_event=cancel_event)
+            return abs_res.instant_reply
+
+        # 3. Protección de identidad / datos sensibles
         try:
             from core.protected_users_vault import get_protected_denial_response, is_protected_info_query
-            if is_protected_info_query(user_text):
+            if is_protected_info_query(norm_text):
                 denial = get_protected_denial_response()
                 self._log(f"{C_CYAN}TARDIS >{C_RESET} {denial}")
                 self._speak_text(denial, cancel_event=cancel_event)
@@ -784,11 +628,11 @@ class InfiniteVoiceChat:
         except Exception:
             pass
 
-        # Enrutador del comando soberano "programa ..." (FTL)
+        # 4. Enrutador del comando soberano "programa ..." (FTL)
         try:
             from core.tardis_voice_program import get_voice_program_router
             vp = get_voice_program_router().handle(
-                user_text,
+                norm_text,
                 channel="infinite_voice_local",
                 source="micrófono local (chat de voz infinito)",
             )
@@ -796,17 +640,19 @@ class InfiniteVoiceChat:
                 reply = str(vp.get("reply") or "").strip()
                 if reply:
                     self._log(f"{C_CYAN}TARDIS [FTL] >{C_RESET} {reply}")
-                    self.history.append({"role": "user", "content": user_text})
+                    self.history.append({"role": "user", "content": norm_text})
                     self.history.append({"role": "assistant", "content": reply})
                     self.turn_count += 1
-                    self._record_turn_async(user_text, reply)
+                    self.abstractor.record_assistant_reply(reply)
+                    self._record_turn_async(norm_text, reply)
                     self._speak_text(reply, cancel_event=cancel_event)
                     return reply
         except Exception as exc:
             logger.debug("Aviso en voice_program_router: %s", exc)
 
-        # Streaming LLM + síntesis por oración en paralelo
+        # 5. Streaming LLM + síntesis TTS paralela por oración (gapless)
         t0 = time.perf_counter()
+        self._last_lane = self.cfg.llm_lane
         sentence_q: "queue.Queue[Optional[str]]" = queue.Queue()
         first_audio_logged = False
 
@@ -818,25 +664,34 @@ class InfiniteVoiceChat:
                     break
                 if cancel_event.is_set():
                     continue
-                audio_path = self._synthesize_to_file(sent)
-                if audio_path and not cancel_event.is_set():
-                    if not first_audio_logged:
-                        first_audio_logged = True
-                        self._log(f"{C_DIM}   [primer audio en {time.perf_counter() - t0:.2f}s]{C_RESET}")
-                    self.player.enqueue(audio_path)
+                ok = self._speak_sentence_direct(sent, cancel_event=cancel_event)
+                if ok and not first_audio_logged:
+                    first_audio_logged = True
+                    self._log(
+                        f"{C_DIM}   [primer audio en {time.perf_counter() - t0:.2f}s · "
+                        f"carril={self._last_lane} · intent={abs_res.intent}]{C_RESET}"
+                    )
 
         tts_thread = threading.Thread(target=tts_producer, daemon=True)
-        tts_thread.start()
+        if not self.cfg.no_play:
+            tts_thread.start()
 
         full_reply = ""
         pending_buf = ""
         sent_idx = 0
 
         if not self.cfg.daemon:
-            sys.stdout.write(f"{C_CYAN}TARDIS >{C_RESET} ")
+            tag_topic = f" ({abs_res.active_topic[:26]})" if abs_res.active_topic else ""
+            sys.stdout.write(f"{C_CYAN}TARDIS{tag_topic} >{C_RESET} ")
             sys.stdout.flush()
 
-        for delta in self.stream_llm(user_text, cancel_event=cancel_event):
+        # Permitir mocks que solo acepten `(user_text, cancel_event)`
+        try:
+            stream_iter = self.stream_llm(norm_text, cancel_event, abstraction=abs_res)
+        except TypeError:
+            stream_iter = self.stream_llm(norm_text, cancel_event)
+
+        for delta in stream_iter:
             if cancel_event.is_set():
                 break
             full_reply += delta
@@ -845,32 +700,35 @@ class InfiniteVoiceChat:
                 sys.stdout.write(delta)
                 sys.stdout.flush()
 
-            while True:
-                ready, pending_buf = extract_ready_sentence(pending_buf, is_first=(sent_idx == 0))
-                if not ready:
-                    break
-                sentence_q.put(ready)
-                sent_idx += 1
+            if not self.cfg.no_play:
+                while True:
+                    ready, pending_buf = extract_ready_sentence(pending_buf, is_first=(sent_idx == 0))
+                    if not ready:
+                        break
+                    sentence_q.put(ready)
+                    sent_idx += 1
 
-        if not cancel_event.is_set():
-            tail = pending_buf.strip()
-            if tail:
-                sentence_q.put(tail)
+        if not self.cfg.no_play:
+            if not cancel_event.is_set():
+                tail = pending_buf.strip()
+                if tail:
+                    sentence_q.put(tail)
+            sentence_q.put(None)
+            tts_thread.join(timeout=60.0)
 
-        sentence_q.put(None)
-        tts_thread.join(timeout=60.0)
         if not self.cfg.daemon:
             sys.stdout.write("\n")
             sys.stdout.flush()
 
         clean_reply = full_reply.strip()
         if clean_reply:
-            self.history.append({"role": "user", "content": user_text})
+            self.history.append({"role": "user", "content": norm_text})
             self.history.append({"role": "assistant", "content": clean_reply})
             if len(self.history) > self.cfg.max_history_turns * 2:
                 self.history = self.history[-(self.cfg.max_history_turns * 2):]
             self.turn_count += 1
-            self._record_turn_async(user_text, clean_reply)
+            self.abstractor.record_assistant_reply(clean_reply)
+            self._record_turn_async(norm_text, clean_reply)
 
         self.player.wait_idle(cancel_event=cancel_event)
         return clean_reply
@@ -892,11 +750,19 @@ class InfiniteVoiceChat:
                 text, stt_s = self.transcribe_pcm(pcm_bytes)
                 if not text or cancel_ev.is_set():
                     return
+                # Coalescencia inteligente si el usuario dejó una frase inconclusa
+                if self.cfg.coalesce_incomplete and not self.abstractor.dictation_mode and not self.paused:
+                    merged, waiting = self.coalescer.push(text)
+                    if waiting:
+                        self._log(f"{C_DIM}   [esperando continuación: «{text}»…]{C_RESET}")
+                        return
+                    text = merged or text
                 if not self.paused:
                     self._log(f"\n{C_GOLD}Arquitecto ₪ (voz · {stt_s*1000:.0f}ms) >{C_RESET} {text}")
                 self.process_user_text(text, cancel_event=cancel_ev)
                 if self.running and not self.cfg.daemon and not self.paused:
-                    self._log(f"{C_GREEN}🎙️  [ESCUCHA INFINITA ACTIVA · Turno #{self.turn_count}]{C_RESET}")
+                    mode_lbl = "DICTADO ACTIVO" if self.abstractor.dictation_mode else "ESCUCHA LOCAL ACTIVA"
+                    self._log(f"{C_GREEN}🎙️  [{mode_lbl} · Turno #{self.turn_count}]{C_RESET}")
 
         t = threading.Thread(target=_worker, daemon=True)
         self._active_turn_thread = t
@@ -945,7 +811,23 @@ class InfiniteVoiceChat:
                     continue
                 if low == "/clear":
                     self.history.clear()
+                    self.abstractor.active_topic = ""
                     self._log(f"{C_DIM}(historial de sesión limpio){C_RESET}")
+                    continue
+                if low in ("/dictado", "/dictate"):
+                    self.abstractor.dictation_mode = not self.abstractor.dictation_mode
+                    self.segmenter.set_dictation_mode(self.abstractor.dictation_mode)
+                    self._log(
+                        f"{C_MAGENTA}Modo dictado: {'ACTIVO' if self.abstractor.dictation_mode else 'DESACTIVADO'}{C_RESET}"
+                    )
+                    continue
+                if low.startswith("/tts "):
+                    new_m = low.split(maxsplit=1)[1].strip()
+                    if new_m in ("local", "hybrid", "edge"):
+                        self.cfg.tts_mode = new_m
+                        self.tts.mode = new_m
+                        self.sovereign_tts.mode = new_m
+                        self._log(f"{C_GREEN}✓ Motor TTS: {new_m}{C_RESET}")
                     continue
                 self._log(f"{C_GOLD}Arquitecto ₪ (texto) >{C_RESET} {txt}")
                 self._dispatch_text_turn(txt)
@@ -954,21 +836,28 @@ class InfiniteVoiceChat:
 
     def run(self) -> int:
         self.running = True
+        self._activate_local_voice_priority()
         self._log(f"{C_CYAN}{C_BOLD}═══════════════════════════════════════════════════════════════{C_RESET}")
-        self._log(f"{C_CYAN}{C_BOLD}  🌀 TARDIS · CHAT DE VOZ INFINITO (FULL-DUPLEX MANOS LIBRES) 🌀{C_RESET}")
+        self._log(f"{C_CYAN}{C_BOLD}  🌀 TARDIS · VOZ LOCAL FLUIDA FULL-DUPLEX + DICTADO v2 🌀{C_RESET}")
         self._log(f"{C_CYAN}{C_BOLD}═══════════════════════════════════════════════════════════════{C_RESET}")
-        self._log(f"{C_GOLD}• STT Local:{C_RESET}     faster-whisper ({self.cfg.whisper_model}, CPU int8)")
-        self._log(f"{C_GOLD}• TTS Streaming:{C_RESET} {self.tts.voice}")
-        self._log(f"{C_GOLD}• Barge-In:{C_RESET}      {'ACTIVO' if self.cfg.barge_in else 'SOLO TECLADO'} (Enter = interrumpir, texto = enviar)")
+        self._log(f"{C_GOLD}• VAD Neural:{C_RESET}    {'Silero VAD v6 (ONNX)' if self.segmenter.silero else 'WebRTC VAD + RMS'}")
+        self._log(f"{C_GOLD}• TTS Motor:{C_RESET}     {self.cfg.tts_mode} ({self.tts.voice})")
+        self._log(f"{C_GOLD}• Barge-In:{C_RESET}      {'ACTIVO' if self.cfg.barge_in else 'SOLO TECLADO'} (Enter=interrumpir · /dictado · /tts local|hybrid · /salir)")
         self._log(f"{C_GOLD}• Memoria:{C_RESET}       OfflineChatVault ({len(self.history)//2} turnos restaurados)")
-        self._log(f"{C_DIM}  Precalentando faster-whisper...{C_RESET}")
+        self._log(f"{C_DIM}  Precalentando STT local + Piper ONNX...{C_RESET}")
 
         try:
             t0 = time.perf_counter()
             self.stt.warmup()
-            self._log(f"{C_GREEN}✔ Whisper listo en {time.perf_counter() - t0:.2f}s{C_RESET}")
+            eng = self.stt._get_engine()
+            tts_t = self.sovereign_tts.warmup(voice=self.tts.voice) if not self.cfg.no_play else 0.0
+            self._log(
+                f"{C_GREEN}✔ STT listo ({eng.model_size} @ {eng.active_device}/{eng.compute_type}) "
+                f"+ TTS listo ({tts_t:.2f}s) en {time.perf_counter() - t0:.2f}s{C_RESET}"
+            )
         except Exception as exc:
-            self._log(f"{C_RED}Error inicializando faster-whisper: {exc}{C_RESET}")
+            self._log(f"{C_RED}Error inicializando motor de voz local: {exc}{C_RESET}")
+            self._release_local_voice_priority()
             return 1
 
         if self.cfg.greeting and not self.cfg.no_play:
@@ -979,7 +868,7 @@ class InfiniteVoiceChat:
         kb_thread = threading.Thread(target=self._keyboard_loop, daemon=True)
         kb_thread.start()
 
-        self._log(f"\n{C_GREEN}🎙️  [ESCUCHA INFINITA ACTIVA]{C_RESET} Habla libremente (sin chasquidos ni botones).\n")
+        self._log(f"\n{C_GREEN}🎙️  [CONVERSACIÓN LOCAL ACTIVA]{C_RESET} Habla libremente (o di 'activa modo dictado').\n")
 
         try:
             while self.running:
@@ -988,6 +877,14 @@ class InfiniteVoiceChat:
                     if not self.running:
                         break
                     continue
+
+                # Verificar si expiró un fragmento incompleto pendiente en el coalescer
+                if self.cfg.coalesce_incomplete and not self.segmenter.in_speech:
+                    flushed = self.coalescer.flush_if_expired()
+                    if flushed:
+                        self._log(f"\n{C_GOLD}Arquitecto ₪ (voz) >{C_RESET} {flushed}")
+                        self._dispatch_text_turn(flushed)
+
                 res = self.segmenter.process_frame(frame, ai_speaking=self.player.is_playing)
                 if res["barge_in"]:
                     self._cancel_active_turn()
@@ -995,22 +892,29 @@ class InfiniteVoiceChat:
                 if res["utterance"]:
                     self._dispatch_audio_utterance(res["utterance"])
         except KeyboardInterrupt:
-            self._log(f"\n{C_YELLOW}Cerrando Chat de Voz Infinito...{C_RESET}")
+            self._log(f"\n{C_YELLOW}Cerrando Chat de Voz Local TARDIS...{C_RESET}")
         finally:
             self.running = False
             self._cancel_active_turn()
             self.mic.stop()
             self.player.shutdown()
+            self._release_local_voice_priority()
         return 0
 
 
 def build_arg_parser() -> argparse.ArgumentParser:
-    ap = argparse.ArgumentParser(description="TARDIS · Chat de Voz Infinito Full-Duplex")
-    ap.add_argument("--voice", default=DEFAULT_VOICE, help="Voz TTS (ej. es-MX-DaliaNeural)")
-    ap.add_argument("--whisper-model", default=os.environ.get("TARDIS_VOICE_WHISPER_MODEL", "base"))
+    ap = argparse.ArgumentParser(description="TARDIS · Chat de Voz Local Fluida Full-Duplex + Dictado")
+    ap.add_argument("--voice", default=DEFAULT_VOICE, help="Voz TTS (claude, ald, dalia, jorge, elvira, jenny)")
+    ap.add_argument("--tts-mode", choices=["local", "hybrid", "edge"], default=DEFAULT_TTS_MODE, help="Motor TTS: local (Piper 100% offline), hybrid o edge")
+    ap.add_argument("--rate", default="+6%", help="Velocidad de habla (ej. +6%%, +12%%)")
+    ap.add_argument("--whisper-model", default=os.environ.get("TARDIS_VOICE_WHISPER_MODEL", "auto"), help="Modelo Whisper (auto, small, base)")
+    ap.add_argument("--device", choices=["auto", "cuda", "cpu"], default=os.environ.get("TARDIS_STT_DEVICE", "auto"))
+    ap.add_argument("--lane", choices=["auto", "temporal_brain", "fast"], default=os.environ.get("TARDIS_VOICE_LLM_LANE", "auto"))
     ap.add_argument("--lang", default=os.environ.get("TARDIS_VOICE_LANG", "es"))
+    ap.add_argument("--silence-ms", type=int, default=740, help="Silencio para cerrar turno en ms")
+    ap.add_argument("--dictate", action="store_true", help="Iniciar directamente en modo dictado continuo")
     ap.add_argument("--no-barge-in", action="store_true", help="Desactivar interrupción por voz durante TTS")
-    ap.add_argument("--barge-in-rms", type=float, default=0.075, help="Umbral RMS para Barge-In por voz")
+    ap.add_argument("--barge-in-rms", type=float, default=0.068, help="Umbral RMS para Barge-In por voz")
     ap.add_argument("--no-greeting", action="store_true", help="Omitir saludo inicial al arrancar")
     ap.add_argument("--no-play", action="store_true", help="Solo transcripción y texto sin reproducir bocinas")
     ap.add_argument("--fresh", action="store_true", help="Iniciar sin restaurar turnos previos en contexto RAM")
@@ -1026,8 +930,14 @@ def main(argv: Optional[List[str]] = None) -> int:
     args = build_arg_parser().parse_args(argv)
     cfg = InfiniteVoiceConfig(
         voice=args.voice,
+        tts_mode=args.tts_mode,
+        speech_rate=args.rate,
         whisper_model=args.whisper_model,
+        whisper_device=args.device,
+        llm_lane=args.lane,
         language=args.lang,
+        silence_hold_ms=args.silence_ms,
+        dictation_mode=args.dictate,
         barge_in=not args.no_barge_in,
         barge_in_rms=args.barge_in_rms,
         greeting=not args.no_greeting,

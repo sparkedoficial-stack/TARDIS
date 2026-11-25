@@ -604,6 +604,172 @@
   }
   .stop-btn.visible { display: inline-flex; align-items: center; gap: 6px; }
 
+  /* Continuous Voice HUD & Controls */
+  .voice-btn {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(6, 182, 212, 0.16));
+    border: 1px solid var(--border-strong);
+    color: #a7f3d0;
+    padding: 5px 11px;
+    border-radius: 8px;
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.15s ease;
+  }
+  .voice-btn:hover { background: rgba(16, 185, 129, 0.3); color: #ffffff; }
+  .voice-btn.active {
+    background: linear-gradient(135deg, #10b981, #06b6d4);
+    color: #03150e;
+    border-color: #34d399;
+    box-shadow: 0 0 18px rgba(16, 185, 129, 0.42);
+  }
+  .voice-btn.speaking {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: #160c02;
+    border-color: #fbbf24;
+    box-shadow: 0 0 18px rgba(245, 158, 11, 0.4);
+  }
+
+  .voice-hud {
+    display: none;
+    border-bottom: 1px solid var(--border-strong);
+    background: linear-gradient(180deg, rgba(11, 22, 27, 0.96), rgba(9, 14, 20, 0.94));
+    padding: 10px 20px;
+    flex-shrink: 0;
+  }
+  .voice-hud.visible { display: block; }
+  .voice-hud-inner {
+    max-width: 880px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  .voice-hud-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .voice-status-group {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    min-width: 0;
+  }
+  .voice-orb {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #34d399, #047857);
+    box-shadow: 0 0 16px rgba(16, 185, 129, 0.45);
+    display: grid;
+    place-items: center;
+    font-size: 14px;
+    flex-shrink: 0;
+    transition: transform 0.08s linear, box-shadow 0.15s ease, background 0.2s ease;
+  }
+  .voice-orb.state-speech {
+    background: radial-gradient(circle at 35% 35%, #22d3ee, #0284c7);
+    box-shadow: 0 0 22px rgba(34, 211, 238, 0.65);
+  }
+  .voice-orb.state-thinking, .voice-orb.state-transcribing {
+    background: radial-gradient(circle at 35% 35%, #fbbf24, #b45309);
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.5);
+  }
+  .voice-orb.state-speaking {
+    background: radial-gradient(circle at 35% 35%, #6ee7b7, #0891b2);
+    box-shadow: 0 0 24px rgba(16, 185, 129, 0.72);
+  }
+  .voice-orb.state-muted, .voice-orb.state-error {
+    background: radial-gradient(circle at 35% 35%, #f87171, #991b1b);
+    box-shadow: 0 0 14px rgba(239, 68, 68, 0.45);
+  }
+  .voice-state-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-0);
+  }
+  .voice-state-sub {
+    font-size: 11px;
+    font-family: var(--mono);
+    color: #99f6e4;
+    margin-top: 2px;
+  }
+  .voice-bars {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    height: 28px;
+    padding: 0 6px;
+  }
+  .voice-bar {
+    width: 4px;
+    height: 4px;
+    border-radius: 3px;
+    background: var(--accent);
+    transition: height 0.06s linear, background 0.15s ease;
+  }
+  .voice-hud-controls {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    flex-wrap: wrap;
+    font-size: 11.5px;
+    font-family: var(--mono);
+  }
+  .voice-hud-controls select {
+    background: var(--bg-2);
+    color: var(--text-0);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 4px 8px;
+    font-size: 11px;
+    font-family: var(--mono);
+    outline: none;
+  }
+  .voice-ptt-btn {
+    background: rgba(6, 182, 212, 0.18);
+    border: 1px solid rgba(34, 211, 238, 0.55);
+    color: #cffafe;
+    border-radius: 8px;
+    padding: 5px 12px;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    user-select: none;
+  }
+  .voice-ptt-btn.holding {
+    background: #06b6d4;
+    color: #04131a;
+    box-shadow: 0 0 16px rgba(34, 211, 238, 0.55);
+  }
+  .composer-voice-btn {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    color: var(--text-1);
+    border-radius: 9px;
+    padding: 7px 11px;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.15s ease;
+  }
+  .composer-voice-btn:hover { border-color: var(--border-strong); color: #a7f3d0; }
+  .composer-voice-btn.active {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: #a7f3d0;
+  }
+
   @media (max-width: 860px) {
     .app { grid-template-columns: 1fr; }
     .sidebar {
@@ -690,11 +856,68 @@
         <span class="pill ok" id="statusPill"><span class="dot"></span><span id="statusText">Conectando...</span></span>
         <span class="pill ok" id="hwPill" style="cursor:pointer;" title="Abrir/cerrar panel de control absoluto de hardware Ring-0"><span class="dot"></span><span id="hwText">HW RING-0: --</span></span>
         <span class="pill" id="aegisPill">AEGIS: --</span>
+        <button class="voice-btn" id="btnContinuousVoice" title="Iniciar o detener conversación por voz continua manos libres (Ctrl+Shift+V)">🎙 Voz Continua</button>
         <button class="top-btn" id="btnHwPanel" title="Panel de Control Absoluto de Hardware">⚡ Hardware</button>
         <button class="top-btn" id="btnExport" title="Exportar conversación a Markdown">Exportar .md</button>
         <button class="top-btn" id="btnClear" title="Vaciar mensajes de esta conversación">Limpiar</button>
       </div>
     </header>
+
+    <section class="voice-hud" id="voiceHud">
+      <div class="voice-hud-inner">
+        <div class="voice-hud-top">
+          <div class="voice-status-group">
+            <div class="voice-orb" id="voiceOrb">🎙</div>
+            <div>
+              <div class="voice-state-label" id="voiceStateLabel">Conversación por voz continua</div>
+              <div class="voice-state-sub" id="voiceStateSub">Manos libres VAD · modelo exclusivo mundo-sin-censura</div>
+            </div>
+          </div>
+          <div class="voice-bars" id="voiceBars" aria-hidden="true">
+            <span class="voice-bar"></span><span class="voice-bar"></span><span class="voice-bar"></span>
+            <span class="voice-bar"></span><span class="voice-bar"></span><span class="voice-bar"></span>
+            <span class="voice-bar"></span><span class="voice-bar"></span><span class="voice-bar"></span>
+            <span class="voice-bar"></span><span class="voice-bar"></span><span class="voice-bar"></span>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+            <button class="voice-ptt-btn" id="btnVoicePtt" style="display:none;" title="Mantén pulsado para hablar">🎙 Mantén para hablar</button>
+            <button class="top-btn" id="btnVoiceMute" title="Silenciar o activar micrófono">🔇 Silenciar</button>
+            <button class="top-btn" id="btnVoiceInterrupt" title="Interrumpir respuesta actual (Barge-In / Esc)">⚡ Interrumpir</button>
+            <button class="top-btn" id="btnVoiceHangup" style="border-color:rgba(239,68,68,0.45);color:#fecaca;" title="Finalizar conversación de voz continua">■ Finalizar</button>
+          </div>
+        </div>
+        <div class="voice-hud-controls">
+          <label for="voiceModeSelect" style="color:var(--text-2);">Modo:</label>
+          <select id="voiceModeSelect">
+            <option value="vad">Manos Libres (VAD continuo)</option>
+            <option value="ptt">Pulsar para Hablar (PTT)</option>
+          </select>
+          <label for="voiceSelect" style="color:var(--text-2);">Voz:</label>
+          <select id="voiceSelect">
+            <option value="es-MX-DaliaNeural">Cortana · Dalia (es-MX)</option>
+            <option value="es-MX-JorgeNeural">Jorge Neural (es-MX)</option>
+            <option value="es-ES-ElviraNeural">Elvira Neural (es-ES)</option>
+            <option value="es-ES-AlvaroNeural">Álvaro Neural (es-ES)</option>
+            <option value="en-US-JennyNeural">Cortana · Jenny (en-US)</option>
+          </select>
+          <label for="voiceSilenceSelect" style="color:var(--text-2);">Pausa:</label>
+          <select id="voiceSilenceSelect" title="Tiempo de silencio para enviar tu frase automáticamente">
+            <option value="650">0.65s (rápido)</option>
+            <option value="850" selected>0.85s (natural)</option>
+            <option value="1200">1.20s (pausado)</option>
+          </select>
+          <label class="toggle" title="Interrumpe automáticamente a la IA si empiezas a hablar">
+            <input type="checkbox" id="voiceBargeInToggle" checked />
+            <span>Barge-In</span>
+          </label>
+          <label class="toggle" title="Escuchar respuestas habladas por TTS">
+            <input type="checkbox" id="voiceTtsToggle" checked />
+            <span>Audio TTS</span>
+          </label>
+          <span id="voiceMetricsBadge" style="margin-left:auto;color:var(--text-2);">STT local: listo</span>
+        </div>
+      </div>
+    </section>
 
     <section id="hwDrawer" style="display:none;border-bottom:1px solid var(--border);background:rgba(10,16,23,0.96);padding:10px 18px;font-family:var(--mono);font-size:11px;">
       <div style="max-width:880px;margin:0 auto;display:flex;flex-direction:column;gap:8px;">
@@ -726,8 +949,9 @@
       <div class="composer-box">
         <textarea id="promptInput" rows="1" placeholder="Escribe tu mensaje exclusivo para mundo-sin-censura... (Enter envía · Shift+Enter salto de línea)"></textarea>
         <div class="composer-bar">
-          <div class="composer-hint" id="composerHint">Modelo bloqueado: mundo-sin-censura · Ctrl+K nueva sesión · Esc detener</div>
+          <div class="composer-hint" id="composerHint">Modelo bloqueado: mundo-sin-censura · Ctrl+Shift+V voz continua · Ctrl+K nueva sesión · Esc detener</div>
           <div style="display:flex;gap:8px;align-items:center;">
+            <button class="composer-voice-btn" id="btnComposerVoice" title="Conversación por voz continua manos libres (Ctrl+Shift+V)">🎙 Voz</button>
             <button class="stop-btn" id="btnStop">■ Detener</button>
             <button class="send-btn" id="btnSend">Enviar ↵</button>
           </div>
@@ -1027,6 +1251,12 @@
       });
       foot.appendChild(btnCopy);
 
+      const btnSpeak = document.createElement("button");
+      btnSpeak.className = "mini-btn";
+      btnSpeak.textContent = "🔊 Escuchar";
+      btnSpeak.addEventListener("click", () => speakSingleMessage(m.content || "", btnSpeak));
+      foot.appendChild(btnSpeak);
+
       if (idx === state.messages.length - 1) {
         const btnRetry = document.createElement("button");
         btnRetry.className = "mini-btn";
@@ -1070,6 +1300,7 @@
     elMaxTok.value = s.max_tokens ?? 1024;
     elRag.checked = Boolean(s.use_rag);
     elHwToggle.checked = s.hardware_control !== false;
+    sendVoiceConfig();
     renderSessions();
     renderMessages();
   }
@@ -1090,6 +1321,7 @@
     state.currentSessionId = s.id;
     state.messages = [];
     elChatTitle.textContent = s.title;
+    sendVoiceConfig();
     await loadSessions(false);
     renderMessages();
     elPrompt.focus();
@@ -1151,9 +1383,695 @@
       }, 200);
     } else {
       clearInterval(state.timerHandle);
-      elHint.textContent = `Modelo bloqueado: ${LOCKED_MODEL} · Ctrl+K nueva sesión · Esc detener`;
+      elHint.textContent = `Modelo bloqueado: ${LOCKED_MODEL} · Ctrl+Shift+V voz continua · Ctrl+K nueva sesión · Esc detener`;
     }
   }
+
+  // =========================================================================
+  // MOTOR DE CONVERSACIÓN POR VOZ CONTINUA FULL-DUPLEX (WebAudio VAD + WS)
+  // =========================================================================
+  const elBtnContinuousVoice = $("btnContinuousVoice");
+  const elBtnComposerVoice = $("btnComposerVoice");
+  const elVoiceHud = $("voiceHud");
+  const elVoiceOrb = $("voiceOrb");
+  const elVoiceStateLabel = $("voiceStateLabel");
+  const elVoiceStateSub = $("voiceStateSub");
+  const elVoiceBars = Array.from(document.querySelectorAll("#voiceBars .voice-bar"));
+  const elBtnVoicePtt = $("btnVoicePtt");
+  const elBtnVoiceMute = $("btnVoiceMute");
+  const elBtnVoiceInterrupt = $("btnVoiceInterrupt");
+  const elBtnVoiceHangup = $("btnVoiceHangup");
+  const elVoiceModeSelect = $("voiceModeSelect");
+  const elVoiceSelect = $("voiceSelect");
+  const elVoiceSilenceSelect = $("voiceSilenceSelect");
+  const elVoiceBargeInToggle = $("voiceBargeInToggle");
+  const elVoiceTtsToggle = $("voiceTtsToggle");
+  const elVoiceMetricsBadge = $("voiceMetricsBadge");
+
+  const voiceState = {
+    active: false,
+    muted: false,
+    mode: "vad", // "vad" | "ptt"
+    pttHolding: false,
+    phase: "idle", // idle | connecting | warming | listening | speech | transcribing | thinking | speaking | muted | error
+    ws: null,
+    reconnectTimer: null,
+    mediaStream: null,
+    audioCtx: null,
+    sourceNode: null,
+    processorNode: null,
+    muteGain: null,
+    noiseFloor: 0.008,
+    inSpeech: false,
+    speechChunks: [],
+    preRollChunks: [],
+    silenceMs: 0,
+    speechMs: 0,
+    bargeFrames: 0,
+    audioQueue: [],
+    currentAudio: null,
+    currentAudioUrl: null,
+    isPlayingAudio: false,
+    lastPlayEndMs: 0,
+    turnDoneReceived: true,
+    liveStreamObj: null,
+    liveBubble: null,
+    turnCount: 0,
+    singleAudio: null,
+  };
+
+  function setVoicePhase(phase, subText = "") {
+    voiceState.phase = phase;
+    const labels = {
+      idle: ["Conversación por voz continua", "Inactiva"],
+      connecting: ["Conectando canal de voz…", "Estableciendo WebSocket exclusivo mundo-sin-censura"],
+      warming: ["Precalentando Whisper local…", "Cargando STT faster-whisper en memoria"],
+      listening: [
+        voiceState.mode === "ptt" ? "Listo · Mantén para hablar" : "Escuchando manos libres…",
+        voiceState.mode === "ptt"
+          ? "Mantén pulsado el botón o la barra Espaciadora para hablar"
+          : "Habla con naturalidad · detección automática de voz activa",
+      ],
+      speech: ["Te estoy escuchando…", "Capturando voz en vivo (16kHz PCM)"],
+      transcribing: ["Transcribiendo localmente…", "faster-whisper CPU int8"],
+      thinking: ["mundo-sin-censura pensando…", "Generando respuesta y audio por oración"],
+      speaking: [
+        "mundo-sin-censura hablando…",
+        elVoiceBargeInToggle.checked ? "Habla para interrumpir (Barge-In activo) o pulsa Esc" : "Reproduciendo respuesta de voz",
+      ],
+      muted: ["Micrófono silenciado", "Pulsa Activar micrófono para continuar hablando"],
+      error: ["Error en canal de voz", subText || "Verifica permisos de micrófono o conexión"],
+    };
+    const [lbl, defSub] = labels[phase] || ["Voz continua", ""];
+    elVoiceStateLabel.textContent = lbl;
+    elVoiceStateSub.textContent = subText || defSub;
+
+    elVoiceOrb.className = "voice-orb";
+    if (phase === "speech") elVoiceOrb.classList.add("state-speech");
+    else if (phase === "transcribing" || phase === "thinking" || phase === "warming") elVoiceOrb.classList.add("state-thinking");
+    else if (phase === "speaking") elVoiceOrb.classList.add("state-speaking");
+    else if (phase === "muted" || phase === "error") elVoiceOrb.classList.add("state-muted");
+
+    elVoiceOrb.textContent =
+      phase === "muted" ? "🔇" :
+      phase === "speaking" ? "🔊" :
+      phase === "thinking" || phase === "transcribing" ? "⚡" : "🎙";
+
+    elBtnContinuousVoice.classList.toggle("active", voiceState.active && phase !== "speaking");
+    elBtnContinuousVoice.classList.toggle("speaking", voiceState.active && phase === "speaking");
+    elBtnContinuousVoice.textContent = voiceState.active
+      ? (phase === "speaking" ? "🔊 Hablando · Activa" : "🎙 Voz Activa")
+      : "🎙 Voz Continua";
+    elBtnComposerVoice.classList.toggle("active", voiceState.active);
+    elBtnComposerVoice.textContent = voiceState.active ? "🎙 En vivo" : "🎙 Voz";
+  }
+
+  function updateVoiceBars(rms, isSpeech, isSpeaking) {
+    const norm = Math.min(1.0, rms * 8.5);
+    const scale = 1.0 + norm * 0.22;
+    elVoiceOrb.style.transform = voiceState.active ? `scale(${scale.toFixed(3)})` : "scale(1)";
+    const now = performance.now() / 120;
+    for (let i = 0; i < elVoiceBars.length; i++) {
+      const bar = elVoiceBars[i];
+      const wave = isSpeaking
+        ? (0.28 + 0.55 * Math.abs(Math.sin(now + i * 0.65)))
+        : Math.max(0.1, norm * (0.45 + 0.55 * Math.abs(Math.sin(now * 1.4 + i * 0.7))));
+      const h = voiceState.muted ? 4 : Math.round(4 + wave * 24);
+      bar.style.height = `${h}px`;
+      bar.style.background = isSpeaking
+        ? "#fbbf24"
+        : (isSpeech ? "#22d3ee" : (voiceState.muted ? "#64748b" : "#10b981"));
+    }
+  }
+
+  function downsampleTo16kInt16(float32Buf, inputSampleRate) {
+    const targetRate = 16000;
+    if (inputSampleRate === targetRate) {
+      const out = new Int16Array(float32Buf.length);
+      for (let i = 0; i < float32Buf.length; i++) {
+        const s = Math.max(-1, Math.min(1, float32Buf[i]));
+        out[i] = s < 0 ? s * 0x8000 : s * 0x7fff;
+      }
+      return out;
+    }
+    const ratio = inputSampleRate / targetRate;
+    const outLen = Math.max(1, Math.floor(float32Buf.length / ratio));
+    const out = new Int16Array(outLen);
+    let offsetResult = 0;
+    let offsetBuffer = 0;
+    while (offsetResult < outLen) {
+      const nextOffsetBuffer = Math.min(float32Buf.length, Math.round((offsetResult + 1) * ratio));
+      let accum = 0;
+      let count = 0;
+      for (let i = offsetBuffer; i < nextOffsetBuffer; i++) {
+        accum += float32Buf[i];
+        count++;
+      }
+      const sample = count > 0 ? Math.max(-1, Math.min(1, accum / count)) : 0;
+      out[offsetResult] = sample < 0 ? sample * 0x8000 : sample * 0x7fff;
+      offsetResult++;
+      offsetBuffer = nextOffsetBuffer;
+    }
+    return out;
+  }
+
+  function encodeWav16k(int16Chunks) {
+    let totalSamples = 0;
+    for (const c of int16Chunks) totalSamples += c.length;
+    const dataBytes = totalSamples * 2;
+    const buf = new ArrayBuffer(44 + dataBytes);
+    const view = new DataView(buf);
+    const writeStr = (off, str) => {
+      for (let i = 0; i < str.length; i++) view.setUint8(off + i, str.charCodeAt(i));
+    };
+    writeStr(0, "RIFF");
+    view.setUint32(4, 36 + dataBytes, true);
+    writeStr(8, "WAVE");
+    writeStr(12, "fmt ");
+    view.setUint32(16, 16, true);
+    view.setUint16(20, 1, true);
+    view.setUint16(22, 1, true);
+    view.setUint32(24, 16000, true);
+    view.setUint32(28, 32000, true);
+    view.setUint16(32, 2, true);
+    view.setUint16(34, 16, true);
+    writeStr(36, "data");
+    view.setUint32(40, dataBytes, true);
+    let offset = 44;
+    for (const c of int16Chunks) {
+      for (let i = 0; i < c.length; i++) {
+        view.setInt16(offset, c[i], true);
+        offset += 2;
+      }
+    }
+    return buf;
+  }
+
+  function stopVoicePlayback(clearQueue = true) {
+    if (clearQueue) {
+      voiceState.audioQueue.length = 0;
+    }
+    if (voiceState.currentAudio) {
+      try {
+        voiceState.currentAudio.pause();
+        voiceState.currentAudio.src = "";
+      } catch {}
+      voiceState.currentAudio = null;
+    }
+    if (voiceState.currentAudioUrl) {
+      URL.revokeObjectURL(voiceState.currentAudioUrl);
+      voiceState.currentAudioUrl = null;
+    }
+    if (voiceState.isPlayingAudio) {
+      voiceState.isPlayingAudio = false;
+      voiceState.lastPlayEndMs = performance.now();
+    }
+  }
+
+  function playNextVoiceChunk() {
+    if (voiceState.isPlayingAudio) return;
+    if (!voiceState.audioQueue.length) {
+      if (voiceState.active && voiceState.turnDoneReceived && !voiceState.muted) {
+        setVoicePhase("listening");
+      }
+      return;
+    }
+    const item = voiceState.audioQueue.shift();
+    try {
+      const bin = atob(item.data);
+      const arr = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+      const blob = new Blob([arr], { type: item.mime || "audio/mpeg" });
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      voiceState.currentAudio = audio;
+      voiceState.currentAudioUrl = url;
+      voiceState.isPlayingAudio = true;
+      setVoicePhase("speaking");
+
+      const finish = () => {
+        if (voiceState.currentAudioUrl === url) {
+          URL.revokeObjectURL(url);
+          voiceState.currentAudioUrl = null;
+        }
+        if (voiceState.currentAudio === audio) {
+          voiceState.currentAudio = null;
+        }
+        voiceState.isPlayingAudio = false;
+        voiceState.lastPlayEndMs = performance.now();
+        playNextVoiceChunk();
+      };
+      audio.onended = finish;
+      audio.onerror = finish;
+      audio.play().catch(finish);
+    } catch {
+      voiceState.isPlayingAudio = false;
+      playNextVoiceChunk();
+    }
+  }
+
+  function sendVoiceConfig() {
+    if (!voiceState.ws || voiceState.ws.readyState !== WebSocket.OPEN) return;
+    voiceState.ws.send(JSON.stringify({
+      type: "config",
+      model: LOCKED_MODEL,
+      session_id: state.currentSessionId,
+      lane: elLane.value,
+      temperature: parseFloat(elTemp.value),
+      max_tokens: Math.min(parseInt(elMaxTok.value, 10) || 1024, 640),
+      use_rag: elRag.checked,
+      hardware_control: elHwToggle.checked,
+      voice: elVoiceSelect.value,
+      rate: "+8%",
+      language: "es",
+      tts_enabled: elVoiceTtsToggle.checked,
+    }));
+  }
+
+  function interruptVoiceTurn(isBargeIn = false) {
+    stopVoicePlayback(true);
+    voiceState.turnDoneReceived = true;
+    if (voiceState.ws && voiceState.ws.readyState === WebSocket.OPEN) {
+      voiceState.ws.send(JSON.stringify({ type: "interrupt" }));
+    }
+    if (voiceState.liveStreamObj) {
+      voiceState.liveStreamObj._streaming = false;
+      voiceState.liveStreamObj.cancelled = true;
+      voiceState.liveStreamObj = null;
+      voiceState.liveBubble = null;
+      setStreamingUi(false);
+      renderMessages();
+    }
+    if (voiceState.active && !voiceState.muted) {
+      setVoicePhase(isBargeIn ? "speech" : "listening", isBargeIn ? "Barge-In · escuchando tu nueva frase…" : "");
+    }
+  }
+
+  function dispatchVoiceUtterance(int16Chunks) {
+    if (!voiceState.ws || voiceState.ws.readyState !== WebSocket.OPEN) return;
+    if (!int16Chunks.length) return;
+    sendVoiceConfig();
+    const wavBuf = encodeWav16k(int16Chunks);
+    voiceState.turnDoneReceived = false;
+    setVoicePhase("transcribing");
+    voiceState.ws.send(wavBuf);
+  }
+
+  function handleVoiceWsMessage(ev) {
+    let msg;
+    try { msg = JSON.parse(ev.data); } catch { return; }
+    const t = msg.type;
+
+    if (t === "ready") {
+      if (Array.isArray(msg.voices) && msg.voices.length) {
+        const cur = elVoiceSelect.value;
+        elVoiceSelect.innerHTML = msg.voices
+          .map((v) => `<option value="${escHtml(v.id)}">${escHtml(v.label)}</option>`)
+          .join("");
+        if (cur) elVoiceSelect.value = cur;
+      }
+      sendVoiceConfig();
+      setVoicePhase("warming");
+      voiceState.ws.send(JSON.stringify({ type: "warmup" }));
+    } else if (t === "warmup_done") {
+      elVoiceMetricsBadge.textContent = `Whisper listo (${msg.seconds}s) · Turnos: ${voiceState.turnCount}`;
+      if (!voiceState.muted) setVoicePhase("listening");
+    } else if (t === "state") {
+      if (!voiceState.muted) {
+        const mapped = msg.state === "speaking" ? "speaking" : msg.state;
+        if (mapped !== "listening" || !voiceState.isPlayingAudio) {
+          setVoicePhase(mapped);
+        }
+      }
+    } else if (t === "no_speech") {
+      voiceState.turnDoneReceived = true;
+      if (!voiceState.muted && !voiceState.isPlayingAudio) setVoicePhase("listening");
+    } else if (t === "transcript") {
+      voiceState.turnCount += 1;
+      elVoiceMetricsBadge.textContent = `STT ${msg.stt_ms}ms · Turno #${voiceState.turnCount}`;
+      state.messages.push({ role: "user", content: msg.text });
+      const streamObj = {
+        role: "assistant",
+        content: "",
+        lane: elLane.value,
+        _streaming: true,
+        _streamId: "voice_" + Date.now(),
+      };
+      state.messages.push(streamObj);
+      voiceState.liveStreamObj = streamObj;
+      renderMessages();
+      voiceState.liveBubble = elMessagesInner.querySelector(`[data-stream-id="${streamObj._streamId}"] .bubble`);
+      setStreamingUi(true);
+    } else if (t === "meta") {
+      if (msg.session_id) state.currentSessionId = msg.session_id;
+      if (msg.request_id) state.activeRequestId = msg.request_id;
+      if (msg.title) elChatTitle.textContent = msg.title;
+      if (voiceState.liveStreamObj && msg.lane) voiceState.liveStreamObj.lane = msg.lane;
+    } else if (t === "token") {
+      if (voiceState.liveStreamObj) {
+        voiceState.liveStreamObj.content += msg.delta || "";
+        if (voiceState.liveBubble) {
+          voiceState.liveBubble.innerHTML = renderMarkdown(voiceState.liveStreamObj.content) + `<span class="cursor"></span>`;
+          scrollToBottom();
+        }
+      }
+    } else if (t === "audio_chunk") {
+      if (elVoiceTtsToggle.checked && msg.data) {
+        voiceState.audioQueue.push({ seq: msg.seq, data: msg.data, mime: msg.mime || "audio/mpeg", text: msg.text || "" });
+        playNextVoiceChunk();
+      }
+    } else if (t === "error") {
+      if (voiceState.liveStreamObj) {
+        voiceState.liveStreamObj.content += `\n\n> ⚠️ ${msg.error || "Error de voz"}`;
+      } else {
+        setVoicePhase("error", msg.error || "Error de voz");
+      }
+    } else if (t === "done") {
+      voiceState.turnDoneReceived = true;
+      if (voiceState.liveStreamObj) {
+        voiceState.liveStreamObj._streaming = false;
+        voiceState.liveStreamObj.elapsed_s = msg.elapsed_s;
+        voiceState.liveStreamObj.lane = msg.lane || voiceState.liveStreamObj.lane;
+        voiceState.liveStreamObj.cancelled = Boolean(msg.cancelled);
+        voiceState.liveStreamObj = null;
+        voiceState.liveBubble = null;
+      }
+      state.activeRequestId = null;
+      setStreamingUi(false);
+      renderMessages();
+      loadSessions(false);
+      if (!voiceState.isPlayingAudio && !voiceState.audioQueue.length && !voiceState.muted) {
+        setVoicePhase("listening");
+      }
+    } else if (t === "interrupted") {
+      voiceState.turnDoneReceived = true;
+      if (!voiceState.muted) setVoicePhase("listening");
+    }
+  }
+
+  function openVoiceWebSocket() {
+    if (voiceState.ws && (voiceState.ws.readyState === WebSocket.OPEN || voiceState.ws.readyState === WebSocket.CONNECTING)) {
+      return;
+    }
+    const proto = location.protocol === "https:" ? "wss:" : "ws:";
+    const wsUrl = `${proto}//${location.host}/api/mundo_sin_censura/voice/ws`;
+    setVoicePhase("connecting");
+    const ws = new WebSocket(wsUrl);
+    ws.binaryType = "arraybuffer";
+    voiceState.ws = ws;
+
+    ws.onmessage = handleVoiceWsMessage;
+    ws.onerror = () => {
+      if (voiceState.active) setVoicePhase("error", "Reconectando canal de voz…");
+    };
+    ws.onclose = () => {
+      if (voiceState.ws === ws) voiceState.ws = null;
+      if (voiceState.active) {
+        clearTimeout(voiceState.reconnectTimer);
+        voiceState.reconnectTimer = setTimeout(() => {
+          if (voiceState.active) openVoiceWebSocket();
+        }, 1500);
+      }
+    };
+  }
+
+  async function startContinuousVoice() {
+    if (voiceState.active) return;
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      alert("Este navegador no permite acceso al micrófono (getUserMedia). Abre en http://127.0.0.1:8757/mundo-sin-censura.");
+      return;
+    }
+
+    voiceState.active = true;
+    voiceState.muted = false;
+    voiceState.inSpeech = false;
+    voiceState.speechChunks = [];
+    voiceState.preRollChunks = [];
+    voiceState.silenceMs = 0;
+    voiceState.speechMs = 0;
+    voiceState.bargeFrames = 0;
+    elVoiceHud.classList.add("visible");
+    elBtnVoiceMute.textContent = "🔇 Silenciar";
+    setVoicePhase("connecting", "Solicitando acceso al micrófono con cancelación de eco…");
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+          channelCount: 1,
+        },
+        video: false,
+      });
+      voiceState.mediaStream = stream;
+
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      const ctx = new AudioCtx();
+      voiceState.audioCtx = ctx;
+      const src = ctx.createMediaStreamSource(stream);
+      const proc = ctx.createScriptProcessor(4096, 1, 1);
+      const silentGain = ctx.createGain();
+      silentGain.gain.value = 0;
+      src.connect(proc);
+      proc.connect(silentGain);
+      silentGain.connect(ctx.destination);
+      voiceState.sourceNode = src;
+      voiceState.processorNode = proc;
+      voiceState.muteGain = silentGain;
+
+      const chunkMs = (4096 / ctx.sampleRate) * 1000;
+      const maxPreRollChunks = Math.max(2, Math.ceil(360 / chunkMs));
+
+      proc.onaudioprocess = (e) => {
+        if (!voiceState.active) return;
+        const input = e.inputBuffer.getChannelData(0);
+        let sumSq = 0;
+        for (let i = 0; i < input.length; i++) sumSq += input[i] * input[i];
+        const rms = Math.sqrt(sumSq / input.length);
+
+        const aiPlaying = voiceState.isPlayingAudio || (performance.now() - voiceState.lastPlayEndMs) < 220;
+        updateVoiceBars(rms, voiceState.inSpeech || voiceState.pttHolding, aiPlaying);
+
+        if (voiceState.muted) return;
+
+        const pcm16 = downsampleTo16kInt16(input, ctx.sampleRate);
+
+        // Modo Pulsar para Hablar (PTT)
+        if (voiceState.mode === "ptt") {
+          if (voiceState.pttHolding) {
+            voiceState.speechChunks.push(pcm16);
+          }
+          return;
+        }
+
+        // Modo Manos Libres Continuo (VAD + Barge-In)
+        const silenceHoldMs = parseInt(elVoiceSilenceSelect.value, 10) || 850;
+        if (aiPlaying) {
+          if (elVoiceBargeInToggle.checked) {
+            const bargeThresh = Math.max(0.062, voiceState.noiseFloor * 5.0);
+            voiceState.preRollChunks.push(pcm16);
+            if (voiceState.preRollChunks.length > maxPreRollChunks) voiceState.preRollChunks.shift();
+            if (rms >= bargeThresh) {
+              voiceState.bargeFrames += 1;
+              if (voiceState.bargeFrames >= 3) {
+                voiceState.bargeFrames = 0;
+                interruptVoiceTurn(true);
+                voiceState.inSpeech = true;
+                voiceState.speechChunks = [...voiceState.preRollChunks];
+                voiceState.speechMs = voiceState.speechChunks.length * chunkMs;
+                voiceState.silenceMs = 0;
+              }
+            } else {
+              voiceState.bargeFrames = Math.max(0, voiceState.bargeFrames - 1);
+            }
+          }
+          return;
+        }
+
+        voiceState.bargeFrames = 0;
+        if (voiceState.phase === "transcribing" || voiceState.phase === "warming" || voiceState.phase === "connecting") {
+          return;
+        }
+
+        const vadThresh = Math.max(0.015, voiceState.noiseFloor * 2.7);
+        const isVoice = rms >= vadThresh;
+
+        if (!voiceState.inSpeech) {
+          voiceState.noiseFloor = 0.96 * voiceState.noiseFloor + 0.04 * Math.min(rms, 0.032);
+          voiceState.preRollChunks.push(pcm16);
+          if (voiceState.preRollChunks.length > maxPreRollChunks) voiceState.preRollChunks.shift();
+          if (isVoice) {
+            voiceState.inSpeech = true;
+            voiceState.speechChunks = [...voiceState.preRollChunks];
+            voiceState.speechMs = chunkMs;
+            voiceState.silenceMs = 0;
+            setVoicePhase("speech");
+          }
+          return;
+        }
+
+        voiceState.speechChunks.push(pcm16);
+        voiceState.speechMs += chunkMs;
+        if (isVoice) {
+          voiceState.silenceMs = 0;
+        } else {
+          voiceState.silenceMs += chunkMs;
+        }
+
+        if (voiceState.silenceMs >= silenceHoldMs || voiceState.speechMs >= 26000) {
+          const captured = voiceState.speechChunks;
+          const durMs = voiceState.speechMs;
+          voiceState.inSpeech = false;
+          voiceState.speechChunks = [];
+          voiceState.silenceMs = 0;
+          voiceState.speechMs = 0;
+          if (durMs >= 260) {
+            dispatchVoiceUtterance(captured);
+          } else {
+            setVoicePhase("listening");
+          }
+        }
+      };
+
+      openVoiceWebSocket();
+    } catch (err) {
+      stopContinuousVoice();
+      elVoiceHud.classList.add("visible");
+      setVoicePhase("error", `No se pudo abrir el micrófono: ${err.message || err}`);
+    }
+  }
+
+  function stopContinuousVoice() {
+    voiceState.active = false;
+    clearTimeout(voiceState.reconnectTimer);
+    stopVoicePlayback(true);
+    if (voiceState.ws) {
+      try {
+        voiceState.ws.send(JSON.stringify({ type: "interrupt" }));
+        voiceState.ws.close();
+      } catch {}
+      voiceState.ws = null;
+    }
+    if (voiceState.processorNode) {
+      try { voiceState.processorNode.disconnect(); } catch {}
+      voiceState.processorNode = null;
+    }
+    if (voiceState.sourceNode) {
+      try { voiceState.sourceNode.disconnect(); } catch {}
+      voiceState.sourceNode = null;
+    }
+    if (voiceState.muteGain) {
+      try { voiceState.muteGain.disconnect(); } catch {}
+      voiceState.muteGain = null;
+    }
+    if (voiceState.audioCtx) {
+      try { voiceState.audioCtx.close(); } catch {}
+      voiceState.audioCtx = null;
+    }
+    if (voiceState.mediaStream) {
+      voiceState.mediaStream.getTracks().forEach((tr) => tr.stop());
+      voiceState.mediaStream = null;
+    }
+    voiceState.inSpeech = false;
+    voiceState.pttHolding = false;
+    voiceState.speechChunks = [];
+    elVoiceHud.classList.remove("visible");
+    setVoicePhase("idle");
+    updateVoiceBars(0, false, false);
+  }
+
+  function toggleContinuousVoice() {
+    if (voiceState.active) stopContinuousVoice();
+    else startContinuousVoice();
+  }
+
+  async function speakSingleMessage(text, btnEl) {
+    if (!text) return;
+    if (voiceState.singleAudio) {
+      try { voiceState.singleAudio.pause(); } catch {}
+      voiceState.singleAudio = null;
+    }
+    const prev = btnEl ? btnEl.textContent : "";
+    if (btnEl) btnEl.textContent = "🔊 Sintetizando…";
+    try {
+      const resp = await fetch("/api/mundo_sin_censura/voice/tts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: LOCKED_MODEL,
+          text: text.slice(0, 1200),
+          voice: elVoiceSelect.value,
+          rate: "+8%",
+        }),
+      });
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const blob = await resp.blob();
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      voiceState.singleAudio = audio;
+      if (btnEl) btnEl.textContent = "■ Reproduciendo";
+      const cleanup = () => {
+        URL.revokeObjectURL(url);
+        if (voiceState.singleAudio === audio) voiceState.singleAudio = null;
+        if (btnEl) btnEl.textContent = prev || "🔊 Escuchar";
+      };
+      audio.onended = cleanup;
+      audio.onerror = cleanup;
+      await audio.play();
+    } catch {
+      if (btnEl) btnEl.textContent = prev || "🔊 Escuchar";
+    }
+  }
+
+  // Controles de la barra de Voz Continua
+  elBtnContinuousVoice.addEventListener("click", toggleContinuousVoice);
+  elBtnComposerVoice.addEventListener("click", toggleContinuousVoice);
+  elBtnVoiceHangup.addEventListener("click", stopContinuousVoice);
+  elBtnVoiceInterrupt.addEventListener("click", () => interruptVoiceTurn(false));
+  elBtnVoiceMute.addEventListener("click", () => {
+    voiceState.muted = !voiceState.muted;
+    elBtnVoiceMute.textContent = voiceState.muted ? "🎙 Activar mic" : "🔇 Silenciar";
+    if (voiceState.muted) {
+      voiceState.inSpeech = false;
+      voiceState.speechChunks = [];
+      setVoicePhase("muted");
+    } else {
+      setVoicePhase("listening");
+    }
+  });
+  elVoiceModeSelect.addEventListener("change", () => {
+    voiceState.mode = elVoiceModeSelect.value;
+    elBtnVoicePtt.style.display = voiceState.mode === "ptt" ? "inline-flex" : "none";
+    voiceState.inSpeech = false;
+    voiceState.speechChunks = [];
+    if (voiceState.active && !voiceState.muted) setVoicePhase("listening");
+  });
+  const startPttHold = () => {
+    if (!voiceState.active || voiceState.mode !== "ptt" || voiceState.muted) return;
+    if (voiceState.isPlayingAudio || state.streaming) interruptVoiceTurn(true);
+    voiceState.pttHolding = true;
+    voiceState.speechChunks = [];
+    elBtnVoicePtt.classList.add("holding");
+    setVoicePhase("speech", "Grabando… suelta para enviar");
+  };
+  const endPttHold = () => {
+    if (!voiceState.pttHolding) return;
+    voiceState.pttHolding = false;
+    elBtnVoicePtt.classList.remove("holding");
+    const captured = voiceState.speechChunks;
+    voiceState.speechChunks = [];
+    if (captured.length) dispatchVoiceUtterance(captured);
+    else if (voiceState.active && !voiceState.muted) setVoicePhase("listening");
+  };
+  elBtnVoicePtt.addEventListener("pointerdown", startPttHold);
+  window.addEventListener("pointerup", endPttHold);
+  elVoiceSelect.addEventListener("change", sendVoiceConfig);
+  elVoiceTtsToggle.addEventListener("change", sendVoiceConfig);
+  elLane.addEventListener("change", sendVoiceConfig);
+  elTemp.addEventListener("change", sendVoiceConfig);
+  elMaxTok.addEventListener("change", sendVoiceConfig);
+  elRag.addEventListener("change", sendVoiceConfig);
 
   async function stopStream() {
     if (!state.streaming) return;
@@ -1292,10 +2210,31 @@
     }
   });
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && state.streaming) stopStream();
+    if (e.key === "Escape") {
+      if (voiceState.active && (voiceState.isPlayingAudio || state.streaming)) {
+        interruptVoiceTurn(false);
+        return;
+      }
+      if (state.streaming) stopStream();
+    }
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === "v") {
+      e.preventDefault();
+      toggleContinuousVoice();
+      return;
+    }
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
       e.preventDefault();
       createNewSession();
+    }
+    if (e.code === "Space" && voiceState.active && voiceState.mode === "ptt" && document.activeElement !== elPrompt && !e.repeat) {
+      e.preventDefault();
+      startPttHold();
+    }
+  });
+  document.addEventListener("keyup", (e) => {
+    if (e.code === "Space" && voiceState.pttHolding) {
+      e.preventDefault();
+      endPttHold();
     }
   });
 
@@ -1321,6 +2260,7 @@
       method: "POST",
       body: JSON.stringify({ enabled: elHwToggle.checked, agentic_hw_in_chat: elHwToggle.checked }),
     }).catch(() => {});
+    sendVoiceConfig();
     refreshStatus();
   });
   elSessionSearch.addEventListener("input", () => { state.filter = elSessionSearch.value; renderSessions(); });

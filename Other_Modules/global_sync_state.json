@@ -44,9 +44,9 @@
     "active": true,
     "pid": 1418,
     "videos_stored": 1057,
-    "verdicts": 661,
+    "verdicts": 662,
     "vlm_model": "qwen3-vl:2b-instruct",
-    "last_risk_level": null,
-    "last_ping": REDACTED_PHONE.3757932
+    "last_risk_level": 3,
+    "last_ping": REDACTED_PHONE.1021585
   }
 }
