@@ -1958,3 +1958,96 @@ def test_hub_health_retry_feedback_mass_flap_hysteresis_and_coevolution_full_bus
     )
     eng._scan_runtime_lens()
     assert not any(p["category"] == "regression" for p in eng.list_proposals(status="pending", limit=20))
+
+
+def test_resource_governor_swap_bloat_detection_and_safe_idle_recycle(tmp_path: Path, monkeypatch):
+    """Regresión COEV-20261124-5B1F5C: detección de swap-bloat cgroup v2 y reciclaje seguro únicamente en reposo."""
+    from core import tardis_resource_governor as trg
+
+    # 1) Construir árbol cgroup v2 simulado con TemporalBrain en swap-bloat (6.17 GB swap) y Ollama Voice sano
+    fake_slice = tmp_path / "app.slice"
+    cg_tb = fake_slice / "tardis-temporal-brain.service"
+    cg_ov = fake_slice / "tardis-ollama-voice.service"
+    cg_tb.mkdir(parents=True)
+    cg_ov.mkdir(parents=True)
+
+    (cg_tb / "cgroup.procs").write_text("11111\n", encoding="utf-8")
+    (cg_tb / "memory.current").write_text(str(6200 * 1024 * 1024), encoding="utf-8")
+    (cg_tb / "memory.high").write_text(str(7 * 1024**3), encoding="utf-8")
+    (cg_tb / "memory.max").write_text(str(9 * 1024**3), encoding="utf-8")
+    (cg_tb / "memory.swap.current").write_text(str(6170 * 1024 * 1024), encoding="utf-8")
+    (cg_tb / "memory.swap.max").write_text(str(2 * 1024**3), encoding="utf-8")
+
+    (cg_ov / "cgroup.procs").write_text("22222\n", encoding="utf-8")
+    (cg_ov / "memory.current").write_text(str(2800 * 1024 * 1024), encoding="utf-8")
+    (cg_ov / "memory.high").write_text(str(4500 * 1024 * 1024), encoding="utf-8")
+    (cg_ov / "memory.max").write_text(str(6 * 1024**3), encoding="utf-8")
+    (cg_ov / "memory.swap.current").write_text("0", encoding="utf-8")
+    (cg_ov / "memory.swap.max").write_text(str(1536 * 1024 * 1024), encoding="utf-8")
+
+    def _fake_mem(pid: int):
+        if pid == 11111:
+            return {"rss_mb": 6190.0, "rss_anon_mb": 4200.0, "rss_file_mb": 1990.0, "mlock_mb": 0.0, "swap_mb": 6170.0}
+        return {"rss_mb": 2800.0, "rss_anon_mb": 2100.0, "rss_file_mb": 700.0, "mlock_mb": 0.0, "swap_mb": 0.0}
+
+    monkeypatch.setattr(trg, "_read_proc_mem_status", _fake_mem)
+    monkeypatch.setattr(trg, "_read_proc_uptime_s", lambda pid: 3600.0 if pid == 11111 else 3600.0)
+
+    rows, bloated = trg._inspect_service_memory_bloat(cgroup_app_slice=fake_slice)
+    assert len(rows) == 2
+    assert len(bloated) == 1
+    assert bloated[0]["unit"] == "tardis-temporal-brain.service"
+    assert bloated[0]["recycle_eligible"] is True
+    assert bloated[0]["swap_mb"] == 6170.0
+    assert bloated[0]["total_mb"] == 12360.0
+
+    # 2) Probar todas las guardas de seguridad de reconcile_swap_bloat
+    gov = trg.TardisResourceGovernor(
+        db_path=tmp_path / "gov_sb.db",
+        throttle_state_file=tmp_path / "th_sb.json",
+        gpu_eco_state_file=tmp_path / "ge_sb.json",
+        swap_recycle_state_file=tmp_path / "sr_sb.json",
+    )
+    monkeypatch.setattr(trg, "_swap_recycle_control_enabled", lambda: True)
+    restarted_units = []
+    monkeypatch.setattr(trg, "_restart_systemd_user_unit", lambda u, timeout=20.0: (restarted_units.append(u) or True, "restarted"))
+
+    snap_bloated = {
+        "call_priority_active": False,
+        "inference_memory": rows,
+        "memory_bloat_units": bloated,
+    }
+
+    # 2a) Llamada Telegram activa -> veto absoluto
+    res_call = gov.reconcile_swap_bloat({**snap_bloated, "call_priority_active": True}, dry_run=False)
+    assert res_call["action"] == "skipped_call_priority" and restarted_units == []
+
+    # 2b) Proceso recién arrancado (<min_uptime_s) -> diferido
+    snap_young = {
+        "call_priority_active": False,
+        "inference_memory": rows,
+        "memory_bloat_units": [{**bloated[0], "uptime_s": 120.0}],
+    }
+    res_young = gov.reconcile_swap_bloat(snap_young, dry_run=False)
+    assert res_young["action"] == "deferred_min_uptime" and restarted_units == []
+
+    # 2c) Slots activos en TemporalBrain -> JAMÁS interrumpir
+    monkeypatch.setattr(trg, "_is_service_idle_for_recycle", lambda u, k: (False, "temporal_brain_slots_busy:[0]"))
+    res_busy = gov.reconcile_swap_bloat(snap_bloated, dry_run=False)
+    assert res_busy["action"] == "deferred_busy" and restarted_units == []
+
+    # 2d) En reposo verificado + dry_run -> would_recycle sin reiniciar
+    monkeypatch.setattr(trg, "_is_service_idle_for_recycle", lambda u, k: (True, "all_slots_idle"))
+    res_dry = gov.reconcile_swap_bloat(snap_bloated, dry_run=True)
+    assert res_dry["action"] == "would_recycle" and restarted_units == []
+
+    # 2e) En reposo verificado + ejecución real -> recicla una vez y aplica cooldown en la siguiente ronda
+    res_real = gov.reconcile_swap_bloat(snap_bloated, dry_run=False)
+    assert res_real["action"] == "recycled"
+    assert restarted_units == ["tardis-temporal-brain.service"]
+    st = gov.get_swap_recycle_status()
+    assert st["recycled_units"]["tardis-temporal-brain.service"]["recycle_count"] == 1
+
+    res_cool = gov.reconcile_swap_bloat(snap_bloated, dry_run=False)
+    assert res_cool["action"] == "deferred_cooldown"
+    assert restarted_units == ["tardis-temporal-brain.service"]

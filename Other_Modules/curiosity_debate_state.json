@@ -3,40 +3,18 @@
   "interval_seconds": 5400.0,
   "target_chat_id": -REDACTED_PHONE,
   "target_thread_id": 453,
-  "last_run_timestamp": REDACTED_PHONE.9653575,
-  "last_run_iso": "2026-11-25T15:29:54.965363",
-  "total_dispatches": 763,
-  "curator_index": 4,
+  "last_run_timestamp": REDACTED_PHONE.280483,
+  "last_run_iso": "2026-11-25T18:30:01.280494",
+  "total_dispatches": 765,
+  "curator_index": 2,
   "dispatched_topic_ids": [
     "holographic_brain_neurophysics",
     "fermi_paradox_great_filter",
-    "godel_incompleteness_ai_limits"
+    "godel_incompleteness_ai_limits",
+    "neural_decoding_mind_reading_bci",
+    "syntropy_prigogine_thermodynamics"
   ],
   "history": [
-    {
-      "dispatch_id": 664,
-      "timestamp": REDACTED_PHONE.9469976,
-      "iso": "2026-11-18T00:18:58.947007",
-      "topic_id": "quantum_spacetime_er_epr",
-      "topic_title": "Entrelazamiento Cuántico, No-Localidad y Espacio-Tiempo Emergente (ER=EPR)",
-      "pdf_path": "/home/m11/Escritorio/GODWORKS SYSTEM/reports/polimatas_debates/Dossier_Debate_20261118_001856_quantum_spacetime_er_epr.pdf",
-      "chat_id": -REDACTED_PHONE,
-      "thread_id": 453,
-      "text_sent": true,
-      "doc_sent": true
-    },
-    {
-      "dispatch_id": 665,
-      "timestamp": REDACTED_PHONE.1198432,
-      "iso": "2026-11-18T01:49:02.119849",
-      "topic_id": "holographic_brain_neurophysics",
-      "topic_title": "La Hipótesis del Cerebro Holográfico: Memoria Distribuida y Resonancia Cuántica",
-      "pdf_path": "/home/m11/Escritorio/GODWORKS SYSTEM/reports/polimatas_debates/Dossier_Debate_20261118_014859_holographic_brain_neurophysics.pdf",
-      "chat_id": -REDACTED_PHONE,
-      "thread_id": 453,
-      "text_sent": true,
-      "doc_sent": true
-    },
     {
       "dispatch_id": 666,
       "timestamp": REDACTED_PHONE.2507684,
@@ -1208,6 +1186,30 @@
       "topic_id": "godel_incompleteness_ai_limits",
       "topic_title": "Los Teoremas de Incompletitud de Gödel y los Límites Epistemológicos de la Computación",
       "pdf_path": "/home/m11/Escritorio/GODWORKS SYSTEM/reports/polimatas_debates/Dossier_Debate_20261125_152953_godel_incompleteness_ai_limits.pdf",
+      "chat_id": -REDACTED_PHONE,
+      "thread_id": 453,
+      "text_sent": true,
+      "doc_sent": true
+    },
+    {
+      "dispatch_id": 764,
+      "timestamp": REDACTED_PHONE.8814669,
+      "iso": "2026-11-25T16:59:57.881473",
+      "topic_id": "neural_decoding_mind_reading_bci",
+      "topic_title": "Decodificación Neural Directa y Reconstrucción Semántica: ¿El Fin de la Privacidad Mental?",
+      "pdf_path": "/home/m11/Escritorio/GODWORKS SYSTEM/reports/polimatas_debates/Dossier_Debate_20261125_165955_neural_decoding_mind_reading_b.pdf",
+      "chat_id": -REDACTED_PHONE,
+      "thread_id": 453,
+      "text_sent": true,
+      "doc_sent": true
+    },
+    {
+      "dispatch_id": 765,
+      "timestamp": REDACTED_PHONE.280483,
+      "iso": "2026-11-25T18:30:01.280494",
+      "topic_id": "syntropy_prigogine_thermodynamics",
+      "topic_title": "Termodinámica del No Equilibrio y Sintropía: ¿El Orden es una Ley Fundamental?",
+      "pdf_path": "/home/m11/Escritorio/GODWORKS SYSTEM/reports/polimatas_debates/Dossier_Debate_20261125_182959_syntropy_prigogine_thermodynam.pdf",
       "chat_id": -REDACTED_PHONE,
       "thread_id": 453,
       "text_sent": true,

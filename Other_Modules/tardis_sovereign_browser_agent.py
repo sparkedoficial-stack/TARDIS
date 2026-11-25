@@ -57,6 +57,7 @@ DATA_DIR.mkdir(parents=True, exist_ok=True)
 CONCLUSIONS_FILE = DATA_DIR / "tardis_browser_conclusions.jsonl"
 ACTIONS_FILE = DATA_DIR / "tardis_browser_actions.jsonl"
 STATE_FILE = DATA_DIR / "tardis_browser_state.json"
+SOURCES_FILE = DATA_DIR / "tardis_browser_sources.json"
 
 logger = logging.getLogger("TARDIS.SovereignBrowser")
 
@@ -66,13 +67,151 @@ USER_AGENT = (
     "(KHTML, like Gecko) Chrome/REDACTED_IP Safari/537.36"
 )
 
-# Fuentes abiertas fiables (RSS / Atom / APIs limpias sin CAPTCHA) para noticias y exploración libre
+# Fuentes abiertas fiables (RSS / Atom oficiales sin CAPTCHA) para noticias y exploración libre
 NEWS_RSS_FEEDS: List[Tuple[str, str]] = [
     ("BBC Mundo", "https://feeds.bbci.co.uk/mundo/rss.xml"),
+    ("DW Español", "https://rss.dw.com/rdf/rss-sp-all"),
+    ("El País Tecnología", "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/tecnologia/portada"),
     ("Hacker News", "https://hnrss.org/frontpage?count=12"),
     ("ArXiv AI", "https://export.arxiv.org/rss/cs.AI"),
     ("ScienceDaily", "https://www.sciencedaily.com/rss/top/technology.xml"),
     ("Google News ES", "https://news.google.com/rss?hl=es-419&gl=MX&ceid=MX:es-419"),
+]
+
+# Registro oficial de APIs públicas documentadas y feeds autorizados (cero scraping invasivo / cero evasión)
+BUILTIN_OFFICIAL_SOURCES: List[Dict[str, Any]] = [
+    {
+        "id": "api_hn_algolia",
+        "name": "Hacker News Algolia API",
+        "kind": "official_api",
+        "category": "news",
+        "url": "https://hn.algolia.com/api/v1/search",
+        "docs_url": "https://hn.algolia.com/api",
+        "enabled": True,
+        "auth_env": "",
+        "description": "API JSON oficial de búsqueda en vivo de noticias tecnológicas y debates de ingeniería.",
+    },
+    {
+        "id": "api_spaceflight_news",
+        "name": "Spaceflight News API v4",
+        "kind": "official_api",
+        "category": "news",
+        "url": "https://api.spaceflightnewsapi.net/v4/articles/",
+        "docs_url": "https://api.spaceflightnewsapi.net/v4/docs/",
+        "enabled": True,
+        "auth_env": "",
+        "description": "API REST pública de noticias espaciales, astronomía y ciencia aeroespacial.",
+    },
+    {
+        "id": "api_gdelt_news",
+        "name": "GDELT 2.0 Global News API",
+        "kind": "official_api",
+        "category": "news",
+        "url": "https://api.gdeltproject.org/api/v2/doc/doc",
+        "docs_url": "https://blog.gdeltproject.org/gdelt-doc-2-0-api-debuts/",
+        "enabled": True,
+        "auth_env": "",
+        "description": "Índice mundial abierto de noticias en tiempo real con API JSON documentada.",
+    },
+    {
+        "id": "api_wikipedia",
+        "name": "Wikimedia / Wikipedia API",
+        "kind": "official_api",
+        "category": "research",
+        "url": "https://es.wikipedia.org/w/api.php",
+        "docs_url": "https://www.mediawiki.org/wiki/API:Main_page",
+        "enabled": True,
+        "auth_env": "",
+        "description": "API oficial de búsqueda y resúmenes enciclopédicos en español e inglés.",
+    },
+    {
+        "id": "api_openalex",
+        "name": "OpenAlex Scholarly API",
+        "kind": "official_api",
+        "category": "research",
+        "url": "https://api.openalex.org/works",
+        "docs_url": "https://docs.openalex.org/",
+        "enabled": True,
+        "auth_env": "OPENALEX_MAILTO",
+        "description": "Base de conocimiento científico abierto con artículos, resúmenes, citas y DOIs.",
+    },
+    {
+        "id": "api_arxiv",
+        "name": "arXiv Official Atom API",
+        "kind": "official_api",
+        "category": "research",
+        "url": "https://export.arxiv.org/api/query",
+        "docs_url": "https://info.arxiv.org/help/api/index.html",
+        "enabled": True,
+        "auth_env": "",
+        "description": "Preprints científicos en IA, física, matemáticas, biología computacional y sistemas.",
+    },
+    {
+        "id": "api_crossref",
+        "name": "Crossref Works REST API",
+        "kind": "official_api",
+        "category": "research",
+        "url": "https://api.crossref.org/works",
+        "docs_url": "https://api.crossref.org/",
+        "enabled": True,
+        "auth_env": "",
+        "description": "Metadatos académicos oficiales, revistas arbitradas y referencias DOI.",
+    },
+    {
+        "id": "api_github",
+        "name": "GitHub Public REST API",
+        "kind": "official_api",
+        "category": "research",
+        "url": "https://api.github.com/search/repositories",
+        "docs_url": "https://docs.github.com/en/rest",
+        "enabled": True,
+        "auth_env": "GITHUB_TOKEN",
+        "description": "Búsqueda oficial de repositorios open source, lanzamientos y proyectos técnicos.",
+    },
+    {
+        "id": "rss_bbc_mundo",
+        "name": "BBC Mundo (RSS Oficial)",
+        "kind": "rss",
+        "category": "news",
+        "url": "https://feeds.bbci.co.uk/mundo/rss.xml",
+        "docs_url": "https://www.bbc.com/mundo",
+        "enabled": True,
+        "auth_env": "",
+        "description": "Feed RSS oficial en español de noticias globales, ciencia y tecnología.",
+    },
+    {
+        "id": "rss_dw_es",
+        "name": "DW Español (RSS Oficial)",
+        "kind": "rss",
+        "category": "news",
+        "url": "https://rss.dw.com/rdf/rss-sp-all",
+        "docs_url": "https://www.dw.com/es/",
+        "enabled": True,
+        "auth_env": "",
+        "description": "Feed RSS oficial internacional en español de Deutsche Welle.",
+    },
+    {
+        "id": "rss_elpais_tech",
+        "name": "El País Tecnología (RSS Oficial)",
+        "kind": "rss",
+        "category": "news",
+        "url": "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/tecnologia/portada",
+        "docs_url": "https://elpais.com/tecnologia/",
+        "enabled": True,
+        "auth_env": "",
+        "description": "Feed oficial de tecnología, inteligencia artificial e industria digital.",
+    },
+    {
+        "id": "rss_sciencedaily",
+        "name": "ScienceDaily Technology (RSS)",
+        "kind": "rss",
+        "category": "research",
+        "url": "https://www.sciencedaily.com/rss/top/technology.xml",
+        "docs_url": "https://www.sciencedaily.com/",
+        "enabled": True,
+        "auth_env": "",
+        "description": "Divulgación científica y avances tecnológicos verificados.",
+    },
 ]
 
 FREE_WILL_SEEDS: List[Tuple[str, str]] = [
@@ -199,8 +338,132 @@ def _clean_html_to_text(html_body: str, base_url: str = "") -> Tuple[str, str, L
     return title, text[:16000], links
 
 
+# ==============================================================================
+# 2B. DETECTOR PASIVO HUMAN-IN-THE-LOOP (CERO EVASIÓN / PAUSA SEGURA)
+# ==============================================================================
+
+_CHALLENGE_WIDGET_PATTERNS: List[Tuple[str, str, re.Pattern]] = [
+    (
+        "cloudflare_turnstile",
+        "Reto de verificación Cloudflare / Turnstile detectado",
+        re.compile(
+            r"(challenges\.cloudflare\.com/turnstile|cf-turnstile|id=[\"']challenge-running[\"']|"
+            r"/cdn-cgi/challenge-platform|__cf_chl_opt|cf-challenge-running)",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "recaptcha",
+        "Verificación humana reCAPTCHA detectada",
+        re.compile(
+            r"(google\.com/recaptcha/api|gstatic\.com/recaptcha|class=[\"'][^\"']*g-recaptcha[\"']|"
+            r"data-sitekey=[\"'][^\"']+[\"'][^>]{0,120}recaptcha)",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "hcaptcha",
+        "Verificación humana hCaptcha detectada",
+        re.compile(
+            r"(js\.hcaptcha\.com/1/api|hcaptcha\.com/1/api|class=[\"'][^\"']*h-captcha[\"'])",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "altcha",
+        "Puerta de prueba de trabajo Altcha detectada",
+        re.compile(r"(<altcha-widget\b|altcha\.org/api|data-altcha)", re.IGNORECASE),
+    ),
+    (
+        "anti_bot_interstitial",
+        "Intersticial anti-bot / verificación humana detectado",
+        re.compile(
+            r"(geo\.captcha-delivery\.com|arkoselabs\.com|funcaptcha|perimeterx\.net|_pxCaptcha)",
+            re.IGNORECASE,
+        ),
+    ),
+]
+
+_CHALLENGE_TEXT_PATTERNS: List[Tuple[str, str, re.Pattern]] = [
+    (
+        "cloudflare_interstitial",
+        "Página intersticial de verificación Cloudflare («Just a moment...»)",
+        re.compile(
+            r"(just a moment\.\.\.|un momento\.\.\.|checking your browser before accessing|"
+            r"verifying you are human|attention required!\s*\|\s*cloudflare)",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "human_verification_gate",
+        "El sitio solicita comprobar que eres humano (CAPTCHA / verificación)",
+        re.compile(
+            r"(verify you are human|verifica que eres humano|comprueba que eres humano|"
+            r"complete the security check|completa la comprobaci[oó]n de seguridad|"
+            r"are you a robot\?|¿eres un robot\?|please confirm you are a human|"
+            r"our systems have detected unusual traffic|tr[aá]fico inusual procedente de tu red)",
+            re.IGNORECASE,
+        ),
+    ),
+]
+
+
+def detect_human_verification_gate(
+    *,
+    raw_html: str = "",
+    clean_text: str = "",
+    url: str = "",
+    title: str = "",
+    status_code: int = 200,
+    headers: Optional[Dict[str, str]] = None,
+) -> Optional[Dict[str, str]]:
+    """
+    Detecta de forma estrictamente pasiva si una respuesta HTTP o DOM presenta un
+    CAPTCHA, verificación «comprueba que eres humano» o reto anti-bot.
+
+    POLÍTICA DE SEGURIDAD:
+      - Nunca resuelve, clickea, espera ni evade el reto.
+      - Solo retorna metadatos para PAUSAR la automatización y ceder el control
+        al usuario humano en la interfaz visible.
+    """
+    hdrs = {str(k).lower(): str(v).lower() for k, v in (headers or {}).items()}
+    if hdrs.get("cf-mitigated") == "challenge":
+        return {
+            "kind": "cloudflare_turnstile",
+            "reason": "Cabecera HTTP cf-mitigated=challenge: verificación humana requerida por Cloudflare.",
+        }
+
+    low_url = (url or "").lower()
+    if any(tok in low_url for tok in ("/sorry/index", "challenges.cloudflare.com", "captcha-delivery.com")):
+        return {
+            "kind": "anti_bot_interstitial",
+            "reason": "La URL corresponde a una puerta de verificación humana o anti-bot.",
+        }
+
+    sample_html = (raw_html or "")[:60000]
+    for kind, reason, pat in _CHALLENGE_WIDGET_PATTERNS:
+        if pat.search(sample_html):
+            # En páginas extensas de artículos informativos que solo citan scripts externos sin bloqueo HTTP,
+            # exigir bloqueo HTTP o contenido corto (< 3500 chars) para evitar falsos positivos.
+            if status_code in (401, 403, 429, 503) or len(clean_text or "") < 3500:
+                return {"kind": kind, "reason": reason}
+
+    combined_short = f"{title or ''}\n{(clean_text or '')[:1800]}"
+    # Solo aplicar heurística textual en páginas intersticiales cortas o códigos de bloqueo
+    if status_code in (401, 403, 429, 503) or len(clean_text or "") < 2200:
+        for kind, reason, pat in _CHALLENGE_TEXT_PATTERNS:
+            if pat.search(combined_short):
+                return {"kind": kind, "reason": reason}
+
+    return None
+
+
 def fetch_page_fast(url: str, timeout: float = 14.0) -> Dict[str, Any]:
-    """Descarga y extrae texto estructurado, título y enlaces de una URL sin bloquear la UI."""
+    """
+    Descarga y extrae texto estructurado, título y enlaces de una URL abierta sin bloquear la UI.
+    Si el servidor presenta una puerta de verificación humana (CAPTCHA / anti-bot), detiene
+    inmediatamente el acceso automatizado y retorna `human_verification_required=True`.
+    """
     t0 = time.perf_counter()
     headers = {
         "User-Agent": USER_AGENT,
@@ -216,8 +479,33 @@ def fetch_page_fast(url: str, timeout: float = 14.0) -> Dict[str, Any]:
                 title, text, links = _parse_rss_or_xml(raw, url)
             else:
                 title, text, links = _clean_html_to_text(raw, str(r.url))
+
+            gate = detect_human_verification_gate(
+                raw_html=raw,
+                clean_text=text,
+                url=str(r.url),
+                title=title,
+                status_code=r.status_code,
+                headers=dict(r.headers),
+            )
+            if gate:
+                return {
+                    "ok": False,
+                    "human_verification_required": True,
+                    "challenge_kind": gate["kind"],
+                    "challenge_reason": gate["reason"],
+                    "url": str(r.url),
+                    "title": title or str(r.url),
+                    "status_code": r.status_code,
+                    "text": "",
+                    "links": [],
+                    "error": f"Acceso automatizado detenido: {gate['reason']}",
+                    "elapsed_s": round(time.perf_counter() - t0, 3),
+                }
+
             return {
                 "ok": r.status_code < 400 and bool(text or title),
+                "human_verification_required": False,
                 "url": str(r.url),
                 "title": title or str(r.url),
                 "status_code": r.status_code,
@@ -228,6 +516,7 @@ def fetch_page_fast(url: str, timeout: float = 14.0) -> Dict[str, Any]:
     except Exception as exc:
         return {
             "ok": False,
+            "human_verification_required": False,
             "url": url,
             "title": url,
             "status_code": 0,
@@ -328,33 +617,342 @@ def fetch_live_news_headlines(topic: str = "", limit: int = 10) -> List[Dict[str
     return out
 
 
-def discover_web_sources(query: str, mode: str = "research", max_sources: int = 4) -> List[Dict[str, str]]:
-    """Descubre fuentes web reales (noticias RSS, Wikipedia API, arXiv API, DuckDuckGo HTML) sin CAPTCHA."""
+def _reconstruct_openalex_abstract(inv_index: Any) -> str:
+    if not isinstance(inv_index, dict) or not inv_index:
+        return ""
+    pos_map: Dict[int, str] = {}
+    for word, positions in inv_index.items():
+        if isinstance(positions, list):
+            for p in positions:
+                try:
+                    pos_map[int(p)] = str(word)
+                except Exception:
+                    pass
+    if not pos_map:
+        return ""
+    return " ".join(pos_map[k] for k in sorted(pos_map))[:900]
+
+
+def query_official_apis(
+    query: str,
+    *,
+    mode: str = "research",
+    max_results: int = 5,
+    enabled_sources: Optional[List[Dict[str, Any]]] = None,
+) -> List[Dict[str, str]]:
+    """
+    Consulta APIs públicas oficiales documentadas y feeds autorizados donde el acceso
+    automatizado está expresamente permitido (sin CAPTCHAs ni scraping invasivo).
+    Conectores incluidos:
+      - Hacker News Algolia API (noticias/tech)
+      - Spaceflight News API v4 (ciencia/espacio)
+      - GDELT 2.0 Global News API (actualidad mundial)
+      - Wikimedia / Wikipedia API (es/en)
+      - OpenAlex Scholarly API (literatura científica + resúmenes)
+      - arXiv Official Atom API (preprints científicos)
+      - Crossref Works REST API (publicaciones arbitradas)
+      - GitHub Public REST API (repositorios open source, opcionalmente con GITHUB_TOKEN)
+      - Feeds RSS/Atom oficiales y personalizados del usuario
+    """
+    q = (query or "").strip()
+    active_map: Dict[str, Dict[str, Any]] = {}
+    for s in (enabled_sources if enabled_sources is not None else BUILTIN_OFFICIAL_SOURCES):
+        if s.get("enabled", True):
+            active_map[str(s.get("id") or s.get("url"))] = s
+
+    results: List[Dict[str, str]] = []
+    seen: set = set()
+    lock = threading.Lock()
+
+    def _add(url: str, title: str, snippet: str, source: str, connector_id: str) -> None:
+        if not url or not url.startswith(("http://", "https://")):
+            return
+        with lock:
+            if url in seen:
+                return
+            seen.add(url)
+            results.append({
+                "url": url,
+                "title": (title or url)[:180],
+                "snippet": (snippet or title or "")[:1200],
+                "source": source,
+                "connector_id": connector_id,
+                "official_api": "true",
+            })
+
+    headers = {
+        "User-Agent": "TARDIS-Sovereign-Research/26.4 (+local-official-api-client)",
+        "Accept": "application/json, application/xml, text/xml;q=0.9, */*;q=0.8",
+    }
+
+    def _run_hn() -> None:
+        if "api_hn_algolia" not in active_map:
+            return
+        try:
+            endpoint = "https://hn.algolia.com/api/v1/search" if q else "https://hn.algolia.com/api/v1/search_by_date"
+            params: Dict[str, Any] = {"tags": "story", "hitsPerPage": 4}
+            if q:
+                params["query"] = q
+            with httpx.Client(timeout=5.5, headers=headers) as c:
+                r = c.get(endpoint, params=params)
+                if r.status_code == 200:
+                    for hit in (r.json().get("hits") or [])[:4]:
+                        u = str(hit.get("url") or f"https://news.ycombinator.com/item?id={hit.get('objectID', '')}")
+                        t = str(hit.get("title") or "").strip()
+                        pts = hit.get("points") or 0
+                        cmts = hit.get("num_comments") or 0
+                        if t:
+                            _add(u, t, f"{t} — Hacker News ({pts} puntos, {cmts} comentarios).", "Hacker News API", "api_hn_algolia")
+        except Exception:
+            pass
+
+    def _run_spaceflight() -> None:
+        if "api_spaceflight_news" not in active_map:
+            return
+        try:
+            params: Dict[str, Any] = {"limit": 3}
+            if q and not any(k in q.lower() for k in ("noticias más importantes", "actualidad mundial", "noticias de hoy")):
+                params["search"] = q
+            with httpx.Client(timeout=5.5, headers=headers) as c:
+                r = c.get("https://api.spaceflightnewsapi.net/v4/articles/", params=params)
+                if r.status_code == 200:
+                    for art in (r.json().get("results") or [])[:3]:
+                        u = str(art.get("url") or "")
+                        t = str(art.get("title") or "").strip()
+                        sm = str(art.get("summary") or "").strip()
+                        site = str(art.get("news_site") or "Spaceflight News")
+                        if u and t:
+                            _add(u, f"{t} ({site})", sm or t, "Spaceflight News API v4", "api_spaceflight_news")
+        except Exception:
+            pass
+
+    def _run_gdelt() -> None:
+        if "api_gdelt_news" not in active_map or not q:
+            return
+        try:
+            clean_q = re.sub(r"[^\w\sáéíóúñÁÉÍÓÚÑ-]", " ", q).strip()
+            if len(clean_q) < 3:
+                return
+            params = {"query": clean_q[:100], "mode": "artlist", "maxrecords": 3, "format": "json", "sort": "HybridRel"}
+            with httpx.Client(timeout=5.5, headers=headers) as c:
+                r = c.get("https://api.gdeltproject.org/api/v2/doc/doc", params=params)
+                if r.status_code == 200 and r.text.strip().startswith("{"):
+                    for art in (r.json().get("articles") or [])[:3]:
+                        u = str(art.get("url") or "")
+                        t = str(art.get("title") or "").strip()
+                        dom = str(art.get("domain") or "GDELT")
+                        if u and t:
+                            _add(u, t, f"{t} — Fuente global {dom} ({art.get('seendate', '')[:8]}).", "GDELT 2.0 API", "api_gdelt_news")
+        except Exception:
+            pass
+
+    def _run_wikipedia() -> None:
+        if "api_wikipedia" not in active_map or not q:
+            return
+        with httpx.Client(timeout=5.5, headers=headers) as c:
+            for lang in ("es", "en"):
+                try:
+                    rw = c.get(
+                        f"https://{lang}.wikipedia.org/w/api.php",
+                        params={"action": "query", "list": "search", "srsearch": q, "format": "json", "srlimit": 2, "utf8": 1},
+                    )
+                    if rw.status_code == 200:
+                        for hit in (rw.json().get("query") or {}).get("search") or []:
+                            t = str(hit.get("title") or "").strip()
+                            if not t:
+                                continue
+                            slug = urllib.parse.quote(t.replace(" ", "_"))
+                            snip = re.sub(r"<[^>]+>", "", str(hit.get("snippet") or "")).strip()
+                            # Enriquecer con resumen REST oficial de Wikipedia
+                            try:
+                                rs = c.get(f"https://{lang}.wikipedia.org/api/rest_v1/page/summary/{slug}")
+                                if rs.status_code == 200:
+                                    ex = str(rs.json().get("extract") or "").strip()
+                                    if len(ex) > len(snip):
+                                        snip = ex
+                            except Exception:
+                                pass
+                            _add(f"https://{lang}.wikipedia.org/wiki/{slug}", f"Wikipedia: {t}", snip, f"Wikipedia API ({lang})", "api_wikipedia")
+                except Exception:
+                    pass
+
+    def _run_openalex() -> None:
+        if "api_openalex" not in active_map or not q:
+            return
+        try:
+            params: Dict[str, Any] = {"search": q, "per-page": 3}
+            mailto = os.environ.get("OPENALEX_MAILTO", "").strip()
+            if mailto:
+                params["mailto"] = mailto
+            with httpx.Client(timeout=6.0, headers=headers) as c:
+                r = c.get("https://api.openalex.org/works", params=params)
+                if r.status_code == 200:
+                    for w in (r.json().get("results") or [])[:3]:
+                        t = str(w.get("display_name") or "").strip()
+                        u = str(w.get("doi") or w.get("id") or "")
+                        yr = w.get("publication_year") or ""
+                        cites = w.get("cited_by_count") or 0
+                        abst = _reconstruct_openalex_abstract(w.get("abstract_inverted_index"))
+                        snip = abst or f"Publicación científica ({yr}, {cites} citas): {t}"
+                        if u and t:
+                            _add(u, f"{t} ({yr})", snip, "OpenAlex API", "api_openalex")
+        except Exception:
+            pass
+
+    def _run_arxiv() -> None:
+        if "api_arxiv" not in active_map or not q:
+            return
+        try:
+            aurl = f"https://export.arxiv.org/api/query?search_query=all:{urllib.parse.quote(q)}&start=0&max_results=2"
+            with httpx.Client(timeout=6.0, headers=headers) as c:
+                ra = c.get(aurl)
+                if ra.status_code == 200:
+                    _, atext, alinks = _parse_rss_or_xml(ra.text, aurl)
+                    alines = [ln.lstrip("• ").strip() for ln in atext.splitlines() if ln.strip()]
+                    for idx, lk in enumerate(alinks[:2]):
+                        _add(lk["url"], lk["text"], alines[idx] if idx < len(alines) else lk["text"], "arXiv Atom API", "api_arxiv")
+        except Exception:
+            pass
+
+    def _run_crossref() -> None:
+        if "api_crossref" not in active_map or not q:
+            return
+        try:
+            with httpx.Client(timeout=5.5, headers=headers) as c:
+                r = c.get("https://api.crossref.org/works", params={"query": q, "rows": 2})
+                if r.status_code == 200:
+                    items = ((r.json().get("message") or {}).get("items")) or []
+                    for it in items[:2]:
+                        titles = it.get("title") or []
+                        t = str(titles[0]).strip() if titles else ""
+                        u = str(it.get("URL") or "")
+                        pub = str(it.get("publisher") or "Crossref")
+                        if u and t:
+                            _add(u, t, f"Artículo académico publicado por {pub}: {t}.", "Crossref REST API", "api_crossref")
+        except Exception:
+            pass
+
+    def _run_github() -> None:
+        if "api_github" not in active_map or not q:
+            return
+        try:
+            gh_hdr = dict(headers)
+            gh_hdr["Accept"] = "application/vnd.github+json"
+            gh_tok = os.environ.get("GITHUB_TOKEN", "").strip()
+            if gh_tok:
+                gh_hdr["Authorization"] = f"Bearer {gh_tok}"
+            with httpx.Client(timeout=5.5, headers=gh_hdr) as c:
+                r = c.get("https://api.github.com/search/repositories", params={"q": q, "sort": "stars", "per_page": 2})
+                if r.status_code == 200:
+                    for repo in (r.json().get("items") or [])[:2]:
+                        u = str(repo.get("html_url") or "")
+                        name = str(repo.get("full_name") or "")
+                        desc = str(repo.get("description") or "").strip()
+                        stars = repo.get("stargazers_count") or 0
+                        lang = repo.get("language") or ""
+                        if u and name:
+                            _add(u, f"GitHub: {name} ({stars}★)", f"{desc} [{lang}]".strip(), "GitHub REST API", "api_github")
+        except Exception:
+            pass
+
+    def _run_custom_rss() -> None:
+        custom_feeds = [
+            s for s in active_map.values()
+            if s.get("kind") == "rss" and s.get("custom")
+            and (mode == "news" or s.get("category") in (mode, "all", "research"))
+        ]
+        if not custom_feeds:
+            return
+        with httpx.Client(timeout=5.5, follow_redirects=True, headers=headers) as c:
+            for cf in custom_feeds[:4]:
+                try:
+                    req_hdr = dict(headers)
+                    env_name = str(cf.get("auth_env") or "").strip()
+                    if env_name and os.environ.get(env_name):
+                        req_hdr["Authorization"] = f"Bearer {os.environ[env_name].strip()}"
+                    r = c.get(str(cf["url"]), headers=req_hdr)
+                    if r.status_code != 200:
+                        continue
+                    _ft, text, links = _parse_rss_or_xml(r.text, str(cf["url"]))
+                    lines = [ln.lstrip("• ").strip() for ln in text.splitlines() if ln.strip()]
+                    for idx, lk in enumerate(links[:3]):
+                        _add(lk["url"], lk["text"], lines[idx] if idx < len(lines) else lk["text"], str(cf.get("name") or "RSS Custom"), str(cf.get("id") or "custom"))
+                except Exception:
+                    pass
+
+    tasks = []
+    if mode == "news":
+        tasks = [_run_hn, _run_spaceflight, _run_gdelt, _run_custom_rss]
+    else:
+        tasks = [_run_wikipedia, _run_openalex, _run_arxiv, _run_hn, _run_github, _run_crossref, _run_custom_rss]
+
+    from concurrent.futures import ThreadPoolExecutor
+
+    with ThreadPoolExecutor(max_workers=min(5, max(1, len(tasks)))) as pool:
+        futs = [pool.submit(fn) for fn in tasks]
+        for fut in futs:
+            try:
+                fut.result(timeout=7.0)
+            except Exception:
+                pass
+
+    return results[:max_results]
+
+
+def discover_web_sources(
+    query: str,
+    mode: str = "research",
+    max_sources: int = 4,
+    enabled_sources: Optional[List[Dict[str, Any]]] = None,
+) -> List[Dict[str, str]]:
+    """
+    Descubre fuentes reales priorizando APIs públicas oficiales documentadas y feeds
+    RSS/Atom autorizados (sin CAPTCHA ni evasión anti-bot).
+    """
     q = (query or "").strip()
     sources: List[Dict[str, str]] = []
     seen = set()
 
-    def _add(url: str, title: str, snippet: str = "", source: str = "web") -> None:
+    def _add(url: str, title: str, snippet: str = "", source: str = "web", official_api: bool = False) -> None:
         if not url or not url.startswith(("http://", "https://")) or url in seen:
             return
         if any(b in url.lower() for b in ("duckduckgo.com/y.js", "ad_provider", "doubleclick")):
             return
         seen.add(url)
-        sources.append({"url": url, "title": title or url, "snippet": snippet, "source": source})
+        sources.append({
+            "url": url,
+            "title": title or url,
+            "snippet": snippet,
+            "source": source,
+            "official_api": "true" if official_api else "",
+        })
 
     if mode == "news":
+        # 1. Feeds RSS oficiales (BBC Mundo, DW Español, El País, HN, ArXiv, ScienceDaily)
         for h in fetch_live_news_headlines(q, limit=max(6, max_sources * 2)):
-            _add(h["url"], h["title"], h.get("snippet", ""), h.get("source", "news"))
+            _add(h["url"], h["title"], h.get("snippet", ""), h.get("source", "news"), official_api=True)
+        # 2. Complementar con APIs oficiales de noticias (HN Algolia, Spaceflight v4, GDELT)
+        if len(sources) < max_sources:
+            for h in query_official_apis(q, mode="news", max_results=max_sources, enabled_sources=enabled_sources):
+                _add(h["url"], h["title"], h.get("snippet", ""), h.get("source", "official_api"), official_api=True)
         if len(sources) >= max_sources:
             return sources[:max_sources]
 
+    # En modo investigación: priorizar APIs oficiales documentadas (Wikipedia, OpenAlex, arXiv, HN, GitHub, Crossref)
+    for h in query_official_apis(q, mode=mode, max_results=max_sources, enabled_sources=enabled_sources):
+        _add(h["url"], h["title"], h.get("snippet", ""), h.get("source", "official_api"), official_api=True)
+    if len(sources) >= max_sources:
+        return sources[:max_sources]
+
+    # Complemento abierto DuckDuckGo HTML solo si faltan resultados (respetando detector de puertas humanas)
     headers = {"User-Agent": USER_AGENT}
-    with httpx.Client(timeout=10.0, follow_redirects=True, headers=headers) as client:
-        # 1. DuckDuckGo HTML (rápido y abierto)
-        if q:
-            try:
+    if q and len(sources) < max_sources:
+        try:
+            with httpx.Client(timeout=6.5, follow_redirects=True, headers=headers) as client:
                 ddg = client.get(f"https://html.duckduckgo.com/html/?q={urllib.parse.quote_plus(q)}")
-                if ddg.status_code == 200:
+                if ddg.status_code == 200 and not detect_human_verification_gate(
+                    raw_html=ddg.text, url=str(ddg.url), status_code=ddg.status_code, headers=dict(ddg.headers)
+                ):
                     _, _, links = _clean_html_to_text(ddg.text, "https://html.duckduckgo.com")
                     for lk in links:
                         href = lk["url"]
@@ -363,52 +961,11 @@ def discover_web_sources(query: str, mode: str = "research", max_sources: int = 
                             if m:
                                 href = urllib.parse.unquote(m.group(1))
                         if "duckduckgo.com" not in href:
-                            _add(href, lk["text"], "", "duckduckgo")
+                            _add(href, lk["text"], "", "duckduckgo", official_api=False)
                         if len(sources) >= max_sources:
                             break
-            except Exception as exc:
-                logger.debug("DDG discovery omitido: %s", exc)
-
-        # 2. Wikipedia API (es -> en) para contexto enciclopédico fiable
-        if q and len(sources) < max_sources:
-            for lang in ("es", "en"):
-                if len(sources) >= max_sources:
-                    break
-                try:
-                    wurl = (
-                        f"https://{lang}.wikipedia.org/w/api.php?action=query&list=search"
-                        f"&srsearch={urllib.parse.quote(q)}&format=json&srlimit=3&utf8=1"
-                    )
-                    rw = client.get(wurl)
-                    if rw.status_code == 200:
-                        for hit in (rw.json().get("query") or {}).get("search") or []:
-                            t = str(hit.get("title") or "").strip()
-                            if t:
-                                slug = urllib.parse.quote(t.replace(" ", "_"))
-                                snip = re.sub(r"<[^>]+>", "", str(hit.get("snippet") or ""))
-                                _add(f"https://{lang}.wikipedia.org/wiki/{slug}", f"Wikipedia: {t}", snip, f"wikipedia_{lang}")
-                                if len(sources) >= max_sources:
-                                    break
-                except Exception:
-                    pass
-
-        # 3. arXiv API si el tema suena técnico/científico o faltan fuentes
-        if q and len(sources) < max_sources:
-            try:
-                aurl = (
-                    f"https://export.arxiv.org/api/query?search_query=all:{urllib.parse.quote(q)}"
-                    f"&start=0&max_results=2"
-                )
-                ra = client.get(aurl)
-                if ra.status_code == 200:
-                    _, atext, alinks = _parse_rss_or_xml(ra.text, aurl)
-                    alines = [ln.lstrip("• ").strip() for ln in atext.splitlines() if ln.strip()]
-                    for idx, lk in enumerate(alinks):
-                        _add(lk["url"], lk["text"], alines[idx] if idx < len(alines) else "", "arxiv")
-                        if len(sources) >= max_sources:
-                            break
-            except Exception:
-                pass
+        except Exception as exc:
+            logger.debug("DDG discovery omitido: %s", exc)
 
     return sources[:max_sources]
 
@@ -614,10 +1171,12 @@ class SovereignBrowserHub:
         conclusions_file: Path = CONCLUSIONS_FILE,
         actions_file: Path = ACTIONS_FILE,
         state_file: Path = STATE_FILE,
+        sources_file: Path = SOURCES_FILE,
     ):
         self.conclusions_file = conclusions_file
         self.actions_file = actions_file
         self.state_file = state_file
+        self.sources_file = sources_file
         self._lock = threading.RLock()
 
         self._cmd_seq: int = 0
@@ -630,7 +1189,7 @@ class SovereignBrowserHub:
         self._current_url: str = DEFAULT_HOME_URL
         self._current_title: str = "TARDIS Sovereign Browser"
         self._loading: bool = False
-        self._pilot: str = "idle"  # idle | user | tardis | autonomous
+        self._pilot: str = "idle"  # idle | user | tardis | autonomous | human_required
         self._status_text: str = "Navegador soberano en espera"
         self._last_thought: str = ""
         self._tabs: List[Dict[str, Any]] = [
@@ -647,6 +1206,24 @@ class SovereignBrowserHub:
         }
         self._eval_results: Dict[int, Any] = {}
         self._dom_event = threading.Event()
+
+        # Guardia Human-in-the-Loop (detección pasiva de verificación humana y pausa estricta)
+        self._human_gate: Dict[str, Any] = {
+            "active": False,
+            "url": "",
+            "title": "",
+            "kind": "",
+            "reason": "",
+            "source": "",
+            "detected_at": 0.0,
+            "resolved_at": 0.0,
+            "last_resolution": "",
+        }
+        self._human_gate_history: Deque[Dict[str, Any]] = deque(maxlen=40)
+
+        # Registro persistente de APIs oficiales autorizadas y feeds personalizados
+        self._sources_overrides: Dict[str, bool] = {}
+        self._custom_sources: List[Dict[str, Any]] = []
 
         # Motor de Autonomía Libre ("hacer lo que sea que TARDIS QUIERA")
         self._autonomous_enabled: bool = False
@@ -689,8 +1266,230 @@ class SovereignBrowserHub:
                 self._autonomous_cycles_completed = int(st.get("autonomous_cycles_completed", 0))
                 if st.get("current_url"):
                     self._current_url = str(st["current_url"])
+            if self.sources_file.is_file():
+                sdoc = json.loads(self.sources_file.read_text(encoding="utf-8"))
+                if isinstance(sdoc.get("overrides"), dict):
+                    self._sources_overrides = {str(k): bool(v) for k, v in sdoc["overrides"].items()}
+                if isinstance(sdoc.get("custom_sources"), list):
+                    self._custom_sources = [dict(x) for x in sdoc["custom_sources"] if isinstance(x, dict) and x.get("url")]
         except Exception as exc:
             logger.debug("Aviso cargando estado persistido del navegador: %s", exc)
+
+    def _save_sources_locked(self) -> None:
+        try:
+            self.sources_file.parent.mkdir(parents=True, exist_ok=True)
+            tmp = self.sources_file.with_suffix(".json.tmp")
+            tmp.write_text(
+                json.dumps(
+                    {
+                        "overrides": self._sources_overrides,
+                        "custom_sources": self._custom_sources,
+                        "updated_at": time.time(),
+                    },
+                    ensure_ascii=False,
+                    indent=2,
+                ),
+                encoding="utf-8",
+            )
+            tmp.replace(self.sources_file)
+        except OSError:
+            pass
+
+    # ------------------------------------------------- fuentes oficiales autorizadas
+    def list_official_sources(self) -> List[Dict[str, Any]]:
+        """Retorna el catálogo completo de APIs públicas oficiales y feeds autorizados."""
+        with self._lock:
+            items: List[Dict[str, Any]] = []
+            for base in BUILTIN_OFFICIAL_SOURCES:
+                sid = str(base["id"])
+                entry = dict(base)
+                entry["custom"] = False
+                entry["enabled"] = bool(self._sources_overrides.get(sid, base.get("enabled", True)))
+                auth_env = str(entry.get("auth_env") or "")
+                entry["auth_configured"] = bool(auth_env and os.environ.get(auth_env))
+                items.append(entry)
+            for custom in self._custom_sources:
+                entry = dict(custom)
+                sid = str(entry.get("id") or "")
+                entry["custom"] = True
+                entry["enabled"] = bool(self._sources_overrides.get(sid, entry.get("enabled", True)))
+                auth_env = str(entry.get("auth_env") or "")
+                entry["auth_configured"] = bool(auth_env and os.environ.get(auth_env))
+                items.append(entry)
+            return items
+
+    def add_official_source(
+        self,
+        *,
+        name: str,
+        url: str,
+        kind: str = "rss",
+        category: str = "news",
+        description: str = "",
+        auth_env: str = "",
+    ) -> Dict[str, Any]:
+        clean_name = (name or "").strip()
+        clean_url = (url or "").strip()
+        if not clean_name or not clean_url.startswith(("http://", "https://")):
+            return {"ok": False, "error": "Se requiere nombre y URL válida (http:// o https://)."}
+        clean_kind = "official_api" if kind == "official_api" else "rss"
+        clean_cat = category if category in ("news", "research", "all") else "news"
+        sid = f"custom_{uuid.uuid4().hex[:8]}"
+        entry = {
+            "id": sid,
+            "name": clean_name[:90],
+            "kind": clean_kind,
+            "category": clean_cat,
+            "url": clean_url,
+            "docs_url": clean_url,
+            "enabled": True,
+            "custom": True,
+            "auth_env": (auth_env or "").strip()[:60],
+            "description": (description or "Fuente oficial/feed agregado por el usuario.")[:220],
+        }
+        with self._lock:
+            self._custom_sources.append(entry)
+            self._save_sources_locked()
+        return {"ok": True, "source": entry, "sources": self.list_official_sources()}
+
+    def toggle_official_source(self, source_id: str, enabled: bool) -> Dict[str, Any]:
+        sid = (source_id or "").strip()
+        if not sid:
+            return {"ok": False, "error": "Se requiere source_id."}
+        with self._lock:
+            known = {s["id"] for s in BUILTIN_OFFICIAL_SOURCES} | {str(c.get("id") or "") for c in self._custom_sources}
+            if sid not in known:
+                return {"ok": False, "error": f"Fuente desconocida: {sid}"}
+            self._sources_overrides[sid] = bool(enabled)
+            self._save_sources_locked()
+        return {"ok": True, "source_id": sid, "enabled": bool(enabled), "sources": self.list_official_sources()}
+
+    def remove_official_source(self, source_id: str) -> Dict[str, Any]:
+        sid = (source_id or "").strip()
+        with self._lock:
+            before = len(self._custom_sources)
+            self._custom_sources = [c for c in self._custom_sources if str(c.get("id") or "") != sid]
+            if len(self._custom_sources) == before:
+                return {"ok": False, "error": "Solo pueden eliminarse fuentes personalizadas existentes."}
+            self._sources_overrides.pop(sid, None)
+            self._save_sources_locked()
+        return {"ok": True, "removed": sid, "sources": self.list_official_sources()}
+
+    # ------------------------------------------------- guardia Human-in-the-Loop
+    def report_human_gate(
+        self,
+        *,
+        url: str = "",
+        title: str = "",
+        kind: str = "human_verification_gate",
+        reason: str = "",
+        source: str = "ui_dom",
+        open_ui: bool = True,
+    ) -> Dict[str, Any]:
+        """
+        Registra la detección pasiva de un CAPTCHA o puerta de verificación humana,
+        DETIENE inmediatamente la automatización sobre la pestaña y cede el control
+        al usuario humano en la interfaz visible.
+        """
+        now = time.time()
+        gate_url = (url or self._current_url or "").strip()
+        gate_title = (title or self._current_title or gate_url).strip()
+        gate_kind = (kind or "human_verification_gate").strip()
+        gate_reason = (reason or "Verificación humana detectada; automatización pausada hasta intervención del usuario.").strip()
+
+        with self._lock:
+            self._human_gate = {
+                "active": True,
+                "url": gate_url,
+                "title": gate_title,
+                "kind": gate_kind,
+                "reason": gate_reason,
+                "source": source,
+                "detected_at": now,
+                "resolved_at": 0.0,
+                "last_resolution": "",
+            }
+            self._human_gate_history.append(dict(self._human_gate))
+            self._pilot = "human_required"
+            self._status_text = f"⚠️ Verificación humana ({gate_kind}): automatización detenida"
+            self._last_thought = (
+                f"Se detectó una puerta de verificación humana en {gate_url[:70]}. "
+                "He pausado toda automatización en esta pestaña para que tú decidas si completarla o saltarla."
+            )
+            rec = BrowserActionRecord(
+                seq=self._cmd_seq,
+                action="human_gate_pause",
+                params={"url": gate_url, "kind": gate_kind, "source": source},
+                pilot="human_required",
+                status="paused_for_human",
+                detail=gate_reason,
+            ).to_dict()
+            self._actions.append(rec)
+            self._append_jsonl(self.actions_file, rec)
+            self._save_state_locked()
+            snap = dict(self._human_gate)
+
+        if open_ui:
+            self._push_sync_ui_command("open_browser", {"url": gate_url})
+        return {"ok": True, "human_gate": snap}
+
+    def resolve_human_gate(
+        self,
+        *,
+        resolution: str = "manual_resolved",
+        navigate_home: bool = False,
+    ) -> Dict[str, Any]:
+        """
+        Resuelve explícitamente una pausa Human-in-the-Loop tras la decisión del usuario:
+          - `take_control`: entrega foco al usuario manteniendo registro del aviso.
+          - `manual_resolved`: el usuario indica que ya resolvió o abandonó la página y libera el bloqueo.
+          - `skipped`: descarta la página protegida y opcionalmente vuelve al inicio seguro.
+        """
+        res_mode = (resolution or "manual_resolved").strip().lower()
+        now = time.time()
+        with self._lock:
+            if res_mode == "take_control":
+                self._pilot = "user"
+                self._status_text = "✋ Control manual activo para verificación humana"
+                self._human_gate["last_resolution"] = "take_control"
+            elif res_mode == "skipped":
+                self._human_gate["active"] = False
+                self._human_gate["resolved_at"] = now
+                self._human_gate["last_resolution"] = "skipped"
+                self._pilot = "idle"
+                self._status_text = "⏭ Página con verificación humana omitida por el usuario"
+                self._last_thought = "Página protegida omitida de forma segura."
+            else:
+                self._human_gate["active"] = False
+                self._human_gate["resolved_at"] = now
+                self._human_gate["last_resolution"] = "manual_resolved"
+                self._pilot = "user"
+                self._status_text = "✔ Verificación gestionada por el usuario; navegador liberado"
+                self._last_thought = "Control confirmado por el Arquitecto."
+
+            rec = BrowserActionRecord(
+                seq=self._cmd_seq,
+                action="human_gate_resolved",
+                params={"resolution": res_mode, "url": self._human_gate.get("url", "")},
+                pilot="user",
+                status="resolved",
+                detail=self._status_text,
+            ).to_dict()
+            self._actions.append(rec)
+            self._append_jsonl(self.actions_file, rec)
+            self._save_state_locked()
+            snap = dict(self._human_gate)
+
+        if res_mode == "skipped" and navigate_home:
+            self.navigate(DEFAULT_HOME_URL, pilot="user", open_ui=True)
+        return {"ok": True, "resolution": res_mode, "human_gate": snap}
+
+    def _is_blocked_by_human_gate(self, action: str, pilot: str) -> bool:
+        return (
+            bool(self._human_gate.get("active"))
+            and pilot in ("tardis", "autonomous")
+            and action in ("click", "type", "scroll", "eval_js", "extract_dom")
+        )
 
     def _save_state_locked(self) -> None:
         try:
@@ -770,6 +1569,18 @@ class SovereignBrowserHub:
     ) -> Dict[str, Any]:
         """Encola una acción real para que el navegador integrado la ejecute en vivo."""
         with self._lock:
+            if self._is_blocked_by_human_gate(action, pilot):
+                return {
+                    "ok": False,
+                    "blocked_by_human_gate": True,
+                    "seq": self._cmd_seq,
+                    "action": action,
+                    "human_gate": dict(self._human_gate),
+                    "error": (
+                        "Automatización pausada: la pestaña actual presenta una verificación humana. "
+                        "Completa la verificación manualmente en el navegador o pulsa Omitir/Continuar."
+                    ),
+                }
             self._cmd_seq += 1
             seq = self._cmd_seq
             p = dict(params or {})
@@ -831,10 +1642,12 @@ class SovereignBrowserHub:
                 "status_text": self._status_text,
                 "autonomous_enabled": self._autonomous_enabled,
                 "autonomous_running_cycle": self._autonomous_running_cycle,
+                "human_gate": dict(self._human_gate),
             }
 
     def report_from_ui(self, payload: Dict[str, Any]) -> Dict[str, Any]:
         """Recibe telemetría viva y snapshots del DOM real desde `WebEngineView` en `tardis-desktop`."""
+        gate_triggered: Optional[Dict[str, Any]] = None
         with self._lock:
             self._ui_connected_at = time.time()
             if "ui_open" in payload:
@@ -860,13 +1673,43 @@ class SovereignBrowserHub:
                     "updated_at": time.time(),
                 }
                 self._dom_event.set()
+                # Detección pasiva sobre el snapshot recibido del navegador visible
+                gate_hit = detect_human_verification_gate(
+                    clean_text=text_val,
+                    url=self._dom_snapshot["url"],
+                    title=self._dom_snapshot["title"],
+                )
+                if gate_hit:
+                    gate_triggered = {
+                        "url": self._dom_snapshot["url"],
+                        "title": self._dom_snapshot["title"],
+                        "kind": gate_hit["kind"],
+                        "reason": gate_hit["reason"],
+                    }
+            if payload.get("human_gate_detected"):
+                gate_triggered = {
+                    "url": str(payload.get("url") or self._current_url),
+                    "title": str(payload.get("title") or self._current_title),
+                    "kind": str(payload.get("challenge_kind") or "human_verification_gate"),
+                    "reason": str(payload.get("challenge_reason") or "Verificación humana detectada en la página visible."),
+                }
             if "eval_seq" in payload:
                 try:
                     self._eval_results[int(payload["eval_seq"])] = payload.get("eval_result")
                 except Exception:
                     pass
             self._save_state_locked()
-            return {"ok": True, "seq": self._cmd_seq}
+
+        if gate_triggered:
+            self.report_human_gate(
+                url=gate_triggered["url"],
+                title=gate_triggered["title"],
+                kind=gate_triggered["kind"],
+                reason=gate_triggered["reason"],
+                source="ui_dom",
+                open_ui=True,
+            )
+        return {"ok": True, "seq": self._cmd_seq, "human_gate": dict(self._human_gate)}
 
     # ------------------------------------------------------------------ acciones completas
     def navigate(self, url: str, *, pilot: str = "tardis", open_ui: bool = True, new_tab: bool = False) -> Dict[str, Any]:
@@ -891,6 +1734,8 @@ class SovereignBrowserHub:
     def click(self, *, selector: str = "", text: str = "", pilot: str = "tardis") -> Dict[str, Any]:
         detail = f"Clic en {selector or text}"
         cmd = self.dispatch_command("click", {"selector": selector, "text": text}, pilot=pilot, detail=detail, open_ui=True)
+        if cmd.get("blocked_by_human_gate"):
+            return cmd
         return {"ok": True, "command": cmd}
 
     def type_text(self, *, selector: str = "", text: str = "", submit: bool = True, pilot: str = "tardis") -> Dict[str, Any]:
@@ -902,6 +1747,8 @@ class SovereignBrowserHub:
             detail=detail,
             open_ui=True,
         )
+        if cmd.get("blocked_by_human_gate"):
+            return cmd
         return {"ok": True, "command": cmd}
 
     def scroll(self, direction: str = "down", amount: int = 720, *, pilot: str = "tardis") -> Dict[str, Any]:
@@ -912,10 +1759,14 @@ class SovereignBrowserHub:
             detail=f"Desplazando {direction} ({amount}px)",
             open_ui=False,
         )
+        if cmd.get("blocked_by_human_gate"):
+            return cmd
         return {"ok": True, "command": cmd}
 
     def eval_js(self, script: str, *, pilot: str = "tardis", wait_s: float = 2.0) -> Dict[str, Any]:
         cmd = self.dispatch_command("eval_js", {"script": script}, pilot=pilot, detail="Ejecutando inspección JS en página")
+        if cmd.get("blocked_by_human_gate"):
+            return cmd
         seq = int(cmd["seq"])
         if self.ui_connected and wait_s > 0:
             deadline = time.monotonic() + wait_s
@@ -1050,9 +1901,25 @@ class SovereignBrowserHub:
             self._last_thought = f"Iniciando exploración ({m}): {focus}"
 
         documents: List[Dict[str, Any]] = []
+        skipped_gated_urls: List[str] = []
         if url and url.startswith(("http://", "https://")):
             self.navigate(url, pilot=pilot, open_ui=open_ui)
             page = fetch_page_fast(url)
+            if page.get("human_verification_required"):
+                gate_res = self.report_human_gate(
+                    url=page.get("url") or url,
+                    title=page.get("title") or url,
+                    kind=str(page.get("challenge_kind") or "human_verification_gate"),
+                    reason=str(page.get("challenge_reason") or "Verificación humana requerida por el sitio."),
+                    source="http_fetch",
+                    open_ui=open_ui,
+                )
+                return {
+                    "ok": False,
+                    "human_verification_required": True,
+                    "human_gate": gate_res["human_gate"],
+                    "error": page.get("error") or "Verificación humana requerida; acceso automatizado detenido.",
+                }
             if page.get("ok"):
                 documents.append(page)
             self.scroll("down", 680, pilot=pilot)
@@ -1061,22 +1928,38 @@ class SovereignBrowserHub:
             if open_ui:
                 self.search(focus, engine=("news" if m == "news" else "duckduckgo"), pilot=pilot, open_ui=True)
 
-            discovered = discover_web_sources(focus, mode=("news" if m == "news" else "research"), max_sources=max(1, min(5, int(max_pages))))
+            enabled_sources = self.list_official_sources()
+            discovered = discover_web_sources(
+                focus,
+                mode=("news" if m == "news" else "research"),
+                max_sources=max(1, min(5, int(max_pages))),
+                enabled_sources=enabled_sources,
+            )
             if open_ui and discovered:
                 self.navigate(discovered[0]["url"], pilot=pilot, open_ui=True)
 
             from concurrent.futures import ThreadPoolExecutor
 
-            def _fetch_one(src: Dict[str, str]) -> Dict[str, Any]:
+            def _fetch_one(src: Dict[str, str]) -> Optional[Dict[str, Any]]:
                 src_url = src["url"]
-                # Google News RSS wrapper URLs usan redirección JS; aprovechar snippet RSS directo
+                # Si la fuente oficial ya entregó un resumen estructurado rico (API oficial / RSS),
+                # evitar fetch innecesario si es Google News o una API DOI/académica.
                 if "news.google.com/rss/articles/" in src_url:
                     return {
                         "url": src_url,
                         "title": src.get("title") or src_url,
                         "text": src.get("snippet") or src.get("title") or "",
                     }
+                if src.get("official_api") == "true" and len(src.get("snippet") or "") >= 180:
+                    return {
+                        "url": src_url,
+                        "title": src.get("title") or src_url,
+                        "text": src.get("snippet") or "",
+                    }
                 fetched = fetch_page_fast(src_url, timeout=6.5)
+                if fetched.get("human_verification_required"):
+                    skipped_gated_urls.append(src_url)
+                    return None
                 if fetched.get("ok") and len(fetched.get("text") or "") >= 120:
                     return fetched
                 return {
@@ -1087,7 +1970,9 @@ class SovereignBrowserHub:
 
             if discovered:
                 with ThreadPoolExecutor(max_workers=min(4, len(discovered))) as pool:
-                    documents.extend(list(pool.map(_fetch_one, discovered)))
+                    for item in pool.map(_fetch_one, discovered):
+                        if item is not None:
+                            documents.append(item)
                 if open_ui:
                     self.scroll("down", 620, pilot=pilot)
 
@@ -1113,6 +1998,7 @@ class SovereignBrowserHub:
             "mode": m,
             "topic": focus,
             "sources_analyzed": len(documents),
+            "skipped_human_gated_urls": skipped_gated_urls,
             "conclusion": saved,
         }
 
@@ -1161,6 +2047,13 @@ class SovereignBrowserHub:
     def run_free_will_session(self, custom_hint: str = "", *, open_ui: bool = True, use_llm: bool = True) -> Dict[str, Any]:
         """Ejecuta una sesión completa donde TARDIS decide y explora libremente internet."""
         with self._lock:
+            if self._human_gate.get("active"):
+                return {
+                    "ok": False,
+                    "blocked_by_human_gate": True,
+                    "human_gate": dict(self._human_gate),
+                    "error": "Autonomía pausada hasta que el usuario gestione u omita la verificación humana activa.",
+                }
             if self._autonomous_running_cycle:
                 return {"ok": False, "error": "Ya hay un ciclo autónomo del navegador en curso."}
             self._autonomous_running_cycle = True
@@ -1220,8 +2113,8 @@ class SovereignBrowserHub:
         logger.info("🌐 Motor de Libre Albedrío del Navegador TARDIS iniciado (intervalo=%.0fs)", self._autonomous_interval_s)
         while not self._stop_auto_ev.is_set() and self._autonomous_enabled:
             try:
-                # Si el usuario está pilotando manualmente, cederle paso en este ciclo
-                if self._pilot != "user":
+                # Ceder el paso si el usuario controla el navegador o hay verificación humana activa
+                if self._pilot not in ("user", "human_required") and not self._human_gate.get("active"):
                     self.run_free_will_session(open_ui=self.ui_connected)
             except Exception as exc:
                 logger.debug("Aviso en ciclo autónomo del navegador: %s", exc)
@@ -1233,6 +2126,7 @@ class SovereignBrowserHub:
     # ------------------------------------------------------------------ estado e historial
     def get_state(self) -> Dict[str, Any]:
         with self._lock:
+            official_sources = self.list_official_sources()
             return {
                 "ok": True,
                 "ui_connected": self.ui_connected,
@@ -1246,6 +2140,11 @@ class SovereignBrowserHub:
                 "latest_seq": self._cmd_seq,
                 "tabs": list(self._tabs),
                 "active_tab_id": self._active_tab_id,
+                "human_gate": dict(self._human_gate),
+                "human_gate_history_count": len(self._human_gate_history),
+                "official_sources_count": len(official_sources),
+                "official_sources_enabled": sum(1 for s in official_sources if s.get("enabled")),
+                "official_sources": official_sources,
                 "autonomous_enabled": self._autonomous_enabled,
                 "autonomous_interval_s": self._autonomous_interval_s,
                 "autonomous_running_cycle": self._autonomous_running_cycle,

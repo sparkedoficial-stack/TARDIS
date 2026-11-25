@@ -1553,6 +1553,39 @@ class ToolRegistry:
             ) or _hub().run_free_will_session(custom_hint=str(a.get("custom_goal", ""))),
         ))
 
+        self.register(ToolDefinition(
+            name="browser_query_official_apis",
+            category="SOVEREIGN_BROWSER",
+            description="Consulta directamente APIs públicas oficiales documentadas y feeds RSS/Atom autorizados (OpenAlex, arXiv, Wikipedia, Hacker News Algolia, Spaceflight News v4, GDELT, Crossref, GitHub) sin pasar por CAPTCHAs.",
+            parameters={
+                "query": {"type": "string", "description": "Tema o consulta"},
+                "mode": {"type": "string", "enum": ["research", "news"]},
+                "max_results": {"type": "integer", "description": "Máximo de resultados (1-10)"},
+            },
+            required_args=["query"],
+            handler=lambda a: (
+                lambda q, md, mx: {
+                    "ok": True,
+                    "results": __import__(
+                        "core.tardis_sovereign_browser_agent", fromlist=["query_official_apis"]
+                    ).query_official_apis(q, mode=md, max_results=mx, enabled_sources=_hub().list_official_sources()),
+                }
+            )(str(a.get("query", "")), str(a.get("mode", "research")), int(a.get("max_results", 5))),
+        ))
+
+        self.register(ToolDefinition(
+            name="browser_human_gate_status",
+            category="SOVEREIGN_BROWSER",
+            description="Consulta si existe una pausa Human-in-the-Loop activa por verificación humana o lista las fuentes/APIs oficiales configuradas.",
+            parameters={},
+            handler=lambda _a: {
+                "ok": True,
+                "human_gate": _hub().get_state()["human_gate"],
+                "official_sources_enabled": _hub().get_state()["official_sources_enabled"],
+                "official_sources_count": _hub().get_state()["official_sources_count"],
+            },
+        ))
+
 
 # ============================================================================
 # 3. MOTOR DE AUTO-EXPLORACIÓN Y AUTO-MEJORA CONTINUA

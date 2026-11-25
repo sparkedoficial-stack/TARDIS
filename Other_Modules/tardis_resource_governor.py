@@ -42,6 +42,7 @@ import os
 import re
 import shutil
 import signal
+import socket
 import sqlite3
 import subprocess
 import sys
@@ -2976,9 +2977,12 @@ class TardisResourceGovernor:
                     logger.debug("Aviso en reconcile_gpu_eco: %s", exc_ge)
 
                 has_dups = bool(snap["inference_lanes"]["duplicate_models"])
+                has_swap_bloat = any(
+                    bool(u.get("recycle_eligible")) for u in (snap.get("memory_bloat_units") or [])
+                )
                 deferred_cooldown_ok = (now - last_deferred_reclaim) >= 60.0
                 if (has_dups and deferred_cooldown_ok) or (now - last_reclaim) >= reclaim_interval:
-                    if has_dups or target_lvl is not None:
+                    if has_dups or has_swap_bloat or target_lvl is not None:
                         res = self.reclaim_resources(dry_run=False, prune_backups=True)
                         unloaded = [e["model"] for e in res["models_evicted"] if e.get("action") == "unloaded"]
                         deferred = [e for e in res["models_evicted"] if e.get("action") == "unload_deferred_in_flight"]
@@ -3067,6 +3071,10 @@ def main() -> int:
     p_ge = sub.add_parser("gpu-eco", help="Reconcilia o fija el modo eco P-State GPU (RTX 3050) y Hyprland")
     p_ge.add_argument("--mode", choices=["normal", "eco_idle", "eco_thermal"], default=None)
     p_ge.add_argument("--dry-run", action="store_true")
+    p_sb = sub.add_parser("swap-bloat", help="Inspecciona swap-bloat de motores llama-server y recicla de forma segura en reposo")
+    p_sb.add_argument("--recycle", action="store_true", help="Ejecuta reconciliación/reciclaje seguro en reposo")
+    p_sb.add_argument("--force", action="store_true", help="Omite uptime mínimo y cooldown (sigue verificando reposo/llamada)")
+    p_sb.add_argument("--dry-run", action="store_true")
     p_hist = sub.add_parser("history", help="Histórico de telemetría de presión")
     p_hist.add_argument("--limit", type=int, default=20)
     p_d = sub.add_parser("daemon", help="Ejecuta el gobernador en bucle systemd 24/7")
@@ -3121,6 +3129,19 @@ def main() -> int:
                 ensure_ascii=False,
             )
         )
+        return 0
+    if args.cmd == "swap-bloat":
+        if args.recycle:
+            out_sb = gov.reconcile_swap_bloat(dry_run=args.dry_run, force=bool(args.force))
+        else:
+            snap_sb = gov.collect_snapshot(persist=False)
+            out_sb = {
+                "ok": True,
+                "inference_memory": snap_sb.get("inference_memory") or [],
+                "memory_bloat_units": snap_sb.get("memory_bloat_units") or [],
+                "swap_recycle": gov.get_swap_recycle_status(),
+            }
+        print(json.dumps(out_sb, indent=2, ensure_ascii=False))
         return 0
     if args.cmd == "history":
         print(json.dumps({"ok": True, "history": gov.history(limit=args.limit)}, indent=2, ensure_ascii=False))

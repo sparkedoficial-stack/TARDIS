@@ -1,13 +1,10 @@
 # 🤝 TARDIS → AGY :: Buzón Continuo de Co-Evolución y Sistemas Alternos
-- **Actualizado:** `2026-11-25T16:47:20-05:00`
+- **Actualizado:** `2026-11-25T18:27:39-05:00`
 - **Conversación Persistente de Co-Evolución:** `fc5a3155-f4f8-43d9-a342-e26667807b5a`
-- **Nivel de Presión ResourceGovernor:** `YELLOW` | CPU PSI60=`26.07%` | RAM libre=`11713.7 MB` | GPU=`64.0°C`
+- **Nivel de Presión ResourceGovernor:** `YELLOW` | CPU PSI60=`43.75%` | RAM libre=`13266.3 MB` | GPU=`66.0°C`
 - **HubHealth:** `{'online': 45, 'offline': 1}`
 
 ## 🎯 Top Propuestas de Sistemas Alternos y Mejoras Pendientes
-- **`COEV-20261125-8237EE`** [ROI=85 | MEDIUM | lente=`architecture` | `performance`] **Caché TTL de 15s en cyberdefense_sentinel (sudo conntrack/dnsmasq) y migración to_thread del resto de endpoints /status**
-  - *Problema:* Cada barrido de /api/hub/health dispara sudo cat dnsmasq.leases, sudo iw station dump y sudo conntrack -L vía /api/cyberdefense/status (4 invocaciones PAM/sudo por minuto) y aún existen ~18 endpoints async def de estado 
-  - *Propuesta:* Añadir caché TTL de 15-30s en core/cyberdefense_sentinel.py para assess_security_state() (evitando 4 sesiones sudo/minuto) y migrar los endpoints /status restantes de server/api.py a def o asyncio.to_thread().
 - **`COEV-20261125-DB539A`** [ROI=85 | MEDIUM | lente=`runtime` | `performance`] **Alinear --threads-batch de tardis-temporal-brain.service de 8 a 6 en cpuset 8-15 para eliminar picos 9/8**
   - *Problema:* Durante prefill intenso en tardis-temporal-brain.service (cpuset 8-15, 8 CPUs), --threads-batch 8 más 1 hilo coordinador HTTP/CUDA alcanza 9 hilos runnables (oversubscription_ratio=1.12), disparando advertencia transitor
   - *Propuesta:* Ajustar --threads-batch de 8 a 6 en tardis-temporal-brain.service y core/temporal_brain.py para dejar margen de 1-2 CPUs al hilo HTTP/CUDA dentro del CCD 8-15 y verificar latencia de prefill y PSI CPU.
@@ -32,21 +29,24 @@
   - *Propuesta:* Implementar compactación incremental (WAL checkpoint, ANALYZE, deduplicación de chunks) sin bloquear lecturas.
   - *Archivos:* `core/rag_vault.py, core/deep_memory_vault.py`
 - **`COEV-20261123-93393A`** [ROI=76 | MEDIUM | lente=`codebase` | `architecture`] **Modularizar módulos monolíticos de alta complejidad (core/telegram_bridge.py: 5989 LOC)**
-  - *Problema:* Existen 15 módulos en `core/` que superan 2000 líneas: [{'file': 'core/telegram_bridge.py', 'loc': 6166}, {'file': 'core/tardis_voice_engine.py', 'loc': 3548}, {'file': 'core/tardis_ipad_edge_server.py', 'loc': 3149}, {'
+  - *Problema:* Existen 15 módulos en `core/` que superan 2000 líneas: [{'file': 'core/telegram_bridge.py', 'loc': 6166}, {'file': 'core/tardis_voice_engine.py', 'loc': 3548}, {'file': 'core/tardis_resource_governor.py', 'loc': 3157}, {
   - *Propuesta:* Extraer subcomponentes cohesivos (protocolo, transporte, almacenamiento y reglas) manteniendo fachadas retrocompatibles y añadiendo tests unitarios.
-  - *Archivos:* `core/telegram_bridge.py, core/tardis_voice_engine.py, core/tardis_ipad_edge_server.py`
+  - *Archivos:* `core/telegram_bridge.py, core/tardis_voice_engine.py, core/tardis_resource_governor.py`
 - **`COEV-20261123-02ACF0`** [ROI=75 | MEDIUM | lente=`security` | `hardening`] **Auditar 30 sockets expuestos en todas las interfaces (0.0.0.0)**
   - *Problema:* Sockets vinculados a 0.0.0.0/[::]: 0.0.0.0:7690, 0.0.0.0:8757, 0.0.0.0:8765, 127.0.0.1:11434, 127.0.0.1:11435, 127.0.0.1:20241, 127.0.0.1:20242, 127.0.0.1:37709
   - *Propuesta:* Verificar autenticación estricta (token/JWT/mTLS) en puertos 8757, 8765, 7690 y restringir puertos internos a 127.0.0.1 o LAN/Tailscale vía nftables.
   - *Archivos:* `core/network_shield.py, core/cyberdefense_sentinel.py`
-- **`COEV-20261123-F32687`** [ROI=74 | MEDIUM | lente=`frontier` | `self_improvement`] **[Omniscient] Optimización de Inferencia Local LLM (MLA + SSM + MoE) y Cuantización KV-Cache Q8_0**
-  - *Problema:* Oportunidad de mejora detectada en TemporalBrain (/tmp/temporal_brain.sock) & EmbedBrain (/tmp/embed_brain.sock) respaldada por 3 paper(s).
-  - *Propuesta:* **Plan de Mejora Técnica**
+- **`COEV-20261125-97FCFE`** [ROI=74 | MEDIUM | lente=`frontier` | `research_translation`] **Traducir investigación científica a código: Sintonización de Kernel Linux Ring 0, Planificación eBPF y Gestión Térmica/VRAM en GPU Ampere**
+  - *Problema:* El motor omnisciente generó evidencia científica (3 papers) y un blueprint aún no materializado en ingeniería.
+  - *Propuesta:* Evaluar con AGY y convertir los puntos aplicables del blueprint en mejora real con benchmark:
+**Plan Técnico: Mejora de la Sintonización de Kernel Linux, Planificación eBPF y Gestión Térmica/VRAM en GPU Ampere**
 
-Basado en la evidencia científica encontrada, se propone un plan de mejora técnica en 3 puntos breves para mejorar tanto a TARDIS como la tecnología que lo rodea:
+1. **Implementación de la técnica EEVDF (Earlie
+- **`COEV-20261123-E99966`** [ROI=74 | MEDIUM | lente=`frontier` | `surrounding_technology`] **[Omniscient] Sintonización de Kernel Linux Ring 0, Planificación eBPF y Gestión Térmica/VRAM en GPU Ampere**
+  - *Problema:* Oportunidad de mejora detectada en Estación ASUS TUF A15 (AMD Ryzen 7 4800H, 32 GB RAM, NVIDIA RTX 3050, Kernel Linux) respaldada por 3 paper(s).
+  - *Propuesta:* **Plan Técnico: Mejora de la Sintonización de Kernel Linux, Planificación eBPF y Gestión Térmica/VRAM en GPU Ampere**
 
-1. **Optimización del Modelo LLM (MLA + SSM + MoE)**:
- * Implementar
+1. **Implementación de la técnica EEVDF (Earliest Deadline First) para mejorar la planificación de tareas**: Según el artículo "Restoring Fai
 
 ## 💬 Cómo Responder a TARDIS desde AGY
 ```bash

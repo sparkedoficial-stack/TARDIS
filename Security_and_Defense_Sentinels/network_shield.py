@@ -99,8 +99,17 @@ class NetworkShield:
         self.antispy_enabled = True
         self.last_audit_time = 0.0
         self.last_audit_results: Dict[str, Any] = {}
+        self._status_cache_lock = threading.Lock()
+        self._cached_status: Optional[Dict[str, Any]] = None
+        self._cached_status_mono: float = 0.0
         self._ensure_directories()
         self._load_config()
+
+    def invalidate_status_cache(self) -> None:
+        """Invalida la caché TTL de get_status() tras cambios de configuración o auditoría."""
+        with self._status_cache_lock:
+            self._cached_status = None
+            self._cached_status_mono = 0.0
 
     @classmethod
     def get_instance(cls) -> "NetworkShield":
@@ -447,6 +456,7 @@ class NetworkShield:
         self.last_audit_time = time.time()
         self.last_audit_results = audit_data
         self._save_config()
+        self.invalidate_status_cache()
         return audit_data
 
     def _resolve_vendor(self, mac: str) -> str:
@@ -495,11 +505,13 @@ class NetworkShield:
     def toggle_adblock(self, enabled: bool) -> Dict[str, Any]:
         self.adblock_enabled = bool(enabled)
         self._save_config()
+        self.invalidate_status_cache()
         return self.compile_and_apply_blocklist()
 
     def toggle_antispy(self, enabled: bool) -> Dict[str, Any]:
         self.antispy_enabled = bool(enabled)
         self._save_config()
+        self.invalidate_status_cache()
         return self.compile_and_apply_blocklist()
 
     def get_traffic_summary(self) -> Dict[str, Any]:
@@ -507,35 +519,59 @@ class NetworkShield:
         from core.traffic_monitor import get_traffic_monitor
         return get_traffic_monitor().analyze_traffic_and_accesses()
 
-    def get_status(self) -> Dict[str, Any]:
-        """Retorna el estado global del escudo de red y auditoría."""
-        if not self.last_audit_results:
-            self.audit_network()
+    def get_status(self, *, force: bool = False, ttl_s: Optional[float] = None) -> Dict[str, Any]:
+        """
+        Retorna el estado global del escudo de red y auditoría con caché TTL thread-safe
+        (default 15s) para evitar sesiones sudo PAM repetidas en conntrack/dnsmasq (COEV-20261125-8237EE).
+        """
+        if ttl_s is None:
+            try:
+                eff_ttl = max(0.0, float(os.environ.get("TARDIS_NETWORK_SHIELD_STATUS_TTL", "15.0")))
+            except (TypeError, ValueError):
+                eff_ttl = 15.0
+        else:
+            eff_ttl = max(0.0, float(ttl_s))
 
-        # Obtener métricas rápidas de tráfico
-        traffic_info = {}
-        try:
-            from core.traffic_monitor import get_traffic_monitor
-            traffic_info = get_traffic_monitor().get_quick_status()
-        except Exception:
-            pass
+        if not force and eff_ttl > 0.0:
+            cached = self._cached_status
+            if cached is not None and (time.monotonic() - self._cached_status_mono) < eff_ttl:
+                return dict(cached)
 
-        return {
-            "ok": True,
-            "adblock_active": self.adblock_enabled,
-            "antispy_active": self.antispy_enabled,
-            "blocked_domains_count": len(CORE_AD_DOMAINS) + len(CORE_SPYWARE_AND_TELEMETRY_DOMAINS),
-            "security_score": self.last_audit_results.get("security_score", 100),
-            "grade": self.last_audit_results.get("grade", "A+ (Soberano)"),
-            "devices_count": len(self.last_audit_results.get("devices", [])),
-            "devices": self.last_audit_results.get("devices", []),
-            "alerts": self.last_audit_results.get("alerts", []) + (traffic_info.get("alerts", []) if traffic_info else []),
-            "last_audit_time": self.last_audit_time,
-            "sinkhole_ip": "REDACTED_IP",
-            "protected_networks": ["TimeMachine (REDACTED_IP/24)", "Ethernet LAN (REDACTED_IP/24)"],
-            "traffic_flows_count": traffic_info.get("total_active_flows", 0),
-            "inbound_access_count": traffic_info.get("inbound_access_count", 0)
-        }
+        with self._status_cache_lock:
+            if not force and eff_ttl > 0.0:
+                if self._cached_status is not None and (time.monotonic() - self._cached_status_mono) < eff_ttl:
+                    return dict(self._cached_status)
+
+            if not self.last_audit_results:
+                self.audit_network()
+
+            # Obtener métricas rápidas de tráfico
+            traffic_info = {}
+            try:
+                from core.traffic_monitor import get_traffic_monitor
+                traffic_info = get_traffic_monitor().get_quick_status()
+            except Exception:
+                pass
+
+            result = {
+                "ok": True,
+                "adblock_active": self.adblock_enabled,
+                "antispy_active": self.antispy_enabled,
+                "blocked_domains_count": len(CORE_AD_DOMAINS) + len(CORE_SPYWARE_AND_TELEMETRY_DOMAINS),
+                "security_score": self.last_audit_results.get("security_score", 100),
+                "grade": self.last_audit_results.get("grade", "A+ (Soberano)"),
+                "devices_count": len(self.last_audit_results.get("devices", [])),
+                "devices": self.last_audit_results.get("devices", []),
+                "alerts": self.last_audit_results.get("alerts", []) + (traffic_info.get("alerts", []) if traffic_info else []),
+                "last_audit_time": self.last_audit_time,
+                "sinkhole_ip": "REDACTED_IP",
+                "protected_networks": ["TimeMachine (REDACTED_IP/24)", "Ethernet LAN (REDACTED_IP/24)"],
+                "traffic_flows_count": traffic_info.get("total_active_flows", 0),
+                "inbound_access_count": traffic_info.get("inbound_access_count", 0)
+            }
+            self._cached_status = dict(result)
+            self._cached_status_mono = time.monotonic()
+            return result
 
 
 def get_network_shield() -> NetworkShield:

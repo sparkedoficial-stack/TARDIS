@@ -128,6 +128,11 @@ class CyberdefenseSentinel:
 
     def __init__(self):
         self._lock_state = threading.Lock()
+        self._assessment_lock = threading.Lock()
+        self._cached_assessment: Optional[ThreatAssessment] = None
+        self._cached_assessment_mono: float = 0.0
+        self._assessment_cache_hits: int = 0
+        self._assessment_cache_misses: int = 0
         self._events: List[Dict[str, Any]] = []
         self._countermeasures: Set[str] = {
             "DNS_SINKHOLE",
@@ -143,6 +148,12 @@ class CyberdefenseSentinel:
         self._last_audit_ts: float = 0.0
         self._load_events()
         self.log_event("SENTINEL_INIT", "Centinela de Ciberdefensa y Anti-Espionaje inicializado.", severity="INFO")
+
+    def invalidate_cache(self) -> None:
+        """Invalida la caché TTL de assess_security_state() tras aplicar contramedidas."""
+        with self._assessment_lock:
+            self._cached_assessment = None
+            self._cached_assessment_mono = 0.0
 
     @classmethod
     def get_instance(cls) -> "CyberdefenseSentinel":
@@ -415,66 +426,106 @@ table inet tardis_aegis_shield {{
 
         return anomalies, deduction
 
-    def assess_security_state(self) -> ThreatAssessment:
-        """Genera una evaluación holística de ciberdefensa."""
-        listening = self.scan_listening_ports()
-        anomalies, deduction = self.inspect_active_threats()
-
-        dns_shield_active = True
-        try:
-            from core.network_shield import get_network_shield
-            shield = get_network_shield()
-            status = shield.get_status()
-            dns_shield_active = status.get("adblock_active", True) and status.get("antispy_active", True)
-        except Exception:
-            pass
-
-        rf_status = {"radar_active": True, "rf_threat": "NONE", "confidence": 0.95}
-        try:
-            from rf_presence_radar import get_rf_presence_radar
-            radar = get_rf_presence_radar()
-            r_st = radar.get_current_state()
-            if r_st:
-                if r_st.presence_state == "SEVERE_PERTURBATION":
-                    rf_status["rf_threat"] = "ELECTROMAGNETIC_PERTURBATION"
-                    deduction += 10
-                rf_status["confidence"] = r_st.confidence
-                rf_status["presence_state"] = r_st.presence_state
-        except Exception:
-            pass
-
-        base_score = 100 - deduction
-        if not dns_shield_active:
-            base_score -= 10
-        self._defense_score = max(10, min(100, base_score))
-
-        if self._defense_score >= 90:
-            self._threat_level = "GREEN"
-        elif self._defense_score >= 70:
-            self._threat_level = "ELEVATED"
-        elif self._defense_score >= 45:
-            self._threat_level = "SEVERE"
+    def assess_security_state(
+        self,
+        *,
+        force: bool = False,
+        ttl_s: Optional[float] = None,
+    ) -> ThreatAssessment:
+        """
+        Genera una evaluación holística de ciberdefensa con caché TTL thread-safe (default 20s)
+        para evitar tormentas de subprocesos/sudo PAM desde /api/hub/health (COEV-20261125-8237EE).
+        """
+        if ttl_s is None:
+            try:
+                eff_ttl = max(0.0, float(os.environ.get("TARDIS_CYBERDEFENSE_CACHE_TTL", "20.0")))
+            except (TypeError, ValueError):
+                eff_ttl = 20.0
         else:
-            self._threat_level = "CRITICAL"
+            eff_ttl = max(0.0, float(ttl_s))
 
-        self._last_audit_ts = time.time()
+        if not force and eff_ttl > 0.0:
+            now_mono = time.monotonic()
+            cached = self._cached_assessment
+            if cached is not None and (now_mono - self._cached_assessment_mono) < eff_ttl:
+                self._assessment_cache_hits += 1
+                return cached
 
-        return ThreatAssessment(
-            timestamp=self._last_audit_ts,
-            threat_level=self._threat_level,
-            defense_score=self._defense_score,
-            active_threats_count=len(anomalies),
-            open_listening_ports=listening,
-            anomalous_connections=anomalies,
-            rf_shield_status=rf_status,
-            integrity_status="INTEGRO (Kernel + NFTables + Anti-Spy Activos)",
-            countermeasures_active=sorted(list(self._countermeasures)),
-            recent_events=self._events[-15:]
-        )
+        with self._assessment_lock:
+            if not force and eff_ttl > 0.0:
+                now_mono = time.monotonic()
+                if self._cached_assessment is not None and (now_mono - self._cached_assessment_mono) < eff_ttl:
+                    self._assessment_cache_hits += 1
+                    return self._cached_assessment
+
+            self._assessment_cache_misses += 1
+            listening = self.scan_listening_ports()
+            anomalies, deduction = self.inspect_active_threats()
+
+            dns_shield_active = True
+            try:
+                from core.network_shield import get_network_shield
+                shield = get_network_shield()
+                # Lectura directa O(1) en memoria de los flags del escudo DNS para no disparar
+                # sudo cat dnsmasq.leases / sudo conntrack -L en cada evaluación de estado.
+                if hasattr(shield, "adblock_enabled") and hasattr(shield, "antispy_enabled"):
+                    dns_shield_active = bool(shield.adblock_enabled) and bool(shield.antispy_enabled)
+                else:
+                    status = shield.get_status()
+                    dns_shield_active = status.get("adblock_active", True) and status.get("antispy_active", True)
+            except Exception:
+                pass
+
+            rf_status = {"radar_active": True, "rf_threat": "NONE", "confidence": 0.95}
+            try:
+                from rf_presence_radar import get_rf_presence_radar
+                radar = get_rf_presence_radar()
+                r_st = radar.get_current_state()
+                if r_st:
+                    if r_st.presence_state == "SEVERE_PERTURBATION":
+                        rf_status["rf_threat"] = "ELECTROMAGNETIC_PERTURBATION"
+                        deduction += 10
+                    rf_status["confidence"] = r_st.confidence
+                    rf_status["presence_state"] = r_st.presence_state
+            except Exception:
+                pass
+
+            base_score = 100 - deduction
+            if not dns_shield_active:
+                base_score -= 10
+            self._defense_score = max(10, min(100, base_score))
+
+            if self._defense_score >= 90:
+                self._threat_level = "GREEN"
+            elif self._defense_score >= 70:
+                self._threat_level = "ELEVATED"
+            elif self._defense_score >= 45:
+                self._threat_level = "SEVERE"
+            else:
+                self._threat_level = "CRITICAL"
+
+            self._last_audit_ts = time.time()
+
+            assessment = ThreatAssessment(
+                timestamp=self._last_audit_ts,
+                threat_level=self._threat_level,
+                defense_score=self._defense_score,
+                active_threats_count=len(anomalies),
+                open_listening_ports=listening,
+                anomalous_connections=anomalies,
+                rf_shield_status=rf_status,
+                integrity_status="INTEGRO (Kernel + NFTables + Anti-Spy Activos)",
+                countermeasures_active=sorted(list(self._countermeasures)),
+                recent_events=self._events[-15:]
+            )
+            self._cached_assessment = assessment
+            self._cached_assessment_mono = time.monotonic()
+            return assessment
 
     def trigger_countermeasure(self, action: str, target: Optional[str] = None) -> Dict[str, Any]:
         """Aplica una contramedida cibernética inmediata."""
         action = action.upper().strip()
+        self.invalidate_cache()
 
         if action == "EMERGENCY_LOCKDOWN":
             self._countermeasures.add("DEFCON_1_LOCKDOWN")
@@ -515,7 +566,7 @@ table inet tardis_aegis_shield {{
                 dns_res = get_network_shield().compile_and_apply_blocklist()
             except Exception as e:
                 dns_res = {"ok": False, "error": str(e)}
-            assessment = self.assess_security_state()
+            assessment = self.assess_security_state(force=True)
             self.log_event(
                 "AUTOPROTECT_APPLIED",
                 f"Blindaje integral anti-espionaje aplicado (Score: {assessment.defense_score}/100).",

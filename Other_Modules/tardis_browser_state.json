@@ -1,8 +1,8 @@
 {
-  "current_url": "https://duckduckgo.com/?q=Contrapuntos+y+desarrollos+recientes+relacionados+con+Contrapuntos+y+desarrollos+recientes+relacionados+con+noticias+más+importantes+de+tecnología%2C+ciencia+y+actualidad+mundial+hoy",
-  "current_title": "Cargando…",
-  "autonomous_enabled": true,
+  "current_url": "https://lite.duckduckgo.com/lite/",
+  "current_title": "DuckDuckGo Lite: Fast, Lightweight Private Search",
+  "autonomous_enabled": false,
   "autonomous_interval_s": 240.0,
-  "autonomous_cycles_completed": 24,
-  "updated_at": REDACTED_PHONE.012057
+  "autonomous_cycles_completed": 45,
+  "updated_at": REDACTED_PHONE.7745314
 }

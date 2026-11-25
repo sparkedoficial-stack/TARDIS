@@ -1,20 +1,6 @@
 [
   {
     "target_file": "/home/m11/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
-    "goal": "Add a causal decay module that computes per‑query TTL using a Bayesian update of source reliability and time‑since‑last‑fetch, then integrate it into the cache‑lookup logic to invalidate or refresh entries automatically.",
-    "status": "REJECTED",
-    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
-    "elapsed_seconds": 2394.54,
-    "backup_path": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/web_research_engine.py.20261116_150057.bak",
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Respuesta generada demasiado corta (2801 vs 35266 bytes)",
-    "timestamp": "2026-11-16T15:40:52.296083"
-  },
-  {
-    "target_file": "/home/m11/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
     "goal": "Add a new module `causal_feedback.py` that defines a simple Bayesian network (using pgmpy or a custom implementation) and modify `WebResearchEngine.search()` to log relevance signals from `deep_memory_vault` and update the network before the next query, enabling dynamic query parameter tuning.",
     "status": "REJECTED",
     "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
@@ -1398,5 +1384,19 @@
     "efficiency_improvement": null,
     "error": "Respuesta generada demasiado corta (9685 vs 127835 bytes)",
     "timestamp": "2026-11-24T06:59:54.504543"
+  },
+  {
+    "target_file": "/home/m11/Escritorio/GODWORKS SYSTEM/core/chronovision_engine.py",
+    "goal": "Añadir un módulo de correlación temporal que alinee eventos de Chronovision con embeddings de Deep Memory Vault y exponga una API de predicción",
+    "status": "REJECTED",
+    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
+    "elapsed_seconds": 4237.64,
+    "backup_path": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/core__chronovision_engine.py.20261125_154346.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "Respuesta generada demasiado corta (10774 vs 127835 bytes)",
+    "timestamp": "2026-11-25T16:54:24.442113"
   }
 ]

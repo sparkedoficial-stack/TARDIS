@@ -1,23 +1,5 @@
 [
   {
-    "id": "conj_1794870078",
-    "timestamp": "2026-11-16T18:01:18.204284",
-    "idle_duration_minutes": 75.5,
-    "title": "Integración de razonamiento causal en el motor de búsqueda web",
-    "hypothesis": "Si el motor de búsqueda web (core/web_research_engine.py) incorpora un módulo de inferencia causal basado en grafos de dependencia, podrá priorizar resultados que no solo coincidan lexicalmente sino que también mantengan una relación causal con la consulta, mejorando la precisión de la información recuperada en un 15‑20% en tareas de investigación científica.",
-    "research_query": "causal inference graph based web search ranking improvement research papers 2022-2024",
-    "research_findings": "# Informe de Investigación: causal inference graph based web search ranking improvement research papers 2022-2024\n\n## Fuentes Consultadas y Respaldo Web\n- **[Causal inference via algebraic geometry: feasibility tests for functional causal structures with two binary observed variables (arXiv)](http://arxiv.org/abs/1506.03880v2)**: We provide a scheme for inferring causal relations from uncontrolled statistical data based on tools from computational algebraic geometry, in particular, the computation of Groebner bases. We focus on causal structures containing just two observed variables, each of which is binary. We consider the consequences of imposing different restrictions o\n- **[Quantitative probing: Validating causal models using quantitative domain knowledge (arXiv)](http://arxiv.org/abs/2209.03013v1)**: We present quantitative probing as a model-agnostic framework for validating causal models in the presence of quantitative domain knowledge. The method is constructed as an analogue ",
-    "web_sources": [
-      "http://arxiv.org/abs/1506.03880v2",
-      "http://arxiv.org/abs/2209.03013v1"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Añadir una capa de pre‑procesamiento que genere un grafo de causas/efectos a partir de la consulta y de los snippets obtenidos, y re‑ordenar los resultados usando un algoritmo de puntuación causal (p.ej., PageRank sobre el grafo).",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 2728.61
-  },
-  {
     "id": "conj_1794874552",
     "timestamp": "2026-11-16T19:15:52.589732",
     "idle_duration_minutes": 74.6,
@@ -1639,5 +1621,22 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 1290.68
+  },
+  {
+    "id": "conj_1795643664",
+    "timestamp": "2026-11-25T16:54:24.475932",
+    "idle_duration_minutes": 101.0,
+    "title": "Integración causal de la cronovisión con la bóveda akáshica para predicción proactiva",
+    "hypothesis": "Sincronizar los timestamps de Chronovision Engine con los índices semánticos de Deep Memory Vault permite inferir relaciones causales latentes y anticipar eventos futuros con mayor precisión.",
+    "research_query": "how to combine temporal causal inference with vector semantic memory databases for proactive prediction",
+    "research_findings": "# Informe de Investigación: how to combine temporal causal inference with vector semantic memory databases for proactive prediction\n\n## Fuentes Consultadas y Respaldo Web\n- **[List of datasets for machine-learning research (Wikipedia)](https://en.wikipedia.org/wiki/List_of_datasets_for_machine-learning_research)**: analysis of tweets by combining a rule-based classifier with supervised learning.\" Proceedings of the International Workshop on Semantic Evaluation, SemEval\n\n## Contenido y Hallazgos Extraídos\n### De [List of datasets for machine-learning research - Wikipedia](https://en.wikipedia.org/wiki/List_of_datasets_for_machine-learning_research)\n> List of datasets for machine-learning research - Wikipedia\nJump to content\nFrom Wikipedia, the free encyclopedia\nThis article contains dynamic lists that may never be able to satisfy particular standards for completeness. You can help by editing the page to add missing items, with references to reliable sources .\nPart of a series on\nMachine",
+    "web_sources": [
+      "https://en.wikipedia.org/wiki/List_of_datasets_for_machine-learning_research"
+    ],
+    "code_target": "core/chronovision_engine.py",
+    "code_goal": "Añadir un módulo de correlación temporal que alinee eventos de Chronovision con embeddings de Deep Memory Vault y exponga una API de predicción",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 4244.52
   }
 ]
