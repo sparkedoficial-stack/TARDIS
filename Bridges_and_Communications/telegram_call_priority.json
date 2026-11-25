@@ -17,6 +17,6 @@
   "cpu_governor": "powersave",
   "cpu_governor_forced": false,
   "state_file": "/home/m11/Escritorio/GODWORKS SYSTEM/data/telephony/telegram_call_priority.json",
-  "owner_pid": 1557,
-  "timestamp": REDACTED_PHONE.093476
+  "owner_pid": 202311,
+  "timestamp": REDACTED_PHONE.349077
 }

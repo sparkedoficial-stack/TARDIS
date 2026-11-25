@@ -1266,43 +1266,45 @@ class VoiceAbstractionEngine:
                 latency_ms=(time.perf_counter() - t0) * 1000,
             )
 
-        # 1. Comandos instantáneos de control de voz/TTS
-        if any(k in low for k in ("voz local", "usa piper", "motor local", "modo offline")):
-            return VoiceAbstraction(
-                raw_text=raw_text, normalized_text=normalized,
-                intent="voice_control", sub_intent="tts_local",
-                instant_reply="Voz neuronal local Piper activada. Operando cien por ciento local y sin latencia de red.",
-                action={"type": "set_tts_mode", "mode": "local"},
-                corrections=corrections,
-                latency_ms=(time.perf_counter() - t0) * 1000,
-            )
-        if any(k in low for k in ("voz cortana", "usa cortana", "voz edge", "modo hibrido")):
-            return VoiceAbstraction(
-                raw_text=raw_text, normalized_text=normalized,
-                intent="voice_control", sub_intent="tts_hybrid",
-                instant_reply="Modo híbrido con voz Cortana activado y respaldo local Piper listo.",
-                action={"type": "set_tts_mode", "mode": "hybrid"},
-                corrections=corrections,
-                latency_ms=(time.perf_counter() - t0) * 1000,
-            )
-        if any(k in low for k in ("habla mas rapido", "mas rapido", "acelera la voz")):
-            return VoiceAbstraction(
-                raw_text=raw_text, normalized_text=normalized,
-                intent="voice_control", sub_intent="rate_up",
-                instant_reply="Perfecto, aumento un poco la velocidad al hablar.",
-                action={"type": "adjust_rate", "delta": 0.10},
-                corrections=corrections,
-                latency_ms=(time.perf_counter() - t0) * 1000,
-            )
-        if any(k in low for k in ("habla mas lento", "mas despacio", "baja la velocidad de voz")):
-            return VoiceAbstraction(
-                raw_text=raw_text, normalized_text=normalized,
-                intent="voice_control", sub_intent="rate_down",
-                instant_reply="Entendido, hablaré con un ritmo más pausado.",
-                action={"type": "adjust_rate", "delta": -0.10},
-                corrections=corrections,
-                latency_ms=(time.perf_counter() - t0) * 1000,
-            )
+        # 1. Comandos instantáneos de control de voz/TTS (exigen frase corta imperativa para cero falsos positivos)
+        n_words = len(low.split())
+        if n_words <= 7:
+            if any(k in low for k in ("usa voz local", "activa voz local", "cambia a voz local", "usa piper", "activa piper", "cambia a piper", "modo voz local", "modo offline")):
+                return VoiceAbstraction(
+                    raw_text=raw_text, normalized_text=normalized,
+                    intent="voice_control", sub_intent="tts_local",
+                    instant_reply="Voz neuronal local Piper activada. Operando cien por ciento local y sin latencia de red.",
+                    action={"type": "set_tts_mode", "mode": "local"},
+                    corrections=corrections,
+                    latency_ms=(time.perf_counter() - t0) * 1000,
+                )
+            if any(k in low for k in ("usa voz cortana", "activa voz cortana", "cambia a cortana", "usa cortana", "usa voz edge", "activa modo hibrido", "cambia a modo hibrido")):
+                return VoiceAbstraction(
+                    raw_text=raw_text, normalized_text=normalized,
+                    intent="voice_control", sub_intent="tts_hybrid",
+                    instant_reply="Modo híbrido con voz Cortana activado y respaldo local Piper listo.",
+                    action={"type": "set_tts_mode", "mode": "hybrid"},
+                    corrections=corrections,
+                    latency_ms=(time.perf_counter() - t0) * 1000,
+                )
+            if any(k in low for k in ("habla mas rapido", "acelera la voz", "sube velocidad de voz")):
+                return VoiceAbstraction(
+                    raw_text=raw_text, normalized_text=normalized,
+                    intent="voice_control", sub_intent="rate_up",
+                    instant_reply="Perfecto, aumento un poco la velocidad al hablar.",
+                    action={"type": "adjust_rate", "delta": 0.10},
+                    corrections=corrections,
+                    latency_ms=(time.perf_counter() - t0) * 1000,
+                )
+            if any(k in low for k in ("habla mas lento", "habla mas despacio", "baja la velocidad de voz")):
+                return VoiceAbstraction(
+                    raw_text=raw_text, normalized_text=normalized,
+                    intent="voice_control", sub_intent="rate_down",
+                    instant_reply="Entendido, hablaré con un ritmo más pausado.",
+                    action={"type": "adjust_rate", "delta": -0.10},
+                    corrections=corrections,
+                    latency_ms=(time.perf_counter() - t0) * 1000,
+                )
         if low in ("repite", "repitelo", "repite eso", "repite lo ultimo", "que dijiste", "no te escuche"):
             rep = self.last_assistant_reply or "Aún no he dicho nada en esta sesión."
             return VoiceAbstraction(

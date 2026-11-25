@@ -227,6 +227,10 @@ class BackgroundHardwareOrchestrator:
                     self.hw.set_power_profile("balanced")
                     switched = True
                     action_note = f"Degradado a balanced por alta temperatura ({max_cpu_temp:.1f}°C)"
+            elif active_prof == "power-saver" and max_cpu_temp < self.temp_threshold_high_c:
+                self.hw.set_power_profile("balanced")
+                switched = True
+                action_note = f"Recuperado de power-saver a balanced ({max_cpu_temp:.1f}°C)"
             elif max_cpu_temp < self.temp_restore_c and is_plugged and active_prof != "performance":
                 self.hw.set_power_profile("performance")
                 switched = True

@@ -27,6 +27,7 @@ Interfaces biométricas de voz, síntesis de audio autónoma, retroalimentación
 - **test_mundo_sin_censura_voice.py**: Procesamiento de señal de audio y síntesis vocal biométrica.
 - **test_recurring_voice.py**: Procesamiento de señal de audio y síntesis vocal biométrica.
 - **test_tardis_infinite_voice.py**: Procesamiento de señal de audio y síntesis vocal biométrica.
+- **test_tardis_voice_engine.py**: Procesamiento de señal de audio y síntesis vocal biométrica.
 - **test_voice_program.py**: Procesamiento de señal de audio y síntesis vocal biométrica.
 - **voice.py**: Procesamiento de señal de audio y síntesis vocal biométrica.
 - **voice_assistant.py**: Procesamiento de señal de audio y síntesis vocal biométrica.
