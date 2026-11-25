@@ -1,47 +1,43 @@
 {
   "ok": true,
-  "ts": REDACTED_PHONE.6107829,
-  "iso": "2026-11-25T01:26:33-05:00",
-  "level": "RED",
+  "ts": REDACTED_PHONE.648525,
+  "iso": "2026-11-25T15:05:53-05:00",
+  "level": "GREEN",
   "reasons": [
-    "CPU PSI avg60 crítico (81.5%)",
-    "Temperatura CPU cálida (81°C)",
-    "Temperatura GPU elevada (79°C)",
-    "1 modelo(s) duplicado(s) en Ollama :11434 (4229 MB)",
-    "Sobresuscripción de hilos en ollama.service (16 hilos en 8 CPUs)"
+    "Operación nominal con holgura de recursos"
   ],
   "call_priority_active": false,
   "cpu": {
     "cores": 16,
-    "load1": 5.28,
-    "load5": 10.24,
-    "load15": 14.87,
+    "load1": 8.01,
+    "load5": 11.88,
+    "load15": 13.91,
     "psi": {
-      "some_avg10": 78.72,
-      "some_avg60": 81.45,
-      "some_avg300": 76.61,
+      "some_avg10": 9.99,
+      "some_avg60": 10.35,
+      "some_avg300": 24.17,
       "full_avg10": 0.0,
       "full_avg60": 0.0
     },
-    "temp_c": 81.2,
+    "temp_c": 75.6,
     "thermal_source": "k10temp",
     "fan_rpm": {
-      "cpu": 3100,
-      "gpu": 3000
+      "cpu": 4400,
+      "gpu": 4400
     },
-    "power_profile": "power-saver",
+    "power_profile": "performance",
     "scaling_driver": "amd-pstate-epp",
-    "scaling_governor": "powersave",
-    "epp": "power",
+    "scaling_governor": "performance",
+    "epp": "performance",
     "boost": true
   },
   "memory": {
     "total_mb": 31495.3,
-    "available_mb": 8743.1,
-    "used_mb": 22752.2,
-    "used_pct": 72.2,
+    "available_mb": 9742.2,
+    "used_mb": 21753.1,
+    "used_pct": 69.1,
     "swap_total_mb": 62994.8,
-    "swap_used_mb": 169.6,
+    "swap_used_mb": 1973.7,
     "psi": {
       "some_avg10": 0.0,
       "some_avg60": 0.0,
@@ -53,8 +49,8 @@
   "io": {
     "psi": {
       "some_avg10": 0.0,
-      "some_avg60": 0.01,
-      "some_avg300": 0.03,
+      "some_avg60": 0.0,
+      "some_avg300": 0.0,
       "full_avg10": 0.0,
       "full_avg60": 0.0
     }
@@ -62,111 +58,75 @@
   "gpu": {
     "available": true,
     "name": "NVIDIA GeForce RTX 3050 Laptop GPU",
-    "temp_c": 79.0,
-    "util_pct": 58.0,
-    "vram_used_mb": 3744.0,
-    "vram_free_mb": 79.0,
+    "temp_c": 65.0,
+    "util_pct": 72.0,
+    "vram_used_mb": 3496.0,
+    "vram_free_mb": 327.0,
     "vram_total_mb": 4096.0,
-    "vram_used_pct": 91.4,
+    "vram_used_pct": 85.4,
     "pstate": "P0",
-    "power_w": 18.57,
+    "power_w": 17.69,
     "clock_gr_mhz": 600,
     "clock_mem_mhz": 6001
   },
   "inference_lanes": {
     "temporal_brain_sock": true,
     "embed_brain_sock": true,
-    "ollama_11434": [
-      {
-        "name": "TARDIS-NEURAL-SPACE-KAIJU:latest",
-        "size_mb": 4228.6,
-        "size_vram_mb": 0.0,
-        "expires_at": "2026-11-25T01:26:11.288783087-05:00"
-      }
-    ],
+    "ollama_11434": [],
     "ollama_11435_gpu_voice": [
       {
         "name": "qwen3-vl:2b-instruct",
         "size_mb": 1697.4,
         "size_vram_mb": 1076.8,
-        "expires_at": "2319-03-07T00:51:50.05005622-05:00"
+        "expires_at": "2319-03-07T14:51:17.587612957-05:00"
       }
     ],
-    "duplicate_models": [
-      {
-        "port": 11434,
-        "model": "TARDIS-NEURAL-SPACE-KAIJU:latest",
-        "size_mb": 4228.6,
-        "reason": "duplicado_con_temporal_brain"
-      }
-    ]
+    "duplicate_models": []
   },
   "cgroup_pressure": [
-    {
-      "unit": "ollama.service",
-      "cpuset_cpus": "8-15",
-      "effective_cpus": 8,
-      "cpu_max": "50000 100000",
-      "cpu_weight": 5,
-      "pids_count": 2,
-      "psi_some_avg10": 97.19,
-      "psi_some_avg60": 96.76,
-      "psi_full_avg60": 92.98
-    },
     {
       "unit": "tardis-tapo-c310-sentinel.service",
       "cpuset_cpus": "8-15",
       "effective_cpus": 8,
-      "cpu_max": "120000 100000",
-      "cpu_weight": 10,
+      "cpu_max": "max 100000",
+      "cpu_weight": 25,
       "pids_count": 2,
-      "psi_some_avg10": 35.44,
-      "psi_some_avg60": 25.45,
-      "psi_full_avg60": 25.1
-    },
-    {
-      "unit": "tardis4ever.service",
-      "cpuset_cpus": "8-15",
-      "effective_cpus": 8,
-      "cpu_max": "50000 100000",
-      "cpu_weight": 5,
-      "pids_count": 1,
-      "psi_some_avg10": 8.83,
-      "psi_some_avg60": 6.06,
-      "psi_full_avg60": 6.06
-    },
-    {
-      "unit": "tardis-music-maestro.service",
-      "cpuset_cpus": "8-15",
-      "effective_cpus": 8,
-      "cpu_max": "50000 100000",
-      "cpu_weight": 5,
-      "pids_count": 2,
-      "psi_some_avg10": 0.0,
-      "psi_some_avg60": 0.74,
-      "psi_full_avg60": 0.73
+      "psi_some_avg10": 10.08,
+      "psi_some_avg60": 9.04,
+      "psi_full_avg60": 4.15
     },
     {
       "unit": "tardis-temporal-brain.service",
       "cpuset_cpus": "8-15",
       "effective_cpus": 8,
-      "cpu_max": "350000 100000",
-      "cpu_weight": 25,
+      "cpu_max": "max 100000",
+      "cpu_weight": 40,
       "pids_count": 1,
-      "psi_some_avg10": 0.09,
-      "psi_some_avg60": 0.49,
-      "psi_full_avg60": 0.46
+      "psi_some_avg10": 1.85,
+      "psi_some_avg60": 3.09,
+      "psi_full_avg60": 2.31
     },
     {
-      "unit": "tardis-cyber-evolve.service",
-      "cpuset_cpus": "0-15",
-      "effective_cpus": 16,
-      "cpu_max": "50000 100000",
-      "cpu_weight": 5,
-      "pids_count": 1,
-      "psi_some_avg10": 0.0,
-      "psi_some_avg60": 0.33,
-      "psi_full_avg60": 0.33
+      "unit": "tardis-ollama-voice.service",
+      "cpuset_cpus": "8-15",
+      "effective_cpus": 8,
+      "cpu_max": "max 100000",
+      "cpu_weight": 100,
+      "pids_count": 2,
+      "psi_some_avg10": 0.83,
+      "psi_some_avg60": 2.62,
+      "psi_full_avg60": 1.65
+    },
+    {
+      "unit": "tardis-tapo-c310-voice.service",
+      "cpuset_cpus": "8-15",
+      "effective_cpus": 8,
+      "cpu_max": "max 100000",
+      "cpu_weight": 25,
+      "pids_count": 2,
+      "psi_some_avg10": 2.52,
+      "psi_some_avg60": 2.02,
+      "psi_full_avg60": 2.02
     },
     {
       "unit": "tardis.service",
@@ -174,75 +134,70 @@
       "effective_cpus": 8,
       "cpu_max": "max 100000",
       "cpu_weight": 25,
-      "pids_count": 7,
-      "psi_some_avg10": 0.14,
-      "psi_some_avg60": 0.24,
-      "psi_full_avg60": 0.19
+      "pids_count": 4,
+      "psi_some_avg10": 0.91,
+      "psi_some_avg60": 1.52,
+      "psi_full_avg60": 1.17
     },
     {
-      "unit": "tardis-tapo-c310-voice.service",
+      "unit": "tardis-music-maestro.service",
       "cpuset_cpus": "8-15",
       "effective_cpus": 8,
-      "cpu_max": "120000 100000",
-      "cpu_weight": 10,
+      "cpu_max": "max 100000",
+      "cpu_weight": 25,
       "pids_count": 2,
-      "psi_some_avg10": 0.0,
-      "psi_some_avg60": 0.08,
-      "psi_full_avg60": 0.08
-    }
-  ],
-  "oversubscribed_units": [
+      "psi_some_avg10": 0.61,
+      "psi_some_avg60": 0.53,
+      "psi_full_avg60": 0.37
+    },
     {
-      "unit": "ollama.service",
-      "pid": 3808,
-      "comm": "llama-server",
-      "effective_cpus": 8,
+      "unit": "tardis4ever.service",
       "cpuset_cpus": "8-15",
-      "configured_threads": 16,
-      "configured_threads_batch": 0,
-      "runnable_threads": 16,
-      "oversubscription_ratio": 2.0,
-      "recommendation": "Alinear --threads <= 4 y --threads-batch <= 8 con --poll 0 para cpuset 8-15"
+      "effective_cpus": 8,
+      "cpu_max": "max 100000",
+      "cpu_weight": 25,
+      "pids_count": 2,
+      "psi_some_avg10": 1.11,
+      "psi_some_avg60": 0.29,
+      "psi_full_avg60": 0.29
+    },
+    {
+      "unit": "tardis-browser-autonomous.service",
+      "cpuset_cpus": "8-15",
+      "effective_cpus": 8,
+      "cpu_max": "max 100000",
+      "cpu_weight": 25,
+      "pids_count": 12,
+      "psi_some_avg10": 0.01,
+      "psi_some_avg60": 0.27,
+      "psi_full_avg60": 0.2
     }
   ],
+  "oversubscribed_units": [],
   "throttling": {
-    "active": true,
-    "level": "RED",
-    "throttled_units_count": 13,
-    "units": [
-      "ollama.service",
-      "tardis-browser-autonomous.service",
-      "tardis-curiosity-debater.service",
-      "tardis-cyber-evolve.service",
-      "tardis-hub-agents.service",
-      "tardis-music-maestro.service",
-      "tardis-omniscient-autonomy.service",
-      "tardis-tapo-c310-sentinel.service",
-      "tardis-tapo-c310-voice.service",
-      "tardis-temporal-brain.service",
-      "tardis-video-pensante.service",
-      "tardis-visual-intelligence.service",
-      "tardis4ever.service"
-    ],
-    "power_profile_mitigated": true,
-    "power_profile_applied": "power-saver",
-    "updated_iso": "2026-11-25T01:26:13-05:00"
+    "active": false,
+    "level": "NONE",
+    "throttled_units_count": 0,
+    "units": [],
+    "power_profile_mitigated": false,
+    "power_profile_applied": "",
+    "updated_iso": "2026-11-25T15:03:53-05:00"
   },
   "gpu_eco": {
-    "active": true,
-    "mode": "eco_thermal",
-    "hypr_eco_active": true,
-    "last_action": "capped_P5",
-    "updated_iso": "2026-11-25T01:26:11-05:00"
+    "active": false,
+    "mode": "normal",
+    "hypr_eco_active": false,
+    "last_action": "clocks_unlocked",
+    "updated_iso": "2026-11-25T13:59:29-05:00"
   },
   "admission": {
     "interactive": true,
     "critical_repair": true,
-    "agy_discovery": false,
-    "heavy_learning": false,
-    "idle_evolution": false,
-    "video_render": false,
-    "recommended_sleep_multiplier": 5.0,
-    "recommended_yolo_interval_mult": 3.5
+    "agy_discovery": true,
+    "heavy_learning": true,
+    "idle_evolution": true,
+    "video_render": true,
+    "recommended_sleep_multiplier": 1.0,
+    "recommended_yolo_interval_mult": 1.0
   }
 }

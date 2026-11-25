@@ -122,6 +122,121 @@ def _is_local_cpu_ollama_endpoint(endpoint: Optional[str]) -> bool:
         h in ep for h in ("127.0.0.1", "localhost", "[::1]", "0.0.0.0")
     )
 
+
+def _parse_cpulist_count(raw: str) -> int:
+    """Cuenta CPUs lógicas en formato cpulist de Linux (p.ej. '8-15' -> 8, '0-3,8-11' -> 8)."""
+    total = 0
+    for part in (raw or "").strip().split(","):
+        part = part.strip()
+        if not part:
+            continue
+        if "-" in part:
+            bounds = part.split("-", 1)
+            try:
+                lo, hi = int(bounds[0]), int(bounds[1])
+                if hi >= lo:
+                    total += (hi - lo) + 1
+            except ValueError:
+                continue
+        elif part.isdigit():
+            total += 1
+    return total
+
+
+def _resolve_safe_cpu_ollama_threads(
+    requested: Optional[int] = None,
+    *,
+    unit: str = "ollama.service",
+    cgroup_app_slice: Optional[Path] = None,
+) -> int:
+    """
+    Alinea `num_thread` para Ollama CPU (:11434) al `cpuset.cpus.effective` y `cpu.max`
+    reales del cgroup v2 (`ollama.service`), garantizando <= floor(eff_cpus / 2) y <= 4
+    para prevenir sobresuscripción y livelock de barrera ggml (`COEV-20261124-0A569D`).
+    """
+    if requested is None:
+        raw_req = os.environ.get("GIA_CPU_OLLAMA_THREADS", os.environ.get("GIA_NUM_THREADS", "4"))
+        try:
+            req_val = int(str(raw_req).strip())
+        except (TypeError, ValueError):
+            req_val = 4
+    else:
+        try:
+            req_val = int(requested)
+        except (TypeError, ValueError):
+            req_val = 4
+    req_val = max(1, req_val)
+
+    eff_cpus = 0
+    quota_cores: Optional[float] = None
+    try:
+        uid = os.getuid()
+        app_slice = cgroup_app_slice or Path(
+            f"/sys/fs/cgroup/user.slice/user-{uid}.slice/user@{uid}.service/app.slice"
+        )
+        cg = app_slice / unit
+        if cg.is_dir():
+            for fname in ("cpuset.cpus.effective", "cpuset.cpus"):
+                fp = cg / fname
+                if fp.is_file():
+                    cnt = _parse_cpulist_count(fp.read_text(encoding="utf-8", errors="ignore"))
+                    if cnt > 0:
+                        eff_cpus = cnt
+                        break
+            cpu_max_fp = cg / "cpu.max"
+            if cpu_max_fp.is_file():
+                parts = cpu_max_fp.read_text(encoding="utf-8", errors="ignore").strip().split()
+                if len(parts) == 2 and parts[0].isdigit() and parts[1].isdigit():
+                    period = int(parts[1])
+                    if period > 0:
+                        quota_cores = int(parts[0]) / float(period)
+    except Exception:
+        pass
+
+    if eff_cpus <= 0:
+        try:
+            eff_cpus = len(os.sched_getaffinity(0))
+        except Exception:
+            eff_cpus = os.cpu_count() or 8
+
+    # Tope estructural: nunca exceder la mitad del cpuset efectivo ni 4 hilos en carril frío CPU
+    max_safe = max(1, min(4, eff_cpus // 2 if eff_cpus >= 2 else 1))
+    if quota_cores is not None and quota_cores > 0:
+        max_safe = max(1, min(max_safe, int(quota_cores) if quota_cores >= 1.0 else 1))
+    return max(1, min(req_val, max_safe))
+
+
+def _is_temporal_brain_active_or_warming(local_runner: Any = None) -> bool:
+    """
+    True si `tardis-temporal-brain.service` está activo/arrancando o si `/tmp/temporal_brain.sock`
+    existe, evitando que un race de arranque duplique KAIJU (4.4 GB) en CPU Ollama :11434.
+    """
+    try:
+        sock_path = Path(str(getattr(local_runner, "socket_path", "/tmp/temporal_brain.sock")))
+        if sock_path.exists():
+            return True
+        is_alive_fn = getattr(local_runner, "_is_daemon_process_alive", None)
+        if callable(is_alive_fn) and bool(is_alive_fn()):
+            return True
+    except Exception:
+        pass
+    if sys.platform.startswith("linux"):
+        try:
+            proc = subprocess.run(
+                ["systemctl", "--user", "is-active", "tardis-temporal-brain.service"],
+                stdin=subprocess.DEVNULL,
+                capture_output=True,
+                text=True,
+                timeout=1.0,
+                check=False,
+            )
+            state = (proc.stdout or "").strip().lower()
+            if state in ("active", "activating", "reloading"):
+                return True
+        except Exception:
+            pass
+    return False
+
 DEFAULT_MODELS_PREFERENCE = [
     "TARDIS-NEURAL-SPACE-KAIJU",
     "TARDIS-NEURAL-SPACE-KAIJU:latest"
@@ -281,6 +396,19 @@ class SovereignInferenceEngine:
             nc = _normalize_endpoint(c)
             if nc and nc not in ordered:
                 ordered.append(nc)
+
+        # Anti-duplicación de KAIJU: si TemporalBrain está activo/calentando, no enrutar KAIJU
+        # al carril frío CPU Ollama (:11434) salvo override explícito.
+        allow_kaiju_dup = os.environ.get("GIA_ALLOW_KAIJU_CPU_DUPLICATE", "0").strip().lower() in (
+            "1", "true", "yes"
+        )
+        if _is_kaiju_model(req_model) and _TEMPORAL_BRAIN_ACTIVE and not allow_kaiju_dup:
+            try:
+                tb = get_temporal_brain()
+                if _is_temporal_brain_active_or_warming(tb):
+                    ordered = [ep for ep in ordered if not _is_local_cpu_ollama_endpoint(ep)]
+            except Exception:
+                pass
 
         for ep in ordered:
             if self._probe_endpoint(ep):
@@ -526,24 +654,32 @@ class SovereignInferenceEngine:
         if is_gpu_lane:
             keep_alive: Union[int, str] = -1
             effective_ctx = min(int(num_ctx or OLLAMA_GPU_LANE_NUM_CTX), OLLAMA_GPU_LANE_NUM_CTX)
+            effective_threads = max(1, min(int(os.environ.get("GIA_NUM_THREADS", 4)), 4))
+            effective_batch = min(int(os.environ.get("GIA_NUM_BATCH", 512)), 512)
         elif is_cpu_fallback:
-            # Respaldo frío CPU (:11434): descargar al terminar por defecto ("0") para evitar duplicados residentes.
+            # Respaldo frío CPU (:11434): descargar al terminar por defecto ("0") y alinear hilos/batch
+            # al cpuset/quota real de ollama.service para prevenir barrier livelock (-t <= 4).
             raw_ka = os.environ.get("GIA_OLLAMA_FALLBACK_KEEP_ALIVE", "0").strip()
             keep_alive = 0 if raw_ka in ("", "0", "0s") else raw_ka
-            effective_ctx = int(num_ctx or os.environ.get("GIA_NUM_CTX", 4096))
+            effective_threads = _resolve_safe_cpu_ollama_threads()
+            ctx_cap = 4096 if effective_threads <= 2 else 8192
+            effective_ctx = min(int(num_ctx or os.environ.get("GIA_NUM_CTX", 4096)), ctx_cap)
+            batch_cap = 256 if effective_threads <= 2 else 512
+            effective_batch = min(int(os.environ.get("GIA_NUM_BATCH", 512)), batch_cap)
         else:
             keep_alive = os.environ.get("GIA_OLLAMA_FALLBACK_KEEP_ALIVE", "10m")
             effective_ctx = int(num_ctx or os.environ.get("GIA_NUM_CTX", 4096))
+            effective_threads = max(1, min(int(os.environ.get("GIA_NUM_THREADS", 4)), 8))
+            effective_batch = min(int(os.environ.get("GIA_NUM_BATCH", 512)), 1024)
 
         options: Dict[str, Any] = {
             "temperature": float(temperature or 0.3),
             "num_ctx": effective_ctx,
             "num_predict": int(os.environ.get("GIA_NUM_PREDICT", 512)),
-            "num_thread": int(os.environ.get("GIA_NUM_THREADS", 8)),
+            "num_thread": effective_threads,
             "repeat_penalty": 1.15,
             "use_mmap": True,
-            "use_mlock": False,
-            "num_batch": int(os.environ.get("GIA_NUM_BATCH", 512)),
+            "num_batch": effective_batch,
         }
         if is_gpu_lane:
             options["num_gpu"] = OLLAMA_GPU_LANE_NUM_GPU
@@ -563,13 +699,16 @@ class SovereignInferenceEngine:
         )
 
         full_reply = []
-        # DIRECTIVA DEL ARQUITECTO: sin límite por defecto. GIA_HTTP_TIMEOUT sólo
-        # aplica si se define explícitamente > 0.
+        # DIRECTIVA DEL ARQUITECTO: sin límite por defecto en carriles GPU/remotos.
+        # En respaldo frío CPU (:11434), aplicar cota de seguridad (default 180s; 0 = sin límite)
+        # para evitar sockets bloqueados indefinidamente que anclen modelos in-flight (COEV-20261124-22A14E).
         _raw_http_to = timeout if timeout is not None else os.environ.get("GIA_HTTP_TIMEOUT", "")
+        if str(_raw_http_to).strip() == "" and is_cpu_fallback:
+            _raw_http_to = os.environ.get("GIA_CPU_OLLAMA_FALLBACK_TIMEOUT", "180")
         try:
             effective_timeout = float(_raw_http_to) if str(_raw_http_to).strip() not in ("", "0", "0.0", "None") else None
         except (TypeError, ValueError):
-            effective_timeout = None
+            effective_timeout = 180.0 if is_cpu_fallback else None
         opener = urllib.request.urlopen(req, timeout=effective_timeout)
         with opener as resp:
             for line in resp:
@@ -794,7 +933,21 @@ class SovereignInferenceEngine:
         # 0. TIER 0: Temporal Brain (Socket UNIX IPC, Zero Daemon / Serverless; solo modelos no-VLM)
         if (_TEMPORAL_BRAIN_ACTIVE or _LOCAL_RUNNER_ACTIVE) and not _is_vlm_model(target_model):
             local_runner = get_temporal_brain() if _TEMPORAL_BRAIN_ACTIVE else get_sovereign_local_runner()
-            for _tb_attempt in range(2):
+            try:
+                tb_wait_budget = float(os.environ.get("GIA_TEMPORAL_BRAIN_WAIT_SEC", "20.0"))
+            except (TypeError, ValueError):
+                tb_wait_budget = 20.0
+            try:
+                tb_poll_step = max(0.05, float(os.environ.get("GIA_TEMPORAL_BRAIN_POLL_SEC", "1.5")))
+            except (TypeError, ValueError):
+                tb_poll_step = 1.5
+            tb_deadline = time.monotonic() + max(0.0, tb_wait_budget)
+            tb_last_err: Optional[Exception] = None
+            _tb_attempt = 0
+
+            while True:
+                if cancel_event and cancel_event.is_set():
+                    return ""
                 try:
                     if local_runner.is_serverless_ready(target_model):
                         self.last_channel_used = "temporal_brain"
@@ -809,11 +962,35 @@ class SovereignInferenceEngine:
                             yield tok
                         if yielded_any:
                             return
+                        tb_last_err = RuntimeError("TemporalBrain devolvió stream vacío (posible warmup 503)")
+                    else:
+                        break
                 except Exception as _tb_err:
-                    if _tb_attempt == 0:
-                        time.sleep(0.8)
-                        continue
-                    logger.warning(f"Aviso en TemporalBrain IPC ({_tb_err}); evaluando respaldo local.")
+                    tb_last_err = _tb_err
+
+                _tb_attempt += 1
+                tb_warming = _is_temporal_brain_active_or_warming(local_runner)
+                if tb_warming and time.monotonic() < tb_deadline:
+                    time.sleep(min(tb_poll_step, max(0.05, tb_deadline - time.monotonic())))
+                    continue
+                if _tb_attempt == 1 and not tb_warming:
+                    time.sleep(0.5)
+                    continue
+                break
+
+            if tb_last_err is not None:
+                logger.warning(f"Aviso en TemporalBrain IPC ({tb_last_err}); evaluando respaldo local.")
+
+            # Anti-duplicación estricta: si TemporalBrain posee KAIJU y sigue activo/en warmup,
+            # NO derramar un segundo runner KAIJU de 4.4 GB hacia Ollama CPU :11434.
+            allow_kaiju_dup = os.environ.get("GIA_ALLOW_KAIJU_CPU_DUPLICATE", "0").strip().lower() in (
+                "1", "true", "yes"
+            )
+            if _is_kaiju_model(target_model) and not allow_kaiju_dup and _is_temporal_brain_active_or_warming(local_runner):
+                raise RuntimeError(
+                    f"TemporalBrain activo/en warmup ({tb_last_err or 'sin respuesta'}); "
+                    "se bloqueó fallback duplicado de KAIJU hacia Ollama CPU :11434."
+                )
 
         # 0.5. TIER 0.5: Motor Colibri MoE Ultrarrápido y Soberano (solo si el servidor Colibri está vivo en puerto 8765)
         if _COLIBRI_ACTIVE:

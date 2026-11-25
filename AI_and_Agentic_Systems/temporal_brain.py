@@ -1128,12 +1128,13 @@ class TemporalBrain:
                     yield msg
                     return msg
                 with client.stream("POST", "/v1/chat/completions", json=payload) as resp:
-                    if resp.status_code == 503 and time.monotonic() < warmup_deadline:
+                    status_code = getattr(resp, "status_code", 200)
+                    if isinstance(status_code, int) and status_code == 503 and time.monotonic() < warmup_deadline:
                         time.sleep(min(warmup_poll_s, max(0.05, warmup_deadline - time.monotonic())))
                         continue
-                    if resp.status_code != 200:
+                    if isinstance(status_code, int) and status_code >= 400:
                         body = resp.read().decode("utf-8", errors="ignore")[:240]
-                        raise RuntimeError(f"Error del motor Temporal Brain (HTTP {resp.status_code}): {body}")
+                        raise RuntimeError(f"Error del motor Temporal Brain (HTTP {status_code}): {body}")
                     for line in resp.iter_lines():
                         if cancel_event and cancel_event.is_set():
                             msg = "\n[⛔ Inferencia cancelada y proceso cortado por el usuario]"

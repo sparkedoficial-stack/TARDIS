@@ -1,0 +1,23 @@
+import pytest
+from core.config import Settings, get_settings
+
+def test_settings_load(monkeypatch):
+    settings = get_settings()
+    assert settings.port == 8757
+    assert settings.model in ("TARDIS-NEURAL-SPACE-KAIJU", "dolphin3:latest", "hermes3:8b", "huihui_ai/llama3.1-8b-instruct-abliterated")
+    assert settings.num_ctx in (4096, 16384, 32768)
+    assert settings.num_predict in (512, 2048)
+    assert settings.host == "127.0.0.1"
+    assert len(settings.token) > 0
+    assert settings.token not in ("invalid-token", "Imznu9ZNtdbFl2ebIGSzpYqe7A3OS4Y5", "0")
+    assert settings.ollama_flash_attention is True
+    assert settings.ram_budget_gb in (18.0, 28.0) or settings.ram_budget_gb > 0
+    assert 1 <= settings.num_threads <= 16
+    monkeypatch.delenv("GIA_NUM_THREADS", raising=False)
+    assert Settings().num_threads == 4
+
+def test_settings_to_dict():
+    settings = get_settings()
+    d = settings.to_dict()
+    assert d["model"] in ("TARDIS-NEURAL-SPACE-KAIJU", "dolphin3:latest", "hermes3:8b", "huihui_ai/llama3.1-8b-instruct-abliterated")
+    assert d["port"] == 8757

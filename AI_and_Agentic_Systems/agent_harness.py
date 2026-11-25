@@ -245,6 +245,8 @@ class ToolRegistry:
         self._reg_agent_colony_tools()
         # 11. MÚSICA Y SOUNDTRACK SOBERANO (YOUTUBE MUSIC)
         self._reg_music_tools()
+        # 12. NAVEGADOR SOBERANO INTEGRADO, INVESTIGACIÓN Y AUTONOMÍA LIBRE
+        self._reg_sovereign_browser_tools()
 
     def _reg_hw_os_tools(self) -> None:
         def _set_vol(args: dict):
@@ -1419,6 +1421,136 @@ class ToolRegistry:
             description="Marca o desmarca la pista actual como favorita en la biblioteca musical de TARDIS.",
             parameters={},
             handler=_music_favorite,
+        ))
+
+    def _reg_sovereign_browser_tools(self) -> None:
+        def _hub():
+            from core.tardis_sovereign_browser_agent import get_sovereign_browser_hub
+            return get_sovereign_browser_hub()
+
+        self.register(ToolDefinition(
+            name="browser_navigate",
+            category="SOVEREIGN_BROWSER",
+            description="Abre o navega a cualquier URL dentro del navegador Chromium integrado en la interfaz de TARDIS.",
+            parameters={
+                "url": {"type": "string", "description": "URL o dominio de destino"},
+                "new_tab": {"type": "boolean", "description": "Abrir en una nueva pestaña"},
+                "open_ui": {"type": "boolean", "description": "Mostrar el navegador en la interfaz"},
+            },
+            required_args=["url"],
+            handler=lambda a: _hub().navigate(
+                str(a.get("url", "")),
+                new_tab=bool(a.get("new_tab", False)),
+                open_ui=bool(a.get("open_ui", True)),
+            ),
+        ))
+
+        self.register(ToolDefinition(
+            name="browser_search",
+            category="SOVEREIGN_BROWSER",
+            description="Busca información o noticias en internet dentro del navegador integrado de TARDIS (duckduckgo, news, wikipedia, arxiv, github).",
+            parameters={
+                "query": {"type": "string", "description": "Consulta de búsqueda"},
+                "engine": {"type": "string", "enum": ["duckduckgo", "news", "wikipedia", "arxiv", "github"]},
+            },
+            required_args=["query"],
+            handler=lambda a: _hub().search(
+                str(a.get("query", "")),
+                engine=str(a.get("engine", "duckduckgo")),
+            ),
+        ))
+
+        self.register(ToolDefinition(
+            name="browser_click",
+            category="SOVEREIGN_BROWSER",
+            description="Hace clic en un elemento de la página activa del navegador integrado por selector CSS o texto visible.",
+            parameters={
+                "selector": {"type": "string", "description": "Selector CSS opcional"},
+                "text": {"type": "string", "description": "Texto visible del enlace o botón"},
+            },
+            handler=lambda a: _hub().click(
+                selector=str(a.get("selector", "")),
+                text=str(a.get("text", "")),
+            ),
+        ))
+
+        self.register(ToolDefinition(
+            name="browser_type",
+            category="SOVEREIGN_BROWSER",
+            description="Escribe texto en un campo o formulario de la página activa del navegador integrado y opcionalmente lo envía.",
+            parameters={
+                "selector": {"type": "string", "description": "Selector CSS del campo input/textarea"},
+                "text": {"type": "string", "description": "Texto a escribir"},
+                "submit": {"type": "boolean", "description": "Presionar Enter/enviar formulario"},
+            },
+            required_args=["text"],
+            handler=lambda a: _hub().type_text(
+                selector=str(a.get("selector", "")),
+                text=str(a.get("text", "")),
+                submit=bool(a.get("submit", True)),
+            ),
+        ))
+
+        self.register(ToolDefinition(
+            name="browser_scroll",
+            category="SOVEREIGN_BROWSER",
+            description="Desplaza la página abierta en el navegador integrado (down, up, top, bottom) para leer contenido extenso.",
+            parameters={
+                "direction": {"type": "string", "enum": ["down", "up", "top", "bottom"]},
+                "amount": {"type": "integer", "description": "Píxeles a desplazar"},
+            },
+            handler=lambda a: _hub().scroll(
+                direction=str(a.get("direction", "down")),
+                amount=int(a.get("amount", 720)),
+            ),
+        ))
+
+        self.register(ToolDefinition(
+            name="browser_eval_js",
+            category="SOVEREIGN_BROWSER",
+            description="Ejecuta JavaScript en la página activa del navegador integrado para inspección DOM o control fino.",
+            parameters={"script": {"type": "string", "description": "Expresión o código JavaScript"}},
+            required_args=["script"],
+            handler=lambda a: _hub().eval_js(str(a.get("script", ""))),
+        ))
+
+        self.register(ToolDefinition(
+            name="browser_read_page",
+            category="SOVEREIGN_BROWSER",
+            description="Lee el contenido textual, título y enlaces de la página actualmente abierta en el navegador de TARDIS.",
+            parameters={},
+            handler=lambda _a: _hub().read_current_page(),
+        ))
+
+        self.register(ToolDefinition(
+            name="browser_investigate_and_conclude",
+            category="SOVEREIGN_BROWSER",
+            description="Explora noticias, páginas web o la pestaña actual en el navegador integrado y formula las conclusiones propias de TARDIS archivándolas en memoria.",
+            parameters={
+                "topic": {"type": "string", "description": "Tema o consulta a investigar"},
+                "mode": {"type": "string", "enum": ["news", "research", "current_page", "free_will"]},
+                "url": {"type": "string", "description": "URL específica opcional a analizar"},
+                "max_pages": {"type": "integer", "description": "Número de fuentes a contrastar (1-5)"},
+            },
+            handler=lambda a: _hub().investigate_and_conclude(
+                topic=str(a.get("topic", "")),
+                mode=str(a.get("mode", "research")),
+                url=str(a.get("url", "")),
+                max_pages=int(a.get("max_pages", 3)),
+            ),
+        ))
+
+        self.register(ToolDefinition(
+            name="browser_autonomous_explore",
+            category="SOVEREIGN_BROWSER",
+            description="Activa la voluntad libre de TARDIS para elegir por sí misma qué investigar o explorar en internet usando el navegador y guardar sus conclusiones propias.",
+            parameters={
+                "custom_goal": {"type": "string", "description": "Pista opcional (si se omite, TARDIS decide 100% libremente)"},
+                "enable_continuous": {"type": "boolean", "description": "Activar ciclos periódicos continuos"},
+            },
+            handler=lambda a: (
+                _hub().set_autonomy(True) if bool(a.get("enable_continuous", False)) else None
+            ) or _hub().run_free_will_session(custom_hint=str(a.get("custom_goal", ""))),
         ))
 
 

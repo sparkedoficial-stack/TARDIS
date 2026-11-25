@@ -97,6 +97,7 @@ Módulos y componentes auxiliares del sistema.
 - **continuity_state.json**: Componente de alta eficiencia.
 - **contributing.md**: Componente de alta eficiencia.
 - **convert_fp8_to_int4.py**: Componente de alta eficiencia.
+- **core__config.py**: Núcleo de orquestación y control temporal/espacial.
 - **core__embed_isotropy.py**: Núcleo de orquestación y control temporal/espacial.
 - **core__gods_eye_realtime.py**: Motor de ingeniería inversa multi-arquitectura y descompilación.
 - **core__hub_health.py**: Núcleo de orquestación y control temporal/espacial.
@@ -1072,11 +1073,15 @@ Módulos y componentes auxiliares del sistema.
 - **dossier_20261124_205917_627.json**: Componente de alta eficiencia.
 - **dossier_20261124_205921_263.json**: Componente de alta eficiencia.
 - **dossier_20261124_205924_264.json**: Componente de alta eficiencia.
+- **dossier_20261125_140138_065.json**: Componente de alta eficiencia.
+- **dossier_20261125_144316_692.json**: Componente de alta eficiencia.
+- **dossier_20261125_144536_793.json**: Componente de alta eficiencia.
 - **dynamic_tools_registry.json**: Directorio y puente soberano de interoperabilidad omni-herramientas.
 - **ecca_v3_core.py**: Núcleo de orquestación y control temporal/espacial.
 - **embed_isotropy.py**: Componente de alta eficiencia.
 - **embed_isotropy_calibration.json**: Componente de alta eficiencia.
 - **engine.py**: Componente de alta eficiencia.
+- **engine__sovereign_client.py**: Componente de alta eficiencia.
 - **engine_state.json**: Componente de alta eficiencia.
 - **eval_glm.py**: Componente de alta eficiencia.
 - **evaluator_nn.py**: Componente de alta eficiencia.
@@ -1291,6 +1296,7 @@ Módulos y componentes auxiliares del sistema.
 - **tardis_bridge.py**: Componente de alta eficiencia.
 - **tardis_browser.py**: Componente de alta eficiencia.
 - **tardis_browser_gui.py**: Componente de alta eficiencia.
+- **tardis_browser_state.json**: Componente de alta eficiencia.
 - **tardis_c310_conversation.py**: Componente de alta eficiencia.
 - **tardis_calculadora_voz.py**: Componente de alta eficiencia.
 - **tardis_canary_verifier.py**: Componente de alta eficiencia.
@@ -1321,6 +1327,7 @@ Módulos y componentes auxiliares del sistema.
 - **tardis_skill_registry.py**: Directorio y puente soberano de interoperabilidad omni-herramientas.
 - **tardis_social.py**: Componente de alta eficiencia.
 - **tardis_social_engine.py**: Componente de alta eficiencia.
+- **tardis_sovereign_browser_agent.py**: Modelo lógico y comportamiento autónomo distribuido.
 - **tardis_ssm_v27.py**: Componente de alta eficiencia.
 - **tardis_system_repair.py**: Componente de alta eficiencia.
 - **tardis_teaching.py**: Componente de alta eficiencia.

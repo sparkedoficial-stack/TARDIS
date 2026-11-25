@@ -329,6 +329,19 @@ class MundoLocalSTT:
             context_hint=context_hint,
         )
 
+    def transcribe_pcm_partial(
+        self,
+        pcm_bytes: bytes,
+        language: str = DEFAULT_LANGUAGE,
+        context_hint: str = "",
+    ) -> Tuple[str, float]:
+        res = self._get_engine().transcribe_pcm_partial(
+            pcm_bytes,
+            language=language,
+            context_hint=context_hint,
+        )
+        return res.text, res.elapsed_s
+
     def transcribe_audio_bytes(
         self,
         audio_bytes: bytes,
@@ -603,6 +616,16 @@ class MundoSpeechSegmenter:
         self.barge_streak = 0
         if self.silero is not None:
             self.silero.reset()
+
+    def get_current_speech_pcm(self, max_seconds: float = 10.0) -> Tuple[bytes, float]:
+        if not self.in_speech or not self.speech_frames:
+            return b"", 0.0
+        frames = list(self.speech_frames)
+        max_frames = max(1, int((max_seconds * 1000.0) / max(10, self.cfg.frame_ms)))
+        if len(frames) > max_frames:
+            frames = frames[-max_frames:]
+        pcm = b"".join(frames)
+        return pcm, len(pcm) / float(max(1, self.cfg.sample_rate) * 2)
 
     @staticmethod
     def frame_rms(frame: bytes) -> float:
@@ -961,6 +984,56 @@ class MundoContinuousVoiceEngine:
         self._active_turn_thread: Optional[threading.Thread] = None
         self._emit_lock = threading.Lock()
         self._last_level_emit = 0.0
+        self._preview_lock = threading.Lock()
+        self._preview_busy = False
+        self._last_preview_ts = 0.0
+        self._last_preview_text = ""
+
+    def _maybe_schedule_live_preview(self, rms: float) -> None:
+        if self.paused or self.muted or self.player.is_playing:
+            return
+        now = time.monotonic()
+        if (now - self._last_preview_ts) < 0.38:
+            return
+        with self._preview_lock:
+            if self._preview_busy:
+                return
+            pcm, dur_s = self.segmenter.get_current_speech_pcm(max_seconds=10.0)
+            if not pcm or dur_s < 0.35:
+                return
+            self._preview_busy = True
+            self._last_preview_ts = now
+
+        def _worker() -> None:
+            try:
+                txt, el = self.stt.transcribe_pcm_partial(pcm, language=self.cfg.language)
+                if txt and self.segmenter.in_speech and not self.player.is_playing:
+                    if txt != self._last_preview_text:
+                        self._last_preview_text = txt
+                        stt_ms = int(round(el * 1000))
+                        try:
+                            from core.tardis_voice_engine import get_live_dictation_tracker
+                            get_live_dictation_tracker().update_partial(
+                                txt, source="mundo_voice", rms=rms, stt_ms=stt_ms
+                            )
+                        except Exception:
+                            pass
+                        self._emit_json({
+                            "type": "user_transcript_partial",
+                            "text": txt,
+                            "stt_ms": stt_ms,
+                            "session_id": self.session_id or "",
+                        })
+                        if not self.cfg.json_stream:
+                            sys.stdout.write(f"\r\033[2K{_C_AMBER}🎙️  Registrando ▸{_C_RESET} {txt[:96]}")
+                            sys.stdout.flush()
+            except Exception:
+                pass
+            finally:
+                with self._preview_lock:
+                    self._preview_busy = False
+
+        threading.Thread(target=_worker, daemon=True).start()
 
     def _emit_json(self, payload: Dict[str, Any]) -> None:
         if not self.cfg.json_stream:
@@ -1522,7 +1595,13 @@ class MundoContinuousVoiceEngine:
                     self._set_state("speech_detected")
 
                 if res["utterance"]:
+                    self._last_preview_text = ""
+                    if not self.cfg.json_stream:
+                        sys.stdout.write("\r\033[2K")
+                        sys.stdout.flush()
                     self._dispatch_audio_utterance(res["utterance"])
+                elif res["in_speech"] and not self.paused and not ai_speaking:
+                    self._maybe_schedule_live_preview(float(res.get("rms") or 0.0))
         except KeyboardInterrupt:
             self._log(f"\n{_C_YELLOW}Cerrando conversación de voz continua...{_C_RESET}")
         finally:

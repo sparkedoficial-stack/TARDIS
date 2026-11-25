@@ -369,6 +369,7 @@ def emit_once(model: str | None = None) -> dict:
     # nuestra semilla.
     node, provider = "temporal_brain", "local"
     text = ""
+    brain = None
     try:
         from core.temporal_brain import get_temporal_brain
         brain = get_temporal_brain()
@@ -378,7 +379,8 @@ def emit_once(model: str | None = None) -> dict:
                 {"role": "user", "content": prompt}
             ],
             temperature=0.95,
-            max_tokens=1024
+            max_tokens=1024,
+            timeout=120.0,
         )
         if res_tb.get("ok"):
             text = (res_tb.get("reply") or "").strip()
@@ -387,6 +389,15 @@ def emit_once(model: str | None = None) -> dict:
     except Exception as e:
         try:
             import gia_sovereign_engine as _gse
+            # Anti-pinning COEV-20261124-22A14E: si TemporalBrain sigue vivo o calentando en arranque,
+            # NO derramar KAIJU hacia Ollama CPU (:11434) donde podría quedar anclado in-flight.
+            if _gse._is_temporal_brain_active_or_warming(brain):
+                _counters["errors"] += 1
+                return {
+                    "ok": False,
+                    "error": f"TemporalBrain ocupado/warmup ({e}); omitido fallback duplicado a Ollama CPU :11434",
+                    "origin": coord,
+                }
             res_gse = _gse.get_engine().chat([
                 {"role": "system", "content": system},
                 {"role": "user", "content": prompt}

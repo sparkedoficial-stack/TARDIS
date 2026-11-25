@@ -3342,7 +3342,9 @@ iframe{border:none;width:100%;height:100%;}</style></head>
     async def get_governor_status_endpoint(fresh: bool = False):
         from core.tardis_resource_governor import get_resource_governor
         gov = get_resource_governor()
-        return gov.collect_snapshot(persist=True) if fresh else gov.read_fast_snapshot()
+        return await asyncio.to_thread(
+            lambda: gov.collect_snapshot(persist=True) if fresh else gov.read_fast_snapshot()
+        )
 
     @app.get("/api/governor/admit")
     async def get_governor_admit_endpoint(task_class: str = "heavy_learning"):
@@ -3383,7 +3385,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
     @app.get("/api/bus/stats")
     async def get_bus_stats_endpoint():
         from core.tardis_event_bus import get_event_bus
-        return get_event_bus().stats()
+        return await asyncio.to_thread(lambda: get_event_bus().stats())
 
     @app.get("/api/bus/events")
     async def get_bus_events_endpoint(topic: Optional[str] = None, severity: Optional[str] = None, limit: int = 40):
@@ -3404,7 +3406,8 @@ iframe{border:none;width:100%;height:100%;}</style></head>
     @app.get("/api/canary/history")
     async def get_canary_history_endpoint(limit: int = 20):
         from core.tardis_canary_verifier import get_canary_verifier
-        return {"ok": True, "history": get_canary_verifier().history(limit=limit)}
+        hist = await asyncio.to_thread(lambda: get_canary_verifier().history(limit=limit))
+        return {"ok": True, "history": hist}
 
     @app.post("/api/canary/verify")
     async def post_canary_verify_endpoint(payload: Dict[str, Any]):
@@ -3426,7 +3429,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
     @app.get("/api/cache/stats")
     async def get_semantic_cache_stats_endpoint():
         from core.tardis_semantic_cache import get_semantic_cache
-        return get_semantic_cache().stats()
+        return await asyncio.to_thread(lambda: get_semantic_cache().stats())
 
     @app.post("/api/cache/lookup")
     async def post_semantic_cache_lookup_endpoint(payload: Dict[str, Any]):
@@ -3481,7 +3484,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
     @app.get("/api/eval/status")
     async def get_eval_status_endpoint():
         from core.tardis_eval_harness import get_eval_harness
-        return get_eval_harness().status()
+        return await asyncio.to_thread(lambda: get_eval_harness().status())
 
     @app.get("/api/eval/history")
     async def get_eval_history_endpoint(limit: int = 20):
@@ -3512,7 +3515,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
     @app.get("/api/compactor/status")
     async def get_compactor_status_endpoint():
         from core.tardis_memory_compactor import get_memory_compactor
-        return get_memory_compactor().status()
+        return await asyncio.to_thread(lambda: get_memory_compactor().status())
 
     @app.get("/api/compactor/history")
     async def get_compactor_history_endpoint(limit: int = 15):
@@ -3536,7 +3539,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
     @app.get("/api/coevolution/status")
     async def get_coevolution_status_endpoint():
         from core.tardis_agy_coevolution import get_coevolution_engine
-        return get_coevolution_engine().get_status()
+        return await asyncio.to_thread(lambda: get_coevolution_engine().get_status())
 
     @app.get("/api/coevolution/proposals")
     async def get_coevolution_proposals_endpoint(status: str = "all", limit: int = 25):
@@ -3610,7 +3613,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
     @app.get("/api/mundo_sin_censura/status")
     async def get_mundo_sin_censura_status_endpoint():
         from core.mundo_sin_censura import get_mundo_sin_censura
-        return get_mundo_sin_censura().get_status()
+        return await asyncio.to_thread(lambda: get_mundo_sin_censura().get_status())
 
     @app.get("/api/mundo_sin_censura/analyze")
     async def get_mundo_sin_censura_analyze_endpoint():
@@ -4889,7 +4892,7 @@ iframe{border:none;width:100%;height:100%;}</style></head>
             from core.cyberdefense_sentinel import get_cyberdefense_sentinel
             from dataclasses import asdict
             sentinel = get_cyberdefense_sentinel()
-            assessment = sentinel.assess_security_state()
+            assessment = await asyncio.to_thread(sentinel.assess_security_state)
             return {"ok": True, **asdict(assessment)}
         except Exception as e:
             return {"ok": False, "error": str(e)}
@@ -5740,6 +5743,185 @@ iframe{border:none;width:100%;height:100%;}</style></head>
         except Exception as e:
             return {"ok": False, "error": str(e), "word_timings": []}
 
+
+    # --------------------------------------------------------------------------
+    # NAVEGADOR SOBERANO INTEGRADO, INVESTIGACIÓN Y AUTONOMÍA LIBRE DE TARDIS
+    # --------------------------------------------------------------------------
+
+    @app.get("/api/browser/state")
+    async def get_sovereign_browser_state_endpoint():
+        from core.tardis_sovereign_browser_agent import get_sovereign_browser_hub
+        return get_sovereign_browser_hub().get_state()
+
+    @app.get("/api/browser/commands/poll")
+    async def poll_sovereign_browser_commands_endpoint(since: int = 0):
+        from core.tardis_sovereign_browser_agent import get_sovereign_browser_hub
+        return get_sovereign_browser_hub().poll_commands(since=since)
+
+    @app.post("/api/browser/report")
+    async def report_sovereign_browser_ui_endpoint(payload: Dict[str, Any]):
+        from core.tardis_sovereign_browser_agent import get_sovereign_browser_hub
+        return get_sovereign_browser_hub().report_from_ui(payload)
+
+    @app.post("/api/browser/navigate")
+    async def navigate_sovereign_browser_endpoint(payload: Dict[str, Any]):
+        from core.tardis_sovereign_browser_agent import get_sovereign_browser_hub
+        url = str(payload.get("url") or "").strip()
+        if not url:
+            raise HTTPException(status_code=400, detail="Se requiere 'url'.")
+        return get_sovereign_browser_hub().navigate(
+            url,
+            pilot=str(payload.get("pilot") or "tardis"),
+            open_ui=bool(payload.get("open_ui", True)),
+            new_tab=bool(payload.get("new_tab", False)),
+        )
+
+    @app.post("/api/browser/search")
+    async def search_sovereign_browser_endpoint(payload: Dict[str, Any]):
+        from core.tardis_sovereign_browser_agent import get_sovereign_browser_hub
+        query = str(payload.get("query") or "").strip()
+        if not query:
+            raise HTTPException(status_code=400, detail="Se requiere 'query'.")
+        return get_sovereign_browser_hub().search(
+            query,
+            engine=str(payload.get("engine") or "duckduckgo"),
+            pilot=str(payload.get("pilot") or "tardis"),
+            open_ui=bool(payload.get("open_ui", True)),
+        )
+
+    @app.post("/api/browser/action")
+    async def action_sovereign_browser_endpoint(payload: Dict[str, Any]):
+        from core.tardis_sovereign_browser_agent import get_sovereign_browser_hub
+        hub = get_sovereign_browser_hub()
+        action = str(payload.get("action") or "").strip().lower()
+        pilot = str(payload.get("pilot") or "tardis")
+        if not action:
+            raise HTTPException(status_code=400, detail="Se requiere 'action'.")
+
+        if action == "click":
+            return hub.click(
+                selector=str(payload.get("selector") or ""),
+                text=str(payload.get("text") or ""),
+                pilot=pilot,
+            )
+        if action == "type":
+            return hub.type_text(
+                selector=str(payload.get("selector") or ""),
+                text=str(payload.get("text") or ""),
+                submit=bool(payload.get("submit", True)),
+                pilot=pilot,
+            )
+        if action == "scroll":
+            return hub.scroll(
+                direction=str(payload.get("direction") or "down"),
+                amount=int(payload.get("amount") or 720),
+                pilot=pilot,
+            )
+        if action == "eval_js":
+            loop = asyncio.get_event_loop()
+            return await loop.run_in_executor(
+                None,
+                lambda: hub.eval_js(
+                    str(payload.get("script") or ""),
+                    pilot=pilot,
+                    wait_s=float(payload.get("wait_s", 2.0)),
+                ),
+            )
+        if action == "read_page":
+            loop = asyncio.get_event_loop()
+            return await loop.run_in_executor(None, hub.read_current_page)
+        if action == "take_control":
+            return hub.take_manual_control()
+        if action in ("back", "forward", "reload", "new_tab", "switch_tab", "close_tab", "open_ui", "close_ui", "extract_dom"):
+            params = {k: v for k, v in payload.items() if k not in ("action", "pilot")}
+            cmd = hub.dispatch_command(
+                action,
+                params,
+                pilot=pilot,
+                detail=str(payload.get("detail") or f"Acción navegador: {action}"),
+                open_ui=(action == "open_ui" or bool(payload.get("open_ui", False))),
+            )
+            return {"ok": True, "command": cmd}
+        raise HTTPException(status_code=400, detail=f"Acción no soportada: {action}")
+
+    @app.post("/api/browser/investigate")
+    async def investigate_sovereign_browser_endpoint(payload: Dict[str, Any]):
+        from core.tardis_sovereign_browser_agent import get_sovereign_browser_hub
+        hub = get_sovereign_browser_hub()
+        topic = str(payload.get("topic") or payload.get("query") or "").strip()
+        mode = str(payload.get("mode") or "research").strip().lower()
+        url = str(payload.get("url") or "").strip()
+        max_pages = int(payload.get("max_pages") or 3)
+        pilot = str(payload.get("pilot") or "tardis")
+        open_ui = bool(payload.get("open_ui", True))
+        use_llm = bool(payload.get("use_llm", True))
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(
+            None,
+            lambda: hub.investigate_and_conclude(
+                topic=topic,
+                mode=mode,
+                url=url,
+                max_pages=max_pages,
+                pilot=pilot,
+                open_ui=open_ui,
+                use_llm=use_llm,
+            ),
+        )
+
+    @app.post("/api/browser/conclude_current")
+    async def conclude_current_browser_page_endpoint(payload: Dict[str, Any]):
+        from core.tardis_sovereign_browser_agent import get_sovereign_browser_hub
+        hub = get_sovereign_browser_hub()
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(
+            None,
+            lambda: hub.conclude_current_page(
+                url=str(payload.get("url") or ""),
+                title=str(payload.get("title") or ""),
+                text=str(payload.get("text") or ""),
+                links=payload.get("links") if isinstance(payload.get("links"), list) else None,
+                pilot=str(payload.get("pilot") or "tardis"),
+                use_llm=bool(payload.get("use_llm", True)),
+            ),
+        )
+
+    @app.get("/api/browser/conclusions")
+    async def get_sovereign_browser_conclusions_endpoint(limit: int = 25):
+        from core.tardis_sovereign_browser_agent import get_sovereign_browser_hub
+        concs = get_sovereign_browser_hub().get_conclusions(limit=limit)
+        return {"ok": True, "count": len(concs), "conclusions": concs}
+
+    @app.get("/api/browser/actions")
+    async def get_sovereign_browser_actions_endpoint(limit: int = 40):
+        from core.tardis_sovereign_browser_agent import get_sovereign_browser_hub
+        acts = get_sovereign_browser_hub().get_actions(limit=limit)
+        return {"ok": True, "count": len(acts), "actions": acts}
+
+    @app.post("/api/browser/autonomy")
+    async def control_sovereign_browser_autonomy_endpoint(payload: Dict[str, Any]):
+        from core.tardis_sovereign_browser_agent import get_sovereign_browser_hub
+        hub = get_sovereign_browser_hub()
+        out: Dict[str, Any] = {"ok": True}
+        if "enabled" in payload or "interval_s" in payload:
+            out.update(
+                hub.set_autonomy(
+                    bool(payload.get("enabled", hub.get_state()["autonomous_enabled"])),
+                    interval_s=payload.get("interval_s"),
+                )
+            )
+        if bool(payload.get("run_now", False)):
+            hint = str(payload.get("custom_goal") or payload.get("hint") or "").strip()
+            open_ui = bool(payload.get("open_ui", True))
+            use_llm = bool(payload.get("use_llm", True))
+            loop = asyncio.get_event_loop()
+            res = await loop.run_in_executor(
+                None,
+                lambda: hub.run_free_will_session(custom_hint=hint, open_ui=open_ui, use_llm=use_llm),
+            )
+            out["session"] = res
+            out["ok"] = bool(res.get("ok", True))
+        return out
 
     # --------------------------------------------------------------------------
     # RETROALIMENTACIÓN ACTIVA, AUTO-MEJORA Y PUENTE ANTIGRAVITY
@@ -6882,6 +7064,20 @@ iframe{border:none;width:100%;height:100%;}</style></head>
                     emo_dict = req.affective_state.dict()
                 elif isinstance(req.affective_state, dict):
                     emo_dict = req.affective_state
+
+            # Control directo del Navegador Soberano Integrado desde Chat o Voz
+            if is_local:
+                try:
+                    from core.tardis_sovereign_browser_agent import try_handle_browser_chat_command
+                    loop = asyncio.get_event_loop()
+                    browser_hit = await loop.run_in_executor(None, lambda: try_handle_browser_chat_command(msg))
+                    if browser_hit is not None:
+                        browser_hit.setdefault("request_id", request_id)
+                        browser_hit.setdefault("client_id", client_id)
+                        browser_hit.setdefault("model", target_model)
+                        return browser_hit
+                except Exception as exc_b:
+                    logger.debug("Aviso en interceptor de navegador: %s", exc_b)
 
             # Si omni_temporal_control tiene el pipeline completo de sensores y RAG
             try:

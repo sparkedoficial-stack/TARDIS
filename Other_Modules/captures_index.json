@@ -1,5 +1,62 @@
 [
   {
+    "id": "capture_1795636963_LAN_tapo_c310_god_eye.jpg",
+    "timestamp": REDACTED_PHONE.9245028,
+    "iso_time": "2026-11-25T15:02:43-0500",
+    "terminal_id": "tapo_c310_god_eye",
+    "terminal_name": "GOD-EYE · Tapo C310 (REDACTED_IP)",
+    "origin": "LAN",
+    "client_ip": "REDACTED_IP",
+    "country": "LAN",
+    "resolution": "2304x1296 -> 1280x720",
+    "filename": "capture_1795636963_LAN_tapo_c310_god_eye.jpg",
+    "file_path": "/home/m11/Escritorio/GODWORKS SYSTEM/data/terminal_captures/capture_1795636963_LAN_tapo_c310_god_eye.jpg",
+    "size_bytes": 299441,
+    "biometrics": {
+      "persons_detected": 0,
+      "max_confidence": 0.0,
+      "mood_state": "Perímetro Despejado"
+    }
+  },
+  {
+    "id": "capture_1795621340_LAN_tapo_c310_god_eye.jpg",
+    "timestamp": REDACTED_PHONE.133291,
+    "iso_time": "2026-11-25T10:42:20-0500",
+    "terminal_id": "tapo_c310_god_eye",
+    "terminal_name": "GOD-EYE · Tapo C310 (REDACTED_IP)",
+    "origin": "LAN",
+    "client_ip": "REDACTED_IP",
+    "country": "LAN",
+    "resolution": "2304x1296 -> 1280x720",
+    "filename": "capture_1795621340_LAN_tapo_c310_god_eye.jpg",
+    "file_path": "/home/m11/Escritorio/GODWORKS SYSTEM/data/terminal_captures/capture_1795621340_LAN_tapo_c310_god_eye.jpg",
+    "size_bytes": 316348,
+    "biometrics": {
+      "persons_detected": 0,
+      "max_confidence": 0.0,
+      "mood_state": "Perímetro Despejado"
+    }
+  },
+  {
+    "id": "capture_1795621131_LAN_tapo_c310_god_eye.jpg",
+    "timestamp": REDACTED_PHONE.5654194,
+    "iso_time": "2026-11-25T10:38:51-0500",
+    "terminal_id": "tapo_c310_god_eye",
+    "terminal_name": "GOD-EYE · Tapo C310 (REDACTED_IP)",
+    "origin": "LAN",
+    "client_ip": "REDACTED_IP",
+    "country": "LAN",
+    "resolution": "2304x1296 -> 1280x720",
+    "filename": "capture_1795621131_LAN_tapo_c310_god_eye.jpg",
+    "file_path": "/home/m11/Escritorio/GODWORKS SYSTEM/data/terminal_captures/capture_1795621131_LAN_tapo_c310_god_eye.jpg",
+    "size_bytes": 301341,
+    "biometrics": {
+      "persons_detected": 0,
+      "max_confidence": 0.0,
+      "mood_state": "Perímetro Despejado"
+    }
+  },
+  {
     "id": "capture_1795586542_LAN_tapo_c310_god_eye.jpg",
     "timestamp": REDACTED_PHONE.8592725,
     "iso_time": "2026-11-25T01:02:22-0500",
@@ -3642,54 +3699,6 @@
     "resolution": "1280x720",
     "filename": "capture_1789546213_INTERNET_test_cf_tunnel_camera.jpg",
     "file_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/data/terminal_captures/capture_1789546213_INTERNET_test_cf_tunnel_camera.jpg",
-    "size_bytes": 134,
-    "biometrics": {}
-  },
-  {
-    "id": "capture_1789546212_INTERNET_test_hd_terminal_720p.jpg",
-    "timestamp": REDACTED_PHONE.8035805,
-    "iso_time": "2026-09-16T03:10:12-0500",
-    "terminal_id": "test_hd_terminal_720p",
-    "terminal_name": "Galaxy Ultra - 720p Stream",
-    "origin": "INTERNET",
-    "client_ip": "REDACTED_IP",
-    "country": "MX",
-    "resolution": "1280x720",
-    "filename": "capture_1789546212_INTERNET_test_hd_terminal_720p.jpg",
-    "file_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/data/terminal_captures/capture_1789546212_INTERNET_test_hd_terminal_720p.jpg",
-    "size_bytes": 134,
-    "biometrics": {}
-  },
-  {
-    "id": "capture_1789546211_LAN_api_client_terminal_03.jpg",
-    "timestamp": REDACTED_PHONE.762629,
-    "iso_time": "2026-09-16T03:10:11-0500",
-    "terminal_id": "api_client_terminal_03",
-    "terminal_name": "Terminal Web Móvil",
-    "origin": "LAN",
-    "client_ip": "REDACTED_IP",
-    "country": "LOCAL",
-    "resolution": "480x360",
-    "filename": "capture_1789546211_LAN_api_client_terminal_03.jpg",
-    "file_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/data/terminal_captures/capture_1789546211_LAN_api_client_terminal_03.jpg",
-    "size_bytes": 134,
-    "biometrics": {
-      "emotion": "focused",
-      "confidence": 0.94
-    }
-  },
-  {
-    "id": "capture_1789546210_LAN_test_terminal_laptop_02.jpg",
-    "timestamp": REDACTED_PHONE.9200685,
-    "iso_time": "2026-09-16T03:10:10-0500",
-    "terminal_id": "test_terminal_laptop_02",
-    "terminal_name": "MacBook M3 - Beta",
-    "origin": "LAN",
-    "client_ip": "REDACTED_IP",
-    "country": "LOCAL",
-    "resolution": "1280x720",
-    "filename": "capture_1789546210_LAN_test_terminal_laptop_02.jpg",
-    "file_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/data/terminal_captures/capture_1789546210_LAN_test_terminal_laptop_02.jpg",
     "size_bytes": 134,
     "biometrics": {}
   }

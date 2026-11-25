@@ -932,7 +932,7 @@ def test_resource_governor_two_stage_thermal_power_saver_escalation_and_recovery
         "ok": True,
         "level": "ORANGE",
         "call_priority_active": False,
-        "cpu": {"cores": 16, "load1": 4.3, "psi": {"some_avg60": 38.2}, "temp_c": 85.5},
+        "cpu": {"cores": 16, "load1": 4.3, "psi": {"some_avg60": 38.2}, "temp_c": 90.5},
         "gpu": {"available": True, "temp_c": 76.0},
         "memory": {"available_mb": 12000.0, "swap_used_mb": 1900.0},
     }
@@ -1683,3 +1683,149 @@ def test_memory_compactor_telemetry_ttl_rollups_and_wal_migration(tmp_path: Path
     r_evt = con_ge.execute("SELECT events_count, kind FROM events_daily_rollup").fetchone()
     assert r_evt == (1, "motion")
     con_ge.close()
+
+
+def test_ollama_cpuset_thread_governance_and_kaiju_boot_race_guard(tmp_path: Path, monkeypatch):
+    """Regresión COEV-20261124-0A569D: evita -t 16 en cpuset 8-15 y bloquea duplicado KAIJU en :11434 durante warmup."""
+    import io
+    import json
+    import urllib.request
+    import gia_sovereign_engine as gse
+    from engine.sovereign_client import SovereignClient
+    from core.temporal_brain import TemporalBrain
+
+    # 1) _resolve_safe_cpu_ollama_threads respeta cpuset.cpus.effective y cpu.max en cgroup v2
+    fake_slice = tmp_path / "app.slice"
+    cg = fake_slice / "ollama.service"
+    cg.mkdir(parents=True)
+    (cg / "cpuset.cpus.effective").write_text("8-15\n", encoding="utf-8")
+    (cg / "cpu.max").write_text("max 100000\n", encoding="utf-8")
+
+    monkeypatch.setenv("GIA_NUM_THREADS", "16")
+    monkeypatch.delenv("GIA_CPU_OLLAMA_THREADS", raising=False)
+    assert gse._resolve_safe_cpu_ollama_threads(cgroup_app_slice=fake_slice) == 4
+    assert gse._resolve_safe_cpu_ollama_threads(16, cgroup_app_slice=fake_slice) == 4
+    assert gse._resolve_safe_cpu_ollama_threads(2, cgroup_app_slice=fake_slice) == 2
+
+    # Con throttling cgroup (CPUQuota=200% -> 2 cores; CPUQuota=100% -> 1 core)
+    (cg / "cpu.max").write_text("200000 100000\n", encoding="utf-8")
+    assert gse._resolve_safe_cpu_ollama_threads(16, cgroup_app_slice=fake_slice) == 2
+    (cg / "cpu.max").write_text("100000 100000\n", encoding="utf-8")
+    assert gse._resolve_safe_cpu_ollama_threads(16, cgroup_app_slice=fake_slice) == 1
+
+    # Con cpuset reducido (4 CPUs -> <= 2 hilos)
+    (cg / "cpuset.cpus.effective").write_text("12-15\n", encoding="utf-8")
+    (cg / "cpu.max").write_text("max 100000\n", encoding="utf-8")
+    assert gse._resolve_safe_cpu_ollama_threads(16, cgroup_app_slice=fake_slice) == 2
+
+    # 2) _http_chat_stream hacia :11434 debe capear num_thread <= 4, num_batch <= 512, keep_alive=0 y omitir use_mlock
+    captured_payloads = []
+
+    class _FakeResp(io.BytesIO):
+        status = 200
+        def __enter__(self):
+            return self
+        def __exit__(self, *a):
+            return False
+
+    def _fake_urlopen(req, timeout=None):
+        captured_payloads.append(json.loads(req.data.decode("utf-8")))
+        return _FakeResp(b'{"message":{"content":"ok"},"done":true}\n')
+
+    monkeypatch.setenv("GIA_NUM_THREADS", "16")
+    monkeypatch.setenv("GIA_NUM_BATCH", "2048")
+    monkeypatch.setenv("GIA_OLLAMA_FALLBACK_KEEP_ALIVE", "0")
+    monkeypatch.setattr(gse, "_resolve_safe_cpu_ollama_threads", lambda *a, **k: 4)
+    monkeypatch.setattr(urllib.request, "urlopen", _fake_urlopen)
+
+    monkeypatch.setattr(gse.SovereignInferenceEngine, "diagnose_and_heal", lambda self, **k: {"ok": True})
+    monkeypatch.setattr(gse.SovereignInferenceEngine, "_start_keepalive_watchdog", lambda self: None)
+    eng = gse.SovereignInferenceEngine()
+    monkeypatch.setattr(eng, "find_working_endpoint", lambda model=None: "http://127.0.0.1:11434")
+    tokens = list(eng._http_chat_stream([{"role": "user", "content": "hola"}], model="deepseek-r1:1.5b", num_ctx=16384))
+    assert "".join(tokens) == "ok"
+    assert len(captured_payloads) == 1
+    p = captured_payloads[0]
+    assert p["keep_alive"] == 0
+    assert p["options"]["num_thread"] == 4
+    assert p["options"]["num_batch"] == 512
+    assert p["options"]["num_ctx"] == 8192
+    assert "use_mlock" not in p["options"]
+
+    # 3) SovereignClient._build_options también alinea num_thread <= 4 y omite use_mlock
+    sc = SovereignClient()
+    sc_opts = sc._build_options()
+    assert 1 <= sc_opts["num_thread"] <= 4
+    assert sc_opts["num_batch"] <= 512
+    assert "use_mlock" not in sc_opts
+
+    # 4) Anti-duplicación KAIJU durante warmup de TemporalBrain: nunca derrama hacia :11434
+    monkeypatch.setenv("GIA_TEMPORAL_BRAIN_WAIT_SEC", "0.2")
+    monkeypatch.setenv("GIA_TEMPORAL_BRAIN_POLL_SEC", "0.05")
+    monkeypatch.setenv("GIA_ALLOW_KAIJU_CPU_DUPLICATE", "0")
+
+    class _WarmingTB:
+        def __init__(self, succeed_on_attempt: int = 999):
+            self.calls = 0
+            self.succeed_on_attempt = succeed_on_attempt
+            self.socket_path = tmp_path / "temporal_brain.sock"
+            self.socket_path.write_text("", encoding="utf-8")
+
+        def is_serverless_ready(self, model_name=None):
+            return True
+
+        def chat_stream(self, *args, **kwargs):
+            self.calls += 1
+            if self.calls < self.succeed_on_attempt:
+                raise RuntimeError("HTTP 503 Loading model")
+            yield "listo-desde-tb"
+
+    # 4a) Recuperación durante ventana de warmup -> responde por TemporalBrain sin tocar HTTP :11434
+    tb_recover = _WarmingTB(succeed_on_attempt=2)
+    monkeypatch.setattr(gse, "_TEMPORAL_BRAIN_ACTIVE", True)
+    monkeypatch.setattr(gse, "get_temporal_brain", lambda: tb_recover)
+    http_called = {"n": 0}
+    monkeypatch.setattr(eng, "_http_chat_stream", lambda *a, **k: (http_called.__setitem__("n", http_called["n"] + 1) or iter(["bad"])))
+    out_toks = list(eng.chat_stream([{"role": "user", "content": "ping"}], model="TARDIS-NEURAL-SPACE-KAIJU"))
+    assert "".join(out_toks) == "listo-desde-tb"
+    assert tb_recover.calls == 2
+    assert http_called["n"] == 0
+
+    # 4b) Si TemporalBrain sigue calentando al agotar presupuesto -> bloquea fallback duplicado KAIJU en :11434
+    tb_stuck = _WarmingTB(succeed_on_attempt=999)
+    monkeypatch.setattr(gse, "get_temporal_brain", lambda: tb_stuck)
+    with pytest.raises(RuntimeError, match="fallback duplicado de KAIJU"):
+        list(eng.chat_stream([{"role": "user", "content": "ping"}], model="TARDIS-NEURAL-SPACE-KAIJU"))
+    assert http_called["n"] == 0
+
+    # 5) TemporalBrain.chat() soporta múltiples HTTP 503 consecutivos de warmup antes de responder 200
+    monkeypatch.setenv("TEMPORAL_BRAIN_WARMUP_WAIT_SEC", "1.0")
+    monkeypatch.setenv("TEMPORAL_BRAIN_WARMUP_POLL_SEC", "0.05")
+    tb_real = TemporalBrain()
+    tb_real.socket_path = tmp_path / "tb_unit.sock"
+    monkeypatch.setattr(tb_real, "is_running", lambda: True)
+
+    class _FakeHttpResp:
+        def __init__(self, status_code: int, payload: dict):
+            self.status_code = status_code
+            self._payload = payload
+            self.text = json.dumps(payload)
+
+        def json(self):
+            return self._payload
+
+    seq = [
+        _FakeHttpResp(503, {"error": "Loading model"}),
+        _FakeHttpResp(503, {"error": "Loading model"}),
+        _FakeHttpResp(200, {"choices": [{"message": {"content": "warmup-ok"}}], "usage": {"completion_tokens": 2}}),
+    ]
+
+    class _FakeUdsClient:
+        def post(self, *args, **kwargs):
+            return seq.pop(0)
+
+    monkeypatch.setattr(tb_real, "_get_uds_client", lambda timeout=None: _FakeUdsClient())
+    res_tb = tb_real.chat([{"role": "user", "content": "hola"}], use_cache=False)
+    assert res_tb["ok"] is True
+    assert res_tb["reply"] == "warmup-ok"
+    assert len(seq) == 0

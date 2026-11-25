@@ -167,20 +167,94 @@ def diff(prev: Dict[str, Any], cur: Dict[str, Any]) -> List[Dict[str, Any]]:
             events.append({"kind": "peticion_pendiente", **p})
         return events
 
-    # 1. Cambios de salud por subsistema (proteger contra respuestas vacías o parciales durante reinicio)
+    # 1. Cambios de salud por subsistema (protección contra snapshots parciales, olas masivas
+    #    transitorias de congestión loopback y flaps de 1 solo ciclo mediante histéresis de 2 ciclos).
     old, new = prev.get("subsystems") or {}, cur["subsystems"]
+    prev_sub_tracker = dict(prev.get("subsystem_tracker") or {})
+    prev_streaks: Dict[str, int] = dict(prev_sub_tracker.get("bad_streaks") or {})
+    prev_confirmed: Dict[str, str] = dict(prev_sub_tracker.get("confirmed_status") or old)
+    next_streaks: Dict[str, int] = {}
+    next_confirmed: Dict[str, str] = dict(prev_confirmed)
+
     if new:
         is_partial_hub = len(old) >= 5 and len(new) < max(1, int(len(old) * 0.6))
         if is_partial_hub:
             events.append({"kind": "hub_snapshot_partial", "prev_count": len(old), "cur_count": len(new)})
         else:
-            for sid, st in new.items():
-                before = old.get(sid)
-                if before and before != st:
-                    events.append({"kind": "subsistema_cambio", "subsystem": sid, "from": before, "to": st})
+            # Detectar ola masiva simultánea (ej. >=30% y >=5 subsistemas cayendo online->offline/degraded en 1 ciclo)
+            newly_bad = [
+                sid for sid, st in new.items()
+                if prev_confirmed.get(sid, old.get(sid)) == "online"
+                and st in ("offline", "degraded")
+                and int(prev_streaks.get(sid, 0)) == 0
+            ]
+            mass_flap_threshold = max(5, int(len(old) * 0.30)) if len(old) >= 5 else 999
+            is_mass_flap_wave = len(newly_bad) >= mass_flap_threshold
+
+            if is_mass_flap_wave:
+                for sid in newly_bad:
+                    next_streaks[sid] = 1
+                events.append({
+                    "kind": "hub_mass_flap_suppressed",
+                    "affected_count": len(newly_bad),
+                    "total_subsystems": len(new),
+                    "sample_subsystems": newly_bad[:8],
+                    "detail": "Ola simultánea transitoria suprimida en ciclo 1; requiere confirmación en ciclo 2.",
+                })
+                # Mantener los subsistemas ya confirmados estables en ciclo 1 mientras se espera confirmación
+                for sid, st in new.items():
+                    if sid not in newly_bad:
+                        prev_st = prev_confirmed.get(sid, old.get(sid))
+                        if prev_st and prev_st != st and st == "online":
+                            events.append({"kind": "subsistema_cambio", "subsystem": sid, "from": prev_st, "to": st})
+                            next_confirmed[sid] = st
+                        elif sid not in next_confirmed:
+                            next_confirmed[sid] = st
+            else:
+                for sid, st in new.items():
+                    conf_before = prev_confirmed.get(sid, old.get(sid))
+                    if not conf_before:
+                        next_confirmed[sid] = st
+                        continue
+                    if st in ("offline", "degraded") and conf_before == "online":
+                        streak = int(prev_streaks.get(sid, 0)) + 1
+                        next_streaks[sid] = streak
+                        if streak >= 2:
+                            # Confirmado en 2 ciclos consecutivos -> emitir regresión real
+                            next_confirmed[sid] = st
+                            events.append({
+                                "kind": "subsistema_cambio",
+                                "subsystem": sid,
+                                "from": conf_before,
+                                "to": st,
+                                "confirmed": True,
+                                "streak": streak,
+                            })
+                        else:
+                            # Ciclo 1 transitorio: registrar fluctuación local sin spammear EventBus HIGH
+                            events.append({
+                                "kind": "subsistema_fluctuacion",
+                                "subsystem": sid,
+                                "from": conf_before,
+                                "to": st,
+                                "confirmed": False,
+                                "streak": streak,
+                            })
+                    elif conf_before != st:
+                        # Recuperación a online (o transición entre estados ya confirmados offline<->degraded)
+                        next_confirmed[sid] = st
+                        events.append({"kind": "subsistema_cambio", "subsystem": sid, "from": conf_before, "to": st})
+                    else:
+                        next_confirmed[sid] = st
+
             for sid in old:
                 if sid not in new:
                     events.append({"kind": "subsistema_ausente", "subsystem": sid})
+
+    cur["subsystem_tracker"] = {
+        "bad_streaks": next_streaks,
+        "confirmed_status": next_confirmed,
+    }
 
     # 2. Peticiones nuevas o que cambiaron de estado
     prev_ids = {p["id"]: p["status"] for p in (prev.get("inbox", {}).get("pending") or [])}

@@ -31,6 +31,8 @@ Interfaces biométricas de voz, síntesis de audio autónoma, retroalimentación
 - **test_voice_program.py**: Procesamiento de señal de audio y síntesis vocal biométrica.
 - **voice.py**: Procesamiento de señal de audio y síntesis vocal biométrica.
 - **voice_assistant.py**: Procesamiento de señal de audio y síntesis vocal biométrica.
+- **voice_dictation_live.json**: Procesamiento de señal de audio y síntesis vocal biométrica.
+- **voice_dictation_live.txt**: Procesamiento de señal de audio y síntesis vocal biométrica.
 
 ## Requisitos e Integración
 Los módulos operan bajo el stack soberano de Linux (x86_64), integrando aceleración por GPU y telemetría de bajo nivel.

@@ -414,5 +414,20 @@
     ],
     "known_facts": [],
     "last_reason": "los"
+  },
+  "book": {
+    "key": "book",
+    "name": "book",
+    "visit_count": 1,
+    "first_seen": REDACTED_PHONE.093104,
+    "first_seen_iso": "2026-11-25T14:03:13-0500",
+    "last_seen": REDACTED_PHONE.093104,
+    "last_seen_iso": "2026-11-25T14:03:13-0500",
+    "pedagogical_level": "intermedio",
+    "interests": [],
+    "topics_studied": [],
+    "seen_capsules": [],
+    "known_facts": [],
+    "last_reason": ""
   }
 }

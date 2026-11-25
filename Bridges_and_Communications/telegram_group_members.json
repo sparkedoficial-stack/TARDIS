@@ -70,7 +70,7 @@
       "welcome_enabled": true,
       "welcome_text": "👋 ¡Bienvenido/a {nombre} al grupo *{grupo}*! Soy TARDIS, asistente de inteligencia artificial y sistema de control temporal. Un placer tenerte aquí.",
       "created_at": "2026-09-29T09:31:52.567223",
-      "updated_at": "2026-11-24T13:50:12.325464",
+      "updated_at": "2026-11-25T13:59:39.900124",
       "members": {
         "REDACTED_PHONE": {
           "user_id": REDACTED_PHONE,
@@ -97,8 +97,8 @@
           "is_architect": false,
           "role": "creator",
           "first_seen": "2026-09-29T09:31:53.238465",
-          "last_seen": "2026-11-24T01:29:58.109425",
-          "message_count": 152
+          "last_seen": "2026-11-25T13:59:39.900124",
+          "message_count": 153
         },
         "REDACTED_PHONE": {
           "user_id": REDACTED_PHONE,
@@ -290,16 +290,16 @@
     "REDACTED_PHONE": {
       "chat_id": REDACTED_PHONE,
       "user_id": REDACTED_PHONE,
-      "first_name": "Contacto",
-      "last_name": "REDACTED_PHONE",
-      "full_name": "Contacto REDACTED_PHONE",
-      "display_name": "Contacto REDACTED_PHONE",
-      "username": "",
+      "first_name": "Reysek",
+      "last_name": "Acosta",
+      "full_name": "Reysek Acosta",
+      "display_name": "Reysek",
+      "username": "Reysekacosta023",
       "is_bot": false,
       "is_architect": false,
       "first_seen": "2026-09-29T09:37:33.414153",
-      "last_seen": "2026-09-29T17:13:56.873964",
-      "message_count": 20
+      "last_seen": "2026-11-25T14:39:08.041530",
+      "message_count": 24
     },
     "REDACTED_PHONE": {
       "chat_id": REDACTED_PHONE,
@@ -498,5 +498,5 @@
       "message_count": 2
     }
   },
-  "last_updated": "2026-11-24T13:53:50.264802"
+  "last_updated": "2026-11-25T14:39:08.045736"
 }

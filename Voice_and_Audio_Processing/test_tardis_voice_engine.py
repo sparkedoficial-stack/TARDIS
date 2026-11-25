@@ -18,6 +18,7 @@ from __future__ import annotations
 import base64
 import io
 import sys
+import threading
 import wave
 from pathlib import Path
 from unittest.mock import patch
@@ -292,3 +293,99 @@ def test_voice_llm_router_aligns_num_gpu_and_num_ctx():
         assert text == "Respuesta rápida en GPU."
         assert captured["num_ctx"] == tve.VOICE_OLLAMA_NUM_CTX
         assert captured["num_gpu"] == tve.VOICE_OLLAMA_NUM_GPU
+
+
+def test_es_mx_phonetic_diction_and_expressive_prosody():
+    # Verifica que anglicismos/técnicos se adapten a dicción natural es-MX sin alterar español normal
+    spoken = tve.prepare_text_for_speech(
+        "Bluetooth y PipeWire con Whisper, Ollama, Hyprland, Wi-Fi, Python y CPU a 75°C en v26.4 (22/29 capas)."
+    )
+    assert "blutuz" in spoken
+    assert "paip guayer" in spoken
+    assert "güísper" in spoken
+    assert "olama" in spoken
+    assert "jáiperland" in spoken
+    assert "guái fai" in spoken
+    assert "páiton" in spoken
+    assert "75 grados Celsius" in spoken
+    assert "versión 26 punto 4" in spoken
+    assert "22 de 29" in spoken
+
+    p_q = tve.analyze_expressive_prosody("¿Cómo estás hoy?")
+    p_ex = tve.analyze_expressive_prosody("¡Excelente, Arquitecto!")
+    p_tech = tve.analyze_expressive_prosody("Primero revisa la temperatura en megahercios.", style_hint="step_by_step")
+    assert p_q.style == "inquisitive"
+    assert p_ex.style == "expressive"
+    assert p_tech.style == "articulate"
+    assert p_tech.length_scale > p_ex.length_scale
+
+
+def test_word_timings_synced_segment_and_barge_in_cutoff():
+    tts = tve.get_sovereign_tts(mode="local")
+    text = "Hola Arquitecto, el texto y la voz avanzan sincronizados."
+    seg = tts.synthesize_synced_segment(text, voice="es_MX-claude-high", mode="local")
+    assert seg is not None
+    assert seg.pcm and len(seg.pcm) > 4000
+    assert seg.duration_ms >= 500
+    assert len(seg.word_timings) == len(text.split())
+    # Los timestamps deben ser estrictamente crecientes y cubrir el texto original exacto
+    for i in range(1, len(seg.word_timings)):
+        assert seg.word_timings[i].start_ms >= seg.word_timings[i - 1].start_ms
+    assert text[seg.word_timings[0].char_start : seg.word_timings[0].char_end] == "Hola"
+    assert text[seg.word_timings[-1].char_start : seg.word_timings[-1].char_end] == "sincronizados."
+
+    # Verificar que el reloj de sincronización detiene callbacks al milisegundo ante interrupción (Barge-In)
+    player = tve.GaplessAudioPlayer(enabled=False)
+    stop_ev = threading.Event()
+    revealed = []
+    ended = {}
+
+    def _on_word(_s, wt, idx):
+        revealed.append(wt.word)
+        if idx == 1:
+            stop_ev.set()
+
+    def _on_end(_s, interrupted):
+        ended["interrupted"] = interrupted
+
+    player._run_word_sync_clock(
+        seg, stop_ev, on_word=_on_word, on_end=_on_end, pipewire_lead_ms=0
+    )
+    assert len(revealed) == 2
+    assert ended.get("interrupted") is True
+    player.shutdown()
+
+
+def test_live_dictation_tracker_and_partial_api_endpoints(tmp_path):
+    from fastapi.testclient import TestClient
+    from server.api import create_app
+
+    tracker = tve.LiveDictationTracker(state_path=tmp_path / "live_dict.json")
+    snap1 = tracker.update_partial("Hola Arquitecto revisa", source="test", rms=0.22, stt_ms=145)
+    assert snap1["active"] is True
+    assert snap1["partial_text"] == "Hola Arquitecto revisa"
+    assert (tmp_path / "live_dict.txt").read_text(encoding="utf-8") == "Hola Arquitecto revisa"
+
+    snap2 = tracker.commit_final("Hola Arquitecto, revisa TARDIS.", source="test", stt_ms=310)
+    assert snap2["active"] is False
+    assert snap2["final_text"] == "Hola Arquitecto, revisa TARDIS."
+    assert len(snap2["history"]) == 1
+
+    app = create_app()
+    client = TestClient(app)
+    r_live = client.get("/api/voice/local/dictation_live")
+    assert r_live.status_code == 200
+    assert r_live.json()["ok"] is True
+
+    # TTS con include_timings=True devuelve audio WAV + word_timings + prosodia
+    r_tts = client.post(
+        "/api/voice/local/tts",
+        json={"text": "¿Escuchas la dicción sincronizada?", "mode": "local", "include_timings": True},
+    )
+    assert r_tts.status_code == 200
+    tj = r_tts.json()
+    assert tj["ok"] is True
+    assert tj["prosody"] == "inquisitive"
+    assert tj["duration_ms"] > 300
+    assert len(tj["word_timings"]) == 4
+    assert base64.b64decode(tj["audio_base64"])[:4] == b"RIFF"

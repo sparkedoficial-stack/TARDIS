@@ -99,6 +99,7 @@ Automatizaciones de sistema, diagnósticos de hardware, optimizadores de SO y he
 - **test_screen_unlock_uinput.py**: Componente de alta eficiencia.
 - **test_sovereign_alternate_systems.py**: Componente de alta eficiencia.
 - **test_sovereign_autoprovision.py**: Componente de alta eficiencia.
+- **test_sovereign_browser.py**: Componente de alta eficiencia.
 - **test_tapo_c310_interactive_conversation.py**: Componente de alta eficiencia.
 - **test_tapo_c310_sentinel.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
 - **test_tapo_c310_visitor_interview.py**: Componente de alta eficiencia.
@@ -116,6 +117,7 @@ Automatizaciones de sistema, diagnósticos de hardware, optimizadores de SO y he
 - **test_token_saturation_and_lifecycle.py**: Componente de alta eficiencia.
 - **test_web_research_and_coder.py**: Componente de alta eficiencia.
 - **test_wireless_terminal_and_antigravity.py**: Componente de alta eficiencia.
+- **tests__test_config.py**: Componente de alta eficiencia.
 - **tests__test_sovereign_alternate_systems.py**: Componente de alta eficiencia.
 
 ## Requisitos e Integración
