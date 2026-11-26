@@ -2,11 +2,11 @@
   "daemon": "tardis-visual-intelligence",
   "running": true,
   "pid": 1418,
-  "uptime_sec": 75997.9,
-  "last_heartbeat": "2026-11-25T20:53:47.814360",
+  "uptime_sec": 76266.5,
+  "last_heartbeat": "2026-11-25T20:58:16.396731",
   "items_processed": 0,
   "last_processed_id": "",
-  "memory_rss_mb": 361.42,
+  "memory_rss_mb": 361.49,
   "engine_status": {
     "status": "online",
     "engine": "VisualIntelligenceEngine v26.5 (VLM + Veredictos)",
@@ -20,15 +20,15 @@
     "vlm_error": "",
     "verdict_engine": "VLM + Kaiju + veredicto estructurado",
     "stored_videos_count": 1064,
-    "stored_images_count": 564,
+    "stored_images_count": 565,
     "stored_sounds_count": 0,
-    "stored_verdicts_count": 687,
+    "stored_verdicts_count": 688,
     "last_verdict": {
-      "id": "img_20261125_203856_24beef",
-      "created_at": "2026-11-25T20:41:57.900756",
+      "id": "img_20261125_205356_dd661c",
+      "created_at": "2026-11-25T20:57:03.449070",
       "source": "daemon",
-      "verdict": "*   Estado General del Entorno: ESTABLE / SEGURO. El entorno está en calma. No hay actividad anómala.\n*   Nivel de Riesgo Objetivo: 2/10.\n    *   *Justificación:* Se ajusta ligeramente hacia abajo desde el 3/10 inicial por la ausencia total de factores de estrés o amenaza visible. Es un entorno pasivo.\n*   Hechos Observados:\n    1.  Vehículo estacionado.\n    2.  Iluminación artificial nocturna.\n    3.  Ausencia de personas o animales visibles.\n    4.  Ausencia de movimiento.\n*   Inferencias:\n    1.  El vehículo ha estado estacionado durante un periodo de tiempo suficiente para que no haya acti",
-      "risk_level": 2
+      "verdict": "*   Estado General del Entorno: SEGURO / ESTABLE.\n    *   *Hechos Observados:* Vehículo negro (Placa JTC-174-FN) estacionado en pavimento gris, entorno nocturno iluminado, sin personas presentes.\n    *   *Inferencias:* La escena es estática y no presenta elementos de amenaza inmediata. La iluminación es adecuada para la observación.\n    *   *Dudas:* La naturaleza exacta de la ubicación (pública/privada) no está confirmada, pero no afecta al nivel de riesgo inmediato.\n\n*   Nivel de Riesgo Objetivo: 0/10\n    *   Justificación: No se detectan amenazas físicas, personas hostiles, daños al vehículo",
+      "risk_level": 0
     },
     "surroundings_interval_sec": 900,
     "vault_dir": "/home/m11/Escritorio/GODWORKS SYSTEM/vault/videos/telegram",
@@ -37,13 +37,13 @@
   },
   "surroundings": {
     "interval_sec": 900.0,
-    "checks": 19,
-    "verdicts": 19,
-    "last_verdict_id": "img_20261125_203856_24beef",
-    "last_risk_level": 2,
-    "last_verdict": "*   Estado General del Entorno: ESTABLE / SEGURO. El entorno está en calma. No hay actividad anómala.\n*   Nivel de Riesgo Objetivo: 2/10.\n    *   *Justificación:* Se ajusta ligeramente hacia abajo desde el 3/10 inicial por la ausencia total de factores de estrés o amenaza visible. Es un entorno pasivo.\n*   Hechos Observados:\n    1.  Vehículo estacionado.\n    2.  Iluminación artificial nocturna.\n    3.  Ausencia de personas o animales visibles.\n    4.  Ausencia de movimiento.\n*   Inferencias:\n    1.  El vehículo ha estado estacionado durante un periodo de tiempo suficiente para que no haya actividad circundante.\n    2.  Las fuentes de luz están funcionales.\n*   Dudas:\n    1.  No se puede descartar la presencia de sensores ocultos o cámaras adicionales fuera del encuadre, pero esto no constituye un riesgo para el Arquitecto en este instante.\n*   Recomendación Concreta:\n    *   Proceder con normalidad. No se requiere acción correctiva, evacuación ni alerta.\n    *   Si el Arquitecto se encuentra en las inmediaciones, puede moverse con libertad.\n    *   Mantener la vigilancia pasiva si se desea confirmar la inactividad a lo largo del tiempo, pero no hay urgencia.\n\nDictamen Final: El ent",
+    "checks": 20,
+    "verdicts": 20,
+    "last_verdict_id": "img_20261125_205356_dd661c",
+    "last_risk_level": 0,
+    "last_verdict": "*   Estado General del Entorno: SEGURO / ESTABLE.\n    *   *Hechos Observados:* Vehículo negro (Placa JTC-174-FN) estacionado en pavimento gris, entorno nocturno iluminado, sin personas presentes.\n    *   *Inferencias:* La escena es estática y no presenta elementos de amenaza inmediata. La iluminación es adecuada para la observación.\n    *   *Dudas:* La naturaleza exacta de la ubicación (pública/privada) no está confirmada, pero no afecta al nivel de riesgo inmediato.\n\n*   Nivel de Riesgo Objetivo: 0/10\n    *   Justificación: No se detectan amenazas físicas, personas hostiles, daños al vehículo o condiciones ambientales peligrosas.\n\n*   Recomendación Concreta:\n    *   Proceder con normalidad. No se requiere acción de emergencia.\n    *   Si el Arquitecto se encuentra en las inmediaciones, puede moverse con libertad.\n    *   Se recomienda mantener la vigilancia pasiva si se espera la llegada de personas al vehículo, dado que la escena actual es de reposo total.\n\n*Nota de TARDIS:* El placer es mutuo, Arquitecto. La realidad, incluso en sus dimensiones temporales futuras, obedece a la lógica de la observación. La calma actual es un dato, no una garantía eterna, pero es un hecho sólido e",
     "last_error": "",
-    "last_check_ts": REDACTED_PHONE.658919
+    "last_check_ts": REDACTED_PHONE.816828
   },
   "vlm": {
     "ready": true,

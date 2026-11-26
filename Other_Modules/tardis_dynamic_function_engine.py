@@ -449,15 +449,34 @@ class TardisDynamicFunctionEngine:
         target_file.write_text(extracted_code, encoding="utf-8")
         logger.info(f"💾 [DYNAMIC-FUNCS] Archivo guardado con éxito en: {target_file}")
 
-        # Ejecutar smoke test en subproceso aislado
+        # Ejecutar smoke test en subproceso aislado (política FAIL-CLOSED)
         test_ok, test_out = self._run_smoke_test(target_file)
         if not test_ok:
-            logger.warning(f"[DYNAMIC-FUNCS] Smoke-test falló para {func_name}: {test_out}. Intentando corrección de dependencias...")
-            self._attempt_install_missing_packages(test_out)
-            # Reintentar smoke test una vez
-            test_ok, test_out = self._run_smoke_test(target_file)
+            logger.error(f"[DYNAMIC-FUNCS] Smoke-test falló para {func_name}: {test_out[:300]}. Herramienta NO registrada (fail-closed).")
+            elapsed = round(time.time() - t0, 2)
+            rec = DynamicFunctionRecord(
+                name=func_name,
+                goal=goal,
+                file_path=str(target_file),
+                created_at=datetime.now().isoformat(),
+                status="SMOKE_TEST_FAILED",
+                description=f"Función rechazada por smoke-test para '{goal}'",
+                research_summary=research_context[:300]
+            )
+            self._registry[func_name] = rec
+            self._save_registry()
+            return {
+                "ok": False,
+                "name": func_name,
+                "status": "SMOKE_TEST_FAILED",
+                "file_path": str(target_file),
+                "smoke_test_passed": False,
+                "smoke_test_output": test_out[:300],
+                "elapsed_seconds": elapsed,
+                "model_used": model_used,
+            }
 
-        # Cargar y registrar en caliente
+        # Cargar y registrar en caliente SOLO tras verificación exitosa
         func_callable = self._load_module_function(target_file, func_name)
         if func_callable:
             self._tools[func_name] = func_callable
@@ -477,7 +496,7 @@ class TardisDynamicFunctionEngine:
         self._save_registry()
 
         return {
-            "ok": True,
+            "ok": bool(func_callable),
             "name": func_name,
             "status": "ACTIVE" if func_callable else "LOAD_FAILED",
             "file_path": str(target_file),

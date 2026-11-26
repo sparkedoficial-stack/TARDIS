@@ -1961,35 +1961,73 @@ class AgentHarness:
 
         return {"ok": False, "error": "No hay motor de inferencia disponible", "provider": "none"}
 
+    @staticmethod
+    def _extract_balanced_json(text: str, start: int) -> Optional[str]:
+        """Extrae un objeto JSON balanceado desde ``start`` respetando strings y escapes.
+
+        Sustituye a los regex no-greedy que truncaban parámetros anidados
+        (p. ej. ``{"tool":"x","params":{"a":{"b":1}}}``).
+        """
+        if start < 0 or start >= len(text) or text[start] != "{":
+            return None
+        depth = 0
+        in_str = False
+        esc = False
+        for i in range(start, len(text)):
+            ch = text[i]
+            if in_str:
+                if esc:
+                    esc = False
+                elif ch == "\\":
+                    esc = True
+                elif ch == '"':
+                    in_str = False
+                continue
+            if ch == '"':
+                in_str = True
+            elif ch == "{":
+                depth += 1
+            elif ch == "}":
+                depth -= 1
+                if depth == 0:
+                    return text[start:i + 1]
+        return None
+
     def _extract_tool_directives(self, text: str) -> List[Tuple[str, Dict[str, Any]]]:
         """Extrae llamadas a herramientas en formato directiva [[TOOL_CALL: {...}]]."""
         calls: List[Tuple[str, Dict[str, Any]]] = []
         if not text:
             return calls
 
-        # Patrón 1: [[TOOL_CALL: {"tool": "...", "params": {...}}]]
-        pattern1 = r'\[\[TOOL_CALL:\s*(\{.*?\})\s*\]\]'
-        for m in re.finditer(pattern1, text, re.DOTALL):
+        # Patrón 1: [[TOOL_CALL: {"tool": "...", "params": {...}}]] (JSON anidado)
+        for m in re.finditer(r'\[\[TOOL_CALL:', text):
+            brace = text.find("{", m.end())
+            raw = self._extract_balanced_json(text, brace) if brace != -1 else None
+            if not raw:
+                continue
             try:
-                data = json.loads(m.group(1))
+                data = json.loads(raw)
                 tool_name = data.get("tool") or data.get("name")
                 params = data.get("params") or data.get("arguments") or {}
-                if tool_name:
-                    calls.append((tool_name, params))
+                if tool_name and isinstance(params, dict):
+                    calls.append((str(tool_name), params))
             except Exception:
-                pass
+                continue
 
-        # Patrón 2: Bloques ```json con "tool" o "function"
-        pattern2 = r'```(?:json)?\s*(\{\s*"(?:tool|function)"\s*:\s*".*?\}\s*)```'
-        for m in re.finditer(pattern2, text, re.DOTALL):
+        # Patrón 2: Bloques ```json con "tool" o "function" (JSON anidado)
+        for m in re.finditer(r'```(?:json)?\s*', text):
+            brace = text.find("{", m.end())
+            raw = self._extract_balanced_json(text, brace) if brace != -1 else None
+            if not raw:
+                continue
             try:
-                data = json.loads(m.group(1))
+                data = json.loads(raw)
                 tool_name = data.get("tool") or data.get("function")
                 params = data.get("params") or data.get("arguments") or {}
-                if tool_name and (tool_name, params) not in calls:
-                    calls.append((tool_name, params))
+                if tool_name and isinstance(params, dict) and (str(tool_name), params) not in calls:
+                    calls.append((str(tool_name), params))
             except Exception:
-                pass
+                continue
 
         return calls
 
@@ -2009,6 +2047,21 @@ class AgentHarness:
             "[[TOOL_CALL: {\"tool\": \"nombre_de_herramienta\", \"params\": {\"arg\": \"val\"}}]]\n"
             "Cuando tengas la respuesta final o la tarea esté terminada, entrega la respuesta directamente al usuario."
         )
+
+        # Catálogo compacto de herramientas activas: sin esto el LLM no conocía
+        # los nombres válidos y el bucle ReAct no podía emitir directivas útiles.
+        try:
+            catalog_lines = []
+            for tool in self.registry.list_tools()[:30]:
+                desc = (tool.description or "").strip().replace("\n", " ")[:100]
+                catalog_lines.append(f"- {tool.name}: {desc}")
+            if catalog_lines:
+                system_prompt += (
+                    "\n\nHERRAMIENTAS DISPONIBLES (usa el nombre EXACTO en la directiva):\n"
+                    + "\n".join(catalog_lines)
+                )
+        except Exception:
+            logger.debug("No se pudo construir el catálogo de herramientas", exc_info=True)
 
         messages = [
             {"role": "system", "content": system_prompt},
