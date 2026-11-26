@@ -471,7 +471,8 @@ class TemporalBrain:
         cached = getattr(self, "_nctx_cache", None)
         if cached and now - cached[1] < 60.0:
             return cached[0]
-        n = int(getattr(self, "ctx_size", 0) or 8192)
+        parallel = max(1, int(self.config.get("parallel", 2) or 2))
+        n = max(1024, int(getattr(self, "ctx_size", 0) or 8192) // parallel)
         try:
             transport = httpx.HTTPTransport(uds=str(self.socket_path))
             with httpx.Client(transport=transport, base_url="http://localhost", timeout=2.0) as client:
@@ -918,6 +919,7 @@ class TemporalBrain:
         use_cache: Optional[bool] = None,
         cache_namespace: str = "default",
         cache_ttl_s: Optional[float] = None,
+        id_slot: Optional[int] = None,
     ) -> Dict[str, Any]:
         """Ejecuta inferencia síncrona pasando por caché semántica, adaptadores y hooks personalizados."""
         t0 = time.time()
@@ -1019,7 +1021,10 @@ class TemporalBrain:
             "temperature": options["temperature"],
             "max_tokens": options["max_tokens"],
             "stream": False,
+            "cache_prompt": True,
         }
+        if id_slot is not None:
+            payload["id_slot"] = int(id_slot)
         if top_p is not None:
             payload["top_p"] = float(top_p)
         if top_k is not None:
@@ -1053,17 +1058,22 @@ class TemporalBrain:
                 if resp.status_code == 200:
                     data = resp.json()
                     choices = data.get("choices", [])
-                    reply = choices[0].get("message", {}).get("content", "") if choices else ""
+                    msg_obj = choices[0].get("message", {}) if choices else {}
+                    reply = msg_obj.get("content", "") if isinstance(msg_obj, dict) else ""
+                    reasoning_content = msg_obj.get("reasoning_content") if isinstance(msg_obj, dict) else None
                     usage = data.get("usage", {})
+                    timings = data.get("timings") or {}
                     raw_result = {
                         "ok": True,
-                        "reply": reply.strip(),
+                        "reply": (reply or "").strip(),
                         "model": effective_model,
                         "usage": usage,
                         "elapsed": elapsed,
                         "tokens_per_sec": round(usage.get("completion_tokens", 0) / max(elapsed, 0.001), 1),
                         "engine": "temporal_brain",
                         "socket": str(self.socket_path),
+                        "timings": timings,
+                        "reasoning_content": reasoning_content,
                     }
                     break
                 elif resp.status_code == 503 and time.monotonic() < warmup_deadline:
@@ -1149,6 +1159,8 @@ class TemporalBrain:
         min_p: Optional[float] = None,
         repeat_penalty: Optional[float] = None,
         stop: Optional[List[str]] = None,
+        id_slot: Optional[int] = None,
+        use_cache: Optional[bool] = None,
     ) -> Generator[str, None, str]:
         """Generador streaming que aplica adaptadores y filtros de tokens en tiempo real."""
         options: Dict[str, Any] = {
@@ -1178,6 +1190,23 @@ class TemporalBrain:
                     except Exception:
                         pass
 
+        cache_enabled = (use_cache is not False)
+        if cache_enabled:
+            try:
+                from core.tardis_semantic_cache import get_semantic_cache
+                _ch = get_semantic_cache().lookup(
+                    [dict(m) for m in current_msgs],
+                    model=self.model_name,
+                    namespace="default",
+                    temperature=options["temperature"],
+                )
+                if _ch.get("hit"):
+                    _cached = str(_ch.get("reply") or "")
+                    yield _cached
+                    return _cached
+            except Exception:
+                pass
+
         if not self.is_running():
             self.start()
 
@@ -1189,7 +1218,11 @@ class TemporalBrain:
             "temperature": options["temperature"],
             "max_tokens": options["max_tokens"],
             "stream": True,
+            "cache_prompt": True,
+            "stream_options": {"include_usage": True},
         }
+        if id_slot is not None:
+            payload["id_slot"] = int(id_slot)
         if top_p is not None:
             payload["top_p"] = float(top_p)
         if top_k is not None:
@@ -1264,7 +1297,20 @@ class TemporalBrain:
                                 continue
                     break
 
-        return "".join(full_reply)
+        _stream_reply = "".join(full_reply)
+        if cache_enabled and _stream_reply:
+            try:
+                from core.tardis_semantic_cache import get_semantic_cache
+                get_semantic_cache().store(
+                    [dict(m) for m in current_msgs],
+                    _stream_reply,
+                    model=self.model_name,
+                    namespace="default",
+                    temperature=options["temperature"],
+                )
+            except Exception:
+                pass
+        return _stream_reply
 
 
 # ==============================================================================

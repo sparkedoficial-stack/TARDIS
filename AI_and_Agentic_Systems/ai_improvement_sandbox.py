@@ -500,7 +500,7 @@ def main():
         return
 
     if args.stats:
-        stats = AISandboxDatasetCompiler.get_dataset_stats()
+        stats = AISandboxDatasetCompiler().get_dataset_stats()
         print(f"\n📊 [Estadísticas del Dataset del Sandbox]")
         print(f"  • Pares totales : {stats['total_pairs']}")
         print(f"  • Categorías    : {stats['categories']}")
@@ -508,7 +508,7 @@ def main():
         return
 
     if args.harvest:
-        count = AISandboxDatasetCompiler.harvest_from_vault()
+        count = AISandboxDatasetCompiler().harvest_from_vault()
         print(f"🌾 [Cosecha Completada]: {count} pares agregados al dataset.")
         return
 

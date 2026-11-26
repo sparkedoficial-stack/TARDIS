@@ -79,6 +79,8 @@ class RAGVault:
         self._ids: List[int] = []                     # chunk_id por fila de la matriz
         self._mat_dirty = True
         self._calibrator: Any = None
+        self._embed_avail_cache: Tuple[float, bool] = (0.0, False)
+        self._embed_avail_ttl = 30.0
         self.kg = get_knowledge_graph()
         self._init_db()
 
@@ -182,19 +184,30 @@ class RAGVault:
             return np.zeros((len(texts), EMBED_DIM), dtype=np.float32)
 
     def embed_available(self) -> bool:
+        # Caché con TTL: antes se abría un cliente HTTP (o se esperaba 1.5 s al
+        # iMac) en CADA búsqueda, añadiendo ~1.6 s de latencia al camino crítico.
+        now = time.time()
+        ts, cached = self._embed_avail_cache
+        ttl = self._embed_avail_ttl if cached else 10.0
+        if now - ts <= ttl:
+            return cached
+        ok = False
         try:
             transport = httpx.HTTPTransport(uds=self.embed_socket)
             with httpx.Client(transport=transport, base_url="http://localhost", timeout=2.0) as c:
                 if c.get("/health").status_code == 200:
-                    return True
+                    ok = True
         except Exception:
             pass
-        # Comprobar si iMac 14,1 está disponible
-        try:
-            with httpx.Client(timeout=1.5) as c:
-                return c.get("http://REDACTED_IP:11434/api/tags").status_code == 200
-        except Exception:
-            return False
+        if not ok:
+            # Comprobar si iMac 14,1 está disponible
+            try:
+                with httpx.Client(timeout=1.5) as c:
+                    ok = c.get("http://REDACTED_IP:11434/api/tags").status_code == 200
+            except Exception:
+                ok = False
+        self._embed_avail_cache = (now, ok)
+        return ok
 
     # ------------------------------------------------------------- fragmentado
     @staticmethod
@@ -463,8 +476,13 @@ class RAGVault:
     def _load_matrix(self) -> None:
         con = self._connect()
         try:
+            # Excluir stubs (<160 chars) del índice denso: tras la isotropía ZCA
+            # se convierten en "hubs" universales que desplazan a los chunks reales.
             rows = con.execute(
-                "SELECT chunk_id, vec FROM rag_vectors ORDER BY chunk_id"
+                "SELECT v.chunk_id, v.vec FROM rag_vectors v "
+                "JOIN rag_chunks c ON c.id = v.chunk_id "
+                "WHERE length(trim(c.text)) >= 160 "
+                "ORDER BY v.chunk_id"
             ).fetchall()
         finally:
             con.close()

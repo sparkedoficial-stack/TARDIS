@@ -168,7 +168,7 @@ SWAP_BLOAT_UNITS: Dict[str, Dict[str, Any]] = {
         "idle_kind": "temporal_brain",
     },
     "tardis-ollama-voice.service": {
-        "swap_warn_mb": 1536.0,
+        "swap_warn_mb": 1024.0,
         "swap_recycle_mb": 2048.0,
         "total_recycle_mb": 6144.0,
         "min_uptime_s": 600.0,
@@ -601,6 +601,61 @@ def _read_gpu() -> Dict[str, Any]:
     }
 
 
+def _read_amd_igpu() -> Dict[str, Any]:
+    """Telemetría best-effort de la iGPU AMD Radeon (card1) para el Silicon Lab."""
+    base = Path("/sys/class/drm/card1/device")
+    out: Dict[str, Any] = {
+        "available": False,
+        "busy_pct": 0.0,
+        "temp_c": 0.0,
+        "vram_used_mb": 0.0,
+        "gtt_used_mb": 0.0,
+        "gtt_total_mb": 0.0,
+        "gtt_free_mb": 0.0,
+    }
+    try:
+        if not base.exists():
+            return out
+        out["available"] = True
+        busy_file = base / "gpu_busy_percent"
+        if busy_file.exists():
+            try:
+                out["busy_pct"] = float(busy_file.read_text().strip())
+            except ValueError:
+                out["busy_pct"] = 0.0
+        mem_vram = base / "mem_info_vram_used"
+        if mem_vram.exists():
+            try:
+                out["vram_used_mb"] = round(float(mem_vram.read_text().strip()) / (1024 * 1024), 1)
+            except ValueError:
+                pass
+        mem_gtt_used = base / "mem_info_gtt_used"
+        if mem_gtt_used.exists():
+            try:
+                out["gtt_used_mb"] = round(float(mem_gtt_used.read_text().strip()) / (1024 * 1024), 1)
+            except ValueError:
+                pass
+        mem_gtt_total = base / "mem_info_gtt_total"
+        if mem_gtt_total.exists():
+            try:
+                out["gtt_total_mb"] = round(float(mem_gtt_total.read_text().strip()) / (1024 * 1024), 1)
+            except ValueError:
+                pass
+        out["gtt_free_mb"] = round(max(0.0, out["gtt_total_mb"] - out["gtt_used_mb"]), 1)
+        # temperatura amdgpu hwmon
+        for hw in (base / "hwmon").glob("hwmon*"):
+            tfile = hw / "temp1_input"
+            if tfile.exists():
+                try:
+                    out["temp_c"] = round(float(tfile.read_text().strip()) / 1000.0, 1)
+                except ValueError:
+                    pass
+                break
+    except Exception:
+        out["available"] = False
+    return out
+
+
 # Perfiles Ring 0 de relojes NVIDIA RTX 3050 para mitigación P0 -> P5/P8 en reposo o presión térmica.
 GPU_ECO_PROFILES: Dict[str, Dict[str, Any]] = {
     "eco_idle": {"gr_min": 210, "gr_max": 420, "mem_min": 405, "mem_max": 405, "target_pstate": "P8", "hypr_eco": True},
@@ -709,10 +764,16 @@ def _resolve_gpu_eco_mode(snap: Dict[str, Any], display_state: Dict[str, Any]) -
     gpu_power = float(gpu.get("power_w", 0.0))
     gpu_pstate = str(gpu.get("pstate") or "").upper()
     tb_busy = bool(display_state.get("temporal_brain_busy", False))
+    ollama_11435_busy = bool(display_state.get("ollama_11435_active", False))
+    if not ollama_11435_busy:
+        try:
+            ollama_11435_busy = bool(snap.get("inference_lanes", {}).get("ollama_11435_gpu_voice"))
+        except Exception:
+            ollama_11435_busy = False
     headless = bool(display_state.get("headless_or_display_off", False))
 
     # Nunca degradar inferencia CUDA activa salvo emergencia térmica real (>= 84°C)
-    if tb_busy and gpu_temp < 84.0:
+    if (tb_busy or ollama_11435_busy) and gpu_temp < 84.0:
         return "normal"
 
     if lvl == "RED" or gpu_temp >= 82.0:
@@ -1153,7 +1214,7 @@ def _inspect_service_memory_bloat(
             rss_mb = round(rss_mb, 1)
             swap_mb = round(swap_mb, 1)
 
-            swap_warn = float(spec.get("swap_warn_mb", 1536.0))
+            swap_warn = float(spec.get("swap_warn_mb", 1024.0))
             swap_rec = float(spec.get("swap_recycle_mb", 2048.0))
             tot_rec = float(spec.get("total_recycle_mb", 9216.0))
 
@@ -1727,6 +1788,7 @@ class TardisResourceGovernor:
             "memory": {**mem, "psi": mem_psi},
             "io": {"psi": io_psi},
             "gpu": gpu,
+            "igpu": _read_amd_igpu(),
             "inference_lanes": {
                 "temporal_brain_sock": tb_active,
                 "embed_brain_sock": eb_active,

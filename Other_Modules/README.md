@@ -12,6 +12,7 @@ Módulos y componentes auxiliares del sistema.
 - **CURRENT_TUNNEL_URL.txt**: Componente de alta eficiencia.
 - **ChatView.swift**: Componente nativo iOS/SwiftUI de la aplicación móvil GIA.
 - **ChatViewModel.swift**: Componente nativo iOS/SwiftUI de la aplicación móvil GIA.
+- **FRONTIER_LAB_SYNTHESIS.md**: Componente de alta eficiencia.
 - **FTL_BACKLOG.md**: Motor de aceleración FTL y computación adaptativa.
 - **FTL_MOBILE_TERMINAL.md**: Motor de aceleración FTL y computación adaptativa.
 - **FTL_PUBLIC_ACCESS.txt**: Motor de aceleración FTL y computación adaptativa.
@@ -123,12 +124,6 @@ Módulos y componentes auxiliares del sistema.
 - **device_tracker_db.json**: Componente de alta eficiencia.
 - **distributed_compute.py**: Componente de alta eficiencia.
 - **doctor.py**: Componente de alta eficiencia.
-- **dossier_20261109_182421_905.json**: Componente de alta eficiencia.
-- **dossier_20261109_182452_032.json**: Componente de alta eficiencia.
-- **dossier_20261109_182515_723.json**: Componente de alta eficiencia.
-- **dossier_20261109_182538_764.json**: Componente de alta eficiencia.
-- **dossier_20261109_182555_108.json**: Componente de alta eficiencia.
-- **dossier_20261109_182602_608.json**: Componente de alta eficiencia.
 - **dossier_20261109_210025_418.json**: Componente de alta eficiencia.
 - **dossier_20261109_210057_226.json**: Componente de alta eficiencia.
 - **dossier_20261109_210127_473.json**: Componente de alta eficiencia.
@@ -1123,6 +1118,12 @@ Módulos y componentes auxiliares del sistema.
 - **dossier_20261125_202037_623.json**: Componente de alta eficiencia.
 - **dossier_20261125_202606_435.json**: Componente de alta eficiencia.
 - **dossier_20261125_204156_203.json**: Componente de alta eficiencia.
+- **dossier_20261125_211617_385.json**: Componente de alta eficiencia.
+- **dossier_20261125_212845_509.json**: Componente de alta eficiencia.
+- **dossier_20261125_212849_955.json**: Componente de alta eficiencia.
+- **dossier_20261125_212853_614.json**: Componente de alta eficiencia.
+- **dossier_20261125_212924_298.json**: Componente de alta eficiencia.
+- **dossier_20261125_212954_942.json**: Componente de alta eficiencia.
 - **dynamic_tools_registry.json**: Directorio y puente soberano de interoperabilidad omni-herramientas.
 - **ecca_v3_core.py**: Núcleo de orquestación y control temporal/espacial.
 - **embed_isotropy.py**: Componente de alta eficiencia.
@@ -1357,6 +1358,7 @@ Módulos y componentes auxiliares del sistema.
 - **tardis_evolutionary_codex.py**: Componente de alta eficiencia.
 - **tardis_face_intel.py**: Componente de alta eficiencia.
 - **tardis_feedback_bridge.py**: Componente de alta eficiencia.
+- **tardis_frontier_lab.py**: Componente de alta eficiencia.
 - **tardis_kaiju_pocket_engine.py**: Componente de alta eficiencia.
 - **tardis_memory_compactor.py**: Componente de alta eficiencia.
 - **tardis_music_maestro.py**: Componente de alta eficiencia.

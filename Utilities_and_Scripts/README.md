@@ -71,6 +71,7 @@ Automatizaciones de sistema, diagnósticos de hardware, optimizadores de SO y he
 - **test_cognitive_adaptability.py**: Componente de alta eficiencia.
 - **test_config.py**: Componente de alta eficiencia.
 - **test_emotional_presence.py**: Componente de alta eficiencia.
+- **test_frontier_lab.py**: Componente de alta eficiencia.
 - **test_ftl_tardis_integration.py**: Motor de aceleración FTL y computación adaptativa.
 - **test_ftl_terminal_continuator.py**: Motor de aceleración FTL y computación adaptativa.
 - **test_geon.py**: Componente de alta eficiencia.
@@ -86,6 +87,7 @@ Automatizaciones de sistema, diagnósticos de hardware, optimizadores de SO y he
 - **test_mundo_sin_censura_chat.py**: Componente de alta eficiencia.
 - **test_mundo_sin_censura_hardware.py**: Componente de alta eficiencia.
 - **test_native_gui.py**: Componente de alta eficiencia.
+- **test_p0_hardening.py**: Componente de alta eficiencia.
 - **test_permanent_qr_bridge.py**: Componente de alta eficiencia.
 - **test_program_progress.py**: Componente de alta eficiencia.
 - **test_progress.py**: Componente de alta eficiencia.

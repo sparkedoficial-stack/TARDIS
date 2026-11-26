@@ -270,6 +270,18 @@ class FtlOmniRegistry:
                 "description": "Modelo soberano local `mundo-sin-censura` (Llama 3.1 8B Q4_K_M abliterado) con enrutamiento dual-lane (TemporalBrain CUDA cero duplicación + Ollama nativo), verificación SHA-256, Modelfiles Llama 3.1 sincronizados y blindaje inviolable de La Constante AEGIS.",
                 "capabilities": ["status", "analyze", "verify", "ensure", "sync-ftl", "chat", "benchmark", "abliterate"],
                 "active": os.path.exists("/home/m11/.local/bin/mundo-sin-censura")
+            },
+            "frontier_lab": {
+                "name": "TARDIS Frontier Lab · 5 Divisiones Autónomas",
+                "binary": "/home/m11/.local/bin/tardis-frontier",
+                "module": "core.tardis_frontier_lab",
+                "module_file": "/home/m11/Escritorio/GODWORKS SYSTEM/core/tardis_frontier_lab.py",
+                "service": "tardis-frontier-lab.service",
+                "db": "/home/m11/Escritorio/GODWORKS SYSTEM/data/frontier_lab.db",
+                "category": "Autonomous Frontier Research & Recursive Self-Improvement",
+                "description": "Red permanente de 5 divisiones (Silicon, Abstraction, Skills, Memory, Self-Improvement) con pizarra SQLite WAL, admisión PSI, bus de eventos y política Cero-Reinicios. Calcula el Singularity Frontier Index (SFI) y propone mejoras verificables 100% locales.",
+                "capabilities": ["status", "once", "run", "daemon", "division"],
+                "active": os.path.exists("/home/m11/.local/bin/tardis-frontier")
             }
         }
 
