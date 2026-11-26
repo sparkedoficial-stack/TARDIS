@@ -275,6 +275,80 @@ class SubsystemAgent:
         return out
 
 
+def _canonical_proposals_payload(proposals: Any) -> tuple[str, str]:
+    """Calcula huella SHA-256 canónica (ignorando created_ts volátil) para deduplicar proposals_json."""
+    if not proposals:
+        return "", "[]"
+    try:
+        normalized = []
+        for item in proposals:
+            if isinstance(item, dict):
+                clean = {k: v for k, v in item.items() if k != "created_ts"}
+                normalized.append(clean)
+            else:
+                normalized.append(item)
+        canon = json.dumps(normalized, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+        digest = hashlib.sha256(canon.encode("utf-8", errors="ignore")).hexdigest()[:16]
+        return digest, canon
+    except Exception:
+        raw = json.dumps(proposals, ensure_ascii=False)
+        digest = hashlib.sha256(raw.encode("utf-8", errors="ignore")).hexdigest()[:16]
+        return digest, raw
+
+
+def resolve_cycle_proposals(
+    con: sqlite3.Connection,
+    proposals_json: str,
+    proposals_hash: Optional[str] = None,
+) -> List[Dict[str, Any]]:
+    """Resuelve propuestas de un ciclo tanto en formato legado inline como content-addressed (@blob:<hash>)."""
+    raw = (proposals_json or "").strip()
+    ref_hash = (proposals_hash or "").strip()
+    if raw.startswith("@blob:"):
+        ref_hash = raw[6:].strip()
+    if ref_hash:
+        try:
+            row = con.execute(
+                "SELECT proposals_json FROM proposals_blobs WHERE hash = ?",
+                (ref_hash,),
+            ).fetchone()
+            if row and row[0]:
+                return json.loads(row[0])
+        except Exception:
+            return []
+    if not raw or raw == "[]":
+        return []
+    try:
+        parsed = json.loads(raw)
+        return parsed if isinstance(parsed, list) else []
+    except Exception:
+        return []
+
+
+def _ensure_cycles_schema(con: sqlite3.Connection) -> None:
+    """Garantiza esquema optimizado con blobs deduplicados e índices compuestos en subsystem_agents.db."""
+    con.execute(
+        """CREATE TABLE IF NOT EXISTS cycles (
+            id INTEGER PRIMARY KEY AUTOINCREMENT, ts REAL, subsystem TEXT,
+            health TEXT, findings INTEGER, findings_json TEXT, applied_json TEXT,
+            proposals_json TEXT, proposals_hash TEXT DEFAULT '')"""
+    )
+    cols = {str(r[1]) for r in con.execute("PRAGMA table_info(cycles)").fetchall()}
+    if "proposals_hash" not in cols:
+        con.execute("ALTER TABLE cycles ADD COLUMN proposals_hash TEXT DEFAULT ''")
+    con.execute(
+        """CREATE TABLE IF NOT EXISTS proposals_blobs (
+            hash TEXT PRIMARY KEY,
+            proposals_json TEXT NOT NULL,
+            first_seen_ts REAL NOT NULL,
+            ref_count INTEGER NOT NULL DEFAULT 1
+        )"""
+    )
+    con.execute("CREATE INDEX IF NOT EXISTS idx_cycles_ts ON cycles(ts)")
+    con.execute("CREATE INDEX IF NOT EXISTS idx_cycles_subsystem_ts ON cycles(subsystem, ts)")
+    con.execute("CREATE INDEX IF NOT EXISTS idx_cycles_proposals_hash ON cycles(proposals_hash)")
+
+
 def _persist_cycle(summary: Dict[str, Any]) -> None:
     try:
         STATE_DB.parent.mkdir(parents=True, exist_ok=True)
@@ -282,15 +356,35 @@ def _persist_cycle(summary: Dict[str, Any]) -> None:
             con.execute("PRAGMA journal_mode=WAL")
             con.execute("PRAGMA synchronous=NORMAL")
             con.execute("PRAGMA busy_timeout=10000")
-            con.execute("""CREATE TABLE IF NOT EXISTS cycles (
-                id INTEGER PRIMARY KEY AUTOINCREMENT, ts REAL, subsystem TEXT,
-                health TEXT, findings INTEGER, findings_json TEXT, applied_json TEXT,
-                proposals_json TEXT)""")
-            con.execute("CREATE INDEX IF NOT EXISTS idx_cycles_ts ON cycles(ts)")
-            con.execute("INSERT INTO cycles (ts,subsystem,health,findings,findings_json,applied_json,proposals_json) VALUES (?,?,?,?,?,?,?)",
-                        (summary["ts"], summary["agent"], summary.get("health"), summary["findings"],
-                         json.dumps(summary["by_rule"]), json.dumps(summary["applied"]),
-                         json.dumps(summary["proposals"])))
+            con.execute("PRAGMA wal_autocheckpoint=1000")
+            con.execute("PRAGMA temp_store=MEMORY")
+            _ensure_cycles_schema(con)
+            prop_hash, canon_props = _canonical_proposals_payload(summary.get("proposals"))
+            if prop_hash:
+                con.execute(
+                    """INSERT INTO proposals_blobs (hash, proposals_json, first_seen_ts, ref_count)
+                       VALUES (?, ?, ?, 1)
+                       ON CONFLICT(hash) DO UPDATE SET ref_count = ref_count + 1""",
+                    (prop_hash, canon_props, float(summary.get("ts") or time.time())),
+                )
+                stored_proposals = f"@blob:{prop_hash}"
+            else:
+                stored_proposals = "[]"
+            con.execute(
+                """INSERT INTO cycles
+                   (ts, subsystem, health, findings, findings_json, applied_json, proposals_json, proposals_hash)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+                (
+                    summary["ts"],
+                    summary["agent"],
+                    summary.get("health"),
+                    summary["findings"],
+                    json.dumps(summary["by_rule"], separators=(",", ":")),
+                    json.dumps(summary["applied"], separators=(",", ":")),
+                    stored_proposals,
+                    prop_hash,
+                ),
+            )
     except Exception:
         pass
 

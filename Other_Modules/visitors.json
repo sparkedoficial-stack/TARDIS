@@ -564,5 +564,35 @@
     "seen_capsules": [],
     "known_facts": [],
     "last_reason": ""
+  },
+  "alma": {
+    "key": "alma",
+    "name": "alma",
+    "visit_count": 1,
+    "first_seen": REDACTED_PHONE.5721617,
+    "first_seen_iso": "2026-11-25T21:48:16-0500",
+    "last_seen": REDACTED_PHONE.5721617,
+    "last_seen_iso": "2026-11-25T21:48:16-0500",
+    "pedagogical_level": "intermedio",
+    "interests": [],
+    "topics_studied": [],
+    "seen_capsules": [],
+    "known_facts": [],
+    "last_reason": ""
+  },
+  "recuerda": {
+    "key": "recuerda",
+    "name": "recuerda",
+    "visit_count": 1,
+    "first_seen": REDACTED_PHONE.3596792,
+    "first_seen_iso": "2026-11-25T21:51:42-0500",
+    "last_seen": REDACTED_PHONE.3596792,
+    "last_seen_iso": "2026-11-25T21:51:42-0500",
+    "pedagogical_level": "intermedio",
+    "interests": [],
+    "topics_studied": [],
+    "seen_capsules": [],
+    "known_facts": [],
+    "last_reason": "jamaica"
   }
 }

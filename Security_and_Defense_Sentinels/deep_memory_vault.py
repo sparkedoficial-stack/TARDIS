@@ -49,6 +49,7 @@ class DeepMemoryVault:
         con.execute("PRAGMA busy_timeout=12000")
         con.execute("PRAGMA synchronous=NORMAL")
         con.execute("PRAGMA auto_vacuum=INCREMENTAL")
+        con.execute("PRAGMA wal_autocheckpoint=1000")
 
         # Sintonización adaptativa de alto rendimiento según memoria física (32 GB RAM)
         total_ram_gb = 30.0
@@ -87,6 +88,8 @@ class DeepMemoryVault:
             );
             CREATE INDEX IF NOT EXISTS ix_vault_ts ON vault_events(ts);
             CREATE INDEX IF NOT EXISTS ix_vault_sess ON vault_events(session_id);
+            CREATE INDEX IF NOT EXISTS ix_vault_sess_ts ON vault_events(session_id, ts);
+            CREATE INDEX IF NOT EXISTS ix_vault_compressed_ts ON vault_events(is_compressed, ts);
             CREATE INDEX IF NOT EXISTS ix_vault_src ON vault_events(source);
             CREATE INDEX IF NOT EXISTS ix_vault_role ON vault_events(role);
 
@@ -112,6 +115,7 @@ class DeepMemoryVault:
             );
             CREATE INDEX IF NOT EXISTS ix_kn_name ON knowledge_nodes(name);
             CREATE INDEX IF NOT EXISTS ix_kn_type ON knowledge_nodes(node_type);
+            CREATE INDEX IF NOT EXISTS ix_kn_weight ON knowledge_nodes(weight DESC, mention_count DESC);
 
             CREATE TABLE IF NOT EXISTS knowledge_relations (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -775,6 +779,114 @@ class DeepMemoryVault:
             }
         finally:
             con.close()
+
+    def incremental_compact(
+        self,
+        *,
+        max_pages: int = 512,
+        checkpoint_mode: str = "PASSIVE",
+        optimize_fts: bool = True,
+        analyze: bool = True,
+        enable_incremental_vacuum: bool = False,
+    ) -> Dict[str, Any]:
+        """
+        Compactación incremental no bloqueante para DeepMemoryVault:
+          - WAL checkpoint PASSIVE (cero bloqueo a lectores concurrentes).
+          - Optimización de índice FTS5 (`vault_fts`).
+          - Migración única opcional `auto_vacuum=0 -> INCREMENTAL (2)` para activar reclamación incremental real.
+          - `PRAGMA incremental_vacuum(max_pages)` + `PRAGMA analysis_limit=400; PRAGMA optimize`.
+        """
+        t0 = time.perf_counter()
+        mode = str(checkpoint_mode or "PASSIVE").upper()
+        if mode not in ("PASSIVE", "FULL", "RESTART", "TRUNCATE"):
+            mode = "PASSIVE"
+
+        def _total_sz() -> int:
+            tot = 0
+            for suf in ("", "-wal", "-shm"):
+                p = Path(str(self.db_path) + suf)
+                try:
+                    if p.is_file():
+                        tot += p.stat().st_size
+                except OSError:
+                    pass
+            return tot
+
+        bytes_before = _total_sz()
+        con = self._connect()
+        wal_info: Dict[str, int] = {}
+        fts_ok = False
+        inc_vac_ok = False
+        migrated_av = False
+        opt_ok = False
+        try:
+            av_before = int(con.execute("PRAGMA auto_vacuum").fetchone()[0])
+            fl_before = int(con.execute("PRAGMA freelist_count").fetchone()[0])
+            con.execute("CREATE INDEX IF NOT EXISTS ix_vault_sess_ts ON vault_events(session_id, ts)")
+            con.execute("CREATE INDEX IF NOT EXISTS ix_vault_compressed_ts ON vault_events(is_compressed, ts)")
+            con.execute("CREATE INDEX IF NOT EXISTS ix_kn_weight ON knowledge_nodes(weight DESC, mention_count DESC)")
+
+            if optimize_fts:
+                try:
+                    con.execute("INSERT INTO vault_fts(vault_fts) VALUES ('optimize')")
+                    con.commit()
+                    fts_ok = True
+                except Exception as exc:
+                    logger.debug("DeepMemoryVault FTS optimize omitido: %s", exc)
+
+            if enable_incremental_vacuum and av_before != 2:
+                con.commit()
+                con.execute("PRAGMA auto_vacuum=INCREMENTAL")
+                con.execute("VACUUM")
+                migrated_av = True
+
+            av_after = int(con.execute("PRAGMA auto_vacuum").fetchone()[0])
+            if av_after == 2 and max_pages > 0:
+                try:
+                    con.execute(f"PRAGMA incremental_vacuum({int(max_pages)})")
+                    inc_vac_ok = True
+                except Exception:
+                    pass
+
+            if analyze:
+                try:
+                    con.execute("PRAGMA analysis_limit=400")
+                    if mode != "PASSIVE":
+                        con.execute("ANALYZE")
+                    con.execute("PRAGMA optimize")
+                    opt_ok = True
+                except Exception:
+                    pass
+
+            try:
+                chk = con.execute(f"PRAGMA wal_checkpoint({mode})").fetchone()
+                if chk is not None:
+                    wal_info = {"busy": int(chk[0]), "log": int(chk[1]), "checkpointed": int(chk[2])}
+            except Exception:
+                pass
+            fl_after = int(con.execute("PRAGMA freelist_count").fetchone()[0])
+        finally:
+            con.close()
+
+        bytes_after = _total_sz()
+        return {
+            "ok": True,
+            "db_path": str(self.db_path),
+            "checkpoint_mode": mode,
+            "wal_checkpoint": wal_info,
+            "fts_optimized": fts_ok,
+            "auto_vacuum_before": av_before,
+            "auto_vacuum_after": av_after,
+            "migrated_incremental_vacuum": migrated_av,
+            "incremental_vacuum_ran": inc_vac_ok,
+            "freelist_before": fl_before,
+            "freelist_after": fl_after,
+            "optimized": opt_ok,
+            "bytes_before": bytes_before,
+            "bytes_after": bytes_after,
+            "bytes_reclaimed": max(0, bytes_before - bytes_after),
+            "elapsed_ms": round((time.perf_counter() - t0) * 1000.0, 2),
+        }
 
     def get_vault_telemetry(self) -> Dict[str, Any]:
         """Diagnóstico detallado del consumo de almacenamiento frente al presupuesto de 250 GB."""

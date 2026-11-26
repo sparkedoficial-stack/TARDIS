@@ -15,12 +15,14 @@ Pipelines de procesamiento y generación de video 4K, avatares 3D interactivos y
 - **tardis_video_abstracto.py**: Componente de alta eficiencia.
 - **tardis_video_pensante.py**: Componente de alta eficiencia.
 - **tardis_video_thinking_engine.py**: Componente de alta eficiencia.
+- **test_character_3d_renderer.py**: Componente de alta eficiencia.
 - **test_render_3d_engine.py**: Componente de alta eficiencia.
 - **test_speaking_video_generator.py**: Componente de alta eficiencia.
 - **test_tardis_h3_video_engine.py**: Componente de alta eficiencia.
 - **test_tardis_video_telemetry_graphics.py**: Componente de alta eficiencia.
 - **test_tardis_videocall.py**: Componente de alta eficiencia.
 - **test_visual_intelligence_engine.py**: Componente de alta eficiencia.
+- **tests__test_character_3d_renderer.py**: Componente de alta eficiencia.
 - **video_pipeline_4k.py**: Componente de alta eficiencia.
 - **visual_intelligence_daemon.py**: Componente de alta eficiencia.
 - **visual_intelligence_engine.py**: Componente de alta eficiencia.

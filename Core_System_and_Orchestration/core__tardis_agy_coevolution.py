@@ -768,7 +768,28 @@ class TardisAgyCoevolutionEngine:
         found: List[Dict[str, Any]] = []
         core_dir = PROJECT_ROOT / "core"
         tests_dir = PROJECT_ROOT / "tests"
-        test_names = {p.name.lower() for p in tests_dir.glob("test_*.py")} if tests_dir.is_dir() else set()
+        test_files = sorted(tests_dir.glob("test_*.py")) if tests_dir.is_dir() else []
+        test_names = {p.name.lower() for p in test_files}
+
+        # Detectar también módulos de `core/` importados y ejercitados dentro de suites compartidas
+        # (p. ej. tests/test_sovereign_alternate_systems.py) para evitar falsos "sin cobertura".
+        tested_core_imports: set = set()
+        for tf in test_files:
+            try:
+                t_tree = ast.parse(tf.read_text(encoding="utf-8", errors="ignore"))
+                for node in ast.walk(t_tree):
+                    if isinstance(node, ast.ImportFrom) and node.module:
+                        if node.module == "core":
+                            for alias in node.names:
+                                tested_core_imports.add(alias.name.lower())
+                        elif node.module.startswith("core."):
+                            tested_core_imports.add(node.module.split(".", 2)[1].lower())
+                    elif isinstance(node, ast.Import):
+                        for alias in node.names:
+                            if alias.name.startswith("core."):
+                                tested_core_imports.add(alias.name.split(".", 2)[1].lower())
+            except Exception:
+                continue
 
         god_files: List[Dict[str, Any]] = []
         untested_large: List[str] = []
@@ -787,7 +808,9 @@ class TardisAgyCoevolutionEngine:
                     god_files.append({"file": f"core/{py_file.name}", "loc": loc})
                 stem = py_file.stem.lower()
                 short = stem[7:] if stem.startswith("tardis_") else stem
-                if loc >= 800 and not any((stem in tn or short in tn) for tn in test_names):
+                has_dedicated_file = any((stem in tn or short in tn) for tn in test_names)
+                has_import_coverage = stem in tested_core_imports
+                if loc >= 800 and not (has_dedicated_file or has_import_coverage):
                     untested_large.append(f"core/{py_file.name} ({loc} LOC)")
             except Exception:
                 continue

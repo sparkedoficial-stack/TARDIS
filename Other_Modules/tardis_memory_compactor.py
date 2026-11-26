@@ -87,6 +87,7 @@ AUX_WAL_DBS: Tuple[Path, ...] = (
     DATA_DIR / "semantic_cache.db",
     DATA_DIR / "eval_harness.db",
     DATA_DIR / "canary_verifications.db",
+    DATA_DIR / "frontier_lab.db",
 )
 
 ALL_TARGETS: Tuple[str, ...] = ("rag", "kg", "deep_memory", "offline_chats", "subsystem_agents", "gods_eye", "wal")
@@ -157,29 +158,76 @@ def _safe_sqlite_maintain(
     *,
     do_vacuum: bool = False,
     incremental_pages: int = 0,
+    non_blocking: bool = False,
+    fts_tables: Sequence[str] = (),
+    enable_incremental_vacuum: bool = False,
 ) -> Dict[str, Any]:
-    """Ejecuta mantenimiento seguro WAL checkpoint + ANALYZE + VACUUM opcional."""
-    res: Dict[str, Any] = {"checkpoint": False, "analyze": False, "vacuum": False}
+    """
+    Ejecuta mantenimiento seguro de SQLite:
+      - En modo `non_blocking=True`: WAL checkpoint `PASSIVE` (no bloquea lectores),
+        optimización de tablas FTS5, `PRAGMA incremental_vacuum(N)` y `PRAGMA analysis_limit=400; PRAGMA optimize`.
+      - En modo offline/completo: WAL checkpoint `TRUNCATE`, `ANALYZE`, `PRAGMA optimize`,
+        migración opcional `auto_vacuum=INCREMENTAL` + `VACUUM`.
+    """
+    res: Dict[str, Any] = {
+        "checkpoint": False,
+        "checkpoint_mode": "PASSIVE" if non_blocking else "TRUNCATE",
+        "analyze": False,
+        "vacuum": False,
+        "fts_optimized": [],
+        "non_blocking": bool(non_blocking),
+    }
+    for tbl in fts_tables:
+        tname = re.sub(r"[^a-zA-Z0-9_]", "", str(tbl or ""))
+        if not tname:
+            continue
+        try:
+            con.execute(f"INSERT INTO {tname}({tname}) VALUES ('optimize')")
+            con.commit()
+            res["fts_optimized"].append(tname)
+        except Exception:
+            pass
     try:
         jm = str(con.execute("PRAGMA journal_mode").fetchone()[0]).lower()
         if jm == "wal":
-            con.execute("PRAGMA wal_checkpoint(TRUNCATE)")
+            chk_mode = "PASSIVE" if non_blocking else "TRUNCATE"
+            chk_row = con.execute(f"PRAGMA wal_checkpoint({chk_mode})").fetchone()
             res["checkpoint"] = True
+            if chk_row is not None:
+                res["wal_checkpoint"] = {
+                    "busy": int(chk_row[0]),
+                    "log": int(chk_row[1]),
+                    "checkpointed": int(chk_row[2]),
+                }
     except Exception:
         pass
     try:
-        con.execute("ANALYZE")
+        con.execute("PRAGMA analysis_limit=400")
+        if not non_blocking:
+            con.execute("ANALYZE")
         con.execute("PRAGMA optimize")
         res["analyze"] = True
     except Exception:
         pass
-    if incremental_pages > 0:
+    try:
+        av_cur = int(con.execute("PRAGMA auto_vacuum").fetchone()[0])
+    except Exception:
+        av_cur = 0
+    if enable_incremental_vacuum and av_cur != 2 and not non_blocking:
+        try:
+            con.commit()
+            con.execute("PRAGMA auto_vacuum=INCREMENTAL")
+            do_vacuum = True
+            res["migrated_auto_vacuum_incremental"] = True
+        except Exception:
+            pass
+    if incremental_pages > 0 and (av_cur == 2 or res.get("migrated_auto_vacuum_incremental")):
         try:
             con.execute(f"PRAGMA incremental_vacuum({int(incremental_pages)})")
             res["incremental_vacuum"] = True
         except Exception:
             pass
-    if do_vacuum:
+    if do_vacuum and not non_blocking:
         try:
             con.commit()
             con.execute("VACUUM")
@@ -188,6 +236,10 @@ def _safe_sqlite_maintain(
                 con.execute("PRAGMA wal_checkpoint(TRUNCATE)")
         except Exception as exc:
             res["vacuum_error"] = str(exc)
+    try:
+        res["auto_vacuum_after"] = int(con.execute("PRAGMA auto_vacuum").fetchone()[0])
+    except Exception:
+        pass
     return res
 
 

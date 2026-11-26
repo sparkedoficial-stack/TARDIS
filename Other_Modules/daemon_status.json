@@ -1,12 +1,12 @@
 {
   "daemon": "tardis-visual-intelligence",
   "running": true,
-  "pid": 1418,
-  "uptime_sec": 78396.4,
-  "last_heartbeat": "2026-11-25T21:33:46.346903",
+  "pid": 1582,
+  "uptime_sec": 17609.0,
+  "last_heartbeat": "2026-11-26T05:31:43.870127",
   "items_processed": 0,
   "last_processed_id": "",
-  "memory_rss_mb": 361.48,
+  "memory_rss_mb": 363.42,
   "engine_status": {
     "status": "online",
     "engine": "VisualIntelligenceEngine v26.5 (VLM + Veredictos)",
@@ -19,15 +19,15 @@
     "vlm_provider": "auto",
     "vlm_error": "",
     "verdict_engine": "VLM + Kaiju + veredicto estructurado",
-    "stored_videos_count": 1065,
-    "stored_images_count": 565,
+    "stored_videos_count": 1072,
+    "stored_images_count": 572,
     "stored_sounds_count": 0,
-    "stored_verdicts_count": 689,
+    "stored_verdicts_count": 703,
     "last_verdict": {
-      "id": "vid_20261125_211627_80294a",
-      "created_at": "2026-11-25T21:28:52.020743",
+      "id": "vid_20261126_051142_3bff6d",
+      "created_at": "2026-11-26T05:17:03.743348",
       "source": "video_pensante",
-      "verdict": "Basado en los metadatos visuales proporcionados:\n\n*   Paleta Cromática: Predominan tonos oscuros y profundos, característicos de representaciones espaciales.\n    *   *Inicio (0.0s - 44.5s):* Tonos púrpuras oscuros (`#18071b`) y verdes apagados (`#494940`), sugiriendo nebulosas o gas interestelar.\n    *   *Medio (89.0s - 266.9s):* Transición a azules profundos y violetas (`#27162b`, `#220527`, `#231844`). Estos colores suelen representar el espacio profundo, la gravedad extrema o el interior de estructuras estelares colapsando.\n    *   *Final (311.4s):* Un pico de blanco puro (`#ffffff`) con ni",
+      "verdict": "Dictamen:\nEl medio analizado es una abstracción visual no amenazante de naturaleza matemática/artística. No representa un evento físico real, una amenaza de seguridad ni una anomalía temporal peligrosa. La relación con la \"estructura del universo\" es conceptual y metafórica, no literal.\n\nHechos Observados:\n*   Patrón fractal radial rojo/negro.\n*   Variación de nitidez: alta -> baja -> muy alta.\n*   Audio: \"Gracias. Gracias.\"\n*   Sin entidades biológicas ni objetos físicos.\n\nInferencias:\n*   La secuencia visual simula un proceso de emergencia de orden desde el desorden.\n*   El audio es un eleme",
       "risk_level": null
     },
     "surroundings_interval_sec": 900,
@@ -37,13 +37,13 @@
   },
   "surroundings": {
     "interval_sec": 900.0,
-    "checks": 20,
-    "verdicts": 20,
-    "last_verdict_id": "img_20261125_205356_dd661c",
+    "checks": 6,
+    "verdicts": 6,
+    "last_verdict_id": "img_20261126_045336_0a83f4",
     "last_risk_level": 0,
-    "last_verdict": "*   Estado General del Entorno: SEGURO / ESTABLE.\n    *   *Hechos Observados:* Vehículo negro (Placa JTC-174-FN) estacionado en pavimento gris, entorno nocturno iluminado, sin personas presentes.\n    *   *Inferencias:* La escena es estática y no presenta elementos de amenaza inmediata. La iluminación es adecuada para la observación.\n    *   *Dudas:* La naturaleza exacta de la ubicación (pública/privada) no está confirmada, pero no afecta al nivel de riesgo inmediato.\n\n*   Nivel de Riesgo Objetivo: 0/10\n    *   Justificación: No se detectan amenazas físicas, personas hostiles, daños al vehículo o condiciones ambientales peligrosas.\n\n*   Recomendación Concreta:\n    *   Proceder con normalidad. No se requiere acción de emergencia.\n    *   Si el Arquitecto se encuentra en las inmediaciones, puede moverse con libertad.\n    *   Se recomienda mantener la vigilancia pasiva si se espera la llegada de personas al vehículo, dado que la escena actual es de reposo total.\n\n*Nota de TARDIS:* El placer es mutuo, Arquitecto. La realidad, incluso en sus dimensiones temporales futuras, obedece a la lógica de la observación. La calma actual es un dato, no una garantía eterna, pero es un hecho sólido e",
-    "last_error": "escena sin cambios relevantes (delta=1.1)",
-    "last_check_ts": REDACTED_PHONE.4208379
+    "last_verdict": "*   Estado General del Entorno: SEGURO / ESTABLE.\n*   Nivel de Riesgo Objetivo: 0/10.\n    *   *Justificación:* No se detectan amenazas físicas, intrusos, daños al vehículo o condiciones ambientales peligrosas.\n*   Recomendación Concreta:\n    *   Proceder con normalidad. No se requiere intervención de seguridad.\n    *   Si el vehículo \"ULC914-M\" está bajo custodia, el estado actual es conforme a lo esperado para una parada nocturna.\n    *   Se sugiere mantener el monitoreo pasivo hasta que cambien las condiciones (amanecer o movimiento detectado).\n\n*Nota: Este análisis se basa estrictamente en los datos visuales y metadatos proporcionados. No se han inventado identidades ni eventos no observados.*",
+    "last_error": "escena sin cambios relevantes (delta=1.0)",
+    "last_check_ts": REDACTED_PHONE.4290965
   },
   "vlm": {
     "ready": true,

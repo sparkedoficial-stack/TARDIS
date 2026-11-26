@@ -98,11 +98,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 122462959,
+    "traffic_bytes_rx": 158004296,
     "traffic_bytes_tx": REDACTED_PHONE,
-    "traffic_packets": 6629644,
+    "traffic_packets": 8626429,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-26T01:20:53.969411+00:00",
+    "last_seen": "2026-11-26T02:44:15.034400+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -185,10 +185,10 @@
     "throttle_kbps": null,
     "is_safe": true,
     "traffic_bytes_rx": 0,
-    "traffic_bytes_tx": 0,
-    "traffic_packets": 0,
+    "traffic_bytes_tx": 432,
+    "traffic_packets": 6,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-26T01:20:53.969411+00:00",
+    "last_seen": "2026-11-26T02:44:15.034400+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -452,9 +452,9 @@
     "is_safe": true,
     "traffic_bytes_rx": REDACTED_PHONE,
     "traffic_bytes_tx": REDACTED_PHONE,
-    "traffic_packets": 16750790,
+    "traffic_packets": 20369174,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-26T01:20:53.969411+00:00",
+    "last_seen": "2026-11-26T02:44:15.034400+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]
@@ -526,11 +526,11 @@
     "is_quarantined": false,
     "throttle_kbps": null,
     "is_safe": true,
-    "traffic_bytes_rx": 21495300,
-    "traffic_bytes_tx": 3131582,
-    "traffic_packets": 104643,
+    "traffic_bytes_rx": 28404442,
+    "traffic_bytes_tx": 3195518,
+    "traffic_packets": 134717,
     "first_seen": "2026-10-22T00:02:39.625586+00:00",
-    "last_seen": "2026-11-26T01:20:53.969411+00:00",
+    "last_seen": "2026-11-26T02:44:15.034400+00:00",
     "ip_history": [
       "REDACTED_IP"
     ]

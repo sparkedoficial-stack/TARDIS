@@ -1,36 +1,66 @@
 {
-  "run_id": "canary_20261125_202040_c061c3",
-  "iso": "2026-11-25T20:20:40-05:00",
+  "run_id": "canary_20261126_034710_22516b",
+  "iso": "2026-11-26T03:47:10-05:00",
   "files": [
     {
-      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/temporal_brain.py",
-      "relative": "core/temporal_brain.py",
-      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261125_202040_c061c3/core__temporal_brain.py"
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/tardis_agy_coevolution.py",
+      "relative": "core/tardis_agy_coevolution.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261126_034710_22516b/core__tardis_agy_coevolution.py"
     },
     {
-      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/cyberdefense_sentinel.py",
-      "relative": "core/cyberdefense_sentinel.py",
-      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261125_202040_c061c3/core__cyberdefense_sentinel.py"
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/tests/test_character_3d_renderer.py",
+      "relative": "tests/test_character_3d_renderer.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261126_034710_22516b/tests__test_character_3d_renderer.py"
     },
     {
-      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/network_shield.py",
-      "relative": "core/network_shield.py",
-      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261125_202040_c061c3/core__network_shield.py"
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/tests/test_chronovision_engine.py",
+      "relative": "tests/test_chronovision_engine.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261126_034710_22516b/tests__test_chronovision_engine.py"
     },
     {
-      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/server/api.py",
-      "relative": "server/api.py",
-      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261125_202040_c061c3/server__api.py"
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/tests/test_curiosity_debate_manager.py",
+      "relative": "tests/test_curiosity_debate_manager.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261126_034710_22516b/tests__test_curiosity_debate_manager.py"
     },
     {
-      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/tests/test_network_shield.py",
-      "relative": "tests/test_network_shield.py",
-      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261125_202040_c061c3/tests__test_network_shield.py"
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/tests/test_easy_touch_agent.py",
+      "relative": "tests/test_easy_touch_agent.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261126_034710_22516b/tests__test_easy_touch_agent.py"
     },
     {
-      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/tests/test_sovereign_alternate_systems.py",
-      "relative": "tests/test_sovereign_alternate_systems.py",
-      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261125_202040_c061c3/tests__test_sovereign_alternate_systems.py"
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/tests/test_easy_touch_engine.py",
+      "relative": "tests/test_easy_touch_engine.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261126_034710_22516b/tests__test_easy_touch_engine.py"
+    },
+    {
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/tests/test_mission_scouting_engine.py",
+      "relative": "tests/test_mission_scouting_engine.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261126_034710_22516b/tests__test_mission_scouting_engine.py"
+    },
+    {
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/tests/test_network_traffic_controller.py",
+      "relative": "tests/test_network_traffic_controller.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261126_034710_22516b/tests__test_network_traffic_controller.py"
+    },
+    {
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/tests/test_nxnative_mk8d_ipad_ui.py",
+      "relative": "tests/test_nxnative_mk8d_ipad_ui.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261126_034710_22516b/tests__test_nxnative_mk8d_ipad_ui.py"
+    },
+    {
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/tests/test_tapo_c310_voice_channel.py",
+      "relative": "tests/test_tapo_c310_voice_channel.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261126_034710_22516b/tests__test_tapo_c310_voice_channel.py"
+    },
+    {
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/tests/test_tardis_c310_conversation.py",
+      "relative": "tests/test_tardis_c310_conversation.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261126_034710_22516b/tests__test_tardis_c310_conversation.py"
+    },
+    {
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/tests/test_tardis_agy_controller.py",
+      "relative": "tests/test_tardis_agy_controller.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261126_034710_22516b/tests__test_tardis_agy_controller.py"
     }
   ]
 }

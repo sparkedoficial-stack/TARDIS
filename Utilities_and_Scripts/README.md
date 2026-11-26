@@ -70,6 +70,7 @@ Automatizaciones de sistema, diagnósticos de hardware, optimizadores de SO y he
 - **test_client_user_manager.py**: Componente de alta eficiencia.
 - **test_cognitive_adaptability.py**: Componente de alta eficiencia.
 - **test_config.py**: Componente de alta eficiencia.
+- **test_curiosity_debate_manager.py**: Componente de alta eficiencia.
 - **test_emotional_presence.py**: Componente de alta eficiencia.
 - **test_frontier_lab.py**: Componente de alta eficiencia.
 - **test_ftl_tardis_integration.py**: Motor de aceleración FTL y computación adaptativa.
@@ -87,6 +88,8 @@ Automatizaciones de sistema, diagnósticos de hardware, optimizadores de SO y he
 - **test_mundo_sin_censura_chat.py**: Componente de alta eficiencia.
 - **test_mundo_sin_censura_hardware.py**: Componente de alta eficiencia.
 - **test_native_gui.py**: Componente de alta eficiencia.
+- **test_network_traffic_controller.py**: Componente de alta eficiencia.
+- **test_nxnative_mk8d_ipad_ui.py**: Componente de alta eficiencia.
 - **test_p0_hardening.py**: Componente de alta eficiencia.
 - **test_permanent_qr_bridge.py**: Componente de alta eficiencia.
 - **test_program_progress.py**: Componente de alta eficiencia.
@@ -108,6 +111,7 @@ Automatizaciones de sistema, diagnósticos de hardware, optimizadores de SO y he
 - **test_tardis_animations.py**: Componente de alta eficiencia.
 - **test_tardis_audio_enforcement.py**: Procesamiento de señal de audio y síntesis vocal biométrica.
 - **test_tardis_bridge.py**: Componente de alta eficiencia.
+- **test_tardis_c310_conversation.py**: Componente de alta eficiencia.
 - **test_tardis_dwell_vigilance.py**: Componente de alta eficiencia.
 - **test_tardis_dynamic_function_engine.py**: Componente de alta eficiencia.
 - **test_tardis_identity_no_version.py**: Componente de alta eficiencia.
@@ -120,7 +124,11 @@ Automatizaciones de sistema, diagnósticos de hardware, optimizadores de SO y he
 - **test_web_research_and_coder.py**: Componente de alta eficiencia.
 - **test_wireless_terminal_and_antigravity.py**: Componente de alta eficiencia.
 - **tests__test_config.py**: Componente de alta eficiencia.
+- **tests__test_curiosity_debate_manager.py**: Componente de alta eficiencia.
+- **tests__test_network_traffic_controller.py**: Componente de alta eficiencia.
+- **tests__test_nxnative_mk8d_ipad_ui.py**: Componente de alta eficiencia.
 - **tests__test_sovereign_alternate_systems.py**: Componente de alta eficiencia.
+- **tests__test_tardis_c310_conversation.py**: Componente de alta eficiencia.
 
 ## Requisitos e Integración
 Los módulos operan bajo el stack soberano de Linux (x86_64), integrando aceleración por GPU y telemetría de bajo nivel.

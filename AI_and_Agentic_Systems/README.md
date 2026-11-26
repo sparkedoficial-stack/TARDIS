@@ -49,6 +49,7 @@ Sistemas agénticos autónomos, enjambres cognitivos MoE, autorreflexión y evol
 - **test_inter_ai_protocol.py**: Componente de alta eficiencia.
 - **test_kaiju_cognitive_orchestrator.py**: Núcleo de orquestación y control temporal/espacial.
 - **test_kaiju_safety_rails.py**: Componente de alta eficiencia.
+- **test_mission_scouting_engine.py**: Componente de alta eficiencia.
 - **test_self_improve_loop.py**: Componente de alta eficiencia.
 - **test_sovereign_neural_engine.py**: Componente de alta eficiencia.
 - **test_tardis_agent_colony.py**: Modelo lógico y comportamiento autónomo distribuido.
@@ -58,6 +59,7 @@ Sistemas agénticos autónomos, enjambres cognitivos MoE, autorreflexión y evol
 - **test_thought_noise_engine.py**: Componente de alta eficiencia.
 - **test_transversal_rag_vault.py**: Centinela de seguridad, blindaje perimetral o bóveda segura.
 - **test_vlm_visual_guard.py**: Componente de alta eficiencia.
+- **tests__test_mission_scouting_engine.py**: Componente de alta eficiencia.
 - **thought_noise_engine.py**: Componente de alta eficiencia.
 - **vlm_visual_guard.py**: Componente de alta eficiencia.
 - **youtube_learner.py**: Componente de alta eficiencia.

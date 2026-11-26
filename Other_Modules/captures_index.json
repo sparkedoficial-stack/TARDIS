@@ -1,5 +1,24 @@
 [
   {
+    "id": "capture_1795671506_LAN_tapo_c310_god_eye.jpg",
+    "timestamp": REDACTED_PHONE.7351592,
+    "iso_time": "2026-11-26T00:38:26-0500",
+    "terminal_id": "tapo_c310_god_eye",
+    "terminal_name": "GOD-EYE · Tapo C310 (REDACTED_IP)",
+    "origin": "LAN",
+    "client_ip": "REDACTED_IP",
+    "country": "LAN",
+    "resolution": "2304x1296 -> 1280x720",
+    "filename": "capture_1795671506_LAN_tapo_c310_god_eye.jpg",
+    "file_path": "/home/m11/Escritorio/GODWORKS SYSTEM/data/terminal_captures/capture_1795671506_LAN_tapo_c310_god_eye.jpg",
+    "size_bytes": 118932,
+    "biometrics": {
+      "persons_detected": 0,
+      "max_confidence": 0.0,
+      "mood_state": "Perímetro Despejado"
+    }
+  },
+  {
     "id": "capture_1795656127_LAN_tapo_c310_god_eye.jpg",
     "timestamp": REDACTED_PHONE.7247005,
     "iso_time": "2026-11-25T20:22:07-0500",
@@ -3635,38 +3654,6 @@
       "attention": "82%",
       "gaze": "Fijado en terminal",
       "advice": "El usuario muestra entusiasmo, optimismo y curiosidad activa. Responde con complicidad intelectual, dinamismo, agilidad y visión constructiva.",
-      "camera_active": true
-    }
-  },
-  {
-    "id": "capture_1789662253_INTERNET_term_eaddvgs.jpg",
-    "timestamp": REDACTED_PHONE.6143246,
-    "iso_time": "2026-09-17T11:24:13-0500",
-    "terminal_id": "term_eaddvgs",
-    "terminal_name": "iPhone Terminal",
-    "origin": "INTERNET",
-    "client_ip": "REDACTED_IP",
-    "country": "MX",
-    "resolution": "1280x720",
-    "filename": "capture_1789662253_INTERNET_term_eaddvgs.jpg",
-    "file_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/data/terminal_captures/capture_1789662253_INTERNET_term_eaddvgs.jpg",
-    "size_bytes": 5749,
-    "biometrics": {
-      "primary": "sorprendido",
-      "mood_state": "Asombrado y Expectante",
-      "gesticulation": "Apertura palpebral amplia, cejas elevadas y boca entreabierta en asombro",
-      "neurochemistry": {
-        "dopamina": 62,
-        "cortisol": 30,
-        "serotonina": 69,
-        "adrenalina": 34,
-        "fatiga": 12
-      },
-      "confidence": 0.88,
-      "valence": 0.45,
-      "attention": "79%",
-      "gaze": "Fijado en terminal",
-      "advice": "El usuario muestra asombro o una epifanía. Proporciona perspectivas avanzadas, valida su descubrimiento y mantén el alto impacto intelectual.",
       "camera_active": true
     }
   }

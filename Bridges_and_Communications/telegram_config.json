@@ -33,7 +33,7 @@
   ],
   "allow_public_chat": true,
   "bot_name": "T.A.R.D.I.S",
-  "recurring_voice_enabled": false,
-  "recurring_voice_interval_sec": 900.0,
+  "recurring_voice_enabled": true,
+  "recurring_voice_interval_sec": 1200.0,
   "recurring_voice_mode": "telemetria"
 }
