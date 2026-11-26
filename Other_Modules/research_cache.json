@@ -150,5 +150,81 @@
         "engine": "google_news"
       }
     ]
+  },
+  "c23b2b9013f72e51": {
+    "ts": REDACTED_PHONE.924601,
+    "iso": "2026-11-25T18:49:15-0500",
+    "query": "y a dar un poco de salgente",
+    "summary": "visual_intelligence:video: f like that. Ok, es el mismo, todo lo que hicimos fue plugar esto en el anterior formato. Ok, nada más fancy, nada más. Así que aquí hay algunos ingredientes que necesitamos saber. Hay una direcaddelta función, este es el formato de direcaddelta en esta convención, la convención, ok. Así que la func 'El ambiente en esta brigada no es bueno': Los preocupantes mensajes que cabo del Ejército envió a su tío antes de morir - Meganoticias: 'El ambiente en esta brigada no es bueno': Los preocupantes mensajes que cabo del Ejército envió a su tío antes de morir  Meganoticias “Aquí somos capaces de hacer un poco más”: Edith Mendoza, sargento primero de Transmisiones - El Universal: “Aquí somos capaces de hacer un poco más”: Edith Mendoza, sargento primero de Transmisiones  El Universal Homicida del sargento Valdés actuó con vileza y crueldad para propinarle 7 disparos - Mi Diario: Homicida del sargento Valdés actuó con vileza y crueldad para propinarle 7 disparos  Mi Diario Mario \"Perro\" Cisnero, el sargento Cabral de nuestro tiempo - Infobae: Mario \"Perro\" Cisnero, el sargento Cabral de nuestro tiempo  Infobae",
+    "sources": [
+      {
+        "title": "visual_intelligence:video",
+        "url": "/home/timemachine/Escritorio/GODWORKS SYSTEM/vault/videos/video_pensante/vp_20261028_161343_514d41.mp4",
+        "snippet": "f like that. Ok, es el mismo, todo lo que hicimos fue plugar esto en el anterior formato. Ok, nada más fancy, nada más. Así que aquí hay algunos ingredientes que necesitamos saber. Hay una direcaddelta función, este es el formato de direcaddelta en esta convención, la convención, ok. Así que la func",
+        "engine": "rag_vault"
+      },
+      {
+        "title": "'El ambiente en esta brigada no es bueno': Los preocupantes mensajes que cabo del Ejército envió a su tío antes de morir - Meganoticias",
+        "url": "https://news.google.com/rss/articles/CBMi6gFBVV95cUxNRGdrcTZiTEJjX0JOdTFISkkzb0ZpOUpzbjJ5T0VaeUpFMk9IMVNrNFA1SUFJYkV3dm5hRFhkMmhXLXNIbEJGSnJSQVJMUlF2eTFfVURGeFVWeXFhbGctZ29lM3lqQzlWVnk3WGJoQ0IzWjBxbjZlbTc2SGlkVEtya3NxWncydXdrSzFuVl9GdXRockdUQTluS0wyMmVDa2xhY1l4d3RHRDRaUjJ5NElZS1pPUjJHd2p1Tk13OGpyMmY4ZzVYYTBUR2dtSm15SWRSSmV4R2JXa3JIczVEQ0NUUXRVSDQ5OTZIb0HSAe8BQVVfeXFMUGhRNWhxLV9DazZHUTJ1QzJ0cVo0QVdYVExtUlJUWVd1QVFnOE9IcnlKT2ctTDRuN1lwMDlUZzR6eTVCMTE2RTZpYkZ4azFhcE5NdmZvV1U5VU9QOFVqZkQ3V3NhTHhqaXhUT3R0NzNhQ0VwaDhBSnJXMmR2dkdGSWR2ODB1RV9VcDdSSEd3eTJCVEJkcGNWUjNDQU5sSFcxTmR6SDQxWFQwQVNJVlRCcEM5VUJQSUJoc3RuXzlpMW1tdWNSN3pfTlBIVXB2WkR1M09KV21DejRBbTVnNk9qb3JSRVFkdWtUZVdSdzRSMGs?oc=5",
+        "snippet": "'El ambiente en esta brigada no es bueno': Los preocupantes mensajes que cabo del Ejército envió a su tío antes de morir  Meganoticias",
+        "engine": "google_news"
+      },
+      {
+        "title": "“Aquí somos capaces de hacer un poco más”: Edith Mendoza, sargento primero de Transmisiones - El Universal",
+        "url": "https://news.google.com/rss/articles/CBMixgFBVV95cUxNaU9rOTBtWmF6Q2VPQWNJaXhkLTRtWUZPc3hYYnZZV2cxdjJDdnRfSlNheDUtX2Z2cEgxR3JDU3ZpS0dFbnNoNTBwQVc5dURlY0lmbnNBR08zenNTelRBaUdtRnlDVmZsWDBiQjY2UDQ1YzdjUWJBdWo2ckdHZk15OWgxWlZWN0tXWnExRVRHRVd2Wm1MMFpFdVRsdzVHRGg4M2VScXhValFDMC1TTmpTNDBFNU0zMDRFNGFBQXRuOU1HTXlmRnc?oc=5",
+        "snippet": "“Aquí somos capaces de hacer un poco más”: Edith Mendoza, sargento primero de Transmisiones  El Universal",
+        "engine": "google_news"
+      },
+      {
+        "title": "Homicida del sargento Valdés actuó con vileza y crueldad para propinarle 7 disparos - Mi Diario",
+        "url": "https://news.google.com/rss/articles/CBMivAFBVV95cUxQOGRrUGFidzNvQm1JV3U5RVFsU0sxTTI3cmF4WjFvN21Pc0pFLXhuN2FORWZfY2dXYlFSLXJkRmxEcm1nR0QzdnFKcVVlLWU4S19nUlRTbHIyM2RVbHl6WlZZV3JKVmcyWmp0S1hMaGdaRUU3cG1KMmZ0RXFRQnc4REtrTUlHckx3dkxjOWJKcDMwdWhLWTJXZTNjbkZDYmFEZkIzdXItQmtPbkpFV2d4anBLcm5sTXdnZHV0dA?oc=5",
+        "snippet": "Homicida del sargento Valdés actuó con vileza y crueldad para propinarle 7 disparos  Mi Diario",
+        "engine": "google_news"
+      },
+      {
+        "title": "Mario \"Perro\" Cisnero, el sargento Cabral de nuestro tiempo - Infobae",
+        "url": "https://news.google.com/rss/articles/CBMitwFBVV95cUxNZEVHRGZsblFEaV9JT1VTTUhzMzAxNTREaW11U25kQkVtT19xTDZ1dU4wdEZJX21XRDlkTi1wTHJ4dk16ZndIWm45Rmhqc1NpSmluQzhjY2hSdzVRZDFQNWQ0VFJtbTUtN25IcU1YYURpX050R2M2MFR6dVZjRTNoR29IemxjUWUxNTNkQ24xdmZDZDVrZXU2NWFWRXl2anN6Wm1pODJwS3FEcGwtNkZGc0JaRU1IQ2PSAdIBQVVfeXFMTmkyVGlHMm1ENXpNY05LbktTZWl3Q0VRM3JHZk14eXJHajhfdTRmX1lzMHlTNWRSYm0tSmljVnUyTmhHN3dkWHA0NE5tYVJoN2Rpa2kwM0tBVWsyVG9hNFZXQVBoUnBCVjNweGlwRXlVZXZWSzhLOUw5OHV5MnNhbTMydmlBOWJOaFBabmlDbGtfdnFmN3g1dDQ0clhlam5CV3Vrb2pVWXhyTEZHWGZ0RUM5LTItSDBySWMzdEZ4c05NVFhIUVR3QjctdjBRLWU4VkNR?oc=5",
+        "snippet": "Mario \"Perro\" Cisnero, el sargento Cabral de nuestro tiempo  Infobae",
+        "engine": "google_news"
+      }
+    ]
+  },
+  "0b26ea90feb82658": {
+    "ts": REDACTED_PHONE.642785,
+    "iso": "2026-11-25T18:58:57-0500",
+    "query": "y no me lo he habido",
+    "summary": "Miguel de Unamuno y Jugo fue un escritor y filósofo español perteneciente a la llamada generación del 98. Es considerado como el mayor de sus integrantes y, en cierta medida, su maestro. Cultivó todos los géneros literarios: ensayo, novela, poesía, periodismo y teatro. visual_intelligence:video: ¿Literrá out? ¿Para? Voy a preguntar algo. Tu descubieras de los cheques error correcto de la ley de la física de los que se han investigado en el depth de que se han investigado. ¿Qué es lo que yo me wonder es que vivimos en el age de IT, de información y tecnología, así que todos tenemos un fluenc \"No ha habido un solo momento desde esa noche en que no sienta dolor\": Christa Pike habla por primera vez desde su fallida ejecución por inyección letal - BBC: \"No ha habido un solo momento desde esa noche en que no sienta dolor\": Christa Pike habla por primera vez desde su fallida ejecución por inyección letal  BBC Porro: “¿Madrid y Barça? No ha habido interés real... - Diario AS: Porro: “¿Madrid y Barça? No ha habido interés real...  Diario AS Mikel Merino: \"Ha habido alguna broma porque un compañero siempre me dice que solo meto de primer toque\" - MARCA: Mikel Merino: \"Ha habido alguna broma ",
+    "sources": [
+      {
+        "title": "Miguel de Unamuno (Wikipedia ES)",
+        "url": "https://es.wikipedia.org/wiki/Miguel_de_Unamuno",
+        "snippet": "Miguel de Unamuno y Jugo fue un escritor y filósofo español perteneciente a la llamada generación del 98. Es considerado como el mayor de sus integrantes y, en cierta medida, su maestro. Cultivó todos los géneros literarios: ensayo, novela, poesía, periodismo y teatro.",
+        "engine": "wikipedia_es"
+      },
+      {
+        "title": "visual_intelligence:video",
+        "url": "/home/timemachine/Escritorio/GODWORKS SYSTEM/vault/videos/video_pensante/vp_20261021_140653_96fe81.mp4",
+        "snippet": "¿Literrá out? ¿Para? Voy a preguntar algo. Tu descubieras de los cheques error correcto de la ley de la física de los que se han investigado en el depth de que se han investigado. ¿Qué es lo que yo me wonder es que vivimos en el age de IT, de información y tecnología, así que todos tenemos un fluenc",
+        "engine": "rag_vault"
+      },
+      {
+        "title": "\"No ha habido un solo momento desde esa noche en que no sienta dolor\": Christa Pike habla por primera vez desde su fallida ejecución por inyección letal - BBC",
+        "url": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE9vejl3T1dweWxVbWhsWDBfTkF2SUFONVljcFllODQ2Q1ZYdnJkZk5tYnpfNHBGNFl1S2JUeV9pLTc1a2JWaGs2Y1lWSGlmbV9oM3VLVDZ1SndVR0Yt0gFiQVVfeXFMTmFTbmM1VDk3TTdJR000eDhyRHVrb0JaT3VjcjBLOVF4ekRRV1FCMXpBSHpRc1dxZDRsYjJsWmVHN2ktamtJSXlfQWx3X0ExNWNmNUlnNTcyTlZORml6ZnRDTEE?oc=5",
+        "snippet": "\"No ha habido un solo momento desde esa noche en que no sienta dolor\": Christa Pike habla por primera vez desde su fallida ejecución por inyección letal  BBC",
+        "engine": "google_news"
+      },
+      {
+        "title": "Porro: “¿Madrid y Barça? No ha habido interés real... - Diario AS",
+        "url": "https://news.google.com/rss/articles/CBMimAFBVV95cUxOS1F2OGdxZFZLQWlFTjk2cFlfbG9WVHJ3TTYwQ0dDSk9HR1lTX3FwV3FhSkhnOTk1ZFVUSVFHNU5QOW81ZWxINFlURUxHRXpOMGdiZTZLVksyaVpLWDRjSkdnVFNMNWtZZGRUYTc4ZlVBVWw3eTlhNnd0MC1RN0N3TXJ2QmFiZ0FScFp1Y1MyaENCV2V3d2RvWNIBrAFBVV95cUxOZjFBdDlYeDBnUjNRVnhpVXM3TUlzQmRwd2FmT3hscUR1QTZ0MjZiQm1IMzhzdUNpeDF4RjBrOENrWDlJYUxaZFVxVm1ubEVRWGhkU1h3UFhUcC1ic1ZtOWdZcmJDS3RBUDBlclRfOVZWSDZkd1RCc0ozY2dEQXc4THpFLUlGM05XSEVIN0VMMzU3WTRUWHBhUkNYMTFaT2ltOUpFTjJjTTkyTmly?oc=5",
+        "snippet": "Porro: “¿Madrid y Barça? No ha habido interés real...  Diario AS",
+        "engine": "google_news"
+      },
+      {
+        "title": "Mikel Merino: \"Ha habido alguna broma porque un compañero siempre me dice que solo meto de primer toque\" - MARCA",
+        "url": "https://news.google.com/rss/articles/CBMiyAFBVV95cUxQdjdvWFItaDhrYW1kd3VST0dwNUdXOGl5QlBzSUJrZlZ2Ulk0b3Z3R0RpVmluR0t2T0ZqcjkyeDlHTnhoV1pQWUxPLWJkazRPN1RQWDkzR0lSN1BsWlNZck9VdU5WS0pyQlpCYlluX1NfdmF0bm5CQWZpREhrUXZtSU15V2NhenhPLUJ2aVh6ZWRlS1RwZUkyOEx1RFdKZGpDbUJ6VlAwSWd5YnZUN0VEbGt0NzliMXhETmJHUVRfa1N3a0huaVNMU9IByAFBVV95cUxOX1ZVN21EMHhWMk1UWm9Mck1sOWlwSWR4dDhpUkJOZzRRR2xEaVVVdjUzdDljV0p4RFFMYnkzNFFOV1FGaURBeTZWcTJiSWlxcE9rY1hQd2hwRXZZRnA0aTVISGJmaGY3RkVLODF3bzVJc3MtcUtrVUZFWjc4WGgzb09WZEpnTEF3S3ZyaHBvcFdhX3hnbjM2UWU1d2ZsU3dzX3ZrVW1pU0pMZG9uaGpFUUxucTlyOURrWWIxOUVPcnFQbG5IbDZCZw?oc=5",
+        "snippet": "Mikel Merino: \"Ha habido alguna broma porque un compañero siempre me dice que solo meto de primer toque\"  MARCA",
+        "engine": "google_news"
+      }
+    ]
   }
 }

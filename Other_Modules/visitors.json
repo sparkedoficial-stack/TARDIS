@@ -549,5 +549,20 @@
     "seen_capsules": [],
     "known_facts": [],
     "last_reason": "la mera llega"
+  },
+  "el": {
+    "key": "el",
+    "name": "el",
+    "visit_count": 1,
+    "first_seen": REDACTED_PHONE.2905078,
+    "first_seen_iso": "2026-11-25T18:54:23-0500",
+    "last_seen": REDACTED_PHONE.2905078,
+    "last_seen_iso": "2026-11-25T18:54:23-0500",
+    "pedagogical_level": "intermedio",
+    "interests": [],
+    "topics_studied": [],
+    "seen_capsules": [],
+    "known_facts": [],
+    "last_reason": ""
   }
 }

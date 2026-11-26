@@ -461,45 +461,84 @@ class TemporalBrain:
 
     @staticmethod
     def _msg_tokens(msg: Dict[str, Any]) -> int:
-        """Estimacion conservadora: Llama 3 promedia ~3.5-4 caracteres por token en espanol."""
+        """Estimacion conservadora para espanol/Markdown/JSON (~2.6 chars/token + overhead plantilla)."""
         c = msg.get("content")
         if isinstance(c, list):
             c = " ".join(part.get("text", "") for part in c if isinstance(part, dict))
-        return len(str(c or "")) // 3 + 6
+        return int(len(str(c or "")) / 2.6) + 10
+
+    @staticmethod
+    def _trim_text_to_tokens(text: str, max_tokens: int, keep_tail: bool = False) -> str:
+        """Recorta un texto garantizando estrictamente que su longitud disminuya para caber en max_tokens."""
+        target_chars = max(64, int(max(16, max_tokens - 12) * 2.6))
+        if len(text) <= target_chars:
+            return text
+        marker = "\n[...recortado por limite de contexto...]\n"
+        if target_chars <= len(marker) + 32:
+            return text[-target_chars:] if keep_tail else text[:target_chars]
+        usable = target_chars - len(marker)
+        if keep_tail:
+            return marker.lstrip() + text[-usable:]
+        head = int(usable * 0.65)
+        tail = usable - head
+        return text[:head] + marker + text[-tail:]
 
     def _fit_to_context(self, msgs: List[Dict[str, Any]], max_new: int) -> Tuple[List[Dict[str, Any]], int]:
         """
-        Recorta el historial para que prompt + respuesta quepan en el contexto real.
-        Sin esto, pasar de n_ctx devolvia HTTP 400 y la respuesta se perdia.
-        Conserva los mensajes de sistema y el ultimo turno; descarta lo mas antiguo.
+        Recorta el historial (y, si excede el presupuesto, el prompt de sistema) para que
+        prompt + respuesta quepan siempre en el n_ctx real de llama-server sin HTTP 400.
+        Conserva siempre la identidad central de sistema y el ultimo turno del usuario.
         """
         n_ctx = self._server_n_ctx()
         max_new = max(64, min(int(max_new), n_ctx // 2))
-        budget = n_ctx - max_new - 192          # margen para la plantilla de chat
+        budget = max(512, n_ctx - max_new - 256)          # margen seguro para la plantilla de chat
         total = sum(self._msg_tokens(m) for m in msgs)
         if total <= budget:
             return msgs, max_new
         original_total = total
 
-        system = [m for m in msgs if m.get("role") == "system"]
-        rest = [m for m in msgs if m.get("role") != "system"]
+        system = [dict(m) for m in msgs if m.get("role") == "system"]
+        rest = [dict(m) for m in msgs if m.get("role") != "system"]
         dropped = 0
         while len(rest) > 1 and sum(self._msg_tokens(m) for m in system + rest) > budget:
             rest.pop(0)
             dropped += 1
 
+        # Si los mensajes de sistema por si solos desbordan el presupuesto, recortarlos
+        # primero preservando el turno actual del usuario intacto.
+        last_toks = self._msg_tokens(rest[-1]) if rest else 0
+        user_reserve = min(last_toks, max(256, budget // 3)) if rest else 0
+        sys_budget = max(256, budget - user_reserve)
+        sys_total = sum(self._msg_tokens(m) for m in system)
+        if sys_total > sys_budget and system:
+            # Reducir mensajes de sistema empezando por los mas grandes hasta caber en sys_budget
+            indexed = sorted(range(len(system)), key=lambda i: self._msg_tokens(system[i]), reverse=True)
+            for idx in indexed:
+                if sys_total <= sys_budget:
+                    break
+                cur_tok = self._msg_tokens(system[idx])
+                excess = sys_total - sys_budget
+                target_tok = max(64, cur_tok - excess)
+                content = system[idx].get("content")
+                if isinstance(content, str) and target_tok < cur_tok:
+                    system[idx]["content"] = self._trim_text_to_tokens(content, target_tok, keep_tail=False)
+                    sys_total = sum(self._msg_tokens(m) for m in system)
+
         out = system + rest
         total = sum(self._msg_tokens(m) for m in out)
         if total > budget and rest and isinstance(rest[-1].get("content"), str):
-            # Un unico mensaje enorme: se conserva el final, que suele ser lo pertinente
+            # Solo recortar el ultimo turno si por si mismo sigue desbordando el presupuesto
+            other_toks = sum(self._msg_tokens(m) for m in system + rest[:-1])
+            allowed_last = max(64, budget - other_toks)
             last = dict(rest[-1])
-            cut = (total - budget) * 3 + 64
-            last["content"] = "[...contenido anterior recortado por limite de contexto...]\n" + last["content"][cut:]
-            out = system + rest[:-1] + [last]
+            if self._msg_tokens(last) > allowed_last:
+                last["content"] = self._trim_text_to_tokens(last["content"], allowed_last, keep_tail=True)
+                out = system + rest[:-1] + [last]
 
+        final_total = sum(self._msg_tokens(m) for m in out)
         logger.warning(
             f"✂️ [TemporalBrain] Historial ajustado al contexto ({n_ctx} tok): "
-            f"{dropped} mensajes antiguos descartados, ~{original_total} -> ~{sum(self._msg_tokens(m) for m in out)} tok"
+            f"{dropped} mensajes antiguos descartados, ~{original_total} -> ~{final_total} tok"
         )
         return out, max_new
 

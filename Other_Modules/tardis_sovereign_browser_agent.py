@@ -1040,6 +1040,27 @@ def _call_local_llm_json(system_prompt: str, user_prompt: str, max_tokens: int =
     return None
 
 
+_RECURSIVE_CURIOSITY_PREFIX_RE = re.compile(
+    r"^(?:implicaciones pr[aá]cticas y evidencia primaria sobre|"
+    r"contrapuntos y desarrollos recientes relacionados con|"
+    r"profundizar en|investigar m[aá]s sobre)\s+",
+    re.IGNORECASE,
+)
+
+
+def _sanitize_curiosity_topic(raw: str) -> str:
+    """Limpia prefijos recursivos y acota la longitud de temas de curiosidad autónoma."""
+    s = re.sub(r"\s+", " ", str(raw or "")).strip(" «»\"'.,;:")
+    for _ in range(12):
+        cleaned = _RECURSIVE_CURIOSITY_PREFIX_RE.sub("", s).strip(" «»\"'.,;:")
+        if cleaned == s:
+            break
+        s = cleaned
+    if len(s) > 110:
+        s = s[:110].rsplit(" ", 1)[0].strip()
+    return s
+
+
 def synthesize_tardis_conclusion(
     *,
     topic: str,
@@ -1053,6 +1074,7 @@ def synthesize_tardis_conclusion(
     páginas o noticias visitadas, combinando razonamiento LLM local + respaldo extractivo.
     """
     t0 = time.perf_counter()
+    topic = _sanitize_curiosity_topic(topic) or "Exploración Web"
     sources = [
         {"url": str(d.get("url") or ""), "title": str(d.get("title") or d.get("url") or "")[:120]}
         for d in documents
@@ -1132,10 +1154,19 @@ def synthesize_tardis_conclusion(
                 f"y abre rutas prácticas para profundizar con datos primarios y validación local."
             )
     if not next_curiosities:
-        next_curiosities = [
-            f"Implicaciones prácticas y evidencia primaria sobre {topic}",
-            f"Contrapuntos y desarrollos recientes relacionados con {topic}",
-        ]
+        # Evitar recursión infinita de prefijos: proponer semillas frescas y diversas
+        # distintas al tema actual en lugar de envolver `topic` indefinidamente.
+        low_topic = topic.lower()
+        candidates = [seed for seed, _ in FREE_WILL_SEEDS if seed.lower() != low_topic and seed.lower() not in low_topic]
+        random.shuffle(candidates)
+        next_curiosities = candidates[:2] or ["avances recientes en inteligencia artificial y ciencia abierta"]
+    else:
+        cleaned_cur: List[str] = []
+        for item in next_curiosities:
+            c = _sanitize_curiosity_topic(item)
+            if c and c.lower() != topic.lower() and c not in cleaned_cur:
+                cleaned_cur.append(c)
+        next_curiosities = cleaned_cur[:3]
 
     return BrowserConclusion(
         id=f"conc_{int(time.time()*1000)}_{uuid.uuid4().hex[:6]}",
@@ -1248,8 +1279,9 @@ class SovereignBrowserHub:
                             obj = json.loads(ln)
                             self._conclusions.append(obj)
                             for q in (obj.get("next_curiosities") or [])[:1]:
-                                if q and q not in self._curiosity_queue:
-                                    self._curiosity_queue.append(q)
+                                cq = _sanitize_curiosity_topic(str(q or ""))
+                                if cq and len(cq) >= 8 and cq not in self._curiosity_queue:
+                                    self._curiosity_queue.append(cq)
                         except Exception:
                             pass
             if self.actions_file.is_file():
@@ -1924,6 +1956,7 @@ class SovereignBrowserHub:
                 documents.append(page)
             self.scroll("down", 680, pilot=pilot)
         else:
+            focus = _sanitize_curiosity_topic(focus) or "noticias tecnología e inteligencia artificial hoy"
             # Mostrar búsqueda/noticias en vivo en el navegador integrado
             if open_ui:
                 self.search(focus, engine=("news" if m == "news" else "duckduckgo"), pilot=pilot, open_ui=True)
@@ -1935,8 +1968,6 @@ class SovereignBrowserHub:
                 max_sources=max(1, min(5, int(max_pages))),
                 enabled_sources=enabled_sources,
             )
-            if open_ui and discovered:
-                self.navigate(discovered[0]["url"], pilot=pilot, open_ui=True)
 
             from concurrent.futures import ThreadPoolExecutor
 
@@ -1949,32 +1980,47 @@ class SovereignBrowserHub:
                         "url": src_url,
                         "title": src.get("title") or src_url,
                         "text": src.get("snippet") or src.get("title") or "",
+                        "_ui_safe": False,
                     }
                 if src.get("official_api") == "true" and len(src.get("snippet") or "") >= 180:
+                    # Resúmenes de OpenAlex/DOI suelen apuntar a editoriales con muro Cloudflare:
+                    # aprovechar el resumen oficial sin arrastrar el navegador visual hacia doi.org.
+                    is_doi = "doi.org/" in src_url.lower()
                     return {
                         "url": src_url,
                         "title": src.get("title") or src_url,
                         "text": src.get("snippet") or "",
+                        "_ui_safe": not is_doi,
                     }
                 fetched = fetch_page_fast(src_url, timeout=6.5)
                 if fetched.get("human_verification_required"):
                     skipped_gated_urls.append(src_url)
                     return None
                 if fetched.get("ok") and len(fetched.get("text") or "") >= 120:
+                    fetched["_ui_safe"] = True
                     return fetched
-                return {
-                    "url": src_url,
-                    "title": src.get("title") or src_url,
-                    "text": src.get("snippet") or src.get("title") or "",
-                }
+                # Si el sitio falló (DNS/timeout/403/5xx), aprovechar solo el snippet oficial si existe
+                # pero marcar `_ui_safe=False` para no abrir páginas rotas en el navegador visible.
+                if src.get("snippet"):
+                    return {
+                        "url": src_url,
+                        "title": src.get("title") or src_url,
+                        "text": src.get("snippet") or "",
+                        "_ui_safe": False,
+                    }
+                return None
 
             if discovered:
                 with ThreadPoolExecutor(max_workers=min(4, len(discovered))) as pool:
                     for item in pool.map(_fetch_one, discovered):
                         if item is not None:
                             documents.append(item)
+                # Navegar la vista Chromium únicamente a la primera URL verificada accesible y libre de bloqueo
                 if open_ui:
-                    self.scroll("down", 620, pilot=pilot)
+                    safe_nav = next((d["url"] for d in documents if d.get("_ui_safe") and d.get("url")), "")
+                    if safe_nav:
+                        self.navigate(safe_nav, pilot=pilot, open_ui=True)
+                        self.scroll("down", 620, pilot=pilot)
 
         if not documents:
             documents = [{

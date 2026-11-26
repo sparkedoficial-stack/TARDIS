@@ -231,29 +231,15 @@ class TardisAutonomousErrorFixer:
                 except Exception:
                     pass
 
-        # 3. Verificar salud de /tmp/temporal_brain.sock
+        # 3. Verificar salud de /tmp/temporal_brain.sock (política cero-reinicios autónomos)
         if not self._probe_unix_socket(TEMPORAL_SOCK):
-            subprocess.run(
-                ["systemctl", "--user", "restart", "tardis-temporal-brain.service"],
-                stdin=subprocess.DEVNULL,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                timeout=10,
-            )
-            fixed_actions.append("Reiniciado servicio tardis-temporal-brain.service por caída de socket")
-            self._log_fix_event("llama_server_recovery", "Restaurado motor C++ CUDA en /tmp/temporal_brain.sock", {"actions": fixed_actions})
+            fixed_actions.append("Diagnóstico: /tmp/temporal_brain.sock inactivo (reinicio autónomo deshabilitado; sin bucle)")
+            self._log_fix_event("llama_server_diag", "Socket /tmp/temporal_brain.sock inactivo (sin reinicio forzado)", {"actions": fixed_actions})
 
-        # 4. Verificar salud de /tmp/embed_brain.sock
+        # 4. Verificar salud de /tmp/embed_brain.sock (política cero-reinicios autónomos)
         if not self._probe_unix_socket(EMBED_SOCK):
-            subprocess.run(
-                ["systemctl", "--user", "restart", "tardis-embed-brain.service"],
-                stdin=subprocess.DEVNULL,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                timeout=10,
-            )
-            fixed_actions.append("Reiniciado servicio tardis-embed-brain.service por caída de socket")
-            self._log_fix_event("embed_server_recovery", "Restaurado motor de embeddings en /tmp/embed_brain.sock", {"actions": fixed_actions})
+            fixed_actions.append("Diagnóstico: /tmp/embed_brain.sock inactivo (reinicio autónomo deshabilitado; sin bucle)")
+            self._log_fix_event("embed_server_diag", "Socket /tmp/embed_brain.sock inactivo (sin reinicio forzado)", {"actions": fixed_actions})
 
         return {"ok": True, "actions": fixed_actions}
 
@@ -332,17 +318,7 @@ class TardisAutonomousErrorFixer:
                             stderr=subprocess.DEVNULL,
                             timeout=5,
                         )
-                        if (ex_st and ex_st in prev_st) or unit == "antigravity-cli-daemon.service":
-                            actions.append(f"Unidad systemd --user estabilizada sin bucle (reset-failed, exit={ex_st}): {unit}")
-                            continue
-                        subprocess.run(
-                            ["systemctl", "--user", "restart", unit],
-                            stdin=subprocess.DEVNULL,
-                            stdout=subprocess.DEVNULL,
-                            stderr=subprocess.DEVNULL,
-                            timeout=8,
-                        )
-                        actions.append(f"Unidad systemd --user recuperada: {unit}")
+                        actions.append(f"Unidad systemd --user limpiada sin reinicio automático (reset-failed, exit={ex_st}): {unit}")
         except Exception:
             pass
 
@@ -431,11 +407,7 @@ def run(args: Dict[str, Any]) -> Dict[str, Any]:
         err = str((args or {{}}).get("error_text", ""))
         actions = ["Diagnóstico automático ejecutado para categoría: {error_category}"]
         if "temporal_brain" in err or "llama-server" in err or "CUDA" in err:
-            subprocess.run(
-                ["systemctl", "--user", "restart", "tardis-temporal-brain.service"],
-                stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=8
-            )
-            actions.append("Reiniciado tardis-temporal-brain.service")
+            actions.append("Diagnóstico de temporal_brain registrado (reinicio automático deshabilitado)")
         return {{
             "ok": True,
             "result": "Incidente neutralizado por función autónoma {func_name}",

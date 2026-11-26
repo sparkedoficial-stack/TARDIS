@@ -550,21 +550,29 @@ class TardisVideoThinkingEngine:
         if size_mb > 48.0 or needs_transcode:
             logger.info(f"⚡ Normalizando video ({size_mb:.1f} MB, transcode={needs_transcode}) a H.264...")
             tmp_comp = video_path.with_name(f"{video_path.stem}_comp.mp4")
+            preset = "ultrafast" if size_mb > 48.0 else "veryfast"
             cmd = [
                 "ffmpeg", "-y",
                 "-threads", "2", "-filter_threads", "1", "-filter_complex_threads", "1",
                 "-i", str(video_path),
                 "-vf", "scale=-2:480" if size_mb > 48.0 else "scale=trunc(iw/2)*2:trunc(ih/2)*2",
                 "-threads", "2",
-                "-c:v", "libx264", "-pix_fmt", "yuv420p", "-preset", "veryfast", "-crf", "26" if size_mb > 48.0 else "23",
+                "-c:v", "libx264", "-pix_fmt", "yuv420p", "-preset", preset, "-crf", "27" if size_mb > 48.0 else "23",
                 "-c:a", "aac", "-b:a", "96k",
                 "-movflags", "+faststart",
                 str(tmp_comp)
             ]
-            subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=180)
+            try:
+                subprocess.run(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=420)
+            except subprocess.TimeoutExpired:
+                logger.warning(f"⏱️ Normalización ffmpeg agotó tiempo (420s) para {video_path.name}; conservando archivo original.")
+                tmp_comp.unlink(missing_ok=True)
+                return
             if tmp_comp.exists() and tmp_comp.stat().st_size > 1000:
                 tmp_comp.replace(video_path)
                 self.log_self_improvement("video_normalized", f"Normalizado H.264 ({video_path.stat().st_size/(1024*1024):.1f} MB)")
+            else:
+                tmp_comp.unlink(missing_ok=True)
 
     # -------------------------------------------------------------------------
     # ANÁLISIS CON INTELIGENCIA VISUAL & SÍNTESIS DE ABSTRACCIÓN

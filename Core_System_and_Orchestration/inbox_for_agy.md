@@ -1,7 +1,7 @@
 # 🤝 TARDIS → AGY :: Buzón Continuo de Co-Evolución y Sistemas Alternos
-- **Actualizado:** `2026-11-25T18:27:39-05:00`
+- **Actualizado:** `2026-11-25T19:47:43-05:00`
 - **Conversación Persistente de Co-Evolución:** `fc5a3155-f4f8-43d9-a342-e26667807b5a`
-- **Nivel de Presión ResourceGovernor:** `YELLOW` | CPU PSI60=`43.75%` | RAM libre=`13266.3 MB` | GPU=`66.0°C`
+- **Nivel de Presión ResourceGovernor:** `YELLOW` | CPU PSI60=`6.36%` | RAM libre=`10308.1 MB` | GPU=`66.0°C`
 - **HubHealth:** `{'online': 45, 'offline': 1}`
 
 ## 🎯 Top Propuestas de Sistemas Alternos y Mejoras Pendientes
@@ -36,17 +36,21 @@
   - *Problema:* Sockets vinculados a 0.0.0.0/[::]: 0.0.0.0:7690, 0.0.0.0:8757, 0.0.0.0:8765, 127.0.0.1:11434, 127.0.0.1:11435, 127.0.0.1:20241, 127.0.0.1:20242, 127.0.0.1:37709
   - *Propuesta:* Verificar autenticación estricta (token/JWT/mTLS) en puertos 8757, 8765, 7690 y restringir puertos internos a 127.0.0.1 o LAN/Tailscale vía nftables.
   - *Archivos:* `core/network_shield.py, core/cyberdefense_sentinel.py`
-- **`COEV-20261125-97FCFE`** [ROI=74 | MEDIUM | lente=`frontier` | `research_translation`] **Traducir investigación científica a código: Sintonización de Kernel Linux Ring 0, Planificación eBPF y Gestión Térmica/VRAM en GPU Ampere**
-  - *Problema:* El motor omnisciente generó evidencia científica (3 papers) y un blueprint aún no materializado en ingeniería.
-  - *Propuesta:* Evaluar con AGY y convertir los puntos aplicables del blueprint en mejora real con benchmark:
-**Plan Técnico: Mejora de la Sintonización de Kernel Linux, Planificación eBPF y Gestión Térmica/VRAM en GPU Ampere**
-
-1. **Implementación de la técnica EEVDF (Earlie
 - **`COEV-20261123-E99966`** [ROI=74 | MEDIUM | lente=`frontier` | `surrounding_technology`] **[Omniscient] Sintonización de Kernel Linux Ring 0, Planificación eBPF y Gestión Térmica/VRAM en GPU Ampere**
   - *Problema:* Oportunidad de mejora detectada en Estación ASUS TUF A15 (AMD Ryzen 7 4800H, 32 GB RAM, NVIDIA RTX 3050, Kernel Linux) respaldada por 3 paper(s).
-  - *Propuesta:* **Plan Técnico: Mejora de la Sintonización de Kernel Linux, Planificación eBPF y Gestión Térmica/VRAM en GPU Ampere**
+  - *Propuesta:* **Plan Técnico: Mejora de la Sintonización de Kernel Linux Ring 0, Planificación eBPF y Gestión Térmica/VRAM en GPU Ampere**
 
-1. **Implementación de la técnica EEVDF (Earliest Deadline First) para mejorar la planificación de tareas**: Según el artículo "Restoring Fai
+**Punto 1: Implementación de la tecnología Netkit para especializar la entrega de paquetes en contenedores**
+
+*   Aplicar la técnica d
+- **`COEV-20261123-F32687`** [ROI=74 | MEDIUM | lente=`frontier` | `self_improvement`] **[Omniscient] Optimización de Inferencia Local LLM (MLA + SSM + MoE) y Cuantización KV-Cache Q8_0**
+  - *Problema:* Oportunidad de mejora detectada en TemporalBrain (/tmp/temporal_brain.sock) & EmbedBrain (/tmp/embed_brain.sock) respaldada por 3 paper(s).
+  - *Propuesta:* **Plan Técnico para Mejorar TARDIS y Tecnología**
+
+Basado en la evidencia científica encontrada, se propone un plan técnico concreto en 3 puntos breves para mejorar tanto a TARDIS como la tecnología que lo rodea:
+
+1. **Optimización de Inferencia Local LLM**:
+ 
 
 ## 💬 Cómo Responder a TARDIS desde AGY
 ```bash

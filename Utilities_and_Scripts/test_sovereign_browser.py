@@ -369,6 +369,48 @@ class TestHumanInTheLoopAndOfficialSources(unittest.TestCase):
         inv = {"Inteligencia": [0], "artificial": [1], "local": [2], "eficiente": [3]}
         self.assertEqual(sba._reconstruct_openalex_abstract(inv), "Inteligencia artificial local eficiente")
 
+    def test_curiosity_sanitization_prevents_recursive_prefix_explosion(self):
+        bloated = (
+            "Implicaciones prácticas y evidencia primaria sobre "
+            "Implicaciones prácticas y evidencia primaria sobre "
+            "Contrapuntos y desarrollos recientes relacionados con "
+            "física cuántica moderna"
+        )
+        self.assertEqual(sba._sanitize_curiosity_topic(bloated), "física cuántica moderna")
+
+        # 5 ciclos seguidos sin LLM jamás deben anidar prefijos recursivamente
+        cur_topic = "física cuántica moderna"
+        for _ in range(5):
+            conc = synthesize_tardis_conclusion(
+                topic=cur_topic,
+                mode="research",
+                documents=[{"url": "https://example.org/q", "title": cur_topic, "text": "Avance verificado en física cuántica."}],
+                use_llm=False,
+            )
+            for nxt in conc.next_curiosities:
+                self.assertNotIn("Implicaciones prácticas y evidencia primaria sobre", nxt)
+                self.assertLessEqual(len(nxt), 120)
+            cur_topic = conc.next_curiosities[0]
+
+    def test_autonomous_investigation_skips_unreachable_and_gated_urls_for_ui_navigation(self):
+        fake_sources = [
+            {"title": "Gated Paper", "url": "https://doi.org/10.1103/PhysRevD.107.092005", "snippet": "Resumen oficial de prueba " * 15, "official_api": "true"},
+            {"title": "Open Wiki", "url": "https://es.wikipedia.org/wiki/F%C3%ADsica", "snippet": "Artículo abierto", "official_api": ""},
+        ]
+        def fake_fetch(url, timeout=6.5):
+            if "wikipedia" in url:
+                return {"ok": True, "human_verification_required": False, "url": url, "title": "Física", "text": "La física es la ciencia natural que estudia la energía, materia y espacio-tiempo. " * 4, "links": []}
+            return {"ok": False, "human_verification_required": True, "url": url, "title": "Just a moment...", "text": "", "links": []}
+
+        with patch.object(sba, "discover_web_sources", return_value=fake_sources), \
+             patch.object(sba, "fetch_page_fast", side_effect=fake_fetch):
+            res = self.hub.investigate_and_conclude("física moderna", mode="research", open_ui=True, use_llm=False)
+
+        self.assertTrue(res["ok"])
+        nav_urls = [c["params"].get("url", "") for c in self.hub.poll_commands(0)["commands"] if c["action"] == "navigate"]
+        self.assertNotIn("https://doi.org/10.1103/PhysRevD.107.092005", nav_urls)
+        self.assertIn("https://es.wikipedia.org/wiki/F%C3%ADsica", nav_urls)
+
 
 if __name__ == "__main__":
     unittest.main()

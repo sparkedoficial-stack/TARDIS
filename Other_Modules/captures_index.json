@@ -1,5 +1,43 @@
 [
   {
+    "id": "capture_1795651042_LAN_tapo_c310_god_eye.jpg",
+    "timestamp": REDACTED_PHONE.6970496,
+    "iso_time": "2026-11-25T18:57:22-0500",
+    "terminal_id": "tapo_c310_god_eye",
+    "terminal_name": "GOD-EYE · Tapo C310 (REDACTED_IP)",
+    "origin": "LAN",
+    "client_ip": "REDACTED_IP",
+    "country": "LAN",
+    "resolution": "2304x1296 -> 1280x720",
+    "filename": "capture_1795651042_LAN_tapo_c310_god_eye.jpg",
+    "file_path": "/home/m11/Escritorio/GODWORKS SYSTEM/data/terminal_captures/capture_1795651042_LAN_tapo_c310_god_eye.jpg",
+    "size_bytes": 113102,
+    "biometrics": {
+      "persons_detected": 0,
+      "max_confidence": 0.0,
+      "mood_state": "Perímetro Despejado"
+    }
+  },
+  {
+    "id": "capture_1795649945_LAN_tapo_c310_god_eye.jpg",
+    "timestamp": REDACTED_PHONE.228794,
+    "iso_time": "2026-11-25T18:39:05-0500",
+    "terminal_id": "tapo_c310_god_eye",
+    "terminal_name": "GOD-EYE · Tapo C310 (REDACTED_IP)",
+    "origin": "LAN",
+    "client_ip": "REDACTED_IP",
+    "country": "LAN",
+    "resolution": "2304x1296 -> 1280x720",
+    "filename": "capture_1795649945_LAN_tapo_c310_god_eye.jpg",
+    "file_path": "/home/m11/Escritorio/GODWORKS SYSTEM/data/terminal_captures/capture_1795649945_LAN_tapo_c310_god_eye.jpg",
+    "size_bytes": 112388,
+    "biometrics": {
+      "persons_detected": 0,
+      "max_confidence": 0.0,
+      "mood_state": "Perímetro Despejado"
+    }
+  },
+  {
     "id": "capture_1795637358_LAN_tapo_c310_god_eye.jpg",
     "timestamp": REDACTED_PHONE.2945063,
     "iso_time": "2026-11-25T15:09:18-0500",
@@ -3656,56 +3694,6 @@
       "gaze": "Fijado en terminal",
       "advice": "El usuario muestra entusiasmo, optimismo y curiosidad activa. Responde con complicidad intelectual, dinamismo, agilidad y visión constructiva.",
       "camera_active": true
-    }
-  },
-  {
-    "id": "capture_1789636190_INTERNET_term_bqjn101.jpg",
-    "timestamp": REDACTED_PHONE.7204463,
-    "iso_time": "2026-09-17T04:09:50-0500",
-    "terminal_id": "term_bqjn101",
-    "terminal_name": "iPhone Terminal",
-    "origin": "INTERNET",
-    "client_ip": "REDACTED_IP",
-    "country": "MX",
-    "resolution": "1280x720",
-    "filename": "capture_1789636190_INTERNET_term_bqjn101.jpg",
-    "file_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/data/terminal_captures/capture_1789636190_INTERNET_term_bqjn101.jpg",
-    "size_bytes": 3118,
-    "biometrics": {
-      "primary": "alegre",
-      "mood_state": "Entusiasmado y Creativo",
-      "gesticulation": "Elevación cigomática bilateral (sonrisa activa), comisuras ascendentes y ojos luminosos",
-      "neurochemistry": {
-        "dopamina": 70,
-        "cortisol": 28,
-        "serotonina": 69,
-        "adrenalina": 28,
-        "fatiga": 19
-      },
-      "confidence": 0.9,
-      "valence": 0.85,
-      "attention": "69%",
-      "gaze": "Fijado en terminal",
-      "advice": "El usuario muestra entusiasmo, optimismo y curiosidad activa. Responde con complicidad intelectual, dinamismo, agilidad y visión constructiva.",
-      "camera_active": true
-    }
-  },
-  {
-    "id": "capture_1789546214_INTERNET_api_client_auto_snap_01.jpg",
-    "timestamp": REDACTED_PHONE.4658716,
-    "iso_time": "2026-09-16T03:10:14-0500",
-    "terminal_id": "api_client_auto_snap_01",
-    "terminal_name": "Terminal Web Laptop",
-    "origin": "INTERNET",
-    "client_ip": "REDACTED_IP",
-    "country": "MX",
-    "resolution": "1280x720",
-    "filename": "capture_1789546214_INTERNET_api_client_auto_snap_01.jpg",
-    "file_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/data/terminal_captures/capture_1789546214_INTERNET_api_client_auto_snap_01.jpg",
-    "size_bytes": 134,
-    "biometrics": {
-      "faces_count": 1,
-      "primary": "happy"
     }
   }
 ]
