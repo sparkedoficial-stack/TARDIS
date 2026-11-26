@@ -2,11 +2,11 @@
   "daemon": "tardis-visual-intelligence",
   "running": true,
   "pid": 1582,
-  "uptime_sec": 23810.8,
-  "last_heartbeat": "2026-11-26T07:15:05.708110",
+  "uptime_sec": 42759.4,
+  "last_heartbeat": "2026-11-26T12:30:54.334409",
   "items_processed": 0,
   "last_processed_id": "",
-  "memory_rss_mb": 367.9,
+  "memory_rss_mb": 346.93,
   "engine_status": {
     "status": "online",
     "engine": "VisualIntelligenceEngine v26.5 (VLM + Veredictos)",
@@ -20,14 +20,14 @@
     "vlm_error": "",
     "verdict_engine": "VLM + Kaiju + veredicto estructurado",
     "stored_videos_count": 1073,
-    "stored_images_count": 575,
+    "stored_images_count": 590,
     "stored_sounds_count": 0,
-    "stored_verdicts_count": 707,
+    "stored_verdicts_count": 722,
     "last_verdict": {
-      "id": "img_20261126_070850_a0d9f8",
-      "created_at": "2026-11-26T07:10:04.449761",
+      "id": "img_20261126_122419_532222",
+      "created_at": "2026-11-26T12:24:29.195848",
       "source": "daemon",
-      "verdict": "*   Estado General del Entorno: Seguro, tranquilo y estático.\n*   Nivel de Riesgo Objetivo: 0/10 (Totalmente seguro). No se detectan amenazas físicas, ambientales o de seguridad.\n*   Recomendación Concreta:\n    *   Para el Arquitecto: No requiere acción inmediata. El entorno es benigno.\n    *   Observación Secundaria: Si el vehículo pertenece a una propiedad privada o zona regulada, el estacionamiento sobre el césped podría considerarse una falta menor de ordenamiento, pero no constituye una anomalía de seguridad. Se recomienda simplemente continuar con las actividades normales.\n\n*Nota: TARDIS",
+      "verdict": "*   Estado General del Entorno: Desconocido / No observable. La imagen no proporciona información sobre el entorno físico real.\n*   Nivel de Riesgo Objetivo: 0/10 (Inconclusivo). No se detectan amenazas porque no se detecta nada. Sin embargo, el riesgo operativo es alto si se asume que esta imagen representa una situación real de vigilancia, ya que la falta de visibilidad impide la detección de peligros.\n*   Hechos Observados:\n    *   Imagen estática de 1920x1080.\n    *   Color dominante: Gris-verdoso (#86907d).\n    *   Sin audio.\n    *   Sin objetos, personas o estructuras identificables.\n*  ",
       "risk_level": 0
     },
     "surroundings_interval_sec": 900,
@@ -37,13 +37,13 @@
   },
   "surroundings": {
     "interval_sec": 900.0,
-    "checks": 9,
-    "verdicts": 9,
-    "last_verdict_id": "img_20261126_070850_a0d9f8",
+    "checks": 24,
+    "verdicts": 24,
+    "last_verdict_id": "img_20261126_122419_532222",
     "last_risk_level": 0,
-    "last_verdict": "*   Estado General del Entorno: Seguro, tranquilo y estático.\n*   Nivel de Riesgo Objetivo: 0/10 (Totalmente seguro). No se detectan amenazas físicas, ambientales o de seguridad.\n*   Recomendación Concreta:\n    *   Para el Arquitecto: No requiere acción inmediata. El entorno es benigno.\n    *   Observación Secundaria: Si el vehículo pertenece a una propiedad privada o zona regulada, el estacionamiento sobre el césped podría considerarse una falta menor de ordenamiento, pero no constituye una anomalía de seguridad. Se recomienda simplemente continuar con las actividades normales.\n\n*Nota: TARDIS confirma la ausencia de anomalías temporales, espaciales o de seguridad. El sistema opera con normalidad.*",
+    "last_verdict": "*   Estado General del Entorno: Desconocido / No observable. La imagen no proporciona información sobre el entorno físico real.\n*   Nivel de Riesgo Objetivo: 0/10 (Inconclusivo). No se detectan amenazas porque no se detecta nada. Sin embargo, el riesgo operativo es alto si se asume que esta imagen representa una situación real de vigilancia, ya que la falta de visibilidad impide la detección de peligros.\n*   Hechos Observados:\n    *   Imagen estática de 1920x1080.\n    *   Color dominante: Gris-verdoso (#86907d).\n    *   Sin audio.\n    *   Sin objetos, personas o estructuras identificables.\n*   Inferencias:\n    *   El sensor de captura está obstruido, desenfocado o apuntando a una superficie uniforme.\n    *   No hay actividad temporal registrada.\n*   Dudas:\n    *   ¿Por qué se ha enviado esta imagen? ¿Es un error de transmisión?\n*   Recomendación Concreta:\n    1.  Verificar el sensor: Asegúrate de que la cámara o dispositivo de captura no esté tapado, sucio ni dañado.\n    2.  Reencuadrar: Si el dispositivo está funcional, apunta a un área con contraste y detalle para obtener una imagen útil.\n    3.  Reenviar datos: Proporciona una nueva captura que muestre el entorno real para que p",
     "last_error": "",
-    "last_check_ts": REDACTED_PHONE.7281623
+    "last_check_ts": REDACTED_PHONE.8030264
   },
   "vlm": {
     "ready": true,

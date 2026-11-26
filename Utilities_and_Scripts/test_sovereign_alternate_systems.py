@@ -2252,3 +2252,68 @@ def test_sqlite_incremental_compaction_and_subsystem_proposals_blob_dedup(tmp_pa
     )
     assert res_nb_run["ok"] is True
     assert res_nb_run["targets"]["rag"]["maintenance"]["checkpoint_mode"] == "PASSIVE"
+
+
+def test_security_lens_perimeter_socket_audit_and_modular_god_file_facades(tmp_path: Path, monkeypatch):
+    """Regresión COEV-20261123-02ACF0 + COEV-20261123-93393A: parser Local Address en ss -tln, auditoría perimetral y fachadas <2000 LOC."""
+    import subprocess
+    from core import cyberdefense_sentinel as cs
+    from core import network_shield as ns
+    from core import tardis_agy_coevolution as coev
+
+    # 1) _scan_security_lens() NUNCA debe marcar sockets loopback 127.0.0.1:* cuyo Peer Address es 0.0.0.0:*
+    fake_ss_clean = "\n".join([
+        "State   Recv-Q Send-Q Local Address:Port Peer Address:Port",
+        "LISTEN  0      4096   127.0.0.1:7681     0.0.0.0:*",
+        "LISTEN  0      8192   127.0.0.1:11434    0.0.0.0:*",
+        "LISTEN  0      8192   127.0.0.1:11435    0.0.0.0:*",
+        "LISTEN  0      128    0.0.0.0:7690       0.0.0.0:*",
+        "LISTEN  0      2048   0.0.0.0:8757       0.0.0.0:*",
+        "LISTEN  0      2048   0.0.0.0:8765       0.0.0.0:*",
+        "LISTEN  0      8192   [::1]:631          [::]:*",
+    ])
+    eng = coev.TardisAgyCoevolutionEngine(db_path=tmp_path / "sec_clean.db")
+    monkeypatch.setattr(subprocess, "check_output", lambda *a, **k: fake_ss_clean)
+    orig_is_file = Path.is_file
+    orig_read_text = Path.read_text
+    monkeypatch.setattr(Path, "is_file", lambda p: True if str(p) == "/etc/ufw/ufw.conf" else orig_is_file(p))
+    monkeypatch.setattr(Path, "read_text", lambda p, *a, **k: "ENABLED=yes\n" if str(p) == "/etc/ufw/ufw.conf" else orig_read_text(p, *a, **k))
+    assert eng._scan_security_lens() == []
+
+    # 2) Si aparece un socket wildcard inesperado (0.0.0.0:9999), SÍ debe generar propuesta de hardening
+    fake_ss_exposed = fake_ss_clean + "\nLISTEN  0      128    0.0.0.0:9999       0.0.0.0:*"
+    monkeypatch.setattr(subprocess, "check_output", lambda *a, **k: fake_ss_exposed)
+    found = eng._scan_security_lens()
+    assert len(found) == 1
+    prop = eng.get_proposal(found[0]["proposal_id"])
+    assert prop["evidence"]["unexpected_sockets"] == ["0.0.0.0:9999"]
+    assert "127.0.0.1:11434" not in prop["evidence"]["exposed_sockets"]
+
+    # 3) CyberdefenseSentinel.audit_exposed_sockets() y NetworkShield.audit_host_socket_perimeter()
+    sentinel = cs.CyberdefenseSentinel()
+    monkeypatch.setattr(
+        sentinel,
+        "scan_listening_ports",
+        lambda: [
+            {"ip": "127.0.0.1", "port": 11434, "service": "Ollama", "pid": 1, "process": "ollama", "is_wildcard": False, "is_loopback": True, "is_expected_public": False, "is_safe": True},
+            {"ip": "0.0.0.0", "port": 7690, "service": "FTL-Public-Gateway", "pid": 2, "process": "python3", "is_wildcard": True, "is_loopback": False, "is_expected_public": True, "is_safe": True},
+            {"ip": "0.0.0.0", "port": 9999, "service": "Otro Servicio", "pid": 3, "process": "nc", "is_wildcard": True, "is_loopback": False, "is_expected_public": False, "is_safe": False},
+        ],
+    )
+    audit = sentinel.audit_exposed_sockets(probe_auth=False)
+    assert audit["loopback_count"] == 1
+    assert audit["expected_wildcard_ports"] == [7690]
+    assert audit["unexpected_wildcard_ports"] == [9999]
+    assert audit["ok"] is False
+    assert 7690 in cs.SENSITIVE_PORTS and 11435 in cs.SENSITIVE_PORTS
+
+    monkeypatch.setattr(cs, "get_cyberdefense_sentinel", lambda: sentinel)
+    shield = ns.NetworkShield()
+    perim = shield.audit_host_socket_perimeter(probe_auth=False)
+    assert perim["unexpected_wildcard_ports"] == [9999]
+
+    # 4) COEV-20261123-93393A: los 3 módulos monolíticos principales deben estar < 2000 LOC con fachadas intactas
+    root = Path(__file__).resolve().parent.parent
+    for rel in ("core/telegram_bridge.py", "core/tardis_voice_engine.py", "core/tardis_resource_governor.py"):
+        loc = (root / rel).read_text(encoding="utf-8").count("\n") + 1
+        assert loc < 2000, f"{rel} aún supera 2000 LOC ({loc})"

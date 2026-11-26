@@ -1,31 +1,141 @@
 {
-  "run_id": "canary_20261126_053344_fcd7ff",
-  "iso": "2026-11-26T05:33:44-05:00",
+  "run_id": "canary_20261126_123035_f30b8c",
+  "iso": "2026-11-26T12:30:35-05:00",
   "files": [
     {
-      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/subsystem_agents.py",
-      "relative": "core/subsystem_agents.py",
-      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261126_053344_fcd7ff/core__subsystem_agents.py"
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/cyberdefense_sentinel.py",
+      "relative": "core/cyberdefense_sentinel.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261126_123035_f30b8c/core__cyberdefense_sentinel.py"
     },
     {
-      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/rag_vault.py",
-      "relative": "core/rag_vault.py",
-      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261126_053344_fcd7ff/core__rag_vault.py"
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/network_shield.py",
+      "relative": "core/network_shield.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261126_123035_f30b8c/core__network_shield.py"
     },
     {
-      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/deep_memory_vault.py",
-      "relative": "core/deep_memory_vault.py",
-      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261126_053344_fcd7ff/core__deep_memory_vault.py"
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/tardis_agy_coevolution.py",
+      "relative": "core/tardis_agy_coevolution.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261126_123035_f30b8c/core__tardis_agy_coevolution.py"
     },
     {
-      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/tardis_memory_compactor.py",
-      "relative": "core/tardis_memory_compactor.py",
-      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261126_053344_fcd7ff/core__tardis_memory_compactor.py"
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/telegram_bridge.py",
+      "relative": "core/telegram_bridge.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261126_123035_f30b8c/core__telegram_bridge.py"
+    },
+    {
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/tardis_voice_engine.py",
+      "relative": "core/tardis_voice_engine.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261126_123035_f30b8c/core__tardis_voice_engine.py"
+    },
+    {
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/tardis_resource_governor.py",
+      "relative": "core/tardis_resource_governor.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261126_123035_f30b8c/core__tardis_resource_governor.py"
+    },
+    {
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/telegram/__init__.py",
+      "relative": "core/telegram/__init__.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261126_123035_f30b8c/core__telegram____init__.py"
+    },
+    {
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/telegram/common.py",
+      "relative": "core/telegram/common.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261126_123035_f30b8c/core__telegram__common.py"
+    },
+    {
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/telegram/transport.py",
+      "relative": "core/telegram/transport.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261126_123035_f30b8c/core__telegram__transport.py"
+    },
+    {
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/telegram/calls.py",
+      "relative": "core/telegram/calls.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261126_123035_f30b8c/core__telegram__calls.py"
+    },
+    {
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/telegram/commands_system.py",
+      "relative": "core/telegram/commands_system.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261126_123035_f30b8c/core__telegram__commands_system.py"
+    },
+    {
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/telegram/commands_ops.py",
+      "relative": "core/telegram/commands_ops.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261126_123035_f30b8c/core__telegram__commands_ops.py"
+    },
+    {
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/telegram/commands_media.py",
+      "relative": "core/telegram/commands_media.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261126_123035_f30b8c/core__telegram__commands_media.py"
+    },
+    {
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/telegram/update_router.py",
+      "relative": "core/telegram/update_router.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261126_123035_f30b8c/core__telegram__update_router.py"
+    },
+    {
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/voice/__init__.py",
+      "relative": "core/voice/__init__.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261126_123035_f30b8c/core__voice____init__.py"
+    },
+    {
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/voice/common.py",
+      "relative": "core/voice/common.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261126_123035_f30b8c/core__voice__common.py"
+    },
+    {
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/voice/vad_segmentation.py",
+      "relative": "core/voice/vad_segmentation.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261126_123035_f30b8c/core__voice__vad_segmentation.py"
+    },
+    {
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/voice/abstraction.py",
+      "relative": "core/voice/abstraction.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261126_123035_f30b8c/core__voice__abstraction.py"
+    },
+    {
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/voice/stt.py",
+      "relative": "core/voice/stt.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261126_123035_f30b8c/core__voice__stt.py"
+    },
+    {
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/voice/tts_prosody.py",
+      "relative": "core/voice/tts_prosody.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261126_123035_f30b8c/core__voice__tts_prosody.py"
+    },
+    {
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/voice/playback_router.py",
+      "relative": "core/voice/playback_router.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261126_123035_f30b8c/core__voice__playback_router.py"
+    },
+    {
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/governor/__init__.py",
+      "relative": "core/governor/__init__.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261126_123035_f30b8c/core__governor____init__.py"
+    },
+    {
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/governor/config.py",
+      "relative": "core/governor/config.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261126_123035_f30b8c/core__governor__config.py"
+    },
+    {
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/governor/telemetry_probes.py",
+      "relative": "core/governor/telemetry_probes.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261126_123035_f30b8c/core__governor__telemetry_probes.py"
+    },
+    {
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/governor/ring0_actuators.py",
+      "relative": "core/governor/ring0_actuators.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261126_123035_f30b8c/core__governor__ring0_actuators.py"
+    },
+    {
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/governor/cli.py",
+      "relative": "core/governor/cli.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261126_123035_f30b8c/core__governor__cli.py"
     },
     {
       "source": "/home/m11/Escritorio/GODWORKS SYSTEM/tests/test_sovereign_alternate_systems.py",
       "relative": "tests/test_sovereign_alternate_systems.py",
-      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261126_053344_fcd7ff/tests__test_sovereign_alternate_systems.py"
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261126_123035_f30b8c/tests__test_sovereign_alternate_systems.py"
     }
   ]
 }

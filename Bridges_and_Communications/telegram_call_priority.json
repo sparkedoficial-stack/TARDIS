@@ -9,19 +9,19 @@
     {
       "source": "bridge:666444",
       "chat_id": "666444",
-      "expires_at": REDACTED_PHONE.2773767
+      "expires_at": REDACTED_PHONE.7990818
     },
     {
       "source": "bridge:777333",
       "chat_id": "777333",
-      "expires_at": REDACTED_PHONE.6242125
+      "expires_at": REDACTED_PHONE.423043
     }
   ],
   "holder_count": 2,
   "generation": 1,
-  "active_since": REDACTED_PHONE.2773824,
+  "active_since": REDACTED_PHONE.7990863,
   "boosted_pids": [],
-  "boosted_processes": 14,
+  "boosted_processes": 13,
   "boosted_system_pids": [
     1427,
     1436,
@@ -35,8 +35,7 @@
     2814,
     2911,
     4124,
-    5408,
-    717482
+    1525153
   ],
   "deprioritized_processes": 24,
   "deprioritized_pids": [
@@ -62,12 +61,12 @@
     26576,
     26598,
     26609,
-    692487,
-    713174
+    1471618,
+    1505913
   ],
   "cpu_governor": "performance",
   "cpu_governor_forced": false,
   "state_file": "/home/m11/Escritorio/GODWORKS SYSTEM/data/telephony/telegram_call_priority.json",
-  "owner_pid": 728827,
-  "timestamp": REDACTED_PHONE.6243157
+  "owner_pid": 1526820,
+  "timestamp": REDACTED_PHONE.4231198
 }

@@ -93,6 +93,7 @@ Módulos y componentes auxiliares del sistema.
 - **colony_state.json**: Componente de alta eficiencia.
 - **command_queue.json**: Componente de alta eficiencia.
 - **commands_media.py**: Componente de alta eficiencia.
+- **commands_ops.py**: Componente de alta eficiencia.
 - **commands_system.py**: Componente de alta eficiencia.
 - **common.py**: Componente de alta eficiencia.
 - **compresor_historial_colaborativo.py**: Componente de alta eficiencia.
@@ -106,6 +107,11 @@ Módulos y componentes auxiliares del sistema.
 - **core__config.py**: Núcleo de orquestación y control temporal/espacial.
 - **core__embed_isotropy.py**: Núcleo de orquestación y control temporal/espacial.
 - **core__gods_eye_realtime.py**: Motor de ingeniería inversa multi-arquitectura y descompilación.
+- **core__governor____init__.py**: Núcleo de orquestación y control temporal/espacial.
+- **core__governor__cli.py**: Núcleo de orquestación y control temporal/espacial.
+- **core__governor__config.py**: Núcleo de orquestación y control temporal/espacial.
+- **core__governor__ring0_actuators.py**: Núcleo de orquestación y control temporal/espacial.
+- **core__governor__telemetry_probes.py**: Núcleo de orquestación y control temporal/espacial.
 - **core__hub_health.py**: Núcleo de orquestación y control temporal/espacial.
 - **core__subsystem_agents.py**: Núcleo de orquestación y control temporal/espacial.
 - **core__tapo_c310_sentinel.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
@@ -129,27 +135,6 @@ Módulos y componentes auxiliares del sistema.
 - **device_tracker_db.json**: Componente de alta eficiencia.
 - **distributed_compute.py**: Componente de alta eficiencia.
 - **doctor.py**: Componente de alta eficiencia.
-- **dossier_20261110_064627_299.json**: Componente de alta eficiencia.
-- **dossier_20261110_071438_927.json**: Componente de alta eficiencia.
-- **dossier_20261110_071451_414.json**: Componente de alta eficiencia.
-- **dossier_20261110_074101_746.json**: Componente de alta eficiencia.
-- **dossier_20261110_074724_465.json**: Componente de alta eficiencia.
-- **dossier_20261110_074842_514.json**: Componente de alta eficiencia.
-- **dossier_20261110_074905_069.json**: Componente de alta eficiencia.
-- **dossier_20261110_080450_562.json**: Componente de alta eficiencia.
-- **dossier_20261110_083052_588.json**: Componente de alta eficiencia.
-- **dossier_20261110_085121_300.json**: Componente de alta eficiencia.
-- **dossier_20261110_085545_826.json**: Componente de alta eficiencia.
-- **dossier_20261110_091917_417.json**: Componente de alta eficiencia.
-- **dossier_20261110_092921_897.json**: Componente de alta eficiencia.
-- **dossier_20261110_100554_491.json**: Componente de alta eficiencia.
-- **dossier_20261110_100918_560.json**: Componente de alta eficiencia.
-- **dossier_20261110_100948_652.json**: Componente de alta eficiencia.
-- **dossier_20261110_101018_933.json**: Componente de alta eficiencia.
-- **dossier_20261110_102602_342.json**: Componente de alta eficiencia.
-- **dossier_20261110_103700_875.json**: Componente de alta eficiencia.
-- **dossier_20261110_103747_744.json**: Componente de alta eficiencia.
-- **dossier_20261110_104357_661.json**: Componente de alta eficiencia.
 - **dossier_20261110_105557_301.json**: Componente de alta eficiencia.
 - **dossier_20261110_111435_647.json**: Componente de alta eficiencia.
 - **dossier_20261110_112635_672.json**: Componente de alta eficiencia.
@@ -1129,6 +1114,27 @@ Módulos y componentes auxiliares del sistema.
 - **dossier_20261126_065758_849.json**: Componente de alta eficiencia.
 - **dossier_20261126_070523_225.json**: Componente de alta eficiencia.
 - **dossier_20261126_071431_640.json**: Componente de alta eficiencia.
+- **dossier_20261126_072509_142.json**: Componente de alta eficiencia.
+- **dossier_20261126_075134_134.json**: Componente de alta eficiencia.
+- **dossier_20261126_080801_518.json**: Componente de alta eficiencia.
+- **dossier_20261126_080821_316.json**: Componente de alta eficiencia.
+- **dossier_20261126_080839_414.json**: Componente de alta eficiencia.
+- **dossier_20261126_080910_370.json**: Componente de alta eficiencia.
+- **dossier_20261126_081302_865.json**: Componente de alta eficiencia.
+- **dossier_20261126_081316_494.json**: Componente de alta eficiencia.
+- **dossier_20261126_081333_281.json**: Componente de alta eficiencia.
+- **dossier_20261126_081403_330.json**: Componente de alta eficiencia.
+- **dossier_20261126_082849_310.json**: Componente de alta eficiencia.
+- **dossier_20261126_082923_230.json**: Componente de alta eficiencia.
+- **dossier_20261126_082954_607.json**: Componente de alta eficiencia.
+- **dossier_20261126_083404_342.json**: Componente de alta eficiencia.
+- **dossier_20261126_084454_357.json**: Componente de alta eficiencia.
+- **dossier_20261126_084545_698.json**: Componente de alta eficiencia.
+- **dossier_20261126_093120_104.json**: Componente de alta eficiencia.
+- **dossier_20261126_101241_973.json**: Componente de alta eficiencia.
+- **dossier_20261126_104149_599.json**: Componente de alta eficiencia.
+- **dossier_20261126_105437_139.json**: Componente de alta eficiencia.
+- **dossier_20261126_114820_200.json**: Componente de alta eficiencia.
 - **dynamic_tools_registry.json**: Directorio y puente soberano de interoperabilidad omni-herramientas.
 - **ecca_v3_core.py**: Núcleo de orquestación y control temporal/espacial.
 - **embed_isotropy.py**: Componente de alta eficiencia.
@@ -1329,7 +1335,6 @@ Módulos y componentes auxiliares del sistema.
 - **self_updater.py**: Componente de alta eficiencia.
 - **sentinel_state.json**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
 - **server__api.py**: Componente de alta eficiencia.
-- **session_active.json**: Componente de alta eficiencia.
 - **skills_rag_ingest.json**: Especificación agéntica de capacidades soberanas para agentes autónomos.
 - **sms_config.json**: Componente de alta eficiencia.
 - **sms_history.json**: Componente de alta eficiencia.

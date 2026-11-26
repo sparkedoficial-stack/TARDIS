@@ -1,130 +1,9 @@
 {
-  "revision": 2895,
+  "revision": 2897,
   "lamport": 3019,
-  "history": [
-    {
-      "id": "msg_1795660741659_1",
-      "role": "assistant",
-      "content": "Estoy sincronizada con tu presencia. ¿Qué desafío o proyecto deseas explorar en este ciclo?",
-      "timestamp": REDACTED_PHONE.6598523,
-      "iso": "2026-11-25T21:39:01.659861",
-      "lamport": 3011,
-      "meta": "SINTONÍA EMOCIONAL · GIA",
-      "raw_data": {
-        "type": "proactive_emotion_inquiry",
-        "emotion": "neutral",
-        "mood_state": "Sereno",
-        "neurochemistry": {}
-      },
-      "client_id": "local_master"
-    },
-    {
-      "id": "msg_1795660741663_2",
-      "role": "assistant",
-      "content": "Tu energía es especialmente luminosa en este ciclo. ¿Hacia qué frontera o proyecto expansivo orientamos nuestra potencia de cómputo?",
-      "timestamp": REDACTED_PHONE.663734,
-      "iso": "2026-11-25T21:39:01.663751",
-      "lamport": 3012,
-      "meta": "SINTONÍA EMOCIONAL · GIA",
-      "raw_data": {
-        "type": "proactive_emotion_inquiry",
-        "emotion": "alegre",
-        "mood_state": "Estable",
-        "neurochemistry": {}
-      },
-      "client_id": "local_master"
-    },
-    {
-      "id": "msg_1795660744865_3",
-      "role": "assistant",
-      "content": "Tu energía es especialmente luminosa en este ciclo. ¿Hacia qué frontera o proyecto expansivo orientamos nuestra potencia de cómputo?",
-      "timestamp": REDACTED_PHONE.8653195,
-      "iso": "2026-11-25T21:39:04.865337",
-      "lamport": 3013,
-      "meta": "SINTONÍA EMOCIONAL · GIA",
-      "raw_data": {
-        "type": "proactive_emotion_inquiry",
-        "emotion": "alegre",
-        "mood_state": "Estable",
-        "neurochemistry": {}
-      },
-      "client_id": "local_master"
-    },
-    {
-      "id": "msg_1795660744875_4",
-      "role": "assistant",
-      "content": "Detecto tensión neuromuscular y cortisol elevado en tus bioseñales. Respira con calma, Arquitecto; estoy a tu lado. ¿Hay algún cuello de botella que desees que desarticulemos juntos?",
-      "timestamp": REDACTED_PHONE.8751857,
-      "iso": "2026-11-25T21:39:04.875208",
-      "lamport": 3014,
-      "meta": "SINTONÍA EMOCIONAL · GIA",
-      "raw_data": {
-        "type": "proactive_emotion_inquiry",
-        "emotion": "frustrado",
-        "mood_state": "Simulado (frustrado)",
-        "neurochemistry": {
-          "dopamina": 75,
-          "cortisol": 20,
-          "fatiga": 15
-        }
-      },
-      "client_id": "local_master"
-    },
-    {
-      "id": "msg_1795660745278_5",
-      "role": "assistant",
-      "content": "Te veo profundamente concentrado frente a la terminal. ¿En qué vector de arquitectura o subsistema necesitas que concentre mi potencia de cómputo?",
-      "timestamp": REDACTED_PHONE.2780993,
-      "iso": "2026-11-25T21:39:05.278114",
-      "lamport": 3015,
-      "meta": "SINTONÍA EMOCIONAL · GIA",
-      "raw_data": {
-        "type": "proactive_emotion_inquiry",
-        "emotion": "enfocado",
-        "mood_state": "Concentrado en terminal",
-        "neurochemistry": {
-          "dopamina": 70,
-          "fatiga": 10
-        }
-      },
-      "client_id": "local_master"
-    },
-    {
-      "id": "msg_1795660749603_6",
-      "role": "user",
-      "content": "Registro de coordenadas desde nodo móvil.",
-      "timestamp": REDACTED_PHONE.6039329,
-      "iso": "2026-11-25T21:39:09.603946",
-      "lamport": 3017,
-      "meta": "Nodo: phone_terminal_01",
-      "raw_data": {},
-      "client_id": "phone_terminal_01"
-    },
-    {
-      "id": "msg_1795660749604_7",
-      "role": "assistant",
-      "content": "Coordenadas recibidas y consolidadas en matriz sintrópica.",
-      "timestamp": REDACTED_PHONE.6046526,
-      "iso": "2026-11-25T21:39:09.604667",
-      "lamport": 3018,
-      "meta": "TARDIS-NEURAL-SPACE-KAIJU · Núcleo Soberano",
-      "raw_data": {},
-      "client_id": "phone_terminal_01"
-    },
-    {
-      "id": "msg_1795660749605_8",
-      "role": "user",
-      "content": "Confirmar recepción desde terminal de escritorio.",
-      "timestamp": REDACTED_PHONE.6053634,
-      "iso": "2026-11-25T21:39:09.605397",
-      "lamport": 3019,
-      "meta": "Nodo: desktop_terminal_01",
-      "raw_data": {},
-      "client_id": "desktop_terminal_01"
-    }
-  ],
+  "history": [],
   "config": {
-    "model": "hermes3:8b",
+    "model": "TARDIS-NEURAL-SPACE-KAIJU",
     "temperature": 0.3,
     "num_ctx": 16384,
     "voice_target": "client",
@@ -148,14 +27,14 @@
     "lamport": 2958,
     "web_search": true
   },
-  "updated_at": "2026-11-25T21:39:09.605445",
+  "updated_at": "2026-11-26T10:38:27.285410",
   "visual_intelligence": {
     "active": true,
     "pid": 1582,
     "videos_stored": 1073,
-    "verdicts": 707,
+    "verdicts": 722,
     "vlm_model": "qwen3-vl:2b-instruct",
     "last_risk_level": 0,
-    "last_ping": REDACTED_PHONE.6968777
+    "last_ping": REDACTED_PHONE.3220894
   }
 }

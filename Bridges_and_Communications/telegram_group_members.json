@@ -70,7 +70,7 @@
       "welcome_enabled": true,
       "welcome_text": "👋 ¡Bienvenido/a {nombre} al grupo *{grupo}*! Soy TARDIS, asistente de inteligencia artificial y sistema de control temporal. Un placer tenerte aquí.",
       "created_at": "2026-09-29T09:31:52.567223",
-      "updated_at": "2026-11-26T07:14:05.269035",
+      "updated_at": "2026-11-26T12:30:49.899241",
       "members": {
         "REDACTED_PHONE": {
           "user_id": REDACTED_PHONE,
@@ -111,8 +111,8 @@
           "is_architect": true,
           "role": "creator",
           "first_seen": "2026-09-29T09:34:15.441248",
-          "last_seen": "2026-11-26T07:14:05.269035",
-          "message_count": 148
+          "last_seen": "2026-11-26T12:30:49.899241",
+          "message_count": 150
         },
         "REDACTED_PHONE": {
           "user_id": REDACTED_PHONE,
@@ -214,22 +214,22 @@
       "is_bot": false,
       "is_architect": true,
       "first_seen": "2026-09-25T15:13:39.080612",
-      "last_seen": "2026-11-26T07:14:05.867760",
-      "message_count": 378
+      "last_seen": "2026-11-26T12:30:50.678804",
+      "message_count": 394
     },
     "555000111": {
       "chat_id": 555000111,
       "user_id": 555000111,
-      "first_name": "Otro",
+      "first_name": "x",
       "last_name": "",
-      "full_name": "Otro",
-      "display_name": "Otro",
+      "full_name": "x",
+      "display_name": "x",
       "username": "",
       "is_bot": false,
       "is_architect": false,
       "first_seen": "2026-09-26T00:11:24.696485",
-      "last_seen": "2026-11-25T21:39:07.255132",
-      "message_count": 97
+      "last_seen": "2026-11-26T12:30:31.141652",
+      "message_count": 126
     },
     "123456": {
       "chat_id": 123456,
@@ -242,8 +242,8 @@
       "is_bot": false,
       "is_architect": false,
       "first_seen": "2026-09-26T00:11:26.038020",
-      "last_seen": "2026-11-25T21:39:10.497350",
-      "message_count": 9
+      "last_seen": "2026-11-26T07:17:49.487526",
+      "message_count": 10
     },
     "REDACTED_PHONE": {
       "chat_id": REDACTED_PHONE,
@@ -256,8 +256,8 @@
       "is_bot": false,
       "is_architect": false,
       "first_seen": "2026-09-26T00:11:33.580142",
-      "last_seen": "2026-11-25T21:44:30.127407",
-      "message_count": 14
+      "last_seen": "2026-11-26T12:30:31.103437",
+      "message_count": 16
     },
     "777000222": {
       "chat_id": 777000222,
@@ -270,8 +270,8 @@
       "is_bot": false,
       "is_architect": false,
       "first_seen": "2026-09-26T10:55:34.975451",
-      "last_seen": "2026-11-21T15:33:10.172998",
-      "message_count": 13
+      "last_seen": "2026-11-26T12:30:31.112632",
+      "message_count": 17
     },
     "REDACTED_PHONE": {
       "chat_id": REDACTED_PHONE,
@@ -340,8 +340,8 @@
       "is_bot": false,
       "is_architect": false,
       "first_seen": "2026-10-29T10:59:35.799366",
-      "last_seen": "2026-11-26T07:14:04.276329",
-      "message_count": 23
+      "last_seen": "2026-11-26T12:30:48.797268",
+      "message_count": 24
     },
     "111100": {
       "chat_id": 111100,
@@ -354,8 +354,8 @@
       "is_bot": false,
       "is_architect": false,
       "first_seen": "2026-10-29T10:59:36.002696",
-      "last_seen": "2026-11-26T07:14:04.839225",
-      "message_count": 21
+      "last_seen": "2026-11-26T12:30:49.442582",
+      "message_count": 22
     },
     "222200": {
       "chat_id": 222200,
@@ -368,8 +368,8 @@
       "is_bot": false,
       "is_architect": false,
       "first_seen": "2026-10-29T10:59:36.155870",
-      "last_seen": "2026-11-26T07:14:05.049340",
-      "message_count": 21
+      "last_seen": "2026-11-26T12:30:49.672012",
+      "message_count": 22
     },
     "77777": {
       "chat_id": 77777,
@@ -382,8 +382,8 @@
       "is_bot": false,
       "is_architect": false,
       "first_seen": "2026-10-29T10:59:36.412110",
-      "last_seen": "2026-11-26T07:14:05.380632",
-      "message_count": 22
+      "last_seen": "2026-11-26T12:30:50.009217",
+      "message_count": 23
     },
     "55555": {
       "chat_id": 55555,
@@ -396,8 +396,8 @@
       "is_bot": false,
       "is_architect": false,
       "first_seen": "2026-10-29T10:59:36.414727",
-      "last_seen": "2026-11-26T07:14:05.385018",
-      "message_count": 23
+      "last_seen": "2026-11-26T12:30:50.014934",
+      "message_count": 24
     },
     "54321": {
       "chat_id": 54321,
@@ -410,8 +410,8 @@
       "is_bot": false,
       "is_architect": false,
       "first_seen": "2026-10-29T10:59:36.416508",
-      "last_seen": "2026-11-26T07:14:05.388643",
-      "message_count": 23
+      "last_seen": "2026-11-26T12:30:50.019385",
+      "message_count": 24
     },
     "998877": {
       "chat_id": 998877,
@@ -424,8 +424,8 @@
       "is_bot": false,
       "is_architect": false,
       "first_seen": "2026-10-29T10:59:36.452345",
-      "last_seen": "2026-11-26T07:14:05.405732",
-      "message_count": 21
+      "last_seen": "2026-11-26T12:30:50.128609",
+      "message_count": 22
     },
     "777333": {
       "chat_id": 777333,
@@ -438,8 +438,8 @@
       "is_bot": false,
       "is_architect": false,
       "first_seen": "2026-10-29T10:59:36.617989",
-      "last_seen": "2026-11-26T07:14:05.622033",
-      "message_count": 22
+      "last_seen": "2026-11-26T12:30:50.420470",
+      "message_count": 23
     },
     "888222": {
       "chat_id": 888222,
@@ -452,22 +452,22 @@
       "is_bot": false,
       "is_architect": false,
       "first_seen": "2026-10-29T10:59:36.831564",
-      "last_seen": "2026-11-26T07:14:05.864578",
-      "message_count": 21
+      "last_seen": "2026-11-26T12:30:50.674584",
+      "message_count": 22
     },
     "999111": {
       "chat_id": 999111,
       "user_id": 999111,
-      "first_name": "SimulatedUser",
+      "first_name": "MasterUser",
       "last_name": "",
-      "full_name": "SimulatedUser",
-      "display_name": "SimulatedUser",
+      "full_name": "MasterUser",
+      "display_name": "MasterUser",
       "username": "",
       "is_bot": false,
       "is_architect": false,
       "first_seen": "2026-10-29T10:59:41.000002",
-      "last_seen": "2026-11-24T13:50:31.163660",
-      "message_count": 21
+      "last_seen": "2026-11-26T12:30:32.485297",
+      "message_count": 23
     },
     "11223344": {
       "chat_id": 11223344,
@@ -494,9 +494,9 @@
       "is_bot": false,
       "is_architect": false,
       "first_seen": "2026-10-29T11:03:54.191627",
-      "last_seen": "2026-10-29T11:03:54.781990",
-      "message_count": 2
+      "last_seen": "2026-11-26T12:27:08.713008",
+      "message_count": 5
     }
   },
-  "last_updated": "2026-11-26T07:14:05.867817"
+  "last_updated": "2026-11-26T12:30:50.678874"
 }

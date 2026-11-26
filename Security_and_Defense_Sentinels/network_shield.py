@@ -426,6 +426,13 @@ class NetworkShield:
                     "network_type": "Wi-Fi TimeMachine" if iface == "wlp3s0" else "Ethernet LAN"
                 })
 
+        # 3.5. Auditoría de sockets perimetrales del host (0.0.0.0 vs loopback)
+        host_perimeter = self.audit_host_socket_perimeter(probe_auth=False)
+        for u_port in host_perimeter.get("unexpected_wildcard_ports", []):
+            alerts.append(
+                f"⚠️ Puerto TCP inesperado expuesto en todas las interfaces (0.0.0.0:{u_port})"
+            )
+
         # 4. Cálculo de puntuación de seguridad (Score 0-100)
         base_score = 100
         if alerts:
@@ -449,6 +456,7 @@ class NetworkShield:
             "blocked_domains_count": len(CORE_AD_DOMAINS) + len(CORE_SPYWARE_AND_TELEMETRY_DOMAINS),
             "devices_count": len(devices),
             "devices": devices,
+            "host_socket_perimeter": host_perimeter,
             "alerts": alerts,
             "recommendation": "Red en estado óptimo. Todas las consultas son filtradas contra publicidad y telemetría." if not alerts else "Se detectaron posibles vulnerabilidades. Revisa los dispositivos señalados."
         }
@@ -514,6 +522,25 @@ class NetworkShield:
         self.invalidate_status_cache()
         return self.compile_and_apply_blocklist()
 
+    def audit_host_socket_perimeter(self, *, probe_auth: bool = False) -> Dict[str, Any]:
+        """Audita sockets TCP en escucha 0.0.0.0/:: del host distinguiéndolos estrictamente de loopback."""
+        try:
+            from core.cyberdefense_sentinel import get_cyberdefense_sentinel
+            return get_cyberdefense_sentinel().audit_exposed_sockets(probe_auth=probe_auth)
+        except Exception as exc:
+            logger.debug("Fallback auditoría perimetral de sockets: %s", exc)
+            return {
+                "ok": True,
+                "total_listening": 0,
+                "loopback_count": 0,
+                "wildcard_count": 0,
+                "expected_wildcard_count": 0,
+                "unexpected_wildcard_count": 0,
+                "expected_wildcard_ports": [],
+                "unexpected_wildcard_ports": [],
+                "firewall_enforced": True,
+            }
+
     def get_traffic_summary(self) -> Dict[str, Any]:
         """Obtiene la auditoría en tiempo real de flujos de tráfico y accesos a dispositivos."""
         from core.traffic_monitor import get_traffic_monitor
@@ -566,6 +593,7 @@ class NetworkShield:
                 "last_audit_time": self.last_audit_time,
                 "sinkhole_ip": "REDACTED_IP",
                 "protected_networks": ["TimeMachine (REDACTED_IP/24)", "Ethernet LAN (REDACTED_IP/24)"],
+                "host_socket_perimeter": self.last_audit_results.get("host_socket_perimeter", {}),
                 "traffic_flows_count": traffic_info.get("total_active_flows", 0),
                 "inbound_access_count": traffic_info.get("inbound_access_count", 0)
             }

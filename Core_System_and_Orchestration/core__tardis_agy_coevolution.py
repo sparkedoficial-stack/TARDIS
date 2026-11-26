@@ -950,31 +950,72 @@ class TardisAgyCoevolutionEngine:
 
     def _scan_security_lens(self) -> List[Dict[str, Any]]:
         found: List[Dict[str, Any]] = []
-        # Detectar puertos escuchando en 0.0.0.0
+        expected_public_ports = {7690, 8757, 8765}
         exposed: List[str] = []
+        unexpected_exposed: List[str] = []
         try:
             out = subprocess.check_output(["ss", "-tln"], text=True, timeout=3.0)
             for line in out.splitlines():
-                if "0.0.0.0:" in line or "[::]:" in line:
-                    parts = line.split()
-                    if len(parts) >= 4:
-                        exposed.append(parts[3])
+                parts = line.split()
+                if len(parts) < 5 or parts[0].upper() != "LISTEN":
+                    continue
+                # Evaluar ÚNICAMENTE la columna Local Address:Port (parts[3]),
+                # jamás Peer Address (parts[4] = 0.0.0.0:* para todo socket IPv4).
+                local_addr = parts[3]
+                if not local_addr.startswith(("0.0.0.0:", "[::]:", "*:")):
+                    continue
+                exposed.append(local_addr)
+                port_str = local_addr.rsplit(":", 1)[-1]
+                port_num = int(port_str) if port_str.isdigit() else -1
+                if port_num not in expected_public_ports:
+                    unexpected_exposed.append(local_addr)
         except Exception:
             pass
 
-        if len(exposed) >= 4:
+        ufw_enabled = False
+        try:
+            ufw_cfg = Path("/etc/ufw/ufw.conf")
+            if ufw_cfg.is_file():
+                ufw_enabled = "ENABLED=yes" in ufw_cfg.read_text(encoding="utf-8", errors="ignore")
+        except Exception:
+            pass
+
+        unique_exposed = sorted(set(exposed))
+        unique_unexpected = sorted(set(unexpected_exposed))
+
+        if unique_unexpected or (unique_exposed and not ufw_enabled):
+            targets = unique_unexpected or unique_exposed
             found.append(self.upsert_proposal(
                 lens="security",
                 category="hardening",
-                severity="MEDIUM",
-                roi_score=75,
-                title=f"Auditar {len(exposed)} sockets expuestos en todas las interfaces (0.0.0.0)",
-                problem=f"Sockets vinculados a 0.0.0.0/[::]: {', '.join(sorted(set(exposed))[:8])}",
-                proposed_solution="Verificar autenticación estricta (token/JWT/mTLS) en puertos 8757, 8765, 7690 y restringir puertos internos a 127.0.0.1 o LAN/Tailscale vía nftables.",
+                severity="HIGH" if not ufw_enabled else "MEDIUM",
+                roi_score=84 if unique_unexpected else 78,
+                title=f"Auditar {len(targets)} socket(s) TCP wildcard no previstos en 0.0.0.0/[::]",
+                problem=(
+                    f"Sockets wildcard en Local Address: {', '.join(targets[:8])} "
+                    f"(ufw_enabled={ufw_enabled}, total_wildcard={len(unique_exposed)})"
+                ),
+                proposed_solution="Restringir puertos internos a 127.0.0.1 o blindar con autenticación estricta + nftables/UFW.",
                 target_files=["core/network_shield.py", "core/cyberdefense_sentinel.py"],
-                evidence={"exposed_sockets": sorted(set(exposed))},
+                evidence={
+                    "exposed_sockets": unique_exposed,
+                    "unexpected_sockets": unique_unexpected,
+                    "ufw_enabled": ufw_enabled,
+                },
                 fingerprint_seed="security|exposed_0000_sockets",
             ))
+        else:
+            # Auto-reconciliar propuestas antiguas generadas por el falso positivo de Peer Address
+            try:
+                fp = _fingerprint("security|exposed_0000_sockets")
+                with self._connect() as conn:
+                    conn.execute(
+                        "UPDATE proposals SET status = 'implemented', updated_ts = ?, updated_iso = ? "
+                        "WHERE fingerprint = ? AND status IN ('pending', 'dispatched')",
+                        (time.time(), _now_iso(), fp),
+                    )
+            except Exception:
+                pass
         return found
 
     def scan(self, lens: str = "all") -> Dict[str, Any]:

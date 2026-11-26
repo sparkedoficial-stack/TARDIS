@@ -59,6 +59,7 @@ SENSITIVE_PORTS = {
     6969: "Omnisette",
     7681: "TTYD-WebTerm-1",
     7682: "TTYD-WebTerm-2",
+    7690: "FTL-Public-Gateway",
     8080: "HTTP-Proxy",
     8088: "iPad-Edge",
     8757: "GODWORKS HUD",
@@ -67,8 +68,12 @@ SENSITIVE_PORTS = {
     8787: "Tardis-Hunter",
     8888: "Antarctica-Proxy",
     9001: "Weylus-WS",
-    11434: "Ollama"
+    11434: "Ollama",
+    11435: "Ollama-Voice-GPU",
 }
+
+EXPECTED_WILDCARD_PORTS: frozenset[int] = frozenset({7690, 8757, 8765})
+LOOPBACK_BIND_PREFIXES: Tuple[str, ...] = ("127.", "::1", "REDACTED_IP")
 
 TRUSTED_PREFIXES = ("127.", "::1", "192.168.1.", "10.42.0.", "10.240.82.", "100.")
 AUTHORIZED_MEDIA_PROCS = {
@@ -380,18 +385,101 @@ table inet tardis_aegis_shield {{
                         pass
 
                     service_name = SENSITIVE_PORTS.get(port, "Otro Servicio")
-                    is_safe = ip in ("127.0.0.1", "::1", "REDACTED_IP", "REDACTED_IP") or nft_active
+                    is_wildcard = ip in ("0.0.0.0", "::", "*", "")
+                    is_loopback = ip.startswith(LOOPBACK_BIND_PREFIXES)
+                    is_safe = is_loopback or (nft_active and (port in EXPECTED_WILDCARD_PORTS or not is_wildcard))
                     results.append({
                         "ip": ip,
                         "port": port,
                         "service": service_name,
                         "pid": conn.pid,
                         "process": proc_name,
-                        "is_safe": is_safe
+                        "is_wildcard": is_wildcard,
+                        "is_loopback": is_loopback,
+                        "is_expected_public": port in EXPECTED_WILDCARD_PORTS,
+                        "is_safe": is_safe,
                     })
         except Exception as e:
             logger.warning(f"Fallo escaneando sockets: {e}")
         return results
+
+    def audit_exposed_sockets(self, *, probe_auth: bool = False) -> Dict[str, Any]:
+        """
+        Audita la exposición real de sockets TCP LISTEN distinguiendo estrictamente
+        la dirección local (0.0.0.0 / ::) de loopback (127.0.0.1 / ::1), validando
+        postura de firewall perimetral (nftables/UFW) y autenticación L7 opcional.
+        """
+        listening = self.scan_listening_ports()
+        loopback_sockets: List[Dict[str, Any]] = []
+        wildcard_sockets: List[Dict[str, Any]] = []
+        expected_public_sockets: List[Dict[str, Any]] = []
+        unexpected_wildcard_sockets: List[Dict[str, Any]] = []
+
+        for item in listening:
+            if item.get("is_wildcard"):
+                wildcard_sockets.append(item)
+                if int(item.get("port", 0)) in EXPECTED_WILDCARD_PORTS:
+                    expected_public_sockets.append(item)
+                else:
+                    unexpected_wildcard_sockets.append(item)
+            elif item.get("is_loopback"):
+                loopback_sockets.append(item)
+
+        nft_active = "NFTABLES_PERIMETER_GUARD" in self._countermeasures
+        ufw_active = False
+        try:
+            ufw_cfg = Path("/etc/ufw/ufw.conf")
+            if ufw_cfg.is_file():
+                ufw_active = "ENABLED=yes" in ufw_cfg.read_text(encoding="utf-8", errors="ignore")
+        except Exception:
+            pass
+
+        auth_probes: Dict[str, Any] = {}
+        if probe_auth:
+            import urllib.error
+            import urllib.request
+
+            checks = [
+                ("7690_gateway_unauth", "http://127.0.0.1:7690/api/status", {}, {401, 403}),
+                (
+                    "8757_hud_remote_proxied_unauth",
+                    "http://127.0.0.1:8757/api/cyberdefense/status",
+                    {"X-Forwarded-For": "REDACTED_IP", "X-Real-IP": "REDACTED_IP"},
+                    {401, 403},
+                ),
+            ]
+            for label, url, hdrs, expected_codes in checks:
+                req = urllib.request.Request(url, headers=hdrs)
+                try:
+                    with urllib.request.urlopen(req, timeout=2.0) as resp:
+                        code = int(resp.status)
+                except urllib.error.HTTPError as err:
+                    code = int(err.code)
+                except Exception as exc:
+                    auth_probes[label] = {"ok": False, "error": str(exc)[:120]}
+                    continue
+                auth_probes[label] = {
+                    "ok": code in expected_codes,
+                    "http_status": code,
+                    "enforced": code in expected_codes,
+                }
+
+        return {
+            "ok": len(unexpected_wildcard_sockets) == 0 and (nft_active or ufw_active),
+            "total_listening": len(listening),
+            "loopback_count": len(loopback_sockets),
+            "wildcard_count": len(wildcard_sockets),
+            "expected_wildcard_count": len(expected_public_sockets),
+            "unexpected_wildcard_count": len(unexpected_wildcard_sockets),
+            "expected_wildcard_ports": sorted({int(x["port"]) for x in expected_public_sockets}),
+            "unexpected_wildcard_ports": sorted({int(x["port"]) for x in unexpected_wildcard_sockets}),
+            "wildcard_sockets": wildcard_sockets,
+            "unexpected_wildcard_sockets": unexpected_wildcard_sockets,
+            "nftables_shield_active": nft_active,
+            "ufw_active": ufw_active,
+            "firewall_enforced": bool(nft_active or ufw_active),
+            "auth_probes": auth_probes,
+        }
 
     def inspect_active_threats(self) -> Tuple[List[Dict[str, Any]], int]:
         """Evalúa conexiones anómalas o de alto riesgo y bloquea intrusos automáticamente."""
@@ -423,6 +511,21 @@ table inet tardis_aegis_shield {{
         for f in esp.get("findings", []):
             anomalies.append(f)
             deduction += 20 if f.get("severity") == "CRITICAL" else 10
+
+        try:
+            sock_audit = self.audit_exposed_sockets(probe_auth=False)
+            for item in sock_audit.get("unexpected_wildcard_sockets", []):
+                anomalies.append({
+                    "type": "UNEXPECTED_WILDCARD_SOCKET",
+                    "severity": "HIGH" if not sock_audit.get("firewall_enforced") else "WARNING",
+                    "ip": item.get("ip"),
+                    "port": item.get("port"),
+                    "process": item.get("process"),
+                    "desc": f"Socket TCP inesperado en {item.get('ip')}:{item.get('port')} ({item.get('process')})",
+                })
+                deduction += 15 if not sock_audit.get("firewall_enforced") else 5
+        except Exception:
+            pass
 
         return anomalies, deduction
 

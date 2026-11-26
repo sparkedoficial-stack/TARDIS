@@ -12,6 +12,8 @@ Núcleo de orquestación temporal, bucles de control soberano FTL y sincronizaci
 - **button_orchestrator.py**: Núcleo de orquestación y control temporal/espacial.
 - **coding_router.json**: Componente de alta eficiencia.
 - **core__tardis_agy_coevolution.py**: Núcleo de orquestación y control temporal/espacial.
+- **core__telegram__update_router.py**: Núcleo de orquestación y control temporal/espacial.
+- **core__voice__playback_router.py**: Núcleo de orquestación y control temporal/espacial.
 - **easy_touch.py**: Sistema de auto-corrección preventiva y cicatrización en segundo plano.
 - **easy_touch_agent.py**: Sistema de auto-corrección preventiva y cicatrización en segundo plano.
 - **easy_touch_engine.py**: Sistema de auto-corrección preventiva y cicatrización en segundo plano.
