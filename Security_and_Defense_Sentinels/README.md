@@ -5,6 +5,7 @@ Bóvedas criptográficas locales, centinelas de ciberdefensa, puentes de kernel 
 ## Subsistemas y Componentes Principales:
 
 - **core__cyberdefense_sentinel.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
+- **core__deep_memory_vault.py**: Núcleo de orquestación y control temporal/espacial.
 - **core__network_shield.py**: Núcleo de orquestación y control temporal/espacial.
 - **cyberdefense_sentinel.py**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
 - **deep_memory_vault.py**: Centinela de seguridad, blindaje perimetral o bóveda segura.

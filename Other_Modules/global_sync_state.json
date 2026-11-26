@@ -152,10 +152,10 @@
   "visual_intelligence": {
     "active": true,
     "pid": 1582,
-    "videos_stored": 1072,
-    "verdicts": 703,
+    "videos_stored": 1073,
+    "verdicts": 707,
     "vlm_model": "qwen3-vl:2b-instruct",
     "last_risk_level": 0,
-    "last_ping": REDACTED_PHONE.9633722
+    "last_ping": REDACTED_PHONE.6968777
   }
 }

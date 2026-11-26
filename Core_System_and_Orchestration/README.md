@@ -38,6 +38,7 @@ Núcleo de orquestación temporal, bucles de control soberano FTL y sincronizaci
 - **omni_temporal_control.py**: Directorio y puente soberano de interoperabilidad omni-herramientas.
 - **os_controller.py**: Componente de alta eficiencia.
 - **package_manager.py**: Componente de alta eficiencia.
+- **playback_router.py**: Componente de alta eficiencia.
 - **router.py**: Componente de alta eficiencia.
 - **singularity_engine.py**: Motor de aceleración FTL y computación adaptativa.
 - **singularity_engine_state.json**: Motor de aceleración FTL y computación adaptativa.
@@ -80,6 +81,7 @@ Núcleo de orquestación temporal, bucles de control soberano FTL y sincronizaci
 - **tests__test_easy_touch_engine.py**: Sistema de auto-corrección preventiva y cicatrización en segundo plano.
 - **tests__test_tardis_agy_controller.py**: Componente de alta eficiencia.
 - **ton618.py**: Componente de alta eficiencia.
+- **update_router.py**: Componente de alta eficiencia.
 
 ## Requisitos e Integración
 Los módulos operan bajo el stack soberano de Linux (x86_64), integrando aceleración por GPU y telemetría de bajo nivel.

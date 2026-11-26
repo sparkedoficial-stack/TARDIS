@@ -1,20 +1,5 @@
 [
   {
-    "id": "conj_1794909154",
-    "timestamp": "2026-11-17T04:52:34.382627",
-    "idle_duration_minutes": 79.1,
-    "title": "Causal Relevance Scoring for Web Research Engine",
-    "hypothesis": "Incorporar una capa de inferencia causal que evalúe la relevancia causal de los resultados de búsqueda (en lugar de depender únicamente de métricas de popularidad y coincidencia de palabras) permitirá al motor de investigación web de GODWORKS priorizar fuentes que tengan una relación causal directa con la consulta del usuario, mejorando la precisión y la utilidad de las respuestas generadas por el sistema.",
-    "research_query": "causal inference for web search ranking relevance \"causal relevance\" ranking algorithms DoWhy",
-    "research_findings": "# Informe de Investigación: causal inference for web search ranking relevance \"causal relevance\" ranking algorithms DoWhy\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Implementar un módulo de puntuación causal que, usando la librería DoWhy, calcule un score de relevancia causal para cada URL obtenida y reordene los resultados antes de la extracción de contenido.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 2913.96
-  },
-  {
     "id": "conj_1794912746",
     "timestamp": "2026-11-17T05:52:26.789792",
     "idle_duration_minutes": 59.9,
@@ -1644,5 +1629,23 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 783.84
+  },
+  {
+    "id": "conj_1795689705",
+    "timestamp": "2026-11-26T05:41:45.082152",
+    "idle_duration_minutes": 51.2,
+    "title": "Integración de causalidad temporal en el motor Chronovision",
+    "hypothesis": "Incorporar un modelo de redes bayesianas dinámicas en Chronovision mejorará la predicción de eventos futuros al capturar dependencias temporales de alto nivel.",
+    "research_query": "dynamic Bayesian networks for real-time causal inference in streaming data systems",
+    "research_findings": "# Informe de Investigación: dynamic Bayesian networks for real-time causal inference in streaming data systems\n\n## Fuentes Consultadas y Respaldo Web\n- **[Causal Dynamics of Social Gaze in Primate Prefrontal-Amygdala Networks Revealed by Dynamic Bayesian Modeling - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTE8tRExUcVFVZHFha3dRTmQ3YmFNZmlESENJV3NuSTRRNndGT25oMzlBeUpsYnBjZzhJc1p1RkRwLVpQRjdDZ1JnR1Z4T3VNUWZxemxrT1hUdHBzVVJmRkQ4?oc=5)**: Causal Dynamics of Social Gaze in Primate Prefrontal-Amygdala Networks Revealed by Dynamic Bayesian Modeling  Nature\n- **[Temporal network analysis in systems biology: concepts, inference, and validation - Frontiers](https://news.google.com/rss/articles/CBMilwFBVV95cUxPcEJ3R0E3WlM1emdTSTBXbVo0Y3dYSzhfMWZZemRwNzNtNFNNSFo4c1l3SHFRbmdRcDlYanBsbnVXRHh2V1VaTTNRcDJVYUx4NmhkNVBldWlRcDlOcm9EVndMX09aTlpaUm1nY2g4b3hSRFVzN3czWExUalExZ3dKdGlaam9yZHliWTlxN08wV0xkMkRheGZV?oc=5)**: Temporal network analysis in systems biology: concepts, inference, and vali",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE8tRExUcVFVZHFha3dRTmQ3YmFNZmlESENJV3NuSTRRNndGT25oMzlBeUpsYnBjZzhJc1p1RkRwLVpQRjdDZ1JnR1Z4T3VNUWZxemxrT1hUdHBzVVJmRkQ4?oc=5",
+      "https://news.google.com/rss/articles/CBMilwFBVV95cUxPcEJ3R0E3WlM1emdTSTBXbVo0Y3dYSzhfMWZZemRwNzNtNFNNSFo4c1l3SHFRbmdRcDlYanBsbnVXRHh2V1VaTTNRcDJVYUx4NmhkNVBldWlRcDlOcm9EVndMX09aTlpaUm1nY2g4b3hSRFVzN3czWExUalExZ3dKdGlaam9yZHliWTlxN08wV0xkMkRheGZV?oc=5"
+    ],
+    "code_target": "core/chronovision_engine.py",
+    "code_goal": "Añadir una capa que construya y actualice una red bayesiana dinámica usando datos de eventos recientes para inferir causas y efectos en tiempo real.",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 1271.06
   }
 ]

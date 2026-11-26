@@ -26,6 +26,7 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+import os
 import re
 import sqlite3
 import struct
@@ -78,6 +79,8 @@ class RAGVault:
         self._ids: List[int] = []                     # chunk_id por fila de la matriz
         self._mat_dirty = True
         self._calibrator: Any = None
+        self._embed_avail_cache: Tuple[float, bool] = (0.0, False)
+        self._embed_avail_ttl = 30.0
         self.kg = get_knowledge_graph()
         self._init_db()
 
@@ -87,6 +90,11 @@ class RAGVault:
         con.execute("PRAGMA journal_mode=WAL")
         con.execute("PRAGMA synchronous=NORMAL")
         con.execute("PRAGMA foreign_keys=ON")
+        con.execute("PRAGMA busy_timeout=15000")
+        con.execute("PRAGMA cache_size=-32768")
+        con.execute("PRAGMA temp_store=MEMORY")
+        con.execute("PRAGMA mmap_size=268435456")
+        con.execute("PRAGMA wal_autocheckpoint=1000")
         return con
 
     def _init_db(self) -> None:
@@ -141,9 +149,12 @@ class RAGVault:
 
             CREATE INDEX IF NOT EXISTS idx_chunks_doc ON rag_chunks(doc_id);
             CREATE INDEX IF NOT EXISTS idx_chunks_term ON rag_chunks(term);
+            CREATE INDEX IF NOT EXISTS idx_chunks_source ON rag_chunks(source);
+            CREATE INDEX IF NOT EXISTS idx_chunks_ts ON rag_chunks(ts);
             CREATE INDEX IF NOT EXISTS idx_rag_rel_src ON rag_relations(source_term);
             CREATE INDEX IF NOT EXISTS idx_rag_rel_tgt ON rag_relations(target_term);
             CREATE INDEX IF NOT EXISTS idx_rag_rel_rel ON rag_relations(relation);
+            CREATE INDEX IF NOT EXISTS idx_rag_rel_chunk ON rag_relations(chunk_id);
             CREATE INDEX IF NOT EXISTS idx_rag_sum_level ON rag_summaries(level);
             """)
             con.commit()
@@ -181,19 +192,30 @@ class RAGVault:
             return np.zeros((len(texts), EMBED_DIM), dtype=np.float32)
 
     def embed_available(self) -> bool:
+        # Caché con TTL: antes se abría un cliente HTTP (o se esperaba 1.5 s al
+        # iMac) en CADA búsqueda, añadiendo ~1.6 s de latencia al camino crítico.
+        now = time.time()
+        ts, cached = self._embed_avail_cache
+        ttl = self._embed_avail_ttl if cached else 10.0
+        if now - ts <= ttl:
+            return cached
+        ok = False
         try:
             transport = httpx.HTTPTransport(uds=self.embed_socket)
             with httpx.Client(transport=transport, base_url="http://localhost", timeout=2.0) as c:
                 if c.get("/health").status_code == 200:
-                    return True
+                    ok = True
         except Exception:
             pass
-        # Comprobar si iMac 14,1 está disponible
-        try:
-            with httpx.Client(timeout=1.5) as c:
-                return c.get("http://REDACTED_IP:11434/api/tags").status_code == 200
-        except Exception:
-            return False
+        if not ok:
+            # Comprobar si iMac 14,1 está disponible
+            try:
+                with httpx.Client(timeout=1.5) as c:
+                    ok = c.get("http://REDACTED_IP:11434/api/tags").status_code == 200
+            except Exception:
+                ok = False
+        self._embed_avail_cache = (now, ok)
+        return ok
 
     # ------------------------------------------------------------- fragmentado
     @staticmethod
@@ -213,7 +235,17 @@ class RAGVault:
                     end = dot + 1
             chunks.append(text[start:end].strip())
             start = end - CHUNK_OVERLAP
-        return [c for c in chunks if c]
+        chunks = [c for c in chunks if c]
+        # Fusionar colas diminutas con el fragmento anterior: los stubs de <160
+        # caracteres generaban "hubs" universales tras la isotropía ZCA.
+        MIN_CHUNK_CHARS = 160
+        merged: List[str] = []
+        for c in chunks:
+            if merged and len(c) < MIN_CHUNK_CHARS:
+                merged[-1] = (merged[-1] + " " + c).strip()
+            else:
+                merged.append(c)
+        return [c for c in merged if c]
 
     # ----------------------------------------- extraccion ontologica y semantica
     @staticmethod
@@ -306,8 +338,19 @@ class RAGVault:
                 if cur.lastrowid and cur.rowcount:
                     cid = cur.lastrowid
                     inserted_chunk_ids.append(cid)
-                    con.execute("INSERT OR REPLACE INTO rag_vectors(chunk_id,vec) VALUES (?,?)",
-                                (cid, v.astype(np.float32).tobytes()))
+                    # Nunca persistir vectores cero/NaN: envenenaban el espacio
+                    # semántico y colapsaban la recuperación (hubness).
+                    valid_vec = (
+                        isinstance(v, np.ndarray)
+                        and v.size > 0
+                        and bool(np.isfinite(v).all())
+                        and float(np.linalg.norm(v)) > 1e-6
+                    )
+                    if valid_vec:
+                        con.execute("INSERT OR REPLACE INTO rag_vectors(chunk_id,vec) VALUES (?,?)",
+                                    (cid, v.astype(np.float32).tobytes()))
+                    else:
+                        logger.warning("[RAG] Vector inválido descartado para chunk %s (texto conservado en FTS)", cid)
                     con.execute("INSERT INTO rag_fts(rowid,text,title,term) VALUES (?,?,?,?)",
                                 (cid, c, title, term))
                     stored += 1
@@ -441,8 +484,13 @@ class RAGVault:
     def _load_matrix(self) -> None:
         con = self._connect()
         try:
+            # Excluir stubs (<160 chars) del índice denso: tras la isotropía ZCA
+            # se convierten en "hubs" universales que desplazan a los chunks reales.
             rows = con.execute(
-                "SELECT chunk_id, vec FROM rag_vectors ORDER BY chunk_id"
+                "SELECT v.chunk_id, v.vec FROM rag_vectors v "
+                "JOIN rag_chunks c ON c.id = v.chunk_id "
+                "WHERE length(trim(c.text)) >= 160 "
+                "ORDER BY v.chunk_id"
             ).fetchall()
         finally:
             con.close()
@@ -794,6 +842,115 @@ class RAGVault:
         insert_at = 1 if out and out[0].get("role") == "system" else 0
         out.insert(insert_at, {"role": "system", "content": context})
         return out
+
+    # ------------------------------------------------- compactación incremental
+    def incremental_compact(
+        self,
+        *,
+        max_pages: int = 256,
+        checkpoint_mode: str = "PASSIVE",
+        optimize_fts: bool = True,
+        analyze: bool = True,
+        enable_incremental_vacuum: bool = False,
+    ) -> Dict[str, Any]:
+        """
+        Compactación y optimización incremental de SQLite sin bloquear lecturas:
+          - WAL checkpoint PASSIVE (no interrumpe lectores concurrentes).
+          - Fusión de segmentos FTS5 (`rag_fts` optimize).
+          - `PRAGMA incremental_vacuum(max_pages)` si `auto_vacuum=INCREMENTAL` (o migración 1-vez si se solicita).
+          - `PRAGMA analysis_limit=400; PRAGMA optimize` para estadísticas del planificador acotadas.
+        """
+        t0 = time.perf_counter()
+        mode = str(checkpoint_mode or "PASSIVE").upper()
+        if mode not in ("PASSIVE", "FULL", "RESTART", "TRUNCATE"):
+            mode = "PASSIVE"
+
+        def _total_sz() -> int:
+            tot = 0
+            for suf in ("", "-wal", "-shm"):
+                p = Path(str(self.db_path) + suf)
+                try:
+                    if p.is_file():
+                        tot += p.stat().st_size
+                except OSError:
+                    pass
+            return tot
+
+        bytes_before = _total_sz()
+        con = self._connect()
+        wal_info: Dict[str, int] = {}
+        fts_ok = False
+        inc_vac_ok = False
+        migrated_av = False
+        opt_ok = False
+        try:
+            av_before = int(con.execute("PRAGMA auto_vacuum").fetchone()[0])
+            fl_before = int(con.execute("PRAGMA freelist_count").fetchone()[0])
+            con.execute("CREATE INDEX IF NOT EXISTS idx_chunks_source ON rag_chunks(source)")
+            con.execute("CREATE INDEX IF NOT EXISTS idx_chunks_ts ON rag_chunks(ts)")
+            con.execute("CREATE INDEX IF NOT EXISTS idx_rag_rel_chunk ON rag_relations(chunk_id)")
+
+            if optimize_fts:
+                try:
+                    con.execute("INSERT INTO rag_fts(rag_fts) VALUES ('optimize')")
+                    con.commit()
+                    fts_ok = True
+                except Exception as exc:
+                    logger.debug("RAGVault FTS optimize omitido: %s", exc)
+
+            if enable_incremental_vacuum and av_before != 2:
+                con.commit()
+                con.execute("PRAGMA auto_vacuum=INCREMENTAL")
+                con.execute("VACUUM")
+                migrated_av = True
+
+            av_after = int(con.execute("PRAGMA auto_vacuum").fetchone()[0])
+            if av_after == 2 and max_pages > 0:
+                try:
+                    con.execute(f"PRAGMA incremental_vacuum({int(max_pages)})")
+                    inc_vac_ok = True
+                except Exception:
+                    pass
+
+            if analyze:
+                try:
+                    con.execute("PRAGMA analysis_limit=400")
+                    if mode != "PASSIVE":
+                        con.execute("ANALYZE")
+                    con.execute("PRAGMA optimize")
+                    opt_ok = True
+                except Exception:
+                    pass
+
+            try:
+                chk = con.execute(f"PRAGMA wal_checkpoint({mode})").fetchone()
+                if chk is not None:
+                    wal_info = {"busy": int(chk[0]), "log": int(chk[1]), "checkpointed": int(chk[2])}
+            except Exception:
+                pass
+            fl_after = int(con.execute("PRAGMA freelist_count").fetchone()[0])
+        finally:
+            con.close()
+
+        bytes_after = _total_sz()
+        return {
+            "ok": True,
+            "db_path": str(self.db_path),
+            "checkpoint_mode": mode,
+            "wal_checkpoint": wal_info,
+            "fts_optimized": fts_ok,
+            "auto_vacuum_before": av_before,
+            "auto_vacuum_after": av_after,
+            "migrated_incremental_vacuum": migrated_av,
+            "incremental_vacuum_ran": inc_vac_ok,
+            "freelist_before": fl_before,
+            "freelist_after": fl_after,
+            "optimized": opt_ok,
+            "bytes_before": bytes_before,
+            "bytes_after": bytes_after,
+            "bytes_reclaimed": max(0, bytes_before - bytes_after),
+            "elapsed_ms": round((time.perf_counter() - t0) * 1000.0, 2),
+        }
 
     # ------------------------------------------------------------- telemetria
     def stats(self) -> Dict[str, Any]:

@@ -1,17 +1,17 @@
 {
-  "timestamp": REDACTED_PHONE.274507,
-  "iso": "2026-11-26T05:33:14.275869",
+  "timestamp": REDACTED_PHONE.8028593,
+  "iso": "2026-11-26T07:14:42.805561",
   "health_score": 100,
   "status": "HEALTHY",
-  "cycle": 675,
+  "cycle": 904,
   "metrics": {
-    "cpu_percent": 40.4,
-    "cpu_ema": 39.1,
+    "cpu_percent": 23.6,
+    "cpu_ema": 22.0,
     "high_cpu_streak": 0,
-    "ram_percent": 69.1,
+    "ram_percent": 75.2,
     "high_ram_streak": 0,
-    "governor_level": "GREEN",
-    "cpu_psi_60": 4.75,
+    "governor_level": "RED",
+    "cpu_psi_60": 3.45,
     "recent_errors": 0,
     "recent_blocks": 0
   },
@@ -26,16 +26,18 @@
     "sensors": true,
     "temporal_brain_online": true
   },
-  "needs": [],
+  "needs": [
+    "Presión Ring 0 RED: Llamada prioritaria de Telegram activa; Swap-bloat en tardis-temporal-brain.service (RSS=7191 MB, Swap=2048 MB, Total=9239 MB)"
+  ],
   "instructions": [
     {
-      "id": "inst_nominal_coherence",
-      "severity": "INFO",
-      "component": "Núcleo Causal Sintrópico",
-      "target_file": "geon_causal_engine.py",
-      "instruction": "El sistema opera en estado NOMINAL con acoplamiento sintrópico Ψ=0.892. Se recomienda sincronizar periódicamente el reloj causal de Lamport y verificar enlaces LAN.",
-      "rationale": "Estabilidad completa de subsistemas.",
-      "actionable_cmd": "python -c 'import geon_causal_engine; print(geon_causal_engine.get_geon_engine().full_system_diagnostic())'"
+      "id": "inst_resource_pressure_red",
+      "severity": "HIGH",
+      "component": "Resource Governor Ring 0",
+      "target_file": "core/tardis_resource_governor.py",
+      "instruction": "Estabilizar presión RED (Llamada prioritaria de Telegram activa; Swap-bloat en tardis-temporal-brain.service (RSS=7191 MB, Swap=2048 MB, Total=9239 MB)) ejecutando reclamación de modelos duplicados y throttling.",
+      "rationale": "CPU PSI60=3.45%, RAM libre=7801.5 MB.",
+      "actionable_cmd": "tardis-governor reclaim"
     }
   ],
   "instruction_count": 1

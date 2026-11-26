@@ -1246,8 +1246,9 @@ class TardisMemoryCompactor:
         db_paths: Sequence[Path] = AUX_WAL_DBS,
         *,
         dry_run: bool = False,
+        non_blocking: bool = False,
     ) -> Dict[str, Any]:
-        """Trunca archivos WAL acumulados y ejecuta PRAGMA optimize en bóvedas de soporte."""
+        """Trunca/checkpointea archivos WAL acumulados y ejecuta PRAGMA optimize en bóvedas de soporte."""
         t0 = time.perf_counter()
         items: List[Dict[str, Any]] = []
         tot_before = 0
@@ -1263,7 +1264,7 @@ class TardisMemoryCompactor:
                     con = sqlite3.connect(str(db_p), timeout=8.0)
                     con.execute("PRAGMA busy_timeout=5000")
                     try:
-                        _safe_sqlite_maintain(con, do_vacuum=False)
+                        _safe_sqlite_maintain(con, do_vacuum=False, non_blocking=non_blocking)
                     finally:
                         con.close()
                 except Exception as exc:
@@ -1277,6 +1278,7 @@ class TardisMemoryCompactor:
             "ok": True,
             "target": "wal",
             "dry_run": dry_run,
+            "non_blocking": non_blocking,
             "dbs_checked": len(items),
             "bytes_before": tot_before,
             "bytes_after": tot_after,
@@ -1292,6 +1294,7 @@ class TardisMemoryCompactor:
         targets: Optional[Sequence[str]] = None,
         dry_run: bool = False,
         force: bool = False,
+        non_blocking: bool = False,
         rag_db: Path = DEFAULT_RAG_DB,
         kg_db: Path = DEFAULT_KG_DB,
         deep_memory_db: Path = DEFAULT_DEEP_MEMORY_DB,
@@ -1337,19 +1340,19 @@ class TardisMemoryCompactor:
         results: Dict[str, Any] = {}
         for tgt in selected:
             if tgt == "rag":
-                results["rag"] = self.compact_rag_vault(rag_db, dry_run=dry_run)
+                results["rag"] = self.compact_rag_vault(rag_db, dry_run=dry_run, non_blocking=non_blocking)
             elif tgt == "kg":
                 results["kg"] = self.deduplicate_knowledge_graph(kg_db, dry_run=dry_run)
             elif tgt == "deep_memory":
-                results["deep_memory"] = self.compact_deep_memory(deep_memory_db, dry_run=dry_run)
+                results["deep_memory"] = self.compact_deep_memory(deep_memory_db, dry_run=dry_run, non_blocking=non_blocking)
             elif tgt == "offline_chats":
-                results["offline_chats"] = self.compact_offline_chats(offline_chat_db, dry_run=dry_run)
+                results["offline_chats"] = self.compact_offline_chats(offline_chat_db, dry_run=dry_run, non_blocking=non_blocking)
             elif tgt == "subsystem_agents":
-                results["subsystem_agents"] = self.compact_subsystem_agents(subsystem_agents_db, dry_run=dry_run)
+                results["subsystem_agents"] = self.compact_subsystem_agents(subsystem_agents_db, dry_run=dry_run, non_blocking=non_blocking)
             elif tgt == "gods_eye":
-                results["gods_eye"] = self.compact_gods_eye(gods_eye_db, dry_run=dry_run)
+                results["gods_eye"] = self.compact_gods_eye(gods_eye_db, dry_run=dry_run, non_blocking=non_blocking)
             elif tgt == "wal":
-                results["wal"] = self.checkpoint_auxiliary_dbs(aux_dbs, dry_run=dry_run)
+                results["wal"] = self.checkpoint_auxiliary_dbs(aux_dbs, dry_run=dry_run, non_blocking=non_blocking)
 
         bytes_before = sum(int(r.get("bytes_before", 0)) for r in results.values())
         bytes_after = sum(int(r.get("bytes_after", 0)) for r in results.values())
@@ -1505,6 +1508,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     p_run.add_argument("--targets", default="", help="Lista separada por comas: rag,kg,deep_memory,offline_chats,subsystem_agents,gods_eye,wal")
     p_run.add_argument("--dry-run", action="store_true")
     p_run.add_argument("--force", action="store_true", help="Ignorar diferimiento Ring 0 en RED")
+    p_run.add_argument("--non-blocking", action="store_true", help="Modo incremental no bloqueante (WAL PASSIVE + incremental_vacuum + PRAGMA optimize)")
     p_hist = sub.add_parser("history", help="Histórico de ejecuciones de compactación")
     p_hist.add_argument("--limit", type=int, default=15)
 
@@ -1523,7 +1527,13 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         return 0 if res.get("ok") else 1
     if args.cmd == "run":
         t_list = [t.strip() for t in args.targets.split(",") if t.strip()] if args.targets else None
-        res = comp.run_compaction(targets=t_list, dry_run=args.dry_run, force=args.force, persist=True)
+        res = comp.run_compaction(
+            targets=t_list,
+            dry_run=args.dry_run,
+            force=args.force,
+            non_blocking=args.non_blocking,
+            persist=True,
+        )
         print(json.dumps(res, indent=2, ensure_ascii=False))
         return 0 if res.get("ok") else 1
     return 1

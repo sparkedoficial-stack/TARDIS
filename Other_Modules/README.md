@@ -46,6 +46,7 @@ Módulos y componentes auxiliares del sistema.
 - **Tardis-Safety-Rails.desktop**: Componente de alta eficiencia.
 - **Theme.swift**: Componente nativo iOS/SwiftUI de la aplicación móvil GIA.
 - **__init__.py**: Componente de alta eficiencia.
+- **abstraction.py**: Componente de alta eficiencia.
 - **active_terminal.json**: Componente de alta eficiencia.
 - **adaptation_profile.json**: Componente de alta eficiencia.
 - **aegis_status.json**: Componente de alta eficiencia.
@@ -68,6 +69,7 @@ Módulos y componentes auxiliares del sistema.
 - **bench_toolcalls.py**: Componente de alta eficiencia.
 - **blender_generator.py**: Componente de alta eficiencia.
 - **bridge_status.json**: Componente de alta eficiencia.
+- **calls.py**: Componente de alta eficiencia.
 - **calls_history.json**: Componente de alta eficiencia.
 - **capsules.json**: Componente de alta eficiencia.
 - **capture.md**: Componente de alta eficiencia.
@@ -90,6 +92,9 @@ Módulos y componentes auxiliares del sistema.
 - **colab_tardis_neura_compresi_n_sintr_p.py**: Componente de alta eficiencia.
 - **colony_state.json**: Componente de alta eficiencia.
 - **command_queue.json**: Componente de alta eficiencia.
+- **commands_media.py**: Componente de alta eficiencia.
+- **commands_system.py**: Componente de alta eficiencia.
+- **common.py**: Componente de alta eficiencia.
 - **compresor_historial_colaborativo.py**: Componente de alta eficiencia.
 - **config.default.json**: Componente de alta eficiencia.
 - **config.py**: Componente de alta eficiencia.
@@ -124,10 +129,6 @@ Módulos y componentes auxiliares del sistema.
 - **device_tracker_db.json**: Componente de alta eficiencia.
 - **distributed_compute.py**: Componente de alta eficiencia.
 - **doctor.py**: Componente de alta eficiencia.
-- **dossier_20261109_213619_405.json**: Componente de alta eficiencia.
-- **dossier_20261110_061917_237.json**: Componente de alta eficiencia.
-- **dossier_20261110_063904_548.json**: Componente de alta eficiencia.
-- **dossier_20261110_064436_924.json**: Componente de alta eficiencia.
 - **dossier_20261110_064627_299.json**: Componente de alta eficiencia.
 - **dossier_20261110_071438_927.json**: Componente de alta eficiencia.
 - **dossier_20261110_071451_414.json**: Componente de alta eficiencia.
@@ -1124,6 +1125,10 @@ Módulos y componentes auxiliares del sistema.
 - **dossier_20261125_215302_160.json**: Componente de alta eficiencia.
 - **dossier_20261126_020537_383.json**: Componente de alta eficiencia.
 - **dossier_20261126_025735_619.json**: Componente de alta eficiencia.
+- **dossier_20261126_064149_518.json**: Componente de alta eficiencia.
+- **dossier_20261126_065758_849.json**: Componente de alta eficiencia.
+- **dossier_20261126_070523_225.json**: Componente de alta eficiencia.
+- **dossier_20261126_071431_640.json**: Componente de alta eficiencia.
 - **dynamic_tools_registry.json**: Directorio y puente soberano de interoperabilidad omni-herramientas.
 - **ecca_v3_core.py**: Núcleo de orquestación y control temporal/espacial.
 - **embed_isotropy.py**: Componente de alta eficiencia.
@@ -1305,6 +1310,7 @@ Módulos y componentes auxiliares del sistema.
 - **research_cache.json**: Componente de alta eficiencia.
 - **resource_governor_latest.json**: Componente de alta eficiencia.
 - **resource_plan.py**: Componente de alta eficiencia.
+- **ring0_actuators.py**: Componente de alta eficiencia.
 - **run.py**: Componente de alta eficiencia.
 - **runtime-observation.md**: Componente de alta eficiencia.
 - **runtime_env.py**: Componente de alta eficiencia.
@@ -1323,6 +1329,7 @@ Módulos y componentes auxiliares del sistema.
 - **self_updater.py**: Componente de alta eficiencia.
 - **sentinel_state.json**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
 - **server__api.py**: Componente de alta eficiencia.
+- **session_active.json**: Componente de alta eficiencia.
 - **skills_rag_ingest.json**: Especificación agéntica de capacidades soberanas para agentes autónomos.
 - **sms_config.json**: Componente de alta eficiencia.
 - **sms_history.json**: Componente de alta eficiencia.
@@ -1330,6 +1337,7 @@ Módulos y componentes auxiliares del sistema.
 - **sovereign_client.py**: Componente de alta eficiencia.
 - **speech_pipeline.json**: Componente de alta eficiencia.
 - **state.json**: Componente de alta eficiencia.
+- **stt.py**: Componente de alta eficiencia.
 - **subsystem_agents.py**: Modelo lógico y comportamiento autónomo distribuido.
 - **summary_final_soberano.md**: Componente de alta eficiencia.
 - **sw.js**: Componente de alta eficiencia.
@@ -1386,6 +1394,7 @@ Módulos y componentes auxiliares del sistema.
 - **tardis_terminal_config.json**: Componente de alta eficiencia.
 - **tardis_visual_manifest.py**: Componente de alta eficiencia.
 - **telemetria_avanzada.py**: Componente de alta eficiencia.
+- **telemetry_probes.py**: Componente de alta eficiencia.
 - **templates.md**: Componente de alta eficiencia.
 - **terminal_guard.py**: Componente de alta eficiencia.
 - **theming.md**: Componente de alta eficiencia.
@@ -1394,10 +1403,13 @@ Módulos y componentes auxiliares del sistema.
 - **tool_heal_systemd_unit_failed.py**: Componente de alta eficiencia.
 - **tool_selector.py**: Componente de alta eficiencia.
 - **traffic_control_policy.json**: Componente de alta eficiencia.
+- **transport.py**: Componente de alta eficiencia.
+- **tts_prosody.py**: Componente de alta eficiencia.
 - **tunnel_config.json**: Componente de alta eficiencia.
 - **ui.py**: Componente de alta eficiencia.
 - **unknown_visitors.json**: Componente de alta eficiencia.
 - **v4_dsml.py**: Componente de alta eficiencia.
+- **vad_segmentation.py**: Componente de alta eficiencia.
 - **version.py**: Componente de alta eficiencia.
 - **videocall_vision_engine.py**: Componente de alta eficiencia.
 - **videocall_webapp_ui.py**: Componente de alta eficiencia.

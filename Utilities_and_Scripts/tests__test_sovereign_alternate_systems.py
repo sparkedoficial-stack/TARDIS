@@ -2147,3 +2147,108 @@ def test_temporal_brain_threads_batch_cpuset_headroom_eliminates_9_of_8_oversubs
 
     cfg = json.loads((Path(__file__).resolve().parent.parent / "temporal_brain_config.json").read_text(encoding="utf-8"))
     assert int(cfg.get("threads_batch", 0)) == 6
+
+
+def test_sqlite_incremental_compaction_and_subsystem_proposals_blob_dedup(tmp_path: Path, monkeypatch):
+    """Regresión COEV-20261123-7251BC: deduplicación content-addressed en subsystem_agents + incremental_compact no bloqueante en RAGVault y DeepMemoryVault."""
+    import json
+    import sqlite3
+    import time
+    from core import subsystem_agents as sa
+    from core import rag_vault as rv
+    from core import deep_memory_vault as dmv
+    from core.tardis_memory_compactor import TardisMemoryCompactor, AUX_WAL_DBS
+
+    # 1) frontier_lab.db debe estar cubierto por AUX_WAL_DBS
+    assert any(p.name == "frontier_lab.db" for p in AUX_WAL_DBS)
+
+    # 2) subsystem_agents._persist_cycle deduplica propuestas con distinto created_ts en proposals_blobs
+    sa_db = tmp_path / "subsystem_agents_dedup.db"
+    monkeypatch.setattr(sa, "STATE_DB", sa_db)
+    base_props = [
+        {"subsystem": "chat", "file": "server/api.py", "rule": "huge_function", "description": "desc " + ("x" * 180), "diff_summary": "api.py:10", "created_ts": 1000.0},
+        {"subsystem": "chat", "file": "server/api.py", "rule": "todo", "description": "todo " + ("y" * 180), "diff_summary": "api.py:20", "created_ts": 1000.1},
+    ]
+    for i in range(5):
+        props_i = [dict(p, created_ts=2000.0 + i) for p in base_props]
+        sa._persist_cycle({
+            "ts": time.time() - 10 + i,
+            "agent": "chat",
+            "health": "online",
+            "findings": 2,
+            "by_rule": {"huge_function": 1, "todo": 1},
+            "applied": [],
+            "proposals": props_i,
+        })
+    with sqlite3.connect(sa_db) as con:
+        assert con.execute("SELECT COUNT(*) FROM cycles").fetchone()[0] == 5
+        assert con.execute("SELECT COUNT(*) FROM proposals_blobs").fetchone()[0] == 1
+        row = con.execute("SELECT proposals_json, proposals_hash FROM cycles LIMIT 1").fetchone()
+        assert row[0].startswith("@blob:") and row[1]
+        resolved = sa.resolve_cycle_proposals(con, row[0], row[1])
+        assert len(resolved) == 2 and resolved[0]["rule"] == "huge_function"
+        idxs = {r[1] for r in con.execute("PRAGMA index_list(cycles)").fetchall()}
+        assert "idx_cycles_subsystem_ts" in idxs
+
+    # 3) compact_subsystem_agents deduplica retroactivamente filas legadas con JSON inline repetido y migra a auto_vacuum=INCREMENTAL
+    legacy_db = tmp_path / "subsystem_agents_legacy.db"
+    now = time.time()
+    with sqlite3.connect(legacy_db) as con:
+        con.execute("CREATE TABLE cycles (id INTEGER PRIMARY KEY AUTOINCREMENT, ts REAL, subsystem TEXT, health TEXT, findings INTEGER, findings_json TEXT, applied_json TEXT, proposals_json TEXT)")
+        for i in range(80):
+            props_i = [dict(p, created_ts=now + i) for p in base_props]
+            con.execute(
+                "INSERT INTO cycles (ts, subsystem, health, findings, findings_json, applied_json, proposals_json) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                (now - 3600 + i, "chat", "online", 2, '{"huge_function":1}', "[]", json.dumps(props_i)),
+            )
+        con.commit()
+    comp = TardisMemoryCompactor(db_path=tmp_path / "comp.db")
+    res_sa = comp.compact_subsystem_agents(legacy_db, dry_run=False)
+    assert res_sa["ok"] is True
+    assert res_sa["proposals_deduplicated"] == 80
+    assert res_sa["unique_proposal_blobs"] == 1
+    assert res_sa["auto_vacuum_after"] == 2
+    assert res_sa["bytes_after"] < res_sa["bytes_before"]
+
+    # 4) RAGVault.incremental_compact no bloqueante (PASSIVE + FTS5 optimize + nuevos índices + migración INCREMENTAL)
+    rag_db = tmp_path / "rag_inc.db"
+    monkeypatch.setattr(rv, "DB_PATH", rag_db)
+    vault = rv.RAGVault()
+    with vault._connect() as con:
+        con.execute("INSERT INTO rag_chunks (doc_id, source, url, title, term, text, ts, chunk_hash) VALUES ('d1','doc','','T','t','contenido prueba sqlite incremental',?,'h1')", (now,))
+        cid = con.execute("SELECT last_insert_rowid()").fetchone()[0]
+        con.execute("INSERT INTO rag_fts(rowid, text, title, term) VALUES (?, 'contenido prueba sqlite incremental', 'T', 't')", (cid,))
+        con.commit()
+    res_rv_nb = vault.incremental_compact(checkpoint_mode="PASSIVE", max_pages=64, optimize_fts=True)
+    assert res_rv_nb["ok"] is True and res_rv_nb["checkpoint_mode"] == "PASSIVE" and res_rv_nb["fts_optimized"] is True
+    res_rv_mig = vault.incremental_compact(checkpoint_mode="TRUNCATE", enable_incremental_vacuum=True)
+    assert res_rv_mig["auto_vacuum_after"] == 2
+    with vault._connect() as con:
+        rag_idxs = {r[1] for r in con.execute("PRAGMA index_list(rag_chunks)").fetchall()}
+        assert "idx_chunks_source" in rag_idxs and "idx_chunks_ts" in rag_idxs
+
+    # 5) DeepMemoryVault.incremental_compact migra auto_vacuum=0 -> 2 y optimiza vault_fts sin bloquear en modo PASSIVE
+    dmv_dir = tmp_path / "dmv_inc"
+    dmv_dir.mkdir(parents=True, exist_ok=True)
+    # Simular DB legada creada con auto_vacuum=0
+    legacy_dmv_db = dmv_dir / "vault_master.db"
+    with sqlite3.connect(legacy_dmv_db) as con:
+        con.execute("PRAGMA auto_vacuum=NONE")
+        con.execute("CREATE TABLE _boot(id INTEGER PRIMARY KEY)")
+        con.commit()
+    dm = dmv.DeepMemoryVault(vault_dir=dmv_dir)
+    dm.ingest(role="user", content="Prueba de compactación incremental DeepMemoryVault", session_id="s1")
+    res_dm_nb = dm.incremental_compact(checkpoint_mode="PASSIVE", max_pages=64, optimize_fts=True)
+    assert res_dm_nb["ok"] is True and res_dm_nb["checkpoint_mode"] == "PASSIVE" and res_dm_nb["fts_optimized"] is True
+    res_dm_mig = dm.incremental_compact(checkpoint_mode="TRUNCATE", enable_incremental_vacuum=True)
+    assert res_dm_mig["auto_vacuum_after"] == 2
+    res_nb_run = comp.run_compaction(
+        targets=("rag", "deep_memory", "subsystem_agents"),
+        non_blocking=True,
+        rag_db=rag_db,
+        deep_memory_db=legacy_dmv_db,
+        subsystem_agents_db=legacy_db,
+        persist=False,
+    )
+    assert res_nb_run["ok"] is True
+    assert res_nb_run["targets"]["rag"]["maintenance"]["checkpoint_mode"] == "PASSIVE"
