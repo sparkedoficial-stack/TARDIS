@@ -1,17 +1,17 @@
 {
-  "timestamp": REDACTED_PHONE.2179074,
-  "iso": "2026-11-26T05:31:34.219257",
+  "timestamp": REDACTED_PHONE.274507,
+  "iso": "2026-11-26T05:33:14.275869",
   "health_score": 100,
   "status": "HEALTHY",
-  "cycle": 671,
+  "cycle": 675,
   "metrics": {
-    "cpu_percent": 41.4,
-    "cpu_ema": 38.9,
+    "cpu_percent": 40.4,
+    "cpu_ema": 39.1,
     "high_cpu_streak": 0,
     "ram_percent": 69.1,
     "high_ram_streak": 0,
     "governor_level": "GREEN",
-    "cpu_psi_60": 3.86,
+    "cpu_psi_60": 4.75,
     "recent_errors": 0,
     "recent_blocks": 0
   },

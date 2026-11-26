@@ -338,6 +338,7 @@ class TardisMemoryCompactor:
         consolidate_episodes: bool = True,
         max_new_summaries: int = 40,
         vacuum_threshold: int = 25,
+        non_blocking: bool = False,
     ) -> Dict[str, Any]:
         """Deduplica chunks en RAGVault por SimHash-64 + coseno, consolida episodios RAPTOR y compacta."""
         t0 = time.perf_counter()
@@ -467,10 +468,21 @@ class TardisMemoryCompactor:
                         (s_title, s_txt, c_tag, cids_json, now_ts),
                     )
                     summaries_added += 1
+                con.execute("CREATE INDEX IF NOT EXISTS idx_chunks_source ON rag_chunks(source)")
+                con.execute("CREATE INDEX IF NOT EXISTS idx_chunks_ts ON rag_chunks(ts)")
+                con.execute("CREATE INDEX IF NOT EXISTS idx_rag_rel_chunk ON rag_relations(chunk_id)")
                 con.commit()
 
-                do_vac = pruned >= vacuum_threshold
-                maint = _safe_sqlite_maintain(con, do_vacuum=do_vac)
+                av_before = int(con.execute("PRAGMA auto_vacuum").fetchone()[0])
+                do_vac = (not non_blocking) and (pruned >= vacuum_threshold or av_before != 2)
+                maint = _safe_sqlite_maintain(
+                    con,
+                    do_vacuum=do_vac,
+                    incremental_pages=256 if non_blocking else 0,
+                    non_blocking=non_blocking,
+                    fts_tables=("rag_fts",),
+                    enable_incremental_vacuum=True,
+                )
             else:
                 pruned = len(duplicates)
                 summaries_added = len(new_summaries)
@@ -666,6 +678,7 @@ class TardisMemoryCompactor:
         dry_run: bool = False,
         compress_age_days: float = 7.0,
         compress_min_bytes: int = 4096,
+        non_blocking: bool = False,
     ) -> Dict[str, Any]:
         """Compacta DeepMemoryVault: poda ecos duplicados consecutivos, comprime antiguos y hace incremental_vacuum."""
         t0 = time.perf_counter()
@@ -716,8 +729,19 @@ class TardisMemoryCompactor:
                             (comp_b, txt[:512] + " [compressed]", eid),
                         )
                         compressed_cnt += 1
+                con.execute("CREATE INDEX IF NOT EXISTS ix_vault_sess_ts ON vault_events(session_id, ts)")
+                con.execute("CREATE INDEX IF NOT EXISTS ix_vault_compressed_ts ON vault_events(is_compressed, ts)")
+                con.execute("CREATE INDEX IF NOT EXISTS ix_kn_weight ON knowledge_nodes(weight DESC, mention_count DESC)")
                 con.commit()
-                maint = _safe_sqlite_maintain(con, do_vacuum=False, incremental_pages=500)
+                av_before = int(con.execute("PRAGMA auto_vacuum").fetchone()[0])
+                maint = _safe_sqlite_maintain(
+                    con,
+                    do_vacuum=(not non_blocking and av_before != 2),
+                    incremental_pages=500,
+                    non_blocking=non_blocking,
+                    fts_tables=("vault_fts",),
+                    enable_incremental_vacuum=True,
+                )
             else:
                 pruned_cnt = len(dup_event_ids)
                 compressed_cnt = len(compress_targets[:500])
@@ -746,6 +770,7 @@ class TardisMemoryCompactor:
         db_path: Path = DEFAULT_OFFLINE_CHAT_DB,
         *,
         dry_run: bool = False,
+        non_blocking: bool = False,
     ) -> Dict[str, Any]:
         """Poda turnos eco-duplicados consecutivos (<=120s) en OfflineChatVault, sincroniza FTS5 y compacta."""
         t0 = time.perf_counter()
@@ -782,7 +807,14 @@ class TardisMemoryCompactor:
                     cur = con.execute("DELETE FROM offline_chat_turns WHERE id = ?", (tid,))
                     pruned += max(0, int(cur.rowcount or 0))
                 con.commit()
-                maint = _safe_sqlite_maintain(con, do_vacuum=(pruned > 0 or freelist >= 16))
+                maint = _safe_sqlite_maintain(
+                    con,
+                    do_vacuum=(not non_blocking) and (pruned > 0 or freelist >= 16),
+                    incremental_pages=256 if non_blocking else 0,
+                    non_blocking=non_blocking,
+                    fts_tables=("offline_chat_fts",),
+                    enable_incremental_vacuum=True,
+                )
             else:
                 pruned = len(dup_ids)
         finally:
@@ -811,12 +843,17 @@ class TardisMemoryCompactor:
         *,
         dry_run: bool = False,
         retention_days: float = DEFAULT_SUBSYSTEM_RETENTION_DAYS,
+        non_blocking: bool = False,
     ) -> Dict[str, Any]:
         """
-        Retención TTL para `subsystem_agents.db`:
+        Retención TTL y deduplicación content-addressed para `subsystem_agents.db`:
           - Consolida ciclos antiguos (> retention_days) en `cycles_daily_rollup` (sin pérdida estadística).
-          - Poda el JSON crudo expirado, migra `journal_mode=delete -> WAL`, crea `idx_cycles_ts` y hace VACUUM.
+          - Deduplica `proposals_json` repetido (ignorando `created_ts` volátil) hacia `proposals_blobs`
+            y referencia `@blob:<hash>` (~98% reducción sin pérdida de datos).
+          - Migra `journal_mode=delete -> WAL`, `auto_vacuum=INCREMENTAL`, crea índices compuestos y compacta.
         """
+        from core.subsystem_agents import _canonical_proposals_payload, _ensure_cycles_schema
+
         t0 = time.perf_counter()
         p = Path(db_path)
         if not p.is_file():
@@ -828,18 +865,32 @@ class TardisMemoryCompactor:
         con.execute("PRAGMA busy_timeout=15000")
         try:
             jm_before = str(con.execute("PRAGMA journal_mode").fetchone()[0]).lower()
+            av_before = int(con.execute("PRAGMA auto_vacuum").fetchone()[0])
             total_rows = int(con.execute("SELECT COUNT(*) FROM cycles").fetchone()[0])
             expired_rows = int(con.execute("SELECT COUNT(*) FROM cycles WHERE ts < ?", (cutoff,)).fetchone()[0])
+            inline_props_count = int(
+                con.execute(
+                    """SELECT COUNT(*) FROM cycles
+                       WHERE proposals_json IS NOT NULL
+                         AND proposals_json != ''
+                         AND proposals_json != '[]'
+                         AND proposals_json NOT LIKE '@blob:%'"""
+                ).fetchone()[0]
+            )
 
             rollup_groups = 0
             pruned = 0
+            proposals_deduped = 0
+            unique_blobs = 0
+            orphan_blobs_pruned = 0
             jm_after = jm_before
+            av_after = av_before
             maint: Dict[str, Any] = {}
 
             if not dry_run:
                 con.execute("PRAGMA journal_mode=WAL")
                 con.execute("PRAGMA synchronous=NORMAL")
-                con.execute("CREATE INDEX IF NOT EXISTS idx_cycles_ts ON cycles(ts)")
+                _ensure_cycles_schema(con)
                 con.execute(
                     """
                     CREATE TABLE IF NOT EXISTS cycles_daily_rollup (
@@ -896,11 +947,75 @@ class TardisMemoryCompactor:
                         rollup_groups += 1
                     cur = con.execute("DELETE FROM cycles WHERE ts < ?", (cutoff,))
                     pruned = max(0, int(cur.rowcount or 0))
+
+                # Deduplicación retroactiva sin pérdida de proposals_json -> proposals_blobs
+                raw_rows = con.execute(
+                    """SELECT id, ts, proposals_json FROM cycles
+                       WHERE proposals_json IS NOT NULL
+                         AND proposals_json != ''
+                         AND proposals_json != '[]'
+                         AND proposals_json NOT LIKE '@blob:%'"""
+                ).fetchall()
+                if raw_rows:
+                    blob_acc: Dict[str, Tuple[str, float, int]] = {}
+                    updates: List[Tuple[str, str, int]] = []
+                    for rid, rts, rpj in raw_rows:
+                        try:
+                            parsed = json.loads(rpj)
+                        except Exception:
+                            parsed = rpj
+                        digest, canon = _canonical_proposals_payload(parsed)
+                        if digest:
+                            prev = blob_acc.get(digest)
+                            ts_val = float(rts or 0.0)
+                            if prev is None:
+                                blob_acc[digest] = (canon, ts_val, 1)
+                            else:
+                                blob_acc[digest] = (prev[0], min(prev[1], ts_val), prev[2] + 1)
+                            updates.append((f"@blob:{digest}", digest, int(rid)))
+                        else:
+                            updates.append(("[]", "", int(rid)))
+                    con.executemany(
+                        """INSERT INTO proposals_blobs (hash, proposals_json, first_seen_ts, ref_count)
+                           VALUES (?, ?, ?, ?)
+                           ON CONFLICT(hash) DO UPDATE SET
+                               first_seen_ts = MIN(proposals_blobs.first_seen_ts, excluded.first_seen_ts),
+                               ref_count = proposals_blobs.ref_count + excluded.ref_count""",
+                        [(h, data[0], data[1], data[2]) for h, data in blob_acc.items()],
+                    )
+                    con.executemany(
+                        "UPDATE cycles SET proposals_json = ?, proposals_hash = ? WHERE id = ?",
+                        updates,
+                    )
+                    proposals_deduped = len(updates)
+
+                # GC de blobs huérfanos no referenciados por ningún ciclo vivo
+                cur_gc = con.execute(
+                    """DELETE FROM proposals_blobs
+                       WHERE hash NOT IN (
+                           SELECT DISTINCT proposals_hash FROM cycles
+                           WHERE proposals_hash IS NOT NULL AND proposals_hash != ''
+                       )"""
+                )
+                orphan_blobs_pruned = max(0, int(cur_gc.rowcount or 0))
+                unique_blobs = int(con.execute("SELECT COUNT(*) FROM proposals_blobs").fetchone()[0])
+
                 con.commit()
-                maint = _safe_sqlite_maintain(con, do_vacuum=(pruned > 0 or jm_before != "wal"))
+                do_vac = (not non_blocking) and (
+                    pruned > 0 or proposals_deduped > 0 or orphan_blobs_pruned > 0 or jm_before != "wal" or av_before != 2
+                )
+                maint = _safe_sqlite_maintain(
+                    con,
+                    do_vacuum=do_vac,
+                    incremental_pages=500 if non_blocking else 0,
+                    non_blocking=non_blocking,
+                    enable_incremental_vacuum=True,
+                )
                 jm_after = str(con.execute("PRAGMA journal_mode").fetchone()[0]).lower()
+                av_after = int(con.execute("PRAGMA auto_vacuum").fetchone()[0])
             else:
                 pruned = expired_rows
+                proposals_deduped = inline_props_count
         finally:
             con.close()
 
@@ -910,12 +1025,18 @@ class TardisMemoryCompactor:
             "target": "subsystem_agents",
             "path": str(p),
             "dry_run": dry_run,
+            "non_blocking": non_blocking,
             "retention_days": retention_days,
             "journal_mode_before": jm_before,
             "journal_mode_after": jm_after,
+            "auto_vacuum_before": av_before,
+            "auto_vacuum_after": av_after,
             "rows_scanned": total_rows,
             "duplicates_pruned": pruned,
             "expired_rows_pruned": pruned,
+            "proposals_deduplicated": proposals_deduped,
+            "unique_proposal_blobs": unique_blobs,
+            "orphan_blobs_pruned": orphan_blobs_pruned,
             "rollup_groups_saved": rollup_groups,
             "bytes_before": bytes_before,
             "bytes_after": bytes_after,
@@ -931,6 +1052,7 @@ class TardisMemoryCompactor:
         dry_run: bool = False,
         detections_retention_days: float = DEFAULT_GODS_EYE_DETECTIONS_RETENTION_DAYS,
         events_retention_days: float = DEFAULT_GODS_EYE_EVENTS_RETENTION_DAYS,
+        non_blocking: bool = False,
     ) -> Dict[str, Any]:
         """
         Retención TTL y migración WAL para `gods_eye.db`:
@@ -1079,7 +1201,14 @@ class TardisMemoryCompactor:
                     evt_pruned = max(0, int(cur_e.rowcount or 0))
 
                 con.commit()
-                maint = _safe_sqlite_maintain(con, do_vacuum=((det_pruned + evt_pruned) > 0 or jm_before != "wal"))
+                av_before = int(con.execute("PRAGMA auto_vacuum").fetchone()[0])
+                maint = _safe_sqlite_maintain(
+                    con,
+                    do_vacuum=(not non_blocking) and ((det_pruned + evt_pruned) > 0 or jm_before != "wal" or av_before != 2),
+                    incremental_pages=500 if non_blocking else 0,
+                    non_blocking=non_blocking,
+                    enable_incremental_vacuum=True,
+                )
                 jm_after = str(con.execute("PRAGMA journal_mode").fetchone()[0]).lower()
             else:
                 det_pruned = det_expired

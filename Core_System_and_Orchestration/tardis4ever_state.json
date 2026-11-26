@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "created_at": "2026-10-15T02:04:29.176374",
   "last_periodic_sync": "2026-11-25T10:38:16.050955",
-  "last_immediate_sync": "2026-11-25T21:33:17.694544",
-  "last_commit_hash": "78c35462",
-  "sync_count": 1540,
-  "immediate_sync_count": 1536,
+  "last_immediate_sync": "2026-11-26T05:31:25.156373",
+  "last_commit_hash": "2e875e1d",
+  "sync_count": 1541,
+  "immediate_sync_count": 1537,
   "periodic_sync_count": 4,
   "last_known_mtimes": {
     "skill:godworks-system-suite/SKILL.md": REDACTED_PHONE.5482113,
@@ -94,7 +94,7 @@
     "core:config.py": REDACTED_PHONE.3162894,
     "core:cyberdefense_sentinel.py": REDACTED_PHONE.6071458,
     "core:daily_context_rotator.py": REDACTED_PHONE.57,
-    "core:deep_memory_vault.py": REDACTED_PHONE.0734303,
+    "core:deep_memory_vault.py": REDACTED_PHONE.6354237,
     "core:device_vault.py": REDACTED_PHONE.05,
     "core:easy_touch_agent.py": REDACTED_PHONE.1558597,
     "core:easy_touch_engine.py": REDACTED_PHONE.3294928,
@@ -217,7 +217,7 @@
     "core:tardis_semantic_cache.py": REDACTED_PHONE.7406988,
     "core:embed_isotropy.py": REDACTED_PHONE.6129508,
     "core:tardis_eval_harness.py": REDACTED_PHONE.0774143,
-    "core:tardis_memory_compactor.py": REDACTED_PHONE.3705473,
+    "core:tardis_memory_compactor.py": REDACTED_PHONE.4853778,
     "core:videocall_vision_engine.py": REDACTED_PHONE.9071455,
     "core:videocall_webapp_ui.py": REDACTED_PHONE.3347282,
     "core:mundo_sin_censura_hardware.py": REDACTED_PHONE.9136124,
@@ -337,6 +337,17 @@
     "sat:gia_ios:GIA/Views/Theme.swift": REDACTED_PHONE.0
   },
   "history": [
+    {
+      "timestamp": "2026-11-26T05:31:25.156373",
+      "trigger": "immediate_milestone",
+      "commit_hash": "2e875e1d",
+      "score": 75,
+      "reasons": [
+        "Evoluci\u00f3n en subsistema core TARDIS: deep_memory_vault.py",
+        "Evoluci\u00f3n en subsistema core TARDIS: rag_vault.py",
+        "Evoluci\u00f3n en subsistema core TARDIS: subsystem_agents.py"
+      ]
+    },
     {
       "timestamp": "2026-11-25T21:33:17.694544",
       "trigger": "immediate_milestone",
@@ -864,17 +875,6 @@
       "reasons": [
         "Evoluci\u00f3n en subsistema core TARDIS: tardis_teaching.py",
         "Evoluci\u00f3n en subsistema core TARDIS: tardis_c310_conversation.py"
-      ]
-    },
-    {
-      "timestamp": "2026-11-22T01:22:18.494200",
-      "trigger": "immediate_milestone",
-      "commit_hash": "d20bcc9d",
-      "score": 85,
-      "reasons": [
-        "Evoluci\u00f3n en subsistema core TARDIS: tapo_c310_sentinel.py",
-        "Evoluci\u00f3n en subsistema core TARDIS: tardis_teaching.py",
-        "Nuevo subsistema core TARDIS: tardis_c310_conversation.py"
       ]
     }
   ]
