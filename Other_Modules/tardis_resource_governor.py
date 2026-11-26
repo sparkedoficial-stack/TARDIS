@@ -2344,10 +2344,10 @@ class TardisResourceGovernor:
                     })
                     continue
 
-                if dry_run:
+                if dry_run or not force:
                     actions.append({
                         "unit": unit,
-                        "action": "would_recycle",
+                        "action": "observed_no_auto_restart",
                         "idle_reason": idle_reason,
                         "swap_mb": row.get("swap_mb", 0.0),
                         "total_mb": row.get("total_mb", 0.0),
@@ -2695,8 +2695,8 @@ class TardisResourceGovernor:
                     "power_profile_action": "unchanged",
                 }
 
-        # 2.5. Reciclaje seguro en reposo ante swap-bloat de motores llama-server (COEV-20261124-5B1F5C)
-        swap_recycle_result = self.reconcile_swap_bloat(snap_before, dry_run=dry_run)
+        # 2.5. Telemetría de swap-bloat (solo observación; política cero-reinicios autónomos)
+        swap_recycle_result = self.reconcile_swap_bloat(snap_before, dry_run=True, force=False)
         for err in swap_recycle_result.get("errors") or []:
             errors.append(f"swap_recycle: {err}")
 

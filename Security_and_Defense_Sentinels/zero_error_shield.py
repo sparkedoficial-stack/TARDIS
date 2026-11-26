@@ -673,7 +673,11 @@ class ZeroErrorShield:
                 f"{summary}\n{body}", app=app, exec_argv=exec_argv, icon=icon, category=dbus_cat
             )
 
-        sig_raw = f"{category}|{app.lower()}|{summary.lower()[:90]}|{payload.get('unit', '')}|{payload.get('binary', '')}"
+        if category in ("tardis_desktop_crash", "llama_server_cuda_crash", "process_crash", "systemd_unit_failed"):
+            canon_target = str(payload.get("unit") or payload.get("binary") or payload.get("comm") or app or "").lower().strip()
+            sig_raw = f"incident|{category}|{canon_target}"
+        else:
+            sig_raw = f"{category}|{app.lower()}|{summary.lower()[:90]}|{payload.get('unit', '')}|{payload.get('binary', '')}"
         sig = hashlib.sha1(sig_raw.encode("utf-8", errors="ignore")).hexdigest()[:16]
 
         # Contabilizar intercepción aunque esté en cooldown de reparación
@@ -1011,18 +1015,7 @@ class ZeroErrorShield:
 
         if category == "dns_network_failure":
             subprocess.run(["resolvectl", "flush-caches"], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=5)
-            actions.append("Caché DNS de systemd-resolved purgada (resolvectl flush-caches)")
-            if kb:
-                # Comprobar si systemd-resolved está sano
-                rc_st, out_st, _ = kb.exec_root(["systemctl", "is-active", "systemd-resolved.service"], timeout=5)
-                if rc_st != 0 or "active" not in out_st:
-                    kb.exec_root(["systemctl", "restart", "systemd-resolved.service"], timeout=10)
-                    actions.append("Servicio systemd-resolved reiniciado en Ring 0")
-                rc_nm, out_nm, _ = kb.exec_root(["systemctl", "is-active", "NetworkManager.service"], timeout=5)
-                if rc_nm != 0 or "active" not in out_nm:
-                    kb.exec_root(["systemctl", "restart", "NetworkManager.service"], timeout=10)
-                    actions.append("NetworkManager reiniciado en Ring 0")
-            # Verificar resolución
+            actions.append("Caché DNS de systemd-resolved purgada (resolvectl flush-caches; sin reinicios de servicios)")
             verified = False
             try:
                 socket.getaddrinfo("REDACTED_IP", 443)
@@ -1033,15 +1026,12 @@ class ZeroErrorShield:
             return True, verified, actions
 
         if category == "audio_pipewire_failure":
-            healed_any = False
             for unit in ("pipewire.service", "pipewire-pulse.service", "wireplumber.service"):
                 st = self._unit_state(unit, scope="user")
                 if st not in ("active",):
                     subprocess.run(["systemctl", "--user", "reset-failed", unit], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=5)
-                    subprocess.run(["systemctl", "--user", "restart", unit], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=10)
-                    actions.append(f"Audio: {unit} restaurado")
-                    healed_any = True
-            if not healed_any:
+                    actions.append(f"Audio: {unit} estado={st} (reset-failed sin reinicio automático)")
+            if not actions:
                 actions.append("Stack PipeWire/WirePlumber verificado activo")
             all_ok = self._unit_state("pipewire.service", "user") == "active" and self._unit_state("wireplumber.service", "user") == "active"
             return True, all_ok, actions
@@ -1049,12 +1039,7 @@ class ZeroErrorShield:
         if category == "bluetooth_failure":
             if kb:
                 kb.exec_root(["rfkill", "unblock", "bluetooth"], timeout=5)
-                rc_bt, out_bt, _ = kb.exec_root(["systemctl", "is-active", "bluetooth.service"], timeout=5)
-                if rc_bt != 0 or "active" not in out_bt:
-                    kb.exec_root(["systemctl", "restart", "bluetooth.service"], timeout=10)
-                    actions.append("bluetooth.service reiniciado vía Ring 0")
-                else:
-                    actions.append("Bluetooth desbloqueado y bluetooth.service verificado activo")
+                actions.append("Bluetooth desbloqueado vía rfkill (sin reinicio automático de bluetooth.service)")
                 return True, True, actions
             return False, False, actions
 
@@ -1254,18 +1239,17 @@ class ZeroErrorShield:
             return "unknown"
 
     def _restart_user_unit(self, unit: str, actions: List[str]) -> Tuple[bool, bool, List[str]]:
-        subprocess.run(["systemctl", "--user", "reset-failed", unit], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=5)
-        subprocess.run(["systemctl", "--user", "restart", unit], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=12)
-        time.sleep(0.4)
+        """Política Cero-Reinicios: nunca reinicia unidades automáticamente; solo limpia estado failed y reporta."""
         st = self._unit_state(unit, "user")
-        actions.append(f"Unidad {unit} reiniciada -> estado: {st}")
+        if st == "failed":
+            subprocess.run(["systemctl", "--user", "reset-failed", unit], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=5)
+        actions.append(f"Unidad {unit} diagnosticada sin reinicio automático (estado={st})")
         return True, st in ("active", "activating"), actions
 
     def _heal_process_crash(self, comm: str, full_text: str, payload: Dict[str, Any]) -> Tuple[bool, bool, List[str]]:
-        """Diagnostica y recupera un proceso crasheado (tardis-desktop, llama-server, quickshell, etc.)."""
+        """Diagnostica un proceso crasheado sin inducir bucles de reinicio ni purgas redundantes."""
         actions: List[str] = []
         comm_l = (comm or "").lower().strip()
-        # Mapa directo binario -> servicio systemd de usuario
         proc_to_unit = {
             "tardis-desktop": "tardis-desktop.service",
             "llama-server": "tardis-temporal-brain.service",
@@ -1278,37 +1262,14 @@ class ZeroErrorShield:
             "cloudflared": "ftl-public-tunnel.service",
         }
         unit = proc_to_unit.get(comm_l)
-        if comm_l == "llama-server":
-            fixer = self._get_error_fixer()
-            if fixer:
-                rep = fixer.fix_llama_server_health()
-                actions.extend(rep.get("actions", []) or ["Salud de llama-server verificada y restaurada"])
-                ok = fixer._probe_unix_socket(Path("/tmp/temporal_brain.sock"))
-                return True, ok, actions
         if unit:
             st = self._unit_state(unit, "user")
             if st == "active":
-                actions.append(f"Proceso '{comm}' ({unit}) ya se recuperó y corre activo; notificación suprimida")
+                actions.append(f"Proceso '{comm}' ({unit}) corre activo; notificación suprimida")
                 return True, True, actions
             return self._heal_systemd_unit(unit, scope="user")
 
-        # Si el proceso tiene un servicio homónimo `<comm>.service`
-        if comm_l and re.match(r"^[a-z0-9_.\-]+$", comm_l):
-            candidate = f"{comm_l}.service"
-            chk = subprocess.run(
-                ["systemctl", "--user", "cat", candidate],
-                stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=4,
-            )
-            if chk.returncode == 0:
-                return self._heal_systemd_unit(candidate, scope="user")
-
-        # Si fue un crash por memoria/VRAM de app de escritorio (ej. chrome/electron), liberar caché preventivamente
-        kb = self._get_kernel_bridge()
-        if kb:
-            kb.drop_kernel_caches()
-            actions.append(f"Crash de '{comm or 'proceso'}' interceptado; cachés de kernel purgadas preventivamente")
-        else:
-            actions.append(f"Crash de '{comm or 'proceso'}' interceptado y aislado sin notificación al usuario")
+        actions.append(f"Crash de '{comm or 'proceso'}' registrado y aislado sin reinicio automático")
         return True, True, actions
 
     def _heal_systemd_unit(self, unit: str, scope: str = "user") -> Tuple[bool, bool, List[str]]:
@@ -1389,18 +1350,17 @@ class ZeroErrorShield:
                 if et and et.auto_install_python_package(mod):
                     actions.append(f"Módulo Python '{mod}' instalado antes de reiniciar {unit}")
 
-        # 3. Reset-failed + Restart
-        if scope == "user":
-            subprocess.run(["systemctl", "--user", "reset-failed", unit], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=5)
-            subprocess.run(["systemctl", "--user", "restart", unit], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=12)
-        elif kb:
-            kb.exec_root(["systemctl", "reset-failed", unit], timeout=5)
-            kb.exec_root(["systemctl", "restart", unit], timeout=12)
-
-        time.sleep(0.5)
+        # 3. Política Cero-Reinicios: nunca ejecutar systemctl restart automáticamente
+        # (evita bucles de reinicio, start-limit-hit y tormentas de CPU).
+        cur_state = self._unit_state(unit, scope)
+        if cur_state == "failed":
+            if scope == "user":
+                subprocess.run(["systemctl", "--user", "reset-failed", unit], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=5)
+            elif kb:
+                kb.exec_root(["systemctl", "reset-failed", unit], timeout=5)
         st = self._unit_state(unit, scope)
-        actions.append(f"Unidad {unit} ({scope}) recuperada -> estado actual: {st}")
-        return True, st in ("active", "activating"), actions
+        actions.append(f"Unidad {unit} ({scope}) diagnosticada/saneada sin reinicio automático -> estado: {st}")
+        return True, st in ("active", "activating", "inactive"), actions
 
     def _sweep_failed_systemd_units(self) -> Tuple[bool, List[str]]:
         """Detecta y repara unidades systemd (user + system) en estado failed."""
@@ -1782,6 +1742,10 @@ class ZeroErrorShield:
 
         # No autorretroalimentarnos con nuestros propios logs
         if "zero_error_shield" in unit or "zero-error-shield" in comm or "[ZERO-ERROR-SHIELD]" in msg:
+            return
+
+        # No duplicar eventos de systemd-coredump ya gestionados por el stream dedicado scope='coredump'
+        if scope != "coredump" and ("systemd-coredump" in unit or "systemd-coredump" in comm):
             return
 
         # Filtrar ruido conocido del kernel/dbus
