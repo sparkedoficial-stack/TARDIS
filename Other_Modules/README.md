@@ -124,7 +124,6 @@ Módulos y componentes auxiliares del sistema.
 - **device_tracker_db.json**: Componente de alta eficiencia.
 - **distributed_compute.py**: Componente de alta eficiencia.
 - **doctor.py**: Componente de alta eficiencia.
-- **dossier_20261109_210025_418.json**: Componente de alta eficiencia.
 - **dossier_20261109_210057_226.json**: Componente de alta eficiencia.
 - **dossier_20261109_210127_473.json**: Componente de alta eficiencia.
 - **dossier_20261109_210135_615.json**: Componente de alta eficiencia.
@@ -1124,6 +1123,7 @@ Módulos y componentes auxiliares del sistema.
 - **dossier_20261125_212853_614.json**: Componente de alta eficiencia.
 - **dossier_20261125_212924_298.json**: Componente de alta eficiencia.
 - **dossier_20261125_212954_942.json**: Componente de alta eficiencia.
+- **dossier_20261125_213249_478.json**: Componente de alta eficiencia.
 - **dynamic_tools_registry.json**: Directorio y puente soberano de interoperabilidad omni-herramientas.
 - **ecca_v3_core.py**: Núcleo de orquestación y control temporal/espacial.
 - **embed_isotropy.py**: Componente de alta eficiencia.
@@ -1323,6 +1323,7 @@ Módulos y componentes auxiliares del sistema.
 - **self_updater.py**: Componente de alta eficiencia.
 - **sentinel_state.json**: Centinela autónomo de monitoreo y arbitraje de precios en tiempo real.
 - **server__api.py**: Componente de alta eficiencia.
+- **session_active.json**: Componente de alta eficiencia.
 - **skills_rag_ingest.json**: Especificación agéntica de capacidades soberanas para agentes autónomos.
 - **sms_config.json**: Componente de alta eficiencia.
 - **sms_history.json**: Componente de alta eficiencia.
@@ -1371,6 +1372,7 @@ Módulos y componentes auxiliares del sistema.
 - **tardis_resource_governor.py**: Componente de alta eficiencia.
 - **tardis_safety_app.py**: Componente de alta eficiencia.
 - **tardis_semantic_cache.py**: Componente de alta eficiencia.
+- **tardis_silicon_lab.py**: Componente de alta eficiencia.
 - **tardis_singularity_daemon.py**: Motor de aceleración FTL y computación adaptativa.
 - **tardis_singularity_state.json**: Motor de aceleración FTL y computación adaptativa.
 - **tardis_skill_registry.py**: Directorio y puente soberano de interoperabilidad omni-herramientas.

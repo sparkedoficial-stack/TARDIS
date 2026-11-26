@@ -1,30 +1,30 @@
 {
   "ok": true,
-  "ts": REDACTED_PHONE.551883,
-  "iso": "2026-11-25T21:31:51-05:00",
+  "ts": REDACTED_PHONE.9097173,
+  "iso": "2026-11-25T21:33:31-05:00",
   "level": "YELLOW",
   "reasons": [
     "Temperatura CPU cálida (77°C)",
-    "Swap-bloat en tardis-ollama-voice.service (RSS=4481 MB, Swap=1536 MB, Total=6017 MB)"
+    "Swap-bloat en tardis-ollama-voice.service (RSS=4480 MB, Swap=1536 MB, Total=6016 MB)"
   ],
   "call_priority_active": false,
   "cpu": {
     "cores": 16,
-    "load1": 10.47,
-    "load5": 15.44,
-    "load15": 14.0,
+    "load1": 9.17,
+    "load5": 13.57,
+    "load15": 13.47,
     "psi": {
-      "some_avg10": 13.65,
-      "some_avg60": 14.76,
-      "some_avg300": 34.6,
+      "some_avg10": 12.43,
+      "some_avg60": 11.41,
+      "some_avg300": 27.73,
       "full_avg10": 0.0,
       "full_avg60": 0.0
     },
-    "temp_c": 77.0,
+    "temp_c": 76.9,
     "thermal_source": "k10temp",
     "fan_rpm": {
       "cpu": 3900,
-      "gpu": 4000
+      "gpu": 3900
     },
     "power_profile": "performance",
     "scaling_driver": "amd-pstate-epp",
@@ -34,24 +34,24 @@
   },
   "memory": {
     "total_mb": 31495.3,
-    "available_mb": 10879.9,
-    "used_mb": 20615.4,
-    "used_pct": 65.5,
+    "available_mb": 10910.7,
+    "used_mb": 20584.6,
+    "used_pct": 65.4,
     "swap_total_mb": 62994.8,
-    "swap_used_mb": 3484.4,
+    "swap_used_mb": 3484.2,
     "psi": {
       "some_avg10": 0.0,
-      "some_avg60": 0.25,
-      "some_avg300": 1.99,
+      "some_avg60": 0.04,
+      "some_avg300": 1.4,
       "full_avg10": 0.0,
-      "full_avg60": 0.08
+      "full_avg60": 0.01
     }
   },
   "io": {
     "psi": {
       "some_avg10": 0.0,
-      "some_avg60": 0.17,
-      "some_avg300": 1.56,
+      "some_avg60": 0.02,
+      "some_avg300": 1.09,
       "full_avg10": 0.0,
       "full_avg60": 0.0
     }
@@ -60,13 +60,13 @@
     "available": true,
     "name": "NVIDIA GeForce RTX 3050 Laptop GPU",
     "temp_c": 64.0,
-    "util_pct": 46.0,
+    "util_pct": 84.0,
     "vram_used_mb": 3386.0,
     "vram_free_mb": 437.0,
     "vram_total_mb": 4096.0,
     "vram_used_pct": 82.7,
     "pstate": "P0",
-    "power_w": 15.09,
+    "power_w": 15.07,
     "clock_gr_mhz": 600,
     "clock_mem_mhz": 6001
   },
@@ -92,9 +92,9 @@
       "cpu_max": "max 100000",
       "cpu_weight": 25,
       "pids_count": 2,
-      "psi_some_avg10": 15.42,
-      "psi_some_avg60": 14.71,
-      "psi_full_avg60": 7.1
+      "psi_some_avg10": 12.46,
+      "psi_some_avg60": 11.81,
+      "psi_full_avg60": 4.57
     },
     {
       "unit": "tardis.service",
@@ -103,9 +103,9 @@
       "cpu_max": "max 100000",
       "cpu_weight": 25,
       "pids_count": 8,
-      "psi_some_avg10": 6.57,
-      "psi_some_avg60": 6.16,
-      "psi_full_avg60": 3.15
+      "psi_some_avg10": 6.7,
+      "psi_some_avg60": 6.2,
+      "psi_full_avg60": 2.53
     },
     {
       "unit": "tardis-tapo-c310-voice.service",
@@ -114,9 +114,9 @@
       "cpu_max": "max 100000",
       "cpu_weight": 25,
       "pids_count": 2,
-      "psi_some_avg10": 3.86,
-      "psi_some_avg60": 5.12,
-      "psi_full_avg60": 3.81
+      "psi_some_avg10": 3.94,
+      "psi_some_avg60": 3.79,
+      "psi_full_avg60": 3.56
     },
     {
       "unit": "tardis-temporal-brain.service",
@@ -125,9 +125,31 @@
       "cpu_max": "max 100000",
       "cpu_weight": 40,
       "pids_count": 1,
-      "psi_some_avg10": 3.14,
-      "psi_some_avg60": 3.28,
-      "psi_full_avg60": 2.75
+      "psi_some_avg10": 2.37,
+      "psi_some_avg60": 2.13,
+      "psi_full_avg60": 1.85
+    },
+    {
+      "unit": "tardis-music-maestro.service",
+      "cpuset_cpus": "8-15",
+      "effective_cpus": 8,
+      "cpu_max": "max 100000",
+      "cpu_weight": 25,
+      "pids_count": 2,
+      "psi_some_avg10": 0.25,
+      "psi_some_avg60": 0.79,
+      "psi_full_avg60": 0.35
+    },
+    {
+      "unit": "tardis4ever.service",
+      "cpuset_cpus": "8-15",
+      "effective_cpus": 8,
+      "cpu_max": "max 100000",
+      "cpu_weight": 25,
+      "pids_count": 2,
+      "psi_some_avg10": 0.91,
+      "psi_some_avg60": 0.58,
+      "psi_full_avg60": 0.58
     },
     {
       "unit": "tardis-ollama-voice.service",
@@ -137,30 +159,8 @@
       "cpu_weight": 100,
       "pids_count": 2,
       "psi_some_avg10": 0.0,
-      "psi_some_avg60": 1.73,
-      "psi_full_avg60": 0.7
-    },
-    {
-      "unit": "tardis-music-maestro.service",
-      "cpuset_cpus": "8-15",
-      "effective_cpus": 8,
-      "cpu_max": "max 100000",
-      "cpu_weight": 25,
-      "pids_count": 2,
-      "psi_some_avg10": 0.74,
-      "psi_some_avg60": 1.18,
-      "psi_full_avg60": 0.81
-    },
-    {
-      "unit": "tardis4ever.service",
-      "cpuset_cpus": "8-15",
-      "effective_cpus": 8,
-      "cpu_max": "max 100000",
-      "cpu_weight": 25,
-      "pids_count": 2,
-      "psi_some_avg10": 1.76,
-      "psi_some_avg60": 0.54,
-      "psi_full_avg60": 0.54
+      "psi_some_avg60": 0.31,
+      "psi_full_avg60": 0.12
     },
     {
       "unit": "tardis-browser-autonomous.service",
@@ -169,9 +169,9 @@
       "cpu_max": "max 100000",
       "cpu_weight": 25,
       "pids_count": 12,
-      "psi_some_avg10": 0.08,
-      "psi_some_avg60": 0.07,
-      "psi_full_avg60": 0.06
+      "psi_some_avg10": 0.01,
+      "psi_some_avg60": 0.08,
+      "psi_full_avg60": 0.08
     }
   ],
   "oversubscribed_units": [],
@@ -180,14 +180,14 @@
       "unit": "tardis-ollama-voice.service",
       "main_pid": 748770,
       "pids_count": 2,
-      "uptime_s": 78283.2,
-      "rss_mb": 4480.8,
-      "rss_anon_mb": 4296.3,
+      "uptime_s": 78383.6,
+      "rss_mb": 4480.4,
+      "rss_anon_mb": 4295.9,
       "rss_file_mb": 95.0,
       "mlock_mb": 0.0,
       "swap_mb": 1536.0,
-      "total_mb": 6016.8,
-      "cgroup_current_mb": 4434.1,
+      "total_mb": 6016.4,
+      "cgroup_current_mb": 4433.9,
       "cgroup_swap_mb": 1536.0,
       "memory_high": "REDACTED_PHONE",
       "memory_max": "REDACTED_PHONE",
@@ -203,14 +203,14 @@
       "unit": "tardis-temporal-brain.service",
       "main_pid": 1584588,
       "pids_count": 1,
-      "uptime_s": 4178.9,
+      "uptime_s": 4279.2,
       "rss_mb": 6365.9,
       "rss_anon_mb": 3025.8,
-      "rss_file_mb": 3268.7,
+      "rss_file_mb": 3268.8,
       "mlock_mb": 0.0,
       "swap_mb": 0.0,
       "total_mb": 6365.9,
-      "cgroup_current_mb": 4986.5,
+      "cgroup_current_mb": 4986.4,
       "cgroup_swap_mb": 0.0,
       "memory_high": "REDACTED_PHONE",
       "memory_max": "REDACTED_PHONE",
@@ -226,14 +226,14 @@
       "unit": "tardis-ollama-voice.service",
       "main_pid": 748770,
       "pids_count": 2,
-      "uptime_s": 78283.2,
-      "rss_mb": 4480.8,
-      "rss_anon_mb": 4296.3,
+      "uptime_s": 78383.6,
+      "rss_mb": 4480.4,
+      "rss_anon_mb": 4295.9,
       "rss_file_mb": 95.0,
       "mlock_mb": 0.0,
       "swap_mb": 1536.0,
-      "total_mb": 6016.8,
-      "cgroup_current_mb": 4434.1,
+      "total_mb": 6016.4,
+      "cgroup_current_mb": 4433.9,
       "cgroup_swap_mb": 1536.0,
       "memory_high": "REDACTED_PHONE",
       "memory_max": "REDACTED_PHONE",
@@ -253,7 +253,7 @@
     "units": [],
     "power_profile_mitigated": true,
     "power_profile_applied": "balanced",
-    "updated_iso": "2026-11-25T21:31:31-05:00"
+    "updated_iso": "2026-11-25T21:33:11-05:00"
   },
   "gpu_eco": {
     "active": false,
