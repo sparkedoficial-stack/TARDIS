@@ -26,6 +26,7 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+import os
 import re
 import sqlite3
 import struct
@@ -213,7 +214,17 @@ class RAGVault:
                     end = dot + 1
             chunks.append(text[start:end].strip())
             start = end - CHUNK_OVERLAP
-        return [c for c in chunks if c]
+        chunks = [c for c in chunks if c]
+        # Fusionar colas diminutas con el fragmento anterior: los stubs de <160
+        # caracteres generaban "hubs" universales tras la isotropía ZCA.
+        MIN_CHUNK_CHARS = 160
+        merged: List[str] = []
+        for c in chunks:
+            if merged and len(c) < MIN_CHUNK_CHARS:
+                merged[-1] = (merged[-1] + " " + c).strip()
+            else:
+                merged.append(c)
+        return [c for c in merged if c]
 
     # ----------------------------------------- extraccion ontologica y semantica
     @staticmethod
@@ -306,8 +317,19 @@ class RAGVault:
                 if cur.lastrowid and cur.rowcount:
                     cid = cur.lastrowid
                     inserted_chunk_ids.append(cid)
-                    con.execute("INSERT OR REPLACE INTO rag_vectors(chunk_id,vec) VALUES (?,?)",
-                                (cid, v.astype(np.float32).tobytes()))
+                    # Nunca persistir vectores cero/NaN: envenenaban el espacio
+                    # semántico y colapsaban la recuperación (hubness).
+                    valid_vec = (
+                        isinstance(v, np.ndarray)
+                        and v.size > 0
+                        and bool(np.isfinite(v).all())
+                        and float(np.linalg.norm(v)) > 1e-6
+                    )
+                    if valid_vec:
+                        con.execute("INSERT OR REPLACE INTO rag_vectors(chunk_id,vec) VALUES (?,?)",
+                                    (cid, v.astype(np.float32).tobytes()))
+                    else:
+                        logger.warning("[RAG] Vector inválido descartado para chunk %s (texto conservado en FTS)", cid)
                     con.execute("INSERT INTO rag_fts(rowid,text,title,term) VALUES (?,?,?,?)",
                                 (cid, c, title, term))
                     stored += 1

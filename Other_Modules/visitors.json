@@ -121,17 +121,17 @@
   "visitante_anonimo": {
     "key": "visitante_anonimo",
     "name": "visitante",
-    "visit_count": 7,
+    "visit_count": 8,
     "first_seen": REDACTED_PHONE.3563824,
     "first_seen_iso": "2026-11-22T19:09:43-0500",
-    "last_seen": REDACTED_PHONE.6313136,
-    "last_seen_iso": "2026-11-25T17:50:06-0500",
+    "last_seen": REDACTED_PHONE.5642557,
+    "last_seen_iso": "2026-11-25T20:20:11-0500",
     "pedagogical_level": "intermedio",
     "interests": [],
     "topics_studied": [],
     "seen_capsules": [],
     "known_facts": [],
-    "last_reason": "la bomba"
+    "last_reason": "Pregúntela."
   },
   "digamos": {
     "key": "digamos",

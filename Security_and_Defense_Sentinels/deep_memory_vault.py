@@ -295,6 +295,52 @@ class DeepMemoryVault:
 
         return row_id
 
+    def store_record(
+        self,
+        category: str = "AXIOM",
+        title: str = "",
+        content: str = "",
+        tags: Optional[List[str]] = None,
+        *,
+        source: str = "store_record",
+        importance: float = 1.0,
+        **extra: Any,
+    ) -> Dict[str, Any]:
+        """Contrato compatible con ``store_record()`` usado por harness, navegador y evolución.
+
+        Mapea el registro categorizado al almacén episódico ``ingest()`` preservando
+        categoría, título, etiquetas y procedencia. Evita la pérdida silenciosa de
+        conclusiones del navegador y del diario de evolución (AttributeError previo).
+        """
+        clean_tags = [str(t) for t in (tags or []) if str(t).strip()]
+        body = content or title
+        if not body:
+            return {"ok": False, "error": "contenido vacío", "id": 0, "category": category}
+        meta: Dict[str, Any] = {
+            "category": str(category or "GENERAL").upper(),
+            "title": str(title or "")[:300],
+            "tags": clean_tags,
+        }
+        meta.update({k: v for k, v in extra.items() if v is not None})
+        try:
+            row_id = self.ingest(
+                source=source,
+                role="system",
+                content=body,
+                session_id="store_record",
+                meta=meta,
+                importance=float(importance),
+            )
+            return {
+                "ok": bool(row_id),
+                "id": int(row_id or 0),
+                "category": meta["category"],
+                "title": meta["title"],
+            }
+        except Exception as e:
+            logger.error("store_record falló: %s", e)
+            return {"ok": False, "error": str(e), "id": 0, "category": category}
+
     def _extract_knowledge_nodes(self, content: str, role: str, meta: Dict[str, Any]) -> None:
         """Extrae conceptos y relaciones para nutrir el grafo akáshico episódico."""
         if len(content) < 8:

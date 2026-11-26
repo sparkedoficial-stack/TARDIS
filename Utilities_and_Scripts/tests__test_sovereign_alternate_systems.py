@@ -2130,3 +2130,20 @@ def test_cyberdefense_and_network_shield_ttl_cache_and_api_status_thread_offload
                 if not has_await:
                     offending.append((node.name, sorted(matched)))
     assert offending == [], f"Endpoints /api/* de hub_health bloqueando event loop ASGI sin await: {offending}"
+
+
+def test_temporal_brain_threads_batch_cpuset_headroom_eliminates_9_of_8_oversubscription():
+    """Regresión COEV-20261125-DB539A: --threads-batch reserva 2 CPUs de margen en cpuset 8-15 (8 -> 6)."""
+    import json
+    from core.temporal_brain import _resolve_safe_threads_batch
+
+    assert _resolve_safe_threads_batch(8, 4, None) == 6
+    assert _resolve_safe_threads_batch(8, 4, 8) == 6
+    assert _resolve_safe_threads_batch(8, 4, 16) == 6
+    assert _resolve_safe_threads_batch(8, 4, 5) == 5
+    assert _resolve_safe_threads_batch(6, 3, 8) == 4
+    assert _resolve_safe_threads_batch(4, 2, 4) == 3
+    assert _resolve_safe_threads_batch(4, 4, 4) == 4
+
+    cfg = json.loads((Path(__file__).resolve().parent.parent / "temporal_brain_config.json").read_text(encoding="utf-8"))
+    assert int(cfg.get("threads_batch", 0)) == 6

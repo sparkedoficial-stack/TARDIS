@@ -1,31 +1,36 @@
 {
-  "run_id": "canary_20261125_183616_d0d54f",
-  "iso": "2026-11-25T18:36:16-05:00",
+  "run_id": "canary_20261125_202040_c061c3",
+  "iso": "2026-11-25T20:20:40-05:00",
   "files": [
+    {
+      "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/temporal_brain.py",
+      "relative": "core/temporal_brain.py",
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261125_202040_c061c3/core__temporal_brain.py"
+    },
     {
       "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/cyberdefense_sentinel.py",
       "relative": "core/cyberdefense_sentinel.py",
-      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261125_183616_d0d54f/core__cyberdefense_sentinel.py"
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261125_202040_c061c3/core__cyberdefense_sentinel.py"
     },
     {
       "source": "/home/m11/Escritorio/GODWORKS SYSTEM/core/network_shield.py",
       "relative": "core/network_shield.py",
-      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261125_183616_d0d54f/core__network_shield.py"
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261125_202040_c061c3/core__network_shield.py"
     },
     {
       "source": "/home/m11/Escritorio/GODWORKS SYSTEM/server/api.py",
       "relative": "server/api.py",
-      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261125_183616_d0d54f/server__api.py"
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261125_202040_c061c3/server__api.py"
     },
     {
       "source": "/home/m11/Escritorio/GODWORKS SYSTEM/tests/test_network_shield.py",
       "relative": "tests/test_network_shield.py",
-      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261125_183616_d0d54f/tests__test_network_shield.py"
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261125_202040_c061c3/tests__test_network_shield.py"
     },
     {
       "source": "/home/m11/Escritorio/GODWORKS SYSTEM/tests/test_sovereign_alternate_systems.py",
       "relative": "tests/test_sovereign_alternate_systems.py",
-      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261125_183616_d0d54f/tests__test_sovereign_alternate_systems.py"
+      "backup": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/canary/canary_20261125_202040_c061c3/tests__test_sovereign_alternate_systems.py"
     }
   ]
 }

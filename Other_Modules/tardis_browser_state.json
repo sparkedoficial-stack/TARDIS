@@ -1,8 +1,8 @@
 {
-  "current_url": "https://es.wikipedia.org/wiki/Conciencia_artificial",
-  "current_title": "Conciencia artificial - Wikipedia, la enciclopedia libre",
-  "autonomous_enabled": true,
+  "current_url": "https://lite.duckduckgo.com/lite/",
+  "current_title": "TARDIS Sovereign Browser",
+  "autonomous_enabled": false,
   "autonomous_interval_s": 240.0,
   "autonomous_cycles_completed": 55,
-  "updated_at": REDACTED_PHONE.5661547
+  "updated_at": REDACTED_PHONE.9427948
 }

@@ -1092,7 +1092,7 @@ class ToolRegistry:
             coder = get_autonomous_coder()
             file_rel = args.get("target_file", "")
             goal = args.get("goal", "")
-            res = coder.evolve_code(target_file=file_rel, goal=goal)
+            res = coder.evolve_code(target_path=file_rel, goal=goal)
             return res.to_dict()
 
         self.register(ToolDefinition(

@@ -1,21 +1,18 @@
 {
   "session_id": "master_timeline",
   "architect_goal": "Optimización de red y router físico/software + Sistema de Continuidad Absoluta Post-Reinicio",
-  "current_request": "permite a TARDIS hacer video llamadas",
+  "current_request": "Analiza mi ventana de agy y continua con el proceso",
   "source": "FTL",
-  "status": "idle",
-  "progress_percent": 100,
-  "phase": "Sistema operativo y en línea tras reinicio #299",
+  "status": "in_progress",
+  "progress_percent": 5,
+  "phase": "Iniciando ejecución con motor DEEPSEEK (opencode/deepseek-v4.1-flash-free#max)",
   "details": {
-    "plan_mode": "gemini",
-    "model": "gemini-4-neon-xhigh",
-    "start_iso": "2026-11-24 13:34:18",
-    "artifacts": [],
-    "completion_iso": "2026-11-24 13:54:57",
-    "output_summary": "Un placer, soy TARDIS asistente de inteligencia artificial, mi tarea es ayudarte a explorar las maravillas de la realidad y todas las dimensiones temporales.\n\nSe ha habilitado el **subsistema completo de videollamadas bidireccionales en tiempo real (full-duplex)** para TARDIS a través de Telegram (Mini App nativa + bot), Portal Web FTL, TARDIS Master Cockpit, API REST y el Agent Harness autónomo, con verificación empírica de extremo a extremo sobre el túnel público Cloudflare WSS.\n\n---\n\n### 1. Arquitectura Implementada\n\nEl flujo de videollamada en vivo opera en doble plano sin bloquear la latencia de voz (~1.2–1.6 s al primer audio):\n\n- **Plano Acústico Full-Duplex (baja latencia):**\n  `Micrófono WebRTC (AEC/NS/AGC) → Auto VAD + Voice Barge-In → WSS (/tg-videocall/ws o /tg-call/ws) → faster-whisper local (CPU int8) → TemporalBrain (/tmp/temporal_brain.sock) enriquecido con contexto visual vivo → edge-tts Cortana Neural por oración → AudioContext AnalyserNode (espectro real a 60 FPS)`\n-",
-    "last_recovery_iso": "2026-11-24 23:47:07"
+    "plan_mode": "deepseek",
+    "model": "opencode/deepseek-v4.1-flash-free#max",
+    "start_iso": "2026-11-25 20:51:18",
+    "artifacts": []
   },
-  "created_ts": REDACTED_PHONE.0398629,
-  "updated_ts": REDACTED_PHONE.7397058,
+  "created_ts": REDACTED_PHONE.0059783,
+  "updated_ts": REDACTED_PHONE.006016,
   "reboot_count": 299
 }

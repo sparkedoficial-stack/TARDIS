@@ -1,5 +1,43 @@
 [
   {
+    "id": "capture_1795656127_LAN_tapo_c310_god_eye.jpg",
+    "timestamp": REDACTED_PHONE.7247005,
+    "iso_time": "2026-11-25T20:22:07-0500",
+    "terminal_id": "tapo_c310_god_eye",
+    "terminal_name": "GOD-EYE · Tapo C310 (REDACTED_IP)",
+    "origin": "LAN",
+    "client_ip": "REDACTED_IP",
+    "country": "LAN",
+    "resolution": "2304x1296 -> 1280x720",
+    "filename": "capture_1795656127_LAN_tapo_c310_god_eye.jpg",
+    "file_path": "/home/m11/Escritorio/GODWORKS SYSTEM/data/terminal_captures/capture_1795656127_LAN_tapo_c310_god_eye.jpg",
+    "size_bytes": 214645,
+    "biometrics": {
+      "persons_detected": 0,
+      "max_confidence": 0.0,
+      "mood_state": "Perímetro Despejado"
+    }
+  },
+  {
+    "id": "capture_1795655587_LAN_tapo_c310_god_eye.jpg",
+    "timestamp": REDACTED_PHONE.9853842,
+    "iso_time": "2026-11-25T20:13:07-0500",
+    "terminal_id": "tapo_c310_god_eye",
+    "terminal_name": "GOD-EYE · Tapo C310 (REDACTED_IP)",
+    "origin": "LAN",
+    "client_ip": "REDACTED_IP",
+    "country": "LAN",
+    "resolution": "2304x1296 -> 1280x720",
+    "filename": "capture_1795655587_LAN_tapo_c310_god_eye.jpg",
+    "file_path": "/home/m11/Escritorio/GODWORKS SYSTEM/data/terminal_captures/capture_1795655587_LAN_tapo_c310_god_eye.jpg",
+    "size_bytes": 114949,
+    "biometrics": {
+      "persons_detected": 0,
+      "max_confidence": 0.0,
+      "mood_state": "Perímetro Despejado"
+    }
+  },
+  {
     "id": "capture_1795651042_LAN_tapo_c310_god_eye.jpg",
     "timestamp": REDACTED_PHONE.6970496,
     "iso_time": "2026-11-25T18:57:22-0500",
@@ -3629,70 +3667,6 @@
       "attention": "79%",
       "gaze": "Fijado en terminal",
       "advice": "El usuario muestra asombro o una epifanía. Proporciona perspectivas avanzadas, valida su descubrimiento y mantén el alto impacto intelectual.",
-      "camera_active": true
-    }
-  },
-  {
-    "id": "capture_1789658676_INTERNET_term_vygs3f2.jpg",
-    "timestamp": REDACTED_PHONE.9609294,
-    "iso_time": "2026-09-17T10:24:36-0500",
-    "terminal_id": "term_vygs3f2",
-    "terminal_name": "iPhone Terminal",
-    "origin": "INTERNET",
-    "client_ip": "REDACTED_IP",
-    "country": "MX",
-    "resolution": "1280x720",
-    "filename": "capture_1789658676_INTERNET_term_vygs3f2.jpg",
-    "file_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/data/terminal_captures/capture_1789658676_INTERNET_term_vygs3f2.jpg",
-    "size_bytes": 5595,
-    "biometrics": {
-      "primary": "alegre",
-      "mood_state": "Entusiasmado y Creativo",
-      "gesticulation": "Elevación cigomática bilateral (sonrisa activa), comisuras ascendentes y ojos luminosos",
-      "neurochemistry": {
-        "dopamina": 71,
-        "cortisol": 27,
-        "serotonina": 69,
-        "adrenalina": 33,
-        "fatiga": 12
-      },
-      "confidence": 0.9,
-      "valence": 0.85,
-      "attention": "87%",
-      "gaze": "Fijado en terminal",
-      "advice": "El usuario muestra entusiasmo, optimismo y curiosidad activa. Responde con complicidad intelectual, dinamismo, agilidad y visión constructiva.",
-      "camera_active": true
-    }
-  },
-  {
-    "id": "capture_1789639959_INTERNET_term_420qltv.jpg",
-    "timestamp": REDACTED_PHONE.9133956,
-    "iso_time": "2026-09-17T05:12:39-0500",
-    "terminal_id": "term_420qltv",
-    "terminal_name": "Android Terminal",
-    "origin": "INTERNET",
-    "client_ip": "2806:106e:5:f8:df9:2053:d5f5:110c",
-    "country": "MX",
-    "resolution": "1280x720",
-    "filename": "capture_1789639959_INTERNET_term_420qltv.jpg",
-    "file_path": "/home/timemachine/Escritorio/GODWORKS SYSTEM/data/terminal_captures/capture_1789639959_INTERNET_term_420qltv.jpg",
-    "size_bytes": 3469,
-    "biometrics": {
-      "primary": "alegre",
-      "mood_state": "Entusiasmado y Creativo",
-      "gesticulation": "Elevación cigomática bilateral (sonrisa activa), comisuras ascendentes y ojos luminosos",
-      "neurochemistry": {
-        "dopamina": 74,
-        "cortisol": 15,
-        "serotonina": 83,
-        "adrenalina": 32,
-        "fatiga": 12
-      },
-      "confidence": 0.9,
-      "valence": 0.85,
-      "attention": "95%",
-      "gaze": "Fijado en terminal",
-      "advice": "El usuario muestra entusiasmo, optimismo y curiosidad activa. Responde con complicidad intelectual, dinamismo, agilidad y visión constructiva.",
       "camera_active": true
     }
   }

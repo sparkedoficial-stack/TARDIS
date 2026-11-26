@@ -226,5 +226,43 @@
         "engine": "google_news"
       }
     ]
+  },
+  "99800b85d3383e3a": {
+    "ts": REDACTED_PHONE.8320985,
+    "iso": "2026-11-25T20:24:24-0500",
+    "query": "hola",
+    "summary": "El término «hola» se puede referir a:Hola, interjección en español usada como saludo con el objetivo de comenzar una conversación;\nHola, también llamado Galole, un pueblo de Kenia;\n¡Hola!, una revista española;\nHola Airlines, una aerolínea española con base en Palma de Mallorca;\nHola mundo, un programa informático básico para iniciar el estudio de un lenguaje de programación;\n«Hola», canción de Joey Montana. visual_intelligence:video: [MEMORIA VISUAL SOBERANA TARDIS - VIDEO] Identificador: vid_20261025_050942_62f6ba Fecha: 2026-10-25T05:10:21.467729 Fuente: video_pensante (Remitente: Usuario) Resumen: We need to produce a structured analysis in four parts. The user is a member of group POLIMATAS LATAM. We should address them by n Rutte afirma que Trump estaba «probando» a Putin al llamarlo su «amigo» en China - HolaNews: Rutte afirma que Trump estaba «probando» a Putin al llamarlo su «amigo» en China  HolaNews ¿Qué piensa Alexis Ayala del nuevo romance de Cinthia Aparicio? - HOLA: ¿Qué piensa Alexis Ayala del nuevo romance de Cinthia Aparicio?  HOLA Wall Street cae con fuerza por ventas en IA e incertidumbre sobre los aranceles de EE.UU. - HolaNews: Wall Street cae con fuerza por v",
+    "sources": [
+      {
+        "title": "Hola (Wikipedia ES)",
+        "url": "https://es.wikipedia.org/wiki/Hola",
+        "snippet": "El término «hola» se puede referir a:Hola, interjección en español usada como saludo con el objetivo de comenzar una conversación;\nHola, también llamado Galole, un pueblo de Kenia;\n¡Hola!, una revista española;\nHola Airlines, una aerolínea española con base en Palma de Mallorca;\nHola mundo, un programa informático básico para iniciar el estudio de un lenguaj",
+        "engine": "wikipedia_es"
+      },
+      {
+        "title": "visual_intelligence:video",
+        "url": "/home/timemachine/Escritorio/GODWORKS SYSTEM/vault/videos/video_pensante/vp_20261025_050937_6f4966.mp4",
+        "snippet": "[MEMORIA VISUAL SOBERANA TARDIS - VIDEO] Identificador: vid_20261025_050942_62f6ba Fecha: 2026-10-25T05:10:21.467729 Fuente: video_pensante (Remitente: Usuario) Resumen: We need to produce a structured analysis in four parts. The user is a member of group POLIMATAS LATAM. We should address them by n",
+        "engine": "rag_vault"
+      },
+      {
+        "title": "Rutte afirma que Trump estaba «probando» a Putin al llamarlo su «amigo» en China - HolaNews",
+        "url": "https://news.google.com/rss/articles/CBMinwFBVV95cUxNamFRM1I1V3FESkxkNWtmR2Z0U0s0SFdreE9qdTdjY3dsTk8yRXJhMjBnOHpNTjFtRVdCQ19mci1TU2VkclFpNThjUFhFMnNhbUJOaGEzNlQtZm84bnBqMTZKcV81Q2xpYmtvSXBMajF5TjI3c3NRb2FDOHQ5OU5wUXJQSVBReGZwbHFBSGplcl9vckdMOUVqMGFMWVRqQms?oc=5",
+        "snippet": "Rutte afirma que Trump estaba «probando» a Putin al llamarlo su «amigo» en China  HolaNews",
+        "engine": "google_news"
+      },
+      {
+        "title": "¿Qué piensa Alexis Ayala del nuevo romance de Cinthia Aparicio? - HOLA",
+        "url": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxOUjRwQS1HTmJrbzdxai15cW9JaVNDQXlrbUxCLVBMc3Y5UFRMMFRtSWpnOHZIMzlDU0FTMjhZSlA5bFNEeXJLVzRuZGhTV0s1TjNTZ2ZqZVF1VHh0T0EyNDFkS3JSQklNYklCcW9QTkE3cDRCTjRZNW9OV0xIbkNaZElaVGRKVFlWSU5JUDZ3b2tzaDJJMlVPeG4zMEpxOEUyMFJySmp4TlZpSEQyZTVQUm94SlJRMU1S?oc=5",
+        "snippet": "¿Qué piensa Alexis Ayala del nuevo romance de Cinthia Aparicio?  HOLA",
+        "engine": "google_news"
+      },
+      {
+        "title": "Wall Street cae con fuerza por ventas en IA e incertidumbre sobre los aranceles de EE.UU. - HolaNews",
+        "url": "https://news.google.com/rss/articles/CBMirwFBVV95cUxNOUMwN2I0dmtKTm11TlEwa0w2YUdGX0xPaUFmMEN2MnptQ1lqQkxfaVU5Wk5KcHBLUE5Ccm5DaldQaXN1MHozUlB4djNOLUZWVFpRcXRhZTJQaFdGVE5iakUwX1Jia1lhbElKSnRmd01RQnlrV1NfM21FaWlLRGZ0Z2k3aFN2UXEzU0x3VmplSGd4ODRlLTNCRmU2TkxpS3g5WVNlY3FxQ0NsMzBjYUtv?oc=5",
+        "snippet": "Wall Street cae con fuerza por ventas en IA e incertidumbre sobre los aranceles de EE.UU.  HolaNews",
+        "engine": "google_news"
+      }
+    ]
   }
 }

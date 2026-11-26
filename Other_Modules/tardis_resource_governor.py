@@ -1031,9 +1031,9 @@ def _inspect_cgroup_units(
 
 
 def _swap_recycle_control_enabled() -> bool:
-    """True si el reciclaje seguro en reposo ante swap-bloat está habilitado (default ON)."""
-    raw = os.environ.get("TARDIS_GOVERNOR_SWAP_RECYCLE", "1").strip().lower()
-    return raw not in ("0", "false", "no", "off")
+    """Política Cero-Reinicios: deshabilitado por defecto (activar solo manualmente con TARDIS_GOVERNOR_SWAP_RECYCLE=1)."""
+    raw = os.environ.get("TARDIS_GOVERNOR_SWAP_RECYCLE", "0").strip().lower()
+    return raw in ("1", "true", "yes", "on")
 
 
 def _parse_proc_kb(status_text: str, key: str) -> float:
@@ -2344,10 +2344,10 @@ class TardisResourceGovernor:
                     })
                     continue
 
-                if dry_run or not force:
+                if dry_run:
                     actions.append({
                         "unit": unit,
-                        "action": "observed_no_auto_restart",
+                        "action": "would_recycle",
                         "idle_reason": idle_reason,
                         "swap_mb": row.get("swap_mb", 0.0),
                         "total_mb": row.get("total_mb", 0.0),
@@ -2977,12 +2977,9 @@ class TardisResourceGovernor:
                     logger.debug("Aviso en reconcile_gpu_eco: %s", exc_ge)
 
                 has_dups = bool(snap["inference_lanes"]["duplicate_models"])
-                has_swap_bloat = any(
-                    bool(u.get("recycle_eligible")) for u in (snap.get("memory_bloat_units") or [])
-                )
                 deferred_cooldown_ok = (now - last_deferred_reclaim) >= 60.0
                 if (has_dups and deferred_cooldown_ok) or (now - last_reclaim) >= reclaim_interval:
-                    if has_dups or has_swap_bloat or target_lvl is not None:
+                    if has_dups or target_lvl is not None:
                         res = self.reclaim_resources(dry_run=False, prune_backups=True)
                         unloaded = [e["model"] for e in res["models_evicted"] if e.get("action") == "unloaded"]
                         deferred = [e for e in res["models_evicted"] if e.get("action") == "unload_deferred_in_flight"]

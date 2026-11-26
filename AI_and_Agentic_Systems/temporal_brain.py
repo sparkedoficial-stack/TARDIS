@@ -57,6 +57,28 @@ OLLAMA_MODELS_DIR = Path(os.path.expanduser("~")) / ".ollama" / "models"
 
 
 # ==============================================================================
+def _resolve_safe_threads_batch(
+    eff_cpus: int,
+    gen_threads: int = 4,
+    configured: Optional[int] = None,
+) -> int:
+    """
+    Calcula `--threads-batch` dejando margen de 2 CPUs en cpuset >= 6 (p. ej. 8 CPUs -> máx 6)
+    para el hilo coordinador HTTP/CUDA de llama-server, eliminando picos 9/8 (`COEV-20261125-DB539A`).
+    """
+    eff = max(1, int(eff_cpus))
+    gen = max(1, min(int(gen_threads), eff))
+    if eff >= 6:
+        max_batch = eff - 2
+    elif eff >= 4:
+        max_batch = eff - 1
+    else:
+        max_batch = eff
+    cap = max(gen, max_batch)
+    req = int(configured) if configured is not None else max_batch
+    return max(gen, min(req, cap))
+
+
 # 1. GESTOR DE CONFIGURACIÓN DINÁMICA (HOT-RELOAD)
 # ==============================================================================
 
@@ -88,8 +110,8 @@ class TemporalBrainConfig:
                 "gpu_layers": 18,
                 "cache_type_k": "q8_0",
                 "cache_type_v": "q8_0",
-                "threads": 8,
-                "threads_batch": 16,
+                "threads": 4,
+                "threads_batch": 6,
                 "temperature": 0.25,
                 "max_tokens": 4096,
                 "auto_offload_cuda": True,
@@ -718,8 +740,12 @@ class TemporalBrain:
             eff_cpus = len(os.sched_getaffinity(0))
         except Exception:
             eff_cpus = os.cpu_count() or 8
-        raw_tb = int(self.config.get("threads_batch", min(8, max(2, eff_cpus))))
-        threads_batch = max(int(self.threads), min(raw_tb, max(2, eff_cpus)))
+        raw_tb_env = os.environ.get("TEMPORAL_THREADS_BATCH", "").strip()
+        if raw_tb_env.isdigit():
+            raw_tb = int(raw_tb_env)
+        else:
+            raw_tb = int(self.config.get("threads_batch", 6))
+        threads_batch = _resolve_safe_threads_batch(eff_cpus, int(self.threads), raw_tb)
 
         raw_cache_idle = os.environ.get("TEMPORAL_CACHE_IDLE_SLOTS", "").strip().lower()
         if raw_cache_idle in ("1", "true", "yes"):

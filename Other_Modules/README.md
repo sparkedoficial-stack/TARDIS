@@ -123,8 +123,6 @@ Módulos y componentes auxiliares del sistema.
 - **device_tracker_db.json**: Componente de alta eficiencia.
 - **distributed_compute.py**: Componente de alta eficiencia.
 - **doctor.py**: Componente de alta eficiencia.
-- **dossier_20261109_182340_228.json**: Componente de alta eficiencia.
-- **dossier_20261109_182349_666.json**: Componente de alta eficiencia.
 - **dossier_20261109_182421_905.json**: Componente de alta eficiencia.
 - **dossier_20261109_182452_032.json**: Componente de alta eficiencia.
 - **dossier_20261109_182515_723.json**: Componente de alta eficiencia.
@@ -1117,6 +1115,14 @@ Módulos y componentes auxiliares del sistema.
 - **dossier_20261125_183439_854.json**: Componente de alta eficiencia.
 - **dossier_20261125_183803_130.json**: Componente de alta eficiencia.
 - **dossier_20261125_185247_409.json**: Componente de alta eficiencia.
+- **dossier_20261125_201810_609.json**: Componente de alta eficiencia.
+- **dossier_20261125_201842_454.json**: Componente de alta eficiencia.
+- **dossier_20261125_201914_615.json**: Componente de alta eficiencia.
+- **dossier_20261125_201946_622.json**: Componente de alta eficiencia.
+- **dossier_20261125_202004_698.json**: Componente de alta eficiencia.
+- **dossier_20261125_202037_623.json**: Componente de alta eficiencia.
+- **dossier_20261125_202606_435.json**: Componente de alta eficiencia.
+- **dossier_20261125_204156_203.json**: Componente de alta eficiencia.
 - **dynamic_tools_registry.json**: Directorio y puente soberano de interoperabilidad omni-herramientas.
 - **ecca_v3_core.py**: Núcleo de orquestación y control temporal/espacial.
 - **embed_isotropy.py**: Componente de alta eficiencia.
