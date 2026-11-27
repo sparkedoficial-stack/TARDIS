@@ -1,38 +1,5 @@
 [
   {
-    "id": "conj_1794912746",
-    "timestamp": "2026-11-17T05:52:26.789792",
-    "idle_duration_minutes": 59.9,
-    "title": "Causal Retrieval Augmentation for the Web Research Engine",
-    "hypothesis": "Integrating a lightweight causal inference layer into the Web Research Engine will allow the system to model dependencies between query terms and retrieved documents, enabling dynamic query expansion based on inferred causal relationships. This should improve relevance scores for complex, multi‑concept queries and reduce noise introduced by purely lexical matching, especially in the context of the akáshic vault where semantic continuity across sessions is crucial.",
-    "research_query": "causal inference methods for query expansion in information retrieval",
-    "research_findings": "# Informe de Investigación: causal inference methods for query expansion in information retrieval\n\n## Fuentes Consultadas y Respaldo Web\n- **[Empowering clinical trial design with agentic intelligence and real-world data - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTFBOdDU1SnhleERnSzlBU1dhdFFrdGZSaFFhY25MdFhNendpVG5XQ1BFVHdwT2JBMmFiYVA3WkMweTZBbHBna1VneWJOWk13cVg0Rmk5eURFRTZacFFBcnZF?oc=5)**: Empowering clinical trial design with agentic intelligence and real-world data  Nature\n- **[An AI Agent for Automated Causal Inference in Epidemiology - medRxiv](https://news.google.com/rss/articles/CBMifEFVX3lxTE9RaFRNaS1lMDFIVHF3ZnBWT3ljR3NXNlpIQkFwcDZDVmp3ZmZEZTg3V0VMZUJ2bGVPSGdRb2VlaFhQQ21RUjBTYlUzOXNyOTc4UU1hX0lKcGQ1SGR0bFEwcFNrdWdQSEFmZzNUcFRWRFpTelltdkczblVzYm8?oc=5)**: An AI Agent for Automated Causal Inference in Epidemiology  medRxiv\n\n## Contenido y Hallazgos Extraídos\n### De [Google Noticias](https://news.google.com/rss/articles/CBMiX0FVX3lxTFBOdDU1SnhleERnSzlBU1dhdFFrdGZS",
-    "web_sources": [
-      "https://news.google.com/rss/articles/CBMiX0FVX3lxTFBOdDU1SnhleERnSzlBU1dhdFFrdGZSaFFhY25MdFhNendpVG5XQ1BFVHdwT2JBMmFiYVA3WkMweTZBbHBna1VneWJOWk13cVg0Rmk5eURFRTZacFFBcnZF?oc=5",
-      "https://news.google.com/rss/articles/CBMifEFVX3lxTE9RaFRNaS1lMDFIVHF3ZnBWT3ljR3NXNlpIQkFwcDZDVmp3ZmZEZTg3V0VMZUJ2bGVPSGdRb2VlaFhQQ21RUjBTYlUzOXNyOTc4UU1hX0lKcGQ1SGR0bFEwcFNrdWdQSEFmZzNUcFRWRFpTelltdkczblVzYm8?oc=5"
-    ],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal graph construction step that extracts term‑to‑term causal edges from recent search logs, then use this graph to weight candidate documents during ranking. Implement a new class `CausalQueryExpander` with methods `build_graph()`, `expand_query(query)` and integrate it into the existing `search()` pipeline.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 1761.13
-  },
-  {
-    "id": "conj_1794917699",
-    "timestamp": "2026-11-17T07:14:59.441259",
-    "idle_duration_minutes": 82.5,
-    "title": "Causal Cache Invalidation for Web Research Engine",
-    "hypothesis": "Integrating a causal inference layer into the Web Research Engine's caching mechanism can dynamically predict the obsolescence of stored search results based on detected changes in source domains (e.g., content updates, SEO shifts). By modeling the probability that a cached entry is stale as a function of observable signals (HTTP headers, content digests, link graph changes), the system can proactively invalidate or refresh entries, reducing latency while maintaining a freshness >95% for high‑traffic queries.",
-    "research_query": "causal inference based cache invalidation techniques for web scraping and search result caching",
-    "research_findings": "# Informe de Investigación: causal inference based cache invalidation techniques for web scraping and search result caching\n\n## Fuentes Consultadas y Respaldo Web\n\n## Contenido y Hallazgos Extraídos",
-    "web_sources": [],
-    "code_target": "core/web_research_engine.py",
-    "code_goal": "Add a causal‑based invalidation module that monitors source change signals and updates the cache eviction policy accordingly.",
-    "evolution_status": "REJECTED",
-    "model_used": "cloud_api_first",
-    "elapsed_seconds": 3152.6
-  },
-  {
     "id": "conj_1794921522",
     "timestamp": "2026-11-17T08:18:42.263750",
     "idle_duration_minutes": 63.7,
@@ -1647,5 +1614,41 @@
     "evolution_status": "REJECTED",
     "model_used": "cloud_api_first",
     "elapsed_seconds": 1271.06
+  },
+  {
+    "id": "conj_1795723919",
+    "timestamp": "2026-11-26T15:11:59.944942",
+    "idle_duration_minutes": 164.3,
+    "title": "Temporal Causal Embedding Fusion in Chronovision",
+    "hypothesis": "Integrating short‑term temporal embeddings from Chronovision with long‑term patterns stored in DeepMemoryVault improves causal inference accuracy for real‑time event prediction.",
+    "research_query": "how to combine temporal embeddings with persistent memory for causal inference in AI systems",
+    "research_findings": "# Informe de Investigación: how to combine temporal embeddings with persistent memory for causal inference in AI systems\n\n## Fuentes Consultadas y Respaldo Web\n- **[Vol. 40 No. 47: AAAI-26 New Faculty Highlights, Journal Track, IAAI-26 and EAAI-26 Main Track - The Association for the Advancement of Artificial Intelligence](https://news.google.com/rss/articles/CBMiX0FVX3lxTE9vRDQzYmtHMUVCdTFkZEozcVVsQXdVcWZqbmJSWU5GUXB2UGtiR2RxYWRXN1M0bXY4MkNVVkVfRW1RcEU0aFBCcFBlTUZuR1ktTk5EbE1TTnBJNF9obVBV?oc=5)**: Vol. 40 No. 47: AAAI-26 New Faculty Highlights, Journal Track, IAAI-26 and EAAI-26 Main Track  The Association for the Advancement of Artificial Intelligence\n- **[World model (artificial intelligence) (Wikipedia)](https://en.wikipedia.org/wiki/World_model_%28artificial_intelligence%29)**: into embeddings. A predictor estimates one or a suite of embeddings from the current one and an action. In some cases a critic chooses one embedding as\n\n## Contenido y Hallazgos Extraídos\n### De [Google Not",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE9vRDQzYmtHMUVCdTFkZEozcVVsQXdVcWZqbmJSWU5GUXB2UGtiR2RxYWRXN1M0bXY4MkNVVkVfRW1RcEU0aFBCcFBlTUZuR1ktTk5EbE1TTnBJNF9obVBV?oc=5",
+      "https://en.wikipedia.org/wiki/World_model_%28artificial_intelligence%29"
+    ],
+    "code_target": "core/chronovision_engine.py",
+    "code_goal": "Add a hybrid embedding layer that merges Chronovision's temporal vectors with DeepMemoryVault's long‑term context, including async caching and fallback to stored patterns",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 32414.82
+  },
+  {
+    "id": "conj_1795783121",
+    "timestamp": "2026-11-27T07:38:41.264951",
+    "idle_duration_minutes": 715.0,
+    "title": "Integrating Temporal Causal Graphs into Chronovision for Predictive Vault Retrieval",
+    "hypothesis": "Embedding a temporal causal graph within the Chronovision engine will enable anticipatory queries to the akáshic vault, improving relevance of retrieved memories by 30%.",
+    "research_query": "temporal causal graph predictive retrieval neural memory systems",
+    "research_findings": "# Informe de Investigación: temporal causal graph predictive retrieval neural memory systems\n\n## Fuentes Consultadas y Respaldo Web\n- **[Causal inference-integrated temporal graph convolutional networks for dynamic prediction and optimization of enterprise total factor productivity - Nature](https://news.google.com/rss/articles/CBMiX0FVX3lxTFA2Sm9XbGF4d1RINV84eURTTmNLTFJnZk5teTUwajZpMUhadFBDZzJHQXM2TmE2b3NTR0lDUUtFRFZQTVhEYWhSVjVGeWtKWUFNaU5LZDd5Q3hJdllqNGdV?oc=5)**: Causal inference-integrated temporal graph convolutional networks for dynamic prediction and optimization of enterprise total factor productivity  Nature\n- **[Vol. 40 No. 27: AAAI-26 Technical Tracks 27 - The Association for the Advancement of Artificial Intelligence](https://news.google.com/rss/articles/CBMiX0FVX3lxTE9SQzlTeXkzNVJBNUV4Zkg5bTRuN2F3bURGNXN1UlA0ZlgwR2lQUndSSzJTM0U4eG1BbUN6Mm9pWTBqSlhLUUZIdm55Yks3dUp4R1EyUHh6X1V4LU9hUGpN?oc=5)**: Vol. 40 No. 27: AAAI-26 Technical Tracks 27  The Association for the Advancement",
+    "web_sources": [
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTFA2Sm9XbGF4d1RINV84eURTTmNLTFJnZk5teTUwajZpMUhadFBDZzJHQXM2TmE2b3NTR0lDUUtFRFZQTVhEYWhSVjVGeWtKWUFNaU5LZDd5Q3hJdllqNGdV?oc=5",
+      "https://news.google.com/rss/articles/CBMiX0FVX3lxTE9SQzlTeXkzNVJBNUV4Zkg5bTRuN2F3bURGNXN1UlA0ZlgwR2lQUndSSzJTM0U4eG1BbUN6Mm9pWTBqSlhLUUZIdm55Yks3dUp4R1EyUHh6X1V4LU9hUGpN?oc=5"
+    ],
+    "code_target": "core/chronovision_engine.py",
+    "code_goal": "Implement a lightweight DAG structure with time‑weighted edges and a caching layer for recurrent causal paths",
+    "evolution_status": "REJECTED",
+    "model_used": "cloud_api_first",
+    "elapsed_seconds": 52871.26
   }
 ]

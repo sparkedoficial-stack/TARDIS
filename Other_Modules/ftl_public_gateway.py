@@ -455,6 +455,10 @@ async def gateway(request: web.Request) -> web.StreamResponse:
 
     # Mini App de Llamadas (/tg-call), Videollamadas (/tg-videocall) y Cámara (/tg-cam) de Telegram:
     # validación HMAC + Telegram initData en su propio upstream.
+    # IMPORTANTE: la tabla de rutas del handler debe mantenerse SINCRONIZADA con
+    # `_upstream_for` (misma lista de prefixes). Si falta una ruta acá, la request
+    # cae al flujo de autenticación soberana y responde 401, rompiendo la carga de
+    # las videollamadas/voz vía túnel público (cloudflared -> gateway :7690).
     if (
         request.path == TG_CALL_PREFIX
         or request.path.startswith(TG_CALL_PREFIX + "/")
@@ -462,6 +466,10 @@ async def gateway(request: web.Request) -> web.StreamResponse:
         or request.path.startswith(TG_VIDEOCALL_PREFIX + "/")
         or request.path == TG_CAM_PREFIX
         or request.path.startswith(TG_CAM_PREFIX + "/")
+        or request.path == "/voz"
+        or request.path.startswith("/voz/")
+        or request.path == "/videollamada"
+        or request.path.startswith("/videollamada/")
     ):
         if is_ws:
             return await _proxy_ws(request, session, install_cookie=False)

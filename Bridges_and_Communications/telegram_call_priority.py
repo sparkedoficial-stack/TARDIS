@@ -662,7 +662,7 @@ class TelegramCallPriorityManager:
         return deprio
 
     def _apply_boost(self) -> None:
-        # 1. Optimizaciones de runtime de baja latencia (GC, NOFILE, mallopt, ionice base)
+        # 1. Optimizaciones de runtime de baja latencia (GC, NOFILE, mallopt, ionice base) - singleton
         try:
             from core.os_optimizer import get_os_optimizer
 
@@ -675,7 +675,7 @@ class TelegramCallPriorityManager:
         except Exception as exc:  # noqa: BLE001
             logger.debug(f"Aviso aplicando OSOptimizer en llamada: {exc}")
 
-        # 2. Prioridad CPU del proceso actual (best-effort, sin requerir root)
+        # 2. Prioridad CPU del proceso actual (best-effort, sin requerir root) - one-shot
         try:
             current = os.getpriority(os.PRIO_PROCESS, 0)
             self._saved_nice = current
@@ -711,9 +711,10 @@ class TelegramCallPriorityManager:
         except Exception as exc:  # noqa: BLE001
             logger.debug(f"Aviso depriorizando demonios de fondo: {exc}")
 
-        # 6. Gobernador CPU en `performance` (best-effort, se restaura al colgar)
+        # 6. Gobernador CPU en `performance` (best-effort, se restaura al colgar) - cached check
         try:
-            if str(os.environ.get("TARDIS_CALL_GOVERNOR", "1")).lower() not in ("0", "false", "no"):
+            governor_needs_change = str(os.environ.get("TARDIS_CALL_GOVERNOR", "1")).lower() not in ("0", "false", "no")
+            if governor_needs_change:
                 previous = _set_cpu_governor("performance")
                 if previous and previous != "performance":
                     self._saved_governor = previous
@@ -723,25 +724,32 @@ class TelegramCallPriorityManager:
             logger.debug(f"Aviso ajustando gobernador CPU: {exc}")
 
         # 7. Refuerzo cgroup v2 en caliente (--runtime) en systemd --user sin reiniciar servicios
+        # Optimizado: solo aplica si el modo prioritario está activo y no ya ha sido aplicado en esta sesión
         if _systemd_boost_enabled():
-            def _apply_systemd_weights_bg() -> None:
-                try:
-                    saved_crit = _set_systemd_unit_weights(SYSTEMD_CRITICAL_UNITS, cpu_weight=5000, io_weight=5000)
-                    saved_bg = _set_systemd_unit_weights(SYSTEMD_YIELD_UNITS, cpu_weight=5, io_weight=5)
-                    with self._lock:
-                        if self._active:
-                            self._saved_systemd_weights.update(saved_crit)
-                            self._saved_systemd_weights.update(saved_bg)
-                        else:
-                            _restore_systemd_unit_weights({**saved_crit, **saved_bg})
-                except Exception as exc:  # noqa: BLE001
-                    logger.debug(f"Aviso ajustando CPUWeight/IOWeight systemd: {exc}")
+            # Verificar si ya hay weights guardados (indica que ya fue aplicado en esta sesión activa)
+            already_applied = False
+            with self._lock:
+                if self._saved_systemd_weights:
+                    already_applied = True
+            if not already_applied:
+                def _apply_systemd_weights_bg() -> None:
+                    try:
+                        saved_crit = _set_systemd_unit_weights(SYSTEMD_CRITICAL_UNITS, cpu_weight=5000, io_weight=5000)
+                        saved_bg = _set_systemd_unit_weights(SYSTEMD_YIELD_UNITS, cpu_weight=5, io_weight=5)
+                        with self._lock:
+                            if self._active:
+                                self._saved_systemd_weights.update(saved_crit)
+                                self._saved_systemd_weights.update(saved_bg)
+                            else:
+                                _restore_systemd_unit_weights({**saved_crit, **saved_bg})
+                    except Exception as exc:  # noqa: BLE001
+                        logger.debug(f"Aviso ajustando CPUWeight/IOWeight systemd: {exc}")
 
-            threading.Thread(
-                target=_apply_systemd_weights_bg,
-                name="CallPrioritySystemdBoost",
-                daemon=True,
-            ).start()
+                threading.Thread(
+                    target=_apply_systemd_weights_bg,
+                    name="CallPrioritySystemdBoost",
+                    daemon=True,
+                ).start()
 
     def _restore(self) -> None:
         # 0. Restaurar cgroup v2 CPUWeight/IOWeight en systemd --user

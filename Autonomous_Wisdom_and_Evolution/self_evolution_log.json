@@ -1,34 +1,6 @@
 [
   {
     "target_file": "/home/m11/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
-    "goal": "Add an async callback that logs result usage to deep_memory_vault, compute a lightweight causal impact score, and adjust the ranking weights before returning results.",
-    "status": "REJECTED",
-    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
-    "elapsed_seconds": 2211.72,
-    "backup_path": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/web_research_engine.py.20261117_014815.bak",
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Respuesta generada demasiado corta (2656 vs 35266 bytes)",
-    "timestamp": "2026-11-17T02:25:06.858738"
-  },
-  {
-    "target_file": "/home/m11/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
-    "goal": "Add a ContextualPromptInjector class that extracts the latest 5 memory embeddings from deep_memory_vault, compresses them with a small transformer encoder, and injects the resulting token sequence into every outbound LLM prompt used for web research. Also expose a configuration flag in network_shield to toggle the feature.",
-    "status": "REJECTED",
-    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
-    "elapsed_seconds": 2269.24,
-    "backup_path": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/web_research_engine.py.20261117_025539.bak",
-    "syntax_valid": false,
-    "tests_passed": null,
-    "test_output": null,
-    "efficiency_improvement": null,
-    "error": "Respuesta generada demasiado corta (2624 vs 35266 bytes)",
-    "timestamp": "2026-11-17T03:33:29.098180"
-  },
-  {
-    "target_file": "/home/m11/Escritorio/GODWORKS SYSTEM/core/web_research_engine.py",
     "goal": "Implementar un módulo de puntuación causal que, usando la librería DoWhy, calcule un score de relevancia causal para cada URL obtenida y reordene los resultados antes de la extracción de contenido.",
     "status": "REJECTED",
     "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
@@ -1398,5 +1370,33 @@
     "efficiency_improvement": null,
     "error": "Respuesta generada demasiado corta (5269 vs 127835 bytes)",
     "timestamp": "2026-11-26T05:41:45.064477"
+  },
+  {
+    "target_file": "/home/m11/Escritorio/GODWORKS SYSTEM/core/chronovision_engine.py",
+    "goal": "Add a hybrid embedding layer that merges Chronovision's temporal vectors with DeepMemoryVault's long‑term context, including async caching and fallback to stored patterns",
+    "status": "REJECTED",
+    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
+    "elapsed_seconds": 32407.69,
+    "backup_path": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/core__chronovision_engine.py.20261126_061152.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "Respuesta generada demasiado corta (9712 vs 127835 bytes)",
+    "timestamp": "2026-11-26T15:11:59.921101"
+  },
+  {
+    "target_file": "/home/m11/Escritorio/GODWORKS SYSTEM/core/chronovision_engine.py",
+    "goal": "Implement a lightweight DAG structure with time‑weighted edges and a caching layer for recurrent causal paths",
+    "status": "REJECTED",
+    "model_used": "temporal_brain (TARDIS-NEURAL-SPACE-KAIJU)",
+    "elapsed_seconds": 52866.13,
+    "backup_path": "/home/m11/Escritorio/GODWORKS SYSTEM/_selfmod_backups/core__chronovision_engine.py.20261126_165735.bak",
+    "syntax_valid": false,
+    "tests_passed": null,
+    "test_output": null,
+    "efficiency_improvement": null,
+    "error": "Respuesta generada demasiado corta (9564 vs 127835 bytes)",
+    "timestamp": "2026-11-27T07:38:41.241803"
   }
 ]

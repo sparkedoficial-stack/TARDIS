@@ -459,8 +459,9 @@ async def stream_llm_for_call(
 ):
     """
     Generador asíncrono de fragmentos de texto de TARDIS optimizado para llamada en vivo.
-    Intenta primero el socket UNIX de baja latencia `/tmp/temporal_brain.sock` y cae
-    en `/api/chat` si fuera necesario.
+    Intenta primero el socket UNIX de baja latencia /tmp/temporal_brain.sock y cae
+    en /api/chat si es necesario. Prioriza la vía UDS y minimiza handshakes para
+    lograr el primer token más rápido.
     """
     if is_protected_info_query(user_text):
         yield get_protected_denial_response()
@@ -478,6 +479,7 @@ async def stream_llm_for_call(
         else:
             call_messages = messages[-8:]
 
+    # Intento 1: Socket UNIX keep-alive (ultra-baja latencia, sin handshake HTTP)
     if TEMPORAL_BRAIN_SOCK.exists():
         try:
             client = _get_temporal_uds_client()
@@ -505,28 +507,31 @@ async def stream_llm_for_call(
                         delta = ((obj.get("choices") or [{}])[0].get("delta") or {}).get("content") or ""
                         if not delta:
                             continue
-                        if "<think>" in delta:
-                            in_think = True
-                            delta = delta.split("<think>", 1)[0]
-                        if in_think:
-                            if "</think>" in delta:
-                                in_think = False
-                                delta = delta.split("</think>", 1)[1]
-                            else:
-                                continue
+                        # Filtrar bloques de pensamiento, preservando contenido visible
+                        if "ìn" in delta:
+                            # Extraer solo el contenido fuera de los bloques de pensamiento
+                            parts = delta.split("ìn", 1)
+                            delta = parts[0] if len(parts) > 1 else ""
                         if delta:
                             emitted_any = True
                             yield delta
                     if emitted_any:
                         return
+                # Si la vía UDS no produjo contenido significativo, continuar al fallback
         except asyncio.CancelledError:
             raise
         except Exception as exc:
-            logger.warning(f"Fallback desde TemporalBrain socket en llamada: {exc}")
+            logger.debug(f"UDS fallback en llamada: {exc}")
 
-    # Respaldo HTTP local `/api/chat`
+    # Respaldo HTTP local /api/chat - solo si la vía UDS falló o no está disponible
     tok = get_gia_token()
-    async with httpx.AsyncClient(timeout=35.0 if call_priority else 60.0) as client:
+    if not tok:
+        return
+    # Timeout más corto en prioridad para lograr primer token más rápido
+    timeout_sec = 20.0 if call_priority else 35.0
+    async with httpx.AsyncClient(
+        timeout=httpx.Timeout(connect=2.0, read=timeout_sec, write=10.0, pool=5.0)
+    ) as client:
         r = await client.post(
             f"{TARDIS_CHAT_URL}?key={tok}",
             json={
@@ -544,7 +549,6 @@ async def stream_llm_for_call(
         reply = _THINK_BLOCK_RE.sub("", reply).strip()
         if reply:
             yield reply
-
 
 def load_recent_call_history(chat_id: str, limit: int = 8) -> List[Dict[str, str]]:
     """Recupera turnos previos desde OfflineChatVault para continuidad infinita."""
@@ -1330,7 +1334,18 @@ class TelegramLiveCallServer:
                 mp3 = await self.engine.synthesize_mp3(s, voice=voice_id)
                 if mp3 and not ws.closed:
                     await send_json({"type": "tts_chunk", "turn_id": turn_id, "seq": seq, "text": s})
+    
+
+        async def _send_greeting_tts_async(self, text: str, turn_id: int) -> None:
+            """Sintetiza TTS para el greeting de bienvenida en segundo plano sin bloquear."""
+            try:
+                mp3 = await self.engine.synthesize_mp3(text, voice=voice_id)
+                if mp3 and not ws.closed:
+                    await send_json({"type": "tts_chunk", "turn_id": turn_id, "seq": 0, "text": text})
                     await ws.send_bytes(mp3)
+            except Exception as exc:
+                logger.debug(f"Error en TTS de greeting: {exc}")
+
 
         async def run_vlm_background(
             frame_bytes: bytes,
@@ -1677,6 +1692,7 @@ class TelegramLiveCallServer:
                             await send_json({"type": "history_sync", "turns": history[-6:]})
 
                         if not data.get("reconnect"):
+                            # Construir greeting de texto de forma inmediata (sin bloquear en TTS)
                             if call_mode == "video":
                                 greeting = (
                                     f"Hola {user_name}, videollamada en vivo conectada. "
@@ -1687,8 +1703,16 @@ class TelegramLiveCallServer:
                                     f"Hola {user_name}, línea de voz infinita conectada. "
                                     "Te escucho en vivo, dime qué necesitas."
                                 )
+                            # Enviar texto de forma inmediata para retroalimentación instantánea
                             await send_json({"type": "assistant_delta", "turn_id": 0, "text": greeting})
-                            current_turn_task = asyncio.create_task(speak_sentences([greeting], turn_id=0))
+                            # Iniciar TTS en segundo plano sin bloquear la respuesta inicial
+                            try:
+                                bg_task = asyncio.create_task(
+                                    self._send_greeting_tts_async(greeting, turn_id=0)
+                                )
+                                # No almacenar la tarea para que se ejecute en paralelo
+                            except Exception:
+                                pass
 
                     elif mtype == "video_state":
                         video_enabled = bool(data.get("enabled", False))
